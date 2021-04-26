@@ -4,8 +4,8 @@
 
 #include <tlrRender/FontSystem.h>
 
-#include <Fonts/NotoMono-Regular.h>
-#include <Fonts/NotoSans-Regular.h>
+#include <Fonts/NotoMono-Regular.font>
+#include <Fonts/NotoSans-Regular.font>
 
 namespace tlr
 {
