@@ -11,6 +11,11 @@ timeline and play it back in a window. A HUD (heads up display), keyboard
 shortcuts, and command line options provide a simple UI to control the
 application. 
 
+The project is written in C++ and uses OpenGL for rendering. OpenTimelineIO
+(https://github.com/PixarAnimationStudios/OpenTimelineIO), FFmpeg (https://ffmpeg.org/),
+and other open source libraries are used for file I/O. The tlRender code is
+provided under a BSD style open source license.
+
 ![tlrplay](etc/Images/tlrplay_screenshot1.jpg)
 
 Currently Supported
@@ -34,11 +39,11 @@ To Do
 Dependencies
 ------------
 * OpenTimelineIO - https://github.com/PixarAnimationStudios/OpenTimelineIO
-* FFmpeg - https://ffmpeg.org/
-* GLFW - https://www.glfw.org/
+* FFmpeg - https://ffmpeg.org
+* GLFW - https://www.glfw.org
 * glad - https://github.com/Dav1dde/glad
-* FreeType - https://www.freetype.org/
-* ZLIB - https://zlib.net/
+* FreeType - https://www.freetype.org
+* ZLIB - https://zlib.net
 * FSeq - https://github.com/darbyjohnston/FSeq
 
 A CMake super build script is provided to build the dependencies from source.
