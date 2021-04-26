@@ -2,8 +2,6 @@ set(HEADERS
     FontSystem.h
     Mesh.h
     MeshInline.h
-    NotoMono-Regular.h
-    NotoSans-Regular.h
     OffscreenBuffer.h
     OffscreenBufferInline.h
     Render.h

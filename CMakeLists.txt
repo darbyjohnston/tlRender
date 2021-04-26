@@ -17,7 +17,7 @@ endif()
 if(TLR_BUILD_TESTS)
     enable_testing()
 endif()
-include_directories(${PROJECT_SOURCE_DIR}/lib)
+include_directories(${PROJECT_SOURCE_DIR}/lib ${PROJECT_SOURCE_DIR}/etc)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Dependencies
