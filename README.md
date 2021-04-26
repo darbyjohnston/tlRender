@@ -1,6 +1,3 @@
-::::::::::::::
-README.md
-::::::::::::::
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.o
 rg/licenses/BSD-3-Clause)
 
@@ -15,6 +12,7 @@ timeline and play it back in a window. A HUD (heads up display), keyboard
 shortcuts, and command line options provide a simple UI to control the
 application. 
 
+![tlrplay](etc/Images/tlrplay_screenshot1.jpg)
 
 Currently Supported
 -------------------
