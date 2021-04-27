@@ -36,7 +36,7 @@ else()
         FFmpeg
         PREFIX ${CMAKE_CURRENT_BINARY_DIR}/FFmpeg
         DEPENDS ${FFmpeg_DEPS}
-        URL http://ffmpeg.org/releases/ffmpeg-4.4.tar.bz2
+        URL https://ffmpeg.org/releases/ffmpeg-4.4.tar.bz2
         CONFIGURE_COMMAND ./configure ${FFmpeg_CONFIGURE_ARGS}
         BUILD_IN_SOURCE 1)
 endif()
