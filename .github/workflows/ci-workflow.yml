@@ -1,0 +1,39 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Update
+      run: sudo apt-get update
+
+    - name: Install lcov
+      run: sudo apt-get install lcov
+
+    - name: Install OpenGL dev
+      run: sudo apt-get install xorg-dev libglu1-mesa-dev mesa-common-dev
+
+    - name: Install Python dev
+      run: sudo apt-get install python3.8-dev
+
+    - name: Build tlRender
+      run: >
+        mkdir build &&
+        cd build &&
+        export PATH=$PATH:$PWD/install/bin &&
+        export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH &&
+        export PYTHONPATH=$PWD/install/lib:$PYTHONPATH &&
+        cmake ../etc/SuperBuild -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install &&
+        cmake --build . -j 4
+
+    - name: Run tests
+      run: >
+        cd build &&
+        cd tlRender/src/tlRender-build &&
+        cmake --build . --target test &&
+        cat Testing/Temporary/LastTest.log
