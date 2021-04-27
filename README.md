@@ -62,12 +62,12 @@ $ git clone https://github.com/darbyjohnston/tlRender.git
 ```
 Create a build directory:
 ```
-$ mkdir tlRender-build
-$ cd tlRender-build
+$ mkdir tlRender-Debug
+$ cd tlRender-Debug
 ```
 Run CMake with the super build script:
 ```
-$ cmake ../tlRender/etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install
+$ cmake ../tlRender/etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install -DCMAKE_BUILD_TYPE=Debug
 ```
 Start the build:
 ```
@@ -88,12 +88,12 @@ $ git clone https://github.com/darbyjohnston/tlRender.git
 ```
 Create a build directory:
 ```
-$ mkdir tlRender-build
-$ cd tlRender-build
+$ mkdir tlRender-Debug
+$ cd tlRender-Debug
 ```
 Run CMake with the super build script:
 ```
-$ cmake ../tlRender/etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install
+$ cmake ../tlRender/etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install -DCMAKE_BUILD_TYPE=Debug
 ```
 Start the build:
 ```
@@ -106,6 +106,33 @@ $ ./install/bin/tlrplay ../tlRender/etc/SampleData/multiple_clips.otio -ws 4
 ```
 
 
+Building FFmepg on Windows
+--------------------------
+Most of the third party software that tlRender depends upon is built as part
+of the CMake super build, except for FFmpeg on Windows. Instead the Windows
+Subsystem for Linux (WSL) is used to compile FFmpeg as a separate step before
+the CMake super build.
+
+Enable the Windows Subsystem for Linux:
+
+* Open the Windows control panel and click on "Programs and Features"
+* Click on "Turn Windows features on or off" on the left side of the "Programs and Features" window
+* Check the "Windows Subsystem for Linux" item in the "Windows Features" window
+* Restart your computer
+
+Install Ubuntu from the Windows app store, then open a shell and install necessary software:
+```
+$ sudo apt update
+$ sudo apt install mingw-w64 yasm make unzip
+```
+
+Build FFmpeg, replacing $SOURCE_DIR and $BUILD_DIR with the same directories used in the
+"Building on Windows" section:
+```
+> $SOURCE_DIR/etc/Windows/build_ffmpeg_wsl.sh $BUILD_DIR/install
+```
+
+
 Building on Windows
 -------------------
 Clone the repository:
@@ -114,12 +141,12 @@ Clone the repository:
 ```
 Create a build directory:
 ```
-> mkdir tlRender-build
-> cd tlRender-build
+> mkdir tlRender-Debug
+> cd tlRender-Debug
 ```
 Run CMake with the super build script:
 ```
-> cmake ../tlRender/etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=%CD%/install -DCMAKE_PREFIX_PATH=%CD%/install
+> cmake ../tlRender/etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=%CD%/install -DCMAKE_PREFIX_PATH=%CD%/install -DCMAKE_BUILD_TYPE=Debug
 ```
 Start the build:
 ```
@@ -127,7 +154,7 @@ Start the build:
 ```
 Try running the "tlrplay" application:
 ```
-> set PATH=%CD%\install\bin;%PATH%
+> set PATH=%CD%\install\bin;%CD%\install\lib;%PATH%
 > .\install\bin\tlrplay ..\tlRender\etc\SampleData\multiple_clips.otio -ws 4
 ```
 
