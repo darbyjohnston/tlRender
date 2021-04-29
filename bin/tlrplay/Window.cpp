@@ -85,7 +85,7 @@ namespace tlr
         _frameBufferSize.h = height;
         glfwGetWindowContentScale(_glfwWindow, &_contentScale.x, &_contentScale.y);
         glfwSetFramebufferSizeCallback(_glfwWindow, _frameBufferSizeCallback);
-        glfwSetWindowContentScaleCallback(_glfwWindow, _widnowContentScaleCallback);
+        glfwSetWindowContentScaleCallback(_glfwWindow, _windowContentScaleCallback);
         if (_options.fullScreen)
         {
             _fullscreenWindow();
@@ -183,7 +183,7 @@ namespace tlr
         app->_renderDirty = true;
     }
 
-    void App::_widnowContentScaleCallback(GLFWwindow* glfwWindow, float x, float y)
+    void App::_windowContentScaleCallback(GLFWwindow* glfwWindow, float x, float y)
     {
         App* app = reinterpret_cast<App*>(glfwGetWindowUserPointer(glfwWindow));
         app->_contentScale.x = x;

@@ -68,7 +68,7 @@ namespace tlr
         void _normalWindow();
         void _fullscreenCallback(bool);
         static void _frameBufferSizeCallback(GLFWwindow*, int, int);
-        static void _widnowContentScaleCallback(GLFWwindow*, float, float);
+        static void _windowContentScaleCallback(GLFWwindow*, float, float);
         static void _keyCallback(GLFWwindow*, int, int, int, int);
         void _shortcutsHelp();
 
