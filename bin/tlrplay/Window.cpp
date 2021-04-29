@@ -56,14 +56,17 @@ namespace tlr
             throw std::runtime_error("Cannot initialize GLFW");
         }
 
+        GLFWmonitor* glfwMonitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* glfwVidmode = glfwGetVideoMode(glfwMonitor);
+        _windowSize.w = std::min(static_cast<int>(_info.size.w * _options.windowScale), glfwVidmode->width);
+        _windowSize.h = std::min(static_cast<int>(_info.size.h * _options.windowScale), glfwVidmode->height);
+
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
         //glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
-        _windowSize.w = _info.size.w * _options.windowScale;
-        _windowSize.h = _info.size.h * _options.windowScale;
         _glfwWindow = glfwCreateWindow(
             _windowSize.w,
             _windowSize.h,
