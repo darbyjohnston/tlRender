@@ -255,12 +255,12 @@ namespace tlr
                                 const std::string& target_url = externalRef->target_url();
                                 if (auto read = _ioSystem->read(target_url))
                                 {
-                                    const auto clipRange = clip->trimmed_range(&errorStatus);
-                                    read->seek(clipRange.start_time());
+                                    const auto time = _flattenedTimeline.value->transformed_time(_currentTime, clip, &errorStatus);
                                     if (errorStatus != otio::ErrorStatus::OK)
                                     {
                                         throw std::runtime_error(errorStatus.full_description);
                                     }
+                                    read->seek(time);
                                     _readers.push_back(std::make_pair(clip, read));
                                     {
                                         std::stringstream ss;
@@ -332,16 +332,31 @@ namespace tlr
 
     void App::_seek(const otime::RationalTime& value)
     {
-        const auto tmp = otime::RationalTime(
-            std::min(std::max(value.value(), 0.0), _duration.value() - 1.0),
-            _duration.rate());
+        auto tmp = value;
+        if (tmp.value() >= _duration.value())
+        {
+            tmp = otime::RationalTime(0, _duration.rate());
+        }
+        else if (tmp.value() < 0.0)
+        {
+            tmp = otime::RationalTime(_duration.value() - 1, _duration.rate());
+        }
         if (tmp == _currentTime)
             return;
+
         _currentTime = tmp;
+
         for (const auto& i : _readers)
         {
-            i.second->seek(_currentTime);
+            otio::ErrorStatus errorStatus;
+            auto time = _flattenedTimeline.value->transformed_time(_currentTime, i.first, &errorStatus);
+            if (errorStatus != otio::ErrorStatus::OK)
+            {
+                throw std::runtime_error(errorStatus.full_description);
+            }
+            i.second->seek(time);
         }
+
         switch (_playback)
         {
         case Playback::Forward:
@@ -350,6 +365,7 @@ namespace tlr
             break;
         default: break;
         }
+
         /*{
             std::stringstream ss;
             otime::ErrorStatus errorStatus;

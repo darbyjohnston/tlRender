@@ -192,15 +192,15 @@ namespace tlr
             case GLFW_KEY_HOME:
                 app->_seek(otime::RationalTime(0, app->_duration.rate()));
                 break;
-            //case GLFW_KEY_END:
-            //    app->_seek(app->_duration - otime::RationalTime(1, app->_duration.rate()));
-            //    break;
-            //case GLFW_KEY_LEFT:
-            //    app->_seek(app->_currentTime - otime::RationalTime(1, app->_duration.rate()));
-            //    break;
-            //case GLFW_KEY_RIGHT:
-            //    app->_seek(app->_currentTime + otime::RationalTime(1, app->_duration.rate()));
-            //    break;
+            case GLFW_KEY_END:
+                app->_seek(app->_duration - otime::RationalTime(1, app->_duration.rate()));
+                break;
+            case GLFW_KEY_LEFT:
+                app->_seek(app->_currentTime - otime::RationalTime(1, app->_duration.rate()));
+                break;
+            case GLFW_KEY_RIGHT:
+                app->_seek(app->_currentTime + otime::RationalTime(1, app->_duration.rate()));
+                break;
             }
         }
     }
@@ -217,9 +217,9 @@ namespace tlr
             "    Space  - Start/stop playback\n"
             "    L      - Loop playback\n"
             "    Home   - Go to the start time\n"
-            //"    End    - Go to the end time\n"
-            //"    Left   - Go to the previous frame\n"
-            //"    Right  - Go to the next frame\n"
+            "    End    - Go to the end time\n"
+            "    Left   - Go to the previous frame\n"
+            "    Right  - Go to the next frame\n"
             "\n";
     }
 }
