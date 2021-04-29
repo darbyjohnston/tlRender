@@ -67,12 +67,15 @@ namespace tlr
         void _fullscreenWindow();
         void _normalWindow();
         void _fullscreenCallback(bool);
+        static void _frameBufferSizeCallback(GLFWwindow*, int, int);
+        static void _widnowContentScaleCallback(GLFWwindow*, float, float);
         static void _keyCallback(GLFWwindow*, int, int, int, int);
         void _shortcutsHelp();
 
         void _tick();
 
         void _updateReaders();
+        void _updateHUD();
 
         void _renderVideo();
         void _renderHUD();
@@ -88,6 +91,7 @@ namespace tlr
         void _playbackCallback(Playback);
         void _loopPlaybackCallback(bool);
         void _seek(const otime::RationalTime&);
+        void _seekCallback(const otime::RationalTime&);
 
         void _print(const std::string&);
         void _printVerbose(const std::string&);
@@ -112,6 +116,9 @@ namespace tlr
         std::vector<Reader> _readers;
         std::shared_ptr<render::FontSystem> _fontSystem;
         std::shared_ptr<render::Render> _render;
+        bool _renderDirty = true;
+        std::shared_ptr<imaging::Image> _currentImage;
+        std::map<app::HUDElement, std::string> _hudLabels;
 
         bool _running = true;
         std::chrono::steady_clock::time_point _startTime;

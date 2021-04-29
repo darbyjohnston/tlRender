@@ -8,6 +8,7 @@
 
 #include <tlrCore/Assert.h>
 #include <tlrCore/File.h>
+#include <tlrCore/Time.h>
 
 #include <glad.h>
 
@@ -75,7 +76,6 @@ namespace tlr
         {
             glfwPollEvents();
             _tick();
-            glfwSwapBuffers(_glfwWindow);
         }
 
         return r;
@@ -181,41 +181,40 @@ namespace tlr
             default: break;
         }
 
-        // Update the I/O readers.
-        for (auto i : _readers)
-        {
-            i.second->tick();
-        }
+        // Update.
         _updateReaders();
-
-        // Update frame buffer size.
-        int width = 0;
-        int height = 0;
-        glfwGetFramebufferSize(_glfwWindow, &width, &height);
-        _frameBufferSize.w = width;
-        _frameBufferSize.h = height;
-        glfwGetWindowContentScale(_glfwWindow, &_contentScale.x, &_contentScale.y);
+        _updateHUD();
 
         // Render this frame.
-        _render->begin(imaging::Info(_frameBufferSize.w, _frameBufferSize.h, _info.pixelType));
-        _renderVideo();
-        if (_options.hud)
+        if (_renderDirty)
         {
-            _renderHUD();
-        }
-        _render->end();
+            _render->begin(imaging::Info(_frameBufferSize.w, _frameBufferSize.h, _info.pixelType));
+            _renderVideo();
+            if (_options.hud)
+            {
+                _renderHUD();
+            }
+            _render->end();
 
-        // Copy the render buffer to the window.
-        glViewport(0, 0, _frameBufferSize.w, _frameBufferSize.h);
-        glClearColor(0.F, 0.F, 0.F, 0.F);
-        glClear(GL_COLOR_BUFFER_BIT);
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, _render->getID());
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-        glBlitFramebuffer(
-            0, 0, _frameBufferSize.w, _frameBufferSize.h,
-            0, 0, _frameBufferSize.w, _frameBufferSize.h,
-            GL_COLOR_BUFFER_BIT,
-            GL_NEAREST);
+            // Copy the render buffer to the window.
+            glViewport(0, 0, _frameBufferSize.w, _frameBufferSize.h);
+            glClearColor(0.F, 0.F, 0.F, 0.F);
+            glClear(GL_COLOR_BUFFER_BIT);
+            glBindFramebuffer(GL_READ_FRAMEBUFFER, _render->getID());
+            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+            glBlitFramebuffer(
+                0, 0, _frameBufferSize.w, _frameBufferSize.h,
+                0, 0, _frameBufferSize.w, _frameBufferSize.h,
+                GL_COLOR_BUFFER_BIT,
+                GL_NEAREST);
+            glfwSwapBuffers(_glfwWindow);
+
+            _renderDirty = false;
+        }
+        else
+        {
+            time::sleep(std::chrono::microseconds(1000));
+        }
     }
     
     void App::_updateReaders()
@@ -286,6 +285,89 @@ namespace tlr
                     }
                 }
             }
+        }
+
+        // Tick the readers.
+        for (auto i : _readers)
+        {
+            i.second->tick();
+        }
+
+        // Update the current image.
+        for (auto i : _readers)
+        {
+            otio::ErrorStatus errorStatus;
+            auto range = i.first.value->trimmed_range_in_parent(&errorStatus);
+            if (errorStatus != otio::ErrorStatus::OK)
+            {
+                throw std::runtime_error(errorStatus.full_description);
+            }
+            if (range.has_value())
+            {
+                // Is the clip active?
+                if (_currentTime >= range.value().start_time() &&
+                    _currentTime < range.value().start_time() + range.value().duration())
+                {
+                    auto& queue = i.second->getVideoQueue();
+                    if (queue.size())
+                    {
+                        // Get the frame from the video queue, discarding out of date frames.
+                        av::io::VideoFrame frame = queue.front();
+                        auto time = i.first.value->transformed_time(frame.time, _flattenedTimeline, &errorStatus);
+                        if (errorStatus != otio::ErrorStatus::OK)
+                        {
+                            throw std::runtime_error(errorStatus.full_description);
+                        }
+                        while (queue.size() > 1 && time < _currentTime)
+                        {
+                            queue.pop();
+                            frame = queue.front();
+                            time = i.first.value->transformed_time(frame.time, _flattenedTimeline, &errorStatus);
+                            if (errorStatus != otio::ErrorStatus::OK)
+                            {
+                                throw std::runtime_error(errorStatus.full_description);
+                            }
+                        }
+                        if (const auto& image = frame.image)
+                        {
+                            if (image != _currentImage)
+                            {
+                                _currentImage = image;
+                                _renderDirty = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    void App::_updateHUD()
+    {
+        std::map<app::HUDElement, std::string> hudLabels;
+
+        // Input file name.
+        hudLabels[app::HUDElement::UpperLeft] = "Input: " + _input;
+
+        // Current time.
+        otime::ErrorStatus errorStatus;
+        const std::string label = _currentTime.to_timecode(&errorStatus);
+        if (errorStatus != otio::ErrorStatus::OK)
+        {
+            throw std::runtime_error(errorStatus.details);
+        }
+        hudLabels[app::HUDElement::LowerLeft] = "Time: " + label;
+
+        // Speed.
+        std::stringstream ss;
+        ss.precision(2);
+        ss << "Speed: " << std::fixed << _duration.rate();
+        hudLabels[app::HUDElement::LowerRight] = ss.str();
+
+        if (hudLabels != _hudLabels)
+        {
+            _hudLabels = hudLabels;
+            _renderDirty = true;
         }
     }
 
@@ -377,6 +459,12 @@ namespace tlr
             ss << "Seek: " << timecode;
             _print(ss.str());
         }*/
+    }
+
+    void App::_seekCallback(const otime::RationalTime& value)
+    {
+        _stopPlayback();
+        _seek(value);
     }
 
     void App::_print(const std::string& value)

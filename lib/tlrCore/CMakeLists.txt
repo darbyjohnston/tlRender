@@ -14,6 +14,7 @@ set(HEADERS
     RangeInline.h
     String.h
     StringFormat.h
+    Time.h
     Util.h
     Vector.h
     VectorInline.h)
@@ -22,6 +23,7 @@ set(SOURCE
     File.cpp
     String.cpp
     StringFormat.cpp
+    Time.cpp
     Util.cpp)
 
 add_library(tlrCore ${HEADERS} ${SOURCE})

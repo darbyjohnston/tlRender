@@ -78,6 +78,14 @@ namespace tlr
             throw std::runtime_error("Cannot create window");
         }
         glfwSetWindowUserPointer(_glfwWindow, this);
+        int width = 0;
+        int height = 0;
+        glfwGetFramebufferSize(_glfwWindow, &width, &height);
+        _frameBufferSize.w = width;
+        _frameBufferSize.h = height;
+        glfwGetWindowContentScale(_glfwWindow, &_contentScale.x, &_contentScale.y);
+        glfwSetFramebufferSizeCallback(_glfwWindow, _frameBufferSizeCallback);
+        glfwSetWindowContentScaleCallback(_glfwWindow, _widnowContentScaleCallback);
         if (_options.fullScreen)
         {
             _fullscreenWindow();
@@ -166,12 +174,28 @@ namespace tlr
             _print(ss.str());
         }
     }
+    
+    void App::_frameBufferSizeCallback(GLFWwindow* glfwWindow, int width, int height)
+    {
+        App* app = reinterpret_cast<App*>(glfwGetWindowUserPointer(glfwWindow));
+        app->_frameBufferSize.w = width;
+        app->_frameBufferSize.h = height;
+        app->_renderDirty = true;
+    }
 
-    void App::_keyCallback(GLFWwindow* window, int key, int scanCode, int action, int mods)
+    void App::_widnowContentScaleCallback(GLFWwindow* glfwWindow, float x, float y)
+    {
+        App* app = reinterpret_cast<App*>(glfwGetWindowUserPointer(glfwWindow));
+        app->_contentScale.x = x;
+        app->_contentScale.y = y;
+        app->_renderDirty = true;
+    }
+
+    void App::_keyCallback(GLFWwindow* glfwWindow, int key, int scanCode, int action, int mods)
     {
         if (GLFW_RELEASE == action)
         {
-            App* app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
+            App* app = reinterpret_cast<App*>(glfwGetWindowUserPointer(glfwWindow));
             switch (key)
             {
             case GLFW_KEY_ESCAPE:
@@ -190,16 +214,16 @@ namespace tlr
                 app->_loopPlaybackCallback(!app->_options.loopPlayback);
                 break;
             case GLFW_KEY_HOME:
-                app->_seek(otime::RationalTime(0, app->_duration.rate()));
+                app->_seekCallback(otime::RationalTime(0, app->_duration.rate()));
                 break;
             case GLFW_KEY_END:
-                app->_seek(app->_duration - otime::RationalTime(1, app->_duration.rate()));
+                app->_seekCallback(app->_duration - otime::RationalTime(1, app->_duration.rate()));
                 break;
             case GLFW_KEY_LEFT:
-                app->_seek(app->_currentTime - otime::RationalTime(1, app->_duration.rate()));
+                app->_seekCallback(app->_currentTime - otime::RationalTime(1, app->_duration.rate()));
                 break;
             case GLFW_KEY_RIGHT:
-                app->_seek(app->_currentTime + otime::RationalTime(1, app->_duration.rate()));
+                app->_seekCallback(app->_currentTime + otime::RationalTime(1, app->_duration.rate()));
                 break;
             }
         }
