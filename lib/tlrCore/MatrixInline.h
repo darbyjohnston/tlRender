@@ -49,7 +49,7 @@ namespace tlr
             float right,
             float bottom,
             float top,
-            float near,
+            float near_,
             float far)
         {
             Matrix4x4f m;
@@ -66,12 +66,12 @@ namespace tlr
             
             m.v[8] = 0.F;
             m.v[9] = 0.F;
-            m.v[10] = -2.F / (far - near);
+            m.v[10] = -2.F / (far - near_);
             m.v[11] = 0.F;
             
             m.v[12] = -(right + left) / (right - left);
             m.v[13] = -(top + bottom) / (top - bottom);
-            m.v[14] = -(far + near) / (far - near);
+            m.v[14] = -(far + near_) / (far - near_);
             m.v[15] = 1.F;
             
             return m;
