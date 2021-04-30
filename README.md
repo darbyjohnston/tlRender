@@ -23,6 +23,7 @@ Currently Supported
 -------------------
 * Movie clips
 * Gaps
+* Image sequences (OpenEXR, JPEG)
 
 
 To Do
@@ -33,7 +34,6 @@ To Do
 * Hardware movie decoding
 * Threads
 * Memory cache
-* Image sequences (OpenEXR, JPEG, TIFF, PNG)
 * Render to file
 
 

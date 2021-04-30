@@ -71,6 +71,7 @@ namespace tlr
             protected:
                 void _init(
                     const std::string& fileName,
+                    const otime::RationalTime& defaultSpeed,
                     size_t videoQueueSize);
                 IRead();
 
@@ -85,10 +86,32 @@ namespace tlr
                 std::queue<VideoFrame>& getVideoQueue();
 
             protected:
+                otime::RationalTime _defaultSpeed = otime::RationalTime(0, 24);
                 bool _hasSeek = false;
                 opentime::RationalTime _seekTime;
                 std::queue<VideoFrame> _videoQueue;
                 size_t _videoQueueSize = 0;
+            };
+
+            //! Image Sequence Reader Interface
+            class ISequenceRead : public IRead
+            {
+            protected:
+                void _init(
+                    const std::string& fileName,
+                    const otime::RationalTime& defaultSpeed,
+                    size_t videoQueueSize);
+                ISequenceRead();
+
+            protected:
+                std::string _getFileName(const otime::RationalTime&) const;
+
+                otime::RationalTime _currentTime;
+                std::string _path;
+                std::string _baseName;
+                std::string _number;
+                int _pad = 0;
+                std::string _extension;
             };
 
             //! I/O Plugin Interface
@@ -107,7 +130,9 @@ namespace tlr
                 virtual bool canRead(const std::string& fileName) = 0;
 
                 //! Create a reader for the given file.
-                virtual std::shared_ptr<IRead> read(const std::string& fileName) = 0;
+                virtual std::shared_ptr<IRead> read(
+                    const std::string& fileName,
+                    const otime::RationalTime& defaultSpeed) = 0;
 
                 // Set the video queue size.
                 void setVideoQueueSize(size_t);
@@ -133,7 +158,9 @@ namespace tlr
                 bool canRead(const std::string& fileName);
 
                 // Create a reader for the given file.
-                std::shared_ptr<IRead> read(const std::string& fileName);
+                std::shared_ptr<IRead> read(
+                    const std::string& fileName,
+                    const otime::RationalTime& defaultSpeed = otime::RationalTime(0, 24));
 
                 // Set the video queue size.
                 void setVideoQueueSize(size_t);

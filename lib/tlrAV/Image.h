@@ -41,6 +41,7 @@ namespace tlr
             L_U8,
             RGB_U8,
             RGBA_U8,
+            RGBA_F16,
             Count
         };
         TLR_ENUM_LABEL(PixelType);
@@ -50,6 +51,9 @@ namespace tlr
 
         //! Get an integer pixel type for a given channel count and bit depth.
         PixelType getIntType(size_t channelCount, size_t bitDepth);
+
+        //! Get a floating point pixel type for a given channel count and bit depth.
+        PixelType getFloatType(size_t channelCount, size_t bitDepth);
 
         //! Image Information
         struct Info
@@ -110,7 +114,10 @@ namespace tlr
             bool isValid() const;
 
             //! Get the image data.
-            const std::vector<uint8_t>& getData() const;
+            const uint8_t* getData() const;
+
+            //! Get the image data.
+            uint8_t* getData();
 
             //! Get the image data.
             uint8_t* getData(uint16_t);

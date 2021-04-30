@@ -15,11 +15,13 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
+#include <opentimelineio/imageSequenceReference.h>
 #include <opentimelineio/externalReference.h>
 #include <opentimelineio/stackAlgorithm.h>
 
 #include <array>
 #include <chrono>
+#include <iomanip>
 #include <iostream>
 #include <memory>
 #include <sstream>
@@ -86,6 +88,19 @@ namespace tlr
         _running = false;
     }
 
+    namespace
+    {
+        std::string getFileName(const otio::ImageSequenceReference* ref)
+        {
+            std::stringstream ss;
+            ss << ref->target_url_base() <<
+                ref->name_prefix() <<
+                std::setfill('0') << std::setw(ref->frame_zero_padding()) << ref->start_frame() <<
+                ref->name_suffix();
+            return ss.str();
+        }
+    }
+
     void App::_readTimeline()
     {
         // Read the timeline.
@@ -125,24 +140,27 @@ namespace tlr
         {
             if (auto clip = dynamic_cast<otio::Clip*>(child.value))
             {
+                std::string fileName;
                 if (auto externalRef = dynamic_cast<otio::ExternalReference*>(clip->media_reference()))
                 {
-                    if (_ioSystem->canRead(externalRef->target_url()))
+                    fileName = externalRef->target_url();
+                }
+                else if (auto imageSequenceRef = dynamic_cast<otio::ImageSequenceReference*>(clip->media_reference()))
+                {
+                    fileName = getFileName(imageSequenceRef);
+                }
+                if (auto read = _ioSystem->read(fileName))
+                {
+                    const auto info = read->getInfo();
+                    if (!info.video.empty())
                     {
-                        if (auto read = _ioSystem->read(externalRef->target_url()))
+                        _info = info.video[0].info;
                         {
-                            const auto info = read->getInfo();
-                            if (!info.video.empty())
-                            {
-                                _info = info.video[0].info;
-                                {
-                                    std::stringstream ss;
-                                    ss << "First clip info: " << _info;
-                                    _printVerbose(ss.str());
-                                }
-                                break;
-                            }
+                            std::stringstream ss;
+                            ss << "First clip info: " << _info;
+                            _printVerbose(ss.str());
                         }
+                        break;
                     }
                 }
             }
@@ -224,64 +242,67 @@ namespace tlr
         {
             if (auto clip = dynamic_cast<otio::Clip*>(child.value))
             {
+                std::string fileName;
                 if (auto externalRef = dynamic_cast<otio::ExternalReference*>(clip->media_reference()))
                 {
-                    otio::ErrorStatus errorStatus;
-                    auto range = clip->range_in_parent(&errorStatus);
-                    if (errorStatus != otio::ErrorStatus::OK)
-                    {
-                        throw std::runtime_error(errorStatus.full_description);
-                    }
+                    fileName = externalRef->target_url();
+                }
+                else if (auto imageSequenceRef = dynamic_cast<otio::ImageSequenceReference*>(clip->media_reference()))
+                {
+                    fileName = getFileName(imageSequenceRef);
+                }
 
-                    // Find the I/O reader for this clip.
-                    const auto i = std::find_if(
-                        _readers.begin(),
-                        _readers.end(),
-                        [clip](const Reader& value)
-                        {
-                            return value.first == clip;
-                        });
+                otio::ErrorStatus errorStatus;
+                auto range = clip->range_in_parent(&errorStatus);
+                if (errorStatus != otio::ErrorStatus::OK)
+                {
+                    throw std::runtime_error(errorStatus.full_description);
+                }
 
-                    // Is the clip active?
-                    if (_currentTime >= range.start_time() &&
-                        _currentTime < range.start_time() + range.duration())
+                // Find the I/O reader for this clip.
+                const auto i = std::find_if(
+                    _readers.begin(),
+                    _readers.end(),
+                    [clip](const Reader& value)
                     {
-                        if (i == _readers.end())
+                        return value.first == clip;
+                    });
+
+                // Is the clip active?
+                if (_currentTime >= range.start_time() &&
+                    _currentTime < range.start_time() + range.duration())
+                {
+                    if (i == _readers.end())
+                    {
+                        const auto time = _flattenedTimeline.value->transformed_time(_currentTime, clip, &errorStatus);
+                        if (errorStatus != otio::ErrorStatus::OK)
                         {
-                            // Create a new I/O reader.
-                            if (_ioSystem->canRead(externalRef->target_url()))
-                            {
-                                const std::string& target_url = externalRef->target_url();
-                                if (auto read = _ioSystem->read(target_url))
-                                {
-                                    const auto time = _flattenedTimeline.value->transformed_time(_currentTime, clip, &errorStatus);
-                                    if (errorStatus != otio::ErrorStatus::OK)
-                                    {
-                                        throw std::runtime_error(errorStatus.full_description);
-                                    }
-                                    read->seek(time);
-                                    _readers.push_back(std::make_pair(clip, read));
-                                    {
-                                        std::stringstream ss;
-                                        ss << _currentTime << ": Create " << target_url;
-                                        _printVerbose(ss.str());
-                                    }
-                                }
-                            }
+                            throw std::runtime_error(errorStatus.full_description);
                         }
-                    }
-                    else
-                    {
-                        if (i != _readers.end())
+                        // Create a new I/O reader.
+                        if (auto read = _ioSystem->read(fileName, otime::RationalTime(0, time.rate())))
                         {
-                            // Destroy the I/O reader.
+                            read->seek(time);
+                            _readers.push_back(std::make_pair(clip, read));
                             {
                                 std::stringstream ss;
-                                ss << _currentTime << ": Destroy " << i->second->getFileName();
+                                ss << _currentTime << ": Create " << fileName;
                                 _printVerbose(ss.str());
                             }
-                            _readers.erase(i);
                         }
+                    }
+                }
+                else
+                {
+                    if (i != _readers.end())
+                    {
+                        // Destroy the I/O reader.
+                        {
+                            std::stringstream ss;
+                            ss << _currentTime << ": Destroy " << i->second->getFileName();
+                            _printVerbose(ss.str());
+                        }
+                        _readers.erase(i);
                     }
                 }
             }

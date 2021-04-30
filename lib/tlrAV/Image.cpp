@@ -17,13 +17,13 @@ namespace tlr
 {
     namespace imaging
     {
-        TLR_ENUM_LABEL_IMPL(PixelType, "None", "L_U8", "RGB_U8", "RGBA_U8");
+        TLR_ENUM_LABEL_IMPL(PixelType, "None", "L_U8", "RGB_U8", "RGBA_U8", "RGBA_F16");
 
         std::size_t getByteCount(PixelType value)
         {
             const std::array<std::size_t, static_cast<std::size_t>(PixelType::Count)> data =
             {
-                0, 1, 3, 4
+                0, 1, 3, 4, 8
             };
             return data[static_cast<std::size_t>(value)];
         }
@@ -49,6 +49,21 @@ namespace tlr
                 switch (bitDepth)
                 {
                 case 8: out = PixelType::RGBA_U8; break;
+                }
+                break;
+            }
+            return out;
+        }
+
+        PixelType getFloatType(size_t channelCount, size_t bitDepth)
+        {
+            PixelType out = PixelType::None;
+            switch (channelCount)
+            {
+            case 4:
+                switch (bitDepth)
+                {
+                case 16: out = PixelType::RGBA_F16; break;
                 }
                 break;
             }

@@ -31,6 +31,7 @@ namespace tlr
             protected:
                 void _init(
                     const std::string& fileName,
+                    const otime::RationalTime& defaultSpeed,
                     size_t videoQueueSize);
                 Read();
 
@@ -40,6 +41,7 @@ namespace tlr
                 //! Create a new reader.
                 static std::shared_ptr<Read> create(
                     const std::string& fileName,
+                    const otime::RationalTime& defaultSpeed,
                     size_t videoQueueSize);
                 
                 void tick() override;
@@ -67,7 +69,9 @@ namespace tlr
                 static std::shared_ptr<Plugin> create();
 
                 bool canRead(const std::string&) override;
-                std::shared_ptr<io::IRead> read(const std::string& fileName) override;
+                std::shared_ptr<io::IRead> read(
+                    const std::string& fileName,
+                    const otime::RationalTime& defaultSpeed) override;
             };
         }
     }

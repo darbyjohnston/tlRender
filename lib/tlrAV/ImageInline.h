@@ -108,9 +108,14 @@ namespace tlr
             return _info.isValid();
         }
 
-        inline const std::vector<uint8_t>& Image::getData() const
+        inline const uint8_t* Image::getData() const
         {
-            return _data;
+            return _data.data();
+        }
+
+        inline uint8_t* Image::getData()
+        {
+            return _data.data();
         }
 
         inline uint8_t* Image::getData(uint16_t y)

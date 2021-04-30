@@ -17,7 +17,7 @@
                                 "duration": {
                                     "OTIO_SCHEMA": "RationalTime.1",
                                     "rate": 30,
-                                    "value": 690
+                                    "value": 704
                                 },
                                 "start_time": {
                                     "OTIO_SCHEMA": "RationalTime.1",
@@ -40,7 +40,7 @@
                                 "value": 90
                             }
                         },
-                        "name": "IMG_2888"
+                        "name": "BART_2021-02-07"
                     }
                 ],
                 "kind": "Video", 

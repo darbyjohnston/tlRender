@@ -31,9 +31,10 @@ namespace tlr
             
             void Read::_init(
                 const std::string& fileName,
+                const otime::RationalTime& defaultSpeed,
                 size_t videoQueueSize)
             {
-                IRead::_init(fileName, videoQueueSize);
+                IRead::_init(fileName, defaultSpeed, videoQueueSize);
 
                 av_log_set_level(AV_LOG_QUIET);
 
@@ -197,10 +198,11 @@ namespace tlr
 
             std::shared_ptr<Read> Read::create(
                 const std::string& fileName,
+                const otime::RationalTime& defaultSpeed,
                 size_t videoQueueSize)
             {
                 auto out = std::shared_ptr<Read>(new Read);
-                out->_init(fileName, videoQueueSize);
+                out->_init(fileName, defaultSpeed, videoQueueSize);
                 return out;
             }
 
@@ -249,7 +251,7 @@ namespace tlr
                         {
                             if (_avVideoStream != -1)
                             {
-                                //! \todo How do we handle this?
+                                //! \todo How should this be handled?
                             }
                             break;
                         }
@@ -258,7 +260,7 @@ namespace tlr
                             decoding = _decodeVideo(packet, frame);
                             if (decoding < 0)
                             {
-                                //! \todo How do we handle this?
+                                //! \todo How should this be handled?
                                 break;
                             }
                         }
@@ -303,7 +305,7 @@ namespace tlr
                 av_image_fill_arrays(
                     _avFrameRgb->data,
                     _avFrameRgb->linesize,
-                    frame.image->getData().data(),
+                    frame.image->getData(),
                     AV_PIX_FMT_RGBA,
                     _info.video[0].info.size.w,
                     _info.video[0].info.size.h,
@@ -346,9 +348,11 @@ namespace tlr
                 return out;
             }
 
-            std::shared_ptr<io::IRead> Plugin::read(const std::string& fileName)
+            std::shared_ptr<io::IRead> Plugin::read(
+                const std::string& fileName,
+                const otime::RationalTime& defaultSpeed)
             {
-                return Read::create(fileName, _videoQueueSize);
+                return Read::create(fileName, defaultSpeed, _videoQueueSize);
             }
         }
     }

@@ -71,6 +71,7 @@ namespace tlr
     void App::_hudCallback(bool value)
     {
         _options.hud = value;
+        _renderDirty = true;
         {
             std::stringstream ss;
             ss << "HUD: " << _options.hud;

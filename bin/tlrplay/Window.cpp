@@ -193,7 +193,7 @@ namespace tlr
 
     void App::_keyCallback(GLFWwindow* glfwWindow, int key, int scanCode, int action, int mods)
     {
-        if (GLFW_RELEASE == action)
+        if (GLFW_RELEASE == action || GLFW_REPEAT == action)
         {
             App* app = reinterpret_cast<App*>(glfwGetWindowUserPointer(glfwWindow));
             switch (key)
