@@ -13,10 +13,10 @@
 
 namespace tlr
 {
-    //! Rendering
+    //! Rendering.
     namespace render
     {
-        //! Vertex Buffer Object Type
+        //! Vertex buffer object types.
         enum class VBOType
         {
             Pos2_F32_UV_U16,
@@ -35,7 +35,7 @@ namespace tlr
         //! Get the number of bytes used to store vertex buffer object types.
         std::size_t getByteCount(VBOType);
 
-        //! OpenGL Vertex Buffer Object.
+        //! OpenGL vertex buffer object.
         class VBO : public std::enable_shared_from_this<VBO>
         {
             TLR_NON_COPYABLE(VBO);
@@ -75,7 +75,7 @@ namespace tlr
             GLuint _vbo = 0;
         };
     
-        //! OpenGL Vertex Array Object
+        //! OpenGL vertex array object.
         class VAO : public std::enable_shared_from_this<VAO>
         {
             TLR_NON_COPYABLE(VAO);

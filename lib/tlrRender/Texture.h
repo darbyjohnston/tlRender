@@ -21,7 +21,7 @@ namespace tlr
         //! Get the OpenGL texture type.
         GLenum getTextureType(imaging::PixelType);
 
-        //! OpenGL Texture
+        //! OpenGL texture.
         class Texture : public std::enable_shared_from_this<Texture>
         {
             TLR_NON_COPYABLE(Texture);

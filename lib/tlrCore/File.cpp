@@ -57,7 +57,7 @@ namespace tlr
             fseqFileNameDel(&f);
         }
 
-        bool change_dir(const std::string& path)
+        bool changeDir(const std::string& path)
         {
             bool out = false;
 #if defined(_WINDOWS)

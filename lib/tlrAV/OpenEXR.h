@@ -10,10 +10,10 @@ namespace tlr
 {
     namespace av
     {
-        //! OpenEXR I/O
+        //! OpenEXR I/O.
         namespace exr
         {
-            //! OpenEXR Reader
+            //! OpenEXR reader.
             class Read : public io::ISequenceRead
             {
             protected:
@@ -37,7 +37,7 @@ namespace tlr
             private:
             };
 
-            //! OpenEXR Plugin
+            //! OpenEXR plugin.
             class Plugin : public io::IPlugin
             {
             protected:

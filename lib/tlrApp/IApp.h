@@ -12,10 +12,10 @@
 
 namespace tlr
 {
-    //! Application
+    //! Applications.
     namespace app
     {
-        //! Application Interface
+        //! Base class for applications.
         class IApp : public std::enable_shared_from_this<IApp>
         {
             TLR_NON_COPYABLE(IApp);

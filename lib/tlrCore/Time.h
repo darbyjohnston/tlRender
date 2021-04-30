@@ -8,8 +8,10 @@
 
 namespace tlr
 {
+    //! Time.
     namespace time
     {
+        //! Sleep for the given time.
         void sleep(const std::chrono::microseconds&);
     }
 }

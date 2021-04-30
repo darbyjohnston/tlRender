@@ -7,7 +7,7 @@
 
 namespace tlr
 {
-    //! Strings
+    //! Strings.
     namespace string
     {
         const size_t cBufferSize = 4096;

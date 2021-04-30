@@ -8,7 +8,7 @@ namespace tlr
 {
     namespace math
     {
-        //! 3x3 Matrix
+        //! 3x3 matrix.
         struct Matrix3x3f
         {
             Matrix3x3f();
@@ -16,7 +16,7 @@ namespace tlr
             float v[9];
         };
 
-        //! 4x4 Matrix
+        //! 4x4 matrix.
         struct Matrix4x4f
         {
             Matrix4x4f();

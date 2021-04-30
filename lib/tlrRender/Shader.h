@@ -20,7 +20,7 @@ namespace tlr
 {
     namespace render
     {
-        //! OpenGL Shader
+        //! OpenGL shader.
         class Shader : public std::enable_shared_from_this<Shader>
         {
             TLR_NON_COPYABLE(Shader);

@@ -133,7 +133,7 @@ namespace tlr
         // Change the working directory.
         std::string path;
         file::split(_input, &path);
-        file::change_dir(path);
+        file::changeDir(path);
 
         // The first clip defines the image information.
         for (const auto& child : _flattenedTimeline.value->children())

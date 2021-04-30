@@ -24,7 +24,7 @@ namespace tlr
         class Shader;
         class Texture;
 
-        //! OpenGL Renderer
+        //! OpenGL renderer.
         class Render : public std::enable_shared_from_this<Render>
         {
             TLR_NON_COPYABLE(Render);

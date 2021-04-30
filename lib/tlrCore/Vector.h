@@ -8,7 +8,7 @@ namespace tlr
 {
     namespace math
     {
-        //! Two-Dimensional Vector
+        //! Two-dimensional vector.
         template<typename T>
         struct Vector2
         {
@@ -21,7 +21,7 @@ namespace tlr
             bool operator != (const Vector2<T>&) const;
         };
 
-        //! Three-Dimensional Vector
+        //! Three-dimensional vector.
         template<typename T>
         struct Vector3
         {
@@ -34,7 +34,7 @@ namespace tlr
             bool operator != (const Vector3<T>&) const;
         };
 
-        //! Four-Dimensional Vector
+        //! Four-dimensional vector.
         template<typename T>
         struct Vector4
         {
@@ -54,22 +54,22 @@ namespace tlr
         template<typename T>
         Vector4<T> operator + (const Vector4<T>&, T);
 
-        //! This typedef provides a two-dimensional integer vector.
+        //! Two-dimensional integer vector.
         typedef Vector2<int> Vector2i;
 
-        //! This typedef provides a two-dimensional floating point vector.
+        //! Two-dimensional floating point vector.
         typedef Vector2<float> Vector2f;
 
-        //! This typedef provides a three-dimensional integer vector.
+        //! Three-dimensional integer vector.
         typedef Vector3<int> Vector3i;
 
-        //! This typedef provides a three-dimensional floating point vector.
+        //! Three-dimensional floating point vector.
         typedef Vector3<float> Vector3f;
 
-        //! This typedef provides a four-dimensional integer vector.
+        //! Four-dimensional integer vector.
         typedef Vector4<int> Vector4i;
 
-        //! This typedef provides a four-dimensional floating point vector.
+        //! Four-dimensional floating point vector.
         typedef Vector4<float> Vector4f;
     }
 }

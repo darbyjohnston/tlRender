@@ -28,13 +28,14 @@ namespace tlr
         typedef char32_t tlr_char_t;
 #endif // DJV_PLATFORM_WINDOWS
 
+        //! Font families.
         enum class FontFamily
         {
             NotoSans,
             NotoMono
         };
 
-        //! Font Information
+        //! Font information.
         struct FontInfo
         {
             FontInfo() noexcept;
@@ -47,7 +48,7 @@ namespace tlr
             bool operator < (const FontInfo&) const;
         };
 
-        //! Font Metrics
+        //! Font metrics.
         struct FontMetrics
         {
             int16_t ascender = 0;
@@ -55,7 +56,7 @@ namespace tlr
             int16_t lineHeight = 0;
         };
 
-        //! Font Glyph Information
+        //! Font glyph information.
         struct GlyphInfo
         {
             GlyphInfo() noexcept;
@@ -68,7 +69,7 @@ namespace tlr
             bool operator < (const GlyphInfo&) const;
         };
 
-        //! Font Glyph
+        //! Font glyph.
         struct Glyph
         {
             GlyphInfo glyphInfo;
@@ -79,7 +80,7 @@ namespace tlr
             int32_t rsbDelta = 0;
         };
 
-        //! Font System
+        //! Font system.
         //!
         //! \todo Add support for gamma correction?
         //! - https://www.freetype.org/freetype2/docs/text-rendering-general.html

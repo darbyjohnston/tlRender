@@ -9,10 +9,10 @@
 
 namespace tlr
 {
-    //! Imaging
+    //! Imaging.
     namespace imaging
     {
-        //! Color
+        //! Color.
         struct Color4f
         {
             Color4f();

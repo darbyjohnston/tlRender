@@ -9,9 +9,9 @@ namespace tlr
 {
     namespace string
     {
-        //! \class Format
-        //! Example:
+        //! Format
         //!
+        //! Example:
         //! std::string result = Format("Testing {2} {1} {0}").arg("one").arg("two").arg("three");
         //!
         //! Results in the string "Testing three two one".

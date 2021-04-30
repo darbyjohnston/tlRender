@@ -14,7 +14,7 @@ namespace tlr
 {
     namespace render
     {
-        //! Offscreen Depth Types
+        //! Offscreen buffer depth types.
         enum class OffscreenDepthType
         {
             None,
@@ -34,7 +34,7 @@ namespace tlr
         //! Get the OpenGL depth buffer type.
         GLenum getType(OffscreenDepthType);
 
-        //! Offscreen Multisampling
+        //! Offscreen multisampling.
         enum class OffscreenSampling
         {
             None,
@@ -47,7 +47,7 @@ namespace tlr
             First = None
         };
 
-        //! OpenGL Offscreen Buffer
+        //! OpenGL offscreen buffer.
         class OffscreenBuffer : public std::enable_shared_from_this<OffscreenBuffer>
         {
             TLR_NON_COPYABLE(OffscreenBuffer);

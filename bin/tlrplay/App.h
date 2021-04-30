@@ -24,7 +24,7 @@ struct GLFWwindow;
 
 namespace tlr
 {
-    //! Options
+    //! Application options.
     struct Options
     {
         float windowScale = 1.F;
@@ -37,7 +37,7 @@ namespace tlr
         bool help = false;
     };
 
-    //! Application
+    //! Application.
     class App : app::IApp
     {
         TLR_NON_COPYABLE(App);

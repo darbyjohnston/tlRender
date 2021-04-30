@@ -14,7 +14,7 @@ namespace tlr
 {
     namespace imaging
     {
-        //! Image Dimensions
+        //! Image dimensions.
         struct Size
         {
             Size();
@@ -34,7 +34,7 @@ namespace tlr
             bool operator < (const Size&) const;
         };
 
-        //! Pixel Type
+        //! Image pixel types.
         enum class PixelType
         {
             None,
@@ -55,7 +55,7 @@ namespace tlr
         //! Get a floating point pixel type for a given channel count and bit depth.
         PixelType getFloatType(size_t channelCount, size_t bitDepth);
 
-        //! Image Information
+        //! Image information.
         struct Info
         {
             Info();
@@ -77,7 +77,7 @@ namespace tlr
         //! Get the number of bytes used to store the image data.
         std::size_t getDataByteCount(const Info&);
 
-        //! Image
+        //! Image.
         class Image : public std::enable_shared_from_this<Image>
         {
             TLR_NON_COPYABLE(Image);

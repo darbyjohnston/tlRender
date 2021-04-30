@@ -8,6 +8,7 @@
 
 namespace tlr
 {
+    //! Parse error.
     class ParseError : public std::invalid_argument
     {
     public:

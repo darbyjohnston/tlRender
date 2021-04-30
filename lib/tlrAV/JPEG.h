@@ -10,10 +10,10 @@ namespace tlr
 {
     namespace av
     {
-        //! JPEG I/O
+        //! JPEG I/O.
         namespace jpeg
         {
-            //! JPEG Reader
+            //! JPEG reader.
             class Read : public io::ISequenceRead
             {
             protected:
@@ -35,7 +35,7 @@ namespace tlr
                 void tick() override;
             };
 
-            //! JPEG Plugin
+            //! JPEG plugin.
             class Plugin : public io::IPlugin
             {
             protected:

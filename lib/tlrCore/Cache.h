@@ -9,9 +9,10 @@
 
 namespace tlr
 {
+    //! Memory.
     namespace memory
     {
-        //! Cache
+        //! LRU (least recently used) cache.
         template<typename T, typename U>
         class Cache
         {

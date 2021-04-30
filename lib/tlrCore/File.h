@@ -7,7 +7,7 @@
 
 namespace tlr
 {
-    //! File System
+    //! File system.
     namespace file
     {
         //! Convert a path to use UNIX style path delimeters ('/').
@@ -22,6 +22,6 @@ namespace tlr
             std::string* extension = nullptr);
 
         //! Change the working directory.
-        bool change_dir(const std::string& path);
+        bool changeDir(const std::string& path);
     }
 }

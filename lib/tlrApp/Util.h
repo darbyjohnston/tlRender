@@ -14,8 +14,10 @@ namespace tlr
 {
     namespace app
     {
+        //! Fit an image within a window.
         math::BBox2f fitImageInWindow(const imaging::Size& image, const imaging::Size& window);
 
+        //! HUD elements.
         enum class HUDElement
         {
             UpperLeft,
@@ -24,6 +26,7 @@ namespace tlr
             LowerRight
         };
 
+        //! Draw a HUD label.
         void drawHUDLabel(
             const std::shared_ptr<render::Render>&,
             const std::shared_ptr<render::FontSystem>&,

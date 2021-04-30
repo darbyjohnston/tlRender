@@ -10,7 +10,7 @@ namespace tlr
 {
     namespace math
     {
-        //! Two Dimensional Bounding Box
+        //! Two-dimensional bounding box.
         template<typename T>
         class BBox2
         {
@@ -79,10 +79,10 @@ namespace tlr
             constexpr bool operator != (const BBox2<T>&) const noexcept;
         };
 
-        //! This typedef provides a two-dimensional integer bounding box.
+        //! Two-dimensional integer bounding box.
         typedef BBox2<int> BBox2i;
 
-        //! This typedef provides a two-dimensional floating point bounding box.
+        //! Two-dimensional floating point bounding box.
         typedef BBox2<float> BBox2f;
     }
 }

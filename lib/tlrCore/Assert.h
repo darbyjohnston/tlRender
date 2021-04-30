@@ -2,16 +2,18 @@
 // Copyright (c) 2021 Darby Johnston
 // All rights reserved.
 
+//! tlRender.
 namespace tlr
 {
+    //! Core.
     namespace core
     {
-        //! This function provides an assert (for convenience use the TLR_ASSERT macro).
+        //! Assert (for convenience use the TLR_ASSERT macro).
         void _assert(const char* file, int line);
     }
 }
 
-//! This macro provides an assert.
+//! Assert macro.
 #if defined(TLR_ASSERT)
 #undef TLR_ASSERT
 #define TLR_ASSERT(value) \

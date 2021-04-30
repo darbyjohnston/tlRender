@@ -6,7 +6,7 @@
 
 namespace tlr
 {
-    //! Math
+    //! Math.
     namespace math
     {
         //! Clamp a value.

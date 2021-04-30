@@ -10,7 +10,7 @@ namespace tlr
 {
     namespace math
     {
-        //! Number Range
+        //! Number range.
         template<typename T>
         class Range
         {

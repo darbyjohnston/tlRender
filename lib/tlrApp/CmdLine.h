@@ -14,7 +14,7 @@ namespace tlr
 {
     namespace app
     {
-        //! Command Line Option Interface
+        //! Base class for command line options.
         class IOption
         {
         public:
@@ -47,7 +47,7 @@ namespace tlr
             std::string _argsHelp;
         };
 
-        //! Command Line Flag Option
+        //! Command line flag option.
         class FlagOption : public IOption
         {
         public:
@@ -63,7 +63,7 @@ namespace tlr
             bool& _value;
         };
 
-        //! Command Line Value Option
+        //! Command line value option.
         template<typename T>
         class ValueOption : public IOption
         {

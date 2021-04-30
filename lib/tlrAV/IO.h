@@ -14,13 +14,13 @@
 
 namespace tlr
 {
-    //! Audio/Video
+    //! Audio/video.
     namespace av
     {
-        //! I/O
+        //! Input/output.
         namespace io
         {
-            //! Video Information
+            //! Video I/O information.
             struct VideoInfo
             {
                 imaging::Info info;
@@ -28,21 +28,21 @@ namespace tlr
                 std::string codec;
             };
 
-            //! I/O Information
+            //! I/O information.
             struct Info
             {
                 std::vector<VideoInfo> video;
                 std::map<std::string, std::string> tags;
             };
 
-            //! Video Frame
+            //! Video I/O frame.
             struct VideoFrame
             {
                 opentime::RationalTime time;
                 std::shared_ptr<imaging::Image> image;
             };
 
-            //! I/O Interface
+            //! Base class for readers/writers.
             class IIO : std::enable_shared_from_this<IIO>
             {
                 TLR_NON_COPYABLE(IIO);
@@ -65,7 +65,7 @@ namespace tlr
                 Info _info;
             };
 
-            //! Reader Interface
+            //! Base class for readers.
             class IRead : public IIO
             {
             protected:
@@ -93,7 +93,7 @@ namespace tlr
                 size_t _videoQueueSize = 0;
             };
 
-            //! Image Sequence Reader Interface
+            //! Base class for image sequence readers.
             class ISequenceRead : public IRead
             {
             protected:
@@ -114,7 +114,7 @@ namespace tlr
                 std::string _extension;
             };
 
-            //! I/O Plugin Interface
+            //! Base class for I/O plugins.
             class IPlugin : std::enable_shared_from_this<IIO>
             {
                 TLR_NON_COPYABLE(IPlugin);
@@ -141,7 +141,7 @@ namespace tlr
                 size_t _videoQueueSize = 0;
             };
 
-            //! I/O System
+            //! I/O system.
             class System : public std::enable_shared_from_this<System>
             {
                 TLR_NON_COPYABLE(System);

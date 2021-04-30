@@ -10,7 +10,7 @@
 
 namespace tlr
 {
-    //! Timeline
+    //! Timelines.
     namespace timeline
     {
         //! Read a timeline.
