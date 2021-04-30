@@ -12,6 +12,7 @@ extern "C"
 
 } // extern "C"
 
+#include <cstring>
 #include <sstream>
 
 #include <setjmp.h>
