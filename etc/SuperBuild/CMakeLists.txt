@@ -4,12 +4,12 @@ project(tlRender-SuperBuild)
 
 # Build options
 set(TLR_ENABLE_PYTHON FALSE CACHE BOOL "Enable Python support")
-set(TLR_BUILD_JPEG TRUE CACHE BOOL "Build JPEG")
-set(TLR_BUILD_OpenEXR TRUE CACHE BOOL "Build OpenEXR")
+set(TLR_BUILD_JPEG TRUE CACHE BOOL "Build JPEG support")
+set(TLR_BUILD_OpenEXR TRUE CACHE BOOL "Build OpenEXR support")
 if(WIN32)
     message(WARNING "See the README for how to build FFmpeg on Windows")
 else()
-    set(TLR_BUILD_FFmpeg TRUE CACHE BOOL "Build FFmpeg")
+    set(TLR_BUILD_FFmpeg TRUE CACHE BOOL "Build FFmpeg support (Linux and macOS only)")
 endif()
 set(TLR_BUILD_TESTS TRUE CACHE BOOL "Build tests")
 

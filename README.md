@@ -53,6 +53,9 @@ A CMake super build script is provided to build the dependencies from source.
 CMake Build Options
 -------------------
 * TLR_ENABLE_PYTHON - Enable Python support (allows use of Python adapters for timeline I/O)
+* TLR_BUILD_JPEG - Build JPEG support
+* TLR_BUILD_OpenEXR - Build OpenEXR support
+* TLR_BUILD_FFmpeg - Build FFmpeg support (Linux and macOS only)
 
 
 Building on Linux
