@@ -4,8 +4,10 @@
 
 #pragma once
 
+#include <tlrCore/Util.h>
 #include <tlrCore/Error.h>
 
+#include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -15,15 +17,18 @@ namespace tlr
     namespace app
     {
         //! Base class for command line options.
-        class IOption
+        class ICmdLineOption : public std::enable_shared_from_this<ICmdLineOption>
         {
-        public:
-            IOption(
+            TLR_NON_COPYABLE(ICmdLineOption);
+
+        protected:
+            ICmdLineOption(
                 const std::vector<std::string>& names,
                 const std::string& help,
-                const std::string& argsHelp = std::string());
+                const std::string& argsHelp);
 
-            virtual ~IOption() = 0;
+        public:
+            virtual ~ICmdLineOption() = 0;
 
             //! Parse the option.
             virtual void parse(std::vector<std::string>& args) = 0;
@@ -48,10 +53,17 @@ namespace tlr
         };
 
         //! Command line flag option.
-        class FlagOption : public IOption
+        class CmdLineFlagOption : public ICmdLineOption
         {
+        protected:
+            CmdLineFlagOption(
+                bool& value,
+                const std::vector<std::string>& names,
+                const std::string& help,
+                const std::string& argsHelp);
+
         public:
-            FlagOption(
+            static std::shared_ptr<CmdLineFlagOption> create(
                 bool& value,
                 const std::vector<std::string>& names,
                 const std::string& help,
@@ -65,14 +77,68 @@ namespace tlr
 
         //! Command line value option.
         template<typename T>
-        class ValueOption : public IOption
+        class CmdLineValueOption : public ICmdLineOption
         {
+        protected:
+            CmdLineValueOption(
+                T& value,
+                const std::vector<std::string>& names,
+                const std::string& help,
+                const std::string& argsHelp);
+
         public:
-            ValueOption(
+            static std::shared_ptr<CmdLineValueOption<T> > create(
                 T& value,
                 const std::vector<std::string>& names,
                 const std::string& help,
                 const std::string& argsHelp = std::string());
+
+            void parse(std::vector<std::string>& args) override;
+
+        private:
+            T& _value;
+        };
+
+        //! Base class for command line arguments.
+        class ICmdLineArg : public std::enable_shared_from_this<ICmdLineArg>
+        {
+        protected:
+            ICmdLineArg(
+                const std::string& name,
+                const std::string& help);
+
+        public:
+            virtual ~ICmdLineArg() = 0;
+
+            //! Parse the argument.
+            virtual void parse(std::vector<std::string>& args) = 0;
+
+            //! Get the argument names.
+            const std::string& getName() const;
+
+            //! Get the help.
+            const std::string& getHelp() const;
+
+        protected:
+            std::string _name;
+            std::string _help;
+        };
+
+        //! Command line value argument.
+        template<typename T>
+        class CmdLineValueArg : public ICmdLineArg
+        {
+        protected:
+            CmdLineValueArg(
+                T& value,
+                const std::string& name,
+                const std::string& help);
+
+        public:
+            static std::shared_ptr<CmdLineValueArg<T> > create(
+                T& value,
+                const std::string& name,
+                const std::string& help);
 
             void parse(std::vector<std::string>& args) override;
 

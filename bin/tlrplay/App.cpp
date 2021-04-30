@@ -8,6 +8,7 @@
 
 #include <tlrCore/Assert.h>
 #include <tlrCore/File.h>
+#include <tlrCore/StringFormat.h>
 #include <tlrCore/Time.h>
 
 #include <glad.h>
@@ -28,15 +29,56 @@
 
 namespace tlr
 {
+    void App::_init(int argc, char* argv[])
+    {
+        IApp::_init(
+            argc,
+            argv,
+            "tlrplay",
+            "Play an editorial timeline.",
+            {
+                app::CmdLineValueArg<std::string>::create(
+                    _input,
+                    "Input",
+                    "The input timeline.")
+            },
+            {
+                app::CmdLineValueOption<float>::create(
+                    _options.windowScale,
+                    { "-windowScale", "-ws" },
+                    string::Format("Set the window size scale factor. Default: {0}").
+                        arg(_options.windowScale),
+                    "(value)"),
+                app::CmdLineFlagOption::create(
+                    _options.fullScreen,
+                    { "-fullScreen", "-fs" },
+                    "Enable full screen mode."),
+                app::CmdLineValueOption<bool>::create(
+                    _options.hud,
+                    { "-hud" },
+                    string::Format("Enable the HUD (heads up display). Default: {0}").
+                        arg(_options.hud),
+                    "(value)"),
+                app::CmdLineValueOption<bool>::create(
+                    _options.startPlayback,
+                    { "-startPlayback", "-sp" },
+                    string::Format("Automatically start playback. Default: {0}").
+                        arg(_options.startPlayback),
+                    "(value)"),
+                app::CmdLineValueOption<bool>::create(
+                    _options.loopPlayback,
+                    { "-loopPlayback", "-lp" },
+                    string::Format("Loop playback. Default: {0}").
+                        arg(_options.loopPlayback),
+                    "(value)")
+            });
+    }
+
     App::App()
     {}
 
     App::~App()
-    {
-        _render.reset();
-        _fontSystem.reset();
-        _destroyWindow();
-    }
+    {}
 
     std::shared_ptr<App> App::create(int argc, char* argv[])
     {
@@ -45,29 +87,33 @@ namespace tlr
         return out;
     }
 
-    int App::run()
+    void App::run()
     {
-        // Parse the command line.
-        int r = _parseCmdLine();
-        if (r != 0)
+        if (_exit != 0)
         {
-            return r;
+            return;
         }
-
-        // Create the I/O system.
-        _ioSystem = av::io::System::create();
-        _ioSystem->setVideoQueueSize(_options.ioVideoQueueSize);
-
+        
         // Read the timeline.
         _readTimeline();
 
         // Create the window.
-        _createWindow();
-        _shortcutsHelp();
-        
-        // Create the renderer.
-        _fontSystem = render::FontSystem::create();
-        _render = render::Render::create();
+        GLFWmonitor* glfwMonitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* glfwVidmode = glfwGetVideoMode(glfwMonitor);
+        _createWindow(imaging::Size(
+            std::min(static_cast<int>(_info.size.w * _options.windowScale), glfwVidmode->width),
+            std::min(static_cast<int>(_info.size.h * _options.windowScale), glfwVidmode->height)));
+        glfwSetFramebufferSizeCallback(_glfwWindow, _frameBufferSizeCallback);
+        glfwSetWindowContentScaleCallback(_glfwWindow, _windowContentScaleCallback);
+        if (_options.fullScreen)
+        {
+            _fullscreenWindow();
+        }
+        glfwSetKeyCallback(_glfwWindow, _keyCallback);
+        glfwShowWindow(_glfwWindow);
+
+        // Print the shortcuts help.
+        _printShortcutsHelp();
 
         // Start the main loop.
         if (_options.startPlayback)
@@ -79,8 +125,6 @@ namespace tlr
             glfwPollEvents();
             _tick();
         }
-
-        return r;
     }
 
     void App::exit()
@@ -486,23 +530,5 @@ namespace tlr
     {
         _stopPlayback();
         _seek(value);
-    }
-
-    void App::_print(const std::string& value)
-    {
-        std::cout << value << std::endl;
-    }
-
-    void App::_printVerbose(const std::string& value)
-    {
-        if (_options.verbose)
-        {
-            std::cout << value << std::endl;
-        }
-    }
-
-    void App::_printError(const std::string& value)
-    {
-        std::cerr << "ERROR: " << value << std::endl;
     }
 }

@@ -2,7 +2,6 @@ set(HEADERS
     App.h)
 set(SOURCE
     App.cpp
-    CmdLine.cpp
     Render.cpp
     Window.cpp
     main.cpp)

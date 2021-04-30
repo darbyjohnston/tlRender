@@ -11,129 +11,6 @@
 
 namespace tlr
 {
-    namespace
-    {
-        void glfwErrorCallback(int, const char* description)
-        {
-            std::cerr << "GLFW ERROR: " << description << std::endl;
-        }
-
-        /*void APIENTRY glDebugOutput(
-            GLenum         source,
-            GLenum         type,
-            GLuint         id,
-            GLenum         severity,
-            GLsizei        length,
-            const GLchar * message,
-            const void *   userParam)
-        {
-            switch (severity)
-            {
-            case GL_DEBUG_SEVERITY_HIGH_KHR:
-            case GL_DEBUG_SEVERITY_MEDIUM_KHR:
-                std::cerr << "DEBUG: " << message << std::endl;
-                break;
-            default: break;
-            }
-        }*/
-    }
-
-    void App::_createWindow()
-    {
-        glfwSetErrorCallback(glfwErrorCallback);
-
-        int glfwMajor = 0;
-        int glfwMinor = 0;
-        int glfwRevision = 0;
-        glfwGetVersion(&glfwMajor, &glfwMinor, &glfwRevision);
-        {
-            std::stringstream ss;
-            ss << "GLFW version: " << glfwMajor << "." << glfwMinor << "." << glfwRevision;
-            _printVerbose(ss.str());
-        }
-        if (!glfwInit())
-        {
-            throw std::runtime_error("Cannot initialize GLFW");
-        }
-
-        GLFWmonitor* glfwMonitor = glfwGetPrimaryMonitor();
-        const GLFWvidmode* glfwVidmode = glfwGetVideoMode(glfwMonitor);
-        _windowSize.w = std::min(static_cast<int>(_info.size.w * _options.windowScale), glfwVidmode->width);
-        _windowSize.h = std::min(static_cast<int>(_info.size.h * _options.windowScale), glfwVidmode->height);
-
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
-        //glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
-        _glfwWindow = glfwCreateWindow(
-            _windowSize.w,
-            _windowSize.h,
-            "tlrplay",
-            NULL,
-            NULL);
-        if (!_glfwWindow)
-        {
-            throw std::runtime_error("Cannot create window");
-        }
-        glfwSetWindowUserPointer(_glfwWindow, this);
-        int width = 0;
-        int height = 0;
-        glfwGetFramebufferSize(_glfwWindow, &width, &height);
-        _frameBufferSize.w = width;
-        _frameBufferSize.h = height;
-        glfwGetWindowContentScale(_glfwWindow, &_contentScale.x, &_contentScale.y);
-        glfwSetFramebufferSizeCallback(_glfwWindow, _frameBufferSizeCallback);
-        glfwSetWindowContentScaleCallback(_glfwWindow, _windowContentScaleCallback);
-        if (_options.fullScreen)
-        {
-            _fullscreenWindow();
-        }
-
-        glfwMakeContextCurrent(_glfwWindow);
-        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-        {
-            throw std::runtime_error("Cannot initialize GLAD");
-        }
-        /*GLint flags = 0;
-        glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-        if (flags & static_cast<GLint>(GL_CONTEXT_FLAG_DEBUG_BIT))
-        {
-            glEnable(GL_DEBUG_OUTPUT);
-            glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-            glDebugMessageCallback(glDebugOutput, context.get());
-            glDebugMessageControl(
-                static_cast<GLenum>(GL_DONT_CARE),
-                static_cast<GLenum>(GL_DONT_CARE),
-                static_cast<GLenum>(GL_DONT_CARE),
-                0,
-                nullptr,
-                GLFW_TRUE);
-        }*/
-        const int glMajor = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_VERSION_MAJOR);
-        const int glMinor = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_VERSION_MINOR);
-        const int glRevision = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_REVISION);
-        {
-            std::stringstream ss;
-            ss << "OpenGL version: " << glMajor << "." << glMinor << "." << glRevision;
-            _printVerbose(ss.str());
-        }
-
-        glfwSetKeyCallback(_glfwWindow, _keyCallback);
-
-        glfwShowWindow(_glfwWindow);
-    }
-
-    void App::_destroyWindow()
-    {
-        if (_glfwWindow)
-        {
-            glfwDestroyWindow(_glfwWindow);
-        }
-        glfwTerminate();
-    }
-
     void App::_fullscreenWindow()
     {
         int width = 0;
@@ -228,10 +105,10 @@ namespace tlr
             }
         }
     }
-
-    void App::_shortcutsHelp()
+    
+    void App::_printShortcutsHelp()
     {
-        std::cout <<
+        _print(
             "\n"
             "Keyboard shortcuts:\n"
             "\n"
@@ -243,7 +120,6 @@ namespace tlr
             "    Home   - Go to the start time\n"
             "    End    - Go to the end time\n"
             "    Left   - Go to the previous frame\n"
-            "    Right  - Go to the next frame\n"
-            "\n";
+            "    Right  - Go to the next frame\n");
     }
 }

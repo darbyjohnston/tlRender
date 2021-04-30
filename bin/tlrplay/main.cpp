@@ -12,7 +12,8 @@ int main(int argc, char* argv[])
     try
     {
         auto app = tlr::App::create(argc, argv);
-        r = app->run();
+        app->run();
+        r = app->getExit();
     }
     catch(const std::exception& e)
     {

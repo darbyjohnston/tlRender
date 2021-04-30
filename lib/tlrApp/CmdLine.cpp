@@ -8,7 +8,7 @@ namespace tlr
 {
     namespace app
     {
-        IOption::IOption(
+        ICmdLineOption::ICmdLineOption(
             const std::vector<std::string>& names,
             const std::string& help,
             const std::string& argsHelp) :
@@ -17,19 +17,28 @@ namespace tlr
             _argsHelp(argsHelp)
         {}
 
-        IOption::~IOption()
+        ICmdLineOption::~ICmdLineOption()
         {}
 
-        FlagOption::FlagOption(
+        CmdLineFlagOption::CmdLineFlagOption(
             bool& value,
             const std::vector<std::string>&names,
             const std::string & help,
             const std::string & argsHelp) :
-            IOption(names, help, argsHelp),
+            ICmdLineOption(names, help, argsHelp),
             _value(value)
         {}
 
-        void FlagOption::parse(std::vector<std::string>&args)
+        std::shared_ptr<CmdLineFlagOption> CmdLineFlagOption::create(
+            bool& value,
+            const std::vector<std::string>& names,
+            const std::string& help,
+            const std::string& argsHelp)
+        {
+            return std::shared_ptr<CmdLineFlagOption>(new CmdLineFlagOption(value, names, help, argsHelp));
+        }
+
+        void CmdLineFlagOption::parse(std::vector<std::string>&args)
         {
             for (const auto& name : _names)
             {

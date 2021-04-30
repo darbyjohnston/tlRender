@@ -5,11 +5,6 @@
 #include <tlrApp/IApp.h>
 #include <tlrApp/Util.h>
 
-#include <tlrRender/FontSystem.h>
-#include <tlrRender/Render.h>
-
-#include <tlrAV/IO.h>
-
 #include <tlrTimeline/Util.h>
 
 #include <opentimelineio/clip.h>
@@ -19,8 +14,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-
-struct GLFWwindow;
 
 namespace tlr
 {
@@ -32,17 +25,15 @@ namespace tlr
         bool hud = true;
         bool startPlayback = true;
         bool loopPlayback = true;
-        size_t ioVideoQueueSize = 10;
-        bool verbose = false;
-        bool help = false;
     };
 
     //! Application.
-    class App : app::IApp
+    class App : public app::IApp
     {
         TLR_NON_COPYABLE(App);
 
     protected:
+        void _init(int argc, char* argv[]);
         App();
 
     public:
@@ -52,25 +43,21 @@ namespace tlr
         static std::shared_ptr<App> create(int argc, char* argv[]);
 
         //! Run the application.
-        int run();
+        void run();
 
         //! Exit the application.
         void exit();
 
     private:
-        int _parseCmdLine();
-
         void _readTimeline();
 
-        void _createWindow();
-        void _destroyWindow();
         void _fullscreenWindow();
         void _normalWindow();
         void _fullscreenCallback(bool);
         static void _frameBufferSizeCallback(GLFWwindow*, int, int);
         static void _windowContentScaleCallback(GLFWwindow*, float, float);
         static void _keyCallback(GLFWwindow*, int, int, int, int);
-        void _shortcutsHelp();
+        void _printShortcutsHelp();
 
         void _tick();
 
@@ -93,29 +80,19 @@ namespace tlr
         void _seek(const otime::RationalTime&);
         void _seekCallback(const otime::RationalTime&);
 
-        void _print(const std::string&);
-        void _printVerbose(const std::string&);
-        void _printError(const std::string&);
-
         std::string _input;
         Options _options;
 
-        std::shared_ptr<av::io::System> _ioSystem;
         otio::SerializableObject::Retainer<otio::Timeline> _timeline;
         otio::SerializableObject::Retainer<otio::Track> _flattenedTimeline;
         otime::RationalTime _duration;
         imaging::Info _info;
 
-        GLFWwindow* _glfwWindow = nullptr;
         math::Vector2i _windowPos;
-        imaging::Size _windowSize;
-        imaging::Size _frameBufferSize;
-        math::Vector2f _contentScale;
 
         typedef std::pair<otio::SerializableObject::Retainer<otio::Clip>, std::shared_ptr<av::io::IRead> > Reader;
         std::vector<Reader> _readers;
-        std::shared_ptr<render::FontSystem> _fontSystem;
-        std::shared_ptr<render::Render> _render;
+
         bool _renderDirty = true;
         std::shared_ptr<imaging::Image> _currentImage;
         std::map<app::HUDElement, std::string> _hudLabels;
