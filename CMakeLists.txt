@@ -4,7 +4,7 @@ project(tlRender LANGUAGES CXX)
 
 # Build options
 set(TLR_ENABLE_PYTHON FALSE CACHE BOOL "Enable Python support (for OTIO Python adapters)")
-set(TLR_BUILD_GLFW TRUE CACHE BOOL "Build GLFW support")
+set(TLR_BUILD_GLFW TRUE CACHE BOOL "Build GLFW support (tlrplay-glfw)")
 set(TLR_BUILD_TESTS TRUE CACHE BOOL "Build tests")
 
 # Configure
