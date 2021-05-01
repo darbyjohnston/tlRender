@@ -1,5 +1,2 @@
-add_subdirectory(tlrAV)
-add_subdirectory(tlrApp)
-add_subdirectory(tlrCore)
 add_subdirectory(tlrRender)
-add_subdirectory(tlrTimeline)
+add_subdirectory(tlrApp)

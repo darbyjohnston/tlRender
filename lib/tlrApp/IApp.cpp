@@ -4,13 +4,8 @@
 
 #include <tlrApp/IApp.h>
 
-#include <tlrCore/String.h>
-#include <tlrCore/StringFormat.h>
-
-#include <glad.h>
-
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
+#include <tlrRender/String.h>
+#include <tlrRender/StringFormat.h>
 
 #include <iostream>
 
@@ -18,33 +13,6 @@ namespace tlr
 {
     namespace app
     {
-        namespace
-        {
-            void glfwErrorCallback(int, const char* description)
-            {
-                std::cerr << "GLFW ERROR: " << description << std::endl;
-            }
-
-            /*void APIENTRY glDebugOutput(
-                GLenum         source,
-                GLenum         type,
-                GLuint         id,
-                GLenum         severity,
-                GLsizei        length,
-                const GLchar * message,
-                const void *   userParam)
-            {
-                switch (severity)
-                {
-                case GL_DEBUG_SEVERITY_HIGH_KHR:
-                case GL_DEBUG_SEVERITY_MEDIUM_KHR:
-                    std::cerr << "DEBUG: " << message << std::endl;
-                    break;
-                default: break;
-                }
-            }*/
-        }
-
         void IApp::_init(
             int argc,
             char* argv[],
@@ -77,111 +45,17 @@ namespace tlr
                 { "-help", "-h", "--help", "--h" },
                 "Show this message."));
             _exit = _parseCmdLine();
-
-            // Create the I/O system.
-            _ioSystem = av::io::System::create();
-            _ioSystem->setVideoQueueSize(IApp::_options.ioVideoQueueSize);
-
-            // Initialize GLFW.
-            glfwSetErrorCallback(glfwErrorCallback);
-            int glfwMajor = 0;
-            int glfwMinor = 0;
-            int glfwRevision = 0;
-            glfwGetVersion(&glfwMajor, &glfwMinor, &glfwRevision);
-            {
-                std::stringstream ss;
-                ss << "GLFW version: " << glfwMajor << "." << glfwMinor << "." << glfwRevision;
-                _printVerbose(ss.str());
-            }
-            if (!glfwInit())
-            {
-                throw std::runtime_error("Cannot initialize GLFW");
-            }
         }
         
         IApp::IApp()
         {}
 
         IApp::~IApp()
-        {
-            _destroyWindow();
-            glfwTerminate();
-        }
+        {}
 
         int IApp::getExit() const
         {
             return _exit;
-        }
-
-        void IApp::_createWindow(const imaging::Size& value)
-        {
-            _windowSize = value;
-
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-            glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
-            //glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
-            _glfwWindow = glfwCreateWindow(
-                _windowSize.w,
-                _windowSize.h,
-                "tlrplay",
-                NULL,
-                NULL);
-            if (!_glfwWindow)
-            {
-                throw std::runtime_error("Cannot create window");
-            }
-            glfwSetWindowUserPointer(_glfwWindow, this);
-            int width = 0;
-            int height = 0;
-            glfwGetFramebufferSize(_glfwWindow, &width, &height);
-            _frameBufferSize.w = width;
-            _frameBufferSize.h = height;
-            glfwGetWindowContentScale(_glfwWindow, &_contentScale.x, &_contentScale.y);
-
-            glfwMakeContextCurrent(_glfwWindow);
-            if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-            {
-                throw std::runtime_error("Cannot initialize GLAD");
-            }
-            /*GLint flags = 0;
-            glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-            if (flags & static_cast<GLint>(GL_CONTEXT_FLAG_DEBUG_BIT))
-            {
-                glEnable(GL_DEBUG_OUTPUT);
-                glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-                glDebugMessageCallback(glDebugOutput, context.get());
-                glDebugMessageControl(
-                    static_cast<GLenum>(GL_DONT_CARE),
-                    static_cast<GLenum>(GL_DONT_CARE),
-                    static_cast<GLenum>(GL_DONT_CARE),
-                    0,
-                    nullptr,
-                    GLFW_TRUE);
-            }*/
-            const int glMajor = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_VERSION_MAJOR);
-            const int glMinor = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_VERSION_MINOR);
-            const int glRevision = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_REVISION);
-            {
-                std::stringstream ss;
-                ss << "OpenGL version: " << glMajor << "." << glMinor << "." << glRevision;
-                _printVerbose(ss.str());
-            }
-
-            _fontSystem = render::FontSystem::create();
-            _render = render::Render::create();
-        }
-
-        void IApp::_destroyWindow()
-        {
-            _render.reset();
-            _fontSystem.reset();
-            if (_glfwWindow)
-            {
-                glfwDestroyWindow(_glfwWindow);
-            }
         }
 
         void IApp::_print(const std::string& value)

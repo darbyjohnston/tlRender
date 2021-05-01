@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <tlrCore/Util.h>
-#include <tlrCore/Error.h>
+#include <tlrRender/Util.h>
+#include <tlrRender/Error.h>
 
 #include <memory>
 #include <sstream>

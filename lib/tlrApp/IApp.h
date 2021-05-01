@@ -6,11 +6,6 @@
 
 #include <tlrApp/CmdLine.h>
 
-#include <tlrRender/FontSystem.h>
-#include <tlrRender/Render.h>
-
-#include <tlrAV/IO.h>
-
 #include <memory>
 #include <string>
 #include <vector>
@@ -52,9 +47,6 @@ namespace tlr
             int getExit() const;
 
         protected:
-            void _createWindow(const imaging::Size&);
-            void _destroyWindow();
-
             void _print(const std::string&);
             void _printVerbose(const std::string&);
             void _printError(const std::string&);
@@ -62,16 +54,6 @@ namespace tlr
             Options _options;
 
             int _exit = 0;
-
-            std::shared_ptr<av::io::System> _ioSystem;
-
-            GLFWwindow* _glfwWindow = nullptr;
-            imaging::Size _windowSize;
-            imaging::Size _frameBufferSize;
-            math::Vector2f _contentScale;
-
-            std::shared_ptr<render::FontSystem> _fontSystem;
-            std::shared_ptr<render::Render> _render;
 
         private:
             int _parseCmdLine();

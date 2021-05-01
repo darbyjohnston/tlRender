@@ -1,12 +1,10 @@
 set(HEADERS
     CmdLine.h
     CmdLineInline.h
-    IApp.h
-    Util.h)
+    IApp.h)
 set(SOURCE
     CmdLine.cpp
-    IApp.cpp
-    Util.cpp)
+    IApp.cpp)
 
 add_library(tlrApp ${HEADERS} ${SOURCE})
 target_link_libraries(tlrApp tlrRender)
