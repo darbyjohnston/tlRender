@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlrAV/IO.h>
+#include <tlrRender/IO.h>
 
 extern "C"
 {
@@ -17,62 +17,59 @@ extern "C"
 
 namespace tlr
 {
-    namespace av
+    //! FFmpeg I/O
+    namespace ffmpeg
     {
-        //! FFmpeg I/O
-        namespace ffmpeg
+        //! Get a label for a FFmpeg error code.
+        std::string getErrorLabel(int);
+
+        //! FFmpeg Reader
+        class Read : public io::IRead
         {
-            //! Get a label for a FFmpeg error code.
-            std::string getErrorLabel(int);
+        protected:
+            void _init(
+                const std::string& fileName,
+                const otime::RationalTime& defaultSpeed,
+                size_t videoQueueSize);
+            Read();
 
-            //! FFmpeg Reader
-            class Read : public io::IRead
-            {
-            protected:
-                void _init(
-                    const std::string& fileName,
-                    const otime::RationalTime& defaultSpeed,
-                    size_t videoQueueSize);
-                Read();
+        public:
+            ~Read() override;
 
-            public:
-                ~Read() override;
-
-                //! Create a new reader.
-                static std::shared_ptr<Read> create(
-                    const std::string& fileName,
-                    const otime::RationalTime& defaultSpeed,
-                    size_t videoQueueSize);
+            //! Create a new reader.
+            static std::shared_ptr<Read> create(
+                const std::string& fileName,
+                const otime::RationalTime& defaultSpeed,
+                size_t videoQueueSize);
                 
-                void tick() override;
+            void tick() override;
 
-            private:
-                int _decodeVideo(AVPacket&, io::VideoFrame&);
+        private:
+            int _decodeVideo(AVPacket&, io::VideoFrame&);
 
-                AVFormatContext* _avFormatContext = nullptr;
-                int _avVideoStream = -1;
-                std::map<int, AVCodecParameters*> _avCodecParameters;
-                std::map<int, AVCodecContext*> _avCodecContext;
-                AVFrame* _avFrame = nullptr;
-                AVFrame* _avFrameRgb = nullptr;
-                SwsContext* _swsContext = nullptr;
-            };
+            AVFormatContext* _avFormatContext = nullptr;
+            int _avVideoStream = -1;
+            std::map<int, AVCodecParameters*> _avCodecParameters;
+            std::map<int, AVCodecContext*> _avCodecContext;
+            AVFrame* _avFrame = nullptr;
+            AVFrame* _avFrameRgb = nullptr;
+            SwsContext* _swsContext = nullptr;
+        };
 
-            //! FFmpeg Plugin
-            class Plugin : public io::IPlugin
-            {
-            protected:
-                Plugin();
+        //! FFmpeg Plugin
+        class Plugin : public io::IPlugin
+        {
+        protected:
+            Plugin();
 
-            public:
-                //! Create a new plugin.
-                static std::shared_ptr<Plugin> create();
+        public:
+            //! Create a new plugin.
+            static std::shared_ptr<Plugin> create();
 
-                bool canRead(const std::string&) override;
-                std::shared_ptr<io::IRead> read(
-                    const std::string& fileName,
-                    const otime::RationalTime& defaultSpeed) override;
-            };
-        }
+            bool canRead(const std::string&) override;
+            std::shared_ptr<io::IRead> read(
+                const std::string& fileName,
+                const otime::RationalTime& defaultSpeed) override;
+        };
     }
 }
