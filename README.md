@@ -75,7 +75,7 @@ $ cmake ../tlRender/etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_
 ```
 Start the build:
 ```
-$ cmake --build . -j
+$ cmake --build . -j 4
 ```
 Try running the "tlrplay" application:
 ```
@@ -101,7 +101,7 @@ $ cmake ../tlRender/etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_
 ```
 Start the build:
 ```
-$ cmake --build . -j
+$ cmake --build . -j 4
 ```
 Try running the "tlrplay" application:
 ```
@@ -154,7 +154,7 @@ Run CMake with the super build script:
 ```
 Start the build:
 ```
-> cmake --build . -j
+> cmake --build . -j 4
 ```
 Try running the "tlrplay" application:
 ```
