@@ -10,10 +10,11 @@ editorial timelines.
 The project includes a library for rendering timelines, "tlrRender",
 and sample applications showing the usage of the library. 
 
-The project is written in C++ and uses OpenGL for rendering. OpenTimelineIO
-(https://github.com/PixarAnimationStudios/OpenTimelineIO), FFmpeg (https://ffmpeg.org/),
-and other open source libraries are used for file I/O. The tlRender code is
-provided under a BSD style open source license.
+The project is written in C++ and uses OpenTimelineIO
+(https://github.com/PixarAnimationStudios/OpenTimelineIO) for reading
+timelines. FFmpeg (https://ffmpeg.org/) and other open source libraries
+are used for movie and image I/O. The tlRender code is provided under
+a BSD style open source license.
 
 Supported:
 * Movie clips
