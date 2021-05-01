@@ -43,7 +43,7 @@ namespace tlr
             };
 
             //! Base class for readers/writers.
-            class IIO : std::enable_shared_from_this<IIO>
+            class IIO : public std::enable_shared_from_this<IIO>
             {
                 TLR_NON_COPYABLE(IIO);
 
@@ -115,7 +115,7 @@ namespace tlr
             };
 
             //! Base class for I/O plugins.
-            class IPlugin : std::enable_shared_from_this<IIO>
+            class IPlugin : public std::enable_shared_from_this<IPlugin>
             {
                 TLR_NON_COPYABLE(IPlugin);
 
