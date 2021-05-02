@@ -8,7 +8,7 @@ tlRender, or timeline render, is an early stage project for rendering
 editorial timelines.
 
 The project includes a library for rendering timelines, "tlrRender",
-and sample applications showing the usage of the library. 
+and example applications showing the usage of the library. 
 
 The project is written in C++ and uses OpenTimelineIO
 (https://github.com/PixarAnimationStudios/OpenTimelineIO) for reading
@@ -31,14 +31,20 @@ To do:
 * Rendering to file
 
 
+Example Applicatons
+===================
+
 tlrplay-glfw
 ------------
 ![tlrplay](etc/Images/tlrplay_screenshot1.jpg)
 
-The sample application "tlrplay-glfw" can open an editorial timeline and play it
+The example application "tlrplay-glfw" can open an editorial timeline and play it
 back in a window. A HUD (heads up display), keyboard shortcuts, and command line
 options provide a simple UI to control the application. 
 
+
+Building
+========
 
 Dependencies
 ------------
@@ -59,7 +65,6 @@ tlrplay-glfw:
 
 A CMake super build script is provided to build the dependencies from source.
 
-
 CMake Build Options
 -------------------
 * TLR_ENABLE_PYTHON - Enable Python support (for OTIO Python adapters)
@@ -67,7 +72,6 @@ CMake Build Options
 * TLR_BUILD_OpenEXR - Build OpenEXR support
 * TLR_BUILD_FFmpeg - Build FFmpeg support (Linux and macOS only)
 * TLR_BUILD_GLFW - Build GLFW support (tlrplay-glfw)
-
 
 Building on Linux
 -----------------
@@ -94,7 +98,6 @@ $ export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
 $ ./install/bin/tlrplay-glfw ../tlRender/etc/SampleData/multiple_clips.otio -ws 4
 ```
 
-
 Building on macOS
 -----------------
 Clone the repository:
@@ -119,7 +122,6 @@ Try running the "tlrplay-glfw" application:
 $ export DYLD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
 $ ./install/bin/tlrplay-glfw ../tlRender/etc/SampleData/multiple_clips.otio -ws 4
 ```
-
 
 Building FFmepg on Windows
 --------------------------
@@ -146,7 +148,6 @@ Build FFmpeg, replacing $SOURCE_DIR and $BUILD_DIR with the same directories use
 ```
 > $SOURCE_DIR/etc/Windows/build_ffmpeg_wsl.sh $BUILD_DIR/install
 ```
-
 
 Building on Windows
 -------------------
