@@ -10,31 +10,6 @@
 
 namespace tlr
 {
-    math::BBox2f fitImageInWindow(const imaging::Size& image, const imaging::Size& window)
-    {
-        math::BBox2f out;
-        const float windowAspect = window.getAspect();
-        const float imageAspect = image.getAspect();
-        math::BBox2f bbox;
-        if (windowAspect > imageAspect)
-        {
-            out = math::BBox2f(
-                window.w / 2.F - (window.h * imageAspect) / 2.F,
-                0.F,
-                window.h * imageAspect,
-                window.h);
-        }
-        else
-        {
-            out = math::BBox2f(
-                0.F,
-                window.h / 2.F - (window.w / imageAspect) / 2.F,
-                window.w,
-                window.w / imageAspect);
-        }
-        return out;
-    }
-
     void drawHUDLabel(
         const std::shared_ptr<Render>& render,
         const std::shared_ptr<FontSystem>& fontSystem,

@@ -10,6 +10,8 @@
 
 #include <tlrRender/Timeline.h>
 
+struct GLFWwindow;
+
 namespace tlr
 {
     //! Application options.

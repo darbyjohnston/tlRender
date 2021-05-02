@@ -1,4 +1,6 @@
 if(TLR_BUILD_GLFW)
     add_subdirectory(tlrplay-glfw)
 endif()
-
+if(TLR_BUILD_QT)
+    add_subdirectory(tlrplay-qwidget)
+endif()

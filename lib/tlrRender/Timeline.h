@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <tlrRender/BBox.h>
 #include <tlrRender/IO.h>
 
 #include <opentimelineio/clip.h>
@@ -38,6 +39,9 @@ namespace tlr
             First = Loop
         };
         TLR_ENUM_LABEL(Loop);
+
+        //! Fit an image within a window.
+        math::BBox2f fitWindow(const imaging::Size& image, const imaging::Size& window);
 
         //! Timeline.
         class Timeline : public std::enable_shared_from_this<Timeline>

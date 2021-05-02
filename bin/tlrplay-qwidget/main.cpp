@@ -11,9 +11,8 @@ int main(int argc, char* argv[])
     int r = 0;
     try
     {
-        auto app = tlr::App::create(argc, argv);
-        app->run();
-        r = app->getExit();
+        auto app = new tlr::App(argc, argv);
+        r = app->exec();
     }
     catch(const std::exception& e)
     {

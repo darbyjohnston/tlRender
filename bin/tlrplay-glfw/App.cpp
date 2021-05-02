@@ -47,7 +47,7 @@ namespace tlr
         IApp::_init(
             argc,
             argv,
-            "tlrplay",
+            "tlrplay-glfw",
             "Play an editorial timeline.",
             {
                 app::CmdLineValueArg<std::string>::create(
@@ -149,7 +149,7 @@ namespace tlr
         _glfwWindow = glfwCreateWindow(
             _windowSize.w,
             _windowSize.h,
-            "tlrplay",
+            "tlrplay-glfw",
             NULL,
             NULL);
         if (!_glfwWindow)
@@ -420,7 +420,7 @@ namespace tlr
         {
             _render->drawImage(
                 _currentImage,
-                fitImageInWindow(_currentImage->getSize(), _frameBufferSize));
+                timeline::fitWindow(_currentImage->getSize(), _frameBufferSize));
         }
     }
 

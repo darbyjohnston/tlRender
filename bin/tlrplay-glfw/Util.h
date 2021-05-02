@@ -6,14 +6,8 @@
 
 #include "Render.h"
 
-#include <tlrRender/BBox.h>
-#include <tlrRender/Image.h>
-
 namespace tlr
 {
-    //! Fit an image within a window.
-    math::BBox2f fitImageInWindow(const imaging::Size& image, const imaging::Size& window);
-
     //! HUD elements.
     enum class HUDElement
     {

@@ -5,6 +5,7 @@ project(tlRender LANGUAGES CXX)
 # Build options
 set(TLR_ENABLE_PYTHON FALSE CACHE BOOL "Enable Python support (for OTIO Python adapters)")
 set(TLR_BUILD_GLFW TRUE CACHE BOOL "Build GLFW support (tlrplay-glfw)")
+set(TLR_BUILD_QT FALSE CACHE BOOL "Build Qt support (tlrplay-qt)")
 set(TLR_BUILD_TESTS TRUE CACHE BOOL "Build tests")
 
 # Configure
@@ -37,6 +38,13 @@ if(TLR_BUILD_GLFW)
     find_package(FreeType REQUIRED)
     find_package(glad REQUIRED)
     find_package(GLFW REQUIRED)
+endif()
+if(TLR_BUILD_QT)
+    set(CMAKE_AUTOMOC ON)
+    set(CMAKE_AUTORCC ON)
+    set(CMAKE_AUTOUIC ON)
+    find_package(OpenGL REQUIRED)
+    find_package(Qt5 COMPONENTS Widgets HINTS "$ENV{QTDIR}" REQUIRED)
 endif()
 
 # Sub-directories

@@ -10,8 +10,6 @@
 #include <string>
 #include <vector>
 
-struct GLFWwindow;
-
 namespace tlr
 {
     //! Applications.

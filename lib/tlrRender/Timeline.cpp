@@ -29,6 +29,31 @@ namespace tlr
         TLR_ENUM_LABEL_IMPL(Playback, "Stop", "Forward", "Reverse");
         TLR_ENUM_LABEL_IMPL(Loop, "Loop", "Once", "Ping-Pong");
 
+        math::BBox2f fitWindow(const imaging::Size& image, const imaging::Size& window)
+        {
+            math::BBox2f out;
+            const float windowAspect = window.getAspect();
+            const float imageAspect = image.getAspect();
+            math::BBox2f bbox;
+            if (windowAspect > imageAspect)
+            {
+                out = math::BBox2f(
+                    window.w / 2.F - (window.h * imageAspect) / 2.F,
+                    0.F,
+                    window.h * imageAspect,
+                    window.h);
+            }
+            else
+            {
+                out = math::BBox2f(
+                    0.F,
+                    window.h / 2.F - (window.w / imageAspect) / 2.F,
+                    window.w,
+                    window.w / imageAspect);
+            }
+            return out;
+        }
+
         namespace
         {
 #if defined(TLR_ENABLE_PYTHON)
