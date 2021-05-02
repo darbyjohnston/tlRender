@@ -34,8 +34,7 @@ To do:
 Example Applicatons
 ===================
 
-tlrplay-glfw
-------------
+## tlrplay-glfw
 ![tlrplay](etc/Images/tlrplay_screenshot1.jpg)
 
 The example application "tlrplay-glfw" can open an editorial timeline and play it
