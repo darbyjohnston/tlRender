@@ -123,7 +123,7 @@ $ export DYLD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
 $ ./install/bin/tlrplay-glfw ../tlRender/etc/SampleData/multiple_clips.otio -ws 4
 ```
 
-Building FFmepg on Windows
+Building FFmpeg on Windows
 --------------------------
 Most of the third party software that tlRender depends upon is built as part
 of the CMake super build, except for FFmpeg on Windows. Instead the Windows
