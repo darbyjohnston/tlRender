@@ -112,7 +112,7 @@ $ cmake --build . -j 4
 Try running the "tlrplay-glfw" application:
 ```
 $ export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
-$ ./install/bin/tlrplay-glfw ../tlRender/etc/SampleData/multiple_clips.otio -ws 4
+$ ./install/bin/tlrplay-glfw ../tlRender/etc/SampleData/multiple_clips.otio
 ```
 
 Building on macOS
@@ -137,7 +137,7 @@ $ cmake --build . -j 4
 Try running the "tlrplay-glfw" application:
 ```
 $ export DYLD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
-$ ./install/bin/tlrplay-glfw ../tlRender/etc/SampleData/multiple_clips.otio -ws 4
+$ ./install/bin/tlrplay-glfw ../tlRender/etc/SampleData/multiple_clips.otio
 ```
 
 Building FFmpeg on Windows
@@ -188,6 +188,6 @@ Start the build:
 Try running the "tlrplay-glfw" application:
 ```
 > set PATH=%CD%\install\bin;%CD%\install\lib;%PATH%
-> .\install\bin\tlrplay-glfw ..\tlRender\etc\SampleData\multiple_clips.otio -ws 4
+> .\install\bin\tlrplay-glfw ..\tlRender\etc\SampleData\multiple_clips.otio
 ```
 
