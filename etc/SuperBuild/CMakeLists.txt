@@ -12,6 +12,7 @@ else()
     set(TLR_BUILD_FFmpeg TRUE CACHE BOOL "Build FFmpeg support (Linux and macOS only)")
 endif()
 set(TLR_BUILD_GLFW TRUE CACHE BOOL "Build GLFW support (tlrplay-glfw)")
+set(TLR_BUILD_QT FALSE CACHE BOOL "Build Qt support (tlrplay-qt)")
 set(TLR_BUILD_TESTS TRUE CACHE BOOL "Build tests")
 
 # Configure
