@@ -1,9 +1,11 @@
 set(HEADERS
     App.h
-    GLWidget.h)
+    GLWidget.h
+    MainWindow.h)
 set(SOURCE
     App.cpp
     GLWidget.cpp
+    MainWindow.cpp
     main.cpp)
 
 #set(CMAKE_INCLUDE_CURRENT_DIR ON)

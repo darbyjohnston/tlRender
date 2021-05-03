@@ -29,6 +29,12 @@ namespace tlr
         TLR_ENUM_LABEL_IMPL(Playback, "Stop", "Forward", "Reverse");
         TLR_ENUM_LABEL_IMPL(Loop, "Loop", "Once", "Ping-Pong");
 
+        std::vector<std::string> getExtensions()
+        {
+            //! \todo Get extensions for the Python adapters.
+            return { ".otio" };
+        }
+
         math::BBox2f fitWindow(const imaging::Size& image, const imaging::Size& window)
         {
             math::BBox2f out;
@@ -193,6 +199,12 @@ namespace tlr
                     }
                 }
             }
+
+            // Create observer subjects.
+            _currentTime = Observer::ValueSubject<otime::RationalTime>::create();
+            _playback = Observer::ValueSubject<Playback>::create();
+            _loop = Observer::ValueSubject<Loop>::create();
+            _currentImage = Observer::ValueSubject<std::shared_ptr<imaging::Image> >::create();
         }
 
         Timeline::Timeline()
@@ -210,28 +222,28 @@ namespace tlr
 
         void Timeline::setPlayback(Playback value)
         {
-            if (value == _playback)
-                return;
-            _playback = value;
-            switch (_playback)
+            if (_playback->setIfChanged(value))
             {
-            case Playback::Stop:
-                break;
-            case Playback::Forward:
-                _startTime = std::chrono::steady_clock::now();
-                _playbackStartTime = _currentTime;
-                break;
-            case Playback::Reverse:
-                //! \todo Reverse playback.
-                break;
-            default:
-                break;
+                switch (value)
+                {
+                case Playback::Stop:
+                    break;
+                case Playback::Forward:
+                    _startTime = std::chrono::steady_clock::now();
+                    _playbackStartTime = _currentTime->get();
+                    break;
+                case Playback::Reverse:
+                    //! \todo Reverse playback.
+                    break;
+                default:
+                    break;
+                }
             }
         }
 
         void Timeline::setLoop(Loop value)
         {
-            _loop = value;
+            _loop->setIfChanged(value);
         }
 
         void Timeline::seek(const otime::RationalTime& value)
@@ -245,53 +257,52 @@ namespace tlr
             {
                 tmp = otime::RationalTime(_duration.value() - 1, _duration.rate());
             }
-            if (tmp == _currentTime)
-                return;
 
-            _currentTime = tmp;
-
-            for (const auto& i : _readers)
+            if (_currentTime->setIfChanged(tmp))
             {
-                otio::ErrorStatus errorStatus;
-                auto time = _flattenedTimeline.value->transformed_time(_currentTime, i.first, &errorStatus);
-                if (errorStatus != otio::ErrorStatus::OK)
+                for (const auto& i : _readers)
                 {
-                    throw std::runtime_error(errorStatus.full_description);
+                    otio::ErrorStatus errorStatus;
+                    auto time = _flattenedTimeline.value->transformed_time(tmp, i.first, &errorStatus);
+                    if (errorStatus != otio::ErrorStatus::OK)
+                    {
+                        throw std::runtime_error(errorStatus.full_description);
+                    }
+                    i.second->seek(time);
                 }
-                i.second->seek(time);
-            }
 
-            switch (_playback)
-            {
-            case Playback::Forward:
-                _startTime = std::chrono::steady_clock::now();
-                _playbackStartTime = _currentTime;
-                break;
-            default: break;
+                switch (_playback->get())
+                {
+                case Playback::Forward:
+                    _startTime = std::chrono::steady_clock::now();
+                    _playbackStartTime = _currentTime->get();
+                    break;
+                default: break;
+                }
             }
         }
 
         void Timeline::tick()
         {
-            switch (_playback)
+            switch (_playback->get())
             {
             case Playback::Forward:
             {
                 // Calculate the current time.
                 const auto now = std::chrono::steady_clock::now();
                 const std::chrono::duration<float> diff = now - _startTime;
-                _currentTime = _playbackStartTime + otime::RationalTime(diff.count() * _duration.rate(), _duration.rate());
+                _currentTime->setIfChanged(_playbackStartTime + otime::RationalTime(diff.count() * _duration.rate(), _duration.rate()));
                 const otime::RationalTime maxTime = _duration - otime::RationalTime(1.0, _duration.rate());
-                switch (_loop)
+                switch (_loop->get())
                 {
                 case Loop::Loop:
-                    if (_currentTime > maxTime)
+                    if (_currentTime->get() > maxTime)
                     {
                         seek(otime::RationalTime(0, _duration.rate()));
                     }
                     break;
                 case Loop::Once:
-                    _currentTime = std::min(_currentTime, maxTime);
+                    _currentTime->setIfChanged(std::min(_currentTime->get(), maxTime));
                     break;
                 case Loop::PingPong:
                     //! \todo Ping-pong loop mode.
@@ -304,6 +315,7 @@ namespace tlr
             }
 
             // Create and destroy I/O readers.
+            const otime::RationalTime& currentTime = _currentTime->get();
             for (const auto& child : _flattenedTimeline.value->children())
             {
                 if (auto clip = dynamic_cast<otio::Clip*>(child.value))
@@ -335,12 +347,12 @@ namespace tlr
                         });
 
                     // Is the clip active?
-                    if (_currentTime >= range.start_time() &&
-                        _currentTime < range.start_time() + range.duration())
+                    if (currentTime >= range.start_time() &&
+                        currentTime < range.start_time() + range.duration())
                     {
                         if (i == _readers.end())
                         {
-                            const auto time = _flattenedTimeline.value->transformed_time(_currentTime, clip, &errorStatus);
+                            const auto time = _flattenedTimeline.value->transformed_time(currentTime, clip, &errorStatus);
                             if (errorStatus != otio::ErrorStatus::OK)
                             {
                                 throw std::runtime_error(errorStatus.full_description);
@@ -382,8 +394,8 @@ namespace tlr
                 if (range.has_value())
                 {
                     // Is the clip active?
-                    if (_currentTime >= range.value().start_time() &&
-                        _currentTime < range.value().start_time() + range.value().duration())
+                    if (currentTime >= range.value().start_time() &&
+                        currentTime < range.value().start_time() + range.value().duration())
                     {
                         auto& queue = i.second->getVideoQueue();
                         if (queue.size())
@@ -395,7 +407,7 @@ namespace tlr
                             {
                                 throw std::runtime_error(errorStatus.full_description);
                             }
-                            while (queue.size() > 1 && time < _currentTime)
+                            while (queue.size() > 1 && time < currentTime)
                             {
                                 queue.pop();
                                 frame = queue.front();
@@ -407,7 +419,7 @@ namespace tlr
                             }
                             if (const auto& image = frame.image)
                             {
-                                _currentImage = image;
+                                _currentImage->setIfChanged(image);
                             }
                         }
                     }

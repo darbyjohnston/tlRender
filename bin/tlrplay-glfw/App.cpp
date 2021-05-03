@@ -56,12 +56,6 @@ namespace tlr
                     "The input timeline.")
             },
             {
-                app::CmdLineValueOption<float>::create(
-                    _options.windowScale,
-                    { "-windowScale", "-ws" },
-                    string::Format("Set the window size scale factor. Default: {0}").
-                        arg(_options.windowScale),
-                    "(value)"),
                 app::CmdLineFlagOption::create(
                     _options.fullScreen,
                     { "-fullScreen", "-fs" },
@@ -135,11 +129,6 @@ namespace tlr
         _timeline = timeline::Timeline::create(_input);
 
         // Create the window.
-        GLFWmonitor* glfwMonitor = glfwGetPrimaryMonitor();
-        const GLFWvidmode* glfwVidmode = glfwGetVideoMode(glfwMonitor);
-        const imaging::Info& imageInfo = _timeline->getImageInfo();
-        _windowSize.w = std::min(static_cast<int>(imageInfo.size.w * _options.windowScale), glfwVidmode->width);
-        _windowSize.h = std::min(static_cast<int>(imageInfo.size.h * _options.windowScale), glfwVidmode->height);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
@@ -287,7 +276,7 @@ namespace tlr
         {
             App* app = reinterpret_cast<App*>(glfwGetWindowUserPointer(glfwWindow));
             const otime::RationalTime& duration = app->_timeline->getDuration();
-            const otime::RationalTime& currentTime = app->_timeline->getCurrentTime();
+            const otime::RationalTime& currentTime = app->_timeline->observeCurrentTime()->get();
             switch (key)
             {
             case GLFW_KEY_ESCAPE:
@@ -301,12 +290,15 @@ namespace tlr
                 break;
             case GLFW_KEY_SPACE:
                 app->_playbackCallback(
-                    timeline::Playback::Stop == app->_timeline->getPlayback() ?
+                    timeline::Playback::Stop == app->_timeline->observePlayback()->get() ?
                     timeline::Playback::Forward :
                     timeline::Playback::Stop);
                 break;
             case GLFW_KEY_L:
-                app->_loopPlaybackCallback(timeline::Loop::Loop == app->_timeline->getLoop() ? timeline::Loop::Once : timeline::Loop::Loop);
+                app->_loopPlaybackCallback(
+                    timeline::Loop::Loop == app->_timeline->observeLoop()->get() ?
+                    timeline::Loop::Once :
+                    timeline::Loop::Loop);
                 break;
             case GLFW_KEY_HOME:
                 app->_seekCallback(otime::RationalTime(0, duration.rate()));
@@ -345,7 +337,7 @@ namespace tlr
     {
         // Update.
         _timeline->tick();
-        auto image = _timeline->getCurrentImage();
+        auto image = _timeline->observeCurrentImage()->get();
         if (image != _currentImage)
         {
             _currentImage = image;
@@ -394,7 +386,7 @@ namespace tlr
 
         // Current time.
         otime::ErrorStatus errorStatus;
-        const std::string label = _timeline->getCurrentTime().to_timecode(&errorStatus);
+        const std::string label = _timeline->observeCurrentTime()->get().to_timecode(&errorStatus);
         if (errorStatus != otio::ErrorStatus::OK)
         {
             throw std::runtime_error(errorStatus.details);
@@ -488,7 +480,7 @@ namespace tlr
         _timeline->setPlayback(value);
         {
             std::stringstream ss;
-            ss << "Playback: " << _timeline->getPlayback();
+            ss << "Playback: " << _timeline->observePlayback()->get();
             _print(ss.str());
         }
     }
@@ -498,7 +490,7 @@ namespace tlr
         _timeline->setLoop(value);
         {
             std::stringstream ss;
-            ss << "Loop playback: " << _timeline->getLoop();
+            ss << "Loop playback: " << _timeline->observeLoop()->get();
             _print(ss.str());
         }
     }

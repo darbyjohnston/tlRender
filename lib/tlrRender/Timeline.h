@@ -6,6 +6,7 @@
 
 #include <tlrRender/BBox.h>
 #include <tlrRender/IO.h>
+#include <tlrRender/ValueObserver.h>
 
 #include <opentimelineio/clip.h>
 #include <opentimelineio/timeline.h>
@@ -40,6 +41,9 @@ namespace tlr
         };
         TLR_ENUM_LABEL(Loop);
 
+        //! Get the timeline file extensions.
+        std::vector<std::string> getExtensions();
+
         //! Fit an image within a window.
         math::BBox2f fitWindow(const imaging::Size& image, const imaging::Size& window);
 
@@ -64,17 +68,17 @@ namespace tlr
             //! Get the image info (from the first clip in the timeline).
             const imaging::Info& getImageInfo() const;
 
-            //! Get the current time.
-            const otime::RationalTime& getCurrentTime() const;
+            //! Observe the current time.
+            std::shared_ptr<Observer::IValueSubject<otime::RationalTime> > observeCurrentTime() const;
 
-            //! Get the playback mode.
-            Playback getPlayback() const;
+            //! Observe the playback mode.
+            std::shared_ptr<Observer::IValueSubject<Playback> > observePlayback() const;
 
             //! Set the playback mode.
             void setPlayback(Playback);
 
-            //! Get the playback loop mode.
-            Loop getLoop() const;
+            //! Observe the playback loop mode.
+            std::shared_ptr<Observer::IValueSubject<Loop> > observeLoop() const;
 
             //! Set the playback loop mode.
             void setLoop(Loop);
@@ -85,8 +89,8 @@ namespace tlr
             //! Tick the timeline.
             void tick();
 
-            //! Get the current image.
-            const std::shared_ptr<imaging::Image>& getCurrentImage() const;
+            //! Observe the current image.
+            std::shared_ptr<Observer::IValueSubject<std::shared_ptr<imaging::Image> > > observeCurrentImage() const;
 
             //! Set the I/O video queue size.
             void setVideoQueueSize(size_t);
@@ -95,19 +99,18 @@ namespace tlr
             otio::SerializableObject::Retainer<otio::Timeline> _timeline;
             otio::SerializableObject::Retainer<otio::Track> _flattenedTimeline;
             otime::RationalTime _duration;
-
             std::shared_ptr<io::System> _ioSystem;
             imaging::Info _imageInfo;
             typedef std::pair<otio::SerializableObject::Retainer<otio::Clip>, std::shared_ptr<io::IRead> > Reader;
             std::vector<Reader> _readers;
 
-            std::chrono::steady_clock::time_point _startTime;
-            otime::RationalTime _currentTime;
-            Playback _playback = Playback::Stop;
-            Loop _loop = Loop::Loop;
-            otime::RationalTime _playbackStartTime;
+            std::shared_ptr<Observer::ValueSubject<otime::RationalTime> > _currentTime;
+            std::shared_ptr<Observer::ValueSubject<Playback> > _playback;
+            std::shared_ptr<Observer::ValueSubject<Loop> > _loop;
+            std::shared_ptr<Observer::ValueSubject<std::shared_ptr<imaging::Image> > > _currentImage;
 
-            std::shared_ptr<imaging::Image> _currentImage;
+            std::chrono::steady_clock::time_point _startTime;
+            otime::RationalTime _playbackStartTime;
         };
     }
 

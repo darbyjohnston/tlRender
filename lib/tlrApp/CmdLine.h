@@ -105,7 +105,8 @@ namespace tlr
         protected:
             ICmdLineArg(
                 const std::string& name,
-                const std::string& help);
+                const std::string& help,
+                bool optional);
 
         public:
             virtual ~ICmdLineArg() = 0;
@@ -119,9 +120,13 @@ namespace tlr
             //! Get the help.
             const std::string& getHelp() const;
 
+            //! Get whether this argument is optional.
+            bool isOptional() const;
+
         protected:
             std::string _name;
             std::string _help;
+            bool _optional = false;
         };
 
         //! Command line value argument.
@@ -132,13 +137,15 @@ namespace tlr
             CmdLineValueArg(
                 T& value,
                 const std::string& name,
-                const std::string& help);
+                const std::string& help,
+                bool optional);
 
         public:
             static std::shared_ptr<CmdLineValueArg<T> > create(
                 T& value,
                 const std::string& name,
-                const std::string& help);
+                const std::string& help,
+                bool optional = false);
 
             void parse(std::vector<std::string>& args) override;
 

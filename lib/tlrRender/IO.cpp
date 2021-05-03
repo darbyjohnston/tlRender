@@ -4,6 +4,7 @@
 
 #include <tlrRender/IO.h>
 
+#include <tlrRender/File.h>
 #include <tlrRender/String.h>
 
 #if defined(PNG_FOUND)
@@ -21,12 +22,6 @@
 #if defined(FFmpeg_FOUND)
 #include <tlrRender/FFmpeg.h>
 #endif
-
-extern "C"
-{
-#include <fseq.h>
-
-} // extern "C"
 
 #include <iomanip>
 #include <sstream>
@@ -73,15 +68,8 @@ namespace tlr
         {
             IRead::_init(fileName, defaultSpeed, videoQueueSize);
 
-            struct FSeqFileName f;
-            fseqFileNameInit(&f);
-            fseqFileNameSplit(fileName.c_str(), &f, string::cBufferSize);
-            _path = f.path;
-            _baseName = f.base;
-            _number = f.number;
+            file::split(fileName, &_path, &_baseName, &_number, &_extension);
             _pad = !_number.empty() ? ('0' == _number[0] ? _number.size() : 0) : 0;
-            _extension = f.extension;
-            fseqFileNameDel(&f);
         }
 
         ISequenceRead::ISequenceRead()

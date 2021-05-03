@@ -125,59 +125,66 @@ namespace tlr
 
         const int tw = _texture->width();
         const int th = _texture->height();
-        if (_image)
+        if (_image != _image2)
         {
-            const imaging::Info& info = _image->getInfo();
-            if (tw != info.size.w || th != info.size.h)
+            _image2 = _image;
+            if (_image2)
             {
-                _texture->destroy();
-                _texture->setFormat(getTextureFormat(info.pixelType));
-                _texture->setSize(info.size.w, info.size.h);
-                _texture->allocateStorage();
+                const imaging::Info& info = _image2->getInfo();
+                if (tw != info.size.w || th != info.size.h)
+                {
+                    _texture->destroy();
+                    _texture->setFormat(getTextureFormat(info.pixelType));
+                    _texture->setSize(info.size.w, info.size.h);
+                    _texture->allocateStorage();
+                }
+                _texture->bind();
+                _texture->setData(getPixelFormat(info.pixelType), getPixelType(info.pixelType), _image2->getData());
             }
-            _texture->bind();
-            _texture->setData(getPixelFormat(info.pixelType), getPixelType(info.pixelType), _image->getData());
-            _image.reset();
         }
-        _texture->bind();
 
-        _program->bind();
-        QMatrix4x4 m;
-        m.ortho(0.F, static_cast<float>(w), static_cast<float>(h), 0.F, -1.F, 1.F);
-        _program->setUniformValue("mvp", m);
-        _program->setUniformValue("textureSampler", 0);
+        if (_image2)
+        {
+            _texture->bind();
 
-        const math::BBox2f bbox = timeline::fitWindow(imaging::Size(tw, th), imaging::Size(w, h));
-        VBOVertex vboData[4];
-        vboData[0].vx = bbox.min.x;
-        vboData[0].vy = bbox.min.y;
-        vboData[0].tx = 0;
-        vboData[0].ty = 0;
-        vboData[1].vx = bbox.max.x;
-        vboData[1].vy = bbox.min.y;
-        vboData[1].tx = 65535;
-        vboData[1].ty = 0;
-        vboData[2].vx = bbox.min.x;
-        vboData[2].vy = bbox.max.y;
-        vboData[2].tx = 0;
-        vboData[2].ty = 65535;
-        vboData[3].vx = bbox.max.x;
-        vboData[3].vy = bbox.max.y;
-        vboData[3].tx = 65535;
-        vboData[3].ty = 65535;
-        QOpenGLBuffer vbo;
-        vbo.create();
-        vbo.bind();
-        vbo.allocate(vboData, 4 * sizeof(VBOVertex));
+            _program->bind();
+            QMatrix4x4 m;
+            m.ortho(0.F, static_cast<float>(w), static_cast<float>(h), 0.F, -1.F, 1.F);
+            _program->setUniformValue("mvp", m);
+            _program->setUniformValue("textureSampler", 0);
 
-        QOpenGLVertexArrayObject vao;
-        vao.create();
-        vao.bind();
-        _program->enableAttributeArray(0);
-        _program->enableAttributeArray(1);
-        _program->setAttributeBuffer(0, GL_FLOAT, 0, 2, sizeof(VBOVertex));
-        _program->setAttributeBuffer(1, GL_UNSIGNED_SHORT, 8, 2, sizeof(VBOVertex));
+            const math::BBox2f bbox = timeline::fitWindow(imaging::Size(tw, th), imaging::Size(w, h));
+            VBOVertex vboData[4];
+            vboData[0].vx = bbox.min.x;
+            vboData[0].vy = bbox.min.y;
+            vboData[0].tx = 0;
+            vboData[0].ty = 0;
+            vboData[1].vx = bbox.max.x;
+            vboData[1].vy = bbox.min.y;
+            vboData[1].tx = 65535;
+            vboData[1].ty = 0;
+            vboData[2].vx = bbox.min.x;
+            vboData[2].vy = bbox.max.y;
+            vboData[2].tx = 0;
+            vboData[2].ty = 65535;
+            vboData[3].vx = bbox.max.x;
+            vboData[3].vy = bbox.max.y;
+            vboData[3].tx = 65535;
+            vboData[3].ty = 65535;
+            QOpenGLBuffer vbo;
+            vbo.create();
+            vbo.bind();
+            vbo.allocate(vboData, 4 * sizeof(VBOVertex));
 
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+            QOpenGLVertexArrayObject vao;
+            vao.create();
+            vao.bind();
+            _program->enableAttributeArray(0);
+            _program->enableAttributeArray(1);
+            _program->setAttributeBuffer(0, GL_FLOAT, 0, 2, sizeof(VBOVertex));
+            _program->setAttributeBuffer(1, GL_UNSIGNED_SHORT, 8, 2, sizeof(VBOVertex));
+
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        }
     }
 }

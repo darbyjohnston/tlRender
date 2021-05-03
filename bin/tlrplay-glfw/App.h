@@ -17,7 +17,6 @@ namespace tlr
     //! Application options.
     struct Options
     {
-        float windowScale = 1.F;
         bool fullScreen = false;
         bool hud = true;
         bool startPlayback = true;
@@ -73,7 +72,7 @@ namespace tlr
 
         GLFWwindow* _glfwWindow = nullptr;
         math::Vector2i _windowPos;
-        imaging::Size _windowSize;
+        imaging::Size _windowSize = imaging::Size(640, 360);
         imaging::Size _frameBufferSize;
         math::Vector2f _contentScale;
         std::shared_ptr<FontSystem> _fontSystem;

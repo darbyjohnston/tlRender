@@ -74,9 +74,11 @@ namespace tlr
 
         inline ICmdLineArg::ICmdLineArg(
             const std::string& name,
-            const std::string& help) :
+            const std::string& help,
+            bool optional) :
             _name(name),
-            _help(help)
+            _help(help),
+            _optional(optional)
         {}
 
         inline ICmdLineArg::~ICmdLineArg()
@@ -92,12 +94,18 @@ namespace tlr
             return _help;
         }
 
+        inline bool ICmdLineArg::isOptional() const
+        {
+            return _optional;
+        }
+
         template<typename T>
         inline CmdLineValueArg<T>::CmdLineValueArg(
             T& value,
             const std::string& name,
-            const std::string& help) :
-            ICmdLineArg(name, help),
+            const std::string& help,
+            bool optional) :
+            ICmdLineArg(name, help, optional),
             _value(value)
         {}
 
@@ -105,9 +113,10 @@ namespace tlr
         inline std::shared_ptr<CmdLineValueArg<T> > CmdLineValueArg<T>::create(
             T& value,
             const std::string& name,
-            const std::string& help)
+            const std::string& help,
+            bool optional)
         {
-            return std::shared_ptr<CmdLineValueArg<T> >(new CmdLineValueArg<T>(value, name, help));
+            return std::shared_ptr<CmdLineValueArg<T> >(new CmdLineValueArg<T>(value, name, help, optional));
         }
 
         template<typename T>

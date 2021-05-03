@@ -2,6 +2,8 @@
 // Copyright (c) 2021 Darby Johnston
 // All rights reserved.
 
+#pragma once
+
 #include <tlrRender/Image.h>
 
 #include <QOpenGLFunctions>
@@ -27,6 +29,7 @@ namespace tlr
 
     private:
         std::shared_ptr<imaging::Image> _image;
+        std::shared_ptr<imaging::Image> _image2;
         QPointer<QOpenGLShaderProgram> _program;
         std::unique_ptr<QOpenGLTexture> _texture;
     };

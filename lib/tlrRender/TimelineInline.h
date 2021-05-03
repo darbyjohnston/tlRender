@@ -16,22 +16,22 @@ namespace tlr
             return _imageInfo;
         }
 
-        inline const otime::RationalTime& Timeline::getCurrentTime() const
+        inline std::shared_ptr<Observer::IValueSubject<otime::RationalTime> > Timeline::observeCurrentTime() const
         {
             return _currentTime;
         }
 
-        inline Playback Timeline::getPlayback() const
+        inline std::shared_ptr<Observer::IValueSubject<Playback> > Timeline::observePlayback() const
         {
             return _playback;
         }
 
-        inline Loop Timeline::getLoop() const
+        inline std::shared_ptr<Observer::IValueSubject<Loop> > Timeline::observeLoop() const
         {
             return _loop;
         }
 
-        inline const std::shared_ptr<imaging::Image>& Timeline::getCurrentImage() const
+        inline std::shared_ptr<Observer::IValueSubject<std::shared_ptr<imaging::Image> > > Timeline::observeCurrentImage() const
         {
             return _currentImage;
         }

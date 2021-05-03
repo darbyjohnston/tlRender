@@ -12,10 +12,15 @@ set(HEADERS
     IOInline.h
     Image.h
     ImageInline.h
+    ListObserver.h
+    ListObserverInline.h
+    MapObserver.h
+    MapObserverInline.h
     Math.h
     MathInline.h
     Matrix.h
     MatrixInline.h
+    Observer.h
     Range.h
     RangeInline.h
     String.h
@@ -24,6 +29,8 @@ set(HEADERS
     Timeline.h
     TimelineInline.h
     Util.h
+    ValueObserver.h
+    ValueObserverInline.h
     Vector.h
     VectorInline.h)
 set(SOURCE

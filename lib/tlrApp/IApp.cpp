@@ -91,16 +91,27 @@ namespace tlr
                     throw std::runtime_error(ss.str());
                 }
             }
-            if (_cmdLine.size() != _cmdLineArgs.size() || _options.help)
+            /*size_t requiredArgs = 0;
+            for (const auto& i : _cmdLineArgs)
             {
-                _printCmdLineHelp();
-                return 1;
-            }
+                if (!i->isOptional())
+                {
+                    ++requiredArgs;
+                }
+            }*/
+            //if (_cmdLine.size() < requiredArgs || _options.help)
+            //{
+            //    _printCmdLineHelp();
+            //    return 1;
+            //}
             for (const auto& i : _cmdLineArgs)
             {
                 try
                 {
-                    i->parse(_cmdLine);
+                    if (!(_cmdLine.empty() && i->isOptional()))
+                    {
+                        i->parse(_cmdLine);
+                    }
                 }
                 catch (const std::exception& e)
                 {
@@ -108,6 +119,11 @@ namespace tlr
                     ss << "Cannot parse argument \"" << i->getName() << "\": " << e.what();
                     throw std::runtime_error(ss.str());
                 }
+            }
+            if (!_cmdLine.empty() || _options.help)
+            {
+                _printCmdLineHelp();
+                return 1;
             }
             return 0;
         }
@@ -125,7 +141,11 @@ namespace tlr
                     std::vector<std::string> args;
                     for (const auto& i : _cmdLineArgs)
                     {
-                        args.push_back("(" + string::toLower(i->getName()) + ")");
+                        const bool optional = i->isOptional();
+                        args.push_back(
+                            (optional ? "[" : "(") +
+                            string::toLower(i->getName()) +
+                            (optional ? "]" : ")"));
                     }
                     ss << " " << string::join(args, " ");
                 }
