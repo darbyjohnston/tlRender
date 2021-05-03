@@ -21,52 +21,52 @@ namespace tlr
         setAcceptDrops(true);
 
         _actions["File/Open"] = new QAction;
-        _actions["File/Open"]->setText("Open");
+        _actions["File/Open"]->setText(tr("Open"));
         _actions["File/Open"]->setShortcut(QKeySequence::Open);
         _actions["File/Close"] = new QAction;
-        _actions["File/Close"]->setText("Close");
+        _actions["File/Close"]->setText(tr("Close"));
         _actions["File/Close"]->setShortcut(QKeySequence::Close);
         _actions["File/Exit"] = new QAction;
-        _actions["File/Exit"]->setText("Exit");
+        _actions["File/Exit"]->setText(tr("Exit"));
         _actions["File/Exit"]->setShortcut(QKeySequence::Quit);
 
         _actions["Playback/Stop"] = new QAction;
         _actions["Playback/Stop"]->setCheckable(true);
-        _actions["Playback/Stop"]->setText("Stop Playback");
+        _actions["Playback/Stop"]->setText(tr("Stop Playback"));
         _actions["Playback/Stop"]->setIcon(style()->standardIcon(QStyle::SP_MediaStop));
-        _actions["Playback/Stop"]->setToolTip("Stop playback");
+        _actions["Playback/Stop"]->setToolTip(tr("Stop playback"));
         _actions["Playback/Forward"] = new QAction;
         _actions["Playback/Forward"]->setCheckable(true);
-        _actions["Playback/Forward"]->setText("Forward Playback");
+        _actions["Playback/Forward"]->setText(tr("Forward Playback"));
         _actions["Playback/Forward"]->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
-        _actions["Playback/Forward"]->setToolTip("Forward playback");
+        _actions["Playback/Forward"]->setToolTip(tr("Forward playback"));
         _actions["Playback/Toggle"] = new QAction;
-        _actions["Playback/Toggle"]->setText("Toggle Playback");
+        _actions["Playback/Toggle"]->setText(tr("Toggle Playback"));
         _actions["Playback/Toggle"]->setShortcut(QKeySequence(Qt::Key_Space));
-        _actions["Playback/Toggle"]->setToolTip("Toggle playback");
+        _actions["Playback/Toggle"]->setToolTip(tr("Toggle playback"));
 
         _actions["Playback/StartFrame"] = new QAction;
-        _actions["Playback/StartFrame"]->setText("Start Frame");
+        _actions["Playback/StartFrame"]->setText(tr("Start Frame"));
         _actions["Playback/StartFrame"]->setShortcut(QKeySequence(Qt::Key_Home));
         _actions["Playback/EndFrame"] = new QAction;
-        _actions["Playback/EndFrame"]->setText("End Frame");
+        _actions["Playback/EndFrame"]->setText(tr("End Frame"));
         _actions["Playback/EndFrame"]->setShortcut(QKeySequence(Qt::Key_End));
         _actions["Playback/PrevFrame"] = new QAction;
-        _actions["Playback/PrevFrame"]->setText("Previous Frame");
+        _actions["Playback/PrevFrame"]->setText(tr("Previous Frame"));
         _actions["Playback/PrevFrame"]->setShortcut(QKeySequence(Qt::Key_Left));
         _actions["Playback/NextFrame"] = new QAction;
-        _actions["Playback/NextFrame"]->setText("Next Frame");
+        _actions["Playback/NextFrame"]->setText(tr("Next Frame"));
         _actions["Playback/NextFrame"]->setShortcut(QKeySequence(Qt::Key_Right));
 
         auto fileMenu = new QMenu;
-        fileMenu->setTitle("&File");
+        fileMenu->setTitle(tr("&File"));
         fileMenu->addAction(_actions["File/Open"]);
         fileMenu->addAction(_actions["File/Close"]);
         fileMenu->addSeparator();
         fileMenu->addAction(_actions["File/Exit"]);
 
         auto playbackMenu = new QMenu;
-        playbackMenu->setTitle("&Playback");
+        playbackMenu->setTitle(tr("&Playback"));
         playbackMenu->addAction(_actions["Playback/Toggle"]);
         playbackMenu->addSeparator();
         playbackMenu->addAction(_actions["Playback/StartFrame"]);
@@ -84,16 +84,16 @@ namespace tlr
         _currentTimeLabel->setMargin(10);
         _currentTimeLabel->setFont(fixedFont);
         _currentTimeLabel->setText("00:00:00:00");
-        _currentTimeLabel->setToolTip("Current time");
+        _currentTimeLabel->setToolTip(tr("Current time"));
 
         _timeSlider = new QSlider(Qt::Orientation::Horizontal);
-        _timeSlider->setToolTip("Time slider");
+        _timeSlider->setToolTip(tr("Time slider"));
 
         _durationLabel = new QLabel;
         _durationLabel->setMargin(10);
         _durationLabel->setFont(fixedFont);
         _durationLabel->setText("00:00:00:00");
-        _durationLabel->setToolTip("Duration");
+        _durationLabel->setToolTip(tr("Duration"));
 
         auto playbackToolBar = new QToolBar;
         playbackToolBar->setMovable(false);
