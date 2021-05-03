@@ -36,7 +36,7 @@ Example Applications
 
 tlrplay-glfw
 ------------
-![tlrplay](etc/Images/tlrplay-glfw-screenshot1.png)
+![tlrplay](etc/Images/tlrplay-glfw-screenshot1.PNG)
 
 The example application "tlrplay-glfw" can open an editorial timeline from the
 command line and play it back in a window. A HUD (heads up display), keyboard
@@ -44,7 +44,7 @@ shortcuts, and command line options provide a simple UI to control the applicati
 
 tlrplay-qwidget
 ------------
-![tlrplay](etc/Images/tlrplay-qwidget-screenshot1.png)
+![tlrplay](etc/Images/tlrplay-qwidget-screenshot1.PNG)
 
 The example application "tlrplay-qwidget" is a Qt QWidget application for
  playing back timelines. Playback buttons, a frame slider, and keyboard shortcuts
