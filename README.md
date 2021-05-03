@@ -36,11 +36,20 @@ Example Applications
 
 tlrplay-glfw
 ------------
-![tlrplay](etc/Images/tlrplay_screenshot1.jpg)
+![tlrplay](etc/Images/tlrplay-glfw-screenshot1.png)
 
-The example application "tlrplay-glfw" can open an editorial timeline and play it
-back in a window. A HUD (heads up display), keyboard shortcuts, and command line
-options provide a simple UI to control the application. 
+The example application "tlrplay-glfw" can open an editorial timeline from the
+command line and play it back in a window. A HUD (heads up display), keyboard
+shortcuts, and command line options provide a simple UI to control the application. 
+
+tlrplay-qwidget
+------------
+![tlrplay](etc/Images/tlrplay-qwidget-screenshot1.png)
+
+The example application "tlrplay-qwidget" is a Qt QWidget application for
+ playing back timelines. Playback buttons, a frame slider, and keyboard shortcuts
+provide control of the application. Timelines can be opened from the "File/Open"
+menu or drag and dropped onto the window.
 
 
 Building
@@ -63,7 +72,14 @@ tlrplay-glfw:
 * glad - https://github.com/Dav1dde/glad
 * FreeType - https://www.freetype.org
 
+tlrplay-qwidget:
+* Qt - https://www.qt.io
+
 A CMake super build script is provided to build the dependencies from source.
+
+Note that Qt is not included in the super build, you must install it separately.
+Make sure that the QTDIR environment variable is set to the location of the Qt
+install.
 
 CMake Build Options
 -------------------
@@ -72,6 +88,7 @@ CMake Build Options
 * TLR_BUILD_OpenEXR - Build OpenEXR support
 * TLR_BUILD_FFmpeg - Build FFmpeg support (Linux and macOS only)
 * TLR_BUILD_GLFW - Build GLFW support (tlrplay-glfw)
+* TLR_BUILD_QT - Build QT support (tlrplay-qwidget)
 
 Building on Linux
 -----------------
