@@ -2,13 +2,14 @@
 // Copyright (c) 2021 Darby Johnston
 // All rights reserved.
 
-#include "FontSystem.h"
-#include "Render.h"
 #include "Util.h"
 
 #include <tlrApp/IApp.h>
 
-#include <tlrRender/Timeline.h>
+#include <tlrGL/FontSystem.h>
+#include <tlrGL/Render.h>
+
+#include <tlrCore/Timeline.h>
 
 struct GLFWwindow;
 
@@ -75,8 +76,8 @@ namespace tlr
         imaging::Size _windowSize = imaging::Size(640, 360);
         imaging::Size _frameBufferSize;
         math::Vector2f _contentScale;
-        std::shared_ptr<FontSystem> _fontSystem;
-        std::shared_ptr<Render> _render;
+        std::shared_ptr<gl::FontSystem> _fontSystem;
+        std::shared_ptr<gl::Render> _render;
         bool _renderDirty = true;
         std::shared_ptr<imaging::Image> _currentImage;
         std::map<HUDElement, std::string> _hudLabels;

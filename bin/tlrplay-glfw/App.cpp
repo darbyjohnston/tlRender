@@ -4,9 +4,9 @@
 
 #include "App.h"
 
-#include <tlrRender/Math.h>
-#include <tlrRender/StringFormat.h>
-#include <tlrRender/Time.h>
+#include <tlrCore/Math.h>
+#include <tlrCore/StringFormat.h>
+#include <tlrCore/Time.h>
 
 #include <glad.h>
 
@@ -190,8 +190,8 @@ namespace tlr
         glfwShowWindow(_glfwWindow);
 
         // Create the renderer.
-        _fontSystem = FontSystem::create();
-        _render = Render::create();
+        _fontSystem = gl::FontSystem::create();
+        _render = gl::Render::create();
 
         // Print the shortcuts help.
         _printShortcutsHelp();
@@ -432,7 +432,7 @@ namespace tlr
                 _fontSystem,
                 _frameBufferSize,
                 i->second,
-                FontFamily::NotoSans,
+                gl::FontFamily::NotoSans,
                 fontSize,
                 HUDElement::UpperLeft);
         }
@@ -445,7 +445,7 @@ namespace tlr
                 _fontSystem,
                 _frameBufferSize,
                 i->second,
-                FontFamily::NotoMono,
+                gl::FontFamily::NotoMono,
                 fontSize,
                 HUDElement::LowerLeft);
         }
@@ -458,7 +458,7 @@ namespace tlr
                 _fontSystem,
                 _frameBufferSize,
                 i->second,
-                FontFamily::NotoMono,
+                gl::FontFamily::NotoMono,
                 fontSize,
                 HUDElement::LowerRight);
         }

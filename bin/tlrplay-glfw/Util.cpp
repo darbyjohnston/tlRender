@@ -4,26 +4,26 @@
 
 #include "Util.h"
 
-#include <tlrRender/Math.h>
+#include <tlrCore/Math.h>
 
 #include <cmath>
 
 namespace tlr
 {
     void drawHUDLabel(
-        const std::shared_ptr<Render>& render,
-        const std::shared_ptr<FontSystem>& fontSystem,
+        const std::shared_ptr<gl::Render>& render,
+        const std::shared_ptr<gl::FontSystem>& fontSystem,
         const imaging::Size& window,
         const std::string& text,
-        FontFamily fontFamily,
+        gl::FontFamily fontFamily,
         uint16_t fontSize,
         HUDElement hudElement)
     {
         const imaging::Color4f labelColor(1.F, 1.F, 1.F);
         const imaging::Color4f overlayColor(0.F, 0.F, 0.F, .7F);
 
-        const FontInfo fontInfo(fontFamily, fontSize);
-        const FontMetrics fontMetrics = fontSystem->getMetrics(fontInfo);
+        const gl::FontInfo fontInfo(fontFamily, fontSize);
+        const gl::FontMetrics fontMetrics = fontSystem->getMetrics(fontInfo);
 
         const float margin = fontSize;
         const math::BBox2f marginBBox = math::BBox2f(0.F, 0.F, window.w, window.h).margin(-margin);

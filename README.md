@@ -7,8 +7,8 @@ tlRender
 tlRender, or timeline render, is an early stage project for rendering
 editorial timelines.
 
-The project includes a library for rendering timelines, "tlrRender",
-and example applications showing the usage of the library. 
+The project includes libraries for rendering timelines with either Qt
+or OpenGL, and example applications showing the usage of the libraries. 
 
 The project is written in C++ and uses OpenTimelineIO
 (https://github.com/PixarAnimationStudios/OpenTimelineIO) for reading
@@ -31,50 +31,80 @@ To do:
 * Rendering to file
 
 
-Example Applications
-====================
+Libraries
+=========
+
+tlrCore
+-------
+The core library providing timeline functionality, file I/O, and other
+utilities.
+
+Dependencies:
+* OpenTimelineIO - https://github.com/PixarAnimationStudios/OpenTimelineIO
+* FSeq - https://github.com/darbyjohnston/FSeq
+* ZLIB - https://zlib.net
+
+Optional dependencies:
+* FFmpeg - https://ffmpeg.org
+* OpenEXR - https://www.openexr.com/
+* JPEG - https://libjpeg-turbo.org
+
+tlrGL
+-----
+Timeline rendering using OpenGL.
+
+Dependencies:
+* glad - https://github.com/Dav1dde/glad
+* FreeType - https://www.freetype.org
+
+tlrQt
+-----
+Qt widgets and objects for rendering and controlling timelines.
+
+Dependencies:
+* Qt - https://www.qt.io
+
+tlrApp
+------
+Utility library for the example applications.
+
+
+Examples
+========
 
 tlrplay-glfw
 ------------
 ![tlrplay](etc/Images/tlrplay-glfw-screenshot1.PNG)
 
-The example application "tlrplay-glfw" can open an editorial timeline from the
-command line and play it back in a window. A HUD (heads up display), keyboard
-shortcuts, and command line options provide a simple UI to control the application. 
+The example application "tlrplay-glfw" demonstrates using tlRender with
+OpenGL and GLFW.
+
+Timelines can be opened from the command line.
+
+A HUD (heads up display), keyboard shortcuts, and command line options
+provide controls for the application. 
+
+Dependencies:
+* GLFW - https://www.glfw.org
 
 tlrplay-qwidget
 ------------
 ![tlrplay](etc/Images/tlrplay-qwidget-screenshot1.PNG)
 
-The example application "tlrplay-qwidget" is a Qt QWidget application for
- playing back timelines. Playback buttons, a frame slider, and keyboard shortcuts
-provide control of the application. Timelines can be opened from the "File/Open"
-menu or drag and dropped onto the window.
+The example application "tlrplay-qwidget" demonstrates using tlRender with
+a QWidget application.
 
+Timelines can be opened from the "File/Open" menu, drag and dropped onto the
+window, or from the command line.
+
+Menus, playback buttons, a frame slider, and keyboard shortcuts provide the
+controls for the application.
 
 Building
 ========
 
 Dependencies
 ------------
-Required:
-* OpenTimelineIO - https://github.com/PixarAnimationStudios/OpenTimelineIO
-* FSeq - https://github.com/darbyjohnston/FSeq
-* ZLIB - https://zlib.net
-
-Optional:
-* FFmpeg - https://ffmpeg.org
-* OpenEXR - https://www.openexr.com/
-* JPEG - https://libjpeg-turbo.org
-
-tlrplay-glfw:
-* GLFW - https://www.glfw.org
-* glad - https://github.com/Dav1dde/glad
-* FreeType - https://www.freetype.org
-
-tlrplay-qwidget:
-* Qt - https://www.qt.io
-
 A CMake super build script is provided to build the dependencies from source.
 
 Note that Qt is not included in the super build, you must install it separately.

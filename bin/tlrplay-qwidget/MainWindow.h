@@ -4,14 +4,12 @@
 
 #pragma once
 
-#include <tlrRender/Timeline.h>
+#include <tlrQt/TimelineObject.h>
+#include <tlrQt/TimelineWidget.h>
 
 #include <QAction>
 #include <QMainWindow>
-#include <QLabel>
-#include <QMap>
 #include <QPointer>
-#include <QSlider>
 
 namespace tlr
 {
@@ -24,7 +22,7 @@ namespace tlr
         MainWindow(QWidget* parent = nullptr);
 
         //! Set the timeline.
-        void setTimeline(const std::shared_ptr<timeline::Timeline>&);
+        void setTimeline(qt::TimelineObject*);
 
     Q_SIGNALS:
         void fileOpen();
@@ -39,6 +37,8 @@ namespace tlr
         void dropEvent(QDropEvent*) override;
 
     private Q_SLOTS:
+        void _playbackCallback(tlr::timeline::Playback);
+        void _loopCallback(tlr::timeline::Loop);
         void _stopCallback();
         void _forwardCallback();
         void _togglePlaybackCallback();
@@ -46,21 +46,13 @@ namespace tlr
         void _endFrameCallback();
         void _prevFrameCallback();
         void _nextFrameCallback();
-        void _timeSliderCallback(int);
 
     private:
         void _playbackUpdate();
         void _timelineUpdate();
 
-        std::shared_ptr<timeline::Timeline> _timeline;
-
+        QPointer<qt::TimelineObject> _timeline;
         QMap<std::string, QPointer<QAction> > _actions;
-        QPointer<QLabel> _currentTimeLabel;
-        QPointer<QSlider> _timeSlider;
-        QPointer<QLabel> _durationLabel;
-
-        std::shared_ptr<Observer::Value<otime::RationalTime> > _currentTimeObserver;
-        std::shared_ptr<Observer::Value<timeline::Playback> > _playbackObserver;
-        std::shared_ptr<Observer::Value<timeline::Loop> > _loopObserver;
+        QPointer<qt::TimelineWidget> _timelineWidget;
     };
 }

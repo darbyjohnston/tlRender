@@ -1,6 +1,6 @@
-if(TLR_BUILD_GLFW)
+if(TLR_BUILD_EXAMPLES AND TLR_BUILD_GL)
     add_subdirectory(tlrplay-glfw)
 endif()
-if(TLR_BUILD_QT)
+if(TLR_BUILD_EXAMPLES AND TLR_BUILD_QT)
     add_subdirectory(tlrplay-qwidget)
 endif()

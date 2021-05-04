@@ -79,31 +79,8 @@ namespace tlr
         menuBar->addMenu(playbackMenu);
         setMenuBar(menuBar);
 
-        const QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
-        _currentTimeLabel = new QLabel;
-        _currentTimeLabel->setMargin(10);
-        _currentTimeLabel->setFont(fixedFont);
-        _currentTimeLabel->setText("00:00:00:00");
-        _currentTimeLabel->setToolTip(tr("Current time"));
-
-        _timeSlider = new QSlider(Qt::Orientation::Horizontal);
-        _timeSlider->setToolTip(tr("Time slider"));
-
-        _durationLabel = new QLabel;
-        _durationLabel->setMargin(10);
-        _durationLabel->setFont(fixedFont);
-        _durationLabel->setText("00:00:00:00");
-        _durationLabel->setToolTip(tr("Duration"));
-
-        auto playbackToolBar = new QToolBar;
-        playbackToolBar->setMovable(false);
-        playbackToolBar->setFloatable(false);
-        playbackToolBar->addAction(_actions["Playback/Stop"]);
-        playbackToolBar->addAction(_actions["Playback/Forward"]);
-        playbackToolBar->addWidget(_currentTimeLabel);
-        playbackToolBar->addWidget(_timeSlider);
-        playbackToolBar->addWidget(_durationLabel);
-        addToolBar(Qt::ToolBarArea::BottomToolBarArea, playbackToolBar);
+        _timelineWidget = new qt::TimelineWidget;
+        setCentralWidget(_timelineWidget);
 
         _playbackUpdate();
         _timelineUpdate();
@@ -149,17 +126,14 @@ namespace tlr
             _actions["Playback/NextFrame"],
             SIGNAL(triggered()),
             SLOT(_nextFrameCallback()));
-        connect(
-            _timeSlider,
-            SIGNAL(valueChanged(int)),
-            SLOT(_timeSliderCallback(int)));
     }
 
-    void MainWindow::setTimeline(const std::shared_ptr<timeline::Timeline>& timeline)
+    void MainWindow::setTimeline(qt::TimelineObject* timeline)
     {
         if (timeline == _timeline)
             return;
         _timeline = timeline;
+        _timelineWidget->setTimeline(timeline);
         _timelineUpdate();
     }
 
@@ -207,12 +181,27 @@ namespace tlr
         }
     }
 
+    void MainWindow::_playbackCallback(tlr::timeline::Playback value)
+    {
+        if (_timeline)
+        {
+            _timeline->setPlayback(value);
+        }
+    }
+
+    void MainWindow::_loopCallback(tlr::timeline::Loop value)
+    {
+        if (_timeline)
+        {
+            _timeline->setLoop(value);
+        }
+    }
+
     void MainWindow::_stopCallback()
     {
         if (_timeline)
         {
-            _timeline->setPlayback(timeline::Playback::Stop);
-            _playbackUpdate();
+            _timeline->stop();
         }
     }
 
@@ -220,8 +209,7 @@ namespace tlr
     {
         if (_timeline)
         {
-            _timeline->setPlayback(timeline::Playback::Forward);
-            _playbackUpdate();
+            _timeline->forward();
         }
     }
 
@@ -229,10 +217,7 @@ namespace tlr
     {
         if (_timeline)
         {
-            _timeline->setPlayback(
-                timeline::Playback::Forward == _timeline->observePlayback()->get() ?
-                timeline::Playback::Stop :
-                timeline::Playback::Forward);
+            _timeline->togglePlayback();
         }
     }
 
@@ -240,9 +225,7 @@ namespace tlr
     {
         if (_timeline)
         {
-            _timeline->setPlayback(timeline::Playback::Stop);
-            const auto duration = _timeline->getDuration();
-            _timeline->seek(otime::RationalTime(0, duration.rate()));
+            _timeline->startFrame();
         }
     }
 
@@ -250,9 +233,7 @@ namespace tlr
     {
         if (_timeline)
         {
-            _timeline->setPlayback(timeline::Playback::Stop);
-            const auto duration = _timeline->getDuration();
-            _timeline->seek(otime::RationalTime(duration.value() - 1, duration.rate()));
+            _timeline->endFrame();
         }
     }
 
@@ -260,10 +241,7 @@ namespace tlr
     {
         if (_timeline)
         {
-            _timeline->setPlayback(timeline::Playback::Stop);
-            const auto duration = _timeline->getDuration();
-            const auto currentTime = _timeline->observeCurrentTime()->get();
-            _timeline->seek(otime::RationalTime(currentTime.value() - 1, duration.rate()));
+            _timeline->prevFrame();
         }
     }
 
@@ -271,19 +249,7 @@ namespace tlr
     {
         if (_timeline)
         {
-            _timeline->setPlayback(timeline::Playback::Stop);
-            const auto duration = _timeline->getDuration();
-            const auto currentTime = _timeline->observeCurrentTime()->get();
-            _timeline->seek(otime::RationalTime(currentTime.value() + 1, duration.rate()));
-        }
-    }
-
-    void MainWindow::_timeSliderCallback(int value)
-    {
-        if (_timeline)
-        {
-            _timeline->setPlayback(timeline::Playback::Stop);
-            _timeline->seek(otime::RationalTime(value, _timeline->getDuration().rate()));
+            _timeline->nextFrame();
         }
     }
 
@@ -292,7 +258,7 @@ namespace tlr
         timeline::Playback playback = timeline::Playback::Stop;
         if (_timeline)
         {
-            playback = _timeline->observePlayback()->get();
+            playback = _timeline->getPlayback();
         }
         _actions["Playback/Stop"]->setChecked(timeline::Playback::Stop == playback);
         _actions["Playback/Forward"]->setChecked(timeline::Playback::Forward == playback);
@@ -310,47 +276,6 @@ namespace tlr
             _actions["Playback/EndFrame"]->setEnabled(true);
             _actions["Playback/PrevFrame"]->setEnabled(true);
             _actions["Playback/NextFrame"]->setEnabled(true);
-
-            const otime::RationalTime& duration = _timeline->getDuration();
-            _timeSlider->setRange(0, duration.value() > 0 ? duration.value() - 1 : 0);
-            _timeSlider->setEnabled(true);
-
-            otime::ErrorStatus errorStatus;
-            std::string label = duration.to_timecode(&errorStatus);
-            if (errorStatus != otime::ErrorStatus::OK)
-            {
-                throw std::runtime_error(errorStatus.details);
-            }
-            _durationLabel->setText(label.c_str());
-
-            _currentTimeObserver = Observer::Value<otime::RationalTime>::create(
-                _timeline->observeCurrentTime(),
-                [this](const otime::RationalTime& value)
-                {
-                    otime::ErrorStatus errorStatus;
-                    std::string label = value.to_timecode(&errorStatus);
-                    if (errorStatus != otime::ErrorStatus::OK)
-                    {
-                        throw std::runtime_error(errorStatus.details);
-                    }
-                    _currentTimeLabel->setText(label.c_str());
-
-                    const QSignalBlocker blocker(_timeSlider);
-                    _timeSlider->setValue(value.value());
-                });
-
-            _playbackObserver = Observer::Value<timeline::Playback>::create(
-                _timeline->observePlayback(),
-                [this](timeline::Playback value)
-                {
-                    _playbackUpdate();
-                });
-
-            _loopObserver = Observer::Value<timeline::Loop>::create(
-                _timeline->observeLoop(),
-                [this](timeline::Loop value)
-                {
-                });
         }
         else
         {
@@ -363,18 +288,6 @@ namespace tlr
             _actions["Playback/EndFrame"]->setEnabled(false);
             _actions["Playback/PrevFrame"]->setEnabled(false);
             _actions["Playback/NextFrame"]->setEnabled(false);
-
-            _currentTimeLabel->setText("00:00:00:00");
-
-            _timeSlider->setRange(0, 0);
-            _timeSlider->setValue(0);
-            _timeSlider->setEnabled(false);
-
-            _durationLabel->setText("00:00:00:00");
-
-            _currentTimeObserver.reset();
-            _playbackObserver.reset();
-            _loopObserver.reset();
         }
     }
 }

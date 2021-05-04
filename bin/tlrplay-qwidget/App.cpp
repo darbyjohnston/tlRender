@@ -4,11 +4,11 @@
 
 #include "App.h"
 
-#include <tlrRender/File.h>
-#include <tlrRender/Math.h>
-#include <tlrRender/String.h>
-#include <tlrRender/StringFormat.h>
-#include <tlrRender/Time.h>
+#include <tlrCore/File.h>
+#include <tlrCore/Math.h>
+#include <tlrCore/String.h>
+#include <tlrCore/StringFormat.h>
+#include <tlrCore/Time.h>
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -37,10 +37,7 @@ namespace tlr
             return;
         }
 
-        _glWidget = new GLWidget;
-
         _mainWindow = new MainWindow;
-        _mainWindow->setCentralWidget(_glWidget);
 
         connect(
             _mainWindow,
@@ -66,26 +63,17 @@ namespace tlr
 
         _mainWindow->resize(640, 360);
         _mainWindow->show();
-
-        startTimer(0, Qt::PreciseTimer);
     }
 
     void App::_fileOpen(const std::string& fileName)
     {
         try
         {
-            _timeline = timeline::Timeline::create(fileName);
+            _timeline = new qt::TimelineObject(fileName, this);
 
             _input = fileName;
 
             _mainWindow->setTimeline(_timeline);
-
-            _currentImageObserver = Observer::Value<std::shared_ptr<imaging::Image> >::create(
-                _timeline->observeCurrentImage(),
-                [this](const std::shared_ptr<imaging::Image>& value)
-                {
-                    _glWidget->setImage(value);
-                });
 
             _timeline->setPlayback(timeline::Playback::Forward);
         }
@@ -126,17 +114,7 @@ namespace tlr
 
     void App::_fileCloseCallback()
     {
-        _timeline.reset();
+        _timeline.clear();
         _mainWindow->setTimeline(nullptr);
-        _glWidget->setImage(nullptr);
-        _currentImageObserver.reset();
-    }
-
-    void App::timerEvent(QTimerEvent*)
-    {
-        if (_timeline)
-        {
-            _timeline->tick();
-        }
     }
 }

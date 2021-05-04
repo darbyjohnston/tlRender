@@ -4,8 +4,8 @@
 
 #include <tlrApp/IApp.h>
 
-#include <tlrRender/String.h>
-#include <tlrRender/StringFormat.h>
+#include <tlrCore/String.h>
+#include <tlrCore/StringFormat.h>
 
 #include <iostream>
 
