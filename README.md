@@ -79,10 +79,9 @@ tlrplay-glfw
 The example application "tlrplay-glfw" demonstrates using tlRender with
 OpenGL and GLFW.
 
-Timelines can be opened from the command line.
-
-A HUD (heads up display), keyboard shortcuts, and command line options
-provide controls for the application. 
+Timelines can be opened from the command line. A HUD (heads up display),
+keyboard shortcuts, and command line options provide controls for the
+application. 
 
 Dependencies:
 * GLFW - https://www.glfw.org
@@ -95,10 +94,8 @@ The example application "tlrplay-qwidget" demonstrates using tlRender with
 a QWidget application.
 
 Timelines can be opened from the "File/Open" menu, drag and dropped onto the
-window, or from the command line.
-
-Menus, playback buttons, a frame slider, and keyboard shortcuts provide the
-controls for the application.
+window, or from the command line. Menus, playback buttons, a frame slider,
+and keyboard shortcuts provide the controls for the application.
 
 Building
 ========
