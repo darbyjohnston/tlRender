@@ -95,7 +95,7 @@ a QWidget application.
 
 Timelines can be opened from the "File/Open" menu, drag and dropped onto the
 window, or from the command line. Menus, playback buttons, a frame slider,
-and keyboard shortcuts provide the controls for the application.
+and keyboard shortcuts provide controls for the application.
 
 Building
 ========
@@ -114,8 +114,9 @@ CMake Build Options
 * TLR_BUILD_JPEG - Build JPEG support
 * TLR_BUILD_OpenEXR - Build OpenEXR support
 * TLR_BUILD_FFmpeg - Build FFmpeg support (Linux and macOS only)
-* TLR_BUILD_GLFW - Build GLFW support (tlrplay-glfw)
-* TLR_BUILD_QT - Build QT support (tlrplay-qwidget)
+* TLR_BUILD_GL - Build OpenGL support (tlrGL library)
+* TLR_BUILD_QT - Build QT support (tlrQt library)
+* TLR_BUILD_EXAMPLES - Build examples
 
 Building on Linux
 -----------------
