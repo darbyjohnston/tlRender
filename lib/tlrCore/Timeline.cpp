@@ -363,6 +363,10 @@ namespace tlr
                                 read->seek(time);
                                 _readers.push_back(std::make_pair(clip, read));
                             }
+                            else
+                            {
+                                //! \todo How should this be handled?
+                            }
                         }
                     }
                     else
