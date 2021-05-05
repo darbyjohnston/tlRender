@@ -28,6 +28,7 @@ namespace tlr
             _viewport = new TimelineViewport;
 
             _currentTimeSpinBox = new TimeSpinBox;
+            _currentTimeSpinBox->setToolTip(tr("Current time"));
 
             _timeSlider = new QSlider(Qt::Orientation::Horizontal);
             _timeSlider->setToolTip(tr("Time slider"));
