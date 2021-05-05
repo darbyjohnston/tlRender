@@ -77,7 +77,7 @@ namespace tlr
                 SLOT(_timeSliderCallback(int)));
         }
 
-        void TimelineWidget::setTimeline(qt::TimelineObject* timeline)
+        void TimelineWidget::setTimeline(TimelineObject* timeline)
         {
             if (timeline == _timeline)
                 return;

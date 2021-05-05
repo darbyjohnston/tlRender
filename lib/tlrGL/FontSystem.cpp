@@ -4,6 +4,8 @@
 
 #include <tlrGL/FontSystem.h>
 
+#include <tlrCore/Image.h>
+
 #include <Fonts/NotoMono-Regular.font>
 #include <Fonts/NotoSans-Regular.font>
 

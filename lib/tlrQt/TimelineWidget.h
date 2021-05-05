@@ -26,7 +26,7 @@ namespace tlr
             TimelineWidget(QWidget* parent = nullptr);
 
             //! Set the timeline.
-            void setTimeline(qt::TimelineObject*);
+            void setTimeline(TimelineObject*);
 
         public Q_SLOTS:
 
@@ -42,7 +42,7 @@ namespace tlr
             void _playbackUpdate();
             void _timelineUpdate();
 
-            QPointer<qt::TimelineObject> _timeline;
+            QPointer<TimelineObject> _timeline;
             QMap<std::string, QPointer<QAction> > _actions;
             QPointer<TimelineViewport> _viewport;
             QPointer<QLabel> _currentTimeLabel;

@@ -12,6 +12,9 @@
 
 namespace tlr
 {
+    class ICmdLineArg;
+    class ICmdLineOption;
+
     //! Applications.
     namespace app
     {

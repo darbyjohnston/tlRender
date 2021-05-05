@@ -2,6 +2,8 @@
 // Copyright (c) 2021 Darby Johnston
 // All rights reserved.
 
+#include <tlrCore/Error.h>
+
 #include <algorithm>
 
 namespace tlr

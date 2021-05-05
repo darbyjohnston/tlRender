@@ -4,6 +4,7 @@
 
 #include <tlrGL/Shader.h>
 
+#include <tlrCore/Color.h>
 #include <tlrCore/String.h>
 
 #include <iostream>

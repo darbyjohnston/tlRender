@@ -5,7 +5,8 @@
 #pragma once
 
 #include <tlrCore/BBox.h>
-#include <tlrCore/IO.h>
+#include <tlrCore/Image.h>
+#include <tlrCore/Util.h>
 #include <tlrCore/ValueObserver.h>
 
 #include <opentimelineio/clip.h>
@@ -14,6 +15,12 @@
 
 namespace tlr
 {
+    namespace io
+    {
+        class IRead;
+        class System;
+    }
+
     //! Timelines.
     namespace timeline
     {

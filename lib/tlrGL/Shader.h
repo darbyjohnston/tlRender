@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <tlrCore/Color.h>
 #include <tlrCore/Matrix.h>
 #include <tlrCore/Util.h>
 #include <tlrCore/Vector.h>
@@ -17,6 +16,11 @@
 
 namespace tlr
 {
+    namespace imaging
+    {
+        class Color4f;
+    }
+
     namespace gl
     {
         //! OpenGL shader.

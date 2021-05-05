@@ -6,6 +6,7 @@
 
 #include <tlrCore/Error.h>
 #include <tlrCore/File.h>
+#include <tlrCore/IO.h>
 #include <tlrCore/String.h>
 
 #include <opentimelineio/imageSequenceReference.h>

@@ -6,7 +6,7 @@
 
 #include <tlrCore/BBox.h>
 #include <tlrCore/Cache.h>
-#include <tlrCore/Image.h>
+#include <tlrCore/Util.h>
 
 #include <freetype2/ft2build.h>
 #include FT_FREETYPE_H
@@ -18,6 +18,11 @@
 
 namespace tlr
 {
+    namespace imaging
+    {
+        class Image;
+    }
+
     namespace gl
     {
 #if defined(_WINDOWS)

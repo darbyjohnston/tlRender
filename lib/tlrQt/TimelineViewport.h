@@ -6,6 +6,8 @@
 
 #include <tlrQt/TimelineObject.h>
 
+#include <tlrCore/Image.h>
+
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
@@ -25,7 +27,7 @@ namespace tlr
             TimelineViewport(QWidget* parent = nullptr);
 
             //! Set the timeline.
-            void setTimeline(qt::TimelineObject*);
+            void setTimeline(TimelineObject*);
 
         private Q_SLOTS:
             void _imageCallback(const std::shared_ptr<tlr::imaging::Image>&);

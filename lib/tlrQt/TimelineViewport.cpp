@@ -6,7 +6,6 @@
 
 #include <tlrCore/BBox.h>
 #include <tlrCore/Matrix.h>
-#include <tlrCore/Timeline.h>
 
 #include <QOpenGLBuffer>
 #include <QOpenGLShader>
@@ -20,7 +19,7 @@ namespace tlr
             QOpenGLWidget(parent)
         {}
 
-        void TimelineViewport::setTimeline(qt::TimelineObject* timeline)
+        void TimelineViewport::setTimeline(TimelineObject* timeline)
         {
             if (timeline)
             {

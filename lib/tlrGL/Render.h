@@ -8,15 +8,19 @@
 
 #include <tlrCore/BBox.h>
 #include <tlrCore/Cache.h>
-#include <tlrCore/Color.h>
-#include <tlrCore/Image.h>
 
 #include <glad.h>
 
-#include <memory>
-
 namespace tlr
 {
+    namespace imaging
+    {
+        struct Info;
+
+        class Color4f;
+        class Image;
+    }
+
     namespace gl
     {
         class OffscreenBuffer;
