@@ -15,6 +15,7 @@
 #include <codecvt>
 #include <locale>
 #include <map>
+#include <memory>
 
 namespace tlr
 {
