@@ -10,6 +10,7 @@
 #include <tlrGL/Texture.h>
 
 #include <tlrCore/Assert.h>
+#include <tlrCore/Color.h>
 
 namespace tlr
 {

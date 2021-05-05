@@ -4,6 +4,7 @@
 
 #include "Util.h"
 
+#include <tlrCore/Color.h>
 #include <tlrCore/Math.h>
 
 #include <cmath>

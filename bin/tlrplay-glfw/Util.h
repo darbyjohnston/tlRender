@@ -6,6 +6,8 @@
 
 #include <tlrGL/Render.h>
 
+#include <tlrCore/Image.h>
+
 namespace tlr
 {
     //! HUD elements.
