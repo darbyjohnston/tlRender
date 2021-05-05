@@ -7,7 +7,6 @@
 #include <QFontDatabase>
 #include <QHBoxLayout>
 #include <QStyle>
-#include <QToolBar>
 #include <QVBoxLayout>
 
 namespace tlr
@@ -17,60 +16,62 @@ namespace tlr
         TimelineWidget::TimelineWidget(QWidget* parent) :
             QWidget(parent)
         {
-            _actions["Stop"] = new QAction;
-            _actions["Stop"]->setCheckable(true);
-            _actions["Stop"]->setIcon(style()->standardIcon(QStyle::SP_MediaStop));
-            _actions["Stop"]->setToolTip(tr("Stop playback"));
-            _actions["Forward"] = new QAction;
-            _actions["Forward"]->setCheckable(true);
-            _actions["Forward"]->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
-            _actions["Forward"]->setToolTip(tr("Forward playback"));
+            _playbackButtons[timeline::Playback::Stop] = new QToolButton;
+            _playbackButtons[timeline::Playback::Stop]->setCheckable(true);
+            _playbackButtons[timeline::Playback::Stop]->setIcon(style()->standardIcon(QStyle::SP_MediaStop));
+            _playbackButtons[timeline::Playback::Stop]->setToolTip(tr("Stop playback"));
+            _playbackButtons[timeline::Playback::Forward] = new QToolButton;
+            _playbackButtons[timeline::Playback::Forward]->setCheckable(true);
+            _playbackButtons[timeline::Playback::Forward]->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
+            _playbackButtons[timeline::Playback::Forward]->setToolTip(tr("Forward playback"));
 
             _viewport = new TimelineViewport;
 
-            const QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
-            _currentTimeLabel = new QLabel;
-            _currentTimeLabel->setMargin(10);
-            _currentTimeLabel->setFont(fixedFont);
-            _currentTimeLabel->setText("00:00:00:00");
-            _currentTimeLabel->setToolTip(tr("Current time"));
+            _currentTimeSpinBox = new TimeSpinBox;
 
             _timeSlider = new QSlider(Qt::Orientation::Horizontal);
             _timeSlider->setToolTip(tr("Time slider"));
 
             _durationLabel = new QLabel;
-            _durationLabel->setMargin(10);
+            const QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
             _durationLabel->setFont(fixedFont);
             _durationLabel->setText("00:00:00:00");
             _durationLabel->setToolTip(tr("Duration"));
-
-            auto playbackToolBar = new QToolBar;
-            playbackToolBar->setMovable(false);
-            playbackToolBar->setFloatable(false);
-            playbackToolBar->addAction(_actions["Stop"]);
-            playbackToolBar->addAction(_actions["Forward"]);
-            playbackToolBar->addWidget(_currentTimeLabel);
-            playbackToolBar->addWidget(_timeSlider);
-            playbackToolBar->addWidget(_durationLabel);
 
             auto layout = new QVBoxLayout;
             layout->setMargin(0);
             layout->setSpacing(0);
             layout->addWidget(_viewport, 1);
-            layout->addWidget(playbackToolBar);
+            auto hLayout = new QHBoxLayout;
+            hLayout->setMargin(5);
+            hLayout->setSpacing(5);
+            auto hLayout2 = new QHBoxLayout;
+            hLayout2->setMargin(0);
+            hLayout2->setSpacing(0);
+            hLayout2->addWidget(_playbackButtons[timeline::Playback::Stop]);
+            hLayout2->addWidget(_playbackButtons[timeline::Playback::Forward]);
+            hLayout->addLayout(hLayout2);
+            hLayout->addWidget(_currentTimeSpinBox);
+            hLayout->addWidget(_timeSlider);
+            hLayout->addWidget(_durationLabel);
+            layout->addLayout(hLayout);
             setLayout(layout);
 
             _playbackUpdate();
             _timelineUpdate();
 
             connect(
-                _actions["Stop"],
-                SIGNAL(triggered()),
+                _playbackButtons[timeline::Playback::Stop],
+                SIGNAL(clicked()),
                 SLOT(_stopCallback()));
             connect(
-                _actions["Forward"],
-                SIGNAL(triggered()),
+                _playbackButtons[timeline::Playback::Forward],
+                SIGNAL(clicked()),
                 SLOT(_forwardCallback()));
+            connect(
+                _currentTimeSpinBox,
+                SIGNAL(valueChanged(const otime::RationalTime&)),
+                SLOT(_currentTimeSpinBoxCallback(const otime::RationalTime&)));
             connect(
                 _timeSlider,
                 SIGNAL(valueChanged(int)),
@@ -94,10 +95,14 @@ namespace tlr
             {
                 throw std::runtime_error(errorStatus.details);
             }
-            _currentTimeLabel->setText(label.c_str());
-
-            const QSignalBlocker blocker(_timeSlider);
-            _timeSlider->setValue(value.value());
+            {
+                const QSignalBlocker blocker(_currentTimeSpinBox);
+                _currentTimeSpinBox->setValue(value);
+            }
+            {
+                const QSignalBlocker blocker(_timeSlider);
+                _timeSlider->setValue(value.value());
+            }
         }
 
         void TimelineWidget::_playbackCallback(tlr::timeline::Playback value)
@@ -126,6 +131,15 @@ namespace tlr
             }
         }
 
+        void TimelineWidget::_currentTimeSpinBoxCallback(const otime::RationalTime& value)
+        {
+            if (_timeline)
+            {
+                _timeline->setPlayback(timeline::Playback::Stop);
+                _timeline->seek(value);
+            }
+        }
+
         void TimelineWidget::_timeSliderCallback(int value)
         {
             if (_timeline)
@@ -142,16 +156,16 @@ namespace tlr
             {
                 playback = _timeline->getPlayback();
             }
-            _actions["Stop"]->setChecked(timeline::Playback::Stop == playback);
-            _actions["Forward"]->setChecked(timeline::Playback::Forward == playback);
+            _playbackButtons[timeline::Playback::Stop]->setChecked(timeline::Playback::Stop == playback);
+            _playbackButtons[timeline::Playback::Forward]->setChecked(timeline::Playback::Forward == playback);
         }
 
         void TimelineWidget::_timelineUpdate()
         {
             if (_timeline)
             {
-                _actions["Stop"]->setEnabled(true);
-                _actions["Forward"]->setEnabled(true);
+                _playbackButtons[timeline::Playback::Stop]->setEnabled(true);
+                _playbackButtons[timeline::Playback::Forward]->setEnabled(true);
 
                 const otime::RationalTime& duration = _timeline->getDuration();
                 _timeSlider->setRange(0, duration.value() > 0 ? duration.value() - 1 : 0);
@@ -180,10 +194,12 @@ namespace tlr
             }
             else
             {
-                _actions["Stop"]->setChecked(true);
-                _actions["Stop"]->setEnabled(false);
+                _playbackButtons[timeline::Playback::Stop]->setChecked(true);
+                _playbackButtons[timeline::Playback::Stop]->setEnabled(false);
+                _playbackButtons[timeline::Playback::Forward]->setChecked(false);
+                _playbackButtons[timeline::Playback::Forward]->setEnabled(false);
 
-                _currentTimeLabel->setText("00:00:00:00");
+                _currentTimeSpinBox->setValue(otime::RationalTime());
 
                 _timeSlider->setRange(0, 0);
                 _timeSlider->setValue(0);

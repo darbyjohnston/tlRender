@@ -4,14 +4,15 @@
 
 #pragma once
 
+#include <tlrQt/TimeSpinBox.h>
 #include <tlrQt/TimelineObject.h>
 #include <tlrQt/TimelineViewport.h>
 
-#include <QAction>
 #include <QLabel>
 #include <QMap>
 #include <QPointer>
 #include <QSlider>
+#include <QToolButton>
 
 namespace tlr
 {
@@ -36,6 +37,7 @@ namespace tlr
             void _loopCallback(tlr::timeline::Loop);
             void _stopCallback();
             void _forwardCallback();
+            void _currentTimeSpinBoxCallback(const otime::RationalTime&);
             void _timeSliderCallback(int);
 
         private:
@@ -43,9 +45,10 @@ namespace tlr
             void _timelineUpdate();
 
             QPointer<TimelineObject> _timeline;
-            QMap<std::string, QPointer<QAction> > _actions;
+            QMap<timeline::Playback, QPointer<QToolButton> > _playbackButtons;
             QPointer<TimelineViewport> _viewport;
             QPointer<QLabel> _currentTimeLabel;
+            QPointer<TimeSpinBox> _currentTimeSpinBox;
             QPointer<QSlider> _timeSlider;
             QPointer<QLabel> _durationLabel;
         };

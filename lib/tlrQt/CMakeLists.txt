@@ -1,8 +1,10 @@
 set(HEADERS
+    TimeSpinBox.h
     TimelineObject.h
     TimelineViewport.h
     TimelineWidget.h)
 set(SOURCE
+    TimeSpinBox.cpp
     TimelineObject.cpp
     TimelineViewport.cpp
     TimelineWidget.cpp)
