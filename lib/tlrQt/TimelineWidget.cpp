@@ -120,6 +120,7 @@ namespace tlr
             if (_timeline)
             {
                 _timeline->stop();
+                _playbackUpdate();
             }
         }
 
@@ -128,6 +129,7 @@ namespace tlr
             if (_timeline)
             {
                 _timeline->forward();
+                _playbackUpdate();
             }
         }
 
