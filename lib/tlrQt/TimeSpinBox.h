@@ -4,9 +4,13 @@
 
 #pragma once
 
+#include <tlrQt/TimeObject.h>
+
 #include <tlrCore/Timeline.h>
 
 #include <QAbstractSpinBox>
+#include <QPointer>
+#include <QRegExpValidator>
 
 namespace tlr
 {
@@ -20,18 +24,32 @@ namespace tlr
         public:
             TimeSpinBox(QWidget* parent = nullptr);
 
-            void fixup(QString&) const override;
+            //! Set the time object.
+            void setTimeObject(TimeObject*);
+
+            //! Get the time value.
+            const otime::RationalTime& value() const;
+
+            //! Get the time units.
+            TimeObject::Units units() const;
+
             void stepBy(int steps) override;
             QValidator::State validate(QString&, int& pos) const override;
             QSize minimumSizeHint() const override;
 
         public Q_SLOTS:
-            //! Set the value.
+            //! Set the time value.
             void setValue(const otime::RationalTime&);
             
+            //! Set the time units.
+            void setUnits(qt::TimeObject::Units);
+
         Q_SIGNALS:
             //! This signal is emitted when the time is changed.
             void valueChanged(const otime::RationalTime&);
+
+            //! This signal is emitted when the time units are changed.
+            void unitsChanged(qt::TimeObject::Units);
 
         protected:
             QAbstractSpinBox::StepEnabled stepEnabled() const override;
@@ -42,7 +60,10 @@ namespace tlr
         private:
             void _textUpdate();
 
-            otime::RationalTime _time;
+            otime::RationalTime _value;
+            TimeObject::Units _units = TimeObject::Units::Timecode;
+            QPointer<QRegExpValidator> _validator;
+            QPointer<TimeObject> _timeObject;
         };
     }
 }

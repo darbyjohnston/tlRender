@@ -25,37 +25,27 @@ namespace tlr
             _playbackButtons[timeline::Playback::Forward]->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
             _playbackButtons[timeline::Playback::Forward]->setToolTip(tr("Forward playback"));
 
-            _viewport = new TimelineViewport;
-
             _currentTimeSpinBox = new TimeSpinBox;
             _currentTimeSpinBox->setToolTip(tr("Current time"));
 
             _timeSlider = new QSlider(Qt::Orientation::Horizontal);
             _timeSlider->setToolTip(tr("Time slider"));
 
-            _durationLabel = new QLabel;
-            const QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
-            _durationLabel->setFont(fixedFont);
-            _durationLabel->setText("00:00:00:00");
+            _durationLabel = new TimeLabel;
             _durationLabel->setToolTip(tr("Duration"));
 
-            auto layout = new QVBoxLayout;
-            layout->setMargin(0);
-            layout->setSpacing(0);
-            layout->addWidget(_viewport, 1);
+            auto layout = new QHBoxLayout;
+            layout->setMargin(5);
+            layout->setSpacing(5);
             auto hLayout = new QHBoxLayout;
-            hLayout->setMargin(5);
-            hLayout->setSpacing(5);
-            auto hLayout2 = new QHBoxLayout;
-            hLayout2->setMargin(0);
-            hLayout2->setSpacing(0);
-            hLayout2->addWidget(_playbackButtons[timeline::Playback::Stop]);
-            hLayout2->addWidget(_playbackButtons[timeline::Playback::Forward]);
-            hLayout->addLayout(hLayout2);
-            hLayout->addWidget(_currentTimeSpinBox);
-            hLayout->addWidget(_timeSlider);
-            hLayout->addWidget(_durationLabel);
+            hLayout->setMargin(0);
+            hLayout->setSpacing(0);
+            hLayout->addWidget(_playbackButtons[timeline::Playback::Stop]);
+            hLayout->addWidget(_playbackButtons[timeline::Playback::Forward]);
             layout->addLayout(hLayout);
+            layout->addWidget(_currentTimeSpinBox);
+            layout->addWidget(_timeSlider);
+            layout->addWidget(_durationLabel);
             setLayout(layout);
 
             _playbackUpdate();
@@ -79,12 +69,17 @@ namespace tlr
                 SLOT(_timeSliderCallback(int)));
         }
 
+        void TimelineWidget::setTimeObject(TimeObject* timeObject)
+        {
+            _currentTimeSpinBox->setTimeObject(timeObject);
+            _durationLabel->setTimeObject(timeObject);
+        }
+
         void TimelineWidget::setTimeline(TimelineObject* timeline)
         {
             if (timeline == _timeline)
                 return;
             _timeline = timeline;
-            _viewport->setTimeline(timeline);
             _timelineUpdate();
         }
 
@@ -174,13 +169,7 @@ namespace tlr
                 _timeSlider->setRange(0, duration.value() > 0 ? duration.value() - 1 : 0);
                 _timeSlider->setEnabled(true);
 
-                otime::ErrorStatus errorStatus;
-                std::string label = duration.to_timecode(&errorStatus);
-                if (errorStatus != otime::ErrorStatus::OK)
-                {
-                    throw std::runtime_error(errorStatus.details);
-                }
-                _durationLabel->setText(label.c_str());
+                _durationLabel->setValue(duration);
 
                 connect(
                     _timeline,
@@ -208,7 +197,7 @@ namespace tlr
                 _timeSlider->setValue(0);
                 _timeSlider->setEnabled(false);
 
-                _durationLabel->setText("00:00:00:00");
+                _durationLabel->setValue(otime::RationalTime());
             }
         }
     }

@@ -5,9 +5,11 @@
 #pragma once
 
 #include <tlrQt/TimelineObject.h>
+#include <tlrQt/TimelineViewport.h>
 #include <tlrQt/TimelineWidget.h>
 
 #include <QAction>
+#include <QActionGroup>
 #include <QMainWindow>
 #include <QPointer>
 
@@ -19,7 +21,7 @@ namespace tlr
         Q_OBJECT
 
     public:
-        MainWindow(QWidget* parent = nullptr);
+        MainWindow(qt::TimeObject*, QWidget* parent = nullptr);
 
         //! Set the timeline.
         void setTimeline(qt::TimelineObject*);
@@ -46,6 +48,8 @@ namespace tlr
         void _endFrameCallback();
         void _prevFrameCallback();
         void _nextFrameCallback();
+        void _timeUnitsCallback(QAction*);
+        void _timeUnitsCallback(qt::TimeObject::Units);
 
     private:
         void _playbackUpdate();
@@ -53,6 +57,11 @@ namespace tlr
 
         QPointer<qt::TimelineObject> _timeline;
         QMap<std::string, QPointer<QAction> > _actions;
+        QPointer<QActionGroup> _timeUnitsActionGroup;
+        QMap<QAction*, qt::TimeObject::Units> _actionToUnits;
+        QMap<qt::TimeObject::Units, QAction*> _unitsToActions;
+        QPointer<qt::TimelineViewport> _viewport;
         QPointer<qt::TimelineWidget> _timelineWidget;
+        QPointer<qt::TimeObject> _timeObject;
     };
 }

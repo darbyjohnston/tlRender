@@ -8,6 +8,7 @@
 
 #include <tlrApp/IApp.h>
 
+#include <tlrQt/TimeObject.h>
 #include <tlrQt/TimelineObject.h>
 
 #include <QApplication>
@@ -30,6 +31,8 @@ namespace tlr
 
     private:
         void _fileOpen(const std::string&);
+
+        QPointer<qt::TimeObject> _timeObject;
 
         std::string _input;
         QPointer<qt::TimelineObject> _timeline;

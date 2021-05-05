@@ -20,12 +20,6 @@ namespace tlr
             const QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
             setFont(fixedFont);
 
-            //! \todo How 
-            //setMinimumWidth(100);
-
-            auto validator = new QRegExpValidator(QRegExp("[0-9][0-9]:[0-9][0-9]:[0-9][0-9]:[0-9][0-9]"), this);
-            lineEdit()->setValidator(validator);
-
             _textUpdate();
 
             connect(
@@ -38,14 +32,44 @@ namespace tlr
                 SLOT(_lineEditCallback()));
         }
 
-        void TimeSpinBox::fixup(QString& value) const
+        void TimeSpinBox::setTimeObject(TimeObject* timeObject)
         {
+            if (timeObject == _timeObject)
+                return;
+            if (_timeObject)
+            {
+                disconnect(
+                    _timeObject,
+                    SIGNAL(unitsChanged(qt::TimeObject::Units)),
+                    this,
+                    SLOT(setUnits(qt::TimeObject::Units)));
+            }
+            _timeObject = timeObject;
+            if (_timeObject)
+            {
+                _units = _timeObject->units();
+                connect(
+                    _timeObject,
+                    SIGNAL(unitsChanged(qt::TimeObject::Units)),
+                    SLOT(setUnits(qt::TimeObject::Units)));
+            }
+            _textUpdate();
+        }
+
+        const otime::RationalTime& TimeSpinBox::value() const
+        {
+            return _value;
+        }
+
+        TimeObject::Units TimeSpinBox::units() const
+        {
+            return _units;
         }
 
         void TimeSpinBox::stepBy(int steps)
         {
-            _time += otime::RationalTime(steps, _time.rate());
-            Q_EMIT valueChanged(_time);
+            _value += otime::RationalTime(steps, _value.rate());
+            Q_EMIT valueChanged(_value);
             _textUpdate();
         }
 
@@ -56,10 +80,19 @@ namespace tlr
 
         void TimeSpinBox::setValue(const otime::RationalTime& value)
         {
-            if (_time == value)
+            if (_value == value)
                 return;
-            _time = value;
-            Q_EMIT valueChanged(_time);
+            _value = value;
+            Q_EMIT valueChanged(_value);
+            _textUpdate();
+        }
+
+        void TimeSpinBox::setUnits(TimeObject::Units units)
+        {
+            if (_units == units)
+                return;
+            _units = units;
+            Q_EMIT unitsChanged(_units);
             _textUpdate();
         }
 
@@ -74,7 +107,7 @@ namespace tlr
             ensurePolished();
             int h = lineEdit()->minimumSizeHint().height();
             const QFontMetrics fm(fontMetrics());
-            int w = fm.horizontalAdvance(" 00:00:00:00");
+            int w = fm.horizontalAdvance(" " + TimeObject::unitsSizeHintString(_units));
             w += 2; // cursor blinking space
             QStyleOptionSpinBox opt;
             initStyleOption(&opt);
@@ -86,20 +119,24 @@ namespace tlr
         void TimeSpinBox::_lineEditCallback()
         {
             otime::ErrorStatus errorStatus;
-            const auto time = otime::RationalTime::from_timecode(lineEdit()->text().toLatin1().data(), _time.rate(), &errorStatus);
-            if (otime::ErrorStatus::OK == errorStatus && time != _time)
+            const auto time = TimeObject::textToTime(lineEdit()->text(), _value.rate(), _units, &errorStatus);
+            if (otime::ErrorStatus::OK == errorStatus && time != _value)
             {
-                _time = time;
-                Q_EMIT valueChanged(_time);
+                _value = time;
+                Q_EMIT valueChanged(_value);
             }
             _textUpdate();
         }
 
         void TimeSpinBox::_textUpdate()
         {
-            otime::ErrorStatus errorStatus;
-            const auto s = _time.to_timecode(&errorStatus);
-            lineEdit()->setText(s.c_str());
+            if (_validator)
+            {
+                _validator->setParent(nullptr);
+            }
+            _validator = new QRegExpValidator(QRegExp(TimeObject::unitsValidator(_units)), this);
+            lineEdit()->setValidator(_validator);
+            lineEdit()->setText(TimeObject::timeToText(_value, _units));
         }
     }
 }

@@ -15,8 +15,9 @@
 
 namespace tlr
 {
-    MainWindow::MainWindow(QWidget* parent) :
-        QMainWindow(parent)
+    MainWindow::MainWindow(qt::TimeObject* timeObject, QWidget* parent) :
+        QMainWindow(parent),
+        _timeObject(timeObject)
     {
         setAcceptDrops(true);
 
@@ -58,6 +59,27 @@ namespace tlr
         _actions["Playback/NextFrame"]->setText(tr("Next Frame"));
         _actions["Playback/NextFrame"]->setShortcut(QKeySequence(Qt::Key_Right));
 
+        _actions["Settings/Frames"] = new QAction;
+        _actions["Settings/Frames"]->setCheckable(true);
+        _actions["Settings/Frames"]->setText(tr("Frames"));
+        _actions["Settings/Seconds"] = new QAction;
+        _actions["Settings/Seconds"]->setCheckable(true);
+        _actions["Settings/Seconds"]->setText(tr("Seconds"));
+        _actions["Settings/Timecode"] = new QAction;
+        _actions["Settings/Timecode"]->setCheckable(true);
+        _actions["Settings/Timecode"]->setText(tr("Timecode"));
+        _timeUnitsActionGroup = new QActionGroup(this);
+        _timeUnitsActionGroup->setExclusive(true);
+        _timeUnitsActionGroup->addAction(_actions["Settings/Frames"]);
+        _timeUnitsActionGroup->addAction(_actions["Settings/Seconds"]);
+        _timeUnitsActionGroup->addAction(_actions["Settings/Timecode"]);
+        _actionToUnits[_actions["Settings/Frames"]] = qt::TimeObject::Units::Frames;
+        _actionToUnits[_actions["Settings/Seconds"]] = qt::TimeObject::Units::Seconds;
+        _actionToUnits[_actions["Settings/Timecode"]] = qt::TimeObject::Units::Timecode;
+        _unitsToActions[qt::TimeObject::Units::Frames] = _actions["Settings/Frames"];
+        _unitsToActions[qt::TimeObject::Units::Seconds] = _actions["Settings/Seconds"];
+        _unitsToActions[qt::TimeObject::Units::Timecode] = _actions["Settings/Timecode"];
+
         auto fileMenu = new QMenu;
         fileMenu->setTitle(tr("&File"));
         fileMenu->addAction(_actions["File/Open"]);
@@ -74,13 +96,38 @@ namespace tlr
         playbackMenu->addAction(_actions["Playback/PrevFrame"]);
         playbackMenu->addAction(_actions["Playback/NextFrame"]);
 
+        auto settingsMenu = new QMenu;
+        settingsMenu->setTitle(tr("&Settings"));
+        settingsMenu->addAction(_actions["Settings/Frames"]);
+        settingsMenu->addAction(_actions["Settings/Seconds"]);
+        settingsMenu->addAction(_actions["Settings/Timecode"]);
+
         auto menuBar = new QMenuBar;
         menuBar->addMenu(fileMenu);
         menuBar->addMenu(playbackMenu);
+        menuBar->addMenu(settingsMenu);
         setMenuBar(menuBar);
 
+        _viewport = new qt::TimelineViewport;
+
         _timelineWidget = new qt::TimelineWidget;
-        setCentralWidget(_timelineWidget);
+        _timelineWidget->setTimeObject(_timeObject);
+        _timelineWidget->setFocusPolicy(Qt::ClickFocus);
+
+        auto layout = new QVBoxLayout;
+        layout->setMargin(0);
+        layout->setSpacing(0);
+        layout->addWidget(_viewport, 1);
+        layout->addWidget(_timelineWidget);
+        auto centralWidget = new QWidget;
+        centralWidget->setLayout(layout);
+        setCentralWidget(centralWidget);
+
+        const auto i = _unitsToActions.find(_timeObject->units());
+        if (i != _unitsToActions.end())
+        {
+            i.value()->setChecked(true);
+        }
 
         _playbackUpdate();
         _timelineUpdate();
@@ -126,6 +173,16 @@ namespace tlr
             _actions["Playback/NextFrame"],
             SIGNAL(triggered()),
             SLOT(_nextFrameCallback()));
+
+        connect(
+            _timeUnitsActionGroup,
+            SIGNAL(triggered(QAction*)),
+            SLOT(_timeUnitsCallback(QAction*)));
+
+        connect(
+            _timeObject,
+            SIGNAL(unitsChanged(qt::TimeObject::Units)),
+            SLOT(_timeUnitsCallback(qt::TimeObject::Units)));
     }
 
     void MainWindow::setTimeline(qt::TimelineObject* timeline)
@@ -133,6 +190,7 @@ namespace tlr
         if (timeline == _timeline)
             return;
         _timeline = timeline;
+        _viewport->setTimeline(timeline);
         _timelineWidget->setTimeline(timeline);
         _timelineUpdate();
     }
@@ -250,6 +308,25 @@ namespace tlr
         if (_timeline)
         {
             _timeline->nextFrame();
+        }
+    }
+
+    void MainWindow::_timeUnitsCallback(QAction* action)
+    {
+        const auto i = _actionToUnits.find(action);
+        if (i != _actionToUnits.end())
+        {
+            _timeObject->setUnits(i.value());
+        }
+    }
+
+    void MainWindow::_timeUnitsCallback(qt::TimeObject::Units units)
+    {
+        const QSignalBlocker blocker(_timeUnitsActionGroup);
+        const auto i = _unitsToActions.find(units);
+        if (i != _unitsToActions.end())
+        {
+            i.value()->setChecked(true);
         }
     }
 

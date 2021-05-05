@@ -37,7 +37,9 @@ namespace tlr
             return;
         }
 
-        _mainWindow = new MainWindow;
+        _timeObject = new qt::TimeObject(this);
+
+        _mainWindow = new MainWindow(_timeObject);
 
         connect(
             _mainWindow,

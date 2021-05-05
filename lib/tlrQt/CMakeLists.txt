@@ -1,9 +1,13 @@
 set(HEADERS
+    TimeLabel.h
+    TimeObject.h
     TimeSpinBox.h
     TimelineObject.h
     TimelineViewport.h
     TimelineWidget.h)
 set(SOURCE
+    TimeLabel.cpp
+    TimeObject.cpp
     TimeSpinBox.cpp
     TimelineObject.cpp
     TimelineViewport.cpp

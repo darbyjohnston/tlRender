@@ -4,11 +4,10 @@
 
 #pragma once
 
+#include <tlrQt/TimeLabel.h>
 #include <tlrQt/TimeSpinBox.h>
 #include <tlrQt/TimelineObject.h>
-#include <tlrQt/TimelineViewport.h>
 
-#include <QLabel>
 #include <QMap>
 #include <QPointer>
 #include <QSlider>
@@ -25,6 +24,9 @@ namespace tlr
 
         public:
             TimelineWidget(QWidget* parent = nullptr);
+
+            //! Set the time object.
+            void setTimeObject(TimeObject*);
 
             //! Set the timeline.
             void setTimeline(TimelineObject*);
@@ -46,11 +48,9 @@ namespace tlr
 
             QPointer<TimelineObject> _timeline;
             QMap<timeline::Playback, QPointer<QToolButton> > _playbackButtons;
-            QPointer<TimelineViewport> _viewport;
-            QPointer<QLabel> _currentTimeLabel;
             QPointer<TimeSpinBox> _currentTimeSpinBox;
             QPointer<QSlider> _timeSlider;
-            QPointer<QLabel> _durationLabel;
+            QPointer<TimeLabel> _durationLabel;
         };
     }
 }
