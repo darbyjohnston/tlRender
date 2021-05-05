@@ -38,7 +38,7 @@ namespace tlr
 
         private:
             std::shared_ptr<imaging::Image> _image;
-            std::shared_ptr<imaging::Image> _image2;
+            std::shared_ptr<imaging::Image> _imageTmp;
             QPointer<QOpenGLShaderProgram> _program;
             std::unique_ptr<QOpenGLTexture> _texture;
         };

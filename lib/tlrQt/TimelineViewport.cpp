@@ -38,7 +38,7 @@ namespace tlr
 
         void TimelineViewport::_imageCallback(const std::shared_ptr<imaging::Image>& image)
         {
-            _image = image;
+            _imageTmp = image;
             update();
         }
 
@@ -143,12 +143,12 @@ namespace tlr
 
             const int tw = _texture->width();
             const int th = _texture->height();
-            if (_image != _image2)
+            if (_imageTmp != _image)
             {
-                _image2 = _image;
-                if (_image2)
+                _image = _imageTmp;
+                if (_image)
                 {
-                    const imaging::Info& info = _image2->getInfo();
+                    const imaging::Info& info = _image->getInfo();
                     if (tw != info.size.w || th != info.size.h)
                     {
                         _texture->destroy();
@@ -157,11 +157,11 @@ namespace tlr
                         _texture->allocateStorage();
                     }
                     _texture->bind();
-                    _texture->setData(getPixelFormat(info.pixelType), getPixelType(info.pixelType), _image2->getData());
+                    _texture->setData(getPixelFormat(info.pixelType), getPixelType(info.pixelType), _image->getData());
                 }
             }
 
-            if (_image2)
+            if (_image)
             {
                 _texture->bind();
 
