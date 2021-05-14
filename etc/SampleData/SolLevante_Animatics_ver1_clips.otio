@@ -1,7 +1,7 @@
 {
     "OTIO_SCHEMA": "Timeline.1", 
     "metadata": {},
-    "name": "test",
+    "name": "SolLevante_Animatics_ver1",
     "global_start_time": {
         "OTIO_SCHEMA": "RationalTime.1",
         "rate": 23.976023976023978,
