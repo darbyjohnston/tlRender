@@ -26,8 +26,6 @@ To do:
 * Effects
 * Audio support
 * Hardware movie decoding
-* Threads
-* Memory cache
 * Rendering to file
 
 
