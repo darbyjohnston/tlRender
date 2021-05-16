@@ -6,13 +6,13 @@
 
 namespace tlr
 {
-    std::ostream& operator << (std::ostream& os, const opentime::RationalTime& value)
+    std::ostream& operator << (std::ostream& os, const otime::RationalTime& value)
     {
         os << value.value() << "/" << value.rate();
         return os;
     }
 
-    std::ostream& operator << (std::ostream& os, const opentime::TimeRange& value)
+    std::ostream& operator << (std::ostream& os, const otime::TimeRange& value)
     {
         os << value.start_time() << "-" << value.duration();
         return os;

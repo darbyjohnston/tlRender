@@ -12,46 +12,62 @@
 #include <iostream>
 
 //! Convenience macro for making a class non-copyable.
-#define TLR_NON_COPYABLE(NAME) \
-    NAME(const NAME&) = delete; \
-    NAME& operator = (const NAME&) = delete
+#define TLR_NON_COPYABLE(CLASS) \
+    CLASS(const CLASS&) = delete; \
+    CLASS& operator = (const CLASS&) = delete
+
+//! Convenience macro for getting a list of enums.
+#define TLR_ENUM_VECTOR(ENUM) \
+    std::vector<ENUM> get##ENUM##Enums();
 
 //! Convenience macro for converting enums to strings.
-#define TLR_ENUM_LABEL(NAME) \
-    std::vector<std::string> get##NAME##Labels(); \
-    std::string getLabel(NAME)
+#define TLR_ENUM_LABEL(ENUM) \
+    std::vector<std::string> get##ENUM##Labels(); \
+    std::string getLabel(ENUM)
 
 //! Convenience macro for serializing enums.
-#define TLR_ENUM_SERIALIZE(NAME) \
-    std::ostream& operator << (std::ostream&, NAME); \
-    std::istream& operator >> (std::istream&, NAME&)
+#define TLR_ENUM_SERIALIZE(ENUM) \
+    std::ostream& operator << (std::ostream&, ENUM); \
+    std::istream& operator >> (std::istream&, ENUM&)
+
+//! Implementation macro for getting a list of enums.
+#define TLR_ENUM_VECTOR_IMPL(ENUM) \
+    std::vector<ENUM> get##ENUM##Enums() \
+    { \
+        std::vector<ENUM> out; \
+        for (size_t i = 0; i < static_cast<size_t>(ENUM::Count); ++i) \
+        { \
+            out.push_back(static_cast<ENUM>(i)); \
+        } \
+        return out; \
+    }
 
 //! Implementation macro for converting enums to strings.
-#define TLR_ENUM_LABEL_IMPL(NAME, ...) \
-    std::vector<std::string> get##NAME##Labels() \
+#define TLR_ENUM_LABEL_IMPL(ENUM, ...) \
+    std::vector<std::string> get##ENUM##Labels() \
     { \
         return { __VA_ARGS__ }; \
     } \
     \
-    std::string getLabel(NAME value) \
+    std::string getLabel(ENUM value) \
     { \
-        const std::array<std::string, static_cast<size_t>(NAME::Count)> data = { __VA_ARGS__ }; \
+        const std::array<std::string, static_cast<size_t>(ENUM::Count)> data = { __VA_ARGS__ }; \
         return data[static_cast<size_t>(value)]; \
     }
 
 //! Implementation macro for serializing enums.
-#define TLR_ENUM_SERIALIZE_IMPL(PREFIX, NAME, ...) \
-    std::ostream& operator << (std::ostream& os, PREFIX::NAME in) \
+#define TLR_ENUM_SERIALIZE_IMPL(PREFIX, ENUM, ...) \
+    std::ostream& operator << (std::ostream& os, PREFIX::ENUM in) \
     { \
-        os << PREFIX::get##NAME##Labels()[static_cast<size_t>(in)]; \
+        os << PREFIX::get##ENUM##Labels()[static_cast<size_t>(in)]; \
         return os; \
     } \
     \
-    std::istream& operator >> (std::istream& is, PREFIX::NAME& out) \
+    std::istream& operator >> (std::istream& is, PREFIX::ENUM& out) \
     { \
         std::string s; \
         is >> s; \
-        const auto labels = PREFIX::get##NAME##Labels(); \
+        const auto labels = PREFIX::get##ENUM##Labels(); \
         const auto i = std::find_if( \
             labels.begin(), \
             labels.end(), \
@@ -63,7 +79,7 @@
         { \
             throw ParseError(); \
         } \
-        out = static_cast<PREFIX::NAME>(i - labels.begin()); \
+        out = static_cast<PREFIX::ENUM>(i - labels.begin()); \
         return is; \
     }
 

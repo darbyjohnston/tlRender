@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <tlrCore/Cache.h>
 #include <tlrCore/IO.h>
 
 extern "C"
@@ -13,7 +14,13 @@ extern "C"
 
 } // extern "C"
 
+#include <atomic>
+#include <condition_variable>
+#include <queue>
+#include <list>
 #include <map>
+#include <mutex>
+#include <thread>
 
 namespace tlr
 {
@@ -29,8 +36,7 @@ namespace tlr
         protected:
             void _init(
                 const std::string& fileName,
-                const otime::RationalTime& defaultSpeed,
-                size_t videoQueueSize);
+                const otime::RationalTime& defaultSpeed);
             Read();
 
         public:
@@ -39,13 +45,37 @@ namespace tlr
             //! Create a new reader.
             static std::shared_ptr<Read> create(
                 const std::string& fileName,
-                const otime::RationalTime& defaultSpeed,
-                size_t videoQueueSize);
-                
-            void tick() override;
+                const otime::RationalTime& defaultSpeed);
+
+            std::future<io::Info> getInfo() override;
+            std::future<io::VideoFrame> getVideoFrame(const otime::RationalTime&) override;
+            void cancelVideoFrames() override;
 
         private:
-            int _decodeVideo(AVPacket&, io::VideoFrame&);
+            void _open(const std::string& fileName);
+            void _run();
+            void _close();
+            int _decodeVideo(
+                AVPacket&,
+                io::VideoFrame&,
+                bool hasSeek,
+                const otime::RationalTime& seek);
+
+            io::Info _info;
+            std::promise<io::Info> _infoPromise;
+            struct VideoFrameRequest
+            {
+                VideoFrameRequest() {}
+                VideoFrameRequest(VideoFrameRequest&& other) = default;
+
+                otime::RationalTime time;
+                std::promise<io::VideoFrame> promise;
+            };
+            std::list<VideoFrameRequest> _videoFrameRequests;
+            std::condition_variable _requestCV;
+            std::mutex _requestMutex;
+            otime::RationalTime _currentTime;
+            memory::Cache<otime::RationalTime, io::VideoFrame> _videoFrameCache;
 
             AVFormatContext* _avFormatContext = nullptr;
             int _avVideoStream = -1;
@@ -54,6 +84,9 @@ namespace tlr
             AVFrame* _avFrame = nullptr;
             AVFrame* _avFrameRgb = nullptr;
             SwsContext* _swsContext = nullptr;
+
+            std::thread _thread;
+            std::atomic<bool> _running;
         };
 
         //! FFmpeg Plugin

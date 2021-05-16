@@ -20,6 +20,8 @@ namespace tlr
             _label = new QLabel;
 
             auto layout = new QHBoxLayout;
+            layout->setMargin(0);
+            layout->setSpacing(0);
             layout->addWidget(_label);
             setLayout(layout);
 
@@ -48,6 +50,7 @@ namespace tlr
                     SLOT(setUnits(qt::TimeObject::Units)));
             }
             _textUpdate();
+            updateGeometry();
         }
 
         void TimeLabel::setValue(const otime::RationalTime& value)
@@ -64,6 +67,7 @@ namespace tlr
                 return;
             _units = units;
             _textUpdate();
+            updateGeometry();
         }
 
         void TimeLabel::_textUpdate()

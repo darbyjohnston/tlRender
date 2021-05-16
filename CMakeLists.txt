@@ -47,7 +47,7 @@ if(TLR_BUILD_QT)
     set(CMAKE_AUTORCC ON)
     set(CMAKE_AUTOUIC ON)
     find_package(OpenGL REQUIRED)
-    find_package(Qt5 COMPONENTS Widgets HINTS "$ENV{QTDIR}" REQUIRED)
+    find_package(Qt5 COMPONENTS Widgets Svg HINTS "$ENV{QTDIR}" REQUIRED)
 endif()
 
 # Sub-directories

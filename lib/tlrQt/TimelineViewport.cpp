@@ -21,24 +21,28 @@ namespace tlr
 
         void TimelineViewport::setTimeline(TimelineObject* timeline)
         {
-            if (timeline)
-            {
-                connect(
-                    timeline,
-                    SIGNAL(currentImageChanged(const std::shared_ptr<tlr::imaging::Image>&)),
-                    SLOT(_imageCallback(const std::shared_ptr<tlr::imaging::Image>&)));
-            }
-            else
+            _frame = io::VideoFrame();
+            _frameTmp = io::VideoFrame();
+            if (_timeline)
             {
                 disconnect(
-                    timeline,
-                    SIGNAL(currentImageChanged(const std::shared_ptr<tlr::imaging::Image>&)));
+                    _timeline,
+                    SIGNAL(frameChanged(const tlr::io::VideoFrame&)));
             }
+            _timeline = timeline;
+            if (_timeline)
+            {
+                connect(
+                    _timeline,
+                    SIGNAL(frameChanged(const tlr::io::VideoFrame&)),
+                    SLOT(_frameCallback(const tlr::io::VideoFrame&)));
+            }
+            update();
         }
 
-        void TimelineViewport::_imageCallback(const std::shared_ptr<imaging::Image>& image)
+        void TimelineViewport::_frameCallback(const io::VideoFrame& frame)
         {
-            _imageTmp = image;
+            _frameTmp = frame;
             update();
         }
 
@@ -141,15 +145,14 @@ namespace tlr
             glClearColor(0.F, 0.F, 0.F, 0.F);
             glClear(GL_COLOR_BUFFER_BIT);
 
-            const int tw = _texture->width();
-            const int th = _texture->height();
-            if (_imageTmp != _image)
+            if (_frameTmp != _frame)
             {
-                _image = _imageTmp;
-                if (_image)
+                _frame = _frameTmp;
+                if (_frame.image)
                 {
-                    const imaging::Info& info = _image->getInfo();
-                    if (tw != info.size.w || th != info.size.h)
+                    //std::cout << "image: " << _frame.time << std::endl;
+                    const imaging::Info& info = _frame.image->getInfo();
+                    if (_texture->width() != info.size.w || _texture->height() != info.size.h)
                     {
                         _texture->destroy();
                         _texture->setFormat(getTextureFormat(info.pixelType));
@@ -157,11 +160,11 @@ namespace tlr
                         _texture->allocateStorage();
                     }
                     _texture->bind();
-                    _texture->setData(getPixelFormat(info.pixelType), getPixelType(info.pixelType), _image->getData());
+                    _texture->setData(getPixelFormat(info.pixelType), getPixelType(info.pixelType), _frame.image->getData());
                 }
             }
 
-            if (_image)
+            if (_frame.image)
             {
                 _texture->bind();
 
@@ -171,7 +174,7 @@ namespace tlr
                 _program->setUniformValue("mvp", m);
                 _program->setUniformValue("textureSampler", 0);
 
-                const math::BBox2f bbox = timeline::fitWindow(imaging::Size(tw, th), imaging::Size(w, h));
+                const math::BBox2f bbox = timeline::fitWindow(imaging::Size(_texture->width(), _texture->height()), imaging::Size(w, h));
                 VBOVertex vboData[4];
                 vboData[0].vx = bbox.min.x;
                 vboData[0].vy = bbox.min.y;

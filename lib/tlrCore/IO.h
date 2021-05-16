@@ -6,9 +6,9 @@
 
 #include <tlrCore/Image.h>
 
+#include <future>
 #include <iostream>
 #include <map>
-#include <queue>
 
 namespace tlr
 {
@@ -19,7 +19,7 @@ namespace tlr
         struct VideoInfo
         {
             imaging::Info info;
-            opentime::RationalTime duration;
+            otime::RationalTime duration;
             std::string codec;
         };
 
@@ -33,8 +33,12 @@ namespace tlr
         //! Video I/O frame.
         struct VideoFrame
         {
-            opentime::RationalTime time;
+            otime::RationalTime time;
             std::shared_ptr<imaging::Image> image;
+
+            bool operator == (const VideoFrame&) const;
+            bool operator != (const VideoFrame&) const;
+            bool operator < (const VideoFrame&) const;
         };
 
         //! Base class for readers/writers.
@@ -52,12 +56,8 @@ namespace tlr
             //! Get the file name.
             const std::string& getFileName() const;
 
-            //! Get the I/O information.
-            const Info& getInfo() const;
-
         protected:
             std::string _fileName;
-            Info _info;
         };
 
         //! Base class for readers.
@@ -66,47 +66,23 @@ namespace tlr
         protected:
             void _init(
                 const std::string& fileName,
-                const otime::RationalTime& defaultSpeed,
-                size_t videoQueueSize);
+                const otime::RationalTime& defaultSpeed);
             IRead();
 
         public:
-            //! Seek to the given time.
-            void seek(const opentime::RationalTime&);
+            ~IRead() override;
 
-            //! This function should be called periodically to let the plugin do work.
-            virtual void tick() = 0;
+            //! Get the information.
+            virtual std::future<Info> getInfo() = 0;
 
-            //! Get the queue of video frames.
-            std::queue<VideoFrame>& getVideoQueue();
+            //! Get a video frame.
+            virtual std::future<VideoFrame> getVideoFrame(const otime::RationalTime&) = 0;
+
+            //! Cancel video frame requests.
+            virtual void cancelVideoFrames() = 0;
 
         protected:
             otime::RationalTime _defaultSpeed = otime::RationalTime(0, 24);
-            bool _hasSeek = false;
-            opentime::RationalTime _seekTime;
-            std::queue<VideoFrame> _videoQueue;
-            size_t _videoQueueSize = 0;
-        };
-
-        //! Base class for image sequence readers.
-        class ISequenceRead : public IRead
-        {
-        protected:
-            void _init(
-                const std::string& fileName,
-                const otime::RationalTime& defaultSpeed,
-                size_t videoQueueSize);
-            ISequenceRead();
-
-        protected:
-            std::string _getFileName(const otime::RationalTime&) const;
-
-            otime::RationalTime _currentTime;
-            std::string _path;
-            std::string _baseName;
-            std::string _number;
-            int _pad = 0;
-            std::string _extension;
         };
 
         //! Base class for I/O plugins.
@@ -128,12 +104,6 @@ namespace tlr
             virtual std::shared_ptr<IRead> read(
                 const std::string& fileName,
                 const otime::RationalTime& defaultSpeed) = 0;
-
-            // Set the video queue size.
-            void setVideoQueueSize(size_t);
-
-        protected:
-            size_t _videoQueueSize = 0;
         };
 
         //! I/O system.
@@ -157,12 +127,8 @@ namespace tlr
                 const std::string& fileName,
                 const otime::RationalTime& defaultSpeed = otime::RationalTime(0, 24));
 
-            // Set the video queue size.
-            void setVideoQueueSize(size_t);
-
         private:
             std::vector<std::shared_ptr<IPlugin> > _plugins;
-            size_t _videoQueueSize = 10;
         };
     }
 }

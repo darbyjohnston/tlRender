@@ -4,7 +4,10 @@
 
 #pragma once
 
+#include <tlrCore/Util.h>
+
 #include <chrono>
+#include <vector>
 
 namespace tlr
 {

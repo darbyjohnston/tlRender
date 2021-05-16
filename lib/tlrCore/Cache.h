@@ -33,7 +33,7 @@ namespace tlr
 
             bool contains(const T& key) const;
             bool get(const T& key, U& value) const;
-                
+
             void add(const T& key, const U& value);
             void remove(const T& key);
             void clear();
@@ -51,7 +51,6 @@ namespace tlr
             mutable std::map<T, int64_t> _counts;
             mutable int64_t _counter = 0;
         };
-
     }
 }
 

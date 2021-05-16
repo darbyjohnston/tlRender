@@ -180,7 +180,7 @@ namespace tlr
                     return out;
                 }
 
-                FILE* f = nullptr;
+                FILE*                  f = nullptr;
                 jpeg_decompress_struct decompress;
                 bool                   init = false;
                 ErrorStruct            error;
@@ -190,16 +190,9 @@ namespace tlr
 
         void Read::_init(
             const std::string& fileName,
-            const otime::RationalTime& defaultSpeed,
-            size_t videoQueueSize)
+            const otime::RationalTime& defaultSpeed)
         {
-            ISequenceRead::_init(fileName, defaultSpeed, videoQueueSize);
-
-            io::VideoInfo info;
-            info.info = File::create(fileName)->info;
-            info.duration = _defaultSpeed;
-            info.codec = "JPEG";
-            _info.video.push_back(info);
+            ISequenceRead::_init(fileName, defaultSpeed);
         }
 
         Read::Read()
@@ -210,64 +203,54 @@ namespace tlr
 
         std::shared_ptr<Read> Read::create(
             const std::string& fileName,
-            const otime::RationalTime& defaultSpeed,
-            size_t videoQueueSize)
+            const otime::RationalTime& defaultSpeed)
         {
             auto out = std::shared_ptr<Read>(new Read);
-            out->_init(fileName, defaultSpeed, videoQueueSize);
+            out->_init(fileName, defaultSpeed);
             return out;
         }
 
-        void Read::tick()
+        io::Info Read::_getInfo(const std::string& fileName)
         {
-            if (_hasSeek)
+            io::Info out;
+            io::VideoInfo videoInfo;
+            videoInfo.info = File::create(fileName)->info;
+            videoInfo.duration = _defaultSpeed;
+            videoInfo.codec = "JPEG";
+            out.video.push_back(videoInfo);
+            return out;
+        }
+
+        io::VideoFrame Read::_getVideoFrame(const otime::RationalTime& time)
+        {
+            io::VideoFrame out;
+
+            const std::string fileName = _getFileName(time);
+            auto f = File::create(fileName);
+
+            imaging::PixelType pixelType = imaging::getIntType(f->decompress.out_color_components, 8);
+            if (imaging::PixelType::None == pixelType)
             {
-                _currentTime = _seekTime.rescaled_to(_info.video[0].duration.rate());
-                while (_videoQueue.size())
+                std::stringstream ss;
+                ss << fileName << ": File not supported";
+                throw std::runtime_error(ss.str());
+            }
+
+            const imaging::Info info(f->decompress.output_width, f->decompress.output_height, pixelType);
+            out.time = time;
+            out.image = imaging::Image::create(info);
+
+            for (uint16_t y = 0; y < info.size.h; ++y)
+            {
+                if (!jpegScanline(&f->decompress, out.image->getData(y), &f->error))
                 {
-                    _videoQueue.pop();
+                    break;
                 }
             }
 
-            if (_videoQueue.size() < _videoQueueSize)
-            {
-                io::VideoFrame frame;
+            jpegEnd(&f->decompress, &f->error);
 
-                try
-                {
-                    const std::string fileName = _getFileName(_currentTime);
-                    auto f = File::create(fileName);
-
-                    imaging::PixelType pixelType = imaging::getIntType(f->decompress.out_color_components, 8);
-                    if (imaging::PixelType::None == pixelType)
-                    {
-                        std::stringstream ss;
-                        ss << fileName << ": File not supported";
-                        throw std::runtime_error(ss.str());
-                    }
-
-                    const imaging::Info info(f->decompress.output_width, f->decompress.output_height, pixelType);
-                    frame.time = _currentTime;
-                    frame.image = imaging::Image::create(info);
-
-                    for (uint16_t y = 0; y < info.size.h; ++y)
-                    {
-                        if (!jpegScanline(&f->decompress, frame.image->getData(y), &f->error))
-                        {
-                            break;
-                        }
-                    }
-
-                    jpegEnd(&f->decompress, &f->error);
-                }
-                catch (const std::exception&)
-                {}
-
-                _videoQueue.push(frame);
-                _currentTime += otime::RationalTime(1, _info.video[0].duration.rate());
-            }
-
-            _hasSeek = false;
+            return out;
         }
 
         Plugin::Plugin()
@@ -297,7 +280,7 @@ namespace tlr
             const std::string& fileName,
             const otime::RationalTime& defaultSpeed)
         {
-            return Read::create(fileName, defaultSpeed, _videoQueueSize);
+            return Read::create(fileName, defaultSpeed);
         }
     }
 }

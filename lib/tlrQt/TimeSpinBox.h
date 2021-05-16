@@ -58,11 +58,12 @@ namespace tlr
             void _lineEditCallback();
 
         private:
+            void _vaidatorUpdate();
             void _textUpdate();
 
             otime::RationalTime _value;
             TimeObject::Units _units = TimeObject::Units::Timecode;
-            QPointer<QRegExpValidator> _validator;
+            QRegExpValidator* _validator = nullptr;
             QPointer<TimeObject> _timeObject;
         };
     }

@@ -4,131 +4,198 @@
 
 #include "MainWindow.h"
 
+#include "SettingsWidget.h"
+
+#include <QDockWidget>
 #include <QDragEnterEvent>
 #include <QDragMoveEvent>
 #include <QFontDatabase>
 #include <QHBoxLayout>
 #include <QMenuBar>
 #include <QMimeData>
+#include <QSettings>
 #include <QStyle>
 #include <QToolBar>
 
 namespace tlr
 {
-    MainWindow::MainWindow(qt::TimeObject* timeObject, QWidget* parent) :
+    MainWindow::MainWindow(
+        SettingsObject* settingsObject,
+        qt::TimeObject* timeObject,
+        QWidget* parent) :
         QMainWindow(parent),
+        _settingsObject(settingsObject),
         _timeObject(timeObject)
     {
+        setFocusPolicy(Qt::ClickFocus);
         setAcceptDrops(true);
 
-        _actions["File/Open"] = new QAction;
+        _actions["File/Open"] = new QAction(this);
         _actions["File/Open"]->setText(tr("Open"));
         _actions["File/Open"]->setShortcut(QKeySequence::Open);
-        _actions["File/Close"] = new QAction;
+        _actions["File/Close"] = new QAction(this);
         _actions["File/Close"]->setText(tr("Close"));
         _actions["File/Close"]->setShortcut(QKeySequence::Close);
-        _actions["File/Exit"] = new QAction;
+        _recentFilesActionGroup = new QActionGroup(this);
+        _actions["File/Settings"] = new QAction(this);
+        _actions["File/Settings"]->setText(tr("Settings"));
+        _actions["File/Settings"]->setCheckable(true);
+        _actions["File/Exit"] = new QAction(this);
         _actions["File/Exit"]->setText(tr("Exit"));
         _actions["File/Exit"]->setShortcut(QKeySequence::Quit);
 
-        _actions["Playback/Stop"] = new QAction;
+        _actions["Playback/Stop"] = new QAction(this);
         _actions["Playback/Stop"]->setCheckable(true);
         _actions["Playback/Stop"]->setText(tr("Stop Playback"));
-        _actions["Playback/Stop"]->setIcon(style()->standardIcon(QStyle::SP_MediaStop));
+        _actions["Playback/Stop"]->setIcon(QIcon(":/Icons/PlaybackStop.svg"));
+        _actions["Playback/Stop"]->setShortcut(QKeySequence(Qt::Key_K));
         _actions["Playback/Stop"]->setToolTip(tr("Stop playback"));
-        _actions["Playback/Forward"] = new QAction;
+        _actions["Playback/Forward"] = new QAction(this);
         _actions["Playback/Forward"]->setCheckable(true);
         _actions["Playback/Forward"]->setText(tr("Forward Playback"));
-        _actions["Playback/Forward"]->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
+        _actions["Playback/Forward"]->setIcon(QIcon(":/Icons/PlaybackForward.svg"));
+        _actions["Playback/Forward"]->setShortcut(QKeySequence(Qt::Key_L));
         _actions["Playback/Forward"]->setToolTip(tr("Forward playback"));
-        _actions["Playback/Toggle"] = new QAction;
+        _actions["Playback/Reverse"] = new QAction(this);
+        _actions["Playback/Reverse"]->setCheckable(true);
+        _actions["Playback/Reverse"]->setText(tr("Reverse Playback"));
+        _actions["Playback/Reverse"]->setIcon(QIcon(":/Icons/PlaybackReverse.svg"));
+        _actions["Playback/Reverse"]->setShortcut(QKeySequence(Qt::Key_J));
+        _actions["Playback/Reverse"]->setToolTip(tr("Reverse playback"));
+        _playbackActionGroup = new QActionGroup(this);
+        _playbackActionGroup->setExclusive(true);
+        _playbackActionGroup->addAction(_actions["Playback/Stop"]);
+        _playbackActionGroup->addAction(_actions["Playback/Forward"]);
+        _playbackActionGroup->addAction(_actions["Playback/Reverse"]);
+        _actionToPlayback[_actions["Playback/Stop"]] = timeline::Playback::Stop;
+        _actionToPlayback[_actions["Playback/Forward"]] = timeline::Playback::Forward;
+        _actionToPlayback[_actions["Playback/Reverse"]] = timeline::Playback::Reverse;
+        _playbackToActions[timeline::Playback::Stop] = _actions["Playback/Stop"];
+        _playbackToActions[timeline::Playback::Forward] = _actions["Playback/Forward"];
+        _playbackToActions[timeline::Playback::Reverse] = _actions["Playback/Reverse"];
+        _actions["Playback/Toggle"] = new QAction(this);
         _actions["Playback/Toggle"]->setText(tr("Toggle Playback"));
         _actions["Playback/Toggle"]->setShortcut(QKeySequence(Qt::Key_Space));
         _actions["Playback/Toggle"]->setToolTip(tr("Toggle playback"));
 
-        _actions["Playback/StartFrame"] = new QAction;
-        _actions["Playback/StartFrame"]->setText(tr("Start Frame"));
-        _actions["Playback/StartFrame"]->setShortcut(QKeySequence(Qt::Key_Home));
-        _actions["Playback/EndFrame"] = new QAction;
-        _actions["Playback/EndFrame"]->setText(tr("End Frame"));
-        _actions["Playback/EndFrame"]->setShortcut(QKeySequence(Qt::Key_End));
-        _actions["Playback/PrevFrame"] = new QAction;
-        _actions["Playback/PrevFrame"]->setText(tr("Previous Frame"));
-        _actions["Playback/PrevFrame"]->setShortcut(QKeySequence(Qt::Key_Left));
-        _actions["Playback/NextFrame"] = new QAction;
-        _actions["Playback/NextFrame"]->setText(tr("Next Frame"));
-        _actions["Playback/NextFrame"]->setShortcut(QKeySequence(Qt::Key_Right));
+        _actions["Playback/Loop"] = new QAction(this);
+        _actions["Playback/Loop"]->setCheckable(true);
+        _actions["Playback/Loop"]->setText(tr("Loop Playback"));
+        _actions["Playback/Once"] = new QAction(this);
+        _actions["Playback/Once"]->setCheckable(true);
+        _actions["Playback/Once"]->setText(tr("Playback Once"));
+        _actions["Playback/PingPong"] = new QAction(this);
+        _actions["Playback/PingPong"]->setCheckable(true);
+        _actions["Playback/PingPong"]->setText(tr("Ping-Pong Playback"));
+        _loopActionGroup = new QActionGroup(this);
+        _loopActionGroup->setExclusive(true);
+        _loopActionGroup->addAction(_actions["Playback/Loop"]);
+        _loopActionGroup->addAction(_actions["Playback/Once"]);
+        _loopActionGroup->addAction(_actions["Playback/PingPong"]);
+        _actionToLoop[_actions["Playback/Loop"]] = timeline::Loop::Loop;
+        _actionToLoop[_actions["Playback/Once"]] = timeline::Loop::Once;
+        _actionToLoop[_actions["Playback/PingPong"]] = timeline::Loop::PingPong;
+        _loopToActions[timeline::Loop::Loop] = _actions["Playback/Loop"];
+        _loopToActions[timeline::Loop::Once] = _actions["Playback/Once"];
+        _loopToActions[timeline::Loop::PingPong] = _actions["Playback/PingPong"];
 
-        _actions["Settings/Frames"] = new QAction;
-        _actions["Settings/Frames"]->setCheckable(true);
-        _actions["Settings/Frames"]->setText(tr("Frames"));
-        _actions["Settings/Seconds"] = new QAction;
-        _actions["Settings/Seconds"]->setCheckable(true);
-        _actions["Settings/Seconds"]->setText(tr("Seconds"));
-        _actions["Settings/Timecode"] = new QAction;
-        _actions["Settings/Timecode"]->setCheckable(true);
-        _actions["Settings/Timecode"]->setText(tr("Timecode"));
-        _timeUnitsActionGroup = new QActionGroup(this);
-        _timeUnitsActionGroup->setExclusive(true);
-        _timeUnitsActionGroup->addAction(_actions["Settings/Frames"]);
-        _timeUnitsActionGroup->addAction(_actions["Settings/Seconds"]);
-        _timeUnitsActionGroup->addAction(_actions["Settings/Timecode"]);
-        _actionToUnits[_actions["Settings/Frames"]] = qt::TimeObject::Units::Frames;
-        _actionToUnits[_actions["Settings/Seconds"]] = qt::TimeObject::Units::Seconds;
-        _actionToUnits[_actions["Settings/Timecode"]] = qt::TimeObject::Units::Timecode;
-        _unitsToActions[qt::TimeObject::Units::Frames] = _actions["Settings/Frames"];
-        _unitsToActions[qt::TimeObject::Units::Seconds] = _actions["Settings/Seconds"];
-        _unitsToActions[qt::TimeObject::Units::Timecode] = _actions["Settings/Timecode"];
+        _actions["Playback/Start"] = new QAction(this);
+        _actions["Playback/Start"]->setText(tr("Start Frame"));
+        _actions["Playback/Start"]->setIcon(QIcon(":/Icons/FrameStart.svg"));
+        _actions["Playback/Start"]->setShortcut(QKeySequence(Qt::Key_Home));
+        _actions["Playback/End"] = new QAction(this);
+        _actions["Playback/End"]->setText(tr("End Frame"));
+        _actions["Playback/End"]->setIcon(QIcon(":/Icons/FrameEnd.svg"));
+        _actions["Playback/End"]->setShortcut(QKeySequence(Qt::Key_End));
+        _actions["Playback/Prev"] = new QAction(this);
+        _actions["Playback/Prev"]->setText(tr("Previous Frame"));
+        _actions["Playback/Prev"]->setIcon(QIcon(":/Icons/FramePrev.svg"));
+        _actions["Playback/Prev"]->setShortcut(QKeySequence(Qt::Key_Left));
+        _actions["Playback/Next"] = new QAction(this);
+        _actions["Playback/Next"]->setText(tr("Next Frame"));
+        _actions["Playback/Next"]->setIcon(QIcon(":/Icons/FrameNext.svg"));
+        _actions["Playback/Next"]->setShortcut(QKeySequence(Qt::Key_Right));
+
+        _actions["Playback/SetInPoint"] = new QAction(this);
+        _actions["Playback/SetInPoint"]->setText(tr("Set In Point"));
+        _actions["Playback/SetInPoint"]->setIcon(QIcon(":/Icons/FrameStart.svg"));
+        _actions["Playback/SetInPoint"]->setShortcut(QKeySequence(Qt::Key_I));
+        _actions["Playback/ResetInPoint"] = new QAction(this);
+        _actions["Playback/ResetInPoint"]->setText(tr("Reset In Point"));
+        _actions["Playback/ResetInPoint"]->setIcon(QIcon(":/Icons/Reset.svg"));
+        _actions["Playback/ResetInPoint"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_I));
+        _actions["Playback/SetOutPoint"] = new QAction(this);
+        _actions["Playback/SetOutPoint"]->setText(tr("Set Out Point"));
+        _actions["Playback/SetOutPoint"]->setIcon(QIcon(":/Icons/FrameEnd.svg"));
+        _actions["Playback/SetOutPoint"]->setShortcut(QKeySequence(Qt::Key_O));
+        _actions["Playback/ResetOutPoint"] = new QAction(this);
+        _actions["Playback/ResetOutPoint"]->setText(tr("Reset Out Point"));
+        _actions["Playback/ResetOutPoint"]->setIcon(QIcon(":/Icons/Reset.svg"));
+        _actions["Playback/ResetOutPoint"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_O));
 
         auto fileMenu = new QMenu;
         fileMenu->setTitle(tr("&File"));
         fileMenu->addAction(_actions["File/Open"]);
         fileMenu->addAction(_actions["File/Close"]);
         fileMenu->addSeparator();
+        _recentFilesMenu = new QMenu;
+        _recentFilesMenu->setTitle(tr("&Recent Files"));
+        fileMenu->addMenu(_recentFilesMenu);
+        fileMenu->addSeparator();
+        fileMenu->addAction(_actions["File/Settings"]);
+        fileMenu->addSeparator();
         fileMenu->addAction(_actions["File/Exit"]);
 
         auto playbackMenu = new QMenu;
         playbackMenu->setTitle(tr("&Playback"));
+        playbackMenu->addAction(_actions["Playback/Stop"]);
+        playbackMenu->addAction(_actions["Playback/Forward"]);
+        playbackMenu->addAction(_actions["Playback/Reverse"]);
         playbackMenu->addAction(_actions["Playback/Toggle"]);
         playbackMenu->addSeparator();
-        playbackMenu->addAction(_actions["Playback/StartFrame"]);
-        playbackMenu->addAction(_actions["Playback/EndFrame"]);
-        playbackMenu->addAction(_actions["Playback/PrevFrame"]);
-        playbackMenu->addAction(_actions["Playback/NextFrame"]);
-
-        auto settingsMenu = new QMenu;
-        settingsMenu->setTitle(tr("&Settings"));
-        settingsMenu->addAction(_actions["Settings/Frames"]);
-        settingsMenu->addAction(_actions["Settings/Seconds"]);
-        settingsMenu->addAction(_actions["Settings/Timecode"]);
+        playbackMenu->addAction(_actions["Playback/Loop"]);
+        playbackMenu->addAction(_actions["Playback/Once"]);
+        playbackMenu->addAction(_actions["Playback/PingPong"]);
+        playbackMenu->addSeparator();
+        playbackMenu->addAction(_actions["Playback/Start"]);
+        playbackMenu->addAction(_actions["Playback/End"]);
+        playbackMenu->addAction(_actions["Playback/Prev"]);
+        playbackMenu->addAction(_actions["Playback/Next"]);
+        playbackMenu->addSeparator();
+        playbackMenu->addAction(_actions["Playback/SetInPoint"]);
+        playbackMenu->addAction(_actions["Playback/ResetInPoint"]);
+        playbackMenu->addAction(_actions["Playback/SetOutPoint"]);
+        playbackMenu->addAction(_actions["Playback/ResetOutPoint"]);
 
         auto menuBar = new QMenuBar;
         menuBar->addMenu(fileMenu);
         menuBar->addMenu(playbackMenu);
-        menuBar->addMenu(settingsMenu);
         setMenuBar(menuBar);
 
         _viewport = new qt::TimelineViewport;
+        setCentralWidget(_viewport);
 
         _timelineWidget = new qt::TimelineWidget;
         _timelineWidget->setTimeObject(_timeObject);
-        _timelineWidget->setFocusPolicy(Qt::ClickFocus);
+        auto timelineDockWidget = new QDockWidget;
+        timelineDockWidget->setObjectName("Timeline");
+        timelineDockWidget->setWindowTitle(tr("Timeline"));
+        timelineDockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
+        timelineDockWidget->setAllowedAreas(Qt::BottomDockWidgetArea);
+        timelineDockWidget->setWidget(_timelineWidget);
+        timelineDockWidget->setTitleBarWidget(new QWidget);
+        addDockWidget(Qt::RightDockWidgetArea, timelineDockWidget);
 
-        auto layout = new QVBoxLayout;
-        layout->setMargin(0);
-        layout->setSpacing(0);
-        layout->addWidget(_viewport, 1);
-        layout->addWidget(_timelineWidget);
-        auto centralWidget = new QWidget;
-        centralWidget->setLayout(layout);
-        setCentralWidget(centralWidget);
+        auto settingsWidget = new SettingsWidget(settingsObject, _timeObject);
+        auto settingsDockWidget = new QDockWidget;
+        settingsDockWidget->setObjectName("Settings");
+        settingsDockWidget->setWindowTitle(tr("Settings"));
+        settingsDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+        settingsDockWidget->setWidget(settingsWidget);
+        settingsDockWidget->hide();
+        addDockWidget(Qt::BottomDockWidgetArea, settingsDockWidget);
 
-        const auto i = _unitsToActions.find(_timeObject->units());
-        if (i != _unitsToActions.end())
-        {
-            i.value()->setChecked(true);
-        }
-
+        _recentFilesUpdate();
         _playbackUpdate();
         _timelineUpdate();
 
@@ -140,6 +207,15 @@ namespace tlr
             _actions["File/Close"],
             SIGNAL(triggered()),
             SIGNAL(fileClose()));
+        connect(
+            _recentFilesActionGroup,
+            SIGNAL(triggered(QAction*)),
+            SLOT(_recentFilesCallback(QAction*)));
+        connect(
+            _actions["File/Settings"],
+            SIGNAL(triggered(bool)),
+            settingsDockWidget,
+            SLOT(setVisible(bool)));
         connect(
             _actions["File/Exit"],
             SIGNAL(triggered()),
@@ -154,45 +230,137 @@ namespace tlr
             SIGNAL(triggered()),
             SLOT(_forwardCallback()));
         connect(
+            _actions["Playback/Reverse"],
+            SIGNAL(triggered()),
+            SLOT(_reverseCallback()));
+        connect(
             _actions["Playback/Toggle"],
             SIGNAL(triggered()),
             SLOT(_togglePlaybackCallback()));
         connect(
-            _actions["Playback/StartFrame"],
+            _actions["Playback/Start"],
             SIGNAL(triggered()),
-            SLOT(_startFrameCallback()));
+            SLOT(_startCallback()));
         connect(
-            _actions["Playback/EndFrame"],
+            _actions["Playback/End"],
             SIGNAL(triggered()),
-            SLOT(_endFrameCallback()));
+            SLOT(_endCallback()));
         connect(
-            _actions["Playback/PrevFrame"],
+            _actions["Playback/Prev"],
             SIGNAL(triggered()),
-            SLOT(_prevFrameCallback()));
+            SLOT(_prevCallback()));
         connect(
-            _actions["Playback/NextFrame"],
+            _actions["Playback/Next"],
             SIGNAL(triggered()),
-            SLOT(_nextFrameCallback()));
+            SLOT(_nextCallback()));
 
         connect(
-            _timeUnitsActionGroup,
+            _playbackActionGroup,
             SIGNAL(triggered(QAction*)),
-            SLOT(_timeUnitsCallback(QAction*)));
+            SLOT(_playbackCallback(QAction*)));
 
         connect(
-            _timeObject,
-            SIGNAL(unitsChanged(qt::TimeObject::Units)),
-            SLOT(_timeUnitsCallback(qt::TimeObject::Units)));
+            _loopActionGroup,
+            SIGNAL(triggered(QAction*)),
+            SLOT(_loopCallback(QAction*)));
+
+        connect(
+            settingsDockWidget,
+            SIGNAL(visibilityChanged(bool)),
+            SLOT(_settingsVisibleCallback(bool)));
+
+        connect(
+            _settingsObject,
+            SIGNAL(recentFilesChanged(const QList<QString>&)),
+            SLOT(_recentFilesCallback()));
+
+        resize(640, 360);
+        QSettings settings;
+        restoreGeometry(settings.value("geometry").toByteArray());
+        restoreState(settings.value("windowState").toByteArray());
     }
 
     void MainWindow::setTimeline(qt::TimelineObject* timeline)
     {
         if (timeline == _timeline)
             return;
+        if (_timeline)
+        {
+            disconnect(
+                _timeline,
+                SIGNAL(playbackChanged(tlr::timeline::Playback)),
+                this,
+                SLOT(_playbackCallback(tlr::timeline::Playback)));
+            disconnect(
+                _timeline,
+                SIGNAL(loopChanged(tlr::timeline::Loop)),
+                this,
+                SLOT(_loopCallback(tlr::timeline::Loop)));
+            disconnect(
+                _actions["Playback/SetInPoint"],
+                SIGNAL(triggered(bool)),
+                _timeline,
+                SLOT(setInPoint()));
+            disconnect(
+                _actions["Playback/ResetInPoint"],
+                SIGNAL(triggered(bool)),
+                _timeline,
+                SLOT(resetInPoint()));
+            disconnect(
+                _actions["Playback/SetOutPoint"],
+                SIGNAL(triggered(bool)),
+                _timeline,
+                SLOT(setOutPoint()));
+            disconnect(
+                _actions["Playback/ResetOutPoint"],
+                SIGNAL(triggered(bool)),
+                _timeline,
+                SLOT(resetOutPoint()));
+        }
         _timeline = timeline;
-        _viewport->setTimeline(timeline);
-        _timelineWidget->setTimeline(timeline);
+        if (_timeline)
+        {
+            connect(
+                _timeline,
+                SIGNAL(playbackChanged(tlr::timeline::Playback)),
+                SLOT(_playbackCallback(tlr::timeline::Playback)));
+            connect(
+                _timeline,
+                SIGNAL(loopChanged(tlr::timeline::Loop)),
+                SLOT(_loopCallback(tlr::timeline::Loop)));
+            connect(
+                _actions["Playback/SetInPoint"],
+                SIGNAL(triggered(bool)),
+                _timeline,
+                SLOT(setInPoint()));
+            connect(
+                _actions["Playback/ResetInPoint"],
+                SIGNAL(triggered(bool)),
+                _timeline,
+                SLOT(resetInPoint()));
+            connect(
+                _actions["Playback/SetOutPoint"],
+                SIGNAL(triggered(bool)),
+                _timeline,
+                SLOT(setOutPoint()));
+            connect(
+                _actions["Playback/ResetOutPoint"],
+                SIGNAL(triggered(bool)),
+                _timeline,
+                SLOT(resetOutPoint()));
+        }
+        _viewport->setTimeline(_timeline);
+        _timelineWidget->setTimeline(_timeline);
+        //_filmstripWidget->setFileName(_timeline ? _timeline->fileName() : std::string());
         _timelineUpdate();
+    }
+
+    void MainWindow::closeEvent(QCloseEvent* event)
+    {
+        QSettings settings;
+        settings.setValue("geometry", saveGeometry());
+        settings.setValue("windowState", saveState());
+        QMainWindow::closeEvent(event);
     }
 
     void MainWindow::dragEnterEvent(QDragEnterEvent* event)
@@ -239,19 +407,60 @@ namespace tlr
         }
     }
 
+    void MainWindow::_recentFilesCallback(QAction* action)
+    {
+        const auto i = _actionToRecentFile.find(action);
+        if (i != _actionToRecentFile.end())
+        {
+            fileOpen(i.value());
+        }
+    }
+
+    void MainWindow::_recentFilesCallback()
+    {
+        _recentFilesUpdate();
+    }
+
+    void MainWindow::_settingsVisibleCallback(bool value)
+    {
+        _actions["File/Settings"]->setChecked(value);
+    }
+
+    void MainWindow::_playbackCallback(QAction* action)
+    {
+        const auto i = _actionToPlayback.find(action);
+        if (i != _actionToPlayback.end())
+        {
+            _timeline->setPlayback(i.value());
+        }
+    }
+
     void MainWindow::_playbackCallback(tlr::timeline::Playback value)
     {
-        if (_timeline)
+        const QSignalBlocker blocker(_playbackActionGroup);
+        const auto i = _playbackToActions.find(value);
+        if (i != _playbackToActions.end())
         {
-            _timeline->setPlayback(value);
+            i.value()->setChecked(true);
+        }
+    }
+
+    void MainWindow::_loopCallback(QAction* action)
+    {
+        const auto i = _actionToLoop.find(action);
+        if (i != _actionToLoop.end())
+        {
+            _timeline->setLoop(i.value());
         }
     }
 
     void MainWindow::_loopCallback(tlr::timeline::Loop value)
     {
-        if (_timeline)
+        const QSignalBlocker blocker(_loopActionGroup);
+        const auto i = _loopToActions.find(value);
+        if (i != _loopToActions.end())
         {
-            _timeline->setLoop(value);
+            i.value()->setChecked(true);
         }
     }
 
@@ -271,6 +480,14 @@ namespace tlr
         }
     }
 
+    void MainWindow::_reverseCallback()
+    {
+        if (_timeline)
+        {
+            _timeline->reverse();
+        }
+    }
+
     void MainWindow::_togglePlaybackCallback()
     {
         if (_timeline)
@@ -279,54 +496,57 @@ namespace tlr
         }
     }
 
-    void MainWindow::_startFrameCallback()
+    void MainWindow::_startCallback()
     {
         if (_timeline)
         {
-            _timeline->startFrame();
+            _timeline->start();
         }
     }
 
-    void MainWindow::_endFrameCallback()
+    void MainWindow::_endCallback()
     {
         if (_timeline)
         {
-            _timeline->endFrame();
+            _timeline->end();
         }
     }
 
-    void MainWindow::_prevFrameCallback()
+    void MainWindow::_prevCallback()
     {
         if (_timeline)
         {
-            _timeline->prevFrame();
+            _timeline->prev();
         }
     }
 
-    void MainWindow::_nextFrameCallback()
+    void MainWindow::_nextCallback()
     {
         if (_timeline)
         {
-            _timeline->nextFrame();
+            _timeline->next();
         }
     }
 
-    void MainWindow::_timeUnitsCallback(QAction* action)
+    void MainWindow::_recentFilesUpdate()
     {
-        const auto i = _actionToUnits.find(action);
-        if (i != _actionToUnits.end())
+        for (const auto& i : _actionToRecentFile.keys())
         {
-            _timeObject->setUnits(i.value());
+            _recentFilesActionGroup->removeAction(i);
+            i->setParent(nullptr);
+            delete i;
         }
-    }
-
-    void MainWindow::_timeUnitsCallback(qt::TimeObject::Units units)
-    {
-        const QSignalBlocker blocker(_timeUnitsActionGroup);
-        const auto i = _unitsToActions.find(units);
-        if (i != _unitsToActions.end())
+        _actionToRecentFile.clear();
+        _recentFilesMenu->clear();
+        const auto& recentFiles = _settingsObject->recentFiles();
+        for (size_t i = 0; i < recentFiles.size(); ++i)
         {
-            i.value()->setChecked(true);
+            auto action = new QAction;
+            const auto& file = recentFiles[i];
+            action->setText(QString("%1 %2").arg(i + 1).arg(file));
+            _recentFilesActionGroup->addAction(action);
+            _actionToRecentFile[action] = file;
+            _recentFilesMenu->addAction(action);
         }
     }
 
@@ -335,10 +555,11 @@ namespace tlr
         timeline::Playback playback = timeline::Playback::Stop;
         if (_timeline)
         {
-            playback = _timeline->getPlayback();
+            playback = _timeline->playback();
         }
         _actions["Playback/Stop"]->setChecked(timeline::Playback::Stop == playback);
         _actions["Playback/Forward"]->setChecked(timeline::Playback::Forward == playback);
+        _actions["Playback/Reverse"]->setChecked(timeline::Playback::Reverse == playback);
     }
 
     void MainWindow::_timelineUpdate()
@@ -349,22 +570,61 @@ namespace tlr
 
             _actions["Playback/Stop"]->setEnabled(true);
             _actions["Playback/Forward"]->setEnabled(true);
-            _actions["Playback/StartFrame"]->setEnabled(true);
-            _actions["Playback/EndFrame"]->setEnabled(true);
-            _actions["Playback/PrevFrame"]->setEnabled(true);
-            _actions["Playback/NextFrame"]->setEnabled(true);
+            _actions["Playback/Reverse"]->setEnabled(true);
+            const auto playbackAction = _playbackToActions.find(_timeline->playback());
+            if (playbackAction != _playbackToActions.end())
+            {
+                playbackAction.value()->setChecked(true);
+            }
+            _actions["Playback/Toggle"]->setEnabled(true);
+
+            _actions["Playback/Loop"]->setEnabled(true);
+            _actions["Playback/Once"]->setEnabled(true);
+            _actions["Playback/PingPong"]->setEnabled(true);
+            const auto loopAction = _loopToActions.find(_timeline->loop());
+            if (loopAction != _loopToActions.end())
+            {
+                loopAction.value()->setChecked(true);
+            }
+
+            _actions["Playback/Start"]->setEnabled(true);
+            _actions["Playback/End"]->setEnabled(true);
+            _actions["Playback/Prev"]->setEnabled(true);
+            _actions["Playback/Next"]->setEnabled(true);
+
+            _actions["Playback/SetInPoint"]->setEnabled(true);
+            _actions["Playback/ResetInPoint"]->setEnabled(true);
+            _actions["Playback/SetOutPoint"]->setEnabled(true);
+            _actions["Playback/ResetOutPoint"]->setEnabled(true);
         }
         else
         {
             _actions["File/Close"]->setEnabled(false);
 
-            _actions["Playback/Stop"]->setChecked(true);
             _actions["Playback/Stop"]->setEnabled(false);
+            _actions["Playback/Stop"]->setChecked(false);
             _actions["Playback/Forward"]->setEnabled(false);
-            _actions["Playback/StartFrame"]->setEnabled(false);
-            _actions["Playback/EndFrame"]->setEnabled(false);
-            _actions["Playback/PrevFrame"]->setEnabled(false);
-            _actions["Playback/NextFrame"]->setEnabled(false);
+            _actions["Playback/Forward"]->setChecked(false);
+            _actions["Playback/Reverse"]->setEnabled(false);
+            _actions["Playback/Reverse"]->setChecked(false);
+            _actions["Playback/Toggle"]->setEnabled(false);
+
+            _actions["Playback/Loop"]->setEnabled(false);
+            _actions["Playback/Loop"]->setChecked(false);
+            _actions["Playback/Once"]->setEnabled(false);
+            _actions["Playback/Once"]->setChecked(false);
+            _actions["Playback/PingPong"]->setEnabled(false);
+            _actions["Playback/PingPong"]->setChecked(false);
+
+            _actions["Playback/Start"]->setEnabled(false);
+            _actions["Playback/End"]->setEnabled(false);
+            _actions["Playback/Prev"]->setEnabled(false);
+            _actions["Playback/Next"]->setEnabled(false);
+
+            _actions["Playback/SetInPoint"]->setEnabled(false);
+            _actions["Playback/ResetInPoint"]->setEnabled(false);
+            _actions["Playback/SetOutPoint"]->setEnabled(false);
+            _actions["Playback/ResetOutPoint"]->setEnabled(false);
         }
     }
 }

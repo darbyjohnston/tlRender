@@ -7,6 +7,7 @@
 #include <tlrCore/Timeline.h>
 
 #include <QObject>
+#include <QMetaType>
 
 namespace tlr
 {
@@ -61,3 +62,5 @@ namespace tlr
         };
     }
 }
+
+Q_DECLARE_METATYPE(tlr::qt::TimeObject::Units);

@@ -5,6 +5,7 @@
 #pragma once
 
 #include "MainWindow.h"
+#include "SettingsObject.h"
 
 #include <tlrApp/IApp.h>
 
@@ -12,7 +13,6 @@
 #include <tlrQt/TimelineObject.h>
 
 #include <QApplication>
-#include <QPointer>
 
 namespace tlr
 {
@@ -27,16 +27,17 @@ namespace tlr
     private Q_SLOTS:
         void _fileOpenCallback();
         void _fileOpenCallback(const QString&);
-        void _fileCloseCallback();
+        void _fileClose();
 
     private:
-        void _fileOpen(const std::string&);
+        void _fileOpen(const QString&);
 
-        QPointer<qt::TimeObject> _timeObject;
+        qt::TimeObject* _timeObject = nullptr;
+        SettingsObject* _settingsObject = nullptr;
 
         std::string _input;
-        QPointer<qt::TimelineObject> _timeline;
+        qt::TimelineObject* _timeline = nullptr;
 
-        QPointer<MainWindow> _mainWindow;
+        MainWindow* _mainWindow = nullptr;
     };
 }

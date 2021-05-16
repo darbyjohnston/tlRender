@@ -12,7 +12,6 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
 #include <QOpenGLWidget>
-#include <QPointer>
 
 namespace tlr
 {
@@ -26,20 +25,21 @@ namespace tlr
         public:
             TimelineViewport(QWidget* parent = nullptr);
 
-            //! Set the timeline.
+            //! Set the timeline object.
             void setTimeline(TimelineObject*);
 
         private Q_SLOTS:
-            void _imageCallback(const std::shared_ptr<tlr::imaging::Image>&);
+            void _frameCallback(const tlr::io::VideoFrame&);
 
         protected:
             void initializeGL() override;
             void paintGL() override;
 
         private:
-            std::shared_ptr<imaging::Image> _image;
-            std::shared_ptr<imaging::Image> _imageTmp;
-            QPointer<QOpenGLShaderProgram> _program;
+            TimelineObject* _timeline = nullptr;
+            io::VideoFrame _frame;
+            io::VideoFrame _frameTmp;
+            QOpenGLShaderProgram* _program = nullptr;
             std::unique_ptr<QOpenGLTexture> _texture;
         };
     }

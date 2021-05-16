@@ -301,16 +301,16 @@ namespace tlr
                     timeline::Loop::Loop);
                 break;
             case GLFW_KEY_HOME:
-                app->_seekCallback(otime::RationalTime(0, duration.rate()));
+                app->_timeline->start();
                 break;
             case GLFW_KEY_END:
-                app->_seekCallback(duration - otime::RationalTime(1, duration.rate()));
+                app->_timeline->end();
                 break;
             case GLFW_KEY_LEFT:
-                app->_seekCallback(currentTime - otime::RationalTime(1, duration.rate()));
+                app->_timeline->prev();
                 break;
             case GLFW_KEY_RIGHT:
-                app->_seekCallback(currentTime + otime::RationalTime(1, duration.rate()));
+                app->_timeline->next();
                 break;
             }
         }
@@ -337,13 +337,13 @@ namespace tlr
     {
         // Update.
         _timeline->tick();
-        auto image = _timeline->observeCurrentImage()->get();
-        if (image != _currentImage)
+        auto frame = _timeline->observeFrame()->get();
+        if (frame != _frame)
         {
-            _currentImage = image;
+            _frame = frame;
             _renderDirty = true;
         }
-        _updateHUD();
+        _hudUpdate();
 
         // Render this frame.
         if (_renderDirty)
@@ -377,7 +377,7 @@ namespace tlr
         }
     }
     
-    void App::_updateHUD()
+    void App::_hudUpdate()
     {
         std::map<HUDElement, std::string> hudLabels;
 
@@ -408,11 +408,11 @@ namespace tlr
 
     void App::_renderVideo()
     {
-        if (_currentImage)
+        if (_frame.image)
         {
             _render->drawImage(
-                _currentImage,
-                timeline::fitWindow(_currentImage->getSize(), _frameBufferSize));
+                _frame.image,
+                timeline::fitWindow(_frame.image->getSize(), _frameBufferSize));
         }
     }
 
@@ -493,11 +493,5 @@ namespace tlr
             ss << "Loop playback: " << _timeline->observeLoop()->get();
             _print(ss.str());
         }
-    }
-
-    void App::_seekCallback(const otime::RationalTime& value)
-    {
-        _timeline->setPlayback(timeline::Playback::Stop);
-        _timeline->seek(value);
     }
 }

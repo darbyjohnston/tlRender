@@ -11,10 +11,10 @@ int main(int argc, char* argv[])
     int r = 0;
     try
     {
-        auto app = new tlr::App(argc, argv);
-        if (0 == app->getExit())
+        tlr::App app(argc, argv);
+        if (0 == app.getExit())
         {
-            r = app->exec();
+            r = app.exec();
         }
     }
     catch(const std::exception& e)

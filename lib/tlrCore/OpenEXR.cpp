@@ -34,17 +34,9 @@ namespace tlr
 
         void Read::_init(
             const std::string& fileName,
-            const otime::RationalTime& defaultSpeed,
-            size_t videoQueueSize)
+            const otime::RationalTime& defaultSpeed)
         {
-            ISequenceRead::_init(fileName, defaultSpeed, videoQueueSize);
-
-            Imf::RgbaInputFile f(fileName.c_str());
-            io::VideoInfo info;
-            info.info = imfInfo(f);
-            info.duration = _defaultSpeed;
-            info.codec = "EXR";
-            _info.video.push_back(info);
+            ISequenceRead::_init(fileName, defaultSpeed);
         }
 
         Read::Read()
@@ -55,54 +47,45 @@ namespace tlr
 
         std::shared_ptr<Read> Read::create(
             const std::string& fileName,
-            const otime::RationalTime& defaultSpeed,
-            size_t videoQueueSize)
+            const otime::RationalTime& defaultSpeed)
         {
             auto out = std::shared_ptr<Read>(new Read);
-            out->_init(fileName, defaultSpeed, videoQueueSize);
+            out->_init(fileName, defaultSpeed);
             return out;
         }
 
-        void Read::tick()
+        io::Info Read::_getInfo(const std::string& fileName)
         {
-            if (_hasSeek)
-            {
-                _currentTime = _seekTime.rescaled_to(_info.video[0].duration.rate());
-                while (_videoQueue.size())
-                {
-                    _videoQueue.pop();
-                }
-            }
+            io::Info out;
+            Imf::RgbaInputFile f(fileName.c_str());
+            io::VideoInfo videoInfo;
+            videoInfo.info = imfInfo(f);
+            videoInfo.duration = _defaultSpeed;
+            videoInfo.codec = "EXR";
+            out.video.push_back(videoInfo);
+            return out;
+        }
 
-            if (_videoQueue.size() < _videoQueueSize)
-            {
-                io::VideoFrame frame;
+        io::VideoFrame Read::_getVideoFrame(const otime::RationalTime& time)
+        {
+            io::VideoFrame out;
 
-                try
-                {
-                    const std::string fileName = _getFileName(_currentTime);
-                    Imf::RgbaInputFile f(fileName.c_str());
+            const std::string fileName = _getFileName(time);
+            Imf::RgbaInputFile f(fileName.c_str());
 
-                    frame.time = _currentTime;
-                    frame.image = imaging::Image::create(imfInfo(f));
+            out.time = time;
+            out.image = imaging::Image::create(imfInfo(f));
 
-                    const auto dw = f.dataWindow();
-                    const int width = dw.max.x - dw.min.x + 1;
-                    const int height = dw.max.y - dw.min.y + 1;
-                    f.setFrameBuffer(
-                        reinterpret_cast<Imf::Rgba*>(frame.image->getData()) - dw.min.x - dw.min.y * width,
-                        1,
-                        width);
-                    f.readPixels(dw.min.y, dw.max.y);
-                }
-                catch (const std::exception&)
-                {}
+            const auto dw = f.dataWindow();
+            const int width = dw.max.x - dw.min.x + 1;
+            const int height = dw.max.y - dw.min.y + 1;
+            f.setFrameBuffer(
+                reinterpret_cast<Imf::Rgba*>(out.image->getData()) - dw.min.x - dw.min.y * width,
+                1,
+                width);
+            f.readPixels(dw.min.y, dw.max.y);
 
-                _videoQueue.push(frame);
-                _currentTime += otime::RationalTime(1, _info.video[0].duration.rate());
-            }
-
-            _hasSeek = false;
+            return out;
         }
 
         Plugin::Plugin()
@@ -132,7 +115,7 @@ namespace tlr
             const std::string& fileName,
             const otime::RationalTime& defaultSpeed)
         {
-            return Read::create(fileName, defaultSpeed, _videoQueueSize);
+            return Read::create(fileName, defaultSpeed);
         }
     }
 }

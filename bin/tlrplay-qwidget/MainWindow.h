@@ -4,6 +4,9 @@
 
 #pragma once
 
+#include "SettingsObject.h"
+
+#include <tlrQt/FilmstripWidget.h>
 #include <tlrQt/TimelineObject.h>
 #include <tlrQt/TimelineViewport.h>
 #include <tlrQt/TimelineWidget.h>
@@ -21,9 +24,12 @@ namespace tlr
         Q_OBJECT
 
     public:
-        MainWindow(qt::TimeObject*, QWidget* parent = nullptr);
+        MainWindow(
+            SettingsObject*,
+            qt::TimeObject*,
+            QWidget* parent = nullptr);
 
-        //! Set the timeline.
+        //! Set the timeline object.
         void setTimeline(qt::TimelineObject*);
 
     Q_SIGNALS:
@@ -33,35 +39,49 @@ namespace tlr
         void exit();
 
     protected:
+        void closeEvent(QCloseEvent*) override;
         void dragEnterEvent(QDragEnterEvent*) override;
         void dragMoveEvent(QDragMoveEvent*) override;
         void dragLeaveEvent(QDragLeaveEvent*) override;
         void dropEvent(QDropEvent*) override;
 
     private Q_SLOTS:
+        void _recentFilesCallback(QAction*);
+        void _recentFilesCallback();
+        void _settingsVisibleCallback(bool);
+        void _playbackCallback(QAction*);
         void _playbackCallback(tlr::timeline::Playback);
+        void _loopCallback(QAction*);
         void _loopCallback(tlr::timeline::Loop);
         void _stopCallback();
         void _forwardCallback();
+        void _reverseCallback();
         void _togglePlaybackCallback();
-        void _startFrameCallback();
-        void _endFrameCallback();
-        void _prevFrameCallback();
-        void _nextFrameCallback();
-        void _timeUnitsCallback(QAction*);
-        void _timeUnitsCallback(qt::TimeObject::Units);
+        void _startCallback();
+        void _endCallback();
+        void _prevCallback();
+        void _nextCallback();
 
     private:
+        void _recentFilesUpdate();
         void _playbackUpdate();
         void _timelineUpdate();
 
-        QPointer<qt::TimelineObject> _timeline;
-        QMap<std::string, QPointer<QAction> > _actions;
-        QPointer<QActionGroup> _timeUnitsActionGroup;
-        QMap<QAction*, qt::TimeObject::Units> _actionToUnits;
-        QMap<qt::TimeObject::Units, QAction*> _unitsToActions;
-        QPointer<qt::TimelineViewport> _viewport;
-        QPointer<qt::TimelineWidget> _timelineWidget;
+        qt::TimelineObject* _timeline = nullptr;
+        QMap<QString, QAction*> _actions;
+        QActionGroup* _recentFilesActionGroup = nullptr;
+        QMap<QAction*, QString> _actionToRecentFile;
+        QMenu* _recentFilesMenu = nullptr;
+        QActionGroup* _playbackActionGroup = nullptr;
+        QMap<QAction*, timeline::Playback> _actionToPlayback;
+        QMap<timeline::Playback, QAction*> _playbackToActions;
+        QActionGroup* _loopActionGroup = nullptr;
+        QMap<QAction*, timeline::Loop> _actionToLoop;
+        QMap<timeline::Loop, QAction*> _loopToActions;
+        qt::TimelineViewport* _viewport = nullptr;
+        qt::TimelineWidget* _timelineWidget = nullptr;
+        qt::FilmstripWidget* _filmstripWidget = nullptr;
+        QPointer<SettingsObject> _settingsObject;
         QPointer<qt::TimeObject> _timeObject;
     };
 }

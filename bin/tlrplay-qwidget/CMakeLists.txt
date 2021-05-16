@@ -1,9 +1,13 @@
 set(HEADERS
     App.h
-    MainWindow.h)
+    MainWindow.h
+    SettingsObject.h
+    SettingsWidget.h)
 set(SOURCE
     App.cpp
     MainWindow.cpp
+    SettingsObject.cpp
+    SettingsWidget.cpp
     main.cpp)
 
 #set(CMAKE_INCLUDE_CURRENT_DIR ON)

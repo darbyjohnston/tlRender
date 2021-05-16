@@ -5,7 +5,9 @@
 #pragma once
 
 #include <tlrCore/BBox.h>
+#include <tlrCore/IO.h>
 #include <tlrCore/Image.h>
+#include <tlrCore/ListObserver.h>
 #include <tlrCore/Util.h>
 #include <tlrCore/ValueObserver.h>
 
@@ -15,12 +17,6 @@
 
 namespace tlr
 {
-    namespace io
-    {
-        class IRead;
-        class System;
-    }
-
     //! Timelines.
     namespace timeline
     {
@@ -34,6 +30,7 @@ namespace tlr
             Count,
             First = Stop
         };
+        TLR_ENUM_VECTOR(Playback);
         TLR_ENUM_LABEL(Playback);
 
         //! Playback loop modes.
@@ -46,13 +43,34 @@ namespace tlr
             Count,
             First = Loop
         };
+        TLR_ENUM_VECTOR(Loop);
         TLR_ENUM_LABEL(Loop);
+
+        //! Frame actions.
+        enum class Frame
+        {
+            Start,
+            End,
+            Prev,
+            Next,
+
+            Count,
+            First = Start
+        };
+        TLR_ENUM_VECTOR(Frame);
+        TLR_ENUM_LABEL(Frame);
+
+        //! Loop time.
+        otime::RationalTime loopTime(const otime::RationalTime&, const otime::TimeRange&);
 
         //! Get the timeline file extensions.
         std::vector<std::string> getExtensions();
 
         //! Fit an image within a window.
         math::BBox2f fitWindow(const imaging::Size& image, const imaging::Size& window);
+
+        //! Convert frames to ranges.
+        std::vector<otime::TimeRange> toRanges(std::vector<otime::RationalTime>);
 
         //! Timeline.
         class Timeline : public std::enable_shared_from_this<Timeline>
@@ -64,19 +82,28 @@ namespace tlr
             Timeline();
 
         public:
-            ~Timeline();
-
             //! Create a new timeline.
             static std::shared_ptr<Timeline> create(const std::string& fileName);
+
+            //! \name Information
+            ///@{
+
+            //! Get the file name.
+            const std::string& getFileName() const;
 
             //! Get the duration.
             const otime::RationalTime& getDuration() const;
 
-            //! Get the image info (from the first clip in the timeline).
+            //! Get the global start time.
+            const otime::RationalTime& getGlobalStartTime() const;
+
+            //! Get the image info.
             const imaging::Info& getImageInfo() const;
 
-            //! Observe the current time.
-            std::shared_ptr<Observer::IValueSubject<otime::RationalTime> > observeCurrentTime() const;
+            ///@}
+
+            //! \name Playback
+            ///@{
 
             //! Observe the playback mode.
             std::shared_ptr<Observer::IValueSubject<Playback> > observePlayback() const;
@@ -90,34 +117,113 @@ namespace tlr
             //! Set the playback loop mode.
             void setLoop(Loop);
 
-            //! Seek.
+            //! Observe the current time.
+            std::shared_ptr<Observer::IValueSubject<otime::RationalTime> > observeCurrentTime() const;
+
+            //! Seek to the given time.
             void seek(const otime::RationalTime&);
+
+            //! Frame action.
+            void frame(Frame);
+
+            //! Go to the start frame.
+            void start();
+
+            //! Go to the end frame.
+            void end();
+
+            //! Go to the previous frame.
+            void prev();
+
+            //! Go to the next frame.
+            void next();
+
+            //! Observe the in/out points range.
+            std::shared_ptr<Observer::IValueSubject<otime::TimeRange> > observeInOutRange() const;
+
+            //! Set the in/out points range.
+            void setInOutRange(const otime::TimeRange&);
+
+            //! Set the in point to the current time.
+            void setInPoint();
+
+            //! Reset the in point
+            void resetInPoint();
+
+            //! Set the out point to the current time.
+            void setOutPoint();
+
+            //! Reset the out point
+            void resetOutPoint();
+
+            ///@}
+
+            //! \name Frames
+            ///@{
+
+            //! Observe the current frame.
+            std::shared_ptr<Observer::IValueSubject<io::VideoFrame> > observeFrame() const;
+
+            //! Get the frame cache read ahead.
+            int getFrameCacheReadAhead() const;
+
+            //! Set the frame cache read ahead.
+            void setFrameCacheReadAhead(int);
+
+            //! Get the frame cache read behind.
+            int getFrameCacheReadBehind() const;
+
+            //! Set the frame cache read behind.
+            void setFrameCacheReadBehind(int);
+
+            //! Observe the cached frames.
+            std::shared_ptr<Observer::IListSubject<otime::TimeRange> > observeCachedFrames() const;
+
+            ///@}
 
             //! Tick the timeline.
             void tick();
 
-            //! Observe the current image.
-            std::shared_ptr<Observer::IValueSubject<std::shared_ptr<imaging::Image> > > observeCurrentImage() const;
-
-            //! Set the I/O video queue size.
-            void setVideoQueueSize(size_t);
-
         private:
+            otime::TimeRange _getRange(const otio::SerializableObject::Retainer<otio::Clip>&) const;
+            otime::RationalTime _loopPlayback(const otime::RationalTime&);
+            void _frameCacheUpdate();
+
+            std::string _fileName;
             otio::SerializableObject::Retainer<otio::Timeline> _timeline;
             otio::SerializableObject::Retainer<otio::Track> _flattenedTimeline;
             otime::RationalTime _duration;
+            otime::RationalTime _globalStartTime;
             std::shared_ptr<io::System> _ioSystem;
             imaging::Info _imageInfo;
-            typedef std::pair<otio::SerializableObject::Retainer<otio::Clip>, std::shared_ptr<io::IRead> > Reader;
-            std::vector<Reader> _readers;
+            struct Reader
+            {
+                std::shared_ptr<io::IRead> read;
+                io::Info info;
+                std::map<otime::RationalTime, std::future<io::VideoFrame> > videoFrames;
+            };
+            //! \bug This should be changed to a retainer when there is a < operator available.
+            std::map<otio::Clip*, Reader> _readers;
 
-            std::shared_ptr<Observer::ValueSubject<otime::RationalTime> > _currentTime;
             std::shared_ptr<Observer::ValueSubject<Playback> > _playback;
             std::shared_ptr<Observer::ValueSubject<Loop> > _loop;
-            std::shared_ptr<Observer::ValueSubject<std::shared_ptr<imaging::Image> > > _currentImage;
+            std::shared_ptr<Observer::ValueSubject<otime::RationalTime> > _currentTime;
+            std::shared_ptr<Observer::ValueSubject<otime::TimeRange> > _inOutRange;
+            std::shared_ptr<Observer::ValueSubject<io::VideoFrame> > _frame;
+            std::shared_ptr<Observer::ListSubject<otime::TimeRange> > _cachedFrames;
 
             std::chrono::steady_clock::time_point _startTime;
             otime::RationalTime _playbackStartTime;
+
+            std::map<otime::RationalTime, io::VideoFrame> _frameCache;
+            enum class FrameCacheDirection
+            {
+                Forward,
+                Reverse
+            };
+            FrameCacheDirection _frameCacheDirection = FrameCacheDirection::Forward;
+            size_t _frameCacheReadAhead = 100;
+            size_t _frameCacheReadBehind = 10;
         };
     }
 

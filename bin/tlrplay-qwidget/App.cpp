@@ -37,9 +37,20 @@ namespace tlr
             return;
         }
 
-        _timeObject = new qt::TimeObject(this);
+        Q_INIT_RESOURCE(tlrQt);
 
-        _mainWindow = new MainWindow(_timeObject);
+        qRegisterMetaType<qt::TimeObject::Units>("tlr::qt::TimeObject::Units");
+        qRegisterMetaTypeStreamOperators<qt::TimeObject::Units>("tlr::qt::TimeObject::Units");
+
+        QCoreApplication::setOrganizationName("tlRender");
+        QCoreApplication::setApplicationName("tlrplay-qwidget");
+
+        setStyle("Fusion");
+
+        _timeObject = new qt::TimeObject(this);
+        _settingsObject = new SettingsObject(_timeObject, this);
+
+        _mainWindow = new MainWindow(_settingsObject, _timeObject);
 
         connect(
             _mainWindow,
@@ -52,7 +63,7 @@ namespace tlr
         connect(
             _mainWindow,
             SIGNAL(fileClose()),
-            SLOT(_fileCloseCallback()));
+            SLOT(_fileClose()));
         connect(
             _mainWindow,
             SIGNAL(exit()),
@@ -60,31 +71,10 @@ namespace tlr
 
         if (!_input.empty())
         {
-            _fileOpen(_input);
+            _fileOpen(_input.c_str());
         }
 
-        _mainWindow->resize(640, 360);
         _mainWindow->show();
-    }
-
-    void App::_fileOpen(const std::string& fileName)
-    {
-        try
-        {
-            _timeline = new qt::TimelineObject(fileName, this);
-
-            _input = fileName;
-
-            _mainWindow->setTimeline(_timeline);
-
-            _timeline->setPlayback(timeline::Playback::Forward);
-        }
-        catch (const std::exception& e)
-        {
-            QMessageBox dialog;
-            dialog.setText(e.what());
-            dialog.exec();
-        }
     }
 
     void App::_fileOpenCallback()
@@ -105,18 +95,59 @@ namespace tlr
             tr("Timeline Files") + " (" + string::join(extensions, ", ").c_str() + ")");
         if (!fileName.isEmpty())
         {
-            _fileOpen(fileName.toLatin1().data());
+            _fileOpen(fileName);
         }
     }
 
     void App::_fileOpenCallback(const QString& fileName)
     {
-        _fileOpen(fileName.toLatin1().data());
+        _fileOpen(fileName);
     }
 
-    void App::_fileCloseCallback()
+    void App::_fileOpen(const QString& fileName)
     {
-        _timeline.clear();
+        try
+        {
+            _mainWindow->setTimeline(nullptr);
+            if (_timeline)
+            {
+                _timeline->setParent(nullptr);
+                delete _timeline;
+                _timeline = nullptr;
+            }
+            _input = fileName.toLatin1().data();
+            _timeline = new qt::TimelineObject(fileName, this);
+            _timeline->setFrameCacheReadAhead(_settingsObject->frameCacheReadAhead());
+            _timeline->setFrameCacheReadBehind(_settingsObject->frameCacheReadBehind());
+            _timeline->connect(
+                _settingsObject,
+                SIGNAL(frameCacheReadAheadChanged(int)),
+                SLOT(setFrameCacheReadAhead(int)));
+            _timeline->connect(
+                _settingsObject,
+                SIGNAL(frameCacheReadBehindChanged(int)),
+                SLOT(setFrameCacheReadBehind(int)));
+            _mainWindow->setTimeline(_timeline);
+            //_timeline->setPlayback(timeline::Playback::Forward);
+
+            _settingsObject->addRecentFile(fileName);
+        }
+        catch (const std::exception& e)
+        {
+            QMessageBox dialog;
+            dialog.setText(e.what());
+            dialog.exec();
+        }
+    }
+
+    void App::_fileClose()
+    {
         _mainWindow->setTimeline(nullptr);
+        if (_timeline)
+        {
+            _timeline->setParent(nullptr);
+            delete _timeline;
+            _timeline = nullptr;
+        }
     }
 }

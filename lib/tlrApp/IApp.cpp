@@ -31,10 +31,10 @@ namespace tlr
             _cmdLineArgs = args;
             _cmdLineOptions = options;
             _cmdLineOptions.push_back(CmdLineValueOption<size_t>::create(
-                _options.ioVideoQueueSize,
-                { "-ioVideoQueueSize", "-vqs" },
-                string::Format("Set the video queue size. Default: {0}").
-                    arg(_options.ioVideoQueueSize),
+                _options.ioVideoQueueMax,
+                { "-ioVideoQueueMax", "-vq" },
+                string::Format("Set the video queue maximum. Default: {0}").
+                    arg(_options.ioVideoQueueMax),
                 "(value)"));
             _cmdLineOptions.push_back(CmdLineFlagOption::create(
                 _options.verbose,

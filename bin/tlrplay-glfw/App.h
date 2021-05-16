@@ -56,7 +56,7 @@ namespace tlr
         void _printShortcutsHelp();
 
         void _tick();
-        void _updateHUD();
+        void _hudUpdate();
 
         void _renderVideo();
         void _renderHUD();
@@ -64,7 +64,6 @@ namespace tlr
 
         void _playbackCallback(timeline::Playback);
         void _loopPlaybackCallback(timeline::Loop);
-        void _seekCallback(const otime::RationalTime&);
 
         std::string _input;
         Options _options;
@@ -79,7 +78,7 @@ namespace tlr
         std::shared_ptr<gl::FontSystem> _fontSystem;
         std::shared_ptr<gl::Render> _render;
         bool _renderDirty = true;
-        std::shared_ptr<imaging::Image> _currentImage;
+        io::VideoFrame _frame;
         std::map<HUDElement, std::string> _hudLabels;
 
         bool _running = true;

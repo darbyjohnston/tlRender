@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlrCore/IO.h>
+#include <tlrCore/SequenceIO.h>
 
 namespace tlr
 {
@@ -17,8 +17,7 @@ namespace tlr
         protected:
             void _init(
                 const std::string& fileName,
-                const otime::RationalTime& defaultSpeed,
-                size_t videoQueueSize);
+                const otime::RationalTime& defaultSpeed);
             Read();
 
         public:
@@ -27,10 +26,11 @@ namespace tlr
             //! Create a new reader.
             static std::shared_ptr<Read> create(
                 const std::string& fileName,
-                const otime::RationalTime& defaultSpeed,
-                size_t videoQueueSize);
-                
-            void tick() override;
+                const otime::RationalTime& defaultSpeed);
+
+        protected:
+            io::Info _getInfo(const std::string& fileName) override;
+            io::VideoFrame _getVideoFrame(const otime::RationalTime&) override;
         };
 
         //! JPEG plugin.

@@ -43,44 +43,18 @@ namespace tlr
 
         void IRead::_init(
             const std::string& fileName,
-            const otime::RationalTime& defaultSpeed,
-            size_t videoQueueSize)
+            const otime::RationalTime& defaultSpeed)
         {
             IIO::_init(fileName);
 
             _defaultSpeed = defaultSpeed;
-            _videoQueueSize = videoQueueSize;
         }
 
         IRead::IRead()
         {}
 
-        void IRead::seek(const otime::RationalTime& time)
-        {
-            _hasSeek = true;
-            _seekTime = time;
-        }
-
-        void ISequenceRead::_init(
-            const std::string& fileName,
-            const otime::RationalTime& defaultSpeed,
-            size_t videoQueueSize)
-        {
-            IRead::_init(fileName, defaultSpeed, videoQueueSize);
-
-            file::split(fileName, &_path, &_baseName, &_number, &_extension);
-            _pad = !_number.empty() ? ('0' == _number[0] ? _number.size() : 0) : 0;
-        }
-
-        ISequenceRead::ISequenceRead()
+        IRead::~IRead()
         {}
-
-        std::string ISequenceRead::_getFileName(const otime::RationalTime& value) const
-        {
-            std::stringstream ss;
-            ss << _path << _baseName << std::setfill('0') << std::setw(_pad) << static_cast<int>(value.value()) << _extension;
-            return ss.str();
-        }
 
         void IPlugin::_init()
         {}
@@ -90,11 +64,6 @@ namespace tlr
 
         IPlugin::~IPlugin()
         {}
-
-        void IPlugin::setVideoQueueSize(size_t size)
-        {
-            _videoQueueSize = size;
-        }
 
         void System::_init()
         {
@@ -113,10 +82,6 @@ namespace tlr
 #if defined(FFmpeg_FOUND)
             _plugins.push_back(ffmpeg::Plugin::create());
 #endif
-            for (const auto& i : _plugins)
-            {
-                i->setVideoQueueSize(_videoQueueSize);
-            }
         }
 
         System::System()
@@ -153,17 +118,6 @@ namespace tlr
                 }
             }
             return nullptr;
-        }
-
-        void System::setVideoQueueSize(size_t size)
-        {
-            if (size == _videoQueueSize)
-                return;
-            _videoQueueSize = size;
-            for (const auto& i : _plugins)
-            {
-                i->setVideoQueueSize(size);
-            }
         }
     }
 }

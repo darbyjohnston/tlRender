@@ -6,19 +6,24 @@ namespace tlr
 {
     namespace io
     {
+        inline bool VideoFrame::operator == (const VideoFrame& other) const
+        {
+            return this->image == other.image && this->time == other.time;
+        }
+
+        inline bool VideoFrame::operator != (const VideoFrame& other) const
+        {
+            return !(*this == other);
+        }
+
+        inline bool VideoFrame::operator < (const VideoFrame& other) const
+        {
+            return time < other.time;
+        }
+
         inline const std::string& IIO::getFileName() const
         {
             return _fileName;
-        }
-
-        inline const Info& IIO::getInfo() const
-        {
-            return _info;
-        }
-
-        inline std::queue<VideoFrame>& IRead::getVideoQueue()
-        {
-            return _videoQueue;
         }
     }
 }

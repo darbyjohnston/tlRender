@@ -20,7 +20,10 @@ namespace tlr
             constexpr Range(T min, T max);
             ~Range();
 
+            //! Get the minimum value.
             T getMin() const noexcept;
+
+            //! Get the maximum value.
             T getMax() const noexcept;
 
             //! Set the range minimum and maximum to zero.

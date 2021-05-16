@@ -8,17 +8,10 @@ namespace tlr
 {
     namespace qt
     {
-        TimelineObject::TimelineObject(const std::string& fileName, QObject* parent) :
+        TimelineObject::TimelineObject(const QString& fileName, QObject* parent) :
             QObject(parent)
         {
-            _timeline = timeline::Timeline::create(fileName);
-
-            _currentTimeObserver = Observer::Value<otime::RationalTime>::create(
-                _timeline->observeCurrentTime(),
-                [this](const otime::RationalTime& value)
-                {
-                    Q_EMIT currentTimeChanged(value);
-                });
+            _timeline = timeline::Timeline::create(fileName.toLatin1().data());
 
             _playbackObserver = Observer::Value<timeline::Playback>::create(
                 _timeline->observePlayback(),
@@ -34,52 +27,91 @@ namespace tlr
                     Q_EMIT loopChanged(value);
                 });
 
-            _currentImageObserver = Observer::Value<std::shared_ptr<imaging::Image> >::create(
-                _timeline->observeCurrentImage(),
-                [this](const std::shared_ptr<imaging::Image>& value)
+            _currentTimeObserver = Observer::Value<otime::RationalTime>::create(
+                _timeline->observeCurrentTime(),
+                [this](const otime::RationalTime& value)
                 {
-                    Q_EMIT currentImageChanged(value);
+                    Q_EMIT currentTimeChanged(value);
+                });
+
+            _inOutRangeObserver = Observer::Value<otime::TimeRange>::create(
+                _timeline->observeInOutRange(),
+                [this](const otime::TimeRange value)
+                {
+                    Q_EMIT inOutRangeChanged(value);
+                });
+
+            _frameObserver = Observer::Value<io::VideoFrame>::create(
+                _timeline->observeFrame(),
+                [this](const io::VideoFrame& value)
+                {
+                    Q_EMIT frameChanged(value);
+                });
+
+            _cachedFramesObserver = Observer::List<otime::TimeRange>::create(
+                _timeline->observeCachedFrames(),
+                [this](const std::vector<otime::TimeRange>& value)
+                {
+                    Q_EMIT cachedFramesChanged(value);
                 });
 
             startTimer(0, Qt::PreciseTimer);
         }
 
-        const otime::RationalTime& TimelineObject::getDuration() const
+        TimelineObject::~TimelineObject()
+        {}
+
+        QString TimelineObject::fileName() const
+        {
+            return _timeline->getFileName().c_str();
+        }
+
+        const otime::RationalTime& TimelineObject::globalStartTime() const
+        {
+            return _timeline->getGlobalStartTime();
+        }
+
+        const otime::RationalTime& TimelineObject::duration() const
         {
             return _timeline->getDuration();
         }
 
-        const imaging::Info& TimelineObject::getImageInfo() const
+        const imaging::Info& TimelineObject::imageInfo() const
         {
             return _timeline->getImageInfo();
         }
 
-        const otime::RationalTime& TimelineObject::getCurrentTime() const
-        {
-            return _timeline->observeCurrentTime()->get();
-        }
-
-        timeline::Playback TimelineObject::getPlayback() const
+        timeline::Playback TimelineObject::playback() const
         {
             return _timeline->observePlayback()->get();
         }
 
-        timeline::Loop TimelineObject::getLoop() const
+        timeline::Loop TimelineObject::loop() const
         {
             return _timeline->observeLoop()->get();
         }
 
-        const std::shared_ptr<tlr::imaging::Image>& TimelineObject::getCurrentImage() const
+        const otime::RationalTime& TimelineObject::currentTime() const
         {
-            return _timeline->observeCurrentImage()->get();
+            return _timeline->observeCurrentTime()->get();
         }
 
-        void TimelineObject::setVideoQueueSize(size_t value)
+        const otime::TimeRange& TimelineObject::inOutRange() const
         {
-            _timeline->setVideoQueueSize(value);
+            return _timeline->observeInOutRange()->get();
         }
 
-        void TimelineObject::setPlayback(tlr::timeline::Playback value)
+        const io::VideoFrame& TimelineObject::frame() const
+        {
+            return _timeline->observeFrame()->get();
+        }
+
+        const std::vector<otime::TimeRange>& TimelineObject::cachedFrames() const
+        {
+            return _timeline->observeCachedFrames()->get();
+        }
+
+        void TimelineObject::setPlayback(timeline::Playback value)
         {
             _timeline->setPlayback(value);
         }
@@ -94,6 +126,11 @@ namespace tlr
             _timeline->setPlayback(timeline::Playback::Forward);
         }
 
+        void TimelineObject::reverse()
+        {
+            _timeline->setPlayback(timeline::Playback::Reverse);
+        }
+
         void TimelineObject::togglePlayback()
         {
             _timeline->setPlayback(
@@ -102,37 +139,7 @@ namespace tlr
                 timeline::Playback::Stop);
         }
 
-        void TimelineObject::startFrame()
-        {
-            _timeline->setPlayback(timeline::Playback::Stop);
-            const auto duration = _timeline->getDuration();
-            _timeline->seek(otime::RationalTime(0, duration.rate()));
-        }
-
-        void TimelineObject::endFrame()
-        {
-            _timeline->setPlayback(timeline::Playback::Stop);
-            const auto duration = _timeline->getDuration();
-            _timeline->seek(otime::RationalTime(duration.value() - 1, duration.rate()));
-        }
-
-        void TimelineObject::prevFrame()
-        {
-            _timeline->setPlayback(timeline::Playback::Stop);
-            const auto duration = _timeline->getDuration();
-            const auto currentTime = _timeline->observeCurrentTime()->get();
-            _timeline->seek(otime::RationalTime(currentTime.value() - 1, duration.rate()));
-        }
-
-        void TimelineObject::nextFrame()
-        {
-            _timeline->setPlayback(timeline::Playback::Stop);
-            const auto duration = _timeline->getDuration();
-            const auto currentTime = _timeline->observeCurrentTime()->get();
-            _timeline->seek(otime::RationalTime(currentTime.value() + 1, duration.rate()));
-        }
-
-        void TimelineObject::setLoop(tlr::timeline::Loop value)
+        void TimelineObject::setLoop(timeline::Loop value)
         {
             _timeline->setLoop(value);
         }
@@ -140,6 +147,66 @@ namespace tlr
         void TimelineObject::seek(const otime::RationalTime& value)
         {
             _timeline->seek(value);
+        }
+
+        void TimelineObject::frame(timeline::Frame value)
+        {
+            _timeline->frame(value);
+        }
+
+        void TimelineObject::start()
+        {
+            _timeline->start();
+        }
+
+        void TimelineObject::end()
+        {
+            _timeline->end();
+        }
+
+        void TimelineObject::prev()
+        {
+            _timeline->prev();
+        }
+
+        void TimelineObject::next()
+        {
+            _timeline->next();
+        }
+
+        void TimelineObject::setInOutRange(const otime::TimeRange& value)
+        {
+            _timeline->setInOutRange(value);
+        }
+
+        void TimelineObject::setInPoint()
+        {
+            _timeline->setInPoint();
+        }
+
+        void TimelineObject::resetInPoint()
+        {
+            _timeline->resetInPoint();
+        }
+
+        void TimelineObject::setOutPoint()
+        {
+            _timeline->setOutPoint();
+        }
+
+        void TimelineObject::resetOutPoint()
+        {
+            _timeline->resetOutPoint();
+        }
+
+        void TimelineObject::setFrameCacheReadAhead(int value)
+        {
+            _timeline->setFrameCacheReadAhead(value);
+        }
+
+        void TimelineObject::setFrameCacheReadBehind(int value)
+        {
+            _timeline->setFrameCacheReadBehind(value);
         }
 
         void TimelineObject::timerEvent(QTimerEvent*)

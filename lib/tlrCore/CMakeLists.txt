@@ -23,6 +23,7 @@ set(HEADERS
     Observer.h
     Range.h
     RangeInline.h
+    SequenceIO.h
     String.h
     StringFormat.h
     Time.h
@@ -38,6 +39,7 @@ set(SOURCE
     File.cpp
     IO.cpp
     Image.cpp
+    SequenceIO.cpp
     String.cpp
     StringFormat.cpp
     Time.cpp

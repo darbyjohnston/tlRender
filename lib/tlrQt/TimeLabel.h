@@ -39,7 +39,7 @@ namespace tlr
             QPointer<TimeObject> _timeObject;
             otime::RationalTime _value;
             TimeObject::Units _units = TimeObject::Units::Timecode;
-            QPointer<QLabel> _label;
+            QLabel* _label = nullptr;
         };
     }
 }

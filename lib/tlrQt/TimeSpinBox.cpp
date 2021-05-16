@@ -20,6 +20,7 @@ namespace tlr
             const QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
             setFont(fixedFont);
 
+            _vaidatorUpdate();
             _textUpdate();
 
             connect(
@@ -53,7 +54,9 @@ namespace tlr
                     SIGNAL(unitsChanged(qt::TimeObject::Units)),
                     SLOT(setUnits(qt::TimeObject::Units)));
             }
+            _vaidatorUpdate();
             _textUpdate();
+            updateGeometry();
         }
 
         const otime::RationalTime& TimeSpinBox::value() const
@@ -93,7 +96,9 @@ namespace tlr
                 return;
             _units = units;
             Q_EMIT unitsChanged(_units);
+            _vaidatorUpdate();
             _textUpdate();
+            updateGeometry();
         }
 
         QAbstractSpinBox::StepEnabled TimeSpinBox::stepEnabled() const
@@ -128,7 +133,7 @@ namespace tlr
             _textUpdate();
         }
 
-        void TimeSpinBox::_textUpdate()
+        void TimeSpinBox::_vaidatorUpdate()
         {
             if (_validator)
             {
@@ -136,6 +141,10 @@ namespace tlr
             }
             _validator = new QRegExpValidator(QRegExp(TimeObject::unitsValidator(_units)), this);
             lineEdit()->setValidator(_validator);
+        }
+
+        void TimeSpinBox::_textUpdate()
+        {
             lineEdit()->setText(TimeObject::timeToText(_value, _units));
         }
     }

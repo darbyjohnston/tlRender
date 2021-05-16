@@ -29,11 +29,76 @@ namespace tlr
             
         void Read::_init(
             const std::string& fileName,
-            const otime::RationalTime& defaultSpeed,
-            size_t videoQueueSize)
+            const otime::RationalTime& defaultSpeed)
         {
-            IRead::_init(fileName, defaultSpeed, videoQueueSize);
+            IRead::_init(fileName, defaultSpeed);
+            _videoFrameCache.setMax(3);
+            _running = true;
+            _thread = std::thread(
+                [this, fileName]
+                {
+                    try
+                    {
+                        _open(fileName);
+                        _run();
+                    }
+                    catch (const std::exception&)
+                    {
+                        //! \todo How should this be handled?
+                        _infoPromise.set_value(io::Info());
+                    }
+                    _close();
+                });
+        }
 
+        Read::Read()
+        {}
+
+        Read::~Read()
+        {
+            _running = false;
+            if (_thread.joinable())
+            {
+                //! \todo How do we safely detach the thread here so we don't block?
+                _thread.join();
+            }
+        }
+
+        std::shared_ptr<Read> Read::create(
+            const std::string& fileName,
+            const otime::RationalTime& defaultSpeed)
+        {
+            auto out = std::shared_ptr<Read>(new Read);
+            out->_init(fileName, defaultSpeed);
+            return out;
+        }
+
+        std::future<io::Info> Read::getInfo()
+        {
+            return _infoPromise.get_future();
+        }
+
+        std::future<io::VideoFrame> Read::getVideoFrame(const otime::RationalTime& time)
+        {
+            VideoFrameRequest request;
+            request.time = time;
+            auto future = request.promise.get_future();
+            {
+                std::unique_lock<std::mutex> lock(_requestMutex);
+                _videoFrameRequests.push_back(std::move(request));
+            }
+            _requestCV.notify_one();
+            return future;
+        }
+
+        void Read::cancelVideoFrames()
+        {
+            std::unique_lock<std::mutex> lock(_requestMutex);
+            _videoFrameRequests.clear();
+        }
+
+        void Read::_open(const std::string& fileName)
+        {
             av_log_set_level(AV_LOG_QUIET);
 
             int r = avformat_open_input(
@@ -100,8 +165,8 @@ namespace tlr
                     ss << fileName << ": " << getErrorLabel(r);
                     throw std::runtime_error(ss.str());
                 }
-                _avCodecContext[_avVideoStream]->thread_count = 1;
-                _avCodecContext[_avVideoStream]->thread_type = FF_THREAD_SLICE;
+                _avCodecContext[_avVideoStream]->thread_count = 4;
+                _avCodecContext[_avVideoStream]->thread_type = FF_THREAD_FRAME;
                 r = avcodec_open2(_avCodecContext[_avVideoStream], avVideoCodec, 0);
                 if (r < 0)
                 {
@@ -153,6 +218,8 @@ namespace tlr
                     sequenceSize,
                     avVideoStream->r_frame_rate.num / double(avVideoStream->r_frame_rate.den));
                 _info.video.push_back(videoInfo);
+
+                _currentTime = otime::RationalTime(0, videoInfo.duration.rate());
             }
 
             AVDictionaryEntry* tag = nullptr;
@@ -160,12 +227,108 @@ namespace tlr
             {
                 _info.tags[tag->key] = tag->value;
             }
+
+            _infoPromise.set_value(_info);
         }
 
-        Read::Read()
-        {}
+        void Read::_run()
+        {
+            while (_running)
+            {
+                VideoFrameRequest request;
+                bool requestValid = false;
+                {
+                    std::unique_lock<std::mutex> lock(_requestMutex);
+                    _requestCV.wait_for(
+                        lock,
+                        std::chrono::microseconds(1000),
+                        [this]
+                        {
+                            return !_videoFrameRequests.empty();
+                        });
+                    if (!_videoFrameRequests.empty())
+                    {
+                        request.time = _videoFrameRequests.front().time;
+                        request.promise = std::move(_videoFrameRequests.front().promise);
+                        _videoFrameRequests.pop_front();
+                        requestValid = true;
+                    }
+                }
+                if (requestValid)
+                {
+                    //std::cout << "request: " << request.time << std::endl;
+                    io::VideoFrame videoFrame;
+                    if (_videoFrameCache.get(request.time, videoFrame))
+                    {
+                        request.promise.set_value(videoFrame);
+                    }
+                    else
+                    {
+                        if (request.time != _currentTime)
+                        {
+                            //std::cout << "seek: " << request.time << std::endl;
+                            _currentTime = request.time;
 
-        Read::~Read()
+                            int64_t t = 0;
+                            int stream = -1;
+                            if (_avVideoStream != -1)
+                            {
+                                stream = _avVideoStream;
+                                AVRational r;
+                                r.num = _avFormatContext->streams[_avVideoStream]->r_frame_rate.den;
+                                r.den = _avFormatContext->streams[_avVideoStream]->r_frame_rate.num;
+                                t = av_rescale_q(
+                                    request.time.value(),
+                                    r,
+                                    _avFormatContext->streams[_avVideoStream]->time_base);
+                            }
+                            if (_avVideoStream != -1)
+                            {
+                                avcodec_flush_buffers(_avCodecContext[_avVideoStream]);
+                            }
+                            if (av_seek_frame(
+                                _avFormatContext,
+                                stream,
+                                t,
+                                AVSEEK_FLAG_BACKWARD) < 0)
+                            {
+                                //! \todo How should this be handled?
+                            }
+                        }
+
+                        int decoding = 0;
+                        AVPacket packet;
+                        while (0 == decoding || videoFrame.time < request.time)
+                        {
+                            if (av_read_frame(_avFormatContext, &packet) < 0)
+                            {
+                                if (_avVideoStream != -1)
+                                {
+                                    //! \todo How should this be handled?
+                                }
+                                break;
+                            }
+                            if (_avVideoStream == packet.stream_index)
+                            {
+                                decoding = _decodeVideo(packet, videoFrame, true, request.time);
+                                if (decoding < 0)
+                                {
+                                    //! \todo How should this be handled?
+                                    break;
+                                }
+                            }
+                            av_packet_unref(&packet);
+                        }
+
+                        request.promise.set_value(videoFrame);
+                        _videoFrameCache.add(request.time, videoFrame);
+                        _currentTime = request.time + otime::RationalTime(1, _currentTime.rate());
+                    }
+                }
+            }
+        }
+
+        void Read::_close()
         {
             if (_swsContext)
             {
@@ -194,83 +357,11 @@ namespace tlr
             }
         }
 
-        std::shared_ptr<Read> Read::create(
-            const std::string& fileName,
-            const otime::RationalTime& defaultSpeed,
-            size_t videoQueueSize)
-        {
-            auto out = std::shared_ptr<Read>(new Read);
-            out->_init(fileName, defaultSpeed, videoQueueSize);
-            return out;
-        }
-
-        void Read::tick()
-        {
-            if (_hasSeek)
-            {
-                int64_t t = 0;
-                int stream = -1;
-                if (_avVideoStream != -1)
-                {
-                    stream = _avVideoStream;
-                    AVRational r;
-                    r.num = 1;
-                    r.den = _seekTime.rate();
-                    t = av_rescale_q(_seekTime.value(), r, _avFormatContext->streams[_avVideoStream]->time_base);
-                }
-                if (_avVideoStream != -1)
-                {
-                    avcodec_flush_buffers(_avCodecContext[_avVideoStream]);
-                }
-                if (av_seek_frame(
-                    _avFormatContext,
-                    stream,
-                    t,
-                    AVSEEK_FLAG_BACKWARD) < 0)
-                {
-                    std::stringstream ss;
-                    ss << _fileName << ": Cannot seek: " << _seekTime;
-                    throw std::runtime_error(ss.str());
-                }
-                while (_videoQueue.size())
-                {
-                    _videoQueue.pop();
-                }
-            }
-
-            if (_videoQueue.size() < _videoQueueSize)
-            {
-                int decoding = 0;
-                AVPacket packet;
-                io::VideoFrame frame;
-                while (0 == decoding || (_hasSeek && frame.time < _seekTime))
-                {
-                    if (av_read_frame(_avFormatContext, &packet) < 0)
-                    {
-                        if (_avVideoStream != -1)
-                        {
-                            //! \todo How should this be handled?
-                        }
-                        break;
-                    }
-                    if (_avVideoStream == packet.stream_index)
-                    {
-                        decoding = _decodeVideo(packet, frame);
-                        if (decoding < 0)
-                        {
-                            //! \todo How should this be handled?
-                            break;
-                        }
-                    }
-                    av_packet_unref(&packet);
-                }
-                _videoQueue.push(frame);
-            }
-
-            _hasSeek = false;
-        }
-
-        int Read::_decodeVideo(AVPacket& packet, io::VideoFrame& frame)
+        int Read::_decodeVideo(
+            AVPacket& packet,
+            io::VideoFrame& frame,
+            bool hasSeek,
+            const otime::RationalTime& seek)
         {
             int out = avcodec_send_packet(_avCodecContext[_avVideoStream], &packet);
             if (out < 0)
@@ -285,19 +376,20 @@ namespace tlr
             }
 
             AVRational r;
-            r.num = 1;
-            r.den = _info.video[0].duration.rate();
+            r.num = _avFormatContext->streams[_avVideoStream]->r_frame_rate.den;
+            r.den = _avFormatContext->streams[_avVideoStream]->r_frame_rate.num;
             frame.time = otime::RationalTime(
                 av_rescale_q(
                     _avFrame->pts,
                     _avFormatContext->streams[_avVideoStream]->time_base,
                     r),
                 _info.video[0].duration.rate());
-
-            if (_hasSeek && frame.time < _seekTime)
+            if (hasSeek && frame.time < seek)
             {
                 return 0;
             }
+            frame.time = _currentTime;
+            //std::cout << "frame: " << frame.time << std::endl;
 
             frame.image = imaging::Image::create(_info.video[0].info);
             av_image_fill_arrays(
@@ -350,7 +442,7 @@ namespace tlr
             const std::string& fileName,
             const otime::RationalTime& defaultSpeed)
         {
-            return Read::create(fileName, defaultSpeed, _videoQueueSize);
+            return Read::create(fileName, defaultSpeed);
         }
     }
 }
