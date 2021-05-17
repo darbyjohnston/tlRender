@@ -179,12 +179,14 @@ namespace tlr
         timeMenu->setTitle(tr("&Time"));
         timeMenu->addAction(_actions["Time/Start"]);
         timeMenu->addAction(_actions["Time/End"]);
+        timeMenu->addSeparator();
         timeMenu->addAction(_actions["Time/FramePrev"]);
         timeMenu->addAction(_actions["Time/FramePrevX10"]);
         timeMenu->addAction(_actions["Time/FramePrevX100"]);
         timeMenu->addAction(_actions["Time/FrameNext"]);
         timeMenu->addAction(_actions["Time/FrameNextX10"]);
         timeMenu->addAction(_actions["Time/FrameNextX100"]);
+        timeMenu->addSeparator();
         timeMenu->addAction(_actions["Time/ClipPrev"]);
         timeMenu->addAction(_actions["Time/ClipNext"]);
 
