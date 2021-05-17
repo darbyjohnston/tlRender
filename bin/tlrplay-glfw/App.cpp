@@ -307,10 +307,10 @@ namespace tlr
                 app->_timeline->end();
                 break;
             case GLFW_KEY_LEFT:
-                app->_timeline->prev();
+                app->_timeline->framePrev();
                 break;
             case GLFW_KEY_RIGHT:
-                app->_timeline->next();
+                app->_timeline->frameNext();
                 break;
             }
         }
