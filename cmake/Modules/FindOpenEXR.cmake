@@ -17,7 +17,7 @@
 
 set(OpenEXR_VERSION 2.5)
 
-find_package(IlmBase)
+find_package(IlmBase REQUIRED)
 
 find_path(OpenEXR_INCLUDE_DIR NAMES Iex.h PATH_SUFFIXES OpenEXR)
 set(OpenEXR_INCLUDE_DIRS

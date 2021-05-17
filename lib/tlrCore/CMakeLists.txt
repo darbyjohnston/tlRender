@@ -65,6 +65,7 @@ if(FFmpeg_FOUND)
     set(SOURCE ${SOURCE} FFmpeg.cpp)
     set(tlrCore_LIBRARIES ${tlrCore_LIBRARIES} FFmpeg)
 endif()
+set(tlrCore_LIBRARIES ${tlrCore_LIBRARIES} Threads::Threads)
 
 add_library(tlrCore ${HEADERS} ${SOURCE})
 target_link_libraries(tlrCore ${tlrCore_LIBRARIES})

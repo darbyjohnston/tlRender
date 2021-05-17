@@ -21,6 +21,8 @@
 
 set(IlmBase_VERSION 2.5)
 
+find_package(Threads REQUIRED)
+
 find_path(IlmBase_INCLUDE_DIR NAMES half.h PATH_SUFFIXES OpenEXR)
 set(Imath_INCLUDE_DIRS ${Imath_INCLUDE_DIR})
 
@@ -101,7 +103,8 @@ if(IlmBase_FOUND AND NOT TARGET IlmBase::IlmThread)
     set_target_properties(IlmBase::IlmThread PROPERTIES
         IMPORTED_LOCATION "${IlmBase_IlmThread_LIBRARY}"
         INTERFACE_COMPILE_DEFINITIONS "${IlmBase_COMPILE_DEFINITIONS}"
-        INTERFACE_INCLUDE_DIRECTORIES "${IlmBase_INCLUDE_DIR}")
+        INTERFACE_INCLUDE_DIRECTORIES "${IlmBase_INCLUDE_DIR}"
+        INTERFACE_LINK_LIBRARIES "Threads::Threads")
 endif()
 if(IlmBase_FOUND AND NOT TARGET IlmBase)
     add_library(IlmBase INTERFACE)
