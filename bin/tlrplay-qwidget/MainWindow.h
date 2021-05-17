@@ -59,8 +59,14 @@ namespace tlr
         void _togglePlaybackCallback();
         void _startCallback();
         void _endCallback();
-        void _prevCallback();
-        void _nextCallback();
+        void _framePrevCallback();
+        void _framePrevX10Callback();
+        void _framePrevX100Callback();
+        void _frameNextCallback();
+        void _frameNextX10Callback();
+        void _frameNextX100Callback();
+        void _clipPrevCallback();
+        void _clipNextCallback();
 
     private:
         void _recentFilesUpdate();

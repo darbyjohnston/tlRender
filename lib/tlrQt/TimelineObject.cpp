@@ -81,6 +81,11 @@ namespace tlr
             return _timeline->getImageInfo();
         }
 
+        std::vector<otime::TimeRange> TimelineObject::clipRanges() const
+        {
+            return _timeline->getClipRanges();
+        }
+
         timeline::Playback TimelineObject::playback() const
         {
             return _timeline->observePlayback()->get();
@@ -149,9 +154,9 @@ namespace tlr
             _timeline->seek(value);
         }
 
-        void TimelineObject::frame(timeline::Frame value)
+        void TimelineObject::timeAction(timeline::TimeAction value)
         {
-            _timeline->frame(value);
+            _timeline->timeAction(value);
         }
 
         void TimelineObject::start()
@@ -164,14 +169,24 @@ namespace tlr
             _timeline->end();
         }
 
-        void TimelineObject::prev()
+        void TimelineObject::framePrev()
         {
-            _timeline->prev();
+            _timeline->framePrev();
         }
 
-        void TimelineObject::next()
+        void TimelineObject::frameNext()
         {
-            _timeline->next();
+            _timeline->frameNext();
+        }
+
+        void TimelineObject::clipPrev()
+        {
+            _timeline->clipPrev();
+        }
+
+        void TimelineObject::clipNext()
+        {
+            _timeline->clipNext();
         }
 
         void TimelineObject::setInOutRange(const otime::TimeRange& value)

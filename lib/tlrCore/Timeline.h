@@ -46,19 +46,25 @@ namespace tlr
         TLR_ENUM_VECTOR(Loop);
         TLR_ENUM_LABEL(Loop);
 
-        //! Frame actions.
-        enum class Frame
+        //! Time actions.
+        enum class TimeAction
         {
             Start,
             End,
-            Prev,
-            Next,
+            FramePrev,
+            FramePrevX10,
+            FramePrevX100,
+            FrameNext,
+            FrameNextX10,
+            FrameNextX100,
+            ClipPrev,
+            ClipNext,
 
             Count,
             First = Start
         };
-        TLR_ENUM_VECTOR(Frame);
-        TLR_ENUM_LABEL(Frame);
+        TLR_ENUM_VECTOR(TimeAction);
+        TLR_ENUM_LABEL(TimeAction);
 
         //! Loop time.
         otime::RationalTime loopTime(const otime::RationalTime&, const otime::TimeRange&);
@@ -126,20 +132,26 @@ namespace tlr
             //! Seek to the given time.
             void seek(const otime::RationalTime&);
 
-            //! Frame action.
-            void frame(Frame);
+            //! Time action.
+            void timeAction(TimeAction);
 
-            //! Go to the start frame.
+            //! Go to the start time.
             void start();
 
-            //! Go to the end frame.
+            //! Go to the end time.
             void end();
 
             //! Go to the previous frame.
-            void prev();
+            void framePrev();
 
             //! Go to the next frame.
-            void next();
+            void frameNext();
+
+            //! Go to the previous clip.
+            void clipPrev();
+
+            //! Go to the next clip.
+            void clipNext();
 
             //! Observe the in/out points range.
             std::shared_ptr<Observer::IValueSubject<otime::TimeRange> > observeInOutRange() const;
@@ -234,6 +246,7 @@ namespace tlr
 
     TLR_ENUM_SERIALIZE(timeline::Playback);
     TLR_ENUM_SERIALIZE(timeline::Loop);
+    TLR_ENUM_SERIALIZE(timeline::TimeAction);
 }
 
 #include <tlrCore/TimelineInline.h>

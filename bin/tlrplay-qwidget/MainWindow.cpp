@@ -107,14 +107,32 @@ namespace tlr
         _actions["Playback/End"]->setText(tr("End Frame"));
         _actions["Playback/End"]->setIcon(QIcon(":/Icons/FrameEnd.svg"));
         _actions["Playback/End"]->setShortcut(QKeySequence(Qt::Key_End));
-        _actions["Playback/Prev"] = new QAction(this);
-        _actions["Playback/Prev"]->setText(tr("Previous Frame"));
-        _actions["Playback/Prev"]->setIcon(QIcon(":/Icons/FramePrev.svg"));
-        _actions["Playback/Prev"]->setShortcut(QKeySequence(Qt::Key_Left));
-        _actions["Playback/Next"] = new QAction(this);
-        _actions["Playback/Next"]->setText(tr("Next Frame"));
-        _actions["Playback/Next"]->setIcon(QIcon(":/Icons/FrameNext.svg"));
-        _actions["Playback/Next"]->setShortcut(QKeySequence(Qt::Key_Right));
+        _actions["Playback/FramePrev"] = new QAction(this);
+        _actions["Playback/FramePrev"]->setText(tr("Previous Frame"));
+        _actions["Playback/FramePrev"]->setIcon(QIcon(":/Icons/FramePrev.svg"));
+        _actions["Playback/FramePrev"]->setShortcut(QKeySequence(Qt::Key_Left));
+        _actions["Playback/FramePrevX10"] = new QAction(this);
+        _actions["Playback/FramePrevX10"]->setText(tr("Previous Frame X10"));
+        _actions["Playback/FramePrevX10"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Left));
+        _actions["Playback/FramePrevX100"] = new QAction(this);
+        _actions["Playback/FramePrevX100"]->setText(tr("Previous Frame X100"));
+        _actions["Playback/FramePrevX100"]->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Left));
+        _actions["Playback/FrameNext"] = new QAction(this);
+        _actions["Playback/FrameNext"]->setText(tr("Next Frame"));
+        _actions["Playback/FrameNext"]->setIcon(QIcon(":/Icons/FrameNext.svg"));
+        _actions["Playback/FrameNext"]->setShortcut(QKeySequence(Qt::Key_Right));
+        _actions["Playback/FrameNextX10"] = new QAction(this);
+        _actions["Playback/FrameNextX10"]->setText(tr("Next Frame X10"));
+        _actions["Playback/FrameNextX10"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Right));
+        _actions["Playback/FrameNextX100"] = new QAction(this);
+        _actions["Playback/FrameNextX100"]->setText(tr("Next Frame X100"));
+        _actions["Playback/FrameNextX100"]->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Right));
+        _actions["Playback/ClipPrev"] = new QAction(this);
+        _actions["Playback/ClipPrev"]->setText(tr("Previous Clip"));
+        _actions["Playback/ClipPrev"]->setShortcut(QKeySequence(Qt::Key_BracketLeft));
+        _actions["Playback/ClipNext"] = new QAction(this);
+        _actions["Playback/ClipNext"]->setText(tr("Next Clip"));
+        _actions["Playback/ClipNext"]->setShortcut(QKeySequence(Qt::Key_BracketRight));
 
         _actions["Playback/SetInPoint"] = new QAction(this);
         _actions["Playback/SetInPoint"]->setText(tr("Set In Point"));
@@ -159,8 +177,14 @@ namespace tlr
         playbackMenu->addSeparator();
         playbackMenu->addAction(_actions["Playback/Start"]);
         playbackMenu->addAction(_actions["Playback/End"]);
-        playbackMenu->addAction(_actions["Playback/Prev"]);
-        playbackMenu->addAction(_actions["Playback/Next"]);
+        playbackMenu->addAction(_actions["Playback/FramePrev"]);
+        playbackMenu->addAction(_actions["Playback/FramePrevX10"]);
+        playbackMenu->addAction(_actions["Playback/FramePrevX100"]);
+        playbackMenu->addAction(_actions["Playback/FrameNext"]);
+        playbackMenu->addAction(_actions["Playback/FrameNextX10"]);
+        playbackMenu->addAction(_actions["Playback/FrameNextX100"]);
+        playbackMenu->addAction(_actions["Playback/ClipPrev"]);
+        playbackMenu->addAction(_actions["Playback/ClipNext"]);
         playbackMenu->addSeparator();
         playbackMenu->addAction(_actions["Playback/SetInPoint"]);
         playbackMenu->addAction(_actions["Playback/ResetInPoint"]);
@@ -246,13 +270,37 @@ namespace tlr
             SIGNAL(triggered()),
             SLOT(_endCallback()));
         connect(
-            _actions["Playback/Prev"],
+            _actions["Playback/FramePrev"],
             SIGNAL(triggered()),
-            SLOT(_prevCallback()));
+            SLOT(_framePrevCallback()));
         connect(
-            _actions["Playback/Next"],
+            _actions["Playback/FramePrevX10"],
             SIGNAL(triggered()),
-            SLOT(_nextCallback()));
+            SLOT(_framePrevX10Callback()));
+        connect(
+            _actions["Playback/FramePrevX100"],
+            SIGNAL(triggered()),
+            SLOT(_framePrevX100Callback()));
+        connect(
+            _actions["Playback/FrameNext"],
+            SIGNAL(triggered()),
+            SLOT(_frameNextCallback()));
+        connect(
+            _actions["Playback/FrameNextX10"],
+            SIGNAL(triggered()),
+            SLOT(_frameNextX10Callback()));
+        connect(
+            _actions["Playback/FrameNextX100"],
+            SIGNAL(triggered()),
+            SLOT(_frameNextX100Callback()));
+        connect(
+            _actions["Playback/ClipPrev"],
+            SIGNAL(triggered()),
+            SLOT(_clipPrevCallback()));
+        connect(
+            _actions["Playback/ClipNext"],
+            SIGNAL(triggered()),
+            SLOT(_clipNextCallback()));
 
         connect(
             _playbackActionGroup,
@@ -512,19 +560,67 @@ namespace tlr
         }
     }
 
-    void MainWindow::_prevCallback()
+    void MainWindow::_framePrevCallback()
     {
         if (_timeline)
         {
-            _timeline->prev();
+            _timeline->framePrev();
         }
     }
 
-    void MainWindow::_nextCallback()
+    void MainWindow::_framePrevX10Callback()
     {
         if (_timeline)
         {
-            _timeline->next();
+            _timeline->timeAction(timeline::TimeAction::FramePrevX10);
+        }
+    }
+
+    void MainWindow::_framePrevX100Callback()
+    {
+        if (_timeline)
+        {
+            _timeline->timeAction(timeline::TimeAction::FramePrevX100);
+        }
+    }
+
+    void MainWindow::_frameNextCallback()
+    {
+        if (_timeline)
+        {
+            _timeline->frameNext();
+        }
+    }
+
+    void MainWindow::_frameNextX10Callback()
+    {
+        if (_timeline)
+        {
+            _timeline->timeAction(timeline::TimeAction::FrameNextX10);
+        }
+    }
+
+    void MainWindow::_frameNextX100Callback()
+    {
+        if (_timeline)
+        {
+            _timeline->timeAction(timeline::TimeAction::FrameNextX100);
+        }
+    }
+
+    void MainWindow::_clipPrevCallback()
+    {
+        if (_timeline)
+        {
+            _timeline->clipPrev();
+        }
+    }
+
+    void MainWindow::_clipNextCallback()
+    {
+        if (_timeline)
+        {
+            _timeline->clipNext();
         }
     }
 
@@ -589,8 +685,12 @@ namespace tlr
 
             _actions["Playback/Start"]->setEnabled(true);
             _actions["Playback/End"]->setEnabled(true);
-            _actions["Playback/Prev"]->setEnabled(true);
-            _actions["Playback/Next"]->setEnabled(true);
+            _actions["Playback/FramePrev"]->setEnabled(true);
+            _actions["Playback/FramePrevX10"]->setEnabled(true);
+            _actions["Playback/FramePrevX100"]->setEnabled(true);
+            _actions["Playback/FrameNext"]->setEnabled(true);
+            _actions["Playback/FrameNextX10"]->setEnabled(true);
+            _actions["Playback/FrameNextX100"]->setEnabled(true);
 
             _actions["Playback/SetInPoint"]->setEnabled(true);
             _actions["Playback/ResetInPoint"]->setEnabled(true);
@@ -618,8 +718,12 @@ namespace tlr
 
             _actions["Playback/Start"]->setEnabled(false);
             _actions["Playback/End"]->setEnabled(false);
-            _actions["Playback/Prev"]->setEnabled(false);
-            _actions["Playback/Next"]->setEnabled(false);
+            _actions["Playback/FramePrev"]->setEnabled(false);
+            _actions["Playback/FramePrevX10"]->setEnabled(false);
+            _actions["Playback/FramePrevX100"]->setEnabled(false);
+            _actions["Playback/FrameNext"]->setEnabled(false);
+            _actions["Playback/FrameNextX10"]->setEnabled(false);
+            _actions["Playback/FrameNextX100"]->setEnabled(false);
 
             _actions["Playback/SetInPoint"]->setEnabled(false);
             _actions["Playback/ResetInPoint"]->setEnabled(false);

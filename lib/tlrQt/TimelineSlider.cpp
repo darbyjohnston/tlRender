@@ -50,6 +50,7 @@ namespace tlr
                 return;
             if (_timeline)
             {
+                _clipRanges.clear();
                 disconnect(
                     _timeline,
                     SIGNAL(currentTimeChanged(const otime::RationalTime&)),
@@ -59,6 +60,7 @@ namespace tlr
             _timeline = timeline;
             if (_timeline)
             {
+                _clipRanges = _timeline->clipRanges();
                 connect(
                     _timeline,
                     SIGNAL(currentTimeChanged(const otime::RationalTime&)),
@@ -85,26 +87,53 @@ namespace tlr
         void TimelineSlider::resizeEvent(QResizeEvent*)
         {}
 
+        namespace
+        {
+            const int border = 1;
+        }
+
         void TimelineSlider::paintEvent(QPaintEvent*)
         {
             QPainter painter(this);
             const auto& palette = this->palette();
             painter.setPen(palette.color(QPalette::ColorRole::Mid));
             painter.setBrush(QBrush());
-            const auto& rect = this->rect().adjusted(0, 0, -1, -1);
+            auto rect = this->rect().adjusted(0, 0, -1, -1);
             painter.drawRect(rect);
+            rect = rect.adjusted(border, border, -border, -border);
             if (_timeline)
             {
+                int x0 = 0;
+                int x1 = 0;
+                int y0 = 0;
+                int y1 = 0;
+                int h = 0;
+
+                // Draw clips.
+                y0 = rect.y();
+                h = rect.height();
+                for (size_t i = 0; i < _clipRanges.size(); ++i)
+                {
+                    if (0 == i % 2)
+                    {
+                        auto color = palette.color(QPalette::ColorRole::AlternateBase);
+                        painter.setPen(color);
+                        painter.setBrush(color);
+                        x0 = _timeToPos(_clipRanges[i].start_time().value());
+                        x1 = _timeToPos(_clipRanges[i].end_time_inclusive().value());
+                        painter.drawRect(QRect(x0, y0, x1 - x0, h));
+                    }
+                }
+
                 // Draw in/out points.
                 auto color = palette.color(QPalette::ColorRole::WindowText);
                 painter.setPen(color);
                 painter.setBrush(color);
                 const auto& inOutRange = _timeline->inOutRange();
-                int x0 = _timeToPos(inOutRange.start_time().value());
-                int x1 = _timeToPos(inOutRange.end_time_inclusive().value());
-                int y0 = rect.y();
-                int y1 = y0 + rect.height() - 1;
-                int h = 1;
+                x0 = _timeToPos(inOutRange.start_time().value());
+                x1 = _timeToPos(inOutRange.end_time_inclusive().value());
+                y1 = y0 + rect.height();
+                h = 1;
                 painter.drawRect(QRect(x0, y1 - h, x1 - x0, h));
 
                 // Draw cached frames.
@@ -171,7 +200,7 @@ namespace tlr
             {
                 const auto& globalStartTime = _timeline->globalStartTime();
                 const auto& duration = _timeline->duration();
-                out = value / static_cast<double>(width() - 1) * (duration.value() - 1) + globalStartTime.value();
+                out = (value - border) / static_cast<double>(width() - border * 2 - 1) * (duration.value() - 1) + globalStartTime.value();
             }
             return out;
         }
@@ -183,7 +212,7 @@ namespace tlr
             {
                 const auto& globalStartTime = _timeline->globalStartTime();
                 const auto& duration = _timeline->duration();
-                out = (value - globalStartTime.value()) / (duration.value() - 1) * (width() - 1);
+                out = border + (value - globalStartTime.value()) / (duration.value() - 1) * (width() - border * 2 - 1);
             }
             return out;
         }

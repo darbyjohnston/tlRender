@@ -50,6 +50,7 @@ namespace tlr
 
             QPointer<TimeObject> _timeObject;
             TimelineObject* _timeline = nullptr;
+            std::vector<otime::TimeRange> _clipRanges;
             TimeObject::Units _units = TimeObject::Units::Timecode;
         };
     }

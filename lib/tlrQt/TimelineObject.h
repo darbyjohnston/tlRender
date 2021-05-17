@@ -35,6 +35,9 @@ namespace tlr
             //! Get the image info.
             const imaging::Info& imageInfo() const;
 
+            //! Get the clip time ranges.
+            std::vector<otime::TimeRange> clipRanges() const;
+
             ///@}
 
             //! \name Playback
@@ -96,20 +99,26 @@ namespace tlr
             //! Seek to the given time.
             void seek(const otime::RationalTime&);
 
-            //! Frame action.
-            void frame(tlr::timeline::Frame);
+            //! Time action.
+            void timeAction(tlr::timeline::TimeAction);
 
-            //! Go to the start frame.
+            //! Go to the start time.
             void start();
 
-            //! Go to the end frame.
+            //! Go to the end time.
             void end();
 
             //! Go to the previous frame.
-            void prev();
+            void framePrev();
 
             //! Go to the next frame.
-            void next();
+            void frameNext();
+
+            //! Go to the previous clip.
+            void clipPrev();
+
+            //! Go to the next clip.
+            void clipNext();
 
             //! Set the in/out points range.
             void setInOutRange(const otime::TimeRange&);

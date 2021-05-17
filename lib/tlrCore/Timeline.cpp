@@ -33,8 +33,18 @@ namespace tlr
         TLR_ENUM_VECTOR_IMPL(Loop);
         TLR_ENUM_LABEL_IMPL(Loop, "Loop", "Once", "Ping-Pong");
 
-        TLR_ENUM_VECTOR_IMPL(Frame);
-        TLR_ENUM_LABEL_IMPL(Frame, "Start", "End", "Prev", "Next");
+        TLR_ENUM_VECTOR_IMPL(TimeAction);
+        TLR_ENUM_LABEL_IMPL(TimeAction,
+            "Start",
+            "End",
+            "FramePrev",
+            "FramePrevX10",
+            "FramePrevX100",
+            "FrameNext",
+            "FrameNextX10",
+            "FrameNextX100",
+            "ClipPrev",
+            "ClipNext");
 
         otime::RationalTime loopTime(const otime::RationalTime& time, const otime::TimeRange& range)
         {
@@ -249,27 +259,29 @@ namespace tlr
             file::split(_fileName, &path);
             file::changeDir(path);
 
-            // The first clip defines the image information.
+            // Get information about the timeline.
+            bool imageInfo = false;
             for (const auto& child : _flattenedTimeline.value->children())
             {
                 if (auto clip = dynamic_cast<otio::Clip*>(child.value))
                 {
-                    otio::ErrorStatus errorStatus;
-                    auto range = clip->range_in_parent(&errorStatus);
-                    if (errorStatus != otio::ErrorStatus::OK)
+                    // The first clip with video defines the image information
+                    // for the timeline.
+                    if (!imageInfo)
                     {
-                        throw std::runtime_error(errorStatus.full_description);
-                    }
-
-                    if (auto read = _ioSystem->read(_getFileName(clip->media_reference())))
-                    {
-                        const auto info = read->getInfo().get();
-                        if (!info.video.empty())
+                        if (auto read = _ioSystem->read(_getFileName(clip->media_reference())))
                         {
-                            _imageInfo = info.video[0].info;
-                            break;
+                            const auto info = read->getInfo().get();
+                            if (!info.video.empty())
+                            {
+                                imageInfo = true;
+                                _imageInfo = info.video[0].info;
+                            }
                         }
                     }
+
+                    // Clip range information.
+                    _clipRanges.push_back(_getRange(clip));
                 }
             }
 
@@ -380,22 +392,70 @@ namespace tlr
             }
         }
 
-        void Timeline::frame(Frame frame)
+        void Timeline::timeAction(TimeAction time)
         {
             setPlayback(timeline::Playback::Stop);
-            switch (frame)
+            const auto& currentTime = _currentTime->get();
+            const size_t rangeSize = _clipRanges.size();
+            switch (time)
             {
-            case Frame::Start:
+            case TimeAction::Start:
                 seek(_inOutRange->get().start_time());
                 break;
-            case Frame::End:
+            case TimeAction::End:
                 seek(_inOutRange->get().end_time_inclusive());
                 break;
-            case Frame::Prev:
-                seek(otime::RationalTime(_currentTime->get().value() - 1, _duration.rate()));
+            case TimeAction::FramePrev:
+                seek(otime::RationalTime(currentTime.value() - 1, _duration.rate()));
                 break;
-            case Frame::Next:
-                seek(otime::RationalTime(_currentTime->get().value() + 1, _duration.rate()));
+            case TimeAction::FramePrevX10:
+                seek(otime::RationalTime(currentTime.value() - 10, _duration.rate()));
+                break;
+            case TimeAction::FramePrevX100:
+                seek(otime::RationalTime(currentTime.value() - 100, _duration.rate()));
+                break;
+            case TimeAction::FrameNext:
+                seek(otime::RationalTime(currentTime.value() + 1, _duration.rate()));
+                break;
+            case TimeAction::FrameNextX10:
+                seek(otime::RationalTime(currentTime.value() + 10, _duration.rate()));
+                break;
+            case TimeAction::FrameNextX100:
+                seek(otime::RationalTime(currentTime.value() + 100, _duration.rate()));
+                break;
+            case TimeAction::ClipPrev:
+                for (size_t i = 0; i < rangeSize; ++i)
+                {
+                    if (_clipRanges[i].contains(currentTime))
+                    {
+                        if (i > 0)
+                        {
+                            seek(_clipRanges[i - 1].start_time());
+                        }
+                        else
+                        {
+                            seek(_clipRanges[rangeSize - 1].start_time());
+                        }
+                        break;
+                    }
+                }
+                break;
+            case TimeAction::ClipNext:
+                for (size_t i = 0; i < rangeSize; ++i)
+                {
+                    if (_clipRanges[i].contains(currentTime))
+                    {
+                        if ((i + 1) < rangeSize)
+                        {
+                            seek(_clipRanges[i + 1].start_time());
+                        }
+                        else
+                        {
+                            seek(_clipRanges[0].start_time());
+                        }
+                        break;
+                    }
+                }
                 break;
             default:
                 break;
@@ -404,22 +464,32 @@ namespace tlr
 
         void Timeline::start()
         {
-            frame(Frame::Start);
+            timeAction(TimeAction::Start);
         }
 
         void Timeline::end()
         {
-            frame(Frame::End);
+            timeAction(TimeAction::End);
         }
 
-        void Timeline::prev()
+        void Timeline::framePrev()
         {
-            frame(Frame::Prev);
+            timeAction(TimeAction::FramePrev);
         }
 
-        void Timeline::next()
+        void Timeline::frameNext()
         {
-            frame(Frame::Next);
+            timeAction(TimeAction::FrameNext);
+        }
+
+        void Timeline::clipPrev()
+        {
+            timeAction(TimeAction::ClipPrev);
+        }
+
+        void Timeline::clipNext()
+        {
+            timeAction(TimeAction::ClipNext);
         }
 
         void Timeline::setInOutRange(const otime::TimeRange& value)

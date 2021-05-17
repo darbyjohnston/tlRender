@@ -41,29 +41,29 @@ namespace tlr
             _playbackToButton[timeline::Playback::Forward] = _playbackButtons["Forward"];
             _playbackToButton[timeline::Playback::Reverse] = _playbackButtons["Reverse"];
 
-            _frameButtons["Start"] = new QToolButton;
-            _frameButtons["Start"]->setIcon(QIcon(":/Icons/FrameStart.svg"));
-            _frameButtons["Start"]->setToolTip(tr("Go to the start frame"));
-            _frameButtons["End"] = new QToolButton;
-            _frameButtons["End"]->setIcon(QIcon(":/Icons/FrameEnd.svg"));
-            _frameButtons["End"]->setToolTip(tr("Go to the end frame"));
-            _frameButtons["Prev"] = new QToolButton;
-            _frameButtons["Prev"]->setAutoRepeat(true);
-            _frameButtons["Prev"]->setIcon(QIcon(":/Icons/FramePrev.svg"));
-            _frameButtons["Prev"]->setToolTip(tr("Go to the previous frame"));
-            _frameButtons["Next"] = new QToolButton;
-            _frameButtons["Next"]->setAutoRepeat(true);
-            _frameButtons["Next"]->setIcon(QIcon(":/Icons/FrameNext.svg"));
-            _frameButtons["Next"]->setToolTip(tr("Go to the next frame"));
-            _frameButtonGroup = new QButtonGroup(this);
-            _frameButtonGroup->addButton(_frameButtons["Start"]);
-            _frameButtonGroup->addButton(_frameButtons["End"]);
-            _frameButtonGroup->addButton(_frameButtons["Prev"]);
-            _frameButtonGroup->addButton(_frameButtons["Next"]);
-            _buttonToFrame[_frameButtons["Start"]] = timeline::Frame::Start;
-            _buttonToFrame[_frameButtons["End"]] = timeline::Frame::End;
-            _buttonToFrame[_frameButtons["Prev"]] = timeline::Frame::Prev;
-            _buttonToFrame[_frameButtons["Next"]] = timeline::Frame::Next;
+            _timeActionButtons["Start"] = new QToolButton;
+            _timeActionButtons["Start"]->setIcon(QIcon(":/Icons/FrameStart.svg"));
+            _timeActionButtons["Start"]->setToolTip(tr("Go to the start time"));
+            _timeActionButtons["End"] = new QToolButton;
+            _timeActionButtons["End"]->setIcon(QIcon(":/Icons/FrameEnd.svg"));
+            _timeActionButtons["End"]->setToolTip(tr("Go to the end time"));
+            _timeActionButtons["FramePrev"] = new QToolButton;
+            _timeActionButtons["FramePrev"]->setAutoRepeat(true);
+            _timeActionButtons["FramePrev"]->setIcon(QIcon(":/Icons/FramePrev.svg"));
+            _timeActionButtons["FramePrev"]->setToolTip(tr("Go to the previous frame"));
+            _timeActionButtons["FrameNext"] = new QToolButton;
+            _timeActionButtons["FrameNext"]->setAutoRepeat(true);
+            _timeActionButtons["FrameNext"]->setIcon(QIcon(":/Icons/FrameNext.svg"));
+            _timeActionButtons["FrameNext"]->setToolTip(tr("Go to the next frame"));
+            _timeActionButtonGroup = new QButtonGroup(this);
+            _timeActionButtonGroup->addButton(_timeActionButtons["Start"]);
+            _timeActionButtonGroup->addButton(_timeActionButtons["End"]);
+            _timeActionButtonGroup->addButton(_timeActionButtons["FramePrev"]);
+            _timeActionButtonGroup->addButton(_timeActionButtons["FrameNext"]);
+            _buttonToTimeAction[_timeActionButtons["Start"]] = timeline::TimeAction::Start;
+            _buttonToTimeAction[_timeActionButtons["End"]] = timeline::TimeAction::End;
+            _buttonToTimeAction[_timeActionButtons["FramePrev"]] = timeline::TimeAction::FramePrev;
+            _buttonToTimeAction[_timeActionButtons["FrameNext"]] = timeline::TimeAction::FrameNext;
 
             _speedLabel = new SpeedLabel;
             _speedLabel->setToolTip(tr("Timeline speed (frames per second)"));
@@ -109,10 +109,10 @@ namespace tlr
             hLayout->addLayout(hLayout2);
             hLayout2 = new QHBoxLayout;
             hLayout2->setSpacing(1);
-            hLayout2->addWidget(_frameButtons["Start"]);
-            hLayout2->addWidget(_frameButtons["Prev"]);
-            hLayout2->addWidget(_frameButtons["Next"]);
-            hLayout2->addWidget(_frameButtons["End"]);
+            hLayout2->addWidget(_timeActionButtons["Start"]);
+            hLayout2->addWidget(_timeActionButtons["FramePrev"]);
+            hLayout2->addWidget(_timeActionButtons["FrameNext"]);
+            hLayout2->addWidget(_timeActionButtons["End"]);
             hLayout->addLayout(hLayout2);
             layout->addLayout(hLayout, 0, 0);
             hLayout = new QHBoxLayout;
@@ -150,9 +150,9 @@ namespace tlr
                 SLOT(_playbackCallback(QAbstractButton*)));
 
             connect(
-                _frameButtonGroup,
+                _timeActionButtonGroup,
                 SIGNAL(buttonClicked(QAbstractButton*)),
-                SLOT(_frameCallback(QAbstractButton*)));
+                SLOT(_timeActionCallback(QAbstractButton*)));
 
             connect(
                 _currentTimeSpinBox,
@@ -255,14 +255,14 @@ namespace tlr
             _playbackUpdate();
         }
 
-        void TimelineWidget::_frameCallback(QAbstractButton* button)
+        void TimelineWidget::_timeActionCallback(QAbstractButton* button)
         {
             if (_timeline)
             {
-                const auto i = _buttonToFrame.find(button);
-                if (i != _buttonToFrame.end())
+                const auto i = _buttonToTimeAction.find(button);
+                if (i != _buttonToTimeAction.end())
                 {
-                    _timeline->frame(i.value());
+                    _timeline->timeAction(i.value());
                 }
             }
         }

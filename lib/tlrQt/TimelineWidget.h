@@ -36,7 +36,7 @@ namespace tlr
         private Q_SLOTS:
             void _playbackCallback(QAbstractButton*);
             void _playbackCallback(tlr::timeline::Playback);
-            void _frameCallback(QAbstractButton*);
+            void _timeActionCallback(QAbstractButton*);
             void _currentTimeCallback(const otime::RationalTime&);
             void _currentTimeCallback2(const otime::RationalTime&);
             void _inPointCallback(const otime::RationalTime&);
@@ -56,9 +56,9 @@ namespace tlr
             QButtonGroup* _playbackButtonGroup = nullptr;
             QMap<QAbstractButton*, timeline::Playback> _buttonToPlayback;
             QMap<timeline::Playback, QAbstractButton*> _playbackToButton;
-            QMap<QString, QAbstractButton*> _frameButtons;
-            QButtonGroup* _frameButtonGroup = nullptr;
-            QMap<QAbstractButton*, timeline::Frame> _buttonToFrame;
+            QMap<QString, QAbstractButton*> _timeActionButtons;
+            QButtonGroup* _timeActionButtonGroup = nullptr;
+            QMap<QAbstractButton*, timeline::TimeAction> _buttonToTimeAction;
             SpeedLabel* _speedLabel = nullptr;
             TimelineSlider* _timelineSlider = nullptr;
             TimeSpinBox* _currentTimeSpinBox = nullptr;
