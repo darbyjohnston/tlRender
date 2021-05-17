@@ -99,57 +99,57 @@ namespace tlr
         _loopToActions[timeline::Loop::Once] = _actions["Playback/Once"];
         _loopToActions[timeline::Loop::PingPong] = _actions["Playback/PingPong"];
 
-        _actions["Playback/Start"] = new QAction(this);
-        _actions["Playback/Start"]->setText(tr("Start Frame"));
-        _actions["Playback/Start"]->setIcon(QIcon(":/Icons/FrameStart.svg"));
-        _actions["Playback/Start"]->setShortcut(QKeySequence(Qt::Key_Home));
-        _actions["Playback/End"] = new QAction(this);
-        _actions["Playback/End"]->setText(tr("End Frame"));
-        _actions["Playback/End"]->setIcon(QIcon(":/Icons/FrameEnd.svg"));
-        _actions["Playback/End"]->setShortcut(QKeySequence(Qt::Key_End));
-        _actions["Playback/FramePrev"] = new QAction(this);
-        _actions["Playback/FramePrev"]->setText(tr("Previous Frame"));
-        _actions["Playback/FramePrev"]->setIcon(QIcon(":/Icons/FramePrev.svg"));
-        _actions["Playback/FramePrev"]->setShortcut(QKeySequence(Qt::Key_Left));
-        _actions["Playback/FramePrevX10"] = new QAction(this);
-        _actions["Playback/FramePrevX10"]->setText(tr("Previous Frame X10"));
-        _actions["Playback/FramePrevX10"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Left));
-        _actions["Playback/FramePrevX100"] = new QAction(this);
-        _actions["Playback/FramePrevX100"]->setText(tr("Previous Frame X100"));
-        _actions["Playback/FramePrevX100"]->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Left));
-        _actions["Playback/FrameNext"] = new QAction(this);
-        _actions["Playback/FrameNext"]->setText(tr("Next Frame"));
-        _actions["Playback/FrameNext"]->setIcon(QIcon(":/Icons/FrameNext.svg"));
-        _actions["Playback/FrameNext"]->setShortcut(QKeySequence(Qt::Key_Right));
-        _actions["Playback/FrameNextX10"] = new QAction(this);
-        _actions["Playback/FrameNextX10"]->setText(tr("Next Frame X10"));
-        _actions["Playback/FrameNextX10"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Right));
-        _actions["Playback/FrameNextX100"] = new QAction(this);
-        _actions["Playback/FrameNextX100"]->setText(tr("Next Frame X100"));
-        _actions["Playback/FrameNextX100"]->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Right));
-        _actions["Playback/ClipPrev"] = new QAction(this);
-        _actions["Playback/ClipPrev"]->setText(tr("Previous Clip"));
-        _actions["Playback/ClipPrev"]->setShortcut(QKeySequence(Qt::Key_BracketLeft));
-        _actions["Playback/ClipNext"] = new QAction(this);
-        _actions["Playback/ClipNext"]->setText(tr("Next Clip"));
-        _actions["Playback/ClipNext"]->setShortcut(QKeySequence(Qt::Key_BracketRight));
+        _actions["Time/Start"] = new QAction(this);
+        _actions["Time/Start"]->setText(tr("Start"));
+        _actions["Time/Start"]->setIcon(QIcon(":/Icons/TimeStart.svg"));
+        _actions["Time/Start"]->setShortcut(QKeySequence(Qt::Key_Home));
+        _actions["Time/End"] = new QAction(this);
+        _actions["Time/End"]->setText(tr("End"));
+        _actions["Time/End"]->setIcon(QIcon(":/Icons/TimeEnd.svg"));
+        _actions["Time/End"]->setShortcut(QKeySequence(Qt::Key_End));
+        _actions["Time/FramePrev"] = new QAction(this);
+        _actions["Time/FramePrev"]->setText(tr("Previous Frame"));
+        _actions["Time/FramePrev"]->setIcon(QIcon(":/Icons/FramePrev.svg"));
+        _actions["Time/FramePrev"]->setShortcut(QKeySequence(Qt::Key_Left));
+        _actions["Time/FramePrevX10"] = new QAction(this);
+        _actions["Time/FramePrevX10"]->setText(tr("Previous Frame X10"));
+        _actions["Time/FramePrevX10"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Left));
+        _actions["Time/FramePrevX100"] = new QAction(this);
+        _actions["Time/FramePrevX100"]->setText(tr("Previous Frame X100"));
+        _actions["Time/FramePrevX100"]->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Left));
+        _actions["Time/FrameNext"] = new QAction(this);
+        _actions["Time/FrameNext"]->setText(tr("Next Frame"));
+        _actions["Time/FrameNext"]->setIcon(QIcon(":/Icons/FrameNext.svg"));
+        _actions["Time/FrameNext"]->setShortcut(QKeySequence(Qt::Key_Right));
+        _actions["Time/FrameNextX10"] = new QAction(this);
+        _actions["Time/FrameNextX10"]->setText(tr("Next Frame X10"));
+        _actions["Time/FrameNextX10"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Right));
+        _actions["Time/FrameNextX100"] = new QAction(this);
+        _actions["Time/FrameNextX100"]->setText(tr("Next Frame X100"));
+        _actions["Time/FrameNextX100"]->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Right));
+        _actions["Time/ClipPrev"] = new QAction(this);
+        _actions["Time/ClipPrev"]->setText(tr("Previous Clip"));
+        _actions["Time/ClipPrev"]->setShortcut(QKeySequence(Qt::Key_BracketLeft));
+        _actions["Time/ClipNext"] = new QAction(this);
+        _actions["Time/ClipNext"]->setText(tr("Next Clip"));
+        _actions["Time/ClipNext"]->setShortcut(QKeySequence(Qt::Key_BracketRight));
 
-        _actions["Playback/SetInPoint"] = new QAction(this);
-        _actions["Playback/SetInPoint"]->setText(tr("Set In Point"));
-        _actions["Playback/SetInPoint"]->setIcon(QIcon(":/Icons/FrameStart.svg"));
-        _actions["Playback/SetInPoint"]->setShortcut(QKeySequence(Qt::Key_I));
-        _actions["Playback/ResetInPoint"] = new QAction(this);
-        _actions["Playback/ResetInPoint"]->setText(tr("Reset In Point"));
-        _actions["Playback/ResetInPoint"]->setIcon(QIcon(":/Icons/Reset.svg"));
-        _actions["Playback/ResetInPoint"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_I));
-        _actions["Playback/SetOutPoint"] = new QAction(this);
-        _actions["Playback/SetOutPoint"]->setText(tr("Set Out Point"));
-        _actions["Playback/SetOutPoint"]->setIcon(QIcon(":/Icons/FrameEnd.svg"));
-        _actions["Playback/SetOutPoint"]->setShortcut(QKeySequence(Qt::Key_O));
-        _actions["Playback/ResetOutPoint"] = new QAction(this);
-        _actions["Playback/ResetOutPoint"]->setText(tr("Reset Out Point"));
-        _actions["Playback/ResetOutPoint"]->setIcon(QIcon(":/Icons/Reset.svg"));
-        _actions["Playback/ResetOutPoint"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_O));
+        _actions["InOutPoints/SetInPoint"] = new QAction(this);
+        _actions["InOutPoints/SetInPoint"]->setText(tr("Set In Point"));
+        _actions["InOutPoints/SetInPoint"]->setIcon(QIcon(":/Icons/TimeStart.svg"));
+        _actions["InOutPoints/SetInPoint"]->setShortcut(QKeySequence(Qt::Key_I));
+        _actions["InOutPoints/ResetInPoint"] = new QAction(this);
+        _actions["InOutPoints/ResetInPoint"]->setText(tr("Reset In Point"));
+        _actions["InOutPoints/ResetInPoint"]->setIcon(QIcon(":/Icons/Reset.svg"));
+        _actions["InOutPoints/ResetInPoint"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_I));
+        _actions["InOutPoints/SetOutPoint"] = new QAction(this);
+        _actions["InOutPoints/SetOutPoint"]->setText(tr("Set Out Point"));
+        _actions["InOutPoints/SetOutPoint"]->setIcon(QIcon(":/Icons/TimeEnd.svg"));
+        _actions["InOutPoints/SetOutPoint"]->setShortcut(QKeySequence(Qt::Key_O));
+        _actions["InOutPoints/ResetOutPoint"] = new QAction(this);
+        _actions["InOutPoints/ResetOutPoint"]->setText(tr("Reset Out Point"));
+        _actions["InOutPoints/ResetOutPoint"]->setIcon(QIcon(":/Icons/Reset.svg"));
+        _actions["InOutPoints/ResetOutPoint"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_O));
 
         auto fileMenu = new QMenu;
         fileMenu->setTitle(tr("&File"));
@@ -174,26 +174,32 @@ namespace tlr
         playbackMenu->addAction(_actions["Playback/Loop"]);
         playbackMenu->addAction(_actions["Playback/Once"]);
         playbackMenu->addAction(_actions["Playback/PingPong"]);
-        playbackMenu->addSeparator();
-        playbackMenu->addAction(_actions["Playback/Start"]);
-        playbackMenu->addAction(_actions["Playback/End"]);
-        playbackMenu->addAction(_actions["Playback/FramePrev"]);
-        playbackMenu->addAction(_actions["Playback/FramePrevX10"]);
-        playbackMenu->addAction(_actions["Playback/FramePrevX100"]);
-        playbackMenu->addAction(_actions["Playback/FrameNext"]);
-        playbackMenu->addAction(_actions["Playback/FrameNextX10"]);
-        playbackMenu->addAction(_actions["Playback/FrameNextX100"]);
-        playbackMenu->addAction(_actions["Playback/ClipPrev"]);
-        playbackMenu->addAction(_actions["Playback/ClipNext"]);
-        playbackMenu->addSeparator();
-        playbackMenu->addAction(_actions["Playback/SetInPoint"]);
-        playbackMenu->addAction(_actions["Playback/ResetInPoint"]);
-        playbackMenu->addAction(_actions["Playback/SetOutPoint"]);
-        playbackMenu->addAction(_actions["Playback/ResetOutPoint"]);
+
+        auto timeMenu = new QMenu;
+        timeMenu->setTitle(tr("&Time"));
+        timeMenu->addAction(_actions["Time/Start"]);
+        timeMenu->addAction(_actions["Time/End"]);
+        timeMenu->addAction(_actions["Time/FramePrev"]);
+        timeMenu->addAction(_actions["Time/FramePrevX10"]);
+        timeMenu->addAction(_actions["Time/FramePrevX100"]);
+        timeMenu->addAction(_actions["Time/FrameNext"]);
+        timeMenu->addAction(_actions["Time/FrameNextX10"]);
+        timeMenu->addAction(_actions["Time/FrameNextX100"]);
+        timeMenu->addAction(_actions["Time/ClipPrev"]);
+        timeMenu->addAction(_actions["Time/ClipNext"]);
+
+        auto inOutPointsMenu = new QMenu;
+        inOutPointsMenu->setTitle(tr("&In/Out Points"));
+        inOutPointsMenu->addAction(_actions["InOutPoints/SetInPoint"]);
+        inOutPointsMenu->addAction(_actions["InOutPoints/ResetInPoint"]);
+        inOutPointsMenu->addAction(_actions["InOutPoints/SetOutPoint"]);
+        inOutPointsMenu->addAction(_actions["InOutPoints/ResetOutPoint"]);
 
         auto menuBar = new QMenuBar;
         menuBar->addMenu(fileMenu);
         menuBar->addMenu(playbackMenu);
+        menuBar->addMenu(timeMenu);
+        menuBar->addMenu(inOutPointsMenu);
         setMenuBar(menuBar);
 
         _viewport = new qt::TimelineViewport;
@@ -261,44 +267,45 @@ namespace tlr
             _actions["Playback/Toggle"],
             SIGNAL(triggered()),
             SLOT(_togglePlaybackCallback()));
+
         connect(
-            _actions["Playback/Start"],
+            _actions["Time/Start"],
             SIGNAL(triggered()),
             SLOT(_startCallback()));
         connect(
-            _actions["Playback/End"],
+            _actions["Time/End"],
             SIGNAL(triggered()),
             SLOT(_endCallback()));
         connect(
-            _actions["Playback/FramePrev"],
+            _actions["Time/FramePrev"],
             SIGNAL(triggered()),
             SLOT(_framePrevCallback()));
         connect(
-            _actions["Playback/FramePrevX10"],
+            _actions["Time/FramePrevX10"],
             SIGNAL(triggered()),
             SLOT(_framePrevX10Callback()));
         connect(
-            _actions["Playback/FramePrevX100"],
+            _actions["Time/FramePrevX100"],
             SIGNAL(triggered()),
             SLOT(_framePrevX100Callback()));
         connect(
-            _actions["Playback/FrameNext"],
+            _actions["Time/FrameNext"],
             SIGNAL(triggered()),
             SLOT(_frameNextCallback()));
         connect(
-            _actions["Playback/FrameNextX10"],
+            _actions["Time/FrameNextX10"],
             SIGNAL(triggered()),
             SLOT(_frameNextX10Callback()));
         connect(
-            _actions["Playback/FrameNextX100"],
+            _actions["Time/FrameNextX100"],
             SIGNAL(triggered()),
             SLOT(_frameNextX100Callback()));
         connect(
-            _actions["Playback/ClipPrev"],
+            _actions["Time/ClipPrev"],
             SIGNAL(triggered()),
             SLOT(_clipPrevCallback()));
         connect(
-            _actions["Playback/ClipNext"],
+            _actions["Time/ClipNext"],
             SIGNAL(triggered()),
             SLOT(_clipNextCallback()));
 
@@ -345,22 +352,22 @@ namespace tlr
                 this,
                 SLOT(_loopCallback(tlr::timeline::Loop)));
             disconnect(
-                _actions["Playback/SetInPoint"],
+                _actions["InOutPoints/SetInPoint"],
                 SIGNAL(triggered(bool)),
                 _timeline,
                 SLOT(setInPoint()));
             disconnect(
-                _actions["Playback/ResetInPoint"],
+                _actions["InOutPoints/ResetInPoint"],
                 SIGNAL(triggered(bool)),
                 _timeline,
                 SLOT(resetInPoint()));
             disconnect(
-                _actions["Playback/SetOutPoint"],
+                _actions["InOutPoints/SetOutPoint"],
                 SIGNAL(triggered(bool)),
                 _timeline,
                 SLOT(setOutPoint()));
             disconnect(
-                _actions["Playback/ResetOutPoint"],
+                _actions["InOutPoints/ResetOutPoint"],
                 SIGNAL(triggered(bool)),
                 _timeline,
                 SLOT(resetOutPoint()));
@@ -377,22 +384,22 @@ namespace tlr
                 SIGNAL(loopChanged(tlr::timeline::Loop)),
                 SLOT(_loopCallback(tlr::timeline::Loop)));
             connect(
-                _actions["Playback/SetInPoint"],
+                _actions["InOutPoints/SetInPoint"],
                 SIGNAL(triggered(bool)),
                 _timeline,
                 SLOT(setInPoint()));
             connect(
-                _actions["Playback/ResetInPoint"],
+                _actions["InOutPoints/ResetInPoint"],
                 SIGNAL(triggered(bool)),
                 _timeline,
                 SLOT(resetInPoint()));
             connect(
-                _actions["Playback/SetOutPoint"],
+                _actions["InOutPoints/SetOutPoint"],
                 SIGNAL(triggered(bool)),
                 _timeline,
                 SLOT(setOutPoint()));
             connect(
-                _actions["Playback/ResetOutPoint"],
+                _actions["InOutPoints/ResetOutPoint"],
                 SIGNAL(triggered(bool)),
                 _timeline,
                 SLOT(resetOutPoint()));
@@ -683,19 +690,19 @@ namespace tlr
                 loopAction.value()->setChecked(true);
             }
 
-            _actions["Playback/Start"]->setEnabled(true);
-            _actions["Playback/End"]->setEnabled(true);
-            _actions["Playback/FramePrev"]->setEnabled(true);
-            _actions["Playback/FramePrevX10"]->setEnabled(true);
-            _actions["Playback/FramePrevX100"]->setEnabled(true);
-            _actions["Playback/FrameNext"]->setEnabled(true);
-            _actions["Playback/FrameNextX10"]->setEnabled(true);
-            _actions["Playback/FrameNextX100"]->setEnabled(true);
+            _actions["Time/Start"]->setEnabled(true);
+            _actions["Time/End"]->setEnabled(true);
+            _actions["Time/FramePrev"]->setEnabled(true);
+            _actions["Time/FramePrevX10"]->setEnabled(true);
+            _actions["Time/FramePrevX100"]->setEnabled(true);
+            _actions["Time/FrameNext"]->setEnabled(true);
+            _actions["Time/FrameNextX10"]->setEnabled(true);
+            _actions["Time/FrameNextX100"]->setEnabled(true);
 
-            _actions["Playback/SetInPoint"]->setEnabled(true);
-            _actions["Playback/ResetInPoint"]->setEnabled(true);
-            _actions["Playback/SetOutPoint"]->setEnabled(true);
-            _actions["Playback/ResetOutPoint"]->setEnabled(true);
+            _actions["InOutPoints/SetInPoint"]->setEnabled(true);
+            _actions["InOutPoints/ResetInPoint"]->setEnabled(true);
+            _actions["InOutPoints/SetOutPoint"]->setEnabled(true);
+            _actions["InOutPoints/ResetOutPoint"]->setEnabled(true);
         }
         else
         {
@@ -716,19 +723,19 @@ namespace tlr
             _actions["Playback/PingPong"]->setEnabled(false);
             _actions["Playback/PingPong"]->setChecked(false);
 
-            _actions["Playback/Start"]->setEnabled(false);
-            _actions["Playback/End"]->setEnabled(false);
-            _actions["Playback/FramePrev"]->setEnabled(false);
-            _actions["Playback/FramePrevX10"]->setEnabled(false);
-            _actions["Playback/FramePrevX100"]->setEnabled(false);
-            _actions["Playback/FrameNext"]->setEnabled(false);
-            _actions["Playback/FrameNextX10"]->setEnabled(false);
-            _actions["Playback/FrameNextX100"]->setEnabled(false);
+            _actions["Time/Start"]->setEnabled(false);
+            _actions["Time/End"]->setEnabled(false);
+            _actions["Time/FramePrev"]->setEnabled(false);
+            _actions["Time/FramePrevX10"]->setEnabled(false);
+            _actions["Time/FramePrevX100"]->setEnabled(false);
+            _actions["Time/FrameNext"]->setEnabled(false);
+            _actions["Time/FrameNextX10"]->setEnabled(false);
+            _actions["Time/FrameNextX100"]->setEnabled(false);
 
-            _actions["Playback/SetInPoint"]->setEnabled(false);
-            _actions["Playback/ResetInPoint"]->setEnabled(false);
-            _actions["Playback/SetOutPoint"]->setEnabled(false);
-            _actions["Playback/ResetOutPoint"]->setEnabled(false);
+            _actions["InOutPoints/SetInPoint"]->setEnabled(false);
+            _actions["InOutPoints/ResetInPoint"]->setEnabled(false);
+            _actions["InOutPoints/SetOutPoint"]->setEnabled(false);
+            _actions["InOutPoints/ResetOutPoint"]->setEnabled(false);
         }
     }
 }

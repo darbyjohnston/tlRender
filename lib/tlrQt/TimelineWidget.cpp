@@ -42,10 +42,10 @@ namespace tlr
             _playbackToButton[timeline::Playback::Reverse] = _playbackButtons["Reverse"];
 
             _timeActionButtons["Start"] = new QToolButton;
-            _timeActionButtons["Start"]->setIcon(QIcon(":/Icons/FrameStart.svg"));
+            _timeActionButtons["Start"]->setIcon(QIcon(":/Icons/TimeStart.svg"));
             _timeActionButtons["Start"]->setToolTip(tr("Go to the start time"));
             _timeActionButtons["End"] = new QToolButton;
-            _timeActionButtons["End"]->setIcon(QIcon(":/Icons/FrameEnd.svg"));
+            _timeActionButtons["End"]->setIcon(QIcon(":/Icons/TimeEnd.svg"));
             _timeActionButtons["End"]->setToolTip(tr("Go to the end time"));
             _timeActionButtons["FramePrev"] = new QToolButton;
             _timeActionButtons["FramePrev"]->setAutoRepeat(true);
@@ -81,13 +81,13 @@ namespace tlr
             _outPointSpinBox->setToolTip(tr("Playback out point"));
 
             _inOutButtons["SetInPoint"] = new QToolButton;
-            _inOutButtons["SetInPoint"]->setIcon(QIcon(":/Icons/FrameStart.svg"));
+            _inOutButtons["SetInPoint"]->setIcon(QIcon(":/Icons/TimeStart.svg"));
             _inOutButtons["SetInPoint"]->setToolTip(tr("Set the playback in point to the current frame"));
             _inOutButtons["ResetInPoint"] = new QToolButton;
             _inOutButtons["ResetInPoint"]->setIcon(QIcon(":/Icons/Reset.svg"));
             _inOutButtons["ResetInPoint"]->setToolTip(tr("Reset the playback in point"));
             _inOutButtons["SetOutPoint"] = new QToolButton;
-            _inOutButtons["SetOutPoint"]->setIcon(QIcon(":/Icons/FrameEnd.svg"));
+            _inOutButtons["SetOutPoint"]->setIcon(QIcon(":/Icons/TimeEnd.svg"));
             _inOutButtons["SetOutPoint"]->setToolTip(tr("Set the playback out point to the current frame"));
             _inOutButtons["ResetOutPoint"] = new QToolButton;
             _inOutButtons["ResetOutPoint"]->setIcon(QIcon(":/Icons/Reset.svg"));

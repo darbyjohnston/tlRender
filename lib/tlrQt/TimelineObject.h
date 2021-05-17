@@ -49,8 +49,18 @@ namespace tlr
             //! Get the playback loop mode.
             timeline::Loop loop() const;
 
+            ///@}
+
+            //! \name Time
+            ///@{
+
             //! Get the current time.
             const otime::RationalTime& currentTime() const;
+
+            ///@}
+
+            //! \name In/Out Points
+            ///@{
 
             //! Get the in/out points range.
             const otime::TimeRange& inOutRange() const;
@@ -96,6 +106,11 @@ namespace tlr
             //! Set the playback loop mode.
             void setLoop(tlr::timeline::Loop);
 
+            ///@}
+
+            //! \name Time
+            ///@{
+
             //! Seek to the given time.
             void seek(const otime::RationalTime&);
 
@@ -119,6 +134,11 @@ namespace tlr
 
             //! Go to the next clip.
             void clipNext();
+
+            ///@}
+
+            //! \name In/Out Points
+            ///@{
 
             //! Set the in/out points range.
             void setInOutRange(const otime::TimeRange&);

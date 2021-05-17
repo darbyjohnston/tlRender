@@ -126,6 +126,11 @@ namespace tlr
             //! Set the playback loop mode.
             void setLoop(Loop);
 
+            ///@}
+
+            //! \name Time
+            ///@{
+
             //! Observe the current time.
             std::shared_ptr<Observer::IValueSubject<otime::RationalTime> > observeCurrentTime() const;
 
@@ -152,6 +157,11 @@ namespace tlr
 
             //! Go to the next clip.
             void clipNext();
+
+            ///@}
+
+            //! \name In/Out Points
+            ///@{
 
             //! Observe the in/out points range.
             std::shared_ptr<Observer::IValueSubject<otime::TimeRange> > observeInOutRange() const;
