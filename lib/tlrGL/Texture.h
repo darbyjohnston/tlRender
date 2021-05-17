@@ -56,6 +56,7 @@ namespace tlr
             ///@{
 
             void copy(const imaging::Image&);
+            void copy(const uint8_t*, const imaging::Info&);
             void copy(const imaging::Image&, uint16_t x, uint16_t y);
 
             ///@}

@@ -45,17 +45,22 @@ namespace tlr
                         if (request && data.first.image)
                         {
                             const auto& info = data.first.image->getInfo();
+                            std::size_t scanlineByteCount = 0;
                             QImage::Format qFormat = QImage::Format_Invalid;
                             switch (info.pixelType)
                             {
                             case imaging::PixelType::L_U8:
+                                scanlineByteCount = info.size.w;
                                 qFormat = QImage::Format_Grayscale8;
                                 break;
                             case imaging::PixelType::RGB_U8:
+                                scanlineByteCount = info.size.w * 3;
                                 qFormat = QImage::Format_RGB888;
                                 break;
                             case imaging::PixelType::RGBA_U8:
+                                scanlineByteCount = info.size.w * 4;
                                 qFormat = QImage::Format_RGBA8888;
+                                break;
                             case imaging::PixelType::RGBA_F16:
                                 //! \todo Convert pixel types.
                                 break;
@@ -66,7 +71,7 @@ namespace tlr
                                     data.first.image->getData(),
                                     info.size.w,
                                     info.size.h,
-                                    imaging::getScanlineByteCount(info),
+                                    scanlineByteCount,
                                     qFormat);
                                 const auto qImageScaled = qImage.scaled(QSize(data.second.w, data.second.h));
                                 std::unique_lock<std::mutex> lock(_thumbnailMutex);

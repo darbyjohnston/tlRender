@@ -63,14 +63,9 @@ namespace tlr
             return size == other.size && pixelType == other.pixelType;
         }
 
-        inline std::size_t getScanlineByteCount(const Info& info)
+        inline bool Info::operator != (const Info& other) const
         {
-            return info.size.w * getByteCount(info.pixelType);
-        }
-
-        inline std::size_t getDataByteCount(const Info& info)
-        {
-            return info.size.h * getScanlineByteCount(info);
+            return !(*this == other);
         }
 
         inline const Info& Image::getInfo() const
@@ -116,16 +111,6 @@ namespace tlr
         inline uint8_t* Image::getData()
         {
             return _data.data();
-        }
-
-        inline uint8_t* Image::getData(uint16_t y)
-        {
-            return _data.data() + y * getScanlineByteCount(_info);
-        }
-
-        inline const uint8_t* Image::getData(uint16_t y) const
-        {
-            return _data.data() + y * getScanlineByteCount(_info);
         }
     }
 }

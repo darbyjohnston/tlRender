@@ -61,7 +61,7 @@ namespace tlr
         {}
 
         template<typename T>
-        inline size_t IListSubject<T>::getObserversCount() const
+        inline std::size_t IListSubject<T>::getObserversCount() const
         {
             return _observers.size();
         }
@@ -156,7 +156,7 @@ namespace tlr
         }
 
         template<typename T>
-        inline void ListSubject<T>::setItem(size_t index, const T& value)
+        inline void ListSubject<T>::setItem(std::size_t index, const T& value)
         {
             _value[index] = value;
             for (const auto& s : IListSubject<T>::_observers)
@@ -169,7 +169,7 @@ namespace tlr
         }
 
         template<typename T>
-        inline void ListSubject<T>::setItemOnlyIfChanged(size_t index, const T& value)
+        inline void ListSubject<T>::setItemOnlyIfChanged(std::size_t index, const T& value)
         {
             if (value == _value[index])
                 return;
@@ -197,7 +197,7 @@ namespace tlr
         }
 
         template<typename T>
-        inline void ListSubject<T>::removeItem(size_t index)
+        inline void ListSubject<T>::removeItem(std::size_t index)
         {
             _value.erase(_value.begin() + index);
             for (const auto& s : IListSubject<T>::_observers)
@@ -216,7 +216,7 @@ namespace tlr
         }
 
         template<typename T>
-        inline size_t ListSubject<T>::getSize() const
+        inline std::size_t ListSubject<T>::getSize() const
         {
             return _value.size();
         }
@@ -228,7 +228,7 @@ namespace tlr
         }
 
         template<typename T>
-        inline const T& ListSubject<T>::getItem(size_t index) const
+        inline const T& ListSubject<T>::getItem(std::size_t index) const
         {
             return _value[index];
         }
@@ -247,7 +247,7 @@ namespace tlr
         }
 
         template<typename T>
-        inline size_t ListSubject<T>::indexOf(const T& value) const
+        inline std::size_t ListSubject<T>::indexOf(const T& value) const
         {
             const auto i = std::find_if(
                 _value.begin(),

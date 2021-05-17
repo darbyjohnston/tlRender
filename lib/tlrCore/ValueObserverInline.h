@@ -50,7 +50,7 @@ namespace tlr
         {}
 
         template<typename T>
-        inline size_t IValueSubject<T>::getObserversCount() const
+        inline std::size_t IValueSubject<T>::getObserversCount() const
         {
             return _observers.size();
         }

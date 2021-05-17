@@ -59,7 +59,7 @@ namespace tlr
             virtual const T& get() const = 0;
 
             //! Get the number of observers.
-            size_t getObserversCount() const;
+            std::size_t getObserversCount() const;
 
         protected:
             void _add(const std::weak_ptr<Value<T> >&);

@@ -137,7 +137,7 @@ namespace tlr
 
             _avFrame = av_frame_alloc();
 
-            size_t sequenceSize = 0;
+            std::size_t sequenceSize = 0;
             if (_avVideoStream != -1)
             {
                 auto avVideoStream = _avFormatContext->streams[_avVideoStream];
@@ -175,25 +175,43 @@ namespace tlr
                     throw std::runtime_error(ss.str());
                 }
 
-                _avFrameRgb = av_frame_alloc();
-
-                _swsContext = sws_getContext(
-                    _avCodecParameters[_avVideoStream]->width,
-                    _avCodecParameters[_avVideoStream]->height,
-                    static_cast<AVPixelFormat>(_avCodecParameters[_avVideoStream]->format),
-                    _avCodecParameters[_avVideoStream]->width,
-                    _avCodecParameters[_avVideoStream]->height,
-                    AV_PIX_FMT_RGBA,
-                    SWS_BILINEAR,
-                    0,
-                    0,
-                    0);
-
                 io::VideoInfo videoInfo;
                 videoInfo.info.size.w = _avCodecParameters[_avVideoStream]->width;
                 videoInfo.info.size.h = _avCodecParameters[_avVideoStream]->height;
-                videoInfo.info.pixelType = imaging::PixelType::RGBA_U8;
                 videoInfo.codec = avVideoCodec->long_name;
+
+                const AVPixelFormat avPixelFormat = static_cast<AVPixelFormat>(_avCodecParameters[_avVideoStream]->format);
+                switch (avPixelFormat)
+                {
+                case AV_PIX_FMT_YUV420P:
+                    videoInfo.info.pixelType = imaging::PixelType::YUV_420P;
+                    break;
+                case AV_PIX_FMT_RGB24:
+                    videoInfo.info.pixelType = imaging::PixelType::RGB_U8;
+                    break;
+                case AV_PIX_FMT_GRAY8:
+                    videoInfo.info.pixelType = imaging::PixelType::L_U8;
+                    break;
+                case AV_PIX_FMT_RGBA:
+                    videoInfo.info.pixelType = imaging::PixelType::RGBA_U8;
+                    break;
+                default:
+                    videoInfo.info.pixelType = imaging::PixelType::RGB_U8;
+                    _avFrameRgb = av_frame_alloc();
+                    _swsContext = sws_getContext(
+                        _avCodecParameters[_avVideoStream]->width,
+                        _avCodecParameters[_avVideoStream]->height,
+                        avPixelFormat,
+                        _avCodecParameters[_avVideoStream]->width,
+                        _avCodecParameters[_avVideoStream]->height,
+                        AV_PIX_FMT_RGB24,
+                        SWS_BILINEAR,
+                        0,
+                        0,
+                        0);
+                    break;
+                }
+
                 if (avVideoStream->duration != AV_NOPTS_VALUE)
                 {
                     AVRational r;
@@ -378,12 +396,13 @@ namespace tlr
             AVRational r;
             r.num = _avFormatContext->streams[_avVideoStream]->r_frame_rate.den;
             r.den = _avFormatContext->streams[_avVideoStream]->r_frame_rate.num;
+            const auto& videoInfo = _info.video[0];
             frame.time = otime::RationalTime(
                 av_rescale_q(
                     _avFrame->pts,
                     _avFormatContext->streams[_avVideoStream]->time_base,
                     r),
-                _info.video[0].duration.rate());
+                videoInfo.duration.rate());
             if (hasSeek && frame.time < seek)
             {
                 return 0;
@@ -391,25 +410,90 @@ namespace tlr
             frame.time = _currentTime;
             //std::cout << "frame: " << frame.time << std::endl;
 
-            frame.image = imaging::Image::create(_info.video[0].info);
-            av_image_fill_arrays(
-                _avFrameRgb->data,
-                _avFrameRgb->linesize,
-                frame.image->getData(),
-                AV_PIX_FMT_RGBA,
-                _info.video[0].info.size.w,
-                _info.video[0].info.size.h,
-                1);
-            sws_scale(
-                _swsContext,
-                (uint8_t const* const*)_avFrame->data,
-                _avFrame->linesize,
-                0,
-                _avCodecParameters[_avVideoStream]->height,
-                _avFrameRgb->data,
-                _avFrameRgb->linesize);
+            frame.image = imaging::Image::create(videoInfo.info);
+            _copyVideo(frame.image);
 
             return 1;
+        }
+
+        void Read::_copyVideo(const std::shared_ptr<imaging::Image>& image)
+        {
+            const auto& info = image->getInfo();
+            const std::size_t w = info.size.w;
+            const std::size_t h = info.size.h;
+            const AVPixelFormat avPixelFormat = static_cast<AVPixelFormat>(_avCodecParameters[_avVideoStream]->format);
+            switch (avPixelFormat)
+            {
+            case AV_PIX_FMT_YUV420P:
+            {
+                const std::size_t w2 = w / 2;
+                const std::size_t h2 = h / 2;
+                for (std::size_t i = 0; i < h; ++i)
+                {
+                    memcpy(
+                        image->getData() + w * i,
+                        _avFrame->data[0] + _avFrame->linesize[0] * i,
+                        w);
+                }
+                for (std::size_t i = 0; i < h2; ++i)
+                {
+                    memcpy(
+                        image->getData() + (w * h) + w2 * i,
+                        _avFrame->data[1] + _avFrame->linesize[1] * i,
+                        w2);
+                    memcpy(
+                        image->getData() + (w * h) + (w2 * h2) + w2 * i,
+                        _avFrame->data[2] + _avFrame->linesize[2] * i,
+                        w2);
+                }
+                break;
+            }
+            case AV_PIX_FMT_RGB24:
+                for (std::size_t i = 0; i < h; ++i)
+                {
+                    memcpy(
+                        image->getData() + w * 3 * i,
+                        _avFrame->data[0] + _avFrame->linesize[0] * 3 * i,
+                        w * 3);
+                }
+                break;
+            case AV_PIX_FMT_GRAY8:
+                for (std::size_t i = 0; i < h; ++i)
+                {
+                    memcpy(
+                        image->getData() + w * i,
+                        _avFrame->data[0] + _avFrame->linesize[0] * i,
+                        w);
+                }
+                break;
+            case AV_PIX_FMT_RGBA:
+                for (std::size_t i = 0; i < h; ++i)
+                {
+                    memcpy(
+                        image->getData() + w * 4 * i,
+                        _avFrame->data[0] + _avFrame->linesize[0] * 4 * i,
+                        w * 4);
+                }
+                break;
+            default:
+                av_image_fill_arrays(
+                    _avFrameRgb->data,
+                    _avFrameRgb->linesize,
+                    image->getData(),
+                    AV_PIX_FMT_RGB24,
+                    w,
+                    h,
+                    1);
+                sws_scale(
+                    _swsContext,
+                    (uint8_t const* const*)_avFrame->data,
+                    _avFrame->linesize,
+                    0,
+                    _avCodecParameters[_avVideoStream]->height,
+                    _avFrameRgb->data,
+                    _avFrameRgb->linesize);
+                break;
+            }
         }
 
         Plugin::Plugin()

@@ -60,6 +60,7 @@ namespace tlr
                 io::VideoFrame&,
                 bool hasSeek,
                 const otime::RationalTime& seek);
+            void _copyVideo(const std::shared_ptr<imaging::Image>&);
 
             io::Info _info;
             std::promise<io::Info> _infoPromise;

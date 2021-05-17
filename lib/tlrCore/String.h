@@ -10,7 +10,7 @@ namespace tlr
     //! Strings.
     namespace string
     {
-        const size_t cBufferSize = 4096;
+        const std::size_t cBufferSize = 4096;
 
         // Split a string.
         std::vector<std::string> split(const std::string&, char delimeter, bool keepEmpty = false);

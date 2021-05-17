@@ -17,18 +17,16 @@ namespace tlr
 {
     namespace imaging
     {
-        TLR_ENUM_LABEL_IMPL(PixelType, "None", "L_U8", "RGB_U8", "RGBA_U8", "RGBA_F16");
+        TLR_ENUM_LABEL_IMPL(
+            PixelType,
+            "None",
+            "L_U8",
+            "RGB_U8",
+            "RGBA_U8",
+            "RGBA_F16",
+            "YUV_420P");
 
-        std::size_t getByteCount(PixelType value)
-        {
-            const std::array<std::size_t, static_cast<std::size_t>(PixelType::Count)> data =
-            {
-                0, 1, 3, 4, 8
-            };
-            return data[static_cast<std::size_t>(value)];
-        }
-
-        PixelType getIntType(size_t channelCount, size_t bitDepth)
+        PixelType getIntType(std::size_t channelCount, std::size_t bitDepth)
         {
             PixelType out = PixelType::None;
             switch (channelCount)
@@ -55,7 +53,7 @@ namespace tlr
             return out;
         }
 
-        PixelType getFloatType(size_t channelCount, size_t bitDepth)
+        PixelType getFloatType(std::size_t channelCount, std::size_t bitDepth)
         {
             PixelType out = PixelType::None;
             switch (channelCount)
@@ -70,10 +68,36 @@ namespace tlr
             return out;
         }
 
+        inline std::size_t getDataByteCount(const Info& info)
+        {
+            std::size_t out = 0;
+            switch (info.pixelType)
+            {
+            case PixelType::L_U8:
+                out = info.size.w * info.size.h;
+                break;
+            case PixelType::RGB_U8:
+                out = info.size.w * info.size.h * 3;
+                break;
+            case PixelType::RGBA_U8:
+                out = info.size.w * info.size.h * 4;
+                break;
+            case PixelType::RGBA_F16:
+                out = info.size.w * info.size.h * 4 * 2;
+                break;
+            case PixelType::YUV_420P:
+                out = info.size.w * info.size.h + (info.size.w / 2 * info.size.h / 2) * 2;
+                break;
+            default:
+                break;
+            }
+            return out;
+        }
+
         void Image::_init(const Info& info)
         {
             _info = info;
-            const size_t byteCount = getDataByteCount(info);
+            const std::size_t byteCount = getDataByteCount(info);
             _data.resize(byteCount);
         }
 

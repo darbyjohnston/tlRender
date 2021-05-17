@@ -145,7 +145,7 @@ namespace tlr
                 out = imaging::Image::create(imaging::Info(bitmap.width, bitmap.rows, imaging::PixelType::L_U8));
                 for (uint16_t y = 0; y < bitmap.rows; ++y)
                 {
-                    uint8_t* imageP = out->getData(y);
+                    uint8_t* imageP = out->getData() + bitmap.width * y;
                     unsigned char* bitmapP = bitmap.buffer + static_cast<int>(y) * bitmap.pitch;
                     for (uint16_t x = 0; x < bitmap.width; ++x)
                     {

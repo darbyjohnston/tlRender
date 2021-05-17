@@ -14,8 +14,8 @@ namespace tlr
         {
             std::vector<std::string> out;
             bool word = false;
-            size_t wordStart = 0;
-            size_t i = 0;
+            std::size_t wordStart = 0;
+            std::size_t i = 0;
             for (; i < s.size(); ++i)
             {
                 if (s[i] != delimeter)
@@ -50,8 +50,8 @@ namespace tlr
         {
             std::vector<std::string> out;
             bool word = false;
-            size_t wordStart = 0;
-            size_t i = 0;
+            std::size_t wordStart = 0;
+            std::size_t i = 0;
             for (; i < s.size(); ++i)
             {
                 if (std::find(delimeters.begin(), delimeters.end(), s[i]) == delimeters.end())
@@ -85,8 +85,8 @@ namespace tlr
         std::string join(const std::vector<std::string>& values, const std::string& delimeter)
         {
             std::string out;
-            const size_t size = values.size();
-            for (size_t i = 0; i < size; ++i)
+            const std::size_t size = values.size();
+            for (std::size_t i = 0; i < size; ++i)
             {
                 out += values[i];
                 if (i < size - 1)

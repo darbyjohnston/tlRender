@@ -18,7 +18,7 @@ namespace tlr
         class IListSubject;
 
         //! Invalid index.
-        static const size_t invalidListIndex = static_cast<size_t>(-1);
+        static const std::size_t invalidListIndex = static_cast<std::size_t>(-1);
 
         //! List observer.
         template<typename T>
@@ -62,22 +62,22 @@ namespace tlr
             virtual const std::vector<T>& get() const = 0;
 
             //! Get the list size.
-            virtual size_t getSize() const = 0;
+            virtual std::size_t getSize() const = 0;
 
             //! Get whether the list is empty.
             virtual bool isEmpty() const = 0;
 
             //! Get a list item.
-            virtual const T& getItem(size_t) const = 0;
+            virtual const T& getItem(std::size_t) const = 0;
 
             //! Does the list contain the given item?
             virtual bool contains(const T&) const = 0;
 
             //! Get the index of the given item.
-            virtual size_t indexOf(const T&) const = 0;
+            virtual std::size_t indexOf(const T&) const = 0;
 
             //! Get the number of observers.
-            size_t getObserversCount() const;
+            std::size_t getObserversCount() const;
 
         protected:
             void _add(const std::weak_ptr<List<T> >&);
@@ -115,23 +115,23 @@ namespace tlr
             void clear();
 
             //! Set a list item.
-            void setItem(size_t, const T&);
+            void setItem(std::size_t, const T&);
 
             //! Set a list item only if it has changed.
-            void setItemOnlyIfChanged(size_t, const T&);
+            void setItemOnlyIfChanged(std::size_t, const T&);
 
             //! Append a list item.
             void pushBack(const T&);
 
             //! Remove an item.
-            void removeItem(size_t);
+            void removeItem(std::size_t);
 
             const std::vector<T>& get() const override;
-            size_t getSize() const override;
+            std::size_t getSize() const override;
             bool isEmpty() const override;
-            const T& getItem(size_t) const override;
+            const T& getItem(std::size_t) const override;
             bool contains(const T&) const override;
-            size_t indexOf(const T&) const override;
+            std::size_t indexOf(const T&) const override;
 
         private:
             std::vector<T> _value;

@@ -20,11 +20,11 @@ namespace tlr
             //! \name Size
             ///@{
 
-            size_t getMax() const;
-            size_t getSize() const;
+            std::size_t getMax() const;
+            std::size_t getSize() const;
             float getPercentageUsed() const;
 
-            void setMax(size_t);
+            void setMax(std::size_t);
 
             ///@}
 
@@ -46,7 +46,7 @@ namespace tlr
         private:
             void _maxUpdate();
 
-            size_t _max = 10000;
+            std::size_t _max = 10000;
             std::map<T, U> _map;
             mutable std::map<T, int64_t> _counts;
             mutable int64_t _counter = 0;

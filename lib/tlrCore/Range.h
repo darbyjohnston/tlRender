@@ -54,7 +54,7 @@ namespace tlr
         typedef Range<int> IntRange;
 
         //! This typedef provides a size_t range.
-        typedef Range<size_t> SizeTRange;
+        typedef Range<std::size_t> SizeTRange;
 
         //! This typedef provides a floating point range.
         typedef Range<float> FloatRange;

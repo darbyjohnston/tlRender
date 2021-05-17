@@ -30,7 +30,7 @@ namespace tlr
             Format& arg(const std::string&);
             Format& arg(int);
             Format& arg(float);
-            Format& arg(size_t);
+            Format& arg(std::size_t);
 
             ///@}
 

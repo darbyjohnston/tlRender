@@ -42,18 +42,16 @@ namespace tlr
             RGB_U8,
             RGBA_U8,
             RGBA_F16,
+            YUV_420P,
             Count
         };
         TLR_ENUM_LABEL(PixelType);
 
-        //! Get the number of bytes used to store a pixel type.
-        std::size_t getByteCount(PixelType);
+        //! Determine the integer pixel type for a given channel count and bit depth.
+        PixelType getIntType(std::size_t channelCount, std::size_t bitDepth);
 
-        //! Get an integer pixel type for a given channel count and bit depth.
-        PixelType getIntType(size_t channelCount, size_t bitDepth);
-
-        //! Get a floating point pixel type for a given channel count and bit depth.
-        PixelType getFloatType(size_t channelCount, size_t bitDepth);
+        //! Determine the floating point pixel type for a given channel count and bit depth.
+        PixelType getFloatType(std::size_t channelCount, std::size_t bitDepth);
 
         //! Image information.
         struct Info
@@ -69,10 +67,8 @@ namespace tlr
             bool isValid() const;
 
             bool operator == (const Info&) const;
+            bool operator != (const Info&) const;
         };
-
-        //! Get the number of bytes used to store a scanline.
-        std::size_t getScanlineByteCount(const Info&);
 
         //! Get the number of bytes used to store the image data.
         std::size_t getDataByteCount(const Info&);
@@ -118,12 +114,6 @@ namespace tlr
 
             //! Get the image data.
             uint8_t* getData();
-
-            //! Get the image data.
-            uint8_t* getData(uint16_t);
-
-            //! Get the image data.
-            const uint8_t* getData(uint16_t) const;
 
             //! Zero the image data.
             void zero();

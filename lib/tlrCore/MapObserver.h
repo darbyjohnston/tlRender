@@ -59,7 +59,7 @@ namespace tlr
             virtual const std::map<T, U>& get() const = 0;
 
             //! Get the map size.
-            virtual size_t getSize() const = 0;
+            virtual std::size_t getSize() const = 0;
 
             //! Get whether the map is empty.
             virtual bool isEmpty() const = 0;
@@ -71,7 +71,7 @@ namespace tlr
             virtual const U& getItem(const T&) const = 0;
 
             //! Get the number of observers.
-            size_t getObserversCount() const;
+            std::size_t getObserversCount() const;
 
         protected:
             void _add(const std::weak_ptr<Map<T, U> >&);
@@ -114,7 +114,7 @@ namespace tlr
             void setItemOnlyIfChanged(const T&, const U&);
 
             const std::map<T, U>& get() const override;
-            size_t getSize() const override;
+            std::size_t getSize() const override;
             bool isEmpty() const override;
             bool hasKey(const T&) override;
             const U& getItem(const T&) const override;

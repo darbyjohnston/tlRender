@@ -99,7 +99,7 @@ namespace tlr
             return arg(ss.str());
         }
 
-        Format& Format::arg(size_t value)
+        Format& Format::arg(std::size_t value)
         {
             std::stringstream ss;
             ss << value;

@@ -47,9 +47,9 @@ namespace tlr
         }
 
         template<>
-        inline void Range<size_t>::zero() noexcept
+        inline void Range<std::size_t>::zero() noexcept
         {
-            _min = _max = size_t(0);
+            _min = _max = std::size_t(0);
         }
 
         template<>

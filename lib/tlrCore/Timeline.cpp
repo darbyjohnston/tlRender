@@ -396,7 +396,7 @@ namespace tlr
         {
             setPlayback(timeline::Playback::Stop);
             const auto& currentTime = _currentTime->get();
-            const size_t rangeSize = _clipRanges.size();
+            const std::size_t rangeSize = _clipRanges.size();
             switch (time)
             {
             case TimeAction::Start:
@@ -424,7 +424,7 @@ namespace tlr
                 seek(otime::RationalTime(currentTime.value() + 100, _duration.rate()));
                 break;
             case TimeAction::ClipPrev:
-                for (size_t i = 0; i < rangeSize; ++i)
+                for (std::size_t i = 0; i < rangeSize; ++i)
                 {
                     if (_clipRanges[i].contains(currentTime))
                     {
@@ -441,7 +441,7 @@ namespace tlr
                 }
                 break;
             case TimeAction::ClipNext:
-                for (size_t i = 0; i < rangeSize; ++i)
+                for (std::size_t i = 0; i < rangeSize; ++i)
                 {
                     if (_clipRanges[i].contains(currentTime))
                     {
@@ -639,11 +639,11 @@ namespace tlr
             std::vector<otime::RationalTime> frames;
             auto time = _currentTime->get();
             const auto range = _inOutRange->get();
-            for (size_t i = 0; i < (FrameCacheDirection::Forward == _frameCacheDirection ? _frameCacheReadBehind : _frameCacheReadAhead); ++i)
+            for (std::size_t i = 0; i < (FrameCacheDirection::Forward == _frameCacheDirection ? _frameCacheReadBehind : _frameCacheReadAhead); ++i)
             {
                 time = loopTime(time - otime::RationalTime(1, _duration.rate()), range);
             }
-            for (size_t i = 0; i < _frameCacheReadBehind + _frameCacheReadAhead; ++i)
+            for (std::size_t i = 0; i < _frameCacheReadBehind + _frameCacheReadAhead; ++i)
             {
                 frames.push_back(time);
                 time = loopTime(time + otime::RationalTime(1, _duration.rate()), range);

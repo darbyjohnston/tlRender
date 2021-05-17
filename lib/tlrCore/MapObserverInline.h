@@ -61,7 +61,7 @@ namespace tlr
         {}
 
         template<typename T, typename U>
-        inline size_t IMapSubject<T, U>::getObserversCount() const
+        inline std::size_t IMapSubject<T, U>::getObserversCount() const
         {
             return _observers.size();
         }
@@ -192,7 +192,7 @@ namespace tlr
         }
 
         template<typename T, typename U>
-        inline size_t MapSubject<T, U>::getSize() const
+        inline std::size_t MapSubject<T, U>::getSize() const
         {
             return _value.size();
         }

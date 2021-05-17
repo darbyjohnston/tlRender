@@ -21,7 +21,8 @@ namespace tlr
                 GL_RED,
                 GL_RGB,
                 GL_RGBA,
-                GL_RGBA
+                GL_RGBA,
+                GL_RGB
             };
             return data[static_cast<std::size_t>(value)];
         }
@@ -34,7 +35,8 @@ namespace tlr
                 GL_RED,
                 GL_RGB,
                 GL_RGBA,
-                GL_RGBA
+                GL_RGBA,
+                GL_RGB
             };
             return data[static_cast<std::size_t>(type)];
         }
@@ -47,8 +49,8 @@ namespace tlr
                 GL_UNSIGNED_BYTE,
                 GL_UNSIGNED_BYTE,
                 GL_UNSIGNED_BYTE,
-                GL_HALF_FLOAT
-
+                GL_HALF_FLOAT,
+                GL_UNSIGNED_BYTE
             };
             return data[static_cast<std::size_t>(value)];
         }
@@ -154,6 +156,22 @@ namespace tlr
                 getTextureFormat(info.pixelType),
                 getTextureType(info.pixelType),
                 data.getData());
+        }
+
+        void Texture::copy(const uint8_t* data, const imaging::Info& info)
+        {
+            glBindTexture(GL_TEXTURE_2D, _id);
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+            glTexSubImage2D(
+                GL_TEXTURE_2D,
+                0,
+                0,
+                0,
+                info.size.w,
+                info.size.h,
+                getTextureFormat(info.pixelType),
+                getTextureType(info.pixelType),
+                data);
         }
 
         void Texture::copy(const imaging::Image& data, uint16_t x, uint16_t y)

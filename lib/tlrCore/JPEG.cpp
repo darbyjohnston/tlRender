@@ -240,9 +240,19 @@ namespace tlr
             out.time = time;
             out.image = imaging::Image::create(info);
 
+            std::size_t scanlineByteCount = 0;
+            switch (pixelType)
+            {
+            case imaging::PixelType::L_U8:
+                scanlineByteCount = info.size.w;
+                break;
+            case imaging::PixelType::RGB_U8:
+                scanlineByteCount = info.size.w * 3;
+                break;
+            }
             for (uint16_t y = 0; y < info.size.h; ++y)
             {
-                if (!jpegScanline(&f->decompress, out.image->getData(y), &f->error))
+                if (!jpegScanline(&f->decompress, out.image->getData() + scanlineByteCount * y, &f->error))
                 {
                     break;
                 }

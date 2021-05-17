@@ -12,6 +12,8 @@
 #include <tlrCore/Assert.h>
 #include <tlrCore/Color.h>
 
+#include <array>
+
 namespace tlr
 {
     namespace gl
@@ -42,7 +44,7 @@ namespace tlr
                 "in vec3 aPos;\n"
                 "in vec2 aTexture;\n"
                 "\n"
-                "out vec2 Texture;\n"
+                "out vec2 texture;\n"
                 "\n"
                 "uniform struct Transform\n"
                 "{\n"
@@ -52,39 +54,71 @@ namespace tlr
                 "void main()\n"
                 "{\n"
                 "    gl_Position = transform.mvp * vec4(aPos, 1.0);\n"
-                "    Texture = aTexture;\n"
+                "    texture = aTexture;\n"
                 "}\n",
                 "#version 410\n"
                 "\n"
-                "in vec2 Texture;\n"
-                "out vec4 FragColor;\n"
+                "in vec2 texture;\n"
+                "out vec4 fragColor;\n"
                 "\n"
-                "uniform int colorMode;\n"
-                "uniform vec4 color;\n"
-                "uniform sampler2D textureSampler;\n"
-                "\n"
+                "// ColorMode\n"
                 "#define COLOR_MODE_SOLID 0\n"
                 "#define COLOR_MODE_TEXTURE 1\n"
                 "#define COLOR_MODE_TEXTURE_ALPHA 2\n"
+                "uniform int colorMode;\n"
+                "\n"
+                "uniform vec4 color;\n"
+                "\n"
+                "// tlr::imaging::PixelType\n"
+                "#define PIXEL_TYPE_NONE     0\n"
+                "#define PIXEL_TYPE_L_U8     1\n"
+                "#define PIXEL_TYPE_RGB_U8   2\n"
+                "#define PIXEL_TYPE_RGBA_U8  3\n"
+                "#define PIXEL_TYPE_RGBA_F16 4\n"
+                "#define PIXEL_TYPE_YUV_420P 5\n"
+                "uniform int pixelType;\n"
+                "uniform sampler2D textureSampler0;\n"
+                "uniform sampler2D textureSampler1;\n"
+                "uniform sampler2D textureSampler2;\n"
+                "\n"
+                "vec4 sampleTexture()\n"
+                "{\n"
+                "    vec4 c;\n"
+                "    if (PIXEL_TYPE_YUV_420P == pixelType)\n"
+                "    {\n"
+                "        float y = texture2D(textureSampler0, texture).r;\n"
+                "        float u = texture2D(textureSampler1, texture).r - 0.5;\n"
+                "        float v = texture2D(textureSampler2, texture).r - 0.5;\n"
+                "        c.r = y + 1.402 * v;\n"
+                "        c.g = y - 0.344 * u - 0.714 * v;\n"
+                "        c.b = y + 1.772 * u;\n"
+                "        c.a = 1.0;\n"
+                "    }\n"
+                "    else\n"
+                "    {\n"
+                "        c = texture2D(textureSampler0, texture);\n"
+                "    }\n"
+                "    return c;\n"
+                "}\n"
                 "\n"
                 "void main()\n"
                 "{\n"
                 "    if (COLOR_MODE_SOLID == colorMode)\n"
                 "    {\n"
-                "        FragColor = color;\n"
+                "        fragColor = color;\n"
                 "    }\n"
                 "    else if (COLOR_MODE_TEXTURE == colorMode)\n"
                 "    {\n"
-                "        vec4 t = texture(textureSampler, Texture);\n"
-                "        FragColor = t * color;\n"
+                "        vec4 t = sampleTexture();\n"
+                "        fragColor = t * color;\n"
                 "    }\n"
                 "    else if (COLOR_MODE_TEXTURE_ALPHA == colorMode)\n"
                 "    {\n"
-                "        vec4 t = texture(textureSampler, Texture);\n"
-                "        FragColor.r = color.r;\n"
-                "        FragColor.g = color.g;\n"
-                "        FragColor.b = color.b;\n"
-                "        FragColor.a = t.r;\n"
+                "        vec4 t = sampleTexture();\n"
+                "        fragColor.r = color.r;\n"
+                "        fragColor.g = color.g;\n"
+                "        fragColor.b = color.b;\n"
+                "        fragColor.a = t.r;\n"
                 "    }\n"
                 "}\n");
         }
@@ -123,8 +157,6 @@ namespace tlr
 
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-            glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
 
             _shader->bind();
             const auto viewMatrix = math::ortho(
@@ -176,14 +208,52 @@ namespace tlr
 
         void Render::drawImage(const std::shared_ptr<imaging::Image>& image, const math::BBox2f& bbox)
         {
+            const auto& info = image->getInfo();
             _shader->setUniform("colorMode", static_cast<int>(ColorMode::Texture));
             _shader->setUniform("color", imaging::Color4f(1.F, 1.F, 1.F));
-            _shader->setUniform("textureSampler", 0);
+            _shader->setUniform("pixelType", static_cast<int>(info.pixelType));
+            _shader->setUniform("textureSampler0", 0);
+            _shader->setUniform("textureSampler1", 1);
+            _shader->setUniform("textureSampler2", 2);
 
-            const auto& info = image->getInfo();
-            auto texture = Texture::create(info);
-            texture->copy(*image);
-            glBindTexture(GL_TEXTURE_2D, texture->getID());
+            //! \todo Cache textures for reuse.
+            std::array<std::shared_ptr<Texture>, 3> textures;
+            switch (info.pixelType)
+            {
+            case imaging::PixelType::L_U8:
+            case imaging::PixelType::RGB_U8:
+            case imaging::PixelType::RGBA_U8:
+            case imaging::PixelType::RGBA_F16:
+                textures[0] = Texture::create(info);
+                textures[0]->copy(*image);
+                glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
+                glBindTexture(GL_TEXTURE_2D, textures[0]->getID());
+                break;
+            case imaging::PixelType::YUV_420P:
+            {
+                auto infoTmp = imaging::Info(info.size, imaging::PixelType::L_U8);
+                textures[0] = Texture::create(infoTmp);
+                textures[0]->copy(image->getData(), infoTmp);
+                glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
+                glBindTexture(GL_TEXTURE_2D, textures[0]->getID());
+                const std::size_t w = info.size.w;
+                const std::size_t h = info.size.h;
+                const std::size_t w2 = w / 2;
+                const std::size_t h2 = h / 2;
+                infoTmp = imaging::Info(imaging::Size(w2, h2), imaging::PixelType::L_U8);
+                textures[1] = Texture::create(infoTmp);
+                textures[1]->copy(image->getData() + (w * h), infoTmp);
+                glActiveTexture(static_cast<GLenum>(GL_TEXTURE1));
+                glBindTexture(GL_TEXTURE_2D, textures[1]->getID());
+                textures[2] = Texture::create(infoTmp);
+                textures[2]->copy(image->getData() + (w * h) + (w2 * h2), infoTmp);
+                glActiveTexture(static_cast<GLenum>(GL_TEXTURE2));
+                glBindTexture(GL_TEXTURE_2D, textures[2]->getID());
+                break;
+            }
+            default:
+                break;
+            }
 
             std::vector<uint8_t> vboData;
             vboData.resize(4 * getByteCount(VBOType::Pos2_F32_UV_U16));
@@ -219,7 +289,10 @@ namespace tlr
         {
             _shader->setUniform("colorMode", static_cast<int>(ColorMode::TextureAlpha));
             _shader->setUniform("color", color);
-            _shader->setUniform("textureSampler", 0);
+            _shader->setUniform("pixelType", static_cast<int>(imaging::PixelType::L_U8));
+            _shader->setUniform("textureSampler0", 0);
+
+            glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
 
             float x = 0.F;
             int32_t rsbDeltaPrev = 0;

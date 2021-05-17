@@ -249,8 +249,8 @@ namespace tlr
                 Reverse
             };
             FrameCacheDirection _frameCacheDirection = FrameCacheDirection::Forward;
-            size_t _frameCacheReadAhead = 100;
-            size_t _frameCacheReadBehind = 10;
+            std::size_t _frameCacheReadAhead = 100;
+            std::size_t _frameCacheReadBehind = 10;
         };
     }
 

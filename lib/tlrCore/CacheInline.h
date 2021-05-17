@@ -9,13 +9,13 @@ namespace tlr
     namespace memory
     {
         template<typename T, typename U>
-        inline size_t Cache<T, U>::getMax() const
+        inline std::size_t Cache<T, U>::getMax() const
         {
             return _max;
         }
 
         template<typename T, typename U>
-        inline size_t Cache<T, U>::getSize() const
+        inline std::size_t Cache<T, U>::getSize() const
         {
             return _map.size();
         }
@@ -27,7 +27,7 @@ namespace tlr
         }
 
         template<typename T, typename U>
-        inline void Cache<T, U>::setMax(size_t value)
+        inline void Cache<T, U>::setMax(std::size_t value)
         {
             _max = value;
             _maxUpdate();

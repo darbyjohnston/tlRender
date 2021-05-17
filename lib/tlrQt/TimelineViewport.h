@@ -13,6 +13,8 @@
 #include <QOpenGLTexture>
 #include <QOpenGLWidget>
 
+#include <array>
+
 namespace tlr
 {
     namespace qt
@@ -40,7 +42,7 @@ namespace tlr
             io::VideoFrame _frame;
             io::VideoFrame _frameTmp;
             QOpenGLShaderProgram* _program = nullptr;
-            std::unique_ptr<QOpenGLTexture> _texture;
+            std::array<std::unique_ptr<QOpenGLTexture>, 3> _textures;
         };
     }
 }

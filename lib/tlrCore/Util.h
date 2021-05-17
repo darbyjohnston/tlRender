@@ -35,7 +35,7 @@
     std::vector<ENUM> get##ENUM##Enums() \
     { \
         std::vector<ENUM> out; \
-        for (size_t i = 0; i < static_cast<size_t>(ENUM::Count); ++i) \
+        for (std::size_t i = 0; i < static_cast<std::size_t>(ENUM::Count); ++i) \
         { \
             out.push_back(static_cast<ENUM>(i)); \
         } \
@@ -51,15 +51,15 @@
     \
     std::string getLabel(ENUM value) \
     { \
-        const std::array<std::string, static_cast<size_t>(ENUM::Count)> data = { __VA_ARGS__ }; \
-        return data[static_cast<size_t>(value)]; \
+        const std::array<std::string, static_cast<std::size_t>(ENUM::Count)> data = { __VA_ARGS__ }; \
+        return data[static_cast<std::size_t>(value)]; \
     }
 
 //! Implementation macro for serializing enums.
 #define TLR_ENUM_SERIALIZE_IMPL(PREFIX, ENUM, ...) \
     std::ostream& operator << (std::ostream& os, PREFIX::ENUM in) \
     { \
-        os << PREFIX::get##ENUM##Labels()[static_cast<size_t>(in)]; \
+        os << PREFIX::get##ENUM##Labels()[static_cast<std::size_t>(in)]; \
         return os; \
     } \
     \
