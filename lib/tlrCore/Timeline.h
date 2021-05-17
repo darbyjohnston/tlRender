@@ -100,6 +100,9 @@ namespace tlr
             //! Get the image info.
             const imaging::Info& getImageInfo() const;
 
+            //! Get the clip time ranges.
+            std::vector<otime::TimeRange> getClipRanges() const;
+
             ///@}
 
             //! \name Playback
@@ -196,6 +199,8 @@ namespace tlr
             otime::RationalTime _globalStartTime;
             std::shared_ptr<io::System> _ioSystem;
             imaging::Info _imageInfo;
+            std::vector<otime::TimeRange> _clipRanges;
+
             struct Reader
             {
                 std::shared_ptr<io::IRead> read;

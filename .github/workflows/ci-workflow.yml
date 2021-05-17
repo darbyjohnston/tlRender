@@ -34,6 +34,9 @@ jobs:
     - name: Run tests
       run: >
         cd build &&
+        export PATH=$PATH:$PWD/install/bin &&
+        export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH &&
+        export PYTHONPATH=$PWD/install/lib:$PYTHONPATH &&
         cd tlRender/src/tlRender-build &&
         cmake --build . --target test &&
         cat Testing/Temporary/LastTest.log
