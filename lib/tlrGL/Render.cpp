@@ -217,38 +217,42 @@ namespace tlr
             _shader->setUniform("textureSampler2", 2);
 
             //! \todo Cache textures for reuse.
-            std::array<std::shared_ptr<Texture>, 3> textures;
+            std::vector<std::shared_ptr<Texture> > textures;
             switch (info.pixelType)
             {
             case imaging::PixelType::L_U8:
             case imaging::PixelType::RGB_U8:
             case imaging::PixelType::RGBA_U8:
             case imaging::PixelType::RGBA_F16:
-                textures[0] = Texture::create(info);
-                textures[0]->copy(*image);
+            {
                 glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
-                glBindTexture(GL_TEXTURE_2D, textures[0]->getID());
+                auto texture = Texture::create(info);
+                texture->copy(*image);
+                textures.push_back(texture);
                 break;
+            }
             case imaging::PixelType::YUV_420P:
             {
-                auto infoTmp = imaging::Info(info.size, imaging::PixelType::L_U8);
-                textures[0] = Texture::create(infoTmp);
-                textures[0]->copy(image->getData(), infoTmp);
                 glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
-                glBindTexture(GL_TEXTURE_2D, textures[0]->getID());
+                auto infoTmp = imaging::Info(info.size, imaging::PixelType::L_U8);
+                auto texture = Texture::create(infoTmp);
+                texture->copy(image->getData(), infoTmp);
+                textures.push_back(texture);
+
+                glActiveTexture(static_cast<GLenum>(GL_TEXTURE1));
                 const std::size_t w = info.size.w;
                 const std::size_t h = info.size.h;
                 const std::size_t w2 = w / 2;
                 const std::size_t h2 = h / 2;
                 infoTmp = imaging::Info(imaging::Size(w2, h2), imaging::PixelType::L_U8);
-                textures[1] = Texture::create(infoTmp);
-                textures[1]->copy(image->getData() + (w * h), infoTmp);
-                glActiveTexture(static_cast<GLenum>(GL_TEXTURE1));
-                glBindTexture(GL_TEXTURE_2D, textures[1]->getID());
-                textures[2] = Texture::create(infoTmp);
-                textures[2]->copy(image->getData() + (w * h) + (w2 * h2), infoTmp);
+                texture = Texture::create(infoTmp);
+                texture->copy(image->getData() + (w * h), infoTmp);
+                textures.push_back(texture);
+
                 glActiveTexture(static_cast<GLenum>(GL_TEXTURE2));
-                glBindTexture(GL_TEXTURE_2D, textures[2]->getID());
+                texture = Texture::create(infoTmp);
+                texture->copy(image->getData() + (w * h) + (w2 * h2), infoTmp);
+                textures.push_back(texture);
                 break;
             }
             default:

@@ -259,8 +259,8 @@ namespace tlr
                     _textures[0]->bind();
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE1));
                     _textures[1]->bind();
-                    //glActiveTexture(static_cast<GLenum>(GL_TEXTURE2));
-                    //_textures[2]->bind();
+                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE2));
+                    _textures[2]->bind();
                     break;
                 default:
                     break;
