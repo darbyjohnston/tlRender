@@ -12,7 +12,6 @@
 #include <QButtonGroup>
 #include <QCheckBox>
 #include <QMap>
-#include <QPointer>
 #include <QRadioButton>
 #include <QSpinBox>
 #include <QToolBox>
@@ -53,7 +52,7 @@ namespace tlr
         QButtonGroup* _unitsButtonGroup = nullptr;
         QMap<QAbstractButton*, qt::TimeObject::Units> _buttonToUnits;
         QMap<qt::TimeObject::Units, QAbstractButton*> _unitsToButtons;
-        QPointer<qt::TimeObject> _timeObject;
+        qt::TimeObject* _timeObject = nullptr;
     };
 
     //! Miscellaneous settings widget.

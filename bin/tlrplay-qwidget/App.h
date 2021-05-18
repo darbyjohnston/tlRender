@@ -24,19 +24,29 @@ namespace tlr
     public:
         App(int& argc, char** argv);
 
-    private Q_SLOTS:
-        void _fileOpenCallback();
-        void _fileOpenCallback(const QString&);
-        void _fileClose();
+    public Q_SLOTS:
+        //! Open a timeline.
+        void open(const QString&);
+
+        //! Close a timeline.
+        void close(tlr::qt::TimelineObject*);
+
+        //! Close all of the timelines.
+        void closeAll();
+
+    Q_SIGNALS:
+        //! This signal is emitted when a timeline is opened.
+        void opened(tlr::qt::TimelineObject*);
+
+        //! This signal is emitted when a timeline is closed.
+        void closed(tlr::qt::TimelineObject*);
 
     private:
-        void _fileOpen(const QString&);
-
         qt::TimeObject* _timeObject = nullptr;
         SettingsObject* _settingsObject = nullptr;
 
         std::string _input;
-        qt::TimelineObject* _timeline = nullptr;
+        QList<qt::TimelineObject*> _timelines;
 
         MainWindow* _mainWindow = nullptr;
     };

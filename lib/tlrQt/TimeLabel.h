@@ -9,7 +9,6 @@
 #include <tlrCore/Timeline.h>
 
 #include <QLabel>
-#include <QPointer>
 
 namespace tlr
 {
@@ -36,10 +35,10 @@ namespace tlr
         private:
             void _textUpdate();
 
-            QPointer<TimeObject> _timeObject;
             otime::RationalTime _value;
             TimeObject::Units _units = TimeObject::Units::Timecode;
             QLabel* _label = nullptr;
+            TimeObject* _timeObject = nullptr;
         };
     }
 }

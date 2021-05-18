@@ -377,6 +377,11 @@ namespace tlr
                     button->setEnabled(true);
                 }
 
+                for (const auto& button : _timeActionButtons)
+                {
+                    button->setEnabled(true);
+                }
+
                 const auto& duration = _timeline->duration();
                 _speedLabel->setValue(duration);
 
@@ -387,6 +392,7 @@ namespace tlr
                     _currentTimeSpinBox->setValue(_timeline->currentTime());
                 }
                 _currentTimeSpinBox->setEnabled(true);
+
                 {
                     const QSignalBlocker blocker(_inPointSpinBox);
                     _inPointSpinBox->setValue(_timeline->inOutRange().start_time());
@@ -397,6 +403,11 @@ namespace tlr
                     _outPointSpinBox->setValue(_timeline->inOutRange().end_time_inclusive());
                 }
                 _outPointSpinBox->setEnabled(true);
+                for (const auto& button : _inOutButtons)
+                {
+                    button->setEnabled(true);
+                }
+
                 _durationLabel->setValue(duration);
             }
             else
@@ -407,16 +418,27 @@ namespace tlr
                     button->setEnabled(false);
                 }
 
+                for (const auto& button : _timeActionButtons)
+                {
+                    button->setEnabled(false);
+                }
+
                 _speedLabel->setValue(otime::RationalTime());
 
                 _timelineSlider->setEnabled(false);
 
                 _currentTimeSpinBox->setValue(otime::RationalTime());
                 _currentTimeSpinBox->setEnabled(false);
+
                 _inPointSpinBox->setValue(otime::RationalTime());
                 _inPointSpinBox->setEnabled(false);
                 _outPointSpinBox->setValue(otime::RationalTime());
                 _outPointSpinBox->setEnabled(false);
+                for (const auto& button : _inOutButtons)
+                {
+                    button->setEnabled(false);
+                }
+
                 _durationLabel->setValue(otime::RationalTime());
             }
         }

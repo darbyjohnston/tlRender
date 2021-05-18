@@ -7,7 +7,6 @@
 #include <tlrQt/TimeObject.h>
 #include <tlrQt/TimelineObject.h>
 
-#include <QPointer>
 #include <QWidget>
 
 namespace tlr
@@ -48,10 +47,10 @@ namespace tlr
             int64_t _posToTime(int) const;
             int _timeToPos(int64_t) const;
 
-            QPointer<TimeObject> _timeObject;
             TimelineObject* _timeline = nullptr;
             std::vector<otime::TimeRange> _clipRanges;
             TimeObject::Units _units = TimeObject::Units::Timecode;
+            TimeObject* _timeObject = nullptr;
         };
     }
 }

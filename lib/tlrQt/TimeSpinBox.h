@@ -9,7 +9,6 @@
 #include <tlrCore/Timeline.h>
 
 #include <QAbstractSpinBox>
-#include <QPointer>
 #include <QRegExpValidator>
 
 namespace tlr
@@ -64,7 +63,7 @@ namespace tlr
             otime::RationalTime _value;
             TimeObject::Units _units = TimeObject::Units::Timecode;
             QRegExpValidator* _validator = nullptr;
-            QPointer<TimeObject> _timeObject;
+            TimeObject* _timeObject = nullptr;
         };
     }
 }
