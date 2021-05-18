@@ -94,11 +94,11 @@ namespace tlr
         std::shared_ptr<Plugin> Plugin::create()
         {
             auto out = std::shared_ptr<Plugin>(new Plugin);
-            out->_init();
+            out->_init({ ".exr" });
             return out;
         }
 
-        bool Plugin::canRead(const std::string& fileName)
+        /*bool Plugin::canRead(const std::string& fileName)
         {
             bool out = false;
             try
@@ -109,7 +109,7 @@ namespace tlr
             catch (const std::exception&)
             {}
             return out;
-        }
+        }*/
 
         std::shared_ptr<io::IRead> Plugin::read(
             const std::string& fileName,

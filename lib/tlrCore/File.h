@@ -10,6 +10,9 @@ namespace tlr
     //! File system.
     namespace file
     {
+        //! Is a path absolute?
+        bool isAbsolute(const std::string& path);
+
         //! Convert a path to use UNIX style path delimeters ('/').
         std::string normalize(const std::string& path);
 
@@ -20,8 +23,5 @@ namespace tlr
             std::string* baseName = nullptr,
             std::string* number = nullptr,
             std::string* extension = nullptr);
-
-        //! Change the working directory.
-        bool changeDir(const std::string& path);
     }
 }

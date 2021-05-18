@@ -12,6 +12,7 @@
 #include <tlrCore/ValueObserver.h>
 
 #include <opentimelineio/clip.h>
+#include <opentimelineio/imageSequenceReference.h>
 #include <opentimelineio/timeline.h>
 #include <opentimelineio/track.h>
 
@@ -88,6 +89,8 @@ namespace tlr
             Timeline();
 
         public:
+            ~Timeline();
+
             //! Create a new timeline.
             static std::shared_ptr<Timeline> create(const std::string& fileName);
 
@@ -210,6 +213,9 @@ namespace tlr
             void tick();
 
         private:
+            std::string _fixFileName(const std::string&) const;
+            std::string _getFileName(const otio::ImageSequenceReference*) const;
+            std::string _getFileName(const otio::MediaReference*) const;
             otime::TimeRange _getRange(const otio::SerializableObject::Retainer<otio::Clip>&) const;
             otime::RationalTime _loopPlayback(const otime::RationalTime&);
             void _frameCacheUpdate();
@@ -221,6 +227,7 @@ namespace tlr
             otime::RationalTime _globalStartTime;
             std::shared_ptr<io::System> _ioSystem;
             imaging::Info _imageInfo;
+            std::vector<otio::Clip*> _clips;
             std::vector<otime::TimeRange> _clipRanges;
 
             struct Reader
@@ -229,7 +236,6 @@ namespace tlr
                 io::Info info;
                 std::map<otime::RationalTime, std::future<io::VideoFrame> > videoFrames;
             };
-            //! \bug This should be changed to a retainer when there is a < operator available.
             std::map<otio::Clip*, Reader> _readers;
 
             std::shared_ptr<Observer::ValueSubject<Playback> > _playback;

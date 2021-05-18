@@ -11,16 +11,28 @@ extern "C"
 #include <fseq.h>
 }
 
-#if defined(_WINDOWS)
-#include <direct.h>
-#else
-#include <unistd.h>
-#endif
-
 namespace tlr
 {
     namespace file
     {
+        bool isAbsolute(const std::string& path)
+        {
+            const std::size_t size = path.size();
+            if (size > 0 && '/' == path[0])
+            {
+                return true;
+            }
+            else if (size > 0 && '\\' == path[0])
+            {
+                return true;
+            }
+            if (size > 1 && path[0] >= 'A' && path[0] <= 'Z' && ':' == path[1])
+            {
+                return true;
+            }
+            return false;
+        }
+
         std::string normalize(const std::string& path)
         {
             std::string out;
@@ -55,17 +67,6 @@ namespace tlr
                 *extension = f.extension;
             }
             fseqFileNameDel(&f);
-        }
-
-        bool changeDir(const std::string& path)
-        {
-            bool out = false;
-#if defined(_WINDOWS)
-            out = _chdir(path.c_str()) == 0;
-#else
-            out = chdir(path.c_str()) == 0;
-#endif
-            return out;
         }
     }
 }

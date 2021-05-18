@@ -14,6 +14,7 @@ extern "C"
 
 } // extern "C"
 
+#include <iostream>
 #include <sstream>
 
 namespace tlr
@@ -42,8 +43,9 @@ namespace tlr
                         _open(fileName);
                         _run();
                     }
-                    catch (const std::exception&)
+                    catch (const std::exception& e)
                     {
+                        std::cout << "ERROR: " << e.what() << std::endl;
                         //! \todo How should this be handled?
                         _infoPromise.set_value(io::Info());
                     }
@@ -502,11 +504,11 @@ namespace tlr
         std::shared_ptr<Plugin> Plugin::create()
         {
             auto out = std::shared_ptr<Plugin>(new Plugin);
-            out->_init();
+            out->_init({ ".mov", ".m4v", ".mp4" });
             return out;
         }
 
-        bool Plugin::canRead(const std::string& fileName)
+        /*bool Plugin::canRead(const std::string& fileName)
         {
             AVFormatContext* avFormatContext = nullptr;
             int r = avformat_open_input(
@@ -520,7 +522,7 @@ namespace tlr
                 avformat_close_input(&avFormatContext);
             }
             return out;
-        }
+        }*/
 
         std::shared_ptr<io::IRead> Plugin::read(
             const std::string& fileName,

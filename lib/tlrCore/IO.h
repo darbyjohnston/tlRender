@@ -9,6 +9,7 @@
 #include <future>
 #include <iostream>
 #include <map>
+#include <set>
 
 namespace tlr
 {
@@ -52,7 +53,7 @@ namespace tlr
 
         public:
             virtual ~IIO() = 0;
-
+            
             //! Get the file name.
             const std::string& getFileName() const;
 
@@ -91,19 +92,25 @@ namespace tlr
             TLR_NON_COPYABLE(IPlugin);
 
         protected:
-            void _init();
+            void _init(const std::set<std::string>&);
             IPlugin();
 
         public:
             virtual ~IPlugin() = 0;
 
+            //! Get the supported file extensions.
+            const std::set<std::string>& getExtensions() const;
+
             //! Can the plugin read the given file?
-            virtual bool canRead(const std::string& fileName) = 0;
+            virtual bool canRead(const std::string& fileName);
 
             //! Create a reader for the given file.
             virtual std::shared_ptr<IRead> read(
                 const std::string& fileName,
                 const otime::RationalTime& defaultSpeed) = 0;
+
+        private:
+            std::set<std::string> _extensions;
         };
 
         //! I/O system.

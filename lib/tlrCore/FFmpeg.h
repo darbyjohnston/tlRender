@@ -100,7 +100,7 @@ namespace tlr
             //! Create a new plugin.
             static std::shared_ptr<Plugin> create();
 
-            bool canRead(const std::string&) override;
+            //bool canRead(const std::string&) override;
             std::shared_ptr<io::IRead> read(
                 const std::string& fileName,
                 const otime::RationalTime& defaultSpeed) override;

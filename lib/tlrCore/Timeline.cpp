@@ -9,7 +9,6 @@
 #include <tlrCore/IO.h>
 #include <tlrCore/String.h>
 
-#include <opentimelineio/imageSequenceReference.h>
 #include <opentimelineio/externalReference.h>
 #include <opentimelineio/stackAlgorithm.h>
 #include <opentimelineio/timeline.h>
@@ -162,8 +161,7 @@ namespace tlr
 
                     auto pyReadFromFile = PyObjectRef(PyObject_GetAttrString(pyModule, "read_from_file"));
                     auto pyReadFromFileArgs = PyObjectRef(PyTuple_New(1));
-                    const std::string fileNameNormalized = file::normalize(fileName);
-                    auto pyReadFromFileArg = PyUnicode_FromStringAndSize(fileNameNormalized.c_str(), fileNameNormalized.size());
+                    auto pyReadFromFileArg = PyUnicode_FromStringAndSize(fileName.c_str(), fileName.size());
                     if (!pyReadFromFileArg)
                     {
                         throw std::runtime_error("Cannot create arg");
@@ -191,30 +189,6 @@ namespace tlr
 #else
                 out = dynamic_cast<otio::Timeline*>(otio::Timeline::from_json_file(fileName, errorStatus));
 #endif
-                return out;
-            }
-
-            std::string _getFileName(const otio::ImageSequenceReference* ref)
-            {
-                std::stringstream ss;
-                ss << ref->target_url_base() <<
-                    ref->name_prefix() <<
-                    std::setfill('0') << std::setw(ref->frame_zero_padding()) << ref->start_frame() <<
-                    ref->name_suffix();
-                return ss.str();
-            }
-
-            std::string _getFileName(const otio::MediaReference* ref)
-            {
-                std::string out;
-                if (auto externalRef = dynamic_cast<const otio::ExternalReference*>(ref))
-                {
-                    out = externalRef->target_url();
-                }
-                else if (auto imageSequenceRef = dynamic_cast<const otio::ImageSequenceReference*>(ref))
-                {
-                    out = _getFileName(imageSequenceRef);
-                }
                 return out;
             }
         }
@@ -254,11 +228,6 @@ namespace tlr
             // Create the I/O system.
             _ioSystem = io::System::create();
 
-            // Change the working directory.
-            std::string path;
-            file::split(_fileName, &path);
-            file::changeDir(path);
-
             // Get information about the timeline.
             bool imageInfo = false;
             for (const auto& child : _flattenedTimeline.value->children())
@@ -280,7 +249,7 @@ namespace tlr
                         }
                     }
 
-                    // Clip range information.
+                    _clips.push_back(clip);
                     _clipRanges.push_back(_getRange(clip));
                 }
             }
@@ -296,6 +265,9 @@ namespace tlr
         }
 
         Timeline::Timeline()
+        {}
+
+        Timeline::~Timeline()
         {}
 
         std::shared_ptr<Timeline> Timeline::create(const std::string& fileName)
@@ -558,6 +530,45 @@ namespace tlr
             _frame->setIfChanged(i != _frameCache.end() ? i->second : io::VideoFrame());
         }
 
+        std::string Timeline::_fixFileName(const std::string& fileName) const
+        {
+            std::string absolute;
+            if (!file::isAbsolute(fileName))
+            {
+                file::split(_fileName, &absolute);
+            }
+            std::string path;
+            std::string baseName;
+            std::string number;
+            std::string extension;
+            file::split(file::normalize(fileName), &path, &baseName, &number, &extension);
+            return absolute + path + baseName + number + extension;
+        }
+
+        std::string Timeline::_getFileName(const otio::ImageSequenceReference* ref) const
+        {
+            std::stringstream ss;
+            ss << ref->target_url_base() <<
+                ref->name_prefix() <<
+                std::setfill('0') << std::setw(ref->frame_zero_padding()) << ref->start_frame() <<
+                ref->name_suffix();
+            return ss.str();
+        }
+
+        std::string Timeline::_getFileName(const otio::MediaReference* ref) const
+        {
+            std::string out;
+            if (auto externalRef = dynamic_cast<const otio::ExternalReference*>(ref))
+            {
+                out = externalRef->target_url();
+            }
+            else if (auto imageSequenceRef = dynamic_cast<const otio::ImageSequenceReference*>(ref))
+            {
+                out = _getFileName(imageSequenceRef);
+            }
+            return _fixFileName(out);
+        }
+
         otime::TimeRange Timeline::_getRange(const otio::SerializableObject::Retainer<otio::Clip>& clip) const
         {
             otime::TimeRange out;
@@ -687,49 +698,54 @@ namespace tlr
             // Create I/O readers for uncached frames.
             for (const auto& i : uncached)
             {
-                for (const auto& child : _flattenedTimeline.value->children())
+                for (size_t j = 0; j < _clips.size(); ++j)
                 {
-                    if (auto clip = dynamic_cast<otio::Clip*>(child.value))
+                    const auto& range = _clipRanges[j];
+                    if (range.contains(i))
                     {
-                        const auto& range = _getRange(clip);
-                        if (range.contains(i))
-                        {
-                            otio::ErrorStatus errorStatus;
-                            auto time = _flattenedTimeline.value->transformed_time(i - _globalStartTime, clip, &errorStatus);
-                            if (errorStatus != otio::ErrorStatus::OK)
-                            {
-                                throw std::runtime_error(errorStatus.full_description);
-                            }
+                        auto clip = _clips[j];
 
-                            // Is there an existing I/O reader?
-                            const auto j = _readers.find(clip);
-                            if (j != _readers.end())
+                        otio::ErrorStatus errorStatus;
+                        auto time = _flattenedTimeline.value->transformed_time(i - _globalStartTime, clip, &errorStatus);
+                        if (errorStatus != otio::ErrorStatus::OK)
+                        {
+                            throw std::runtime_error(errorStatus.full_description);
+                        }
+
+                        // Is there an existing I/O reader?
+                        const auto j = _readers.find(clip);
+                        if (j != _readers.end())
+                        {
+                            const auto k = j->second.videoFrames.find(i);
+                            if (k == j->second.videoFrames.end())
                             {
-                                const auto k = j->second.videoFrames.find(i);
-                                if (k == j->second.videoFrames.end())
-                                {
-                                    time = time.rescaled_to(j->second.info.video[0].duration);
-                                    j->second.videoFrames[i] = j->second.read->getVideoFrame(otime::RationalTime(floor(time.value()), time.rate()));
-                                }
+                                time = time.rescaled_to(j->second.info.video[0].duration);
+                                j->second.videoFrames[i] = j->second.read->getVideoFrame(otime::RationalTime(floor(time.value()), time.rate()));
+                            }
+                        }
+                        else
+                        {
+                            // Create a new I/O reader.
+                            const std::string fileName = _getFileName(clip->media_reference());
+                            auto read = _ioSystem->read(fileName, otime::RationalTime(0, _duration.rate()));
+                            io::Info info;
+                            if (read)
+                            {
+                                info = read->getInfo().get();
+                            }
+                            if (read && !info.video.empty())
+                            {
+                                //std::cout << "read: " << fileName << std::endl;
+                                Reader reader;
+                                reader.read = read;
+                                reader.info = info;
+                                time = time.rescaled_to(reader.info.video[0].duration);
+                                reader.videoFrames[i] = read->getVideoFrame(otime::RationalTime(floor(time.value()), time.rate()));
+                                _readers[clip] = std::move(reader);
                             }
                             else
                             {
-                                // Create a new I/O reader.
-                                const std::string fileName = _getFileName(clip->media_reference());
-                                if (auto read = _ioSystem->read(fileName, otime::RationalTime(0, _duration.rate())))
-                                {
-                                    //std::cout << "read: " << fileName << std::endl;
-                                    Reader reader;
-                                    reader.read = read;
-                                    reader.info = read->getInfo().get();
-                                    time = time.rescaled_to(reader.info.video[0].duration);
-                                    reader.videoFrames[i] = read->getVideoFrame(otime::RationalTime(floor(time.value()), time.rate()));
-                                    _readers[clip] = std::move(reader);
-                                }
-                                else
-                                {
-                                    //! \todo How should this be handled?
-                                }
+                                //! \todo How should this be handled?
                             }
                         }
                     }

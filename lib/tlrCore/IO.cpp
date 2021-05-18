@@ -56,14 +56,27 @@ namespace tlr
         IRead::~IRead()
         {}
 
-        void IPlugin::_init()
-        {}
+        void IPlugin::_init(const std::set<std::string>& extensions)
+        {
+            _extensions = extensions;
+        }
 
         IPlugin::IPlugin()
         {}
 
         IPlugin::~IPlugin()
         {}
+
+        bool IPlugin::canRead(const std::string& fileName)
+        {
+            std::string path;
+            std::string baseName;
+            std::string number;
+            std::string extension;
+            file::split(fileName, &path, &baseName, &number, &extension);
+            extension = string::toLower(extension);
+            return _extensions.find(extension) != _extensions.end();
+        }
 
         void System::_init()
         {
