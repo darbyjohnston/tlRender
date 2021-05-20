@@ -6,7 +6,7 @@
 
 #include "SettingsObject.h"
 
-#include <tlrQt/TimelineObject.h>
+#include <tlrQt/TimelinePlayer.h>
 #include <tlrQt/TimelineViewport.h>
 #include <tlrQt/TimelineWidget.h>
 
@@ -37,10 +37,10 @@ namespace tlr
 
     private Q_SLOTS:
         void _openCallback();
-        void _openedCallback(tlr::qt::TimelineObject*);
+        void _openedCallback(tlr::qt::TimelinePlayer*);
         void _closeCallback();
         void _closeAllCallback();
-        void _closedCallback(tlr::qt::TimelineObject*);
+        void _closedCallback(tlr::qt::TimelinePlayer*);
         void _recentFilesCallback(QAction*);
         void _recentFilesCallback();
         void _settingsVisibleCallback(bool);
@@ -66,14 +66,14 @@ namespace tlr
         void _clipNextCallback();
 
     private:
-        void _setCurrentTimeline(qt::TimelineObject*);
+        void _setCurrentTimeline(qt::TimelinePlayer*);
 
         void _recentFilesUpdate();
         void _playbackUpdate();
         void _timelineUpdate();
 
-        QList<qt::TimelineObject*> _timelines;
-        qt::TimelineObject* _currentTimeline = nullptr;
+        QList<qt::TimelinePlayer*> _timelinePlayers;
+        qt::TimelinePlayer* _currentTimelinePlayer = nullptr;
         QMap<QString, QAction*> _actions;
         QActionGroup* _recentFilesActionGroup = nullptr;
         QMap<QAction*, QString> _actionToRecentFile;

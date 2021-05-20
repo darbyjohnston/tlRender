@@ -26,68 +26,10 @@ namespace tlr
 {
     namespace timeline
     {
-        TLR_ENUM_VECTOR_IMPL(Playback);
-        TLR_ENUM_LABEL_IMPL(Playback, "Stop", "Forward", "Reverse");
-
-        TLR_ENUM_VECTOR_IMPL(Loop);
-        TLR_ENUM_LABEL_IMPL(Loop, "Loop", "Once", "Ping-Pong");
-
-        TLR_ENUM_VECTOR_IMPL(TimeAction);
-        TLR_ENUM_LABEL_IMPL(TimeAction,
-            "Start",
-            "End",
-            "FramePrev",
-            "FramePrevX10",
-            "FramePrevX100",
-            "FrameNext",
-            "FrameNextX10",
-            "FrameNextX100",
-            "ClipPrev",
-            "ClipNext");
-
-        otime::RationalTime loopTime(const otime::RationalTime& time, const otime::TimeRange& range)
-        {
-            auto out = time;
-            if (out < range.start_time())
-            {
-                out = range.end_time_inclusive();
-            }
-            else if (out > range.end_time_inclusive())
-            {
-                out = range.start_time();
-            }
-            return out;
-        }
-
         std::vector<std::string> getExtensions()
         {
             //! \todo Get extensions for the Python adapters.
             return { ".otio" };
-        }
-
-        math::BBox2f fitWindow(const imaging::Size& image, const imaging::Size& window)
-        {
-            math::BBox2f out;
-            const float windowAspect = window.getAspect();
-            const float imageAspect = image.getAspect();
-            math::BBox2f bbox;
-            if (windowAspect > imageAspect)
-            {
-                out = math::BBox2f(
-                    window.w / 2.F - (window.h * imageAspect) / 2.F,
-                    0.F,
-                    window.h * imageAspect,
-                    window.h);
-            }
-            else
-            {
-                out = math::BBox2f(
-                    0.F,
-                    window.h / 2.F - (window.w / imageAspect) / 2.F,
-                    window.w,
-                    window.w / imageAspect);
-            }
-            return out;
         }
 
         std::vector<otime::TimeRange> toRanges(std::vector<otime::RationalTime> frames)
@@ -253,15 +195,6 @@ namespace tlr
                     _clipRanges.push_back(_getRange(clip));
                 }
             }
-
-            // Create observers.
-            _playback = Observer::ValueSubject<Playback>::create(Playback::Stop);
-            _loop = Observer::ValueSubject<Loop>::create(Loop::Loop);
-            _currentTime = Observer::ValueSubject<otime::RationalTime>::create(_globalStartTime);
-            _inOutRange = Observer::ValueSubject<otime::TimeRange>::create(
-                otime::TimeRange(_globalStartTime, _duration));
-            _frame = Observer::ValueSubject<io::VideoFrame>::create();
-            _cachedFrames = Observer::ListSubject<otime::TimeRange>::create();
         }
 
         Timeline::Timeline()
@@ -277,257 +210,96 @@ namespace tlr
             return out;
         }
 
-        void Timeline::setPlayback(Playback value)
+        std::future<io::VideoFrame> Timeline::render(const otime::RationalTime& time)
         {
-            switch (_loop->get())
+            std::future<io::VideoFrame> out;
+            const auto now = std::chrono::steady_clock::now();
+            for (size_t i = 0; i < _clips.size(); ++i)
             {
-            case Loop::Once:
-                switch (value)
+                const auto& clip = _clips[i];
+                const auto& range = _clipRanges[i];
+                if (range.contains(time))
                 {
-                case Playback::Forward:
-                    if (_currentTime->get() == _inOutRange->get().end_time_inclusive())
+                    otio::ErrorStatus errorStatus;
+                    const auto clipTime = _flattenedTimeline.value->transformed_time(time - _globalStartTime, clip, &errorStatus);
+                    if (errorStatus != otio::ErrorStatus::OK)
                     {
-                        seek(_inOutRange->get().start_time());
+                        throw std::runtime_error(errorStatus.full_description);
                     }
-                    break;
-                case Playback::Reverse:
-                    if (_currentTime->get() == _inOutRange->get().start_time())
+
+                    const auto j = _readers.find(clip);
+                    if (j != _readers.end())
                     {
-                        seek(_inOutRange->get().end_time_inclusive());
+                        const auto readTime = clipTime.rescaled_to(j->second.info.video[0].duration);
+                        out = j->second.read->getVideoFrame(otime::RationalTime(floor(readTime.value()), readTime.rate()));
                     }
-                    break;
-                }
-                break;
-            case Loop::PingPong:
-                switch (value)
-                {
-                case Playback::Forward:
-                    if (_currentTime->get() == _inOutRange->get().end_time_inclusive())
+                    else
                     {
-                        value = Playback::Reverse;
-                    }
-                    break;
-                case Playback::Reverse:
-                    if (_currentTime->get() == _inOutRange->get().start_time())
-                    {
-                        value = Playback::Forward;
-                    }
-                    break;
-                }
-                break;
-            default:
-                break;
-            }
-            if (_playback->setIfChanged(value))
-            {
-                if (value != Playback::Stop)
-                {
-                    _startTime = std::chrono::steady_clock::now();
-                    _playbackStartTime = _currentTime->get();
-                    _frameCacheDirection = Playback::Forward == value ? FrameCacheDirection::Forward : FrameCacheDirection::Reverse;
-                }
-            }
-        }
-
-        void Timeline::setLoop(Loop value)
-        {
-            _loop->setIfChanged(value);
-        }
-
-        void Timeline::seek(const otime::RationalTime& time)
-        {
-            // Loop the time.
-            otio::ErrorStatus errorStatus;
-            auto range = _flattenedTimeline.value->available_range(&errorStatus);
-            range = otime::TimeRange(_globalStartTime, range.duration());
-            if (errorStatus != otio::ErrorStatus::OK)
-            {
-                throw std::runtime_error(errorStatus.full_description);
-            }
-            const auto tmp = loopTime(time, range);
-
-            if (_currentTime->setIfChanged(tmp))
-            {
-                // Update playback.
-                if (_playback->get() != Playback::Stop)
-                {
-                    _startTime = std::chrono::steady_clock::now();
-                    _playbackStartTime = _currentTime->get();
-                }
-
-                // Cancel video frame requests.
-                for (auto& j : _readers)
-                {
-                    j.second.read->cancelVideoFrames();
-                    j.second.videoFrames.clear();
-                }
-            }
-        }
-
-        void Timeline::timeAction(TimeAction time)
-        {
-            setPlayback(timeline::Playback::Stop);
-            const auto& currentTime = _currentTime->get();
-            const std::size_t rangeSize = _clipRanges.size();
-            switch (time)
-            {
-            case TimeAction::Start:
-                seek(_inOutRange->get().start_time());
-                break;
-            case TimeAction::End:
-                seek(_inOutRange->get().end_time_inclusive());
-                break;
-            case TimeAction::FramePrev:
-                seek(otime::RationalTime(currentTime.value() - 1, _duration.rate()));
-                break;
-            case TimeAction::FramePrevX10:
-                seek(otime::RationalTime(currentTime.value() - 10, _duration.rate()));
-                break;
-            case TimeAction::FramePrevX100:
-                seek(otime::RationalTime(currentTime.value() - 100, _duration.rate()));
-                break;
-            case TimeAction::FrameNext:
-                seek(otime::RationalTime(currentTime.value() + 1, _duration.rate()));
-                break;
-            case TimeAction::FrameNextX10:
-                seek(otime::RationalTime(currentTime.value() + 10, _duration.rate()));
-                break;
-            case TimeAction::FrameNextX100:
-                seek(otime::RationalTime(currentTime.value() + 100, _duration.rate()));
-                break;
-            case TimeAction::ClipPrev:
-                for (std::size_t i = 0; i < rangeSize; ++i)
-                {
-                    if (_clipRanges[i].contains(currentTime))
-                    {
-                        if (i > 0)
+                        const std::string fileName = _getFileName(clip->media_reference());
+                        auto read = _ioSystem->read(fileName, otime::RationalTime(0, _duration.rate()));
+                        io::Info info;
+                        if (read)
                         {
-                            seek(_clipRanges[i - 1].start_time());
+                            info = read->getInfo().get();
+                        }
+                        if (read && !info.video.empty())
+                        {
+                            //std::cout << "read: " << fileName << std::endl;
+                            Reader reader;
+                            reader.read = read;
+                            reader.info = info;
+                            const auto readTime = clipTime.rescaled_to(info.video[0].duration);
+                            out = read->getVideoFrame(otime::RationalTime(floor(readTime.value()), readTime.rate()));
+                            _readers[clip] = std::move(reader);
                         }
                         else
                         {
-                            seek(_clipRanges[rangeSize - 1].start_time());
+                            //! \todo How should this be handled?
                         }
-                        break;
                     }
                 }
-                break;
-            case TimeAction::ClipNext:
-                for (std::size_t i = 0; i < rangeSize; ++i)
-                {
-                    if (_clipRanges[i].contains(currentTime))
-                    {
-                        if ((i + 1) < rangeSize)
-                        {
-                            seek(_clipRanges[i + 1].start_time());
-                        }
-                        else
-                        {
-                            seek(_clipRanges[0].start_time());
-                        }
-                        break;
-                    }
-                }
-                break;
-            default:
-                break;
             }
+            return out;
         }
 
-        void Timeline::start()
+        void Timeline::setActiveRanges(const std::vector<otime::TimeRange>& ranges)
         {
-            timeAction(TimeAction::Start);
+            _activeRanges = ranges;
         }
 
-        void Timeline::end()
+        void Timeline::cancelRenders()
         {
-            timeAction(TimeAction::End);
-        }
-
-        void Timeline::framePrev()
-        {
-            timeAction(TimeAction::FramePrev);
-        }
-
-        void Timeline::frameNext()
-        {
-            timeAction(TimeAction::FrameNext);
-        }
-
-        void Timeline::clipPrev()
-        {
-            timeAction(TimeAction::ClipPrev);
-        }
-
-        void Timeline::clipNext()
-        {
-            timeAction(TimeAction::ClipNext);
-        }
-
-        void Timeline::setInOutRange(const otime::TimeRange& value)
-        {
-            _inOutRange->setIfChanged(value);
-        }
-
-        void Timeline::setInPoint()
-        {
-            const auto range = otime::TimeRange::range_from_start_end_time(
-                _currentTime->get(),
-                _inOutRange->get().end_time_exclusive());
-            _inOutRange->setIfChanged(range);
-        }
-
-        void Timeline::resetInPoint()
-        {
-            const auto range = otime::TimeRange::range_from_start_end_time(
-                _globalStartTime,
-                _inOutRange->get().end_time_exclusive());
-            _inOutRange->setIfChanged(range);
-        }
-
-        void Timeline::setOutPoint()
-        {
-            const auto range = otime::TimeRange::range_from_start_end_time_inclusive(
-                _inOutRange->get().start_time(),
-                _currentTime->get());
-            _inOutRange->setIfChanged(range);
-        }
-
-        void Timeline::resetOutPoint()
-        {
-            _inOutRange->setIfChanged(otime::TimeRange(_inOutRange->get().start_time(), _duration));
-        }
-
-        void Timeline::setFrameCacheReadAhead(int value)
-        {
-            _frameCacheReadAhead = value;
-        }
-
-        void Timeline::setFrameCacheReadBehind(int value)
-        {
-            _frameCacheReadBehind = value;
+            for (auto& i : _readers)
+            {
+                i.second.read->cancelVideoFrames();
+            }
         }
 
         void Timeline::tick()
         {
-            // Calculate the current time.
-            otio::ErrorStatus errorStatus;
-            const auto playback = _playback->get();
-            if (playback != Playback::Stop)
+            for (size_t i = 0; i < _clips.size(); ++i)
             {
-                const auto now = std::chrono::steady_clock::now();
-                const std::chrono::duration<float> diff = now - _startTime;
-                auto currentTime = _playbackStartTime +
-                    otime::RationalTime(floor(diff.count() * _duration.rate() * (Playback::Forward == playback ? 1.0 : -1.0)), _duration.rate());
-                _currentTime->setIfChanged(_loopPlayback(currentTime));
+                const auto& clip = _clips[i];
+                const auto& range = _clipRanges[i];
+                bool del = true;
+                for (const auto& activeRange : _activeRanges)
+                {
+                    if (range.intersects(activeRange))
+                    {
+                        del = false;
+                        break;
+                    }
+                }
+                if (del)
+                {
+                    auto j = _readers.find(clip);
+                    if (j != _readers.end() && !j->second.read->hasVideoFrames())
+                    {
+                        //std::cout << "destroy: " << j->second.read->getFileName() << std::endl;
+                        _readers.erase(j);
+                    }
+                }
             }
-
-            //! Update the frame cache.
-            _frameCacheUpdate();
-
-            // Update the current frame.
-            const auto i = _frameCache.find(_currentTime->get());
-            _frame->setIfChanged(i != _frameCache.end() ? i->second : io::VideoFrame());
         }
 
         std::string Timeline::_fixFileName(const std::string& fileName) const
@@ -587,235 +359,5 @@ namespace tlr
             }
             return out;
         }
-
-        otime::RationalTime Timeline::_loopPlayback(const otime::RationalTime& time)
-        {
-            otime::RationalTime out = time;
-
-            const auto range = _inOutRange->get();
-            switch (_loop->get())
-            {
-            case Loop::Loop:
-            {
-                const auto tmp = loopTime(out, range);
-                if (tmp != out)
-                {
-                    out = tmp;
-                    _startTime = std::chrono::steady_clock::now();
-                    _playbackStartTime = tmp;
-                }
-                break;
-            }
-            case Loop::Once:
-                if (out < range.start_time())
-                {
-                    out = range.start_time();
-                    _playback->setIfChanged(Playback::Stop);
-                }
-                else if (out > range.end_time_inclusive())
-                {
-                    out = range.end_time_inclusive();
-                    _playback->setIfChanged(Playback::Stop);
-                }
-                break;
-            case Loop::PingPong:
-            {
-                const auto playback = _playback->get();
-                if (out < range.start_time() && Playback::Reverse == playback)
-                {
-                    out = range.start_time();
-                    _playback->setIfChanged(Playback::Forward);
-                    _startTime = std::chrono::steady_clock::now();
-                    _playbackStartTime = out;
-                }
-                else if (out > range.end_time_inclusive() && Playback::Forward == playback)
-                {
-                    out = range.end_time_inclusive();
-                    _playback->setIfChanged(Playback::Reverse);
-                    _startTime = std::chrono::steady_clock::now();
-                    _playbackStartTime = out;
-                }
-                break;
-            }
-            default:
-                break;
-            }
-
-            return out;
-        }
-
-        void Timeline::_frameCacheUpdate()
-        {
-            // Get which frames should be cached.
-            std::vector<otime::RationalTime> frames;
-            auto time = _currentTime->get();
-            const auto range = _inOutRange->get();
-            for (std::size_t i = 0; i < (FrameCacheDirection::Forward == _frameCacheDirection ? _frameCacheReadBehind : _frameCacheReadAhead); ++i)
-            {
-                time = loopTime(time - otime::RationalTime(1, _duration.rate()), range);
-            }
-            for (std::size_t i = 0; i < _frameCacheReadBehind + _frameCacheReadAhead; ++i)
-            {
-                frames.push_back(time);
-                time = loopTime(time + otime::RationalTime(1, _duration.rate()), range);
-            }
-
-            // Remove old frames from the cache.
-            const auto ranges = toRanges(frames);
-            auto frameCacheIt = _frameCache.begin();
-            while (frameCacheIt != _frameCache.end())
-            {
-                bool old = true;
-                for (const auto& i : ranges)
-                {
-                    if (i.contains(frameCacheIt->second.time))
-                    {
-                        old = false;
-                        break;
-                    }
-                }
-                if (old)
-                {
-                    frameCacheIt = _frameCache.erase(frameCacheIt);
-                }
-                else
-                {
-                    ++frameCacheIt;
-                }
-            }
-
-            // Find uncached frames.
-            std::vector<otime::RationalTime> uncached;
-            for (const auto& i : frames)
-            {
-                const auto j = _frameCache.find(i);
-                if (j == _frameCache.end())
-                {
-                    uncached.push_back(i);
-                }
-            }
-
-            // Create I/O readers for uncached frames.
-            for (const auto& i : uncached)
-            {
-                for (size_t j = 0; j < _clips.size(); ++j)
-                {
-                    const auto& range = _clipRanges[j];
-                    if (range.contains(i))
-                    {
-                        auto clip = _clips[j];
-
-                        otio::ErrorStatus errorStatus;
-                        auto time = _flattenedTimeline.value->transformed_time(i - _globalStartTime, clip, &errorStatus);
-                        if (errorStatus != otio::ErrorStatus::OK)
-                        {
-                            throw std::runtime_error(errorStatus.full_description);
-                        }
-
-                        // Is there an existing I/O reader?
-                        const auto j = _readers.find(clip);
-                        if (j != _readers.end())
-                        {
-                            const auto k = j->second.videoFrames.find(i);
-                            if (k == j->second.videoFrames.end())
-                            {
-                                time = time.rescaled_to(j->second.info.video[0].duration);
-                                j->second.videoFrames[i] = j->second.read->getVideoFrame(otime::RationalTime(floor(time.value()), time.rate()));
-                            }
-                        }
-                        else
-                        {
-                            // Create a new I/O reader.
-                            const std::string fileName = _getFileName(clip->media_reference());
-                            auto read = _ioSystem->read(fileName, otime::RationalTime(0, _duration.rate()));
-                            io::Info info;
-                            if (read)
-                            {
-                                info = read->getInfo().get();
-                            }
-                            if (read && !info.video.empty())
-                            {
-                                //std::cout << "read: " << fileName << std::endl;
-                                Reader reader;
-                                reader.read = read;
-                                reader.info = info;
-                                time = time.rescaled_to(reader.info.video[0].duration);
-                                reader.videoFrames[i] = read->getVideoFrame(otime::RationalTime(floor(time.value()), time.rate()));
-                                _readers[clip] = std::move(reader);
-                            }
-                            else
-                            {
-                                //! \todo How should this be handled?
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Get frames from the I/O readers.
-            auto readerIt = _readers.begin();
-            while (readerIt != _readers.end())
-            {
-                auto videoFramesIt = readerIt->second.videoFrames.begin();
-                while (videoFramesIt != readerIt->second.videoFrames.end())
-                {
-                    bool delVideoFrame = false;
-                    if (videoFramesIt->second.valid() &&
-                        videoFramesIt->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-                    {
-                        delVideoFrame = true;
-                        auto videoFrame = videoFramesIt->second.get();
-                        auto i = std::find(uncached.begin(), uncached.end(), videoFramesIt->first);
-                        if (i != uncached.end())
-                        {
-                            //std::cout << "frame: " << *i << " / " << videoFrame.time << std::endl;
-                            videoFrame.time = *i;
-                            _frameCache[*i] = videoFrame;
-                        }
-                    }
-                    if (delVideoFrame)
-                    {
-                        videoFramesIt = readerIt->second.videoFrames.erase(videoFramesIt);
-                    }
-                    else
-                    {
-                        ++videoFramesIt;
-                    }
-                }
-
-                // Destroy the I/O reader if all the frames have been cached
-                // and it is outside of the cache range.
-                const auto& range = _getRange(readerIt->first);
-                bool outOfRange = true;
-                for (const auto& i : ranges)
-                {
-                    if (i.intersects(range))
-                    {
-                        outOfRange = false;
-                        break;
-                    }
-                }
-                if (outOfRange && readerIt->second.videoFrames.empty())
-                {
-                    //std::cout << "destroy: " << readerIt->second.read->getFileName() << std::endl;
-                    readerIt = _readers.erase(readerIt);
-                }
-                else
-                {
-                    ++readerIt;
-                }
-            }
-
-            // Update cached frames.
-            std::vector<otime::RationalTime> cachedFrames;
-            for (const auto& i : _frameCache)
-            {
-                cachedFrames.push_back(i.second.time);
-            }
-            _cachedFrames->setIfChanged(toRanges(cachedFrames));
-        }
     }
-
-    TLR_ENUM_SERIALIZE_IMPL(timeline, Playback);
-    TLR_ENUM_SERIALIZE_IMPL(timeline, Loop);
 }

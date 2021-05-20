@@ -126,7 +126,8 @@ namespace tlr
         }
         
         // Read the timeline.
-        _timeline = timeline::Timeline::create(_input);
+        auto timeline = timeline::Timeline::create(_input);
+        _timelinePlayer = timeline::TimelinePlayer::create(timeline);
 
         // Create the window.
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -199,7 +200,7 @@ namespace tlr
         // Start the main loop.
         if (_options.startPlayback)
         {
-            _timeline->setPlayback(timeline::Playback::Forward);
+            _timelinePlayer->setPlayback(timeline::Playback::Forward);
         }
         while (_running && !glfwWindowShouldClose(_glfwWindow))
         {
@@ -275,8 +276,8 @@ namespace tlr
         if (GLFW_RELEASE == action || GLFW_REPEAT == action)
         {
             App* app = reinterpret_cast<App*>(glfwGetWindowUserPointer(glfwWindow));
-            const otime::RationalTime& duration = app->_timeline->getDuration();
-            const otime::RationalTime& currentTime = app->_timeline->observeCurrentTime()->get();
+            const otime::RationalTime& duration = app->_timelinePlayer->getDuration();
+            const otime::RationalTime& currentTime = app->_timelinePlayer->observeCurrentTime()->get();
             switch (key)
             {
             case GLFW_KEY_ESCAPE:
@@ -290,27 +291,27 @@ namespace tlr
                 break;
             case GLFW_KEY_SPACE:
                 app->_playbackCallback(
-                    timeline::Playback::Stop == app->_timeline->observePlayback()->get() ?
+                    timeline::Playback::Stop == app->_timelinePlayer->observePlayback()->get() ?
                     timeline::Playback::Forward :
                     timeline::Playback::Stop);
                 break;
             case GLFW_KEY_L:
                 app->_loopPlaybackCallback(
-                    timeline::Loop::Loop == app->_timeline->observeLoop()->get() ?
+                    timeline::Loop::Loop == app->_timelinePlayer->observeLoop()->get() ?
                     timeline::Loop::Once :
                     timeline::Loop::Loop);
                 break;
             case GLFW_KEY_HOME:
-                app->_timeline->start();
+                app->_timelinePlayer->start();
                 break;
             case GLFW_KEY_END:
-                app->_timeline->end();
+                app->_timelinePlayer->end();
                 break;
             case GLFW_KEY_LEFT:
-                app->_timeline->framePrev();
+                app->_timelinePlayer->framePrev();
                 break;
             case GLFW_KEY_RIGHT:
-                app->_timeline->frameNext();
+                app->_timelinePlayer->frameNext();
                 break;
             }
         }
@@ -336,8 +337,8 @@ namespace tlr
     void App::_tick()
     {
         // Update.
-        _timeline->tick();
-        auto frame = _timeline->observeFrame()->get();
+        _timelinePlayer->tick();
+        auto frame = _timelinePlayer->observeFrame()->get();
         if (frame != _frame)
         {
             _frame = frame;
@@ -348,7 +349,7 @@ namespace tlr
         // Render this frame.
         if (_renderDirty)
         {
-            _render->begin(imaging::Info(_frameBufferSize.w, _frameBufferSize.h, _timeline->getImageInfo().pixelType));
+            _render->begin(imaging::Info(_frameBufferSize.w, _frameBufferSize.h, _timelinePlayer->getImageInfo().pixelType));
             _renderVideo();
             if (_options.hud)
             {
@@ -386,7 +387,7 @@ namespace tlr
 
         // Current time.
         otime::ErrorStatus errorStatus;
-        const std::string label = _timeline->observeCurrentTime()->get().to_timecode(&errorStatus);
+        const std::string label = _timelinePlayer->observeCurrentTime()->get().to_timecode(&errorStatus);
         if (errorStatus != otio::ErrorStatus::OK)
         {
             throw std::runtime_error(errorStatus.details);
@@ -396,7 +397,7 @@ namespace tlr
         // Speed.
         std::stringstream ss;
         ss.precision(2);
-        ss << "Speed: " << std::fixed << _timeline->getDuration().rate();
+        ss << "Speed: " << std::fixed << _timelinePlayer->getDuration().rate();
         hudLabels[HUDElement::LowerRight] = ss.str();
 
         if (hudLabels != _hudLabels)
@@ -477,20 +478,20 @@ namespace tlr
 
     void App::_playbackCallback(timeline::Playback value)
     {
-        _timeline->setPlayback(value);
+        _timelinePlayer->setPlayback(value);
         {
             std::stringstream ss;
-            ss << "Playback: " << _timeline->observePlayback()->get();
+            ss << "Playback: " << _timelinePlayer->observePlayback()->get();
             _print(ss.str());
         }
     }
 
     void App::_loopPlaybackCallback(timeline::Loop value)
     {
-        _timeline->setLoop(value);
+        _timelinePlayer->setLoop(value);
         {
             std::stringstream ss;
-            ss << "Loop playback: " << _timeline->observeLoop()->get();
+            ss << "Loop playback: " << _timelinePlayer->observeLoop()->get();
             _print(ss.str());
         }
     }

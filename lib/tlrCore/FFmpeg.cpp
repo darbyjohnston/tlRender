@@ -33,7 +33,7 @@ namespace tlr
             const otime::RationalTime& defaultSpeed)
         {
             IRead::_init(fileName, defaultSpeed);
-            _videoFrameCache.setMax(3);
+            _videoFrameCache.setMax(1);
             _running = true;
             _thread = std::thread(
                 [this, fileName]
@@ -45,7 +45,7 @@ namespace tlr
                     }
                     catch (const std::exception& e)
                     {
-                        std::cout << "ERROR: " << e.what() << std::endl;
+                        //std::cout << "ERROR: " << e.what() << std::endl;
                         //! \todo How should this be handled?
                         _infoPromise.set_value(io::Info());
                     }
@@ -61,7 +61,6 @@ namespace tlr
             _running = false;
             if (_thread.joinable())
             {
-                //! \todo How do we safely detach the thread here so we don't block?
                 _thread.join();
             }
         }
@@ -91,6 +90,12 @@ namespace tlr
             }
             _requestCV.notify_one();
             return future;
+        }
+
+        bool Read::hasVideoFrames()
+        {
+            std::unique_lock<std::mutex> lock(_requestMutex);
+            return !_videoFrameRequests.empty();
         }
 
         void Read::cancelVideoFrames()

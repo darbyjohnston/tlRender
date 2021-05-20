@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlrQt/TimelineObject.h>
+#include <tlrQt/TimelinePlayer.h>
 
 #include <tlrCore/Image.h>
 
@@ -27,8 +27,8 @@ namespace tlr
         public:
             TimelineViewport(QWidget* parent = nullptr);
 
-            //! Set the timeline object.
-            void setTimeline(TimelineObject*);
+            //! Set the timeline player.
+            void setTimelinePlayer(TimelinePlayer*);
 
         private Q_SLOTS:
             void _frameCallback(const tlr::io::VideoFrame&);
@@ -38,7 +38,7 @@ namespace tlr
             void paintGL() override;
 
         private:
-            TimelineObject* _timeline = nullptr;
+            TimelinePlayer* _timelinePlayer = nullptr;
             io::VideoFrame _frame;
             io::VideoFrame _frameTmp;
             QOpenGLShaderProgram* _program = nullptr;

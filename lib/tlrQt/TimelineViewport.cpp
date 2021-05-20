@@ -19,21 +19,21 @@ namespace tlr
             QOpenGLWidget(parent)
         {}
 
-        void TimelineViewport::setTimeline(TimelineObject* timeline)
+        void TimelineViewport::setTimelinePlayer(TimelinePlayer* timelinePlayer)
         {
             _frame = io::VideoFrame();
             _frameTmp = io::VideoFrame();
-            if (_timeline)
+            if (_timelinePlayer)
             {
                 disconnect(
-                    _timeline,
+                    _timelinePlayer,
                     SIGNAL(frameChanged(const tlr::io::VideoFrame&)));
             }
-            _timeline = timeline;
-            if (_timeline)
+            _timelinePlayer = timelinePlayer;
+            if (_timelinePlayer)
             {
                 connect(
-                    _timeline,
+                    _timelinePlayer,
                     SIGNAL(frameChanged(const tlr::io::VideoFrame&)),
                     SLOT(_frameCallback(const tlr::io::VideoFrame&)));
             }

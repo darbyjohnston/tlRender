@@ -358,12 +358,12 @@ namespace tlr
         {
             connect(
                 app,
-                SIGNAL(opened(tlr::qt::TimelineObject*)),
-                SLOT(_openedCallback(tlr::qt::TimelineObject*)));
+                SIGNAL(opened(tlr::qt::TimelinePlayer*)),
+                SLOT(_openedCallback(tlr::qt::TimelinePlayer*)));
             connect(
                 app,
-                SIGNAL(closed(tlr::qt::TimelineObject*)),
-                SLOT(_closedCallback(tlr::qt::TimelineObject*)));
+                SIGNAL(closed(tlr::qt::TimelinePlayer*)),
+                SLOT(_closedCallback(tlr::qt::TimelinePlayer*)));
         }
 
         resize(640, 360);
@@ -436,10 +436,10 @@ namespace tlr
         }
 
         QString dir;
-        if (_currentTimeline)
+        if (_currentTimelinePlayer)
         {
             std::string path;
-            file::split(_currentTimeline->fileName().toLatin1().data(), &path);
+            file::split(_currentTimelinePlayer->fileName().toLatin1().data(), &path);
             dir = path.c_str();
         }
 
@@ -457,11 +457,11 @@ namespace tlr
         }
     }
 
-    void MainWindow::_openedCallback(qt::TimelineObject* timeline)
+    void MainWindow::_openedCallback(qt::TimelinePlayer* timelinePlayer)
     {
         auto viewport = new qt::TimelineViewport;
-        viewport->setTimeline(timeline);
-        const std::string fileName = timeline->fileName().toLatin1().data();
+        viewport->setTimelinePlayer(timelinePlayer);
+        const std::string fileName = timelinePlayer->fileName().toLatin1().data();
         std::string path;
         std::string baseName;
         std::string number;
@@ -470,17 +470,17 @@ namespace tlr
         const int tab = _tabWidget->addTab(viewport, (baseName + number + extension).c_str());
         std::stringstream ss;
         ss << fileName << std::endl;
-        ss << timeline->imageInfo();
+        ss << timelinePlayer->imageInfo();
         _tabWidget->setTabToolTip(tab, ss.str().c_str());
-        _timelines.append(timeline);
-        _setCurrentTimeline(timeline);
+        _timelinePlayers.append(timelinePlayer);
+        _setCurrentTimeline(timelinePlayer);
     }
 
     void MainWindow::_closeCallback()
     {
         if (auto app = qobject_cast<App*>(qApp))
         {
-            app->close(_currentTimeline);
+            app->close(_currentTimelinePlayer);
         }
     }
 
@@ -492,20 +492,20 @@ namespace tlr
         }
     }
 
-    void MainWindow::_closedCallback(qt::TimelineObject* timeline)
+    void MainWindow::_closedCallback(qt::TimelinePlayer* timelinePlayer)
     {
-        int i = _timelines.indexOf(timeline);
+        int i = _timelinePlayers.indexOf(timelinePlayer);
         if (i != -1)
         {
             _tabWidget->removeTab(i);
-            _timelines.removeOne(timeline);
-            if (timeline == _currentTimeline)
+            _timelinePlayers.removeOne(timelinePlayer);
+            if (timelinePlayer == _currentTimelinePlayer)
             {
-                if (i > _timelines.size())
+                if (i > _timelinePlayers.size())
                 {
                     --i;
                 }
-                _setCurrentTimeline(i >= 0 && i < _timelines.size() ? _timelines[i] : nullptr);
+                _setCurrentTimeline(i >= 0 && i < _timelinePlayers.size() ? _timelinePlayers[i] : nullptr);
             }
             _timelineUpdate();
         }
@@ -535,9 +535,9 @@ namespace tlr
 
     void MainWindow::_currentTabCallback(int index)
     {
-        if (index >= 0 && index < _timelines.size())
+        if (index >= 0 && index < _timelinePlayers.size())
         {
-            _setCurrentTimeline(_timelines[index]);
+            _setCurrentTimeline(_timelinePlayers[index]);
         }
     }
 
@@ -545,21 +545,21 @@ namespace tlr
     {
         if (auto app = qobject_cast<App*>(qApp))
         {
-            if (index >= 0 && index < _timelines.size())
+            if (index >= 0 && index < _timelinePlayers.size())
             {
-                app->close(_timelines[index]);
+                app->close(_timelinePlayers[index]);
             }
         }
     }
 
     void MainWindow::_playbackCallback(QAction* action)
     {
-        if (_currentTimeline)
+        if (_currentTimelinePlayer)
         {
             const auto i = _actionToPlayback.find(action);
             if (i != _actionToPlayback.end())
             {
-                _currentTimeline->setPlayback(i.value());
+                _currentTimelinePlayer->setPlayback(i.value());
             }
         }
     }
@@ -576,12 +576,12 @@ namespace tlr
 
     void MainWindow::_loopCallback(QAction* action)
     {
-        if (_currentTimeline)
+        if (_currentTimelinePlayer)
         {
             const auto i = _actionToLoop.find(action);
             if (i != _actionToLoop.end())
             {
-                _currentTimeline->setLoop(i.value());
+                _currentTimelinePlayer->setLoop(i.value());
             }
         }
     }
@@ -598,186 +598,186 @@ namespace tlr
 
     void MainWindow::_stopCallback()
     {
-        if (_currentTimeline)
+        if (_currentTimelinePlayer)
         {
-            _currentTimeline->stop();
+            _currentTimelinePlayer->stop();
         }
     }
 
     void MainWindow::_forwardCallback()
     {
-        if (_currentTimeline)
+        if (_currentTimelinePlayer)
         {
-            _currentTimeline->forward();
+            _currentTimelinePlayer->forward();
         }
     }
 
     void MainWindow::_reverseCallback()
     {
-        if (_currentTimeline)
+        if (_currentTimelinePlayer)
         {
-            _currentTimeline->reverse();
+            _currentTimelinePlayer->reverse();
         }
     }
 
     void MainWindow::_togglePlaybackCallback()
     {
-        if (_currentTimeline)
+        if (_currentTimelinePlayer)
         {
-            _currentTimeline->togglePlayback();
+            _currentTimelinePlayer->togglePlayback();
         }
     }
 
     void MainWindow::_startCallback()
     {
-        if (_currentTimeline)
+        if (_currentTimelinePlayer)
         {
-            _currentTimeline->start();
+            _currentTimelinePlayer->start();
         }
     }
 
     void MainWindow::_endCallback()
     {
-        if (_currentTimeline)
+        if (_currentTimelinePlayer)
         {
-            _currentTimeline->end();
+            _currentTimelinePlayer->end();
         }
     }
 
     void MainWindow::_framePrevCallback()
     {
-        if (_currentTimeline)
+        if (_currentTimelinePlayer)
         {
-            _currentTimeline->framePrev();
+            _currentTimelinePlayer->framePrev();
         }
     }
 
     void MainWindow::_framePrevX10Callback()
     {
-        if (_currentTimeline)
+        if (_currentTimelinePlayer)
         {
-            _currentTimeline->timeAction(timeline::TimeAction::FramePrevX10);
+            _currentTimelinePlayer->timeAction(timeline::TimeAction::FramePrevX10);
         }
     }
 
     void MainWindow::_framePrevX100Callback()
     {
-        if (_currentTimeline)
+        if (_currentTimelinePlayer)
         {
-            _currentTimeline->timeAction(timeline::TimeAction::FramePrevX100);
+            _currentTimelinePlayer->timeAction(timeline::TimeAction::FramePrevX100);
         }
     }
 
     void MainWindow::_frameNextCallback()
     {
-        if (_currentTimeline)
+        if (_currentTimelinePlayer)
         {
-            _currentTimeline->frameNext();
+            _currentTimelinePlayer->frameNext();
         }
     }
 
     void MainWindow::_frameNextX10Callback()
     {
-        if (_currentTimeline)
+        if (_currentTimelinePlayer)
         {
-            _currentTimeline->timeAction(timeline::TimeAction::FrameNextX10);
+            _currentTimelinePlayer->timeAction(timeline::TimeAction::FrameNextX10);
         }
     }
 
     void MainWindow::_frameNextX100Callback()
     {
-        if (_currentTimeline)
+        if (_currentTimelinePlayer)
         {
-            _currentTimeline->timeAction(timeline::TimeAction::FrameNextX100);
+            _currentTimelinePlayer->timeAction(timeline::TimeAction::FrameNextX100);
         }
     }
 
     void MainWindow::_clipPrevCallback()
     {
-        if (_currentTimeline)
+        if (_currentTimelinePlayer)
         {
-            _currentTimeline->clipPrev();
+            _currentTimelinePlayer->clipPrev();
         }
     }
 
     void MainWindow::_clipNextCallback()
     {
-        if (_currentTimeline)
+        if (_currentTimelinePlayer)
         {
-            _currentTimeline->clipNext();
+            _currentTimelinePlayer->clipNext();
         }
     }
 
-    void MainWindow::_setCurrentTimeline(qt::TimelineObject* timeline)
+    void MainWindow::_setCurrentTimeline(qt::TimelinePlayer* timelinePlayer)
     {
-        if (timeline == _currentTimeline)
+        if (timelinePlayer == _currentTimelinePlayer)
             return;
-        if (_currentTimeline)
+        if (_currentTimelinePlayer)
         {
             disconnect(
-                _currentTimeline,
+                _currentTimelinePlayer,
                 SIGNAL(playbackChanged(tlr::timeline::Playback)),
                 this,
                 SLOT(_playbackCallback(tlr::timeline::Playback)));
             disconnect(
-                _currentTimeline,
+                _currentTimelinePlayer,
                 SIGNAL(loopChanged(tlr::timeline::Loop)),
                 this,
                 SLOT(_loopCallback(tlr::timeline::Loop)));
             disconnect(
                 _actions["InOutPoints/SetInPoint"],
                 SIGNAL(triggered(bool)),
-                _currentTimeline,
+                _currentTimelinePlayer,
                 SLOT(setInPoint()));
             disconnect(
                 _actions["InOutPoints/ResetInPoint"],
                 SIGNAL(triggered(bool)),
-                _currentTimeline,
+                _currentTimelinePlayer,
                 SLOT(resetInPoint()));
             disconnect(
                 _actions["InOutPoints/SetOutPoint"],
                 SIGNAL(triggered(bool)),
-                _currentTimeline,
+                _currentTimelinePlayer,
                 SLOT(setOutPoint()));
             disconnect(
                 _actions["InOutPoints/ResetOutPoint"],
                 SIGNAL(triggered(bool)),
-                _currentTimeline,
+                _currentTimelinePlayer,
                 SLOT(resetOutPoint()));
         }
-        _currentTimeline = timeline;
-        if (_currentTimeline)
+        _currentTimelinePlayer = timelinePlayer;
+        if (_currentTimelinePlayer)
         {
             connect(
-                _currentTimeline,
+                _currentTimelinePlayer,
                 SIGNAL(playbackChanged(tlr::timeline::Playback)),
                 SLOT(_playbackCallback(tlr::timeline::Playback)));
             connect(
-                _currentTimeline,
+                _currentTimelinePlayer,
                 SIGNAL(loopChanged(tlr::timeline::Loop)),
                 SLOT(_loopCallback(tlr::timeline::Loop)));
             connect(
                 _actions["InOutPoints/SetInPoint"],
                 SIGNAL(triggered(bool)),
-                _currentTimeline,
+                _currentTimelinePlayer,
                 SLOT(setInPoint()));
             connect(
                 _actions["InOutPoints/ResetInPoint"],
                 SIGNAL(triggered(bool)),
-                _currentTimeline,
+                _currentTimelinePlayer,
                 SLOT(resetInPoint()));
             connect(
                 _actions["InOutPoints/SetOutPoint"],
                 SIGNAL(triggered(bool)),
-                _currentTimeline,
+                _currentTimelinePlayer,
                 SLOT(setOutPoint()));
             connect(
                 _actions["InOutPoints/ResetOutPoint"],
                 SIGNAL(triggered(bool)),
-                _currentTimeline,
+                _currentTimelinePlayer,
                 SLOT(resetOutPoint()));
         }
-        _timelineWidget->setTimeline(_currentTimeline);
+        _timelineWidget->setTimelinePlayer(_currentTimelinePlayer);
         _timelineUpdate();
     }
 
@@ -806,9 +806,9 @@ namespace tlr
     void MainWindow::_playbackUpdate()
     {
         timeline::Playback playback = timeline::Playback::Stop;
-        if (_currentTimeline)
+        if (_currentTimelinePlayer)
         {
-            playback = _currentTimeline->playback();
+            playback = _currentTimelinePlayer->playback();
         }
         _actions["Playback/Stop"]->setChecked(timeline::Playback::Stop == playback);
         _actions["Playback/Forward"]->setChecked(timeline::Playback::Forward == playback);
@@ -817,7 +817,7 @@ namespace tlr
 
     void MainWindow::_timelineUpdate()
     {
-        if (!_timelines.empty())
+        if (!_timelinePlayers.empty())
         {
             _actions["File/Close"]->setEnabled(true);
             _actions["File/CloseAll"]->setEnabled(true);
@@ -828,13 +828,13 @@ namespace tlr
             _actions["File/CloseAll"]->setEnabled(false);
         }
 
-        if (_currentTimeline)
+        if (_currentTimelinePlayer)
         {
 
             _actions["Playback/Stop"]->setEnabled(true);
             _actions["Playback/Forward"]->setEnabled(true);
             _actions["Playback/Reverse"]->setEnabled(true);
-            const auto playbackAction = _playbackToActions.find(_currentTimeline->playback());
+            const auto playbackAction = _playbackToActions.find(_currentTimelinePlayer->playback());
             if (playbackAction != _playbackToActions.end())
             {
                 playbackAction.value()->setChecked(true);
@@ -844,7 +844,7 @@ namespace tlr
             _actions["Playback/Loop"]->setEnabled(true);
             _actions["Playback/Once"]->setEnabled(true);
             _actions["Playback/PingPong"]->setEnabled(true);
-            const auto loopAction = _loopToActions.find(_currentTimeline->loop());
+            const auto loopAction = _loopToActions.find(_currentTimelinePlayer->loop());
             if (loopAction != _loopToActions.end())
             {
                 loopAction.value()->setChecked(true);
@@ -896,6 +896,6 @@ namespace tlr
             _actions["InOutPoints/ResetOutPoint"]->setEnabled(false);
         }
 
-        _tabWidget->setCurrentIndex(_timelines.indexOf(_currentTimeline));
+        _tabWidget->setCurrentIndex(_timelinePlayers.indexOf(_currentTimelinePlayer));
     }
 }

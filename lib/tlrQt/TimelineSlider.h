@@ -5,7 +5,7 @@
 #pragma once
 
 #include <tlrQt/TimeObject.h>
-#include <tlrQt/TimelineObject.h>
+#include <tlrQt/TimelinePlayer.h>
 
 #include <QWidget>
 
@@ -24,8 +24,8 @@ namespace tlr
             //! Set the time object.
             void setTimeObject(TimeObject*);
 
-            //! Set the timeline object.
-            void setTimeline(TimelineObject*);
+            //! Set the timeline player.
+            void setTimelinePlayer(TimelinePlayer*);
 
         public Q_SLOTS:
             //! Set the time units.
@@ -47,7 +47,7 @@ namespace tlr
             int64_t _posToTime(int) const;
             int _timeToPos(int64_t) const;
 
-            TimelineObject* _timeline = nullptr;
+            TimelinePlayer* _timelinePlayer = nullptr;
             std::vector<otime::TimeRange> _clipRanges;
             TimeObject::Units _units = TimeObject::Units::Timecode;
             TimeObject* _timeObject = nullptr;

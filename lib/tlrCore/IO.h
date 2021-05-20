@@ -79,6 +79,9 @@ namespace tlr
             //! Get a video frame.
             virtual std::future<VideoFrame> getVideoFrame(const otime::RationalTime&) = 0;
 
+            //! Are there pending video frame requests?
+            virtual bool hasVideoFrames() = 0;
+
             //! Cancel video frame requests.
             virtual void cancelVideoFrames() = 0;
 

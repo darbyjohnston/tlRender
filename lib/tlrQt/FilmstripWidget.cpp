@@ -93,22 +93,9 @@ namespace tlr
             }
         }
 
-        void FilmstripWidget::setFileName(const QString& fileName)
+        void FilmstripWidget::setTimeline(const std::shared_ptr<timeline::Timeline>& timeline)
         {
-            if (_timeline)
-            {
-                _timeline->setParent(nullptr);
-                delete _timeline;
-                _timeline = nullptr;
-            }
-            if (!fileName.isEmpty())
-            {
-                _timeline = new TimelineObject(fileName, this);
-                connect(
-                    _timeline,
-                    SIGNAL(frameChanged(const tlr::io::VideoFrame&)),
-                    SLOT(_frameCallback(const tlr::io::VideoFrame&)));
-            }
+            _timeline = timeline;
             _timelineUpdate();
         }
 
@@ -148,28 +135,13 @@ namespace tlr
             }
         }
 
-        void FilmstripWidget::_frameCallback(const io::VideoFrame& frame)
-        {
-            {
-                std::unique_lock<std::mutex> lock(_thumbnailMutex);
-                _thumbnailRequests.push_back(std::make_pair(frame, _thumbnailSize));
-            }
-            _thumbnailsCV.notify_one();
-            if (!_times.empty())
-            {
-                const auto time = _times.front();
-                _times.pop_front();
-                _timeline->seek(time);
-            }
-        }
-
         otime::RationalTime FilmstripWidget::_posToTime(int value) const
         {
             otime::RationalTime out;
             if (_timeline)
             {
                 const double t = value / static_cast<double>(width());
-                const auto& duration = _timeline->duration();
+                const auto& duration = _timeline->getDuration();
                 out = otime::RationalTime(t * duration.value(), duration.rate());
             }
             return out;
@@ -180,7 +152,7 @@ namespace tlr
             int out = 0;
             if (_timeline)
             {
-                const auto& duration = _timeline->duration();
+                const auto& duration = _timeline->getDuration();
                 const double t = value.value() / duration.value();
                 out = static_cast<int>(width() * t);
             }
@@ -190,11 +162,10 @@ namespace tlr
         void FilmstripWidget::_timelineUpdate()
         {
             _thumbnails.clear();
-            _times.clear();
             if (_timeline)
             {
-                const auto& duration = _timeline->duration();
-                const auto& imageInfo = _timeline->imageInfo();
+                const auto& duration = _timeline->getDuration();
+                const auto& imageInfo = _timeline->getImageInfo();
                 const auto& size = this->size();
                 const int width = size.width();
                 const int height = size.height();
@@ -205,15 +176,9 @@ namespace tlr
                     int x = 0;
                     while (x < width)
                     {
-                        _times.push_back(_posToTime(x));
+                        //_times.push_back(_posToTime(x));
                         x += _thumbnailSize.w;
                     }
-                }
-                if (!_times.empty())
-                {
-                    const auto time = _times.front();
-                    _times.pop_front();
-                    _timeline->seek(time);
                 }
             }
             update();

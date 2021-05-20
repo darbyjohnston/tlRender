@@ -195,42 +195,42 @@ namespace tlr
             _durationLabel->setTimeObject(timeObject);
         }
 
-        void TimelineWidget::setTimeline(TimelineObject* timeline)
+        void TimelineWidget::setTimelinePlayer(TimelinePlayer* timelinePlayer)
         {
-            if (timeline == _timeline)
+            if (timelinePlayer == _timelinePlayer)
                 return;
-            if (_timeline)
+            if (_timelinePlayer)
             {
                 disconnect(
-                    _timeline,
+                    _timelinePlayer,
                     SIGNAL(playbackChanged(tlr::timeline::Playback)),
                     this,
                     SLOT(_playbackCallback(tlr::timeline::Playback)));
                 disconnect(
-                    _timeline,
+                    _timelinePlayer,
                     SIGNAL(currentTimeChanged(const otime::RationalTime&)),
                     this,
                     SLOT(_currentTimeCallback2(const otime::RationalTime&)));
                 disconnect(
-                    _timeline,
+                    _timelinePlayer,
                     SIGNAL(inOutRangeChanged(const otime::TimeRange&)),
                     this,
                     SLOT(_inOutRangeCallback(const otime::TimeRange&)));
             }
-            _timeline = timeline;
-            _timelineSlider->setTimeline(timeline);
-            if (_timeline)
+            _timelinePlayer = timelinePlayer;
+            _timelineSlider->setTimelinePlayer(timelinePlayer);
+            if (_timelinePlayer)
             {
                 connect(
-                    _timeline,
+                    _timelinePlayer,
                     SIGNAL(playbackChanged(tlr::timeline::Playback)),
                     SLOT(_playbackCallback(tlr::timeline::Playback)));
                 connect(
-                    _timeline,
+                    _timelinePlayer,
                     SIGNAL(currentTimeChanged(const otime::RationalTime&)),
                     SLOT(_currentTimeCallback2(const otime::RationalTime&)));
                 connect(
-                    _timeline,
+                    _timelinePlayer,
                     SIGNAL(inOutRangeChanged(const otime::TimeRange&)),
                     SLOT(_inOutRangeCallback(const otime::TimeRange&)));
             }
@@ -239,12 +239,12 @@ namespace tlr
 
         void TimelineWidget::_playbackCallback(QAbstractButton* button)
         {
-            if (_timeline)
+            if (_timelinePlayer)
             {
                 const auto i = _buttonToPlayback.find(button);
                 if (i != _buttonToPlayback.end())
                 {
-                    _timeline->setPlayback(i.value());
+                    _timelinePlayer->setPlayback(i.value());
                     _playbackUpdate();
                 }
             }
@@ -257,22 +257,22 @@ namespace tlr
 
         void TimelineWidget::_timeActionCallback(QAbstractButton* button)
         {
-            if (_timeline)
+            if (_timelinePlayer)
             {
                 const auto i = _buttonToTimeAction.find(button);
                 if (i != _buttonToTimeAction.end())
                 {
-                    _timeline->timeAction(i.value());
+                    _timelinePlayer->timeAction(i.value());
                 }
             }
         }
 
         void TimelineWidget::_currentTimeCallback(const otime::RationalTime& value)
         {
-            if (_timeline)
+            if (_timelinePlayer)
             {
-                _timeline->setPlayback(timeline::Playback::Stop);
-                _timeline->seek(value);
+                _timelinePlayer->setPlayback(timeline::Playback::Stop);
+                _timelinePlayer->seek(value);
             }
         }
 
@@ -292,53 +292,53 @@ namespace tlr
 
         void TimelineWidget::_inPointCallback(const otime::RationalTime& value)
         {
-            if (_timeline)
+            if (_timelinePlayer)
             {
-                _timeline->setInOutRange(otime::TimeRange::range_from_start_end_time_inclusive(
+                _timelinePlayer->setInOutRange(otime::TimeRange::range_from_start_end_time_inclusive(
                     value,
-                    _timeline->inOutRange().end_time_inclusive()));
+                    _timelinePlayer->inOutRange().end_time_inclusive()));
             }
         }
 
         void TimelineWidget::_inPointCallback()
         {
-            if (_timeline)
+            if (_timelinePlayer)
             {
-                _timeline->setInPoint();
+                _timelinePlayer->setInPoint();
             }
         }
 
         void TimelineWidget::_resetInPointCallback()
         {
-            if (_timeline)
+            if (_timelinePlayer)
             {
-                _timeline->resetInPoint();
+                _timelinePlayer->resetInPoint();
             }
         }
 
         void TimelineWidget::_outPointCallback(const otime::RationalTime& value)
         {
-            if (_timeline)
+            if (_timelinePlayer)
             {
-                _timeline->setInOutRange(otime::TimeRange::range_from_start_end_time_inclusive(
-                    _timeline->inOutRange().start_time(),
+                _timelinePlayer->setInOutRange(otime::TimeRange::range_from_start_end_time_inclusive(
+                    _timelinePlayer->inOutRange().start_time(),
                     value));
             }
         }
 
         void TimelineWidget::_outPointCallback()
         {
-            if (_timeline)
+            if (_timelinePlayer)
             {
-                _timeline->setOutPoint();
+                _timelinePlayer->setOutPoint();
             }
         }
 
         void TimelineWidget::_resetOutPointCallback()
         {
-            if (_timeline)
+            if (_timelinePlayer)
             {
-                _timeline->resetOutPoint();
+                _timelinePlayer->resetOutPoint();
             }
         }
 
@@ -357,20 +357,20 @@ namespace tlr
         void TimelineWidget::_playbackUpdate()
         {
             timeline::Playback playback = timeline::Playback::Stop;
-            if (_timeline)
+            if (_timelinePlayer)
             {
-                playback = _timeline->playback();
+                playback = _timelinePlayer->playback();
             }
             _playbackToButton[playback]->setChecked(true);
         }
 
         void TimelineWidget::_timelineUpdate()
         {
-            if (_timeline)
+            if (_timelinePlayer)
             {
                 {
                     const QSignalBlocker blocker(_currentTimeSpinBox);
-                    _playbackToButton[_timeline->playback()]->setChecked(true);
+                    _playbackToButton[_timelinePlayer->playback()]->setChecked(true);
                 }
                 for (const auto& button : _playbackButtons)
                 {
@@ -382,25 +382,25 @@ namespace tlr
                     button->setEnabled(true);
                 }
 
-                const auto& duration = _timeline->duration();
+                const auto& duration = _timelinePlayer->duration();
                 _speedLabel->setValue(duration);
 
                 _timelineSlider->setEnabled(true);
 
                 {
                     const QSignalBlocker blocker(_currentTimeSpinBox);
-                    _currentTimeSpinBox->setValue(_timeline->currentTime());
+                    _currentTimeSpinBox->setValue(_timelinePlayer->currentTime());
                 }
                 _currentTimeSpinBox->setEnabled(true);
 
                 {
                     const QSignalBlocker blocker(_inPointSpinBox);
-                    _inPointSpinBox->setValue(_timeline->inOutRange().start_time());
+                    _inPointSpinBox->setValue(_timelinePlayer->inOutRange().start_time());
                 }
                 _inPointSpinBox->setEnabled(true);
                 {
                     const QSignalBlocker blocker(_outPointSpinBox);
-                    _outPointSpinBox->setValue(_timeline->inOutRange().end_time_inclusive());
+                    _outPointSpinBox->setValue(_timelinePlayer->inOutRange().end_time_inclusive());
                 }
                 _outPointSpinBox->setEnabled(true);
                 for (const auto& button : _inOutButtons)

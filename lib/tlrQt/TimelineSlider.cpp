@@ -44,33 +44,33 @@ namespace tlr
             update();
         }
 
-        void TimelineSlider::setTimeline(TimelineObject* timeline)
+        void TimelineSlider::setTimelinePlayer(TimelinePlayer* timelinePlayer)
         {
-            if (timeline == _timeline)
+            if (timelinePlayer == _timelinePlayer)
                 return;
-            if (_timeline)
+            if (_timelinePlayer)
             {
                 _clipRanges.clear();
                 disconnect(
-                    _timeline,
+                    _timelinePlayer,
                     SIGNAL(currentTimeChanged(const otime::RationalTime&)),
                     this,
                     SLOT(_currentTimeCallback(const otime::RationalTime&)));
             }
-            _timeline = timeline;
-            if (_timeline)
+            _timelinePlayer = timelinePlayer;
+            if (_timelinePlayer)
             {
-                _clipRanges = _timeline->clipRanges();
+                _clipRanges = _timelinePlayer->clipRanges();
                 connect(
-                    _timeline,
+                    _timelinePlayer,
                     SIGNAL(currentTimeChanged(const otime::RationalTime&)),
                     SLOT(_currentTimeCallback(const otime::RationalTime&)));
                 connect(
-                    _timeline,
+                    _timelinePlayer,
                     SIGNAL(inOutRangeChanged(const otime::TimeRange&)),
                     SLOT(_inOutRangeCallback(const otime::TimeRange&)));
                 connect(
-                    _timeline,
+                    _timelinePlayer,
                     SIGNAL(cachedFramesChanged(const std::vector<otime::TimeRange>&)),
                     SLOT(_cachedFramesCallback(const std::vector<otime::TimeRange>&)));
             }
@@ -101,7 +101,7 @@ namespace tlr
             auto rect = this->rect().adjusted(0, 0, -1, -1);
             painter.drawRect(rect);
             rect = rect.adjusted(border, border, -border, -border);
-            if (_timeline)
+            if (_timelinePlayer)
             {
                 int x0 = 0;
                 int x1 = 0;
@@ -129,7 +129,7 @@ namespace tlr
                 auto color = palette.color(QPalette::ColorRole::WindowText);
                 painter.setPen(color);
                 painter.setBrush(color);
-                const auto& inOutRange = _timeline->inOutRange();
+                const auto& inOutRange = _timelinePlayer->inOutRange();
                 x0 = _timeToPos(inOutRange.start_time().value());
                 x1 = _timeToPos(inOutRange.end_time_inclusive().value());
                 y1 = y0 + rect.height();
@@ -140,7 +140,7 @@ namespace tlr
                 color = QColor(40, 190, 40);
                 painter.setPen(color);
                 painter.setBrush(color);
-                const auto& cachedFrames = _timeline->cachedFrames();
+                const auto& cachedFrames = _timelinePlayer->cachedFrames();
                 for (const auto& i : cachedFrames)
                 {
                     x0 = _timeToPos(i.start_time().value());
@@ -152,17 +152,17 @@ namespace tlr
                 color = palette.color(QPalette::ColorRole::WindowText);
                 painter.setPen(QPen(color, 1));
                 painter.setBrush(color);
-                x0 = _timeToPos(_timeline->currentTime().value());
+                x0 = _timeToPos(_timelinePlayer->currentTime().value());
                 painter.drawLine(QLine(QPoint(x0, y0), QPoint(x0, y1)));
             }
         }
 
         void TimelineSlider::mousePressEvent(QMouseEvent* event)
         {
-            if (_timeline)
+            if (_timelinePlayer)
             {
-                const auto& duration = _timeline->duration();
-                _timeline->seek(otime::RationalTime(_posToTime(event->x()), duration.rate()));
+                const auto& duration = _timelinePlayer->duration();
+                _timelinePlayer->seek(otime::RationalTime(_posToTime(event->x()), duration.rate()));
             }
         }
 
@@ -171,10 +171,10 @@ namespace tlr
 
         void TimelineSlider::mouseMoveEvent(QMouseEvent* event)
         {
-            if (_timeline)
+            if (_timelinePlayer)
             {
-                const auto& duration = _timeline->duration();
-                _timeline->seek(otime::RationalTime(_posToTime(event->x()), duration.rate()));
+                const auto& duration = _timelinePlayer->duration();
+                _timelinePlayer->seek(otime::RationalTime(_posToTime(event->x()), duration.rate()));
             }
         }
 
@@ -196,10 +196,10 @@ namespace tlr
         int64_t TimelineSlider::_posToTime(int value) const
         {
             int64_t out = 0;
-            if (_timeline)
+            if (_timelinePlayer)
             {
-                const auto& globalStartTime = _timeline->globalStartTime();
-                const auto& duration = _timeline->duration();
+                const auto& globalStartTime = _timelinePlayer->globalStartTime();
+                const auto& duration = _timelinePlayer->duration();
                 out = (value - border) / static_cast<double>(width() - border * 2 - 1) * (duration.value() - 1) + globalStartTime.value();
             }
             return out;
@@ -208,10 +208,10 @@ namespace tlr
         int TimelineSlider::_timeToPos(int64_t value) const
         {
             int out = 0;
-            if (_timeline)
+            if (_timelinePlayer)
             {
-                const auto& globalStartTime = _timeline->globalStartTime();
-                const auto& duration = _timeline->duration();
+                const auto& globalStartTime = _timelinePlayer->globalStartTime();
+                const auto& duration = _timelinePlayer->duration();
                 out = border + (value - globalStartTime.value()) / (duration.value() - 1) * (width() - border * 2 - 1);
             }
             return out;

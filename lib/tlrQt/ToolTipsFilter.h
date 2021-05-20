@@ -10,13 +10,13 @@ namespace tlr
 {
     namespace qt
     {
-        //! Tool tip filter object.
-        class ToolTipsFilterObject : public QObject
+        //! Tool tip filter.
+        class ToolTipsFilter : public QObject
         {
             Q_OBJECT
 
         public:
-            ToolTipsFilterObject(QObject* parent = nullptr);
+            ToolTipsFilter(QObject* parent = nullptr);
 
             bool eventFilter(QObject*, QEvent*) override;
         };

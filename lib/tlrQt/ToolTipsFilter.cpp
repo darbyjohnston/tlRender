@@ -2,7 +2,7 @@
 // Copyright (c) 2021 Darby Johnston
 // All rights reserved.
 
-#include <tlrQt/ToolTipsFilterObject.h>
+#include <tlrQt/ToolTipsFilter.h>
 
 #include <QEvent>
 
@@ -10,11 +10,11 @@ namespace tlr
 {
     namespace qt
     {
-        ToolTipsFilterObject::ToolTipsFilterObject(QObject* parent) :
+        ToolTipsFilter::ToolTipsFilter(QObject* parent) :
             QObject(parent)
         {}
 
-        bool ToolTipsFilterObject::eventFilter(QObject* watched, QEvent* event)
+        bool ToolTipsFilter::eventFilter(QObject* watched, QEvent* event)
         {
             if (event->type() == QEvent::Type::ToolTip)
             {

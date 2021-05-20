@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <tlrQt/TimelineObject.h>
-
 #include <tlrCore/Timeline.h>
 
 #include <QMap>
@@ -30,16 +28,13 @@ namespace tlr
             ~FilmstripWidget() override;
 
         public Q_SLOTS:
-            //! Set the timeline file name.
-            void setFileName(const QString&);
+            //! Set the timeline.
+            void setTimeline(const std::shared_ptr<tlr::timeline::Timeline>&);
 
         protected:
             void resizeEvent(QResizeEvent*) override;
             void paintEvent(QPaintEvent*) override;
             void timerEvent(QTimerEvent*) override;
-
-        private Q_SLOTS:
-            void _frameCallback(const tlr::io::VideoFrame&);
 
         private:
             otime::RationalTime _posToTime(int) const;
@@ -47,8 +42,7 @@ namespace tlr
 
             void _timelineUpdate();
 
-            TimelineObject* _timeline = nullptr;
-            QList<otime::RationalTime> _times;
+            std::shared_ptr<timeline::Timeline> _timeline;
             imaging::Size _thumbnailSize;
             QMap<otime::RationalTime, QImage> _thumbnails;
 

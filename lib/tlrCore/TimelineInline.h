@@ -26,49 +26,9 @@ namespace tlr
             return _imageInfo;
         }
 
-        inline std::vector<otime::TimeRange> Timeline::getClipRanges() const
+        inline const std::vector<otime::TimeRange>& Timeline::getClipRanges() const
         {
             return _clipRanges;
-        }
-
-        inline std::shared_ptr<Observer::IValueSubject<Playback> > Timeline::observePlayback() const
-        {
-            return _playback;
-        }
-
-        inline std::shared_ptr<Observer::IValueSubject<Loop> > Timeline::observeLoop() const
-        {
-            return _loop;
-        }
-
-        inline std::shared_ptr<Observer::IValueSubject<otime::RationalTime> > Timeline::observeCurrentTime() const
-        {
-            return _currentTime;
-        }
-
-        inline std::shared_ptr<Observer::IValueSubject<otime::TimeRange> > Timeline::observeInOutRange() const
-        {
-            return _inOutRange;
-        }
-
-        inline std::shared_ptr<Observer::IValueSubject<io::VideoFrame> > Timeline::observeFrame() const
-        {
-            return _frame;
-        }
-
-        inline int Timeline::getFrameCacheReadAhead() const
-        {
-            return _frameCacheReadAhead;
-        }
-
-        inline int Timeline::getFrameCacheReadBehind() const
-        {
-            return _frameCacheReadBehind;
-        }
-
-        inline std::shared_ptr<Observer::IListSubject<otime::TimeRange> > Timeline::observeCachedFrames() const
-        {
-            return _cachedFrames;
         }
     }
 }

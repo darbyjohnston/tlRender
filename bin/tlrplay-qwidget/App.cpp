@@ -61,20 +61,21 @@ namespace tlr
     {
         try
         {
-            auto timeline = new qt::TimelineObject(fileName, this);
-            timeline->setFrameCacheReadAhead(_settingsObject->frameCacheReadAhead());
-            timeline->setFrameCacheReadBehind(_settingsObject->frameCacheReadBehind());
-            timeline->connect(
+            auto timeline = timeline::Timeline::create(fileName.toLatin1().data());
+            auto timelinePlayer = new qt::TimelinePlayer(timeline, this);
+            timelinePlayer->setFrameCacheReadAhead(_settingsObject->frameCacheReadAhead());
+            timelinePlayer->setFrameCacheReadBehind(_settingsObject->frameCacheReadBehind());
+            timelinePlayer->connect(
                 _settingsObject,
                 SIGNAL(frameCacheReadAheadChanged(int)),
                 SLOT(setFrameCacheReadAhead(int)));
-            timeline->connect(
+            timelinePlayer->connect(
                 _settingsObject,
                 SIGNAL(frameCacheReadBehindChanged(int)),
                 SLOT(setFrameCacheReadBehind(int)));
-            _timelines.append(timeline);
+            _timelinePlayers.append(timelinePlayer);
 
-            Q_EMIT opened(timeline);
+            Q_EMIT opened(timelinePlayer);
 
             _settingsObject->addRecentFile(fileName);
         }
@@ -86,23 +87,23 @@ namespace tlr
         }
     }
 
-    void App::close(qt::TimelineObject* timeline)
+    void App::close(qt::TimelinePlayer* timelinePlayer)
     {
-        const int i = _timelines.indexOf(timeline);
+        const int i = _timelinePlayers.indexOf(timelinePlayer);
         if (i != -1)
         {
-            _timelines.removeAt(i);
-            Q_EMIT closed(timeline);
-            timeline->setParent(nullptr);
-            delete timeline;
+            _timelinePlayers.removeAt(i);
+            Q_EMIT closed(timelinePlayer);
+            timelinePlayer->setParent(nullptr);
+            delete timelinePlayer;
         }
     }
 
     void App::closeAll()
     {
-        while (!_timelines.empty())
+        while (!_timelinePlayers.empty())
         {
-            close(_timelines.back());
+            close(_timelinePlayers.back());
         }
     }
 }

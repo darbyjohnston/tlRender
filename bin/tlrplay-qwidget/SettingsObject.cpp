@@ -13,7 +13,7 @@ namespace tlr
         QObject(parent),
         _timeObject(timeObject)
     {
-        _toolTipsFilterObject = new qt::ToolTipsFilterObject(this);
+        _toolTipsFilter = new qt::ToolTipsFilter(this);
 
         QSettings settings;
         _timeObject->setUnits(settings.value("TimeUnits", QVariant::fromValue(_timeObject->units())).value<qt::TimeObject::Units>());
@@ -107,11 +107,11 @@ namespace tlr
     {
         if (_toolTipsEnabled)
         {
-            qApp->removeEventFilter(_toolTipsFilterObject);
+            qApp->removeEventFilter(_toolTipsFilter);
         }
         else
         {
-            qApp->installEventFilter(_toolTipsFilterObject);
+            qApp->installEventFilter(_toolTipsFilter);
         }
     }
 }

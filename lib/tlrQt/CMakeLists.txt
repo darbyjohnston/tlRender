@@ -4,22 +4,22 @@ set(HEADERS
     TimeLabel.h
     TimeObject.h
     TimeSpinBox.h
-    TimelineObject.h
+    TimelinePlayer.h
     TimelineSlider.h
     TimelineViewport.h
     TimelineWidget.h
-    ToolTipsFilterObject.h)
+    ToolTipsFilter.h)
 set(SOURCE
     FilmstripWidget.cpp
     SpeedLabel.cpp
     TimeLabel.cpp
     TimeObject.cpp
     TimeSpinBox.cpp
-    TimelineObject.cpp
+    TimelinePlayer.cpp
     TimelineSlider.cpp
     TimelineViewport.cpp
     TimelineWidget.cpp
-    ToolTipsFilterObject.cpp)
+    ToolTipsFilter.cpp)
 qt5_add_resources(SOURCE tlrQt.qrc)
 
 add_library(tlrQt ${HEADERS} ${SOURCE})

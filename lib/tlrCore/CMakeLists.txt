@@ -29,6 +29,8 @@ set(HEADERS
     Time.h
     Timeline.h
     TimelineInline.h
+    TimelinePlayer.h
+    TimelinePlayerInline.h
     Util.h
     ValueObserver.h
     ValueObserverInline.h
@@ -44,6 +46,7 @@ set(SOURCE
     StringFormat.cpp
     Time.cpp
     Timeline.cpp
+    TimelinePlayer.cpp
     Util.cpp)
 
 set(tlrCore_LIBRARIES OTIO FSeq)

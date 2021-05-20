@@ -6,7 +6,7 @@
 
 #include <tlrQt/TimeObject.h>
 
-#include <tlrCore/Timeline.h>
+#include <tlrCore/Util.h>
 
 #include <QAbstractSpinBox>
 #include <QRegExpValidator>

@@ -9,7 +9,7 @@
 #include <tlrGL/FontSystem.h>
 #include <tlrGL/Render.h>
 
-#include <tlrCore/Timeline.h>
+#include <tlrCore/TimelinePlayer.h>
 
 struct GLFWwindow;
 
@@ -68,7 +68,7 @@ namespace tlr
         std::string _input;
         Options _options;
 
-        std::shared_ptr<timeline::Timeline> _timeline;
+        std::shared_ptr<timeline::TimelinePlayer> _timelinePlayer;
 
         GLFWwindow* _glfwWindow = nullptr;
         math::Vector2i _windowPos;

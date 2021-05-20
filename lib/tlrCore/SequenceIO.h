@@ -31,6 +31,7 @@ namespace tlr
 
             std::future<io::Info> getInfo() override;
             std::future<io::VideoFrame> getVideoFrame(const otime::RationalTime&) override;
+            bool hasVideoFrames() override;
             void cancelVideoFrames() override;
 
         protected:

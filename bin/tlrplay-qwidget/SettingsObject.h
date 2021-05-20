@@ -5,7 +5,7 @@
 #pragma once
 
 #include <tlrQt/TimeObject.h>
-#include <tlrQt/ToolTipsFilterObject.h>
+#include <tlrQt/ToolTipsFilter.h>
 
 #include <QObject>
 
@@ -67,6 +67,6 @@ namespace tlr
         int _frameCacheReadBehind = 10;
         qt::TimeObject* _timeObject = nullptr;
         bool _toolTipsEnabled = true;
-        qt::ToolTipsFilterObject* _toolTipsFilterObject = nullptr;
+        qt::ToolTipsFilter* _toolTipsFilter = nullptr;
     };
 }

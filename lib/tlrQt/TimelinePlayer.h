@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlrCore/Timeline.h>
+#include <tlrCore/TimelinePlayer.h>
 
 #include <QObject>
 
@@ -12,13 +12,13 @@ namespace tlr
 {
     namespace qt
     {
-        class TimelineObject : public QObject
+        class TimelinePlayer : public QObject
         {
             Q_OBJECT
 
         public:
-            TimelineObject(const QString& fileName, QObject* parent = nullptr);
-            ~TimelineObject() override;
+            TimelinePlayer(const std::shared_ptr<timeline::Timeline>&, QObject* parent = nullptr);
+            ~TimelinePlayer() override;
 
             //! \name Information
             ///@{
@@ -201,7 +201,7 @@ namespace tlr
             void timerEvent(QTimerEvent*) override;
 
         private:
-            std::shared_ptr<timeline::Timeline> _timeline;
+            std::shared_ptr<timeline::TimelinePlayer> _timelinePlayer;
 
             std::shared_ptr<Observer::Value<timeline::Playback> > _playbackObserver;
             std::shared_ptr<Observer::Value<timeline::Loop> > _loopObserver;

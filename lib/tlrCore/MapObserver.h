@@ -5,6 +5,7 @@
 #pragma once
 
 #include <tlrCore/Observer.h>
+#include <tlrCore/Util.h>
 
 #include <functional>
 #include <map>

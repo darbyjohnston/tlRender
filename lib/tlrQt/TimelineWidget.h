@@ -7,7 +7,7 @@
 #include <tlrQt/SpeedLabel.h>
 #include <tlrQt/TimeLabel.h>
 #include <tlrQt/TimeSpinBox.h>
-#include <tlrQt/TimelineObject.h>
+#include <tlrQt/TimelinePlayer.h>
 #include <tlrQt/TimelineSlider.h>
 
 #include <QButtonGroup>
@@ -30,8 +30,8 @@ namespace tlr
             //! Set the time object.
             void setTimeObject(TimeObject*);
 
-            //! Set the timeline object.
-            void setTimeline(TimelineObject*);
+            //! Set the timeline player.
+            void setTimelinePlayer(TimelinePlayer*);
 
         private Q_SLOTS:
             void _playbackCallback(QAbstractButton*);
@@ -51,7 +51,7 @@ namespace tlr
             void _playbackUpdate();
             void _timelineUpdate();
 
-            TimelineObject* _timeline = nullptr;
+            TimelinePlayer* _timelinePlayer = nullptr;
             QMap<QString, QAbstractButton*> _playbackButtons;
             QButtonGroup* _playbackButtonGroup = nullptr;
             QMap<QAbstractButton*, timeline::Playback> _buttonToPlayback;

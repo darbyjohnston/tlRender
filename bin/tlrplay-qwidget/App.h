@@ -10,7 +10,7 @@
 #include <tlrApp/IApp.h>
 
 #include <tlrQt/TimeObject.h>
-#include <tlrQt/TimelineObject.h>
+#include <tlrQt/TimelinePlayer.h>
 
 #include <QApplication>
 
@@ -29,24 +29,24 @@ namespace tlr
         void open(const QString&);
 
         //! Close a timeline.
-        void close(tlr::qt::TimelineObject*);
+        void close(tlr::qt::TimelinePlayer*);
 
         //! Close all of the timelines.
         void closeAll();
 
     Q_SIGNALS:
         //! This signal is emitted when a timeline is opened.
-        void opened(tlr::qt::TimelineObject*);
+        void opened(tlr::qt::TimelinePlayer*);
 
         //! This signal is emitted when a timeline is closed.
-        void closed(tlr::qt::TimelineObject*);
+        void closed(tlr::qt::TimelinePlayer*);
 
     private:
         qt::TimeObject* _timeObject = nullptr;
         SettingsObject* _settingsObject = nullptr;
 
         std::string _input;
-        QList<qt::TimelineObject*> _timelines;
+        QList<qt::TimelinePlayer*> _timelinePlayers;
 
         MainWindow* _mainWindow = nullptr;
     };
