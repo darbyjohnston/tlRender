@@ -18,6 +18,7 @@ namespace tlr
             setBackgroundRole(QPalette::ColorRole::Base);
             setAutoFillBackground(true);
             setSizePolicy(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
+            setMinimumHeight(20);
         }
 
         void TimelineSlider::setTimeObject(TimeObject* timeObject)

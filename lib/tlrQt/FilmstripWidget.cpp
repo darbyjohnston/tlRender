@@ -29,7 +29,7 @@ namespace tlr
                         std::pair<io::VideoFrame, imaging::Size> data;
                         {
                             std::unique_lock<std::mutex> lock(_thumbnailMutex);
-                            if (_thumbnailsCV.wait_for(
+                            if (_thumbnailCV.wait_for(
                                 lock,
                                 std::chrono::microseconds(1000),
                                 [this]
@@ -119,6 +119,32 @@ namespace tlr
 
         void FilmstripWidget::timerEvent(QTimerEvent*)
         {
+            std::list<std::pair<io::VideoFrame, imaging::Size> > thumbnailRequests;
+            auto videoFramesIt = _videoFrameRequests.begin();
+            while (videoFramesIt != _videoFrameRequests.end())
+            {
+                if (videoFramesIt->second.valid() &&
+                    videoFramesIt->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+                {
+                    auto frame = videoFramesIt->second.get();
+                    frame.time = videoFramesIt->first;
+                    thumbnailRequests.push_back(std::make_pair(frame, _thumbnailSize));
+                    videoFramesIt = _videoFrameRequests.erase(videoFramesIt);
+                }
+                else
+                {
+                    ++videoFramesIt;
+                }
+            }
+            if (!thumbnailRequests.empty())
+            {
+                {
+                    std::unique_lock<std::mutex> lock(_thumbnailMutex);
+                    _thumbnailRequests.insert(_thumbnailRequests.end(), thumbnailRequests.begin(), thumbnailRequests.end());
+                }
+                _thumbnailCV.notify_one();
+            }
+
             bool results = false;
             {
                 std::unique_lock<std::mutex> lock(_thumbnailMutex);
@@ -140,9 +166,9 @@ namespace tlr
             otime::RationalTime out;
             if (_timeline)
             {
-                const double t = value / static_cast<double>(width());
+                const auto& globalStartTime = _timeline->getGlobalStartTime();
                 const auto& duration = _timeline->getDuration();
-                out = otime::RationalTime(t * duration.value(), duration.rate());
+                out = otime::RationalTime(value / static_cast<double>(width()) * (duration.value() - 1) + globalStartTime.value(), duration.rate());
             }
             return out;
         }
@@ -152,9 +178,9 @@ namespace tlr
             int out = 0;
             if (_timeline)
             {
+                const auto& globalStartTime = _timeline->getGlobalStartTime();
                 const auto& duration = _timeline->getDuration();
-                const double t = value.value() / duration.value();
-                out = static_cast<int>(width() * t);
+                out = (value.value() - globalStartTime.value()) / (duration.value() - 1) * width();
             }
             return out;
         }
@@ -162,22 +188,28 @@ namespace tlr
         void FilmstripWidget::_timelineUpdate()
         {
             _thumbnails.clear();
+            _videoFrameRequests.clear();
             if (_timeline)
             {
-                const auto& duration = _timeline->getDuration();
-                const auto& imageInfo = _timeline->getImageInfo();
-                const auto& size = this->size();
-                const int width = size.width();
-                const int height = size.height();
-                _thumbnailSize.w = static_cast<int>(height * imageInfo.size.getAspect());
-                _thumbnailSize.h = height;
-                if (_thumbnailSize.w > 0)
+                _timeline->cancelRenders();
+                if (_timeline)
                 {
-                    int x = 0;
-                    while (x < width)
+                    const auto& duration = _timeline->getDuration();
+                    const auto& imageInfo = _timeline->getImageInfo();
+                    const auto& size = this->size();
+                    const int width = size.width();
+                    const int height = size.height();
+                    _thumbnailSize.w = static_cast<int>(height * imageInfo.size.getAspect());
+                    _thumbnailSize.h = height;
+                    if (_thumbnailSize.w > 0)
                     {
-                        //_times.push_back(_posToTime(x));
-                        x += _thumbnailSize.w;
+                        int x = 0;
+                        while (x < width)
+                        {
+                            const auto time = _posToTime(x);
+                            _videoFrameRequests[time] = _timeline->render(time);
+                            x += _thumbnailSize.w;
+                        }
                     }
                 }
             }

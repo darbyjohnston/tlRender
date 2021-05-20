@@ -45,8 +45,9 @@ namespace tlr
             std::shared_ptr<timeline::Timeline> _timeline;
             imaging::Size _thumbnailSize;
             QMap<otime::RationalTime, QImage> _thumbnails;
+            std::map<otime::RationalTime, std::future<io::VideoFrame> > _videoFrameRequests;
 
-            std::condition_variable _thumbnailsCV;
+            std::condition_variable _thumbnailCV;
             std::mutex _thumbnailMutex;
             std::list<std::pair<io::VideoFrame, imaging::Size> > _thumbnailRequests;
             std::list<std::pair<QImage, otime::RationalTime> > _thumbnailResults;
