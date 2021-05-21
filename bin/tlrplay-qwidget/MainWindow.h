@@ -43,6 +43,8 @@ namespace tlr
         void _closedCallback(tlr::qt::TimelinePlayer*);
         void _recentFilesCallback(QAction*);
         void _recentFilesCallback();
+        void _nextCallback();
+        void _prevCallback();
         void _settingsVisibleCallback(bool);
         void _currentTabCallback(int);
         void _closeTabCallback(int);

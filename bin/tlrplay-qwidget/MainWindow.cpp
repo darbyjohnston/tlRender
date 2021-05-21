@@ -43,6 +43,12 @@ namespace tlr
         _actions["File/Close"]->setShortcut(QKeySequence::Close);
         _actions["File/CloseAll"] = new QAction(this);
         _actions["File/CloseAll"]->setText(tr("Close All"));
+        _actions["File/Next"] = new QAction(this);
+        _actions["File/Next"]->setText(tr("Next"));
+        _actions["File/Next"]->setShortcut(QKeySequence::MoveToNextPage);
+        _actions["File/Prev"] = new QAction(this);
+        _actions["File/Prev"]->setText(tr("Previous"));
+        _actions["File/Prev"]->setShortcut(QKeySequence::MoveToPreviousPage);
         _recentFilesActionGroup = new QActionGroup(this);
         _actions["File/Settings"] = new QAction(this);
         _actions["File/Settings"]->setText(tr("Settings"));
@@ -168,6 +174,9 @@ namespace tlr
         _recentFilesMenu->setTitle(tr("&Recent Files"));
         fileMenu->addMenu(_recentFilesMenu);
         fileMenu->addSeparator();
+        fileMenu->addAction(_actions["File/Next"]);
+        fileMenu->addAction(_actions["File/Prev"]);
+        fileMenu->addSeparator();
         fileMenu->addAction(_actions["File/Settings"]);
         fileMenu->addSeparator();
         fileMenu->addAction(_actions["File/Exit"]);
@@ -256,6 +265,14 @@ namespace tlr
             _recentFilesActionGroup,
             SIGNAL(triggered(QAction*)),
             SLOT(_recentFilesCallback(QAction*)));
+        connect(
+            _actions["File/Next"],
+            SIGNAL(triggered()),
+            SLOT(_nextCallback()));
+        connect(
+            _actions["File/Prev"],
+            SIGNAL(triggered()),
+            SLOT(_prevCallback()));
         connect(
             _actions["File/Settings"],
             SIGNAL(triggered(bool)),
@@ -526,6 +543,34 @@ namespace tlr
     void MainWindow::_recentFilesCallback()
     {
         _recentFilesUpdate();
+    }
+
+    void MainWindow::_nextCallback()
+    {
+        if (_timelinePlayers.size() > 1)
+        {
+            int i = _timelinePlayers.indexOf(_currentTimelinePlayer);
+            ++i;
+            if (i >= _timelinePlayers.size())
+            {
+                i = 0;
+            }
+            _setCurrentTimeline(_timelinePlayers[i]);
+        }
+    }
+
+    void MainWindow::_prevCallback()
+    {
+        if (_timelinePlayers.size() > 1)
+        {
+            int i = _timelinePlayers.indexOf(_currentTimelinePlayer);
+            --i;
+            if (i < 0)
+            {
+                i = _timelinePlayers.size() - 1;
+            }
+            _setCurrentTimeline(_timelinePlayers[i]);
+        }
     }
 
     void MainWindow::_settingsVisibleCallback(bool value)
@@ -817,16 +862,10 @@ namespace tlr
 
     void MainWindow::_timelineUpdate()
     {
-        if (!_timelinePlayers.empty())
-        {
-            _actions["File/Close"]->setEnabled(true);
-            _actions["File/CloseAll"]->setEnabled(true);
-        }
-        else
-        {
-            _actions["File/Close"]->setEnabled(false);
-            _actions["File/CloseAll"]->setEnabled(false);
-        }
+        _actions["File/Close"]->setEnabled(!_timelinePlayers.empty());
+        _actions["File/CloseAll"]->setEnabled(!_timelinePlayers.empty());
+        _actions["File/Next"]->setEnabled(_timelinePlayers.size() > 1);
+        _actions["File/Prev"]->setEnabled(_timelinePlayers.size() > 1);
 
         if (_currentTimelinePlayer)
         {
