@@ -24,9 +24,9 @@ namespace tlr
             _recentFiles.push_back(settings.value("File").toString().toLatin1().data());
         }
         settings.endArray();
-        _frameCacheReadAhead = settings.value("FrameCache/ReadAhead").toInt();
-        _frameCacheReadBehind = settings.value("FrameCache/ReadBehind").toInt();
-        _toolTipsEnabled = settings.value("Misc/ToolTipsEnabled").toBool();
+        _frameCacheReadAhead = settings.value("FrameCache/ReadAhead", 100).toInt();
+        _frameCacheReadBehind = settings.value("FrameCache/ReadBehind", 10).toInt();
+        _toolTipsEnabled = settings.value("Misc/ToolTipsEnabled", true).toBool();
 
         _toolTipsUpdate();
     }

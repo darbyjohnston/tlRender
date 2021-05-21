@@ -225,7 +225,7 @@ namespace tlr
         timelineDockWidget->setAllowedAreas(Qt::BottomDockWidgetArea);
         timelineDockWidget->setWidget(_timelineWidget);
         timelineDockWidget->setTitleBarWidget(new QWidget);
-        addDockWidget(Qt::RightDockWidgetArea, timelineDockWidget);
+        addDockWidget(Qt::BottomDockWidgetArea, timelineDockWidget);
 
         auto settingsWidget = new SettingsWidget(settingsObject, _timeObject);
         auto settingsDockWidget = new QDockWidget;
@@ -234,7 +234,7 @@ namespace tlr
         settingsDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
         settingsDockWidget->setWidget(settingsWidget);
         settingsDockWidget->hide();
-        addDockWidget(Qt::BottomDockWidgetArea, settingsDockWidget);
+        addDockWidget(Qt::RightDockWidgetArea, settingsDockWidget);
 
         _recentFilesUpdate();
         _playbackUpdate();
@@ -368,8 +368,16 @@ namespace tlr
 
         resize(640, 360);
         QSettings settings;
-        restoreGeometry(settings.value("geometry").toByteArray());
-        restoreState(settings.value("windowState").toByteArray());
+        auto ba = settings.value("geometry").toByteArray();
+        if (!ba.isEmpty())
+        {
+            restoreGeometry(settings.value("geometry").toByteArray());
+        }
+        ba = settings.value("geometry").toByteArray();
+        if (!ba.isEmpty())
+        {
+            restoreState(settings.value("windowState").toByteArray());
+        }
     }
 
     void MainWindow::closeEvent(QCloseEvent* event)
