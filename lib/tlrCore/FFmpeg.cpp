@@ -172,7 +172,7 @@ namespace tlr
                     ss << fileName << ": " << getErrorLabel(r);
                     throw std::runtime_error(ss.str());
                 }
-                _avCodecContext[_avVideoStream]->thread_count = 8;
+                _avCodecContext[_avVideoStream]->thread_count = 4;
                 _avCodecContext[_avVideoStream]->thread_type = FF_THREAD_FRAME;
                 r = avcodec_open2(_avCodecContext[_avVideoStream], avVideoCodec, 0);
                 if (r < 0)
@@ -203,7 +203,7 @@ namespace tlr
                     videoInfo.info.pixelType = imaging::PixelType::RGBA_U8;
                     break;
                 default:
-                    videoInfo.info.pixelType = imaging::PixelType::RGB_U8;
+                    videoInfo.info.pixelType = imaging::PixelType::YUV_420P;
                     _avFrameRgb = av_frame_alloc();
                     _swsContext = sws_getContext(
                         _avCodecParameters[_avVideoStream]->width,
@@ -211,7 +211,7 @@ namespace tlr
                         avPixelFormat,
                         _avCodecParameters[_avVideoStream]->width,
                         _avCodecParameters[_avVideoStream]->height,
-                        AV_PIX_FMT_RGB24,
+                        AV_PIX_FMT_YUV420P,
                         SWS_BILINEAR,
                         0,
                         0,
@@ -487,7 +487,7 @@ namespace tlr
                     _avFrameRgb->data,
                     _avFrameRgb->linesize,
                     image->getData(),
-                    AV_PIX_FMT_RGB24,
+                    AV_PIX_FMT_YUV420P,
                     w,
                     h,
                     1);
@@ -509,7 +509,7 @@ namespace tlr
         std::shared_ptr<Plugin> Plugin::create()
         {
             auto out = std::shared_ptr<Plugin>(new Plugin);
-            out->_init({ ".mov", ".m4v", ".mp4" });
+            out->_init({ ".mov", ".m4v", ".mp4", ".y4m" });
             return out;
         }
 
