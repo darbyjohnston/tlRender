@@ -75,6 +75,7 @@ namespace tlr
                     SIGNAL(cachedFramesChanged(const std::vector<otime::TimeRange>&)),
                     SLOT(_cachedFramesCallback(const std::vector<otime::TimeRange>&)));
             }
+            update();
         }
 
         void TimelineSlider::setUnits(TimeObject::Units units)
