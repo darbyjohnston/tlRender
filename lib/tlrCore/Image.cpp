@@ -21,10 +21,33 @@ namespace tlr
             PixelType,
             "None",
             "L_U8",
+            "L_U16",
+            "L_F32",
+            "LA_U8",
+            "LA_U16",
+            "LA_F32",
             "RGB_U8",
+            "RGB_U16",
+            "RGB_F32",
             "RGBA_U8",
+            "RGBA_U16",
+            "RGBA_F32",
             "RGBA_F16",
             "YUV_420P");
+
+        uint8_t getChannelCount(PixelType value)
+        {
+            const std::array<uint8_t, static_cast<size_t>(PixelType::Count)> values =
+            {
+                0,
+                1, 1, 1,
+                2, 2, 2,
+                3, 3, 3,
+                4, 4, 4, 4,
+                3
+            };
+            return values[static_cast<size_t>(value)];
+        }
 
         PixelType getIntType(std::size_t channelCount, std::size_t bitDepth)
         {
@@ -35,18 +58,28 @@ namespace tlr
                 switch (bitDepth)
                 {
                 case 8: out = PixelType::L_U8; break;
+                case 16: out = PixelType::L_U16; break;
+                }
+                break;
+            case 2:
+                switch (bitDepth)
+                {
+                case 8: out = PixelType::LA_U8; break;
+                case 16: out = PixelType::LA_U16; break;
                 }
                 break;
             case 3:
                 switch (bitDepth)
                 {
                 case 8: out = PixelType::RGB_U8; break;
+                case 16: out = PixelType::RGB_U16; break;
                 }
                 break;
             case 4:
                 switch (bitDepth)
                 {
                 case 8: out = PixelType::RGBA_U8; break;
+                case 16: out = PixelType::RGBA_U16; break;
                 }
                 break;
             }
@@ -58,10 +91,29 @@ namespace tlr
             PixelType out = PixelType::None;
             switch (channelCount)
             {
+            case 1:
+                switch (bitDepth)
+                {
+                case 32: out = PixelType::L_F32; break;
+                }
+                break;
+            case 2:
+                switch (bitDepth)
+                {
+                case 32: out = PixelType::LA_F32; break;
+                }
+                break;
+            case 3:
+                switch (bitDepth)
+                {
+                case 32: out = PixelType::RGB_F32; break;
+                }
+                break;
             case 4:
                 switch (bitDepth)
                 {
                 case 16: out = PixelType::RGBA_F16; break;
+                case 32: out = PixelType::RGBA_F32; break;
                 }
                 break;
             }
@@ -71,25 +123,25 @@ namespace tlr
         inline std::size_t getDataByteCount(const Info& info)
         {
             std::size_t out = 0;
+            const size_t w = info.size.w;
+            const size_t h = info.size.h;
             switch (info.pixelType)
             {
-            case PixelType::L_U8:
-                out = info.size.w * info.size.h;
-                break;
-            case PixelType::RGB_U8:
-                out = info.size.w * info.size.h * 3;
-                break;
-            case PixelType::RGBA_U8:
-                out = info.size.w * info.size.h * 4;
-                break;
-            case PixelType::RGBA_F16:
-                out = info.size.w * info.size.h * 4 * 2;
-                break;
-            case PixelType::YUV_420P:
-                out = info.size.w * info.size.h + (info.size.w / 2 * info.size.h / 2) * 2;
-                break;
-            default:
-                break;
+            case PixelType::L_U8:     out = w * h;         break;
+            case PixelType::L_U16:    out = w * h * 2;     break;
+            case PixelType::L_F32:    out = w * h * 4;     break;
+            case PixelType::LA_U8:    out = w * h * 2;     break;
+            case PixelType::LA_U16:   out = w * h * 2 * 2; break;
+            case PixelType::LA_F32:   out = w * h * 2 * 4; break;
+            case PixelType::RGB_U8:   out = w * h * 3;     break;
+            case PixelType::RGB_U16:  out = w * h * 3 * 2; break;
+            case PixelType::RGB_F32:  out = w * h * 3 * 4; break;
+            case PixelType::RGBA_U8:  out = w * h * 4;     break;
+            case PixelType::RGBA_U16: out = w * h * 4 * 2; break;
+            case PixelType::RGBA_F16: out = w * h * 4 * 2; break;
+            case PixelType::RGBA_F32: out = w * h * 4 * 4; break;
+            case PixelType::YUV_420P: out = w * h + (w / 2 * h / 2) * 2; break;
+            default: break;
             }
             return out;
         }

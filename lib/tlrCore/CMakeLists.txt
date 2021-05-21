@@ -20,6 +20,8 @@ set(HEADERS
     MathInline.h
     Matrix.h
     MatrixInline.h
+    Memory.h
+    MemoryInline.h
     Observer.h
     Range.h
     RangeInline.h
@@ -57,6 +59,16 @@ if(JPEG_FOUND)
     set(HEADERS ${HEADERS} JPEG.h)
     set(SOURCE ${SOURCE} JPEG.cpp)
     set(tlrCore_LIBRARIES ${tlrCore_LIBRARIES} JPEG)
+endif()
+if(TIFF_FOUND)
+    set(HEADERS ${HEADERS} TIFF.h)
+    set(SOURCE ${SOURCE} TIFF.cpp)
+    set(tlrCore_LIBRARIES ${tlrCore_LIBRARIES} TIFF)
+endif()
+if(PNG_FOUND)
+    set(HEADERS ${HEADERS} PNG.h)
+    set(SOURCE ${SOURCE} PNG.cpp)
+    set(tlrCore_LIBRARIES ${tlrCore_LIBRARIES} PNG)
 endif()
 if(OpenEXR_FOUND)
     set(HEADERS ${HEADERS} OpenEXR.h)

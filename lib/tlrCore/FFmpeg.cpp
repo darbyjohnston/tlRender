@@ -172,7 +172,7 @@ namespace tlr
                     ss << fileName << ": " << getErrorLabel(r);
                     throw std::runtime_error(ss.str());
                 }
-                _avCodecContext[_avVideoStream]->thread_count = 4;
+                _avCodecContext[_avVideoStream]->thread_count = 8;
                 _avCodecContext[_avVideoStream]->thread_type = FF_THREAD_FRAME;
                 r = avcodec_open2(_avCodecContext[_avVideoStream], avVideoCodec, 0);
                 if (r < 0)

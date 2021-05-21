@@ -116,13 +116,11 @@ namespace tlr
 
             class File
             {
-                TLR_NON_COPYABLE(File);
-                File()
+            public:
+                File(const std::string& fileName)
                 {
                     memset(&decompress, 0, sizeof(jpeg_decompress_struct));
-                }
-                void _init(const std::string& fileName)
-                {
+
                     decompress.err = jpeg_std_error(&error.pub);
                     error.pub.error_exit = jpegError;
                     error.pub.emit_message = jpegWarning;
@@ -158,7 +156,6 @@ namespace tlr
                     info = imaging::Info(decompress.output_width, decompress.output_height, pixelType);
                 }
 
-            public:
                 ~File()
                 {
                     if (init)
@@ -171,13 +168,6 @@ namespace tlr
                         fclose(f);
                         f = nullptr;
                     }
-                }
-
-                static std::shared_ptr<File> create(const std::string& fileName)
-                {
-                    auto out = std::shared_ptr<File>(new File);
-                    out->_init(fileName);
-                    return out;
                 }
 
                 FILE*                  f = nullptr;
@@ -214,7 +204,7 @@ namespace tlr
         {
             io::Info out;
             io::VideoInfo videoInfo;
-            videoInfo.info = File::create(fileName)->info;
+            videoInfo.info = std::shared_ptr<File>(new File(fileName))->info;
             videoInfo.duration = _defaultSpeed;
             videoInfo.codec = "JPEG";
             out.video.push_back(videoInfo);
@@ -226,31 +216,22 @@ namespace tlr
             io::VideoFrame out;
 
             const std::string fileName = _getFileName(time);
-            auto f = File::create(fileName);
+            auto f = std::shared_ptr<File>(new File(fileName));
 
-            imaging::PixelType pixelType = imaging::getIntType(f->decompress.out_color_components, 8);
-            if (imaging::PixelType::None == pixelType)
-            {
-                std::stringstream ss;
-                ss << fileName << ": File not supported";
-                throw std::runtime_error(ss.str());
-            }
-
-            const imaging::Info info(f->decompress.output_width, f->decompress.output_height, pixelType);
             out.time = time;
-            out.image = imaging::Image::create(info);
+            out.image = imaging::Image::create(f->info);
 
             std::size_t scanlineByteCount = 0;
-            switch (pixelType)
+            switch (f->info.pixelType)
             {
             case imaging::PixelType::L_U8:
-                scanlineByteCount = info.size.w;
+                scanlineByteCount = f->info.size.w;
                 break;
             case imaging::PixelType::RGB_U8:
-                scanlineByteCount = info.size.w * 3;
+                scanlineByteCount = f->info.size.w * 3;
                 break;
             }
-            for (uint16_t y = 0; y < info.size.h; ++y)
+            for (uint16_t y = 0; y < f->info.size.h; ++y)
             {
                 if (!jpegScanline(&f->decompress, out.image->getData() + scanlineByteCount * y, &f->error))
                 {

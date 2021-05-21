@@ -71,10 +71,19 @@ namespace tlr
                 "// tlr::imaging::PixelType\n"
                 "#define PIXEL_TYPE_NONE     0\n"
                 "#define PIXEL_TYPE_L_U8     1\n"
-                "#define PIXEL_TYPE_RGB_U8   2\n"
-                "#define PIXEL_TYPE_RGBA_U8  3\n"
-                "#define PIXEL_TYPE_RGBA_F16 4\n"
-                "#define PIXEL_TYPE_YUV_420P 5\n"
+                "#define PIXEL_TYPE_L_U16    2\n"
+                "#define PIXEL_TYPE_L_F32    3\n"
+                "#define PIXEL_TYPE_LA_U8    4\n"
+                "#define PIXEL_TYPE_LA_U16   5\n"
+                "#define PIXEL_TYPE_LA_F32   6\n"
+                "#define PIXEL_TYPE_RGB_U8   7\n"
+                "#define PIXEL_TYPE_RGB_U16  8\n"
+                "#define PIXEL_TYPE_RGB_F32  9\n"
+                "#define PIXEL_TYPE_RGBA_U8  10\n"
+                "#define PIXEL_TYPE_RGBA_U16 11\n"
+                "#define PIXEL_TYPE_RGBA_F16 12\n"
+                "#define PIXEL_TYPE_RGBA_F32 13\n"
+                "#define PIXEL_TYPE_YUV_420P 14\n"
                 "uniform int pixelType;\n"
                 "uniform sampler2D textureSampler0;\n"
                 "uniform sampler2D textureSampler1;\n"
@@ -125,41 +134,71 @@ namespace tlr
 
             QOpenGLTexture::TextureFormat getTextureFormat(imaging::PixelType value)
             {
-                QOpenGLTexture::TextureFormat out = QOpenGLTexture::NoFormat;
-                switch (value)
+                const std::array<QOpenGLTexture::TextureFormat, 15> values =
                 {
-                case imaging::PixelType::L_U8: out = QOpenGLTexture::R8_UNorm; break;
-                case imaging::PixelType::RGB_U8: out = QOpenGLTexture::RGB8_UNorm; break;
-                case imaging::PixelType::RGBA_U8: out = QOpenGLTexture::RGBA8_UNorm; break;
-                default: break;
-                }
-                return out;
+                    QOpenGLTexture::NoFormat,
+                    QOpenGLTexture::R8_UNorm,
+                    QOpenGLTexture::R16_UNorm,
+                    QOpenGLTexture::R32F,
+                    QOpenGLTexture::RG8_UNorm,
+                    QOpenGLTexture::RG16_UNorm,
+                    QOpenGLTexture::RG32F,
+                    QOpenGLTexture::RGB8_UNorm,
+                    QOpenGLTexture::RGB16_UNorm,
+                    QOpenGLTexture::RGB32F,
+                    QOpenGLTexture::RGBA8_UNorm,
+                    QOpenGLTexture::RGBA16_UNorm,
+                    QOpenGLTexture::RGBA16F,
+                    QOpenGLTexture::RGBA32F,
+                    QOpenGLTexture::NoFormat
+                };
+                return values[static_cast<size_t>(value)];
             }
 
             QOpenGLTexture::PixelFormat getPixelFormat(imaging::PixelType value)
             {
-                QOpenGLTexture::PixelFormat out = QOpenGLTexture::PixelFormat::NoSourceFormat;
-                switch (value)
+                const std::array<QOpenGLTexture::PixelFormat, 15> values =
                 {
-                case imaging::PixelType::L_U8: out = QOpenGLTexture::Red; break;
-                case imaging::PixelType::RGB_U8: out = QOpenGLTexture::RGB; break;
-                case imaging::PixelType::RGBA_U8: out = QOpenGLTexture::RGBA; break;
-                default: break;
-                }
-                return out;
+                    QOpenGLTexture::NoSourceFormat,
+                    QOpenGLTexture::Red,
+                    QOpenGLTexture::Red,
+                    QOpenGLTexture::Red,
+                    QOpenGLTexture::RG,
+                    QOpenGLTexture::RG,
+                    QOpenGLTexture::RG,
+                    QOpenGLTexture::RGB,
+                    QOpenGLTexture::RGB,
+                    QOpenGLTexture::RGB,
+                    QOpenGLTexture::RGBA,
+                    QOpenGLTexture::RGBA,
+                    QOpenGLTexture::RGBA,
+                    QOpenGLTexture::RGBA,
+                    QOpenGLTexture::NoSourceFormat
+                };
+                return values[static_cast<size_t>(value)];
             }
 
             QOpenGLTexture::PixelType getPixelType(imaging::PixelType value)
             {
-                QOpenGLTexture::PixelType out = QOpenGLTexture::NoPixelType;
-                switch (value)
+                const std::array<QOpenGLTexture::PixelType, 15> values =
                 {
-                case imaging::PixelType::L_U8: out = QOpenGLTexture::UInt8; break;
-                case imaging::PixelType::RGB_U8: out = QOpenGLTexture::UInt8; break;
-                case imaging::PixelType::RGBA_U8: out = QOpenGLTexture::UInt8; break;
-                default: break;
-                }
-                return out;
+                    QOpenGLTexture::NoPixelType,
+                    QOpenGLTexture::UInt8,
+                    QOpenGLTexture::UInt16,
+                    QOpenGLTexture::Float32,
+                    QOpenGLTexture::UInt8,
+                    QOpenGLTexture::UInt16,
+                    QOpenGLTexture::Float32,
+                    QOpenGLTexture::UInt8,
+                    QOpenGLTexture::UInt16,
+                    QOpenGLTexture::Float32,
+                    QOpenGLTexture::UInt8,
+                    QOpenGLTexture::UInt16,
+                    QOpenGLTexture::Float16,
+                    QOpenGLTexture::Float32,
+                    QOpenGLTexture::NoPixelType
+                };
+                return values[static_cast<size_t>(value)];
             }
         }
 
@@ -191,14 +230,6 @@ namespace tlr
                         }
                         switch (info.pixelType)
                         {
-                            case imaging::PixelType::L_U8:
-                            case imaging::PixelType::RGB_U8:
-                            case imaging::PixelType::RGBA_U8:
-                            case imaging::PixelType::RGBA_F16:
-                                _textures[0]->setSize(info.size.w, info.size.h);
-                                _textures[0]->setFormat(getTextureFormat(info.pixelType));
-                                _textures[0]->allocateStorage();
-                                break;
                             case imaging::PixelType::YUV_420P:
                             {
                                 _textures[0]->setSize(info.size.w, info.size.h);
@@ -212,18 +243,14 @@ namespace tlr
                                 break;
                             }
                             default:
+                                _textures[0]->setSize(info.size.w, info.size.h);
+                                _textures[0]->setFormat(getTextureFormat(info.pixelType));
+                                _textures[0]->allocateStorage();
                                 break;
                         }
                     }
                     switch (info.pixelType)
                     {
-                    case imaging::PixelType::L_U8:
-                    case imaging::PixelType::RGB_U8:
-                    case imaging::PixelType::RGBA_U8:
-                    case imaging::PixelType::RGBA_F16:
-                        _textures[0]->bind();
-                        _textures[0]->setData(getPixelFormat(info.pixelType), getPixelType(info.pixelType), _frame.image->getData());
-                        break;
                     case imaging::PixelType::YUV_420P:
                     {
                         const uint8_t* data = _frame.image->getData();
@@ -238,6 +265,8 @@ namespace tlr
                         break;
                     }
                     default:
+                        _textures[0]->bind();
+                        _textures[0]->setData(getPixelFormat(info.pixelType), getPixelType(info.pixelType), _frame.image->getData());
                         break;
                     }
                 }
@@ -249,12 +278,6 @@ namespace tlr
                 const imaging::Info& info = _frame.image->getInfo();
                 switch (info.pixelType)
                 {
-                case imaging::PixelType::L_U8:
-                case imaging::PixelType::RGB_U8:
-                case imaging::PixelType::RGBA_U8:
-                case imaging::PixelType::RGBA_F16:
-                    _textures[0]->bind();
-                    break;
                 case imaging::PixelType::YUV_420P:
                     _textures[0]->bind();
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE1));
@@ -263,6 +286,7 @@ namespace tlr
                     _textures[2]->bind();
                     break;
                 default:
+                    _textures[0]->bind();
                     break;
                 }
 

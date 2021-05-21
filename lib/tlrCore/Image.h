@@ -39,13 +39,25 @@ namespace tlr
         {
             None,
             L_U8,
+            L_U16,
+            L_F32,
+            LA_U8,
+            LA_U16,
+            LA_F32,
             RGB_U8,
+            RGB_U16,
+            RGB_F32,
             RGBA_U8,
+            RGBA_U16,
+            RGBA_F32,
             RGBA_F16,
             YUV_420P,
             Count
         };
         TLR_ENUM_LABEL(PixelType);
+
+        //! Get the number of channels for the given pixel type.
+        uint8_t getChannelCount(PixelType);
 
         //! Determine the integer pixel type for a given channel count and bit depth.
         PixelType getIntType(std::size_t channelCount, std::size_t bitDepth);

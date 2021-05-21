@@ -114,7 +114,16 @@ namespace tlr
                 if (requestValid)
                 {
                     //std::cout << "request: " << request.time << std::endl;
-                    request.promise.set_value(_getVideoFrame(request.time));
+                    io::VideoFrame frame;
+                    try
+                    {
+                        frame = _getVideoFrame(request.time);
+                    }
+                    catch (const std::exception&)
+                    {
+                        //! \todo How should this be handled?
+                    }
+                    request.promise.set_value(frame);
                 }
             }
         }

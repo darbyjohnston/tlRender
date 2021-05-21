@@ -9,7 +9,6 @@
 
 namespace tlr
 {
-    //! Memory.
     namespace memory
     {
         //! LRU (least recently used) cache.
