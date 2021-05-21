@@ -393,11 +393,7 @@ namespace tlr
         const QMimeData* mimeData = event->mimeData();
         if (mimeData->hasUrls())
         {
-            const auto urlList = mimeData->urls();
-            if (1 == urlList.size())
-            {
-                event->acceptProposedAction();
-            }
+            event->acceptProposedAction();
         }
     }
 
@@ -406,11 +402,7 @@ namespace tlr
         const QMimeData* mimeData = event->mimeData();
         if (mimeData->hasUrls())
         {
-            const auto urlList = mimeData->urls();
-            if (1 == urlList.size())
-            {
-                event->acceptProposedAction();
-            }
+            event->acceptProposedAction();
         }
     }
 
@@ -425,11 +417,11 @@ namespace tlr
         if (mimeData->hasUrls())
         {
             const auto urlList = mimeData->urls();
-            if (1 == urlList.size())
+            for (int i = 0; i < urlList.size(); ++i)
             {
                 if (auto app = qobject_cast<App*>(qApp))
                 {
-                    app->open(urlList[0].toLocalFile());
+                    app->open(urlList[i].toLocalFile());
                 }
             }
         }
