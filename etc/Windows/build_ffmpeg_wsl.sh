@@ -17,8 +17,8 @@ cd ffmpeg-4.4
     --enable-cross-compile \
     --prefix=$1 \
     --enable-shared
-make -j
-make -j install
+make -j 8
+make -j 8 install
 
 # Currently there is a bug where the .lib files are installed in the bin
 # directory instead of the lib directory
