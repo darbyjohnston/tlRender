@@ -16,28 +16,28 @@
                                 "OTIO_SCHEMA": "TimeRange.1",
                                 "duration": {
                                     "OTIO_SCHEMA": "RationalTime.1",
-                                    "rate": 23.98,
-                                    "value": 5000
+                                    "rate": 30,
+                                    "value": 704
                                 },
                                 "start_time": {
                                     "OTIO_SCHEMA": "RationalTime.1",
-                                    "rate": 23.98,
+                                    "rate": 30,
                                     "value": 0
                                 }
                             },
-                            "target_url": "/Users/darby/Desktop/Movies/Netflix/Chimera_DCI4k2398p_HDR_P3PQ.mp4"
+                            "target_url": "BART_2021-02-07.m4v"
                         },
                         "source_range": {
                             "OTIO_SCHEMA": "TimeRange.1",
                             "duration": {
                                 "OTIO_SCHEMA": "RationalTime.1",
-                                "rate": 23.98,
-                                "value": 5000
+                                "rate": 30,
+                                "value": 90
                             },
                             "start_time": {
                                 "OTIO_SCHEMA": "RationalTime.1",
-                                "rate": 23.98,
-                                "value": 270
+                                "rate": 30,
+                                "value": 90
                             }
                         },
                         "name": "BART_2021-02-07"

@@ -31,8 +31,8 @@ namespace tlr
             "RGB_F32",
             "RGBA_U8",
             "RGBA_U16",
-            "RGBA_F32",
             "RGBA_F16",
+            "RGBA_F32",
             "YUV_420P");
 
         uint8_t getChannelCount(PixelType value)
@@ -125,25 +125,25 @@ namespace tlr
             std::size_t out = 0;
             const size_t w = info.size.w;
             const size_t h = info.size.h;
-            switch (info.pixelType)
+            const std::array<std::size_t, static_cast<size_t>(PixelType::Count)> values =
             {
-            case PixelType::L_U8:     out = w * h;         break;
-            case PixelType::L_U16:    out = w * h * 2;     break;
-            case PixelType::L_F32:    out = w * h * 4;     break;
-            case PixelType::LA_U8:    out = w * h * 2;     break;
-            case PixelType::LA_U16:   out = w * h * 2 * 2; break;
-            case PixelType::LA_F32:   out = w * h * 2 * 4; break;
-            case PixelType::RGB_U8:   out = w * h * 3;     break;
-            case PixelType::RGB_U16:  out = w * h * 3 * 2; break;
-            case PixelType::RGB_F32:  out = w * h * 3 * 4; break;
-            case PixelType::RGBA_U8:  out = w * h * 4;     break;
-            case PixelType::RGBA_U16: out = w * h * 4 * 2; break;
-            case PixelType::RGBA_F16: out = w * h * 4 * 2; break;
-            case PixelType::RGBA_F32: out = w * h * 4 * 4; break;
-            case PixelType::YUV_420P: out = w * h + (w / 2 * h / 2) * 2; break;
-            default: break;
-            }
-            return out;
+                0,
+                w * h,
+                w * h * 2,
+                w * h * 4,
+                w * h * 2,
+                w * h * 2 * 2,
+                w * h * 2 * 4,
+                w * h * 3,
+                w * h * 3 * 2,
+                w * h * 3 * 4,
+                w * h * 4,
+                w * h * 4 * 2,
+                w * h * 4 * 2,
+                w * h * 4 * 4,
+                w * h + (w / 2 * h / 2) * 2
+            };
+            return values[static_cast<size_t>(info.pixelType)];
         }
 
         void Image::_init(const Info& info)

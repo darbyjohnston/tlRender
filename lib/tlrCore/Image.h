@@ -49,8 +49,8 @@ namespace tlr
             RGB_F32,
             RGBA_U8,
             RGBA_U16,
-            RGBA_F32,
             RGBA_F16,
+            RGBA_F32,
             YUV_420P,
             Count
         };
