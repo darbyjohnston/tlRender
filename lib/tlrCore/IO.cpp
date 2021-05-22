@@ -30,6 +30,16 @@ namespace tlr
 {
     namespace io
     {
+        VideoFrame::VideoFrame()
+        {}
+
+        VideoFrame::VideoFrame(
+            const otime::RationalTime& time,
+            const std::shared_ptr<imaging::Image>& image) :
+            time(time),
+            image(image)
+        {}
+
         void IIO::_init(const std::string& fileName)
         {
             _fileName = fileName;

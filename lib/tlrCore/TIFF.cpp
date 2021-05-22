@@ -175,7 +175,9 @@ namespace tlr
             return out;
         }
 
-        io::VideoFrame Read::_getVideoFrame(const otime::RationalTime& time)
+        io::VideoFrame Read::_getVideoFrame(
+            const otime::RationalTime& time,
+            const std::shared_ptr<imaging::Image>& image)
         {
             io::VideoFrame out;
 
@@ -183,7 +185,14 @@ namespace tlr
             auto f = std::shared_ptr<File>(new File(fileName));
 
             out.time = time;
-            out.image = imaging::Image::create(f->info);
+            if (image && image->getInfo() == f->info)
+            {
+                out.image = image;
+            }
+            else
+            {
+                out.image = imaging::Image::create(f->info);
+            }
 
             for (uint16_t y = 0; y < f->info.size.h; ++y)
             {

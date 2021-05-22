@@ -48,7 +48,9 @@ namespace tlr
                 const otime::RationalTime& defaultSpeed);
 
             std::future<io::Info> getInfo() override;
-            std::future<io::VideoFrame> getVideoFrame(const otime::RationalTime&) override;
+            std::future<io::VideoFrame> getVideoFrame(
+                const otime::RationalTime&,
+                const std::shared_ptr<imaging::Image>&) override;
             bool hasVideoFrames() override;
             void cancelVideoFrames() override;
 
@@ -71,6 +73,7 @@ namespace tlr
                 VideoFrameRequest(VideoFrameRequest&& other) = default;
 
                 otime::RationalTime time;
+                std::shared_ptr<imaging::Image> image;
                 std::promise<io::VideoFrame> promise;
             };
             std::list<VideoFrameRequest> _videoFrameRequests;

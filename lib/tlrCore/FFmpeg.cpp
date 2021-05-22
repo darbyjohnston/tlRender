@@ -79,10 +79,13 @@ namespace tlr
             return _infoPromise.get_future();
         }
 
-        std::future<io::VideoFrame> Read::getVideoFrame(const otime::RationalTime& time)
+        std::future<io::VideoFrame> Read::getVideoFrame(
+            const otime::RationalTime& time,
+            const std::shared_ptr<imaging::Image>& image)
         {
             VideoFrameRequest request;
             request.time = time;
+            request.image = image;
             auto future = request.promise.get_future();
             {
                 std::unique_lock<std::mutex> lock(_requestMutex);
@@ -274,6 +277,7 @@ namespace tlr
                     if (!_videoFrameRequests.empty())
                     {
                         request.time = _videoFrameRequests.front().time;
+                        request.image = std::move(_videoFrameRequests.front().image);
                         request.promise = std::move(_videoFrameRequests.front().promise);
                         _videoFrameRequests.pop_front();
                         requestValid = true;
@@ -319,6 +323,15 @@ namespace tlr
                             {
                                 //! \todo How should this be handled?
                             }
+                        }
+
+                        if (request.image && request.image->getInfo() == _info.video[0].info)
+                        {
+                            videoFrame.image = request.image;
+                        }
+                        else
+                        {
+                            videoFrame.image = imaging::Image::create(_info.video[0].info);
                         }
 
                         int decoding = 0;
@@ -417,7 +430,6 @@ namespace tlr
             frame.time = _currentTime;
             //std::cout << "frame: " << frame.time << std::endl;
 
-            frame.image = imaging::Image::create(videoInfo.info);
             _copyVideo(frame.image);
 
             return 1;

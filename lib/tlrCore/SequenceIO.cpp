@@ -56,10 +56,13 @@ namespace tlr
             return _infoPromise.get_future();
         }
 
-        std::future<io::VideoFrame> ISequenceRead::getVideoFrame(const otime::RationalTime& time)
+        std::future<io::VideoFrame> ISequenceRead::getVideoFrame(
+            const otime::RationalTime& time,
+            const std::shared_ptr<imaging::Image>& image)
         {
             VideoFrameRequest request;
             request.time = time;
+            request.image = image;
             auto future = request.promise.get_future();
             {
                 std::unique_lock<std::mutex> lock(_requestMutex);
@@ -106,6 +109,7 @@ namespace tlr
                     if (!_videoFrameRequests.empty())
                     {
                         request.time = _videoFrameRequests.front().time;
+                        request.image = std::move(_videoFrameRequests.front().image);
                         request.promise = std::move(_videoFrameRequests.front().promise);
                         _videoFrameRequests.pop_front();
                         requestValid = true;
@@ -117,7 +121,7 @@ namespace tlr
                     io::VideoFrame frame;
                     try
                     {
-                        frame = _getVideoFrame(request.time);
+                        frame = _getVideoFrame(request.time, request.image);
                     }
                     catch (const std::exception&)
                     {

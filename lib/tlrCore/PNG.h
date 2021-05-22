@@ -30,7 +30,9 @@ namespace tlr
 
         protected:
             io::Info _getInfo(const std::string& fileName) override;
-            io::VideoFrame _getVideoFrame(const otime::RationalTime&) override;
+            io::VideoFrame _getVideoFrame(
+                const otime::RationalTime&,
+                const std::shared_ptr<imaging::Image>&) override;
         };
 
         //! PNG plugin.

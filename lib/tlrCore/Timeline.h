@@ -66,7 +66,9 @@ namespace tlr
             void setActiveRanges(const std::vector<otime::TimeRange>&);
 
             //! Render a frame.
-            std::future<io::VideoFrame> render(const otime::RationalTime&);
+            std::future<io::VideoFrame> render(
+                const otime::RationalTime&,
+                const std::shared_ptr<imaging::Image>& = nullptr);
 
             //! Cancel renders.
             void cancelRenders();

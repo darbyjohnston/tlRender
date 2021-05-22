@@ -441,6 +441,7 @@ namespace tlr
             _timeline->setActiveRanges(ranges);
 
             // Remove old frames from the cache.
+            std::list<std::shared_ptr<imaging::Image> > removed;
             auto frameCacheIt = _frameCache.begin();
             while (frameCacheIt != _frameCache.end())
             {
@@ -455,6 +456,7 @@ namespace tlr
                 }
                 if (old)
                 {
+                    removed.push_back(frameCacheIt->second.image);
                     frameCacheIt = _frameCache.erase(frameCacheIt);
                 }
                 else
@@ -481,7 +483,13 @@ namespace tlr
             // Get uncached frames.
             for (const auto& i : uncached)
             {
-                _videoFrameRequests[i] = _timeline->render(i);
+                std::shared_ptr<imaging::Image> image;
+                if (!removed.empty())
+                {
+                    image = removed.front();
+                    removed.pop_front();
+                }
+                _videoFrameRequests[i] = _timeline->render(i, image);
             }
             auto videoFramesIt = _videoFrameRequests.begin();
             while (videoFramesIt != _videoFrameRequests.end())

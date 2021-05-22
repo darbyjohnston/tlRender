@@ -32,8 +32,14 @@ namespace tlr
         };
 
         //! Video I/O frame.
-        struct VideoFrame
+        class VideoFrame
         {
+        public:
+            VideoFrame();
+            VideoFrame(
+                const otime::RationalTime&,
+                const std::shared_ptr<imaging::Image>&);
+
             otime::RationalTime time;
             std::shared_ptr<imaging::Image> image;
 
@@ -77,7 +83,9 @@ namespace tlr
             virtual std::future<Info> getInfo() = 0;
 
             //! Get a video frame.
-            virtual std::future<VideoFrame> getVideoFrame(const otime::RationalTime&) = 0;
+            virtual std::future<VideoFrame> getVideoFrame(
+                const otime::RationalTime&,
+                const std::shared_ptr<imaging::Image>& = nullptr) = 0;
 
             //! Are there pending video frame requests?
             virtual bool hasVideoFrames() = 0;

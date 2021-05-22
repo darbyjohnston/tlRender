@@ -66,7 +66,9 @@ namespace tlr
             return out;
         }
 
-        io::VideoFrame Read::_getVideoFrame(const otime::RationalTime& time)
+        io::VideoFrame Read::_getVideoFrame(
+            const otime::RationalTime& time,
+            const std::shared_ptr<imaging::Image>& image)
         {
             io::VideoFrame out;
 
@@ -74,7 +76,15 @@ namespace tlr
             Imf::RgbaInputFile f(fileName.c_str());
 
             out.time = time;
-            out.image = imaging::Image::create(imfInfo(f));
+            const auto info = imfInfo(f);
+            if (image && image->getInfo() == info)
+            {
+                out.image = image;
+            }
+            else
+            {
+                out.image = imaging::Image::create(info);
+            }
 
             const auto dw = f.dataWindow();
             const int width = dw.max.x - dw.min.x + 1;
