@@ -5,7 +5,6 @@
 #include <tlrGL/Render.h>
 
 #include <tlrGL/Mesh.h>
-#include <tlrGL/OffscreenBuffer.h>
 #include <tlrGL/Shader.h>
 #include <tlrGL/Texture.h>
 
@@ -145,21 +144,8 @@ namespace tlr
             return out;
         }
 
-        GLuint Render::getID() const
-        {
-            return _offscreenBuffer->getID();
-        }
-
         void Render::begin(const imaging::Info& info)
         {
-            if (!_offscreenBuffer ||
-                (_offscreenBuffer && _offscreenBuffer->getSize() != info.size) ||
-                (_offscreenBuffer && _offscreenBuffer->getColorType() != info.pixelType))
-            {
-                _offscreenBuffer = OffscreenBuffer::create(info.size, info.pixelType);
-            }
-            _offscreenBuffer->bind();
-
             glViewport(0, 0, info.size.w, info.size.h);
             glClearColor(0.F, 0.F, 0.F, 0.F);
             glClear(GL_COLOR_BUFFER_BIT);
@@ -179,9 +165,7 @@ namespace tlr
         }
 
         void Render::end()
-        {
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        }
+        {}
 
         void Render::drawRect(const math::BBox2f& bbox, const imaging::Color4f& color)
         {

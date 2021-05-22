@@ -1,5 +1,7 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
+    <file alias="Icons/ClipNext.svg">../../etc/Icons/ClipNext.svg</file>
+    <file alias="Icons/ClipPrev.svg">../../etc/Icons/ClipPrev.svg</file>
     <file alias="Icons/FrameNext.svg">../../etc/Icons/FrameNext.svg</file>
     <file alias="Icons/FramePrev.svg">../../etc/Icons/FramePrev.svg</file>
     <file alias="Icons/PlaybackForward.svg">../../etc/Icons/PlaybackForward.svg</file>

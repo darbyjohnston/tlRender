@@ -4,15 +4,9 @@
 
 #pragma once
 
-#include <tlrCore/Timeline.h>
+#include <tlrQt/TimelineThumbnailProvider.h>
 
-#include <QMap>
-#include <QPointer>
 #include <QWidget>
-
-#include <atomic>
-#include <mutex>
-#include <thread>
 
 namespace tlr
 {
@@ -25,7 +19,6 @@ namespace tlr
 
         public:
             FilmstripWidget(QWidget* parent = nullptr);
-            ~FilmstripWidget() override;
 
         public Q_SLOTS:
             //! Set the timeline.
@@ -34,25 +27,19 @@ namespace tlr
         protected:
             void resizeEvent(QResizeEvent*) override;
             void paintEvent(QPaintEvent*) override;
-            void timerEvent(QTimerEvent*) override;
+
+        private Q_SLOTS:
+            void _thumbnailsCallback(const QList<QPair<otime::RationalTime, QPixmap> >&);
 
         private:
             otime::RationalTime _posToTime(int) const;
             int _timeToPos(const otime::RationalTime&) const;
 
-            void _timelineUpdate();
+            void _thumbnailsUpdate();
 
             std::shared_ptr<timeline::Timeline> _timeline;
-            imaging::Size _thumbnailSize;
-            QMap<otime::RationalTime, QImage> _thumbnails;
-            std::map<otime::RationalTime, std::future<io::VideoFrame> > _videoFrameRequests;
-
-            std::condition_variable _thumbnailCV;
-            std::mutex _thumbnailMutex;
-            std::list<std::pair<io::VideoFrame, imaging::Size> > _thumbnailRequests;
-            std::list<std::pair<QImage, otime::RationalTime> > _thumbnailResults;
-            std::thread _thumbnailThread;
-            std::atomic<bool> _thumbnailThreadRunning;
+            TimelineThumbnailProvider* _thumbnailProvider = nullptr;
+            std::map<otime::RationalTime, QPixmap> _thumbnails;
         };
     }
 }

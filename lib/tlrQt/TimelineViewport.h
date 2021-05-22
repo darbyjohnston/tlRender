@@ -6,21 +6,16 @@
 
 #include <tlrQt/TimelinePlayer.h>
 
-#include <tlrCore/Image.h>
+#include <tlrGL/Render.h>
 
-#include <QOpenGLFunctions>
-#include <QOpenGLShaderProgram>
-#include <QOpenGLTexture>
 #include <QOpenGLWidget>
-
-#include <array>
 
 namespace tlr
 {
     namespace qt
     {
         //! Timeline viewport widget.
-        class TimelineViewport : public QOpenGLWidget, protected QOpenGLFunctions
+        class TimelineViewport : public QOpenGLWidget
         {
             Q_OBJECT
 
@@ -40,9 +35,7 @@ namespace tlr
         private:
             TimelinePlayer* _timelinePlayer = nullptr;
             io::VideoFrame _frame;
-            io::VideoFrame _frameTmp;
-            QOpenGLShaderProgram* _program = nullptr;
-            std::array<std::unique_ptr<QOpenGLTexture>, 3> _textures;
+            std::shared_ptr<gl::Render> _render;
         };
     }
 }

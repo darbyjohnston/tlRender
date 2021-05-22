@@ -7,8 +7,6 @@
 #include "SettingsObject.h"
 
 #include <tlrQt/TimelinePlayer.h>
-#include <tlrQt/TimelineViewport.h>
-#include <tlrQt/TimelineWidget.h>
 
 #include <QAction>
 #include <QActionGroup>
@@ -87,7 +85,6 @@ namespace tlr
         QMap<QAction*, timeline::Loop> _actionToLoop;
         QMap<timeline::Loop, QAction*> _loopToActions;
         QTabWidget* _tabWidget = nullptr;
-        qt::TimelineWidget* _timelineWidget = nullptr;
         SettingsObject* _settingsObject = nullptr;
         qt::TimeObject* _timeObject = nullptr;
     };

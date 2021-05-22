@@ -6,6 +6,7 @@
 
 #include <tlrQt/TimeObject.h>
 #include <tlrQt/TimelinePlayer.h>
+#include <tlrQt/TimelineThumbnailProvider.h>
 
 #include <QWidget>
 
@@ -42,13 +43,18 @@ namespace tlr
             void _currentTimeCallback(const otime::RationalTime&);
             void _inOutRangeCallback(const otime::TimeRange&);
             void _cachedFramesCallback(const std::vector<otime::TimeRange>&);
+            void _thumbnailsCallback(const QList<QPair<otime::RationalTime, QPixmap> >&);
 
         private:
-            int64_t _posToTime(int) const;
-            int _timeToPos(int64_t) const;
+            otime::RationalTime _posToTime(int) const;
+            int _timeToPos(const otime::RationalTime&) const;
+
+            void _thumbnailsUpdate();
 
             TimelinePlayer* _timelinePlayer = nullptr;
             std::vector<otime::TimeRange> _clipRanges;
+            TimelineThumbnailProvider* _thumbnailProvider = nullptr;
+            std::map<otime::RationalTime, QPixmap> _thumbnails;
             TimeObject::Units _units = TimeObject::Units::Timecode;
             TimeObject* _timeObject = nullptr;
         };

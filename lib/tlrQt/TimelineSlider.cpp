@@ -4,6 +4,8 @@
 
 #include <tlrQt/TimelineSlider.h>
 
+#include <tlrCore/Math.h>
+
 #include <QMouseEvent>
 #include <QPainter>
 #include <QStyle>
@@ -15,10 +17,8 @@ namespace tlr
         TimelineSlider::TimelineSlider(QWidget* parent) :
             QWidget(parent)
         {
-            setBackgroundRole(QPalette::ColorRole::Base);
-            setAutoFillBackground(true);
             setSizePolicy(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
-            setMinimumHeight(20);
+            setMinimumHeight(50);
         }
 
         void TimelineSlider::setTimeObject(TimeObject* timeObject)
@@ -52,6 +52,9 @@ namespace tlr
             if (_timelinePlayer)
             {
                 _clipRanges.clear();
+                _thumbnailProvider->setParent(nullptr);
+                delete _thumbnailProvider;
+                _thumbnailProvider = nullptr;
                 disconnect(
                     _timelinePlayer,
                     SIGNAL(currentTimeChanged(const otime::RationalTime&)),
@@ -62,6 +65,8 @@ namespace tlr
             if (_timelinePlayer)
             {
                 _clipRanges = _timelinePlayer->clipRanges();
+                _thumbnailProvider = new TimelineThumbnailProvider(
+                    timeline::Timeline::create(_timelinePlayer->fileName().toLatin1().data()));
                 connect(
                     _timelinePlayer,
                     SIGNAL(currentTimeChanged(const otime::RationalTime&)),
@@ -74,8 +79,12 @@ namespace tlr
                     _timelinePlayer,
                     SIGNAL(cachedFramesChanged(const std::vector<otime::TimeRange>&)),
                     SLOT(_cachedFramesCallback(const std::vector<otime::TimeRange>&)));
+                connect(
+                    _thumbnailProvider,
+                    SIGNAL(thumbails(const QList<QPair<otime::RationalTime, QPixmap> >&)),
+                    SLOT(_thumbnailsCallback(const QList<QPair<otime::RationalTime, QPixmap> >&)));
             }
-            update();
+            _thumbnailsUpdate();
         }
 
         void TimelineSlider::setUnits(TimeObject::Units units)
@@ -86,76 +95,77 @@ namespace tlr
             update();
         }
 
-        void TimelineSlider::resizeEvent(QResizeEvent*)
-        {}
+        void TimelineSlider::resizeEvent(QResizeEvent* event)
+        {
+            if (event->oldSize() != size())
+            {
+                _thumbnailsUpdate();
+            }
+        }
 
         namespace
         {
-            const int border = 1;
+            const int stripeSize = 5;
+            const int handleSize = 5;
         }
 
         void TimelineSlider::paintEvent(QPaintEvent*)
         {
             QPainter painter(this);
-            const auto& palette = this->palette();
-            painter.setPen(palette.color(QPalette::ColorRole::Mid));
-            painter.setBrush(QBrush());
-            auto rect = this->rect().adjusted(0, 0, -1, -1);
-            painter.drawRect(rect);
-            rect = rect.adjusted(border, border, -border, -border);
+            auto rect = this->rect();
+            auto rect2 = rect.adjusted(0, handleSize, 0, -handleSize);
+            painter.fillRect(rect2, QColor(0, 0, 0));
             if (_timelinePlayer)
             {
                 int x0 = 0;
-                int x1 = 0;
                 int y0 = 0;
+                int x1 = 0;
                 int y1 = 0;
                 int h = 0;
 
+                // Draw the current time.
+                x0 = _timeToPos(_timelinePlayer->currentTime());
+                y0 = 0;
+                painter.fillRect(QRect(x0 - handleSize / 2, y0, handleSize, rect.height()), QColor(0, 0, 0));
+
+                // Draw thumbnails.
+                y0 = rect2.y();
+                for (const auto& i : _thumbnails)
+                {
+                    painter.drawPixmap(QPoint(_timeToPos(i.first), y0), i.second);
+                }
+
                 // Draw clips.
-                y0 = rect.y();
-                h = rect.height();
+                x0 = 0;
+                x1 = 0;
+                y1 = y0 + rect2.height();
+                h = stripeSize;
                 for (size_t i = 0; i < _clipRanges.size(); ++i)
                 {
-                    if (0 == i % 2)
+                    if (1 == i % 2)
                     {
-                        auto color = palette.color(QPalette::ColorRole::AlternateBase);
-                        painter.setPen(color);
-                        painter.setBrush(color);
-                        x0 = _timeToPos(_clipRanges[i].start_time().value());
-                        x1 = _timeToPos(_clipRanges[i].end_time_inclusive().value());
-                        painter.drawRect(QRect(x0, y0, x1 - x0, h));
+                        x0 = _timeToPos(_clipRanges[i].start_time());
+                        x1 = _timeToPos(_clipRanges[i].end_time_inclusive());
+                        painter.fillRect(QRect(x0, y1 - h * 2, x1 - x0, h), QColor(127, 127, 127));
                     }
                 }
 
                 // Draw in/out points.
-                auto color = palette.color(QPalette::ColorRole::WindowText);
-                painter.setPen(color);
-                painter.setBrush(color);
                 const auto& inOutRange = _timelinePlayer->inOutRange();
-                x0 = _timeToPos(inOutRange.start_time().value());
-                x1 = _timeToPos(inOutRange.end_time_inclusive().value());
-                y1 = y0 + rect.height();
-                h = 1;
-                painter.drawRect(QRect(x0, y1 - h, x1 - x0, h));
+                x0 = _timeToPos(inOutRange.start_time());
+                x1 = _timeToPos(inOutRange.end_time_inclusive());
+                y1 = y0 + rect2.height();
+                painter.fillRect(QRect(x0, y1 - h, x1 - x0, h), QColor(127, 127, 127));
 
                 // Draw cached frames.
-                color = QColor(40, 190, 40);
-                painter.setPen(color);
-                painter.setBrush(color);
+                auto color = QColor(40, 190, 40);
                 const auto& cachedFrames = _timelinePlayer->cachedFrames();
                 for (const auto& i : cachedFrames)
                 {
-                    x0 = _timeToPos(i.start_time().value());
-                    x1 = _timeToPos(i.end_time_inclusive().value());
-                    painter.drawRect(QRect(x0, y1 - h, x1 - x0, h));
+                    x0 = _timeToPos(i.start_time());
+                    x1 = _timeToPos(i.end_time_inclusive());
+                    painter.fillRect(QRect(x0, y1 - h, x1 - x0, h), color);
                 }
-
-                // Draw the current time.
-                color = palette.color(QPalette::ColorRole::WindowText);
-                painter.setPen(QPen(color, 1));
-                painter.setBrush(color);
-                x0 = _timeToPos(_timelinePlayer->currentTime().value());
-                painter.drawLine(QLine(QPoint(x0, y0), QPoint(x0, y1)));
             }
         }
 
@@ -164,7 +174,7 @@ namespace tlr
             if (_timelinePlayer)
             {
                 const auto& duration = _timelinePlayer->duration();
-                _timelinePlayer->seek(otime::RationalTime(_posToTime(event->x()), duration.rate()));
+                _timelinePlayer->seek(_posToTime(event->x()));
             }
         }
 
@@ -176,7 +186,7 @@ namespace tlr
             if (_timelinePlayer)
             {
                 const auto& duration = _timelinePlayer->duration();
-                _timelinePlayer->seek(otime::RationalTime(_posToTime(event->x()), duration.rate()));
+                _timelinePlayer->seek(_posToTime(event->x()));
             }
         }
 
@@ -195,28 +205,68 @@ namespace tlr
             update();
         }
 
-        int64_t TimelineSlider::_posToTime(int value) const
+        void TimelineSlider::_thumbnailsCallback(const QList<QPair<otime::RationalTime, QPixmap> >& thumbnails)
         {
-            int64_t out = 0;
+            for (const auto& i : thumbnails)
+            {
+                _thumbnails[i.first] = i.second;
+            }
+            update();
+        }
+
+        otime::RationalTime TimelineSlider::_posToTime(int value) const
+        {
+            otime::RationalTime out;
             if (_timelinePlayer)
             {
                 const auto& globalStartTime = _timelinePlayer->globalStartTime();
                 const auto& duration = _timelinePlayer->duration();
-                out = (value - border) / static_cast<double>(width() - border * 2 - 1) * (duration.value() - 1) + globalStartTime.value();
+                out = otime::RationalTime(
+                    floor(math::clamp(value, 0, width()) / static_cast<double>(width()) * (duration.value() - 1) + globalStartTime.value()),
+                    duration.rate());
             }
             return out;
         }
 
-        int TimelineSlider::_timeToPos(int64_t value) const
+        int TimelineSlider::_timeToPos(const otime::RationalTime& value) const
         {
             int out = 0;
             if (_timelinePlayer)
             {
                 const auto& globalStartTime = _timelinePlayer->globalStartTime();
                 const auto& duration = _timelinePlayer->duration();
-                out = border + (value - globalStartTime.value()) / (duration.value() - 1) * (width() - border * 2 - 1);
+                out = (value.value() - globalStartTime.value()) / (duration.value() - 1) * width();
             }
             return out;
+        }
+
+        void TimelineSlider::_thumbnailsUpdate()
+        {
+            _thumbnails.clear();
+            if (_timelinePlayer && _thumbnailProvider)
+            {
+                _thumbnailProvider->cancelRequests();
+
+                const auto& duration = _timelinePlayer->duration();
+                const auto& imageInfo = _timelinePlayer->imageInfo();
+                const auto rect = this->rect().adjusted(0, 0, 0, -(stripeSize * 2 + handleSize * 2));
+                const int width = rect.width();
+                const int height = rect.height();
+                const int thumbnailWidth = static_cast<int>(height * imageInfo.size.getAspect());
+                const int thumbnailHeight = height;
+                if (thumbnailWidth > 0)
+                {
+                    QList<otime::RationalTime> requests;
+                    int x = rect.x();
+                    while (x < width)
+                    {
+                        requests.push_back(_posToTime(x));
+                        x += thumbnailWidth;
+                    }
+                    _thumbnailProvider->request(requests, QSize(thumbnailWidth, thumbnailHeight));
+                }
+            }
+            update();
         }
     }
 }

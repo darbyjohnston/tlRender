@@ -5,7 +5,6 @@
 #include <tlrQt/TimelineWidget.h>
 
 #include <QFontDatabase>
-#include <QGridLayout>
 #include <QHBoxLayout>
 #include <QStyle>
 #include <QVBoxLayout>
@@ -17,6 +16,8 @@ namespace tlr
         TimelineWidget::TimelineWidget(QWidget* parent) :
             QWidget(parent)
         {
+            _viewport = new TimelineViewport;
+
             _playbackButtons["Stop"] = new QToolButton;
             _playbackButtons["Stop"]->setCheckable(true);
             _playbackButtons["Stop"]->setIcon(QIcon(":/Icons/PlaybackStop.svg"));
@@ -55,21 +56,33 @@ namespace tlr
             _timeActionButtons["FrameNext"]->setAutoRepeat(true);
             _timeActionButtons["FrameNext"]->setIcon(QIcon(":/Icons/FrameNext.svg"));
             _timeActionButtons["FrameNext"]->setToolTip(tr("Go to the next frame"));
+            _timeActionButtons["ClipPrev"] = new QToolButton;
+            _timeActionButtons["ClipPrev"]->setAutoRepeat(true);
+            _timeActionButtons["ClipPrev"]->setIcon(QIcon(":/Icons/ClipPrev.svg"));
+            _timeActionButtons["ClipPrev"]->setToolTip(tr("Go to the previous clip"));
+            _timeActionButtons["ClipNext"] = new QToolButton;
+            _timeActionButtons["ClipNext"]->setAutoRepeat(true);
+            _timeActionButtons["ClipNext"]->setIcon(QIcon(":/Icons/ClipNext.svg"));
+            _timeActionButtons["ClipNext"]->setToolTip(tr("Go to the next clip"));
             _timeActionButtonGroup = new QButtonGroup(this);
             _timeActionButtonGroup->addButton(_timeActionButtons["Start"]);
             _timeActionButtonGroup->addButton(_timeActionButtons["End"]);
             _timeActionButtonGroup->addButton(_timeActionButtons["FramePrev"]);
             _timeActionButtonGroup->addButton(_timeActionButtons["FrameNext"]);
+            _timeActionButtonGroup->addButton(_timeActionButtons["ClipPrev"]);
+            _timeActionButtonGroup->addButton(_timeActionButtons["ClipNext"]);
             _buttonToTimeAction[_timeActionButtons["Start"]] = timeline::TimeAction::Start;
             _buttonToTimeAction[_timeActionButtons["End"]] = timeline::TimeAction::End;
             _buttonToTimeAction[_timeActionButtons["FramePrev"]] = timeline::TimeAction::FramePrev;
             _buttonToTimeAction[_timeActionButtons["FrameNext"]] = timeline::TimeAction::FrameNext;
+            _buttonToTimeAction[_timeActionButtons["ClipPrev"]] = timeline::TimeAction::ClipPrev;
+            _buttonToTimeAction[_timeActionButtons["ClipNext"]] = timeline::TimeAction::ClipNext;
 
             _speedLabel = new SpeedLabel;
             _speedLabel->setToolTip(tr("Timeline speed (frames per second)"));
 
-            _timelineSlider = new TimelineSlider;
-            _timelineSlider->setToolTip(tr("Timeline slider"));
+            _slider = new TimelineSlider;
+            _slider->setToolTip(tr("Timeline slider"));
 
             _currentTimeSpinBox = new TimeSpinBox;
             _currentTimeSpinBox->setToolTip(tr("Current time"));
@@ -96,9 +109,14 @@ namespace tlr
             _durationLabel = new TimeLabel;
             _durationLabel->setToolTip(tr("Timeline duration"));
 
-            auto layout = new QGridLayout;
-            layout->setMargin(5);
-            layout->setSpacing(5);
+            auto layout = new QVBoxLayout;
+            layout->setMargin(0);
+            layout->setSpacing(0);
+            layout->addWidget(_viewport, 1);
+            auto vLayout = new QVBoxLayout;
+            vLayout->setMargin(5);
+            vLayout->setSpacing(5);
+            vLayout->addWidget(_slider, 1);
             auto hLayout = new QHBoxLayout;
             hLayout->setMargin(0);
             auto hLayout2 = new QHBoxLayout;
@@ -114,14 +132,11 @@ namespace tlr
             hLayout2->addWidget(_timeActionButtons["FrameNext"]);
             hLayout2->addWidget(_timeActionButtons["End"]);
             hLayout->addLayout(hLayout2);
-            layout->addLayout(hLayout, 0, 0);
-            hLayout = new QHBoxLayout;
-            hLayout->setMargin(0);
-            hLayout->addWidget(_speedLabel);
-            layout->addLayout(hLayout, 1, 0);
-            layout->addWidget(_timelineSlider, 0, 1);
-            hLayout = new QHBoxLayout;
-            hLayout->setMargin(0);
+            hLayout2 = new QHBoxLayout;
+            hLayout2->setSpacing(1);
+            hLayout2->addWidget(_timeActionButtons["ClipPrev"]);
+            hLayout2->addWidget(_timeActionButtons["ClipNext"]);
+            hLayout->addLayout(hLayout2);
             hLayout->addWidget(_currentTimeSpinBox);
             hLayout->addWidget(_inPointSpinBox);
             hLayout2 = new QHBoxLayout;
@@ -137,8 +152,9 @@ namespace tlr
             hLayout->addLayout(hLayout2);
             hLayout->addWidget(_outPointSpinBox);
             hLayout->addWidget(_durationLabel);
-            layout->addLayout(hLayout, 1, 1);
-            layout->setColumnStretch(1, 1);
+            hLayout->addWidget(_speedLabel);
+            vLayout->addLayout(hLayout);
+            layout->addLayout(vLayout);
             setLayout(layout);
 
             _playbackUpdate();
@@ -188,7 +204,7 @@ namespace tlr
 
         void TimelineWidget::setTimeObject(TimeObject* timeObject)
         {
-            _timelineSlider->setTimeObject(timeObject);
+            _slider->setTimeObject(timeObject);
             _currentTimeSpinBox->setTimeObject(timeObject);
             _inPointSpinBox->setTimeObject(timeObject);
             _outPointSpinBox->setTimeObject(timeObject);
@@ -218,7 +234,8 @@ namespace tlr
                     SLOT(_inOutRangeCallback(const otime::TimeRange&)));
             }
             _timelinePlayer = timelinePlayer;
-            _timelineSlider->setTimelinePlayer(timelinePlayer);
+            _viewport->setTimelinePlayer(timelinePlayer);
+            _slider->setTimelinePlayer(timelinePlayer);
             if (_timelinePlayer)
             {
                 connect(
@@ -385,7 +402,7 @@ namespace tlr
                 const auto& duration = _timelinePlayer->duration();
                 _speedLabel->setValue(duration);
 
-                _timelineSlider->setEnabled(true);
+                _slider->setEnabled(true);
 
                 {
                     const QSignalBlocker blocker(_currentTimeSpinBox);
@@ -425,7 +442,7 @@ namespace tlr
 
                 _speedLabel->setValue(otime::RationalTime());
 
-                _timelineSlider->setEnabled(false);
+                _slider->setEnabled(false);
 
                 _currentTimeSpinBox->setValue(otime::RationalTime());
                 _currentTimeSpinBox->setEnabled(false);

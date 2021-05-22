@@ -5,7 +5,6 @@
 #include <tlrQt/FilmstripWidget.h>
 
 #include <QHBoxLayout>
-#include <QImage>
 #include <QPainter>
 #include <QResizeEvent>
 #include <QStyle>
@@ -16,149 +15,53 @@ namespace tlr
     {
         FilmstripWidget::FilmstripWidget(QWidget* parent) :
             QWidget(parent)
-        {
-            setMinimumHeight(50);
-
-            _thumbnailThreadRunning = true;
-            _thumbnailThread = std::thread(
-                [this]
-                {
-                    while (_thumbnailThreadRunning)
-                    {
-                        bool request = false;
-                        std::pair<io::VideoFrame, imaging::Size> data;
-                        {
-                            std::unique_lock<std::mutex> lock(_thumbnailMutex);
-                            if (_thumbnailCV.wait_for(
-                                lock,
-                                std::chrono::microseconds(1000),
-                                [this]
-                                {
-                                    return !_thumbnailRequests.empty();
-                                }))
-                            {
-                                request = true;
-                                data = _thumbnailRequests.front();
-                                _thumbnailRequests.pop_front();
-                            }
-                        }
-                        if (request && data.first.image)
-                        {
-                            const auto& info = data.first.image->getInfo();
-                            std::size_t scanlineByteCount = 0;
-                            QImage::Format qFormat = QImage::Format_Invalid;
-                            switch (info.pixelType)
-                            {
-                            case imaging::PixelType::L_U8:
-                                scanlineByteCount = info.size.w;
-                                qFormat = QImage::Format_Grayscale8;
-                                break;
-                            case imaging::PixelType::RGB_U8:
-                                scanlineByteCount = info.size.w * 3;
-                                qFormat = QImage::Format_RGB888;
-                                break;
-                            case imaging::PixelType::RGBA_U8:
-                                scanlineByteCount = info.size.w * 4;
-                                qFormat = QImage::Format_RGBA8888;
-                                break;
-                            case imaging::PixelType::RGBA_F16:
-                                //! \todo Convert pixel types.
-                                break;
-                            }
-                            if (qFormat != QImage::Format_Invalid)
-                            {
-                                const auto qImage = QImage(
-                                    data.first.image->getData(),
-                                    info.size.w,
-                                    info.size.h,
-                                    scanlineByteCount,
-                                    qFormat);
-                                const auto qImageScaled = qImage.scaled(QSize(data.second.w, data.second.h));
-                                std::unique_lock<std::mutex> lock(_thumbnailMutex);
-                                _thumbnailResults.push_back(std::make_pair(qImageScaled, data.first.time));;
-                            }
-                        }
-                    }
-                });
-
-            startTimer(0);
-        }
-
-        FilmstripWidget::~FilmstripWidget()
-        {
-            _thumbnailThreadRunning = false;
-            if (_thumbnailThread.joinable())
-            {
-                _thumbnailThread.join();
-            }
-        }
+        {}
 
         void FilmstripWidget::setTimeline(const std::shared_ptr<timeline::Timeline>& timeline)
         {
             _timeline = timeline;
-            _timelineUpdate();
+            if (_thumbnailProvider)
+            {
+                delete _thumbnailProvider;
+                _thumbnailProvider = nullptr;
+            }
+            if (_timeline)
+            {
+                _thumbnailProvider = new TimelineThumbnailProvider(_timeline, this);
+                connect(
+                    _thumbnailProvider,
+                    SIGNAL(thumbails(const QList<QPair<otime::RationalTime, QPixmap> >&)),
+                    SLOT(thumbnailsCallback(const QList<QPair<otime::RationalTime, QPixmap> >&)));
+            }
+            _thumbnailsUpdate();
         }
 
         void FilmstripWidget::resizeEvent(QResizeEvent* event)
         {
             if (event->oldSize() != size())
             {
-                _timelineUpdate();
+                _thumbnailsUpdate();
             }
         }
 
         void FilmstripWidget::paintEvent(QPaintEvent*)
         {
             QPainter painter(this);
-            for (auto i = _thumbnails.begin(); i != _thumbnails.end(); ++i)
+            painter.fillRect(rect(), QColor(0, 0, 0));
+            for (const auto& i : _thumbnails)
             {
-                const int x = _timeToPos(i.key());
-                painter.drawImage(QPoint(x, 0), i.value());
+                const int x = _timeToPos(i.first);
+                painter.drawPixmap(QPoint(x, 0), i.second);
             }
         }
 
-        void FilmstripWidget::timerEvent(QTimerEvent*)
+        void FilmstripWidget::_thumbnailsCallback(const QList<QPair<otime::RationalTime, QPixmap> >& thumbnails)
         {
-            std::list<std::pair<io::VideoFrame, imaging::Size> > thumbnailRequests;
-            auto videoFramesIt = _videoFrameRequests.begin();
-            while (videoFramesIt != _videoFrameRequests.end())
+            for (const auto& i : thumbnails)
             {
-                if (videoFramesIt->second.valid() &&
-                    videoFramesIt->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-                {
-                    auto frame = videoFramesIt->second.get();
-                    frame.time = videoFramesIt->first;
-                    thumbnailRequests.push_back(std::make_pair(frame, _thumbnailSize));
-                    videoFramesIt = _videoFrameRequests.erase(videoFramesIt);
-                }
-                else
-                {
-                    ++videoFramesIt;
-                }
+                _thumbnails[i.first] = i.second;
             }
-            if (!thumbnailRequests.empty())
-            {
-                {
-                    std::unique_lock<std::mutex> lock(_thumbnailMutex);
-                    _thumbnailRequests.insert(_thumbnailRequests.end(), thumbnailRequests.begin(), thumbnailRequests.end());
-                }
-                _thumbnailCV.notify_one();
-            }
-
-            bool results = false;
-            {
-                std::unique_lock<std::mutex> lock(_thumbnailMutex);
-                results = !_thumbnailResults.empty();
-                for (const auto& i : _thumbnailResults)
-                {
-                    _thumbnails[i.second] = i.first;
-                }
-                _thumbnailResults.clear();
-            }
-            if (results)
-            {
-                update();
-            }
+            update();
         }
 
         otime::RationalTime FilmstripWidget::_posToTime(int value) const
@@ -168,7 +71,9 @@ namespace tlr
             {
                 const auto& globalStartTime = _timeline->getGlobalStartTime();
                 const auto& duration = _timeline->getDuration();
-                out = otime::RationalTime(value / static_cast<double>(width()) * (duration.value() - 1) + globalStartTime.value(), duration.rate());
+                out = otime::RationalTime(
+                    floor(value / static_cast<double>(width()) * (duration.value() - 1) + globalStartTime.value()),
+                    duration.rate());
             }
             return out;
         }
@@ -185,32 +90,30 @@ namespace tlr
             return out;
         }
 
-        void FilmstripWidget::_timelineUpdate()
+        void FilmstripWidget::_thumbnailsUpdate()
         {
             _thumbnails.clear();
-            _videoFrameRequests.clear();
-            if (_timeline)
+            if (_timeline && _thumbnailProvider)
             {
-                _timeline->cancelRenders();
-                if (_timeline)
+                _thumbnailProvider->cancelRequests();
+
+                const auto& duration = _timeline->getDuration();
+                const auto& imageInfo = _timeline->getImageInfo();
+                const auto& size = this->size();
+                const int width = size.width();
+                const int height = size.height();
+                const int thumbnailWidth = static_cast<int>(height * imageInfo.size.getAspect());
+                const int thumbnailHeight = height;
+                if (thumbnailWidth > 0)
                 {
-                    const auto& duration = _timeline->getDuration();
-                    const auto& imageInfo = _timeline->getImageInfo();
-                    const auto& size = this->size();
-                    const int width = size.width();
-                    const int height = size.height();
-                    _thumbnailSize.w = static_cast<int>(height * imageInfo.size.getAspect());
-                    _thumbnailSize.h = height;
-                    if (_thumbnailSize.w > 0)
+                    QList<otime::RationalTime> requests;
+                    int x = 0;
+                    while (x < width)
                     {
-                        int x = 0;
-                        while (x < width)
-                        {
-                            const auto time = _posToTime(x);
-                            _videoFrameRequests[time] = _timeline->render(time);
-                            x += _thumbnailSize.w;
-                        }
+                        requests.push_back(_posToTime(x));
+                        x += thumbnailWidth;
                     }
+                    _thumbnailProvider->request(requests, QSize(thumbnailWidth, thumbnailHeight));
                 }
             }
             update();

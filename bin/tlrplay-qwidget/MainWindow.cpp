@@ -7,6 +7,8 @@
 #include "App.h"
 #include "SettingsWidget.h"
 
+#include <tlrQt/TimelineWidget.h>
+
 #include <tlrCore/File.h>
 #include <tlrCore/String.h>
 
@@ -142,9 +144,11 @@ namespace tlr
         _actions["Time/FrameNextX100"]->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Right));
         _actions["Time/ClipPrev"] = new QAction(this);
         _actions["Time/ClipPrev"]->setText(tr("Previous Clip"));
+        _actions["Time/ClipPrev"]->setIcon(QIcon(":/Icons/ClipPrev.svg"));
         _actions["Time/ClipPrev"]->setShortcut(QKeySequence(Qt::Key_BracketLeft));
         _actions["Time/ClipNext"] = new QAction(this);
         _actions["Time/ClipNext"]->setText(tr("Next Clip"));
+        _actions["Time/ClipNext"]->setIcon(QIcon(":/Icons/ClipNext.svg"));
         _actions["Time/ClipNext"]->setShortcut(QKeySequence(Qt::Key_BracketRight));
 
         _actions["InOutPoints/SetInPoint"] = new QAction(this);
@@ -224,17 +228,6 @@ namespace tlr
         _tabWidget = new QTabWidget;
         _tabWidget->setTabsClosable(true);
         setCentralWidget(_tabWidget);
-
-        _timelineWidget = new qt::TimelineWidget;
-        _timelineWidget->setTimeObject(_timeObject);
-        auto timelineDockWidget = new QDockWidget;
-        timelineDockWidget->setObjectName("Timeline");
-        timelineDockWidget->setWindowTitle(tr("Timeline"));
-        timelineDockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
-        timelineDockWidget->setAllowedAreas(Qt::BottomDockWidgetArea);
-        timelineDockWidget->setWidget(_timelineWidget);
-        timelineDockWidget->setTitleBarWidget(new QWidget);
-        addDockWidget(Qt::BottomDockWidgetArea, timelineDockWidget);
 
         auto settingsWidget = new SettingsWidget(settingsObject, _timeObject);
         auto settingsDockWidget = new QDockWidget;
@@ -476,15 +469,16 @@ namespace tlr
 
     void MainWindow::_openedCallback(qt::TimelinePlayer* timelinePlayer)
     {
-        auto viewport = new qt::TimelineViewport;
-        viewport->setTimelinePlayer(timelinePlayer);
+        auto widget = new qt::TimelineWidget;
+        widget->setTimeObject(_timeObject);
+        widget->setTimelinePlayer(timelinePlayer);
         const std::string fileName = timelinePlayer->fileName().toLatin1().data();
         std::string path;
         std::string baseName;
         std::string number;
         std::string extension;
         file::split(fileName, &path, &baseName, &number, &extension);
-        const int tab = _tabWidget->addTab(viewport, (baseName + number + extension).c_str());
+        const int tab = _tabWidget->addTab(widget, (baseName + number + extension).c_str());
         std::stringstream ss;
         ss << fileName << std::endl;
         ss << timelinePlayer->imageInfo();
@@ -822,7 +816,6 @@ namespace tlr
                 _currentTimelinePlayer,
                 SLOT(resetOutPoint()));
         }
-        _timelineWidget->setTimelinePlayer(_currentTimelinePlayer);
         _timelineUpdate();
     }
 

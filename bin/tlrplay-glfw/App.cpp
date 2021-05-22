@@ -356,20 +356,7 @@ namespace tlr
                 _renderHUD();
             }
             _render->end();
-
-            // Copy the render buffer to the window.
-            glViewport(0, 0, _frameBufferSize.w, _frameBufferSize.h);
-            glClearColor(0.F, 0.F, 0.F, 0.F);
-            glClear(GL_COLOR_BUFFER_BIT);
-            glBindFramebuffer(GL_READ_FRAMEBUFFER, _render->getID());
-            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-            glBlitFramebuffer(
-                0, 0, _frameBufferSize.w, _frameBufferSize.h,
-                0, 0, _frameBufferSize.w, _frameBufferSize.h,
-                GL_COLOR_BUFFER_BIT,
-                GL_NEAREST);
             glfwSwapBuffers(_glfwWindow);
-
             _renderDirty = false;
         }
         else

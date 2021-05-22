@@ -16,14 +16,12 @@ namespace tlr
     namespace imaging
     {
         struct Info;
-
         class Color4f;
         class Image;
     }
 
     namespace gl
     {
-        class OffscreenBuffer;
         class Shader;
         class Texture;
 
@@ -41,9 +39,6 @@ namespace tlr
 
             //! Create a new renderer.
             static std::shared_ptr<Render> create();
-
-            //! Get the OpenGL offscreen rendering buffer ID.
-            GLuint getID() const;
 
             //! Start a render.
             void begin(const imaging::Info&);
@@ -64,7 +59,6 @@ namespace tlr
                 const imaging::Color4f&);
 
         private:
-            std::shared_ptr<OffscreenBuffer> _offscreenBuffer;
             std::shared_ptr<Shader> _shader;
             memory::Cache<GlyphInfo, std::shared_ptr<Texture> > _glyphTextureCache;
         };

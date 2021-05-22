@@ -9,6 +9,7 @@
 #include <tlrQt/TimeSpinBox.h>
 #include <tlrQt/TimelinePlayer.h>
 #include <tlrQt/TimelineSlider.h>
+#include <tlrQt/TimelineViewport.h>
 
 #include <QButtonGroup>
 #include <QMap>
@@ -52,6 +53,7 @@ namespace tlr
             void _timelineUpdate();
 
             TimelinePlayer* _timelinePlayer = nullptr;
+            TimelineViewport* _viewport = nullptr;
             QMap<QString, QAbstractButton*> _playbackButtons;
             QButtonGroup* _playbackButtonGroup = nullptr;
             QMap<QAbstractButton*, timeline::Playback> _buttonToPlayback;
@@ -60,7 +62,7 @@ namespace tlr
             QButtonGroup* _timeActionButtonGroup = nullptr;
             QMap<QAbstractButton*, timeline::TimeAction> _buttonToTimeAction;
             SpeedLabel* _speedLabel = nullptr;
-            TimelineSlider* _timelineSlider = nullptr;
+            TimelineSlider* _slider = nullptr;
             TimeSpinBox* _currentTimeSpinBox = nullptr;
             TimeSpinBox* _inPointSpinBox = nullptr;
             TimeSpinBox* _outPointSpinBox = nullptr;
