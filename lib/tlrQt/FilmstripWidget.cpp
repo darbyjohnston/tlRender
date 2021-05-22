@@ -15,7 +15,10 @@ namespace tlr
     {
         FilmstripWidget::FilmstripWidget(QWidget* parent) :
             QWidget(parent)
-        {}
+        {
+            setSizePolicy(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
+            setMinimumHeight(50);
+        }
 
         void FilmstripWidget::setTimeline(const std::shared_ptr<timeline::Timeline>& timeline)
         {

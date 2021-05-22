@@ -146,7 +146,7 @@ namespace tlr
                     {
                         x0 = _timeToPos(_clipRanges[i].start_time());
                         x1 = _timeToPos(_clipRanges[i].end_time_inclusive());
-                        painter.fillRect(QRect(x0, y1 - h * 2, x1 - x0, h), QColor(127, 127, 127));
+                        painter.fillRect(QRect(x0, y1 - h * 2, x1 - x0, h), QColor(160, 160, 160));
                     }
                 }
 
@@ -155,7 +155,7 @@ namespace tlr
                 x0 = _timeToPos(inOutRange.start_time());
                 x1 = _timeToPos(inOutRange.end_time_inclusive());
                 y1 = y0 + rect2.height();
-                painter.fillRect(QRect(x0, y1 - h, x1 - x0, h), QColor(127, 127, 127));
+                painter.fillRect(QRect(x0, y1 - h, x1 - x0, h), QColor(90, 90, 90));
 
                 // Draw cached frames.
                 auto color = QColor(40, 190, 40);
