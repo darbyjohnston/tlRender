@@ -46,6 +46,8 @@ Optional dependencies:
 * FFmpeg - https://ffmpeg.org
 * OpenEXR - https://www.openexr.com/
 * JPEG - https://libjpeg-turbo.org
+* PNG - https://libpng.sourceforge.io/index.html
+* TIFF - http://www.libtiff.org
 
 tlrGL
 -----
