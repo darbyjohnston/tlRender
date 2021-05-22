@@ -10,6 +10,11 @@
 
 #include <QMessageBox>
 
+void qtInitResources()
+{
+    Q_INIT_RESOURCE(tlrQt);
+}
+
 namespace tlr
 {
     App::App(int& argc, char** argv) :
@@ -34,7 +39,7 @@ namespace tlr
             return;
         }
 
-        Q_INIT_RESOURCE(tlrQt);
+        qtInitResources();
 
         qRegisterMetaType<qt::TimeObject::Units>("tlr::qt::TimeObject::Units");
         qRegisterMetaTypeStreamOperators<qt::TimeObject::Units>("tlr::qt::TimeObject::Units");
