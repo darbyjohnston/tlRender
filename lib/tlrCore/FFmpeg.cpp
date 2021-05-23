@@ -215,7 +215,7 @@ namespace tlr
                         _avCodecParameters[_avVideoStream]->width,
                         _avCodecParameters[_avVideoStream]->height,
                         AV_PIX_FMT_YUV420P,
-                        SWS_BILINEAR,
+                        swsScaleFlags,
                         0,
                         0,
                         0);

@@ -33,6 +33,9 @@ namespace tlr
         //! Timeout for frame requests.
         const std::chrono::microseconds requestTimeout(1000);
 
+        //! Software scaler flags.
+        const int swsScaleFlags = SWS_FAST_BILINEAR;
+
         //! Get a label for a FFmpeg error code.
         std::string getErrorLabel(int);
 
