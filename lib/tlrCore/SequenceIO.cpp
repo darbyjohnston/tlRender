@@ -101,7 +101,7 @@ namespace tlr
                     std::unique_lock<std::mutex> lock(_requestMutex);
                     _requestCV.wait_for(
                         lock,
-                        std::chrono::microseconds(1000),
+                        requestTimeout,
                         [this]
                         {
                             return !_videoFrameRequests.empty();

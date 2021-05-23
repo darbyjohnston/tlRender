@@ -18,6 +18,12 @@ namespace tlr
 {
     namespace qt
     {
+        //! Timeout for thumbnail requests.
+        const std::chrono::microseconds thumbnailRequestTimeout(1000);
+
+        //! The thumbnail timer interval.
+        const int thumbnailTimerInterval = 10;
+
         //! Timeline thumbnail provider.
         class TimelineThumbnailProvider : public QObject
         {

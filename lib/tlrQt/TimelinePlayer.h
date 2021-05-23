@@ -12,13 +12,16 @@ namespace tlr
 {
     namespace qt
     {
+        //! The timeline player timer interval.
+        const int playerTimerInterval = 0;
+
+        //! Timeline player.
         class TimelinePlayer : public QObject
         {
             Q_OBJECT
 
         public:
             TimelinePlayer(const std::shared_ptr<timeline::Timeline>&, QObject* parent = nullptr);
-            ~TimelinePlayer() override;
 
             //! \name Information
             ///@{

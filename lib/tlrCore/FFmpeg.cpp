@@ -175,7 +175,7 @@ namespace tlr
                     ss << fileName << ": " << getErrorLabel(r);
                     throw std::runtime_error(ss.str());
                 }
-                _avCodecContext[_avVideoStream]->thread_count = 4;
+                _avCodecContext[_avVideoStream]->thread_count = threadCount;
                 _avCodecContext[_avVideoStream]->thread_type = FF_THREAD_FRAME;
                 r = avcodec_open2(_avCodecContext[_avVideoStream], avVideoCodec, 0);
                 if (r < 0)
@@ -269,7 +269,7 @@ namespace tlr
                     std::unique_lock<std::mutex> lock(_requestMutex);
                     _requestCV.wait_for(
                         lock,
-                        std::chrono::microseconds(1000),
+                        requestTimeout,
                         [this]
                         {
                             return !_videoFrameRequests.empty();
@@ -521,7 +521,7 @@ namespace tlr
         std::shared_ptr<Plugin> Plugin::create()
         {
             auto out = std::shared_ptr<Plugin>(new Plugin);
-            out->_init({ ".mov", ".m4v", ".mp4", ".y4m" });
+            out->_init({ ".mov", ".m4v", ".mp4", ".y4m", ".mkv" });
             return out;
         }
 

@@ -48,7 +48,7 @@ namespace tlr
                             std::unique_lock<std::mutex> lock(_mutex);
                             if (_cv.wait_for(
                                 lock,
-                                std::chrono::microseconds(1000),
+                                thumbnailRequestTimeout,
                                 [this]
                                 {
                                     return !_thumbnailRequests.empty();
@@ -102,7 +102,7 @@ namespace tlr
                     delete context;
                 });
 
-            startTimer(0);
+            startTimer(thumbnailTimerInterval);
         }
 
         TimelineThumbnailProvider::~TimelineThumbnailProvider()

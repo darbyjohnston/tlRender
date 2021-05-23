@@ -17,6 +17,9 @@ namespace tlr
 {
     namespace io
     {
+        //! Timeout for frame requests.
+        const std::chrono::microseconds requestTimeout(1000);
+
         //! Base class for image sequence readers.
         class ISequenceRead : public IRead
         {

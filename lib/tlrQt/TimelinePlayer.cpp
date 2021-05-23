@@ -55,11 +55,8 @@ namespace tlr
                     Q_EMIT cachedFramesChanged(value);
                 });
 
-            startTimer(0, Qt::PreciseTimer);
+            startTimer(playerTimerInterval, Qt::PreciseTimer);
         }
-
-        TimelinePlayer::~TimelinePlayer()
-        {}
 
         QString TimelinePlayer::fileName() const
         {

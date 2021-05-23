@@ -27,6 +27,12 @@ namespace tlr
     //! FFmpeg I/O
     namespace ffmpeg
     {
+        //! Number of threads.
+        const size_t threadCount = 4;
+
+        //! Timeout for frame requests.
+        const std::chrono::microseconds requestTimeout(1000);
+
         //! Get a label for a FFmpeg error code.
         std::string getErrorLabel(int);
 
