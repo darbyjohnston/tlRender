@@ -95,39 +95,51 @@ namespace tlr
         {
             while (_running)
             {
-                VideoFrameRequest request;
-                bool requestValid = false;
+                std::list<VideoFrameRequest> requests;
                 {
                     std::unique_lock<std::mutex> lock(_requestMutex);
                     _requestCV.wait_for(
                         lock,
-                        requestTimeout,
+                        sequenceRequestTimeout,
                         [this]
                         {
                             return !_videoFrameRequests.empty();
                         });
-                    if (!_videoFrameRequests.empty())
+                    for (size_t i = 0; i < sequenceThreadCount && !_videoFrameRequests.empty(); ++i)
                     {
+                        VideoFrameRequest request;
                         request.time = _videoFrameRequests.front().time;
                         request.image = std::move(_videoFrameRequests.front().image);
                         request.promise = std::move(_videoFrameRequests.front().promise);
+                        requests.push_back(std::move(request));
                         _videoFrameRequests.pop_front();
-                        requestValid = true;
                     }
                 }
-                if (requestValid)
+                std::list<std::future<io::VideoFrame> > futures;
+                for (const auto& i : requests)
                 {
                     //std::cout << "request: " << request.time << std::endl;
-                    io::VideoFrame frame;
-                    try
-                    {
-                        frame = _getVideoFrame(request.time, request.image);
-                    }
-                    catch (const std::exception&)
-                    {
-                        //! \todo How should this be handled?
-                    }
-                    request.promise.set_value(frame);
+                    futures.push_back(std::async(
+                        std::launch::async,
+                        [this, &i]
+                        {
+                            io::VideoFrame out;
+                            try
+                            {
+                                out = _getVideoFrame(i.time, i.image);
+                            }
+                            catch (const std::exception&)
+                            {
+                                //! \todo How should this be handled?
+                            }
+                            return out;
+                        }));
+                }
+                while (!requests.empty())
+                {
+                    requests.front().promise.set_value(futures.front().get());
+                    requests.pop_front();
+                    futures.pop_front();
                 }
             }
         }
