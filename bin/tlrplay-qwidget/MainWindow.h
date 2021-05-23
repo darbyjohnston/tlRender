@@ -64,6 +64,7 @@ namespace tlr
         void _frameNextX100Callback();
         void _clipPrevCallback();
         void _clipNextCallback();
+        void _saveSettingsCallback();
 
     private:
         void _setCurrentTimeline(qt::TimelinePlayer*);

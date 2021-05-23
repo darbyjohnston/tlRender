@@ -374,6 +374,10 @@ namespace tlr
                 app,
                 SIGNAL(closed(tlr::qt::TimelinePlayer*)),
                 SLOT(_closedCallback(tlr::qt::TimelinePlayer*)));
+            connect(
+                app,
+                SIGNAL(aboutToQuit()),
+                SLOT(_saveSettingsCallback()));
         }
 
         resize(640, 360);
@@ -392,9 +396,7 @@ namespace tlr
 
     void MainWindow::closeEvent(QCloseEvent* event)
     {
-        QSettings settings;
-        settings.setValue("geometry", saveGeometry());
-        settings.setValue("windowState", saveState());
+        _saveSettingsCallback();
         QMainWindow::closeEvent(event);
     }
 
@@ -745,6 +747,13 @@ namespace tlr
         {
             _currentTimelinePlayer->clipNext();
         }
+    }
+
+    void MainWindow::_saveSettingsCallback()
+    {
+        QSettings settings;
+        settings.setValue("geometry", saveGeometry());
+        settings.setValue("windowState", saveState());
     }
 
     void MainWindow::_setCurrentTimeline(qt::TimelinePlayer* timelinePlayer)
