@@ -177,6 +177,8 @@ namespace tlr
 
             if (_currentTime->setIfChanged(tmp))
             {
+                //std::cout << "! " << tmp << std::endl;
+
                 // Update playback.
                 if (_playback->get() != Playback::Stop)
                 {
@@ -347,7 +349,10 @@ namespace tlr
                 const auto& duration = _timeline->getDuration();
                 auto currentTime = _playbackStartTime +
                     otime::RationalTime(floor(diff.count() * duration.rate() * (Playback::Forward == playback ? 1.0 : -1.0)), duration.rate());
-                _currentTime->setIfChanged(_loopPlayback(currentTime));
+                if (_currentTime->setIfChanged(_loopPlayback(currentTime)))
+                {
+                    //std::cout << "! " << _currentTime->get() << std::endl;
+                }
             }
 
             //! Tick the timeline.
