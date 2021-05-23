@@ -4,6 +4,7 @@ set(HEADERS
     TimeLabel.h
     TimeObject.h
     TimeSpinBox.h
+    TimelineControls.h
     TimelinePlayer.h
     TimelineSlider.h
     TimelineThumbnailProvider.h
@@ -16,6 +17,7 @@ set(SOURCE
     TimeLabel.cpp
     TimeObject.cpp
     TimeSpinBox.cpp
+    TimelineControls.cpp
     TimelinePlayer.cpp
     TimelineSlider.cpp
     TimelineThumbnailProvider.cpp
