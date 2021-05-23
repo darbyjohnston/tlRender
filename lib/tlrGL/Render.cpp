@@ -213,17 +213,6 @@ namespace tlr
             std::vector<std::shared_ptr<Texture> > textures;
             switch (info.pixelType)
             {
-            case imaging::PixelType::L_U8:
-            case imaging::PixelType::RGB_U8:
-            case imaging::PixelType::RGBA_U8:
-            case imaging::PixelType::RGBA_F16:
-            {
-                glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
-                auto texture = Texture::create(info);
-                texture->copy(*image);
-                textures.push_back(texture);
-                break;
-            }
             case imaging::PixelType::YUV_420P:
             {
                 glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
@@ -249,7 +238,13 @@ namespace tlr
                 break;
             }
             default:
+            {
+                glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
+                auto texture = Texture::create(info);
+                texture->copy(*image);
+                textures.push_back(texture);
                 break;
+            }
             }
 
             std::vector<uint8_t> vboData;
