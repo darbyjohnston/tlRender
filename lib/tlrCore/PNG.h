@@ -6,11 +6,29 @@
 
 #include <tlrCore/SequenceIO.h>
 
+#include <png.h>
+
 namespace tlr
 {
     //! PNG I/O.
     namespace png
     {
+        //! PNG error.
+        struct ErrorStruct
+        {
+            std::string message;
+        };
+
+        extern "C"
+        {
+            //! PNG error function.
+            void errorFunc(png_structp in, png_const_charp msg);
+
+            //! PNG warning functin.
+            void warningFunc(png_structp in, png_const_charp msg);
+
+        } // extern "C"
+
         //! PNG reader.
         class Read : public io::ISequenceRead
         {
