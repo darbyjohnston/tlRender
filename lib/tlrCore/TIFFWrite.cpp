@@ -29,33 +29,33 @@ namespace tlr
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
 
-                    uint16 photometric = 0;
-                    uint16 samples = 0;
-                    uint16 sampleDepth = 0;
-                    uint16 sampleFormat = 0;
-                    uint16 extraSamples[] = { EXTRASAMPLE_ASSOCALPHA };
-                    uint16 extraSamplesSize = 0;
-                    uint16 compression = 0;
+                    uint16 tiffPhotometric = 0;
+                    uint16 tiffSamples = 0;
+                    uint16 tiffSampleDepth = 0;
+                    uint16 tiffSampleFormat = 0;
+                    uint16 tiffExtraSamples[] = { EXTRASAMPLE_ASSOCALPHA };
+                    uint16 tiffExtraSamplesSize = 0;
+                    uint16 tiffCompression = 0;
                     const auto& info = image->getInfo();
                     switch (imaging::getChannelCount(info.pixelType))
                     {
                     case 1:
-                        photometric = PHOTOMETRIC_MINISBLACK;
-                        samples = 1;
+                        tiffPhotometric = PHOTOMETRIC_MINISBLACK;
+                        tiffSamples = 1;
                         break;
                     case 2:
-                        photometric = PHOTOMETRIC_MINISBLACK;
-                        samples = 2;
-                        extraSamplesSize = 1;
+                        tiffPhotometric = PHOTOMETRIC_MINISBLACK;
+                        tiffSamples = 2;
+                        tiffExtraSamplesSize = 1;
                         break;
                     case 3:
-                        photometric = PHOTOMETRIC_RGB;
-                        samples = 3;
+                        tiffPhotometric = PHOTOMETRIC_RGB;
+                        tiffSamples = 3;
                         break;
                     case 4:
-                        photometric = PHOTOMETRIC_RGB;
-                        samples = 4;
-                        extraSamplesSize = 1;
+                        tiffPhotometric = PHOTOMETRIC_RGB;
+                        tiffSamples = 4;
+                        tiffExtraSamplesSize = 1;
                         break;
                     default: break;
                     }
@@ -65,32 +65,32 @@ namespace tlr
                     case imaging::PixelType::LA_U8:
                     case imaging::PixelType::RGB_U8:
                     case imaging::PixelType::RGBA_U8:
-                        sampleDepth = 8;
-                        sampleFormat = SAMPLEFORMAT_UINT;
+                        tiffSampleDepth = 8;
+                        tiffSampleFormat = SAMPLEFORMAT_UINT;
                         break;
                     case imaging::PixelType::L_U16:
                     case imaging::PixelType::LA_U16:
                     case imaging::PixelType::RGB_U16:
                     case imaging::PixelType::RGBA_U16:
-                        sampleDepth = 16;
-                        sampleFormat = SAMPLEFORMAT_UINT;
+                        tiffSampleDepth = 16;
+                        tiffSampleFormat = SAMPLEFORMAT_UINT;
                         break;
                     case imaging::PixelType::L_F32:
                     case imaging::PixelType::LA_F32:
                     case imaging::PixelType::RGB_F32:
                     case imaging::PixelType::RGBA_F32:
-                        sampleDepth = 32;
-                        sampleFormat = SAMPLEFORMAT_IEEEFP;
+                        tiffSampleDepth = 32;
+                        tiffSampleFormat = SAMPLEFORMAT_IEEEFP;
                         break;
                     default: break;
                     }
-                    if (!samples || !sampleDepth)
+                    if (!tiffSamples || !tiffSampleDepth)
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
-                    const size_t scanlineSize = info.size.w * samples * sampleDepth / 8;
+                    const size_t scanlineSize = info.size.w * tiffSamples * tiffSampleDepth / 8;
 
-                    compression = COMPRESSION_NONE;
+                    tiffCompression = COMPRESSION_NONE;
                     /*switch (_p->options.compression)
                     {
                     case Compression::None:
@@ -106,13 +106,13 @@ namespace tlr
                     }*/
                     TIFFSetField(f, TIFFTAG_IMAGEWIDTH, info.size.w);
                     TIFFSetField(f, TIFFTAG_IMAGELENGTH, info.size.h);
-                    TIFFSetField(f, TIFFTAG_PHOTOMETRIC, photometric);
-                    TIFFSetField(f, TIFFTAG_SAMPLESPERPIXEL, samples);
-                    TIFFSetField(f, TIFFTAG_BITSPERSAMPLE, sampleDepth);
-                    TIFFSetField(f, TIFFTAG_SAMPLEFORMAT, sampleFormat);
-                    TIFFSetField(f, TIFFTAG_EXTRASAMPLES, extraSamplesSize, extraSamples);
+                    TIFFSetField(f, TIFFTAG_PHOTOMETRIC, tiffPhotometric);
+                    TIFFSetField(f, TIFFTAG_SAMPLESPERPIXEL, tiffSamples);
+                    TIFFSetField(f, TIFFTAG_BITSPERSAMPLE, tiffSampleDepth);
+                    TIFFSetField(f, TIFFTAG_SAMPLEFORMAT, tiffSampleFormat);
+                    TIFFSetField(f, TIFFTAG_EXTRASAMPLES, tiffExtraSamplesSize, tiffExtraSamples);
                     TIFFSetField(f, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
-                    TIFFSetField(f, TIFFTAG_COMPRESSION, compression);
+                    TIFFSetField(f, TIFFTAG_COMPRESSION, tiffCompression);
                     TIFFSetField(f, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
 
                     for (uint16_t y = 0; y < info.size.h; ++y)
