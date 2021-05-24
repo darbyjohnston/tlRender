@@ -111,6 +111,8 @@ namespace tlr
         {
             return;
         }
+
+        _startTime = std::chrono::steady_clock::now();
         
         // Read the timeline.
         _timeline = timeline::Timeline::create(_input);
@@ -154,11 +156,7 @@ namespace tlr
         int glfwMinor = 0;
         int glfwRevision = 0;
         glfwGetVersion(&glfwMajor, &glfwMinor, &glfwRevision);
-        {
-            std::stringstream ss;
-            ss << "GLFW version: " << glfwMajor << "." << glfwMinor << "." << glfwRevision;
-            _printVerbose(ss.str());
-        }
+        _printVerbose(string::Format("GLFW version: {0}.{1}.{2}").arg(glfwMajor).arg(glfwMinor).arg(glfwRevision));
         if (!glfwInit())
         {
             throw std::runtime_error("Cannot initialize GLFW");
@@ -205,11 +203,7 @@ namespace tlr
         const int glMajor = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_VERSION_MAJOR);
         const int glMinor = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_VERSION_MINOR);
         const int glRevision = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_REVISION);
-        {
-            std::stringstream ss;
-            ss << "OpenGL version: " << glMajor << "." << glMinor << "." << glRevision;
-            _printVerbose(ss.str());
-        }
+        _printVerbose(string::Format("OpenGL version: {0}.{1}.{2}").arg(glMajor).arg(glMinor).arg(glRevision));
 
         // Create the renderer.
         _fontSystem = gl::FontSystem::create();
@@ -226,9 +220,7 @@ namespace tlr
         _writer = _ioSystem->write(_output, ioInfo);
         if (!_writer)
         {
-            std::stringstream ss;
-            ss << _output << ": Cannot open";
-            throw std::runtime_error(ss.str());
+            throw std::runtime_error(string::Format("{0}: Cannot open").arg(_output));
         }
 
         // Start the main loop.
@@ -237,6 +229,10 @@ namespace tlr
         {
             _tick();
         }
+
+        const auto now = std::chrono::steady_clock::now();
+        const std::chrono::duration<float> diff = now - _startTime;
+        _print(string::Format("Seconds elapsed: {0}").arg(diff.count()));
     }
 
     void App::_tick()
@@ -245,14 +241,10 @@ namespace tlr
         _timeline->tick();
 
         // Render the frame.
-        {
-            std::stringstream ss;
-            ss << "Rendering frame: " << _currentTime.value();
-            _print(ss.str());
-        }
+        _print(string::Format("Rendering frame: {0}").arg(_currentTime.value()));
         _render->begin(_renderInfo.size);
-        const auto& frame = _timeline->render(_timeline->getGlobalStartTime() + _currentTime).get();
-        _render->drawImage(frame.image, math::BBox2f(0.F, 0.F, _renderInfo.size.w, _renderInfo.size.h));
+        _videoFrame = _timeline->render(_timeline->getGlobalStartTime() + _currentTime, _videoFrame.image).get();
+        _render->drawImage(_videoFrame.image, math::BBox2f(0.F, 0.F, _renderInfo.size.w, _renderInfo.size.h));
         _render->end();
 
         // Write the frame.
@@ -261,9 +253,7 @@ namespace tlr
         const GLenum type = gl::getReadPixelsType(_outputInfo.pixelType);
         if (GL_NONE == format || GL_NONE == type)
         {
-            std::stringstream ss;
-            ss << _output << ": Cannot open";
-            throw std::runtime_error(ss.str());
+            throw std::runtime_error(string::Format("{0}: Cannot open").arg(_output));
         }
         glReadPixels(
             0,

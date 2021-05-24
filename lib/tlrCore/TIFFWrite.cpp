@@ -4,6 +4,8 @@
 
 #include <tlrCore/TIFF.h>
 
+#include <tlrCore/StringFormat.h>
+
 #include <tiffio.h>
 
 #include <sstream>
@@ -24,9 +26,7 @@ namespace tlr
                     f = TIFFOpen(fileName.data(), "w");
                     if (!f)
                     {
-                        std::stringstream ss;
-                        ss << fileName << ": Cannot open";
-                        throw std::runtime_error(ss.str());
+                        throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
 
                     uint16 photometric = 0;
@@ -86,9 +86,7 @@ namespace tlr
                     }
                     if (!samples || !sampleDepth)
                     {
-                        std::stringstream ss;
-                        ss << fileName << ": Cannot open";
-                        throw std::runtime_error(ss.str());
+                        throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
                     const size_t scanlineSize = info.size.w * samples * sampleDepth / 8;
 
@@ -122,9 +120,7 @@ namespace tlr
                         uint8_t* p = image->getData() + imaging::getDataByteCount(info) - (y + 1) * scanlineSize;
                         if (TIFFWriteScanline(f, (tdata_t*)p, y) == -1)
                         {
-                            std::stringstream ss;
-                            ss << fileName << ": Cannot write scanline: " << y;
-                            throw std::runtime_error(ss.str());
+                            throw std::runtime_error(string::Format("{0}: Cannot write scanline: {1}").arg(fileName).arg(y));
                         }
                     }
                 }

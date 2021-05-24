@@ -85,16 +85,26 @@ namespace tlr
             return *this;
         }
 
-        Format& Format::arg(float value)
+        Format& Format::arg(float value, int precision)
         {
             std::stringstream ss;
+            if (precision > 0)
+            {
+                ss.precision(precision);
+                ss << std::fixed;
+            }
             ss << value;
             return arg(ss.str());
         }
 
-        Format& Format::arg(double value)
+        Format& Format::arg(double value, int precision)
         {
             std::stringstream ss;
+            if (precision > 0)
+            {
+                ss.precision(precision);
+                ss << std::fixed;
+            }
             ss << value;
             return arg(ss.str());
         }

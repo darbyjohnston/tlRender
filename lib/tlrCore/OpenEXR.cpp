@@ -6,6 +6,7 @@
 
 #include <tlrCore/Assert.h>
 #include <tlrCore/String.h>
+#include <tlrCore/StringFormat.h>
 
 #include <ImfRgbaFile.h>
 
@@ -20,9 +21,7 @@ namespace tlr
                 imaging::PixelType pixelType = imaging::getFloatType(4, 16);
                 if (imaging::PixelType::None == pixelType)
                 {
-                    std::stringstream ss;
-                    ss << f.fileName() << ": File not supported";
-                    throw std::runtime_error(ss.str());
+                    throw std::runtime_error(string::Format("{0}: File not supported").arg(f.fileName()));
                 }
                 const auto dw = f.dataWindow();
                 const int width = dw.max.x - dw.min.x + 1;

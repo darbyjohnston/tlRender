@@ -11,6 +11,7 @@
 
 #include <tlrCore/File.h>
 #include <tlrCore/String.h>
+#include <tlrCore/StringFormat.h>
 
 #include <QDockWidget>
 #include <QDragEnterEvent>
@@ -481,10 +482,7 @@ namespace tlr
         std::string extension;
         file::split(fileName, &path, &baseName, &number, &extension);
         const int tab = _tabWidget->addTab(widget, (baseName + number + extension).c_str());
-        std::stringstream ss;
-        ss << fileName << std::endl;
-        ss << timelinePlayer->imageInfo();
-        _tabWidget->setTabToolTip(tab, ss.str().c_str());
+        _tabWidget->setTabToolTip(tab, std::string(string::Format("{0}\n{1}").arg(fileName).arg(timelinePlayer->imageInfo())).c_str());
         _timelinePlayers.append(timelinePlayer);
         _setCurrentTimeline(timelinePlayer);
     }

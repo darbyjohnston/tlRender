@@ -5,6 +5,7 @@
 #include <tlrCore/JPEG.h>
 
 #include <tlrCore/Assert.h>
+#include <tlrCore/StringFormat.h>
 
 extern "C"
 {
@@ -126,31 +127,23 @@ namespace tlr
                     error.pub.emit_message = jpegWarning;
                     if (!jpegCreate(&decompress, &error))
                     {
-                        std::stringstream ss;
-                        ss << fileName << ": Cannot open";
-                        throw std::runtime_error(ss.str());
+                        throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
                     init = true;
                     f = fopen(fileName.c_str(), "rb");
                     if (!f)
                     {
-                        std::stringstream ss;
-                        ss << fileName << ": Cannot open";
-                        throw std::runtime_error(ss.str());
+                        throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
                     if (!jpegOpen(f, &decompress, &error))
                     {
-                        std::stringstream ss;
-                        ss << fileName << ": Cannot open";
-                        throw std::runtime_error(ss.str());
+                        throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
 
                     imaging::PixelType pixelType = imaging::getIntType(decompress.out_color_components, 8);
                     if (imaging::PixelType::None == pixelType)
                     {
-                        std::stringstream ss;
-                        ss << fileName << ": File not supported";
-                        throw std::runtime_error(ss.str());
+                        throw std::runtime_error(string::Format("{0}: File not supported").arg(fileName));
                     }
 
                     info = imaging::Info(decompress.output_width, decompress.output_height, pixelType);

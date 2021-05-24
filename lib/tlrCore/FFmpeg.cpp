@@ -6,6 +6,7 @@
 
 #include <tlrCore/Assert.h>
 #include <tlrCore/String.h>
+#include <tlrCore/StringFormat.h>
 
 extern "C"
 {
@@ -118,16 +119,12 @@ namespace tlr
                 nullptr);
             if (r < 0)
             {
-                std::stringstream ss;
-                ss << fileName << ": " << getErrorLabel(r);
-                throw std::runtime_error(ss.str());
+                throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
             }
             r = avformat_find_stream_info(_avFormatContext, 0);
             if (r < 0)
             {
-                std::stringstream ss;
-                ss << fileName << ": " << getErrorLabel(r);
-                throw std::runtime_error(ss.str());
+                throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
             }
             //av_dump_format(_avFormatContext, 0, fileName.c_str(), 0);
 
@@ -140,9 +137,7 @@ namespace tlr
             }
             if (-1 == _avVideoStream)
             {
-                std::stringstream ss;
-                ss << fileName << ": " << "No video stream found";
-                throw std::runtime_error(ss.str());
+                throw std::runtime_error(string::Format("{0}: No video stream found").arg(fileName));
             }
 
             _avFrame = av_frame_alloc();
@@ -155,34 +150,26 @@ namespace tlr
                 auto avVideoCodec = avcodec_find_decoder(avVideoCodecParameters->codec_id);
                 if (!avVideoCodec)
                 {
-                    std::stringstream ss;
-                    ss << fileName << ": " << "No video codec found";
-                    throw std::runtime_error(ss.str());
+                    throw std::runtime_error(string::Format("{0}: No video codec found").arg(fileName));
                 }
                 _avCodecParameters[_avVideoStream] = avcodec_parameters_alloc();
                 r = avcodec_parameters_copy(_avCodecParameters[_avVideoStream], avVideoCodecParameters);
                 if (r < 0)
                 {
-                    std::stringstream ss;
-                    ss << fileName << ": " << getErrorLabel(r);
-                    throw std::runtime_error(ss.str());
+                    throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
                 }
                 _avCodecContext[_avVideoStream] = avcodec_alloc_context3(avVideoCodec);
                 r = avcodec_parameters_to_context(_avCodecContext[_avVideoStream], _avCodecParameters[_avVideoStream]);
                 if (r < 0)
                 {
-                    std::stringstream ss;
-                    ss << fileName << ": " << getErrorLabel(r);
-                    throw std::runtime_error(ss.str());
+                    throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
                 }
                 _avCodecContext[_avVideoStream]->thread_count = threadCount;
                 _avCodecContext[_avVideoStream]->thread_type = FF_THREAD_FRAME;
                 r = avcodec_open2(_avCodecContext[_avVideoStream], avVideoCodec, 0);
                 if (r < 0)
                 {
-                    std::stringstream ss;
-                    ss << fileName << ": " << getErrorLabel(r);
-                    throw std::runtime_error(ss.str());
+                    throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
                 }
 
                 io::VideoInfo videoInfo;

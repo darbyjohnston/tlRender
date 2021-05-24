@@ -5,6 +5,7 @@
 #include <tlrCore/PNG.h>
 
 #include <tlrCore/Memory.h>
+#include <tlrCore/StringFormat.h>
 
 #include <png.h>
 
@@ -149,9 +150,7 @@ namespace tlr
                     f = fopen(fileName.c_str(), "rb");
                     if (!f)
                     {
-                        std::stringstream ss;
-                        ss << fileName << ": Cannot open";
-                        throw std::runtime_error(ss.str());
+                        throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
 
                     uint16_t width = 0;
@@ -160,18 +159,14 @@ namespace tlr
                     uint8_t  bitDepth = 0;
                     if (!pngOpen(f, png, &pngInfo, &pngInfoEnd, width, height, channels, bitDepth))
                     {
-                        std::stringstream ss;
-                        ss << fileName << ": Cannot open";
-                        throw std::runtime_error(ss.str());
+                        throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
                     scanlineSize = width * channels * bitDepth / 8;
 
                     imaging::PixelType pixelType = imaging::getIntType(channels, bitDepth);
                     if (imaging::PixelType::None == pixelType)
                     {
-                        std::stringstream ss;
-                        ss << fileName << ": Cannot open";
-                        throw std::runtime_error(ss.str());
+                        throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
 
                     info = imaging::Info(width, height, pixelType);

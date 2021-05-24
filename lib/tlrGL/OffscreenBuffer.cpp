@@ -24,21 +24,21 @@ namespace tlr
 
             std::string getErrorLabel(Error error)
             {
-                std::stringstream ss;
+                std::string out;
                 switch (error)
                 {
                 case Error::ColorTexture:
-                    ss << "Cannot create color texture";
+                    out = "Cannot create color texture";
                     break;
                 case Error::Create:
-                    ss << "Cannot create frame buffer";
+                    out = "Cannot create frame buffer";
                     break;
                 case Error::Init:
-                    ss << "Cannot initialize frame buffer";
+                    out = "Cannot initialize frame buffer";
                     break;
                 default: break;
                 }
-                return ss.str();
+                return out;
             }
         }
 

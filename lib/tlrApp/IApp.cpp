@@ -80,9 +80,7 @@ namespace tlr
                 }
                 catch (const std::exception& e)
                 {
-                    std::stringstream ss;
-                    ss << "Cannot parse option \"" << i->getName() << "\": " << e.what();
-                    throw std::runtime_error(ss.str());
+                    throw std::runtime_error(string::Format("Cannot parse option \"{0}\": {1}").arg(i->getName()).arg(e.what()));
                 }
             }
             size_t requiredArgs = 0;
@@ -116,9 +114,7 @@ namespace tlr
                 }
                 catch (const std::exception& e)
                 {
-                    std::stringstream ss;
-                    ss << "Cannot parse argument \"" << i->getName() << "\": " << e.what();
-                    throw std::runtime_error(ss.str());
+                    throw std::runtime_error(string::Format("Cannot parse argument \"{0}\": {1}").arg(i->getName()).arg(e.what()));
                 }
             }
             return 0;

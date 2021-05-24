@@ -4,6 +4,8 @@
 
 #include <tlrCore/TIFF.h>
 
+#include <tlrCore/StringFormat.h>
+
 #include <tiffio.h>
 
 #include <sstream>
@@ -22,9 +24,7 @@ namespace tlr
                     f = TIFFOpen(fileName.data(), "r");
                     if (!f)
                     {
-                        std::stringstream ss;
-                        ss << fileName << ": Cannot open";
-                        throw std::runtime_error(ss.str());
+                        throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
 
                     uint32  width = 0;
@@ -74,9 +74,7 @@ namespace tlr
                     }
                     if (imaging::PixelType::None == pixelType)
                     {
-                        std::stringstream ss;
-                        ss << fileName << ": Cannot open";
-                        throw std::runtime_error(ss.str());
+                        throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
 
                     compression = compression != COMPRESSION_NONE;

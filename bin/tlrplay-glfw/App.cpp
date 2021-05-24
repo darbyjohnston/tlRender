@@ -117,11 +117,7 @@ namespace tlr
         int glfwMinor = 0;
         int glfwRevision = 0;
         glfwGetVersion(&glfwMajor, &glfwMinor, &glfwRevision);
-        {
-            std::stringstream ss;
-            ss << "GLFW version: " << glfwMajor << "." << glfwMinor << "." << glfwRevision;
-            _printVerbose(ss.str());
-        }
+        _printVerbose(string::Format("GLFW version: {0}.{1}.{2}").arg(glfwMajor).arg(glfwMinor).arg(glfwRevision));
         if (!glfwInit())
         {
             throw std::runtime_error("Cannot initialize GLFW");
@@ -174,11 +170,7 @@ namespace tlr
         const int glMajor = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_VERSION_MAJOR);
         const int glMinor = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_VERSION_MINOR);
         const int glRevision = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_REVISION);
-        {
-            std::stringstream ss;
-            ss << "OpenGL version: " << glMajor << "." << glMinor << "." << glRevision;
-            _printVerbose(ss.str());
-        }
+        _printVerbose(string::Format("OpenGL version: {0}.{1}.{2}").arg(glMajor).arg(glMinor).arg(glRevision));
         glfwSetFramebufferSizeCallback(_glfwWindow, _frameBufferSizeCallback);
         glfwSetWindowContentScaleCallback(_glfwWindow, _windowContentScaleCallback);
         if (_options.fullScreen)
@@ -246,11 +238,7 @@ namespace tlr
         {
             _normalWindow();
         }
-        {
-            std::stringstream ss;
-            ss << "Fullscreen: " << _options.fullScreen;
-            _print(ss.str());
-        }
+        _printVerbose(string::Format("Fullscreen: {0}").arg(_options.fullScreen));
     }
     
     void App::_frameBufferSizeCallback(GLFWwindow* glfwWindow, int width, int height)
@@ -380,10 +368,7 @@ namespace tlr
         hudLabels[HUDElement::LowerLeft] = "Time: " + label;
 
         // Speed.
-        std::stringstream ss;
-        ss.precision(2);
-        ss << "Speed: " << std::fixed << _timelinePlayer->getDuration().rate();
-        hudLabels[HUDElement::LowerRight] = ss.str();
+        hudLabels[HUDElement::LowerRight] = string::Format("Speed: {0}").arg(_timelinePlayer->getDuration().rate(), 2);
 
         if (hudLabels != _hudLabels)
         {
@@ -454,30 +439,18 @@ namespace tlr
     {
         _options.hud = value;
         _renderDirty = true;
-        {
-            std::stringstream ss;
-            ss << "HUD: " << _options.hud;
-            _print(ss.str());
-        }
+        _printVerbose(string::Format("HUD: {0}").arg(_options.hud));
     }
 
     void App::_playbackCallback(timeline::Playback value)
     {
         _timelinePlayer->setPlayback(value);
-        {
-            std::stringstream ss;
-            ss << "Playback: " << _timelinePlayer->observePlayback()->get();
-            _print(ss.str());
-        }
+        _printVerbose(string::Format("Playback: {0}").arg(_timelinePlayer->observePlayback()->get()));
     }
 
     void App::_loopPlaybackCallback(timeline::Loop value)
     {
         _timelinePlayer->setLoop(value);
-        {
-            std::stringstream ss;
-            ss << "Loop playback: " << _timelinePlayer->observeLoop()->get();
-            _print(ss.str());
-        }
+        _printVerbose(string::Format("Loop playback: {0}").arg(_timelinePlayer->observeLoop()->get()));
     }
 }
