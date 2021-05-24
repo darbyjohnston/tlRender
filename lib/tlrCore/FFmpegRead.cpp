@@ -15,6 +15,8 @@ extern "C"
 
 } // extern "C"
 
+#include <cstring>
+
 namespace tlr
 {
     namespace ffmpeg
