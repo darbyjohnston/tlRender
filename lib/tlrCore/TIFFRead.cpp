@@ -250,7 +250,8 @@ namespace tlr
             {
                 for (uint16_t y = 0; y < f->info.size.h; ++y)
                 {
-                    if (TIFFReadScanline(f->f, (tdata_t*)out.image->getData() + y * f->scanlineSize, y) == -1)
+                    const uint8_t* p = out.image->getData() + y * f->scanlineSize;
+                    if (TIFFReadScanline(f->f, (tdata_t*)p, y) == -1)
                     {
                         break;
                     }
