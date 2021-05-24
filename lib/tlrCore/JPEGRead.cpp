@@ -7,7 +7,7 @@
 #include <tlrCore/Assert.h>
 #include <tlrCore/StringFormat.h>
 
-#include <setjmp.h>
+#include <cstring>
 
 namespace tlr
 {
@@ -83,7 +83,7 @@ namespace tlr
             public:
                 File(const std::string& fileName)
                 {
-                    memset(&decompress, 0, sizeof(jpeg_decompress_struct));
+                    std::memset(&decompress, 0, sizeof(jpeg_decompress_struct));
 
                     decompress.err = jpeg_std_error(&error.pub);
                     error.pub.error_exit = errorFunc;

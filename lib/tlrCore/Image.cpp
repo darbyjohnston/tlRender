@@ -170,7 +170,7 @@ namespace tlr
         {
             if (!_data.empty())
             {
-                memset(&_data[0], 0, getDataByteCount(_info));
+                std::memset(&_data[0], 0, getDataByteCount(_info));
             }
         }
     }

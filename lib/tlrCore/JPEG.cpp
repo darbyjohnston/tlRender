@@ -4,8 +4,6 @@
 
 #include <tlrCore/JPEG.h>
 
-#include <setjmp.h>
-
 namespace tlr
 {
     namespace jpeg

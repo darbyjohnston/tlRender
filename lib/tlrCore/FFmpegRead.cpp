@@ -426,18 +426,18 @@ namespace tlr
                 const std::size_t h2 = h / 2;
                 for (std::size_t i = 0; i < h; ++i)
                 {
-                    memcpy(
+                    std::memcpy(
                         image->getData() + w * i,
                         _avFrame->data[0] + _avFrame->linesize[0] * i,
                         w);
                 }
                 for (std::size_t i = 0; i < h2; ++i)
                 {
-                    memcpy(
+                    std::memcpy(
                         image->getData() + (w * h) + w2 * i,
                         _avFrame->data[1] + _avFrame->linesize[1] * i,
                         w2);
-                    memcpy(
+                    std::memcpy(
                         image->getData() + (w * h) + (w2 * h2) + w2 * i,
                         _avFrame->data[2] + _avFrame->linesize[2] * i,
                         w2);
@@ -447,7 +447,7 @@ namespace tlr
             case AV_PIX_FMT_RGB24:
                 for (std::size_t i = 0; i < h; ++i)
                 {
-                    memcpy(
+                    std::memcpy(
                         image->getData() + w * 3 * i,
                         _avFrame->data[0] + _avFrame->linesize[0] * 3 * i,
                         w * 3);
@@ -456,7 +456,7 @@ namespace tlr
             case AV_PIX_FMT_GRAY8:
                 for (std::size_t i = 0; i < h; ++i)
                 {
-                    memcpy(
+                    std::memcpy(
                         image->getData() + w * i,
                         _avFrame->data[0] + _avFrame->linesize[0] * i,
                         w);
@@ -465,7 +465,7 @@ namespace tlr
             case AV_PIX_FMT_RGBA:
                 for (std::size_t i = 0; i < h; ++i)
                 {
-                    memcpy(
+                    std::memcpy(
                         image->getData() + w * 4 * i,
                         _avFrame->data[0] + _avFrame->linesize[0] * 4 * i,
                         w * 4);

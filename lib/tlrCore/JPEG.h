@@ -12,6 +12,8 @@ extern "C"
 
 } // extern "C"
 
+#include <setjmp.h>
+
 namespace tlr
 {
     //! JPEG I/O.
