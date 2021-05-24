@@ -124,7 +124,10 @@ namespace tlr
             otime::RationalTime(0, _duration.rate());
         _range = _options.endFrame >= 0 ?
             otime::TimeRange::range_from_start_end_time_inclusive(startTime, otime::RationalTime(_options.endFrame, _duration.rate())) :
-            otime::TimeRange::range_from_start_end_time(startTime, _duration);
+            otime::TimeRange::range_from_start_end_time(startTime, startTime + _duration);
+        _timeline->setActiveRanges({ otime::TimeRange::range_from_start_end_time(
+            _timeline->getGlobalStartTime() + _range.start_time(),
+            _timeline->getGlobalStartTime() + _range.duration()) });
         _currentTime = _range.start_time();
         _print(string::Format("Frame range: {0}-{1}").arg(_range.start_time().value()).arg(_range.end_time_inclusive().value()));
 
@@ -212,6 +215,7 @@ namespace tlr
         _fontSystem = gl::FontSystem::create();
         _render = gl::Render::create();
         _buffer = gl::OffscreenBuffer::create(_renderInfo.size, _renderInfo.pixelType);
+        _outputImage = imaging::Image::create(_outputInfo);
 
         // Create the I/O system.
         _ioSystem = io::System::create();
@@ -228,6 +232,7 @@ namespace tlr
         }
 
         // Start the main loop.
+        gl::OffscreenBufferBinding binding(_buffer);
         while (_running)
         {
             _tick();
@@ -245,14 +250,12 @@ namespace tlr
             ss << "Rendering frame: " << _currentTime.value();
             _print(ss.str());
         }
-        gl::OffscreenBufferBinding binding(_buffer);
         _render->begin(_renderInfo.size);
-        const auto& frame = _timeline->render(_currentTime + _timeline->getGlobalStartTime()).get();
+        const auto& frame = _timeline->render(_timeline->getGlobalStartTime() + _currentTime).get();
         _render->drawImage(frame.image, math::BBox2f(0.F, 0.F, _renderInfo.size.w, _renderInfo.size.h));
         _render->end();
 
         // Write the frame.
-        auto image = imaging::Image::create(_outputInfo);
         glPixelStorei(GL_PACK_ALIGNMENT, 1);
         const GLenum format = gl::getReadPixelsFormat(_outputInfo.pixelType);
         const GLenum type = gl::getReadPixelsType(_outputInfo.pixelType);
@@ -269,8 +272,8 @@ namespace tlr
             _outputInfo.size.h,
             format,
             type,
-            image->getData());
-        _writer->writeVideoFrame(_currentTime, image);
+            _outputImage->getData());
+        _writer->writeVideoFrame(_currentTime, _outputImage);
 
         // Advance the time.
         _currentTime += otime::RationalTime(1, _currentTime.rate());

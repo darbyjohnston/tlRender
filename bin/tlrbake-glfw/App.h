@@ -62,6 +62,7 @@ namespace tlr
         std::shared_ptr<gl::FontSystem> _fontSystem;
         std::shared_ptr<gl::Render> _render;
         std::shared_ptr<gl::OffscreenBuffer> _buffer;
+        std::shared_ptr<imaging::Image> _outputImage;
 
         bool _running = true;
     };
