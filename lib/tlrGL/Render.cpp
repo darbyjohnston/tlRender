@@ -144,9 +144,9 @@ namespace tlr
             return out;
         }
 
-        void Render::begin(const imaging::Info& info)
+        void Render::begin(const imaging::Size& size)
         {
-            glViewport(0, 0, info.size.w, info.size.h);
+            glViewport(0, 0, size.w, size.h);
             glClearColor(0.F, 0.F, 0.F, 0.F);
             glClear(GL_COLOR_BUFFER_BIT);
 
@@ -156,8 +156,8 @@ namespace tlr
             _shader->bind();
             const auto viewMatrix = math::ortho(
                 0.F,
-                static_cast<float>(info.size.w),
-                static_cast<float>(info.size.h),
+                static_cast<float>(size.w),
+                static_cast<float>(size.h),
                 0.F,
                 -1.F,
                 1.F);

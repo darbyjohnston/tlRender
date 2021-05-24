@@ -31,7 +31,7 @@ namespace tlr
                 GL_RGBA,
                 GL_RGBA,
                 GL_RGBA,
-                GL_RGB
+                GL_NONE
             };
             return data[static_cast<std::size_t>(value)];
         }
@@ -54,7 +54,7 @@ namespace tlr
                 GL_RGBA,
                 GL_RGBA,
                 GL_RGBA,
-                GL_RGB
+                GL_NONE
             };
             return data[static_cast<std::size_t>(type)];
         }
@@ -77,7 +77,7 @@ namespace tlr
                 GL_UNSIGNED_SHORT,
                 GL_HALF_FLOAT,
                 GL_FLOAT,
-                GL_UNSIGNED_BYTE
+                GL_NONE
             };
             return data[static_cast<std::size_t>(value)];
         }

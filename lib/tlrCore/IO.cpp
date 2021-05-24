@@ -56,7 +56,6 @@ namespace tlr
             const otime::RationalTime& defaultSpeed)
         {
             IIO::_init(fileName);
-
             _defaultSpeed = defaultSpeed;
         }
 
@@ -64,6 +63,20 @@ namespace tlr
         {}
 
         IRead::~IRead()
+        {}
+
+        void IWrite::_init(
+            const std::string & fileName,
+            const io::Info& info)
+        {
+            IIO::_init(fileName);
+            _info = info;
+        }
+
+        IWrite::IWrite()
+        {}
+
+        IWrite::~IWrite()
         {}
 
         void IPlugin::_init(const std::set<std::string>& extensions)
@@ -76,17 +89,6 @@ namespace tlr
 
         IPlugin::~IPlugin()
         {}
-
-        bool IPlugin::canRead(const std::string& fileName)
-        {
-            std::string path;
-            std::string baseName;
-            std::string number;
-            std::string extension;
-            file::split(fileName, &path, &baseName, &number, &extension);
-            extension = string::toLower(extension);
-            return _extensions.find(extension) != _extensions.end();
-        }
 
         void System::_init()
         {
@@ -117,27 +119,46 @@ namespace tlr
             return out;
         }
 
-        bool System::canRead(const std::string& fileName)
+        namespace
         {
-            for (const auto& i : _plugins)
+            std::string getExtension(const std::string& fileName)
             {
-                if (i->canRead(fileName))
-                {
-                    return true;
-                }
+                std::string path;
+                std::string baseName;
+                std::string number;
+                std::string extension;
+                file::split(fileName, &path, &baseName, &number, &extension);
+                return string::toLower(extension);
             }
-            return false;
         }
 
         std::shared_ptr<IRead> System::read(
             const std::string& fileName,
             const otime::RationalTime& defaultSpeed)
         {
+            const std::string extension = getExtension(fileName);
             for (const auto& i : _plugins)
             {
-                if (i->canRead(fileName))
+                const auto& extensions = i->getExtensions();
+                if (extensions.find(extension) != extensions.end())
                 {
                     return i->read(fileName, defaultSpeed);
+                }
+            }
+            return nullptr;
+        }
+
+        std::shared_ptr<IWrite> System::write(
+            const std::string& fileName,
+            const io::Info& info)
+        {
+            const std::string extension = getExtension(fileName);
+            for (const auto& i : _plugins)
+            {
+                const auto& extensions = i->getExtensions();
+                if (extensions.find(extension) != extensions.end())
+                {
+                    return i->write(fileName, info);
                 }
             }
             return nullptr;

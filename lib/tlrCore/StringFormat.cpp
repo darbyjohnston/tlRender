@@ -85,13 +85,6 @@ namespace tlr
             return *this;
         }
 
-        Format& Format::arg(int value)
-        {
-            std::stringstream ss;
-            ss << value;
-            return arg(ss.str());
-        }
-
         Format& Format::arg(float value)
         {
             std::stringstream ss;
@@ -99,7 +92,7 @@ namespace tlr
             return arg(ss.str());
         }
 
-        Format& Format::arg(std::size_t value)
+        Format& Format::arg(double value)
         {
             std::stringstream ss;
             ss << value;

@@ -21,7 +21,6 @@ namespace tlr
         //! Application options.
         struct Options
         {
-            size_t ioVideoQueueMax = 10;
             bool verbose = false;
             bool help = false;
         };

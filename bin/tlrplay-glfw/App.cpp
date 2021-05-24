@@ -8,8 +8,6 @@
 #include <tlrCore/StringFormat.h>
 #include <tlrCore/Time.h>
 
-#include <glad.h>
-
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
@@ -79,22 +77,6 @@ namespace tlr
                         arg(_options.loopPlayback),
                     "(value)")
             });
-
-        // Initialize GLFW.
-        glfwSetErrorCallback(glfwErrorCallback);
-        int glfwMajor = 0;
-        int glfwMinor = 0;
-        int glfwRevision = 0;
-        glfwGetVersion(&glfwMajor, &glfwMinor, &glfwRevision);
-        {
-            std::stringstream ss;
-            ss << "GLFW version: " << glfwMajor << "." << glfwMinor << "." << glfwRevision;
-            _printVerbose(ss.str());
-        }
-        if (!glfwInit())
-        {
-            throw std::runtime_error("Cannot initialize GLFW");
-        }
     }
 
     App::App()
@@ -128,6 +110,22 @@ namespace tlr
         // Read the timeline.
         auto timeline = timeline::Timeline::create(_input);
         _timelinePlayer = timeline::TimelinePlayer::create(timeline);
+
+        // Initialize GLFW.
+        glfwSetErrorCallback(glfwErrorCallback);
+        int glfwMajor = 0;
+        int glfwMinor = 0;
+        int glfwRevision = 0;
+        glfwGetVersion(&glfwMajor, &glfwMinor, &glfwRevision);
+        {
+            std::stringstream ss;
+            ss << "GLFW version: " << glfwMajor << "." << glfwMinor << "." << glfwRevision;
+            _printVerbose(ss.str());
+        }
+        if (!glfwInit())
+        {
+            throw std::runtime_error("Cannot initialize GLFW");
+        }
 
         // Create the window.
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -349,7 +347,7 @@ namespace tlr
         // Render this frame.
         if (_renderDirty)
         {
-            _render->begin(imaging::Info(_frameBufferSize.w, _frameBufferSize.h, _timelinePlayer->getImageInfo().pixelType));
+            _render->begin(_frameBufferSize);
             _renderVideo();
             if (_options.hud)
             {

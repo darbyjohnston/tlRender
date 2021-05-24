@@ -14,7 +14,7 @@ namespace tlr
 {
     namespace gl
     {
-        //! Offscreen multisampling.
+        //! Offscreen buffer multisampling.
         enum class OffscreenSampling
         {
             None,

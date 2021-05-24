@@ -28,9 +28,10 @@ namespace tlr
             ///@{
 
             Format& arg(const std::string&);
-            Format& arg(int);
             Format& arg(float);
-            Format& arg(std::size_t);
+            Format& arg(double);
+            template<typename T>
+            Format& arg(T);
 
             ///@}
 
@@ -50,3 +51,5 @@ namespace tlr
         };
     }
 }
+
+#include <tlrCore/StringFormatInline.h>

@@ -15,7 +15,7 @@ namespace tlr
 {
     namespace imaging
     {
-        struct Info;
+        struct Size;
         class Color4f;
         class Image;
     }
@@ -41,7 +41,7 @@ namespace tlr
             static std::shared_ptr<Render> create();
 
             //! Start a render.
-            void begin(const imaging::Info&);
+            void begin(const imaging::Size&);
 
             //! Finish a render.
             void end();

@@ -56,7 +56,7 @@ namespace tlr
             return _infoPromise.get_future();
         }
 
-        std::future<io::VideoFrame> ISequenceRead::getVideoFrame(
+        std::future<io::VideoFrame> ISequenceRead::readVideoFrame(
             const otime::RationalTime& time,
             const std::shared_ptr<imaging::Image>& image)
         {
@@ -82,13 +82,6 @@ namespace tlr
         {
             std::unique_lock<std::mutex> lock(_requestMutex);
             _videoFrameRequests.clear();
-        }
-
-        std::string ISequenceRead::_getFileName(const otime::RationalTime& value) const
-        {
-            std::stringstream ss;
-            ss << _path << _baseName << std::setfill('0') << std::setw(_pad) << static_cast<int>(value.value()) << _extension;
-            return ss.str();
         }
 
         void ISequenceRead::_run()
@@ -118,15 +111,18 @@ namespace tlr
                 std::list<std::future<io::VideoFrame> > futures;
                 for (const auto& i : requests)
                 {
-                    //std::cout << "request: " << request.time << std::endl;
+                    //std::cout << "request: " << i.time << std::endl;
+                    std::stringstream ss;
+                    ss << _path << _baseName << std::setfill('0') << std::setw(_pad) << static_cast<int>(i.time.value()) << _extension;
+                    std::string fileName = ss.str();
                     futures.push_back(std::async(
                         std::launch::async,
-                        [this, &i]
+                        [this, &i, fileName]
                         {
                             io::VideoFrame out;
                             try
                             {
-                                out = _getVideoFrame(i.time, i.image);
+                                out = _readVideoFrame(fileName, i.time, i.image);
                             }
                             catch (const std::exception&)
                             {
@@ -137,11 +133,37 @@ namespace tlr
                 }
                 while (!requests.empty())
                 {
-                    requests.front().promise.set_value(futures.front().get());
+                    const auto videoFrame = futures.front().get();
+                    requests.front().promise.set_value(videoFrame);
                     requests.pop_front();
                     futures.pop_front();
                 }
             }
+        }
+
+        void ISequenceWrite::_init(
+            const std::string& fileName,
+            const io::Info& info)
+        {
+            IWrite::_init(fileName, info);
+
+            file::split(fileName, &_path, &_baseName, &_number, &_extension);
+            _pad = !_number.empty() ? ('0' == _number[0] ? _number.size() : 0) : 0;
+        }
+
+        ISequenceWrite::ISequenceWrite()
+        {}
+
+        ISequenceWrite::~ISequenceWrite()
+        {}
+
+        void ISequenceWrite::writeVideoFrame(
+            const otime::RationalTime& time,
+            const std::shared_ptr<imaging::Image>& image)
+        {
+            std::stringstream ss;
+            ss << _path << _baseName << std::setfill('0') << std::setw(_pad) << static_cast<int>(time.value()) << _extension;
+            _writeVideoFrame(ss.str(), time, image);
         }
     }
 }

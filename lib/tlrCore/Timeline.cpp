@@ -233,7 +233,7 @@ namespace tlr
                     if (j != _readers.end())
                     {
                         const auto readTime = clipTime.rescaled_to(j->second.info.video[0].duration);
-                        out = j->second.read->getVideoFrame(
+                        out = j->second.read->readVideoFrame(
                             otime::RationalTime(floor(readTime.value()), readTime.rate()),
                             image);
                     }
@@ -253,7 +253,7 @@ namespace tlr
                             reader.read = read;
                             reader.info = info;
                             const auto readTime = clipTime.rescaled_to(info.video[0].duration);
-                            out = read->getVideoFrame(
+                            out = read->readVideoFrame(
                                 otime::RationalTime(floor(readTime.value()), readTime.rate()),
                                 image);
                             _readers[clip] = std::move(reader);

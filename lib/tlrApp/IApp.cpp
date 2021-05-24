@@ -30,12 +30,6 @@ namespace tlr
             _cmdLineSummary = cmdLineSummary;
             _cmdLineArgs = args;
             _cmdLineOptions = options;
-            _cmdLineOptions.push_back(CmdLineValueOption<size_t>::create(
-                _options.ioVideoQueueMax,
-                { "-ioVideoQueueMax", "-vq" },
-                string::Format("Set the video queue maximum. Default: {0}").
-                    arg(_options.ioVideoQueueMax),
-                "(value)"));
             _cmdLineOptions.push_back(CmdLineFlagOption::create(
                 _options.verbose,
                 { "-verbose", "-v" },
@@ -91,19 +85,26 @@ namespace tlr
                     throw std::runtime_error(ss.str());
                 }
             }
-            /*size_t requiredArgs = 0;
+            size_t requiredArgs = 0;
+            size_t optionalArgs = 0;
             for (const auto& i : _cmdLineArgs)
             {
                 if (!i->isOptional())
                 {
                     ++requiredArgs;
                 }
-            }*/
-            //if (_cmdLine.size() < requiredArgs || _options.help)
-            //{
-            //    _printCmdLineHelp();
-            //    return 1;
-            //}
+                else
+                {
+                    ++optionalArgs;
+                }
+            }
+            if (_cmdLine.size() < requiredArgs ||
+                _cmdLine.size() > requiredArgs + optionalArgs ||
+                _options.help)
+            {
+                _printCmdLineHelp();
+                return 1;
+            }
             for (const auto& i : _cmdLineArgs)
             {
                 try
@@ -119,11 +120,6 @@ namespace tlr
                     ss << "Cannot parse argument \"" << i->getName() << "\": " << e.what();
                     throw std::runtime_error(ss.str());
                 }
-            }
-            if (!_cmdLine.empty() || _options.help)
-            {
-                _printCmdLineHelp();
-                return 1;
             }
             return 0;
         }

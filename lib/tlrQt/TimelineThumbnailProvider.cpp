@@ -72,7 +72,7 @@ namespace tlr
                             }
                             fbo->bind();
 
-                            render->begin(info);
+                            render->begin(info.size);
                             render->drawImage(request.frame.image, math::BBox2f(0, 0, info.size.w, info.size.h));
                             render->end();
 

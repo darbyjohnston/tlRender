@@ -79,7 +79,7 @@ namespace tlr
             return _infoPromise.get_future();
         }
 
-        std::future<io::VideoFrame> Read::getVideoFrame(
+        std::future<io::VideoFrame> Read::readVideoFrame(
             const otime::RationalTime& time,
             const std::shared_ptr<imaging::Image>& image)
         {
@@ -525,27 +525,23 @@ namespace tlr
             return out;
         }
 
-        /*bool Plugin::canRead(const std::string& fileName)
-        {
-            AVFormatContext* avFormatContext = nullptr;
-            int r = avformat_open_input(
-                &avFormatContext,
-                fileName.c_str(),
-                nullptr,
-                nullptr);
-            bool out = r >= 0;
-            if (avFormatContext)
-            {
-                avformat_close_input(&avFormatContext);
-            }
-            return out;
-        }*/
-
         std::shared_ptr<io::IRead> Plugin::read(
             const std::string& fileName,
             const otime::RationalTime& defaultSpeed)
         {
             return Read::create(fileName, defaultSpeed);
+        }
+
+        std::vector<imaging::PixelType> Plugin::getWritePixelTypes() const
+        {
+            return {};
+        }
+
+        std::shared_ptr<io::IWrite> Plugin::write(
+            const std::string& fileName,
+            const io::Info&)
+        {
+            return nullptr;
         }
     }
 }

@@ -57,7 +57,7 @@ namespace tlr
                 const otime::RationalTime& defaultSpeed);
 
             std::future<io::Info> getInfo() override;
-            std::future<io::VideoFrame> getVideoFrame(
+            std::future<io::VideoFrame> readVideoFrame(
                 const otime::RationalTime&,
                 const std::shared_ptr<imaging::Image>&) override;
             bool hasVideoFrames() override;
@@ -113,10 +113,13 @@ namespace tlr
             //! Create a new plugin.
             static std::shared_ptr<Plugin> create();
 
-            //bool canRead(const std::string&) override;
             std::shared_ptr<io::IRead> read(
                 const std::string& fileName,
                 const otime::RationalTime& defaultSpeed) override;
+            std::vector<imaging::PixelType> getWritePixelTypes() const override;
+            std::shared_ptr<io::IWrite> write(
+                const std::string& fileName,
+                const io::Info&) override;
         };
     }
 }

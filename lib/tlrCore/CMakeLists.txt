@@ -28,6 +28,7 @@ set(HEADERS
     SequenceIO.h
     String.h
     StringFormat.h
+    StringFormatInline.h
     Time.h
     Timeline.h
     TimelineInline.h
@@ -62,7 +63,7 @@ if(JPEG_FOUND)
 endif()
 if(TIFF_FOUND)
     set(HEADERS ${HEADERS} TIFF.h)
-    set(SOURCE ${SOURCE} TIFF.cpp)
+    set(SOURCE ${SOURCE} TIFF.cpp TIFFRead.cpp TIFFWrite.cpp)
     set(tlrCore_LIBRARIES ${tlrCore_LIBRARIES} TIFF)
 endif()
 if(PNG_FOUND)

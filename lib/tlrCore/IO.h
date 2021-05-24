@@ -82,19 +82,40 @@ namespace tlr
             //! Get the information.
             virtual std::future<Info> getInfo() = 0;
 
-            //! Get a video frame.
-            virtual std::future<VideoFrame> getVideoFrame(
+            //! Read a video frame.
+            virtual std::future<VideoFrame> readVideoFrame(
                 const otime::RationalTime&,
                 const std::shared_ptr<imaging::Image>& = nullptr) = 0;
 
             //! Are there pending video frame requests?
             virtual bool hasVideoFrames() = 0;
 
-            //! Cancel video frame requests.
+            //! Cancel pending video frame requests.
             virtual void cancelVideoFrames() = 0;
 
         protected:
             otime::RationalTime _defaultSpeed = otime::RationalTime(0, 24);
+        };
+        
+        //! Base class for writers.
+        class IWrite : public IIO
+        {
+        protected:
+            void _init(
+                const std::string& fileName,
+                const io::Info&);
+            IWrite();
+
+        public:
+            ~IWrite() override;
+
+            //! Write a video frame.
+            virtual void writeVideoFrame(
+                const otime::RationalTime&,
+                const std::shared_ptr<imaging::Image>&) = 0;
+
+        protected:
+            io::Info _info;
         };
 
         //! Base class for I/O plugins.
@@ -112,13 +133,18 @@ namespace tlr
             //! Get the supported file extensions.
             const std::set<std::string>& getExtensions() const;
 
-            //! Can the plugin read the given file?
-            virtual bool canRead(const std::string& fileName);
-
             //! Create a reader for the given file.
             virtual std::shared_ptr<IRead> read(
                 const std::string& fileName,
                 const otime::RationalTime& defaultSpeed) = 0;
+
+            //! Get the list of writable pixel types.
+            virtual std::vector<imaging::PixelType> getWritePixelTypes() const = 0;
+
+            //! Create a writer for the given file.
+            virtual std::shared_ptr<IWrite> write(
+                const std::string& fileName,
+                const io::Info&) = 0;
 
         private:
             std::set<std::string> _extensions;
@@ -137,13 +163,15 @@ namespace tlr
             //! Create a new I/O system.
             static std::shared_ptr<System> create();
 
-            // Can the given file be read?
-            bool canRead(const std::string& fileName);
-
             // Create a reader for the given file.
             std::shared_ptr<IRead> read(
                 const std::string& fileName,
                 const otime::RationalTime& defaultSpeed = otime::RationalTime(0, 24));
+
+            // Create a writer for the given file.
+            std::shared_ptr<IWrite> write(
+                const std::string& fileName,
+                const io::Info&);
 
         private:
             std::vector<std::shared_ptr<IPlugin> > _plugins;

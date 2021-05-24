@@ -66,13 +66,13 @@ namespace tlr
             return out;
         }
 
-        io::VideoFrame Read::_getVideoFrame(
+        io::VideoFrame Read::_readVideoFrame(
+            const std::string& fileName,
             const otime::RationalTime& time,
             const std::shared_ptr<imaging::Image>& image)
         {
             io::VideoFrame out;
 
-            const std::string fileName = _getFileName(time);
             Imf::RgbaInputFile f(fileName.c_str());
 
             out.time = time;
@@ -108,24 +108,23 @@ namespace tlr
             return out;
         }
 
-        /*bool Plugin::canRead(const std::string& fileName)
-        {
-            bool out = false;
-            try
-            {
-                Imf::RgbaInputFile(fileName.c_str());
-                out = true;
-            }
-            catch (const std::exception&)
-            {}
-            return out;
-        }*/
-
         std::shared_ptr<io::IRead> Plugin::read(
             const std::string& fileName,
             const otime::RationalTime& defaultSpeed)
         {
             return Read::create(fileName, defaultSpeed);
+        }
+
+        std::vector<imaging::PixelType> Plugin::getWritePixelTypes() const
+        {
+            return {};
+        }
+
+        std::shared_ptr<io::IWrite> Plugin::write(
+            const std::string& fileName,
+            const io::Info&)
+        {
+            return nullptr;
         }
     }
 }

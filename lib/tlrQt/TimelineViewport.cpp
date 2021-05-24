@@ -47,7 +47,7 @@ namespace tlr
         void TimelineViewport::paintGL()
         {
             const auto size = imaging::Size(width(), height());
-            _render->begin(imaging::Info(size, imaging::PixelType::RGBA_U8));
+            _render->begin(size);
             if (_frame.image)
             {
                 _render->drawImage(_frame.image, timeline::fitWindow(_frame.image->getSize(), size));
