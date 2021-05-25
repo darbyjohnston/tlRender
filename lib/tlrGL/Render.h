@@ -15,9 +15,9 @@ namespace tlr
 {
     namespace imaging
     {
-        struct Size;
         class Color4f;
         class Image;
+        class Size;
     }
 
     namespace gl

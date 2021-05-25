@@ -15,8 +15,9 @@ namespace tlr
     namespace imaging
     {
         //! Image dimensions.
-        struct Size
+        class Size
         {
+        public:
             Size();
             explicit Size(uint16_t w, uint16_t h);
 
@@ -59,6 +60,9 @@ namespace tlr
         //! Get the number of channels for the given pixel type.
         uint8_t getChannelCount(PixelType);
 
+        //! Get the bit-depth for the given pixel type.
+        uint8_t getBitDepth(PixelType);
+
         //! Determine the integer pixel type for a given channel count and bit depth.
         PixelType getIntType(std::size_t channelCount, std::size_t bitDepth);
 
@@ -66,14 +70,16 @@ namespace tlr
         PixelType getFloatType(std::size_t channelCount, std::size_t bitDepth);
 
         //! Image information.
-        struct Info
+        class Info
         {
+        public:
             Info();
             explicit Info(const Size&, PixelType);
             explicit Info(uint16_t w, uint16_t h, PixelType);
 
             Size size;
             PixelType pixelType = PixelType::None;
+            bool flipY = false;
 
             //! Is the information valid?
             bool isValid() const;

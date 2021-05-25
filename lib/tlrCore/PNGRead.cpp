@@ -115,14 +115,14 @@ namespace tlr
             public:
                 File(const std::string& fileName)
                 {
-                    png = png_create_read_struct(
+                    _png = png_create_read_struct(
                         PNG_LIBPNG_VER_STRING,
-                        &pngError,
+                        &_error,
                         errorFunc,
                         warningFunc);
 
-                    f = fopen(fileName.c_str(), "rb");
-                    if (!f)
+                    _f = fopen(fileName.c_str(), "rb");
+                    if (!_f)
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
@@ -131,11 +131,11 @@ namespace tlr
                     uint16_t height = 0;
                     uint8_t  channels = 0;
                     uint8_t  bitDepth = 0;
-                    if (!pngOpen(f, png, &pngInfo, &pngInfoEnd, width, height, channels, bitDepth))
+                    if (!pngOpen(_f, _png, &_pngInfo, &_pngInfoEnd, width, height, channels, bitDepth))
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
-                    scanlineSize = width * channels * bitDepth / 8;
+                    _scanlineSize = width * channels * bitDepth / 8;
 
                     imaging::PixelType pixelType = imaging::getIntType(channels, bitDepth);
                     if (imaging::PixelType::None == pixelType)
@@ -143,35 +143,66 @@ namespace tlr
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
 
-                    info = imaging::Info(width, height, pixelType);
+                    _info = imaging::Info(width, height, pixelType);
                 }
 
                 ~File()
                 {
-                    if (f)
+                    if (_f)
                     {
-                        fclose(f);
-                        f = nullptr;
+                        fclose(_f);
                     }
-                    if (png || pngInfo || pngInfoEnd)
+                    if (_png || _pngInfo || _pngInfoEnd)
                     {
                         png_destroy_read_struct(
-                            png ? &png : nullptr,
-                            pngInfo ? &pngInfo : nullptr,
-                            pngInfoEnd ? &pngInfoEnd : nullptr);
-                        png = nullptr;
-                        pngInfo = nullptr;
-                        pngInfoEnd = nullptr;
+                            _png ? &_png : nullptr,
+                            _pngInfo ? &_pngInfo : nullptr,
+                            _pngInfoEnd ? &_pngInfoEnd : nullptr);
                     }
                 }
 
-                FILE*         f = nullptr;
-                png_structp   png = nullptr;
-                png_infop     pngInfo = nullptr;
-                png_infop     pngInfoEnd = nullptr;
-                ErrorStruct   pngError;
-                size_t        scanlineSize = 0;
-                imaging::Info info;
+                const imaging::Info& getInfo() const
+                {
+                    return _info;
+                }
+
+                io::VideoFrame read(
+                    const std::string& fileName,
+                    const otime::RationalTime& time,
+                    const std::shared_ptr<imaging::Image>& image)
+                {
+                    io::VideoFrame out;
+
+                    out.time = time;
+                    if (image && image->getInfo() == _info)
+                    {
+                        out.image = image;
+                    }
+                    else
+                    {
+                        out.image = imaging::Image::create(_info);
+                    }
+
+                    for (uint16_t y = 0; y < _info.size.h; ++y)
+                    {
+                        if (!pngScanline(_png, out.image->getData() + y * _scanlineSize))
+                        {
+                            break;
+                        }
+                    }
+                    pngEnd(_png, _pngInfoEnd);
+
+                    return out;
+                }
+
+            private:
+                FILE*         _f = nullptr;
+                png_structp   _png = nullptr;
+                png_infop     _pngInfo = nullptr;
+                png_infop     _pngInfoEnd = nullptr;
+                ErrorStruct   _error;
+                size_t        _scanlineSize = 0;
+                imaging::Info _info;
             };
         }
 
@@ -201,7 +232,7 @@ namespace tlr
         {
             io::Info out;
             io::VideoInfo videoInfo;
-            videoInfo.info = std::shared_ptr<File>(new File(fileName))->info;
+            videoInfo.info = std::unique_ptr<File>(new File(fileName))->getInfo();
             videoInfo.duration = _defaultSpeed;
             videoInfo.codec = "PNG";
             out.video.push_back(videoInfo);
@@ -213,30 +244,7 @@ namespace tlr
             const otime::RationalTime& time,
             const std::shared_ptr<imaging::Image>& image)
         {
-            io::VideoFrame out;
-
-            auto f = std::shared_ptr<File>(new File(fileName));
-
-            out.time = time;
-            if (image && image->getInfo() == f->info)
-            {
-                out.image = image;
-            }
-            else
-            {
-                out.image = imaging::Image::create(f->info);
-            }
-
-            for (uint16_t y = 0; y < f->info.size.h; ++y)
-            {
-                if (!pngScanline(f->png, out.image->getData() + y * f->scanlineSize))
-                {
-                    break;
-                }
-            }
-            pngEnd(f->png, f->pngInfoEnd);
-
-            return out;
+            return std::unique_ptr<File>(new File(fileName))->read(fileName, time, image);
         }
     }
 }

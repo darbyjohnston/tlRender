@@ -4,7 +4,6 @@
 
 #include <tlrCore/JPEG.h>
 
-#include <tlrCore/Assert.h>
 #include <tlrCore/StringFormat.h>
 
 #include <cstring>
@@ -83,54 +82,97 @@ namespace tlr
             public:
                 File(const std::string& fileName)
                 {
-                    std::memset(&decompress, 0, sizeof(jpeg_decompress_struct));
+                    std::memset(&_decompress, 0, sizeof(jpeg_decompress_struct));
 
-                    decompress.err = jpeg_std_error(&error.pub);
-                    error.pub.error_exit = errorFunc;
-                    error.pub.emit_message = warningFunc;
-                    if (!jpegCreate(&decompress, &error))
+                    _decompress.err = jpeg_std_error(&_error.pub);
+                    _error.pub.error_exit = errorFunc;
+                    _error.pub.emit_message = warningFunc;
+                    if (!jpegCreate(&_decompress, &_error))
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
-                    init = true;
-                    f = fopen(fileName.c_str(), "rb");
-                    if (!f)
+                    _init = true;
+                    _f = fopen(fileName.c_str(), "rb");
+                    if (!_f)
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
-                    if (!jpegOpen(f, &decompress, &error))
+                    if (!jpegOpen(_f, &_decompress, &_error))
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
 
-                    imaging::PixelType pixelType = imaging::getIntType(decompress.out_color_components, 8);
+                    imaging::PixelType pixelType = imaging::getIntType(_decompress.out_color_components, 8);
                     if (imaging::PixelType::None == pixelType)
                     {
                         throw std::runtime_error(string::Format("{0}: File not supported").arg(fileName));
                     }
 
-                    info = imaging::Info(decompress.output_width, decompress.output_height, pixelType);
+                    _info = imaging::Info(_decompress.output_width, _decompress.output_height, pixelType);
                 }
 
                 ~File()
                 {
-                    if (init)
+                    if (_init)
                     {
-                        jpeg_destroy_decompress(&decompress);
-                        init = false;
+                        jpeg_destroy_decompress(&_decompress);
                     }
-                    if (f)
+                    if (_f)
                     {
-                        fclose(f);
-                        f = nullptr;
+                        fclose(_f);
                     }
                 }
 
-                FILE*                  f = nullptr;
-                jpeg_decompress_struct decompress;
-                bool                   init = false;
-                ErrorStruct            error;
-                imaging::Info          info;
+                const imaging::Info& getInfo() const
+                {
+                    return _info;
+                }
+
+                io::VideoFrame read(
+                    const std::string& fileName,
+                    const otime::RationalTime& time,
+                    const std::shared_ptr<imaging::Image>& image)
+                {
+                    io::VideoFrame out;
+                    out.time = time;
+                    if (image && image->getInfo() == _info)
+                    {
+                        out.image = image;
+                    }
+                    else
+                    {
+                        out.image = imaging::Image::create(_info);
+                    }
+
+                    std::size_t scanlineByteCount = 0;
+                    switch (_info.pixelType)
+                    {
+                    case imaging::PixelType::L_U8:
+                        scanlineByteCount = _info.size.w;
+                        break;
+                    case imaging::PixelType::RGB_U8:
+                        scanlineByteCount = _info.size.w * 3;
+                        break;
+                    }
+                    for (uint16_t y = 0; y < _info.size.h; ++y)
+                    {
+                        if (!jpegScanline(&_decompress, out.image->getData() + scanlineByteCount * y, &_error))
+                        {
+                            break;
+                        }
+                    }
+
+                    jpegEnd(&_decompress, &_error);
+
+                    return out;
+                }
+
+            private:
+                FILE*                  _f = nullptr;
+                jpeg_decompress_struct _decompress;
+                bool                   _init = false;
+                ErrorStruct            _error;
+                imaging::Info          _info;
             };
         }
 
@@ -160,7 +202,7 @@ namespace tlr
         {
             io::Info out;
             io::VideoInfo videoInfo;
-            videoInfo.info = std::shared_ptr<File>(new File(fileName))->info;
+            videoInfo.info = std::unique_ptr<File>(new File(fileName))->getInfo();
             videoInfo.duration = _defaultSpeed;
             videoInfo.codec = "JPEG";
             out.video.push_back(videoInfo);
@@ -172,41 +214,7 @@ namespace tlr
             const otime::RationalTime& time,
             const std::shared_ptr<imaging::Image>& image)
         {
-            io::VideoFrame out;
-
-            auto f = std::shared_ptr<File>(new File(fileName));
-
-            out.time = time;
-            if (image && image->getInfo() == f->info)
-            {
-                out.image = image;
-            }
-            else
-            {
-                out.image = imaging::Image::create(f->info);
-            }
-
-            std::size_t scanlineByteCount = 0;
-            switch (f->info.pixelType)
-            {
-            case imaging::PixelType::L_U8:
-                scanlineByteCount = f->info.size.w;
-                break;
-            case imaging::PixelType::RGB_U8:
-                scanlineByteCount = f->info.size.w * 3;
-                break;
-            }
-            for (uint16_t y = 0; y < f->info.size.h; ++y)
-            {
-                if (!jpegScanline(&f->decompress, out.image->getData() + scanlineByteCount * y, &f->error))
-                {
-                    break;
-                }
-            }
-
-            jpegEnd(&f->decompress, &f->error);
-
-            return out;
+            return std::unique_ptr<File>(new File(fileName))->read(fileName, time, image);
         }
     }
 }

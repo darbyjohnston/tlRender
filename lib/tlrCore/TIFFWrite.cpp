@@ -23,8 +23,8 @@ namespace tlr
                     const std::string& fileName,
                     const std::shared_ptr<imaging::Image>& image)
                 {
-                    f = TIFFOpen(fileName.data(), "w");
-                    if (!f)
+                    _f = TIFFOpen(fileName.data(), "w");
+                    if (!_f)
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
@@ -104,21 +104,23 @@ namespace tlr
                         break;
                     default: break;
                     }*/
-                    TIFFSetField(f, TIFFTAG_IMAGEWIDTH, info.size.w);
-                    TIFFSetField(f, TIFFTAG_IMAGELENGTH, info.size.h);
-                    TIFFSetField(f, TIFFTAG_PHOTOMETRIC, tiffPhotometric);
-                    TIFFSetField(f, TIFFTAG_SAMPLESPERPIXEL, tiffSamples);
-                    TIFFSetField(f, TIFFTAG_BITSPERSAMPLE, tiffSampleDepth);
-                    TIFFSetField(f, TIFFTAG_SAMPLEFORMAT, tiffSampleFormat);
-                    TIFFSetField(f, TIFFTAG_EXTRASAMPLES, tiffExtraSamplesSize, tiffExtraSamples);
-                    TIFFSetField(f, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
-                    TIFFSetField(f, TIFFTAG_COMPRESSION, tiffCompression);
-                    TIFFSetField(f, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
+                    TIFFSetField(_f, TIFFTAG_IMAGEWIDTH, info.size.w);
+                    TIFFSetField(_f, TIFFTAG_IMAGELENGTH, info.size.h);
+                    TIFFSetField(_f, TIFFTAG_PHOTOMETRIC, tiffPhotometric);
+                    TIFFSetField(_f, TIFFTAG_SAMPLESPERPIXEL, tiffSamples);
+                    TIFFSetField(_f, TIFFTAG_BITSPERSAMPLE, tiffSampleDepth);
+                    TIFFSetField(_f, TIFFTAG_SAMPLEFORMAT, tiffSampleFormat);
+                    TIFFSetField(_f, TIFFTAG_EXTRASAMPLES, tiffExtraSamplesSize, tiffExtraSamples);
+                    TIFFSetField(_f, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
+                    TIFFSetField(_f, TIFFTAG_COMPRESSION, tiffCompression);
+                    TIFFSetField(_f, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
 
                     for (uint16_t y = 0; y < info.size.h; ++y)
                     {
-                        uint8_t* p = image->getData() + imaging::getDataByteCount(info) - (y + 1) * scanlineSize;
-                        if (TIFFWriteScanline(f, (tdata_t*)p, y) == -1)
+                        uint8_t* p = image->getData() + (info.flipY ?
+                            (imaging::getDataByteCount(info) - (y + 1) * scanlineSize) :
+                            (y * scanlineSize));
+                        if (TIFFWriteScanline(_f, (tdata_t*)p, y) == -1)
                         {
                             throw std::runtime_error(string::Format("{0}: Cannot write scanline: {1}").arg(fileName).arg(y));
                         }
@@ -127,14 +129,14 @@ namespace tlr
 
                 ~File()
                 {
-                    if (f)
+                    if (_f)
                     {
-                        TIFFClose(f);
-                        f = nullptr;
+                        TIFFClose(_f);
                     }
                 }
 
-                TIFF* f = nullptr;
+            private:
+                TIFF* _f = nullptr;
             };
         }
 
@@ -165,7 +167,7 @@ namespace tlr
             const otime::RationalTime&,
             const std::shared_ptr<imaging::Image>& image)
         {
-            File(fileName, image);
+            const auto f = File(fileName, image);
         }
     }
 }

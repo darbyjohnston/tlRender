@@ -148,6 +148,7 @@ namespace tlr
         _outputInfo.pixelType = _options.outputPixelType != imaging::PixelType::None ?
             _options.outputPixelType :
             _renderInfo.pixelType;
+        _outputInfo.flipY = true;
         _print(string::Format("Output info: {0}").arg(_outputInfo));
 
         // Initialize GLFW.

@@ -36,6 +36,30 @@ namespace tlr
                 const std::shared_ptr<imaging::Image>&) override;
         };
 
+        //! OpenEXR writer.
+        class Write : public io::ISequenceWrite
+        {
+        protected:
+            void _init(
+                const std::string& fileName,
+                const io::Info&);
+            Write();
+
+        public:
+            ~Write() override;
+
+            //! Create a new writer.
+            static std::shared_ptr<Write> create(
+                const std::string& fileName,
+                const io::Info&);
+
+        protected:
+            void _writeVideoFrame(
+                const std::string& fileName,
+                const otime::RationalTime&,
+                const std::shared_ptr<imaging::Image>&) override;
+        };
+
         //! OpenEXR plugin.
         class Plugin : public io::IPlugin
         {

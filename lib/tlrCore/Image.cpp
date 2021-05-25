@@ -49,6 +49,20 @@ namespace tlr
             return values[static_cast<size_t>(value)];
         }
 
+        uint8_t getBitDepth(PixelType value)
+        {
+            const std::array<uint8_t, static_cast<size_t>(PixelType::Count)> values =
+            {
+                0,
+                8, 16, 32,
+                8, 16, 32,
+                8, 16, 32,
+                8, 16, 16, 32,
+                0
+            };
+            return values[static_cast<size_t>(value)];
+        }
+
         PixelType getIntType(std::size_t channelCount, std::size_t bitDepth)
         {
             PixelType out = PixelType::None;

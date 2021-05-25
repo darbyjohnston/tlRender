@@ -39,7 +39,7 @@ namespace tlr
         //! Get a label for a FFmpeg error code.
         std::string getErrorLabel(int);
 
-        //! FFmpeg Reader
+        //! FFmpeg reader
         class Read : public io::IRead
         {
         protected:
@@ -101,6 +101,30 @@ namespace tlr
 
             std::thread _thread;
             std::atomic<bool> _running;
+        };
+
+        //! FFmpeg writer.
+        class Write : public io::IWrite
+        {
+        protected:
+            void _init(
+                const std::string& fileName,
+                const io::Info&);
+            Write();
+
+        public:
+            ~Write() override;
+
+            //! Create a new writer.
+            static std::shared_ptr<Write> create(
+                const std::string& fileName,
+                const io::Info&);
+
+            void writeVideoFrame(
+                const otime::RationalTime&,
+                const std::shared_ptr<imaging::Image>&) override;
+
+        private:
         };
 
         //! FFmpeg Plugin

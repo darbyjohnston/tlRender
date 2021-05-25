@@ -45,14 +45,17 @@ namespace tlr
 
         std::vector<imaging::PixelType> Plugin::getWritePixelTypes() const
         {
-            return {};
+            return
+            {
+                imaging::PixelType::RGB_U8
+            };
         }
 
         std::shared_ptr<io::IWrite> Plugin::write(
             const std::string& fileName,
-            const io::Info&)
+            const io::Info& info)
         {
-            return nullptr;
+            return Write::create(fileName, info);
         }
     }
 }
