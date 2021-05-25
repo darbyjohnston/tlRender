@@ -34,7 +34,7 @@ namespace tlr
                 connect(
                     _thumbnailProvider,
                     SIGNAL(thumbails(const QList<QPair<otime::RationalTime, QPixmap> >&)),
-                    SLOT(thumbnailsCallback(const QList<QPair<otime::RationalTime, QPixmap> >&)));
+                    SLOT(_thumbnailsCallback(const QList<QPair<otime::RationalTime, QPixmap> >&)));
             }
             _thumbnailsUpdate();
         }

@@ -180,7 +180,10 @@ namespace tlr
                 std::unique_lock<std::mutex> lock(_mutex);
                 results.swap(_results);
             }
-            Q_EMIT thumbails(results);
+            if (!results.empty())
+            {
+                Q_EMIT thumbails(results);
+            }
         }
     }
 }
