@@ -41,6 +41,8 @@ namespace tlr
                 const std::shared_ptr<imaging::Image>&) override;
             bool hasVideoFrames() override;
             void cancelVideoFrames() override;
+            void stop() override;
+            bool hasStopped() const override;
 
         protected:
             virtual io::Info _getInfo(const std::string& fileName) = 0;
@@ -72,6 +74,7 @@ namespace tlr
             std::mutex _requestMutex;
             std::thread _thread;
             std::atomic<bool> _running;
+            std::atomic<bool> _stopped;
         };
 
         //! Base class for image sequence writers.

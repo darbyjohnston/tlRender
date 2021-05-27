@@ -299,11 +299,25 @@ namespace tlr
                 if (del)
                 {
                     auto j = _readers.find(clip);
-                    if (j != _readers.end() && !j->second.read->hasVideoFrames())
+                    if (j != _readers.end() &&
+                        !j->second.read->hasVideoFrames())
                     {
-                        //std::cout << "destroy: " << j->second.read->getFileName() << std::endl;
-                        _readers.erase(j);
+                        //std::cout << "stop: " << j->second.read->getFileName() << " / " << j->second.read << std::endl;
+                        j->second.read->stop();
                     }
+                }
+            }
+            auto i = _readers.begin();
+            while (i != _readers.end())
+            {
+                if (i->second.read->hasStopped())
+                {
+                    //std::cout << "delete: " << i->second.read->getFileName() << " / " << i->second.read << std::endl;
+                    i = _readers.erase(i);
+                }
+                else
+                {
+                    ++i;
                 }
             }
         }

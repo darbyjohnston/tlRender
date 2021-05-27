@@ -23,6 +23,7 @@ namespace tlr
             _pad = !_number.empty() ? ('0' == _number[0] ? _number.size() : 0) : 0;
 
             _running = true;
+            _stopped = false;
             _thread = std::thread(
                 [this, fileName]
                 {
@@ -36,6 +37,7 @@ namespace tlr
                         //! \todo How should this be handled?
                         _infoPromise.set_value(io::Info());
                     }
+                    _stopped = true;
                 });
         }
 
@@ -82,6 +84,16 @@ namespace tlr
         {
             std::unique_lock<std::mutex> lock(_requestMutex);
             _videoFrameRequests.clear();
+        }
+
+        void ISequenceRead::stop()
+        {
+            _running = false;
+        }
+
+        bool ISequenceRead::hasStopped() const
+        {
+            return _stopped;
         }
 
         void ISequenceRead::_run()

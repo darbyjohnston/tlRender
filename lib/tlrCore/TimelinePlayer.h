@@ -9,6 +9,10 @@
 #include <tlrCore/Timeline.h>
 #include <tlrCore/ValueObserver.h>
 
+#include <atomic>
+#include <mutex>
+#include <thread>
+
 namespace tlr
 {
     //! Timelines.
@@ -72,14 +76,14 @@ namespace tlr
             TLR_NON_COPYABLE(TimelinePlayer);
 
         protected:
-            void _init(const std::shared_ptr<Timeline>&);
+            void _init(const std::string& fileName);
             TimelinePlayer();
 
         public:
             ~TimelinePlayer();
 
             //! Create a new timeline player.
-            static std::shared_ptr<TimelinePlayer> create(const std::shared_ptr<Timeline>&);
+            static std::shared_ptr<TimelinePlayer> create(const std::string& fileName);
 
             //! \name Information
             ///@{
@@ -180,13 +184,13 @@ namespace tlr
             std::shared_ptr<Observer::IValueSubject<io::VideoFrame> > observeFrame() const;
 
             //! Get the frame cache read ahead.
-            int getFrameCacheReadAhead() const;
+            int getFrameCacheReadAhead();
 
             //! Set the frame cache read ahead.
             void setFrameCacheReadAhead(int);
 
             //! Get the frame cache read behind.
-            int getFrameCacheReadBehind() const;
+            int getFrameCacheReadBehind();
 
             //! Set the frame cache read behind.
             void setFrameCacheReadBehind(int);
@@ -201,10 +205,22 @@ namespace tlr
 
         private:
             otime::RationalTime _loopPlayback(const otime::RationalTime&);
-            void _frameCacheUpdate();
+
+            enum class FrameCacheDirection
+            {
+                Forward,
+                Reverse
+            };
+
+            void _frameCacheUpdate(
+                const otime::RationalTime& currentTime,
+                const otime::TimeRange& inOutRange,
+                FrameCacheDirection,
+                std::size_t frameCacheReadAhead,
+                std::size_t frameCacheReadBehind);
 
             std::shared_ptr<Timeline> _timeline;
-            std::map<otime::RationalTime, std::future<io::VideoFrame> > _videoFrameRequests;
+
             std::shared_ptr<Observer::ValueSubject<Playback> > _playback;
             std::shared_ptr<Observer::ValueSubject<Loop> > _loop;
             std::shared_ptr<Observer::ValueSubject<otime::RationalTime> > _currentTime;
@@ -213,15 +229,24 @@ namespace tlr
             std::shared_ptr<Observer::ListSubject<otime::TimeRange> > _cachedFrames;
             std::chrono::steady_clock::time_point _startTime;
             otime::RationalTime _playbackStartTime;
-            std::map<otime::RationalTime, io::VideoFrame> _frameCache;
-            enum class FrameCacheDirection
+
+            struct ThreadData
             {
-                Forward,
-                Reverse
+                otime::RationalTime currentTime;
+                otime::TimeRange inOutRange;
+                io::VideoFrame videoFrame;
+                std::map<otime::RationalTime, std::future<io::VideoFrame> > videoFrameRequests;
+                bool clearVideoFrameRequests = false;
+                std::map<otime::RationalTime, io::VideoFrame> frameCache;
+                std::vector<otime::TimeRange> cachedFrames;
+                FrameCacheDirection frameCacheDirection = FrameCacheDirection::Forward;
+                std::size_t frameCacheReadAhead = 100;
+                std::size_t frameCacheReadBehind = 10;
+                std::mutex mutex;
+                std::atomic<bool> running;
             };
-            FrameCacheDirection _frameCacheDirection = FrameCacheDirection::Forward;
-            std::size_t _frameCacheReadAhead = 100;
-            std::size_t _frameCacheReadBehind = 10;
+            ThreadData _threadData;
+            std::thread _thread;
         };
     }
 

@@ -6,6 +6,7 @@
 
 #include <tlrCore/Image.h>
 
+#include <atomic>
 #include <future>
 #include <iostream>
 #include <map>
@@ -93,6 +94,12 @@ namespace tlr
             //! Cancel pending video frame requests.
             virtual void cancelVideoFrames() = 0;
 
+            //! Stop ther reader.
+            virtual void stop() = 0;
+
+            //! Has the reader stopped?
+            virtual bool hasStopped() const = 0;
+            
         protected:
             otime::RationalTime _defaultSpeed = otime::RationalTime(0, 24);
         };

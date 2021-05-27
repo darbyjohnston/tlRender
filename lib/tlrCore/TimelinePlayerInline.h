@@ -56,16 +56,6 @@ namespace tlr
             return _frame;
         }
 
-        inline int TimelinePlayer::getFrameCacheReadAhead() const
-        {
-            return _frameCacheReadAhead;
-        }
-
-        inline int TimelinePlayer::getFrameCacheReadBehind() const
-        {
-            return _frameCacheReadBehind;
-        }
-
         inline std::shared_ptr<Observer::IListSubject<otime::TimeRange> > TimelinePlayer::observeCachedFrames() const
         {
             return _cachedFrames;

@@ -8,10 +8,10 @@ namespace tlr
 {
     namespace qt
     {
-        TimelinePlayer::TimelinePlayer(const std::shared_ptr<timeline::Timeline>& timeline, QObject* parent) :
+        TimelinePlayer::TimelinePlayer(const QString& fileName, QObject* parent) :
             QObject(parent)
         {
-            _timelinePlayer = timeline::TimelinePlayer::create(timeline);
+            _timelinePlayer = timeline::TimelinePlayer::create(fileName.toLatin1().data());
 
             _playbackObserver = Observer::Value<timeline::Playback>::create(
                 _timelinePlayer->observePlayback(),

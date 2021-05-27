@@ -62,6 +62,8 @@ namespace tlr
                 const std::shared_ptr<imaging::Image>&) override;
             bool hasVideoFrames() override;
             void cancelVideoFrames() override;
+            void stop() override;
+            bool hasStopped() const override;
 
         private:
             void _open(const std::string& fileName);
@@ -101,6 +103,7 @@ namespace tlr
 
             std::thread _thread;
             std::atomic<bool> _running;
+            std::atomic<bool> _stopped;
         };
 
         //! FFmpeg writer.

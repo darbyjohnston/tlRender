@@ -21,7 +21,7 @@ namespace tlr
             Q_OBJECT
 
         public:
-            TimelinePlayer(const std::shared_ptr<timeline::Timeline>&, QObject* parent = nullptr);
+            TimelinePlayer(const QString& fileName, QObject* parent = nullptr);
 
             //! \name Information
             ///@{

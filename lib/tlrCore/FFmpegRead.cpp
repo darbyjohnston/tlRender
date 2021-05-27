@@ -28,6 +28,7 @@ namespace tlr
             IRead::_init(fileName, defaultSpeed);
             _videoFrameCache.setMax(1);
             _running = true;
+            _stopped = false;
             _thread = std::thread(
                 [this, fileName]
                 {
@@ -43,6 +44,7 @@ namespace tlr
                         _infoPromise.set_value(io::Info());
                     }
                     _close();
+                    _stopped = true;
                 });
         }
 
@@ -98,6 +100,16 @@ namespace tlr
         {
             std::unique_lock<std::mutex> lock(_requestMutex);
             _videoFrameRequests.clear();
+        }
+
+        void Read::stop()
+        {
+            _running = false;
+        }
+
+        bool Read::hasStopped() const
+        {
+            return _stopped;
         }
 
         void Read::_open(const std::string& fileName)
