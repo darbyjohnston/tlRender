@@ -29,7 +29,7 @@ namespace tlr
             void paintEvent(QPaintEvent*) override;
 
         private Q_SLOTS:
-            void _thumbnailsCallback(const QList<QPair<otime::RationalTime, QPixmap> >&);
+            void _thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >&);
 
         private:
             otime::RationalTime _posToTime(int) const;
@@ -39,7 +39,7 @@ namespace tlr
 
             std::shared_ptr<timeline::Timeline> _timeline;
             TimelineThumbnailProvider* _thumbnailProvider = nullptr;
-            std::map<otime::RationalTime, QPixmap> _thumbnails;
+            std::map<otime::RationalTime, QImage> _thumbnails;
         };
     }
 }

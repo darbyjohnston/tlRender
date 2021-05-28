@@ -43,7 +43,7 @@ namespace tlr
             void _currentTimeCallback(const otime::RationalTime&);
             void _inOutRangeCallback(const otime::TimeRange&);
             void _cachedFramesCallback(const std::vector<otime::TimeRange>&);
-            void _thumbnailsCallback(const QList<QPair<otime::RationalTime, QPixmap> >&);
+            void _thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >&);
 
         private:
             otime::RationalTime _posToTime(int) const;
@@ -54,7 +54,7 @@ namespace tlr
             TimelinePlayer* _timelinePlayer = nullptr;
             std::vector<otime::TimeRange> _clipRanges;
             TimelineThumbnailProvider* _thumbnailProvider = nullptr;
-            std::map<otime::RationalTime, QPixmap> _thumbnails;
+            std::map<otime::RationalTime, QImage> _thumbnails;
             TimeObject::Units _units = TimeObject::Units::Timecode;
             TimeObject* _timeObject = nullptr;
         };

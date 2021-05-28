@@ -33,8 +33,8 @@ namespace tlr
                 _thumbnailProvider = new TimelineThumbnailProvider(_timeline, this);
                 connect(
                     _thumbnailProvider,
-                    SIGNAL(thumbails(const QList<QPair<otime::RationalTime, QPixmap> >&)),
-                    SLOT(_thumbnailsCallback(const QList<QPair<otime::RationalTime, QPixmap> >&)));
+                    SIGNAL(thumbails(const QList<QPair<otime::RationalTime, QImage> >&)),
+                    SLOT(_thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >&)));
             }
             _thumbnailsUpdate();
         }
@@ -54,11 +54,11 @@ namespace tlr
             for (const auto& i : _thumbnails)
             {
                 const int x = _timeToPos(i.first);
-                painter.drawPixmap(QPoint(x, 0), i.second);
+                painter.drawImage(QPoint(x, 0), i.second);
             }
         }
 
-        void FilmstripWidget::_thumbnailsCallback(const QList<QPair<otime::RationalTime, QPixmap> >& thumbnails)
+        void FilmstripWidget::_thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >& thumbnails)
         {
             for (const auto& i : thumbnails)
             {

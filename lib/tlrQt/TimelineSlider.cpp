@@ -81,8 +81,8 @@ namespace tlr
                     SLOT(_cachedFramesCallback(const std::vector<otime::TimeRange>&)));
                 connect(
                     _thumbnailProvider,
-                    SIGNAL(thumbails(const QList<QPair<otime::RationalTime, QPixmap> >&)),
-                    SLOT(_thumbnailsCallback(const QList<QPair<otime::RationalTime, QPixmap> >&)));
+                    SIGNAL(thumbails(const QList<QPair<otime::RationalTime, QImage> >&)),
+                    SLOT(_thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >&)));
             }
             _thumbnailsUpdate();
         }
@@ -132,7 +132,7 @@ namespace tlr
                 y0 = rect2.y();
                 for (const auto& i : _thumbnails)
                 {
-                    painter.drawPixmap(QPoint(_timeToPos(i.first), y0), i.second);
+                    painter.drawImage(QPoint(_timeToPos(i.first), y0), i.second);
                 }
 
                 // Draw clips.
@@ -205,7 +205,7 @@ namespace tlr
             update();
         }
 
-        void TimelineSlider::_thumbnailsCallback(const QList<QPair<otime::RationalTime, QPixmap> >& thumbnails)
+        void TimelineSlider::_thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >& thumbnails)
         {
             for (const auto& i : thumbnails)
             {

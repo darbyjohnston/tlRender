@@ -40,31 +40,43 @@ namespace tlr
                     QOpenGLFramebufferObject* fbo = nullptr;
                     imaging::Info fboInfo;
 
+                    std::list<Request> requests;
                     while (_running)
                     {
-                        bool requestValid = false;
-                        ThumbnailRequest request;
                         {
                             std::unique_lock<std::mutex> lock(_mutex);
                             if (_cv.wait_for(
                                 lock,
                                 thumbnailRequestTimeout,
-                                [this]
+                                [this, &requests]
                                 {
-                                    return !_thumbnailRequests.empty();
+                                    return !_requests.empty() || _cancelRequests || !requests.empty();
                                 }))
                             {
-                                requestValid = true;
-                                request = _thumbnailRequests.front();
-                                _thumbnailRequests.pop_front();
+                                if (_cancelRequests)
+                                {
+                                    _cancelRequests = false;
+                                    _timeline->cancelRenders();
+                                    requests.clear();
+                                    _results.clear();
+                                }
+                                while (!_requests.empty())
+                                {
+                                    requests.push_back(std::move(_requests.front()));
+                                    _requests.pop_front();
+                                }
                             }
                         }
-                        if (requestValid && request.frame.image)
+                        if (!requests.empty())
                         {
+                            const auto request = std::move(requests.front());
+                            requests.pop_front();
+                            const auto frame = _timeline->render(request.time).get();
+
                             imaging::Info info;
                             info.size.w = request.size.width();
                             info.size.h = request.size.height();
-                            info.pixelType = request.frame.image->getPixelType();
+                            info.pixelType = frame.image->getPixelType();
                             if (info != fboInfo)
                             {
                                 fbo = new QOpenGLFramebufferObject(info.size.w, info.size.h);
@@ -73,7 +85,7 @@ namespace tlr
                             fbo->bind();
 
                             render->begin(info.size);
-                            render->drawImage(request.frame.image, math::BBox2f(0, 0, info.size.w, info.size.h));
+                            render->drawImage(frame.image, math::BBox2f(0, 0, info.size.w, info.size.h));
                             render->end();
 
                             std::vector<uint8_t> pixels(info.size.w * info.size.h * 4);
@@ -87,14 +99,14 @@ namespace tlr
                                 GL_UNSIGNED_BYTE,
                                 pixels.data());
 
-                            const auto pixmap = QPixmap::fromImage(QImage(
+                            const auto qImage = QImage(
                                 pixels.data(),
                                 info.size.w,
                                 info.size.h,
                                 info.size.w * 4,
-                                QImage::Format_RGBA8888).mirrored());
+                                QImage::Format_RGBA8888).mirrored();
                             std::unique_lock<std::mutex> lock(_mutex);
-                            _results.push_back(QPair<otime::RationalTime, QPixmap>(request.frame.time, pixmap));
+                            _results.push_back(QPair<otime::RationalTime, QImage>(request.time, qImage));
                         }
                     }
 
@@ -117,65 +129,48 @@ namespace tlr
 
         void TimelineThumbnailProvider::request(const otime::RationalTime& time, const QSize& size)
         {
-            IORequest request;
-            request.time = time;
-            request.size = size;
-            request.future = _timeline->render(time);
-            _ioRequests.push_back(std::move(request));
+            {
+                std::unique_lock<std::mutex> lock(_mutex);
+                if (_cancelRequests)
+                {
+                    _requests.clear();
+                }
+                Request request;
+                request.time = time;
+                request.size = size;
+                _requests.push_back(std::move(request));
+            }
+            _cv.notify_one();
         }
 
         void TimelineThumbnailProvider::request(const QList<otime::RationalTime>& times, const QSize& size)
         {
-            for (const auto& i : times)
             {
-                IORequest request;
-                request.time = i;
-                request.size = size;
-                request.future = _timeline->render(i);
-                _ioRequests.push_back(std::move(request));
+                std::unique_lock<std::mutex> lock(_mutex);
+                if (_cancelRequests)
+                {
+                    _requests.clear();
+                }
+                for (const auto& i : times)
+                {
+                    Request request;
+                    request.time = i;
+                    request.size = size;
+                    _requests.push_back(std::move(request));
+                }
             }
+            _cv.notify_one();
         }
 
         void TimelineThumbnailProvider::cancelRequests()
         {
-            _timeline->cancelRenders();
-            _ioRequests.clear();
             std::unique_lock<std::mutex> lock(_mutex);
-            _thumbnailRequests.clear();
-            _results.clear();
+            _cancelRequests = true;
         }
 
         void TimelineThumbnailProvider::timerEvent(QTimerEvent*)
         {
-            std::list<ThumbnailRequest> thumbnailRequests;
-            auto i = _ioRequests.begin();
-            while (i != _ioRequests.end())
-            {
-                if (i->future.valid() &&
-                    i->future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-                {
-                    ThumbnailRequest request;
-                    request.frame = i->future.get();
-                    request.frame.time = i->time;
-                    request.size = i->size;
-                    thumbnailRequests.push_back(std::move(request));
-                    i = _ioRequests.erase(i);
-                }
-                else
-                {
-                    ++i;
-                }
-            }
-            if (!thumbnailRequests.empty())
-            {
-                {
-                    std::unique_lock<std::mutex> lock(_mutex);
-                    _thumbnailRequests.insert(_thumbnailRequests.end(), thumbnailRequests.begin(), thumbnailRequests.end());
-                }
-                _cv.notify_one();
-            }
-
-            QList<QPair<otime::RationalTime, QPixmap> > results;
+            QList<QPair<otime::RationalTime, QImage> > results;
             {
                 std::unique_lock<std::mutex> lock(_mutex);
                 results.swap(_results);

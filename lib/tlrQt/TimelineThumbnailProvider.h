@@ -8,7 +8,7 @@
 
 #include <QObject>
 #include <QOffscreenSurface>
-#include <QPixmap>
+#include <QImage>
 
 #include <atomic>
 #include <mutex>
@@ -47,27 +47,21 @@ namespace tlr
 
         Q_SIGNALS:
             //! This signal is emitted when thumbnails are ready.
-            void thumbails(const QList<QPair<otime::RationalTime, QPixmap> >&);
+            void thumbails(const QList<QPair<otime::RationalTime, QImage> >&);
 
         protected:
             void timerEvent(QTimerEvent*) override;
 
         private:
             std::shared_ptr<timeline::Timeline> _timeline;
-            struct IORequest
+            struct Request
             {
                 otime::RationalTime time;
                 QSize size;
-                std::future<io::VideoFrame> future;
             };
-            std::list<IORequest> _ioRequests;
-            struct ThumbnailRequest
-            {
-                io::VideoFrame frame;
-                QSize size;
-            };
-            std::list<ThumbnailRequest> _thumbnailRequests;
-            QList<QPair<otime::RationalTime, QPixmap> > _results;
+            std::list<Request> _requests;
+            QList<QPair<otime::RationalTime, QImage> > _results;
+            bool _cancelRequests = false;
             std::condition_variable _cv;
             std::mutex _mutex;
             std::thread _thread;
