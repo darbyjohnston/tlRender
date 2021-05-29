@@ -4,6 +4,7 @@
 
 #include <tlrCore/SequenceIO.h>
 
+#include <tlrCore/Assert.h>
 #include <tlrCore/File.h>
 
 #include <iomanip>

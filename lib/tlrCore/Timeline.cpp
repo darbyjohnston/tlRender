@@ -303,17 +303,20 @@ namespace tlr
                         !j->second.read->hasVideoFrames())
                     {
                         //std::cout << "stop: " << j->second.read->getFileName() << " / " << j->second.read << std::endl;
-                        j->second.read->stop();
+                        auto read = j->second.read;
+                        read->stop();
+                        _readers.erase(j);
+                        _stoppedReaders.push_back(read);
                     }
                 }
             }
-            auto i = _readers.begin();
-            while (i != _readers.end())
+            auto i = _stoppedReaders.begin();
+            while (i != _stoppedReaders.end())
             {
-                if (i->second.read->hasStopped())
+                if ((*i)->hasStopped())
                 {
-                    //std::cout << "delete: " << i->second.read->getFileName() << " / " << i->second.read << std::endl;
-                    i = _readers.erase(i);
+                    //std::cout << "delete: " << (*i)->getFileName() << " / " << (*i) << std::endl;
+                    i = _stoppedReaders.erase(i);
                 }
                 else
                 {

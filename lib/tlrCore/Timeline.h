@@ -99,6 +99,7 @@ namespace tlr
                 io::Info info;
             };
             std::map<otio::Clip*, Reader> _readers;
+            std::list<std::shared_ptr<io::IRead> > _stoppedReaders;
             std::vector<otime::TimeRange> _activeRanges;
         };
     }
