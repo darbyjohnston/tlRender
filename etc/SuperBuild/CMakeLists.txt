@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.18)
+cmake_policy(SET CMP0091 NEW)
 
 project(tlRender-SuperBuild)
 
@@ -23,12 +24,15 @@ list(PREPEND CMAKE_MODULE_PATH
     ${PROJECT_SOURCE_DIR}/../../cmake/Modules
     ${PROJECT_SOURCE_DIR}/cmake/Modules)
 set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreaded$<$<CONFIG:Debug>:Debug>DLL)
 
 # Dependencies
 find_package(Threads REQUIRED)
 find_package(OpenGL REQUIRED)
 include(BuildFSeq)
 include(BuildZLIB)
+include(BuildIlmBase)
+include(BuildOCIO)
 include(BuildOTIO)
 #include(BuildRtAudio)
 if(TLR_BUILD_JPEG)
@@ -41,7 +45,6 @@ if(TLR_BUILD_PNG)
     include(BuildPNG)
 endif()
 if(TLR_BUILD_OpenEXR)
-    include(BuildIlmBase)
     include(BuildOpenEXR)
 endif()
 if(TLR_BUILD_FFmpeg)

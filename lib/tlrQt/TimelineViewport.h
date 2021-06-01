@@ -22,6 +22,9 @@ namespace tlr
         public:
             TimelineViewport(QWidget* parent = nullptr);
 
+            //! Set the color configuration.
+            void setColorConfig(const gl::ColorConfig&);
+
             //! Set the timeline player.
             void setTimelinePlayer(TimelinePlayer*);
 
@@ -33,6 +36,7 @@ namespace tlr
             void paintGL() override;
 
         private:
+            gl::ColorConfig _colorConfig;
             TimelinePlayer* _timelinePlayer = nullptr;
             io::VideoFrame _frame;
             std::shared_ptr<gl::Render> _render;

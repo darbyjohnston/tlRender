@@ -395,6 +395,11 @@ namespace tlr
         }
     }
 
+    void MainWindow::setColorConfig(const gl::ColorConfig& colorConfig)
+    {
+        _colorConfig = colorConfig;
+    }
+
     void MainWindow::closeEvent(QCloseEvent* event)
     {
         _saveSettingsCallback();
@@ -474,6 +479,7 @@ namespace tlr
     {
         auto widget = new qt::TimelineWidget;
         widget->setTimeObject(_timeObject);
+        widget->setColorConfig(_colorConfig);
         widget->setTimelinePlayer(timelinePlayer);
         const std::string fileName = timelinePlayer->fileName().toLatin1().data();
         std::string path;

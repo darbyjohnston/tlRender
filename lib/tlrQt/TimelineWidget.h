@@ -24,6 +24,9 @@ namespace tlr
             //! Set the time object.
             void setTimeObject(TimeObject*);
 
+            //! Set the color configuration.
+            void setColorConfig(const gl::ColorConfig&);
+
             //! Set the timeline player.
             void setTimelinePlayer(TimelinePlayer*);
 

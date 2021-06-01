@@ -8,6 +8,8 @@
 
 #include <tlrQt/TimelinePlayer.h>
 
+#include <tlrGL/Render.h>
+
 #include <QAction>
 #include <QActionGroup>
 #include <QMainWindow>
@@ -25,6 +27,8 @@ namespace tlr
             SettingsObject*,
             qt::TimeObject*,
             QWidget* parent = nullptr);
+
+        void setColorConfig(const gl::ColorConfig&);
 
     protected:
         void closeEvent(QCloseEvent*) override;
@@ -86,6 +90,7 @@ namespace tlr
         QMap<QAction*, timeline::Loop> _actionToLoop;
         QMap<timeline::Loop, QAction*> _loopToActions;
         QTabWidget* _tabWidget = nullptr;
+        gl::ColorConfig _colorConfig;
         SettingsObject* _settingsObject = nullptr;
         qt::TimeObject* _timeObject = nullptr;
     };

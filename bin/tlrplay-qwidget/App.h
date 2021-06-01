@@ -12,10 +12,18 @@
 #include <tlrQt/TimeObject.h>
 #include <tlrQt/TimelinePlayer.h>
 
+#include <tlrGL/Render.h>
+
 #include <QApplication>
 
 namespace tlr
 {
+    //! Application options.
+    struct Options
+    {
+        gl::ColorConfig colorConfig;
+    };
+
     //! Application.
     class App : public QApplication, public app::IApp
     {
@@ -42,10 +50,12 @@ namespace tlr
         void closed(tlr::qt::TimelinePlayer*);
 
     private:
+        std::string _input;
+        Options _options;
+
         qt::TimeObject* _timeObject = nullptr;
         SettingsObject* _settingsObject = nullptr;
 
-        std::string _input;
         QList<qt::TimelinePlayer*> _timelinePlayers;
 
         MainWindow* _mainWindow = nullptr;

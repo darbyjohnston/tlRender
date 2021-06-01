@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <tlrGL/Render.h>
+
 #include <tlrCore/Timeline.h>
 
 #include <QObject>
@@ -35,6 +37,9 @@ namespace tlr
                 QObject* parent = nullptr);
             ~TimelineThumbnailProvider() override;
 
+            //! Set the color configuration.
+            void setColorConfig(const gl::ColorConfig&);
+
         public Q_SLOTS:
             //! Request a thumbnail.
             void request(const otime::RationalTime&, const QSize&);
@@ -54,6 +59,7 @@ namespace tlr
 
         private:
             std::shared_ptr<timeline::Timeline> _timeline;
+            gl::ColorConfig _colorConfig;
             struct Request
             {
                 otime::RationalTime time;

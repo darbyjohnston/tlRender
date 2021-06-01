@@ -40,6 +40,7 @@ namespace tlr
                     QOpenGLFramebufferObject* fbo = nullptr;
                     imaging::Info fboInfo;
 
+                    gl::ColorConfig colorConfig;
                     std::list<Request> requests;
                     while (_running)
                     {
@@ -53,6 +54,7 @@ namespace tlr
                                     return !_requests.empty() || _cancelRequests || !requests.empty();
                                 }))
                             {
+                                colorConfig = _colorConfig;
                                 if (_cancelRequests)
                                 {
                                     _cancelRequests = false;
@@ -84,6 +86,7 @@ namespace tlr
                             }
                             fbo->bind();
 
+                            render->setColorConfig(colorConfig);
                             render->begin(info.size);
                             render->drawImage(frame.image, math::BBox2f(0, 0, info.size.w, info.size.h));
                             render->end();
@@ -125,6 +128,14 @@ namespace tlr
                 _thread.join();
             }
             delete _surface;
+        }
+
+        void TimelineThumbnailProvider::setColorConfig(const gl::ColorConfig& colorConfig)
+        {
+            {
+                std::unique_lock<std::mutex> lock(_mutex);
+                _colorConfig = colorConfig;
+            }
         }
 
         void TimelineThumbnailProvider::request(const otime::RationalTime& time, const QSize& size)

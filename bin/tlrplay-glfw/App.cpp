@@ -75,7 +75,23 @@ namespace tlr
                     { "-loopPlayback", "-lp" },
                     string::Format("Loop playback. Default: {0}").
                         arg(_options.loopPlayback),
-                    "(value)")
+                    "(value)"),
+                app::CmdLineValueOption<std::string>::create(
+                    _options.colorConfig.config,
+                    { "-colorConfig", "-cc" },
+                    "Color configuration."),
+                app::CmdLineValueOption<std::string>::create(
+                    _options.colorConfig.input,
+                    { "-colorInput", "-ci" },
+                    "Input color space."),
+                app::CmdLineValueOption<std::string>::create(
+                    _options.colorConfig.display,
+                    { "-colorDisplay", "-cd" },
+                    "Display color space."),
+                app::CmdLineValueOption<std::string>::create(
+                    _options.colorConfig.view,
+                    { "-colorView", "-cv" },
+                    "View color space.")
             });
     }
 
@@ -334,6 +350,7 @@ namespace tlr
         // Render this frame.
         if (_renderDirty)
         {
+            _render->setColorConfig(_options.colorConfig);
             _render->begin(_frameBufferSize);
             _renderVideo();
             if (_options.hud)

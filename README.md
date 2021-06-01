@@ -211,7 +211,7 @@ Run CMake with the super build script:
 ```
 Start the build:
 ```
-> cmake --build . -j 4
+> cmake --build . -j 4 --config Debug
 ```
 Try running the "tlrplay-glfw" application:
 ```

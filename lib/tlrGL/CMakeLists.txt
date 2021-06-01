@@ -17,5 +17,5 @@ set(SOURCE
     Util.cpp)
 
 add_library(tlrGL ${HEADERS} ${SOURCE})
-target_link_libraries(tlrGL tlrCore glad OpenGL::GL FreeType)
+target_link_libraries(tlrGL tlrCore glad OpenGL::GL OCIO FreeType)
 set_target_properties(tlrGL PROPERTIES FOLDER lib)

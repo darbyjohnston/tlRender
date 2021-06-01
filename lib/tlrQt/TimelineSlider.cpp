@@ -45,6 +45,15 @@ namespace tlr
             update();
         }
 
+        void TimelineSlider::setColorConfig(const gl::ColorConfig& colorConfig)
+        {
+            _colorConfig = colorConfig;
+            if (_thumbnailProvider)
+            {
+                _thumbnailProvider->setColorConfig(_colorConfig);
+            }
+        }
+
         void TimelineSlider::setTimelinePlayer(TimelinePlayer* timelinePlayer)
         {
             if (timelinePlayer == _timelinePlayer)
@@ -67,6 +76,7 @@ namespace tlr
                 _clipRanges = _timelinePlayer->clipRanges();
                 _thumbnailProvider = new TimelineThumbnailProvider(
                     timeline::Timeline::create(_timelinePlayer->fileName().toLatin1().data()));
+                _thumbnailProvider->setColorConfig(_colorConfig);
                 connect(
                     _timelinePlayer,
                     SIGNAL(currentTimeChanged(const otime::RationalTime&)),

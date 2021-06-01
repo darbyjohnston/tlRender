@@ -39,6 +39,12 @@ namespace tlr
             _controls->setTimeObject(timeObject);
         }
 
+        void TimelineWidget::setColorConfig(const gl::ColorConfig& colorConfig)
+        {
+            _viewport->setColorConfig(colorConfig);
+            _slider->setColorConfig(colorConfig);
+        }
+
         void TimelineWidget::setTimelinePlayer(TimelinePlayer* timelinePlayer)
         {
             _viewport->setTimelinePlayer(timelinePlayer);

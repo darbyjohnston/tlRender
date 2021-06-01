@@ -20,7 +20,7 @@ if(CMAKE_CXX_STANDARD)
     set(tlRender_ARGS ${tlRender_ARGS} -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD})
 endif()
 
-set(tlRender_DEPENDS OTIO)
+set(tlRender_DEPENDS OTIO OCIO)
 if(TLR_BUILD_JPEG)
     list(APPEND tlRender_DEPENDS JPEG)
 endif()

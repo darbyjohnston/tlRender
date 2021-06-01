@@ -31,6 +31,24 @@ namespace tlr
                     "Input",
                     "The input timeline.",
                     true)
+            },
+            {
+                app::CmdLineValueOption<std::string>::create(
+                    _options.colorConfig.config,
+                    { "-colorConfig", "-cc" },
+                    "Color configuration."),
+                app::CmdLineValueOption<std::string>::create(
+                    _options.colorConfig.input,
+                    { "-colorInput", "-ci" },
+                    "Input color space."),
+                app::CmdLineValueOption<std::string>::create(
+                    _options.colorConfig.display,
+                    { "-colorDisplay", "-cd" },
+                    "Display color space."),
+                app::CmdLineValueOption<std::string>::create(
+                    _options.colorConfig.view,
+                    { "-colorView", "-cv" },
+                    "View color space.")
             });
         const int exitCode = getExit();
         if (exitCode != 0)
@@ -39,21 +57,23 @@ namespace tlr
             return;
         }
 
+        // Initialize Qt.
         qtInitResources();
-
         qRegisterMetaType<qt::TimeObject::Units>("tlr::qt::TimeObject::Units");
         qRegisterMetaTypeStreamOperators<qt::TimeObject::Units>("tlr::qt::TimeObject::Units");
-
         QCoreApplication::setOrganizationName("tlRender");
         QCoreApplication::setApplicationName("tlrplay-qwidget");
-
         setStyle("Fusion");
 
+        // Create objects.
         _timeObject = new qt::TimeObject(this);
         _settingsObject = new SettingsObject(_timeObject, this);
 
+        // Create the main window.
         _mainWindow = new MainWindow(_settingsObject, _timeObject);
+        _mainWindow->setColorConfig(_options.colorConfig);
 
+        // Open the input file.
         if (!_input.empty())
         {
             open(_input.c_str());

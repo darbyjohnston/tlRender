@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.18)
+cmake_policy(SET CMP0091 NEW)
 
 project(tlRender LANGUAGES CXX)
 
@@ -26,6 +27,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # Dependencies
 find_package(Threads REQUIRED)
 find_package(FSeq REQUIRED)
+find_package(OCIO REQUIRED)
 find_package(OTIO REQUIRED)
 #find_package(RtAudio REQUIRED)
 find_package(JPEG)

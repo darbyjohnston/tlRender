@@ -10,6 +10,7 @@
 
 #include <tlrCore/Assert.h>
 #include <tlrCore/Color.h>
+#include <tlrCore/StringFormat.h>
 
 #include <array>
 
@@ -17,6 +18,30 @@ namespace tlr
 {
     namespace gl
     {
+        bool ColorConfig::operator == (const ColorConfig& other) const
+        {
+            return config == other.config &&
+                input == other.input &&
+                display == other.display &&
+                view == other.view;
+        }
+
+        bool ColorConfig::operator != (const ColorConfig& other) const
+        {
+            return !(*this == other);
+        }
+
+        Render::TextureId::TextureId(
+            unsigned id,
+            std::string name,
+            std::string sampler,
+            unsigned type) :
+            id(id),
+            name(name),
+            sampler(sampler),
+            type(type)
+        {}
+
         namespace
         {
             struct VBOVertex
@@ -31,13 +56,20 @@ namespace tlr
             {
                 Solid,
                 Texture,
+                TextureColorConfig,
                 TextureAlpha
             };
-        }
 
-        void Render::_init()
-        {
-            _shader = Shader::create(
+            const std::string colorFunctionName = "OCIODisplay";
+
+            const std::string colorFunctionNoOp =
+                "uniform sampler3D ocio_lut3d_0Sampler;\n"
+                "vec4 OCIODisplay(in vec4 inPixel)\n"
+                "{\n"
+                "    return inPixel;\n"
+                "}\n";
+
+            const std::string vertexSource =
                 "#version 410\n"
                 "\n"
                 "in vec3 aPos;\n"
@@ -54,45 +86,50 @@ namespace tlr
                 "{\n"
                 "    gl_Position = transform.mvp * vec4(aPos, 1.0);\n"
                 "    texture = aTexture;\n"
-                "}\n",
+                "}\n";
+
+            const std::string fragmentSource =
                 "#version 410\n"
                 "\n"
                 "in vec2 texture;\n"
                 "out vec4 fragColor;\n"
                 "\n"
                 "// ColorMode\n"
-                "#define COLOR_MODE_SOLID 0\n"
-                "#define COLOR_MODE_TEXTURE 1\n"
-                "#define COLOR_MODE_TEXTURE_ALPHA 2\n"
+                "const uint ColorMode_Solid              = 0;\n"
+                "const uint ColorMode_Texture            = 1;\n"
+                "const uint ColorMode_TextureColorConfig = 2;\n"
+                "const uint ColorMode_TextureAlpha       = 3;\n"
                 "uniform int colorMode;\n"
                 "\n"
                 "uniform vec4 color;\n"
                 "\n"
                 "// tlr::imaging::PixelType\n"
-                "#define PIXEL_TYPE_NONE     0\n"
-                "#define PIXEL_TYPE_L_U8     1\n"
-                "#define PIXEL_TYPE_L_U16    2\n"
-                "#define PIXEL_TYPE_L_F32    3\n"
-                "#define PIXEL_TYPE_LA_U8    4\n"
-                "#define PIXEL_TYPE_LA_U16   5\n"
-                "#define PIXEL_TYPE_LA_F32   6\n"
-                "#define PIXEL_TYPE_RGB_U8   7\n"
-                "#define PIXEL_TYPE_RGB_U16  8\n"
-                "#define PIXEL_TYPE_RGB_F32  9\n"
-                "#define PIXEL_TYPE_RGBA_U8  10\n"
-                "#define PIXEL_TYPE_RGBA_U16 11\n"
-                "#define PIXEL_TYPE_RGBA_F16 12\n"
-                "#define PIXEL_TYPE_RGBA_F32 13\n"
-                "#define PIXEL_TYPE_YUV_420P 14\n"
+                "const uint PixelType_None     = 0;\n"
+                "const uint PixelType_L_U8     = 1;\n"
+                "const uint PixelType_L_U16    = 2;\n"
+                "const uint PixelType_L_F32    = 3;\n"
+                "const uint PixelType_LA_U8    = 4;\n"
+                "const uint PixelType_LA_U16   = 5;\n"
+                "const uint PixelType_LA_F32   = 6;\n"
+                "const uint PixelType_RGB_U8   = 7;\n"
+                "const uint PixelType_RGB_U16  = 8;\n"
+                "const uint PixelType_RGB_F32  = 9;\n"
+                "const uint PixelType_RGBA_U8  = 10;\n"
+                "const uint PixelType_RGBA_U16 = 11;\n"
+                "const uint PixelType_RGBA_F16 = 12;\n"
+                "const uint PixelType_RGBA_F32 = 13;\n"
+                "const uint PixelType_YUV_420P = 14;\n"
                 "uniform int pixelType;\n"
                 "uniform sampler2D textureSampler0;\n"
                 "uniform sampler2D textureSampler1;\n"
                 "uniform sampler2D textureSampler2;\n"
                 "\n"
+                "// $color"
+                "\n"
                 "vec4 sampleTexture()\n"
                 "{\n"
                 "    vec4 c;\n"
-                "    if (PIXEL_TYPE_YUV_420P == pixelType)\n"
+                "    if (PixelType_YUV_420P == pixelType)\n"
                 "    {\n"
                 "        float y = texture2D(textureSampler0, texture).r;\n"
                 "        float u = texture2D(textureSampler1, texture).r - 0.5;\n"
@@ -111,16 +148,21 @@ namespace tlr
                 "\n"
                 "void main()\n"
                 "{\n"
-                "    if (COLOR_MODE_SOLID == colorMode)\n"
+                "    if (ColorMode_Solid == colorMode)\n"
                 "    {\n"
                 "        fragColor = color;\n"
                 "    }\n"
-                "    else if (COLOR_MODE_TEXTURE == colorMode)\n"
+                "    else if (ColorMode_Texture == colorMode)\n"
                 "    {\n"
                 "        vec4 t = sampleTexture();\n"
                 "        fragColor = t * color;\n"
                 "    }\n"
-                "    else if (COLOR_MODE_TEXTURE_ALPHA == colorMode)\n"
+                "    else if (ColorMode_TextureColorConfig == colorMode)\n"
+                "    {\n"
+                "        vec4 t = sampleTexture();\n"
+                "        fragColor = OCIODisplay(t * color);\n"
+                "    }\n"
+                "    else if (ColorMode_TextureAlpha == colorMode)\n"
                 "    {\n"
                 "        vec4 t = sampleTexture();\n"
                 "        fragColor.r = color.r;\n"
@@ -128,20 +170,179 @@ namespace tlr
                 "        fragColor.b = color.b;\n"
                 "        fragColor.a = t.r;\n"
                 "    }\n"
-                "}\n");
+                "}\n";
+
+            void setTextureParameters(GLenum textureType, OCIO::Interpolation interpolation)
+            {
+                if (OCIO::INTERP_NEAREST == interpolation)
+                {
+                    glTexParameteri(textureType, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                    glTexParameteri(textureType, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                }
+                else
+                {
+                    glTexParameteri(textureType, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                    glTexParameteri(textureType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                }
+
+                glTexParameteri(textureType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                glTexParameteri(textureType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                glTexParameteri(textureType, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+            }
         }
+
+        void Render::_init()
+        {}
 
         Render::Render()
         {}
 
         Render::~Render()
-        {}
+        {
+            for (size_t i = 0; i < _colorTextures.size(); ++i)
+            {
+                glDeleteTextures(1, &_colorTextures[i].id);
+            }
+        }
 
         std::shared_ptr<Render> Render::create()
         {
             auto out = std::shared_ptr<Render>(new Render);
             out->_init();
             return out;
+        }
+
+        void Render::setColorConfig(const ColorConfig& config)
+        {
+            if (config == _colorConfig)
+                return;
+
+            for (size_t i = 0; i < _colorTextures.size(); ++i)
+            {
+                glDeleteTextures(1, &_colorTextures[i].id);
+            }
+            _ocioShaderDesc.reset();
+            _ocioGpuProcessor.reset();
+            _ocioProcessor.reset();
+
+            _colorConfig = config;
+
+            if (!_colorConfig.config.empty())
+            {
+                _ocioConfig = OCIO::Config::CreateFromFile(_colorConfig.config.c_str());
+            }
+            else
+            {
+                _ocioConfig = OCIO::GetCurrentConfig();
+            }
+            if (_ocioConfig)
+            {
+                const std::string display = !_colorConfig.display.empty() ?
+                    _colorConfig.display :
+                    _ocioConfig->getDefaultDisplay();
+                const std::string view = !_colorConfig.view.empty() ?
+                    _colorConfig.view :
+                    _ocioConfig->getDefaultView(display.c_str());
+                _ocioProcessor = _ocioConfig->getProcessor(
+                    _colorConfig.input.c_str(),
+                    display.c_str(),
+                    view.c_str(),
+                    OCIO::TRANSFORM_DIR_FORWARD);
+                _ocioGpuProcessor = _ocioProcessor->getDefaultGPUProcessor();
+                _ocioShaderDesc = OCIO::GpuShaderDesc::CreateShaderDesc();
+                _ocioShaderDesc->setLanguage(OCIO::GPU_LANGUAGE_GLSL_1_2);
+                _ocioShaderDesc->setFunctionName("OCIODisplay");
+                _ocioGpuProcessor->extractGpuShaderInfo(_ocioShaderDesc);
+
+                // Create 3D textures.
+                const unsigned num3DTextures = _ocioShaderDesc->getNum3DTextures();
+                unsigned currentTexture = 0;
+                for (unsigned i = 0; i < num3DTextures; ++i, ++currentTexture)
+                {
+                    const char* textureName = nullptr;
+                    const char* samplerName = nullptr;
+                    unsigned edgelen = 0;
+                    OCIO::Interpolation interpolation = OCIO::INTERP_LINEAR;
+                    _ocioShaderDesc->get3DTexture(i, textureName, samplerName, edgelen, interpolation);
+                    if (!textureName ||
+                        !*textureName ||
+                        !samplerName ||
+                        !*samplerName ||
+                        0 == edgelen)
+                    {
+                        throw std::runtime_error("The texture data is corrupted");
+                    }
+
+                    const float* values = nullptr;
+                    _ocioShaderDesc->get3DTextureValues(i, values);
+                    if (!values)
+                    {
+                        throw std::runtime_error("The texture values are missing");
+                    }
+
+                    unsigned textureId = 0;
+                    glGenTextures(1, &textureId);
+                    glActiveTexture(GL_TEXTURE3 + currentTexture);
+                    glBindTexture(GL_TEXTURE_3D, textureId);
+                    setTextureParameters(GL_TEXTURE_3D, interpolation);
+                    glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB32F, edgelen, edgelen, edgelen, 0, GL_RGB, GL_FLOAT, values);
+                    _colorTextures.push_back(TextureId(textureId, textureName, samplerName, GL_TEXTURE_3D));
+                }
+
+                // Create 1D textures.
+                const unsigned numTextures = _ocioShaderDesc->getNumTextures();
+                for (unsigned i = 0; i < numTextures; ++i, ++currentTexture)
+                {
+                    const char* textureName = nullptr;
+                    const char* samplerName = nullptr;
+                    unsigned width = 0;
+                    unsigned height = 0;
+                    OCIO::GpuShaderDesc::TextureType channel = OCIO::GpuShaderDesc::TEXTURE_RGB_CHANNEL;
+                    OCIO::Interpolation interpolation = OCIO::INTERP_LINEAR;
+                    _ocioShaderDesc->getTexture(i, textureName, samplerName, width, height, channel, interpolation);
+                    if (!textureName ||
+                        !*textureName ||
+                        !samplerName ||
+                        !*samplerName ||
+                        width == 0)
+                    {
+                        throw std::runtime_error("The texture data is corrupted");
+                    }
+
+                    const float* values = nullptr;
+                    _ocioShaderDesc->getTextureValues(i, values);
+                    if (!values)
+                    {
+                        throw std::runtime_error("The texture values are missing");
+                    }
+
+                    unsigned textureId = 0;
+                    GLint internalformat = GL_RGB32F;
+                    GLenum format = GL_RGB;
+                    if (OCIO::GpuShaderCreator::TEXTURE_RED_CHANNEL == channel)
+                    {
+                        internalformat = GL_R32F;
+                        format = GL_RED;
+                    }
+                    glGenTextures(1, &textureId);
+                    glActiveTexture(GL_TEXTURE3 + currentTexture);
+                    if (height > 1)
+                    {
+                        glBindTexture(GL_TEXTURE_2D, textureId);
+                        setTextureParameters(GL_TEXTURE_2D, interpolation);
+                        glTexImage2D(GL_TEXTURE_2D, 0, internalformat, width, height, 0, format, GL_FLOAT, values);
+                    }
+                    else
+                    {
+                        glBindTexture(GL_TEXTURE_1D, textureId);
+                        setTextureParameters(GL_TEXTURE_1D, interpolation);
+                        glTexImage1D(GL_TEXTURE_1D, 0, internalformat, width, 0, format, GL_FLOAT, values);
+                    }
+                    _colorTextures.push_back(TextureId(textureId, textureName, samplerName, (height > 1) ? GL_TEXTURE_2D : GL_TEXTURE_1D));
+                }
+            }
+
+            _shader.reset();
         }
 
         void Render::begin(const imaging::Size& size)
@@ -153,6 +354,17 @@ namespace tlr
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+            if (!_shader)
+            {
+                std::string source = fragmentSource;
+                const std::string token = "// $color";
+                const auto i = source.find(token);
+                if (i != std::string::npos)
+                {
+                    source.replace(i, token.size(), _ocioShaderDesc ? _ocioShaderDesc->getShaderText() : colorFunctionNoOp);
+                }
+                _shader = Shader::create(vertexSource, source);
+            }
             _shader->bind();
             const auto viewMatrix = math::ortho(
                 0.F,
@@ -162,6 +374,13 @@ namespace tlr
                 -1.F,
                 1.F);
             _shader->setUniform("transform.mvp", viewMatrix);
+
+            for (size_t i = 0; i < _colorTextures.size(); ++i)
+            {
+                glActiveTexture(GL_TEXTURE3 + i);
+                glBindTexture(_colorTextures[i].type, _colorTextures[i].id);
+                _shader->setUniform(_colorTextures[i].sampler, static_cast<int>(3 + i));
+            }
         }
 
         void Render::end()
@@ -202,7 +421,7 @@ namespace tlr
         void Render::drawImage(const std::shared_ptr<imaging::Image>& image, const math::BBox2f& bbox)
         {
             const auto& info = image->getInfo();
-            _shader->setUniform("colorMode", static_cast<int>(ColorMode::Texture));
+            _shader->setUniform("colorMode", static_cast<int>(ColorMode::TextureColorConfig));
             _shader->setUniform("color", imaging::Color4f(1.F, 1.F, 1.F));
             _shader->setUniform("pixelType", static_cast<int>(info.pixelType));
             _shader->setUniform("textureSampler0", 0);

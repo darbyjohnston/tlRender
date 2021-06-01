@@ -22,6 +22,7 @@ namespace tlr
         bool hud = true;
         bool startPlayback = true;
         bool loopPlayback = true;
+        gl::ColorConfig colorConfig;
     };
 
     //! Application.

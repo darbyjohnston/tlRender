@@ -8,6 +8,8 @@
 #include <tlrQt/TimelinePlayer.h>
 #include <tlrQt/TimelineThumbnailProvider.h>
 
+#include <tlrGL/Render.h>
+
 #include <QWidget>
 
 namespace tlr
@@ -24,6 +26,9 @@ namespace tlr
 
             //! Set the time object.
             void setTimeObject(TimeObject*);
+
+            //! Set the color configuration.
+            void setColorConfig(const gl::ColorConfig&);
 
             //! Set the timeline player.
             void setTimelinePlayer(TimelinePlayer*);
@@ -51,6 +56,7 @@ namespace tlr
 
             void _thumbnailsUpdate();
 
+            gl::ColorConfig _colorConfig;
             TimelinePlayer* _timelinePlayer = nullptr;
             std::vector<otime::TimeRange> _clipRanges;
             TimelineThumbnailProvider* _thumbnailProvider = nullptr;

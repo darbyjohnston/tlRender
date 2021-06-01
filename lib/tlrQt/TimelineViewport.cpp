@@ -12,6 +12,11 @@ namespace tlr
             QOpenGLWidget(parent)
         {}
 
+        void TimelineViewport::setColorConfig(const gl::ColorConfig& colorConfig)
+        {
+            _colorConfig = colorConfig;
+        }
+
         void TimelineViewport::setTimelinePlayer(TimelinePlayer* timelinePlayer)
         {
             _frame = io::VideoFrame();
@@ -47,6 +52,7 @@ namespace tlr
         void TimelineViewport::paintGL()
         {
             const auto size = imaging::Size(width(), height());
+            _render->setColorConfig(_colorConfig);
             _render->begin(size);
             if (_frame.image)
             {
