@@ -88,6 +88,9 @@ namespace tlr
     namespace otime = opentime::OPENTIME_VERSION;
     namespace otio = opentimelineio::OPENTIMELINEIO_VERSION;
 
+    const otime::RationalTime invalidTime(-1.0, -1.0);
+    const otime::TimeRange invalidTimeRange(invalidTime, invalidTime);
+
     std::ostream& operator << (std::ostream&, const otime::RationalTime&);
     std::ostream& operator << (std::ostream&, const otime::TimeRange&);
 }

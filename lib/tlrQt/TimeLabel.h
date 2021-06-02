@@ -35,7 +35,7 @@ namespace tlr
         private:
             void _textUpdate();
 
-            otime::RationalTime _value;
+            otime::RationalTime _value = invalidTime;
             TimeObject::Units _units = TimeObject::Units::Timecode;
             QLabel* _label = nullptr;
             TimeObject* _timeObject = nullptr;

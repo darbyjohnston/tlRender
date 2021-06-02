@@ -226,7 +226,7 @@ namespace tlr
 
         otime::RationalTime TimelineSlider::_posToTime(int value) const
         {
-            otime::RationalTime out;
+            otime::RationalTime out = invalidTime;
             if (_timelinePlayer)
             {
                 const auto& globalStartTime = _timelinePlayer->globalStartTime();

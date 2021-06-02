@@ -83,14 +83,14 @@ namespace tlr
                 VideoFrameRequest() {}
                 VideoFrameRequest(VideoFrameRequest&& other) = default;
 
-                otime::RationalTime time;
+                otime::RationalTime time = invalidTime;
                 std::shared_ptr<imaging::Image> image;
                 std::promise<io::VideoFrame> promise;
             };
             std::list<VideoFrameRequest> _videoFrameRequests;
             std::condition_variable _requestCV;
             std::mutex _requestMutex;
-            otime::RationalTime _currentTime;
+            otime::RationalTime _currentTime = invalidTime;
             memory::Cache<otime::RationalTime, io::VideoFrame> _videoFrameCache;
 
             AVFormatContext* _avFormatContext = nullptr;

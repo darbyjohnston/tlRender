@@ -420,21 +420,21 @@ namespace tlr
                     button->setEnabled(false);
                 }
 
-                _speedLabel->setValue(otime::RationalTime());
+                _speedLabel->setValue(invalidTime);
 
-                _currentTimeSpinBox->setValue(otime::RationalTime());
+                _currentTimeSpinBox->setValue(invalidTime);
                 _currentTimeSpinBox->setEnabled(false);
 
-                _inPointSpinBox->setValue(otime::RationalTime());
+                _inPointSpinBox->setValue(invalidTime);
                 _inPointSpinBox->setEnabled(false);
-                _outPointSpinBox->setValue(otime::RationalTime());
+                _outPointSpinBox->setValue(invalidTime);
                 _outPointSpinBox->setEnabled(false);
                 for (const auto& button : _inOutButtons)
                 {
                     button->setEnabled(false);
                 }
 
-                _durationLabel->setValue(otime::RationalTime());
+                _durationLabel->setValue(invalidTime);
             }
         }
     }

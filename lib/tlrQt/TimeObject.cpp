@@ -93,7 +93,7 @@ namespace tlr
             Units units,
             otime::ErrorStatus* errorStatus)
         {
-            otime::RationalTime out;
+            otime::RationalTime out = invalidTime;
             switch (units)
             {
             case Units::Frames:

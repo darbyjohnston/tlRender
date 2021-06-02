@@ -55,9 +55,9 @@ namespace tlr
         imaging::Info _outputInfo;
         std::shared_ptr<io::System> _ioSystem;
         std::shared_ptr<io::IWrite> _writer;
-        otime::RationalTime _duration;
-        otime::TimeRange _range;
-        otime::RationalTime _currentTime;
+        otime::RationalTime _duration = invalidTime;
+        otime::TimeRange _range = invalidTimeRange;
+        otime::RationalTime _currentTime = invalidTime;
 
         GLFWwindow* _glfwWindow = nullptr;
         std::shared_ptr<gl::FontSystem> _fontSystem;

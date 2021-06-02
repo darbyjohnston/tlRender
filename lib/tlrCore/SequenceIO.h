@@ -65,7 +65,7 @@ namespace tlr
                 VideoFrameRequest() {}
                 VideoFrameRequest(VideoFrameRequest&& other) = default;
 
-                otime::RationalTime time;
+                otime::RationalTime time = invalidTime;
                 std::shared_ptr<imaging::Image> image;
                 std::promise<io::VideoFrame> promise;
             };

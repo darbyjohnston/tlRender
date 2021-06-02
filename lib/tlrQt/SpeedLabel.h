@@ -30,7 +30,7 @@ namespace tlr
         private:
             void _textUpdate();
 
-            otime::RationalTime _value;
+            otime::RationalTime _value = invalidTime;
             QLabel* _label = nullptr;
         };
     }

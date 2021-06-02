@@ -228,12 +228,12 @@ namespace tlr
             std::shared_ptr<Observer::ValueSubject<io::VideoFrame> > _frame;
             std::shared_ptr<Observer::ListSubject<otime::TimeRange> > _cachedFrames;
             std::chrono::steady_clock::time_point _startTime;
-            otime::RationalTime _playbackStartTime;
+            otime::RationalTime _playbackStartTime = invalidTime;
 
             struct ThreadData
             {
-                otime::RationalTime currentTime;
-                otime::TimeRange inOutRange;
+                otime::RationalTime currentTime = invalidTime;
+                otime::TimeRange inOutRange = invalidTimeRange;
                 io::VideoFrame videoFrame;
                 std::map<otime::RationalTime, std::future<io::VideoFrame> > videoFrameRequests;
                 bool clearVideoFrameRequests = false;

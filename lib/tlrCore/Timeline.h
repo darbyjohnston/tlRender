@@ -87,8 +87,8 @@ namespace tlr
             std::string _fileName;
             otio::SerializableObject::Retainer<otio::Timeline> _timeline;
             otio::SerializableObject::Retainer<otio::Track> _flattenedTimeline;
-            otime::RationalTime _duration;
-            otime::RationalTime _globalStartTime;
+            otime::RationalTime _duration = invalidTime;
+            otime::RationalTime _globalStartTime = invalidTime;
             std::shared_ptr<io::System> _ioSystem;
             imaging::Info _imageInfo;
             std::vector<otio::Clip*> _clips;

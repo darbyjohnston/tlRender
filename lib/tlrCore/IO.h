@@ -21,7 +21,7 @@ namespace tlr
         struct VideoInfo
         {
             imaging::Info info;
-            otime::RationalTime duration;
+            otime::RationalTime duration = invalidTime;
             std::string codec;
         };
 
@@ -41,7 +41,7 @@ namespace tlr
                 const otime::RationalTime&,
                 const std::shared_ptr<imaging::Image>&);
 
-            otime::RationalTime time;
+            otime::RationalTime time = invalidTime;
             std::shared_ptr<imaging::Image> image;
 
             bool operator == (const VideoFrame&) const;

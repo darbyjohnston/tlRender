@@ -69,7 +69,7 @@ namespace tlr
 
         otime::RationalTime FilmstripWidget::_posToTime(int value) const
         {
-            otime::RationalTime out;
+            otime::RationalTime out = invalidTime;
             if (_timeline)
             {
                 const auto& globalStartTime = _timeline->getGlobalStartTime();

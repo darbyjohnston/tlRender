@@ -108,8 +108,8 @@ namespace tlr
                 {
                     while (_threadData.running)
                     {
-                        otime::RationalTime currentTime;
-                        otime::TimeRange inOutRange;
+                        otime::RationalTime currentTime = invalidTime;
+                        otime::TimeRange inOutRange = invalidTimeRange;
                         bool clearVideoFrameRequests = false;
                         FrameCacheDirection frameCacheDirection = FrameCacheDirection::Forward;
                         std::size_t frameCacheReadAhead = 0;
