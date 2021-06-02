@@ -31,6 +31,7 @@ namespace tlr
 
     public:
         App(int& argc, char** argv);
+        ~App() override;
 
     public Q_SLOTS:
         //! Open a timeline.

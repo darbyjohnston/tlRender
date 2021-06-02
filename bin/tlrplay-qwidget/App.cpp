@@ -82,6 +82,12 @@ namespace tlr
         _mainWindow->show();
     }
 
+    App::~App()
+    {
+        _settingsObject->setParent(nullptr);
+        delete _settingsObject;
+    }
+
     void App::open(const QString& fileName)
     {
         try
