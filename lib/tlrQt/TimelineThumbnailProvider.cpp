@@ -74,41 +74,44 @@ namespace tlr
                             const auto request = std::move(requests.front());
                             requests.pop_front();
                             const auto frame = _timeline->render(request.time).get();
-
-                            imaging::Info info;
-                            info.size.w = request.size.width();
-                            info.size.h = request.size.height();
-                            info.pixelType = frame.image->getPixelType();
-                            if (info != fboInfo)
+                            QImage qImage;
+                            if (frame.image)
                             {
-                                fbo = new QOpenGLFramebufferObject(info.size.w, info.size.h);
-                                fboInfo = info;
+                                imaging::Info info;
+                                info.size.w = request.size.width();
+                                info.size.h = request.size.height();
+                                info.pixelType = frame.image->getPixelType();
+                                if (info != fboInfo)
+                                {
+                                    fbo = new QOpenGLFramebufferObject(info.size.w, info.size.h);
+                                    fboInfo = info;
+                                }
+                                fbo->bind();
+
+                                render->setColorConfig(colorConfig);
+                                render->begin(info.size);
+                                render->drawImage(frame.image, math::BBox2f(0, 0, info.size.w, info.size.h));
+                                render->end();
+
+                                std::vector<uint8_t> pixels(info.size.w * info.size.h * 4);
+                                glPixelStorei(GL_PACK_ALIGNMENT, 1);
+                                glReadPixels(
+                                    0,
+                                    0,
+                                    info.size.w,
+                                    info.size.h,
+                                    GL_RGBA,
+                                    GL_UNSIGNED_BYTE,
+                                    pixels.data());
+
+                                qImage = QImage(
+                                    pixels.data(),
+                                    info.size.w,
+                                    info.size.h,
+                                    info.size.w * 4,
+                                    QImage::Format_RGBA8888).mirrored();
+                                std::unique_lock<std::mutex> lock(_mutex);
                             }
-                            fbo->bind();
-
-                            render->setColorConfig(colorConfig);
-                            render->begin(info.size);
-                            render->drawImage(frame.image, math::BBox2f(0, 0, info.size.w, info.size.h));
-                            render->end();
-
-                            std::vector<uint8_t> pixels(info.size.w * info.size.h * 4);
-                            glPixelStorei(GL_PACK_ALIGNMENT, 1);
-                            glReadPixels(
-                                0,
-                                0,
-                                info.size.w,
-                                info.size.h,
-                                GL_RGBA,
-                                GL_UNSIGNED_BYTE,
-                                pixels.data());
-
-                            const auto qImage = QImage(
-                                pixels.data(),
-                                info.size.w,
-                                info.size.h,
-                                info.size.w * 4,
-                                QImage::Format_RGBA8888).mirrored();
-                            std::unique_lock<std::mutex> lock(_mutex);
                             _results.push_back(QPair<otime::RationalTime, QImage>(request.time, qImage));
                         }
                     }
