@@ -74,6 +74,7 @@ namespace tlr
             }
         }
 
+        template<>
         inline void CmdLineValueOption<std::string>::parse(std::vector<std::string>& args)
         {
             for (const auto& name : _names)
