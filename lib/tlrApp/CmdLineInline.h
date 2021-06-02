@@ -74,6 +74,28 @@ namespace tlr
             }
         }
 
+        inline void CmdLineValueOption<std::string>::parse(std::vector<std::string>& args)
+        {
+            for (const auto& name : _names)
+            {
+                _name = name;
+                auto i = std::find(args.begin(), args.end(), name);
+                if (i != args.end())
+                {
+                    i = args.erase(i);
+                    if (i != args.end())
+                    {
+                        _value = *i;
+                        i = args.erase(i);
+                    }
+                    else
+                    {
+                        throw ParseError();
+                    }
+                }
+            }
+        }
+
         inline ICmdLineArg::ICmdLineArg(
             const std::string& name,
             const std::string& help,
