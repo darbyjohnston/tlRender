@@ -24,11 +24,11 @@ set(OCIO_INCLUDE_DIRS
 
 find_library(OCIO_LIBRARY NAMES OpenColorIO)
 if(CMAKE_BUILD_TYPE MATCHES "^Debug$")
-    find_library(OCIO_yaml_LIBRARY NAMES libyaml-cppmdd libyaml-cpp)
+    find_library(OCIO_yaml_LIBRARY NAMES libyaml-cppmdd libyaml-cpp yaml-cpp)
     find_library(OCIO_pystring_LIBRARY NAMES pystring)
     find_library(OCIO_expat LIBRARY NAMES expatdMD expat)
 else()
-    find_library(OCIO_yaml_LIBRARY NAMES libyaml-cpp)
+    find_library(OCIO_yaml_LIBRARY NAMES libyaml-cpp yaml-cpp)
     find_library(OCIO_pystring_LIBRARY NAMES pystring)
     find_library(OCIO_expat LIBRARY NAMES expat)
 endif()
