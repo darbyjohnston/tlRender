@@ -138,9 +138,12 @@ namespace tlr
         _renderInfo.size = _options.renderSize.isValid() ?
             _options.renderSize :
             timelineInfo.size;
+        const auto timelinePixelType = imaging::PixelType::YUV_420P == timelineInfo.pixelType ?
+            imaging::PixelType::RGB_U8 :
+            timelineInfo.pixelType;
         _renderInfo.pixelType = _options.renderPixelType != imaging::PixelType::None ?
             _options.renderPixelType :
-            timelineInfo.pixelType;
+            timelinePixelType;
         _print(string::Format("Render info: {0}").arg(_renderInfo));
 
         // Output information.
