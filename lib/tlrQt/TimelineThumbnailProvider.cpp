@@ -33,8 +33,6 @@ namespace tlr
                     context->create();
                     context->makeCurrent(_surface);
 
-                    gladLoadGL();
-
                     auto render = gl::Render::create();
 
                     QOpenGLFramebufferObject* fbo = nullptr;
@@ -110,8 +108,8 @@ namespace tlr
                                     info.size.h,
                                     info.size.w * 4,
                                     QImage::Format_RGBA8888).mirrored();
-                                std::unique_lock<std::mutex> lock(_mutex);
                             }
+                            std::unique_lock<std::mutex> lock(_mutex);
                             _results.push_back(QPair<otime::RationalTime, QImage>(request.time, qImage));
                         }
                     }
