@@ -7,13 +7,11 @@ else()
 endif()
 
 set(FFmpeg_SHARED_LIBS ON)
+set(FFmpeg_DEBUG OFF)
 
 if(WIN32)
     # See the directions for building FFmpeg on Windows in "docs/build_windows.html".
 else()
-    set(FFmpeg_EXTRA_CFLAGS)
-    set(FFmpeg_EXTRA_CXXFLAGS)
-    set(FFmpeg_EXTRA_LDFLAGS)
     set(FFmpeg_CONFIGURE_ARGS
         --prefix=${CMAKE_INSTALL_PREFIX}
         --disable-programs
@@ -25,12 +23,23 @@ else()
         --disable-coreimage
         --disable-audiotoolbox
         --disable-vaapi
-        --enable-pic
-        --extra-cflags=${FFmpeg_EXTRA_CFLAGS}
-        --extra-cxxflags=${FFmpeg_EXTRA_CXXFLAGS}
-        --extra-ldflags=${FFmpeg_EXTRA_LDFLAGS})
+        --enable-pic)
     if(FFmpeg_SHARED_LIBS)
-        set(FFmpeg_CONFIGURE_ARGS ${FFmpeg_CONFIGURE_ARGS} --disable-static --enable-shared)
+        set(FFmpeg_CONFIGURE_ARGS
+            ${FFmpeg_CONFIGURE_ARGS}
+            --disable-static
+            --enable-shared)
+    endif()
+    if(FFmpeg_DEBUG)
+        set(FFmpeg_CONFIGURE_ARGS
+            ${FFmpeg_CONFIGURE_ARGS}
+            --extra-cflags=-g
+            --extra-cxxflags=-g
+            --extra-ldflags=-g
+            --disable-optimizations
+            --disable-stripping
+            --enable-debug=3
+            --assert-level=2)
     endif()
     ExternalProject_Add(
         FFmpeg
