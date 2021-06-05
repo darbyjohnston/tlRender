@@ -75,11 +75,11 @@ namespace tlr
                 throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
             }
             //av_dump_format(_avFormatContext, 0, _fileName.c_str(), 1);
-
-            _f = fopen(fileName.c_str(), "wb");
-            if (!_f)
+            
+            r = avio_open(&_avFormatContext->pb, fileName.c_str(), AVIO_FLAG_WRITE);
+            if (r < 0)
             {
-                throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
+                throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
             }
 
             r = avformat_write_header(_avFormatContext, NULL);
@@ -125,7 +125,7 @@ namespace tlr
 
         Write::~Write()
         {
-            if (_f)
+            if (_avFormatContext->pb)
             {
                 _encodeVideo(nullptr);
                 av_write_trailer(_avFormatContext);
@@ -147,14 +147,14 @@ namespace tlr
             {
                 av_free_packet(_avPacket);
             }
-            if (_f)
-            {
-                fclose(_f);
-            }
             //if (_avCodecContext)
             //{
             //    avcodec_free_context(&_avCodecContext);
             //}
+            if (_avFormatContext->pb)
+            {
+                avio_closep(&_avFormatContext->pb);
+            }
             if (_avFormatContext)
             {
                 avformat_free_context(_avFormatContext);
@@ -215,7 +215,11 @@ namespace tlr
                 {
                     throw std::runtime_error(string::Format("{0}: Cannot write frame").arg(_fileName));
                 }
-                fwrite(_avPacket->data, 1, _avPacket->size, _f);
+                r = av_interleaved_write_frame(_avFormatContext, _avPacket);
+                if (r < 0)
+                {
+                    throw std::runtime_error(string::Format("{0}: Cannot write frame").arg(_fileName));
+                }
                 av_packet_unref(_avPacket);
             }
         }

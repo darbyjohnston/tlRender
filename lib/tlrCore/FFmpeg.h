@@ -138,7 +138,6 @@ namespace tlr
             AVCodec* _avCodec = nullptr;
             AVStream* _avVideoStream = nullptr;
             //AVCodecContext* _avCodecContext = nullptr;
-            FILE* _f = nullptr;
             AVPacket* _avPacket = nullptr;
             AVFrame* _avFrame = nullptr;
             AVPixelFormat _avPixelFormat = AV_PIX_FMT_NONE;
