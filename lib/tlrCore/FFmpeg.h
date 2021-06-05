@@ -39,6 +39,9 @@ namespace tlr
         //! Get a label for a FFmpeg error code.
         std::string getErrorLabel(int);
 
+        //! Convert a floating point rate to a rational.
+        AVRational toRational(double);
+
         //! FFmpeg reader
         class Read : public io::IRead
         {
@@ -128,12 +131,26 @@ namespace tlr
                 const std::shared_ptr<imaging::Image>&) override;
 
         private:
+            void _encodeVideo(AVFrame*);
+
+            AVOutputFormat* _avOutputFormat = nullptr;
+            AVFormatContext* _avFormatContext = nullptr;
+            AVCodec* _avCodec = nullptr;
+            AVStream* _avVideoStream = nullptr;
+            //AVCodecContext* _avCodecContext = nullptr;
+            FILE* _f = nullptr;
+            AVPacket* _avPacket = nullptr;
+            AVFrame* _avFrame = nullptr;
+            AVPixelFormat _avPixelFormat = AV_PIX_FMT_NONE;
+            AVFrame* _avFrameRgb = nullptr;
+            SwsContext* _swsContext = nullptr;
         };
 
         //! FFmpeg Plugin
         class Plugin : public io::IPlugin
         {
         protected:
+            void _init();
             Plugin();
 
         public:

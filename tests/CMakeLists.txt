@@ -5,6 +5,10 @@ set(SOURCE
     ITest.cpp
     TimelineTest.cpp
     main.cpp)
+if(FFmpeg_FOUND)
+    set(HEADERS ${HEADERS} FFmpegTest.h)
+    set(SOURCE ${SOURCE} FFmpegTest.cpp)
+endif()
 
 add_executable(tlrtest ${SOURCE} ${HEADERS})
 target_link_libraries(tlrtest tlrCore)

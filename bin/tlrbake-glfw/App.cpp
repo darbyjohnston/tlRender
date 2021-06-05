@@ -219,6 +219,7 @@ namespace tlr
         _ioSystem = io::System::create();
         io::VideoInfo videoInfo;
         videoInfo.info = _outputInfo;
+        videoInfo.duration = _range.duration();
         io::Info ioInfo;
         ioInfo.video.push_back(videoInfo);
         _writer = _ioSystem->write(_output, ioInfo);
