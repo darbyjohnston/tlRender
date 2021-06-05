@@ -89,6 +89,7 @@ namespace tlr
 
     App::~App()
     {
+        _buffer.reset();
         _render.reset();
         _fontSystem.reset();
         if (_glfwWindow)
