@@ -16,5 +16,6 @@ ExternalProject_Add(
     FreeType
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/FreeType
     DEPENDS ZLIB
-    URL http://download.savannah.gnu.org/releases/freetype/freetype-2.10.2.tar.gz
+    GIT_REPOSITORY https://github.com/freetype/freetype
+    GIT_TAG VER-2-10-4
     CMAKE_ARGS ${FreeType_ARGS})
