@@ -128,9 +128,6 @@ namespace tlr
         _range = _options.endFrame >= 0 ?
             otime::TimeRange::range_from_start_end_time_inclusive(startTime, otime::RationalTime(_options.endFrame, _duration.rate())) :
             otime::TimeRange::range_from_start_end_time(startTime, startTime + _duration);
-        _timeline->setActiveRanges({ otime::TimeRange::range_from_start_end_time(
-            _timeline->getGlobalStartTime() + _range.start_time(),
-            _timeline->getGlobalStartTime() + _range.duration()) });
         _currentTime = _range.start_time();
         _print(string::Format("Frame range: {0}-{1}").arg(_range.start_time().value()).arg(_range.end_time_inclusive().value()));
 
@@ -243,6 +240,9 @@ namespace tlr
     void App::_tick()
     {
         // Tick the timeline.
+        _timeline->setActiveRanges({ otime::TimeRange::range_from_start_end_time(
+            _timeline->getGlobalStartTime() + _currentTime,
+            _timeline->getGlobalStartTime() + _currentTime) });
         _timeline->tick();
 
         // Render the frame.
