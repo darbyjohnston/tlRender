@@ -44,6 +44,7 @@ namespace tlr
 
     private:
         void _tick();
+        void _printProgress();
 
         std::string _input;
         std::string _output;

@@ -239,6 +239,8 @@ namespace tlr
 
     void App::_tick()
     {
+        _printProgress();
+
         // Tick the timeline.
         _timeline->setActiveRanges({ otime::TimeRange::range_from_start_end_time(
             _timeline->getGlobalStartTime() + _currentTime,
@@ -246,7 +248,6 @@ namespace tlr
         _timeline->tick();
 
         // Render the frame.
-        _print(string::Format("Rendering frame: {0}").arg(_currentTime.value()));
         _render->begin(_renderInfo.size, true);
         _videoFrame = _timeline->render(_timeline->getGlobalStartTime() + _currentTime, _videoFrame.image).get();
         _render->drawImage(_videoFrame.image, math::BBox2f(0.F, 0.F, _renderInfo.size.w, _renderInfo.size.h));
@@ -275,6 +276,16 @@ namespace tlr
         if (_currentTime > _range.end_time_inclusive())
         {
             _running = false;
+        }
+    }
+
+    void App::_printProgress()
+    {
+        const int64_t c = static_cast<int64_t>(_currentTime.value());
+        const int64_t d = static_cast<int64_t>(_range.duration().value());
+        if (c % (d / 100) == 0)
+        {
+            _print(string::Format("Complete: {0}%").arg(static_cast<int>(c / static_cast<float>(d) * 100)));
         }
     }
 }
