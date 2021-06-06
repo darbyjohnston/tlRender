@@ -133,9 +133,7 @@ namespace tlr
                     }
                     for (uint16_t y = 0; y < info.size.h; ++y)
                     {
-                        uint8_t* p = image->getData() + (info.flipY ?
-                            (imaging::getDataByteCount(info) - (y + 1) * scanlineSize) :
-                            (y * scanlineSize));
+                        uint8_t* p = image->getData() + (y * scanlineSize);
                         if (!pngScanline(_png, p))
                         {
                             throw std::runtime_error(string::Format("{0}: Cannot write scanline: {1}").arg(fileName).arg(y));

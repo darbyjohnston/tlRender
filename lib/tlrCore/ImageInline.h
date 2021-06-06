@@ -61,8 +61,7 @@ namespace tlr
         inline bool Info::operator == (const Info& other) const
         {
             return size == other.size &&
-                pixelType == other.pixelType &&
-                flipY == other.flipY;
+                pixelType == other.pixelType;
         }
 
         inline bool Info::operator != (const Info& other) const

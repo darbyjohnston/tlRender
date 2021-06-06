@@ -198,7 +198,7 @@ namespace tlr
                     break;
                 default:
                     videoInfo.info.pixelType = imaging::PixelType::YUV_420P;
-                    _avFrameRgb = av_frame_alloc();
+                    _avFrame2 = av_frame_alloc();
                     _swsContext = sws_getContext(
                         _avCodecParameters[_avVideoStream]->width,
                         _avCodecParameters[_avVideoStream]->height,
@@ -363,9 +363,9 @@ namespace tlr
             {
                 sws_freeContext(_swsContext);
             }
-            if (_avFrameRgb)
+            if (_avFrame2)
             {
-                av_frame_free(&_avFrameRgb);
+                av_frame_free(&_avFrame2);
             }
             if (_avFrame)
             {
@@ -487,8 +487,8 @@ namespace tlr
                 break;
             default:
                 av_image_fill_arrays(
-                    _avFrameRgb->data,
-                    _avFrameRgb->linesize,
+                    _avFrame2->data,
+                    _avFrame2->linesize,
                     image->getData(),
                     AV_PIX_FMT_YUV420P,
                     w,
@@ -500,8 +500,8 @@ namespace tlr
                     _avFrame->linesize,
                     0,
                     _avCodecParameters[_avVideoStream]->height,
-                    _avFrameRgb->data,
-                    _avFrameRgb->linesize);
+                    _avFrame2->data,
+                    _avFrame2->linesize);
                 break;
             }
         }

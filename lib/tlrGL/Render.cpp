@@ -345,7 +345,7 @@ namespace tlr
             _shader.reset();
         }
 
-        void Render::begin(const imaging::Size& size)
+        void Render::begin(const imaging::Size& size, bool flipY)
         {
             glViewport(0, 0, size.w, size.h);
             glClearColor(0.F, 0.F, 0.F, 0.F);
@@ -369,8 +369,8 @@ namespace tlr
             const auto viewMatrix = math::ortho(
                 0.F,
                 static_cast<float>(size.w),
-                static_cast<float>(size.h),
-                0.F,
+                flipY ? 0.F : static_cast<float>(size.h),
+                flipY ? static_cast<float>(size.h) : 0.F,
                 -1.F,
                 1.F);
             _shader->setUniform("transform.mvp", viewMatrix);

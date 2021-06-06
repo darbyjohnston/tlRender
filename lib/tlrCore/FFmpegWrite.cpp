@@ -43,39 +43,38 @@ namespace tlr
                 throw std::runtime_error(string::Format("{0}: Cannot find encoder").arg(fileName));
             }
             _avVideoStream = avformat_new_stream(_avFormatContext, _avCodec);
-            //_avCodecContext = avcodec_alloc_context3(_avCodec);
-            //if (!_avCodecContext)
-            //{
-            //    throw std::runtime_error(string::Format("{0}: Cannot create codec context").arg(fileName));
-            //}
 
+            _avVideoStream->codec->codec_id = _avOutputFormat->video_codec;
+            _avVideoStream->codec->codec_type = AVMEDIA_TYPE_VIDEO;
             const auto& videoInfo = info.video[0];
-            const auto rational = toRational(videoInfo.duration.rate());
             const auto& imageInfo = videoInfo.info;
-            _avVideoStream->codecpar->codec_id = _avOutputFormat->video_codec;
-            _avVideoStream->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
-            //_avVideoStream->codecpar->bit_rate = 400000;
-            _avVideoStream->codecpar->width = imageInfo.size.w;
-            _avVideoStream->codecpar->height = imageInfo.size.h;
-            _avVideoStream->codecpar->format = AV_PIX_FMT_YUV420P;
-            _avVideoStream->time_base = { rational.den, rational.num };
-            _avVideoStream->avg_frame_rate = rational;
             _avVideoStream->codec->width = imageInfo.size.w;
             _avVideoStream->codec->height = imageInfo.size.h;
+            _avVideoStream->codec->sample_aspect_ratio = AVRational({ 1, 1 });
             _avVideoStream->codec->pix_fmt = AV_PIX_FMT_YUV420P;
+            const auto rational = toRational(videoInfo.duration.rate());
             _avVideoStream->codec->time_base = { rational.den, rational.num };
             _avVideoStream->codec->framerate = rational;
             if (_avFormatContext->oformat->flags & AVFMT_GLOBALHEADER)
             {
                 _avVideoStream->codec->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
             }
+
             r = avcodec_open2(_avVideoStream->codec, _avCodec, NULL);
             if (r < 0)
             {
                 throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
             }
-            //av_dump_format(_avFormatContext, 0, _fileName.c_str(), 1);
-            
+
+            r = avcodec_parameters_from_context(_avVideoStream->codecpar, _avVideoStream->codec);
+            if (r < 0)
+            {
+                throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
+            }
+
+            _avVideoStream->time_base = { rational.den, rational.num };
+            _avVideoStream->avg_frame_rate = rational;
+
             r = avio_open(&_avFormatContext->pb, fileName.c_str(), AVIO_FLAG_WRITE);
             if (r < 0)
             {
@@ -100,7 +99,7 @@ namespace tlr
                 throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
             }
 
-            _avFrameRgb = av_frame_alloc();
+            _avFrame2 = av_frame_alloc();
             switch (imageInfo.pixelType)
             {
             case imaging::PixelType::L_U8: _avPixelFormat = AV_PIX_FMT_GRAY8; break;
@@ -135,9 +134,9 @@ namespace tlr
             {
                 sws_freeContext(_swsContext);
             }
-            if (_avFrameRgb)
+            if (_avFrame2)
             {
-                av_frame_free(&_avFrameRgb);
+                av_frame_free(&_avFrame2);
             }
             if (_avFrame)
             {
@@ -147,10 +146,6 @@ namespace tlr
             {
                 av_free_packet(_avPacket);
             }
-            //if (_avCodecContext)
-            //{
-            //    avcodec_free_context(&_avCodecContext);
-            //}
             if (_avFormatContext->pb)
             {
                 avio_closep(&_avFormatContext->pb);
@@ -176,23 +171,36 @@ namespace tlr
         {
             const auto& info = image->getInfo();
             av_image_fill_arrays(
-                _avFrameRgb->data,
-                _avFrameRgb->linesize,
+                _avFrame2->data,
+                _avFrame2->linesize,
                 image->getData(),
                 _avPixelFormat,
                 info.size.w,
                 info.size.h,
                 1);
+            /*if (!info.flipY)
+            {
+                //! \bug This is wrong for YUV data.
+                for (int i = 0; i < 4; i++)
+                {
+                    _avFrame2->data[i] += _avFrame2->linesize[i] * (info.size.h - 1);
+                    _avFrame2->linesize[i] = -_avFrame2->linesize[i];
+                }
+            }*/
             sws_scale(
                 _swsContext,
-                (uint8_t const* const*)_avFrameRgb->data,
-                _avFrameRgb->linesize,
+                (uint8_t const* const*)_avFrame2->data,
+                _avFrame2->linesize,
                 0,
                 _avVideoStream->codecpar->height,
                 _avFrame->data,
                 _avFrame->linesize);
 
-            _avFrame->pts = time.value();
+            AVRational r = toRational(time.rate());
+            _avFrame->pts = av_rescale_q(
+                time.value(),
+                AVRational({ r.den, r.num }),
+                _avVideoStream->time_base);
             _encodeVideo(_avFrame);
         }
 

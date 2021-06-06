@@ -152,7 +152,6 @@ namespace tlr
         _outputInfo.pixelType = _options.outputPixelType != imaging::PixelType::None ?
             _options.outputPixelType :
             _renderInfo.pixelType;
-        _outputInfo.flipY = true;
         _print(string::Format("Output info: {0}").arg(_outputInfo));
 
         // Initialize GLFW.
@@ -248,7 +247,7 @@ namespace tlr
 
         // Render the frame.
         _print(string::Format("Rendering frame: {0}").arg(_currentTime.value()));
-        _render->begin(_renderInfo.size);
+        _render->begin(_renderInfo.size, true);
         _videoFrame = _timeline->render(_timeline->getGlobalStartTime() + _currentTime, _videoFrame.image).get();
         _render->drawImage(_videoFrame.image, math::BBox2f(0.F, 0.F, _renderInfo.size.w, _renderInfo.size.h));
         _render->end();

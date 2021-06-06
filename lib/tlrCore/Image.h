@@ -79,7 +79,6 @@ namespace tlr
 
             Size size;
             PixelType pixelType = PixelType::None;
-            bool flipY = false;
 
             //! Is the information valid?
             bool isValid() const;

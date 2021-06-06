@@ -42,10 +42,8 @@ namespace tlr
             const auto& info = image->getInfo();
             Imf::RgbaOutputFile file(fileName.c_str(), Imf::Header(info.size.w, info.size.h));
             const size_t scanlineSize = info.size.w * 4 * 2;
-            uint8_t* p = image->getData() + (info.flipY ?
-                (imaging::getDataByteCount(info) - scanlineSize) :
-                0);
-            file.setFrameBuffer(reinterpret_cast<Imf::Rgba*>(p), 1, info.flipY ? -info.size.w : info.size.w);
+            uint8_t* p = image->getData();
+            file.setFrameBuffer(reinterpret_cast<Imf::Rgba*>(p), 1, info.size.w);
             file.writePixels(info.size.h);
         }
     }

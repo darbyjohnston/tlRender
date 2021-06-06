@@ -101,7 +101,7 @@ namespace tlr
             std::map<int, AVCodecParameters*> _avCodecParameters;
             std::map<int, AVCodecContext*> _avCodecContext;
             AVFrame* _avFrame = nullptr;
-            AVFrame* _avFrameRgb = nullptr;
+            AVFrame* _avFrame2 = nullptr;
             SwsContext* _swsContext = nullptr;
 
             std::thread _thread;
@@ -137,11 +137,10 @@ namespace tlr
             AVFormatContext* _avFormatContext = nullptr;
             AVCodec* _avCodec = nullptr;
             AVStream* _avVideoStream = nullptr;
-            //AVCodecContext* _avCodecContext = nullptr;
             AVPacket* _avPacket = nullptr;
             AVFrame* _avFrame = nullptr;
             AVPixelFormat _avPixelFormat = AV_PIX_FMT_NONE;
-            AVFrame* _avFrameRgb = nullptr;
+            AVFrame* _avFrame2 = nullptr;
             SwsContext* _swsContext = nullptr;
         };
 
