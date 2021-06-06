@@ -178,15 +178,12 @@ namespace tlr
                 info.size.w,
                 info.size.h,
                 1);
-            /*if (!info.flipY)
-            {
-                //! \bug This is wrong for YUV data.
-                for (int i = 0; i < 4; i++)
-                {
-                    _avFrame2->data[i] += _avFrame2->linesize[i] * (info.size.h - 1);
-                    _avFrame2->linesize[i] = -_avFrame2->linesize[i];
-                }
-            }*/
+            //! \bug This is wrong for flipping YUV data.
+            //for (int i = 0; i < 4; i++)
+            //{
+            //    _avFrame2->data[i] += _avFrame2->linesize[i] * (info.size.h - 1);
+            //    _avFrame2->linesize[i] = -_avFrame2->linesize[i];
+            //}
             sws_scale(
                 _swsContext,
                 (uint8_t const* const*)_avFrame2->data,
