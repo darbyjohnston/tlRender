@@ -12,12 +12,12 @@
 
 namespace tlr
 {
-    class ICmdLineArg;
-    class ICmdLineOption;
-
     //! Applications.
     namespace app
     {
+        class ICmdLineArg;
+        class ICmdLineOption;
+
         //! Application options.
         struct Options
         {

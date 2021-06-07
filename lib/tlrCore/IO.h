@@ -49,13 +49,18 @@ namespace tlr
             bool operator < (const VideoFrame&) const;
         };
 
+        //! Options.
+        typedef std::map<std::string, std::string> Options;
+
         //! Base class for readers/writers.
         class IIO : public std::enable_shared_from_this<IIO>
         {
             TLR_NON_COPYABLE(IIO);
 
         protected:
-            void _init(const std::string& fileName);
+            void _init(
+                const std::string& fileName,
+                const Options&);
             IIO();
 
         public:
@@ -66,6 +71,7 @@ namespace tlr
 
         protected:
             std::string _fileName;
+            Options _options;
         };
 
         //! Base class for readers.
@@ -74,7 +80,7 @@ namespace tlr
         protected:
             void _init(
                 const std::string& fileName,
-                const otime::RationalTime& defaultSpeed);
+                const Options&);
             IRead();
 
         public:
@@ -110,6 +116,7 @@ namespace tlr
         protected:
             void _init(
                 const std::string& fileName,
+                const Options&,
                 const io::Info&);
             IWrite();
 
@@ -143,7 +150,7 @@ namespace tlr
             //! Create a reader for the given file.
             virtual std::shared_ptr<IRead> read(
                 const std::string& fileName,
-                const otime::RationalTime& defaultSpeed) = 0;
+                const io::Options&) = 0;
 
             //! Get the list of writable pixel types.
             virtual std::vector<imaging::PixelType> getWritePixelTypes() const = 0;
@@ -151,10 +158,12 @@ namespace tlr
             //! Create a writer for the given file.
             virtual std::shared_ptr<IWrite> write(
                 const std::string& fileName,
-                const io::Info&) = 0;
+                const io::Info&,
+                const io::Options&) = 0;
 
         private:
             std::set<std::string> _extensions;
+            Options _options;
         };
 
         //! I/O system.
@@ -173,12 +182,13 @@ namespace tlr
             // Create a reader for the given file.
             std::shared_ptr<IRead> read(
                 const std::string& fileName,
-                const otime::RationalTime& defaultSpeed = otime::RationalTime(0, 24));
+                const io::Options& = io::Options());
 
             // Create a writer for the given file.
             std::shared_ptr<IWrite> write(
                 const std::string& fileName,
-                const io::Info&);
+                const io::Info&,
+                const io::Options & = io::Options());
 
         private:
             std::vector<std::shared_ptr<IPlugin> > _plugins;

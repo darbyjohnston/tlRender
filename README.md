@@ -7,8 +7,8 @@ tlRender
 tlRender, or timeline render, is an early stage project for rendering
 editorial timelines.
 
-The project includes libraries for rendering timelines with either Qt
-or OpenGL, and example applications showing the usage of the libraries. 
+The project includes libraries for rendering timelines with OpenGL and
+Qt, and example applications showing the usage of the libraries. 
 
 The project is written in C++ and uses OpenTimelineIO
 (https://github.com/PixarAnimationStudios/OpenTimelineIO) for reading
@@ -19,7 +19,7 @@ a BSD style open source license.
 Supported:
 * Movie clips
 * Gaps
-* Image sequences (OpenEXR, JPEG)
+* Image sequences (OpenEXR, JPEG, PNG, TIFF)
 
 To do:
 * Transitions
@@ -76,8 +76,8 @@ tlrplay-glfw
 ------------
 ![tlrplay](etc/Images/tlrplay-glfw-screenshot1.PNG)
 
-The example application "tlrplay-glfw" demonstrates using tlRender with
-OpenGL and GLFW.
+The example application "tlrplay-glfw" plays back timelines using
+tlRender with GLFW.
 
 Timelines can be opened from the command line. A HUD (heads up display),
 keyboard shortcuts, and command line options provide controls for the
@@ -87,15 +87,21 @@ Dependencies:
 * GLFW - https://www.glfw.org
 
 tlrplay-qwidget
-------------
+---------------
 ![tlrplay](etc/Images/tlrplay-qwidget-screenshot1.PNG)
 
-The example application "tlrplay-qwidget" demonstrates using tlRender with
-a QWidget application.
+The example application "tlrplay-qwidget" plays back timelines using
+tlRender with a QWidget application.
 
 Timelines can be opened from the "File/Open" menu, drag and dropped onto the
 window, or from the command line. Menus, playback buttons, a frame slider,
 and keyboard shortcuts provide controls for the application.
+
+tlrbake-glfw
+------------
+The example application "tlrbake-glfw" is a command-line application for
+rendering a timeline to a movie file or image file sequence.
+
 
 Building
 ========

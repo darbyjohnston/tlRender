@@ -16,9 +16,9 @@ namespace tlr
     {
         void ISequenceRead::_init(
             const std::string& fileName,
-            const otime::RationalTime& defaultSpeed)
+            const io::Options& options)
         {
-            IRead::_init(fileName, defaultSpeed);
+            IRead::_init(fileName, options);
 
             file::split(fileName, &_path, &_baseName, &_number, &_extension);
             _pad = !_number.empty() ? ('0' == _number[0] ? _number.size() : 0) : 0;
@@ -156,9 +156,10 @@ namespace tlr
 
         void ISequenceWrite::_init(
             const std::string& fileName,
-            const io::Info& info)
+            const io::Info& info,
+            const io::Options& options)
         {
-            IWrite::_init(fileName, info);
+            IWrite::_init(fileName, options, info);
 
             file::split(fileName, &_path, &_baseName, &_number, &_extension);
             _pad = !_number.empty() ? ('0' == _number[0] ? _number.size() : 0) : 0;

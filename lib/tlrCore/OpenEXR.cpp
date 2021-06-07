@@ -20,9 +20,9 @@ namespace tlr
 
         std::shared_ptr<io::IRead> Plugin::read(
             const std::string& fileName,
-            const otime::RationalTime& defaultSpeed)
+            const io::Options& options)
         {
-            return Read::create(fileName, defaultSpeed);
+            return Read::create(fileName, options);
         }
 
         std::vector<imaging::PixelType> Plugin::getWritePixelTypes() const
@@ -35,9 +35,10 @@ namespace tlr
 
         std::shared_ptr<io::IWrite> Plugin::write(
             const std::string& fileName,
-            const io::Info& info)
+            const io::Info& info,
+            const io::Options& options)
         {
-            return Write::create(fileName, info);
+            return Write::create(fileName, info, options);
         }
     }
 }

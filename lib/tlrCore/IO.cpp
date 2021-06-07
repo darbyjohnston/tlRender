@@ -40,9 +40,12 @@ namespace tlr
             image(image)
         {}
 
-        void IIO::_init(const std::string& fileName)
+        void IIO::_init(
+            const std::string& fileName,
+            const Options& options)
         {
             _fileName = fileName;
+            _options = options;
         }
 
         IIO::IIO()
@@ -53,10 +56,15 @@ namespace tlr
 
         void IRead::_init(
             const std::string& fileName,
-            const otime::RationalTime& defaultSpeed)
+            const Options& options)
         {
-            IIO::_init(fileName);
-            _defaultSpeed = defaultSpeed;
+            IIO::_init(fileName, options);
+            const auto i = options.find("DefaultSpeed");
+            if (i != options.end())
+            {
+                std::stringstream ss(i->second);
+                ss >> _defaultSpeed;
+            }
         }
 
         IRead::IRead()
@@ -67,9 +75,10 @@ namespace tlr
 
         void IWrite::_init(
             const std::string & fileName,
+            const Options& options,
             const io::Info& info)
         {
-            IIO::_init(fileName);
+            IIO::_init(fileName, options);
             _info = info;
         }
 
@@ -134,15 +143,25 @@ namespace tlr
 
         std::shared_ptr<IRead> System::read(
             const std::string& fileName,
-            const otime::RationalTime& defaultSpeed)
+            const io::Options& options)
         {
+            io::Options optionsTmp;
+            {
+                std::stringstream ss;
+                ss << otime::RationalTime(1.0, 24.0);
+                optionsTmp["DefaultSpeed"] = ss.str();
+            }
+            for (const auto& i : options)
+            {
+                optionsTmp[i.first] = i.second;
+            }
             const std::string extension = getExtension(fileName);
             for (const auto& i : _plugins)
             {
                 const auto& extensions = i->getExtensions();
                 if (extensions.find(extension) != extensions.end())
                 {
-                    return i->read(fileName, defaultSpeed);
+                    return i->read(fileName, optionsTmp);
                 }
             }
             return nullptr;
@@ -150,7 +169,8 @@ namespace tlr
 
         std::shared_ptr<IWrite> System::write(
             const std::string& fileName,
-            const io::Info& info)
+            const io::Info& info,
+            const io::Options& options)
         {
             const std::string extension = getExtension(fileName);
             for (const auto& i : _plugins)
@@ -158,7 +178,7 @@ namespace tlr
                 const auto& extensions = i->getExtensions();
                 if (extensions.find(extension) != extensions.end())
                 {
-                    return i->write(fileName, info);
+                    return i->write(fileName, info, options);
                 }
             }
             return nullptr;

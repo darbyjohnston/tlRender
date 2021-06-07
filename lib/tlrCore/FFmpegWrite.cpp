@@ -18,9 +18,10 @@ namespace tlr
     {
         void Write::_init(
             const std::string& fileName,
-            const io::Info& info)
+            const io::Info& info,
+            const io::Options& options)
         {
-            IWrite::_init(fileName, info);
+            IWrite::_init(fileName, options, info);
             
             if (info.video.empty())
             {
@@ -37,6 +38,31 @@ namespace tlr
             {
                 throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
             }
+            auto option = options.find("VideoCodec");
+            if (option != options.end())
+            {
+                VideoCodec codec = VideoCodec::H264;
+                std::stringstream ss(option->second);
+                ss >> codec;
+                switch (codec)
+                {
+                case VideoCodec::H264:
+                    _avOutputFormat->video_codec = AV_CODEC_ID_H264;
+                    break;
+                case VideoCodec::H265:
+                    _avOutputFormat->video_codec = AV_CODEC_ID_H265;
+                    break;
+                case VideoCodec::DNxHD:
+                    _avOutputFormat->video_codec = AV_CODEC_ID_DNXHD;
+                    _avPixelFormatOut = AV_PIX_FMT_YUV422P;
+                    break;
+                case VideoCodec::ProRes:
+                    _avOutputFormat->video_codec = AV_CODEC_ID_PRORES;
+                    _avPixelFormatOut = AV_PIX_FMT_YUV422P10LE;
+                    break;
+                default: break;
+                }
+            }
             _avCodec = avcodec_find_encoder(_avOutputFormat->video_codec);
             if (!_avCodec)
             {
@@ -51,7 +77,7 @@ namespace tlr
             _avVideoStream->codec->width = imageInfo.size.w;
             _avVideoStream->codec->height = imageInfo.size.h;
             _avVideoStream->codec->sample_aspect_ratio = AVRational({ 1, 1 });
-            _avVideoStream->codec->pix_fmt = AV_PIX_FMT_YUV420P;
+            _avVideoStream->codec->pix_fmt = _avPixelFormatOut;
             const auto rational = toRational(videoInfo.duration.rate());
             _avVideoStream->codec->time_base = { rational.den, rational.num };
             _avVideoStream->codec->framerate = rational;
@@ -102,17 +128,17 @@ namespace tlr
             _avFrame2 = av_frame_alloc();
             switch (imageInfo.pixelType)
             {
-            case imaging::PixelType::L_U8: _avPixelFormat = AV_PIX_FMT_GRAY8; break;
-            case imaging::PixelType::RGB_U8: _avPixelFormat = AV_PIX_FMT_RGB24; break;
-            case imaging::PixelType::RGBA_U8: _avPixelFormat = AV_PIX_FMT_RGBA; break;
+            case imaging::PixelType::L_U8: _avPixelFormatIn = AV_PIX_FMT_GRAY8; break;
+            case imaging::PixelType::RGB_U8: _avPixelFormatIn = AV_PIX_FMT_RGB24; break;
+            case imaging::PixelType::RGBA_U8: _avPixelFormatIn = AV_PIX_FMT_RGBA; break;
             }
             _swsContext = sws_getContext(
                 imageInfo.size.w,
                 imageInfo.size.h,
-                _avPixelFormat,
+                _avPixelFormatIn,
                 imageInfo.size.w,
                 imageInfo.size.h,
-                AV_PIX_FMT_YUV420P,
+                _avPixelFormatOut,
                 swsScaleFlags,
                 0,
                 0,
@@ -158,10 +184,11 @@ namespace tlr
 
         std::shared_ptr<Write> Write::create(
             const std::string& fileName,
-            const io::Info& info)
+            const io::Info& info,
+            const io::Options& options)
         {
             auto out = std::shared_ptr<Write>(new Write);
-            out->_init(fileName, info);
+            out->_init(fileName, info, options);
             return out;
         }
 
@@ -174,7 +201,7 @@ namespace tlr
                 _avFrame2->data,
                 _avFrame2->linesize,
                 image->getData(),
-                _avPixelFormat,
+                _avPixelFormatIn,
                 info.size.w,
                 info.size.h,
                 1);

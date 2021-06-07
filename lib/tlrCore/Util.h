@@ -93,4 +93,7 @@ namespace tlr
 
     std::ostream& operator << (std::ostream&, const otime::RationalTime&);
     std::ostream& operator << (std::ostream&, const otime::TimeRange&);
+
+    std::istream& operator >> (std::istream&, otime::RationalTime&);
+    std::istream& operator >> (std::istream&, otime::TimeRange&);
 }

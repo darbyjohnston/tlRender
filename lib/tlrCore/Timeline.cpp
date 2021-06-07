@@ -240,7 +240,13 @@ namespace tlr
                     else
                     {
                         const std::string fileName = _getFileName(clip->media_reference());
-                        auto read = _ioSystem->read(fileName, otime::RationalTime(0, _duration.rate()));
+                        io::Options options;
+                        {
+                            std::stringstream ss;
+                            ss << otime::RationalTime(0, _duration.rate());
+                            options["DefaultSpeed"] = ss.str();
+                        }
+                        auto read = _ioSystem->read(fileName, options);
                         io::Info info;
                         if (read)
                         {

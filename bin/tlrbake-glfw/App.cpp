@@ -10,6 +10,9 @@
 #include <tlrCore/String.h>
 #include <tlrCore/StringFormat.h>
 #include <tlrCore/Time.h>
+#if defined(FFmpeg_FOUND)
+#include <tlrCore/FFmpeg.h>
+#endif
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -45,6 +48,35 @@ namespace tlr
 
     void App::_init(int argc, char* argv[])
     {
+        std::vector<std::shared_ptr<app::ICmdLineOption> > cmdLineOptions =
+        {
+            app::CmdLineValueOption<int64_t>::create(
+                _options.startFrame,
+                { "-startFrame", "-sf" },
+                "Start frame."),
+            app::CmdLineValueOption<int64_t>::create(
+                _options.endFrame,
+                { "-endFrame", "-ef" },
+                "End frame."),
+            app::CmdLineValueOption<imaging::Size>::create(
+                _options.renderSize,
+                { "-renderSize", "-rs" },
+                "Render size."),
+            app::CmdLineValueOption<imaging::PixelType>::create(
+                _options.renderPixelType,
+                { "-renderPixelType", "-rp" },
+                string::Format("Render pixel type. Values: {0}").arg(string::join(imaging::getPixelTypeLabels(), ", "))),
+            app::CmdLineValueOption<imaging::PixelType>::create(
+                _options.outputPixelType,
+                { "-outputPixelType", "-op" },
+                string::Format("Output pixel type. Values: {0}").arg(string::join(imaging::getPixelTypeLabels(), ", ")))
+        };
+#if defined(FFmpeg_FOUND)
+        cmdLineOptions.push_back(app::CmdLineValueOption<std::string>::create(
+            _options.videoCodec,
+            { "-videoCodec", "-vc" },
+            string::Format("Video codec. Values: {0}").arg(string::join(ffmpeg::getVideoCodecLabels(), ", "))));
+#endif
         IApp::_init(
             argc,
             argv,
@@ -60,28 +92,7 @@ namespace tlr
                     "Output",
                     "The output file.")
             },
-            {
-                app::CmdLineValueOption<int64_t>::create(
-                    _options.startFrame,
-                    { "-startFrame", "-sf" },
-                    "Start frame."),
-                app::CmdLineValueOption<int64_t>::create(
-                    _options.endFrame,
-                    { "-endFrame", "-ef" },
-                    "End frame."),
-                app::CmdLineValueOption<imaging::Size>::create(
-                    _options.renderSize,
-                    { "-renderSize", "-rs" },
-                    "Render size."),
-                app::CmdLineValueOption<imaging::PixelType>::create(
-                    _options.renderPixelType,
-                    { "-renderPixelType", "-rp" },
-                    string::Format("Render pixel type. Values: {0}").arg(string::join(imaging::getPixelTypeLabels(), ", "))),
-                app::CmdLineValueOption<imaging::PixelType>::create(
-                    _options.outputPixelType,
-                    { "-outputPixelType", "-op" },
-                    string::Format("Output pixel type. Values: {0}").arg(string::join(imaging::getPixelTypeLabels(), ", ")))
-            });
+            cmdLineOptions);
     }
 
     App::App()
@@ -219,7 +230,12 @@ namespace tlr
         videoInfo.duration = _range.duration();
         io::Info ioInfo;
         ioInfo.video.push_back(videoInfo);
-        _writer = _ioSystem->write(_output, ioInfo);
+        io::Options options;
+        if (!_options.videoCodec.empty())
+        {
+            options["VideoCodec"] = _options.videoCodec;
+        }
+        _writer = _ioSystem->write(_output, ioInfo, options);
         if (!_writer)
         {
             throw std::runtime_error(string::Format("{0}: Cannot open").arg(_output));
@@ -283,7 +299,7 @@ namespace tlr
     {
         const int64_t c = static_cast<int64_t>(_currentTime.value());
         const int64_t d = static_cast<int64_t>(_range.duration().value());
-        if (c % (d / 100) == 0)
+        if (d >= 100 && c % (d / 100) == 0)
         {
             _print(string::Format("Complete: {0}%").arg(static_cast<int>(c / static_cast<float>(d) * 100)));
         }

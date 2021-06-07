@@ -5,6 +5,7 @@
 #include <tlrCore/FFmpeg.h>
 
 #include <tlrCore/Assert.h>
+#include <tlrCore/Error.h>
 #include <tlrCore/String.h>
 #include <tlrCore/StringFormat.h>
 
@@ -21,6 +22,13 @@ namespace tlr
 {
     namespace ffmpeg
     {
+        TLR_ENUM_LABEL_IMPL(
+            VideoCodec,
+            "H264",
+            "H265",
+            "DNxHD",
+            "ProRes");
+
         AVRational toRational(double value)
         {
             const std::array<AVRational, 6> common =
@@ -53,9 +61,17 @@ namespace tlr
 
         void Plugin::_init()
         {
-            IPlugin::_init({ ".mov", ".m4v", ".mp4", ".y4m", ".mkv" });
+            IPlugin::_init({ ".mov", ".m4v", ".mp4", ".y4m", ".mkv", ".hevc" });
 
             av_log_set_level(AV_LOG_VERBOSE);
+            
+            av_register_all();
+            avcodec_register_all();
+            //AVCodec* avCodec = nullptr;
+            //while (avCodec = av_codec_next(avCodec))
+            //{
+            //    std::cout << "codec: " << avCodec->name << std::endl;
+            //}
         }
 
         Plugin::Plugin()
@@ -70,9 +86,9 @@ namespace tlr
 
         std::shared_ptr<io::IRead> Plugin::read(
             const std::string& fileName,
-            const otime::RationalTime& defaultSpeed)
+            const io::Options& options)
         {
-            return Read::create(fileName, defaultSpeed);
+            return Read::create(fileName, options);
         }
 
         std::vector<imaging::PixelType> Plugin::getWritePixelTypes() const
@@ -87,9 +103,12 @@ namespace tlr
 
         std::shared_ptr<io::IWrite> Plugin::write(
             const std::string& fileName,
-            const io::Info& info)
+            const io::Info& info,
+            const io::Options& options)
         {
-            return Write::create(fileName, info);
+            return Write::create(fileName, info, options);
         }
     }
+
+    TLR_ENUM_SERIALIZE_IMPL(ffmpeg, VideoCodec);
 }

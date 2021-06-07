@@ -29,7 +29,7 @@ namespace tlr
         protected:
             void _init(
                 const std::string& fileName,
-                const otime::RationalTime& defaultSpeed);
+                const io::Options&);
             ISequenceRead();
 
         public:
@@ -83,7 +83,8 @@ namespace tlr
         protected:
             void _init(
                 const std::string& fileName,
-                const io::Info&);
+                const io::Info&,
+                const io::Options&);
             ISequenceWrite();
 
         public:

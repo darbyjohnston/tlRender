@@ -31,9 +31,9 @@ namespace tlr
 
         void Read::_init(
             const std::string& fileName,
-            const otime::RationalTime& defaultSpeed)
+            const io::Options& options)
         {
-            ISequenceRead::_init(fileName, defaultSpeed);
+            ISequenceRead::_init(fileName, options);
         }
 
         Read::Read()
@@ -44,10 +44,10 @@ namespace tlr
 
         std::shared_ptr<Read> Read::create(
             const std::string& fileName,
-            const otime::RationalTime& defaultSpeed)
+            const io::Options& options)
         {
             auto out = std::shared_ptr<Read>(new Read);
-            out->_init(fileName, defaultSpeed);
+            out->_init(fileName, options);
             return out;
         }
 

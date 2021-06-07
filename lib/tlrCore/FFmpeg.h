@@ -27,6 +27,17 @@ namespace tlr
     //! FFmpeg I/O
     namespace ffmpeg
     {
+        //! Video codecs.
+        enum class VideoCodec
+        {
+            H264,
+            H265,
+            DNxHD,
+            ProRes,
+            Count
+        };
+        TLR_ENUM_LABEL(VideoCodec);
+
         //! Number of threads.
         const size_t threadCount = 4;
 
@@ -48,7 +59,7 @@ namespace tlr
         protected:
             void _init(
                 const std::string& fileName,
-                const otime::RationalTime& defaultSpeed);
+                const io::Options&);
             Read();
 
         public:
@@ -57,7 +68,7 @@ namespace tlr
             //! Create a new reader.
             static std::shared_ptr<Read> create(
                 const std::string& fileName,
-                const otime::RationalTime& defaultSpeed);
+                const io::Options&);
 
             std::future<io::Info> getInfo() override;
             std::future<io::VideoFrame> readVideoFrame(
@@ -115,7 +126,8 @@ namespace tlr
         protected:
             void _init(
                 const std::string& fileName,
-                const io::Info&);
+                const io::Info&,
+                const io::Options&);
             Write();
 
         public:
@@ -124,7 +136,8 @@ namespace tlr
             //! Create a new writer.
             static std::shared_ptr<Write> create(
                 const std::string& fileName,
-                const io::Info&);
+                const io::Info&,
+                const io::Options&);
 
             void writeVideoFrame(
                 const otime::RationalTime&,
@@ -139,7 +152,8 @@ namespace tlr
             AVStream* _avVideoStream = nullptr;
             AVPacket* _avPacket = nullptr;
             AVFrame* _avFrame = nullptr;
-            AVPixelFormat _avPixelFormat = AV_PIX_FMT_NONE;
+            AVPixelFormat _avPixelFormatIn = AV_PIX_FMT_NONE;
+            AVPixelFormat _avPixelFormatOut = AV_PIX_FMT_YUV420P;
             AVFrame* _avFrame2 = nullptr;
             SwsContext* _swsContext = nullptr;
         };
@@ -157,11 +171,14 @@ namespace tlr
 
             std::shared_ptr<io::IRead> read(
                 const std::string& fileName,
-                const otime::RationalTime& defaultSpeed) override;
+                const io::Options&) override;
             std::vector<imaging::PixelType> getWritePixelTypes() const override;
             std::shared_ptr<io::IWrite> write(
                 const std::string& fileName,
-                const io::Info&) override;
+                const io::Info&,
+                const io::Options&) override;
         };
     }
+
+    TLR_ENUM_SERIALIZE(ffmpeg::VideoCodec);
 }

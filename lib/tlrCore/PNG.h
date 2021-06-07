@@ -35,7 +35,7 @@ namespace tlr
         protected:
             void _init(
                 const std::string& fileName,
-                const otime::RationalTime& defaultSpeed);
+                const io::Options&);
             Read();
 
         public:
@@ -44,7 +44,7 @@ namespace tlr
             //! Create a new reader.
             static std::shared_ptr<Read> create(
                 const std::string& fileName,
-                const otime::RationalTime& defaultSpeed);
+                const io::Options&);
 
         protected:
             io::Info _getInfo(const std::string& fileName) override;
@@ -60,7 +60,8 @@ namespace tlr
         protected:
             void _init(
                 const std::string& fileName,
-                const io::Info&);
+                const io::Info&,
+                const io::Options&);
             Write();
 
         public:
@@ -69,7 +70,8 @@ namespace tlr
             //! Create a new writer.
             static std::shared_ptr<Write> create(
                 const std::string& fileName,
-                const io::Info&);
+                const io::Info&,
+                const io::Options&);
 
         protected:
             void _writeVideoFrame(
@@ -90,11 +92,12 @@ namespace tlr
 
             std::shared_ptr<io::IRead> read(
                 const std::string& fileName,
-                const otime::RationalTime& defaultSpeed) override;
+                const io::Options&) override;
             std::vector<imaging::PixelType> getWritePixelTypes() const override;
             std::shared_ptr<io::IWrite> write(
                 const std::string& fileName,
-                const io::Info&) override;
+                const io::Info&,
+                const io::Options&) override;
         };
     }
 }
