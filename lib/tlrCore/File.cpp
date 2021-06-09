@@ -11,7 +11,7 @@ extern "C"
 #include <fseq.h>
 }
 
-#include <memory>
+#include <cstring>
 
 #if defined(_WINDOWS)
 #ifndef WIN32_LEAN_AND_MEAN
@@ -147,7 +147,7 @@ namespace tlr
             path = path + "/XXXXXX";
             const size_t size = path.size();
             std::vector<char> buf(size + 1);
-            memcpy(buf.data(), path.c_str(), size);
+            std::memcpy(buf.data(), path.c_str(), size);
             buf[size] = 0;
             return mkdtemp(buf.data());
         }
