@@ -11,6 +11,8 @@ extern "C"
 #include <fseq.h>
 }
 
+#include <memory>
+
 #if defined(_WINDOWS)
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
