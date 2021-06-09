@@ -30,5 +30,10 @@ namespace tlr
         {
             return _extensions;
         }
+
+        inline const std::vector<std::shared_ptr<IPlugin> >& System::getPlugins() const
+        {
+            return _plugins;
+        }
     }
 }

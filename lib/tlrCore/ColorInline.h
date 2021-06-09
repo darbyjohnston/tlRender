@@ -6,8 +6,7 @@ namespace tlr
 {
     namespace imaging
     {
-        inline Color4f::Color4f() :
-            r(0.F), g(0.F), b(0.F), a(0.F)
+        inline Color4f::Color4f()
         {}
 
         inline Color4f::Color4f(float r, float g, float b, float a) :

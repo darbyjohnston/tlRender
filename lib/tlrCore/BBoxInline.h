@@ -138,8 +138,8 @@ namespace tlr
         inline bool BBox2<int>::contains(const BBox2<int>& value) const noexcept
         {
             return
-                value.min.x >= min.x && value.max.x < max.x &&
-                value.min.y >= min.y && value.max.y < max.y;
+                value.min.x >= min.x && value.max.x <= max.x &&
+                value.min.y >= min.y && value.max.y <= max.y;
         }
 
         template<>
@@ -170,10 +170,10 @@ namespace tlr
         inline bool BBox2<int>::intersects(const BBox2<int>& value) const noexcept
         {
             return !(
-                value.max.x <= min.x ||
-                value.min.x >= max.x ||
-                value.max.y <= min.y ||
-                value.min.y >= max.y);
+                value.max.x < min.x ||
+                value.min.x > max.x ||
+                value.max.y < min.y ||
+                value.min.y > max.y);
         }
 
         template<>

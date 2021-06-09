@@ -23,5 +23,8 @@ namespace tlr
             std::string* baseName = nullptr,
             std::string* number = nullptr,
             std::string* extension = nullptr);
+
+        // Create a temporary directory.
+        std::string createTempDir();
     }
 }

@@ -179,6 +179,9 @@ namespace tlr
             //! Create a new I/O system.
             static std::shared_ptr<System> create();
 
+            //! Get the list of plugins.
+            const std::vector<std::shared_ptr<IPlugin> >& getPlugins() const;
+
             // Create a reader for the given file.
             std::shared_ptr<IRead> read(
                 const std::string& fileName,

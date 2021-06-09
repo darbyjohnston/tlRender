@@ -35,16 +35,28 @@ namespace tlr
                     try
                     {
                         _open(fileName);
-                        _run();
+                        try
+                        {
+                            _run();
+                        }
+                        catch (const std::exception& e)
+                        {}
                     }
                     catch (const std::exception& e)
                     {
-                        //std::cout << "ERROR: " << e.what() << std::endl;
-                        //! \todo How should this be handled?
                         _infoPromise.set_value(io::Info());
                     }
-                    _close();
                     _stopped = true;
+                    std::list<VideoFrameRequest> videoFrameRequests;
+                    {
+                        std::unique_lock<std::mutex> lock(_requestMutex);
+                        videoFrameRequests.swap(_videoFrameRequests);
+                    }
+                    for (auto& i : videoFrameRequests)
+                    {
+                        i.promise.set_value(io::VideoFrame());
+                    }
+                    _close();
                 });
         }
 
@@ -82,11 +94,18 @@ namespace tlr
             request.time = time;
             request.image = image;
             auto future = request.promise.get_future();
+            if (!_stopped)
             {
-                std::unique_lock<std::mutex> lock(_requestMutex);
-                _videoFrameRequests.push_back(std::move(request));
+                {
+                    std::unique_lock<std::mutex> lock(_requestMutex);
+                    _videoFrameRequests.push_back(std::move(request));
+                }
+                _requestCV.notify_one();
             }
-            _requestCV.notify_one();
+            else
+            {
+                request.promise.set_value(io::VideoFrame());
+            }
             return future;
         }
 

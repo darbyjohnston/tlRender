@@ -61,7 +61,7 @@ namespace tlr
 
         void Plugin::_init()
         {
-            IPlugin::_init({ ".mov", ".m4v", ".mp4", ".y4m", ".mkv", ".hevc" });
+            IPlugin::_init({ ".mov", ".m4v", ".mp4", ".y4m", ".mkv" });
 
             av_log_set_level(AV_LOG_VERBOSE);
             
