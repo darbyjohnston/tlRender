@@ -18,6 +18,7 @@ set(HEADERS
     StringFormatTest.h
     TIFFTest.h
     TimeTest.h
+    TimelinePlayerTest.h
     TimelineTest.h
     ValueObserverTest.h)
 set(SOURCE
@@ -40,6 +41,7 @@ set(SOURCE
     StringFormatTest.cpp
     TIFFTest.cpp
     TimeTest.cpp
+    TimelinePlayerTest.cpp
     TimelineTest.cpp
     ValueObserverTest.cpp)
 if(FFmpeg_FOUND)

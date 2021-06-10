@@ -17,6 +17,7 @@
 #include <tlrCoreTest/StringTest.h>
 #include <tlrCoreTest/StringFormatTest.h>
 #include <tlrCoreTest/TimeTest.h>
+#include <tlrCoreTest/TimelinePlayerTest.h>
 #include <tlrCoreTest/TimelineTest.h>
 #include <tlrCoreTest/ValueObserverTest.h>
 #if defined(FFmpeg_FOUND)
@@ -65,6 +66,7 @@ int main(int argc, char* argv[])
     tests.push_back(tlr::CoreTest::StringTest::create());
     tests.push_back(tlr::CoreTest::StringFormatTest::create());
     tests.push_back(tlr::CoreTest::TimeTest::create());
+    tests.push_back(tlr::CoreTest::TimelinePlayerTest::create());
     tests.push_back(tlr::CoreTest::TimelineTest::create());
     tests.push_back(tlr::CoreTest::ValueObserverTest::create());
 #if defined(FFmpeg_FOUND)
