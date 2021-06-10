@@ -7,6 +7,7 @@
 #include <tlrCore/Error.h>
 #include <tlrCore/String.h>
 
+#include <algorithm>
 #include <array>
 #include <string>
 
