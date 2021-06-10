@@ -6,74 +6,74 @@
 
 namespace tlr
 {
-    namespace Observer
+    namespace observer
     {
         template<typename T>
-        inline void List<T>::_init(
-            const std::weak_ptr<IListSubject<T> >& value,
+        inline void ListObserver<T>::_init(
+            const std::weak_ptr<IList<T> >& value,
             const std::function<void(const std::vector<T>&)>& callback,
             CallbackAction action)
         {
-            _subject = value;
+            _value = value;
             _callback = callback;
-            if (auto subject = value.lock())
+            if (auto value = _value.lock())
             {
-                subject->_add(List<T>::shared_from_this());
+                value->_add(ListObserver<T>::shared_from_this());
                 if (CallbackAction::Trigger == action)
                 {
-                    _callback(subject->get());
+                    _callback(value->get());
                 }
             }
         }
 
         template<typename T>
-        inline List<T>::List()
+        inline ListObserver<T>::ListObserver()
         {}
 
         template<typename T>
-        inline List<T>::~List()
+        inline ListObserver<T>::~ListObserver()
         {
-            if (auto subject = _subject.lock())
+            if (auto value = _value.lock())
             {
-                subject->_removeExpired();
+                value->_removeExpired();
             }
         }
 
         template<typename T>
-        inline std::shared_ptr<List<T> > List<T>::create(
-            const std::weak_ptr<IListSubject<T> >& value,
+        inline std::shared_ptr<ListObserver<T> > ListObserver<T>::create(
+            const std::weak_ptr<IList<T> >& value,
             const std::function<void(const std::vector<T>&)>& callback,
             CallbackAction action)
         {
-            std::shared_ptr<List<T> > out(new List<T>);
+            std::shared_ptr<ListObserver<T> > out(new ListObserver<T>);
             out->_init(value, callback, action);
             return out;
         }
 
         template<typename T>
-        inline void List<T>::doCallback(const std::vector<T>& value)
+        inline void ListObserver<T>::doCallback(const std::vector<T>& value)
         {
             _callback(value);
         }
 
         template<typename T>
-        inline IListSubject<T>::~IListSubject()
+        inline IList<T>::~IList()
         {}
 
         template<typename T>
-        inline std::size_t IListSubject<T>::getObserversCount() const
+        inline std::size_t IList<T>::getObserversCount() const
         {
             return _observers.size();
         }
 
         template<typename T>
-        inline void IListSubject<T>::_add(const std::weak_ptr<List<T> >& observer)
+        inline void IList<T>::_add(const std::weak_ptr<ListObserver<T> >& observer)
         {
             _observers.push_back(observer);
         }
 
         template<typename T>
-        inline void IListSubject<T>::_removeExpired()
+        inline void IList<T>::_removeExpired()
         {
             auto i = _observers.begin();
             while (i != _observers.end())
@@ -90,33 +90,33 @@ namespace tlr
         }
 
         template<typename T>
-        inline ListSubject<T>::ListSubject()
+        inline List<T>::List()
         {}
 
         template<typename T>
-        inline ListSubject<T>::ListSubject(const std::vector<T>& value) :
+        inline List<T>::List(const std::vector<T>& value) :
             _value(value)
         {}
 
         template<typename T>
-        inline std::shared_ptr<ListSubject<T> > ListSubject<T>::create()
+        inline std::shared_ptr<List<T> > List<T>::create()
         {
-            return std::shared_ptr<ListSubject<T> >(new ListSubject<T>);
+            return std::shared_ptr<List<T> >(new List<T>);
         }
 
         template<typename T>
-        inline std::shared_ptr<ListSubject<T> > ListSubject<T>::create(const std::vector<T>& value)
+        inline std::shared_ptr<List<T> > List<T>::create(const std::vector<T>& value)
         {
-            return std::shared_ptr<ListSubject<T> >(new ListSubject<T>(value));
+            return std::shared_ptr<List<T> >(new List<T>(value));
         }
 
         template<typename T>
-        inline void ListSubject<T>::setAlways(const std::vector<T>& value)
+        inline void List<T>::setAlways(const std::vector<T>& value)
         {
             _value = value;
-            for (const auto& s : IListSubject<T>::_observers)
+            for (const auto& i : IList<T>::_observers)
             {
-                if (auto observer = s.lock())
+                if (auto observer = i.lock())
                 {
                     observer->doCallback(_value);
                 }
@@ -124,14 +124,14 @@ namespace tlr
         }
 
         template<typename T>
-        inline bool ListSubject<T>::setIfChanged(const std::vector<T>& value)
+        inline bool List<T>::setIfChanged(const std::vector<T>& value)
         {
             if (value == _value)
                 return false;
             _value = value;
-            for (const auto& s : IListSubject<T>::_observers)
+            for (const auto& i : IList<T>::_observers)
             {
-                if (auto observer = s.lock())
+                if (auto observer = i.lock())
                 {
                     observer->doCallback(_value);
                 }
@@ -140,14 +140,14 @@ namespace tlr
         }
 
         template<typename T>
-        inline void ListSubject<T>::clear()
+        inline void List<T>::clear()
         {
             if (_value.size())
             {
                 _value.clear();
-                for (const auto& s : IListSubject<T>::_observers)
+                for (const auto& i : IList<T>::_observers)
                 {
-                    if (auto observer = s.lock())
+                    if (auto observer = i.lock())
                     {
                         observer->doCallback(_value);
                     }
@@ -156,12 +156,12 @@ namespace tlr
         }
 
         template<typename T>
-        inline void ListSubject<T>::setItem(std::size_t index, const T& value)
+        inline void List<T>::setItem(std::size_t index, const T& value)
         {
             _value[index] = value;
-            for (const auto& s : IListSubject<T>::_observers)
+            for (const auto& i : IList<T>::_observers)
             {
-                if (auto observer = s.lock())
+                if (auto observer = i.lock())
                 {
                     observer->doCallback(_value);
                 }
@@ -169,14 +169,14 @@ namespace tlr
         }
 
         template<typename T>
-        inline void ListSubject<T>::setItemOnlyIfChanged(std::size_t index, const T& value)
+        inline void List<T>::setItemOnlyIfChanged(std::size_t index, const T& value)
         {
             if (value == _value[index])
                 return;
             _value[index] = value;
-            for (const auto& s : IListSubject<T>::_observers)
+            for (const auto& i : IList<T>::_observers)
             {
-                if (auto observer = s.lock())
+                if (auto observer = i.lock())
                 {
                     observer->doCallback(_value);
                 }
@@ -184,12 +184,12 @@ namespace tlr
         }
 
         template<typename T>
-        inline void ListSubject<T>::pushBack(const T& value)
+        inline void List<T>::pushBack(const T& value)
         {
             _value.push_back(value);
-            for (const auto& s : IListSubject<T>::_observers)
+            for (const auto& i : IList<T>::_observers)
             {
-                if (auto observer = s.lock())
+                if (auto observer = i.lock())
                 {
                     observer->doCallback(_value);
                 }
@@ -197,12 +197,12 @@ namespace tlr
         }
 
         template<typename T>
-        inline void ListSubject<T>::removeItem(std::size_t index)
+        inline void List<T>::removeItem(std::size_t index)
         {
             _value.erase(_value.begin() + index);
-            for (const auto& s : IListSubject<T>::_observers)
+            for (const auto& i : IList<T>::_observers)
             {
-                if (auto observer = s.lock())
+                if (auto observer = i.lock())
                 {
                     observer->doCallback(_value);
                 }
@@ -210,31 +210,31 @@ namespace tlr
         }
 
         template<typename T>
-        inline const std::vector<T>& ListSubject<T>::get() const
+        inline const std::vector<T>& List<T>::get() const
         {
             return _value;
         }
 
         template<typename T>
-        inline std::size_t ListSubject<T>::getSize() const
+        inline std::size_t List<T>::getSize() const
         {
             return _value.size();
         }
 
         template<typename T>
-        inline bool ListSubject<T>::isEmpty() const
+        inline bool List<T>::isEmpty() const
         {
             return _value.empty();
         }
 
         template<typename T>
-        inline const T& ListSubject<T>::getItem(std::size_t index) const
+        inline const T& List<T>::getItem(std::size_t index) const
         {
             return _value[index];
         }
 
         template<typename T>
-        inline bool ListSubject<T>::contains(const T& value) const
+        inline bool List<T>::contains(const T& value) const
         {
             const auto i = std::find_if(
                 _value.begin(),
@@ -247,7 +247,7 @@ namespace tlr
         }
 
         template<typename T>
-        inline std::size_t ListSubject<T>::indexOf(const T& value) const
+        inline std::size_t List<T>::indexOf(const T& value) const
         {
             const auto i = std::find_if(
                 _value.begin(),

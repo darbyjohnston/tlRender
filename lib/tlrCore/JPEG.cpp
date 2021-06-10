@@ -35,7 +35,9 @@ namespace tlr
         std::shared_ptr<Plugin> Plugin::create()
         {
             auto out = std::shared_ptr<Plugin>(new Plugin);
-            out->_init({ ".jpeg", ".jpg" });
+            out->_init(
+                "JPEG",
+                { ".jpeg", ".jpg" });
             return out;
         }
 

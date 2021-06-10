@@ -96,12 +96,12 @@ namespace tlr
 
             std::shared_ptr<io::IRead> read(
                 const std::string& fileName,
-                const io::Options&) override;
+                const io::Options& = io::Options()) override;
             std::vector<imaging::PixelType> getWritePixelTypes() const override;
             std::shared_ptr<io::IWrite> write(
                 const std::string& fileName,
                 const io::Info&,
-                const io::Options&) override;
+                const io::Options& = io::Options()) override;
         };
     }
 }

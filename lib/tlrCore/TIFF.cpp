@@ -14,7 +14,9 @@ namespace tlr
     {
         void Plugin::_init()
         {
-            IPlugin::_init({ ".tiff", ".tif" });
+            IPlugin::_init(
+                "TIFF",
+                { ".tiff", ".tif" });
             TIFFSetErrorHandler(nullptr);
             TIFFSetWarningHandler(nullptr);
         }

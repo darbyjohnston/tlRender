@@ -13,34 +13,34 @@
 
 namespace tlr
 {
-    namespace Observer
+    namespace observer
     {
         template<typename T>
-        class IListSubject;
+        class IList;
 
         //! Invalid index.
         static const std::size_t invalidListIndex = static_cast<std::size_t>(-1);
 
         //! List observer.
         template<typename T>
-        class List : public std::enable_shared_from_this<List<T> >
+        class ListObserver : public std::enable_shared_from_this<ListObserver<T> >
         {
-            TLR_NON_COPYABLE(List);
+            TLR_NON_COPYABLE(ListObserver);
 
         protected:
             void _init(
-                const std::weak_ptr<IListSubject<T> >&,
+                const std::weak_ptr<IList<T> >&,
                 const std::function<void(const std::vector<T>&)>&,
                 CallbackAction);
 
-            List();
+            ListObserver();
 
         public:
-            ~List();
+            ~ListObserver();
 
             //! Create a new list observer.
-            static std::shared_ptr<List<T> > create(
-                const std::weak_ptr<IListSubject<T> >&,
+            static std::shared_ptr<ListObserver<T> > create(
+                const std::weak_ptr<IList<T> >&,
                 const std::function<void(const std::vector<T>&)>&,
                 CallbackAction = CallbackAction::Trigger);
 
@@ -49,15 +49,15 @@ namespace tlr
 
         private:
             std::function<void(const std::vector<T>&)> _callback;
-            std::weak_ptr<IListSubject<T> > _subject;
+            std::weak_ptr<IList<T> > _value;
         };
 
-        //! Base class for a list subject.
+        //! Base class for a list.
         template<typename T>
-        class IListSubject
+        class IList
         {
         public:
-            virtual ~IListSubject() = 0;
+            virtual ~IList() = 0;
 
             //! Get the list.
             virtual const std::vector<T>& get() const = 0;
@@ -81,30 +81,30 @@ namespace tlr
             std::size_t getObserversCount() const;
 
         protected:
-            void _add(const std::weak_ptr<List<T> >&);
+            void _add(const std::weak_ptr<ListObserver<T> >&);
             void _removeExpired();
 
-            std::vector<std::weak_ptr<List<T> > > _observers;
+            std::vector<std::weak_ptr<ListObserver<T> > > _observers;
 
-            friend List<T>;
+            friend ListObserver<T>;
         };
 
-        //! List subject.
+        //! List.
         template<typename T>
-        class ListSubject : public IListSubject<T>
+        class List : public IList<T>
         {
-            TLR_NON_COPYABLE(ListSubject);
+            TLR_NON_COPYABLE(List);
 
         protected:
-            ListSubject();
-            explicit ListSubject(const std::vector<T>&);
+            List();
+            explicit List(const std::vector<T>&);
 
         public:
-            //! Create a new list subject.
-            static std::shared_ptr<ListSubject<T> > create();
+            //! Create a new list .
+            static std::shared_ptr<List<T> > create();
 
-            //! Create a new list subject with the given value.
-            static std::shared_ptr<ListSubject<T> > create(const std::vector<T>&);
+            //! Create a new list  with the given value.
+            static std::shared_ptr<List<T> > create(const std::vector<T>&);
 
             //! Set the list.
             void setAlways(const std::vector<T>&);

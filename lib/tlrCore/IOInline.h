@@ -26,6 +26,11 @@ namespace tlr
             return _fileName;
         }
 
+        inline const std::string& IPlugin::getName() const
+        {
+            return _name;
+        }
+
         inline const std::set<std::string>& IPlugin::getExtensions() const
         {
             return _extensions;

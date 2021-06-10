@@ -109,13 +109,13 @@ namespace tlr
             ///@{
 
             //! Observe the playback mode.
-            std::shared_ptr<Observer::IValueSubject<Playback> > observePlayback() const;
+            std::shared_ptr<observer::IValue<Playback> > observePlayback() const;
 
             //! Set the playback mode.
             void setPlayback(Playback);
 
             //! Observe the playback loop mode.
-            std::shared_ptr<Observer::IValueSubject<Loop> > observeLoop() const;
+            std::shared_ptr<observer::IValue<Loop> > observeLoop() const;
 
             //! Set the playback loop mode.
             void setLoop(Loop);
@@ -126,7 +126,7 @@ namespace tlr
             ///@{
 
             //! Observe the current time.
-            std::shared_ptr<Observer::IValueSubject<otime::RationalTime> > observeCurrentTime() const;
+            std::shared_ptr<observer::IValue<otime::RationalTime> > observeCurrentTime() const;
 
             //! Seek to the given time.
             void seek(const otime::RationalTime&);
@@ -158,7 +158,7 @@ namespace tlr
             ///@{
 
             //! Observe the in/out points range.
-            std::shared_ptr<Observer::IValueSubject<otime::TimeRange> > observeInOutRange() const;
+            std::shared_ptr<observer::IValue<otime::TimeRange> > observeInOutRange() const;
 
             //! Set the in/out points range.
             void setInOutRange(const otime::TimeRange&);
@@ -181,7 +181,7 @@ namespace tlr
             ///@{
 
             //! Observe the current frame.
-            std::shared_ptr<Observer::IValueSubject<io::VideoFrame> > observeFrame() const;
+            std::shared_ptr<observer::IValue<io::VideoFrame> > observeFrame() const;
 
             //! Get the frame cache read ahead.
             int getFrameCacheReadAhead();
@@ -196,7 +196,7 @@ namespace tlr
             void setFrameCacheReadBehind(int);
 
             //! Observe the cached frames.
-            std::shared_ptr<Observer::IListSubject<otime::TimeRange> > observeCachedFrames() const;
+            std::shared_ptr<observer::IList<otime::TimeRange> > observeCachedFrames() const;
 
             ///@}
 
@@ -221,12 +221,12 @@ namespace tlr
 
             std::shared_ptr<Timeline> _timeline;
 
-            std::shared_ptr<Observer::ValueSubject<Playback> > _playback;
-            std::shared_ptr<Observer::ValueSubject<Loop> > _loop;
-            std::shared_ptr<Observer::ValueSubject<otime::RationalTime> > _currentTime;
-            std::shared_ptr<Observer::ValueSubject<otime::TimeRange> > _inOutRange;
-            std::shared_ptr<Observer::ValueSubject<io::VideoFrame> > _frame;
-            std::shared_ptr<Observer::ListSubject<otime::TimeRange> > _cachedFrames;
+            std::shared_ptr<observer::Value<Playback> > _playback;
+            std::shared_ptr<observer::Value<Loop> > _loop;
+            std::shared_ptr<observer::Value<otime::RationalTime> > _currentTime;
+            std::shared_ptr<observer::Value<otime::TimeRange> > _inOutRange;
+            std::shared_ptr<observer::Value<io::VideoFrame> > _frame;
+            std::shared_ptr<observer::List<otime::TimeRange> > _cachedFrames;
             std::chrono::steady_clock::time_point _startTime;
             otime::RationalTime _playbackStartTime = invalidTime;
 

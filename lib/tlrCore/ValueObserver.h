@@ -13,31 +13,31 @@
 
 namespace tlr
 {
-    namespace Observer
+    namespace observer
     {
         template<typename T>
-        class IValueSubject;
+        class IValue;
 
         //! Value observer.
         template<typename T>
-        class Value : public std::enable_shared_from_this<Value<T> >
+        class ValueObserver : public std::enable_shared_from_this<ValueObserver<T> >
         {
-            TLR_NON_COPYABLE(Value);
+            TLR_NON_COPYABLE(ValueObserver);
 
         protected:
             void _init(
-                const std::weak_ptr<IValueSubject<T> >&,
+                const std::weak_ptr<IValue<T> >&,
                 const std::function<void(const T&)>&,
                 CallbackAction);
 
-            Value();
+            ValueObserver();
 
         public:
-            ~Value();
+            ~ValueObserver();
 
             //! Create a new value observer.
-            static std::shared_ptr<Value<T> > create(
-                const std::weak_ptr<IValueSubject<T> >&,
+            static std::shared_ptr<ValueObserver<T> > create(
+                const std::weak_ptr<IValue<T> >&,
                 const std::function<void(const T&)>&,
                 CallbackAction = CallbackAction::Trigger);
 
@@ -46,15 +46,15 @@ namespace tlr
 
         private:
             std::function<void(const T&)> _callback;
-            std::weak_ptr<IValueSubject<T> > _subject;
+            std::weak_ptr<IValue<T> > _value;
         };
 
-        //! Base class for a value subject.
+        //! Base class for a value.
         template<typename T>
-        class IValueSubject
+        class IValue
         {
         public:
-            virtual ~IValueSubject() = 0;
+            virtual ~IValue() = 0;
 
             //! Get the value.
             virtual const T& get() const = 0;
@@ -63,30 +63,30 @@ namespace tlr
             std::size_t getObserversCount() const;
 
         protected:
-            void _add(const std::weak_ptr<Value<T> >&);
+            void _add(const std::weak_ptr<ValueObserver<T> >&);
             void _removeExpired();
 
-            std::vector<std::weak_ptr<Value<T> > > _observers;
+            std::vector<std::weak_ptr<ValueObserver<T> > > _observers;
 
-            friend class Value<T>;
+            friend class ValueObserver<T>;
         };
 
-        //! Value subject.
+        //! Value.
         template<typename T>
-        class ValueSubject : public IValueSubject<T>
+        class Value : public IValue<T>
         {
-            TLR_NON_COPYABLE(ValueSubject);
+            TLR_NON_COPYABLE(Value);
 
         protected:
-            ValueSubject();
-            explicit ValueSubject(const T&);
+            Value();
+            explicit Value(const T&);
 
         public:
-            //! Create a new value subject.
-            static std::shared_ptr<ValueSubject<T> > create();
+            //! Create a new value.
+            static std::shared_ptr<Value<T> > create();
 
-            //! Create a new value subject with the given value.
-            static std::shared_ptr<ValueSubject<T> > create(const T&);
+            //! Create a new value.
+            static std::shared_ptr<Value<T> > create(const T&);
 
             //! Set the value.
             void setAlways(const T&);

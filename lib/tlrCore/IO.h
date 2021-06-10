@@ -18,11 +18,16 @@ namespace tlr
     namespace io
     {
         //! Video I/O information.
-        struct VideoInfo
+        class VideoInfo
         {
+        public:
+            VideoInfo();
+            VideoInfo(
+                const imaging::Info&,
+                const otime::RationalTime& duration);
+            
             imaging::Info info;
             otime::RationalTime duration = invalidTime;
-            std::string codec;
         };
 
         //! I/O information.
@@ -138,11 +143,16 @@ namespace tlr
             TLR_NON_COPYABLE(IPlugin);
 
         protected:
-            void _init(const std::set<std::string>&);
+            void _init(
+                const std::string& name,
+                const std::set<std::string>& extensions);
             IPlugin();
 
         public:
             virtual ~IPlugin() = 0;
+
+            //! Get the plugin name.
+            const std::string& getName() const;
 
             //! Get the supported file extensions.
             const std::set<std::string>& getExtensions() const;
@@ -150,7 +160,7 @@ namespace tlr
             //! Create a reader for the given file.
             virtual std::shared_ptr<IRead> read(
                 const std::string& fileName,
-                const io::Options&) = 0;
+                const io::Options& = io::Options()) = 0;
 
             //! Get the list of writable pixel types.
             virtual std::vector<imaging::PixelType> getWritePixelTypes() const = 0;
@@ -159,11 +169,11 @@ namespace tlr
             virtual std::shared_ptr<IWrite> write(
                 const std::string& fileName,
                 const io::Info&,
-                const io::Options&) = 0;
+                const io::Options& = io::Options()) = 0;
 
         private:
+            std::string _name;
             std::set<std::string> _extensions;
-            Options _options;
         };
 
         //! I/O system.

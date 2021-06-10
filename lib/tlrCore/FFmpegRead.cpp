@@ -198,7 +198,6 @@ namespace tlr
                 io::VideoInfo videoInfo;
                 videoInfo.info.size.w = _avCodecParameters[_avVideoStream]->width;
                 videoInfo.info.size.h = _avCodecParameters[_avVideoStream]->height;
-                videoInfo.codec = avVideoCodec->long_name;
 
                 const AVPixelFormat avPixelFormat = static_cast<AVPixelFormat>(_avCodecParameters[_avVideoStream]->format);
                 switch (avPixelFormat)

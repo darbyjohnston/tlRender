@@ -17,7 +17,7 @@ namespace tlr
         namespace
         {
             void readPalette(
-                uint8_t* in,
+                uint8_t*  in,
                 int       size,
                 int       bytes,
                 uint16_t* red,
@@ -271,7 +271,6 @@ namespace tlr
             io::VideoInfo videoInfo;
             videoInfo.info = std::unique_ptr<File>(new File(fileName))->getInfo();
             videoInfo.duration = _defaultSpeed;
-            videoInfo.codec = "TIFF";
             out.video.push_back(videoInfo);
             return out;
         }

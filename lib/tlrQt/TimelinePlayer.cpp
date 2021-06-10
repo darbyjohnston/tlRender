@@ -13,42 +13,42 @@ namespace tlr
         {
             _timelinePlayer = timeline::TimelinePlayer::create(fileName.toLatin1().data());
 
-            _playbackObserver = Observer::Value<timeline::Playback>::create(
+            _playbackObserver = observer::ValueObserver<timeline::Playback>::create(
                 _timelinePlayer->observePlayback(),
                 [this](timeline::Playback value)
                 {
                     Q_EMIT playbackChanged(value);
                 });
 
-            _loopObserver = Observer::Value<timeline::Loop>::create(
+            _loopObserver = observer::ValueObserver<timeline::Loop>::create(
                 _timelinePlayer->observeLoop(),
                 [this](timeline::Loop value)
                 {
                     Q_EMIT loopChanged(value);
                 });
 
-            _currentTimeObserver = Observer::Value<otime::RationalTime>::create(
+            _currentTimeObserver = observer::ValueObserver<otime::RationalTime>::create(
                 _timelinePlayer->observeCurrentTime(),
                 [this](const otime::RationalTime& value)
                 {
                     Q_EMIT currentTimeChanged(value);
                 });
 
-            _inOutRangeObserver = Observer::Value<otime::TimeRange>::create(
+            _inOutRangeObserver = observer::ValueObserver<otime::TimeRange>::create(
                 _timelinePlayer->observeInOutRange(),
                 [this](const otime::TimeRange value)
                 {
                     Q_EMIT inOutRangeChanged(value);
                 });
 
-            _frameObserver = Observer::Value<io::VideoFrame>::create(
+            _frameObserver = observer::ValueObserver<io::VideoFrame>::create(
                 _timelinePlayer->observeFrame(),
                 [this](const io::VideoFrame& value)
                 {
                     Q_EMIT frameChanged(value);
                 });
 
-            _cachedFramesObserver = Observer::List<otime::TimeRange>::create(
+            _cachedFramesObserver = observer::ListObserver<otime::TimeRange>::create(
                 _timelinePlayer->observeCachedFrames(),
                 [this](const std::vector<otime::TimeRange>& value)
                 {

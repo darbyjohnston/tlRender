@@ -31,32 +31,32 @@ namespace tlr
             return _timeline->getClipRanges();;
         }
 
-        inline std::shared_ptr<Observer::IValueSubject<Playback> > TimelinePlayer::observePlayback() const
+        inline std::shared_ptr<observer::IValue<Playback> > TimelinePlayer::observePlayback() const
         {
             return _playback;
         }
 
-        inline std::shared_ptr<Observer::IValueSubject<Loop> > TimelinePlayer::observeLoop() const
+        inline std::shared_ptr<observer::IValue<Loop> > TimelinePlayer::observeLoop() const
         {
             return _loop;
         }
 
-        inline std::shared_ptr<Observer::IValueSubject<otime::RationalTime> > TimelinePlayer::observeCurrentTime() const
+        inline std::shared_ptr<observer::IValue<otime::RationalTime> > TimelinePlayer::observeCurrentTime() const
         {
             return _currentTime;
         }
 
-        inline std::shared_ptr<Observer::IValueSubject<otime::TimeRange> > TimelinePlayer::observeInOutRange() const
+        inline std::shared_ptr<observer::IValue<otime::TimeRange> > TimelinePlayer::observeInOutRange() const
         {
             return _inOutRange;
         }
 
-        inline std::shared_ptr<Observer::IValueSubject<io::VideoFrame> > TimelinePlayer::observeFrame() const
+        inline std::shared_ptr<observer::IValue<io::VideoFrame> > TimelinePlayer::observeFrame() const
         {
             return _frame;
         }
 
-        inline std::shared_ptr<Observer::IListSubject<otime::TimeRange> > TimelinePlayer::observeCachedFrames() const
+        inline std::shared_ptr<observer::IList<otime::TimeRange> > TimelinePlayer::observeCachedFrames() const
         {
             return _cachedFrames;
         }

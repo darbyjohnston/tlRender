@@ -234,7 +234,6 @@ namespace tlr
             io::VideoInfo videoInfo;
             videoInfo.info = std::unique_ptr<File>(new File(fileName))->getInfo();
             videoInfo.duration = _defaultSpeed;
-            videoInfo.codec = "PNG";
             out.video.push_back(videoInfo);
             return out;
         }

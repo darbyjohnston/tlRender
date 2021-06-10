@@ -5,7 +5,6 @@
 #include <tlrCoreTest/IOTest.h>
 
 #include <tlrCore/Assert.h>
-#include <tlrCore/File.h>
 #include <tlrCore/IO.h>
 #include <tlrCore/StringFormat.h>
 
@@ -62,52 +61,11 @@ namespace tlr
         void IOTest::_ioSystem()
         {
             auto system = System::create();
-            const std::string tempDir = file::createTempDir();
-            const std::vector<Size> sizes = { Size(16, 16), Size(1, 1), Size(0, 0) };
             for (const auto& plugin : system->getPlugins())
             {
-                for (const auto& size : sizes)
-                {
-                    for (const auto& pixelType : plugin->getWritePixelTypes())
-                    {
-                        const auto imageInfo = imaging::Info(size, pixelType);
-                        std::stringstream ss;
-                        ss << tempDir << '/' << size << "_" << pixelType << ".0" << *plugin->getExtensions().begin();
-                        const std::string fileName = ss.str();
-
-                        VideoInfo videoInfo;
-                        videoInfo.info = imageInfo;
-                        videoInfo.duration = otime::RationalTime(1.0, 24.0);
-                        io::Info ioInfo;
-                        ioInfo.video.push_back(videoInfo);
-
-                        const auto time = otime::RationalTime(0.0, 24.0);
-                        const auto image = Image::create(imageInfo);
-
-                        try
-                        {
-                            {
-                                std::stringstream ss;
-                                ss << "Write: " << fileName;
-                                _print(ss.str());
-                            }
-                            auto write = system->write(fileName, ioInfo);
-                            write->writeVideoFrame(time, image);
-                            {
-                                std::stringstream ss;
-                                ss << "Read: " << fileName;
-                                _print(ss.str());
-                            }
-                            auto read = system->read(fileName);
-                            read->getInfo().get();
-                            read->readVideoFrame(time).get();
-                        }
-                        catch (const std::exception& e)
-                        {
-                            _printError(e.what());
-                        }
-                    }
-                }
+                std::stringstream ss;
+                ss << "Plugin: " << plugin->getName();
+                _print(ss.str());
             }
         }
     }

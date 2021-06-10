@@ -8,9 +8,24 @@
 #include <tlrCoreTest/FileTest.h>
 #include <tlrCoreTest/IOTest.h>
 #include <tlrCoreTest/ImageTest.h>
+#include <tlrCoreTest/ListObserverTest.h>
+#include <tlrCoreTest/MapObserverTest.h>
 #include <tlrCoreTest/TimelineTest.h>
+#include <tlrCoreTest/ValueObserverTest.h>
 #if defined(FFmpeg_FOUND)
 #include <tlrCoreTest/FFmpegTest.h>
+#endif
+#if defined(JPEG_FOUND)
+#include <tlrCoreTest/JPEGTest.h>
+#endif
+#if defined(OpenEXR_FOUND)
+#include <tlrCoreTest/OpenEXRTest.h>
+#endif
+#if defined(PNG_FOUND)
+#include <tlrCoreTest/PNGTest.h>
+#endif
+#if defined(TIFF_FOUND)
+#include <tlrCoreTest/TIFFTest.h>
 #endif
 
 #if defined(TLR_BUILD_GL)
@@ -33,9 +48,24 @@ int main(int argc, char* argv[])
     tests.push_back(tlr::CoreTest::FileTest::create());
     tests.push_back(tlr::CoreTest::IOTest::create());
     tests.push_back(tlr::CoreTest::ImageTest::create());
+    tests.push_back(tlr::CoreTest::ListObserverTest::create());
+    tests.push_back(tlr::CoreTest::MapObserverTest::create());
     tests.push_back(tlr::CoreTest::TimelineTest::create());
+    tests.push_back(tlr::CoreTest::ValueObserverTest::create());
 #if defined(FFmpeg_FOUND)
     tests.push_back(tlr::CoreTest::FFmpegTest::create());
+#endif
+#if defined(JPEG_FOUND)
+    tests.push_back(tlr::CoreTest::JPEGTest::create());
+#endif
+#if defined(OpenEXR_FOUND)
+    tests.push_back(tlr::CoreTest::OpenEXRTest::create());
+#endif
+#if defined(PNG_FOUND)
+    tests.push_back(tlr::CoreTest::PNGTest::create());
+#endif
+#if defined(TIFF_FOUND)
+    tests.push_back(tlr::CoreTest::TIFFTest::create());
 #endif
 
 #if defined(TLR_BUILD_GL)

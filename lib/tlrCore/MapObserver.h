@@ -14,30 +14,30 @@
 
 namespace tlr
 {
-    namespace Observer
+    namespace observer
     {
         template<typename T, typename U>
-        class IMapSubject;
+        class IMap;
 
         //! Map observer.
         template<typename T, typename U>
-        class Map : public std::enable_shared_from_this<Map<T, U> >
+        class MapObserver : public std::enable_shared_from_this<MapObserver<T, U> >
         {
-            TLR_NON_COPYABLE(Map);
+            TLR_NON_COPYABLE(MapObserver);
 
             void _init(
-                const std::weak_ptr<IMapSubject<T, U> >&,
+                const std::weak_ptr<IMap<T, U> >&,
                 const std::function<void(const std::map<T, U>&)>&,
                 CallbackAction);
 
-            Map();
+            MapObserver();
 
         public:
-            ~Map();
+            ~MapObserver();
 
             //! Create a new map observer.
-            static std::shared_ptr<Map<T, U> > create(
-                const std::weak_ptr<IMapSubject<T, U> >&,
+            static std::shared_ptr<MapObserver<T, U> > create(
+                const std::weak_ptr<IMap<T, U> >&,
                 const std::function<void(const std::map<T, U>&)>&,
                 CallbackAction = CallbackAction::Trigger);
 
@@ -46,15 +46,15 @@ namespace tlr
 
         private:
             std::function<void(const std::map<T, U>&)> _callback;
-            std::weak_ptr<IMapSubject<T, U> > _subject;
+            std::weak_ptr<IMap<T, U> > _value;
         };
 
-        //! Base class for a map subject.
+        //! Base class for a map.
         template<typename T, typename U>
-        class IMapSubject
+        class IMap
         {
         public:
-            virtual ~IMapSubject() = 0;
+            virtual ~IMap() = 0;
 
             //! Get the map.
             virtual const std::map<T, U>& get() const = 0;
@@ -75,29 +75,29 @@ namespace tlr
             std::size_t getObserversCount() const;
 
         protected:
-            void _add(const std::weak_ptr<Map<T, U> >&);
+            void _add(const std::weak_ptr<MapObserver<T, U> >&);
             void _removeExpired();
 
-            std::vector<std::weak_ptr<Map<T, U> > > _observers;
+            std::vector<std::weak_ptr<MapObserver<T, U> > > _observers;
 
-            friend Map<T, U>;
+            friend MapObserver<T, U>;
         };
 
-        //! Map subject.
+        //! Map.
         template<typename T, typename U>
-        class MapSubject : public IMapSubject<T, U>
+        class Map : public IMap<T, U>
         {
-            TLR_NON_COPYABLE(MapSubject);
+            TLR_NON_COPYABLE(Map);
 
-            MapSubject();
-            explicit MapSubject(const std::map<T, U>&);
+            Map();
+            explicit Map(const std::map<T, U>&);
 
         public:
-            //! Create a new map subject.
-            static std::shared_ptr<MapSubject<T, U> > create();
+            //! Create a new map.
+            static std::shared_ptr<Map<T, U> > create();
 
-            //! Create a new map subject with the given value.
-            static std::shared_ptr<MapSubject<T, U> > create(const std::map<T, U>&);
+            //! Create a new map.
+            static std::shared_ptr<Map<T, U> > create(const std::map<T, U>&);
 
             //! Set the map.
             void setAlways(const std::map<T, U>&);
@@ -123,7 +123,6 @@ namespace tlr
         private:
             std::map<T, U> _value;
         };
-
     }
 }
 

@@ -206,12 +206,12 @@ namespace tlr
         private:
             std::shared_ptr<timeline::TimelinePlayer> _timelinePlayer;
 
-            std::shared_ptr<Observer::Value<timeline::Playback> > _playbackObserver;
-            std::shared_ptr<Observer::Value<timeline::Loop> > _loopObserver;
-            std::shared_ptr<Observer::Value<otime::RationalTime> > _currentTimeObserver;
-            std::shared_ptr<Observer::Value<otime::TimeRange> > _inOutRangeObserver;
-            std::shared_ptr<Observer::Value<io::VideoFrame> > _frameObserver;
-            std::shared_ptr<Observer::List<otime::TimeRange> > _cachedFramesObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::Playback> > _playbackObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::Loop> > _loopObserver;
+            std::shared_ptr<observer::ValueObserver<otime::RationalTime> > _currentTimeObserver;
+            std::shared_ptr<observer::ValueObserver<otime::TimeRange> > _inOutRangeObserver;
+            std::shared_ptr<observer::ValueObserver<io::VideoFrame> > _frameObserver;
+            std::shared_ptr<observer::ListObserver<otime::TimeRange> > _cachedFramesObserver;
         };
     }
 }

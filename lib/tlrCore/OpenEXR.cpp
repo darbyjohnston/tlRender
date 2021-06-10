@@ -14,7 +14,9 @@ namespace tlr
         std::shared_ptr<Plugin> Plugin::create()
         {
             auto out = std::shared_ptr<Plugin>(new Plugin);
-            out->_init({ ".exr" });
+            out->_init(
+                "OpenEXR",
+                { ".exr" });
             return out;
         }
 

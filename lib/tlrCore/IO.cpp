@@ -30,6 +30,16 @@ namespace tlr
 {
     namespace io
     {
+        VideoInfo::VideoInfo()
+        {}
+
+        VideoInfo::VideoInfo(
+            const imaging::Info& info,
+            const otime::RationalTime& duration) :
+            info(info),
+            duration(duration)
+        {}
+
         VideoFrame::VideoFrame()
         {}
 
@@ -88,8 +98,11 @@ namespace tlr
         IWrite::~IWrite()
         {}
 
-        void IPlugin::_init(const std::set<std::string>& extensions)
+        void IPlugin::_init(
+            const std::string& name,
+            const std::set<std::string>& extensions)
         {
+            _name = name;
             _extensions = extensions;
         }
 

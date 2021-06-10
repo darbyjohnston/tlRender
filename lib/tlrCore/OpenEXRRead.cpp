@@ -58,7 +58,6 @@ namespace tlr
             io::VideoInfo videoInfo;
             videoInfo.info = imfInfo(f);
             videoInfo.duration = _defaultSpeed;
-            videoInfo.codec = "EXR";
             out.video.push_back(videoInfo);
             return out;
         }

@@ -10,19 +10,15 @@ namespace tlr
 {
     namespace CoreTest
     {
-        class FFmpegTest : public Test::ITest
+        class MapObserverTest : public Test::ITest
         {
         protected:
-            FFmpegTest();
+            MapObserverTest();
 
         public:
-            static std::shared_ptr<FFmpegTest> create();
+            static std::shared_ptr<MapObserverTest> create();
 
             void run() override;
-
-        private:
-            void _toRational();
-            void _io();
         };
     }
 }

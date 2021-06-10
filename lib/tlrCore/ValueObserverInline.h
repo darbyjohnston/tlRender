@@ -6,63 +6,74 @@
 
 namespace tlr
 {
-    namespace Observer
+    namespace observer
     {
         template<typename T>
-        inline void Value<T>::_init(
-            const std::weak_ptr<IValueSubject<T> >& value,
+        inline void ValueObserver<T>::_init(
+            const std::weak_ptr<IValue<T> >& value,
             const std::function<void(const T&)>& callback,
             CallbackAction action)
         {
-            _subject = value;
+            _value = value;
             _callback = callback;
-            if (auto subject = value.lock())
+            if (auto value = _value.lock())
             {
-                subject->_add(Value<T>::shared_from_this());
+                value->_add(ValueObserver<T>::shared_from_this());
                 if (CallbackAction::Trigger == action)
                 {
-                    _callback(subject->get());
+                    _callback(value->get());
                 }
             }
         }
 
         template<typename T>
-        inline Value<T>::Value()
+        inline ValueObserver<T>::ValueObserver()
         {}
 
         template<typename T>
-        inline Value<T>::~Value()
+        inline ValueObserver<T>::~ValueObserver()
         {
-            if (auto subject = _subject.lock())
+            if (auto value = _value.lock())
             {
-                subject->_removeExpired();
+                value->_removeExpired();
             }
         }
 
         template<typename T>
-        inline void Value<T>::doCallback(const T& value)
+        inline std::shared_ptr<ValueObserver<T> > ValueObserver<T>::create(
+            const std::weak_ptr<IValue<T> >& value,
+            const std::function<void(const T&)>& callback,
+            CallbackAction action)
+        {
+            std::shared_ptr<ValueObserver<T> > out(new ValueObserver<T>);
+            out->_init(value, callback, action);
+            return out;
+        }
+
+        template<typename T>
+        inline void ValueObserver<T>::doCallback(const T& value)
         {
             _callback(value);
         }
 
         template<typename T>
-        inline IValueSubject<T>::~IValueSubject()
+        inline IValue<T>::~IValue()
         {}
 
         template<typename T>
-        inline std::size_t IValueSubject<T>::getObserversCount() const
+        inline std::size_t IValue<T>::getObserversCount() const
         {
             return _observers.size();
         }
 
         template<typename T>
-        inline void IValueSubject<T>::_add(const std::weak_ptr<Value<T> >& observer)
+        inline void IValue<T>::_add(const std::weak_ptr<ValueObserver<T> >& observer)
         {
             _observers.push_back(observer);
         }
 
         template<typename T>
-        inline void IValueSubject<T>::_removeExpired()
+        inline void IValue<T>::_removeExpired()
         {
             auto i = _observers.begin();
             while (i != _observers.end())
@@ -79,44 +90,33 @@ namespace tlr
         }
 
         template<typename T>
-        inline std::shared_ptr<Value<T> > Value<T>::create(
-            const std::weak_ptr<IValueSubject<T> >& value,
-            const std::function<void(const T&)>& callback,
-            CallbackAction action)
-        {
-            std::shared_ptr<Value<T> > out(new Value<T>);
-            out->_init(value, callback, action);
-            return out;
-        }
-
-        template<typename T>
-        inline ValueSubject<T>::ValueSubject()
+        inline Value<T>::Value()
         {}
 
         template<typename T>
-        inline ValueSubject<T>::ValueSubject(const T& value) :
+        inline Value<T>::Value(const T& value) :
             _value(value)
         {}
 
         template<typename T>
-        inline std::shared_ptr<ValueSubject<T> > ValueSubject<T>::create()
+        inline std::shared_ptr<Value<T> > Value<T>::create()
         {
-            return std::shared_ptr<ValueSubject<T> >(new ValueSubject<T>);
+            return std::shared_ptr<Value<T> >(new Value<T>);
         }
 
         template<typename T>
-        inline std::shared_ptr<ValueSubject<T> > ValueSubject<T>::create(const T& value)
+        inline std::shared_ptr<Value<T> > Value<T>::create(const T& value)
         {
-            return std::shared_ptr<ValueSubject<T> >(new ValueSubject<T>(value));
+            return std::shared_ptr<Value<T> >(new Value<T>(value));
         }
 
         template<typename T>
-        inline void ValueSubject<T>::setAlways(const T& value)
+        inline void Value<T>::setAlways(const T& value)
         {
             _value = value;
-            for (const auto& s : IValueSubject<T>::_observers)
+            for (const auto& i : IValue<T>::_observers)
             {
-                if (auto observer = s.lock())
+                if (auto observer = i.lock())
                 {
                     observer->doCallback(_value);
                 }
@@ -124,14 +124,14 @@ namespace tlr
         }
 
         template<typename T>
-        inline bool ValueSubject<T>::setIfChanged(const T& value)
+        inline bool Value<T>::setIfChanged(const T& value)
         {
             if (value == _value)
                 return false;
             _value = value;
-            for (const auto& s : IValueSubject<T>::_observers)
+            for (const auto& i : IValue<T>::_observers)
             {
-                if (auto observer = s.lock())
+                if (auto observer = i.lock())
                 {
                     observer->doCallback(_value);
                 }
@@ -140,10 +140,9 @@ namespace tlr
         }
 
         template<typename T>
-        inline const T& ValueSubject<T>::get() const
+        inline const T& Value<T>::get() const
         {
             return _value;
         }
-
-    } // namespace Observer
-} // namespace tlr
+    }
+}

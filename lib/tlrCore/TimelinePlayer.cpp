@@ -91,13 +91,13 @@ namespace tlr
             _timeline = timeline::Timeline::create(fileName);
 
             // Create observers.
-            _playback = Observer::ValueSubject<Playback>::create(Playback::Stop);
-            _loop = Observer::ValueSubject<Loop>::create(Loop::Loop);
-            _currentTime = Observer::ValueSubject<otime::RationalTime>::create(_timeline->getGlobalStartTime());
-            _inOutRange = Observer::ValueSubject<otime::TimeRange>::create(
+            _playback = observer::Value<Playback>::create(Playback::Stop);
+            _loop = observer::Value<Loop>::create(Loop::Loop);
+            _currentTime = observer::Value<otime::RationalTime>::create(_timeline->getGlobalStartTime());
+            _inOutRange = observer::Value<otime::TimeRange>::create(
                 otime::TimeRange(_timeline->getGlobalStartTime(), _timeline->getDuration()));
-            _frame = Observer::ValueSubject<io::VideoFrame>::create();
-            _cachedFrames = Observer::ListSubject<otime::TimeRange>::create();
+            _frame = observer::Value<io::VideoFrame>::create();
+            _cachedFrames = observer::List<otime::TimeRange>::create();
 
             // Create a new thread.
             _threadData.currentTime = _currentTime->get();

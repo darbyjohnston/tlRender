@@ -7,7 +7,7 @@
 namespace tlr
 {
     //! Observer pattern.
-    namespace Observer
+    namespace observer
     {
         //! Observer callback options.
         enum class CallbackAction

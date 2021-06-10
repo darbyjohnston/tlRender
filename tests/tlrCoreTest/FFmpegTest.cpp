@@ -8,6 +8,7 @@
 #include <tlrCore/FFmpeg.h>
 
 #include <array>
+#include <sstream>
 
 namespace tlr
 {
@@ -25,6 +26,7 @@ namespace tlr
         void FFmpegTest::run()
         {
             _toRational();
+            _io();
         }
 
         void FFmpegTest::_toRational()
@@ -51,6 +53,39 @@ namespace tlr
             {
                 const auto rational = ffmpeg::toRational(i.rate);
                 TLR_ASSERT(rational.num == i.rational.num && rational.den == i.rational.den);
+            }
+        }
+
+        void FFmpegTest::_io()
+        {
+            auto plugin = ffmpeg::Plugin::create();
+            for (const auto& size : std::vector<imaging::Size>(
+                {
+                    imaging::Size(16, 16),
+                    imaging::Size(1, 1)
+                }))
+            {
+                for (const auto& pixelType : plugin->getWritePixelTypes())
+                {
+                    std::string fileName;
+                    {
+                        std::stringstream ss;
+                        ss << size << '_' << pixelType << ".0.mov";
+                        fileName = ss.str();
+                        _print(fileName);
+                    }
+
+                    const auto imageInfo = imaging::Info(size, pixelType);
+                    const auto imageWrite = imaging::Image::create(imageInfo);
+
+                    io::Info info;
+                    info.video.push_back(io::VideoInfo(imageInfo, otime::RationalTime(1.0, 24.0)));
+                    auto write = plugin->write(fileName, info);
+                    write->writeVideoFrame(otime::RationalTime(0.0, 24.0), imageWrite);
+
+                    auto read = plugin->read(fileName);
+                    const auto imageRead = read->readVideoFrame(otime::RationalTime(0.0, 24.0)).get();
+                }
             }
         }
     }
