@@ -386,7 +386,7 @@ namespace tlr
         auto ba = settings.value("geometry").toByteArray();
         if (!ba.isEmpty())
         {
-            //restoreGeometry(settings.value("geometry").toByteArray());
+            restoreGeometry(settings.value("geometry").toByteArray());
         }
         ba = settings.value("geometry").toByteArray();
         if (!ba.isEmpty())
