@@ -381,12 +381,12 @@ namespace tlr
                 SLOT(_saveSettingsCallback()));
         }
 
-        resize(640, 360);
+        resize(1280, 720);
         QSettings settings;
         auto ba = settings.value("geometry").toByteArray();
         if (!ba.isEmpty())
         {
-            restoreGeometry(settings.value("geometry").toByteArray());
+            //restoreGeometry(settings.value("geometry").toByteArray());
         }
         ba = settings.value("geometry").toByteArray();
         if (!ba.isEmpty())

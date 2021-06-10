@@ -7,6 +7,7 @@
 #include <tlrCore/Util.h>
 
 #include <memory>
+#include <string>
 
 namespace tlr
 {

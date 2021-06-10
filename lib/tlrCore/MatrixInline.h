@@ -6,44 +6,6 @@ namespace tlr
 {
     namespace math
     {
-        inline Matrix3x3f::Matrix3x3f()
-        {
-            v[0] = 1.F;
-            v[1] = 0.F;
-            v[2] = 0.F;
-
-            v[3] = 0.F;
-            v[4] = 1.F;
-            v[5] = 0.F;
-
-            v[6] = 0.F;
-            v[7] = 0.F;
-            v[8] = 1.F;
-        }
-
-        inline Matrix4x4f::Matrix4x4f()
-        {
-            v[ 0] = 1.F;
-            v[ 1] = 0.F;
-            v[ 2] = 0.F;
-            v[ 3] = 0.F;
-
-            v[ 4] = 0.F;
-            v[ 5] = 1.F;
-            v[ 6] = 0.F;
-            v[ 7] = 0.F;
-
-            v[ 8] = 0.F;
-            v[ 9] = 0.F;
-            v[10] = 1.F;
-            v[11] = 0.F;
-
-            v[12] = 0.F;
-            v[13] = 0.F;
-            v[14] = 0.F;
-            v[15] = 1.F;
-        }
-
         inline Matrix4x4f ortho(
             float left,
             float right,

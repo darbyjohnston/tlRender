@@ -11,17 +11,24 @@ namespace tlr
         //! 3x3 matrix.
         struct Matrix3x3f
         {
-            Matrix3x3f();
-
-            float v[9];
+            float v[9] =
+            {
+                1.F, 0.F, 0.F,
+                0.F, 1.F, 0.F,
+                0.F, 0.F, 1.F
+            };
         };
 
         //! 4x4 matrix.
         struct Matrix4x4f
         {
-            Matrix4x4f();
-
-            float v[16];
+            float v[16] =
+            {
+                1.F, 0.F, 0.F, 0.F,
+                0.F, 1.F, 0.F, 0.F,
+                0.F, 0.F, 1.F, 0.F,
+                0.F, 0.F, 0.F, 1.F
+            };
         };
 
         //! Create an orthgraphic projection matrix.

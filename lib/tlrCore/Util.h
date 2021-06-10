@@ -4,28 +4,31 @@
 
 #pragma once
 
-#include <opentimelineio/version.h>
-
-#include <opentime/rationalTime.h>
-#include <opentime/timeRange.h>
-
-#include <iostream>
-
 //! Convenience macro for making a class non-copyable.
 #define TLR_NON_COPYABLE(CLASS) \
     CLASS(const CLASS&) = delete; \
     CLASS& operator = (const CLASS&) = delete
 
 //! Convenience macro for getting a list of enums.
+//! 
+//! Required includes:
+//! * vector
 #define TLR_ENUM_VECTOR(ENUM) \
     std::vector<ENUM> get##ENUM##Enums();
 
 //! Convenience macro for converting enums to strings.
+//! 
+//! Required includes:
+//! * string
+//! * vector
 #define TLR_ENUM_LABEL(ENUM) \
     std::vector<std::string> get##ENUM##Labels(); \
     std::string getLabel(ENUM)
 
 //! Convenience macro for serializing enums.
+//! 
+//! Required includes:
+//! * iostream
 #define TLR_ENUM_SERIALIZE(ENUM) \
     std::ostream& operator << (std::ostream&, ENUM); \
     std::istream& operator >> (std::istream&, ENUM&)
@@ -43,6 +46,9 @@
     }
 
 //! Implementation macro for converting enums to strings.
+//! 
+//! Required includes:
+//! * array
 #define TLR_ENUM_LABEL_IMPL(ENUM, ...) \
     std::vector<std::string> get##ENUM##Labels() \
     { \
@@ -56,6 +62,11 @@
     }
 
 //! Implementation macro for serializing enums.
+//! 
+//! Required includes:
+//! * tlrCore/Error.h
+//! * tlrCore/String.h
+//! * algorithm
 #define TLR_ENUM_SERIALIZE_IMPL(PREFIX, ENUM, ...) \
     std::ostream& operator << (std::ostream& os, PREFIX::ENUM in) \
     { \
@@ -82,18 +93,3 @@
         out = static_cast<PREFIX::ENUM>(i - labels.begin()); \
         return is; \
     }
-
-namespace tlr
-{
-    namespace otime = opentime::OPENTIME_VERSION;
-    namespace otio = opentimelineio::OPENTIMELINEIO_VERSION;
-
-    const otime::RationalTime invalidTime(-1.0, -1.0);
-    const otime::TimeRange invalidTimeRange(invalidTime, invalidTime);
-
-    std::ostream& operator << (std::ostream&, const otime::RationalTime&);
-    std::ostream& operator << (std::ostream&, const otime::TimeRange&);
-
-    std::istream& operator >> (std::istream&, otime::RationalTime&);
-    std::istream& operator >> (std::istream&, otime::TimeRange&);
-}

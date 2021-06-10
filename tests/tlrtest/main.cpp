@@ -10,6 +10,13 @@
 #include <tlrCoreTest/ImageTest.h>
 #include <tlrCoreTest/ListObserverTest.h>
 #include <tlrCoreTest/MapObserverTest.h>
+#include <tlrCoreTest/MathTest.h>
+#include <tlrCoreTest/MatrixTest.h>
+#include <tlrCoreTest/MemoryTest.h>
+#include <tlrCoreTest/RangeTest.h>
+#include <tlrCoreTest/StringTest.h>
+#include <tlrCoreTest/StringFormatTest.h>
+#include <tlrCoreTest/TimeTest.h>
 #include <tlrCoreTest/TimelineTest.h>
 #include <tlrCoreTest/ValueObserverTest.h>
 #if defined(FFmpeg_FOUND)
@@ -36,6 +43,7 @@
 #include <tlrQtTest/TimeObjectTest.h>
 #endif
 
+#include <iostream>
 #include <vector>
 
 int main(int argc, char* argv[])
@@ -50,6 +58,13 @@ int main(int argc, char* argv[])
     tests.push_back(tlr::CoreTest::ImageTest::create());
     tests.push_back(tlr::CoreTest::ListObserverTest::create());
     tests.push_back(tlr::CoreTest::MapObserverTest::create());
+    tests.push_back(tlr::CoreTest::MathTest::create());
+    tests.push_back(tlr::CoreTest::MatrixTest::create());
+    tests.push_back(tlr::CoreTest::MemoryTest::create());
+    tests.push_back(tlr::CoreTest::RangeTest::create());
+    tests.push_back(tlr::CoreTest::StringTest::create());
+    tests.push_back(tlr::CoreTest::StringFormatTest::create());
+    tests.push_back(tlr::CoreTest::TimeTest::create());
     tests.push_back(tlr::CoreTest::TimelineTest::create());
     tests.push_back(tlr::CoreTest::ValueObserverTest::create());
 #if defined(FFmpeg_FOUND)

@@ -4,13 +4,20 @@ set(HEADERS
     ColorTest.h
     FileTest.h
     IOTest.h
+    ImageTest.h
     JPEGTest.h
     ListObserverTest.h
     MapObserverTest.h
+    MathTest.h
+    MatrixTest.h
+    MemoryTest.h
     OpenEXRTest.h
     PNGTest.h
+    RangeTest.h
+    StringTest.h
+    StringFormatTest.h
     TIFFTest.h
-    ImageTest.h
+    TimeTest.h
     TimelineTest.h
     ValueObserverTest.h)
 set(SOURCE
@@ -19,13 +26,20 @@ set(SOURCE
     ColorTest.cpp
     FileTest.cpp
     IOTest.cpp
+    ImageTest.cpp
     JPEGTest.cpp
     ListObserverTest.cpp
     MapObserverTest.cpp
+    MathTest.cpp
+    MatrixTest.cpp
+    MemoryTest.cpp
     OpenEXRTest.cpp
     PNGTest.cpp
+    RangeTest.cpp
+    StringTest.cpp
+    StringFormatTest.cpp
     TIFFTest.cpp
-    ImageTest.cpp
+    TimeTest.cpp
     TimelineTest.cpp
     ValueObserverTest.cpp)
 if(FFmpeg_FOUND)

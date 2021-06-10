@@ -2,6 +2,12 @@
 // Copyright (c) 2021 Darby Johnston
 // All rights reserved.
 
+#include <tlrCore/Util.h>
+
+#include <iostream>
+#include <string>
+#include <vector>
+
 namespace tlr
 {
     //! Memory.
@@ -16,6 +22,7 @@ namespace tlr
             Count,
             First = MSB
         };
+        TLR_ENUM_LABEL(Endian);
 
         //! Get the current machine's endian.
         Endian getEndian() noexcept;
@@ -23,6 +30,8 @@ namespace tlr
         //! Get the opposite of the given endian.
         Endian opposite(Endian) noexcept;
     }
+
+    TLR_ENUM_SERIALIZE(memory::Endian);
 }
 
 #include <tlrCore/MemoryInline.h>

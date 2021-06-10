@@ -2,6 +2,8 @@
 // Copyright (c) 2021 Darby Johnston
 // All rights reserved.
 
+#include <cstdint>
+
 namespace tlr
 {
     namespace memory

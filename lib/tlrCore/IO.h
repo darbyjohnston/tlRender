@@ -5,6 +5,7 @@
 #pragma once
 
 #include <tlrCore/Image.h>
+#include <tlrCore/Time.h>
 
 #include <atomic>
 #include <future>

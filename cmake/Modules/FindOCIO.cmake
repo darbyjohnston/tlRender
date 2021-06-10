@@ -28,9 +28,9 @@ if(CMAKE_BUILD_TYPE MATCHES "^Debug$")
     find_library(OCIO_pystring_LIBRARY NAMES pystring)
     find_library(OCIO_expat LIBRARY NAMES expatdMD expat)
 else()
-    find_library(OCIO_yaml_LIBRARY NAMES libyaml-cpp yaml-cpp)
+    find_library(OCIO_yaml_LIBRARY NAMES libyaml-cppmd libyaml-cpp yaml-cpp)
     find_library(OCIO_pystring_LIBRARY NAMES pystring)
-    find_library(OCIO_expat LIBRARY NAMES expat)
+    find_library(OCIO_expat LIBRARY NAMES expatMD)
 endif()
 set(OCIO_LIBRARIES
     ${OCIO_LIBRARY}

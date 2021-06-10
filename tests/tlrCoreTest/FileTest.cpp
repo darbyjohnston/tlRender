@@ -7,6 +7,8 @@
 #include <tlrCore/Assert.h>
 #include <tlrCore/File.h>
 
+#include <sstream>
+
 using namespace tlr::file;
 
 namespace tlr
@@ -69,6 +71,11 @@ namespace tlr
                 TLR_ASSERT("render." == baseName);
                 TLR_ASSERT("0001" == number);
                 TLR_ASSERT(".exr" == extension);
+            }
+            {
+                std::stringstream ss;
+                ss << "Temp dir:" << createTempDir();
+                _print(ss.str());
             }
         }
     }

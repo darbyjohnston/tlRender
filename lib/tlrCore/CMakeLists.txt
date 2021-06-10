@@ -44,13 +44,13 @@ set(SOURCE
     File.cpp
     IO.cpp
     Image.cpp
+    Memory.cpp
     SequenceIO.cpp
     String.cpp
     StringFormat.cpp
     Time.cpp
     Timeline.cpp
-    TimelinePlayer.cpp
-    Util.cpp)
+    TimelinePlayer.cpp)
 
 set(tlrCore_LIBRARIES OTIO FSeq)
 if(TLR_ENABLE_PYTHON)
