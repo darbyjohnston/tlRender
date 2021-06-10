@@ -28,7 +28,14 @@ jobs:
         export PATH=$PATH:$PWD/install/bin &&
         export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH &&
         export PYTHONPATH=$PWD/install/lib:$PYTHONPATH &&
-        cmake ../etc/SuperBuild -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install &&
+        cmake ../etc/SuperBuild
+          -DCMAKE_BUILD_TYPE=Debug
+          -DCMAKE_INSTALL_PREFIX=$PWD/install
+          -DCMAKE_PREFIX_PATH=$PWD/install
+          -DTLR_BUILD_JPEG=TRUE
+          -DTLR_BUILD_TIFF=TRUE
+          -DTLR_BUILD_PNG=TRUE
+          -DTLR_BUILD_OpenEXR=TRUE &&
         cmake --build . -j 4
 
     - name: Run tests
