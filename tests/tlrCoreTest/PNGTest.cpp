@@ -36,7 +36,7 @@ namespace tlr
                     std::string fileName;
                     {
                         std::stringstream ss;
-                        ss << size << '_' << pixelType << ".0.png";
+                        ss << "PNGTest_" << size << '_' << pixelType << ".0.png";
                         fileName = ss.str();
                         _print(fileName);
                     }

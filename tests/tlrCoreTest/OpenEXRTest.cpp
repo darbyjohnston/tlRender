@@ -36,7 +36,7 @@ namespace tlr
                     std::string fileName;
                     {
                         std::stringstream ss;
-                        ss << size << '_' << pixelType << ".0.exr";
+                        ss << "OpenEXRTest_" << size << '_' << pixelType << ".0.exr";
                         fileName = ss.str();
                         _print(fileName);
                     }

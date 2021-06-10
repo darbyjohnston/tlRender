@@ -22,6 +22,7 @@ namespace tlr
 
         private:
             void _toRanges();
+            void _timeline();
         };
     }
 }
