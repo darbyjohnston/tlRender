@@ -17,7 +17,7 @@ namespace tlr
 {
     namespace imaging
     {
-        TLR_ENUM_LABEL_IMPL(
+        TLR_ENUM_IMPL(
             PixelType,
             "None",
             "L_U8",

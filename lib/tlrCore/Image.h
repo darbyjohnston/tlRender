@@ -55,7 +55,7 @@ namespace tlr
             YUV_420P,
             Count
         };
-        TLR_ENUM_LABEL(PixelType);
+        TLR_ENUM(PixelType);
 
         //! Get the number of channels for the given pixel type.
         uint8_t getChannelCount(PixelType);

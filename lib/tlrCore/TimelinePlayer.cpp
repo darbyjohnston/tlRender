@@ -27,14 +27,11 @@ namespace tlr
 {
     namespace timeline
     {
-        TLR_ENUM_VECTOR_IMPL(Playback);
-        TLR_ENUM_LABEL_IMPL(Playback, "Stop", "Forward", "Reverse");
+        TLR_ENUM_IMPL(Playback, "Stop", "Forward", "Reverse");
 
-        TLR_ENUM_VECTOR_IMPL(Loop);
-        TLR_ENUM_LABEL_IMPL(Loop, "Loop", "Once", "Ping-Pong");
+        TLR_ENUM_IMPL(Loop, "Loop", "Once", "Ping-Pong");
 
-        TLR_ENUM_VECTOR_IMPL(TimeAction);
-        TLR_ENUM_LABEL_IMPL(TimeAction,
+        TLR_ENUM_IMPL(TimeAction,
             "Start",
             "End",
             "FramePrev",
@@ -614,4 +611,5 @@ namespace tlr
 
     TLR_ENUM_SERIALIZE_IMPL(timeline, Playback);
     TLR_ENUM_SERIALIZE_IMPL(timeline, Loop);
+    TLR_ENUM_SERIALIZE_IMPL(timeline, TimeAction);
 }

@@ -25,10 +25,16 @@ namespace tlr
 
         void FFmpegTest::run()
         {
+            _enum();
             _toRational();
             _io();
         }
 
+        void FFmpegTest::_enum()
+        {
+            ITest::_enum<ffmpeg::VideoCodec>("VideoCodec", ffmpeg::getVideoCodecEnums);
+        }
+        
         void FFmpegTest::_toRational()
         {
             struct Data
@@ -70,19 +76,19 @@ namespace tlr
                     std::string fileName;
                     {
                         std::stringstream ss;
-                        ss << "FFmepgTest_" << size << '_' << pixelType << ".0.mov";
+                        ss << "FFmpegTest_" << size << '_' << pixelType << ".mov";
                         fileName = ss.str();
                         _print(fileName);
                     }
 
                     const auto imageInfo = imaging::Info(size, pixelType);
-                    const auto imageWrite = imaging::Image::create(imageInfo);
-
-                    io::Info info;
-                    info.video.push_back(io::VideoInfo(imageInfo, otime::RationalTime(1.0, 24.0)));
-                    auto write = plugin->write(fileName, info);
-                    write->writeVideoFrame(otime::RationalTime(0.0, 24.0), imageWrite);
-
+                    {
+                        io::Info info;
+                        info.video.push_back(io::VideoInfo(imageInfo, otime::RationalTime(1.0, 24.0)));
+                        auto write = plugin->write(fileName, info);
+                        const auto imageWrite = imaging::Image::create(imageInfo);
+                        write->writeVideoFrame(otime::RationalTime(0.0, 24.0), imageWrite);
+                    }
                     auto read = plugin->read(fileName);
                     const auto imageRead = read->readVideoFrame(otime::RationalTime(0.0, 24.0)).get();
                 }

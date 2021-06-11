@@ -9,19 +9,13 @@
     CLASS(const CLASS&) = delete; \
     CLASS& operator = (const CLASS&) = delete
 
-//! Convenience macro for getting a list of enums.
-//! 
-//! Required includes:
-//! * vector
-#define TLR_ENUM_VECTOR(ENUM) \
-    std::vector<ENUM> get##ENUM##Enums();
-
-//! Convenience macro for converting enums to strings.
+//! Convenience macro for enum utilities.
 //! 
 //! Required includes:
 //! * string
 //! * vector
-#define TLR_ENUM_LABEL(ENUM) \
+#define TLR_ENUM(ENUM) \
+    std::vector<ENUM> get##ENUM##Enums(); \
     std::vector<std::string> get##ENUM##Labels(); \
     std::string getLabel(ENUM)
 
@@ -33,8 +27,8 @@
     std::ostream& operator << (std::ostream&, ENUM); \
     std::istream& operator >> (std::istream&, ENUM&)
 
-//! Implementation macro for getting a list of enums.
-#define TLR_ENUM_VECTOR_IMPL(ENUM) \
+//! Implementation macro for enum utilities.
+#define TLR_ENUM_IMPL(ENUM, ...) \
     std::vector<ENUM> get##ENUM##Enums() \
     { \
         std::vector<ENUM> out; \
@@ -43,13 +37,8 @@
             out.push_back(static_cast<ENUM>(i)); \
         } \
         return out; \
-    }
-
-//! Implementation macro for converting enums to strings.
-//! 
-//! Required includes:
-//! * array
-#define TLR_ENUM_LABEL_IMPL(ENUM, ...) \
+    } \
+    \
     std::vector<std::string> get##ENUM##Labels() \
     { \
         return { __VA_ARGS__ }; \

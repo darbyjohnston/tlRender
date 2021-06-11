@@ -15,7 +15,7 @@ namespace tlr
 {
     namespace memory
     {
-        TLR_ENUM_LABEL_IMPL(
+        TLR_ENUM_IMPL(
             Endian,
             "MSB",
             "LSB");

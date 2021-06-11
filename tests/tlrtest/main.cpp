@@ -5,6 +5,7 @@
 #include <tlrCoreTest/BBoxTest.h>
 #include <tlrCoreTest/CacheTest.h>
 #include <tlrCoreTest/ColorTest.h>
+#include <tlrCoreTest/ErrorTest.h>
 #include <tlrCoreTest/FileTest.h>
 #include <tlrCoreTest/IOTest.h>
 #include <tlrCoreTest/ImageTest.h>
@@ -54,6 +55,7 @@ int main(int argc, char* argv[])
     tests.push_back(tlr::CoreTest::BBoxTest::create());
     tests.push_back(tlr::CoreTest::CacheTest::create());
     tests.push_back(tlr::CoreTest::ColorTest::create());
+    tests.push_back(tlr::CoreTest::ErrorTest::create());
     tests.push_back(tlr::CoreTest::FileTest::create());
     tests.push_back(tlr::CoreTest::IOTest::create());
     tests.push_back(tlr::CoreTest::ImageTest::create());

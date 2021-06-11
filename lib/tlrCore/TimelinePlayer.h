@@ -28,8 +28,7 @@ namespace tlr
             Count,
             First = Stop
         };
-        TLR_ENUM_VECTOR(Playback);
-        TLR_ENUM_LABEL(Playback);
+        TLR_ENUM(Playback);
 
         //! Playback loop modes.
         enum class Loop
@@ -41,8 +40,7 @@ namespace tlr
             Count,
             First = Loop
         };
-        TLR_ENUM_VECTOR(Loop);
-        TLR_ENUM_LABEL(Loop);
+        TLR_ENUM(Loop);
 
         //! Time actions.
         enum class TimeAction
@@ -61,8 +59,7 @@ namespace tlr
             Count,
             First = Start
         };
-        TLR_ENUM_VECTOR(TimeAction);
-        TLR_ENUM_LABEL(TimeAction);
+        TLR_ENUM(TimeAction);
 
         //! Loop time.
         otime::RationalTime loopTime(const otime::RationalTime&, const otime::TimeRange&);

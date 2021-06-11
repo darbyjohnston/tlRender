@@ -10,22 +10,15 @@ namespace tlr
 {
     namespace CoreTest
     {
-        class ImageTest : public Test::ITest
+        class ErrorTest : public Test::ITest
         {
         protected:
-            ImageTest();
+            ErrorTest();
 
         public:
-            static std::shared_ptr<ImageTest> create();
+            static std::shared_ptr<ErrorTest> create();
 
             void run() override;
-            
-        private:
-            void _size();
-            void _enum();
-            void _info();
-            void _util();
-            void _image();
         };
     }
 }

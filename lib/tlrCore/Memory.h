@@ -22,7 +22,7 @@ namespace tlr
             Count,
             First = MSB
         };
-        TLR_ENUM_LABEL(Endian);
+        TLR_ENUM(Endian);
 
         //! Get the current machine's endian.
         Endian getEndian() noexcept;

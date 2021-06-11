@@ -41,8 +41,7 @@ namespace tlr
             }
             {
                 const auto t = otime::RationalTime(1.0, 24.0);
-                std::string s;
-                std::stringstream ss(s);
+                std::stringstream ss;
                 ss << t;
                 otime::RationalTime t2 = invalidTime;
                 ss >> t2;
@@ -50,8 +49,7 @@ namespace tlr
             }
             {
                 const auto t = otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(1.0, 24.0));
-                std::string s;
-                std::stringstream ss(s);
+                std::stringstream ss;
                 ss << t;
                 otime::TimeRange t2 = invalidTimeRange;
                 ss >> t2;

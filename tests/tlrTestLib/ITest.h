@@ -6,8 +6,10 @@
 
 #include <tlrCore/Util.h>
 
+#include <functional>
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace tlr
 {
@@ -28,6 +30,11 @@ namespace tlr
             virtual void run() = 0;
 
         protected:
+            template<typename T>
+            void _enum(
+                const std::string&,
+                const std::function<std::vector<T>(void)>&);
+        
             void _print(const std::string&);
             void _printError(const std::string&);
 
@@ -36,3 +43,6 @@ namespace tlr
         };
     }
 }
+
+#include <tlrTestLib/ITestInline.h>
+

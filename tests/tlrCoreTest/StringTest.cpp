@@ -32,13 +32,6 @@ namespace tlr
                 _print(ss.str());
             }
             {
-                const auto pieces = split("a/b/c", '/');
-                TLR_ASSERT(3 == pieces.size());
-                TLR_ASSERT("a" == pieces[0]);
-                TLR_ASSERT("b" == pieces[1]);
-                TLR_ASSERT("c" == pieces[2]);
-            }
-            {
                 const auto pieces = split("a/b/c//", '/');
                 TLR_ASSERT(3 == pieces.size());
                 TLR_ASSERT("a" == pieces[0]);
@@ -47,6 +40,21 @@ namespace tlr
             }
             {
                 const auto pieces = split("a/b/c//", '/', true);
+                TLR_ASSERT(4 == pieces.size());
+                TLR_ASSERT("a" == pieces[0]);
+                TLR_ASSERT("b" == pieces[1]);
+                TLR_ASSERT("c" == pieces[2]);
+                TLR_ASSERT(pieces[3].empty());
+            }
+            {
+                const auto pieces = split("a/b|c||", { '/', '|' });
+                TLR_ASSERT(3 == pieces.size());
+                TLR_ASSERT("a" == pieces[0]);
+                TLR_ASSERT("b" == pieces[1]);
+                TLR_ASSERT("c" == pieces[2]);
+            }
+            {
+                const auto pieces = split("a/b|c||", { '/', '|' }, true);
                 TLR_ASSERT(4 == pieces.size());
                 TLR_ASSERT("a" == pieces[0]);
                 TLR_ASSERT("b" == pieces[1]);

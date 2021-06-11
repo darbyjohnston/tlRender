@@ -133,8 +133,6 @@ namespace tlr
 
         void Read::_open(const std::string& fileName)
         {
-            av_log_set_level(AV_LOG_QUIET);
-
             int r = avformat_open_input(
                 &_avFormatContext,
                 fileName.c_str(),

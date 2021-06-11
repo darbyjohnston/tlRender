@@ -27,6 +27,9 @@ namespace tlr
         void MemoryTest::run()
         {
             {
+                _enum<Endian>("Endian", getEndianEnums);
+            }
+            {
                 std::stringstream ss;
                 ss << "Current endian: " << getEndian();
                 _print(ss.str());

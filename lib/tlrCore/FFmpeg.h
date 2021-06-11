@@ -36,7 +36,7 @@ namespace tlr
             ProRes,
             Count
         };
-        TLR_ENUM_LABEL(VideoCodec);
+        TLR_ENUM(VideoCodec);
 
         //! Number of threads.
         const size_t threadCount = 4;

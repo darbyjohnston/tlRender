@@ -1,5 +1,6 @@
 set(HEADERS
-    ITest.h)
+    ITest.h
+    ITestInline.h)
 set(SOURCE
     ITest.cpp)
 

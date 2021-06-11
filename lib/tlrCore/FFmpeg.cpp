@@ -22,7 +22,7 @@ namespace tlr
 {
     namespace ffmpeg
     {
-        TLR_ENUM_LABEL_IMPL(
+        TLR_ENUM_IMPL(
             VideoCodec,
             "H264",
             "H265",

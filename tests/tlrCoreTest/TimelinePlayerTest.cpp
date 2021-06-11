@@ -30,9 +30,17 @@ namespace tlr
 
         void TimelinePlayerTest::run()
         {
+            _enum();
             _loopTime();
             _fitWindow();
             _timelinePlayer();
+        }
+
+        void TimelinePlayerTest::_enum()
+        {
+            ITest::_enum<Playback>("Playback", getPlaybackEnums);
+            ITest::_enum<Loop>("Loop", getLoopEnums);
+            ITest::_enum<TimeAction>("TimeAction", getTimeActionEnums);
         }
 
         void TimelinePlayerTest::_loopTime()

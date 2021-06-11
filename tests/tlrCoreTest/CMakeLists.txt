@@ -2,6 +2,7 @@ set(HEADERS
     BBoxTest.h
     CacheTest.h
     ColorTest.h
+    ErrorTest.h
     FileTest.h
     IOTest.h
     ImageTest.h
@@ -25,6 +26,7 @@ set(SOURCE
     BBoxTest.cpp
     CacheTest.cpp
     ColorTest.cpp
+    ErrorTest.cpp
     FileTest.cpp
     IOTest.cpp
     ImageTest.cpp
