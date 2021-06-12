@@ -514,7 +514,9 @@ namespace tlr
         int i = _timelinePlayers.indexOf(timelinePlayer);
         if (i != -1)
         {
+            auto widget = _tabWidget->widget(i);
             _tabWidget->removeTab(i);
+            delete widget;
             _timelinePlayers.removeOne(timelinePlayer);
             if (timelinePlayer == _currentTimelinePlayer)
             {
