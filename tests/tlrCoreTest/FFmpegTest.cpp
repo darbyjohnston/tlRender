@@ -82,15 +82,32 @@ namespace tlr
                     }
 
                     const auto imageInfo = imaging::Info(size, pixelType);
+                    const otime::RationalTime duration(24.0, 24.0);
                     {
                         io::Info info;
-                        info.video.push_back(io::VideoInfo(imageInfo, otime::RationalTime(1.0, 24.0)));
+                        info.video.push_back(io::VideoInfo(imageInfo, duration));
                         auto write = plugin->write(fileName, info);
                         const auto imageWrite = imaging::Image::create(imageInfo);
-                        write->writeVideoFrame(otime::RationalTime(0.0, 24.0), imageWrite);
+                        for (size_t i = 0; i < static_cast<size_t>(duration.value()); ++i)
+                        {
+                            write->writeVideoFrame(otime::RationalTime(i, 24.0), imageWrite);
+                        }
                     }
                     auto read = plugin->read(fileName);
-                    const auto imageRead = read->readVideoFrame(otime::RationalTime(0.0, 24.0)).get();
+                    for (size_t i = 0; i < static_cast<size_t>(duration.value()); ++i)
+                    {
+                        const auto videoFrame = read->readVideoFrame(otime::RationalTime(i, 24.0)).get();
+                        //std::stringstream ss;
+                        //ss << "Video frame: " << videoFrame.time;
+                        //_print(ss.str());
+                    }
+                    for (size_t i = 0; i < static_cast<size_t>(duration.value()); ++i)
+                    {
+                        const auto videoFrame = read->readVideoFrame(otime::RationalTime(i, 24.0)).get();
+                        //std::stringstream ss;
+                        //ss << "Video frame: " << videoFrame.time;
+                        //_print(ss.str());
+                    }
                 }
             }
         }

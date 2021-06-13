@@ -130,19 +130,11 @@ namespace tlr
 
                 io::VideoFrame read(
                     const std::string& fileName,
-                    const otime::RationalTime& time,
-                    const std::shared_ptr<imaging::Image>& image)
+                    const otime::RationalTime& time)
                 {
                     io::VideoFrame out;
                     out.time = time;
-                    if (image && image->getInfo() == _info)
-                    {
-                        out.image = image;
-                    }
-                    else
-                    {
-                        out.image = imaging::Image::create(_info);
-                    }
+                    out.image = imaging::Image::create(_info);
 
                     std::size_t scanlineByteCount = 0;
                     switch (_info.pixelType)
@@ -210,10 +202,9 @@ namespace tlr
 
         io::VideoFrame Read::_readVideoFrame(
             const std::string& fileName,
-            const otime::RationalTime& time,
-            const std::shared_ptr<imaging::Image>& image)
+            const otime::RationalTime& time)
         {
-            return std::unique_ptr<File>(new File(fileName))->read(fileName, time, image);
+            return std::unique_ptr<File>(new File(fileName))->read(fileName, time);
         }
     }
 }

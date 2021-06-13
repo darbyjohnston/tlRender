@@ -52,48 +52,55 @@ int main(int argc, char* argv[])
 {
     std::vector<std::shared_ptr<tlr::Test::ITest> > tests;
 
-    tests.push_back(tlr::CoreTest::BBoxTest::create());
-    tests.push_back(tlr::CoreTest::CacheTest::create());
-    tests.push_back(tlr::CoreTest::ColorTest::create());
-    tests.push_back(tlr::CoreTest::ErrorTest::create());
-    tests.push_back(tlr::CoreTest::FileTest::create());
-    tests.push_back(tlr::CoreTest::IOTest::create());
-    tests.push_back(tlr::CoreTest::ImageTest::create());
-    tests.push_back(tlr::CoreTest::ListObserverTest::create());
-    tests.push_back(tlr::CoreTest::MapObserverTest::create());
-    tests.push_back(tlr::CoreTest::MathTest::create());
-    tests.push_back(tlr::CoreTest::MatrixTest::create());
-    tests.push_back(tlr::CoreTest::MemoryTest::create());
-    tests.push_back(tlr::CoreTest::RangeTest::create());
-    tests.push_back(tlr::CoreTest::StringTest::create());
-    tests.push_back(tlr::CoreTest::StringFormatTest::create());
-    tests.push_back(tlr::CoreTest::TimeTest::create());
-    tests.push_back(tlr::CoreTest::TimelinePlayerTest::create());
-    tests.push_back(tlr::CoreTest::TimelineTest::create());
-    tests.push_back(tlr::CoreTest::ValueObserverTest::create());
+    if (0)
+    {
+        tests.push_back(tlr::CoreTest::FFmpegTest::create());
+    }
+    else
+    {
+        tests.push_back(tlr::CoreTest::BBoxTest::create());
+        tests.push_back(tlr::CoreTest::CacheTest::create());
+        tests.push_back(tlr::CoreTest::ColorTest::create());
+        tests.push_back(tlr::CoreTest::ErrorTest::create());
+        tests.push_back(tlr::CoreTest::FileTest::create());
+        tests.push_back(tlr::CoreTest::IOTest::create());
+        tests.push_back(tlr::CoreTest::ImageTest::create());
+        tests.push_back(tlr::CoreTest::ListObserverTest::create());
+        tests.push_back(tlr::CoreTest::MapObserverTest::create());
+        tests.push_back(tlr::CoreTest::MathTest::create());
+        tests.push_back(tlr::CoreTest::MatrixTest::create());
+        tests.push_back(tlr::CoreTest::MemoryTest::create());
+        tests.push_back(tlr::CoreTest::RangeTest::create());
+        tests.push_back(tlr::CoreTest::StringTest::create());
+        tests.push_back(tlr::CoreTest::StringFormatTest::create());
+        tests.push_back(tlr::CoreTest::TimeTest::create());
+        tests.push_back(tlr::CoreTest::TimelinePlayerTest::create());
+        tests.push_back(tlr::CoreTest::TimelineTest::create());
+        tests.push_back(tlr::CoreTest::ValueObserverTest::create());
 #if defined(FFmpeg_FOUND)
-    tests.push_back(tlr::CoreTest::FFmpegTest::create());
+        tests.push_back(tlr::CoreTest::FFmpegTest::create());
 #endif
 #if defined(JPEG_FOUND)
-    tests.push_back(tlr::CoreTest::JPEGTest::create());
+        tests.push_back(tlr::CoreTest::JPEGTest::create());
 #endif
 #if defined(OpenEXR_FOUND)
-    tests.push_back(tlr::CoreTest::OpenEXRTest::create());
+        tests.push_back(tlr::CoreTest::OpenEXRTest::create());
 #endif
 #if defined(PNG_FOUND)
-    tests.push_back(tlr::CoreTest::PNGTest::create());
+        tests.push_back(tlr::CoreTest::PNGTest::create());
 #endif
 #if defined(TIFF_FOUND)
-    tests.push_back(tlr::CoreTest::TIFFTest::create());
+        tests.push_back(tlr::CoreTest::TIFFTest::create());
 #endif
 
 #if defined(TLR_BUILD_GL)
-    tests.push_back(tlr::GLTest::MeshTest::create());
+        tests.push_back(tlr::GLTest::MeshTest::create());
 #endif
 
 #if defined(TLR_BUILD_QT)
-    tests.push_back(tlr::QtTest::TimeObjectTest::create());
+        tests.push_back(tlr::QtTest::TimeObjectTest::create());
 #endif
+    }
 
     for (const auto& i : tests)
     {

@@ -96,9 +96,7 @@ namespace tlr
             virtual std::future<Info> getInfo() = 0;
 
             //! Read a video frame.
-            virtual std::future<VideoFrame> readVideoFrame(
-                const otime::RationalTime&,
-                const std::shared_ptr<imaging::Image>& = nullptr) = 0;
+            virtual std::future<VideoFrame> readVideoFrame(const otime::RationalTime&) = 0;
 
             //! Are there pending video frame requests?
             virtual bool hasVideoFrames() = 0;

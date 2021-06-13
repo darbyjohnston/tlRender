@@ -72,13 +72,10 @@ namespace tlr
             return _infoPromise.get_future();
         }
 
-        std::future<io::VideoFrame> ISequenceRead::readVideoFrame(
-            const otime::RationalTime& time,
-            const std::shared_ptr<imaging::Image>& image)
+        std::future<io::VideoFrame> ISequenceRead::readVideoFrame(const otime::RationalTime& time)
         {
             VideoFrameRequest request;
             request.time = time;
-            request.image = image;
             auto future = request.promise.get_future();
             if (!_stopped)
             {
@@ -133,11 +130,7 @@ namespace tlr
                         });
                     for (size_t i = 0; i < sequenceThreadCount && !_videoFrameRequests.empty(); ++i)
                     {
-                        VideoFrameRequest request;
-                        request.time = _videoFrameRequests.front().time;
-                        request.image = std::move(_videoFrameRequests.front().image);
-                        request.promise = std::move(_videoFrameRequests.front().promise);
-                        requests.push_back(std::move(request));
+                        requests.push_back(std::move(_videoFrameRequests.front()));
                         _videoFrameRequests.pop_front();
                     }
                 }
@@ -155,7 +148,7 @@ namespace tlr
                             io::VideoFrame out;
                             try
                             {
-                                out = _readVideoFrame(fileName, i.time, i.image);
+                                out = _readVideoFrame(fileName, i.time);
                             }
                             catch (const std::exception&)
                             {

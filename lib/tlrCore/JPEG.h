@@ -54,8 +54,7 @@ namespace tlr
             io::Info _getInfo(const std::string& fileName) override;
             io::VideoFrame _readVideoFrame(
                 const std::string& fileName,
-                const otime::RationalTime&,
-                const std::shared_ptr<imaging::Image>&) override;
+                const otime::RationalTime&) override;
         };
 
         //! JPEG writer.

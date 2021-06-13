@@ -36,9 +36,7 @@ namespace tlr
             ~ISequenceRead() override;
 
             std::future<io::Info> getInfo() override;
-            std::future<io::VideoFrame> readVideoFrame(
-                const otime::RationalTime&,
-                const std::shared_ptr<imaging::Image>&) override;
+            std::future<io::VideoFrame> readVideoFrame(const otime::RationalTime&) override;
             bool hasVideoFrames() override;
             void cancelVideoFrames() override;
             void stop() override;
@@ -48,8 +46,7 @@ namespace tlr
             virtual io::Info _getInfo(const std::string& fileName) = 0;
             virtual io::VideoFrame _readVideoFrame(
                 const std::string& fileName,
-                const otime::RationalTime&,
-                const std::shared_ptr<imaging::Image>&) = 0;
+                const otime::RationalTime&) = 0;
 
         private:
             void _run();
@@ -66,7 +63,6 @@ namespace tlr
                 VideoFrameRequest(VideoFrameRequest&& other) = default;
 
                 otime::RationalTime time = invalidTime;
-                std::shared_ptr<imaging::Image> image;
                 std::promise<io::VideoFrame> promise;
             };
             std::list<VideoFrameRequest> _videoFrameRequests;

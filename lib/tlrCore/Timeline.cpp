@@ -210,9 +210,7 @@ namespace tlr
             return out;
         }
 
-        std::future<io::VideoFrame> Timeline::render(
-            const otime::RationalTime& time,
-            const std::shared_ptr<imaging::Image>& image)
+        std::future<io::VideoFrame> Timeline::render(const otime::RationalTime& time)
         {
             std::future<io::VideoFrame> out;
             const auto now = std::chrono::steady_clock::now();
@@ -234,8 +232,7 @@ namespace tlr
                     {
                         const auto readTime = clipTime.rescaled_to(j->second.info.video[0].duration);
                         out = j->second.read->readVideoFrame(
-                            otime::RationalTime(floor(readTime.value()), readTime.rate()),
-                            image);
+                            otime::RationalTime(floor(readTime.value()), readTime.rate()));
                     }
                     else
                     {
@@ -260,8 +257,7 @@ namespace tlr
                             reader.info = info;
                             const auto readTime = clipTime.rescaled_to(info.video[0].duration);
                             out = read->readVideoFrame(
-                                otime::RationalTime(floor(readTime.value()), readTime.rate()),
-                                image);
+                                otime::RationalTime(floor(readTime.value()), readTime.rate()));
                             _readers[clip] = std::move(reader);
                         }
                         else

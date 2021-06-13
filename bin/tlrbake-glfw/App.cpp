@@ -265,7 +265,7 @@ namespace tlr
 
         // Render the frame.
         _render->begin(_renderInfo.size, true);
-        _videoFrame = _timeline->render(_timeline->getGlobalStartTime() + _currentTime, _videoFrame.image).get();
+        _videoFrame = _timeline->render(_timeline->getGlobalStartTime() + _currentTime).get();
         _render->drawImage(_videoFrame.image, math::BBox2f(0.F, 0.F, _renderInfo.size.w, _renderInfo.size.h));
         _render->end();
 

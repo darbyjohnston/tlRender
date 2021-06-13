@@ -220,10 +220,9 @@ namespace tlr
                 _avFrame->data,
                 _avFrame->linesize);
 
-            AVRational r = toRational(time.rate());
             _avFrame->pts = av_rescale_q(
                 time.value(),
-                AVRational({ r.den, r.num }),
+                swap(toRational(time.rate())),
                 _avVideoStream->time_base);
             _encodeVideo(_avFrame);
         }

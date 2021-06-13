@@ -64,23 +64,13 @@ namespace tlr
 
         io::VideoFrame Read::_readVideoFrame(
             const std::string& fileName,
-            const otime::RationalTime& time,
-            const std::shared_ptr<imaging::Image>& image)
+            const otime::RationalTime& time)
         {
-            io::VideoFrame out;
-
             Imf::RgbaInputFile f(fileName.c_str());
 
+            io::VideoFrame out;
             out.time = time;
-            const auto info = imfInfo(f);
-            if (image && image->getInfo() == info)
-            {
-                out.image = image;
-            }
-            else
-            {
-                out.image = imaging::Image::create(info);
-            }
+            out.image = imaging::Image::create(imfInfo(f));
 
             const auto dw = f.dataWindow();
             const int width = dw.max.x - dw.min.x + 1;

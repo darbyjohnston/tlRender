@@ -53,6 +53,9 @@ namespace tlr
         //! Convert a floating point rate to a rational.
         AVRational toRational(double);
 
+        //! Swap the numerator and denominator.
+        AVRational swap(AVRational);
+
         //! FFmpeg reader
         class Read : public io::IRead
         {
@@ -71,9 +74,7 @@ namespace tlr
                 const io::Options&);
 
             std::future<io::Info> getInfo() override;
-            std::future<io::VideoFrame> readVideoFrame(
-                const otime::RationalTime&,
-                const std::shared_ptr<imaging::Image>&) override;
+            std::future<io::VideoFrame> readVideoFrame(const otime::RationalTime&) override;
             bool hasVideoFrames() override;
             void cancelVideoFrames() override;
             void stop() override;
@@ -83,11 +84,7 @@ namespace tlr
             void _open(const std::string& fileName);
             void _run();
             void _close();
-            int _decodeVideo(
-                AVPacket&,
-                io::VideoFrame&,
-                bool hasSeek,
-                const otime::RationalTime& seek);
+            int _decodeVideo(AVPacket*, const otime::RationalTime& seek);
             void _copyVideo(const std::shared_ptr<imaging::Image>&);
 
             io::Info _info;
@@ -98,14 +95,13 @@ namespace tlr
                 VideoFrameRequest(VideoFrameRequest&& other) = default;
 
                 otime::RationalTime time = invalidTime;
-                std::shared_ptr<imaging::Image> image;
                 std::promise<io::VideoFrame> promise;
             };
             std::list<VideoFrameRequest> _videoFrameRequests;
             std::condition_variable _requestCV;
             std::mutex _requestMutex;
             otime::RationalTime _currentTime = invalidTime;
-            memory::Cache<otime::RationalTime, io::VideoFrame> _videoFrameCache;
+            std::list<std::shared_ptr<imaging::Image> > _imageBuffer;
 
             AVFormatContext* _avFormatContext = nullptr;
             int _avVideoStream = -1;

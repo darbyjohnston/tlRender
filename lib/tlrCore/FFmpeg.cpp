@@ -52,6 +52,11 @@ namespace tlr
             return AVRational({ static_cast<int>(value), 1 });
         }
 
+        AVRational swap(AVRational value)
+        {
+            return AVRational({ value.den, value.num });
+        }
+
         std::string getErrorLabel(int r)
         {
             char buf[string::cBufferSize];
