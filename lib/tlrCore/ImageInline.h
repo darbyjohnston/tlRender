@@ -8,7 +8,8 @@ namespace tlr
 {
     namespace imaging
     {
-        inline Size::Size()
+        inline Size::Size() :
+            w(0), h(0)
         {}
 
         inline Size::Size(uint16_t w, uint16_t h) :
@@ -40,7 +41,8 @@ namespace tlr
             return std::tie(w, h) < std::tie(other.w, other.h);
         }
 
-        inline Info::Info()
+        inline Info::Info() :
+            pixelType(PixelType::None)
         {}
 
         inline Info::Info(const Size& size, PixelType pixelType) :

@@ -9,7 +9,9 @@ namespace tlr
     namespace math
     {
         template<typename T>
-        constexpr Range<T>::Range() noexcept
+        constexpr Range<T>::Range() noexcept :
+            _min(static_cast<T>(0)),
+            _max(static_cast<T>(0))
         {}
 
         template<typename T>

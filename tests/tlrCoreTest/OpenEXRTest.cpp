@@ -28,7 +28,8 @@ namespace tlr
             for (const auto& size : std::vector<imaging::Size>(
                 {
                     imaging::Size(16, 16),
-                    imaging::Size(1, 1)
+                    imaging::Size(1, 1),
+                    imaging::Size(0, 0)
                 }))
             {
                 for (const auto& pixelType : plugin->getWritePixelTypes())
@@ -40,17 +41,23 @@ namespace tlr
                         fileName = ss.str();
                         _print(fileName);
                     }
-
                     const auto imageInfo = imaging::Info(size, pixelType);
                     const auto imageWrite = imaging::Image::create(imageInfo);
-
-                    io::Info info;
-                    info.video.push_back(io::VideoInfo(imageInfo, otime::RationalTime(1.0, 24.0)));
-                    auto write = plugin->write(fileName, info);
-                    write->writeVideoFrame(otime::RationalTime(0.0, 24.0), imageWrite);
-
-                    auto read = plugin->read(fileName);
-                    const auto imageRead = read->readVideoFrame(otime::RationalTime(0.0, 24.0)).get();
+                    try
+                    {
+                        {
+                            io::Info info;
+                            info.video.push_back(io::VideoInfo(imageInfo, otime::RationalTime(1.0, 24.0)));
+                            auto write = plugin->write(fileName, info);
+                            write->writeVideoFrame(otime::RationalTime(0.0, 24.0), imageWrite);
+                        }
+                        auto read = plugin->read(fileName);
+                        const auto imageRead = read->readVideoFrame(otime::RationalTime(0.0, 24.0)).get();
+                    }
+                    catch(const std::exception& e)
+                    {
+                        _printError(e.what());
+                    }
                 }
             }
         }

@@ -68,7 +68,8 @@ namespace tlr
             for (const auto& size : std::vector<imaging::Size>(
                 {
                     imaging::Size(16, 16),
-                    imaging::Size(1, 1)
+                    imaging::Size(1, 1),
+                    imaging::Size(0, 0)
                 }))
             {
                 for (const auto& pixelType : plugin->getWritePixelTypes())
@@ -80,33 +81,39 @@ namespace tlr
                         fileName = ss.str();
                         _print(fileName);
                     }
-
                     const auto imageInfo = imaging::Info(size, pixelType);
                     const otime::RationalTime duration(24.0, 24.0);
+                    try
                     {
-                        io::Info info;
-                        info.video.push_back(io::VideoInfo(imageInfo, duration));
-                        auto write = plugin->write(fileName, info);
-                        const auto imageWrite = imaging::Image::create(imageInfo);
+                        {
+                            io::Info info;
+                            info.video.push_back(io::VideoInfo(imageInfo, duration));
+                            auto write = plugin->write(fileName, info);
+                            const auto imageWrite = imaging::Image::create(imageInfo);
+                            for (size_t i = 0; i < static_cast<size_t>(duration.value()); ++i)
+                            {
+                                write->writeVideoFrame(otime::RationalTime(i, 24.0), imageWrite);
+                            }
+                        }
+                        auto read = plugin->read(fileName);
                         for (size_t i = 0; i < static_cast<size_t>(duration.value()); ++i)
                         {
-                            write->writeVideoFrame(otime::RationalTime(i, 24.0), imageWrite);
+                            const auto videoFrame = read->readVideoFrame(otime::RationalTime(i, 24.0)).get();
+                            //std::stringstream ss;
+                            //ss << "Video frame: " << videoFrame.time;
+                            //_print(ss.str());
+                        }
+                        for (size_t i = 0; i < static_cast<size_t>(duration.value()); ++i)
+                        {
+                            const auto videoFrame = read->readVideoFrame(otime::RationalTime(i, 24.0)).get();
+                            //std::stringstream ss;
+                            //ss << "Video frame: " << videoFrame.time;
+                            //_print(ss.str());
                         }
                     }
-                    auto read = plugin->read(fileName);
-                    for (size_t i = 0; i < static_cast<size_t>(duration.value()); ++i)
+                    catch (const std::exception& e)
                     {
-                        const auto videoFrame = read->readVideoFrame(otime::RationalTime(i, 24.0)).get();
-                        //std::stringstream ss;
-                        //ss << "Video frame: " << videoFrame.time;
-                        //_print(ss.str());
-                    }
-                    for (size_t i = 0; i < static_cast<size_t>(duration.value()); ++i)
-                    {
-                        const auto videoFrame = read->readVideoFrame(otime::RationalTime(i, 24.0)).get();
-                        //std::stringstream ss;
-                        //ss << "Video frame: " << videoFrame.time;
-                        //_print(ss.str());
+                        _printError(e.what());
                     }
                 }
             }

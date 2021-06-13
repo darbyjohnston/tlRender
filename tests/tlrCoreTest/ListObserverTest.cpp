@@ -22,7 +22,7 @@ namespace tlr
 
         void ListObserverTest::run()
         {
-            std::vector<int> list = { 0 };
+            std::vector<int> list = {};
             auto value = observer::List<int>::create(list);
             TLR_ASSERT(list == value->get());
 
@@ -36,7 +36,14 @@ namespace tlr
             list.push_back(1);
             bool changed = value->setIfChanged(list);
             TLR_ASSERT(changed);
+            changed = value->setIfChanged(list);
+            TLR_ASSERT(!changed);
             TLR_ASSERT(list == result);
+            TLR_ASSERT(1 == value->getSize());
+            TLR_ASSERT(!value->isEmpty());
+            TLR_ASSERT(1 == value->getItem(0));
+            TLR_ASSERT(value->contains(1));
+            TLR_ASSERT(0 == value->indexOf(1));
 
             {
                 std::vector<int> result2;
@@ -50,7 +57,10 @@ namespace tlr
                 value->setIfChanged(list);
                 TLR_ASSERT(list == result);
                 TLR_ASSERT(list == result2);
-
+                TLR_ASSERT(2 == value->getSize());
+                TLR_ASSERT(2 == value->getItem(1));
+                TLR_ASSERT(value->contains(2));
+                TLR_ASSERT(1 == value->indexOf(2));
                 TLR_ASSERT(2 == value->getObserversCount());
             }
 

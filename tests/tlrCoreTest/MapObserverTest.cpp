@@ -22,7 +22,7 @@ namespace tlr
 
         void MapObserverTest::run()
         {
-            std::map<int, int> map = { { 0, 1 } };
+            std::map<int, int> map = {};
             auto value = observer::Map<int, int>::create(map);
             TLR_ASSERT(map == value->get());
 
@@ -33,10 +33,16 @@ namespace tlr
                 {
                     result = value;
                 });
-            map[1] = 2;
+            map[0] = 1;
             bool changed = value->setIfChanged(map);
             TLR_ASSERT(changed);
+            changed = value->setIfChanged(map);
+            TLR_ASSERT(!changed);
             TLR_ASSERT(map == result);
+            TLR_ASSERT(1 == value->getSize());
+            TLR_ASSERT(!value->isEmpty());
+            TLR_ASSERT(value->hasKey(0));
+            TLR_ASSERT(1 == value->getItem(0));
 
             {
                 std::map<int, int> result2;
@@ -46,11 +52,14 @@ namespace tlr
                     {
                         result2 = value;
                     });
-                map[2] = 3;
+                map[1] = 2;
                 value->setIfChanged(map);
                 TLR_ASSERT(map == result);
                 TLR_ASSERT(map == result2);
-
+                TLR_ASSERT(2 == value->getSize());
+                TLR_ASSERT(!value->isEmpty());
+                TLR_ASSERT(value->hasKey(1));
+                TLR_ASSERT(2 == value->getItem(1));
                 TLR_ASSERT(2 == value->getObserversCount());
             }
 

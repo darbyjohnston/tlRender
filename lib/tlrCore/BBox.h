@@ -20,8 +20,7 @@ namespace tlr
             BBox2(const Vector2<T>& min, const Vector2<T>& max) noexcept;
             BBox2(T x, T y, T w, T h) noexcept;
 
-            Vector2<T> min;
-            Vector2<T> max;
+            Vector2<T> min, max;
 
             //! \name Components
             ///@{

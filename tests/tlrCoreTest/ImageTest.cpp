@@ -50,6 +50,7 @@ namespace tlr
             {
                 TLR_ASSERT(Size(1, 2) == Size(1, 2));
                 TLR_ASSERT(Size(1, 2) != Size(1, 3));
+                TLR_ASSERT(Size(1, 2) < Size(1, 3));
             }
             {
                 const Size size(1, 2);
@@ -149,6 +150,8 @@ namespace tlr
                 TLR_ASSERT(image->getAspect() == .5F);
                 TLR_ASSERT(image->getPixelType() == info.pixelType);
                 TLR_ASSERT(image->isValid());
+                TLR_ASSERT(image->getData());
+                TLR_ASSERT(static_cast<const imaging::Image*>(image.get())->getData());
             }
         }
     }

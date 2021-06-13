@@ -47,7 +47,7 @@ namespace tlr
                 const otime::RationalTime&,
                 const std::shared_ptr<imaging::Image>&);
 
-            otime::RationalTime time = invalidTime;
+            otime::RationalTime time;
             std::shared_ptr<imaging::Image> image;
 
             bool operator == (const VideoFrame&) const;

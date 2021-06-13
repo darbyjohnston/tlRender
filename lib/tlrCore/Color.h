@@ -18,10 +18,7 @@ namespace tlr
             Color4f();
             explicit Color4f(float r, float g, float b, float a = 1.F);
 
-            float r = 0.F;
-            float g = 0.F;
-            float b = 0.F;
-            float a = 0.F;
+            float r, g, b, a;
         };
 
         //! Convert a floating point value to an 8-bit value.

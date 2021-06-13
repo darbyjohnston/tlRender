@@ -21,6 +21,7 @@
 #include <tlrCoreTest/TimelinePlayerTest.h>
 #include <tlrCoreTest/TimelineTest.h>
 #include <tlrCoreTest/ValueObserverTest.h>
+#include <tlrCoreTest/VectorTest.h>
 #if defined(FFmpeg_FOUND)
 #include <tlrCoreTest/FFmpegTest.h>
 #endif
@@ -77,6 +78,7 @@ int main(int argc, char* argv[])
         tests.push_back(tlr::CoreTest::TimelinePlayerTest::create());
         tests.push_back(tlr::CoreTest::TimelineTest::create());
         tests.push_back(tlr::CoreTest::ValueObserverTest::create());
+        tests.push_back(tlr::CoreTest::VectorTest::create());
 #if defined(FFmpeg_FOUND)
         tests.push_back(tlr::CoreTest::FFmpegTest::create());
 #endif

@@ -21,7 +21,8 @@ set(HEADERS
     TimeTest.h
     TimelinePlayerTest.h
     TimelineTest.h
-    ValueObserverTest.h)
+    ValueObserverTest.h
+    VectorTest.h)
 set(SOURCE
     BBoxTest.cpp
     CacheTest.cpp
@@ -45,7 +46,8 @@ set(SOURCE
     TimeTest.cpp
     TimelinePlayerTest.cpp
     TimelineTest.cpp
-    ValueObserverTest.cpp)
+    ValueObserverTest.cpp
+    VectorTest.cpp)
 if(FFmpeg_FOUND)
     set(HEADERS ${HEADERS} FFmpegTest.h)
     set(SOURCE ${SOURCE} FFmpegTest.cpp)

@@ -210,8 +210,7 @@ namespace tlr
                     break;
                 }
                 break;
-            default:
-                break;
+            default: break;
             }
             if (_playback->setIfChanged(value))
             {
@@ -323,8 +322,7 @@ namespace tlr
                     }
                 }
                 break;
-            default:
-                break;
+            default: break;
             }
         }
 
@@ -499,8 +497,7 @@ namespace tlr
                 }
                 break;
             }
-            default:
-                break;
+            default: break;
             }
 
             return out;

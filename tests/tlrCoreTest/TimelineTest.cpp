@@ -109,14 +109,28 @@ namespace tlr
 
         void TimelineTest::_timeline()
         {
+            for (const auto& i : getExtensions())
+            {
+                std::stringstream ss;
+                ss << "Timeline extension: " << i;
+                _print(ss.str());
+            }
+            
             // Write an OTIO timeline.
+            auto otioTrack = new otio::Track();
             auto otioClip = new otio::Clip;
             otioClip->set_media_reference(new otio::ImageSequenceReference("", "TimelineTest.", ".png", 0, 1, 1, 0));
-            const otime::RationalTime duration(24.0, 24.0);
-            const otime::TimeRange timeRange(otime::RationalTime(0.0, 24.0), duration);
-            otioClip->set_source_range(timeRange);
-            auto otioTrack = new otio::Track();
+            const otime::RationalTime clipDuration(24.0, 24.0);
+            otioClip->set_source_range(otime::TimeRange(otime::RationalTime(0.0, 24.0), clipDuration));
             otio::ErrorStatus errorStatus = otio::ErrorStatus::OK;
+            otioTrack->append_child(otioClip, &errorStatus);
+            if (errorStatus != otio::ErrorStatus::OK)
+            {
+                throw std::runtime_error("Cannot append child");
+            }
+            otioClip = new otio::Clip;
+            otioClip->set_media_reference(new otio::ImageSequenceReference("", "TimelineTest.", ".png", 0, 1, 1, 0));
+            otioClip->set_source_range(otime::TimeRange(otime::RationalTime(0.0, 24.0), clipDuration));
             otioTrack->append_child(otioClip, &errorStatus);
             if (errorStatus != otio::ErrorStatus::OK)
             {
@@ -138,13 +152,13 @@ namespace tlr
             }
 
             // Write the image sequence files.
-            const auto imageInfo = imaging::Info(16, 16, imaging::PixelType::RGB_U8);
+            const imaging::Info imageInfo(16, 16, imaging::PixelType::RGB_U8);
             const auto image = imaging::Image::create(imageInfo);
             io::Info ioInfo;
-            ioInfo.video.push_back(io::VideoInfo(imageInfo, duration));
+            ioInfo.video.push_back(io::VideoInfo(imageInfo, clipDuration));
             auto ioSystem = io::System::create();
             auto write = ioSystem->write("TimelineTest.0.png", ioInfo);
-            for (size_t i = 0; i < static_cast<size_t>(duration.value()); ++i)
+            for (size_t i = 0; i < static_cast<size_t>(clipDuration.value()); ++i)
             {
                 write->writeVideoFrame(otime::RationalTime(i, 24.0), image);
             }
@@ -152,19 +166,24 @@ namespace tlr
             // Create a timeline from the OTIO timeline.
             auto timeline = Timeline::create(fileName);
             TLR_ASSERT(fileName == timeline->getFileName());
-            TLR_ASSERT(duration == timeline->getDuration());
+            const otime::RationalTime timelineDuration(48.0, 24.0);
+            TLR_ASSERT(timelineDuration == timeline->getDuration());
             TLR_ASSERT(otime::RationalTime(0.0, 24.0) == timeline->getGlobalStartTime());
             TLR_ASSERT(imageInfo == timeline->getImageInfo());
-            TLR_ASSERT(std::vector<otime::TimeRange>({ timeRange }) == timeline->getClipRanges());
+            TLR_ASSERT(std::vector<otime::TimeRange>(
+                {
+                    otime::TimeRange(otime::RationalTime(0.0, 24.0), clipDuration),
+                    otime::TimeRange(otime::RationalTime(24.0, 24.0), clipDuration)
+                }) == timeline->getClipRanges());
 
             // Render frames from the timeline.
             std::vector<io::VideoFrame> frames;
             std::vector<std::future<io::VideoFrame> > futures;
-            for (size_t i = 0; i < static_cast<size_t>(duration.value()); ++i)
+            for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
             {
                 futures.push_back(timeline->render(otime::RationalTime(i, 24.0)));
             }
-            while (frames.size() < static_cast<size_t>(duration.value()))
+            while (frames.size() < static_cast<size_t>(timelineDuration.value()))
             {
                 timeline->tick();
                 auto i = futures.begin();
@@ -184,14 +203,14 @@ namespace tlr
             }
 
             // Render frames from the timeline, setting the active range.
-            timeline->setActiveRanges({ timeRange });
+            timeline->setActiveRanges({ otime::TimeRange(otime::RationalTime(0.0, 24.0), timelineDuration) });
             frames.clear();
             futures.clear();
-            for (size_t i = 0; i < static_cast<size_t>(duration.value()); ++i)
+            for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
             {
                 futures.push_back(timeline->render(otime::RationalTime(i, 24.0)));
             }
-            while (frames.size() < static_cast<size_t>(duration.value()))
+            while (frames.size() < static_cast<size_t>(timelineDuration.value()))
             {
                 timeline->tick();
                 auto i = futures.begin();
@@ -213,7 +232,7 @@ namespace tlr
             // Cancel renders.
             frames.clear();
             futures.clear();
-            for (size_t i = 0; i < static_cast<size_t>(duration.value()); ++i)
+            for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
             {
                 futures.push_back(timeline->render(otime::RationalTime(i, 24.0)));
             }

@@ -46,8 +46,7 @@ namespace tlr
             constexpr bool operator  < (const Range<T>&) const;
 
         private:
-            T _min = static_cast<T>(0);
-            T _max = static_cast<T>(0);
+            T _min, _max;
         };
 
         //! This typedef provides an integer range.

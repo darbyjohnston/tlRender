@@ -45,7 +45,7 @@ namespace tlr
 
         void TimelinePlayerTest::_loopTime()
         {
-            const auto timeRange = otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0));
+            const otime::TimeRange timeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0));
             TLR_ASSERT(otime::RationalTime(0.0, 24.0) == loopTime(otime::RationalTime(0.0, 24.0), timeRange));
             TLR_ASSERT(otime::RationalTime(1.0, 24.0) == loopTime(otime::RationalTime(1.0, 24.0), timeRange));
             TLR_ASSERT(otime::RationalTime(23.0, 24.0) == loopTime(otime::RationalTime(23.0, 24.0), timeRange));
@@ -63,13 +63,20 @@ namespace tlr
         void TimelinePlayerTest::_timelinePlayer()
         {
             // Write an OTIO timeline.
+            auto otioTrack = new otio::Track();
             auto otioClip = new otio::Clip;
             otioClip->set_media_reference(new otio::ImageSequenceReference("", "TimelinePlayerTest.", ".png", 0, 1, 1, 0));
-            const otime::RationalTime duration(24.0, 24.0);
-            const otime::TimeRange timeRange(otime::RationalTime(0.0, 24.0), duration);
-            otioClip->set_source_range(timeRange);
-            auto otioTrack = new otio::Track();
+            const otime::RationalTime clipDuration(24.0, 24.0);
+            otioClip->set_source_range(otime::TimeRange(otime::RationalTime(0.0, 24.0), clipDuration));
             otio::ErrorStatus errorStatus = otio::ErrorStatus::OK;
+            otioTrack->append_child(otioClip, &errorStatus);
+            if (errorStatus != otio::ErrorStatus::OK)
+            {
+                throw std::runtime_error("Cannot append child");
+            }
+            otioClip = new otio::Clip;
+            otioClip->set_media_reference(new otio::ImageSequenceReference("", "TimelinePlayerTest.", ".png", 0, 1, 1, 0));
+            otioClip->set_source_range(otime::TimeRange(otime::RationalTime(0.0, 24.0), clipDuration));
             otioTrack->append_child(otioClip, &errorStatus);
             if (errorStatus != otio::ErrorStatus::OK)
             {
@@ -91,13 +98,13 @@ namespace tlr
             }
 
             // Write the image sequence files.
-            const auto imageInfo = imaging::Info(16, 16, imaging::PixelType::RGB_U8);
+            const imaging::Info imageInfo(16, 16, imaging::PixelType::RGB_U8);
             const auto image = imaging::Image::create(imageInfo);
             io::Info ioInfo;
-            ioInfo.video.push_back(io::VideoInfo(imageInfo, duration));
+            ioInfo.video.push_back(io::VideoInfo(imageInfo, clipDuration));
             auto ioSystem = io::System::create();
             auto write = ioSystem->write("TimelinePlayerTest.0.png", ioInfo);
-            for (size_t i = 0; i < static_cast<size_t>(duration.value()); ++i)
+            for (size_t i = 0; i < static_cast<size_t>(clipDuration.value()); ++i)
             {
                 write->writeVideoFrame(otime::RationalTime(i, 24.0), image);
             }
@@ -105,10 +112,15 @@ namespace tlr
             // Create a timeline player from the OTIO timeline.
             auto timelinePlayer = TimelinePlayer::create(fileName);
             TLR_ASSERT(fileName == timelinePlayer->getFileName());
-            TLR_ASSERT(duration == timelinePlayer->getDuration());
+            const otime::RationalTime timelineDuration(48.0, 24.0);
+            TLR_ASSERT(timelineDuration == timelinePlayer->getDuration());
             TLR_ASSERT(otime::RationalTime(0.0, 24.0) == timelinePlayer->getGlobalStartTime());
             TLR_ASSERT(imageInfo == timelinePlayer->getImageInfo());
-            TLR_ASSERT(std::vector<otime::TimeRange>({ timeRange }) == timelinePlayer->getClipRanges());
+            TLR_ASSERT(std::vector<otime::TimeRange>(
+                {
+                    otime::TimeRange(otime::RationalTime(0.0, 24.0), clipDuration),
+                    otime::TimeRange(otime::RationalTime(24.0, 24.0), clipDuration)
+                }) == timelinePlayer->getClipRanges());
 
             // Test frames.
             timelinePlayer->setFrameCacheReadAhead(10);
@@ -138,11 +150,21 @@ namespace tlr
                     }
                     _print(ss.str());
                 });
-            timelinePlayer->setPlayback(Playback::Forward);
-            for (size_t i = 0; i < 100; ++i)
+            for (const auto& loop : getLoopEnums())
             {
-                timelinePlayer->tick();
-                time::sleep(std::chrono::microseconds(10000));
+                timelinePlayer->setLoop(loop);
+                timelinePlayer->setPlayback(Playback::Forward);
+                for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
+                {
+                    timelinePlayer->tick();
+                    time::sleep(std::chrono::microseconds(1000000 / 24));
+                }
+                timelinePlayer->setPlayback(Playback::Reverse);
+                for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
+                {
+                    timelinePlayer->tick();
+                    time::sleep(std::chrono::microseconds(1000000 / 24));
+                }
             }
             timelinePlayer->setPlayback(Playback::Stop);
 
@@ -182,13 +204,29 @@ namespace tlr
             timelinePlayer->seek(otime::RationalTime(1.0, 24.0));
             TLR_ASSERT(otime::RationalTime(1.0, 24.0) == currentTime);
             timelinePlayer->end();
-            TLR_ASSERT(otime::RationalTime(23.0, 24.0) == currentTime);
+            TLR_ASSERT(otime::RationalTime(47.0, 24.0) == currentTime);
             timelinePlayer->start();
             TLR_ASSERT(otime::RationalTime(0.0, 24.0) == currentTime);
             timelinePlayer->frameNext();
             TLR_ASSERT(otime::RationalTime(1.0, 24.0) == currentTime);
-            timelinePlayer->framePrev();
+            timelinePlayer->timeAction(TimeAction::FrameNextX10);
+            TLR_ASSERT(otime::RationalTime(11.0, 24.0) == currentTime);
+            timelinePlayer->timeAction(TimeAction::FrameNextX100);
             TLR_ASSERT(otime::RationalTime(0.0, 24.0) == currentTime);
+            timelinePlayer->framePrev();
+            TLR_ASSERT(otime::RationalTime(47.0, 24.0) == currentTime);
+            timelinePlayer->timeAction(TimeAction::FramePrevX10);
+            TLR_ASSERT(otime::RationalTime(37.0, 24.0) == currentTime);
+            timelinePlayer->timeAction(TimeAction::FramePrevX100);
+            TLR_ASSERT(otime::RationalTime(47.0, 24.0) == currentTime);
+            timelinePlayer->clipPrev();
+            TLR_ASSERT(otime::RationalTime(0.0, 24.0) == currentTime);
+            timelinePlayer->clipPrev();
+            TLR_ASSERT(otime::RationalTime(24.0, 24.0) == currentTime);
+            timelinePlayer->clipNext();
+            TLR_ASSERT(otime::RationalTime(0.0, 24.0) == currentTime);
+            timelinePlayer->clipNext();
+            TLR_ASSERT(otime::RationalTime(24.0, 24.0) == currentTime);
 
             // Test the in/out points.
             otime::TimeRange inOutRange = invalidTimeRange;
@@ -207,7 +245,7 @@ namespace tlr
             TLR_ASSERT(otime::TimeRange(otime::RationalTime(2.0, 24.0), otime::RationalTime(21.0, 24.0)) == inOutRange);
             timelinePlayer->resetInPoint();
             timelinePlayer->resetOutPoint();
-            TLR_ASSERT(timeRange == inOutRange);
+            TLR_ASSERT(otime::TimeRange(otime::RationalTime(0.0, 24.0), timelineDuration) == inOutRange);
         }
     }
 }

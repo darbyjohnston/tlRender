@@ -21,8 +21,7 @@ namespace tlr
             Size();
             explicit Size(uint16_t w, uint16_t h);
 
-            uint16_t w = 0;
-            uint16_t h = 0;
+            uint16_t w, h;
 
             //! Is this size valid?
             bool isValid() const;
@@ -78,7 +77,7 @@ namespace tlr
             explicit Info(uint16_t w, uint16_t h, PixelType);
 
             Size size;
-            PixelType pixelType = PixelType::None;
+            PixelType pixelType;
 
             //! Is the information valid?
             bool isValid() const;

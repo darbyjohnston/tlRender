@@ -40,7 +40,8 @@ namespace tlr
             duration(duration)
         {}
 
-        VideoFrame::VideoFrame()
+        VideoFrame::VideoFrame() :
+            time(invalidTime)
         {}
 
         VideoFrame::VideoFrame(

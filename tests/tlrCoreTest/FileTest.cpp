@@ -29,6 +29,7 @@ namespace tlr
             {
                 TLR_ASSERT(isAbsolute("/"));
                 TLR_ASSERT(isAbsolute("/tmp"));
+                TLR_ASSERT(isAbsolute("\\"));
                 TLR_ASSERT(isAbsolute("C:"));
                 TLR_ASSERT(isAbsolute("C:\\tmp"));
                 TLR_ASSERT(!isAbsolute(""));
