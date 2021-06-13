@@ -75,7 +75,8 @@ namespace tlr
             {
                 _clipRanges = _timelinePlayer->clipRanges();
                 _thumbnailProvider = new TimelineThumbnailProvider(
-                    timeline::Timeline::create(_timelinePlayer->fileName().toLatin1().data()));
+                    timeline::Timeline::create(_timelinePlayer->fileName().toLatin1().data()),
+                    this);
                 _thumbnailProvider->setColorConfig(_colorConfig);
                 connect(
                     _timelinePlayer,
