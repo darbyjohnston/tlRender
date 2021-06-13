@@ -67,6 +67,7 @@ namespace tlr
                                 }
                             }
                         }
+                        _timeline->tick();
                         if (!requests.empty())
                         {
                             const auto request = std::move(requests.front());
