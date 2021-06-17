@@ -251,6 +251,7 @@ namespace tlr
         const auto now = std::chrono::steady_clock::now();
         const std::chrono::duration<float> diff = now - _startTime;
         _print(string::Format("Seconds elapsed: {0}").arg(diff.count()));
+        _print(string::Format("Average FPS: {0}").arg(_range.duration().value() / diff.count()));
     }
 
     void App::_tick()
