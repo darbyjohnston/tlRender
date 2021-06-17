@@ -302,13 +302,13 @@ namespace tlr
                     {
                         if (range.intersects(activeRange))
                         {
-                            del = !i->second.read->hasVideoFrames();
+                            del = false;
                             break;
                         }
                     }
-                    if (del)
+                    if (del && !i->second.read->hasVideoFrames())
                     {
-                        //std::cout << "stop: " << j->second.read->getFileName() << " / " << j->second.read << std::endl;
+                        //std::cout << "stop: " << i->second.read->getFileName() << " / " << i->second.read << std::endl;
                         auto read = i->second.read;
                         read->stop();
                         _stoppedReaders.push_back(read);
