@@ -53,8 +53,6 @@ namespace tlr
             FrameNext,
             FrameNextX10,
             FrameNextX100,
-            ClipPrev,
-            ClipNext,
 
             Count,
             First = Start
@@ -96,9 +94,6 @@ namespace tlr
 
             //! Get the image info.
             const imaging::Info& getImageInfo() const;
-
-            //! Get the clip time ranges.
-            std::vector<otime::TimeRange> getClipRanges() const;
 
             ///@}
 
@@ -142,12 +137,6 @@ namespace tlr
 
             //! Go to the next frame.
             void frameNext();
-
-            //! Go to the previous clip.
-            void clipPrev();
-
-            //! Go to the next clip.
-            void clipNext();
 
             ///@}
 

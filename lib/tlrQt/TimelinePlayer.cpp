@@ -78,11 +78,6 @@ namespace tlr
             return _timelinePlayer->getImageInfo();
         }
 
-        std::vector<otime::TimeRange> TimelinePlayer::clipRanges() const
-        {
-            return _timelinePlayer->getClipRanges();
-        }
-
         timeline::Playback TimelinePlayer::playback() const
         {
             return _timelinePlayer->observePlayback()->get();
@@ -174,16 +169,6 @@ namespace tlr
         void TimelinePlayer::frameNext()
         {
             _timelinePlayer->frameNext();
-        }
-
-        void TimelinePlayer::clipPrev()
-        {
-            _timelinePlayer->clipPrev();
-        }
-
-        void TimelinePlayer::clipNext()
-        {
-            _timelinePlayer->clipNext();
         }
 
         void TimelinePlayer::setInOutRange(const otime::TimeRange& value)

@@ -58,7 +58,6 @@ namespace tlr
 
             gl::ColorConfig _colorConfig;
             TimelinePlayer* _timelinePlayer = nullptr;
-            std::vector<otime::TimeRange> _clipRanges;
             TimelineThumbnailProvider* _thumbnailProvider = nullptr;
             std::map<otime::RationalTime, QImage> _thumbnails;
             TimeObject::Units _units = TimeObject::Units::Timecode;

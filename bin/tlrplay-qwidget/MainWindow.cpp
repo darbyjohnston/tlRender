@@ -143,14 +143,6 @@ namespace tlr
         _actions["Time/FrameNextX100"] = new QAction(this);
         _actions["Time/FrameNextX100"]->setText(tr("Next Frame X100"));
         _actions["Time/FrameNextX100"]->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Right));
-        _actions["Time/ClipPrev"] = new QAction(this);
-        _actions["Time/ClipPrev"]->setText(tr("Previous Clip"));
-        _actions["Time/ClipPrev"]->setIcon(QIcon(":/Icons/ClipPrev.svg"));
-        _actions["Time/ClipPrev"]->setShortcut(QKeySequence(Qt::Key_BracketLeft));
-        _actions["Time/ClipNext"] = new QAction(this);
-        _actions["Time/ClipNext"]->setText(tr("Next Clip"));
-        _actions["Time/ClipNext"]->setIcon(QIcon(":/Icons/ClipNext.svg"));
-        _actions["Time/ClipNext"]->setShortcut(QKeySequence(Qt::Key_BracketRight));
 
         _actions["InOutPoints/SetInPoint"] = new QAction(this);
         _actions["InOutPoints/SetInPoint"]->setText(tr("Set In Point"));
@@ -208,9 +200,6 @@ namespace tlr
         timeMenu->addAction(_actions["Time/FrameNext"]);
         timeMenu->addAction(_actions["Time/FrameNextX10"]);
         timeMenu->addAction(_actions["Time/FrameNextX100"]);
-        timeMenu->addSeparator();
-        timeMenu->addAction(_actions["Time/ClipPrev"]);
-        timeMenu->addAction(_actions["Time/ClipNext"]);
 
         auto inOutPointsMenu = new QMenu;
         inOutPointsMenu->setTitle(tr("&In/Out Points"));
@@ -327,14 +316,6 @@ namespace tlr
             _actions["Time/FrameNextX100"],
             SIGNAL(triggered()),
             SLOT(_frameNextX100Callback()));
-        connect(
-            _actions["Time/ClipPrev"],
-            SIGNAL(triggered()),
-            SLOT(_clipPrevCallback()));
-        connect(
-            _actions["Time/ClipNext"],
-            SIGNAL(triggered()),
-            SLOT(_clipNextCallback()));
 
         connect(
             _playbackActionGroup,
@@ -736,22 +717,6 @@ namespace tlr
         if (_currentTimelinePlayer)
         {
             _currentTimelinePlayer->timeAction(timeline::TimeAction::FrameNextX100);
-        }
-    }
-
-    void MainWindow::_clipPrevCallback()
-    {
-        if (_currentTimelinePlayer)
-        {
-            _currentTimelinePlayer->clipPrev();
-        }
-    }
-
-    void MainWindow::_clipNextCallback()
-    {
-        if (_currentTimelinePlayer)
-        {
-            _currentTimelinePlayer->clipNext();
         }
     }
 

@@ -60,7 +60,6 @@ namespace tlr
                 return;
             if (_timelinePlayer)
             {
-                _clipRanges.clear();
                 _thumbnailProvider->setParent(nullptr);
                 delete _thumbnailProvider;
                 _thumbnailProvider = nullptr;
@@ -73,7 +72,6 @@ namespace tlr
             _timelinePlayer = timelinePlayer;
             if (_timelinePlayer)
             {
-                _clipRanges = _timelinePlayer->clipRanges();
                 _thumbnailProvider = new TimelineThumbnailProvider(
                     timeline::Timeline::create(_timelinePlayer->fileName().toLatin1().data()),
                     this);
@@ -146,26 +144,12 @@ namespace tlr
                     painter.drawImage(QPoint(_timeToPos(i.first), y0), i.second);
                 }
 
-                // Draw clips.
-                x0 = 0;
-                x1 = 0;
-                y1 = y0 + rect2.height();
-                h = stripeSize;
-                for (size_t i = 0; i < _clipRanges.size(); ++i)
-                {
-                    if (1 == i % 2)
-                    {
-                        x0 = _timeToPos(_clipRanges[i].start_time());
-                        x1 = _timeToPos(_clipRanges[i].end_time_inclusive());
-                        painter.fillRect(QRect(x0, y1 - h * 2, x1 - x0, h), QColor(160, 160, 160));
-                    }
-                }
-
                 // Draw in/out points.
                 const auto& inOutRange = _timelinePlayer->inOutRange();
                 x0 = _timeToPos(inOutRange.start_time());
                 x1 = _timeToPos(inOutRange.end_time_inclusive());
                 y1 = y0 + rect2.height();
+                h = stripeSize;
                 painter.fillRect(QRect(x0, y1 - h, x1 - x0, h), QColor(90, 90, 90));
 
                 // Draw cached frames.

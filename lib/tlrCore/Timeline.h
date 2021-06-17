@@ -23,6 +23,9 @@ namespace tlr
         //! Convert frames to ranges.
         std::vector<otime::TimeRange> toRanges(std::vector<otime::RationalTime>);
 
+        //! Get the ancestor (highest parent).
+        otio::Composable* getAncestor(otio::Composable*);
+
         //! Timeline.
         class Timeline : public std::enable_shared_from_this<Timeline>
         {
@@ -53,9 +56,6 @@ namespace tlr
             //! Get the image info.
             const imaging::Info& getImageInfo() const;
 
-            //! Get the clip time ranges.
-            const std::vector<otime::TimeRange>& getClipRanges() const;
-
             ///@}
 
             //! \name Frames
@@ -82,15 +82,14 @@ namespace tlr
             std::string _getFileName(const otio::MediaReference*) const;
             otime::TimeRange _getRange(const otio::SerializableObject::Retainer<otio::Clip>&) const;
 
+            bool _getImageInfo(const otio::Composable*, imaging::Info&) const;
+
             std::string _fileName;
             otio::SerializableObject::Retainer<otio::Timeline> _timeline;
-            otio::SerializableObject::Retainer<otio::Track> _flattenedTimeline;
             otime::RationalTime _duration = invalidTime;
             otime::RationalTime _globalStartTime = invalidTime;
             std::shared_ptr<io::System> _ioSystem;
             imaging::Info _imageInfo;
-            std::vector<otio::Clip*> _clips;
-            std::vector<otime::TimeRange> _clipRanges;
             struct Reader
             {
                 std::shared_ptr<io::IRead> read;

@@ -26,11 +26,6 @@ namespace tlr
             return _timeline->getImageInfo();
         }
 
-        inline std::vector<otime::TimeRange> TimelinePlayer::getClipRanges() const
-        {
-            return _timeline->getClipRanges();;
-        }
-
         inline std::shared_ptr<observer::IValue<Playback> > TimelinePlayer::observePlayback() const
         {
             return _playback;

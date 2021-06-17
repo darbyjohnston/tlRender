@@ -38,9 +38,6 @@ namespace tlr
             //! Get the image info.
             const imaging::Info& imageInfo() const;
 
-            //! Get the clip time ranges.
-            std::vector<otime::TimeRange> clipRanges() const;
-
             ///@}
 
             //! \name Playback
@@ -131,12 +128,6 @@ namespace tlr
 
             //! Go to the next frame.
             void frameNext();
-
-            //! Go to the previous clip.
-            void clipPrev();
-
-            //! Go to the next clip.
-            void clipNext();
 
             ///@}
 

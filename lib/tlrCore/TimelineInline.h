@@ -25,10 +25,5 @@ namespace tlr
         {
             return _imageInfo;
         }
-
-        inline const std::vector<otime::TimeRange>& Timeline::getClipRanges() const
-        {
-            return _clipRanges;
-        }
     }
 }

@@ -170,11 +170,6 @@ namespace tlr
             TLR_ASSERT(timelineDuration == timeline->getDuration());
             TLR_ASSERT(otime::RationalTime(0.0, 24.0) == timeline->getGlobalStartTime());
             TLR_ASSERT(imageInfo == timeline->getImageInfo());
-            TLR_ASSERT(std::vector<otime::TimeRange>(
-                {
-                    otime::TimeRange(otime::RationalTime(0.0, 24.0), clipDuration),
-                    otime::TimeRange(otime::RationalTime(24.0, 24.0), clipDuration)
-                }) == timeline->getClipRanges());
 
             // Render frames from the timeline.
             std::vector<io::VideoFrame> frames;

@@ -39,9 +39,7 @@ namespace tlr
             "FramePrevX100",
             "FrameNext",
             "FrameNextX10",
-            "FrameNextX100",
-            "ClipPrev",
-            "ClipNext");
+            "FrameNextX100");
 
         otime::RationalTime loopTime(const otime::RationalTime& time, const otime::TimeRange& range)
         {
@@ -260,8 +258,6 @@ namespace tlr
             setPlayback(timeline::Playback::Stop);
             const auto& duration = _timeline->getDuration();
             const auto& currentTime = _currentTime->get();
-            const auto& clipRanges = _timeline->getClipRanges();
-            const std::size_t rangeSize = clipRanges.size();
             switch (time)
             {
             case TimeAction::Start:
@@ -288,40 +284,6 @@ namespace tlr
             case TimeAction::FrameNextX100:
                 seek(otime::RationalTime(currentTime.value() + 100, duration.rate()));
                 break;
-            case TimeAction::ClipPrev:
-                for (std::size_t i = 0; i < rangeSize; ++i)
-                {
-                    if (clipRanges[i].contains(currentTime))
-                    {
-                        if (i > 0)
-                        {
-                            seek(clipRanges[i - 1].start_time());
-                        }
-                        else
-                        {
-                            seek(clipRanges[rangeSize - 1].start_time());
-                        }
-                        break;
-                    }
-                }
-                break;
-            case TimeAction::ClipNext:
-                for (std::size_t i = 0; i < rangeSize; ++i)
-                {
-                    if (clipRanges[i].contains(currentTime))
-                    {
-                        if ((i + 1) < rangeSize)
-                        {
-                            seek(clipRanges[i + 1].start_time());
-                        }
-                        else
-                        {
-                            seek(clipRanges[0].start_time());
-                        }
-                        break;
-                    }
-                }
-                break;
             default: break;
             }
         }
@@ -344,16 +306,6 @@ namespace tlr
         void TimelinePlayer::frameNext()
         {
             timeAction(TimeAction::FrameNext);
-        }
-
-        void TimelinePlayer::clipPrev()
-        {
-            timeAction(TimeAction::ClipPrev);
-        }
-
-        void TimelinePlayer::clipNext()
-        {
-            timeAction(TimeAction::ClipNext);
         }
 
         void TimelinePlayer::setInOutRange(const otime::TimeRange& value)

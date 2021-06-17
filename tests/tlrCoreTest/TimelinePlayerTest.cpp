@@ -116,11 +116,6 @@ namespace tlr
             TLR_ASSERT(timelineDuration == timelinePlayer->getDuration());
             TLR_ASSERT(otime::RationalTime(0.0, 24.0) == timelinePlayer->getGlobalStartTime());
             TLR_ASSERT(imageInfo == timelinePlayer->getImageInfo());
-            TLR_ASSERT(std::vector<otime::TimeRange>(
-                {
-                    otime::TimeRange(otime::RationalTime(0.0, 24.0), clipDuration),
-                    otime::TimeRange(otime::RationalTime(24.0, 24.0), clipDuration)
-                }) == timelinePlayer->getClipRanges());
 
             // Test frames.
             timelinePlayer->setFrameCacheReadAhead(10);
@@ -219,14 +214,6 @@ namespace tlr
             TLR_ASSERT(otime::RationalTime(37.0, 24.0) == currentTime);
             timelinePlayer->timeAction(TimeAction::FramePrevX100);
             TLR_ASSERT(otime::RationalTime(47.0, 24.0) == currentTime);
-            timelinePlayer->clipPrev();
-            TLR_ASSERT(otime::RationalTime(0.0, 24.0) == currentTime);
-            timelinePlayer->clipPrev();
-            TLR_ASSERT(otime::RationalTime(24.0, 24.0) == currentTime);
-            timelinePlayer->clipNext();
-            TLR_ASSERT(otime::RationalTime(0.0, 24.0) == currentTime);
-            timelinePlayer->clipNext();
-            TLR_ASSERT(otime::RationalTime(24.0, 24.0) == currentTime);
 
             // Test the in/out points.
             otime::TimeRange inOutRange = invalidTimeRange;

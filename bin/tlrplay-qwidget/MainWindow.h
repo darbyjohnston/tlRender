@@ -66,8 +66,6 @@ namespace tlr
         void _frameNextCallback();
         void _frameNextX10Callback();
         void _frameNextX100Callback();
-        void _clipPrevCallback();
-        void _clipNextCallback();
         void _saveSettingsCallback();
 
     private:
