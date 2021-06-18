@@ -71,7 +71,7 @@ namespace tlr
             ///@{
 
             //! Get the current frame.
-            const io::VideoFrame& frame() const;
+            const timeline::RenderFrame& frame() const;
 
             //! Get the frame cache read ahead.
             int frameCacheReadAhead();
@@ -184,7 +184,7 @@ namespace tlr
             ///@{
 
             //! This signal is emitted when the current frame is changed.
-            void frameChanged(const tlr::io::VideoFrame&);
+            void frameChanged(const tlr::timeline::RenderFrame&);
 
             //! This signal is emitted when the cached frames are changed.
             void cachedFramesChanged(const std::vector<otime::TimeRange>&);
@@ -201,7 +201,7 @@ namespace tlr
             std::shared_ptr<observer::ValueObserver<timeline::Loop> > _loopObserver;
             std::shared_ptr<observer::ValueObserver<otime::RationalTime> > _currentTimeObserver;
             std::shared_ptr<observer::ValueObserver<otime::TimeRange> > _inOutRangeObserver;
-            std::shared_ptr<observer::ValueObserver<io::VideoFrame> > _frameObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::RenderFrame> > _frameObserver;
             std::shared_ptr<observer::ListObserver<otime::TimeRange> > _cachedFramesObserver;
         };
     }

@@ -41,9 +41,9 @@ namespace tlr
                     Q_EMIT inOutRangeChanged(value);
                 });
 
-            _frameObserver = observer::ValueObserver<io::VideoFrame>::create(
+            _frameObserver = observer::ValueObserver<timeline::RenderFrame>::create(
                 _timelinePlayer->observeFrame(),
-                [this](const io::VideoFrame& value)
+                [this](const timeline::RenderFrame& value)
                 {
                     Q_EMIT frameChanged(value);
                 });
@@ -98,7 +98,7 @@ namespace tlr
             return _timelinePlayer->observeInOutRange()->get();
         }
 
-        const io::VideoFrame& TimelinePlayer::frame() const
+        const timeline::RenderFrame& TimelinePlayer::frame() const
         {
             return _timelinePlayer->observeFrame()->get();
         }

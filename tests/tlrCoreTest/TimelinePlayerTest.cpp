@@ -122,16 +122,13 @@ namespace tlr
             TLR_ASSERT(10 == timelinePlayer->getFrameCacheReadAhead());
             timelinePlayer->setFrameCacheReadBehind(1);
             TLR_ASSERT(1 == timelinePlayer->getFrameCacheReadBehind());
-            auto frameObserver = observer::ValueObserver<io::VideoFrame>::create(
+            auto frameObserver = observer::ValueObserver<timeline::RenderFrame>::create(
                 timelinePlayer->observeFrame(),
-                [this](const io::VideoFrame& value)
+                [this](const timeline::RenderFrame& value)
                 {
-                    if (value.image)
-                    {
-                        std::stringstream ss;
-                        ss << "Frame: " << value.time;
-                        _print(ss.str());
-                    }
+                    std::stringstream ss;
+                    ss << "Frame: " << value.time;
+                    _print(ss.str());
                 });
             auto cachedFramesObserver = observer::ListObserver<otime::TimeRange>::create(
                 timelinePlayer->observeCachedFrames(),

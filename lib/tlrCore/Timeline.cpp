@@ -72,6 +72,28 @@ namespace tlr
             return out;
         }
 
+        bool RenderLayer::operator == (const RenderLayer& other) const
+        {
+            return image == other.image &&
+                opacity == other.opacity;
+        }
+
+        bool RenderLayer::operator != (const RenderLayer& other) const
+        {
+            return !(*this == other);
+        }
+
+        bool RenderFrame::operator == (const RenderFrame& other) const
+        {
+            return time == other.time &&
+                layers == other.layers;
+        }
+
+        bool RenderFrame::operator != (const RenderFrame& other) const
+        {
+            return !(*this == other);
+        }
+
         namespace
         {
 #if defined(TLR_ENABLE_PYTHON)
@@ -173,13 +195,30 @@ namespace tlr
 
             // Get information about the timeline.
             _getImageInfo(_timeline.value->tracks(), _imageInfo);
+
+            // Create a new thread.
+            _running = true;
+            _thread = std::thread(
+                [this]
+                {
+                    while (_running)
+                    {
+                        _tick();
+                    }
+                });
         }
 
         Timeline::Timeline()
         {}
 
         Timeline::~Timeline()
-        {}
+        {
+            _running = false;
+            if (_thread.joinable())
+            {
+                _thread.join();
+            }
+        }
 
         std::shared_ptr<Timeline> Timeline::create(const std::string& fileName)
         {
@@ -188,79 +227,17 @@ namespace tlr
             return out;
         }
 
-        std::future<io::VideoFrame> Timeline::render(const otime::RationalTime& time)
+        std::future<RenderFrame> Timeline::render(const otime::RationalTime& time)
         {
-            std::future<io::VideoFrame> out;
-            const auto now = std::chrono::steady_clock::now();
-            for (const auto& i : _timeline->tracks()->children())
+            Request request;
+            request.time = time;
+            auto future = request.promise.get_future();
             {
-                if (const auto track = dynamic_cast<otio::Track*>(i.value))
-                {
-                    if (otio::Track::Kind::video == track->kind())
-                    {
-                        for (const auto& j : track->children())
-                        {
-                            if (const auto clip = dynamic_cast<otio::Clip*>(j.value))
-                            {
-                                otio::ErrorStatus errorStatus;
-                                const auto range = clip->trimmed_range_in_parent(&errorStatus);
-                                if (errorStatus != otio::ErrorStatus::OK)
-                                {
-                                    throw std::runtime_error(errorStatus.full_description);
-                                }
-                                if (range->contains(time - _globalStartTime))
-                                {
-                                    const auto clipTime = track->transformed_time(time - _globalStartTime, clip, &errorStatus);
-                                    if (errorStatus != otio::ErrorStatus::OK)
-                                    {
-                                        throw std::runtime_error(errorStatus.full_description);
-                                    }
-                                    const auto j = _readers.find(clip);
-                                    if (j != _readers.end())
-                                    {
-                                        const auto readTime = clipTime.rescaled_to(j->second.info.video[0].duration);
-                                        out = j->second.read->readVideoFrame(
-                                            otime::RationalTime(floor(readTime.value()), readTime.rate()));
-                                    }
-                                    else
-                                    {
-                                        const std::string fileName = _getFileName(clip->media_reference());
-                                        io::Options options;
-                                        {
-                                            std::stringstream ss;
-                                            ss << otime::RationalTime(0, _duration.rate());
-                                            options["DefaultSpeed"] = ss.str();
-                                        }
-                                        auto read = _ioSystem->read(fileName, options);
-                                        io::Info info;
-                                        if (read)
-                                        {
-                                            info = read->getInfo().get();
-                                        }
-                                        if (read && !info.video.empty())
-                                        {
-                                            //std::cout << "read: " << fileName << std::endl;
-                                            Reader reader;
-                                            reader.read = read;
-                                            reader.info = info;
-                                            const auto readTime = clipTime.rescaled_to(info.video[0].duration);
-                                            out = read->readVideoFrame(
-                                                otime::RationalTime(floor(readTime.value()), readTime.rate()));
-                                            _readers[clip] = std::move(reader);
-                                        }
-                                        else
-                                        {
-                                            //! \todo How should this be handled?
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        break;
-                    }
-                }
+                std::unique_lock<std::mutex> lock(_requestMutex);
+                _requests.push_back(std::move(request));
             }
-            return out;
+            _requestCV.notify_one();
+            return future;
         }
 
         void Timeline::setActiveRanges(const std::vector<otime::TimeRange>& ranges)
@@ -270,70 +247,11 @@ namespace tlr
 
         void Timeline::cancelRenders()
         {
+            std::unique_lock<std::mutex> lock(_requestMutex);
+            _requests.clear();
             for (auto& i : _readers)
             {
                 i.second.read->cancelVideoFrames();
-            }
-        }
-
-        void Timeline::tick()
-        {
-            {
-                auto i = _readers.begin();
-                while (i != _readers.end())
-                {
-                    const auto clip = i->first;
-                    otio::ErrorStatus errorStatus;
-                    const auto trimmedRange = clip->trimmed_range(&errorStatus);
-                    if (errorStatus != otio::ErrorStatus::OK)
-                    {
-                        throw std::runtime_error(errorStatus.full_description);
-                    }
-                    const auto ancestor = dynamic_cast<otio::Item*>(getAncestor(clip));
-                    const auto clipRange = i->first->transformed_time_range(trimmedRange, ancestor, &errorStatus);
-                    if (errorStatus != otio::ErrorStatus::OK)
-                    {
-                        throw std::runtime_error(errorStatus.full_description);
-                    }
-                    const auto range = otime::TimeRange(_globalStartTime + clipRange.start_time(), clipRange.duration());
-
-                    bool del = true;
-                    for (const auto& activeRange : _activeRanges)
-                    {
-                        if (range.intersects(activeRange))
-                        {
-                            del = false;
-                            break;
-                        }
-                    }
-                    if (del && !i->second.read->hasVideoFrames())
-                    {
-                        //std::cout << "stop: " << i->second.read->getFileName() << " / " << i->second.read << std::endl;
-                        auto read = i->second.read;
-                        read->stop();
-                        _stoppedReaders.push_back(read);
-                        i = _readers.erase(i);
-                    }
-                    else
-                    {
-                        ++i;
-                    }
-                }
-            }
-            {
-                auto i = _stoppedReaders.begin();
-                while (i != _stoppedReaders.end())
-                {
-                    if ((*i)->hasStopped())
-                    {
-                        //std::cout << "delete: " << (*i)->getFileName() << " / " << (*i) << std::endl;
-                        i = _stoppedReaders.erase(i);
-                    }
-                    else
-                    {
-                        ++i;
-                    }
-                }
             }
         }
 
@@ -376,25 +294,6 @@ namespace tlr
             return _fixFileName(out);
         }
 
-        otime::TimeRange Timeline::_getRange(const otio::SerializableObject::Retainer<otio::Clip>& clip) const
-        {
-            otime::TimeRange out;
-            otio::ErrorStatus errorStatus;
-            const auto& optional = clip.value->trimmed_range_in_parent(&errorStatus);
-            if (errorStatus != otio::ErrorStatus::OK)
-            {
-                throw std::runtime_error(errorStatus.full_description);
-            }
-            bool outOfRange = true;
-            if (optional.has_value())
-            {
-                out = otime::TimeRange(
-                    _globalStartTime + optional.value().start_time(),
-                    optional.value().duration());
-            }
-            return out;
-        }
-
         bool Timeline::_getImageInfo(const otio::Composable* composable, imaging::Info& imageInfo) const
         {
             if (auto clip = dynamic_cast<const otio::Clip*>(composable))
@@ -422,6 +321,167 @@ namespace tlr
                 }
             }
             return false;
+        }
+
+        void Timeline::_tick()
+        {
+            // Handle render requests.
+            Request request;
+            bool requestValid = false;
+            {
+                std::unique_lock<std::mutex> lock(_requestMutex);
+                _requestCV.wait_for(
+                    lock,
+                    requestTimeout,
+                    [this]
+                    {
+                        return !_requests.empty();
+                    });
+                if (!_requests.empty())
+                {
+                    request.time = _requests.front().time;
+                    request.promise = std::move(_requests.front().promise);
+                    _requests.pop_front();
+                    requestValid = true;
+                }
+            }
+            if (requestValid)
+            {
+                RenderFrame renderFrame;
+                renderFrame.time = request.time;
+                try
+                {
+                    const auto now = std::chrono::steady_clock::now();
+                    for (const auto& i : _timeline->tracks()->children())
+                    {
+                        if (const auto track = dynamic_cast<otio::Track*>(i.value))
+                        {
+                            if (otio::Track::Kind::video == track->kind())
+                            {
+                                for (const auto& j : track->children())
+                                {
+                                    if (const auto clip = dynamic_cast<otio::Clip*>(j.value))
+                                    {
+                                        otio::ErrorStatus errorStatus;
+                                        const auto range = clip->trimmed_range_in_parent(&errorStatus);
+                                        if (errorStatus != otio::ErrorStatus::OK)
+                                        {
+                                            throw std::runtime_error(errorStatus.full_description);
+                                        }
+                                        if (range->contains(request.time - _globalStartTime))
+                                        {
+                                            const auto clipTime = track->transformed_time(request.time - _globalStartTime, clip, &errorStatus);
+                                            if (errorStatus != otio::ErrorStatus::OK)
+                                            {
+                                                throw std::runtime_error(errorStatus.full_description);
+                                            }
+                                            const auto j = _readers.find(clip);
+                                            if (j != _readers.end())
+                                            {
+                                                const auto readTime = clipTime.rescaled_to(j->second.info.video[0].duration);
+                                                const auto videoFrame = j->second.read->readVideoFrame(
+                                                    otime::RationalTime(floor(readTime.value()), readTime.rate())).get();
+                                                RenderLayer renderLayer;
+                                                renderLayer.image = videoFrame.image;
+                                                renderFrame.layers.push_back(renderLayer);
+                                            }
+                                            else
+                                            {
+                                                const std::string fileName = _getFileName(clip->media_reference());
+                                                io::Options options;
+                                                {
+                                                    std::stringstream ss;
+                                                    ss << otime::RationalTime(0, _duration.rate());
+                                                    options["DefaultSpeed"] = ss.str();
+                                                }
+                                                auto read = _ioSystem->read(fileName, options);
+                                                io::Info info;
+                                                if (read)
+                                                {
+                                                    info = read->getInfo().get();
+                                                }
+                                                if (read && !info.video.empty())
+                                                {
+                                                    //std::cout << "read: " << fileName << std::endl;
+                                                    Reader reader;
+                                                    reader.read = read;
+                                                    reader.info = info;
+                                                    const auto readTime = clipTime.rescaled_to(info.video[0].duration);
+                                                    const auto videoFrame = read->readVideoFrame(
+                                                        otime::RationalTime(floor(readTime.value()), readTime.rate())).get();
+                                                    RenderLayer renderLayer;
+                                                    renderLayer.image = videoFrame.image;
+                                                    renderFrame.layers.push_back(renderLayer);
+                                                    _readers[clip] = std::move(reader);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (const std::exception&)
+                {
+                    //! \todo How should this be handled?
+                }
+                request.promise.set_value(renderFrame);
+            }
+
+            // Stop readers outside of the active ranges.
+            {
+                auto i = _readers.begin();
+                while (i != _readers.end())
+                {
+                    const auto clip = i->first;
+
+                    otio::ErrorStatus errorStatus;
+                    const auto trimmedRange = clip->trimmed_range(&errorStatus);
+                    const auto ancestor = dynamic_cast<otio::Item*>(getAncestor(clip));
+                    const auto clipRange = i->first->transformed_time_range(trimmedRange, ancestor, &errorStatus);
+                    const auto range = otime::TimeRange(_globalStartTime + clipRange.start_time(), clipRange.duration());
+
+                    bool del = true;
+                    for (const auto& activeRange : _activeRanges)
+                    {
+                        if (range.intersects(activeRange))
+                        {
+                            del = false;
+                            break;
+                        }
+                    }
+                    if (del && !i->second.read->hasVideoFrames())
+                    {
+                        //std::cout << "stop: " << i->second.read->getFileName() << " / " << i->second.read << std::endl;
+                        auto read = i->second.read;
+                        read->stop();
+                        _stoppedReaders.push_back(read);
+                        i = _readers.erase(i);
+                    }
+                    else
+                    {
+                        ++i;
+                    }
+                }
+            }
+
+            // Delete stopped readers.
+            {
+                auto i = _stoppedReaders.begin();
+                while (i != _stoppedReaders.end())
+                {
+                    if ((*i)->hasStopped())
+                    {
+                        //std::cout << "delete: " << (*i)->getFileName() << " / " << (*i) << std::endl;
+                        i = _stoppedReaders.erase(i);
+                    }
+                    else
+                    {
+                        ++i;
+                    }
+                }
+            }
         }
     }
 }

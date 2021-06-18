@@ -41,22 +41,14 @@
                             }
                         },
                         "name": "BART_2021-02-07"
-                    },
-                    {
-                        "OTIO_SCHEMA": "Transition.1",
-                        "name": "Dissolve",
-                        "transition_type": "SMPTE_Dissolve",
-                        "in_offset": {
-                          "OTIO_SCHEMA": "RationalTime.1",
-                          "rate": 30,
-                          "value": 15
-                        },
-                        "out_offset": {
-                          "OTIO_SCHEMA": "RationalTime.1",
-                          "rate": 30,
-                          "value": 15
-                        }
-                    },
+                    }
+                ],
+                "kind": "Video", 
+                "name": "Sequence"
+            },
+            {
+                "OTIO_SCHEMA": "Track.1", 
+                "children": [
                     {
                         "OTIO_SCHEMA": "Clip.1",
                         "media_reference": {
@@ -66,7 +58,7 @@
                                 "duration": {
                                     "OTIO_SCHEMA": "RationalTime.1",
                                     "rate": 30,
-                                    "value": 704
+                                    "value": 90
                                 },
                                 "start_time": {
                                     "OTIO_SCHEMA": "RationalTime.1",
@@ -74,7 +66,7 @@
                                     "value": 0
                                 }
                             },
-                            "target_url": "BART_2021-02-07.m4v"
+                            "target_url": "Overlay.png"
                         },
                         "source_range": {
                             "OTIO_SCHEMA": "TimeRange.1",
@@ -86,10 +78,10 @@
                             "start_time": {
                                 "OTIO_SCHEMA": "RationalTime.1",
                                 "rate": 30,
-                                "value": 500
+                                "value": 0
                             }
                         },
-                        "name": "BART_2021-02-07"
+                        "name": "Overlay"
                     }
                 ],
                 "kind": "Video", 

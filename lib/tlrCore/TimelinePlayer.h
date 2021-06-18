@@ -9,10 +9,6 @@
 #include <tlrCore/Timeline.h>
 #include <tlrCore/ValueObserver.h>
 
-#include <atomic>
-#include <mutex>
-#include <thread>
-
 namespace tlr
 {
     //! Timelines.
@@ -167,7 +163,7 @@ namespace tlr
             ///@{
 
             //! Observe the current frame.
-            std::shared_ptr<observer::IValue<io::VideoFrame> > observeFrame() const;
+            std::shared_ptr<observer::IValue<RenderFrame> > observeFrame() const;
 
             //! Get the frame cache read ahead.
             int getFrameCacheReadAhead();
@@ -211,7 +207,7 @@ namespace tlr
             std::shared_ptr<observer::Value<Loop> > _loop;
             std::shared_ptr<observer::Value<otime::RationalTime> > _currentTime;
             std::shared_ptr<observer::Value<otime::TimeRange> > _inOutRange;
-            std::shared_ptr<observer::Value<io::VideoFrame> > _frame;
+            std::shared_ptr<observer::Value<RenderFrame> > _frame;
             std::shared_ptr<observer::List<otime::TimeRange> > _cachedFrames;
             std::chrono::steady_clock::time_point _startTime;
             otime::RationalTime _playbackStartTime = invalidTime;
@@ -220,10 +216,10 @@ namespace tlr
             {
                 otime::RationalTime currentTime = invalidTime;
                 otime::TimeRange inOutRange = invalidTimeRange;
-                io::VideoFrame videoFrame;
-                std::map<otime::RationalTime, std::future<io::VideoFrame> > videoFrameRequests;
-                bool clearVideoFrameRequests = false;
-                std::map<otime::RationalTime, io::VideoFrame> frameCache;
+                RenderFrame frame;
+                std::map<otime::RationalTime, std::future<RenderFrame> > frameRequests;
+                bool clearFrameRequests = false;
+                std::map<otime::RationalTime, RenderFrame> frameCache;
                 std::vector<otime::TimeRange> cachedFrames;
                 FrameCacheDirection frameCacheDirection = FrameCacheDirection::Forward;
                 std::size_t frameCacheReadAhead = 100;

@@ -262,12 +262,14 @@ namespace tlr
         _timeline->setActiveRanges({ otime::TimeRange::range_from_start_end_time(
             _timeline->getGlobalStartTime() + _currentTime,
             _timeline->getGlobalStartTime() + _currentTime) });
-        _timeline->tick();
 
         // Render the frame.
         _render->begin(_renderInfo.size, true);
-        _videoFrame = _timeline->render(_timeline->getGlobalStartTime() + _currentTime).get();
-        _render->drawImage(_videoFrame.image, math::BBox2f(0.F, 0.F, _renderInfo.size.w, _renderInfo.size.h));
+        const auto renderFrame = _timeline->render(_timeline->getGlobalStartTime() + _currentTime).get();
+        for (const auto& i : renderFrame.layers)
+        {
+            _render->drawImage(i.image, math::BBox2f(0.F, 0.F, _renderInfo.size.w, _renderInfo.size.h));
+        }
         _render->end();
 
         // Write the frame.

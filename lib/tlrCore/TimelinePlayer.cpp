@@ -91,7 +91,7 @@ namespace tlr
             _currentTime = observer::Value<otime::RationalTime>::create(_timeline->getGlobalStartTime());
             _inOutRange = observer::Value<otime::TimeRange>::create(
                 otime::TimeRange(_timeline->getGlobalStartTime(), _timeline->getDuration()));
-            _frame = observer::Value<io::VideoFrame>::create();
+            _frame = observer::Value<RenderFrame>::create();
             _cachedFrames = observer::List<otime::TimeRange>::create();
 
             // Create a new thread.
@@ -105,7 +105,7 @@ namespace tlr
                     {
                         otime::RationalTime currentTime = invalidTime;
                         otime::TimeRange inOutRange = invalidTimeRange;
-                        bool clearVideoFrameRequests = false;
+                        bool clearFrameRequests = false;
                         FrameCacheDirection frameCacheDirection = FrameCacheDirection::Forward;
                         std::size_t frameCacheReadAhead = 0;
                         std::size_t frameCacheReadBehind = 0;
@@ -113,22 +113,19 @@ namespace tlr
                             std::unique_lock<std::mutex> lock(_threadData.mutex);
                             currentTime = _threadData.currentTime;
                             inOutRange = _threadData.inOutRange;
-                            clearVideoFrameRequests = _threadData.clearVideoFrameRequests;
-                            _threadData.clearVideoFrameRequests = false;
+                            clearFrameRequests = _threadData.clearFrameRequests;
+                            _threadData.clearFrameRequests = false;
                             frameCacheDirection = _threadData.frameCacheDirection;
                             frameCacheReadAhead = _threadData.frameCacheReadAhead;
                             frameCacheReadBehind = _threadData.frameCacheReadBehind;
                         }
 
-                        //! Clear video frame requests.
-                        if (clearVideoFrameRequests)
+                        //! Clear frame requests.
+                        if (clearFrameRequests)
                         {
                             _timeline->cancelRenders();
-                            _threadData.videoFrameRequests.clear();
+                            _threadData.frameRequests.clear();
                         }
-
-                        //! Tick the timeline.
-                        _timeline->tick();
 
                         //! Update the frame cache.
                         _frameCacheUpdate(
@@ -138,12 +135,12 @@ namespace tlr
                             frameCacheReadAhead,
                             frameCacheReadBehind);
 
-                        //! Update the video frame.
+                        //! Update the frame.
                         const auto i = _threadData.frameCache.find(currentTime);
                         if (i != _threadData.frameCache.end())
                         {
                             std::unique_lock<std::mutex> lock(_threadData.mutex);
-                            _threadData.videoFrame = i->second;
+                            _threadData.frame = i->second;
                         }
 
                         time::sleep(std::chrono::microseconds(1000));
@@ -248,7 +245,7 @@ namespace tlr
                 {
                     std::unique_lock<std::mutex> lock(_threadData.mutex);
                     _threadData.currentTime = tmp;
-                    _threadData.clearVideoFrameRequests = true;
+                    _threadData.clearFrameRequests = true;
                 }
             }
         }
@@ -388,15 +385,15 @@ namespace tlr
             }
 
             // Sync with the thread.
-            io::VideoFrame videoFrame;
+            RenderFrame frame;
             std::vector<otime::TimeRange> cachedFrames;
             {
                 std::unique_lock<std::mutex> lock(_threadData.mutex);
                 _threadData.currentTime = _currentTime->get();
-                videoFrame = _threadData.videoFrame;
+                frame = _threadData.frame;
                 cachedFrames = _threadData.cachedFrames;
             }
-            _frame->setIfChanged(videoFrame);
+            _frame->setIfChanged(frame);
             _cachedFrames->setIfChanged(cachedFrames);
         }
 
@@ -484,7 +481,6 @@ namespace tlr
             _timeline->setActiveRanges(ranges);
 
             // Remove old frames from the cache.
-            std::list<std::shared_ptr<imaging::Image> > removed;
             auto frameCacheIt = _threadData.frameCache.begin();
             while (frameCacheIt != _threadData.frameCache.end())
             {
@@ -499,7 +495,6 @@ namespace tlr
                 }
                 if (old)
                 {
-                    removed.push_back(frameCacheIt->second.image);
                     frameCacheIt = _threadData.frameCache.erase(frameCacheIt);
                 }
                 else
@@ -515,8 +510,8 @@ namespace tlr
                 const auto j = _threadData.frameCache.find(i);
                 if (j == _threadData.frameCache.end())
                 {
-                    const auto k = _threadData.videoFrameRequests.find(i);
-                    if (k == _threadData.videoFrameRequests.end())
+                    const auto k = _threadData.frameRequests.find(i);
+                    if (k == _threadData.frameRequests.end())
                     {
                         uncached.push_back(i);
                     }
@@ -526,22 +521,22 @@ namespace tlr
             // Get uncached frames.
             for (const auto& i : uncached)
             {
-                _threadData.videoFrameRequests[i] = _timeline->render(i);
+                _threadData.frameRequests[i] = _timeline->render(i);
             }
-            auto videoFramesIt = _threadData.videoFrameRequests.begin();
-            while (videoFramesIt != _threadData.videoFrameRequests.end())
+            auto framesIt = _threadData.frameRequests.begin();
+            while (framesIt != _threadData.frameRequests.end())
             {
-                if (videoFramesIt->second.valid() &&
-                    videoFramesIt->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+                if (framesIt->second.valid() &&
+                    framesIt->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                 {
-                    auto frame = videoFramesIt->second.get();
-                    frame.time = videoFramesIt->first;
+                    auto frame = framesIt->second.get();
+                    frame.time = framesIt->first;
                     _threadData.frameCache[frame.time] = frame;
-                    videoFramesIt = _threadData.videoFrameRequests.erase(videoFramesIt);
+                    framesIt = _threadData.frameRequests.erase(framesIt);
                 }
                 else
                 {
-                    ++videoFramesIt;
+                    ++framesIt;
                 }
             }
 

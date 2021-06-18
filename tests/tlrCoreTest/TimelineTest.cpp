@@ -172,15 +172,14 @@ namespace tlr
             TLR_ASSERT(imageInfo == timeline->getImageInfo());
 
             // Render frames from the timeline.
-            std::vector<io::VideoFrame> frames;
-            std::vector<std::future<io::VideoFrame> > futures;
+            std::vector<timeline::RenderFrame> frames;
+            std::vector<std::future<timeline::RenderFrame> > futures;
             for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
             {
                 futures.push_back(timeline->render(otime::RationalTime(i, 24.0)));
             }
             while (frames.size() < static_cast<size_t>(timelineDuration.value()))
             {
-                timeline->tick();
                 auto i = futures.begin();
                 while (i != futures.end())
                 {
@@ -207,7 +206,6 @@ namespace tlr
             }
             while (frames.size() < static_cast<size_t>(timelineDuration.value()))
             {
-                timeline->tick();
                 auto i = futures.begin();
                 while (i != futures.end())
                 {

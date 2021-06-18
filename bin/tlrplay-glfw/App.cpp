@@ -339,7 +339,7 @@ namespace tlr
     {
         // Update.
         _timelinePlayer->tick();
-        auto frame = _timelinePlayer->observeFrame()->get();
+        const auto& frame = _timelinePlayer->observeFrame()->get();
         if (frame != _frame)
         {
             _frame = frame;
@@ -395,11 +395,14 @@ namespace tlr
 
     void App::_renderVideo()
     {
-        if (_frame.image)
+        for (const auto& i : _frame.layers)
         {
-            _render->drawImage(
-                _frame.image,
-                timeline::fitWindow(_frame.image->getSize(), _frameBufferSize));
+            if (i.image)
+            {
+                _render->drawImage(
+                    i.image,
+                    timeline::fitWindow(i.image->getSize(), _frameBufferSize));
+            }
         }
     }
 

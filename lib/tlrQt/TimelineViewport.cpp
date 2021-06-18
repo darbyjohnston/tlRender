@@ -19,25 +19,25 @@ namespace tlr
 
         void TimelineViewport::setTimelinePlayer(TimelinePlayer* timelinePlayer)
         {
-            _frame = io::VideoFrame();
+            _frame = timeline::RenderFrame();
             if (_timelinePlayer)
             {
                 disconnect(
                     _timelinePlayer,
-                    SIGNAL(frameChanged(const tlr::io::VideoFrame&)));
+                    SIGNAL(frameChanged(const tlr::timeline::RenderFrame&)));
             }
             _timelinePlayer = timelinePlayer;
             if (_timelinePlayer)
             {
                 connect(
                     _timelinePlayer,
-                    SIGNAL(frameChanged(const tlr::io::VideoFrame&)),
-                    SLOT(_frameCallback(const tlr::io::VideoFrame&)));
+                    SIGNAL(frameChanged(const tlr::timeline::RenderFrame&)),
+                    SLOT(_frameCallback(const tlr::timeline::RenderFrame&)));
             }
             update();
         }
 
-        void TimelineViewport::_frameCallback(const io::VideoFrame& frame)
+        void TimelineViewport::_frameCallback(const timeline::RenderFrame& frame)
         {
             _frame = frame;
             update();
@@ -54,9 +54,12 @@ namespace tlr
             const auto size = imaging::Size(width(), height());
             _render->setColorConfig(_colorConfig);
             _render->begin(size);
-            if (_frame.image)
+            for (const auto& i : _frame.layers)
             {
-                _render->drawImage(_frame.image, timeline::fitWindow(_frame.image->getSize(), size));
+                if (i.image)
+                {
+                    _render->drawImage(i.image, timeline::fitWindow(i.image->getSize(), size));
+                }
             }
             _render->end();
         }

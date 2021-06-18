@@ -29,7 +29,7 @@ namespace tlr
             void setTimelinePlayer(TimelinePlayer*);
 
         private Q_SLOTS:
-            void _frameCallback(const tlr::io::VideoFrame&);
+            void _frameCallback(const tlr::timeline::RenderFrame&);
 
         protected:
             void initializeGL() override;
@@ -38,7 +38,7 @@ namespace tlr
         private:
             gl::ColorConfig _colorConfig;
             TimelinePlayer* _timelinePlayer = nullptr;
-            io::VideoFrame _frame;
+            timeline::RenderFrame _frame;
             std::shared_ptr<gl::Render> _render;
         };
     }

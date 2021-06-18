@@ -12,11 +12,18 @@
 #include <opentimelineio/timeline.h>
 #include <opentimelineio/track.h>
 
+#include <atomic>
+#include <mutex>
+#include <thread>
+
 namespace tlr
 {
     //! Timelines.
     namespace timeline
     {
+        //! Timeout for frame requests.
+        const std::chrono::microseconds requestTimeout(1000);
+
         //! Get the timeline file extensions.
         std::vector<std::string> getExtensions();
 
@@ -25,6 +32,26 @@ namespace tlr
 
         //! Get the ancestor (highest parent).
         otio::Composable* getAncestor(otio::Composable*);
+
+        //! Render layer.
+        struct RenderLayer
+        {
+            std::shared_ptr<imaging::Image> image;
+            float opacity = 1.F;
+
+            bool operator == (const RenderLayer&) const;
+            bool operator != (const RenderLayer&) const;
+        };
+
+        //! Render frame.
+        struct RenderFrame
+        {
+            otime::RationalTime time = invalidTime;
+            std::vector<RenderLayer> layers;
+
+            bool operator == (const RenderFrame&) const;
+            bool operator != (const RenderFrame&) const;
+        };
 
         //! Timeline.
         class Timeline : public std::enable_shared_from_this<Timeline>
@@ -66,23 +93,21 @@ namespace tlr
             void setActiveRanges(const std::vector<otime::TimeRange>&);
 
             //! Render a frame.
-            std::future<io::VideoFrame> render(const otime::RationalTime&);
+            std::future<RenderFrame> render(const otime::RationalTime&);
 
             //! Cancel renders.
             void cancelRenders();
 
             ///@}
 
-            //! Tick the timeline.
-            void tick();
-
         private:
             std::string _fixFileName(const std::string&) const;
             std::string _getFileName(const otio::ImageSequenceReference*) const;
             std::string _getFileName(const otio::MediaReference*) const;
-            otime::TimeRange _getRange(const otio::SerializableObject::Retainer<otio::Clip>&) const;
 
             bool _getImageInfo(const otio::Composable*, imaging::Info&) const;
+
+            void _tick();
 
             std::string _fileName;
             otio::SerializableObject::Retainer<otio::Timeline> _timeline;
@@ -90,6 +115,19 @@ namespace tlr
             otime::RationalTime _globalStartTime = invalidTime;
             std::shared_ptr<io::System> _ioSystem;
             imaging::Info _imageInfo;
+            std::vector<otime::TimeRange> _activeRanges;
+
+            struct Request
+            {
+                Request() {}
+                Request(Request&& other) = default;
+
+                otime::RationalTime time = invalidTime;
+                std::promise<RenderFrame> promise;
+            };
+            std::list<Request> _requests;
+            std::condition_variable _requestCV;
+            std::mutex _requestMutex;
             struct Reader
             {
                 std::shared_ptr<io::IRead> read;
@@ -97,7 +135,8 @@ namespace tlr
             };
             std::map<otio::Clip*, Reader> _readers;
             std::list<std::shared_ptr<io::IRead> > _stoppedReaders;
-            std::vector<otime::TimeRange> _activeRanges;
+            std::thread _thread;
+            std::atomic<bool> _running;
         };
     }
 }

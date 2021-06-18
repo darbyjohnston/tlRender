@@ -52,7 +52,6 @@ namespace tlr
         Options _options;
 
         std::shared_ptr<timeline::Timeline> _timeline;
-        io::VideoFrame _videoFrame;
         imaging::Info _renderInfo;
         imaging::Info _outputInfo;
         std::shared_ptr<io::System> _ioSystem;

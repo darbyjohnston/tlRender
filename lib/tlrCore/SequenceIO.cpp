@@ -139,7 +139,14 @@ namespace tlr
                 {
                     //std::cout << "request: " << i.time << std::endl;
                     std::stringstream ss;
-                    ss << _path << _baseName << std::setfill('0') << std::setw(_pad) << static_cast<int>(i.time.value()) << _extension;
+                    if (!_number.empty())
+                    {
+                        ss << _path << _baseName << std::setfill('0') << std::setw(_pad) << static_cast<int>(i.time.value()) << _extension;
+                    }
+                    else
+                    {
+                        ss << _fileName;
+                    }
                     std::string fileName = ss.str();
                     futures.push_back(std::async(
                         std::launch::async,
