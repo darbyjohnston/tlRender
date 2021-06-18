@@ -33,24 +33,24 @@ namespace tlr
         //! Get the ancestor (highest parent).
         otio::Composable* getAncestor(otio::Composable*);
 
-        //! Render layer.
-        struct RenderLayer
+        //! Frame layer.
+        struct FrameLayer
         {
             std::shared_ptr<imaging::Image> image;
             float opacity = 1.F;
 
-            bool operator == (const RenderLayer&) const;
-            bool operator != (const RenderLayer&) const;
+            bool operator == (const FrameLayer&) const;
+            bool operator != (const FrameLayer&) const;
         };
 
-        //! Render frame.
-        struct RenderFrame
+        //! Frame.
+        struct Frame
         {
             otime::RationalTime time = invalidTime;
-            std::vector<RenderLayer> layers;
+            std::vector<FrameLayer> layers;
 
-            bool operator == (const RenderFrame&) const;
-            bool operator != (const RenderFrame&) const;
+            bool operator == (const Frame&) const;
+            bool operator != (const Frame&) const;
         };
 
         //! Timeline.
@@ -92,11 +92,11 @@ namespace tlr
             //! I/O readers to keep active.
             void setActiveRanges(const std::vector<otime::TimeRange>&);
 
-            //! Render a frame.
-            std::future<RenderFrame> render(const otime::RationalTime&);
+            //! Get a frame.
+            std::future<Frame> getFrame(const otime::RationalTime&);
 
-            //! Cancel renders.
-            void cancelRenders();
+            //! Cancel frames.
+            void cancelFrames();
 
             ///@}
 
@@ -123,7 +123,7 @@ namespace tlr
                 Request(Request&& other) = default;
 
                 otime::RationalTime time = invalidTime;
-                std::promise<RenderFrame> promise;
+                std::promise<Frame> promise;
             };
             std::list<Request> _requests;
             std::condition_variable _requestCV;

@@ -163,7 +163,7 @@ namespace tlr
             ///@{
 
             //! Observe the current frame.
-            std::shared_ptr<observer::IValue<RenderFrame> > observeFrame() const;
+            std::shared_ptr<observer::IValue<Frame> > observeFrame() const;
 
             //! Get the frame cache read ahead.
             int getFrameCacheReadAhead();
@@ -207,7 +207,7 @@ namespace tlr
             std::shared_ptr<observer::Value<Loop> > _loop;
             std::shared_ptr<observer::Value<otime::RationalTime> > _currentTime;
             std::shared_ptr<observer::Value<otime::TimeRange> > _inOutRange;
-            std::shared_ptr<observer::Value<RenderFrame> > _frame;
+            std::shared_ptr<observer::Value<Frame> > _frame;
             std::shared_ptr<observer::List<otime::TimeRange> > _cachedFrames;
             std::chrono::steady_clock::time_point _startTime;
             otime::RationalTime _playbackStartTime = invalidTime;
@@ -216,10 +216,10 @@ namespace tlr
             {
                 otime::RationalTime currentTime = invalidTime;
                 otime::TimeRange inOutRange = invalidTimeRange;
-                RenderFrame frame;
-                std::map<otime::RationalTime, std::future<RenderFrame> > frameRequests;
+                Frame frame;
+                std::map<otime::RationalTime, std::future<Frame> > frameRequests;
                 bool clearFrameRequests = false;
-                std::map<otime::RationalTime, RenderFrame> frameCache;
+                std::map<otime::RationalTime, Frame> frameCache;
                 std::vector<otime::TimeRange> cachedFrames;
                 FrameCacheDirection frameCacheDirection = FrameCacheDirection::Forward;
                 std::size_t frameCacheReadAhead = 100;

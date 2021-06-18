@@ -46,7 +46,7 @@ namespace tlr
             return _inOutRange;
         }
 
-        inline std::shared_ptr<observer::IValue<RenderFrame> > TimelinePlayer::observeFrame() const
+        inline std::shared_ptr<observer::IValue<Frame> > TimelinePlayer::observeFrame() const
         {
             return _frame;
         }

@@ -79,7 +79,7 @@ namespace tlr
         std::shared_ptr<gl::FontSystem> _fontSystem;
         std::shared_ptr<gl::Render> _render;
         bool _renderDirty = true;
-        timeline::RenderFrame _frame;
+        timeline::Frame _frame;
         std::map<HUDElement, std::string> _hudLabels;
 
         bool _running = true;

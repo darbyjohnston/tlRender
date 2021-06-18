@@ -72,24 +72,24 @@ namespace tlr
             return out;
         }
 
-        bool RenderLayer::operator == (const RenderLayer& other) const
+        bool FrameLayer::operator == (const FrameLayer& other) const
         {
             return image == other.image &&
                 opacity == other.opacity;
         }
 
-        bool RenderLayer::operator != (const RenderLayer& other) const
+        bool FrameLayer::operator != (const FrameLayer& other) const
         {
             return !(*this == other);
         }
 
-        bool RenderFrame::operator == (const RenderFrame& other) const
+        bool Frame::operator == (const Frame& other) const
         {
             return time == other.time &&
                 layers == other.layers;
         }
 
-        bool RenderFrame::operator != (const RenderFrame& other) const
+        bool Frame::operator != (const Frame& other) const
         {
             return !(*this == other);
         }
@@ -227,7 +227,7 @@ namespace tlr
             return out;
         }
 
-        std::future<RenderFrame> Timeline::render(const otime::RationalTime& time)
+        std::future<Frame> Timeline::getFrame(const otime::RationalTime& time)
         {
             Request request;
             request.time = time;
@@ -245,7 +245,7 @@ namespace tlr
             _activeRanges = ranges;
         }
 
-        void Timeline::cancelRenders()
+        void Timeline::cancelFrames()
         {
             std::unique_lock<std::mutex> lock(_requestMutex);
             _requests.clear();
@@ -325,7 +325,7 @@ namespace tlr
 
         void Timeline::_tick()
         {
-            // Handle render requests.
+            // Handle frame request.
             Request request;
             bool requestValid = false;
             {
@@ -347,8 +347,8 @@ namespace tlr
             }
             if (requestValid)
             {
-                RenderFrame renderFrame;
-                renderFrame.time = request.time;
+                Frame frame;
+                frame.time = request.time;
                 try
                 {
                     const auto now = std::chrono::steady_clock::now();
@@ -381,9 +381,9 @@ namespace tlr
                                                 const auto readTime = clipTime.rescaled_to(j->second.info.video[0].duration);
                                                 const auto videoFrame = j->second.read->readVideoFrame(
                                                     otime::RationalTime(floor(readTime.value()), readTime.rate())).get();
-                                                RenderLayer renderLayer;
-                                                renderLayer.image = videoFrame.image;
-                                                renderFrame.layers.push_back(renderLayer);
+                                                FrameLayer layer;
+                                                layer.image = videoFrame.image;
+                                                frame.layers.push_back(layer);
                                             }
                                             else
                                             {
@@ -409,9 +409,9 @@ namespace tlr
                                                     const auto readTime = clipTime.rescaled_to(info.video[0].duration);
                                                     const auto videoFrame = read->readVideoFrame(
                                                         otime::RationalTime(floor(readTime.value()), readTime.rate())).get();
-                                                    RenderLayer renderLayer;
-                                                    renderLayer.image = videoFrame.image;
-                                                    renderFrame.layers.push_back(renderLayer);
+                                                    FrameLayer layer;
+                                                    layer.image = videoFrame.image;
+                                                    frame.layers.push_back(layer);
                                                     _readers[clip] = std::move(reader);
                                                 }
                                             }
@@ -426,7 +426,7 @@ namespace tlr
                 {
                     //! \todo How should this be handled?
                 }
-                request.promise.set_value(renderFrame);
+                request.promise.set_value(frame);
             }
 
             // Stop readers outside of the active ranges.

@@ -91,7 +91,7 @@ namespace tlr
             _currentTime = observer::Value<otime::RationalTime>::create(_timeline->getGlobalStartTime());
             _inOutRange = observer::Value<otime::TimeRange>::create(
                 otime::TimeRange(_timeline->getGlobalStartTime(), _timeline->getDuration()));
-            _frame = observer::Value<RenderFrame>::create();
+            _frame = observer::Value<Frame>::create();
             _cachedFrames = observer::List<otime::TimeRange>::create();
 
             // Create a new thread.
@@ -123,7 +123,7 @@ namespace tlr
                         //! Clear frame requests.
                         if (clearFrameRequests)
                         {
-                            _timeline->cancelRenders();
+                            _timeline->cancelFrames();
                             _threadData.frameRequests.clear();
                         }
 
@@ -385,7 +385,7 @@ namespace tlr
             }
 
             // Sync with the thread.
-            RenderFrame frame;
+            Frame frame;
             std::vector<otime::TimeRange> cachedFrames;
             {
                 std::unique_lock<std::mutex> lock(_threadData.mutex);
@@ -521,7 +521,7 @@ namespace tlr
             // Get uncached frames.
             for (const auto& i : uncached)
             {
-                _threadData.frameRequests[i] = _timeline->render(i);
+                _threadData.frameRequests[i] = _timeline->getFrame(i);
             }
             auto framesIt = _threadData.frameRequests.begin();
             while (framesIt != _threadData.frameRequests.end())

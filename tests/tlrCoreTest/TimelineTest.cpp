@@ -171,12 +171,12 @@ namespace tlr
             TLR_ASSERT(otime::RationalTime(0.0, 24.0) == timeline->getGlobalStartTime());
             TLR_ASSERT(imageInfo == timeline->getImageInfo());
 
-            // Render frames from the timeline.
-            std::vector<timeline::RenderFrame> frames;
-            std::vector<std::future<timeline::RenderFrame> > futures;
+            // Get frames from the timeline.
+            std::vector<timeline::Frame> frames;
+            std::vector<std::future<timeline::Frame> > futures;
             for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
             {
-                futures.push_back(timeline->render(otime::RationalTime(i, 24.0)));
+                futures.push_back(timeline->getFrame(otime::RationalTime(i, 24.0)));
             }
             while (frames.size() < static_cast<size_t>(timelineDuration.value()))
             {
@@ -196,13 +196,13 @@ namespace tlr
                 }
             }
 
-            // Render frames from the timeline, setting the active range.
+            // Get frames from the timeline, setting the active range.
             timeline->setActiveRanges({ otime::TimeRange(otime::RationalTime(0.0, 24.0), timelineDuration) });
             frames.clear();
             futures.clear();
             for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
             {
-                futures.push_back(timeline->render(otime::RationalTime(i, 24.0)));
+                futures.push_back(timeline->getFrame(otime::RationalTime(i, 24.0)));
             }
             while (frames.size() < static_cast<size_t>(timelineDuration.value()))
             {
@@ -222,14 +222,14 @@ namespace tlr
                 }
             }
 
-            // Cancel renders.
+            // Cancel frames.
             frames.clear();
             futures.clear();
             for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
             {
-                futures.push_back(timeline->render(otime::RationalTime(i, 24.0)));
+                futures.push_back(timeline->getFrame(otime::RationalTime(i, 24.0)));
             }
-            timeline->cancelRenders();
+            timeline->cancelFrames();
         }
     }
 }

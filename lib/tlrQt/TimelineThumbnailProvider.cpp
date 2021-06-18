@@ -56,7 +56,7 @@ namespace tlr
                                 if (_cancelRequests)
                                 {
                                     _cancelRequests = false;
-                                    _timeline->cancelRenders();
+                                    _timeline->cancelFrames();
                                     requests.clear();
                                     _results.clear();
                                 }
@@ -71,7 +71,7 @@ namespace tlr
                         {
                             const auto request = std::move(requests.front());
                             requests.pop_front();
-                            const auto frame = _timeline->render(request.time).get();
+                            const auto frame = _timeline->getFrame(request.time).get();
 
                             const imaging::Info info(request.size.width(), request.size.height(), imaging::PixelType::RGBA_U8);
                             if (info != fboInfo)

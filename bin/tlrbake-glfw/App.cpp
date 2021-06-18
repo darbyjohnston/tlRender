@@ -265,8 +265,8 @@ namespace tlr
 
         // Render the frame.
         _render->begin(_renderInfo.size, true);
-        const auto renderFrame = _timeline->render(_timeline->getGlobalStartTime() + _currentTime).get();
-        for (const auto& i : renderFrame.layers)
+        const auto frame = _timeline->getFrame(_timeline->getGlobalStartTime() + _currentTime).get();
+        for (const auto& i : frame.layers)
         {
             _render->drawImage(i.image, math::BBox2f(0.F, 0.F, _renderInfo.size.w, _renderInfo.size.h));
         }

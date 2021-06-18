@@ -19,25 +19,25 @@ namespace tlr
 
         void TimelineViewport::setTimelinePlayer(TimelinePlayer* timelinePlayer)
         {
-            _frame = timeline::RenderFrame();
+            _frame = timeline::Frame();
             if (_timelinePlayer)
             {
                 disconnect(
                     _timelinePlayer,
-                    SIGNAL(frameChanged(const tlr::timeline::RenderFrame&)));
+                    SIGNAL(frameChanged(const tlr::timeline::Frame&)));
             }
             _timelinePlayer = timelinePlayer;
             if (_timelinePlayer)
             {
                 connect(
                     _timelinePlayer,
-                    SIGNAL(frameChanged(const tlr::timeline::RenderFrame&)),
-                    SLOT(_frameCallback(const tlr::timeline::RenderFrame&)));
+                    SIGNAL(frameChanged(const tlr::timeline::Frame&)),
+                    SLOT(_frameCallback(const tlr::timeline::Frame&)));
             }
             update();
         }
 
-        void TimelineViewport::_frameCallback(const timeline::RenderFrame& frame)
+        void TimelineViewport::_frameCallback(const timeline::Frame& frame)
         {
             _frame = frame;
             update();
