@@ -58,9 +58,6 @@ namespace tlr
         //! Loop time.
         otime::RationalTime loopTime(const otime::RationalTime&, const otime::TimeRange&);
 
-        //! Fit an image within a window.
-        math::BBox2f fitWindow(const imaging::Size& image, const imaging::Size& window);
-
         //! Timeline player.
         class TimelinePlayer : public std::enable_shared_from_this<TimelinePlayer>
         {

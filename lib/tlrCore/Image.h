@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <tlrCore/BBox.h>
 #include <tlrCore/Util.h>
 
 #include <iostream>
@@ -33,6 +34,10 @@ namespace tlr
             bool operator != (const Size&) const;
             bool operator < (const Size&) const;
         };
+
+        //! Get a bounding box with the given aspect ration that fits the
+        //! given size.
+        math::BBox2f getBBox(float aspect, const imaging::Size&);
 
         //! Image pixel types.
         enum class PixelType

@@ -11,7 +11,6 @@
 #include <tlrCore/Assert.h>
 #include <tlrCore/Color.h>
 #include <tlrCore/StringFormat.h>
-#include <tlrCore/TimelinePlayer.h>
 
 #include <array>
 
@@ -596,7 +595,7 @@ namespace tlr
                     drawImage(
                         i.image,
                         i.imageB,
-                        timeline::fitWindow(i.image->getSize(), _size),
+                        imaging::getBBox(i.image->getAspect(), _size),
                         i.transition,
                         i.transitionValue);
                 }
@@ -604,7 +603,7 @@ namespace tlr
                 {
                     drawImage(
                         i.image,
-                        timeline::fitWindow(i.image->getSize(), _size));
+                        imaging::getBBox(i.image->getAspect(), _size));
                 }
             }
         }

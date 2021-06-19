@@ -17,6 +17,30 @@ namespace tlr
 {
     namespace imaging
     {
+        math::BBox2f getBBox(float aspect, const imaging::Size& size)
+        {
+            math::BBox2f out;
+            const float sizeAspect = size.getAspect();
+            math::BBox2f bbox;
+            if (sizeAspect > aspect)
+            {
+                out = math::BBox2f(
+                    size.w / 2.F - (size.h * aspect) / 2.F,
+                    0.F,
+                    size.h * aspect,
+                    size.h);
+            }
+            else
+            {
+                out = math::BBox2f(
+                    0.F,
+                    size.h / 2.F - (size.w / aspect) / 2.F,
+                    size.w,
+                    size.w / aspect);
+            }
+            return out;
+        }
+
         TLR_ENUM_IMPL(
             PixelType,
             "None",

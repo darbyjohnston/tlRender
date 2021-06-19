@@ -32,7 +32,6 @@ namespace tlr
         {
             _enum();
             _loopTime();
-            _fitWindow();
             _timelinePlayer();
         }
 
@@ -51,13 +50,6 @@ namespace tlr
             TLR_ASSERT(otime::RationalTime(23.0, 24.0) == loopTime(otime::RationalTime(23.0, 24.0), timeRange));
             TLR_ASSERT(otime::RationalTime(0.0, 24.0) == loopTime(otime::RationalTime(24.0, 24.0), timeRange));
             TLR_ASSERT(otime::RationalTime(23.0, 24.0) == loopTime(otime::RationalTime(-1.0, 24.0), timeRange));
-        }
-
-        void TimelinePlayerTest::_fitWindow()
-        {
-            TLR_ASSERT(math::BBox2f(0.F, 0.F, 100.F, 100.F) == fitWindow(imaging::Size(100, 100), imaging::Size(100, 100)));
-            TLR_ASSERT(math::BBox2f(50.F, 0.F, 100.F, 100.F) == fitWindow(imaging::Size(100, 100), imaging::Size(200, 100)));
-            TLR_ASSERT(math::BBox2f(0.F, 50.F, 100.F, 100.F) == fitWindow(imaging::Size(100, 100), imaging::Size(100, 200)));
         }
 
         void TimelinePlayerTest::_timelinePlayer()

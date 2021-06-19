@@ -60,6 +60,11 @@ namespace tlr
                 ss >> size2;
                 TLR_ASSERT(size == size2);
             }
+            {
+                TLR_ASSERT(math::BBox2f(0.F, 0.F, 100.F, 100.F) == getBBox(1.F, imaging::Size(100, 100)));
+                TLR_ASSERT(math::BBox2f(50.F, 0.F, 100.F, 100.F) == getBBox(1.F, imaging::Size(200, 100)));
+                TLR_ASSERT(math::BBox2f(0.F, 50.F, 100.F, 100.F) == getBBox(1.F, imaging::Size(100, 200)));
+            }
         }
         
         void ImageTest::_enum()
