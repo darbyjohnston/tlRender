@@ -413,29 +413,31 @@ namespace tlr
                                             const auto neighbors = track->neighbors_of(clip, &errorStatus);
                                             if (auto transition = dynamic_cast<otio::Transition*>(neighbors.second.value))
                                             {
-                                                const auto transitionTime = range.end_time_exclusive() - transition->in_offset();
-                                                if (time > transitionTime)
+                                                const auto startTime = range.end_time_inclusive() - transition->in_offset();
+                                                if (time > startTime)
                                                 {
                                                     const auto transitionNeighbors = track->neighbors_of(transition, &errorStatus);
                                                     if (const auto clipB = dynamic_cast<otio::Clip*>(transitionNeighbors.second.value))
                                                     {
                                                         data.imageB = _readVideoFrame(track, clipB, time);
                                                         data.transition = toTransition(transition->transition_type());
-                                                        data.transitionValue = otime::RationalTime(time - transitionTime).value() / transition->in_offset().value() * .5F;
+                                                        data.transitionValue = otime::RationalTime(time - startTime).value() /
+                                                            (transition->in_offset().value() + transition->out_offset().value() + 1.0);
                                                     }
                                                 }
                                             }
                                             if (auto transition = dynamic_cast<otio::Transition*>(neighbors.first.value))
                                             {
-                                                const auto transitionTime = range.start_time() + transition->out_offset();
-                                                if (time < transitionTime)
+                                                const auto endTime = range.start_time() + transition->out_offset();
+                                                if (time < endTime)
                                                 {
                                                     const auto transitionNeighbors = track->neighbors_of(transition, &errorStatus);
                                                     if (const auto clipB = dynamic_cast<otio::Clip*>(transitionNeighbors.first.value))
                                                     {
                                                         data.imageB = _readVideoFrame(track, clipB, time);
                                                         data.transition = toTransition(transition->transition_type());
-                                                        data.transitionValue = (1.F - otime::RationalTime(time - range.start_time()).value() / transition->out_offset().value()) * .5F;
+                                                        data.transitionValue = 1.F - (otime::RationalTime(time - range.start_time() + transition->in_offset()).value() + 1.0) /
+                                                            (transition->in_offset().value() + transition->out_offset().value() + 1.0);
                                                     }
                                                 }
                                             }
