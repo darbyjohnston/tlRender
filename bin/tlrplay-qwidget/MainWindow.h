@@ -47,6 +47,8 @@ namespace tlr
         void _recentFilesCallback();
         void _nextCallback();
         void _prevCallback();
+        void _resize1280x720Callback();
+        void _resize1920x1080Callback();
         void _settingsVisibleCallback(bool);
         void _currentTabCallback(int);
         void _closeTabCallback(int);

@@ -60,6 +60,11 @@ namespace tlr
         _actions["File/Exit"]->setText(tr("Exit"));
         _actions["File/Exit"]->setShortcut(QKeySequence::Quit);
 
+        _actions["Window/Resize1280x720"] = new QAction(this);
+        _actions["Window/Resize1280x720"]->setText(tr("Resize 1280x720"));
+        _actions["Window/Resize1920x1080"] = new QAction(this);
+        _actions["Window/Resize1920x1080"]->setText(tr("Resize 1920x1080"));
+
         _actions["Playback/Stop"] = new QAction(this);
         _actions["Playback/Stop"]->setCheckable(true);
         _actions["Playback/Stop"]->setText(tr("Stop Playback"));
@@ -178,6 +183,11 @@ namespace tlr
         fileMenu->addSeparator();
         fileMenu->addAction(_actions["File/Exit"]);
 
+        auto windowMenu = new QMenu;
+        windowMenu->setTitle(tr("&Window"));
+        windowMenu->addAction(_actions["Window/Resize1280x720"]);
+        windowMenu->addAction(_actions["Window/Resize1920x1080"]);
+
         auto playbackMenu = new QMenu;
         playbackMenu->setTitle(tr("&Playback"));
         playbackMenu->addAction(_actions["Playback/Stop"]);
@@ -210,6 +220,7 @@ namespace tlr
 
         auto menuBar = new QMenuBar;
         menuBar->addMenu(fileMenu);
+        menuBar->addMenu(windowMenu);
         menuBar->addMenu(playbackMenu);
         menuBar->addMenu(timeMenu);
         menuBar->addMenu(inOutPointsMenu);
@@ -266,6 +277,15 @@ namespace tlr
             SIGNAL(triggered()),
             qApp,
             SLOT(quit()));
+
+        connect(
+            _actions["Window/Resize1280x720"],
+            SIGNAL(triggered()),
+            SLOT(_resize1280x720Callback()));
+        connect(
+            _actions["Window/Resize1920x1080"],
+            SIGNAL(triggered()),
+            SLOT(_resize1920x1080Callback()));
 
         connect(
             _actions["Playback/Stop"],
@@ -554,6 +574,16 @@ namespace tlr
             }
             _setCurrentTimeline(_timelinePlayers[i]);
         }
+    }
+
+    void MainWindow::_resize1280x720Callback()
+    {
+        resize(1280, 720);
+    }
+
+    void MainWindow::_resize1920x1080Callback()
+    {
+        resize(1920, 1080);
     }
 
     void MainWindow::_settingsVisibleCallback(bool value)
