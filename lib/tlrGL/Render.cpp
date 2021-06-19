@@ -11,6 +11,7 @@
 #include <tlrCore/Assert.h>
 #include <tlrCore/Color.h>
 #include <tlrCore/StringFormat.h>
+#include <tlrCore/TimelinePlayer.h>
 
 #include <array>
 
@@ -123,17 +124,26 @@ namespace tlr
                 "uniform sampler2D textureSampler0;\n"
                 "uniform sampler2D textureSampler1;\n"
                 "uniform sampler2D textureSampler2;\n"
+                "uniform sampler2D textureSampler3;\n"
+                "uniform sampler2D textureSampler4;\n"
+                "uniform sampler2D textureSampler5;\n"
+                "\n"
+                "// tlr::timeline::Transition\n"
+                "const uint Transition_None     = 0;\n"
+                "const uint Transition_Dissolve = 1;\n"
+                "uniform int transition;\n"
+                "uniform float transitionValue;\n"
                 "\n"
                 "// $color"
                 "\n"
-                "vec4 sampleTexture()\n"
+                "vec4 sampleTexture(sampler2D s0, sampler2D s1, sampler2D s2)\n"
                 "{\n"
                 "    vec4 c;\n"
                 "    if (PixelType_YUV_420P == pixelType)\n"
                 "    {\n"
-                "        float y = texture2D(textureSampler0, texture).r;\n"
-                "        float u = texture2D(textureSampler1, texture).r - 0.5;\n"
-                "        float v = texture2D(textureSampler2, texture).r - 0.5;\n"
+                "        float y = texture2D(s0, texture).r;\n"
+                "        float u = texture2D(s1, texture).r - 0.5;\n"
+                "        float v = texture2D(s2, texture).r - 0.5;\n"
                 "        c.r = y + 1.402 * v;\n"
                 "        c.g = y - 0.344 * u - 0.714 * v;\n"
                 "        c.b = y + 1.772 * u;\n"
@@ -141,7 +151,7 @@ namespace tlr
                 "    }\n"
                 "    else\n"
                 "    {\n"
-                "        c = texture2D(textureSampler0, texture);\n"
+                "        c = texture2D(s0, texture);\n"
                 "    }\n"
                 "    return c;\n"
                 "}\n"
@@ -154,17 +164,33 @@ namespace tlr
                 "    }\n"
                 "    else if (ColorMode_Texture == colorMode)\n"
                 "    {\n"
-                "        vec4 t = sampleTexture();\n"
-                "        fragColor = t * color;\n"
+                "        vec4 t = sampleTexture(textureSampler0, textureSampler1, textureSampler2);\n"
+                "        if (Transition_None == transition)\n"
+                "        {\n"
+                "            fragColor = t * color;\n"
+                "        }\n"
+                "        else if (Transition_Dissolve == transition)\n"
+                "        {\n"
+                "            vec4 t2 = sampleTexture(textureSampler3, textureSampler4, textureSampler5);\n"
+                "            fragColor = ((t * (1.0 - transitionValue)) + (t2 * transitionValue)) * color;\n"
+                "        }\n"
                 "    }\n"
                 "    else if (ColorMode_TextureColorConfig == colorMode)\n"
                 "    {\n"
-                "        vec4 t = sampleTexture();\n"
-                "        fragColor = OCIODisplay(t * color);\n"
+                "        vec4 t = sampleTexture(textureSampler0, textureSampler1, textureSampler2);\n"
+                "        if (Transition_None == transition)\n"
+                "        {\n"
+                "            fragColor = OCIODisplay(t) * color;\n"
+                "        }\n"
+                "        else if (Transition_Dissolve == transition)\n"
+                "        {\n"
+                "            vec4 t2 = sampleTexture(textureSampler3, textureSampler4, textureSampler5);\n"
+                "            fragColor = OCIODisplay(((t * (1.0 - transitionValue)) + (t2 * transitionValue))) * color;\n"
+                "        }\n"
                 "    }\n"
                 "    else if (ColorMode_TextureAlpha == colorMode)\n"
                 "    {\n"
-                "        vec4 t = sampleTexture();\n"
+                "        vec4 t = sampleTexture(textureSampler0, textureSampler1, textureSampler2);\n"
                 "        fragColor.r = color.r;\n"
                 "        fragColor.g = color.g;\n"
                 "        fragColor.b = color.b;\n"
@@ -347,7 +373,9 @@ namespace tlr
 
         void Render::begin(const imaging::Size& size, bool flipY)
         {
-            glViewport(0, 0, size.w, size.h);
+            _size = size;
+
+            glViewport(0, 0, _size.w, _size.h);
             glClearColor(0.F, 0.F, 0.F, 0.F);
             glClear(GL_COLOR_BUFFER_BIT);
 
@@ -368,9 +396,9 @@ namespace tlr
             _shader->bind();
             const auto viewMatrix = math::ortho(
                 0.F,
-                static_cast<float>(size.w),
-                flipY ? 0.F : static_cast<float>(size.h),
-                flipY ? static_cast<float>(size.h) : 0.F,
+                static_cast<float>(_size.w),
+                flipY ? 0.F : static_cast<float>(_size.h),
+                flipY ? static_cast<float>(_size.h) : 0.F,
                 -1.F,
                 1.F);
             _shader->setUniform("transform.mvp", viewMatrix);
@@ -386,7 +414,9 @@ namespace tlr
         void Render::end()
         {}
 
-        void Render::drawRect(const math::BBox2f& bbox, const imaging::Color4f& color)
+        void Render::drawRect(
+            const math::BBox2f& bbox,
+            const imaging::Color4f& color)
         {
             _shader->setUniform("colorMode", static_cast<int>(ColorMode::Solid));
             _shader->setUniform("color", color);
@@ -418,7 +448,54 @@ namespace tlr
             vao->draw(GL_TRIANGLE_STRIP, 0, 4);
         }
 
-        void Render::drawImage(const std::shared_ptr<imaging::Image>& image, const math::BBox2f& bbox)
+        namespace
+        {
+            std::vector<std::shared_ptr<Texture> > getTextures(const std::shared_ptr<imaging::Image>& image, size_t offset = 0)
+            {
+                std::vector<std::shared_ptr<Texture> > out;
+                const auto& info = image->getInfo();
+                switch (info.pixelType)
+                {
+                case imaging::PixelType::YUV_420P:
+                {
+                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
+                    auto infoTmp = imaging::Info(info.size, imaging::PixelType::L_U8);
+                    auto texture = Texture::create(infoTmp);
+                    texture->copy(image->getData(), infoTmp);
+                    out.push_back(texture);
+
+                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
+                    const std::size_t w = info.size.w;
+                    const std::size_t h = info.size.h;
+                    const std::size_t w2 = w / 2;
+                    const std::size_t h2 = h / 2;
+                    infoTmp = imaging::Info(imaging::Size(w2, h2), imaging::PixelType::L_U8);
+                    texture = Texture::create(infoTmp);
+                    texture->copy(image->getData() + (w * h), infoTmp);
+                    out.push_back(texture);
+
+                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 2 + offset));
+                    texture = Texture::create(infoTmp);
+                    texture->copy(image->getData() + (w * h) + (w2 * h2), infoTmp);
+                    out.push_back(texture);
+                    break;
+                }
+                default:
+                {
+                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
+                    auto texture = Texture::create(info);
+                    texture->copy(*image);
+                    out.push_back(texture);
+                    break;
+                }
+                }
+                return out;
+            }
+        }
+
+        void Render::drawImage(
+            const std::shared_ptr<imaging::Image>& image,
+            const math::BBox2f& bbox)
         {
             const auto& info = image->getInfo();
             _shader->setUniform("colorMode", static_cast<int>(ColorMode::TextureColorConfig));
@@ -427,44 +504,10 @@ namespace tlr
             _shader->setUniform("textureSampler0", 0);
             _shader->setUniform("textureSampler1", 1);
             _shader->setUniform("textureSampler2", 2);
+            _shader->setUniform("transition", static_cast<int>(timeline::Transition::None));
 
             //! \todo Cache textures for reuse.
-            std::vector<std::shared_ptr<Texture> > textures;
-            switch (info.pixelType)
-            {
-            case imaging::PixelType::YUV_420P:
-            {
-                glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
-                auto infoTmp = imaging::Info(info.size, imaging::PixelType::L_U8);
-                auto texture = Texture::create(infoTmp);
-                texture->copy(image->getData(), infoTmp);
-                textures.push_back(texture);
-
-                glActiveTexture(static_cast<GLenum>(GL_TEXTURE1));
-                const std::size_t w = info.size.w;
-                const std::size_t h = info.size.h;
-                const std::size_t w2 = w / 2;
-                const std::size_t h2 = h / 2;
-                infoTmp = imaging::Info(imaging::Size(w2, h2), imaging::PixelType::L_U8);
-                texture = Texture::create(infoTmp);
-                texture->copy(image->getData() + (w * h), infoTmp);
-                textures.push_back(texture);
-
-                glActiveTexture(static_cast<GLenum>(GL_TEXTURE2));
-                texture = Texture::create(infoTmp);
-                texture->copy(image->getData() + (w * h) + (w2 * h2), infoTmp);
-                textures.push_back(texture);
-                break;
-            }
-            default:
-            {
-                glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
-                auto texture = Texture::create(info);
-                texture->copy(*image);
-                textures.push_back(texture);
-                break;
-            }
-            }
+            auto textures = getTextures(image);
 
             std::vector<uint8_t> vboData;
             vboData.resize(4 * getByteCount(VBOType::Pos2_F32_UV_U16));
@@ -491,6 +534,79 @@ namespace tlr
             auto vao = VAO::create(vbo->getType(), vbo->getID());
             vao->bind();
             vao->draw(GL_TRIANGLE_STRIP, 0, 4);
+        }
+
+        void Render::drawImage(
+            const std::shared_ptr<imaging::Image>& image,
+            const std::shared_ptr<imaging::Image>& imageB,
+            const math::BBox2f& bbox,
+            timeline::Transition transition,
+            float transitionValue)
+        {
+            const auto& info = image->getInfo();
+            _shader->setUniform("colorMode", static_cast<int>(ColorMode::TextureColorConfig));
+            _shader->setUniform("color", imaging::Color4f(1.F, 1.F, 1.F));
+            _shader->setUniform("pixelType", static_cast<int>(info.pixelType));
+            _shader->setUniform("textureSampler0", 0);
+            _shader->setUniform("textureSampler1", 1);
+            _shader->setUniform("textureSampler2", 2);
+            _shader->setUniform("textureSampler3", 3);
+            _shader->setUniform("textureSampler4", 4);
+            _shader->setUniform("textureSampler5", 5);
+            _shader->setUniform("transition", static_cast<int>(transition));
+            _shader->setUniform("transitionValue", transitionValue);
+
+            //! \todo Cache textures for reuse.
+            auto textures = getTextures(image);
+            auto texturesB = getTextures(imageB, 3);
+
+            std::vector<uint8_t> vboData;
+            vboData.resize(4 * getByteCount(VBOType::Pos2_F32_UV_U16));
+            VBOVertex* vboP = reinterpret_cast<VBOVertex*>(vboData.data());
+            vboP[0].vx = bbox.min.x;
+            vboP[0].vy = bbox.min.y;
+            vboP[0].tx = 0;
+            vboP[0].ty = 0;
+            vboP[1].vx = bbox.max.x;
+            vboP[1].vy = bbox.min.y;
+            vboP[1].tx = 65535;
+            vboP[1].ty = 0;
+            vboP[2].vx = bbox.min.x;
+            vboP[2].vy = bbox.max.y;
+            vboP[2].tx = 0;
+            vboP[2].ty = 65535;
+            vboP[3].vx = bbox.max.x;
+            vboP[3].vy = bbox.max.y;
+            vboP[3].tx = 65535;
+            vboP[3].ty = 65535;
+            auto vbo = VBO::create(4, VBOType::Pos2_F32_UV_U16);
+            vbo->copy(vboData);
+
+            auto vao = VAO::create(vbo->getType(), vbo->getID());
+            vao->bind();
+            vao->draw(GL_TRIANGLE_STRIP, 0, 4);
+        }
+
+        void Render::drawFrame(const timeline::Frame& frame)
+        {
+            for (const auto& i : frame.layers)
+            {
+                if (i.image && i.imageB)
+                {
+                    drawImage(
+                        i.image,
+                        i.imageB,
+                        timeline::fitWindow(i.image->getSize(), _size),
+                        i.transition,
+                        i.transitionValue);
+                }
+                else if (i.image)
+                {
+                    drawImage(
+                        i.image,
+                        timeline::fitWindow(i.image->getSize(), _size));
+                }
+            }
         }
 
         void Render::drawText(

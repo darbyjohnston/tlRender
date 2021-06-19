@@ -223,7 +223,7 @@ namespace tlr
             const GLint location = glGetUniformLocation(_program, name.c_str());
             glUniformMatrix4fv(location, 1, GL_FALSE, &value.v[0]);
         }
-
+        
         void Shader::setUniform(const std::string& name, const imaging::Color4f& value)
         {
             const GLint location = glGetUniformLocation(_program, name.c_str());

@@ -83,13 +83,7 @@ namespace tlr
 
                             render->setColorConfig(colorConfig);
                             render->begin(info.size);
-                            for (const auto& i : frame.layers)
-                            {
-                                if (i.image)
-                                {
-                                    render->drawImage(i.image, math::BBox2f(0, 0, info.size.w, info.size.h));
-                                }
-                            }
+                            render->drawFrame(frame);
                             render->end();
                             std::vector<uint8_t> pixels(info.size.w * info.size.h * 4);
                             glPixelStorei(GL_PACK_ALIGNMENT, 1);

@@ -40,7 +40,7 @@
                                 "value": 90
                             }
                         },
-                        "name": "BART_2021-02-07"
+                        "name": "C000"
                     },
                     {
                         "OTIO_SCHEMA": "Transition.1",
@@ -49,12 +49,12 @@
                         "in_offset": {
                           "OTIO_SCHEMA": "RationalTime.1",
                           "rate": 30,
-                          "value": 15
+                          "value": 50
                         },
                         "out_offset": {
                           "OTIO_SCHEMA": "RationalTime.1",
                           "rate": 30,
-                          "value": 15
+                          "value": 50
                         }
                     },
                     {
@@ -89,7 +89,7 @@
                                 "value": 500
                             }
                         },
-                        "name": "BART_2021-02-07"
+                        "name": "C001"
                     }
                 ],
                 "kind": "Video", 

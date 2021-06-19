@@ -244,7 +244,7 @@ namespace tlr
 
                 const auto& duration = _timelinePlayer->duration();
                 const auto& imageInfo = _timelinePlayer->imageInfo();
-                const auto rect = this->rect().adjusted(0, 0, 0, -(stripeSize * 2 + handleSize * 2));
+                const auto rect = this->rect().adjusted(0, 0, 0, -(stripeSize + handleSize * 2));
                 const int width = rect.width();
                 const int height = rect.height();
                 const int thumbnailWidth = static_cast<int>(height * imageInfo.size.getAspect());

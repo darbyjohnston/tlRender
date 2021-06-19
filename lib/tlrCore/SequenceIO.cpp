@@ -23,6 +23,8 @@ namespace tlr
             file::split(fileName, &_path, &_baseName, &_number, &_extension);
             _pad = !_number.empty() ? ('0' == _number[0] ? _number.size() : 0) : 0;
 
+            _videoFrameCache.setMax(1);
+
             _running = true;
             _stopped = false;
             _thread = std::thread(
@@ -118,7 +120,8 @@ namespace tlr
         {
             while (_running)
             {
-                std::list<VideoFrameRequest> requests;
+                VideoFrameRequest request;
+                bool requestValid = false;
                 {
                     std::unique_lock<std::mutex> lock(_requestMutex);
                     _requestCV.wait_for(
@@ -130,46 +133,36 @@ namespace tlr
                         });
                     for (size_t i = 0; i < sequenceThreadCount && !_videoFrameRequests.empty(); ++i)
                     {
-                        requests.push_back(std::move(_videoFrameRequests.front()));
+                        request.time = _videoFrameRequests.front().time;
+                        request.promise = std::move(_videoFrameRequests.front().promise);
                         _videoFrameRequests.pop_front();
+                        requestValid = true;
                     }
                 }
-                std::list<std::future<io::VideoFrame> > futures;
-                for (const auto& i : requests)
+                if (requestValid)
                 {
                     //std::cout << "request: " << i.time << std::endl;
                     std::stringstream ss;
                     if (!_number.empty())
                     {
-                        ss << _path << _baseName << std::setfill('0') << std::setw(_pad) << static_cast<int>(i.time.value()) << _extension;
+                        ss << _path << _baseName << std::setfill('0') << std::setw(_pad) << static_cast<int>(request.time.value()) << _extension;
                     }
                     else
                     {
                         ss << _fileName;
                     }
                     std::string fileName = ss.str();
-                    futures.push_back(std::async(
-                        std::launch::async,
-                        [this, &i, fileName]
-                        {
-                            io::VideoFrame out;
-                            try
-                            {
-                                out = _readVideoFrame(fileName, i.time);
-                            }
-                            catch (const std::exception&)
-                            {
-                                //! \todo How should this be handled?
-                            }
-                            return out;
-                        }));
-                }
-                while (!requests.empty())
-                {
-                    const auto videoFrame = futures.front().get();
-                    requests.front().promise.set_value(videoFrame);
-                    requests.pop_front();
-                    futures.pop_front();
+                    io::VideoFrame videoFrame;
+                    if (_videoFrameCache.get(fileName, videoFrame))
+                    {
+                        request.promise.set_value(videoFrame);
+                    }
+                    else
+                    {
+                        videoFrame = _readVideoFrame(fileName, request.time);
+                        request.promise.set_value(videoFrame);
+                        _videoFrameCache.add(fileName, videoFrame);
+                    }
                 }
             }
         }

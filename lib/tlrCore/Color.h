@@ -13,8 +13,9 @@ namespace tlr
     namespace imaging
     {
         //! Color.
-        struct Color4f
+        class Color4f
         {
+        public:
             Color4f();
             explicit Color4f(float r, float g, float b, float a = 1.F);
 

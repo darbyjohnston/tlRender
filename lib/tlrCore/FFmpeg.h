@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <tlrCore/Cache.h>
 #include <tlrCore/IO.h>
 
 extern "C"
@@ -92,7 +91,7 @@ namespace tlr
             struct VideoFrameRequest
             {
                 VideoFrameRequest() {}
-                VideoFrameRequest(VideoFrameRequest&& other) = default;
+                VideoFrameRequest(VideoFrameRequest&&) = default;
 
                 otime::RationalTime time = invalidTime;
                 std::promise<io::VideoFrame> promise;

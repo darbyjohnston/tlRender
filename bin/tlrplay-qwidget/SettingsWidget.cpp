@@ -14,10 +14,10 @@ namespace tlr
         QWidget(parent)
     {
         _readAheadSpinBox = new QSpinBox;
-        _readAheadSpinBox->setRange(0, 1000);
+        _readAheadSpinBox->setRange(0, 5000);
 
         _readBehindSpinBox = new QSpinBox;
-        _readBehindSpinBox->setRange(0, 1000);
+        _readBehindSpinBox->setRange(0, 5000);
 
         auto layout = new QVBoxLayout;
         auto vLayout = new QVBoxLayout;

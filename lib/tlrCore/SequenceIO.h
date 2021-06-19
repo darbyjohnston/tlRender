@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <tlrCore/Cache.h>
 #include <tlrCore/IO.h>
 
 #include <atomic>
@@ -60,7 +61,7 @@ namespace tlr
             struct VideoFrameRequest
             {
                 VideoFrameRequest() {}
-                VideoFrameRequest(VideoFrameRequest&& other) = default;
+                VideoFrameRequest(VideoFrameRequest&&) = default;
 
                 otime::RationalTime time = invalidTime;
                 std::promise<io::VideoFrame> promise;
@@ -68,6 +69,7 @@ namespace tlr
             std::list<VideoFrameRequest> _videoFrameRequests;
             std::condition_variable _requestCV;
             std::mutex _requestMutex;
+            memory::Cache<std::string, io::VideoFrame> _videoFrameCache;
             std::thread _thread;
             std::atomic<bool> _running;
             std::atomic<bool> _stopped;

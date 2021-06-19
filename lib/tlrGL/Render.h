@@ -8,6 +8,8 @@
 
 #include <tlrCore/BBox.h>
 #include <tlrCore/Cache.h>
+#include <tlrCore/Color.h>
+#include <tlrCore/Timeline.h>
 
 #include <OpenColorIO/OpenColorIO.h>
 
@@ -17,7 +19,6 @@ namespace tlr
 {
     namespace imaging
     {
-        class Color4f;
         class Image;
         class Size;
     }
@@ -66,10 +67,25 @@ namespace tlr
             void end();
 
             //! Draw a rectangle.
-            void drawRect(const math::BBox2f&, const imaging::Color4f&);
+            void drawRect(
+                const math::BBox2f&,
+                const imaging::Color4f&);
 
             //! Draw an image.
-            void drawImage(const std::shared_ptr<imaging::Image>&, const math::BBox2f&);
+            void drawImage(
+                const std::shared_ptr<imaging::Image>&,
+                const math::BBox2f&);
+
+            //! Draw an image transition.
+            void drawImage(
+                const std::shared_ptr<imaging::Image>&,
+                const std::shared_ptr<imaging::Image>&,
+                const math::BBox2f&,
+                timeline::Transition,
+                float transitionValue);
+
+            //! Draw a timeline frame.
+            void drawFrame(const timeline::Frame&);
 
             //! Draw text.
             void drawText(
@@ -97,6 +113,8 @@ namespace tlr
                 unsigned    type = -1;
             };
             std::vector<TextureId> _colorTextures;
+
+            imaging::Size _size;
 
             std::shared_ptr<Shader> _shader;
 

@@ -54,13 +54,7 @@ namespace tlr
             const auto size = imaging::Size(width(), height());
             _render->setColorConfig(_colorConfig);
             _render->begin(size);
-            for (const auto& i : _frame.layers)
-            {
-                if (i.image)
-                {
-                    _render->drawImage(i.image, timeline::fitWindow(i.image->getSize(), size));
-                }
-            }
+            _render->drawFrame(_frame);
             _render->end();
         }
     }

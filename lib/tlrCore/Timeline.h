@@ -33,11 +33,27 @@ namespace tlr
         //! Get the ancestor (highest parent).
         otio::Composable* getAncestor(otio::Composable*);
 
+        //! Transitions.
+        enum class Transition
+        {
+            None,
+            Dissolve,
+
+            Count,
+            First = None
+        };
+        TLR_ENUM(Transition);
+
+        //! Convert to a transition.
+        Transition toTransition(const std::string&);
+
         //! Frame layer.
         struct FrameLayer
         {
             std::shared_ptr<imaging::Image> image;
-            float opacity = 1.F;
+            std::shared_ptr<imaging::Image> imageB;
+            Transition transition = Transition::None;
+            float transitionValue = 0.F;
 
             bool operator == (const FrameLayer&) const;
             bool operator != (const FrameLayer&) const;
@@ -108,6 +124,13 @@ namespace tlr
             bool _getImageInfo(const otio::Composable*, imaging::Info&) const;
 
             void _tick();
+            void _frameRequests();
+            io::VideoFrame _readVideoFrame(
+                otio::Track*,
+                otio::Clip*,
+                const otime::RationalTime&);
+            void _stopReaders();
+            void _delReaders();
 
             std::string _fileName;
             otio::SerializableObject::Retainer<otio::Timeline> _timeline;
@@ -120,7 +143,7 @@ namespace tlr
             struct Request
             {
                 Request() {}
-                Request(Request&& other) = default;
+                Request(Request&&) = default;
 
                 otime::RationalTime time = invalidTime;
                 std::promise<Frame> promise;
@@ -139,6 +162,8 @@ namespace tlr
             std::atomic<bool> _running;
         };
     }
+
+    TLR_ENUM_SERIALIZE(timeline::Transition);
 }
 
 #include <tlrCore/TimelineInline.h>

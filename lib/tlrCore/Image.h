@@ -52,7 +52,9 @@ namespace tlr
             RGBA_F16,
             RGBA_F32,
             YUV_420P,
-            Count
+
+            Count,
+            First = None
         };
         TLR_ENUM(PixelType);
 

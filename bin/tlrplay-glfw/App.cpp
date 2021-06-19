@@ -395,15 +395,7 @@ namespace tlr
 
     void App::_renderVideo()
     {
-        for (const auto& i : _frame.layers)
-        {
-            if (i.image)
-            {
-                _render->drawImage(
-                    i.image,
-                    timeline::fitWindow(i.image->getSize(), _frameBufferSize));
-            }
-        }
+        _render->drawFrame(_frame);
     }
 
     void App::_renderHUD()
