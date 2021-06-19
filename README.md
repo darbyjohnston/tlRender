@@ -18,15 +18,16 @@ a BSD style open source license.
 
 Supported:
 * Movie clips
-* Gaps
 * Image sequences (OpenEXR, JPEG, PNG, TIFF)
+* Transitions
+* Gaps
 
 To do:
-* Transitions
 * Effects
 * Audio support
 * Hardware movie decoding
 * Rendering to file
+* Nested timelines
 
 
 Libraries
