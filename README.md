@@ -28,6 +28,7 @@ To do:
 * Hardware movie decoding
 * Rendering to file
 * Nested timelines
+* Python bindings
 
 
 Libraries
