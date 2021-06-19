@@ -34,12 +34,7 @@ namespace tlr
                     try
                     {
                         _open(fileName);
-                        try
-                        {
-                            _run();
-                        }
-                        catch (const std::exception& e)
-                        {}
+                        _run();
                     }
                     catch (const std::exception& e)
                     {

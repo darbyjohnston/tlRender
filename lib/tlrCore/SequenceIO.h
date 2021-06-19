@@ -19,7 +19,7 @@ namespace tlr
     namespace io
     {
         //! Number of threads.
-        const size_t sequenceThreadCount = 1;
+        const size_t sequenceThreadCount = 4;
 
         //! Timeout for frame requests.
         const std::chrono::microseconds sequenceRequestTimeout(1000);
@@ -30,22 +30,22 @@ namespace tlr
         protected:
             void _init(
                 const std::string& fileName,
-                const io::Options&);
+                const Options&);
             ISequenceRead();
 
         public:
             ~ISequenceRead() override;
 
-            std::future<io::Info> getInfo() override;
-            std::future<io::VideoFrame> readVideoFrame(const otime::RationalTime&) override;
+            std::future<Info> getInfo() override;
+            std::future<VideoFrame> readVideoFrame(const otime::RationalTime&) override;
             bool hasVideoFrames() override;
             void cancelVideoFrames() override;
             void stop() override;
             bool hasStopped() const override;
 
         protected:
-            virtual io::Info _getInfo(const std::string& fileName) = 0;
-            virtual io::VideoFrame _readVideoFrame(
+            virtual Info _getInfo(const std::string& fileName) = 0;
+            virtual VideoFrame _readVideoFrame(
                 const std::string& fileName,
                 const otime::RationalTime&) = 0;
 
@@ -57,19 +57,22 @@ namespace tlr
             std::string _number;
             int _pad = 0;
             std::string _extension;
-            std::promise<io::Info> _infoPromise;
+
+            std::promise<Info> _infoPromise;
+
             struct VideoFrameRequest
             {
                 VideoFrameRequest() {}
                 VideoFrameRequest(VideoFrameRequest&&) = default;
 
                 otime::RationalTime time = invalidTime;
-                std::promise<io::VideoFrame> promise;
+                std::promise<VideoFrame> promise;
             };
             std::list<VideoFrameRequest> _videoFrameRequests;
             std::condition_variable _requestCV;
             std::mutex _requestMutex;
-            memory::Cache<std::string, io::VideoFrame> _videoFrameCache;
+            memory::Cache<std::string, VideoFrame> _videoFrameCache;
+
             std::thread _thread;
             std::atomic<bool> _running;
             std::atomic<bool> _stopped;
@@ -81,8 +84,8 @@ namespace tlr
         protected:
             void _init(
                 const std::string& fileName,
-                const io::Info&,
-                const io::Options&);
+                const Info&,
+                const Options&);
             ISequenceWrite();
 
         public:

@@ -350,8 +350,24 @@ namespace tlr
 
         void Timeline::_frameRequests()
         {
-            Request request;
-            bool requestValid = false;
+            struct LayerData
+            {
+                LayerData() {};
+                LayerData(LayerData&&) = default;
+
+                std::future<io::VideoFrame> image;
+                std::future<io::VideoFrame> imageB;
+                Transition transition = Transition::None;
+                float transitionValue = 0.F;
+            };
+            struct Result
+            {
+                otime::RationalTime time = invalidTime;
+                std::vector<LayerData> layerData;
+                std::promise<Frame> promise;
+            };
+            Result result;
+            bool resultValid = false;
             {
                 std::unique_lock<std::mutex> lock(_requestMutex);
                 _requestCV.wait_for(
@@ -363,37 +379,37 @@ namespace tlr
                     });
                 if (!_requests.empty())
                 {
-                    request.time = _requests.front().time;
-                    request.promise = std::move(_requests.front().promise);
+                    result.time = _requests.front().time;
+                    result.promise = std::move(_requests.front().promise);
+                    resultValid = true;
                     _requests.pop_front();
-                    requestValid = true;
                 }
             }
-            if (requestValid)
+            if (resultValid)
             {
                 Frame frame;
-                frame.time = request.time;
+                frame.time = result.time;
                 try
                 {
-                    for (const auto& i : _timeline->tracks()->children())
+                    for (const auto& j : _timeline->tracks()->children())
                     {
-                        const auto track = dynamic_cast<otio::Track*>(i.value);
+                        const auto track = dynamic_cast<otio::Track*>(j.value);
                         if (track && otio::Track::Kind::video == track->kind())
                         {
-                            for (const auto& j : track->children())
+                            for (const auto& k : track->children())
                             {
-                                if (const auto clip = dynamic_cast<otio::Clip*>(j.value))
+                                if (const auto clip = dynamic_cast<otio::Clip*>(k.value))
                                 {
                                     otio::ErrorStatus errorStatus;
                                     const auto rangeOpt = clip->trimmed_range_in_parent(&errorStatus);
                                     if (rangeOpt.has_value())
                                     {
                                         const auto range = rangeOpt.value();
-                                        const auto time = request.time - _globalStartTime;
+                                        const auto time = result.time - _globalStartTime;
                                         if (range.contains(time))
                                         {
-                                            FrameLayer layer;
-                                            layer.image = _readVideoFrame(track, clip, time).image;
+                                            LayerData data;
+                                            data.image = _readVideoFrame(track, clip, time);
                                             const auto neighbors = track->neighbors_of(clip, &errorStatus);
                                             if (auto transition = dynamic_cast<otio::Transition*>(neighbors.second.value))
                                             {
@@ -403,9 +419,9 @@ namespace tlr
                                                     const auto transitionNeighbors = track->neighbors_of(transition, &errorStatus);
                                                     if (const auto clipB = dynamic_cast<otio::Clip*>(transitionNeighbors.second.value))
                                                     {
-                                                        layer.imageB = _readVideoFrame(track, clipB, time).image;
-                                                        layer.transition = toTransition(transition->transition_type());
-                                                        layer.transitionValue = otime::RationalTime(time - transitionTime).value() / transition->in_offset().value() * .5F;
+                                                        data.imageB = _readVideoFrame(track, clipB, time);
+                                                        data.transition = toTransition(transition->transition_type());
+                                                        data.transitionValue = otime::RationalTime(time - transitionTime).value() / transition->in_offset().value() * .5F;
                                                     }
                                                 }
                                             }
@@ -417,34 +433,46 @@ namespace tlr
                                                     const auto transitionNeighbors = track->neighbors_of(transition, &errorStatus);
                                                     if (const auto clipB = dynamic_cast<otio::Clip*>(transitionNeighbors.first.value))
                                                     {
-                                                        layer.imageB = _readVideoFrame(track, clipB, time).image;
-                                                        layer.transition = toTransition(transition->transition_type());
-                                                        layer.transitionValue = (1.F - otime::RationalTime(time - range.start_time()).value() / transition->out_offset().value()) * .5F;
+                                                        data.imageB = _readVideoFrame(track, clipB, time);
+                                                        data.transition = toTransition(transition->transition_type());
+                                                        data.transitionValue = (1.F - otime::RationalTime(time - range.start_time()).value() / transition->out_offset().value()) * .5F;
                                                     }
                                                 }
                                             }
-                                            frame.layers.push_back(layer);
+                                            result.layerData.push_back(std::move(data));
                                         }
                                     }
                                 }
                             }
                         }
                     }
+                    for (auto& j : result.layerData)
+                    {
+                        FrameLayer layer;
+                        layer.image = j.image.get().image;
+                        if (j.imageB.valid())
+                        {
+                            layer.imageB = j.imageB.get().image;
+                        }
+                        layer.transition = j.transition;
+                        layer.transitionValue = j.transitionValue;
+                        frame.layers.push_back(layer);
+                    }
                 }
                 catch (const std::exception&)
                 {
                     //! \todo How should this be handled?
                 }
-                request.promise.set_value(frame);
+                result.promise.set_value(frame);
             }
         }
 
-        io::VideoFrame Timeline::_readVideoFrame(
+        std::future<io::VideoFrame> Timeline::_readVideoFrame(
             otio::Track* track,
             otio::Clip* clip,
             const otime::RationalTime& time)
         {
-            io::VideoFrame out;
+            std::future<io::VideoFrame> out;
             otio::ErrorStatus errorStatus;
             const auto clipTime = track->transformed_time(time - _globalStartTime, clip, &errorStatus);
             const auto j = _readers.find(clip);
@@ -452,7 +480,7 @@ namespace tlr
             {
                 const auto readTime = clipTime.rescaled_to(j->second.info.video[0].duration);
                 out = j->second.read->readVideoFrame(
-                    otime::RationalTime(floor(readTime.value()), readTime.rate())).get();
+                    otime::RationalTime(floor(readTime.value()), readTime.rate()));
             }
             else
             {
@@ -477,7 +505,7 @@ namespace tlr
                     reader.info = info;
                     const auto readTime = clipTime.rescaled_to(info.video[0].duration);
                     out = read->readVideoFrame(
-                        otime::RationalTime(floor(readTime.value()), readTime.rate())).get();
+                        otime::RationalTime(floor(readTime.value()), readTime.rate()));
                     _readers[clip] = std::move(reader);
                 }
             }

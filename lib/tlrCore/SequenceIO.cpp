@@ -16,7 +16,7 @@ namespace tlr
     {
         void ISequenceRead::_init(
             const std::string& fileName,
-            const io::Options& options)
+            const Options& options)
         {
             IRead::_init(fileName, options);
 
@@ -33,16 +33,11 @@ namespace tlr
                     try
                     {
                         _infoPromise.set_value(_getInfo(fileName));
-                        try
-                        {
-                            _run();
-                        }
-                        catch (const std::exception&)
-                        {}
+                        _run();
                     }
                     catch (const std::exception&)
                     {
-                        _infoPromise.set_value(io::Info());
+                        _infoPromise.set_value(Info());
                     }
                     _stopped = true;
                     std::list<VideoFrameRequest> videoFrameRequests;
@@ -52,7 +47,7 @@ namespace tlr
                     }
                     for (auto& i : videoFrameRequests)
                     {
-                        i.promise.set_value(io::VideoFrame());
+                        i.promise.set_value(VideoFrame());
                     }
                 });
         }
@@ -69,12 +64,12 @@ namespace tlr
             }
         }
 
-        std::future<io::Info> ISequenceRead::getInfo()
+        std::future<Info> ISequenceRead::getInfo()
         {
             return _infoPromise.get_future();
         }
 
-        std::future<io::VideoFrame> ISequenceRead::readVideoFrame(const otime::RationalTime& time)
+        std::future<VideoFrame> ISequenceRead::readVideoFrame(const otime::RationalTime& time)
         {
             VideoFrameRequest request;
             request.time = time;
@@ -89,7 +84,7 @@ namespace tlr
             }
             else
             {
-                request.promise.set_value(io::VideoFrame());
+                request.promise.set_value(VideoFrame());
             }
             return future;
         }
@@ -120,8 +115,14 @@ namespace tlr
         {
             while (_running)
             {
-                VideoFrameRequest request;
-                bool requestValid = false;
+                struct Result
+                {
+                    std::string fileName;
+                    otime::RationalTime time = invalidTime;
+                    std::future<VideoFrame> future;
+                    std::promise<VideoFrame> promise;
+                };
+                std::vector<Result> results;
                 {
                     std::unique_lock<std::mutex> lock(_requestMutex);
                     _requestCV.wait_for(
@@ -133,44 +134,67 @@ namespace tlr
                         });
                     for (size_t i = 0; i < sequenceThreadCount && !_videoFrameRequests.empty(); ++i)
                     {
-                        request.time = _videoFrameRequests.front().time;
-                        request.promise = std::move(_videoFrameRequests.front().promise);
+                        Result result;
+                        result.time = _videoFrameRequests.front().time;
+                        result.promise = std::move(_videoFrameRequests.front().promise);
+                        results.push_back(std::move(result));
                         _videoFrameRequests.pop_front();
-                        requestValid = true;
                     }
                 }
-                if (requestValid)
+
+                auto it = results.begin();
+                while (it != results.end())
                 {
-                    //std::cout << "request: " << i.time << std::endl;
+                    //std::cout << "request: " << it->time << std::endl;
                     std::stringstream ss;
                     if (!_number.empty())
                     {
-                        ss << _path << _baseName << std::setfill('0') << std::setw(_pad) << static_cast<int>(request.time.value()) << _extension;
+                        ss << _path << _baseName << std::setfill('0') << std::setw(_pad) << static_cast<int>(it->time.value()) << _extension;
                     }
                     else
                     {
                         ss << _fileName;
                     }
-                    std::string fileName = ss.str();
-                    io::VideoFrame videoFrame;
-                    if (_videoFrameCache.get(fileName, videoFrame))
+                    it->fileName = ss.str();
+                    VideoFrame videoFrame;
+                    if (_videoFrameCache.get(it->fileName, videoFrame))
                     {
-                        request.promise.set_value(videoFrame);
+                        it->promise.set_value(videoFrame);
+                        it = results.erase(it);
                     }
                     else
                     {
-                        videoFrame = _readVideoFrame(fileName, request.time);
-                        request.promise.set_value(videoFrame);
-                        _videoFrameCache.add(fileName, videoFrame);
+                        const auto fileName = it->fileName;
+                        const auto time = it->time;
+                        it->future = std::async(
+                            std::launch::async,
+                            [this, fileName, time]
+                            {
+                                VideoFrame out;
+                                try
+                                {
+                                    out = _readVideoFrame(fileName, time);
+                                }
+                                catch (const std::exception&e)
+                                {}
+                                return out;
+                            });
+                        ++it;
                     }
+                }
+                for (auto& i : results)
+                {
+                    auto videoFrame = i.future.get();
+                    i.promise.set_value(videoFrame);
+                    _videoFrameCache.add(i.fileName, videoFrame);
                 }
             }
         }
 
         void ISequenceWrite::_init(
             const std::string& fileName,
-            const io::Info& info,
-            const io::Options& options)
+            const Info& info,
+            const Options& options)
         {
             IWrite::_init(fileName, options, info);
 

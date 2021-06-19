@@ -20,7 +20,7 @@ namespace tlr
 {
     //! Timelines.
     namespace timeline
-    {
+    {\
         //! Timeout for frame requests.
         const std::chrono::microseconds requestTimeout(1000);
 
@@ -125,7 +125,7 @@ namespace tlr
 
             void _tick();
             void _frameRequests();
-            io::VideoFrame _readVideoFrame(
+            std::future<io::VideoFrame> _readVideoFrame(
                 otio::Track*,
                 otio::Clip*,
                 const otime::RationalTime&);
@@ -142,7 +142,7 @@ namespace tlr
 
             struct Request
             {
-                Request() {}
+                Request() {};
                 Request(Request&&) = default;
 
                 otime::RationalTime time = invalidTime;
@@ -151,6 +151,7 @@ namespace tlr
             std::list<Request> _requests;
             std::condition_variable _requestCV;
             std::mutex _requestMutex;
+
             struct Reader
             {
                 std::shared_ptr<io::IRead> read;
@@ -158,6 +159,7 @@ namespace tlr
             };
             std::map<otio::Clip*, Reader> _readers;
             std::list<std::shared_ptr<io::IRead> > _stoppedReaders;
+
             std::thread _thread;
             std::atomic<bool> _running;
         };
