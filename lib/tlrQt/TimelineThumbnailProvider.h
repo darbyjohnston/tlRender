@@ -8,13 +8,13 @@
 
 #include <tlrCore/Timeline.h>
 
-#include <QObject>
-#include <QOffscreenSurface>
 #include <QImage>
+#include <QThread>
+#include <QOffscreenSurface>
+#include <QOpenGLContext>
 
 #include <atomic>
 #include <mutex>
-#include <thread>
 
 namespace tlr
 {
@@ -27,7 +27,7 @@ namespace tlr
         const int thumbnailTimerInterval = 10;
 
         //! Timeline thumbnail provider.
-        class TimelineThumbnailProvider : public QObject
+        class TimelineThumbnailProvider : public QThread
         {
             Q_OBJECT
 
@@ -55,6 +55,7 @@ namespace tlr
             void thumbails(const QList<QPair<otime::RationalTime, QImage> >&);
 
         protected:
+            void run() override;
             void timerEvent(QTimerEvent*) override;
 
         private:
@@ -68,11 +69,11 @@ namespace tlr
             std::list<Request> _requests;
             QList<QPair<otime::RationalTime, QImage> > _results;
             bool _cancelRequests = false;
+            QOffscreenSurface* _surface = nullptr;
+            QOpenGLContext* _context = nullptr;
             std::condition_variable _cv;
             std::mutex _mutex;
-            std::thread _thread;
             std::atomic<bool> _running;
-            QOffscreenSurface* _surface = nullptr;
         };
     }
 }
