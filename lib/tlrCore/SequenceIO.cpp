@@ -175,7 +175,7 @@ namespace tlr
                                 {
                                     out = _readVideoFrame(fileName, time);
                                 }
-                                catch (const std::exception&e)
+                                catch (const std::exception&)
                                 {}
                                 return out;
                             });
