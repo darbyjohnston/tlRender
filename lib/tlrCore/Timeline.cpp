@@ -476,7 +476,7 @@ namespace tlr
         {
             std::future<io::VideoFrame> out;
             otio::ErrorStatus errorStatus;
-            const auto clipTime = track->transformed_time(time - _globalStartTime, clip, &errorStatus);
+            const auto clipTime = track->transformed_time(time, clip, &errorStatus);
             const auto j = _readers.find(clip);
             if (j != _readers.end())
             {
