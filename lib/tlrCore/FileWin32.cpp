@@ -17,10 +17,32 @@ extern "C"
 #include <windows.h>
 #include <combaseapi.h>
 
+#define _STAT     struct _stati64
+#define _STAT_FNC _wstati64
+
 namespace tlr
 {
     namespace file
     {
+        bool exists(const std::string& fileName)
+        {
+            _STAT info;
+            memset(&info, 0, sizeof(_STAT));
+            return 0 == _STAT_FNC(string::toWide(fileName).c_str(), &info);
+        }
+        
+        std::string getTemp()
+        {
+            std::string out;
+            WCHAR buf[MAX_PATH];
+            DWORD r = GetTempPathW(MAX_PATH, buf);
+            if (r && r < MAX_PATH)
+            {
+                out = string::fromWide(buf);
+            }
+            return out;
+        }
+        
         std::string createTempDir()
         {
             std::string out;

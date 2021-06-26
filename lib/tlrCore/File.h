@@ -23,7 +23,13 @@ namespace tlr
             std::string* baseName = nullptr,
             std::string* number = nullptr,
             std::string* extension = nullptr);
+            
+        // Does a file exist?
+        bool exists(const std::string&);
 
+        // Get the temporary directory.
+        std::string getTemp();
+        
         // Create a temporary directory.
         std::string createTempDir();
     }

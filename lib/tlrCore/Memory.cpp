@@ -9,7 +9,7 @@
 
 #include <algorithm>
 #include <array>
-#include <string>
+#include <cstring>
 
 namespace tlr
 {

@@ -32,5 +32,17 @@ namespace tlr
 
         //! Remove trailing newlines.
         void removeTrailingNewlines(std::string&);
+
+        //! Convert a regular string to a wide string.
+        std::wstring toWide(const std::string&);
+
+        //! Convert a wide string to a regular string.
+        std::string fromWide(const std::wstring&);
+
+        //! Replace '\' with '\\'.
+        std::string escape(const std::string&);
+
+        //! Replace '\\' with '\'.
+        std::string unescape(const std::string&);
     }
 }

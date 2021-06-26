@@ -8,6 +8,7 @@
 #include <tlrCore/File.h>
 #include <tlrCore/FileIO.h>
 
+#include <limits>
 #include <sstream>
 
 using namespace tlr::file;

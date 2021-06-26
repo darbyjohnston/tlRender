@@ -6,6 +6,8 @@
 
 #include <tlrCore/Assert.h>
 
+#include <iostream>
+
 namespace tlr
 {
     namespace file

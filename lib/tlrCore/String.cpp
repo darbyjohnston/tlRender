@@ -5,6 +5,8 @@
 #include <tlrCore/String.h>
 
 #include <algorithm>
+#include <codecvt>
+#include <locale>
 
 namespace tlr
 {
@@ -130,6 +132,47 @@ namespace tlr
                 value.pop_back();
                 size = value.size();
             }
+        }
+
+        std::wstring toWide(const std::string& value)
+        {
+            std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+            return converter.from_bytes(value);
+        }
+
+        std::string fromWide(const std::wstring& value)
+        {
+            std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+            return converter.to_bytes(value);
+        }
+
+        std::string escape(const std::string& value)
+        {
+            std::string out;
+            for (const auto i : value)
+            {
+                if ('\\' == i)
+                {
+                    out.push_back('\\');
+                }
+                out.push_back(i);
+            }
+            return out;
+        }
+
+        std::string unescape(const std::string& value)
+        {
+            std::string out;
+            const size_t size = value.size();
+            for (size_t i = 0; i < size; ++i)
+            {
+                out.push_back(value[i]);
+                if (i < size - 1 && '\\' == value[i] && '\\' == value[i + 1])
+                {
+                    ++i;
+                }
+            }
+            return out;
         }
     }
 }
