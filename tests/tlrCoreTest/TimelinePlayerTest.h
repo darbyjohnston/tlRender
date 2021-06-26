@@ -21,7 +21,7 @@ namespace tlr
             void run() override;
 
         private:
-            void _enum();
+            void _enums();
             void _loopTime();
             void _timelinePlayer();
         };

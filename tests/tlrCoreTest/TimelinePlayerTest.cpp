@@ -29,12 +29,12 @@ namespace tlr
 
         void TimelinePlayerTest::run()
         {
-            _enum();
+            _enums();
             _loopTime();
             _timelinePlayer();
         }
 
-        void TimelinePlayerTest::_enum()
+        void TimelinePlayerTest::_enums()
         {
             ITest::_enum<Playback>("Playback", getPlaybackEnums);
             ITest::_enum<Loop>("Loop", getLoopEnums);

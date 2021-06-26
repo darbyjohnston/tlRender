@@ -88,7 +88,7 @@ namespace tlr
             //! Set the current file position.
             void setPos(size_t);
 
-            //! Move the position relative to the current position.
+            //! Advance the current file position.
             void seek(size_t);
 
             //! Get whether the file position is EOF.
@@ -140,7 +140,7 @@ namespace tlr
             ///@{
 
 #if defined(TLR_ENABLE_MMAP)
-                //! Get the current memory-map position.
+            //! Get the current memory-map position.
             const uint8_t* mmapP() const;
 
             //! Get a pointer to the end of the memory-map.

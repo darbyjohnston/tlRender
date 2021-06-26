@@ -22,7 +22,7 @@ namespace tlr
             
         private:
             void _size();
-            void _enum();
+            void _enums();
             void _info();
             void _util();
             void _image();

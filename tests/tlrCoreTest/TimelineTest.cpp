@@ -27,11 +27,19 @@ namespace tlr
 
         void TimelineTest::run()
         {
-            _toRanges();
+            _enums();
+            _ranges();
+            _transitions();
+            _frames();
             _timeline();
         }
 
-        void TimelineTest::_toRanges()
+        void TimelineTest::_enums()
+        {
+            _enum<Transition>("Transition", getTransitionEnums);
+        }
+        
+        void TimelineTest::_ranges()
         {
             {
                 std::vector<otime::RationalTime> f;
@@ -106,6 +114,30 @@ namespace tlr
             }
         }
 
+        void TimelineTest::_transitions()
+        {
+            {
+                TLR_ASSERT(toTransition(std::string()) == Transition::None);
+                TLR_ASSERT(toTransition("SMPTE_Dissolve") == Transition::Dissolve);
+            }
+        }
+        
+        void TimelineTest::_frames()
+        {
+            {
+                FrameLayer a, b;
+                TLR_ASSERT(a == b);
+                a.transition = Transition::Dissolve;
+                TLR_ASSERT(a != b);
+            }
+            {
+                Frame a, b;
+                TLR_ASSERT(a == b);
+                a.time = otime::RationalTime(1.0, 24.0);
+                TLR_ASSERT(a != b);
+            }
+        }
+        
         void TimelineTest::_timeline()
         {
             for (const auto& i : getExtensions())

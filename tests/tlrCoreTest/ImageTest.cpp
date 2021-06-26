@@ -25,7 +25,7 @@ namespace tlr
         void ImageTest::run()
         {
             _size();
-            _enum();
+            _enums();
             _util();
             _info();
             _image();
@@ -67,9 +67,9 @@ namespace tlr
             }
         }
         
-        void ImageTest::_enum()
+        void ImageTest::_enums()
         {
-            ITest::_enum<PixelType>("PixelType", getPixelTypeEnums);
+            _enum<PixelType>("PixelType", getPixelTypeEnums);
         }
 
         void ImageTest::_info()

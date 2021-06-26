@@ -55,7 +55,10 @@ namespace tlr
                 return out;
             }
             
-            std::string getErrorMessage(ErrorType type, const std::string& fileName)
+            std::string getErrorMessage(
+                ErrorType          type,
+                const std::string& fileName,
+                const std::string& message  = std::string())
             {
                 std::string out;
                 switch (type)
@@ -92,10 +95,9 @@ namespace tlr
                     break;
                 default: break;
                 }
-                const std::string error = getErrorString();
-                if (!error.empty())
+                if (!message.empty())
                 {
-                    out = string::Format("{0}: {1}").arg(out).arg(error);
+                    out = string::Format("{0}: {1}").arg(out).arg(message);
                 }
                 return out;
             }
@@ -131,7 +133,7 @@ namespace tlr
             _f = ::open(fileName.c_str(), openFlags, openMode);
             if (-1 == _f)
             {
-                throw std::runtime_error(getErrorMessage(ErrorType::Open, fileName));
+                throw std::runtime_error(getErrorMessage(ErrorType::Open, fileName, getErrorString()));
             }
 
             // Stat the file.
@@ -139,7 +141,7 @@ namespace tlr
             memset(&info, 0, sizeof(_STAT));
             if (_STAT_FNC(fileName.c_str(), &info) != 0)
             {
-                throw std::runtime_error(getErrorMessage(ErrorType::Stat, fileName));
+                throw std::runtime_error(getErrorMessage(ErrorType::Stat, fileName, getErrorString()));
             }
             _fileName = fileName;
             _mode     = mode;
@@ -152,9 +154,9 @@ namespace tlr
             {
                 _mmap = mmap(0, _size, PROT_READ, MAP_SHARED, _f, 0);
                 madvise(_mmap, _size, MADV_SEQUENTIAL | MADV_SEQUENTIAL);
-                if (_mmap == (void *) - 1)
+                if (_mmap == (void*)-1)
                 {
-                    throw std::runtime_error(getErrorMessage(ErrorType::MemoryMap, fileName));
+                    throw std::runtime_error(getErrorMessage(ErrorType::MemoryMap, fileName, getErrorString()));
                 }
                 _mmapStart = reinterpret_cast<const uint8_t *>(_mmap);
                 _mmapEnd   = _mmapStart + _size;
@@ -176,7 +178,7 @@ namespace tlr
             _f = mkstemp(buf.data());
             if (-1 == _f)
             {
-                throw std::runtime_error(getErrorMessage(ErrorType::Open, fileName));
+                throw std::runtime_error(getErrorMessage(ErrorType::Open, fileName, getErrorString()));
             }
 
             // Stat the file.
@@ -184,7 +186,7 @@ namespace tlr
             memset(&info, 0, sizeof(_STAT));
             if (_STAT_FNC(buf.data(), &info) != 0)
             {
-                throw std::runtime_error(getErrorMessage(ErrorType::Stat, fileName));
+                throw std::runtime_error(getErrorMessage(ErrorType::Stat, fileName, getErrorString()));
             }
             _fileName = std::string(buf.data());
             _mode     = Mode::ReadWrite;
@@ -198,7 +200,7 @@ namespace tlr
             
             _fileName = std::string();
 #if defined(TLR_ENABLE_MMAP)
-            if (_mmap != (void *) - 1)
+            if (_mmap != (void*)-1)
             {
                 int r = munmap(_mmap, _size);
                 if (-1 == r)
@@ -206,10 +208,10 @@ namespace tlr
                     out = false;
                     if (error)
                     {
-                        *error = getErrorMessage(ErrorType::CloseMemoryMap, _fileName);
+                        *error = getErrorMessage(ErrorType::CloseMemoryMap, _fileName, getErrorString());
                     }
                 }
-                _mmap = (void *)-1;
+                _mmap = (void*)-1;
             }
             _mmapStart = 0;
             _mmapEnd   = 0;
@@ -222,7 +224,7 @@ namespace tlr
                     out = false;
                     if (error)
                     {
-                        *error = getErrorMessage(ErrorType::Close, _fileName);
+                        *error = getErrorMessage(ErrorType::Close, _fileName, getErrorString());
                     }
                 }
                 _f = -1;
@@ -274,8 +276,12 @@ namespace tlr
                 }
                 _mmapP = mmapP;
 #else // TLR_ENABLE_MMAP
-                const size_t r = ::read(_f, in, size * wordSize);
-                if (r != size * wordSize)
+                const ssize_t r = ::read(_f, in, size * wordSize);
+                if (-1 == r)
+                {
+                    throw std::runtime_error(getErrorMessage(ErrorType::Read, _fileName, getErrorString()));
+                }
+                else if (r != size * wordSize)
                 {
                     throw std::runtime_error(getErrorMessage(ErrorType::Read, _fileName));
                 }
@@ -288,8 +294,12 @@ namespace tlr
             }
             case Mode::ReadWrite:
             {
-                const size_t r = ::read(_f, in, size * wordSize);
-                if (r != size * wordSize)
+                const ssize_t r = ::read(_f, in, size * wordSize);
+                if (-1 == r)
+                {
+                    throw std::runtime_error(getErrorMessage(ErrorType::Read, _fileName, getErrorString()));
+                }
+                else if (r != size * wordSize)
                 {
                     throw std::runtime_error(getErrorMessage(ErrorType::Read, _fileName));
                 }
@@ -321,7 +331,7 @@ namespace tlr
             }
             if (::write(_f, inP, size * wordSize) == -1)
             {
-                throw std::runtime_error(getErrorMessage(ErrorType::Write, _fileName));
+                throw std::runtime_error(getErrorMessage(ErrorType::Write, _fileName, getErrorString()));
             }
             _pos += size * wordSize;
             _size = std::max(_pos, _size);
@@ -347,19 +357,20 @@ namespace tlr
                     throw std::runtime_error(getErrorMessage(ErrorType::SeekMemoryMap, _fileName));
                 }
 #else // TLR_ENABLE_MMAP
-                if (::lseek(_f, in, ! seek ? SEEK_SET : SEEK_CUR) == (off_t) - 1)
+                if (::lseek(_f, in, ! seek ? SEEK_SET : SEEK_CUR) == (off_t)-1)
                 {
-                    throw std::runtime_error(getErrorMessage(ErrorType::Seek, _fileName));
+                    throw std::runtime_error(getErrorMessage(ErrorType::Seek, _fileName, getErrorString()));
                 }
 #endif // TLR_ENABLE_MMAP
                 break;
             }
             case Mode::Write:
             case Mode::ReadWrite:
+            case Mode::Append:
             {
-                if (::lseek(_f, in, ! seek ? SEEK_SET : SEEK_CUR) == (off_t) - 1)
+                if (::lseek(_f, in, ! seek ? SEEK_SET : SEEK_CUR) == (off_t)-1)
                 {
-                    throw std::runtime_error(getErrorMessage(ErrorType::Seek, _fileName));
+                    throw std::runtime_error(getErrorMessage(ErrorType::Seek, _fileName, getErrorString()));
                 }
                 break;
             }

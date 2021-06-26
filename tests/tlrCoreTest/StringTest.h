@@ -19,6 +19,13 @@ namespace tlr
             static std::shared_ptr<StringTest> create();
 
             void run() override;
+        
+        private:
+            void _split();
+            void _case();
+            void _util();
+            void _convert();
+            void _escape();
         };
     }
 }

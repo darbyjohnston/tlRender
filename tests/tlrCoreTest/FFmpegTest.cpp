@@ -25,17 +25,17 @@ namespace tlr
 
         void FFmpegTest::run()
         {
-            _enum();
-            _toRational();
+            _enums();
+            _rational();
             _io();
         }
 
-        void FFmpegTest::_enum()
+        void FFmpegTest::_enums()
         {
-            ITest::_enum<ffmpeg::VideoCodec>("VideoCodec", ffmpeg::getVideoCodecEnums);
+            _enum<ffmpeg::VideoCodec>("VideoCodec", ffmpeg::getVideoCodecEnums);
         }
         
-        void FFmpegTest::_toRational()
+        void FFmpegTest::_rational()
         {
             struct Data
             {

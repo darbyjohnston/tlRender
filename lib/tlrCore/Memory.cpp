@@ -21,7 +21,7 @@ namespace tlr
             "LSB");
 
         void endian(
-            void* in,
+            void*  in,
             size_t size,
             size_t wordSize) noexcept
         {
@@ -74,7 +74,7 @@ namespace tlr
 
         void endian(
             const void* in,
-            void* out,
+            void*       out,
             size_t      size,
             size_t      wordSize) noexcept
         {

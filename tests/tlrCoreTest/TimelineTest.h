@@ -21,7 +21,10 @@ namespace tlr
             void run() override;
 
         private:
-            void _toRanges();
+            void _enums();
+            void _ranges();
+            void _transitions();
+            void _frames();
             void _timeline();
         };
     }

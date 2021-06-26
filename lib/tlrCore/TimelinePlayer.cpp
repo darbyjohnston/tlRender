@@ -350,7 +350,7 @@ namespace tlr
                 const auto now = std::chrono::steady_clock::now();
                 const std::chrono::duration<float> diff = now - _startTime;
                 const auto& duration = _timeline->getDuration();
-                auto currentTime = _loopPlayback(_playbackStartTime +
+                const auto currentTime = _loopPlayback(_playbackStartTime +
                     otime::RationalTime(floor(diff.count() * duration.rate() * (Playback::Forward == playback ? 1.0 : -1.0)), duration.rate()));
                 if (_currentTime->setIfChanged(currentTime))
                 {

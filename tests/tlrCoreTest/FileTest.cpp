@@ -105,6 +105,12 @@ namespace tlr
                 TLR_ASSERT(io->isOpen());
                 TLR_ASSERT(io->getFileName() == fileName);
             }
+            
+            {
+                auto io = FileIO::create();
+                io->openTemp();
+                TLR_ASSERT(io->isOpen());
+            }
 
             {
                 const int8_t   i8 = std::numeric_limits<int8_t>::max();
@@ -155,7 +161,7 @@ namespace tlr
                 io->open(fileName, Mode::Write);
                 io->write(_text + " ");
                 io->open(fileName, Mode::Append);
-                io->setPos(io->getSize());
+                io->seek(io->getSize());
                 io->write(_text2);
 
                 io->open(fileName, Mode::Read);
@@ -220,49 +226,54 @@ namespace tlr
                 TLR_ASSERT(_text == lines[0]);
                 TLR_ASSERT(_text2 == lines[2]);
             }
-
-            try
+            
             {
+                const std::string fileName = createTempDir() + '/' + _fileName;
                 auto io = FileIO::create();
-                io->open(std::string(), Mode::Read);
-                TLR_ASSERT(false);
-            }
-            catch (const std::exception& e)
-            {
-                _print(e.what());
+                io->open(fileName, Mode::Write);
+                TLR_ASSERT(!io->hasEndianConversion());
+                io->setEndianConversion(true);
+                TLR_ASSERT(io->hasEndianConversion());
+                uint32_t u32 = 0;
+                uint8_t* p = reinterpret_cast<uint8_t*>(&u32);
+                p[0] = 0;
+                p[1] = 1;
+                p[2] = 2;
+                p[2] = 3;
+                io->writeU32(u32);
+                for (auto mode : { Mode::Read, Mode::ReadWrite })
+                {
+                    io->open(fileName, mode);
+                    io->setEndianConversion(false);
+                    uint32_t _u32 = 0;
+                    io->readU32(&_u32);
+                    uint8_t* p2 = reinterpret_cast<uint8_t*>(&_u32);
+                    TLR_ASSERT(p[0] == p2[3]);
+                    TLR_ASSERT(p[1] == p2[2]);
+                    TLR_ASSERT(p[2] == p2[1]);
+                    TLR_ASSERT(p[3] == p2[0]);
+                    io->setEndianConversion(true);
+                    io->setPos(0);
+                    io->readU32(&_u32);
+                    TLR_ASSERT(p[0] == p2[0]);
+                    TLR_ASSERT(p[1] == p2[1]);
+                    TLR_ASSERT(p[2] == p2[2]);
+                    TLR_ASSERT(p[3] == p2[3]);
+                }
             }
 
-            try
+            for (auto mode : { Mode::Read, Mode::Write, Mode::ReadWrite, Mode::Append })
             {
-                auto io = FileIO::create();
-                io->open(std::string(), Mode::Write);
-                TLR_ASSERT(false);
-            }
-            catch (const std::exception& e)
-            {
-                _print(e.what());
-            }
-
-            try
-            {
-                auto io = FileIO::create();
-                io->open(std::string(), Mode::ReadWrite);
-                TLR_ASSERT(false);
-            }
-            catch (const std::exception& e)
-            {
-                _print(e.what());
-            }
-
-            try
-            {
-                auto io = FileIO::create();
-                io->open(std::string(), Mode::Append);
-                TLR_ASSERT(false);
-            }
-            catch (const std::exception& e)
-            {
-                _print(e.what());
+                try
+                {
+                    auto io = FileIO::create();
+                    io->open(std::string(), mode);
+                    TLR_ASSERT(false);
+                }
+                catch (const std::exception& e)
+                {
+                    _print(e.what());
+                }
             }
 
             try
@@ -280,27 +291,51 @@ namespace tlr
                 _print(e.what());
             }
 
-            //! \bug read() doesn't fail here on Windows.
-            /*try
+#if !defined(_WINDOWS)
+            try
             {
                 const std::string fileName = createTempDir() + '/' + _fileName;
                 auto io = FileIO::create();
                 io->open(fileName, Mode::Write);
                 io->open(fileName, Mode::ReadWrite);
                 uint8_t buf[16];
+                //! \bug FileIO::read() doesn't fail here on Windows?
                 io->read(buf, 16, 1);
                 TLR_ASSERT(false);
             }
             catch (const std::exception& e)
             {
                 _print(e.what());
-            }*/
+            }
+#endif // _WINDOWS
 
             try
             {
                 auto io = FileIO::create();
                 uint8_t buf[16];
                 io->write(buf, 16, 1);
+                TLR_ASSERT(false);
+            }
+            catch (const std::exception& e)
+            {
+                _print(e.what());
+            }
+
+            try
+            {
+                auto io = FileIO::create();
+                io->setPos(16);
+                TLR_ASSERT(false);
+            }
+            catch (const std::exception& e)
+            {
+                _print(e.what());
+            }
+
+            try
+            {
+                auto io = FileIO::create();
+                io->seek(16);
                 TLR_ASSERT(false);
             }
             catch (const std::exception& e)

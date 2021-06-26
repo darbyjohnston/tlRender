@@ -26,11 +26,15 @@ namespace tlr
 
         void StringTest::run()
         {
-            {
-                std::stringstream ss;
-                ss << "C string buffer size: " << cBufferSize;
-                _print(ss.str());
-            }
+            _split();
+            _case();
+            _util();
+            _convert();
+            _escape();
+        }
+        
+        void StringTest::_split()
+        {
             {
                 const auto pieces = split("a/b/c//", '/');
                 TLR_ASSERT(3 == pieces.size());
@@ -64,6 +68,10 @@ namespace tlr
             {
                 TLR_ASSERT("a/b/c" == join({ "a", "b", "c" }, "/"));
             }
+        }
+ 
+        void StringTest::_case()
+        {
             {
                 TLR_ASSERT("ABC" == toUpper("abc"));
                 TLR_ASSERT("abc" == toLower("ABC"));
@@ -72,5 +80,38 @@ namespace tlr
                 TLR_ASSERT(compareNoCase("abc", "ABC"));
             }
         }
-    }
+ 
+        void StringTest::_util()
+        {
+            {
+                std::string s = "abc";
+                removeTrailingNewlines(s);
+                TLR_ASSERT("abc" == s);
+                s = "abc\n";
+                removeTrailingNewlines(s);
+                TLR_ASSERT("abc" == s);
+                s = "abc\r";
+                removeTrailingNewlines(s);
+                TLR_ASSERT("abc" == s);
+                s = "abc\n\r";
+                removeTrailingNewlines(s);
+                TLR_ASSERT("abc" == s);
+            }
+        }
+ 
+        void StringTest::_convert()
+        {
+            {
+                TLR_ASSERT("abc" == fromWide(toWide("abc")));
+            }
+        }
+ 
+        void StringTest::_escape()
+        {
+            {
+                TLR_ASSERT("\\\\" == escape("\\"));
+                TLR_ASSERT("\\" == unescape("\\\\"));
+            }
+        }
+   }
 }

@@ -21,8 +21,8 @@ namespace tlr
             void run() override;
 
         private:
-            void _enum();
-            void _toRational();
+            void _enums();
+            void _rational();
             void _io();
         };
     }
