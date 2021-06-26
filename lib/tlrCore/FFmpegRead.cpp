@@ -23,7 +23,7 @@ namespace tlr
     {
         void Read::_init(
             const std::string& fileName,
-            const io::Options& options)
+            const avio::Options& options)
         {
             IRead::_init(fileName, options);
             _running = true;
@@ -38,7 +38,7 @@ namespace tlr
                     }
                     catch (const std::exception& e)
                     {
-                        _infoPromise.set_value(io::Info());
+                        _infoPromise.set_value(avio::Info());
                     }
                     _stopped = true;
                     std::list<VideoFrameRequest> videoFrameRequests;
@@ -48,7 +48,7 @@ namespace tlr
                     }
                     for (auto& i : videoFrameRequests)
                     {
-                        i.promise.set_value(io::VideoFrame());
+                        i.promise.set_value(avio::VideoFrame());
                     }
                     _close();
                 });
@@ -68,19 +68,19 @@ namespace tlr
 
         std::shared_ptr<Read> Read::create(
             const std::string& fileName,
-            const io::Options& options)
+            const avio::Options& options)
         {
             auto out = std::shared_ptr<Read>(new Read);
             out->_init(fileName, options);
             return out;
         }
 
-        std::future<io::Info> Read::getInfo()
+        std::future<avio::Info> Read::getInfo()
         {
             return _infoPromise.get_future();
         }
 
-        std::future<io::VideoFrame> Read::readVideoFrame(const otime::RationalTime& time)
+        std::future<avio::VideoFrame> Read::readVideoFrame(const otime::RationalTime& time)
         {
             VideoFrameRequest request;
             request.time = time;
@@ -95,7 +95,7 @@ namespace tlr
             }
             else
             {
-                request.promise.set_value(io::VideoFrame());
+                request.promise.set_value(avio::VideoFrame());
             }
             return future;
         }
@@ -184,7 +184,7 @@ namespace tlr
                     throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
                 }
 
-                io::VideoInfo videoInfo;
+                avio::VideoInfo videoInfo;
                 videoInfo.info.size.w = _avCodecParameters[_avVideoStream]->width;
                 videoInfo.info.size.h = _avCodecParameters[_avVideoStream]->height;
 
@@ -277,7 +277,7 @@ namespace tlr
                 if (requestValid)
                 {
                     //std::cout << "request: " << request.time << std::endl;
-                    io::VideoFrame videoFrame;
+                    avio::VideoFrame videoFrame;
 
                     if (request.time != _currentTime)
                     {

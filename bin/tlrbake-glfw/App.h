@@ -54,8 +54,8 @@ namespace tlr
         std::shared_ptr<timeline::Timeline> _timeline;
         imaging::Info _renderInfo;
         imaging::Info _outputInfo;
-        std::shared_ptr<io::System> _ioSystem;
-        std::shared_ptr<io::IWrite> _writer;
+        std::shared_ptr<avio::System> _ioSystem;
+        std::shared_ptr<avio::IWrite> _writer;
         otime::RationalTime _duration = invalidTime;
         otime::TimeRange _range = invalidTimeRange;
         otime::RationalTime _currentTime = invalidTime;

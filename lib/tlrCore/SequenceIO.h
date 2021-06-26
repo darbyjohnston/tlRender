@@ -4,8 +4,8 @@
 
 #pragma once
 
+#include <tlrCore/AVIO.h>
 #include <tlrCore/Cache.h>
-#include <tlrCore/IO.h>
 
 #include <atomic>
 #include <condition_variable>
@@ -16,7 +16,7 @@
 
 namespace tlr
 {
-    namespace io
+    namespace avio
     {
         //! Number of threads.
         const size_t sequenceThreadCount = 4;

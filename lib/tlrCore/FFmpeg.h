@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlrCore/IO.h>
+#include <tlrCore/AVIO.h>
 
 extern "C"
 {
@@ -56,12 +56,12 @@ namespace tlr
         AVRational swap(AVRational);
 
         //! FFmpeg reader
-        class Read : public io::IRead
+        class Read : public avio::IRead
         {
         protected:
             void _init(
                 const std::string& fileName,
-                const io::Options&);
+                const avio::Options&);
             Read();
 
         public:
@@ -70,10 +70,10 @@ namespace tlr
             //! Create a new reader.
             static std::shared_ptr<Read> create(
                 const std::string& fileName,
-                const io::Options&);
+                const avio::Options&);
 
-            std::future<io::Info> getInfo() override;
-            std::future<io::VideoFrame> readVideoFrame(const otime::RationalTime&) override;
+            std::future<avio::Info> getInfo() override;
+            std::future<avio::VideoFrame> readVideoFrame(const otime::RationalTime&) override;
             bool hasVideoFrames() override;
             void cancelVideoFrames() override;
             void stop() override;
@@ -86,15 +86,15 @@ namespace tlr
             int _decodeVideo(AVPacket*, const otime::RationalTime& seek);
             void _copyVideo(const std::shared_ptr<imaging::Image>&);
 
-            io::Info _info;
-            std::promise<io::Info> _infoPromise;
+            avio::Info _info;
+            std::promise<avio::Info> _infoPromise;
             struct VideoFrameRequest
             {
                 VideoFrameRequest() {}
                 VideoFrameRequest(VideoFrameRequest&&) = default;
 
                 otime::RationalTime time = invalidTime;
-                std::promise<io::VideoFrame> promise;
+                std::promise<avio::VideoFrame> promise;
             };
             std::list<VideoFrameRequest> _videoFrameRequests;
             std::condition_variable _requestCV;
@@ -116,13 +116,13 @@ namespace tlr
         };
 
         //! FFmpeg writer.
-        class Write : public io::IWrite
+        class Write : public avio::IWrite
         {
         protected:
             void _init(
                 const std::string& fileName,
-                const io::Info&,
-                const io::Options&);
+                const avio::Info&,
+                const avio::Options&);
             Write();
 
         public:
@@ -131,8 +131,8 @@ namespace tlr
             //! Create a new writer.
             static std::shared_ptr<Write> create(
                 const std::string& fileName,
-                const io::Info&,
-                const io::Options&);
+                const avio::Info&,
+                const avio::Options&);
 
             void writeVideoFrame(
                 const otime::RationalTime&,
@@ -154,7 +154,7 @@ namespace tlr
         };
 
         //! FFmpeg Plugin
-        class Plugin : public io::IPlugin
+        class Plugin : public avio::IPlugin
         {
         protected:
             void _init();
@@ -164,14 +164,14 @@ namespace tlr
             //! Create a new plugin.
             static std::shared_ptr<Plugin> create();
 
-            std::shared_ptr<io::IRead> read(
+            std::shared_ptr<avio::IRead> read(
                 const std::string& fileName,
-                const io::Options& = io::Options()) override;
+                const avio::Options& = avio::Options()) override;
             std::vector<imaging::PixelType> getWritePixelTypes() const override;
-            std::shared_ptr<io::IWrite> write(
+            std::shared_ptr<avio::IWrite> write(
                 const std::string& fileName,
-                const io::Info&,
-                const io::Options& = io::Options()) override;
+                const avio::Info&,
+                const avio::Options& = avio::Options()) override;
         };
     }
 

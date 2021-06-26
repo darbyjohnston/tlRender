@@ -1,4 +1,6 @@
 set(HEADERS
+    AVIO.h
+    AVIOInline.h
     Assert.h
     BBox.h
     BBoxInline.h
@@ -6,10 +8,12 @@ set(HEADERS
     CacheInline.h
     Color.h
     ColorInline.h
+    Cineon.h
+    DPX.h
     Error.h
     File.h
-    IO.h
-    IOInline.h
+    FileIO.h
+    FileIOInline.h
     Image.h
     ImageInline.h
     ListObserver.h
@@ -40,9 +44,16 @@ set(HEADERS
     Vector.h
     VectorInline.h)
 set(SOURCE
+    AVIO.cpp
     Assert.cpp
+    CineonRead.cpp
+    CineonWrite.cpp
+    Cineon.cpp
+    DPXRead.cpp
+    DPXWrite.cpp
+    DPX.cpp
     File.cpp
-    IO.cpp
+    FileIO.cpp
     Image.cpp
     Memory.cpp
     SequenceIO.cpp
@@ -51,6 +62,20 @@ set(SOURCE
     Time.cpp
     Timeline.cpp
     TimelinePlayer.cpp)
+if (WIN32)
+    set(SOURCE
+        ${SOURCE}
+        ErrorWin32.cpp
+        FileIOWin32.cpp
+        FileWin32.cpp
+        TimeWin32.cpp)
+else()
+    set(SOURCE
+        ${SOURCE}
+        FileIOUnix.cpp
+        FileUnix.cpp
+        TimeUnix.cpp)
+endif()
 
 set(tlrCore_LIBRARIES OTIO FSeq)
 if(TLR_ENABLE_PYTHON)
@@ -81,7 +106,7 @@ if(FFmpeg_FOUND)
     set(SOURCE ${SOURCE} FFmpeg.cpp FFmpegRead.cpp FFmpegWrite.cpp)
     set(tlrCore_LIBRARIES ${tlrCore_LIBRARIES} FFmpeg)
 endif()
-set(tlrCore_LIBRARIES ${tlrCore_LIBRARIES} Threads::Threads)
+set(tlrCore_LIBRARIES ${tlrCore_LIBRARIES} IlmBase Threads::Threads)
 
 add_library(tlrCore ${HEADERS} ${SOURCE})
 target_link_libraries(tlrCore ${tlrCore_LIBRARIES})

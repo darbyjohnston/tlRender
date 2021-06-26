@@ -4,6 +4,7 @@ cmake_policy(SET CMP0091 NEW)
 project(tlRender-SuperBuild)
 
 # Build options
+set(TLR_ENABLE_MMAP TRUE CACHE BOOL "Enable memory-mapped file I/O")
 set(TLR_ENABLE_PYTHON FALSE CACHE BOOL "Enable Python support (for OTIO Python adapters)")
 set(TLR_BUILD_JPEG TRUE CACHE BOOL "Build JPEG support")
 set(TLR_BUILD_TIFF TRUE CACHE BOOL "Build TIFF support")

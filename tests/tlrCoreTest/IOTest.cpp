@@ -4,14 +4,13 @@
 
 #include <tlrCoreTest/IOTest.h>
 
+#include <tlrCore/AVIO.h>
 #include <tlrCore/Assert.h>
-#include <tlrCore/IO.h>
 #include <tlrCore/StringFormat.h>
 
 #include <sstream>
 
-using namespace tlr::imaging;
-using namespace tlr::io;
+using namespace tlr::avio;
 
 namespace tlr
 {
@@ -41,14 +40,14 @@ namespace tlr
             }
             {
                 const auto time = otime::RationalTime(1.0, 24.0);
-                const auto image = Image::create(imaging::Info(160, 80, PixelType::L_U8));
+                const auto image = imaging::Image::create(imaging::Info(160, 80, imaging::PixelType::L_U8));
                 const VideoFrame f(time, image);
                 TLR_ASSERT(time == f.time);
                 TLR_ASSERT(image == f.image);
             }
             {
                 const auto time = otime::RationalTime(1.0, 24.0);
-                const auto image = Image::create(imaging::Info(16, 16, PixelType::L_U8));
+                const auto image = imaging::Image::create(imaging::Info(16, 16, imaging::PixelType::L_U8));
                 const VideoFrame a(time, image);
                 VideoFrame b(time, image);
                 TLR_ASSERT(a == b);
@@ -68,7 +67,7 @@ namespace tlr
                 _print(ss.str());
             }
             TLR_ASSERT(!system->read(std::string()));
-            TLR_ASSERT(!system->write(std::string(), io::Info()));
+            TLR_ASSERT(!system->write(std::string(), Info()));
         }
     }
 }

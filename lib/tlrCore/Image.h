@@ -5,9 +5,13 @@
 #pragma once
 
 #include <tlrCore/BBox.h>
+#include <tlrCore/Range.h>
 #include <tlrCore/Util.h>
 
+#include <OpenEXR/half.h>
+
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <vector>
 
@@ -15,7 +19,10 @@ namespace tlr
 {
     namespace imaging
     {
-        //! Image dimensions.
+        //! \name Sizes
+        ///@{
+
+        //! Image size.
         class Size
         {
         public:
@@ -39,29 +46,85 @@ namespace tlr
         //! given size.
         math::BBox2f getBBox(float aspect, const imaging::Size&);
 
+        ///@}
+
+        //! \name Pixel Types
+        ///@{
+
         //! Image pixel types.
         enum class PixelType
         {
             None,
+
             L_U8,
             L_U16,
             L_F32,
+            
             LA_U8,
             LA_U16,
             LA_F32,
+            
             RGB_U8,
+            RGB_U10,
             RGB_U16,
             RGB_F32,
+            
             RGBA_U8,
             RGBA_U16,
             RGBA_F16,
             RGBA_F32,
+            
             YUV_420P,
 
             Count,
             First = None
         };
         TLR_ENUM(PixelType);
+
+        typedef uint8_t   U8_T;
+        typedef uint16_t U10_T;
+        typedef uint16_t U12_T;
+        typedef uint16_t U16_T;
+        typedef uint32_t U32_T;
+        typedef half     F16_T;
+        typedef float    F32_T;
+
+        const math::Range<U8_T>  U8Range (std::numeric_limits<U8_T>::min(), std::numeric_limits<U8_T>::max());
+        const math::Range<U10_T> U10Range(0, 1023);
+        const math::Range<U12_T> U12Range(0, 4095);
+        const math::Range<U16_T> U16Range(std::numeric_limits<U16_T>::min(), std::numeric_limits<U16_T>::max());
+        const math::Range<U32_T> U32Range(std::numeric_limits<U32_T>::min(), std::numeric_limits<U32_T>::max());
+        const math::Range<F16_T> F16Range(0.F, 1.F);
+        const math::Range<F32_T> F32Range(0.F, 1.F);
+
+        //! 10-bit MSB pixel data.
+        struct U10_MSB
+        {
+            uint32_t r : 10;
+            uint32_t g : 10;
+            uint32_t b : 10;
+            uint32_t pad : 2;
+
+            constexpr bool operator == (const U10_MSB&) const noexcept;
+            constexpr bool operator != (const U10_MSB&) const noexcept;
+        };
+
+        //! 10-bit LSB pixel data.
+        struct U10_LSB
+        {
+            uint32_t pad : 2;
+            uint32_t b : 10;
+            uint32_t g : 10;
+            uint32_t r : 10;
+
+            constexpr bool operator == (const U10_LSB&) const noexcept;
+            constexpr bool operator != (const U10_LSB&) const noexcept;
+        };
+#if defined(TLR_ENDIAN_MSB)
+        typedef U10_MSB U10;
+#else
+        typedef U10_LSB U10;
+#endif
 
         //! Get the number of channels for the given pixel type.
         uint8_t getChannelCount(PixelType);
@@ -74,6 +137,8 @@ namespace tlr
 
         //! Determine the floating point pixel type for a given channel count and bit depth.
         PixelType getFloatType(std::size_t channelCount, std::size_t bitDepth);
+
+        ///@}
 
         //! Image information.
         class Info

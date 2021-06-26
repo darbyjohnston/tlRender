@@ -4,7 +4,7 @@
 
 namespace tlr
 {
-    namespace io
+    namespace avio
     {
         inline bool VideoFrame::operator == (const VideoFrame& other) const
         {

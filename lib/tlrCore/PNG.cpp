@@ -37,9 +37,9 @@ namespace tlr
             return out;
         }
 
-        std::shared_ptr<io::IRead> Plugin::read(
+        std::shared_ptr<avio::IRead> Plugin::read(
             const std::string& fileName,
-            const io::Options& options)
+            const avio::Options& options)
         {
             return Read::create(fileName, options);
         }
@@ -59,10 +59,10 @@ namespace tlr
             };
         }
 
-        std::shared_ptr<io::IWrite> Plugin::write(
+        std::shared_ptr<avio::IWrite> Plugin::write(
             const std::string& fileName,
-            const io::Info& info,
-            const io::Options& options)
+            const avio::Info& info,
+            const avio::Options& options)
         {
             return Write::create(fileName, info, options);
         }

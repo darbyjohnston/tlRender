@@ -68,7 +68,7 @@ namespace tlr
                     }
                     else
                     {
-                        throw ParseError();
+                        throw core::ParseError();
                     }
                 }
             }
@@ -91,7 +91,7 @@ namespace tlr
                     }
                     else
                     {
-                        throw ParseError();
+                        throw core::ParseError();
                     }
                 }
             }
@@ -156,7 +156,7 @@ namespace tlr
             }
             else
             {
-                throw ParseError();
+                throw core::ParseError();
             }
         }
     }

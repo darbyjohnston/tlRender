@@ -166,11 +166,11 @@ namespace tlr
                     return _info;
                 }
 
-                io::VideoFrame read(
+                avio::VideoFrame read(
                     const std::string& fileName,
                     const otime::RationalTime& time)
                 {
-                    io::VideoFrame out;
+                    avio::VideoFrame out;
                     out.time = time;
                     out.image = imaging::Image::create(_info);
 
@@ -199,7 +199,7 @@ namespace tlr
 
         void Read::_init(
             const std::string& fileName,
-            const io::Options& options)
+            const avio::Options& options)
         {
             ISequenceRead::_init(fileName, options);
         }
@@ -212,24 +212,24 @@ namespace tlr
 
         std::shared_ptr<Read> Read::create(
             const std::string& fileName,
-            const io::Options& options)
+            const avio::Options& options)
         {
             auto out = std::shared_ptr<Read>(new Read);
             out->_init(fileName, options);
             return out;
         }
 
-        io::Info Read::_getInfo(const std::string& fileName)
+        avio::Info Read::_getInfo(const std::string& fileName)
         {
-            io::Info out;
-            io::VideoInfo videoInfo;
+            avio::Info out;
+            avio::VideoInfo videoInfo;
             videoInfo.info = std::unique_ptr<File>(new File(fileName))->getInfo();
             videoInfo.duration = _defaultSpeed;
             out.video.push_back(videoInfo);
             return out;
         }
 
-        io::VideoFrame Read::_readVideoFrame(
+        avio::VideoFrame Read::_readVideoFrame(
             const std::string& fileName,
             const otime::RationalTime& time)
         {

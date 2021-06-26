@@ -41,6 +41,32 @@ namespace tlr
             return std::tie(w, h) < std::tie(other.w, other.h);
         }
 
+        constexpr bool U10_MSB::operator == (const U10_MSB& value) const noexcept
+        {
+            return
+                value.r == r &&
+                value.g == g &&
+                value.b == b;
+        }
+
+        constexpr bool U10_MSB::operator != (const U10_MSB& value) const noexcept
+        {
+            return !(*this == value);
+        }
+
+        constexpr bool U10_LSB::operator == (const U10_LSB& value) const noexcept
+        {
+            return
+                value.r == r &&
+                value.g == g &&
+                value.b == b;
+        }
+
+        constexpr bool U10_LSB::operator != (const U10_LSB& value) const noexcept
+        {
+            return !(*this == value);
+        }
+
         inline Info::Info() :
             pixelType(PixelType::None)
         {}

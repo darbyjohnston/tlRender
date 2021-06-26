@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlrCore/IO.h>
+#include <tlrCore/AVIO.h>
 #include <tlrCore/Util.h>
 
 #include <opentimelineio/clip.h>
@@ -125,7 +125,7 @@ namespace tlr
 
             void _tick();
             void _frameRequests();
-            std::future<io::VideoFrame> _readVideoFrame(
+            std::future<avio::VideoFrame> _readVideoFrame(
                 otio::Track*,
                 otio::Clip*,
                 const otime::RationalTime&);
@@ -136,7 +136,7 @@ namespace tlr
             otio::SerializableObject::Retainer<otio::Timeline> _timeline;
             otime::RationalTime _duration = invalidTime;
             otime::RationalTime _globalStartTime = invalidTime;
-            std::shared_ptr<io::System> _ioSystem;
+            std::shared_ptr<avio::System> _ioSystem;
             imaging::Info _imageInfo;
             std::vector<otime::TimeRange> _activeRanges;
 
@@ -154,11 +154,11 @@ namespace tlr
 
             struct Reader
             {
-                std::shared_ptr<io::IRead> read;
-                io::Info info;
+                std::shared_ptr<avio::IRead> read;
+                avio::Info info;
             };
             std::map<otio::Clip*, Reader> _readers;
-            std::list<std::shared_ptr<io::IRead> > _stoppedReaders;
+            std::list<std::shared_ptr<avio::IRead> > _stoppedReaders;
 
             std::thread _thread;
             std::atomic<bool> _running;

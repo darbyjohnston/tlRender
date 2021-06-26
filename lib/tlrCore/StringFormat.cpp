@@ -10,6 +10,8 @@
 #include <regex>
 #include <sstream>
 
+using namespace tlr::core;
+
 namespace tlr
 {
     namespace string

@@ -224,13 +224,13 @@ namespace tlr
         _outputImage = imaging::Image::create(_outputInfo);
 
         // Create the I/O system.
-        _ioSystem = io::System::create();
-        io::VideoInfo videoInfo;
+        _ioSystem = avio::System::create();
+        avio::VideoInfo videoInfo;
         videoInfo.info = _outputInfo;
         videoInfo.duration = _range.duration();
-        io::Info ioInfo;
+        avio::Info ioInfo;
         ioInfo.video.push_back(videoInfo);
-        io::Options options;
+        avio::Options options;
         if (!_options.videoCodec.empty())
         {
             options["VideoCodec"] = _options.videoCodec;

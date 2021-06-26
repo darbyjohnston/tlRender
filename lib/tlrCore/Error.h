@@ -8,12 +8,20 @@
 
 namespace tlr
 {
-    //! Parse error.
-    class ParseError : public std::invalid_argument
+    namespace core
     {
-    public:
-        ParseError() :
-            invalid_argument("Cannot parse value")
-        {}
-    };
+#if defined(_WINDOWS)
+        //! Get an error string from a Windows system call.
+        std::string getLastError();
+#endif // _WINDOWS
+
+        //! Parse error.
+        class ParseError : public std::invalid_argument
+        {
+        public:
+            ParseError() :
+                invalid_argument("Cannot parse value")
+            {}
+        };
+    }
 }

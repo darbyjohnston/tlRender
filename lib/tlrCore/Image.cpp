@@ -13,6 +13,8 @@
 #include <cstring>
 #include <iostream>
 
+using namespace tlr::core;
+
 namespace tlr
 {
     namespace imaging
@@ -51,6 +53,7 @@ namespace tlr
             "LA_U16",
             "LA_F32",
             "RGB_U8",
+            "RGB_U10",
             "RGB_U16",
             "RGB_F32",
             "RGBA_U8",
@@ -66,7 +69,7 @@ namespace tlr
                 0,
                 1, 1, 1,
                 2, 2, 2,
-                3, 3, 3,
+                3, 3, 3, 3,
                 4, 4, 4, 4,
                 3
             };
@@ -80,7 +83,7 @@ namespace tlr
                 0,
                 8, 16, 32,
                 8, 16, 32,
-                8, 16, 32,
+                8, 10, 16, 32,
                 8, 16, 16, 32,
                 0
             };
@@ -110,6 +113,7 @@ namespace tlr
                 switch (bitDepth)
                 {
                 case 8: out = PixelType::RGB_U8; break;
+                case 10: out = PixelType::RGB_U10; break;
                 case 16: out = PixelType::RGB_U16; break;
                 }
                 break;
@@ -169,16 +173,21 @@ namespace tlr
                 w * h,
                 w * h * 2,
                 w * h * 4,
+
                 w * h * 2,
                 w * h * 2 * 2,
                 w * h * 2 * 4,
+
                 w * h * 3,
+                w * h * 4,
                 w * h * 3 * 2,
                 w * h * 3 * 4,
+
                 w * h * 4,
                 w * h * 4 * 2,
                 w * h * 4 * 2,
                 w * h * 4 * 4,
+
                 w * h + (w / 2 * h / 2) * 2
             };
             return values[static_cast<size_t>(info.pixelType)];

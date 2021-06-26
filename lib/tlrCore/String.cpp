@@ -121,5 +121,15 @@ namespace tlr
         {
             return toLower(a) == toLower(b);
         }
+
+        void removeTrailingNewlines(std::string& value)
+        {
+            size_t size = value.size();
+            while (size && ('\n' == value[size - 1] || '\r' == value[size - 1]))
+            {
+                value.pop_back();
+                size = value.size();
+            }
+        }
     }
 }

@@ -29,5 +29,8 @@ namespace tlr
 
         //! Compare case insensitive.
         bool compareNoCase(const std::string&, const std::string&);
+
+        //! Remove trailing newlines.
+        void removeTrailingNewlines(std::string&);
     }
 }

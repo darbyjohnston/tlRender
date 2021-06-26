@@ -6,7 +6,6 @@
 
 #include <tlrCore/Error.h>
 #include <tlrCore/File.h>
-#include <tlrCore/IO.h>
 #include <tlrCore/String.h>
 
 #include <opentimelineio/externalReference.h>
@@ -209,7 +208,7 @@ namespace tlr
             }
 
             // Create the I/O system.
-            _ioSystem = io::System::create();
+            _ioSystem = avio::System::create();
 
             // Get information about the timeline.
             _getImageInfo(_timeline.value->tracks(), _imageInfo);
@@ -355,8 +354,8 @@ namespace tlr
                 LayerData() {};
                 LayerData(LayerData&&) = default;
 
-                std::future<io::VideoFrame> image;
-                std::future<io::VideoFrame> imageB;
+                std::future<avio::VideoFrame> image;
+                std::future<avio::VideoFrame> imageB;
                 Transition transition = Transition::None;
                 float transitionValue = 0.F;
             };
@@ -469,12 +468,12 @@ namespace tlr
             }
         }
 
-        std::future<io::VideoFrame> Timeline::_readVideoFrame(
+        std::future<avio::VideoFrame> Timeline::_readVideoFrame(
             otio::Track* track,
             otio::Clip* clip,
             const otime::RationalTime& time)
         {
-            std::future<io::VideoFrame> out;
+            std::future<avio::VideoFrame> out;
             otio::ErrorStatus errorStatus;
             const auto clipTime = track->transformed_time(time, clip, &errorStatus);
             const auto j = _readers.find(clip);
@@ -487,14 +486,14 @@ namespace tlr
             else
             {
                 const std::string fileName = _getFileName(clip->media_reference());
-                io::Options options;
+                avio::Options options;
                 {
                     std::stringstream ss;
                     ss << otime::RationalTime(0, _duration.rate());
                     options["DefaultSpeed"] = ss.str();
                 }
                 auto read = _ioSystem->read(fileName, options);
-                io::Info info;
+                avio::Info info;
                 if (read)
                 {
                     info = read->getInfo().get();

@@ -77,7 +77,7 @@
             }); \
         if (i == labels.end()) \
         { \
-            throw ParseError(); \
+            throw core::ParseError(); \
         } \
         out = static_cast<PREFIX::ENUM>(i - labels.begin()); \
         return is; \

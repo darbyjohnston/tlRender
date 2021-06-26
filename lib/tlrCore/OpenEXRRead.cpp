@@ -24,14 +24,14 @@ namespace tlr
                 const auto dw = f.dataWindow();
                 const int width = dw.max.x - dw.min.x + 1;
                 const int height = dw.max.y - dw.min.y + 1;
-                io::VideoInfo info;
+                avio::VideoInfo info;
                 return imaging::Info(width, height, pixelType);
             }
         }
 
         void Read::_init(
             const std::string& fileName,
-            const io::Options& options)
+            const avio::Options& options)
         {
             ISequenceRead::_init(fileName, options);
         }
@@ -44,31 +44,31 @@ namespace tlr
 
         std::shared_ptr<Read> Read::create(
             const std::string& fileName,
-            const io::Options& options)
+            const avio::Options& options)
         {
             auto out = std::shared_ptr<Read>(new Read);
             out->_init(fileName, options);
             return out;
         }
 
-        io::Info Read::_getInfo(const std::string& fileName)
+        avio::Info Read::_getInfo(const std::string& fileName)
         {
-            io::Info out;
+            avio::Info out;
             Imf::RgbaInputFile f(fileName.c_str());
-            io::VideoInfo videoInfo;
+            avio::VideoInfo videoInfo;
             videoInfo.info = imfInfo(f);
             videoInfo.duration = _defaultSpeed;
             out.video.push_back(videoInfo);
             return out;
         }
 
-        io::VideoFrame Read::_readVideoFrame(
+        avio::VideoFrame Read::_readVideoFrame(
             const std::string& fileName,
             const otime::RationalTime& time)
         {
             Imf::RgbaInputFile f(fileName.c_str());
 
-            io::VideoFrame out;
+            avio::VideoFrame out;
             out.time = time;
             out.image = imaging::Image::create(imfInfo(f));
 

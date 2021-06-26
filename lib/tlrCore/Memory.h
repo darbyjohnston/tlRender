@@ -29,6 +29,19 @@ namespace tlr
 
         //! Get the opposite of the given endian.
         Endian opposite(Endian) noexcept;
+
+        //! Convert the endianness of a block of memory in place.
+        void endian(
+            void*  in,
+            size_t size,
+            size_t wordSize) noexcept;
+
+        //! Convert the endianness of a block of memory.
+        void endian(
+            const void* in,
+            void*       out,
+            size_t      size,
+            size_t      wordSize) noexcept;
     }
 
     TLR_ENUM_SERIALIZE(memory::Endian);

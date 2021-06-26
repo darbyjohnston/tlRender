@@ -12,7 +12,7 @@
 
 namespace tlr
 {
-    namespace io
+    namespace avio
     {
         void ISequenceRead::_init(
             const std::string& fileName,

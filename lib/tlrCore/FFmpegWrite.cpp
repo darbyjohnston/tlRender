@@ -18,8 +18,8 @@ namespace tlr
     {
         void Write::_init(
             const std::string& fileName,
-            const io::Info& info,
-            const io::Options& options)
+            const avio::Info& info,
+            const avio::Options& options)
         {
             IWrite::_init(fileName, options, info);
             
@@ -184,8 +184,8 @@ namespace tlr
 
         std::shared_ptr<Write> Write::create(
             const std::string& fileName,
-            const io::Info& info,
-            const io::Options& options)
+            const avio::Info& info,
+            const avio::Options& options)
         {
             auto out = std::shared_ptr<Write>(new Write);
             out->_init(fileName, info, options);

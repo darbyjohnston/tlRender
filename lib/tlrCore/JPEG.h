@@ -34,12 +34,12 @@ namespace tlr
         void warningFunc(j_common_ptr, int level);
 
         //! JPEG reader.
-        class Read : public io::ISequenceRead
+        class Read : public avio::ISequenceRead
         {
         protected:
             void _init(
                 const std::string& fileName,
-                const io::Options&);
+                const avio::Options&);
             Read();
 
         public:
@@ -48,23 +48,23 @@ namespace tlr
             //! Create a new reader.
             static std::shared_ptr<Read> create(
                 const std::string& fileName,
-                const io::Options&);
+                const avio::Options&);
 
         protected:
-            io::Info _getInfo(const std::string& fileName) override;
-            io::VideoFrame _readVideoFrame(
+            avio::Info _getInfo(const std::string& fileName) override;
+            avio::VideoFrame _readVideoFrame(
                 const std::string& fileName,
                 const otime::RationalTime&) override;
         };
 
         //! JPEG writer.
-        class Write : public io::ISequenceWrite
+        class Write : public avio::ISequenceWrite
         {
         protected:
             void _init(
                 const std::string& fileName,
-                const io::Info&,
-                const io::Options&);
+                const avio::Info&,
+                const avio::Options&);
             Write();
 
         public:
@@ -73,8 +73,8 @@ namespace tlr
             //! Create a new writer.
             static std::shared_ptr<Write> create(
                 const std::string& fileName,
-                const io::Info&,
-                const io::Options&);
+                const avio::Info&,
+                const avio::Options&);
 
         protected:
             void _writeVideoFrame(
@@ -84,7 +84,7 @@ namespace tlr
         };
 
         //! JPEG plugin.
-        class Plugin : public io::IPlugin
+        class Plugin : public avio::IPlugin
         {
         protected:
             Plugin();
@@ -93,14 +93,14 @@ namespace tlr
             //! Create a new plugin.
             static std::shared_ptr<Plugin> create();
 
-            std::shared_ptr<io::IRead> read(
+            std::shared_ptr<avio::IRead> read(
                 const std::string& fileName,
-                const io::Options& = io::Options()) override;
+                const avio::Options& = avio::Options()) override;
             std::vector<imaging::PixelType> getWritePixelTypes() const override;
-            std::shared_ptr<io::IWrite> write(
+            std::shared_ptr<avio::IWrite> write(
                 const std::string& fileName,
-                const io::Info&,
-                const io::Options& = io::Options()) override;
+                const avio::Info&,
+                const avio::Options& = avio::Options()) override;
         };
     }
 }

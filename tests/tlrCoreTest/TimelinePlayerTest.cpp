@@ -5,7 +5,6 @@
 #include <tlrCoreTest/TimelinePlayerTest.h>
 
 #include <tlrCore/Assert.h>
-#include <tlrCore/IO.h>
 #include <tlrCore/TimelinePlayer.h>
 
 #include <opentimelineio/timeline.h>
@@ -92,9 +91,9 @@ namespace tlr
             // Write the image sequence files.
             const imaging::Info imageInfo(16, 16, imaging::PixelType::RGB_U8);
             const auto image = imaging::Image::create(imageInfo);
-            io::Info ioInfo;
-            ioInfo.video.push_back(io::VideoInfo(imageInfo, clipDuration));
-            auto ioSystem = io::System::create();
+            avio::Info ioInfo;
+            ioInfo.video.push_back(avio::VideoInfo(imageInfo, clipDuration));
+            auto ioSystem = avio::System::create();
             auto write = ioSystem->write("TimelinePlayerTest.0.png", ioInfo);
             for (size_t i = 0; i < static_cast<size_t>(clipDuration.value()); ++i)
             {

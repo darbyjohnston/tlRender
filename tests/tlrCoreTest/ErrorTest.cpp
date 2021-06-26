@@ -7,6 +7,8 @@
 #include <tlrCore/Assert.h>
 #include <tlrCore/Error.h>
 
+using namespace tlr::core;
+
 namespace tlr
 {
     namespace CoreTest

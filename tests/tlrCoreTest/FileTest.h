@@ -19,6 +19,14 @@ namespace tlr
             static std::shared_ptr<FileTest> create();
 
             void run() override;
+
+        private:
+            void _func();
+            void _io();
+
+            std::string _fileName;
+            std::string _text;
+            std::string _text2;
         };
     }
 }
