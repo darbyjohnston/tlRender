@@ -2,7 +2,7 @@
 // Copyright (c) 2021 Darby Johnston
 // All rights reserved.
 
-#include <tlrCoreTest/IOTest.h>
+#include <tlrCoreTest/AVIOTest.h>
 
 #include <tlrCore/AVIO.h>
 #include <tlrCore/Assert.h>
@@ -16,22 +16,22 @@ namespace tlr
 {
     namespace CoreTest
     {
-        IOTest::IOTest() :
-            ITest("CoreTest::IOTest")
+        AVIOTest::AVIOTest() :
+            ITest("CoreTest::AVIOTest")
         {}
 
-        std::shared_ptr<IOTest> IOTest::create()
+        std::shared_ptr<AVIOTest> AVIOTest::create()
         {
-            return std::shared_ptr<IOTest>(new IOTest);
+            return std::shared_ptr<AVIOTest>(new AVIOTest);
         }
 
-        void IOTest::run()
+        void AVIOTest::run()
         {
             _videoFrame();
             _ioSystem();
         }
 
-        void IOTest::_videoFrame()
+        void AVIOTest::_videoFrame()
         {
             {
                 const VideoFrame f;
@@ -57,7 +57,7 @@ namespace tlr
             }
         }
 
-        void IOTest::_ioSystem()
+        void AVIOTest::_ioSystem()
         {
             auto system = System::create();
             for (const auto& plugin : system->getPlugins())
