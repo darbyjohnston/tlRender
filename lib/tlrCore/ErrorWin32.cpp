@@ -20,19 +20,23 @@ namespace tlr
     {
         std::string getLastError()
         {
+            std::string out;
             const DWORD dw = GetLastError();
-            TCHAR buf[string::cBufferSize];
-            FormatMessage(
-                FORMAT_MESSAGE_FROM_SYSTEM |
-                FORMAT_MESSAGE_IGNORE_INSERTS,
-                NULL,
-                dw,
-                MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                buf,
-                string::cBufferSize,
-                NULL);
-            std::string out = std::string(buf, lstrlen(buf));
-            string::removeTrailingNewlines(out);
+            if (dw != ERROR_SUCCESS)
+            {
+                TCHAR buf[string::cBufferSize];
+                FormatMessage(
+                    FORMAT_MESSAGE_FROM_SYSTEM |
+                    FORMAT_MESSAGE_IGNORE_INSERTS,
+                    NULL,
+                    dw,
+                    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                    buf,
+                    string::cBufferSize,
+                    NULL);
+                out = std::string(buf, lstrlen(buf));
+                string::removeTrailingNewlines(out);
+            }
             return out;
         }
     }

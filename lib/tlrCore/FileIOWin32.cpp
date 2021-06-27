@@ -34,7 +34,10 @@ namespace tlr
                 SeekMemoryMap
             };
 
-            std::string getErrorMessage(ErrorType type, const std::string& fileName)
+            std::string getErrorMessage(
+                ErrorType          type,
+                const std::string& fileName,
+                const std::string& message  = std::string())
             {
                 std::string out;
                 switch (type)
@@ -71,10 +74,9 @@ namespace tlr
                     break;
                 default: break;
                 }
-                const std::string last = getLastError();
-                if (!last.empty())
+                if (!message.empty())
                 {
-                    out = string::Format("{0}: {1}").arg(out).arg(last);
+                    out = string::Format("{0}: {1}").arg(out).arg(message);
                 }
                 return out;
             }
@@ -126,7 +128,7 @@ namespace tlr
             }
             if (INVALID_HANDLE_VALUE == _f)
             {
-                throw std::runtime_error(getErrorMessage(ErrorType::Open, fileName));
+                throw std::runtime_error(getErrorMessage(ErrorType::Open, fileName, getLastError()));
             }
             _fileName = fileName;
             _mode = mode;
@@ -139,7 +141,7 @@ namespace tlr
                 _mmap = CreateFileMapping(_f, 0, PAGE_READONLY, 0, 0, 0);
                 if (!_mmap)
                 {
-                    throw std::runtime_error(getErrorMessage(ErrorType::MemoryMap, fileName));
+                    throw std::runtime_error(getErrorMessage(ErrorType::MemoryMap, fileName, getLastError()));
                 }
 
                 _mmapStart = reinterpret_cast<const uint8_t*>(MapViewOfFile(_mmap, FILE_MAP_READ, 0, 0, 0));
@@ -195,7 +197,7 @@ namespace tlr
             DWORD r = GetTempPathW(MAX_PATH, path);
             if (!r)
             {
-                throw std::runtime_error(getErrorMessage(ErrorType::OpenTemp, std::string()));
+                throw std::runtime_error(getErrorMessage(ErrorType::OpenTemp, std::string(), getLastError()));
             }
             WCHAR buf[MAX_PATH];
             if (GetTempFileNameW(path, L"", 0, buf))
@@ -214,7 +216,7 @@ namespace tlr
             }
             else
             {
-                throw std::runtime_error(getErrorMessage(ErrorType::OpenTemp, std::string()));
+                throw std::runtime_error(getErrorMessage(ErrorType::OpenTemp, std::string(), getLastError()));
             }
         }
 
@@ -232,7 +234,7 @@ namespace tlr
                     out = false;
                     if (error)
                     {
-                        *error = getErrorMessage(ErrorType::CloseMemoryMap, _fileName);
+                        *error = getErrorMessage(ErrorType::CloseMemoryMap, _fileName, getLastError());
                     }
                 }
                 _mmapStart = 0;
@@ -244,7 +246,7 @@ namespace tlr
                     out = false;
                     if (error)
                     {
-                        *error = getErrorMessage(ErrorType::Close, _fileName);
+                        *error = getErrorMessage(ErrorType::Close, _fileName, getLastError());
                     }
                 }
                 _mmap = 0;
@@ -324,7 +326,7 @@ namespace tlr
                 /*DWORD n;
                 if (!::ReadFile(_f, in, static_cast<DWORD>(size * wordSize), &n, 0))
                 {
-                    throw std::runtime_error(getErrorMessage(ErrorType::Read, _fileName));
+                    throw std::runtime_error(getErrorMessage(ErrorType::Read, _fileName, getLastError()));
                 }*/
                 size_t r = fread(in, 1, size * wordSize, _f);
                 if (r != size * wordSize)
@@ -344,7 +346,7 @@ namespace tlr
                 DWORD n;
                 if (!::ReadFile(_f, in, static_cast<DWORD>(size * wordSize), &n, 0))
                 {
-                    throw std::runtime_error(getErrorMessage(ErrorType::Read, _fileName));
+                    throw std::runtime_error(getErrorMessage(ErrorType::Read, _fileName, getLastError()));
                 }
 #else // TLR_ENABLE_MMAP
                 size_t r = fread(in, 1, size * wordSize, _f);
@@ -385,7 +387,7 @@ namespace tlr
             DWORD n = 0;
             if (!::WriteFile(_f, inP, static_cast<DWORD>(size * wordSize), &n, 0))
             {
-                throw std::runtime_error(getErrorMessage(ErrorType::Write, _fileName));
+                throw std::runtime_error(getErrorMessage(ErrorType::Write, _fileName, getLastError()));
             }
 #else // TLR_ENABLE_MMAP
             size_t r = fwrite(in, 1, size * wordSize, _f);
@@ -426,7 +428,7 @@ namespace tlr
                     0,
                     !seek ? FILE_BEGIN : FILE_CURRENT))
                 {
-                    throw std::runtime_error(getErrorMessage(ErrorType::Seek, _fileName));
+                    throw std::runtime_error(getErrorMessage(ErrorType::Seek, _fileName, getLastError()));
                 }*/
                 if (fseek(_f, value, !seek ? SEEK_SET : SEEK_CUR) != 0)
                 {
@@ -448,7 +450,7 @@ namespace tlr
                     0,
                     !seek ? FILE_BEGIN : FILE_CURRENT))
                 {
-                    throw std::runtime_error(getErrorMessage(ErrorType::Seek, _fileName));
+                    throw std::runtime_error(getErrorMessage(ErrorType::Seek, _fileName, getLastError()));
                 }
 #else // TLR_ENABLE_MMAP
                 if (fseek(_f, value, !seek ? SEEK_SET : SEEK_CUR) != 0)
