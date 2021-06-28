@@ -191,11 +191,12 @@ namespace tlr
             io->read(&out.film, sizeof(Header::Film));
 
             // Convert the endian if necessary.
+            imaging::Info imageInfo;
             if (convertEndian)
             {
                 io->setEndianConversion(true);
                 out.convertEndian();
-                info.video[0].layout.endian = memory::opposite(memory::getEndian());
+                imageInfo.layout.endian = memory::opposite(memory::getEndian());
             }
 
             // Read the image section of the header.
@@ -258,10 +259,10 @@ namespace tlr
             }
 
             // Collect information.
-            info.video[0].pixelType = pixelType;
-            info.video[0].size.w = out.image.channel[0].size[0];
-            info.video[0].size.h = out.image.channel[0].size[1];
-            if (io->getSize() - out.file.imageOffset != imaging::getDataByteCount(info.video[0]))
+            imageInfo.pixelType = pixelType;
+            imageInfo.size.w = out.image.channel[0].size[0];
+            imageInfo.size.h = out.image.channel[0].size[1];
+            if (io->getSize() - out.file.imageOffset != imaging::getDataByteCount(imageInfo))
             {
                 throw std::runtime_error(string::Format("{0}: {1}").
                     arg(io->getFileName()).
@@ -270,14 +271,14 @@ namespace tlr
             switch (static_cast<Orient>(out.image.orient))
             {
             case Orient::LeftRightBottomTop:
-                info.video[0].layout.mirror.y = true;
+                imageInfo.layout.mirror.y = true;
                 break;
             case Orient::RightLeftTopBottom:
-                info.video[0].layout.mirror.x = true;
+                imageInfo.layout.mirror.x = true;
                 break;
             case Orient::RightLeftBottomTop:
-                info.video[0].layout.mirror.x = true;
-                info.video[0].layout.mirror.y = true;
+                imageInfo.layout.mirror.x = true;
+                imageInfo.layout.mirror.y = true;
                 break;
             case Orient::TopBottomLeftRight:
             case Orient::TopBottomRightLeft:
@@ -287,6 +288,7 @@ namespace tlr
                 break;
             default: break;
             }
+            info.video.push_back(imageInfo);
             if (isValid(out.file.time, 24))
             {
                 info.tags["Time"] = toString(out.file.time, 24);

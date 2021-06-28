@@ -2,10 +2,10 @@
 // Copyright (c) 2021 Darby Johnston
 // All rights reserved.
 
-#include <tlrCoreTest/TIFFTest.h>
+#include <tlrCoreTest/CineonTest.h>
 
 #include <tlrCore/Assert.h>
-#include <tlrCore/TIFF.h>
+#include <tlrCore/Cineon.h>
 
 #include <sstream>
 
@@ -13,18 +13,18 @@ namespace tlr
 {
     namespace CoreTest
     {
-        TIFFTest::TIFFTest() :
-            ITest("CoreTest::TIFFTest")
+        CineonTest::CineonTest() :
+            ITest("CoreTest::CineonTest")
         {}
 
-        std::shared_ptr<TIFFTest> TIFFTest::create()
+        std::shared_ptr<CineonTest> CineonTest::create()
         {
-            return std::shared_ptr<TIFFTest>(new TIFFTest);
+            return std::shared_ptr<CineonTest>(new CineonTest);
         }
 
-        void TIFFTest::run()
+        void CineonTest::run()
         {
-            auto plugin = tiff::Plugin::create();
+            auto plugin = cineon::Plugin::create();
             for (const auto& size : std::vector<imaging::Size>(
                 {
                     imaging::Size(16, 16),
@@ -37,7 +37,7 @@ namespace tlr
                     std::string fileName;
                     {
                         std::stringstream ss;
-                        ss << "TIFFTest_" << size << '_' << pixelType << ".0.tif";
+                        ss << "CineonTest_" << size << '_' << pixelType << ".0.cin";
                         fileName = ss.str();
                         _print(fileName);
                     }

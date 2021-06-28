@@ -5,6 +5,7 @@
 #include <tlrCoreTest/AVIOTest.h>
 #include <tlrCoreTest/BBoxTest.h>
 #include <tlrCoreTest/CacheTest.h>
+#include <tlrCoreTest/CineonTest.h>
 #include <tlrCoreTest/ColorTest.h>
 #include <tlrCoreTest/ErrorTest.h>
 #include <tlrCoreTest/FileTest.h>
@@ -62,6 +63,7 @@ int main(int argc, char* argv[])
         tests.push_back(tlr::CoreTest::AVIOTest::create());
         tests.push_back(tlr::CoreTest::BBoxTest::create());
         tests.push_back(tlr::CoreTest::CacheTest::create());
+        tests.push_back(tlr::CoreTest::CineonTest::create());
         tests.push_back(tlr::CoreTest::ColorTest::create());
         tests.push_back(tlr::CoreTest::ErrorTest::create());
         tests.push_back(tlr::CoreTest::FileTest::create());

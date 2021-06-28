@@ -41,7 +41,9 @@ namespace tlr
                         fileName = ss.str();
                         _print(fileName);
                     }
-                    const auto imageInfo = imaging::Info(size, pixelType);
+                    auto imageInfo = imaging::Info(size, pixelType);
+                    imageInfo.layout.alignment = plugin->getWriteAlignment();
+                    imageInfo.layout.endian = plugin->getWriteEndian();
                     const auto imageWrite = imaging::Image::create(imageInfo);
                     try
                     {
