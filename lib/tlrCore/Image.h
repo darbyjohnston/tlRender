@@ -61,19 +61,26 @@ namespace tlr
 
             L_U8,
             L_U16,
+            L_U32,
+            L_F16,
             L_F32,
-            
+
             LA_U8,
             LA_U16,
+            LA_U32,
+            LA_F16,
             LA_F32,
-            
+
             RGB_U8,
             RGB_U10,
             RGB_U16,
+            RGB_U32,
+            RGB_F16,
             RGB_F32,
-            
+
             RGBA_U8,
             RGBA_U16,
+            RGBA_U32,
             RGBA_F16,
             RGBA_F32,
             

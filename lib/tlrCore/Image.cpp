@@ -46,20 +46,32 @@ namespace tlr
         TLR_ENUM_IMPL(
             PixelType,
             "None",
+
             "L_U8",
             "L_U16",
+            "L_U32",
+            "L_F16",
             "L_F32",
+
             "LA_U8",
             "LA_U16",
+            "LA_U32",
+            "LA_F16",
             "LA_F32",
+            
             "RGB_U8",
             "RGB_U10",
             "RGB_U16",
+            "RGB_U32",
+            "RGB_F16",
             "RGB_F32",
+
             "RGBA_U8",
             "RGBA_U16",
+            "RGBA_U32",
             "RGBA_F16",
             "RGBA_F32",
+            
             "YUV_420P");
 
         uint8_t getChannelCount(PixelType value)
@@ -67,10 +79,10 @@ namespace tlr
             const std::array<uint8_t, static_cast<size_t>(PixelType::Count)> values =
             {
                 0,
-                1, 1, 1,
-                2, 2, 2,
-                3, 3, 3, 3,
-                4, 4, 4, 4,
+                1, 1, 1, 1, 1,
+                2, 2, 2, 2, 2,
+                3, 3, 3, 3, 3, 3,
+                4, 4, 4, 4, 4,
                 3
             };
             return values[static_cast<size_t>(value)];
@@ -81,10 +93,10 @@ namespace tlr
             const std::array<uint8_t, static_cast<size_t>(PixelType::Count)> values =
             {
                 0,
-                8, 16, 32,
-                8, 16, 32,
-                8, 10, 16, 32,
-                8, 16, 16, 32,
+                8, 16, 32, 16, 32,
+                8, 16, 32, 16, 32,
+                8, 10, 16, 32, 16, 32,
+                8, 16, 32, 16, 32,
                 0
             };
             return values[static_cast<size_t>(value)];
@@ -100,6 +112,7 @@ namespace tlr
                 {
                 case 8: out = PixelType::L_U8; break;
                 case 16: out = PixelType::L_U16; break;
+                case 32: out = PixelType::L_U32; break;
                 }
                 break;
             case 2:
@@ -107,6 +120,7 @@ namespace tlr
                 {
                 case 8: out = PixelType::LA_U8; break;
                 case 16: out = PixelType::LA_U16; break;
+                case 32: out = PixelType::LA_U32; break;
                 }
                 break;
             case 3:
@@ -115,6 +129,7 @@ namespace tlr
                 case 8: out = PixelType::RGB_U8; break;
                 case 10: out = PixelType::RGB_U10; break;
                 case 16: out = PixelType::RGB_U16; break;
+                case 32: out = PixelType::RGB_U32; break;
                 }
                 break;
             case 4:
@@ -122,6 +137,7 @@ namespace tlr
                 {
                 case 8: out = PixelType::RGBA_U8; break;
                 case 16: out = PixelType::RGBA_U16; break;
+                case 32: out = PixelType::RGBA_U32; break;
                 }
                 break;
             }
@@ -136,18 +152,21 @@ namespace tlr
             case 1:
                 switch (bitDepth)
                 {
+                case 16: out = PixelType::L_F16; break;
                 case 32: out = PixelType::L_F32; break;
                 }
                 break;
             case 2:
                 switch (bitDepth)
                 {
+                case 16: out = PixelType::LA_F16; break;
                 case 32: out = PixelType::LA_F32; break;
                 }
                 break;
             case 3:
                 switch (bitDepth)
                 {
+                case 16: out = PixelType::RGB_F16; break;
                 case 32: out = PixelType::RGB_F32; break;
                 }
                 break;
@@ -173,8 +192,12 @@ namespace tlr
                 w * h,
                 w * h * 2,
                 w * h * 4,
+                w * h * 2,
+                w * h * 4,
 
                 w * h * 2,
+                w * h * 2 * 2,
+                w * h * 2 * 4,
                 w * h * 2 * 2,
                 w * h * 2 * 4,
 
@@ -182,9 +205,12 @@ namespace tlr
                 w * h * 4,
                 w * h * 3 * 2,
                 w * h * 3 * 4,
+                w * h * 3 * 2,
+                w * h * 3 * 4,
 
                 w * h * 4,
                 w * h * 4 * 2,
+                w * h * 4 * 4,
                 w * h * 4 * 2,
                 w * h * 4 * 4,
 

@@ -22,16 +22,22 @@ namespace tlr
                 GL_RED,
                 GL_RED,
                 GL_RED,
+                GL_RED,
+                GL_RED,
 
                 GL_NONE,
                 GL_NONE,
                 GL_NONE,
+                GL_NONE,
+                GL_NONE,
 
+                GL_RGB,
                 GL_RGB,
                 GL_RGBA,
                 GL_RGB,
                 GL_RGB,
 
+                GL_RGBA,
                 GL_RGBA,
                 GL_RGBA,
                 GL_RGBA,
@@ -50,19 +56,26 @@ namespace tlr
 
                 GL_UNSIGNED_BYTE,
                 GL_UNSIGNED_SHORT,
+                GL_UNSIGNED_INT,
+                GL_HALF_FLOAT,
                 GL_FLOAT,
 
-                GL_UNSIGNED_BYTE,
-                GL_UNSIGNED_SHORT,
-                GL_FLOAT,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
+                GL_NONE,
 
                 GL_UNSIGNED_BYTE,
                 GL_UNSIGNED_INT_10_10_10_2,
                 GL_UNSIGNED_SHORT,
+                GL_UNSIGNED_INT,
+                GL_HALF_FLOAT,
                 GL_FLOAT,
 
                 GL_UNSIGNED_BYTE,
                 GL_UNSIGNED_SHORT,
+                GL_UNSIGNED_INT,
                 GL_HALF_FLOAT,
                 GL_FLOAT,
 

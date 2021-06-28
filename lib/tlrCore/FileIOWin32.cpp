@@ -109,7 +109,7 @@ namespace tlr
             case Mode::ReadWrite:
                 desiredAccess = GENERIC_READ | GENERIC_WRITE;
                 shareMode = FILE_SHARE_READ;
-                disposition = CREATE_ALWAYS;
+                disposition = OPEN_EXISTING;
                 break;
             case Mode::Append:
                 desiredAccess = GENERIC_WRITE;
