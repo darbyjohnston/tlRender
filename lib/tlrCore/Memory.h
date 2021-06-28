@@ -2,6 +2,8 @@
 // Copyright (c) 2021 Darby Johnston
 // All rights reserved.
 
+#pragma once
+
 #include <tlrCore/Util.h>
 
 #include <iostream>
@@ -25,10 +27,10 @@ namespace tlr
         TLR_ENUM(Endian);
 
         //! Get the current machine's endian.
-        Endian getEndian() noexcept;
+        constexpr Endian getEndian() noexcept;
 
         //! Get the opposite of the given endian.
-        Endian opposite(Endian) noexcept;
+        constexpr Endian opposite(Endian) noexcept;
 
         //! Convert the endianness of a block of memory in place.
         void endian(

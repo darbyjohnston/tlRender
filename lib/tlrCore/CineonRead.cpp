@@ -12,37 +12,6 @@ namespace tlr
 {
     namespace cineon
     {
-        namespace
-        {
-            class File
-            {
-            public:
-                File(const std::string& fileName)
-                {
-                }
-
-                ~File()
-                {
-                }
-
-                const imaging::Info& getInfo() const
-                {
-                    return _info;
-                }
-
-                avio::VideoFrame read(
-                    const std::string& fileName,
-                    const otime::RationalTime& time)
-                {
-                    avio::VideoFrame out;
-                    return out;
-                }
-
-            private:
-                imaging::Info _info;
-            };
-        }
-
         void Read::_init(
             const std::string& fileName,
             const avio::Options& options)
@@ -68,10 +37,10 @@ namespace tlr
         avio::Info Read::_getInfo(const std::string& fileName)
         {
             avio::Info out;
-            avio::VideoInfo videoInfo;
-            videoInfo.info = std::unique_ptr<File>(new File(fileName))->getInfo();
-            videoInfo.duration = _defaultSpeed;
-            out.video.push_back(videoInfo);
+            auto io = file::FileIO::create();
+            io->open(fileName, file::Mode::Read);
+            Header::read(io, out);
+            out.videoDuration = _defaultSpeed;
             return out;
         }
 
@@ -79,7 +48,15 @@ namespace tlr
             const std::string& fileName,
             const otime::RationalTime& time)
         {
-            return std::unique_ptr<File>(new File(fileName))->read(fileName, time);
+            avio::VideoFrame out;
+            out.time = time;
+            avio::Info info;
+            auto io = file::FileIO::create();
+            io->open(fileName, file::Mode::Read);
+            Header::read(io, info);
+            out.image = imaging::Image::create(info.video[0]);
+            io->read(out.image->getData(), imaging::getDataByteCount(info.video[0]));
+            return out;
         }
     }
 }

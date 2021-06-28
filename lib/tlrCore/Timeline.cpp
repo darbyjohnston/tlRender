@@ -322,7 +322,7 @@ namespace tlr
                     const auto info = read->getInfo().get();
                     if (!info.video.empty())
                     {
-                        imageInfo = info.video[0].info;
+                        imageInfo = info.video[0];
                         return true;
                     }
                 }
@@ -479,7 +479,7 @@ namespace tlr
             const auto j = _readers.find(clip);
             if (j != _readers.end())
             {
-                const auto readTime = clipTime.rescaled_to(j->second.info.video[0].duration);
+                const auto readTime = clipTime.rescaled_to(j->second.info.videoDuration);
                 out = j->second.read->readVideoFrame(
                     otime::RationalTime(floor(readTime.value()), readTime.rate()));
             }
@@ -504,7 +504,7 @@ namespace tlr
                     Reader reader;
                     reader.read = read;
                     reader.info = info;
-                    const auto readTime = clipTime.rescaled_to(info.video[0].duration);
+                    const auto readTime = clipTime.rescaled_to(info.videoDuration);
                     out = read->readVideoFrame(
                         otime::RationalTime(floor(readTime.value()), readTime.rate()));
                     _readers[clip] = std::move(reader);

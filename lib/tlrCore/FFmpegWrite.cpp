@@ -73,12 +73,11 @@ namespace tlr
             _avVideoStream->codec->codec_id = _avOutputFormat->video_codec;
             _avVideoStream->codec->codec_type = AVMEDIA_TYPE_VIDEO;
             const auto& videoInfo = info.video[0];
-            const auto& imageInfo = videoInfo.info;
-            _avVideoStream->codec->width = imageInfo.size.w;
-            _avVideoStream->codec->height = imageInfo.size.h;
+            _avVideoStream->codec->width = videoInfo.size.w;
+            _avVideoStream->codec->height = videoInfo.size.h;
             _avVideoStream->codec->sample_aspect_ratio = AVRational({ 1, 1 });
             _avVideoStream->codec->pix_fmt = _avPixelFormatOut;
-            const auto rational = toRational(videoInfo.duration.rate());
+            const auto rational = toRational(info.videoDuration.rate());
             _avVideoStream->codec->time_base = { rational.den, rational.num };
             _avVideoStream->codec->framerate = rational;
             if (_avFormatContext->oformat->flags & AVFMT_GLOBALHEADER)
@@ -126,18 +125,18 @@ namespace tlr
             }
 
             _avFrame2 = av_frame_alloc();
-            switch (imageInfo.pixelType)
+            switch (videoInfo.pixelType)
             {
             case imaging::PixelType::L_U8: _avPixelFormatIn = AV_PIX_FMT_GRAY8; break;
             case imaging::PixelType::RGB_U8: _avPixelFormatIn = AV_PIX_FMT_RGB24; break;
             case imaging::PixelType::RGBA_U8: _avPixelFormatIn = AV_PIX_FMT_RGBA; break;
             }
             _swsContext = sws_getContext(
-                imageInfo.size.w,
-                imageInfo.size.h,
+                videoInfo.size.w,
+                videoInfo.size.h,
                 _avPixelFormatIn,
-                imageInfo.size.w,
-                imageInfo.size.h,
+                videoInfo.size.w,
+                videoInfo.size.h,
                 _avPixelFormatOut,
                 swsScaleFlags,
                 0,

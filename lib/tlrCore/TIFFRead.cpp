@@ -259,10 +259,8 @@ namespace tlr
         avio::Info Read::_getInfo(const std::string& fileName)
         {
             avio::Info out;
-            avio::VideoInfo videoInfo;
-            videoInfo.info = std::unique_ptr<File>(new File(fileName))->getInfo();
-            videoInfo.duration = _defaultSpeed;
-            out.video.push_back(videoInfo);
+            out.video.push_back(std::unique_ptr<File>(new File(fileName))->getInfo());
+            out.videoDuration = _defaultSpeed;
             return out;
         }
 

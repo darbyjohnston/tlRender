@@ -18,23 +18,13 @@ namespace tlr
     //! Input/output.
     namespace avio
     {
-        //! Video I/O information.
-        class VideoInfo
-        {
-        public:
-            VideoInfo();
-            VideoInfo(
-                const imaging::Info&,
-                const otime::RationalTime& duration);
-            
-            imaging::Info info;
-            otime::RationalTime duration = invalidTime;
-        };
-
         //! I/O information.
         struct Info
         {
-            std::vector<VideoInfo> video;
+            Info();
+
+            std::vector<imaging::Info>         video;
+            otime::RationalTime                videoDuration;
             std::map<std::string, std::string> tags;
         };
 
@@ -47,7 +37,7 @@ namespace tlr
                 const otime::RationalTime&,
                 const std::shared_ptr<imaging::Image>&);
 
-            otime::RationalTime time;
+            otime::RationalTime             time;
             std::shared_ptr<imaging::Image> image;
 
             bool operator == (const VideoFrame&) const;
@@ -161,14 +151,23 @@ namespace tlr
                 const std::string& fileName,
                 const Options& = Options()) = 0;
 
-            //! Get the list of writable pixel types.
+            //! Get the list of writable image pixel types.
             virtual std::vector<imaging::PixelType> getWritePixelTypes() const = 0;
+
+            //! Get the writable image data alignment.
+            virtual uint8_t getWriteAlignment() const;
+
+            //! Get the writable image data endian.
+            virtual memory::Endian getWriteEndian() const;
 
             //! Create a writer for the given file.
             virtual std::shared_ptr<IWrite> write(
                 const std::string& fileName,
                 const Info&,
                 const Options& = Options()) = 0;
+
+        protected:
+            bool _isWriteCompatible(const imaging::Info&) const;
 
         private:
             std::string _name;
@@ -191,16 +190,19 @@ namespace tlr
             //! Get the list of plugins.
             const std::vector<std::shared_ptr<IPlugin> >& getPlugins() const;
 
-            // Create a reader for the given file.
+            //! Get a plugin for the given file name.
+            std::shared_ptr<IPlugin> getPlugin(const std::string& fileName) const;
+
+            // Create a reader for the given file name.
             std::shared_ptr<IRead> read(
                 const std::string& fileName,
                 const Options& = Options());
 
-            // Create a writer for the given file.
+            // Create a writer for the given file name.
             std::shared_ptr<IWrite> write(
                 const std::string& fileName,
                 const Info&,
-                const Options & = Options());
+                const Options& = Options());
 
         private:
             std::vector<std::shared_ptr<IPlugin> > _plugins;

@@ -32,16 +32,6 @@ namespace tlr
 {
     namespace avio
     {
-        VideoInfo::VideoInfo()
-        {}
-
-        VideoInfo::VideoInfo(
-            const imaging::Info& info,
-            const otime::RationalTime& duration) :
-            info(info),
-            duration(duration)
-        {}
-
         VideoFrame::VideoFrame() :
             time(invalidTime)
         {}
@@ -115,6 +105,25 @@ namespace tlr
         IPlugin::~IPlugin()
         {}
 
+        uint8_t IPlugin::getWriteAlignment() const
+        {
+            return 1;
+        }
+
+        memory::Endian IPlugin::getWriteEndian() const
+        {
+            return memory::getEndian();
+        }
+
+        bool IPlugin::_isWriteCompatible(const imaging::Info& info) const
+        {
+            const auto pixelTypes = getWritePixelTypes();
+            const auto i = std::find(pixelTypes.begin(), pixelTypes.end(), info.pixelType);
+            return i != pixelTypes.end() &&
+                info.layout.alignment == getWriteAlignment() &&
+                info.layout.endian == getWriteEndian();
+        }
+
         void System::_init()
         {
             _plugins.push_back(cineon::Plugin::create());
@@ -157,6 +166,20 @@ namespace tlr
                 file::split(fileName, &path, &baseName, &number, &extension);
                 return string::toLower(extension);
             }
+        }
+
+        std::shared_ptr<IPlugin> System::getPlugin(const std::string& fileName) const
+        {
+            const std::string extension = getExtension(fileName);
+            for (const auto& i : _plugins)
+            {
+                const auto& extensions = i->getExtensions();
+                if (extensions.find(extension) != extensions.end())
+                {
+                    return i;
+                }
+            }
+            return nullptr;
         }
 
         std::shared_ptr<IRead> System::read(

@@ -8,15 +8,13 @@ namespace tlr
 {
     namespace memory
     {
-        inline Endian getEndian() noexcept
+        constexpr Endian getEndian() noexcept
         {
-            const int tmp = 1;
-            const uint8_t* const p = reinterpret_cast<const uint8_t*>(&tmp);
-            const Endian endian = *p ? Endian::LSB : Endian::MSB;
-            return endian;
+            const uint32_t tmp = 1;
+            return *(reinterpret_cast<const uint8_t*>(&tmp)) ? Endian::LSB : Endian::MSB;
         }
 
-        inline Endian opposite(Endian in) noexcept
+        constexpr Endian opposite(Endian in) noexcept
         {
             return Endian::MSB == in ? Endian::LSB : Endian::MSB;
         }

@@ -5,6 +5,7 @@
 #pragma once
 
 #include <tlrCore/BBox.h>
+#include <tlrCore/Memory.h>
 #include <tlrCore/Range.h>
 #include <tlrCore/Util.h>
 
@@ -12,7 +13,9 @@
 
 #include <iostream>
 #include <limits>
+#include <map>
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace tlr
@@ -26,20 +29,20 @@ namespace tlr
         class Size
         {
         public:
-            Size();
-            explicit Size(uint16_t w, uint16_t h);
+            constexpr Size() noexcept;
+            constexpr explicit Size(uint16_t w, uint16_t h) noexcept;
 
             uint16_t w, h;
 
             //! Is this size valid?
-            bool isValid() const;
+            constexpr bool isValid() const noexcept;
 
             //! Get the aspect ratio.
-            float getAspect() const;
+            constexpr float getAspect() const noexcept;
 
-            bool operator == (const Size&) const;
-            bool operator != (const Size&) const;
-            bool operator < (const Size&) const;
+            constexpr bool operator == (const Size&) const noexcept;
+            constexpr bool operator != (const Size&) const noexcept;
+            constexpr bool operator < (const Size&) const noexcept;
         };
 
         //! Get a bounding box with the given aspect ration that fits the
@@ -140,6 +143,38 @@ namespace tlr
 
         ///@}
 
+        //! Image mirroring.
+        class Mirror
+        {
+        public:
+            constexpr Mirror() noexcept;
+            constexpr Mirror(bool x, bool y) noexcept;
+
+            bool x = false;
+            bool y = false;
+
+            constexpr bool operator == (const Mirror&) const noexcept;
+            constexpr bool operator != (const Mirror&) const noexcept;
+        };
+
+        //! Image data layout.
+        class Layout
+        {
+        public:
+            constexpr Layout() noexcept;
+            constexpr Layout(
+                const Mirror&   mirror,
+                uint8_t         alignment = 1,
+                memory::Endian  endian    = memory::getEndian()) noexcept;
+
+            Mirror         mirror;
+            uint8_t        alignment;
+            memory::Endian endian;
+
+            constexpr bool operator == (const Layout&) const noexcept;
+            constexpr bool operator != (const Layout&) const noexcept;
+        };
+
         //! Image information.
         class Info
         {
@@ -148,8 +183,10 @@ namespace tlr
             explicit Info(const Size&, PixelType);
             explicit Info(uint16_t w, uint16_t h, PixelType);
 
-            Size size;
+            Size      size;
+            float     pixelAspectRatio;
             PixelType pixelType;
+            Layout    layout;
 
             //! Is the information valid?
             bool isValid() const;
@@ -194,8 +231,17 @@ namespace tlr
             //! Get the image pixel type.
             PixelType getPixelType() const;
 
+            //! Get the image tags.
+            const std::map<std::string, std::string>& getTags() const;
+
+            //! Set the image tags.
+            void setTags(const std::map<std::string, std::string>&);
+
             //! Is the image valid?
             bool isValid() const;
+
+            //! Get the number of bytes used to store the image data.
+            size_t getDataByteCount() const;
 
             //! Get the image data.
             const uint8_t* getData() const;
@@ -208,6 +254,8 @@ namespace tlr
 
         private:
             Info _info;
+            std::map<std::string, std::string> _tags;
+            size_t _dataByteCount = 0;
             std::vector<uint8_t> _data;
         };
     }

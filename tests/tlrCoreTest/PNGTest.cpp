@@ -47,7 +47,8 @@ namespace tlr
                     {
                         {
                             avio::Info info;
-                            info.video.push_back(avio::VideoInfo(imageInfo, otime::RationalTime(1.0, 24.0)));
+                            info.video.push_back(imageInfo);
+                            info.videoDuration = otime::RationalTime(1.0, 24.0);
                             auto write = plugin->write(fileName, info);
                             write->writeVideoFrame(otime::RationalTime(0.0, 24.0), imageWrite);
                         }

@@ -92,7 +92,8 @@ namespace tlr
             const imaging::Info imageInfo(16, 16, imaging::PixelType::RGB_U8);
             const auto image = imaging::Image::create(imageInfo);
             avio::Info ioInfo;
-            ioInfo.video.push_back(avio::VideoInfo(imageInfo, clipDuration));
+            ioInfo.video.push_back(imageInfo);
+            ioInfo.videoDuration = clipDuration;
             auto ioSystem = avio::System::create();
             auto write = ioSystem->write("TimelinePlayerTest.0.png", ioInfo);
             for (size_t i = 0; i < static_cast<size_t>(clipDuration.value()); ++i)

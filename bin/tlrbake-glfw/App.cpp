@@ -6,6 +6,7 @@
 
 #include <tlrGL/Util.h>
 
+#include <tlrCore/File.h>
 #include <tlrCore/Math.h>
 #include <tlrCore/String.h>
 #include <tlrCore/StringFormat.h>
@@ -93,6 +94,8 @@ namespace tlr
                     "The output file.")
             },
             cmdLineOptions);
+        _input = file::normalize(_input);
+        _output = file::normalize(_output);
     }
 
     App::App()
@@ -155,13 +158,6 @@ namespace tlr
             timelinePixelType;
         _print(string::Format("Render info: {0}").arg(_renderInfo));
 
-        // Output information.
-        _outputInfo.size = _renderInfo.size;
-        _outputInfo.pixelType = _options.outputPixelType != imaging::PixelType::None ?
-            _options.outputPixelType :
-            _renderInfo.pixelType;
-        _print(string::Format("Output info: {0}").arg(_outputInfo));
-
         // Initialize GLFW.
         glfwSetErrorCallback(glfwErrorCallback);
         int glfwMajor = 0;
@@ -221,21 +217,32 @@ namespace tlr
         _fontSystem = gl::FontSystem::create();
         _render = gl::Render::create();
         _buffer = gl::OffscreenBuffer::create(_renderInfo.size, _renderInfo.pixelType);
-        _outputImage = imaging::Image::create(_outputInfo);
 
-        // Create the I/O system.
+        // Create the writer.
         _ioSystem = avio::System::create();
-        avio::VideoInfo videoInfo;
-        videoInfo.info = _outputInfo;
-        videoInfo.duration = _range.duration();
+        _writerPlugin = _ioSystem->getPlugin(_output);
+        if (!_writerPlugin)
+        {
+            throw std::runtime_error(string::Format("{0}: Cannot open").arg(_output));
+        }
         avio::Info ioInfo;
-        ioInfo.video.push_back(videoInfo);
+        _outputInfo.size = _renderInfo.size;
+        const auto writePixelTypes = _writerPlugin->getWritePixelTypes();
+        _outputInfo.pixelType = _options.outputPixelType != imaging::PixelType::None ?
+            _options.outputPixelType :
+            (!writePixelTypes.empty() ? writePixelTypes[0] : _renderInfo.pixelType);
+        _outputInfo.layout.alignment = _writerPlugin->getWriteAlignment();
+        _outputInfo.layout.endian = _writerPlugin->getWriteEndian();
+        _print(string::Format("Output info: {0}").arg(_outputInfo));
+        _outputImage = imaging::Image::create(_outputInfo);
+        ioInfo.video.push_back(_outputInfo);
+        ioInfo.videoDuration = _range.duration();
         avio::Options options;
         if (!_options.videoCodec.empty())
         {
             options["VideoCodec"] = _options.videoCodec;
         }
-        _writer = _ioSystem->write(_output, ioInfo, options);
+        _writer = _writerPlugin->write(_output, ioInfo, options);
         if (!_writer)
         {
             throw std::runtime_error(string::Format("{0}: Cannot open").arg(_output));
@@ -258,7 +265,7 @@ namespace tlr
     {
         _printProgress();
 
-        // Tick the timeline.
+        // Set the active range.
         _timeline->setActiveRanges({ otime::TimeRange::range_from_start_end_time(
             _timeline->getGlobalStartTime() + _currentTime,
             _timeline->getGlobalStartTime() + _currentTime) });
@@ -270,7 +277,11 @@ namespace tlr
         _render->end();
 
         // Write the frame.
-        glPixelStorei(GL_PACK_ALIGNMENT, 1);
+        glPixelStorei(GL_PACK_ALIGNMENT, _outputInfo.layout.alignment);
+        if (_outputInfo.layout.endian != memory::getEndian())
+        {
+            glPixelStorei(GL_PACK_SWAP_BYTES, GL_TRUE);
+        }
         const GLenum format = gl::getReadPixelsFormat(_outputInfo.pixelType);
         const GLenum type = gl::getReadPixelsType(_outputInfo.pixelType);
         if (GL_NONE == format || GL_NONE == type)

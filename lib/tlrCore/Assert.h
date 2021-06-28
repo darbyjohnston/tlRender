@@ -2,6 +2,8 @@
 // Copyright (c) 2021 Darby Johnston
 // All rights reserved.
 
+#pragma once
+
 //! tlRender.
 namespace tlr
 {

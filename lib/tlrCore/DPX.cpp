@@ -47,7 +47,9 @@ namespace tlr
             const avio::Info& info,
             const avio::Options& options)
         {
-            return Write::create(fileName, info, options);
+            return !info.video.empty() && _isWriteCompatible(info.video[0]) ?
+                Write::create(fileName, info, options) :
+                nullptr;
         }
     }
 }

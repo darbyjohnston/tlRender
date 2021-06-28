@@ -13,6 +13,46 @@ using namespace tlr::core;
 
 namespace tlr
 {
+    namespace time
+    {
+        std::string keycodeToString(
+            int id,
+            int type,
+            int prefix,
+            int count,
+            int offset)
+        {
+            std::vector<std::string> list;
+            list.push_back(std::to_string(id));
+            list.push_back(std::to_string(type));
+            list.push_back(std::to_string(prefix));
+            list.push_back(std::to_string(count));
+            list.push_back(std::to_string(offset));
+            return string::join(list, ":");
+        }
+
+        void stringToKeycode(
+            const std::string& string,
+            int& id,
+            int& type,
+            int& prefix,
+            int& count,
+            int& offset)
+        {
+            const auto pieces = string::split(string, ':');
+            if (pieces.size() != 5)
+            {
+                //! \todo How can we translate this?
+                throw std::runtime_error("Cannot parse the value");
+            }
+            id     = std::stoi(pieces[0]);
+            type   = std::stoi(pieces[1]);
+            prefix = std::stoi(pieces[2]);
+            count  = std::stoi(pieces[3]);
+            offset = std::stoi(pieces[4]);
+        }
+    }
+
     std::ostream& operator << (std::ostream& os, const otime::RationalTime& value)
     {
         os << value.value() << "/" << value.rate();

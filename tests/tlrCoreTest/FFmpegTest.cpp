@@ -87,7 +87,8 @@ namespace tlr
                     {
                         {
                             avio::Info info;
-                            info.video.push_back(avio::VideoInfo(imageInfo, duration));
+                            info.video.push_back(imageInfo);
+                            info.videoDuration = duration;
                             auto write = plugin->write(fileName, info);
                             const auto imageWrite = imaging::Image::create(imageInfo);
                             for (size_t i = 0; i < static_cast<size_t>(duration.value()); ++i)

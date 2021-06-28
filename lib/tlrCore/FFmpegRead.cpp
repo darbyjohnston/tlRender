@@ -184,27 +184,27 @@ namespace tlr
                     throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
                 }
 
-                avio::VideoInfo videoInfo;
-                videoInfo.info.size.w = _avCodecParameters[_avVideoStream]->width;
-                videoInfo.info.size.h = _avCodecParameters[_avVideoStream]->height;
+                imaging::Info videoInfo;
+                videoInfo.size.w = _avCodecParameters[_avVideoStream]->width;
+                videoInfo.size.h = _avCodecParameters[_avVideoStream]->height;
 
                 const AVPixelFormat avPixelFormat = static_cast<AVPixelFormat>(_avCodecParameters[_avVideoStream]->format);
                 switch (avPixelFormat)
                 {
                 case AV_PIX_FMT_YUV420P:
-                    videoInfo.info.pixelType = imaging::PixelType::YUV_420P;
+                    videoInfo.pixelType = imaging::PixelType::YUV_420P;
                     break;
                 case AV_PIX_FMT_RGB24:
-                    videoInfo.info.pixelType = imaging::PixelType::RGB_U8;
+                    videoInfo.pixelType = imaging::PixelType::RGB_U8;
                     break;
                 case AV_PIX_FMT_GRAY8:
-                    videoInfo.info.pixelType = imaging::PixelType::L_U8;
+                    videoInfo.pixelType = imaging::PixelType::L_U8;
                     break;
                 case AV_PIX_FMT_RGBA:
-                    videoInfo.info.pixelType = imaging::PixelType::RGBA_U8;
+                    videoInfo.pixelType = imaging::PixelType::RGBA_U8;
                     break;
                 default:
-                    videoInfo.info.pixelType = imaging::PixelType::YUV_420P;
+                    videoInfo.pixelType = imaging::PixelType::YUV_420P;
                     _avFrame2 = av_frame_alloc();
                     _swsContext = sws_getContext(
                         _avCodecParameters[_avVideoStream]->width,
@@ -234,12 +234,12 @@ namespace tlr
                         av_get_time_base_q(),
                         swap(avVideoStream->r_frame_rate));
                 }
-                videoInfo.duration = otime::RationalTime(
+                _info.video.push_back(videoInfo);
+                _info.videoDuration = otime::RationalTime(
                     sequenceSize,
                     avVideoStream->r_frame_rate.num / double(avVideoStream->r_frame_rate.den));
-                _info.video.push_back(videoInfo);
 
-                _currentTime = otime::RationalTime(0, videoInfo.duration.rate());
+                _currentTime = otime::RationalTime(0, _info.videoDuration.rate());
             }
 
             AVDictionaryEntry* tag = nullptr;
@@ -416,11 +416,11 @@ namespace tlr
                         _avFrame->pts,
                         _avFormatContext->streams[_avVideoStream]->time_base,
                         swap(_avFormatContext->streams[_avVideoStream]->r_frame_rate)),
-                    videoInfo.duration.rate());
+                    _info.videoDuration.rate());
                 if (t >= seek)
                 {
                     //std::cout << "frame: " << t << std::endl;
-                    auto image = imaging::Image::create(videoInfo.info);
+                    auto image = imaging::Image::create(videoInfo);
                     _copyVideo(image);
                     _imageBuffer.push_back(image);
                     out = 1;

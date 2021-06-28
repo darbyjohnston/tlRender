@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <tlrCore/FileIO.h>
 #include <tlrCore/SequenceIO.h>
 
 namespace tlr
@@ -14,6 +15,158 @@ namespace tlr
     //! - Kodak, "4.5 DRAFT - Image File Format Proposal for Digital Pictures"
     namespace cineon
     {
+        //! Cineon header magic numbers.
+        const uint32_t magic[] =
+        {
+            0x802a5fd7,
+            0xd75f2a80
+        };
+
+        //! Cineon image orientations.
+        enum class Orient
+        {
+            LeftRightTopBottom,
+            LeftRightBottomTop,
+            RightLeftTopBottom,
+            RightLeftBottomTop,
+            TopBottomLeftRight,
+            TopBottomRightLeft,
+            BottomTopLeftRight,
+            BottomTopRightLeft,
+
+            Count,
+            First = LeftRightTopBottom
+        };
+        TLR_ENUM(Orient);
+
+        //! Cineon file descriptors.
+        enum class Descriptor
+        {
+            Luminance,
+            RedFilmPrint,
+            GreenFilmPrint,
+            BlueFilmPrint,
+            RedCCIRXA11,
+            GreenCCIRXA11,
+            BlueCCIRXA11,
+
+            Count,
+            First = Luminance
+        };
+        TLR_ENUM(Descriptor);
+
+        //! Cineon header.
+        struct Header
+        {
+            Header();
+
+            struct File
+            {
+                uint32_t magic;
+                uint32_t imageOffset;
+                uint32_t headerSize;
+                uint32_t industryHeaderSize;
+                uint32_t userHeaderSize;
+                uint32_t size;
+                char     version[8];
+                char     name[100];
+                char     time[24];
+                uint8_t  pad[36];
+            };
+            File file;
+
+            struct Image
+            {
+                uint8_t orient;
+                uint8_t channels;
+                uint8_t pad[2];
+
+                struct Channel
+                {
+                    uint8_t  descriptor[2];
+                    uint8_t  bitDepth;
+                    uint8_t  pad;
+                    uint32_t size[2];
+                    float    lowData;
+                    float    lowQuantity;
+                    float    highData;
+                    float    highQuantity;
+                };
+                Channel channel[8];
+
+                float    white[2];
+                float    red[2];
+                float    green[2];
+                float    blue[2];
+                char     label[200];
+                uint8_t  pad2[28];
+                uint8_t  interleave;
+                uint8_t  packing;
+                uint8_t  dataSign;
+                uint8_t  dataSense;
+                uint32_t linePadding;
+                uint32_t channelPadding;
+                uint8_t  pad3[20];
+            };
+            Image image;
+
+            struct Source
+            {
+                int32_t offset[2];
+                char    file[100];
+                char    time[24];
+                char    inputDevice[64];
+                char    inputModel[32];
+                char    inputSerial[32];
+                float   inputPitch[2];
+                float   gamma;
+                char    pad[40];
+            };
+            Source source;
+
+            struct Film
+            {
+                uint8_t  id;
+                uint8_t  type;
+                uint8_t  offset;
+                uint8_t  pad;
+                uint8_t  prefix;
+                uint32_t count;
+                char     format[32];
+                uint32_t frame;
+                float    frameRate;
+                char     frameId[32];
+                char     slate[200];
+                char     pad2[740];
+            };
+            Film film;
+
+            //! Convert then endian of the header.
+            void convertEndian();
+
+            //! Read a header.
+            static Header read(const std::shared_ptr<file::FileIO>&, avio::Info&);
+
+            //! Write a header.
+            static void write(const std::shared_ptr<file::FileIO>&, const avio::Info&);
+
+            //! Finish writing the header.
+            static void finishWrite(const std::shared_ptr<file::FileIO>&);
+        };
+
+        //! Check whether the Cineon header value is valid.
+        bool isValid(const char*, size_t size);
+
+        //! Convert a Cineon header string to std::string.
+        std::string toString(const char*, size_t size);
+
+        //! Convert a std::string to a Cineon header string.
+        size_t fromString(
+            const std::string& string,
+            char* out,
+            size_t             maxLen,
+            bool               terminate);
+
         //! Cineon reader.
         class Read : public avio::ISequenceRead
         {
@@ -79,10 +232,15 @@ namespace tlr
                 const std::string& fileName,
                 const avio::Options& = avio::Options()) override;
             std::vector<imaging::PixelType> getWritePixelTypes() const override;
+            uint8_t getWriteAlignment() const override;
+            memory::Endian getWriteEndian() const override;
             std::shared_ptr<avio::IWrite> write(
                 const std::string& fileName,
                 const avio::Info&,
                 const avio::Options& = avio::Options()) override;
         };
     }
+
+    TLR_ENUM_SERIALIZE(cineon::Orient);
+    TLR_ENUM_SERIALIZE(cineon::Descriptor);
 }

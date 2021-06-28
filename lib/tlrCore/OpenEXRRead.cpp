@@ -24,7 +24,6 @@ namespace tlr
                 const auto dw = f.dataWindow();
                 const int width = dw.max.x - dw.min.x + 1;
                 const int height = dw.max.y - dw.min.y + 1;
-                avio::VideoInfo info;
                 return imaging::Info(width, height, pixelType);
             }
         }
@@ -55,10 +54,8 @@ namespace tlr
         {
             avio::Info out;
             Imf::RgbaInputFile f(fileName.c_str());
-            avio::VideoInfo videoInfo;
-            videoInfo.info = imfInfo(f);
-            videoInfo.duration = _defaultSpeed;
-            out.video.push_back(videoInfo);
+            out.video.push_back(imfInfo(f));
+            out.videoDuration = _defaultSpeed;
             return out;
         }
 

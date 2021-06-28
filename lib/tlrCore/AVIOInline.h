@@ -6,6 +6,10 @@ namespace tlr
 {
     namespace avio
     {
+        inline Info::Info() :
+            videoDuration(invalidTime)
+        {}
+
         inline bool VideoFrame::operator == (const VideoFrame& other) const
         {
             return this->image == other.image && this->time == other.time;

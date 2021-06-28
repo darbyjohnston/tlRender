@@ -18,19 +18,25 @@ namespace tlr
             const std::array<GLenum, static_cast<std::size_t>(imaging::PixelType::Count)> data =
             {
                 GL_NONE,
+
                 GL_RED,
                 GL_RED,
                 GL_RED,
+
                 GL_NONE,
                 GL_NONE,
                 GL_NONE,
+
+                GL_RGB,
+                GL_RGBA,
                 GL_RGB,
                 GL_RGB,
-                GL_RGB,
+
                 GL_RGBA,
                 GL_RGBA,
                 GL_RGBA,
                 GL_RGBA,
+
                 GL_NONE
             };
             return data[static_cast<std::size_t>(value)];
@@ -41,19 +47,25 @@ namespace tlr
             const std::array<GLenum, static_cast<std::size_t>(imaging::PixelType::Count)> data =
             {
                 GL_NONE,
+
                 GL_UNSIGNED_BYTE,
                 GL_UNSIGNED_SHORT,
                 GL_FLOAT,
-                GL_NONE,
-                GL_NONE,
-                GL_NONE,
+
                 GL_UNSIGNED_BYTE,
                 GL_UNSIGNED_SHORT,
                 GL_FLOAT,
+
+                GL_UNSIGNED_BYTE,
+                GL_UNSIGNED_INT_10_10_10_2,
+                GL_UNSIGNED_SHORT,
+                GL_FLOAT,
+
                 GL_UNSIGNED_BYTE,
                 GL_UNSIGNED_SHORT,
                 GL_HALF_FLOAT,
                 GL_FLOAT,
+
                 GL_NONE
             };
             return data[static_cast<std::size_t>(value)];

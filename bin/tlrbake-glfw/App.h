@@ -54,8 +54,6 @@ namespace tlr
         std::shared_ptr<timeline::Timeline> _timeline;
         imaging::Info _renderInfo;
         imaging::Info _outputInfo;
-        std::shared_ptr<avio::System> _ioSystem;
-        std::shared_ptr<avio::IWrite> _writer;
         otime::RationalTime _duration = invalidTime;
         otime::TimeRange _range = invalidTimeRange;
         otime::RationalTime _currentTime = invalidTime;
@@ -64,6 +62,10 @@ namespace tlr
         std::shared_ptr<gl::FontSystem> _fontSystem;
         std::shared_ptr<gl::Render> _render;
         std::shared_ptr<gl::OffscreenBuffer> _buffer;
+
+        std::shared_ptr<avio::System> _ioSystem;
+        std::shared_ptr<avio::IPlugin> _writerPlugin;
+        std::shared_ptr<avio::IWrite> _writer;
         std::shared_ptr<imaging::Image> _outputImage;
 
         bool _running = true;

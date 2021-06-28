@@ -8,35 +8,35 @@ namespace tlr
 {
     namespace imaging
     {
-        inline Size::Size() :
+        constexpr Size::Size() noexcept :
             w(0), h(0)
         {}
 
-        inline Size::Size(uint16_t w, uint16_t h) :
+        constexpr Size::Size(uint16_t w, uint16_t h) noexcept :
             w(w), h(h)
         {}
 
-        inline bool Size::isValid() const
+        constexpr bool Size::isValid() const noexcept
         {
             return w > 0 && h > 0;
         }
 
-        inline float Size::getAspect() const
+        constexpr float Size::getAspect() const noexcept
         {
             return h > 0 ? (w / static_cast<float>(h)) : 0;
         }
 
-        inline bool Size::operator == (const Size& other) const
+        constexpr bool Size::operator == (const Size& other) const noexcept
         {
             return w == other.w && h == other.h;
         }
 
-        inline bool Size::operator != (const Size& other) const
+        constexpr bool Size::operator != (const Size& other) const noexcept
         {
             return !(*this == other);
         }
 
-        inline bool Size::operator < (const Size& other) const
+        constexpr bool Size::operator < (const Size& other) const noexcept
         {
             return std::tie(w, h) < std::tie(other.w, other.h);
         }
@@ -67,17 +67,59 @@ namespace tlr
             return !(*this == value);
         }
 
+        constexpr Mirror::Mirror() noexcept
+        {}
+
+        constexpr Mirror::Mirror(bool x, bool y) noexcept :
+            x(x),
+            y(y)
+        {}
+
+        constexpr bool Mirror::operator == (const Mirror& other) const noexcept
+        {
+            return other.x == x && other.y == y;
+        }
+
+        constexpr bool Mirror::operator != (const Mirror& other) const noexcept
+        {
+            return !(other == *this);
+        }
+
+        constexpr Layout::Layout() noexcept :
+            alignment(1),
+            endian(memory::getEndian())
+        {}
+
+        constexpr Layout::Layout(const Mirror& mirror, uint8_t alignment, memory::Endian endian) noexcept :
+            mirror(mirror),
+            alignment(alignment),
+            endian(endian)
+        {}
+
+        constexpr bool Layout::operator == (const Layout& other) const noexcept
+        {
+            return other.mirror == mirror && other.alignment == alignment && other.endian == endian;
+        }
+
+        constexpr bool Layout::operator != (const Layout& other) const noexcept
+        {
+            return !(other == *this);
+        }
+
         inline Info::Info() :
+            pixelAspectRatio(1.F),
             pixelType(PixelType::None)
         {}
 
         inline Info::Info(const Size& size, PixelType pixelType) :
             size(size),
+            pixelAspectRatio(1.F),
             pixelType(pixelType)
         {}
 
         inline Info::Info(uint16_t w, uint16_t h, PixelType pixelType) :
             size(w, h),
+            pixelAspectRatio(1.F),
             pixelType(pixelType)
         {}
 
@@ -89,7 +131,9 @@ namespace tlr
         inline bool Info::operator == (const Info& other) const
         {
             return size == other.size &&
-                pixelType == other.pixelType;
+                pixelAspectRatio == other.pixelAspectRatio &&
+                pixelType == other.pixelType &&
+                layout == other.layout;
         }
 
         inline bool Info::operator != (const Info& other) const
@@ -127,9 +171,19 @@ namespace tlr
             return _info.pixelType;
         }
 
+        inline const std::map<std::string, std::string>& Image::getTags() const
+        {
+            return _tags;
+        }
+
         inline bool Image::isValid() const
         {
             return _info.isValid();
+        }
+
+        inline size_t Image::getDataByteCount() const
+        {
+            return _dataByteCount;
         }
 
         inline const uint8_t* Image::getData() const

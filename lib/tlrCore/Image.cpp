@@ -196,8 +196,8 @@ namespace tlr
         void Image::_init(const Info& info)
         {
             _info = info;
-            const std::size_t byteCount = getDataByteCount(info);
-            _data.resize(byteCount);
+            _dataByteCount = imaging::getDataByteCount(info);
+            _data.resize(_dataByteCount);
         }
 
         Image::Image()
@@ -213,11 +213,16 @@ namespace tlr
             return out;
         }
 
+        void Image::setTags(const std::map<std::string, std::string>& value)
+        {
+            _tags = value;
+        }
+
         void Image::zero()
         {
             if (!_data.empty())
             {
-                std::memset(&_data[0], 0, getDataByteCount(_info));
+                std::memset(&_data[0], 0, _dataByteCount);
             }
         }
     }

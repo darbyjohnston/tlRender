@@ -30,6 +30,26 @@ namespace tlr
     {
         //! Sleep for the given time.
         void sleep(const std::chrono::microseconds&);
+
+        //! \name Keycode
+        ///@{
+
+        std::string keycodeToString(
+            int id,
+            int type,
+            int prefix,
+            int count,
+            int offset);
+
+        void stringToKeycode(
+            const std::string&,
+            int& id,
+            int& type,
+            int& prefix,
+            int& count,
+            int& offset);
+
+        ///@}
     }
 
     std::ostream& operator << (std::ostream&, const otime::RationalTime&);
