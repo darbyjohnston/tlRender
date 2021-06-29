@@ -5,13 +5,22 @@
 #include <tlrCore/FileIO.h>
 
 #include <tlrCore/Assert.h>
+#include <tlrCore/Error.h>
 
+#include <algorithm>
 #include <iostream>
 
 namespace tlr
 {
     namespace file
     {
+        TLR_ENUM_IMPL(
+            Mode,
+            "Read",
+            "Write",
+            "ReadWrite",
+            "Append");
+
         FileIO::FileIO()
         {}
 
@@ -258,4 +267,6 @@ namespace tlr
             }
         }
     }
+
+    TLR_ENUM_SERIALIZE_IMPL(file, Mode);
 }

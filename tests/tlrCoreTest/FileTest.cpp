@@ -239,7 +239,7 @@ namespace tlr
                 p[0] = 0;
                 p[1] = 1;
                 p[2] = 2;
-                p[2] = 3;
+                p[3] = 3;
                 io->writeU32(u32);
                 for (auto mode : { Mode::Read, Mode::ReadWrite })
                 {
@@ -248,17 +248,17 @@ namespace tlr
                     uint32_t _u32 = 0;
                     io->readU32(&_u32);
                     uint8_t* p2 = reinterpret_cast<uint8_t*>(&_u32);
-                    TLR_ASSERT(p[0] == p2[0]);
-                    TLR_ASSERT(p[1] == p2[1]);
-                    TLR_ASSERT(p[2] == p2[2]);
-                    TLR_ASSERT(p[3] == p2[3]);
-                    io->setEndianConversion(true);
-                    io->setPos(0);
-                    io->readU32(&_u32);
                     TLR_ASSERT(p[0] == p2[3]);
                     TLR_ASSERT(p[1] == p2[2]);
                     TLR_ASSERT(p[2] == p2[1]);
                     TLR_ASSERT(p[3] == p2[0]);
+                    io->setEndianConversion(true);
+                    io->setPos(0);
+                    io->readU32(&_u32);
+                    TLR_ASSERT(p[0] == p2[0]);
+                    TLR_ASSERT(p[1] == p2[1]);
+                    TLR_ASSERT(p[2] == p2[2]);
+                    TLR_ASSERT(p[3] == p2[3]);
                 }
             }
 

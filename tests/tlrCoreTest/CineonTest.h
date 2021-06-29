@@ -19,6 +19,10 @@ namespace tlr
             static std::shared_ptr<CineonTest> create();
 
             void run() override;
+            
+        private:
+            void _enums();
+            void _io();
         };
     }
 }

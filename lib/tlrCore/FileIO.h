@@ -38,6 +38,7 @@ namespace tlr
             Count,
             First = Read
         };
+        TLR_ENUM(Mode);
 
         //! File I/O.
         class FileIO
@@ -209,6 +210,8 @@ namespace tlr
         //! Write lines to a file.
         void writeLines(const std::string& fileName, const std::vector<std::string>&);
     }
+
+    TLR_ENUM_SERIALIZE(file::Mode);
 }
 
 #include <tlrCore/FileIOInline.h>

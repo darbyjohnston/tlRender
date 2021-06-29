@@ -24,7 +24,37 @@ namespace tlr
 
         void CineonTest::run()
         {
+            _enums();
+            _io();
+        }
+
+        void CineonTest::_enums()
+        {
+            _enum<cineon::Orient>("Orient", cineon::getOrientEnums);
+            _enum<cineon::Descriptor>("Descriptor", cineon::getDescriptorEnums);
+        }
+        
+        void CineonTest::_io()
+        {
             auto plugin = cineon::Plugin::create();
+            const std::map<std::string, std::string> tags =
+            {
+                { "Time", "Time" },
+                { "Source Offset", "1 2" },
+                { "Source File", "Source File" },
+                { "Source Time", "Source Time" },
+                { "Source Input Device", "Source Input Device" },
+                { "Source Input Model", "Source Input Model" },
+                { "Source Input Serial", "Source Input Serial" },
+                { "Source Input Pitch", "1.2 3.4" },
+                { "Source Gamma", "2.1" },
+                { "Keycode", "1:2:3:4:5" },
+                { "Film Format", "Film Format" },
+                { "Film Frame", "24" },
+                { "Film Frame Rate", "23.98" },
+                { "Film Frame ID", "Film Frame ID" },
+                { "Film Slate", "Film Slate" }
+            };
             for (const auto& size : std::vector<imaging::Size>(
                 {
                     imaging::Size(16, 16),
@@ -44,7 +74,8 @@ namespace tlr
                     auto imageInfo = imaging::Info(size, pixelType);
                     imageInfo.layout.alignment = plugin->getWriteAlignment();
                     imageInfo.layout.endian = plugin->getWriteEndian();
-                    const auto imageWrite = imaging::Image::create(imageInfo);
+                    auto imageWrite = imaging::Image::create(imageInfo);
+                    imageWrite->setTags(tags);
                     try
                     {
                         {
@@ -56,6 +87,19 @@ namespace tlr
                         }
                         auto read = plugin->read(fileName);
                         const auto imageRead = read->readVideoFrame(otime::RationalTime(0.0, 24.0)).get();
+                        for (const auto& i : tags)
+                        {
+                            std::stringstream ss;
+                            ss << "1 " << i.first << ": " << i.second;
+                            _print(ss.str());
+                        }
+                        for (const auto& i : imageRead.image->getTags())
+                        {
+                            std::stringstream ss;
+                            ss << "2 " << i.first << ": " << i.second;
+                            _print(ss.str());
+                        }
+                        TLR_ASSERT(imageRead.image->getTags() == tags);
                     }
                     catch (const std::exception& e)
                     {
