@@ -10,6 +10,7 @@
 #include <tlrCore/StringFormat.h>
 
 #include <array>
+#include <cstring>
 #include <sstream>
 
 namespace tlr
