@@ -139,29 +139,14 @@ namespace tlr
             int frame = 0;
             const auto pieces = string::split(in, ':');
             size_t i = 0;
-            switch (pieces.size())
+            if (pieces.size() != 4)
             {
-            case 4:
-                hour = std::stoi(pieces[i]); ++i;
-                minute = std::stoi(pieces[i]); ++i;
-                second = std::stoi(pieces[i]); ++i;
-                frame = std::stoi(pieces[i]);
-                break;
-            case 3:
-                minute = std::stoi(pieces[i]); ++i;
-                second = std::stoi(pieces[i]); ++i;
-                frame = std::stoi(pieces[i]);
-                break;
-            case 2:
-                second = std::stoi(pieces[i]); ++i;
-                frame = std::stoi(pieces[i]);
-                break;
-            case 1:
-                frame = std::stoi(pieces[i]);
-                break;
-            default:
                 throw ParseError();
             }
+            hour = std::stoi(pieces[i]); ++i;
+            minute = std::stoi(pieces[i]); ++i;
+            second = std::stoi(pieces[i]); ++i;
+            frame = std::stoi(pieces[i]);
             out = timeToTimecode(hour, minute, second, frame);
         }
     }
