@@ -30,7 +30,7 @@ namespace tlr
             const double tolerance = 0.01;
             for (const auto& i : common)
             {
-                const double diff = abs(value - i.first / static_cast<double>(i.second));
+                const double diff = fabs(value - i.first / static_cast<double>(i.second));
                 if (diff < tolerance)
                 {
                     return i;
