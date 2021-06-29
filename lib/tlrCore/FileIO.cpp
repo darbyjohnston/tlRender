@@ -8,6 +8,7 @@
 #include <tlrCore/Error.h>
 
 #include <algorithm>
+#include <array>
 #include <iostream>
 
 namespace tlr

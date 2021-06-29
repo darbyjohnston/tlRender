@@ -326,8 +326,8 @@ namespace tlr
             if (_endianConversion && wordSize > 1)
             {
                 tmp.resize(size * wordSize);
-                inP = tmp.data();
                 memory::endian(in, tmp.data(), size, wordSize);
+                inP = tmp.data();
             }
             if (::write(_f, inP, size * wordSize) == -1)
             {

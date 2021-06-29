@@ -374,13 +374,12 @@ namespace tlr
             }
 
             const uint8_t* inP = reinterpret_cast<const uint8_t*>(in);
-
             std::vector<uint8_t> tmp;
             if (_endianConversion && wordSize > 1)
             {
                 tmp.resize(size * wordSize);
                 memory::endian(in, tmp.data(), size, wordSize);
-                in = tmp.data();
+                inP = tmp.data();
             }
 
 #if defined(TLR_ENABLE_MMAP)
