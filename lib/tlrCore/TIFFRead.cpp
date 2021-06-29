@@ -120,7 +120,37 @@ namespace tlr
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
 
-                    _info = imaging::Info(tiffWidth, tiffHeight, pixelType);
+                    _info.video.push_back(imaging::Info(tiffWidth, tiffHeight, pixelType));
+
+                    char* tag = 0;
+                    if (TIFFGetField(_f, TIFFTAG_ARTIST, &tag))
+                    {
+                        if (tag)
+                        {
+                            _info.tags["Creator"] = tag;
+                        }
+                    }
+                    if (TIFFGetField(_f, TIFFTAG_IMAGEDESCRIPTION, &tag))
+                    {
+                        if (tag)
+                        {
+                            _info.tags["Description"] = tag;
+                        }
+                    }
+                    if (TIFFGetField(_f, TIFFTAG_COPYRIGHT, &tag))
+                    {
+                        if (tag)
+                        {
+                            _info.tags["Copyright"] = tag;
+                        }
+                    }
+                    if (TIFFGetField(_f, TIFFTAG_DATETIME, &tag))
+                    {
+                        if (tag)
+                        {
+                            _info.tags["Time"] = tag;
+                        }
+                    }
                 }
 
                 ~File()
@@ -131,7 +161,7 @@ namespace tlr
                     }
                 }
 
-                const imaging::Info& getInfo() const
+                const avio::Info& getInfo() const
                 {
                     return _info;
                 }
@@ -142,15 +172,17 @@ namespace tlr
                 {
                     avio::VideoFrame out;
                     out.time = time;
-                    out.image = imaging::Image::create(_info);
+                    const auto& info = _info.video[0];
+                    out.image = imaging::Image::create(info);
+                    out.image->setTags(_info.tags);
 
                     if (_planar)
                     {
                         std::vector<uint8_t> scanline;
-                        scanline.resize(_info.size.w * _sampleDepth / 8);
+                        scanline.resize(info.size.w * _sampleDepth / 8);
                         for (size_t sample = 0; sample < _samples; ++sample)
                         {
-                            for (uint16_t y = 0; y < _info.size.h; ++y)
+                            for (uint16_t y = 0; y < info.size.h; ++y)
                             {
                                 if (TIFFReadScanline(_f, (tdata_t*)scanline.data(), y, sample) == -1)
                                 {
@@ -163,7 +195,7 @@ namespace tlr
                                 {
                                     const uint8_t* inP = scanline.data();
                                     uint8_t* outP = p + sample;
-                                    for (uint16_t x = 0; x < _info.size.w; ++x, ++inP, outP += _samples)
+                                    for (uint16_t x = 0; x < info.size.w; ++x, ++inP, outP += _samples)
                                     {
                                         *outP = *inP;
                                     }
@@ -173,7 +205,7 @@ namespace tlr
                                 {
                                     const uint16_t* inP = reinterpret_cast<uint16_t*>(scanline.data());
                                     uint16_t* outP = reinterpret_cast<uint16_t*>(p) + sample;
-                                    for (uint16_t x = 0; x < _info.size.w; ++x, ++inP, outP += _samples)
+                                    for (uint16_t x = 0; x < info.size.w; ++x, ++inP, outP += _samples)
                                     {
                                         *outP = *inP;
                                     }
@@ -183,7 +215,7 @@ namespace tlr
                                 {
                                     const float* inP = reinterpret_cast<float*>(scanline.data());
                                     float* outP = reinterpret_cast<float*>(p) + sample;
-                                    for (uint16_t x = 0; x < _info.size.w; ++x, ++inP, outP += _samples)
+                                    for (uint16_t x = 0; x < info.size.w; ++x, ++inP, outP += _samples)
                                     {
                                         *outP = *inP;
                                     }
@@ -197,7 +229,7 @@ namespace tlr
                     }
                     else
                     {
-                        for (uint16_t y = 0; y < _info.size.h; ++y)
+                        for (uint16_t y = 0; y < info.size.h; ++y)
                         {
                             const uint8_t* p = out.image->getData() + y * _scanlineSize;
                             if (TIFFReadScanline(_f, (tdata_t*)p, y) == -1)
@@ -209,12 +241,12 @@ namespace tlr
 
                     if (_palette)
                     {
-                        for (uint16_t y = 0; y < _info.size.h; ++y)
+                        for (uint16_t y = 0; y < info.size.h; ++y)
                         {
                             readPalette(
                                 out.image->getData() + y * _scanlineSize,
-                                _info.size.w,
-                                static_cast<int>(imaging::getChannelCount(_info.pixelType)),
+                                info.size.w,
+                                static_cast<int>(imaging::getChannelCount(info.pixelType)),
                                 _colormap[0], _colormap[1], _colormap[2]);
                         }
                     }
@@ -223,14 +255,14 @@ namespace tlr
                 }
 
             private:
-                TIFF*         _f = nullptr;
-                bool          _palette = false;
-                uint16*       _colormap[3] = { nullptr, nullptr, nullptr };
-                bool          _planar = false;
-                size_t        _samples = 0;
-                size_t        _sampleDepth = 0;
-                size_t        _scanlineSize = 0;
-                imaging::Info _info;
+                TIFF*      _f = nullptr;
+                bool       _palette = false;
+                uint16*    _colormap[3] = { nullptr, nullptr, nullptr };
+                bool       _planar = false;
+                size_t     _samples = 0;
+                size_t     _sampleDepth = 0;
+                size_t     _scanlineSize = 0;
+                avio::Info _info;
             };
         }
 
@@ -258,9 +290,8 @@ namespace tlr
 
         avio::Info Read::_getInfo(const std::string& fileName)
         {
-            avio::Info out;
-            out.video.push_back(std::unique_ptr<File>(new File(fileName))->getInfo());
-            out.videoDuration = _defaultSpeed;
+            avio::Info out = std::unique_ptr<File>(new File(fileName))->getInfo();
+            out.videoDuration = otime::RationalTime(1.0, avio::sequenceDefaultSpeed);
             return out;
         }
 

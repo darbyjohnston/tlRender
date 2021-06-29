@@ -115,6 +115,28 @@ namespace tlr
                     TIFFSetField(_f, TIFFTAG_COMPRESSION, tiffCompression);
                     TIFFSetField(_f, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
 
+                    const auto& tags = image->getTags();
+                    auto i = tags.find("Creator");
+                    if (i != tags.end())
+                    {
+                        TIFFSetField(_f, TIFFTAG_ARTIST, i->second.c_str());
+                    }
+                    i = tags.find("Copyright");
+                    if (i != tags.end())
+                    {
+                        TIFFSetField(_f, TIFFTAG_COPYRIGHT, i->second.c_str());
+                    }
+                    i = tags.find("Time");
+                    if (i != tags.end())
+                    {
+                        TIFFSetField(_f, TIFFTAG_DATETIME, i->second.c_str());
+                    }
+                    i = tags.find("Description");;
+                    if (i != tags.end())
+                    {
+                        TIFFSetField(_f, TIFFTAG_IMAGEDESCRIPTION, i->second.c_str());
+                    }
+
                     for (uint16_t y = 0; y < info.size.h; ++y)
                     {
                         uint8_t* p = image->getData() + (y * scanlineSize);

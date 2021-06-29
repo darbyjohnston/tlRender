@@ -68,8 +68,8 @@ namespace tlr
         avio::Info Read::_getInfo(const std::string& fileName)
         {
             avio::Info out;
+            out.videoDuration = otime::RationalTime(1.0, avio::sequenceDefaultSpeed);
             out.video.push_back(std::unique_ptr<File>(new File(fileName))->getInfo());
-            out.videoDuration = _defaultSpeed;
             return out;
         }
 

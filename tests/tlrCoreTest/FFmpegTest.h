@@ -22,7 +22,6 @@ namespace tlr
 
         private:
             void _enums();
-            void _rational();
             void _io();
         };
     }

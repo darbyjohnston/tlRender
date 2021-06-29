@@ -37,10 +37,10 @@ namespace tlr
         avio::Info Read::_getInfo(const std::string& fileName)
         {
             avio::Info out;
+            out.videoDuration = otime::RationalTime(1.0, avio::sequenceDefaultSpeed);
             auto io = file::FileIO::create();
             io->open(fileName, file::Mode::Read);
             Header::read(io, out);
-            out.videoDuration = _defaultSpeed;
             return out;
         }
 

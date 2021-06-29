@@ -18,6 +18,9 @@ namespace tlr
 {
     namespace avio
     {
+        //! Default speed for image sequences.
+        const double sequenceDefaultSpeed = 24.0;
+
         //! Number of threads.
         const size_t sequenceThreadCount = 4;
 
@@ -107,6 +110,8 @@ namespace tlr
             std::string _number;
             int _pad = 0;
             std::string _extension;
+
+            double _defaultSpeed = sequenceDefaultSpeed;
         };
     }
 }

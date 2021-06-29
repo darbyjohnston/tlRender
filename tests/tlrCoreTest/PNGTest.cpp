@@ -44,7 +44,7 @@ namespace tlr
                     auto imageInfo = imaging::Info(size, pixelType);
                     imageInfo.layout.alignment = plugin->getWriteAlignment();
                     imageInfo.layout.endian = plugin->getWriteEndian();
-                    const auto imageWrite = imaging::Image::create(imageInfo);
+                    const auto image = imaging::Image::create(imageInfo);
                     try
                     {
                         {
@@ -52,10 +52,10 @@ namespace tlr
                             info.video.push_back(imageInfo);
                             info.videoDuration = otime::RationalTime(1.0, 24.0);
                             auto write = plugin->write(fileName, info);
-                            write->writeVideoFrame(otime::RationalTime(0.0, 24.0), imageWrite);
+                            write->writeVideoFrame(otime::RationalTime(0.0, 24.0), image);
                         }
                         auto read = plugin->read(fileName);
-                        const auto imageRead = read->readVideoFrame(otime::RationalTime(0.0, 24.0)).get();
+                        const auto videoFrame = read->readVideoFrame(otime::RationalTime(0.0, 24.0)).get();
                     }
                     catch (const std::exception& e)
                     {

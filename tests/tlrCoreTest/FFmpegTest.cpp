@@ -26,7 +26,6 @@ namespace tlr
         void FFmpegTest::run()
         {
             _enums();
-            _rational();
             _io();
         }
 
@@ -34,37 +33,16 @@ namespace tlr
         {
             _enum<ffmpeg::VideoCodec>("VideoCodec", ffmpeg::getVideoCodecEnums);
         }
-        
-        void FFmpegTest::_rational()
-        {
-            struct Data
-            {
-                double rate = 0.0;
-                AVRational rational;
-            };
-            const std::array<Data, 10> data =
-            {
-                Data({ 0.0, { 0, 1 }}),
-                Data({ 24.0, { 24, 1 }}),
-                Data({ 30.0, { 30, 1 }}),
-                Data({ 60.0, { 60, 1 }}),
-                Data({ 23.97602397602398, { 24000, 1001 }}),
-                Data({ 29.97002997002997, { 30000, 1001 }}),
-                Data({ 59.94005994005994, { 60000, 1001 }}),
-                Data({ 23.98, { 24000, 1001 }}),
-                Data({ 29.97, { 30000, 1001 }}),
-                Data({ 59.94, { 60000, 1001 }})
-            };
-            for (const auto& i : data)
-            {
-                const auto rational = ffmpeg::toRational(i.rate);
-                TLR_ASSERT(rational.num == i.rational.num && rational.den == i.rational.den);
-            }
-        }
 
         void FFmpegTest::_io()
         {
             auto plugin = ffmpeg::Plugin::create();
+            const std::map<std::string, std::string> tags =
+            {
+                { "artist", "artist" },
+                { "comment", "comment" },
+                { "title", "title" }
+            };
             for (const auto& size : std::vector<imaging::Size>(
                 {
                     imaging::Size(16, 16),
@@ -91,11 +69,13 @@ namespace tlr
                             avio::Info info;
                             info.video.push_back(imageInfo);
                             info.videoDuration = duration;
+                            info.tags = tags;
                             auto write = plugin->write(fileName, info);
-                            const auto imageWrite = imaging::Image::create(imageInfo);
+                            auto image = imaging::Image::create(imageInfo);
+                            image->setTags(tags);
                             for (size_t i = 0; i < static_cast<size_t>(duration.value()); ++i)
                             {
-                                write->writeVideoFrame(otime::RationalTime(i, 24.0), imageWrite);
+                                write->writeVideoFrame(otime::RationalTime(i, 24.0), image);
                             }
                         }
                         auto read = plugin->read(fileName);
@@ -105,6 +85,13 @@ namespace tlr
                             //std::stringstream ss;
                             //ss << "Video frame: " << videoFrame.time;
                             //_print(ss.str());
+                            const auto frameTags = videoFrame.image->getTags();
+                            for (const auto& j : tags)
+                            {
+                                const auto k = frameTags.find(j.first);
+                                TLR_ASSERT(k != frameTags.end());
+                                TLR_ASSERT(k->second == j.second);
+                            }
                         }
                         for (size_t i = 0; i < static_cast<size_t>(duration.value()); ++i)
                         {

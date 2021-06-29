@@ -29,29 +29,6 @@ namespace tlr
             "DNxHD",
             "ProRes");
 
-        AVRational toRational(double value)
-        {
-            const std::array<AVRational, 6> common =
-            {
-                AVRational({ 24, 1 }),
-                AVRational({ 30, 1 }),
-                AVRational({ 60, 1 }),
-                AVRational({ 24000, 1001 }),
-                AVRational({ 30000, 1001 }),
-                AVRational({ 60000, 1001 })
-            };
-            const double tolerance = 0.01;
-            for (const auto& i : common)
-            {
-                const double diff = abs(value - i.num / static_cast<double>(i.den));
-                if (diff < tolerance)
-                {
-                    return i;
-                }
-            }
-            return AVRational({ static_cast<int>(value), 1 });
-        }
-
         AVRational swap(AVRational value)
         {
             return AVRational({ value.den, value.num });

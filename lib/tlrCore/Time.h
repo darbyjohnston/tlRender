@@ -31,6 +31,9 @@ namespace tlr
         //! Sleep for the given time.
         void sleep(const std::chrono::microseconds&);
 
+        //! Convert a floating point rate to a rational.
+        std::pair<int, int> toRational(double);
+
         //! \name Keycode
         ///@{
 
@@ -48,6 +51,28 @@ namespace tlr
             int& prefix,
             int& count,
             int& offset);
+
+        ///@}
+
+        //! \name Timecode
+        ///@{
+
+        void timecodeToTime(
+            uint32_t,
+            int& hour,
+            int& minute,
+            int& second,
+            int& frame);
+
+        uint32_t timeToTimecode(
+            int hour,
+            int minute,
+            int second,
+            int frame);
+
+        std::string timecodeToString(uint32_t);
+
+        void stringToTimecode(const std::string&, uint32_t&);
 
         ///@}
     }

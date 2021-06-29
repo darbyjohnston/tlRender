@@ -42,11 +42,13 @@ namespace tlr
             const std::shared_ptr<imaging::Image>& image)
         {
             const auto& info = image->getInfo();
-            Imf::RgbaOutputFile file(fileName.c_str(), Imf::Header(info.size.w, info.size.h));
+            Imf::Header header(info.size.w, info.size.h);
+            writeTags(image->getTags(), avio::sequenceDefaultSpeed, header);
+            Imf::RgbaOutputFile f(fileName.c_str(), header);
             const size_t scanlineSize = info.size.w * 4 * 2;
             uint8_t* p = image->getData();
-            file.setFrameBuffer(reinterpret_cast<Imf::Rgba*>(p), 1, info.size.w);
-            file.writePixels(info.size.h);
+            f.setFrameBuffer(reinterpret_cast<Imf::Rgba*>(p), 1, info.size.w);
+            f.writePixels(info.size.h);
         }
     }
 }

@@ -6,11 +6,21 @@
 
 #include <tlrCore/SequenceIO.h>
 
+#include <ImfHeader.h>
+
 namespace tlr
 {
     //! OpenEXR I/O.
     namespace exr
     {
+        //! Read the tags from an Imf header.
+        void readTags(const Imf::Header&, std::map<std::string, std::string>&, double& speed);
+
+        //! Write tags to an Imf header.
+        //!
+        //! \todo Write all the tags that are handled by readTags().
+        void writeTags(const std::map<std::string, std::string>&, double speed, Imf::Header&);
+
         //! OpenEXR reader.
         class Read : public avio::ISequenceRead
         {

@@ -49,9 +49,6 @@ namespace tlr
         //! Get a label for a FFmpeg error code.
         std::string getErrorLabel(int);
 
-        //! Convert a floating point rate to a rational.
-        AVRational toRational(double);
-
         //! Swap the numerator and denominator.
         AVRational swap(AVRational);
 

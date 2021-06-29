@@ -28,6 +28,7 @@ namespace tlr
                 FILE* f,
                 jpeg_compress_struct* jpeg,
                 const imaging::Info& info,
+                const std::map<std::string, std::string>& tags,
                 ErrorStruct* error)
             {
                 if (setjmp(error->jump))
@@ -50,6 +51,15 @@ namespace tlr
                 jpeg_set_defaults(jpeg);
                 jpeg_set_quality(jpeg, 90, static_cast<boolean>(1));
                 jpeg_start_compress(jpeg, static_cast<boolean>(1));
+                const auto i = tags.find("Description");
+                if (i != tags.end())
+                {
+                    jpeg_write_marker(
+                        jpeg,
+                        JPEG_COM,
+                        (JOCTET*)i->second.c_str(),
+                        static_cast<unsigned int>(i->second.size()));
+                }
                 return true;
             }
 
@@ -103,7 +113,7 @@ namespace tlr
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
                     const auto& info = image->getInfo();
-                    if (!jpegOpen(_f, &_jpeg, info, &_error))
+                    if (!jpegOpen(_f, &_jpeg, info, image->getTags(), &_error))
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }

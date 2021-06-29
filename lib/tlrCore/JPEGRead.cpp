@@ -108,7 +108,13 @@ namespace tlr
                         throw std::runtime_error(string::Format("{0}: File not supported").arg(fileName));
                     }
 
-                    _info = imaging::Info(_decompress.output_width, _decompress.output_height, pixelType);
+                    _info.video.push_back(imaging::Info(_decompress.output_width, _decompress.output_height, pixelType));
+
+                    const jpeg_saved_marker_ptr marker = _decompress.marker_list;
+                    if (marker)
+                    {
+                        _info.tags["Description"] = std::string((const char*)marker->data, marker->data_length);
+                    }
                 }
 
                 ~File()
@@ -123,7 +129,7 @@ namespace tlr
                     }
                 }
 
-                const imaging::Info& getInfo() const
+                const avio::Info& getInfo() const
                 {
                     return _info;
                 }
@@ -134,19 +140,21 @@ namespace tlr
                 {
                     avio::VideoFrame out;
                     out.time = time;
-                    out.image = imaging::Image::create(_info);
+                    const auto& info = _info.video[0];
+                    out.image = imaging::Image::create(info);
+                    out.image->setTags(_info.tags);
 
                     std::size_t scanlineByteCount = 0;
-                    switch (_info.pixelType)
+                    switch (info.pixelType)
                     {
                     case imaging::PixelType::L_U8:
-                        scanlineByteCount = _info.size.w;
+                        scanlineByteCount = info.size.w;
                         break;
                     case imaging::PixelType::RGB_U8:
-                        scanlineByteCount = _info.size.w * 3;
+                        scanlineByteCount = info.size.w * 3;
                         break;
                     }
-                    for (uint16_t y = 0; y < _info.size.h; ++y)
+                    for (uint16_t y = 0; y < info.size.h; ++y)
                     {
                         if (!jpegScanline(&_decompress, out.image->getData() + scanlineByteCount * y, &_error))
                         {
@@ -164,7 +172,7 @@ namespace tlr
                 jpeg_decompress_struct _decompress;
                 bool                   _init = false;
                 ErrorStruct            _error;
-                imaging::Info          _info;
+                avio::Info             _info;
             };
         }
 
@@ -192,9 +200,8 @@ namespace tlr
 
         avio::Info Read::_getInfo(const std::string& fileName)
         {
-            avio::Info out;
-            out.video.push_back(std::unique_ptr<File>(new File(fileName))->getInfo());
-            out.videoDuration = _defaultSpeed;
+            avio::Info out = std::unique_ptr<File>(new File(fileName))->getInfo();
+            out.videoDuration = otime::RationalTime(1.0, avio::sequenceDefaultSpeed);
             return out;
         }
 

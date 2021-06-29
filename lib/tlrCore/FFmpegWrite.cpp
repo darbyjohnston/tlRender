@@ -77,9 +77,9 @@ namespace tlr
             _avVideoStream->codec->height = videoInfo.size.h;
             _avVideoStream->codec->sample_aspect_ratio = AVRational({ 1, 1 });
             _avVideoStream->codec->pix_fmt = _avPixelFormatOut;
-            const auto rational = toRational(info.videoDuration.rate());
-            _avVideoStream->codec->time_base = { rational.den, rational.num };
-            _avVideoStream->codec->framerate = rational;
+            const auto rational = time::toRational(info.videoDuration.rate());
+            _avVideoStream->codec->time_base = { rational.second, rational.first };
+            _avVideoStream->codec->framerate = { rational.first, rational.second };
             if (_avFormatContext->oformat->flags & AVFMT_GLOBALHEADER)
             {
                 _avVideoStream->codec->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
@@ -97,8 +97,13 @@ namespace tlr
                 throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
             }
 
-            _avVideoStream->time_base = { rational.den, rational.num };
-            _avVideoStream->avg_frame_rate = rational;
+            _avVideoStream->time_base = { rational.second, rational.first };
+            _avVideoStream->avg_frame_rate = { rational.first, rational.second };
+
+            for (const auto& i : info.tags)
+            {
+                av_dict_set(&_avFormatContext->metadata, i.first.c_str(), i.second.c_str(), 0);
+            }
 
             r = avio_open(&_avFormatContext->pb, fileName.c_str(), AVIO_FLAG_WRITE);
             if (r < 0)
@@ -219,9 +224,10 @@ namespace tlr
                 _avFrame->data,
                 _avFrame->linesize);
 
+            const auto timeRational = time::toRational(time.rate());
             _avFrame->pts = av_rescale_q(
                 time.value(),
-                swap(toRational(time.rate())),
+                { timeRational.second, timeRational.first },
                 _avVideoStream->time_base);
             _encodeVideo(_avFrame);
         }

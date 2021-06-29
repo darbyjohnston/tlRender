@@ -74,32 +74,27 @@ namespace tlr
                     auto imageInfo = imaging::Info(size, pixelType);
                     imageInfo.layout.alignment = plugin->getWriteAlignment();
                     imageInfo.layout.endian = plugin->getWriteEndian();
-                    auto imageWrite = imaging::Image::create(imageInfo);
-                    imageWrite->setTags(tags);
+                    auto image = imaging::Image::create(imageInfo);
+                    image->setTags(tags);
                     try
                     {
                         {
                             avio::Info info;
                             info.video.push_back(imageInfo);
                             info.videoDuration = otime::RationalTime(1.0, 24.0);
+                            info.tags = tags;
                             auto write = plugin->write(fileName, info);
-                            write->writeVideoFrame(otime::RationalTime(0.0, 24.0), imageWrite);
+                            write->writeVideoFrame(otime::RationalTime(0.0, 24.0), image);
                         }
                         auto read = plugin->read(fileName);
-                        const auto imageRead = read->readVideoFrame(otime::RationalTime(0.0, 24.0)).get();
-                        for (const auto& i : tags)
+                        const auto videoFrame = read->readVideoFrame(otime::RationalTime(0.0, 24.0)).get();
+                        const auto frameTags = videoFrame.image->getTags();
+                        for (const auto& j : tags)
                         {
-                            std::stringstream ss;
-                            ss << "1 " << i.first << ": " << i.second;
-                            _print(ss.str());
+                            const auto k = frameTags.find(j.first);
+                            TLR_ASSERT(k != frameTags.end());
+                            TLR_ASSERT(k->second == j.second);
                         }
-                        for (const auto& i : imageRead.image->getTags())
-                        {
-                            std::stringstream ss;
-                            ss << "2 " << i.first << ": " << i.second;
-                            _print(ss.str());
-                        }
-                        TLR_ASSERT(imageRead.image->getTags() == tags);
                     }
                     catch (const std::exception& e)
                     {

@@ -14,8 +14,9 @@ namespace tlr
     {
         namespace
         {
-            imaging::Info imfInfo(const Imf::RgbaInputFile& f)
+            avio::Info imfInfo(const Imf::RgbaInputFile& f)
             {
+                avio::Info out;
                 imaging::PixelType pixelType = imaging::getFloatType(4, 16);
                 if (imaging::PixelType::None == pixelType)
                 {
@@ -24,7 +25,11 @@ namespace tlr
                 const auto dw = f.dataWindow();
                 const int width = dw.max.x - dw.min.x + 1;
                 const int height = dw.max.y - dw.min.y + 1;
-                return imaging::Info(width, height, pixelType);
+                out.video.push_back(imaging::Info(width, height, pixelType));
+                double speed = avio::sequenceDefaultSpeed;
+                readTags(f.header(), out.tags, speed);
+                out.videoDuration = otime::RationalTime(1.0, speed);
+                return out;
             }
         }
 
@@ -54,8 +59,7 @@ namespace tlr
         {
             avio::Info out;
             Imf::RgbaInputFile f(fileName.c_str());
-            out.video.push_back(imfInfo(f));
-            out.videoDuration = _defaultSpeed;
+            out = imfInfo(f);
             return out;
         }
 
@@ -64,10 +68,12 @@ namespace tlr
             const otime::RationalTime& time)
         {
             Imf::RgbaInputFile f(fileName.c_str());
+            const auto info = imfInfo(f);
 
             avio::VideoFrame out;
             out.time = time;
-            out.image = imaging::Image::create(imfInfo(f));
+            out.image = imaging::Image::create(info.video[0]);
+            out.image->setTags(info.tags);
 
             const auto dw = f.dataWindow();
             const int width = dw.max.x - dw.min.x + 1;

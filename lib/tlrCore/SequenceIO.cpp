@@ -200,6 +200,13 @@ namespace tlr
 
             file::split(fileName, &_path, &_baseName, &_number, &_extension);
             _pad = !_number.empty() ? ('0' == _number[0] ? _number.size() : 0) : 0;
+
+            const auto i = options.find("DefaultSpeed");
+            if (i != options.end())
+            {
+                std::stringstream ss(i->second);
+                ss >> _defaultSpeed;
+            }
         }
 
         ISequenceWrite::ISequenceWrite()

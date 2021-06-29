@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
 
     if (0)
     {
-        tests.push_back(tlr::CoreTest::CineonTest::create());
+        tests.push_back(tlr::CoreTest::TIFFTest::create());
     }
     else
     {

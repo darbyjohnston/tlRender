@@ -99,9 +99,6 @@ namespace tlr
 
             //! Has the reader stopped?
             virtual bool hasStopped() const = 0;
-            
-        protected:
-            otime::RationalTime _defaultSpeed = otime::RationalTime(0, 24);
         };
         
         //! Base class for writers.

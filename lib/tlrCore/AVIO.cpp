@@ -62,12 +62,6 @@ namespace tlr
             const Options& options)
         {
             IIO::_init(fileName, options);
-            const auto i = options.find("DefaultSpeed");
-            if (i != options.end())
-            {
-                std::stringstream ss(i->second);
-                ss >> _defaultSpeed;
-            }
         }
 
         IRead::IRead()

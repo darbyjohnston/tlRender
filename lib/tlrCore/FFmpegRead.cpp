@@ -421,6 +421,7 @@ namespace tlr
                 {
                     //std::cout << "frame: " << t << std::endl;
                     auto image = imaging::Image::create(videoInfo);
+                    image->setTags(_info.tags);
                     _copyVideo(image);
                     _imageBuffer.push_back(image);
                     out = 1;
