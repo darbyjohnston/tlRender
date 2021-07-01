@@ -26,16 +26,20 @@ namespace tlr
     //! FFmpeg I/O
     namespace ffmpeg
     {
-        //! Video codecs.
-        enum class VideoCodec
+        //! Profiles.
+        enum class Profile
         {
             H264,
-            H265,
-            DNxHD,
             ProRes,
+            ProRes_Proxy,
+            ProRes_LT,
+            ProRes_HQ,
+            ProRes_4444,
+            ProRes_XQ,
+
             Count
         };
-        TLR_ENUM(VideoCodec);
+        TLR_ENUM(Profile);
 
         //! Number of threads.
         const size_t threadCount = 4;
@@ -172,5 +176,5 @@ namespace tlr
         };
     }
 
-    TLR_ENUM_SERIALIZE(ffmpeg::VideoCodec);
+    TLR_ENUM_SERIALIZE(ffmpeg::Profile);
 }

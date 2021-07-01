@@ -135,7 +135,7 @@ namespace tlr
             }
 
             // Constants to catch uninitialized values.
-            const int32_t _intMax = 1000000;
+            const int32_t _intMax   = 1000000;
             const float   _floatMax = 1000000.F;
             const float   _minSpeed = .000001F;
 
@@ -200,7 +200,10 @@ namespace tlr
                 imageInfo.layout.endian = memory::opposite(memory::getEndian());
             }
 
-            // Read the image section of the header.
+            // Image information.
+            imageInfo.size.w = out.image.channel[0].size[0];
+            imageInfo.size.h = out.image.channel[0].size[1];
+
             if (!out.image.channels)
             {
                 throw std::runtime_error(string::Format("{0}: {1}").
@@ -226,21 +229,21 @@ namespace tlr
                     arg(io->getFileName()).
                     arg("Unsupported image channels"));
             }
-            imaging::PixelType pixelType = imaging::PixelType::None;
             switch (out.image.channels)
             {
             case 3:
                 switch (out.image.channel[0].bitDepth)
                 {
                 case 10:
-                    pixelType = imaging::PixelType::RGB_U10;
+                    imageInfo.pixelType = imaging::PixelType::RGB_U10;
+                    imageInfo.layout.alignment = 4;
                     break;
                 default: break;
                 }
                 break;
             default: break;
             }
-            if (imaging::PixelType::None == pixelType)
+            if (imaging::PixelType::None == imageInfo.pixelType)
             {
                 throw std::runtime_error(string::Format("{0}: {1}").
                     arg(io->getFileName()).
@@ -259,10 +262,6 @@ namespace tlr
                     arg("Unsupported channel padding"));
             }
 
-            // Image information.
-            imageInfo.pixelType = pixelType;
-            imageInfo.size.w = out.image.channel[0].size[0];
-            imageInfo.size.h = out.image.channel[0].size[1];
             if (io->getSize() - out.file.imageOffset != imaging::getDataByteCount(imageInfo))
             {
                 throw std::runtime_error(string::Format("{0}: {1}").
@@ -619,6 +618,11 @@ namespace tlr
             {
                 imaging::PixelType::RGB_U10
             };
+        }
+
+        uint8_t Plugin::getWriteAlignment(imaging::PixelType) const
+        {
+            return 4;
         }
 
         memory::Endian Plugin::getWriteEndian() const

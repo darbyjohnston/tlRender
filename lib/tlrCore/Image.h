@@ -148,6 +148,9 @@ namespace tlr
         //! Determine the floating point pixel type for a given channel count and bit depth.
         PixelType getFloatType(std::size_t channelCount, std::size_t bitDepth);
 
+        //! Get the closest pixel type for the given pixel type.
+        PixelType getClosest(PixelType, const std::vector<PixelType>&);
+
         ///@}
 
         //! Image mirroring.

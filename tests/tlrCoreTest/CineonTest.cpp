@@ -72,7 +72,7 @@ namespace tlr
                         _print(fileName);
                     }
                     auto imageInfo = imaging::Info(size, pixelType);
-                    imageInfo.layout.alignment = plugin->getWriteAlignment();
+                    imageInfo.layout.alignment = plugin->getWriteAlignment(pixelType);
                     imageInfo.layout.endian = plugin->getWriteEndian();
                     auto image = imaging::Image::create(imageInfo);
                     image->setTags(tags);

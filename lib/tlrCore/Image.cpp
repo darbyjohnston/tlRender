@@ -181,6 +181,17 @@ namespace tlr
             return out;
         }
 
+        PixelType getClosest(PixelType value, const std::vector<PixelType>& types)
+        {
+            std::map<size_t, PixelType> diff;
+            for (const auto& type : types)
+            {
+                diff[abs(getChannelCount(value) - getChannelCount(type)) +
+                    abs(getBitDepth(value) - getBitDepth(type))] = type;
+            }
+            return !diff.empty() ? diff.begin()->second : PixelType::None;
+        }
+
         inline std::size_t getDataByteCount(const Info& info)
         {
             std::size_t out = 0;

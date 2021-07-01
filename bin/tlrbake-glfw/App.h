@@ -22,7 +22,7 @@ namespace tlr
         imaging::Size renderSize;
         imaging::PixelType renderPixelType = imaging::PixelType::None;
         imaging::PixelType outputPixelType = imaging::PixelType::None;
-        std::string videoCodec;
+        std::string ffProfile;
     };
 
     //! Application.

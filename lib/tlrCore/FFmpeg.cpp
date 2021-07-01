@@ -23,11 +23,14 @@ namespace tlr
     namespace ffmpeg
     {
         TLR_ENUM_IMPL(
-            VideoCodec,
+            Profile,
             "H264",
-            "H265",
-            "DNxHD",
-            "ProRes");
+            "ProRes",
+            "ProRes_Proxy",
+            "ProRes_LT",
+            "ProRes_HQ",
+            "ProRes_4444",
+            "ProRes_XQ");
 
         AVRational swap(AVRational value)
         {
@@ -47,8 +50,8 @@ namespace tlr
                 "FFmpeg",
                 { ".mov", ".m4v", ".mp4", ".y4m", ".mkv" });
 
-            av_log_set_level(AV_LOG_QUIET);
-            //av_log_set_level(AV_LOG_VERBOSE);
+            //av_log_set_level(AV_LOG_QUIET);
+            av_log_set_level(AV_LOG_VERBOSE);
             
             av_register_all();
             avcodec_register_all();
@@ -97,5 +100,5 @@ namespace tlr
         }
     }
 
-    TLR_ENUM_SERIALIZE_IMPL(ffmpeg, VideoCodec);
+    TLR_ENUM_SERIALIZE_IMPL(ffmpeg, Profile);
 }

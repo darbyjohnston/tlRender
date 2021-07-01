@@ -232,6 +232,7 @@ namespace tlr
                 const std::string& fileName,
                 const avio::Options& = avio::Options()) override;
             std::vector<imaging::PixelType> getWritePixelTypes() const override;
+            uint8_t getWriteAlignment(imaging::PixelType) const override;
             memory::Endian getWriteEndian() const override;
             std::shared_ptr<avio::IWrite> write(
                 const std::string& fileName,

@@ -152,7 +152,7 @@ namespace tlr
             virtual std::vector<imaging::PixelType> getWritePixelTypes() const = 0;
 
             //! Get the writable image data alignment.
-            virtual uint8_t getWriteAlignment() const;
+            virtual uint8_t getWriteAlignment(imaging::PixelType) const;
 
             //! Get the writable image data endian.
             virtual memory::Endian getWriteEndian() const;

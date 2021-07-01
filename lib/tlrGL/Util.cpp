@@ -32,8 +32,9 @@ namespace tlr
                 GL_NONE,
 
                 GL_RGB,
-                GL_RGB,
                 GL_RGBA,
+                GL_RGB,
+                GL_RGB,
                 GL_RGB,
                 GL_RGB,
 

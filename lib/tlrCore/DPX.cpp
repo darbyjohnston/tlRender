@@ -226,7 +226,7 @@ namespace tlr
                 imageInfo.layout.endian = memory::opposite(memory::getEndian());
             }
 
-            // Imaging information.
+            // Image information.
             if (out.image.elemSize != 1)
             {
                 throw std::runtime_error(string::Format("{0}: {1}").
@@ -251,7 +251,6 @@ namespace tlr
             default: break;
             }
 
-            imageInfo.pixelType = imaging::PixelType::None;
             switch (static_cast<Components>(out.image.elem[0].packing))
             {
             case Components::Pack:
@@ -274,6 +273,7 @@ namespace tlr
                     if (Descriptor::RGB == static_cast<Descriptor>(out.image.elem[0].descriptor))
                     {
                         imageInfo.pixelType = imaging::PixelType::RGB_U10;
+                        imageInfo.layout.alignment = 4;
                     }
                     break;
                 case 16:
@@ -927,6 +927,11 @@ namespace tlr
             {
                 imaging::PixelType::RGB_U10
             };
+        }
+
+        uint8_t Plugin::getWriteAlignment(imaging::PixelType) const
+        {
+            return 4;
         }
 
         std::shared_ptr<avio::IWrite> Plugin::write(

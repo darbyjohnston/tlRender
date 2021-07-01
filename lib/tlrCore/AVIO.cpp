@@ -99,7 +99,7 @@ namespace tlr
         IPlugin::~IPlugin()
         {}
 
-        uint8_t IPlugin::getWriteAlignment() const
+        uint8_t IPlugin::getWriteAlignment(imaging::PixelType) const
         {
             return 1;
         }
@@ -114,7 +114,7 @@ namespace tlr
             const auto pixelTypes = getWritePixelTypes();
             const auto i = std::find(pixelTypes.begin(), pixelTypes.end(), info.pixelType);
             return i != pixelTypes.end() &&
-                info.layout.alignment == getWriteAlignment() &&
+                info.layout.alignment == getWriteAlignment(info.pixelType) &&
                 info.layout.endian == getWriteEndian();
         }
 

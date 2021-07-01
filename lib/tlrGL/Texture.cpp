@@ -32,7 +32,7 @@ namespace tlr
                 GL_RG,
 
                 GL_RGB,
-                GL_RGB,
+                GL_RGBA,
                 GL_RGB,
                 GL_RGB,
                 GL_RGB,
@@ -55,30 +55,30 @@ namespace tlr
             {
                 GL_NONE,
 
-                GL_RED,
-                GL_RED,
-                GL_RED,
-                GL_RED,
-                GL_RED,
+                GL_R8,
+                GL_R16,
+                GL_R32I,
+                GL_R16F,
+                GL_R32F,
 
-                GL_RG,
-                GL_RG,
-                GL_RG,
-                GL_RG,
-                GL_RG,
+                GL_RG8,
+                GL_RG16,
+                GL_RG32I,
+                GL_RG16F,
+                GL_RG32F,
 
-                GL_RGB,
-                GL_RGB,
-                GL_RGB,
-                GL_RGB,
-                GL_RGB,
-                GL_RGB,
+                GL_RGB8,
+                GL_RGB10,
+                GL_RGB16,
+                GL_RGB32I,
+                GL_RGB16F,
+                GL_RGB32F,
 
-                GL_RGBA,
-                GL_RGBA,
-                GL_RGBA,
-                GL_RGBA,
-                GL_RGBA,
+                GL_RGBA8,
+                GL_RGBA16,
+                GL_RGBA32I,
+                GL_RGBA16F,
+                GL_RGBA32F,
 
                 GL_NONE
             };
@@ -211,7 +211,11 @@ namespace tlr
         {
             const auto& info = data.getInfo();
             glBindTexture(GL_TEXTURE_2D, _id);
-            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+            glPixelStorei(GL_UNPACK_ALIGNMENT, info.layout.alignment);
+            if (info.layout.endian != memory::getEndian())
+            {
+                glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_TRUE);
+            }
             glTexSubImage2D(
                 GL_TEXTURE_2D,
                 0,
@@ -227,7 +231,11 @@ namespace tlr
         void Texture::copy(const uint8_t* data, const imaging::Info& info)
         {
             glBindTexture(GL_TEXTURE_2D, _id);
-            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+            glPixelStorei(GL_UNPACK_ALIGNMENT, info.layout.alignment);
+            if (info.layout.endian != memory::getEndian())
+            {
+                glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_TRUE);
+            }
             glTexSubImage2D(
                 GL_TEXTURE_2D,
                 0,
@@ -243,9 +251,12 @@ namespace tlr
         void Texture::copy(const imaging::Image& data, uint16_t x, uint16_t y)
         {
             const auto& info = data.getInfo();
-
             glBindTexture(GL_TEXTURE_2D, _id);
-            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+            glPixelStorei(GL_UNPACK_ALIGNMENT, info.layout.alignment);
+            if (info.layout.endian != memory::getEndian())
+            {
+                glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_TRUE);
+            }
             glTexSubImage2D(
                 GL_TEXTURE_2D,
                 0,

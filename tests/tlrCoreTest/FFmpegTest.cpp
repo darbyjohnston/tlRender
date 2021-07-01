@@ -31,7 +31,7 @@ namespace tlr
 
         void FFmpegTest::_enums()
         {
-            _enum<ffmpeg::VideoCodec>("VideoCodec", ffmpeg::getVideoCodecEnums);
+            _enum<ffmpeg::Profile>("Profile", ffmpeg::getProfileEnums);
         }
 
         void FFmpegTest::_io()
@@ -60,7 +60,7 @@ namespace tlr
                         _print(fileName);
                     }
                     auto imageInfo = imaging::Info(size, pixelType);
-                    imageInfo.layout.alignment = plugin->getWriteAlignment();
+                    imageInfo.layout.alignment = plugin->getWriteAlignment(pixelType);
                     imageInfo.layout.endian = plugin->getWriteEndian();
                     const otime::RationalTime duration(24.0, 24.0);
                     try

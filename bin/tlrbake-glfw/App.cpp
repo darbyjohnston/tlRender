@@ -74,9 +74,9 @@ namespace tlr
         };
 #if defined(FFmpeg_FOUND)
         cmdLineOptions.push_back(app::CmdLineValueOption<std::string>::create(
-            _options.videoCodec,
-            { "-videoCodec", "-vc" },
-            string::Format("Video codec. Values: {0}").arg(string::join(ffmpeg::getVideoCodecLabels(), ", "))));
+            _options.ffProfile,
+            { "-ffProfile", "-ffp" },
+            string::Format("FFmpeg profile. Values: {0}").arg(string::join(ffmpeg::getProfileLabels(), ", "))));
 #endif
         IApp::_init(
             argc,
@@ -230,17 +230,17 @@ namespace tlr
         const auto writePixelTypes = _writerPlugin->getWritePixelTypes();
         _outputInfo.pixelType = _options.outputPixelType != imaging::PixelType::None ?
             _options.outputPixelType :
-            (!writePixelTypes.empty() ? writePixelTypes[0] : _renderInfo.pixelType);
-        _outputInfo.layout.alignment = _writerPlugin->getWriteAlignment();
+            (!writePixelTypes.empty() ? imaging::getClosest(_renderInfo.pixelType, writePixelTypes) : _renderInfo.pixelType);
+        _outputInfo.layout.alignment = _writerPlugin->getWriteAlignment(_outputInfo.pixelType);
         _outputInfo.layout.endian = _writerPlugin->getWriteEndian();
         _print(string::Format("Output info: {0}").arg(_outputInfo));
         _outputImage = imaging::Image::create(_outputInfo);
         ioInfo.video.push_back(_outputInfo);
         ioInfo.videoDuration = _range.duration();
         avio::Options options;
-        if (!_options.videoCodec.empty())
+        if (!_options.ffProfile.empty())
         {
-            options["VideoCodec"] = _options.videoCodec;
+            options["Profile"] = _options.ffProfile;
         }
         _writer = _writerPlugin->write(_output, ioInfo, options);
         if (!_writer)

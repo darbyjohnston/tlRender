@@ -130,6 +130,20 @@ namespace tlr
                     _print(ss.str());
                 }
             }
+            {
+                TLR_ASSERT(getClosest(
+                    PixelType::None, {}) == PixelType::None);
+                TLR_ASSERT(getClosest(
+                    PixelType::L_U16, { PixelType::L_U8 }) == PixelType::L_U8);
+                TLR_ASSERT(getClosest(
+                    PixelType::L_U16, { PixelType::L_U8, PixelType::L_U16 }) == PixelType::L_U16);
+                TLR_ASSERT(getClosest(
+                    PixelType::L_U16, { PixelType::L_U8, PixelType::L_U16, PixelType::L_U32 }) == PixelType::L_U16);
+                TLR_ASSERT(getClosest(
+                    PixelType::RGB_U16, { PixelType::L_U8, PixelType::L_U16, PixelType::L_U32 }) == PixelType::L_U16);
+                TLR_ASSERT(getClosest(
+                    PixelType::L_U16, { PixelType::RGB_U8, PixelType::RGB_U16, PixelType::RGB_U32 }) == PixelType::RGB_U16);
+            }
             for (const auto& i :
                 {
                     Info(1, 2, PixelType::L_U8),

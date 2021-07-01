@@ -42,7 +42,7 @@ namespace tlr
                         _print(fileName);
                     }
                     auto imageInfo = imaging::Info(size, pixelType);
-                    imageInfo.layout.alignment = plugin->getWriteAlignment();
+                    imageInfo.layout.alignment = plugin->getWriteAlignment(pixelType);
                     imageInfo.layout.endian = plugin->getWriteEndian();
                     const auto image = imaging::Image::create(imageInfo);
                     try

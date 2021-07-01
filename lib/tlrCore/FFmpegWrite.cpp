@@ -38,27 +38,50 @@ namespace tlr
             {
                 throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
             }
-            auto option = options.find("VideoCodec");
+            int avProfile = 0;
+            int64_t avBitRate = 0;
+            auto option = options.find("Profile");
             if (option != options.end())
             {
-                VideoCodec codec = VideoCodec::H264;
+                Profile profile = Profile::H264;
                 std::stringstream ss(option->second);
-                ss >> codec;
-                switch (codec)
+                ss >> profile;
+                switch (profile)
                 {
-                case VideoCodec::H264:
+                case Profile::H264:
                     _avOutputFormat->video_codec = AV_CODEC_ID_H264;
+                    avProfile = FF_PROFILE_H264_HIGH;
+                    avBitRate = 10000000;
                     break;
-                case VideoCodec::H265:
-                    _avOutputFormat->video_codec = AV_CODEC_ID_H265;
-                    break;
-                case VideoCodec::DNxHD:
-                    _avOutputFormat->video_codec = AV_CODEC_ID_DNXHD;
-                    _avPixelFormatOut = AV_PIX_FMT_YUV422P;
-                    break;
-                case VideoCodec::ProRes:
+                case Profile::ProRes:
                     _avOutputFormat->video_codec = AV_CODEC_ID_PRORES;
-                    _avPixelFormatOut = AV_PIX_FMT_YUV422P10LE;
+                    _avPixelFormatOut = AV_PIX_FMT_YUV422P10;
+                    avProfile = FF_PROFILE_PRORES_STANDARD;
+                    break;
+                case Profile::ProRes_Proxy:
+                    _avOutputFormat->video_codec = AV_CODEC_ID_PRORES;
+                    _avPixelFormatOut = AV_PIX_FMT_YUV422P10;
+                    avProfile = FF_PROFILE_PRORES_PROXY;
+                    break;
+                case Profile::ProRes_LT:
+                    _avOutputFormat->video_codec = AV_CODEC_ID_PRORES;
+                    _avPixelFormatOut = AV_PIX_FMT_YUV422P10;
+                    avProfile = FF_PROFILE_PRORES_LT;
+                    break;
+                case Profile::ProRes_HQ:
+                    _avOutputFormat->video_codec = AV_CODEC_ID_PRORES;
+                    _avPixelFormatOut = AV_PIX_FMT_YUV422P10;
+                    avProfile = FF_PROFILE_PRORES_HQ;
+                    break;
+                case Profile::ProRes_4444:
+                    _avOutputFormat->video_codec = AV_CODEC_ID_PRORES;
+                    _avPixelFormatOut = AV_PIX_FMT_YUV444P10;
+                    avProfile = FF_PROFILE_PRORES_4444;
+                    break;
+                case Profile::ProRes_XQ:
+                    _avOutputFormat->video_codec = AV_CODEC_ID_PRORES;
+                    _avPixelFormatOut = AV_PIX_FMT_YUV444P10;
+                    avProfile = FF_PROFILE_PRORES_XQ;
                     break;
                 default: break;
                 }
@@ -80,6 +103,8 @@ namespace tlr
             const auto rational = time::toRational(info.videoDuration.rate());
             _avVideoStream->codec->time_base = { rational.second, rational.first };
             _avVideoStream->codec->framerate = { rational.first, rational.second };
+            _avVideoStream->codec->profile = avProfile;
+            _avVideoStream->codec->bit_rate = avBitRate;
             if (_avFormatContext->oformat->flags & AVFMT_GLOBALHEADER)
             {
                 _avVideoStream->codec->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
@@ -154,7 +179,7 @@ namespace tlr
 
         Write::~Write()
         {
-            if (_avFormatContext->pb)
+            if (_swsContext)
             {
                 _encodeVideo(nullptr);
                 av_write_trailer(_avFormatContext);
