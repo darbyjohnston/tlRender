@@ -259,7 +259,7 @@ namespace tlr
                     arg("Unsupported channel padding"));
             }
 
-            // Collect information.
+            // Image information.
             imageInfo.pixelType = pixelType;
             imageInfo.size.w = out.image.channel[0].size[0];
             imageInfo.size.h = out.image.channel[0].size[1];
@@ -290,6 +290,8 @@ namespace tlr
             default: break;
             }
             info.video.push_back(imageInfo);
+
+            // Tags.
             if (isValid(out.file.time, 24))
             {
                 info.tags["Time"] = toString(out.file.time, 24);
@@ -617,11 +619,6 @@ namespace tlr
             {
                 imaging::PixelType::RGB_U10
             };
-        }
-
-        uint8_t Plugin::getWriteAlignment() const
-        {
-            return 4;
         }
 
         memory::Endian Plugin::getWriteEndian() const

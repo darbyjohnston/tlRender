@@ -50,10 +50,12 @@ namespace tlr
         {
             avio::VideoFrame out;
             out.time = time;
-            avio::Info info;
+
             auto io = file::FileIO::create();
             io->open(fileName, file::Mode::Read);
+            avio::Info info;
             Header::read(io, info);
+
             out.image = imaging::Image::create(info.video[0]);
             out.image->setTags(info.tags);
             io->read(out.image->getData(), imaging::getDataByteCount(info.video[0]));

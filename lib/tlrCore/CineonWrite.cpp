@@ -43,10 +43,12 @@ namespace tlr
         {
             auto io = file::FileIO::create();
             io->open(fileName, file::Mode::Write);
+
             avio::Info info;
             info.video.push_back(image->getInfo());
             info.tags = image->getTags();
             Header::write(io, info);
+
             io->write(image->getData(), imaging::getDataByteCount(image->getInfo()));
             Header::finishWrite(io);
         }

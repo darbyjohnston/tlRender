@@ -9,20 +9,20 @@
 
 #include <tlrCore/Cineon.h>
 #include <tlrCore/DPX.h>
-#if defined(PNG_FOUND)
-#include <tlrCore/PNG.h>
+#if defined(FFmpeg_FOUND)
+#include <tlrCore/FFmpeg.h>
 #endif
 #if defined(JPEG_FOUND)
 #include <tlrCore/JPEG.h>
 #endif
-#if defined(TIFF_FOUND)
-#include <tlrCore/TIFF.h>
-#endif
 #if defined(OpenEXR_FOUND)
 #include <tlrCore/OpenEXR.h>
 #endif
-#if defined(FFmpeg_FOUND)
-#include <tlrCore/FFmpeg.h>
+#if defined(PNG_FOUND)
+#include <tlrCore/PNG.h>
+#endif
+#if defined(TIFF_FOUND)
+#include <tlrCore/TIFF.h>
 #endif
 
 #include <iomanip>
@@ -122,20 +122,20 @@ namespace tlr
         {
             _plugins.push_back(cineon::Plugin::create());
             _plugins.push_back(dpx::Plugin::create());
-#if defined(PNG_FOUND)
-            _plugins.push_back(png::Plugin::create());
+#if defined(FFmpeg_FOUND)
+            _plugins.push_back(ffmpeg::Plugin::create());
 #endif
 #if defined(JPEG_FOUND)
             _plugins.push_back(jpeg::Plugin::create());
 #endif
-#if defined(TIFF_FOUND)
-            _plugins.push_back(tiff::Plugin::create());
-#endif
 #if defined(OpenEXR_FOUND)
             _plugins.push_back(exr::Plugin::create());
 #endif
-#if defined(FFmpeg_FOUND)
-            _plugins.push_back(ffmpeg::Plugin::create());
+#if defined(PNG_FOUND)
+            _plugins.push_back(png::Plugin::create());
+#endif
+#if defined(TIFF_FOUND)
+            _plugins.push_back(tiff::Plugin::create());
 #endif
         }
 

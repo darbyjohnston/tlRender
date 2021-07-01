@@ -12,25 +12,6 @@ namespace tlr
 {
     namespace dpx
     {
-        namespace
-        {
-            class File
-            {
-            public:
-                File(
-                    const std::string& fileName,
-                    const std::shared_ptr<imaging::Image>& image)
-                {
-                }
-
-                ~File()
-                {
-                }
-
-            private:
-            };
-        }
-
         void Write::_init(
             const std::string& fileName,
             const avio::Info& info,
@@ -60,7 +41,20 @@ namespace tlr
             const otime::RationalTime&,
             const std::shared_ptr<imaging::Image>& image)
         {
-            const auto f = File(fileName, image);
+            auto io = file::FileIO::create();
+            io->open(fileName, file::Mode::Write);
+
+            avio::Info info;
+            info.video.push_back(image->getInfo());
+            info.tags = image->getTags();
+
+            Version version = Version::_2_0;
+            Endian endian = Endian::Auto;
+            Transfer transfer = Transfer::FilmPrint;
+            Header::write(io, info, version, endian, transfer);
+
+            io->write(image->getData(), imaging::getDataByteCount(image->getInfo()));
+            Header::finishWrite(io);
         }
     }
 }
