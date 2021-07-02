@@ -50,8 +50,8 @@ namespace tlr
                 "FFmpeg",
                 { ".mov", ".m4v", ".mp4", ".y4m", ".mkv" });
 
-            //av_log_set_level(AV_LOG_QUIET);
-            av_log_set_level(AV_LOG_VERBOSE);
+            av_log_set_level(AV_LOG_QUIET);
+            //av_log_set_level(AV_LOG_VERBOSE);
             
             av_register_all();
             avcodec_register_all();
