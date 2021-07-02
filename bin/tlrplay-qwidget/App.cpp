@@ -84,8 +84,11 @@ namespace tlr
 
     App::~App()
     {
-        _settingsObject->setParent(nullptr);
-        delete _settingsObject;
+        if (_settingsObject)
+        {
+            _settingsObject->setParent(nullptr);
+            delete _settingsObject;
+        }
     }
 
     void App::open(const QString& fileName)
