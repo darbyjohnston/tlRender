@@ -38,53 +38,53 @@ namespace tlr
             {
                 throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
             }
+            Profile profile = Profile::H264;
             int avProfile = 0;
             int64_t avBitRate = 0;
             auto option = options.find("Profile");
             if (option != options.end())
             {
-                Profile profile = Profile::H264;
                 std::stringstream ss(option->second);
                 ss >> profile;
-                switch (profile)
-                {
-                case Profile::H264:
-                    _avOutputFormat->video_codec = AV_CODEC_ID_H264;
-                    avProfile = FF_PROFILE_H264_HIGH;
-                    avBitRate = 10000000;
-                    break;
-                case Profile::ProRes:
-                    _avOutputFormat->video_codec = AV_CODEC_ID_PRORES;
-                    _avPixelFormatOut = AV_PIX_FMT_YUV422P10;
-                    avProfile = FF_PROFILE_PRORES_STANDARD;
-                    break;
-                case Profile::ProRes_Proxy:
-                    _avOutputFormat->video_codec = AV_CODEC_ID_PRORES;
-                    _avPixelFormatOut = AV_PIX_FMT_YUV422P10;
-                    avProfile = FF_PROFILE_PRORES_PROXY;
-                    break;
-                case Profile::ProRes_LT:
-                    _avOutputFormat->video_codec = AV_CODEC_ID_PRORES;
-                    _avPixelFormatOut = AV_PIX_FMT_YUV422P10;
-                    avProfile = FF_PROFILE_PRORES_LT;
-                    break;
-                case Profile::ProRes_HQ:
-                    _avOutputFormat->video_codec = AV_CODEC_ID_PRORES;
-                    _avPixelFormatOut = AV_PIX_FMT_YUV422P10;
-                    avProfile = FF_PROFILE_PRORES_HQ;
-                    break;
-                case Profile::ProRes_4444:
-                    _avOutputFormat->video_codec = AV_CODEC_ID_PRORES;
-                    _avPixelFormatOut = AV_PIX_FMT_YUV444P10;
-                    avProfile = FF_PROFILE_PRORES_4444;
-                    break;
-                case Profile::ProRes_XQ:
-                    _avOutputFormat->video_codec = AV_CODEC_ID_PRORES;
-                    _avPixelFormatOut = AV_PIX_FMT_YUV444P10;
-                    avProfile = FF_PROFILE_PRORES_XQ;
-                    break;
-                default: break;
-                }
+            }
+            switch (profile)
+            {
+            case Profile::H264:
+                _avOutputFormat->video_codec = AV_CODEC_ID_H264;
+                avProfile = FF_PROFILE_H264_HIGH;
+                avBitRate = 100000000;
+                break;
+            case Profile::ProRes:
+                _avOutputFormat->video_codec = AV_CODEC_ID_PRORES;
+                _avPixelFormatOut = AV_PIX_FMT_YUV422P10;
+                avProfile = FF_PROFILE_PRORES_STANDARD;
+                break;
+            case Profile::ProRes_Proxy:
+                _avOutputFormat->video_codec = AV_CODEC_ID_PRORES;
+                _avPixelFormatOut = AV_PIX_FMT_YUV422P10;
+                avProfile = FF_PROFILE_PRORES_PROXY;
+                break;
+            case Profile::ProRes_LT:
+                _avOutputFormat->video_codec = AV_CODEC_ID_PRORES;
+                _avPixelFormatOut = AV_PIX_FMT_YUV422P10;
+                avProfile = FF_PROFILE_PRORES_LT;
+                break;
+            case Profile::ProRes_HQ:
+                _avOutputFormat->video_codec = AV_CODEC_ID_PRORES;
+                _avPixelFormatOut = AV_PIX_FMT_YUV422P10;
+                avProfile = FF_PROFILE_PRORES_HQ;
+                break;
+            case Profile::ProRes_4444:
+                _avOutputFormat->video_codec = AV_CODEC_ID_PRORES;
+                _avPixelFormatOut = AV_PIX_FMT_YUV444P10;
+                avProfile = FF_PROFILE_PRORES_4444;
+                break;
+            case Profile::ProRes_XQ:
+                _avOutputFormat->video_codec = AV_CODEC_ID_PRORES;
+                _avPixelFormatOut = AV_PIX_FMT_YUV444P10;
+                avProfile = FF_PROFILE_PRORES_XQ;
+                break;
+            default: break;
             }
             _avCodec = avcodec_find_encoder(_avOutputFormat->video_codec);
             if (!_avCodec)
