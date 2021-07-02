@@ -70,7 +70,23 @@ namespace tlr
             app::CmdLineValueOption<imaging::PixelType>::create(
                 _options.outputPixelType,
                 { "-outputPixelType", "-op" },
-                string::Format("Output pixel type. Values: {0}").arg(string::join(imaging::getPixelTypeLabels(), ", ")))
+                string::Format("Output pixel type. Values: {0}").arg(string::join(imaging::getPixelTypeLabels(), ", "))),
+            app::CmdLineValueOption<std::string>::create(
+                _options.colorConfig,
+                { "-colorConfig", "-cc" },
+                "OpenColorIO configuration file."),
+            app::CmdLineValueOption<std::string>::create(
+                _options.colorInput,
+                { "-colorInput", "-ci" },
+                "OpenColorIO input color space."),
+            app::CmdLineValueOption<std::string>::create(
+                _options.colorDisplay,
+                { "-colorDisplay", "-cd" },
+                "OpenColorIO display color space."),
+            app::CmdLineValueOption<std::string>::create(
+                _options.colorView,
+                { "-colorView", "-cv" },
+                "OpenColorIO view color space.")
         };
 #if defined(FFmpeg_FOUND)
         cmdLineOptions.push_back(app::CmdLineValueOption<std::string>::create(
@@ -216,6 +232,12 @@ namespace tlr
         // Create the renderer.
         _fontSystem = gl::FontSystem::create();
         _render = gl::Render::create();
+        gl::ColorConfig colorConfig;
+        colorConfig.config = _options.colorConfig;
+        colorConfig.input = _options.colorInput;
+        colorConfig.display = _options.colorDisplay;
+        colorConfig.view = _options.colorView;
+        _render->setColorConfig(colorConfig);
         _buffer = gl::OffscreenBuffer::create(_renderInfo.size, _renderInfo.pixelType);
 
         // Create the writer.

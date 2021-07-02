@@ -30,7 +30,7 @@ namespace tlr
         class Shader;
         class Texture;
 
-        //! Color configuration.
+        //! OpenColorIO configuration.
         struct ColorConfig
         {
             std::string config;
