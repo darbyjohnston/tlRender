@@ -18,7 +18,7 @@ a BSD style open source license.
 
 Supported:
 * Movie clips
-* Image sequences (OpenEXR, JPEG, PNG, TIFF)
+* Image sequences (Cineon, DPX, JPEG, OpenEXR, PNG, TIFF)
 * Transitions
 * Gaps
 
@@ -46,8 +46,8 @@ Dependencies:
 
 Optional dependencies:
 * FFmpeg - https://ffmpeg.org
-* OpenEXR - https://www.openexr.com/
 * JPEG - https://libjpeg-turbo.org
+* OpenEXR - https://www.openexr.com/
 * PNG - https://libpng.sourceforge.io/index.html
 * TIFF - http://www.libtiff.org
 
@@ -119,9 +119,11 @@ install.
 CMake Build Options
 -------------------
 * TLR_ENABLE_PYTHON - Enable Python support (for OTIO Python adapters)
+* TLR_BUILD_FFmpeg - Build FFmpeg support (Linux and macOS only)
 * TLR_BUILD_JPEG - Build JPEG support
 * TLR_BUILD_OpenEXR - Build OpenEXR support
-* TLR_BUILD_FFmpeg - Build FFmpeg support (Linux and macOS only)
+* TLR_BUILD_PNG - Build PNG support
+* TLR_BUILD_TIFF - Build TIFF support
 * TLR_BUILD_GL - Build OpenGL support (tlrGL library)
 * TLR_BUILD_QT - Build QT support (tlrQt library)
 * TLR_BUILD_EXAMPLES - Build examples
