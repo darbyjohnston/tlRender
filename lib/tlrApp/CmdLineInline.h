@@ -159,5 +159,19 @@ namespace tlr
                 throw core::ParseError();
             }
         }
+
+        inline void CmdLineValueArg<std::string>::parse(std::vector<std::string>& args)
+        {
+            auto i = args.begin();
+            if (i != args.end())
+            {
+                _value = *i;
+                i = args.erase(i);
+            }
+            else
+            {
+                throw core::ParseError();
+            }
+        }
     }
 }
