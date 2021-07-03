@@ -31,7 +31,7 @@ namespace tlr
         std::vector<otime::TimeRange> toRanges(std::vector<otime::RationalTime>);
 
         //! Get the ancestor (highest parent).
-        otio::Composable* getAncestor(otio::Composable*);
+        const otio::Composable* getAncestor(const otio::Composable*);
 
         //! Transitions.
         enum class Transition
@@ -126,8 +126,8 @@ namespace tlr
             void _tick();
             void _frameRequests();
             std::future<avio::VideoFrame> _readVideoFrame(
-                otio::Track*,
-                otio::Clip*,
+                const otio::Track*,
+                const otio::Clip*,
                 const otime::RationalTime&);
             void _stopReaders();
             void _delReaders();
@@ -157,7 +157,7 @@ namespace tlr
                 std::shared_ptr<avio::IRead> read;
                 avio::Info info;
             };
-            std::map<otio::Clip*, Reader> _readers;
+            std::map<const otio::Clip*, Reader> _readers;
             std::list<std::shared_ptr<avio::IRead> > _stoppedReaders;
 
             std::thread _thread;

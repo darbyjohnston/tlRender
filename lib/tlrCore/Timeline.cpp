@@ -9,6 +9,7 @@
 #include <tlrCore/String.h>
 
 #include <opentimelineio/externalReference.h>
+#include <opentimelineio/linearTimeWarp.h>
 #include <opentimelineio/stackAlgorithm.h>
 #include <opentimelineio/timeline.h>
 #include <opentimelineio/transition.h>
@@ -64,9 +65,9 @@ namespace tlr
             return out;
         }
 
-        otio::Composable* getAncestor(otio::Composable* composable)
+        const otio::Composable* getAncestor(const otio::Composable* composable)
         {
-            otio::Composable* out = composable;
+            const otio::Composable* out = composable;
             for (; out->parent(); out = out->parent())
                 ;
             return out;
@@ -409,26 +410,28 @@ namespace tlr
                                         {
                                             LayerData data;
                                             data.image = _readVideoFrame(track, clip, time);
+                                            auto clipStartTime = clip->trimmed_range(&errorStatus).start_time();
                                             const auto neighbors = track->neighbors_of(clip, &errorStatus);
                                             if (auto transition = dynamic_cast<otio::Transition*>(neighbors.second.value))
                                             {
-                                                const auto startTime = range.end_time_inclusive() - transition->in_offset();
-                                                if (time > startTime)
+                                                const auto transitionStartTime = range.end_time_inclusive() - transition->in_offset();
+                                                if (time > transitionStartTime)
                                                 {
                                                     const auto transitionNeighbors = track->neighbors_of(transition, &errorStatus);
                                                     if (const auto clipB = dynamic_cast<otio::Clip*>(transitionNeighbors.second.value))
                                                     {
                                                         data.imageB = _readVideoFrame(track, clipB, time);
                                                         data.transition = toTransition(transition->transition_type());
-                                                        data.transitionValue = otime::RationalTime(time - startTime).value() /
+                                                        data.transitionValue = otime::RationalTime(time - transitionStartTime).value() /
                                                             (transition->in_offset().value() + transition->out_offset().value() + 1.0);
                                                     }
                                                 }
                                             }
                                             if (auto transition = dynamic_cast<otio::Transition*>(neighbors.first.value))
                                             {
-                                                const auto endTime = range.start_time() + transition->out_offset();
-                                                if (time < endTime)
+                                                clipStartTime -= transition->in_offset();
+                                                const auto transitionEndTime = range.start_time() + transition->out_offset();
+                                                if (time < transitionEndTime)
                                                 {
                                                     const auto transitionNeighbors = track->neighbors_of(transition, &errorStatus);
                                                     if (const auto clipB = dynamic_cast<otio::Clip*>(transitionNeighbors.first.value))
@@ -469,19 +472,46 @@ namespace tlr
         }
 
         std::future<avio::VideoFrame> Timeline::_readVideoFrame(
-            otio::Track* track,
-            otio::Clip* clip,
+            const otio::Track* track,
+            const otio::Clip* clip,
             const otime::RationalTime& time)
         {
             std::future<avio::VideoFrame> out;
+
+            // Get the clip time transform.
+            //
+            //! \bug This only applies time transform at the clip level.
+            otio::TimeTransform timeTransform;
+            for (const auto& effect : clip->effects())
+            {
+                if (auto linearTimeWarp = dynamic_cast<otio::LinearTimeWarp*>(effect.value))
+                {
+                    timeTransform = otio::TimeTransform(otime::RationalTime(), linearTimeWarp->time_scalar()).applied_to(timeTransform);
+                }
+            }
+
+            // Get the clip start time taking transitions into account.
+            otime::RationalTime startTime;
             otio::ErrorStatus errorStatus;
+            const auto range = clip->trimmed_range(&errorStatus);
+            startTime = range.start_time();
+            const auto neighbors = track->neighbors_of(clip, &errorStatus);
+            if (auto transition = dynamic_cast<const otio::Transition*>(neighbors.first.value))
+            {
+                startTime -= transition->in_offset();
+            }
+
+            // Get the frame time.
             const auto clipTime = track->transformed_time(time, clip, &errorStatus);
+            auto frameTime = startTime + timeTransform.applied_to(clipTime - startTime);
+
+            // Read the frame.
             const auto j = _readers.find(clip);
             if (j != _readers.end())
             {
-                const auto readTime = clipTime.rescaled_to(j->second.info.videoDuration);
+                frameTime = frameTime.rescaled_to(j->second.info.videoDuration);
                 out = j->second.read->readVideoFrame(
-                    otime::RationalTime(floor(readTime.value()), readTime.rate()));
+                    otime::RationalTime(floor(frameTime.value()), frameTime.rate()));
             }
             else
             {
@@ -504,12 +534,13 @@ namespace tlr
                     Reader reader;
                     reader.read = read;
                     reader.info = info;
-                    const auto readTime = clipTime.rescaled_to(info.videoDuration);
+                    frameTime = frameTime.rescaled_to(info.videoDuration);
                     out = read->readVideoFrame(
-                        otime::RationalTime(floor(readTime.value()), readTime.rate()));
+                        otime::RationalTime(floor(frameTime.value()), frameTime.rate()));
                     _readers[clip] = std::move(reader);
                 }
             }
+
             return out;
         }
 
@@ -522,7 +553,7 @@ namespace tlr
 
                 otio::ErrorStatus errorStatus;
                 const auto trimmedRange = clip->trimmed_range(&errorStatus);
-                const auto ancestor = dynamic_cast<otio::Item*>(getAncestor(clip));
+                const auto ancestor = dynamic_cast<const otio::Item*>(getAncestor(clip));
                 const auto clipRange = i->first->transformed_time_range(trimmedRange, ancestor, &errorStatus);
                 const auto range = otime::TimeRange(_globalStartTime + clipRange.start_time(), clipRange.duration());
 
