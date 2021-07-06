@@ -160,6 +160,7 @@ namespace tlr
             }
         }
 
+        template<>
         inline void CmdLineValueArg<std::string>::parse(std::vector<std::string>& args)
         {
             auto i = args.begin();
