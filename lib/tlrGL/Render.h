@@ -74,15 +74,8 @@ namespace tlr
             //! Draw an image.
             void drawImage(
                 const std::shared_ptr<imaging::Image>&,
-                const math::BBox2f&);
-
-            //! Draw an image transition.
-            void drawImage(
-                const std::shared_ptr<imaging::Image>&,
-                const std::shared_ptr<imaging::Image>&,
                 const math::BBox2f&,
-                timeline::Transition,
-                float transitionValue);
+                const imaging::Color4f& = imaging::Color4f(1.F, 1.F, 1.F));
 
             //! Draw a timeline frame.
             void drawFrame(const timeline::Frame&);

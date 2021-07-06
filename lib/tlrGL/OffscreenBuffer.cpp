@@ -219,6 +219,8 @@ namespace tlr
         }
 
         OffscreenBufferBinding::~OffscreenBufferBinding()
-        {}
+        {
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        }
     }
 }

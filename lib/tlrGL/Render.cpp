@@ -131,15 +131,6 @@ namespace tlr
                 "uniform sampler2D textureSampler0;\n"
                 "uniform sampler2D textureSampler1;\n"
                 "uniform sampler2D textureSampler2;\n"
-                "uniform sampler2D textureSampler3;\n"
-                "uniform sampler2D textureSampler4;\n"
-                "uniform sampler2D textureSampler5;\n"
-                "\n"
-                "// tlr::timeline::Transition\n"
-                "const uint Transition_None     = 0;\n"
-                "const uint Transition_Dissolve = 1;\n"
-                "uniform int transition;\n"
-                "uniform float transitionValue;\n"
                 "\n"
                 "// $color"
                 "\n"
@@ -172,28 +163,12 @@ namespace tlr
                 "    else if (ColorMode_Texture == colorMode)\n"
                 "    {\n"
                 "        vec4 t = sampleTexture(textureSampler0, textureSampler1, textureSampler2);\n"
-                "        if (Transition_None == transition)\n"
-                "        {\n"
-                "            fragColor = t * color;\n"
-                "        }\n"
-                "        else if (Transition_Dissolve == transition)\n"
-                "        {\n"
-                "            vec4 t2 = sampleTexture(textureSampler3, textureSampler4, textureSampler5);\n"
-                "            fragColor = ((t * (1.0 - transitionValue)) + (t2 * transitionValue)) * color;\n"
-                "        }\n"
+                "        fragColor = t * color;\n"
                 "    }\n"
                 "    else if (ColorMode_TextureColorConfig == colorMode)\n"
                 "    {\n"
                 "        vec4 t = sampleTexture(textureSampler0, textureSampler1, textureSampler2);\n"
-                "        if (Transition_None == transition)\n"
-                "        {\n"
-                "            fragColor = OCIODisplay(t) * color;\n"
-                "        }\n"
-                "        else if (Transition_Dissolve == transition)\n"
-                "        {\n"
-                "            vec4 t2 = sampleTexture(textureSampler3, textureSampler4, textureSampler5);\n"
-                "            fragColor = OCIODisplay(((t * (1.0 - transitionValue)) + (t2 * transitionValue))) * color;\n"
-                "        }\n"
+                "        fragColor = OCIODisplay(t) * color;\n"
                 "    }\n"
                 "    else if (ColorMode_TextureAlpha == colorMode)\n"
                 "    {\n"
@@ -502,70 +477,19 @@ namespace tlr
 
         void Render::drawImage(
             const std::shared_ptr<imaging::Image>& image,
-            const math::BBox2f& bbox)
-        {
-            const auto& info = image->getInfo();
-            _shader->setUniform("colorMode", static_cast<int>(ColorMode::TextureColorConfig));
-            _shader->setUniform("color", imaging::Color4f(1.F, 1.F, 1.F));
-            _shader->setUniform("pixelType", static_cast<int>(info.pixelType));
-            _shader->setUniform("textureSampler0", 0);
-            _shader->setUniform("textureSampler1", 1);
-            _shader->setUniform("textureSampler2", 2);
-            _shader->setUniform("transition", static_cast<int>(timeline::Transition::None));
-
-            //! \todo Cache textures for reuse.
-            auto textures = getTextures(image);
-
-            std::vector<uint8_t> vboData;
-            vboData.resize(4 * getByteCount(VBOType::Pos2_F32_UV_U16));
-            VBOVertex* vboP = reinterpret_cast<VBOVertex*>(vboData.data());
-            vboP[0].vx = bbox.min.x;
-            vboP[0].vy = bbox.min.y;
-            vboP[0].tx = 0;
-            vboP[0].ty = 0;
-            vboP[1].vx = bbox.max.x;
-            vboP[1].vy = bbox.min.y;
-            vboP[1].tx = 65535;
-            vboP[1].ty = 0;
-            vboP[2].vx = bbox.min.x;
-            vboP[2].vy = bbox.max.y;
-            vboP[2].tx = 0;
-            vboP[2].ty = 65535;
-            vboP[3].vx = bbox.max.x;
-            vboP[3].vy = bbox.max.y;
-            vboP[3].tx = 65535;
-            vboP[3].ty = 65535;
-            auto vbo = VBO::create(4, VBOType::Pos2_F32_UV_U16);
-            vbo->copy(vboData);
-
-            auto vao = VAO::create(vbo->getType(), vbo->getID());
-            vao->bind();
-            vao->draw(GL_TRIANGLE_STRIP, 0, 4);
-        }
-
-        void Render::drawImage(
-            const std::shared_ptr<imaging::Image>& image,
-            const std::shared_ptr<imaging::Image>& imageB,
             const math::BBox2f& bbox,
-            timeline::Transition transition,
-            float transitionValue)
+            const imaging::Color4f& color)
         {
             const auto& info = image->getInfo();
             _shader->setUniform("colorMode", static_cast<int>(ColorMode::TextureColorConfig));
-            _shader->setUniform("color", imaging::Color4f(1.F, 1.F, 1.F));
+            _shader->setUniform("color", color);
             _shader->setUniform("pixelType", static_cast<int>(info.pixelType));
             _shader->setUniform("textureSampler0", 0);
             _shader->setUniform("textureSampler1", 1);
             _shader->setUniform("textureSampler2", 2);
-            _shader->setUniform("textureSampler3", 3);
-            _shader->setUniform("textureSampler4", 4);
-            _shader->setUniform("textureSampler5", 5);
-            _shader->setUniform("transition", static_cast<int>(transition));
-            _shader->setUniform("transitionValue", transitionValue);
 
             //! \todo Cache textures for reuse.
             auto textures = getTextures(image);
-            auto texturesB = getTextures(imageB, 3);
 
             std::vector<uint8_t> vboData;
             vboData.resize(4 * getByteCount(VBOType::Pos2_F32_UV_U16));
@@ -600,12 +524,20 @@ namespace tlr
             {
                 if (i.image && i.imageB)
                 {
+                    //! \todo This should be drawn to an offscreen buffer.
+                    glBlendFunc(GL_ONE, GL_ZERO);
+                    const float t = 1.F - i.transitionValue;
                     drawImage(
                         i.image,
-                        i.imageB,
                         imaging::getBBox(i.image->getAspect(), _size),
-                        i.transition,
-                        i.transitionValue);
+                        imaging::Color4f(t, t, t));
+                    glBlendFunc(GL_ONE, GL_ONE);
+                    const float tB = i.transitionValue;
+                    drawImage(
+                        i.imageB,
+                        imaging::getBBox(i.imageB->getAspect(), _size),
+                        imaging::Color4f(tB, tB, tB));
+                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                 }
                 else if (i.image)
                 {
