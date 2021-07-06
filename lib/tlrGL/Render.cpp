@@ -524,20 +524,28 @@ namespace tlr
             {
                 if (i.image && i.imageB)
                 {
-                    //! \todo This should be drawn to an offscreen buffer.
-                    glBlendFunc(GL_ONE, GL_ZERO);
-                    const float t = 1.F - i.transitionValue;
-                    drawImage(
-                        i.image,
-                        imaging::getBBox(i.image->getAspect(), _size),
-                        imaging::Color4f(t, t, t));
-                    glBlendFunc(GL_ONE, GL_ONE);
-                    const float tB = i.transitionValue;
-                    drawImage(
-                        i.imageB,
-                        imaging::getBBox(i.imageB->getAspect(), _size),
-                        imaging::Color4f(tB, tB, tB));
-                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                    switch (i.transition)
+                    {
+                    case timeline::Transition::Dissolve:
+                    {
+                        //! \todo This should be drawn to an offscreen buffer.
+                        glBlendFunc(GL_ONE, GL_ZERO);
+                        const float t = 1.F - i.transitionValue;
+                        drawImage(
+                            i.image,
+                            imaging::getBBox(i.image->getAspect(), _size),
+                            imaging::Color4f(t, t, t));
+                        glBlendFunc(GL_ONE, GL_ONE);
+                        const float tB = i.transitionValue;
+                        drawImage(
+                            i.imageB,
+                            imaging::getBBox(i.imageB->getAspect(), _size),
+                            imaging::Color4f(tB, tB, tB));
+                        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                        break;
+                    }
+                    default: break;
+                    }
                 }
                 else if (i.image)
                 {
