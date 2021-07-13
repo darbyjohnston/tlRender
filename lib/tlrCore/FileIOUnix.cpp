@@ -179,7 +179,7 @@ namespace tlr
 
 #if defined(TLR_ENABLE_MMAP)
             // Memory mapping.
-            if (Mode::Read == p.mode && _size > 0)
+            if (Mode::Read == p.mode && p.size > 0)
             {
                 p.mmap = mmap(0, p.size, PROT_READ, MAP_SHARED, p.f, 0);
                 madvise(p.mmap, p.size, MADV_SEQUENTIAL | MADV_SEQUENTIAL);
