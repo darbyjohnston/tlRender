@@ -13,7 +13,6 @@ set(HEADERS
     Error.h
     File.h
     FileIO.h
-    FileIOInline.h
     Image.h
     ImageInline.h
     ListObserver.h
@@ -52,6 +51,7 @@ set(SOURCE
     DPXRead.cpp
     DPXWrite.cpp
     DPX.cpp
+    Error.cpp
     File.cpp
     FileIO.cpp
     Image.cpp

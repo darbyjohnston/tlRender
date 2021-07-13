@@ -9,6 +9,18 @@
     CLASS(const CLASS&) = delete; \
     CLASS& operator = (const CLASS&) = delete
 
+//! Convenience macro for private implementations.
+//! 
+//! Required includes:
+//! * memory
+#define TLR_PRIVATE() \
+    struct Private; \
+    std::unique_ptr<Private> _p
+
+//! Define a variable, "p", that references the private implementation.
+#define TLR_PRIVATE_P() \
+    auto& p = *_p
+
 //! Convenience macro for enum utilities.
 //! 
 //! Required includes:

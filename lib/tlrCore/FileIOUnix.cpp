@@ -103,9 +103,38 @@ namespace tlr
             }
         
         } // namespace
+
+        struct FileIO::Private
+        {
+            void setPos(size_t, bool seek);
+            
+            std::string    _fileName;
+            Mode           _mode = Mode::First;
+            size_t         _pos = 0;
+            size_t         _size = 0;
+            bool           _endianConversion = false;
+            int            _f = -1;
+#if defined(TLR_ENABLE_MMAP)
+            void*          _mmap = reinterpret_cast<void*>(-1);
+            const uint8_t* _mmapStart = nullptr;
+            const uint8_t* _mmapEnd = nullptr;
+            const uint8_t* _mmapP = nullptr;
+#endif // TLR_ENABLE_MMAP
+        };
+
+        FileIO::FileIO() :
+            _p(new Private)
+        {}
+
+        FileIO::~FileIO()
+        {
+            close();
+        }
                     
         void FileIO::open(const std::string& fileName, Mode mode)
         {
+            TLR_PRIVATE_P();
+            
             close();
 
             // Open the file.
@@ -130,8 +159,8 @@ namespace tlr
                 break;
             default: break;
             }
-            _f = ::open(fileName.c_str(), openFlags, openMode);
-            if (-1 == _f)
+            p.f = ::open(fileName.c_str(), openFlags, openMode);
+            if (-1 == p.f)
             {
                 throw std::runtime_error(getErrorMessage(ErrorType::Open, fileName, getErrorString()));
             }
@@ -143,30 +172,32 @@ namespace tlr
             {
                 throw std::runtime_error(getErrorMessage(ErrorType::Stat, fileName, getErrorString()));
             }
-            _fileName = fileName;
-            _mode     = mode;
-            _pos      = 0;
-            _size     = info.st_size;
+            p.fileName = fileName;
+            p.mode     = mode;
+            p.pos      = 0;
+            p.size     = info.st_size;
 
 #if defined(TLR_ENABLE_MMAP)
             // Memory mapping.
-            if (Mode::Read == _mode && _size > 0)
+            if (Mode::Read == p.mode && _size > 0)
             {
-                _mmap = mmap(0, _size, PROT_READ, MAP_SHARED, _f, 0);
-                madvise(_mmap, _size, MADV_SEQUENTIAL | MADV_SEQUENTIAL);
-                if (_mmap == (void*)-1)
+                p.mmap = mmap(0, p.size, PROT_READ, MAP_SHARED, p.f, 0);
+                madvise(p.mmap, p.size, MADV_SEQUENTIAL | MADV_SEQUENTIAL);
+                if (p.mmap == (void*)-1)
                 {
                     throw std::runtime_error(getErrorMessage(ErrorType::MemoryMap, fileName, getErrorString()));
                 }
-                _mmapStart = reinterpret_cast<const uint8_t *>(_mmap);
-                _mmapEnd   = _mmapStart + _size;
-                _mmapP     = _mmapStart;
+                p.mmapStart = reinterpret_cast<const uint8_t*>(p.mmap);
+                p.mmapEnd   = p.mmapStart + p.size;
+                p.mmapP     = p.mmapStart;
             }
 #endif // TLR_ENABLE_MMAP
         }
         
         void FileIO::openTemp()
         {
+            TLR_PRIVATE_P();
+            
             close();
 
             // Open the file.
@@ -175,8 +206,8 @@ namespace tlr
             std::vector<char> buf(size + 1);
             memcpy(buf.data(), fileName.c_str(), size);
             buf[size] = 0;
-            _f = mkstemp(buf.data());
-            if (-1 == _f)
+            p.f = mkstemp(buf.data());
+            if (-1 == p.f)
             {
                 throw std::runtime_error(getErrorMessage(ErrorType::Open, fileName, getErrorString()));
             }
@@ -188,104 +219,156 @@ namespace tlr
             {
                 throw std::runtime_error(getErrorMessage(ErrorType::Stat, fileName, getErrorString()));
             }
-            _fileName = std::string(buf.data());
-            _mode     = Mode::ReadWrite;
-            _pos      = 0;
-            _size     = info.st_size;
+            p.fileName = std::string(buf.data());
+            p.mode     = Mode::ReadWrite;
+            p.pos      = 0;
+            p.size     = info.st_size;
         }
 
         bool FileIO::close(std::string* error)
         {
+            TLR_PRIVATE_P();
+            
             bool out = true;
             
-            _fileName = std::string();
+            p.fileName = std::string();
 #if defined(TLR_ENABLE_MMAP)
-            if (_mmap != (void*)-1)
+            if (p.mmap != (void*)-1)
             {
-                int r = munmap(_mmap, _size);
+                int r = munmap(p.mmap, p.size);
                 if (-1 == r)
                 {
                     out = false;
                     if (error)
                     {
-                        *error = getErrorMessage(ErrorType::CloseMemoryMap, _fileName, getErrorString());
+                        *error = getErrorMessage(ErrorType::CloseMemoryMap, p.fileName, getErrorString());
                     }
                 }
-                _mmap = (void*)-1;
+                p.mmap = (void*)-1;
             }
-            _mmapStart = 0;
-            _mmapEnd   = 0;
+            p.mmapStart = 0;
+            p.mmapEnd   = 0;
 #endif // TLR_ENABLE_MMAP
-            if (_f != -1)
+            if (p.f != -1)
             {
-                int r = ::close(_f);
+                int r = ::close(p.f);
                 if (-1 == r)
                 {
                     out = false;
                     if (error)
                     {
-                        *error = getErrorMessage(ErrorType::Close, _fileName, getErrorString());
+                        *error = getErrorMessage(ErrorType::Close, p.fileName, getErrorString());
                     }
                 }
-                _f = -1;
+                p.f = -1;
             }
 
-            _mode = Mode::First;
-            _pos  = 0;
-            _size = 0;
+            p.mode = Mode::First;
+            p.pos  = 0;
+            p.size = 0;
             
             return out;
         }
         
         bool FileIO::isOpen() const
         {
-            return _f != -1;
+            return _p->f != -1;
+        }
+
+        const std::string& FileIO::getFileName() const
+        {
+            return _p->fileName;
+        }
+
+        size_t FileIO::getSize() const
+        {
+            return _p->size;
+        }
+
+        size_t FileIO::getPos() const
+        {
+            return _p->pos;
+        }
+
+        void FileIO::setPos(size_t in)
+        {
+            _p->setPos(in, false);
+        }
+
+        void FileIO::seek(size_t in)
+        {
+            _p->setPos(in, true);
+        }
+
+#if defined(TLR_ENABLE_MMAP)
+        const uint8_t* FileIO::mmapP() const
+        {
+            return _p->mmapP;
+        }
+
+        const uint8_t* FileIO::mmapEnd() const
+        {
+            return _p->mmapEnd;
+        }
+#endif // TLR_ENABLE_MMAP
+
+        bool FileIO::hasEndianConversion() const
+        {
+            return _p->endianConversion;
+        }
+
+        void FileIO::setEndianConversion(bool in)
+        {
+            _p->endianConversion = in;
         }
 
         bool FileIO::isEOF() const
         {
+            TLR_PRIVATE_P();
             return
-                -1 == _f ||
-                (_size ? _pos >= _size : true);
+                -1 == p.f ||
+                (p.size ? p.pos >= p.size : true);
         }
         
         void FileIO::read(void* in, size_t size, size_t wordSize)
         {
-            if (-1 == _f)
+            TLR_PRIVATE_P();
+            
+            if (-1 == p.f)
             {
-                throw std::runtime_error(getErrorMessage(ErrorType::Read, _fileName));
+                throw std::runtime_error(getErrorMessage(ErrorType::Read, p.fileName));
             }
                 
-            switch (_mode)
+            switch (p.mode)
             {
             case Mode::Read:
             {
 #if defined(TLR_ENABLE_MMAP)
-                const uint8_t* mmapP = _mmapP + size * wordSize;
-                if (mmapP > _mmapEnd)
+                const uint8_t* mmapP = p.mmapP + size * wordSize;
+                if (mmapP > p.mmapEnd)
                 {
-                    throw std::runtime_error(getErrorMessage(ErrorType::ReadMemoryMap, _fileName));
+                    throw std::runtime_error(getErrorMessage(ErrorType::ReadMemoryMap, p.fileName));
                 }
-                if (_endianConversion && wordSize > 1)
+                if (p.endianConversion && wordSize > 1)
                 {
-                    memory::endian(_mmapP, in, size, wordSize);
+                    memory::endian(p.mmapP, in, size, wordSize);
                 }
                 else
                 {
-                    memcpy(in, _mmapP, size * wordSize);
+                    memcpy(in, p.mmapP, size * wordSize);
                 }
-                _mmapP = mmapP;
+                p.mmapP = mmapP;
 #else // TLR_ENABLE_MMAP
-                const ssize_t r = ::read(_f, in, size * wordSize);
+                const ssize_t r = ::read(p.f, in, size * wordSize);
                 if (-1 == r)
                 {
-                    throw std::runtime_error(getErrorMessage(ErrorType::Read, _fileName, getErrorString()));
+                    throw std::runtime_error(getErrorMessage(ErrorType::Read, p.fileName, getErrorString()));
                 }
                 else if (r != size * wordSize)
                 {
-                    throw std::runtime_error(getErrorMessage(ErrorType::Read, _fileName));
+                    throw std::runtime_error(getErrorMessage(ErrorType::Read, p.fileName));
                 }
-                if (_endianConversion && wordSize > 1)
+                if (p.endianConversion && wordSize > 1)
                 {
                     memory::endian(in, size, wordSize);
                 }
@@ -294,16 +377,16 @@ namespace tlr
             }
             case Mode::ReadWrite:
             {
-                const ssize_t r = ::read(_f, in, size * wordSize);
+                const ssize_t r = ::read(p.f, in, size * wordSize);
                 if (-1 == r)
                 {
-                    throw std::runtime_error(getErrorMessage(ErrorType::Read, _fileName, getErrorString()));
+                    throw std::runtime_error(getErrorMessage(ErrorType::Read, p.fileName, getErrorString()));
                 }
                 else if (r != size * wordSize)
                 {
-                    throw std::runtime_error(getErrorMessage(ErrorType::Read, _fileName));
+                    throw std::runtime_error(getErrorMessage(ErrorType::Read, p.fileName));
                 }
-                if (_endianConversion && wordSize > 1)
+                if (p.endianConversion && wordSize > 1)
                 {
                     memory::endian(in, size, wordSize);
                 }
@@ -311,55 +394,57 @@ namespace tlr
             }
             default: break;
             }
-            _pos += size * wordSize;
+            p.pos += size * wordSize;
         }
 
         void FileIO::write(const void* in, size_t size, size_t wordSize)
         {
-            if (-1 == _f)
+            TLR_PRIVATE_P();
+            
+            if (-1 == p.f)
             {
-                throw std::runtime_error(getErrorMessage(ErrorType::Write, _fileName));
+                throw std::runtime_error(getErrorMessage(ErrorType::Write, p.fileName));
             }
 
             const uint8_t* inP = reinterpret_cast<const uint8_t*>(in);
             std::vector<uint8_t> tmp;
-            if (_endianConversion && wordSize > 1)
+            if (p.endianConversion && wordSize > 1)
             {
                 tmp.resize(size * wordSize);
                 memory::endian(in, tmp.data(), size, wordSize);
                 inP = tmp.data();
             }
-            if (::write(_f, inP, size * wordSize) == -1)
+            if (::write(p.f, inP, size * wordSize) == -1)
             {
-                throw std::runtime_error(getErrorMessage(ErrorType::Write, _fileName, getErrorString()));
+                throw std::runtime_error(getErrorMessage(ErrorType::Write, p.fileName, getErrorString()));
             }
-            _pos += size * wordSize;
-            _size = std::max(_pos, _size);
+            p.pos += size * wordSize;
+            p.size = std::max(p.pos, p.size);
         }
 
-        void FileIO::_setPos(size_t in, bool seek)
+        void FileIO::Private::setPos(size_t in, bool seek)
         {
-            switch (_mode)
+            switch (mode)
             {
             case Mode::Read:
             {
 #if defined(TLR_ENABLE_MMAP)
                 if (!seek)
                 {
-                    _mmapP = reinterpret_cast<const uint8_t*>(_mmapStart) + in;
+                    mmapP = reinterpret_cast<const uint8_t*>(mmapStart) + in;
                 }
                 else
                 {
-                    _mmapP += in;
+                    mmapP += in;
                 }
-                if (_mmapP > _mmapEnd)
+                if (mmapP > mmapEnd)
                 {
-                    throw std::runtime_error(getErrorMessage(ErrorType::SeekMemoryMap, _fileName));
+                    throw std::runtime_error(getErrorMessage(ErrorType::SeekMemoryMap, fileName));
                 }
 #else // TLR_ENABLE_MMAP
-                if (::lseek(_f, in, ! seek ? SEEK_SET : SEEK_CUR) == (off_t)-1)
+                if (::lseek(f, in, ! seek ? SEEK_SET : SEEK_CUR) == (off_t)-1)
                 {
-                    throw std::runtime_error(getErrorMessage(ErrorType::Seek, _fileName, getErrorString()));
+                    throw std::runtime_error(getErrorMessage(ErrorType::Seek, fileName, getErrorString()));
                 }
 #endif // TLR_ENABLE_MMAP
                 break;
@@ -368,9 +453,9 @@ namespace tlr
             case Mode::ReadWrite:
             case Mode::Append:
             {
-                if (::lseek(_f, in, ! seek ? SEEK_SET : SEEK_CUR) == (off_t)-1)
+                if (::lseek(f, in, ! seek ? SEEK_SET : SEEK_CUR) == (off_t)-1)
                 {
-                    throw std::runtime_error(getErrorMessage(ErrorType::Seek, _fileName, getErrorString()));
+                    throw std::runtime_error(getErrorMessage(ErrorType::Seek, fileName, getErrorString()));
                 }
                 break;
             }
@@ -378,11 +463,11 @@ namespace tlr
             }
             if (!seek)
             {
-                _pos = in;
+                pos = in;
             }
             else
             {
-                _pos += in;
+                pos += in;
             }
         }
     }

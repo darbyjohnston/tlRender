@@ -22,27 +22,9 @@ namespace tlr
             "ReadWrite",
             "Append");
 
-        FileIO::FileIO()
-        {}
-
-        FileIO::~FileIO()
-        {
-            close();
-        }
-
         std::shared_ptr<FileIO> FileIO::create()
         {
             return std::shared_ptr<FileIO>(new FileIO);
-        }
-
-        void FileIO::setPos(size_t in)
-        {
-            _setPos(in, false);
-        }
-
-        void FileIO::seek(size_t in)
-        {
-            _setPos(in, true);
         }
 
         void FileIO::read8(int8_t* value, size_t size)

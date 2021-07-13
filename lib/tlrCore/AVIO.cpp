@@ -85,19 +85,37 @@ namespace tlr
         IWrite::~IWrite()
         {}
 
+        struct IPlugin::Private
+        {
+            std::string name;
+            std::set<std::string> extensions;
+        };
+
         void IPlugin::_init(
             const std::string& name,
             const std::set<std::string>& extensions)
         {
-            _name = name;
-            _extensions = extensions;
+            TLR_PRIVATE_P();
+            p.name = name;
+            p.extensions = extensions;
         }
 
-        IPlugin::IPlugin()
+        IPlugin::IPlugin() :
+            _p(new Private)
         {}
 
         IPlugin::~IPlugin()
         {}
+
+        const std::string& IPlugin::getName() const
+        {
+            return _p->name;
+        }
+
+        const std::set<std::string>& IPlugin::getExtensions() const
+        {
+            return _p->extensions;
+        }
 
         uint8_t IPlugin::getWriteAlignment(imaging::PixelType) const
         {
@@ -118,28 +136,39 @@ namespace tlr
                 info.layout.endian == getWriteEndian();
         }
 
+        struct System::Private
+        {
+            std::vector<std::shared_ptr<IPlugin> > plugins;
+        };
+
         void System::_init()
         {
-            _plugins.push_back(cineon::Plugin::create());
-            _plugins.push_back(dpx::Plugin::create());
+            TLR_PRIVATE_P();
+
+            p.plugins.push_back(cineon::Plugin::create());
+            p.plugins.push_back(dpx::Plugin::create());
 #if defined(FFmpeg_FOUND)
-            _plugins.push_back(ffmpeg::Plugin::create());
+            p.plugins.push_back(ffmpeg::Plugin::create());
 #endif
 #if defined(JPEG_FOUND)
-            _plugins.push_back(jpeg::Plugin::create());
+            p.plugins.push_back(jpeg::Plugin::create());
 #endif
 #if defined(OpenEXR_FOUND)
-            _plugins.push_back(exr::Plugin::create());
+            p.plugins.push_back(exr::Plugin::create());
 #endif
 #if defined(PNG_FOUND)
-            _plugins.push_back(png::Plugin::create());
+            p.plugins.push_back(png::Plugin::create());
 #endif
 #if defined(TIFF_FOUND)
-            _plugins.push_back(tiff::Plugin::create());
+            p.plugins.push_back(tiff::Plugin::create());
 #endif
         }
 
-        System::System()
+        System::System() :
+            _p(new Private)
+        {}
+
+        System::~System()
         {}
 
         std::shared_ptr<System> System::create()
@@ -147,6 +176,11 @@ namespace tlr
             auto out = std::shared_ptr<System>(new System);
             out->_init();
             return out;
+        }
+
+        const std::vector<std::shared_ptr<IPlugin> >& System::getPlugins() const
+        {
+            return _p->plugins;
         }
 
         namespace
@@ -164,8 +198,9 @@ namespace tlr
 
         std::shared_ptr<IPlugin> System::getPlugin(const std::string& fileName) const
         {
+            TLR_PRIVATE_P();
             const std::string extension = getExtension(fileName);
-            for (const auto& i : _plugins)
+            for (const auto& i : p.plugins)
             {
                 const auto& extensions = i->getExtensions();
                 if (extensions.find(extension) != extensions.end())
@@ -180,6 +215,7 @@ namespace tlr
             const std::string& fileName,
             const Options& options)
         {
+            TLR_PRIVATE_P();
             Options optionsTmp;
             {
                 std::stringstream ss;
@@ -191,7 +227,7 @@ namespace tlr
                 optionsTmp[i.first] = i.second;
             }
             const std::string extension = getExtension(fileName);
-            for (const auto& i : _plugins)
+            for (const auto& i : p.plugins)
             {
                 const auto& extensions = i->getExtensions();
                 if (extensions.find(extension) != extensions.end())
@@ -207,8 +243,9 @@ namespace tlr
             const Info& info,
             const Options& options)
         {
+            TLR_PRIVATE_P();
             const std::string extension = getExtension(fileName);
-            for (const auto& i : _plugins)
+            for (const auto& i : p.plugins)
             {
                 const auto& extensions = i->getExtensions();
                 if (extensions.find(extension) != extensions.end())

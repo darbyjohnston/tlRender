@@ -7,7 +7,6 @@
 #include <tlrCore/Image.h>
 #include <tlrCore/Time.h>
 
-#include <atomic>
 #include <future>
 #include <iostream>
 #include <map>
@@ -167,8 +166,7 @@ namespace tlr
             bool _isWriteCompatible(const imaging::Info&) const;
 
         private:
-            std::string _name;
-            std::set<std::string> _extensions;
+            TLR_PRIVATE();
         };
 
         //! I/O system.
@@ -181,6 +179,8 @@ namespace tlr
             System();
 
         public:
+            ~System();
+
             //! Create a new I/O system.
             static std::shared_ptr<System> create();
 
@@ -202,7 +202,7 @@ namespace tlr
                 const Options& = Options());
 
         private:
-            std::vector<std::shared_ptr<IPlugin> > _plugins;
+            TLR_PRIVATE();
         };
     }
 }

@@ -29,20 +29,5 @@ namespace tlr
         {
             return _fileName;
         }
-
-        inline const std::string& IPlugin::getName() const
-        {
-            return _name;
-        }
-
-        inline const std::set<std::string>& IPlugin::getExtensions() const
-        {
-            return _extensions;
-        }
-
-        inline const std::vector<std::shared_ptr<IPlugin> >& System::getPlugins() const
-        {
-            return _plugins;
-        }
     }
 }

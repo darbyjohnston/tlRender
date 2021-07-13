@@ -9,20 +9,6 @@
 
 #include <memory>
 
-#if defined(_WINDOWS)
-#if defined(TLR_ENABLE_MMAP)
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif // WIN32_LEAN_AND_MEAN
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif // NOMINMAX
-#include <windows.h>
-#else // TLR_ENABLE_MMAP
-#include <stdio.h>
-#endif // TLR_ENABLE_MMAP
-#endif // _WINDOWS
-
 namespace tlr
 {
     namespace file
@@ -164,34 +150,7 @@ namespace tlr
             ///@}
 
         private:
-            void _setPos(size_t, bool seek);
-
-            std::string    _fileName;
-            Mode           _mode = Mode::First;
-            size_t         _pos = 0;
-            size_t         _size = 0;
-            bool           _endianConversion = false;
-#if defined(_WINDOWS)
-#if defined(TLR_ENABLE_MMAP)
-            HANDLE         _f = INVALID_HANDLE_VALUE;
-#else // TLR_ENABLE_MMAP
-            FILE*          _f = nullptr;
-#endif // TLR_ENABLE_MMAP
-#if defined(TLR_ENABLE_MMAP)
-            void*          _mmap = nullptr;
-            const uint8_t* _mmapStart = nullptr;
-            const uint8_t* _mmapEnd = nullptr;
-            const uint8_t* _mmapP = nullptr;
-#endif // TLR_ENABLE_MMAP
-#else // _WINDOWS
-            int            _f = -1;
-#if defined(TLR_ENABLE_MMAP)
-            void*          _mmap = reinterpret_cast<void*>(-1);
-            const uint8_t* _mmapStart = nullptr;
-            const uint8_t* _mmapEnd = nullptr;
-            const uint8_t* _mmapP = nullptr;
-#endif // TLR_ENABLE_MMAP
-#endif //_WINDOWS
+            TLR_PRIVATE();
         };
 
         //! Read the contents from a file.
@@ -213,5 +172,3 @@ namespace tlr
 
     TLR_ENUM_SERIALIZE(file::Mode);
 }
-
-#include <tlrCore/FileIOInline.h>

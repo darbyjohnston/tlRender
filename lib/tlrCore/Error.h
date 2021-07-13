@@ -19,9 +19,7 @@ namespace tlr
         class ParseError : public std::invalid_argument
         {
         public:
-            ParseError() :
-                invalid_argument("Cannot parse value")
-            {}
+            ParseError();
         };
     }
 }
