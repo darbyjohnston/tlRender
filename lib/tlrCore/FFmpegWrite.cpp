@@ -16,6 +16,20 @@ namespace tlr
 {
     namespace ffmpeg
     {
+        struct Write::Private
+        {
+            AVOutputFormat* avOutputFormat = nullptr;
+            AVFormatContext* avFormatContext = nullptr;
+            AVCodec* avCodec = nullptr;
+            AVStream* avVideoStream = nullptr;
+            AVPacket* avPacket = nullptr;
+            AVFrame* avFrame = nullptr;
+            AVPixelFormat avPixelFormatIn = AV_PIX_FMT_NONE;
+            AVPixelFormat avPixelFormatOut = AV_PIX_FMT_YUV420P;
+            AVFrame* avFrame2 = nullptr;
+            SwsContext* swsContext = nullptr;
+        };
+
         void Write::_init(
             const std::string& fileName,
             const avio::Info& info,
@@ -23,17 +37,19 @@ namespace tlr
         {
             IWrite::_init(fileName, options, info);
             
+            TLR_PRIVATE_P();
+
             if (info.video.empty())
             {
                 throw std::runtime_error(string::Format("{0}: No video").arg(fileName));
             }
 
-            _avOutputFormat = av_guess_format(NULL, fileName.c_str(), NULL);
-            if (!_avOutputFormat)
+            p.avOutputFormat = av_guess_format(NULL, fileName.c_str(), NULL);
+            if (!p.avOutputFormat)
             {
                 throw std::runtime_error(string::Format("{0}: File not supported").arg(fileName));
             }
-            int r = avformat_alloc_output_context2(&_avFormatContext, _avOutputFormat, NULL, fileName.c_str());
+            int r = avformat_alloc_output_context2(&p.avFormatContext, p.avOutputFormat, NULL, fileName.c_str());
             if (r < 0)
             {
                 throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
@@ -50,164 +66,167 @@ namespace tlr
             switch (profile)
             {
             case Profile::H264:
-                _avOutputFormat->video_codec = AV_CODEC_ID_H264;
+                p.avOutputFormat->video_codec = AV_CODEC_ID_H264;
                 avProfile = FF_PROFILE_H264_HIGH;
                 avBitRate = 100000000;
                 break;
             case Profile::ProRes:
-                _avOutputFormat->video_codec = AV_CODEC_ID_PRORES;
-                _avPixelFormatOut = AV_PIX_FMT_YUV422P10;
+                p.avOutputFormat->video_codec = AV_CODEC_ID_PRORES;
+                p.avPixelFormatOut = AV_PIX_FMT_YUV422P10;
                 avProfile = FF_PROFILE_PRORES_STANDARD;
                 break;
             case Profile::ProRes_Proxy:
-                _avOutputFormat->video_codec = AV_CODEC_ID_PRORES;
-                _avPixelFormatOut = AV_PIX_FMT_YUV422P10;
+                p.avOutputFormat->video_codec = AV_CODEC_ID_PRORES;
+                p.avPixelFormatOut = AV_PIX_FMT_YUV422P10;
                 avProfile = FF_PROFILE_PRORES_PROXY;
                 break;
             case Profile::ProRes_LT:
-                _avOutputFormat->video_codec = AV_CODEC_ID_PRORES;
-                _avPixelFormatOut = AV_PIX_FMT_YUV422P10;
+                p.avOutputFormat->video_codec = AV_CODEC_ID_PRORES;
+                p.avPixelFormatOut = AV_PIX_FMT_YUV422P10;
                 avProfile = FF_PROFILE_PRORES_LT;
                 break;
             case Profile::ProRes_HQ:
-                _avOutputFormat->video_codec = AV_CODEC_ID_PRORES;
-                _avPixelFormatOut = AV_PIX_FMT_YUV422P10;
+                p.avOutputFormat->video_codec = AV_CODEC_ID_PRORES;
+                p.avPixelFormatOut = AV_PIX_FMT_YUV422P10;
                 avProfile = FF_PROFILE_PRORES_HQ;
                 break;
             case Profile::ProRes_4444:
-                _avOutputFormat->video_codec = AV_CODEC_ID_PRORES;
-                _avPixelFormatOut = AV_PIX_FMT_YUV444P10;
+                p.avOutputFormat->video_codec = AV_CODEC_ID_PRORES;
+                p.avPixelFormatOut = AV_PIX_FMT_YUV444P10;
                 avProfile = FF_PROFILE_PRORES_4444;
                 break;
             case Profile::ProRes_XQ:
-                _avOutputFormat->video_codec = AV_CODEC_ID_PRORES;
-                _avPixelFormatOut = AV_PIX_FMT_YUV444P10;
+                p.avOutputFormat->video_codec = AV_CODEC_ID_PRORES;
+                p.avPixelFormatOut = AV_PIX_FMT_YUV444P10;
                 avProfile = FF_PROFILE_PRORES_XQ;
                 break;
             default: break;
             }
-            _avCodec = avcodec_find_encoder(_avOutputFormat->video_codec);
-            if (!_avCodec)
+            p.avCodec = avcodec_find_encoder(p.avOutputFormat->video_codec);
+            if (!p.avCodec)
             {
                 throw std::runtime_error(string::Format("{0}: Cannot find encoder").arg(fileName));
             }
-            _avVideoStream = avformat_new_stream(_avFormatContext, _avCodec);
+            p.avVideoStream = avformat_new_stream(p.avFormatContext, p.avCodec);
 
-            _avVideoStream->codec->codec_id = _avOutputFormat->video_codec;
-            _avVideoStream->codec->codec_type = AVMEDIA_TYPE_VIDEO;
+            p.avVideoStream->codec->codec_id = p.avOutputFormat->video_codec;
+            p.avVideoStream->codec->codec_type = AVMEDIA_TYPE_VIDEO;
             const auto& videoInfo = info.video[0];
-            _avVideoStream->codec->width = videoInfo.size.w;
-            _avVideoStream->codec->height = videoInfo.size.h;
-            _avVideoStream->codec->sample_aspect_ratio = AVRational({ 1, 1 });
-            _avVideoStream->codec->pix_fmt = _avPixelFormatOut;
+            p.avVideoStream->codec->width = videoInfo.size.w;
+            p.avVideoStream->codec->height = videoInfo.size.h;
+            p.avVideoStream->codec->sample_aspect_ratio = AVRational({ 1, 1 });
+            p.avVideoStream->codec->pix_fmt = p.avPixelFormatOut;
             const auto rational = time::toRational(info.videoDuration.rate());
-            _avVideoStream->codec->time_base = { rational.second, rational.first };
-            _avVideoStream->codec->framerate = { rational.first, rational.second };
-            _avVideoStream->codec->profile = avProfile;
-            _avVideoStream->codec->bit_rate = avBitRate;
-            if (_avFormatContext->oformat->flags & AVFMT_GLOBALHEADER)
+            p.avVideoStream->codec->time_base = { rational.second, rational.first };
+            p.avVideoStream->codec->framerate = { rational.first, rational.second };
+            p.avVideoStream->codec->profile = avProfile;
+            p.avVideoStream->codec->bit_rate = avBitRate;
+            if (p.avFormatContext->oformat->flags & AVFMT_GLOBALHEADER)
             {
-                _avVideoStream->codec->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+                p.avVideoStream->codec->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
             }
 
-            r = avcodec_open2(_avVideoStream->codec, _avCodec, NULL);
+            r = avcodec_open2(p.avVideoStream->codec, p.avCodec, NULL);
             if (r < 0)
             {
                 throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
             }
 
-            r = avcodec_parameters_from_context(_avVideoStream->codecpar, _avVideoStream->codec);
+            r = avcodec_parameters_from_context(p.avVideoStream->codecpar, p.avVideoStream->codec);
             if (r < 0)
             {
                 throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
             }
 
-            _avVideoStream->time_base = { rational.second, rational.first };
-            _avVideoStream->avg_frame_rate = { rational.first, rational.second };
+            p.avVideoStream->time_base = { rational.second, rational.first };
+            p.avVideoStream->avg_frame_rate = { rational.first, rational.second };
 
             for (const auto& i : info.tags)
             {
-                av_dict_set(&_avFormatContext->metadata, i.first.c_str(), i.second.c_str(), 0);
+                av_dict_set(&p.avFormatContext->metadata, i.first.c_str(), i.second.c_str(), 0);
             }
 
-            r = avio_open(&_avFormatContext->pb, fileName.c_str(), AVIO_FLAG_WRITE);
+            r = avio_open(&p.avFormatContext->pb, fileName.c_str(), AVIO_FLAG_WRITE);
             if (r < 0)
             {
                 throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
             }
 
-            r = avformat_write_header(_avFormatContext, NULL);
+            r = avformat_write_header(p.avFormatContext, NULL);
             if (r < 0)
             {
                 throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
             }
 
-            _avPacket = av_packet_alloc();
+            p.avPacket = av_packet_alloc();
 
-            _avFrame = av_frame_alloc();
-            _avFrame->format = _avVideoStream->codecpar->format;
-            _avFrame->width = _avVideoStream->codecpar->width;
-            _avFrame->height = _avVideoStream->codecpar->height;
-            r = av_frame_get_buffer(_avFrame, 0);
+            p.avFrame = av_frame_alloc();
+            p.avFrame->format = p.avVideoStream->codecpar->format;
+            p.avFrame->width = p.avVideoStream->codecpar->width;
+            p.avFrame->height = p.avVideoStream->codecpar->height;
+            r = av_frame_get_buffer(p.avFrame, 0);
             if (r < 0)
             {
                 throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
             }
 
-            _avFrame2 = av_frame_alloc();
+            p.avFrame2 = av_frame_alloc();
             switch (videoInfo.pixelType)
             {
-            case imaging::PixelType::L_U8: _avPixelFormatIn = AV_PIX_FMT_GRAY8; break;
-            case imaging::PixelType::RGB_U8: _avPixelFormatIn = AV_PIX_FMT_RGB24; break;
-            case imaging::PixelType::RGBA_U8: _avPixelFormatIn = AV_PIX_FMT_RGBA; break;
+            case imaging::PixelType::L_U8: p.avPixelFormatIn = AV_PIX_FMT_GRAY8; break;
+            case imaging::PixelType::RGB_U8: p.avPixelFormatIn = AV_PIX_FMT_RGB24; break;
+            case imaging::PixelType::RGBA_U8: p.avPixelFormatIn = AV_PIX_FMT_RGBA; break;
             }
-            _swsContext = sws_getContext(
+            p.swsContext = sws_getContext(
                 videoInfo.size.w,
                 videoInfo.size.h,
-                _avPixelFormatIn,
+                p.avPixelFormatIn,
                 videoInfo.size.w,
                 videoInfo.size.h,
-                _avPixelFormatOut,
+                p.avPixelFormatOut,
                 swsScaleFlags,
                 0,
                 0,
                 0);
         }
 
-        Write::Write()
+        Write::Write() :
+            _p(new Private)
         {}
 
         Write::~Write()
         {
-            if (_swsContext)
+            TLR_PRIVATE_P();
+
+            if (p.swsContext)
             {
                 _encodeVideo(nullptr);
-                av_write_trailer(_avFormatContext);
+                av_write_trailer(p.avFormatContext);
             }
 
-            if (_swsContext)
+            if (p.swsContext)
             {
-                sws_freeContext(_swsContext);
+                sws_freeContext(p.swsContext);
             }
-            if (_avFrame2)
+            if (p.avFrame2)
             {
-                av_frame_free(&_avFrame2);
+                av_frame_free(&p.avFrame2);
             }
-            if (_avFrame)
+            if (p.avFrame)
             {
-                av_frame_free(&_avFrame);
+                av_frame_free(&p.avFrame);
             }
-            if (_avPacket)
+            if (p.avPacket)
             {
-                av_free_packet(_avPacket);
+                av_free_packet(p.avPacket);
             }
-            if (_avFormatContext->pb)
+            if (p.avFormatContext->pb)
             {
-                avio_closep(&_avFormatContext->pb);
+                avio_closep(&p.avFormatContext->pb);
             }
-            if (_avFormatContext)
+            if (p.avFormatContext)
             {
-                avformat_free_context(_avFormatContext);
+                avformat_free_context(p.avFormatContext);
             }
         }
 
@@ -225,41 +244,45 @@ namespace tlr
             const otime::RationalTime& time,
             const std::shared_ptr<imaging::Image>& image)
         {
+            TLR_PRIVATE_P();
+
             const auto& info = image->getInfo();
             av_image_fill_arrays(
-                _avFrame2->data,
-                _avFrame2->linesize,
+                p.avFrame2->data,
+                p.avFrame2->linesize,
                 image->getData(),
-                _avPixelFormatIn,
+                p.avPixelFormatIn,
                 info.size.w,
                 info.size.h,
                 1);
             //! \bug This is wrong for flipping YUV data.
             //for (int i = 0; i < 4; i++)
             //{
-            //    _avFrame2->data[i] += _avFrame2->linesize[i] * (info.size.h - 1);
-            //    _avFrame2->linesize[i] = -_avFrame2->linesize[i];
+            //    p.avFrame2->data[i] += p.avFrame2->linesize[i] * (info.size.h - 1);
+            //    p.avFrame2->linesize[i] = -p.avFrame2->linesize[i];
             //}
             sws_scale(
-                _swsContext,
-                (uint8_t const* const*)_avFrame2->data,
-                _avFrame2->linesize,
+                p.swsContext,
+                (uint8_t const* const*)p.avFrame2->data,
+                p.avFrame2->linesize,
                 0,
-                _avVideoStream->codecpar->height,
-                _avFrame->data,
-                _avFrame->linesize);
+                p.avVideoStream->codecpar->height,
+                p.avFrame->data,
+                p.avFrame->linesize);
 
             const auto timeRational = time::toRational(time.rate());
-            _avFrame->pts = av_rescale_q(
+            p.avFrame->pts = av_rescale_q(
                 time.value(),
                 { timeRational.second, timeRational.first },
-                _avVideoStream->time_base);
-            _encodeVideo(_avFrame);
+                p.avVideoStream->time_base);
+            _encodeVideo(p.avFrame);
         }
 
         void Write::_encodeVideo(AVFrame* frame)
         {
-            int r = avcodec_send_frame(_avVideoStream->codec, frame);
+            TLR_PRIVATE_P();
+
+            int r = avcodec_send_frame(p.avVideoStream->codec, frame);
             if (r < 0)
             {
                 throw std::runtime_error(string::Format("{0}: Cannot write frame").arg(_fileName));
@@ -267,7 +290,7 @@ namespace tlr
 
             while (r >= 0)
             {
-                r = avcodec_receive_packet(_avVideoStream->codec, _avPacket);
+                r = avcodec_receive_packet(p.avVideoStream->codec, p.avPacket);
                 if (r == AVERROR(EAGAIN) || r == AVERROR_EOF)
                 {
                     return;
@@ -276,12 +299,12 @@ namespace tlr
                 {
                     throw std::runtime_error(string::Format("{0}: Cannot write frame").arg(_fileName));
                 }
-                r = av_interleaved_write_frame(_avFormatContext, _avPacket);
+                r = av_interleaved_write_frame(p.avFormatContext, p.avPacket);
                 if (r < 0)
                 {
                     throw std::runtime_error(string::Format("{0}: Cannot write frame").arg(_fileName));
                 }
-                av_packet_unref(_avPacket);
+                av_packet_unref(p.avPacket);
             }
         }
     }

@@ -8,6 +8,7 @@
 #include <tlrGL/OffscreenBuffer.h>
 #include <tlrGL/Render.h>
 
+#include <tlrCore/AVIO.h>
 #include <tlrCore/Timeline.h>
 
 struct GLFWwindow;

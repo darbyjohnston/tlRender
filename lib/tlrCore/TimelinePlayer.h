@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <tlrCore/BBox.h>
 #include <tlrCore/ListObserver.h>
 #include <tlrCore/Timeline.h>
 #include <tlrCore/ValueObserver.h>
@@ -183,49 +182,7 @@ namespace tlr
             void tick();
 
         private:
-            otime::RationalTime _loopPlayback(const otime::RationalTime&);
-
-            enum class FrameCacheDirection
-            {
-                Forward,
-                Reverse
-            };
-
-            void _frameCacheUpdate(
-                const otime::RationalTime& currentTime,
-                const otime::TimeRange& inOutRange,
-                FrameCacheDirection,
-                std::size_t frameCacheReadAhead,
-                std::size_t frameCacheReadBehind);
-
-            std::shared_ptr<Timeline> _timeline;
-
-            std::shared_ptr<observer::Value<Playback> > _playback;
-            std::shared_ptr<observer::Value<Loop> > _loop;
-            std::shared_ptr<observer::Value<otime::RationalTime> > _currentTime;
-            std::shared_ptr<observer::Value<otime::TimeRange> > _inOutRange;
-            std::shared_ptr<observer::Value<Frame> > _frame;
-            std::shared_ptr<observer::List<otime::TimeRange> > _cachedFrames;
-            std::chrono::steady_clock::time_point _startTime;
-            otime::RationalTime _playbackStartTime = invalidTime;
-
-            struct ThreadData
-            {
-                otime::RationalTime currentTime = invalidTime;
-                otime::TimeRange inOutRange = invalidTimeRange;
-                Frame frame;
-                std::map<otime::RationalTime, std::future<Frame> > frameRequests;
-                bool clearFrameRequests = false;
-                std::map<otime::RationalTime, Frame> frameCache;
-                std::vector<otime::TimeRange> cachedFrames;
-                FrameCacheDirection frameCacheDirection = FrameCacheDirection::Forward;
-                std::size_t frameCacheReadAhead = 100;
-                std::size_t frameCacheReadBehind = 10;
-                std::mutex mutex;
-                std::atomic<bool> running;
-            };
-            ThreadData _threadData;
-            std::thread _thread;
+            TLR_PRIVATE();
         };
     }
 
@@ -233,5 +190,3 @@ namespace tlr
     TLR_ENUM_SERIALIZE(timeline::Loop);
     TLR_ENUM_SERIALIZE(timeline::TimeAction);
 }
-
-#include <tlrCore/TimelinePlayerInline.h>

@@ -54,28 +54,82 @@ namespace tlr
             return out;
         }
 
+        namespace
+        {
+            enum class FrameCacheDirection
+            {
+                Forward,
+                Reverse
+            };
+        }
+
+        struct TimelinePlayer::Private
+        {
+            otime::RationalTime loopPlayback(const otime::RationalTime&);
+
+            void frameCacheUpdate(
+                const otime::RationalTime& currentTime,
+                const otime::TimeRange& inOutRange,
+                FrameCacheDirection,
+                std::size_t frameCacheReadAhead,
+                std::size_t frameCacheReadBehind);
+
+            std::shared_ptr<Timeline> timeline;
+
+            std::shared_ptr<observer::Value<Playback> > playback;
+            std::shared_ptr<observer::Value<Loop> > loop;
+            std::shared_ptr<observer::Value<otime::RationalTime> > currentTime;
+            std::shared_ptr<observer::Value<otime::TimeRange> > inOutRange;
+            std::shared_ptr<observer::Value<Frame> > frame;
+            std::shared_ptr<observer::List<otime::TimeRange> > cachedFrames;
+            std::chrono::steady_clock::time_point startTime;
+            otime::RationalTime playbackStartTime = invalidTime;
+
+            struct ThreadData
+            {
+                otime::RationalTime currentTime = invalidTime;
+                otime::TimeRange inOutRange = invalidTimeRange;
+                Frame frame;
+                std::map<otime::RationalTime, std::future<Frame> > frameRequests;
+                bool clearFrameRequests = false;
+                std::map<otime::RationalTime, Frame> frameCache;
+                std::vector<otime::TimeRange> cachedFrames;
+                FrameCacheDirection frameCacheDirection = FrameCacheDirection::Forward;
+                std::size_t frameCacheReadAhead = 100;
+                std::size_t frameCacheReadBehind = 10;
+                std::mutex mutex;
+                std::atomic<bool> running;
+            };
+            ThreadData threadData;
+            std::thread thread;
+        };
+
         void TimelinePlayer::_init(const std::string& fileName)
         {
+            TLR_PRIVATE_P();
+
             // Create the timeline.
-            _timeline = timeline::Timeline::create(fileName);
+            p.timeline = timeline::Timeline::create(fileName);
 
             // Create observers.
-            _playback = observer::Value<Playback>::create(Playback::Stop);
-            _loop = observer::Value<Loop>::create(Loop::Loop);
-            _currentTime = observer::Value<otime::RationalTime>::create(_timeline->getGlobalStartTime());
-            _inOutRange = observer::Value<otime::TimeRange>::create(
-                otime::TimeRange(_timeline->getGlobalStartTime(), _timeline->getDuration()));
-            _frame = observer::Value<Frame>::create();
-            _cachedFrames = observer::List<otime::TimeRange>::create();
+            p.playback = observer::Value<Playback>::create(Playback::Stop);
+            p.loop = observer::Value<Loop>::create(Loop::Loop);
+            p.currentTime = observer::Value<otime::RationalTime>::create(p.timeline->getGlobalStartTime());
+            p.inOutRange = observer::Value<otime::TimeRange>::create(
+                otime::TimeRange(p.timeline->getGlobalStartTime(), p.timeline->getDuration()));
+            p.frame = observer::Value<Frame>::create();
+            p.cachedFrames = observer::List<otime::TimeRange>::create();
 
             // Create a new thread.
-            _threadData.currentTime = _currentTime->get();
-            _threadData.inOutRange = _inOutRange->get();
-            _threadData.running = true;
-            _thread = std::thread(
+            p.threadData.currentTime = p.currentTime->get();
+            p.threadData.inOutRange = p.inOutRange->get();
+            p.threadData.running = true;
+            p.thread = std::thread(
                 [this, fileName]
                 {
-                    while (_threadData.running)
+                    TLR_PRIVATE_P();
+
+                    while (p.threadData.running)
                     {
                         otime::RationalTime currentTime = invalidTime;
                         otime::TimeRange inOutRange = invalidTimeRange;
@@ -84,25 +138,25 @@ namespace tlr
                         std::size_t frameCacheReadAhead = 0;
                         std::size_t frameCacheReadBehind = 0;
                         {
-                            std::unique_lock<std::mutex> lock(_threadData.mutex);
-                            currentTime = _threadData.currentTime;
-                            inOutRange = _threadData.inOutRange;
-                            clearFrameRequests = _threadData.clearFrameRequests;
-                            _threadData.clearFrameRequests = false;
-                            frameCacheDirection = _threadData.frameCacheDirection;
-                            frameCacheReadAhead = _threadData.frameCacheReadAhead;
-                            frameCacheReadBehind = _threadData.frameCacheReadBehind;
+                            std::unique_lock<std::mutex> lock(p.threadData.mutex);
+                            currentTime = p.threadData.currentTime;
+                            inOutRange = p.threadData.inOutRange;
+                            clearFrameRequests = p.threadData.clearFrameRequests;
+                            p.threadData.clearFrameRequests = false;
+                            frameCacheDirection = p.threadData.frameCacheDirection;
+                            frameCacheReadAhead = p.threadData.frameCacheReadAhead;
+                            frameCacheReadBehind = p.threadData.frameCacheReadBehind;
                         }
 
                         //! Clear frame requests.
                         if (clearFrameRequests)
                         {
-                            _timeline->cancelFrames();
-                            _threadData.frameRequests.clear();
+                            p.timeline->cancelFrames();
+                            p.threadData.frameRequests.clear();
                         }
 
                         //! Update the frame cache.
-                        _frameCacheUpdate(
+                        p.frameCacheUpdate(
                             currentTime,
                             inOutRange,
                             frameCacheDirection,
@@ -110,11 +164,11 @@ namespace tlr
                             frameCacheReadBehind);
 
                         //! Update the frame.
-                        const auto i = _threadData.frameCache.find(currentTime);
-                        if (i != _threadData.frameCache.end())
+                        const auto i = p.threadData.frameCache.find(currentTime);
+                        if (i != p.threadData.frameCache.end())
                         {
-                            std::unique_lock<std::mutex> lock(_threadData.mutex);
-                            _threadData.frame = i->second;
+                            std::unique_lock<std::mutex> lock(p.threadData.mutex);
+                            p.threadData.frame = i->second;
                         }
 
                         time::sleep(std::chrono::microseconds(1000));
@@ -122,15 +176,17 @@ namespace tlr
                 });
         }
 
-        TimelinePlayer::TimelinePlayer()
+        TimelinePlayer::TimelinePlayer() :
+            _p(new Private)
         {}
 
         TimelinePlayer::~TimelinePlayer()
         {
-            _threadData.running = false;
-            if (_thread.joinable())
+            TLR_PRIVATE_P();
+            p.threadData.running = false;
+            if (p.thread.joinable())
             {
-                _thread.join();
+                p.thread.join();
             }
         }
 
@@ -140,24 +196,50 @@ namespace tlr
             out->_init(fileName);
             return out;
         }
+        
+        const std::string& TimelinePlayer::getFileName() const
+        {
+            return _p->timeline->getFileName();
+        }
+
+        const otime::RationalTime& TimelinePlayer::getGlobalStartTime() const
+        {
+            return _p->timeline->getGlobalStartTime();
+        }
+
+        const otime::RationalTime& TimelinePlayer::getDuration() const
+        {
+            return _p->timeline->getDuration();;
+        }
+
+        const imaging::Info& TimelinePlayer::getImageInfo() const
+        {
+            return _p->timeline->getImageInfo();
+        }
+
+        std::shared_ptr<observer::IValue<Playback> > TimelinePlayer::observePlayback() const
+        {
+            return _p->playback;
+        }
 
         void TimelinePlayer::setPlayback(Playback value)
         {
-            switch (_loop->get())
+            TLR_PRIVATE_P();
+            switch (p.loop->get())
             {
             case Loop::Once:
                 switch (value)
                 {
                 case Playback::Forward:
-                    if (_currentTime->get() == _inOutRange->get().end_time_inclusive())
+                    if (p.currentTime->get() == p.inOutRange->get().end_time_inclusive())
                     {
-                        seek(_inOutRange->get().start_time());
+                        seek(p.inOutRange->get().start_time());
                     }
                     break;
                 case Playback::Reverse:
-                    if (_currentTime->get() == _inOutRange->get().start_time())
+                    if (p.currentTime->get() == p.inOutRange->get().start_time())
                     {
-                        seek(_inOutRange->get().end_time_inclusive());
+                        seek(p.inOutRange->get().end_time_inclusive());
                     }
                     break;
                 }
@@ -166,13 +248,13 @@ namespace tlr
                 switch (value)
                 {
                 case Playback::Forward:
-                    if (_currentTime->get() == _inOutRange->get().end_time_inclusive())
+                    if (p.currentTime->get() == p.inOutRange->get().end_time_inclusive())
                     {
                         value = Playback::Reverse;
                     }
                     break;
                 case Playback::Reverse:
-                    if (_currentTime->get() == _inOutRange->get().start_time())
+                    if (p.currentTime->get() == p.inOutRange->get().start_time())
                     {
                         value = Playback::Forward;
                     }
@@ -181,61 +263,74 @@ namespace tlr
                 break;
             default: break;
             }
-            if (_playback->setIfChanged(value))
+            if (p.playback->setIfChanged(value))
             {
                 if (value != Playback::Stop)
                 {
-                    _startTime = std::chrono::steady_clock::now();
-                    _playbackStartTime = _currentTime->get();
+                    p.startTime = std::chrono::steady_clock::now();
+                    p.playbackStartTime = p.currentTime->get();
 
-                    std::unique_lock<std::mutex> lock(_threadData.mutex);
-                    _threadData.frameCacheDirection = Playback::Forward == value ? FrameCacheDirection::Forward : FrameCacheDirection::Reverse;
+                    std::unique_lock<std::mutex> lock(p.threadData.mutex);
+                    p.threadData.frameCacheDirection = Playback::Forward == value ? FrameCacheDirection::Forward : FrameCacheDirection::Reverse;
                 }
             }
         }
 
+        std::shared_ptr<observer::IValue<Loop> > TimelinePlayer::observeLoop() const
+        {
+            return _p->loop;
+        }
+
         void TimelinePlayer::setLoop(Loop value)
         {
-            _loop->setIfChanged(value);
+            _p->loop->setIfChanged(value);
+        }
+
+        std::shared_ptr<observer::IValue<otime::RationalTime> > TimelinePlayer::observeCurrentTime() const
+        {
+            return _p->currentTime;
         }
 
         void TimelinePlayer::seek(const otime::RationalTime& time)
         {
+            TLR_PRIVATE_P();
+
             // Loop the time.
-            auto range = otime::TimeRange(_timeline->getGlobalStartTime(), _timeline->getDuration());
+            auto range = otime::TimeRange(p.timeline->getGlobalStartTime(), p.timeline->getDuration());
             const auto tmp = loopTime(time, range);
 
-            if (_currentTime->setIfChanged(tmp))
+            if (p.currentTime->setIfChanged(tmp))
             {
                 //std::cout << "! " << tmp << std::endl;
 
                 // Update playback.
-                if (_playback->get() != Playback::Stop)
+                if (p.playback->get() != Playback::Stop)
                 {
-                    _startTime = std::chrono::steady_clock::now();
-                    _playbackStartTime = _currentTime->get();
+                    p.startTime = std::chrono::steady_clock::now();
+                    p.playbackStartTime = p.currentTime->get();
                 }
 
                 {
-                    std::unique_lock<std::mutex> lock(_threadData.mutex);
-                    _threadData.currentTime = tmp;
-                    _threadData.clearFrameRequests = true;
+                    std::unique_lock<std::mutex> lock(p.threadData.mutex);
+                    p.threadData.currentTime = tmp;
+                    p.threadData.clearFrameRequests = true;
                 }
             }
         }
 
         void TimelinePlayer::timeAction(TimeAction time)
         {
+            TLR_PRIVATE_P();
             setPlayback(timeline::Playback::Stop);
-            const auto& duration = _timeline->getDuration();
-            const auto& currentTime = _currentTime->get();
+            const auto& duration = p.timeline->getDuration();
+            const auto& currentTime = p.currentTime->get();
             switch (time)
             {
             case TimeAction::Start:
-                seek(_inOutRange->get().start_time());
+                seek(p.inOutRange->get().start_time());
                 break;
             case TimeAction::End:
-                seek(_inOutRange->get().end_time_inclusive());
+                seek(p.inOutRange->get().end_time_inclusive());
                 break;
             case TimeAction::FramePrev:
                 seek(otime::RationalTime(currentTime.value() - 1, duration.rate()));
@@ -279,82 +374,108 @@ namespace tlr
             timeAction(TimeAction::FrameNext);
         }
 
+        std::shared_ptr<observer::IValue<otime::TimeRange> > TimelinePlayer::observeInOutRange() const
+        {
+            return _p->inOutRange;
+        }
+
         void TimelinePlayer::setInOutRange(const otime::TimeRange& value)
         {
-            if (_inOutRange->setIfChanged(value))
+            TLR_PRIVATE_P();
+            if (p.inOutRange->setIfChanged(value))
             {
-                std::unique_lock<std::mutex> lock(_threadData.mutex);
-                _threadData.inOutRange = value;
+                std::unique_lock<std::mutex> lock(p.threadData.mutex);
+                p.threadData.inOutRange = value;
             }
         }
 
         void TimelinePlayer::setInPoint()
         {
+            TLR_PRIVATE_P();
             setInOutRange(otime::TimeRange::range_from_start_end_time(
-                _currentTime->get(),
-                _inOutRange->get().end_time_exclusive()));
+                p.currentTime->get(),
+                p.inOutRange->get().end_time_exclusive()));
         }
 
         void TimelinePlayer::resetInPoint()
         {
+            TLR_PRIVATE_P();
             setInOutRange(otime::TimeRange::range_from_start_end_time(
-                _timeline->getGlobalStartTime(),
-                _inOutRange->get().end_time_exclusive()));
+                p.timeline->getGlobalStartTime(),
+                p.inOutRange->get().end_time_exclusive()));
         }
 
         void TimelinePlayer::setOutPoint()
         {
+            TLR_PRIVATE_P();
             setInOutRange(otime::TimeRange::range_from_start_end_time_inclusive(
-                _inOutRange->get().start_time(),
-                _currentTime->get()));
+                p.inOutRange->get().start_time(),
+                p.currentTime->get()));
         }
 
         void TimelinePlayer::resetOutPoint()
         {
+            TLR_PRIVATE_P();
             setInOutRange(otime::TimeRange(
-                _inOutRange->get().start_time(),
-                _timeline->getDuration()));
+                p.inOutRange->get().start_time(),
+                p.timeline->getDuration()));
+        }
+
+        std::shared_ptr<observer::IValue<Frame> > TimelinePlayer::observeFrame() const
+        {
+            return _p->frame;
         }
 
         int TimelinePlayer::getFrameCacheReadAhead()
         {
-            std::unique_lock<std::mutex> lock(_threadData.mutex);
-            return _threadData.frameCacheReadAhead;
+            TLR_PRIVATE_P();
+            std::unique_lock<std::mutex> lock(p.threadData.mutex);
+            return p.threadData.frameCacheReadAhead;
         }
 
         int TimelinePlayer::getFrameCacheReadBehind()
         {
-            std::unique_lock<std::mutex> lock(_threadData.mutex);
-            return _threadData.frameCacheReadBehind;
+            TLR_PRIVATE_P();
+            std::unique_lock<std::mutex> lock(p.threadData.mutex);
+            return p.threadData.frameCacheReadBehind;
         }
 
         void TimelinePlayer::setFrameCacheReadAhead(int value)
         {
-            std::unique_lock<std::mutex> lock(_threadData.mutex);
-            _threadData.frameCacheReadAhead = value;
+            TLR_PRIVATE_P();
+            std::unique_lock<std::mutex> lock(p.threadData.mutex);
+            p.threadData.frameCacheReadAhead = value;
         }
 
         void TimelinePlayer::setFrameCacheReadBehind(int value)
         {
-            std::unique_lock<std::mutex> lock(_threadData.mutex);
-            _threadData.frameCacheReadBehind = value;
+            TLR_PRIVATE_P();
+            std::unique_lock<std::mutex> lock(p.threadData.mutex);
+            p.threadData.frameCacheReadBehind = value;
+        }
+
+        std::shared_ptr<observer::IList<otime::TimeRange> > TimelinePlayer::observeCachedFrames() const
+        {
+            return _p->cachedFrames;
         }
 
         void TimelinePlayer::tick()
         {
+            TLR_PRIVATE_P();
+
             // Calculate the current time.
             otio::ErrorStatus errorStatus;
-            const auto playback = _playback->get();
+            const auto playback = p.playback->get();
             if (playback != Playback::Stop)
             {
                 const auto now = std::chrono::steady_clock::now();
-                const std::chrono::duration<float> diff = now - _startTime;
-                const auto& duration = _timeline->getDuration();
-                const auto currentTime = _loopPlayback(_playbackStartTime +
+                const std::chrono::duration<float> diff = now - p.startTime;
+                const auto& duration = p.timeline->getDuration();
+                const auto currentTime = p.loopPlayback(p.playbackStartTime +
                     otime::RationalTime(floor(diff.count() * duration.rate() * (Playback::Forward == playback ? 1.0 : -1.0)), duration.rate()));
-                if (_currentTime->setIfChanged(currentTime))
+                if (p.currentTime->setIfChanged(currentTime))
                 {
-                    //std::cout << "! " << _currentTime->get() << std::endl;
+                    //std::cout << "! " << p.currentTime->get() << std::endl;
                 }
             }
 
@@ -362,21 +483,21 @@ namespace tlr
             Frame frame;
             std::vector<otime::TimeRange> cachedFrames;
             {
-                std::unique_lock<std::mutex> lock(_threadData.mutex);
-                _threadData.currentTime = _currentTime->get();
-                frame = _threadData.frame;
-                cachedFrames = _threadData.cachedFrames;
+                std::unique_lock<std::mutex> lock(p.threadData.mutex);
+                p.threadData.currentTime = p.currentTime->get();
+                frame = p.threadData.frame;
+                cachedFrames = p.threadData.cachedFrames;
             }
-            _frame->setIfChanged(frame);
-            _cachedFrames->setIfChanged(cachedFrames);
+            p.frame->setIfChanged(frame);
+            p.cachedFrames->setIfChanged(cachedFrames);
         }
 
-        otime::RationalTime TimelinePlayer::_loopPlayback(const otime::RationalTime& time)
+        otime::RationalTime TimelinePlayer::Private::loopPlayback(const otime::RationalTime& time)
         {
             otime::RationalTime out = time;
 
-            const auto range = _inOutRange->get();
-            switch (_loop->get())
+            const auto range = inOutRange->get();
+            switch (loop->get())
             {
             case Loop::Loop:
             {
@@ -384,8 +505,8 @@ namespace tlr
                 if (tmp != out)
                 {
                     out = tmp;
-                    _startTime = std::chrono::steady_clock::now();
-                    _playbackStartTime = tmp;
+                    startTime = std::chrono::steady_clock::now();
+                    playbackStartTime = tmp;
                 }
                 break;
             }
@@ -393,30 +514,30 @@ namespace tlr
                 if (out < range.start_time())
                 {
                     out = range.start_time();
-                    _playback->setIfChanged(Playback::Stop);
+                    playback->setIfChanged(Playback::Stop);
                 }
                 else if (out > range.end_time_inclusive())
                 {
                     out = range.end_time_inclusive();
-                    _playback->setIfChanged(Playback::Stop);
+                    playback->setIfChanged(Playback::Stop);
                 }
                 break;
             case Loop::PingPong:
             {
-                const auto playback = _playback->get();
-                if (out < range.start_time() && Playback::Reverse == playback)
+                const auto playbackValue = playback->get();
+                if (out < range.start_time() && Playback::Reverse == playbackValue)
                 {
                     out = range.start_time();
-                    _playback->setIfChanged(Playback::Forward);
-                    _startTime = std::chrono::steady_clock::now();
-                    _playbackStartTime = out;
+                    playback->setIfChanged(Playback::Forward);
+                    startTime = std::chrono::steady_clock::now();
+                    playbackStartTime = out;
                 }
-                else if (out > range.end_time_inclusive() && Playback::Forward == playback)
+                else if (out > range.end_time_inclusive() && Playback::Forward == playbackValue)
                 {
                     out = range.end_time_inclusive();
-                    _playback->setIfChanged(Playback::Reverse);
-                    _startTime = std::chrono::steady_clock::now();
-                    _playbackStartTime = out;
+                    playback->setIfChanged(Playback::Reverse);
+                    startTime = std::chrono::steady_clock::now();
+                    playbackStartTime = out;
                 }
                 break;
             }
@@ -426,7 +547,7 @@ namespace tlr
             return out;
         }
 
-        void TimelinePlayer::_frameCacheUpdate(
+        void TimelinePlayer::Private::frameCacheUpdate(
             const otime::RationalTime& currentTime,
             const otime::TimeRange& inOutRange,
             FrameCacheDirection frameCacheDirection,
@@ -435,7 +556,7 @@ namespace tlr
         {
             // Get which frames should be cached.
             std::vector<otime::RationalTime> frames;
-            const auto& duration = _timeline->getDuration();
+            const auto& duration = timeline->getDuration();
             auto time = currentTime;
             const auto& range = inOutRange;
             for (std::size_t i = 0; i < (FrameCacheDirection::Forward == frameCacheDirection ? frameCacheReadBehind : frameCacheReadAhead); ++i)
@@ -452,11 +573,11 @@ namespace tlr
                 time = loopTime(time + otime::RationalTime(1, duration.rate()), range);
             }
             const auto ranges = toRanges(frames);
-            _timeline->setActiveRanges(ranges);
+            timeline->setActiveRanges(ranges);
 
             // Remove old frames from the cache.
-            auto frameCacheIt = _threadData.frameCache.begin();
-            while (frameCacheIt != _threadData.frameCache.end())
+            auto frameCacheIt = threadData.frameCache.begin();
+            while (frameCacheIt != threadData.frameCache.end())
             {
                 bool old = true;
                 for (const auto& i : ranges)
@@ -469,7 +590,7 @@ namespace tlr
                 }
                 if (old)
                 {
-                    frameCacheIt = _threadData.frameCache.erase(frameCacheIt);
+                    frameCacheIt = threadData.frameCache.erase(frameCacheIt);
                 }
                 else
                 {
@@ -481,11 +602,11 @@ namespace tlr
             std::vector<otime::RationalTime> uncached;
             for (const auto& i : frames)
             {
-                const auto j = _threadData.frameCache.find(i);
-                if (j == _threadData.frameCache.end())
+                const auto j = threadData.frameCache.find(i);
+                if (j == threadData.frameCache.end())
                 {
-                    const auto k = _threadData.frameRequests.find(i);
-                    if (k == _threadData.frameRequests.end())
+                    const auto k = threadData.frameRequests.find(i);
+                    if (k == threadData.frameRequests.end())
                     {
                         uncached.push_back(i);
                     }
@@ -495,18 +616,18 @@ namespace tlr
             // Get uncached frames.
             for (const auto& i : uncached)
             {
-                _threadData.frameRequests[i] = _timeline->getFrame(i);
+                threadData.frameRequests[i] = timeline->getFrame(i);
             }
-            auto framesIt = _threadData.frameRequests.begin();
-            while (framesIt != _threadData.frameRequests.end())
+            auto framesIt = threadData.frameRequests.begin();
+            while (framesIt != threadData.frameRequests.end())
             {
                 if (framesIt->second.valid() &&
                     framesIt->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                 {
                     auto frame = framesIt->second.get();
                     frame.time = framesIt->first;
-                    _threadData.frameCache[frame.time] = frame;
-                    framesIt = _threadData.frameRequests.erase(framesIt);
+                    threadData.frameCache[frame.time] = frame;
+                    framesIt = threadData.frameRequests.erase(framesIt);
                 }
                 else
                 {
@@ -516,13 +637,13 @@ namespace tlr
 
             // Update cached frames.
             std::vector<otime::RationalTime> cachedFrames;
-            for (const auto& i : _threadData.frameCache)
+            for (const auto& i : threadData.frameCache)
             {
                 cachedFrames.push_back(i.second.time);
             }
             {
-                std::unique_lock<std::mutex> lock(_threadData.mutex);
-                _threadData.cachedFrames = toRanges(cachedFrames);
+                std::unique_lock<std::mutex> lock(threadData.mutex);
+                threadData.cachedFrames = toRanges(cachedFrames);
             }
         }
     }

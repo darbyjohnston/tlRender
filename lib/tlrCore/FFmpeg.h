@@ -13,14 +13,6 @@ extern "C"
 
 } // extern "C"
 
-#include <atomic>
-#include <condition_variable>
-#include <queue>
-#include <list>
-#include <map>
-#include <mutex>
-#include <thread>
-
 namespace tlr
 {
     //! FFmpeg I/O
@@ -84,36 +76,8 @@ namespace tlr
             void _open(const std::string& fileName);
             void _run();
             void _close();
-            int _decodeVideo(AVPacket*, const otime::RationalTime& seek);
-            void _copyVideo(const std::shared_ptr<imaging::Image>&);
 
-            avio::Info _info;
-            std::promise<avio::Info> _infoPromise;
-            struct VideoFrameRequest
-            {
-                VideoFrameRequest() {}
-                VideoFrameRequest(VideoFrameRequest&&) = default;
-
-                otime::RationalTime time = invalidTime;
-                std::promise<avio::VideoFrame> promise;
-            };
-            std::list<VideoFrameRequest> _videoFrameRequests;
-            std::condition_variable _requestCV;
-            std::mutex _requestMutex;
-            otime::RationalTime _currentTime = invalidTime;
-            std::list<std::shared_ptr<imaging::Image> > _imageBuffer;
-
-            AVFormatContext* _avFormatContext = nullptr;
-            int _avVideoStream = -1;
-            std::map<int, AVCodecParameters*> _avCodecParameters;
-            std::map<int, AVCodecContext*> _avCodecContext;
-            AVFrame* _avFrame = nullptr;
-            AVFrame* _avFrame2 = nullptr;
-            SwsContext* _swsContext = nullptr;
-
-            std::thread _thread;
-            std::atomic<bool> _running;
-            std::atomic<bool> _stopped;
+            TLR_PRIVATE();
         };
 
         //! FFmpeg writer.
@@ -142,16 +106,7 @@ namespace tlr
         private:
             void _encodeVideo(AVFrame*);
 
-            AVOutputFormat* _avOutputFormat = nullptr;
-            AVFormatContext* _avFormatContext = nullptr;
-            AVCodec* _avCodec = nullptr;
-            AVStream* _avVideoStream = nullptr;
-            AVPacket* _avPacket = nullptr;
-            AVFrame* _avFrame = nullptr;
-            AVPixelFormat _avPixelFormatIn = AV_PIX_FMT_NONE;
-            AVPixelFormat _avPixelFormatOut = AV_PIX_FMT_YUV420P;
-            AVFrame* _avFrame2 = nullptr;
-            SwsContext* _swsContext = nullptr;
+            TLR_PRIVATE();
         };
 
         //! FFmpeg Plugin

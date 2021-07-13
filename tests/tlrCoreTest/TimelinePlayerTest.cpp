@@ -5,8 +5,10 @@
 #include <tlrCoreTest/TimelinePlayerTest.h>
 
 #include <tlrCore/Assert.h>
+#include <tlrCore/AVIO.h>
 #include <tlrCore/TimelinePlayer.h>
 
+#include <opentimelineio/clip.h>
 #include <opentimelineio/timeline.h>
 #include <opentimelineio/imageSequenceReference.h>
 

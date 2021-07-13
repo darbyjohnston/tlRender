@@ -5,14 +5,6 @@
 #pragma once
 
 #include <tlrCore/AVIO.h>
-#include <tlrCore/Cache.h>
-
-#include <atomic>
-#include <condition_variable>
-#include <queue>
-#include <list>
-#include <mutex>
-#include <thread>
 
 namespace tlr
 {
@@ -55,30 +47,7 @@ namespace tlr
         private:
             void _run();
 
-            std::string _path;
-            std::string _baseName;
-            std::string _number;
-            int _pad = 0;
-            std::string _extension;
-
-            std::promise<Info> _infoPromise;
-
-            struct VideoFrameRequest
-            {
-                VideoFrameRequest() {}
-                VideoFrameRequest(VideoFrameRequest&&) = default;
-
-                otime::RationalTime time = invalidTime;
-                std::promise<VideoFrame> promise;
-            };
-            std::list<VideoFrameRequest> _videoFrameRequests;
-            std::condition_variable _requestCV;
-            std::mutex _requestMutex;
-            memory::Cache<std::string, VideoFrame> _videoFrameCache;
-
-            std::thread _thread;
-            std::atomic<bool> _running;
-            std::atomic<bool> _stopped;
+            TLR_PRIVATE();
         };
 
         //! Base class for image sequence writers.
@@ -105,13 +74,7 @@ namespace tlr
                 const std::shared_ptr<imaging::Image>&) = 0;
 
         private:
-            std::string _path;
-            std::string _baseName;
-            std::string _number;
-            int _pad = 0;
-            std::string _extension;
-
-            double _defaultSpeed = sequenceDefaultSpeed;
+            TLR_PRIVATE();
         };
     }
 }

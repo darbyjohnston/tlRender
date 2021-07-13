@@ -4,17 +4,12 @@
 
 #pragma once
 
-#include <tlrCore/AVIO.h>
-#include <tlrCore/Util.h>
+#include <tlrCore/Image.h>
+#include <tlrCore/Time.h>
 
-#include <opentimelineio/clip.h>
-#include <opentimelineio/imageSequenceReference.h>
-#include <opentimelineio/timeline.h>
-#include <opentimelineio/track.h>
+#include <opentimelineio/composable.h>
 
-#include <atomic>
-#include <mutex>
-#include <thread>
+#include <future>
 
 namespace tlr
 {
@@ -117,55 +112,10 @@ namespace tlr
             ///@}
 
         private:
-            std::string _fixFileName(const std::string&) const;
-            std::string _getFileName(const otio::ImageSequenceReference*) const;
-            std::string _getFileName(const otio::MediaReference*) const;
-
-            bool _getImageInfo(const otio::Composable*, imaging::Info&) const;
-
-            void _tick();
-            void _frameRequests();
-            std::future<avio::VideoFrame> _readVideoFrame(
-                const otio::Track*,
-                const otio::Clip*,
-                const otime::RationalTime&);
-            void _stopReaders();
-            void _delReaders();
-
-            std::string _fileName;
-            otio::SerializableObject::Retainer<otio::Timeline> _timeline;
-            otime::RationalTime _duration = invalidTime;
-            otime::RationalTime _globalStartTime = invalidTime;
-            std::shared_ptr<avio::System> _ioSystem;
-            imaging::Info _imageInfo;
-            std::vector<otime::TimeRange> _activeRanges;
-
-            struct Request
-            {
-                Request() {};
-                Request(Request&&) = default;
-
-                otime::RationalTime time = invalidTime;
-                std::promise<Frame> promise;
-            };
-            std::list<Request> _requests;
-            std::condition_variable _requestCV;
-            std::mutex _requestMutex;
-
-            struct Reader
-            {
-                std::shared_ptr<avio::IRead> read;
-                avio::Info info;
-            };
-            std::map<const otio::Clip*, Reader> _readers;
-            std::list<std::shared_ptr<avio::IRead> > _stoppedReaders;
-
-            std::thread _thread;
-            std::atomic<bool> _running;
+            TLR_PRIVATE();
         };
     }
 
     TLR_ENUM_SERIALIZE(timeline::Transition);
 }
 
-#include <tlrCore/TimelineInline.h>

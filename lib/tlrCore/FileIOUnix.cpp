@@ -108,17 +108,17 @@ namespace tlr
         {
             void setPos(size_t, bool seek);
             
-            std::string    _fileName;
-            Mode           _mode = Mode::First;
-            size_t         _pos = 0;
-            size_t         _size = 0;
-            bool           _endianConversion = false;
-            int            _f = -1;
+            std::string    fileName;
+            Mode           mode = Mode::First;
+            size_t         pos = 0;
+            size_t         size = 0;
+            bool           endianConversion = false;
+            int            f = -1;
 #if defined(TLR_ENABLE_MMAP)
-            void*          _mmap = reinterpret_cast<void*>(-1);
-            const uint8_t* _mmapStart = nullptr;
-            const uint8_t* _mmapEnd = nullptr;
-            const uint8_t* _mmapP = nullptr;
+            void*          mmap = reinterpret_cast<void*>(-1);
+            const uint8_t* mmapStart = nullptr;
+            const uint8_t* mmapEnd = nullptr;
+            const uint8_t* mmapP = nullptr;
 #endif // TLR_ENABLE_MMAP
         };
 

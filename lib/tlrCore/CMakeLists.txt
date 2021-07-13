@@ -34,7 +34,6 @@ set(HEADERS
     StringFormatInline.h
     Time.h
     Timeline.h
-    TimelineInline.h
     TimelinePlayer.h
     TimelinePlayerInline.h
     Util.h
