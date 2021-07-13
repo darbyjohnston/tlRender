@@ -6,10 +6,7 @@
 
 #include <tlrQt/TimeObject.h>
 
-#include <tlrCore/Util.h>
-
 #include <QAbstractSpinBox>
-#include <QRegExpValidator>
 
 namespace tlr
 {
@@ -60,10 +57,7 @@ namespace tlr
             void _vaidatorUpdate();
             void _textUpdate();
 
-            otime::RationalTime _value = invalidTime;
-            TimeObject::Units _units = TimeObject::Units::Timecode;
-            QRegExpValidator* _validator = nullptr;
-            TimeObject* _timeObject = nullptr;
+            TLR_PRIVATE();
         };
     }
 }

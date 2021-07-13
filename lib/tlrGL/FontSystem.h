@@ -5,17 +5,11 @@
 #pragma once
 
 #include <tlrCore/BBox.h>
-#include <tlrCore/Cache.h>
 #include <tlrCore/Util.h>
 
-#include <freetype2/ft2build.h>
-#include FT_FREETYPE_H
-#include FT_GLYPH_H
-
-#include <codecvt>
-#include <locale>
-#include <map>
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace tlr
 {
@@ -137,18 +131,7 @@ namespace tlr
             ///@}
 
         private:
-            std::shared_ptr<Glyph> _getGlyph(uint32_t code, const FontInfo&);
-            void _measure(
-                const std::basic_string<tlr_char_t>& utf32,
-                const FontInfo&,
-                uint16_t maxLineWidth,
-                math::Vector2f&,
-                std::vector<math::BBox2f>* = nullptr);
-
-            FT_Library _ftLibrary = nullptr;
-            std::map<FontFamily, FT_Face> _ftFaces;
-            std::wstring_convert<std::codecvt_utf8<tlr_char_t>, tlr_char_t> _utf32Convert;
-            memory::Cache<GlyphInfo, std::shared_ptr<Glyph> > _glyphCache;
+            TLR_PRIVATE();
         };
     }
 }

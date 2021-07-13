@@ -195,14 +195,7 @@ namespace tlr
             void timerEvent(QTimerEvent*) override;
 
         private:
-            std::shared_ptr<timeline::TimelinePlayer> _timelinePlayer;
-
-            std::shared_ptr<observer::ValueObserver<timeline::Playback> > _playbackObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::Loop> > _loopObserver;
-            std::shared_ptr<observer::ValueObserver<otime::RationalTime> > _currentTimeObserver;
-            std::shared_ptr<observer::ValueObserver<otime::TimeRange> > _inOutRangeObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::Frame> > _frameObserver;
-            std::shared_ptr<observer::ListObserver<otime::TimeRange> > _cachedFramesObserver;
+            TLR_PRIVATE();
         };
     }
 }

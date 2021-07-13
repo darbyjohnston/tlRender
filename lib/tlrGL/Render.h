@@ -7,11 +7,8 @@
 #include <tlrGL/FontSystem.h>
 
 #include <tlrCore/BBox.h>
-#include <tlrCore/Cache.h>
 #include <tlrCore/Color.h>
 #include <tlrCore/Timeline.h>
-
-#include <OpenColorIO/OpenColorIO.h>
 
 #include <glad.h>
 
@@ -22,8 +19,6 @@ namespace tlr
         class Image;
         class Size;
     }
-
-    namespace OCIO = OCIO_NAMESPACE;
 
     namespace gl
     {
@@ -87,31 +82,7 @@ namespace tlr
                 const imaging::Color4f&);
 
         private:
-            ColorConfig _colorConfig;
-            OCIO::ConstConfigRcPtr _ocioConfig;
-            OCIO::ConstProcessorRcPtr _ocioProcessor;
-            OCIO::ConstGPUProcessorRcPtr _ocioGpuProcessor;
-            OCIO::GpuShaderDescRcPtr _ocioShaderDesc;
-            struct TextureId
-            {
-                TextureId(
-                    unsigned    id,
-                    std::string name,
-                    std::string sampler,
-                    unsigned    type);
-
-                unsigned    id = -1;
-                std::string name;
-                std::string sampler;
-                unsigned    type = -1;
-            };
-            std::vector<TextureId> _colorTextures;
-
-            imaging::Size _size;
-
-            std::shared_ptr<Shader> _shader;
-
-            memory::Cache<GlyphInfo, std::shared_ptr<Texture> > _glyphTextureCache;
+            TLR_PRIVATE();
         };
     }
 }

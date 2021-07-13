@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlrQt/TimelineThumbnailProvider.h>
+#include <tlrCore/Timeline.h>
 
 #include <QWidget>
 
@@ -37,9 +37,7 @@ namespace tlr
 
             void _thumbnailsUpdate();
 
-            std::shared_ptr<timeline::Timeline> _timeline;
-            TimelineThumbnailProvider* _thumbnailProvider = nullptr;
-            std::map<otime::RationalTime, QImage> _thumbnails;
+            TLR_PRIVATE();
         };
     }
 }

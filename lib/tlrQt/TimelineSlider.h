@@ -6,7 +6,6 @@
 
 #include <tlrQt/TimeObject.h>
 #include <tlrQt/TimelinePlayer.h>
-#include <tlrQt/TimelineThumbnailProvider.h>
 
 #include <tlrGL/Render.h>
 
@@ -56,12 +55,7 @@ namespace tlr
 
             void _thumbnailsUpdate();
 
-            gl::ColorConfig _colorConfig;
-            TimelinePlayer* _timelinePlayer = nullptr;
-            TimelineThumbnailProvider* _thumbnailProvider = nullptr;
-            std::map<otime::RationalTime, QImage> _thumbnails;
-            TimeObject::Units _units = TimeObject::Units::Timecode;
-            TimeObject* _timeObject = nullptr;
+            TLR_PRIVATE();
         };
     }
 }

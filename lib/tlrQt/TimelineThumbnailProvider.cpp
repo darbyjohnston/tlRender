@@ -9,92 +9,124 @@
 #include <tlrCore/TimelinePlayer.h>
 
 #include <QImage>
+#include <QOffscreenSurface>
 #include <QOpenGLContext>
 #include <QOpenGLFramebufferObject>
+
+#include <atomic>
+#include <mutex>
 
 namespace tlr
 {
     namespace qt
     {
+        struct TimelineThumbnailProvider::Private
+        {
+            std::shared_ptr<timeline::Timeline> timeline;
+            gl::ColorConfig colorConfig;
+            struct Request
+            {
+                otime::RationalTime time = invalidTime;
+                QSize size;
+            };
+            std::list<Request> requests;
+            QList<QPair<otime::RationalTime, QImage> > results;
+            bool cancelRequests = false;
+            QOffscreenSurface* surface = nullptr;
+            QOpenGLContext* context = nullptr;
+            std::condition_variable cv;
+            std::mutex mutex;
+            std::atomic<bool> running;
+        };
+
         TimelineThumbnailProvider::TimelineThumbnailProvider(
             const std::shared_ptr<tlr::timeline::Timeline>& timeline,
             QObject* parent) :
             QThread(parent),
-            _timeline(timeline)
+            _p(new Private)
         {
-            _context = new QOpenGLContext;
-            _context->create();
+            TLR_PRIVATE_P();
 
-            _surface = new QOffscreenSurface;
-            _surface->setFormat(_context->format());
-            _surface->create();
+            p.timeline = timeline;
 
-            _context->moveToThread(this);
+            p.context = new QOpenGLContext;
+            p.context->create();
 
-            _running = true;
+            p.surface = new QOffscreenSurface;
+            p.surface->setFormat(p.context->format());
+            p.surface->create();
+
+            p.context->moveToThread(this);
+
+            p.running = true;
             start();
             startTimer(thumbnailTimerInterval);
         }
 
         TimelineThumbnailProvider::~TimelineThumbnailProvider()
         {
-            _running = false;
+            TLR_PRIVATE_P();
+            p.running = false;
             wait();
-            delete _surface;
+            delete p.surface;
         }
 
         void TimelineThumbnailProvider::setColorConfig(const gl::ColorConfig& colorConfig)
         {
-            {
-                std::unique_lock<std::mutex> lock(_mutex);
-                _colorConfig = colorConfig;
-            }
+            TLR_PRIVATE_P();
+            std::unique_lock<std::mutex> lock(p.mutex);
+            p.colorConfig = colorConfig;
         }
 
         void TimelineThumbnailProvider::request(const otime::RationalTime& time, const QSize& size)
         {
+            TLR_PRIVATE_P();
             {
-                std::unique_lock<std::mutex> lock(_mutex);
-                if (_cancelRequests)
+                std::unique_lock<std::mutex> lock(p.mutex);
+                if (p.cancelRequests)
                 {
-                    _requests.clear();
+                    p.requests.clear();
                 }
-                Request request;
+                Private::Request request;
                 request.time = time;
                 request.size = size;
-                _requests.push_back(std::move(request));
+                p.requests.push_back(std::move(request));
             }
-            _cv.notify_one();
+            p.cv.notify_one();
         }
 
         void TimelineThumbnailProvider::request(const QList<otime::RationalTime>& times, const QSize& size)
         {
+            TLR_PRIVATE_P();
             {
-                std::unique_lock<std::mutex> lock(_mutex);
-                if (_cancelRequests)
+                std::unique_lock<std::mutex> lock(p.mutex);
+                if (p.cancelRequests)
                 {
-                    _requests.clear();
+                    p.requests.clear();
                 }
                 for (const auto& i : times)
                 {
-                    Request request;
+                    Private::Request request;
                     request.time = i;
                     request.size = size;
-                    _requests.push_back(std::move(request));
+                    p.requests.push_back(std::move(request));
                 }
             }
-            _cv.notify_one();
+            p.cv.notify_one();
         }
 
         void TimelineThumbnailProvider::cancelRequests()
         {
-            std::unique_lock<std::mutex> lock(_mutex);
-            _cancelRequests = true;
+            TLR_PRIVATE_P();
+            std::unique_lock<std::mutex> lock(p.mutex);
+            p.cancelRequests = true;
         }
 
         void TimelineThumbnailProvider::run()
         {
-            _context->makeCurrent(_surface);
+            TLR_PRIVATE_P();
+
+            p.context->makeCurrent(p.surface);
             gladLoadGL();
 
             auto render = gl::Render::create();
@@ -103,31 +135,31 @@ namespace tlr
             imaging::Info fboInfo;
 
             gl::ColorConfig colorConfig;
-            std::list<Request> requests;
-            while (_running)
+            std::list<Private::Request> requests;
+            while (p.running)
             {
                 {
-                    std::unique_lock<std::mutex> lock(_mutex);
-                    if (_cv.wait_for(
+                    std::unique_lock<std::mutex> lock(p.mutex);
+                    if (p.cv.wait_for(
                         lock,
                         thumbnailRequestTimeout,
                         [this, &requests]
                         {
-                            return !_requests.empty() || _cancelRequests || !requests.empty();
+                            return !_p->requests.empty() || _p->cancelRequests || !requests.empty();
                         }))
                     {
-                        colorConfig = _colorConfig;
-                        if (_cancelRequests)
+                        colorConfig = p.colorConfig;
+                        if (p.cancelRequests)
                         {
-                            _cancelRequests = false;
-                            _timeline->cancelFrames();
+                            p.cancelRequests = false;
+                            p.timeline->cancelFrames();
                             requests.clear();
-                            _results.clear();
+                            p.results.clear();
                         }
-                        while (!_requests.empty())
+                        while (!p.requests.empty())
                         {
-                            requests.push_back(std::move(_requests.front()));
-                            _requests.pop_front();
+                            requests.push_back(std::move(p.requests.front()));
+                            p.requests.pop_front();
                         }
                     }
                 }
@@ -135,7 +167,7 @@ namespace tlr
                 {
                     const auto request = std::move(requests.front());
                     requests.pop_front();
-                    const auto frame = _timeline->getFrame(request.time).get();
+                    const auto frame = p.timeline->getFrame(request.time).get();
 
                     const imaging::Info info(request.size.width(), request.size.height(), imaging::PixelType::RGBA_U8);
                     if (info != fboInfo)
@@ -166,21 +198,22 @@ namespace tlr
                         info.size.w * 4,
                         QImage::Format_RGBA8888).mirrored();
 
-                    std::unique_lock<std::mutex> lock(_mutex);
-                    _results.push_back(QPair<otime::RationalTime, QImage>(request.time, qImage));
+                    std::unique_lock<std::mutex> lock(p.mutex);
+                    p.results.push_back(QPair<otime::RationalTime, QImage>(request.time, qImage));
                 }
             }
 
             render.reset();
-            _context->doneCurrent();
+            p.context->doneCurrent();
         }
 
         void TimelineThumbnailProvider::timerEvent(QTimerEvent*)
         {
+            TLR_PRIVATE_P();
             QList<QPair<otime::RationalTime, QImage> > results;
             {
-                std::unique_lock<std::mutex> lock(_mutex);
-                results.swap(_results);
+                std::unique_lock<std::mutex> lock(p.mutex);
+                results.swap(p.results);
             }
             if (!results.empty())
             {

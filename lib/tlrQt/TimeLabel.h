@@ -6,9 +6,7 @@
 
 #include <tlrQt/TimeObject.h>
 
-#include <tlrCore/Timeline.h>
-
-#include <QLabel>
+#include <QWidget>
 
 namespace tlr
 {
@@ -35,10 +33,7 @@ namespace tlr
         private:
             void _textUpdate();
 
-            otime::RationalTime _value = invalidTime;
-            TimeObject::Units _units = TimeObject::Units::Timecode;
-            QLabel* _label = nullptr;
-            TimeObject* _timeObject = nullptr;
+            TLR_PRIVATE();
         };
     }
 }

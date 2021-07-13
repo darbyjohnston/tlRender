@@ -4,215 +4,245 @@
 
 #include <tlrQt/TimelineControls.h>
 
+#include <tlrQt/SpeedLabel.h>
+#include <tlrQt/TimeLabel.h>
+#include <tlrQt/TimeSpinBox.h>
+
+#include <QButtonGroup>
 #include <QFontDatabase>
 #include <QHBoxLayout>
+#include <QMap>
 #include <QStyle>
+#include <QToolButton>
 #include <QVBoxLayout>
 
 namespace tlr
 {
     namespace qt
     {
-        TimelineControls::TimelineControls(QWidget* parent) :
-            QWidget(parent)
+        struct TimelineControls::Private
         {
-            _playbackButtons["Stop"] = new QToolButton;
-            _playbackButtons["Stop"]->setCheckable(true);
-            _playbackButtons["Stop"]->setIcon(QIcon(":/Icons/PlaybackStop.svg"));
-            _playbackButtons["Stop"]->setToolTip(tr("Stop playback"));
-            _playbackButtons["Forward"] = new QToolButton;
-            _playbackButtons["Forward"]->setCheckable(true);
-            _playbackButtons["Forward"]->setIcon(QIcon(":/Icons/PlaybackForward.svg"));
-            _playbackButtons["Forward"]->setToolTip(tr("Forward playback"));
-            _playbackButtons["Reverse"] = new QToolButton;
-            _playbackButtons["Reverse"]->setCheckable(true);
-            _playbackButtons["Reverse"]->setIcon(QIcon(":/Icons/PlaybackReverse.svg"));
-            _playbackButtons["Reverse"]->setToolTip(tr("Reverse playback"));
-            _playbackButtonGroup = new QButtonGroup(this);
-            _playbackButtonGroup->setExclusive(true);
-            _playbackButtonGroup->addButton(_playbackButtons["Stop"]);
-            _playbackButtonGroup->addButton(_playbackButtons["Forward"]);
-            _playbackButtonGroup->addButton(_playbackButtons["Reverse"]);
-            _buttonToPlayback[_playbackButtons["Stop"]] = timeline::Playback::Stop;
-            _buttonToPlayback[_playbackButtons["Forward"]] = timeline::Playback::Forward;
-            _buttonToPlayback[_playbackButtons["Reverse"]] = timeline::Playback::Reverse;
-            _playbackToButton[timeline::Playback::Stop] = _playbackButtons["Stop"];
-            _playbackToButton[timeline::Playback::Forward] = _playbackButtons["Forward"];
-            _playbackToButton[timeline::Playback::Reverse] = _playbackButtons["Reverse"];
+            TimelinePlayer* timelinePlayer = nullptr;
+            QMap<QString, QAbstractButton*> playbackButtons;
+            QButtonGroup* playbackButtonGroup = nullptr;
+            QMap<QAbstractButton*, timeline::Playback> buttonToPlayback;
+            QMap<timeline::Playback, QAbstractButton*> playbackToButton;
+            QMap<QString, QAbstractButton*> timeActionButtons;
+            QButtonGroup* timeActionButtonGroup = nullptr;
+            QMap<QAbstractButton*, timeline::TimeAction> buttonToTimeAction;
+            SpeedLabel* speedLabel = nullptr;
+            TimeSpinBox* currentTimeSpinBox = nullptr;
+            TimeSpinBox* inPointSpinBox = nullptr;
+            TimeSpinBox* outPointSpinBox = nullptr;
+            QMap<QString, QAbstractButton*> inOutButtons;
+            TimeLabel* durationLabel = nullptr;
+        };
 
-            _timeActionButtons["Start"] = new QToolButton;
-            _timeActionButtons["Start"]->setIcon(QIcon(":/Icons/TimeStart.svg"));
-            _timeActionButtons["Start"]->setToolTip(tr("Go to the start time"));
-            _timeActionButtons["End"] = new QToolButton;
-            _timeActionButtons["End"]->setIcon(QIcon(":/Icons/TimeEnd.svg"));
-            _timeActionButtons["End"]->setToolTip(tr("Go to the end time"));
-            _timeActionButtons["FramePrev"] = new QToolButton;
-            _timeActionButtons["FramePrev"]->setAutoRepeat(true);
-            _timeActionButtons["FramePrev"]->setIcon(QIcon(":/Icons/FramePrev.svg"));
-            _timeActionButtons["FramePrev"]->setToolTip(tr("Go to the previous frame"));
-            _timeActionButtons["FrameNext"] = new QToolButton;
-            _timeActionButtons["FrameNext"]->setAutoRepeat(true);
-            _timeActionButtons["FrameNext"]->setIcon(QIcon(":/Icons/FrameNext.svg"));
-            _timeActionButtons["FrameNext"]->setToolTip(tr("Go to the next frame"));
-            _timeActionButtonGroup = new QButtonGroup(this);
-            _timeActionButtonGroup->addButton(_timeActionButtons["Start"]);
-            _timeActionButtonGroup->addButton(_timeActionButtons["End"]);
-            _timeActionButtonGroup->addButton(_timeActionButtons["FramePrev"]);
-            _timeActionButtonGroup->addButton(_timeActionButtons["FrameNext"]);
-            _buttonToTimeAction[_timeActionButtons["Start"]] = timeline::TimeAction::Start;
-            _buttonToTimeAction[_timeActionButtons["End"]] = timeline::TimeAction::End;
-            _buttonToTimeAction[_timeActionButtons["FramePrev"]] = timeline::TimeAction::FramePrev;
-            _buttonToTimeAction[_timeActionButtons["FrameNext"]] = timeline::TimeAction::FrameNext;
+        TimelineControls::TimelineControls(QWidget* parent) :
+            QWidget(parent),
+            _p(new Private)
+        {
+            TLR_PRIVATE_P();
 
-            _speedLabel = new SpeedLabel;
-            _speedLabel->setToolTip(tr("Timeline speed (frames per second)"));
+            p.playbackButtons["Stop"] = new QToolButton;
+            p.playbackButtons["Stop"]->setCheckable(true);
+            p.playbackButtons["Stop"]->setIcon(QIcon(":/Icons/PlaybackStop.svg"));
+            p.playbackButtons["Stop"]->setToolTip(tr("Stop playback"));
+            p.playbackButtons["Forward"] = new QToolButton;
+            p.playbackButtons["Forward"]->setCheckable(true);
+            p.playbackButtons["Forward"]->setIcon(QIcon(":/Icons/PlaybackForward.svg"));
+            p.playbackButtons["Forward"]->setToolTip(tr("Forward playback"));
+            p.playbackButtons["Reverse"] = new QToolButton;
+            p.playbackButtons["Reverse"]->setCheckable(true);
+            p.playbackButtons["Reverse"]->setIcon(QIcon(":/Icons/PlaybackReverse.svg"));
+            p.playbackButtons["Reverse"]->setToolTip(tr("Reverse playback"));
+            p.playbackButtonGroup = new QButtonGroup(this);
+            p.playbackButtonGroup->setExclusive(true);
+            p.playbackButtonGroup->addButton(p.playbackButtons["Stop"]);
+            p.playbackButtonGroup->addButton(p.playbackButtons["Forward"]);
+            p.playbackButtonGroup->addButton(p.playbackButtons["Reverse"]);
+            p.buttonToPlayback[p.playbackButtons["Stop"]] = timeline::Playback::Stop;
+            p.buttonToPlayback[p.playbackButtons["Forward"]] = timeline::Playback::Forward;
+            p.buttonToPlayback[p.playbackButtons["Reverse"]] = timeline::Playback::Reverse;
+            p.playbackToButton[timeline::Playback::Stop] = p.playbackButtons["Stop"];
+            p.playbackToButton[timeline::Playback::Forward] = p.playbackButtons["Forward"];
+            p.playbackToButton[timeline::Playback::Reverse] = p.playbackButtons["Reverse"];
 
-            _currentTimeSpinBox = new TimeSpinBox;
-            _currentTimeSpinBox->setToolTip(tr("Current time"));
+            p.timeActionButtons["Start"] = new QToolButton;
+            p.timeActionButtons["Start"]->setIcon(QIcon(":/Icons/TimeStart.svg"));
+            p.timeActionButtons["Start"]->setToolTip(tr("Go to the start time"));
+            p.timeActionButtons["End"] = new QToolButton;
+            p.timeActionButtons["End"]->setIcon(QIcon(":/Icons/TimeEnd.svg"));
+            p.timeActionButtons["End"]->setToolTip(tr("Go to the end time"));
+            p.timeActionButtons["FramePrev"] = new QToolButton;
+            p.timeActionButtons["FramePrev"]->setAutoRepeat(true);
+            p.timeActionButtons["FramePrev"]->setIcon(QIcon(":/Icons/FramePrev.svg"));
+            p.timeActionButtons["FramePrev"]->setToolTip(tr("Go to the previous frame"));
+            p.timeActionButtons["FrameNext"] = new QToolButton;
+            p.timeActionButtons["FrameNext"]->setAutoRepeat(true);
+            p.timeActionButtons["FrameNext"]->setIcon(QIcon(":/Icons/FrameNext.svg"));
+            p.timeActionButtons["FrameNext"]->setToolTip(tr("Go to the next frame"));
+            p.timeActionButtonGroup = new QButtonGroup(this);
+            p.timeActionButtonGroup->addButton(p.timeActionButtons["Start"]);
+            p.timeActionButtonGroup->addButton(p.timeActionButtons["End"]);
+            p.timeActionButtonGroup->addButton(p.timeActionButtons["FramePrev"]);
+            p.timeActionButtonGroup->addButton(p.timeActionButtons["FrameNext"]);
+            p.buttonToTimeAction[p.timeActionButtons["Start"]] = timeline::TimeAction::Start;
+            p.buttonToTimeAction[p.timeActionButtons["End"]] = timeline::TimeAction::End;
+            p.buttonToTimeAction[p.timeActionButtons["FramePrev"]] = timeline::TimeAction::FramePrev;
+            p.buttonToTimeAction[p.timeActionButtons["FrameNext"]] = timeline::TimeAction::FrameNext;
 
-            _inPointSpinBox = new TimeSpinBox;
-            _inPointSpinBox->setToolTip(tr("Playback in point"));
+            p.speedLabel = new SpeedLabel;
+            p.speedLabel->setToolTip(tr("Timeline speed (frames per second)"));
 
-            _outPointSpinBox = new TimeSpinBox;
-            _outPointSpinBox->setToolTip(tr("Playback out point"));
+            p.currentTimeSpinBox = new TimeSpinBox;
+            p.currentTimeSpinBox->setToolTip(tr("Current time"));
 
-            _inOutButtons["SetInPoint"] = new QToolButton;
-            _inOutButtons["SetInPoint"]->setIcon(QIcon(":/Icons/TimeStart.svg"));
-            _inOutButtons["SetInPoint"]->setToolTip(tr("Set the playback in point to the current frame"));
-            _inOutButtons["ResetInPoint"] = new QToolButton;
-            _inOutButtons["ResetInPoint"]->setIcon(QIcon(":/Icons/Reset.svg"));
-            _inOutButtons["ResetInPoint"]->setToolTip(tr("Reset the playback in point"));
-            _inOutButtons["SetOutPoint"] = new QToolButton;
-            _inOutButtons["SetOutPoint"]->setIcon(QIcon(":/Icons/TimeEnd.svg"));
-            _inOutButtons["SetOutPoint"]->setToolTip(tr("Set the playback out point to the current frame"));
-            _inOutButtons["ResetOutPoint"] = new QToolButton;
-            _inOutButtons["ResetOutPoint"]->setIcon(QIcon(":/Icons/Reset.svg"));
-            _inOutButtons["ResetOutPoint"]->setToolTip(tr("Reset the playback out point"));
+            p.inPointSpinBox = new TimeSpinBox;
+            p.inPointSpinBox->setToolTip(tr("Playback in point"));
 
-            _durationLabel = new TimeLabel;
-            _durationLabel->setToolTip(tr("Timeline duration"));
+            p.outPointSpinBox = new TimeSpinBox;
+            p.outPointSpinBox->setToolTip(tr("Playback out point"));
+
+            p.inOutButtons["SetInPoint"] = new QToolButton;
+            p.inOutButtons["SetInPoint"]->setIcon(QIcon(":/Icons/TimeStart.svg"));
+            p.inOutButtons["SetInPoint"]->setToolTip(tr("Set the playback in point to the current frame"));
+            p.inOutButtons["ResetInPoint"] = new QToolButton;
+            p.inOutButtons["ResetInPoint"]->setIcon(QIcon(":/Icons/Reset.svg"));
+            p.inOutButtons["ResetInPoint"]->setToolTip(tr("Reset the playback in point"));
+            p.inOutButtons["SetOutPoint"] = new QToolButton;
+            p.inOutButtons["SetOutPoint"]->setIcon(QIcon(":/Icons/TimeEnd.svg"));
+            p.inOutButtons["SetOutPoint"]->setToolTip(tr("Set the playback out point to the current frame"));
+            p.inOutButtons["ResetOutPoint"] = new QToolButton;
+            p.inOutButtons["ResetOutPoint"]->setIcon(QIcon(":/Icons/Reset.svg"));
+            p.inOutButtons["ResetOutPoint"]->setToolTip(tr("Reset the playback out point"));
+
+            p.durationLabel = new TimeLabel;
+            p.durationLabel->setToolTip(tr("Timeline duration"));
 
             auto layout = new QHBoxLayout;
             layout->setMargin(0);
             auto hLayout = new QHBoxLayout;
             hLayout->setSpacing(1);
-            hLayout->addWidget(_playbackButtons["Reverse"]);
-            hLayout->addWidget(_playbackButtons["Stop"]);
-            hLayout->addWidget(_playbackButtons["Forward"]);
+            hLayout->addWidget(p.playbackButtons["Reverse"]);
+            hLayout->addWidget(p.playbackButtons["Stop"]);
+            hLayout->addWidget(p.playbackButtons["Forward"]);
             layout->addLayout(hLayout);
             hLayout = new QHBoxLayout;
             hLayout->setSpacing(1);
-            hLayout->addWidget(_timeActionButtons["Start"]);
-            hLayout->addWidget(_timeActionButtons["FramePrev"]);
-            hLayout->addWidget(_timeActionButtons["FrameNext"]);
-            hLayout->addWidget(_timeActionButtons["End"]);
+            hLayout->addWidget(p.timeActionButtons["Start"]);
+            hLayout->addWidget(p.timeActionButtons["FramePrev"]);
+            hLayout->addWidget(p.timeActionButtons["FrameNext"]);
+            hLayout->addWidget(p.timeActionButtons["End"]);
             layout->addLayout(hLayout);
-            layout->addWidget(_currentTimeSpinBox);
-            layout->addWidget(_inPointSpinBox);
+            layout->addWidget(p.currentTimeSpinBox);
+            layout->addWidget(p.inPointSpinBox);
             hLayout = new QHBoxLayout;
             hLayout->setSpacing(1);
-            hLayout->addWidget(_inOutButtons["SetInPoint"]);
-            hLayout->addWidget(_inOutButtons["ResetInPoint"]);
+            hLayout->addWidget(p.inOutButtons["SetInPoint"]);
+            hLayout->addWidget(p.inOutButtons["ResetInPoint"]);
             layout->addLayout(hLayout);
             layout->addStretch();
             hLayout = new QHBoxLayout;
             hLayout->setSpacing(1);
-            hLayout->addWidget(_inOutButtons["ResetOutPoint"]);
-            hLayout->addWidget(_inOutButtons["SetOutPoint"]);
+            hLayout->addWidget(p.inOutButtons["ResetOutPoint"]);
+            hLayout->addWidget(p.inOutButtons["SetOutPoint"]);
             layout->addLayout(hLayout);
-            layout->addWidget(_outPointSpinBox);
-            layout->addWidget(_durationLabel);
-            layout->addWidget(_speedLabel);
+            layout->addWidget(p.outPointSpinBox);
+            layout->addWidget(p.durationLabel);
+            layout->addWidget(p.speedLabel);
             setLayout(layout);
 
             _playbackUpdate();
             _timelineUpdate();
 
             connect(
-                _playbackButtonGroup,
+                p.playbackButtonGroup,
                 SIGNAL(buttonClicked(QAbstractButton*)),
                 SLOT(_playbackCallback(QAbstractButton*)));
 
             connect(
-                _timeActionButtonGroup,
+                p.timeActionButtonGroup,
                 SIGNAL(buttonClicked(QAbstractButton*)),
                 SLOT(_timeActionCallback(QAbstractButton*)));
 
             connect(
-                _currentTimeSpinBox,
+                p.currentTimeSpinBox,
                 SIGNAL(valueChanged(const otime::RationalTime&)),
                 SLOT(_currentTimeCallback(const otime::RationalTime&)));
 
             connect(
-                _inPointSpinBox,
+                p.inPointSpinBox,
                 SIGNAL(valueChanged(const otime::RationalTime&)),
                 SLOT(_inPointCallback(const otime::RationalTime&)));
             connect(
-                _outPointSpinBox,
+                p.outPointSpinBox,
                 SIGNAL(valueChanged(const otime::RationalTime&)),
                 SLOT(_outPointCallback(const otime::RationalTime&)));
 
             connect(
-                _inOutButtons["SetInPoint"],
+                p.inOutButtons["SetInPoint"],
                 SIGNAL(clicked()),
                 SLOT(_inPointCallback()));
             connect(
-                _inOutButtons["ResetInPoint"],
+                p.inOutButtons["ResetInPoint"],
                 SIGNAL(clicked()),
                 SLOT(_resetInPointCallback()));
             connect(
-                _inOutButtons["SetOutPoint"],
+                p.inOutButtons["SetOutPoint"],
                 SIGNAL(clicked()),
                 SLOT(_outPointCallback()));
             connect(
-                _inOutButtons["ResetOutPoint"],
+                p.inOutButtons["ResetOutPoint"],
                 SIGNAL(clicked()),
                 SLOT(_resetOutPointCallback()));
         }
 
         void TimelineControls::setTimeObject(TimeObject* timeObject)
         {
-            _currentTimeSpinBox->setTimeObject(timeObject);
-            _inPointSpinBox->setTimeObject(timeObject);
-            _outPointSpinBox->setTimeObject(timeObject);
-            _durationLabel->setTimeObject(timeObject);
+            TLR_PRIVATE_P();
+            p.currentTimeSpinBox->setTimeObject(timeObject);
+            p.inPointSpinBox->setTimeObject(timeObject);
+            p.outPointSpinBox->setTimeObject(timeObject);
+            p.durationLabel->setTimeObject(timeObject);
         }
 
         void TimelineControls::setTimelinePlayer(TimelinePlayer* timelinePlayer)
         {
-            if (timelinePlayer == _timelinePlayer)
+            TLR_PRIVATE_P();
+            if (timelinePlayer == p.timelinePlayer)
                 return;
-            if (_timelinePlayer)
+            if (p.timelinePlayer)
             {
                 disconnect(
-                    _timelinePlayer,
+                    p.timelinePlayer,
                     SIGNAL(playbackChanged(tlr::timeline::Playback)),
                     this,
                     SLOT(_playbackCallback(tlr::timeline::Playback)));
                 disconnect(
-                    _timelinePlayer,
+                    p.timelinePlayer,
                     SIGNAL(currentTimeChanged(const otime::RationalTime&)),
                     this,
                     SLOT(_currentTimeCallback2(const otime::RationalTime&)));
                 disconnect(
-                    _timelinePlayer,
+                    p.timelinePlayer,
                     SIGNAL(inOutRangeChanged(const otime::TimeRange&)),
                     this,
                     SLOT(_inOutRangeCallback(const otime::TimeRange&)));
             }
-            _timelinePlayer = timelinePlayer;
-            if (_timelinePlayer)
+            p.timelinePlayer = timelinePlayer;
+            if (p.timelinePlayer)
             {
                 connect(
-                    _timelinePlayer,
+                    p.timelinePlayer,
                     SIGNAL(playbackChanged(tlr::timeline::Playback)),
                     SLOT(_playbackCallback(tlr::timeline::Playback)));
                 connect(
-                    _timelinePlayer,
+                    p.timelinePlayer,
                     SIGNAL(currentTimeChanged(const otime::RationalTime&)),
                     SLOT(_currentTimeCallback2(const otime::RationalTime&)));
                 connect(
-                    _timelinePlayer,
+                    p.timelinePlayer,
                     SIGNAL(inOutRangeChanged(const otime::TimeRange&)),
                     SLOT(_inOutRangeCallback(const otime::TimeRange&)));
             }
@@ -221,12 +251,13 @@ namespace tlr
 
         void TimelineControls::_playbackCallback(QAbstractButton* button)
         {
-            if (_timelinePlayer)
+            TLR_PRIVATE_P();
+            if (p.timelinePlayer)
             {
-                const auto i = _buttonToPlayback.find(button);
-                if (i != _buttonToPlayback.end())
+                const auto i = p.buttonToPlayback.find(button);
+                if (i != p.buttonToPlayback.end())
                 {
-                    _timelinePlayer->setPlayback(i.value());
+                    p.timelinePlayer->setPlayback(i.value());
                     _playbackUpdate();
                 }
             }
@@ -239,27 +270,30 @@ namespace tlr
 
         void TimelineControls::_timeActionCallback(QAbstractButton* button)
         {
-            if (_timelinePlayer)
+            TLR_PRIVATE_P();
+            if (p.timelinePlayer)
             {
-                const auto i = _buttonToTimeAction.find(button);
-                if (i != _buttonToTimeAction.end())
+                const auto i = p.buttonToTimeAction.find(button);
+                if (i != p.buttonToTimeAction.end())
                 {
-                    _timelinePlayer->timeAction(i.value());
+                    p.timelinePlayer->timeAction(i.value());
                 }
             }
         }
 
         void TimelineControls::_currentTimeCallback(const otime::RationalTime& value)
         {
-            if (_timelinePlayer)
+            TLR_PRIVATE_P();
+            if (p.timelinePlayer)
             {
-                _timelinePlayer->setPlayback(timeline::Playback::Stop);
-                _timelinePlayer->seek(value);
+                p.timelinePlayer->setPlayback(timeline::Playback::Stop);
+                p.timelinePlayer->seek(value);
             }
         }
 
         void TimelineControls::_currentTimeCallback2(const otime::RationalTime& value)
         {
+            TLR_PRIVATE_P();
             otime::ErrorStatus errorStatus;
             std::string label = value.to_timecode(&errorStatus);
             if (errorStatus != otime::ErrorStatus::OK)
@@ -267,157 +301,166 @@ namespace tlr
                 throw std::runtime_error(errorStatus.details);
             }
             {
-                const QSignalBlocker blocker(_currentTimeSpinBox);
-                _currentTimeSpinBox->setValue(value);
+                const QSignalBlocker blocker(p.currentTimeSpinBox);
+                p.currentTimeSpinBox->setValue(value);
             }
         }
 
         void TimelineControls::_inPointCallback(const otime::RationalTime& value)
         {
-            if (_timelinePlayer)
+            TLR_PRIVATE_P();
+            if (p.timelinePlayer)
             {
-                _timelinePlayer->setInOutRange(otime::TimeRange::range_from_start_end_time_inclusive(
+                p.timelinePlayer->setInOutRange(otime::TimeRange::range_from_start_end_time_inclusive(
                     value,
-                    _timelinePlayer->inOutRange().end_time_inclusive()));
+                    p.timelinePlayer->inOutRange().end_time_inclusive()));
             }
         }
 
         void TimelineControls::_inPointCallback()
         {
-            if (_timelinePlayer)
+            TLR_PRIVATE_P();
+            if (p.timelinePlayer)
             {
-                _timelinePlayer->setInPoint();
+                p.timelinePlayer->setInPoint();
             }
         }
 
         void TimelineControls::_resetInPointCallback()
         {
-            if (_timelinePlayer)
+            TLR_PRIVATE_P();
+            if (p.timelinePlayer)
             {
-                _timelinePlayer->resetInPoint();
+                p.timelinePlayer->resetInPoint();
             }
         }
 
         void TimelineControls::_outPointCallback(const otime::RationalTime& value)
         {
-            if (_timelinePlayer)
+            TLR_PRIVATE_P();
+            if (p.timelinePlayer)
             {
-                _timelinePlayer->setInOutRange(otime::TimeRange::range_from_start_end_time_inclusive(
-                    _timelinePlayer->inOutRange().start_time(),
+                p.timelinePlayer->setInOutRange(otime::TimeRange::range_from_start_end_time_inclusive(
+                    p.timelinePlayer->inOutRange().start_time(),
                     value));
             }
         }
 
         void TimelineControls::_outPointCallback()
         {
-            if (_timelinePlayer)
+            TLR_PRIVATE_P();
+            if (p.timelinePlayer)
             {
-                _timelinePlayer->setOutPoint();
+                p.timelinePlayer->setOutPoint();
             }
         }
 
         void TimelineControls::_resetOutPointCallback()
         {
-            if (_timelinePlayer)
+            TLR_PRIVATE_P();
+            if (p.timelinePlayer)
             {
-                _timelinePlayer->resetOutPoint();
+                p.timelinePlayer->resetOutPoint();
             }
         }
 
         void TimelineControls::_inOutRangeCallback(const otime::TimeRange& value)
         {
+            TLR_PRIVATE_P();
             {
-                const QSignalBlocker blocker(_inPointSpinBox);
-                _inPointSpinBox->setValue(value.start_time());
+                const QSignalBlocker blocker(p.inPointSpinBox);
+                p.inPointSpinBox->setValue(value.start_time());
             }
             {
-                const QSignalBlocker blocker(_outPointSpinBox);
-                _outPointSpinBox->setValue(value.end_time_inclusive());
+                const QSignalBlocker blocker(p.outPointSpinBox);
+                p.outPointSpinBox->setValue(value.end_time_inclusive());
             }
         }
 
         void TimelineControls::_playbackUpdate()
         {
+            TLR_PRIVATE_P();
             timeline::Playback playback = timeline::Playback::Stop;
-            if (_timelinePlayer)
+            if (p.timelinePlayer)
             {
-                playback = _timelinePlayer->playback();
+                playback = p.timelinePlayer->playback();
             }
-            _playbackToButton[playback]->setChecked(true);
+            p.playbackToButton[playback]->setChecked(true);
         }
 
         void TimelineControls::_timelineUpdate()
         {
-            if (_timelinePlayer)
+            TLR_PRIVATE_P();
+            if (p.timelinePlayer)
             {
                 {
-                    const QSignalBlocker blocker(_currentTimeSpinBox);
-                    _playbackToButton[_timelinePlayer->playback()]->setChecked(true);
+                    const QSignalBlocker blocker(p.currentTimeSpinBox);
+                    p.playbackToButton[p.timelinePlayer->playback()]->setChecked(true);
                 }
-                for (const auto& button : _playbackButtons)
+                for (const auto& button : p.playbackButtons)
                 {
                     button->setEnabled(true);
                 }
 
-                for (const auto& button : _timeActionButtons)
+                for (const auto& button : p.timeActionButtons)
                 {
                     button->setEnabled(true);
                 }
 
-                const auto& duration = _timelinePlayer->duration();
-                _speedLabel->setValue(duration);
+                const auto& duration = p.timelinePlayer->duration();
+                p.speedLabel->setValue(duration);
 
                 {
-                    const QSignalBlocker blocker(_currentTimeSpinBox);
-                    _currentTimeSpinBox->setValue(_timelinePlayer->currentTime());
+                    const QSignalBlocker blocker(p.currentTimeSpinBox);
+                    p.currentTimeSpinBox->setValue(p.timelinePlayer->currentTime());
                 }
-                _currentTimeSpinBox->setEnabled(true);
+                p.currentTimeSpinBox->setEnabled(true);
 
                 {
-                    const QSignalBlocker blocker(_inPointSpinBox);
-                    _inPointSpinBox->setValue(_timelinePlayer->inOutRange().start_time());
+                    const QSignalBlocker blocker(p.inPointSpinBox);
+                    p.inPointSpinBox->setValue(p.timelinePlayer->inOutRange().start_time());
                 }
-                _inPointSpinBox->setEnabled(true);
+                p.inPointSpinBox->setEnabled(true);
                 {
-                    const QSignalBlocker blocker(_outPointSpinBox);
-                    _outPointSpinBox->setValue(_timelinePlayer->inOutRange().end_time_inclusive());
+                    const QSignalBlocker blocker(p.outPointSpinBox);
+                    p.outPointSpinBox->setValue(p.timelinePlayer->inOutRange().end_time_inclusive());
                 }
-                _outPointSpinBox->setEnabled(true);
-                for (const auto& button : _inOutButtons)
+                p.outPointSpinBox->setEnabled(true);
+                for (const auto& button : p.inOutButtons)
                 {
                     button->setEnabled(true);
                 }
 
-                _durationLabel->setValue(duration);
+                p.durationLabel->setValue(duration);
             }
             else
             {
-                for (const auto& button : _playbackButtons)
+                for (const auto& button : p.playbackButtons)
                 {
                     button->setChecked(false);
                     button->setEnabled(false);
                 }
 
-                for (const auto& button : _timeActionButtons)
+                for (const auto& button : p.timeActionButtons)
                 {
                     button->setEnabled(false);
                 }
 
-                _speedLabel->setValue(invalidTime);
+                p.speedLabel->setValue(invalidTime);
 
-                _currentTimeSpinBox->setValue(invalidTime);
-                _currentTimeSpinBox->setEnabled(false);
+                p.currentTimeSpinBox->setValue(invalidTime);
+                p.currentTimeSpinBox->setEnabled(false);
 
-                _inPointSpinBox->setValue(invalidTime);
-                _inPointSpinBox->setEnabled(false);
-                _outPointSpinBox->setValue(invalidTime);
-                _outPointSpinBox->setEnabled(false);
-                for (const auto& button : _inOutButtons)
+                p.inPointSpinBox->setValue(invalidTime);
+                p.inPointSpinBox->setEnabled(false);
+                p.outPointSpinBox->setValue(invalidTime);
+                p.outPointSpinBox->setEnabled(false);
+                for (const auto& button : p.inOutButtons)
                 {
                     button->setEnabled(false);
                 }
 
-                _durationLabel->setValue(invalidTime);
+                p.durationLabel->setValue(invalidTime);
             }
         }
     }

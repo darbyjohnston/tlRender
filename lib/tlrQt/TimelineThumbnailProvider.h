@@ -8,13 +8,7 @@
 
 #include <tlrCore/Timeline.h>
 
-#include <QImage>
 #include <QThread>
-#include <QOffscreenSurface>
-#include <QOpenGLContext>
-
-#include <atomic>
-#include <mutex>
 
 namespace tlr
 {
@@ -59,21 +53,7 @@ namespace tlr
             void timerEvent(QTimerEvent*) override;
 
         private:
-            std::shared_ptr<timeline::Timeline> _timeline;
-            gl::ColorConfig _colorConfig;
-            struct Request
-            {
-                otime::RationalTime time = invalidTime;
-                QSize size;
-            };
-            std::list<Request> _requests;
-            QList<QPair<otime::RationalTime, QImage> > _results;
-            bool _cancelRequests = false;
-            QOffscreenSurface* _surface = nullptr;
-            QOpenGLContext* _context = nullptr;
-            std::condition_variable _cv;
-            std::mutex _mutex;
-            std::atomic<bool> _running;
+            TLR_PRIVATE();
         };
     }
 }

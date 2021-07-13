@@ -4,14 +4,10 @@
 
 #pragma once
 
-#include <tlrQt/SpeedLabel.h>
-#include <tlrQt/TimeLabel.h>
-#include <tlrQt/TimeSpinBox.h>
+#include <tlrQt/TimeObject.h>
 #include <tlrQt/TimelinePlayer.h>
 
-#include <QButtonGroup>
-#include <QMap>
-#include <QToolButton>
+#include <QAbstractButton>
 
 namespace tlr
 {
@@ -49,20 +45,7 @@ namespace tlr
             void _playbackUpdate();
             void _timelineUpdate();
 
-            TimelinePlayer* _timelinePlayer = nullptr;
-            QMap<QString, QAbstractButton*> _playbackButtons;
-            QButtonGroup* _playbackButtonGroup = nullptr;
-            QMap<QAbstractButton*, timeline::Playback> _buttonToPlayback;
-            QMap<timeline::Playback, QAbstractButton*> _playbackToButton;
-            QMap<QString, QAbstractButton*> _timeActionButtons;
-            QButtonGroup* _timeActionButtonGroup = nullptr;
-            QMap<QAbstractButton*, timeline::TimeAction> _buttonToTimeAction;
-            SpeedLabel* _speedLabel = nullptr;
-            TimeSpinBox* _currentTimeSpinBox = nullptr;
-            TimeSpinBox* _inPointSpinBox = nullptr;
-            TimeSpinBox* _outPointSpinBox = nullptr;
-            QMap<QString, QAbstractButton*> _inOutButtons;
-            TimeLabel* _durationLabel = nullptr;
+            TLR_PRIVATE();
         };
     }
 }

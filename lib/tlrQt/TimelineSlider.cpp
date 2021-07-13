@@ -4,6 +4,8 @@
 
 #include <tlrQt/TimelineSlider.h>
 
+#include <tlrQt/TimelineThumbnailProvider.h>
+
 #include <tlrCore/Math.h>
 
 #include <QMouseEvent>
@@ -14,8 +16,19 @@ namespace tlr
 {
     namespace qt
     {
+        struct TimelineSlider::Private
+        {
+            gl::ColorConfig colorConfig;
+            TimelinePlayer* timelinePlayer = nullptr;
+            TimelineThumbnailProvider* thumbnailProvider = nullptr;
+            std::map<otime::RationalTime, QImage> thumbnails;
+            TimeObject::Units units = TimeObject::Units::Timecode;
+            TimeObject* timeObject = nullptr;
+        };
+
         TimelineSlider::TimelineSlider(QWidget* parent) :
-            QWidget(parent)
+            QWidget(parent),
+            _p(new Private)
         {
             setSizePolicy(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
             setMinimumHeight(50);
@@ -23,22 +36,23 @@ namespace tlr
 
         void TimelineSlider::setTimeObject(TimeObject* timeObject)
         {
-            if (timeObject == _timeObject)
+            TLR_PRIVATE_P();
+            if (timeObject == p.timeObject)
                 return;
-            if (_timeObject)
+            if (p.timeObject)
             {
                 disconnect(
-                    _timeObject,
+                    p.timeObject,
                     SIGNAL(unitsChanged(qt::Time::Units)),
                     this,
                     SLOT(setUnits(qt::Time::Units)));
             }
-            _timeObject = timeObject;
-            if (_timeObject)
+            p.timeObject = timeObject;
+            if (p.timeObject)
             {
-                _units = _timeObject->units();
+                p.units = p.timeObject->units();
                 connect(
-                    _timeObject,
+                    p.timeObject,
                     SIGNAL(unitsChanged(qt::TimeObject::Units)),
                     SLOT(setUnits(qt::TimeObject::Units)));
             }
@@ -47,49 +61,51 @@ namespace tlr
 
         void TimelineSlider::setColorConfig(const gl::ColorConfig& colorConfig)
         {
-            _colorConfig = colorConfig;
-            if (_thumbnailProvider)
+            TLR_PRIVATE_P();
+            p.colorConfig = colorConfig;
+            if (p.thumbnailProvider)
             {
-                _thumbnailProvider->setColorConfig(_colorConfig);
+                p.thumbnailProvider->setColorConfig(p.colorConfig);
             }
         }
 
         void TimelineSlider::setTimelinePlayer(TimelinePlayer* timelinePlayer)
         {
-            if (timelinePlayer == _timelinePlayer)
+            TLR_PRIVATE_P();
+            if (timelinePlayer == p.timelinePlayer)
                 return;
-            if (_timelinePlayer)
+            if (p.timelinePlayer)
             {
-                _thumbnailProvider->setParent(nullptr);
-                delete _thumbnailProvider;
-                _thumbnailProvider = nullptr;
+                p.thumbnailProvider->setParent(nullptr);
+                delete p.thumbnailProvider;
+                p.thumbnailProvider = nullptr;
                 disconnect(
-                    _timelinePlayer,
+                    p.timelinePlayer,
                     SIGNAL(currentTimeChanged(const otime::RationalTime&)),
                     this,
                     SLOT(_currentTimeCallback(const otime::RationalTime&)));
             }
-            _timelinePlayer = timelinePlayer;
-            if (_timelinePlayer)
+            p.timelinePlayer = timelinePlayer;
+            if (p.timelinePlayer)
             {
-                _thumbnailProvider = new TimelineThumbnailProvider(
-                    timeline::Timeline::create(_timelinePlayer->fileName().toLatin1().data()),
+                p.thumbnailProvider = new TimelineThumbnailProvider(
+                    timeline::Timeline::create(p.timelinePlayer->fileName().toLatin1().data()),
                     this);
-                _thumbnailProvider->setColorConfig(_colorConfig);
+                p.thumbnailProvider->setColorConfig(p.colorConfig);
                 connect(
-                    _timelinePlayer,
+                    p.timelinePlayer,
                     SIGNAL(currentTimeChanged(const otime::RationalTime&)),
                     SLOT(_currentTimeCallback(const otime::RationalTime&)));
                 connect(
-                    _timelinePlayer,
+                    p.timelinePlayer,
                     SIGNAL(inOutRangeChanged(const otime::TimeRange&)),
                     SLOT(_inOutRangeCallback(const otime::TimeRange&)));
                 connect(
-                    _timelinePlayer,
+                    p.timelinePlayer,
                     SIGNAL(cachedFramesChanged(const std::vector<otime::TimeRange>&)),
                     SLOT(_cachedFramesCallback(const std::vector<otime::TimeRange>&)));
                 connect(
-                    _thumbnailProvider,
+                    p.thumbnailProvider,
                     SIGNAL(thumbails(const QList<QPair<otime::RationalTime, QImage> >&)),
                     SLOT(_thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >&)));
             }
@@ -98,9 +114,10 @@ namespace tlr
 
         void TimelineSlider::setUnits(TimeObject::Units units)
         {
-            if (_units == units)
+            TLR_PRIVATE_P();
+            if (p.units == units)
                 return;
-            _units = units;
+            p.units = units;
             update();
         }
 
@@ -120,11 +137,12 @@ namespace tlr
 
         void TimelineSlider::paintEvent(QPaintEvent*)
         {
+            TLR_PRIVATE_P();
             QPainter painter(this);
             auto rect = this->rect();
             auto rect2 = rect.adjusted(0, handleSize, 0, -handleSize);
             painter.fillRect(rect2, QColor(0, 0, 0));
-            if (_timelinePlayer)
+            if (p.timelinePlayer)
             {
                 int x0 = 0;
                 int y0 = 0;
@@ -133,19 +151,19 @@ namespace tlr
                 int h = 0;
 
                 // Draw the current time.
-                x0 = _timeToPos(_timelinePlayer->currentTime());
+                x0 = _timeToPos(p.timelinePlayer->currentTime());
                 y0 = 0;
                 painter.fillRect(QRect(x0 - handleSize / 2, y0, handleSize, rect.height()), QColor(0, 0, 0));
 
                 // Draw thumbnails.
                 y0 = rect2.y();
-                for (const auto& i : _thumbnails)
+                for (const auto& i : p.thumbnails)
                 {
                     painter.drawImage(QPoint(_timeToPos(i.first), y0), i.second);
                 }
 
                 // Draw in/out points.
-                const auto& inOutRange = _timelinePlayer->inOutRange();
+                const auto& inOutRange = p.timelinePlayer->inOutRange();
                 x0 = _timeToPos(inOutRange.start_time());
                 x1 = _timeToPos(inOutRange.end_time_inclusive());
                 y1 = y0 + rect2.height();
@@ -154,7 +172,7 @@ namespace tlr
 
                 // Draw cached frames.
                 auto color = QColor(40, 190, 40);
-                const auto& cachedFrames = _timelinePlayer->cachedFrames();
+                const auto& cachedFrames = p.timelinePlayer->cachedFrames();
                 for (const auto& i : cachedFrames)
                 {
                     x0 = _timeToPos(i.start_time());
@@ -166,10 +184,11 @@ namespace tlr
 
         void TimelineSlider::mousePressEvent(QMouseEvent* event)
         {
-            if (_timelinePlayer)
+            TLR_PRIVATE_P();
+            if (p.timelinePlayer)
             {
-                const auto& duration = _timelinePlayer->duration();
-                _timelinePlayer->seek(_posToTime(event->x()));
+                const auto& duration = p.timelinePlayer->duration();
+                p.timelinePlayer->seek(_posToTime(event->x()));
             }
         }
 
@@ -178,10 +197,11 @@ namespace tlr
 
         void TimelineSlider::mouseMoveEvent(QMouseEvent* event)
         {
-            if (_timelinePlayer)
+            TLR_PRIVATE_P();
+            if (p.timelinePlayer)
             {
-                const auto& duration = _timelinePlayer->duration();
-                _timelinePlayer->seek(_posToTime(event->x()));
+                const auto& duration = p.timelinePlayer->duration();
+                p.timelinePlayer->seek(_posToTime(event->x()));
             }
         }
 
@@ -202,20 +222,22 @@ namespace tlr
 
         void TimelineSlider::_thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >& thumbnails)
         {
+            TLR_PRIVATE_P();
             for (const auto& i : thumbnails)
             {
-                _thumbnails[i.first] = i.second;
+                p.thumbnails[i.first] = i.second;
             }
             update();
         }
 
         otime::RationalTime TimelineSlider::_posToTime(int value) const
         {
+            TLR_PRIVATE_P();
             otime::RationalTime out = invalidTime;
-            if (_timelinePlayer)
+            if (p.timelinePlayer)
             {
-                const auto& globalStartTime = _timelinePlayer->globalStartTime();
-                const auto& duration = _timelinePlayer->duration();
+                const auto& globalStartTime = p.timelinePlayer->globalStartTime();
+                const auto& duration = p.timelinePlayer->duration();
                 out = otime::RationalTime(
                     floor(math::clamp(value, 0, width()) / static_cast<double>(width()) * (duration.value() - 1) + globalStartTime.value()),
                     duration.rate());
@@ -225,11 +247,12 @@ namespace tlr
 
         int TimelineSlider::_timeToPos(const otime::RationalTime& value) const
         {
+            TLR_PRIVATE_P();
             int out = 0;
-            if (_timelinePlayer)
+            if (p.timelinePlayer)
             {
-                const auto& globalStartTime = _timelinePlayer->globalStartTime();
-                const auto& duration = _timelinePlayer->duration();
+                const auto& globalStartTime = p.timelinePlayer->globalStartTime();
+                const auto& duration = p.timelinePlayer->duration();
                 out = (value.value() - globalStartTime.value()) / (duration.value() - 1) * width();
             }
             return out;
@@ -237,13 +260,14 @@ namespace tlr
 
         void TimelineSlider::_thumbnailsUpdate()
         {
-            _thumbnails.clear();
-            if (_timelinePlayer && _thumbnailProvider)
+            TLR_PRIVATE_P();
+            p.thumbnails.clear();
+            if (p.timelinePlayer && p.thumbnailProvider)
             {
-                _thumbnailProvider->cancelRequests();
+                p.thumbnailProvider->cancelRequests();
 
-                const auto& duration = _timelinePlayer->duration();
-                const auto& imageInfo = _timelinePlayer->imageInfo();
+                const auto& duration = p.timelinePlayer->duration();
+                const auto& imageInfo = p.timelinePlayer->imageInfo();
                 const auto rect = this->rect().adjusted(0, 0, 0, -(stripeSize + handleSize * 2));
                 const int width = rect.width();
                 const int height = rect.height();
@@ -258,7 +282,7 @@ namespace tlr
                         requests.push_back(_posToTime(x));
                         x += thumbnailWidth;
                     }
-                    _thumbnailProvider->request(requests, QSize(thumbnailWidth, thumbnailHeight));
+                    p.thumbnailProvider->request(requests, QSize(thumbnailWidth, thumbnailHeight));
                 }
             }
             update();

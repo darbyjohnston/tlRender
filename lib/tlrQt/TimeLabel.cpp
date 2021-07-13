@@ -6,23 +6,35 @@
 
 #include <QFontDatabase>
 #include <QHBoxLayout>
+#include <QLabel>
 
 namespace tlr
 {
     namespace qt
     {
-        TimeLabel::TimeLabel(QWidget* parent) :
-            QWidget(parent)
+        struct TimeLabel::Private
         {
+            otime::RationalTime value = invalidTime;
+            TimeObject::Units units = TimeObject::Units::Timecode;
+            QLabel* label = nullptr;
+            TimeObject* timeObject = nullptr;
+        };
+
+        TimeLabel::TimeLabel(QWidget* parent) :
+            QWidget(parent),
+            _p(new Private)
+        {
+            TLR_PRIVATE_P();
+
             const QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
             setFont(fixedFont);
 
-            _label = new QLabel;
+            p.label = new QLabel;
 
             auto layout = new QHBoxLayout;
             layout->setMargin(0);
             layout->setSpacing(0);
-            layout->addWidget(_label);
+            layout->addWidget(p.label);
             setLayout(layout);
 
             _textUpdate();
@@ -30,22 +42,23 @@ namespace tlr
 
         void TimeLabel::setTimeObject(TimeObject* timeObject)
         {
-            if (timeObject == _timeObject)
+            TLR_PRIVATE_P();
+            if (timeObject == p.timeObject)
                 return;
-            if (_timeObject)
+            if (p.timeObject)
             {
                 disconnect(
-                    _timeObject,
+                    p.timeObject,
                     SIGNAL(unitsChanged(qt::Time::Units)),
                     this,
                     SLOT(setUnits(qt::Time::Units)));
             }
-            _timeObject = timeObject;
-            if (_timeObject)
+            p.timeObject = timeObject;
+            if (p.timeObject)
             {
-                _units = _timeObject->units();
+                p.units = p.timeObject->units();
                 connect(
-                    _timeObject,
+                    p.timeObject,
                     SIGNAL(unitsChanged(qt::TimeObject::Units)),
                     SLOT(setUnits(qt::TimeObject::Units)));
             }
@@ -55,24 +68,27 @@ namespace tlr
 
         void TimeLabel::setValue(const otime::RationalTime& value)
         {
-            if (_value == value)
+            TLR_PRIVATE_P();
+            if (p.value == value)
                 return;
-            _value = value;
+            p.value = value;
             _textUpdate();
         }
 
         void TimeLabel::setUnits(TimeObject::Units units)
         {
-            if (_units == units)
+            TLR_PRIVATE_P();
+            if (p.units == units)
                 return;
-            _units = units;
+            p.units = units;
             _textUpdate();
             updateGeometry();
         }
 
         void TimeLabel::_textUpdate()
         {
-            _label->setText(TimeObject::timeToText(_value, _units));
+            TLR_PRIVATE_P();
+            p.label->setText(TimeObject::timeToText(p.value, p.units));
         }
     }
 }

@@ -8,29 +8,39 @@ namespace tlr
 {
     namespace qt
     {
+        struct TimelineViewport::Private
+        {
+            gl::ColorConfig colorConfig;
+            TimelinePlayer* timelinePlayer = nullptr;
+            timeline::Frame frame;
+            std::shared_ptr<gl::Render> render;
+        };
+
         TimelineViewport::TimelineViewport(QWidget* parent) :
-            QOpenGLWidget(parent)
+            QOpenGLWidget(parent),
+            _p(new Private)
         {}
 
         void TimelineViewport::setColorConfig(const gl::ColorConfig& colorConfig)
         {
-            _colorConfig = colorConfig;
+            _p->colorConfig = colorConfig;
         }
 
         void TimelineViewport::setTimelinePlayer(TimelinePlayer* timelinePlayer)
         {
-            _frame = timeline::Frame();
-            if (_timelinePlayer)
+            TLR_PRIVATE_P();
+            p.frame = timeline::Frame();
+            if (p.timelinePlayer)
             {
                 disconnect(
-                    _timelinePlayer,
+                    p.timelinePlayer,
                     SIGNAL(frameChanged(const tlr::timeline::Frame&)));
             }
-            _timelinePlayer = timelinePlayer;
-            if (_timelinePlayer)
+            p.timelinePlayer = timelinePlayer;
+            if (p.timelinePlayer)
             {
                 connect(
-                    _timelinePlayer,
+                    p.timelinePlayer,
                     SIGNAL(frameChanged(const tlr::timeline::Frame&)),
                     SLOT(_frameCallback(const tlr::timeline::Frame&)));
             }
@@ -39,23 +49,24 @@ namespace tlr
 
         void TimelineViewport::_frameCallback(const timeline::Frame& frame)
         {
-            _frame = frame;
+            _p->frame = frame;
             update();
         }
 
         void TimelineViewport::initializeGL()
         {
             gladLoadGL();
-            _render = gl::Render::create();
+            _p->render = gl::Render::create();
         }
 
         void TimelineViewport::paintGL()
         {
+            TLR_PRIVATE_P();
             const auto size = imaging::Size(width(), height());
-            _render->setColorConfig(_colorConfig);
-            _render->begin(size);
-            _render->drawFrame(_frame);
-            _render->end();
+            p.render->setColorConfig(p.colorConfig);
+            p.render->begin(size);
+            p.render->drawFrame(p.frame);
+            p.render->end();
         }
     }
 }

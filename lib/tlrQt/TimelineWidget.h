@@ -4,10 +4,12 @@
 
 #pragma once
 
-#include <tlrQt/TimelineControls.h>
+#include <tlrQt/TimeObject.h>
 #include <tlrQt/TimelinePlayer.h>
-#include <tlrQt/TimelineSlider.h>
-#include <tlrQt/TimelineViewport.h>
+
+#include <tlrGL/Render.h>
+
+#include <QWidget>
 
 namespace tlr
 {
@@ -31,9 +33,7 @@ namespace tlr
             void setTimelinePlayer(TimelinePlayer*);
 
         private:
-            TimelineViewport* _viewport = nullptr;
-            TimelineSlider* _slider = nullptr;
-            TimelineControls* _controls = nullptr;
+            TLR_PRIVATE();
         };
     }
 }

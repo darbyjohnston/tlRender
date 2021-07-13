@@ -4,6 +4,8 @@
 
 #include <tlrQt/FilmstripWidget.h>
 
+#include <tlrQt/TimelineThumbnailProvider.h>
+
 #include <QHBoxLayout>
 #include <QPainter>
 #include <QResizeEvent>
@@ -13,8 +15,16 @@ namespace tlr
 {
     namespace qt
     {
+        struct FilmstripWidget::Private
+        {
+            std::shared_ptr<timeline::Timeline> timeline;
+            TimelineThumbnailProvider* thumbnailProvider = nullptr;
+            std::map<otime::RationalTime, QImage> thumbnails;
+        };
+
         FilmstripWidget::FilmstripWidget(QWidget* parent) :
-            QWidget(parent)
+            QWidget(parent),
+            _p(new Private)
         {
             setSizePolicy(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
             setMinimumHeight(50);
@@ -22,17 +32,18 @@ namespace tlr
 
         void FilmstripWidget::setTimeline(const std::shared_ptr<timeline::Timeline>& timeline)
         {
-            _timeline = timeline;
-            if (_thumbnailProvider)
+            TLR_PRIVATE_P();
+            p.timeline = timeline;
+            if (p.thumbnailProvider)
             {
-                delete _thumbnailProvider;
-                _thumbnailProvider = nullptr;
+                delete p.thumbnailProvider;
+                p.thumbnailProvider = nullptr;
             }
-            if (_timeline)
+            if (p.timeline)
             {
-                _thumbnailProvider = new TimelineThumbnailProvider(_timeline, this);
+                p.thumbnailProvider = new TimelineThumbnailProvider(p.timeline, this);
                 connect(
-                    _thumbnailProvider,
+                    p.thumbnailProvider,
                     SIGNAL(thumbails(const QList<QPair<otime::RationalTime, QImage> >&)),
                     SLOT(_thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >&)));
             }
@@ -49,9 +60,10 @@ namespace tlr
 
         void FilmstripWidget::paintEvent(QPaintEvent*)
         {
+            TLR_PRIVATE_P();
             QPainter painter(this);
             painter.fillRect(rect(), QColor(0, 0, 0));
-            for (const auto& i : _thumbnails)
+            for (const auto& i : p.thumbnails)
             {
                 const int x = _timeToPos(i.first);
                 painter.drawImage(QPoint(x, 0), i.second);
@@ -60,20 +72,22 @@ namespace tlr
 
         void FilmstripWidget::_thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >& thumbnails)
         {
+            TLR_PRIVATE_P();
             for (const auto& i : thumbnails)
             {
-                _thumbnails[i.first] = i.second;
+                p.thumbnails[i.first] = i.second;
             }
             update();
         }
 
         otime::RationalTime FilmstripWidget::_posToTime(int value) const
         {
+            TLR_PRIVATE_P();
             otime::RationalTime out = invalidTime;
-            if (_timeline)
+            if (p.timeline)
             {
-                const auto& globalStartTime = _timeline->getGlobalStartTime();
-                const auto& duration = _timeline->getDuration();
+                const auto& globalStartTime = p.timeline->getGlobalStartTime();
+                const auto& duration = p.timeline->getDuration();
                 out = otime::RationalTime(
                     floor(value / static_cast<double>(width()) * (duration.value() - 1) + globalStartTime.value()),
                     duration.rate());
@@ -83,11 +97,12 @@ namespace tlr
 
         int FilmstripWidget::_timeToPos(const otime::RationalTime& value) const
         {
+            TLR_PRIVATE_P();
             int out = 0;
-            if (_timeline)
+            if (p.timeline)
             {
-                const auto& globalStartTime = _timeline->getGlobalStartTime();
-                const auto& duration = _timeline->getDuration();
+                const auto& globalStartTime = p.timeline->getGlobalStartTime();
+                const auto& duration = p.timeline->getDuration();
                 out = (value.value() - globalStartTime.value()) / (duration.value() - 1) * width();
             }
             return out;
@@ -95,13 +110,14 @@ namespace tlr
 
         void FilmstripWidget::_thumbnailsUpdate()
         {
-            _thumbnails.clear();
-            if (_timeline && _thumbnailProvider)
+            TLR_PRIVATE_P();
+            p.thumbnails.clear();
+            if (p.timeline && p.thumbnailProvider)
             {
-                _thumbnailProvider->cancelRequests();
+                p.thumbnailProvider->cancelRequests();
 
-                const auto& duration = _timeline->getDuration();
-                const auto& imageInfo = _timeline->getImageInfo();
+                const auto& duration = p.timeline->getDuration();
+                const auto& imageInfo = p.timeline->getImageInfo();
                 const auto& size = this->size();
                 const int width = size.width();
                 const int height = size.height();
@@ -116,7 +132,7 @@ namespace tlr
                         requests.push_back(_posToTime(x));
                         x += thumbnailWidth;
                     }
-                    _thumbnailProvider->request(requests, QSize(thumbnailWidth, thumbnailHeight));
+                    p.thumbnailProvider->request(requests, QSize(thumbnailWidth, thumbnailHeight));
                 }
             }
             update();

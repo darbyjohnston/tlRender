@@ -9,10 +9,15 @@
 #include <tlrGL/Texture.h>
 
 #include <tlrCore/Assert.h>
+#include <tlrCore/Cache.h>
 #include <tlrCore/Color.h>
 #include <tlrCore/StringFormat.h>
 
+#include <OpenColorIO/OpenColorIO.h>
+
 #include <array>
+
+namespace OCIO = OCIO_NAMESPACE;
 
 namespace tlr
 {
@@ -30,17 +35,6 @@ namespace tlr
         {
             return !(*this == other);
         }
-
-        Render::TextureId::TextureId(
-            unsigned id,
-            std::string name,
-            std::string sampler,
-            unsigned type) :
-            id(id),
-            name(name),
-            sampler(sampler),
-            type(type)
-        {}
 
         namespace
         {
@@ -199,17 +193,59 @@ namespace tlr
             }
         }
 
+        struct Render::Private
+        {
+            ColorConfig colorConfig;
+            OCIO::ConstConfigRcPtr ocioConfig;
+            OCIO::ConstProcessorRcPtr ocioProcessor;
+            OCIO::ConstGPUProcessorRcPtr ocioGpuProcessor;
+            OCIO::GpuShaderDescRcPtr ocioShaderDesc;
+            struct TextureId
+            {
+                TextureId(
+                    unsigned    id,
+                    std::string name,
+                    std::string sampler,
+                    unsigned    type);
+
+                unsigned    id = -1;
+                std::string name;
+                std::string sampler;
+                unsigned    type = -1;
+            };
+            std::vector<TextureId> colorTextures;
+
+            imaging::Size size;
+
+            std::shared_ptr<Shader> shader;
+
+            memory::Cache<GlyphInfo, std::shared_ptr<Texture> > glyphTextureCache;
+        };
+
+        Render::Private::TextureId::TextureId(
+            unsigned id,
+            std::string name,
+            std::string sampler,
+            unsigned type) :
+            id(id),
+            name(name),
+            sampler(sampler),
+            type(type)
+        {}
+
         void Render::_init()
         {}
 
-        Render::Render()
+        Render::Render() :
+            _p(new Private)
         {}
 
         Render::~Render()
         {
-            for (size_t i = 0; i < _colorTextures.size(); ++i)
+            TLR_PRIVATE_P();
+            for (size_t i = 0; i < p.colorTextures.size(); ++i)
             {
-                glDeleteTextures(1, &_colorTextures[i].id);
+                glDeleteTextures(1, &p.colorTextures[i].id);
             }
         }
 
@@ -222,48 +258,49 @@ namespace tlr
 
         void Render::setColorConfig(const ColorConfig& config)
         {
-            if (config == _colorConfig)
+            TLR_PRIVATE_P();
+            if (config == p.colorConfig)
                 return;
 
-            for (size_t i = 0; i < _colorTextures.size(); ++i)
+            for (size_t i = 0; i < p.colorTextures.size(); ++i)
             {
-                glDeleteTextures(1, &_colorTextures[i].id);
+                glDeleteTextures(1, &p.colorTextures[i].id);
             }
-            _ocioShaderDesc.reset();
-            _ocioGpuProcessor.reset();
-            _ocioProcessor.reset();
+            p.ocioShaderDesc.reset();
+            p.ocioGpuProcessor.reset();
+            p.ocioProcessor.reset();
 
-            _colorConfig = config;
+            p.colorConfig = config;
 
-            if (!_colorConfig.config.empty())
+            if (!p.colorConfig.config.empty())
             {
-                _ocioConfig = OCIO::Config::CreateFromFile(_colorConfig.config.c_str());
+                p.ocioConfig = OCIO::Config::CreateFromFile(p.colorConfig.config.c_str());
             }
             else
             {
-                _ocioConfig = OCIO::GetCurrentConfig();
+                p.ocioConfig = OCIO::GetCurrentConfig();
             }
-            if (_ocioConfig)
+            if (p.ocioConfig)
             {
-                const std::string display = !_colorConfig.display.empty() ?
-                    _colorConfig.display :
-                    _ocioConfig->getDefaultDisplay();
-                const std::string view = !_colorConfig.view.empty() ?
-                    _colorConfig.view :
-                    _ocioConfig->getDefaultView(display.c_str());
-                _ocioProcessor = _ocioConfig->getProcessor(
-                    _colorConfig.input.c_str(),
+                const std::string display = !p.colorConfig.display.empty() ?
+                    p.colorConfig.display :
+                    p.ocioConfig->getDefaultDisplay();
+                const std::string view = !p.colorConfig.view.empty() ?
+                    p.colorConfig.view :
+                    p.ocioConfig->getDefaultView(display.c_str());
+                p.ocioProcessor = p.ocioConfig->getProcessor(
+                    p.colorConfig.input.c_str(),
                     display.c_str(),
                     view.c_str(),
                     OCIO::TRANSFORM_DIR_FORWARD);
-                _ocioGpuProcessor = _ocioProcessor->getDefaultGPUProcessor();
-                _ocioShaderDesc = OCIO::GpuShaderDesc::CreateShaderDesc();
-                _ocioShaderDesc->setLanguage(OCIO::GPU_LANGUAGE_GLSL_1_2);
-                _ocioShaderDesc->setFunctionName("OCIODisplay");
-                _ocioGpuProcessor->extractGpuShaderInfo(_ocioShaderDesc);
+                p.ocioGpuProcessor = p.ocioProcessor->getDefaultGPUProcessor();
+                p.ocioShaderDesc = OCIO::GpuShaderDesc::CreateShaderDesc();
+                p.ocioShaderDesc->setLanguage(OCIO::GPU_LANGUAGE_GLSL_1_2);
+                p.ocioShaderDesc->setFunctionName("OCIODisplay");
+                p.ocioGpuProcessor->extractGpuShaderInfo(p.ocioShaderDesc);
 
                 // Create 3D textures.
-                const unsigned num3DTextures = _ocioShaderDesc->getNum3DTextures();
+                const unsigned num3DTextures = p.ocioShaderDesc->getNum3DTextures();
                 unsigned currentTexture = 0;
                 for (unsigned i = 0; i < num3DTextures; ++i, ++currentTexture)
                 {
@@ -271,7 +308,7 @@ namespace tlr
                     const char* samplerName = nullptr;
                     unsigned edgelen = 0;
                     OCIO::Interpolation interpolation = OCIO::INTERP_LINEAR;
-                    _ocioShaderDesc->get3DTexture(i, textureName, samplerName, edgelen, interpolation);
+                    p.ocioShaderDesc->get3DTexture(i, textureName, samplerName, edgelen, interpolation);
                     if (!textureName ||
                         !*textureName ||
                         !samplerName ||
@@ -282,7 +319,7 @@ namespace tlr
                     }
 
                     const float* values = nullptr;
-                    _ocioShaderDesc->get3DTextureValues(i, values);
+                    p.ocioShaderDesc->get3DTextureValues(i, values);
                     if (!values)
                     {
                         throw std::runtime_error("The texture values are missing");
@@ -294,11 +331,11 @@ namespace tlr
                     glBindTexture(GL_TEXTURE_3D, textureId);
                     setTextureParameters(GL_TEXTURE_3D, interpolation);
                     glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB32F, edgelen, edgelen, edgelen, 0, GL_RGB, GL_FLOAT, values);
-                    _colorTextures.push_back(TextureId(textureId, textureName, samplerName, GL_TEXTURE_3D));
+                    p.colorTextures.push_back(Private::TextureId(textureId, textureName, samplerName, GL_TEXTURE_3D));
                 }
 
                 // Create 1D textures.
-                const unsigned numTextures = _ocioShaderDesc->getNumTextures();
+                const unsigned numTextures = p.ocioShaderDesc->getNumTextures();
                 for (unsigned i = 0; i < numTextures; ++i, ++currentTexture)
                 {
                     const char* textureName = nullptr;
@@ -307,7 +344,7 @@ namespace tlr
                     unsigned height = 0;
                     OCIO::GpuShaderDesc::TextureType channel = OCIO::GpuShaderDesc::TEXTURE_RGB_CHANNEL;
                     OCIO::Interpolation interpolation = OCIO::INTERP_LINEAR;
-                    _ocioShaderDesc->getTexture(i, textureName, samplerName, width, height, channel, interpolation);
+                    p.ocioShaderDesc->getTexture(i, textureName, samplerName, width, height, channel, interpolation);
                     if (!textureName ||
                         !*textureName ||
                         !samplerName ||
@@ -318,7 +355,7 @@ namespace tlr
                     }
 
                     const float* values = nullptr;
-                    _ocioShaderDesc->getTextureValues(i, values);
+                    p.ocioShaderDesc->getTextureValues(i, values);
                     if (!values)
                     {
                         throw std::runtime_error("The texture values are missing");
@@ -346,50 +383,52 @@ namespace tlr
                         setTextureParameters(GL_TEXTURE_1D, interpolation);
                         glTexImage1D(GL_TEXTURE_1D, 0, internalformat, width, 0, format, GL_FLOAT, values);
                     }
-                    _colorTextures.push_back(TextureId(textureId, textureName, samplerName, (height > 1) ? GL_TEXTURE_2D : GL_TEXTURE_1D));
+                    p.colorTextures.push_back(Private::TextureId(textureId, textureName, samplerName, (height > 1) ? GL_TEXTURE_2D : GL_TEXTURE_1D));
                 }
             }
 
-            _shader.reset();
+            p.shader.reset();
         }
 
         void Render::begin(const imaging::Size& size, bool flipY)
         {
-            _size = size;
+            TLR_PRIVATE_P();
 
-            glViewport(0, 0, _size.w, _size.h);
+            p.size = size;
+
+            glViewport(0, 0, p.size.w, p.size.h);
             glClearColor(0.F, 0.F, 0.F, 0.F);
             glClear(GL_COLOR_BUFFER_BIT);
 
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-            if (!_shader)
+            if (!p.shader)
             {
                 std::string source = fragmentSource;
                 const std::string token = "// $color";
                 const auto i = source.find(token);
                 if (i != std::string::npos)
                 {
-                    source.replace(i, token.size(), _ocioShaderDesc ? _ocioShaderDesc->getShaderText() : colorFunctionNoOp);
+                    source.replace(i, token.size(), p.ocioShaderDesc ? p.ocioShaderDesc->getShaderText() : colorFunctionNoOp);
                 }
-                _shader = Shader::create(vertexSource, source);
+                p.shader = Shader::create(vertexSource, source);
             }
-            _shader->bind();
+            p.shader->bind();
             const auto viewMatrix = math::ortho(
                 0.F,
-                static_cast<float>(_size.w),
-                flipY ? 0.F : static_cast<float>(_size.h),
-                flipY ? static_cast<float>(_size.h) : 0.F,
+                static_cast<float>(p.size.w),
+                flipY ? 0.F : static_cast<float>(p.size.h),
+                flipY ? static_cast<float>(p.size.h) : 0.F,
                 -1.F,
                 1.F);
-            _shader->setUniform("transform.mvp", viewMatrix);
+            p.shader->setUniform("transform.mvp", viewMatrix);
 
-            for (size_t i = 0; i < _colorTextures.size(); ++i)
+            for (size_t i = 0; i < p.colorTextures.size(); ++i)
             {
                 glActiveTexture(GL_TEXTURE3 + i);
-                glBindTexture(_colorTextures[i].type, _colorTextures[i].id);
-                _shader->setUniform(_colorTextures[i].sampler, static_cast<int>(3 + i));
+                glBindTexture(p.colorTextures[i].type, p.colorTextures[i].id);
+                p.shader->setUniform(p.colorTextures[i].sampler, static_cast<int>(3 + i));
             }
         }
 
@@ -400,8 +439,10 @@ namespace tlr
             const math::BBox2f& bbox,
             const imaging::Color4f& color)
         {
-            _shader->setUniform("colorMode", static_cast<int>(ColorMode::Solid));
-            _shader->setUniform("color", color);
+            TLR_PRIVATE_P();
+
+            p.shader->setUniform("colorMode", static_cast<int>(ColorMode::Solid));
+            p.shader->setUniform("color", color);
 
             std::vector<uint8_t> vboData;
             vboData.resize(4 * getByteCount(VBOType::Pos2_F32_UV_U16));
@@ -480,13 +521,15 @@ namespace tlr
             const math::BBox2f& bbox,
             const imaging::Color4f& color)
         {
+            TLR_PRIVATE_P();
+
             const auto& info = image->getInfo();
-            _shader->setUniform("colorMode", static_cast<int>(ColorMode::TextureColorConfig));
-            _shader->setUniform("color", color);
-            _shader->setUniform("pixelType", static_cast<int>(info.pixelType));
-            _shader->setUniform("textureSampler0", 0);
-            _shader->setUniform("textureSampler1", 1);
-            _shader->setUniform("textureSampler2", 2);
+            p.shader->setUniform("colorMode", static_cast<int>(ColorMode::TextureColorConfig));
+            p.shader->setUniform("color", color);
+            p.shader->setUniform("pixelType", static_cast<int>(info.pixelType));
+            p.shader->setUniform("textureSampler0", 0);
+            p.shader->setUniform("textureSampler1", 1);
+            p.shader->setUniform("textureSampler2", 2);
 
             //! \todo Cache textures for reuse.
             auto textures = getTextures(image);
@@ -520,6 +563,8 @@ namespace tlr
 
         void Render::drawFrame(const timeline::Frame& frame)
         {
+            TLR_PRIVATE_P();
+
             for (const auto& i : frame.layers)
             {
                 if (i.image && i.imageB)
@@ -533,13 +578,13 @@ namespace tlr
                         const float t = 1.F - i.transitionValue;
                         drawImage(
                             i.image,
-                            imaging::getBBox(i.image->getAspect(), _size),
+                            imaging::getBBox(i.image->getAspect(), p.size),
                             imaging::Color4f(t, t, t));
                         glBlendFunc(GL_ONE, GL_ONE);
                         const float tB = i.transitionValue;
                         drawImage(
                             i.imageB,
-                            imaging::getBBox(i.imageB->getAspect(), _size),
+                            imaging::getBBox(i.imageB->getAspect(), p.size),
                             imaging::Color4f(tB, tB, tB));
                         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                         break;
@@ -551,7 +596,7 @@ namespace tlr
                 {
                     drawImage(
                         i.image,
-                        imaging::getBBox(i.image->getAspect(), _size));
+                        imaging::getBBox(i.image->getAspect(), p.size));
                 }
             }
         }
@@ -561,10 +606,12 @@ namespace tlr
             const math::Vector2f& pos,
             const imaging::Color4f& color)
         {
-            _shader->setUniform("colorMode", static_cast<int>(ColorMode::TextureAlpha));
-            _shader->setUniform("color", color);
-            _shader->setUniform("pixelType", static_cast<int>(imaging::PixelType::L_U8));
-            _shader->setUniform("textureSampler0", 0);
+            TLR_PRIVATE_P();
+
+            p.shader->setUniform("colorMode", static_cast<int>(ColorMode::TextureAlpha));
+            p.shader->setUniform("color", color);
+            p.shader->setUniform("pixelType", static_cast<int>(imaging::PixelType::L_U8));
+            p.shader->setUniform("textureSampler0", 0);
 
             glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
 
@@ -588,11 +635,11 @@ namespace tlr
                     if (glyph->image && glyph->image->isValid())
                     {
                         std::shared_ptr<Texture> texture;
-                        if (!_glyphTextureCache.get(glyph->glyphInfo, texture))
+                        if (!p.glyphTextureCache.get(glyph->glyphInfo, texture))
                         {
                             texture = Texture::create(glyph->image->getInfo());
                             texture->copy(*glyph->image);
-                            _glyphTextureCache.add(glyph->glyphInfo, texture);
+                            p.glyphTextureCache.add(glyph->glyphInfo, texture);
                         }
                         glBindTexture(GL_TEXTURE_2D, texture->getID());
 

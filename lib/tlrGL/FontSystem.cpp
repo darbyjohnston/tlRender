@@ -4,10 +4,19 @@
 
 #include <tlrGL/FontSystem.h>
 
+#include <tlrCore/Cache.h>
 #include <tlrCore/Image.h>
 
 #include <Fonts/NotoMono-Regular.font>
 #include <Fonts/NotoSans-Regular.font>
+
+#include <freetype2/ft2build.h>
+#include FT_FREETYPE_H
+#include FT_GLYPH_H
+
+#include <codecvt>
+#include <locale>
+#include <map>
 
 namespace tlr
 {
@@ -20,6 +29,11 @@ namespace tlr
             family(family),
             size(size)
         {}
+
+        bool FontInfo::operator == (const FontInfo & other) const noexcept
+        {
+            return family == other.family && size == other.size;
+        }
 
         bool FontInfo::operator < (const FontInfo& other) const
         {
@@ -39,38 +53,58 @@ namespace tlr
             return std::tie(code, fontInfo) < std::tie(other.code, other.fontInfo);
         }
 
+        struct FontSystem::Private
+        {
+            std::shared_ptr<Glyph> getGlyph(uint32_t code, const FontInfo&);
+            void measure(
+                const std::basic_string<tlr_char_t>& utf32,
+                const FontInfo&,
+                uint16_t maxLineWidth,
+                math::Vector2f&,
+                std::vector<math::BBox2f>* = nullptr);
+
+            FT_Library ftLibrary = nullptr;
+            std::map<FontFamily, FT_Face> ftFaces;
+            std::wstring_convert<std::codecvt_utf8<tlr_char_t>, tlr_char_t> utf32Convert;
+            memory::Cache<GlyphInfo, std::shared_ptr<Glyph> > glyphCache;
+        };
+
         void FontSystem::_init()
         {
-            FT_Error ftError = FT_Init_FreeType(&_ftLibrary);
+            TLR_PRIVATE_P();
+
+            FT_Error ftError = FT_Init_FreeType(&p.ftLibrary);
             if (ftError)
             {
                 throw std::runtime_error("FreeType cannot be initialized");
             }
 
-            ftError = FT_New_Memory_Face(_ftLibrary, NotoSans_Regular_ttf, NotoSans_Regular_ttf_len, 0, &_ftFaces[FontFamily::NotoSans]);
+            ftError = FT_New_Memory_Face(p.ftLibrary, NotoSans_Regular_ttf, NotoSans_Regular_ttf_len, 0, &p.ftFaces[FontFamily::NotoSans]);
             if (ftError)
             {
                 throw std::runtime_error("Cannot create font");
             }
-            ftError = FT_New_Memory_Face(_ftLibrary, NotoMono_Regular_ttf, NotoMono_Regular_ttf_len, 0, &_ftFaces[FontFamily::NotoMono]);
+            ftError = FT_New_Memory_Face(p.ftLibrary, NotoMono_Regular_ttf, NotoMono_Regular_ttf_len, 0, &p.ftFaces[FontFamily::NotoMono]);
             if (ftError)
             {
                 throw std::runtime_error("Cannot create font");
             }
         }
 
-        FontSystem::FontSystem()
+        FontSystem::FontSystem() :
+            _p(new Private)
         {}
 
         FontSystem::~FontSystem()
         {
-            if (_ftLibrary)
+            TLR_PRIVATE_P();
+            if (p.ftLibrary)
             {
-                for (const auto& i : _ftFaces)
+                for (const auto& i : p.ftFaces)
                 {
                     FT_Done_Face(i.second);
                 }
-                FT_Done_FreeType(_ftLibrary);
+                FT_Done_FreeType(p.ftLibrary);
             }
         }
 
@@ -83,19 +117,20 @@ namespace tlr
 
         size_t FontSystem::getGlyphCacheSize() const
         {
-            return _glyphCache.getSize();
+            return _p->glyphCache.getSize();
         }
 
         float FontSystem::getGlyphCachePercentage() const
         {
-            return _glyphCache.getPercentageUsed();
+            return _p->glyphCache.getPercentageUsed();
         }
 
         FontMetrics FontSystem::getMetrics(const FontInfo& info)
         {
+            TLR_PRIVATE_P();
             FontMetrics out;
-            const auto i = _ftFaces.find(info.family);
-            if (i != _ftFaces.end())
+            const auto i = p.ftFaces.find(info.family);
+            if (i != p.ftFaces.end())
             {
                 FT_Error ftError = FT_Set_Pixel_Sizes(i->second, 0, info.size);
                 if (ftError)
@@ -111,28 +146,31 @@ namespace tlr
 
         math::Vector2f FontSystem::measure(const std::string& text, const FontInfo& fontInfo)
         {
+            TLR_PRIVATE_P();
             math::Vector2f out;
-            const auto utf32 = _utf32Convert.from_bytes(text);
-            _measure(utf32, fontInfo, std::numeric_limits<int16_t>::max(), out);
+            const auto utf32 = p.utf32Convert.from_bytes(text);
+            p.measure(utf32, fontInfo, std::numeric_limits<int16_t>::max(), out);
             return out;
         }
 
         std::vector<math::BBox2f> FontSystem::measureGlyphs(const std::string& text, const FontInfo& fontInfo)
         {
+            TLR_PRIVATE_P();
             std::vector<math::BBox2f> out;
-            const auto utf32 = _utf32Convert.from_bytes(text);
+            const auto utf32 = p.utf32Convert.from_bytes(text);
             math::Vector2f size;
-            _measure(utf32, fontInfo, std::numeric_limits<int16_t>::max(), size, &out);
+            p.measure(utf32, fontInfo, std::numeric_limits<int16_t>::max(), size, &out);
             return out;
         }
 
         std::vector<std::shared_ptr<Glyph> > FontSystem::getGlyphs(const std::string& text, const FontInfo& fontInfo)
         {
+            TLR_PRIVATE_P();
             std::vector<std::shared_ptr<Glyph> > out;
-            const auto utf32 = _utf32Convert.from_bytes(text);
+            const auto utf32 = p.utf32Convert.from_bytes(text);
             for (const auto& i : utf32)
             {
-                out.push_back(_getGlyph(i, fontInfo));
+                out.push_back(p.getGlyph(i, fontInfo));
             }
             return out;
         }
@@ -156,13 +194,13 @@ namespace tlr
             }
         }
 
-        std::shared_ptr<Glyph> FontSystem::_getGlyph(uint32_t code, const FontInfo& fontInfo)
+        std::shared_ptr<Glyph> FontSystem::Private::getGlyph(uint32_t code, const FontInfo& fontInfo)
         {
             std::shared_ptr<Glyph> out;
-            if (!_glyphCache.get(GlyphInfo(code, fontInfo), out))
+            if (!glyphCache.get(GlyphInfo(code, fontInfo), out))
             {
-                const auto i = _ftFaces.find(fontInfo.family);
-                if (i != _ftFaces.end())
+                const auto i = ftFaces.find(fontInfo.family);
+                if (i != ftFaces.end())
                 {
                     if (auto ftGlyphIndex = FT_Get_Char_Index(i->second, code))
                     {
@@ -212,7 +250,7 @@ namespace tlr
                         out->rsbDelta = i->second->glyph->rsb_delta;
                         FT_Done_Glyph(ftGlyph);
 
-                        _glyphCache.add(out->glyphInfo, out);
+                        glyphCache.add(out->glyphInfo, out);
                     }
                 }
             }
@@ -232,15 +270,15 @@ namespace tlr
             }
         }
 
-        void FontSystem::_measure(
+        void FontSystem::Private::measure(
             const std::basic_string<tlr_char_t>& utf32,
             const FontInfo& fontInfo,
             uint16_t maxLineWidth,
             math::Vector2f& size,
             std::vector<math::BBox2f>* glyphGeom)
         {
-            const auto i = _ftFaces.find(fontInfo.family);
-            if (i != _ftFaces.end())
+            const auto i = ftFaces.find(fontInfo.family);
+            if (i != ftFaces.end())
             {
                 math::Vector2f pos(0.F, 0.F);
                 FT_Error ftError = FT_Set_Pixel_Sizes(
@@ -258,7 +296,7 @@ namespace tlr
                 int32_t rsbDeltaPrev = 0;
                 for (auto j = utf32.begin(); j != utf32.end(); ++j)
                 {
-                    const auto glyph = _getGlyph(*j, fontInfo);
+                    const auto glyph = getGlyph(*j, fontInfo);
                     if (glyph && glyphGeom)
                     {
                         glyphGeom->push_back(math::BBox2f(

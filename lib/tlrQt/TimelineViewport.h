@@ -36,10 +36,7 @@ namespace tlr
             void paintGL() override;
 
         private:
-            gl::ColorConfig _colorConfig;
-            TimelinePlayer* _timelinePlayer = nullptr;
-            timeline::Frame _frame;
-            std::shared_ptr<gl::Render> _render;
+            TLR_PRIVATE();
         };
     }
 }

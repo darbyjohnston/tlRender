@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlrCore/Timeline.h>
+#include <tlrCore/Time.h>
 
 #include <QObject>
 #include <QMetaType>

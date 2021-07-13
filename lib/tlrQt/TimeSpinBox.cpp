@@ -14,8 +14,17 @@ namespace tlr
 {
     namespace qt
     {
+        struct TimeSpinBox::Private
+        {
+            otime::RationalTime value = invalidTime;
+            TimeObject::Units units = TimeObject::Units::Timecode;
+            QRegExpValidator* validator = nullptr;
+            TimeObject* timeObject = nullptr;
+        };
+
         TimeSpinBox::TimeSpinBox(QWidget* parent) :
-            QAbstractSpinBox(parent)
+            QAbstractSpinBox(parent),
+            _p(new Private)
         {
             const QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
             setFont(fixedFont);
@@ -35,22 +44,23 @@ namespace tlr
 
         void TimeSpinBox::setTimeObject(TimeObject* timeObject)
         {
-            if (timeObject == _timeObject)
+            TLR_PRIVATE_P();
+            if (timeObject == p.timeObject)
                 return;
-            if (_timeObject)
+            if (p.timeObject)
             {
                 disconnect(
-                    _timeObject,
+                    p.timeObject,
                     SIGNAL(unitsChanged(qt::TimeObject::Units)),
                     this,
                     SLOT(setUnits(qt::TimeObject::Units)));
             }
-            _timeObject = timeObject;
-            if (_timeObject)
+            p.timeObject = timeObject;
+            if (p.timeObject)
             {
-                _units = _timeObject->units();
+                p.units = p.timeObject->units();
                 connect(
-                    _timeObject,
+                    p.timeObject,
                     SIGNAL(unitsChanged(qt::TimeObject::Units)),
                     SLOT(setUnits(qt::TimeObject::Units)));
             }
@@ -61,18 +71,19 @@ namespace tlr
 
         const otime::RationalTime& TimeSpinBox::value() const
         {
-            return _value;
+            return _p->value;
         }
 
         TimeObject::Units TimeSpinBox::units() const
         {
-            return _units;
+            return _p->units;
         }
 
         void TimeSpinBox::stepBy(int steps)
         {
-            _value += otime::RationalTime(steps, _value.rate());
-            Q_EMIT valueChanged(_value);
+            TLR_PRIVATE_P();
+            p.value += otime::RationalTime(steps, p.value.rate());
+            Q_EMIT valueChanged(p.value);
             _textUpdate();
         }
 
@@ -83,19 +94,21 @@ namespace tlr
 
         void TimeSpinBox::setValue(const otime::RationalTime& value)
         {
-            if (_value == value)
+            TLR_PRIVATE_P();
+            if (p.value == value)
                 return;
-            _value = value;
-            Q_EMIT valueChanged(_value);
+            p.value = value;
+            Q_EMIT valueChanged(p.value);
             _textUpdate();
         }
 
         void TimeSpinBox::setUnits(TimeObject::Units units)
         {
-            if (_units == units)
+            TLR_PRIVATE_P();
+            if (p.units == units)
                 return;
-            _units = units;
-            Q_EMIT unitsChanged(_units);
+            p.units = units;
+            Q_EMIT unitsChanged(p.units);
             _vaidatorUpdate();
             _textUpdate();
             updateGeometry();
@@ -108,11 +121,12 @@ namespace tlr
 
         QSize TimeSpinBox::minimumSizeHint() const
         {
+            TLR_PRIVATE_P();
             //! \todo Cache the size hint.
             ensurePolished();
             int h = lineEdit()->minimumSizeHint().height();
             const QFontMetrics fm(fontMetrics());
-            int w = fm.horizontalAdvance(" " + TimeObject::unitsSizeHintString(_units));
+            int w = fm.horizontalAdvance(" " + TimeObject::unitsSizeHintString(p.units));
             w += 2; // cursor blinking space
             QStyleOptionSpinBox opt;
             initStyleOption(&opt);
@@ -123,29 +137,32 @@ namespace tlr
 
         void TimeSpinBox::_lineEditCallback()
         {
+            TLR_PRIVATE_P();
             otime::ErrorStatus errorStatus;
-            const auto time = TimeObject::textToTime(lineEdit()->text(), _value.rate(), _units, &errorStatus);
-            if (otime::ErrorStatus::OK == errorStatus && time != _value)
+            const auto time = TimeObject::textToTime(lineEdit()->text(), p.value.rate(), p.units, &errorStatus);
+            if (otime::ErrorStatus::OK == errorStatus && time != p.value)
             {
-                _value = time;
-                Q_EMIT valueChanged(_value);
+                p.value = time;
+                Q_EMIT valueChanged(p.value);
             }
             _textUpdate();
         }
 
         void TimeSpinBox::_vaidatorUpdate()
         {
-            if (_validator)
+            TLR_PRIVATE_P();
+            if (p.validator)
             {
-                _validator->setParent(nullptr);
+                p.validator->setParent(nullptr);
             }
-            _validator = new QRegExpValidator(QRegExp(TimeObject::unitsValidator(_units)), this);
-            lineEdit()->setValidator(_validator);
+            p.validator = new QRegExpValidator(QRegExp(TimeObject::unitsValidator(p.units)), this);
+            lineEdit()->setValidator(p.validator);
         }
 
         void TimeSpinBox::_textUpdate()
         {
-            lineEdit()->setText(TimeObject::timeToText(_value, _units));
+            TLR_PRIVATE_P();
+            lineEdit()->setText(TimeObject::timeToText(p.value, p.units));
         }
     }
 }
