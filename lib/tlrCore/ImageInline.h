@@ -85,7 +85,7 @@ namespace tlr
             return !(other == *this);
         }
 
-        constexpr Layout::Layout() noexcept :
+        inline Layout::Layout() noexcept :
             alignment(1),
             endian(memory::getEndian())
         {}

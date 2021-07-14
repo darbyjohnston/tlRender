@@ -171,7 +171,7 @@ namespace tlr
         class Layout
         {
         public:
-            constexpr Layout() noexcept;
+            Layout() noexcept;
             constexpr Layout(
                 const Mirror&   mirror,
                 uint8_t         alignment = 1,

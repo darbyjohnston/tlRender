@@ -27,7 +27,7 @@ namespace tlr
         TLR_ENUM(Endian);
 
         //! Get the current machine's endian.
-        constexpr Endian getEndian() noexcept;
+        Endian getEndian() noexcept;
 
         //! Get the opposite of the given endian.
         constexpr Endian opposite(Endian) noexcept;
