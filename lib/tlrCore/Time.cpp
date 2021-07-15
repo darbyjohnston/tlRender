@@ -152,53 +152,56 @@ namespace tlr
     }
 }
 
-namespace opentime::OPENTIME_VERSION
+namespace opentime
 {
-    std::ostream& operator << (std::ostream& os, const RationalTime& value)
+    namespace OPENTIME_VERSION
     {
-        os << value.value() << "/" << value.rate();
-        return os;
-    }
+        std::ostream& operator << (std::ostream& os, const RationalTime& value)
+        {
+            os << value.value() << "/" << value.rate();
+            return os;
+        }
 
-    std::ostream& operator << (std::ostream& os, const TimeRange& value)
-    {
-        os << value.start_time() << "-" << value.duration();
-        return os;
-    }
+        std::ostream& operator << (std::ostream& os, const TimeRange& value)
+        {
+            os << value.start_time() << "-" << value.duration();
+            return os;
+        }
 
-    std::istream& operator >> (std::istream& is, RationalTime& out)
-    {
-        std::string s;
-        is >> s;
-        auto split = tlr::string::split(s, '/');
-        if (split.size() != 2)
+        std::istream& operator >> (std::istream& is, RationalTime& out)
         {
-            throw ParseError();
+            std::string s;
+            is >> s;
+            auto split = tlr::string::split(s, '/');
+            if (split.size() != 2)
+            {
+                throw ParseError();
+            }
+            out = RationalTime(std::stof(split[0]), std::stof(split[1]));
+            return is;
         }
-        out = RationalTime(std::stof(split[0]), std::stof(split[1]));
-        return is;
-    }
 
-    std::istream& operator >> (std::istream& is, TimeRange& out)
-    {
-        std::string s;
-        is >> s;
-        auto split = tlr::string::split(s, '-');
-        if (split.size() != 2)
+        std::istream& operator >> (std::istream& is, TimeRange& out)
         {
-            throw ParseError();
+            std::string s;
+            is >> s;
+            auto split = tlr::string::split(s, '-');
+            if (split.size() != 2)
+            {
+                throw ParseError();
+            }
+            RationalTime start;
+            RationalTime duration;
+            {
+                std::stringstream ss(split[0]);
+                ss >> start;
+            }
+            {
+                std::stringstream ss(split[1]);
+                ss >> duration;
+            }
+            out = TimeRange(start, duration);
+            return is;
         }
-        RationalTime start;
-        RationalTime duration;
-        {
-            std::stringstream ss(split[0]);
-            ss >> start;
-        }
-        {
-            std::stringstream ss(split[1]);
-            ss >> duration;
-        }
-        out = TimeRange(start, duration);
-        return is;
     }
 }
