@@ -166,7 +166,7 @@ $ cd tlRender-Debug
 ```
 Run CMake with the super build script:
 ```
-$ cmake ../tlRender/etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install -DCMAKE_BUILD_TYPE=Debug
+$ cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install -DCMAKE_BUILD_TYPE=Debug
 ```
 Start the build:
 ```
