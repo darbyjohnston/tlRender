@@ -1,10 +1,6 @@
 include(ExternalProject)
 
-set(FFmpeg_DEPS ZLIB)
-if(WIN32)
-else()
-    set(FFmpeg_DEPS ${FFmpeg_DEPS} NASM)
-endif()
+set(FFmpeg_DEPS ZLIB NASM)
 
 set(FFmpeg_SHARED_LIBS ON)
 set(FFmpeg_DEBUG OFF)
@@ -23,7 +19,8 @@ else()
         --disable-coreimage
         --disable-audiotoolbox
         --disable-vaapi
-        --enable-pic)
+        --enable-pic
+        --x86asmexe=${CMAKE_INSTALL_PREFIX}/bin/nasm)
     if(FFmpeg_SHARED_LIBS)
         set(FFmpeg_CONFIGURE_ARGS
             ${FFmpeg_CONFIGURE_ARGS}
