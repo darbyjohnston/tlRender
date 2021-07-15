@@ -1,6 +1,9 @@
 include(ExternalProject)
 
-set(JPEG_DEPS ZLIB NASM)
+set(JPEG_DEPS ZLIB)
+if(NOT WIN32)
+    set(JPEG_DEPS ${JPEG_DEPS} NASM)
+endif()
 
 set(JPEG_ENABLE_SHARED ON)
 set(JPEG_ENABLE_STATIC OFF)
