@@ -22,6 +22,7 @@ ExternalProject_Add(
     PNG
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/PNG
     DEPENDS ZLIB
-    URL "http://prdownloads.sourceforge.net/libpng/libpng-1.6.37.tar.gz?download"
+    GIT_REPOSITORY https://github.com/glennrp/libpng.git
+    GIT_TAG v1.6.37
     CMAKE_ARGS ${PNG_ARGS})
 
