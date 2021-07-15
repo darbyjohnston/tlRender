@@ -174,7 +174,7 @@ $ cmake --build . -j 4
 ```
 Try running the "tlrplay-glfw" application:
 ```
-$ export DYLD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
+$ export DYLD_LIBRARY_PATH=$PWD/install/lib:$DYLD_LIBRARY_PATH
 $ ./install/bin/tlrplay-glfw ../tlRender/etc/SampleData/multiple_clips.otio
 ```
 
