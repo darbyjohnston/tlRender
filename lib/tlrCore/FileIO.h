@@ -25,6 +25,7 @@ namespace tlr
             First = Read
         };
         TLR_ENUM(Mode);
+        TLR_ENUM_SERIALIZE(Mode);
 
         //! File I/O.
         class FileIO
@@ -169,6 +170,4 @@ namespace tlr
         //! Write lines to a file.
         void writeLines(const std::string& fileName, const std::vector<std::string>&);
     }
-
-    TLR_ENUM_SERIALIZE(file::Mode);
 }

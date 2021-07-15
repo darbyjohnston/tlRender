@@ -150,43 +150,46 @@ namespace tlr
             out = timeToTimecode(hour, minute, second, frame);
         }
     }
+}
 
-    std::ostream& operator << (std::ostream& os, const otime::RationalTime& value)
+namespace opentime::OPENTIME_VERSION
+{
+    std::ostream& operator << (std::ostream& os, const RationalTime& value)
     {
         os << value.value() << "/" << value.rate();
         return os;
     }
 
-    std::ostream& operator << (std::ostream& os, const otime::TimeRange& value)
+    std::ostream& operator << (std::ostream& os, const TimeRange& value)
     {
         os << value.start_time() << "-" << value.duration();
         return os;
     }
 
-    std::istream& operator >> (std::istream& is, otime::RationalTime& out)
+    std::istream& operator >> (std::istream& is, RationalTime& out)
     {
         std::string s;
         is >> s;
-        auto split = string::split(s, '/');
+        auto split = tlr::string::split(s, '/');
         if (split.size() != 2)
         {
             throw ParseError();
         }
-        out = otime::RationalTime(std::stof(split[0]), std::stof(split[1]));
+        out = RationalTime(std::stof(split[0]), std::stof(split[1]));
         return is;
     }
 
-    std::istream& operator >> (std::istream& is, otime::TimeRange& out)
+    std::istream& operator >> (std::istream& is, TimeRange& out)
     {
         std::string s;
         is >> s;
-        auto split = string::split(s, '-');
+        auto split = tlr::string::split(s, '-');
         if (split.size() != 2)
         {
             throw ParseError();
         }
-        otime::RationalTime start;
-        otime::RationalTime duration;
+        RationalTime start;
+        RationalTime duration;
         {
             std::stringstream ss(split[0]);
             ss >> start;
@@ -195,7 +198,7 @@ namespace tlr
             std::stringstream ss(split[1]);
             ss >> duration;
         }
-        out = otime::TimeRange(start, duration);
+        out = TimeRange(start, duration);
         return is;
     }
 }

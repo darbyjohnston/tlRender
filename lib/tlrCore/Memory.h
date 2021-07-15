@@ -25,6 +25,7 @@ namespace tlr
             First = MSB
         };
         TLR_ENUM(Endian);
+        TLR_ENUM_SERIALIZE(Endian);
 
         //! Get the current machine's endian.
         Endian getEndian() noexcept;
@@ -45,8 +46,6 @@ namespace tlr
             size_t      size,
             size_t      wordSize) noexcept;
     }
-
-    TLR_ENUM_SERIALIZE(memory::Endian);
 }
 
 #include <tlrCore/MemoryInline.h>

@@ -43,6 +43,26 @@ namespace tlr
             return out;
         }
 
+        std::ostream& operator << (std::ostream& os, const imaging::Size& value)
+        {
+            os << value.w << "x" << value.h;
+            return os;
+        }
+
+        std::istream& operator >> (std::istream& is, imaging::Size& out)
+        {
+            std::string s;
+            is >> s;
+            auto split = string::split(s, 'x');
+            if (split.size() != 2)
+            {
+                throw ParseError();
+            }
+            out.w = std::stoi(split[0]);
+            out.h = std::stoi(split[1]);
+            return is;
+        }
+
         TLR_ENUM_IMPL(
             PixelType,
             "None",
@@ -73,6 +93,7 @@ namespace tlr
             "RGBA_F32",
             
             "YUV_420P");
+        TLR_ENUM_SERIALIZE_IMPL(PixelType);
 
         uint8_t getChannelCount(PixelType value)
         {
@@ -230,6 +251,12 @@ namespace tlr
             return values[static_cast<size_t>(info.pixelType)];
         }
 
+        std::ostream& operator << (std::ostream& os, const imaging::Info& value)
+        {
+            os << value.size << "," << value.pixelType;
+            return os;
+        }
+
         void Image::_init(const Info& info)
         {
             _info = info;
@@ -262,33 +289,5 @@ namespace tlr
                 std::memset(&_data[0], 0, _dataByteCount);
             }
         }
-    }
-
-    TLR_ENUM_SERIALIZE_IMPL(imaging, PixelType);
-
-    std::ostream& operator << (std::ostream& os, const imaging::Size& value)
-    {
-        os << value.w << "x" << value.h;
-        return os;
-    }
-
-    std::ostream& operator << (std::ostream& os, const imaging::Info& value)
-    {
-        os << value.size << "," << value.pixelType;
-        return os;
-    }
-
-    std::istream& operator >> (std::istream& is, imaging::Size& out)
-    {
-        std::string s;
-        is >> s;
-        auto split = string::split(s, 'x');
-        if (split.size() != 2)
-        {
-            throw ParseError();
-        }
-        out.w = std::stoi(split[0]);
-        out.h = std::stoi(split[1]);
-        return is;
     }
 }

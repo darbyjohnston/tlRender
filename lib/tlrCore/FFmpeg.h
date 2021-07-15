@@ -32,6 +32,7 @@ namespace tlr
             Count
         };
         TLR_ENUM(Profile);
+        TLR_ENUM_SERIALIZE(Profile);
 
         //! Number of threads.
         const size_t threadCount = 4;
@@ -130,6 +131,4 @@ namespace tlr
                 const avio::Options& = avio::Options()) override;
         };
     }
-
-    TLR_ENUM_SERIALIZE(ffmpeg::Profile);
 }

@@ -21,6 +21,7 @@ namespace tlr
             "Write",
             "ReadWrite",
             "Append");
+        TLR_ENUM_SERIALIZE_IMPL(Mode);
 
         std::shared_ptr<FileIO> FileIO::create()
         {
@@ -250,6 +251,4 @@ namespace tlr
             }
         }
     }
-
-    TLR_ENUM_SERIALIZE_IMPL(file, Mode);
 }

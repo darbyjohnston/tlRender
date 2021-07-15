@@ -49,6 +49,10 @@ namespace tlr
         //! given size.
         math::BBox2f getBBox(float aspect, const imaging::Size&);
 
+        std::ostream& operator << (std::ostream&, const imaging::Size&);
+    
+        std::istream& operator >> (std::istream&, imaging::Size&);
+        
         ///@}
 
         //! \name Pixel Types
@@ -90,6 +94,7 @@ namespace tlr
             First = None
         };
         TLR_ENUM(PixelType);
+        TLR_ENUM_SERIALIZE(PixelType);
 
         typedef uint8_t   U8_T;
         typedef uint16_t U10_T;
@@ -208,6 +213,8 @@ namespace tlr
         //! Get the number of bytes used to store the image data.
         std::size_t getDataByteCount(const Info&);
 
+        std::ostream& operator << (std::ostream&, const imaging::Info&);
+
         //! Image.
         class Image : public std::enable_shared_from_this<Image>
         {
@@ -269,13 +276,6 @@ namespace tlr
             std::vector<uint8_t> _data;
         };
     }
-
-    TLR_ENUM_SERIALIZE(imaging::PixelType);
-
-    std::ostream& operator << (std::ostream&, const imaging::Size&);
-    std::ostream& operator << (std::ostream&, const imaging::Info&);
-    
-    std::istream& operator >> (std::istream&, imaging::Size&);
 }
 
 #include <tlrCore/ImageInline.h>

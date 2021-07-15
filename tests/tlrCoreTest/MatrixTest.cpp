@@ -25,7 +25,7 @@ namespace tlr
         void MatrixTest::run()
         {
             {
-                const Matrix3x3f m;
+                Matrix3x3f m;
 
                 TLR_ASSERT(1.F == m.v[0]);
                 TLR_ASSERT(0.F == m.v[1]);
@@ -40,7 +40,7 @@ namespace tlr
                 TLR_ASSERT(1.F == m.v[8]);
             }
             {
-                const Matrix4x4f m;
+                Matrix4x4f m;
 
                 TLR_ASSERT(1.F == m.v[0]);
                 TLR_ASSERT(0.F == m.v[1]);

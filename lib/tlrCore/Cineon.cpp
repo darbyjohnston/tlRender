@@ -27,6 +27,7 @@ namespace tlr
             "TopBottomRightLeft",
             "BottomTopLeftRight",
             "BottomTopRightLeft" );
+        TLR_ENUM_SERIALIZE_IMPL(Orient);
 
         TLR_ENUM_IMPL(
             Descriptor,
@@ -37,6 +38,7 @@ namespace tlr
             "RedCCIRXA11",
             "GreenCCIRXA11",
             "BlueCCIRXA11");
+        TLR_ENUM_SERIALIZE_IMPL(Descriptor);
 
         namespace
         {
@@ -640,7 +642,4 @@ namespace tlr
                 nullptr;
         }
     }
-
-    TLR_ENUM_SERIALIZE_IMPL(cineon, Orient);
-    TLR_ENUM_SERIALIZE_IMPL(cineon, Descriptor);
 }

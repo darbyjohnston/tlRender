@@ -21,12 +21,14 @@ namespace tlr
             Version,
             "1.0",
             "2.0");
+        TLR_ENUM_SERIALIZE_IMPL(Version);
 
         TLR_ENUM_IMPL(
             Endian,
             "Auto",
             "MSB",
             "LSB");
+        TLR_ENUM_SERIALIZE_IMPL(Endian);
 
         TLR_ENUM_IMPL(
             Orient,
@@ -944,7 +946,4 @@ namespace tlr
                 nullptr;
         }
     }
-
-    TLR_ENUM_SERIALIZE_IMPL(dpx, Version);
-    TLR_ENUM_SERIALIZE_IMPL(dpx, Endian);
 }

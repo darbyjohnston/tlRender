@@ -27,8 +27,10 @@ namespace tlr
     namespace timeline
     {
         TLR_ENUM_IMPL(Playback, "Stop", "Forward", "Reverse");
+        TLR_ENUM_SERIALIZE_IMPL(Playback);
 
         TLR_ENUM_IMPL(Loop, "Loop", "Once", "Ping-Pong");
+        TLR_ENUM_SERIALIZE_IMPL(Loop);
 
         TLR_ENUM_IMPL(TimeAction,
             "Start",
@@ -39,6 +41,7 @@ namespace tlr
             "FrameNext",
             "FrameNextX10",
             "FrameNextX100");
+        TLR_ENUM_SERIALIZE_IMPL(TimeAction);
 
         otime::RationalTime loopTime(const otime::RationalTime& time, const otime::TimeRange& range)
         {
@@ -647,8 +650,4 @@ namespace tlr
             }
         }
     }
-
-    TLR_ENUM_SERIALIZE_IMPL(timeline, Playback);
-    TLR_ENUM_SERIALIZE_IMPL(timeline, Loop);
-    TLR_ENUM_SERIALIZE_IMPL(timeline, TimeAction);
 }

@@ -84,6 +84,7 @@ namespace tlr
             Transition,
             "None",
             "Dissolve");
+        TLR_ENUM_SERIALIZE_IMPL(Transition);
 
         Transition toTransition(const std::string& value)
         {
@@ -680,6 +681,4 @@ namespace tlr
             }
         }
     }
-
-    TLR_ENUM_SERIALIZE_IMPL(timeline, Transition);
 }

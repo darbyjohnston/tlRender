@@ -38,6 +38,7 @@ namespace tlr
             First = LeftRightTopBottom
         };
         TLR_ENUM(Orient);
+        TLR_ENUM_SERIALIZE(Orient);
 
         //! Cineon file descriptors.
         enum class Descriptor
@@ -54,6 +55,7 @@ namespace tlr
             First = Luminance
         };
         TLR_ENUM(Descriptor);
+        TLR_ENUM_SERIALIZE(Descriptor);
 
         //! Cineon header.
         struct Header
@@ -240,7 +242,4 @@ namespace tlr
                 const avio::Options& = avio::Options()) override;
         };
     }
-
-    TLR_ENUM_SERIALIZE(cineon::Orient);
-    TLR_ENUM_SERIALIZE(cineon::Descriptor);
 }

@@ -38,6 +38,7 @@ namespace tlr
             First = None
         };
         TLR_ENUM(Transition);
+        TLR_ENUM_SERIALIZE(Transition);
 
         //! Convert to a transition.
         Transition toTransition(const std::string&);
@@ -115,7 +116,5 @@ namespace tlr
             TLR_PRIVATE();
         };
     }
-
-    TLR_ENUM_SERIALIZE(timeline::Transition);
 }
 

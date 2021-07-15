@@ -24,6 +24,7 @@ namespace tlr
             First = Stop
         };
         TLR_ENUM(Playback);
+        TLR_ENUM_SERIALIZE(Playback);
 
         //! Playback loop modes.
         enum class Loop
@@ -36,6 +37,7 @@ namespace tlr
             First = Loop
         };
         TLR_ENUM(Loop);
+        TLR_ENUM_SERIALIZE(Loop);
 
         //! Time actions.
         enum class TimeAction
@@ -53,6 +55,7 @@ namespace tlr
             First = Start
         };
         TLR_ENUM(TimeAction);
+        TLR_ENUM_SERIALIZE(TimeAction);
 
         //! Loop time.
         otime::RationalTime loopTime(const otime::RationalTime&, const otime::TimeRange&);
@@ -185,8 +188,4 @@ namespace tlr
             TLR_PRIVATE();
         };
     }
-
-    TLR_ENUM_SERIALIZE(timeline::Playback);
-    TLR_ENUM_SERIALIZE(timeline::Loop);
-    TLR_ENUM_SERIALIZE(timeline::TimeAction);
 }

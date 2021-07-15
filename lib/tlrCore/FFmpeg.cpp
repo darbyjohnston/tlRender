@@ -31,6 +31,7 @@ namespace tlr
             "ProRes_HQ",
             "ProRes_4444",
             "ProRes_XQ");
+        TLR_ENUM_SERIALIZE_IMPL(Profile);
 
         AVRational swap(AVRational value)
         {
@@ -99,6 +100,4 @@ namespace tlr
                 nullptr;
         }
     }
-
-    TLR_ENUM_SERIALIZE_IMPL(ffmpeg, Profile);
 }

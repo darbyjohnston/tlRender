@@ -68,18 +68,18 @@
 //! * tlrCore/Error.h
 //! * tlrCore/String.h
 //! * algorithm
-#define TLR_ENUM_SERIALIZE_IMPL(PREFIX, ENUM, ...) \
-    std::ostream& operator << (std::ostream& os, PREFIX::ENUM in) \
+#define TLR_ENUM_SERIALIZE_IMPL(ENUM, ...) \
+    std::ostream& operator << (std::ostream& os, ENUM in) \
     { \
-        os << PREFIX::get##ENUM##Labels()[static_cast<std::size_t>(in)]; \
+        os << get##ENUM##Labels()[static_cast<std::size_t>(in)]; \
         return os; \
     } \
     \
-    std::istream& operator >> (std::istream& is, PREFIX::ENUM& out) \
+    std::istream& operator >> (std::istream& is, ENUM& out) \
     { \
         std::string s; \
         is >> s; \
-        const auto labels = PREFIX::get##ENUM##Labels(); \
+        const auto labels = get##ENUM##Labels(); \
         const auto i = std::find_if( \
             labels.begin(), \
             labels.end(), \
@@ -91,6 +91,6 @@
         { \
             throw core::ParseError(); \
         } \
-        out = static_cast<PREFIX::ENUM>(i - labels.begin()); \
+        out = static_cast<ENUM>(i - labels.begin()); \
         return is; \
     }

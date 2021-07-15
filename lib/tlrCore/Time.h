@@ -76,10 +76,13 @@ namespace tlr
 
         ///@}
     }
+}
 
-    std::ostream& operator << (std::ostream&, const otime::RationalTime&);
-    std::ostream& operator << (std::ostream&, const otime::TimeRange&);
+namespace opentime::OPENTIME_VERSION
+{
+    std::ostream& operator << (std::ostream&, const RationalTime&);
+    std::ostream& operator << (std::ostream&, const TimeRange&);
 
-    std::istream& operator >> (std::istream&, otime::RationalTime&);
-    std::istream& operator >> (std::istream&, otime::TimeRange&);
+    std::istream& operator >> (std::istream&, RationalTime&);
+    std::istream& operator >> (std::istream&, TimeRange&);
 }

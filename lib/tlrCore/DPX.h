@@ -27,6 +27,7 @@ namespace tlr
             First = _1_0
         };
         TLR_ENUM(Version);
+        TLR_ENUM_SERIALIZE(Version);
 
         //! DPX endian options.
         enum class Endian
@@ -39,6 +40,7 @@ namespace tlr
             First = Auto
         };
         TLR_ENUM(Endian);
+        TLR_ENUM_SERIALIZE(Endian);
 
         //! DPX header magic numbers.
         static const char magic[][5] =
@@ -358,7 +360,4 @@ namespace tlr
                 const avio::Options& = avio::Options()) override;
         };
     }
-
-    TLR_ENUM_SERIALIZE(dpx::Version);
-    TLR_ENUM_SERIALIZE(dpx::Endian);
 }

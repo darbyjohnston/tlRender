@@ -19,6 +19,7 @@ namespace tlr
             Endian,
             "MSB",
             "LSB");
+        TLR_ENUM_SERIALIZE_IMPL(Endian);
 
         void endian(
             void*  in,
@@ -126,6 +127,4 @@ namespace tlr
             }
         }
     }
-
-    TLR_ENUM_SERIALIZE_IMPL(memory, Endian);
 }
