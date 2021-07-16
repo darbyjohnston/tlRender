@@ -51,10 +51,10 @@ namespace tlr
             Version version = Version::_2_0;
             Endian endian = Endian::Auto;
             Transfer transfer = Transfer::FilmPrint;
-            Header::write(io, info, version, endian, transfer);
+            write(io, info, version, endian, transfer);
 
             io->write(image->getData(), imaging::getDataByteCount(image->getInfo()));
-            Header::finishWrite(io);
+            finishWrite(io);
         }
     }
 }

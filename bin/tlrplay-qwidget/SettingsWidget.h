@@ -46,12 +46,12 @@ namespace tlr
 
     private Q_SLOTS:
         void _unitsCallback(QAbstractButton*);
-        void _unitsCallback(qt::TimeObject::Units);
+        void _unitsCallback(qt::TimeUnits);
 
     private:
         QButtonGroup* _unitsButtonGroup = nullptr;
-        QMap<QAbstractButton*, qt::TimeObject::Units> _buttonToUnits;
-        QMap<qt::TimeObject::Units, QAbstractButton*> _unitsToButtons;
+        QMap<QAbstractButton*, qt::TimeUnits> _buttonToUnits;
+        QMap<qt::TimeUnits, QAbstractButton*> _unitsToButtons;
         qt::TimeObject* _timeObject = nullptr;
     };
 

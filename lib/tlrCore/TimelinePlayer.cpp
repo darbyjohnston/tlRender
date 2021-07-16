@@ -86,12 +86,12 @@ namespace tlr
             std::shared_ptr<observer::Value<Frame> > frame;
             std::shared_ptr<observer::List<otime::TimeRange> > cachedFrames;
             std::chrono::steady_clock::time_point startTime;
-            otime::RationalTime playbackStartTime = invalidTime;
+            otime::RationalTime playbackStartTime = time::invalidTime;
 
             struct ThreadData
             {
-                otime::RationalTime currentTime = invalidTime;
-                otime::TimeRange inOutRange = invalidTimeRange;
+                otime::RationalTime currentTime = time::invalidTime;
+                otime::TimeRange inOutRange = time::invalidTimeRange;
                 Frame frame;
                 std::map<otime::RationalTime, std::future<Frame> > frameRequests;
                 bool clearFrameRequests = false;
@@ -134,8 +134,8 @@ namespace tlr
 
                     while (p.threadData.running)
                     {
-                        otime::RationalTime currentTime = invalidTime;
-                        otime::TimeRange inOutRange = invalidTimeRange;
+                        otime::RationalTime currentTime = time::invalidTime;
+                        otime::TimeRange inOutRange = time::invalidTimeRange;
                         bool clearFrameRequests = false;
                         FrameCacheDirection frameCacheDirection = FrameCacheDirection::Forward;
                         std::size_t frameCacheReadAhead = 0;

@@ -142,18 +142,6 @@ namespace tlr
                 char     pad2[740];
             };
             Film film;
-
-            //! Convert then endian of the header.
-            void convertEndian();
-
-            //! Read a header.
-            static Header read(const std::shared_ptr<file::FileIO>&, avio::Info&);
-
-            //! Write a header.
-            static void write(const std::shared_ptr<file::FileIO>&, const avio::Info&);
-
-            //! Finish writing the header.
-            static void finishWrite(const std::shared_ptr<file::FileIO>&);
         };
 
         //! Check whether the Cineon header value is valid.
@@ -165,9 +153,18 @@ namespace tlr
         //! Convert a std::string to a Cineon header string.
         size_t fromString(
             const std::string& string,
-            char* out,
+            char*              out,
             size_t             maxLen,
             bool               terminate);
+
+        //! Read a header.
+        Header read(const std::shared_ptr<file::FileIO>&, avio::Info&);
+
+        //! Write a header.
+        void write(const std::shared_ptr<file::FileIO>&, const avio::Info&);
+
+        //! Finish writing the header.
+        void finishWrite(const std::shared_ptr<file::FileIO>&);
 
         //! Cineon reader.
         class Read : public avio::ISequenceRead

@@ -266,27 +266,24 @@ namespace tlr
                 uint8_t  pad2[76];
             };
             TV tv;
-
-            //! Convert then endian of the header.
-            void convertEndian();
-
-            //! Read a header.
-            static Header read(
-                const std::shared_ptr<file::FileIO>&,
-                avio::Info&,
-                Transfer&);
-
-            //! Write a header.
-            static void write(
-                const std::shared_ptr<file::FileIO>&,
-                const avio::Info&,
-                Version,
-                Endian,
-                Transfer);
-
-            //! Finish writing the header.
-            static void finishWrite(const std::shared_ptr<file::FileIO>&);
         };
+
+        //! Read a header.
+        Header read(
+            const std::shared_ptr<file::FileIO>&,
+            avio::Info&,
+            Transfer&);
+
+        //! Write a header.
+        void write(
+            const std::shared_ptr<file::FileIO>&,
+            const avio::Info&,
+            Version,
+            Endian,
+            Transfer);
+
+        //! Finish writing the header.
+        void finishWrite(const std::shared_ptr<file::FileIO>&);
 
         //! DPX reader.
         class Read : public avio::ISequenceRead

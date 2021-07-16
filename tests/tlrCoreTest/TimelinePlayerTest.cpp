@@ -178,7 +178,7 @@ namespace tlr
 
             // Test the current time.
             timelinePlayer->setPlayback(Playback::Stop);
-            otime::RationalTime currentTime = invalidTime;
+            otime::RationalTime currentTime = time::invalidTime;
             auto currentTimeObserver = observer::ValueObserver<otime::RationalTime>::create(
                 timelinePlayer->observeCurrentTime(),
                 [&currentTime](const otime::RationalTime& value)
@@ -207,7 +207,7 @@ namespace tlr
             TLR_ASSERT(otime::RationalTime(47.0, 24.0) == currentTime);
 
             // Test the in/out points.
-            otime::TimeRange inOutRange = invalidTimeRange;
+            otime::TimeRange inOutRange = time::invalidTimeRange;
             auto inOutRangeObserver = observer::ValueObserver<otime::TimeRange>::create(
                 timelinePlayer->observeInOutRange(),
                 [&inOutRange](const otime::TimeRange& value)

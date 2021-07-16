@@ -34,7 +34,7 @@ namespace tlr
 
         public Q_SLOTS:
             //! Set the time units.
-            void setUnits(qt::TimeObject::Units);
+            void setUnits(qt::TimeUnits);
 
         protected:
             void resizeEvent(QResizeEvent*) override;

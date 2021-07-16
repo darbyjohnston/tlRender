@@ -16,7 +16,7 @@ namespace tlr
         _toolTipsFilter = new qt::ToolTipsFilter(this);
 
         QSettings settings;
-        _timeObject->setUnits(settings.value("TimeUnits", QVariant::fromValue(_timeObject->units())).value<qt::TimeObject::Units>());
+        _timeObject->setUnits(settings.value("TimeUnits", QVariant::fromValue(_timeObject->units())).value<qt::TimeUnits>());
         int size = settings.beginReadArray("RecentFiles");
         for (int i = 0; i < size; ++i)
         {

@@ -27,7 +27,7 @@ namespace tlr
             const otime::RationalTime& value() const;
 
             //! Get the time units.
-            TimeObject::Units units() const;
+            TimeUnits units() const;
 
             void stepBy(int steps) override;
             QValidator::State validate(QString&, int& pos) const override;
@@ -38,14 +38,14 @@ namespace tlr
             void setValue(const otime::RationalTime&);
             
             //! Set the time units.
-            void setUnits(qt::TimeObject::Units);
+            void setUnits(qt::TimeUnits);
 
         Q_SIGNALS:
             //! This signal is emitted when the time is changed.
             void valueChanged(const otime::RationalTime&);
 
             //! This signal is emitted when the time units are changed.
-            void unitsChanged(qt::TimeObject::Units);
+            void unitsChanged(qt::TimeUnits);
 
         protected:
             QAbstractSpinBox::StepEnabled stepEnabled() const override;

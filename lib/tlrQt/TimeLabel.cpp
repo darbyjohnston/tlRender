@@ -14,8 +14,8 @@ namespace tlr
     {
         struct TimeLabel::Private
         {
-            otime::RationalTime value = invalidTime;
-            TimeObject::Units units = TimeObject::Units::Timecode;
+            otime::RationalTime value = time::invalidTime;
+            TimeUnits units = TimeUnits::Timecode;
             QLabel* label = nullptr;
             TimeObject* timeObject = nullptr;
         };
@@ -59,8 +59,8 @@ namespace tlr
                 p.units = p.timeObject->units();
                 connect(
                     p.timeObject,
-                    SIGNAL(unitsChanged(qt::TimeObject::Units)),
-                    SLOT(setUnits(qt::TimeObject::Units)));
+                    SIGNAL(unitsChanged(qt::TimeUnits)),
+                    SLOT(setUnits(qt::TimeUnits)));
             }
             _textUpdate();
             updateGeometry();
@@ -75,7 +75,7 @@ namespace tlr
             _textUpdate();
         }
 
-        void TimeLabel::setUnits(TimeObject::Units units)
+        void TimeLabel::setUnits(TimeUnits units)
         {
             TLR_PRIVATE_P();
             if (p.units == units)
@@ -88,7 +88,7 @@ namespace tlr
         void TimeLabel::_textUpdate()
         {
             TLR_PRIVATE_P();
-            p.label->setText(TimeObject::timeToText(p.value, p.units));
+            p.label->setText(timeToText(p.value, p.units));
         }
     }
 }

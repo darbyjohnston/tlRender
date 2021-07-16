@@ -95,42 +95,88 @@ namespace tlr
             zero(film.slate, 200);
         }
 
-        void Header::convertEndian()
+        bool isValid(const char* in, size_t size)
         {
-            memory::endian(&file.imageOffset, 1, 4);
-            memory::endian(&file.headerSize, 1, 4);
-            memory::endian(&file.industryHeaderSize, 1, 4);
-            memory::endian(&file.userHeaderSize, 1, 4);
-            memory::endian(&file.size, 1, 4);
-
-            for (uint8_t i = 0; i < 8; ++i)
+            const char _minChar = 32;
+            const char _maxChar = 126;
+            const char* p = in;
+            const char* const end = p + size;
+            for (; *p && p < end; ++p)
             {
-                memory::endian(image.channel[i].size, 2, 4);
-                memory::endian(&image.channel[i].lowData, 1, 4);
-                memory::endian(&image.channel[i].lowQuantity, 1, 4);
-                memory::endian(&image.channel[i].highData, 1, 4);
-                memory::endian(&image.channel[i].highQuantity, 1, 4);
+                if (*p < _minChar || *p > _maxChar)
+                {
+                    return false;
+                }
             }
+            return size ? (in[0] != 0) : false;
+        }
 
-            memory::endian(image.white, 2, 4);
-            memory::endian(image.red, 2, 4);
-            memory::endian(image.green, 2, 4);
-            memory::endian(image.blue, 2, 4);
-            memory::endian(&image.linePadding, 1, 4);
-            memory::endian(&image.channelPadding, 1, 4);
+        std::string toString(const char* in, size_t size)
+        {
+            const char* p = in;
+            const char* const end = p + size;
+            for (; *p && p < end; ++p)
+                ;
+            return std::string(in, p - in);
+        }
 
-            memory::endian(source.offset, 2, 4);
-            memory::endian(source.inputPitch, 2, 4);
-            memory::endian(&source.gamma, 1, 4);
-
-            memory::endian(&film.prefix, 1, 4);
-            memory::endian(&film.count, 1, 4);
-            memory::endian(&film.frame, 1, 4);
-            memory::endian(&film.frameRate, 1, 4);
+        size_t fromString(
+            const std::string& string,
+            char* out,
+            size_t             maxLen,
+            bool               terminate)
+        {
+            TLR_ASSERT(maxLen >= 0);
+            const char* c = string.c_str();
+            const size_t length = std::min(string.length(), maxLen - static_cast<int>(terminate));
+            size_t i = 0;
+            for (; i < length; ++i)
+            {
+                out[i] = c[i];
+            }
+            if (terminate)
+            {
+                out[i++] = 0;
+            }
+            return i;
         }
 
         namespace
         {
+            void convertEndian(Header& header)
+            {
+                memory::endian(&header.file.imageOffset, 1, 4);
+                memory::endian(&header.file.headerSize, 1, 4);
+                memory::endian(&header.file.industryHeaderSize, 1, 4);
+                memory::endian(&header.file.userHeaderSize, 1, 4);
+                memory::endian(&header.file.size, 1, 4);
+
+                for (uint8_t i = 0; i < 8; ++i)
+                {
+                    memory::endian(&header.image.channel[i].size, 2, 4);
+                    memory::endian(&header.image.channel[i].lowData, 1, 4);
+                    memory::endian(&header.image.channel[i].lowQuantity, 1, 4);
+                    memory::endian(&header.image.channel[i].highData, 1, 4);
+                    memory::endian(&header.image.channel[i].highQuantity, 1, 4);
+                }
+
+                memory::endian(&header.image.white, 2, 4);
+                memory::endian(&header.image.red, 2, 4);
+                memory::endian(&header.image.green, 2, 4);
+                memory::endian(&header.image.blue, 2, 4);
+                memory::endian(&header.image.linePadding, 1, 4);
+                memory::endian(&header.image.channelPadding, 1, 4);
+
+                memory::endian(&header.source.offset, 2, 4);
+                memory::endian(&header.source.inputPitch, 2, 4);
+                memory::endian(&header.source.gamma, 1, 4);
+
+                memory::endian(&header.film.prefix, 1, 4);
+                memory::endian(&header.film.count, 1, 4);
+                memory::endian(&header.film.frame, 1, 4);
+                memory::endian(&header.film.frameRate, 1, 4);
+            }
+
             bool isValid(const uint8_t* in)
             {
                 return *in != 0xff;
@@ -166,7 +212,7 @@ namespace tlr
 
         } // namespace
 
-        Header Header::read(const std::shared_ptr<file::FileIO>& io, avio::Info& info)
+        Header read(const std::shared_ptr<file::FileIO>& io, avio::Info& info)
         {
             Header out;
 
@@ -198,7 +244,7 @@ namespace tlr
             if (convertEndian)
             {
                 io->setEndianConversion(true);
-                out.convertEndian();
+                cineon::convertEndian(out);
                 imageInfo.layout.endian = memory::opposite(memory::getEndian());
             }
 
@@ -383,7 +429,7 @@ namespace tlr
             return out;
         }
 
-        void Header::write(const std::shared_ptr<file::FileIO>& io, const avio::Info& info)
+        void write(const std::shared_ptr<file::FileIO>& io, const avio::Info& info)
         {
             Header header;
 
@@ -524,7 +570,7 @@ namespace tlr
             io->setEndianConversion(convertEndian);
             if (convertEndian)
             {
-                header.convertEndian();
+                cineon::convertEndian(header);
                 header.file.magic = magic[1];
             }
             else
@@ -537,57 +583,11 @@ namespace tlr
             io->write(&header.film, sizeof(Header::Film));
         }
 
-        void Header::finishWrite(const std::shared_ptr<file::FileIO>& io)
+        void finishWrite(const std::shared_ptr<file::FileIO>& io)
         {
             const uint32_t size = static_cast<uint32_t>(io->getPos());
             io->setPos(20);
             io->writeU32(size);
-        }
-
-        bool isValid(const char* in, size_t size)
-        {
-            const char _minChar = 32;
-            const char _maxChar = 126;
-            const char* p = in;
-            const char* const end = p + size;
-            for (; *p && p < end; ++p)
-            {
-                if (*p < _minChar || *p > _maxChar)
-                {
-                    return false;
-                }
-            }
-            return size ? (in[0] != 0) : false;
-        }
-
-        std::string toString(const char* in, size_t size)
-        {
-            const char* p = in;
-            const char* const end = p + size;
-            for (; *p && p < end; ++p)
-                ;
-            return std::string(in, p - in);
-        }
-
-        size_t fromString(
-            const std::string& string,
-            char* out,
-            size_t             maxLen,
-            bool               terminate)
-        {
-            TLR_ASSERT(maxLen >= 0);
-            const char* c = string.c_str();
-            const size_t length = std::min(string.length(), maxLen - static_cast<int>(terminate));
-            size_t i = 0;
-            for (; i < length; ++i)
-            {
-                out[i] = c[i];
-            }
-            if (terminate)
-            {
-                out[i++] = 0;
-            }
-            return i;
         }
 
         void Plugin::_init()

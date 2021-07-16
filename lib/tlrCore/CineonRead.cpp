@@ -40,7 +40,7 @@ namespace tlr
             out.videoDuration = otime::RationalTime(1.0, avio::sequenceDefaultSpeed);
             auto io = file::FileIO::create();
             io->open(fileName, file::Mode::Read);
-            Header::read(io, out);
+            read(io, out);
             return out;
         }
 
@@ -54,7 +54,7 @@ namespace tlr
             auto io = file::FileIO::create();
             io->open(fileName, file::Mode::Read);
             avio::Info info;
-            Header::read(io, info);
+            read(io, info);
 
             out.image = imaging::Image::create(info.video[0]);
             out.image->setTags(info.tags);

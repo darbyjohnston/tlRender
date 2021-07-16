@@ -33,7 +33,7 @@ namespace tlr
     namespace avio
     {
         VideoFrame::VideoFrame() :
-            time(invalidTime)
+            time(time::invalidTime)
         {}
 
         VideoFrame::VideoFrame(

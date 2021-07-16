@@ -102,61 +102,61 @@ namespace tlr
             memset(&tv, 0xff, sizeof(Header::TV));
         }
 
-        void Header::convertEndian()
-        {
-            memory::endian(&file.imageOffset, 1, 4);
-            memory::endian(&file.size, 1, 4);
-            memory::endian(&file.dittoKey, 1, 4);
-            memory::endian(&file.headerSize, 1, 4);
-            memory::endian(&file.industryHeaderSize, 1, 4);
-            memory::endian(&file.userHeaderSize, 1, 4);
-            memory::endian(&file.encryptionKey, 1, 4);
-
-            memory::endian(&image.orient, 1, 2);
-            memory::endian(&image.elemSize, 1, 2);
-            memory::endian(image.size, 2, 4);
-            for (size_t i = 0; i < 8; ++i)
-            {
-                memory::endian(&image.elem[i].dataSign, 1, 4);
-                memory::endian(&image.elem[i].lowData, 1, 4);
-                memory::endian(&image.elem[i].lowQuantity, 1, 4);
-                memory::endian(&image.elem[i].highData, 1, 4);
-                memory::endian(&image.elem[i].highQuantity, 1, 4);
-                memory::endian(&image.elem[i].packing, 1, 2);
-                memory::endian(&image.elem[i].encoding, 1, 2);
-                memory::endian(&image.elem[i].dataOffset, 1, 4);
-                memory::endian(&image.elem[i].linePadding, 1, 4);
-                memory::endian(&image.elem[i].elemPadding, 1, 4);
-            }
-
-            memory::endian(source.offset, 2, 4);
-            memory::endian(source.center, 2, 4);
-            memory::endian(source.size, 2, 4);
-            memory::endian(source.border, 4, 2);
-            memory::endian(source.pixelAspect, 2, 4);
-            memory::endian(source.scanSize, 2, 4);
-
-            memory::endian(&film.frame, 1, 4);
-            memory::endian(&film.sequence, 1, 4);
-            memory::endian(&film.hold, 1, 4);
-            memory::endian(&film.frameRate, 1, 4);
-            memory::endian(&film.shutter, 1, 4);
-
-            memory::endian(&tv.timecode, 1, 4);
-            memory::endian(&tv.userBits, 1, 4);
-            memory::endian(tv.sampleRate, 2, 4);
-            memory::endian(&tv.frameRate, 1, 4);
-            memory::endian(&tv.timeOffset, 1, 4);
-            memory::endian(&tv.gamma, 1, 4);
-            memory::endian(&tv.blackLevel, 1, 4);
-            memory::endian(&tv.blackGain, 1, 4);
-            memory::endian(&tv.breakpoint, 1, 4);
-            memory::endian(&tv.whiteLevel, 1, 4);
-            memory::endian(&tv.integrationTimes, 1, 4);
-        }
-
         namespace
         {
+            void convertEndian(Header& header)
+            {
+                memory::endian(&header.file.imageOffset, 1, 4);
+                memory::endian(&header.file.size, 1, 4);
+                memory::endian(&header.file.dittoKey, 1, 4);
+                memory::endian(&header.file.headerSize, 1, 4);
+                memory::endian(&header.file.industryHeaderSize, 1, 4);
+                memory::endian(&header.file.userHeaderSize, 1, 4);
+                memory::endian(&header.file.encryptionKey, 1, 4);
+
+                memory::endian(&header.image.orient, 1, 2);
+                memory::endian(&header.image.elemSize, 1, 2);
+                memory::endian(&header.image.size, 2, 4);
+                for (size_t i = 0; i < 8; ++i)
+                {
+                    memory::endian(&header.image.elem[i].dataSign, 1, 4);
+                    memory::endian(&header.image.elem[i].lowData, 1, 4);
+                    memory::endian(&header.image.elem[i].lowQuantity, 1, 4);
+                    memory::endian(&header.image.elem[i].highData, 1, 4);
+                    memory::endian(&header.image.elem[i].highQuantity, 1, 4);
+                    memory::endian(&header.image.elem[i].packing, 1, 2);
+                    memory::endian(&header.image.elem[i].encoding, 1, 2);
+                    memory::endian(&header.image.elem[i].dataOffset, 1, 4);
+                    memory::endian(&header.image.elem[i].linePadding, 1, 4);
+                    memory::endian(&header.image.elem[i].elemPadding, 1, 4);
+                }
+
+                memory::endian(&header.source.offset, 2, 4);
+                memory::endian(&header.source.center, 2, 4);
+                memory::endian(&header.source.size, 2, 4);
+                memory::endian(&header.source.border, 4, 2);
+                memory::endian(&header.source.pixelAspect, 2, 4);
+                memory::endian(&header.source.scanSize, 2, 4);
+
+                memory::endian(&header.film.frame, 1, 4);
+                memory::endian(&header.film.sequence, 1, 4);
+                memory::endian(&header.film.hold, 1, 4);
+                memory::endian(&header.film.frameRate, 1, 4);
+                memory::endian(&header.film.shutter, 1, 4);
+
+                memory::endian(&header.tv.timecode, 1, 4);
+                memory::endian(&header.tv.userBits, 1, 4);
+                memory::endian(&header.tv.sampleRate, 2, 4);
+                memory::endian(&header.tv.frameRate, 1, 4);
+                memory::endian(&header.tv.timeOffset, 1, 4);
+                memory::endian(&header.tv.gamma, 1, 4);
+                memory::endian(&header.tv.blackLevel, 1, 4);
+                memory::endian(&header.tv.blackGain, 1, 4);
+                memory::endian(&header.tv.breakpoint, 1, 4);
+                memory::endian(&header.tv.whiteLevel, 1, 4);
+                memory::endian(&header.tv.integrationTimes, 1, 4);
+            }
+
             //! These hard-coded values are meant to catch uninitialized values.
             const int32_t _intMax   = 1000000;
             const float   _floatMax = 1000000.F;
@@ -186,7 +186,7 @@ namespace tlr
             }
         }
 
-        Header Header::read(
+        Header read(
             const std::shared_ptr<file::FileIO>& io,
             avio::Info& info,
             Transfer& transfer)
@@ -224,7 +224,7 @@ namespace tlr
             if (fileEndian != memory::getEndian())
             {
                 io->setEndianConversion(true);
-                out.convertEndian();
+                convertEndian(out);
                 imageInfo.layout.endian = memory::opposite(memory::getEndian());
             }
 
@@ -551,7 +551,7 @@ namespace tlr
             return out;
         }
 
-        void Header::write(
+        void write(
             const std::shared_ptr<file::FileIO>& io,
             const avio::Info& info,
             Version version,
@@ -879,7 +879,7 @@ namespace tlr
             if (fileEndian != memory::getEndian())
             {
                 io->setEndianConversion(true);
-                header.convertEndian();
+                convertEndian(header);
             }
             memcpy(
                 &header.file.magic,
@@ -892,7 +892,7 @@ namespace tlr
             io->write(&header.tv, sizeof(Header::TV));
         }
 
-        void Header::finishWrite(const std::shared_ptr<file::FileIO>& io)
+        void finishWrite(const std::shared_ptr<file::FileIO>& io)
         {
             const uint32_t size = static_cast<uint32_t>(io->getPos());
             io->setPos(12);

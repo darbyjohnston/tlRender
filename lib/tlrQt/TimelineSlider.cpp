@@ -22,7 +22,7 @@ namespace tlr
             TimelinePlayer* timelinePlayer = nullptr;
             TimelineThumbnailProvider* thumbnailProvider = nullptr;
             std::map<otime::RationalTime, QImage> thumbnails;
-            TimeObject::Units units = TimeObject::Units::Timecode;
+            TimeUnits units = TimeUnits::Timecode;
             TimeObject* timeObject = nullptr;
         };
 
@@ -53,8 +53,8 @@ namespace tlr
                 p.units = p.timeObject->units();
                 connect(
                     p.timeObject,
-                    SIGNAL(unitsChanged(qt::TimeObject::Units)),
-                    SLOT(setUnits(qt::TimeObject::Units)));
+                    SIGNAL(unitsChanged(qt::TimeUnits)),
+                    SLOT(setUnits(qt::TimeUnits)));
             }
             update();
         }
@@ -112,7 +112,7 @@ namespace tlr
             _thumbnailsUpdate();
         }
 
-        void TimelineSlider::setUnits(TimeObject::Units units)
+        void TimelineSlider::setUnits(TimeUnits units)
         {
             TLR_PRIVATE_P();
             if (p.units == units)
@@ -233,7 +233,7 @@ namespace tlr
         otime::RationalTime TimelineSlider::_posToTime(int value) const
         {
             TLR_PRIVATE_P();
-            otime::RationalTime out = invalidTime;
+            otime::RationalTime out = time::invalidTime;
             if (p.timelinePlayer)
             {
                 const auto& globalStartTime = p.timelinePlayer->globalStartTime();

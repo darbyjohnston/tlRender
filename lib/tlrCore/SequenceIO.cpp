@@ -36,7 +36,7 @@ namespace tlr
                 VideoFrameRequest() {}
                 VideoFrameRequest(VideoFrameRequest&&) = default;
 
-                otime::RationalTime time = invalidTime;
+                otime::RationalTime time = time::invalidTime;
                 std::promise<VideoFrame> promise;
             };
             std::list<VideoFrameRequest> videoFrameRequests;
@@ -162,7 +162,7 @@ namespace tlr
                 struct Result
                 {
                     std::string fileName;
-                    otime::RationalTime time = invalidTime;
+                    otime::RationalTime time = time::invalidTime;
                     std::future<VideoFrame> future;
                     std::promise<VideoFrame> promise;
                 };

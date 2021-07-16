@@ -446,21 +446,21 @@ namespace tlr
                     button->setEnabled(false);
                 }
 
-                p.speedLabel->setValue(invalidTime);
+                p.speedLabel->setValue(time::invalidTime);
 
-                p.currentTimeSpinBox->setValue(invalidTime);
+                p.currentTimeSpinBox->setValue(time::invalidTime);
                 p.currentTimeSpinBox->setEnabled(false);
 
-                p.inPointSpinBox->setValue(invalidTime);
+                p.inPointSpinBox->setValue(time::invalidTime);
                 p.inPointSpinBox->setEnabled(false);
-                p.outPointSpinBox->setValue(invalidTime);
+                p.outPointSpinBox->setValue(time::invalidTime);
                 p.outPointSpinBox->setEnabled(false);
                 for (const auto& button : p.inOutButtons)
                 {
                     button->setEnabled(false);
                 }
 
-                p.durationLabel->setValue(invalidTime);
+                p.durationLabel->setValue(time::invalidTime);
             }
         }
     }

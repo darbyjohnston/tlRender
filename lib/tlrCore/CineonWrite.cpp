@@ -47,10 +47,10 @@ namespace tlr
             avio::Info info;
             info.video.push_back(image->getInfo());
             info.tags = image->getTags();
-            Header::write(io, info);
+            write(io, info);
 
             io->write(image->getData(), imaging::getDataByteCount(image->getInfo()));
-            Header::finishWrite(io);
+            finishWrite(io);
         }
     }
 }

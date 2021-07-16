@@ -59,9 +59,9 @@ namespace tlr
         std::shared_ptr<timeline::Timeline> _timeline;
         imaging::Info _renderInfo;
         imaging::Info _outputInfo;
-        otime::RationalTime _duration = invalidTime;
-        otime::TimeRange _range = invalidTimeRange;
-        otime::RationalTime _currentTime = invalidTime;
+        otime::RationalTime _duration = time::invalidTime;
+        otime::TimeRange _range = time::invalidTimeRange;
+        otime::RationalTime _currentTime = time::invalidTime;
 
         GLFWwindow* _glfwWindow = nullptr;
         std::shared_ptr<gl::FontSystem> _fontSystem;

@@ -210,8 +210,8 @@ namespace tlr
 
             std::string fileName;
             otio::SerializableObject::Retainer<otio::Timeline> timeline;
-            otime::RationalTime duration = invalidTime;
-            otime::RationalTime globalStartTime = invalidTime;
+            otime::RationalTime duration = time::invalidTime;
+            otime::RationalTime globalStartTime = time::invalidTime;
             std::shared_ptr<avio::System> ioSystem;
             imaging::Info imageInfo;
             std::vector<otime::TimeRange> activeRanges;
@@ -221,7 +221,7 @@ namespace tlr
                 Request() {};
                 Request(Request&&) = default;
 
-                otime::RationalTime time = invalidTime;
+                otime::RationalTime time = time::invalidTime;
                 std::promise<Frame> promise;
             };
             std::list<Request> requests;
@@ -445,7 +445,7 @@ namespace tlr
             };
             struct Result
             {
-                otime::RationalTime time = invalidTime;
+                otime::RationalTime time = time::invalidTime;
                 std::vector<LayerData> layerData;
                 std::promise<Frame> promise;
             };

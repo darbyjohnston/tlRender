@@ -28,7 +28,7 @@ namespace tlr
             void setValue(const otime::RationalTime&);
             
             //! Set the time units.
-            void setUnits(qt::TimeObject::Units);
+            void setUnits(qt::TimeUnits);
 
         private:
             void _textUpdate();

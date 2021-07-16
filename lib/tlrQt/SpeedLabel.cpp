@@ -14,7 +14,7 @@ namespace tlr
     {
         struct SpeedLabel::Private
         {
-            otime::RationalTime value = invalidTime;
+            otime::RationalTime value = time::invalidTime;
             QLabel* label = nullptr;
         };
 

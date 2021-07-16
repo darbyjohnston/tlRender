@@ -13,6 +13,33 @@ namespace tlr
 {
     namespace qt
     {
+        Q_NAMESPACE
+
+        //! Time units.
+        enum class TimeUnits
+        {
+            Frames,
+            Seconds,
+            Timecode
+        };
+        Q_ENUM_NS(TimeUnits);
+
+        //! Get the time units size hint string.
+        QString sizeHintString(TimeUnits);
+
+        //! Get the time units validator regular expression.
+        QString validator(TimeUnits);
+
+        //! Convert a time value to text.
+        QString timeToText(const otime::RationalTime&, TimeUnits);
+
+        //! Convert text to a time value.
+        otime::RationalTime textToTime(
+            const QString& text,
+            double rate,
+            TimeUnits,
+            otime::ErrorStatus*);
+
         //! Time object.
         class TimeObject : public QObject
         {
@@ -21,46 +48,21 @@ namespace tlr
         public:
             TimeObject(QObject* parent = nullptr);
 
-            //! Time units.
-            enum class Units
-            {
-                Frames,
-                Seconds,
-                Timecode
-            };
-            Q_ENUM(Units);
-
             //! Get the time units.
-            Units units() const;
-
-            //! Get the time units size hint string.
-            static QString unitsSizeHintString(Units);
-
-            //! Get the time units validator regular expression.
-            static QString unitsValidator(Units);
-
-            //! Convert a time value to text.
-            static QString timeToText(const otime::RationalTime&, Units);
-
-            //! Convert text to a time value.
-            static otime::RationalTime textToTime(
-                const QString& text,
-                double rate,
-                Units,
-                otime::ErrorStatus*);
+            TimeUnits units() const;
 
         public Q_SLOTS:
             //! Set the time units.
-            void setUnits(qt::TimeObject::Units);
+            void setUnits(qt::TimeUnits);
 
         Q_SIGNALS:
             //! This signal is emitted when the time units are changed.
-            void unitsChanged(qt::TimeObject::Units);
+            void unitsChanged(qt::TimeUnits);
 
         private:
-            Units _units = Units::Timecode;
+            TimeUnits _units = TimeUnits::Timecode;
         };
     }
 }
 
-Q_DECLARE_METATYPE(tlr::qt::TimeObject::Units);
+Q_DECLARE_METATYPE(tlr::qt::TimeUnits);

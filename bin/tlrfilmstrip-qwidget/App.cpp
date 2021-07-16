@@ -41,8 +41,8 @@ namespace tlr
 
         qtInitResources();
 
-        qRegisterMetaType<qt::TimeObject::Units>("tlr::qt::TimeObject::Units");
-        qRegisterMetaTypeStreamOperators<qt::TimeObject::Units>("tlr::qt::TimeObject::Units");
+        qRegisterMetaType<qt::TimeUnits>("tlr::qt::TimeUnits");
+        qRegisterMetaTypeStreamOperators<qt::TimeUnits>("tlr::qt::TimeUnits");
 
         QCoreApplication::setOrganizationName("tlRender");
         QCoreApplication::setApplicationName("tlrfilmstrip-qwidget");

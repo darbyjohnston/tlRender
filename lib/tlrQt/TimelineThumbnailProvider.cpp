@@ -26,7 +26,7 @@ namespace tlr
             gl::ColorConfig colorConfig;
             struct Request
             {
-                otime::RationalTime time = invalidTime;
+                otime::RationalTime time = time::invalidTime;
                 QSize size;
             };
             std::list<Request> requests;

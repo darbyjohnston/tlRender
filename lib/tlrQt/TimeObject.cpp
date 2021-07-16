@@ -10,35 +10,18 @@ namespace tlr
 {
     namespace qt
     {
-        TimeObject::TimeObject(QObject* parent) :
-            QObject(parent)
-        {}
-
-        TimeObject::Units TimeObject::units() const
-        {
-            return _units;
-        }
-
-        void TimeObject::setUnits(Units units)
-        {
-            if (_units == units)
-                return;
-            _units = units;
-            Q_EMIT unitsChanged(_units);
-        }
-
-        QString TimeObject::unitsSizeHintString(Units units)
+        QString sizeHintString(TimeUnits units)
         {
             QString out;
             switch (units)
             {
-            case Units::Frames:
+            case TimeUnits::Frames:
                 out = "000000";
                 break;
-            case Units::Seconds:
+            case TimeUnits::Seconds:
                 out = "000000.00";
                 break;
-            case Units::Timecode:
+            case TimeUnits::Timecode:
                 out = "00:00:00:00";
                 break;
             default: break;
@@ -46,18 +29,18 @@ namespace tlr
             return out;
         }
 
-        QString TimeObject::unitsValidator(Units units)
+        QString validator(TimeUnits units)
         {
             QString out;
             switch (units)
             {
-            case Units::Frames:
+            case TimeUnits::Frames:
                 out = "[0-9]*";
                 break;
-            case Units::Seconds:
+            case TimeUnits::Seconds:
                 out = "[0-9]*\\.[0-9]+|[0-9]+";
                 break;
-            case Units::Timecode:
+            case TimeUnits::Timecode:
                 out = "[0-9][0-9]:[0-9][0-9]:[0-9][0-9]:[0-9][0-9]";
                 break;
             default: break;
@@ -65,18 +48,18 @@ namespace tlr
             return out;
         }
 
-        QString TimeObject::timeToText(const otime::RationalTime& time, Units units)
+        QString timeToText(const otime::RationalTime& time, TimeUnits units)
         {
             QString out;
             switch (units)
             {
-            case Units::Frames:
+            case TimeUnits::Frames:
                 out = QString::number(time.to_frames());
                 break;
-            case Units::Seconds:
+            case TimeUnits::Seconds:
                 out = QString::number(time.to_seconds(), 'f', 2);
                 break;
-            case Units::Timecode:
+            case TimeUnits::Timecode:
             {
                 otime::ErrorStatus errorStatus;
                 out = time.to_timecode(&errorStatus).c_str();
@@ -87,27 +70,44 @@ namespace tlr
             return out;
         }
 
-        otime::RationalTime TimeObject::textToTime(
+        otime::RationalTime textToTime(
             const QString& text,
             double rate,
-            Units units,
+            TimeUnits units,
             otime::ErrorStatus* errorStatus)
         {
-            otime::RationalTime out = invalidTime;
+            otime::RationalTime out = time::invalidTime;
             switch (units)
             {
-            case Units::Frames:
+            case TimeUnits::Frames:
                 out = otime::RationalTime::from_frames(text.toInt(), rate);
                 break;
-            case Units::Seconds:
+            case TimeUnits::Seconds:
                 out = otime::RationalTime::from_seconds(text.toDouble());
                 break;
-            case Units::Timecode:
+            case TimeUnits::Timecode:
                 out = otime::RationalTime::from_timecode(text.toLatin1().data(), rate, errorStatus);
                 break;
             default: break;
             }
             return out;
+        }
+
+        TimeObject::TimeObject(QObject* parent) :
+            QObject(parent)
+        {}
+
+        TimeUnits TimeObject::units() const
+        {
+            return _units;
+        }
+
+        void TimeObject::setUnits(TimeUnits units)
+        {
+            if (_units == units)
+                return;
+            _units = units;
+            Q_EMIT unitsChanged(_units);
         }
     }
 }

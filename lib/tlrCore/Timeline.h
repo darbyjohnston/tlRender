@@ -58,7 +58,7 @@ namespace tlr
         //! Frame.
         struct Frame
         {
-            otime::RationalTime time = invalidTime;
+            otime::RationalTime time = time::invalidTime;
             std::vector<FrameLayer> layers;
 
             bool operator == (const Frame&) const;

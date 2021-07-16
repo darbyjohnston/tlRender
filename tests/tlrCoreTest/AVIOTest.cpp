@@ -35,7 +35,7 @@ namespace tlr
         {
             {
                 const VideoFrame f;
-                TLR_ASSERT(invalidTime == f.time);
+                TLR_ASSERT(time::invalidTime == f.time);
                 TLR_ASSERT(!f.image);
             }
             {

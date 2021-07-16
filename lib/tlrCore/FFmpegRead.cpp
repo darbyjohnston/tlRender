@@ -40,13 +40,13 @@ namespace tlr
                 VideoFrameRequest() {}
                 VideoFrameRequest(VideoFrameRequest&&) = default;
 
-                otime::RationalTime time = invalidTime;
+                otime::RationalTime time = time::invalidTime;
                 std::promise<avio::VideoFrame> promise;
             };
             std::list<VideoFrameRequest> videoFrameRequests;
             std::condition_variable requestCV;
             std::mutex requestMutex;
-            otime::RationalTime currentTime = invalidTime;
+            otime::RationalTime currentTime = time::invalidTime;
             std::list<std::shared_ptr<imaging::Image> > imageBuffer;
 
             AVFormatContext* avFormatContext = nullptr;

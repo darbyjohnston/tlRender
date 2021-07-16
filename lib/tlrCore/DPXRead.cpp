@@ -41,7 +41,7 @@ namespace tlr
             auto io = file::FileIO::create();
             io->open(fileName, file::Mode::Read);
             Transfer transfer = Transfer::User;
-            Header::read(io, out, transfer);
+            read(io, out, transfer);
             return out;
         }
 
@@ -56,7 +56,7 @@ namespace tlr
             io->open(fileName, file::Mode::Read);
             avio::Info info;
             Transfer transfer = Transfer::User;
-            Header::read(io, info, transfer);
+            read(io, info, transfer);
 
             out.image = imaging::Image::create(info.video[0]);
             out.image->setTags(info.tags);

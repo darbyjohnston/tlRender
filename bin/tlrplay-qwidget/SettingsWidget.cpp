@@ -86,12 +86,12 @@ namespace tlr
         _unitsButtonGroup->addButton(framesButton);
         _unitsButtonGroup->addButton(secondsButton);
         _unitsButtonGroup->addButton(timecodeButton);
-        _buttonToUnits[framesButton] = qt::TimeObject::Units::Frames;
-        _buttonToUnits[secondsButton] = qt::TimeObject::Units::Seconds;
-        _buttonToUnits[timecodeButton] = qt::TimeObject::Units::Timecode;
-        _unitsToButtons[qt::TimeObject::Units::Frames] = framesButton;
-        _unitsToButtons[qt::TimeObject::Units::Seconds] = secondsButton;
-        _unitsToButtons[qt::TimeObject::Units::Timecode] = timecodeButton;
+        _buttonToUnits[framesButton] = qt::TimeUnits::Frames;
+        _buttonToUnits[secondsButton] = qt::TimeUnits::Seconds;
+        _buttonToUnits[timecodeButton] = qt::TimeUnits::Timecode;
+        _unitsToButtons[qt::TimeUnits::Frames] = framesButton;
+        _unitsToButtons[qt::TimeUnits::Seconds] = secondsButton;
+        _unitsToButtons[qt::TimeUnits::Timecode] = timecodeButton;
 
         auto layout = new QVBoxLayout;
         auto vLayout = new QVBoxLayout;
@@ -117,8 +117,8 @@ namespace tlr
 
         connect(
             _timeObject,
-            SIGNAL(unitsChanged(qt::TimeObject::Units)),
-            SLOT(_unitsCallback(qt::TimeObject::Units)));
+            SIGNAL(unitsChanged(qt::TimeUnits)),
+            SLOT(_unitsCallback(qt::TimeUnits)));
     }
 
     void TimeSettingsWidget::_unitsCallback(QAbstractButton* button)
@@ -130,7 +130,7 @@ namespace tlr
         }
     }
 
-    void TimeSettingsWidget::_unitsCallback(qt::TimeObject::Units units)
+    void TimeSettingsWidget::_unitsCallback(qt::TimeUnits units)
     {
         const QSignalBlocker blocker(_unitsButtonGroup);
         const auto i = _unitsToButtons.find(units);

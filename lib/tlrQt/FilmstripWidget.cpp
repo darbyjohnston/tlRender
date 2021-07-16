@@ -83,7 +83,7 @@ namespace tlr
         otime::RationalTime FilmstripWidget::_posToTime(int value) const
         {
             TLR_PRIVATE_P();
-            otime::RationalTime out = invalidTime;
+            otime::RationalTime out = time::invalidTime;
             if (p.timeline)
             {
                 const auto& globalStartTime = p.timeline->getGlobalStartTime();
