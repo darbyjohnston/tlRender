@@ -9,38 +9,38 @@ namespace tlr
     namespace memory
     {
         template<typename T, typename U>
-        inline std::size_t Cache<T, U>::getMax() const
+        inline std::size_t LRUCache<T, U>::getMax() const
         {
             return _max;
         }
 
         template<typename T, typename U>
-        inline std::size_t Cache<T, U>::getSize() const
+        inline std::size_t LRUCache<T, U>::getSize() const
         {
             return _map.size();
         }
 
         template<typename T, typename U>
-        inline float Cache<T, U>::getPercentageUsed() const
+        inline float LRUCache<T, U>::getPercentageUsed() const
         {
             return _map.size() / static_cast<float>(_max) * 100.F;
         }
 
         template<typename T, typename U>
-        inline void Cache<T, U>::setMax(std::size_t value)
+        inline void LRUCache<T, U>::setMax(std::size_t value)
         {
             _max = value;
             _maxUpdate();
         }
 
         template<typename T, typename U>
-        inline bool Cache<T, U>::contains(const T& key) const
+        inline bool LRUCache<T, U>::contains(const T& key) const
         {
             return _map.find(key) != _map.end();
         }
 
         template<typename T, typename U>
-        inline bool Cache<T, U>::get(const T& key, U& value) const
+        inline bool LRUCache<T, U>::get(const T& key, U& value) const
         {
             auto i = _map.find(key);
             if (i != _map.end())
@@ -58,7 +58,7 @@ namespace tlr
         }
 
         template<typename T, typename U>
-        inline void Cache<T, U>::add(const T& key, const U& value)
+        inline void LRUCache<T, U>::add(const T& key, const U& value)
         {
             _map[key] = value;
             ++_counter;
@@ -67,7 +67,7 @@ namespace tlr
         }
 
         template<typename T, typename U>
-        inline void Cache<T, U>::remove(const T& key)
+        inline void LRUCache<T, U>::remove(const T& key)
         {
             const auto i = _map.find(key);
             if (i != _map.end())
@@ -83,13 +83,13 @@ namespace tlr
         }
             
         template<typename T, typename U>
-        inline void Cache<T, U>::clear()
+        inline void LRUCache<T, U>::clear()
         {
             _map.clear();
         }
 
         template<typename T, typename U>
-        inline std::vector<T> Cache<T, U>::getKeys() const
+        inline std::vector<T> LRUCache<T, U>::getKeys() const
         {
             std::vector<T> out;
             for (const auto& i : _map)
@@ -100,7 +100,7 @@ namespace tlr
         }
 
         template<typename T, typename U>
-        inline std::vector<U> Cache<T, U>::getValues() const
+        inline std::vector<U> LRUCache<T, U>::getValues() const
         {
             std::vector<U> out;
             for (const auto& i : _map)
@@ -111,7 +111,7 @@ namespace tlr
         }
 
         template<typename T, typename U>
-        inline void Cache<T, U>::_maxUpdate()
+        inline void LRUCache<T, U>::_maxUpdate()
         {
             if (_map.size() > _max)
             {

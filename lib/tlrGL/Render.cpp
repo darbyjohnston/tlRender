@@ -9,8 +9,8 @@
 #include <tlrGL/Texture.h>
 
 #include <tlrCore/Assert.h>
-#include <tlrCore/Cache.h>
 #include <tlrCore/Color.h>
+#include <tlrCore/LRUCache.h>
 #include <tlrCore/StringFormat.h>
 
 #include <OpenColorIO/OpenColorIO.h>
@@ -219,7 +219,7 @@ namespace tlr
 
             std::shared_ptr<Shader> shader;
 
-            memory::Cache<GlyphInfo, std::shared_ptr<Texture> > glyphTextureCache;
+            memory::LRUCache<GlyphInfo, std::shared_ptr<Texture> > glyphTextureCache;
         };
 
         Render::Private::TextureId::TextureId(

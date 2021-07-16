@@ -5,8 +5,8 @@
 #include <tlrCore/SequenceIO.h>
 
 #include <tlrCore/Assert.h>
-#include <tlrCore/Cache.h>
 #include <tlrCore/File.h>
+#include <tlrCore/LRUCache.h>
 
 #include <atomic>
 #include <condition_variable>
@@ -42,7 +42,7 @@ namespace tlr
             std::list<VideoFrameRequest> videoFrameRequests;
             std::condition_variable requestCV;
             std::mutex requestMutex;
-            memory::Cache<std::string, VideoFrame> videoFrameCache;
+            memory::LRUCache<std::string, VideoFrame> videoFrameCache;
 
             std::thread thread;
             std::atomic<bool> running;

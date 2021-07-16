@@ -10,13 +10,13 @@ namespace tlr
 {
     namespace CoreTest
     {
-        class CacheTest : public Test::ITest
+        class LRUCacheTest : public Test::ITest
         {
         protected:
-            CacheTest();
+            LRUCacheTest();
 
         public:
-            static std::shared_ptr<CacheTest> create();
+            static std::shared_ptr<LRUCacheTest> create();
 
             void run() override;
         };

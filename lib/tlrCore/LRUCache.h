@@ -12,9 +12,9 @@ namespace tlr
 {
     namespace memory
     {
-        //! LRU (least recently used) cache.
+        //! LRU (Least Recently Used) cache.
         template<typename T, typename U>
-        class Cache
+        class LRUCache
         {
         public:
             //! \name Size
@@ -54,4 +54,4 @@ namespace tlr
     }
 }
 
-#include <tlrCore/CacheInline.h>
+#include <tlrCore/LRUCacheInline.h>

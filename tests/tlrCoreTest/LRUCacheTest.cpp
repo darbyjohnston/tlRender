@@ -2,10 +2,10 @@
 // Copyright (c) 2021 Darby Johnston
 // All rights reserved.
 
-#include <tlrCoreTest/CacheTest.h>
+#include <tlrCoreTest/LRUCacheTest.h>
 
 #include <tlrCore/Assert.h>
-#include <tlrCore/Cache.h>
+#include <tlrCore/LRUCache.h>
 
 using namespace tlr::memory;
 
@@ -13,24 +13,24 @@ namespace tlr
 {
     namespace CoreTest
     {
-        CacheTest::CacheTest() :
-            ITest("CoreTest::CacheTest")
+        LRUCacheTest::LRUCacheTest() :
+            ITest("CoreTest::LRUCacheTest")
         {}
 
-        std::shared_ptr<CacheTest> CacheTest::create()
+        std::shared_ptr<LRUCacheTest> LRUCacheTest::create()
         {
-            return std::shared_ptr<CacheTest>(new CacheTest);
+            return std::shared_ptr<LRUCacheTest>(new LRUCacheTest);
         }
 
-        void CacheTest::run()
+        void LRUCacheTest::run()
         {
             {
-                Cache<int, int> c;
+                LRUCache<int, int> c;
                 TLR_ASSERT(0 == c.getSize());
                 TLR_ASSERT(0.F == c.getPercentageUsed());
             }
             {
-                Cache<int, int> c;
+                LRUCache<int, int> c;
                 TLR_ASSERT(!c.contains(0));
                 int v = 0;
                 TLR_ASSERT(!c.get(0, v));
@@ -46,7 +46,7 @@ namespace tlr
                 TLR_ASSERT(!c.contains(0));
             }
             {
-                Cache<int, int> c;
+                LRUCache<int, int> c;
                 c.setMax(3);
                 TLR_ASSERT(3 == c.getMax());
                 c.add(0, 1);

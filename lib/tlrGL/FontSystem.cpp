@@ -4,8 +4,8 @@
 
 #include <tlrGL/FontSystem.h>
 
-#include <tlrCore/Cache.h>
 #include <tlrCore/Image.h>
+#include <tlrCore/LRUCache.h>
 
 #include <Fonts/NotoMono-Regular.font>
 #include <Fonts/NotoSans-Regular.font>
@@ -66,7 +66,7 @@ namespace tlr
             FT_Library ftLibrary = nullptr;
             std::map<FontFamily, FT_Face> ftFaces;
             std::wstring_convert<std::codecvt_utf8<tlr_char_t>, tlr_char_t> utf32Convert;
-            memory::Cache<GlyphInfo, std::shared_ptr<Glyph> > glyphCache;
+            memory::LRUCache<GlyphInfo, std::shared_ptr<Glyph> > glyphCache;
         };
 
         void FontSystem::_init()

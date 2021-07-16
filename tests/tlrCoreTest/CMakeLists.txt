@@ -1,13 +1,13 @@
 set(HEADERS
     AVIOTest.h
     BBoxTest.h
-    CacheTest.h
     CineonTest.h
     ColorTest.h
     ErrorTest.h
     FileTest.h
     ImageTest.h
     JPEGTest.h
+    LRUCacheTest.h
     ListObserverTest.h
     MapObserverTest.h
     MathTest.h
@@ -27,13 +27,13 @@ set(HEADERS
 set(SOURCE
     AVIOTest.cpp
     BBoxTest.cpp
-    CacheTest.cpp
     CineonTest.cpp
     ColorTest.cpp
     ErrorTest.cpp
     FileTest.cpp
     ImageTest.cpp
     JPEGTest.cpp
+    LRUCacheTest.cpp
     ListObserverTest.cpp
     MapObserverTest.cpp
     MathTest.cpp

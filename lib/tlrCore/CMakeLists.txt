@@ -4,8 +4,6 @@ set(HEADERS
     Assert.h
     BBox.h
     BBoxInline.h
-    Cache.h
-    CacheInline.h
     Color.h
     ColorInline.h
     Cineon.h
@@ -15,6 +13,8 @@ set(HEADERS
     FileIO.h
     Image.h
     ImageInline.h
+    LRUCache.h
+    LRUCacheInline.h
     ListObserver.h
     ListObserverInline.h
     MapObserver.h
