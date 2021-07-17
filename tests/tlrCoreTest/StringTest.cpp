@@ -15,13 +15,13 @@ namespace tlr
 {
     namespace CoreTest
     {
-        StringTest::StringTest() :
-            ITest("CoreTest::StringTest")
+        StringTest::StringTest(const std::shared_ptr<core::Context>& context) :
+            ITest("CoreTest::StringTest", context)
         {}
 
-        std::shared_ptr<StringTest> StringTest::create()
+        std::shared_ptr<StringTest> StringTest::create(const std::shared_ptr<core::Context>& context)
         {
-            return std::shared_ptr<StringTest>(new StringTest);
+            return std::shared_ptr<StringTest>(new StringTest(context));
         }
 
         void StringTest::run()

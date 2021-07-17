@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlrCore/Util.h>
+#include <tlrCore/Context.h>
 
 #include <functional>
 #include <memory>
@@ -20,7 +20,9 @@ namespace tlr
             TLR_NON_COPYABLE(ITest);
 
         protected:
-            ITest(const std::string& name);
+            ITest(
+                const std::string& name,
+                const std::shared_ptr<core::Context>&);
 
         public:
             virtual ~ITest() = 0;
@@ -38,7 +40,7 @@ namespace tlr
             void _print(const std::string&);
             void _printError(const std::string&);
 
-        private:
+            std::shared_ptr<core::Context> _context;
             std::string _name;
         };
     }

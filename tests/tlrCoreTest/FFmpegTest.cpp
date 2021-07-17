@@ -14,13 +14,13 @@ namespace tlr
 {
     namespace CoreTest
     {
-        FFmpegTest::FFmpegTest() :
-            ITest("CoreTest::FFmpegTest")
+        FFmpegTest::FFmpegTest(const std::shared_ptr<core::Context>& context) :
+            ITest("CoreTest::FFmpegTest", context)
         {}
 
-        std::shared_ptr<FFmpegTest> FFmpegTest::create()
+        std::shared_ptr<FFmpegTest> FFmpegTest::create(const std::shared_ptr<core::Context>& context)
         {
-            return std::shared_ptr<FFmpegTest>(new FFmpegTest);
+            return std::shared_ptr<FFmpegTest>(new FFmpegTest(context));
         }
 
         void FFmpegTest::run()

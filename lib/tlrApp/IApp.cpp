@@ -6,6 +6,9 @@
 
 #include <tlrCore/String.h>
 #include <tlrCore/StringFormat.h>
+#if defined(FFmpeg_FOUND)
+#include <tlrCore/FFmpeg.h>
+#endif
 
 #include <iostream>
 
@@ -21,6 +24,9 @@ namespace tlr
             const std::vector<std::shared_ptr<ICmdLineArg> >& args,
             const std::vector<std::shared_ptr<ICmdLineOption> >& options)
         {
+            // Create the context.
+            _context = core::Context::create();
+
             // Parse the command line.
             for (int i = 1; i < argc; ++i)
             {
@@ -30,6 +36,24 @@ namespace tlr
             _cmdLineSummary = cmdLineSummary;
             _cmdLineArgs = args;
             _cmdLineOptions = options;
+            _cmdLineOptions.push_back(CmdLineValueOption<float>::create(
+                _options.seqDefaultSpeed,
+                { "-seqDefaultSpeed" },
+                string::Format("Default speed for image sequences. Default: {0}").arg(_options.seqDefaultSpeed)));
+            _cmdLineOptions.push_back(CmdLineValueOption<int>::create(
+                _options.seqThreadCount,
+                { "-seqThreadCount" },
+                string::Format("Number of threads for image sequence I/O. Default: {0}").arg(_options.seqThreadCount)));
+#if defined(FFmpeg_FOUND)
+            _cmdLineOptions.push_back(CmdLineValueOption<int>::create(
+                _options.ffThreadCount,
+                { "-ffThreadCount" },
+                string::Format("Number of threads for FFmpeg I/O. Default: {0}").arg(_options.ffThreadCount)));
+            _cmdLineOptions.push_back(app::CmdLineValueOption<std::string>::create(
+                _options.ffWriteProfile,
+                { "-ffProfile", "-ffp" },
+                string::Format("FFmpeg output profile. Values: {0}").arg(string::join(ffmpeg::getProfileLabels(), ", "))));
+#endif
             _cmdLineOptions.push_back(CmdLineFlagOption::create(
                 _options.verbose,
                 { "-verbose", "-v" },
@@ -39,6 +63,29 @@ namespace tlr
                 { "-help", "-h", "--help", "--h" },
                 "Show this message."));
             _exit = _parseCmdLine();
+
+            // Set AV I/O options.
+            avio::Options avioOptions;
+            {
+                std::stringstream ss;
+                ss << _options.seqDefaultSpeed;
+                avioOptions["SequenceIO/DefaultSpeed"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << _options.seqThreadCount;
+                avioOptions["SequenceIO/ThreadCount"] = ss.str();
+            }
+            if (!_options.ffWriteProfile.empty())
+            {
+                avioOptions["ffmpeg/WriteProfile"] = _options.ffWriteProfile;
+            }
+            {
+                std::stringstream ss;
+                ss << _options.ffThreadCount;
+                avioOptions["ffmpeg/ThreadCount"] = ss.str();
+            }
+            _context->getAVIOSystem()->setOptions(avioOptions);
         }
         
         IApp::IApp()

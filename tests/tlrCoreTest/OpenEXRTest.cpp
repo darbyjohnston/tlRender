@@ -13,13 +13,13 @@ namespace tlr
 {
     namespace CoreTest
     {
-        OpenEXRTest::OpenEXRTest() :
-            ITest("CoreTest::OpenEXRTest")
+        OpenEXRTest::OpenEXRTest(const std::shared_ptr<core::Context>& context) :
+            ITest("CoreTest::OpenEXRTest", context)
         {}
 
-        std::shared_ptr<OpenEXRTest> OpenEXRTest::create()
+        std::shared_ptr<OpenEXRTest> OpenEXRTest::create(const std::shared_ptr<core::Context>& context)
         {
-            return std::shared_ptr<OpenEXRTest>(new OpenEXRTest);
+            return std::shared_ptr<OpenEXRTest>(new OpenEXRTest(context));
         }
 
         void OpenEXRTest::run()

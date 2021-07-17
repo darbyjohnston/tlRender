@@ -13,10 +13,10 @@ namespace tlr
         class ListObserverTest : public Test::ITest
         {
         protected:
-            ListObserverTest();
+            ListObserverTest(const std::shared_ptr<core::Context>&);
 
         public:
-            static std::shared_ptr<ListObserverTest> create();
+            static std::shared_ptr<ListObserverTest> create(const std::shared_ptr<core::Context>&);
 
             void run() override;
         };

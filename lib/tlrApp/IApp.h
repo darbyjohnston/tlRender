@@ -6,6 +6,8 @@
 
 #include <tlrApp/CmdLine.h>
 
+#include <tlrCore/Context.h>
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -21,6 +23,10 @@ namespace tlr
         //! Application options.
         struct Options
         {
+            float seqDefaultSpeed = 24.F;
+            int seqThreadCount = 4;
+            std::string ffWriteProfile;
+            int ffThreadCount = 4;
             bool verbose = false;
             bool help = false;
         };
@@ -51,8 +57,8 @@ namespace tlr
             void _printVerbose(const std::string&);
             void _printError(const std::string&);
 
+            std::shared_ptr<core::Context> _context;
             Options _options;
-
             int _exit = 0;
 
         private:

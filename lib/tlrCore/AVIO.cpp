@@ -117,6 +117,11 @@ namespace tlr
             return _p->extensions;
         }
 
+        void IPlugin::setOptions(const Options& options)
+        {
+            _options = options;
+        }
+
         uint8_t IPlugin::getWriteAlignment(imaging::PixelType) const
         {
             return 1;
@@ -183,6 +188,15 @@ namespace tlr
             return _p->plugins;
         }
 
+        void System::setOptions(const Options& options)
+        {
+            TLR_PRIVATE_P();
+            for (const auto& i : p.plugins)
+            {
+                i->setOptions(options);
+            }
+        }
+
         std::shared_ptr<IPlugin> System::getPlugin(const file::Path& path) const
         {
             TLR_PRIVATE_P();
@@ -198,28 +212,16 @@ namespace tlr
             return nullptr;
         }
 
-        std::shared_ptr<IRead> System::read(
-            const file::Path& path,
-            const Options& options)
+        std::shared_ptr<IRead> System::read(const file::Path& path)
         {
             TLR_PRIVATE_P();
-            Options optionsTmp;
-            {
-                std::stringstream ss;
-                ss << otime::RationalTime(1.0, 24.0);
-                optionsTmp["DefaultSpeed"] = ss.str();
-            }
-            for (const auto& i : options)
-            {
-                optionsTmp[i.first] = i.second;
-            }
             const std::string extension = string::toLower(path.getExtension());
             for (const auto& i : p.plugins)
             {
                 const auto& extensions = i->getExtensions();
                 if (extensions.find(extension) != extensions.end())
                 {
-                    return i->read(path, optionsTmp);
+                    return i->read(path);
                 }
             }
             return nullptr;
@@ -227,8 +229,7 @@ namespace tlr
 
         std::shared_ptr<IWrite> System::write(
             const file::Path& path,
-            const Info& info,
-            const Options& options)
+            const Info& info)
         {
             TLR_PRIVATE_P();
             const std::string extension = string::toLower(path.getExtension());
@@ -237,7 +238,7 @@ namespace tlr
                 const auto& extensions = i->getExtensions();
                 if (extensions.find(extension) != extensions.end())
                 {
-                    return i->write(path, info, options);
+                    return i->write(path, info);
                 }
             }
             return nullptr;

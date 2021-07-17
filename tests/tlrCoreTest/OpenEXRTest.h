@@ -13,10 +13,10 @@ namespace tlr
         class OpenEXRTest : public Test::ITest
         {
         protected:
-            OpenEXRTest();
+            OpenEXRTest(const std::shared_ptr<core::Context>&);
 
         public:
-            static std::shared_ptr<OpenEXRTest> create();
+            static std::shared_ptr<OpenEXRTest> create(const std::shared_ptr<core::Context>&);
 
             void run() override;
         };

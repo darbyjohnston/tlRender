@@ -66,7 +66,7 @@ namespace tlr
     {
         try
         {
-            auto timeline = timeline::Timeline::create(file::Path(fileName.toLatin1().data()));
+            auto timeline = timeline::Timeline::create(file::Path(fileName.toLatin1().data()), _context);
             _timelines.append(timeline);
 
             Q_EMIT opened(timeline);

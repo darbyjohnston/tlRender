@@ -11,7 +11,7 @@ namespace tlr
     namespace avio
     {
         //! Default speed for image sequences.
-        const double sequenceDefaultSpeed = 24.0;
+        const float sequenceDefaultSpeed = 24.F;
 
         //! Number of threads.
         const size_t sequenceThreadCount = 4;

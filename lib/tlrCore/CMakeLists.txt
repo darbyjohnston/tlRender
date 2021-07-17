@@ -4,9 +4,10 @@ set(HEADERS
     Assert.h
     BBox.h
     BBoxInline.h
+    Cineon.h
     Color.h
     ColorInline.h
-    Cineon.h
+    Context.h
     DPX.h
     Error.h
     File.h
@@ -49,6 +50,7 @@ set(SOURCE
     CineonRead.cpp
     CineonWrite.cpp
     Cineon.cpp
+    Context.cpp
     DPXRead.cpp
     DPXWrite.cpp
     DPX.cpp

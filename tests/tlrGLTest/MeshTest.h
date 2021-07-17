@@ -13,10 +13,10 @@ namespace tlr
         class MeshTest : public Test::ITest
         {
         protected:
-            MeshTest();
+            MeshTest(const std::shared_ptr<core::Context>&);
 
         public:
-            static std::shared_ptr<MeshTest> create();
+            static std::shared_ptr<MeshTest> create(const std::shared_ptr<core::Context>&);
 
             void run() override;
         };

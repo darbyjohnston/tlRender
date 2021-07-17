@@ -89,7 +89,7 @@ namespace tlr
             if (p.timelinePlayer)
             {
                 p.thumbnailProvider = new TimelineThumbnailProvider(
-                    timeline::Timeline::create(p.timelinePlayer->path()),
+                    timeline::Timeline::create(p.timelinePlayer->path(), p.timelinePlayer->context()),
                     this);
                 p.thumbnailProvider->setColorConfig(p.colorConfig);
                 connect(

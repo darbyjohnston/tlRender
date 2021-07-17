@@ -11,13 +11,13 @@ namespace tlr
 {
     namespace CoreTest
     {
-        MapObserverTest::MapObserverTest() :
-            ITest("CoreTest::MapObserverTest")
+        MapObserverTest::MapObserverTest(const std::shared_ptr<core::Context>& context) :
+            ITest("CoreTest::MapObserverTest", context)
         {}
 
-        std::shared_ptr<MapObserverTest> MapObserverTest::create()
+        std::shared_ptr<MapObserverTest> MapObserverTest::create(const std::shared_ptr<core::Context>& context)
         {
-            return std::shared_ptr<MapObserverTest>(new MapObserverTest);
+            return std::shared_ptr<MapObserverTest>(new MapObserverTest(context));
         }
 
         void MapObserverTest::run()

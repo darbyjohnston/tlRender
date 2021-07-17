@@ -11,13 +11,13 @@ namespace tlr
 {
     namespace CoreTest
     {
-        ValueObserverTest::ValueObserverTest() :
-            ITest("CoreTest::ValueObserverTest")
+        ValueObserverTest::ValueObserverTest(const std::shared_ptr<core::Context>& context) :
+            ITest("CoreTest::ValueObserverTest", context)
         {}
 
-        std::shared_ptr<ValueObserverTest> ValueObserverTest::create()
+        std::shared_ptr<ValueObserverTest> ValueObserverTest::create(const std::shared_ptr<core::Context>& context)
         {
-            return std::shared_ptr<ValueObserverTest>(new ValueObserverTest);
+            return std::shared_ptr<ValueObserverTest>(new ValueObserverTest(context));
         }
 
         void ValueObserverTest::run()

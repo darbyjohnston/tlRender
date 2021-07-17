@@ -13,13 +13,13 @@ namespace tlr
 {
     namespace CoreTest
     {
-        RangeTest::RangeTest() :
-            ITest("CoreTest::RangeTest")
+        RangeTest::RangeTest(const std::shared_ptr<core::Context>& context) :
+            ITest("CoreTest::RangeTest", context)
         {}
 
-        std::shared_ptr<RangeTest> RangeTest::create()
+        std::shared_ptr<RangeTest> RangeTest::create(const std::shared_ptr<core::Context>& context)
         {
-            return std::shared_ptr<RangeTest>(new RangeTest);
+            return std::shared_ptr<RangeTest>(new RangeTest(context));
         }
 
         void RangeTest::run()

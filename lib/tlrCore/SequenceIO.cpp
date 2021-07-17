@@ -40,6 +40,7 @@ namespace tlr
             std::thread thread;
             std::atomic<bool> running;
             std::atomic<bool> stopped;
+            size_t threadCount = sequenceThreadCount;
         };
 
         void ISequenceRead::_init(
@@ -49,6 +50,13 @@ namespace tlr
             IRead::_init(path, options);
 
             TLR_PRIVATE_P();
+
+            const auto i = options.find("SequenceIO/ThreadCount");
+            if (i != options.end())
+            {
+                std::stringstream ss(i->second);
+                ss >> p.threadCount;
+            }
 
             p.videoFrameCache.setMax(1);
 
@@ -166,7 +174,7 @@ namespace tlr
                         {
                             return !_p->videoFrameRequests.empty();
                         });
-                    for (size_t i = 0; i < sequenceThreadCount && !p.videoFrameRequests.empty(); ++i)
+                    for (size_t i = 0; i < p.threadCount && !p.videoFrameRequests.empty(); ++i)
                     {
                         Result result;
                         result.time = p.videoFrameRequests.front().time;
@@ -243,7 +251,7 @@ namespace tlr
 
             TLR_PRIVATE_P();
 
-            const auto i = options.find("DefaultSpeed");
+            const auto i = options.find("ISequenceWrite/DefaultSpeed");
             if (i != options.end())
             {
                 std::stringstream ss(i->second);

@@ -10,7 +10,10 @@ namespace tlr
 {
     namespace Test
     {
-        ITest::ITest(const std::string& name) :
+        ITest::ITest(
+            const std::string& name,
+            const std::shared_ptr<core::Context>& context) :
+            _context(context),
             _name(name)
         {}
 

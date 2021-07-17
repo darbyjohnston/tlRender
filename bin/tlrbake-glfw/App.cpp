@@ -11,9 +11,6 @@
 #include <tlrCore/String.h>
 #include <tlrCore/StringFormat.h>
 #include <tlrCore/Time.h>
-#if defined(FFmpeg_FOUND)
-#include <tlrCore/FFmpeg.h>
-#endif
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -88,12 +85,6 @@ namespace tlr
                 { "-colorView", "-cv" },
                 "OpenColorIO view color space.")
         };
-#if defined(FFmpeg_FOUND)
-        cmdLineOptions.push_back(app::CmdLineValueOption<std::string>::create(
-            _options.ffProfile,
-            { "-ffProfile", "-ffp" },
-            string::Format("FFmpeg profile. Values: {0}").arg(string::join(ffmpeg::getProfileLabels(), ", "))));
-#endif
         IApp::_init(
             argc,
             argv,
@@ -144,7 +135,7 @@ namespace tlr
         _startTime = std::chrono::steady_clock::now();
         
         // Read the timeline.
-        _timeline = timeline::Timeline::create(file::Path(_input));
+        _timeline = timeline::Timeline::create(file::Path(_input), _context);
         _duration = _timeline->getDuration();
         _print(string::Format("Timeline duration: {0}").arg(_duration.value()));
         _print(string::Format("Timeline speed: {0}").arg(_duration.rate()));
@@ -239,8 +230,7 @@ namespace tlr
         _buffer = gl::OffscreenBuffer::create(_renderInfo.size, _renderInfo.pixelType);
 
         // Create the writer.
-        _ioSystem = avio::System::create();
-        _writerPlugin = _ioSystem->getPlugin(file::Path(_output));
+        _writerPlugin = _context->getAVIOSystem()->getPlugin(file::Path(_output));
         if (!_writerPlugin)
         {
             throw std::runtime_error(string::Format("{0}: Cannot open").arg(_output));
@@ -257,12 +247,7 @@ namespace tlr
         _outputImage = imaging::Image::create(_outputInfo);
         ioInfo.video.push_back(_outputInfo);
         ioInfo.videoDuration = _range.duration();
-        avio::Options options;
-        if (!_options.ffProfile.empty())
-        {
-            options["Profile"] = _options.ffProfile;
-        }
-        _writer = _writerPlugin->write(file::Path(_output), ioInfo, options);
+        _writer = _writerPlugin->write(file::Path(_output), ioInfo);
         if (!_writer)
         {
             throw std::runtime_error(string::Format("{0}: Cannot open").arg(_output));

@@ -13,10 +13,10 @@ namespace tlr
         class MapObserverTest : public Test::ITest
         {
         protected:
-            MapObserverTest();
+            MapObserverTest(const std::shared_ptr<core::Context>&);
 
         public:
-            static std::shared_ptr<MapObserverTest> create();
+            static std::shared_ptr<MapObserverTest> create(const std::shared_ptr<core::Context>&);
 
             void run() override;
         };

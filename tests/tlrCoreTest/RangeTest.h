@@ -13,10 +13,10 @@ namespace tlr
         class RangeTest : public Test::ITest
         {
         protected:
-            RangeTest();
+            RangeTest(const std::shared_ptr<core::Context>&);
 
         public:
-            static std::shared_ptr<RangeTest> create();
+            static std::shared_ptr<RangeTest> create(const std::shared_ptr<core::Context>&);
 
             void run() override;
         };

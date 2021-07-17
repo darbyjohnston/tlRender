@@ -15,13 +15,13 @@ namespace tlr
 {
     namespace CoreTest
     {
-        VectorTest::VectorTest() :
-            ITest("CoreTest::VectorTest")
+        VectorTest::VectorTest(const std::shared_ptr<core::Context>& context) :
+            ITest("CoreTest::VectorTest", context)
         {}
 
-        std::shared_ptr<VectorTest> VectorTest::create()
+        std::shared_ptr<VectorTest> VectorTest::create(const std::shared_ptr<core::Context>& context)
         {
-            return std::shared_ptr<VectorTest>(new VectorTest);
+            return std::shared_ptr<VectorTest>(new VectorTest(context));
         }
 
         void VectorTest::run()

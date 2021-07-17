@@ -8,13 +8,13 @@ namespace tlr
 {
     namespace AppTest
     {
-        CmdLineTest::CmdLineTest() :
-            ITest("AppTest::CmdLineTest")
+        CmdLineTest::CmdLineTest(const std::shared_ptr<core::Context>& context) :
+            ITest("AppTest::CmdLineTest", context)
         {}
 
-        std::shared_ptr<CmdLineTest> CmdLineTest::create()
+        std::shared_ptr<CmdLineTest> CmdLineTest::create(const std::shared_ptr<core::Context>& context)
         {
-            return std::shared_ptr<CmdLineTest>(new CmdLineTest);
+            return std::shared_ptr<CmdLineTest>(new CmdLineTest(context));
         }
 
         void CmdLineTest::run()

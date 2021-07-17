@@ -16,13 +16,13 @@ namespace tlr
 {
     namespace CoreTest
     {
-        AVIOTest::AVIOTest() :
-            ITest("CoreTest::AVIOTest")
+        AVIOTest::AVIOTest(const std::shared_ptr<core::Context>& context) :
+            ITest("CoreTest::AVIOTest", context)
         {}
 
-        std::shared_ptr<AVIOTest> AVIOTest::create()
+        std::shared_ptr<AVIOTest> AVIOTest::create(const std::shared_ptr<core::Context>& context)
         {
-            return std::shared_ptr<AVIOTest>(new AVIOTest);
+            return std::shared_ptr<AVIOTest>(new AVIOTest(context));
         }
 
         void AVIOTest::run()

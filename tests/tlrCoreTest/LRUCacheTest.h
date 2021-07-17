@@ -13,10 +13,10 @@ namespace tlr
         class LRUCacheTest : public Test::ITest
         {
         protected:
-            LRUCacheTest();
+            LRUCacheTest(const std::shared_ptr<core::Context>&);
 
         public:
-            static std::shared_ptr<LRUCacheTest> create();
+            static std::shared_ptr<LRUCacheTest> create(const std::shared_ptr<core::Context>&);
 
             void run() override;
         };

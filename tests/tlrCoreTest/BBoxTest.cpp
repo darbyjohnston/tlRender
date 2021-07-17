@@ -13,13 +13,13 @@ namespace tlr
 {
     namespace CoreTest
     {
-        BBoxTest::BBoxTest() :
-            ITest("CoreTest::BBoxTest")
+        BBoxTest::BBoxTest(const std::shared_ptr<core::Context>& context) :
+            ITest("CoreTest::BBoxTest", context)
         {}
 
-        std::shared_ptr<BBoxTest> BBoxTest::create()
+        std::shared_ptr<BBoxTest> BBoxTest::create(const std::shared_ptr<core::Context>& context)
         {
-            return std::shared_ptr<BBoxTest>(new BBoxTest);
+            return std::shared_ptr<BBoxTest>(new BBoxTest(context));
         }
 
         void BBoxTest::run()

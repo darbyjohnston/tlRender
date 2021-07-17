@@ -13,10 +13,10 @@ namespace tlr
         class TimelineTest : public Test::ITest
         {
         protected:
-            TimelineTest();
+            TimelineTest(const std::shared_ptr<core::Context>&);
 
         public:
-            static std::shared_ptr<TimelineTest> create();
+            static std::shared_ptr<TimelineTest> create(const std::shared_ptr<core::Context>&);
 
             void run() override;
 

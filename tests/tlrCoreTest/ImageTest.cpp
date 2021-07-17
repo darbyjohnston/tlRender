@@ -13,13 +13,13 @@ namespace tlr
 {
     namespace CoreTest
     {
-        ImageTest::ImageTest() :
-            ITest("CoreTest::ImageTest")
+        ImageTest::ImageTest(const std::shared_ptr<core::Context>& context) :
+            ITest("CoreTest::ImageTest", context)
         {}
 
-        std::shared_ptr<ImageTest> ImageTest::create()
+        std::shared_ptr<ImageTest> ImageTest::create(const std::shared_ptr<core::Context>& context)
         {
-            return std::shared_ptr<ImageTest>(new ImageTest);
+            return std::shared_ptr<ImageTest>(new ImageTest(context));
         }
 
         void ImageTest::run()

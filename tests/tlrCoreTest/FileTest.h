@@ -13,10 +13,10 @@ namespace tlr
         class FileTest : public Test::ITest
         {
         protected:
-            FileTest();
+            FileTest(const std::shared_ptr<core::Context>&);
 
         public:
-            static std::shared_ptr<FileTest> create();
+            static std::shared_ptr<FileTest> create(const std::shared_ptr<core::Context>&);
 
             void run() override;
         };

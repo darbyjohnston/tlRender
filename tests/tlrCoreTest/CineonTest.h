@@ -13,10 +13,10 @@ namespace tlr
         class CineonTest : public Test::ITest
         {
         protected:
-            CineonTest();
+            CineonTest(const std::shared_ptr<core::Context>&);
 
         public:
-            static std::shared_ptr<CineonTest> create();
+            static std::shared_ptr<CineonTest> create(const std::shared_ptr<core::Context>&);
 
             void run() override;
             

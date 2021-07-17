@@ -13,10 +13,10 @@ namespace tlr
         class MemoryTest : public Test::ITest
         {
         protected:
-            MemoryTest();
+            MemoryTest(const std::shared_ptr<core::Context>&);
 
         public:
-            static std::shared_ptr<MemoryTest> create();
+            static std::shared_ptr<MemoryTest> create(const std::shared_ptr<core::Context>&);
 
             void run() override;
         

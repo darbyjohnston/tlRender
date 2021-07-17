@@ -13,13 +13,13 @@ namespace tlr
 {
     namespace CoreTest
     {
-        CineonTest::CineonTest() :
-            ITest("CoreTest::CineonTest")
+        CineonTest::CineonTest(const std::shared_ptr<core::Context>& context) :
+            ITest("CoreTest::CineonTest", context)
         {}
 
-        std::shared_ptr<CineonTest> CineonTest::create()
+        std::shared_ptr<CineonTest> CineonTest::create(const std::shared_ptr<core::Context>& context)
         {
-            return std::shared_ptr<CineonTest>(new CineonTest);
+            return std::shared_ptr<CineonTest>(new CineonTest(context));
         }
 
         void CineonTest::run()

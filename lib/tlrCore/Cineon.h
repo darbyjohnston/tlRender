@@ -227,16 +227,11 @@ namespace tlr
             //! Create a new plugin.
             static std::shared_ptr<Plugin> create();
 
-            std::shared_ptr<avio::IRead> read(
-                const file::Path&,
-                const avio::Options& = avio::Options()) override;
+            std::shared_ptr<avio::IRead> read(const file::Path&) override;
             std::vector<imaging::PixelType> getWritePixelTypes() const override;
             uint8_t getWriteAlignment(imaging::PixelType) const override;
             memory::Endian getWriteEndian() const override;
-            std::shared_ptr<avio::IWrite> write(
-                const file::Path&,
-                const avio::Info&,
-                const avio::Options& = avio::Options()) override;
+            std::shared_ptr<avio::IWrite> write(const file::Path&, const avio::Info&) override;
         };
     }
 }

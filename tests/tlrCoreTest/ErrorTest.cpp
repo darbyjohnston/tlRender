@@ -13,13 +13,13 @@ namespace tlr
 {
     namespace CoreTest
     {
-        ErrorTest::ErrorTest() :
-            ITest("CoreTest::ErrorTest")
+        ErrorTest::ErrorTest(const std::shared_ptr<core::Context>& context) :
+            ITest("CoreTest::ErrorTest", context)
         {}
 
-        std::shared_ptr<ErrorTest> ErrorTest::create()
+        std::shared_ptr<ErrorTest> ErrorTest::create(const std::shared_ptr<core::Context>& context)
         {
-            return std::shared_ptr<ErrorTest>(new ErrorTest);
+            return std::shared_ptr<ErrorTest>(new ErrorTest(context));
         }
 
         void ErrorTest::run()

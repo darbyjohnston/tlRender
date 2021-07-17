@@ -13,10 +13,10 @@ namespace tlr
         class TIFFTest : public Test::ITest
         {
         protected:
-            TIFFTest();
+            TIFFTest(const std::shared_ptr<core::Context>&);
 
         public:
-            static std::shared_ptr<TIFFTest> create();
+            static std::shared_ptr<TIFFTest> create(const std::shared_ptr<core::Context>&);
 
             void run() override;
         };

@@ -124,7 +124,7 @@ namespace tlr
         }
         
         // Read the timeline.
-        _timelinePlayer = timeline::TimelinePlayer::create(file::Path(_input));
+        _timelinePlayer = timeline::TimelinePlayer::create(file::Path(_input), _context);
 
         // Initialize GLFW.
         glfwSetErrorCallback(glfwErrorCallback);

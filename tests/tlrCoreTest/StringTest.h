@@ -13,10 +13,10 @@ namespace tlr
         class StringTest : public Test::ITest
         {
         protected:
-            StringTest();
+            StringTest(const std::shared_ptr<core::Context>&);
 
         public:
-            static std::shared_ptr<StringTest> create();
+            static std::shared_ptr<StringTest> create(const std::shared_ptr<core::Context>&);
 
             void run() override;
         

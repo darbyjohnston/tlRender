@@ -8,13 +8,13 @@ namespace tlr
 {
     namespace GLTest
     {
-        MeshTest::MeshTest() :
-            ITest("GLTest::MeshTest")
+        MeshTest::MeshTest(const std::shared_ptr<core::Context>& context) :
+            ITest("GLTest::MeshTest", context)
         {}
 
-        std::shared_ptr<MeshTest> MeshTest::create()
+        std::shared_ptr<MeshTest> MeshTest::create(const std::shared_ptr<core::Context>& context)
         {
-            return std::shared_ptr<MeshTest>(new MeshTest);
+            return std::shared_ptr<MeshTest>(new MeshTest(context));
         }
 
         void MeshTest::run()

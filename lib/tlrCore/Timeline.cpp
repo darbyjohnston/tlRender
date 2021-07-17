@@ -208,11 +208,11 @@ namespace tlr
             void stopReaders();
             void delReaders();
 
+            std::shared_ptr<core::Context> context;
             file::Path path;
             otio::SerializableObject::Retainer<otio::Timeline> timeline;
             otime::RationalTime duration = time::invalidTime;
             otime::RationalTime globalStartTime = time::invalidTime;
-            std::shared_ptr<avio::System> ioSystem;
             imaging::Info imageInfo;
             std::vector<otime::TimeRange> activeRanges;
 
@@ -240,10 +240,13 @@ namespace tlr
             std::atomic<bool> running;
         };
 
-        void Timeline::_init(const file::Path& path)
+        void Timeline::_init(
+            const file::Path& path,
+            const std::shared_ptr<core::Context>& context)
         {
             TLR_PRIVATE_P();
 
+            p.context = context;
             p.path = path;
 
             // Read the timeline.
@@ -266,9 +269,6 @@ namespace tlr
             {
                 p.globalStartTime = otime::RationalTime(0, p.duration.rate());
             }
-
-            // Create the I/O system.
-            p.ioSystem = avio::System::create();
 
             // Get information about the timeline.
             p.getImageInfo(p.timeline.value->tracks(), p.imageInfo);
@@ -299,11 +299,18 @@ namespace tlr
             }
         }
 
-        std::shared_ptr<Timeline> Timeline::create(const file::Path& path)
+        std::shared_ptr<Timeline> Timeline::create(
+            const file::Path& path,
+            const std::shared_ptr<core::Context>& context)
         {
             auto out = std::shared_ptr<Timeline>(new Timeline);
-            out->_init(path);
+            out->_init(path, context);
             return out;
+        }
+
+        const std::shared_ptr<core::Context>& Timeline::getContext() const
+        {
+            return _p->context;
         }
 
         const file::Path& Timeline::getPath() const
@@ -397,7 +404,7 @@ namespace tlr
             {
                 // The first clip with video defines the image information
                 // for the timeline.
-                if (auto read = ioSystem->read(getPath(clip->media_reference())))
+                if (auto read = context->getAVIOSystem()->read(getPath(clip->media_reference())))
                 {
                     const auto info = read->getInfo().get();
                     if (!info.video.empty())
@@ -585,6 +592,7 @@ namespace tlr
             auto frameTime = startTime + timeTransform.applied_to(clipTime - startTime);
 
             // Read the frame.
+            const auto ioSystem = context->getAVIOSystem();
             const auto j = readers.find(clip);
             if (j != readers.end())
             {
@@ -601,7 +609,7 @@ namespace tlr
                     ss << otime::RationalTime(0, duration.rate());
                     options["DefaultSpeed"] = ss.str();
                 }
-                auto read = ioSystem->read(path, options);
+                auto read = ioSystem->read(path);
                 avio::Info info;
                 if (read)
                 {

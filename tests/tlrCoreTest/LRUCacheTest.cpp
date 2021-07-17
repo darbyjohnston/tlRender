@@ -13,13 +13,13 @@ namespace tlr
 {
     namespace CoreTest
     {
-        LRUCacheTest::LRUCacheTest() :
-            ITest("CoreTest::LRUCacheTest")
+        LRUCacheTest::LRUCacheTest(const std::shared_ptr<core::Context>& context) :
+            ITest("CoreTest::LRUCacheTest", context)
         {}
 
-        std::shared_ptr<LRUCacheTest> LRUCacheTest::create()
+        std::shared_ptr<LRUCacheTest> LRUCacheTest::create(const std::shared_ptr<core::Context>& context)
         {
-            return std::shared_ptr<LRUCacheTest>(new LRUCacheTest);
+            return std::shared_ptr<LRUCacheTest>(new LRUCacheTest(context));
         }
 
         void LRUCacheTest::run()

@@ -20,13 +20,13 @@ namespace tlr
 {
     namespace CoreTest
     {
-        TimelinePlayerTest::TimelinePlayerTest() :
-            ITest("CoreTest::TimelinePlayerTest")
+        TimelinePlayerTest::TimelinePlayerTest(const std::shared_ptr<core::Context>& context) :
+            ITest("CoreTest::TimelinePlayerTest", context)
         {}
 
-        std::shared_ptr<TimelinePlayerTest> TimelinePlayerTest::create()
+        std::shared_ptr<TimelinePlayerTest> TimelinePlayerTest::create(const std::shared_ptr<core::Context>& context)
         {
-            return std::shared_ptr<TimelinePlayerTest>(new TimelinePlayerTest);
+            return std::shared_ptr<TimelinePlayerTest>(new TimelinePlayerTest(context));
         }
 
         void TimelinePlayerTest::run()
@@ -96,15 +96,14 @@ namespace tlr
             avio::Info ioInfo;
             ioInfo.video.push_back(imageInfo);
             ioInfo.videoDuration = clipDuration;
-            auto ioSystem = avio::System::create();
-            auto write = ioSystem->write(file::Path("TimelinePlayerTest.0.png"), ioInfo);
+            auto write = _context->getAVIOSystem()->write(file::Path("TimelinePlayerTest.0.png"), ioInfo);
             for (size_t i = 0; i < static_cast<size_t>(clipDuration.value()); ++i)
             {
                 write->writeVideoFrame(otime::RationalTime(i, 24.0), image);
             }
 
             // Create a timeline player from the OTIO timeline.
-            auto timelinePlayer = TimelinePlayer::create(path);
+            auto timelinePlayer = TimelinePlayer::create(path, _context);
             TLR_ASSERT(path == timelinePlayer->getPath());
             const otime::RationalTime timelineDuration(48.0, 24.0);
             TLR_ASSERT(timelineDuration == timelinePlayer->getDuration());

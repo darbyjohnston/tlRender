@@ -13,10 +13,10 @@ namespace tlr
         class AVIOTest : public Test::ITest
         {
         protected:
-            AVIOTest();
+            AVIOTest(const std::shared_ptr<core::Context>&);
 
         public:
-            static std::shared_ptr<AVIOTest> create();
+            static std::shared_ptr<AVIOTest> create(const std::shared_ptr<core::Context>&);
 
             void run() override;
 

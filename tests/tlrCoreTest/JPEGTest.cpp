@@ -13,13 +13,13 @@ namespace tlr
 {
     namespace CoreTest
     {
-        JPEGTest::JPEGTest() :
-            ITest("CoreTest::JPEGTest")
+        JPEGTest::JPEGTest(const std::shared_ptr<core::Context>& context) :
+            ITest("CoreTest::JPEGTest", context)
         {}
 
-        std::shared_ptr<JPEGTest> JPEGTest::create()
+        std::shared_ptr<JPEGTest> JPEGTest::create(const std::shared_ptr<core::Context>& context)
         {
-            return std::shared_ptr<JPEGTest>(new JPEGTest);
+            return std::shared_ptr<JPEGTest>(new JPEGTest(context));
         }
 
         void JPEGTest::run()

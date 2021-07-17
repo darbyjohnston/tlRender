@@ -27,7 +27,6 @@ namespace tlr
         std::string colorInput;
         std::string colorDisplay;
         std::string colorView;
-        std::string ffProfile;
     };
 
     //! Application.
@@ -68,7 +67,6 @@ namespace tlr
         std::shared_ptr<gl::Render> _render;
         std::shared_ptr<gl::OffscreenBuffer> _buffer;
 
-        std::shared_ptr<avio::System> _ioSystem;
         std::shared_ptr<avio::IPlugin> _writerPlugin;
         std::shared_ptr<avio::IWrite> _writer;
         std::shared_ptr<imaging::Image> _outputImage;

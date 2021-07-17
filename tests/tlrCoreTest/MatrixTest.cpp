@@ -13,13 +13,13 @@ namespace tlr
 {
     namespace CoreTest
     {
-        MatrixTest::MatrixTest() :
-            ITest("CoreTest::MatrixTest")
+        MatrixTest::MatrixTest(const std::shared_ptr<core::Context>& context) :
+            ITest("CoreTest::MatrixTest", context)
         {}
 
-        std::shared_ptr<MatrixTest> MatrixTest::create()
+        std::shared_ptr<MatrixTest> MatrixTest::create(const std::shared_ptr<core::Context>& context)
         {
-            return std::shared_ptr<MatrixTest>(new MatrixTest);
+            return std::shared_ptr<MatrixTest>(new MatrixTest(context));
         }
 
         void MatrixTest::run()

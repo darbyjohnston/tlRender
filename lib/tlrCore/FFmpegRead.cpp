@@ -60,6 +60,7 @@ namespace tlr
             std::thread thread;
             std::atomic<bool> running;
             std::atomic<bool> stopped;
+            size_t threadCount = ffmpeg::threadCount;
         };
 
         void Read::_init(
@@ -69,6 +70,13 @@ namespace tlr
             IRead::_init(path, options);
 
             TLR_PRIVATE_P();
+
+            const auto i = options.find("ffmpeg/ThreadCount");
+            if (i != options.end())
+            {
+                std::stringstream ss(i->second);
+                ss >> p.threadCount;
+            }
 
             p.running = true;
             p.stopped = false;
@@ -227,7 +235,7 @@ namespace tlr
                 {
                     throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
                 }
-                p.avCodecContext[p.avVideoStream]->thread_count = threadCount;
+                p.avCodecContext[p.avVideoStream]->thread_count = p.threadCount;
                 p.avCodecContext[p.avVideoStream]->thread_type = FF_THREAD_FRAME;
                 r = avcodec_open2(p.avCodecContext[p.avVideoStream], avVideoCodec, 0);
                 if (r < 0)

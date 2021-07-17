@@ -143,10 +143,11 @@ namespace tlr
             //! Get the supported file extensions.
             const std::set<std::string>& getExtensions() const;
 
+            //! Set the plugin options.
+            void setOptions(const Options&);
+
             //! Create a reader for the given path.
-            virtual std::shared_ptr<IRead> read(
-                const file::Path&,
-                const Options& = Options()) = 0;
+            virtual std::shared_ptr<IRead> read(const file::Path&) = 0;
 
             //! Get the list of writable image pixel types.
             virtual std::vector<imaging::PixelType> getWritePixelTypes() const = 0;
@@ -158,13 +159,12 @@ namespace tlr
             virtual memory::Endian getWriteEndian() const;
 
             //! Create a writer for the given path.
-            virtual std::shared_ptr<IWrite> write(
-                const file::Path&,
-                const Info&,
-                const Options& = Options()) = 0;
+            virtual std::shared_ptr<IWrite> write(const file::Path&, const Info&) = 0;
 
         protected:
             bool _isWriteCompatible(const imaging::Info&) const;
+
+            Options _options;
 
         private:
             TLR_PRIVATE();
@@ -188,19 +188,17 @@ namespace tlr
             //! Get the list of plugins.
             const std::vector<std::shared_ptr<IPlugin> >& getPlugins() const;
 
+            //! Set the plugin options.
+            void setOptions(const Options&);
+
             //! Get a plugin for the given path.
             std::shared_ptr<IPlugin> getPlugin(const file::Path&) const;
 
             // Create a reader for the given path.
-            std::shared_ptr<IRead> read(
-                const file::Path&,
-                const Options& = Options());
+            std::shared_ptr<IRead> read(const file::Path&);
 
             // Create a writer for the given path.
-            std::shared_ptr<IWrite> write(
-                const file::Path&,
-                const Info&,
-                const Options& = Options());
+            std::shared_ptr<IWrite> write(const file::Path&, const Info&);
 
         private:
             TLR_PRIVATE();

@@ -58,7 +58,7 @@ namespace tlr
             Profile profile = Profile::H264;
             int avProfile = 0;
             int64_t avBitRate = 0;
-            auto option = options.find("Profile");
+            auto option = options.find("ffmpeg/WriteProfile");
             if (option != options.end())
             {
                 std::stringstream ss(option->second);

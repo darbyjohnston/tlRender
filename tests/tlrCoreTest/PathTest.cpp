@@ -14,13 +14,13 @@ namespace tlr
 {
     namespace CoreTest
     {
-        PathTest::PathTest() :
-            ITest("CoreTest::PathTest")
+        PathTest::PathTest(const std::shared_ptr<core::Context>& context) :
+            ITest("CoreTest::PathTest", context)
         {}
 
-        std::shared_ptr<PathTest> PathTest::create()
+        std::shared_ptr<PathTest> PathTest::create(const std::shared_ptr<core::Context>& context)
         {
-            return std::shared_ptr<PathTest>(new PathTest);
+            return std::shared_ptr<PathTest>(new PathTest(context));
         }
 
         void PathTest::run()
@@ -50,6 +50,7 @@ namespace tlr
                 const std::vector<Data> data =
                 {
                     { "", "", "", "", 0, "" },
+                    { "file", "", "file", "", 0, "" },
                     { "file.txt", "", "file", "", 0, ".txt" },
                     { "/tmp/file.txt", "/tmp/", "file", "", 0, ".txt" },
                     { "/tmp/render.1.exr", "/tmp/", "render.", "1", 0, ".exr" },

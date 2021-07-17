@@ -13,13 +13,13 @@ namespace tlr
 {
     namespace CoreTest
     {
-        MathTest::MathTest() :
-            ITest("CoreTest::MathTest")
+        MathTest::MathTest(const std::shared_ptr<core::Context>& context) :
+            ITest("CoreTest::MathTest", context)
         {}
 
-        std::shared_ptr<MathTest> MathTest::create()
+        std::shared_ptr<MathTest> MathTest::create(const std::shared_ptr<core::Context>& context)
         {
-            return std::shared_ptr<MathTest>(new MathTest);
+            return std::shared_ptr<MathTest>(new MathTest(context));
         }
 
         void MathTest::run()
