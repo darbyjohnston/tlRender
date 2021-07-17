@@ -6,11 +6,6 @@
 
 #include <tlrCore/String.h>
 
-extern "C"
-{
-#include <fseq.h>
-}
-
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif // WIN32_LEAN_AND_MEAN
@@ -42,7 +37,7 @@ namespace tlr
             }
             return out;
         }
-        
+
         std::string createTempDir()
         {
             std::string out;
@@ -53,15 +48,6 @@ namespace tlr
             if (r)
             {
                 out = std::string(path);
-
-                // Replace path separators.
-                for (size_t i = 0; i < out.size(); ++i)
-                {
-                    if ('\\' == out[i])
-                    {
-                        out[i] = '/';
-                    }
-                }
 
                 // Create a unique name from a GUID.
                 GUID guid;

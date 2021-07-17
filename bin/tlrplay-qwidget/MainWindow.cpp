@@ -457,9 +457,7 @@ namespace tlr
         QString dir;
         if (_currentTimelinePlayer)
         {
-            std::string path;
-            file::split(_currentTimelinePlayer->fileName().toLatin1().data(), &path);
-            dir = path.c_str();
+            dir = _currentTimelinePlayer->path().get().c_str();
         }
 
         const auto fileName = QFileDialog::getOpenFileName(
@@ -482,14 +480,9 @@ namespace tlr
         widget->setTimeObject(_timeObject);
         widget->setColorConfig(_colorConfig);
         widget->setTimelinePlayer(timelinePlayer);
-        const std::string fileName = timelinePlayer->fileName().toLatin1().data();
-        std::string path;
-        std::string baseName;
-        std::string number;
-        std::string extension;
-        file::split(fileName, &path, &baseName, &number, &extension);
-        const int tab = _tabWidget->addTab(widget, (baseName + number + extension).c_str());
-        _tabWidget->setTabToolTip(tab, std::string(string::Format("{0}\n{1}").arg(fileName).arg(timelinePlayer->imageInfo())).c_str());
+        const file::Path& path = timelinePlayer->path();
+        const int tab = _tabWidget->addTab(widget, path.get(-1, false).c_str());
+        _tabWidget->setTabToolTip(tab, std::string(string::Format("{0}\n{1}").arg(path.get()).arg(timelinePlayer->imageInfo())).c_str());
         _timelinePlayers.append(timelinePlayer);
         _setCurrentTimeline(timelinePlayer);
     }

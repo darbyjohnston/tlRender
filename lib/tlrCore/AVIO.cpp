@@ -44,10 +44,10 @@ namespace tlr
         {}
 
         void IIO::_init(
-            const std::string& fileName,
+            const file::Path& path,
             const Options& options)
         {
-            _fileName = fileName;
+            _path = path;
             _options = options;
         }
 
@@ -58,10 +58,10 @@ namespace tlr
         {}
 
         void IRead::_init(
-            const std::string& fileName,
+            const file::Path& path,
             const Options& options)
         {
-            IIO::_init(fileName, options);
+            IIO::_init(path, options);
         }
 
         IRead::IRead()
@@ -71,11 +71,11 @@ namespace tlr
         {}
 
         void IWrite::_init(
-            const std::string & fileName,
+            const file::Path& path,
             const Options& options,
             const Info& info)
         {
-            IIO::_init(fileName, options);
+            IIO::_init(path, options);
             _info = info;
         }
 
@@ -183,23 +183,10 @@ namespace tlr
             return _p->plugins;
         }
 
-        namespace
-        {
-            std::string getExtension(const std::string& fileName)
-            {
-                std::string path;
-                std::string baseName;
-                std::string number;
-                std::string extension;
-                file::split(fileName, &path, &baseName, &number, &extension);
-                return string::toLower(extension);
-            }
-        }
-
-        std::shared_ptr<IPlugin> System::getPlugin(const std::string& fileName) const
+        std::shared_ptr<IPlugin> System::getPlugin(const file::Path& path) const
         {
             TLR_PRIVATE_P();
-            const std::string extension = getExtension(fileName);
+            const std::string extension = string::toLower(path.getExtension());
             for (const auto& i : p.plugins)
             {
                 const auto& extensions = i->getExtensions();
@@ -212,7 +199,7 @@ namespace tlr
         }
 
         std::shared_ptr<IRead> System::read(
-            const std::string& fileName,
+            const file::Path& path,
             const Options& options)
         {
             TLR_PRIVATE_P();
@@ -226,31 +213,31 @@ namespace tlr
             {
                 optionsTmp[i.first] = i.second;
             }
-            const std::string extension = getExtension(fileName);
+            const std::string extension = string::toLower(path.getExtension());
             for (const auto& i : p.plugins)
             {
                 const auto& extensions = i->getExtensions();
                 if (extensions.find(extension) != extensions.end())
                 {
-                    return i->read(fileName, optionsTmp);
+                    return i->read(path, optionsTmp);
                 }
             }
             return nullptr;
         }
 
         std::shared_ptr<IWrite> System::write(
-            const std::string& fileName,
+            const file::Path& path,
             const Info& info,
             const Options& options)
         {
             TLR_PRIVATE_P();
-            const std::string extension = getExtension(fileName);
+            const std::string extension = string::toLower(path.getExtension());
             for (const auto& i : p.plugins)
             {
                 const auto& extensions = i->getExtensions();
                 if (extensions.find(extension) != extensions.end())
                 {
-                    return i->write(fileName, info, options);
+                    return i->write(path, info, options);
                 }
             }
             return nullptr;

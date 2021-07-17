@@ -177,11 +177,11 @@ namespace tlr
             }
             auto otioTimeline = new otio::Timeline;
             otioTimeline->set_tracks(otioStack);
-            std::string fileName = "TimelineTest.otio";
-            otioTimeline->to_json_file(fileName, &errorStatus);
+            const file::Path path("TimelineTest.otio");
+            otioTimeline->to_json_file(path.get(), &errorStatus);
             if (errorStatus != otio::ErrorStatus::OK)
             {
-                throw std::runtime_error("Cannot write file: " + fileName);
+                throw std::runtime_error("Cannot write file: " + path.get());
             }
 
             // Write the image sequence files.
@@ -191,15 +191,15 @@ namespace tlr
             ioInfo.video.push_back(imageInfo);
             ioInfo.videoDuration = clipDuration;
             auto ioSystem = avio::System::create();
-            auto write = ioSystem->write("TimelineTest.0.png", ioInfo);
+            auto write = ioSystem->write(file::Path("TimelineTest.0.png"), ioInfo);
             for (size_t i = 0; i < static_cast<size_t>(clipDuration.value()); ++i)
             {
                 write->writeVideoFrame(otime::RationalTime(i, 24.0), image);
             }
 
             // Create a timeline from the OTIO timeline.
-            auto timeline = Timeline::create(fileName);
-            TLR_ASSERT(fileName == timeline->getFileName());
+            auto timeline = Timeline::create(path);
+            TLR_ASSERT(path == timeline->getPath());
             const otime::RationalTime timelineDuration(48.0, 24.0);
             TLR_ASSERT(timelineDuration == timeline->getDuration());
             TLR_ASSERT(otime::RationalTime(0.0, 24.0) == timeline->getGlobalStartTime());

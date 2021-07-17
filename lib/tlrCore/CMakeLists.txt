@@ -26,6 +26,8 @@ set(HEADERS
     Memory.h
     MemoryInline.h
     Observer.h
+    Path.h
+    PathInline.h
     Range.h
     RangeInline.h
     SequenceIO.h
@@ -51,10 +53,10 @@ set(SOURCE
     DPXWrite.cpp
     DPX.cpp
     Error.cpp
-    File.cpp
     FileIO.cpp
     Image.cpp
     Memory.cpp
+    Path.cpp
     SequenceIO.cpp
     String.cpp
     StringFormat.cpp

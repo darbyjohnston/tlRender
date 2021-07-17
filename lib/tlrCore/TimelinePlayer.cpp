@@ -107,12 +107,12 @@ namespace tlr
             std::thread thread;
         };
 
-        void TimelinePlayer::_init(const std::string& fileName)
+        void TimelinePlayer::_init(const file::Path& path)
         {
             TLR_PRIVATE_P();
 
             // Create the timeline.
-            p.timeline = timeline::Timeline::create(fileName);
+            p.timeline = timeline::Timeline::create(path);
 
             // Create observers.
             p.playback = observer::Value<Playback>::create(Playback::Stop);
@@ -128,7 +128,7 @@ namespace tlr
             p.threadData.inOutRange = p.inOutRange->get();
             p.threadData.running = true;
             p.thread = std::thread(
-                [this, fileName]
+                [this]
                 {
                     TLR_PRIVATE_P();
 
@@ -193,16 +193,16 @@ namespace tlr
             }
         }
 
-        std::shared_ptr<TimelinePlayer> TimelinePlayer::create(const std::string& fileName)
+        std::shared_ptr<TimelinePlayer> TimelinePlayer::create(const file::Path& path)
         {
             auto out = std::shared_ptr<TimelinePlayer>(new TimelinePlayer);
-            out->_init(fileName);
+            out->_init(path);
             return out;
         }
         
-        const std::string& TimelinePlayer::getFileName() const
+        const file::Path& TimelinePlayer::getPath() const
         {
-            return _p->timeline->getFileName();
+            return _p->timeline->getPath();
         }
 
         const otime::RationalTime& TimelinePlayer::getGlobalStartTime() const

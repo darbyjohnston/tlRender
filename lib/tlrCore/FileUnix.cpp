@@ -4,13 +4,6 @@
 
 #include <tlrCore/File.h>
 
-#include <tlrCore/String.h>
-
-extern "C"
-{
-#include <fseq.h>
-}
-
 #include <cstring>
 
 #include <sys/stat.h>
@@ -36,7 +29,7 @@ namespace tlr
             memset(&info, 0, sizeof(_STAT));
             return 0 == _STAT_FNC(fileName.c_str(), &info);
         }
-
+        
         std::string getTemp()
         {
             std::string out;

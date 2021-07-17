@@ -192,7 +192,7 @@ namespace tlr
         _timelines.append(timeline);
         auto widget = new qt::FilmstripWidget;
         widget->setTimeline(timeline);
-        widget->setToolTip(timeline->getFileName().c_str());
+        widget->setToolTip(timeline->getPath().get().c_str());
         _filmstripWidgets[timeline] = widget;
         _scrollLayout->addWidget(widget);
     }

@@ -52,12 +52,12 @@ namespace tlr
             {
                 for (const auto& pixelType : plugin->getWritePixelTypes())
                 {
-                    std::string fileName;
+                    file::Path path;
                     {
                         std::stringstream ss;
                         ss << "FFmpegTest_" << size << '_' << pixelType << ".mov";
-                        fileName = ss.str();
-                        _print(fileName);
+                        _print(ss.str());
+                        path = file::Path(ss.str());
                     }
                     auto imageInfo = imaging::Info(size, pixelType);
                     imageInfo.layout.alignment = plugin->getWriteAlignment(pixelType);
@@ -70,7 +70,7 @@ namespace tlr
                             info.video.push_back(imageInfo);
                             info.videoDuration = duration;
                             info.tags = tags;
-                            auto write = plugin->write(fileName, info);
+                            auto write = plugin->write(path, info);
                             auto image = imaging::Image::create(imageInfo);
                             image->setTags(tags);
                             for (size_t i = 0; i < static_cast<size_t>(duration.value()); ++i)
@@ -78,7 +78,7 @@ namespace tlr
                                 write->writeVideoFrame(otime::RationalTime(i, 24.0), image);
                             }
                         }
-                        auto read = plugin->read(fileName);
+                        auto read = plugin->read(path);
                         for (size_t i = 0; i < static_cast<size_t>(duration.value()); ++i)
                         {
                             const auto videoFrame = read->readVideoFrame(otime::RationalTime(i, 24.0)).get();

@@ -63,22 +63,22 @@ namespace tlr
         };
 
         void Read::_init(
-            const std::string& fileName,
+            const file::Path& path,
             const avio::Options& options)
         {
-            IRead::_init(fileName, options);
+            IRead::_init(path, options);
 
             TLR_PRIVATE_P();
 
             p.running = true;
             p.stopped = false;
             p.thread = std::thread(
-                [this, fileName]
+                [this, path]
                 {
                     TLR_PRIVATE_P();
                     try
                     {
-                        _open(fileName);
+                        _open(path.get());
                         _run();
                     }
                     catch (const std::exception& e)
@@ -114,11 +114,11 @@ namespace tlr
         }
 
         std::shared_ptr<Read> Read::create(
-            const std::string& fileName,
+            const file::Path& path,
             const avio::Options& options)
         {
             auto out = std::shared_ptr<Read>(new Read);
-            out->_init(fileName, options);
+            out->_init(path, options);
             return out;
         }
 

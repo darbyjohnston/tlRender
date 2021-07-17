@@ -4,34 +4,19 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
+#include <tlrCore/Path.h>
 
 namespace tlr
 {
     //! File system.
     namespace file
     {
-        //! Is a path absolute?
-        bool isAbsolute(const std::string& path);
-
-        //! Convert a path to use UNIX style path delimeters ('/').
-        std::string normalize(const std::string& path);
-
-        //! Split a file name into pieces: path, base name, number, and extension.
-        void split(
-            const std::string& fileName,
-            std::string* path,
-            std::string* baseName = nullptr,
-            std::string* number = nullptr,
-            std::string* extension = nullptr);
-            
         // Does a file exist?
-        bool exists(const std::string&);
+        bool exists(const Path&);
 
         // Get the temporary directory.
         std::string getTemp();
-        
+
         // Create a temporary directory.
         std::string createTempDir();
     }

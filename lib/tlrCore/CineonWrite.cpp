@@ -13,11 +13,11 @@ namespace tlr
     namespace cineon
     {
         void Write::_init(
-            const std::string& fileName,
+            const file::Path& path,
             const avio::Info& info,
             const avio::Options& options)
         {
-            ISequenceWrite::_init(fileName, info, options);
+            ISequenceWrite::_init(path, info, options);
         }
 
         Write::Write()
@@ -27,12 +27,12 @@ namespace tlr
         {}
 
         std::shared_ptr<Write> Write::create(
-            const std::string& fileName,
+            const file::Path& path,
             const avio::Info& info,
             const avio::Options& options)
         {
             auto out = std::shared_ptr<Write>(new Write);
-            out->_init(fileName, info, options);
+            out->_init(path, info, options);
             return out;
         }
 

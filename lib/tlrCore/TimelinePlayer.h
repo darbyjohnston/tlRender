@@ -66,20 +66,20 @@ namespace tlr
             TLR_NON_COPYABLE(TimelinePlayer);
 
         protected:
-            void _init(const std::string& fileName);
+            void _init(const file::Path&);
             TimelinePlayer();
 
         public:
             ~TimelinePlayer();
 
             //! Create a new timeline player.
-            static std::shared_ptr<TimelinePlayer> create(const std::string& fileName);
+            static std::shared_ptr<TimelinePlayer> create(const file::Path&);
 
             //! \name Information
             ///@{
 
-            //! Get the file name.
-            const std::string& getFileName() const;
+            //! Get the path.
+            const file::Path& getPath() const;
 
             //! Get the duration.
             const otime::RationalTime& getDuration() const;

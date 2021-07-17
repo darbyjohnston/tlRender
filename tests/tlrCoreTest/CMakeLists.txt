@@ -4,6 +4,7 @@ set(HEADERS
     CineonTest.h
     ColorTest.h
     ErrorTest.h
+    FileIOTest.h
     FileTest.h
     ImageTest.h
     JPEGTest.h
@@ -15,6 +16,7 @@ set(HEADERS
     MemoryTest.h
     OpenEXRTest.h
     PNGTest.h
+    PathTest.h
     RangeTest.h
     StringTest.h
     StringFormatTest.h
@@ -30,6 +32,7 @@ set(SOURCE
     CineonTest.cpp
     ColorTest.cpp
     ErrorTest.cpp
+    FileIOTest.cpp
     FileTest.cpp
     ImageTest.cpp
     JPEGTest.cpp
@@ -41,6 +44,7 @@ set(SOURCE
     MemoryTest.cpp
     OpenEXRTest.cpp
     PNGTest.cpp
+    PathTest.cpp
     RangeTest.cpp
     StringTest.cpp
     StringFormatTest.cpp

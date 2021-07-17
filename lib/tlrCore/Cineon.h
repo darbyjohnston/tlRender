@@ -171,7 +171,7 @@ namespace tlr
         {
         protected:
             void _init(
-                const std::string& fileName,
+                const file::Path&,
                 const avio::Options&);
             Read();
 
@@ -180,7 +180,7 @@ namespace tlr
 
             //! Create a new reader.
             static std::shared_ptr<Read> create(
-                const std::string& fileName,
+                const file::Path&,
                 const avio::Options&);
 
         protected:
@@ -195,7 +195,7 @@ namespace tlr
         {
         protected:
             void _init(
-                const std::string& fileName,
+                const file::Path&,
                 const avio::Info&,
                 const avio::Options&);
             Write();
@@ -205,7 +205,7 @@ namespace tlr
 
             //! Create a new writer.
             static std::shared_ptr<Write> create(
-                const std::string& fileName,
+                const file::Path&,
                 const avio::Info&,
                 const avio::Options&);
 
@@ -228,13 +228,13 @@ namespace tlr
             static std::shared_ptr<Plugin> create();
 
             std::shared_ptr<avio::IRead> read(
-                const std::string& fileName,
+                const file::Path&,
                 const avio::Options& = avio::Options()) override;
             std::vector<imaging::PixelType> getWritePixelTypes() const override;
             uint8_t getWriteAlignment(imaging::PixelType) const override;
             memory::Endian getWriteEndian() const override;
             std::shared_ptr<avio::IWrite> write(
-                const std::string& fileName,
+                const file::Path&,
                 const avio::Info&,
                 const avio::Options& = avio::Options()) override;
         };

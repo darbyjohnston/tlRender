@@ -10,7 +10,6 @@
 
 #include <atomic>
 #include <condition_variable>
-#include <iomanip>
 #include <queue>
 #include <list>
 #include <mutex>
@@ -23,12 +22,6 @@ namespace tlr
     {
         struct ISequenceRead::Private
         {
-            std::string path;
-            std::string baseName;
-            std::string number;
-            int pad = 0;
-            std::string extension;
-
             std::promise<Info> infoPromise;
 
             struct VideoFrameRequest
@@ -50,27 +43,24 @@ namespace tlr
         };
 
         void ISequenceRead::_init(
-            const std::string& fileName,
+            const file::Path& path,
             const Options& options)
         {
-            IRead::_init(fileName, options);
+            IRead::_init(path, options);
 
             TLR_PRIVATE_P();
-
-            file::split(fileName, &p.path, &p.baseName, &p.number, &p.extension);
-            p.pad = !p.number.empty() ? ('0' == p.number[0] ? p.number.size() : 0) : 0;
 
             p.videoFrameCache.setMax(1);
 
             p.running = true;
             p.stopped = false;
             p.thread = std::thread(
-                [this, fileName]
+                [this, path]
                 {
                     TLR_PRIVATE_P();
                     try
                     {
-                        p.infoPromise.set_value(_getInfo(fileName));
+                        p.infoPromise.set_value(_getInfo(path.get()));
                         _run();
                     }
                     catch (const std::exception&)
@@ -190,16 +180,14 @@ namespace tlr
                 while (it != results.end())
                 {
                     //std::cout << "request: " << it->time << std::endl;
-                    std::stringstream ss;
-                    if (!p.number.empty())
+                    if (!_path.getNumber().empty())
                     {
-                        ss << p.path << p.baseName << std::setfill('0') << std::setw(p.pad) << static_cast<int>(it->time.value()) << p.extension;
+                        it->fileName = _path.get(static_cast<int>(it->time.value()));
                     }
                     else
                     {
-                        ss << _fileName;
+                        it->fileName = _path.get();
                     }
-                    it->fileName = ss.str();
                     VideoFrame videoFrame;
                     if (p.videoFrameCache.get(it->fileName, videoFrame))
                     {
@@ -247,16 +235,13 @@ namespace tlr
         };
 
         void ISequenceWrite::_init(
-            const std::string& fileName,
+            const file::Path& path,
             const Info& info,
             const Options& options)
         {
-            IWrite::_init(fileName, options, info);
+            IWrite::_init(path, options, info);
 
             TLR_PRIVATE_P();
-
-            file::split(fileName, &p.path, &p.baseName, &p.number, &p.extension);
-            p.pad = !p.number.empty() ? ('0' == p.number[0] ? p.number.size() : 0) : 0;
 
             const auto i = options.find("DefaultSpeed");
             if (i != options.end())
@@ -277,10 +262,7 @@ namespace tlr
             const otime::RationalTime& time,
             const std::shared_ptr<imaging::Image>& image)
         {
-            TLR_PRIVATE_P();
-            std::stringstream ss;
-            ss << p.path << p.baseName << std::setfill('0') << std::setw(p.pad) << static_cast<int>(time.value()) << p.extension;
-            _writeVideoFrame(ss.str(), time, image);
+            _writeVideoFrame(_path.get(static_cast<int>(time.value())), time, image);
         }
     }
 }

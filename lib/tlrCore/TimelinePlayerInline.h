@@ -6,9 +6,9 @@ namespace tlr
 {
     namespace timeline
     {
-        inline const std::string& TimelinePlayer::getFileName() const
+        inline const file::Path& TimelinePlayer::getPath() const
         {
-            return _timeline->getFileName();
+            return _timeline->getPath();
         }
 
         inline const otime::RationalTime& TimelinePlayer::getGlobalStartTime() const

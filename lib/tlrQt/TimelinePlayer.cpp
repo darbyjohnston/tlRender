@@ -20,13 +20,13 @@ namespace tlr
             std::shared_ptr<observer::ListObserver<otime::TimeRange> > cachedFramesObserver;
         };
 
-        TimelinePlayer::TimelinePlayer(const QString& fileName, QObject* parent) :
+        TimelinePlayer::TimelinePlayer(const file::Path& path, QObject* parent) :
             QObject(parent),
             _p(new Private)
         {
             TLR_PRIVATE_P();
 
-            p.timelinePlayer = timeline::TimelinePlayer::create(fileName.toLatin1().data());
+            p.timelinePlayer = timeline::TimelinePlayer::create(path);
 
             p.playbackObserver = observer::ValueObserver<timeline::Playback>::create(
                 p.timelinePlayer->observePlayback(),
@@ -73,9 +73,9 @@ namespace tlr
             startTimer(playerTimerInterval, Qt::PreciseTimer);
         }
 
-        QString TimelinePlayer::fileName() const
+        const file::Path& TimelinePlayer::path() const
         {
-            return _p->timelinePlayer->getFileName().c_str();
+            return _p->timelinePlayer->getPath();
         }
 
         const otime::RationalTime& TimelinePlayer::globalStartTime() const

@@ -5,6 +5,7 @@
 #pragma once
 
 #include <tlrCore/Image.h>
+#include <tlrCore/Path.h>
 #include <tlrCore/Time.h>
 
 #include <opentimelineio/composable.h>
@@ -71,20 +72,20 @@ namespace tlr
             TLR_NON_COPYABLE(Timeline);
 
         protected:
-            void _init(const std::string& fileName);
+            void _init(const file::Path&);
             Timeline();
 
         public:
             ~Timeline();
 
             //! Create a new timeline.
-            static std::shared_ptr<Timeline> create(const std::string& fileName);
+            static std::shared_ptr<Timeline> create(const file::Path&);
 
             //! \name Information
             ///@{
 
-            //! Get the file name.
-            const std::string& getFileName() const;
+            //! Get the path.
+            const file::Path& getPath() const;
 
             //! Get the duration.
             const otime::RationalTime& getDuration() const;

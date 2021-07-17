@@ -31,14 +31,15 @@ namespace tlr
         };
 
         void Write::_init(
-            const std::string& fileName,
+            const file::Path& path,
             const avio::Info& info,
             const avio::Options& options)
         {
-            IWrite::_init(fileName, options, info);
+            IWrite::_init(path, options, info);
             
             TLR_PRIVATE_P();
 
+            const std::string fileName = path.get();
             if (info.video.empty())
             {
                 throw std::runtime_error(string::Format("{0}: No video").arg(fileName));
@@ -231,12 +232,12 @@ namespace tlr
         }
 
         std::shared_ptr<Write> Write::create(
-            const std::string& fileName,
+            const file::Path& path,
             const avio::Info& info,
             const avio::Options& options)
         {
             auto out = std::shared_ptr<Write>(new Write);
-            out->_init(fileName, info, options);
+            out->_init(path, info, options);
             return out;
         }
 
@@ -282,10 +283,11 @@ namespace tlr
         {
             TLR_PRIVATE_P();
 
+            const std::string fileName = _path.get();
             int r = avcodec_send_frame(p.avVideoStream->codec, frame);
             if (r < 0)
             {
-                throw std::runtime_error(string::Format("{0}: Cannot write frame").arg(_fileName));
+                throw std::runtime_error(string::Format("{0}: Cannot write frame").arg(fileName));
             }
 
             while (r >= 0)
@@ -297,12 +299,12 @@ namespace tlr
                 }
                 else if (r < 0)
                 {
-                    throw std::runtime_error(string::Format("{0}: Cannot write frame").arg(_fileName));
+                    throw std::runtime_error(string::Format("{0}: Cannot write frame").arg(fileName));
                 }
                 r = av_interleaved_write_frame(p.avFormatContext, p.avPacket);
                 if (r < 0)
                 {
-                    throw std::runtime_error(string::Format("{0}: Cannot write frame").arg(_fileName));
+                    throw std::runtime_error(string::Format("{0}: Cannot write frame").arg(fileName));
                 }
                 av_packet_unref(p.avPacket);
             }

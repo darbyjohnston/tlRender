@@ -25,9 +25,9 @@ namespace tlr
             return time < other.time;
         }
 
-        inline const std::string& IIO::getFileName() const
+        inline const file::Path& IIO::getPath() const
         {
-            return _fileName;
+            return _path;
         }
     }
 }

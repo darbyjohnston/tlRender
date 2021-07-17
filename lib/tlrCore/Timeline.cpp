@@ -193,9 +193,9 @@ namespace tlr
 
         struct Timeline::Private
         {
-            std::string fixFileName(const std::string&) const;
-            std::string getFileName(const otio::ImageSequenceReference*) const;
-            std::string getFileName(const otio::MediaReference*) const;
+            file::Path fixPath(const file::Path&) const;
+            file::Path getPath(const otio::ImageSequenceReference*) const;
+            file::Path getPath(const otio::MediaReference*) const;
 
             bool getImageInfo(const otio::Composable*, imaging::Info&) const;
 
@@ -208,7 +208,7 @@ namespace tlr
             void stopReaders();
             void delReaders();
 
-            std::string fileName;
+            file::Path path;
             otio::SerializableObject::Retainer<otio::Timeline> timeline;
             otime::RationalTime duration = time::invalidTime;
             otime::RationalTime globalStartTime = time::invalidTime;
@@ -240,15 +240,15 @@ namespace tlr
             std::atomic<bool> running;
         };
 
-        void Timeline::_init(const std::string& fileName)
+        void Timeline::_init(const file::Path& path)
         {
             TLR_PRIVATE_P();
 
-            p.fileName = fileName;
+            p.path = path;
 
             // Read the timeline.
             otio::ErrorStatus errorStatus;
-            p.timeline = read(p.fileName, &errorStatus);
+            p.timeline = read(p.path.get(), &errorStatus);
             if (errorStatus != otio::ErrorStatus::OK)
             {
                 throw std::runtime_error(errorStatus.full_description);
@@ -299,16 +299,16 @@ namespace tlr
             }
         }
 
-        std::shared_ptr<Timeline> Timeline::create(const std::string& fileName)
+        std::shared_ptr<Timeline> Timeline::create(const file::Path& path)
         {
             auto out = std::shared_ptr<Timeline>(new Timeline);
-            out->_init(fileName);
+            out->_init(path);
             return out;
         }
 
-        const std::string& Timeline::getFileName() const
+        const file::Path& Timeline::getPath() const
         {
-            return _p->fileName;
+            return _p->path;
         }
 
         const otime::RationalTime& Timeline::getGlobalStartTime() const
@@ -356,43 +356,39 @@ namespace tlr
             }
         }
 
-        std::string Timeline::Private::fixFileName(const std::string& fileName) const
+        file::Path Timeline::Private::fixPath(const file::Path& path) const
         {
-            std::string absolute;
-            if (!file::isAbsolute(fileName))
+            std::string directory;
+            if (!path.isAbsolute())
             {
-                file::split(this->fileName, &absolute);
+                directory = this->path.getDirectory();
             }
-            std::string path;
-            std::string baseName;
-            std::string number;
-            std::string extension;
-            file::split(file::normalize(fileName), &path, &baseName, &number, &extension);
-            return absolute + path + baseName + number + extension;
+            return file::Path(directory, path.get());
         }
 
-        std::string Timeline::Private::getFileName(const otio::ImageSequenceReference* ref) const
+        file::Path Timeline::Private::getPath(const otio::ImageSequenceReference* ref) const
         {
             std::stringstream ss;
             ss << ref->target_url_base() <<
                 ref->name_prefix() <<
                 std::setfill('0') << std::setw(ref->frame_zero_padding()) << ref->start_frame() <<
                 ref->name_suffix();
-            return ss.str();
+            return file::Path(ss.str());
         }
 
-        std::string Timeline::Private::getFileName(const otio::MediaReference* ref) const
+        file::Path Timeline::Private::getPath(const otio::MediaReference* ref) const
         {
-            std::string out;
+            file::Path out;
             if (auto externalRef = dynamic_cast<const otio::ExternalReference*>(ref))
             {
-                out = externalRef->target_url();
+                //! \bug Handle URL parsing.
+                out = file::Path(externalRef->target_url());
             }
             else if (auto imageSequenceRef = dynamic_cast<const otio::ImageSequenceReference*>(ref))
             {
-                out = getFileName(imageSequenceRef);
+                out = getPath(imageSequenceRef);
             }
-            return fixFileName(out);
+            return fixPath(out);
         }
 
         bool Timeline::Private::getImageInfo(const otio::Composable* composable, imaging::Info& imageInfo) const
@@ -401,7 +397,7 @@ namespace tlr
             {
                 // The first clip with video defines the image information
                 // for the timeline.
-                if (auto read = ioSystem->read(getFileName(clip->media_reference())))
+                if (auto read = ioSystem->read(getPath(clip->media_reference())))
                 {
                     const auto info = read->getInfo().get();
                     if (!info.video.empty())
@@ -598,14 +594,14 @@ namespace tlr
             }
             else
             {
-                const std::string fileName = getFileName(clip->media_reference());
+                const file::Path path = getPath(clip->media_reference());
                 avio::Options options;
                 {
                     std::stringstream ss;
                     ss << otime::RationalTime(0, duration.rate());
                     options["DefaultSpeed"] = ss.str();
                 }
-                auto read = ioSystem->read(fileName, options);
+                auto read = ioSystem->read(path, options);
                 avio::Info info;
                 if (read)
                 {
@@ -613,7 +609,7 @@ namespace tlr
                 }
                 if (read && !info.video.empty())
                 {
-                    //std::cout << "read: " << fileName << std::endl;
+                    //std::cout << "read: " << path.get() << std::endl;
                     Reader reader;
                     reader.read = read;
                     reader.info = info;
@@ -651,7 +647,7 @@ namespace tlr
                 }
                 if (del && !i->second.read->hasVideoFrames())
                 {
-                    //std::cout << "stop: " << i->second.read->getFileName() << " / " << i->second.read << std::endl;
+                    //std::cout << "stop: " << i->second.read->getPath().get() << " / " << i->second.read << std::endl;
                     auto read = i->second.read;
                     read->stop();
                     stoppedReaders.push_back(read);
@@ -671,7 +667,7 @@ namespace tlr
             {
                 if ((*i)->hasStopped())
                 {
-                    //std::cout << "delete: " << (*i)->getFileName() << " / " << (*i) << std::endl;
+                    //std::cout << "delete: " << (*i)->getPath().get() << " / " << (*i) << std::endl;
                     i = stoppedReaders.erase(i);
                 }
                 else

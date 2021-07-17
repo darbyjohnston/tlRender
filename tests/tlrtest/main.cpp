@@ -15,6 +15,7 @@
 #include <tlrCoreTest/MathTest.h>
 #include <tlrCoreTest/MatrixTest.h>
 #include <tlrCoreTest/MemoryTest.h>
+#include <tlrCoreTest/PathTest.h>
 #include <tlrCoreTest/RangeTest.h>
 #include <tlrCoreTest/StringTest.h>
 #include <tlrCoreTest/StringFormatTest.h>
@@ -73,6 +74,7 @@ int main(int argc, char* argv[])
         tests.push_back(tlr::CoreTest::MathTest::create());
         tests.push_back(tlr::CoreTest::MatrixTest::create());
         tests.push_back(tlr::CoreTest::MemoryTest::create());
+        tests.push_back(tlr::CoreTest::PathTest::create());
         tests.push_back(tlr::CoreTest::RangeTest::create());
         tests.push_back(tlr::CoreTest::StringTest::create());
         tests.push_back(tlr::CoreTest::StringFormatTest::create());

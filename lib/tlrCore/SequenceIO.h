@@ -24,7 +24,7 @@ namespace tlr
         {
         protected:
             void _init(
-                const std::string& fileName,
+                const file::Path&,
                 const Options&);
             ISequenceRead();
 
@@ -55,7 +55,7 @@ namespace tlr
         {
         protected:
             void _init(
-                const std::string& fileName,
+                const file::Path&,
                 const Info&,
                 const Options&);
             ISequenceWrite();

@@ -21,13 +21,13 @@ namespace tlr
             Q_OBJECT
 
         public:
-            TimelinePlayer(const QString& fileName, QObject* parent = nullptr);
+            TimelinePlayer(const file::Path&, QObject* parent = nullptr);
 
             //! \name Information
             ///@{
 
-            //! Get the file name.
-            QString fileName() const;
+            //! Get the path.
+            const file::Path& path() const;
 
             //! Get the duration.
             const otime::RationalTime& duration() const;

@@ -10,15 +10,20 @@ namespace tlr
 {
     namespace CoreTest
     {
-        class FileTest : public Test::ITest
+        class FileIOTest : public Test::ITest
         {
         protected:
-            FileTest();
+            FileIOTest();
 
         public:
-            static std::shared_ptr<FileTest> create();
+            static std::shared_ptr<FileIOTest> create();
 
             void run() override;
+
+        private:
+            std::string _fileName;
+            std::string _text;
+            std::string _text2;
         };
     }
 }

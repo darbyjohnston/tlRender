@@ -5,6 +5,7 @@
 #pragma once
 
 #include <tlrCore/Image.h>
+#include <tlrCore/Path.h>
 #include <tlrCore/Time.h>
 
 #include <future>
@@ -54,18 +55,18 @@ namespace tlr
 
         protected:
             void _init(
-                const std::string& fileName,
+                const file::Path&,
                 const Options&);
             IIO();
 
         public:
             virtual ~IIO() = 0;
             
-            //! Get the file name.
-            const std::string& getFileName() const;
+            //! Get the path.
+            const file::Path& getPath() const;
 
         protected:
-            std::string _fileName;
+            file::Path _path;
             Options _options;
         };
 
@@ -74,7 +75,7 @@ namespace tlr
         {
         protected:
             void _init(
-                const std::string& fileName,
+                const file::Path&,
                 const Options&);
             IRead();
 
@@ -105,7 +106,7 @@ namespace tlr
         {
         protected:
             void _init(
-                const std::string& fileName,
+                const file::Path&,
                 const Options&,
                 const Info&);
             IWrite();
@@ -142,9 +143,9 @@ namespace tlr
             //! Get the supported file extensions.
             const std::set<std::string>& getExtensions() const;
 
-            //! Create a reader for the given file.
+            //! Create a reader for the given path.
             virtual std::shared_ptr<IRead> read(
-                const std::string& fileName,
+                const file::Path&,
                 const Options& = Options()) = 0;
 
             //! Get the list of writable image pixel types.
@@ -156,9 +157,9 @@ namespace tlr
             //! Get the writable image data endian.
             virtual memory::Endian getWriteEndian() const;
 
-            //! Create a writer for the given file.
+            //! Create a writer for the given path.
             virtual std::shared_ptr<IWrite> write(
-                const std::string& fileName,
+                const file::Path&,
                 const Info&,
                 const Options& = Options()) = 0;
 
@@ -187,17 +188,17 @@ namespace tlr
             //! Get the list of plugins.
             const std::vector<std::shared_ptr<IPlugin> >& getPlugins() const;
 
-            //! Get a plugin for the given file name.
-            std::shared_ptr<IPlugin> getPlugin(const std::string& fileName) const;
+            //! Get a plugin for the given path.
+            std::shared_ptr<IPlugin> getPlugin(const file::Path&) const;
 
-            // Create a reader for the given file name.
+            // Create a reader for the given path.
             std::shared_ptr<IRead> read(
-                const std::string& fileName,
+                const file::Path&,
                 const Options& = Options());
 
-            // Create a writer for the given file name.
+            // Create a writer for the given path.
             std::shared_ptr<IWrite> write(
-                const std::string& fileName,
+                const file::Path&,
                 const Info&,
                 const Options& = Options());
 

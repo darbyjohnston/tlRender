@@ -110,8 +110,6 @@ namespace tlr
                     "The output file.")
             },
             cmdLineOptions);
-        _input = file::normalize(_input);
-        _output = file::normalize(_output);
     }
 
     App::App()
@@ -146,7 +144,7 @@ namespace tlr
         _startTime = std::chrono::steady_clock::now();
         
         // Read the timeline.
-        _timeline = timeline::Timeline::create(_input);
+        _timeline = timeline::Timeline::create(file::Path(_input));
         _duration = _timeline->getDuration();
         _print(string::Format("Timeline duration: {0}").arg(_duration.value()));
         _print(string::Format("Timeline speed: {0}").arg(_duration.rate()));
@@ -242,7 +240,7 @@ namespace tlr
 
         // Create the writer.
         _ioSystem = avio::System::create();
-        _writerPlugin = _ioSystem->getPlugin(_output);
+        _writerPlugin = _ioSystem->getPlugin(file::Path(_output));
         if (!_writerPlugin)
         {
             throw std::runtime_error(string::Format("{0}: Cannot open").arg(_output));
@@ -264,7 +262,7 @@ namespace tlr
         {
             options["Profile"] = _options.ffProfile;
         }
-        _writer = _writerPlugin->write(_output, ioInfo, options);
+        _writer = _writerPlugin->write(file::Path(_output), ioInfo, options);
         if (!_writer)
         {
             throw std::runtime_error(string::Format("{0}: Cannot open").arg(_output));

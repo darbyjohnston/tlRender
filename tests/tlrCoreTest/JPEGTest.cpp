@@ -38,12 +38,12 @@ namespace tlr
             {
                 for (const auto& pixelType : plugin->getWritePixelTypes())
                 {
-                    std::string fileName;
+                    file::Path path;
                     {
                         std::stringstream ss;
                         ss << "JPEGTest_" << size << '_' << pixelType << ".0.jpg";
-                        fileName = ss.str();
-                        _print(fileName);
+                        _print(ss.str());
+                        path = file::Path(ss.str());
                     }
                     auto imageInfo = imaging::Info(size, pixelType);
                     imageInfo.layout.alignment = plugin->getWriteAlignment(pixelType);
@@ -57,10 +57,10 @@ namespace tlr
                             info.video.push_back(imageInfo);
                             info.videoDuration = otime::RationalTime(1.0, 24.0);
                             info.tags = tags;
-                            auto write = plugin->write(fileName, info);
+                            auto write = plugin->write(path, info);
                             write->writeVideoFrame(otime::RationalTime(0.0, 24.0), image);
                         }
-                        auto read = plugin->read(fileName);
+                        auto read = plugin->read(path);
                         const auto videoFrame = read->readVideoFrame(otime::RationalTime(0.0, 24.0)).get();
                         const auto frameTags = videoFrame.image->getTags();
                         for (const auto& j : tags)

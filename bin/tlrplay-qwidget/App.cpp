@@ -95,7 +95,7 @@ namespace tlr
     {
         try
         {
-            auto timelinePlayer = new qt::TimelinePlayer(fileName, this);
+            auto timelinePlayer = new qt::TimelinePlayer(file::Path(fileName.toLatin1().data()), this);
             timelinePlayer->setFrameCacheReadAhead(_settingsObject->frameCacheReadAhead());
             timelinePlayer->setFrameCacheReadBehind(_settingsObject->frameCacheReadBehind());
             timelinePlayer->connect(

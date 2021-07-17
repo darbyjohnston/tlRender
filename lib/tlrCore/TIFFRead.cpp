@@ -267,10 +267,10 @@ namespace tlr
         }
 
         void Read::_init(
-            const std::string& fileName,
+            const file::Path& path,
             const avio::Options& options)
         {
-            ISequenceRead::_init(fileName, options);
+            ISequenceRead::_init(path, options);
         }
 
         Read::Read()
@@ -280,11 +280,11 @@ namespace tlr
         {}
 
         std::shared_ptr<Read> Read::create(
-            const std::string& fileName,
+            const file::Path& path,
             const avio::Options& options)
         {
             auto out = std::shared_ptr<Read>(new Read);
-            out->_init(fileName, options);
+            out->_init(path, options);
             return out;
         }
 

@@ -66,8 +66,8 @@ namespace tlr
                 ss << "Plugin: " << plugin->getName();
                 _print(ss.str());
             }
-            TLR_ASSERT(!system->read(std::string()));
-            TLR_ASSERT(!system->write(std::string(), Info()));
+            TLR_ASSERT(!system->read(file::Path()));
+            TLR_ASSERT(!system->write(file::Path(), Info()));
         }
     }
 }
