@@ -10,16 +10,35 @@ namespace tlr
 {
     namespace core
     {
+        std::string toString(const LogItem& item)
+        {
+            std::string out;
+            switch (item.type)
+            {
+            case LogType::Message:
+                out = item.prefix + ": " + item.message;
+                break;
+            case LogType::Warning:
+                out = item.prefix + ": Warning: " + item.message;
+                break;
+            case LogType::Error:
+                out = item.prefix + ": ERROR: " + item.message;
+                break;
+            default: break;
+            }
+            return out;
+        }
+
         struct LogSystem::Private
         {
-            std::shared_ptr<observer::Value<std::string> > log;
+            std::shared_ptr<observer::Value<LogItem> > log;
             std::mutex mutex;
         };
 
         void LogSystem::_init()
         {
             TLR_PRIVATE_P();
-            p.log = observer::Value<std::string>::create();
+            p.log = observer::Value<LogItem>::create();
         }
 
         LogSystem::LogSystem(const std::shared_ptr<Context>& context) :
@@ -43,25 +62,11 @@ namespace tlr
             LogType type)
         {
             TLR_PRIVATE_P();
-            std::string text;
-            switch (type)
-            {
-            case LogType::Message:
-                text = "[LOG] " + prefix + ": " + value;
-                break;
-            case LogType::Warning:
-                text = "[LOG] " + prefix + ": " + "Warning: " + value;
-                break;
-            case LogType::Error:
-                text = "[LOG] " + prefix + ": " + "ERROR: " + value;
-                break;
-            default: break;
-            }
             std::unique_lock<std::mutex> lock(p.mutex);
-            p.log->setAlways(text);
+            p.log->setAlways({ prefix, value, type });
         }
 
-        std::shared_ptr<observer::IValue<std::string> > LogSystem::observeLog() const
+        std::shared_ptr<observer::IValue<LogItem> > LogSystem::observeLog() const
         {
             return _p->log;
         }

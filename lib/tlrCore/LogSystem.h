@@ -19,6 +19,17 @@ namespace tlr
             Error
         };
 
+        //! Log item.
+        struct LogItem
+        {
+            std::string prefix;
+            std::string message;
+            LogType type = LogType::Message;
+        };
+
+        //! Convert a log item to a string.
+        std::string toString(const LogItem&);
+
         //! Log system.
         class LogSystem : public ICoreSystem
         {
@@ -41,7 +52,7 @@ namespace tlr
                 LogType = LogType::Message);
 
             //! Observe the log.
-            std::shared_ptr<observer::IValue<std::string> > observeLog() const;
+            std::shared_ptr<observer::IValue<LogItem> > observeLog() const;
 
         private:
             TLR_PRIVATE();

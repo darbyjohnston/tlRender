@@ -12,15 +12,15 @@ namespace tlr
     {
         struct Context::Private
         {
-            std::vector<std::string> logInit;
+            std::vector<LogItem> logInit;
         };
 
         void Context::_init()
         {
             _logSystem = LogSystem::create(shared_from_this());
-            auto logObserver = observer::ValueObserver<std::string>::create(
+            auto logObserver = observer::ValueObserver<LogItem>::create(
                 _logSystem->observeLog(),
-                [this](const std::string& value)
+                [this](const LogItem& value)
                 {
                     _p->logInit.push_back(value);
                 });
@@ -47,9 +47,9 @@ namespace tlr
             _systems.push_back(system);
         }
 
-        std::vector<std::string> Context::getLogInit()
+        std::vector<LogItem> Context::getLogInit()
         {
-            std::vector<std::string> out;
+            std::vector<LogItem> out;
             out.swap(_p->logInit);
             return out;
         }
