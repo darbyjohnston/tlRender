@@ -133,15 +133,16 @@ Building on Linux
 Clone the repository:
 ```
 $ git clone https://github.com/darbyjohnston/tlRender.git
+$ cd tlRender
 ```
 Create a build directory:
 ```
-$ mkdir tlRender-Debug
-$ cd tlRender-Debug
+$ mkdir build
+$ cd build
 ```
 Run CMake with the super build script:
 ```
-$ cmake ../tlRender/etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install -DCMAKE_BUILD_TYPE=Debug
+$ cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install -DCMAKE_BUILD_TYPE=Debug
 ```
 Start the build:
 ```
@@ -150,7 +151,7 @@ $ cmake --build . -j 4
 Try running the "tlrplay-glfw" application:
 ```
 $ export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
-$ ./install/bin/tlrplay-glfw ../tlRender/etc/SampleData/multiple_clips.otio
+$ ./install/bin/tlrplay-glfw ../etc/SampleData/multiple_clips.otio
 ```
 
 Building on macOS
@@ -158,15 +159,16 @@ Building on macOS
 Clone the repository:
 ```
 $ git clone https://github.com/darbyjohnston/tlRender.git
+$ cd tlRender
 ```
 Create a build directory:
 ```
-$ mkdir tlRender-Debug
-$ cd tlRender-Debug
+$ mkdir build
+$ cd build
 ```
 Run CMake with the super build script:
 ```
-$ cmake ../tlRender/etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install -DCMAKE_BUILD_TYPE=Debug
+$ cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install -DCMAKE_BUILD_TYPE=Debug
 ```
 Start the build:
 ```
@@ -175,7 +177,7 @@ $ cmake --build . -j 4
 Try running the "tlrplay-glfw" application:
 ```
 $ export DYLD_LIBRARY_PATH=$PWD/install/lib:$DYLD_LIBRARY_PATH
-$ ./install/bin/tlrplay-glfw ../tlRender/etc/SampleData/multiple_clips.otio
+$ ./install/bin/tlrplay-glfw ../etc/SampleData/multiple_clips.otio
 ```
 
 Building FFmpeg on Windows
@@ -209,15 +211,16 @@ Building on Windows
 Clone the repository:
 ```
 > git clone https://github.com/darbyjohnston/tlRender.git
+> cd tlRender
 ```
 Create a build directory:
 ```
-> mkdir tlRender-Debug
-> cd tlRender-Debug
+> mkdir build
+> cd build
 ```
 Run CMake with the super build script:
 ```
-> cmake ../tlRender/etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=%CD%/install -DCMAKE_PREFIX_PATH=%CD%/install -DCMAKE_BUILD_TYPE=Debug
+> cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=%CD%/install -DCMAKE_PREFIX_PATH=%CD%/install -DCMAKE_BUILD_TYPE=Debug
 ```
 Start the build:
 ```
@@ -226,6 +229,6 @@ Start the build:
 Try running the "tlrplay-glfw" application:
 ```
 > set PATH=%CD%\install\bin;%CD%\install\lib;%PATH%
-> .\install\bin\tlrplay-glfw ..\tlRender\etc\SampleData\multiple_clips.otio
+> .\install\bin\tlrplay-glfw ..\etc\SampleData\multiple_clips.otio
 ```
 
