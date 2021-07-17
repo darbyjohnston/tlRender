@@ -54,6 +54,7 @@ namespace tlr
 
         protected:
             void _print(const std::string&);
+            void _printNewline();
             void _printVerbose(const std::string&);
             void _printError(const std::string&);
 

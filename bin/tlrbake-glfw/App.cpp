@@ -46,45 +46,6 @@ namespace tlr
 
     void App::_init(int argc, char* argv[])
     {
-        std::vector<std::shared_ptr<app::ICmdLineOption> > cmdLineOptions =
-        {
-            app::CmdLineValueOption<int64_t>::create(
-                _options.startFrame,
-                { "-startFrame", "-sf" },
-                "Start frame."),
-            app::CmdLineValueOption<int64_t>::create(
-                _options.endFrame,
-                { "-endFrame", "-ef" },
-                "End frame."),
-            app::CmdLineValueOption<imaging::Size>::create(
-                _options.renderSize,
-                { "-renderSize", "-rs" },
-                "Render size."),
-            app::CmdLineValueOption<imaging::PixelType>::create(
-                _options.renderPixelType,
-                { "-renderPixelType", "-rp" },
-                string::Format("Render pixel type. Values: {0}").arg(string::join(imaging::getPixelTypeLabels(), ", "))),
-            app::CmdLineValueOption<imaging::PixelType>::create(
-                _options.outputPixelType,
-                { "-outputPixelType", "-op" },
-                string::Format("Output pixel type. Values: {0}").arg(string::join(imaging::getPixelTypeLabels(), ", "))),
-            app::CmdLineValueOption<std::string>::create(
-                _options.colorConfig,
-                { "-colorConfig", "-cc" },
-                "OpenColorIO configuration file."),
-            app::CmdLineValueOption<std::string>::create(
-                _options.colorInput,
-                { "-colorInput", "-ci" },
-                "OpenColorIO input color space."),
-            app::CmdLineValueOption<std::string>::create(
-                _options.colorDisplay,
-                { "-colorDisplay", "-cd" },
-                "OpenColorIO display color space."),
-            app::CmdLineValueOption<std::string>::create(
-                _options.colorView,
-                { "-colorView", "-cv" },
-                "OpenColorIO view color space.")
-        };
         IApp::_init(
             argc,
             argv,
@@ -93,14 +54,55 @@ namespace tlr
             {
                 app::CmdLineValueArg<std::string>::create(
                     _input,
-                    "Input",
+                    "input",
                     "The input timeline."),
                 app::CmdLineValueArg<std::string>::create(
                     _output,
-                    "Output",
+                    "output",
                     "The output file.")
             },
-            cmdLineOptions);
+            {
+                app::CmdLineValueOption<int64_t>::create(
+                    _options.startFrame,
+                    { "-startFrame", "-sf" },
+                    "Start frame."),
+                app::CmdLineValueOption<int64_t>::create(
+                    _options.endFrame,
+                    { "-endFrame", "-ef" },
+                    "End frame."),
+                app::CmdLineValueOption<imaging::Size>::create(
+                    _options.renderSize,
+                    { "-renderSize", "-rs" },
+                    "Render size."),
+                app::CmdLineValueOption<imaging::PixelType>::create(
+                    _options.renderPixelType,
+                    { "-renderPixelType", "-rp" },
+                    "Render pixel type.",
+                    std::string(),
+                    string::join(imaging::getPixelTypeLabels(), ", ")),
+                app::CmdLineValueOption<imaging::PixelType>::create(
+                    _options.outputPixelType,
+                    { "-outputPixelType", "-op" },
+                    "Output pixel type.",
+                    std::string(),
+                    string::join(imaging::getPixelTypeLabels(), ", ")),
+                app::CmdLineValueOption<std::string>::create(
+                    _options.colorConfig,
+                    { "-colorConfig", "-cc" },
+                    "Color configuration file (config.ocio)."),
+                app::CmdLineValueOption<std::string>::create(
+                    _options.colorInput,
+                    { "-colorInput", "-ci" },
+                    "Input color space."),
+                app::CmdLineValueOption<std::string>::create(
+                    _options.colorDisplay,
+                    { "-colorDisplay", "-cd" },
+                    "Display color space."),
+                app::CmdLineValueOption<std::string>::create(
+                    _options.colorView,
+                    { "-colorView", "-cv" },
+                    "View color space.")
+            });
     }
 
     App::App()

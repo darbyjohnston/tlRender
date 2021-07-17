@@ -10,11 +10,9 @@ namespace tlr
     {
         ICmdLineOption::ICmdLineOption(
             const std::vector<std::string>& names,
-            const std::string& help,
-            const std::string& argsHelp) :
+            const std::string& help) :
             _names(names),
-            _help(help),
-            _argsHelp(argsHelp)
+            _help(help)
         {}
 
         ICmdLineOption::~ICmdLineOption()
@@ -23,26 +21,24 @@ namespace tlr
         CmdLineFlagOption::CmdLineFlagOption(
             bool& value,
             const std::vector<std::string>&names,
-            const std::string & help,
-            const std::string & argsHelp) :
-            ICmdLineOption(names, help, argsHelp),
+            const std::string & help) :
+            ICmdLineOption(names, help),
             _value(value)
         {}
 
         std::shared_ptr<CmdLineFlagOption> CmdLineFlagOption::create(
             bool& value,
             const std::vector<std::string>& names,
-            const std::string& help,
-            const std::string& argsHelp)
+            const std::string& help)
         {
-            return std::shared_ptr<CmdLineFlagOption>(new CmdLineFlagOption(value, names, help, argsHelp));
+            return std::shared_ptr<CmdLineFlagOption>(new CmdLineFlagOption(value, names, help));
         }
 
         void CmdLineFlagOption::parse(std::vector<std::string>&args)
         {
             for (const auto& name : _names)
             {
-                _name = name;
+                _matchedName = name;
                 auto i = std::find(args.begin(), args.end(), name);
                 if (i != args.end())
                 {
@@ -50,6 +46,14 @@ namespace tlr
                     i = args.erase(i);
                 }
             }
+        }
+
+        std::vector<std::string> CmdLineFlagOption::getHelpText() const
+        {
+            std::vector<std::string> out;
+            out.push_back(string::join(_names, ", "));
+            out.push_back(_help);
+            return out;
         }
     }
 }

@@ -3,6 +3,7 @@
 // All rights reserved.
 
 #include <tlrCore/Error.h>
+#include <tlrCore/String.h>
 
 #include <algorithm>
 
@@ -10,24 +11,9 @@ namespace tlr
 {
     namespace app
     {
-        inline const std::vector<std::string>& ICmdLineOption::getNames() const
+        inline const std::string& ICmdLineOption::getMatchedName() const
         {
-            return _names;
-        }
-
-        inline const std::string& ICmdLineOption::getName() const
-        {
-            return _name;
-        }
-
-        inline const std::string& ICmdLineOption::getHelp() const
-        {
-            return _help;
-        }
-
-        inline const std::string& ICmdLineOption::getArgsHelp() const
-        {
-            return _argsHelp;
+            return _matchedName;
         }
 
         template<typename T>
@@ -35,9 +21,12 @@ namespace tlr
             T& value,
             const std::vector<std::string>& names,
             const std::string& help,
-            const std::string& argsHelp) :
-            ICmdLineOption(names, help, argsHelp),
-            _value(value)
+            const std::string& defaultValue,
+            const std::string& possibleValues) :
+            ICmdLineOption(names, help),
+            _value(value),
+            _defaultValue(defaultValue),
+            _possibleValues(possibleValues)
         {}
         
         template<typename T>
@@ -45,9 +34,15 @@ namespace tlr
             T& value,
             const std::vector<std::string>& names,
             const std::string& help,
-            const std::string& argsHelp)
+            const std::string& defaultValue,
+            const std::string& possibleValues)
         {
-            return std::shared_ptr<CmdLineValueOption<T> >(new CmdLineValueOption<T>(value, names, help, argsHelp));
+            return std::shared_ptr<CmdLineValueOption<T> >(new CmdLineValueOption<T>(
+                value,
+                names,
+                help,
+                defaultValue,
+                possibleValues));
         }
 
         template<typename T>
@@ -55,7 +50,7 @@ namespace tlr
         {
             for (const auto& name : _names)
             {
-                _name = name;
+                _matchedName = name;
                 auto i = std::find(args.begin(), args.end(), name);
                 if (i != args.end())
                 {
@@ -79,7 +74,7 @@ namespace tlr
         {
             for (const auto& name : _names)
             {
-                _name = name;
+                _matchedName = name;
                 auto i = std::find(args.begin(), args.end(), name);
                 if (i != args.end())
                 {
@@ -95,6 +90,23 @@ namespace tlr
                     }
                 }
             }
+        }
+
+        template<typename T>
+        inline std::vector<std::string> CmdLineValueOption<T>::getHelpText() const
+        {
+            std::vector<std::string> out;
+            out.push_back(string::join(_names, ", ") + " (value)");
+            out.push_back(_help);
+            if (!_defaultValue.empty())
+            {
+                out.push_back("Default value: " + _defaultValue);
+            }
+            if (!_possibleValues.empty())
+            {
+                out.push_back("Possible values: " + _possibleValues);
+            }
+            return out;
         }
 
         inline ICmdLineArg::ICmdLineArg(

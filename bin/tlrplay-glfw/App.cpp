@@ -50,7 +50,7 @@ namespace tlr
             {
                 app::CmdLineValueArg<std::string>::create(
                     _input,
-                    "Input",
+                    "input",
                     "The input timeline.")
             },
             {
@@ -61,25 +61,25 @@ namespace tlr
                 app::CmdLineValueOption<bool>::create(
                     _options.hud,
                     { "-hud" },
-                    string::Format("Enable the HUD (heads up display). Default: {0}").
-                        arg(_options.hud),
-                    "(value)"),
+                    "Enable the HUD (heads up display).",
+                    string::Format("{0}").arg(_options.hud),
+                    "0, 1"),
                 app::CmdLineValueOption<bool>::create(
                     _options.startPlayback,
                     { "-startPlayback", "-sp" },
-                    string::Format("Automatically start playback. Default: {0}").
-                        arg(_options.startPlayback),
-                    "(value)"),
+                    "Automatically start playback.",
+                    string::Format("{0}").arg(_options.startPlayback),
+                    "0, 1"),
                 app::CmdLineValueOption<bool>::create(
                     _options.loopPlayback,
                     { "-loopPlayback", "-lp" },
-                    string::Format("Loop playback. Default: {0}").
-                        arg(_options.loopPlayback),
-                    "(value)"),
+                    "Loop playback.",
+                    string::Format("{0}").arg(_options.loopPlayback),
+                    "0, 1"),
                 app::CmdLineValueOption<std::string>::create(
                     _options.colorConfig.config,
                     { "-colorConfig", "-cc" },
-                    "Color configuration."),
+                    "Color configuration file (config.ocio)."),
                 app::CmdLineValueOption<std::string>::create(
                     _options.colorConfig.input,
                     { "-colorInput", "-ci" },

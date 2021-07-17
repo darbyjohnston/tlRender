@@ -28,7 +28,7 @@ namespace tlr
             {
                 app::CmdLineValueArg<std::string>::create(
                     _input,
-                    "Input",
+                    "input",
                     "The input timeline.",
                     true)
             },
@@ -36,7 +36,7 @@ namespace tlr
                 app::CmdLineValueOption<std::string>::create(
                     _options.colorConfig.config,
                     { "-colorConfig", "-cc" },
-                    "Color configuration."),
+                    "Color configuration file (config.ocio)."),
                 app::CmdLineValueOption<std::string>::create(
                     _options.colorConfig.input,
                     { "-colorInput", "-ci" },

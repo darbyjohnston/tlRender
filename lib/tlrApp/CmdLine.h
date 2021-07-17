@@ -23,8 +23,7 @@ namespace tlr
         protected:
             ICmdLineOption(
                 const std::vector<std::string>& names,
-                const std::string& help,
-                const std::string& argsHelp);
+                const std::string& help);
 
         public:
             virtual ~ICmdLineOption() = 0;
@@ -32,23 +31,16 @@ namespace tlr
             //! Parse the option.
             virtual void parse(std::vector<std::string>& args) = 0;
 
-            //! Get the option names.
-            const std::vector<std::string>& getNames() const;
+            //! Get the option name that was matched.
+            const std::string& getMatchedName() const;
 
-            //! Get the option name that was used.
-            const std::string& getName() const;
-
-            //! Get the help.
-            const std::string& getHelp() const;
-
-            //! Get the arguments help.
-            const std::string& getArgsHelp() const;
+            //! Get the help text.
+            virtual std::vector<std::string> getHelpText() const = 0;
 
         protected:
             std::vector<std::string> _names;
-            std::string _name;
+            std::string _matchedName;
             std::string _help;
-            std::string _argsHelp;
         };
 
         //! Command line flag option.
@@ -58,17 +50,16 @@ namespace tlr
             CmdLineFlagOption(
                 bool& value,
                 const std::vector<std::string>& names,
-                const std::string& help,
-                const std::string& argsHelp);
+                const std::string& help);
 
         public:
             static std::shared_ptr<CmdLineFlagOption> create(
                 bool& value,
                 const std::vector<std::string>& names,
-                const std::string& help,
-                const std::string& argsHelp = std::string());
+                const std::string& help);
 
             void parse(std::vector<std::string>& args) override;
+            std::vector<std::string> getHelpText() const override;
 
         private:
             bool& _value;
@@ -83,19 +74,24 @@ namespace tlr
                 T& value,
                 const std::vector<std::string>& names,
                 const std::string& help,
-                const std::string& argsHelp);
+                const std::string& defaultValue,
+                const std::string& possibleValues);
 
         public:
             static std::shared_ptr<CmdLineValueOption<T> > create(
                 T& value,
                 const std::vector<std::string>& names,
                 const std::string& help,
-                const std::string& argsHelp = std::string());
+                const std::string& defaultValue = std::string(),
+                const std::string& possibleValues = std::string());
 
             void parse(std::vector<std::string>& args) override;
+            std::vector<std::string> getHelpText() const override;
 
         private:
             T& _value;
+            std::string _defaultValue;
+            std::string _possibleValues;
         };
 
         //! Base class for command line arguments.
@@ -113,7 +109,7 @@ namespace tlr
             //! Parse the argument.
             virtual void parse(std::vector<std::string>& args) = 0;
 
-            //! Get the argument names.
+            //! Get the argument name.
             const std::string& getName() const;
 
             //! Get the help.

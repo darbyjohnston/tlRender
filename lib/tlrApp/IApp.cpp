@@ -39,20 +39,25 @@ namespace tlr
             _cmdLineOptions.push_back(CmdLineValueOption<float>::create(
                 _options.seqDefaultSpeed,
                 { "-seqDefaultSpeed" },
-                string::Format("Default speed for image sequences. Default: {0}").arg(_options.seqDefaultSpeed)));
+                "Default speed for image sequences.",
+                string::Format("{0}").arg(_options.seqDefaultSpeed)));
             _cmdLineOptions.push_back(CmdLineValueOption<int>::create(
                 _options.seqThreadCount,
                 { "-seqThreadCount" },
-                string::Format("Number of threads for image sequence I/O. Default: {0}").arg(_options.seqThreadCount)));
+                "Number of threads for image sequence I/O.",
+                string::Format("{0}").arg(_options.seqThreadCount)));
 #if defined(FFmpeg_FOUND)
             _cmdLineOptions.push_back(CmdLineValueOption<int>::create(
                 _options.ffThreadCount,
                 { "-ffThreadCount" },
-                string::Format("Number of threads for FFmpeg I/O. Default: {0}").arg(_options.ffThreadCount)));
+                "Number of threads for FFmpeg I/O.",
+                string::Format("{0}").arg(_options.ffThreadCount)));
             _cmdLineOptions.push_back(app::CmdLineValueOption<std::string>::create(
                 _options.ffWriteProfile,
                 { "-ffProfile", "-ffp" },
-                string::Format("FFmpeg output profile. Values: {0}").arg(string::join(ffmpeg::getProfileLabels(), ", "))));
+                "FFmpeg output profile.",
+                std::string(),
+                string::join(ffmpeg::getProfileLabels(), ", ")));
 #endif
             _cmdLineOptions.push_back(CmdLineFlagOption::create(
                 _options.verbose,
@@ -104,6 +109,11 @@ namespace tlr
             std::cout << value << std::endl;
         }
 
+        void IApp::_printNewline()
+        {
+            std::cout << std::endl;
+        }
+
         void IApp::_printVerbose(const std::string& value)
         {
             if (_options.verbose)
@@ -127,7 +137,9 @@ namespace tlr
                 }
                 catch (const std::exception& e)
                 {
-                    throw std::runtime_error(string::Format("Cannot parse option \"{0}\": {1}").arg(i->getName()).arg(e.what()));
+                    throw std::runtime_error(string::Format("Cannot parse option \"{0}\": {1}").
+                        arg(i->getMatchedName()).
+                        arg(e.what()));
                 }
             }
             size_t requiredArgs = 0;
@@ -161,7 +173,9 @@ namespace tlr
                 }
                 catch (const std::exception& e)
                 {
-                    throw std::runtime_error(string::Format("Cannot parse argument \"{0}\": {1}").arg(i->getName()).arg(e.what()));
+                    throw std::runtime_error(string::Format("Cannot parse argument \"{0}\": {1}").
+                        arg(i->getName()).
+                        arg(e.what()));
                 }
             }
             return 0;
@@ -192,28 +206,33 @@ namespace tlr
                 {
                     ss << " [option],...";
                 }
-                ss << std::endl;
                 _print(ss.str());
+                _printNewline();
             }
             _print("Arguments:\n");
             for (const auto& i : _cmdLineArgs)
             {
-                std::stringstream ss;
-                ss << "    " << i->getName() << " - " << i->getHelp() << std::endl;
-                _print(ss.str());
+                _print("    " + i->getName());
+                _print("        " + i->getHelp());
+                _printNewline();
             }
             _print("Options:\n");
             for (const auto& i : _cmdLineOptions)
             {
-                std::stringstream ss;
-                ss << "    " << string::join(i->getNames(), "|");
-                const std::string argsHelp = i->getArgsHelp();
-                if (!argsHelp.empty())
+                bool first = true;
+                for (const auto& j : i->getHelpText())
                 {
-                    ss << " " << argsHelp;
+                    if (first)
+                    {
+                        first = false;
+                        _print("    " + j);
+                    }
+                    else
+                    {
+                        _print("        " + j);
+                    }
                 }
-                ss << " - " << i->getHelp() << std::endl;
-                _print(ss.str());
+                _printNewline();
             }
         }
     }

@@ -28,7 +28,7 @@ namespace tlr
             {
                 app::CmdLineValueArg<std::string>::create(
                     _input,
-                    "Input",
+                    "input",
                     "The input timeline.",
                     true)
             });
