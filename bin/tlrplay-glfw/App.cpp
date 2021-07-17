@@ -132,7 +132,7 @@ namespace tlr
         int glfwMinor = 0;
         int glfwRevision = 0;
         glfwGetVersion(&glfwMajor, &glfwMinor, &glfwRevision);
-        _printVerbose(string::Format("GLFW version: {0}.{1}.{2}").arg(glfwMajor).arg(glfwMinor).arg(glfwRevision));
+        _log(string::Format("GLFW version: {0}.{1}.{2}").arg(glfwMajor).arg(glfwMinor).arg(glfwRevision));
         if (!glfwInit())
         {
             throw std::runtime_error("Cannot initialize GLFW");
@@ -185,7 +185,7 @@ namespace tlr
         const int glMajor = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_VERSION_MAJOR);
         const int glMinor = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_VERSION_MINOR);
         const int glRevision = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_REVISION);
-        _printVerbose(string::Format("OpenGL version: {0}.{1}.{2}").arg(glMajor).arg(glMinor).arg(glRevision));
+        _log(string::Format("OpenGL version: {0}.{1}.{2}").arg(glMajor).arg(glMinor).arg(glRevision));
         glfwSetFramebufferSizeCallback(_glfwWindow, _frameBufferSizeCallback);
         glfwSetWindowContentScaleCallback(_glfwWindow, _windowContentScaleCallback);
         if (_options.fullScreen)
@@ -253,7 +253,7 @@ namespace tlr
         {
             _normalWindow();
         }
-        _printVerbose(string::Format("Fullscreen: {0}").arg(_options.fullScreen));
+        _log(string::Format("Fullscreen: {0}").arg(_options.fullScreen));
     }
     
     void App::_frameBufferSizeCallback(GLFWwindow* glfwWindow, int width, int height)
@@ -450,18 +450,18 @@ namespace tlr
     {
         _options.hud = value;
         _renderDirty = true;
-        _printVerbose(string::Format("HUD: {0}").arg(_options.hud));
+        _log(string::Format("HUD: {0}").arg(_options.hud));
     }
 
     void App::_playbackCallback(timeline::Playback value)
     {
         _timelinePlayer->setPlayback(value);
-        _printVerbose(string::Format("Playback: {0}").arg(_timelinePlayer->observePlayback()->get()));
+        _log(string::Format("Playback: {0}").arg(_timelinePlayer->observePlayback()->get()));
     }
 
     void App::_loopPlaybackCallback(timeline::Loop value)
     {
         _timelinePlayer->setLoop(value);
-        _printVerbose(string::Format("Loop playback: {0}").arg(_timelinePlayer->observeLoop()->get()));
+        _log(string::Format("Loop playback: {0}").arg(_timelinePlayer->observeLoop()->get()));
     }
 }

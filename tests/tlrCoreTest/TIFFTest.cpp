@@ -4,6 +4,7 @@
 
 #include <tlrCoreTest/TIFFTest.h>
 
+#include <tlrCore/AVIOSystem.h>
 #include <tlrCore/Assert.h>
 #include <tlrCore/TIFF.h>
 
@@ -24,7 +25,7 @@ namespace tlr
 
         void TIFFTest::run()
         {
-            auto plugin = tiff::Plugin::create();
+            auto plugin = _context->getSystem<avio::System>()->getPlugin<tiff::Plugin>();
             const std::map<std::string, std::string> tags =
             {
                 { "Creator", "Creator" },

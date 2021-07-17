@@ -25,7 +25,8 @@ namespace tlr
         protected:
             void _init(
                 const file::Path&,
-                const Options&);
+                const Options&,
+                const std::shared_ptr<core::LogSystem>&);
             ISequenceRead();
 
         public:
@@ -57,7 +58,8 @@ namespace tlr
             void _init(
                 const file::Path&,
                 const Info&,
-                const Options&);
+                const Options&,
+                const std::shared_ptr<core::LogSystem>&);
             ISequenceWrite();
 
         public:

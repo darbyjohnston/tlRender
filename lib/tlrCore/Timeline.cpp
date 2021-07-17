@@ -4,7 +4,7 @@
 
 #include <tlrCore/Timeline.h>
 
-#include <tlrCore/AVIO.h>
+#include <tlrCore/AVIOSystem.h>
 #include <tlrCore/Error.h>
 #include <tlrCore/File.h>
 #include <tlrCore/String.h>
@@ -404,7 +404,7 @@ namespace tlr
             {
                 // The first clip with video defines the image information
                 // for the timeline.
-                if (auto read = context->getAVIOSystem()->read(getPath(clip->media_reference())))
+                if (auto read = context->getSystem<avio::System>()->read(getPath(clip->media_reference())))
                 {
                     const auto info = read->getInfo().get();
                     if (!info.video.empty())
@@ -592,7 +592,7 @@ namespace tlr
             auto frameTime = startTime + timeTransform.applied_to(clipTime - startTime);
 
             // Read the frame.
-            const auto ioSystem = context->getAVIOSystem();
+            const auto ioSystem = context->getSystem<avio::System>();
             const auto j = readers.find(clip);
             if (j != readers.end())
             {
@@ -617,7 +617,7 @@ namespace tlr
                 }
                 if (read && !info.video.empty())
                 {
-                    //std::cout << "read: " << path.get() << std::endl;
+                    context->log("tlr::timeline::Timeline", this->path.get() + ": Read: " + path.get());
                     Reader reader;
                     reader.read = read;
                     reader.info = info;
@@ -655,7 +655,7 @@ namespace tlr
                 }
                 if (del && !i->second.read->hasVideoFrames())
                 {
-                    //std::cout << "stop: " << i->second.read->getPath().get() << " / " << i->second.read << std::endl;
+                    context->log("tlr::timeline::Timeline", path.get() + ": Stop: " + i->second.read->getPath().get());
                     auto read = i->second.read;
                     read->stop();
                     stoppedReaders.push_back(read);
@@ -675,7 +675,7 @@ namespace tlr
             {
                 if ((*i)->hasStopped())
                 {
-                    //std::cout << "delete: " << (*i)->getPath().get() << " / " << (*i) << std::endl;
+                    context->log("tlr::timeline::Timeline", path.get() + " Delete: " + (*i)->getPath().get());
                     i = stoppedReaders.erase(i);
                 }
                 else

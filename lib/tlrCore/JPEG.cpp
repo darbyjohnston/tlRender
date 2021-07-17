@@ -32,18 +32,19 @@ namespace tlr
         Plugin::Plugin()
         {}
             
-        std::shared_ptr<Plugin> Plugin::create()
+        std::shared_ptr<Plugin> Plugin::create(const std::shared_ptr<core::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Plugin>(new Plugin);
             out->_init(
                 "JPEG",
-                { ".jpeg", ".jpg" });
+                { ".jpeg", ".jpg" },
+                logSystem);
             return out;
         }
 
         std::shared_ptr<avio::IRead> Plugin::read(const file::Path& path)
         {
-            return Read::create(path, _options);
+            return Read::create(path, _options, _logSystem);
         }
 
         std::vector<imaging::PixelType> Plugin::getWritePixelTypes() const
@@ -58,7 +59,7 @@ namespace tlr
         std::shared_ptr<avio::IWrite> Plugin::write(const file::Path& path, const avio::Info& info)
         {
             return !info.video.empty() && _isWriteCompatible(info.video[0]) ?
-                Write::create(path, info, _options) :
+                Write::create(path, info, _options, _logSystem) :
                 nullptr;
         }
     }

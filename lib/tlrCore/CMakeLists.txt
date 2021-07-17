@@ -1,6 +1,8 @@
 set(HEADERS
     AVIO.h
     AVIOInline.h
+    AVIOSystem.h
+    AVIOSystemInline.h
     Assert.h
     BBox.h
     BBoxInline.h
@@ -8,16 +10,21 @@ set(HEADERS
     Color.h
     ColorInline.h
     Context.h
+    ContextInline.h
     DPX.h
     Error.h
     File.h
     FileIO.h
+    ICoreSystem.h
+    ICoreSystemInline.h
+    ISystem.h
     Image.h
     ImageInline.h
     LRUCache.h
     LRUCacheInline.h
     ListObserver.h
     ListObserverInline.h
+    LogSystem.h
     MapObserver.h
     MapObserverInline.h
     Math.h
@@ -46,6 +53,7 @@ set(HEADERS
     VectorInline.h)
 set(SOURCE
     AVIO.cpp
+    AVIOSystem.cpp
     Assert.cpp
     CineonRead.cpp
     CineonWrite.cpp
@@ -56,7 +64,10 @@ set(SOURCE
     DPX.cpp
     Error.cpp
     FileIO.cpp
+    ICoreSystem.cpp
+    ISystem.cpp
     Image.cpp
+    LogSystem.cpp
     Memory.cpp
     Path.cpp
     SequenceIO.cpp

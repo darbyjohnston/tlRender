@@ -33,6 +33,9 @@ namespace tlr
         bool compareNoCase(const std::string&, const std::string&);
 
         //! Remove trailing newlines.
+        std::string removeTrailingNewlines(const std::string&);
+
+        //! Remove trailing newlines.
         void removeTrailingNewlines(std::string&);
 
         //! Convert a regular string to a wide string.

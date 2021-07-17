@@ -4,6 +4,7 @@
 
 #include <tlrCoreTest/PNGTest.h>
 
+#include <tlrCore/AVIOSystem.h>
 #include <tlrCore/Assert.h>
 #include <tlrCore/PNG.h>
 
@@ -24,7 +25,7 @@ namespace tlr
 
         void PNGTest::run()
         {
-            auto plugin = png::Plugin::create();
+            auto plugin = _context->getSystem<avio::System>()->getPlugin<png::Plugin>();
             for (const auto& size : std::vector<imaging::Size>(
                 {
                     imaging::Size(16, 16),

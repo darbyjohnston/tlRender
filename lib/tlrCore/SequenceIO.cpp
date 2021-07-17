@@ -45,9 +45,10 @@ namespace tlr
 
         void ISequenceRead::_init(
             const file::Path& path,
-            const Options& options)
+            const Options& options,
+            const std::shared_ptr<core::LogSystem>& logSystem)
         {
-            IRead::_init(path, options);
+            IRead::_init(path, options, logSystem);
 
             TLR_PRIVATE_P();
 
@@ -245,9 +246,10 @@ namespace tlr
         void ISequenceWrite::_init(
             const file::Path& path,
             const Info& info,
-            const Options& options)
+            const Options& options,
+            const std::shared_ptr<core::LogSystem>& logSystem)
         {
-            IWrite::_init(path, options, info);
+            IWrite::_init(path, options, info, logSystem);
 
             TLR_PRIVATE_P();
 

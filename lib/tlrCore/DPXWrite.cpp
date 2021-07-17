@@ -15,9 +15,10 @@ namespace tlr
         void Write::_init(
             const file::Path& path,
             const avio::Info& info,
-            const avio::Options& options)
+            const avio::Options& options,
+            const std::shared_ptr<core::LogSystem>& logSystem)
         {
-            ISequenceWrite::_init(path, info, options);
+            ISequenceWrite::_init(path, info, options, logSystem);
         }
 
         Write::Write()
@@ -29,10 +30,11 @@ namespace tlr
         std::shared_ptr<Write> Write::create(
             const file::Path& path,
             const avio::Info& info,
-            const avio::Options& options)
+            const avio::Options& options,
+            const std::shared_ptr<core::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Write>(new Write);
-            out->_init(path, info, options);
+            out->_init(path, info, options, logSystem);
             return out;
         }
 

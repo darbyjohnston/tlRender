@@ -2,11 +2,11 @@
 // Copyright (c) 2021 Darby Johnston
 // All rights reserved.
 
-#include <tlrCoreTest/JPEGTest.h>
+#include <tlrCoreTest/DPXTest.h>
 
 #include <tlrCore/AVIOSystem.h>
 #include <tlrCore/Assert.h>
-#include <tlrCore/JPEG.h>
+#include <tlrCore/DPX.h>
 
 #include <sstream>
 
@@ -14,21 +14,32 @@ namespace tlr
 {
     namespace CoreTest
     {
-        JPEGTest::JPEGTest(const std::shared_ptr<core::Context>& context) :
-            ITest("CoreTest::JPEGTest", context)
+        DPXTest::DPXTest(const std::shared_ptr<core::Context>& context) :
+            ITest("CoreTest::DPXTest", context)
         {}
 
-        std::shared_ptr<JPEGTest> JPEGTest::create(const std::shared_ptr<core::Context>& context)
+        std::shared_ptr<DPXTest> DPXTest::create(const std::shared_ptr<core::Context>& context)
         {
-            return std::shared_ptr<JPEGTest>(new JPEGTest(context));
+            return std::shared_ptr<DPXTest>(new DPXTest(context));
         }
 
-        void JPEGTest::run()
+        void DPXTest::run()
         {
-            auto plugin = _context->getSystem<avio::System>()->getPlugin<jpeg::Plugin>();
+            _enums();
+            _io();
+        }
+
+        void DPXTest::_enums()
+        {
+            _enum<dpx::Version>("Version", dpx::getVersionEnums);
+            _enum<dpx::Endian>("Endian", dpx::getEndianEnums);
+        }
+        
+        void DPXTest::_io()
+        {
+            auto plugin = _context->getSystem<avio::System>()->getPlugin<dpx::Plugin>();
             const std::map<std::string, std::string> tags =
             {
-                { "Description", "Description" }
             };
             for (const auto& size : std::vector<imaging::Size>(
                 {
@@ -42,7 +53,7 @@ namespace tlr
                     file::Path path;
                     {
                         std::stringstream ss;
-                        ss << "JPEGTest_" << size << '_' << pixelType << ".0.jpg";
+                        ss << "DPXTest_" << size << '_' << pixelType << ".0.dpx";
                         _print(ss.str());
                         path = file::Path(ss.str());
                     }
@@ -71,7 +82,7 @@ namespace tlr
                             TLR_ASSERT(k->second == j.second);
                         }
                     }
-                    catch(const std::exception& e)
+                    catch (const std::exception& e)
                     {
                         _printError(e.what());
                     }

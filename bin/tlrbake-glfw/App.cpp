@@ -6,6 +6,7 @@
 
 #include <tlrGL/Util.h>
 
+#include <tlrCore/AVIOSystem.h>
 #include <tlrCore/File.h>
 #include <tlrCore/Math.h>
 #include <tlrCore/String.h>
@@ -171,7 +172,7 @@ namespace tlr
         int glfwMinor = 0;
         int glfwRevision = 0;
         glfwGetVersion(&glfwMajor, &glfwMinor, &glfwRevision);
-        _printVerbose(string::Format("GLFW version: {0}.{1}.{2}").arg(glfwMajor).arg(glfwMinor).arg(glfwRevision));
+        _log(string::Format("GLFW version: {0}.{1}.{2}").arg(glfwMajor).arg(glfwMinor).arg(glfwRevision));
         if (!glfwInit())
         {
             throw std::runtime_error("Cannot initialize GLFW");
@@ -218,7 +219,7 @@ namespace tlr
         const int glMajor = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_VERSION_MAJOR);
         const int glMinor = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_VERSION_MINOR);
         const int glRevision = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_REVISION);
-        _printVerbose(string::Format("OpenGL version: {0}.{1}.{2}").arg(glMajor).arg(glMinor).arg(glRevision));
+        _log(string::Format("OpenGL version: {0}.{1}.{2}").arg(glMajor).arg(glMinor).arg(glRevision));
 
         // Create the renderer.
         _fontSystem = gl::FontSystem::create();
@@ -232,7 +233,7 @@ namespace tlr
         _buffer = gl::OffscreenBuffer::create(_renderInfo.size, _renderInfo.pixelType);
 
         // Create the writer.
-        _writerPlugin = _context->getAVIOSystem()->getPlugin(file::Path(_output));
+        _writerPlugin = _context->getSystem<avio::System>()->getPlugin(file::Path(_output));
         if (!_writerPlugin)
         {
             throw std::runtime_error(string::Format("{0}: Cannot open").arg(_output));
@@ -273,9 +274,9 @@ namespace tlr
         _printProgress();
 
         // Set the active range.
-        _timeline->setActiveRanges({ otime::TimeRange::range_from_start_end_time(
+        _timeline->setActiveRanges({ otime::TimeRange(
             _timeline->getGlobalStartTime() + _currentTime,
-            _timeline->getGlobalStartTime() + _currentTime) });
+            otime::RationalTime(1.0, _currentTime.rate())) });
 
         // Render the frame.
         _render->begin(_renderInfo.size, true);

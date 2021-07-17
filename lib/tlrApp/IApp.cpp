@@ -4,6 +4,7 @@
 
 #include <tlrApp/IApp.h>
 
+#include <tlrCore/AVIOSystem.h>
 #include <tlrCore/String.h>
 #include <tlrCore/StringFormat.h>
 #if defined(FFmpeg_FOUND)
@@ -16,6 +17,16 @@ namespace tlr
 {
     namespace app
     {
+        struct IApp::Private
+        {
+            std::vector<std::string> cmdLine;
+            std::string cmdLineName;
+            std::string cmdLineSummary;
+            std::vector<std::shared_ptr<ICmdLineArg> > cmdLineArgs;
+            std::vector<std::shared_ptr<ICmdLineOption> > cmdLineOptions;
+            std::shared_ptr<observer::ValueObserver<std::string> > logObserver;
+        };
+
         void IApp::_init(
             int argc,
             char* argv[],
@@ -24,50 +35,67 @@ namespace tlr
             const std::vector<std::shared_ptr<ICmdLineArg> >& args,
             const std::vector<std::shared_ptr<ICmdLineOption> >& options)
         {
+            TLR_PRIVATE_P();
+
             // Create the context.
             _context = core::Context::create();
 
             // Parse the command line.
             for (int i = 1; i < argc; ++i)
             {
-                _cmdLine.push_back(argv[i]);
+                p.cmdLine.push_back(argv[i]);
             }
-            _cmdLineName = cmdLineName;
-            _cmdLineSummary = cmdLineSummary;
-            _cmdLineArgs = args;
-            _cmdLineOptions = options;
-            _cmdLineOptions.push_back(CmdLineValueOption<float>::create(
+            p.cmdLineName = cmdLineName;
+            p.cmdLineSummary = cmdLineSummary;
+            p.cmdLineArgs = args;
+            p.cmdLineOptions = options;
+            p.cmdLineOptions.push_back(CmdLineValueOption<float>::create(
                 _options.seqDefaultSpeed,
                 { "-seqDefaultSpeed" },
                 "Default speed for image sequences.",
                 string::Format("{0}").arg(_options.seqDefaultSpeed)));
-            _cmdLineOptions.push_back(CmdLineValueOption<int>::create(
+            p.cmdLineOptions.push_back(CmdLineValueOption<int>::create(
                 _options.seqThreadCount,
                 { "-seqThreadCount" },
                 "Number of threads for image sequence I/O.",
                 string::Format("{0}").arg(_options.seqThreadCount)));
 #if defined(FFmpeg_FOUND)
-            _cmdLineOptions.push_back(CmdLineValueOption<int>::create(
+            p.cmdLineOptions.push_back(CmdLineValueOption<int>::create(
                 _options.ffThreadCount,
                 { "-ffThreadCount" },
                 "Number of threads for FFmpeg I/O.",
                 string::Format("{0}").arg(_options.ffThreadCount)));
-            _cmdLineOptions.push_back(app::CmdLineValueOption<std::string>::create(
+            p.cmdLineOptions.push_back(app::CmdLineValueOption<std::string>::create(
                 _options.ffWriteProfile,
                 { "-ffProfile", "-ffp" },
                 "FFmpeg output profile.",
                 std::string(),
                 string::join(ffmpeg::getProfileLabels(), ", ")));
 #endif
-            _cmdLineOptions.push_back(CmdLineFlagOption::create(
-                _options.verbose,
-                { "-verbose", "-v" },
-                "Enable verbose mode."));
-            _cmdLineOptions.push_back(CmdLineFlagOption::create(
+            p.cmdLineOptions.push_back(CmdLineFlagOption::create(
+                _options.log,
+                { "-log" },
+                "Print the log to the console."));
+            p.cmdLineOptions.push_back(CmdLineFlagOption::create(
                 _options.help,
                 { "-help", "-h", "--help", "--h" },
                 "Show this message."));
             _exit = _parseCmdLine();
+
+            // Setup the log.
+            if (_options.log)
+            {
+                for (const auto& i : _context->getLogInit())
+                {
+                    _print(i);
+                }
+                p.logObserver = observer::ValueObserver<std::string>::create(
+                    _context->getSystem<core::LogSystem>()->observeLog(),
+                    [this](const std::string& value)
+                    {
+                        _print(value);
+                    });
+            }
 
             // Set AV I/O options.
             avio::Options avioOptions;
@@ -90,10 +118,11 @@ namespace tlr
                 ss << _options.ffThreadCount;
                 avioOptions["ffmpeg/ThreadCount"] = ss.str();
             }
-            _context->getAVIOSystem()->setOptions(avioOptions);
+            _context->getSystem<avio::System>()->setOptions(avioOptions);
         }
         
-        IApp::IApp()
+        IApp::IApp() :
+            _p(new Private)
         {}
 
         IApp::~IApp()
@@ -102,6 +131,11 @@ namespace tlr
         int IApp::getExit() const
         {
             return _exit;
+        }
+
+        void IApp::_log(const std::string& value, core::LogType type)
+        {
+            _context->log(_p->cmdLineName, value, type);
         }
 
         void IApp::_print(const std::string& value)
@@ -114,14 +148,6 @@ namespace tlr
             std::cout << std::endl;
         }
 
-        void IApp::_printVerbose(const std::string& value)
-        {
-            if (_options.verbose)
-            {
-                std::cout << value << std::endl;
-            }
-        }
-
         void IApp::_printError(const std::string& value)
         {
             std::cerr << "ERROR: " << value << std::endl;
@@ -129,11 +155,12 @@ namespace tlr
 
         int IApp::_parseCmdLine()
         {
-            for (const auto& i : _cmdLineOptions)
+            TLR_PRIVATE_P();
+            for (const auto& i : p.cmdLineOptions)
             {
                 try
                 {
-                    i->parse(_cmdLine);
+                    i->parse(p.cmdLine);
                 }
                 catch (const std::exception& e)
                 {
@@ -144,7 +171,7 @@ namespace tlr
             }
             size_t requiredArgs = 0;
             size_t optionalArgs = 0;
-            for (const auto& i : _cmdLineArgs)
+            for (const auto& i : p.cmdLineArgs)
             {
                 if (!i->isOptional())
                 {
@@ -155,20 +182,20 @@ namespace tlr
                     ++optionalArgs;
                 }
             }
-            if (_cmdLine.size() < requiredArgs ||
-                _cmdLine.size() > requiredArgs + optionalArgs ||
+            if (p.cmdLine.size() < requiredArgs ||
+                p.cmdLine.size() > requiredArgs + optionalArgs ||
                 _options.help)
             {
                 _printCmdLineHelp();
                 return 1;
             }
-            for (const auto& i : _cmdLineArgs)
+            for (const auto& i : p.cmdLineArgs)
             {
                 try
                 {
-                    if (!(_cmdLine.empty() && i->isOptional()))
+                    if (!(p.cmdLine.empty() && i->isOptional()))
                     {
-                        i->parse(_cmdLine);
+                        i->parse(p.cmdLine);
                     }
                 }
                 catch (const std::exception& e)
@@ -183,16 +210,17 @@ namespace tlr
 
         void IApp::_printCmdLineHelp()
         {
-            _print("\n" + _cmdLineName + "\n");
-            _print("    " + _cmdLineSummary + "\n");
+            TLR_PRIVATE_P();
+            _print("\n" + p.cmdLineName + "\n");
+            _print("    " + p.cmdLineSummary + "\n");
             _print("Usage:\n");
             {
                 std::stringstream ss;
-                ss << "    " + _cmdLineName;
-                if (_cmdLineArgs.size())
+                ss << "    " + p.cmdLineName;
+                if (p.cmdLineArgs.size())
                 {
                     std::vector<std::string> args;
-                    for (const auto& i : _cmdLineArgs)
+                    for (const auto& i : p.cmdLineArgs)
                     {
                         const bool optional = i->isOptional();
                         args.push_back(
@@ -202,7 +230,7 @@ namespace tlr
                     }
                     ss << " " << string::join(args, " ");
                 }
-                if (_cmdLineOptions.size())
+                if (p.cmdLineOptions.size())
                 {
                     ss << " [option],...";
                 }
@@ -210,14 +238,14 @@ namespace tlr
                 _printNewline();
             }
             _print("Arguments:\n");
-            for (const auto& i : _cmdLineArgs)
+            for (const auto& i : p.cmdLineArgs)
             {
                 _print("    " + i->getName());
                 _print("        " + i->getHelp());
                 _printNewline();
             }
             _print("Options:\n");
-            for (const auto& i : _cmdLineOptions)
+            for (const auto& i : p.cmdLineOptions)
             {
                 bool first = true;
                 for (const auto& j : i->getHelpText())

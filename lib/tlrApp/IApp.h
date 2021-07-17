@@ -27,7 +27,7 @@ namespace tlr
             int seqThreadCount = 4;
             std::string ffWriteProfile;
             int ffThreadCount = 4;
-            bool verbose = false;
+            bool log = false;
             bool help = false;
         };
 
@@ -53,9 +53,10 @@ namespace tlr
             int getExit() const;
 
         protected:
+            void _log(const std::string&, core::LogType = core::LogType::Message);
+
             void _print(const std::string&);
             void _printNewline();
-            void _printVerbose(const std::string&);
             void _printError(const std::string&);
 
             std::shared_ptr<core::Context> _context;
@@ -66,11 +67,7 @@ namespace tlr
             int _parseCmdLine();
             void _printCmdLineHelp();
 
-            std::vector<std::string> _cmdLine;
-            std::string _cmdLineName;
-            std::string _cmdLineSummary;
-            std::vector<std::shared_ptr<ICmdLineArg> > _cmdLineArgs;
-            std::vector<std::shared_ptr<ICmdLineOption> > _cmdLineOptions;
+            TLR_PRIVATE();
         };
     }
 }

@@ -35,6 +35,8 @@ namespace tlr
             }
             {
                 TLR_ASSERT(Path("/tmp/file.txt").get() == "/tmp/file.txt");
+                TLR_ASSERT(Path("/tmp", "file.txt").get() == "/tmp/file.txt");
+                TLR_ASSERT(Path("/tmp/", "file.txt").get() == "/tmp/file.txt");
                 TLR_ASSERT(Path("\\tmp\\file.txt").get() == "/tmp/file.txt");
             }
             {

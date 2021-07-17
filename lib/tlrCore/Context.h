@@ -4,14 +4,19 @@
 
 #pragma once
 
-#include <tlrCore/AVIO.h>
+#include <tlrCore/LogSystem.h>
+
+#include <memory>
+#include <vector>
 
 namespace tlr
 {
     namespace core
     {
+        class ICoreSystem;
+
         //! Context.
-        class Context
+        class Context : public std::enable_shared_from_this<Context>
         {
             TLR_NON_COPYABLE(Context);
 
@@ -25,11 +30,31 @@ namespace tlr
             //! Create a new context.
             static std::shared_ptr<Context> create();
 
-            //! Get the AV I/O system.
-            std::shared_ptr<avio::System> getAVIOSystem() const;
+            //! Add a system.
+            void addSystem(const std::shared_ptr<ICoreSystem>&);
+
+            //! Get the log system.
+            const std::shared_ptr<LogSystem>& getLogSystem() const;
+
+            //! Get the log contents from initialization.
+            std::vector<std::string> getLogInit();
+
+            //! Get a system.
+            template<typename T>
+            std::shared_ptr<T> getSystem() const;
+
+            //! Print to the log.
+            void log(
+                const std::string& prefix,
+                const std::string&,
+                LogType = LogType::Message);
 
         private:
+            std::shared_ptr<LogSystem> _logSystem;
+            std::vector<std::shared_ptr<ICoreSystem> > _systems;
             TLR_PRIVATE();
         };
     }
 }
+
+#include <tlrCore/ContextInline.h>

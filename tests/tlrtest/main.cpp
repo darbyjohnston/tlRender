@@ -5,6 +5,7 @@
 #include <tlrCoreTest/AVIOTest.h>
 #include <tlrCoreTest/BBoxTest.h>
 #include <tlrCoreTest/CineonTest.h>
+#include <tlrCoreTest/DPXTest.h>
 #include <tlrCoreTest/ColorTest.h>
 #include <tlrCoreTest/ErrorTest.h>
 #include <tlrCoreTest/FileTest.h>
@@ -57,8 +58,18 @@ int main(int argc, char* argv[])
 {
     auto context = tlr::core::Context::create();
 
-    std::vector<std::shared_ptr<tlr::Test::ITest> > tests;
+    for (const auto& i : context->getLogInit())
+    {
+        std::cout << i << std::endl;
+    }
+    auto logObserver = tlr::observer::ValueObserver<std::string>::create(
+        context->getSystem<tlr::core::LogSystem>()->observeLog(),
+        [](const std::string& value)
+        {
+            std::cout << value << std::endl;
+        });
 
+    std::vector<std::shared_ptr<tlr::Test::ITest> > tests;
     if (0)
     {
         tests.push_back(tlr::CoreTest::ImageTest::create(context));
@@ -68,6 +79,7 @@ int main(int argc, char* argv[])
         tests.push_back(tlr::CoreTest::AVIOTest::create(context));
         tests.push_back(tlr::CoreTest::BBoxTest::create(context));
         tests.push_back(tlr::CoreTest::CineonTest::create(context));
+        tests.push_back(tlr::CoreTest::DPXTest::create(context));
         tests.push_back(tlr::CoreTest::ColorTest::create(context));
         tests.push_back(tlr::CoreTest::ErrorTest::create(context));
         tests.push_back(tlr::CoreTest::FileTest::create(context));
@@ -111,7 +123,6 @@ int main(int argc, char* argv[])
         tests.push_back(tlr::QtTest::TimeObjectTest::create(context));
 #endif
     }
-
     for (const auto& i : tests)
     {
         std::cout << "Running test: " << i->getName() << std::endl;

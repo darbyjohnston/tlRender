@@ -4,7 +4,7 @@
 
 #include <tlrCoreTest/AVIOTest.h>
 
-#include <tlrCore/AVIO.h>
+#include <tlrCore/AVIOSystem.h>
 #include <tlrCore/Assert.h>
 #include <tlrCore/StringFormat.h>
 
@@ -59,7 +59,7 @@ namespace tlr
 
         void AVIOTest::_ioSystem()
         {
-            auto system = System::create();
+            auto system = _context->getSystem<System>();
             for (const auto& plugin : system->getPlugins())
             {
                 std::stringstream ss;

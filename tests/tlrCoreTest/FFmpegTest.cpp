@@ -4,6 +4,7 @@
 
 #include <tlrCoreTest/FFmpegTest.h>
 
+#include <tlrCore/AVIOSystem.h>
 #include <tlrCore/Assert.h>
 #include <tlrCore/FFmpeg.h>
 
@@ -36,7 +37,7 @@ namespace tlr
 
         void FFmpegTest::_io()
         {
-            auto plugin = ffmpeg::Plugin::create();
+            auto plugin = _context->getSystem<avio::System>()->getPlugin<ffmpeg::Plugin>();
             const std::map<std::string, std::string> tags =
             {
                 { "artist", "artist" },

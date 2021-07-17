@@ -178,9 +178,10 @@ namespace tlr
 
         void Read::_init(
             const file::Path& path,
-            const avio::Options& options)
+            const avio::Options& options,
+            const std::shared_ptr<core::LogSystem>& logSystem)
         {
-            ISequenceRead::_init(path, options);
+            ISequenceRead::_init(path, options, logSystem);
         }
 
         Read::Read()
@@ -191,10 +192,11 @@ namespace tlr
 
         std::shared_ptr<Read> Read::create(
             const file::Path& path,
-            const avio::Options& options)
+            const avio::Options& options,
+            const std::shared_ptr<core::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
-            out->_init(path, options);
+            out->_init(path, options, logSystem);
             return out;
         }
 

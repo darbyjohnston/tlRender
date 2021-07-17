@@ -15,7 +15,12 @@
 
 namespace tlr
 {
-    //! Input/output.
+    namespace core
+    {
+        class LogSystem;
+    }
+
+    //! Audio/visual I/O.
     namespace avio
     {
         //! I/O information.
@@ -56,7 +61,8 @@ namespace tlr
         protected:
             void _init(
                 const file::Path&,
-                const Options&);
+                const Options&,
+                const std::shared_ptr<core::LogSystem>&);
             IIO();
 
         public:
@@ -66,6 +72,7 @@ namespace tlr
             const file::Path& getPath() const;
 
         protected:
+            std::shared_ptr<core::LogSystem> _logSystem;
             file::Path _path;
             Options _options;
         };
@@ -76,7 +83,8 @@ namespace tlr
         protected:
             void _init(
                 const file::Path&,
-                const Options&);
+                const Options&,
+                const std::shared_ptr<core::LogSystem>&);
             IRead();
 
         public:
@@ -108,7 +116,8 @@ namespace tlr
             void _init(
                 const file::Path&,
                 const Options&,
-                const Info&);
+                const Info&,
+                const std::shared_ptr<core::LogSystem>&);
             IWrite();
 
         public:
@@ -131,7 +140,8 @@ namespace tlr
         protected:
             void _init(
                 const std::string& name,
-                const std::set<std::string>& extensions);
+                const std::set<std::string>& extensions,
+                const std::shared_ptr<core::LogSystem>&);
             IPlugin();
 
         public:
@@ -164,41 +174,8 @@ namespace tlr
         protected:
             bool _isWriteCompatible(const imaging::Info&) const;
 
+            std::shared_ptr<core::LogSystem> _logSystem;
             Options _options;
-
-        private:
-            TLR_PRIVATE();
-        };
-
-        //! I/O system.
-        class System : public std::enable_shared_from_this<System>
-        {
-            TLR_NON_COPYABLE(System);
-
-        protected:
-            void _init();
-            System();
-
-        public:
-            ~System();
-
-            //! Create a new I/O system.
-            static std::shared_ptr<System> create();
-
-            //! Get the list of plugins.
-            const std::vector<std::shared_ptr<IPlugin> >& getPlugins() const;
-
-            //! Set the plugin options.
-            void setOptions(const Options&);
-
-            //! Get a plugin for the given path.
-            std::shared_ptr<IPlugin> getPlugin(const file::Path&) const;
-
-            // Create a reader for the given path.
-            std::shared_ptr<IRead> read(const file::Path&);
-
-            // Create a writer for the given path.
-            std::shared_ptr<IWrite> write(const file::Path&, const Info&);
 
         private:
             TLR_PRIVATE();

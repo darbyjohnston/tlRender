@@ -51,8 +51,22 @@ namespace tlr
             fseqFileNameDel(&f);
         }
 
+        namespace
+        {
+            std::string directoryFix(const std::string& value)
+            {
+                std::string out = value;
+                const size_t size = out.size();
+                if (size > 0 && !('/' == out[size - 1] || '\\' == out[size - 1]))
+                {
+                    out += '/';
+                }
+                return out;
+            }
+        }
+
         Path::Path(const std::string& directory, const std::string& value) :
-            Path(!directory.empty() ? (directory + '/' + value) : value)
+            Path(directoryFix(directory) + value)
         {}
 
         std::string Path::get(int number, bool directory) const

@@ -6,6 +6,7 @@
 
 #include <tlrCore/Assert.h>
 #include <tlrCore/Error.h>
+#include <tlrCore/LogSystem.h>
 #include <tlrCore/String.h>
 #include <tlrCore/StringFormat.h>
 
@@ -45,37 +46,42 @@ namespace tlr
             return std::string(buf);
         }
 
-        void Plugin::_init()
+        std::weak_ptr<core::LogSystem> Plugin::_logSystemWeak;
+
+        void Plugin::_init(const std::shared_ptr<core::LogSystem>& logSystem)
         {
             IPlugin::_init(
                 "FFmpeg",
-                { ".mov", ".m4v", ".mp4", ".y4m", ".mkv" });
+                { ".mov", ".m4v", ".mp4", ".y4m", ".mkv" },
+                logSystem);
 
-            av_log_set_level(AV_LOG_QUIET);
-            //av_log_set_level(AV_LOG_VERBOSE);
+            _logSystemWeak = logSystem;
+            //av_log_set_level(AV_LOG_QUIET);
+            av_log_set_level(AV_LOG_VERBOSE);
+            av_log_set_callback(_logCallback);
             
             av_register_all();
             avcodec_register_all();
-            //AVCodec* avCodec = nullptr;
-            //while (avCodec = av_codec_next(avCodec))
-            //{
-            //    std::cout << "codec: " << avCodec->name << std::endl;
-            //}
+            AVCodec* avCodec = nullptr;
+            while (avCodec = av_codec_next(avCodec))
+            {
+                logSystem->print("tlr::ffmpeg::Plugin", "Codec: " + std::string(avCodec->name));
+            }
         }
 
         Plugin::Plugin()
         {}
             
-        std::shared_ptr<Plugin> Plugin::create()
+        std::shared_ptr<Plugin> Plugin::create(const std::shared_ptr<core::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Plugin>(new Plugin);
-            out->_init();
+            out->_init(logSystem);
             return out;
         }
 
         std::shared_ptr<avio::IRead> Plugin::read(const file::Path& path)
         {
-            return Read::create(path, _options);
+            return Read::create(path, _options, _logSystem);
         }
 
         std::vector<imaging::PixelType> Plugin::getWritePixelTypes() const
@@ -91,8 +97,29 @@ namespace tlr
         std::shared_ptr<avio::IWrite> Plugin::write(const file::Path& path, const avio::Info& info)
         {
             return !info.video.empty() && _isWriteCompatible(info.video[0]) ?
-                Write::create(path, info, _options) :
+                Write::create(path, info, _options, _logSystem) :
                 nullptr;
+        }
+
+        void Plugin::_logCallback(void*, int level, const char* fmt, va_list vl)
+        {
+            switch (level)
+            {
+            case AV_LOG_PANIC:
+            case AV_LOG_FATAL:
+            case AV_LOG_ERROR:
+            case AV_LOG_WARNING:
+            case AV_LOG_INFO:
+            case AV_LOG_VERBOSE:
+                if (auto logSystem = _logSystemWeak.lock())
+                {
+                    char buf[string::cBufferSize];
+                    vsnprintf(buf, string::cBufferSize, fmt, vl);
+                    logSystem->print("tlr::ffmpeg::Plugin", string::removeTrailingNewlines(buf));
+                }
+                break;
+            default: break;
+            }
         }
     }
 }

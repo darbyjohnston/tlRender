@@ -4,6 +4,7 @@
 
 #include <tlrCoreTest/OpenEXRTest.h>
 
+#include <tlrCore/AVIOSystem.h>
 #include <tlrCore/Assert.h>
 #include <tlrCore/OpenEXR.h>
 
@@ -24,7 +25,7 @@ namespace tlr
 
         void OpenEXRTest::run()
         {
-            auto plugin = exr::Plugin::create();
+            auto plugin = _context->getSystem<avio::System>()->getPlugin<exr::Plugin>();
             const std::map<std::string, std::string> tags =
             {
                 { "Chromaticities", "1.2 2.3 3.4 4.5 5.6 6.7 7.8 8.9" },

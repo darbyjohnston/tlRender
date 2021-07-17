@@ -4,8 +4,8 @@
 
 #include <tlrCoreTest/TimelineTest.h>
 
+#include <tlrCore/AVIOSystem.h>
 #include <tlrCore/Assert.h>
-#include <tlrCore/AVIO.h>
 #include <tlrCore/Timeline.h>
 
 #include <opentimelineio/clip.h>
@@ -190,7 +190,7 @@ namespace tlr
             avio::Info ioInfo;
             ioInfo.video.push_back(imageInfo);
             ioInfo.videoDuration = clipDuration;
-            auto write = _context->getAVIOSystem()->write(file::Path("TimelineTest.0.png"), ioInfo);
+            auto write = _context->getSystem<avio::System>()->write(file::Path("TimelineTest.0.png"), ioInfo);
             for (size_t i = 0; i < static_cast<size_t>(clipDuration.value()); ++i)
             {
                 write->writeVideoFrame(otime::RationalTime(i, 24.0), image);

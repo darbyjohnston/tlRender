@@ -4,6 +4,7 @@
 
 #include <tlrCoreTest/CineonTest.h>
 
+#include <tlrCore/AVIOSystem.h>
 #include <tlrCore/Assert.h>
 #include <tlrCore/Cineon.h>
 
@@ -36,7 +37,7 @@ namespace tlr
         
         void CineonTest::_io()
         {
-            auto plugin = cineon::Plugin::create();
+            auto plugin = _context->getSystem<avio::System>()->getPlugin<cineon::Plugin>();
             const std::map<std::string, std::string> tags =
             {
                 { "Time", "Time" },

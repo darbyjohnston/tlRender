@@ -4,20 +4,28 @@
 
 #include <tlrCore/Context.h>
 
+#include <tlrCore/AVIOSystem.h>
+
 namespace tlr
 {
     namespace core
     {
         struct Context::Private
         {
-            std::shared_ptr<avio::System> avioSystem;
+            std::vector<std::string> logInit;
         };
 
         void Context::_init()
         {
-            TLR_PRIVATE_P();
-
-            p.avioSystem = avio::System::create();
+            _logSystem = LogSystem::create(shared_from_this());
+            auto logObserver = observer::ValueObserver<std::string>::create(
+                _logSystem->observeLog(),
+                [this](const std::string& value)
+                {
+                    _p->logInit.push_back(value);
+                });
+            _systems.push_back(_logSystem);
+            _systems.push_back(avio::System::create(shared_from_this()));
         }
 
         Context::Context() :
@@ -34,9 +42,21 @@ namespace tlr
             return out;
         }
 
-        std::shared_ptr<avio::System> Context::getAVIOSystem() const
+        void Context::addSystem(const std::shared_ptr<ICoreSystem>& system)
         {
-            return _p->avioSystem;
+            _systems.push_back(system);
+        }
+
+        std::vector<std::string> Context::getLogInit()
+        {
+            std::vector<std::string> out;
+            out.swap(_p->logInit);
+            return out;
+        }
+
+        void Context::log(const std::string& prefix, const std::string& value, LogType type)
+        {
+            _logSystem->print(prefix, value, type);
         }
     }
 }

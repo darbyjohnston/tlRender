@@ -172,7 +172,8 @@ namespace tlr
         protected:
             void _init(
                 const file::Path&,
-                const avio::Options&);
+                const avio::Options&,
+                const std::shared_ptr<core::LogSystem>&);
             Read();
 
         public:
@@ -181,7 +182,8 @@ namespace tlr
             //! Create a new reader.
             static std::shared_ptr<Read> create(
                 const file::Path&,
-                const avio::Options&);
+                const avio::Options&,
+                const std::shared_ptr<core::LogSystem>&);
 
         protected:
             avio::Info _getInfo(const std::string& fileName) override;
@@ -197,7 +199,8 @@ namespace tlr
             void _init(
                 const file::Path&,
                 const avio::Info&,
-                const avio::Options&);
+                const avio::Options&,
+                const std::shared_ptr<core::LogSystem>&);
             Write();
 
         public:
@@ -207,7 +210,8 @@ namespace tlr
             static std::shared_ptr<Write> create(
                 const file::Path&,
                 const avio::Info&,
-                const avio::Options&);
+                const avio::Options&,
+                const std::shared_ptr<core::LogSystem>&);
 
         protected:
             void _writeVideoFrame(
@@ -220,12 +224,12 @@ namespace tlr
         class Plugin : public avio::IPlugin
         {
         protected:
-            void _init();
+            void _init(const std::shared_ptr<core::LogSystem>&);
             Plugin();
 
         public:
             //! Create a new plugin.
-            static std::shared_ptr<Plugin> create();
+            static std::shared_ptr<Plugin> create(const std::shared_ptr<core::LogSystem>&);
 
             std::shared_ptr<avio::IRead> read(const file::Path&) override;
             std::vector<imaging::PixelType> getWritePixelTypes() const override;

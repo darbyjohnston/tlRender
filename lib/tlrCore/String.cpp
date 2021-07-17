@@ -124,6 +124,13 @@ namespace tlr
             return toLower(a) == toLower(b);
         }
 
+        std::string removeTrailingNewlines(const std::string& value)
+        {
+            std::string out = value;
+            removeTrailingNewlines(out);
+            return out;
+        }
+
         void removeTrailingNewlines(std::string& value)
         {
             size_t size = value.size();

@@ -55,7 +55,8 @@ namespace tlr
         protected:
             void _init(
                 const file::Path&,
-                const avio::Options&);
+                const avio::Options&,
+                const std::shared_ptr<core::LogSystem>&);
             Read();
 
         public:
@@ -64,7 +65,8 @@ namespace tlr
             //! Create a new reader.
             static std::shared_ptr<Read> create(
                 const file::Path&,
-                const avio::Options&);
+                const avio::Options&,
+                const std::shared_ptr<core::LogSystem>&);
 
             std::future<avio::Info> getInfo() override;
             std::future<avio::VideoFrame> readVideoFrame(const otime::RationalTime&) override;
@@ -88,7 +90,8 @@ namespace tlr
             void _init(
                 const file::Path&,
                 const avio::Info&,
-                const avio::Options&);
+                const avio::Options&,
+                const std::shared_ptr<core::LogSystem>&);
             Write();
 
         public:
@@ -98,7 +101,8 @@ namespace tlr
             static std::shared_ptr<Write> create(
                 const file::Path&,
                 const avio::Info&,
-                const avio::Options&);
+                const avio::Options&,
+                const std::shared_ptr<core::LogSystem>&);
 
             void writeVideoFrame(
                 const otime::RationalTime&,
@@ -114,16 +118,21 @@ namespace tlr
         class Plugin : public avio::IPlugin
         {
         protected:
-            void _init();
+            void _init(const std::shared_ptr<core::LogSystem>&);
             Plugin();
 
         public:
             //! Create a new plugin.
-            static std::shared_ptr<Plugin> create();
+            static std::shared_ptr<Plugin> create(const std::shared_ptr<core::LogSystem>&);
 
             std::shared_ptr<avio::IRead> read(const file::Path&) override;
             std::vector<imaging::PixelType> getWritePixelTypes() const override;
             std::shared_ptr<avio::IWrite> write(const file::Path&, const avio::Info&) override;
+
+        private:
+            static void _logCallback(void*, int, const char*, va_list);
+
+            static std::weak_ptr<core::LogSystem> _logSystemWeak;
         };
     }
 }
