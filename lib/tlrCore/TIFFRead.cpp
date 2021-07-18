@@ -293,7 +293,7 @@ namespace tlr
         avio::Info Read::_getInfo(const std::string& fileName)
         {
             avio::Info out = std::unique_ptr<File>(new File(fileName))->getInfo();
-            out.videoDuration = otime::RationalTime(1.0, avio::sequenceDefaultSpeed);
+            out.videoDuration = otime::RationalTime(1.0, _defaultSpeed);
             return out;
         }
 

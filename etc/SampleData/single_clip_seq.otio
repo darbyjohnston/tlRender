@@ -22,7 +22,7 @@
                                 "start_time": {
                                     "OTIO_SCHEMA": "RationalTime.1",
                                     "rate": 30,
-                                    "value": 0
+                                    "value": 1
                                 }
                             },
                             "target_url_base": "Seq/",

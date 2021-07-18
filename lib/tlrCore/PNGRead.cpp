@@ -225,7 +225,7 @@ namespace tlr
         {
             avio::Info out;
             out.video.push_back(std::unique_ptr<File>(new File(fileName))->getInfo());
-            out.videoDuration = otime::RationalTime(1.0, avio::sequenceDefaultSpeed);
+            out.videoDuration = otime::RationalTime(1.0, _defaultSpeed);
             return out;
         }
 

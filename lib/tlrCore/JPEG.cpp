@@ -42,9 +42,11 @@ namespace tlr
             return out;
         }
 
-        std::shared_ptr<avio::IRead> Plugin::read(const file::Path& path)
+        std::shared_ptr<avio::IRead> Plugin::read(
+            const file::Path& path,
+            const avio::Options& options)
         {
-            return Read::create(path, _options, _logSystem);
+            return Read::create(path, avio::merge(options, _options), _logSystem);
         }
 
         std::vector<imaging::PixelType> Plugin::getWritePixelTypes() const
@@ -56,10 +58,13 @@ namespace tlr
             };
         }
 
-        std::shared_ptr<avio::IWrite> Plugin::write(const file::Path& path, const avio::Info& info)
+        std::shared_ptr<avio::IWrite> Plugin::write(
+            const file::Path& path,
+            const avio::Info& info,
+            const avio::Options& options)
         {
             return !info.video.empty() && _isWriteCompatible(info.video[0]) ?
-                Write::create(path, info, _options, _logSystem) :
+                Write::create(path, info, avio::merge(options, _options), _logSystem) :
                 nullptr;
         }
     }

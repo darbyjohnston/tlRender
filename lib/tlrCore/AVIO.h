@@ -53,6 +53,9 @@ namespace tlr
         //! Options.
         typedef std::map<std::string, std::string> Options;
 
+        //! Merge options.
+        Options merge(const Options&, const Options&);
+
         //! Base class for readers/writers.
         class IIO : public std::enable_shared_from_this<IIO>
         {
@@ -157,7 +160,9 @@ namespace tlr
             void setOptions(const Options&);
 
             //! Create a reader for the given path.
-            virtual std::shared_ptr<IRead> read(const file::Path&) = 0;
+            virtual std::shared_ptr<IRead> read(
+                const file::Path&,
+                const Options& = Options()) = 0;
 
             //! Get the list of writable image pixel types.
             virtual std::vector<imaging::PixelType> getWritePixelTypes() const = 0;
@@ -169,7 +174,10 @@ namespace tlr
             virtual memory::Endian getWriteEndian() const;
 
             //! Create a writer for the given path.
-            virtual std::shared_ptr<IWrite> write(const file::Path&, const Info&) = 0;
+            virtual std::shared_ptr<IWrite> write(
+                const file::Path&,
+                const Info&,
+                const Options & = Options()) = 0;
 
         protected:
             bool _isWriteCompatible(const imaging::Info&) const;

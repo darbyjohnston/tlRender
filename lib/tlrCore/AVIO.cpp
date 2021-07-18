@@ -19,6 +19,13 @@ namespace tlr
             image(image)
         {}
 
+        Options merge(const Options& a, const Options& b)
+        {
+            Options out = a;
+            out.insert(b.begin(), b.end());
+            return out;
+        }
+
         void IIO::_init(
             const file::Path& path,
             const Options& options,

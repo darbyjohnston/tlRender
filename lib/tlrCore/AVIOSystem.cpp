@@ -91,7 +91,9 @@ namespace tlr
             return nullptr;
         }
 
-        std::shared_ptr<IRead> System::read(const file::Path& path)
+        std::shared_ptr<IRead> System::read(
+            const file::Path& path,
+            const Options& options)
         {
             const std::string extension = string::toLower(path.getExtension());
             for (const auto& i : _plugins)
@@ -99,7 +101,7 @@ namespace tlr
                 const auto& extensions = i->getExtensions();
                 if (extensions.find(extension) != extensions.end())
                 {
-                    return i->read(path);
+                    return i->read(path, options);
                 }
             }
             return nullptr;
@@ -107,7 +109,8 @@ namespace tlr
 
         std::shared_ptr<IWrite> System::write(
             const file::Path& path,
-            const Info& info)
+            const Info& info,
+            const Options& options)
         {
             const std::string extension = string::toLower(path.getExtension());
             for (const auto& i : _plugins)
@@ -115,7 +118,7 @@ namespace tlr
                 const auto& extensions = i->getExtensions();
                 if (extensions.find(extension) != extensions.end())
                 {
-                    return i->write(path, info);
+                    return i->write(path, info, options);
                 }
             }
             return nullptr;

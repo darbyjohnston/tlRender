@@ -45,6 +45,8 @@ namespace tlr
                 const std::string& fileName,
                 const otime::RationalTime&) = 0;
 
+            float _defaultSpeed = sequenceDefaultSpeed;
+
         private:
             void _run();
 

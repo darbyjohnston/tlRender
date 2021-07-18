@@ -85,9 +85,14 @@ namespace tlr
             //! Create a new plugin.
             static std::shared_ptr<Plugin> create(const std::shared_ptr<core::LogSystem>&);
 
-            std::shared_ptr<avio::IRead> read(const file::Path&) override;
+            std::shared_ptr<avio::IRead> read(
+                const file::Path&,
+                const avio::Options& = avio::Options()) override;
             std::vector<imaging::PixelType> getWritePixelTypes() const override;
-            std::shared_ptr<avio::IWrite> write(const file::Path&, const avio::Info&) override;
+            std::shared_ptr<avio::IWrite> write(
+                const file::Path&,
+                const avio::Info&,
+                const avio::Options& = avio::Options()) override;
         };
     }
 }

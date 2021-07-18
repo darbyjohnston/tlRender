@@ -52,11 +52,17 @@ namespace tlr
 
             TLR_PRIVATE_P();
 
-            const auto i = options.find("SequenceIO/ThreadCount");
+            auto i = options.find("SequenceIO/ThreadCount");
             if (i != options.end())
             {
                 std::stringstream ss(i->second);
                 ss >> p.threadCount;
+            }
+            i = options.find("SequenceIO/DefaultSpeed");
+            if (i != options.end())
+            {
+                std::stringstream ss(i->second);
+                ss >> _defaultSpeed;
             }
 
             p.videoFrameCache.setMax(1);
@@ -240,7 +246,7 @@ namespace tlr
             int pad = 0;
             std::string extension;
 
-            double defaultSpeed = sequenceDefaultSpeed;
+            float defaultSpeed = sequenceDefaultSpeed;
         };
 
         void ISequenceWrite::_init(
@@ -253,7 +259,7 @@ namespace tlr
 
             TLR_PRIVATE_P();
 
-            const auto i = options.find("ISequenceWrite/DefaultSpeed");
+            const auto i = options.find("SequenceIO/DefaultSpeed");
             if (i != options.end())
             {
                 std::stringstream ss(i->second);

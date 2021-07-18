@@ -5,9 +5,11 @@
 #include <tlrCore/Timeline.h>
 
 #include <tlrCore/AVIOSystem.h>
+#include <tlrCore/Assert.h>
 #include <tlrCore/Error.h>
 #include <tlrCore/File.h>
 #include <tlrCore/String.h>
+#include <tlrCore/StringFormat.h>
 
 #include <opentimelineio/clip.h>
 #include <opentimelineio/externalReference.h>
@@ -404,7 +406,10 @@ namespace tlr
             {
                 // The first clip with video defines the image information
                 // for the timeline.
-                if (auto read = context->getSystem<avio::System>()->read(getPath(clip->media_reference())))
+                avio::Options options;
+                otio::ErrorStatus errorStatus;
+                options["SequenceIO/DefaultSpeed"] = string::Format("{0}").arg(clip->duration(&errorStatus).rate());
+                if (auto read = context->getSystem<avio::System>()->read(getPath(clip->media_reference()), options))
                 {
                     const auto info = read->getInfo().get();
                     if (!info.video.empty())
@@ -596,20 +601,16 @@ namespace tlr
             const auto j = readers.find(clip);
             if (j != readers.end())
             {
-                frameTime = frameTime.rescaled_to(j->second.info.videoDuration);
-                out = j->second.read->readVideoFrame(
-                    otime::RationalTime(floor(frameTime.value()), frameTime.rate()));
+                const auto readTime = frameTime.rescaled_to(j->second.info.videoDuration);
+                const auto floorTime = otime::RationalTime(floor(readTime.value()), readTime.rate());
+                out = j->second.read->readVideoFrame(floorTime);
             }
             else
             {
                 const file::Path path = getPath(clip->media_reference());
                 avio::Options options;
-                {
-                    std::stringstream ss;
-                    ss << otime::RationalTime(0, duration.rate());
-                    options["DefaultSpeed"] = ss.str();
-                }
-                auto read = ioSystem->read(path);
+                options["SequenceIO/DefaultSpeed"] = string::Format("{0}").arg(duration.rate());
+                auto read = ioSystem->read(path, options);
                 avio::Info info;
                 if (read)
                 {
@@ -621,9 +622,9 @@ namespace tlr
                     Reader reader;
                     reader.read = read;
                     reader.info = info;
-                    frameTime = frameTime.rescaled_to(info.videoDuration);
-                    out = read->readVideoFrame(
-                        otime::RationalTime(floor(frameTime.value()), frameTime.rate()));
+                    const auto readTime = frameTime.rescaled_to(info.videoDuration);
+                    const auto floorTime = otime::RationalTime(floor(readTime.value()), readTime.rate());
+                    out = read->readVideoFrame(floorTime);
                     readers[clip] = std::move(reader);
                 }
             }
