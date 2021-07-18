@@ -72,7 +72,7 @@ namespace tlr
             return out;
         }
 
-        const otio::Composable* getAncestor(const otio::Composable* composable)
+        const otio::Composable* getRoot(const otio::Composable* composable)
         {
             const otio::Composable* out = composable;
             for (; out->parent(); out = out->parent())
@@ -640,9 +640,21 @@ namespace tlr
 
                 otio::ErrorStatus errorStatus;
                 const auto trimmedRange = clip->trimmed_range(&errorStatus);
-                const auto ancestor = dynamic_cast<const otio::Item*>(getAncestor(clip));
+                const auto ancestor = dynamic_cast<const otio::Item*>(getRoot(clip));
                 const auto clipRange = i->first->transformed_time_range(trimmedRange, ancestor, &errorStatus);
-                const auto range = otime::TimeRange(globalStartTime + clipRange.start_time(), clipRange.duration());
+                auto startTime = clipRange.start_time();
+                auto endTime = startTime + clipRange.duration();
+                const auto track = getParent<otio::Track>(clip);
+                const auto neighbors = track->neighbors_of(clip, &errorStatus);
+                if (auto transition = dynamic_cast<const otio::Transition*>(neighbors.first.value))
+                {
+                    startTime -= transition->in_offset();
+                }
+                if (auto transition = dynamic_cast<const otio::Transition*>(neighbors.second.value))
+                {
+                    endTime += transition->out_offset();
+                }
+                const auto range = otime::TimeRange::range_from_start_end_time(globalStartTime + startTime, globalStartTime + endTime);
 
                 bool del = true;
                 for (const auto& activeRange : activeRanges)

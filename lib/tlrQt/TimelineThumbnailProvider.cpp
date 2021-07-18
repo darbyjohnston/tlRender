@@ -167,6 +167,11 @@ namespace tlr
                 {
                     const auto request = std::move(requests.front());
                     requests.pop_front();
+
+                    p.timeline->setActiveRanges({ otime::TimeRange(
+                        p.timeline->getGlobalStartTime() + request.time,
+                        otime::RationalTime(1.0, request.time.rate())) });
+                    
                     const auto frame = p.timeline->getFrame(request.time).get();
 
                     const imaging::Info info(request.size.width(), request.size.height(), imaging::PixelType::RGBA_U8);

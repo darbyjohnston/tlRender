@@ -10,6 +10,7 @@
 #include <tlrCore/Time.h>
 
 #include <opentimelineio/composable.h>
+#include <opentimelineio/item.h>
 
 #include <future>
 
@@ -27,8 +28,12 @@ namespace tlr
         //! Convert frames to ranges.
         std::vector<otime::TimeRange> toRanges(std::vector<otime::RationalTime>);
 
-        //! Get the ancestor (highest parent).
-        const otio::Composable* getAncestor(const otio::Composable*);
+        //! Get the root (highest parent).
+        const otio::Composable* getRoot(const otio::Composable*);
+
+        //! Get the parent of the given type.
+        template<typename T>
+        const T* getParent(const otio::Item*);
 
         //! Transitions.
         enum class Transition
@@ -127,3 +132,4 @@ namespace tlr
     }
 }
 
+#include <tlrCore/TimelineInline.h>
