@@ -73,5 +73,5 @@ jobs:
         export DYLD_LIBRARY_PATH=$PWD/install/lib:$DYLD_LIBRARY_PATH &&
         export PYTHONPATH=$PWD/install/lib:$PYTHONPATH &&
         cd tlRender/src/tlRender-build &&
-        tests/tlrtest/Debug/tlrtest &&
+        tests/tlrtest/tlrtest &&
         cat Testing/Temporary/LastTest.log
