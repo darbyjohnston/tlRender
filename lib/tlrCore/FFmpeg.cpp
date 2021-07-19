@@ -63,7 +63,7 @@ namespace tlr
             av_register_all();
             avcodec_register_all();
             AVCodec* avCodec = nullptr;
-            while (avCodec = av_codec_next(avCodec))
+            while ((avCodec = av_codec_next(avCodec)))
             {
                 logSystem->print("tlr::ffmpeg::Plugin", "Codec: " + std::string(avCodec->name));
             }

@@ -10,7 +10,7 @@
 #include <Fonts/NotoMono-Regular.font>
 #include <Fonts/NotoSans-Regular.font>
 
-#include <freetype2/ft2build.h>
+#include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
 

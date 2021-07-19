@@ -153,6 +153,7 @@ namespace tlr
                     case imaging::PixelType::RGB_U8:
                         scanlineByteCount = info.size.w * 3;
                         break;
+                    default: break;
                     }
                     for (uint16_t y = 0; y < info.size.h; ++y)
                     {
