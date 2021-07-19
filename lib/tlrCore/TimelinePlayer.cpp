@@ -254,6 +254,7 @@ namespace tlr
                         seek(p.inOutRange->get().end_time_inclusive());
                     }
                     break;
+                default: break;
                 }
                 break;
             case Loop::PingPong:
@@ -271,6 +272,7 @@ namespace tlr
                         value = Playback::Forward;
                     }
                     break;
+                default: break;
                 }
                 break;
             default: break;
