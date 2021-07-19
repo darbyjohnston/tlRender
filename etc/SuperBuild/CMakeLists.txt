@@ -26,6 +26,7 @@ list(PREPEND CMAKE_MODULE_PATH
     ${PROJECT_SOURCE_DIR}/cmake/Modules)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreaded$<$<CONFIG:Debug>:Debug>DLL)
+set(CMAKE_FIND_FRAMEWORK LAST)
 
 # Common arguments for building external projects.
 set(TLR_EXTERNAL_ARGS

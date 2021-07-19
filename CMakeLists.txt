@@ -44,6 +44,7 @@ if(UNIX)
         endif()
     endif()
 endif()
+set(CMAKE_FIND_FRAMEWORK LAST)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Dependencies
