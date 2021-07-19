@@ -73,5 +73,6 @@ jobs:
         export DYLD_LIBRARY_PATH=$PWD/install/lib:$DYLD_LIBRARY_PATH &&
         export PYTHONPATH=$PWD/install/lib:$PYTHONPATH &&
         cd tlRender/src/tlRender-build &&
-        cmake --build . --target test -- --output-on-failure &&
+        export CTEST_OUTPUT_ON_FAILURE=1 &&
+        cmake --build . --target test &&
         cat Testing/Temporary/LastTest.log
