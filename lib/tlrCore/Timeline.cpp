@@ -688,7 +688,7 @@ namespace tlr
             {
                 if ((*i)->hasStopped())
                 {
-                    context->log("tlr::timeline::Timeline", path.get() + " Delete: " + (*i)->getPath().get());
+                    context->log("tlr::timeline::Timeline", path.get() + ": Delete: " + (*i)->getPath().get());
                     i = stoppedReaders.erase(i);
                 }
                 else
