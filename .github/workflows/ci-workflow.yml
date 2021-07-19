@@ -3,9 +3,8 @@ name: CI
 on: [push]
 
 jobs:
-  build:
+  linux-build:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
 
@@ -31,11 +30,7 @@ jobs:
         cmake ../etc/SuperBuild \
           -DCMAKE_BUILD_TYPE=Debug \
           -DCMAKE_INSTALL_PREFIX=$PWD/install \
-          -DCMAKE_PREFIX_PATH=$PWD/install \
-          -DTLR_BUILD_JPEG=TRUE \
-          -DTLR_BUILD_TIFF=TRUE \
-          -DTLR_BUILD_PNG=TRUE \
-          -DTLR_BUILD_OpenEXR=TRUE &&
+          -DCMAKE_PREFIX_PATH=$PWD/install &&
         cmake --build . -j 4
 
     - name: Run tests
@@ -43,6 +38,34 @@ jobs:
         cd build &&
         export PATH=$PATH:$PWD/install/bin &&
         export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH &&
+        export PYTHONPATH=$PWD/install/lib:$PYTHONPATH &&
+        cd tlRender/src/tlRender-build &&
+        cmake --build . --target test &&
+        cat Testing/Temporary/LastTest.log
+
+  macos-build:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build tlRender
+      run: >
+        mkdir build &&
+        cd build &&
+        export PATH=$PATH:$PWD/install/bin &&
+        export DYLD_LIBRARY_PATH=$PWD/install/lib:$DYLD_LIBRARY_PATH &&
+        export PYTHONPATH=$PWD/install/lib:$PYTHONPATH &&
+        cmake ../etc/SuperBuild \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DCMAKE_INSTALL_PREFIX=$PWD/install \
+          -DCMAKE_PREFIX_PATH=$PWD/install &&
+        cmake --build . -j 4
+
+    - name: Run tests
+      run: >
+        cd build &&
+        export PATH=$PATH:$PWD/install/bin &&
+        export DYLD_LIBRARY_PATH=$PWD/install/lib:$DYLD_LIBRARY_PATH &&
         export PYTHONPATH=$PWD/install/lib:$PYTHONPATH &&
         cd tlRender/src/tlRender-build &&
         cmake --build . --target test &&
