@@ -63,8 +63,8 @@ jobs:
         cmake --build . -j 4
 
 # \bug Running "cmake --build . --target test" fails by not finding
-# shared libraries, it seems like DYLD_LIBRARY_PATH is not working?
-# Running the test directly does work with DYLD_LIBRARY_PATH.
+# shared libraries on macOS, it seems like DYLD_LIBRARY_PATH is not
+# working? Running the test directly does work with DYLD_LIBRARY_PATH.
     - name: Run tests
       run: >
         cd build &&
@@ -73,3 +73,30 @@ jobs:
         export PYTHONPATH=$PWD/install/lib:$PYTHONPATH &&
         cd tlRender/src/tlRender-build &&
         tests/tlrtest/tlrtest
+
+  windows-build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build tlRender
+      run: >
+        mkdir build &&
+        cd build &&
+        set PATH=%CD%\install\bin;%PATH% &&
+        set PYTHONPATH=%CD%\install\lib:$PYTHONPATH &&
+        cmake ..\etc\SuperBuild \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DCMAKE_INSTALL_PREFIX=%CD%\install \
+          -DCMAKE_PREFIX_PATH=%CD%\install &&
+        cmake --build . -j 4
+
+    - name: Run tests
+      run: >
+        cd build &&
+        set PATH=%CD%\install\bin;%PATH% &&
+        set PYTHONPATH=%CD%\install\lib:$PYTHONPATH &&
+        cd tlRender\src\tlRender-build &&
+        cmake --build . --target test &&
+        export CTEST_OUTPUT_ON_FAILURE=1 &&
+        cat Testing\Temporary\LastTest.log
