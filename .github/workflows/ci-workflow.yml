@@ -85,10 +85,10 @@ jobs:
         echo "CTEST_OUTPUT_ON_FAILURE=1" >> $GITHUB_ENV
 
     - name: Build tlRender
-      run: >
+      run: |
         mkdir build &&
         cd build &&
-        call cmake ..\etc\SuperBuild
+        cmake ..\etc\SuperBuild
           -DTLR_BUILD_JPEG=FALSE
           -DTLR_BUILD_TIFF=FALSE
           -DCMAKE_BUILD_TYPE=Debug
