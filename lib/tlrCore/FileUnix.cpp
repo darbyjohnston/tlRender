@@ -10,15 +10,24 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#if defined(__APPLE__)
+//! \bug OS X doesn't have stat64?
+#define _STAT struct ::stat
+#define _STAT_FNC    ::stat
+#else // __APPLE__
+#define _STAT struct ::stat64
+#define _STAT_FNC    ::stat64
+#endif // __APPLE__
+
 namespace tlr
 {
     namespace file
     {
         bool exists(const std::string& fileName)
         {
-            struct stat64 info;
-            memset(&info, 0, sizeof(struct stat64));
-            return 0 == stat64(fileName.c_str(), &info);
+            _STAT info;
+            memset(&info, 0, sizeof(_STAT));
+            return 0 == _STAT_FNC(fileName.c_str(), &info);
         }
         
         std::string getTemp()
