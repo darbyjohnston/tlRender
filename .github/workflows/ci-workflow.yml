@@ -88,7 +88,6 @@ jobs:
 
     - name: Build tlRender
       run: >
-        mkdir build &&
         cd build &&
         cmake ..\etc\SuperBuild \
           -DCMAKE_BUILD_TYPE=Debug \
