@@ -10,14 +10,14 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#if defined(TLR_PLATFORM_MACOS) || defined(TLR_PLATFORM_IOS)
+#if defined(__APPLE__)
 //! \bug OS X doesn't have stat64?
 #define _STAT struct ::stat
 #define _STAT_FNC    ::stat
-#else // TLR_PLATFORM_MACOS
+#else // __APPLE__
 #define _STAT struct ::stat64
 #define _STAT_FNC    ::stat64
-#endif // TLR_PLATFORM_MACOS
+#endif // __APPLE__
 
 namespace tlr
 {
