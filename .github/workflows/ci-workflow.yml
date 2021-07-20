@@ -41,6 +41,7 @@ jobs:
         export PYTHONPATH=$PWD/install/lib:$PYTHONPATH &&
         cd tlRender/src/tlRender-build &&
         cmake --build . --target test &&
+        export CTEST_OUTPUT_ON_FAILURE=1 &&
         cat Testing/Temporary/LastTest.log
 
   macos-build:
@@ -61,9 +62,9 @@ jobs:
           -DCMAKE_PREFIX_PATH=$PWD/install \
         cmake --build . -j 4
 
-    # \bug Running "cmake --build . --target test" fails by not finding
-    # shared libraries, it seems like DYLD_LIBRARY_PATH is not working?
-    # Running the test directly does work with DYLD_LIBRARY_PATH.
+# \bug Running "cmake --build . --target test" fails by not finding
+# shared libraries, it seems like DYLD_LIBRARY_PATH is not working?
+# Running the test directly does work with DYLD_LIBRARY_PATH.
     - name: Run tests
       run: >
         cd build &&
