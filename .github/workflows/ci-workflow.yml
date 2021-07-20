@@ -80,8 +80,9 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Setup environment
-      run: echo "%CD%\build\install\bin" >> $GITHUB_PATH
-      run: echo "CTEST_OUTPUT_ON_FAILURE=1" >> $GITHUB_ENV
+      run: >
+        echo "%CD%\build\install\bin" >> $GITHUB_PATH &&
+        echo "CTEST_OUTPUT_ON_FAILURE=1" >> $GITHUB_ENV
 
     - name: Build tlRender
       run: >
