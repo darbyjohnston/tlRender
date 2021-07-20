@@ -89,9 +89,9 @@ jobs:
     - name: Build tlRender
       run: >
         cd build &&
-        cmake ..\etc\SuperBuild \
-          -DCMAKE_BUILD_TYPE=Debug \
-          -DCMAKE_INSTALL_PREFIX=%CD%\install \
+        cmake ..\etc\SuperBuild ^
+          -DCMAKE_BUILD_TYPE=Debug ^
+          -DCMAKE_INSTALL_PREFIX=%CD%\install ^
           -DCMAKE_PREFIX_PATH=%CD%\install &&
         cmake --build . -j 4
 
