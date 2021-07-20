@@ -79,12 +79,17 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Setup environment
+      run: >
+        mkdir build &&
+        cd build &&
+        echo "%CD%\install\bin" >> $GITHUB_PATH &&
+        echo "CTEST_OUTPUT_ON_FAILURE=1" >> $GITHUB_ENV
+
     - name: Build tlRender
       run: >
         mkdir build &&
         cd build &&
-        set PATH=%CD%\install\bin;%PATH% &&
-        set PYTHONPATH=%CD%\install\lib:$PYTHONPATH &&
         cmake ..\etc\SuperBuild \
           -DCMAKE_BUILD_TYPE=Debug \
           -DCMAKE_INSTALL_PREFIX=%CD%\install \
@@ -94,9 +99,6 @@ jobs:
     - name: Run tests
       run: >
         cd build &&
-        set PATH=%CD%\install\bin;%PATH% &&
-        set PYTHONPATH=%CD%\install\lib:$PYTHONPATH &&
         cd tlRender\src\tlRender-build &&
         cmake --build . --target test &&
-        export CTEST_OUTPUT_ON_FAILURE=1 &&
-        cat Testing\Temporary\LastTest.log
+        type Testing\Temporary\LastTest.log
