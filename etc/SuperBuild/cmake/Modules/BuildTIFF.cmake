@@ -9,9 +9,6 @@ set(TIFF_ARGS
     -Dzstd=OFF
     -Dwebp=OFF
     -Djpeg12=OFF)
-if(CMAKE_CXX_STANDARD)
-    set(TIFF_ARGS ${TIFF_ARGS} -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD})
-endif()
 
 ExternalProject_Add(
     TIFF

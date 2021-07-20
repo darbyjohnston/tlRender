@@ -14,9 +14,6 @@ if(BUILD_SHARED_LIBS)
 else()
     set(RtAudio_ARGS ${RtAudio_ARGS} -DRTAUDIO_BUILD_STATIC_LIBS=TRUE)
 endif()
-if(CMAKE_CXX_STANDARD)
-    set(RtAudio_ARGS ${RtAudio_ARGS} -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD})
-endif()
 
 ExternalProject_Add(
     RtAudio

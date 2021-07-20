@@ -1,9 +1,6 @@
 include(ExternalProject)
 
 set(ZLIB_ARGS ${TLR_EXTERNAL_ARGS})
-if(CMAKE_CXX_STANDARD)
-    set(ZLIB_ARGS ${ZLIB_ARGS} -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD})
-endif()
 
 ExternalProject_Add(
     ZLIB

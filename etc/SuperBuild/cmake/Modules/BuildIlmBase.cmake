@@ -3,9 +3,6 @@ include(ExternalProject)
 set(IlmBase_ARGS
     ${TLR_EXTERNAL_ARGS}
     -DBUILD_TESTING=OFF)
-if(CMAKE_CXX_STANDARD)
-    set(IlmBase_ARGS ${IlmBase_ARGS} -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD})
-endif()
 
 ExternalProject_Add(
     IlmBase
