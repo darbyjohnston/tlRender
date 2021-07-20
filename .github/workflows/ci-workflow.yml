@@ -81,7 +81,7 @@ jobs:
 
     - name: Setup environment
       run: >
-        echo "$pwd\build\install\bin" >> $GITHUB_PATH &&
+        echo "${env:pwd}\build\install\bin" >> $GITHUB_PATH &&
         echo "CTEST_OUTPUT_ON_FAILURE=1" >> $GITHUB_ENV
 
     - name: Build tlRender
@@ -92,8 +92,8 @@ jobs:
           -DTLR_BUILD_JPEG=FALSE `
           -DTLR_BUILD_TIFF=FALSE `
           -DCMAKE_BUILD_TYPE=Debug `
-          -DCMAKE_INSTALL_PREFIX=$pwd\install `
-          -DCMAKE_PREFIX_PATH=$pwd\install &&
+          -DCMAKE_INSTALL_PREFIX=${env:pwd}\install `
+          -DCMAKE_PREFIX_PATH=${env:pwd}\install &&
         cmake --build . -j 4
 
     - name: Run tests
