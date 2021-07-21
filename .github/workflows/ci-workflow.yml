@@ -81,7 +81,7 @@ jobs:
 
     - name: Setup environment
       run: >
-        echo "$pwd\install\bin;$env:path" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 &&
+        echo "$pwd\install\bin;$pwd\install\lib;$env:path" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 &&
         echo "CTEST_OUTPUT_ON_FAILURE=1" >> $GITHUB_ENV
         
     - name: Build tlRender
