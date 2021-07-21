@@ -86,6 +86,7 @@ jobs:
 
     - name: Build tlRender
       run: >
+        echo $env:path &&
         mkdir build &&
         cd build &&
         cmake ..\etc\SuperBuild `
@@ -100,4 +101,5 @@ jobs:
       run: >
         cd build &&
         cd tlRender\src\tlRender-build &&
-        dir
+        cmake --build . --target RUN_TESTS &&
+        type Testing\Temporary\LastTest.log
