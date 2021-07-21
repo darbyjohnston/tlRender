@@ -79,19 +79,15 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Setup environment
-      run: >
-        echo "$pwd\build\install\bin" >> $GITHUB_PATH &&
-        echo "CTEST_OUTPUT_ON_FAILURE=1" >> $GITHUB_ENV
-
     - name: Build tlRender
       run: >
-        echo $env:path &&
         mkdir build &&
         cd build &&
         cmake ..\etc\SuperBuild `
           -DTLR_BUILD_JPEG=FALSE `
+          -DTLR_BUILD_PNG=FALSE `
           -DTLR_BUILD_TIFF=FALSE `
+          -DTLR_BUILD_OpenEXR=FALSE `
           -DCMAKE_BUILD_TYPE=Debug `
           -DCMAKE_INSTALL_PREFIX=install `
           -DCMAKE_PREFIX_PATH=install &&
@@ -99,6 +95,8 @@ jobs:
 
     - name: Run tests
       run: >
+        $env:path = "$pwd\build\install\bin;" + $env:path
+        $env:CTEST_OUTPUT_ON_FAILURE = 1
         cd build &&
         cd tlRender\src\tlRender-build &&
         cmake --build . --target RUN_TESTS &&
