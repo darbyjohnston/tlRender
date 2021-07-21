@@ -100,7 +100,7 @@ jobs:
 
     - name: Run tests
       run: >
-        $env:path = "$pwd\build\install\bin;" + $env:path &&
+        echo $env:path &&
         cd build &&
         cd tlRender\src\tlRender-build &&
         cmake --build . --target RUN_TESTS &&
