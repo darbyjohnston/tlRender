@@ -81,7 +81,7 @@ jobs:
 
     - name: Setup environment
       run: >
-        echo "$pwd\install\bin;$pwd\install\lib;$env:path" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 &&
+        echo "$pwd\build\install\bin;$pwd\build\install\lib;$env:path" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 &&
         echo "CTEST_OUTPUT_ON_FAILURE=1" >> $GITHUB_ENV
         
     - name: Build tlRender
@@ -100,8 +100,8 @@ jobs:
 
     - name: Run tests
       run: >
-        dir $pwd\install\bin &&
-        dir $pwd\install\lib &&
+        dir $pwd\build\install\bin &&
+        dir $pwd\build\install\lib &&
         cd build &&
         cd tlRender\src\tlRender-build &&
         dir tests\tlrtest\Debug &&
