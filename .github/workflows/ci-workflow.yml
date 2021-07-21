@@ -100,8 +100,8 @@ jobs:
 
     - name: Run tests
       run: >
-        echo $env:path &&
         cd build &&
         cd tlRender\src\tlRender-build &&
+        tests\tlrtest\Debug\tlrtest.exe &&
         cmake --build . --target RUN_TESTS &&
         type Testing\Temporary\LastTest.log
