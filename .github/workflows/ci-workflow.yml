@@ -96,7 +96,6 @@ jobs:
     - name: Run tests
       run: >
         $env:path = "$pwd\build\install\bin;" + $env:path &&
-        $env:CTEST_OUTPUT_ON_FAILURE = "1" &&
         cd build &&
         cd tlRender\src\tlRender-build &&
         cmake --build . --target RUN_TESTS &&
