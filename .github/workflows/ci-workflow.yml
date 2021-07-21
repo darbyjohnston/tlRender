@@ -82,8 +82,7 @@ jobs:
     - name: Setup environment
       run: >
         echo "$pwd\build\install\bin" >> $GITHUB_PATH &&
-        echo "CTEST_OUTPUT_ON_FAILURE=1" >> $GITHUB_ENV &&
-        echo $pwd
+        echo "CTEST_OUTPUT_ON_FAILURE=1" >> $GITHUB_ENV
 
     - name: Build tlRender
       run: >
@@ -101,5 +100,4 @@ jobs:
       run: >
         cd build &&
         cd tlRender\src\tlRender-build &&
-        cmake --build . --target test &&
-        type Testing\Temporary\LastTest.log
+        dir
