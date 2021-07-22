@@ -104,7 +104,7 @@ namespace tlr
 
             // Create a timeline player from the OTIO timeline.
             auto timelinePlayer = TimelinePlayer::create(path, _context);
-            TLR_ASSERT(path != timelinePlayer->getPath());
+            TLR_ASSERT(path == timelinePlayer->getPath());
             const otime::RationalTime timelineDuration(48.0, 24.0);
             TLR_ASSERT(timelineDuration == timelinePlayer->getDuration());
             TLR_ASSERT(otime::RationalTime(0.0, 24.0) == timelinePlayer->getGlobalStartTime());
