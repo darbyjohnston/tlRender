@@ -50,8 +50,7 @@ jobs:
     - name: Setup environment
       run: >
         echo "$PWD/build/install/bin" >> $GITHUB_PATH &&
-        echo "DYLD_LIBRARY_PATH=$PWD/build/install/lib:$DYLD_LIBRARY_PATH" >> $GITHUB_ENV &&
-        echo "PYTHONPATH=$PWD/build/install/lib:$PYTHONPATH" >> $GITHUB_ENV
+        echo "DYLD_LIBRARY_PATH=$PWD/build/install/lib:$DYLD_LIBRARY_PATH" >> $GITHUB_ENV
 
     - name: Build tlRender
       run: >
