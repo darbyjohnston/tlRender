@@ -213,7 +213,7 @@ namespace tlr
             return !diff.empty() ? diff.begin()->second : PixelType::None;
         }
 
-        inline std::size_t getDataByteCount(const Info& info)
+        std::size_t getDataByteCount(const Info& info)
         {
             std::size_t out = 0;
             const size_t w = info.size.w;
