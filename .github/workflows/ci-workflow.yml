@@ -72,8 +72,7 @@ jobs:
       run: >
         cd build &&
         cd tlRender/src/tlRender-build &&
-        echo $DYLD_LIBRARY_PATH &&
-        ls $DYLD_LIBRARY_PATH &&
+        export DYLD_LIBRARY_PATH=$PWD/build/install/lib:$DYLD_LIBRARY_PATH &&
         ctest --rerun-failed --output-on-failure
 
   windows-build:
