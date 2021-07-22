@@ -85,9 +85,6 @@ jobs:
         mkdir build &&
         cd build &&
         cmake ..\etc\SuperBuild `
-          -DTLR_BUILD_PNG=FALSE `
-          -DTLR_BUILD_TIFF=FALSE `
-          -DTLR_BUILD_OpenEXR=FALSE `
           -DCMAKE_BUILD_TYPE=Debug `
           -DCMAKE_INSTALL_PREFIX=install `
           -DCMAKE_PREFIX_PATH=install &&
