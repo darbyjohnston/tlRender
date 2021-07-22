@@ -51,8 +51,8 @@ jobs:
 
     - name: Setup environment
       run: >
-        echo "$PWD/build/install/bin" >> $GITHUB_PATH
-        echo "DYLD_LIBRARY_PATH=$PWD/build/install/lib:$DYLD_LIBRARY_PATH" >> ${GITHUB_ENV}
+        echo "$PWD/build/install/bin" >> $GITHUB_PATH &&
+        echo "DYLD_LIBRARY_PATH=$PWD/build/install/lib:$DYLD_LIBRARY_PATH" >> ${GITHUB_ENV} &&
         echo "PYTHONPATH=$PWD/build/install/lib:$PYTHONPATH" >> ${GITHUB_ENV}
 
     - name: Build tlRender
@@ -69,7 +69,7 @@ jobs:
       run: >
         cd build &&
         cd tlRender/src/tlRender-build &&
-        ctest
+        ctest --rerun-failed --output-on-failure
 
   windows-build:
     runs-on: windows-latest
@@ -85,7 +85,6 @@ jobs:
         mkdir build &&
         cd build &&
         cmake ..\etc\SuperBuild `
-          -DTLR_BUILD_JPEG=FALSE `
           -DTLR_BUILD_PNG=FALSE `
           -DTLR_BUILD_TIFF=FALSE `
           -DTLR_BUILD_OpenEXR=FALSE `
