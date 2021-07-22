@@ -20,13 +20,16 @@ jobs:
     - name: Install Python dev
       run: sudo apt-get install python3.8-dev
 
+    - name: Setup environment
+      run: >
+        echo "$PWD/build/install/bin" >> $GITHUB_PATH &&
+        echo "LD_LIBRARY_PATH=$PWD/build/install/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV &&
+        echo "PYTHONPATH=$PWD/build/install/lib:$PYTHONPATH" >> $GITHUB_ENV
+
     - name: Build tlRender
       run: >
         mkdir build &&
         cd build &&
-        export PATH=$PATH:$PWD/install/bin &&
-        export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH &&
-        export PYTHONPATH=$PWD/install/lib:$PYTHONPATH &&
         cmake ../etc/SuperBuild \
           -DCMAKE_BUILD_TYPE=Debug \
           -DCMAKE_INSTALL_PREFIX=$PWD/install \
@@ -36,13 +39,8 @@ jobs:
     - name: Run tests
       run: >
         cd build &&
-        export PATH=$PATH:$PWD/install/bin &&
-        export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH &&
-        export PYTHONPATH=$PWD/install/lib:$PYTHONPATH &&
-        export CTEST_OUTPUT_ON_FAILURE=1 &&
         cd tlRender/src/tlRender-build &&
-        cmake --build . --target test &&
-        cat Testing/Temporary/LastTest.log
+        ctest --rerun-failed --output-on-failure
 
   macos-build:
     runs-on: macos-latest
