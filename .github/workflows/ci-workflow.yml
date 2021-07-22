@@ -82,7 +82,6 @@ jobs:
     - name: Setup environment
       run: >
         echo "$pwd\build\install\bin;$pwd\build\install\lib;$env:path" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 &&
-        echo "CTEST_OUTPUT_ON_FAILURE=1" >> $GITHUB_ENV
         
     - name: Build tlRender
       run: >
@@ -102,4 +101,4 @@ jobs:
       run: >
         cd build &&
         cd tlRender\src\tlRender-build &&
-        ctest
+        ctest --rerun-failed --output-on-failure
