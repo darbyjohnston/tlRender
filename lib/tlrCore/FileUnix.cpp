@@ -11,7 +11,6 @@
 #include <unistd.h>
 
 #if defined(__APPLE__)
-//! \bug OS X doesn't have stat64?
 #define _STAT struct ::stat
 #define _STAT_FNC    ::stat
 #else // __APPLE__
