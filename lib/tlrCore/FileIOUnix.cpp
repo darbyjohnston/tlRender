@@ -8,9 +8,9 @@
 #include <tlrCore/Memory.h>
 #include <tlrCore/StringFormat.h>
 
-#if defined(DJV_PLATFORM_LINUX)
+#if defined(__linux__)
 #include <linux/limits.h>
-#endif // DJV_PLATFORM_LINUX
+#endif // __linux__
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
