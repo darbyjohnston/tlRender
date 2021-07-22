@@ -70,6 +70,9 @@ jobs:
 
     - name: Run tests
       run: >
+        echo "PATH="$PATH &&
+        echo "DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH &&
+        echo "PYTHONPATH="$PYTHONPATH &&
         cd build &&
         export DYLD_LIBRARY_PATH=$PWD/install/lib:$DYLD_LIBRARY_PATH &&
         cd tlRender/src/tlRender-build &&
