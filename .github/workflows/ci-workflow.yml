@@ -49,30 +49,27 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Setup environment
+      run: >
+        echo "$PWD/build/install/bin" >> $GITHUB_PATH
+        echo "DYLD_LIBRARY_PATH=$PWD/build/install/lib:$DYLD_LIBRARY_PATH" >> ${GITHUB_ENV}
+        echo "PYTHONPATH=$PWD/build/install/lib:$PYTHONPATH" >> ${GITHUB_ENV}
+
     - name: Build tlRender
       run: >
         mkdir build &&
         cd build &&
-        export PATH=$PATH:$PWD/install/bin &&
-        export DYLD_LIBRARY_PATH=$PWD/install/lib:$DYLD_LIBRARY_PATH &&
-        export PYTHONPATH=$PWD/install/lib:$PYTHONPATH &&
         cmake ../etc/SuperBuild \
           -DCMAKE_BUILD_TYPE=Debug \
           -DCMAKE_INSTALL_PREFIX=$PWD/install \
           -DCMAKE_PREFIX_PATH=$PWD/install &&
         cmake --build . -j 4
 
-    # \bug Running "cmake --build . --target test" fails by not finding
-    # shared libraries on macOS, it seems like DYLD_LIBRARY_PATH is not
-    # working? Running the test directly does work with DYLD_LIBRARY_PATH.
     - name: Run tests
       run: >
         cd build &&
-        export PATH=$PATH:$PWD/install/bin &&
-        export DYLD_LIBRARY_PATH=$PWD/install/lib:$DYLD_LIBRARY_PATH &&
-        export PYTHONPATH=$PWD/install/lib:$PYTHONPATH &&
         cd tlRender/src/tlRender-build &&
-        tests/tlrtest/tlrtest
+        ctest
 
   windows-build:
     runs-on: windows-latest
