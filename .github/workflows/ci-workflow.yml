@@ -71,7 +71,7 @@ jobs:
     - name: Run tests
       run: >
         cd build &&
-        export DYLD_LIBRARY_PATH=$PWD/build/install/lib:$DYLD_LIBRARY_PATH &&
+        export DYLD_LIBRARY_PATH=$PWD/install/lib:$DYLD_LIBRARY_PATH &&
         cd tlRender/src/tlRender-build &&
         ctest --rerun-failed --output-on-failure
 
