@@ -23,9 +23,9 @@ namespace tlr
 #if defined(_WINDOWS)
         //! \bug https://social.msdn.microsoft.com/Forums/vstudio/en-US/8f40dcd8-c67f-4eba-9134-a19b9178e481/vs-2015-rc-linker-stdcodecvt-error?forum=vcgeneral
         typedef unsigned int tlr_char_t;
-#else // DJV_PLATFORM_WINDOWS
+#else // _WINDOWS
         typedef char32_t tlr_char_t;
-#endif // DJV_PLATFORM_WINDOWS
+#endif // _WINDOWS
 
         //! Font families.
         enum class FontFamily
