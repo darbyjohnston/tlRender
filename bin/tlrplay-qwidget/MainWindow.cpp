@@ -64,6 +64,9 @@ namespace tlr
         _actions["Window/Resize1280x720"]->setText(tr("Resize 1280x720"));
         _actions["Window/Resize1920x1080"] = new QAction(this);
         _actions["Window/Resize1920x1080"]->setText(tr("Resize 1920x1080"));
+        _actions["Window/FullScreen"] = new QAction(this);
+        _actions["Window/FullScreen"]->setText(tr("Toggle Full Screen"));
+        _actions["Window/FullScreen"]->setShortcut(QKeySequence(Qt::Key_U));
 
         _actions["Playback/Stop"] = new QAction(this);
         _actions["Playback/Stop"]->setCheckable(true);
@@ -187,6 +190,8 @@ namespace tlr
         windowMenu->setTitle(tr("&Window"));
         windowMenu->addAction(_actions["Window/Resize1280x720"]);
         windowMenu->addAction(_actions["Window/Resize1920x1080"]);
+        windowMenu->addSeparator();
+        windowMenu->addAction(_actions["Window/FullScreen"]);
 
         auto playbackMenu = new QMenu;
         playbackMenu->setTitle(tr("&Playback"));
@@ -286,6 +291,10 @@ namespace tlr
             _actions["Window/Resize1920x1080"],
             SIGNAL(triggered()),
             SLOT(_resize1920x1080Callback()));
+        connect(
+            _actions["Window/FullScreen"],
+            SIGNAL(triggered()),
+            SLOT(_fullScreenCallback()));
 
         connect(
             _actions["Playback/Stop"],
@@ -577,6 +586,11 @@ namespace tlr
     void MainWindow::_resize1920x1080Callback()
     {
         resize(1920, 1080);
+    }
+
+    void MainWindow::_fullScreenCallback()
+    {
+        setWindowState(windowState() ^ Qt::WindowFullScreen);
     }
 
     void MainWindow::_settingsVisibleCallback(bool value)
