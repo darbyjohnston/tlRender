@@ -132,52 +132,52 @@ Building on Linux
 -----------------
 Clone the repository:
 ```
-$ git clone https://github.com/darbyjohnston/tlRender.git
-$ cd tlRender
+git clone https://github.com/darbyjohnston/tlRender.git
+cd tlRender
 ```
 Create a build directory:
 ```
-$ mkdir build
-$ cd build
+mkdir build
+cd build
 ```
 Run CMake with the super build script:
 ```
-$ cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install -DCMAKE_BUILD_TYPE=Debug
+cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install -DCMAKE_BUILD_TYPE=Debug
 ```
 Start the build:
 ```
-$ cmake --build . -j 4
+cmake --build . -j 4
 ```
 Try running the "tlrplay-glfw" application:
 ```
-$ export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
-$ ./install/bin/tlrplay-glfw ../etc/SampleData/multiple_clips.otio
+export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
+./install/bin/tlrplay-glfw ../etc/SampleData/multiple_clips.otio
 ```
 
 Building on macOS
 -----------------
 Clone the repository:
 ```
-$ git clone https://github.com/darbyjohnston/tlRender.git
-$ cd tlRender
+git clone https://github.com/darbyjohnston/tlRender.git
+cd tlRender
 ```
 Create a build directory:
 ```
-$ mkdir build
-$ cd build
+mkdir build
+cd build
 ```
 Run CMake with the super build script:
 ```
-$ cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install -DCMAKE_BUILD_TYPE=Debug
+cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install -DCMAKE_BUILD_TYPE=Debug
 ```
 Start the build:
 ```
-$ cmake --build . -j 4
+cmake --build . -j 4
 ```
 Try running the "tlrplay-glfw" application:
 ```
-$ export DYLD_LIBRARY_PATH=$PWD/install/lib:$DYLD_LIBRARY_PATH
-$ ./install/bin/tlrplay-glfw ../etc/SampleData/multiple_clips.otio
+export DYLD_LIBRARY_PATH=$PWD/install/lib:$DYLD_LIBRARY_PATH
+./install/bin/tlrplay-glfw ../etc/SampleData/multiple_clips.otio
 ```
 
 Building FFmpeg on Windows
@@ -196,39 +196,39 @@ Enable the Windows Subsystem for Linux:
 
 Install Ubuntu from the Windows app store, then open a shell and install necessary software:
 ```
-$ sudo apt update
-$ sudo apt install mingw-w64 yasm make unzip
+sudo apt update
+sudo apt install mingw-w64 yasm make unzip
 ```
 
 Build FFmpeg, replacing $SOURCE_DIR and $BUILD_DIR with the same directories used in the
 "Building on Windows" section:
 ```
-> $SOURCE_DIR/etc/Windows/build_ffmpeg_wsl.sh $BUILD_DIR/install
+$SOURCE_DIR/etc/Windows/build_ffmpeg_wsl.sh $BUILD_DIR/install
 ```
 
 Building on Windows
 -------------------
 Clone the repository:
 ```
-> git clone https://github.com/darbyjohnston/tlRender.git
-> cd tlRender
+git clone https://github.com/darbyjohnston/tlRender.git
+cd tlRender
 ```
 Create a build directory:
 ```
-> mkdir build
-> cd build
+mkdir build
+cd build
 ```
 Run CMake with the super build script:
 ```
-> cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=%CD%/install -DCMAKE_PREFIX_PATH=%CD%/install -DCMAKE_BUILD_TYPE=Debug
+cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=%CD%/install -DCMAKE_PREFIX_PATH=%CD%/install -DCMAKE_BUILD_TYPE=Debug
 ```
 Start the build:
 ```
-> cmake --build . -j 4 --config Debug
+cmake --build . -j 4 --config Debug
 ```
 Try running the "tlrplay-glfw" application:
 ```
-> set PATH=%CD%\install\bin;%CD%\install\lib;%PATH%
-> .\install\bin\tlrplay-glfw ..\etc\SampleData\multiple_clips.otio
+set PATH=%CD%\install\bin;%CD%\install\lib;%PATH%
+.\install\bin\tlrplay-glfw ..\etc\SampleData\multiple_clips.otio
 ```
 
