@@ -19,6 +19,8 @@ namespace tlr
 
         public:
             TimeSpinBox(QWidget* parent = nullptr);
+            
+            ~TimeSpinBox() override;
 
             //! Set the time object.
             void setTimeObject(TimeObject*);

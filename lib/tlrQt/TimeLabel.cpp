@@ -39,6 +39,9 @@ namespace tlr
 
             _textUpdate();
         }
+        
+        TimeLabel::~TimeLabel()
+        {}
 
         void TimeLabel::setTimeObject(TimeObject* timeObject)
         {

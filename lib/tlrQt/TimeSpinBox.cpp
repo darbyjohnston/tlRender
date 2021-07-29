@@ -42,6 +42,9 @@ namespace tlr
                 SLOT(_lineEditCallback()));
         }
 
+        TimeSpinBox::~TimeSpinBox()
+        {}
+        
         void TimeSpinBox::setTimeObject(TimeObject* timeObject)
         {
             TLR_PRIVATE_P();

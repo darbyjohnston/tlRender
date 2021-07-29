@@ -22,6 +22,8 @@ namespace tlr
 
         public:
             TimelineWidget(QWidget* parent = nullptr);
+            
+            ~TimelineWidget() override;
 
             //! Set the time object.
             void setTimeObject(TimeObject*);

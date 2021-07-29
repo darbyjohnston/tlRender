@@ -197,6 +197,9 @@ namespace tlr
                 SIGNAL(clicked()),
                 SLOT(_resetOutPointCallback()));
         }
+        
+        TimelineControls::~TimelineControls()
+        {}
 
         void TimelineControls::setTimeObject(TimeObject* timeObject)
         {

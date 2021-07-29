@@ -26,6 +26,8 @@ namespace tlr
                 const std::shared_ptr<core::Context>&,
                 QObject* parent = nullptr);
 
+            ~TimelinePlayer() override;
+            
             //! Get the context.
             const std::shared_ptr<core::Context>& context() const;
 

@@ -20,6 +20,8 @@ namespace tlr
 
         public:
             TimelineControls(QWidget* parent = nullptr);
+            
+            ~TimelineControls() override;
 
             //! Set the time object.
             void setTimeObject(TimeObject*);

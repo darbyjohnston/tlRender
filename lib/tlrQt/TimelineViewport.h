@@ -21,6 +21,8 @@ namespace tlr
 
         public:
             TimelineViewport(QWidget* parent = nullptr);
+            
+            ~TimelineViewport() override;
 
             //! Set the color configuration.
             void setColorConfig(const gl::ColorConfig&);

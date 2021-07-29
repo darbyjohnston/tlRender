@@ -19,6 +19,8 @@ namespace tlr
 
         public:
             SpeedLabel(QWidget* parent = nullptr);
+            
+            ~SpeedLabel() override;
 
         public Q_SLOTS:
             //! Set the speed value.

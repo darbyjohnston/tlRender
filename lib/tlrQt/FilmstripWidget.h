@@ -19,6 +19,8 @@ namespace tlr
 
         public:
             FilmstripWidget(QWidget* parent = nullptr);
+            
+            ~FilmstripWidget() override;
 
         public Q_SLOTS:
             //! Set the timeline.

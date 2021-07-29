@@ -20,6 +20,9 @@ namespace tlr
             QOpenGLWidget(parent),
             _p(new Private)
         {}
+        
+        TimelineViewport::~TimelineViewport()
+        {}
 
         void TimelineViewport::setColorConfig(const gl::ColorConfig& colorConfig)
         {

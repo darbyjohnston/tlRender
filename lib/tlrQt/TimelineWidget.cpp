@@ -46,6 +46,9 @@ namespace tlr
             layout->addLayout(vLayout);
             setLayout(layout);
         }
+        
+        TimelineWidget::~TimelineWidget()
+        {}
 
         void TimelineWidget::setTimeObject(TimeObject* timeObject)
         {

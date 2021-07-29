@@ -23,6 +23,8 @@ namespace tlr
         public:
             TimelineSlider(QWidget* parent = nullptr);
 
+            ~TimelineSlider() override;
+            
             //! Set the time object.
             void setTimeObject(TimeObject*);
 

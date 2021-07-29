@@ -20,6 +20,8 @@ namespace tlr
         public:
             TimeLabel(QWidget* parent = nullptr);
 
+            ~TimeLabel() override;
+            
             //! Set the time object.
             void setTimeObject(TimeObject*);
 

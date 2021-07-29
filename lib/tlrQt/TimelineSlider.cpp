@@ -33,6 +33,9 @@ namespace tlr
             setSizePolicy(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
             setMinimumHeight(50);
         }
+        
+        TimelineSlider::~TimelineSlider()
+        {}
 
         void TimelineSlider::setTimeObject(TimeObject* timeObject)
         {

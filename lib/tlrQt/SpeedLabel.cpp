@@ -37,6 +37,9 @@ namespace tlr
 
             _textUpdate();
         }
+        
+        SpeedLabel::~SpeedLabel()
+        {}
 
         void SpeedLabel::setValue(const otime::RationalTime& value)
         {
