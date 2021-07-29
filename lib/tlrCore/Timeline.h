@@ -18,7 +18,7 @@ namespace tlr
 {
     //! Timelines.
     namespace timeline
-    {\
+    {
         //! Timeout for frame requests.
         const std::chrono::microseconds requestTimeout(1000);
 
