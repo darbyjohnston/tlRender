@@ -6,10 +6,7 @@
 
 #include <tlrCore/String.h>
 
-extern "C"
-{
 #include <fseq.h>
-}
 
 #include <iomanip>
 #include <sstream>
