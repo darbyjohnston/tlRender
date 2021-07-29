@@ -126,7 +126,6 @@ set(tlrCore_LIBRARIES ${tlrCore_LIBRARIES} IlmBase Threads::Threads)
 add_library(tlrCore ${HEADERS} ${SOURCE})
 target_link_libraries(tlrCore ${tlrCore_LIBRARIES})
 set_target_properties(tlrCore PROPERTIES FOLDER lib)
-
 set_target_properties(tlrCore PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
 install(TARGETS tlrCore

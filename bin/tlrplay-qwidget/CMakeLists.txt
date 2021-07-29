@@ -14,8 +14,8 @@ set(SOURCE
 
 add_executable(tlrplay-qwidget ${SOURCE} ${HEADERS})
 target_link_libraries(tlrplay-qwidget tlrQt tlrApp)
+set_target_properties(tlrplay-qwidget PROPERTIES FOLDER bin)
 
 install(
     TARGETS tlrplay-qwidget
     RUNTIME DESTINATION bin)
-set_target_properties(tlrplay-qwidget PROPERTIES FOLDER bin)
