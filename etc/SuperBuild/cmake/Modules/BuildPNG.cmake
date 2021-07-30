@@ -21,5 +21,6 @@ ExternalProject_Add(
     DEPENDS ZLIB
     GIT_REPOSITORY https://github.com/glennrp/libpng.git
     GIT_TAG v1.6.37
+    LIST_SEPARATOR |
     CMAKE_ARGS ${PNG_ARGS})
 

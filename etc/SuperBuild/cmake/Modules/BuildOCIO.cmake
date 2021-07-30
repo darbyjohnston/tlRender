@@ -27,4 +27,5 @@ ExternalProject_Add(
     PATCH_COMMAND
         ${CMAKE_COMMAND} -E tar xf
         ${CMAKE_SOURCE_DIR}/OCIO-patch.tar.gz
+    LIST_SEPARATOR |
     CMAKE_ARGS ${OCIO_ARGS})

@@ -18,5 +18,6 @@ ExternalProject_Add(
     PATCH_COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_SOURCE_DIR}/TIFF-patch/CMakeLists.txt
         ${CMAKE_CURRENT_BINARY_DIR}/TIFF/src/TIFF/CMakeLists.txt
+    LIST_SEPARATOR |
     CMAKE_ARGS ${TIFF_ARGS})
 

@@ -8,4 +8,5 @@ ExternalProject_Add(
     glad
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/glad
     SOURCE_DIR ${CMAKE_SOURCE_DIR}/glad
+    LIST_SEPARATOR |
     CMAKE_ARGS ${glad_ARGS})

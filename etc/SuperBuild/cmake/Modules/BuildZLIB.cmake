@@ -9,4 +9,5 @@ ExternalProject_Add(
     PATCH_COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_SOURCE_DIR}/ZLIB-patch/CMakeLists.txt
         ${CMAKE_CURRENT_BINARY_DIR}/ZLIB/src/ZLIB/CMakeLists.txt
+    LIST_SEPARATOR |
     CMAKE_ARGS ${ZLIB_ARGS})

@@ -13,4 +13,5 @@ ExternalProject_Add(
     GIT_REPOSITORY https://github.com/AcademySoftwareFoundation/openexr
     GIT_TAG v2.5.3
     SOURCE_SUBDIR OpenEXR
+    LIST_SEPARATOR |
     CMAKE_ARGS ${OpenEXR_ARGS})

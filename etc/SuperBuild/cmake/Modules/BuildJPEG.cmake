@@ -29,4 +29,5 @@ ExternalProject_Add(
     PATCH_COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_SOURCE_DIR}/JPEG-patch/CMakeLists.txt
         ${CMAKE_CURRENT_BINARY_DIR}/JPEG/src/JPEG/CMakeLists.txt
+    LIST_SEPARATOR |
     CMAKE_ARGS ${JPEG_ARGS})

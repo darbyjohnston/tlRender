@@ -34,4 +34,5 @@ ExternalProject_Add(
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/tlRender
     DEPENDS ${tlRender_DEPENDS}
     SOURCE_DIR ${CMAKE_SOURCE_DIR}/../..
+    LIST_SEPARATOR |
     CMAKE_ARGS ${tlRender_ARGS})

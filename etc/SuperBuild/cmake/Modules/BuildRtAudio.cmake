@@ -20,4 +20,5 @@ ExternalProject_Add(
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/RtAudio
     GIT_REPOSITORY https://github.com/thestk/rtaudio.git
     GIT_TAG ${RtAudio_GIT_TAG}
+    LIST_SEPARATOR |
     CMAKE_ARGS ${RtAudio_ARGS})

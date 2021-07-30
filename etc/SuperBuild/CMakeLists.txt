@@ -28,12 +28,15 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreaded$<$<CONFIG:Debug>:Debug>DLL)
 set(CMAKE_FIND_FRAMEWORK LAST)
 
+# https://stackoverflow.com/questions/45414507/pass-a-list-of-prefix-paths-to-externalproject-add-in-cmake-args
+string(REPLACE ";" "|" CMAKE_PREFIX_PATH_TMP "${CMAKE_PREFIX_PATH}")
+
 # Common arguments for building external projects.
 set(TLR_EXTERNAL_ARGS
     -DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}
     -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
     -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
-    -DCMAKE_PREFIX_PATH=${CMAKE_INSTALL_PREFIX}
+    -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH_TMP}
     -DCMAKE_POLICY_DEFAULT_CMP0091:STRING=NEW
     -DCMAKE_FIND_FRAMEWORK=${CMAKE_FIND_FRAMEWORK}
     -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
@@ -51,8 +54,10 @@ include(BuildIlmBase)
 include(BuildOCIO)
 include(BuildOTIO)
 #include(BuildRtAudio)
-if(TLR_BUILD_FFmpeg)
+if(TLR_BUILD_FFmpeg OR TLR_BUILD_JPEG)
     include(BuildNASM)
+endif()
+if(TLR_BUILD_FFmpeg)
     include(BuildFFmpeg)
 endif()
 if(TLR_BUILD_JPEG)

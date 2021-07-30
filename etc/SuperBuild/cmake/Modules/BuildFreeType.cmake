@@ -15,4 +15,5 @@ ExternalProject_Add(
     DEPENDS ZLIB
     GIT_REPOSITORY https://github.com/freetype/freetype
     GIT_TAG VER-2-10-4
+    LIST_SEPARATOR |
     CMAKE_ARGS ${FreeType_ARGS})
