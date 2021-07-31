@@ -10,7 +10,8 @@ set(HEADERS
     TimelineThumbnailProvider.h
     TimelineViewport.h
     TimelineWidget.h
-    ToolTipsFilter.h)
+    ToolTipsFilter.h
+    Util.h)
 set(SOURCE
     FilmstripWidget.cpp
     SpeedLabel.cpp

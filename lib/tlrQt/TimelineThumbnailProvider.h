@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <tlrQt/Util.h>
+
 #include <tlrGL/Render.h>
 
 #include <tlrCore/Timeline.h>
