@@ -9,7 +9,7 @@ set(tlRender_ARGS
     -DTLR_BUILD_TESTS=${TLR_BUILD_EXAMPLES}
     -DTLR_BUILD_TESTS=${TLR_BUILD_TESTS})
 
-set(tlRender_DEPENDS OTIO OCIO)
+set(tlRender_DEPENDS OTIO OCIO FSeq)
 if(TLR_BUILD_JPEG)
     list(APPEND tlRender_DEPENDS JPEG)
 endif()
