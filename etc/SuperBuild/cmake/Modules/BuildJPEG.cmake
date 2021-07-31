@@ -25,9 +25,7 @@ ExternalProject_Add(
     JPEG
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/JPEG
     DEPENDS ${JPEG_DEPS}
-    URL "http://sourceforge.net/projects/libjpeg-turbo/files/2.0.6/libjpeg-turbo-2.0.6.tar.gz?download"
-    PATCH_COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_SOURCE_DIR}/JPEG-patch/CMakeLists.txt
-        ${CMAKE_CURRENT_BINARY_DIR}/JPEG/src/JPEG/CMakeLists.txt
+    GIT_REPOSITORY https://github.com/libjpeg-turbo/libjpeg-turbo.git
+    GIT_TAG 2.1.0
     LIST_SEPARATOR |
     CMAKE_ARGS ${JPEG_ARGS})
