@@ -38,6 +38,9 @@ set(OCIO_LIBRARIES
     ${OCIO_pystring_LIBRARY}
     ${OCIO_expat}
     ${IlmBase_LIBRARIES})
+if(APPLE)
+    list(APPEND OCIO_LIBRARIES "-framework ColorSync" "-framework CoreGraphics" "-framework IOKit" "-framework Foundation")
+endif()
 
 set(OCIO_DEFINES)
 if(NOT BUILD_SHARED_LIBS)
@@ -57,11 +60,15 @@ endif()
 
 if(OCIO_FOUND AND NOT TARGET OCIO::OpenColorIO)
     add_library(OCIO::OpenColorIO UNKNOWN IMPORTED)
+    set(OCIO_INTERFACE_LINK_LIBRARIES ${OCIO_yaml_LIBRARY} ${OCIO_pystring_LIBRARY} ${OCIO_expat} IlmBase)
+    if(APPLE)
+        list(APPEND OCIO_INTERFACE_LINK_LIBRARIES "-framework ColorSync" "-framework CoreGraphics" "-framework IOKit" "-framework Foundation")
+    endif()
     set_target_properties(OCIO::OpenColorIO PROPERTIES
         IMPORTED_LOCATION "${OCIO_LIBRARY}"
         INTERFACE_COMPILE_DEFINITIONS "${OCIO_COMPILE_DEFINITIONS}"
         INTERFACE_INCLUDE_DIRECTORIES "${OCIO_INCLUDE_DIR}"
-        INTERFACE_LINK_LIBRARIES "${OCIO_yaml_LIBRARY};${OCIO_pystring_LIBRARY};${OCIO_expat};IlmBase")
+        INTERFACE_LINK_LIBRARIES "${OCIO_INTERFACE_LINK_LIBRARIES}")
 endif()
 if(OCIO_FOUND AND NOT TARGET OCIO)
     add_library(OCIO INTERFACE)
