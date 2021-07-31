@@ -69,6 +69,7 @@ namespace tlr
             p.running = false;
             wait();
             delete p.surface;
+            delete p.context;
         }
 
         void TimelineThumbnailProvider::setColorConfig(const gl::ColorConfig& colorConfig)
@@ -129,83 +130,92 @@ namespace tlr
             p.context->makeCurrent(p.surface);
             gladLoadGL();
 
-            auto render = gl::Render::create();
-
-            QOpenGLFramebufferObject* fbo = nullptr;
-            imaging::Info fboInfo;
-
-            gl::ColorConfig colorConfig;
-            std::list<Private::Request> requests;
-            while (p.running)
+            std::shared_ptr<gl::Render> render;
+            
+            try
             {
+                render = gl::Render::create();
+
+                std::unique_ptr<QOpenGLFramebufferObject> fbo;
+                imaging::Info fboInfo;
+
+                gl::ColorConfig colorConfig;
+                std::list<Private::Request> requests;
+                while (p.running)
                 {
-                    std::unique_lock<std::mutex> lock(p.mutex);
-                    if (p.cv.wait_for(
-                        lock,
-                        thumbnailRequestTimeout,
-                        [this, &requests]
-                        {
-                            return !_p->requests.empty() || _p->cancelRequests || !requests.empty();
-                        }))
                     {
-                        colorConfig = p.colorConfig;
-                        if (p.cancelRequests)
+                        std::unique_lock<std::mutex> lock(p.mutex);
+                        if (p.cv.wait_for(
+                            lock,
+                            thumbnailRequestTimeout,
+                            [this, &requests]
+                            {
+                                return !_p->requests.empty() || _p->cancelRequests || !requests.empty();
+                            }))
                         {
-                            p.cancelRequests = false;
-                            p.timeline->cancelFrames();
-                            requests.clear();
-                            p.results.clear();
-                        }
-                        while (!p.requests.empty())
-                        {
-                            requests.push_back(std::move(p.requests.front()));
-                            p.requests.pop_front();
+                            colorConfig = p.colorConfig;
+                            if (p.cancelRequests)
+                            {
+                                p.cancelRequests = false;
+                                p.timeline->cancelFrames();
+                                requests.clear();
+                                p.results.clear();
+                            }
+                            while (!p.requests.empty())
+                            {
+                                requests.push_back(std::move(p.requests.front()));
+                                p.requests.pop_front();
+                            }
                         }
                     }
-                }
-                if (!requests.empty())
-                {
-                    const auto request = std::move(requests.front());
-                    requests.pop_front();
-
-                    p.timeline->setActiveRanges({ otime::TimeRange(
-                        p.timeline->getGlobalStartTime() + request.time,
-                        otime::RationalTime(1.0, request.time.rate())) });
-                    
-                    const auto frame = p.timeline->getFrame(request.time).get();
-
-                    const imaging::Info info(request.size.width(), request.size.height(), imaging::PixelType::RGBA_U8);
-                    if (info != fboInfo)
+                    if (!requests.empty())
                     {
-                        fbo = new QOpenGLFramebufferObject(info.size.w, info.size.h);
-                        fboInfo = info;
+                        const auto request = std::move(requests.front());
+                        requests.pop_front();
+
+                        p.timeline->setActiveRanges({ otime::TimeRange(
+                            p.timeline->getGlobalStartTime() + request.time,
+                            otime::RationalTime(1.0, request.time.rate())) });
+                        
+                        const auto frame = p.timeline->getFrame(request.time).get();
+
+                        const imaging::Info info(request.size.width(), request.size.height(), imaging::PixelType::RGBA_U8);
+                        if (info != fboInfo)
+                        {
+                            fbo.reset(new QOpenGLFramebufferObject(info.size.w, info.size.h));
+                            fboInfo = info;
+                        }
+                        fbo->bind();
+
+                        render->setColorConfig(colorConfig);
+                        render->begin(info.size);
+                        render->drawFrame(frame);
+                        render->end();
+                        std::vector<uint8_t> pixels(info.size.w * info.size.h * 4);
+                        glPixelStorei(GL_PACK_ALIGNMENT, 1);
+                        glReadPixels(
+                            0,
+                            0,
+                            info.size.w,
+                            info.size.h,
+                            GL_RGBA,
+                            GL_UNSIGNED_BYTE,
+                            pixels.data());
+                        const auto qImage = QImage(
+                            pixels.data(),
+                            info.size.w,
+                            info.size.h,
+                            info.size.w * 4,
+                            QImage::Format_RGBA8888).mirrored();
+
+                        std::unique_lock<std::mutex> lock(p.mutex);
+                        p.results.push_back(QPair<otime::RationalTime, QImage>(request.time, qImage));
                     }
-                    fbo->bind();
-
-                    render->setColorConfig(colorConfig);
-                    render->begin(info.size);
-                    render->drawFrame(frame);
-                    render->end();
-                    std::vector<uint8_t> pixels(info.size.w * info.size.h * 4);
-                    glPixelStorei(GL_PACK_ALIGNMENT, 1);
-                    glReadPixels(
-                        0,
-                        0,
-                        info.size.w,
-                        info.size.h,
-                        GL_RGBA,
-                        GL_UNSIGNED_BYTE,
-                        pixels.data());
-                    const auto qImage = QImage(
-                        pixels.data(),
-                        info.size.w,
-                        info.size.h,
-                        info.size.w * 4,
-                        QImage::Format_RGBA8888).mirrored();
-
-                    std::unique_lock<std::mutex> lock(p.mutex);
-                    p.results.push_back(QPair<otime::RationalTime, QImage>(request.time, qImage));
                 }
+            }
+            catch (const std::exception&)
+            {
+                //! \todo How should this be handled?
             }
 
             render.reset();
