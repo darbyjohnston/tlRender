@@ -227,7 +227,33 @@ cmake --build . -j 4 --config Debug
 ```
 Try running the "tlrplay-glfw" application:
 ```
-set PATH=%CD%\install\bin;%CD%\install\lib;%PATH%
+set PATH=%CD%\install\bin;%PATH%
 .\install\bin\tlrplay-glfw ..\etc\SampleData\multiple_clips.otio
 ```
 
+Building on Windows with Qt
+---------------------------
+Clone the repository:
+```
+git clone https://github.com/darbyjohnston/tlRender.git
+cd tlRender
+```
+Create a build directory:
+```
+mkdir build
+cd build
+```
+Run CMake with the super build script; add the location of "Qt5Config.cmake" to "CMAKE_PREFIX_PATH"
+(make sure to add quotes to the locations) and enable "TLR_BUILD_QT":
+```
+cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=%CD%/install -DCMAKE_PREFIX_PATH="%CD%/install;C:\Qt\5.15.2\msvc2019_64\lib\cmake\Qt5" -DTLR_BUILD_QT=ON -DCMAKE_BUILD_TYPE=Debug
+```
+Start the build:
+```
+cmake --build . -j 4 --config Debug
+```
+Try running the "tlrplay-qwidget" application:
+```
+set PATH=%CD%\install\bin;%PATH%
+.\install\bin\tlrplay-qwidget ..\etc\SampleData\multiple_clips.otio
+```
