@@ -10,8 +10,6 @@
 #include <tlrCore/Color.h>
 #include <tlrCore/Timeline.h>
 
-#include <glad.h>
-
 namespace tlr
 {
     namespace imaging

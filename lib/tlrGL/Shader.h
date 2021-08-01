@@ -8,7 +8,7 @@
 #include <tlrCore/Util.h>
 #include <tlrCore/Vector.h>
 
-#include <glad.h>
+#include <glad/gl.h>
 
 #include <memory>
 #include <string>

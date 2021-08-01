@@ -15,7 +15,7 @@
 
 find_package(OpenGL REQUIRED)
 
-find_path(glad_INCLUDE_DIR NAMES glad.h)
+find_path(glad_INCLUDE_DIR NAMES glad/gl.h)
 set(glad_INCLUDE_DIRS
     ${glad_INCLUDE_DIR}
     ${OPENGL_INCLUDE_DIR})

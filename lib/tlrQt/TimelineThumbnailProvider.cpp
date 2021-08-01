@@ -128,7 +128,7 @@ namespace tlr
             TLR_PRIVATE_P();
 
             p.context->makeCurrent(p.surface);
-            gladLoadGL();
+            gladLoaderLoadGL();
 
             std::shared_ptr<gl::Render> render;
             

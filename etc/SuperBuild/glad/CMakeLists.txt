@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.0)
 
 project(glad LANGUAGES C)
 
-include_directories(${CMAKE_SOURCE_DIR})
+include_directories(${CMAKE_SOURCE_DIR}/include)
 
-add_library(glad glad/glad.h glad/glad.c)
+add_library(glad src/gl.c)
 
 install(
     TARGETS glad
@@ -12,5 +12,5 @@ install(
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib)
 
-install(FILES glad/glad.h DESTINATION include)
-install(FILES KHR/khrplatform.h DESTINATION include/KHR)
+install(FILES include/glad/gl.h DESTINATION include/glad)
+install(FILES include/KHR/khrplatform.h DESTINATION include/KHR)
