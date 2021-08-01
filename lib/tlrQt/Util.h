@@ -4,10 +4,4 @@
 
 #pragma once
 
-#if defined(__APPLE__)
-#include <glad.h>
-#define __gl_h_
-#define __glext_h_
-#define __gl3_h_
-#define __gl3ext_h_
-#endif // __APPLE__
+#include <glad/gl.h>

@@ -124,8 +124,8 @@ CMake Build Options
 * TLR_BUILD_OpenEXR - Build OpenEXR support
 * TLR_BUILD_PNG - Build PNG support
 * TLR_BUILD_TIFF - Build TIFF support
-* TLR_BUILD_GL - Build OpenGL support (tlrGL library)
-* TLR_BUILD_QT - Build QT support (tlrQt library)
+* TLR_BUILD_GL - Build OpenGL library (tlrGL)
+* TLR_BUILD_QT - Build QT library (tlrQt)
 * TLR_BUILD_EXAMPLES - Build examples
 
 Building on Linux
@@ -154,6 +154,33 @@ export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
 ./install/bin/tlrplay-glfw ../etc/SampleData/multiple_clips.otio
 ```
 
+Building on Linux with Qt
+-------------------------
+Clone the repository:
+```
+git clone https://github.com/darbyjohnston/tlRender.git
+cd tlRender
+```
+Create a build directory:
+```
+mkdir build
+cd build
+```
+Run CMake with the super build script, adding the location of "Qt5Config.cmake" to "CMAKE_PREFIX_PATH"
+(make sure to use quotes), and enabling "TLR_BUILD_QT":
+```
+cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/5.15.2/gcc_64/lib/cmake/Qt5" -DTLR_BUILD_QT=ON -DCMAKE_BUILD_TYPE=Debug
+```
+Start the build:
+```
+cmake --build . -j 4
+```
+Try running the "tlrplay-qwidget" application:
+```
+export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
+./install/bin/tlrplay-qwidget ../etc/SampleData/multiple_clips.otio
+```
+
 Building on macOS
 -----------------
 Clone the repository:
@@ -177,6 +204,40 @@ cmake --build . -j 4
 Try running the "tlrplay-glfw" application:
 ```
 ./install/bin/tlrplay-glfw ../etc/SampleData/multiple_clips.otio
+```
+
+Building on macOS with Qt
+-------------------------
+Clone the repository:
+```
+git clone https://github.com/darbyjohnston/tlRender.git
+cd tlRender
+```
+Create a build directory:
+```
+mkdir build
+cd build
+```
+Run CMake with the super build script, adding the location of "Qt5Config.cmake" to "CMAKE_PREFIX_PATH"
+(make sure to use quotes), and enabling "TLR_BUILD_QT":
+```
+cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/5.15.2/clang_64/lib/cmake/Qt5" -DTLR_BUILD_QT=ON -DCMAKE_BUILD_TYPE=Debug
+```
+Start the build:
+```
+cmake --build . -j 4
+```
+Try running the "tlrplay-qwidget" application:
+```
+./tlRender/src/tlRender-build/bin/tlrplay-qwidget/tlrplay-qwidget ../etc/SampleData/multiple_clips.otio
+```
+
+Notes for building on macOS
+---------------------------
+The CMake variable "CMAKE_OSX_ARCHITECTURES" can be used to specify the build
+architecture:
+```
+-DCMAKE_OSX_ARCHITECTURES=x86_64
 ```
 
 Building FFmpeg on Windows
@@ -227,7 +288,33 @@ cmake --build . -j 4 --config Debug
 ```
 Try running the "tlrplay-glfw" application:
 ```
-set PATH=%CD%\install\bin;%CD%\install\lib;%PATH%
+set PATH=%CD%\install\bin;%PATH%
 .\install\bin\tlrplay-glfw ..\etc\SampleData\multiple_clips.otio
 ```
 
+Building on Windows with Qt
+---------------------------
+Clone the repository:
+```
+git clone https://github.com/darbyjohnston/tlRender.git
+cd tlRender
+```
+Create a build directory:
+```
+mkdir build
+cd build
+```
+Run CMake with the super build script, adding the location of "Qt5Config.cmake" to "CMAKE_PREFIX_PATH"
+(make sure to use quotes), and enabling "TLR_BUILD_QT":
+```
+cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=%CD%/install -DCMAKE_PREFIX_PATH="%CD%/install;C:\Qt\5.15.2\msvc2019_64\lib\cmake\Qt5" -DTLR_BUILD_QT=ON -DCMAKE_BUILD_TYPE=Debug
+```
+Start the build:
+```
+cmake --build . -j 4 --config Debug
+```
+Try running the "tlrplay-qwidget" application:
+```
+set PATH=%CD%\install\bin;%PATH%
+.\install\bin\tlrplay-qwidget ..\etc\SampleData\multiple_clips.otio
+```

@@ -13,6 +13,8 @@
 #include <tlrCore/StringFormat.h>
 #include <tlrCore/Time.h>
 
+#include <glad/gl.h>
+
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
@@ -197,7 +199,7 @@ namespace tlr
             throw std::runtime_error("Cannot create window");
         }
         glfwMakeContextCurrent(_glfwWindow);
-        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+        if (!gladLoaderLoadGL())
         {
             throw std::runtime_error("Cannot initialize GLAD");
         }

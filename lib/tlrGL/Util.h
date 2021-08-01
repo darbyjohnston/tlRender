@@ -6,7 +6,7 @@
 
 #include <tlrCore/Image.h>
 
-#include <glad.h>
+#include <glad/gl.h>
 
 namespace tlr
 {

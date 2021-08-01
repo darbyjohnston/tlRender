@@ -8,6 +8,8 @@
 #include <tlrCore/StringFormat.h>
 #include <tlrCore/Time.h>
 
+#include <glad/gl.h>
+
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
@@ -163,7 +165,7 @@ namespace tlr
         _frameBufferSize.h = height;
         glfwGetWindowContentScale(_glfwWindow, &_contentScale.x, &_contentScale.y);
         glfwMakeContextCurrent(_glfwWindow);
-        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+        if (!gladLoaderLoadGL())
         {
             throw std::runtime_error("Cannot initialize GLAD");
         }

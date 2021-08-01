@@ -6,7 +6,7 @@
 
 #include <tlrCore/Util.h>
 
-#include <glad.h>
+#include <glad/gl.h>
 
 #include <memory>
 #include <vector>

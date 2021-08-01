@@ -58,7 +58,7 @@ namespace tlr
 
         void TimelineViewport::initializeGL()
         {
-            gladLoadGL();
+            gladLoaderLoadGL();
             _p->render = gl::Render::create();
         }
 
