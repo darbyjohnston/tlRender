@@ -154,6 +154,33 @@ export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
 ./install/bin/tlrplay-glfw ../etc/SampleData/multiple_clips.otio
 ```
 
+Building on Linux with Qt
+-------------------------
+Clone the repository:
+```
+git clone https://github.com/darbyjohnston/tlRender.git
+cd tlRender
+```
+Create a build directory:
+```
+mkdir build
+cd build
+```
+Run CMake with the super build script, adding the location of "Qt5Config.cmake" to "CMAKE_PREFIX_PATH"
+(make sure to use quotes), and enabling "TLR_BUILD_QT":
+```
+cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/5.15.2/gcc_64/lib/cmake/Qt5" -DTLR_BUILD_QT=ON -DCMAKE_BUILD_TYPE=Debug
+```
+Start the build:
+```
+cmake --build . -j 4
+```
+Try running the "tlrplay-qwidget" application:
+```
+export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
+./install/bin/tlrplay-qwidget ../etc/SampleData/multiple_clips.otio
+```
+
 Building on macOS
 -----------------
 Clone the repository:
@@ -243,8 +270,8 @@ Create a build directory:
 mkdir build
 cd build
 ```
-Run CMake with the super build script; add the location of "Qt5Config.cmake" to "CMAKE_PREFIX_PATH"
-(make sure to add quotes to the locations) and enable "TLR_BUILD_QT":
+Run CMake with the super build script, adding the location of "Qt5Config.cmake" to "CMAKE_PREFIX_PATH"
+(make sure to use quotes), and enabling "TLR_BUILD_QT":
 ```
 cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=%CD%/install -DCMAKE_PREFIX_PATH="%CD%/install;C:\Qt\5.15.2\msvc2019_64\lib\cmake\Qt5" -DTLR_BUILD_QT=ON -DCMAKE_BUILD_TYPE=Debug
 ```
