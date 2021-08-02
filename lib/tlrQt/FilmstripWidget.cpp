@@ -6,6 +6,8 @@
 
 #include <tlrQt/TimelineThumbnailProvider.h>
 
+#include <tlrCore/Math.h>
+
 #include <QHBoxLayout>
 #include <QPainter>
 #include <QResizeEvent>
@@ -18,14 +20,22 @@ namespace tlr
         struct FilmstripWidget::Private
         {
             std::shared_ptr<timeline::Timeline> timeline;
+            int rowCount = 1;
             TimelineThumbnailProvider* thumbnailProvider = nullptr;
-            std::map<otime::RationalTime, QImage> thumbnails;
+            QSize thumbnailSize;
+            struct Thumbnail
+            {
+                QImage image;
+                std::chrono::steady_clock::time_point time;
+            };
+            std::map<otime::RationalTime, Thumbnail> thumbnails;
         };
 
         FilmstripWidget::FilmstripWidget(QWidget* parent) :
             QWidget(parent),
             _p(new Private)
         {
+            TLR_PRIVATE_P();
             setSizePolicy(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
             setMinimumHeight(50);
         }
@@ -53,6 +63,16 @@ namespace tlr
             _thumbnailsUpdate();
         }
 
+        void FilmstripWidget::setRowCount(int value)
+        {
+            TLR_PRIVATE_P();
+            if (value == p.rowCount)
+                return;
+            p.rowCount = value;
+            updateGeometry();
+            _thumbnailsUpdate();
+        }
+
         void FilmstripWidget::resizeEvent(QResizeEvent* event)
         {
             if (event->oldSize() != size())
@@ -65,11 +85,28 @@ namespace tlr
         {
             TLR_PRIVATE_P();
             QPainter painter(this);
-            painter.fillRect(rect(), QColor(0, 0, 0));
+            const auto& rect = this->rect();
+            painter.fillRect(rect, QColor(0, 0, 0));
+            const int width = rect.width();
+            int x = 0;
+            int y = 0;
+            const auto now = std::chrono::steady_clock::now();
             for (const auto& i : p.thumbnails)
             {
-                const int x = _timeToPos(i.first);
-                painter.drawImage(QPoint(x, 0), i.second);
+                const auto diff = std::chrono::duration<float>(now - i.second.time);
+                const float opacity = math::lerp(diff.count(), 0.F, 1.F);
+                if (opacity < 1.F)
+                {
+                    update();
+                }
+                painter.setOpacity(opacity);
+                painter.drawImage(QPoint(x, y), i.second.image);
+                x += p.thumbnailSize.width();
+                if (x > width)
+                {
+                    x = 0;
+                    y += p.thumbnailSize.height();
+                }
             }
         }
 
@@ -78,37 +115,13 @@ namespace tlr
             TLR_PRIVATE_P();
             for (const auto& i : thumbnails)
             {
-                p.thumbnails[i.first] = i.second;
+                Private::Thumbnail thumbnail;
+                thumbnail.image = i.second;
+                thumbnail.time = std::chrono::steady_clock::now();
+                p.thumbnails[i.first] = thumbnail;
+
             }
             update();
-        }
-
-        otime::RationalTime FilmstripWidget::_posToTime(int value) const
-        {
-            TLR_PRIVATE_P();
-            otime::RationalTime out = time::invalidTime;
-            if (p.timeline)
-            {
-                const auto& globalStartTime = p.timeline->getGlobalStartTime();
-                const auto& duration = p.timeline->getDuration();
-                out = otime::RationalTime(
-                    floor(value / static_cast<double>(width()) * (duration.value() - 1) + globalStartTime.value()),
-                    duration.rate());
-            }
-            return out;
-        }
-
-        int FilmstripWidget::_timeToPos(const otime::RationalTime& value) const
-        {
-            TLR_PRIVATE_P();
-            int out = 0;
-            if (p.timeline)
-            {
-                const auto& globalStartTime = p.timeline->getGlobalStartTime();
-                const auto& duration = p.timeline->getDuration();
-                out = (value.value() - globalStartTime.value()) / (duration.value() - 1) * width();
-            }
-            return out;
         }
 
         void FilmstripWidget::_thumbnailsUpdate()
@@ -119,21 +132,24 @@ namespace tlr
             {
                 p.thumbnailProvider->cancelRequests();
 
-                const auto& duration = p.timeline->getDuration();
-                const auto& imageInfo = p.timeline->getImageInfo();
                 const auto& size = this->size();
                 const int width = size.width();
                 const int height = size.height();
-                const int thumbnailWidth = static_cast<int>(height * imageInfo.size.getAspect());
-                const int thumbnailHeight = height;
+                const auto& imageInfo = p.timeline->getImageInfo();
+                const int thumbnailHeight = height / p.rowCount;
+                const int thumbnailWidth = static_cast<int>(thumbnailHeight * imageInfo.size.getAspect());
+                p.thumbnailSize = QSize(thumbnailWidth, thumbnailHeight);
                 if (thumbnailWidth > 0)
                 {
                     QList<otime::RationalTime> requests;
-                    int x = 0;
-                    while (x < width)
+                    const auto& globalStartTime = p.timeline->getGlobalStartTime();
+                    const auto& duration = p.timeline->getDuration();
+                    const int count = static_cast<int>(ceilf(width / static_cast<float>(thumbnailWidth))) * p.rowCount;
+                    for (int i = 0; i < count; ++i)
                     {
-                        requests.push_back(_posToTime(x));
-                        x += thumbnailWidth;
+                        requests.push_back(otime::RationalTime(
+                            floor(i / static_cast<double>(count) * (duration.value() - 1) + globalStartTime.value()),
+                            duration.rate()));
                     }
                     p.thumbnailProvider->request(requests, QSize(thumbnailWidth, thumbnailHeight));
                 }
