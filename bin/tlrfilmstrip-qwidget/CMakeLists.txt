@@ -8,8 +8,6 @@ set(SOURCE
     SettingsObject.cpp
     main.cpp)
 
-#set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
 add_executable(tlrfilmstrip-qwidget ${SOURCE} ${HEADERS})
 target_link_libraries(tlrfilmstrip-qwidget tlrQt tlrApp)
 set_target_properties(tlrfilmstrip-qwidget PROPERTIES FOLDER bin)

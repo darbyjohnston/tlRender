@@ -10,8 +10,6 @@ set(SOURCE
     SettingsWidget.cpp
     main.cpp)
 
-#set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
 add_executable(tlrplay-qwidget ${SOURCE} ${HEADERS})
 target_link_libraries(tlrplay-qwidget tlrQt tlrApp)
 set_target_properties(tlrplay-qwidget PROPERTIES FOLDER bin)
