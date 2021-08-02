@@ -10,23 +10,26 @@ editorial timelines.
 The project includes libraries for rendering timelines with OpenGL and
 Qt, and example applications showing the usage of the libraries. 
 
-The project is written in C++ and uses OpenTimelineIO
-(https://github.com/PixarAnimationStudios/OpenTimelineIO) for reading
-timelines. FFmpeg (https://ffmpeg.org/) and other open source libraries
-are used for movie and image I/O. The tlRender code is provided under
-a BSD style open source license.
+The project is written in C++ and uses
+[OpenTimelineIO](https://github.com/PixarAnimationStudios/OpenTimelineIO)
+for reading timelines. FFmpeg (https://ffmpeg.org/) and other open source
+libraries are used for movie and image I/O. The tlRender code is provided
+under a BSD style open source license.
 
 Supported:
 * Movie clips
 * Image sequences (Cineon, DPX, JPEG, OpenEXR, PNG, TIFF)
-* Transitions
+* OpenColorIO
 * Gaps
+
+In progress:
+* Transitions
+* Rendering to files
 
 To do:
 * Effects
 * Audio support
 * Hardware movie decoding
-* Rendering to file
 * Nested timelines
 * Python bindings
 
@@ -40,31 +43,31 @@ The core library providing timeline functionality, file I/O, and other
 utilities.
 
 Dependencies:
-* OpenTimelineIO - https://github.com/PixarAnimationStudios/OpenTimelineIO
-* FSeq - https://github.com/darbyjohnston/FSeq
-* ZLIB - https://zlib.net
+* [OpenTimelineIO](https://github.com/PixarAnimationStudios/OpenTimelineIO)
+* [FSeq](https://github.com/darbyjohnston/FSeq)
+* [ZLIB](https://zlib.net)
 
 Optional dependencies:
-* FFmpeg - https://ffmpeg.org
-* JPEG - https://libjpeg-turbo.org
-* OpenEXR - https://www.openexr.com/
-* PNG - https://libpng.sourceforge.io/index.html
-* TIFF - http://www.libtiff.org
+* [FFmpeg](https://ffmpeg.org)
+* [JPEG](https://libjpeg-turbo.org)
+* [OpenEXR](https://www.openexr.com/)
+* [PNG](https://libpng.sourceforge.io/index.html)
+* [TIFF](http://www.libtiff.org)
 
 tlrGL
 -----
 Timeline rendering using OpenGL.
 
 Dependencies:
-* glad - https://github.com/Dav1dde/glad
-* FreeType - https://www.freetype.org
+* [glad](https://github.com/Dav1dde/glad)
+* [FreeType](https://www.freetype.org)
 
 tlrQt
 -----
-Qt widgets and objects for rendering and controlling timelines.
+Qt widgets and objects for working with timelines.
 
 Dependencies:
-* Qt - https://www.qt.io
+* [Qt](https://www.qt.io)
 
 tlrApp
 ------
@@ -86,7 +89,7 @@ keyboard shortcuts, and command line options provide controls for the
 application. 
 
 Dependencies:
-* GLFW - https://www.glfw.org
+* [GLFW](https://www.glfw.org)
 
 tlrplay-qwidget
 ---------------
