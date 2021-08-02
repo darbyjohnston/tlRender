@@ -73,7 +73,7 @@ namespace tlr
 
         GLFWwindow* _glfwWindow = nullptr;
         math::Vector2i _windowPos;
-        imaging::Size _windowSize = imaging::Size(640, 360);
+        imaging::Size _windowSize = imaging::Size(1280, 720);
         imaging::Size _frameBufferSize;
         math::Vector2f _contentScale;
         std::shared_ptr<gl::FontSystem> _fontSystem;
