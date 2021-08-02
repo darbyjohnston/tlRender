@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
     timelineViewport->setTimelinePlayer(timelinePlayer);
     timelineViewport->show();
 
-    // Play the timeline.
+    // Start playback.
     timelinePlayer->setPlayback(tlr::timeline::Playback::Forward);
 
     return app.exec();
