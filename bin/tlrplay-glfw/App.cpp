@@ -56,6 +56,11 @@ namespace tlr
                     "The input timeline.")
             },
             {
+                app::CmdLineValueOption<imaging::Size>::create(
+                    _options.windowSize,
+                    { "-windowSize", "-ws" },
+                    "Window size.",
+                    string::Format("{0}x{1}").arg(_options.windowSize.w).arg(_options.windowSize.h)),
                 app::CmdLineFlagOption::create(
                     _options.fullScreen,
                     { "-fullScreen", "-fs" },
@@ -148,8 +153,8 @@ namespace tlr
         glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
         //glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
         _glfwWindow = glfwCreateWindow(
-            _windowSize.w,
-            _windowSize.h,
+            _options.windowSize.w,
+            _options.windowSize.h,
             "tlrplay-glfw",
             NULL,
             NULL);
@@ -228,8 +233,8 @@ namespace tlr
         int width = 0;
         int height = 0;
         glfwGetWindowSize(_glfwWindow, &width, &height);
-        _windowSize.w = width;
-        _windowSize.h = height;
+        _options.windowSize.w = width;
+        _options.windowSize.h = height;
 
         GLFWmonitor* glfwMonitor = glfwGetPrimaryMonitor();
         const GLFWvidmode* glfwVidmode = glfwGetVideoMode(glfwMonitor);
@@ -242,7 +247,7 @@ namespace tlr
         _options.fullScreen = false;
 
         GLFWmonitor* glfwMonitor = glfwGetPrimaryMonitor();
-        glfwSetWindowMonitor(_glfwWindow, NULL, _windowPos.x, _windowPos.y, _windowSize.w, _windowSize.h, 0);
+        glfwSetWindowMonitor(_glfwWindow, NULL, _windowPos.x, _windowPos.y, _options.windowSize.w, _options.windowSize.h, 0);
     }
 
     void App::_fullscreenCallback(bool value)
