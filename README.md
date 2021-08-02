@@ -13,14 +13,14 @@ Qt, and example applications showing the usage of the libraries.
 The project is written in C++ and uses
 [OpenTimelineIO](https://github.com/PixarAnimationStudios/OpenTimelineIO)
 for reading timelines. FFmpeg (https://ffmpeg.org/) and other open source
-libraries are used for movie and image I/O. The tlRender code is provided
-under a BSD style open source license.
+libraries are used for movie and image I/O.
+
+The tlRender code is provided under a BSD style open source license.
 
 Supported:
 * Movie clips
 * Image sequences (Cineon, DPX, JPEG, OpenEXR, PNG, TIFF)
 * OpenColorIO
-* Gaps
 
 In progress:
 * Transitions
@@ -81,8 +81,8 @@ tlrplay-glfw
 ------------
 ![tlrplay](etc/Images/tlrplay-glfw-screenshot1.PNG)
 
-The example application "tlrplay-glfw" plays back timelines using
-tlRender with GLFW.
+The example "tlrplay-glfw" plays back timelines using a GLFW based
+application.
 
 Timelines can be opened from the command line. A HUD (heads up display),
 keyboard shortcuts, and command line options provide controls for the
@@ -95,8 +95,8 @@ tlrplay-qwidget
 ---------------
 ![tlrplay](etc/Images/tlrplay-qwidget-screenshot1.PNG)
 
-The example application "tlrplay-qwidget" plays back timelines using
-tlRender with a QWidget application.
+The example "tlrplay-qwidget" plays back timelines using a QWidget based
+application.
 
 Timelines can be opened from the "File/Open" menu, drag and dropped onto the
 window, or from the command line. Menus, playback buttons, a frame slider,
@@ -104,7 +104,7 @@ and keyboard shortcuts provide controls for the application.
 
 tlrbake-glfw
 ------------
-The example application "tlrbake-glfw" is a command-line application for
+The example "tlrbake-glfw" is a GLFW based command-line application for
 rendering a timeline to a movie file or image file sequence.
 
 
