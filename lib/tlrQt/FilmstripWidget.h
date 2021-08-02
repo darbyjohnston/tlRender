@@ -28,6 +28,9 @@ namespace tlr
             //! Set the timeline.
             void setTimeline(const std::shared_ptr<tlr::timeline::Timeline>&);
 
+            //! Set the row count.
+            void setRowCount(int);
+
         protected:
             void resizeEvent(QResizeEvent*) override;
             void paintEvent(QPaintEvent*) override;
@@ -36,9 +39,6 @@ namespace tlr
             void _thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >&);
 
         private:
-            otime::RationalTime _posToTime(int) const;
-            int _timeToPos(const otime::RationalTime&) const;
-
             void _thumbnailsUpdate();
 
             TLR_PRIVATE();

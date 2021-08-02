@@ -4,11 +4,11 @@
 
 #include "App.h"
 
+#include "MainWindow.h"
+
 #include <tlrCore/Math.h>
 #include <tlrCore/StringFormat.h>
 #include <tlrCore/Time.h>
-
-#include <QMessageBox>
 
 void qtInitResources()
 {
@@ -41,61 +41,12 @@ namespace tlr
 
         qtInitResources();
 
-        qRegisterMetaType<qt::TimeUnits>("tlr::qt::TimeUnits");
-        qRegisterMetaTypeStreamOperators<qt::TimeUnits>("tlr::qt::TimeUnits");
-
         QCoreApplication::setOrganizationName("tlRender");
         QCoreApplication::setApplicationName("tlrfilmstrip-qwidget");
 
         setStyle("Fusion");
 
-        _timeObject = new qt::TimeObject(this);
-        _settingsObject = new SettingsObject(_timeObject, this);
-
-        _mainWindow = new MainWindow(_settingsObject, _timeObject);
-
-        if (!_input.empty())
-        {
-            open(_input.c_str());
-        }
-
-        _mainWindow->show();
-    }
-
-    void App::open(const QString& fileName)
-    {
-        try
-        {
-            auto timeline = timeline::Timeline::create(file::Path(fileName.toLatin1().data()), _context);
-            _timelines.append(timeline);
-
-            Q_EMIT opened(timeline);
-
-            _settingsObject->addRecentFile(fileName);
-        }
-        catch (const std::exception& e)
-        {
-            QMessageBox dialog;
-            dialog.setText(e.what());
-            dialog.exec();
-        }
-    }
-
-    void App::close(const std::shared_ptr<timeline::Timeline>& timeline)
-    {
-        const int i = _timelines.indexOf(timeline);
-        if (i != -1)
-        {
-            _timelines.removeAt(i);
-            Q_EMIT closed(timeline);
-        }
-    }
-
-    void App::closeAll()
-    {
-        while (!_timelines.empty())
-        {
-            close(_timelines.back());
-        }
+        auto mainWindow = new MainWindow(_input, _context);
+        mainWindow->show();
     }
 }
