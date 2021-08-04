@@ -1,11 +1,9 @@
 set(HEADERS
     App.h
-    MainWindow.h
-    SettingsObject.h)
+    MainWindow.h)
 set(SOURCE
     App.cpp
     MainWindow.cpp
-    SettingsObject.cpp
     main.cpp)
 
 add_executable(tlrfilmstrip-qwidget ${SOURCE} ${HEADERS})
