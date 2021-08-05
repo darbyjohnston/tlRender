@@ -23,5 +23,10 @@ namespace tlr
             }
             return out;
         }
+
+        inline bool isTimeEqual(const Frame& a, const Frame& b)
+        {
+            return a.time == b.time;
+        }
     }
 }

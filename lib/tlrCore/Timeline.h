@@ -72,6 +72,9 @@ namespace tlr
             bool operator != (const Frame&) const;
         };
 
+        //! Compare the time value of two frames.
+        bool isTimeEqual(const Frame&, const Frame&);
+
         //! Timeline.
         class Timeline : public std::enable_shared_from_this<Timeline>
         {

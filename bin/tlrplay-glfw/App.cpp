@@ -347,7 +347,7 @@ namespace tlr
         // Update.
         _timelinePlayer->tick();
         const auto& frame = _timelinePlayer->observeFrame()->get();
-        if (frame != _frame)
+        if (!timeline::isTimeEqual(frame, _frame))
         {
             _frame = frame;
             _renderDirty = true;
