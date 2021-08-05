@@ -6,9 +6,9 @@
 
 #include <tlrQt/TimeObject.h>
 
-#include <tlrCore/Util.h>
-
 #include <QWidget>
+
+#include <memory>
 
 namespace tlr
 {
