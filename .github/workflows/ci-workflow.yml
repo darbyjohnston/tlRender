@@ -88,10 +88,10 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Install Qt
-      run: >
-        $ErrorActionPreference = "Stop" &&
-        $url = "http://download.qt.io/official_releases/qt/5.12/5.12.11/qt-opensource-windows-x86-5.12.11.exe" &&
-        Invoke-WebRequest -Uri $url -OutFile qt-opensource-windows-x86-5.12.11.exe -UserAgent "NativeClient" &&
+      run: |
+        $ErrorActionPreference = "Stop"
+        $url = "http://download.qt.io/official_releases/qt/5.12/5.12.11/qt-opensource-windows-x86-5.12.11.exe"
+        Invoke-WebRequest -Uri $url -OutFile qt-opensource-windows-x86-5.12.11.exe -UserAgent "NativeClient"
         qt-opensource-windows-x86-5.12.11.exe --verbose --root $pwd/qt --accept-messages --default-answer --accept-licenses --confirm-command --accept-obligations install
 
     - name: Setup environment
