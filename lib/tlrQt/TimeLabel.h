@@ -8,6 +8,8 @@
 
 #include <QWidget>
 
+#include <memory>
+
 namespace tlr
 {
     namespace qt
