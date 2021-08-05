@@ -13,8 +13,6 @@
 
 namespace tlr
 {
-    Q_NAMESPACE
-    
     namespace qt
     {
         Q_NAMESPACE
@@ -27,6 +25,8 @@ namespace tlr
             Timecode
         };
         Q_ENUM_NS(TimeUnits);
+        QDataStream& operator << (QDataStream&, const TimeUnits&);
+        QDataStream& operator >> (QDataStream&, TimeUnits&);
 
         //! Get the time units size hint string.
         QString sizeHintString(TimeUnits);
@@ -70,3 +70,4 @@ namespace tlr
 }
 
 Q_DECLARE_METATYPE(tlr::qt::TimeUnits);
+

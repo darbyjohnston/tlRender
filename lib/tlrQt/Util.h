@@ -5,3 +5,14 @@
 #pragma once
 
 #include <glad/gl.h>
+
+namespace tlr
+{
+    //! Qt support.
+    namespace qt
+    {
+        //! Initialize Qt.
+        void init();
+    }
+}
+

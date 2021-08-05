@@ -4,6 +4,8 @@
 
 #include <tlrQt/TimelineViewport.h>
 
+#include <QSurfaceFormat>
+
 namespace tlr
 {
     namespace qt
@@ -19,7 +21,13 @@ namespace tlr
         TimelineViewport::TimelineViewport(QWidget* parent) :
             QOpenGLWidget(parent),
             _p(new Private)
-        {}
+        {
+            QSurfaceFormat surfaceFormat;
+            surfaceFormat.setMajorVersion(4);
+            surfaceFormat.setMinorVersion(1);
+            surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
+            setFormat(surfaceFormat);
+        }
         
         TimelineViewport::~TimelineViewport()
         {}
