@@ -10,6 +10,7 @@
 
 namespace tlr
 {
+    //! OpenGL support.
     namespace gl
     {
         //! Get the glReadPixels format.
