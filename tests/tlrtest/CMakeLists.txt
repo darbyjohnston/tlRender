@@ -7,14 +7,10 @@ set(LIBRARIES
     tlrAppTest
     tlrCoreTest)
 if(TLR_BUILD_GL)
-    set(LIBRARIES
-        ${LIBRARIES}
-        tlrGLTest)
+    list(APPEND LIBRARIES tlrGLTest)
 endif()
 if(TLR_BUILD_QT)
-    set(LIBRARIES
-        ${LIBRARIES}
-        tlrQtTest)
+    list(APPEND LIBRARIES tlrQtTest)
 endif()
 target_link_libraries(tlrtest ${LIBRARIES})
 set_target_properties(tlrtest PROPERTIES FOLDER tests)
