@@ -87,14 +87,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Install Qt
-      run: |
-        $ErrorActionPreference = "Stop"
-        $url = "http://download.qt.io/official_releases/qt/5.12/5.12.11/qt-opensource-windows-x86-5.12.11.exe"
-        Invoke-WebRequest -Uri $url -OutFile qt-opensource-windows-x86-5.12.11.exe -UserAgent "NativeClient"
-        qt-opensource-windows-x86-5.12.11.exe --verbose --root $pwd/qt --accept-messages --default-answer --accept-licenses --confirm-command --accept-obligations install
-      shell: powershell
-
     - name: Setup environment
       run: >
         echo "$pwd\build\install\bin;$pwd\build\install\lib;$env:path" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
