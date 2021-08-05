@@ -115,9 +115,8 @@ Dependencies
 ------------
 A CMake super build script is provided to build the dependencies from source.
 
-Note that Qt is not included in the super build, you must install it separately.
-Make sure that the QTDIR environment variable is set to the location of the Qt
-install.
+Note however that Qt is not included in the super build, you must install it
+separately.
 
 CMake Build Options
 -------------------
