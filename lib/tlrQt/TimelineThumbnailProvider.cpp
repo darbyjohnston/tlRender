@@ -12,6 +12,7 @@
 #include <QOffscreenSurface>
 #include <QOpenGLContext>
 #include <QOpenGLFramebufferObject>
+#include <QSurfaceFormat>
 
 #include <atomic>
 #include <mutex>
@@ -50,6 +51,11 @@ namespace tlr
             p.timeline = timeline;
 
             p.context = new QOpenGLContext;
+            QSurfaceFormat surfaceFormat;
+            surfaceFormat.setMajorVersion(4);
+            surfaceFormat.setMinorVersion(1);
+            surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
+            p.context->setFormat(surfaceFormat);
             p.context->create();
 
             p.surface = new QOffscreenSurface;

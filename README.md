@@ -183,6 +183,13 @@ export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
 ./install/bin/tlrplay-qwidget ../etc/SampleData/multiple_clips.otio
 ```
 
+Notes for building on Linux
+---------------------------
+Running gcovr for viewing code coverage:
+```
+gcovr -r ../../../../tlRender/lib/tlrCore --html --object-directory $PWD --html-details --output gcov.html
+```
+
 Building on macOS
 -----------------
 Clone the repository:

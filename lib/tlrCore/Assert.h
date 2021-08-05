@@ -7,7 +7,7 @@
 //! tlRender.
 namespace tlr
 {
-    //! Core.
+    //! Core functionality.
     namespace core
     {
         //! Assert (for convenience use the TLR_ASSERT macro).

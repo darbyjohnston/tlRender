@@ -24,7 +24,8 @@ set(SOURCE
     TimelineThumbnailProvider.cpp
     TimelineViewport.cpp
     TimelineWidget.cpp
-    ToolTipsFilter.cpp)
+    ToolTipsFilter.cpp
+    Util.cpp)
 qt5_add_resources(SOURCE tlrQt.qrc)
 
 add_library(tlrQt ${HEADERS} ${SOURCE})

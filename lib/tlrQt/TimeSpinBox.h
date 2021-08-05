@@ -8,6 +8,8 @@
 
 #include <QAbstractSpinBox>
 
+#include <memory>
+
 namespace tlr
 {
     namespace qt

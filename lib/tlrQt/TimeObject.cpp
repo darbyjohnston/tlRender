@@ -4,12 +4,27 @@
 
 #include <tlrQt/TimeObject.h>
 
+#include <QDataStream>
 #include <QRegExpValidator>
 
 namespace tlr
 {
     namespace qt
     {
+        QDataStream& operator << (QDataStream& ds, const TimeUnits& value)
+        {
+            ds << static_cast<qint32>(value);
+            return ds;
+        }
+        
+        QDataStream& operator >> (QDataStream& ds, TimeUnits& value)
+        {
+            qint32 tmp = 0;
+            ds >> tmp;
+            value = static_cast<TimeUnits>(tmp);
+            return ds;
+        }
+        
         QString sizeHintString(TimeUnits units)
         {
             QString out;

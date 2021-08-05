@@ -1,6 +1,9 @@
 include(ExternalProject)
 
-set(libsamplerate_ARGS ${TLR_EXTERNAL_ARGS})
+set(libsamplerate_ARGS
+    ${TLR_EXTERNAL_ARGS}
+    -DBUILD_TESTING=OFF
+    -DLIBSAMPLERATE_EXAMPLES=OFF)
 
 ExternalProject_Add(
     libsamplerate

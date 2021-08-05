@@ -9,12 +9,6 @@
 #include <tlrCore/Time.h>
 
 #include <QMessageBox>
-#include <QSurfaceFormat>
-
-void qtInitResources()
-{
-    Q_INIT_RESOURCE(tlrQt);
-}
 
 namespace tlr
 {
@@ -59,17 +53,10 @@ namespace tlr
         }
 
         // Initialize Qt.
-        qtInitResources();
-        qRegisterMetaType<qt::TimeUnits>("tlr::qt::TimeUnits");
-        qRegisterMetaTypeStreamOperators<qt::TimeUnits>("tlr::qt::TimeUnits");
+        qt::init();
         QCoreApplication::setOrganizationName("tlRender");
         QCoreApplication::setApplicationName("tlrplay-qwidget");
         setStyle("Fusion");
-        QSurfaceFormat surfaceFormat;
-        surfaceFormat.setMajorVersion(4);
-        surfaceFormat.setMinorVersion(1);
-        surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
-        QSurfaceFormat::setDefaultFormat(surfaceFormat);
 
         // Create objects.
         _timeObject = new qt::TimeObject(this);

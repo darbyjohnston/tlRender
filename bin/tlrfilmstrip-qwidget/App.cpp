@@ -10,11 +10,6 @@
 #include <tlrCore/StringFormat.h>
 #include <tlrCore/Time.h>
 
-void qtInitResources()
-{
-    Q_INIT_RESOURCE(tlrQt);
-}
-
 namespace tlr
 {
     App::App(int& argc, char** argv) :
@@ -39,13 +34,13 @@ namespace tlr
             return;
         }
 
-        qtInitResources();
-
+        // Initialize Qt.
+        qt::init();
         QCoreApplication::setOrganizationName("tlRender");
         QCoreApplication::setApplicationName("tlrfilmstrip-qwidget");
-
         setStyle("Fusion");
 
+        // Create the main window.
         auto mainWindow = new MainWindow(_input, _context);
         mainWindow->show();
     }

@@ -25,6 +25,9 @@ jobs:
 
     - name: Install Python dev
       run: sudo apt-get install python3.8-dev
+      
+    - name: Install Qt dev
+      run: sudo apt-get install qt5-default qtbase5-dev libqt5svg5-dev
 
     - name: Setup environment
       run: >
@@ -39,7 +42,8 @@ jobs:
         cmake ../etc/SuperBuild \
           -DCMAKE_BUILD_TYPE=Debug \
           -DCMAKE_INSTALL_PREFIX=$PWD/install \
-          -DCMAKE_PREFIX_PATH=$PWD/install &&
+          -DCMAKE_PREFIX_PATH=$PWD/install \
+          -DTLR_BUILD_QT=ON &&
         cmake --build . -j 4
 
     - name: Run tests
