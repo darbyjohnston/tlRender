@@ -17,6 +17,12 @@ jobs:
     - name: Install OpenGL dev
       run: sudo apt-get install xorg-dev libglu1-mesa-dev mesa-common-dev
 
+    - name: Install ALSA dev
+      run: sudo apt-get install libasound2-dev
+
+    - name: Install PulseAudio dev
+      run: sudo apt-get install libpulse-dev
+
     - name: Install Python dev
       run: sudo apt-get install python3.8-dev
 
