@@ -1,0 +1,1 @@
+m&&./tests/tlrtest/tlrtest&&gcovr -r ../../../../tlRender/lib/tlrCore --html --object-directory $PWD --html-details --output gcov.html

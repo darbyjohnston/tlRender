@@ -13,6 +13,8 @@
 
 namespace tlr
 {
+    Q_NAMESPACE
+    
     namespace qt
     {
         Q_NAMESPACE
