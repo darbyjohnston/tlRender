@@ -88,7 +88,6 @@ namespace tlr
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
-                    const size_t scanlineSize = info.size.w * tiffSamples * tiffSampleDepth / 8;
 
                     tiffCompression = COMPRESSION_NONE;
                     /*switch (_p->options.compression)
@@ -137,10 +136,11 @@ namespace tlr
                         TIFFSetField(_f, TIFFTAG_IMAGEDESCRIPTION, i->second.c_str());
                     }
 
-                    for (uint16_t y = 0; y < info.size.h; ++y)
+                    const size_t scanlineSize = info.size.w * tiffSamples * tiffSampleDepth / 8;
+                    const uint8_t* imageP = image->getData() + (info.size.h - 1) * scanlineSize;
+                    for (uint16_t y = 0; y < info.size.h; ++y, imageP -= scanlineSize)
                     {
-                        uint8_t* p = image->getData() + (y * scanlineSize);
-                        if (TIFFWriteScanline(_f, (tdata_t*)p, y) == -1)
+                        if (TIFFWriteScanline(_f, (tdata_t*)imageP, y) == -1)
                         {
                             throw std::runtime_error(string::Format("{0}: Cannot write scanline: {1}").arg(fileName).arg(y));
                         }

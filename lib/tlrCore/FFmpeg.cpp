@@ -93,6 +93,7 @@ namespace tlr
                 imaging::PixelType::L_U8,
                 imaging::PixelType::RGB_U8,
                 imaging::PixelType::RGBA_U8,
+                imaging::PixelType::YUV_420P
             };
         }
 

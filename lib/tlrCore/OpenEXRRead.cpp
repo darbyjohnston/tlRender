@@ -25,7 +25,9 @@ namespace tlr
                 const auto dw = f.dataWindow();
                 const int width = dw.max.x - dw.min.x + 1;
                 const int height = dw.max.y - dw.min.y + 1;
-                out.video.push_back(imaging::Info(width, height, pixelType));
+                imaging::Info imageInfo(width, height, pixelType);
+                imageInfo.layout.mirror.y = true;
+                out.video.push_back(imageInfo);
                 double speed = avio::sequenceDefaultSpeed;
                 readTags(f.header(), out.tags, speed);
                 out.videoDuration = otime::RationalTime(1.0, speed);

@@ -542,20 +542,20 @@ namespace tlr
             VBOVertex* vboP = reinterpret_cast<VBOVertex*>(vboData.data());
             vboP[0].vx = bbox.min.x;
             vboP[0].vy = bbox.min.y;
-            vboP[0].tx = 0;
-            vboP[0].ty = 0;
+            vboP[0].tx = info.layout.mirror.x ? 65535 : 0;
+            vboP[0].ty = info.layout.mirror.y ? 0 : 65535;
             vboP[1].vx = bbox.max.x;
             vboP[1].vy = bbox.min.y;
-            vboP[1].tx = 65535;
-            vboP[1].ty = 0;
+            vboP[1].tx = info.layout.mirror.x ? 0 : 65535;
+            vboP[1].ty = info.layout.mirror.y ? 0 : 65535;
             vboP[2].vx = bbox.min.x;
             vboP[2].vy = bbox.max.y;
-            vboP[2].tx = 0;
-            vboP[2].ty = 65535;
+            vboP[2].tx = info.layout.mirror.x ? 65535 : 0;
+            vboP[2].ty = info.layout.mirror.y ? 65535 : 0;
             vboP[3].vx = bbox.max.x;
             vboP[3].vy = bbox.max.y;
-            vboP[3].tx = 65535;
-            vboP[3].ty = 65535;
+            vboP[3].tx = info.layout.mirror.x ? 0 : 65535;
+            vboP[3].ty = info.layout.mirror.y ? 65535 : 0;
             auto vbo = VBO::create(4, VBOType::Pos2_F32_UV_U16);
             vbo->copy(vboData);
 

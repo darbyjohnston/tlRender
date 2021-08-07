@@ -122,19 +122,19 @@ namespace tlr
                     switch (info.pixelType)
                     {
                     case imaging::PixelType::L_U8: scanlineSize = info.size.w; break;
-                    case imaging::PixelType::L_U16: scanlineSize = info.size.w * 2; break;
-                    case imaging::PixelType::LA_U8: scanlineSize = info.size.w * 2; break;
-                    case imaging::PixelType::LA_U16: scanlineSize = info.size.w * 2 * 2; break;
-                    case imaging::PixelType::RGB_U8: scanlineSize = info.size.w * 3; break;
-                    case imaging::PixelType::RGB_U16: scanlineSize = info.size.w * 3 * 2; break;
-                    case imaging::PixelType::RGBA_U8: scanlineSize = info.size.w * 4; break;
-                    case imaging::PixelType::RGBA_U16: scanlineSize = info.size.w * 4 * 2; break;
+                    case imaging::PixelType::L_U16: scanlineSize = static_cast<size_t>(info.size.w) * 2; break;
+                    case imaging::PixelType::LA_U8: scanlineSize = static_cast<size_t>(info.size.w) * 2; break;
+                    case imaging::PixelType::LA_U16: scanlineSize = static_cast<size_t>(info.size.w) * 2 * 2; break;
+                    case imaging::PixelType::RGB_U8: scanlineSize = static_cast<size_t>(info.size.w) * 3; break;
+                    case imaging::PixelType::RGB_U16: scanlineSize = static_cast<size_t>(info.size.w) * 3 * 2; break;
+                    case imaging::PixelType::RGBA_U8: scanlineSize = static_cast<size_t>(info.size.w) * 4; break;
+                    case imaging::PixelType::RGBA_U16: scanlineSize = static_cast<size_t>(info.size.w) * 4 * 2; break;
                     default: break;
                     }
-                    for (uint16_t y = 0; y < info.size.h; ++y)
+                    const uint8_t* imageP = image->getData() + (info.size.h - 1) * scanlineSize;
+                    for (uint16_t y = 0; y < info.size.h; ++y, imageP -= scanlineSize)
                     {
-                        uint8_t* p = image->getData() + (y * scanlineSize);
-                        if (!pngScanline(_png, p))
+                        if (!pngScanline(_png, imageP))
                         {
                             throw std::runtime_error(string::Format("{0}: Cannot write scanline: {1}").arg(fileName).arg(y));
                         }

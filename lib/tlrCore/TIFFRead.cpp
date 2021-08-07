@@ -120,7 +120,9 @@ namespace tlr
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
 
-                    _info.video.push_back(imaging::Info(tiffWidth, tiffHeight, pixelType));
+                    imaging::Info imageInfo(tiffWidth, tiffHeight, pixelType);
+                    imageInfo.layout.mirror.y = true;
+                    _info.video.push_back(imageInfo);
 
                     char* tag = 0;
                     if (TIFFGetField(_f, TIFFTAG_ARTIST, &tag))
