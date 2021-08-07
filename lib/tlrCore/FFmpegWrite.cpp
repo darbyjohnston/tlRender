@@ -18,6 +18,7 @@ namespace tlr
     {
         struct Write::Private
         {
+            std::string fileName;
             AVOutputFormat* avOutputFormat = nullptr;
             AVFormatContext* avFormatContext = nullptr;
             AVCodec* avCodec = nullptr;
@@ -40,21 +41,21 @@ namespace tlr
             
             TLR_PRIVATE_P();
 
-            const std::string fileName = path.get();
+            p.fileName = path.get();
             if (info.video.empty())
             {
-                throw std::runtime_error(string::Format("{0}: No video").arg(fileName));
+                throw std::runtime_error(string::Format("{0}: No video").arg(p.fileName));
             }
 
-            p.avOutputFormat = av_guess_format(NULL, fileName.c_str(), NULL);
+            p.avOutputFormat = av_guess_format(NULL, p.fileName.c_str(), NULL);
             if (!p.avOutputFormat)
             {
-                throw std::runtime_error(string::Format("{0}: File not supported").arg(fileName));
+                throw std::runtime_error(string::Format("{0}: File not supported").arg(p.fileName));
             }
-            int r = avformat_alloc_output_context2(&p.avFormatContext, p.avOutputFormat, NULL, fileName.c_str());
+            int r = avformat_alloc_output_context2(&p.avFormatContext, p.avOutputFormat, NULL, p.fileName.c_str());
             if (r < 0)
             {
-                throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
+                throw std::runtime_error(string::Format("{0}: {1}").arg(p.fileName).arg(getErrorLabel(r)));
             }
             Profile profile = Profile::H264;
             int avProfile = 0;
@@ -107,7 +108,7 @@ namespace tlr
             p.avCodec = avcodec_find_encoder(p.avOutputFormat->video_codec);
             if (!p.avCodec)
             {
-                throw std::runtime_error(string::Format("{0}: Cannot find encoder").arg(fileName));
+                throw std::runtime_error(string::Format("{0}: Cannot find encoder").arg(p.fileName));
             }
             p.avVideoStream = avformat_new_stream(p.avFormatContext, p.avCodec);
 
@@ -131,13 +132,13 @@ namespace tlr
             r = avcodec_open2(p.avVideoStream->codec, p.avCodec, NULL);
             if (r < 0)
             {
-                throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
+                throw std::runtime_error(string::Format("{0}: {1}").arg(p.fileName).arg(getErrorLabel(r)));
             }
 
             r = avcodec_parameters_from_context(p.avVideoStream->codecpar, p.avVideoStream->codec);
             if (r < 0)
             {
-                throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
+                throw std::runtime_error(string::Format("{0}: {1}").arg(p.fileName).arg(getErrorLabel(r)));
             }
 
             p.avVideoStream->time_base = { rational.second, rational.first };
@@ -148,16 +149,16 @@ namespace tlr
                 av_dict_set(&p.avFormatContext->metadata, i.first.c_str(), i.second.c_str(), 0);
             }
 
-            r = avio_open(&p.avFormatContext->pb, fileName.c_str(), AVIO_FLAG_WRITE);
+            r = avio_open(&p.avFormatContext->pb, p.fileName.c_str(), AVIO_FLAG_WRITE);
             if (r < 0)
             {
-                throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
+                throw std::runtime_error(string::Format("{0}: {1}").arg(p.fileName).arg(getErrorLabel(r)));
             }
 
             r = avformat_write_header(p.avFormatContext, NULL);
             if (r < 0)
             {
-                throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
+                throw std::runtime_error(string::Format("{0}: {1}").arg(p.fileName).arg(getErrorLabel(r)));
             }
 
             p.avPacket = av_packet_alloc();
@@ -169,15 +170,19 @@ namespace tlr
             r = av_frame_get_buffer(p.avFrame, 0);
             if (r < 0)
             {
-                throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
+                throw std::runtime_error(string::Format("{0}: {1}").arg(p.fileName).arg(getErrorLabel(r)));
             }
 
             p.avFrame2 = av_frame_alloc();
             switch (videoInfo.pixelType)
             {
-            case imaging::PixelType::L_U8: p.avPixelFormatIn = AV_PIX_FMT_GRAY8; break;
-            case imaging::PixelType::RGB_U8: p.avPixelFormatIn = AV_PIX_FMT_RGB24; break;
-            case imaging::PixelType::RGBA_U8: p.avPixelFormatIn = AV_PIX_FMT_RGBA; break;
+            case imaging::PixelType::L_U8:     p.avPixelFormatIn = AV_PIX_FMT_GRAY8;   break;
+            case imaging::PixelType::RGB_U8:   p.avPixelFormatIn = AV_PIX_FMT_RGB24;   break;
+            case imaging::PixelType::RGBA_U8:  p.avPixelFormatIn = AV_PIX_FMT_RGBA;    break;
+            case imaging::PixelType::YUV_420P: p.avPixelFormatIn = AV_PIX_FMT_YUV420P; break;
+            default:
+                throw std::runtime_error(string::Format("{0}: Incompatible pixel type").arg(p.fileName));
+                break;
             }
             p.swsContext = sws_getContext(
                 videoInfo.size.w,
@@ -257,13 +262,29 @@ namespace tlr
                 p.avPixelFormatIn,
                 info.size.w,
                 info.size.h,
-                1);
-            //! \bug This is wrong for flipping YUV data.
-            //for (int i = 0; i < 4; i++)
-            //{
-            //    p.avFrame2->data[i] += p.avFrame2->linesize[i] * (info.size.h - 1);
-            //    p.avFrame2->linesize[i] = -p.avFrame2->linesize[i];
-            //}
+                info.layout.alignment);
+
+            // Flip the image vertically.
+            switch (info.pixelType)
+            {
+            case imaging::PixelType::L_U8:
+            case imaging::PixelType::RGB_U8:
+            case imaging::PixelType::RGBA_U8:
+            {
+                const uint8_t channelCount = imaging::getChannelCount(info.pixelType);
+                for (uint8_t i = 0; i < channelCount; i++)
+                {
+                    p.avFrame2->data[i] += p.avFrame2->linesize[i] * (info.size.h - 1);
+                    p.avFrame2->linesize[i] = -p.avFrame2->linesize[i];
+                }
+                break;
+            }
+            case imaging::PixelType::YUV_420P:
+                //! \bug How do we flip YUV data?
+                throw std::runtime_error(string::Format("{0}: Incompatible pixel type").arg(p.fileName));
+                break;
+            }
+
             sws_scale(
                 p.swsContext,
                 (uint8_t const* const*)p.avFrame2->data,
@@ -285,11 +306,10 @@ namespace tlr
         {
             TLR_PRIVATE_P();
 
-            const std::string fileName = _path.get();
             int r = avcodec_send_frame(p.avVideoStream->codec, frame);
             if (r < 0)
             {
-                throw std::runtime_error(string::Format("{0}: Cannot write frame").arg(fileName));
+                throw std::runtime_error(string::Format("{0}: Cannot write frame").arg(p.fileName));
             }
 
             while (r >= 0)
@@ -301,12 +321,12 @@ namespace tlr
                 }
                 else if (r < 0)
                 {
-                    throw std::runtime_error(string::Format("{0}: Cannot write frame").arg(fileName));
+                    throw std::runtime_error(string::Format("{0}: Cannot write frame").arg(p.fileName));
                 }
                 r = av_interleaved_write_frame(p.avFormatContext, p.avPacket);
                 if (r < 0)
                 {
-                    throw std::runtime_error(string::Format("{0}: Cannot write frame").arg(fileName));
+                    throw std::runtime_error(string::Format("{0}: Cannot write frame").arg(p.fileName));
                 }
                 av_packet_unref(p.avPacket);
             }

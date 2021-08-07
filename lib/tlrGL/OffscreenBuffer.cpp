@@ -215,12 +215,13 @@ namespace tlr
         OffscreenBufferBinding::OffscreenBufferBinding(const std::shared_ptr<OffscreenBuffer>& buffer) :
             _buffer(buffer)
         {
+            glGetIntegerv(GL_FRAMEBUFFER_BINDING, &_previous);
             _buffer->bind();
         }
 
         OffscreenBufferBinding::~OffscreenBufferBinding()
         {
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            glBindFramebuffer(GL_FRAMEBUFFER, _previous);
         }
     }
 }

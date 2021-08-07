@@ -318,15 +318,15 @@ namespace tlr
             }
             switch (static_cast<Orient>(out.image.orient))
             {
-            case Orient::LeftRightBottomTop:
+            case Orient::LeftRightTopBottom:
                 imageInfo.layout.mirror.y = true;
                 break;
             case Orient::RightLeftTopBottom:
                 imageInfo.layout.mirror.x = true;
+                imageInfo.layout.mirror.y = true;
                 break;
             case Orient::RightLeftBottomTop:
                 imageInfo.layout.mirror.x = true;
-                imageInfo.layout.mirror.y = true;
                 break;
             case Orient::TopBottomLeftRight:
             case Orient::TopBottomRightLeft:

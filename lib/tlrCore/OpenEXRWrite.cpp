@@ -47,9 +47,9 @@ namespace tlr
             Imf::Header header(info.size.w, info.size.h);
             writeTags(image->getTags(), avio::sequenceDefaultSpeed, header);
             Imf::RgbaOutputFile f(fileName.c_str(), header);
-            const size_t scanlineSize = info.size.w * 4 * 2;
-            uint8_t* p = image->getData();
-            f.setFrameBuffer(reinterpret_cast<Imf::Rgba*>(p), 1, info.size.w);
+            const size_t scanlineSize = static_cast<size_t>(info.size.w) * 4 * 2;
+            const uint8_t* p = image->getData() + (info.size.h - 1) * scanlineSize;
+            f.setFrameBuffer(reinterpret_cast<const Imf::Rgba*>(p), 1, -info.size.w);
             f.writePixels(info.size.h);
         }
     }

@@ -93,6 +93,26 @@ namespace tlr
                 TLR_ASSERT(info.isValid());
             }
             {
+                Info info(1, 2, PixelType::L_U8);
+                info.layout.alignment = 1;
+                TLR_ASSERT(getDataByteCount(info) == 2);
+            }
+            {
+                Info info(1, 2, PixelType::L_U8);
+                info.layout.alignment = 2;
+                TLR_ASSERT(getDataByteCount(info) == 4);
+            }
+            {
+                Info info(1, 2, PixelType::L_U8);
+                info.layout.alignment = 4;
+                TLR_ASSERT(getDataByteCount(info) == 8);
+            }
+            {
+                Info info(1, 2, PixelType::L_U16);
+                info.layout.alignment = 4;
+                TLR_ASSERT(getDataByteCount(info) == 8);
+            }
+            {
                 TLR_ASSERT(Info(1, 2, PixelType::L_U8) == Info(1, 2, PixelType::L_U8));
                 TLR_ASSERT(Info(1, 2, PixelType::L_U8) != Info(1, 2, PixelType::L_U16));
             }

@@ -183,12 +183,15 @@ namespace tlr
                 memory::Endian  endian    = memory::getEndian()) noexcept;
 
             Mirror         mirror;
-            uint8_t        alignment;
-            memory::Endian endian;
+            uint8_t        alignment = 1;
+            memory::Endian endian    = memory::getEndian();
 
             constexpr bool operator == (const Layout&) const noexcept;
             constexpr bool operator != (const Layout&) const noexcept;
         };
+
+        //! Align a number of bytes.
+        size_t align(size_t value, size_t alignment);
 
         //! Image information.
         class Info
@@ -199,8 +202,8 @@ namespace tlr
             explicit Info(uint16_t w, uint16_t h, PixelType);
 
             Size      size;
-            float     pixelAspectRatio;
-            PixelType pixelType;
+            float     pixelAspectRatio = 1.F;
+            PixelType pixelType        = PixelType::None;
             Layout    layout;
 
             //! Is the information valid?

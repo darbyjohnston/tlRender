@@ -248,6 +248,7 @@ namespace tlr
                 imaging::Info videoInfo;
                 videoInfo.size.w = p.avCodecParameters[p.avVideoStream]->width;
                 videoInfo.size.h = p.avCodecParameters[p.avVideoStream]->height;
+                videoInfo.layout.mirror.y = true;
 
                 const AVPixelFormat avPixelFormat = static_cast<AVPixelFormat>(p.avCodecParameters[p.avVideoStream]->format);
                 switch (avPixelFormat)

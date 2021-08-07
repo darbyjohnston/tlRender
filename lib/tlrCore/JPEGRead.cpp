@@ -108,7 +108,9 @@ namespace tlr
                         throw std::runtime_error(string::Format("{0}: File not supported").arg(fileName));
                     }
 
-                    _info.video.push_back(imaging::Info(_decompress.output_width, _decompress.output_height, pixelType));
+                    imaging::Info imageInfo(_decompress.output_width, _decompress.output_height, pixelType);
+                    imageInfo.layout.mirror.y = true;
+                    _info.video.push_back(imageInfo);
 
                     const jpeg_saved_marker_ptr marker = _decompress.marker_list;
                     if (marker)

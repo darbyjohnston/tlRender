@@ -213,42 +213,52 @@ namespace tlr
             return !diff.empty() ? diff.begin()->second : PixelType::None;
         }
 
+        size_t align(size_t value, size_t alignment)
+        {
+            return (value / alignment * alignment) + (value % alignment != 0 ? alignment : 0);
+        }
+
         std::size_t getDataByteCount(const Info& info)
         {
             std::size_t out = 0;
             const size_t w = info.size.w;
             const size_t h = info.size.h;
-            const std::array<std::size_t, static_cast<size_t>(PixelType::Count)> values =
+            const size_t alignment = info.layout.alignment;
+            switch (info.pixelType)
             {
-                0,
-                w * h,
-                w * h * 2,
-                w * h * 4,
-                w * h * 2,
-                w * h * 4,
+            case PixelType::L_U8:     out = align(w, alignment) * h; break;
+            case PixelType::L_U16:    out = align(w * 2, alignment) * h; break;
+            case PixelType::L_U32:    out = align(w * 4, alignment) * h; break;
+            case PixelType::L_F16:    out = align(w * 2, alignment) * h; break;
+            case PixelType::L_F32:    out = align(w * 4, alignment) * h; break;
 
-                w * h * 2,
-                w * h * 2 * 2,
-                w * h * 2 * 4,
-                w * h * 2 * 2,
-                w * h * 2 * 4,
+            case PixelType::LA_U8:    out = align(w * 2, alignment) * h; break;
+            case PixelType::LA_U16:   out = align(w * 2 * 2, alignment) * h; break;
+            case PixelType::LA_U32:   out = align(w * 2 * 4, alignment) * h; break;
+            case PixelType::LA_F16:   out = align(w * 2 * 2, alignment) * h; break;
+            case PixelType::LA_F32:   out = align(w * 2 * 4, alignment) * h; break;
 
-                w * h * 3,
-                w * h * 4,
-                w * h * 3 * 2,
-                w * h * 3 * 4,
-                w * h * 3 * 2,
-                w * h * 3 * 4,
+            case PixelType::RGB_U8:   out = align(w * 3, alignment) * h; break;
+            case PixelType::RGB_U10:  out = align(w * 4, alignment) * h; break;
+            case PixelType::RGB_U16:  out = align(w * 3 * 2, alignment) * h; break;
+            case PixelType::RGB_U32:  out = align(w * 3 * 4, alignment) * h; break;
+            case PixelType::RGB_F16:  out = align(w * 3 * 2, alignment) * h; break;
+            case PixelType::RGB_F32:  out = align(w * 3 * 4, alignment) * h; break;
 
-                w * h * 4,
-                w * h * 4 * 2,
-                w * h * 4 * 4,
-                w * h * 4 * 2,
-                w * h * 4 * 4,
+            case PixelType::RGBA_U8:  out = align(w * 4, alignment) * h; break;
+            case PixelType::RGBA_U16: out = align(w * 4 * 2, alignment) * h; break;
+            case PixelType::RGBA_U32: out = align(w * 4 * 4, alignment) * h; break;
+            case PixelType::RGBA_F16: out = align(w * 4 * 2, alignment) * h; break;
+            case PixelType::RGBA_F32: out = align(w * 4 * 4, alignment) * h; break;
 
-                w * h + (w / 2 * h / 2) * 2
-            };
-            return values[static_cast<size_t>(info.pixelType)];
+            case PixelType::YUV_420P:
+                //! \todo Is YUV data aligned?
+                out = w * h + (w / 2 * h / 2) * 2;
+                break;
+
+            default: break;
+            }
+            return out;
         }
 
         std::ostream& operator << (std::ostream& os, const imaging::Info& value)
