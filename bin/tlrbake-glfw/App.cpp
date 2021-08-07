@@ -281,7 +281,7 @@ namespace tlr
             otime::RationalTime(1.0, _currentTime.rate())) });
 
         // Render the frame.
-        _render->begin(_renderInfo.size, true);
+        _render->begin(_renderInfo.size);
         const auto frame = _timeline->getFrame(_timeline->getGlobalStartTime() + _currentTime).get();
         _render->drawFrame(frame);
         _render->end();

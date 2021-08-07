@@ -5,6 +5,7 @@
 #include <tlrGL/Render.h>
 
 #include <tlrGL/Mesh.h>
+#include <tlrGL/OffscreenBuffer.h>
 #include <tlrGL/Shader.h>
 #include <tlrGL/Texture.h>
 
@@ -219,6 +220,8 @@ namespace tlr
 
             std::shared_ptr<Shader> shader;
 
+            std::shared_ptr<OffscreenBuffer> offscreenBuffer;
+
             memory::LRUCache<GlyphInfo, std::shared_ptr<Texture> > glyphTextureCache;
         };
 
@@ -390,7 +393,7 @@ namespace tlr
             p.shader.reset();
         }
 
-        void Render::begin(const imaging::Size& size, bool flipY)
+        void Render::begin(const imaging::Size& size)
         {
             TLR_PRIVATE_P();
 
@@ -418,8 +421,8 @@ namespace tlr
             const auto viewMatrix = math::ortho(
                 0.F,
                 static_cast<float>(p.size.w),
-                flipY ? 0.F : static_cast<float>(p.size.h),
-                flipY ? static_cast<float>(p.size.h) : 0.F,
+                static_cast<float>(p.size.h),
+                0.F,
                 -1.F,
                 1.F);
             p.shader->setUniform("transform.mvp", viewMatrix);
@@ -567,36 +570,82 @@ namespace tlr
 
             for (const auto& i : frame.layers)
             {
-                if (i.image && i.imageB)
+                switch (i.transition)
                 {
-                    switch (i.transition)
+                case timeline::Transition::Dissolve:
+                {
+                    if (!p.offscreenBuffer || (p.offscreenBuffer && p.offscreenBuffer->getSize() != p.size))
                     {
-                    case timeline::Transition::Dissolve:
+                        p.offscreenBuffer = OffscreenBuffer::create(p.size, imaging::PixelType::RGBA_F32);
+                    }
+
                     {
-                        //! \todo This should be drawn to an offscreen buffer.
-                        glBlendFunc(GL_ONE, GL_ZERO);
-                        const float t = 1.F - i.transitionValue;
+                        auto binding = OffscreenBufferBinding(p.offscreenBuffer);
+                        glClear(GL_COLOR_BUFFER_BIT);
+                        glBlendFunc(GL_ONE, GL_ONE);
+                        if (i.image)
+                        {
+                            const float t = 1.F - i.transitionValue;
+                            drawImage(
+                                i.image,
+                                imaging::getBBox(i.image->getAspect(), p.size),
+                                imaging::Color4f(t, t, t, t));
+                        }
+                        if (i.imageB)
+                        {
+                            const float tB = i.transitionValue;
+                            drawImage(
+                                i.imageB,
+                                imaging::getBBox(i.imageB->getAspect(), p.size),
+                                imaging::Color4f(tB, tB, tB, tB));
+                        }
+                        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                    }
+
+                    p.shader->setUniform("colorMode", static_cast<int>(ColorMode::TextureColorConfig));
+                    p.shader->setUniform("color", imaging::Color4f(1.F, 1.F, 1.F));
+                    p.shader->setUniform("pixelType", static_cast<int>(imaging::PixelType::RGBA_F32));
+                    p.shader->setUniform("textureSampler0", 0);
+
+                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
+                    glBindTexture(GL_TEXTURE_2D, p.offscreenBuffer->getColorID());
+
+                    std::vector<uint8_t> vboData;
+                    vboData.resize(4 * getByteCount(VBOType::Pos2_F32_UV_U16));
+                    VBOVertex* vboP = reinterpret_cast<VBOVertex*>(vboData.data());
+                    vboP[0].vx = 0.F;
+                    vboP[0].vy = 0.F;
+                    vboP[0].tx = 0;
+                    vboP[0].ty = 65535;
+                    vboP[1].vx = p.size.w;
+                    vboP[1].vy = 0.F;
+                    vboP[1].tx = 65535;
+                    vboP[1].ty = 65535;
+                    vboP[2].vx = 0.F;
+                    vboP[2].vy = p.size.h;
+                    vboP[2].tx = 0;
+                    vboP[2].ty = 0;
+                    vboP[3].vx = p.size.w;
+                    vboP[3].vy = p.size.h;
+                    vboP[3].tx = 65535;
+                    vboP[3].ty = 0;
+                    auto vbo = VBO::create(4, VBOType::Pos2_F32_UV_U16);
+                    vbo->copy(vboData);
+
+                    auto vao = VAO::create(vbo->getType(), vbo->getID());
+                    vao->bind();
+                    vao->draw(GL_TRIANGLE_STRIP, 0, 4);
+
+                    break;
+                }
+                default:
+                    if (i.image)
+                    {
                         drawImage(
                             i.image,
-                            imaging::getBBox(i.image->getAspect(), p.size),
-                            imaging::Color4f(t, t, t));
-                        glBlendFunc(GL_ONE, GL_ONE);
-                        const float tB = i.transitionValue;
-                        drawImage(
-                            i.imageB,
-                            imaging::getBBox(i.imageB->getAspect(), p.size),
-                            imaging::Color4f(tB, tB, tB));
-                        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                        break;
+                            imaging::getBBox(i.image->getAspect(), p.size));
                     }
-                    default: break;
-                    }
-                }
-                else if (i.image)
-                {
-                    drawImage(
-                        i.image,
-                        imaging::getBBox(i.image->getAspect(), p.size));
+                    break;
                 }
             }
         }

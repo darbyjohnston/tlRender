@@ -8,6 +8,7 @@
 #include <tlrCore/Assert.h>
 #include <tlrCore/Error.h>
 #include <tlrCore/File.h>
+#include <tlrCore/Math.h>
 #include <tlrCore/String.h>
 #include <tlrCore/StringFormat.h>
 
@@ -200,6 +201,8 @@ namespace tlr
             file::Path getPath(const otio::MediaReference*) const;
 
             bool getImageInfo(const otio::Composable*, imaging::Info&) const;
+
+            float transitionValue(double frame, double in, double out) const;
 
             void tick();
             void frameRequests();
@@ -432,6 +435,11 @@ namespace tlr
             return false;
         }
 
+        float Timeline::Private::transitionValue(double frame, double in, double out) const
+        {
+            return (frame - in) / (out - in);
+        }
+
         void Timeline::Private::tick()
         {
             frameRequests();
@@ -489,48 +497,52 @@ namespace tlr
                         {
                             for (const auto& k : track->children())
                             {
-                                if (const auto clip = dynamic_cast<otio::Clip*>(k.value))
+                                if (const auto item = dynamic_cast<otio::Item*>(k.value))
                                 {
                                     otio::ErrorStatus errorStatus;
-                                    const auto rangeOpt = clip->trimmed_range_in_parent(&errorStatus);
+                                    const auto rangeOpt = item->trimmed_range_in_parent(&errorStatus);
                                     if (rangeOpt.has_value())
                                     {
-                                        const auto range = rangeOpt.value();
+                                        const auto& range = rangeOpt.value();
                                         const auto time = result.time - globalStartTime;
                                         if (range.contains(time))
                                         {
                                             LayerData data;
-                                            data.image = readVideoFrame(track, clip, time);
-                                            auto clipStartTime = clip->trimmed_range(&errorStatus).start_time();
-                                            const auto neighbors = track->neighbors_of(clip, &errorStatus);
+                                            if (const auto clip = dynamic_cast<otio::Clip*>(item))
+                                            {
+                                                data.image = readVideoFrame(track, clip, time);
+                                            }
+                                            const auto neighbors = track->neighbors_of(item, &errorStatus);
                                             if (auto transition = dynamic_cast<otio::Transition*>(neighbors.second.value))
                                             {
-                                                const auto transitionStartTime = range.end_time_inclusive() - transition->in_offset();
-                                                if (time > transitionStartTime)
+                                                if (time > range.end_time_inclusive() - transition->in_offset())
                                                 {
+                                                    data.transition = toTransition(transition->transition_type());
+                                                    data.transitionValue = transitionValue(
+                                                        time.value(),
+                                                        range.end_time_inclusive().value() - transition->in_offset().value(),
+                                                        range.end_time_inclusive().value() + transition->out_offset().value() + 1.0);
                                                     const auto transitionNeighbors = track->neighbors_of(transition, &errorStatus);
                                                     if (const auto clipB = dynamic_cast<otio::Clip*>(transitionNeighbors.second.value))
                                                     {
                                                         data.imageB = readVideoFrame(track, clipB, time);
-                                                        data.transition = toTransition(transition->transition_type());
-                                                        data.transitionValue = otime::RationalTime(time - transitionStartTime).value() /
-                                                            (transition->in_offset().value() + transition->out_offset().value() + 1.0);
                                                     }
                                                 }
                                             }
                                             if (auto transition = dynamic_cast<otio::Transition*>(neighbors.first.value))
                                             {
-                                                clipStartTime -= transition->in_offset();
-                                                const auto transitionEndTime = range.start_time() + transition->out_offset();
-                                                if (time < transitionEndTime)
+                                                if (time < range.start_time() + transition->out_offset())
                                                 {
+                                                    std::swap(data.image, data.imageB);
+                                                    data.transition = toTransition(transition->transition_type());
+                                                    data.transitionValue = transitionValue(
+                                                        time.value(),
+                                                        range.start_time().value() - transition->in_offset().value() - 1.0,
+                                                        range.start_time().value() + transition->out_offset().value());
                                                     const auto transitionNeighbors = track->neighbors_of(transition, &errorStatus);
                                                     if (const auto clipB = dynamic_cast<otio::Clip*>(transitionNeighbors.first.value))
                                                     {
-                                                        data.imageB = readVideoFrame(track, clipB, time);
-                                                        data.transition = toTransition(transition->transition_type());
-                                                        data.transitionValue = 1.F - (otime::RationalTime(time - range.start_time() + transition->in_offset()).value() + 1.0) /
-                                                            (transition->in_offset().value() + transition->out_offset().value() + 1.0);
+                                                        data.image = readVideoFrame(track, clipB, time);
                                                     }
                                                 }
                                             }
@@ -544,7 +556,10 @@ namespace tlr
                     for (auto& j : result.layerData)
                     {
                         FrameLayer layer;
-                        layer.image = j.image.get().image;
+                        if (j.image.valid())
+                        {
+                            layer.image = j.image.get().image;
+                        }
                         if (j.imageB.valid())
                         {
                             layer.imageB = j.imageB.get().image;

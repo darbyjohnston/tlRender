@@ -54,7 +54,7 @@ namespace tlr
             void setColorConfig(const ColorConfig&);
 
             //! Start a render.
-            void begin(const imaging::Size&, bool flipY = false);
+            void begin(const imaging::Size&);
 
             //! Finish a render.
             void end();
