@@ -287,6 +287,11 @@ namespace tlr
                     std::unique_lock<std::mutex> lock(p.threadData.mutex);
                     p.threadData.frameCacheDirection = Playback::Forward == value ? FrameCacheDirection::Forward : FrameCacheDirection::Reverse;
                 }
+                else
+                {
+                    std::unique_lock<std::mutex> lock(p.threadData.mutex);
+                    p.threadData.clearFrameRequests = true;
+                }
             }
         }
 
