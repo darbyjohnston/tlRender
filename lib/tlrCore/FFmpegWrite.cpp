@@ -262,7 +262,7 @@ namespace tlr
                 p.avPixelFormatIn,
                 info.size.w,
                 info.size.h,
-                1);
+                info.layout.alignment);
 
             // Flip the image vertically.
             switch (info.pixelType)

@@ -125,6 +125,7 @@ namespace tlr
                     case imaging::PixelType::RGB_U8: scanlineSize = static_cast<size_t>(info.size.w) * 3; break;
                     default: break;
                     }
+                    scanlineSize = imaging::align(scanlineSize, info.layout.alignment);
                     const uint8_t* imageP = image->getData() + (info.size.h - 1) * scanlineSize;
                     for (uint16_t y = 0; y < info.size.h; ++y, imageP -= scanlineSize)
                     {

@@ -85,9 +85,7 @@ namespace tlr
             return !(other == *this);
         }
 
-        inline Layout::Layout() noexcept :
-            alignment(1),
-            endian(memory::getEndian())
+        inline Layout::Layout() noexcept
         {}
 
         constexpr Layout::Layout(const Mirror& mirror, uint8_t alignment, memory::Endian endian) noexcept :
@@ -106,20 +104,16 @@ namespace tlr
             return !(other == *this);
         }
 
-        inline Info::Info() :
-            pixelAspectRatio(1.F),
-            pixelType(PixelType::None)
+        inline Info::Info()
         {}
 
         inline Info::Info(const Size& size, PixelType pixelType) :
             size(size),
-            pixelAspectRatio(1.F),
             pixelType(pixelType)
         {}
 
         inline Info::Info(uint16_t w, uint16_t h, PixelType pixelType) :
             size(w, h),
-            pixelAspectRatio(1.F),
             pixelType(pixelType)
         {}
 
