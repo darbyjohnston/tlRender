@@ -578,7 +578,10 @@ namespace tlr
             const auto& duration = timeline->getDuration();
             auto time = currentTime;
             const auto& range = inOutRange;
-            for (std::size_t i = 0; i < (FrameCacheDirection::Forward == frameCacheDirection ? frameCacheReadBehind : frameCacheReadAhead); ++i)
+            const size_t backwardsCount = FrameCacheDirection::Forward == frameCacheDirection ?
+                frameCacheReadBehind :
+                (frameCacheReadAhead - 1);
+            for (std::size_t i = 0; i < backwardsCount; ++i)
             {
                 time = loopTime(time - otime::RationalTime(1, duration.rate()), range);
             }
