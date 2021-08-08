@@ -6,6 +6,8 @@
 
 #include <tlrQt/TimeObject.h>
 
+#include <QSurfaceFormat>
+
 void qtInitResources()
 {
     Q_INIT_RESOURCE(tlrQt);
@@ -21,6 +23,12 @@ namespace tlr
 
             qRegisterMetaType<TimeUnits>("tlr::qt::TimeUnits");
             qRegisterMetaTypeStreamOperators<qt::TimeUnits>("tlr::qt::TimeUnits");
+
+            QSurfaceFormat surfaceFormat;
+            surfaceFormat.setMajorVersion(4);
+            surfaceFormat.setMinorVersion(1);
+            surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
+            QSurfaceFormat::setDefaultFormat(surfaceFormat);
         }
     }
 }

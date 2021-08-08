@@ -53,7 +53,6 @@ namespace tlr
         }
 
         // Initialize Qt.
-        qt::init();
         QCoreApplication::setOrganizationName("tlRender");
         QCoreApplication::setApplicationName("tlrplay-qwidget");
         setStyle("Fusion");

@@ -4,6 +4,8 @@
 
 #include "App.h"
 
+#include <tlrQt/Util.h>
+
 #include <iostream>
 
 int main(int argc, char* argv[])
@@ -11,6 +13,7 @@ int main(int argc, char* argv[])
     int r = 0;
     try
     {
+        tlr::qt::init();
         tlr::App app(argc, argv);
         if (0 == app.getExit())
         {

@@ -35,7 +35,6 @@ namespace tlr
         }
 
         // Initialize Qt.
-        qt::init();
         QCoreApplication::setOrganizationName("tlRender");
         QCoreApplication::setApplicationName("tlrfilmstrip-qwidget");
         setStyle("Fusion");
