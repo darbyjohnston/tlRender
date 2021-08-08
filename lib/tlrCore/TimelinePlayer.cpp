@@ -405,6 +405,7 @@ namespace tlr
             {
                 std::unique_lock<std::mutex> lock(p.threadData.mutex);
                 p.threadData.inOutRange = value;
+                p.threadData.clearFrameRequests = true;
             }
         }
 
