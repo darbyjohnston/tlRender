@@ -6,6 +6,7 @@
 
 #include <tlrCore/Error.h>
 
+#include <iomanip>
 #include <map>
 #include <regex>
 #include <sstream>
@@ -86,28 +87,35 @@ namespace tlr
             }
             return *this;
         }
-
-        Format& Format::arg(float value, int precision)
+    
+        Format& Format::arg(int value, int width)
         {
             std::stringstream ss;
-            if (precision > 0)
+            ss << std::setw(width) << value;
+            return arg(ss.str());
+        }
+        
+        Format& Format::arg(float value, int precision, int width)
+        {
+            std::stringstream ss;
+            if (precision >= 0)
             {
                 ss.precision(precision);
                 ss << std::fixed;
             }
-            ss << value;
+            ss << std::setw(width) << value;
             return arg(ss.str());
         }
 
-        Format& Format::arg(double value, int precision)
+        Format& Format::arg(double value, int precision, int width)
         {
             std::stringstream ss;
-            if (precision > 0)
+            if (precision >= 0)
             {
                 ss.precision(precision);
                 ss << std::fixed;
             }
-            ss << value;
+            ss << std::setw(width) << value;
             return arg(ss.str());
         }
         

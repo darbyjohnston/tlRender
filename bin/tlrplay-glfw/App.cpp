@@ -380,7 +380,7 @@ namespace tlr
 
         // Input file name.
         hudLabels[HUDElement::UpperLeft] = "Input: " + _input;
-
+        
         // Current time.
         otime::ErrorStatus errorStatus;
         const std::string label = _timelinePlayer->observeCurrentTime()->get().to_timecode(&errorStatus);
@@ -389,6 +389,10 @@ namespace tlr
             throw std::runtime_error(errorStatus.details);
         }
         hudLabels[HUDElement::LowerLeft] = "Time: " + label;
+
+        // Frame cache percentage.
+        const float frameCachePercentage = _timelinePlayer->observeFrameCachePercentage()->get();
+        hudLabels[HUDElement::UpperRight] = string::Format("Frame cache: {0}%").arg(frameCachePercentage, 0, 3);
 
         // Speed.
         hudLabels[HUDElement::LowerRight] = string::Format("Speed: {0}").arg(_timelinePlayer->getDuration().rate(), 2);
@@ -438,7 +442,20 @@ namespace tlr
                 fontSize,
                 HUDElement::LowerLeft);
         }
-
+        
+        i = _hudLabels.find(HUDElement::UpperRight);
+        if (i != _hudLabels.end())
+        {
+            drawHUDLabel(
+                _render,
+                _fontSystem,
+                _frameBufferSize,
+                i->second,
+                gl::FontFamily::NotoMono,
+                fontSize,
+                HUDElement::UpperRight);
+        }
+        
         i = _hudLabels.find(HUDElement::LowerRight);
         if (i != _hudLabels.end())
         {

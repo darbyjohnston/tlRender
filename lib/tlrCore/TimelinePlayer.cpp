@@ -84,6 +84,7 @@ namespace tlr
             std::shared_ptr<observer::Value<otime::RationalTime> > currentTime;
             std::shared_ptr<observer::Value<otime::TimeRange> > inOutRange;
             std::shared_ptr<observer::Value<Frame> > frame;
+            std::shared_ptr<observer::Value<float> > frameCachePercentage;
             std::shared_ptr<observer::List<otime::TimeRange> > cachedFrames;
             std::chrono::steady_clock::time_point startTime;
             otime::RationalTime playbackStartTime = time::invalidTime;
@@ -123,6 +124,7 @@ namespace tlr
             p.inOutRange = observer::Value<otime::TimeRange>::create(
                 otime::TimeRange(p.timeline->getGlobalStartTime(), p.timeline->getDuration()));
             p.frame = observer::Value<Frame>::create();
+            p.frameCachePercentage = observer::Value<float>::create();
             p.cachedFrames = observer::List<otime::TimeRange>::create();
 
             // Create a new thread.
@@ -474,6 +476,11 @@ namespace tlr
             p.threadData.frameCacheReadBehind = value;
         }
 
+        std::shared_ptr<observer::IValue<float> > TimelinePlayer::observeFrameCachePercentage() const
+        {
+            return _p->frameCachePercentage;
+        }
+
         std::shared_ptr<observer::IList<otime::TimeRange> > TimelinePlayer::observeCachedFrames() const
         {
             return _p->cachedFrames;
@@ -501,14 +508,25 @@ namespace tlr
 
             // Sync with the thread.
             Frame frame;
+            int frameCacheReadAhead = 0;
+            int frameCacheReadBehind = 0;
             std::vector<otime::TimeRange> cachedFrames;
             {
                 std::unique_lock<std::mutex> lock(p.threadData.mutex);
                 p.threadData.currentTime = p.currentTime->get();
                 frame = p.threadData.frame;
+                frameCacheReadAhead = p.threadData.frameCacheReadAhead;
+                frameCacheReadBehind = p.threadData.frameCacheReadBehind;
                 cachedFrames = p.threadData.cachedFrames;
             }
             p.frame->setIfChanged(frame);
+            size_t cachedFramesCount = 0;
+            for (const auto& i : cachedFrames)
+            {
+                cachedFramesCount += i.duration().value();
+            }
+            p.frameCachePercentage->setIfChanged(
+                cachedFramesCount / static_cast<float>(frameCacheReadAhead + frameCacheReadBehind) * 100.F);
             p.cachedFrames->setIfChanged(cachedFrames);
         }
 
