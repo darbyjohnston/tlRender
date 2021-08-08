@@ -4,6 +4,8 @@
 
 #include <tlrQt/TimelineViewport.h>
 
+#include <tlrGL/Render.h>
+
 #include <QSurfaceFormat>
 
 namespace tlr
