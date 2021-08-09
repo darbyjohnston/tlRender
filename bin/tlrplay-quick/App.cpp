@@ -4,7 +4,7 @@
 
 #include "App.h"
 
-#include <tlrQuick/FrameBufferObject.h>
+#include <tlrQuick/GLFramebufferObject.h>
 
 #include <tlrCore/Path.h>
 #include <tlrCore/StringFormat.h>

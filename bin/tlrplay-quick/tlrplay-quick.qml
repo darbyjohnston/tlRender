@@ -9,7 +9,7 @@ ApplicationWindow {
     height: 720
     visible: true
     
-    FrameBufferObject {
+    GLFramebufferObject {
         id: fbo
         anchors.fill: parent
 

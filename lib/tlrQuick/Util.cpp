@@ -4,7 +4,7 @@
 
 #include <tlrQuick/Util.h>
 
-#include <tlrQuick/FrameBufferObject.h>
+#include <tlrQuick/GLFramebufferObject.h>
 
 #include <tlrQt/Util.h>
 
@@ -16,7 +16,7 @@ namespace tlr
         {
             qt::init();
             
-            qmlRegisterType<FrameBufferObject>("tlrQuick", 1, 0, "FrameBufferObject");
+            qmlRegisterType<GLFramebufferObject>("tlrQuick", 1, 0, "GLFramebufferObject");
 
             QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
         }

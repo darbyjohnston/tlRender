@@ -1,8 +1,8 @@
 set(HEADERS
-    FrameBufferObject.h
+    GLFramebufferObject.h
     Util.h)
 set(SOURCE
-    FrameBufferObject.cpp
+    GLFramebufferObject.cpp
     Util.cpp)
 
 add_library(tlrQuick ${HEADERS} ${SOURCE})

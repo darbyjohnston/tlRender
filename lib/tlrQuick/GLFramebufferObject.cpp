@@ -2,7 +2,7 @@
 // Copyright (c) 2021 Darby Johnston
 // All rights reserved.
 
-#include <tlrQuick/FrameBufferObject.h>
+#include <tlrQuick/GLFramebufferObject.h>
 
 #include <tlrQt/TimelinePlayer.h>
 
@@ -21,8 +21,8 @@ namespace tlr
             class Renderer : public QQuickFramebufferObject::Renderer
             {
             public:
-                Renderer(const FrameBufferObject* frameBufferObject) :
-                    _frameBufferObject(frameBufferObject)
+                Renderer(const GLFramebufferObject* framebufferObject) :
+                    _framebufferObject(framebufferObject)
                 {}
 
                 ~Renderer() override
@@ -47,49 +47,49 @@ namespace tlr
                     _render->drawFrame(_frame);
                     _render->end();
 
-                    _frameBufferObject->window()->resetOpenGLState();
+                    _framebufferObject->window()->resetOpenGLState();
                 }
                     
                 void synchronize(QQuickFramebufferObject*) override
                 {
-                    _frame = _frameBufferObject->frame();
+                    _frame = _framebufferObject->frame();
                 }
 
             private:
-                const FrameBufferObject* _frameBufferObject = nullptr;
+                const GLFramebufferObject* _framebufferObject = nullptr;
                 bool _init = false;
                 timeline::Frame _frame;
                 std::shared_ptr<gl::Render> _render;
             };
         }
 
-        struct FrameBufferObject::Private
+        struct GLFramebufferObject::Private
         {
             timeline::Frame frame;
         };
 
-        FrameBufferObject::FrameBufferObject(QQuickItem* parent) :
+        GLFramebufferObject::GLFramebufferObject(QQuickItem* parent) :
             QQuickFramebufferObject(parent),
             _p(new Private)
         {
             setMirrorVertically(true);
         }
 
-        FrameBufferObject::~FrameBufferObject()
+        GLFramebufferObject::~GLFramebufferObject()
         {}
 
-        const tlr::timeline::Frame& FrameBufferObject::frame() const
+        const tlr::timeline::Frame& GLFramebufferObject::frame() const
         {
             return _p->frame;
         }
 
-        QQuickFramebufferObject::Renderer* FrameBufferObject::createRenderer() const
+        QQuickFramebufferObject::Renderer* GLFramebufferObject::createRenderer() const
         {
             TLR_PRIVATE_P();
             return new quick::Renderer(this);
         }
 
-        void FrameBufferObject::setFrame(const timeline::Frame& frame)
+        void GLFramebufferObject::setFrame(const timeline::Frame& frame)
         {
             _p->frame = frame;
             update();

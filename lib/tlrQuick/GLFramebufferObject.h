@@ -14,18 +14,17 @@
 
 namespace tlr
 {
-    //! Qt Quick support.
     namespace quick
     {
-        class FrameBufferObject : public QQuickFramebufferObject
+        class GLFramebufferObject : public QQuickFramebufferObject
         {
             Q_OBJECT
             Q_PROPERTY(tlr::timeline::Frame frame READ frame WRITE setFrame)
 
         public:
-            FrameBufferObject(QQuickItem* parent = nullptr);
+            GLFramebufferObject(QQuickItem* parent = nullptr);
 
-            ~FrameBufferObject() override;
+            ~GLFramebufferObject() override;
 
             const tlr::timeline::Frame& frame() const;
 
