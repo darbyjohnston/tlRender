@@ -49,6 +49,10 @@ namespace tlr
         _qmlEngine = new QQmlApplicationEngine;
         _qmlEngine->rootContext()->setContextProperty("timelinePlayer", _timelinePlayer);
         QQmlComponent component(_qmlEngine, QUrl(QStringLiteral("qrc:/tlrplay-quick.qml")));
+        if (component.status() != QQmlComponent::Status::Ready)
+        {
+            throw std::runtime_error(component.errorString().toLatin1().data());
+        }
         _qmlObject = component.create();
 
         // Start playback.
