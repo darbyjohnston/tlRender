@@ -12,5 +12,10 @@ ApplicationWindow {
     FrameBufferObject {
         id: fbo
         anchors.fill: parent
+
+        Connections {
+            target: timelinePlayer
+            function onFrameChanged(frame) { fbo.setFrame(frame) }
+        }
     }
 }

@@ -6,6 +6,8 @@
 
 #include <tlrQt/TimeObject.h>
 
+#include <tlrCore/Timeline.h>
+
 #include <QSurfaceFormat>
 
 void qtInitResources()
@@ -21,6 +23,7 @@ namespace tlr
         {
             qtInitResources();
 
+            qRegisterMetaType<timeline::Frame>("tlr::timeline::Frame");
             qRegisterMetaType<TimeUnits>("tlr::qt::TimeUnits");
             qRegisterMetaTypeStreamOperators<qt::TimeUnits>("tlr::qt::TimeUnits");
 

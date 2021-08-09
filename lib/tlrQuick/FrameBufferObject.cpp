@@ -21,10 +21,7 @@ namespace tlr
             class Renderer : public QQuickFramebufferObject::Renderer
             {
             public:
-                Renderer(
-                    const file::Path& path,
-                    const std::shared_ptr<core::Context>& context,
-                    const FrameBufferObject* frameBufferObject) :
+                Renderer(const FrameBufferObject* frameBufferObject) :
                     _frameBufferObject(frameBufferObject)
                 {}
 
@@ -46,7 +43,6 @@ namespace tlr
                     }
 
                     QOpenGLFramebufferObject* fbo = framebufferObject();
-
                     _render->begin(imaging::Size(fbo->width(), fbo->height()));
                     _render->drawFrame(_frame);
                     _render->end();
@@ -56,7 +52,7 @@ namespace tlr
                     
                 void synchronize(QQuickFramebufferObject*) override
                 {
-                    _frame = _frameBufferObject->getFrame();
+                    _frame = _frameBufferObject->frame();
                 }
 
             private:
@@ -69,33 +65,18 @@ namespace tlr
 
         struct FrameBufferObject::Private
         {
-            std::shared_ptr<core::Context> context;
-            file::Path path;
-            qt::TimelinePlayer* timelinePlayer = nullptr;
             timeline::Frame frame;
         };
 
         FrameBufferObject::FrameBufferObject(QQuickItem* parent) :
             QQuickFramebufferObject(parent),
             _p(new Private)
-        {
-            TLR_PRIVATE_P();
-
-            p.context = core::Context::create();
-            p.timelinePlayer = new qt::TimelinePlayer(file::Path("/dev/otio/tlRender/etc/SampleData/transition.otio"), p.context, this);
-
-            connect(
-                p.timelinePlayer,
-                SIGNAL(frameChanged(const tlr::timeline::Frame&)),
-                SLOT(_frameCallback(const tlr::timeline::Frame&)));
-
-            p.timelinePlayer->setPlayback(timeline::Playback::Forward);
-        }
+        {}
 
         FrameBufferObject::~FrameBufferObject()
         {}
 
-        const tlr::timeline::Frame& FrameBufferObject::getFrame() const
+        const tlr::timeline::Frame& FrameBufferObject::frame() const
         {
             return _p->frame;
         }
@@ -103,10 +84,10 @@ namespace tlr
         QQuickFramebufferObject::Renderer* FrameBufferObject::createRenderer() const
         {
             TLR_PRIVATE_P();
-            return new quick::Renderer(p.path, p.context, this);
+            return new quick::Renderer(this);
         }
 
-        void FrameBufferObject::_frameCallback(const timeline::Frame& frame)
+        void FrameBufferObject::setFrame(const timeline::Frame& frame)
         {
             _p->frame = frame;
             update();

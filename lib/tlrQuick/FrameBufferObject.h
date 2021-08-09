@@ -20,18 +20,19 @@ namespace tlr
         class FrameBufferObject : public QQuickFramebufferObject
         {
             Q_OBJECT
+            Q_PROPERTY(tlr::timeline::Frame frame READ frame WRITE setFrame)
 
         public:
             FrameBufferObject(QQuickItem* parent = nullptr);
 
             ~FrameBufferObject() override;
 
-            const tlr::timeline::Frame& getFrame() const;
+            const tlr::timeline::Frame& frame() const;
 
             Renderer* createRenderer() const override;
 
-        private Q_SLOTS:
-            void _frameCallback(const tlr::timeline::Frame&);
+        public Q_SLOTS:
+            void setFrame(const tlr::timeline::Frame&);
 
         private:
             TLR_PRIVATE();

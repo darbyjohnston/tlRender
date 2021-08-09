@@ -4,9 +4,13 @@
 
 #include "App.h"
 
-#include <tlrCore/Math.h>
+#include <tlrQuick/FrameBufferObject.h>
+
+#include <tlrCore/Path.h>
 #include <tlrCore/StringFormat.h>
-#include <tlrCore/Time.h>
+
+#include <QQmlComponent>
+#include <QQmlContext>
 
 namespace tlr
 {
@@ -56,9 +60,17 @@ namespace tlr
         // Create objects.
         _timeObject = new qt::TimeObject(this);
 
+        // Open the input file.
+        _timelinePlayer = new qt::TimelinePlayer(file::Path(_input), _context);
+
         // Load the QML.
         _qmlEngine = new QQmlApplicationEngine;
-        _qmlEngine->load(QUrl(QStringLiteral("qrc:/tlrplay-quick.qml")));
+        _qmlEngine->rootContext()->setContextProperty("timelinePlayer", _timelinePlayer);
+        QQmlComponent component(_qmlEngine, QUrl(QStringLiteral("qrc:/tlrplay-quick.qml")));
+        _qmlObject = component.create();
+
+        // Start playback.
+        _timelinePlayer->setPlayback(timeline::Playback::Forward);
     }
 
     App::~App()

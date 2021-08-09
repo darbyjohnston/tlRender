@@ -7,6 +7,7 @@
 #include <tlrApp/IApp.h>
 
 #include <tlrQt/TimeObject.h>
+#include <tlrQt/TimelinePlayer.h>
 
 #include <tlrGL/Render.h>
 
@@ -36,7 +37,9 @@ namespace tlr
         Options _options;
 
         qt::TimeObject* _timeObject = nullptr;
+        qt::TimelinePlayer* _timelinePlayer = nullptr;
 
         QQmlApplicationEngine* _qmlEngine = nullptr;
+        QObject* _qmlObject = nullptr;
     };
 }
