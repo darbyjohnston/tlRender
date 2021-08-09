@@ -71,7 +71,9 @@ namespace tlr
         FrameBufferObject::FrameBufferObject(QQuickItem* parent) :
             QQuickFramebufferObject(parent),
             _p(new Private)
-        {}
+        {
+            setMirrorVertically(true);
+        }
 
         FrameBufferObject::~FrameBufferObject()
         {}
