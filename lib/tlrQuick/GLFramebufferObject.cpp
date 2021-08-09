@@ -85,7 +85,6 @@ namespace tlr
 
         QQuickFramebufferObject::Renderer* GLFramebufferObject::createRenderer() const
         {
-            TLR_PRIVATE_P();
             return new quick::Renderer(this);
         }
 
