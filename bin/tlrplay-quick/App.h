@@ -17,12 +17,6 @@
 
 namespace tlr
 {
-    //! Application options.
-    struct Options
-    {
-        gl::ColorConfig colorConfig;
-    };
-
     //! Application.
     class App : public QGuiApplication, public app::IApp
     {
@@ -34,7 +28,6 @@ namespace tlr
 
     private:
         std::string _input;
-        Options _options;
 
         qt::TimeObject* _timeObject = nullptr;
         qt::TimelinePlayer* _timelinePlayer = nullptr;

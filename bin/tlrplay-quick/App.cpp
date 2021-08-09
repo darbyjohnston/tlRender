@@ -27,24 +27,6 @@ namespace tlr
                     _input,
                     "input",
                     "The input timeline.")
-            },
-            {
-                app::CmdLineValueOption<std::string>::create(
-                    _options.colorConfig.config,
-                    { "-colorConfig", "-cc" },
-                    "Color configuration file (config.ocio)."),
-                app::CmdLineValueOption<std::string>::create(
-                    _options.colorConfig.input,
-                    { "-colorInput", "-ci" },
-                    "Input color space."),
-                app::CmdLineValueOption<std::string>::create(
-                    _options.colorConfig.display,
-                    { "-colorDisplay", "-cd" },
-                    "Display color space."),
-                app::CmdLineValueOption<std::string>::create(
-                    _options.colorConfig.view,
-                    { "-colorView", "-cv" },
-                    "View color space.")
             });
         const int exitCode = getExit();
         if (exitCode != 0)
