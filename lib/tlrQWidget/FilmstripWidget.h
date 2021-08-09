@@ -12,7 +12,7 @@
 
 namespace tlr
 {
-    namespace qt
+    namespace qwidget
     {
         //! Filmstrip widget.
         class FilmstripWidget : public QWidget

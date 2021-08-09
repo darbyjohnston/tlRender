@@ -11,7 +11,7 @@
 
 namespace tlr
 {
-    namespace qt
+    namespace qwidget
     {
         //! Timeline controls.
         class TimelineControls : public QWidget
@@ -24,10 +24,10 @@ namespace tlr
             ~TimelineControls() override;
 
             //! Set the time object.
-            void setTimeObject(TimeObject*);
+            void setTimeObject(qt::TimeObject*);
 
             //! Set the timeline player.
-            void setTimelinePlayer(TimelinePlayer*);
+            void setTimelinePlayer(qt::TimelinePlayer*);
 
         private Q_SLOTS:
             void _playbackCallback(QAbstractButton*);

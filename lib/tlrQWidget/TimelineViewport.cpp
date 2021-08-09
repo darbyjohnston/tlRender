@@ -2,7 +2,7 @@
 // Copyright (c) 2021 Darby Johnston
 // All rights reserved.
 
-#include <tlrQt/TimelineViewport.h>
+#include <tlrQWidget/TimelineViewport.h>
 
 #include <tlrGL/Render.h>
 
@@ -10,12 +10,12 @@
 
 namespace tlr
 {
-    namespace qt
+    namespace qwidget
     {
         struct TimelineViewport::Private
         {
             gl::ColorConfig colorConfig;
-            TimelinePlayer* timelinePlayer = nullptr;
+            qt::TimelinePlayer* timelinePlayer = nullptr;
             timeline::Frame frame;
             std::shared_ptr<gl::Render> render;
         };
@@ -39,7 +39,7 @@ namespace tlr
             _p->colorConfig = colorConfig;
         }
 
-        void TimelineViewport::setTimelinePlayer(TimelinePlayer* timelinePlayer)
+        void TimelineViewport::setTimelinePlayer(qt::TimelinePlayer* timelinePlayer)
         {
             TLR_PRIVATE_P();
             p.frame = timeline::Frame();

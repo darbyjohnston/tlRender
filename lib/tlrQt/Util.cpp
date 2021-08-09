@@ -10,19 +10,12 @@
 
 #include <QSurfaceFormat>
 
-void qtInitResources()
-{
-    Q_INIT_RESOURCE(tlrQt);
-}
-
 namespace tlr
 {
     namespace qt
     {
         void init()
         {
-            qtInitResources();
-
             qRegisterMetaType<timeline::Frame>("tlr::timeline::Frame");
             qRegisterMetaType<TimeUnits>("tlr::qt::TimeUnits");
             qRegisterMetaTypeStreamOperators<qt::TimeUnits>("tlr::qt::TimeUnits");

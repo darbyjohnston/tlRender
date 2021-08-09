@@ -2,7 +2,7 @@
 // Copyright (c) 2021 Darby Johnston
 // All rights reserved.
 
-#include <tlrQt/TimeSpinBox.h>
+#include <tlrQWidget/TimeSpinBox.h>
 
 #include <QApplication>
 #include <QFontDatabase>
@@ -12,14 +12,14 @@
 
 namespace tlr
 {
-    namespace qt
+    namespace qwidget
     {
         struct TimeSpinBox::Private
         {
             otime::RationalTime value = time::invalidTime;
-            TimeUnits units = TimeUnits::Timecode;
+            qt::TimeUnits units = qt::TimeUnits::Timecode;
             QRegExpValidator* validator = nullptr;
-            TimeObject* timeObject = nullptr;
+            qt::TimeObject* timeObject = nullptr;
         };
 
         TimeSpinBox::TimeSpinBox(QWidget* parent) :
@@ -45,7 +45,7 @@ namespace tlr
         TimeSpinBox::~TimeSpinBox()
         {}
         
-        void TimeSpinBox::setTimeObject(TimeObject* timeObject)
+        void TimeSpinBox::setTimeObject(qt::TimeObject* timeObject)
         {
             TLR_PRIVATE_P();
             if (timeObject == p.timeObject)
@@ -54,9 +54,9 @@ namespace tlr
             {
                 disconnect(
                     p.timeObject,
-                    SIGNAL(unitsChanged(qt::TimeUnits)),
+                    SIGNAL(unitsChanged(tlr::qt::TimeUnits)),
                     this,
-                    SLOT(setUnits(qt::TimeUnits)));
+                    SLOT(setUnits(tlr::qt::TimeUnits)));
             }
             p.timeObject = timeObject;
             if (p.timeObject)
@@ -64,8 +64,8 @@ namespace tlr
                 p.units = p.timeObject->units();
                 connect(
                     p.timeObject,
-                    SIGNAL(unitsChanged(qt::TimeUnits)),
-                    SLOT(setUnits(qt::TimeUnits)));
+                    SIGNAL(unitsChanged(tlr::qt::TimeUnits)),
+                    SLOT(setUnits(tlr::qt::TimeUnits)));
             }
             _vaidatorUpdate();
             _textUpdate();
@@ -77,7 +77,7 @@ namespace tlr
             return _p->value;
         }
 
-        TimeUnits TimeSpinBox::units() const
+        qt::TimeUnits TimeSpinBox::units() const
         {
             return _p->units;
         }
@@ -105,7 +105,7 @@ namespace tlr
             _textUpdate();
         }
 
-        void TimeSpinBox::setUnits(TimeUnits units)
+        void TimeSpinBox::setUnits(qt::TimeUnits units)
         {
             TLR_PRIVATE_P();
             if (p.units == units)

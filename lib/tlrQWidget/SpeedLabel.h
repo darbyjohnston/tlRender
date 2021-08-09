@@ -12,7 +12,7 @@
 
 namespace tlr
 {
-    namespace qt
+    namespace qwidget
     {
         //! Speed label.
         class SpeedLabel : public QWidget

@@ -2,7 +2,7 @@
 // Copyright (c) 2021 Darby Johnston
 // All rights reserved.
 
-#include <tlrQt/TimeLabel.h>
+#include <tlrQWidget/TimeLabel.h>
 
 #include <QFontDatabase>
 #include <QHBoxLayout>
@@ -10,14 +10,14 @@
 
 namespace tlr
 {
-    namespace qt
+    namespace qwidget
     {
         struct TimeLabel::Private
         {
             otime::RationalTime value = time::invalidTime;
-            TimeUnits units = TimeUnits::Timecode;
+            qt::TimeUnits units = qt::TimeUnits::Timecode;
             QLabel* label = nullptr;
-            TimeObject* timeObject = nullptr;
+            qt::TimeObject* timeObject = nullptr;
         };
 
         TimeLabel::TimeLabel(QWidget* parent) :
@@ -43,7 +43,7 @@ namespace tlr
         TimeLabel::~TimeLabel()
         {}
 
-        void TimeLabel::setTimeObject(TimeObject* timeObject)
+        void TimeLabel::setTimeObject(qt::TimeObject* timeObject)
         {
             TLR_PRIVATE_P();
             if (timeObject == p.timeObject)
@@ -52,9 +52,9 @@ namespace tlr
             {
                 disconnect(
                     p.timeObject,
-                    SIGNAL(unitsChanged(qt::Time::Units)),
+                    SIGNAL(unitsChanged(tlr::qt::Time::Units)),
                     this,
-                    SLOT(setUnits(qt::Time::Units)));
+                    SLOT(setUnits(tlr::qt::Time::Units)));
             }
             p.timeObject = timeObject;
             if (p.timeObject)
@@ -62,8 +62,8 @@ namespace tlr
                 p.units = p.timeObject->units();
                 connect(
                     p.timeObject,
-                    SIGNAL(unitsChanged(qt::TimeUnits)),
-                    SLOT(setUnits(qt::TimeUnits)));
+                    SIGNAL(unitsChanged(tlr::qt::TimeUnits)),
+                    SLOT(setUnits(tlr::qt::TimeUnits)));
             }
             _textUpdate();
             updateGeometry();
@@ -78,7 +78,7 @@ namespace tlr
             _textUpdate();
         }
 
-        void TimeLabel::setUnits(TimeUnits units)
+        void TimeLabel::setUnits(qt::TimeUnits units)
         {
             TLR_PRIVATE_P();
             if (p.units == units)

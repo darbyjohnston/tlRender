@@ -2,11 +2,11 @@
 // Copyright (c) 2021 Darby Johnston
 // All rights reserved.
 
-#include <tlrQt/TimelineControls.h>
+#include <tlrQWidget/TimelineControls.h>
 
-#include <tlrQt/SpeedLabel.h>
-#include <tlrQt/TimeLabel.h>
-#include <tlrQt/TimeSpinBox.h>
+#include <tlrQWidget/SpeedLabel.h>
+#include <tlrQWidget/TimeLabel.h>
+#include <tlrQWidget/TimeSpinBox.h>
 
 #include <QButtonGroup>
 #include <QFontDatabase>
@@ -18,11 +18,11 @@
 
 namespace tlr
 {
-    namespace qt
+    namespace qwidget
     {
         struct TimelineControls::Private
         {
-            TimelinePlayer* timelinePlayer = nullptr;
+            qt::TimelinePlayer* timelinePlayer = nullptr;
             QMap<QString, QAbstractButton*> playbackButtons;
             QButtonGroup* playbackButtonGroup = nullptr;
             QMap<QAbstractButton*, timeline::Playback> buttonToPlayback;
@@ -201,7 +201,7 @@ namespace tlr
         TimelineControls::~TimelineControls()
         {}
 
-        void TimelineControls::setTimeObject(TimeObject* timeObject)
+        void TimelineControls::setTimeObject(qt::TimeObject* timeObject)
         {
             TLR_PRIVATE_P();
             p.currentTimeSpinBox->setTimeObject(timeObject);
@@ -210,7 +210,7 @@ namespace tlr
             p.durationLabel->setTimeObject(timeObject);
         }
 
-        void TimelineControls::setTimelinePlayer(TimelinePlayer* timelinePlayer)
+        void TimelineControls::setTimelinePlayer(qt::TimelinePlayer* timelinePlayer)
         {
             TLR_PRIVATE_P();
             if (timelinePlayer == p.timelinePlayer)
