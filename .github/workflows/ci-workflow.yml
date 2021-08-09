@@ -27,7 +27,7 @@ jobs:
       run: sudo apt-get install python3.8-dev
       
     - name: Install Qt dev
-      run: sudo apt-get install qt5-default qtdeclarative-dev libqt5quick5 qtbase5-dev libqt5svg5-dev
+      run: sudo apt-get install qt5-default qtdeclarative5-dev libqt5quick5 qtbase5-dev libqt5svg5-dev
 
     - name: Setup environment
       run: >
