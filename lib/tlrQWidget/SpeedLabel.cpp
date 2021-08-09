@@ -2,7 +2,7 @@
 // Copyright (c) 2021 Darby Johnston
 // All rights reserved.
 
-#include <tlrQt/SpeedLabel.h>
+#include <tlrQWidget/SpeedLabel.h>
 
 #include <QFontDatabase>
 #include <QHBoxLayout>
@@ -10,7 +10,7 @@
 
 namespace tlr
 {
-    namespace qt
+    namespace qwidget
     {
         struct SpeedLabel::Private
         {

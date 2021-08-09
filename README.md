@@ -64,7 +64,21 @@ Dependencies:
 
 tlrQt
 -----
-Qt widgets and objects for working with timelines.
+Qt objects for working with timelines.
+
+Dependencies:
+* [Qt](https://www.qt.io)
+
+tlrQWidget
+----------
+Qt QWidget widgets for working with timelines.
+
+Dependencies:
+* [Qt](https://www.qt.io)
+
+tlrQuick
+--------
+Qt Quick widgets for working with timelines.
 
 Dependencies:
 * [Qt](https://www.qt.io)
@@ -127,7 +141,7 @@ CMake Build Options
 * TLR_BUILD_PNG - Build PNG support
 * TLR_BUILD_TIFF - Build TIFF support
 * TLR_BUILD_GL - Build OpenGL library (tlrGL)
-* TLR_BUILD_QT - Build QT library (tlrQt)
+* TLR_BUILD_QT - Build Qt libraries (tlrQt, tlrQWidget, tlrQuick)
 * TLR_BUILD_EXAMPLES - Build examples
 
 Building on Linux

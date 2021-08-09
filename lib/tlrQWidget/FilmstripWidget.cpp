@@ -2,7 +2,7 @@
 // Copyright (c) 2021 Darby Johnston
 // All rights reserved.
 
-#include <tlrQt/FilmstripWidget.h>
+#include <tlrQWidget/FilmstripWidget.h>
 
 #include <tlrQt/TimelineThumbnailProvider.h>
 
@@ -15,13 +15,13 @@
 
 namespace tlr
 {
-    namespace qt
+    namespace qwidget
     {
         struct FilmstripWidget::Private
         {
             std::shared_ptr<timeline::Timeline> timeline;
             int rowCount = 1;
-            TimelineThumbnailProvider* thumbnailProvider = nullptr;
+            qt::TimelineThumbnailProvider* thumbnailProvider = nullptr;
             QSize thumbnailSize;
             struct Thumbnail
             {
@@ -54,7 +54,7 @@ namespace tlr
             }
             if (p.timeline)
             {
-                p.thumbnailProvider = new TimelineThumbnailProvider(p.timeline, this);
+                p.thumbnailProvider = new qt::TimelineThumbnailProvider(p.timeline, this);
                 connect(
                     p.thumbnailProvider,
                     SIGNAL(thumbails(const QList<QPair<otime::RationalTime, QImage> >&)),

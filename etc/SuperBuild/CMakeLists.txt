@@ -16,7 +16,7 @@ set(TLR_BUILD_PNG TRUE CACHE BOOL "Build PNG support")
 set(TLR_BUILD_OpenEXR TRUE CACHE BOOL "Build OpenEXR support")
 set(TLR_BUILD_TIFF TRUE CACHE BOOL "Build TIFF support")
 set(TLR_BUILD_GL TRUE CACHE BOOL "Build OpenGL library (tlrGL)")
-set(TLR_BUILD_QT FALSE CACHE BOOL "Build Qt library (tlrQt)")
+set(TLR_BUILD_QT FALSE CACHE BOOL "Build Qt libraries (tlrQt, tlrQWidget, tlrQuick)")
 set(TLR_BUILD_EXAMPLES TRUE CACHE BOOL "Build examples")
 set(TLR_BUILD_TESTS TRUE CACHE BOOL "Build tests")
 

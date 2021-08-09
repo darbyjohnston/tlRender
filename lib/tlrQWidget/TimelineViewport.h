@@ -12,7 +12,7 @@
 
 namespace tlr
 {
-    namespace qt
+    namespace qwidget
     {
         //! Timeline viewport widget.
         class TimelineViewport : public QOpenGLWidget
@@ -28,7 +28,7 @@ namespace tlr
             void setColorConfig(const gl::ColorConfig&);
 
             //! Set the timeline player.
-            void setTimelinePlayer(TimelinePlayer*);
+            void setTimelinePlayer(qt::TimelinePlayer*);
 
         private Q_SLOTS:
             void _frameCallback(const tlr::timeline::Frame&);

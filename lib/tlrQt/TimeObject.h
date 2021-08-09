@@ -57,11 +57,11 @@ namespace tlr
 
         public Q_SLOTS:
             //! Set the time units.
-            void setUnits(qt::TimeUnits);
+            void setUnits(tlr::qt::TimeUnits);
 
         Q_SIGNALS:
             //! This signal is emitted when the time units are changed.
-            void unitsChanged(qt::TimeUnits);
+            void unitsChanged(tlr::qt::TimeUnits);
 
         private:
             TimeUnits _units = TimeUnits::Timecode;

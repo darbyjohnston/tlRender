@@ -24,7 +24,7 @@ namespace tlr
     {
         setAcceptDrops(true);
 
-        _filmstripWidget = new qt::FilmstripWidget;
+        _filmstripWidget = new qwidget::FilmstripWidget;
         _filmstripWidget->setRowCount(5);
         setCentralWidget(_filmstripWidget);
 

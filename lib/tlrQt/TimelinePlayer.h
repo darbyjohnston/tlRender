@@ -21,6 +21,7 @@ namespace tlr
         class TimelinePlayer : public QObject
         {
             Q_OBJECT
+            Q_PROPERTY(tlr::timeline::Frame frame READ frame NOTIFY frameChanged)
 
         public:
             TimelinePlayer(
