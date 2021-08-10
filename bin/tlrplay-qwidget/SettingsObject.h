@@ -18,6 +18,7 @@ namespace tlr
 
     public:
         SettingsObject(qt::TimeObject*, QObject* parent = nullptr);
+
         ~SettingsObject() override;
 
         //! Get the list of recent files.
