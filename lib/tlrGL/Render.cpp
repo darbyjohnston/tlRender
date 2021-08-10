@@ -400,11 +400,12 @@ namespace tlr
             p.size = size;
 
             glViewport(0, 0, p.size.w, p.size.h);
-            glClearColor(0.F, 0.F, 0.F, 0.F);
+            glClearColor(0.F, 0.F, 0.F, 1.F);
             glClear(GL_COLOR_BUFFER_BIT);
 
             glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+            glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
             if (!p.shader)
             {
@@ -581,8 +582,9 @@ namespace tlr
 
                     {
                         auto binding = OffscreenBufferBinding(p.offscreenBuffer);
+                        glClearColor(0.F, 0.F, 0.F, 0.F);
                         glClear(GL_COLOR_BUFFER_BIT);
-                        glBlendFunc(GL_ONE, GL_ONE);
+                        glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ONE);
                         if (i.image)
                         {
                             const float t = 1.F - i.transitionValue;
@@ -599,7 +601,7 @@ namespace tlr
                                 imaging::getBBox(i.imageB->getAspect(), p.size),
                                 imaging::Color4f(tB, tB, tB, tB));
                         }
-                        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                        glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
                     }
 
                     p.shader->setUniform("colorMode", static_cast<int>(ColorMode::TextureColorConfig));
