@@ -75,7 +75,10 @@ namespace tlr
     }
 
     App::~App()
-    {}
+    {
+        //! \bug Why is it necessary to manually delete this to get the settings to save?
+        delete _settingsObject;
+    }
 
     void App::open(const QString& fileName)
     {
