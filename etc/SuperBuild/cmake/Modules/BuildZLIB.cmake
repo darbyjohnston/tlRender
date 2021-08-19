@@ -1,6 +1,8 @@
 include(ExternalProject)
 
-set(ZLIB_ARGS ${TLR_EXTERNAL_ARGS})
+set(ZLIB_ARGS
+    ${TLR_EXTERNAL_ARGS}
+    -DSKIP_INSTALL_FILES=ON)
 
 ExternalProject_Add(
     ZLIB
