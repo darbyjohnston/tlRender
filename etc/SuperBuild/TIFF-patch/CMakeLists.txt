@@ -709,8 +709,8 @@ add_subdirectory(libtiff)
 #add_subdirectory(test)
 #add_subdirectory(contrib)
 add_subdirectory(build)
-add_subdirectory(man)
-add_subdirectory(html)
+#add_subdirectory(man)
+#add_subdirectory(html)
 
 #message(STATUS "EXTRA_DIST: ${EXTRA_DIST}")
 
