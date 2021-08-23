@@ -28,7 +28,7 @@ set(_Half_LIB_VER "${Half_FIND_VERSION_MAJOR}_${Half_FIND_VERSION_MINOR}")
 ###############################################################################
 ### Try to find package ###
 
-if(NOT OCIO_INSTALL_EXT_PACKAGES STREQUAL ALL)
+#if(NOT OCIO_INSTALL_EXT_PACKAGES STREQUAL ALL)
     set(_Half_REQUIRED_VARS Half_LIBRARY)
 
     if(NOT DEFINED Half_ROOT)
@@ -122,7 +122,7 @@ if(NOT OCIO_INSTALL_EXT_PACKAGES STREQUAL ALL)
         VERSION_VAR
             Half_VERSION
     )
-endif()
+#endif()
 
 ###############################################################################
 ### Create target
