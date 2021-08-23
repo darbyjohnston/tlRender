@@ -12,7 +12,7 @@
 
 namespace tlr
 {
-    namespace qt
+    namespace qwidget
     {
         //! Time spin box.
         class TimeSpinBox : public QAbstractSpinBox
@@ -25,13 +25,13 @@ namespace tlr
             ~TimeSpinBox() override;
 
             //! Set the time object.
-            void setTimeObject(TimeObject*);
+            void setTimeObject(qt::TimeObject*);
 
             //! Get the time value.
             const otime::RationalTime& value() const;
 
             //! Get the time units.
-            TimeUnits units() const;
+            qt::TimeUnits units() const;
 
             void stepBy(int steps) override;
             QValidator::State validate(QString&, int& pos) const override;
@@ -42,14 +42,14 @@ namespace tlr
             void setValue(const otime::RationalTime&);
             
             //! Set the time units.
-            void setUnits(qt::TimeUnits);
+            void setUnits(tlr::qt::TimeUnits);
 
         Q_SIGNALS:
             //! This signal is emitted when the time is changed.
             void valueChanged(const otime::RationalTime&);
 
             //! This signal is emitted when the time units are changed.
-            void unitsChanged(qt::TimeUnits);
+            void unitsChanged(tlr::qt::TimeUnits);
 
         protected:
             QAbstractSpinBox::StepEnabled stepEnabled() const override;

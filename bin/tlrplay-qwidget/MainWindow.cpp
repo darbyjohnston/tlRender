@@ -7,7 +7,7 @@
 #include "App.h"
 #include "SettingsWidget.h"
 
-#include <tlrQt/TimelineWidget.h>
+#include <tlrQWidget/TimelineWidget.h>
 
 #include <tlrCore/File.h>
 #include <tlrCore/String.h>
@@ -485,7 +485,7 @@ namespace tlr
 
     void MainWindow::_openedCallback(qt::TimelinePlayer* timelinePlayer)
     {
-        auto widget = new qt::TimelineWidget;
+        auto widget = new qwidget::TimelineWidget;
         widget->setTimeObject(_timeObject);
         widget->setColorConfig(_colorConfig);
         widget->setTimelinePlayer(timelinePlayer);

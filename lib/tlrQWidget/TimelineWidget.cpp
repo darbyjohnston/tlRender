@@ -2,17 +2,17 @@
 // Copyright (c) 2021 Darby Johnston
 // All rights reserved.
 
-#include <tlrQt/TimelineWidget.h>
+#include <tlrQWidget/TimelineWidget.h>
 
-#include <tlrQt/TimelineControls.h>
-#include <tlrQt/TimelineSlider.h>
-#include <tlrQt/TimelineViewport.h>
+#include <tlrQWidget/TimelineControls.h>
+#include <tlrQWidget/TimelineSlider.h>
+#include <tlrQWidget/TimelineViewport.h>
 
 #include <QVBoxLayout>
 
 namespace tlr
 {
-    namespace qt
+    namespace qwidget
     {
         struct TimelineWidget::Private
         {
@@ -50,7 +50,7 @@ namespace tlr
         TimelineWidget::~TimelineWidget()
         {}
 
-        void TimelineWidget::setTimeObject(TimeObject* timeObject)
+        void TimelineWidget::setTimeObject(qt::TimeObject* timeObject)
         {
             TLR_PRIVATE_P();
             p.slider->setTimeObject(timeObject);
@@ -64,7 +64,7 @@ namespace tlr
             p.slider->setColorConfig(colorConfig);
         }
 
-        void TimelineWidget::setTimelinePlayer(TimelinePlayer* timelinePlayer)
+        void TimelineWidget::setTimelinePlayer(qt::TimelinePlayer* timelinePlayer)
         {
             TLR_PRIVATE_P();
             p.viewport->setTimelinePlayer(timelinePlayer);

@@ -183,6 +183,9 @@ namespace tlr
             //! Set the frame cache read behind.
             void setFrameCacheReadBehind(int);
 
+            //! Observe the frame cache percentage.
+            std::shared_ptr<observer::IValue<float> > observeFrameCachePercentage() const;
+
             //! Observe the cached frames.
             std::shared_ptr<observer::IList<otime::TimeRange> > observeCachedFrames() const;
 

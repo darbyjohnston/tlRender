@@ -28,8 +28,9 @@ namespace tlr
             ///@{
 
             Format& arg(const std::string&);
-            Format& arg(float, int precision = 0);
-            Format& arg(double, int precision = 0);
+            Format& arg(int, int width = 0);
+            Format& arg(float, int precision = -1, int width = 0);
+            Format& arg(double, int precision = -1, int width = 0);
             template<typename T>
             Format& arg(T);
 

@@ -13,7 +13,7 @@
 
 namespace tlr
 {
-    namespace qt
+    namespace qwidget
     {
         //! Timeline slider.
         class TimelineSlider : public QWidget
@@ -26,17 +26,17 @@ namespace tlr
             ~TimelineSlider() override;
             
             //! Set the time object.
-            void setTimeObject(TimeObject*);
+            void setTimeObject(qt::TimeObject*);
 
             //! Set the color configuration.
             void setColorConfig(const gl::ColorConfig&);
 
             //! Set the timeline player.
-            void setTimelinePlayer(TimelinePlayer*);
+            void setTimelinePlayer(qt::TimelinePlayer*);
 
         public Q_SLOTS:
             //! Set the time units.
-            void setUnits(qt::TimeUnits);
+            void setUnits(tlr::qt::TimeUnits);
 
         protected:
             void resizeEvent(QResizeEvent*) override;

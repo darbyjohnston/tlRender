@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlrQt/FilmstripWidget.h>
+#include <tlrQWidget/FilmstripWidget.h>
 
 #include <tlrCore/Timeline.h>
 
@@ -35,6 +35,6 @@ namespace tlr
         std::shared_ptr<core::Context> _context;
         std::string _input;
         std::shared_ptr<timeline::Timeline> _timeline;
-        qt::FilmstripWidget* _filmstripWidget;
+        qwidget::FilmstripWidget* _filmstripWidget;
     };
 }

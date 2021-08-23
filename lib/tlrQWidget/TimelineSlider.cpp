@@ -2,7 +2,7 @@
 // Copyright (c) 2021 Darby Johnston
 // All rights reserved.
 
-#include <tlrQt/TimelineSlider.h>
+#include <tlrQWidget/TimelineSlider.h>
 
 #include <tlrQt/TimelineThumbnailProvider.h>
 
@@ -14,16 +14,16 @@
 
 namespace tlr
 {
-    namespace qt
+    namespace qwidget
     {
         struct TimelineSlider::Private
         {
             gl::ColorConfig colorConfig;
-            TimelinePlayer* timelinePlayer = nullptr;
-            TimelineThumbnailProvider* thumbnailProvider = nullptr;
+            qt::TimelinePlayer* timelinePlayer = nullptr;
+            qt::TimelineThumbnailProvider* thumbnailProvider = nullptr;
             std::map<otime::RationalTime, QImage> thumbnails;
-            TimeUnits units = TimeUnits::Timecode;
-            TimeObject* timeObject = nullptr;
+            qt::TimeUnits units = qt::TimeUnits::Timecode;
+            qt::TimeObject* timeObject = nullptr;
         };
 
         TimelineSlider::TimelineSlider(QWidget* parent) :
@@ -37,7 +37,7 @@ namespace tlr
         TimelineSlider::~TimelineSlider()
         {}
 
-        void TimelineSlider::setTimeObject(TimeObject* timeObject)
+        void TimelineSlider::setTimeObject(qt::TimeObject* timeObject)
         {
             TLR_PRIVATE_P();
             if (timeObject == p.timeObject)
@@ -46,9 +46,9 @@ namespace tlr
             {
                 disconnect(
                     p.timeObject,
-                    SIGNAL(unitsChanged(qt::Time::Units)),
+                    SIGNAL(unitsChanged(tlr::qt::Time::Units)),
                     this,
-                    SLOT(setUnits(qt::Time::Units)));
+                    SLOT(setUnits(tlr::qt::Time::Units)));
             }
             p.timeObject = timeObject;
             if (p.timeObject)
@@ -56,8 +56,8 @@ namespace tlr
                 p.units = p.timeObject->units();
                 connect(
                     p.timeObject,
-                    SIGNAL(unitsChanged(qt::TimeUnits)),
-                    SLOT(setUnits(qt::TimeUnits)));
+                    SIGNAL(unitsChanged(tlr::qt::TimeUnits)),
+                    SLOT(setUnits(tlr::qt::TimeUnits)));
             }
             update();
         }
@@ -72,7 +72,7 @@ namespace tlr
             }
         }
 
-        void TimelineSlider::setTimelinePlayer(TimelinePlayer* timelinePlayer)
+        void TimelineSlider::setTimelinePlayer(qt::TimelinePlayer* timelinePlayer)
         {
             TLR_PRIVATE_P();
             if (timelinePlayer == p.timelinePlayer)
@@ -91,7 +91,7 @@ namespace tlr
             p.timelinePlayer = timelinePlayer;
             if (p.timelinePlayer)
             {
-                p.thumbnailProvider = new TimelineThumbnailProvider(
+                p.thumbnailProvider = new qt::TimelineThumbnailProvider(
                     timeline::Timeline::create(p.timelinePlayer->path(), p.timelinePlayer->context()),
                     this);
                 p.thumbnailProvider->setColorConfig(p.colorConfig);
@@ -115,7 +115,7 @@ namespace tlr
             _thumbnailsUpdate();
         }
 
-        void TimelineSlider::setUnits(TimeUnits units)
+        void TimelineSlider::setUnits(qt::TimeUnits units)
         {
             TLR_PRIVATE_P();
             if (p.units == units)

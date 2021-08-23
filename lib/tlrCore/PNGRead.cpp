@@ -144,6 +144,7 @@ namespace tlr
                     }
 
                     _info = imaging::Info(width, height, pixelType);
+                    _info.layout.mirror.y = true;
                 }
 
                 ~File()

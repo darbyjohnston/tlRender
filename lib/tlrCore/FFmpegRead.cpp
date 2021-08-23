@@ -248,6 +248,7 @@ namespace tlr
                 imaging::Info videoInfo;
                 videoInfo.size.w = p.avCodecParameters[p.avVideoStream]->width;
                 videoInfo.size.h = p.avCodecParameters[p.avVideoStream]->height;
+                videoInfo.layout.mirror.y = true;
 
                 const AVPixelFormat avPixelFormat = static_cast<AVPixelFormat>(p.avCodecParameters[p.avVideoStream]->format);
                 switch (avPixelFormat)
@@ -367,55 +368,52 @@ namespace tlr
                         }
                     }
 
-                    if (p.imageBuffer.empty())
+                    int decoding = 0;
+                    AVPacket packet;
+                    AVPacket* packetP = &packet;
+                    while (0 == decoding)
                     {
-                        int decoding = 0;
-                        AVPacket packet;
-                        AVPacket* packetP = &packet;
-                        while (0 == decoding)
+                        if (packetP)
                         {
-                            if (packetP)
+                            decoding = av_read_frame(p.avFormatContext, packetP);
+                            if (AVERROR_EOF == decoding)
                             {
-                                decoding = av_read_frame(p.avFormatContext, packetP);
-                                if (AVERROR_EOF == decoding)
-                                {
-                                    //avcodec_flush_buffers(p.avCodecContext[p.avVideoStream]);
-                                    decoding = 0;
-                                    packetP = nullptr;
-                                }
-                                else if (decoding < 0)
-                                {
-                                    //! \todo How should this be handled?
-                                    break;
-                                }
+                                //avcodec_flush_buffers(p.avCodecContext[p.avVideoStream]);
+                                decoding = 0;
+                                packetP = nullptr;
                             }
-                            if (p.avVideoStream == packet.stream_index)
+                            else if (decoding < 0)
                             {
-                                decoding = avcodec_send_packet(p.avCodecContext[p.avVideoStream], packetP);
-                                if (AVERROR_EOF == decoding)
-                                {
-                                    //! \todo How should this be handled?
-                                    decoding = 0;
-                                }
-                                else if (decoding < 0)
-                                {
-                                    break;
-                                }
-                                decoding = p.decodeVideo(packetP, request.time);
-                                if (AVERROR(EAGAIN) == decoding || AVERROR_EOF == decoding)
-                                {
-                                    decoding = 0;
-                                }
-                                else if (decoding < 0)
-                                {
-                                    //! \todo How should this be handled?
-                                    break;
-                                }
+                                //! \todo How should this be handled?
+                                break;
                             }
-                            if (packetP)
+                        }
+                        if (p.avVideoStream == packet.stream_index)
+                        {
+                            decoding = avcodec_send_packet(p.avCodecContext[p.avVideoStream], packetP);
+                            if (AVERROR_EOF == decoding)
                             {
-                                av_packet_unref(packetP);
+                                //! \todo How should this be handled?
+                                decoding = 0;
                             }
+                            else if (decoding < 0)
+                            {
+                                break;
+                            }
+                            decoding = p.decodeVideo(packetP, request.time);
+                            if (AVERROR(EAGAIN) == decoding || AVERROR_EOF == decoding)
+                            {
+                                decoding = 0;
+                            }
+                            else if (decoding < 0)
+                            {
+                                //! \todo How should this be handled?
+                                break;
+                            }
+                        }
+                        if (packetP)
+                        {
+                            av_packet_unref(packetP);
                         }
                     }
 

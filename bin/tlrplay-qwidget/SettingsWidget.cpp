@@ -117,8 +117,8 @@ namespace tlr
 
         connect(
             _timeObject,
-            SIGNAL(unitsChanged(qt::TimeUnits)),
-            SLOT(_unitsCallback(qt::TimeUnits)));
+            SIGNAL(unitsChanged(tlr::qt::TimeUnits)),
+            SLOT(_unitsCallback(tlr::qt::TimeUnits)));
     }
 
     void TimeSettingsWidget::_unitsCallback(QAbstractButton* button)

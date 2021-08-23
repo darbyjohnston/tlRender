@@ -12,7 +12,7 @@
 
 namespace tlr
 {
-    namespace qt
+    namespace qwidget
     {
         //! Time label.
         class TimeLabel : public QWidget
@@ -25,14 +25,14 @@ namespace tlr
             ~TimeLabel() override;
             
             //! Set the time object.
-            void setTimeObject(TimeObject*);
+            void setTimeObject(qt::TimeObject*);
 
         public Q_SLOTS:
             //! Set the time value.
             void setValue(const otime::RationalTime&);
             
             //! Set the time units.
-            void setUnits(qt::TimeUnits);
+            void setUnits(tlr::qt::TimeUnits);
 
         private:
             void _textUpdate();

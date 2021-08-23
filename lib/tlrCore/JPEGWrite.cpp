@@ -122,13 +122,14 @@ namespace tlr
                     switch (info.pixelType)
                     {
                     case imaging::PixelType::L_U8: scanlineSize = info.size.w; break;
-                    case imaging::PixelType::RGB_U8: scanlineSize = info.size.w * 3; break;
+                    case imaging::PixelType::RGB_U8: scanlineSize = static_cast<size_t>(info.size.w) * 3; break;
                     default: break;
                     }
-                    for (uint16_t y = 0; y < info.size.h; ++y)
+                    scanlineSize = imaging::align(scanlineSize, info.layout.alignment);
+                    const uint8_t* imageP = image->getData() + (info.size.h - 1) * scanlineSize;
+                    for (uint16_t y = 0; y < info.size.h; ++y, imageP -= scanlineSize)
                     {
-                        uint8_t* p = image->getData() + (y * scanlineSize);
-                        if (!jpegScanline(&_jpeg, p, &_error))
+                        if (!jpegScanline(&_jpeg, imageP, &_error))
                         {
                             throw std::runtime_error(string::Format("{0}: Cannot write scanline: {1}").arg(fileName).arg(y));
                         }

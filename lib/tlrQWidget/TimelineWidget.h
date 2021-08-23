@@ -13,7 +13,7 @@
 
 namespace tlr
 {
-    namespace qt
+    namespace qwidget
     {
         //! Timeline widget.
         class TimelineWidget : public QWidget
@@ -26,13 +26,13 @@ namespace tlr
             ~TimelineWidget() override;
 
             //! Set the time object.
-            void setTimeObject(TimeObject*);
+            void setTimeObject(qt::TimeObject*);
 
             //! Set the color configuration.
             void setColorConfig(const gl::ColorConfig&);
 
             //! Set the timeline player.
-            void setTimelinePlayer(TimelinePlayer*);
+            void setTimelinePlayer(qt::TimelinePlayer*);
 
         private:
             TLR_PRIVATE();

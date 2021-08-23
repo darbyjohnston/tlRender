@@ -7,7 +7,7 @@ set(SOURCE
     main.cpp)
 
 add_executable(tlrfilmstrip-qwidget ${SOURCE} ${HEADERS})
-target_link_libraries(tlrfilmstrip-qwidget tlrQt tlrApp)
+target_link_libraries(tlrfilmstrip-qwidget tlrQWidget tlrApp)
 set_target_properties(tlrfilmstrip-qwidget PROPERTIES FOLDER bin)
 
 install(

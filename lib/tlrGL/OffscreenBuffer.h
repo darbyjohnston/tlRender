@@ -88,6 +88,7 @@ namespace tlr
 
         private:
             std::shared_ptr<OffscreenBuffer> _buffer;
+            GLint _previous = 0;
         };
     }
 }

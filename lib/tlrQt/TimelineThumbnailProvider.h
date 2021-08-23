@@ -10,6 +10,7 @@
 
 #include <tlrCore/Timeline.h>
 
+#include <QImage>
 #include <QThread>
 
 namespace tlr

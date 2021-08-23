@@ -53,7 +53,6 @@ namespace tlr
         }
 
         // Initialize Qt.
-        qt::init();
         QCoreApplication::setOrganizationName("tlRender");
         QCoreApplication::setApplicationName("tlrplay-qwidget");
         setStyle("Fusion");
@@ -77,11 +76,8 @@ namespace tlr
 
     App::~App()
     {
-        if (_settingsObject)
-        {
-            _settingsObject->setParent(nullptr);
-            delete _settingsObject;
-        }
+        //! \bug Why is it necessary to manually delete this to get the settings to save?
+        delete _settingsObject;
     }
 
     void App::open(const QString& fileName)

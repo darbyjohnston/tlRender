@@ -6,10 +6,9 @@
 
 #include <tlrQt/TimeObject.h>
 
-void qtInitResources()
-{
-    Q_INIT_RESOURCE(tlrQt);
-}
+#include <tlrCore/Timeline.h>
+
+#include <QSurfaceFormat>
 
 namespace tlr
 {
@@ -17,10 +16,15 @@ namespace tlr
     {
         void init()
         {
-            qtInitResources();
-
+            qRegisterMetaType<timeline::Frame>("tlr::timeline::Frame");
             qRegisterMetaType<TimeUnits>("tlr::qt::TimeUnits");
             qRegisterMetaTypeStreamOperators<qt::TimeUnits>("tlr::qt::TimeUnits");
+
+            QSurfaceFormat surfaceFormat;
+            surfaceFormat.setMajorVersion(4);
+            surfaceFormat.setMinorVersion(1);
+            surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
+            QSurfaceFormat::setDefaultFormat(surfaceFormat);
         }
     }
 }

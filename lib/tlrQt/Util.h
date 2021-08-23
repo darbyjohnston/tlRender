@@ -11,7 +11,7 @@ namespace tlr
     //! Qt support.
     namespace qt
     {
-        //! Initialize Qt.
+        //! Initialize the library. This needs to be called before the Qt application is instantiated.
         void init();
     }
 }

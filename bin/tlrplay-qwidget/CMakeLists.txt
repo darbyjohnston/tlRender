@@ -11,7 +11,7 @@ set(SOURCE
     main.cpp)
 
 add_executable(tlrplay-qwidget ${SOURCE} ${HEADERS})
-target_link_libraries(tlrplay-qwidget tlrQt tlrApp)
+target_link_libraries(tlrplay-qwidget tlrQWidget tlrApp)
 set_target_properties(tlrplay-qwidget PROPERTIES FOLDER bin)
 
 install(

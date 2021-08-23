@@ -47,11 +47,18 @@ namespace tlr
             io->open(fileName, file::Mode::Write);
 
             avio::Info info;
-            info.video.push_back(image->getInfo());
+            const auto& imageInfo = image->getInfo();
+            info.video.push_back(imageInfo);
             info.tags = image->getTags();
             write(io, info);
 
-            io->write(image->getData(), imaging::getDataByteCount(image->getInfo()));
+            const size_t scanlineSize = imaging::align(static_cast<size_t>(imageInfo.size.w) * 4, imageInfo.layout.alignment);
+            const uint8_t* imageP = image->getData() + (imageInfo.size.h - 1) * scanlineSize;
+            for (uint16_t y = 0; y < imageInfo.size.h; ++y, imageP -= scanlineSize)
+            {
+                io->write(imageP, scanlineSize);
+            }
+
             finishWrite(io);
         }
     }
