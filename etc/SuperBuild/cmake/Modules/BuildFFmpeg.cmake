@@ -10,16 +10,19 @@ if(WIN32)
 else()
     set(FFmpeg_CFLAGS)
     set(FFmpeg_CXXFLAGS)
+    set(FFmpeg_OBJCFLAGS)
     set(FFmpeg_LDFLAGS)
     if(APPLE AND CMAKE_OSX_DEPLOYMENT_TARGET)
         list(APPEND FFmpeg_CFLAGS "--extra-cflags=-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
-        list(APPEND FFmpeg_CXXFLAGS "--extra-cflags=-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
-        list(APPEND FFmpeg_LDFLAGS "--extra-cflags=-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
+        list(APPEND FFmpeg_CXXFLAGS "--extra-cxxflags=-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
+        list(APPEND FFmpeg_OBJCFLAGS "--extra-objcflags=-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
+        list(APPEND FFmpeg_LDFLAGS "--extra-ldflags=-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
     endif()
     if(FFmpeg_DEBUG)
         list(APPEND FFmpeg_CFLAGS "--extra-cflags=-g")
-        list(APPEND FFmpeg_CXXFLAGS "--extra-cflags=-g")
-        list(APPEND FFmpeg_LDFLAGS "--extra-cflags=-g")
+        list(APPEND FFmpeg_CXXFLAGS "--extra-cxxflags=-g")
+        list(APPEND FFmpeg_OBJCFLAGS "--extra-objcflags=-g")
+        list(APPEND FFmpeg_LDFLAGS "--extra-ldflags=-g")
     endif()
     set(FFmpeg_CONFIGURE_ARGS
         --prefix=${CMAKE_INSTALL_PREFIX}
@@ -35,6 +38,7 @@ else()
         --enable-pic
         ${FFmpeg_CFLAGS}
         ${FFmpeg_CXXFLAGS}
+        ${FFmpeg_OBJCFLAGS}
         ${FFmpeg_LDFLAGS}
         --x86asmexe=${CMAKE_INSTALL_PREFIX}/bin/nasm)
     if(FFmpeg_SHARED_LIBS)
