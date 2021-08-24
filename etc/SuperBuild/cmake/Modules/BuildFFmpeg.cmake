@@ -11,15 +11,15 @@ else()
     set(FFmpeg_CFLAGS)
     set(FFmpeg_CXXFLAGS)
     set(FFmpeg_LDFLAGS)
-    if(APPLE)
-        set(FFmpeg_CFLAGS "${FFmpeg_CFLAGS} -mmacosx-version-min ${CMAKE_OSX_DEPLOYMENT_TARGET}")
-        set(FFmpeg_CXXFLAGS "${FFmpeg_CXXFLAGS} -mmacosx-version-min ${CMAKE_OSX_DEPLOYMENT_TARGET}")
-        set(FFmpeg_LDFLAGS "${FFmpeg_LDFLAGS} -mmacosx-version-min ${CMAKE_OSX_DEPLOYMENT_TARGET}")
+    if(APPLE AND CMAKE_OSX_DEPLOYMENT_TARGET)
+        list(APPEND FFmpeg_CFLAGS "--extra-cflags=-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
+        list(APPEND FFmpeg_CXXFLAGS "--extra-cflags=-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
+        list(APPEND FFmpeg_LDFLAGS "--extra-cflags=-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
     endif()
     if(FFmpeg_DEBUG)
-        set(FFmpeg_CFLAGS "${FFmpeg_CFLAGS} -g")
-        set(FFmpeg_CXXFLAGS "${FFmpeg_CXXFLAGS} -g")
-        set(FFmpeg_LDFLAGS "${FFmpeg_LDFLAGS} -g")
+        list(APPEND FFmpeg_CFLAGS "--extra-cflags=-g")
+        list(APPEND FFmpeg_CXXFLAGS "--extra-cflags=-g")
+        list(APPEND FFmpeg_LDFLAGS "--extra-cflags=-g")
     endif()
     set(FFmpeg_CONFIGURE_ARGS
         --prefix=${CMAKE_INSTALL_PREFIX}
@@ -33,9 +33,9 @@ else()
         --disable-audiotoolbox
         --disable-vaapi
         --enable-pic
-        --extra-cflags="${FFmpeg_CFLAGS}"
-        --extra-cxxflags="${FFmpeg_CXXFLAGS}"
-        --extra-ldflags="${FFmpeg_LDFLAGS}"
+        ${FFmpeg_CFLAGS}
+        ${FFmpeg_CXXFLAGS}
+        ${FFmpeg_LDFLAGS}
         --x86asmexe=${CMAKE_INSTALL_PREFIX}/bin/nasm)
     if(FFmpeg_SHARED_LIBS)
         set(FFmpeg_CONFIGURE_ARGS
