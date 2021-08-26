@@ -36,7 +36,7 @@ namespace tlr
             return !(*this == other);
         }
 
-        constexpr bool Size::operator < (const Size& other) const noexcept
+        inline bool Size::operator < (const Size& other) const noexcept
         {
             return std::tie(w, h) < std::tie(other.w, other.h);
         }
