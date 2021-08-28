@@ -48,7 +48,8 @@ namespace tlr
 
         avio::VideoFrame Read::_readVideoFrame(
             const std::string& fileName,
-            const otime::RationalTime& time)
+            const otime::RationalTime& time,
+            const std::shared_ptr<imaging::Image>& image)
         {
             avio::VideoFrame out;
             out.time = time;
@@ -58,7 +59,7 @@ namespace tlr
             avio::Info info;
             read(io, info);
 
-            out.image = imaging::Image::create(info.video[0]);
+            out.image = image && image->getInfo() == info.video[0] ? image : imaging::Image::create(info.video[0]);
             out.image->setTags(info.tags);
             io->read(out.image->getData(), imaging::getDataByteCount(info.video[0]));
             return out;

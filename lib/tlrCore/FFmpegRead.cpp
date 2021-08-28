@@ -30,7 +30,10 @@ namespace tlr
     {
         struct Read::Private
         {
-            int decodeVideo(AVPacket*, const otime::RationalTime& seek);
+            int decodeVideo(
+                AVPacket*,
+                const otime::RationalTime& seek,
+                const std::shared_ptr<imaging::Image>& image);
             void copyVideo(const std::shared_ptr<imaging::Image>&);
 
             avio::Info info;
@@ -41,6 +44,7 @@ namespace tlr
                 VideoFrameRequest(VideoFrameRequest&&) = default;
 
                 otime::RationalTime time = time::invalidTime;
+                std::shared_ptr<imaging::Image> image;
                 std::promise<avio::VideoFrame> promise;
             };
             std::list<VideoFrameRequest> videoFrameRequests;
@@ -137,11 +141,14 @@ namespace tlr
             return _p->infoPromise.get_future();
         }
 
-        std::future<avio::VideoFrame> Read::readVideoFrame(const otime::RationalTime& time)
+        std::future<avio::VideoFrame> Read::readVideoFrame(
+            const otime::RationalTime& time,
+            const std::shared_ptr<imaging::Image>& image)
         {
             TLR_PRIVATE_P();
             Private::VideoFrameRequest request;
             request.time = time;
+            request.image = image;
             auto future = request.promise.get_future();
             if (!p.stopped)
             {
@@ -332,6 +339,7 @@ namespace tlr
                     if (!p.videoFrameRequests.empty())
                     {
                         request.time = p.videoFrameRequests.front().time;
+                        request.image = p.videoFrameRequests.front().image;
                         request.promise = std::move(p.videoFrameRequests.front().promise);
                         p.videoFrameRequests.pop_front();
                         requestValid = true;
@@ -400,7 +408,7 @@ namespace tlr
                             {
                                 break;
                             }
-                            decoding = p.decodeVideo(packetP, request.time);
+                            decoding = p.decodeVideo(packetP, request.time, request.image);
                             if (AVERROR(EAGAIN) == decoding || AVERROR_EOF == decoding)
                             {
                                 decoding = 0;
@@ -460,7 +468,10 @@ namespace tlr
             }
         }
 
-        int Read::Private::decodeVideo(AVPacket* packet, const otime::RationalTime& seek)
+        int Read::Private::decodeVideo(
+            AVPacket* packet,
+            const otime::RationalTime& seek,
+            const std::shared_ptr<imaging::Image>& image)
         {
             int out = 0;
             while (0 == out)
@@ -481,10 +492,10 @@ namespace tlr
                 if (t >= seek)
                 {
                     //std::cout << "frame: " << t << std::endl;
-                    auto image = imaging::Image::create(videoInfo);
-                    image->setTags(info.tags);
-                    copyVideo(image);
-                    imageBuffer.push_back(image);
+                    auto tmp = image && image->getInfo() == videoInfo ? image : imaging::Image::create(videoInfo);
+                    tmp->setTags(info.tags);
+                    copyVideo(tmp);
+                    imageBuffer.push_back(tmp);
                     out = 1;
                 }
             }

@@ -617,6 +617,7 @@ namespace tlr
             timeline->setActiveRanges(ranges);
 
             // Remove old frames from the cache.
+            std::list<std::shared_ptr<imaging::Image> > recycledImages;
             auto frameCacheIt = threadData.frameCache.begin();
             while (frameCacheIt != threadData.frameCache.end())
             {
@@ -631,6 +632,10 @@ namespace tlr
                 }
                 if (old)
                 {
+                    for (const auto& i : frameCacheIt->second.layers)
+                    {
+                        recycledImages.push_back(i.image);
+                    }
                     frameCacheIt = threadData.frameCache.erase(frameCacheIt);
                 }
                 else
@@ -657,7 +662,13 @@ namespace tlr
             // Get uncached frames.
             for (const auto& i : uncached)
             {
-                threadData.frameRequests[i] = timeline->getFrame(i);
+                std::shared_ptr<imaging::Image> recycledImage;
+                if (!recycledImages.empty())
+                {
+                    recycledImage = recycledImages.front();
+                    recycledImages.pop_front();
+                }
+                threadData.frameRequests[i] = timeline->getFrame(i, recycledImage);
             }
             auto framesIt = threadData.frameRequests.begin();
             while (framesIt != threadData.frameRequests.end())

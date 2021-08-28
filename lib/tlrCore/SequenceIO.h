@@ -14,7 +14,7 @@ namespace tlr
         const float sequenceDefaultSpeed = 24.F;
 
         //! Number of threads.
-        const size_t sequenceThreadCount = 8;
+        const size_t sequenceThreadCount = 24;
 
         //! Timeout for frame requests.
         const std::chrono::microseconds sequenceRequestTimeout(1000);
@@ -33,7 +33,9 @@ namespace tlr
             ~ISequenceRead() override;
 
             std::future<Info> getInfo() override;
-            std::future<VideoFrame> readVideoFrame(const otime::RationalTime&) override;
+            std::future<VideoFrame> readVideoFrame(
+                const otime::RationalTime&,
+                const std::shared_ptr<imaging::Image>& = nullptr) override;
             bool hasVideoFrames() override;
             void cancelVideoFrames() override;
             void stop() override;
@@ -43,7 +45,8 @@ namespace tlr
             virtual Info _getInfo(const std::string& fileName) = 0;
             virtual VideoFrame _readVideoFrame(
                 const std::string& fileName,
-                const otime::RationalTime&) = 0;
+                const otime::RationalTime&,
+                const std::shared_ptr<imaging::Image>&) = 0;
 
             float _defaultSpeed = sequenceDefaultSpeed;
 

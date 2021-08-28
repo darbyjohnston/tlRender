@@ -52,7 +52,8 @@ namespace tlr
             avio::Info _getInfo(const std::string& fileName) override;
             avio::VideoFrame _readVideoFrame(
                 const std::string& fileName,
-                const otime::RationalTime&) override;
+                const otime::RationalTime&,
+                const std::shared_ptr<imaging::Image>&) override;
         };
 
         //! PNG writer.

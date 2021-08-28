@@ -12,6 +12,7 @@
 #include <ImfFramesPerSecond.h>
 #include <ImfIntAttribute.h>
 #include <ImfStandardAttributes.h>
+#include <ImfThreading.h>
 
 namespace tlr
 {
@@ -653,16 +654,20 @@ namespace tlr
                 Imf::Rational(speedRational.first, speedRational.second));
         }
 
+        void Plugin::_init(const std::shared_ptr<core::LogSystem>& logSystem)
+        {
+            IPlugin::_init("OpenEXR", { ".exr" }, logSystem);
+
+            //Imf::setGlobalThreadCount(4);
+        }
+
         Plugin::Plugin()
         {}
             
         std::shared_ptr<Plugin> Plugin::create(const std::shared_ptr<core::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Plugin>(new Plugin);
-            out->_init(
-                "OpenEXR",
-                { ".exr" },
-                logSystem);
+            out->_init(logSystem);
             return out;
         }
 

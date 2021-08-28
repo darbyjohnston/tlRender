@@ -169,11 +169,12 @@ namespace tlr
 
                 avio::VideoFrame read(
                     const std::string& fileName,
-                    const otime::RationalTime& time)
+                    const otime::RationalTime& time,
+                    const std::shared_ptr<imaging::Image>& image)
                 {
                     avio::VideoFrame out;
                     out.time = time;
-                    out.image = imaging::Image::create(_info);
+                    out.image = image && image->getInfo() == _info ? image : imaging::Image::create(_info);
 
                     for (uint16_t y = 0; y < _info.size.h; ++y)
                     {
@@ -232,9 +233,10 @@ namespace tlr
 
         avio::VideoFrame Read::_readVideoFrame(
             const std::string& fileName,
-            const otime::RationalTime& time)
+            const otime::RationalTime& time,
+            const std::shared_ptr<imaging::Image>& image)
         {
-            return std::unique_ptr<File>(new File(fileName))->read(fileName, time);
+            return std::unique_ptr<File>(new File(fileName))->read(fileName, time, image);
         }
     }
 }

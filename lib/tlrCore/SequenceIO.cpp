@@ -30,6 +30,7 @@ namespace tlr
                 VideoFrameRequest(VideoFrameRequest&&) = default;
 
                 otime::RationalTime time = time::invalidTime;
+                std::shared_ptr<imaging::Image> image;
                 std::promise<VideoFrame> promise;
             };
             std::list<VideoFrameRequest> videoFrameRequests;
@@ -114,11 +115,14 @@ namespace tlr
             return _p->infoPromise.get_future();
         }
 
-        std::future<VideoFrame> ISequenceRead::readVideoFrame(const otime::RationalTime& time)
+        std::future<VideoFrame> ISequenceRead::readVideoFrame(
+            const otime::RationalTime& time,
+            const std::shared_ptr<imaging::Image>& image)
         {
             TLR_PRIVATE_P();
             Private::VideoFrameRequest request;
             request.time = time;
+            request.image = image;
             auto future = request.promise.get_future();
             if (!p.stopped)
             {
@@ -168,6 +172,7 @@ namespace tlr
                 {
                     std::string fileName;
                     otime::RationalTime time = time::invalidTime;
+                    std::shared_ptr<imaging::Image> image;
                     std::future<VideoFrame> future;
                     std::promise<VideoFrame> promise;
                 };
@@ -185,11 +190,17 @@ namespace tlr
                     {
                         Result result;
                         result.time = p.videoFrameRequests.front().time;
+                        result.image = p.videoFrameRequests.front().image;
                         result.promise = std::move(p.videoFrameRequests.front().promise);
                         results.push_back(std::move(result));
                         p.videoFrameRequests.pop_front();
                     }
                 }
+                //if (!results.empty())
+                //{
+                //    std::cout << "results: " << results.size() << std::endl;
+                //}
+                //std::list<std::chrono::steady_clock::time_point> times;
                 auto it = results.begin();
                 while (it != results.end())
                 {
@@ -210,16 +221,18 @@ namespace tlr
                     }
                     else
                     {
+                        //times.push_back(std::chrono::steady_clock::now());
                         const auto fileName = it->fileName;
                         const auto time = it->time;
+                        const auto image = it->image;
                         it->future = std::async(
                             std::launch::async,
-                            [this, fileName, time]
+                            [this, fileName, time, image]
                             {
                                 VideoFrame out;
                                 try
                                 {
-                                    out = _readVideoFrame(fileName, time);
+                                    out = _readVideoFrame(fileName, time, image);
                                 }
                                 catch (const std::exception&)
                                 {}
@@ -233,6 +246,10 @@ namespace tlr
                     auto videoFrame = i.future.get();
                     i.promise.set_value(videoFrame);
                     p.videoFrameCache.add(i.fileName, videoFrame);
+                    //const auto now = std::chrono::steady_clock::now();
+                    //const std::chrono::duration<float> diff = now - times.front();
+                    //times.pop_front();
+                    //std::cout << "time: " << diff.count() << std::endl;
                 }
             }
         }

@@ -20,7 +20,7 @@ namespace tlr
     namespace timeline
     {
         //! Number of frame requests to handle.
-        const size_t requestCount = 8;
+        const size_t requestCount = 24;
 
         //! Timeout for frame requests.
         const std::chrono::microseconds requestTimeout(1000);
@@ -125,7 +125,9 @@ namespace tlr
             void setActiveRanges(const std::vector<otime::TimeRange>&);
 
             //! Get a frame.
-            std::future<Frame> getFrame(const otime::RationalTime&);
+            std::future<Frame> getFrame(
+                const otime::RationalTime&,
+                const std::shared_ptr<imaging::Image>& = nullptr);
 
             //! Cancel frames.
             void cancelFrames();

@@ -35,7 +35,7 @@ namespace tlr
         TLR_ENUM_SERIALIZE(Profile);
 
         //! Number of threads.
-        const size_t threadCount = 8;
+        const size_t threadCount = 4;
 
         //! Timeout for frame requests.
         const std::chrono::microseconds requestTimeout(1000);
@@ -69,7 +69,9 @@ namespace tlr
                 const std::shared_ptr<core::LogSystem>&);
 
             std::future<avio::Info> getInfo() override;
-            std::future<avio::VideoFrame> readVideoFrame(const otime::RationalTime&) override;
+            std::future<avio::VideoFrame> readVideoFrame(
+                const otime::RationalTime&,
+                const std::shared_ptr<imaging::Image>& = nullptr) override;
             bool hasVideoFrames() override;
             void cancelVideoFrames() override;
             void stop() override;

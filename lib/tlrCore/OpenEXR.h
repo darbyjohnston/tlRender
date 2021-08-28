@@ -44,7 +44,8 @@ namespace tlr
             avio::Info _getInfo(const std::string& fileName) override;
             avio::VideoFrame _readVideoFrame(
                 const std::string& fileName,
-                const otime::RationalTime&) override;
+                const otime::RationalTime&,
+                const std::shared_ptr<imaging::Image>&) override;
         };
 
         //! OpenEXR writer.
@@ -79,6 +80,7 @@ namespace tlr
         class Plugin : public avio::IPlugin
         {
         protected:
+            void _init(const std::shared_ptr<core::LogSystem>&);
             Plugin();
 
         public:
