@@ -23,6 +23,9 @@ namespace tlr
         class Shader;
         class Texture;
 
+        //! Texture cache size.
+        const size_t textureCacheSize = 4;
+
         //! OpenColorIO configuration.
         struct ColorConfig
         {

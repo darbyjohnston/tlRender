@@ -17,6 +17,7 @@
 #include <OpenColorIO/OpenColorIO.h>
 
 #include <array>
+#include <list>
 
 namespace OCIO = OCIO_NAMESPACE;
 
@@ -192,6 +193,101 @@ namespace tlr
                 glTexParameteri(textureType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
                 glTexParameteri(textureType, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
             }
+
+            std::vector<std::shared_ptr<Texture> > getTextures(const imaging::Info& info, size_t offset = 0)
+            {
+                std::vector<std::shared_ptr<Texture> > out;
+                switch (info.pixelType)
+                {
+                case imaging::PixelType::YUV_420P:
+                {
+                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
+                    auto infoTmp = imaging::Info(info.size, imaging::PixelType::L_U8);
+                    out.push_back(Texture::create(infoTmp));
+
+                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
+                    const std::size_t w = info.size.w;
+                    const std::size_t h = info.size.h;
+                    const std::size_t w2 = w / 2;
+                    const std::size_t h2 = h / 2;
+                    infoTmp = imaging::Info(imaging::Size(w2, h2), imaging::PixelType::L_U8);
+                    out.push_back(Texture::create(infoTmp));
+
+                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 2 + offset));
+                    out.push_back(Texture::create(infoTmp));
+                    break;
+                }
+                default:
+                {
+                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
+                    auto texture = Texture::create(info);
+                    out.push_back(texture);
+                    break;
+                }
+                }
+                return out;
+            }
+
+            void copyTextures(
+                const std::shared_ptr<imaging::Image>& image,
+                const std::vector<std::shared_ptr<Texture> >& textures,
+                size_t offset = 0)
+            {
+                std::vector<std::shared_ptr<Texture> > out;
+                const auto& info = image->getInfo();
+                switch (info.pixelType)
+                {
+                case imaging::PixelType::YUV_420P:
+                {
+                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
+                    textures[0]->copy(image->getData(), textures[0]->getInfo());
+                    \
+                        glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
+                    const std::size_t w = info.size.w;
+                    const std::size_t h = info.size.h;
+                    const std::size_t w2 = w / 2;
+                    const std::size_t h2 = h / 2;
+                    textures[1]->copy(image->getData() + (w * h), textures[1]->getInfo());
+
+                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 2 + offset));
+                    textures[2]->copy(image->getData() + (w * h) + (w2 * h2), textures[2]->getInfo());
+                    break;
+                }
+                default:
+                {
+                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
+                    textures[0]->copy(*image);
+                    break;
+                }
+                }
+            }
+
+            class TextureCache
+            {
+            public:
+                std::vector<std::shared_ptr<Texture> > get(const imaging::Info& info)
+                {
+                    std::vector<std::shared_ptr<Texture> > out;
+                    const auto i = std::find_if(_cache.begin(), _cache.end(),
+                        [info](const std::pair<imaging::Info, std::vector<std::shared_ptr<Texture> > >& value)
+                        {
+                            return info == value.first;
+                        });
+                    if (i != _cache.end())
+                    {
+                        out = i->second;
+                    }
+                    else
+                    {
+                        out = getTextures(info);
+                        _cache.push_front(std::make_pair(info, out));
+                    }
+                    return out;
+                }
+
+            private:
+                std::list<std::pair<imaging::Info, std::vector<std::shared_ptr<Texture> > > > _cache;
+            };
         }
 
         struct Render::Private
@@ -221,6 +317,8 @@ namespace tlr
             std::shared_ptr<Shader> shader;
 
             std::shared_ptr<OffscreenBuffer> offscreenBuffer;
+
+            TextureCache textureCache;
 
             memory::LRUCache<GlyphInfo, std::shared_ptr<Texture> > glyphTextureCache;
         };
@@ -475,51 +573,6 @@ namespace tlr
             vao->draw(GL_TRIANGLE_STRIP, 0, 4);
         }
 
-        namespace
-        {
-            std::vector<std::shared_ptr<Texture> > getTextures(const std::shared_ptr<imaging::Image>& image, size_t offset = 0)
-            {
-                std::vector<std::shared_ptr<Texture> > out;
-                const auto& info = image->getInfo();
-                switch (info.pixelType)
-                {
-                case imaging::PixelType::YUV_420P:
-                {
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
-                    auto infoTmp = imaging::Info(info.size, imaging::PixelType::L_U8);
-                    auto texture = Texture::create(infoTmp);
-                    texture->copy(image->getData(), infoTmp);
-                    out.push_back(texture);
-
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
-                    const std::size_t w = info.size.w;
-                    const std::size_t h = info.size.h;
-                    const std::size_t w2 = w / 2;
-                    const std::size_t h2 = h / 2;
-                    infoTmp = imaging::Info(imaging::Size(w2, h2), imaging::PixelType::L_U8);
-                    texture = Texture::create(infoTmp);
-                    texture->copy(image->getData() + (w * h), infoTmp);
-                    out.push_back(texture);
-
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 2 + offset));
-                    texture = Texture::create(infoTmp);
-                    texture->copy(image->getData() + (w * h) + (w2 * h2), infoTmp);
-                    out.push_back(texture);
-                    break;
-                }
-                default:
-                {
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
-                    auto texture = Texture::create(info);
-                    texture->copy(*image);
-                    out.push_back(texture);
-                    break;
-                }
-                }
-                return out;
-            }
-        }
-
         void Render::drawImage(
             const std::shared_ptr<imaging::Image>& image,
             const math::BBox2f& bbox,
@@ -535,8 +588,8 @@ namespace tlr
             p.shader->setUniform("textureSampler1", 1);
             p.shader->setUniform("textureSampler2", 2);
 
-            //! \todo Cache textures for reuse.
-            auto textures = getTextures(image);
+            auto textures = p.textureCache.get(info);
+            copyTextures(image, textures);
 
             std::vector<uint8_t> vboData;
             vboData.resize(4 * getByteCount(VBOType::Pos2_F32_UV_U16));
