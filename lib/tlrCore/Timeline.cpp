@@ -465,8 +465,7 @@ namespace tlr
                 std::vector<LayerData> layerData;
                 std::promise<Frame> promise;
             };
-            Result result;
-            bool resultValid = false;
+            std::list<Result> results;
             {
                 std::unique_lock<std::mutex> lock(requestMutex);
                 requestCV.wait_for(
@@ -476,18 +475,17 @@ namespace tlr
                     {
                         return !requests.empty();
                     });
-                if (!requests.empty())
+                while (!requests.empty() && results.size() < requestCount)
                 {
+                    Result result;
                     result.time = requests.front().time;
                     result.promise = std::move(requests.front().promise);
-                    resultValid = true;
+                    results.push_back(std::move(result));
                     requests.pop_front();
                 }
             }
-            if (resultValid)
+            for (auto& result : results)
             {
-                Frame frame;
-                frame.time = result.time;
                 try
                 {
                     for (const auto& j : timeline->tracks()->children())
@@ -553,6 +551,18 @@ namespace tlr
                             }
                         }
                     }
+                }
+                catch (const std::exception&)
+                {
+                    //! \todo How should this be handled?
+                }
+            }
+            for (auto& result : results)
+            {
+                Frame frame;
+                frame.time = result.time;
+                try
+                {
                     for (auto& j : result.layerData)
                     {
                         FrameLayer layer;

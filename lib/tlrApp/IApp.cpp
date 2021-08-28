@@ -50,24 +50,24 @@ namespace tlr
             p.cmdLineArgs = args;
             p.cmdLineOptions = options;
             p.cmdLineOptions.push_back(CmdLineValueOption<float>::create(
-                _options.seqDefaultSpeed,
-                { "-seqDefaultSpeed" },
+                _options.sequenceDefaultSpeed,
+                { "-sequenceDefaultSpeed" },
                 "Default speed for image sequences.",
-                string::Format("{0}").arg(_options.seqDefaultSpeed)));
+                string::Format("{0}").arg(_options.sequenceDefaultSpeed)));
             p.cmdLineOptions.push_back(CmdLineValueOption<int>::create(
-                _options.seqThreadCount,
-                { "-seqThreadCount" },
+                _options.sequenceThreadCount,
+                { "-sequenceThreadCount" },
                 "Number of threads for image sequence I/O.",
-                string::Format("{0}").arg(_options.seqThreadCount)));
+                string::Format("{0}").arg(_options.sequenceThreadCount)));
 #if defined(FFmpeg_FOUND)
             p.cmdLineOptions.push_back(CmdLineValueOption<int>::create(
-                _options.ffThreadCount,
-                { "-ffThreadCount" },
+                _options.ffmpegThreadCount,
+                { "-ffmpegThreadCount" },
                 "Number of threads for FFmpeg I/O.",
-                string::Format("{0}").arg(_options.ffThreadCount)));
+                string::Format("{0}").arg(_options.ffmpegThreadCount)));
             p.cmdLineOptions.push_back(app::CmdLineValueOption<std::string>::create(
-                _options.ffWriteProfile,
-                { "-ffProfile", "-ffp" },
+                _options.ffmpegWriteProfile,
+                { "-ffmpegProfile", "-ffp" },
                 "FFmpeg output profile.",
                 std::string(),
                 string::join(ffmpeg::getProfileLabels(), ", ")));
@@ -101,23 +101,25 @@ namespace tlr
             avio::Options avioOptions;
             {
                 std::stringstream ss;
-                ss << _options.seqDefaultSpeed;
+                ss << _options.sequenceDefaultSpeed;
                 avioOptions["SequenceIO/DefaultSpeed"] = ss.str();
             }
             {
                 std::stringstream ss;
-                ss << _options.seqThreadCount;
+                ss << _options.sequenceThreadCount;
                 avioOptions["SequenceIO/ThreadCount"] = ss.str();
             }
-            if (!_options.ffWriteProfile.empty())
+#if defined(FFmpeg_FOUND)
+            if (!_options.ffmpegWriteProfile.empty())
             {
-                avioOptions["ffmpeg/WriteProfile"] = _options.ffWriteProfile;
+                avioOptions["ffmpeg/WriteProfile"] = _options.ffmpegWriteProfile;
             }
             {
                 std::stringstream ss;
-                ss << _options.ffThreadCount;
+                ss << _options.ffmpegThreadCount;
                 avioOptions["ffmpeg/ThreadCount"] = ss.str();
             }
+#endif
             _context->getSystem<avio::System>()->setOptions(avioOptions);
         }
         

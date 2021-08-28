@@ -35,7 +35,7 @@ namespace tlr
         TLR_ENUM_SERIALIZE(Profile);
 
         //! Number of threads.
-        const size_t threadCount = 4;
+        const size_t threadCount = 8;
 
         //! Timeout for frame requests.
         const std::chrono::microseconds requestTimeout(1000);

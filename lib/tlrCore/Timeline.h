@@ -19,6 +19,9 @@ namespace tlr
     //! Timelines.
     namespace timeline
     {
+        //! Number of frame requests to handle.
+        const size_t requestCount = 8;
+
         //! Timeout for frame requests.
         const std::chrono::microseconds requestTimeout(1000);
 

@@ -190,7 +190,6 @@ namespace tlr
                         p.videoFrameRequests.pop_front();
                     }
                 }
-
                 auto it = results.begin();
                 while (it != results.end())
                 {

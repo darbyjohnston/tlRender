@@ -7,6 +7,10 @@
 #include <tlrApp/CmdLine.h>
 
 #include <tlrCore/Context.h>
+#include <tlrCore/SequenceIO.h>
+#if defined(FFmpeg_FOUND)
+#include <tlrCore/FFmpeg.h>
+#endif
 
 #include <memory>
 #include <string>
@@ -23,10 +27,12 @@ namespace tlr
         //! Application options.
         struct Options
         {
-            float seqDefaultSpeed = 24.F;
-            int seqThreadCount = 4;
-            std::string ffWriteProfile;
-            int ffThreadCount = 4;
+            float sequenceDefaultSpeed = avio::sequenceDefaultSpeed;
+            int sequenceThreadCount = avio::sequenceThreadCount;
+#if defined(FFmpeg_FOUND)
+            std::string ffmpegWriteProfile;
+            int ffmpegThreadCount = ffmpeg::threadCount;
+#endif
             bool log = false;
             bool help = false;
         };

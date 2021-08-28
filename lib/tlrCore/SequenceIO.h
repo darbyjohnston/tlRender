@@ -14,7 +14,7 @@ namespace tlr
         const float sequenceDefaultSpeed = 24.F;
 
         //! Number of threads.
-        const size_t sequenceThreadCount = 4;
+        const size_t sequenceThreadCount = 8;
 
         //! Timeout for frame requests.
         const std::chrono::microseconds sequenceRequestTimeout(1000);
