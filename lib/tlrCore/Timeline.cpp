@@ -685,7 +685,12 @@ namespace tlr
             {
                 startTime -= transition->in_offset();
             }
-
+            int sequenceStartFrame = 0;
+            if (auto imageSequenceReference = dynamic_cast<otio::ImageSequenceReference*>(clip->media_reference()))
+            {
+                sequenceStartFrame = imageSequenceReference->start_frame();
+            }
+            
             // Get the frame time.
             const auto clipTime = track->transformed_time(time, clip, &errorStatus);
             auto frameTime = startTime + timeTransform.applied_to(clipTime - startTime);
@@ -696,7 +701,7 @@ namespace tlr
             if (j != readers.end())
             {
                 const auto readTime = frameTime.rescaled_to(j->second.info.videoDuration);
-                const auto floorTime = otime::RationalTime(floor(readTime.value()), readTime.rate());
+                const auto floorTime = otime::RationalTime(sequenceStartFrame + floor(readTime.value()), readTime.rate());
                 out = j->second.read->readVideoFrame(floorTime, image);
             }
             else
@@ -717,7 +722,7 @@ namespace tlr
                     reader.read = read;
                     reader.info = info;
                     const auto readTime = frameTime.rescaled_to(info.videoDuration);
-                    const auto floorTime = otime::RationalTime(floor(readTime.value()), readTime.rate());
+                    const auto floorTime = otime::RationalTime(sequenceStartFrame + floor(readTime.value()), readTime.rate());
                     out = read->readVideoFrame(floorTime, image);
                     readers[clip] = std::move(reader);
                 }
