@@ -318,7 +318,7 @@ namespace tlr
 
     void App::_printProgress()
     {
-        const int64_t c = static_cast<int64_t>(_currentTime.value());
+        const int64_t c = static_cast<int64_t>(_currentTime.value() - _range.start_time().value());
         const int64_t d = static_cast<int64_t>(_range.duration().value());
         if (d >= 100 && c % (d / 100) == 0)
         {
