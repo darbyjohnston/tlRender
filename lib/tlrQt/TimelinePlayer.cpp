@@ -129,9 +129,29 @@ namespace tlr
             return _p->timelinePlayer->observeFrame()->get();
         }
 
+        int TimelinePlayer::frameCacheReadAhead()
+        {
+            return _p->timelinePlayer->getFrameCacheReadAhead();
+        }
+
+        int TimelinePlayer::frameCacheReadBehind()
+        {
+            return _p->timelinePlayer->getFrameCacheReadBehind();
+        }
+
         const std::vector<otime::TimeRange>& TimelinePlayer::cachedFrames() const
         {
             return _p->timelinePlayer->observeCachedFrames()->get();
+        }
+
+        int TimelinePlayer::requestCount() const
+        {
+            return _p->timelinePlayer->getRequestCount();
+        }
+
+        int TimelinePlayer::requestTimeout() const
+        {
+            return _p->timelinePlayer->getRequestTimeout().count();
         }
 
         void TimelinePlayer::setPlayback(timeline::Playback value)
@@ -230,6 +250,16 @@ namespace tlr
         void TimelinePlayer::setFrameCacheReadBehind(int value)
         {
             _p->timelinePlayer->setFrameCacheReadBehind(value);
+        }
+
+        void TimelinePlayer::setRequestCount(int value)
+        {
+            _p->timelinePlayer->setRequestCount(value > 0 ? value : 0);
+        }
+
+        void TimelinePlayer::setRequestTimeout(int value)
+        {
+            _p->timelinePlayer->setRequestTimeout(std::chrono::milliseconds(value));
         }
 
         void TimelinePlayer::timerEvent(QTimerEvent*)

@@ -17,12 +17,6 @@ namespace tlr
 {
     namespace qt
     {
-        //! Timeout for thumbnail requests.
-        const std::chrono::milliseconds thumbnailRequestTimeout(1);
-
-        //! The thumbnail timer interval.
-        const int thumbnailTimerInterval = 10;
-
         //! Timeline thumbnail provider.
         class TimelineThumbnailProvider : public QThread
         {
@@ -46,6 +40,15 @@ namespace tlr
 
             //! Cancel all thumbnail requests.
             void cancelRequests();
+
+            //! Set the request count.
+            void setRequestCount(int);
+
+            //! Set the request timeout (milliseconds).
+            void setRequestTimeout(int);
+
+            //! Set the timer interval (milliseconds).
+            void setTimerInterval(int);
 
         Q_SIGNALS:
             //! This signal is emitted when thumbnails are ready.

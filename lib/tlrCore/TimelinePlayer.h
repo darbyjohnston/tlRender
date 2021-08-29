@@ -191,6 +191,23 @@ namespace tlr
 
             ///@}
 
+            //! \name Options
+            ///@{
+
+            //! Get the number of frame requests.
+            size_t getRequestCount() const;
+
+            //! Set the number of frame requests.
+            void setRequestCount(size_t);
+
+            //! Get the frame request timeout.
+            std::chrono::milliseconds getRequestTimeout() const;
+
+            //! Set the frame request timeout.
+            void setRequestTimeout(const std::chrono::milliseconds&);
+
+            ///@}
+
             //! Tick the timeline.
             void tick();
 

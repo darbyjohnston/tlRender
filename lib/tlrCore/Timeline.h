@@ -4,10 +4,8 @@
 
 #pragma once
 
+#include <tlrCore/AVIO.h>
 #include <tlrCore/Context.h>
-#include <tlrCore/Image.h>
-#include <tlrCore/Path.h>
-#include <tlrCore/Time.h>
 
 #include <opentimelineio/composable.h>
 #include <opentimelineio/item.h>
@@ -19,12 +17,6 @@ namespace tlr
     //! Timelines.
     namespace timeline
     {
-        //! Number of frame requests to handle.
-        const size_t requestCount = 8;
-
-        //! Timeout for frame requests.
-        const std::chrono::milliseconds requestTimeout(1);
-
         //! Get the timeline file extensions.
         std::vector<std::string> getExtensions();
 
@@ -131,6 +123,26 @@ namespace tlr
 
             //! Cancel frames.
             void cancelFrames();
+
+            ///@}
+
+            //! \name Options
+            ///@{
+
+            //! Get the number of frame requests.
+            size_t getRequestCount() const;
+
+            //! Set the number of frame requests.
+            void setRequestCount(size_t);
+
+            //! Get the frame request timeout.
+            std::chrono::milliseconds getRequestTimeout() const;
+
+            //! Set the frame request timeout.
+            void setRequestTimeout(const std::chrono::milliseconds&);
+
+            //! Set the I/O options.
+            void setIOOptions(const avio::Options&);
 
             ///@}
 

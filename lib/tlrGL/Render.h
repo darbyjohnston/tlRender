@@ -23,9 +23,6 @@ namespace tlr
         class Shader;
         class Texture;
 
-        //! Texture cache size.
-        const size_t textureCacheSize = 4;
-
         //! OpenColorIO configuration.
         struct ColorConfig
         {
@@ -52,6 +49,9 @@ namespace tlr
 
             //! Create a new renderer.
             static std::shared_ptr<Render> create();
+
+            //! Set the texture cache size.
+            void setTextureCacheSize(size_t);
 
             //! Set the color configuration.
             void setColorConfig(const ColorConfig&);

@@ -265,6 +265,12 @@ namespace tlr
             class TextureCache
             {
             public:
+                void setSize(size_t value)
+                {
+                    _size = value;
+                    _cacheUpdate();
+                }
+
                 std::vector<std::shared_ptr<Texture> > get(const imaging::Info& info)
                 {
                     std::vector<std::shared_ptr<Texture> > out;
@@ -281,11 +287,21 @@ namespace tlr
                     {
                         out = getTextures(info);
                         _cache.push_front(std::make_pair(info, out));
+                        _cacheUpdate();
                     }
                     return out;
                 }
 
             private:
+                void _cacheUpdate()
+                {
+                    while (_cache.size() > _size)
+                    {
+                        _cache.pop_back();
+                    }
+                }
+
+                size_t _size = 4;
                 std::list<std::pair<imaging::Info, std::vector<std::shared_ptr<Texture> > > > _cache;
             };
         }
@@ -355,6 +371,11 @@ namespace tlr
             auto out = std::shared_ptr<Render>(new Render);
             out->_init();
             return out;
+        }
+
+        void Render::setTextureCacheSize(size_t value)
+        {
+            _p->textureCache.setSize(value);
         }
 
         void Render::setColorConfig(const ColorConfig& config)

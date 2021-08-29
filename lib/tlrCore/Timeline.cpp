@@ -210,6 +210,7 @@ namespace tlr
                 const otio::Track*,
                 const otio::Clip*,
                 const otime::RationalTime&,
+                const avio::Options&,
                 const std::shared_ptr<imaging::Image>& = nullptr);
             void stopReaders();
             void delReaders();
@@ -222,6 +223,16 @@ namespace tlr
             imaging::Info imageInfo;
             std::vector<otime::TimeRange> activeRanges;
 
+            struct LayerData
+            {
+                LayerData() {};
+                LayerData(LayerData&&) = default;
+
+                std::future<avio::VideoFrame> image;
+                std::future<avio::VideoFrame> imageB;
+                Transition transition = Transition::None;
+                float transitionValue = 0.F;
+            };
             struct Request
             {
                 Request() {};
@@ -230,11 +241,17 @@ namespace tlr
                 otime::RationalTime time = time::invalidTime;
                 std::shared_ptr<imaging::Image> image;
                 std::promise<Frame> promise;
+
+                std::vector<LayerData> layerData;
             };
             std::list<Request> requests;
+            std::list<Request> requestsInProgress;
+            size_t requestCount = 16;
+            std::chrono::milliseconds requestTimeout = std::chrono::milliseconds(1);
             std::condition_variable requestCV;
             std::mutex requestMutex;
 
+            avio::Options ioOptions;
             struct Reader
             {
                 std::shared_ptr<avio::IRead> read;
@@ -373,6 +390,41 @@ namespace tlr
             }
         }
 
+        size_t Timeline::getRequestCount() const
+        {
+            TLR_PRIVATE_P();
+            std::unique_lock<std::mutex> lock(p.requestMutex);
+            return p.requestCount;
+        }
+
+        void Timeline::setRequestCount(size_t value)
+        {
+            TLR_PRIVATE_P();
+            std::unique_lock<std::mutex> lock(p.requestMutex);
+            p.requestCount = value;
+        }
+
+        std::chrono::milliseconds Timeline::getRequestTimeout() const
+        {
+            TLR_PRIVATE_P();
+            std::unique_lock<std::mutex> lock(p.requestMutex);
+            return p.requestTimeout;
+        }
+
+        void Timeline::setRequestTimeout(const std::chrono::milliseconds& value)
+        {
+            TLR_PRIVATE_P();
+            std::unique_lock<std::mutex> lock(p.requestMutex);
+            p.requestTimeout = value;
+        }
+
+        void Timeline::setIOOptions(const avio::Options& value)
+        {
+            TLR_PRIVATE_P();
+            std::unique_lock<std::mutex> lock(p.requestMutex);
+            p.ioOptions = value;
+        }
+
         file::Path Timeline::Private::fixPath(const file::Path& path) const
         {
             std::string directory;
@@ -414,7 +466,7 @@ namespace tlr
             {
                 // The first clip with video defines the image information
                 // for the timeline.
-                avio::Options options;
+                avio::Options options = ioOptions;
                 otio::ErrorStatus errorStatus;
                 options["SequenceIO/DefaultSpeed"] = string::Format("{0}").arg(clip->duration(&errorStatus).rate());
                 if (auto read = context->getSystem<avio::System>()->read(getPath(clip->media_reference()), options))
@@ -454,24 +506,9 @@ namespace tlr
 
         void Timeline::Private::frameRequests()
         {
-            struct LayerData
-            {
-                LayerData() {};
-                LayerData(LayerData&&) = default;
-
-                std::future<avio::VideoFrame> image;
-                std::future<avio::VideoFrame> imageB;
-                Transition transition = Transition::None;
-                float transitionValue = 0.F;
-            };
-            struct Result
-            {
-                otime::RationalTime time = time::invalidTime;
-                std::shared_ptr<imaging::Image> image;
-                std::vector<LayerData> layerData;
-                std::promise<Frame> promise;
-            };
-            std::list<Result> results;
+            // Gather requests.
+            std::list<Request> newRequests;
+            avio::Options ioOptions;
             {
                 std::unique_lock<std::mutex> lock(requestMutex);
                 requestCV.wait_for(
@@ -479,19 +516,19 @@ namespace tlr
                     requestTimeout,
                     [this]
                     {
-                        return !requests.empty();
+                        return !requests.empty() || !requestsInProgress.empty();
                     });
-                while (!requests.empty() && results.size() < requestCount)
+                while (!requests.empty() &&
+                    (requestsInProgress.size() + newRequests.size()) < requestCount)
                 {
-                    Result result;
-                    result.time = requests.front().time;
-                    result.image = requests.front().image;
-                    result.promise = std::move(requests.front().promise);
-                    results.push_back(std::move(result));
+                    newRequests.push_back(std::move(requests.front()));
                     requests.pop_front();
                 }
+                ioOptions = this->ioOptions;
             }
-            for (auto& result : results)
+
+            // Traverse the timeline for new requests.
+            for (auto& request : newRequests)
             {
                 try
                 {
@@ -509,13 +546,13 @@ namespace tlr
                                     if (rangeOpt.has_value())
                                     {
                                         const auto& range = rangeOpt.value();
-                                        const auto time = result.time - globalStartTime;
+                                        const auto time = request.time - globalStartTime;
                                         if (range.contains(time))
                                         {
                                             LayerData data;
                                             if (const auto clip = dynamic_cast<otio::Clip*>(item))
                                             {
-                                                data.image = readVideoFrame(track, clip, time, result.image);
+                                                data.image = readVideoFrame(track, clip, time, ioOptions, request.image);
                                             }
                                             const auto neighbors = track->neighbors_of(item, &errorStatus);
                                             if (auto transition = dynamic_cast<otio::Transition*>(neighbors.second.value))
@@ -530,7 +567,7 @@ namespace tlr
                                                     const auto transitionNeighbors = track->neighbors_of(transition, &errorStatus);
                                                     if (const auto clipB = dynamic_cast<otio::Clip*>(transitionNeighbors.second.value))
                                                     {
-                                                        data.imageB = readVideoFrame(track, clipB, time);
+                                                        data.imageB = readVideoFrame(track, clipB, time, ioOptions);
                                                     }
                                                 }
                                             }
@@ -547,11 +584,11 @@ namespace tlr
                                                     const auto transitionNeighbors = track->neighbors_of(transition, &errorStatus);
                                                     if (const auto clipB = dynamic_cast<otio::Clip*>(transitionNeighbors.first.value))
                                                     {
-                                                        data.image = readVideoFrame(track, clipB, time);
+                                                        data.image = readVideoFrame(track, clipB, time, ioOptions);
                                                     }
                                                 }
                                             }
-                                            result.layerData.push_back(std::move(data));
+                                            request.layerData.push_back(std::move(data));
                                         }
                                     }
                                 }
@@ -563,34 +600,57 @@ namespace tlr
                 {
                     //! \todo How should this be handled?
                 }
+
+                requestsInProgress.push_back(std::move(request));
             }
-            for (auto& result : results)
+
+            // Check for finished requests.
+            auto requestIt = requestsInProgress.begin();
+            while (requestIt != requestsInProgress.end())
             {
-                Frame frame;
-                frame.time = result.time;
-                try
+                bool valid = true;
+                for (auto& i : requestIt->layerData)
                 {
-                    for (auto& j : result.layerData)
+                    if (i.image.valid())
                     {
-                        FrameLayer layer;
-                        if (j.image.valid())
-                        {
-                            layer.image = j.image.get().image;
-                        }
-                        if (j.imageB.valid())
-                        {
-                            layer.imageB = j.imageB.get().image;
-                        }
-                        layer.transition = j.transition;
-                        layer.transitionValue = j.transitionValue;
-                        frame.layers.push_back(layer);
+                        valid &= i.image.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+                    }
+                    if (i.imageB.valid())
+                    {
+                        valid &= i.imageB.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
                     }
                 }
-                catch (const std::exception&)
+                if (valid)
                 {
-                    //! \todo How should this be handled?
+                    Frame frame;
+                    frame.time = requestIt->time;
+                    try
+                    {
+                        for (auto& j : requestIt->layerData)
+                        {
+                            FrameLayer layer;
+                            if (j.image.valid())
+                            {
+                                layer.image = j.image.get().image;
+                            }
+                            if (j.imageB.valid())
+                            {
+                                layer.imageB = j.imageB.get().image;
+                            }
+                            layer.transition = j.transition;
+                            layer.transitionValue = j.transitionValue;
+                            frame.layers.push_back(layer);
+                        }
+                    }
+                    catch (const std::exception&)
+                    {
+                        //! \todo How should this be handled?
+                    }
+                    requestIt->promise.set_value(frame);
+                    requestIt = requestsInProgress.erase(requestIt);
+                    continue;
                 }
-                result.promise.set_value(frame);
+                ++requestIt;
             }
         }
 
@@ -598,6 +658,7 @@ namespace tlr
             const otio::Track* track,
             const otio::Clip* clip,
             const otime::RationalTime& time,
+            const avio::Options& ioOptions,
             const std::shared_ptr<imaging::Image>& image)
         {
             std::future<avio::VideoFrame> out;
@@ -641,7 +702,7 @@ namespace tlr
             else
             {
                 const file::Path path = getPath(clip->media_reference());
-                avio::Options options;
+                avio::Options options = ioOptions;
                 options["SequenceIO/DefaultSpeed"] = string::Format("{0}").arg(duration.rate());
                 auto read = ioSystem->read(path, options);
                 avio::Info info;

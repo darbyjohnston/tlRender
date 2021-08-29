@@ -32,11 +32,14 @@ namespace tlr
                 otime::RationalTime time = time::invalidTime;
                 std::shared_ptr<imaging::Image> image;
                 std::promise<VideoFrame> promise;
+
+                std::string fileName;
+                std::future<VideoFrame> future;
             };
             std::list<VideoFrameRequest> videoFrameRequests;
+            std::list<VideoFrameRequest> videoFrameRequestsInProgress;
             std::condition_variable requestCV;
             std::mutex requestMutex;
-            memory::LRUCache<std::string, VideoFrame> videoFrameCache;
 
             std::thread thread;
             std::atomic<bool> running;
@@ -65,8 +68,6 @@ namespace tlr
                 std::stringstream ss(i->second);
                 ss >> _defaultSpeed;
             }
-
-            p.videoFrameCache.setMax(1);
 
             p.running = true;
             p.stopped = false;
@@ -168,15 +169,8 @@ namespace tlr
             TLR_PRIVATE_P();
             while (p.running)
             {
-                struct Result
-                {
-                    std::string fileName;
-                    otime::RationalTime time = time::invalidTime;
-                    std::shared_ptr<imaging::Image> image;
-                    std::future<VideoFrame> future;
-                    std::promise<VideoFrame> promise;
-                };
-                std::vector<Result> results;
+                // Gather requests.
+                std::list<Private::VideoFrameRequest> newVideoFrameRequests;
                 {
                     std::unique_lock<std::mutex> lock(p.requestMutex);
                     p.requestCV.wait_for(
@@ -184,72 +178,61 @@ namespace tlr
                         sequenceRequestTimeout,
                         [this]
                         {
-                            return !_p->videoFrameRequests.empty();
+                            return !_p->videoFrameRequests.empty() || !_p->videoFrameRequestsInProgress.empty();
                         });
-                    for (size_t i = 0; i < p.threadCount && !p.videoFrameRequests.empty(); ++i)
+                    while (!p.videoFrameRequests.empty() &&
+                        (p.videoFrameRequestsInProgress.size() + newVideoFrameRequests.size()) < p.threadCount)
                     {
-                        Result result;
-                        result.time = p.videoFrameRequests.front().time;
-                        result.image = p.videoFrameRequests.front().image;
-                        result.promise = std::move(p.videoFrameRequests.front().promise);
-                        results.push_back(std::move(result));
+                        newVideoFrameRequests.push_back(std::move(p.videoFrameRequests.front()));
                         p.videoFrameRequests.pop_front();
                     }
                 }
-                //if (!results.empty())
-                //{
-                //    std::cout << "results: " << results.size() << std::endl;
-                //}
-                //std::list<std::chrono::steady_clock::time_point> times;
-                auto it = results.begin();
-                while (it != results.end())
+
+                // Iniitalize new requests.
+                for (auto& request : newVideoFrameRequests)
                 {
                     //std::cout << "request: " << it->time << std::endl;
                     if (!_path.getNumber().empty())
                     {
-                        it->fileName = _path.get(static_cast<int>(it->time.value()));
+                        request.fileName = _path.get(static_cast<int>(request.time.value()));
                     }
                     else
                     {
-                        it->fileName = _path.get();
+                        request.fileName = _path.get();
                     }
-                    VideoFrame videoFrame;
-                    if (p.videoFrameCache.get(it->fileName, videoFrame))
-                    {
-                        it->promise.set_value(videoFrame);
-                        it = results.erase(it);
-                    }
-                    else
-                    {
-                        //times.push_back(std::chrono::steady_clock::now());
-                        const auto fileName = it->fileName;
-                        const auto time = it->time;
-                        const auto image = it->image;
-                        it->future = std::async(
-                            std::launch::async,
-                            [this, fileName, time, image]
+                    const auto fileName = request.fileName;
+                    const auto time = request.time;
+                    const auto image = request.image;
+                    request.future = std::async(
+                        std::launch::async,
+                        [this, fileName, time, image]
+                        {
+                            VideoFrame out;
+                            try
                             {
-                                VideoFrame out;
-                                try
-                                {
-                                    out = _readVideoFrame(fileName, time, image);
-                                }
-                                catch (const std::exception&)
-                                {}
-                                return out;
-                            });
-                        ++it;
-                    }
+                                out = _readVideoFrame(fileName, time, image);
+                            }
+                            catch (const std::exception&)
+                            {
+                            }
+                            return out;
+                        });
+                    p.videoFrameRequestsInProgress.push_back(std::move(request));
                 }
-                for (auto& i : results)
+
+                // Check for finished requests.
+                auto requestIt = p.videoFrameRequestsInProgress.begin();
+                while (requestIt != p.videoFrameRequestsInProgress.end())
                 {
-                    auto videoFrame = i.future.get();
-                    i.promise.set_value(videoFrame);
-                    p.videoFrameCache.add(i.fileName, videoFrame);
-                    //const auto now = std::chrono::steady_clock::now();
-                    //const std::chrono::duration<float> diff = now - times.front();
-                    //times.pop_front();
-                    //std::cout << "time: " << diff.count() << std::endl;
+                    if (requestIt->future.valid() &&
+                        requestIt->future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+                    {
+                        auto videoFrame = requestIt->future.get();
+                        requestIt->promise.set_value(videoFrame);
+                        requestIt = p.videoFrameRequestsInProgress.erase(requestIt);
+                        continue;
+                    }
+                    ++requestIt;
                 }
             }
         }

@@ -95,6 +95,17 @@ namespace tlr
 
             ///@}
 
+            //! \name Options
+            ///@{
+
+            //! Get the number of frame requests.
+            int requestCount() const;
+
+            //! Get the frame request timeout (milliseconds).
+            int requestTimeout() const;
+
+            ///@}
+
         public Q_SLOTS:
             //! \name Playback
             ///@{
@@ -170,6 +181,17 @@ namespace tlr
 
             //! Set the frame cache read behind.
             void setFrameCacheReadBehind(int);
+
+            ///@}
+
+            //! \name Options
+            ///@{
+
+            //! Set the number of frame requests.
+            void setRequestCount(int);
+
+            //! Set the frame request timeout (milliseconds).
+            void setRequestTimeout(int);
 
             ///@}
 

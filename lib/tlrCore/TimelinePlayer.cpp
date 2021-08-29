@@ -483,6 +483,26 @@ namespace tlr
             return _p->cachedFrames;
         }
 
+        size_t TimelinePlayer::getRequestCount() const
+        {
+            return _p->timeline->getRequestCount();
+        }
+
+        void TimelinePlayer::setRequestCount(size_t value)
+        {
+            _p->timeline->setRequestCount(value);
+        }
+
+        std::chrono::milliseconds TimelinePlayer::getRequestTimeout() const
+        {
+            return _p->timeline->getRequestTimeout();
+        }
+
+        void TimelinePlayer::setRequestTimeout(const std::chrono::milliseconds& value)
+        {
+            _p->timeline->setRequestTimeout(value);
+        }
+
         void TimelinePlayer::tick()
         {
             TLR_PRIVATE_P();
