@@ -435,7 +435,7 @@ namespace tlr
         void TimelinePlayer::resetOutPoint()
         {
             TLR_PRIVATE_P();
-            setInOutRange(otime::TimeRange(
+            setInOutRange(otime::TimeRange::range_from_start_end_time(
                 p.inOutRange->get().start_time(),
                 p.timeline->getDuration()));
         }
