@@ -14,10 +14,10 @@ namespace tlr
         const float sequenceDefaultSpeed = 24.F;
 
         //! Number of threads.
-        const size_t sequenceThreadCount = 24;
+        const size_t sequenceThreadCount = 8;
 
         //! Timeout for frame requests.
-        const std::chrono::microseconds sequenceRequestTimeout(1000);
+        const std::chrono::milliseconds sequenceRequestTimeout(1);
 
         //! Base class for image sequence readers.
         class ISequenceRead : public IRead

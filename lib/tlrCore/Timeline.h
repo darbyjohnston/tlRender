@@ -20,10 +20,10 @@ namespace tlr
     namespace timeline
     {
         //! Number of frame requests to handle.
-        const size_t requestCount = 24;
+        const size_t requestCount = 8;
 
         //! Timeout for frame requests.
-        const std::chrono::microseconds requestTimeout(1000);
+        const std::chrono::milliseconds requestTimeout(1);
 
         //! Get the timeline file extensions.
         std::vector<std::string> getExtensions();

@@ -38,7 +38,7 @@ namespace tlr
         const size_t threadCount = 4;
 
         //! Timeout for frame requests.
-        const std::chrono::microseconds requestTimeout(1000);
+        const std::chrono::milliseconds requestTimeout(1);
 
         //! Software scaler flags.
         const int swsScaleFlags = SWS_FAST_BILINEAR;

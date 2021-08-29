@@ -86,8 +86,7 @@ namespace tlr
             std::shared_ptr<observer::Value<Frame> > frame;
             std::shared_ptr<observer::Value<float> > frameCachePercentage;
             std::shared_ptr<observer::List<otime::TimeRange> > cachedFrames;
-            std::chrono::steady_clock::time_point startTime;
-            otime::RationalTime playbackStartTime = time::invalidTime;
+            std::chrono::steady_clock::time_point prevTime;
 
             struct ThreadData
             {
@@ -283,8 +282,7 @@ namespace tlr
             {
                 if (value != Playback::Stop)
                 {
-                    p.startTime = std::chrono::steady_clock::now();
-                    p.playbackStartTime = p.currentTime->get();
+                    p.prevTime = std::chrono::steady_clock::now();
 
                     std::unique_lock<std::mutex> lock(p.threadData.mutex);
                     p.threadData.frameCacheDirection = Playback::Forward == value ? FrameCacheDirection::Forward : FrameCacheDirection::Reverse;
@@ -327,8 +325,7 @@ namespace tlr
                 // Update playback.
                 if (p.playback->get() != Playback::Stop)
                 {
-                    p.startTime = std::chrono::steady_clock::now();
-                    p.playbackStartTime = p.currentTime->get();
+                    p.prevTime = std::chrono::steady_clock::now();
                 }
 
                 {
@@ -491,17 +488,25 @@ namespace tlr
             TLR_PRIVATE_P();
 
             // Calculate the current time.
-            otio::ErrorStatus errorStatus;
             const auto playback = p.playback->get();
             if (playback != Playback::Stop)
             {
                 const auto now = std::chrono::steady_clock::now();
-                const std::chrono::duration<float> diff = now - p.startTime;
+                const std::chrono::duration<float> diff = now - p.prevTime;
                 const auto& duration = p.timeline->getDuration();
-                const auto currentTime = p.loopPlayback(p.playbackStartTime +
-                    otime::RationalTime(floor(diff.count() * duration.rate() * (Playback::Forward == playback ? 1.0 : -1.0)), duration.rate()));
+                otime::RationalTime delta;
+                if (Playback::Forward == playback)
+                {
+                    delta = otime::RationalTime(floor(diff.count() * duration.rate()), duration.rate());
+                }
+                else
+                {
+                    delta = otime::RationalTime(ceil(diff.count() * duration.rate() * -1.0), duration.rate());
+                }
+                const auto currentTime = p.loopPlayback(p.currentTime->get() + delta);
                 if (p.currentTime->setIfChanged(currentTime))
                 {
+                    p.prevTime = now;
                     //std::cout << "! " << p.currentTime->get() << std::endl;
                 }
             }
@@ -543,8 +548,7 @@ namespace tlr
                 if (tmp != out)
                 {
                     out = tmp;
-                    startTime = std::chrono::steady_clock::now();
-                    playbackStartTime = tmp;
+                    prevTime = std::chrono::steady_clock::now();
                 }
                 break;
             }
@@ -567,15 +571,13 @@ namespace tlr
                 {
                     out = range.start_time();
                     playback->setIfChanged(Playback::Forward);
-                    startTime = std::chrono::steady_clock::now();
-                    playbackStartTime = out;
+                    prevTime = std::chrono::steady_clock::now();
                 }
                 else if (out > range.end_time_inclusive() && Playback::Forward == playbackValue)
                 {
                     out = range.end_time_inclusive();
                     playback->setIfChanged(Playback::Reverse);
-                    startTime = std::chrono::steady_clock::now();
-                    playbackStartTime = out;
+                    prevTime = std::chrono::steady_clock::now();
                 }
                 break;
             }
@@ -632,9 +634,12 @@ namespace tlr
                 }
                 if (old)
                 {
-                    for (const auto& i : frameCacheIt->second.layers)
+                    if (frame->get().time != frameCacheIt->second.time)
                     {
-                        recycledImages.push_back(i.image);
+                        for (const auto& i : frameCacheIt->second.layers)
+                        {
+                            recycledImages.push_back(i.image);
+                        }
                     }
                     frameCacheIt = threadData.frameCache.erase(frameCacheIt);
                 }
