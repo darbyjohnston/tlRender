@@ -235,7 +235,9 @@ namespace tlr
                             render->begin(info.size);
                             render->drawFrame(frame);
                             render->end();
-                            std::vector<uint8_t> pixels(info.size.w * info.size.h * 4);
+                            std::vector<uint8_t> pixels(
+                                static_cast<size_t>(info.size.w) *
+                                static_cast<size_t>(info.size.h) * 4);
                             glPixelStorei(GL_PACK_ALIGNMENT, 1);
                             glReadPixels(
                                 0,
