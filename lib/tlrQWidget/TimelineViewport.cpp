@@ -6,6 +6,7 @@
 
 #include <tlrGL/Render.h>
 
+#include <QScreen>
 #include <QSurfaceFormat>
 
 namespace tlr
@@ -75,7 +76,10 @@ namespace tlr
         void TimelineViewport::paintGL()
         {
             TLR_PRIVATE_P();
-            const auto size = imaging::Size(width(), height());
+            const float devicePixelRatio = screen()->devicePixelRatio();
+            const auto size = imaging::Size(
+                width() * devicePixelRatio,
+                height() * devicePixelRatio);
             p.render->setColorConfig(p.colorConfig);
             p.render->begin(size);
             p.render->drawFrame(p.frame);
