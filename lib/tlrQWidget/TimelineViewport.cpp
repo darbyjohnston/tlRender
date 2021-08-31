@@ -6,7 +6,7 @@
 
 #include <tlrGL/Render.h>
 
-#include <QScreen>
+#include <QGuiApplication>
 #include <QSurfaceFormat>
 
 namespace tlr
@@ -76,7 +76,11 @@ namespace tlr
         void TimelineViewport::paintGL()
         {
             TLR_PRIVATE_P();
-            const float devicePixelRatio = screen()->devicePixelRatio();
+            float devicePixelRatio = 1.F;
+            if (auto app = qobject_cast<QGuiApplication*>(QGuiApplication::instance()))
+            {
+                devicePixelRatio = app->devicePixelRatio();
+            }
             const auto size = imaging::Size(
                 width() * devicePixelRatio,
                 height() * devicePixelRatio);
