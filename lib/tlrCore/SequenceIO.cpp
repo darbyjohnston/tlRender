@@ -226,7 +226,7 @@ namespace tlr
                     auto request = std::move(newVideoFrameRequests.front());
                     newVideoFrameRequests.pop_front();
                     
-                    //std::cout << "request: " << it->time << std::endl;
+                    //std::cout << "request: " << request.time << std::endl;
                     if (!_path.getNumber().empty())
                     {
                         request.fileName = _path.get(static_cast<int>(request.time.value()));
@@ -256,12 +256,17 @@ namespace tlr
                 }
 
                 // Check for finished requests.
+                //if (!p.videoFrameRequestsInProgress.empty())
+                //{
+                //    std::cout << "in progress: " << p.videoFrameRequestsInProgress.size() << std::endl;
+                //}
                 auto requestIt = p.videoFrameRequestsInProgress.begin();
                 while (requestIt != p.videoFrameRequestsInProgress.end())
                 {
                     if (requestIt->future.valid() &&
                         requestIt->future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                     {
+                        //std::cout << "finished: " << requestIt->time << std::endl;
                         auto videoFrame = requestIt->future.get();
                         requestIt->promise.set_value(videoFrame);
                         requestIt = p.videoFrameRequestsInProgress.erase(requestIt);
