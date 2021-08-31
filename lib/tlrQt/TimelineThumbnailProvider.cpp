@@ -265,6 +265,11 @@ namespace tlr
                         ++requestIt;
                     }
                 }
+                
+                for (auto& i : p.requestsInProgress)
+                {
+                    i.future.get();
+                }
             }
 
             p.context->doneCurrent();

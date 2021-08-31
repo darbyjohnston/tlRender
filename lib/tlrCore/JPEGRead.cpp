@@ -192,7 +192,9 @@ namespace tlr
         {}
 
         Read::~Read()
-        {}
+        {
+            _finish();
+        }
 
         std::shared_ptr<Read> Read::create(
             const file::Path& path,

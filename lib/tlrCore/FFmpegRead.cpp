@@ -49,7 +49,6 @@ namespace tlr
             };
             std::list<VideoFrameRequest> videoFrameRequests;
             std::condition_variable requestCV;
-            std::mutex requestMutex;
             otime::RationalTime currentTime = time::invalidTime;
             std::list<std::shared_ptr<imaging::Image> > imageBuffer;
 
@@ -62,8 +61,9 @@ namespace tlr
             SwsContext* swsContext = nullptr;
 
             std::thread thread;
+            std::mutex mutex;
             std::atomic<bool> running;
-            std::atomic<bool> stopped;
+            bool stopped = false;
             size_t threadCount = ffmpeg::threadCount;
         };
 
@@ -84,7 +84,6 @@ namespace tlr
             }
 
             p.running = true;
-            p.stopped = false;
             p.thread = std::thread(
                 [this, path]
                 {
@@ -98,13 +97,14 @@ namespace tlr
                     {
                         p.infoPromise.set_value(avio::Info());
                     }
-                    p.stopped = true;
-                    std::list<Private::VideoFrameRequest> videoFrameRequests;
+                                        
+                    std::list<Private::VideoFrameRequest> videoFrameRequestsCleanup;
                     {
-                        std::unique_lock<std::mutex> lock(p.requestMutex);
-                        videoFrameRequests.swap(p.videoFrameRequests);
+                        std::unique_lock<std::mutex> lock(p.mutex);
+                        p.stopped = true;
+                        videoFrameRequestsCleanup.swap(p.videoFrameRequests);
                     }
-                    for (auto& i : videoFrameRequests)
+                    for (auto& i : videoFrameRequestsCleanup)
                     {
                         i.promise.set_value(avio::VideoFrame());
                     }
@@ -150,12 +150,17 @@ namespace tlr
             request.time = time;
             request.image = image;
             auto future = request.promise.get_future();
-            if (!p.stopped)
+            bool valid = false;
             {
+                std::unique_lock<std::mutex> lock(p.mutex);
+                if (!p.stopped)
                 {
-                    std::unique_lock<std::mutex> lock(p.requestMutex);
+                    valid = true;
                     p.videoFrameRequests.push_back(std::move(request));
                 }
+            }
+            if (valid)
+            {
                 p.requestCV.notify_one();
             }
             else
@@ -168,14 +173,14 @@ namespace tlr
         bool Read::hasVideoFrames()
         {
             TLR_PRIVATE_P();
-            std::unique_lock<std::mutex> lock(p.requestMutex);
+            std::unique_lock<std::mutex> lock(p.mutex);
             return !p.videoFrameRequests.empty();
         }
 
         void Read::cancelVideoFrames()
         {
             TLR_PRIVATE_P();
-            std::unique_lock<std::mutex> lock(p.requestMutex);
+            std::unique_lock<std::mutex> lock(p.mutex);
             p.videoFrameRequests.clear();
         }
 
@@ -186,7 +191,9 @@ namespace tlr
 
         bool Read::hasStopped() const
         {
-            return _p->stopped;
+            TLR_PRIVATE_P();
+            std::unique_lock<std::mutex> lock(p.mutex);
+            return p.stopped;
         }
 
         void Read::_open(const std::string& fileName)
@@ -328,7 +335,7 @@ namespace tlr
                 Private::VideoFrameRequest request;
                 bool requestValid = false;
                 {
-                    std::unique_lock<std::mutex> lock(p.requestMutex);
+                    std::unique_lock<std::mutex> lock(p.mutex);
                     p.requestCV.wait_for(
                         lock,
                         requestTimeout,

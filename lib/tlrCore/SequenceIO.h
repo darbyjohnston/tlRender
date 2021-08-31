@@ -47,7 +47,9 @@ namespace tlr
                 const std::string& fileName,
                 const otime::RationalTime&,
                 const std::shared_ptr<imaging::Image>&) = 0;
-
+            //! This must be called in the sub-class destructor.
+            void _finish();
+            
             float _defaultSpeed = sequenceDefaultSpeed;
 
         private:

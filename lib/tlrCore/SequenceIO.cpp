@@ -39,11 +39,11 @@ namespace tlr
             std::list<VideoFrameRequest> videoFrameRequests;
             std::list<VideoFrameRequest> videoFrameRequestsInProgress;
             std::condition_variable requestCV;
-            std::mutex requestMutex;
 
             std::thread thread;
+            std::mutex mutex;
             std::atomic<bool> running;
-            std::atomic<bool> stopped;
+            bool stopped = false;
             size_t threadCount = sequenceThreadCount;
         };
 
@@ -70,7 +70,6 @@ namespace tlr
             }
 
             p.running = true;
-            p.stopped = false;
             p.thread = std::thread(
                 [this, path]
                 {
@@ -78,21 +77,42 @@ namespace tlr
                     try
                     {
                         p.infoPromise.set_value(_getInfo(path.get()));
-                        _run();
+                        try
+                        {
+                            _run();
+                        }
+                        catch (const std::exception&)
+                        {}
                     }
                     catch (const std::exception&)
                     {
                         p.infoPromise.set_value(Info());
                     }
-                    p.stopped = true;
-                    std::list<Private::VideoFrameRequest> videoFrameRequests;
+
+                    std::list<Private::VideoFrameRequest> videoFrameRequestsCleanup;
                     {
-                        std::unique_lock<std::mutex> lock(p.requestMutex);
-                        videoFrameRequests.swap(p.videoFrameRequests);
+                        std::unique_lock<std::mutex> lock(p.mutex);
+                        p.stopped = true;
+                        while (!p.videoFrameRequests.empty())
+                        {
+                            videoFrameRequestsCleanup.push_back(std::move(p.videoFrameRequests.front()));
+                            p.videoFrameRequests.pop_front();
+                        }
                     }
-                    for (auto& i : videoFrameRequests)
+                    while (!p.videoFrameRequestsInProgress.empty())
                     {
-                        i.promise.set_value(VideoFrame());
+                        videoFrameRequestsCleanup.push_back(std::move(p.videoFrameRequestsInProgress.front()));
+                        p.videoFrameRequestsInProgress.pop_front();
+                    }
+                    for (auto& request : videoFrameRequestsCleanup)
+                    {
+                        VideoFrame frame;
+                        frame.time = request.time;
+                        if (request.future.valid())
+                        {
+                            frame = request.future.get();
+                        }
+                        request.promise.set_value(frame);
                     }
                 });
         }
@@ -102,14 +122,7 @@ namespace tlr
         {}
 
         ISequenceRead::~ISequenceRead()
-        {
-            TLR_PRIVATE_P();
-            p.running = false;
-            if (p.thread.joinable())
-            {
-                p.thread.join();
-            }
-        }
+        {}
 
         std::future<Info> ISequenceRead::getInfo()
         {
@@ -125,12 +138,17 @@ namespace tlr
             request.time = time;
             request.image = image;
             auto future = request.promise.get_future();
-            if (!p.stopped)
+            bool valid = false;
             {
+                std::unique_lock<std::mutex> lock(p.mutex);
+                if (!p.stopped)
                 {
-                    std::unique_lock<std::mutex> lock(p.requestMutex);
+                    valid = true;
                     p.videoFrameRequests.push_back(std::move(request));
                 }
+            }
+            if (valid)
+            {
                 p.requestCV.notify_one();
             }
             else
@@ -143,14 +161,14 @@ namespace tlr
         bool ISequenceRead::hasVideoFrames()
         {
             TLR_PRIVATE_P();
-            std::unique_lock<std::mutex> lock(p.requestMutex);
+            std::unique_lock<std::mutex> lock(p.mutex);
             return !p.videoFrameRequests.empty();
         }
 
         void ISequenceRead::cancelVideoFrames()
         {
             TLR_PRIVATE_P();
-            std::unique_lock<std::mutex> lock(p.requestMutex);
+            std::unique_lock<std::mutex> lock(p.mutex);
             p.videoFrameRequests.clear();
         }
 
@@ -161,7 +179,19 @@ namespace tlr
 
         bool ISequenceRead::hasStopped() const
         {
-            return _p->stopped;
+            TLR_PRIVATE_P();
+            std::unique_lock<std::mutex> lock(p.mutex);
+            return p.stopped;
+        }
+        
+        void ISequenceRead::_finish()
+        {
+            TLR_PRIVATE_P();
+            p.running = false;
+            if (p.thread.joinable())
+            {
+                p.thread.join();
+            }
         }
 
         void ISequenceRead::_run()
@@ -172,25 +202,30 @@ namespace tlr
                 // Gather requests.
                 std::list<Private::VideoFrameRequest> newVideoFrameRequests;
                 {
-                    std::unique_lock<std::mutex> lock(p.requestMutex);
-                    p.requestCV.wait_for(
+                    std::unique_lock<std::mutex> lock(p.mutex);
+                    if (p.requestCV.wait_for(
                         lock,
                         sequenceRequestTimeout,
                         [this]
                         {
                             return !_p->videoFrameRequests.empty() || !_p->videoFrameRequestsInProgress.empty();
-                        });
-                    while (!p.videoFrameRequests.empty() &&
-                        (p.videoFrameRequestsInProgress.size() + newVideoFrameRequests.size()) < p.threadCount)
+                        }))
                     {
-                        newVideoFrameRequests.push_back(std::move(p.videoFrameRequests.front()));
-                        p.videoFrameRequests.pop_front();
+                        while (!p.videoFrameRequests.empty() &&
+                            (p.videoFrameRequestsInProgress.size() + newVideoFrameRequests.size()) < p.threadCount)
+                        {
+                            newVideoFrameRequests.push_back(std::move(p.videoFrameRequests.front()));
+                            p.videoFrameRequests.pop_front();
+                        }
                     }
                 }
 
                 // Iniitalize new requests.
-                for (auto& request : newVideoFrameRequests)
+                while (!newVideoFrameRequests.empty())
                 {
+                    auto request = std::move(newVideoFrameRequests.front());
+                    newVideoFrameRequests.pop_front();
+                    
                     //std::cout << "request: " << it->time << std::endl;
                     if (!_path.getNumber().empty())
                     {

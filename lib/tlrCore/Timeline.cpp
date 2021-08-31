@@ -249,7 +249,6 @@ namespace tlr
             size_t requestCount = 16;
             std::chrono::milliseconds requestTimeout = std::chrono::milliseconds(1);
             std::condition_variable requestCV;
-            std::mutex requestMutex;
 
             avio::Options ioOptions;
             struct Reader
@@ -261,6 +260,8 @@ namespace tlr
             std::list<std::shared_ptr<avio::IRead> > stoppedReaders;
 
             std::thread thread;
+            std::mutex mutex;
+            bool stopped = false;
             std::atomic<bool> running;
         };
 
@@ -302,9 +303,48 @@ namespace tlr
             p.thread = std::thread(
                 [this]
                 {
-                    while (_p->running)
+                    TLR_PRIVATE_P();
+                    
+                    while (p.running)
                     {
-                        _p->tick();
+                        p.tick();
+                    }
+
+                    std::list<Private::Request> requestsCleanup;
+                    {
+                        std::unique_lock<std::mutex> lock(p.mutex);
+                        p.stopped = true;
+                        while (!p.requests.empty())
+                        {
+                            requestsCleanup.push_back(std::move(p.requests.front()));
+                            p.requests.pop_front();
+                        }
+                    }
+                    while (!p.requestsInProgress.empty())
+                    {
+                        requestsCleanup.push_back(std::move(p.requestsInProgress.front()));
+                        p.requestsInProgress.pop_front();
+                    }
+                    for (auto& request : requestsCleanup)
+                    {
+                        Frame frame;
+                        frame.time = request.time;
+                        for (auto& i : request.layerData)
+                        {
+                            FrameLayer layer;
+                            if (i.image.valid())
+                            {
+                                layer.image = i.image.get().image;
+                            }
+                            if (i.imageB.valid())
+                            {
+                                layer.imageB = i.imageB.get().image;
+                            }
+                            layer.transition = i.transition;
+                            layer.transitionValue = i.transitionValue;
+                            frame.layers.push_back(layer);
+                        }
+                        request.promise.set_value(frame);
                     }
                 });
         }
@@ -366,11 +406,23 @@ namespace tlr
             request.time = time;
             request.image = image;
             auto future = request.promise.get_future();
+            bool valid = false;
             {
-                std::unique_lock<std::mutex> lock(p.requestMutex);
-                p.requests.push_back(std::move(request));
+                std::unique_lock<std::mutex> lock(p.mutex);
+                if (!p.stopped)
+                {
+                    valid = true;
+                    p.requests.push_back(std::move(request));
+                }
             }
-            p.requestCV.notify_one();
+            if (valid)
+            {
+                p.requestCV.notify_one();
+            }
+            else
+            {
+                request.promise.set_value(Frame());
+            }
             return future;
         }
 
@@ -382,7 +434,7 @@ namespace tlr
         void Timeline::cancelFrames()
         {
             TLR_PRIVATE_P();
-            std::unique_lock<std::mutex> lock(p.requestMutex);
+            std::unique_lock<std::mutex> lock(p.mutex);
             p.requests.clear();
             for (auto& i : p.readers)
             {
@@ -393,35 +445,35 @@ namespace tlr
         size_t Timeline::getRequestCount() const
         {
             TLR_PRIVATE_P();
-            std::unique_lock<std::mutex> lock(p.requestMutex);
+            std::unique_lock<std::mutex> lock(p.mutex);
             return p.requestCount;
         }
 
         void Timeline::setRequestCount(size_t value)
         {
             TLR_PRIVATE_P();
-            std::unique_lock<std::mutex> lock(p.requestMutex);
+            std::unique_lock<std::mutex> lock(p.mutex);
             p.requestCount = value;
         }
 
         std::chrono::milliseconds Timeline::getRequestTimeout() const
         {
             TLR_PRIVATE_P();
-            std::unique_lock<std::mutex> lock(p.requestMutex);
+            std::unique_lock<std::mutex> lock(p.mutex);
             return p.requestTimeout;
         }
 
         void Timeline::setRequestTimeout(const std::chrono::milliseconds& value)
         {
             TLR_PRIVATE_P();
-            std::unique_lock<std::mutex> lock(p.requestMutex);
+            std::unique_lock<std::mutex> lock(p.mutex);
             p.requestTimeout = value;
         }
 
         void Timeline::setIOOptions(const avio::Options& value)
         {
             TLR_PRIVATE_P();
-            std::unique_lock<std::mutex> lock(p.requestMutex);
+            std::unique_lock<std::mutex> lock(p.mutex);
             p.ioOptions = value;
         }
 
@@ -510,7 +562,7 @@ namespace tlr
             std::list<Request> newRequests;
             avio::Options ioOptions;
             {
-                std::unique_lock<std::mutex> lock(requestMutex);
+                std::unique_lock<std::mutex> lock(mutex);
                 requestCV.wait_for(
                     lock,
                     requestTimeout,
