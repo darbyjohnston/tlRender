@@ -91,7 +91,12 @@ namespace tlr
                     try
                     {
                         _open(path.get());
-                        _run();
+                        try
+                        {
+                            _run();
+                        }
+                        catch (const std::exception&)
+                        {}
                     }
                     catch (const std::exception& e)
                     {
