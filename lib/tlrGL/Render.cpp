@@ -594,10 +594,21 @@ namespace tlr
             vao->draw(GL_TRIANGLE_STRIP, 0, 4);
         }
 
+        namespace
+        {
+            void swap(uint16_t& a, uint16_t& b)
+            {
+                uint16_t tmp = a;
+                a = b;
+                b = tmp;
+            }
+        }
+
         void Render::drawImage(
             const std::shared_ptr<imaging::Image>& image,
             const math::BBox2f& bbox,
-            const imaging::Color4f& color)
+            const imaging::Color4f& color,
+            const ImageOptions& imageOptions)
         {
             TLR_PRIVATE_P();
 
@@ -617,20 +628,40 @@ namespace tlr
             VBOVertex* vboP = reinterpret_cast<VBOVertex*>(vboData.data());
             vboP[0].vx = bbox.min.x;
             vboP[0].vy = bbox.min.y;
-            vboP[0].tx = info.layout.mirror.x ? 65535 : 0;
-            vboP[0].ty = info.layout.mirror.y ? 0 : 65535;
+            vboP[0].tx = 0;
+            vboP[0].ty = 65535;
             vboP[1].vx = bbox.max.x;
             vboP[1].vy = bbox.min.y;
-            vboP[1].tx = info.layout.mirror.x ? 0 : 65535;
-            vboP[1].ty = info.layout.mirror.y ? 0 : 65535;
+            vboP[1].tx = 65535;
+            vboP[1].ty = 65535;
             vboP[2].vx = bbox.min.x;
             vboP[2].vy = bbox.max.y;
-            vboP[2].tx = info.layout.mirror.x ? 65535 : 0;
-            vboP[2].ty = info.layout.mirror.y ? 65535 : 0;
+            vboP[2].tx = 0;
+            vboP[2].ty = 0;
             vboP[3].vx = bbox.max.x;
             vboP[3].vy = bbox.max.y;
-            vboP[3].tx = info.layout.mirror.x ? 0 : 65535;
-            vboP[3].ty = info.layout.mirror.y ? 65535 : 0;
+            vboP[3].tx = 65535;
+            vboP[3].ty = 0;
+            if (info.layout.mirror.x)
+            {
+                swap(vboP[0].tx, vboP[1].tx);
+                swap(vboP[2].tx, vboP[3].tx);
+            }
+            if (info.layout.mirror.y)
+            {
+                swap(vboP[0].ty, vboP[2].ty);
+                swap(vboP[1].ty, vboP[3].ty);
+            }
+            if (imageOptions.mirror.x)
+            {
+                swap(vboP[0].tx, vboP[1].tx);
+                swap(vboP[2].tx, vboP[3].tx);
+            }
+            if (imageOptions.mirror.y)
+            {
+                swap(vboP[0].ty, vboP[2].ty);
+                swap(vboP[1].ty, vboP[3].ty);
+            }
             auto vbo = VBO::create(4, VBOType::Pos2_F32_UV_U16);
             vbo->copy(vboData);
 
@@ -639,7 +670,9 @@ namespace tlr
             vao->draw(GL_TRIANGLE_STRIP, 0, 4);
         }
 
-        void Render::drawFrame(const timeline::Frame& frame)
+        void Render::drawFrame(
+            const timeline::Frame& frame,
+            const ImageOptions& imageOptions)
         {
             TLR_PRIVATE_P();
 
@@ -665,7 +698,8 @@ namespace tlr
                             drawImage(
                                 i.image,
                                 imaging::getBBox(i.image->getAspect(), p.size),
-                                imaging::Color4f(t, t, t, t));
+                                imaging::Color4f(t, t, t, t),
+                                imageOptions);
                         }
                         if (i.imageB)
                         {
@@ -673,7 +707,8 @@ namespace tlr
                             drawImage(
                                 i.imageB,
                                 imaging::getBBox(i.imageB->getAspect(), p.size),
-                                imaging::Color4f(tB, tB, tB, tB));
+                                imaging::Color4f(tB, tB, tB, tB),
+                                imageOptions);
                         }
                         glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
                     }
@@ -719,7 +754,9 @@ namespace tlr
                     {
                         drawImage(
                             i.image,
-                            imaging::getBBox(i.image->getAspect(), p.size));
+                            imaging::getBBox(i.image->getAspect(), p.size),
+                            imaging::Color4f(1.F, 1.F, 1.F),
+                            imageOptions);
                     }
                     break;
                 }

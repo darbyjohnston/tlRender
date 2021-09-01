@@ -35,6 +35,13 @@ namespace tlr
             bool operator != (const ColorConfig&) const;
         };
 
+        //! Image options.
+        struct ImageOptions
+        {
+            //! \todo This could also be acheived with a matrix transform?
+            imaging::Mirror mirror;
+        };
+
         //! OpenGL renderer.
         class Render : public std::enable_shared_from_this<Render>
         {
@@ -71,10 +78,13 @@ namespace tlr
             void drawImage(
                 const std::shared_ptr<imaging::Image>&,
                 const math::BBox2f&,
-                const imaging::Color4f& = imaging::Color4f(1.F, 1.F, 1.F));
+                const imaging::Color4f& = imaging::Color4f(1.F, 1.F, 1.F),
+                const ImageOptions& = ImageOptions());
 
             //! Draw a timeline frame.
-            void drawFrame(const timeline::Frame&);
+            void drawFrame(
+                const timeline::Frame&,
+                const ImageOptions & = ImageOptions());
 
             //! Draw text.
             void drawText(
