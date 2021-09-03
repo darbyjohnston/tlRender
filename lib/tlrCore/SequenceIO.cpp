@@ -12,6 +12,7 @@
 
 #include <atomic>
 #include <condition_variable>
+#include <string>
 #include <queue>
 #include <list>
 #include <mutex>
