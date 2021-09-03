@@ -13,7 +13,7 @@ set(PNG_ARGS
     -DPNG_SHARED=${PNG_SHARED_LIBS}
     -DPNG_STATIC=${PNG_STATIC_LIBS}
     -DPNG_TESTS=OFF
-    -DPNG_ARM_NEON=OFF
+    -DPNG_ARM_NEON=off
     -DSKIP_INSTALL_EXECUTABLES=ON
     -DSKIP_INSTALL_PROGRAMS=ON
     -DSKIP_INSTALL_FILES=ON)
@@ -24,6 +24,9 @@ ExternalProject_Add(
     DEPENDS ZLIB
     GIT_REPOSITORY https://github.com/glennrp/libpng.git
     GIT_TAG v1.6.37
+    PATCH_COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_SOURCE_DIR}/PNG-patch/CMakeLists.txt
+        ${CMAKE_CURRENT_BINARY_DIR}/PNG/src/PNG/CMakeLists.txt
     LIST_SEPARATOR |
     CMAKE_ARGS ${PNG_ARGS})
 
