@@ -297,16 +297,8 @@ namespace tlr
         void TimelineControls::_currentTimeCallback2(const otime::RationalTime& value)
         {
             TLR_PRIVATE_P();
-            otime::ErrorStatus errorStatus;
-            std::string label = value.to_timecode(&errorStatus);
-            if (errorStatus != otime::ErrorStatus::OK)
-            {
-                throw std::runtime_error(errorStatus.details);
-            }
-            {
-                const QSignalBlocker blocker(p.currentTimeSpinBox);
-                p.currentTimeSpinBox->setValue(value);
-            }
+            const QSignalBlocker blocker(p.currentTimeSpinBox);
+            p.currentTimeSpinBox->setValue(value);
         }
 
         void TimelineControls::_inPointCallback(const otime::RationalTime& value)

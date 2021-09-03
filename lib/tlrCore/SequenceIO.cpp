@@ -8,6 +8,8 @@
 #include <tlrCore/File.h>
 #include <tlrCore/LRUCache.h>
 
+#include <fseq.h>
+
 #include <atomic>
 #include <condition_variable>
 #include <queue>
@@ -55,6 +57,33 @@ namespace tlr
             IRead::_init(path, options, logSystem);
 
             TLR_PRIVATE_P();
+
+            const std::string& number = path.getNumber();
+            if (!number.empty())
+            {
+                const std::string& directory = path.getDirectory();
+                const std::string& baseName = path.getBaseName();
+                const std::string& extension = path.getExtension();
+                FSeqDirOptions dirOptions;
+                fseqDirOptionsInit(&dirOptions);
+                dirOptions.sequence = FSEQ_TRUE;
+                FSeqBool error = FSEQ_FALSE;
+                auto dirList = fseqDirList(directory.c_str(), &dirOptions, &error);
+                if (FSEQ_FALSE == error)
+                {
+                    for (auto entry = dirList; entry; entry = entry->next)
+                    {
+                        if (0 == strcmp(entry->fileName.base, baseName.c_str()) &&
+                            0 == strcmp(entry->fileName.extension, extension.c_str()))
+                        {
+                            _startFrame = entry->frameMin;
+                            _endFrame = entry->frameMax;
+                            break;
+                        }
+                    }
+                }
+                fseqDirListDel(dirList);
+            }
 
             auto i = options.find("SequenceIO/ThreadCount");
             if (i != options.end())

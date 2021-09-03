@@ -149,7 +149,7 @@ namespace tlr
             };
 #endif
 
-            otio::SerializableObject::Retainer<otio::Timeline> read(
+            otio::SerializableObject::Retainer<otio::Timeline> readTimeline(
                 const std::string& fileName,
                 otio::ErrorStatus* errorStatus)
             {
@@ -217,7 +217,7 @@ namespace tlr
 
             std::shared_ptr<core::Context> context;
             file::Path path;
-            otio::SerializableObject::Retainer<otio::Timeline> timeline;
+            otio::SerializableObject::Retainer<otio::Timeline> otioTimeline;
             otime::RationalTime duration = time::invalidTime;
             otime::RationalTime globalStartTime = time::invalidTime;
             imaging::Info imageInfo;
@@ -266,37 +266,30 @@ namespace tlr
         };
 
         void Timeline::_init(
-            const file::Path& path,
+            const otio::SerializableObject::Retainer<otio::Timeline>& otioTimeline,
             const std::shared_ptr<core::Context>& context)
         {
             TLR_PRIVATE_P();
 
             p.context = context;
-            p.path = path;
+            p.otioTimeline = otioTimeline;
 
-            // Read the timeline.
+            // Get information about the timeline.
             otio::ErrorStatus errorStatus;
-            p.timeline = read(p.path.get(), &errorStatus);
+            p.duration = p.otioTimeline.value->duration(&errorStatus);
             if (errorStatus != otio::ErrorStatus::OK)
             {
                 throw std::runtime_error(errorStatus.full_description);
             }
-            p.duration = p.timeline.value->duration(&errorStatus);
-            if (errorStatus != otio::ErrorStatus::OK)
+            if (p.otioTimeline.value->global_start_time().has_value())
             {
-                throw std::runtime_error(errorStatus.full_description);
-            }
-            if (p.timeline.value->global_start_time().has_value())
-            {
-                p.globalStartTime = p.timeline.value->global_start_time().value();
+                p.globalStartTime = p.otioTimeline.value->global_start_time().value();
             }
             else
             {
                 p.globalStartTime = otime::RationalTime(0, p.duration.rate());
             }
-
-            // Get information about the timeline.
-            p.getImageInfo(p.timeline.value->tracks(), p.imageInfo);
+            p.getImageInfo(p.otioTimeline.value->tracks(), p.imageInfo);
 
             // Create a new thread.
             p.running = true;
@@ -364,11 +357,82 @@ namespace tlr
         }
 
         std::shared_ptr<Timeline> Timeline::create(
+            const otio::SerializableObject::Retainer<otio::Timeline>& timeline,
+            const std::shared_ptr<core::Context>& context)
+        {
+            auto out = std::shared_ptr<Timeline>(new Timeline);
+            out->_init(timeline, context);
+            return out;
+        }
+
+        std::shared_ptr<Timeline> Timeline::create(
             const file::Path& path,
             const std::shared_ptr<core::Context>& context)
         {
             auto out = std::shared_ptr<Timeline>(new Timeline);
-            out->_init(path, context);
+            otio::SerializableObject::Retainer<otio::Timeline> otioTimeline;
+            std::string error;
+            try
+            {
+                if (auto read = context->getSystem<avio::System>()->read(path))
+                {
+                    const auto info = read->getInfo().get();
+                    otime::RationalTime globalStartTime(0.0, info.videoTimeRange.duration().rate());
+                    auto otioClip = new otio::Clip;
+                    otioClip->set_source_range(info.videoTimeRange);
+                    if (avio::VideoType::Sequence == info.videoType && !path.getNumber().empty())
+                    {
+                        globalStartTime = info.videoTimeRange.start_time();
+                        otioClip->set_media_reference(new otio::ImageSequenceReference(
+                            path.getDirectory(),
+                            path.getBaseName(),
+                            path.getExtension(),
+                            info.videoTimeRange.start_time().value(),
+                            1,
+                            info.videoTimeRange.duration().rate(),
+                            path.getPadding()));
+                    }
+                    else
+                    {
+                        otioClip->set_media_reference(new otio::ExternalReference(path.get()));
+                    }
+                    auto otioTrack = new otio::Track();
+                    otio::ErrorStatus errorStatus;
+                    otioTrack->append_child(otioClip, &errorStatus);
+                    if (errorStatus != otio::ErrorStatus::OK)
+                    {
+                        throw std::runtime_error("Cannot append child");
+                    }
+                    auto otioStack = new otio::Stack;
+                    otioStack->append_child(otioTrack, &errorStatus);
+                    if (errorStatus != otio::ErrorStatus::OK)
+                    {
+                        throw std::runtime_error("Cannot append child");
+                    }
+                    otioTimeline = new otio::Timeline;
+                    otioTimeline->set_tracks(otioStack);
+                    otioTimeline->set_global_start_time(globalStartTime);
+                }
+            }
+            catch (const std::exception& e)
+            {
+                error = e.what();
+            }
+            if (!otioTimeline)
+            {
+                otio::ErrorStatus errorStatus;
+                otioTimeline = readTimeline(path.get(), &errorStatus);
+                if (errorStatus != otio::ErrorStatus::OK)
+                {
+                    throw std::runtime_error(errorStatus.full_description);
+                }
+            }
+            if (!otioTimeline)
+            {
+                throw std::runtime_error(error);
+            }
+            out->_p->path = path;
+            out->_init(otioTimeline, context);
             return out;
         }
 
@@ -584,17 +648,17 @@ namespace tlr
             {
                 try
                 {
-                    for (const auto& j : timeline->tracks()->children())
+                    for (const auto& j : otioTimeline->tracks()->children())
                     {
-                        const auto track = dynamic_cast<otio::Track*>(j.value);
-                        if (track && otio::Track::Kind::video == track->kind())
+                        const auto otioTrack = dynamic_cast<otio::Track*>(j.value);
+                        if (otioTrack && otio::Track::Kind::video == otioTrack->kind())
                         {
-                            for (const auto& k : track->children())
+                            for (const auto& k : otioTrack->children())
                             {
-                                if (const auto item = dynamic_cast<otio::Item*>(k.value))
+                                if (const auto otioItem = dynamic_cast<otio::Item*>(k.value))
                                 {
                                     otio::ErrorStatus errorStatus;
-                                    const auto rangeOpt = item->trimmed_range_in_parent(&errorStatus);
+                                    const auto rangeOpt = otioItem->trimmed_range_in_parent(&errorStatus);
                                     if (rangeOpt.has_value())
                                     {
                                         const auto& range = rangeOpt.value();
@@ -602,41 +666,41 @@ namespace tlr
                                         if (range.contains(time))
                                         {
                                             LayerData data;
-                                            if (const auto clip = dynamic_cast<otio::Clip*>(item))
+                                            if (const auto otioClip = dynamic_cast<otio::Clip*>(otioItem))
                                             {
-                                                data.image = readVideoFrame(track, clip, time, ioOptions, request.image);
+                                                data.image = readVideoFrame(otioTrack, otioClip, time, ioOptions, request.image);
                                             }
-                                            const auto neighbors = track->neighbors_of(item, &errorStatus);
-                                            if (auto transition = dynamic_cast<otio::Transition*>(neighbors.second.value))
+                                            const auto neighbors = otioTrack->neighbors_of(otioItem, &errorStatus);
+                                            if (auto otioTransition = dynamic_cast<otio::Transition*>(neighbors.second.value))
                                             {
-                                                if (time > range.end_time_inclusive() - transition->in_offset())
+                                                if (time > range.end_time_inclusive() - otioTransition->in_offset())
                                                 {
-                                                    data.transition = toTransition(transition->transition_type());
+                                                    data.transition = toTransition(otioTransition->transition_type());
                                                     data.transitionValue = transitionValue(
                                                         time.value(),
-                                                        range.end_time_inclusive().value() - transition->in_offset().value(),
-                                                        range.end_time_inclusive().value() + transition->out_offset().value() + 1.0);
-                                                    const auto transitionNeighbors = track->neighbors_of(transition, &errorStatus);
-                                                    if (const auto clipB = dynamic_cast<otio::Clip*>(transitionNeighbors.second.value))
+                                                        range.end_time_inclusive().value() - otioTransition->in_offset().value(),
+                                                        range.end_time_inclusive().value() + otioTransition->out_offset().value() + 1.0);
+                                                    const auto transitionNeighbors = otioTrack->neighbors_of(otioTransition, &errorStatus);
+                                                    if (const auto otioClipB = dynamic_cast<otio::Clip*>(transitionNeighbors.second.value))
                                                     {
-                                                        data.imageB = readVideoFrame(track, clipB, time, ioOptions);
+                                                        data.imageB = readVideoFrame(otioTrack, otioClipB, time, ioOptions);
                                                     }
                                                 }
                                             }
-                                            if (auto transition = dynamic_cast<otio::Transition*>(neighbors.first.value))
+                                            if (auto otioTransition = dynamic_cast<otio::Transition*>(neighbors.first.value))
                                             {
-                                                if (time < range.start_time() + transition->out_offset())
+                                                if (time < range.start_time() + otioTransition->out_offset())
                                                 {
                                                     std::swap(data.image, data.imageB);
-                                                    data.transition = toTransition(transition->transition_type());
+                                                    data.transition = toTransition(otioTransition->transition_type());
                                                     data.transitionValue = transitionValue(
                                                         time.value(),
-                                                        range.start_time().value() - transition->in_offset().value() - 1.0,
-                                                        range.start_time().value() + transition->out_offset().value());
-                                                    const auto transitionNeighbors = track->neighbors_of(transition, &errorStatus);
-                                                    if (const auto clipB = dynamic_cast<otio::Clip*>(transitionNeighbors.first.value))
+                                                        range.start_time().value() - otioTransition->in_offset().value() - 1.0,
+                                                        range.start_time().value() + otioTransition->out_offset().value());
+                                                    const auto transitionNeighbors = otioTrack->neighbors_of(otioTransition, &errorStatus);
+                                                    if (const auto otioClipB = dynamic_cast<otio::Clip*>(transitionNeighbors.first.value))
                                                     {
-                                                        data.image = readVideoFrame(track, clipB, time, ioOptions);
+                                                        data.image = readVideoFrame(otioTrack, otioClipB, time, ioOptions);
                                                     }
                                                 }
                                             }
@@ -737,11 +801,6 @@ namespace tlr
             {
                 startTime -= transition->in_offset();
             }
-            int sequenceStartFrame = 0;
-            if (auto imageSequenceReference = dynamic_cast<otio::ImageSequenceReference*>(clip->media_reference()))
-            {
-                sequenceStartFrame = imageSequenceReference->start_frame();
-            }
             
             // Get the frame time.
             const auto clipTime = track->transformed_time(time, clip, &errorStatus);
@@ -752,8 +811,8 @@ namespace tlr
             const auto j = readers.find(clip);
             if (j != readers.end())
             {
-                const auto readTime = frameTime.rescaled_to(j->second.info.videoDuration);
-                const auto floorTime = otime::RationalTime(sequenceStartFrame + floor(readTime.value()), readTime.rate());
+                const auto readTime = frameTime.rescaled_to(j->second.info.videoTimeRange.duration().rate());
+                const auto floorTime = otime::RationalTime(floor(readTime.value()), readTime.rate());
                 out = j->second.read->readVideoFrame(floorTime, image);
             }
             else
@@ -773,8 +832,8 @@ namespace tlr
                     Reader reader;
                     reader.read = read;
                     reader.info = info;
-                    const auto readTime = frameTime.rescaled_to(info.videoDuration);
-                    const auto floorTime = otime::RationalTime(sequenceStartFrame + floor(readTime.value()), readTime.rate());
+                    const auto readTime = frameTime.rescaled_to(info.videoTimeRange.duration().rate());
+                    const auto floorTime = otime::RationalTime(floor(readTime.value()), readTime.rate());
                     out = read->readVideoFrame(floorTime, image);
                     readers[clip] = std::move(reader);
                 }

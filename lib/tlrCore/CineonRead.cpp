@@ -41,10 +41,19 @@ namespace tlr
         avio::Info Read::_getInfo(const std::string& fileName)
         {
             avio::Info out;
-            out.videoDuration = otime::RationalTime(1.0, _defaultSpeed);
             auto io = file::FileIO::create();
             io->open(fileName, file::Mode::Read);
-            read(io, out);
+            const auto header = read(io, out);
+            float speed = _defaultSpeed;
+            const auto i = out.tags.find("Film Frame Rate");
+            if (i != out.tags.end())
+            {
+                speed = std::stof(i->second);
+            }
+            out.videoTimeRange = otime::TimeRange::range_from_start_end_time_inclusive(
+                otime::RationalTime(_startFrame, speed),
+                otime::RationalTime(_endFrame, speed));
+            out.videoType = avio::VideoType::Sequence;
             return out;
         }
 

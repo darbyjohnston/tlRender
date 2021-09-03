@@ -72,7 +72,8 @@ namespace tlr
         void TimeLabel::setValue(const otime::RationalTime& value)
         {
             TLR_PRIVATE_P();
-            if (p.value == value)
+            if (p.value.value() == value.value() &&
+                p.value.rate() == value.rate())
                 return;
             p.value = value;
             _textUpdate();

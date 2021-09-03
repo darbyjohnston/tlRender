@@ -406,7 +406,6 @@ namespace tlr
             }
             if (isValid(&out.film.frameRate) && out.film.frameRate >= _minSpeed)
             {
-                info.videoDuration = otime::RationalTime(1.0, out.film.frameRate);
                 std::stringstream ss;
                 ss << out.film.frameRate;
                 info.tags["Film Frame Rate"] = ss.str();

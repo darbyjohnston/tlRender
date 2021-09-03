@@ -5,6 +5,7 @@
 #include <tlrCore/OpenEXR.h>
 
 #include <tlrCore/String.h>
+#include <tlrCore/StringFormat.h>
 
 #include <ImfChannelList.h>
 #include <ImfDoubleAttribute.h>
@@ -233,7 +234,7 @@ namespace tlr
 
         } // namespace
 
-        void readTags(const Imf::Header& header, std::map<std::string, std::string>& tags, double& speed)
+        void readTags(const Imf::Header& header, std::map<std::string, std::string>& tags)
         {
             // Predefined attributes.
             tags["Display Window"] = serialize(header.displayWindow());
@@ -375,7 +376,7 @@ namespace tlr
             if (hasFramesPerSecond(header))
             {
                 const Imf::Rational data = framesPerSecondAttribute(header).value();
-                speed = data.n / static_cast<double>(data.d);
+                tags["Frame Per Second"] = string::Format("{0}").arg(data.n / static_cast<double>(data.d));
             }
             if (hasMultiView(header))
             {

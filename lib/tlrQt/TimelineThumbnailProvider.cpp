@@ -202,7 +202,7 @@ namespace tlr
                         }
                     }
 
-                    // Iniitalize new requests.
+                    // Initialize new requests.
                     for (auto& request : newRequests)
                     {
                         p.timeline->setActiveRanges({ otime::TimeRange(

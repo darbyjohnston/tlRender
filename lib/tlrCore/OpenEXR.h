@@ -14,7 +14,7 @@ namespace tlr
     namespace exr
     {
         //! Read the tags from an Imf header.
-        void readTags(const Imf::Header&, std::map<std::string, std::string>&, double& speed);
+        void readTags(const Imf::Header&, std::map<std::string, std::string>&);
 
         //! Write tags to an Imf header.
         //!

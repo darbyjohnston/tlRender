@@ -7,7 +7,8 @@ namespace tlr
     namespace avio
     {
         inline Info::Info() :
-            videoDuration(time::invalidTime)
+            videoTimeRange(time::invalidTime, time::invalidTime),
+            videoType(VideoType::Movie)
         {}
 
         inline bool VideoFrame::operator == (const VideoFrame& other) const

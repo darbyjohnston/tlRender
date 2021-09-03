@@ -9,6 +9,7 @@
 
 #include <opentimelineio/composable.h>
 #include <opentimelineio/item.h>
+#include <opentimelineio/timeline.h>
 
 #include <future>
 
@@ -77,7 +78,7 @@ namespace tlr
 
         protected:
             void _init(
-                const file::Path&,
+                const otio::SerializableObject::Retainer<otio::Timeline>&,
                 const std::shared_ptr<core::Context>&);
             Timeline();
 
@@ -85,6 +86,12 @@ namespace tlr
             ~Timeline();
 
             //! Create a new timeline.
+            static std::shared_ptr<Timeline> create(
+                const otio::SerializableObject::Retainer<otio::Timeline>&,
+                const std::shared_ptr<core::Context>&);
+
+            //! Create a new timeline from a file path. The file path can point
+            //! to an .otio file, movie file, or image sequence.
             static std::shared_ptr<Timeline> create(
                 const file::Path&,
                 const std::shared_ptr<core::Context>&);

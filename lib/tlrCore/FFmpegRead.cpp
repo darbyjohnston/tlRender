@@ -316,11 +316,14 @@ namespace tlr
                         swap(avVideoStream->r_frame_rate));
                 }
                 p.info.video.push_back(videoInfo);
-                p.info.videoDuration = otime::RationalTime(
-                    sequenceSize,
-                    avVideoStream->r_frame_rate.num / double(avVideoStream->r_frame_rate.den));
+                const float speed = avVideoStream->r_frame_rate.num / double(avVideoStream->r_frame_rate.den);
+                p.info.videoTimeRange = otime::TimeRange(
+                    otime::RationalTime(0.0, speed),
+                    otime::RationalTime(
+                        sequenceSize,
+                        avVideoStream->r_frame_rate.num / double(avVideoStream->r_frame_rate.den)));
 
-                p.currentTime = otime::RationalTime(0, p.info.videoDuration.rate());
+                p.currentTime = otime::RationalTime(0.0, speed);
             }
 
             AVDictionaryEntry* tag = nullptr;
@@ -390,51 +393,38 @@ namespace tlr
 
                     int decoding = 0;
                     AVPacket packet;
-                    AVPacket* packetP = &packet;
                     while (0 == decoding)
                     {
-                        if (packetP)
+                        decoding = av_read_frame(p.avFormatContext, &packet);
+                        if (decoding < 0)
                         {
-                            decoding = av_read_frame(p.avFormatContext, packetP);
-                            if (AVERROR_EOF == decoding)
-                            {
-                                //avcodec_flush_buffers(p.avCodecContext[p.avVideoStream]);
-                                decoding = 0;
-                                packetP = nullptr;
-                            }
-                            else if (decoding < 0)
-                            {
-                                //! \todo How should this be handled?
-                                break;
-                            }
+                            //! \todo How should this be handled?
+                            break;
                         }
                         if (p.avVideoStream == packet.stream_index)
                         {
-                            decoding = avcodec_send_packet(p.avCodecContext[p.avVideoStream], packetP);
-                            if (AVERROR_EOF == decoding)
-                            {
-                                //! \todo How should this be handled?
-                                decoding = 0;
-                            }
-                            else if (decoding < 0)
-                            {
-                                break;
-                            }
-                            decoding = p.decodeVideo(packetP, request.time, request.image);
-                            if (AVERROR(EAGAIN) == decoding || AVERROR_EOF == decoding)
-                            {
-                                decoding = 0;
-                            }
-                            else if (decoding < 0)
+                            decoding = avcodec_send_packet(p.avCodecContext[p.avVideoStream], &packet);
+                            if (decoding < 0)
                             {
                                 //! \todo How should this be handled?
                                 break;
                             }
+                            while (0 == decoding)
+                            {
+                                decoding = p.decodeVideo(&packet, request.time, request.image);
+                                if (AVERROR(EAGAIN) == decoding || AVERROR_EOF == decoding)
+                                {
+                                    decoding = 0;
+                                    break;
+                                }
+                                else if (decoding < 0)
+                                {
+                                    //! \todo How should this be handled?
+                                    break;
+                                }
+                            }
                         }
-                        if (packetP)
-                        {
-                            av_packet_unref(packetP);
-                        }
+                        av_packet_unref(&packet);
                     }
 
                     if (!p.imageBuffer.empty())
@@ -500,7 +490,7 @@ namespace tlr
                         avFrame->pts,
                         avFormatContext->streams[avVideoStream]->time_base,
                         swap(avFormatContext->streams[avVideoStream]->r_frame_rate)),
-                    info.videoDuration.rate());
+                    info.videoTimeRange.duration().rate());
                 if (t >= seek)
                 {
                     //std::cout << "frame: " << t << std::endl;

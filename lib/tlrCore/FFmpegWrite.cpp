@@ -119,7 +119,7 @@ namespace tlr
             p.avVideoStream->codec->height = videoInfo.size.h;
             p.avVideoStream->codec->sample_aspect_ratio = AVRational({ 1, 1 });
             p.avVideoStream->codec->pix_fmt = p.avPixelFormatOut;
-            const auto rational = time::toRational(info.videoDuration.rate());
+            const auto rational = time::toRational(info.videoTimeRange.duration().rate());
             p.avVideoStream->codec->time_base = { rational.second, rational.first };
             p.avVideoStream->codec->framerate = { rational.first, rational.second };
             p.avVideoStream->codec->profile = avProfile;

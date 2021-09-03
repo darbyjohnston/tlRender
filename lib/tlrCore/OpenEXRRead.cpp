@@ -28,9 +28,7 @@ namespace tlr
                 imaging::Info imageInfo(width, height, pixelType);
                 imageInfo.layout.mirror.y = true;
                 out.video.push_back(imageInfo);
-                double speed = avio::sequenceDefaultSpeed;
-                readTags(f.header(), out.tags, speed);
-                out.videoDuration = otime::RationalTime(1.0, speed);
+                readTags(f.header(), out.tags);
                 return out;
             }
         }
@@ -66,6 +64,16 @@ namespace tlr
             avio::Info out;
             Imf::RgbaInputFile f(fileName.c_str());
             out = imfInfo(f);
+            float speed = _defaultSpeed;
+            const auto i = out.tags.find("Frame Per Second");
+            if (i != out.tags.end())
+            {
+                speed = std::stof(i->second);
+            }
+            out.videoTimeRange = otime::TimeRange::range_from_start_end_time_inclusive(
+                otime::RationalTime(_startFrame, speed),
+                otime::RationalTime(_endFrame, speed));
+            out.videoType = avio::VideoType::Sequence;
             return out;
         }
 

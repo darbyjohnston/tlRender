@@ -150,12 +150,12 @@ namespace tlr
             }
             
             // Write an OTIO timeline.
-            auto otioTrack = new otio::Track();
             auto otioClip = new otio::Clip;
             otioClip->set_media_reference(new otio::ImageSequenceReference("", "TimelineTest.", ".png", 0, 1, 1, 0));
-            const otime::RationalTime clipDuration(24.0, 24.0);
-            otioClip->set_source_range(otime::TimeRange(otime::RationalTime(0.0, 24.0), clipDuration));
-            otio::ErrorStatus errorStatus = otio::ErrorStatus::OK;
+            const otime::TimeRange clipTimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0));
+            otioClip->set_source_range(clipTimeRange);
+            otio::ErrorStatus errorStatus;
+            auto otioTrack = new otio::Track();
             otioTrack->append_child(otioClip, &errorStatus);
             if (errorStatus != otio::ErrorStatus::OK)
             {
@@ -163,7 +163,7 @@ namespace tlr
             }
             otioClip = new otio::Clip;
             otioClip->set_media_reference(new otio::ImageSequenceReference("", "TimelineTest.", ".png", 0, 1, 1, 0));
-            otioClip->set_source_range(otime::TimeRange(otime::RationalTime(0.0, 24.0), clipDuration));
+            otioClip->set_source_range(clipTimeRange);
             otioTrack->append_child(otioClip, &errorStatus);
             if (errorStatus != otio::ErrorStatus::OK)
             {
@@ -189,9 +189,9 @@ namespace tlr
             const auto image = imaging::Image::create(imageInfo);
             avio::Info ioInfo;
             ioInfo.video.push_back(imageInfo);
-            ioInfo.videoDuration = clipDuration;
+            ioInfo.videoTimeRange = clipTimeRange;
             auto write = _context->getSystem<avio::System>()->write(file::Path("TimelineTest.0.png"), ioInfo);
-            for (size_t i = 0; i < static_cast<size_t>(clipDuration.value()); ++i)
+            for (size_t i = 0; i < static_cast<size_t>(clipTimeRange.duration().value()); ++i)
             {
                 write->writeVideoFrame(otime::RationalTime(i, 24.0), image);
             }

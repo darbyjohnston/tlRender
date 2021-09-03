@@ -229,7 +229,10 @@ namespace tlr
         {
             avio::Info out;
             out.video.push_back(std::unique_ptr<File>(new File(fileName))->getInfo());
-            out.videoDuration = otime::RationalTime(1.0, _defaultSpeed);
+            out.videoTimeRange = otime::TimeRange::range_from_start_end_time_inclusive(
+                otime::RationalTime(_startFrame, _defaultSpeed),
+                otime::RationalTime(_endFrame, _defaultSpeed));
+            out.videoType = avio::VideoType::Sequence;
             return out;
         }
 

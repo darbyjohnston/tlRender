@@ -69,7 +69,7 @@ namespace tlr
                         {
                             avio::Info info;
                             info.video.push_back(imageInfo);
-                            info.videoDuration = duration;
+                            info.videoTimeRange = otime::TimeRange(otime::RationalTime(0.0, 24.0), duration);
                             info.tags = tags;
                             auto write = plugin->write(path, info);
                             auto image = imaging::Image::create(imageInfo);

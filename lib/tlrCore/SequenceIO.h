@@ -50,6 +50,8 @@ namespace tlr
             //! This must be called in the sub-class destructor.
             void _finish();
             
+            int64_t _startFrame = 0;
+            int64_t _endFrame = 0;
             float _defaultSpeed = sequenceDefaultSpeed;
 
         private:

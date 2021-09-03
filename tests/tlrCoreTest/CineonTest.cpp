@@ -82,7 +82,7 @@ namespace tlr
                         {
                             avio::Info info;
                             info.video.push_back(imageInfo);
-                            info.videoDuration = otime::RationalTime(1.0, 24.0);
+                            info.videoTimeRange = otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(1.0, 24.0));
                             info.tags = tags;
                             auto write = plugin->write(path, info);
                             write->writeVideoFrame(otime::RationalTime(0.0, 24.0), image);

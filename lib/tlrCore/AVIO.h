@@ -23,13 +23,21 @@ namespace tlr
     //! Audio/visual I/O.
     namespace avio
     {
+        //! Video type.
+        enum class VideoType
+        {
+            Movie,
+            Sequence
+        };
+
         //! I/O information.
         struct Info
         {
             Info();
 
             std::vector<imaging::Info>         video;
-            otime::RationalTime                videoDuration;
+            VideoType                          videoType;
+            otime::TimeRange                   videoTimeRange;
             std::map<std::string, std::string> tags;
         };
 
