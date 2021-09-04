@@ -30,7 +30,9 @@ namespace tlr
     {
         struct Read::Private
         {
-            int decodeVideo(const otime::RationalTime&);
+            int decodeVideo(
+                const otime::RationalTime&,
+                const std::shared_ptr<imaging::Image>&);
             void copyVideo(const std::shared_ptr<imaging::Image>&);
 
             avio::Info info;
@@ -47,7 +49,7 @@ namespace tlr
             std::list<VideoFrameRequest> videoFrameRequests;
             std::condition_variable requestCV;
             otime::RationalTime currentTime = time::invalidTime;
-            std::list<avio::VideoFrame> videoFrames;
+            std::list<std::shared_ptr<imaging::Image> > imageBuffer;
             bool eof = false;
 
             AVFormatContext* avFormatContext = nullptr;
@@ -369,7 +371,7 @@ namespace tlr
                     {
                         //std::cout << "seek: " << request.time << std::endl;
                         p.currentTime = request.time;
-                        p.videoFrames.clear();
+                        p.imageBuffer.clear();
                         p.eof = false;
                         int64_t t = 0;
                         int stream = -1;
@@ -392,7 +394,7 @@ namespace tlr
                         }
                     }
 
-                    if (p.videoFrames.empty())
+                    if (p.imageBuffer.empty())
                     {
                         int decoding = 0;
                         AVPacket packet;
@@ -426,7 +428,8 @@ namespace tlr
                                     //! \todo How should this be handled?
                                     break;
                                 }
-                                decoding = p.decodeVideo(request.time);
+                                decoding = p.decodeVideo(request.time, request.image);
+                                request.image = nullptr;
                                 if (AVERROR(EAGAIN) == decoding)
                                 {
                                     decoding = 0;
@@ -446,11 +449,11 @@ namespace tlr
                     }
 
                     avio::VideoFrame videoFrame;
-                    if (!p.videoFrames.empty())
+                    if (!p.imageBuffer.empty())
                     {
-                        videoFrame.image = p.videoFrames.front().image;
+                        videoFrame.image = p.imageBuffer.front();
                         videoFrame.time = request.time;
-                        p.videoFrames.pop_front();
+                        p.imageBuffer.pop_front();
                     }
                     request.promise.set_value(videoFrame);
 
@@ -489,7 +492,9 @@ namespace tlr
             }
         }
 
-        int Read::Private::decodeVideo(const otime::RationalTime& time)
+        int Read::Private::decodeVideo(
+            const otime::RationalTime& time,
+            const std::shared_ptr<imaging::Image>& image)
         {
             int out = 0;
             while (0 == out)
@@ -510,12 +515,10 @@ namespace tlr
                 if (t >= time)
                 {
                     //std::cout << "frame: " << t << std::endl;
-                    avio::VideoFrame videoFrame;
-                    videoFrame.image = imaging::Image::create(videoInfo);
-                    videoFrame.image->setTags(info.tags);
-                    videoFrame.time = time;
-                    copyVideo(videoFrame.image);
-                    videoFrames.push_back(videoFrame);
+                    auto tmp = image && image->getInfo() == info.video[0] ? image : imaging::Image::create(videoInfo);
+                    tmp->setTags(info.tags);
+                    copyVideo(tmp);
+                    imageBuffer.push_back(tmp);
 
                     out = 1;
                 }
