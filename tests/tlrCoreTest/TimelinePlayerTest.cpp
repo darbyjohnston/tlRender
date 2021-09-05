@@ -162,6 +162,7 @@ namespace tlr
                 {
                     playback = value;
                 });
+            timelinePlayer->setLoop(Loop::Loop);
             timelinePlayer->setPlayback(Playback::Forward);
             TLR_ASSERT(Playback::Forward == playback);
 
