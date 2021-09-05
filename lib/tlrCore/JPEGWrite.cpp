@@ -29,6 +29,7 @@ namespace tlr
                 jpeg_compress_struct* jpeg,
                 const imaging::Info& info,
                 const std::map<std::string, std::string>& tags,
+                int quality,
                 ErrorStruct* error)
             {
                 if (setjmp(error->jump))
@@ -49,7 +50,7 @@ namespace tlr
                     jpeg->in_color_space = JCS_RGB;
                 }
                 jpeg_set_defaults(jpeg);
-                jpeg_set_quality(jpeg, 90, static_cast<boolean>(1));
+                jpeg_set_quality(jpeg, quality, static_cast<boolean>(1));
                 jpeg_start_compress(jpeg, static_cast<boolean>(1));
                 const auto i = tags.find("Description");
                 if (i != tags.end())
@@ -95,7 +96,8 @@ namespace tlr
             public:
                 File(
                     const std::string& fileName,
-                    const std::shared_ptr<imaging::Image>& image)
+                    const std::shared_ptr<imaging::Image>& image,
+                    int quality)
                 {
                     memset(&_jpeg, 0, sizeof(jpeg_compress_struct));
 
@@ -113,7 +115,7 @@ namespace tlr
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
                     const auto& info = image->getInfo();
-                    if (!jpegOpen(_f, &_jpeg, info, image->getTags(), &_error))
+                    if (!jpegOpen(_f, &_jpeg, info, image->getTags(), quality, &_error))
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
@@ -167,6 +169,13 @@ namespace tlr
             const std::shared_ptr<core::LogSystem>& logSystem)
         {
             ISequenceWrite::_init(path, info, options, logSystem);
+
+            auto option = options.find("jpeg/Quality");
+            if (option != options.end())
+            {
+                std::stringstream ss(option->second);
+                ss >> _quality;
+            }
         }
 
         Write::Write()
@@ -191,7 +200,7 @@ namespace tlr
             const otime::RationalTime&,
             const std::shared_ptr<imaging::Image>& image)
         {
-            const auto f = File(fileName, image);
+            const auto f = File(fileName, image, _quality);
         }
     }
 }

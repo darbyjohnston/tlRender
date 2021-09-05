@@ -58,7 +58,7 @@ namespace tlr
             // Write an OTIO timeline.
             auto otioTrack = new otio::Track();
             auto otioClip = new otio::Clip;
-            otioClip->set_media_reference(new otio::ImageSequenceReference("", "TimelinePlayerTest.", ".png", 0, 1, 1, 0));
+            otioClip->set_media_reference(new otio::ImageSequenceReference("", "TimelinePlayerTest.", ".ppm", 0, 1, 1, 0));
             const otime::TimeRange clipTimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0));
             otioClip->set_source_range(clipTimeRange);
             otio::ErrorStatus errorStatus = otio::ErrorStatus::OK;
@@ -68,7 +68,7 @@ namespace tlr
                 throw std::runtime_error("Cannot append child");
             }
             otioClip = new otio::Clip;
-            otioClip->set_media_reference(new otio::ImageSequenceReference("", "TimelinePlayerTest.", ".png", 0, 1, 1, 0));
+            otioClip->set_media_reference(new otio::ImageSequenceReference("", "TimelinePlayerTest.", ".ppm", 0, 1, 1, 0));
             otioClip->set_source_range(clipTimeRange);
             otioTrack->append_child(otioClip, &errorStatus);
             if (errorStatus != otio::ErrorStatus::OK)
@@ -96,7 +96,7 @@ namespace tlr
             avio::Info ioInfo;
             ioInfo.video.push_back(imageInfo);
             ioInfo.videoTimeRange = clipTimeRange;
-            auto write = _context->getSystem<avio::System>()->write(file::Path("TimelinePlayerTest.0.png"), ioInfo);
+            auto write = _context->getSystem<avio::System>()->write(file::Path("TimelinePlayerTest.0.ppm"), ioInfo);
             for (size_t i = 0; i < static_cast<size_t>(clipTimeRange.duration().value()); ++i)
             {
                 write->writeVideoFrame(otime::RationalTime(i, 24.0), image);

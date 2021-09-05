@@ -132,10 +132,10 @@ namespace tlr
                     default: break;
                     }
                     scanlineSize = imaging::align(scanlineSize, info.layout.alignment);
-                    const uint8_t* imageP = image->getData() + (info.size.h - 1) * scanlineSize;
-                    for (uint16_t y = 0; y < info.size.h; ++y, imageP -= scanlineSize)
+                    const uint8_t* p = image->getData() + (info.size.h - 1) * scanlineSize;
+                    for (uint16_t y = 0; y < info.size.h; ++y, p -= scanlineSize)
                     {
-                        if (!pngScanline(_png, imageP))
+                        if (!pngScanline(_png, p))
                         {
                             throw std::runtime_error(string::Format("{0}: Cannot write scanline: {1}").arg(fileName).arg(y));
                         }

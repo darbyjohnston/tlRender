@@ -34,6 +34,7 @@ set(HEADERS
     Memory.h
     MemoryInline.h
     Observer.h
+    PPM.h
     Path.h
     PathInline.h
     Range.h
@@ -70,6 +71,9 @@ set(SOURCE
     Image.cpp
     LogSystem.cpp
     Memory.cpp
+    PPM.cpp
+    PPMRead.cpp
+    PPMWrite.cpp
     Path.cpp
     SequenceIO.cpp
     String.cpp

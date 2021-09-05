@@ -10,6 +10,7 @@
 
 #include <tlrCore/Cineon.h>
 #include <tlrCore/DPX.h>
+#include <tlrCore/PPM.h>
 #if defined(FFmpeg_FOUND)
 #include <tlrCore/FFmpeg.h>
 #endif
@@ -38,6 +39,7 @@ namespace tlr
             auto logSystem = _context->getLogSystem();
             _plugins.push_back(cineon::Plugin::create(logSystem));
             _plugins.push_back(dpx::Plugin::create(logSystem));
+            _plugins.push_back(ppm::Plugin::create(logSystem));
 #if defined(FFmpeg_FOUND)
             _plugins.push_back(ffmpeg::Plugin::create(logSystem));
 #endif

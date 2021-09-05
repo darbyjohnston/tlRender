@@ -14,6 +14,7 @@ set(HEADERS
     MathTest.h
     MatrixTest.h
     MemoryTest.h
+    PPMTest.h
     PathTest.h
     RangeTest.h
     StringTest.h
@@ -39,6 +40,7 @@ set(SOURCE
     MathTest.cpp
     MatrixTest.cpp
     MemoryTest.cpp
+    PPMTest.cpp
     PathTest.cpp
     RangeTest.cpp
     StringTest.cpp

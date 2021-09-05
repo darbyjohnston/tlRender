@@ -158,9 +158,10 @@ namespace tlr
                         break;
                     default: break;
                     }
-                    for (uint16_t y = 0; y < info.size.h; ++y)
+                    uint8_t* p = out.image->getData();
+                    for (uint16_t y = 0; y < info.size.h; ++y, p += scanlineByteCount)
                     {
-                        if (!jpegScanline(&_decompress, out.image->getData() + scanlineByteCount * y, &_error))
+                        if (!jpegScanline(&_decompress, p, &_error))
                         {
                             break;
                         }

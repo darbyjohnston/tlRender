@@ -16,6 +16,7 @@
 #include <tlrCoreTest/MathTest.h>
 #include <tlrCoreTest/MatrixTest.h>
 #include <tlrCoreTest/MemoryTest.h>
+#include <tlrCoreTest/PPMTest.h>
 #include <tlrCoreTest/PathTest.h>
 #include <tlrCoreTest/RangeTest.h>
 #include <tlrCoreTest/StringTest.h>
@@ -74,7 +75,7 @@ int main(int argc, char* argv[])
     std::vector<std::shared_ptr<Test::ITest> > tests;
     if (0)
     {
-        tests.push_back(CoreTest::ImageTest::create(context));
+        tests.push_back(CoreTest::PPMTest::create(context));
     }
     else
     {
@@ -92,6 +93,7 @@ int main(int argc, char* argv[])
         tests.push_back(CoreTest::MathTest::create(context));
         tests.push_back(CoreTest::MatrixTest::create(context));
         tests.push_back(CoreTest::MemoryTest::create(context));
+        tests.push_back(CoreTest::PPMTest::create(context));
         tests.push_back(CoreTest::PathTest::create(context));
         tests.push_back(CoreTest::RangeTest::create(context));
         tests.push_back(CoreTest::StringTest::create(context));

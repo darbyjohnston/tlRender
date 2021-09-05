@@ -185,13 +185,13 @@ namespace tlr
                         scanline.resize(info.size.w * _sampleDepth / 8);
                         for (size_t sample = 0; sample < _samples; ++sample)
                         {
-                            for (uint16_t y = 0; y < info.size.h; ++y)
+                            uint8_t* p = out.image->getData();
+                            for (uint16_t y = 0; y < info.size.h; ++y, p += _scanlineSize)
                             {
                                 if (TIFFReadScanline(_f, (tdata_t*)scanline.data(), y, sample) == -1)
                                 {
                                     break;
                                 }
-                                uint8_t* p = out.image->getData() + y * _scanlineSize;
                                 switch (_sampleDepth)
                                 {
                                 case 8:
@@ -232,9 +232,9 @@ namespace tlr
                     }
                     else
                     {
-                        for (uint16_t y = 0; y < info.size.h; ++y)
+                        uint8_t* p = out.image->getData();
+                        for (uint16_t y = 0; y < info.size.h; ++y, p += _scanlineSize)
                         {
-                            const uint8_t* p = out.image->getData() + y * _scanlineSize;
                             if (TIFFReadScanline(_f, (tdata_t*)p, y) == -1)
                             {
                                 break;
@@ -244,10 +244,11 @@ namespace tlr
 
                     if (_palette)
                     {
-                        for (uint16_t y = 0; y < info.size.h; ++y)
+                        uint8_t* p = out.image->getData();
+                        for (uint16_t y = 0; y < info.size.h; ++y, p += _scanlineSize)
                         {
                             readPalette(
-                                out.image->getData() + y * _scanlineSize,
+                                p,
                                 info.size.w,
                                 static_cast<int>(imaging::getChannelCount(info.pixelType)),
                                 _colormap[0], _colormap[1], _colormap[2]);

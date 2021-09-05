@@ -86,6 +86,9 @@ namespace tlr
                 const std::string& fileName,
                 const otime::RationalTime&,
                 const std::shared_ptr<imaging::Image>&) override;
+
+        private:
+            int _quality = 90;
         };
 
         //! JPEG plugin.
