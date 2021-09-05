@@ -658,6 +658,7 @@ namespace tlr
                     {
                         for (const auto& i : frameCacheIt->second.layers)
                         {
+                            i.image->setTags({});
                             recycledImages.push_back(i.image);
                         }
                     }
