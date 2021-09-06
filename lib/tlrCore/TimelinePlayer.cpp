@@ -658,8 +658,11 @@ namespace tlr
                     {
                         for (const auto& i : frameCacheIt->second.layers)
                         {
-                            i.image->setTags({});
-                            recycledImages.push_back(i.image);
+                            if (i.image)
+                            {
+                                i.image->setTags({});
+                                recycledImages.push_back(i.image);
+                            }
                         }
                     }
                     frameCacheIt = threadData.frameCache.erase(frameCacheIt);
