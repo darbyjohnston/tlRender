@@ -31,9 +31,11 @@ namespace tlr
         {
             _enums();
             _ranges();
+            _util();
             _transitions();
             _frames();
             _timeline();
+            _imageSequence();
         }
 
         void TimelineTest::_enums()
@@ -115,6 +117,38 @@ namespace tlr
                 TLR_ASSERT(otime::TimeRange(otime::RationalTime(3, 24), otime::RationalTime(2, 24)) == r[1]);
             }
         }
+        
+        void TimelineTest::_util()
+        {
+            {
+                auto otioClip = new otio::Clip;
+                otio::ErrorStatus errorStatus;
+                auto otioTrack = new otio::Track();
+                otioTrack->append_child(otioClip, &errorStatus);
+                if (errorStatus != otio::ErrorStatus::OK)
+                {
+                    throw std::runtime_error("Cannot append child");
+                }
+                auto otioStack = new otio::Stack;
+                otioStack->append_child(otioTrack, &errorStatus);
+                if (errorStatus != otio::ErrorStatus::OK)
+                {
+                    throw std::runtime_error("Cannot append child");
+                }
+                otio::SerializableObject::Retainer<otio::Timeline> otioTimeline(new otio::Timeline);
+                otioTimeline->set_tracks(otioStack);
+                TLR_ASSERT(otioStack == getRoot(otioClip));
+                TLR_ASSERT(otioStack == getParent<otio::Stack>(otioClip));
+                TLR_ASSERT(otioTrack == getParent<otio::Track>(otioClip));
+            }
+            {
+                Frame a;
+                a.time = otime::RationalTime(1.0, 24.0);
+                Frame b;
+                b.time = otime::RationalTime(1.0, 24.0);
+                TLR_ASSERT(isTimeEqual(a, b));
+            }
+        }
 
         void TimelineTest::_transitions()
         {
@@ -175,7 +209,7 @@ namespace tlr
             {
                 throw std::runtime_error("Cannot append child");
             }
-            auto otioTimeline = new otio::Timeline;
+            otio::SerializableObject::Retainer<otio::Timeline> otioTimeline(new otio::Timeline);
             otioTimeline->set_tracks(otioStack);
             const file::Path path("TimelineTest.otio");
             otioTimeline->to_json_file(path.get(), &errorStatus);
@@ -264,6 +298,18 @@ namespace tlr
                 futures.push_back(timeline->getFrame(otime::RationalTime(i, 24.0)));
             }
             timeline->cancelFrames();
+        }
+        
+        void TimelineTest::_imageSequence()
+        {
+            //! \bug This uses the image sequence created by _timeline().
+            auto timeline = Timeline::create(file::Path("TimelineTest.0.ppm"), _context);
+            {
+                std::stringstream ss;
+                ss << timeline->getDuration();
+                _print(ss.str());
+            }
+            TLR_ASSERT(otime::RationalTime(24.0, 24.0) == timeline->getDuration());
         }
     }
 }

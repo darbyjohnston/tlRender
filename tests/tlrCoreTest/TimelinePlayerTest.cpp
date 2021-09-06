@@ -112,48 +112,72 @@ namespace tlr
             TLR_ASSERT(imageInfo.pixelType == timelinePlayer->getImageInfo().pixelType);
 
             // Test frames.
-            timelinePlayer->setFrameCacheReadAhead(10);
-            TLR_ASSERT(10 == timelinePlayer->getFrameCacheReadAhead());
-            timelinePlayer->setFrameCacheReadBehind(1);
-            TLR_ASSERT(1 == timelinePlayer->getFrameCacheReadBehind());
-            auto frameObserver = observer::ValueObserver<timeline::Frame>::create(
-                timelinePlayer->observeFrame(),
-                [this](const timeline::Frame& value)
-                {
-                    std::stringstream ss;
-                    ss << "Frame: " << value.time;
-                    _print(ss.str());
-                });
-            auto cachedFramesObserver = observer::ListObserver<otime::TimeRange>::create(
-                timelinePlayer->observeCachedFrames(),
-                [this](const std::vector<otime::TimeRange>& value)
-                {
-                    std::stringstream ss;
-                    ss << "Cached frames: ";
-                    for (const auto& i : value)
-                    {
-                        ss << i << " ";
-                    }
-                    _print(ss.str());
-                });
-            for (const auto& loop : getLoopEnums())
+            struct FrameOptions
             {
-                timelinePlayer->setLoop(loop);
-                timelinePlayer->setPlayback(Playback::Forward);
-                for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
+                int readAhead = 100;
+                int readBehind = 10;
+                size_t requestCount = 16;
+                size_t requestTimeout = 1;
+            };
+            for (const auto options : std::vector<FrameOptions>({
+                FrameOptions(),
+                { 1, 0, 1, 0 } }))
+            {
+                timelinePlayer->setFrameCacheReadAhead(options.readAhead);
+                TLR_ASSERT(options.readAhead == timelinePlayer->getFrameCacheReadAhead());
+                timelinePlayer->setFrameCacheReadBehind(options.readBehind);
+                TLR_ASSERT(options.readBehind == timelinePlayer->getFrameCacheReadBehind());
+                timelinePlayer->setRequestCount(options.requestCount);
+                TLR_ASSERT(options.requestCount == timelinePlayer->getRequestCount());
+                timelinePlayer->setRequestTimeout(std::chrono::milliseconds(options.requestTimeout));
+                TLR_ASSERT(std::chrono::milliseconds(options.requestTimeout) == timelinePlayer->getRequestTimeout());
+                auto frameObserver = observer::ValueObserver<timeline::Frame>::create(
+                    timelinePlayer->observeFrame(),
+                    [this](const timeline::Frame& value)
+                    {
+                        std::stringstream ss;
+                        ss << "Frame: " << value.time;
+                        _print(ss.str());
+                    });
+                auto frameCachePercentageObserver = observer::ValueObserver<float>::create(
+                    timelinePlayer->observeFrameCachePercentage(),
+                    [this](float value)
+                    {
+                        std::stringstream ss;
+                        ss << "Frame cache: " << value << "%";
+                        _print(ss.str());
+                    });
+                auto cachedFramesObserver = observer::ListObserver<otime::TimeRange>::create(
+                    timelinePlayer->observeCachedFrames(),
+                    [this](const std::vector<otime::TimeRange>& value)
+                    {
+                        std::stringstream ss;
+                        ss << "Cached frames: ";
+                        for (const auto& i : value)
+                        {
+                            ss << i << " ";
+                        }
+                        _print(ss.str());
+                    });
+                for (const auto& loop : getLoopEnums())
                 {
-                    timelinePlayer->tick();
-                    time::sleep(std::chrono::microseconds(1000000 / 24));
+                    timelinePlayer->setLoop(loop);
+                    timelinePlayer->setPlayback(Playback::Forward);
+                    for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
+                    {
+                        timelinePlayer->tick();
+                        time::sleep(std::chrono::microseconds(1000000 / 24));
+                    }
+                    timelinePlayer->setPlayback(Playback::Reverse);
+                    for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
+                    {
+                        timelinePlayer->tick();
+                        time::sleep(std::chrono::microseconds(1000000 / 24));
+                    }
                 }
-                timelinePlayer->setPlayback(Playback::Reverse);
-                for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
-                {
-                    timelinePlayer->tick();
-                    time::sleep(std::chrono::microseconds(1000000 / 24));
-                }
+                timelinePlayer->setPlayback(Playback::Stop);
             }
-            timelinePlayer->setPlayback(Playback::Stop);
-
+            
             // Test the playback mode.
             Playback playback = Playback::Stop;
             auto playbackObserver = observer::ValueObserver<Playback>::create(
