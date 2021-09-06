@@ -6,7 +6,7 @@ namespace tlr
 {
     namespace core
     {
-        inline const std::shared_ptr<Context>& ICoreSystem::getContext() const
+        inline const std::weak_ptr<Context>& ICoreSystem::getContext() const
         {
             return _context;
         }

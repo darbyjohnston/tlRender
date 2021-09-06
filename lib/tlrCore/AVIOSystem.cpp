@@ -36,25 +36,28 @@ namespace tlr
     {
         void System::_init()
         {
-            auto logSystem = _context->getLogSystem();
-            _plugins.push_back(cineon::Plugin::create(logSystem));
-            _plugins.push_back(dpx::Plugin::create(logSystem));
-            _plugins.push_back(ppm::Plugin::create(logSystem));
+            if (auto context = _context.lock())
+            {
+                auto logSystem = context->getLogSystem();
+                _plugins.push_back(cineon::Plugin::create(logSystem));
+                _plugins.push_back(dpx::Plugin::create(logSystem));
+                _plugins.push_back(ppm::Plugin::create(logSystem));
 #if defined(FFmpeg_FOUND)
-            _plugins.push_back(ffmpeg::Plugin::create(logSystem));
+                _plugins.push_back(ffmpeg::Plugin::create(logSystem));
 #endif
 #if defined(JPEG_FOUND)
-            _plugins.push_back(jpeg::Plugin::create(logSystem));
+                _plugins.push_back(jpeg::Plugin::create(logSystem));
 #endif
 #if defined(OpenEXR_FOUND)
-            _plugins.push_back(exr::Plugin::create(logSystem));
+                _plugins.push_back(exr::Plugin::create(logSystem));
 #endif
 #if defined(PNG_FOUND)
-            _plugins.push_back(png::Plugin::create(logSystem));
+                _plugins.push_back(png::Plugin::create(logSystem));
 #endif
 #if defined(TIFF_FOUND)
-            _plugins.push_back(tiff::Plugin::create(logSystem));
+                _plugins.push_back(tiff::Plugin::create(logSystem));
 #endif
+            }
         }
 
         System::System(const std::shared_ptr<core::Context>& context) :
