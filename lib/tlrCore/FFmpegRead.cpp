@@ -444,7 +444,10 @@ namespace tlr
                                     break;
                                 }
                             }
-                            av_packet_unref(&packet);
+                            if (!p.eof)
+                            {
+                                av_packet_unref(&packet);
+                            }
                         }
                     }
 
