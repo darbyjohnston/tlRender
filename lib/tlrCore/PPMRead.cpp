@@ -114,7 +114,7 @@ namespace tlr
                     {
                         const size_t channelCount = imaging::getChannelCount(info.pixelType);
                         const size_t bitDepth = imaging::getBitDepth(info.pixelType);
-                        const std::size_t scanlineByteCount = getScanlineByteCount(info.size.w, channelCount, bitDepth);
+                        const std::size_t scanlineByteCount = info.size.w * channelCount * (bitDepth / 8);
                         for (uint16_t y = 0; y < info.size.h; ++y, p += scanlineByteCount)
                         {
                             readASCII(_io, p, info.size.w * channelCount, bitDepth);

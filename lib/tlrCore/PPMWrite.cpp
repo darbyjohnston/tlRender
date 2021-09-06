@@ -49,8 +49,8 @@ namespace tlr
                     {
                     case Data::ASCII:
                     {
-                        const size_t scanlineByteCount = getScanlineByteCount(info.size.w, channelCount, bitDepth);
-                        std::vector<uint8_t> scanline(scanlineByteCount);
+                        const size_t scanlineByteCount = info.size.w * channelCount * (bitDepth / 8);
+                        std::vector<uint8_t> scanline(getFileScanlineByteCount(info.size.w, channelCount, bitDepth));
                         for (uint16_t y = 0; y < info.size.h; ++y, p += scanlineByteCount)
                         {
                             const size_t size = writeASCII(

@@ -20,7 +20,7 @@ namespace tlr
             "Binary");
         TLR_ENUM_SERIALIZE_IMPL(Data);
 
-        size_t getScanlineByteCount(
+        size_t getFileScanlineByteCount(
             int    width,
             size_t channelCount,
             size_t bitDepth)

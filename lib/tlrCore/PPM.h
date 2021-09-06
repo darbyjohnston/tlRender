@@ -28,8 +28,8 @@ namespace tlr
         TLR_ENUM(Data);
         TLR_ENUM_SERIALIZE(Data);
 
-        //! Get the number of bytes in a scanline.
-        size_t getScanlineByteCount(
+        //! Get the number of bytes in a file scanline.
+        size_t getFileScanlineByteCount(
             int    width,
             size_t channelCount,
             size_t bitDepth);
