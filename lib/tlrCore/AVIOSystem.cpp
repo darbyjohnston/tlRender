@@ -92,6 +92,17 @@ namespace tlr
             }
             return nullptr;
         }
+        
+        std::set<std::string> System::getExtensions() const
+        {
+            std::set<std::string> out;
+            for (const auto& i : _plugins)
+            {
+                const auto& extensions = i->getExtensions();
+                out.insert(extensions.begin(), extensions.end());
+            }            
+            return out;
+        }
 
         std::shared_ptr<IRead> System::read(
             const file::Path& path,
