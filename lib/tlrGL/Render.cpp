@@ -11,7 +11,9 @@
 
 #include <tlrCore/Assert.h>
 #include <tlrCore/Color.h>
+#include <tlrCore/Error.h>
 #include <tlrCore/LRUCache.h>
+#include <tlrCore/String.h>
 #include <tlrCore/StringFormat.h>
 
 #include <OpenColorIO/OpenColorIO.h>
@@ -25,18 +27,21 @@ namespace tlr
 {
     namespace gl
     {
-        bool ColorConfig::operator == (const ColorConfig& other) const
-        {
-            return config == other.config &&
-                input == other.input &&
-                display == other.display &&
-                view == other.view;
-        }
+        TLR_ENUM_IMPL(
+            ImageChannelsDisplay,
+            "Color",
+            "Red",
+            "Green",
+            "Blue",
+            "Alpha");
+        TLR_ENUM_SERIALIZE_IMPL(ImageChannelsDisplay);
 
-        bool ColorConfig::operator != (const ColorConfig& other) const
-        {
-            return !(*this == other);
-        }
+        TLR_ENUM_IMPL(
+            AlphaBlend,
+            "None",
+            "Straight",
+            "Premultiplied");
+        TLR_ENUM_SERIALIZE_IMPL(AlphaBlend);
 
         namespace
         {
@@ -48,19 +53,18 @@ namespace tlr
                 uint16_t ty;
             };
 
-            enum class ColorMode
+            enum class DrawMode
             {
                 Solid,
-                Texture,
-                TextureColorConfig,
-                TextureAlpha
+                TextureAlpha,
+                Image
             };
 
             const std::string colorFunctionName = "OCIODisplay";
 
             const std::string colorFunctionNoOp =
                 "uniform sampler3D ocio_lut3d_0Sampler;\n"
-                "vec4 OCIODisplay(in vec4 inPixel)\n"
+                "vec4 OCIODisplay(vec4 inPixel)\n"
                 "{\n"
                 "    return inPixel;\n"
                 "}\n";
@@ -68,11 +72,14 @@ namespace tlr
             const std::string vertexSource =
                 "#version 410\n"
                 "\n"
+                "// Inputs\n"
                 "in vec3 vPos;\n"
                 "in vec2 vTexture;\n"
                 "\n"
+                "// Outputs\n"
                 "out vec2 fTexture;\n"
                 "\n"
+                "// Uniforms\n"
                 "uniform struct Transform\n"
                 "{\n"
                 "    mat4 mvp;\n"
@@ -87,19 +94,18 @@ namespace tlr
             const std::string fragmentSource =
                 "#version 410\n"
                 "\n"
+                "// Inputs\n"
                 "in vec2 fTexture;\n"
+                "\n"
+                "// Outputs\n"
                 "out vec4 fColor;\n"
                 "\n"
-                "// ColorMode\n"
-                "const uint ColorMode_Solid              = 0;\n"
-                "const uint ColorMode_Texture            = 1;\n"
-                "const uint ColorMode_TextureColorConfig = 2;\n"
-                "const uint ColorMode_TextureAlpha       = 3;\n"
-                "uniform int colorMode;\n"
+                "// enum DrawMode\n"
+                "const uint DrawMode_Solid        = 0;\n"
+                "const uint DrawMode_TextureAlpha = 1;\n"
+                "const uint DrawMode_Image        = 2;\n"
                 "\n"
-                "uniform vec4 color;\n"
-                "\n"
-                "// tlr::imaging::PixelType\n"
+                "// enum tlr::imaging::PixelType\n"
                 "const uint PixelType_None     = 0;\n"
                 "const uint PixelType_L_U8     = 1;\n"
                 "const uint PixelType_L_U16    = 2;\n"
@@ -123,10 +129,115 @@ namespace tlr
                 "const uint PixelType_RGBA_F16 = 20;\n"
                 "const uint PixelType_RGBA_F32 = 21;\n"
                 "const uint PixelType_YUV_420P = 22;\n"
-                "uniform int pixelType;\n"
-                "uniform sampler2D textureSampler0;\n"
-                "uniform sampler2D textureSampler1;\n"
-                "uniform sampler2D textureSampler2;\n"
+                "\n"
+                "// enum tlr::gl::ImageChannelsDisplay\n"
+                "const uint ImageChannelsDisplay_Color = 0;\n"
+                "const uint ImageChannelsDisplay_Red   = 1;\n"
+                "const uint ImageChannelsDisplay_Green = 2;\n"
+                "const uint ImageChannelsDisplay_Blue  = 3;\n"
+                "const uint ImageChannelsDisplay_Alpha = 4;\n"
+                "\n"
+                "struct Levels\n"
+                "{\n"
+                "    float inLow;\n"
+                "    float inHigh;\n"
+                "    float gamma;\n"
+                "    float outLow;\n"
+                "    float outHigh;\n"
+                "};\n"
+                "\n"
+                "struct Exposure\n"
+                "{\n"
+                "    float v;\n"
+                "    float d;\n"
+                "    float k;\n"
+                "    float f;\n"
+                "    float g;\n"
+                "};\n"
+                "\n"
+                "// Uniforms\n"
+                "uniform int         drawMode;\n"
+                "uniform vec4        color;\n"
+                "\n"
+                "uniform int         pixelType;\n"
+                "uniform int         imageChannels;\n"
+                "uniform sampler2D   textureSampler0;\n"
+                "uniform sampler2D   textureSampler1;\n"
+                "uniform sampler2D   textureSampler2;\n"
+                "\n"
+                "uniform bool        colorMatrixEnabled;\n"
+                "uniform mat4        colorMatrix;\n"
+                "uniform bool        colorInvert;\n"
+                "uniform bool        levelsEnabled;\n"
+                "uniform Levels      levels;\n"
+                "uniform bool        exposureEnabled;\n"
+                "uniform Exposure    exposure;\n"
+                "uniform float       softClip;\n"
+                "uniform int         imageChannelsDisplay;\n"
+                "\n"
+                "vec4 colorMatrixFunc(vec4 value, mat4 color)\n"
+                "{\n"
+                "    vec4 tmp;\n"
+                "    tmp[0] = value[0];\n"
+                "    tmp[1] = value[1];\n"
+                "    tmp[2] = value[2];\n"
+                "    tmp[3] = 1.0;\n"
+                "    tmp *= color;\n"
+                "    tmp[3] = value[3];\n"
+                "    return tmp;\n"
+                "}\n"
+                "\n"
+                "vec4 levelsFunc(vec4 value, Levels data)\n"
+                "{\n"
+                "    vec4 tmp;\n"
+                "    tmp[0] = (value[0] - data.inLow) / data.inHigh;\n"
+                "    tmp[1] = (value[1] - data.inLow) / data.inHigh;\n"
+                "    tmp[2] = (value[2] - data.inLow) / data.inHigh;\n"
+                "    if (tmp[0] >= 0.0)\n"
+                "        tmp[0] = pow(tmp[0], data.gamma);\n"
+                "    if (tmp[1] >= 0.0)\n"
+                "        tmp[1] = pow(tmp[1], data.gamma);\n"
+                "    if (tmp[2] >= 0.0)\n"
+                "        tmp[2] = pow(tmp[2], data.gamma);\n"
+                "    value[0] = tmp[0] * data.outHigh + data.outLow;\n"
+                "    value[1] = tmp[1] * data.outHigh + data.outLow;\n"
+                "    value[2] = tmp[2] * data.outHigh + data.outLow;\n"
+                "    return value;\n"
+                "}\n"
+                "\n"
+                "vec4 softClipFunc(vec4 value, float softClip)\n"
+                "{\n"
+                "    float tmp = 1.0 - softClip;\n"
+                "    if (value[0] > tmp)\n"
+                "        value[0] = tmp + (1.0 - exp(-(value[0] - tmp) / softClip)) * softClip;\n"
+                "    if (value[1] > tmp)\n"
+                "        value[1] = tmp + (1.0 - exp(-(value[1] - tmp) / softClip)) * softClip;\n"
+                "    if (value[2] > tmp)\n"
+                "        value[2] = tmp + (1.0 - exp(-(value[2] - tmp) / softClip)) * softClip;\n"
+                "    return value;\n"
+                "}\n"
+                "\n"
+                "float knee(float value, float f)\n"
+                "{\n"
+                "    return log(value * f + 1.0) / f;\n"
+                "}\n"
+                "\n"
+                "vec4 exposureFunc(vec4 value, Exposure data)\n"
+                "{\n"
+                "    value[0] = max(0.0, value[0] - data.d) * data.v;\n"
+                "    value[1] = max(0.0, value[1] - data.d) * data.v;\n"
+                "    value[2] = max(0.0, value[2] - data.d) * data.v;\n"
+                "    if (value[0] > data.k)\n"
+                "        value[0] = data.k + knee(value[0] - data.k, data.f);\n"
+                "    if (value[1] > data.k)\n"
+                "        value[1] = data.k + knee(value[1] - data.k, data.f);\n"
+                "    if (value[2] > data.k)\n"
+                "        value[2] = data.k + knee(value[2] - data.k, data.f);\n"
+                "    value[0] *= 0.332;\n"
+                "    value[1] *= 0.332;\n"
+                "    value[2] *= 0.332;\n"
+                "    return value;\n"
+                "}\n"
                 "\n"
                 "// $color"
                 "\n"
@@ -152,27 +263,89 @@ namespace tlr
                 "\n"
                 "void main()\n"
                 "{\n"
-                "    if (ColorMode_Solid == colorMode)\n"
+                "    if (DrawMode_Solid == drawMode)\n"
                 "    {\n"
                 "        fColor = color;\n"
                 "    }\n"
-                "    else if (ColorMode_Texture == colorMode)\n"
+                "    else if (DrawMode_TextureAlpha == drawMode)\n"
                 "    {\n"
-                "        vec4 t = sampleTexture(textureSampler0, textureSampler1, textureSampler2);\n"
-                "        fColor = t * color;\n"
-                "    }\n"
-                "    else if (ColorMode_TextureColorConfig == colorMode)\n"
-                "    {\n"
-                "        vec4 t = sampleTexture(textureSampler0, textureSampler1, textureSampler2);\n"
-                "        fColor = OCIODisplay(t) * color;\n"
-                "    }\n"
-                "    else if (ColorMode_TextureAlpha == colorMode)\n"
-                "    {\n"
-                "        vec4 t = sampleTexture(textureSampler0, textureSampler1, textureSampler2);\n"
+                "        vec4 c = sampleTexture(textureSampler0, textureSampler1, textureSampler2);\n"
                 "        fColor.r = color.r;\n"
                 "        fColor.g = color.g;\n"
                 "        fColor.b = color.b;\n"
-                "        fColor.a = t.r;\n"
+                "        fColor.a = c.r;\n"
+                "    }\n"
+                "    else if (DrawMode_Image == drawMode)\n"
+                "    {\n"
+                "        vec4 c = sampleTexture(textureSampler0, textureSampler1, textureSampler2);\n"
+                "\n"
+                "        // Swizzle for the image channels.\n"
+                "        if (1 == imageChannels)\n"
+                "        {\n"
+                "            c.g = c.b = c.r;\n"
+                "            c.a = 1.0;\n"
+                "        }\n"
+                "        else if (2 == imageChannels)\n"
+                "        {\n"
+                "            c.a = c.g;\n"
+                "            c.g = c.b = c.r;\n"
+                "        }\n"
+                "        else if (3 == imageChannels)\n"
+                "        {\n"
+                "            c.a = 1.0;\n"
+                "        }\n"
+                "\n"
+                "        // Apply color transformations.\n"
+                "        if (colorMatrixEnabled)\n"
+                "        {\n"
+                "            c = colorMatrixFunc(c, colorMatrix);\n"
+                "        }\n"
+                "        if (colorInvert)\n"
+                "        {\n"
+                "            c.r = 1.0 - c.r;\n"
+                "            c.g = 1.0 - c.g;\n"
+                "            c.b = 1.0 - c.b;\n"
+                "        }\n"
+                "        if (levelsEnabled)\n"
+                "        {\n"
+                "            c = levelsFunc(c, levels);\n"
+                "        }\n"
+                "        if (exposureEnabled)\n"
+                "        {\n"
+                "            c = exposureFunc(c, exposure);\n"
+                "        }\n"
+                "        if (softClip > 0.0)\n"
+                "        {\n"
+                "            c = softClipFunc(c, softClip);\n"
+                "        }\n"
+                "\n"
+                "        // Apply color management.\n"
+                "        c = OCIODisplay(c);\n"
+                "\n"
+                "        // Swizzle for the image channels display.\n"
+                "        if (ImageChannelsDisplay_Red == imageChannelsDisplay)\n"
+                "        {\n"
+                "            c.g = c.r;\n"
+                "            c.b = c.r;\n"
+                "        }\n"
+                "        else if (ImageChannelsDisplay_Green == imageChannelsDisplay)\n"
+                "        {\n"
+                "            c.r = c.g;\n"
+                "            c.b = c.g;\n"
+                "        }\n"
+                "        else if (ImageChannelsDisplay_Blue == imageChannelsDisplay)\n"
+                "        {\n"
+                "            c.r = c.b;\n"
+                "            c.g = c.b;\n"
+                "        }\n"
+                "        else if (ImageChannelsDisplay_Alpha == imageChannelsDisplay)\n"
+                "        {\n"
+                "            c.r = c.a;\n"
+                "            c.g = c.a;\n"
+                "            c.b = c.a;\n"
+                "        }\n"
+                "\n"
+                "        fColor = c * color;\n"
                 "    }\n"
                 "}\n";
 
@@ -418,7 +591,7 @@ namespace tlr
                 p.ocioGpuProcessor = p.ocioProcessor->getDefaultGPUProcessor();
                 p.ocioShaderDesc = OCIO::GpuShaderDesc::CreateShaderDesc();
                 p.ocioShaderDesc->setLanguage(OCIO::GPU_LANGUAGE_GLSL_1_2);
-                p.ocioShaderDesc->setFunctionName("OCIODisplay");
+                p.ocioShaderDesc->setFunctionName(colorFunctionName.c_str());
                 p.ocioGpuProcessor->extractGpuShaderInfo(p.ocioShaderDesc);
 
                 // Create 3D textures.
@@ -564,7 +737,7 @@ namespace tlr
         {
             TLR_PRIVATE_P();
 
-            p.shader->setUniform("colorMode", static_cast<int>(ColorMode::Solid));
+            p.shader->setUniform("drawMode", static_cast<int>(DrawMode::Solid));
             p.shader->setUniform("color", color);
 
             std::vector<uint8_t> vboData;
@@ -602,6 +775,87 @@ namespace tlr
                 a = b;
                 b = tmp;
             }
+
+            float knee(float x, float f)
+            {
+                return logf(x * f + 1.F) / f;
+            }
+
+            float knee2(float x, float y)
+            {
+                float f0 = 0.F;
+                float f1 = 1.F;
+                while (knee(x, f1) > y)
+                {
+                    f0 = f1;
+                    f1 = f1 * 2.F;
+                }
+                for (size_t i = 0; i < 30; ++i)
+                {
+                    const float f2 = (f0 + f1) / 2.F;
+                    if (knee(x, f2) < y)
+                    {
+                        f1 = f2;
+                    }
+                    else
+                    {
+                        f0 = f2;
+                    }
+                }
+                return (f0 + f1) / 2.F;
+            }
+
+            math::Matrix4x4f brightnessMatrix(float r, float g, float b)
+            {
+                return math::Matrix4x4f(
+                    r, 0.F, 0.F, 0.F,
+                    0.F, g, 0.F, 0.F,
+                    0.F, 0.F, b, 0.F,
+                    0.F, 0.F, 0.F, 1.F);
+            }
+
+            math::Matrix4x4f contrastMatrix(float r, float g, float b)
+            {
+                return
+                    math::Matrix4x4f(
+                        1.F, 0.F, 0.F, -.5F,
+                        0.F, 1.F, 0.F, -.5F,
+                        0.F, 0.F, 1.F, -.5F,
+                        0.F, 0.F, 0.F, 1.F) *
+                    math::Matrix4x4f(
+                        r, 0.F, 0.F, 0.F,
+                        0.F, g, 0.F, 0.F,
+                        0.F, 0.F, b, 0.F,
+                        0.F, 0.F, 0.F, 1.F) *
+                    math::Matrix4x4f(
+                        1.F, 0.F, 0.F, .5F,
+                        0.F, 1.F, 0.F, .5F,
+                        0.F, 0.F, 1.F, .5F,
+                        0.F, 0.F, 0.F, 1.F);
+            }
+
+            math::Matrix4x4f saturationMatrix(float r, float g, float b)
+            {
+                const float s[] =
+                {
+                    (1.F - r) * .3086F,
+                    (1.F - g) * .6094F,
+                    (1.F - b) * .0820F
+                };
+                return math::Matrix4x4f(
+                    s[0] + r, s[1], s[2], 0.F,
+                    s[0], s[1] + g, s[2], 0.F,
+                    s[0], s[1], s[2] + b, 0.F,
+                    0.F, 0.F, 0.F, 1.F);
+            }
+
+            math::Matrix4x4f colorMatrix(const ImageColor& in)
+            {
+                return
+                    brightnessMatrix(in.brightness, in.brightness, in.brightness) *
+                    contrastMatrix(in.contrast, in.contrast, in.contrast) *
+                    saturationMatrix(in.saturation, in.saturation, in.saturation);
+            }
         }
 
         void Render::drawImage(
@@ -613,12 +867,42 @@ namespace tlr
             TLR_PRIVATE_P();
 
             const auto& info = image->getInfo();
-            p.shader->setUniform("colorMode", static_cast<int>(ColorMode::TextureColorConfig));
+            p.shader->setUniform("drawMode", static_cast<int>(DrawMode::Image));
             p.shader->setUniform("color", color);
             p.shader->setUniform("pixelType", static_cast<int>(info.pixelType));
+            p.shader->setUniform("imageChannels", imaging::getChannelCount(info.pixelType));
             p.shader->setUniform("textureSampler0", 0);
             p.shader->setUniform("textureSampler1", 1);
             p.shader->setUniform("textureSampler2", 2);
+            const bool colorMatrixEnabled = imageOptions.colorEnabled && imageOptions.color != ImageColor();
+            p.shader->setUniform("colorMatrixEnabled", colorMatrixEnabled);
+            if (colorMatrixEnabled)
+            {
+                p.shader->setUniform("colorMatrix", colorMatrix(imageOptions.color));
+            }
+            p.shader->setUniform("colorInvert", imageOptions.color.invert);
+            p.shader->setUniform("levelsEnabled", imageOptions.levelsEnabled);
+            p.shader->setUniform("levels.inLow", imageOptions.levels.inLow);
+            p.shader->setUniform("levels.inHigh", imageOptions.levels.inHigh);
+            p.shader->setUniform("levels.gamma", imageOptions.levels.gamma > 0.F ? (1.F / imageOptions.levels.gamma) : 0.F);
+            p.shader->setUniform("levels.outLow", imageOptions.levels.outLow);
+            p.shader->setUniform("levels.outHigh", imageOptions.levels.outHigh);
+            p.shader->setUniform("exposureEnabled", imageOptions.exposureEnabled);
+            if (imageOptions.exposureEnabled)
+            {
+                const float v = powf(2.F, imageOptions.exposure.exposure + 2.47393F);
+                const float d = imageOptions.exposure.defog;
+                const float k = powf(2.F, imageOptions.exposure.kneeLow);
+                const float f = knee2(
+                    powf(2.F, imageOptions.exposure.kneeHigh) - k,
+                    powf(2.F, 3.5F) - k);
+                p.shader->setUniform("exposure.v", v);
+                p.shader->setUniform("exposure.d", d);
+                p.shader->setUniform("exposure.k", k);
+                p.shader->setUniform("exposure.f", f);
+            }
+            p.shader->setUniform("softClip", imageOptions.softClipEnabled ? imageOptions.softClip : 0.F);
+            p.shader->setUniform("imageChannelsDisplay", static_cast<int>(imageOptions.channelsDisplay));
 
             auto textures = p.textureCache.get(info);
             copyTextures(image, textures);
@@ -713,7 +997,7 @@ namespace tlr
                         glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
                     }
 
-                    p.shader->setUniform("colorMode", static_cast<int>(ColorMode::TextureColorConfig));
+                    p.shader->setUniform("drawMode", static_cast<int>(DrawMode::Image));
                     p.shader->setUniform("color", imaging::Color4f(1.F, 1.F, 1.F));
                     p.shader->setUniform("pixelType", static_cast<int>(imaging::PixelType::RGBA_F32));
                     p.shader->setUniform("textureSampler0", 0);
@@ -770,7 +1054,7 @@ namespace tlr
         {
             TLR_PRIVATE_P();
 
-            p.shader->setUniform("colorMode", static_cast<int>(ColorMode::TextureAlpha));
+            p.shader->setUniform("drawMode", static_cast<int>(DrawMode::TextureAlpha));
             p.shader->setUniform("color", color);
             p.shader->setUniform("pixelType", static_cast<int>(imaging::PixelType::L_U8));
             p.shader->setUniform("textureSampler0", 0);
