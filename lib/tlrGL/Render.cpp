@@ -902,7 +902,7 @@ namespace tlr
             p.shader->setUniform("levelsEnabled", imageOptions.levelsEnabled);
             p.shader->setUniform("levels.inLow", imageOptions.levels.inLow);
             p.shader->setUniform("levels.inHigh", imageOptions.levels.inHigh);
-            p.shader->setUniform("levels.gamma", imageOptions.levels.gamma > 0.F ? (1.F / imageOptions.levels.gamma) : .0000001F);
+            p.shader->setUniform("levels.gamma", imageOptions.levels.gamma > 0.F ? (1.F / imageOptions.levels.gamma) : 1000000.F);
             p.shader->setUniform("levels.outLow", imageOptions.levels.outLow);
             p.shader->setUniform("levels.outHigh", imageOptions.levels.outHigh);
             p.shader->setUniform("exposureEnabled", imageOptions.exposureEnabled);
