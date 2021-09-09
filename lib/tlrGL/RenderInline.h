@@ -22,9 +22,11 @@ namespace tlr
         inline bool ImageColor::operator == (const ImageColor& other) const
         {
             return
+                add == other.add &&
                 brightness == other.brightness &&
                 contrast == other.contrast &&
                 saturation == other.saturation &&
+                tint == other.tint &&
                 invert == other.invert;
         }
 

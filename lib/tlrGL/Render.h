@@ -10,6 +10,8 @@
 #include <tlrCore/Color.h>
 #include <tlrCore/Timeline.h>
 
+#include <array>
+
 namespace tlr
 {
     namespace imaging
@@ -70,10 +72,12 @@ namespace tlr
         struct ImageColor
         {
         public:
-            float brightness = 1.F;
-            float contrast   = 1.F;
-            float saturation = 1.F;
-            bool  invert     = false;
+            math::Vector3f add        = math::Vector3f(0.F, 0.F, 0.F);
+            math::Vector3f brightness = math::Vector3f(1.F, 1.F, 1.F);
+            math::Vector3f contrast   = math::Vector3f(1.F, 1.F, 1.F);
+            math::Vector3f saturation = math::Vector3f(1.F, 1.F, 1.F);
+            float          tint       = 0.F;
+            bool           invert     = false;
 
             bool operator == (const ImageColor&) const;
             bool operator != (const ImageColor&) const;

@@ -21,6 +21,9 @@
 #include <array>
 #include <list>
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 namespace OCIO = OCIO_NAMESPACE;
 
 namespace tlr
@@ -165,7 +168,8 @@ namespace tlr
                 "uniform sampler2D   textureSampler1;\n"
                 "uniform sampler2D   textureSampler2;\n"
                 "\n"
-                "uniform bool        colorMatrixEnabled;\n"
+                "uniform bool        colorEnabled;\n"
+                "uniform vec3        colorAdd;\n"
                 "uniform mat4        colorMatrix;\n"
                 "uniform bool        colorInvert;\n"
                 "uniform bool        levelsEnabled;\n"
@@ -175,14 +179,14 @@ namespace tlr
                 "uniform float       softClip;\n"
                 "uniform int         imageChannelsDisplay;\n"
                 "\n"
-                "vec4 colorMatrixFunc(vec4 value, mat4 color)\n"
+                "vec4 colorFunc(vec4 value, vec3 add, mat4 m)\n"
                 "{\n"
                 "    vec4 tmp;\n"
-                "    tmp[0] = value[0];\n"
-                "    tmp[1] = value[1];\n"
-                "    tmp[2] = value[2];\n"
+                "    tmp[0] = value[0] + add[0];\n"
+                "    tmp[1] = value[1] + add[1];\n"
+                "    tmp[2] = value[2] + add[2];\n"
                 "    tmp[3] = 1.0;\n"
-                "    tmp *= color;\n"
+                "    tmp *= m;\n"
                 "    tmp[3] = value[3];\n"
                 "    return tmp;\n"
                 "}\n"
@@ -296,9 +300,9 @@ namespace tlr
                 "        }\n"
                 "\n"
                 "        // Apply color transformations.\n"
-                "        if (colorMatrixEnabled)\n"
+                "        if (colorEnabled)\n"
                 "        {\n"
-                "            c = colorMatrixFunc(c, colorMatrix);\n"
+                "            c = colorFunc(c, colorAdd, colorMatrix);\n"
                 "        }\n"
                 "        if (colorInvert)\n"
                 "        {\n"
@@ -805,16 +809,16 @@ namespace tlr
                 return (f0 + f1) / 2.F;
             }
 
-            math::Matrix4x4f brightnessMatrix(float r, float g, float b)
+            math::Matrix4x4f brightnessMatrix(const math::Vector3f& value)
             {
                 return math::Matrix4x4f(
-                    r, 0.F, 0.F, 0.F,
-                    0.F, g, 0.F, 0.F,
-                    0.F, 0.F, b, 0.F,
-                    0.F, 0.F, 0.F, 1.F);
+                    value.x, 0.F,     0.F,     0.F,
+                    0.F,     value.y, 0.F,     0.F,
+                    0.F,     0.F,     value.z, 0.F,
+                    0.F,     0.F,     0.F,     1.F);
             }
 
-            math::Matrix4x4f contrastMatrix(float r, float g, float b)
+            math::Matrix4x4f contrastMatrix(const math::Vector3f& value)
             {
                 return
                     math::Matrix4x4f(
@@ -823,38 +827,51 @@ namespace tlr
                         0.F, 0.F, 1.F, -.5F,
                         0.F, 0.F, 0.F, 1.F) *
                     math::Matrix4x4f(
-                        r, 0.F, 0.F, 0.F,
-                        0.F, g, 0.F, 0.F,
-                        0.F, 0.F, b, 0.F,
-                        0.F, 0.F, 0.F, 1.F) *
+                        value.x, 0.F,      0.F,      0.F,
+                        0.F,      value.y, 0.F,      0.F,
+                        0.F,      0.F,      value.z, 0.F,
+                        0.F,      0.F,      0.F,      1.F) *
                     math::Matrix4x4f(
-                        1.F, 0.F, 0.F, .5F,
-                        0.F, 1.F, 0.F, .5F,
-                        0.F, 0.F, 1.F, .5F,
+                        1.F, 0.F, 0.F,  .5F,
+                        0.F, 1.F, 0.F,  .5F,
+                        0.F, 0.F, 1.F,  .5F,
                         0.F, 0.F, 0.F, 1.F);
             }
 
-            math::Matrix4x4f saturationMatrix(float r, float g, float b)
+            math::Matrix4x4f saturationMatrix(const math::Vector3f& value)
             {
-                const float s[] =
-                {
-                    (1.F - r) * .3086F,
-                    (1.F - g) * .6094F,
-                    (1.F - b) * .0820F
-                };
+                const math::Vector3f s(
+                    (1.F - value.x) * .3086F,
+                    (1.F - value.y) * .6094F,
+                    (1.F - value.z) * .0820F);
                 return math::Matrix4x4f(
-                    s[0] + r, s[1], s[2], 0.F,
-                    s[0], s[1] + g, s[2], 0.F,
-                    s[0], s[1], s[2] + b, 0.F,
-                    0.F, 0.F, 0.F, 1.F);
+                    s.x + value.x, s.y,           s.z,           0.F,
+                    s.x,           s.y + value.y, s.z,           0.F,
+                    s.x,           s.y,           s.z + value.z, 0.F,
+                    0.F,           0.F,           0.F,           1.F);
+            }
+
+            math::Matrix4x4f tintMatrix(float v)
+            {
+                const float c = cos(v * M_PI * 2.F);
+                const float c2 = 1.F - c;
+                const float c3 = 1.F / 3.F * c2;
+                const float s = sin(v * M_PI * 2.F);
+                const float sq = sqrtf(1.F / 3.F);
+                return math::Matrix4x4f(
+                    c + c2 / 3.F, c3 - sq * s, c3 + sq * s, 0.F,
+                    c3 + sq * s,  c + c3,      c3 - sq * s, 0.F,
+                    c3 - sq * s,  c3 + sq * s, c + c3,      0.F,
+                    0.F,          0.F,         0.F,         1.F);
             }
 
             math::Matrix4x4f colorMatrix(const ImageColor& in)
             {
                 return
-                    brightnessMatrix(in.brightness, in.brightness, in.brightness) *
-                    contrastMatrix(in.contrast, in.contrast, in.contrast) *
-                    saturationMatrix(in.saturation, in.saturation, in.saturation);
+                    brightnessMatrix(in.brightness) *
+                    contrastMatrix(in.contrast) *
+                    saturationMatrix(in.saturation) *
+                    tintMatrix(in.tint);
             }
         }
 
@@ -875,7 +892,8 @@ namespace tlr
             p.shader->setUniform("textureSampler1", 1);
             p.shader->setUniform("textureSampler2", 2);
             const bool colorMatrixEnabled = imageOptions.colorEnabled && imageOptions.color != ImageColor();
-            p.shader->setUniform("colorMatrixEnabled", colorMatrixEnabled);
+            p.shader->setUniform("colorEnabled", colorMatrixEnabled);
+            p.shader->setUniform("colorAdd", imageOptions.color.add);
             if (colorMatrixEnabled)
             {
                 p.shader->setUniform("colorMatrix", colorMatrix(imageOptions.color));
@@ -884,7 +902,7 @@ namespace tlr
             p.shader->setUniform("levelsEnabled", imageOptions.levelsEnabled);
             p.shader->setUniform("levels.inLow", imageOptions.levels.inLow);
             p.shader->setUniform("levels.inHigh", imageOptions.levels.inHigh);
-            p.shader->setUniform("levels.gamma", imageOptions.levels.gamma > 0.F ? (1.F / imageOptions.levels.gamma) : 0.F);
+            p.shader->setUniform("levels.gamma", imageOptions.levels.gamma > 0.F ? (1.F / imageOptions.levels.gamma) : .0000001F);
             p.shader->setUniform("levels.outLow", imageOptions.levels.outLow);
             p.shader->setUniform("levels.outHigh", imageOptions.levels.outHigh);
             p.shader->setUniform("exposureEnabled", imageOptions.exposureEnabled);
