@@ -30,6 +30,8 @@ namespace tlr
             void setTimelinePlayer(qt::TimelinePlayer*);
 
         private Q_SLOTS:
+            void _speedCallback(int);
+            void _speedCallback(float);
             void _playbackCallback(QAbstractButton*);
             void _playbackCallback(tlr::timeline::Playback);
             void _timeActionCallback(QAbstractButton*);

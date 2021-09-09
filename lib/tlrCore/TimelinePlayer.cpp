@@ -79,6 +79,7 @@ namespace tlr
 
             std::shared_ptr<Timeline> timeline;
 
+            std::shared_ptr<observer::Value<float> > speed;
             std::shared_ptr<observer::Value<Playback> > playback;
             std::shared_ptr<observer::Value<Loop> > loop;
             std::shared_ptr<observer::Value<otime::RationalTime> > currentTime;
@@ -117,6 +118,7 @@ namespace tlr
             p.timeline = timeline::Timeline::create(path, context);
 
             // Create observers.
+            p.speed = observer::Value<float>::create(p.timeline->getDuration().rate());
             p.playback = observer::Value<Playback>::create(Playback::Stop);
             p.loop = observer::Value<Loop>::create(Loop::Loop);
             p.currentTime = observer::Value<otime::RationalTime>::create(p.timeline->getGlobalStartTime());
@@ -222,12 +224,27 @@ namespace tlr
 
         const otime::RationalTime& TimelinePlayer::getDuration() const
         {
-            return _p->timeline->getDuration();;
+            return _p->timeline->getDuration();
         }
 
         const imaging::Info& TimelinePlayer::getImageInfo() const
         {
             return _p->timeline->getImageInfo();
+        }
+
+        float TimelinePlayer::getDefaultSpeed() const
+        {
+            return _p->timeline->getDuration().rate();
+        }
+
+        std::shared_ptr<observer::IValue<float> > TimelinePlayer::observeSpeed() const
+        {
+            return _p->speed;
+        }
+
+        void TimelinePlayer::setSpeed(float value)
+        {
+            _p->speed->setIfChanged(value);
         }
 
         std::shared_ptr<observer::IValue<Playback> > TimelinePlayer::observePlayback() const
@@ -513,15 +530,16 @@ namespace tlr
             {
                 const auto now = std::chrono::steady_clock::now();
                 const std::chrono::duration<float> diff = now - p.prevTime;
+                const float speed = p.speed->get();
                 const auto& duration = p.timeline->getDuration();
                 otime::RationalTime delta;
                 if (Playback::Forward == playback)
                 {
-                    delta = otime::RationalTime(floor(diff.count() * duration.rate()), duration.rate());
+                    delta = otime::RationalTime(floor(diff.count() * speed), duration.rate());
                 }
                 else
                 {
-                    delta = otime::RationalTime(ceil(diff.count() * duration.rate() * -1.0), duration.rate());
+                    delta = otime::RationalTime(ceil(diff.count() * speed * -1.0), duration.rate());
                 }
                 const auto currentTime = p.loopPlayback(p.currentTime->get() + delta);
                 if (p.currentTime->setIfChanged(currentTime))

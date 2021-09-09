@@ -54,6 +54,12 @@ namespace tlr
             //! \name Playback
             ///@{
 
+            //! Get the default playback speed.
+            float defaultSpeed() const;
+
+            //! Get the playback speed.
+            float speed() const;
+
             //! Get the playback mode.
             timeline::Playback playback() const;
 
@@ -109,6 +115,9 @@ namespace tlr
         public Q_SLOTS:
             //! \name Playback
             ///@{
+
+            //! Set the playback speed.
+            void setSpeed(float);
 
             //! Set the playback mode.
             void setPlayback(tlr::timeline::Playback);
@@ -198,6 +207,9 @@ namespace tlr
         Q_SIGNALS:
             //! \name Playback
             ///@{
+
+            //! This signal is emitted when the playback speed is changed.
+            void speedChanged(float);
 
             //! This signal is emitted when the playback mode is changed.
             void playbackChanged(tlr::timeline::Playback);

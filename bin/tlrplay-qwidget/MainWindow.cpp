@@ -466,14 +466,14 @@ namespace tlr
         QString dir;
         if (_currentTimelinePlayer)
         {
-            dir = _currentTimelinePlayer->path().get().c_str();
+            dir = QString::fromStdString(_currentTimelinePlayer->path().get());
         }
 
         const auto fileName = QFileDialog::getOpenFileName(
             this,
             tr("Open Timeline"),
             dir,
-            tr("Timeline Files") + " (" + string::join(extensions, ", ").c_str() + ")");
+            tr("Timeline Files") + " (" + QString::fromStdString(string::join(extensions, ", ")) + ")");
         if (!fileName.isEmpty())
         {
             if (auto app = qobject_cast<App*>(qApp))
@@ -490,8 +490,8 @@ namespace tlr
         widget->setColorConfig(_colorConfig);
         widget->setTimelinePlayer(timelinePlayer);
         const file::Path& path = timelinePlayer->path();
-        const int tab = _tabWidget->addTab(widget, path.get(-1, false).c_str());
-        _tabWidget->setTabToolTip(tab, std::string(string::Format("{0}\n{1}").arg(path.get()).arg(timelinePlayer->imageInfo())).c_str());
+        const int tab = _tabWidget->addTab(widget, QString::fromStdString(path.get(-1, false)));
+        _tabWidget->setTabToolTip(tab, QString::fromStdString(string::Format("{0}\n{1}").arg(path.get()).arg(timelinePlayer->imageInfo())));
         _timelinePlayers.append(timelinePlayer);
         _setCurrentTimeline(timelinePlayer);
     }

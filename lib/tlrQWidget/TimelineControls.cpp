@@ -8,7 +8,10 @@
 #include <tlrQWidget/TimeLabel.h>
 #include <tlrQWidget/TimeSpinBox.h>
 
+#include <tlrCore/StringFormat.h>
+
 #include <QButtonGroup>
+#include <QComboBox>
 #include <QFontDatabase>
 #include <QHBoxLayout>
 #include <QMap>
@@ -23,6 +26,8 @@ namespace tlr
         struct TimelineControls::Private
         {
             qt::TimelinePlayer* timelinePlayer = nullptr;
+            QList<float> speeds;
+            QComboBox* speedComboBox = nullptr;
             QMap<QString, QAbstractButton*> playbackButtons;
             QButtonGroup* playbackButtonGroup = nullptr;
             QMap<QAbstractButton*, timeline::Playback> buttonToPlayback;
@@ -43,6 +48,8 @@ namespace tlr
             _p(new Private)
         {
             TLR_PRIVATE_P();
+
+            p.speedComboBox = new QComboBox;
 
             p.playbackButtons["Stop"] = new QToolButton;
             p.playbackButtons["Stop"]->setCheckable(true);
@@ -122,6 +129,7 @@ namespace tlr
 
             auto layout = new QHBoxLayout;
             layout->setMargin(0);
+            layout->addWidget(p.speedComboBox);
             auto hLayout = new QHBoxLayout;
             hLayout->setSpacing(1);
             hLayout->addWidget(p.playbackButtons["Reverse"]);
@@ -155,6 +163,11 @@ namespace tlr
 
             _playbackUpdate();
             _timelineUpdate();
+
+            connect(
+                p.speedComboBox,
+                SIGNAL(activated(int)),
+                SLOT(_speedCallback(int)));
 
             connect(
                 p.playbackButtonGroup,
@@ -219,6 +232,11 @@ namespace tlr
             {
                 disconnect(
                     p.timelinePlayer,
+                    SIGNAL(speedChanged(float)),
+                    this,
+                    SLOT(_speedCallback(float)));
+                disconnect(
+                    p.timelinePlayer,
                     SIGNAL(playbackChanged(tlr::timeline::Playback)),
                     this,
                     SLOT(_playbackCallback(tlr::timeline::Playback)));
@@ -234,8 +252,30 @@ namespace tlr
                     SLOT(_inOutRangeCallback(const otime::TimeRange&)));
             }
             p.timelinePlayer = timelinePlayer;
+            p.speeds.clear();
+            p.speeds.append(1.F);
+            p.speeds.append(3.F);
+            p.speeds.append(6.F);
+            p.speeds.append(9.F);
+            p.speeds.append(12.F);
+            p.speeds.append(16.F);
+            p.speeds.append(18.F);
+            p.speeds.append(24.F);
+            p.speeds.append(29.97F);
+            p.speeds.append(30.F);
+            p.speeds.append(59.94F);
+            p.speeds.append(60.F);
             if (p.timelinePlayer)
             {
+                const float defaultSpeed = p.timelinePlayer->defaultSpeed();
+                if (!p.speeds.contains(defaultSpeed))
+                {
+                    p.speeds.append(defaultSpeed);
+                }
+                connect(
+                    p.timelinePlayer,
+                    SIGNAL(speedChanged(float)),
+                    SLOT(_speedCallback(float)));
                 connect(
                     p.timelinePlayer,
                     SIGNAL(playbackChanged(tlr::timeline::Playback)),
@@ -249,7 +289,25 @@ namespace tlr
                     SIGNAL(inOutRangeChanged(const otime::TimeRange&)),
                     SLOT(_inOutRangeCallback(const otime::TimeRange&)));
             }
+            _playbackUpdate();
             _timelineUpdate();
+        }
+
+        void TimelineControls::_speedCallback(int index)
+        {
+            TLR_PRIVATE_P();
+            if (p.timelinePlayer)
+            {
+                if (index >= 0 && index < p.speeds.size())
+                {
+                    p.timelinePlayer->setSpeed(p.speeds[index]);
+                }
+            }
+        }
+
+        void TimelineControls::_speedCallback(float)
+        {
+            _playbackUpdate();
         }
 
         void TimelineControls::_playbackCallback(QAbstractButton* button)
@@ -375,12 +433,26 @@ namespace tlr
         void TimelineControls::_playbackUpdate()
         {
             TLR_PRIVATE_P();
+            float speed = 24.F;
             timeline::Playback playback = timeline::Playback::Stop;
             if (p.timelinePlayer)
             {
+                speed = p.timelinePlayer->speed();
                 playback = p.timelinePlayer->playback();
             }
-            p.playbackToButton[playback]->setChecked(true);
+            {
+                const QSignalBlocker blocker(p.speedComboBox);
+                p.speedComboBox->clear();
+                for (auto speed : p.speeds)
+                {
+                    p.speedComboBox->addItem(QString::fromStdString(string::Format("{0}").arg(speed)));
+                }
+                p.speedComboBox->setCurrentIndex(p.speeds.indexOf(speed));
+            }
+            {
+                const QSignalBlocker blocker(p.playbackButtonGroup);
+                p.playbackToButton[playback]->setChecked(true);
+            }
         }
 
         void TimelineControls::_timelineUpdate()

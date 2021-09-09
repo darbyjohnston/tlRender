@@ -130,7 +130,7 @@ namespace tlr
                     {
                         TIFFSetField(_f, TIFFTAG_DATETIME, i->second.c_str());
                     }
-                    i = tags.find("Description");;
+                    i = tags.find("Description");
                     if (i != tags.end())
                     {
                         TIFFSetField(_f, TIFFTAG_IMAGEDESCRIPTION, i->second.c_str());

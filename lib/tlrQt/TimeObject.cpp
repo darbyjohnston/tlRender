@@ -4,6 +4,8 @@
 
 #include <tlrQt/TimeObject.h>
 
+#include <tlrCore/StringFormat.h>
+
 #include <QDataStream>
 #include <QRegExpValidator>
 
@@ -69,15 +71,15 @@ namespace tlr
             switch (units)
             {
             case TimeUnits::Frames:
-                out = QString::number(time.to_frames());
+                out = QString::fromStdString(string::Format("{0}").arg(time.to_frames()));
                 break;
             case TimeUnits::Seconds:
-                out = QString::number(time.to_seconds(), 'f', 2);
+                out = QString::fromStdString(string::Format("{0}").arg(time.to_seconds()));
                 break;
             case TimeUnits::Timecode:
             {
                 otime::ErrorStatus errorStatus;
-                out = time.to_timecode(&errorStatus).c_str();
+                out = QString::fromStdString(time.to_timecode(&errorStatus));
                 break;
             }
             default: break;

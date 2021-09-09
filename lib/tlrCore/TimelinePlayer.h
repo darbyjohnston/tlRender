@@ -102,6 +102,15 @@ namespace tlr
             //! \name Playback
             ///@{
 
+            //! Get the default playback speed.
+            float getDefaultSpeed() const;
+
+            //! Observe the playback speed.
+            std::shared_ptr<observer::IValue<float> > observeSpeed() const;
+
+            //! Set the playback speed.
+            void setSpeed(float);
+
             //! Observe the playback mode.
             std::shared_ptr<observer::IValue<Playback> > observePlayback() const;
 

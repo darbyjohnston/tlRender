@@ -110,6 +110,7 @@ namespace tlr
             TLR_ASSERT(otime::RationalTime(0.0, 24.0) == timelinePlayer->getGlobalStartTime());
             TLR_ASSERT(imageInfo.size == timelinePlayer->getImageInfo().size);
             TLR_ASSERT(imageInfo.pixelType == timelinePlayer->getImageInfo().pixelType);
+            TLR_ASSERT(timelineDuration.rate() == timelinePlayer->getDefaultSpeed());
 
             // Test frames.
             struct FrameOptions
@@ -178,6 +179,20 @@ namespace tlr
                 timelinePlayer->setPlayback(Playback::Stop);
             }
             
+            // Test the playback speed.
+            float speed = 24.F;
+            auto speedObserver = observer::ValueObserver<float>::create(
+                timelinePlayer->observeSpeed(),
+                [&speed](float value)
+                {
+                    speed = value;
+                });
+            const float defaultSpeed = timelinePlayer->getDefaultSpeed();
+            const float doubleSpeed = defaultSpeed * 2.F;
+            timelinePlayer->setSpeed(doubleSpeed);
+            TLR_ASSERT(doubleSpeed == speed);
+            timelinePlayer->setSpeed(defaultSpeed);
+
             // Test the playback mode.
             Playback playback = Playback::Stop;
             auto playbackObserver = observer::ValueObserver<Playback>::create(
