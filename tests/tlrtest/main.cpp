@@ -7,8 +7,10 @@
 #include <tlrCoreTest/CineonTest.h>
 #include <tlrCoreTest/DPXTest.h>
 #include <tlrCoreTest/ColorTest.h>
+#include <tlrCoreTest/ContextTest.h>
 #include <tlrCoreTest/ErrorTest.h>
 #include <tlrCoreTest/FileTest.h>
+#include <tlrCoreTest/FileIOTest.h>
 #include <tlrCoreTest/ImageTest.h>
 #include <tlrCoreTest/LRUCacheTest.h>
 #include <tlrCoreTest/ListObserverTest.h>
@@ -16,6 +18,7 @@
 #include <tlrCoreTest/MathTest.h>
 #include <tlrCoreTest/MatrixTest.h>
 #include <tlrCoreTest/MemoryTest.h>
+#include <tlrCoreTest/PPMTest.h>
 #include <tlrCoreTest/PathTest.h>
 #include <tlrCoreTest/RangeTest.h>
 #include <tlrCoreTest/StringTest.h>
@@ -59,7 +62,7 @@ using namespace tlr;
 int main(int argc, char* argv[])
 {
     auto context = core::Context::create();
-
+    
     for (const auto& i : context->getLogInit())
     {
         std::cout << "[LOG] " << core::toString(i) << std::endl;
@@ -74,7 +77,7 @@ int main(int argc, char* argv[])
     std::vector<std::shared_ptr<Test::ITest> > tests;
     if (0)
     {
-        tests.push_back(CoreTest::ImageTest::create(context));
+        tests.push_back(CoreTest::TimelineTest::create(context));
     }
     else
     {
@@ -83,8 +86,10 @@ int main(int argc, char* argv[])
         tests.push_back(CoreTest::CineonTest::create(context));
         tests.push_back(CoreTest::DPXTest::create(context));
         tests.push_back(CoreTest::ColorTest::create(context));
+        tests.push_back(CoreTest::ContextTest::create(context));
         tests.push_back(CoreTest::ErrorTest::create(context));
         tests.push_back(CoreTest::FileTest::create(context));
+        tests.push_back(CoreTest::FileIOTest::create(context));
         tests.push_back(CoreTest::ImageTest::create(context));
         tests.push_back(CoreTest::LRUCacheTest::create(context));
         tests.push_back(CoreTest::ListObserverTest::create(context));
@@ -92,6 +97,7 @@ int main(int argc, char* argv[])
         tests.push_back(CoreTest::MathTest::create(context));
         tests.push_back(CoreTest::MatrixTest::create(context));
         tests.push_back(CoreTest::MemoryTest::create(context));
+        tests.push_back(CoreTest::PPMTest::create(context));
         tests.push_back(CoreTest::PathTest::create(context));
         tests.push_back(CoreTest::RangeTest::create(context));
         tests.push_back(CoreTest::StringTest::create(context));

@@ -18,7 +18,7 @@ namespace tlr
 
         inline const otime::RationalTime& TimelinePlayer::getDuration() const
         {
-            return _timeline->getDuration();;
+            return _timeline->getDuration();
         }
 
         inline const imaging::Info& TimelinePlayer::getImageInfo() const

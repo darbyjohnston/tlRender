@@ -23,9 +23,11 @@ namespace tlr
         private:
             void _enums();
             void _ranges();
+            void _util();
             void _transitions();
             void _frames();
             void _timeline();
+            void _imageSequence();
         };
     }
 }

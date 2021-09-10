@@ -6,6 +6,7 @@
 
 #include <tlrCore/AVIOSystem.h>
 #include <tlrCore/Assert.h>
+#include <tlrCore/String.h>
 #include <tlrCore/StringFormat.h>
 
 #include <sstream>
@@ -56,14 +57,72 @@ namespace tlr
                 TLR_ASSERT(a < b);
             }
         }
+        
+        namespace
+        {
+            class DummyPlugin : public IPlugin
+            {
+            public:
+                std::shared_ptr<IRead> read(
+                    const file::Path&,
+                    const Options& = Options()) override
+                {
+                    return nullptr;
+                }
+
+                std::vector<imaging::PixelType> getWritePixelTypes() const override
+                {
+                    return {};
+                }
+
+                std::shared_ptr<IWrite> write(
+                    const file::Path&,
+                    const Info&,
+                    const Options & = Options()) override
+                {
+                    return nullptr;
+                }
+            };
+        }
 
         void AVIOTest::_ioSystem()
         {
             auto system = _context->getSystem<System>();
-            for (const auto& plugin : system->getPlugins())
             {
+                std::vector<std::string> plugins;
+                for (const auto& plugin : system->getPlugins())
+                {
+                    plugins.push_back(plugin->getName());
+                }
                 std::stringstream ss;
-                ss << "Plugin: " << plugin->getName();
+                ss << "Plugins: " << string::join(plugins, ", ");
+                _print(ss.str());
+            }
+            {
+                std::map<std::string, std::shared_ptr<IPlugin> > plugins;
+                for (const auto& plugin : system->getPlugins())
+                {
+                    const auto& extensions = plugin->getExtensions();
+                    if (!extensions.empty())
+                    {
+                        plugins[*(extensions.begin())] = plugin;
+                    }
+                }
+                for (const auto& plugin : plugins)
+                {
+                    TLR_ASSERT(system->getPlugin(file::Path("test" + plugin.first)) == plugin.second);
+                }
+                TLR_ASSERT(!system->getPlugin(file::Path()));
+                TLR_ASSERT(!system->getPlugin<DummyPlugin>());
+            }
+            {
+                std::vector<std::string> extensions;
+                for (const auto& extension : system->getExtensions())
+                {
+                    extensions.push_back(extension);
+                }
+                std::stringstream ss;
+                ss << "Extensions: " << string::join(extensions, ", ");
                 _print(ss.str());
             }
             TLR_ASSERT(!system->read(file::Path()));

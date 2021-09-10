@@ -12,6 +12,7 @@ namespace tlr
         {
             std::shared_ptr<timeline::TimelinePlayer> timelinePlayer;
 
+            std::shared_ptr<observer::ValueObserver<float> > speedObserver;
             std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
             std::shared_ptr<observer::ValueObserver<timeline::Loop> > loopObserver;
             std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
@@ -30,6 +31,13 @@ namespace tlr
             TLR_PRIVATE_P();
 
             p.timelinePlayer = timeline::TimelinePlayer::create(path, context);
+
+            p.speedObserver = observer::ValueObserver<float>::create(
+                p.timelinePlayer->observeSpeed(),
+                [this](float value)
+                {
+                    Q_EMIT speedChanged(value);
+                });
 
             p.playbackObserver = observer::ValueObserver<timeline::Playback>::create(
                 p.timelinePlayer->observePlayback(),
@@ -104,6 +112,16 @@ namespace tlr
             return _p->timelinePlayer->getImageInfo();
         }
 
+       float TimelinePlayer::defaultSpeed() const
+        {
+            return _p->timelinePlayer->getDefaultSpeed();
+        }
+
+        float TimelinePlayer::speed() const
+        {
+            return _p->timelinePlayer->observeSpeed()->get();
+        }
+
         timeline::Playback TimelinePlayer::playback() const
         {
             return _p->timelinePlayer->observePlayback()->get();
@@ -152,6 +170,11 @@ namespace tlr
         int TimelinePlayer::requestTimeout() const
         {
             return _p->timelinePlayer->getRequestTimeout().count();
+        }
+
+        void TimelinePlayer::setSpeed(float value)
+        {
+            _p->timelinePlayer->setSpeed(value);
         }
 
         void TimelinePlayer::setPlayback(timeline::Playback value)

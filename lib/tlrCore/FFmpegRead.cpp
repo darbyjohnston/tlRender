@@ -31,9 +31,8 @@ namespace tlr
         struct Read::Private
         {
             int decodeVideo(
-                AVPacket*,
-                const otime::RationalTime& seek,
-                const std::shared_ptr<imaging::Image>& image);
+                const otime::RationalTime&,
+                const std::shared_ptr<imaging::Image>&);
             void copyVideo(const std::shared_ptr<imaging::Image>&);
 
             avio::Info info;
@@ -51,6 +50,7 @@ namespace tlr
             std::condition_variable requestCV;
             otime::RationalTime currentTime = time::invalidTime;
             std::list<std::shared_ptr<imaging::Image> > imageBuffer;
+            bool eof = false;
 
             AVFormatContext* avFormatContext = nullptr;
             int avVideoStream = -1;
@@ -353,23 +353,26 @@ namespace tlr
                         });
                     if (!p.videoFrameRequests.empty())
                     {
-                        request.time = p.videoFrameRequests.front().time;
-                        request.image = p.videoFrameRequests.front().image;
-                        request.promise = std::move(p.videoFrameRequests.front().promise);
+                        auto& tmp = p.videoFrameRequests.front();
+                        request.time = tmp.time;
+                        request.image = tmp.image;
+                        request.promise = std::move(tmp.promise);
                         p.videoFrameRequests.pop_front();
                         requestValid = true;
                     }
                 }
                 if (requestValid)
                 {
+                    //std::cout << "----------" << std::endl;
                     //std::cout << "request: " << request.time << std::endl;
-                    avio::VideoFrame videoFrame;
+                    //std::cout << "current time: " << p.currentTime << std::endl;
 
                     if (request.time != p.currentTime)
                     {
                         //std::cout << "seek: " << request.time << std::endl;
                         p.currentTime = request.time;
                         p.imageBuffer.clear();
+                        p.eof = false;
                         int64_t t = 0;
                         int stream = -1;
                         if (p.avVideoStream != -1)
@@ -391,30 +394,48 @@ namespace tlr
                         }
                     }
 
-                    int decoding = 0;
-                    AVPacket packet;
-                    while (0 == decoding)
+                    if (p.imageBuffer.empty())
                     {
-                        decoding = av_read_frame(p.avFormatContext, &packet);
-                        if (decoding < 0)
+                        int decoding = 0;
+                        AVPacket packet;
+                        while (0 == decoding)
                         {
-                            //! \todo How should this be handled?
-                            break;
-                        }
-                        if (p.avVideoStream == packet.stream_index)
-                        {
-                            decoding = avcodec_send_packet(p.avCodecContext[p.avVideoStream], &packet);
-                            if (decoding < 0)
+                            if (!p.eof)
                             {
-                                //! \todo How should this be handled?
-                                break;
+                                decoding = av_read_frame(p.avFormatContext, &packet);
+                                if (AVERROR_EOF == decoding)
+                                {
+                                    p.eof = true;
+                                    decoding = 0;
+                                }
+                                else if (decoding < 0)
+                                {
+                                    //! \todo How should this be handled?
+                                    break;
+                                }
                             }
-                            while (0 == decoding)
+                            if (p.eof ? true : (p.avVideoStream == packet.stream_index))
                             {
-                                decoding = p.decodeVideo(&packet, request.time, request.image);
-                                if (AVERROR(EAGAIN) == decoding || AVERROR_EOF == decoding)
+                                decoding = avcodec_send_packet(
+                                    p.avCodecContext[p.avVideoStream],
+                                    p.eof ? nullptr : &packet);
+                                if (AVERROR_EOF == decoding)
                                 {
                                     decoding = 0;
+                                }
+                                else if (decoding < 0)
+                                {
+                                    //! \todo How should this be handled?
+                                    break;
+                                }
+                                decoding = p.decodeVideo(request.time, request.image);
+                                request.image = nullptr;
+                                if (AVERROR(EAGAIN) == decoding)
+                                {
+                                    decoding = 0;
+                                }
+                                else if (AVERROR_EOF == decoding)
+                                {
                                     break;
                                 }
                                 else if (decoding < 0)
@@ -423,18 +444,22 @@ namespace tlr
                                     break;
                                 }
                             }
+                            if (!p.eof)
+                            {
+                                av_packet_unref(&packet);
+                            }
                         }
-                        av_packet_unref(&packet);
                     }
 
+                    avio::VideoFrame videoFrame;
                     if (!p.imageBuffer.empty())
                     {
+                        videoFrame.image = p.imageBuffer.front();
                         videoFrame.time = request.time;
-                        videoFrame.image = *p.imageBuffer.begin();
                         p.imageBuffer.pop_front();
                     }
-
                     request.promise.set_value(videoFrame);
+
                     p.currentTime = request.time + otime::RationalTime(1.0, p.currentTime.rate());
                 }
             }
@@ -471,8 +496,7 @@ namespace tlr
         }
 
         int Read::Private::decodeVideo(
-            AVPacket* packet,
-            const otime::RationalTime& seek,
+            const otime::RationalTime& time,
             const std::shared_ptr<imaging::Image>& image)
         {
             int out = 0;
@@ -491,13 +515,14 @@ namespace tlr
                         avFormatContext->streams[avVideoStream]->time_base,
                         swap(avFormatContext->streams[avVideoStream]->r_frame_rate)),
                     info.videoTimeRange.duration().rate());
-                if (t >= seek)
+                if (t >= time)
                 {
                     //std::cout << "frame: " << t << std::endl;
-                    auto tmp = image && image->getInfo() == videoInfo ? image : imaging::Image::create(videoInfo);
+                    auto tmp = image && image->getInfo() == info.video[0] ? image : imaging::Image::create(videoInfo);
                     tmp->setTags(info.tags);
                     copyVideo(tmp);
                     imageBuffer.push_back(tmp);
+
                     out = 1;
                 }
             }

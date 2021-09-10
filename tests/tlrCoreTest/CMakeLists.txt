@@ -3,6 +3,7 @@ set(HEADERS
     BBoxTest.h
     CineonTest.h
     ColorTest.h
+    ContextTest.h
     DPXTest.h
     ErrorTest.h
     FileIOTest.h
@@ -14,6 +15,7 @@ set(HEADERS
     MathTest.h
     MatrixTest.h
     MemoryTest.h
+    PPMTest.h
     PathTest.h
     RangeTest.h
     StringTest.h
@@ -28,6 +30,7 @@ set(SOURCE
     BBoxTest.cpp
     CineonTest.cpp
     ColorTest.cpp
+    ContextTest.cpp
     DPXTest.cpp
     ErrorTest.cpp
     FileIOTest.cpp
@@ -39,6 +42,7 @@ set(SOURCE
     MathTest.cpp
     MatrixTest.cpp
     MemoryTest.cpp
+    PPMTest.cpp
     PathTest.cpp
     RangeTest.cpp
     StringTest.cpp

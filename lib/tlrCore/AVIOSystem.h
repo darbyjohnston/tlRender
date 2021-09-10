@@ -39,6 +39,9 @@ namespace tlr
             //! Get a plugin for the given path.
             std::shared_ptr<IPlugin> getPlugin(const file::Path&) const;
 
+            //! Get the supported file extensions.
+            std::set<std::string> getExtensions() const;
+
             // Create a reader for the given path.
             std::shared_ptr<IRead> read(
                 const file::Path&,

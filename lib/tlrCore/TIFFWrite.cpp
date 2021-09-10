@@ -130,17 +130,17 @@ namespace tlr
                     {
                         TIFFSetField(_f, TIFFTAG_DATETIME, i->second.c_str());
                     }
-                    i = tags.find("Description");;
+                    i = tags.find("Description");
                     if (i != tags.end())
                     {
                         TIFFSetField(_f, TIFFTAG_IMAGEDESCRIPTION, i->second.c_str());
                     }
 
                     const size_t scanlineSize = imaging::align(info.size.w * tiffSamples * tiffSampleDepth / 8, info.layout.alignment);
-                    const uint8_t* imageP = image->getData() + (info.size.h - 1) * scanlineSize;
-                    for (uint16_t y = 0; y < info.size.h; ++y, imageP -= scanlineSize)
+                    const uint8_t* p = image->getData() + (info.size.h - 1) * scanlineSize;
+                    for (uint16_t y = 0; y < info.size.h; ++y, p -= scanlineSize)
                     {
-                        if (TIFFWriteScanline(_f, (tdata_t*)imageP, y) == -1)
+                        if (TIFFWriteScanline(_f, (tdata_t*)p, y) == -1)
                         {
                             throw std::runtime_error(string::Format("{0}: Cannot write scanline: {1}").arg(fileName).arg(y));
                         }

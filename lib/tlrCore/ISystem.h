@@ -27,7 +27,7 @@ namespace tlr
             void _log(const std::string&, LogType = LogType::Message);
 
         private:
-            std::shared_ptr<LogSystem> _logSystem;
+            std::weak_ptr<LogSystem> _logSystem;
         };
     }
 }

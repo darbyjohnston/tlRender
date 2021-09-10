@@ -27,12 +27,23 @@ namespace tlr
         void FFmpegTest::run()
         {
             _enums();
+            _util();
             _io();
         }
 
         void FFmpegTest::_enums()
         {
             _enum<ffmpeg::Profile>("Profile", ffmpeg::getProfileEnums);
+        }
+        
+        void FFmpegTest::_util()
+        {
+            {
+                const AVRational r = { 1, 2 };
+                const AVRational rs = ffmpeg::swap(r);
+                TLR_ASSERT(r.num == rs.den);
+                TLR_ASSERT(r.den == rs.num);
+            }
         }
 
         void FFmpegTest::_io()

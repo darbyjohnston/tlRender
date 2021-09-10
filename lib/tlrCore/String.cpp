@@ -119,9 +119,14 @@ namespace tlr
             return out;
         }
 
-        bool compareNoCase(const std::string& a, const std::string& b)
+        void removeTrailingNewlines(std::string& value)
         {
-            return toLower(a) == toLower(b);
+            size_t size = value.size();
+            while (size && ('\n' == value[size - 1] || '\r' == value[size - 1]))
+            {
+                value.pop_back();
+                size = value.size();
+            }
         }
 
         std::string removeTrailingNewlines(const std::string& value)
@@ -131,13 +136,174 @@ namespace tlr
             return out;
         }
 
-        void removeTrailingNewlines(std::string& value)
+        bool compareNoCase(const std::string& a, const std::string& b)
         {
-            size_t size = value.size();
-            while (size && ('\n' == value[size - 1] || '\r' == value[size - 1]))
+            return toLower(a) == toLower(b);
+        }
+
+        void fromString(const char* s, size_t size, int& out)
+        {
+            out = 0;
+
+            // Find the sign.
+            bool negativeSign = false;
+            if ('-' == s[0])
             {
-                value.pop_back();
-                size = value.size();
+                negativeSign = true;
+                ++s;
+                --size;
+            }
+            else if ('+' == s[0])
+            {
+                ++s;
+                --size;
+            }
+
+            // Find the end.
+            size_t end = 0;
+            for (; end < size && s[end]; ++end)
+                ;
+
+            // Add up the digits.
+            int tens = 1;
+            for (int i = int(end) - 1; i >= 0; --i, tens *= 10)
+            {
+                out += (s[i] - 48) * tens;
+            }
+
+            // Apply the sign.
+            if (negativeSign)
+            {
+                out = -out;
+            }
+        }
+
+        void fromString(const char* s, size_t size, int64_t& out)
+        {
+            out = 0;
+
+            // Find the sign.
+            bool negativeSign = false;
+            if ('-' == s[0])
+            {
+                negativeSign = true;
+                ++s;
+                --size;
+            }
+            else if ('+' == s[0])
+            {
+                ++s;
+                --size;
+            }
+
+            // Find the end.
+            size_t end = 0;
+            for (; end < size && s[end]; ++end)
+                ;
+
+            // Add up the digits.
+            int64_t tens = 1;
+            for (int i = int(end) - 1; i >= 0; --i, tens *= 10)
+            {
+                out += (static_cast<int64_t>(s[i] - 48)) * tens;
+            }
+
+            // Apply the sign.
+            if (negativeSign)
+            {
+                out = -out;
+            }
+        }
+
+        void fromString(const char* s, size_t size, size_t& out)
+        {
+            out = 0;
+
+            // Add up the digits.
+            size_t tens = 1;
+            for (int i = int(size) - 1; i >= 0; --i, tens *= 10)
+            {
+                out += (static_cast<size_t>(s[i] - 48)) * tens;
+            }
+        }
+
+        void fromString(const char* s, size_t size, float& out)
+        {
+            out = 0.F;
+
+            // Find the sign.
+            int isize = int(size);
+            bool negativeSign = false;
+            if ('-' == s[0])
+            {
+                negativeSign = true;
+                ++s;
+                --isize;
+            }
+            else if ('+' == s[0])
+            {
+                ++s;
+                --isize;
+            }
+
+            // Find the engineering notation.
+            int e = 0;
+            for (int j = isize - 1; j >= 0; --j)
+            {
+                if ('e' == s[j] || 'E' == s[j])
+                {
+                    if (j < isize - 1)
+                    {
+                        fromString(s + j + 1, isize - static_cast<size_t>(j) - static_cast<size_t>(1), e);
+                    }
+                    isize = j;
+                    break;
+                }
+            }
+
+            // Find the decimal point.
+            int decimalPoint = -1;
+            for (int j = isize - 1; j >= 0; --j)
+            {
+                if ('.' == s[j])
+                {
+                    decimalPoint = j;
+                    break;
+                }
+            }
+
+            // Add up the digits.
+            float tens = 1.F;
+            for (int j = (decimalPoint != -1 ? decimalPoint : isize) - 1; j >= 0; --j, tens *= 10.F)
+            {
+                out += (s[j] - 48) * tens;
+            }
+
+            // Add up the decimal digits.
+            if (decimalPoint != -1)
+            {
+                tens = .1F;
+                for (int j = decimalPoint + 1; j < isize; ++j, tens /= 10.F)
+                {
+                    out += (s[j] - 48) * tens;
+                }
+            }
+
+            // Apply the engineering notation.
+            if (e != 0)
+            {
+                tens = e < 0 ? .1F : 10.F;
+                if (e < 0) e = -e;
+                for (int j = 0; j < e; ++j)
+                {
+                    out *= tens;
+                }
+            }
+
+            // Apply the sign.
+            if (negativeSign)
+            {
+                out = -out;
             }
         }
 

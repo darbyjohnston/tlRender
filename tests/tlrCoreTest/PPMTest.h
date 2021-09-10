@@ -10,19 +10,18 @@ namespace tlr
 {
     namespace CoreTest
     {
-        class FFmpegTest : public Test::ITest
+        class PPMTest : public Test::ITest
         {
         protected:
-            FFmpegTest(const std::shared_ptr<core::Context>&);
+            PPMTest(const std::shared_ptr<core::Context>&);
 
         public:
-            static std::shared_ptr<FFmpegTest> create(const std::shared_ptr<core::Context>&);
+            static std::shared_ptr<PPMTest> create(const std::shared_ptr<core::Context>&);
 
             void run() override;
-
+            
         private:
             void _enums();
-            void _util();
             void _io();
         };
     }

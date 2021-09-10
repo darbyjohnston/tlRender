@@ -62,7 +62,11 @@ namespace tlr
             const std::string& number = path.getNumber();
             if (!number.empty())
             {
-                const std::string& directory = path.getDirectory();
+                std::string directory = path.getDirectory();
+                if (directory.empty())
+                {
+                    directory = ".";
+                }
                 const std::string& baseName = path.getBaseName();
                 const std::string& extension = path.getExtension();
                 FSeqDirOptions dirOptions;

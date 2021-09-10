@@ -134,7 +134,7 @@ namespace tlr
             }
             for (size_t c : { 1, 2, 3, 4 })
             {
-                for (size_t b : { 8, 16 })
+                for (size_t b : { 8, 10, 16, 32 })
                 {
                     std::stringstream ss;
                     ss << c << "/" << b << " int type: " << getIntType(c, b);
@@ -164,14 +164,11 @@ namespace tlr
                 TLR_ASSERT(getClosest(
                     PixelType::L_U16, { PixelType::RGB_U8, PixelType::RGB_U16, PixelType::RGB_U32 }) == PixelType::RGB_U16);
             }
-            for (const auto& i :
-                {
-                    Info(1, 2, PixelType::L_U8),
-                    Info(1, 2, PixelType::L_U16)
-                })
+            for (auto i : getPixelTypeEnums())
             {
+                const Info info(1, 2, i);
                 std::stringstream ss;
-                ss << i << " data byte count: " << getDataByteCount(i);
+                ss << info << " data byte count: " << getDataByteCount(info);
                 _print(ss.str());
             }
         }

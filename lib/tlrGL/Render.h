@@ -10,6 +10,8 @@
 #include <tlrCore/Color.h>
 #include <tlrCore/Timeline.h>
 
+#include <array>
+
 namespace tlr
 {
     namespace imaging
@@ -35,11 +37,95 @@ namespace tlr
             bool operator != (const ColorConfig&) const;
         };
 
+        //! Image channels display.
+        enum class ImageChannelsDisplay
+        {
+            Color,
+            Red,
+            Green,
+            Blue,
+            Alpha,
+
+            Count,
+            First = Color
+        };
+        TLR_ENUM(ImageChannelsDisplay);
+        TLR_ENUM_SERIALIZE(ImageChannelsDisplay);
+
+        //! Alpha channel blending.
+        //!
+        //! References:
+        //! - https://microsoft.github.io/Win2D/html/PremultipliedAlpha.htm
+        enum class AlphaBlend
+        {
+            None,
+            Straight,
+            Premultiplied,
+
+            Count,
+            First = None
+        };
+        TLR_ENUM(AlphaBlend);
+        TLR_ENUM_SERIALIZE(AlphaBlend);
+
+        //! Image color values.
+        struct ImageColor
+        {
+        public:
+            math::Vector3f add        = math::Vector3f(0.F, 0.F, 0.F);
+            math::Vector3f brightness = math::Vector3f(1.F, 1.F, 1.F);
+            math::Vector3f contrast   = math::Vector3f(1.F, 1.F, 1.F);
+            math::Vector3f saturation = math::Vector3f(1.F, 1.F, 1.F);
+            float          tint       = 0.F;
+            bool           invert     = false;
+
+            bool operator == (const ImageColor&) const;
+            bool operator != (const ImageColor&) const;
+        };
+        
+        //! Image levels values.
+        struct ImageLevels
+        {
+            float inLow   = 0.F;
+            float inHigh  = 1.F;
+            float gamma   = 1.F;
+            float outLow  = 0.F;
+            float outHigh = 1.F;
+
+            bool operator == (const ImageLevels&) const;
+            bool operator != (const ImageLevels&) const;
+        };
+        
+        //! Image exposure values.
+        struct ImageExposure
+        {
+            float exposure = 0.F;
+            float defog    = 0.F;
+            float kneeLow  = 0.F;
+            float kneeHigh = 5.F;
+
+            bool operator == (const ImageExposure&) const;
+            bool operator != (const ImageExposure&) const;
+        };
+
         //! Image options.
         struct ImageOptions
         {
-            //! \todo This could also be acheived with a matrix transform?
-            imaging::Mirror mirror;
+            ImageChannelsDisplay channelsDisplay = ImageChannelsDisplay::Color;
+            //! \todo Implement alpha blending options.
+            AlphaBlend           alphaBlend      = AlphaBlend::Straight;
+            imaging::Mirror      mirror;
+            bool                 colorEnabled    = false;
+            ImageColor           color;
+            bool                 levelsEnabled   = false;
+            ImageLevels          levels;
+            bool                 exposureEnabled = false;
+            ImageExposure        exposure;
+            bool                 softClipEnabled = false;
+            float                softClip        = 0.F;
+
+            bool operator == (const ImageOptions&) const;
+            bool operator != (const ImageOptions&) const;
         };
 
         //! OpenGL renderer.
@@ -57,10 +143,12 @@ namespace tlr
             //! Create a new renderer.
             static std::shared_ptr<Render> create();
 
-            //! Set the texture cache size.
+            //! Set the texture cache size. This function should be called before
+            //! Render::begin().
             void setTextureCacheSize(size_t);
 
-            //! Set the color configuration.
+            //! Set the color configuration. This function should be called before
+            //! Render::begin().
             void setColorConfig(const ColorConfig&);
 
             //! Start a render.
@@ -97,3 +185,5 @@ namespace tlr
         };
     }
 }
+
+#include <tlrGL/RenderInline.h>

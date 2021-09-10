@@ -176,9 +176,10 @@ namespace tlr
                     out.time = time;
                     out.image = image && image->getInfo() == _info ? image : imaging::Image::create(_info);
 
-                    for (uint16_t y = 0; y < _info.size.h; ++y)
+                    uint8_t* p = out.image->getData();
+                    for (uint16_t y = 0; y < _info.size.h; ++y, p += _scanlineSize)
                     {
-                        if (!pngScanline(_png, out.image->getData() + y * _scanlineSize))
+                        if (!pngScanline(_png, p))
                         {
                             break;
                         }

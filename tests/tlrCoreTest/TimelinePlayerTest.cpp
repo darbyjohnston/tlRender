@@ -58,7 +58,7 @@ namespace tlr
             // Write an OTIO timeline.
             auto otioTrack = new otio::Track();
             auto otioClip = new otio::Clip;
-            otioClip->set_media_reference(new otio::ImageSequenceReference("", "TimelinePlayerTest.", ".png", 0, 1, 1, 0));
+            otioClip->set_media_reference(new otio::ImageSequenceReference("", "TimelinePlayerTest.", ".ppm", 0, 1, 1, 0));
             const otime::TimeRange clipTimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0));
             otioClip->set_source_range(clipTimeRange);
             otio::ErrorStatus errorStatus = otio::ErrorStatus::OK;
@@ -68,7 +68,7 @@ namespace tlr
                 throw std::runtime_error("Cannot append child");
             }
             otioClip = new otio::Clip;
-            otioClip->set_media_reference(new otio::ImageSequenceReference("", "TimelinePlayerTest.", ".png", 0, 1, 1, 0));
+            otioClip->set_media_reference(new otio::ImageSequenceReference("", "TimelinePlayerTest.", ".ppm", 0, 1, 1, 0));
             otioClip->set_source_range(clipTimeRange);
             otioTrack->append_child(otioClip, &errorStatus);
             if (errorStatus != otio::ErrorStatus::OK)
@@ -96,7 +96,7 @@ namespace tlr
             avio::Info ioInfo;
             ioInfo.video.push_back(imageInfo);
             ioInfo.videoTimeRange = clipTimeRange;
-            auto write = _context->getSystem<avio::System>()->write(file::Path("TimelinePlayerTest.0.png"), ioInfo);
+            auto write = _context->getSystem<avio::System>()->write(file::Path("TimelinePlayerTest.0.ppm"), ioInfo);
             for (size_t i = 0; i < static_cast<size_t>(clipTimeRange.duration().value()); ++i)
             {
                 write->writeVideoFrame(otime::RationalTime(i, 24.0), image);
@@ -110,49 +110,88 @@ namespace tlr
             TLR_ASSERT(otime::RationalTime(0.0, 24.0) == timelinePlayer->getGlobalStartTime());
             TLR_ASSERT(imageInfo.size == timelinePlayer->getImageInfo().size);
             TLR_ASSERT(imageInfo.pixelType == timelinePlayer->getImageInfo().pixelType);
+            TLR_ASSERT(timelineDuration.rate() == timelinePlayer->getDefaultSpeed());
 
             // Test frames.
-            timelinePlayer->setFrameCacheReadAhead(10);
-            TLR_ASSERT(10 == timelinePlayer->getFrameCacheReadAhead());
-            timelinePlayer->setFrameCacheReadBehind(1);
-            TLR_ASSERT(1 == timelinePlayer->getFrameCacheReadBehind());
-            auto frameObserver = observer::ValueObserver<timeline::Frame>::create(
-                timelinePlayer->observeFrame(),
-                [this](const timeline::Frame& value)
-                {
-                    std::stringstream ss;
-                    ss << "Frame: " << value.time;
-                    _print(ss.str());
-                });
-            auto cachedFramesObserver = observer::ListObserver<otime::TimeRange>::create(
-                timelinePlayer->observeCachedFrames(),
-                [this](const std::vector<otime::TimeRange>& value)
-                {
-                    std::stringstream ss;
-                    ss << "Cached frames: ";
-                    for (const auto& i : value)
-                    {
-                        ss << i << " ";
-                    }
-                    _print(ss.str());
-                });
-            for (const auto& loop : getLoopEnums())
+            struct FrameOptions
             {
-                timelinePlayer->setLoop(loop);
-                timelinePlayer->setPlayback(Playback::Forward);
-                for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
+                int readAhead = 100;
+                int readBehind = 10;
+                size_t requestCount = 16;
+                size_t requestTimeout = 1;
+            };
+            for (const auto options : std::vector<FrameOptions>({
+                FrameOptions(),
+                { 1, 0, 1, 0 } }))
+            {
+                timelinePlayer->setFrameCacheReadAhead(options.readAhead);
+                TLR_ASSERT(options.readAhead == timelinePlayer->getFrameCacheReadAhead());
+                timelinePlayer->setFrameCacheReadBehind(options.readBehind);
+                TLR_ASSERT(options.readBehind == timelinePlayer->getFrameCacheReadBehind());
+                timelinePlayer->setRequestCount(options.requestCount);
+                TLR_ASSERT(options.requestCount == timelinePlayer->getRequestCount());
+                timelinePlayer->setRequestTimeout(std::chrono::milliseconds(options.requestTimeout));
+                TLR_ASSERT(std::chrono::milliseconds(options.requestTimeout) == timelinePlayer->getRequestTimeout());
+                auto frameObserver = observer::ValueObserver<timeline::Frame>::create(
+                    timelinePlayer->observeFrame(),
+                    [this](const timeline::Frame& value)
+                    {
+                        std::stringstream ss;
+                        ss << "Frame: " << value.time;
+                        _print(ss.str());
+                    });
+                auto frameCachePercentageObserver = observer::ValueObserver<float>::create(
+                    timelinePlayer->observeFrameCachePercentage(),
+                    [this](float value)
+                    {
+                        std::stringstream ss;
+                        ss << "Frame cache: " << value << "%";
+                        _print(ss.str());
+                    });
+                auto cachedFramesObserver = observer::ListObserver<otime::TimeRange>::create(
+                    timelinePlayer->observeCachedFrames(),
+                    [this](const std::vector<otime::TimeRange>& value)
+                    {
+                        std::stringstream ss;
+                        ss << "Cached frames: ";
+                        for (const auto& i : value)
+                        {
+                            ss << i << " ";
+                        }
+                        _print(ss.str());
+                    });
+                for (const auto& loop : getLoopEnums())
                 {
-                    timelinePlayer->tick();
-                    time::sleep(std::chrono::microseconds(1000000 / 24));
+                    timelinePlayer->setLoop(loop);
+                    timelinePlayer->setPlayback(Playback::Forward);
+                    for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
+                    {
+                        timelinePlayer->tick();
+                        time::sleep(std::chrono::microseconds(1000000 / 24));
+                    }
+                    timelinePlayer->setPlayback(Playback::Reverse);
+                    for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
+                    {
+                        timelinePlayer->tick();
+                        time::sleep(std::chrono::microseconds(1000000 / 24));
+                    }
                 }
-                timelinePlayer->setPlayback(Playback::Reverse);
-                for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
-                {
-                    timelinePlayer->tick();
-                    time::sleep(std::chrono::microseconds(1000000 / 24));
-                }
+                timelinePlayer->setPlayback(Playback::Stop);
             }
-            timelinePlayer->setPlayback(Playback::Stop);
+            
+            // Test the playback speed.
+            float speed = 24.F;
+            auto speedObserver = observer::ValueObserver<float>::create(
+                timelinePlayer->observeSpeed(),
+                [&speed](float value)
+                {
+                    speed = value;
+                });
+            const float defaultSpeed = timelinePlayer->getDefaultSpeed();
+            const float doubleSpeed = defaultSpeed * 2.F;
+            timelinePlayer->setSpeed(doubleSpeed);
+            TLR_ASSERT(doubleSpeed == speed);
+            timelinePlayer->setSpeed(defaultSpeed);
 
             // Test the playback mode.
             Playback playback = Playback::Stop;
@@ -162,6 +201,7 @@ namespace tlr
                 {
                     playback = value;
                 });
+            timelinePlayer->setLoop(Loop::Loop);
             timelinePlayer->setPlayback(Playback::Forward);
             TLR_ASSERT(Playback::Forward == playback);
 

@@ -68,7 +68,7 @@ namespace tlr
         // Open the input file.
         if (!_input.empty())
         {
-            open(_input.c_str());
+            open(QString::fromStdString(_input));
         }
 
         _mainWindow->show();

@@ -7,6 +7,7 @@
 #include <tlrCore/Assert.h>
 #include <tlrCore/String.h>
 
+#include <iostream>
 #include <sstream>
 
 using namespace tlr::string;
@@ -36,6 +37,29 @@ namespace tlr
         void StringTest::_split()
         {
             {
+                const auto pieces = split("", '/');
+                TLR_ASSERT(0 == pieces.size());
+            }
+            {
+                const auto pieces = split("/", '/');
+                TLR_ASSERT(0 == pieces.size());
+            }
+            {
+                const auto pieces = split("a", '/');
+                TLR_ASSERT(1 == pieces.size());
+                TLR_ASSERT("a" == pieces[0]);
+            }
+            {
+                const auto pieces = split("/a", '/');
+                TLR_ASSERT(1 == pieces.size());
+                TLR_ASSERT("a" == pieces[0]);
+            }
+            {
+                const auto pieces = split("a/", '/');
+                TLR_ASSERT(1 == pieces.size());
+                TLR_ASSERT("a" == pieces[0]);
+            }
+            {
                 const auto pieces = split("a/b/c//", '/');
                 TLR_ASSERT(3 == pieces.size());
                 TLR_ASSERT("a" == pieces[0]);
@@ -49,6 +73,19 @@ namespace tlr
                 TLR_ASSERT("b" == pieces[1]);
                 TLR_ASSERT("c" == pieces[2]);
                 TLR_ASSERT(pieces[3].empty());
+            }
+            {
+                const auto pieces = split("", { '/', '|' });
+                TLR_ASSERT(0 == pieces.size());
+            }
+            {
+                const auto pieces = split("|", { '/', '|' });
+                TLR_ASSERT(0 == pieces.size());
+            }
+            {
+                const auto pieces = split("a", { '/', '|' });
+                TLR_ASSERT(1 == pieces.size());
+                TLR_ASSERT("a" == pieces[0]);
             }
             {
                 const auto pieces = split("a/b|c||", { '/', '|' });
@@ -101,6 +138,78 @@ namespace tlr
  
         void StringTest::_convert()
         {
+            {
+                int value = 0;
+                char buf[] = "1234";
+                fromString(buf, 4, value);
+                TLR_ASSERT(1234 == value);
+            }
+            {
+                int value = 0;
+                char buf[] = "+1234";
+                fromString(buf, 5, value);
+                TLR_ASSERT(1234 == value);
+            }
+            {
+                int value = 0;
+                char buf[] = "-1234";
+                fromString(buf, 5, value);
+                TLR_ASSERT(-1234 == value);
+            }
+            {
+                int64_t value = 0;
+                char buf[] = "1234";
+                fromString(buf, 4, value);
+                TLR_ASSERT(1234 == value);
+            }
+            {
+                int64_t value = 0;
+                char buf[] = "+1234";
+                fromString(buf, 5, value);
+                TLR_ASSERT(1234 == value);
+            }
+            {
+                int64_t value = 0;
+                char buf[] = "-1234";
+                fromString(buf, 5, value);
+                TLR_ASSERT(-1234 == value);
+            }
+            {
+                size_t value = 0;
+                char buf[] = "1234";
+                fromString(buf, 4, value);
+                TLR_ASSERT(1234 == value);
+            }
+            {
+                float value = 0.F;
+                char buf[] = "1234";
+                fromString(buf, 4, value);
+                TLR_ASSERT(1234.F == value);
+            }
+            {
+                float value = 0.F;
+                char buf[] = "+1234.0";
+                fromString(buf, 7, value);
+                TLR_ASSERT(1234.F == value);
+            }
+            {
+                float value = 0.F;
+                char buf[] = "-1234.0";
+                fromString(buf, 7, value);
+                TLR_ASSERT(-1234.F == value);
+            }
+            {
+                float value = 0.F;
+                char buf[] = "1234e0";
+                fromString(buf, 6, value);
+                TLR_ASSERT(1234.F == value);
+            }
+            {
+                float value = 0.F;
+                char buf[] = "1234e1";
+                fromString(buf, 6, value);
+                TLR_ASSERT(12340.F == value);
+            }
             {
                 TLR_ASSERT("abc" == fromWide(toWide("abc")));
             }
