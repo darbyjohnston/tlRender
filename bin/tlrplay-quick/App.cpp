@@ -38,6 +38,7 @@ namespace tlr
         // Initialize Qt.
         QCoreApplication::setOrganizationName("tlRender");
         QCoreApplication::setApplicationName("tlrplay-quick");
+        quick::setContext(_context);
 
         // Create objects.
         _timeObject = new qt::TimeObject(this);

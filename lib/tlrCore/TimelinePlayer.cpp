@@ -207,7 +207,7 @@ namespace tlr
             return out;
         }
 
-        const std::shared_ptr<core::Context>& TimelinePlayer::getContext() const
+        const std::weak_ptr<core::Context>& TimelinePlayer::getContext() const
         {
             return _p->timeline->getContext();
         }

@@ -92,31 +92,34 @@ namespace tlr
             p.timelinePlayer = timelinePlayer;
             if (p.timelinePlayer)
             {
-                auto timeline = timeline::Timeline::create(p.timelinePlayer->path(), p.timelinePlayer->context());
-                timeline->setRequestCount(1);
-                timeline->setRequestTimeout(std::chrono::milliseconds(100));
-                avio::Options options;
-                options["SequenceIO/ThreadCount"] = string::Format("{0}").arg(1);
-                options["ffmpeg/ThreadCount"] = string::Format("{0}").arg(1);
-                timeline->setIOOptions(options);
-                p.thumbnailProvider = new qt::TimelineThumbnailProvider(timeline, this);
-                p.thumbnailProvider->setColorConfig(p.colorConfig);
-                connect(
-                    p.timelinePlayer,
-                    SIGNAL(currentTimeChanged(const otime::RationalTime&)),
-                    SLOT(_currentTimeCallback(const otime::RationalTime&)));
-                connect(
-                    p.timelinePlayer,
-                    SIGNAL(inOutRangeChanged(const otime::TimeRange&)),
-                    SLOT(_inOutRangeCallback(const otime::TimeRange&)));
-                connect(
-                    p.timelinePlayer,
-                    SIGNAL(cachedFramesChanged(const std::vector<otime::TimeRange>&)),
-                    SLOT(_cachedFramesCallback(const std::vector<otime::TimeRange>&)));
-                connect(
-                    p.thumbnailProvider,
-                    SIGNAL(thumbails(const QList<QPair<otime::RationalTime, QImage> >&)),
-                    SLOT(_thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >&)));
+                if (auto context = p.timelinePlayer->context().lock())
+                {
+                    auto timeline = timeline::Timeline::create(p.timelinePlayer->path(), context);
+                    timeline->setRequestCount(1);
+                    timeline->setRequestTimeout(std::chrono::milliseconds(100));
+                    avio::Options options;
+                    options["SequenceIO/ThreadCount"] = string::Format("{0}").arg(1);
+                    options["ffmpeg/ThreadCount"] = string::Format("{0}").arg(1);
+                    timeline->setIOOptions(options);
+                    p.thumbnailProvider = new qt::TimelineThumbnailProvider(timeline, context, this);
+                    p.thumbnailProvider->setColorConfig(p.colorConfig);
+                    connect(
+                        p.timelinePlayer,
+                        SIGNAL(currentTimeChanged(const otime::RationalTime&)),
+                        SLOT(_currentTimeCallback(const otime::RationalTime&)));
+                    connect(
+                        p.timelinePlayer,
+                        SIGNAL(inOutRangeChanged(const otime::TimeRange&)),
+                        SLOT(_inOutRangeCallback(const otime::TimeRange&)));
+                    connect(
+                        p.timelinePlayer,
+                        SIGNAL(cachedFramesChanged(const std::vector<otime::TimeRange>&)),
+                        SLOT(_cachedFramesCallback(const std::vector<otime::TimeRange>&)));
+                    connect(
+                        p.thumbnailProvider,
+                        SIGNAL(thumbails(const QList<QPair<otime::RationalTime, QImage> >&)),
+                        SLOT(_thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >&)));
+                }
             }
             _thumbnailsUpdate();
         }

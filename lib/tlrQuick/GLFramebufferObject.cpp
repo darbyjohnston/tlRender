@@ -21,7 +21,8 @@ namespace tlr
             class Renderer : public QQuickFramebufferObject::Renderer
             {
             public:
-                Renderer(const GLFramebufferObject* framebufferObject) :
+                Renderer(
+                    const GLFramebufferObject* framebufferObject) :
                     _framebufferObject(framebufferObject)
                 {}
 
@@ -39,7 +40,10 @@ namespace tlr
                     {
                         _init = true;
                         gladLoaderLoadGL();
-                        _render = gl::Render::create();
+                        if (auto context = quick::context().lock())
+                        {
+                            _render = gl::Render::create(context);
+                        }
                     }
 
                     QOpenGLFramebufferObject* fbo = framebufferObject();
@@ -77,7 +81,7 @@ namespace tlr
 
         GLFramebufferObject::~GLFramebufferObject()
         {}
-
+        
         const tlr::timeline::Frame& GLFramebufferObject::frame() const
         {
             return _p->frame;

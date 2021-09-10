@@ -15,10 +15,25 @@ namespace tlr
         void init()
         {
             qt::init();
-            
+                        
             qmlRegisterType<GLFramebufferObject>("tlrQuick", 1, 0, "GLFramebufferObject");
 
             QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+        }
+        
+        namespace
+        {
+            std::weak_ptr<core::Context> _context;
+        }
+        
+        void setContext(const std::shared_ptr<core::Context>& context)
+        {
+            _context = context;
+        }
+        
+        const std::weak_ptr<core::Context>& context()
+        {
+            return _context;
         }
     }
 }

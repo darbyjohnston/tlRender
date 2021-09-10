@@ -21,13 +21,15 @@ namespace tlr
             TimelineControls* controls = nullptr;
         };
 
-        TimelineWidget::TimelineWidget(QWidget* parent) :
+        TimelineWidget::TimelineWidget(
+            const std::shared_ptr<core::Context>& context,
+            QWidget* parent) :
             QWidget(parent),
             _p(new Private)
         {
             TLR_PRIVATE_P();
 
-            p.viewport = new TimelineViewport;
+            p.viewport = new TimelineViewport(context);
 
             p.slider = new TimelineSlider;
             p.slider->setToolTip(tr("Timeline slider"));

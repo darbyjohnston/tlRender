@@ -204,7 +204,7 @@ namespace tlr
 
         // Create the renderer.
         _fontSystem = gl::FontSystem::create();
-        _render = gl::Render::create();
+        _render = gl::Render::create(_context);
 
         // Print the shortcuts help.
         _printShortcutsHelp();

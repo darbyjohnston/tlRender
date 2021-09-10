@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
     auto timelinePlayer = new tlr::qt::TimelinePlayer(tlr::file::Path(argv[1]), context);
 
     // Create the timeline viewport.
-    auto timelineViewport = new tlr::qwidget::TimelineViewport();
+    auto timelineViewport = new tlr::qwidget::TimelineViewport(context);
     timelineViewport->setTimelinePlayer(timelinePlayer);
     timelineViewport->show();
 

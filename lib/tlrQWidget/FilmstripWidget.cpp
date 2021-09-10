@@ -54,11 +54,17 @@ namespace tlr
             }
             if (p.timeline)
             {
-                p.thumbnailProvider = new qt::TimelineThumbnailProvider(p.timeline, this);
-                connect(
-                    p.thumbnailProvider,
-                    SIGNAL(thumbails(const QList<QPair<otime::RationalTime, QImage> >&)),
-                    SLOT(_thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >&)));
+                if (auto context = p.timeline->getContext().lock())
+                {
+                    p.thumbnailProvider = new qt::TimelineThumbnailProvider(
+                        p.timeline,
+                        context,
+                        this);
+                    connect(
+                        p.thumbnailProvider,
+                        SIGNAL(thumbails(const QList<QPair<otime::RationalTime, QImage> >&)),
+                        SLOT(_thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >&)));
+                }
             }
             _thumbnailsUpdate();
         }

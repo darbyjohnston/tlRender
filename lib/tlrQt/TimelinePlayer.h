@@ -32,7 +32,7 @@ namespace tlr
             ~TimelinePlayer() override;
             
             //! Get the context.
-            const std::shared_ptr<core::Context>& context() const;
+            const std::weak_ptr<core::Context>& context() const;
 
             //! Get the path.
             const file::Path& path() const;

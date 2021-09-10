@@ -20,7 +20,9 @@ namespace tlr
             Q_OBJECT
 
         public:
-            TimelineViewport(QWidget* parent = nullptr);
+            TimelineViewport(
+                const std::shared_ptr<core::Context>&,
+                QWidget* parent = nullptr);
             
             ~TimelineViewport() override;
 

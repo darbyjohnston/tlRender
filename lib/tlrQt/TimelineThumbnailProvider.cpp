@@ -23,6 +23,7 @@ namespace tlr
     {
         struct TimelineThumbnailProvider::Private
         {
+            std::weak_ptr<core::Context> context;
             std::shared_ptr<timeline::Timeline> timeline;
             gl::ColorConfig colorConfig;
             struct Request
@@ -40,8 +41,8 @@ namespace tlr
             std::chrono::milliseconds requestTimeout = std::chrono::milliseconds(100);
             int timer = 0;
             int timerInterval = 100;
-            QOffscreenSurface* surface = nullptr;
-            QOpenGLContext* context = nullptr;
+            QScopedPointer<QOffscreenSurface> offscreenSurface;
+            QScopedPointer<QOpenGLContext> glContext;
             std::condition_variable cv;
             std::mutex mutex;
             std::atomic<bool> running;
@@ -49,27 +50,29 @@ namespace tlr
 
         TimelineThumbnailProvider::TimelineThumbnailProvider(
             const std::shared_ptr<tlr::timeline::Timeline>& timeline,
+            const std::shared_ptr<core::Context>& context,
             QObject* parent) :
             QThread(parent),
             _p(new Private)
         {
             TLR_PRIVATE_P();
 
+            p.context = context;
             p.timeline = timeline;
 
-            p.context = new QOpenGLContext;
+            p.glContext.reset(new QOpenGLContext);
             QSurfaceFormat surfaceFormat;
             surfaceFormat.setMajorVersion(4);
             surfaceFormat.setMinorVersion(1);
             surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
-            p.context->setFormat(surfaceFormat);
-            p.context->create();
+            p.glContext->setFormat(surfaceFormat);
+            p.glContext->create();
 
-            p.surface = new QOffscreenSurface;
-            p.surface->setFormat(p.context->format());
-            p.surface->create();
+            p.offscreenSurface.reset(new QOffscreenSurface);
+            p.offscreenSurface->setFormat(p.glContext->format());
+            p.offscreenSurface->create();
 
-            p.context->moveToThread(this);
+            p.glContext->moveToThread(this);
 
             p.running = true;
             start();
@@ -81,8 +84,6 @@ namespace tlr
             TLR_PRIVATE_P();
             p.running = false;
             wait();
-            delete p.surface;
-            delete p.context;
         }
 
         void TimelineThumbnailProvider::setColorConfig(const gl::ColorConfig& colorConfig)
@@ -161,11 +162,12 @@ namespace tlr
         {
             TLR_PRIVATE_P();
 
-            p.context->makeCurrent(p.surface);
+            p.glContext->makeCurrent(p.offscreenSurface.get());
             gladLoaderLoadGL();
 
+            if (auto context = p.context.lock())
             {
-                auto render = gl::Render::create();
+                auto render = gl::Render::create(context);
 
                 std::unique_ptr<QOpenGLFramebufferObject> fbo;
                 imaging::Info fboInfo;
@@ -231,7 +233,18 @@ namespace tlr
                             }
                             fbo->bind();
 
-                            render->setColorConfig(colorConfig);
+                            try
+                            {
+                                render->setColorConfig(colorConfig);
+                            }
+                            catch (const std::exception& e)
+                            {
+                                context->log(
+                                    "tlr::qt::TimelineThumbnailProvider",
+                                    e.what(),
+                                    core::LogType::Error);
+                            }
+                            
                             render->begin(info.size);
                             render->drawFrame(frame);
                             render->end();
@@ -272,7 +285,7 @@ namespace tlr
                 }
             }
 
-            p.context->doneCurrent();
+            p.glContext->doneCurrent();
         }
 
         void TimelineThumbnailProvider::timerEvent(QTimerEvent*)

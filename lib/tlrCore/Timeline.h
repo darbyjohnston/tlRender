@@ -97,7 +97,7 @@ namespace tlr
                 const std::shared_ptr<core::Context>&);
 
             //! Get the context.
-            const std::shared_ptr<core::Context>& getContext() const;
+            const std::weak_ptr<core::Context>& getContext() const;
 
             //! Get the path.
             const file::Path& getPath() const;

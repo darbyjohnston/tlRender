@@ -21,7 +21,9 @@ namespace tlr
             Q_OBJECT
 
         public:
-            TimelineWidget(QWidget* parent = nullptr);
+            TimelineWidget(
+                const std::shared_ptr<core::Context>&,
+                QWidget* parent = nullptr);
             
             ~TimelineWidget() override;
 

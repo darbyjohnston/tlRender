@@ -14,6 +14,11 @@
 
 namespace tlr
 {
+    namespace core
+    {
+        class Context;
+    }
+
     namespace imaging
     {
         class Image;
@@ -127,21 +132,21 @@ namespace tlr
             bool operator == (const ImageOptions&) const;
             bool operator != (const ImageOptions&) const;
         };
-
+    
         //! OpenGL renderer.
         class Render : public std::enable_shared_from_this<Render>
         {
             TLR_NON_COPYABLE(Render);
 
         protected:
-            void _init();
+            void _init(const std::shared_ptr<core::Context>&);
             Render();
 
         public:
             ~Render();
 
             //! Create a new renderer.
-            static std::shared_ptr<Render> create();
+            static std::shared_ptr<Render> create(const std::shared_ptr<core::Context>&);
 
             //! Set the texture cache size. This function should be called before
             //! Render::begin().
@@ -181,6 +186,9 @@ namespace tlr
                 const imaging::Color4f&);
 
         private:
+            void _setColorConfig(const ColorConfig&);
+            void _delColorConfig();
+
             TLR_PRIVATE();
         };
     }

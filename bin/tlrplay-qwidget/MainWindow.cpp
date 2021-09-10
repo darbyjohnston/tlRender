@@ -485,15 +485,18 @@ namespace tlr
 
     void MainWindow::_openedCallback(qt::TimelinePlayer* timelinePlayer)
     {
-        auto widget = new qwidget::TimelineWidget;
-        widget->setTimeObject(_timeObject);
-        widget->setColorConfig(_colorConfig);
-        widget->setTimelinePlayer(timelinePlayer);
-        const file::Path& path = timelinePlayer->path();
-        const int tab = _tabWidget->addTab(widget, QString::fromStdString(path.get(-1, false)));
-        _tabWidget->setTabToolTip(tab, QString::fromStdString(string::Format("{0}\n{1}").arg(path.get()).arg(timelinePlayer->imageInfo())));
-        _timelinePlayers.append(timelinePlayer);
-        _setCurrentTimeline(timelinePlayer);
+        if (auto context = timelinePlayer->context().lock())
+        {
+            auto widget = new qwidget::TimelineWidget(context);
+            widget->setTimeObject(_timeObject);
+            widget->setColorConfig(_colorConfig);
+            widget->setTimelinePlayer(timelinePlayer);
+            const file::Path& path = timelinePlayer->path();
+            const int tab = _tabWidget->addTab(widget, QString::fromStdString(path.get(-1, false)));
+            _tabWidget->setTabToolTip(tab, QString::fromStdString(string::Format("{0}\n{1}").arg(path.get()).arg(timelinePlayer->imageInfo())));
+            _timelinePlayers.append(timelinePlayer);
+            _setCurrentTimeline(timelinePlayer);
+        }
     }
 
     void MainWindow::_closeCallback()

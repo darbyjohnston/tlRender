@@ -6,8 +6,6 @@
 
 #include <tlrQuick/Util.h>
 
-#include <tlrCore/Context.h>
-#include <tlrCore/Path.h>
 #include <tlrCore/Timeline.h>
 
 #include <QQuickFramebufferObject>
@@ -25,7 +23,7 @@ namespace tlr
             GLFramebufferObject(QQuickItem* parent = nullptr);
 
             ~GLFramebufferObject() override;
-
+            
             const tlr::timeline::Frame& frame() const;
 
             Renderer* createRenderer() const override;

@@ -215,7 +215,7 @@ namespace tlr
             void stopReaders();
             void delReaders();
 
-            std::shared_ptr<core::Context> context;
+            std::weak_ptr<core::Context> context;
             file::Path path;
             otio::SerializableObject::Retainer<otio::Timeline> otioTimeline;
             otime::RationalTime duration = time::invalidTime;
@@ -436,7 +436,7 @@ namespace tlr
             return out;
         }
 
-        const std::shared_ptr<core::Context>& Timeline::getContext() const
+        const std::weak_ptr<core::Context>& Timeline::getContext() const
         {
             return _p->context;
         }
@@ -580,18 +580,21 @@ namespace tlr
         {
             if (auto clip = dynamic_cast<const otio::Clip*>(composable))
             {
-                // The first clip with video defines the image information
-                // for the timeline.
-                avio::Options options = ioOptions;
-                otio::ErrorStatus errorStatus;
-                options["SequenceIO/DefaultSpeed"] = string::Format("{0}").arg(clip->duration(&errorStatus).rate());
-                if (auto read = context->getSystem<avio::System>()->read(getPath(clip->media_reference()), options))
+                if (auto context = this->context.lock())
                 {
-                    const auto info = read->getInfo().get();
-                    if (!info.video.empty())
+                    // The first clip with video defines the image information
+                    // for the timeline.
+                    avio::Options options = ioOptions;
+                    otio::ErrorStatus errorStatus;
+                    options["SequenceIO/DefaultSpeed"] = string::Format("{0}").arg(clip->duration(&errorStatus).rate());
+                    if (auto read = context->getSystem<avio::System>()->read(getPath(clip->media_reference()), options))
                     {
-                        imageInfo = info.video[0];
-                        return true;
+                        const auto info = read->getInfo().get();
+                        if (!info.video.empty())
+                        {
+                            imageInfo = info.video[0];
+                            return true;
+                        }
                     }
                 }
             }
@@ -778,67 +781,68 @@ namespace tlr
             const std::shared_ptr<imaging::Image>& image)
         {
             std::future<avio::VideoFrame> out;
-
-            // Get the clip time transform.
-            //
-            //! \bug This only applies time transform at the clip level.
-            otio::TimeTransform timeTransform;
-            for (const auto& effect : clip->effects())
+            if (auto context = this->context.lock())
             {
-                if (auto linearTimeWarp = dynamic_cast<otio::LinearTimeWarp*>(effect.value))
+                // Get the clip time transform.
+                //
+                //! \bug This only applies time transform at the clip level.
+                otio::TimeTransform timeTransform;
+                for (const auto& effect : clip->effects())
                 {
-                    timeTransform = otio::TimeTransform(otime::RationalTime(), linearTimeWarp->time_scalar()).applied_to(timeTransform);
+                    if (auto linearTimeWarp = dynamic_cast<otio::LinearTimeWarp*>(effect.value))
+                    {
+                        timeTransform = otio::TimeTransform(otime::RationalTime(), linearTimeWarp->time_scalar()).applied_to(timeTransform);
+                    }
                 }
-            }
 
-            // Get the clip start time taking transitions into account.
-            otime::RationalTime startTime;
-            otio::ErrorStatus errorStatus;
-            const auto range = clip->trimmed_range(&errorStatus);
-            startTime = range.start_time();
-            const auto neighbors = track->neighbors_of(clip, &errorStatus);
-            if (auto transition = dynamic_cast<const otio::Transition*>(neighbors.first.value))
-            {
-                startTime -= transition->in_offset();
-            }
-            
-            // Get the frame time.
-            const auto clipTime = track->transformed_time(time, clip, &errorStatus);
-            auto frameTime = startTime + timeTransform.applied_to(clipTime - startTime);
-
-            // Read the frame.
-            const auto ioSystem = context->getSystem<avio::System>();
-            const auto j = readers.find(clip);
-            if (j != readers.end())
-            {
-                const auto readTime = frameTime.rescaled_to(j->second.info.videoTimeRange.duration().rate());
-                const auto floorTime = otime::RationalTime(floor(readTime.value()), readTime.rate());
-                out = j->second.read->readVideoFrame(floorTime, image);
-            }
-            else
-            {
-                const file::Path path = getPath(clip->media_reference());
-                avio::Options options = ioOptions;
-                options["SequenceIO/DefaultSpeed"] = string::Format("{0}").arg(duration.rate());
-                auto read = ioSystem->read(path, options);
-                avio::Info info;
-                if (read)
+                // Get the clip start time taking transitions into account.
+                otime::RationalTime startTime;
+                otio::ErrorStatus errorStatus;
+                const auto range = clip->trimmed_range(&errorStatus);
+                startTime = range.start_time();
+                const auto neighbors = track->neighbors_of(clip, &errorStatus);
+                if (auto transition = dynamic_cast<const otio::Transition*>(neighbors.first.value))
                 {
-                    info = read->getInfo().get();
+                    startTime -= transition->in_offset();
                 }
-                if (read && !info.video.empty())
+                
+                // Get the frame time.
+                const auto clipTime = track->transformed_time(time, clip, &errorStatus);
+                auto frameTime = startTime + timeTransform.applied_to(clipTime - startTime);
+
+                // Read the frame.
+                const auto ioSystem = context->getSystem<avio::System>();
+                const auto j = readers.find(clip);
+                if (j != readers.end())
                 {
-                    context->log("tlr::timeline::Timeline", this->path.get() + ": Read: " + path.get());
-                    Reader reader;
-                    reader.read = read;
-                    reader.info = info;
-                    const auto readTime = frameTime.rescaled_to(info.videoTimeRange.duration().rate());
+                    const auto readTime = frameTime.rescaled_to(j->second.info.videoTimeRange.duration().rate());
                     const auto floorTime = otime::RationalTime(floor(readTime.value()), readTime.rate());
-                    out = read->readVideoFrame(floorTime, image);
-                    readers[clip] = std::move(reader);
+                    out = j->second.read->readVideoFrame(floorTime, image);
+                }
+                else
+                {
+                    const file::Path path = getPath(clip->media_reference());
+                    avio::Options options = ioOptions;
+                    options["SequenceIO/DefaultSpeed"] = string::Format("{0}").arg(duration.rate());
+                    auto read = ioSystem->read(path, options);
+                    avio::Info info;
+                    if (read)
+                    {
+                        info = read->getInfo().get();
+                    }
+                    if (read && !info.video.empty())
+                    {
+                        context->log("tlr::timeline::Timeline", this->path.get() + ": Read: " + path.get());
+                        Reader reader;
+                        reader.read = read;
+                        reader.info = info;
+                        const auto readTime = frameTime.rescaled_to(info.videoTimeRange.duration().rate());
+                        const auto floorTime = otime::RationalTime(floor(readTime.value()), readTime.rate());
+                        out = read->readVideoFrame(floorTime, image);
+                        readers[clip] = std::move(reader);
+                    }
                 }
             }
-
             return out;
         }
 
@@ -878,7 +882,10 @@ namespace tlr
                 }
                 if (del && !i->second.read->hasVideoFrames())
                 {
-                    context->log("tlr::timeline::Timeline", path.get() + ": Stop: " + i->second.read->getPath().get());
+                    if (auto context = this->context.lock())
+                    {
+                        context->log("tlr::timeline::Timeline", path.get() + ": Stop: " + i->second.read->getPath().get());
+                    }
                     auto read = i->second.read;
                     read->stop();
                     stoppedReaders.push_back(read);
@@ -898,7 +905,10 @@ namespace tlr
             {
                 if ((*i)->hasStopped())
                 {
-                    context->log("tlr::timeline::Timeline", path.get() + ": Delete: " + (*i)->getPath().get());
+                    if (auto context = this->context.lock())
+                    {
+                        context->log("tlr::timeline::Timeline", path.get() + ": Delete: " + (*i)->getPath().get());
+                    }
                     i = stoppedReaders.erase(i);
                 }
                 else

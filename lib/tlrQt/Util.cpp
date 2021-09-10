@@ -6,6 +6,7 @@
 
 #include <tlrQt/TimeObject.h>
 
+#include <tlrCore/Context.h>
 #include <tlrCore/Timeline.h>
 
 #include <QSurfaceFormat>

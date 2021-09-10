@@ -90,19 +90,19 @@ namespace tlr
                     std::string(),
                     string::join(imaging::getPixelTypeLabels(), ", ")),
                 app::CmdLineValueOption<std::string>::create(
-                    _options.colorConfig,
+                    _options.colorConfig.config,
                     { "-colorConfig", "-cc" },
                     "Color configuration file (config.ocio)."),
                 app::CmdLineValueOption<std::string>::create(
-                    _options.colorInput,
+                    _options.colorConfig.input,
                     { "-colorInput", "-ci" },
                     "Input color space."),
                 app::CmdLineValueOption<std::string>::create(
-                    _options.colorDisplay,
+                    _options.colorConfig.display,
                     { "-colorDisplay", "-cd" },
                     "Display color space."),
                 app::CmdLineValueOption<std::string>::create(
-                    _options.colorView,
+                    _options.colorConfig.view,
                     { "-colorView", "-cv" },
                     "View color space.")
             });
@@ -225,13 +225,7 @@ namespace tlr
 
         // Create the renderer.
         _fontSystem = gl::FontSystem::create();
-        _render = gl::Render::create();
-        gl::ColorConfig colorConfig;
-        colorConfig.config = _options.colorConfig;
-        colorConfig.input = _options.colorInput;
-        colorConfig.display = _options.colorDisplay;
-        colorConfig.view = _options.colorView;
-        _render->setColorConfig(colorConfig);
+        _render = gl::Render::create(_context);
         _buffer = gl::OffscreenBuffer::create(_renderInfo.size, _renderInfo.pixelType);
 
         // Create the writer.
@@ -281,6 +275,7 @@ namespace tlr
             otime::RationalTime(1.0, _currentTime.rate())) });
 
         // Render the frame.
+        _render->setColorConfig(_options.colorConfig);
         _render->begin(_renderInfo.size);
         const auto frame = _timeline->getFrame(_timeline->getGlobalStartTime() + _currentTime).get();
         _render->drawFrame(frame);

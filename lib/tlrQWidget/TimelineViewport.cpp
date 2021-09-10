@@ -15,16 +15,23 @@ namespace tlr
     {
         struct TimelineViewport::Private
         {
+            std::weak_ptr<core::Context> context;
             gl::ColorConfig colorConfig;
             qt::TimelinePlayer* timelinePlayer = nullptr;
             timeline::Frame frame;
             std::shared_ptr<gl::Render> render;
         };
 
-        TimelineViewport::TimelineViewport(QWidget* parent) :
+        TimelineViewport::TimelineViewport(
+            const std::shared_ptr<core::Context>& context,
+            QWidget* parent) :
             QOpenGLWidget(parent),
             _p(new Private)
         {
+            TLR_PRIVATE_P();
+            
+            p.context = context;
+            
             QSurfaceFormat surfaceFormat;
             surfaceFormat.setMajorVersion(4);
             surfaceFormat.setMinorVersion(1);
@@ -69,8 +76,12 @@ namespace tlr
 
         void TimelineViewport::initializeGL()
         {
+            TLR_PRIVATE_P();
             gladLoaderLoadGL();
-            _p->render = gl::Render::create();
+            if (auto context = p.context.lock())
+            {
+                p.render = gl::Render::create(context);
+            }
         }
 
         void TimelineViewport::paintGL()
@@ -81,10 +92,23 @@ namespace tlr
             {
                 devicePixelRatio = app->devicePixelRatio();
             }
+            try
+            {
+                p.render->setColorConfig(p.colorConfig);
+            }
+            catch (const std::exception& e)
+            {
+                if (auto context = p.context.lock())
+                {
+                    context->log(
+                        "tlr::qwidget::TimelineViewport",
+                        e.what(),
+                        core::LogType::Error);
+                }
+            }
             const auto size = imaging::Size(
                 width() * devicePixelRatio,
                 height() * devicePixelRatio);
-            p.render->setColorConfig(p.colorConfig);
             p.render->begin(size);
             p.render->drawFrame(p.frame);
             p.render->end();
