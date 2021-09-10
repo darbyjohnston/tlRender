@@ -143,10 +143,12 @@ namespace tlr
             //! Create a new renderer.
             static std::shared_ptr<Render> create();
 
-            //! Set the texture cache size.
+            //! Set the texture cache size. This function should be called before
+            //! Render::begin().
             void setTextureCacheSize(size_t);
 
-            //! Set the color configuration.
+            //! Set the color configuration. This function should be called before
+            //! Render::begin().
             void setColorConfig(const ColorConfig&);
 
             //! Start a render.
