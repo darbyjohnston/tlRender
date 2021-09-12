@@ -3,7 +3,7 @@ cmake_policy(SET CMP0091 NEW)
 
 project(tlRender-SuperBuild)
 
-# Build options
+# Build options.
 set(TLR_ENABLE_MMAP TRUE CACHE BOOL "Enable memory-mapped file I/O")
 set(TLR_ENABLE_PYTHON FALSE CACHE BOOL "Enable Python support (for OTIO Python adapters)")
 if(WIN32)
@@ -21,7 +21,7 @@ set(TLR_BUILD_APPS TRUE CACHE BOOL "Build applications")
 set(TLR_BUILD_EXAMPLES TRUE CACHE BOOL "Build examples")
 set(TLR_BUILD_TESTS TRUE CACHE BOOL "Build tests")
 
-# Configure
+# Configure.
 list(PREPEND CMAKE_MODULE_PATH
     ${PROJECT_SOURCE_DIR}/../../cmake/Modules
     ${PROJECT_SOURCE_DIR}/cmake/Modules)
@@ -48,39 +48,47 @@ set(TLR_EXTERNAL_ARGS
     -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
     -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS})
 
-# Dependencies
+# External dependencies.
 find_package(Threads REQUIRED)
 find_package(OpenGL REQUIRED)
-include(BuildFSeq)
-include(BuildZLIB)
-include(BuildIlmBase)
-include(BuildOCIO)
-include(BuildOTIO)
-include(Buildlibsamplerate)
-include(BuildRtAudio)
+list(APPEND TLR_EXTERNAL_DEPS FSeq)
+list(APPEND TLR_EXTERNAL_DEPS ZLIB)
+list(APPEND TLR_EXTERNAL_DEPS IlmBase)
+list(APPEND TLR_EXTERNAL_DEPS OCIO)
+list(APPEND TLR_EXTERNAL_DEPS OTIO)
+list(APPEND TLR_EXTERNAL_DEPS libsamplerate)
+list(APPEND TLR_EXTERNAL_DEPS RtAudio)
 if((TLR_BUILD_FFmpeg OR TLR_BUILD_JPEG) AND NOT WIN32)
-    include(BuildNASM)
+    list(APPEND NASM)
 endif()
 if(TLR_BUILD_FFmpeg)
-    include(BuildFFmpeg)
+    list(APPEND TLR_EXTERNAL_DEPS FFmpeg)
 endif()
 if(TLR_BUILD_JPEG)
-    include(BuildJPEG)
+    list(APPEND TLR_EXTERNAL_DEPS JPEG)
 endif()
 if(TLR_BUILD_OpenEXR)
-    include(BuildOpenEXR)
+    list(APPEND TLR_EXTERNAL_DEPS OpenEXR)
 endif()
 if(TLR_BUILD_PNG)
-    include(BuildPNG)
+    list(APPEND TLR_EXTERNAL_DEPS PNG)
 endif()
 if(TLR_BUILD_TIFF)
-    include(BuildTIFF)
+    list(APPEND TLR_EXTERNAL_DEPS TIFF)
 endif()
 if(TLR_BUILD_GL)
-    include(BuildFreeType)
-    include(Buildglad)
+    list(APPEND TLR_EXTERNAL_DEPS FreeType)
+    list(APPEND TLR_EXTERNAL_DEPS glad)
     if(TLR_BUILD_APPS OR TLR_BUILD_EXAMPLES)
-        include(BuildGLFW)
+        list(APPEND TLR_EXTERNAL_DEPS GLFW)
     endif()
 endif()
+foreach(EXTERNAL_DEP ${TLR_EXTERNAL_DEPS})
+    include(Build${EXTERNAL_DEP})
+endforeach()
+
+# Build tests.
+include(Buildtests)
+
+# Build tlRender.
 include(BuildtlRender)
