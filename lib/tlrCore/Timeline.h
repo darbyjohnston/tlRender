@@ -99,6 +99,9 @@ namespace tlr
             //! Get the context.
             const std::weak_ptr<core::Context>& getContext() const;
 
+            //! Get the timeline.
+            const otio::SerializableObject::Retainer<otio::Timeline>& getTimeline() const;
+
             //! Get the path.
             const file::Path& getPath() const;
 

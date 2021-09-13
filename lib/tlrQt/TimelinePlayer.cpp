@@ -92,6 +92,11 @@ namespace tlr
             return _p->timelinePlayer->getContext();
         }
 
+        const otio::SerializableObject::Retainer<otio::Timeline>& TimelinePlayer::timeline() const
+        {
+            return _p->timelinePlayer->getTimeline();
+        }
+
         const file::Path& TimelinePlayer::path() const
         {
             return _p->timelinePlayer->getPath();
