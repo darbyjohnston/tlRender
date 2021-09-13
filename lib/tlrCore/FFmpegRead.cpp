@@ -43,6 +43,7 @@ namespace tlr
                 VideoFrameRequest(VideoFrameRequest&&) = default;
 
                 otime::RationalTime time = time::invalidTime;
+                uint16_t layer = 0;
                 std::shared_ptr<imaging::Image> image;
                 std::promise<avio::VideoFrame> promise;
             };
@@ -148,11 +149,13 @@ namespace tlr
 
         std::future<avio::VideoFrame> Read::readVideoFrame(
             const otime::RationalTime& time,
+            uint16_t layer,
             const std::shared_ptr<imaging::Image>& image)
         {
             TLR_PRIVATE_P();
             Private::VideoFrameRequest request;
             request.time = time;
+            request.layer = layer;
             request.image = image;
             auto future = request.promise.get_future();
             bool valid = false;
@@ -355,6 +358,7 @@ namespace tlr
                     {
                         auto& tmp = p.videoFrameRequests.front();
                         request.time = tmp.time;
+                        request.layer = tmp.layer;
                         request.image = tmp.image;
                         request.promise = std::move(tmp.promise);
                         p.videoFrameRequests.pop_front();

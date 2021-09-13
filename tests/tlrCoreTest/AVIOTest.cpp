@@ -41,16 +41,19 @@ namespace tlr
             }
             {
                 const auto time = otime::RationalTime(1.0, 24.0);
+                const uint16_t layer = 1;
                 const auto image = imaging::Image::create(imaging::Info(160, 80, imaging::PixelType::L_U8));
-                const VideoFrame f(time, image);
+                const VideoFrame f(time, layer, image);
                 TLR_ASSERT(time == f.time);
+                TLR_ASSERT(layer == f.layer);
                 TLR_ASSERT(image == f.image);
             }
             {
                 const auto time = otime::RationalTime(1.0, 24.0);
+                const uint16_t layer = 1;
                 const auto image = imaging::Image::create(imaging::Info(16, 16, imaging::PixelType::L_U8));
-                const VideoFrame a(time, image);
-                VideoFrame b(time, image);
+                const VideoFrame a(time, layer, image);
+                VideoFrame b(time, layer, image);
                 TLR_ASSERT(a == b);
                 b.time = otime::RationalTime(2.0, 24.0);
                 TLR_ASSERT(a != b);

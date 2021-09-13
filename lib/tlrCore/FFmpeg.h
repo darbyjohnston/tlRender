@@ -71,6 +71,7 @@ namespace tlr
             std::future<avio::Info> getInfo() override;
             std::future<avio::VideoFrame> readVideoFrame(
                 const otime::RationalTime&,
+                uint16_t layer = 0,
                 const std::shared_ptr<imaging::Image>& = nullptr) override;
             bool hasVideoFrames() override;
             void cancelVideoFrames() override;

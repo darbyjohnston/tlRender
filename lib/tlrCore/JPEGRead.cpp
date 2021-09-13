@@ -220,6 +220,7 @@ namespace tlr
         avio::VideoFrame Read::_readVideoFrame(
             const std::string& fileName,
             const otime::RationalTime& time,
+            uint16_t layer,
             const std::shared_ptr<imaging::Image>& image)
         {
             return std::unique_ptr<File>(new File(fileName))->read(fileName, time, image);

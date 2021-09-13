@@ -13,7 +13,10 @@ namespace tlr
 
         inline bool VideoFrame::operator == (const VideoFrame& other) const
         {
-            return this->image == other.image && this->time == other.time;
+            return
+                this->time == other.time &&
+                this->layer == other.layer &&
+                this->image == other.image;
         }
 
         inline bool VideoFrame::operator != (const VideoFrame& other) const

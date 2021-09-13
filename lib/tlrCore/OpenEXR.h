@@ -45,6 +45,7 @@ namespace tlr
             avio::VideoFrame _readVideoFrame(
                 const std::string& fileName,
                 const otime::RationalTime&,
+                uint16_t layer,
                 const std::shared_ptr<imaging::Image>&) override;
         };
 

@@ -493,7 +493,9 @@ namespace tlr
             widget->setTimelinePlayer(timelinePlayer);
             const file::Path& path = timelinePlayer->path();
             const int tab = _tabWidget->addTab(widget, QString::fromStdString(path.get(-1, false)));
-            _tabWidget->setTabToolTip(tab, QString::fromStdString(string::Format("{0}\n{1}").arg(path.get()).arg(timelinePlayer->imageInfo())));
+            const auto& videoInfo = timelinePlayer->videoInfo();
+            const std::string toolTip = string::Format("{0}\n{1}").arg(path.get()).arg(!videoInfo.empty() ? videoInfo[0] : imaging::Info());
+            _tabWidget->setTabToolTip(tab, QString::fromStdString(toolTip));
             _timelinePlayers.append(timelinePlayer);
             _setCurrentTimeline(timelinePlayer);
         }

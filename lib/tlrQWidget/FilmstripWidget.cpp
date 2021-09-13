@@ -141,9 +141,11 @@ namespace tlr
                 const auto& size = this->size();
                 const int width = size.width();
                 const int height = size.height();
-                const auto& imageInfo = p.timeline->getImageInfo();
+                const auto& videoInfo = p.timeline->getVideoInfo();
                 const int thumbnailHeight = height / p.rowCount;
-                const int thumbnailWidth = static_cast<int>(thumbnailHeight * imageInfo.size.getAspect());
+                const int thumbnailWidth = !videoInfo.empty() ?
+                    static_cast<int>(thumbnailHeight * videoInfo[0].size.getAspect()) :
+                    0;
                 p.thumbnailSize = QSize(thumbnailWidth, thumbnailHeight);
                 if (thumbnailWidth > 0)
                 {

@@ -200,7 +200,7 @@ namespace tlr
             file::Path getPath(const otio::ImageSequenceReference*) const;
             file::Path getPath(const otio::MediaReference*) const;
 
-            bool getImageInfo(const otio::Composable*, imaging::Info&) const;
+            bool getVideoInfo(const otio::Composable*, std::vector<imaging::Info>&) const;
 
             float transitionValue(double frame, double in, double out) const;
 
@@ -210,6 +210,7 @@ namespace tlr
                 const otio::Track*,
                 const otio::Clip*,
                 const otime::RationalTime&,
+                uint16_t layer,
                 const avio::Options&,
                 const std::shared_ptr<imaging::Image>& = nullptr);
             void stopReaders();
@@ -220,7 +221,7 @@ namespace tlr
             otio::SerializableObject::Retainer<otio::Timeline> otioTimeline;
             otime::RationalTime duration = time::invalidTime;
             otime::RationalTime globalStartTime = time::invalidTime;
-            imaging::Info imageInfo;
+            std::vector<imaging::Info> videoInfo;
             std::vector<otime::TimeRange> activeRanges;
 
             struct LayerData
@@ -239,6 +240,7 @@ namespace tlr
                 Request(Request&&) = default;
 
                 otime::RationalTime time = time::invalidTime;
+                uint16_t layer = 0;
                 std::shared_ptr<imaging::Image> image;
                 std::promise<Frame> promise;
 
@@ -289,7 +291,7 @@ namespace tlr
             {
                 p.globalStartTime = otime::RationalTime(0, p.duration.rate());
             }
-            p.getImageInfo(p.otioTimeline.value->tracks(), p.imageInfo);
+            p.getVideoInfo(p.otioTimeline.value->tracks(), p.videoInfo);
 
             // Create a new thread.
             p.running = true;
@@ -461,13 +463,14 @@ namespace tlr
             return _p->duration;
         }
 
-        const imaging::Info& Timeline::getImageInfo() const
+        const std::vector<imaging::Info>& Timeline::getVideoInfo() const
         {
-            return _p->imageInfo;
+            return _p->videoInfo;
         }
 
         std::future<Frame> Timeline::getFrame(
             const otime::RationalTime& time,
+            uint16_t layer,
             const std::shared_ptr<imaging::Image>& image)
         {
             TLR_PRIVATE_P();
@@ -581,7 +584,7 @@ namespace tlr
             return fixPath(out);
         }
 
-        bool Timeline::Private::getImageInfo(const otio::Composable* composable, imaging::Info& imageInfo) const
+        bool Timeline::Private::getVideoInfo(const otio::Composable* composable, std::vector<imaging::Info>& videoInfo) const
         {
             if (auto clip = dynamic_cast<const otio::Clip*>(composable))
             {
@@ -597,7 +600,7 @@ namespace tlr
                         const auto info = read->getInfo().get();
                         if (!info.video.empty())
                         {
-                            imageInfo = info.video[0];
+                            videoInfo = info.video;
                             return true;
                         }
                     }
@@ -607,7 +610,7 @@ namespace tlr
             {
                 for (const auto& child : composition->children())
                 {
-                    if (getImageInfo(child, imageInfo))
+                    if (getVideoInfo(child, videoInfo))
                     {
                         return true;
                     }
@@ -676,7 +679,7 @@ namespace tlr
                                             LayerData data;
                                             if (const auto otioClip = dynamic_cast<otio::Clip*>(otioItem))
                                             {
-                                                data.image = readVideoFrame(otioTrack, otioClip, time, ioOptions, request.image);
+                                                data.image = readVideoFrame(otioTrack, otioClip, time, request.layer, ioOptions, request.image);
                                             }
                                             const auto neighbors = otioTrack->neighbors_of(otioItem, &errorStatus);
                                             if (auto otioTransition = dynamic_cast<otio::Transition*>(neighbors.second.value))
@@ -691,7 +694,7 @@ namespace tlr
                                                     const auto transitionNeighbors = otioTrack->neighbors_of(otioTransition, &errorStatus);
                                                     if (const auto otioClipB = dynamic_cast<otio::Clip*>(transitionNeighbors.second.value))
                                                     {
-                                                        data.imageB = readVideoFrame(otioTrack, otioClipB, time, ioOptions);
+                                                        data.imageB = readVideoFrame(otioTrack, otioClipB, time, request.layer, ioOptions);
                                                     }
                                                 }
                                             }
@@ -708,7 +711,7 @@ namespace tlr
                                                     const auto transitionNeighbors = otioTrack->neighbors_of(otioTransition, &errorStatus);
                                                     if (const auto otioClipB = dynamic_cast<otio::Clip*>(transitionNeighbors.first.value))
                                                     {
-                                                        data.image = readVideoFrame(otioTrack, otioClipB, time, ioOptions);
+                                                        data.image = readVideoFrame(otioTrack, otioClipB, time, request.layer, ioOptions);
                                                     }
                                                 }
                                             }
@@ -782,6 +785,7 @@ namespace tlr
             const otio::Track* track,
             const otio::Clip* clip,
             const otime::RationalTime& time,
+            uint16_t layer,
             const avio::Options& ioOptions,
             const std::shared_ptr<imaging::Image>& image)
         {
@@ -822,7 +826,7 @@ namespace tlr
                 {
                     const auto readTime = frameTime.rescaled_to(j->second.info.videoTimeRange.duration().rate());
                     const auto floorTime = otime::RationalTime(floor(readTime.value()), readTime.rate());
-                    out = j->second.read->readVideoFrame(floorTime, image);
+                    out = j->second.read->readVideoFrame(floorTime, layer, image);
                 }
                 else
                 {
@@ -843,7 +847,7 @@ namespace tlr
                         reader.info = info;
                         const auto readTime = frameTime.rescaled_to(info.videoTimeRange.duration().rate());
                         const auto floorTime = otime::RationalTime(floor(readTime.value()), readTime.rate());
-                        out = read->readVideoFrame(floorTime, image);
+                        out = read->readVideoFrame(floorTime, layer, image);
                         readers[clip] = std::move(reader);
                     }
                 }

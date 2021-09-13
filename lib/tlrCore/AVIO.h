@@ -48,9 +48,11 @@ namespace tlr
             VideoFrame();
             VideoFrame(
                 const otime::RationalTime&,
+                uint16_t layer,
                 const std::shared_ptr<imaging::Image>&);
 
             otime::RationalTime             time;
+            uint16_t                        layer;
             std::shared_ptr<imaging::Image> image;
 
             bool operator == (const VideoFrame&) const;
@@ -107,6 +109,7 @@ namespace tlr
             //! Read a video frame.
             virtual std::future<VideoFrame> readVideoFrame(
                 const otime::RationalTime&,
+                uint16_t layer = 0,
                 const std::shared_ptr<imaging::Image>& = nullptr) = 0;
 
             //! Are there pending video frame requests?

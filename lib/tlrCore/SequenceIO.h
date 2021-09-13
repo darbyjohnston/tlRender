@@ -35,6 +35,7 @@ namespace tlr
             std::future<Info> getInfo() override;
             std::future<VideoFrame> readVideoFrame(
                 const otime::RationalTime&,
+                uint16_t layer = 0,
                 const std::shared_ptr<imaging::Image>& = nullptr) override;
             bool hasVideoFrames() override;
             void cancelVideoFrames() override;
@@ -46,6 +47,7 @@ namespace tlr
             virtual VideoFrame _readVideoFrame(
                 const std::string& fileName,
                 const otime::RationalTime&,
+                uint16_t layer,
                 const std::shared_ptr<imaging::Image>&) = 0;
             //! This must be called in the sub-class destructor.
             void _finish();

@@ -49,8 +49,10 @@ namespace tlr
             //! Get the global start time.
             const otime::RationalTime& globalStartTime() const;
 
-            //! Get the image info.
-            const imaging::Info& imageInfo() const;
+            //! Get the video information. This information is retreived from
+            //! the first clip in the timeline. The vector represents the
+            //! different layers that are available.
+            const std::vector<imaging::Info>& videoInfo() const;
 
             ///@}
 
@@ -89,6 +91,9 @@ namespace tlr
 
             //! \name Frames
             ///@{
+
+            //! Get the current video layer.
+            int videoLayer() const;
 
             //! Get the current frame.
             const timeline::Frame& frame() const;
@@ -188,6 +193,9 @@ namespace tlr
             //! \name Frames
             ///@{
 
+            //! Set the current video layer.
+            void setVideoLayer(int);
+
             //! Set the frame cache read ahead.
             void setFrameCacheReadAhead(int);
 
@@ -230,6 +238,9 @@ namespace tlr
 
             //! \name Frames
             ///@{
+
+            //! This signal is emitted when the current video layer is changed.
+            void videoLayerChanged(int);
 
             //! This signal is emitted when the current frame is changed.
             void frameChanged(const tlr::timeline::Frame&);

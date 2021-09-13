@@ -97,8 +97,10 @@ namespace tlr
             //! Get the global start time.
             const otime::RationalTime& getGlobalStartTime() const;
 
-            //! Get the image info.
-            const imaging::Info& getImageInfo() const;
+            //! Get the video information. This information is retreived from
+            //! the first clip in the timeline. The vector represents the
+            //! different layers that are available.
+            const std::vector<imaging::Info>& getVideoInfo() const;
 
             ///@}
 
@@ -180,20 +182,26 @@ namespace tlr
             //! \name Frames
             ///@{
 
+            //! Observer the current video layer.
+            std::shared_ptr<observer::IValue<uint16_t> > observeVideoLayer() const;
+
+            //! Set the current video layer.
+            void setVideoLayer(uint16_t);
+
             //! Observe the current frame.
             std::shared_ptr<observer::IValue<Frame> > observeFrame() const;
 
             //! Get the frame cache read ahead.
-            int getFrameCacheReadAhead();
+            size_t getFrameCacheReadAhead();
 
             //! Set the frame cache read ahead.
-            void setFrameCacheReadAhead(int);
+            void setFrameCacheReadAhead(size_t);
 
             //! Get the frame cache read behind.
-            int getFrameCacheReadBehind();
+            size_t getFrameCacheReadBehind();
 
             //! Set the frame cache read behind.
-            void setFrameCacheReadBehind(int);
+            void setFrameCacheReadBehind(size_t);
 
             //! Observe the frame cache percentage.
             std::shared_ptr<observer::IValue<float> > observeFrameCachePercentage() const;

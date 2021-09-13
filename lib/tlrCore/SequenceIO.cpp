@@ -33,6 +33,7 @@ namespace tlr
                 VideoFrameRequest(VideoFrameRequest&&) = default;
 
                 otime::RationalTime time = time::invalidTime;
+                uint16_t layer = 0;
                 std::shared_ptr<imaging::Image> image;
                 std::promise<VideoFrame> promise;
 
@@ -165,11 +166,13 @@ namespace tlr
 
         std::future<VideoFrame> ISequenceRead::readVideoFrame(
             const otime::RationalTime& time,
+            uint16_t layer,
             const std::shared_ptr<imaging::Image>& image)
         {
             TLR_PRIVATE_P();
             Private::VideoFrameRequest request;
             request.time = time;
+            request.layer = layer;
             request.image = image;
             auto future = request.promise.get_future();
             bool valid = false;
@@ -269,17 +272,18 @@ namespace tlr
                     {
                         request.fileName = _path.get();
                     }
-                    const auto fileName = request.fileName;
-                    const auto time = request.time;
+                    const std::string fileName = request.fileName;
+                    const otime::RationalTime time = request.time;
+                    const uint16_t layer = request.layer;
                     const auto image = request.image;
                     request.future = std::async(
                         std::launch::async,
-                        [this, fileName, time, image]
+                        [this, fileName, time, layer, image]
                         {
                             VideoFrame out;
                             try
                             {
-                                out = _readVideoFrame(fileName, time, image);
+                                out = _readVideoFrame(fileName, time, layer, image);
                             }
                             catch (const std::exception&)
                             {

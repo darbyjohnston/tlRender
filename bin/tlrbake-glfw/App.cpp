@@ -156,13 +156,17 @@ namespace tlr
         _print(string::Format("Frame range: {0}-{1}").arg(_range.start_time().value()).arg(_range.end_time_inclusive().value()));
 
         // Render information.
-        const auto& timelineInfo = _timeline->getImageInfo();
+        const auto& videoInfo = _timeline->getVideoInfo();
+        if (videoInfo.empty())
+        {
+            throw std::runtime_error("No video information");
+        }
         _renderInfo.size = _options.renderSize.isValid() ?
             _options.renderSize :
-            timelineInfo.size;
-        const auto timelinePixelType = imaging::PixelType::YUV_420P == timelineInfo.pixelType ?
+            videoInfo[0].size;
+        const auto timelinePixelType = imaging::PixelType::YUV_420P == videoInfo[0].pixelType ?
             imaging::PixelType::RGB_U8 :
-            timelineInfo.pixelType;
+            videoInfo[0].pixelType;
         _renderInfo.pixelType = _options.renderPixelType != imaging::PixelType::None ?
             _options.renderPixelType :
             timelinePixelType;

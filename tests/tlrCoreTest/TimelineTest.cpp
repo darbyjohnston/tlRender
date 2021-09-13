@@ -232,12 +232,13 @@ namespace tlr
 
             // Create a timeline from the OTIO timeline.
             auto timeline = Timeline::create(path, _context);
+            TLR_ASSERT(timeline->getTimeline());
             TLR_ASSERT(path == timeline->getPath());
             const otime::RationalTime timelineDuration(48.0, 24.0);
             TLR_ASSERT(timelineDuration == timeline->getDuration());
             TLR_ASSERT(otime::RationalTime(0.0, 24.0) == timeline->getGlobalStartTime());
-            TLR_ASSERT(imageInfo.size == timeline->getImageInfo().size);
-            TLR_ASSERT(imageInfo.pixelType == timeline->getImageInfo().pixelType);
+            TLR_ASSERT(imageInfo.size == timeline->getVideoInfo()[0].size);
+            TLR_ASSERT(imageInfo.pixelType == timeline->getVideoInfo()[0].pixelType);
 
             // Get frames from the timeline.
             std::vector<timeline::Frame> frames;
@@ -246,7 +247,11 @@ namespace tlr
             {
                 futures.push_back(timeline->getFrame(otime::RationalTime(i, 24.0)));
             }
-            while (frames.size() < static_cast<size_t>(timelineDuration.value()))
+            for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
+            {
+                futures.push_back(timeline->getFrame(otime::RationalTime(i, 24.0), 1));
+            }
+            while (frames.size() < static_cast<size_t>(timelineDuration.value()) * 2)
             {
                 auto i = futures.begin();
                 while (i != futures.end())
@@ -272,7 +277,11 @@ namespace tlr
             {
                 futures.push_back(timeline->getFrame(otime::RationalTime(i, 24.0)));
             }
-            while (frames.size() < static_cast<size_t>(timelineDuration.value()))
+            for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
+            {
+                futures.push_back(timeline->getFrame(otime::RationalTime(i, 24.0), 1));
+            }
+            while (frames.size() < static_cast<size_t>(timelineDuration.value()) * 2)
             {
                 auto i = futures.begin();
                 while (i != futures.end())
@@ -296,6 +305,10 @@ namespace tlr
             for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
             {
                 futures.push_back(timeline->getFrame(otime::RationalTime(i, 24.0)));
+            }
+            for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
+            {
+                futures.push_back(timeline->getFrame(otime::RationalTime(i, 24.0), 1));
             }
             timeline->cancelFrames();
         }

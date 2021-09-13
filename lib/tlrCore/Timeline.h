@@ -114,8 +114,10 @@ namespace tlr
             //! Get the global start time.
             const otime::RationalTime& getGlobalStartTime() const;
 
-            //! Get the image info.
-            const imaging::Info& getImageInfo() const;
+            //! Get the video information. This information is retreived from
+            //! the first clip in the timeline. The vector represents the
+            //! different layers that are available.
+            const std::vector<imaging::Info>& getVideoInfo() const;
 
             ///@}
 
@@ -129,6 +131,7 @@ namespace tlr
             //! Get a frame.
             std::future<Frame> getFrame(
                 const otime::RationalTime&,
+                uint16_t layer = 0,
                 const std::shared_ptr<imaging::Image>& = nullptr);
 
             //! Cancel frames.

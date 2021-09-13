@@ -104,17 +104,19 @@ namespace tlr
 
             // Create a timeline player from the OTIO timeline.
             auto timelinePlayer = TimelinePlayer::create(path, _context);
+            TLR_ASSERT(timelinePlayer->getTimeline());
             TLR_ASSERT(path == timelinePlayer->getPath());
             const otime::RationalTime timelineDuration(48.0, 24.0);
             TLR_ASSERT(timelineDuration == timelinePlayer->getDuration());
             TLR_ASSERT(otime::RationalTime(0.0, 24.0) == timelinePlayer->getGlobalStartTime());
-            TLR_ASSERT(imageInfo.size == timelinePlayer->getImageInfo().size);
-            TLR_ASSERT(imageInfo.pixelType == timelinePlayer->getImageInfo().pixelType);
+            TLR_ASSERT(imageInfo.size == timelinePlayer->getVideoInfo()[0].size);
+            TLR_ASSERT(imageInfo.pixelType == timelinePlayer->getVideoInfo()[0].pixelType);
             TLR_ASSERT(timelineDuration.rate() == timelinePlayer->getDefaultSpeed());
 
             // Test frames.
             struct FrameOptions
             {
+                uint16_t layer = 0;
                 int readAhead = 100;
                 int readBehind = 10;
                 size_t requestCount = 16;
@@ -122,7 +124,7 @@ namespace tlr
             };
             for (const auto options : std::vector<FrameOptions>({
                 FrameOptions(),
-                { 1, 0, 1, 0 } }))
+                { 1, 1, 0, 1, 0 } }))
             {
                 timelinePlayer->setFrameCacheReadAhead(options.readAhead);
                 TLR_ASSERT(options.readAhead == timelinePlayer->getFrameCacheReadAhead());

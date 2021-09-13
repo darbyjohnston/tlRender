@@ -4,6 +4,8 @@
 
 #include <tlrQt/TimelinePlayer.h>
 
+#include <tlrCore/Math.h>
+
 namespace tlr
 {
     namespace qt
@@ -17,6 +19,7 @@ namespace tlr
             std::shared_ptr<observer::ValueObserver<timeline::Loop> > loopObserver;
             std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
             std::shared_ptr<observer::ValueObserver<otime::TimeRange> > inOutRangeObserver;
+            std::shared_ptr<observer::ValueObserver<uint16_t> > videoLayerObserver;
             std::shared_ptr<observer::ValueObserver<timeline::Frame> > frameObserver;
             std::shared_ptr<observer::ListObserver<otime::TimeRange> > cachedFramesObserver;
         };
@@ -67,6 +70,13 @@ namespace tlr
                     Q_EMIT inOutRangeChanged(value);
                 });
 
+            p.videoLayerObserver = observer::ValueObserver<uint16_t>::create(
+                p.timelinePlayer->observeVideoLayer(),
+                [this](uint16_t value)
+                {
+                    Q_EMIT videoLayerChanged(value);
+                });
+
             p.frameObserver = observer::ValueObserver<timeline::Frame>::create(
                 p.timelinePlayer->observeFrame(),
                 [this](const timeline::Frame& value)
@@ -112,9 +122,9 @@ namespace tlr
             return _p->timelinePlayer->getDuration();
         }
 
-        const imaging::Info& TimelinePlayer::imageInfo() const
+        const std::vector<imaging::Info>& TimelinePlayer::videoInfo() const
         {
-            return _p->timelinePlayer->getImageInfo();
+            return _p->timelinePlayer->getVideoInfo();
         }
 
        float TimelinePlayer::defaultSpeed() const
@@ -145,6 +155,11 @@ namespace tlr
         const otime::TimeRange& TimelinePlayer::inOutRange() const
         {
             return _p->timelinePlayer->observeInOutRange()->get();
+        }
+
+        int TimelinePlayer::videoLayer() const
+        {
+            return _p->timelinePlayer->observeVideoLayer()->get();
         }
 
         const timeline::Frame& TimelinePlayer::frame() const
@@ -270,24 +285,29 @@ namespace tlr
             _p->timelinePlayer->resetOutPoint();
         }
 
+        void TimelinePlayer::setVideoLayer(int value)
+        {
+            _p->timelinePlayer->setVideoLayer(math::clamp(value, 0, static_cast<int>(std::numeric_limits<uint16_t>::max())));
+        }
+
         void TimelinePlayer::setFrameCacheReadAhead(int value)
         {
-            _p->timelinePlayer->setFrameCacheReadAhead(value);
+            _p->timelinePlayer->setFrameCacheReadAhead(std::max(0, value));
         }
 
         void TimelinePlayer::setFrameCacheReadBehind(int value)
         {
-            _p->timelinePlayer->setFrameCacheReadBehind(value);
+            _p->timelinePlayer->setFrameCacheReadBehind(std::max(0, value));
         }
 
         void TimelinePlayer::setRequestCount(int value)
         {
-            _p->timelinePlayer->setRequestCount(value > 0 ? value : 0);
+            _p->timelinePlayer->setRequestCount(std::max(0, value));
         }
 
         void TimelinePlayer::setRequestTimeout(int value)
         {
-            _p->timelinePlayer->setRequestTimeout(std::chrono::milliseconds(value));
+            _p->timelinePlayer->setRequestTimeout(std::chrono::milliseconds(std::max(0, value)));
         }
 
         void TimelinePlayer::timerEvent(QTimerEvent*)

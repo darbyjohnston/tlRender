@@ -9,13 +9,16 @@ namespace tlr
     namespace avio
     {
         VideoFrame::VideoFrame() :
-            time(time::invalidTime)
+            time(time::invalidTime),
+            layer(0)
         {}
 
         VideoFrame::VideoFrame(
             const otime::RationalTime& time,
+            uint16_t layer,
             const std::shared_ptr<imaging::Image>& image) :
             time(time),
+            layer(layer),
             image(image)
         {}
 
