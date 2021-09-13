@@ -1,4 +1,8 @@
+extern "C"
+{
 #include <libavutil/timecode.h>
+
+} // extern "C"
 
 #include <iostream>
 

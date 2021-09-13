@@ -4,9 +4,6 @@ project(tlRender-external-tests)
 
 enable_testing()
 
-# \todo Fix FFmpeg test.
-list(REMOVE_ITEM TLR_EXTERNAL_DEPS FFmpeg)
-
 foreach(EXTERNAL_DEP ${TLR_EXTERNAL_DEPS})
     find_package(${EXTERNAL_DEP})
     if(${EXTERNAL_DEP}_FOUND AND EXISTS ${CMAKE_SOURCE_DIR}/${EXTERNAL_DEP}Test)
