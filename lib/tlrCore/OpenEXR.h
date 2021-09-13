@@ -4,15 +4,90 @@
 
 #pragma once
 
+#include <tlrCore/BBox.h>
 #include <tlrCore/SequenceIO.h>
 
+#include <ImathBox.h>
 #include <ImfHeader.h>
+#include <ImfInputFile.h>
+#include <ImfPixelType.h>
 
 namespace tlr
 {
     //! OpenEXR I/O.
     namespace exr
     {
+        //! Channel grouping.
+        enum class ChannelGrouping
+        {
+            None,
+            Known,
+            All,
+
+            Count,
+            First = None
+        };
+        TLR_ENUM(ChannelGrouping);
+        TLR_ENUM_SERIALIZE(ChannelGrouping);
+
+        //! Image channel.
+        struct Channel
+        {
+            Channel();
+            Channel(
+                const std::string&    name,
+                Imf::PixelType        pixelType,
+                const math::Vector2i& sampling  = math::Vector2i(1, 1));
+
+            std::string    name;
+            Imf::PixelType pixelType = Imf::PixelType::HALF;
+            math::Vector2i sampling  = math::Vector2i(1, 1);
+        };
+
+        //! Image layer.
+        struct Layer
+        {
+            Layer(
+                const std::vector<Channel>& channels        = std::vector<Channel>(),
+                bool                        luminanceChroma = false);
+
+            std::string          name;
+            std::vector<Channel> channels;
+            bool                 luminanceChroma = false;
+        };
+
+        //! Compression types.
+        enum class Compression
+        {
+            None,
+            RLE,
+            ZIPS,
+            ZIP,
+            PIZ,
+            PXR24,
+            B44,
+            B44A,
+            DWAA,
+            DWAB,
+
+            Count,
+            First = None
+        };
+        TLR_ENUM(Compression);
+        TLR_ENUM_SERIALIZE(Compression);
+
+        //! Get a layer name from a list of channel names.
+        std::string getLayerName(const std::vector<std::string>&);
+
+        //! Get the channels that aren't in any layer.
+        Imf::ChannelList getDefaultLayer(const Imf::ChannelList&);
+
+        //! Find a channel by name.
+        const Imf::Channel* find(const Imf::ChannelList&, std::string&);
+
+        //! Get a list of layers from Imf channels.
+        std::vector<Layer> getLayers(const Imf::ChannelList&, ChannelGrouping);
+
         //! Read the tags from an Imf header.
         void readTags(const Imf::Header&, std::map<std::string, std::string>&);
 
@@ -20,6 +95,31 @@ namespace tlr
         //!
         //! \todo Write all the tags that are handled by readTags().
         void writeTags(const std::map<std::string, std::string>&, double speed, Imf::Header&);
+
+        //! Convert an Imath box type.
+        math::BBox2i fromImath(const Imath::Box2i&);
+
+        //! Convert from an Imf channel.
+        Channel fromImf(const std::string& name, const Imf::Channel&);
+
+        //! Memory-mapped input stream.
+        class MemoryMappedIStream : public Imf::IStream
+        {
+            TLR_NON_COPYABLE(MemoryMappedIStream);
+
+        public:
+            MemoryMappedIStream(const char fileName[]);
+            ~MemoryMappedIStream() override;
+
+            bool isMemoryMapped() const override;
+            char* readMemoryMapped(int n) override;
+            bool read(char c[], int n) override;
+            Imf::Int64 tellg() override;
+            void seekg(Imf::Int64 pos) override;
+
+        private:
+            TLR_PRIVATE();
+        };
 
         //! OpenEXR reader.
         class Read : public avio::ISequenceRead
@@ -47,6 +147,9 @@ namespace tlr
                 const otime::RationalTime&,
                 uint16_t layer,
                 const std::shared_ptr<imaging::Image>&) override;
+
+        private:
+            ChannelGrouping _channelGrouping = ChannelGrouping::Known;
         };
 
         //! OpenEXR writer.

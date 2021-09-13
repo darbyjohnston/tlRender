@@ -47,6 +47,8 @@ namespace tlr
         void _recentFilesCallback();
         void _nextCallback();
         void _prevCallback();
+        void _layersCallback(QAction*);
+        void _layersCallback(int);
         void _resize1280x720Callback();
         void _resize1920x1080Callback();
         void _fullScreenCallback();
@@ -75,6 +77,7 @@ namespace tlr
         void _setCurrentTimeline(qt::TimelinePlayer*);
 
         void _recentFilesUpdate();
+        void _layersUpdate();
         void _playbackUpdate();
         void _timelineUpdate();
 
@@ -84,6 +87,9 @@ namespace tlr
         QActionGroup* _recentFilesActionGroup = nullptr;
         QMap<QAction*, QString> _actionToRecentFile;
         QMenu* _recentFilesMenu = nullptr;
+        QActionGroup* _layersActionGroup = nullptr;
+        QMap<QAction*, uint16_t> _actionToLayer;
+        QMenu* _layersMenu = nullptr;
         QActionGroup* _playbackActionGroup = nullptr;
         QMap<QAction*, timeline::Playback> _actionToPlayback;
         QMap<timeline::Playback, QAction*> _playbackToActions;

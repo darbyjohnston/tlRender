@@ -53,6 +53,8 @@ namespace tlr
         _actions["File/Prev"]->setText(tr("Previous"));
         _actions["File/Prev"]->setShortcut(QKeySequence::MoveToPreviousPage);
         _recentFilesActionGroup = new QActionGroup(this);
+        _layersActionGroup = new QActionGroup(this);
+        _layersActionGroup->setExclusive(true);
         _actions["File/Settings"] = new QAction(this);
         _actions["File/Settings"]->setText(tr("Settings"));
         _actions["File/Settings"]->setCheckable(true);
@@ -182,6 +184,10 @@ namespace tlr
         fileMenu->addAction(_actions["File/Next"]);
         fileMenu->addAction(_actions["File/Prev"]);
         fileMenu->addSeparator();
+        _layersMenu = new QMenu;
+        _layersMenu->setTitle(tr("&Layers"));
+        fileMenu->addMenu(_layersMenu);
+        fileMenu->addSeparator();
         fileMenu->addAction(_actions["File/Settings"]);
         fileMenu->addSeparator();
         fileMenu->addAction(_actions["File/Exit"]);
@@ -245,6 +251,7 @@ namespace tlr
         addDockWidget(Qt::RightDockWidgetArea, settingsDockWidget);
 
         _recentFilesUpdate();
+        _layersUpdate();
         _playbackUpdate();
         _timelineUpdate();
 
@@ -272,6 +279,10 @@ namespace tlr
             _actions["File/Prev"],
             SIGNAL(triggered()),
             SLOT(_prevCallback()));
+        connect(
+            _layersActionGroup,
+            SIGNAL(triggered(QAction*)),
+            SLOT(_layersCallback(QAction*)));
         connect(
             _actions["File/Settings"],
             SIGNAL(triggered(bool)),
@@ -583,6 +594,27 @@ namespace tlr
         }
     }
 
+    void MainWindow::_layersCallback(QAction* action)
+    {
+        if (_currentTimelinePlayer)
+        {
+            const auto i = _actionToLayer.find(action);
+            if (i != _actionToLayer.end())
+            {
+                _currentTimelinePlayer->setVideoLayer(i.value());
+            }
+        }
+    }
+
+    void MainWindow::_layersCallback(int value)
+    {
+        const auto& actions = _layersActionGroup->actions();
+        if (value >= 0 && value < actions.size())
+        {
+            actions[value]->setChecked(true);
+        }
+    }
+
     void MainWindow::_resize1280x720Callback()
     {
         resize(1280, 720);
@@ -786,6 +818,11 @@ namespace tlr
                 this,
                 SLOT(_loopCallback(tlr::timeline::Loop)));
             disconnect(
+                _currentTimelinePlayer,
+                SIGNAL(videoLayerChanged(int)),
+                this,
+                SLOT(_layersCallback(int)));
+            disconnect(
                 _actions["InOutPoints/SetInPoint"],
                 SIGNAL(triggered(bool)),
                 _currentTimelinePlayer,
@@ -818,6 +855,10 @@ namespace tlr
                 SIGNAL(loopChanged(tlr::timeline::Loop)),
                 SLOT(_loopCallback(tlr::timeline::Loop)));
             connect(
+                _currentTimelinePlayer,
+                SIGNAL(videoLayerChanged(int)),
+                SLOT(_layersCallback(int)));
+            connect(
                 _actions["InOutPoints/SetInPoint"],
                 SIGNAL(triggered(bool)),
                 _currentTimelinePlayer,
@@ -838,6 +879,7 @@ namespace tlr
                 _currentTimelinePlayer,
                 SLOT(resetOutPoint()));
         }
+        _layersUpdate();
         _timelineUpdate();
     }
 
@@ -860,6 +902,33 @@ namespace tlr
             _recentFilesActionGroup->addAction(action);
             _actionToRecentFile[action] = file;
             _recentFilesMenu->addAction(action);
+        }
+    }
+
+    void MainWindow::_layersUpdate()
+    {
+        for (const auto& i : _actionToLayer.keys())
+        {
+            _layersActionGroup->removeAction(i);
+            i->setParent(nullptr);
+            delete i;
+        }
+        _actionToLayer.clear();
+        _layersMenu->clear();
+        if (_currentTimelinePlayer)
+        {
+            const auto& videoInfo = _currentTimelinePlayer->videoInfo();
+            const int videoLayer = _currentTimelinePlayer->videoLayer();
+            for (size_t i = 0; i < videoInfo.size(); ++i)
+            {
+                auto action = new QAction;
+                action->setCheckable(true);
+                action->setChecked(i == videoLayer);
+                action->setText(QString::fromStdString(videoInfo[i].name));
+                _layersActionGroup->addAction(action);
+                _actionToLayer[action] = i;
+                _layersMenu->addAction(action);
+            }
         }
     }
 

@@ -124,7 +124,8 @@ namespace tlr
 
         inline bool Info::operator == (const Info& other) const
         {
-            return size == other.size &&
+            return name == other.name &&
+                size == other.size &&
                 pixelAspectRatio == other.pixelAspectRatio &&
                 pixelType == other.pixelType &&
                 layout == other.layout;

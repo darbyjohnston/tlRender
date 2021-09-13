@@ -24,6 +24,9 @@ namespace tlr
         std::vector<std::string> split(const std::string&, const std::vector<char>& delimeters, bool keepEmpty = false);
 
         //! Join a list of strings.
+        std::string join(const std::vector<std::string>&, char delimeter);
+
+        //! Join a list of strings.
         std::string join(const std::vector<std::string>&, const std::string& delimeter);
 
         ///@}

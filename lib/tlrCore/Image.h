@@ -201,10 +201,11 @@ namespace tlr
             explicit Info(const Size&, PixelType);
             explicit Info(uint16_t w, uint16_t h, PixelType);
 
-            Size      size;
-            float     pixelAspectRatio = 1.F;
-            PixelType pixelType        = PixelType::None;
-            Layout    layout;
+            std::string name             = "Default";
+            Size        size;
+            float       pixelAspectRatio = 1.F;
+            PixelType   pixelType        = PixelType::None;
+            Layout      layout;
 
             //! Is the information valid?
             bool isValid() const;

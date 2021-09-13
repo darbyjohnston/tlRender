@@ -298,7 +298,7 @@ namespace tlr
 
         avio::Info Read::_getInfo(const std::string& fileName)
         {
-            avio::Info out = std::unique_ptr<File>(new File(fileName))->getInfo();
+            avio::Info out = File(fileName).getInfo();
             out.videoTimeRange = otime::TimeRange::range_from_start_end_time_inclusive(
                 otime::RationalTime(_startFrame, _defaultSpeed),
                 otime::RationalTime(_endFrame, _defaultSpeed));
@@ -312,7 +312,7 @@ namespace tlr
             uint16_t layer,
             const std::shared_ptr<imaging::Image>& image)
         {
-            return std::unique_ptr<File>(new File(fileName))->read(fileName, time, image);
+            return File(fileName).read(fileName, time, image);
         }
     }
 }

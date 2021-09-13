@@ -586,6 +586,7 @@ namespace tlr
             }
 
             // Sync with the thread.
+            uint16_t videoLayer = 0;
             Frame frame;
             int frameCacheReadAhead = 0;
             int frameCacheReadBehind = 0;
@@ -593,11 +594,13 @@ namespace tlr
             {
                 std::unique_lock<std::mutex> lock(p.threadData.mutex);
                 p.threadData.currentTime = p.currentTime->get();
+                videoLayer = p.threadData.videoLayer;
                 frame = p.threadData.frame;
                 frameCacheReadAhead = p.threadData.frameCacheReadAhead;
                 frameCacheReadBehind = p.threadData.frameCacheReadBehind;
                 cachedFrames = p.threadData.cachedFrames;
             }
+            p.videoLayer->setIfChanged(videoLayer);
             p.frame->setIfChanged(frame);
             size_t cachedFramesCount = 0;
             for (const auto& i : cachedFrames)
