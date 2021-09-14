@@ -488,9 +488,12 @@ namespace tlr
         void TimelinePlayer::setVideoLayer(uint16_t layer)
         {
             TLR_PRIVATE_P();
-            std::unique_lock<std::mutex> lock(p.threadData.mutex);
-            p.threadData.clearFrameCache = layer != p.threadData.videoLayer;
-            p.threadData.videoLayer = layer;
+            if (p.videoLayer->setIfChanged(layer))
+            {
+                std::unique_lock<std::mutex> lock(p.threadData.mutex);
+                p.threadData.videoLayer = layer;
+                p.threadData.clearFrameCache = true;
+            }
         }
 
         std::shared_ptr<observer::IValue<Frame> > TimelinePlayer::observeFrame() const
@@ -586,7 +589,6 @@ namespace tlr
             }
 
             // Sync with the thread.
-            uint16_t videoLayer = 0;
             Frame frame;
             int frameCacheReadAhead = 0;
             int frameCacheReadBehind = 0;
@@ -594,13 +596,11 @@ namespace tlr
             {
                 std::unique_lock<std::mutex> lock(p.threadData.mutex);
                 p.threadData.currentTime = p.currentTime->get();
-                videoLayer = p.threadData.videoLayer;
                 frame = p.threadData.frame;
                 frameCacheReadAhead = p.threadData.frameCacheReadAhead;
                 frameCacheReadBehind = p.threadData.frameCacheReadBehind;
                 cachedFrames = p.threadData.cachedFrames;
             }
-            p.videoLayer->setIfChanged(videoLayer);
             p.frame->setIfChanged(frame);
             size_t cachedFramesCount = 0;
             for (const auto& i : cachedFrames)
