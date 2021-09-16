@@ -1024,7 +1024,7 @@ namespace tlr
         {
             IPlugin::_init("OpenEXR", { ".exr" }, logSystem);
 
-            Imf::setGlobalThreadCount(1);
+            //Imf::setGlobalThreadCount(0);
         }
 
         Plugin::Plugin()
