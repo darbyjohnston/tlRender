@@ -477,7 +477,7 @@ namespace tlr
             TLR_PRIVATE_P();
             setInOutRange(otime::TimeRange::range_from_start_end_time(
                 p.inOutRange->get().start_time(),
-                p.timeline->getDuration()));
+                p.timeline->getGlobalStartTime() + p.timeline->getDuration()));
         }
 
         std::shared_ptr<observer::IValue<uint16_t> > TimelinePlayer::observeVideoLayer() const

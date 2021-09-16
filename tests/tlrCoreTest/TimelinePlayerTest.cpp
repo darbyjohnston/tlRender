@@ -83,6 +83,7 @@ namespace tlr
             }
             auto otioTimeline = new otio::Timeline;
             otioTimeline->set_tracks(otioStack);
+            otioTimeline->set_global_start_time(otime::RationalTime(10.0, 24.0));
             const file::Path path("TimelinePlayerTest.otio");
             otioTimeline->to_json_file(path.get(), &errorStatus);
             if (errorStatus != otio::ErrorStatus::OK)
@@ -108,7 +109,7 @@ namespace tlr
             TLR_ASSERT(path == timelinePlayer->getPath());
             const otime::RationalTime timelineDuration(48.0, 24.0);
             TLR_ASSERT(timelineDuration == timelinePlayer->getDuration());
-            TLR_ASSERT(otime::RationalTime(0.0, 24.0) == timelinePlayer->getGlobalStartTime());
+            TLR_ASSERT(otime::RationalTime(10.0, 24.0) == timelinePlayer->getGlobalStartTime());
             TLR_ASSERT(imageInfo.size == timelinePlayer->getVideoInfo()[0].size);
             TLR_ASSERT(imageInfo.pixelType == timelinePlayer->getVideoInfo()[0].pixelType);
             TLR_ASSERT(timelineDuration.rate() == timelinePlayer->getDefaultSpeed());
@@ -227,26 +228,26 @@ namespace tlr
                 {
                     currentTime = value;
                 });
-            timelinePlayer->seek(otime::RationalTime(0.0, 24.0));
-            TLR_ASSERT(otime::RationalTime(0.0, 24.0) == currentTime);
-            timelinePlayer->seek(otime::RationalTime(1.0, 24.0));
-            TLR_ASSERT(otime::RationalTime(1.0, 24.0) == currentTime);
-            timelinePlayer->end();
-            TLR_ASSERT(otime::RationalTime(47.0, 24.0) == currentTime);
-            timelinePlayer->start();
-            TLR_ASSERT(otime::RationalTime(0.0, 24.0) == currentTime);
-            timelinePlayer->frameNext();
-            TLR_ASSERT(otime::RationalTime(1.0, 24.0) == currentTime);
-            timelinePlayer->timeAction(TimeAction::FrameNextX10);
+            timelinePlayer->seek(otime::RationalTime(10.0, 24.0));
+            TLR_ASSERT(otime::RationalTime(10.0, 24.0) == currentTime);
+            timelinePlayer->seek(otime::RationalTime(11.0, 24.0));
             TLR_ASSERT(otime::RationalTime(11.0, 24.0) == currentTime);
+            timelinePlayer->end();
+            TLR_ASSERT(otime::RationalTime(57.0, 24.0) == currentTime);
+            timelinePlayer->start();
+            TLR_ASSERT(otime::RationalTime(10.0, 24.0) == currentTime);
+            timelinePlayer->frameNext();
+            TLR_ASSERT(otime::RationalTime(11.0, 24.0) == currentTime);
+            timelinePlayer->timeAction(TimeAction::FrameNextX10);
+            TLR_ASSERT(otime::RationalTime(21.0, 24.0) == currentTime);
             timelinePlayer->timeAction(TimeAction::FrameNextX100);
-            TLR_ASSERT(otime::RationalTime(0.0, 24.0) == currentTime);
+            TLR_ASSERT(otime::RationalTime(10.0, 24.0) == currentTime);
             timelinePlayer->framePrev();
-            TLR_ASSERT(otime::RationalTime(47.0, 24.0) == currentTime);
+            TLR_ASSERT(otime::RationalTime(57.0, 24.0) == currentTime);
             timelinePlayer->timeAction(TimeAction::FramePrevX10);
-            TLR_ASSERT(otime::RationalTime(37.0, 24.0) == currentTime);
-            timelinePlayer->timeAction(TimeAction::FramePrevX100);
             TLR_ASSERT(otime::RationalTime(47.0, 24.0) == currentTime);
+            timelinePlayer->timeAction(TimeAction::FramePrevX100);
+            TLR_ASSERT(otime::RationalTime(57.0, 24.0) == currentTime);
 
             // Test the in/out points.
             otime::TimeRange inOutRange = time::invalidTimeRange;
@@ -256,16 +257,16 @@ namespace tlr
                 {
                     inOutRange = value;
                 });
-            timelinePlayer->setInOutRange(otime::TimeRange(otime::RationalTime(1.0, 24.0), otime::RationalTime(23.0, 24.0)));
-            TLR_ASSERT(otime::TimeRange(otime::RationalTime(1.0, 24.0), otime::RationalTime(23.0, 24.0)) == inOutRange);
-            timelinePlayer->seek(otime::RationalTime(2.0, 24.0));
+            timelinePlayer->setInOutRange(otime::TimeRange(otime::RationalTime(10.0, 24.0), otime::RationalTime(33.0, 24.0)));
+            TLR_ASSERT(otime::TimeRange(otime::RationalTime(10.0, 24.0), otime::RationalTime(33.0, 24.0)) == inOutRange);
+            timelinePlayer->seek(otime::RationalTime(12.0, 24.0));
             timelinePlayer->setInPoint();
-            timelinePlayer->seek(otime::RationalTime(22.0, 24.0));
+            timelinePlayer->seek(otime::RationalTime(32.0, 24.0));
             timelinePlayer->setOutPoint();
-            TLR_ASSERT(otime::TimeRange(otime::RationalTime(2.0, 24.0), otime::RationalTime(21.0, 24.0)) == inOutRange);
+            TLR_ASSERT(otime::TimeRange(otime::RationalTime(12.0, 24.0), otime::RationalTime(21.0, 24.0)) == inOutRange);
             timelinePlayer->resetInPoint();
             timelinePlayer->resetOutPoint();
-            TLR_ASSERT(otime::TimeRange(otime::RationalTime(0.0, 24.0), timelineDuration) == inOutRange);
+            TLR_ASSERT(otime::TimeRange(otime::RationalTime(10.0, 24.0), timelineDuration) == inOutRange);
         }
     }
 }
