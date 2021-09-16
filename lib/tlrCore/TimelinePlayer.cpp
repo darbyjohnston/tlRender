@@ -559,6 +559,11 @@ namespace tlr
             _p->timeline->setRequestTimeout(value);
         }
 
+        void TimelinePlayer::setIOOptions(const avio::Options& value)
+        {
+            _p->timeline->setIOOptions(value);
+        }
+
         void TimelinePlayer::tick()
         {
             TLR_PRIVATE_P();

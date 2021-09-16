@@ -226,6 +226,9 @@ namespace tlr
             //! Set the frame request timeout.
             void setRequestTimeout(const std::chrono::milliseconds&);
 
+            //! Set the I/O options.
+            void setIOOptions(const avio::Options&);
+
             ///@}
 
             //! Tick the timeline.

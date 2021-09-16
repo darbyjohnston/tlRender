@@ -118,6 +118,9 @@ namespace tlr
             //! Get the frame request timeout (milliseconds).
             int requestTimeout() const;
 
+            //! Set the I/O options.
+            void setIOOptions(const avio::Options&);
+
             ///@}
 
         public Q_SLOTS:

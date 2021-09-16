@@ -192,6 +192,11 @@ namespace tlr
             return _p->timelinePlayer->getRequestTimeout().count();
         }
 
+        void TimelinePlayer::setIOOptions(const avio::Options& value)
+        {
+            _p->timelinePlayer->setIOOptions(value);
+        }
+
         void TimelinePlayer::setSpeed(float value)
         {
             _p->timelinePlayer->setSpeed(value);
