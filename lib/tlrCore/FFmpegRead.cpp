@@ -5,6 +5,7 @@
 #include <tlrCore/FFmpeg.h>
 
 #include <tlrCore/Assert.h>
+#include <tlrCore/LogSystem.h>
 #include <tlrCore/String.h>
 #include <tlrCore/StringFormat.h>
 
@@ -66,6 +67,8 @@ namespace tlr
             std::atomic<bool> running;
             bool stopped = false;
             size_t threadCount = ffmpeg::threadCount;
+
+            std::chrono::steady_clock::time_point logTimer;
         };
 
         void Read::_init(
@@ -341,6 +344,7 @@ namespace tlr
         void Read::_run()
         {
             TLR_PRIVATE_P();
+            p.logTimer = std::chrono::steady_clock::now();
             while (p.running)
             {
                 Private::VideoFrameRequest request;
@@ -465,6 +469,24 @@ namespace tlr
                     request.promise.set_value(videoFrame);
 
                     p.currentTime = request.time + otime::RationalTime(1.0, p.currentTime.rate());
+                }
+
+                // Logging.
+                const auto now = std::chrono::steady_clock::now();
+                const std::chrono::duration<float> diff = now - p.logTimer;
+                if (diff.count() > 10.F)
+                {
+                    p.logTimer = now;
+                    const std::string id = string::Format("tlr::ffmpeg::Read {0}").arg(this);
+                    size_t videoFrameRequestsSize = 0;
+                    {
+                        std::unique_lock<std::mutex> lock(p.mutex);
+                        videoFrameRequestsSize = p.videoFrameRequests.size();
+                    }
+                    _logSystem->print(id, string::Format("path: {0}, video frame requests: {1}, thread count: {2}").
+                        arg(_path.get()).
+                        arg(videoFrameRequestsSize).
+                        arg(p.threadCount));
                 }
             }
         }

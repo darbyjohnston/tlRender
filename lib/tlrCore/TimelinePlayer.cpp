@@ -6,7 +6,9 @@
 
 #include <tlrCore/Error.h>
 #include <tlrCore/File.h>
+#include <tlrCore/LogSystem.h>
 #include <tlrCore/String.h>
+#include <tlrCore/StringFormat.h>
 #include <tlrCore/Time.h>
 
 #include <opentimelineio/externalReference.h>
@@ -110,6 +112,8 @@ namespace tlr
             };
             ThreadData threadData;
             std::thread thread;
+
+            std::chrono::steady_clock::time_point logTimer;
         };
 
         void TimelinePlayer::_init(
@@ -141,7 +145,7 @@ namespace tlr
                 [this]
                 {
                     TLR_PRIVATE_P();
-
+                    p.logTimer = std::chrono::steady_clock::now();
                     while (p.threadData.running)
                     {
                         otime::RationalTime currentTime = time::invalidTime;
@@ -195,6 +199,24 @@ namespace tlr
                         {
                             std::unique_lock<std::mutex> lock(p.threadData.mutex);
                             p.threadData.frame = i->second;
+                        }
+
+                        // Logging.
+                        const auto now = std::chrono::steady_clock::now();
+                        const std::chrono::duration<float> diff = now - p.logTimer;
+                        if (diff.count() > 10.F)
+                        {
+                            p.logTimer = now;
+                            if (auto context = getContext().lock())
+                            {
+                                const std::string id = string::Format("tlr::timeline::TimelinePlayer {0}").arg(this);
+                                auto logSystem = context->getLogSystem();
+                                logSystem->print(id, string::Format("path: {0}, current time: {1}, in/out: {2}, video layer: {3}").
+                                    arg(getPath().get()).
+                                    arg(currentTime).
+                                    arg(inOutRange).
+                                    arg(videoLayer));
+                            }
                         }
 
                         time::sleep(std::chrono::microseconds(1000));

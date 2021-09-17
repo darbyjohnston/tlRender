@@ -8,6 +8,7 @@
 #include <tlrCore/Assert.h>
 #include <tlrCore/Error.h>
 #include <tlrCore/File.h>
+#include <tlrCore/LogSystem.h>
 #include <tlrCore/Math.h>
 #include <tlrCore/String.h>
 #include <tlrCore/StringFormat.h>
@@ -265,6 +266,8 @@ namespace tlr
             std::mutex mutex;
             bool stopped = false;
             std::atomic<bool> running;
+
+            std::chrono::steady_clock::time_point logTimer;
         };
 
         void Timeline::_init(
@@ -299,7 +302,8 @@ namespace tlr
                 [this]
                 {
                     TLR_PRIVATE_P();
-                    
+
+                    p.logTimer = std::chrono::steady_clock::now();
                     while (p.running)
                     {
                         p.tick();
@@ -630,6 +634,32 @@ namespace tlr
             frameRequests();
             stopReaders();
             delReaders();
+
+            // Logging.
+            const auto now = std::chrono::steady_clock::now();
+            const std::chrono::duration<float> diff = now - logTimer;
+            if (diff.count() > 10.F)
+            {
+                logTimer = now;
+                if (auto context = this->context.lock())
+                {
+                    const std::string id = string::Format("tlr::timeline::Timeline {0}").arg(this);
+                    size_t requestsSize = 0;
+                    size_t requestCount = 0;
+                    {
+                        std::unique_lock<std::mutex> lock(mutex);
+                        requestsSize = requests.size();
+                        requestCount = this->requestCount;
+                    }
+                    auto logSystem = context->getLogSystem();
+                    logSystem->print(id, string::Format("path: {0}, requests: {1}, in progress: {2}, count: {3}, readers: {4}").
+                        arg(path.get()).
+                        arg(requestsSize).
+                        arg(requestsInProgress.size()).
+                        arg(requestCount).
+                        arg(readers.size()));
+                }
+            }
         }
 
         void Timeline::Private::frameRequests()

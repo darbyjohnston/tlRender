@@ -7,6 +7,8 @@
 #include <tlrCore/Assert.h>
 #include <tlrCore/File.h>
 #include <tlrCore/LRUCache.h>
+#include <tlrCore/LogSystem.h>
+#include <tlrCore/StringFormat.h>
 
 #include <fseq.h>
 
@@ -49,6 +51,8 @@ namespace tlr
             std::atomic<bool> running;
             bool stopped = false;
             size_t threadCount = sequenceThreadCount;
+
+            std::chrono::steady_clock::time_point logTimer;
         };
 
         void ISequenceRead::_init(
@@ -234,6 +238,7 @@ namespace tlr
         void ISequenceRead::_run()
         {
             TLR_PRIVATE_P();
+            p.logTimer = std::chrono::steady_clock::now();
             while (p.running)
             {
                 // Gather requests.
@@ -311,6 +316,25 @@ namespace tlr
                         continue;
                     }
                     ++requestIt;
+                }
+
+                // Logging.
+                const auto now = std::chrono::steady_clock::now();
+                const std::chrono::duration<float> diff = now - p.logTimer;
+                if (diff.count() > 10.F)
+                {
+                    p.logTimer = now;
+                    const std::string id = string::Format("tlr::avio::ISequenceRead {0}").arg(this);
+                    size_t videoFrameRequestsSize = 0;
+                    {
+                        std::unique_lock<std::mutex> lock(p.mutex);
+                        videoFrameRequestsSize = p.videoFrameRequests.size();
+                    }
+                    _logSystem->print(id, string::Format("path: {0}, video frame requests: {1}, in progress: {2}, thread count: {3}").
+                        arg(_path.get()).
+                        arg(videoFrameRequestsSize).
+                        arg(p.videoFrameRequestsInProgress.size()).
+                        arg(p.threadCount));
                 }
             }
         }
