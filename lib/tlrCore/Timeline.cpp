@@ -254,6 +254,7 @@ namespace tlr
             std::condition_variable requestCV;
 
             avio::Options ioOptions;
+            bool ioOptionsChanged = false;
             struct Reader
             {
                 std::shared_ptr<avio::IRead> read;
@@ -552,7 +553,11 @@ namespace tlr
         {
             TLR_PRIVATE_P();
             std::unique_lock<std::mutex> lock(p.mutex);
-            p.ioOptions = value;
+            if (value != p.ioOptions)
+            {
+                p.ioOptions = value;
+                p.ioOptionsChanged = true;
+            }
         }
 
         file::Path Timeline::Private::fixPath(const file::Path& path) const
@@ -653,7 +658,7 @@ namespace tlr
                         requestCount = this->requestCount;
                     }
                     auto logSystem = context->getLogSystem();
-                    logSystem->print(id, string::Format("path: {0}, requests: {1}, in progress: {2}, count: {3}, readers: {4}").
+                    logSystem->print(id, string::Format("path: {0}, requests: {1}, in progress: {2}, request count: {3}, readers: {4}").
                         arg(path.get()).
                         arg(requestsSize).
                         arg(requestsInProgress.size()).
@@ -668,6 +673,7 @@ namespace tlr
             // Gather requests.
             std::list<Request> newRequests;
             avio::Options ioOptions;
+            bool ioOptionsChanged = false;
             {
                 std::unique_lock<std::mutex> lock(mutex);
                 requestCV.wait_for(
@@ -684,6 +690,20 @@ namespace tlr
                     requests.pop_front();
                 }
                 ioOptions = this->ioOptions;
+                ioOptionsChanged = this->ioOptionsChanged;
+                this->ioOptionsChanged = false;
+            }
+
+            // Clear readers if the I/O options changed.
+            if (ioOptionsChanged)
+            {
+                for (const auto& i : readers)
+                {
+                    auto read = i.second.read;
+                    read->stop();
+                    stoppedReaders.push_back(read);
+                }
+                readers.clear();
             }
 
             // Traverse the timeline for new requests.
