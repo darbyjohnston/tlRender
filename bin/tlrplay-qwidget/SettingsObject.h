@@ -30,6 +30,15 @@ namespace tlr
         //! Get the frame cache read behind.
         int frameCacheReadBehind() const;
 
+        //! Get the timeline request count.
+        int requestCount() const;
+
+        //! Get the sequence I/O thread count.
+        int sequenceThreadCount() const;
+
+        //! Get the FFmpeg I/O thread count.
+        int ffmpegThreadCount() const;
+
         //! Get whether tool tips are enabled.
         bool hasToolTipsEnabled() const;
 
@@ -43,6 +52,15 @@ namespace tlr
         //! Set the frame cache read behind.
         void setFrameCacheReadBehind(int);
 
+        //! Set the timeline request count.
+        void setRequestCount(int);
+
+        //! Set the sequence I/O thread count.
+        void setSequenceThreadCount(int);
+
+        //! Set the FFmepg I/O thread count.
+        void setFFmpegThreadCount(int);
+
         //! Set whether tool tips are enabled.
         void setToolTipsEnabled(bool);
 
@@ -53,8 +71,17 @@ namespace tlr
         //! This signal is emitted when the frame cache read ahead is changed.
         void frameCacheReadAheadChanged(int);
 
-        //! This signal is emitted when the frame cache read nehind is changed.
+        //! This signal is emitted when the frame cache read behind is changed.
         void frameCacheReadBehindChanged(int);
+
+        //! This signal is emitted when the timeline request count is changed.
+        void requestCountChanged(int);
+
+        //! This signal is emitted when the sequence I/O thread count is changed.
+        void sequenceThreadCountChanged(int);
+
+        //! This signal is emitted when the FFmpeg thread count is changed.
+        void ffmpegThreadCountChanged(int);
 
         //! This signal is emitted when tool tips are enabled or disabled.
         void toolTipsEnabledChanged(bool);
@@ -66,6 +93,9 @@ namespace tlr
         const int _recentFilesMax = 10;
         int _frameCacheReadAhead = 100;
         int _frameCacheReadBehind = 10;
+        int _requestCount = 16;
+        int _sequenceThreadCount = 16;
+        int _ffmpegThreadCount = 4;
         qt::TimeObject* _timeObject = nullptr;
         bool _toolTipsEnabled = true;
         qt::ToolTipsFilter* _toolTipsFilter = nullptr;

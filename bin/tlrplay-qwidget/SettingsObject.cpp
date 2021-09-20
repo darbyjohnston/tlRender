@@ -26,6 +26,9 @@ namespace tlr
         settings.endArray();
         _frameCacheReadAhead = settings.value("FrameCache/ReadAhead", 100).toInt();
         _frameCacheReadBehind = settings.value("FrameCache/ReadBehind", 10).toInt();
+        _requestCount = settings.value("Performance/RequestCount", 16).toInt();
+        _sequenceThreadCount = settings.value("Performance/SequenceThreadCount", 16).toInt();
+        _ffmpegThreadCount = settings.value("Performance/FFmpegThreadCount", 4).toInt();
         _toolTipsEnabled = settings.value("Misc/ToolTipsEnabled", true).toBool();
 
         _toolTipsUpdate();
@@ -44,6 +47,9 @@ namespace tlr
         settings.endArray();
         settings.setValue("FrameCache/ReadAhead", _frameCacheReadAhead);
         settings.setValue("FrameCache/ReadBehind", _frameCacheReadBehind);
+        settings.setValue("Performance/RequestCount", _requestCount);
+        settings.setValue("Performance/SequenceThreadCount", _sequenceThreadCount);
+        settings.setValue("Performance/FFmpegThreadCount", _ffmpegThreadCount);
         settings.setValue("Misc/ToolTipsEnabled", _toolTipsEnabled);
     }
 
@@ -60,6 +66,21 @@ namespace tlr
     int SettingsObject::frameCacheReadBehind() const
     {
         return _frameCacheReadBehind;
+    }
+
+    int SettingsObject::requestCount() const
+    {
+        return _requestCount;
+    }
+
+    int SettingsObject::sequenceThreadCount() const
+    {
+        return _sequenceThreadCount;
+    }
+
+    int SettingsObject::ffmpegThreadCount() const
+    {
+        return _ffmpegThreadCount;
     }
 
     bool SettingsObject::hasToolTipsEnabled() const
@@ -92,6 +113,30 @@ namespace tlr
             return;
         _frameCacheReadBehind = value;
         Q_EMIT frameCacheReadBehindChanged(_frameCacheReadBehind);
+    }
+
+    void SettingsObject::setRequestCount(int value)
+    {
+        if (value == _requestCount)
+            return;
+        _requestCount = value;
+        Q_EMIT requestCountChanged(_requestCount);
+    }
+
+    void SettingsObject::setSequenceThreadCount(int value)
+    {
+        if (value == _sequenceThreadCount)
+            return;
+        _sequenceThreadCount = value;
+        Q_EMIT sequenceThreadCountChanged(_sequenceThreadCount);
+    }
+
+    void SettingsObject::setFFmpegThreadCount(int value)
+    {
+        if (value == _ffmpegThreadCount)
+            return;
+        _ffmpegThreadCount = value;
+        Q_EMIT ffmpegThreadCountChanged(_ffmpegThreadCount);
     }
 
     void SettingsObject::setToolTipsEnabled(bool value)

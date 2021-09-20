@@ -60,6 +60,26 @@ namespace tlr
         // Create objects.
         _timeObject = new qt::TimeObject(this);
         _settingsObject = new SettingsObject(_timeObject, this);
+        connect(
+            _settingsObject,
+            SIGNAL(frameCacheReadAheadChanged(int)),
+            SLOT(_settingsCallback()));
+        connect(
+            _settingsObject,
+            SIGNAL(frameCacheReadBehindChanged(int)),
+            SLOT(_settingsCallback()));
+        connect(
+            _settingsObject,
+            SIGNAL(requestCountChanged(int)),
+            SLOT(_settingsCallback()));
+        connect(
+            _settingsObject,
+            SIGNAL(sequenceThreadCountChanged(int)),
+            SLOT(_settingsCallback()));
+        connect(
+            _settingsObject,
+            SIGNAL(ffmpegThreadCountChanged(int)),
+            SLOT(_settingsCallback()));
 
         // Create the main window.
         _mainWindow = new MainWindow(_settingsObject, _timeObject);
@@ -85,16 +105,7 @@ namespace tlr
         try
         {
             auto timelinePlayer = new qt::TimelinePlayer(file::Path(fileName.toLatin1().data()), _context, this);
-            timelinePlayer->setFrameCacheReadAhead(_settingsObject->frameCacheReadAhead());
-            timelinePlayer->setFrameCacheReadBehind(_settingsObject->frameCacheReadBehind());
-            timelinePlayer->connect(
-                _settingsObject,
-                SIGNAL(frameCacheReadAheadChanged(int)),
-                SLOT(setFrameCacheReadAhead(int)));
-            timelinePlayer->connect(
-                _settingsObject,
-                SIGNAL(frameCacheReadBehindChanged(int)),
-                SLOT(setFrameCacheReadBehind(int)));
+            _settingsUpdate(timelinePlayer);
             _timelinePlayers.append(timelinePlayer);
 
             Q_EMIT opened(timelinePlayer);
@@ -127,5 +138,24 @@ namespace tlr
         {
             close(_timelinePlayers.back());
         }
+    }
+
+    void App::_settingsCallback()
+    {
+        for (auto i : _timelinePlayers)
+        {
+            _settingsUpdate(i);
+        }
+    }
+
+    void App::_settingsUpdate(qt::TimelinePlayer* value)
+    {
+        value->setFrameCacheReadAhead(_settingsObject->frameCacheReadAhead());
+        value->setFrameCacheReadBehind(_settingsObject->frameCacheReadBehind());
+        value->setRequestCount(_settingsObject->requestCount());
+        avio::Options ioOptions;
+        ioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").arg(_settingsObject->sequenceThreadCount());
+        ioOptions["ffmpeg/ThreadCount"] = string::Format("{0}").arg(_settingsObject->ffmpegThreadCount());
+        value->setIOOptions(ioOptions);
     }
 }

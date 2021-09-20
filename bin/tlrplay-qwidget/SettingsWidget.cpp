@@ -71,6 +71,93 @@ namespace tlr
         _readBehindSpinBox->setValue(value);
     }
 
+    PerformanceSettingsWidget::PerformanceSettingsWidget(SettingsObject* settingsObject, QWidget* parent) :
+        QWidget(parent)
+    {
+        _requestCountSpinBox = new QSpinBox;
+        _requestCountSpinBox->setRange(1, 64);
+
+        _sequenceThreadCountSpinBox = new QSpinBox;
+        _sequenceThreadCountSpinBox->setRange(1, 64);
+
+        _ffmpegThreadCountSpinBox = new QSpinBox;
+        _ffmpegThreadCountSpinBox->setRange(1, 64);
+
+        auto layout = new QVBoxLayout;
+        auto vLayout = new QVBoxLayout;
+        vLayout->addWidget(_requestCountSpinBox);
+        auto groupBox = new QGroupBox(tr("Timeline Requests"));
+        groupBox->setLayout(vLayout);
+        layout->addWidget(groupBox);
+        vLayout = new QVBoxLayout;
+        vLayout->addWidget(_sequenceThreadCountSpinBox);
+        groupBox = new QGroupBox(tr("Sequence I/O Threads"));
+        groupBox->setLayout(vLayout);
+        layout->addWidget(groupBox);
+        vLayout = new QVBoxLayout;
+        vLayout->addWidget(_ffmpegThreadCountSpinBox);
+        groupBox = new QGroupBox(tr("FFmpeg I/O threads"));
+        groupBox->setLayout(vLayout);
+        layout->addWidget(groupBox);
+        layout->addStretch();
+        setLayout(layout);
+
+        _requestCountSpinBox->setValue(settingsObject->requestCount());
+        _sequenceThreadCountSpinBox->setValue(settingsObject->sequenceThreadCount());
+        _ffmpegThreadCountSpinBox->setValue(settingsObject->ffmpegThreadCount());
+
+        connect(
+            _requestCountSpinBox,
+            SIGNAL(valueChanged(int)),
+            settingsObject,
+            SLOT(setRequestCount(int)));
+
+        connect(
+            _sequenceThreadCountSpinBox,
+            SIGNAL(valueChanged(int)),
+            settingsObject,
+            SLOT(setSequenceThreadCount(int)));
+
+        connect(
+            _ffmpegThreadCountSpinBox,
+            SIGNAL(valueChanged(int)),
+            settingsObject,
+            SLOT(setFFmpegThreadCount(int)));
+
+        connect(
+            settingsObject,
+            SIGNAL(requestCountChanged(int)),
+            SLOT(_requestCountCallback(int)));
+
+        connect(
+            settingsObject,
+            SIGNAL(sequenceThreadCountChanged(int)),
+            SLOT(_sequenceThreadCountCallback(int)));
+
+        connect(
+            settingsObject,
+            SIGNAL(ffmpegThreadCountChanged(int)),
+            SLOT(_ffmpegThreadCountCallback(int)));
+    }
+
+    void PerformanceSettingsWidget::_requestCountCallback(int value)
+    {
+        QSignalBlocker signalBlocker(_requestCountSpinBox);
+        _requestCountSpinBox->setValue(value);
+    }
+
+    void PerformanceSettingsWidget::_sequenceThreadCountCallback(int value)
+    {
+        QSignalBlocker signalBlocker(_sequenceThreadCountSpinBox);
+        _sequenceThreadCountSpinBox->setValue(value);
+    }
+
+    void PerformanceSettingsWidget::_ffmpegThreadCountCallback(int value)
+    {
+        QSignalBlocker signalBlocker(_ffmpegThreadCountSpinBox);
+        _ffmpegThreadCountSpinBox->setValue(value);
+    }
+
     TimeSettingsWidget::TimeSettingsWidget(qt::TimeObject* timeObject, QWidget* parent) :
         QWidget(parent),
         _timeObject(timeObject)
@@ -187,6 +274,7 @@ namespace tlr
         QToolBox(parent)
     {
         addItem(new FrameCacheSettingsWidget(settingsObject), tr("Frame Cache"));
+        addItem(new PerformanceSettingsWidget(settingsObject), tr("Performance"));
         addItem(new TimeSettingsWidget(timeObject), tr("Time"));
         addItem(new MiscSettingsWidget(settingsObject), tr("Miscellaneous"));
 

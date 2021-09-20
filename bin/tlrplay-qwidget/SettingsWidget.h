@@ -36,6 +36,25 @@ namespace tlr
         QSpinBox* _readBehindSpinBox = nullptr;
     };
 
+    //! Performance settings widget.
+    class PerformanceSettingsWidget : public QWidget
+    {
+        Q_OBJECT
+
+    public:
+        PerformanceSettingsWidget(SettingsObject*, QWidget* parent = nullptr);
+
+    private Q_SLOTS:
+        void _requestCountCallback(int);
+        void _sequenceThreadCountCallback(int);
+        void _ffmpegThreadCountCallback(int);
+
+    private:
+        QSpinBox* _requestCountSpinBox = nullptr;
+        QSpinBox* _sequenceThreadCountSpinBox = nullptr;
+        QSpinBox* _ffmpegThreadCountSpinBox = nullptr;
+    };
+
     //! Time settings widget.
     class TimeSettingsWidget : public QWidget
     {

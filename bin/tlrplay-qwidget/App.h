@@ -50,7 +50,12 @@ namespace tlr
         //! This signal is emitted when a timeline is closed.
         void closed(tlr::qt::TimelinePlayer*);
 
+    private Q_SLOTS:
+        void _settingsCallback();
+
     private:
+        void _settingsUpdate(qt::TimelinePlayer*);
+
         std::string _input;
         Options _options;
 
