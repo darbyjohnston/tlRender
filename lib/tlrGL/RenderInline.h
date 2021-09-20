@@ -11,7 +11,8 @@ namespace tlr
             return config == other.config &&
                 input == other.input &&
                 display == other.display &&
-                view == other.view;
+                view == other.view &&
+                look == other.look;
         }
 
         inline bool ColorConfig::operator != (const ColorConfig& other) const

@@ -492,6 +492,8 @@ namespace tlr
             
             ColorConfig colorConfig;
             OCIO::ConstConfigRcPtr ocioConfig;
+            OCIO::DisplayViewTransformRcPtr ocioTransform;
+            OCIO::LegacyViewingPipelineRcPtr ocioVP;
             OCIO::ConstProcessorRcPtr ocioProcessor;
             OCIO::ConstGPUProcessorRcPtr ocioGpuProcessor;
             OCIO::GpuShaderDescRcPtr ocioShaderDesc;
@@ -588,11 +590,28 @@ namespace tlr
             const std::string view = !p.colorConfig.view.empty() ?
                 p.colorConfig.view :
                 p.ocioConfig->getDefaultView(display.c_str());
-            p.ocioProcessor = p.ocioConfig->getProcessor(
-                p.colorConfig.input.c_str(),
-                display.c_str(),
-                view.c_str(),
-                OCIO::TRANSFORM_DIR_FORWARD);
+
+            p.ocioTransform = OCIO::DisplayViewTransform::Create();
+            if (!p.ocioTransform)
+            {
+                _delColorConfig();
+                throw std::runtime_error("Cannot create OCIO transform");
+            }
+            p.ocioTransform->setSrc(p.colorConfig.input.c_str());
+            p.ocioTransform->setDisplay(display.c_str());
+            p.ocioTransform->setView(view.c_str());
+
+            p.ocioVP = OCIO::LegacyViewingPipeline::Create();
+            if (!p.ocioVP)
+            {
+                _delColorConfig();
+                throw std::runtime_error("Cannot create OCIO viewing pipeline");
+            }
+            p.ocioVP->setDisplayViewTransform(p.ocioTransform);
+            p.ocioVP->setLooksOverrideEnabled(true);
+            p.ocioVP->setLooksOverride(p.colorConfig.look.c_str());
+
+            p.ocioProcessor = p.ocioVP->getProcessor(p.ocioConfig, p.ocioConfig->getCurrentContext());
             if (!p.ocioProcessor)
             {
                 _delColorConfig();
@@ -1176,6 +1195,8 @@ namespace tlr
             p.ocioShaderDesc.reset();
             p.ocioGpuProcessor.reset();
             p.ocioProcessor.reset();
+            p.ocioVP.reset();
+            p.ocioTransform.reset();
             p.ocioConfig.reset();
         }
     }
