@@ -68,7 +68,8 @@ namespace tlr
         protected:
             void _init(
                 const file::Path&,
-                const std::shared_ptr<core::Context>&);
+                const std::shared_ptr<core::Context>&,
+                const Options&);
             TimelinePlayer();
 
         public:
@@ -77,7 +78,8 @@ namespace tlr
             //! Create a new timeline player.
             static std::shared_ptr<TimelinePlayer> create(
                 const file::Path&,
-                const std::shared_ptr<core::Context>&);
+                const std::shared_ptr<core::Context>&,
+                const Options& = Options());
 
             //! Get the context.
             const std::weak_ptr<core::Context>& getContext() const;
@@ -87,6 +89,9 @@ namespace tlr
             
             //! Get the path.
             const file::Path& getPath() const;
+
+            //! Get the options.
+            const Options& getOptions() const;
 
             //! \name Information
             ///@{
@@ -208,26 +213,6 @@ namespace tlr
 
             //! Observe the cached frames.
             std::shared_ptr<observer::IList<otime::TimeRange> > observeCachedFrames() const;
-
-            ///@}
-
-            //! \name Options
-            ///@{
-
-            //! Get the number of frame requests.
-            size_t getRequestCount() const;
-
-            //! Set the number of frame requests.
-            void setRequestCount(size_t);
-
-            //! Get the frame request timeout.
-            std::chrono::milliseconds getRequestTimeout() const;
-
-            //! Set the frame request timeout.
-            void setRequestTimeout(const std::chrono::milliseconds&);
-
-            //! Set the I/O options.
-            void setIOOptions(const avio::Options&);
 
             ///@}
 

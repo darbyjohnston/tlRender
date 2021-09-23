@@ -27,6 +27,7 @@ namespace tlr
             TimelinePlayer(
                 const file::Path&,
                 const std::shared_ptr<core::Context>&,
+                const timeline::Options& = timeline::Options(),
                 QObject* parent = nullptr);
 
             ~TimelinePlayer() override;
@@ -39,6 +40,9 @@ namespace tlr
 
             //! Get the path.
             const file::Path& path() const;
+
+            //! Get the options.
+            const timeline::Options& getOptions() const;
 
             //! \name Information
             ///@{
@@ -106,20 +110,6 @@ namespace tlr
 
             //! Get the cached frames.
             const std::vector<otime::TimeRange>& cachedFrames() const;
-
-            ///@}
-
-            //! \name Options
-            ///@{
-
-            //! Get the number of frame requests.
-            int requestCount() const;
-
-            //! Get the frame request timeout (milliseconds).
-            int requestTimeout() const;
-
-            //! Set the I/O options.
-            void setIOOptions(const avio::Options&);
 
             ///@}
 
@@ -204,17 +194,6 @@ namespace tlr
 
             //! Set the frame cache read behind.
             void setFrameCacheReadBehind(int);
-
-            ///@}
-
-            //! \name Options
-            ///@{
-
-            //! Set the number of frame requests.
-            void setRequestCount(int);
-
-            //! Set the frame request timeout (milliseconds).
-            void setRequestTimeout(int);
 
             ///@}
 

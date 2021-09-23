@@ -6,6 +6,7 @@
 
 #include <QBoxLayout>
 #include <QGroupBox>
+#include <QLabel>
 #include <QSettings>
 
 namespace tlr
@@ -86,16 +87,25 @@ namespace tlr
         auto layout = new QVBoxLayout;
         auto vLayout = new QVBoxLayout;
         vLayout->addWidget(_requestCountSpinBox);
+        auto label = new QLabel(tr("Changes applied to new files"));
+        label->setWordWrap(true);
+        vLayout->addWidget(label);
         auto groupBox = new QGroupBox(tr("Timeline Requests"));
         groupBox->setLayout(vLayout);
         layout->addWidget(groupBox);
         vLayout = new QVBoxLayout;
         vLayout->addWidget(_sequenceThreadCountSpinBox);
+        label = new QLabel(tr("Changes applied to new files"));
+        label->setWordWrap(true);
+        vLayout->addWidget(label);
         groupBox = new QGroupBox(tr("Sequence I/O Threads"));
         groupBox->setLayout(vLayout);
         layout->addWidget(groupBox);
         vLayout = new QVBoxLayout;
         vLayout->addWidget(_ffmpegThreadCountSpinBox);
+        label = new QLabel(tr("Changes applied to new files"));
+        label->setWordWrap(true);
+        vLayout->addWidget(label);
         groupBox = new QGroupBox(tr("FFmpeg I/O threads"));
         groupBox->setLayout(vLayout);
         layout->addWidget(groupBox);

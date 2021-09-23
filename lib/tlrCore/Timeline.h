@@ -31,6 +31,17 @@ namespace tlr
         template<typename T>
         const T* getParent(const otio::Item*);
 
+        //! Timeline options.
+        struct Options
+        {
+            size_t                    requestCount   = 16;
+            std::chrono::milliseconds requestTimeout = std::chrono::milliseconds(1);
+            avio::Options             avioOptions;
+
+            bool operator == (const Options&) const;
+            bool operator != (const Options&) const;
+        };
+
         //! Transitions.
         enum class Transition
         {
@@ -79,7 +90,8 @@ namespace tlr
         protected:
             void _init(
                 const otio::SerializableObject::Retainer<otio::Timeline>&,
-                const std::shared_ptr<core::Context>&);
+                const std::shared_ptr<core::Context>&,
+                const Options&);
             Timeline();
 
         public:
@@ -88,13 +100,15 @@ namespace tlr
             //! Create a new timeline.
             static std::shared_ptr<Timeline> create(
                 const otio::SerializableObject::Retainer<otio::Timeline>&,
-                const std::shared_ptr<core::Context>&);
+                const std::shared_ptr<core::Context>&,
+                const Options& = Options());
 
             //! Create a new timeline from a file path. The file path can point
             //! to an .otio file, movie file, or image sequence.
             static std::shared_ptr<Timeline> create(
                 const file::Path&,
-                const std::shared_ptr<core::Context>&);
+                const std::shared_ptr<core::Context>&,
+                const Options& = Options());
 
             //! Get the context.
             const std::weak_ptr<core::Context>& getContext() const;
@@ -104,6 +118,9 @@ namespace tlr
 
             //! Get the path.
             const file::Path& getPath() const;
+
+            //! Get the options.
+            const Options& getOptions() const;
 
             //! \name Information
             ///@{
@@ -136,26 +153,6 @@ namespace tlr
 
             //! Cancel frames.
             void cancelFrames();
-
-            ///@}
-
-            //! \name Options
-            ///@{
-
-            //! Get the number of frame requests.
-            size_t getRequestCount() const;
-
-            //! Set the number of frame requests.
-            void setRequestCount(size_t);
-
-            //! Get the frame request timeout.
-            std::chrono::milliseconds getRequestTimeout() const;
-
-            //! Set the frame request timeout.
-            void setRequestTimeout(const std::chrono::milliseconds&);
-
-            //! Set the I/O options.
-            void setIOOptions(const avio::Options&);
 
             ///@}
 

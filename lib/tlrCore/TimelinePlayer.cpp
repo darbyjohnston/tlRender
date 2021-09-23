@@ -118,12 +118,13 @@ namespace tlr
 
         void TimelinePlayer::_init(
             const file::Path& path,
-            const std::shared_ptr<core::Context>& context)
+            const std::shared_ptr<core::Context>& context,
+            const Options& options)
         {
             TLR_PRIVATE_P();
 
             // Create the timeline.
-            p.timeline = timeline::Timeline::create(path, context);
+            p.timeline = timeline::Timeline::create(path, context, options);
 
             // Create observers.
             p.speed = observer::Value<float>::create(p.timeline->getDuration().rate());
@@ -240,10 +241,11 @@ namespace tlr
 
         std::shared_ptr<TimelinePlayer> TimelinePlayer::create(
             const file::Path& path,
-            const std::shared_ptr<core::Context>& context)
+            const std::shared_ptr<core::Context>& context,
+            const Options& options)
         {
             auto out = std::shared_ptr<TimelinePlayer>(new TimelinePlayer);
-            out->_init(path, context);
+            out->_init(path, context, options);
             return out;
         }
 
@@ -260,6 +262,11 @@ namespace tlr
         const file::Path& TimelinePlayer::getPath() const
         {
             return _p->timeline->getPath();
+        }
+
+        const Options& TimelinePlayer::getOptions() const
+        {
+            return _p->timeline->getOptions();
         }
 
         const otime::RationalTime& TimelinePlayer::getGlobalStartTime() const
@@ -559,31 +566,6 @@ namespace tlr
         std::shared_ptr<observer::IList<otime::TimeRange> > TimelinePlayer::observeCachedFrames() const
         {
             return _p->cachedFrames;
-        }
-
-        size_t TimelinePlayer::getRequestCount() const
-        {
-            return _p->timeline->getRequestCount();
-        }
-
-        void TimelinePlayer::setRequestCount(size_t value)
-        {
-            _p->timeline->setRequestCount(value);
-        }
-
-        std::chrono::milliseconds TimelinePlayer::getRequestTimeout() const
-        {
-            return _p->timeline->getRequestTimeout();
-        }
-
-        void TimelinePlayer::setRequestTimeout(const std::chrono::milliseconds& value)
-        {
-            _p->timeline->setRequestTimeout(value);
-        }
-
-        void TimelinePlayer::setIOOptions(const avio::Options& value)
-        {
-            _p->timeline->setIOOptions(value);
         }
 
         void TimelinePlayer::tick()

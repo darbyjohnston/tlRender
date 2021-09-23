@@ -84,6 +84,18 @@ namespace tlr
             return out;
         }
 
+        bool Options::operator == (const Options& other) const
+        {
+            return requestCount == other.requestCount &&
+                requestTimeout == other.requestTimeout &&
+                avioOptions == other.avioOptions;
+        }
+
+        bool Options::operator != (const Options& other) const
+        {
+            return !(*this == other);
+        }
+
         TLR_ENUM_IMPL(
             Transition,
             "None",
@@ -218,8 +230,9 @@ namespace tlr
             void delReaders();
 
             std::weak_ptr<core::Context> context;
-            file::Path path;
             otio::SerializableObject::Retainer<otio::Timeline> otioTimeline;
+            file::Path path;
+            Options options;
             otime::RationalTime duration = time::invalidTime;
             otime::RationalTime globalStartTime = time::invalidTime;
             std::vector<imaging::Info> videoInfo;
@@ -249,12 +262,8 @@ namespace tlr
             };
             std::list<Request> requests;
             std::list<Request> requestsInProgress;
-            size_t requestCount = 16;
-            std::chrono::milliseconds requestTimeout = std::chrono::milliseconds(1);
             std::condition_variable requestCV;
 
-            avio::Options ioOptions;
-            bool ioOptionsChanged = false;
             struct Reader
             {
                 std::shared_ptr<avio::IRead> read;
@@ -274,11 +283,13 @@ namespace tlr
 
         void Timeline::_init(
             const otio::SerializableObject::Retainer<otio::Timeline>& otioTimeline,
-            const std::shared_ptr<core::Context>& context)
+            const std::shared_ptr<core::Context>& context,
+            const Options& options)
         {
             TLR_PRIVATE_P();
 
             p.context = context;
+            p.options = options;
             p.otioTimeline = otioTimeline;
 
             // Get information about the timeline.
@@ -366,16 +377,18 @@ namespace tlr
 
         std::shared_ptr<Timeline> Timeline::create(
             const otio::SerializableObject::Retainer<otio::Timeline>& timeline,
-            const std::shared_ptr<core::Context>& context)
+            const std::shared_ptr<core::Context>& context,
+            const Options& options)
         {
             auto out = std::shared_ptr<Timeline>(new Timeline);
-            out->_init(timeline, context);
+            out->_init(timeline, context, options);
             return out;
         }
 
         std::shared_ptr<Timeline> Timeline::create(
             const file::Path& path,
-            const std::shared_ptr<core::Context>& context)
+            const std::shared_ptr<core::Context>& context,
+            const Options& options)
         {
             auto out = std::shared_ptr<Timeline>(new Timeline);
             otio::SerializableObject::Retainer<otio::Timeline> otioTimeline;
@@ -440,7 +453,7 @@ namespace tlr
                 throw std::runtime_error(error);
             }
             out->_p->path = path;
-            out->_init(otioTimeline, context);
+            out->_init(otioTimeline, context, options);
             return out;
         }
 
@@ -457,6 +470,11 @@ namespace tlr
         const file::Path& Timeline::getPath() const
         {
             return _p->path;
+        }
+
+        const Options& Timeline::getOptions() const
+        {
+            return _p->options;
         }
 
         const otime::RationalTime& Timeline::getGlobalStartTime() const
@@ -521,45 +539,6 @@ namespace tlr
             }
         }
 
-        size_t Timeline::getRequestCount() const
-        {
-            TLR_PRIVATE_P();
-            std::unique_lock<std::mutex> lock(p.mutex);
-            return p.requestCount;
-        }
-
-        void Timeline::setRequestCount(size_t value)
-        {
-            TLR_PRIVATE_P();
-            std::unique_lock<std::mutex> lock(p.mutex);
-            p.requestCount = value;
-        }
-
-        std::chrono::milliseconds Timeline::getRequestTimeout() const
-        {
-            TLR_PRIVATE_P();
-            std::unique_lock<std::mutex> lock(p.mutex);
-            return p.requestTimeout;
-        }
-
-        void Timeline::setRequestTimeout(const std::chrono::milliseconds& value)
-        {
-            TLR_PRIVATE_P();
-            std::unique_lock<std::mutex> lock(p.mutex);
-            p.requestTimeout = value;
-        }
-
-        void Timeline::setIOOptions(const avio::Options& value)
-        {
-            TLR_PRIVATE_P();
-            std::unique_lock<std::mutex> lock(p.mutex);
-            if (value != p.ioOptions)
-            {
-                p.ioOptions = value;
-                p.ioOptionsChanged = true;
-            }
-        }
-
         file::Path Timeline::Private::fixPath(const file::Path& path) const
         {
             std::string directory;
@@ -603,10 +582,10 @@ namespace tlr
                 {
                     // The first clip with video defines the image information
                     // for the timeline.
-                    avio::Options options = ioOptions;
+                    avio::Options avioOptions = options.avioOptions;
                     otio::ErrorStatus errorStatus;
-                    options["SequenceIO/DefaultSpeed"] = string::Format("{0}").arg(clip->duration(&errorStatus).rate());
-                    if (auto read = context->getSystem<avio::System>()->read(getPath(clip->media_reference()), options))
+                    avioOptions["SequenceIO/DefaultSpeed"] = string::Format("{0}").arg(clip->duration(&errorStatus).rate());
+                    if (auto read = context->getSystem<avio::System>()->read(getPath(clip->media_reference()), avioOptions))
                     {
                         const auto info = read->getInfo().get();
                         if (!info.video.empty())
@@ -651,18 +630,16 @@ namespace tlr
                 {
                     const std::string id = string::Format("tlr::timeline::Timeline {0}").arg(this);
                     size_t requestsSize = 0;
-                    size_t requestCount = 0;
                     {
                         std::unique_lock<std::mutex> lock(mutex);
                         requestsSize = requests.size();
-                        requestCount = this->requestCount;
                     }
                     auto logSystem = context->getLogSystem();
                     logSystem->print(id, string::Format("path: {0}, requests: {1}, in progress: {2}, request count: {3}, readers: {4}").
                         arg(path.get()).
                         arg(requestsSize).
                         arg(requestsInProgress.size()).
-                        arg(requestCount).
+                        arg(options.requestCount).
                         arg(readers.size()));
                 }
             }
@@ -672,38 +649,21 @@ namespace tlr
         {
             // Gather requests.
             std::list<Request> newRequests;
-            avio::Options ioOptions;
-            bool ioOptionsChanged = false;
             {
                 std::unique_lock<std::mutex> lock(mutex);
                 requestCV.wait_for(
                     lock,
-                    requestTimeout,
+                    options.requestTimeout,
                     [this]
                     {
                         return !requests.empty() || !requestsInProgress.empty();
                     });
                 while (!requests.empty() &&
-                    (requestsInProgress.size() + newRequests.size()) < requestCount)
+                    (requestsInProgress.size() + newRequests.size()) < options.requestCount)
                 {
                     newRequests.push_back(std::move(requests.front()));
                     requests.pop_front();
                 }
-                ioOptions = this->ioOptions;
-                ioOptionsChanged = this->ioOptionsChanged;
-                this->ioOptionsChanged = false;
-            }
-
-            // Clear readers if the I/O options changed.
-            if (ioOptionsChanged)
-            {
-                for (const auto& i : readers)
-                {
-                    auto read = i.second.read;
-                    read->stop();
-                    stoppedReaders.push_back(read);
-                }
-                readers.clear();
             }
 
             // Traverse the timeline for new requests.
@@ -731,7 +691,7 @@ namespace tlr
                                             LayerData data;
                                             if (const auto otioClip = dynamic_cast<otio::Clip*>(otioItem))
                                             {
-                                                data.image = readVideoFrame(otioTrack, otioClip, time, request.videoLayer, ioOptions, request.image);
+                                                data.image = readVideoFrame(otioTrack, otioClip, time, request.videoLayer, options.avioOptions, request.image);
                                             }
                                             const auto neighbors = otioTrack->neighbors_of(otioItem, &errorStatus);
                                             if (auto otioTransition = dynamic_cast<otio::Transition*>(neighbors.second.value))
@@ -746,7 +706,7 @@ namespace tlr
                                                     const auto transitionNeighbors = otioTrack->neighbors_of(otioTransition, &errorStatus);
                                                     if (const auto otioClipB = dynamic_cast<otio::Clip*>(transitionNeighbors.second.value))
                                                     {
-                                                        data.imageB = readVideoFrame(otioTrack, otioClipB, time, request.videoLayer, ioOptions);
+                                                        data.imageB = readVideoFrame(otioTrack, otioClipB, time, request.videoLayer, options.avioOptions);
                                                     }
                                                 }
                                             }
@@ -763,7 +723,7 @@ namespace tlr
                                                     const auto transitionNeighbors = otioTrack->neighbors_of(otioTransition, &errorStatus);
                                                     if (const auto otioClipB = dynamic_cast<otio::Clip*>(transitionNeighbors.first.value))
                                                     {
-                                                        data.image = readVideoFrame(otioTrack, otioClipB, time, request.videoLayer, ioOptions);
+                                                        data.image = readVideoFrame(otioTrack, otioClipB, time, request.videoLayer, options.avioOptions);
                                                     }
                                                 }
                                             }

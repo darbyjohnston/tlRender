@@ -27,13 +27,14 @@ namespace tlr
         TimelinePlayer::TimelinePlayer(
             const file::Path& path,
             const std::shared_ptr<core::Context>& context,
+            const timeline::Options& options,
             QObject* parent) :
             QObject(parent),
             _p(new Private)
         {
             TLR_PRIVATE_P();
 
-            p.timelinePlayer = timeline::TimelinePlayer::create(path, context);
+            p.timelinePlayer = timeline::TimelinePlayer::create(path, context, options);
 
             p.speedObserver = observer::ValueObserver<float>::create(
                 p.timelinePlayer->observeSpeed(),
@@ -182,21 +183,6 @@ namespace tlr
             return _p->timelinePlayer->observeCachedFrames()->get();
         }
 
-        int TimelinePlayer::requestCount() const
-        {
-            return _p->timelinePlayer->getRequestCount();
-        }
-
-        int TimelinePlayer::requestTimeout() const
-        {
-            return _p->timelinePlayer->getRequestTimeout().count();
-        }
-
-        void TimelinePlayer::setIOOptions(const avio::Options& value)
-        {
-            _p->timelinePlayer->setIOOptions(value);
-        }
-
         void TimelinePlayer::setSpeed(float value)
         {
             _p->timelinePlayer->setSpeed(value);
@@ -303,16 +289,6 @@ namespace tlr
         void TimelinePlayer::setFrameCacheReadBehind(int value)
         {
             _p->timelinePlayer->setFrameCacheReadBehind(std::max(0, value));
-        }
-
-        void TimelinePlayer::setRequestCount(int value)
-        {
-            _p->timelinePlayer->setRequestCount(std::max(0, value));
-        }
-
-        void TimelinePlayer::setRequestTimeout(int value)
-        {
-            _p->timelinePlayer->setRequestTimeout(std::chrono::milliseconds(std::max(0, value)));
         }
 
         void TimelinePlayer::timerEvent(QTimerEvent*)

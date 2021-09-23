@@ -104,7 +104,11 @@ namespace tlr
     {
         try
         {
-            auto timelinePlayer = new qt::TimelinePlayer(file::Path(fileName.toLatin1().data()), _context, this);
+            timeline::Options options;
+            options.requestCount = _settingsObject->requestCount();
+            options.avioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").arg(_settingsObject->sequenceThreadCount());
+            options.avioOptions["ffmpeg/ThreadCount"] = string::Format("{0}").arg(_settingsObject->ffmpegThreadCount());
+            auto timelinePlayer = new qt::TimelinePlayer(file::Path(fileName.toLatin1().data()), _context, options, this);
             _settingsUpdate(timelinePlayer);
             _timelinePlayers.append(timelinePlayer);
 
@@ -152,10 +156,5 @@ namespace tlr
     {
         value->setFrameCacheReadAhead(_settingsObject->frameCacheReadAhead());
         value->setFrameCacheReadBehind(_settingsObject->frameCacheReadBehind());
-        value->setRequestCount(_settingsObject->requestCount());
-        avio::Options ioOptions;
-        ioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").arg(_settingsObject->sequenceThreadCount());
-        ioOptions["ffmpeg/ThreadCount"] = string::Format("{0}").arg(_settingsObject->ffmpegThreadCount());
-        value->setIOOptions(ioOptions);
     }
 }

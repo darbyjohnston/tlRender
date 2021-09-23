@@ -234,6 +234,7 @@ namespace tlr
             auto timeline = Timeline::create(path, _context);
             TLR_ASSERT(timeline->getTimeline());
             TLR_ASSERT(path == timeline->getPath());
+            TLR_ASSERT(Options() == timeline->getOptions());
             const otime::RationalTime timelineDuration(48.0, 24.0);
             TLR_ASSERT(timelineDuration == timeline->getDuration());
             TLR_ASSERT(otime::RationalTime(0.0, 24.0) == timeline->getGlobalStartTime());

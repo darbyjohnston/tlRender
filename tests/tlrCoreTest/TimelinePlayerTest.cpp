@@ -107,6 +107,7 @@ namespace tlr
             auto timelinePlayer = TimelinePlayer::create(path, _context);
             TLR_ASSERT(timelinePlayer->getTimeline());
             TLR_ASSERT(path == timelinePlayer->getPath());
+            TLR_ASSERT(Options() == timelinePlayer->getOptions());
             const otime::RationalTime timelineDuration(48.0, 24.0);
             TLR_ASSERT(timelineDuration == timelinePlayer->getDuration());
             TLR_ASSERT(otime::RationalTime(10.0, 24.0) == timelinePlayer->getGlobalStartTime());
@@ -125,16 +126,12 @@ namespace tlr
             };
             for (const auto options : std::vector<FrameOptions>({
                 FrameOptions(),
-                { 1, 1, 0, 1, 0 } }))
+                { 1, 1, 0 } }))
             {
                 timelinePlayer->setFrameCacheReadAhead(options.readAhead);
                 TLR_ASSERT(options.readAhead == timelinePlayer->getFrameCacheReadAhead());
                 timelinePlayer->setFrameCacheReadBehind(options.readBehind);
                 TLR_ASSERT(options.readBehind == timelinePlayer->getFrameCacheReadBehind());
-                timelinePlayer->setRequestCount(options.requestCount);
-                TLR_ASSERT(options.requestCount == timelinePlayer->getRequestCount());
-                timelinePlayer->setRequestTimeout(std::chrono::milliseconds(options.requestTimeout));
-                TLR_ASSERT(std::chrono::milliseconds(options.requestTimeout) == timelinePlayer->getRequestTimeout());
                 auto frameObserver = observer::ValueObserver<timeline::Frame>::create(
                     timelinePlayer->observeFrame(),
                     [this](const timeline::Frame& value)
