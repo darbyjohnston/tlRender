@@ -6,6 +6,11 @@ project(tlRender-SuperBuild)
 # Build options.
 set(TLR_ENABLE_MMAP TRUE CACHE BOOL "Enable memory-mapped file I/O")
 set(TLR_ENABLE_PYTHON FALSE CACHE BOOL "Enable Python support (for OTIO Python adapters)")
+set(TLR_BUILD_GL TRUE CACHE BOOL "Build OpenGL library (tlrGL)")
+set(TLR_BUILD_QT FALSE CACHE BOOL "Build Qt libraries (tlrQt, tlrQWidget, tlrQuick)")
+set(TLR_BUILD_APPS TRUE CACHE BOOL "Build applications")
+set(TLR_BUILD_EXAMPLES TRUE CACHE BOOL "Build examples")
+set(TLR_BUILD_TESTS TRUE CACHE BOOL "Build tests")
 if(WIN32)
     message(WARNING "See the README for how to build FFmpeg on Windows")
 else()
@@ -15,11 +20,6 @@ set(TLR_BUILD_JPEG TRUE CACHE BOOL "Build JPEG support")
 set(TLR_BUILD_PNG TRUE CACHE BOOL "Build PNG support")
 set(TLR_BUILD_OpenEXR TRUE CACHE BOOL "Build OpenEXR support")
 set(TLR_BUILD_TIFF TRUE CACHE BOOL "Build TIFF support")
-set(TLR_BUILD_GL TRUE CACHE BOOL "Build OpenGL library (tlrGL)")
-set(TLR_BUILD_QT FALSE CACHE BOOL "Build Qt libraries (tlrQt, tlrQWidget, tlrQuick)")
-set(TLR_BUILD_APPS TRUE CACHE BOOL "Build applications")
-set(TLR_BUILD_EXAMPLES TRUE CACHE BOOL "Build examples")
-set(TLR_BUILD_TESTS TRUE CACHE BOOL "Build tests")
 
 # Configure.
 list(PREPEND CMAKE_MODULE_PATH
