@@ -134,15 +134,19 @@ separately.
 
 CMake Build Options
 -------------------
+* TLR_ENABLE_MMAP - Enable memory-mapped file I/O
+* TLR_ENABLE_GCOV - Enable gcov code coverage
 * TLR_ENABLE_PYTHON - Enable Python support (for OTIO Python adapters)
-* TLR_BUILD_FFmpeg - Build FFmpeg support (Linux and macOS only)
-* TLR_BUILD_JPEG - Build JPEG support
-* TLR_BUILD_OpenEXR - Build OpenEXR support
-* TLR_BUILD_PNG - Build PNG support
-* TLR_BUILD_TIFF - Build TIFF support
 * TLR_BUILD_GL - Build OpenGL library (tlrGL)
 * TLR_BUILD_QT - Build Qt libraries (tlrQt, tlrQWidget, tlrQuick)
+* TLR_BUILD_APPS - Build applications
 * TLR_BUILD_EXAMPLES - Build examples
+* TLR_BUILD_TESTS - Build tests
+* TLR_BUILD_FFmpeg - Build FFmpeg support (Linux and macOS only)
+* TLR_BUILD_JPEG - Build JPEG support
+* TLR_BUILD_PNG - Build PNG support
+* TLR_BUILD_OpenEXR - Build OpenEXR support
+* TLR_BUILD_TIFF - Build TIFF support
 
 Building on Linux
 -----------------
