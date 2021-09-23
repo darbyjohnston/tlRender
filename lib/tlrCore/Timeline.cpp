@@ -395,7 +395,7 @@ namespace tlr
             std::string error;
             try
             {
-                if (auto read = context->getSystem<avio::System>()->read(path))
+                if (auto read = context->getSystem<avio::System>()->read(path, options.avioOptions))
                 {
                     const auto info = read->getInfo().get();
                     otime::RationalTime globalStartTime(0.0, info.videoTimeRange.duration().rate());
