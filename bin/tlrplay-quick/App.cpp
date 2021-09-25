@@ -52,7 +52,7 @@ namespace tlr
         QQmlComponent component(_qmlEngine, QUrl(QStringLiteral("qrc:/tlrplay-quick.qml")));
         if (component.status() != QQmlComponent::Status::Ready)
         {
-            throw std::runtime_error(component.errorString().toLatin1().data());
+            throw std::runtime_error(component.errorString().toUtf8().data());
         }
         _qmlObject = component.create();
 

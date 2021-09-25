@@ -21,7 +21,7 @@ namespace tlr
         for (int i = 0; i < size; ++i)
         {
             settings.setArrayIndex(i);
-            _recentFiles.push_back(settings.value("File").toString().toLatin1().data());
+            _recentFiles.push_back(settings.value("File").toString().toUtf8().data());
         }
         settings.endArray();
         _frameCacheReadAhead = settings.value("FrameCache/ReadAhead", 100).toInt();

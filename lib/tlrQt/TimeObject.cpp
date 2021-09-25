@@ -103,7 +103,7 @@ namespace tlr
                 out = otime::RationalTime::from_seconds(text.toDouble());
                 break;
             case TimeUnits::Timecode:
-                out = otime::RationalTime::from_timecode(text.toLatin1().data(), rate, errorStatus);
+                out = otime::RationalTime::from_timecode(text.toUtf8().data(), rate, errorStatus);
                 break;
             default: break;
             }

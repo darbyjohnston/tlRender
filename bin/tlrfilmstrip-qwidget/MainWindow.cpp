@@ -67,7 +67,7 @@ namespace tlr
             const auto urlList = mimeData->urls();
             for (int i = 0; i < urlList.size(); ++i)
             {
-                _open(urlList[i].toLocalFile().toLatin1().data());
+                _open(urlList[i].toLocalFile().toUtf8().data());
             }
         }
     }

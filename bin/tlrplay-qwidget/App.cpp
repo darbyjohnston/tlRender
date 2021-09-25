@@ -88,7 +88,7 @@ namespace tlr
         // Open the input file.
         if (!_input.empty())
         {
-            open(QString::fromStdString(_input));
+            open(QString::fromUtf8(_input.c_str()));
         }
 
         _mainWindow->show();
@@ -108,7 +108,7 @@ namespace tlr
             options.requestCount = _settingsObject->requestCount();
             options.avioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").arg(_settingsObject->sequenceThreadCount());
             options.avioOptions["ffmpeg/ThreadCount"] = string::Format("{0}").arg(_settingsObject->ffmpegThreadCount());
-            auto timelinePlayer = new qt::TimelinePlayer(file::Path(fileName.toLatin1().data()), _context, options, this);
+            auto timelinePlayer = new qt::TimelinePlayer(file::Path(fileName.toUtf8().data()), _context, options, this);
             _settingsUpdate(timelinePlayer);
             _timelinePlayers.append(timelinePlayer);
 

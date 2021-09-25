@@ -460,7 +460,7 @@ namespace tlr
             {
                 if (auto app = qobject_cast<App*>(qApp))
                 {
-                    app->open(urlList[i].toLocalFile());
+                    app->open(urlList[i].toLocalFile().toUtf8());
                 }
             }
         }
@@ -477,14 +477,14 @@ namespace tlr
         QString dir;
         if (_currentTimelinePlayer)
         {
-            dir = QString::fromStdString(_currentTimelinePlayer->path().get());
+            dir = QString::fromUtf8(_currentTimelinePlayer->path().get().c_str());
         }
 
         const auto fileName = QFileDialog::getOpenFileName(
             this,
             tr("Open Timeline"),
             dir,
-            tr("Timeline Files") + " (" + QString::fromStdString(string::join(extensions, ", ")) + ")");
+            tr("Timeline Files") + " (" + QString::fromUtf8(string::join(extensions, ", ").c_str()) + ")");
         if (!fileName.isEmpty())
         {
             if (auto app = qobject_cast<App*>(qApp))
@@ -503,10 +503,10 @@ namespace tlr
             widget->setColorConfig(_colorConfig);
             widget->setTimelinePlayer(timelinePlayer);
             const file::Path& path = timelinePlayer->path();
-            const int tab = _tabWidget->addTab(widget, QString::fromStdString(path.get(-1, false)));
+            const int tab = _tabWidget->addTab(widget, QString::fromUtf8(path.get(-1, false).c_str()));
             const auto& videoInfo = timelinePlayer->videoInfo();
             const std::string toolTip = string::Format("{0}\n{1}").arg(path.get()).arg(!videoInfo.empty() ? videoInfo[0] : imaging::Info());
-            _tabWidget->setTabToolTip(tab, QString::fromStdString(toolTip));
+            _tabWidget->setTabToolTip(tab, QString::fromUtf8(toolTip.c_str()));
             _timelinePlayers.append(timelinePlayer);
             _setCurrentTimeline(timelinePlayer);
         }
@@ -924,7 +924,7 @@ namespace tlr
                 auto action = new QAction;
                 action->setCheckable(true);
                 action->setChecked(i == videoLayer);
-                action->setText(QString::fromStdString(videoInfo[i].name));
+                action->setText(QString::fromUtf8(videoInfo[i].name.c_str()));
                 _layersActionGroup->addAction(action);
                 _actionToLayer[action] = i;
                 _layersMenu->addAction(action);
