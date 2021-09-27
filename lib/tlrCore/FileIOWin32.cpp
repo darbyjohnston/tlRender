@@ -6,10 +6,9 @@
 
 #include <tlrCore/Error.h>
 #include <tlrCore/Memory.h>
+#include <tlrCore/String.h>
 #include <tlrCore/StringFormat.h>
 
-#include <codecvt>
-#include <locale>
 #include <exception>
 
 #if defined(TLR_ENABLE_MMAP)
@@ -164,8 +163,7 @@ namespace tlr
             }
             try
             {
-                std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> utf16;
-                p.f = CreateFileW(utf16.from_bytes(fileName).c_str(), desiredAccess, shareMode, 0, disposition, flags, 0);
+                p.f = CreateFileW(string::toWide(fileName).c_str(), desiredAccess, shareMode, 0, disposition, flags, 0);
             }
             catch (const std::exception&)
             {
@@ -199,24 +197,27 @@ namespace tlr
                 p.mmapP = p.mmapStart;
             }
 #else // TLR_ENABLE_MMAP
-            std::string modeStr;
+            std::wstring modeStr;
             switch (mode)
             {
             case Mode::Read:
-                modeStr = "r";
+                modeStr = L"r";
                 break;
             case Mode::Write:
-                modeStr = "w";
+                modeStr = L"w";
                 break;
             case Mode::ReadWrite:
-                modeStr = "r+";
+                modeStr = L"r+";
                 break;
             case Mode::Append:
-                modeStr = "a";
+                modeStr = L"a";
                 break;
             default: break;
             }
-            p.f = fopen(fileName.c_str(), modeStr.c_str());
+            if (_wfopen_s(&p.f, string::toWide(fileName).c_str(), modeStr.c_str()) != 0)
+            {
+                p.f = nullptr;
+            }
             if (!p.f)
             {
                 throw std::runtime_error(getErrorMessage(ErrorType::Open, fileName));
@@ -250,8 +251,7 @@ namespace tlr
                 std::string fileName;
                 try
                 {
-                    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> utf16;
-                    fileName = utf16.to_bytes(buf);
+                    fileName = string::fromWide(buf);
                 }
                 catch (const std::exception&)
                 {

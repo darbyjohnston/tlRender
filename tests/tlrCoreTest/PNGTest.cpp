@@ -26,41 +26,48 @@ namespace tlr
         void PNGTest::run()
         {
             auto plugin = _context->getSystem<avio::System>()->getPlugin<png::Plugin>();
-            for (const auto& size : std::vector<imaging::Size>(
+            for (const auto& fileName : std::vector<std::string>(
                 {
-                    imaging::Size(16, 16),
-                    imaging::Size(1, 1),
-                    imaging::Size(0, 0)
+                    "PNGTest",
+                    "大平原"
                 }))
             {
-                for (const auto& pixelType : plugin->getWritePixelTypes())
+                for (const auto& size : std::vector<imaging::Size>(
+                    {
+                        imaging::Size(16, 16),
+                        imaging::Size(1, 1),
+                        imaging::Size(0, 0)
+                    }))
                 {
-                    file::Path path;
+                    for (const auto& pixelType : plugin->getWritePixelTypes())
                     {
-                        std::stringstream ss;
-                        ss << "PNGTest_" << size << '_' << pixelType << ".0.png";
-                        _print(ss.str());
-                        path = file::Path(ss.str());
-                    }
-                    auto imageInfo = imaging::Info(size, pixelType);
-                    imageInfo.layout.alignment = plugin->getWriteAlignment(pixelType);
-                    imageInfo.layout.endian = plugin->getWriteEndian();
-                    const auto image = imaging::Image::create(imageInfo);
-                    try
-                    {
+                        file::Path path;
                         {
-                            avio::Info info;
-                            info.video.push_back(imageInfo);
-                            info.videoTimeRange = otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(1.0, 24.0));
-                            auto write = plugin->write(path, info);
-                            write->writeVideoFrame(otime::RationalTime(0.0, 24.0), image);
+                            std::stringstream ss;
+                            ss << fileName << "_" << size << '_' << pixelType << ".0.png";
+                            _print(ss.str());
+                            path = file::Path(ss.str());
                         }
-                        auto read = plugin->read(path);
-                        const auto videoFrame = read->readVideoFrame(otime::RationalTime(0.0, 24.0)).get();
-                    }
-                    catch (const std::exception& e)
-                    {
-                        _printError(e.what());
+                        auto imageInfo = imaging::Info(size, pixelType);
+                        imageInfo.layout.alignment = plugin->getWriteAlignment(pixelType);
+                        imageInfo.layout.endian = plugin->getWriteEndian();
+                        const auto image = imaging::Image::create(imageInfo);
+                        try
+                        {
+                            {
+                                avio::Info info;
+                                info.video.push_back(imageInfo);
+                                info.videoTimeRange = otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(1.0, 24.0));
+                                auto write = plugin->write(path, info);
+                                write->writeVideoFrame(otime::RationalTime(0.0, 24.0), image);
+                            }
+                            auto read = plugin->read(path);
+                            const auto videoFrame = read->readVideoFrame(otime::RationalTime(0.0, 24.0)).get();
+                        }
+                        catch (const std::exception& e)
+                        {
+                            _printError(e.what());
+                        }
                     }
                 }
             }

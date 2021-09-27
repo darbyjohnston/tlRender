@@ -4,6 +4,7 @@
 
 #include <tlrCore/JPEG.h>
 
+#include <tlrCore/String.h>
 #include <tlrCore/StringFormat.h>
 
 #include <cstring>
@@ -92,7 +93,14 @@ namespace tlr
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
                     _init = true;
+#if defined(_WINDOWS)
+                    if (_wfopen_s(&_f, string::toWide(fileName).c_str(), L"rb") != 0)
+                    {
+                        _f = nullptr;
+                    }
+#else
                     _f = fopen(fileName.c_str(), "rb");
+#endif
                     if (!_f)
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));

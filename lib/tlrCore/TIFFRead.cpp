@@ -4,6 +4,7 @@
 
 #include <tlrCore/TIFF.h>
 
+#include <tlrCore/String.h>
 #include <tlrCore/StringFormat.h>
 
 #include <tiffio.h>
@@ -60,7 +61,11 @@ namespace tlr
             public:
                 File(const std::string& fileName)
                 {
-                    _f = TIFFOpen(fileName.data(), "r");
+#if defined(_WINDOWS)
+                    _f = TIFFOpenW(string::toWide(fileName).c_str(), "r");
+#else
+                    _f = TIFFOpen(fileName.c_str(), "r");
+#endif
                     if (!_f)
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));

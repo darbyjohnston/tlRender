@@ -50,13 +50,13 @@ namespace tlr
                 TLR_ASSERT(io->isOpen());
             }
             {
-                const int8_t   i8 = std::numeric_limits<int8_t>::max();
-                const uint8_t  u8 = std::numeric_limits<uint8_t>::max();
-                const int16_t  i16 = std::numeric_limits<int16_t>::max();
-                const uint16_t u16 = std::numeric_limits<uint16_t>::max();
-                const int32_t  i32 = std::numeric_limits<int32_t>::max();
-                const uint32_t u32 = std::numeric_limits<uint32_t>::max();
-                const float    f = std::numeric_limits<float>::max();
+                constexpr int8_t   i8 = std::numeric_limits<int8_t>::max();
+                constexpr uint8_t  u8 = std::numeric_limits<uint8_t>::max();
+                constexpr int16_t  i16 = std::numeric_limits<int16_t>::max();
+                constexpr uint16_t u16 = std::numeric_limits<uint16_t>::max();
+                constexpr int32_t  i32 = std::numeric_limits<int32_t>::max();
+                constexpr uint32_t u32 = std::numeric_limits<uint32_t>::max();
+                constexpr float    f = std::numeric_limits<float>::max();
                 const std::string fileName = Path(createTempDir(), _fileName).get();
                 auto io = FileIO::create();
                 io->open(fileName, Mode::Write);
@@ -91,7 +91,16 @@ namespace tlr
                 TLR_ASSERT(u32 == _u32);
                 TLR_ASSERT(f == _f);
             }
-
+            {
+                auto io = FileIO::create();
+                io->open("大平原", Mode::Write);
+                TLR_ASSERT(io->isOpen());
+            }
+            {
+                auto io = FileIO::create();
+                io->open("大平原", Mode::Read);
+                TLR_ASSERT(io->isOpen());
+            }
             {
                 auto io = FileIO::create();
                 const std::string fileName = Path(createTempDir(), _fileName).get();
@@ -108,7 +117,6 @@ namespace tlr
                 io->setPos(0);
                 TLR_ASSERT(0 == io->getPos());
             }
-
             {
                 const std::string fileName = Path(createTempDir(), _fileName).get();
                 writeLines(
@@ -128,7 +136,6 @@ namespace tlr
                 _print(buf);
                 TLR_ASSERT(_text2 == buf);
             }
-
             {
                 const std::string fileName = Path(createTempDir(), _fileName).get();
                 auto io = FileIO::create();
@@ -144,7 +151,6 @@ namespace tlr
                 _print(buf);
                 TLR_ASSERT(_text2 == buf);
             }
-
             {
                 const std::string fileName = Path(createTempDir(), _fileName).get();
                 writeLines(
@@ -163,7 +169,6 @@ namespace tlr
                 TLR_ASSERT(_text == lines[0]);
                 TLR_ASSERT(_text2 == lines[2]);
             }
-            
             {
                 const std::string fileName = Path(createTempDir(), _fileName).get();
                 auto io = FileIO::create();

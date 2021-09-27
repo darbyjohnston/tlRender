@@ -5,6 +5,7 @@
 #include <tlrCore/PNG.h>
 
 #include <tlrCore/Memory.h>
+#include <tlrCore/String.h>
 #include <tlrCore/StringFormat.h>
 
 namespace tlr
@@ -106,7 +107,14 @@ namespace tlr
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
 
+#if defined(_WINDOWS)
+                    if (_wfopen_s(&_f, string::toWide(fileName).c_str(), L"wb") != 0)
+                    {
+                        _f = nullptr;
+                    }
+#else
                     _f = fopen(fileName.c_str(), "wb");
+#endif
                     if (!_f)
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));

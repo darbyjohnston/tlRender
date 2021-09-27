@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
     std::vector<std::shared_ptr<Test::ITest> > tests;
     if (0)
     {
-        tests.push_back(CoreTest::TimelineTest::create(context));
+        tests.push_back(CoreTest::FileIOTest::create(context));
     }
     else
     {
