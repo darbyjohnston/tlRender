@@ -128,7 +128,7 @@ namespace tlr
                         _f = nullptr;
                     }
 #else
-                    _f = fopen(fileName, "rb");
+                    _f = fopen(fileName.c_str(), "rb");
 #endif
                     if (!_f)
                     {
