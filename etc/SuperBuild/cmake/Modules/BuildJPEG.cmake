@@ -1,5 +1,8 @@
 include(ExternalProject)
 
+set(JPEG_GIT_REPOSITORY "https://github.com/libjpeg-turbo/libjpeg-turbo.git")
+set(JPEG_GIT_TAG "c23672ce52ae53bd846b555439aa0a070b6d2c07") # tag: 2.1.0
+
 set(JPEG_DEPS ZLIB)
 if(NOT WIN32)
     set(JPEG_DEPS ${JPEG_DEPS} NASM)
@@ -25,8 +28,8 @@ ExternalProject_Add(
     JPEG
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/JPEG
     DEPENDS ${JPEG_DEPS}
-    GIT_REPOSITORY https://github.com/libjpeg-turbo/libjpeg-turbo.git
-    GIT_TAG 2.1.0
+    GIT_REPOSITORY ${JPEG_GIT_REPOSITORY}
+    GIT_TAG ${JPEG_GIT_TAG}
     PATCH_COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_SOURCE_DIR}/JPEG-patch/CMakeLists.txt
         ${CMAKE_CURRENT_BINARY_DIR}/JPEG/src/JPEG/CMakeLists.txt

@@ -1,5 +1,8 @@
 include(ExternalProject)
 
+set(OpenEXR_GIT_REPOSITORY "https://github.com/AcademySoftwareFoundation/openexr.git")
+set(OpenEXR_GIT_TAG "c32f82c5f1833d959321fc5f615ca52836c7ba65") # tag: v2.5.3
+
 set(OpenEXR_ARGS
     ${TLR_EXTERNAL_ARGS}
     -DBUILD_TESTING=OFF
@@ -12,8 +15,8 @@ ExternalProject_Add(
     OpenEXR
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/OpenEXR
     DEPENDS IlmBase ZLIB
-    GIT_REPOSITORY https://github.com/AcademySoftwareFoundation/openexr
-    GIT_TAG v2.5.3
+    GIT_REPOSITORY ${OpenEXR_GIT_REPOSITORY}
+    GIT_TAG ${OpenEXR_GIT_TAG}
     SOURCE_SUBDIR OpenEXR
     LIST_SEPARATOR |
     CMAKE_ARGS ${OpenEXR_ARGS})

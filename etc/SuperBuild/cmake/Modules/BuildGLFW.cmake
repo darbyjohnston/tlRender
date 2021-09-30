@@ -1,5 +1,8 @@
 include(ExternalProject)
 
+set(GLFW_GIT_REPOSITORY "https://github.com/glfw/glfw.git")
+set(GLFW_GIT_TAG "901d30b973c536f26b74bca1134c5892d54b251d")
+
 set(GLFW_ARGS
     ${TLR_EXTERNAL_ARGS}
     -DCMAKE_INSTALL_LIBDIR=lib
@@ -11,7 +14,8 @@ set(GLFW_ARGS
 ExternalProject_Add(
     GLFW
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/GLFW
-    URL http://github.com/glfw/glfw/releases/download/3.3.3/glfw-3.3.3.zip
+    GIT_REPOSITORY ${GLFW_GIT_REPOSITORY}
+    GIT_TAG ${GLFW_GIT_TAG}
     LIST_SEPARATOR |
     CMAKE_ARGS ${GLFW_ARGS})
 

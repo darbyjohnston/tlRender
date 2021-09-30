@@ -1,8 +1,7 @@
 include(ExternalProject)
 
-# Tag: 2020/07/30
 set(OTIO_GIT_REPOSITORY "https://github.com/PixarAnimationStudios/OpenTimelineIO.git")
-set(OTIO_GIT_TAG 068225674752a226381ea43fddaef22159e410fb)
+set(OTIO_GIT_TAG 068225674752a226381ea43fddaef22159e410fb) # 2020/07/30
 
 set(OTIO_SHARED_LIBS ON)
 if(NOT BUILD_SHARED_LIBS)
