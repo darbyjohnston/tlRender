@@ -1,6 +1,7 @@
 include(ExternalProject)
 
 # Tag: 2020/07/30
+set(OTIO_GIT_REPOSITORY "https://github.com/PixarAnimationStudios/OpenTimelineIO.git")
 set(OTIO_GIT_TAG 068225674752a226381ea43fddaef22159e410fb)
 
 set(OTIO_SHARED_LIBS ON)
@@ -18,7 +19,7 @@ ExternalProject_Add(
     OTIO
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/OTIO
     DEPENDS ${OTIO_DEPENDS}
-    GIT_REPOSITORY https://github.com/PixarAnimationStudios/OpenTimelineIO.git
+    GIT_REPOSITORY ${OTIO_GIT_REPOSITORY}
     GIT_TAG ${OTIO_GIT_TAG}
     LIST_SEPARATOR |
     CMAKE_ARGS ${OTIO_ARGS})
