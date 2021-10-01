@@ -34,8 +34,10 @@ namespace tlr
 {
     namespace avio
     {
-        void System::_init()
+        void System::_init(const std::shared_ptr<core::Context>& context)
         {
+            ISystem::_init("tlr::avio::System", context);
+
             if (auto context = _context.lock())
             {
                 auto logSystem = context->getLogSystem();
@@ -60,8 +62,7 @@ namespace tlr
             }
         }
 
-        System::System(const std::shared_ptr<core::Context>& context) :
-            ISystem("tlr::avio::System", context)
+        System::System()
         {}
 
         System::~System()
@@ -69,8 +70,12 @@ namespace tlr
 
         std::shared_ptr<System> System::create(const std::shared_ptr<core::Context>& context)
         {
-            auto out = std::shared_ptr<System>(new System(context));
-            out->_init();
+            auto out = context->getSystem<System>();
+            if (!out)
+            {
+                out = std::shared_ptr<System>(new System);
+                out->_init(context);
+            }
             return out;
         }
 

@@ -4,6 +4,8 @@
 
 #include <tlrCore/LogSystem.h>
 
+#include <tlrCore/Context.h>
+
 #include <mutex>
 
 namespace tlr
@@ -35,14 +37,16 @@ namespace tlr
             std::mutex mutex;
         };
 
-        void LogSystem::_init()
+        void LogSystem::_init(const std::shared_ptr<Context>& context)
         {
+            ICoreSystem::_init("tlr::core::LogSystem", context);
+
             TLR_PRIVATE_P();
+            
             p.log = observer::Value<LogItem>::create();
         }
 
-        LogSystem::LogSystem(const std::shared_ptr<Context>& context) :
-            ICoreSystem("tlr::core::LogSystem", context),
+        LogSystem::LogSystem() :
             _p(new Private)
         {}
 
@@ -51,8 +55,12 @@ namespace tlr
 
         std::shared_ptr<LogSystem> LogSystem::create(const std::shared_ptr<Context>& context)
         {
-            auto out = std::shared_ptr<LogSystem>(new LogSystem(context));
-            out->_init();
+            auto out = context->getSystem<LogSystem>();
+            if (!out)
+            {
+                out = std::shared_ptr<LogSystem>(new LogSystem);
+                out->_init(context);
+            }
             return out;
         }
 

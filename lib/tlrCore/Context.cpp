@@ -5,6 +5,7 @@
 #include <tlrCore/Context.h>
 
 #include <tlrCore/AVIOSystem.h>
+#include <tlrCore/AudioSystem.h>
 
 namespace tlr
 {
@@ -23,8 +24,10 @@ namespace tlr
                 [this](const LogItem& value)
                 {
                     _p->logInit.push_back(value);
-                });
+                },
+                observer::CallbackAction::Suppress);
             _systems.push_back(_logSystem);
+            _systems.push_back(audio::System::create(shared_from_this()));
             _systems.push_back(avio::System::create(shared_from_this()));
         }
 
@@ -49,9 +52,7 @@ namespace tlr
 
         std::vector<LogItem> Context::getLogInit()
         {
-            std::vector<LogItem> out;
-            out.swap(_p->logInit);
-            return out;
+            return std::move(_p->logInit);
         }
 
         void Context::log(const std::string& prefix, const std::string& value, LogType type)

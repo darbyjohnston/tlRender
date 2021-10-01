@@ -1,5 +1,6 @@
 set(HEADERS
     AVIOTest.h
+    AudioTest.h
     BBoxTest.h
     CineonTest.h
     ColorTest.h
@@ -27,6 +28,7 @@ set(HEADERS
     VectorTest.h)
 set(SOURCE
     AVIOTest.cpp
+    AudioTest.cpp
     BBoxTest.cpp
     CineonTest.cpp
     ColorTest.cpp

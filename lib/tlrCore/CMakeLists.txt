@@ -4,6 +4,9 @@ set(HEADERS
     AVIOSystem.h
     AVIOSystemInline.h
     Assert.h
+    Audio.h
+    AudioInline.h
+    AudioSystem.h
     BBox.h
     BBoxInline.h
     Cineon.h
@@ -57,6 +60,8 @@ set(SOURCE
     AVIO.cpp
     AVIOSystem.cpp
     Assert.cpp
+    Audio.cpp
+    AudioSystem.cpp
     CineonRead.cpp
     CineonWrite.cpp
     Cineon.cpp
@@ -96,7 +101,7 @@ else()
         TimeUnix.cpp)
 endif()
 
-set(tlrCore_LIBRARIES OTIO FSeq)
+set(tlrCore_LIBRARIES OTIO FSeq RtAudio libsamplerate)
 if(TLR_ENABLE_PYTHON)
     list(APPEND tlrCore_LIBRARIES Python3::Python)
 endif()

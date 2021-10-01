@@ -19,7 +19,7 @@ namespace tlr
 {
     namespace imaging
     {
-        math::BBox2f getBBox(float aspect, const imaging::Size& size)
+        math::BBox2f getBBox(float aspect, const imaging::Size& size) noexcept
         {
             math::BBox2f out;
             const float sizeAspect = size.getAspect();
@@ -95,7 +95,7 @@ namespace tlr
             "YUV_420P");
         TLR_ENUM_SERIALIZE_IMPL(PixelType);
 
-        uint8_t getChannelCount(PixelType value)
+        uint8_t getChannelCount(PixelType value) noexcept
         {
             const std::array<uint8_t, static_cast<size_t>(PixelType::Count)> values =
             {
@@ -109,7 +109,7 @@ namespace tlr
             return values[static_cast<size_t>(value)];
         }
 
-        uint8_t getBitDepth(PixelType value)
+        uint8_t getBitDepth(PixelType value) noexcept
         {
             const std::array<uint8_t, static_cast<size_t>(PixelType::Count)> values =
             {
@@ -123,7 +123,7 @@ namespace tlr
             return values[static_cast<size_t>(value)];
         }
 
-        PixelType getIntType(std::size_t channelCount, std::size_t bitDepth)
+        PixelType getIntType(std::size_t channelCount, std::size_t bitDepth) noexcept
         {
             PixelType out = PixelType::None;
             switch (channelCount)
@@ -165,7 +165,7 @@ namespace tlr
             return out;
         }
 
-        PixelType getFloatType(std::size_t channelCount, std::size_t bitDepth)
+        PixelType getFloatType(std::size_t channelCount, std::size_t bitDepth) noexcept
         {
             PixelType out = PixelType::None;
             switch (channelCount)
@@ -207,8 +207,8 @@ namespace tlr
             std::map<size_t, PixelType> diff;
             for (const auto& type : types)
             {
-                diff[abs(getChannelCount(value) - getChannelCount(type)) +
-                    abs(getBitDepth(value) - getBitDepth(type))] = type;
+                diff[abs(static_cast<int>(getChannelCount(value)) - static_cast<int>(getChannelCount(type))) +
+                    abs(static_cast<int>(getBitDepth(value)) - static_cast<int>(getBitDepth(type)))] = type;
             }
             return !diff.empty() ? diff.begin()->second : PixelType::None;
         }

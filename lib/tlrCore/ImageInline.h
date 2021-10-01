@@ -36,7 +36,7 @@ namespace tlr
             return !(*this == other);
         }
 
-        inline bool Size::operator < (const Size& other) const noexcept
+        constexpr bool Size::operator < (const Size& other) const noexcept
         {
             return std::tie(w, h) < std::tie(other.w, other.h);
         }
@@ -85,7 +85,7 @@ namespace tlr
             return !(other == *this);
         }
 
-        inline Layout::Layout() noexcept
+        constexpr Layout::Layout() noexcept
         {}
 
         constexpr Layout::Layout(const Mirror& mirror, uint8_t alignment, memory::Endian endian) noexcept :

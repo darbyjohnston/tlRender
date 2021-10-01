@@ -10,17 +10,22 @@ namespace tlr
 {
     namespace core
     {
-        ISystem::ISystem(
+        void ISystem::_init(
             const std::string& name,
-            const std::shared_ptr<Context>& context) :
-            ICoreSystem(name, context),
-            _logSystem(context->getSystem<LogSystem>())
+            const std::shared_ptr<Context>& context)
         {
+            ICoreSystem::_init(name, context);
+
+            _logSystem = context->getSystem<LogSystem>();
+
             if (auto logSystem = _logSystem.lock())
             {
                 logSystem->print(name, "Create");
             }
         }
+
+        ISystem::ISystem()
+        {}
 
         ISystem::~ISystem()
         {

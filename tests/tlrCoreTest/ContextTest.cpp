@@ -30,18 +30,23 @@ namespace tlr
                 TLR_NON_COPYABLE(TestSystem);
 
             protected:
-                TestSystem(const std::shared_ptr<Context>& context) :
-                    ISystem("TestSystem", context)
+                void _init(const std::shared_ptr<Context>& context)
                 {
+                    ISystem::_init("TestSystem", context);
                     _log("Hello world!");
                     _log("Hello world!", LogType::Warning);
                     _log("Hello world!", LogType::Error);
                 }
 
+                TestSystem()
+                {}
+
             public:
                 static std::shared_ptr<TestSystem> create(const std::shared_ptr<Context>& context)
                 {
-                    return std::shared_ptr<TestSystem>(new TestSystem(context));
+                    auto out = std::shared_ptr<TestSystem>(new TestSystem);
+                    out->_init(context);
+                    return out;
                 }
             };
         }

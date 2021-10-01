@@ -1,0 +1,30 @@
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) 2021 Darby Johnston
+// All rights reserved.
+
+#pragma once
+
+#include <tlrTestLib/ITest.h>
+
+namespace tlr
+{
+    namespace CoreTest
+    {
+        class AudioTest : public Test::ITest
+        {
+        protected:
+            AudioTest(const std::shared_ptr<core::Context>&);
+
+        public:
+            static std::shared_ptr<AudioTest> create(const std::shared_ptr<core::Context>&);
+
+            void run() override;
+
+        private:
+            void _enums();
+            void _util();
+            void _audio();
+            void _audioSystem();
+        };
+    }
+}

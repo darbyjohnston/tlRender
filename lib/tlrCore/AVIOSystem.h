@@ -17,8 +17,8 @@ namespace tlr
             TLR_NON_COPYABLE(System);
 
         protected:
-            void _init();
-            System(const std::shared_ptr<core::Context>&);
+            void _init(const std::shared_ptr<core::Context>&);
+            System();
 
         public:
             ~System() override;

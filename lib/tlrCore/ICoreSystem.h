@@ -17,9 +17,10 @@ namespace tlr
         class ICoreSystem : public std::enable_shared_from_this<ICoreSystem>
         {
         protected:
-            ICoreSystem(
+            void _init(
                 const std::string& name,
                 const std::shared_ptr<Context>&);
+            ICoreSystem();
 
         public:
             virtual ~ICoreSystem() = 0;

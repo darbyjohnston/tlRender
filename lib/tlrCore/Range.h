@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <stddef.h>
+#include <cstddef>
 
 namespace tlr
 {

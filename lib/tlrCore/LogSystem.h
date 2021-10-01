@@ -36,8 +36,8 @@ namespace tlr
             TLR_NON_COPYABLE(LogSystem);
 
         protected:
-            void _init();
-            LogSystem(const std::shared_ptr<Context>& context);
+            void _init(const std::shared_ptr<Context>&);
+            LogSystem();
 
         public:
             ~LogSystem() override;

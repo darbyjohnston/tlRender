@@ -3,6 +3,7 @@
 // All rights reserved.
 
 #include <tlrCoreTest/AVIOTest.h>
+#include <tlrCoreTest/AudioTest.h>
 #include <tlrCoreTest/BBoxTest.h>
 #include <tlrCoreTest/CineonTest.h>
 #include <tlrCoreTest/DPXTest.h>
@@ -72,16 +73,18 @@ int main(int argc, char* argv[])
         [](const core::LogItem& value)
         {
             std::cout << "[LOG] " << core::toString(value) << std::endl;
-        });
+        },
+        observer::CallbackAction::Suppress);
 
     std::vector<std::shared_ptr<Test::ITest> > tests;
     if (0)
     {
-        tests.push_back(CoreTest::FileIOTest::create(context));
+        tests.push_back(CoreTest::AudioTest::create(context));
     }
     else
     {
         tests.push_back(CoreTest::AVIOTest::create(context));
+        tests.push_back(CoreTest::AudioTest::create(context));
         tests.push_back(CoreTest::BBoxTest::create(context));
         tests.push_back(CoreTest::CineonTest::create(context));
         tests.push_back(CoreTest::DPXTest::create(context));

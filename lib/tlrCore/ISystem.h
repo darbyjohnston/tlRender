@@ -16,9 +16,10 @@ namespace tlr
         class ISystem : public ICoreSystem
         {
         protected:
-            ISystem(
+            void _init(
                 const std::string& name,
                 const std::shared_ptr<Context>&);
+            ISystem();
 
         public:
             ~ISystem() override;

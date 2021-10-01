@@ -42,12 +42,12 @@ namespace tlr
 
             constexpr bool operator == (const Size&) const noexcept;
             constexpr bool operator != (const Size&) const noexcept;
-            bool operator < (const Size&) const noexcept;
+            constexpr bool operator < (const Size&) const noexcept;
         };
 
         //! Get a bounding box with the given aspect ration that fits the
         //! given size.
-        math::BBox2f getBBox(float aspect, const imaging::Size&);
+        math::BBox2f getBBox(float aspect, const imaging::Size&) noexcept;
 
         std::ostream& operator << (std::ostream&, const imaging::Size&);
     
@@ -142,16 +142,16 @@ namespace tlr
 #endif
 
         //! Get the number of channels for the given pixel type.
-        uint8_t getChannelCount(PixelType);
+        uint8_t getChannelCount(PixelType) noexcept;
 
         //! Get the bit-depth for the given pixel type.
-        uint8_t getBitDepth(PixelType);
+        uint8_t getBitDepth(PixelType) noexcept;
 
         //! Determine the integer pixel type for a given channel count and bit depth.
-        PixelType getIntType(std::size_t channelCount, std::size_t bitDepth);
+        PixelType getIntType(std::size_t channelCount, std::size_t bitDepth) noexcept;
 
         //! Determine the floating point pixel type for a given channel count and bit depth.
-        PixelType getFloatType(std::size_t channelCount, std::size_t bitDepth);
+        PixelType getFloatType(std::size_t channelCount, std::size_t bitDepth) noexcept;
 
         //! Get the closest pixel type for the given pixel type.
         PixelType getClosest(PixelType, const std::vector<PixelType>&);
@@ -176,7 +176,7 @@ namespace tlr
         class Layout
         {
         public:
-            Layout() noexcept;
+            constexpr Layout() noexcept;
             constexpr Layout(
                 const Mirror&   mirror,
                 uint8_t         alignment = 1,

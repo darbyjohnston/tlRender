@@ -61,9 +61,9 @@ namespace tlr
                 TLR_ASSERT(size == size2);
             }
             {
-                TLR_ASSERT(math::BBox2f(0.F, 0.F, 100.F, 100.F) == getBBox(1.F, imaging::Size(100, 100)));
-                TLR_ASSERT(math::BBox2f(50.F, 0.F, 100.F, 100.F) == getBBox(1.F, imaging::Size(200, 100)));
-                TLR_ASSERT(math::BBox2f(0.F, 50.F, 100.F, 100.F) == getBBox(1.F, imaging::Size(100, 200)));
+                TLR_ASSERT(math::BBox2f(0.F, 0.F, 100.F, 100.F) == getBBox(1.F, Size(100, 100)));
+                TLR_ASSERT(math::BBox2f(50.F, 0.F, 100.F, 100.F) == getBBox(1.F, Size(200, 100)));
+                TLR_ASSERT(math::BBox2f(0.F, 50.F, 100.F, 100.F) == getBBox(1.F, Size(100, 200)));
             }
         }
         
@@ -123,13 +123,13 @@ namespace tlr
             for (auto i : getPixelTypeEnums())
             {
                 std::stringstream ss;
-                ss << i << " channel count: " << int(getChannelCount(i));
+                ss << i << " channel count: " << static_cast<int>(getChannelCount(i));
                 _print(ss.str());
             }
             for (auto i : getPixelTypeEnums())
             {
                 std::stringstream ss;
-                ss << i << " bit depth: " << int(getBitDepth(i));
+                ss << i << " bit depth: " << static_cast<int>(getBitDepth(i));
                 _print(ss.str());
             }
             for (size_t c : { 1, 2, 3, 4 })
@@ -187,7 +187,7 @@ namespace tlr
                 TLR_ASSERT(image->getPixelType() == info.pixelType);
                 TLR_ASSERT(image->isValid());
                 TLR_ASSERT(image->getData());
-                TLR_ASSERT(static_cast<const imaging::Image*>(image.get())->getData());
+                TLR_ASSERT(static_cast<const Image*>(image.get())->getData());
             }
         }
     }

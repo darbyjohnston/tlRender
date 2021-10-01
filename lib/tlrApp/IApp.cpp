@@ -94,7 +94,8 @@ namespace tlr
                     [this](const core::LogItem& value)
                     {
                         _print("[LOG] " + core::toString(value));
-                    });
+                    },
+                    observer::CallbackAction::Suppress);
             }
 
             // Set AV I/O options.
