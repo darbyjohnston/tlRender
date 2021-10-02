@@ -1,7 +1,7 @@
 include(ExternalProject)
 
 set(FreeType_GIT_REPOSITORY "https://github.com/freetype/freetype.git")
-set(FreeType_GIT_TAG "6a2b3e4007e794bfc6c91030d0ed987f925164a8") # tag: VER-2-10-4
+set(FreeType_GIT_TAG "801cd842e27c85cb1d5000f6397f382ffe295daa") # tag: VER-2-11-0
 
 set(FreeType_ARGS
     ${TLR_EXTERNAL_ARGS}

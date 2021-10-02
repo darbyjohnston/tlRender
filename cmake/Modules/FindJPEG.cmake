@@ -7,7 +7,7 @@
 #
 # This module defines the following imported targets:
 #
-# * JPEG::jpeg
+# * JPEG::JPEG
 #
 # This module defines the following interfaces:
 #
@@ -36,9 +36,9 @@ if(NOT JPEG_SHARED_LIBS)
     list(APPEND JPEG_COMPILE_DEFINITIONS JPEG_STATIC)
 endif()
 
-if(JPEG_FOUND AND NOT TARGET JPEG::jpeg)
-    add_library(JPEG::jpeg UNKNOWN IMPORTED)
-    set_target_properties(JPEG::jpeg PROPERTIES
+if(JPEG_FOUND AND NOT TARGET JPEG::JPEG)
+    add_library(JPEG::JPEG UNKNOWN IMPORTED)
+    set_target_properties(JPEG::JPEG PROPERTIES
         IMPORTED_LOCATION "${JPEG_LIBRARY}"
         INTERFACE_COMPILE_DEFINITIONS "${JPEG_COMPILE_DEFINITIONS}"
         INTERFACE_INCLUDE_DIRECTORIES "${JPEG_INCLUDE_DIR}"
@@ -46,5 +46,5 @@ if(JPEG_FOUND AND NOT TARGET JPEG::jpeg)
 endif()
 if(JPEG_FOUND AND NOT TARGET JPEG)
     add_library(JPEG INTERFACE)
-    target_link_libraries(JPEG INTERFACE JPEG::jpeg)
+    target_link_libraries(JPEG INTERFACE JPEG::JPEG)
 endif()
