@@ -15,12 +15,12 @@
 #
 # * OCIO
 
-find_package(IlmBase)
+find_package(Imath)
 
 find_path(OCIO_INCLUDE_DIR NAMES OpenColorIO/OpenColorIO.h)
 set(OCIO_INCLUDE_DIRS
     ${OCIO_INCLUDE_DIR}
-    ${IlmBase_INCLUDE_DIRS})
+    ${Imath_INCLUDE_DIRS})
 
 find_library(OCIO_LIBRARY NAMES OpenColorIO)
 if(CMAKE_BUILD_TYPE MATCHES "^Debug$")
@@ -37,7 +37,7 @@ set(OCIO_LIBRARIES
     ${OCIO_yaml_LIBRARY}
     ${OCIO_pystring_LIBRARY}
     ${OCIO_expat}
-    ${IlmBase_LIBRARIES})
+    ${Imath_LIBRARIES})
 if(APPLE)
     list(APPEND OCIO_LIBRARIES "-framework ColorSync" "-framework CoreGraphics" "-framework IOKit" "-framework Foundation")
 endif()
@@ -60,7 +60,7 @@ endif()
 
 if(OCIO_FOUND AND NOT TARGET OCIO::OpenColorIO)
     add_library(OCIO::OpenColorIO UNKNOWN IMPORTED)
-    set(OCIO_INTERFACE_LINK_LIBRARIES ${OCIO_yaml_LIBRARY} ${OCIO_pystring_LIBRARY} ${OCIO_expat} IlmBase)
+    set(OCIO_INTERFACE_LINK_LIBRARIES ${OCIO_yaml_LIBRARY} ${OCIO_pystring_LIBRARY} ${OCIO_expat} Imath)
     if(APPLE)
         list(APPEND OCIO_INTERFACE_LINK_LIBRARIES "-framework ColorSync" "-framework CoreGraphics" "-framework IOKit" "-framework Foundation")
     endif()
