@@ -419,8 +419,8 @@ namespace tlr
                 {
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
                     textures[0]->copy(image->getData(), textures[0]->getInfo());
-                    \
-                        glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
+
+                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
                     const std::size_t w = info.size.w;
                     const std::size_t h = info.size.h;
                     const std::size_t w2 = w / 2;
@@ -739,7 +739,7 @@ namespace tlr
 
             glEnable(GL_BLEND);
             glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-            glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+            glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
             if (!p.shader)
             {
@@ -1054,7 +1054,7 @@ namespace tlr
                                 imaging::Color4f(tB, tB, tB, tB),
                                 imageOptions);
                         }
-                        glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+                        glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                     }
 
                     p.shader->setUniform("drawMode", static_cast<int>(DrawMode::Image));
