@@ -11,10 +11,6 @@
 # Targets defined by this module:
 #   pystring::pystring - IMPORTED target, if found
 #
-# By default, the dynamic libraries of pystring will be found. To find the 
-# static ones instead, you must set the pystring_STATIC_LIBRARY variable to 
-# TRUE before calling find_package(pystring ...).
-#
 # If pystring is not installed in a standard path, you can use the 
 # pystring_ROOT variable to tell CMake where to find it. If it is not found 
 # and OCIO_INSTALL_EXT_PACKAGES is set to MISSING or ALL, pystring will be 
@@ -41,16 +37,10 @@ if(NOT OCIO_INSTALL_EXT_PACKAGES STREQUAL ALL)
             pystring/include
     )
 
-    # Attempt to find static library first if this is set
-    if(pystring_STATIC_LIBRARY)
-        set(_pystring_STATIC 
-            "${CMAKE_STATIC_LIBRARY_PREFIX}pystring${CMAKE_STATIC_LIBRARY_SUFFIX}")
-    endif()
-
     # Find library
     find_library(pystring_LIBRARY
         NAMES
-            ${_pystring_STATIC} pystring
+            pystring libpystring
         HINTS
             ${_pystring_SEARCH_DIRS}
         PATH_SUFFIXES
@@ -77,10 +67,6 @@ endif()
 if(NOT pystring_FOUND)
     include(ExternalProject)
 
-    if(APPLE)
-        set(CMAKE_OSX_DEPLOYMENT_TARGET ${CMAKE_OSX_DEPLOYMENT_TARGET})
-    endif()
-
     set(_EXT_DIST_ROOT "${CMAKE_INSTALL_PREFIX}")
     set(_EXT_BUILD_ROOT "${CMAKE_BINARY_DIR}/ext/build")
 
@@ -92,13 +78,6 @@ if(NOT pystring_FOUND)
         "${_EXT_DIST_ROOT}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}pystring${CMAKE_STATIC_LIBRARY_SUFFIX}")
 
     if(_pystring_TARGET_CREATE)
-        if(UNIX)
-            set(pystring_CXX_FLAGS "${pystring_CXX_FLAGS} -fvisibility=hidden -fPIC")
-            if(OCIO_INLINES_HIDDEN)
-                set(pystring_CXX_FLAGS "${pystring_CXX_FLAGS} -fvisibility-inlines-hidden")
-            endif()
-        endif()
-
         if(MSVC)
             set(pystring_CXX_FLAGS "${pystring_CXX_FLAGS} /EHsc")
         endif()
@@ -107,18 +86,25 @@ if(NOT pystring_FOUND)
 
         set(pystring_CMAKE_ARGS
             ${pystring_CMAKE_ARGS}
+            -DCMAKE_CXX_VISIBILITY_PRESET=${CMAKE_CXX_VISIBILITY_PRESET}
+            -DCMAKE_VISIBILITY_INLINES_HIDDEN=${CMAKE_VISIBILITY_INLINES_HIDDEN}
+            -DCMAKE_POSITION_INDEPENDENT_CODE=ON
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
             -DCMAKE_CXX_FLAGS=${pystring_CXX_FLAGS}
             -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
             -DCMAKE_INSTALL_MESSAGE=${CMAKE_INSTALL_MESSAGE}
             -DCMAKE_INSTALL_PREFIX=${_EXT_DIST_ROOT}
             -DCMAKE_OBJECT_PATH_MAX=${CMAKE_OBJECT_PATH_MAX}
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
-            -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
         )
+
         if(CMAKE_TOOLCHAIN_FILE)
             set(pystring_CMAKE_ARGS
                 ${pystring_CMAKE_ARGS} -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE})
+        endif()
+
+        if(APPLE)
+            set(pystring_CMAKE_ARGS
+                ${pystring_CMAKE_ARGS} -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET})
         endif()
 
         if(NOT BUILD_SHARED_LIBS)

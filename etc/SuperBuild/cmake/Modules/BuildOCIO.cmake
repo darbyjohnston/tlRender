@@ -1,7 +1,7 @@
 include(ExternalProject)
 
 set(OCIO_GIT_REPOSITORY "https://github.com/AcademySoftwareFoundation/OpenColorIO.git")
-set(OCIO_GIT_TAG "0645fdd6b5279ab94851af0c56919ff9800e0c38") # tag: v2.0.1
+set(OCIO_GIT_TAG "ffddc3341f5775c7866fe2c93275e1d5e0b0540f") # tag: v2.1.0
 
 set(OCIO_ARGS
     ${TLR_EXTERNAL_ARGS}
@@ -25,7 +25,7 @@ endif()
 ExternalProject_Add(
     OCIO
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/OCIO
-    DEPENDS IlmBase
+    DEPENDS Imath
     GIT_REPOSITORY ${OCIO_GIT_REPOSITORY}
     GIT_TAG ${OCIO_GIT_TAG}
     PATCH_COMMAND

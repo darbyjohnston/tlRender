@@ -129,10 +129,6 @@ if(NOT yaml-cpp_FOUND)
 
     include(ExternalProject)
 
-    if(APPLE)
-        set(CMAKE_OSX_DEPLOYMENT_TARGET ${CMAKE_OSX_DEPLOYMENT_TARGET})
-    endif()
-
     # TODO: yaml-cpp master is using GNUInstallDirs to define include and lib 
     #       dir names. Once that change is released and OCIO updates the 
     #       minimum yaml-cpp version, toggle the three disabled lines below.
@@ -156,8 +152,6 @@ if(NOT yaml-cpp_FOUND)
     endif()
     set(yaml-cpp_LIBRARY
         "${_EXT_DIST_ROOT}/lib/libyaml-cpp${_yaml-cpp_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}")
-    # set(yaml-cpp_LIBRARY
-    #     "${_EXT_DIST_ROOT}/${CMAKE_INSTALL_LIBDIR}/libyaml-cpp${_yaml-cpp_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}")
 
     if(_yaml-cpp_TARGET_CREATE)
         if(MSVC)
@@ -165,9 +159,9 @@ if(NOT yaml-cpp_FOUND)
         endif()
 
         if(UNIX)
-            set(yaml-cpp_CXX_FLAGS "${yaml-cpp_CXX_FLAGS} -fvisibility=hidden -fPIC")
-            if(OCIO_INLINES_HIDDEN)
-                set(yaml-cpp_CXX_FLAGS "${yaml-cpp_CXX_FLAGS} -fvisibility-inlines-hidden")
+            if(USE_CLANG)
+                # Remove some global 'shadow' warnings.
+                set(yaml-cpp_CXX_FLAGS "${yaml-cpp_CXX_FLAGS} -Wno-shadow")
             endif()
         endif()
 
@@ -175,23 +169,31 @@ if(NOT yaml-cpp_FOUND)
 
         set(yaml-cpp_CMAKE_ARGS
             ${yaml-cpp_CMAKE_ARGS}
+            -DCMAKE_POLICY_DEFAULT_CMP0063=NEW
+            -DCMAKE_CXX_VISIBILITY_PRESET=${CMAKE_CXX_VISIBILITY_PRESET}
+            -DCMAKE_VISIBILITY_INLINES_HIDDEN=${CMAKE_VISIBILITY_INLINES_HIDDEN}
+            -DCMAKE_POSITION_INDEPENDENT_CODE=ON
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
             -DCMAKE_CXX_FLAGS=${yaml-cpp_CXX_FLAGS}
             -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
             -DCMAKE_INSTALL_MESSAGE=${CMAKE_INSTALL_MESSAGE}
             -DCMAKE_INSTALL_PREFIX=${_EXT_DIST_ROOT}
             -DCMAKE_OBJECT_PATH_MAX=${CMAKE_OBJECT_PATH_MAX}
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
-            -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
             -DBUILD_SHARED_LIBS=OFF
             -DYAML_BUILD_SHARED_LIBS=OFF
             -DYAML_CPP_BUILD_TESTS=OFF
             -DYAML_CPP_BUILD_TOOLS=OFF
             -DYAML_CPP_BUILD_CONTRIB=OFF
         )
+
         if(CMAKE_TOOLCHAIN_FILE)
             set(yaml-cpp_CMAKE_ARGS
                 ${yaml-cpp_CMAKE_ARGS} -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE})
+        endif()
+
+        if(APPLE)
+            set(yaml-cpp_CMAKE_ARGS
+                ${yaml-cpp_CMAKE_ARGS} -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET})
         endif()
 
         if(NOT BUILD_SHARED_LIBS)

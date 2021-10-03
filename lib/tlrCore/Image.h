@@ -9,7 +9,7 @@
 #include <tlrCore/Range.h>
 #include <tlrCore/Util.h>
 
-#include <OpenEXR/half.h>
+#include <half.h>
 
 #include <iostream>
 #include <limits>

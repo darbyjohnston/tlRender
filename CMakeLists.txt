@@ -51,7 +51,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # Dependencies
 find_package(Threads REQUIRED)
 find_package(FSeq REQUIRED)
-find_package(IlmBase REQUIRED)
+find_package(Imath REQUIRED)
 find_package(OCIO REQUIRED)
 find_package(OTIO REQUIRED)
 find_package(libsamplerate REQUIRED)

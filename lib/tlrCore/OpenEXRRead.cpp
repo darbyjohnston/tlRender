@@ -73,12 +73,12 @@ namespace tlr
             return p.pos < p.size;
         }
 
-        Imf::Int64 MemoryMappedIStream::tellg()
+        uint64_t MemoryMappedIStream::tellg()
         {
             return _p->pos;
         }
 
-        void MemoryMappedIStream::seekg(Imf::Int64 pos)
+        void MemoryMappedIStream::seekg(uint64_t pos)
         {
             _p->pos = pos;
         }

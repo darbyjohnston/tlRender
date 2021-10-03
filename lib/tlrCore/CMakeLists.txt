@@ -130,7 +130,7 @@ if(FFmpeg_FOUND)
     list(APPEND SOURCE FFmpeg.cpp FFmpegRead.cpp FFmpegWrite.cpp)
     list(APPEND tlrCore_LIBRARIES FFmpeg)
 endif()
-list(APPEND tlrCore_LIBRARIES IlmBase Threads::Threads)
+list(APPEND tlrCore_LIBRARIES Imath Threads::Threads)
 
 add_library(tlrCore ${HEADERS} ${SOURCE})
 target_link_libraries(tlrCore ${tlrCore_LIBRARIES})
