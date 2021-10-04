@@ -39,6 +39,24 @@ namespace tlr
             return AVRational({ value.den, value.num });
         }
 
+        audio::DataType toAudioType(AVSampleFormat value)
+        {
+            audio::DataType out = audio::DataType::None;
+            switch (value)
+            {
+            case AV_SAMPLE_FMT_S16:  out = audio::DataType::S16; break;
+            case AV_SAMPLE_FMT_S32:  out = audio::DataType::S32; break;
+            case AV_SAMPLE_FMT_FLT:  out = audio::DataType::F32; break;
+            case AV_SAMPLE_FMT_DBL:  out = audio::DataType::F64; break;
+            case AV_SAMPLE_FMT_S16P: out = audio::DataType::S16; break;
+            case AV_SAMPLE_FMT_S32P: out = audio::DataType::S32; break;
+            case AV_SAMPLE_FMT_FLTP: out = audio::DataType::F32; break;
+            case AV_SAMPLE_FMT_DBLP: out = audio::DataType::F64; break;
+            default: break;
+            }
+            return out;
+        }
+
         std::string getErrorLabel(int r)
         {
             char buf[string::cBufferSize];
@@ -63,10 +81,12 @@ namespace tlr
             av_register_all();
             avcodec_register_all();
             AVCodec* avCodec = nullptr;
+            std::vector<std::string> codecNames;
             while ((avCodec = av_codec_next(avCodec)))
             {
-                logSystem->print("tlr::ffmpeg::Plugin", "Codec: " + std::string(avCodec->name));
+                codecNames.push_back(avCodec->name);
             }
+            logSystem->print("tlr::ffmpeg::Plugin", "Codecs: " + string::join(codecNames, ", "));
         }
 
         Plugin::Plugin()

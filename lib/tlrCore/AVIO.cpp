@@ -8,9 +8,7 @@ namespace tlr
 {
     namespace avio
     {
-        VideoFrame::VideoFrame() :
-            time(time::invalidTime),
-            layer(0)
+        VideoFrame::VideoFrame()
         {}
 
         VideoFrame::VideoFrame(

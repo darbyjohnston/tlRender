@@ -102,10 +102,9 @@ namespace tlr
             //! Get the global start time.
             const otime::RationalTime& getGlobalStartTime() const;
 
-            //! Get the video information. This information is retreived from
-            //! the first clip in the timeline. The vector represents the
-            //! different layers that are available.
-            const std::vector<imaging::Info>& getVideoInfo() const;
+            //! Get the A/V information. This information is retreived from
+            //! the first clip in the timeline.
+            const avio::Info& getAVInfo() const;
 
             ///@}
 

@@ -123,9 +123,9 @@ namespace tlr
             return _p->timelinePlayer->getDuration();
         }
 
-        const std::vector<imaging::Info>& TimelinePlayer::videoInfo() const
+        const avio::Info& TimelinePlayer::avInfo() const
         {
-            return _p->timelinePlayer->getVideoInfo();
+            return _p->timelinePlayer->getAVInfo();
         }
 
        float TimelinePlayer::defaultSpeed() const

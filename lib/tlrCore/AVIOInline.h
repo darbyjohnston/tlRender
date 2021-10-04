@@ -6,10 +6,21 @@ namespace tlr
 {
     namespace avio
     {
-        inline Info::Info() :
-            videoTimeRange(time::invalidTime, time::invalidTime),
-            videoType(VideoType::Movie)
-        {}
+        inline bool Info::operator == (const Info& other) const
+        {
+            return
+                this->video == other.video &&
+                this->videoType == other.videoType &&
+                this->videoTimeRange == other.videoTimeRange &&
+                this->audio == other.audio &&
+                this->audioSampleCount == other.audioSampleCount &&
+                this->tags == other.tags;
+        }
+
+        inline bool Info::operator != (const Info& other) const
+        {
+            return !(*this == other);
+        }
 
         inline bool VideoFrame::operator == (const VideoFrame& other) const
         {

@@ -93,6 +93,8 @@ namespace tlr
             bool operator != (const Info&) const;
         };
 
+        std::ostream& operator << (std::ostream&, const Info&);
+
         //! Audio.
         class Audio
         {
@@ -103,6 +105,7 @@ namespace tlr
             Audio();
 
         public:
+            //! Create new audio.
             static std::shared_ptr<Audio> create(const Info&, size_t sampleCount);
 
             //! Get the audio information.

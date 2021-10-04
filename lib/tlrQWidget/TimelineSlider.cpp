@@ -278,12 +278,12 @@ namespace tlr
                 p.thumbnailProvider->cancelRequests();
 
                 const auto& duration = p.timelinePlayer->duration();
-                const auto& videoInfo = p.timelinePlayer->videoInfo();
+                const auto& info = p.timelinePlayer->avInfo();
                 const auto rect = this->rect().adjusted(0, 0, 0, -(stripeSize + handleSize * 2));
                 const int width = rect.width();
                 const int height = rect.height();
-                const int thumbnailWidth = !videoInfo.empty() ?
-                    static_cast<int>(height * videoInfo[0].size.getAspect()) :
+                const int thumbnailWidth = !info.video.empty() ?
+                    static_cast<int>(height * info.video[0].size.getAspect()) :
                     0;
                 const int thumbnailHeight = height;
                 if (thumbnailWidth > 0)

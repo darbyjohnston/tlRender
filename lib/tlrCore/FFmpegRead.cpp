@@ -56,6 +56,7 @@ namespace tlr
 
             AVFormatContext* avFormatContext = nullptr;
             int avVideoStream = -1;
+            int avAudioStream = -1;
             std::map<int, AVCodecParameters*> avCodecParameters;
             std::map<int, AVCodecContext*> avCodecContext;
             AVFrame* avFrame = nullptr;
@@ -232,15 +233,18 @@ namespace tlr
                 {
                     p.avVideoStream = i;
                 }
+                if (-1 == p.avAudioStream && p.avFormatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO)
+                {
+                    p.avAudioStream = i;
+                }
             }
-            if (-1 == p.avVideoStream)
+            if (-1 == p.avVideoStream && -1 == p.avAudioStream)
             {
-                throw std::runtime_error(string::Format("{0}: No video stream found").arg(fileName));
+                throw std::runtime_error(string::Format("{0}: No video or audio stream found").arg(fileName));
             }
 
             p.avFrame = av_frame_alloc();
 
-            std::size_t sequenceSize = 0;
             if (p.avVideoStream != -1)
             {
                 auto avVideoStream = p.avFormatContext->streams[p.avVideoStream];
@@ -307,6 +311,7 @@ namespace tlr
                     break;
                 }
 
+                std::size_t sequenceSize = 0;
                 if (avVideoStream->duration != AV_NOPTS_VALUE)
                 {
                     sequenceSize = av_rescale_q(
@@ -330,6 +335,71 @@ namespace tlr
                         avVideoStream->r_frame_rate.num / double(avVideoStream->r_frame_rate.den)));
 
                 p.currentTime = otime::RationalTime(0.0, speed);
+            }
+
+            if (p.avAudioStream != -1)
+            {
+                auto avAudioStream = p.avFormatContext->streams[p.avAudioStream];
+                auto avAudioCodecParameters = avAudioStream->codecpar;
+                auto avAudioCodec = avcodec_find_decoder(avAudioCodecParameters->codec_id);
+                if (!avAudioCodec)
+                {
+                    throw std::runtime_error(string::Format("{0}: No audio codec found").arg(fileName));
+                }
+                p.avCodecParameters[p.avAudioStream] = avcodec_parameters_alloc();
+                r = avcodec_parameters_copy(p.avCodecParameters[p.avAudioStream], avAudioCodecParameters);
+                if (r < 0)
+                {
+                    throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
+                }
+                p.avCodecContext[p.avAudioStream] = avcodec_alloc_context3(avAudioCodec);
+                r = avcodec_parameters_to_context(p.avCodecContext[p.avAudioStream], p.avCodecParameters[p.avAudioStream]);
+                if (r < 0)
+                {
+                    throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
+                }
+                r = avcodec_open2(p.avCodecContext[p.avAudioStream], avAudioCodec, 0);
+                if (r < 0)
+                {
+                    throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
+                }
+
+                uint8_t channelCount = p.avCodecParameters[p.avAudioStream]->channels;
+                switch (channelCount)
+                {
+                case 1:
+                case 2:
+                case 6:
+                case 7:
+                case 8: break;
+                default:
+                    throw std::runtime_error(string::Format("{0}: Unsupported audio channels").arg(fileName));
+                    break;
+                }
+
+                const audio::DataType dataType = toAudioType(static_cast<AVSampleFormat>(avAudioCodecParameters->format));
+                if (audio::DataType::None == dataType)
+                {
+                    throw std::runtime_error(string::Format("{0}: Unsupported audio format").arg(fileName));
+                }
+
+                size_t sampleCount = 0;
+                if (avAudioStream->duration != AV_NOPTS_VALUE)
+                {
+                    sampleCount = avAudioStream->duration;
+                }
+                else if (p.avFormatContext->duration != AV_NOPTS_VALUE)
+                {
+                    sampleCount = av_rescale_q(
+                        p.avFormatContext->duration,
+                        av_get_time_base_q(),
+                        avAudioStream->time_base);
+                }
+
+                p.info.audio.channelCount = channelCount;
+                p.info.audio.dataType = dataType;
+                p.info.audio.sampleRate = p.avCodecParameters[p.avAudioStream]->sample_rate;
+                p.info.audioSampleCount = sampleCount;
             }
 
             AVDictionaryEntry* tag = nullptr;

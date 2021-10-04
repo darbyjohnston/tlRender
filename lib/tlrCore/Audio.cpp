@@ -94,6 +94,12 @@ namespace tlr
             sampleRate(sampleRate)
         {}
 
+        std::ostream& operator << (std::ostream & os, const Info & value)
+        {
+            os << static_cast<size_t>(value.channelCount) << "," << value.dataType << "," << value.sampleRate;
+            return os;
+        }
+
         void Audio::_init(const Info& info, size_t sampleCount)
         {
             _info = info;

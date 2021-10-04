@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <tlrCore/Audio.h>
 #include <tlrCore/Image.h>
 #include <tlrCore/Path.h>
 #include <tlrCore/Time.h>
@@ -33,26 +34,28 @@ namespace tlr
         //! I/O information.
         struct Info
         {
-            Info();
-
             std::vector<imaging::Info>         video;
-            VideoType                          videoType;
-            otime::TimeRange                   videoTimeRange;
+            VideoType                          videoType        = VideoType::Movie;
+            otime::TimeRange                   videoTimeRange   = time::invalidTimeRange;
+            audio::Info                        audio;
+            size_t                             audioSampleCount = 0;
             std::map<std::string, std::string> tags;
+
+            bool operator == (const Info&) const;
+            bool operator != (const Info&) const;
         };
 
         //! Video I/O frame.
-        class VideoFrame
+        struct VideoFrame
         {
-        public:
             VideoFrame();
             VideoFrame(
                 const otime::RationalTime&,
                 uint16_t layer,
                 const std::shared_ptr<imaging::Image>&);
 
-            otime::RationalTime             time;
-            uint16_t                        layer;
+            otime::RationalTime             time  = time::invalidTime;
+            uint16_t                        layer = 0;
             std::shared_ptr<imaging::Image> image;
 
             bool operator == (const VideoFrame&) const;

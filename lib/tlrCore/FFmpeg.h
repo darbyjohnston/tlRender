@@ -43,11 +43,14 @@ namespace tlr
         //! Software scaler flags.
         const int swsScaleFlags = SWS_FAST_BILINEAR;
 
-        //! Get a label for a FFmpeg error code.
-        std::string getErrorLabel(int);
-
         //! Swap the numerator and denominator.
         AVRational swap(AVRational);
+
+        //! Convert from FFmpeg.
+        audio::DataType toAudioType(AVSampleFormat);
+
+        //! Get a label for a FFmpeg error code.
+        std::string getErrorLabel(int);
 
         //! FFmpeg reader
         class Read : public avio::IRead

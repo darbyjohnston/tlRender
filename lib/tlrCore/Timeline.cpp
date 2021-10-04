@@ -213,7 +213,7 @@ namespace tlr
             file::Path getPath(const otio::ImageSequenceReference*) const;
             file::Path getPath(const otio::MediaReference*) const;
 
-            bool getVideoInfo(const otio::Composable*, std::vector<imaging::Info>&) const;
+            bool getAVInfo(const otio::Composable*);
 
             float transitionValue(double frame, double in, double out) const;
 
@@ -235,7 +235,7 @@ namespace tlr
             Options options;
             otime::RationalTime duration = time::invalidTime;
             otime::RationalTime globalStartTime = time::invalidTime;
-            std::vector<imaging::Info> videoInfo;
+            avio::Info avInfo;
             std::vector<otime::TimeRange> activeRanges;
 
             struct LayerData
@@ -307,7 +307,7 @@ namespace tlr
             {
                 p.globalStartTime = otime::RationalTime(0, p.duration.rate());
             }
-            p.getVideoInfo(p.otioTimeline.value->tracks(), p.videoInfo);
+            p.getAVInfo(p.otioTimeline.value->tracks());
 
             // Create a new thread.
             p.running = true;
@@ -487,9 +487,9 @@ namespace tlr
             return _p->duration;
         }
 
-        const std::vector<imaging::Info>& Timeline::getVideoInfo() const
+        const avio::Info& Timeline::getAVInfo() const
         {
-            return _p->videoInfo;
+            return _p->avInfo;
         }
 
         std::future<Frame> Timeline::getFrame(
@@ -574,7 +574,7 @@ namespace tlr
             return fixPath(out);
         }
 
-        bool Timeline::Private::getVideoInfo(const otio::Composable* composable, std::vector<imaging::Info>& videoInfo) const
+        bool Timeline::Private::getAVInfo(const otio::Composable* composable)
         {
             if (auto clip = dynamic_cast<const otio::Clip*>(composable))
             {
@@ -587,12 +587,8 @@ namespace tlr
                     avioOptions["SequenceIO/DefaultSpeed"] = string::Format("{0}").arg(clip->duration(&errorStatus).rate());
                     if (auto read = context->getSystem<avio::System>()->read(getPath(clip->media_reference()), avioOptions))
                     {
-                        const auto info = read->getInfo().get();
-                        if (!info.video.empty())
-                        {
-                            videoInfo = info.video;
-                            return true;
-                        }
+                        avInfo = read->getInfo().get();
+                        return true;
                     }
                 }
             }
@@ -600,7 +596,7 @@ namespace tlr
             {
                 for (const auto& child : composition->children())
                 {
-                    if (getVideoInfo(child, videoInfo))
+                    if (getAVInfo(child))
                     {
                         return true;
                     }

@@ -111,8 +111,8 @@ namespace tlr
             const otime::RationalTime timelineDuration(48.0, 24.0);
             TLR_ASSERT(timelineDuration == timelinePlayer->getDuration());
             TLR_ASSERT(otime::RationalTime(10.0, 24.0) == timelinePlayer->getGlobalStartTime());
-            TLR_ASSERT(imageInfo.size == timelinePlayer->getVideoInfo()[0].size);
-            TLR_ASSERT(imageInfo.pixelType == timelinePlayer->getVideoInfo()[0].pixelType);
+            TLR_ASSERT(imageInfo.size == timelinePlayer->getAVInfo().video[0].size);
+            TLR_ASSERT(imageInfo.pixelType == timelinePlayer->getAVInfo().video[0].pixelType);
             TLR_ASSERT(timelineDuration.rate() == timelinePlayer->getDefaultSpeed());
 
             // Test frames.

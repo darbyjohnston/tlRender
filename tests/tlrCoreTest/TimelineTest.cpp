@@ -238,8 +238,8 @@ namespace tlr
             const otime::RationalTime timelineDuration(48.0, 24.0);
             TLR_ASSERT(timelineDuration == timeline->getDuration());
             TLR_ASSERT(otime::RationalTime(0.0, 24.0) == timeline->getGlobalStartTime());
-            TLR_ASSERT(imageInfo.size == timeline->getVideoInfo()[0].size);
-            TLR_ASSERT(imageInfo.pixelType == timeline->getVideoInfo()[0].pixelType);
+            TLR_ASSERT(imageInfo.size == timeline->getAVInfo().video[0].size);
+            TLR_ASSERT(imageInfo.pixelType == timeline->getAVInfo().video[0].pixelType);
 
             // Get frames from the timeline.
             std::vector<timeline::Frame> frames;

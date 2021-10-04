@@ -504,8 +504,11 @@ namespace tlr
             widget->setTimelinePlayer(timelinePlayer);
             const file::Path& path = timelinePlayer->path();
             const int tab = _tabWidget->addTab(widget, QString::fromUtf8(path.get(-1, false).c_str()));
-            const auto& videoInfo = timelinePlayer->videoInfo();
-            const std::string toolTip = string::Format("{0}\n{1}").arg(path.get()).arg(!videoInfo.empty() ? videoInfo[0] : imaging::Info());
+            const auto& info = timelinePlayer->avInfo();
+            const std::string toolTip = string::Format("{0}\nVideo: {1}\nAudio: {2}").
+                arg(path.get()).
+                arg(!info.video.empty() ? info.video[0] : imaging::Info()).
+                arg(info.audio);
             _tabWidget->setTabToolTip(tab, QString::fromUtf8(toolTip.c_str()));
             _timelinePlayers.append(timelinePlayer);
             _setCurrentTimeline(timelinePlayer);
@@ -917,14 +920,14 @@ namespace tlr
         _layersMenu->clear();
         if (_currentTimelinePlayer)
         {
-            const auto& videoInfo = _currentTimelinePlayer->videoInfo();
+            const auto& info = _currentTimelinePlayer->avInfo();
             const int videoLayer = _currentTimelinePlayer->videoLayer();
-            for (size_t i = 0; i < videoInfo.size(); ++i)
+            for (size_t i = 0; i < info.video.size(); ++i)
             {
                 auto action = new QAction;
                 action->setCheckable(true);
                 action->setChecked(i == videoLayer);
-                action->setText(QString::fromUtf8(videoInfo[i].name.c_str()));
+                action->setText(QString::fromUtf8(info.video[i].name.c_str()));
                 _layersActionGroup->addAction(action);
                 _actionToLayer[action] = i;
                 _layersMenu->addAction(action);

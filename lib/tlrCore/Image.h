@@ -217,7 +217,7 @@ namespace tlr
         //! Get the number of bytes used to store the image data.
         std::size_t getDataByteCount(const Info&);
 
-        std::ostream& operator << (std::ostream&, const imaging::Info&);
+        std::ostream& operator << (std::ostream&, const Info&);
 
         //! Image.
         class Image : public std::enable_shared_from_this<Image>
