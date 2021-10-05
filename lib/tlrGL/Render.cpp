@@ -1192,6 +1192,7 @@ namespace tlr
             {
                 glDeleteTextures(1, &p.colorTextures[i].id);
             }
+            p.colorTextures.clear();
             p.ocioShaderDesc.reset();
             p.ocioGpuProcessor.reset();
             p.ocioProcessor.reset();
