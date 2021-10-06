@@ -212,10 +212,7 @@ namespace tlr
             const auto& info = data.getInfo();
             glBindTexture(GL_TEXTURE_2D, _id);
             glPixelStorei(GL_UNPACK_ALIGNMENT, info.layout.alignment);
-            if (info.layout.endian != memory::getEndian())
-            {
-                glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_TRUE);
-            }
+            glPixelStorei(GL_UNPACK_SWAP_BYTES, info.layout.endian != memory::getEndian());
             glTexSubImage2D(
                 GL_TEXTURE_2D,
                 0,
@@ -232,10 +229,7 @@ namespace tlr
         {
             glBindTexture(GL_TEXTURE_2D, _id);
             glPixelStorei(GL_UNPACK_ALIGNMENT, info.layout.alignment);
-            if (info.layout.endian != memory::getEndian())
-            {
-                glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_TRUE);
-            }
+            glPixelStorei(GL_UNPACK_SWAP_BYTES, info.layout.endian != memory::getEndian());
             glTexSubImage2D(
                 GL_TEXTURE_2D,
                 0,
@@ -253,10 +247,7 @@ namespace tlr
             const auto& info = data.getInfo();
             glBindTexture(GL_TEXTURE_2D, _id);
             glPixelStorei(GL_UNPACK_ALIGNMENT, info.layout.alignment);
-            if (info.layout.endian != memory::getEndian())
-            {
-                glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_TRUE);
-            }
+            glPixelStorei(GL_UNPACK_SWAP_BYTES, info.layout.endian != memory::getEndian());
             glTexSubImage2D(
                 GL_TEXTURE_2D,
                 0,

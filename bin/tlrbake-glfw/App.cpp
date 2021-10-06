@@ -287,10 +287,7 @@ namespace tlr
 
         // Write the frame.
         glPixelStorei(GL_PACK_ALIGNMENT, _outputInfo.layout.alignment);
-        if (_outputInfo.layout.endian != memory::getEndian())
-        {
-            glPixelStorei(GL_PACK_SWAP_BYTES, GL_TRUE);
-        }
+        glPixelStorei(GL_PACK_SWAP_BYTES, _outputInfo.layout.endian != memory::getEndian());
         const GLenum format = gl::getReadPixelsFormat(_outputInfo.pixelType);
         const GLenum type = gl::getReadPixelsType(_outputInfo.pixelType);
         if (GL_NONE == format || GL_NONE == type)

@@ -67,7 +67,6 @@ namespace tlr
             const std::string colorFunctionName = "OCIODisplay";
 
             const std::string colorFunctionNoOp =
-                "uniform sampler3D ocio_lut3d_0Sampler;\n"
                 "vec4 OCIODisplay(vec4 inPixel)\n"
                 "{\n"
                 "    return inPixel;\n"
