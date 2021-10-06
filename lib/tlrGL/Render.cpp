@@ -67,7 +67,6 @@ namespace tlr
             const std::string colorFunctionName = "OCIODisplay";
 
             const std::string colorFunctionNoOp =
-                "uniform sampler3D ocio_lut3d_0Sampler;\n"
                 "vec4 OCIODisplay(vec4 inPixel)\n"
                 "{\n"
                 "    return inPixel;\n"
@@ -633,6 +632,10 @@ namespace tlr
             p.ocioShaderDesc->setFunctionName(colorFunctionName.c_str());
             p.ocioGpuProcessor->extractGpuShaderInfo(p.ocioShaderDesc);
 
+            //! \bug Is it necessary to reset pixel storage modes for OCIO?
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+            glPixelStorei(GL_UNPACK_SWAP_BYTES, 0);
+
             // Create 3D textures.
             const unsigned num3DTextures = p.ocioShaderDesc->getNum3DTextures();
             unsigned currentTexture = 0;
@@ -1192,6 +1195,7 @@ namespace tlr
             {
                 glDeleteTextures(1, &p.colorTextures[i].id);
             }
+            p.colorTextures.clear();
             p.ocioShaderDesc.reset();
             p.ocioGpuProcessor.reset();
             p.ocioProcessor.reset();
