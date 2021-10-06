@@ -632,6 +632,10 @@ namespace tlr
             p.ocioShaderDesc->setFunctionName(colorFunctionName.c_str());
             p.ocioGpuProcessor->extractGpuShaderInfo(p.ocioShaderDesc);
 
+            //! \bug Is it necessary to reset pixel storage modes for OCIO?
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+            glPixelStorei(GL_UNPACK_SWAP_BYTES, 0);
+
             // Create 3D textures.
             const unsigned num3DTextures = p.ocioShaderDesc->getNum3DTextures();
             unsigned currentTexture = 0;
