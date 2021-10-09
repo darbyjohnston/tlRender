@@ -54,13 +54,29 @@ namespace tlr
                 uint16_t layer,
                 const std::shared_ptr<imaging::Image>&);
 
-            otime::RationalTime             time  = time::invalidTime;
+            otime::RationalTime             time = time::invalidTime;
             uint16_t                        layer = 0;
             std::shared_ptr<imaging::Image> image;
 
             bool operator == (const VideoFrame&) const;
             bool operator != (const VideoFrame&) const;
             bool operator < (const VideoFrame&) const;
+        };
+
+        //! Audio I/O frame.
+        struct AudioFrame
+        {
+            AudioFrame();
+            AudioFrame(
+                const otime::RationalTime&,
+                const std::shared_ptr<audio::Audio>&);
+
+            otime::RationalTime           time  = time::invalidTime;
+            std::shared_ptr<audio::Audio> audio;
+
+            bool operator == (const AudioFrame&) const;
+            bool operator != (const AudioFrame&) const;
+            bool operator < (const AudioFrame&) const;
         };
 
         //! Options.

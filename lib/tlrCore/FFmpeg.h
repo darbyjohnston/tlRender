@@ -34,11 +34,14 @@ namespace tlr
         TLR_ENUM(Profile);
         TLR_ENUM_SERIALIZE(Profile);
 
+        //! Video frame buffer size.
+        const size_t videoFramesSize = 10;
+
+        //! Video frame buffer size.
+        const size_t audioFramesSize = 10;
+
         //! Number of threads.
         const size_t threadCount = 4;
-
-        //! Timeout for frame requests.
-        const std::chrono::milliseconds requestTimeout(1);
 
         //! Software scaler flags.
         const int swsScaleFlags = SWS_FAST_BILINEAR;

@@ -25,9 +25,9 @@ namespace tlr
         inline bool VideoFrame::operator == (const VideoFrame& other) const
         {
             return
-                this->time == other.time &&
-                this->layer == other.layer &&
-                this->image == other.image;
+                time == other.time &&
+                layer == other.layer &&
+                image == other.image;
         }
 
         inline bool VideoFrame::operator != (const VideoFrame& other) const
@@ -36,6 +36,23 @@ namespace tlr
         }
 
         inline bool VideoFrame::operator < (const VideoFrame& other) const
+        {
+            return time < other.time;
+        }
+
+        inline bool AudioFrame::operator == (const AudioFrame& other) const
+        {
+            return
+                time == other.time &&
+                audio == other.audio;
+        }
+
+        inline bool AudioFrame::operator != (const AudioFrame& other) const
+        {
+            return !(*this == other);
+        }
+
+        inline bool AudioFrame::operator < (const AudioFrame& other) const
         {
             return time < other.time;
         }

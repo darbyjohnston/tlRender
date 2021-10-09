@@ -20,6 +20,16 @@ namespace tlr
             image(image)
         {}
 
+        AudioFrame::AudioFrame()
+        {}
+
+        AudioFrame::AudioFrame(
+            const otime::RationalTime& time,
+            const std::shared_ptr<audio::Audio>& audio) :
+            time(time),
+            audio(audio)
+        {}
+
         Options merge(const Options& a, const Options& b)
         {
             Options out = a;

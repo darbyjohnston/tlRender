@@ -31,8 +31,10 @@ namespace tlr
     {
         struct Read::Private
         {
-            int decodeVideo(avio::VideoFrame&);
+            int decodeVideo();
             void copyVideo(const std::shared_ptr<imaging::Image>&);
+
+            int decodeAudio();
 
             avio::Info info;
             std::promise<avio::Info> infoPromise;
@@ -42,14 +44,15 @@ namespace tlr
                 VideoFrameRequest(VideoFrameRequest&&) = default;
 
                 otime::RationalTime time = time::invalidTime;
-                uint16_t layer = 0;
-                std::shared_ptr<imaging::Image> image;
                 std::promise<avio::VideoFrame> promise;
             };
             std::list<VideoFrameRequest> videoFrameRequests;
-            std::condition_variable requestCV;
-            otime::RationalTime currentTime = time::invalidTime;
-            bool eof = false;
+            otime::RationalTime videoTime = time::invalidTime;
+            otime::RationalTime audioTime = time::invalidTime;
+            std::list<avio::VideoFrame> videoFrames;
+            size_t videoFramesSize = ffmpeg::videoFramesSize;
+            std::list<avio::AudioFrame> audioFrames;
+            size_t audioFramesSize = ffmpeg::audioFramesSize;
 
             AVFormatContext* avFormatContext = nullptr;
             int avVideoStream = -1;
@@ -59,6 +62,9 @@ namespace tlr
             AVFrame* avFrame = nullptr;
             AVFrame* avFrame2 = nullptr;
             SwsContext* swsContext = nullptr;
+            int decoding = 0;
+            AVPacket packet;
+            bool eof = false;
 
             std::thread thread;
             std::mutex mutex;
@@ -78,7 +84,19 @@ namespace tlr
 
             TLR_PRIVATE_P();
 
-            const auto i = options.find("ffmpeg/ThreadCount");
+            auto i = options.find("ffmpeg/VideoFramesSize");
+            if (i != options.end())
+            {
+                std::stringstream ss(i->second);
+                ss >> p.videoFramesSize;
+            }
+            i = options.find("ffmpeg/AudioFramesSize");
+            if (i != options.end())
+            {
+                std::stringstream ss(i->second);
+                ss >> p.audioFramesSize;
+            }
+            i = options.find("ffmpeg/ThreadCount");
             if (i != options.end())
             {
                 std::stringstream ss(i->second);
@@ -150,14 +168,12 @@ namespace tlr
 
         std::future<avio::VideoFrame> Read::readVideoFrame(
             const otime::RationalTime& time,
-            uint16_t layer,
+            uint16_t,
             const std::shared_ptr<imaging::Image>& image)
         {
             TLR_PRIVATE_P();
             Private::VideoFrameRequest request;
             request.time = time;
-            request.layer = layer;
-            request.image = image;
             auto future = request.promise.get_future();
             bool valid = false;
             {
@@ -168,11 +184,7 @@ namespace tlr
                     p.videoFrameRequests.push_back(std::move(request));
                 }
             }
-            if (valid)
-            {
-                p.requestCV.notify_one();
-            }
-            else
+            if (!valid)
             {
                 request.promise.set_value(avio::VideoFrame());
             }
@@ -331,7 +343,7 @@ namespace tlr
                         sequenceSize,
                         avVideoStream->r_frame_rate.num / double(avVideoStream->r_frame_rate.den)));
 
-                p.currentTime = otime::RationalTime(0.0, speed);
+                p.videoTime = otime::RationalTime(0.0, speed);
             }
 
             if (p.avAudioStream != -1)
@@ -397,6 +409,8 @@ namespace tlr
                 p.info.audio.dataType = dataType;
                 p.info.audio.sampleRate = p.avCodecParameters[p.avAudioStream]->sample_rate;
                 p.info.audioSampleCount = sampleCount;
+
+                p.audioTime = otime::RationalTime(0.0, p.info.audio.sampleRate);
             }
 
             AVDictionaryEntry* tag = nullptr;
@@ -416,121 +430,206 @@ namespace tlr
             {
                 Private::VideoFrameRequest request;
                 bool requestValid = false;
+                otime::RationalTime seek = time::invalidTime;
                 {
                     std::unique_lock<std::mutex> lock(p.mutex);
-                    p.requestCV.wait_for(
-                        lock,
-                        requestTimeout,
-                        [this]
-                        {
-                            return !_p->videoFrameRequests.empty();
-                        });
                     if (!p.videoFrameRequests.empty())
                     {
-                        auto& tmp = p.videoFrameRequests.front();
-                        request.time = tmp.time;
-                        request.layer = tmp.layer;
-                        request.image = tmp.image;
-                        request.promise = std::move(tmp.promise);
-                        p.videoFrameRequests.pop_front();
-                        requestValid = true;
+                        const auto time = p.videoFrameRequests.front().time;
+                        if (time != p.videoTime)
+                        {
+                            seek = time;
+                        }
+                        else
+                        {
+                            auto i = std::find_if(
+                                p.videoFrames.begin(),
+                                p.videoFrames.end(),
+                                [time](const avio::VideoFrame& value)
+                                {
+                                    return time == value.time;
+                                });
+                            if (i != p.videoFrames.end())
+                            {
+                                requestValid = true;
+                                auto& tmp = p.videoFrameRequests.front();
+                                request.time = tmp.time;
+                                request.promise = std::move(tmp.promise);
+                                p.videoFrameRequests.pop_front();
+                            }
+                        }
                     }
                 }
+
                 if (requestValid)
                 {
-                    //std::cout << "----------" << std::endl;
-                    //std::cout << "request: " << request.time << std::endl;
-                    //std::cout << "current time: " << p.currentTime << std::endl;
+                    //std::cout << "REQUEST: " << request.time << std::endl;
 
-                    if (request.time != p.currentTime)
-                    {
-                        //std::cout << "seek: " << request.time << std::endl;
-                        p.currentTime = request.time;
-                        p.eof = false;
-                        int64_t t = 0;
-                        int stream = -1;
-                        if (p.avVideoStream != -1)
+                    const auto time = request.time;
+                    auto i = std::find_if(
+                        p.videoFrames.begin(),
+                        p.videoFrames.end(),
+                        [time](const avio::VideoFrame& value)
                         {
-                            avcodec_flush_buffers(p.avCodecContext[p.avVideoStream]);
-                            stream = p.avVideoStream;
-                            t = av_rescale_q(
-                                request.time.value(),
-                                swap(p.avFormatContext->streams[p.avVideoStream]->r_frame_rate),
-                                p.avFormatContext->streams[p.avVideoStream]->time_base);
+                            return time == value.time;
+                        });
+                    if (i != p.videoFrames.end())
+                    {
+                        auto otherTime = p.videoFrames.front().time;
+                        while (otherTime < time)
+                        {
+                            p.videoFrames.pop_front();
+                            otherTime = p.videoFrames.front().time;
                         }
-                        if (av_seek_frame(
-                            p.avFormatContext,
-                            stream,
-                            t,
-                            AVSEEK_FLAG_BACKWARD) < 0)
+                        request.promise.set_value(p.videoFrames.front());
+                        p.videoFrames.pop_front();
+                    }
+
+                    p.videoTime = request.time + otime::RationalTime(1.0, p.info.videoTimeRange.duration().rate());
+                }
+
+                if (seek != time::invalidTime)
+                {
+                    //std::cout << "SEEK: " << seek << std::endl;
+
+                    p.videoFrames.clear();
+                    p.audioFrames.clear();
+                    p.eof = false;
+                    int64_t t = 0;
+                    int stream = -1;
+                    if (p.avVideoStream != -1)
+                    {
+                        avcodec_flush_buffers(p.avCodecContext[p.avVideoStream]);
+                    }
+                    if (p.avAudioStream != -1)
+                    {
+                        avcodec_flush_buffers(p.avCodecContext[p.avAudioStream]);
+                    }
+                    if (p.avVideoStream != -1)
+                    {
+                        stream = p.avVideoStream;
+                        t = av_rescale_q(
+                            seek.value(),
+                            swap(p.avFormatContext->streams[p.avVideoStream]->r_frame_rate),
+                            p.avFormatContext->streams[p.avVideoStream]->time_base);
+                    }
+                    else if (p.avAudioStream != -1)
+                    {
+                        stream = p.avAudioStream;
+                        t = av_rescale_q(
+                            seek.value(),
+                            swap(p.avFormatContext->streams[p.avAudioStream]->r_frame_rate),
+                            p.avFormatContext->streams[p.avAudioStream]->time_base);
+                    }
+                    if (av_seek_frame(
+                        p.avFormatContext,
+                        stream,
+                        t,
+                        AVSEEK_FLAG_BACKWARD) < 0)
+                    {
+                        //! \todo How should this be handled?
+                    }
+
+                    p.videoTime = seek;
+                }
+
+                while (0 == p.decoding &&
+                    ((p.avVideoStream != -1 && p.videoFrames.size() < p.videoFramesSize) ||
+                        (p.avAudioStream != -1 && p.audioFrames.size() < p.audioFramesSize)))
+                {
+                    if (!p.eof)
+                    {
+                        p.decoding = av_read_frame(p.avFormatContext, &p.packet);
+                        if (AVERROR_EOF == p.decoding)
+                        {
+                            p.eof = true;
+                            p.decoding = 0;
+                        }
+                        else if (p.decoding < 0)
                         {
                             //! \todo How should this be handled?
+                            p.decoding = 0;
+                            break;
                         }
                     }
-
-                    avio::VideoFrame videoFrame;
-                    videoFrame.image = request.image &&
-                        request.image->getInfo() == p.info.video[0] ?
-                        request.image : imaging::Image::create(p.info.video[0]);
-                    videoFrame.image->setTags(p.info.tags);
-                    videoFrame.time = request.time;
-
-                    int decoding = 0;
-                    AVPacket packet;
-                    while (0 == decoding)
+                    if ((p.eof && p.avVideoStream != -1) || (p.avVideoStream == p.packet.stream_index))
                     {
-                        if (!p.eof)
+                        p.decoding = avcodec_send_packet(
+                            p.avCodecContext[p.avVideoStream],
+                            p.eof ? nullptr : &p.packet);
+                        if (AVERROR_EOF == p.decoding)
                         {
-                            decoding = av_read_frame(p.avFormatContext, &packet);
-                            if (AVERROR_EOF == decoding)
-                            {
-                                p.eof = true;
-                                decoding = 0;
-                            }
-                            else if (decoding < 0)
-                            {
-                                //! \todo How should this be handled?
-                                break;
-                            }
+                            p.decoding = 0;
                         }
-                        if (p.eof ? true : (p.avVideoStream == packet.stream_index))
+                        else if (p.decoding < 0)
                         {
-                            decoding = avcodec_send_packet(
-                                p.avCodecContext[p.avVideoStream],
-                                p.eof ? nullptr : &packet);
-                            if (AVERROR_EOF == decoding)
-                            {
-                                decoding = 0;
-                            }
-                            else if (decoding < 0)
-                            {
-                                //! \todo How should this be handled?
-                                break;
-                            }
-                            decoding = p.decodeVideo(videoFrame);
-                            if (AVERROR(EAGAIN) == decoding)
-                            {
-                                decoding = 0;
-                            }
-                            else if (AVERROR_EOF == decoding)
-                            {
-                                break;
-                            }
-                            else if (decoding < 0)
-                            {
-                                //! \todo How should this be handled?
-                                break;
-                            }
+                            //! \todo How should this be handled?
+                            p.decoding = 0;
+                            break;
                         }
-                        if (!p.eof)
+                        p.decoding = p.decodeVideo();
+                        if (AVERROR(EAGAIN) == p.decoding)
                         {
-                            av_packet_unref(&packet);
+                            p.decoding = 0;
+                        }
+                        else if (AVERROR_EOF == p.decoding)
+                        {
+                            p.decoding = 0;
+                            break;
+                        }
+                        else if (p.decoding < 0)
+                        {
+                            //! \todo How should this be handled?
+                            p.decoding = 0;
+                            break;
+                        }
+                        else if (1 == p.decoding)
+                        {
+                            p.decoding = 0;
+                            break;
                         }
                     }
-
-                    request.promise.set_value(videoFrame);
-
-                    p.currentTime = request.time + otime::RationalTime(1.0, p.currentTime.rate());
+                    if ((p.eof && p.avAudioStream != -1) || (p.avAudioStream == p.packet.stream_index))
+                    {
+                        p.decoding = avcodec_send_packet(
+                            p.avCodecContext[p.avAudioStream],
+                            p.eof ? nullptr : &p.packet);
+                        if (AVERROR_EOF == p.decoding)
+                        {
+                            p.decoding = 0;
+                        }
+                        else if (p.decoding < 0)
+                        {
+                            //! \todo How should this be handled?
+                            p.decoding = 0;
+                            break;
+                        }
+                        p.decoding = p.decodeAudio();
+                        if (AVERROR(EAGAIN) == p.decoding)
+                        {
+                            p.decoding = 0;
+                        }
+                        else if (AVERROR_EOF == p.decoding)
+                        {
+                            p.decoding = 0;
+                            break;
+                        }
+                        else if (p.decoding < 0)
+                        {
+                            //! \todo How should this be handled?
+                            p.decoding = 0;
+                            break;
+                        }
+                        else if (1 == p.decoding)
+                        {
+                            p.decoding = 0;
+                            break;
+                        }
+                    }
+                    if (!p.eof)
+                    {
+                        av_packet_unref(&p.packet);
+                    }
                 }
 
                 // Logging.
@@ -583,7 +682,7 @@ namespace tlr
             }
         }
 
-        int Read::Private::decodeVideo(avio::VideoFrame& frame)
+        int Read::Private::decodeVideo()
         {
             int out = 0;
             while (0 == out)
@@ -593,19 +692,23 @@ namespace tlr
                 {
                     return out;
                 }
+                //std::cout << "video pts: " << avFrame->pts << std::endl;
 
-                const auto& videoInfo = info.video[0];
                 const auto t = otime::RationalTime(
                     av_rescale_q(
                         avFrame->pts,
                         avFormatContext->streams[avVideoStream]->time_base,
                         swap(avFormatContext->streams[avVideoStream]->r_frame_rate)),
                     info.videoTimeRange.duration().rate());
-                if (t >= frame.time)
-                {
-                    //std::cout << "frame: " << t << std::endl;
-                    copyVideo(frame.image);
+                //std::cout << "video time: " << t << std::endl;
 
+                if (t >= videoTime)
+                {
+                    avio::VideoFrame frame;
+                    frame.time = t;
+                    frame.image = imaging::Image::create(info.video[0]);
+                    copyVideo(frame.image);
+                    videoFrames.push_back(frame);
                     out = 1;
                 }
             }
@@ -690,6 +793,35 @@ namespace tlr
                     avFrame2->linesize);
                 break;
             }
+        }
+
+        int Read::Private::decodeAudio()
+        {
+            int out = 0;
+            while (0 == out)
+            {
+                out = avcodec_receive_frame(avCodecContext[avAudioStream], avFrame);
+                if (out < 0)
+                {
+                    return out;
+                }
+                //std::cout << "audio pts: " << avFrame->pts << std::endl;
+
+                const auto t = otime::RationalTime(
+                    avFrame->pts,
+                    info.audio.sampleRate);
+                //std::cout << "audio time: " << t << std::endl;
+
+                if (t >= audioTime)
+                {
+                    avio::AudioFrame frame;
+                    frame.time = t;
+                    frame.audio = audio::Audio::create(info.audio, 1);
+                    audioFrames.push_back(frame);
+                    out = 1;
+                }
+            }
+            return out;
         }
     }
 }

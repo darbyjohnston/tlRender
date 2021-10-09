@@ -158,7 +158,7 @@ namespace opentime
     {
         std::ostream& operator << (std::ostream& os, const RationalTime& value)
         {
-            os << value.value() << "/" << value.rate();
+            os << std::fixed << value.value() << "/" << value.rate();
             return os;
         }
 
