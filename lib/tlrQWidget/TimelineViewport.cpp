@@ -60,6 +60,7 @@ namespace tlr
             p.timelinePlayer = timelinePlayer;
             if (p.timelinePlayer)
             {
+                _p->frame = p.timelinePlayer->frame();
                 connect(
                     p.timelinePlayer,
                     SIGNAL(frameChanged(const tlr::timeline::Frame&)),

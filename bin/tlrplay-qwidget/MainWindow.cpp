@@ -30,6 +30,7 @@ namespace tlr
     MainWindow::MainWindow(
         SettingsObject* settingsObject,
         qt::TimeObject* timeObject,
+        const std::shared_ptr<core::Context>& context,
         QWidget* parent) :
         QMainWindow(parent),
         _settingsObject(settingsObject),
@@ -37,6 +38,8 @@ namespace tlr
     {
         setFocusPolicy(Qt::ClickFocus);
         setAcceptDrops(true);
+
+        _context = context;
 
         _actions["File/Open"] = new QAction(this);
         _actions["File/Open"]->setText(tr("Open"));
@@ -56,8 +59,8 @@ namespace tlr
         _layersActionGroup = new QActionGroup(this);
         _layersActionGroup->setExclusive(true);
         _actions["File/Settings"] = new QAction(this);
-        _actions["File/Settings"]->setText(tr("Settings"));
         _actions["File/Settings"]->setCheckable(true);
+        _actions["File/Settings"]->setText(tr("Settings"));
         _actions["File/Exit"] = new QAction(this);
         _actions["File/Exit"]->setText(tr("Exit"));
         _actions["File/Exit"]->setShortcut(QKeySequence::Quit);
@@ -69,6 +72,10 @@ namespace tlr
         _actions["Window/FullScreen"] = new QAction(this);
         _actions["Window/FullScreen"]->setText(tr("Toggle Full Screen"));
         _actions["Window/FullScreen"]->setShortcut(QKeySequence(Qt::Key_U));
+        _actions["Window/Secondary"] = new QAction(this);
+        _actions["Window/Secondary"]->setCheckable(true);
+        _actions["Window/Secondary"]->setText(tr("Secondary Window"));
+        _actions["Window/Secondary"]->setShortcut(QKeySequence(Qt::Key_Y));
 
         _actions["Playback/Stop"] = new QAction(this);
         _actions["Playback/Stop"]->setCheckable(true);
@@ -198,6 +205,7 @@ namespace tlr
         windowMenu->addAction(_actions["Window/Resize1920x1080"]);
         windowMenu->addSeparator();
         windowMenu->addAction(_actions["Window/FullScreen"]);
+        windowMenu->addAction(_actions["Window/Secondary"]);
 
         auto playbackMenu = new QMenu;
         playbackMenu->setTitle(tr("&Playback"));
@@ -306,6 +314,10 @@ namespace tlr
             _actions["Window/FullScreen"],
             SIGNAL(triggered()),
             SLOT(_fullScreenCallback()));
+        connect(
+            _actions["Window/Secondary"],
+            SIGNAL(toggled(bool)),
+            SLOT(_secondaryWindowCallback(bool)));
 
         connect(
             _actions["Playback/Stop"],
@@ -416,14 +428,34 @@ namespace tlr
         }
     }
 
+    MainWindow::~MainWindow()
+    {
+        if (_secondaryWindow)
+        {
+            delete _secondaryWindow;
+            _secondaryWindow = nullptr;
+        }
+    }
+
     void MainWindow::setColorConfig(const gl::ColorConfig& colorConfig)
     {
+        if (colorConfig != _colorConfig)
+            return;
         _colorConfig = colorConfig;
+        if (_secondaryWindow)
+        {
+            _secondaryWindow->setColorConfig(_colorConfig);
+        }
     }
 
     void MainWindow::closeEvent(QCloseEvent* event)
     {
         _saveSettingsCallback();
+        if (_secondaryWindow)
+        {
+            delete _secondaryWindow;
+            _secondaryWindow = nullptr;
+        }
         QMainWindow::closeEvent(event);
     }
 
@@ -496,7 +528,7 @@ namespace tlr
 
     void MainWindow::_openedCallback(qt::TimelinePlayer* timelinePlayer)
     {
-        if (auto context = timelinePlayer->context().lock())
+        if (auto context = _context.lock())
         {
             auto widget = new qwidget::TimelineWidget(context);
             widget->setTimeObject(_timeObject);
@@ -631,6 +663,38 @@ namespace tlr
     void MainWindow::_fullScreenCallback()
     {
         setWindowState(windowState() ^ Qt::WindowFullScreen);
+    }
+
+    void MainWindow::_secondaryWindowCallback(bool value)
+    {
+        if (value && !_secondaryWindow)
+        {
+            if (auto context = _context.lock())
+            {
+                _secondaryWindow = new SecondaryWindow(context);
+                _secondaryWindow->setColorConfig(_colorConfig);
+                _secondaryWindow->setTimelinePlayer(_currentTimelinePlayer);
+
+                connect(
+                    _secondaryWindow,
+                    SIGNAL(destroyed(QObject*)),
+                    SLOT(_secondaryWindowDestroyedCallback()));
+
+                _secondaryWindow->resize(1280, 720);
+                _secondaryWindow->show();
+            }
+        }
+        else if (!value && _secondaryWindow)
+        {
+            delete _secondaryWindow;
+            _secondaryWindow = nullptr;
+        }
+    }
+
+    void MainWindow::_secondaryWindowDestroyedCallback()
+    {
+        _secondaryWindow = nullptr;
+        _actions["Window/Secondary"]->setChecked(false);
     }
 
     void MainWindow::_settingsVisibleCallback(bool value)
@@ -956,7 +1020,6 @@ namespace tlr
 
         if (_currentTimelinePlayer)
         {
-
             _actions["Playback/Stop"]->setEnabled(true);
             _actions["Playback/Forward"]->setEnabled(true);
             _actions["Playback/Reverse"]->setEnabled(true);
@@ -1023,5 +1086,10 @@ namespace tlr
         }
 
         _tabWidget->setCurrentIndex(_timelinePlayers.indexOf(_currentTimelinePlayer));
+
+        if (_secondaryWindow)
+        {
+            _secondaryWindow->setTimelinePlayer(_currentTimelinePlayer);
+        }
     }
 }

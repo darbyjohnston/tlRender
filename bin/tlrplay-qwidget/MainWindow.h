@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "SecondaryWindow.h"
 #include "SettingsObject.h"
 
 #include <tlrQt/TimelinePlayer.h>
@@ -26,7 +27,10 @@ namespace tlr
         MainWindow(
             SettingsObject*,
             qt::TimeObject*,
+            const std::shared_ptr<core::Context>&,
             QWidget* parent = nullptr);
+
+        ~MainWindow() override;
 
         void setColorConfig(const gl::ColorConfig&);
 
@@ -52,6 +56,8 @@ namespace tlr
         void _resize1280x720Callback();
         void _resize1920x1080Callback();
         void _fullScreenCallback();
+        void _secondaryWindowCallback(bool);
+        void _secondaryWindowDestroyedCallback();
         void _settingsVisibleCallback(bool);
         void _currentTabCallback(int);
         void _closeTabCallback(int);
@@ -81,6 +87,7 @@ namespace tlr
         void _playbackUpdate();
         void _timelineUpdate();
 
+        std::weak_ptr<core::Context> _context;
         QList<qt::TimelinePlayer*> _timelinePlayers;
         qt::TimelinePlayer* _currentTimelinePlayer = nullptr;
         QMap<QString, QAction*> _actions;
@@ -97,6 +104,7 @@ namespace tlr
         QMap<QAction*, timeline::Loop> _actionToLoop;
         QMap<timeline::Loop, QAction*> _loopToActions;
         QTabWidget* _tabWidget = nullptr;
+        SecondaryWindow* _secondaryWindow = nullptr;
         gl::ColorConfig _colorConfig;
         SettingsObject* _settingsObject = nullptr;
         qt::TimeObject* _timeObject = nullptr;
