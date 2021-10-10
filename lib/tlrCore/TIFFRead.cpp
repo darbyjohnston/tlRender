@@ -173,15 +173,14 @@ namespace tlr
                     return _info;
                 }
 
-                avio::VideoFrame read(
+                avio::VideoData read(
                     const std::string& fileName,
-                    const otime::RationalTime& time,
-                    const std::shared_ptr<imaging::Image>& image)
+                    const otime::RationalTime& time)
                 {
-                    avio::VideoFrame out;
+                    avio::VideoData out;
                     out.time = time;
                     const auto& info = _info.video[0];
-                    out.image = image && image->getInfo() == info ? image : imaging::Image::create(info);
+                    out.image = imaging::Image::create(info);
                     out.image->setTags(_info.tags);
 
                     if (_planar)
@@ -311,13 +310,12 @@ namespace tlr
             return out;
         }
 
-        avio::VideoFrame Read::_readVideoFrame(
+        avio::VideoData Read::_readVideo(
             const std::string& fileName,
             const otime::RationalTime& time,
-            uint16_t layer,
-            const std::shared_ptr<imaging::Image>& image)
+            uint16_t layer)
         {
-            return File(fileName).read(fileName, time, image);
+            return File(fileName).read(fileName, time);
         }
     }
 }

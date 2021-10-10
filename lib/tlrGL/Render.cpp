@@ -1015,13 +1015,13 @@ namespace tlr
             vao->draw(GL_TRIANGLE_STRIP, 0, 4);
         }
 
-        void Render::drawFrame(
-            const timeline::Frame& frame,
+        void Render::drawVideo(
+            const timeline::VideoData& data,
             const ImageOptions& imageOptions)
         {
             TLR_PRIVATE_P();
 
-            for (const auto& i : frame.layers)
+            for (const auto& i : data.layers)
             {
                 switch (i.transition)
                 {

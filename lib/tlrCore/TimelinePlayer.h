@@ -183,7 +183,7 @@ namespace tlr
 
             ///@}
 
-            //! \name Frames
+            //! \name Video and Audio Data
             ///@{
 
             //! Observer the current video layer.
@@ -192,23 +192,23 @@ namespace tlr
             //! Set the current video layer.
             void setVideoLayer(uint16_t);
 
-            //! Observe the current frame.
-            std::shared_ptr<observer::IValue<Frame> > observeFrame() const;
+            //! Observe the current video data.
+            std::shared_ptr<observer::IValue<VideoData> > observeVideo() const;
 
-            //! Get the frame cache read ahead.
-            size_t getFrameCacheReadAhead();
+            //! Get the cache read ahead.
+            size_t getCacheReadAhead();
 
-            //! Set the frame cache read ahead.
-            void setFrameCacheReadAhead(size_t);
+            //! Set the cache read ahead.
+            void setCacheReadAhead(size_t);
 
-            //! Get the frame cache read behind.
-            size_t getFrameCacheReadBehind();
+            //! Get the cache read behind.
+            size_t getCacheReadBehind();
 
-            //! Set the frame cache read behind.
-            void setFrameCacheReadBehind(size_t);
+            //! Set the cache read behind.
+            void setCacheReadBehind(size_t);
 
-            //! Observe the frame cache percentage.
-            std::shared_ptr<observer::IValue<float> > observeFrameCachePercentage() const;
+            //! Observe the cache percentage.
+            std::shared_ptr<observer::IValue<float> > observeCachePercentage() const;
 
             //! Observe the cached frames.
             std::shared_ptr<observer::IList<otime::TimeRange> > observeCachedFrames() const;

@@ -346,23 +346,23 @@ namespace tlr
     {
         // Update.
         _timelinePlayer->tick();
-        const auto& frame = _timelinePlayer->observeFrame()->get();
-        if (!timeline::isTimeEqual(frame, _frame))
+        const auto& videoData = _timelinePlayer->observeVideo()->get();
+        if (!timeline::isTimeEqual(videoData, _videoData))
         {
-            _frame = frame;
+            _videoData = videoData;
             _renderDirty = true;
         }
         _hudUpdate();
 
-        // Render this frame.
+        // Render the video.
         if (_renderDirty)
         {
             _render->setColorConfig(_options.colorConfig);
             _render->begin(_frameBufferSize);
-            _renderVideo();
+            _drawVideo();
             if (_options.hud)
             {
-                _renderHUD();
+                _drawHUD();
             }
             _render->end();
             glfwSwapBuffers(_glfwWindow);
@@ -390,9 +390,9 @@ namespace tlr
         }
         hudLabels[HUDElement::LowerLeft] = "Time: " + label;
 
-        // Frame cache percentage.
-        const float frameCachePercentage = _timelinePlayer->observeFrameCachePercentage()->get();
-        hudLabels[HUDElement::UpperRight] = string::Format("Frame cache: {0}%").arg(frameCachePercentage, 0, 3);
+        // Cache percentage.
+        const float cachePercentage = _timelinePlayer->observeCachePercentage()->get();
+        hudLabels[HUDElement::UpperRight] = string::Format("Cache: {0}%").arg(cachePercentage, 0, 3);
 
         // Speed.
         hudLabels[HUDElement::LowerRight] = string::Format("Speed: {0}").arg(_timelinePlayer->getDuration().rate(), 2);
@@ -404,12 +404,12 @@ namespace tlr
         }
     }
 
-    void App::_renderVideo()
+    void App::_drawVideo()
     {
-        _render->drawFrame(_frame);
+        _render->drawVideo(_videoData);
     }
 
-    void App::_renderHUD()
+    void App::_drawHUD()
     {
         const uint16_t fontSize =
             math::clamp(

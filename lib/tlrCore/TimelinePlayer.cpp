@@ -61,7 +61,7 @@ namespace tlr
 
         namespace
         {
-            enum class FrameCacheDirection
+            enum class CacheDirection
             {
                 Forward,
                 Reverse
@@ -72,13 +72,13 @@ namespace tlr
         {
             otime::RationalTime loopPlayback(const otime::RationalTime&);
 
-            void frameCacheUpdate(
+            void cacheUpdate(
                 const otime::RationalTime& currentTime,
                 const otime::TimeRange& inOutRange,
                 uint16_t videoLayer,
-                FrameCacheDirection,
-                std::size_t frameCacheReadAhead,
-                std::size_t frameCacheReadBehind);
+                CacheDirection,
+                std::size_t cacheReadAhead,
+                std::size_t cacheReadBehind);
 
             std::shared_ptr<Timeline> timeline;
 
@@ -88,8 +88,8 @@ namespace tlr
             std::shared_ptr<observer::Value<otime::RationalTime> > currentTime;
             std::shared_ptr<observer::Value<otime::TimeRange> > inOutRange;
             std::shared_ptr<observer::Value<uint16_t> > videoLayer;
-            std::shared_ptr<observer::Value<Frame> > frame;
-            std::shared_ptr<observer::Value<float> > frameCachePercentage;
+            std::shared_ptr<observer::Value<VideoData> > video;
+            std::shared_ptr<observer::Value<float> > cachePercentage;
             std::shared_ptr<observer::List<otime::TimeRange> > cachedFrames;
             std::chrono::steady_clock::time_point prevTime;
 
@@ -98,15 +98,15 @@ namespace tlr
                 otime::RationalTime currentTime = time::invalidTime;
                 otime::TimeRange inOutRange = time::invalidTimeRange;
                 uint16_t videoLayer = 0;
-                Frame frame;
-                std::map<otime::RationalTime, std::future<Frame> > frameRequests;
-                bool clearFrameRequests = false;
-                std::map<otime::RationalTime, Frame> frameCache;
+                VideoData videoData;
+                std::map<otime::RationalTime, std::future<VideoData> > videoDataRequests;
+                bool clearRequests = false;
+                std::map<otime::RationalTime, VideoData> videoDataCache;
                 std::vector<otime::TimeRange> cachedFrames;
-                bool clearFrameCache = false;
-                FrameCacheDirection frameCacheDirection = FrameCacheDirection::Forward;
-                std::size_t frameCacheReadAhead = 100;
-                std::size_t frameCacheReadBehind = 10;
+                bool clearCache = false;
+                CacheDirection cacheDirection = CacheDirection::Forward;
+                std::size_t cacheReadAhead = 100;
+                std::size_t cacheReadBehind = 10;
                 std::mutex mutex;
                 std::atomic<bool> running;
             };
@@ -134,8 +134,8 @@ namespace tlr
             p.inOutRange = observer::Value<otime::TimeRange>::create(
                 otime::TimeRange(p.timeline->getGlobalStartTime(), p.timeline->getDuration()));
             p.videoLayer = observer::Value<uint16_t>::create();
-            p.frame = observer::Value<Frame>::create();
-            p.frameCachePercentage = observer::Value<float>::create();
+            p.video = observer::Value<VideoData>::create();
+            p.cachePercentage = observer::Value<float>::create();
             p.cachedFrames = observer::List<otime::TimeRange>::create();
 
             // Create a new thread.
@@ -152,54 +152,54 @@ namespace tlr
                         otime::RationalTime currentTime = time::invalidTime;
                         otime::TimeRange inOutRange = time::invalidTimeRange;
                         uint16_t videoLayer = 0;
-                        bool clearFrameRequests = false;
-                        bool clearFrameCache = false;
-                        FrameCacheDirection frameCacheDirection = FrameCacheDirection::Forward;
-                        std::size_t frameCacheReadAhead = 0;
-                        std::size_t frameCacheReadBehind = 0;
+                        bool clearRequests = false;
+                        bool clearCache = false;
+                        CacheDirection cacheDirection = CacheDirection::Forward;
+                        std::size_t cacheReadAhead = 0;
+                        std::size_t cacheReadBehind = 0;
                         {
                             std::unique_lock<std::mutex> lock(p.threadData.mutex);
                             currentTime = p.threadData.currentTime;
                             inOutRange = p.threadData.inOutRange;
                             videoLayer = p.threadData.videoLayer;
-                            clearFrameRequests = p.threadData.clearFrameRequests;
-                            p.threadData.clearFrameRequests = false;
-                            clearFrameCache = p.threadData.clearFrameCache;
-                            p.threadData.clearFrameCache = false;
-                            frameCacheDirection = p.threadData.frameCacheDirection;
-                            frameCacheReadAhead = p.threadData.frameCacheReadAhead;
-                            frameCacheReadBehind = p.threadData.frameCacheReadBehind;
+                            clearRequests = p.threadData.clearRequests;
+                            p.threadData.clearRequests = false;
+                            clearCache = p.threadData.clearCache;
+                            p.threadData.clearCache = false;
+                            cacheDirection = p.threadData.cacheDirection;
+                            cacheReadAhead = p.threadData.cacheReadAhead;
+                            cacheReadBehind = p.threadData.cacheReadBehind;
                         }
 
-                        //! Clear frame requests.
-                        if (clearFrameRequests)
+                        //! Clear requests.
+                        if (clearRequests)
                         {
-                            p.timeline->cancelFrames();
-                            p.threadData.frameRequests.clear();
+                            p.timeline->cancelRequests();
+                            p.threadData.videoDataRequests.clear();
                         }
 
-                        //! Clear the frame cache.
-                        if (clearFrameCache)
+                        //! Clear the cache.
+                        if (clearCache)
                         {
-                            p.threadData.frameCache.clear();
+                            p.threadData.videoDataCache.clear();
                             p.threadData.cachedFrames.clear();
                         }
 
-                        //! Update the frame cache.
-                        p.frameCacheUpdate(
+                        //! Update the cache.
+                        p.cacheUpdate(
                             currentTime,
                             inOutRange,
                             videoLayer,
-                            frameCacheDirection,
-                            frameCacheReadAhead,
-                            frameCacheReadBehind);
+                            cacheDirection,
+                            cacheReadAhead,
+                            cacheReadBehind);
 
-                        //! Update the frame.
-                        const auto i = p.threadData.frameCache.find(currentTime);
-                        if (i != p.threadData.frameCache.end())
+                        //! Update the video data.
+                        const auto i = p.threadData.videoDataCache.find(currentTime);
+                        if (i != p.threadData.videoDataCache.end())
                         {
                             std::unique_lock<std::mutex> lock(p.threadData.mutex);
-                            p.threadData.frame = i->second;
+                            p.threadData.videoData = i->second;
                         }
 
                         // Logging.
@@ -354,12 +354,12 @@ namespace tlr
                     p.prevTime = std::chrono::steady_clock::now();
 
                     std::unique_lock<std::mutex> lock(p.threadData.mutex);
-                    p.threadData.frameCacheDirection = Playback::Forward == value ? FrameCacheDirection::Forward : FrameCacheDirection::Reverse;
+                    p.threadData.cacheDirection = Playback::Forward == value ? CacheDirection::Forward : CacheDirection::Reverse;
                 }
                 else
                 {
                     std::unique_lock<std::mutex> lock(p.threadData.mutex);
-                    p.threadData.clearFrameRequests = true;
+                    p.threadData.clearRequests = true;
                 }
             }
         }
@@ -400,7 +400,7 @@ namespace tlr
                 {
                     std::unique_lock<std::mutex> lock(p.threadData.mutex);
                     p.threadData.currentTime = tmp;
-                    p.threadData.clearFrameRequests = true;
+                    p.threadData.clearRequests = true;
                 }
             }
         }
@@ -473,7 +473,7 @@ namespace tlr
             {
                 std::unique_lock<std::mutex> lock(p.threadData.mutex);
                 p.threadData.inOutRange = value;
-                p.threadData.clearFrameRequests = true;
+                p.threadData.clearRequests = true;
             }
         }
 
@@ -521,46 +521,46 @@ namespace tlr
             {
                 std::unique_lock<std::mutex> lock(p.threadData.mutex);
                 p.threadData.videoLayer = layer;
-                p.threadData.clearFrameCache = true;
+                p.threadData.clearCache = true;
             }
         }
 
-        std::shared_ptr<observer::IValue<Frame> > TimelinePlayer::observeFrame() const
+        std::shared_ptr<observer::IValue<VideoData> > TimelinePlayer::observeVideo() const
         {
-            return _p->frame;
+            return _p->video;
         }
 
-        size_t TimelinePlayer::getFrameCacheReadAhead()
+        size_t TimelinePlayer::getCacheReadAhead()
         {
             TLR_PRIVATE_P();
             std::unique_lock<std::mutex> lock(p.threadData.mutex);
-            return p.threadData.frameCacheReadAhead;
+            return p.threadData.cacheReadAhead;
         }
 
-        size_t TimelinePlayer::getFrameCacheReadBehind()
+        size_t TimelinePlayer::getCacheReadBehind()
         {
             TLR_PRIVATE_P();
             std::unique_lock<std::mutex> lock(p.threadData.mutex);
-            return p.threadData.frameCacheReadBehind;
+            return p.threadData.cacheReadBehind;
         }
 
-        void TimelinePlayer::setFrameCacheReadAhead(size_t value)
+        void TimelinePlayer::setCacheReadAhead(size_t value)
         {
             TLR_PRIVATE_P();
             std::unique_lock<std::mutex> lock(p.threadData.mutex);
-            p.threadData.frameCacheReadAhead = value;
+            p.threadData.cacheReadAhead = value;
         }
 
-        void TimelinePlayer::setFrameCacheReadBehind(size_t value)
+        void TimelinePlayer::setCacheReadBehind(size_t value)
         {
             TLR_PRIVATE_P();
             std::unique_lock<std::mutex> lock(p.threadData.mutex);
-            p.threadData.frameCacheReadBehind = value;
+            p.threadData.cacheReadBehind = value;
         }
 
-        std::shared_ptr<observer::IValue<float> > TimelinePlayer::observeFrameCachePercentage() const
+        std::shared_ptr<observer::IValue<float> > TimelinePlayer::observeCachePercentage() const
         {
-            return _p->frameCachePercentage;
+            return _p->cachePercentage;
         }
 
         std::shared_ptr<observer::IList<otime::TimeRange> > TimelinePlayer::observeCachedFrames() const
@@ -598,26 +598,26 @@ namespace tlr
             }
 
             // Sync with the thread.
-            Frame frame;
-            int frameCacheReadAhead = 0;
-            int frameCacheReadBehind = 0;
+            VideoData videoData;
+            int cacheReadAhead = 0;
+            int cacheReadBehind = 0;
             std::vector<otime::TimeRange> cachedFrames;
             {
                 std::unique_lock<std::mutex> lock(p.threadData.mutex);
                 p.threadData.currentTime = p.currentTime->get();
-                frame = p.threadData.frame;
-                frameCacheReadAhead = p.threadData.frameCacheReadAhead;
-                frameCacheReadBehind = p.threadData.frameCacheReadBehind;
+                videoData = p.threadData.videoData;
+                cacheReadAhead = p.threadData.cacheReadAhead;
+                cacheReadBehind = p.threadData.cacheReadBehind;
                 cachedFrames = p.threadData.cachedFrames;
             }
-            p.frame->setIfChanged(frame);
+            p.video->setIfChanged(videoData);
             size_t cachedFramesCount = 0;
             for (const auto& i : cachedFrames)
             {
                 cachedFramesCount += i.duration().value();
             }
-            p.frameCachePercentage->setIfChanged(
-                cachedFramesCount / static_cast<float>(frameCacheReadAhead + frameCacheReadBehind) * 100.F);
+            p.cachePercentage->setIfChanged(
+                cachedFramesCount / static_cast<float>(cacheReadAhead + cacheReadBehind) * 100.F);
             p.cachedFrames->setIfChanged(cachedFrames);
         }
 
@@ -673,27 +673,27 @@ namespace tlr
             return out;
         }
 
-        void TimelinePlayer::Private::frameCacheUpdate(
+        void TimelinePlayer::Private::cacheUpdate(
             const otime::RationalTime& currentTime,
             const otime::TimeRange& inOutRange,
             uint16_t videoLayer,
-            FrameCacheDirection frameCacheDirection,
-            std::size_t frameCacheReadAhead,
-            std::size_t frameCacheReadBehind)
+            CacheDirection cacheDirection,
+            std::size_t cacheReadAhead,
+            std::size_t cacheReadBehind)
         {
             // Get which frames should be cached.
             std::vector<otime::RationalTime> frames;
             const auto& duration = timeline->getDuration();
             auto time = currentTime;
             const auto& range = inOutRange;
-            const size_t backwardsCount = FrameCacheDirection::Forward == frameCacheDirection ?
-                frameCacheReadBehind :
-                (frameCacheReadAhead - 1);
+            const size_t backwardsCount = CacheDirection::Forward == cacheDirection ?
+                cacheReadBehind :
+                (cacheReadAhead - 1);
             for (std::size_t i = 0; i < backwardsCount; ++i)
             {
                 time = loopTime(time - otime::RationalTime(1, duration.rate()), range);
             }
-            for (std::size_t i = 0; i < frameCacheReadBehind + frameCacheReadAhead; ++i)
+            for (std::size_t i = 0; i < cacheReadBehind + cacheReadAhead; ++i)
             {
                 if (!frames.empty() && time == frames[0])
                 {
@@ -706,14 +706,13 @@ namespace tlr
             timeline->setActiveRanges(ranges);
 
             // Remove old frames from the cache.
-            std::list<std::shared_ptr<imaging::Image> > recycledImages;
-            auto frameCacheIt = threadData.frameCache.begin();
-            while (frameCacheIt != threadData.frameCache.end())
+            auto videoDataCacheIt = threadData.videoDataCache.begin();
+            while (videoDataCacheIt != threadData.videoDataCache.end())
             {
                 bool old = true;
                 for (const auto& i : ranges)
                 {
-                    if (i.contains(frameCacheIt->second.time))
+                    if (i.contains(videoDataCacheIt->second.time))
                     {
                         old = false;
                         break;
@@ -721,22 +720,11 @@ namespace tlr
                 }
                 if (old)
                 {
-                    if (frame->get().time != frameCacheIt->second.time)
-                    {
-                        for (const auto& i : frameCacheIt->second.layers)
-                        {
-                            if (i.image)
-                            {
-                                i.image->setTags({});
-                                recycledImages.push_back(i.image);
-                            }
-                        }
-                    }
-                    frameCacheIt = threadData.frameCache.erase(frameCacheIt);
+                    videoDataCacheIt = threadData.videoDataCache.erase(videoDataCacheIt);
                 }
                 else
                 {
-                    ++frameCacheIt;
+                    ++videoDataCacheIt;
                 }
             }
 
@@ -744,11 +732,11 @@ namespace tlr
             std::vector<otime::RationalTime> uncached;
             for (const auto& i : frames)
             {
-                const auto j = threadData.frameCache.find(i);
-                if (j == threadData.frameCache.end())
+                const auto j = threadData.videoDataCache.find(i);
+                if (j == threadData.videoDataCache.end())
                 {
-                    const auto k = threadData.frameRequests.find(i);
-                    if (k == threadData.frameRequests.end())
+                    const auto k = threadData.videoDataRequests.find(i);
+                    if (k == threadData.videoDataRequests.end())
                     {
                         uncached.push_back(i);
                     }
@@ -758,34 +746,28 @@ namespace tlr
             // Get uncached frames.
             for (const auto& i : uncached)
             {
-                std::shared_ptr<imaging::Image> recycledImage;
-                if (!recycledImages.empty())
-                {
-                    recycledImage = recycledImages.front();
-                    recycledImages.pop_front();
-                }
-                threadData.frameRequests[i] = timeline->getFrame(i, videoLayer, recycledImage);
+                threadData.videoDataRequests[i] = timeline->getVideo(i, videoLayer);
             }
-            auto framesIt = threadData.frameRequests.begin();
-            while (framesIt != threadData.frameRequests.end())
+            auto videoDataRequestsIt = threadData.videoDataRequests.begin();
+            while (videoDataRequestsIt != threadData.videoDataRequests.end())
             {
-                if (framesIt->second.valid() &&
-                    framesIt->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+                if (videoDataRequestsIt->second.valid() &&
+                    videoDataRequestsIt->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                 {
-                    auto frame = framesIt->second.get();
-                    frame.time = framesIt->first;
-                    threadData.frameCache[frame.time] = frame;
-                    framesIt = threadData.frameRequests.erase(framesIt);
+                    auto frame = videoDataRequestsIt->second.get();
+                    frame.time = videoDataRequestsIt->first;
+                    threadData.videoDataCache[frame.time] = frame;
+                    videoDataRequestsIt = threadData.videoDataRequests.erase(videoDataRequestsIt);
                 }
                 else
                 {
-                    ++framesIt;
+                    ++videoDataRequestsIt;
                 }
             }
 
             // Update cached frames.
             std::vector<otime::RationalTime> cachedFrames;
-            for (const auto& i : threadData.frameCache)
+            for (const auto& i : threadData.videoDataCache)
             {
                 cachedFrames.push_back(i.second.time);
             }

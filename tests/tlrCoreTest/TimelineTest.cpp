@@ -33,7 +33,7 @@ namespace tlr
             _ranges();
             _util();
             _transitions();
-            _frames();
+            _videoData();
             _timeline();
             _imageSequence();
         }
@@ -142,9 +142,9 @@ namespace tlr
                 TLR_ASSERT(otioTrack == getParent<otio::Track>(otioClip));
             }
             {
-                Frame a;
+                VideoData a;
                 a.time = otime::RationalTime(1.0, 24.0);
-                Frame b;
+                VideoData b;
                 b.time = otime::RationalTime(1.0, 24.0);
                 TLR_ASSERT(isTimeEqual(a, b));
             }
@@ -158,16 +158,16 @@ namespace tlr
             }
         }
         
-        void TimelineTest::_frames()
+        void TimelineTest::_videoData()
         {
             {
-                FrameLayer a, b;
+                VideoLayer a, b;
                 TLR_ASSERT(a == b);
                 a.transition = Transition::Dissolve;
                 TLR_ASSERT(a != b);
             }
             {
-                Frame a, b;
+                VideoData a, b;
                 TLR_ASSERT(a == b);
                 a.time = otime::RationalTime(1.0, 24.0);
                 TLR_ASSERT(a != b);
@@ -227,7 +227,7 @@ namespace tlr
             auto write = _context->getSystem<avio::System>()->write(file::Path("TimelineTest.0.ppm"), ioInfo);
             for (size_t i = 0; i < static_cast<size_t>(clipTimeRange.duration().value()); ++i)
             {
-                write->writeVideoFrame(otime::RationalTime(i, 24.0), image);
+                write->writeVideo(otime::RationalTime(i, 24.0), image);
             }
 
             // Create a timeline from the OTIO timeline.
@@ -241,18 +241,18 @@ namespace tlr
             TLR_ASSERT(imageInfo.size == timeline->getAVInfo().video[0].size);
             TLR_ASSERT(imageInfo.pixelType == timeline->getAVInfo().video[0].pixelType);
 
-            // Get frames from the timeline.
-            std::vector<timeline::Frame> frames;
-            std::vector<std::future<timeline::Frame> > futures;
+            // Get video from the timeline.
+            std::vector<timeline::VideoData> videoData;
+            std::vector<std::future<timeline::VideoData> > futures;
             for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
             {
-                futures.push_back(timeline->getFrame(otime::RationalTime(i, 24.0)));
+                futures.push_back(timeline->getVideo(otime::RationalTime(i, 24.0)));
             }
             for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
             {
-                futures.push_back(timeline->getFrame(otime::RationalTime(i, 24.0), 1));
+                futures.push_back(timeline->getVideo(otime::RationalTime(i, 24.0), 1));
             }
-            while (frames.size() < static_cast<size_t>(timelineDuration.value()) * 2)
+            while (videoData.size() < static_cast<size_t>(timelineDuration.value()) * 2)
             {
                 auto i = futures.begin();
                 while (i != futures.end())
@@ -260,7 +260,7 @@ namespace tlr
                     if (i->valid() &&
                         i->wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                     {
-                        frames.push_back(i->get());
+                        videoData.push_back(i->get());
                         i = futures.erase(i);
                     }
                     else
@@ -270,19 +270,19 @@ namespace tlr
                 }
             }
 
-            // Get frames from the timeline, setting the active range.
+            // Get video from the timeline, setting the active range.
             timeline->setActiveRanges({ otime::TimeRange(otime::RationalTime(0.0, 24.0), timelineDuration) });
-            frames.clear();
+            videoData.clear();
             futures.clear();
             for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
             {
-                futures.push_back(timeline->getFrame(otime::RationalTime(i, 24.0)));
+                futures.push_back(timeline->getVideo(otime::RationalTime(i, 24.0)));
             }
             for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
             {
-                futures.push_back(timeline->getFrame(otime::RationalTime(i, 24.0), 1));
+                futures.push_back(timeline->getVideo(otime::RationalTime(i, 24.0), 1));
             }
-            while (frames.size() < static_cast<size_t>(timelineDuration.value()) * 2)
+            while (videoData.size() < static_cast<size_t>(timelineDuration.value()) * 2)
             {
                 auto i = futures.begin();
                 while (i != futures.end())
@@ -290,7 +290,7 @@ namespace tlr
                     if (i->valid() &&
                         i->wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                     {
-                        frames.push_back(i->get());
+                        videoData.push_back(i->get());
                         i = futures.erase(i);
                     }
                     else
@@ -300,18 +300,18 @@ namespace tlr
                 }
             }
 
-            // Cancel frames.
-            frames.clear();
+            // Cancel requests.
+            videoData.clear();
             futures.clear();
             for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
             {
-                futures.push_back(timeline->getFrame(otime::RationalTime(i, 24.0)));
+                futures.push_back(timeline->getVideo(otime::RationalTime(i, 24.0)));
             }
             for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
             {
-                futures.push_back(timeline->getFrame(otime::RationalTime(i, 24.0), 1));
+                futures.push_back(timeline->getVideo(otime::RationalTime(i, 24.0), 1));
             }
-            timeline->cancelFrames();
+            timeline->cancelRequests();
         }
         
         void TimelineTest::_imageSequence()

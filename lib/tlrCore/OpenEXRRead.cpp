@@ -148,15 +148,14 @@ namespace tlr
                     return _info;
                 }
 
-                avio::VideoFrame read(
+                avio::VideoData read(
                     const std::string& fileName,
                     const otime::RationalTime& time,
-                    uint16_t layer,
-                    const std::shared_ptr<imaging::Image>& image)
+                    uint16_t layer)
                 {
-                    avio::VideoFrame out;
+                    avio::VideoData out;
                     imaging::Info imageInfo = _info.video[std::min(static_cast<size_t>(layer), _info.video.size() - 1)];
-                    out.image = image && image->getInfo() == imageInfo ? image : imaging::Image::create(imageInfo);
+                    out.image = imaging::Image::create(imageInfo);
                     out.image->setTags(_info.tags);
                     const size_t channels = imaging::getChannelCount(imageInfo.pixelType);
                     const size_t channelByteCount = imaging::getBitDepth(imageInfo.pixelType) / 8;
@@ -288,13 +287,12 @@ namespace tlr
             return out;
         }
 
-        avio::VideoFrame Read::_readVideoFrame(
+        avio::VideoData Read::_readVideo(
             const std::string& fileName,
             const otime::RationalTime& time,
-            uint16_t layer,
-            const std::shared_ptr<imaging::Image>& image)
+            uint16_t layer)
         {
-            return File(fileName, _channelGrouping).read(fileName, time, layer, image);
+            return File(fileName, _channelGrouping).read(fileName, time, layer);
         }
     }
 }

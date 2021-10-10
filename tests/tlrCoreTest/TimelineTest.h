@@ -25,7 +25,7 @@ namespace tlr
             void _ranges();
             void _util();
             void _transitions();
-            void _frames();
+            void _videoData();
             void _timeline();
             void _imageSequence();
         };

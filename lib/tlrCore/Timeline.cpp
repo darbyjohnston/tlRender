@@ -112,7 +112,7 @@ namespace tlr
             return out;
         }
 
-        bool FrameLayer::operator == (const FrameLayer& other) const
+        bool VideoLayer::operator == (const VideoLayer& other) const
         {
             return image == other.image &&
                 imageB == other.imageB &&
@@ -120,18 +120,18 @@ namespace tlr
                 transitionValue == other.transitionValue;
         }
 
-        bool FrameLayer::operator != (const FrameLayer& other) const
+        bool VideoLayer::operator != (const VideoLayer& other) const
         {
             return !(*this == other);
         }
 
-        bool Frame::operator == (const Frame& other) const
+        bool VideoData::operator == (const VideoData& other) const
         {
             return time == other.time &&
                 layers == other.layers;
         }
 
-        bool Frame::operator != (const Frame& other) const
+        bool VideoData::operator != (const VideoData& other) const
         {
             return !(*this == other);
         }
@@ -218,14 +218,13 @@ namespace tlr
             float transitionValue(double frame, double in, double out) const;
 
             void tick();
-            void frameRequests();
-            std::future<avio::VideoFrame> readVideoFrame(
+            void requests();
+            std::future<avio::VideoData> readVideo(
                 const otio::Track*,
                 const otio::Clip*,
                 const otime::RationalTime&,
                 uint16_t videoLayer,
-                const avio::Options&,
-                const std::shared_ptr<imaging::Image>& = nullptr);
+                const avio::Options&);
             void stopReaders();
             void delReaders();
 
@@ -238,30 +237,29 @@ namespace tlr
             avio::Info avInfo;
             std::vector<otime::TimeRange> activeRanges;
 
-            struct LayerData
+            struct VideoLayerData
             {
-                LayerData() {};
-                LayerData(LayerData&&) = default;
+                VideoLayerData() {};
+                VideoLayerData(VideoLayerData&&) = default;
 
-                std::future<avio::VideoFrame> image;
-                std::future<avio::VideoFrame> imageB;
+                std::future<avio::VideoData> image;
+                std::future<avio::VideoData> imageB;
                 Transition transition = Transition::None;
                 float transitionValue = 0.F;
             };
-            struct Request
+            struct VideoRequest
             {
-                Request() {};
-                Request(Request&&) = default;
+                VideoRequest() {};
+                VideoRequest(VideoRequest&&) = default;
 
                 otime::RationalTime time = time::invalidTime;
                 uint16_t videoLayer = 0;
-                std::shared_ptr<imaging::Image> image;
-                std::promise<Frame> promise;
+                std::promise<VideoData> promise;
 
-                std::vector<LayerData> layerData;
+                std::vector<VideoLayerData> layerData;
             };
-            std::list<Request> requests;
-            std::list<Request> requestsInProgress;
+            std::list<VideoRequest> videoRequests;
+            std::list<VideoRequest> videoRequestsInProgress;
             std::condition_variable requestCV;
 
             struct Reader
@@ -322,28 +320,28 @@ namespace tlr
                         p.tick();
                     }
 
-                    std::list<Private::Request> requestsCleanup;
+                    std::list<Private::VideoRequest> videoRequestsCleanup;
                     {
                         std::unique_lock<std::mutex> lock(p.mutex);
                         p.stopped = true;
-                        while (!p.requests.empty())
+                        while (!p.videoRequests.empty())
                         {
-                            requestsCleanup.push_back(std::move(p.requests.front()));
-                            p.requests.pop_front();
+                            videoRequestsCleanup.push_back(std::move(p.videoRequests.front()));
+                            p.videoRequests.pop_front();
                         }
                     }
-                    while (!p.requestsInProgress.empty())
+                    while (!p.videoRequestsInProgress.empty())
                     {
-                        requestsCleanup.push_back(std::move(p.requestsInProgress.front()));
-                        p.requestsInProgress.pop_front();
+                        videoRequestsCleanup.push_back(std::move(p.videoRequestsInProgress.front()));
+                        p.videoRequestsInProgress.pop_front();
                     }
-                    for (auto& request : requestsCleanup)
+                    for (auto& request : videoRequestsCleanup)
                     {
-                        Frame frame;
-                        frame.time = request.time;
+                        VideoData data;
+                        data.time = request.time;
                         for (auto& i : request.layerData)
                         {
-                            FrameLayer layer;
+                            VideoLayer layer;
                             if (i.image.valid())
                             {
                                 layer.image = i.image.get().image;
@@ -354,9 +352,9 @@ namespace tlr
                             }
                             layer.transition = i.transition;
                             layer.transitionValue = i.transitionValue;
-                            frame.layers.push_back(layer);
+                            data.layers.push_back(layer);
                         }
-                        request.promise.set_value(frame);
+                        request.promise.set_value(data);
                     }
                 });
         }
@@ -492,16 +490,14 @@ namespace tlr
             return _p->avInfo;
         }
 
-        std::future<Frame> Timeline::getFrame(
+        std::future<VideoData> Timeline::getVideo(
             const otime::RationalTime& time,
-            uint16_t videoLayer,
-            const std::shared_ptr<imaging::Image>& image)
+            uint16_t videoLayer)
         {
             TLR_PRIVATE_P();
-            Private::Request request;
+            Private::VideoRequest request;
             request.time = time;
             request.videoLayer = videoLayer;
-            request.image = image;
             auto future = request.promise.get_future();
             bool valid = false;
             {
@@ -509,7 +505,7 @@ namespace tlr
                 if (!p.stopped)
                 {
                     valid = true;
-                    p.requests.push_back(std::move(request));
+                    p.videoRequests.push_back(std::move(request));
                 }
             }
             if (valid)
@@ -518,7 +514,7 @@ namespace tlr
             }
             else
             {
-                request.promise.set_value(Frame());
+                request.promise.set_value(VideoData());
             }
             return future;
         }
@@ -528,14 +524,14 @@ namespace tlr
             _p->activeRanges = ranges;
         }
 
-        void Timeline::cancelFrames()
+        void Timeline::cancelRequests()
         {
             TLR_PRIVATE_P();
             std::unique_lock<std::mutex> lock(p.mutex);
-            p.requests.clear();
+            p.videoRequests.clear();
             for (auto& i : p.readers)
             {
-                i.second.read->cancelVideoFrames();
+                i.second.read->cancelRequests();
             }
         }
 
@@ -612,7 +608,7 @@ namespace tlr
 
         void Timeline::Private::tick()
         {
-            frameRequests();
+            requests();
             stopReaders();
             delReaders();
 
@@ -628,23 +624,23 @@ namespace tlr
                     size_t requestsSize = 0;
                     {
                         std::unique_lock<std::mutex> lock(mutex);
-                        requestsSize = requests.size();
+                        requestsSize = videoRequests.size();
                     }
                     auto logSystem = context->getLogSystem();
-                    logSystem->print(id, string::Format("path: {0}, requests: {1}, in progress: {2}, request count: {3}, readers: {4}").
+                    logSystem->print(id, string::Format("path: {0}, requests: {1}, in progress: {2}, video requests: {3}, readers: {4}").
                         arg(path.get()).
                         arg(requestsSize).
-                        arg(requestsInProgress.size()).
+                        arg(videoRequestsInProgress.size()).
                         arg(options.requestCount).
                         arg(readers.size()));
                 }
             }
         }
 
-        void Timeline::Private::frameRequests()
+        void Timeline::Private::requests()
         {
             // Gather requests.
-            std::list<Request> newRequests;
+            std::list<VideoRequest> newVideoRequests;
             {
                 std::unique_lock<std::mutex> lock(mutex);
                 requestCV.wait_for(
@@ -652,18 +648,18 @@ namespace tlr
                     options.requestTimeout,
                     [this]
                     {
-                        return !requests.empty() || !requestsInProgress.empty();
+                        return !videoRequests.empty() || !videoRequestsInProgress.empty();
                     });
-                while (!requests.empty() &&
-                    (requestsInProgress.size() + newRequests.size()) < options.requestCount)
+                while (!videoRequests.empty() &&
+                    (videoRequestsInProgress.size() + newVideoRequests.size()) < options.requestCount)
                 {
-                    newRequests.push_back(std::move(requests.front()));
-                    requests.pop_front();
+                    newVideoRequests.push_back(std::move(videoRequests.front()));
+                    videoRequests.pop_front();
                 }
             }
 
             // Traverse the timeline for new requests.
-            for (auto& request : newRequests)
+            for (auto& request : newVideoRequests)
             {
                 try
                 {
@@ -684,10 +680,10 @@ namespace tlr
                                         const auto time = request.time - globalStartTime;
                                         if (range.contains(time))
                                         {
-                                            LayerData data;
+                                            VideoLayerData data;
                                             if (const auto otioClip = dynamic_cast<otio::Clip*>(otioItem))
                                             {
-                                                data.image = readVideoFrame(otioTrack, otioClip, time, request.videoLayer, options.avioOptions, request.image);
+                                                data.image = readVideo(otioTrack, otioClip, time, request.videoLayer, options.avioOptions);
                                             }
                                             const auto neighbors = otioTrack->neighbors_of(otioItem, &errorStatus);
                                             if (auto otioTransition = dynamic_cast<otio::Transition*>(neighbors.second.value))
@@ -702,7 +698,7 @@ namespace tlr
                                                     const auto transitionNeighbors = otioTrack->neighbors_of(otioTransition, &errorStatus);
                                                     if (const auto otioClipB = dynamic_cast<otio::Clip*>(transitionNeighbors.second.value))
                                                     {
-                                                        data.imageB = readVideoFrame(otioTrack, otioClipB, time, request.videoLayer, options.avioOptions);
+                                                        data.imageB = readVideo(otioTrack, otioClipB, time, request.videoLayer, options.avioOptions);
                                                     }
                                                 }
                                             }
@@ -719,7 +715,7 @@ namespace tlr
                                                     const auto transitionNeighbors = otioTrack->neighbors_of(otioTransition, &errorStatus);
                                                     if (const auto otioClipB = dynamic_cast<otio::Clip*>(transitionNeighbors.first.value))
                                                     {
-                                                        data.image = readVideoFrame(otioTrack, otioClipB, time, request.videoLayer, options.avioOptions);
+                                                        data.image = readVideo(otioTrack, otioClipB, time, request.videoLayer, options.avioOptions);
                                                     }
                                                 }
                                             }
@@ -736,12 +732,12 @@ namespace tlr
                     //! \todo How should this be handled?
                 }
 
-                requestsInProgress.push_back(std::move(request));
+                videoRequestsInProgress.push_back(std::move(request));
             }
 
             // Check for finished requests.
-            auto requestIt = requestsInProgress.begin();
-            while (requestIt != requestsInProgress.end())
+            auto requestIt = videoRequestsInProgress.begin();
+            while (requestIt != videoRequestsInProgress.end())
             {
                 bool valid = true;
                 for (auto& i : requestIt->layerData)
@@ -757,13 +753,13 @@ namespace tlr
                 }
                 if (valid)
                 {
-                    Frame frame;
-                    frame.time = requestIt->time;
+                    VideoData data;
+                    data.time = requestIt->time;
                     try
                     {
                         for (auto& j : requestIt->layerData)
                         {
-                            FrameLayer layer;
+                            VideoLayer layer;
                             if (j.image.valid())
                             {
                                 layer.image = j.image.get().image;
@@ -774,30 +770,29 @@ namespace tlr
                             }
                             layer.transition = j.transition;
                             layer.transitionValue = j.transitionValue;
-                            frame.layers.push_back(layer);
+                            data.layers.push_back(layer);
                         }
                     }
                     catch (const std::exception&)
                     {
                         //! \todo How should this be handled?
                     }
-                    requestIt->promise.set_value(frame);
-                    requestIt = requestsInProgress.erase(requestIt);
+                    requestIt->promise.set_value(data);
+                    requestIt = videoRequestsInProgress.erase(requestIt);
                     continue;
                 }
                 ++requestIt;
             }
         }
 
-        std::future<avio::VideoFrame> Timeline::Private::readVideoFrame(
+        std::future<avio::VideoData> Timeline::Private::readVideo(
             const otio::Track* track,
             const otio::Clip* clip,
             const otime::RationalTime& time,
             uint16_t videoLayer,
-            const avio::Options& ioOptions,
-            const std::shared_ptr<imaging::Image>& image)
+            const avio::Options& ioOptions)
         {
-            std::future<avio::VideoFrame> out;
+            std::future<avio::VideoData> out;
             if (auto context = this->context.lock())
             {
                 // Get the clip time transform.
@@ -838,7 +833,7 @@ namespace tlr
                 {
                     const auto readTime = frameTime.rescaled_to(j->second.info.videoTimeRange.duration().rate());
                     const auto floorTime = otime::RationalTime(floor(readTime.value()), readTime.rate());
-                    out = j->second.read->readVideoFrame(floorTime, videoLayer, image);
+                    out = j->second.read->readVideo(floorTime, videoLayer);
                 }
                 else
                 {
@@ -857,7 +852,7 @@ namespace tlr
 
                         const auto readTime = frameTime.rescaled_to(info.videoTimeRange.duration().rate());
                         const auto floorTime = otime::RationalTime(floor(readTime.value()), readTime.rate());
-                        out = read->readVideoFrame(floorTime, videoLayer, image);
+                        out = read->readVideo(floorTime, videoLayer);
 
                         Reader reader;
                         reader.read = read;
@@ -888,7 +883,7 @@ namespace tlr
                         break;
                     }
                 }
-                if (del && !i->second.read->hasVideoFrames())
+                if (del && !i->second.read->hasRequests())
                 {
                     if (auto context = this->context.lock())
                     {

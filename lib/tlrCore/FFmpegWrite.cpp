@@ -248,7 +248,7 @@ namespace tlr
             return out;
         }
 
-        void Write::writeVideoFrame(
+        void Write::writeVideo(
             const otime::RationalTime& time,
             const std::shared_ptr<imaging::Image>& image)
         {

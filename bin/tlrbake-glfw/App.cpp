@@ -278,11 +278,11 @@ namespace tlr
             _timeline->getGlobalStartTime() + _currentTime,
             otime::RationalTime(1.0, _currentTime.rate())) });
 
-        // Render the frame.
+        // Render the video.
         _render->setColorConfig(_options.colorConfig);
         _render->begin(_renderInfo.size);
-        const auto frame = _timeline->getFrame(_timeline->getGlobalStartTime() + _currentTime).get();
-        _render->drawFrame(frame);
+        const auto videoData = _timeline->getVideo(_timeline->getGlobalStartTime() + _currentTime).get();
+        _render->drawVideo(videoData);
         _render->end();
 
         // Write the frame.
@@ -302,7 +302,7 @@ namespace tlr
             format,
             type,
             _outputImage->getData());
-        _writer->writeVideoFrame(_currentTime, _outputImage);
+        _writer->writeVideo(_currentTime, _outputImage);
 
         // Advance the time.
         _currentTime += otime::RationalTime(1, _currentTime.rate());

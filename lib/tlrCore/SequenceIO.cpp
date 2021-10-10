@@ -29,21 +29,20 @@ namespace tlr
         {
             std::promise<Info> infoPromise;
 
-            struct VideoFrameRequest
+            struct VideoRequest
             {
-                VideoFrameRequest() {}
-                VideoFrameRequest(VideoFrameRequest&&) = default;
+                VideoRequest() {}
+                VideoRequest(VideoRequest&&) = default;
 
                 otime::RationalTime time = time::invalidTime;
                 uint16_t layer = 0;
-                std::shared_ptr<imaging::Image> image;
-                std::promise<VideoFrame> promise;
+                std::promise<VideoData> promise;
 
                 std::string fileName;
-                std::future<VideoFrame> future;
+                std::future<VideoData> future;
             };
-            std::list<VideoFrameRequest> videoFrameRequests;
-            std::list<VideoFrameRequest> videoFrameRequestsInProgress;
+            std::list<VideoRequest> videoRequests;
+            std::list<VideoRequest> videoRequestsInProgress;
             std::condition_variable requestCV;
 
             std::thread thread;
@@ -128,30 +127,30 @@ namespace tlr
                         p.infoPromise.set_value(Info());
                     }
 
-                    std::list<Private::VideoFrameRequest> videoFrameRequestsCleanup;
+                    std::list<Private::VideoRequest> videoRequestsCleanup;
                     {
                         std::unique_lock<std::mutex> lock(p.mutex);
                         p.stopped = true;
-                        while (!p.videoFrameRequests.empty())
+                        while (!p.videoRequests.empty())
                         {
-                            videoFrameRequestsCleanup.push_back(std::move(p.videoFrameRequests.front()));
-                            p.videoFrameRequests.pop_front();
+                            videoRequestsCleanup.push_back(std::move(p.videoRequests.front()));
+                            p.videoRequests.pop_front();
                         }
                     }
-                    while (!p.videoFrameRequestsInProgress.empty())
+                    while (!p.videoRequestsInProgress.empty())
                     {
-                        videoFrameRequestsCleanup.push_back(std::move(p.videoFrameRequestsInProgress.front()));
-                        p.videoFrameRequestsInProgress.pop_front();
+                        videoRequestsCleanup.push_back(std::move(p.videoRequestsInProgress.front()));
+                        p.videoRequestsInProgress.pop_front();
                     }
-                    for (auto& request : videoFrameRequestsCleanup)
+                    for (auto& request : videoRequestsCleanup)
                     {
-                        VideoFrame frame;
-                        frame.time = request.time;
+                        VideoData data;
+                        data.time = request.time;
                         if (request.future.valid())
                         {
-                            frame = request.future.get();
+                            data = request.future.get();
                         }
-                        request.promise.set_value(frame);
+                        request.promise.set_value(data);
                     }
                 });
         }
@@ -168,16 +167,14 @@ namespace tlr
             return _p->infoPromise.get_future();
         }
 
-        std::future<VideoFrame> ISequenceRead::readVideoFrame(
+        std::future<VideoData> ISequenceRead::readVideo(
             const otime::RationalTime& time,
-            uint16_t layer,
-            const std::shared_ptr<imaging::Image>& image)
+            uint16_t layer)
         {
             TLR_PRIVATE_P();
-            Private::VideoFrameRequest request;
+            Private::VideoRequest request;
             request.time = time;
             request.layer = layer;
-            request.image = image;
             auto future = request.promise.get_future();
             bool valid = false;
             {
@@ -185,7 +182,7 @@ namespace tlr
                 if (!p.stopped)
                 {
                     valid = true;
-                    p.videoFrameRequests.push_back(std::move(request));
+                    p.videoRequests.push_back(std::move(request));
                 }
             }
             if (valid)
@@ -194,23 +191,23 @@ namespace tlr
             }
             else
             {
-                request.promise.set_value(VideoFrame());
+                request.promise.set_value(VideoData());
             }
             return future;
         }
 
-        bool ISequenceRead::hasVideoFrames()
+        bool ISequenceRead::hasRequests()
         {
             TLR_PRIVATE_P();
             std::unique_lock<std::mutex> lock(p.mutex);
-            return !p.videoFrameRequests.empty();
+            return !p.videoRequests.empty();
         }
 
-        void ISequenceRead::cancelVideoFrames()
+        void ISequenceRead::cancelRequests()
         {
             TLR_PRIVATE_P();
             std::unique_lock<std::mutex> lock(p.mutex);
-            p.videoFrameRequests.clear();
+            p.videoRequests.clear();
         }
 
         void ISequenceRead::stop()
@@ -242,7 +239,7 @@ namespace tlr
             while (p.running)
             {
                 // Gather requests.
-                std::list<Private::VideoFrameRequest> newVideoFrameRequests;
+                std::list<Private::VideoRequest> newVideoRequests;
                 {
                     std::unique_lock<std::mutex> lock(p.mutex);
                     if (p.requestCV.wait_for(
@@ -250,23 +247,23 @@ namespace tlr
                         sequenceRequestTimeout,
                         [this]
                         {
-                            return !_p->videoFrameRequests.empty() || !_p->videoFrameRequestsInProgress.empty();
+                            return !_p->videoRequests.empty() || !_p->videoRequestsInProgress.empty();
                         }))
                     {
-                        while (!p.videoFrameRequests.empty() &&
-                            (p.videoFrameRequestsInProgress.size() + newVideoFrameRequests.size()) < p.threadCount)
+                        while (!p.videoRequests.empty() &&
+                            (p.videoRequestsInProgress.size() + newVideoRequests.size()) < p.threadCount)
                         {
-                            newVideoFrameRequests.push_back(std::move(p.videoFrameRequests.front()));
-                            p.videoFrameRequests.pop_front();
+                            newVideoRequests.push_back(std::move(p.videoRequests.front()));
+                            p.videoRequests.pop_front();
                         }
                     }
                 }
 
                 // Iniitalize new requests.
-                while (!newVideoFrameRequests.empty())
+                while (!newVideoRequests.empty())
                 {
-                    auto request = std::move(newVideoFrameRequests.front());
-                    newVideoFrameRequests.pop_front();
+                    auto request = std::move(newVideoRequests.front());
+                    newVideoRequests.pop_front();
                     
                     //std::cout << "request: " << request.time << std::endl;
                     if (!_path.getNumber().empty())
@@ -280,39 +277,38 @@ namespace tlr
                     const std::string fileName = request.fileName;
                     const otime::RationalTime time = request.time;
                     const uint16_t layer = request.layer;
-                    const auto image = request.image;
                     request.future = std::async(
                         std::launch::async,
-                        [this, fileName, time, layer, image]
+                        [this, fileName, time, layer]
                         {
-                            VideoFrame out;
+                            VideoData out;
                             try
                             {
-                                out = _readVideoFrame(fileName, time, layer, image);
+                                out = _readVideo(fileName, time, layer);
                             }
                             catch (const std::exception&)
                             {
                             }
                             return out;
                         });
-                    p.videoFrameRequestsInProgress.push_back(std::move(request));
+                    p.videoRequestsInProgress.push_back(std::move(request));
                 }
 
                 // Check for finished requests.
-                //if (!p.videoFrameRequestsInProgress.empty())
+                //if (!p.videoRequestsInProgress.empty())
                 //{
-                //    std::cout << "in progress: " << p.videoFrameRequestsInProgress.size() << std::endl;
+                //    std::cout << "in progress: " << p.videoRequestsInProgress.size() << std::endl;
                 //}
-                auto requestIt = p.videoFrameRequestsInProgress.begin();
-                while (requestIt != p.videoFrameRequestsInProgress.end())
+                auto requestIt = p.videoRequestsInProgress.begin();
+                while (requestIt != p.videoRequestsInProgress.end())
                 {
                     if (requestIt->future.valid() &&
                         requestIt->future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                     {
                         //std::cout << "finished: " << requestIt->time << std::endl;
-                        auto videoFrame = requestIt->future.get();
-                        requestIt->promise.set_value(videoFrame);
-                        requestIt = p.videoFrameRequestsInProgress.erase(requestIt);
+                        auto data = requestIt->future.get();
+                        requestIt->promise.set_value(data);
+                        requestIt = p.videoRequestsInProgress.erase(requestIt);
                         continue;
                     }
                     ++requestIt;
@@ -325,15 +321,15 @@ namespace tlr
                 {
                     p.logTimer = now;
                     const std::string id = string::Format("tlr::avio::ISequenceRead {0}").arg(this);
-                    size_t videoFrameRequestsSize = 0;
+                    size_t videoRequestsSize = 0;
                     {
                         std::unique_lock<std::mutex> lock(p.mutex);
-                        videoFrameRequestsSize = p.videoFrameRequests.size();
+                        videoRequestsSize = p.videoRequests.size();
                     }
-                    _logSystem->print(id, string::Format("path: {0}, video frame requests: {1}, in progress: {2}, thread count: {3}").
+                    _logSystem->print(id, string::Format("path: {0}, video requests: {1}, in progress: {2}, thread count: {3}").
                         arg(_path.get()).
-                        arg(videoFrameRequestsSize).
-                        arg(p.videoFrameRequestsInProgress.size()).
+                        arg(videoRequestsSize).
+                        arg(p.videoRequestsInProgress.size()).
                         arg(p.threadCount));
                 }
             }
@@ -375,11 +371,11 @@ namespace tlr
         ISequenceWrite::~ISequenceWrite()
         {}
 
-        void ISequenceWrite::writeVideoFrame(
+        void ISequenceWrite::writeVideo(
             const otime::RationalTime& time,
             const std::shared_ptr<imaging::Image>& image)
         {
-            _writeVideoFrame(_path.get(static_cast<int>(time.value())), time, image);
+            _writeVideo(_path.get(static_cast<int>(time.value())), time, image);
         }
     }
 }

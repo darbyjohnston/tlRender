@@ -175,9 +175,9 @@ namespace tlr
                 const imaging::Color4f& = imaging::Color4f(1.F, 1.F, 1.F),
                 const ImageOptions& = ImageOptions());
 
-            //! Draw a timeline frame.
-            void drawFrame(
-                const timeline::Frame&,
+            //! Draw timeline video data.
+            void drawVideo(
+                const timeline::VideoData&,
                 const ImageOptions & = ImageOptions());
 
             //! Draw text.

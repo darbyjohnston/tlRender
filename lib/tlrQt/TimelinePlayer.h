@@ -21,7 +21,7 @@ namespace tlr
         class TimelinePlayer : public QObject
         {
             Q_OBJECT
-            Q_PROPERTY(tlr::timeline::Frame frame READ frame NOTIFY frameChanged)
+            Q_PROPERTY(tlr::timeline::VideoData video READ video NOTIFY videoChanged)
 
         public:
             TimelinePlayer(
@@ -92,20 +92,20 @@ namespace tlr
 
             ///@}
 
-            //! \name Frames
+            //! \name Video and Audio Data
             ///@{
 
             //! Get the current video layer.
             int videoLayer() const;
 
-            //! Get the current frame.
-            const timeline::Frame& frame() const;
+            //! Get the video.
+            const timeline::VideoData& video() const;
 
-            //! Get the frame cache read ahead.
-            int frameCacheReadAhead();
+            //! Get the cache read ahead.
+            int cacheReadAhead();
 
-            //! Get the frame cache read behind.
-            int frameCacheReadBehind();
+            //! Get the cache read behind.
+            int cacheReadBehind();
 
             //! Get the cached frames.
             const std::vector<otime::TimeRange>& cachedFrames() const;
@@ -182,17 +182,17 @@ namespace tlr
 
             ///@}
 
-            //! \name Frames
+            //! \name Video and Audio Data
             ///@{
 
             //! Set the current video layer.
             void setVideoLayer(int);
 
-            //! Set the frame cache read ahead.
-            void setFrameCacheReadAhead(int);
+            //! Set the cache read ahead.
+            void setCacheReadAhead(int);
 
-            //! Set the frame cache read behind.
-            void setFrameCacheReadBehind(int);
+            //! Set the cache read behind.
+            void setCacheReadBehind(int);
 
             ///@}
 
@@ -217,14 +217,14 @@ namespace tlr
 
             ///@}
 
-            //! \name Frames
+            //! \name Video and Audio Data
             ///@{
 
             //! This signal is emitted when the current video layer is changed.
             void videoLayerChanged(int);
 
-            //! This signal is emitted when the current frame is changed.
-            void frameChanged(const tlr::timeline::Frame&);
+            //! This signal is emitted when the video is changed.
+            void videoChanged(const tlr::timeline::VideoData&);
 
             //! This signal is emitted when the cached frames are changed.
             void cachedFramesChanged(const std::vector<otime::TimeRange>&);

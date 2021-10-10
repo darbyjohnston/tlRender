@@ -8,10 +8,10 @@ namespace tlr
 {
     namespace avio
     {
-        VideoFrame::VideoFrame()
+        VideoData::VideoData()
         {}
 
-        VideoFrame::VideoFrame(
+        VideoData::VideoData(
             const otime::RationalTime& time,
             uint16_t layer,
             const std::shared_ptr<imaging::Image>& image) :
@@ -20,10 +20,10 @@ namespace tlr
             image(image)
         {}
 
-        AudioFrame::AudioFrame()
+        AudioData::AudioData()
         {}
 
-        AudioFrame::AudioFrame(
+        AudioData::AudioData(
             const otime::RationalTime& time,
             const std::shared_ptr<audio::Audio>& audio) :
             time(time),
@@ -66,6 +66,20 @@ namespace tlr
 
         IRead::~IRead()
         {}
+
+        std::future<VideoData> IRead::readVideo(
+            const otime::RationalTime&,
+            uint16_t)
+        {
+            return std::future<VideoData>();
+        }
+
+        std::future<AudioData> IRead::readAudio(
+            const otime::RationalTime&,
+            size_t)
+        {
+            return std::future<AudioData>();
+        }
 
         void IWrite::_init(
             const file::Path& path,

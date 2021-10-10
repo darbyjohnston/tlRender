@@ -93,17 +93,17 @@ namespace tlr
                                 image->setTags(tags);
                                 for (size_t i = 0; i < static_cast<size_t>(duration.value()); ++i)
                                 {
-                                    write->writeVideoFrame(otime::RationalTime(i, 24.0), image);
+                                    write->writeVideo(otime::RationalTime(i, 24.0), image);
                                 }
                             }
                             auto read = plugin->read(path);
                             for (size_t i = 0; i < static_cast<size_t>(duration.value()); ++i)
                             {
-                                const auto videoFrame = read->readVideoFrame(otime::RationalTime(i, 24.0)).get();
+                                const auto videoData = read->readVideo(otime::RationalTime(i, 24.0)).get();
                                 //std::stringstream ss;
-                                //ss << "Video frame: " << videoFrame.time;
+                                //ss << "Video time: " << videoData.time;
                                 //_print(ss.str());
-                                const auto frameTags = videoFrame.image->getTags();
+                                const auto frameTags = videoData.image->getTags();
                                 for (const auto& j : tags)
                                 {
                                     const auto k = frameTags.find(j.first);
@@ -113,9 +113,9 @@ namespace tlr
                             }
                             for (size_t i = 0; i < static_cast<size_t>(duration.value()); ++i)
                             {
-                                const auto videoFrame = read->readVideoFrame(otime::RationalTime(i, 24.0)).get();
+                                const auto videoData = read->readVideo(otime::RationalTime(i, 24.0)).get();
                                 //std::stringstream ss;
-                                //ss << "Video frame: " << videoFrame.time;
+                                //ss << "Video time: " << videoData.time;
                                 //_print(ss.str());
                             }
                         }

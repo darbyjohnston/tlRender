@@ -100,7 +100,7 @@ namespace tlr
             auto write = _context->getSystem<avio::System>()->write(file::Path("TimelinePlayerTest.0.ppm"), ioInfo);
             for (size_t i = 0; i < static_cast<size_t>(clipTimeRange.duration().value()); ++i)
             {
-                write->writeVideoFrame(otime::RationalTime(i, 24.0), image);
+                write->writeVideo(otime::RationalTime(i, 24.0), image);
             }
 
             // Create a timeline player from the OTIO timeline.
@@ -128,24 +128,24 @@ namespace tlr
                 FrameOptions(),
                 { 1, 1, 0 } }))
             {
-                timelinePlayer->setFrameCacheReadAhead(options.readAhead);
-                TLR_ASSERT(options.readAhead == timelinePlayer->getFrameCacheReadAhead());
-                timelinePlayer->setFrameCacheReadBehind(options.readBehind);
-                TLR_ASSERT(options.readBehind == timelinePlayer->getFrameCacheReadBehind());
-                auto frameObserver = observer::ValueObserver<timeline::Frame>::create(
-                    timelinePlayer->observeFrame(),
-                    [this](const timeline::Frame& value)
+                timelinePlayer->setCacheReadAhead(options.readAhead);
+                TLR_ASSERT(options.readAhead == timelinePlayer->getCacheReadAhead());
+                timelinePlayer->setCacheReadBehind(options.readBehind);
+                TLR_ASSERT(options.readBehind == timelinePlayer->getCacheReadBehind());
+                auto videoDataObserver = observer::ValueObserver<timeline::VideoData>::create(
+                    timelinePlayer->observeVideo(),
+                    [this](const timeline::VideoData& value)
                     {
                         std::stringstream ss;
-                        ss << "Frame: " << value.time;
+                        ss << "Video time: " << value.time;
                         _print(ss.str());
                     });
-                auto frameCachePercentageObserver = observer::ValueObserver<float>::create(
-                    timelinePlayer->observeFrameCachePercentage(),
+                auto cachePercentageObserver = observer::ValueObserver<float>::create(
+                    timelinePlayer->observeCachePercentage(),
                     [this](float value)
                     {
                         std::stringstream ss;
-                        ss << "Frame cache: " << value << "%";
+                        ss << "Cache: " << value << "%";
                         _print(ss.str());
                     });
                 auto cachedFramesObserver = observer::ListObserver<otime::TimeRange>::create(

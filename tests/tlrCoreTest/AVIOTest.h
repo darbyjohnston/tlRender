@@ -21,7 +21,7 @@ namespace tlr
             void run() override;
 
         private:
-            void _videoFrame();
+            void _videoData();
             void _ioSystem();
         };
     }

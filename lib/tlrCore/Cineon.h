@@ -187,11 +187,10 @@ namespace tlr
 
         protected:
             avio::Info _getInfo(const std::string& fileName) override;
-            avio::VideoFrame _readVideoFrame(
+            avio::VideoData _readVideo(
                 const std::string& fileName,
                 const otime::RationalTime&,
-                uint16_t layer,
-                const std::shared_ptr<imaging::Image>&) override;
+                uint16_t layer) override;
         };
 
         //! Cineon writer.
@@ -216,7 +215,7 @@ namespace tlr
                 const std::shared_ptr<core::LogSystem>&);
 
         protected:
-            void _writeVideoFrame(
+            void _writeVideo(
                 const std::string& fileName,
                 const otime::RationalTime&,
                 const std::shared_ptr<imaging::Image>&) override;

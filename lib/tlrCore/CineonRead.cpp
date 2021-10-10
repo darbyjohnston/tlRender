@@ -57,13 +57,12 @@ namespace tlr
             return out;
         }
 
-        avio::VideoFrame Read::_readVideoFrame(
+        avio::VideoData Read::_readVideo(
             const std::string& fileName,
             const otime::RationalTime& time,
-            uint16_t layer,
-            const std::shared_ptr<imaging::Image>& image)
+            uint16_t layer)
         {
-            avio::VideoFrame out;
+            avio::VideoData out;
             out.time = time;
 
             auto io = file::FileIO::create();
@@ -71,7 +70,7 @@ namespace tlr
             avio::Info info;
             read(io, info);
 
-            out.image = image && image->getInfo() == info.video[0] ? image : imaging::Image::create(info.video[0]);
+            out.image = imaging::Image::create(info.video[0]);
             out.image->setTags(info.tags);
             io->read(out.image->getData(), imaging::getDataByteCount(info.video[0]));
             return out;

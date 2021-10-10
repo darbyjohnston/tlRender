@@ -45,11 +45,11 @@ namespace tlr
             bool operator != (const Info&) const;
         };
 
-        //! Video I/O frame.
-        struct VideoFrame
+        //! Video I/O data.
+        struct VideoData
         {
-            VideoFrame();
-            VideoFrame(
+            VideoData();
+            VideoData(
                 const otime::RationalTime&,
                 uint16_t layer,
                 const std::shared_ptr<imaging::Image>&);
@@ -58,25 +58,25 @@ namespace tlr
             uint16_t                        layer = 0;
             std::shared_ptr<imaging::Image> image;
 
-            bool operator == (const VideoFrame&) const;
-            bool operator != (const VideoFrame&) const;
-            bool operator < (const VideoFrame&) const;
+            bool operator == (const VideoData&) const;
+            bool operator != (const VideoData&) const;
+            bool operator < (const VideoData&) const;
         };
 
-        //! Audio I/O frame.
-        struct AudioFrame
+        //! Audio I/O data.
+        struct AudioData
         {
-            AudioFrame();
-            AudioFrame(
+            AudioData();
+            AudioData(
                 const otime::RationalTime&,
                 const std::shared_ptr<audio::Audio>&);
 
             otime::RationalTime           time  = time::invalidTime;
             std::shared_ptr<audio::Audio> audio;
 
-            bool operator == (const AudioFrame&) const;
-            bool operator != (const AudioFrame&) const;
-            bool operator < (const AudioFrame&) const;
+            bool operator == (const AudioData&) const;
+            bool operator != (const AudioData&) const;
+            bool operator < (const AudioData&) const;
         };
 
         //! Options.
@@ -125,19 +125,23 @@ namespace tlr
             //! Get the information.
             virtual std::future<Info> getInfo() = 0;
 
-            //! Read a video frame.
-            virtual std::future<VideoFrame> readVideoFrame(
+            //! Read video data.
+            virtual std::future<VideoData> readVideo(
                 const otime::RationalTime&,
-                uint16_t layer = 0,
-                const std::shared_ptr<imaging::Image>& = nullptr) = 0;
+                uint16_t layer = 0);
 
-            //! Are there pending video frame requests?
-            virtual bool hasVideoFrames() = 0;
+            //! Read audio data.
+            virtual std::future<AudioData> readAudio(
+                const otime::RationalTime&,
+                size_t sampleCount);
 
-            //! Cancel pending video frame requests.
-            virtual void cancelVideoFrames() = 0;
+            //! Are there pending requests?
+            virtual bool hasRequests() = 0;
 
-            //! Stop ther reader.
+            //! Cancel pending requests.
+            virtual void cancelRequests() = 0;
+
+            //! Stop the reader.
             virtual void stop() = 0;
 
             //! Has the reader stopped?
@@ -158,8 +162,8 @@ namespace tlr
         public:
             ~IWrite() override;
 
-            //! Write a video frame.
-            virtual void writeVideoFrame(
+            //! Write video data.
+            virtual void writeVideo(
                 const otime::RationalTime&,
                 const std::shared_ptr<imaging::Image>&) = 0;
 

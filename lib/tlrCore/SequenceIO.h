@@ -33,22 +33,21 @@ namespace tlr
             ~ISequenceRead() override;
 
             std::future<Info> getInfo() override;
-            std::future<VideoFrame> readVideoFrame(
+            std::future<VideoData> readVideo(
                 const otime::RationalTime&,
-                uint16_t layer = 0,
-                const std::shared_ptr<imaging::Image>& = nullptr) override;
-            bool hasVideoFrames() override;
-            void cancelVideoFrames() override;
+                uint16_t layer = 0) override;
+            bool hasRequests() override;
+            void cancelRequests() override;
             void stop() override;
             bool hasStopped() const override;
 
         protected:
             virtual Info _getInfo(const std::string& fileName) = 0;
-            virtual VideoFrame _readVideoFrame(
+            virtual VideoData _readVideo(
                 const std::string& fileName,
                 const otime::RationalTime&,
-                uint16_t layer,
-                const std::shared_ptr<imaging::Image>&) = 0;
+                uint16_t layer) = 0;
+
             //! This must be called in the sub-class destructor.
             void _finish();
             
@@ -76,12 +75,12 @@ namespace tlr
         public:
             ~ISequenceWrite() override;
 
-            void writeVideoFrame(
+            void writeVideo(
                 const otime::RationalTime&,
                 const std::shared_ptr<imaging::Image>&) override;
 
         protected:
-            virtual void _writeVideoFrame(
+            virtual void _writeVideo(
                 const std::string& fileName,
                 const otime::RationalTime&,
                 const std::shared_ptr<imaging::Image>&) = 0;

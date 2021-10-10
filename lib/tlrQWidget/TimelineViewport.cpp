@@ -18,7 +18,7 @@ namespace tlr
             std::weak_ptr<core::Context> context;
             gl::ColorConfig colorConfig;
             qt::TimelinePlayer* timelinePlayer = nullptr;
-            timeline::Frame frame;
+            timeline::VideoData videoData;
             std::shared_ptr<gl::Render> render;
         };
 
@@ -50,30 +50,30 @@ namespace tlr
         void TimelineViewport::setTimelinePlayer(qt::TimelinePlayer* timelinePlayer)
         {
             TLR_PRIVATE_P();
-            p.frame = timeline::Frame();
+            p.videoData = timeline::VideoData();
             if (p.timelinePlayer)
             {
                 disconnect(
                     p.timelinePlayer,
-                    SIGNAL(frameChanged(const tlr::timeline::Frame&)),
+                    SIGNAL(videoChanged(const tlr::timeline::VideoData&)),
                     this,
-                    SLOT(_frameCallback(const tlr::timeline::Frame&)));
+                    SLOT(_videoCallback(const tlr::timeline::VideoData&)));
             }
             p.timelinePlayer = timelinePlayer;
             if (p.timelinePlayer)
             {
-                _p->frame = p.timelinePlayer->frame();
+                _p->videoData = p.timelinePlayer->video();
                 connect(
                     p.timelinePlayer,
-                    SIGNAL(frameChanged(const tlr::timeline::Frame&)),
-                    SLOT(_frameCallback(const tlr::timeline::Frame&)));
+                    SIGNAL(videoChanged(const tlr::timeline::VideoData&)),
+                    SLOT(_videoCallback(const tlr::timeline::VideoData&)));
             }
             update();
         }
 
-        void TimelineViewport::_frameCallback(const timeline::Frame& frame)
+        void TimelineViewport::_videoCallback(const timeline::VideoData& value)
         {
-            _p->frame = frame;
+            _p->videoData = value;
             update();
         }
 
@@ -113,7 +113,7 @@ namespace tlr
                 width() * devicePixelRatio,
                 height() * devicePixelRatio);
             p.render->begin(size);
-            p.render->drawFrame(p.frame);
+            p.render->drawVideo(p.videoData);
             p.render->end();
         }
     }

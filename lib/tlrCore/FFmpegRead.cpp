@@ -38,21 +38,33 @@ namespace tlr
 
             avio::Info info;
             std::promise<avio::Info> infoPromise;
-            struct VideoFrameRequest
+
+            struct VideoRequest
             {
-                VideoFrameRequest() {}
-                VideoFrameRequest(VideoFrameRequest&&) = default;
+                VideoRequest() {}
+                VideoRequest(VideoRequest&&) = default;
 
                 otime::RationalTime time = time::invalidTime;
-                std::promise<avio::VideoFrame> promise;
+                std::promise<avio::VideoData> promise;
             };
-            std::list<VideoFrameRequest> videoFrameRequests;
+            std::list<VideoRequest> videoRequests;
             otime::RationalTime videoTime = time::invalidTime;
+            std::list<avio::VideoData> videoData;
+            size_t videoBufferSize = ffmpeg::videoBufferSize;
+
+            struct AudioRequest
+            {
+                AudioRequest() {}
+                AudioRequest(AudioRequest&&) = default;
+
+                otime::RationalTime time = time::invalidTime;
+                size_t sampleCount = 0;
+                std::promise<avio::AudioData> promise;
+            };
+            std::list<AudioRequest> audioRequests;
             otime::RationalTime audioTime = time::invalidTime;
-            std::list<avio::VideoFrame> videoFrames;
-            size_t videoFramesSize = ffmpeg::videoFramesSize;
-            std::list<avio::AudioFrame> audioFrames;
-            size_t audioFramesSize = ffmpeg::audioFramesSize;
+            std::list<avio::AudioData> audioData;
+            size_t audioBufferSize = ffmpeg::audioBufferSize;
 
             AVFormatContext* avFormatContext = nullptr;
             int avVideoStream = -1;
@@ -84,17 +96,17 @@ namespace tlr
 
             TLR_PRIVATE_P();
 
-            auto i = options.find("ffmpeg/VideoFramesSize");
+            auto i = options.find("ffmpeg/VideoBufferSize");
             if (i != options.end())
             {
                 std::stringstream ss(i->second);
-                ss >> p.videoFramesSize;
+                ss >> p.videoBufferSize;
             }
-            i = options.find("ffmpeg/AudioFramesSize");
+            i = options.find("ffmpeg/AudioBufferSize");
             if (i != options.end())
             {
                 std::stringstream ss(i->second);
-                ss >> p.audioFramesSize;
+                ss >> p.audioBufferSize;
             }
             i = options.find("ffmpeg/ThreadCount");
             if (i != options.end())
@@ -123,15 +135,15 @@ namespace tlr
                         p.infoPromise.set_value(avio::Info());
                     }
                                         
-                    std::list<Private::VideoFrameRequest> videoFrameRequestsCleanup;
+                    std::list<Private::VideoRequest> videoRequestsCleanup;
                     {
                         std::unique_lock<std::mutex> lock(p.mutex);
                         p.stopped = true;
-                        videoFrameRequestsCleanup.swap(p.videoFrameRequests);
+                        videoRequestsCleanup.swap(p.videoRequests);
                     }
-                    for (auto& i : videoFrameRequestsCleanup)
+                    for (auto& i : videoRequestsCleanup)
                     {
-                        i.promise.set_value(avio::VideoFrame());
+                        i.promise.set_value(avio::VideoData());
                     }
                     _close();
                 });
@@ -166,13 +178,12 @@ namespace tlr
             return _p->infoPromise.get_future();
         }
 
-        std::future<avio::VideoFrame> Read::readVideoFrame(
+        std::future<avio::VideoData> Read::readVideo(
             const otime::RationalTime& time,
-            uint16_t,
-            const std::shared_ptr<imaging::Image>& image)
+            uint16_t)
         {
             TLR_PRIVATE_P();
-            Private::VideoFrameRequest request;
+            Private::VideoRequest request;
             request.time = time;
             auto future = request.promise.get_future();
             bool valid = false;
@@ -181,28 +192,36 @@ namespace tlr
                 if (!p.stopped)
                 {
                     valid = true;
-                    p.videoFrameRequests.push_back(std::move(request));
+                    p.videoRequests.push_back(std::move(request));
                 }
             }
             if (!valid)
             {
-                request.promise.set_value(avio::VideoFrame());
+                request.promise.set_value(avio::VideoData());
             }
             return future;
         }
 
-        bool Read::hasVideoFrames()
+        std::future<avio::AudioData> Read::readAudio(
+            const otime::RationalTime&,
+            size_t sampleCount)
         {
-            TLR_PRIVATE_P();
-            std::unique_lock<std::mutex> lock(p.mutex);
-            return !p.videoFrameRequests.empty();
+            return std::future<avio::AudioData>();
         }
 
-        void Read::cancelVideoFrames()
+        bool Read::hasRequests()
         {
             TLR_PRIVATE_P();
             std::unique_lock<std::mutex> lock(p.mutex);
-            p.videoFrameRequests.clear();
+            return !p.videoRequests.empty() || !p.audioRequests.empty();
+        }
+
+        void Read::cancelRequests()
+        {
+            TLR_PRIVATE_P();
+            std::unique_lock<std::mutex> lock(p.mutex);
+            p.videoRequests.clear();
+            p.audioRequests.clear();
         }
 
         void Read::stop()
@@ -428,14 +447,14 @@ namespace tlr
             p.logTimer = std::chrono::steady_clock::now();
             while (p.running)
             {
-                Private::VideoFrameRequest request;
+                Private::VideoRequest request;
                 bool requestValid = false;
                 otime::RationalTime seek = time::invalidTime;
                 {
                     std::unique_lock<std::mutex> lock(p.mutex);
-                    if (!p.videoFrameRequests.empty())
+                    if (!p.videoRequests.empty())
                     {
-                        const auto time = p.videoFrameRequests.front().time;
+                        const auto time = p.videoRequests.front().time;
                         if (time != p.videoTime)
                         {
                             seek = time;
@@ -443,19 +462,19 @@ namespace tlr
                         else
                         {
                             auto i = std::find_if(
-                                p.videoFrames.begin(),
-                                p.videoFrames.end(),
-                                [time](const avio::VideoFrame& value)
+                                p.videoData.begin(),
+                                p.videoData.end(),
+                                [time](const avio::VideoData& value)
                                 {
                                     return time == value.time;
                                 });
-                            if (i != p.videoFrames.end())
+                            if (i != p.videoData.end())
                             {
                                 requestValid = true;
-                                auto& tmp = p.videoFrameRequests.front();
+                                auto& tmp = p.videoRequests.front();
                                 request.time = tmp.time;
                                 request.promise = std::move(tmp.promise);
-                                p.videoFrameRequests.pop_front();
+                                p.videoRequests.pop_front();
                             }
                         }
                     }
@@ -467,22 +486,22 @@ namespace tlr
 
                     const auto time = request.time;
                     auto i = std::find_if(
-                        p.videoFrames.begin(),
-                        p.videoFrames.end(),
-                        [time](const avio::VideoFrame& value)
+                        p.videoData.begin(),
+                        p.videoData.end(),
+                        [time](const avio::VideoData& value)
                         {
                             return time == value.time;
                         });
-                    if (i != p.videoFrames.end())
+                    if (i != p.videoData.end())
                     {
-                        auto otherTime = p.videoFrames.front().time;
+                        auto otherTime = p.videoData.front().time;
                         while (otherTime < time)
                         {
-                            p.videoFrames.pop_front();
-                            otherTime = p.videoFrames.front().time;
+                            p.videoData.pop_front();
+                            otherTime = p.videoData.front().time;
                         }
-                        request.promise.set_value(p.videoFrames.front());
-                        p.videoFrames.pop_front();
+                        request.promise.set_value(p.videoData.front());
+                        p.videoData.pop_front();
                     }
 
                     p.videoTime = request.time + otime::RationalTime(1.0, p.info.videoTimeRange.duration().rate());
@@ -492,8 +511,8 @@ namespace tlr
                 {
                     //std::cout << "SEEK: " << seek << std::endl;
 
-                    p.videoFrames.clear();
-                    p.audioFrames.clear();
+                    p.videoData.clear();
+                    p.audioData.clear();
                     p.eof = false;
                     int64_t t = 0;
                     int stream = -1;
@@ -534,8 +553,8 @@ namespace tlr
                 }
 
                 while (0 == p.decoding &&
-                    ((p.avVideoStream != -1 && p.videoFrames.size() < p.videoFramesSize) ||
-                        (p.avAudioStream != -1 && p.audioFrames.size() < p.audioFramesSize)))
+                    ((p.avVideoStream != -1 && p.videoData.size() < p.videoBufferSize) ||
+                        (p.avAudioStream != -1 && p.audioData.size() < p.audioBufferSize)))
                 {
                     if (!p.eof)
                     {
@@ -639,14 +658,14 @@ namespace tlr
                 {
                     p.logTimer = now;
                     const std::string id = string::Format("tlr::ffmpeg::Read {0}").arg(this);
-                    size_t videoFrameRequestsSize = 0;
+                    size_t videoRequestsSize = 0;
                     {
                         std::unique_lock<std::mutex> lock(p.mutex);
-                        videoFrameRequestsSize = p.videoFrameRequests.size();
+                        videoRequestsSize = p.videoRequests.size();
                     }
-                    _logSystem->print(id, string::Format("path: {0}, video frame requests: {1}, thread count: {2}").
+                    _logSystem->print(id, string::Format("path: {0}, video requests: {1}, thread count: {2}").
                         arg(_path.get()).
-                        arg(videoFrameRequestsSize).
+                        arg(videoRequestsSize).
                         arg(p.threadCount));
                 }
             }
@@ -704,11 +723,11 @@ namespace tlr
 
                 if (t >= videoTime)
                 {
-                    avio::VideoFrame frame;
-                    frame.time = t;
-                    frame.image = imaging::Image::create(info.video[0]);
-                    copyVideo(frame.image);
-                    videoFrames.push_back(frame);
+                    avio::VideoData data;
+                    data.time = t;
+                    data.image = imaging::Image::create(info.video[0]);
+                    copyVideo(data.image);
+                    videoData.push_back(data);
                     out = 1;
                 }
             }
@@ -814,10 +833,10 @@ namespace tlr
 
                 if (t >= audioTime)
                 {
-                    avio::AudioFrame frame;
-                    frame.time = t;
-                    frame.audio = audio::Audio::create(info.audio, 1);
-                    audioFrames.push_back(frame);
+                    avio::AudioData data;
+                    data.time = t;
+                    data.audio = audio::Audio::create(info.audio, 1);
+                    audioData.push_back(data);
                     out = 1;
                 }
             }

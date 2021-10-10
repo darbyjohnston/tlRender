@@ -59,10 +59,10 @@ namespace tlr
                                 info.video.push_back(imageInfo);
                                 info.videoTimeRange = otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(1.0, 24.0));
                                 auto write = plugin->write(path, info);
-                                write->writeVideoFrame(otime::RationalTime(0.0, 24.0), image);
+                                write->writeVideo(otime::RationalTime(0.0, 24.0), image);
                             }
                             auto read = plugin->read(path);
-                            const auto videoFrame = read->readVideoFrame(otime::RationalTime(0.0, 24.0)).get();
+                            const auto videoData = read->readVideo(otime::RationalTime(0.0, 24.0)).get();
                         }
                         catch (const std::exception& e)
                         {

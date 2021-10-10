@@ -24,11 +24,11 @@ namespace tlr
         //! Get the list of recent files.
         const QList<QString>& recentFiles() const;
 
-        //! Get the frame cache read ahead.
-        int frameCacheReadAhead() const;
+        //! Get the cache read ahead.
+        int cacheReadAhead() const;
 
-        //! Get the frame cache read behind.
-        int frameCacheReadBehind() const;
+        //! Get the cache read behind.
+        int cacheReadBehind() const;
 
         //! Get the timeline request count.
         int requestCount() const;
@@ -46,11 +46,11 @@ namespace tlr
         //! Add a recent file.
         void addRecentFile(const QString&);
 
-        //! Set the frame cache read ahead.
-        void setFrameCacheReadAhead(int);
+        //! Set the cache read ahead.
+        void setCacheReadAhead(int);
 
-        //! Set the frame cache read behind.
-        void setFrameCacheReadBehind(int);
+        //! Set the cache read behind.
+        void setCacheReadBehind(int);
 
         //! Set the timeline request count.
         void setRequestCount(int);
@@ -68,11 +68,11 @@ namespace tlr
         //! This signal is emitted when the recent files list is changed.
         void recentFilesChanged(const QList<QString>&);
 
-        //! This signal is emitted when the frame cache read ahead is changed.
-        void frameCacheReadAheadChanged(int);
+        //! This signal is emitted when the cache read ahead is changed.
+        void cacheReadAheadChanged(int);
 
-        //! This signal is emitted when the frame cache read behind is changed.
-        void frameCacheReadBehindChanged(int);
+        //! This signal is emitted when the cache read behind is changed.
+        void cacheReadBehindChanged(int);
 
         //! This signal is emitted when the timeline request count is changed.
         void requestCountChanged(int);
@@ -91,8 +91,8 @@ namespace tlr
 
         QList<QString> _recentFiles;
         const int _recentFilesMax = 10;
-        int _frameCacheReadAhead = 100;
-        int _frameCacheReadBehind = 10;
+        int _cacheReadAhead = 100;
+        int _cacheReadBehind = 10;
         int _requestCount = 16;
         int _sequenceThreadCount = 16;
         int _ffmpegThreadCount = 4;

@@ -48,7 +48,7 @@ namespace tlr
 
                     QOpenGLFramebufferObject* fbo = framebufferObject();
                     _render->begin(imaging::Size(fbo->width(), fbo->height()));
-                    _render->drawFrame(_frame);
+                    _render->drawVideo(_videoData);
                     _render->end();
 
                     _framebufferObject->window()->resetOpenGLState();
@@ -56,20 +56,20 @@ namespace tlr
                     
                 void synchronize(QQuickFramebufferObject*) override
                 {
-                    _frame = _framebufferObject->frame();
+                    _videoData = _framebufferObject->video();
                 }
 
             private:
                 const GLFramebufferObject* _framebufferObject = nullptr;
                 bool _init = false;
-                timeline::Frame _frame;
+                timeline::VideoData _videoData;
                 std::shared_ptr<gl::Render> _render;
             };
         }
 
         struct GLFramebufferObject::Private
         {
-            timeline::Frame frame;
+            timeline::VideoData videoData;
         };
 
         GLFramebufferObject::GLFramebufferObject(QQuickItem* parent) :
@@ -82,9 +82,9 @@ namespace tlr
         GLFramebufferObject::~GLFramebufferObject()
         {}
         
-        const tlr::timeline::Frame& GLFramebufferObject::frame() const
+        const tlr::timeline::VideoData& GLFramebufferObject::video() const
         {
-            return _p->frame;
+            return _p->videoData;
         }
 
         QQuickFramebufferObject::Renderer* GLFramebufferObject::createRenderer() const
@@ -92,9 +92,9 @@ namespace tlr
             return new quick::Renderer(this);
         }
 
-        void GLFramebufferObject::setFrame(const timeline::Frame& frame)
+        void GLFramebufferObject::setVideo(const timeline::VideoData& value)
         {
-            _p->frame = frame;
+            _p->videoData = value;
             update();
         }
     }

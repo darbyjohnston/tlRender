@@ -34,11 +34,11 @@ namespace tlr
         TLR_ENUM(Profile);
         TLR_ENUM_SERIALIZE(Profile);
 
-        //! Video frame buffer size.
-        const size_t videoFramesSize = 10;
+        //! Video buffer size.
+        const size_t videoBufferSize = 10;
 
-        //! Video frame buffer size.
-        const size_t audioFramesSize = 10;
+        //! Audio buffer size.
+        const size_t audioBufferSize = 10;
 
         //! Number of threads.
         const size_t threadCount = 4;
@@ -75,12 +75,14 @@ namespace tlr
                 const std::shared_ptr<core::LogSystem>&);
 
             std::future<avio::Info> getInfo() override;
-            std::future<avio::VideoFrame> readVideoFrame(
+            std::future<avio::VideoData> readVideo(
                 const otime::RationalTime&,
-                uint16_t layer = 0,
-                const std::shared_ptr<imaging::Image>& = nullptr) override;
-            bool hasVideoFrames() override;
-            void cancelVideoFrames() override;
+                uint16_t layer = 0) override;
+            std::future<avio::AudioData> readAudio(
+                const otime::RationalTime&,
+                size_t sampleCount) override;
+            bool hasRequests() override;
+            void cancelRequests() override;
             void stop() override;
             bool hasStopped() const override;
 
@@ -113,7 +115,7 @@ namespace tlr
                 const avio::Options&,
                 const std::shared_ptr<core::LogSystem>&);
 
-            void writeVideoFrame(
+            void writeVideo(
                 const otime::RationalTime&,
                 const std::shared_ptr<imaging::Image>&) override;
 

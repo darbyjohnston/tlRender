@@ -11,7 +11,7 @@
 
 namespace tlr
 {
-    FrameCacheSettingsWidget::FrameCacheSettingsWidget(SettingsObject* settingsObject, QWidget* parent) :
+    CacheSettingsWidget::CacheSettingsWidget(SettingsObject* settingsObject, QWidget* parent) :
         QWidget(parent)
     {
         _readAheadSpinBox = new QSpinBox;
@@ -34,39 +34,39 @@ namespace tlr
         layout->addStretch();
         setLayout(layout);
 
-        _readAheadSpinBox->setValue(settingsObject->frameCacheReadAhead());
-        _readBehindSpinBox->setValue(settingsObject->frameCacheReadBehind());
+        _readAheadSpinBox->setValue(settingsObject->cacheReadAhead());
+        _readBehindSpinBox->setValue(settingsObject->cacheReadBehind());
 
         connect(
             _readAheadSpinBox,
             SIGNAL(valueChanged(int)),
             settingsObject,
-            SLOT(setFrameCacheReadAhead(int)));
+            SLOT(setCacheReadAhead(int)));
 
         connect(
             _readBehindSpinBox,
             SIGNAL(valueChanged(int)),
             settingsObject,
-            SLOT(setFrameCacheReadBehind(int)));
+            SLOT(setCacheReadBehind(int)));
 
         connect(
             settingsObject,
-            SIGNAL(frameCacheReadAheadChanged(int)),
+            SIGNAL(cacheReadAheadChanged(int)),
             SLOT(_readAheadCallback(int)));
 
         connect(
             settingsObject,
-            SIGNAL(frameCacheReadBehindChanged(int)),
+            SIGNAL(cacheReadBehindChanged(int)),
             SLOT(_readBehindCallback(int)));
     }
 
-    void FrameCacheSettingsWidget::_readAheadCallback(int value)
+    void CacheSettingsWidget::_readAheadCallback(int value)
     {
         QSignalBlocker signalBlocker(_readAheadSpinBox);
         _readAheadSpinBox->setValue(value);
     }
 
-    void FrameCacheSettingsWidget::_readBehindCallback(int value)
+    void CacheSettingsWidget::_readBehindCallback(int value)
     {
         QSignalBlocker signalBlocker(_readBehindSpinBox);
         _readBehindSpinBox->setValue(value);
@@ -283,7 +283,7 @@ namespace tlr
         QWidget* parent) :
         QToolBox(parent)
     {
-        addItem(new FrameCacheSettingsWidget(settingsObject), tr("Frame Cache"));
+        addItem(new CacheSettingsWidget(settingsObject), tr("Cache"));
         addItem(new PerformanceSettingsWidget(settingsObject), tr("Performance"));
         addItem(new TimeSettingsWidget(timeObject), tr("Time"));
         addItem(new MiscSettingsWidget(settingsObject), tr("Miscellaneous"));

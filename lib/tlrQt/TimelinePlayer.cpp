@@ -20,7 +20,7 @@ namespace tlr
             std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
             std::shared_ptr<observer::ValueObserver<otime::TimeRange> > inOutRangeObserver;
             std::shared_ptr<observer::ValueObserver<uint16_t> > videoLayerObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::Frame> > frameObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::VideoData> > videoObserver;
             std::shared_ptr<observer::ListObserver<otime::TimeRange> > cachedFramesObserver;
         };
 
@@ -78,11 +78,11 @@ namespace tlr
                     Q_EMIT videoLayerChanged(value);
                 });
 
-            p.frameObserver = observer::ValueObserver<timeline::Frame>::create(
-                p.timelinePlayer->observeFrame(),
-                [this](const timeline::Frame& value)
+            p.videoObserver = observer::ValueObserver<timeline::VideoData>::create(
+                p.timelinePlayer->observeVideo(),
+                [this](const timeline::VideoData& value)
                 {
-                    Q_EMIT frameChanged(value);
+                    Q_EMIT videoChanged(value);
                 });
 
             p.cachedFramesObserver = observer::ListObserver<otime::TimeRange>::create(
@@ -163,19 +163,19 @@ namespace tlr
             return _p->timelinePlayer->observeVideoLayer()->get();
         }
 
-        const timeline::Frame& TimelinePlayer::frame() const
+        const timeline::VideoData& TimelinePlayer::video() const
         {
-            return _p->timelinePlayer->observeFrame()->get();
+            return _p->timelinePlayer->observeVideo()->get();
         }
 
-        int TimelinePlayer::frameCacheReadAhead()
+        int TimelinePlayer::cacheReadAhead()
         {
-            return _p->timelinePlayer->getFrameCacheReadAhead();
+            return _p->timelinePlayer->getCacheReadAhead();
         }
 
-        int TimelinePlayer::frameCacheReadBehind()
+        int TimelinePlayer::cacheReadBehind()
         {
-            return _p->timelinePlayer->getFrameCacheReadBehind();
+            return _p->timelinePlayer->getCacheReadBehind();
         }
 
         const std::vector<otime::TimeRange>& TimelinePlayer::cachedFrames() const
@@ -281,14 +281,14 @@ namespace tlr
             _p->timelinePlayer->setVideoLayer(math::clamp(value, 0, static_cast<int>(std::numeric_limits<uint16_t>::max())));
         }
 
-        void TimelinePlayer::setFrameCacheReadAhead(int value)
+        void TimelinePlayer::setCacheReadAhead(int value)
         {
-            _p->timelinePlayer->setFrameCacheReadAhead(std::max(0, value));
+            _p->timelinePlayer->setCacheReadAhead(std::max(0, value));
         }
 
-        void TimelinePlayer::setFrameCacheReadBehind(int value)
+        void TimelinePlayer::setCacheReadBehind(int value)
         {
-            _p->timelinePlayer->setFrameCacheReadBehind(std::max(0, value));
+            _p->timelinePlayer->setCacheReadBehind(std::max(0, value));
         }
 
         void TimelinePlayer::timerEvent(QTimerEvent*)

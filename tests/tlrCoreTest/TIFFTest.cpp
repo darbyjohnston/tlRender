@@ -67,13 +67,13 @@ namespace tlr
                                 info.videoTimeRange = otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(1.0, 24.0));
                                 info.tags = tags;
                                 auto write = plugin->write(path, info);
-                                write->writeVideoFrame(otime::RationalTime(0.0, 24.0), image);
+                                write->writeVideo(otime::RationalTime(0.0, 24.0), image);
                             }
                             auto read = plugin->read(path);
-                            const auto videoFrame = read->readVideoFrame(otime::RationalTime(0.0, 24.0)).get();
-                            if (videoFrame.image)
+                            const auto videoData = read->readVideo(otime::RationalTime(0.0, 24.0)).get();
+                            if (videoData.image)
                             {
-                                const auto frameTags = videoFrame.image->getTags();
+                                const auto frameTags = videoData.image->getTags();
                                 for (const auto& j : tags)
                                 {
                                     const auto k = frameTags.find(j.first);

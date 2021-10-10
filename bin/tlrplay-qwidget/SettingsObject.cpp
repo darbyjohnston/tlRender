@@ -24,8 +24,8 @@ namespace tlr
             _recentFiles.push_back(settings.value("File").toString().toUtf8().data());
         }
         settings.endArray();
-        _frameCacheReadAhead = settings.value("FrameCache/ReadAhead", 100).toInt();
-        _frameCacheReadBehind = settings.value("FrameCache/ReadBehind", 10).toInt();
+        _cacheReadAhead = settings.value("Cache/ReadAhead", 100).toInt();
+        _cacheReadBehind = settings.value("Cache/ReadBehind", 10).toInt();
         _requestCount = settings.value("Performance/RequestCount", 16).toInt();
         _sequenceThreadCount = settings.value("Performance/SequenceThreadCount", 16).toInt();
         _ffmpegThreadCount = settings.value("Performance/FFmpegThreadCount", 4).toInt();
@@ -45,8 +45,8 @@ namespace tlr
             settings.setValue("File", _recentFiles[i]);
         }
         settings.endArray();
-        settings.setValue("FrameCache/ReadAhead", _frameCacheReadAhead);
-        settings.setValue("FrameCache/ReadBehind", _frameCacheReadBehind);
+        settings.setValue("Cache/ReadAhead", _cacheReadAhead);
+        settings.setValue("Cache/ReadBehind", _cacheReadBehind);
         settings.setValue("Performance/RequestCount", _requestCount);
         settings.setValue("Performance/SequenceThreadCount", _sequenceThreadCount);
         settings.setValue("Performance/FFmpegThreadCount", _ffmpegThreadCount);
@@ -58,14 +58,14 @@ namespace tlr
         return _recentFiles;
     }
 
-    int SettingsObject::frameCacheReadAhead() const
+    int SettingsObject::cacheReadAhead() const
     {
-        return _frameCacheReadAhead;
+        return _cacheReadAhead;
     }
 
-    int SettingsObject::frameCacheReadBehind() const
+    int SettingsObject::cacheReadBehind() const
     {
-        return _frameCacheReadBehind;
+        return _cacheReadBehind;
     }
 
     int SettingsObject::requestCount() const
@@ -99,20 +99,20 @@ namespace tlr
         Q_EMIT recentFilesChanged(_recentFiles);
     }
 
-    void SettingsObject::setFrameCacheReadAhead(int value)
+    void SettingsObject::setCacheReadAhead(int value)
     {
-        if (value == _frameCacheReadAhead)
+        if (value == _cacheReadAhead)
             return;
-        _frameCacheReadAhead = value;
-        Q_EMIT frameCacheReadAheadChanged(_frameCacheReadAhead);
+        _cacheReadAhead = value;
+        Q_EMIT cacheReadAheadChanged(_cacheReadAhead);
     }
 
-    void SettingsObject::setFrameCacheReadBehind(int value)
+    void SettingsObject::setCacheReadBehind(int value)
     {
-        if (value == _frameCacheReadBehind)
+        if (value == _cacheReadBehind)
             return;
-        _frameCacheReadBehind = value;
-        Q_EMIT frameCacheReadBehindChanged(_frameCacheReadBehind);
+        _cacheReadBehind = value;
+        Q_EMIT cacheReadBehindChanged(_cacheReadBehind);
     }
 
     void SettingsObject::setRequestCount(int value)

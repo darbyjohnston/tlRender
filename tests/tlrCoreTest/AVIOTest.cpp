@@ -28,32 +28,32 @@ namespace tlr
 
         void AVIOTest::run()
         {
-            _videoFrame();
+            _videoData();
             _ioSystem();
         }
 
-        void AVIOTest::_videoFrame()
+        void AVIOTest::_videoData()
         {
             {
-                const VideoFrame f;
-                TLR_ASSERT(time::invalidTime == f.time);
-                TLR_ASSERT(!f.image);
+                const VideoData v;
+                TLR_ASSERT(time::invalidTime == v.time);
+                TLR_ASSERT(!v.image);
             }
             {
                 const auto time = otime::RationalTime(1.0, 24.0);
                 const uint16_t layer = 1;
                 const auto image = imaging::Image::create(imaging::Info(160, 80, imaging::PixelType::L_U8));
-                const VideoFrame f(time, layer, image);
-                TLR_ASSERT(time == f.time);
-                TLR_ASSERT(layer == f.layer);
-                TLR_ASSERT(image == f.image);
+                const VideoData v(time, layer, image);
+                TLR_ASSERT(time == v.time);
+                TLR_ASSERT(layer == v.layer);
+                TLR_ASSERT(image == v.image);
             }
             {
                 const auto time = otime::RationalTime(1.0, 24.0);
                 const uint16_t layer = 1;
                 const auto image = imaging::Image::create(imaging::Info(16, 16, imaging::PixelType::L_U8));
-                const VideoFrame a(time, layer, image);
-                VideoFrame b(time, layer, image);
+                const VideoData a(time, layer, image);
+                VideoData b(time, layer, image);
                 TLR_ASSERT(a == b);
                 b.time = otime::RationalTime(2.0, 24.0);
                 TLR_ASSERT(a != b);

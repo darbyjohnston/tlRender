@@ -60,8 +60,8 @@ namespace tlr
         void _tick();
         void _hudUpdate();
 
-        void _renderVideo();
-        void _renderHUD();
+        void _drawVideo();
+        void _drawHUD();
         void _hudCallback(bool);
 
         void _playbackCallback(timeline::Playback);
@@ -79,7 +79,7 @@ namespace tlr
         std::shared_ptr<gl::FontSystem> _fontSystem;
         std::shared_ptr<gl::Render> _render;
         bool _renderDirty = true;
-        timeline::Frame _frame;
+        timeline::VideoData _videoData;
         std::map<HUDElement, std::string> _hudLabels;
 
         bool _running = true;

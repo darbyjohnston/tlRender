@@ -19,13 +19,13 @@
 
 namespace tlr
 {
-    //! Frame cache settings widget.
-    class FrameCacheSettingsWidget : public QWidget
+    //! Cache settings widget.
+    class CacheSettingsWidget : public QWidget
     {
         Q_OBJECT
 
     public:
-        FrameCacheSettingsWidget(SettingsObject*, QWidget* parent = nullptr);
+        CacheSettingsWidget(SettingsObject*, QWidget* parent = nullptr);
 
     private Q_SLOTS:
         void _readAheadCallback(int);

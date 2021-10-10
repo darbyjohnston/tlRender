@@ -31,7 +31,7 @@ namespace tlr
                 otime::RationalTime time = time::invalidTime;
                 QSize size;
 
-                std::future<timeline::Frame> future;
+                std::future<timeline::VideoData> future;
             };
             std::list<Request> requests;
             std::list<Request> requestsInProgress;
@@ -191,7 +191,7 @@ namespace tlr
                             if (p.cancelRequests)
                             {
                                 p.cancelRequests = false;
-                                p.timeline->cancelFrames();
+                                p.timeline->cancelRequests();
                                 p.requestsInProgress.clear();
                                 p.results.clear();
                             }
@@ -211,7 +211,7 @@ namespace tlr
                             p.timeline->getGlobalStartTime() + request.time,
                             otime::RationalTime(1.0, request.time.rate())) });
 
-                        request.future = p.timeline->getFrame(request.time);
+                        request.future = p.timeline->getVideo(request.time);
 
                         p.requestsInProgress.push_back(std::move(request));
                     }
@@ -223,7 +223,7 @@ namespace tlr
                         if (requestIt->future.valid() &&
                             requestIt->future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                         {
-                            const auto frame = requestIt->future.get();
+                            const auto videoData = requestIt->future.get();
 
                             const imaging::Info info(requestIt->size.width(), requestIt->size.height(), imaging::PixelType::RGBA_U8);
                             if (info != fboInfo)
@@ -246,7 +246,7 @@ namespace tlr
                             }
                             
                             render->begin(info.size);
-                            render->drawFrame(frame);
+                            render->drawVideo(videoData);
                             render->end();
                             std::vector<uint8_t> pixels(
                                 static_cast<size_t>(info.size.w) *

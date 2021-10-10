@@ -57,30 +57,30 @@ namespace tlr
         //! Convert to a transition.
         Transition toTransition(const std::string&);
 
-        //! Frame layer.
-        struct FrameLayer
+        //! Video layer.
+        struct VideoLayer
         {
             std::shared_ptr<imaging::Image> image;
             std::shared_ptr<imaging::Image> imageB;
             Transition transition = Transition::None;
             float transitionValue = 0.F;
 
-            bool operator == (const FrameLayer&) const;
-            bool operator != (const FrameLayer&) const;
+            bool operator == (const VideoLayer&) const;
+            bool operator != (const VideoLayer&) const;
         };
 
-        //! Frame.
-        struct Frame
+        //! Video data.
+        struct VideoData
         {
             otime::RationalTime time = time::invalidTime;
-            std::vector<FrameLayer> layers;
+            std::vector<VideoLayer> layers;
 
-            bool operator == (const Frame&) const;
-            bool operator != (const Frame&) const;
+            bool operator == (const VideoData&) const;
+            bool operator != (const VideoData&) const;
         };
 
-        //! Compare the time value of two frames.
-        bool isTimeEqual(const Frame&, const Frame&);
+        //! Compare the time value of two video datas.
+        bool isTimeEqual(const VideoData&, const VideoData&);
 
         //! Timeline.
         class Timeline : public std::enable_shared_from_this<Timeline>
@@ -137,21 +137,20 @@ namespace tlr
 
             ///@}
 
-            //! \name Frames
+            //! \name Video and Audio Data
             ///@{
 
             //! Set the active time ranges. This informs the timeline which
             //! I/O readers to keep active.
             void setActiveRanges(const std::vector<otime::TimeRange>&);
 
-            //! Get a frame.
-            std::future<Frame> getFrame(
+            //! Get video data.
+            std::future<VideoData> getVideo(
                 const otime::RationalTime&,
-                uint16_t layer = 0,
-                const std::shared_ptr<imaging::Image>& = nullptr);
+                uint16_t layer = 0);
 
-            //! Cancel frames.
-            void cancelFrames();
+            //! Cancel requests.
+            void cancelRequests();
 
             ///@}
 

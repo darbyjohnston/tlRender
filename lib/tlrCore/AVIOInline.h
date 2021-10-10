@@ -22,7 +22,7 @@ namespace tlr
             return !(*this == other);
         }
 
-        inline bool VideoFrame::operator == (const VideoFrame& other) const
+        inline bool VideoData::operator == (const VideoData& other) const
         {
             return
                 time == other.time &&
@@ -30,29 +30,29 @@ namespace tlr
                 image == other.image;
         }
 
-        inline bool VideoFrame::operator != (const VideoFrame& other) const
+        inline bool VideoData::operator != (const VideoData& other) const
         {
             return !(*this == other);
         }
 
-        inline bool VideoFrame::operator < (const VideoFrame& other) const
+        inline bool VideoData::operator < (const VideoData& other) const
         {
             return time < other.time;
         }
 
-        inline bool AudioFrame::operator == (const AudioFrame& other) const
+        inline bool AudioData::operator == (const AudioData& other) const
         {
             return
                 time == other.time &&
                 audio == other.audio;
         }
 
-        inline bool AudioFrame::operator != (const AudioFrame& other) const
+        inline bool AudioData::operator != (const AudioData& other) const
         {
             return !(*this == other);
         }
 
-        inline bool AudioFrame::operator < (const AudioFrame& other) const
+        inline bool AudioData::operator < (const AudioData& other) const
         {
             return time < other.time;
         }

@@ -24,7 +24,7 @@ namespace tlr
             return out;
         }
 
-        inline bool isTimeEqual(const Frame& a, const Frame& b)
+        inline bool isTimeEqual(const VideoData& a, const VideoData& b)
         {
             return a.time == b.time;
         }

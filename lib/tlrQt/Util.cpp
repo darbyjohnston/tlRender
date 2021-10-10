@@ -17,7 +17,7 @@ namespace tlr
     {
         void init()
         {
-            qRegisterMetaType<timeline::Frame>("tlr::timeline::Frame");
+            qRegisterMetaType<timeline::VideoData>("tlr::timeline::VideoData");
             qRegisterMetaType<TimeUnits>("tlr::qt::TimeUnits");
             qRegisterMetaTypeStreamOperators<qt::TimeUnits>("tlr::qt::TimeUnits");
 

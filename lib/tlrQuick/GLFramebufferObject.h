@@ -17,19 +17,19 @@ namespace tlr
         class GLFramebufferObject : public QQuickFramebufferObject
         {
             Q_OBJECT
-            Q_PROPERTY(tlr::timeline::Frame frame READ frame WRITE setFrame)
+            Q_PROPERTY(tlr::timeline::VideoData video READ video WRITE setVideo)
 
         public:
             GLFramebufferObject(QQuickItem* parent = nullptr);
 
             ~GLFramebufferObject() override;
             
-            const tlr::timeline::Frame& frame() const;
+            const tlr::timeline::VideoData& video() const;
 
             Renderer* createRenderer() const override;
 
         public Q_SLOTS:
-            void setFrame(const tlr::timeline::Frame&);
+            void setVideo(const tlr::timeline::VideoData&);
 
         private:
             TLR_PRIVATE();
