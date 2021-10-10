@@ -1,11 +1,13 @@
 set(HEADERS
     App.h
     MainWindow.h
+    SecondaryWindow.h
     SettingsObject.h
     SettingsWidget.h)
 set(SOURCE
     App.cpp
     MainWindow.cpp
+    SecondaryWindow.cpp
     SettingsObject.cpp
     SettingsWidget.cpp
     main.cpp)

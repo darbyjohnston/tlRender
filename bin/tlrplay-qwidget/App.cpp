@@ -82,7 +82,7 @@ namespace tlr
             SLOT(_settingsCallback()));
 
         // Create the main window.
-        _mainWindow = new MainWindow(_settingsObject, _timeObject);
+        _mainWindow = new MainWindow(_settingsObject, _timeObject, _context);
         _mainWindow->setColorConfig(_options.colorConfig);
 
         // Open the input file.
