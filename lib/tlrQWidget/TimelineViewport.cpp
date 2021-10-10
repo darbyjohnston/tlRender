@@ -55,7 +55,9 @@ namespace tlr
             {
                 disconnect(
                     p.timelinePlayer,
-                    SIGNAL(frameChanged(const tlr::timeline::Frame&)));
+                    SIGNAL(frameChanged(const tlr::timeline::Frame&)),
+                    this,
+                    SLOT(_frameCallback(const tlr::timeline::Frame&)));
             }
             p.timelinePlayer = timelinePlayer;
             if (p.timelinePlayer)
