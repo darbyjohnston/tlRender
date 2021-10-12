@@ -52,7 +52,7 @@ namespace tlr
         {
             IPlugin::_init(
                 "FFmpeg",
-                { ".mov", ".m4v", ".mp4", ".y4m", ".mkv" },
+                { ".mov", ".m4v", ".mp4", ".y4m", ".mkv", ".mxf" },
                 logSystem);
 
             _logSystemWeak = logSystem;
