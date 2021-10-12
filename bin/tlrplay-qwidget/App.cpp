@@ -70,7 +70,11 @@ namespace tlr
             SLOT(_settingsCallback()));
         connect(
             _settingsObject,
-            SIGNAL(requestCountChanged(int)),
+            SIGNAL(videoRequestCountChanged(int)),
+            SLOT(_settingsCallback()));
+        connect(
+            _settingsObject,
+            SIGNAL(audioRequestCountChanged(int)),
             SLOT(_settingsCallback()));
         connect(
             _settingsObject,
@@ -105,7 +109,8 @@ namespace tlr
         try
         {
             timeline::Options options;
-            options.requestCount = _settingsObject->requestCount();
+            options.videoRequestCount = _settingsObject->videoRequestCount();
+            options.audioRequestCount = _settingsObject->audioRequestCount();
             options.avioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").arg(_settingsObject->sequenceThreadCount());
             options.avioOptions["ffmpeg/ThreadCount"] = string::Format("{0}").arg(_settingsObject->ffmpegThreadCount());
             auto timelinePlayer = new qt::TimelinePlayer(file::Path(fileName.toUtf8().data()), _context, options, this);

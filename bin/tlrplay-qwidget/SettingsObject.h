@@ -30,8 +30,11 @@ namespace tlr
         //! Get the cache read behind.
         int cacheReadBehind() const;
 
-        //! Get the timeline request count.
-        int requestCount() const;
+        //! Get the timeline video request count.
+        int videoRequestCount() const;
+
+        //! Get the timeline audio request count.
+        int audioRequestCount() const;
 
         //! Get the sequence I/O thread count.
         int sequenceThreadCount() const;
@@ -52,8 +55,11 @@ namespace tlr
         //! Set the cache read behind.
         void setCacheReadBehind(int);
 
-        //! Set the timeline request count.
-        void setRequestCount(int);
+        //! Set the timeline video request count.
+        void setVideoRequestCount(int);
+
+        //! Set the timeline audio request count.
+        void setAudioRequestCount(int);
 
         //! Set the sequence I/O thread count.
         void setSequenceThreadCount(int);
@@ -74,8 +80,11 @@ namespace tlr
         //! This signal is emitted when the cache read behind is changed.
         void cacheReadBehindChanged(int);
 
-        //! This signal is emitted when the timeline request count is changed.
-        void requestCountChanged(int);
+        //! This signal is emitted when the timeline video request count is changed.
+        void videoRequestCountChanged(int);
+
+        //! This signal is emitted when the timeline audio request count is changed.
+        void audioRequestCountChanged(int);
 
         //! This signal is emitted when the sequence I/O thread count is changed.
         void sequenceThreadCountChanged(int);
@@ -93,7 +102,8 @@ namespace tlr
         const int _recentFilesMax = 10;
         int _cacheReadAhead = 100;
         int _cacheReadBehind = 10;
-        int _requestCount = 16;
+        int _videoRequestCount = 16;
+        int _audioRequestCount = 16;
         int _sequenceThreadCount = 16;
         int _ffmpegThreadCount = 4;
         qt::TimeObject* _timeObject = nullptr;

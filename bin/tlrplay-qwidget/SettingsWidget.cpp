@@ -75,8 +75,11 @@ namespace tlr
     PerformanceSettingsWidget::PerformanceSettingsWidget(SettingsObject* settingsObject, QWidget* parent) :
         QWidget(parent)
     {
-        _requestCountSpinBox = new QSpinBox;
-        _requestCountSpinBox->setRange(1, 64);
+        _videoRequestCountSpinBox = new QSpinBox;
+        _videoRequestCountSpinBox->setRange(1, 64);
+
+        _audioRequestCountSpinBox = new QSpinBox;
+        _audioRequestCountSpinBox->setRange(1, 64);
 
         _sequenceThreadCountSpinBox = new QSpinBox;
         _sequenceThreadCountSpinBox->setRange(1, 64);
@@ -86,16 +89,24 @@ namespace tlr
 
         auto layout = new QVBoxLayout;
         auto vLayout = new QVBoxLayout;
-        vLayout->addWidget(_requestCountSpinBox);
-        auto label = new QLabel(tr("Changes applied to new files"));
+        vLayout->addWidget(_videoRequestCountSpinBox);
+        auto label = new QLabel(tr("(changes applied to new files)"));
         label->setWordWrap(true);
         vLayout->addWidget(label);
-        auto groupBox = new QGroupBox(tr("Timeline Requests"));
+        auto groupBox = new QGroupBox(tr("Timeline Video Requests"));
+        groupBox->setLayout(vLayout);
+        layout->addWidget(groupBox);
+        vLayout = new QVBoxLayout;
+        vLayout->addWidget(_audioRequestCountSpinBox);
+        label = new QLabel(tr("(changes applied to new files)"));
+        label->setWordWrap(true);
+        vLayout->addWidget(label);
+        groupBox = new QGroupBox(tr("Timeline Audio Requests"));
         groupBox->setLayout(vLayout);
         layout->addWidget(groupBox);
         vLayout = new QVBoxLayout;
         vLayout->addWidget(_sequenceThreadCountSpinBox);
-        label = new QLabel(tr("Changes applied to new files"));
+        label = new QLabel(tr("(changes applied to new files)"));
         label->setWordWrap(true);
         vLayout->addWidget(label);
         groupBox = new QGroupBox(tr("Sequence I/O Threads"));
@@ -103,7 +114,7 @@ namespace tlr
         layout->addWidget(groupBox);
         vLayout = new QVBoxLayout;
         vLayout->addWidget(_ffmpegThreadCountSpinBox);
-        label = new QLabel(tr("Changes applied to new files"));
+        label = new QLabel(tr("(changes applied to new files)"));
         label->setWordWrap(true);
         vLayout->addWidget(label);
         groupBox = new QGroupBox(tr("FFmpeg I/O threads"));
@@ -112,15 +123,22 @@ namespace tlr
         layout->addStretch();
         setLayout(layout);
 
-        _requestCountSpinBox->setValue(settingsObject->requestCount());
+        _videoRequestCountSpinBox->setValue(settingsObject->videoRequestCount());
+        _audioRequestCountSpinBox->setValue(settingsObject->audioRequestCount());
         _sequenceThreadCountSpinBox->setValue(settingsObject->sequenceThreadCount());
         _ffmpegThreadCountSpinBox->setValue(settingsObject->ffmpegThreadCount());
 
         connect(
-            _requestCountSpinBox,
+            _videoRequestCountSpinBox,
             SIGNAL(valueChanged(int)),
             settingsObject,
-            SLOT(setRequestCount(int)));
+            SLOT(setVideoRequestCount(int)));
+
+        connect(
+            _audioRequestCountSpinBox,
+            SIGNAL(valueChanged(int)),
+            settingsObject,
+            SLOT(setAudioRequestCount(int)));
 
         connect(
             _sequenceThreadCountSpinBox,
@@ -136,8 +154,13 @@ namespace tlr
 
         connect(
             settingsObject,
-            SIGNAL(requestCountChanged(int)),
-            SLOT(_requestCountCallback(int)));
+            SIGNAL(videoRequestCountChanged(int)),
+            SLOT(_videoRequestCountCallback(int)));
+
+        connect(
+            settingsObject,
+            SIGNAL(audioRequestCountChanged(int)),
+            SLOT(_audioRequestCountCallback(int)));
 
         connect(
             settingsObject,
@@ -150,10 +173,16 @@ namespace tlr
             SLOT(_ffmpegThreadCountCallback(int)));
     }
 
-    void PerformanceSettingsWidget::_requestCountCallback(int value)
+    void PerformanceSettingsWidget::_videoRequestCountCallback(int value)
     {
-        QSignalBlocker signalBlocker(_requestCountSpinBox);
-        _requestCountSpinBox->setValue(value);
+        QSignalBlocker signalBlocker(_videoRequestCountSpinBox);
+        _videoRequestCountSpinBox->setValue(value);
+    }
+
+    void PerformanceSettingsWidget::_audioRequestCountCallback(int value)
+    {
+        QSignalBlocker signalBlocker(_audioRequestCountSpinBox);
+        _audioRequestCountSpinBox->setValue(value);
     }
 
     void PerformanceSettingsWidget::_sequenceThreadCountCallback(int value)

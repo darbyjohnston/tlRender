@@ -34,8 +34,9 @@ namespace tlr
         //! Timeline options.
         struct Options
         {
-            size_t                    requestCount   = 16;
-            std::chrono::milliseconds requestTimeout = std::chrono::milliseconds(1);
+            size_t                    videoRequestCount = 16;
+            size_t                    audioRequestCount = 16;
+            std::chrono::milliseconds requestTimeout    = std::chrono::milliseconds(1);
             avio::Options             avioOptions;
 
             bool operator == (const Options&) const;
@@ -79,8 +80,32 @@ namespace tlr
             bool operator != (const VideoData&) const;
         };
 
-        //! Compare the time value of two video datas.
+        //! Compare the time values of video data.
         bool isTimeEqual(const VideoData&, const VideoData&);
+
+        //! Audio layer.
+        struct AudioLayer
+        {
+            std::shared_ptr<audio::Audio> audio;
+            std::shared_ptr<audio::Audio> audioB;
+            float transitionValue = 0.F;
+
+            bool operator == (const AudioLayer&) const;
+            bool operator != (const AudioLayer&) const;
+        };
+
+        //! Audio data.
+        struct AudioData
+        {
+            otime::RationalTime time = time::invalidTime;
+            std::vector<AudioLayer> layers;
+
+            bool operator == (const AudioData&) const;
+            bool operator != (const AudioData&) const;
+        };
+
+        //! Compare the time values of audio data.
+        bool isTimeEqual(const AudioData&, const AudioData&);
 
         //! Timeline.
         class Timeline : public std::enable_shared_from_this<Timeline>
@@ -148,6 +173,11 @@ namespace tlr
             std::future<VideoData> getVideo(
                 const otime::RationalTime&,
                 uint16_t layer = 0);
+
+            //! Get audio data.
+            std::future<AudioData> getAudio(
+                const otime::RationalTime&,
+                size_t sampleCount);
 
             //! Cancel requests.
             void cancelRequests();

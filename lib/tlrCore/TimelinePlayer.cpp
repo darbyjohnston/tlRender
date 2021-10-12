@@ -212,11 +212,20 @@ namespace tlr
                             {
                                 const std::string id = string::Format("tlr::timeline::TimelinePlayer {0}").arg(this);
                                 auto logSystem = context->getLogSystem();
-                                logSystem->print(id, string::Format("path: {0}, current time: {1}, in/out: {2}, video layer: {3}").
+                                logSystem->print(id, string::Format(
+                                    "\n"
+                                    "    path: {0}\n"
+                                    "    time: {1}\n"
+                                    "    in/out: {2}\n"
+                                    "    video layer: {3}\n"
+                                    "    video requests: {4} (size)\n"
+                                    "    video cache: {5} (size)").
                                     arg(getPath().get()).
                                     arg(currentTime).
                                     arg(inOutRange).
-                                    arg(videoLayer));
+                                    arg(videoLayer).
+                                    arg(p.threadData.videoDataRequests.size()).
+                                    arg(p.threadData.videoDataCache.size()));
                             }
                         }
 
@@ -721,11 +730,9 @@ namespace tlr
                 if (old)
                 {
                     videoDataCacheIt = threadData.videoDataCache.erase(videoDataCacheIt);
+                    continue;
                 }
-                else
-                {
-                    ++videoDataCacheIt;
-                }
+                ++videoDataCacheIt;
             }
 
             // Find uncached frames.
@@ -758,11 +765,9 @@ namespace tlr
                     frame.time = videoDataRequestsIt->first;
                     threadData.videoDataCache[frame.time] = frame;
                     videoDataRequestsIt = threadData.videoDataRequests.erase(videoDataRequestsIt);
+                    continue;
                 }
-                else
-                {
-                    ++videoDataRequestsIt;
-                }
+                ++videoDataRequestsIt;
             }
 
             // Update cached frames.

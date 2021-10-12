@@ -326,7 +326,11 @@ namespace tlr
                         std::unique_lock<std::mutex> lock(p.mutex);
                         videoRequestsSize = p.videoRequests.size();
                     }
-                    _logSystem->print(id, string::Format("path: {0}, video requests: {1}, in progress: {2}, thread count: {3}").
+                    _logSystem->print(id, string::Format(
+                        "\n"
+                        "    path: {0}\n"
+                        "    video: {1}/{2} (requests/in progress)\n"
+                        "    thread count: {3}").
                         arg(_path.get()).
                         arg(videoRequestsSize).
                         arg(p.videoRequestsInProgress.size()).

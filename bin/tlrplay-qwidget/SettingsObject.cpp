@@ -26,7 +26,8 @@ namespace tlr
         settings.endArray();
         _cacheReadAhead = settings.value("Cache/ReadAhead", 100).toInt();
         _cacheReadBehind = settings.value("Cache/ReadBehind", 10).toInt();
-        _requestCount = settings.value("Performance/RequestCount", 16).toInt();
+        _videoRequestCount = settings.value("Performance/VideoRequestCount", 16).toInt();
+        _audioRequestCount = settings.value("Performance/AudioRequestCount", 16).toInt();
         _sequenceThreadCount = settings.value("Performance/SequenceThreadCount", 16).toInt();
         _ffmpegThreadCount = settings.value("Performance/FFmpegThreadCount", 4).toInt();
         _toolTipsEnabled = settings.value("Misc/ToolTipsEnabled", true).toBool();
@@ -47,7 +48,8 @@ namespace tlr
         settings.endArray();
         settings.setValue("Cache/ReadAhead", _cacheReadAhead);
         settings.setValue("Cache/ReadBehind", _cacheReadBehind);
-        settings.setValue("Performance/RequestCount", _requestCount);
+        settings.setValue("Performance/VideoRequestCount", _videoRequestCount);
+        settings.setValue("Performance/AudioRequestCount", _audioRequestCount);
         settings.setValue("Performance/SequenceThreadCount", _sequenceThreadCount);
         settings.setValue("Performance/FFmpegThreadCount", _ffmpegThreadCount);
         settings.setValue("Misc/ToolTipsEnabled", _toolTipsEnabled);
@@ -68,9 +70,14 @@ namespace tlr
         return _cacheReadBehind;
     }
 
-    int SettingsObject::requestCount() const
+    int SettingsObject::videoRequestCount() const
     {
-        return _requestCount;
+        return _videoRequestCount;
+    }
+
+    int SettingsObject::audioRequestCount() const
+    {
+        return _audioRequestCount;
     }
 
     int SettingsObject::sequenceThreadCount() const
@@ -115,12 +122,20 @@ namespace tlr
         Q_EMIT cacheReadBehindChanged(_cacheReadBehind);
     }
 
-    void SettingsObject::setRequestCount(int value)
+    void SettingsObject::setVideoRequestCount(int value)
     {
-        if (value == _requestCount)
+        if (value == _videoRequestCount)
             return;
-        _requestCount = value;
-        Q_EMIT requestCountChanged(_requestCount);
+        _videoRequestCount = value;
+        Q_EMIT videoRequestCountChanged(_videoRequestCount);
+    }
+
+    void SettingsObject::setAudioRequestCount(int value)
+    {
+        if (value == _audioRequestCount)
+            return;
+        _audioRequestCount = value;
+        Q_EMIT audioRequestCountChanged(_audioRequestCount);
     }
 
     void SettingsObject::setSequenceThreadCount(int value)

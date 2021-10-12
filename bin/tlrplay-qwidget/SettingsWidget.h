@@ -45,12 +45,14 @@ namespace tlr
         PerformanceSettingsWidget(SettingsObject*, QWidget* parent = nullptr);
 
     private Q_SLOTS:
-        void _requestCountCallback(int);
+        void _videoRequestCountCallback(int);
+        void _audioRequestCountCallback(int);
         void _sequenceThreadCountCallback(int);
         void _ffmpegThreadCountCallback(int);
 
     private:
-        QSpinBox* _requestCountSpinBox = nullptr;
+        QSpinBox* _videoRequestCountSpinBox = nullptr;
+        QSpinBox* _audioRequestCountSpinBox = nullptr;
         QSpinBox* _sequenceThreadCountSpinBox = nullptr;
         QSpinBox* _ffmpegThreadCountSpinBox = nullptr;
     };

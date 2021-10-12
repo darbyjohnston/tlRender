@@ -95,7 +95,8 @@ namespace tlr
                 if (auto context = p.timelinePlayer->context().lock())
                 {
                     timeline::Options options;
-                    options.requestCount = 1;
+                    options.videoRequestCount = 1;
+                    options.audioRequestCount = 1;
                     options.requestTimeout = std::chrono::milliseconds(100);
                     options.avioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").arg(1);
                     options.avioOptions["ffmpeg/ThreadCount"] = string::Format("{0}").arg(1);

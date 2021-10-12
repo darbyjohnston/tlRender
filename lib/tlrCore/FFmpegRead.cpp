@@ -659,13 +659,23 @@ namespace tlr
                     p.logTimer = now;
                     const std::string id = string::Format("tlr::ffmpeg::Read {0}").arg(this);
                     size_t videoRequestsSize = 0;
+                    size_t audioRequestsSize = 0;
                     {
                         std::unique_lock<std::mutex> lock(p.mutex);
                         videoRequestsSize = p.videoRequests.size();
+                        audioRequestsSize = p.audioRequests.size();
                     }
-                    _logSystem->print(id, string::Format("path: {0}, video requests: {1}, thread count: {2}").
+                    _logSystem->print(id, string::Format(
+                        "\n"
+                        "    path: {0}\n"
+                        "    video: {1}/{2} (requests/max)\n"
+                        "    audio: {3}/{4} (requests/max)\n"
+                        "    thread count: {5}").
                         arg(_path.get()).
                         arg(videoRequestsSize).
+                        arg(videoBufferSize).
+                        arg(audioRequestsSize).
+                        arg(audioBufferSize).
                         arg(p.threadCount));
                 }
             }
@@ -728,6 +738,12 @@ namespace tlr
                     data.image = imaging::Image::create(info.video[0]);
                     copyVideo(data.image);
                     videoData.push_back(data);
+
+                    while (videoData.size() > audioBufferSize)
+                    {
+                        videoData.pop_back();
+                    }
+
                     out = 1;
                 }
             }
@@ -837,6 +853,12 @@ namespace tlr
                     data.time = t;
                     data.audio = audio::Audio::create(info.audio, 1);
                     audioData.push_back(data);
+
+                    while (audioData.size() > audioBufferSize)
+                    {
+                        audioData.pop_back();
+                    }
+
                     out = 1;
                 }
             }
