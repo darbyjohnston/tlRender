@@ -7,6 +7,7 @@
 #include <tlrCore/Context.h>
 
 #include <mutex>
+#include <sstream>
 
 namespace tlr
 {
@@ -14,26 +15,28 @@ namespace tlr
     {
         std::string toString(const LogItem& item)
         {
-            std::string out;
+            std::stringstream ss;
+            ss.precision(2);
             switch (item.type)
             {
             case LogType::Message:
-                out = item.prefix + ": " + item.message;
+                ss << std::fixed << item.time << " " << item.prefix << ": " << item.message;
                 break;
             case LogType::Warning:
-                out = item.prefix + ": Warning: " + item.message;
+                ss << std::fixed << item.time << " " << item.prefix << ": Warning: " << item.message;
                 break;
             case LogType::Error:
-                out = item.prefix + ": ERROR: " + item.message;
+                ss << std::fixed << item.time << " " << item.prefix << ": ERROR: " << item.message;
                 break;
             default: break;
             }
-            return out;
+            return ss.str();
         }
 
         struct LogSystem::Private
         {
             std::shared_ptr<observer::Value<LogItem> > log;
+            std::chrono::steady_clock::time_point timer;
             std::mutex mutex;
         };
 
@@ -44,6 +47,7 @@ namespace tlr
             TLR_PRIVATE_P();
             
             p.log = observer::Value<LogItem>::create();
+            p.timer = std::chrono::steady_clock::now();
         }
 
         LogSystem::LogSystem() :
@@ -70,8 +74,10 @@ namespace tlr
             LogType type)
         {
             TLR_PRIVATE_P();
+            const auto now = std::chrono::steady_clock::now();
+            const std::chrono::duration<float> time = now - p.timer;
             std::unique_lock<std::mutex> lock(p.mutex);
-            p.log->setAlways({ prefix, value, type });
+            p.log->setAlways({ time.count(), prefix, value, type });
         }
 
         std::shared_ptr<observer::IValue<LogItem> > LogSystem::observeLog() const

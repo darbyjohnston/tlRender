@@ -7,6 +7,8 @@
 #include <tlrCore/ICoreSystem.h>
 #include <tlrCore/ValueObserver.h>
 
+#include <chrono>
+
 namespace tlr
 {
     namespace core
@@ -22,6 +24,7 @@ namespace tlr
         //! Log item.
         struct LogItem
         {
+            float time = 0.F;
             std::string prefix;
             std::string message;
             LogType type = LogType::Message;
