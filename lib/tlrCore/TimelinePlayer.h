@@ -183,7 +183,7 @@ namespace tlr
 
             ///@}
 
-            //! \name Video and Audio Data
+            //! \name Video Data
             ///@{
 
             //! Observer the current video layer.

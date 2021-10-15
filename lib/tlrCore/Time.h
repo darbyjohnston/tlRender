@@ -28,6 +28,12 @@ namespace tlr
         //! Invalid time range.
         const otime::TimeRange invalidTimeRange(invalidTime, invalidTime);
 
+        //! Round the given time downward.
+        otime::RationalTime floor(const otime::RationalTime&);
+
+        //! Round the given time upward.
+        otime::RationalTime ceil(const otime::RationalTime&);
+
         //! Sleep for the given time.
         void sleep(const std::chrono::microseconds&);
 

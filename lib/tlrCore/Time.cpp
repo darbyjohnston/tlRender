@@ -8,6 +8,7 @@
 #include <tlrCore/String.h>
 
 #include <array>
+#include <cmath>
 #include <sstream>
 
 using namespace tlr::core;
@@ -16,6 +17,16 @@ namespace tlr
 {
     namespace time
     {
+        otime::RationalTime floor(const otime::RationalTime& value)
+        {
+            return otime::RationalTime(std::floor(value.value()), value.rate());
+        }
+
+        otime::RationalTime ceil(const otime::RationalTime& value)
+        {
+            return otime::RationalTime(std::ceil(value.value()), value.rate());
+        }
+
         std::pair<int, int> toRational(double value)
         {
             const std::array<std::pair<int, int>, 6> common =

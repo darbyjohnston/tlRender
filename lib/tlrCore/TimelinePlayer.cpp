@@ -99,9 +99,12 @@ namespace tlr
                 otime::TimeRange inOutRange = time::invalidTimeRange;
                 uint16_t videoLayer = 0;
                 VideoData videoData;
+                AudioData audioData;
                 std::map<otime::RationalTime, std::future<VideoData> > videoDataRequests;
+                std::map<otime::RationalTime, std::future<AudioData> > audioDataRequests;
                 bool clearRequests = false;
                 std::map<otime::RationalTime, VideoData> videoDataCache;
+                std::map<otime::RationalTime, AudioData> audioDataCache;
                 std::vector<otime::TimeRange> cachedFrames;
                 bool clearCache = false;
                 CacheDirection cacheDirection = CacheDirection::Forward;
@@ -171,21 +174,23 @@ namespace tlr
                             cacheReadBehind = p.threadData.cacheReadBehind;
                         }
 
-                        //! Clear requests.
+                        // Clear requests.
                         if (clearRequests)
                         {
                             p.timeline->cancelRequests();
                             p.threadData.videoDataRequests.clear();
+                            p.threadData.audioDataRequests.clear();
                         }
 
-                        //! Clear the cache.
+                        // Clear the cache.
                         if (clearCache)
                         {
                             p.threadData.videoDataCache.clear();
+                            p.threadData.audioDataCache.clear();
                             p.threadData.cachedFrames.clear();
                         }
 
-                        //! Update the cache.
+                        // Update the cache.
                         p.cacheUpdate(
                             currentTime,
                             inOutRange,
@@ -194,7 +199,7 @@ namespace tlr
                             cacheReadAhead,
                             cacheReadBehind);
 
-                        //! Update the video data.
+                        // Update the video data.
                         const auto i = p.threadData.videoDataCache.find(currentTime);
                         if (i != p.threadData.videoDataCache.end())
                         {
@@ -218,14 +223,16 @@ namespace tlr
                                     "    time: {1}\n"
                                     "    in/out: {2}\n"
                                     "    video layer: {3}\n"
-                                    "    video requests: {4} (size)\n"
-                                    "    video cache: {5} (size)").
+                                    "    video: {4}/{5} (requests/cache)\n"
+                                    "    audio: {6}/{7} (requests/cache)\n").
                                     arg(getPath().get()).
                                     arg(currentTime).
                                     arg(inOutRange).
                                     arg(videoLayer).
                                     arg(p.threadData.videoDataRequests.size()).
-                                    arg(p.threadData.videoDataCache.size()));
+                                    arg(p.threadData.videoDataCache.size()).
+                                    arg(p.threadData.audioDataRequests.size()).
+                                    arg(p.threadData.audioDataCache.size()));
                             }
                         }
 
@@ -608,6 +615,7 @@ namespace tlr
 
             // Sync with the thread.
             VideoData videoData;
+            AudioData audioData;
             int cacheReadAhead = 0;
             int cacheReadBehind = 0;
             std::vector<otime::TimeRange> cachedFrames;
@@ -615,6 +623,7 @@ namespace tlr
                 std::unique_lock<std::mutex> lock(p.threadData.mutex);
                 p.threadData.currentTime = p.currentTime->get();
                 videoData = p.threadData.videoData;
+                audioData = p.threadData.audioData;
                 cacheReadAhead = p.threadData.cacheReadAhead;
                 cacheReadBehind = p.threadData.cacheReadBehind;
                 cachedFrames = p.threadData.cachedFrames;
@@ -634,7 +643,7 @@ namespace tlr
         {
             otime::RationalTime out = time;
 
-            const auto range = inOutRange->get();
+            const auto& range = inOutRange->get();
             switch (loop->get())
             {
             case Loop::Loop:
@@ -733,6 +742,25 @@ namespace tlr
                     continue;
                 }
                 ++videoDataCacheIt;
+            }
+            auto audioDataCacheIt = threadData.audioDataCache.begin();
+            while (audioDataCacheIt != threadData.audioDataCache.end())
+            {
+                bool old = true;
+                for (const auto& i : ranges)
+                {
+                    if (i.contains(audioDataCacheIt->second.time))
+                    {
+                        old = false;
+                        break;
+                    }
+                }
+                if (old)
+                {
+                    audioDataCacheIt = threadData.audioDataCache.erase(audioDataCacheIt);
+                    continue;
+                }
+                ++audioDataCacheIt;
             }
 
             // Find uncached frames.
