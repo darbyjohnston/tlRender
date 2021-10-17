@@ -45,7 +45,7 @@ namespace tlr
             constexpr bool operator < (const Size&) const noexcept;
         };
 
-        //! Get a bounding box with the given aspect ration that fits the
+        //! Get a bounding box with the given aspect ratio that fits the
         //! given size.
         math::BBox2f getBBox(float aspect, const imaging::Size&) noexcept;
 

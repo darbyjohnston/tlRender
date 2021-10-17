@@ -87,8 +87,6 @@ namespace tlr
         struct AudioLayer
         {
             std::shared_ptr<audio::Audio> audio;
-            std::shared_ptr<audio::Audio> audioB;
-            float transitionValue = 0.F;
 
             bool operator == (const AudioLayer&) const;
             bool operator != (const AudioLayer&) const;
@@ -97,7 +95,7 @@ namespace tlr
         //! Audio data.
         struct AudioData
         {
-            otime::RationalTime time = time::invalidTime;
+            int64_t seconds = -1;
             std::vector<AudioLayer> layers;
 
             bool operator == (const AudioData&) const;
@@ -170,14 +168,10 @@ namespace tlr
             void setActiveRanges(const std::vector<otime::TimeRange>&);
 
             //! Get video data.
-            std::future<VideoData> getVideo(
-                const otime::RationalTime&,
-                uint16_t layer = 0);
+            std::future<VideoData> getVideo(const otime::RationalTime&, uint16_t layer = 0);
 
             //! Get audio data.
-            std::future<AudioData> getAudio(
-                const otime::RationalTime&,
-                size_t sampleCount);
+            std::future<AudioData> getAudio(int64_t seconds);
 
             //! Cancel requests.
             void cancelRequests();

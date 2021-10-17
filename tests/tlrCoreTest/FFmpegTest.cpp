@@ -73,7 +73,7 @@ namespace tlr
                         file::Path path;
                         {
                             std::stringstream ss;
-                            ss << fileName << "_" << size << '_' << pixelType << ".mov";
+                            ss << fileName << '_' << size << '_' << pixelType << ".mov";
                             _print(ss.str());
                             path = file::Path(ss.str());
                         }
@@ -86,7 +86,7 @@ namespace tlr
                             {
                                 avio::Info info;
                                 info.video.push_back(imageInfo);
-                                info.videoTimeRange = otime::TimeRange(otime::RationalTime(0.0, 24.0), duration);
+                                info.videoTime = otime::TimeRange(otime::RationalTime(0.0, 24.0), duration);
                                 info.tags = tags;
                                 auto write = plugin->write(path, info);
                                 auto image = imaging::Image::create(imageInfo);

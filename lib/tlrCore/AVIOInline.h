@@ -11,9 +11,9 @@ namespace tlr
             return
                 this->video == other.video &&
                 this->videoType == other.videoType &&
-                this->videoTimeRange == other.videoTimeRange &&
+                this->videoTime == other.videoTime &&
                 this->audio == other.audio &&
-                this->audioSampleCount == other.audioSampleCount &&
+                this->audioTime == other.audioTime &&
                 this->tags == other.tags;
         }
 

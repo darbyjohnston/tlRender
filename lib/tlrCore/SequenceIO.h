@@ -16,7 +16,7 @@ namespace tlr
         //! Number of threads.
         const size_t sequenceThreadCount = 16;
 
-        //! Timeout for frame requests.
+        //! Timeout for requests.
         const std::chrono::milliseconds sequenceRequestTimeout(1);
 
         //! Base class for image sequence readers.
@@ -33,9 +33,7 @@ namespace tlr
             ~ISequenceRead() override;
 
             std::future<Info> getInfo() override;
-            std::future<VideoData> readVideo(
-                const otime::RationalTime&,
-                uint16_t layer = 0) override;
+            std::future<VideoData> readVideo(const otime::RationalTime&, uint16_t layer = 0) override;
             bool hasRequests() override;
             void cancelRequests() override;
             void stop() override;

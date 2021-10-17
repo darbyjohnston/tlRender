@@ -81,6 +81,7 @@ namespace tlr
                 std::size_t cacheReadBehind);
 
             std::shared_ptr<Timeline> timeline;
+            avio::Info avInfo;
 
             std::shared_ptr<observer::Value<float> > speed;
             std::shared_ptr<observer::Value<Playback> > playback;
@@ -99,12 +100,11 @@ namespace tlr
                 otime::TimeRange inOutRange = time::invalidTimeRange;
                 uint16_t videoLayer = 0;
                 VideoData videoData;
-                AudioData audioData;
                 std::map<otime::RationalTime, std::future<VideoData> > videoDataRequests;
-                std::map<otime::RationalTime, std::future<AudioData> > audioDataRequests;
+                std::map<int64_t, std::future<AudioData> > audioDataRequests;
                 bool clearRequests = false;
                 std::map<otime::RationalTime, VideoData> videoDataCache;
-                std::map<otime::RationalTime, AudioData> audioDataCache;
+                std::map<int64_t, AudioData> audioDataCache;
                 std::vector<otime::TimeRange> cachedFrames;
                 bool clearCache = false;
                 CacheDirection cacheDirection = CacheDirection::Forward;
@@ -128,6 +128,7 @@ namespace tlr
 
             // Create the timeline.
             p.timeline = timeline::Timeline::create(path, context, options);
+            p.avInfo = p.timeline->getAVInfo();
 
             // Create observers.
             p.speed = observer::Value<float>::create(p.timeline->getDuration().rate());
@@ -297,7 +298,7 @@ namespace tlr
 
         const avio::Info& TimelinePlayer::getAVInfo() const
         {
-            return _p->timeline->getAVInfo();
+            return _p->avInfo;
         }
 
         float TimelinePlayer::getDefaultSpeed() const
@@ -405,7 +406,7 @@ namespace tlr
 
             if (p.currentTime->setIfChanged(tmp))
             {
-                //std::cout << "! " << tmp << std::endl;
+                //std::cout << "seek: " << tmp << std::endl;
 
                 // Update playback.
                 if (p.playback->get() != Playback::Stop)
@@ -615,7 +616,6 @@ namespace tlr
 
             // Sync with the thread.
             VideoData videoData;
-            AudioData audioData;
             int cacheReadAhead = 0;
             int cacheReadBehind = 0;
             std::vector<otime::TimeRange> cachedFrames;
@@ -623,7 +623,6 @@ namespace tlr
                 std::unique_lock<std::mutex> lock(p.threadData.mutex);
                 p.threadData.currentTime = p.currentTime->get();
                 videoData = p.threadData.videoData;
-                audioData = p.threadData.audioData;
                 cacheReadAhead = p.threadData.cacheReadAhead;
                 cacheReadBehind = p.threadData.cacheReadBehind;
                 cachedFrames = p.threadData.cachedFrames;
@@ -723,7 +722,7 @@ namespace tlr
             const auto ranges = toRanges(frames);
             timeline->setActiveRanges(ranges);
 
-            // Remove old frames from the cache.
+            // Remove old data from the cache.
             auto videoDataCacheIt = threadData.videoDataCache.begin();
             while (videoDataCacheIt != threadData.videoDataCache.end())
             {
@@ -749,7 +748,9 @@ namespace tlr
                 bool old = true;
                 for (const auto& i : ranges)
                 {
-                    if (i.contains(audioDataCacheIt->second.time))
+                    if (i.intersects(otime::TimeRange(
+                        otime::RationalTime(audioDataCacheIt->second.seconds, 1.0),
+                        otime::RationalTime(1.0, 1.0))))
                     {
                         old = false;
                         break;
@@ -757,14 +758,14 @@ namespace tlr
                 }
                 if (old)
                 {
+                    //std::cout << "audio remove: " << audioDataCacheIt->second.seconds << std::endl;
                     audioDataCacheIt = threadData.audioDataCache.erase(audioDataCacheIt);
                     continue;
                 }
                 ++audioDataCacheIt;
             }
 
-            // Find uncached frames.
-            std::vector<otime::RationalTime> uncached;
+            // Get uncached video.
             for (const auto& i : frames)
             {
                 const auto j = threadData.videoDataCache.find(i);
@@ -773,29 +774,64 @@ namespace tlr
                     const auto k = threadData.videoDataRequests.find(i);
                     if (k == threadData.videoDataRequests.end())
                     {
-                        uncached.push_back(i);
+                        threadData.videoDataRequests[i] = timeline->getVideo(i, videoLayer);
                     }
                 }
             }
 
-            // Get uncached frames.
-            for (const auto& i : uncached)
+            // Get uncached audio.
+            for (const auto& i : ranges)
             {
-                threadData.videoDataRequests[i] = timeline->getVideo(i, videoLayer);
+                for (
+                    auto j = time::floor(i.start_time().rescaled_to(1.0));
+                    j <= time::floor(i.end_time_inclusive().rescaled_to(1.0));
+                    j += otime::RationalTime(1.0, 1.0))
+                {
+                    const int64_t time = j.value();
+                    const auto k = threadData.audioDataCache.find(time);
+                    if (k == threadData.audioDataCache.end())
+                    {
+                        const auto l = threadData.audioDataRequests.find(time);
+                        if (l == threadData.audioDataRequests.end())
+                        {
+                            //std::cout << "audio request: " << time << std::endl;
+                            threadData.audioDataRequests[time] = timeline->getAudio(time);
+                        }
+                    }
+                }
             }
+
+            // Check for finished video.
             auto videoDataRequestsIt = threadData.videoDataRequests.begin();
             while (videoDataRequestsIt != threadData.videoDataRequests.end())
             {
                 if (videoDataRequestsIt->second.valid() &&
                     videoDataRequestsIt->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                 {
-                    auto frame = videoDataRequestsIt->second.get();
-                    frame.time = videoDataRequestsIt->first;
-                    threadData.videoDataCache[frame.time] = frame;
+                    auto data = videoDataRequestsIt->second.get();
+                    data.time = videoDataRequestsIt->first;
+                    threadData.videoDataCache[data.time] = data;
                     videoDataRequestsIt = threadData.videoDataRequests.erase(videoDataRequestsIt);
                     continue;
                 }
                 ++videoDataRequestsIt;
+            }
+
+            // Check for finished audio.
+            auto audioDataRequestsIt = threadData.audioDataRequests.begin();
+            while (audioDataRequestsIt != threadData.audioDataRequests.end())
+            {
+                if (audioDataRequestsIt->second.valid() &&
+                    audioDataRequestsIt->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+                {
+                    auto data = audioDataRequestsIt->second.get();
+                    //std::cout << "audio result: " << data.seconds << std::endl;
+                    data.seconds = audioDataRequestsIt->first;
+                    threadData.audioDataCache[data.seconds] = data;
+                    audioDataRequestsIt = threadData.audioDataRequests.erase(audioDataRequestsIt);
+                    continue;
+                }
+                ++audioDataRequestsIt;
             }
 
             // Update cached frames.

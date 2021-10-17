@@ -34,14 +34,11 @@ namespace tlr
         TLR_ENUM(Profile);
         TLR_ENUM_SERIALIZE(Profile);
 
-        //! Video buffer size.
-        const size_t videoBufferSize = 10;
-
-        //! Audio buffer size.
-        const size_t audioBufferSize = 10;
-
         //! Number of threads.
         const size_t threadCount = 4;
+
+        //! Timeout for requests.
+        const std::chrono::milliseconds requestTimeout(1);
 
         //! Software scaler flags.
         const int swsScaleFlags = SWS_FAST_BILINEAR;
@@ -51,6 +48,13 @@ namespace tlr
 
         //! Convert from FFmpeg.
         audio::DataType toAudioType(AVSampleFormat);
+
+        //! Extract audio data.
+        void extractAudio(
+            uint8_t**                     in,
+            int                           format,
+            uint8_t                       channelCount,
+            std::shared_ptr<audio::Audio> out);
 
         //! Get a label for a FFmpeg error code.
         std::string getErrorLabel(int);
@@ -75,12 +79,8 @@ namespace tlr
                 const std::shared_ptr<core::LogSystem>&);
 
             std::future<avio::Info> getInfo() override;
-            std::future<avio::VideoData> readVideo(
-                const otime::RationalTime&,
-                uint16_t layer = 0) override;
-            std::future<avio::AudioData> readAudio(
-                const otime::RationalTime&,
-                size_t sampleCount) override;
+            std::future<avio::VideoData> readVideo(const otime::RationalTime&, uint16_t layer = 0) override;
+            std::future<avio::AudioData> readAudio(const otime::TimeRange&) override;
             bool hasRequests() override;
             void cancelRequests() override;
             void stop() override;

@@ -67,16 +67,12 @@ namespace tlr
         IRead::~IRead()
         {}
 
-        std::future<VideoData> IRead::readVideo(
-            const otime::RationalTime&,
-            uint16_t)
+        std::future<VideoData> IRead::readVideo(const otime::RationalTime&, uint16_t)
         {
             return std::future<VideoData>();
         }
 
-        std::future<AudioData> IRead::readAudio(
-            const otime::RationalTime&,
-            size_t)
+        std::future<AudioData> IRead::readAudio(const otime::TimeRange&)
         {
             return std::future<AudioData>();
         }

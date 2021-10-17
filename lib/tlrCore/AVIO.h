@@ -35,10 +35,10 @@ namespace tlr
         struct Info
         {
             std::vector<imaging::Info>         video;
-            VideoType                          videoType        = VideoType::Movie;
-            otime::TimeRange                   videoTimeRange   = time::invalidTimeRange;
+            VideoType                          videoType = VideoType::Movie;
+            otime::TimeRange                   videoTime = time::invalidTimeRange;
             audio::Info                        audio;
-            size_t                             audioSampleCount = 0;
+            otime::TimeRange                   audioTime = time::invalidTimeRange;
             std::map<std::string, std::string> tags;
 
             bool operator == (const Info&) const;
@@ -54,7 +54,7 @@ namespace tlr
                 uint16_t layer,
                 const std::shared_ptr<imaging::Image>&);
 
-            otime::RationalTime             time = time::invalidTime;
+            otime::RationalTime             time  = time::invalidTime;
             uint16_t                        layer = 0;
             std::shared_ptr<imaging::Image> image;
 
@@ -126,14 +126,10 @@ namespace tlr
             virtual std::future<Info> getInfo() = 0;
 
             //! Read video data.
-            virtual std::future<VideoData> readVideo(
-                const otime::RationalTime&,
-                uint16_t layer = 0);
+            virtual std::future<VideoData> readVideo(const otime::RationalTime&, uint16_t layer = 0);
 
             //! Read audio data.
-            virtual std::future<AudioData> readAudio(
-                const otime::RationalTime&,
-                size_t sampleCount);
+            virtual std::future<AudioData> readAudio(const otime::TimeRange&);
 
             //! Are there pending requests?
             virtual bool hasRequests() = 0;

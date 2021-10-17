@@ -96,7 +96,7 @@ namespace tlr
             const auto image = imaging::Image::create(imageInfo);
             avio::Info ioInfo;
             ioInfo.video.push_back(imageInfo);
-            ioInfo.videoTimeRange = clipTimeRange;
+            ioInfo.videoTime = clipTimeRange;
             auto write = _context->getSystem<avio::System>()->write(file::Path("TimelinePlayerTest.0.ppm"), ioInfo);
             for (size_t i = 0; i < static_cast<size_t>(clipTimeRange.duration().value()); ++i)
             {

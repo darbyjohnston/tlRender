@@ -59,7 +59,7 @@ namespace tlr
                     speed = std::stof(i->second);
                 }
             }
-            out.videoTimeRange = otime::TimeRange::range_from_start_end_time_inclusive(
+            out.videoTime = otime::TimeRange::range_from_start_end_time_inclusive(
                 otime::RationalTime(_startFrame, speed),
                 otime::RationalTime(_endFrame, speed));
             out.videoType = avio::VideoType::Sequence;

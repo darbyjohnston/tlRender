@@ -31,13 +31,13 @@ namespace tlr
         {}
 
         template<typename T>
-        inline T Range<T>::getMin() const noexcept
+        constexpr T Range<T>::getMin() const noexcept
         {
             return _min;
         }
 
         template<typename T>
-        inline T Range<T>::getMax() const noexcept
+        constexpr T Range<T>::getMax() const noexcept
         {
             return _max;
         }

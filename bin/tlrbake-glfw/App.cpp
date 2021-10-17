@@ -249,7 +249,7 @@ namespace tlr
         _print(string::Format("Output info: {0}").arg(_outputInfo));
         _outputImage = imaging::Image::create(_outputInfo);
         ioInfo.video.push_back(_outputInfo);
-        ioInfo.videoTimeRange = _range;
+        ioInfo.videoTime = _range;
         _writer = _writerPlugin->write(file::Path(_output), ioInfo);
         if (!_writer)
         {

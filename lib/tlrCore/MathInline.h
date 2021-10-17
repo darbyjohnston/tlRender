@@ -9,7 +9,7 @@ namespace tlr
     namespace math
     {
         template<typename T>
-        inline T clamp(T value, T min, T max)
+        constexpr T clamp(T value, T min, T max)
         {
             return std::min(std::max(value, min), max);
         }

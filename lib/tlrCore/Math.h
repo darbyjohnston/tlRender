@@ -11,7 +11,7 @@ namespace tlr
     {
         //! Clamp a value.
         template<typename T>
-        T clamp(T value, T min, T max);
+        constexpr T clamp(T value, T min, T max);
 
         //! Linear interpolation.
         template<typename T, typename U>
