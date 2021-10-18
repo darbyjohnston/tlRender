@@ -22,9 +22,10 @@ namespace tlr
 
         private:
             void _enums();
-            void _util();
+            void _types();
             void _audio();
             void _audioSystem();
+            void _util();
         };
     }
 }

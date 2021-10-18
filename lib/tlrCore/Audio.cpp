@@ -253,19 +253,39 @@ namespace tlr
             switch (value->getDataType())
             {
             case DataType::S8:
-                _planarInterleave(reinterpret_cast<const S8_T*> (value->getData()), reinterpret_cast<S8_T*> (out->getData()), channelCount, sampleCount);
+                _planarInterleave(
+                    reinterpret_cast<const S8_T*> (value->getData()),
+                    reinterpret_cast<S8_T*> (out->getData()),
+                    channelCount,
+                    sampleCount);
                 break;
             case DataType::S16:
-                _planarInterleave(reinterpret_cast<const S16_T*>(value->getData()), reinterpret_cast<S16_T*>(out->getData()), channelCount, sampleCount);
+                _planarInterleave(
+                    reinterpret_cast<const S16_T*>(value->getData()),
+                    reinterpret_cast<S16_T*>(out->getData()),
+                    channelCount,
+                    sampleCount);
                 break;
             case DataType::S32:
-                _planarInterleave(reinterpret_cast<const S32_T*>(value->getData()), reinterpret_cast<S32_T*>(out->getData()), channelCount, sampleCount);
+                _planarInterleave(
+                    reinterpret_cast<const S32_T*>(value->getData()),
+                    reinterpret_cast<S32_T*>(out->getData()),
+                    channelCount,
+                    sampleCount);
                 break;
             case DataType::F32:
-                _planarInterleave(reinterpret_cast<const F32_T*>(value->getData()), reinterpret_cast<F32_T*>(out->getData()), channelCount, sampleCount);
+                _planarInterleave(
+                    reinterpret_cast<const F32_T*>(value->getData()),
+                    reinterpret_cast<F32_T*>(out->getData()),
+                    channelCount,
+                    sampleCount);
                 break;
             case DataType::F64:
-                _planarInterleave(reinterpret_cast<const F64_T*>(value->getData()), reinterpret_cast<F64_T*>(out->getData()), channelCount, sampleCount);
+                _planarInterleave(
+                    reinterpret_cast<const F64_T*>(value->getData()),
+                    reinterpret_cast<F64_T*>(out->getData()),
+                    channelCount,
+                    sampleCount);
                 break;
             default: break;
             }
@@ -298,23 +318,68 @@ namespace tlr
             switch (value->getDataType())
             {
             case DataType::S8:
-                _planarDeinterleave(reinterpret_cast<const S8_T*> (value->getData()), reinterpret_cast<S8_T*>(out->getData()), channelCount, sampleCount);
+                _planarDeinterleave(
+                    reinterpret_cast<const S8_T*> (value->getData()),
+                    reinterpret_cast<S8_T*>(out->getData()),
+                    channelCount,
+                    sampleCount);
                 break;
             case DataType::S16:
-                _planarDeinterleave(reinterpret_cast<const S16_T*>(value->getData()), reinterpret_cast<S16_T*>(out->getData()), channelCount, sampleCount);
+                _planarDeinterleave(
+                    reinterpret_cast<const S16_T*>(value->getData()),
+                    reinterpret_cast<S16_T*>(out->getData()),
+                    channelCount,
+                    sampleCount);
                 break;
             case DataType::S32:
-                _planarDeinterleave(reinterpret_cast<const S32_T*>(value->getData()), reinterpret_cast<S32_T*>(out->getData()), channelCount, sampleCount);
+                _planarDeinterleave(
+                    reinterpret_cast<const S32_T*>(value->getData()),
+                    reinterpret_cast<S32_T*>(out->getData()),
+                    channelCount,
+                    sampleCount);
                 break;
             case DataType::F32:
-                _planarDeinterleave(reinterpret_cast<const F32_T*>(value->getData()), reinterpret_cast<F32_T*>(out->getData()), channelCount, sampleCount);
+                _planarDeinterleave(
+                    reinterpret_cast<const F32_T*>(value->getData()),
+                    reinterpret_cast<F32_T*>(out->getData()),
+                    channelCount,
+                    sampleCount);
                 break;
             case DataType::F64:
-                _planarDeinterleave(reinterpret_cast<const F64_T*>(value->getData()), reinterpret_cast<F64_T*>(out->getData()), channelCount, sampleCount);
+                _planarDeinterleave(
+                    reinterpret_cast<const F64_T*>(value->getData()),
+                    reinterpret_cast<F64_T*>(out->getData()),
+                    channelCount,
+                    sampleCount);
                 break;
             default: break;
             }
             return out;
+        }
+
+        void copy(std::list<std::shared_ptr<Audio> >& in, const std::shared_ptr<Audio>& out)
+        {
+            size_t size = 0;
+            uint8_t* outData = out->getData();
+            const size_t outByteCount = out->getByteCount();
+            while (!in.empty() && (size + in.front()->getByteCount() <= outByteCount))
+            {
+                const size_t itemByteCount = in.front()->getByteCount();
+                memcpy(outData, in.front()->getData(), itemByteCount);
+                size += itemByteCount;
+                outData += itemByteCount;
+                in.pop_front();
+            }
+            if (!in.empty() && size < outByteCount)
+            {
+                auto item = in.front();
+                in.pop_front();
+                memcpy(outData, item->getData(), outByteCount - size);
+                const size_t newItemByteCount = item->getByteCount() - (outByteCount - size);
+                auto newItem = audio::Audio::create(item->getInfo(), newItemByteCount / item->getInfo().getByteCount());
+                memcpy(newItem->getData(), item->getData() + outByteCount - size, newItemByteCount);
+                in.push_front(newItem);
+            }
         }
     }
 }

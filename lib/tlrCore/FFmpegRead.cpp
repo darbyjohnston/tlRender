@@ -31,11 +31,6 @@ namespace tlr
     {
         struct Read::Private
         {
-            int decodeVideo(avio::VideoData&);
-            void copyVideo(const std::shared_ptr<imaging::Image>&);
-
-            int decodeAudio(avio::AudioData&);
-
             avio::Info info;
             std::promise<avio::Info> infoPromise;
 
@@ -66,6 +61,7 @@ namespace tlr
                 AVFrame* avFrame = nullptr;
                 AVFrame* avFrame2 = nullptr;
                 SwsContext* swsContext = nullptr;
+                std::list<std::shared_ptr<imaging::Image> > buffer;
             };
             Video video;
 
@@ -76,6 +72,7 @@ namespace tlr
                 std::map<int, AVCodecParameters*> avCodecParameters;
                 std::map<int, AVCodecContext*> avCodecContext;
                 AVFrame* avFrame = nullptr;
+                std::list<std::shared_ptr<audio::Audio> > buffer;
             };
             Audio audio;
 
@@ -86,6 +83,12 @@ namespace tlr
             size_t threadCount = ffmpeg::threadCount;
 
             std::chrono::steady_clock::time_point logTimer;
+
+            int decodeVideo();
+            void copyVideo(const std::shared_ptr<imaging::Image>&);
+
+            size_t getAudioBufferSize() const;
+            int decodeAudio();
         };
 
         void Read::_init(
@@ -321,6 +324,7 @@ namespace tlr
                 videoInfo.size.h = p.video.avCodecParameters[p.video.avStream]->height;
                 videoInfo.layout.mirror.y = true;
 
+                p.video.avFrame = av_frame_alloc();
                 const AVPixelFormat avPixelFormat = static_cast<AVPixelFormat>(p.video.avCodecParameters[p.video.avStream]->format);
                 switch (avPixelFormat)
                 {
@@ -453,6 +457,8 @@ namespace tlr
                     throw std::runtime_error(string::Format("{0}: Unsupported audio format").arg(fileName));
                 }
 
+                p.audio.avFrame = av_frame_alloc();
+
                 int64_t sampleCount = 0;
                 if (avAudioStream->duration != AV_NOPTS_VALUE)
                 {
@@ -484,8 +490,6 @@ namespace tlr
             }
 
             p.infoPromise.set_value(p.info);
-
-            p.video.avFrame = av_frame_alloc();
         }
 
         void Read::_run()
@@ -543,7 +547,6 @@ namespace tlr
                         }
                     }
 
-                    avio::VideoData data;
                     AVPacket packet;
                     int decoding = 0;
                     bool eof = false;
@@ -577,7 +580,7 @@ namespace tlr
                                 //! \todo How should this be handled?
                                 break;
                             }
-                            decoding = p.decodeVideo(data);
+                            decoding = p.decodeVideo();
                             if (AVERROR(EAGAIN) == decoding)
                             {
                                 decoding = 0;
@@ -602,6 +605,13 @@ namespace tlr
                         }
                     }
 
+                    avio::VideoData data;
+                    data.time = videoRequest->time;
+                    if (!p.video.buffer.empty())
+                    {
+                        data.image = p.video.buffer.front();
+                        p.video.buffer.pop_front();
+                    }
                     videoRequest->promise.set_value(data);
 
                     p.videoTime += otime::RationalTime(1.0, p.info.videoTime.duration().rate());
@@ -634,7 +644,67 @@ namespace tlr
                         }
                     }
 
+                    AVPacket packet;
+                    int decoding = 0;
+                    bool eof = false;
+                    while (0 == decoding && p.getAudioBufferSize() < audioRequest->time.duration().value())
+                    {
+                        if (!eof)
+                        {
+                            decoding = av_read_frame(p.audio.avFormatContext, &packet);
+                            if (AVERROR_EOF == decoding)
+                            {
+                                eof = true;
+                                decoding = 0;
+                            }
+                            else if (decoding < 0)
+                            {
+                                //! \todo How should this be handled?
+                                break;
+                            }
+                        }
+                        if ((eof && p.audio.avStream != -1) || (p.audio.avStream == packet.stream_index))
+                        {
+                            decoding = avcodec_send_packet(
+                                p.audio.avCodecContext[p.audio.avStream],
+                                eof ? nullptr : &packet);
+                            if (AVERROR_EOF == decoding)
+                            {
+                                decoding = 0;
+                            }
+                            else if (decoding < 0)
+                            {
+                                //! \todo How should this be handled?
+                                break;
+                            }
+                            decoding = p.decodeAudio();
+                            if (AVERROR(EAGAIN) == decoding)
+                            {
+                                decoding = 0;
+                            }
+                            else if (AVERROR_EOF == decoding)
+                            {
+                                break;
+                            }
+                            else if (decoding < 0)
+                            {
+                                //! \todo How should this be handled?
+                                break;
+                            }
+                            else if (1 == decoding)
+                            {
+                                break;
+                            }
+                        }
+                        if (!eof)
+                        {
+                            av_packet_unref(&packet);
+                        }
+                    }
+
                     avio::AudioData data;
+                    data.audio = audio::Audio::create(p.info.audio, audioRequest->time.duration().value());
+                    audio::copy(p.audio.buffer, data.audio);
                     audioRequest->promise.set_value(data);
 
                     p.audioTime += audioRequest->time.duration();
@@ -717,7 +787,7 @@ namespace tlr
             }
         }
 
-        int Read::Private::decodeVideo(avio::VideoData& data)
+        int Read::Private::decodeVideo()
         {
             int out = 0;
             while (0 == out)
@@ -739,9 +809,9 @@ namespace tlr
 
                 if (t >= videoTime)
                 {
-                    data.time = t;
-                    data.image = imaging::Image::create(info.video[0]);
-                    copyVideo(data.image);
+                    auto image = imaging::Image::create(info.video[0]);
+                    copyVideo(image);
+                    video.buffer.push_back(image);
                     out = 1;
                     break;
                 }
@@ -829,7 +899,17 @@ namespace tlr
             }
         }
 
-        int Read::Private::decodeAudio(avio::AudioData& data)
+        size_t Read::Private::getAudioBufferSize() const
+        {
+            size_t out = 0;
+            for (const auto& i : audio.buffer)
+            {
+                out += i->getByteCount();
+            }
+            return out;
+        }
+
+        int Read::Private::decodeAudio()
         {
             int out = 0;
             while (0 == out)
@@ -854,13 +934,13 @@ namespace tlr
 
                 if (t >= audioTime)
                 {
-                    data.time = t;
-                    data.audio = audio::Audio::create(info.audio, audio.avFrame->nb_samples);
+                    auto tmp = audio::Audio::create(info.audio, audio.avFrame->nb_samples);
                     extractAudio(
                         audio.avFrame->data,
                         audio.avCodecParameters[audio.avStream]->format,
                         audio.avCodecParameters[audio.avStream]->channels,
-                        data.audio);
+                        tmp);
+                    audio.buffer.push_back(tmp);
                     out = 1;
                     break;
                 }

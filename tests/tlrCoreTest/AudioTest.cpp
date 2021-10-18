@@ -25,9 +25,10 @@ namespace tlr
         void AudioTest::run()
         {
             _enums();
-            _util();
+            _types();
             _audio();
             _audioSystem();
+            _util();
         }
 
         void AudioTest::_enums()
@@ -36,7 +37,7 @@ namespace tlr
             _enum<DeviceFormat>("DeviceFormat", getDeviceFormatEnums);
         }
 
-        void AudioTest::_util()
+        void AudioTest::_types()
         {
             for (auto i : getDataTypeEnums())
             {
@@ -99,6 +100,113 @@ namespace tlr
                 std::stringstream ss;
                 ss << "default output device: " << system->getDefaultOutputDevice();
                 _print(ss.str());
+            }
+        }
+
+        void AudioTest::_util()
+        {
+            {
+                const audio::Info info(1, audio::DataType::S8, 10);
+
+                auto data = audio::Audio::create(info, 10);
+                uint8_t* dataP = data->getData();
+                memset(dataP, 0, 10);
+
+                std::list<std::shared_ptr<Audio> > list;
+                for (size_t i = 0; i < 10; ++i)
+                {
+                    auto item = audio::Audio::create(info, 1);
+                    item->getData()[0] = i;
+                    list.push_back(item);
+                }
+
+                audio::copy(list, data);
+
+                TLR_ASSERT(list.empty());
+                for (size_t i = 0; i < 10; ++i)
+                {
+                    TLR_ASSERT(i == dataP[i]);
+                }
+            }
+            {
+                const audio::Info info(1, audio::DataType::S8, 10);
+
+                auto data = audio::Audio::create(info, 10);
+                uint8_t* dataP = data->getData();
+                memset(dataP, 0, 10);
+
+                std::list<std::shared_ptr<Audio> > list;
+                for (size_t i = 0; i < 5; ++i)
+                {
+                    auto item = audio::Audio::create(info, 1);
+                    item->getData()[0] = i;
+                    list.push_back(item);
+                }
+
+                audio::copy(list, data);
+
+                TLR_ASSERT(list.empty());
+                size_t i = 0;
+                for (; i < 5; ++i)
+                {
+                    TLR_ASSERT(i == dataP[i]);
+                }
+                for (; i < 10; ++i)
+                {
+                    TLR_ASSERT(0 == dataP[i]);
+                }
+            }
+            {
+                const audio::Info info(1, audio::DataType::S8, 10);
+
+                auto data = audio::Audio::create(info, 10);
+                uint8_t* dataP = data->getData();
+                memset(dataP, 0, 10);
+
+                std::list<std::shared_ptr<Audio> > list;
+                for (size_t i = 0; i < 15; ++i)
+                {
+                    auto item = audio::Audio::create(info, 1);
+                    item->getData()[0] = i;
+                    list.push_back(item);
+                }
+
+                audio::copy(list, data);
+
+                TLR_ASSERT(5 == list.size());
+                for (size_t i = 0; i < 10; ++i)
+                {
+                    TLR_ASSERT(i == dataP[i]);
+                }
+            }
+            {
+                const audio::Info info(1, audio::DataType::S8, 10);
+
+                auto data = audio::Audio::create(info, 10);
+                uint8_t* dataP = data->getData();
+                memset(dataP, 0, 10);
+
+                std::list<std::shared_ptr<Audio> > list;
+                for (size_t i = 0; i < 4; ++i)
+                {
+                    auto item = audio::Audio::create(info, 4);
+                    for (size_t j = 0; j < 4; ++j)
+                    {
+                        item->getData()[j] = i * 4 + j;
+                    }
+                    list.push_back(item);
+                }
+
+                audio::copy(list, data);
+
+                TLR_ASSERT(2 == list.size());
+                TLR_ASSERT(2 == list.front()->getByteCount());
+                TLR_ASSERT(10 == list.front()->getData()[0]);
+                TLR_ASSERT(11 == list.front()->getData()[1]);
+                for (size_t i = 0; i < 10; ++i)
+                {
+                    TLR_ASSERT(i == dataP[i]);
+                }
             }
         }
     }

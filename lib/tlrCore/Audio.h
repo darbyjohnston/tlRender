@@ -9,6 +9,7 @@
 
 #include <rtaudio/RtAudio.h>
 
+#include <list>
 #include <string>
 #include <vector>
 
@@ -207,6 +208,9 @@ namespace tlr
 
         //! De-interleave audio data.
         std::shared_ptr<Audio> planarDeinterleave(const std::shared_ptr<Audio>&);
+
+        //! Copy audio data.
+        void copy(std::list<std::shared_ptr<Audio> >&, const std::shared_ptr<Audio>&);
 
         ///@}
     }
