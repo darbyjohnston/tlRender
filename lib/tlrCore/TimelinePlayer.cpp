@@ -4,6 +4,7 @@
 
 #include <tlrCore/TimelinePlayer.h>
 
+#include <tlrCore/AudioSystem.h>
 #include <tlrCore/Error.h>
 #include <tlrCore/File.h>
 #include <tlrCore/LogSystem.h>
@@ -80,6 +81,17 @@ namespace tlr
                 std::size_t cacheReadAhead,
                 std::size_t cacheReadBehind);
 
+            static int rtAudioCallback(
+                void* outputBuffer,
+                void* inputBuffer,
+                unsigned int nFrames,
+                double streamTime,
+                RtAudioStreamStatus status,
+                void* userData);
+            static void rtAudioErrorCallback(
+                RtAudioError::Type type,
+                const std::string& errorText);
+
             std::shared_ptr<Timeline> timeline;
             avio::Info avInfo;
 
@@ -96,6 +108,7 @@ namespace tlr
 
             struct ThreadData
             {
+                Playback playback = Playback::Stop;
                 otime::RationalTime currentTime = time::invalidTime;
                 otime::TimeRange inOutRange = time::invalidTimeRange;
                 uint16_t videoLayer = 0;
@@ -110,6 +123,8 @@ namespace tlr
                 CacheDirection cacheDirection = CacheDirection::Forward;
                 std::size_t cacheReadAhead = 100;
                 std::size_t cacheReadBehind = 10;
+                std::unique_ptr<RtAudio> rtAudio;
+                size_t rtAudioFrame = 0;
                 std::mutex mutex;
                 std::atomic<bool> running;
             };
@@ -150,9 +165,42 @@ namespace tlr
                 [this]
                 {
                     TLR_PRIVATE_P();
+
+                    if (auto context = getContext().lock())
+                    {
+                        try
+                        {
+                            p.threadData.rtAudio.reset(new RtAudio);
+                            RtAudio::StreamParameters rtParameters;
+                            auto audioSystem = context->getSystem<audio::System>();
+                            rtParameters.deviceId = audioSystem->getDefaultOutputDevice();
+                            rtParameters.nChannels = p.avInfo.audio.channelCount;
+                            unsigned int rtBufferFrames = 256;
+                            p.threadData.rtAudio->openStream(
+                                &rtParameters,
+                                nullptr,
+                                audio::toRtAudio(p.avInfo.audio.dataType),
+                                p.avInfo.audio.sampleRate,
+                                &rtBufferFrames,
+                                p.rtAudioCallback,
+                                _p.get(),
+                                nullptr,
+                                p.rtAudioErrorCallback);
+
+                        }
+                        catch (const std::exception& e)
+                        {
+                            std::stringstream ss;
+                            ss << "Cannot open audio stream: " << e.what();
+                            context->log("tlr::core::TimelinePlayer", ss.str(), core::LogType::Error);
+                        }
+                    }
+
                     p.logTimer = std::chrono::steady_clock::now();
+
                     while (p.threadData.running)
                     {
+                        Playback playback = Playback::Stop;
                         otime::RationalTime currentTime = time::invalidTime;
                         otime::TimeRange inOutRange = time::invalidTimeRange;
                         uint16_t videoLayer = 0;
@@ -163,6 +211,7 @@ namespace tlr
                         std::size_t cacheReadBehind = 0;
                         {
                             std::unique_lock<std::mutex> lock(p.threadData.mutex);
+                            playback = p.threadData.playback;
                             currentTime = p.threadData.currentTime;
                             inOutRange = p.threadData.inOutRange;
                             videoLayer = p.threadData.videoLayer;
@@ -206,6 +255,45 @@ namespace tlr
                         {
                             std::unique_lock<std::mutex> lock(p.threadData.mutex);
                             p.threadData.videoData = i->second;
+                        }
+
+                        // Update the audio.
+                        if (auto context = getContext().lock())
+                        {
+                            if (Playback::Forward == playback)
+                            {
+                                if (!p.threadData.rtAudio->isStreamRunning())
+                                {
+                                    try
+                                    {
+                                        p.threadData.rtAudioFrame = 0;
+                                        p.threadData.rtAudio->startStream();
+                                    }
+                                    catch (const std::exception& e)
+                                    {
+                                        std::stringstream ss;
+                                        ss << "Cannot start audio stream: " << e.what();
+                                        context->log("tlr::core::TimelinePlayer", ss.str(), core::LogType::Error);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (p.threadData.rtAudio->isStreamRunning())
+                                {
+                                    try
+                                    {
+                                        p.threadData.rtAudio->abortStream();
+                                        p.threadData.rtAudio->setStreamTime(0.0);
+                                    }
+                                    catch (const std::exception& e)
+                                    {
+                                        std::stringstream ss;
+                                        ss << "Cannot stop audio stream: " << e.what();
+                                        context->log("tlr::core::TimelinePlayer", ss.str(), core::LogType::Error);
+                                    }
+                                }
+                            }
                         }
 
                         // Logging.
@@ -371,11 +459,13 @@ namespace tlr
                     p.prevTime = std::chrono::steady_clock::now();
 
                     std::unique_lock<std::mutex> lock(p.threadData.mutex);
+                    p.threadData.playback = value;
                     p.threadData.cacheDirection = Playback::Forward == value ? CacheDirection::Forward : CacheDirection::Reverse;
                 }
                 else
                 {
                     std::unique_lock<std::mutex> lock(p.threadData.mutex);
+                    p.threadData.playback = value;
                     p.threadData.clearRequests = true;
                 }
             }
@@ -418,6 +508,7 @@ namespace tlr
                     std::unique_lock<std::mutex> lock(p.threadData.mutex);
                     p.threadData.currentTime = tmp;
                     p.threadData.clearRequests = true;
+                    p.threadData.rtAudioFrame = 0;
                 }
             }
         }
@@ -610,7 +701,7 @@ namespace tlr
                 if (p.currentTime->setIfChanged(currentTime))
                 {
                     p.prevTime = now;
-                    //std::cout << "! " << p.currentTime->get() << std::endl;
+                    //std::cout << "current time: " << p.currentTime->get() << std::endl;
                 }
             }
 
@@ -845,5 +936,36 @@ namespace tlr
                 threadData.cachedFrames = toRanges(cachedFrames);
             }
         }
+
+        int TimelinePlayer::Private::rtAudioCallback(
+            void* outputBuffer,
+            void* inputBuffer,
+            unsigned int nFrames,
+            double streamTime,
+            RtAudioStreamStatus status,
+            void* userData)
+        {
+            auto p = reinterpret_cast<TimelinePlayer::Private*>(userData);
+            const int64_t seconds = p->threadData.rtAudioFrame / p->avInfo.audio.sampleRate;
+            const auto i = p->threadData.audioDataCache.find(seconds);
+            if (i != p->threadData.audioDataCache.end())
+            {
+                const size_t offset = p->threadData.rtAudioFrame - seconds * p->avInfo.audio.sampleRate;
+                const auto& data = i->second.layers[0].audio;
+                const size_t byteCount = data->getInfo().getByteCount();
+                //std::cout << nFrames << ": " << seconds << "/" << offset << "/" << byteCount << std::endl;
+                if (offset * byteCount < data->getByteCount())
+                {
+                    memcpy(outputBuffer, data->getData() + offset * byteCount, nFrames * byteCount);
+                }
+            }
+            p->threadData.rtAudioFrame += nFrames;
+            return 0;
+        }
+
+        void TimelinePlayer::Private::rtAudioErrorCallback(
+            RtAudioError::Type type,
+            const std::string& errorText)
+        {}
     }
 }

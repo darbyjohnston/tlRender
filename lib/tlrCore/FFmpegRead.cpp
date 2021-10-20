@@ -628,8 +628,8 @@ namespace tlr
                         {
                             avcodec_flush_buffers(p.audio.avCodecContext[p.audio.avStream]);
                             AVRational r;
-                            r.num = p.info.audio.sampleRate;
-                            r.den = 1;
+                            r.num = 1;
+                            r.den = p.info.audio.sampleRate;
                             if (av_seek_frame(
                                 p.audio.avFormatContext,
                                 p.audio.avStream,
@@ -693,7 +693,7 @@ namespace tlr
                             }
                             else if (1 == decoding)
                             {
-                                break;
+                                decoding = 0;
                             }
                         }
                         if (!eof)
@@ -703,6 +703,7 @@ namespace tlr
                     }
 
                     avio::AudioData data;
+                    data.time = audioRequest->time.start_time();
                     data.audio = audio::Audio::create(p.info.audio, audioRequest->time.duration().value());
                     audio::copy(p.audio.buffer, data.audio);
                     audioRequest->promise.set_value(data);
@@ -919,18 +920,18 @@ namespace tlr
                 {
                     return out;
                 }
-                //std::cout << "audio pts: " << avFrame->pts << std::endl;
+                //std::cout << "audio pts: " << audio.avFrame->pts << std::endl;
 
                 AVRational r;
-                r.num = info.audio.sampleRate;
-                r.den = 1;
+                r.num = 1;
+                r.den = info.audio.sampleRate;
                 const auto t = otime::RationalTime(
                     av_rescale_q(
                         audio.avFrame->pts,
                         audio.avFormatContext->streams[audio.avStream]->time_base,
                         r),
                     info.audio.sampleRate);
-                //std::cout << "audio time: " << t << std::endl;
+                //std::cout << "audio time: " << t.value() << std::endl;
 
                 if (t >= audioTime)
                 {

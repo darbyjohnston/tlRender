@@ -101,8 +101,8 @@ namespace tlr
                     options.avioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").arg(1);
                     options.avioOptions["ffmpeg/ThreadCount"] = string::Format("{0}").arg(1);
                     auto timeline = timeline::Timeline::create(p.timelinePlayer->path(), context, options);
-                    p.thumbnailProvider = new qt::TimelineThumbnailProvider(timeline, context, this);
-                    p.thumbnailProvider->setColorConfig(p.colorConfig);
+                    //p.thumbnailProvider = new qt::TimelineThumbnailProvider(timeline, context, this);
+                    //p.thumbnailProvider->setColorConfig(p.colorConfig);
                     connect(
                         p.timelinePlayer,
                         SIGNAL(currentTimeChanged(const otime::RationalTime&)),
@@ -115,10 +115,10 @@ namespace tlr
                         p.timelinePlayer,
                         SIGNAL(cachedFramesChanged(const std::vector<otime::TimeRange>&)),
                         SLOT(_cachedFramesCallback(const std::vector<otime::TimeRange>&)));
-                    connect(
-                        p.thumbnailProvider,
-                        SIGNAL(thumbails(const QList<QPair<otime::RationalTime, QImage> >&)),
-                        SLOT(_thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >&)));
+                    //connect(
+                    //    p.thumbnailProvider,
+                    //    SIGNAL(thumbails(const QList<QPair<otime::RationalTime, QImage> >&)),
+                    //    SLOT(_thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >&)));
                 }
             }
             _thumbnailsUpdate();
