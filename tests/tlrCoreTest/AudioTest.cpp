@@ -108,9 +108,8 @@ namespace tlr
             {
                 const audio::Info info(1, audio::DataType::S8, 10);
 
-                auto data = audio::Audio::create(info, 10);
-                uint8_t* dataP = data->getData();
-                memset(dataP, 0, 10);
+                uint8_t data[10];
+                memset(data, 0, 10);
 
                 std::list<std::shared_ptr<Audio> > list;
                 for (size_t i = 0; i < 10; ++i)
@@ -120,20 +119,19 @@ namespace tlr
                     list.push_back(item);
                 }
 
-                audio::copy(list, data);
+                audio::copy(list, data, 10);
 
                 TLR_ASSERT(list.empty());
                 for (size_t i = 0; i < 10; ++i)
                 {
-                    TLR_ASSERT(i == dataP[i]);
+                    TLR_ASSERT(i == data[i]);
                 }
             }
             {
                 const audio::Info info(1, audio::DataType::S8, 10);
 
-                auto data = audio::Audio::create(info, 10);
-                uint8_t* dataP = data->getData();
-                memset(dataP, 0, 10);
+                uint8_t data[10];
+                memset(data, 0, 10);
 
                 std::list<std::shared_ptr<Audio> > list;
                 for (size_t i = 0; i < 5; ++i)
@@ -143,25 +141,24 @@ namespace tlr
                     list.push_back(item);
                 }
 
-                audio::copy(list, data);
+                audio::copy(list, data, 10);
 
                 TLR_ASSERT(list.empty());
                 size_t i = 0;
                 for (; i < 5; ++i)
                 {
-                    TLR_ASSERT(i == dataP[i]);
+                    TLR_ASSERT(i == data[i]);
                 }
                 for (; i < 10; ++i)
                 {
-                    TLR_ASSERT(0 == dataP[i]);
+                    TLR_ASSERT(0 == data[i]);
                 }
             }
             {
                 const audio::Info info(1, audio::DataType::S8, 10);
 
-                auto data = audio::Audio::create(info, 10);
-                uint8_t* dataP = data->getData();
-                memset(dataP, 0, 10);
+                uint8_t data[10];
+                memset(data, 0, 10);
 
                 std::list<std::shared_ptr<Audio> > list;
                 for (size_t i = 0; i < 15; ++i)
@@ -171,12 +168,12 @@ namespace tlr
                     list.push_back(item);
                 }
 
-                audio::copy(list, data);
+                audio::copy(list, data, 10);
 
                 TLR_ASSERT(5 == list.size());
                 for (size_t i = 0; i < 10; ++i)
                 {
-                    TLR_ASSERT(i == dataP[i]);
+                    TLR_ASSERT(i == data[i]);
                 }
             }
             {

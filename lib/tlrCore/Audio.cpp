@@ -357,27 +357,25 @@ namespace tlr
             return out;
         }
 
-        void copy(std::list<std::shared_ptr<Audio> >& in, const std::shared_ptr<Audio>& out)
+        void copy(std::list<std::shared_ptr<Audio> >& in, uint8_t* out, size_t byteCount)
         {
             size_t size = 0;
-            uint8_t* outData = out->getData();
-            const size_t outByteCount = out->getByteCount();
-            while (!in.empty() && (size + in.front()->getByteCount() <= outByteCount))
+            while (!in.empty() && (size + in.front()->getByteCount() <= byteCount))
             {
                 const size_t itemByteCount = in.front()->getByteCount();
-                memcpy(outData, in.front()->getData(), itemByteCount);
+                memcpy(out, in.front()->getData(), itemByteCount);
                 size += itemByteCount;
-                outData += itemByteCount;
+                out += itemByteCount;
                 in.pop_front();
             }
-            if (!in.empty() && size < outByteCount)
+            if (!in.empty() && size < byteCount)
             {
                 auto item = in.front();
                 in.pop_front();
-                memcpy(outData, item->getData(), outByteCount - size);
-                const size_t newItemByteCount = item->getByteCount() - (outByteCount - size);
+                memcpy(out, item->getData(), byteCount - size);
+                const size_t newItemByteCount = item->getByteCount() - (byteCount - size);
                 auto newItem = audio::Audio::create(item->getInfo(), newItemByteCount / item->getInfo().getByteCount());
-                memcpy(newItem->getData(), item->getData() + outByteCount - size, newItemByteCount);
+                memcpy(newItem->getData(), item->getData() + byteCount - size, newItemByteCount);
                 in.push_front(newItem);
             }
         }

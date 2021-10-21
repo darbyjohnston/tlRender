@@ -210,7 +210,7 @@ namespace tlr
         std::shared_ptr<Audio> planarDeinterleave(const std::shared_ptr<Audio>&);
 
         //! Copy audio data.
-        void copy(std::list<std::shared_ptr<Audio> >&, const std::shared_ptr<Audio>&);
+        void copy(std::list<std::shared_ptr<Audio> >&, uint8_t* out, size_t byteCount);
 
         ///@}
     }
