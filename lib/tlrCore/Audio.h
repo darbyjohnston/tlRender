@@ -181,7 +181,7 @@ namespace tlr
         //! Adjust the volume of audio data.
         void volume(
             const uint8_t* in,
-            uint8_t* out,
+            uint8_t*       out,
             float          volume,
             size_t         sampleCount,
             uint8_t        channelCount,
@@ -191,7 +191,7 @@ namespace tlr
         template<typename T>
         void extract(
             const T* in,
-            T* out,
+            T*       out,
             size_t   sampleCount,
             uint8_t  inChannelCount,
             uint8_t  outChannelCount);

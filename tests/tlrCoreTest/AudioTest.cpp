@@ -194,7 +194,7 @@ namespace tlr
                     list.push_back(item);
                 }
 
-                audio::copy(list, data);
+                audio::copy(list, dataP, 10);
 
                 TLR_ASSERT(2 == list.size());
                 TLR_ASSERT(2 == list.front()->getByteCount());

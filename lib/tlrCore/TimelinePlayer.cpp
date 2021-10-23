@@ -4,6 +4,7 @@
 
 #include <tlrCore/TimelinePlayer.h>
 
+#include <tlrCore/Assert.h>
 #include <tlrCore/AudioSystem.h>
 #include <tlrCore/Error.h>
 #include <tlrCore/File.h>
@@ -46,15 +47,23 @@ namespace tlr
             "FrameNextX100");
         TLR_ENUM_SERIALIZE_IMPL(TimeAction);
 
-        otime::RationalTime loopTime(const otime::RationalTime& time, const otime::TimeRange& range)
+        otime::RationalTime loopTime(const otime::RationalTime& time, const otime::TimeRange& range, bool* loop)
         {
             auto out = time;
             if (out < range.start_time())
             {
+                if (loop)
+                {
+                    *loop = true;
+                }
                 out = range.end_time_inclusive();
             }
             else if (out > range.end_time_inclusive())
             {
+                if (loop)
+                {
+                    *loop = true;
+                }
                 out = range.start_time();
             }
             return out;
@@ -104,11 +113,12 @@ namespace tlr
             std::shared_ptr<observer::Value<VideoData> > video;
             std::shared_ptr<observer::Value<float> > cachePercentage;
             std::shared_ptr<observer::List<otime::TimeRange> > cachedFrames;
-            std::chrono::steady_clock::time_point prevTime;
 
             struct ThreadData
             {
                 Playback playback = Playback::Stop;
+                otime::RationalTime playbackStartTime = time::invalidTime;
+                std::chrono::steady_clock::time_point playbackStartTimer;
                 otime::RationalTime currentTime = time::invalidTime;
                 otime::TimeRange inOutRange = time::invalidTimeRange;
                 uint16_t videoLayer = 0;
@@ -127,7 +137,7 @@ namespace tlr
                 std::map<int64_t, std::future<AudioData> > audioDataRequests;
                 std::map<int64_t, AudioData> audioDataCache;
                 std::unique_ptr<RtAudio> rtAudio;
-                size_t rtAudioFrame = 0;
+                std::atomic<size_t> rtAudioFrame = 0;
                 std::mutex audioMutex;
 
                 std::atomic<bool> running;
@@ -179,7 +189,7 @@ namespace tlr
                             auto audioSystem = context->getSystem<audio::System>();
                             rtParameters.deviceId = audioSystem->getDefaultOutputDevice();
                             rtParameters.nChannels = p.avInfo.audio.channelCount;
-                            unsigned int rtBufferFrames = 256;
+                            unsigned int rtBufferFrames = p.avInfo.audio.sampleRate / 100; //! \todo
                             p.threadData.rtAudio->openStream(
                                 &rtParameters,
                                 nullptr,
@@ -190,7 +200,7 @@ namespace tlr
                                 _p.get(),
                                 nullptr,
                                 p.rtAudioErrorCallback);
-
+                            p.threadData.rtAudio->startStream();
                         }
                         catch (const std::exception& e)
                         {
@@ -261,48 +271,6 @@ namespace tlr
                         {
                             std::unique_lock<std::mutex> lock(p.threadData.mutex);
                             p.threadData.videoData = i->second;
-                        }
-
-                        // Update the audio.
-                        if (auto context = getContext().lock())
-                        {
-                            if (Playback::Forward == playback)
-                            {
-                                if (!p.threadData.rtAudio->isStreamRunning())
-                                {
-                                    {
-                                        std::unique_lock<std::mutex> lock(p.threadData.audioMutex);
-                                        p.threadData.rtAudioFrame = 0;
-                                    }
-                                    try
-                                    {
-                                        p.threadData.rtAudio->startStream();
-                                    }
-                                    catch (const std::exception& e)
-                                    {
-                                        std::stringstream ss;
-                                        ss << "Cannot start audio stream: " << e.what();
-                                        context->log("tlr::core::TimelinePlayer", ss.str(), core::LogType::Error);
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                if (p.threadData.rtAudio->isStreamRunning())
-                                {
-                                    try
-                                    {
-                                        p.threadData.rtAudio->abortStream();
-                                        p.threadData.rtAudio->setStreamTime(0.0);
-                                    }
-                                    catch (const std::exception& e)
-                                    {
-                                        std::stringstream ss;
-                                        ss << "Cannot stop audio stream: " << e.what();
-                                        context->log("tlr::core::TimelinePlayer", ss.str(), core::LogType::Error);
-                                    }
-                                }
-                            }
                         }
 
                         // Logging.
@@ -470,11 +438,14 @@ namespace tlr
             {
                 if (value != Playback::Stop)
                 {
-                    p.prevTime = std::chrono::steady_clock::now();
-
-                    std::unique_lock<std::mutex> lock(p.threadData.mutex);
-                    p.threadData.playback = value;
-                    p.threadData.cacheDirection = Playback::Forward == value ? CacheDirection::Forward : CacheDirection::Reverse;
+                    {
+                        std::unique_lock<std::mutex> lock(p.threadData.mutex);
+                        p.threadData.playback = value;
+                        p.threadData.playbackStartTime = p.currentTime->get();
+                        p.threadData.playbackStartTimer = std::chrono::steady_clock::now();
+                        p.threadData.cacheDirection = Playback::Forward == value ? CacheDirection::Forward : CacheDirection::Reverse;
+                    }
+                    p.threadData.rtAudioFrame = 0;
                 }
                 else
                 {
@@ -515,7 +486,9 @@ namespace tlr
                 // Update playback.
                 if (p.playback->get() != Playback::Stop)
                 {
-                    p.prevTime = std::chrono::steady_clock::now();
+                    std::unique_lock<std::mutex> lock(p.threadData.mutex);
+                    p.threadData.playbackStartTime = tmp;
+                    p.threadData.playbackStartTimer = std::chrono::steady_clock::now();
                 }
 
                 {
@@ -523,10 +496,7 @@ namespace tlr
                     p.threadData.currentTime = tmp;
                     p.threadData.clearRequests = true;
                 }
-                {
-                    std::unique_lock<std::mutex> lock(p.threadData.audioMutex);
-                    p.threadData.rtAudioFrame = 0;
-                }
+                p.threadData.rtAudioFrame = 0;
             }
         }
 
@@ -698,26 +668,36 @@ namespace tlr
             TLR_PRIVATE_P();
 
             // Calculate the current time.
+            const auto& duration = p.timeline->getDuration();
             const auto playback = p.playback->get();
             if (playback != Playback::Stop)
             {
-                const auto now = std::chrono::steady_clock::now();
-                const std::chrono::duration<float> diff = now - p.prevTime;
-                const float speed = p.speed->get();
-                const auto& duration = p.timeline->getDuration();
-                otime::RationalTime delta;
-                if (Playback::Forward == playback)
+                otime::RationalTime playbackStartTime = time::invalidTime;
+                std::chrono::steady_clock::time_point playbackStartTimer;
                 {
-                    delta = otime::RationalTime(floor(diff.count() * speed), duration.rate());
+                    std::unique_lock<std::mutex> lock(p.threadData.mutex);
+                    playbackStartTime = p.threadData.playbackStartTime;
+                    playbackStartTimer = p.threadData.playbackStartTimer;
+                }
+                double seconds = 0.0;
+                if (p.threadData.rtAudio && p.threadData.rtAudio->isStreamRunning())
+                {
+                    seconds = p.threadData.rtAudioFrame / static_cast<float>(p.avInfo.audio.sampleRate);
                 }
                 else
                 {
-                    delta = otime::RationalTime(ceil(diff.count() * speed * -1.0), duration.rate());
+                    const auto now = std::chrono::steady_clock::now();
+                    const std::chrono::duration<float> diff = now - playbackStartTimer;
+                    seconds = diff.count();
                 }
-                const auto currentTime = p.loopPlayback(p.currentTime->get() + delta);
+                if (Playback::Reverse == playback)
+                {
+                    seconds = -seconds;
+                }
+                otime::RationalTime currentTime = p.loopPlayback(
+                    playbackStartTime + time::floor(otime::RationalTime(seconds, 1.0).rescaled_to(duration.rate())));
                 if (p.currentTime->setIfChanged(currentTime))
                 {
-                    p.prevTime = now;
                     //std::cout << "current time: " << p.currentTime->get() << std::endl;
                 }
             }
@@ -755,11 +735,16 @@ namespace tlr
             {
             case Loop::Loop:
             {
-                const auto tmp = loopTime(out, range);
-                if (tmp != out)
+                bool loop = false;
+                out = loopTime(out, range, &loop);
+                if (loop)
                 {
-                    out = tmp;
-                    prevTime = std::chrono::steady_clock::now();
+                    {
+                        std::unique_lock<std::mutex> lock(threadData.mutex);
+                        threadData.playbackStartTime = out;
+                        threadData.playbackStartTimer = std::chrono::steady_clock::now();
+                    }
+                    threadData.rtAudioFrame = 0;
                 }
                 break;
             }
@@ -782,13 +767,23 @@ namespace tlr
                 {
                     out = range.start_time();
                     playback->setIfChanged(Playback::Forward);
-                    prevTime = std::chrono::steady_clock::now();
+                    {
+                        std::unique_lock<std::mutex> lock(threadData.mutex);
+                        threadData.playbackStartTime = out;
+                        threadData.playbackStartTimer = std::chrono::steady_clock::now();
+                    }
+                    threadData.rtAudioFrame = 0;
                 }
                 else if (out > range.end_time_inclusive() && Playback::Forward == playbackValue)
                 {
                     out = range.end_time_inclusive();
                     playback->setIfChanged(Playback::Reverse);
-                    prevTime = std::chrono::steady_clock::now();
+                    {
+                        std::unique_lock<std::mutex> lock(threadData.mutex);
+                        threadData.playbackStartTime = out;
+                        threadData.playbackStartTimer = std::chrono::steady_clock::now();
+                    }
+                    threadData.rtAudioFrame = 0;
                 }
                 break;
             }
@@ -892,13 +887,18 @@ namespace tlr
 
             // Get uncached audio.
             {
-                std::unique_lock<std::mutex> lock(threadData.audioMutex);
+                std::vector<otime::TimeRange> audioCacheRanges;
                 for (const auto& i : ranges)
                 {
-                    for (
-                        auto j = time::floor(i.start_time().rescaled_to(1.0));
-                        j <= time::floor(i.end_time_inclusive().rescaled_to(1.0));
-                        j += otime::RationalTime(1.0, 1.0))
+                    const otime::TimeRange range(
+                        time::floor(i.start_time().rescaled_to(1.0)),
+                        time::floor(i.end_time_inclusive().rescaled_to(1.0)));
+                    audioCacheRanges.push_back(range);
+                }
+                std::unique_lock<std::mutex> lock(threadData.audioMutex);
+                for (const auto& i : audioCacheRanges)
+                {
+                    for (auto j = i.start_time(); j <= i.end_time_inclusive(); j += otime::RationalTime(1.0, 1.0))
                     {
                         const int64_t time = j.value();
                         const auto k = threadData.audioDataCache.find(time);
@@ -972,42 +972,77 @@ namespace tlr
             void* userData)
         {
             auto p = reinterpret_cast<TimelinePlayer::Private*>(userData);
-            size_t rtAudioFrame = 0;
-            std::list<std::shared_ptr<audio::Audio> > data;
+            Playback playback = Playback::Stop;
+            double playbackStartTime = 0.0;
             {
-                std::unique_lock<std::mutex> lock(p->threadData.audioMutex);
-                rtAudioFrame = p->threadData.rtAudioFrame;
+                std::unique_lock<std::mutex> lock(p->threadData.mutex);
+                playback = p->threadData.playback;
+                playbackStartTime = p->threadData.playbackStartTime.rescaled_to(1.0).value();
             }
-            int64_t seconds = rtAudioFrame / p->avInfo.audio.sampleRate;
-            size_t frameCount = 0;
-            while (frameCount < nFrames)
+            const size_t byteCount = p->avInfo.audio.getByteCount();
+            switch (playback)
             {
-                std::shared_ptr<audio::Audio> data;
+            case Playback::Forward:
+            {
+                int64_t cacheSeconds = playbackStartTime +
+                    p->threadData.rtAudioFrame / static_cast<double>(p->avInfo.audio.sampleRate);
+                size_t offset = playbackStartTime * p->avInfo.audio.sampleRate +
+                    p->threadData.rtAudioFrame -
+                    cacheSeconds * p->avInfo.audio.sampleRate;
+                size_t sampleCount = nFrames;
+                //size_t count = 0;
+                std::shared_ptr<audio::Audio> dataPrev;
+                while (sampleCount > 0)
                 {
-                    std::unique_lock<std::mutex> lock(p->threadData.audioMutex);
-                    const auto i = p->threadData.audioDataCache.find(seconds);
-                    if (i != p->threadData.audioDataCache.end())
+                    std::shared_ptr<audio::Audio> data;
                     {
-                        if (!i->second.layers.empty())
+                        std::unique_lock<std::mutex> lock(p->threadData.audioMutex);
+                        const auto i = p->threadData.audioDataCache.find(cacheSeconds);
+                        if (i != p->threadData.audioDataCache.end())
                         {
-                            data = i->second.layers.front().audio;
+                            if (!i->second.layers.empty())
+                            {
+                                data = i->second.layers.front().audio;
+                                if (dataPrev && data != dataPrev)
+                                {
+                                    offset = 0;
+                                }
+                                dataPrev = data;
+                            }
                         }
+                    }
+                    size_t size = 0;
+                    if (data)
+                    {
+                        size = std::min(data->getSampleCount() - offset, static_cast<size_t>(sampleCount));
+                        //std::cout << count <<
+                        //    " samples: " << sampleCount <<
+                        //    " cache: " << cacheSeconds <<
+                        //    " frame: " << p->threadData.rtAudioFrame <<
+                        //    " offset: " << offset <<
+                        //    " size: " << size << std::endl;
+                        memcpy(outputBuffer, data->getData() + offset * byteCount, size * byteCount);
                     }
                     else
                     {
-                        break;
+                        size = static_cast<size_t>(sampleCount);
+                        memset(outputBuffer, 0, size * byteCount);
                     }
+                    sampleCount -= size;
+                    ++cacheSeconds;
+                    offset += size;
+                    //++count;
                 }
-                const size_t offset = rtAudioFrame - seconds * p->avInfo.audio.sampleRate + frameCount;
-                const size_t size = std::min(static_cast<size_t>(nFrames), data->getSampleCount() - offset);
-                const size_t byteCount = data->getInfo().getByteCount();
-                memcpy(outputBuffer, data->getData() + offset * byteCount, size * byteCount);
-                frameCount += size;
-                ++seconds;
-            }
-            {
-                std::unique_lock<std::mutex> lock(p->threadData.audioMutex);
                 p->threadData.rtAudioFrame += nFrames;
+            }
+            break;
+            case Playback::Reverse:
+                memset(outputBuffer, 0, nFrames * byteCount);
+                p->threadData.rtAudioFrame += nFrames;
+                break;
+            default:
+                memset(outputBuffer, 0, nFrames * byteCount);
+                break;
             }
             return 0;
         }

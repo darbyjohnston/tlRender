@@ -798,7 +798,8 @@ namespace tlr
                 {
                     return out;
                 }
-                //std::cout << "video pts: " << avFrame->pts << std::endl;
+                //std::cout << "video pts: " << video.avFrame->pts << std::endl;
+                //std::cout << "video dts: " << video.avFrame->pkt_dts << std::endl;
 
                 const auto t = otime::RationalTime(
                     av_rescale_q(

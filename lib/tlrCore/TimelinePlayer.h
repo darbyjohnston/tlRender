@@ -58,7 +58,7 @@ namespace tlr
         TLR_ENUM_SERIALIZE(TimeAction);
 
         //! Loop time.
-        otime::RationalTime loopTime(const otime::RationalTime&, const otime::TimeRange&);
+        otime::RationalTime loopTime(const otime::RationalTime&, const otime::TimeRange&, bool* loop = nullptr);
 
         //! Timeline player.
         class TimelinePlayer : public std::enable_shared_from_this<TimelinePlayer>
