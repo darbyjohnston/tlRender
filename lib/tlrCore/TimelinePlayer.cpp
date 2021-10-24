@@ -1056,6 +1056,7 @@ namespace tlr
             {
             case Playback::Forward:
             {
+                uint8_t* outputBufferP = reinterpret_cast<uint8_t*>(outputBuffer);
                 int64_t cacheSeconds = playbackStartTime +
                     p->threadData.rtAudioFrame / static_cast<double>(p->avInfo.audio.sampleRate);
                 size_t offset = playbackStartTime * p->avInfo.audio.sampleRate +
@@ -1093,13 +1094,14 @@ namespace tlr
                         //    " frame: " << p->threadData.rtAudioFrame <<
                         //    " offset: " << offset <<
                         //    " size: " << size << std::endl;
-                        memcpy(outputBuffer, data->getData() + offset * byteCount, size * byteCount);
+                        memcpy(outputBufferP, data->getData() + offset * byteCount, size * byteCount);
                     }
                     else
                     {
                         size = static_cast<size_t>(sampleCount);
-                        memset(outputBuffer, 0, size * byteCount);
+                        memset(outputBufferP, 0, size * byteCount);
                     }
+                    outputBufferP += size * byteCount;
                     sampleCount -= size;
                     ++cacheSeconds;
                     offset += size;
