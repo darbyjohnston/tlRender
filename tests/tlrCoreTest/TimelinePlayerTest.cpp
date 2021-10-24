@@ -148,12 +148,24 @@ namespace tlr
                         ss << "Cache: " << value << "%";
                         _print(ss.str());
                     });
-                auto cachedFramesObserver = observer::ListObserver<otime::TimeRange>::create(
-                    timelinePlayer->observeCachedFrames(),
+                auto cachedVideoFramesObserver = observer::ListObserver<otime::TimeRange>::create(
+                    timelinePlayer->observeCachedVideoFrames(),
                     [this](const std::vector<otime::TimeRange>& value)
                     {
                         std::stringstream ss;
-                        ss << "Cached frames: ";
+                        ss << "Cached video frames: ";
+                        for (const auto& i : value)
+                        {
+                            ss << i << " ";
+                        }
+                        _print(ss.str());
+                    });
+                auto cachedAudioFramesObserver = observer::ListObserver<otime::TimeRange>::create(
+                    timelinePlayer->observeCachedAudioFrames(),
+                    [this](const std::vector<otime::TimeRange>& value)
+                    {
+                        std::stringstream ss;
+                        ss << "Cached audio frames: ";
                         for (const auto& i : value)
                         {
                             ss << i << " ";

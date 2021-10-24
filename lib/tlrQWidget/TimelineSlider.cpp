@@ -101,24 +101,28 @@ namespace tlr
                     options.avioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").arg(1);
                     options.avioOptions["ffmpeg/ThreadCount"] = string::Format("{0}").arg(1);
                     auto timeline = timeline::Timeline::create(p.timelinePlayer->path(), context, options);
-                    //p.thumbnailProvider = new qt::TimelineThumbnailProvider(timeline, context, this);
-                    //p.thumbnailProvider->setColorConfig(p.colorConfig);
+                    p.thumbnailProvider = new qt::TimelineThumbnailProvider(timeline, context, this);
+                    p.thumbnailProvider->setColorConfig(p.colorConfig);
                     connect(
                         p.timelinePlayer,
                         SIGNAL(currentTimeChanged(const otime::RationalTime&)),
-                        SLOT(_currentTimeCallback(const otime::RationalTime&)));
+                        SLOT(update()));
                     connect(
                         p.timelinePlayer,
                         SIGNAL(inOutRangeChanged(const otime::TimeRange&)),
-                        SLOT(_inOutRangeCallback(const otime::TimeRange&)));
+                        SLOT(update()));
                     connect(
                         p.timelinePlayer,
-                        SIGNAL(cachedFramesChanged(const std::vector<otime::TimeRange>&)),
-                        SLOT(_cachedFramesCallback(const std::vector<otime::TimeRange>&)));
-                    //connect(
-                    //    p.thumbnailProvider,
-                    //    SIGNAL(thumbails(const QList<QPair<otime::RationalTime, QImage> >&)),
-                    //    SLOT(_thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >&)));
+                        SIGNAL(cachedVideoFramesChanged(const std::vector<otime::TimeRange>&)),
+                        SLOT(update()));
+                    connect(
+                        p.timelinePlayer,
+                        SIGNAL(cachedAudioFramesChanged(const std::vector<otime::TimeRange>&)),
+                        SLOT(update()));
+                    connect(
+                        p.thumbnailProvider,
+                        SIGNAL(thumbails(const QList<QPair<otime::RationalTime, QImage> >&)),
+                        SLOT(_thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >&)));
                 }
             }
             _thumbnailsUpdate();
@@ -179,12 +183,21 @@ namespace tlr
                 x0 = _timeToPos(inOutRange.start_time());
                 x1 = _timeToPos(inOutRange.end_time_inclusive());
                 y1 = y0 + rect2.height();
-                h = stripeSize;
+                h = stripeSize * 2;
                 painter.fillRect(QRect(x0, y1 - h, x1 - x0, h), QColor(90, 90, 90));
 
                 // Draw cached frames.
                 auto color = QColor(40, 190, 40);
-                const auto& cachedFrames = p.timelinePlayer->cachedFrames();
+                auto cachedFrames = p.timelinePlayer->cachedVideoFrames();
+                h = stripeSize;
+                for (const auto& i : cachedFrames)
+                {
+                    x0 = _timeToPos(i.start_time());
+                    x1 = _timeToPos(i.end_time_inclusive());
+                    painter.fillRect(QRect(x0, y1 - h * 2, x1 - x0, h), color);
+                }
+                color = QColor(190, 190, 40);
+                cachedFrames = p.timelinePlayer->cachedAudioFrames();
                 for (const auto& i : cachedFrames)
                 {
                     x0 = _timeToPos(i.start_time());
@@ -215,21 +228,6 @@ namespace tlr
                 const auto& duration = p.timelinePlayer->duration();
                 p.timelinePlayer->seek(_posToTime(event->x()));
             }
-        }
-
-        void TimelineSlider::_currentTimeCallback(const otime::RationalTime&)
-        {
-            update();
-        }
-
-        void TimelineSlider::_inOutRangeCallback(const otime::TimeRange&)
-        {
-            update();
-        }
-
-        void TimelineSlider::_cachedFramesCallback(const std::vector<otime::TimeRange>&)
-        {
-            update();
         }
 
         void TimelineSlider::_thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >& thumbnails)

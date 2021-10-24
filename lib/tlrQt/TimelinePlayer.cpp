@@ -21,7 +21,8 @@ namespace tlr
             std::shared_ptr<observer::ValueObserver<otime::TimeRange> > inOutRangeObserver;
             std::shared_ptr<observer::ValueObserver<uint16_t> > videoLayerObserver;
             std::shared_ptr<observer::ValueObserver<timeline::VideoData> > videoObserver;
-            std::shared_ptr<observer::ListObserver<otime::TimeRange> > cachedFramesObserver;
+            std::shared_ptr<observer::ListObserver<otime::TimeRange> > cachedVideoFramesObserver;
+            std::shared_ptr<observer::ListObserver<otime::TimeRange> > cachedAudioFramesObserver;
         };
 
         TimelinePlayer::TimelinePlayer(
@@ -85,11 +86,18 @@ namespace tlr
                     Q_EMIT videoChanged(value);
                 });
 
-            p.cachedFramesObserver = observer::ListObserver<otime::TimeRange>::create(
-                p.timelinePlayer->observeCachedFrames(),
+            p.cachedVideoFramesObserver = observer::ListObserver<otime::TimeRange>::create(
+                p.timelinePlayer->observeCachedVideoFrames(),
                 [this](const std::vector<otime::TimeRange>& value)
                 {
-                    Q_EMIT cachedFramesChanged(value);
+                    Q_EMIT cachedVideoFramesChanged(value);
+                });
+
+            p.cachedAudioFramesObserver = observer::ListObserver<otime::TimeRange>::create(
+                p.timelinePlayer->observeCachedAudioFrames(),
+                [this](const std::vector<otime::TimeRange>& value)
+                {
+                    Q_EMIT cachedAudioFramesChanged(value);
                 });
 
             startTimer(playerTimerInterval, Qt::PreciseTimer);
@@ -178,9 +186,14 @@ namespace tlr
             return _p->timelinePlayer->getCacheReadBehind();
         }
 
-        const std::vector<otime::TimeRange>& TimelinePlayer::cachedFrames() const
+        const std::vector<otime::TimeRange>& TimelinePlayer::cachedVideoFrames() const
         {
-            return _p->timelinePlayer->observeCachedFrames()->get();
+            return _p->timelinePlayer->observeCachedVideoFrames()->get();
+        }
+
+        const std::vector<otime::TimeRange>& TimelinePlayer::cachedAudioFrames() const
+        {
+            return _p->timelinePlayer->observeCachedAudioFrames()->get();
         }
 
         void TimelinePlayer::setSpeed(float value)

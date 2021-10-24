@@ -46,9 +46,6 @@ namespace tlr
             void mouseMoveEvent(QMouseEvent*) override;
 
         private Q_SLOTS:
-            void _currentTimeCallback(const otime::RationalTime&);
-            void _inOutRangeCallback(const otime::TimeRange&);
-            void _cachedFramesCallback(const std::vector<otime::TimeRange>&);
             void _thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >&);
 
         private:

@@ -107,8 +107,11 @@ namespace tlr
             //! Get the cache read behind.
             int cacheReadBehind();
 
-            //! Get the cached frames.
-            const std::vector<otime::TimeRange>& cachedFrames() const;
+            //! Get the cached video frames.
+            const std::vector<otime::TimeRange>& cachedVideoFrames() const;
+
+            //! Get the cached audio frames.
+            const std::vector<otime::TimeRange>& cachedAudioFrames() const;
 
             ///@}
 
@@ -226,8 +229,11 @@ namespace tlr
             //! This signal is emitted when the video is changed.
             void videoChanged(const tlr::timeline::VideoData&);
 
-            //! This signal is emitted when the cached frames are changed.
-            void cachedFramesChanged(const std::vector<otime::TimeRange>&);
+            //! This signal is emitted when the cached video frames are changed.
+            void cachedVideoFramesChanged(const std::vector<otime::TimeRange>&);
+
+            //! This signal is emitted when the cached audio frames are changed.
+            void cachedAudioFramesChanged(const std::vector<otime::TimeRange>&);
 
             ///@}
 

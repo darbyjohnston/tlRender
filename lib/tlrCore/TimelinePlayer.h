@@ -210,8 +210,11 @@ namespace tlr
             //! Observe the cache percentage.
             std::shared_ptr<observer::IValue<float> > observeCachePercentage() const;
 
-            //! Observe the cached frames.
-            std::shared_ptr<observer::IList<otime::TimeRange> > observeCachedFrames() const;
+            //! Observe the cached video frames.
+            std::shared_ptr<observer::IList<otime::TimeRange> > observeCachedVideoFrames() const;
+
+            //! Observe the cached audio frames.
+            std::shared_ptr<observer::IList<otime::TimeRange> > observeCachedAudioFrames() const;
 
             ///@}
 

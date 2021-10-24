@@ -9,6 +9,7 @@
 #include <tlrCore/Error.h>
 #include <tlrCore/File.h>
 #include <tlrCore/LogSystem.h>
+#include <tlrCore/Math.h>
 #include <tlrCore/String.h>
 #include <tlrCore/StringFormat.h>
 #include <tlrCore/Time.h>
@@ -112,7 +113,8 @@ namespace tlr
             std::shared_ptr<observer::Value<uint16_t> > videoLayer;
             std::shared_ptr<observer::Value<VideoData> > video;
             std::shared_ptr<observer::Value<float> > cachePercentage;
-            std::shared_ptr<observer::List<otime::TimeRange> > cachedFrames;
+            std::shared_ptr<observer::List<otime::TimeRange> > cachedVideoFrames;
+            std::shared_ptr<observer::List<otime::TimeRange> > cachedAudioFrames;
 
             struct ThreadData
             {
@@ -124,7 +126,8 @@ namespace tlr
                 uint16_t videoLayer = 0;
                 VideoData videoData;
                 bool clearRequests = false;
-                std::vector<otime::TimeRange> cachedFrames;
+                std::vector<otime::TimeRange> cachedVideoFrames;
+                std::vector<otime::TimeRange> cachedAudioFrames;
                 bool clearCache = false;
                 CacheDirection cacheDirection = CacheDirection::Forward;
                 std::size_t cacheReadAhead = 100;
@@ -169,7 +172,8 @@ namespace tlr
             p.videoLayer = observer::Value<uint16_t>::create();
             p.video = observer::Value<VideoData>::create();
             p.cachePercentage = observer::Value<float>::create();
-            p.cachedFrames = observer::List<otime::TimeRange>::create();
+            p.cachedVideoFrames = observer::List<otime::TimeRange>::create();
+            p.cachedAudioFrames = observer::List<otime::TimeRange>::create();
 
             // Create a new thread.
             p.threadData.currentTime = p.currentTime->get();
@@ -250,10 +254,15 @@ namespace tlr
                         if (clearCache)
                         {
                             p.threadData.videoDataCache.clear();
-                            p.threadData.cachedFrames.clear();
-
-                            std::unique_lock<std::mutex> lock(p.threadData.audioMutex);
-                            p.threadData.audioDataCache.clear();
+                            {
+                                std::unique_lock<std::mutex> lock(p.threadData.mutex);
+                                p.threadData.cachedVideoFrames.clear();
+                                p.threadData.cachedAudioFrames.clear();
+                            }
+                            {
+                                std::unique_lock<std::mutex> lock(p.threadData.audioMutex);
+                                p.threadData.audioDataCache.clear();
+                            }
                         }
 
                         // Update the cache.
@@ -281,12 +290,46 @@ namespace tlr
                             p.logTimer = now;
                             if (auto context = getContext().lock())
                             {
+                                const std::string id = string::Format("tlr::timeline::TimelinePlayer {0}").arg(this);
+
                                 size_t audioDataCacheSize = 0;
                                 {
                                     std::unique_lock<std::mutex> lock(p.threadData.audioMutex);
                                     audioDataCacheSize = p.threadData.audioDataCache.size();
                                 }
-                                const std::string id = string::Format("tlr::timeline::TimelinePlayer {0}").arg(this);
+
+                                std::string currentTimeDisplay(80, '-');
+                                double n = (currentTime - p.timeline->getGlobalStartTime()).value() / p.timeline->getDuration().value();
+                                currentTimeDisplay[math::clamp(n, 0.0, 1.0) * 80] = '^';
+
+                                std::vector<otime::TimeRange> cachedVideoFrames;
+                                {
+                                    std::unique_lock<std::mutex> lock(p.threadData.mutex);
+                                    cachedVideoFrames = p.threadData.cachedVideoFrames;
+                                }
+                                std::string cachedVideoFramesDisplay(80, '.');
+                                for (const auto& i : cachedVideoFrames)
+                                {
+                                    double n = (i.start_time() - p.timeline->getGlobalStartTime()).value() / p.timeline->getDuration().value();
+                                    cachedVideoFramesDisplay[math::clamp(n, 0.0, 1.0) * 80] = '[';
+                                    n = (i.end_time_inclusive() - p.timeline->getGlobalStartTime()).value() / p.timeline->getDuration().value();
+                                    cachedVideoFramesDisplay[math::clamp(n, 0.0, 1.0) * 80] = ']';
+                                }
+
+                                std::vector<otime::TimeRange> cachedAudioFrames;
+                                {
+                                    std::unique_lock<std::mutex> lock(p.threadData.mutex);
+                                    cachedAudioFrames = p.threadData.cachedAudioFrames;
+                                }
+                                std::string cachedAudioFramesDisplay(80, '.');
+                                for (const auto& i : cachedAudioFrames)
+                                {
+                                    double n = (i.start_time() - p.timeline->getGlobalStartTime()).value() / p.timeline->getDuration().value();
+                                    cachedAudioFramesDisplay[math::clamp(n, 0.0, 1.0) * 80] = '[';
+                                    n = (i.end_time_inclusive() - p.timeline->getGlobalStartTime()).value() / p.timeline->getDuration().value();
+                                    cachedAudioFramesDisplay[math::clamp(n, 0.0, 1.0) * 80] = ']';
+                                }
+
                                 auto logSystem = context->getLogSystem();
                                 logSystem->print(id, string::Format(
                                     "\n"
@@ -295,7 +338,10 @@ namespace tlr
                                     "    in/out: {2}\n"
                                     "    video layer: {3}\n"
                                     "    video: {4}/{5} (requests/cache)\n"
-                                    "    audio: {6}/{7} (requests/cache)\n").
+                                    "    audio: {6}/{7} (requests/cache)\n"
+                                    "    T: {8}\n"
+                                    "    V: {9}\n"
+                                    "    A: {10}").
                                     arg(getPath().get()).
                                     arg(currentTime).
                                     arg(inOutRange).
@@ -303,7 +349,10 @@ namespace tlr
                                     arg(p.threadData.videoDataRequests.size()).
                                     arg(p.threadData.videoDataCache.size()).
                                     arg(p.threadData.audioDataRequests.size()).
-                                    arg(audioDataCacheSize));
+                                    arg(audioDataCacheSize).
+                                    arg(currentTimeDisplay).
+                                    arg(cachedVideoFramesDisplay).
+                                    arg(cachedAudioFramesDisplay));
                             }
                         }
 
@@ -658,9 +707,14 @@ namespace tlr
             return _p->cachePercentage;
         }
 
-        std::shared_ptr<observer::IList<otime::TimeRange> > TimelinePlayer::observeCachedFrames() const
+        std::shared_ptr<observer::IList<otime::TimeRange> > TimelinePlayer::observeCachedVideoFrames() const
         {
-            return _p->cachedFrames;
+            return _p->cachedVideoFrames;
+        }
+
+        std::shared_ptr<observer::IList<otime::TimeRange> > TimelinePlayer::observeCachedAudioFrames() const
+        {
+            return _p->cachedAudioFrames;
         }
 
         void TimelinePlayer::tick()
@@ -706,24 +760,27 @@ namespace tlr
             VideoData videoData;
             int cacheReadAhead = 0;
             int cacheReadBehind = 0;
-            std::vector<otime::TimeRange> cachedFrames;
+            std::vector<otime::TimeRange> cachedVideoFrames;
+            std::vector<otime::TimeRange> cachedAudioFrames;
             {
                 std::unique_lock<std::mutex> lock(p.threadData.mutex);
                 p.threadData.currentTime = p.currentTime->get();
                 videoData = p.threadData.videoData;
                 cacheReadAhead = p.threadData.cacheReadAhead;
                 cacheReadBehind = p.threadData.cacheReadBehind;
-                cachedFrames = p.threadData.cachedFrames;
+                cachedVideoFrames = p.threadData.cachedVideoFrames;
+                cachedAudioFrames = p.threadData.cachedAudioFrames;
             }
             p.video->setIfChanged(videoData);
-            size_t cachedFramesCount = 0;
-            for (const auto& i : cachedFrames)
+            size_t cachedVideoFramesCount = 0;
+            for (const auto& i : cachedVideoFrames)
             {
-                cachedFramesCount += i.duration().value();
+                cachedVideoFramesCount += i.duration().value();
             }
             p.cachePercentage->setIfChanged(
-                cachedFramesCount / static_cast<float>(cacheReadAhead + cacheReadBehind) * 100.F);
-            p.cachedFrames->setIfChanged(cachedFrames);
+                cachedVideoFramesCount / static_cast<float>(cacheReadAhead + cacheReadBehind) * 100.F);
+            p.cachedVideoFrames->setIfChanged(cachedVideoFrames);
+            p.cachedAudioFrames->setIfChanged(cachedAudioFrames);
         }
 
         otime::RationalTime TimelinePlayer::Private::loopPlayback(const otime::RationalTime& time)
@@ -892,7 +949,7 @@ namespace tlr
                 {
                     const otime::TimeRange range(
                         time::floor(i.start_time().rescaled_to(1.0)),
-                        time::floor(i.end_time_inclusive().rescaled_to(1.0)));
+                        time::floor(i.duration().rescaled_to(1.0)));
                     audioCacheRanges.push_back(range);
                 }
                 std::unique_lock<std::mutex> lock(threadData.audioMutex);
@@ -952,14 +1009,29 @@ namespace tlr
             }
 
             // Update cached frames.
-            std::vector<otime::RationalTime> cachedFrames;
+            std::vector<otime::RationalTime> cachedVideoFrames;
             for (const auto& i : threadData.videoDataCache)
             {
-                cachedFrames.push_back(i.second.time);
+                cachedVideoFrames.push_back(i.second.time);
+            }
+            std::vector<otime::RationalTime> cachedAudioFrames;
+            {
+                std::unique_lock<std::mutex> lock(threadData.audioMutex);
+                for (const auto& i : threadData.audioDataCache)
+                {
+                    cachedAudioFrames.push_back(otime::RationalTime(i.second.seconds, 1.0));
+                }
+            }
+            auto cachedVideoRanges = toRanges(cachedVideoFrames);
+            auto cachedAudioRanges = toRanges(cachedAudioFrames);
+            for (auto& i : cachedAudioRanges)
+            {
+                i = otime::TimeRange(i.start_time().rescaled_to(duration.rate()), i.duration().rescaled_to(duration.rate()));
             }
             {
                 std::unique_lock<std::mutex> lock(threadData.mutex);
-                threadData.cachedFrames = toRanges(cachedFrames);
+                threadData.cachedVideoFrames = cachedVideoRanges;
+                threadData.cachedAudioFrames = cachedAudioRanges;
             }
         }
 
