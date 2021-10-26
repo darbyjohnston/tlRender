@@ -135,65 +135,33 @@ namespace tlr
                 break;
             }
             case AV_SAMPLE_FMT_S16P:
-            {
-                const int16_t** c = new const int16_t * [outChannelCount];
-                for (int i = 0; i < outChannelCount; ++i)
-                {
-                    c[i] = reinterpret_cast<int16_t*>(in[i]);
-                }
                 audio::planarInterleave(
-                    c,
+                    const_cast<const int16_t**>(reinterpret_cast<int16_t**>(in)),
                     reinterpret_cast<int16_t*>(out->getData()),
                     outChannelCount,
                     out->getSampleCount());
-                delete[] c;
                 break;
-            }
             case AV_SAMPLE_FMT_S32P:
-            {
-                const int32_t** c = new const int32_t * [outChannelCount];
-                for (int i = 0; i < outChannelCount; ++i)
-                {
-                    c[i] = reinterpret_cast<int32_t*>(in[i]);
-                }
                 audio::planarInterleave(
-                    c,
+                    const_cast<const int32_t**>(reinterpret_cast<int32_t**>(in)),
                     reinterpret_cast<int32_t*>(out->getData()),
                     outChannelCount,
                     out->getSampleCount());
-                delete[] c;
                 break;
-            }
             case AV_SAMPLE_FMT_FLTP:
-            {
-                const float** c = new const float* [outChannelCount];
-                for (int i = 0; i < outChannelCount; ++i)
-                {
-                    c[i] = reinterpret_cast<float*>(in[i]);
-                }
                 audio::planarInterleave(
-                    c,
+                    const_cast<const float**>(reinterpret_cast<float**>(in)),
                     reinterpret_cast<float*>(out->getData()),
                     outChannelCount,
                     out->getSampleCount());
-                delete[] c;
                 break;
-            }
             case AV_SAMPLE_FMT_DBLP:
-            {
-                const double** c = new const double* [outChannelCount];
-                for (int i = 0; i < outChannelCount; ++i)
-                {
-                    c[i] = reinterpret_cast<double*>(in[i]);
-                }
                 audio::planarInterleave(
-                    c,
+                    const_cast<const double**>(reinterpret_cast<double**>(in)),
                     reinterpret_cast<double*>(out->getData()),
                     outChannelCount,
                     out->getSampleCount());
-                delete[] c;
                 break;
-            }
             default: break;
             }
         }
