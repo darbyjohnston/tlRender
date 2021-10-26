@@ -798,18 +798,18 @@ namespace tlr
                 {
                     return out;
                 }
-                //std::cout << "video pts: " << video.avFrame->pts << std::endl;
-                //std::cout << "video dts: " << video.avFrame->pkt_dts << std::endl;
+                const int64_t timestamp = video.avFrame->pts != AV_NOPTS_VALUE ? video.avFrame->pts : video.avFrame->pkt_dts;
+                //std::cout << "video timestamp: " << timestamp << std::endl;
 
-                const auto t = otime::RationalTime(
+                const auto time = otime::RationalTime(
                     av_rescale_q(
-                        video.avFrame->pts,
+                        timestamp,
                         video.avFormatContext->streams[video.avStream]->time_base,
                         swap(video.avFormatContext->streams[video.avStream]->r_frame_rate)),
                     info.videoTime.duration().rate());
-                //std::cout << "video time: " << t << std::endl;
+                //std::cout << "video time: " << time << std::endl;
 
-                if (t >= videoTime)
+                if (time >= videoTime)
                 {
                     auto image = imaging::Image::create(info.video[0]);
                     copyVideo(image);
@@ -921,20 +921,21 @@ namespace tlr
                 {
                     return out;
                 }
-                //std::cout << "audio pts: " << audio.avFrame->pts << std::endl;
+                const int64_t timestamp = audio.avFrame->pts != AV_NOPTS_VALUE ? audio.avFrame->pts : audio.avFrame->pkt_dts;
+                //std::cout << "audio timestamp: " << timestamp << std::endl;
 
                 AVRational r;
                 r.num = 1;
                 r.den = info.audio.sampleRate;
-                const auto t = otime::RationalTime(
+                const auto time = otime::RationalTime(
                     av_rescale_q(
-                        audio.avFrame->pts,
+                        timestamp,
                         audio.avFormatContext->streams[audio.avStream]->time_base,
                         r),
                     info.audio.sampleRate);
-                //std::cout << "audio time: " << t.value() << std::endl;
+                //std::cout << "audio time: " << time.value() << std::endl;
 
-                if (t >= audioTime)
+                if (time >= audioTime)
                 {
                     auto tmp = audio::Audio::create(info.audio, audio.avFrame->nb_samples);
                     extractAudio(
