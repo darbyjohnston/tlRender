@@ -254,6 +254,27 @@ namespace tlr
                 }
                 break;
             }
+            case 6:
+            {
+                const T* inP0 = in[0];
+                const T* inP1 = in[1];
+                const T* inP2 = in[2];
+                const T* inP3 = in[3];
+                const T* inP4 = in[4];
+                const T* inP5 = in[5];
+                T* outP = out;
+                T* const endP = out + sampleCount * channelCount;
+                for (; outP < endP; outP += 6, ++inP0, ++inP1, ++inP2, ++inP3, ++inP4, ++inP5)
+                {
+                    outP[0] = inP0[0];
+                    outP[1] = inP1[0];
+                    outP[2] = inP2[0];
+                    outP[3] = inP3[0];
+                    outP[4] = inP4[0];
+                    outP[5] = inP5[0];
+                }
+                break;
+            }
             default:
                 for (uint8_t c = 0; c < channelCount; ++c)
                 {
