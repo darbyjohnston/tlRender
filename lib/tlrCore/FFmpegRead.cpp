@@ -406,7 +406,8 @@ namespace tlr
             //av_dump_format(p.avFormatContext, 0, fileName.c_str(), 0);
             for (unsigned int i = 0; i < p.audio.avFormatContext->nb_streams; ++i)
             {
-                if (AVMEDIA_TYPE_AUDIO == p.audio.avFormatContext->streams[i]->codecpar->codec_type)
+                if (AVMEDIA_TYPE_AUDIO == p.audio.avFormatContext->streams[i]->codecpar->codec_type &&
+                    AV_DISPOSITION_DEFAULT == p.audio.avFormatContext->streams[i]->disposition)
                 {
                     p.audio.avStream = i;
                 }
