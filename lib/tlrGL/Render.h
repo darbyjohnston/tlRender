@@ -192,7 +192,7 @@ namespace tlr
             //! Draw a timeline frame.
             void drawFrame(
                 const timeline::Frame&,
-                const ImageOptions & = ImageOptions());
+                const ImageOptions& = ImageOptions());
 
             //! Draw text.
             void drawText(

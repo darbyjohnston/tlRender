@@ -273,7 +273,7 @@ namespace tlr
                 "        }\n"
                 "        else if (YUVRange_Restricted == yuvRange)\n"
                 "        {\n"
-                "            float y  = texture(s0, fTexture).r - 16.0 / 255.0;\n"
+                "            float y  = texture(s0, fTexture).r -  16.0 / 255.0;\n"
                 "            float cb = texture(s1, fTexture).r - 128.0 / 255.0;\n"
                 "            float cr = texture(s2, fTexture).r - 128.0 / 255.0;\n"
                 "            c.r = (1.164 * y) + ( 0.0   * cb) + ( 1.793 * cr);\n"
