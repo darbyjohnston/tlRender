@@ -112,6 +112,22 @@ namespace tlr
         const math::Range<F16_T> F16Range(0.F, 1.F);
         const math::Range<F32_T> F32Range(0.F, 1.F);
 
+        //! YUV value range.
+        //! 
+        //! References:
+        //! - https://trac.ffmpeg.org/wiki/colorspace
+        //! - https://web.archive.org/web/20180423091842/http://www.equasys.de/colorconversion.html
+        enum class YUVRange
+        {
+            Full,
+            Restricted,
+
+            Count,
+            First = Full
+        };
+        TLR_ENUM(YUVRange);
+        TLR_ENUM_SERIALIZE(YUVRange);
+
         //! 10-bit MSB pixel data.
         struct U10_MSB
         {
@@ -205,6 +221,7 @@ namespace tlr
             Size        size;
             float       pixelAspectRatio = 1.F;
             PixelType   pixelType        = PixelType::None;
+            YUVRange    yuvRange         = YUVRange::Full;
             Layout      layout;
 
             //! Is the information valid?

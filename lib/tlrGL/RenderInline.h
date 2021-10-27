@@ -68,6 +68,7 @@ namespace tlr
         inline bool ImageOptions::operator == (const ImageOptions& other) const
         {
             return
+                yuvRange == other.yuvRange &&
                 channelsDisplay == other.channelsDisplay &&
                 alphaBlend == other.alphaBlend &&
                 mirror == other.mirror &&

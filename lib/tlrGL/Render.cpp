@@ -32,6 +32,13 @@ namespace tlr
     namespace gl
     {
         TLR_ENUM_IMPL(
+            YUVRange,
+            "File",
+            "Full",
+            "Restricted");
+        TLR_ENUM_SERIALIZE_IMPL(YUVRange);
+
+        TLR_ENUM_IMPL(
             ImageChannelsDisplay,
             "Color",
             "Red",
@@ -133,6 +140,10 @@ namespace tlr
                 "const uint PixelType_RGBA_F32 = 21;\n"
                 "const uint PixelType_YUV_420P = 22;\n"
                 "\n"
+                "// enum tlr::imaging::YUVRange\n"
+                "const uint YUVRange_Full       = 0;\n"
+                "const uint YUVRange_Restricted = 1;\n"
+                "\n"
                 "// enum tlr::gl::ImageChannelsDisplay\n"
                 "const uint ImageChannelsDisplay_Color = 0;\n"
                 "const uint ImageChannelsDisplay_Red   = 1;\n"
@@ -163,6 +174,7 @@ namespace tlr
                 "uniform vec4        color;\n"
                 "\n"
                 "uniform int         pixelType;\n"
+                "uniform int         yuvRange;\n"
                 "uniform int         imageChannels;\n"
                 "uniform sampler2D   textureSampler0;\n"
                 "uniform sampler2D   textureSampler1;\n"
@@ -250,12 +262,24 @@ namespace tlr
                 "    vec4 c;\n"
                 "    if (PixelType_YUV_420P == pixelType)\n"
                 "    {\n"
-                "        float y = texture(s0, fTexture).r;\n"
-                "        float u = texture(s1, fTexture).r - 0.5;\n"
-                "        float v = texture(s2, fTexture).r - 0.5;\n"
-                "        c.r = y + 1.402 * v;\n"
-                "        c.g = y - 0.344 * u - 0.714 * v;\n"
-                "        c.b = y + 1.772 * u;\n"
+                "        if (YUVRange_Full == yuvRange)\n"
+                "        {\n"
+                "            float y  = texture(s0, fTexture).r;\n"
+                "            float cb = texture(s1, fTexture).r - 128.0 / 255.0;\n"
+                "            float cr = texture(s2, fTexture).r - 128.0 / 255.0;\n"
+                "            c.r = y + ( 0.0   * cb) + ( 1.4   * cr);\n"
+                "            c.g = y + (-0.343 * cb) + (-0.711 * cr);\n"
+                "            c.b = y + ( 1.765 * cb) + ( 0.0   * cr);\n"
+                "        }\n"
+                "        else if (YUVRange_Restricted == yuvRange)\n"
+                "        {\n"
+                "            float y  = texture(s0, fTexture).r - 16.0 / 255.0;\n"
+                "            float cb = texture(s1, fTexture).r - 128.0 / 255.0;\n"
+                "            float cr = texture(s2, fTexture).r - 128.0 / 255.0;\n"
+                "            c.r = (1.164 * y) + ( 0.0   * cb) + ( 1.793 * cr);\n"
+                "            c.g = (1.164 * y) + (-0.213 * cb) + (-0.533 * cr);\n"
+                "            c.b = (1.164 * y) + ( 2.112 * cb) + ( 0.0   * cr);\n"
+                "        }\n"
                 "        c.a = 1.0;\n"
                 "    }\n"
                 "    else\n"
@@ -932,6 +956,14 @@ namespace tlr
             p.shader->setUniform("drawMode", static_cast<int>(DrawMode::Image));
             p.shader->setUniform("color", color);
             p.shader->setUniform("pixelType", static_cast<int>(info.pixelType));
+            imaging::YUVRange yuvRange = info.yuvRange;
+            switch (imageOptions.yuvRange)
+            {
+            case YUVRange::Full:       yuvRange = imaging::YUVRange::Full;       break;
+            case YUVRange::Restricted: yuvRange = imaging::YUVRange::Restricted; break;
+            default: break;
+            }
+            p.shader->setUniform("yuvRange", static_cast<int>(yuvRange));
             p.shader->setUniform("imageChannels", imaging::getChannelCount(info.pixelType));
             p.shader->setUniform("textureSampler0", 0);
             p.shader->setUniform("textureSampler1", 1);

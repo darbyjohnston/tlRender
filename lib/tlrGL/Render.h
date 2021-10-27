@@ -43,6 +43,19 @@ namespace tlr
             bool operator != (const ColorConfig&) const;
         };
 
+        //! YUV value range.
+        enum class YUVRange
+        {
+            File,
+            Full,
+            Restricted,
+
+            Count,
+            First = File
+        };
+        TLR_ENUM(YUVRange);
+        TLR_ENUM_SERIALIZE(YUVRange);
+
         //! Image channels display.
         enum class ImageChannelsDisplay
         {
@@ -117,6 +130,7 @@ namespace tlr
         //! Image options.
         struct ImageOptions
         {
+            YUVRange             yuvRange        = YUVRange::File;
             ImageChannelsDisplay channelsDisplay = ImageChannelsDisplay::Color;
             //! \todo Implement alpha blending options.
             AlphaBlend           alphaBlend      = AlphaBlend::Straight;

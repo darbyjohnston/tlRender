@@ -128,6 +128,7 @@ namespace tlr
                 size == other.size &&
                 pixelAspectRatio == other.pixelAspectRatio &&
                 pixelType == other.pixelType &&
+                yuvRange == other.yuvRange &&
                 layout == other.layout;
         }
 

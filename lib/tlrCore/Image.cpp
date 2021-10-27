@@ -95,6 +95,12 @@ namespace tlr
             "YUV_420P");
         TLR_ENUM_SERIALIZE_IMPL(PixelType);
 
+        TLR_ENUM_IMPL(
+            YUVRange,
+            "Full",
+            "Restricted");
+        TLR_ENUM_SERIALIZE_IMPL(YUVRange);
+
         uint8_t getChannelCount(PixelType value)
         {
             const std::array<uint8_t, static_cast<size_t>(PixelType::Count)> values =
