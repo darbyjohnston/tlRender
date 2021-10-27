@@ -534,7 +534,7 @@ namespace tlr
                     return out;
                 }
 
-                const auto& videoInfo = info.video[0];
+                auto videoInfo = info.video[0];
                 const auto t = otime::RationalTime(
                     av_rescale_q(
                         avFrame->pts,
@@ -544,7 +544,11 @@ namespace tlr
                 if (t >= time)
                 {
                     //std::cout << "frame: " << t << std::endl;
-                    auto tmp = image && image->getInfo() == info.video[0] ? image : imaging::Image::create(videoInfo);
+                    if (AVCOL_RANGE_MPEG == avFrame->color_range)
+                    {
+                        videoInfo.yuvRange = imaging::YUVRange::Restricted;
+                    }
+                    auto tmp = image && image->getInfo() == videoInfo ? image : imaging::Image::create(videoInfo);
                     tmp->setTags(info.tags);
                     copyVideo(tmp);
                     imageBuffer.push_back(tmp);
