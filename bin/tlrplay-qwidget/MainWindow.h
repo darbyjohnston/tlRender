@@ -7,6 +7,8 @@
 #include "SecondaryWindow.h"
 #include "SettingsObject.h"
 
+#include <tlrQWidget/TimelineWidget.h>
+
 #include <tlrQt/TimelinePlayer.h>
 
 #include <tlrGL/Render.h>
@@ -58,7 +60,6 @@ namespace tlr
         void _fullScreenCallback();
         void _secondaryWindowCallback(bool);
         void _secondaryWindowDestroyedCallback();
-        void _settingsVisibleCallback(bool);
         void _currentTabCallback(int);
         void _closeTabCallback(int);
         void _playbackCallback(QAction*);
@@ -77,6 +78,9 @@ namespace tlr
         void _frameNextCallback();
         void _frameNextX10Callback();
         void _frameNextX100Callback();
+        void _imageOptionsCallback(const tlr::gl::ImageOptions&);
+        void _imageOptionsVisibleCallback(bool);
+        void _settingsVisibleCallback(bool);
         void _saveSettingsCallback();
 
     private:
@@ -90,6 +94,7 @@ namespace tlr
         std::weak_ptr<core::Context> _context;
         QList<qt::TimelinePlayer*> _timelinePlayers;
         qt::TimelinePlayer* _currentTimelinePlayer = nullptr;
+        QList<qwidget::TimelineWidget*> _timelineWidgets;
         QMap<QString, QAction*> _actions;
         QActionGroup* _recentFilesActionGroup = nullptr;
         QMap<QAction*, QString> _actionToRecentFile;

@@ -17,6 +17,7 @@ namespace tlr
         {
             std::weak_ptr<core::Context> context;
             gl::ColorConfig colorConfig;
+            gl::ImageOptions imageOptions;
             qt::TimelinePlayer* timelinePlayer = nullptr;
             timeline::Frame frame;
             std::shared_ptr<gl::Render> render;
@@ -42,9 +43,20 @@ namespace tlr
         TimelineViewport::~TimelineViewport()
         {}
 
-        void TimelineViewport::setColorConfig(const gl::ColorConfig& colorConfig)
+        void TimelineViewport::setColorConfig(const gl::ColorConfig & colorConfig)
         {
+            if (colorConfig == _p->colorConfig)
+                return;
             _p->colorConfig = colorConfig;
+            update();
+        }
+
+        void TimelineViewport::setImageOptions(const gl::ImageOptions& imageOptions)
+        {
+            if (imageOptions == _p->imageOptions)
+                return;
+            _p->imageOptions = imageOptions;
+            update();
         }
 
         void TimelineViewport::setTimelinePlayer(qt::TimelinePlayer* timelinePlayer)
@@ -113,7 +125,7 @@ namespace tlr
                 width() * devicePixelRatio,
                 height() * devicePixelRatio);
             p.render->begin(size);
-            p.render->drawFrame(p.frame);
+            p.render->drawFrame(p.frame, p.imageOptions);
             p.render->end();
         }
     }

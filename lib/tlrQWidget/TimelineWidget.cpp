@@ -66,6 +66,12 @@ namespace tlr
             p.slider->setColorConfig(colorConfig);
         }
 
+        void TimelineWidget::setImageOptions(const gl::ImageOptions& imageOptions)
+        {
+            TLR_PRIVATE_P();
+            p.viewport->setImageOptions(imageOptions);
+        }
+
         void TimelineWidget::setTimelinePlayer(qt::TimelinePlayer* timelinePlayer)
         {
             TLR_PRIVATE_P();

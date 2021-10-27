@@ -5,9 +5,8 @@
 #include "MainWindow.h"
 
 #include "App.h"
+#include "ImageOptionsWidget.h"
 #include "SettingsWidget.h"
-
-#include <tlrQWidget/TimelineWidget.h>
 
 #include <tlrCore/File.h>
 #include <tlrCore/String.h>
@@ -58,9 +57,6 @@ namespace tlr
         _recentFilesActionGroup = new QActionGroup(this);
         _layersActionGroup = new QActionGroup(this);
         _layersActionGroup->setExclusive(true);
-        _actions["File/Settings"] = new QAction(this);
-        _actions["File/Settings"]->setCheckable(true);
-        _actions["File/Settings"]->setText(tr("Settings"));
         _actions["File/Exit"] = new QAction(this);
         _actions["File/Exit"]->setText(tr("Exit"));
         _actions["File/Exit"]->setShortcut(QKeySequence::Quit);
@@ -178,6 +174,13 @@ namespace tlr
         _actions["InOutPoints/ResetOutPoint"]->setIcon(QIcon(":/Icons/Reset.svg"));
         _actions["InOutPoints/ResetOutPoint"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_O));
 
+        _actions["Tools/ImageOptions"] = new QAction(this);
+        _actions["Tools/ImageOptions"]->setCheckable(true);
+        _actions["Tools/ImageOptions"]->setText(tr("Image Options"));
+        _actions["Tools/Settings"] = new QAction(this);
+        _actions["Tools/Settings"]->setCheckable(true);
+        _actions["Tools/Settings"]->setText(tr("Settings"));
+
         auto fileMenu = new QMenu;
         fileMenu->setTitle(tr("&File"));
         fileMenu->addAction(_actions["File/Open"]);
@@ -194,8 +197,6 @@ namespace tlr
         _layersMenu = new QMenu;
         _layersMenu->setTitle(tr("&Layers"));
         fileMenu->addMenu(_layersMenu);
-        fileMenu->addSeparator();
-        fileMenu->addAction(_actions["File/Settings"]);
         fileMenu->addSeparator();
         fileMenu->addAction(_actions["File/Exit"]);
 
@@ -237,17 +238,32 @@ namespace tlr
         inOutPointsMenu->addAction(_actions["InOutPoints/SetOutPoint"]);
         inOutPointsMenu->addAction(_actions["InOutPoints/ResetOutPoint"]);
 
+        auto toolsMenu = new QMenu;
+        toolsMenu->setTitle(tr("&Tools"));
+        toolsMenu->addAction(_actions["Tools/ImageOptions"]);
+        toolsMenu->addAction(_actions["Tools/Settings"]);
+
         auto menuBar = new QMenuBar;
         menuBar->addMenu(fileMenu);
         menuBar->addMenu(windowMenu);
         menuBar->addMenu(playbackMenu);
         menuBar->addMenu(timeMenu);
         menuBar->addMenu(inOutPointsMenu);
+        menuBar->addMenu(toolsMenu);
         setMenuBar(menuBar);
 
         _tabWidget = new QTabWidget;
         _tabWidget->setTabsClosable(true);
         setCentralWidget(_tabWidget);
+
+        auto imageOptionsWidget = new ImageOptionsWidget();
+        auto imageOptionsDockWidget = new QDockWidget;
+        imageOptionsDockWidget->setObjectName("ImageOptions");
+        imageOptionsDockWidget->setWindowTitle(tr("Image Options"));
+        imageOptionsDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+        imageOptionsDockWidget->setWidget(imageOptionsWidget);
+        imageOptionsDockWidget->hide();
+        addDockWidget(Qt::RightDockWidgetArea, imageOptionsDockWidget);
 
         auto settingsWidget = new SettingsWidget(settingsObject, _timeObject);
         auto settingsDockWidget = new QDockWidget;
@@ -291,11 +307,6 @@ namespace tlr
             _layersActionGroup,
             SIGNAL(triggered(QAction*)),
             SLOT(_layersCallback(QAction*)));
-        connect(
-            _actions["File/Settings"],
-            SIGNAL(triggered(bool)),
-            settingsDockWidget,
-            SLOT(setVisible(bool)));
         connect(
             _actions["File/Exit"],
             SIGNAL(triggered()),
@@ -370,6 +381,17 @@ namespace tlr
             SLOT(_frameNextX100Callback()));
 
         connect(
+            _actions["Tools/ImageOptions"],
+            SIGNAL(triggered(bool)),
+            imageOptionsDockWidget,
+            SLOT(setVisible(bool)));
+        connect(
+            _actions["Tools/Settings"],
+            SIGNAL(triggered(bool)),
+            settingsDockWidget,
+            SLOT(setVisible(bool)));
+
+        connect(
             _playbackActionGroup,
             SIGNAL(triggered(QAction*)),
             SLOT(_playbackCallback(QAction*)));
@@ -387,6 +409,15 @@ namespace tlr
             _tabWidget,
             SIGNAL(tabCloseRequested(int)),
             SLOT(_closeTabCallback(int)));
+
+        connect(
+            imageOptionsWidget,
+            SIGNAL(imageOptionsChanged(const tlr::gl::ImageOptions&)),
+            SLOT(_imageOptionsCallback(const tlr::gl::ImageOptions&)));
+        connect(
+            imageOptionsDockWidget,
+            SIGNAL(visibilityChanged(bool)),
+            SLOT(_imageOptionsVisibleCallback(bool)));
 
         connect(
             settingsDockWidget,
@@ -540,6 +571,7 @@ namespace tlr
             const std::string toolTip = string::Format("{0}\n{1}").arg(path.get()).arg(!videoInfo.empty() ? videoInfo[0] : imaging::Info());
             _tabWidget->setTabToolTip(tab, QString::fromUtf8(toolTip.c_str()));
             _timelinePlayers.append(timelinePlayer);
+            _timelineWidgets.append(widget);
             _setCurrentTimeline(timelinePlayer);
         }
     }
@@ -568,7 +600,8 @@ namespace tlr
             auto widget = _tabWidget->widget(i);
             _tabWidget->removeTab(i);
             delete widget;
-            _timelinePlayers.removeOne(timelinePlayer);
+            _timelinePlayers.removeAt(i);
+            _timelineWidgets.removeAt(i);
             if (timelinePlayer == _currentTimelinePlayer)
             {
                 if (i > _timelinePlayers.size())
@@ -692,11 +725,6 @@ namespace tlr
     {
         _secondaryWindow = nullptr;
         _actions["Window/Secondary"]->setChecked(false);
-    }
-
-    void MainWindow::_settingsVisibleCallback(bool value)
-    {
-        _actions["File/Settings"]->setChecked(value);
     }
 
     void MainWindow::_currentTabCallback(int index)
@@ -856,6 +884,24 @@ namespace tlr
         {
             _currentTimelinePlayer->timeAction(timeline::TimeAction::FrameNextX100);
         }
+    }
+
+    void MainWindow::_imageOptionsCallback(const tlr::gl::ImageOptions& value)
+    {
+        for (int i = 0; i < _timelineWidgets.count(); ++i)
+        {
+            _timelineWidgets[i]->setImageOptions(value);
+        }
+    }
+
+    void MainWindow::_imageOptionsVisibleCallback(bool value)
+    {
+        _actions["Tools/ImageOptions"]->setChecked(value);
+    }
+
+    void MainWindow::_settingsVisibleCallback(bool value)
+    {
+        _actions["Tools/Settings"]->setChecked(value);
     }
 
     void MainWindow::_saveSettingsCallback()
