@@ -306,10 +306,19 @@ namespace tlr
                         0,
                         0);
                     const int srcColorRange = p.avCodecContext[p.avVideoStream]->color_range;
+                    int srcColorSpace = SWS_CS_DEFAULT;
+                    if (p.avCodecContext[p.avVideoStream]->color_primaries != AVCOL_PRI_UNSPECIFIED)
+                    {
+                        switch (p.avCodecContext[p.avVideoStream]->colorspace)
+                        {
+                        case AVCOL_SPC_BT709: srcColorSpace = SWS_CS_ITU709; break;
+                        default: break;
+                        }
+                    }
                     sws_setColorspaceDetails(
                         p.swsContext,
-                        sws_getCoefficients(SWS_CS_ITU709),
-                        AVCOL_RANGE_MPEG == srcColorRange ? 0 : 1,
+                        sws_getCoefficients(srcColorSpace),
+                        AVCOL_RANGE_JPEG == srcColorRange ? 1 : 0,
                         sws_getCoefficients(SWS_CS_DEFAULT),
                         1,
                         0,
@@ -318,7 +327,7 @@ namespace tlr
                     break;
                 }
                 }
-                if (AVCOL_RANGE_MPEG == p.avCodecContext[p.avVideoStream]->color_range)
+                if (p.avCodecContext[p.avVideoStream]->color_range != AVCOL_RANGE_JPEG)
                 {
                     videoInfo.yuvRange = imaging::YUVRange::Video;
                 }
