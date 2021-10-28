@@ -16,16 +16,16 @@ namespace tlr
         QWidget(parent)
     {
         _yuvRangeComboBox = new QComboBox;
-        _yuvRangeComboBox->addItem(tr("File"));
+        _yuvRangeComboBox->addItem(tr("From File"));
         _yuvRangeComboBox->addItem(tr("Full"));
-        _yuvRangeComboBox->addItem(tr("Restricted"));
+        _yuvRangeComboBox->addItem(tr("Video"));
 
         auto layout = new QVBoxLayout;
         layout->addWidget(_yuvRangeComboBox);
         layout->addStretch();
         setLayout(layout);
 
-        _yuvRangeComboBox->setCurrentIndex(static_cast<int>(gl::YUVRange::File));
+        _yuvRangeComboBox->setCurrentIndex(static_cast<int>(gl::YUVRange::FromFile));
 
         connect(
             _yuvRangeComboBox,

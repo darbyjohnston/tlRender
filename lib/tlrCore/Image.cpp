@@ -98,7 +98,7 @@ namespace tlr
         TLR_ENUM_IMPL(
             YUVRange,
             "Full",
-            "Restricted");
+            "Video");
         TLR_ENUM_SERIALIZE_IMPL(YUVRange);
 
         uint8_t getChannelCount(PixelType value)

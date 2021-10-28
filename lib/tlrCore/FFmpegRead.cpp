@@ -291,6 +291,7 @@ namespace tlr
                     videoInfo.pixelType = imaging::PixelType::RGBA_U8;
                     break;
                 default:
+                {
                     videoInfo.pixelType = imaging::PixelType::YUV_420P;
                     p.avFrame2 = av_frame_alloc();
                     p.swsContext = sws_getContext(
@@ -304,7 +305,22 @@ namespace tlr
                         0,
                         0,
                         0);
+                    const int srcColorRange = p.avCodecContext[p.avVideoStream]->color_range;
+                    sws_setColorspaceDetails(
+                        p.swsContext,
+                        sws_getCoefficients(SWS_CS_ITU709),
+                        AVCOL_RANGE_MPEG == srcColorRange ? 0 : 1,
+                        sws_getCoefficients(SWS_CS_DEFAULT),
+                        1,
+                        0,
+                        1 << 16,
+                        1 << 16);
                     break;
+                }
+                }
+                if (AVCOL_RANGE_MPEG == p.avCodecContext[p.avVideoStream]->color_range)
+                {
+                    videoInfo.yuvRange = imaging::YUVRange::Video;
                 }
 
                 if (avVideoStream->duration != AV_NOPTS_VALUE)
@@ -544,10 +560,6 @@ namespace tlr
                 if (t >= time)
                 {
                     //std::cout << "frame: " << t << std::endl;
-                    if (AVCOL_RANGE_MPEG == avFrame->color_range)
-                    {
-                        videoInfo.yuvRange = imaging::YUVRange::Restricted;
-                    }
                     auto tmp = image && image->getInfo() == videoInfo ? image : imaging::Image::create(videoInfo);
                     tmp->setTags(info.tags);
                     copyVideo(tmp);

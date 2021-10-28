@@ -119,8 +119,8 @@ namespace tlr
         //! - https://web.archive.org/web/20180423091842/http://www.equasys.de/colorconversion.html
         enum class YUVRange
         {
-            Full,       //!< YUV pixels with range 0-255
-            Restricted, //!< YUV pixels with ranges 16-240 (Y) and 16-235 (Cb/Cr)
+            Full,  //!< 0-255
+            Video, //!< 16-240 (Y) and 16-235 (Cb/Cr)
 
             Count,
             First = Full

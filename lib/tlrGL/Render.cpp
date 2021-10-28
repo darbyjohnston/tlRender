@@ -33,9 +33,9 @@ namespace tlr
     {
         TLR_ENUM_IMPL(
             YUVRange,
-            "File",
+            "FromFile",
             "Full",
-            "Restricted");
+            "Video");
         TLR_ENUM_SERIALIZE_IMPL(YUVRange);
 
         TLR_ENUM_IMPL(
@@ -959,8 +959,8 @@ namespace tlr
             imaging::YUVRange yuvRange = info.yuvRange;
             switch (imageOptions.yuvRange)
             {
-            case YUVRange::Full:       yuvRange = imaging::YUVRange::Full;       break;
-            case YUVRange::Restricted: yuvRange = imaging::YUVRange::Restricted; break;
+            case YUVRange::Full:  yuvRange = imaging::YUVRange::Full;  break;
+            case YUVRange::Video: yuvRange = imaging::YUVRange::Video; break;
             default: break;
             }
             p.shader->setUniform("yuvRange", static_cast<int>(yuvRange));

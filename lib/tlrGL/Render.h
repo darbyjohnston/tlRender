@@ -46,12 +46,12 @@ namespace tlr
         //! YUV value range.
         enum class YUVRange
         {
-            File,
+            FromFile,
             Full,
-            Restricted,
+            Video,
 
             Count,
-            First = File
+            First = FromFile
         };
         TLR_ENUM(YUVRange);
         TLR_ENUM_SERIALIZE(YUVRange);
@@ -130,7 +130,7 @@ namespace tlr
         //! Image options.
         struct ImageOptions
         {
-            YUVRange             yuvRange        = YUVRange::File;
+            YUVRange             yuvRange        = YUVRange::FromFile;
             ImageChannelsDisplay channelsDisplay = ImageChannelsDisplay::Color;
             //! \todo Implement alpha blending options.
             AlphaBlend           alphaBlend      = AlphaBlend::Straight;
