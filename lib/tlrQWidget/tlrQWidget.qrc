@@ -4,11 +4,13 @@
     <file alias="Icons/ClipPrev.svg">../../etc/Icons/ClipPrev.svg</file>
     <file alias="Icons/FrameNext.svg">../../etc/Icons/FrameNext.svg</file>
     <file alias="Icons/FramePrev.svg">../../etc/Icons/FramePrev.svg</file>
+    <file alias="Icons/Mute.svg">../../etc/Icons/Mute.svg</file>
     <file alias="Icons/PlaybackForward.svg">../../etc/Icons/PlaybackForward.svg</file>
     <file alias="Icons/PlaybackReverse.svg">../../etc/Icons/PlaybackReverse.svg</file>
     <file alias="Icons/PlaybackStop.svg">../../etc/Icons/PlaybackStop.svg</file>
     <file alias="Icons/Reset.svg">../../etc/Icons/Reset.svg</file>
     <file alias="Icons/TimeEnd.svg">../../etc/Icons/TimeEnd.svg</file>
     <file alias="Icons/TimeStart.svg">../../etc/Icons/TimeStart.svg</file>
+    <file alias="Icons/Volume.svg">../../etc/Icons/Volume.svg</file>
 </qresource>
 </RCC>

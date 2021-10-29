@@ -183,7 +183,7 @@ namespace tlr
 
             ///@}
 
-            //! \name Video Data
+            //! \name Video
             ///@{
 
             //! Observer the current video layer.
@@ -212,6 +212,23 @@ namespace tlr
 
             //! Observe the cached video frames.
             std::shared_ptr<observer::IList<otime::TimeRange> > observeCachedVideoFrames() const;
+
+            ///@}
+
+            //! \name Audio
+            ///@{
+
+            //! Observer the audio volume.
+            std::shared_ptr<observer::IValue<float> > observeVolume() const;
+
+            //! Set the audio volume.
+            void setVolume(float);
+
+            //! Observer the audio mute.
+            std::shared_ptr<observer::IValue<bool> > observeMute() const;
+
+            //! Set the audio mute.
+            void setMute(bool);
 
             //! Observe the cached audio frames.
             std::shared_ptr<observer::IList<otime::TimeRange> > observeCachedAudioFrames() const;

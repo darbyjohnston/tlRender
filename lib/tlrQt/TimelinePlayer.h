@@ -92,7 +92,7 @@ namespace tlr
 
             ///@}
 
-            //! \name Video and Audio Data
+            //! \name Video
             ///@{
 
             //! Get the current video layer.
@@ -102,13 +102,24 @@ namespace tlr
             const timeline::VideoData& video() const;
 
             //! Get the cache read ahead.
-            int cacheReadAhead();
+            int cacheReadAhead() const;
 
             //! Get the cache read behind.
-            int cacheReadBehind();
+            int cacheReadBehind() const;
 
             //! Get the cached video frames.
             const std::vector<otime::TimeRange>& cachedVideoFrames() const;
+
+            ///@}
+
+            //! \name Audio
+            ///@{
+
+            //! Get the audio volume.
+            float volume() const;
+
+            //! Get the audio mute.
+            bool isMuted() const;
 
             //! Get the cached audio frames.
             const std::vector<otime::TimeRange>& cachedAudioFrames() const;
@@ -185,7 +196,7 @@ namespace tlr
 
             ///@}
 
-            //! \name Video and Audio Data
+            //! \name Video
             ///@{
 
             //! Set the current video layer.
@@ -196,6 +207,17 @@ namespace tlr
 
             //! Set the cache read behind.
             void setCacheReadBehind(int);
+
+            ///@}
+
+            //! \name Audio
+            ///@{
+
+            //! Set the audio volume.
+            void setVolume(float);
+
+            //! Set the audio mute.
+            void setMute(bool);
 
             ///@}
 
@@ -220,7 +242,7 @@ namespace tlr
 
             ///@}
 
-            //! \name Video and Audio Data
+            //! \name Video
             ///@{
 
             //! This signal is emitted when the current video layer is changed.
@@ -231,6 +253,17 @@ namespace tlr
 
             //! This signal is emitted when the cached video frames are changed.
             void cachedVideoFramesChanged(const std::vector<otime::TimeRange>&);
+
+            ///@}
+
+            //! \name Audio
+            ///@{
+
+            //! This signal is emitted when the audio volume is changed.
+            void volumeChanged(float);
+
+            //! This signal is emitted when the audio mute is changed.
+            void muteChanged(bool);
 
             //! This signal is emitted when the cached audio frames are changed.
             void cachedAudioFramesChanged(const std::vector<otime::TimeRange>&);

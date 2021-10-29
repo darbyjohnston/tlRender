@@ -114,6 +114,8 @@ namespace tlr
             std::shared_ptr<observer::Value<VideoData> > video;
             std::shared_ptr<observer::Value<float> > cachePercentage;
             std::shared_ptr<observer::List<otime::TimeRange> > cachedVideoFrames;
+            std::shared_ptr<observer::Value<float> > volume;
+            std::shared_ptr<observer::Value<bool> > mute;
             std::shared_ptr<observer::List<otime::TimeRange> > cachedAudioFrames;
 
             struct ThreadData
@@ -137,6 +139,8 @@ namespace tlr
                 std::map<otime::RationalTime, std::future<VideoData> > videoDataRequests;
                 std::map<otime::RationalTime, VideoData> videoDataCache;
 
+                float volume = 1.F;
+                bool mute = false;
                 std::map<int64_t, std::future<AudioData> > audioDataRequests;
                 std::map<int64_t, AudioData> audioDataCache;
                 std::unique_ptr<RtAudio> rtAudio;
@@ -173,6 +177,8 @@ namespace tlr
             p.video = observer::Value<VideoData>::create();
             p.cachePercentage = observer::Value<float>::create();
             p.cachedVideoFrames = observer::List<otime::TimeRange>::create();
+            p.volume = observer::Value<float>::create(1.F);
+            p.mute = observer::Value<bool>::create(false);
             p.cachedAudioFrames = observer::List<otime::TimeRange>::create();
 
             // Create a new thread.
@@ -718,6 +724,36 @@ namespace tlr
             return _p->cachedVideoFrames;
         }
 
+        std::shared_ptr<observer::IValue<float> > TimelinePlayer::observeVolume() const
+        {
+            return _p->volume;
+        }
+
+        void TimelinePlayer::setVolume(float value)
+        {
+            TLR_PRIVATE_P();
+            if (p.volume->setIfChanged(value))
+            {
+                std::unique_lock<std::mutex> lock(p.threadData.audioMutex);
+                p.threadData.volume = value;
+            }
+        }
+
+        std::shared_ptr<observer::IValue<bool> > TimelinePlayer::observeMute() const
+        {
+            return _p->mute;
+        }
+
+        void TimelinePlayer::setMute(bool value)
+        {
+            TLR_PRIVATE_P();
+            if (p.mute->setIfChanged(value))
+            {
+                std::unique_lock<std::mutex> lock(p.threadData.audioMutex);
+                p.threadData.mute = value;
+            }
+        }
+
         std::shared_ptr<observer::IList<otime::TimeRange> > TimelinePlayer::observeCachedAudioFrames() const
         {
             return _p->cachedAudioFrames;
@@ -1067,11 +1103,17 @@ namespace tlr
                 playback = p->threadData.playback;
                 playbackStartTime = p->threadData.playbackStartTime.rescaled_to(1.0).value();
             }
+            float volume = 1.F;
+            bool mute = false;
             size_t rtAudioFrame = 0;
             {
                 std::unique_lock<std::mutex> lock(p->threadData.audioMutex);
+                volume = p->threadData.volume;
+                mute = p->threadData.mute;
                 rtAudioFrame = p->threadData.rtAudioFrame;
             }
+            const uint8_t channelCount = p->avInfo.audio.channelCount;
+            const audio::DataType dataType = p->avInfo.audio.dataType;
             const size_t byteCount = p->avInfo.audio.getByteCount();
             switch (playback)
             {
@@ -1115,7 +1157,14 @@ namespace tlr
                         //    " frame: " << rtAudioFrame <<
                         //    " offset: " << offset <<
                         //    " size: " << size << std::endl;
-                        memcpy(outputBufferP, data->getData() + offset * byteCount, size * byteCount);
+                        //memcpy(outputBufferP, data->getData() + offset * byteCount, size * byteCount);
+                        audio::volume(
+                            data->getData() + offset * byteCount,
+                            outputBufferP,
+                            !mute ? volume : 0.F,
+                            size,
+                            channelCount,
+                            dataType);
                     }
                     else
                     {

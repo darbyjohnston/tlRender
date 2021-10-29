@@ -23,11 +23,14 @@ namespace tlr
 {
     namespace qwidget
     {
+        namespace
+        {
+            const size_t volumeSliderSteps = 100;
+        }
+
         struct TimelineControls::Private
         {
             qt::TimelinePlayer* timelinePlayer = nullptr;
-            QList<float> speeds;
-            QComboBox* speedComboBox = nullptr;
             QMap<QString, QAbstractButton*> playbackButtons;
             QButtonGroup* playbackButtonGroup = nullptr;
             QMap<QAbstractButton*, timeline::Playback> buttonToPlayback;
@@ -35,12 +38,16 @@ namespace tlr
             QMap<QString, QAbstractButton*> timeActionButtons;
             QButtonGroup* timeActionButtonGroup = nullptr;
             QMap<QAbstractButton*, timeline::TimeAction> buttonToTimeAction;
-            SpeedLabel* speedLabel = nullptr;
             TimeSpinBox* currentTimeSpinBox = nullptr;
             TimeSpinBox* inPointSpinBox = nullptr;
             TimeSpinBox* outPointSpinBox = nullptr;
             QMap<QString, QAbstractButton*> inOutButtons;
             TimeLabel* durationLabel = nullptr;
+            SpeedLabel* speedLabel = nullptr;
+            QList<float> speeds;
+            QComboBox* speedComboBox = nullptr;
+            QToolButton* muteButton = nullptr;
+            QSlider* volumeSlider = nullptr;
         };
 
         TimelineControls::TimelineControls(QWidget* parent) :
@@ -48,8 +55,6 @@ namespace tlr
             _p(new Private)
         {
             TLR_PRIVATE_P();
-
-            p.speedComboBox = new QComboBox;
 
             p.playbackButtons["Stop"] = new QToolButton;
             p.playbackButtons["Stop"]->setCheckable(true);
@@ -99,9 +104,6 @@ namespace tlr
             p.buttonToTimeAction[p.timeActionButtons["FramePrev"]] = timeline::TimeAction::FramePrev;
             p.buttonToTimeAction[p.timeActionButtons["FrameNext"]] = timeline::TimeAction::FrameNext;
 
-            p.speedLabel = new SpeedLabel;
-            p.speedLabel->setToolTip(tr("Timeline speed (frames per second)"));
-
             p.currentTimeSpinBox = new TimeSpinBox;
             p.currentTimeSpinBox->setToolTip(tr("Current time"));
 
@@ -124,50 +126,69 @@ namespace tlr
             p.inOutButtons["ResetOutPoint"]->setIcon(QIcon(":/Icons/Reset.svg"));
             p.inOutButtons["ResetOutPoint"]->setToolTip(tr("Reset the playback out point"));
 
+            p.speedLabel = new SpeedLabel;
+            p.speedLabel->setToolTip(tr("Timeline speed (frames per second)"));
+
+            p.speedComboBox = new QComboBox;
+            p.speedComboBox->setToolTip(tr("Set the playback speed (frames per second)"));
+
             p.durationLabel = new TimeLabel;
             p.durationLabel->setToolTip(tr("Timeline duration"));
 
-            auto layout = new QHBoxLayout;
+            p.muteButton = new QToolButton;
+            p.muteButton->setCheckable(true);
+            QIcon muteIcon;
+            muteIcon.addFile(":/Icons/Volume.svg", QSize(20, 20), QIcon::Normal, QIcon::Off);
+            muteIcon.addFile(":/Icons/Mute.svg", QSize(20, 20), QIcon::Normal, QIcon::On);
+            p.muteButton->setIcon(muteIcon);
+            p.muteButton->setToolTip(tr("Mute the audio"));
+
+            p.volumeSlider = new QSlider(Qt::Horizontal);
+            p.volumeSlider->setToolTip(tr("Audio volume"));
+
+            auto layout = new QVBoxLayout;
             layout->setMargin(0);
-            layout->addWidget(p.speedComboBox);
             auto hLayout = new QHBoxLayout;
-            hLayout->setSpacing(1);
-            hLayout->addWidget(p.playbackButtons["Reverse"]);
-            hLayout->addWidget(p.playbackButtons["Stop"]);
-            hLayout->addWidget(p.playbackButtons["Forward"]);
+            auto hLayout2 = new QHBoxLayout;
+            hLayout2->setSpacing(1);
+            hLayout2->addWidget(p.playbackButtons["Reverse"]);
+            hLayout2->addWidget(p.playbackButtons["Stop"]);
+            hLayout2->addWidget(p.playbackButtons["Forward"]);
+            hLayout->addLayout(hLayout2);
+            hLayout2 = new QHBoxLayout;
+            hLayout2->setSpacing(1);
+            hLayout2->addWidget(p.timeActionButtons["Start"]);
+            hLayout2->addWidget(p.timeActionButtons["FramePrev"]);
+            hLayout2->addWidget(p.timeActionButtons["FrameNext"]);
+            hLayout2->addWidget(p.timeActionButtons["End"]);
+            hLayout->addLayout(hLayout2);
+            hLayout->addWidget(p.currentTimeSpinBox);
+            hLayout->addWidget(p.inPointSpinBox);
+            hLayout2 = new QHBoxLayout;
+            hLayout2->setSpacing(1);
+            hLayout2->addWidget(p.inOutButtons["SetInPoint"]);
+            hLayout2->addWidget(p.inOutButtons["ResetInPoint"]);
+            hLayout->addLayout(hLayout2);
+            hLayout->addStretch();
+            hLayout2 = new QHBoxLayout;
+            hLayout2->setSpacing(1);
+            hLayout2->addWidget(p.inOutButtons["ResetOutPoint"]);
+            hLayout2->addWidget(p.inOutButtons["SetOutPoint"]);
+            hLayout->addLayout(hLayout2);
+            hLayout->addWidget(p.outPointSpinBox);
+            hLayout->addWidget(p.durationLabel);
             layout->addLayout(hLayout);
             hLayout = new QHBoxLayout;
-            hLayout->setSpacing(1);
-            hLayout->addWidget(p.timeActionButtons["Start"]);
-            hLayout->addWidget(p.timeActionButtons["FramePrev"]);
-            hLayout->addWidget(p.timeActionButtons["FrameNext"]);
-            hLayout->addWidget(p.timeActionButtons["End"]);
+            hLayout->addWidget(p.speedLabel);
+            hLayout->addWidget(p.speedComboBox);
+            hLayout->addStretch(1);
+            hLayout->addWidget(p.muteButton);
+            hLayout->addWidget(p.volumeSlider);
             layout->addLayout(hLayout);
-            layout->addWidget(p.currentTimeSpinBox);
-            layout->addWidget(p.inPointSpinBox);
-            hLayout = new QHBoxLayout;
-            hLayout->setSpacing(1);
-            hLayout->addWidget(p.inOutButtons["SetInPoint"]);
-            hLayout->addWidget(p.inOutButtons["ResetInPoint"]);
-            layout->addLayout(hLayout);
-            layout->addStretch();
-            hLayout = new QHBoxLayout;
-            hLayout->setSpacing(1);
-            hLayout->addWidget(p.inOutButtons["ResetOutPoint"]);
-            hLayout->addWidget(p.inOutButtons["SetOutPoint"]);
-            layout->addLayout(hLayout);
-            layout->addWidget(p.outPointSpinBox);
-            layout->addWidget(p.durationLabel);
-            layout->addWidget(p.speedLabel);
             setLayout(layout);
 
             _playbackUpdate();
             _timelineUpdate();
-
-            connect(
-                p.speedComboBox,
-                SIGNAL(activated(int)),
-                SLOT(_speedCallback(int)));
 
             connect(
                 p.playbackButtonGroup,
@@ -209,6 +230,20 @@ namespace tlr
                 p.inOutButtons["ResetOutPoint"],
                 SIGNAL(clicked()),
                 SLOT(_resetOutPointCallback()));
+
+            connect(
+                p.speedComboBox,
+                SIGNAL(activated(int)),
+                SLOT(_speedCallback(int)));
+
+            connect(
+                p.volumeSlider,
+                SIGNAL(valueChanged(int)),
+                SLOT(_volumeCallback(int)));
+            connect(
+                p.muteButton,
+                SIGNAL(toggled(bool)),
+                SLOT(_muteCallback(bool)));
         }
         
         TimelineControls::~TimelineControls()
@@ -250,6 +285,16 @@ namespace tlr
                     SIGNAL(inOutRangeChanged(const otime::TimeRange&)),
                     this,
                     SLOT(_inOutRangeCallback(const otime::TimeRange&)));
+                disconnect(
+                    p.timelinePlayer,
+                    SIGNAL(volumeChanged(float)),
+                    this,
+                    SLOT(_volumeCallback(float)));
+                disconnect(
+                    p.timelinePlayer,
+                    SIGNAL(muteChanged(bool)),
+                    this,
+                    SLOT(_muteCallback(bool)));
             }
             p.timelinePlayer = timelinePlayer;
             p.speeds.clear();
@@ -288,6 +333,14 @@ namespace tlr
                     p.timelinePlayer,
                     SIGNAL(inOutRangeChanged(const otime::TimeRange&)),
                     SLOT(_inOutRangeCallback(const otime::TimeRange&)));
+                connect(
+                    p.timelinePlayer,
+                    SIGNAL(volumeChanged(float)),
+                    SLOT(_volumeCallback2(float)));
+                connect(
+                    p.timelinePlayer,
+                    SIGNAL(muteChanged(bool)),
+                    SLOT(_muteCallback2(bool)));
             }
             _playbackUpdate();
             _timelineUpdate();
@@ -430,6 +483,38 @@ namespace tlr
             }
         }
 
+        void TimelineControls::_volumeCallback(int value)
+        {
+            TLR_PRIVATE_P();
+            if (p.timelinePlayer)
+            {
+                p.timelinePlayer->setVolume(value / static_cast<float>(volumeSliderSteps));
+            }
+        }
+
+        void TimelineControls::_volumeCallback2(float value)
+        {
+            TLR_PRIVATE_P();
+            const QSignalBlocker blocker(p.volumeSlider);
+            p.volumeSlider->setValue(value * volumeSliderSteps);
+        }
+
+        void TimelineControls::_muteCallback(bool value)
+        {
+            TLR_PRIVATE_P();
+            if (p.timelinePlayer)
+            {
+                p.timelinePlayer->setMute(value);
+            }
+        }
+
+        void TimelineControls::_muteCallback2(bool value)
+        {
+            TLR_PRIVATE_P();
+            const QSignalBlocker blocker(p.muteButton);
+            p.muteButton->setChecked(value);
+        }
+
         void TimelineControls::_playbackUpdate()
         {
             TLR_PRIVATE_P();
@@ -441,6 +526,10 @@ namespace tlr
                 playback = p.timelinePlayer->playback();
             }
             {
+                const QSignalBlocker blocker(p.playbackButtonGroup);
+                p.playbackToButton[playback]->setChecked(true);
+            }
+            {
                 const QSignalBlocker blocker(p.speedComboBox);
                 p.speedComboBox->clear();
                 for (auto speed : p.speeds)
@@ -448,10 +537,6 @@ namespace tlr
                     p.speedComboBox->addItem(QString::fromStdString(string::Format("{0}").arg(speed)));
                 }
                 p.speedComboBox->setCurrentIndex(p.speeds.indexOf(speed));
-            }
-            {
-                const QSignalBlocker blocker(p.playbackButtonGroup);
-                p.playbackToButton[playback]->setChecked(true);
             }
         }
 
@@ -474,9 +559,6 @@ namespace tlr
                     button->setEnabled(true);
                 }
 
-                const auto& duration = p.timelinePlayer->duration();
-                p.speedLabel->setValue(duration);
-
                 {
                     const QSignalBlocker blocker(p.currentTimeSpinBox);
                     p.currentTimeSpinBox->setValue(p.timelinePlayer->currentTime());
@@ -498,7 +580,13 @@ namespace tlr
                     button->setEnabled(true);
                 }
 
+                const auto& duration = p.timelinePlayer->duration();
                 p.durationLabel->setValue(duration);
+
+                p.speedLabel->setValue(duration);
+
+                p.volumeSlider->setValue(p.timelinePlayer->volume() * volumeSliderSteps);
+                p.muteButton->setChecked(p.timelinePlayer->isMuted());
             }
             else
             {
@@ -513,8 +601,6 @@ namespace tlr
                     button->setEnabled(false);
                 }
 
-                p.speedLabel->setValue(time::invalidTime);
-
                 p.currentTimeSpinBox->setValue(time::invalidTime);
                 p.currentTimeSpinBox->setEnabled(false);
 
@@ -528,6 +614,11 @@ namespace tlr
                 }
 
                 p.durationLabel->setValue(time::invalidTime);
+
+                p.speedLabel->setValue(time::invalidTime);
+
+                p.volumeSlider->setValue(volumeSliderSteps);
+                p.muteButton->setChecked(false);
             }
         }
     }

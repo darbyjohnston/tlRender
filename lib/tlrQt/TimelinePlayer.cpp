@@ -22,6 +22,8 @@ namespace tlr
             std::shared_ptr<observer::ValueObserver<uint16_t> > videoLayerObserver;
             std::shared_ptr<observer::ValueObserver<timeline::VideoData> > videoObserver;
             std::shared_ptr<observer::ListObserver<otime::TimeRange> > cachedVideoFramesObserver;
+            std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
+            std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
             std::shared_ptr<observer::ListObserver<otime::TimeRange> > cachedAudioFramesObserver;
         };
 
@@ -91,6 +93,20 @@ namespace tlr
                 [this](const std::vector<otime::TimeRange>& value)
                 {
                     Q_EMIT cachedVideoFramesChanged(value);
+                });
+
+            p.volumeObserver = observer::ValueObserver<float>::create(
+                p.timelinePlayer->observeVolume(),
+                [this](float value)
+                {
+                    Q_EMIT volumeChanged(value);
+                });
+
+            p.muteObserver = observer::ValueObserver<bool>::create(
+                p.timelinePlayer->observeMute(),
+                [this](bool value)
+                {
+                    Q_EMIT muteChanged(value);
                 });
 
             p.cachedAudioFramesObserver = observer::ListObserver<otime::TimeRange>::create(
@@ -176,12 +192,12 @@ namespace tlr
             return _p->timelinePlayer->observeVideo()->get();
         }
 
-        int TimelinePlayer::cacheReadAhead()
+        int TimelinePlayer::cacheReadAhead() const
         {
             return _p->timelinePlayer->getCacheReadAhead();
         }
 
-        int TimelinePlayer::cacheReadBehind()
+        int TimelinePlayer::cacheReadBehind() const
         {
             return _p->timelinePlayer->getCacheReadBehind();
         }
@@ -189,6 +205,16 @@ namespace tlr
         const std::vector<otime::TimeRange>& TimelinePlayer::cachedVideoFrames() const
         {
             return _p->timelinePlayer->observeCachedVideoFrames()->get();
+        }
+
+        float TimelinePlayer::volume() const
+        {
+            return _p->timelinePlayer->observeVolume()->get();
+        }
+
+        bool TimelinePlayer::isMuted() const
+        {
+            return _p->timelinePlayer->observeMute()->get();
         }
 
         const std::vector<otime::TimeRange>& TimelinePlayer::cachedAudioFrames() const
@@ -302,6 +328,16 @@ namespace tlr
         void TimelinePlayer::setCacheReadBehind(int value)
         {
             _p->timelinePlayer->setCacheReadBehind(std::max(0, value));
+        }
+
+        void TimelinePlayer::setVolume(float value)
+        {
+            _p->timelinePlayer->setVolume(value);
+        }
+
+        void TimelinePlayer::setMute(bool value)
+        {
+            _p->timelinePlayer->setMute(value);
         }
 
         void TimelinePlayer::timerEvent(QTimerEvent*)

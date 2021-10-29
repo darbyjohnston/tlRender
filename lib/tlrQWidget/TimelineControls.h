@@ -44,6 +44,10 @@ namespace tlr
             void _outPointCallback();
             void _resetOutPointCallback();
             void _inOutRangeCallback(const otime::TimeRange&);
+            void _volumeCallback(int);
+            void _volumeCallback2(float);
+            void _muteCallback(bool);
+            void _muteCallback2(bool);
 
         private:
             void _playbackUpdate();
