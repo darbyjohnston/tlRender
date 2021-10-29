@@ -139,6 +139,7 @@ namespace tlr
                 std::map<otime::RationalTime, std::future<VideoData> > videoDataRequests;
                 std::map<otime::RationalTime, VideoData> videoDataCache;
 
+                float speed = 0.F;
                 float volume = 1.F;
                 bool mute = false;
                 std::map<int64_t, std::future<AudioData> > audioDataRequests;
@@ -182,6 +183,7 @@ namespace tlr
             p.cachedAudioFrames = observer::List<otime::TimeRange>::create();
 
             // Create a new thread.
+            p.threadData.speed = p.speed->get();
             p.threadData.currentTime = p.currentTime->get();
             p.threadData.inOutRange = p.inOutRange->get();
             p.threadData.running = true;
@@ -438,7 +440,24 @@ namespace tlr
 
         void TimelinePlayer::setSpeed(float value)
         {
-            _p->speed->setIfChanged(value);
+            TLR_PRIVATE_P();
+            if (p.speed->setIfChanged(value))
+            if (p.playback->get() != Playback::Stop)
+            {
+                {
+                    std::unique_lock<std::mutex> lock(p.threadData.mutex);
+                    p.threadData.playbackStartTime = p.currentTime->get();
+                    p.threadData.playbackStartTimer = std::chrono::steady_clock::now();
+                }
+                {
+                    std::unique_lock<std::mutex> lock(p.threadData.audioMutex);
+                    p.threadData.rtAudioFrame = 0;
+                }
+            }
+            {
+                std::unique_lock<std::mutex> lock(p.threadData.audioMutex);
+                p.threadData.speed = value;
+            }
         }
 
         std::shared_ptr<observer::IValue<Playback> > TimelinePlayer::observePlayback() const
@@ -766,6 +785,8 @@ namespace tlr
             // Calculate the current time.
             const auto& duration = p.timeline->getDuration();
             const auto playback = p.playback->get();
+            const float timelineSpeed = p.timeline->getDuration().rate();
+            const float speed = p.speed->get();
             if (playback != Playback::Stop)
             {
                 otime::RationalTime playbackStartTime = time::invalidTime;
@@ -776,7 +797,9 @@ namespace tlr
                     playbackStartTimer = p.threadData.playbackStartTimer;
                 }
                 double seconds = 0.0;
-                if (p.threadData.rtAudio && p.threadData.rtAudio->isStreamRunning())
+                if (p.threadData.rtAudio &&
+                    p.threadData.rtAudio->isStreamRunning() &&
+                    timelineSpeed == speed)
                 {
                     std::unique_lock<std::mutex> lock(p.threadData.audioMutex);
                     seconds = p.threadData.rtAudioFrame / static_cast<float>(p.avInfo.audio.sampleRate);
@@ -785,7 +808,7 @@ namespace tlr
                 {
                     const auto now = std::chrono::steady_clock::now();
                     const std::chrono::duration<float> diff = now - playbackStartTimer;
-                    seconds = diff.count();
+                    seconds = diff.count() * (speed / timelineSpeed);
                 }
                 if (Playback::Reverse == playback)
                 {
@@ -1103,11 +1126,13 @@ namespace tlr
                 playback = p->threadData.playback;
                 playbackStartTime = p->threadData.playbackStartTime.rescaled_to(1.0).value();
             }
+            float speed = 0.F;
             float volume = 1.F;
             bool mute = false;
             size_t rtAudioFrame = 0;
             {
                 std::unique_lock<std::mutex> lock(p->threadData.audioMutex);
+                speed = p->threadData.speed;
                 volume = p->threadData.volume;
                 mute = p->threadData.mute;
                 rtAudioFrame = p->threadData.rtAudioFrame;
@@ -1119,63 +1144,70 @@ namespace tlr
             {
             case Playback::Forward:
             {
-                uint8_t* outputBufferP = reinterpret_cast<uint8_t*>(outputBuffer);
-                int64_t cacheSeconds = playbackStartTime +
-                    rtAudioFrame / static_cast<double>(p->avInfo.audio.sampleRate);
-                size_t offset = playbackStartTime * p->avInfo.audio.sampleRate +
-                    rtAudioFrame -
-                    cacheSeconds * p->avInfo.audio.sampleRate;
-                size_t sampleCount = nFrames;
-                //size_t count = 0;
-                std::shared_ptr<audio::Audio> dataPrev;
-                while (sampleCount > 0)
+                if (speed == p->timeline->getDuration().rate() && !mute)
                 {
-                    std::shared_ptr<audio::Audio> data;
+                    uint8_t* outputBufferP = reinterpret_cast<uint8_t*>(outputBuffer);
+                    int64_t cacheSeconds = playbackStartTime +
+                        rtAudioFrame / static_cast<double>(p->avInfo.audio.sampleRate);
+                    size_t offset = playbackStartTime * p->avInfo.audio.sampleRate +
+                        rtAudioFrame -
+                        cacheSeconds * p->avInfo.audio.sampleRate;
+                    size_t sampleCount = nFrames;
+                    //size_t count = 0;
+                    std::shared_ptr<audio::Audio> dataPrev;
+                    while (sampleCount > 0)
                     {
-                        std::unique_lock<std::mutex> lock(p->threadData.audioMutex);
-                        const auto i = p->threadData.audioDataCache.find(cacheSeconds);
-                        if (i != p->threadData.audioDataCache.end())
+                        std::shared_ptr<audio::Audio> data;
                         {
-                            if (!i->second.layers.empty())
+                            std::unique_lock<std::mutex> lock(p->threadData.audioMutex);
+                            const auto i = p->threadData.audioDataCache.find(cacheSeconds);
+                            if (i != p->threadData.audioDataCache.end())
                             {
-                                data = i->second.layers.front().audio;
-                                if (dataPrev && data != dataPrev)
+                                if (!i->second.layers.empty())
                                 {
-                                    offset = 0;
+                                    data = i->second.layers.front().audio;
+                                    if (dataPrev && data != dataPrev)
+                                    {
+                                        offset = 0;
+                                    }
+                                    dataPrev = data;
                                 }
-                                dataPrev = data;
                             }
                         }
+                        size_t size = 0;
+                        if (data)
+                        {
+                            size = std::min(data->getSampleCount() - offset, static_cast<size_t>(sampleCount));
+                            //std::cout << count <<
+                            //    " samples: " << sampleCount <<
+                            //    " cache: " << cacheSeconds <<
+                            //    " frame: " << rtAudioFrame <<
+                            //    " offset: " << offset <<
+                            //    " size: " << size << std::endl;
+                            //memcpy(outputBufferP, data->getData() + offset * byteCount, size * byteCount);
+                            audio::volume(
+                                data->getData() + offset * byteCount,
+                                outputBufferP,
+                                volume,
+                                size,
+                                channelCount,
+                                dataType);
+                        }
+                        else
+                        {
+                            size = static_cast<size_t>(sampleCount);
+                            memset(outputBufferP, 0, size * byteCount);
+                        }
+                        outputBufferP += size * byteCount;
+                        sampleCount -= size;
+                        ++cacheSeconds;
+                        offset += size;
+                        //++count;
                     }
-                    size_t size = 0;
-                    if (data)
-                    {
-                        size = std::min(data->getSampleCount() - offset, static_cast<size_t>(sampleCount));
-                        //std::cout << count <<
-                        //    " samples: " << sampleCount <<
-                        //    " cache: " << cacheSeconds <<
-                        //    " frame: " << rtAudioFrame <<
-                        //    " offset: " << offset <<
-                        //    " size: " << size << std::endl;
-                        //memcpy(outputBufferP, data->getData() + offset * byteCount, size * byteCount);
-                        audio::volume(
-                            data->getData() + offset * byteCount,
-                            outputBufferP,
-                            !mute ? volume : 0.F,
-                            size,
-                            channelCount,
-                            dataType);
-                    }
-                    else
-                    {
-                        size = static_cast<size_t>(sampleCount);
-                        memset(outputBufferP, 0, size * byteCount);
-                    }
-                    outputBufferP += size * byteCount;
-                    sampleCount -= size;
-                    ++cacheSeconds;
-                    offset += size;
-                    //++count;
+                }
+                else
+                {
+                    memset(outputBuffer, 0, nFrames * byteCount);
                 }
                 {
                     std::unique_lock<std::mutex> lock(p->threadData.audioMutex);
