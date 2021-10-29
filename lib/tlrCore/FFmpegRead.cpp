@@ -341,6 +341,7 @@ namespace tlr
                     videoInfo.pixelType = imaging::PixelType::RGBA_U8;
                     break;
                 default:
+                {
                     videoInfo.pixelType = imaging::PixelType::YUV_420P;
                     p.video.avFrame2 = av_frame_alloc();
                     p.video.swsContext = sws_getContext(
@@ -354,7 +355,31 @@ namespace tlr
                         0,
                         0,
                         0);
+                    const int srcColorRange = p.video.avCodecContext[p.video.avStream]->color_range;
+                    int srcColorSpace = SWS_CS_DEFAULT;
+                    if (p.video.avCodecContext[p.video.avStream]->color_primaries != AVCOL_PRI_UNSPECIFIED)
+                    {
+                        switch (p.video.avCodecContext[p.video.avStream]->colorspace)
+                        {
+                        case AVCOL_SPC_BT709: srcColorSpace = SWS_CS_ITU709; break;
+                        default: break;
+                        }
+                    }
+                    sws_setColorspaceDetails(
+                        p.video.swsContext,
+                        sws_getCoefficients(srcColorSpace),
+                        AVCOL_RANGE_JPEG == srcColorRange ? 1 : 0,
+                        sws_getCoefficients(SWS_CS_DEFAULT),
+                        1,
+                        0,
+                        1 << 16,
+                        1 << 16);
                     break;
+                }
+                }
+                if (p.video.avCodecContext[p.video.avStream]->color_range != AVCOL_RANGE_JPEG)
+                {
+                    videoInfo.yuvRange = imaging::YUVRange::Video;
                 }
 
                 std::size_t sequenceSize = 0;
@@ -812,7 +837,9 @@ namespace tlr
 
                 if (time >= videoTime)
                 {
+                    //std::cout << "frame: " << t << std::endl;
                     auto image = imaging::Image::create(info.video[0]);
+                    image->setTags(info.tags);
                     copyVideo(image);
                     video.buffer.push_back(image);
                     out = 1;

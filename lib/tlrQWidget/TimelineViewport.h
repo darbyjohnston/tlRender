@@ -29,6 +29,9 @@ namespace tlr
             //! Set the color configuration.
             void setColorConfig(const gl::ColorConfig&);
 
+            //! Set the image options.
+            void setImageOptions(const gl::ImageOptions&);
+
             //! Set the timeline player.
             void setTimelinePlayer(qt::TimelinePlayer*);
 

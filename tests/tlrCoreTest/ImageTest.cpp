@@ -70,6 +70,7 @@ namespace tlr
         void ImageTest::_enums()
         {
             _enum<PixelType>("PixelType", getPixelTypeEnums);
+            _enum<YUVRange>("YUVRange", getYUVRangeEnums);
         }
 
         void ImageTest::_info()
