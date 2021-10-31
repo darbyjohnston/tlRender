@@ -17,8 +17,6 @@
 
 set(Imath_VERSION 3.1.3)
 
-find_package(Threads REQUIRED)
-
 find_path(Imath_INCLUDE_DIR NAMES half.h PATH_SUFFIXES Imath)
 find_path(Imath_INCLUDE_DIR2 NAMES Imath/half.h)
 set(Imath_INCLUDE_DIRS ${Imath_INCLUDE_DIR} ${Imath_INCLUDE_DIR2})

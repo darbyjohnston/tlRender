@@ -50,6 +50,10 @@ if(APPLE)
         "-framework CoreMedia"
         "-framework CoreVideo"
         "-framework CoreFoundation")
+elseif(${CMAKE_HOST_SYSTEM_PROCESSOR} MATCHES "arm")
+    set(FFmpeg_LIBRARIES
+        ${FFmpeg_LIBRARIES}
+        atomic)
 endif()
 
 include(FindPackageHandleStandardArgs)
@@ -107,9 +111,13 @@ if(FFmpeg_FOUND AND NOT TARGET FFmpeg::avfilter)
 endif()
 if(FFmpeg_FOUND AND NOT TARGET FFmpeg::avformat)
     add_library(FFmpeg::avformat UNKNOWN IMPORTED)
+    set(FFmpeg_avformat_LINK_LIBRARIES FFmpeg::avcodec FFmpeg::swresample FFmpeg::avutil ZLIB)
+    if(${CMAKE_HOST_SYSTEM_PROCESSOR} MATCHES "arm" AND NOT APPLE)
+       list(APPEND FFmpeg_avformat_LINK_LIBRARIES atomic)
+    endif()
     set_target_properties(FFmpeg::avformat PROPERTIES
         IMPORTED_LOCATION "${FFmpeg_avformat_LIBRARY}"
-        INTERFACE_LINK_LIBRARIES "FFmpeg::avcodec;FFmpeg::swresample;FFmpeg::avutil;ZLIB")
+        INTERFACE_LINK_LIBRARIES "${FFmpeg_avformat_LINK_LIBRARIES}")
 endif()
 if(FFmpeg_FOUND AND NOT TARGET FFmpeg::avdevice)
     add_library(FFmpeg::avdevice UNKNOWN IMPORTED)
