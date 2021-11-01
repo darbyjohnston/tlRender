@@ -67,13 +67,13 @@ namespace tlr
         {
             void zero(char* in, int size)
             {
-                memset(in, 0, size);
+                std::memset(in, 0, size);
             }
         }
 
         Header::Header()
         {
-            memset(&file, 0xff, sizeof(Header::File));
+            std::memset(&file, 0xff, sizeof(Header::File));
             zero(file.version, 8);
             zero(file.name, 100);
             zero(file.time, 24);
@@ -81,15 +81,15 @@ namespace tlr
             zero(file.project, 200);
             zero(file.copyright, 200);
 
-            memset(&image, 0xff, sizeof(Header::Image));
+            std::memset(&image, 0xff, sizeof(Header::Image));
 
-            memset(&source, 0xff, sizeof(Header::Source));
+            std::memset(&source, 0xff, sizeof(Header::Source));
             zero(source.file, 100);
             zero(source.time, 24);
             zero(source.inputDevice, 32);
             zero(source.inputSerial, 32);
 
-            memset(&film, 0xff, sizeof(Header::Film));
+            std::memset(&film, 0xff, sizeof(Header::Film));
             zero(film.id, 2);
             zero(film.type, 2);
             zero(film.offset, 2);
@@ -99,7 +99,7 @@ namespace tlr
             zero(film.frameId, 32);
             zero(film.slate, 100);
 
-            memset(&tv, 0xff, sizeof(Header::TV));
+            std::memset(&tv, 0xff, sizeof(Header::TV));
         }
 
         namespace
@@ -560,8 +560,8 @@ namespace tlr
 
             switch (version)
             {
-            case Version::_1_0: memcpy(header.file.version, "V1.0", 4); break;
-            case Version::_2_0: memcpy(header.file.version, "V2.0", 4); break;
+            case Version::_1_0: std::memcpy(header.file.version, "V1.0", 4); break;
+            case Version::_2_0: std::memcpy(header.file.version, "V2.0", 4); break;
             default: break;
             }
 
@@ -879,7 +879,7 @@ namespace tlr
                 io->setEndianConversion(true);
                 convertEndian(header);
             }
-            memcpy(
+            std::memcpy(
                 &header.file.magic,
                 memory::Endian::MSB == fileEndian ? magic[0] : magic[1],
                 4);

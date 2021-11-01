@@ -12,6 +12,8 @@
 #include <windows.h>
 #include <combaseapi.h>
 
+#include <cstring>
+
 #define _STAT     struct _stati64
 #define _STAT_FNC _wstati64
 
@@ -22,7 +24,7 @@ namespace tlr
         bool exists(const std::string& fileName)
         {
             _STAT info;
-            memset(&info, 0, sizeof(_STAT));
+            std::memset(&info, 0, sizeof(_STAT));
             return 0 == _STAT_FNC(string::toWide(fileName).c_str(), &info);
         }
         

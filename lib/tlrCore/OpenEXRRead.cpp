@@ -9,6 +9,8 @@
 
 #include <ImfRgbaFile.h>
 
+#include <cstring>
+
 namespace tlr
 {
     namespace exr
@@ -68,7 +70,7 @@ namespace tlr
             {
                 throw std::runtime_error(string::Format("{0}: Error reading file").arg(p.f->getFileName()));
             }
-            memcpy(c, p.p + p.pos, n);
+            std::memcpy(c, p.p + p.pos, n);
             p.pos += n;
             return p.pos < p.size;
         }
@@ -209,17 +211,17 @@ namespace tlr
                             if (y >= _intersectedWindow.min.y && y <= _intersectedWindow.max.y)
                             {
                                 size_t size = (_intersectedWindow.min.x - _displayWindow.min.x) * cb;
-                                memset(p, 0, size);
+                                std::memset(p, 0, size);
                                 p += size;
                                 size = _intersectedWindow.w() * cb;
                                 _f->readPixels(y, y);
-                                memcpy(
+                                std::memcpy(
                                     p,
                                     buf.data() + std::max(_displayWindow.min.x - _dataWindow.min.x, 0) * cb,
                                     size);
                                 p += size;
                             }
-                            memset(p, 0, end - p);
+                            std::memset(p, 0, end - p);
                         }
                     }
                     return out;

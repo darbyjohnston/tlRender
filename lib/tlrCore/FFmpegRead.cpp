@@ -986,7 +986,7 @@ namespace tlr
             case AV_SAMPLE_FMT_S32:
             case AV_SAMPLE_FMT_FLT:
             case AV_SAMPLE_FMT_DBL:
-                memcpy(out->getData(), audio.avFrame->data[0], out->getByteCount());
+                std::memcpy(out->getData(), audio.avFrame->data[0], out->getByteCount());
                 break;
             case AV_SAMPLE_FMT_S16P:
                 audio::planarInterleave(

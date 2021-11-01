@@ -9,6 +9,7 @@
 #include <tlrCore/String.h>
 #include <tlrCore/StringFormat.h>
 
+#include <cstring>
 #include <exception>
 
 #if defined(TLR_ENABLE_MMAP)
@@ -416,7 +417,7 @@ namespace tlr
                 }
                 else
                 {
-                    memcpy(in, p.mmapP, size * wordSize);
+                    std::memcpy(in, p.mmapP, size * wordSize);
                 }
                 p.mmapP = mmapP;
 #else // TLR_ENABLE_MMAP

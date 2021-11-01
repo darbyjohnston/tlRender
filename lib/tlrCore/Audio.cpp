@@ -119,7 +119,7 @@ namespace tlr
 
         void Audio::zero()
         {
-            memset(_data.data(), 0, getByteCount());
+            std::memset(_data.data(), 0, getByteCount());
         }
 
 #define _VOLUME(t) \
@@ -164,7 +164,7 @@ namespace tlr
             auto out = Audio::create(Info(channelCount, type, in->getSampleRate()), sampleCount);
             if (inType == type)
             {
-                memcpy(out->getData(), in->getData(), sampleCount * channelCount * getByteCount(type));
+                std::memcpy(out->getData(), in->getData(), sampleCount * channelCount * getByteCount(type));
             }
             else
             {
@@ -363,7 +363,7 @@ namespace tlr
             while (!in.empty() && (size + in.front()->getByteCount() <= byteCount))
             {
                 const size_t itemByteCount = in.front()->getByteCount();
-                memcpy(out, in.front()->getData(), itemByteCount);
+                std::memcpy(out, in.front()->getData(), itemByteCount);
                 size += itemByteCount;
                 out += itemByteCount;
                 in.pop_front();
@@ -372,10 +372,10 @@ namespace tlr
             {
                 auto item = in.front();
                 in.pop_front();
-                memcpy(out, item->getData(), byteCount - size);
+                std::memcpy(out, item->getData(), byteCount - size);
                 const size_t newItemByteCount = item->getByteCount() - (byteCount - size);
                 auto newItem = audio::Audio::create(item->getInfo(), newItemByteCount / item->getInfo().getByteCount());
-                memcpy(newItem->getData(), item->getData() + byteCount - size, newItemByteCount);
+                std::memcpy(newItem->getData(), item->getData() + byteCount - size, newItemByteCount);
                 in.push_front(newItem);
             }
         }

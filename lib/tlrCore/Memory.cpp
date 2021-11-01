@@ -122,7 +122,7 @@ namespace tlr
                 }
                 break;
             default:
-                memcpy(out, in, size * wordSize);
+                std::memcpy(out, in, size * wordSize);
                 break;
             }
         }

@@ -23,6 +23,7 @@
 #endif
 
 #include <array>
+#include <string>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -1200,7 +1201,7 @@ namespace tlr
                             //    " frame: " << rtAudioFrame <<
                             //    " offset: " << offset <<
                             //    " size: " << size << std::endl;
-                            //memcpy(outputBufferP, data->getData() + offset * byteCount, size * byteCount);
+                            //std::memcpy(outputBufferP, data->getData() + offset * byteCount, size * byteCount);
                             audio::volume(
                                 data->getData() + offset * byteCount,
                                 outputBufferP,
@@ -1212,7 +1213,7 @@ namespace tlr
                         else
                         {
                             size = static_cast<size_t>(sampleCount);
-                            memset(outputBufferP, 0, size * byteCount);
+                            std::memset(outputBufferP, 0, size * byteCount);
                         }
                         outputBufferP += size * byteCount;
                         sampleCount -= size;
@@ -1223,7 +1224,7 @@ namespace tlr
                 }
                 else
                 {
-                    memset(outputBuffer, 0, nFrames * byteCount);
+                    std::memset(outputBuffer, 0, nFrames * byteCount);
                 }
                 {
                     std::unique_lock<std::mutex> lock(p->threadData.audioMutex);
@@ -1232,14 +1233,14 @@ namespace tlr
             }
             break;
             case Playback::Reverse:
-                memset(outputBuffer, 0, nFrames * byteCount);
+                std::memset(outputBuffer, 0, nFrames * byteCount);
                 {
                     std::unique_lock<std::mutex> lock(p->threadData.audioMutex);
                     p->threadData.rtAudioFrame += nFrames;
                 }
                 break;
             default:
-                memset(outputBuffer, 0, nFrames * byteCount);
+                std::memset(outputBuffer, 0, nFrames * byteCount);
                 break;
             }
             return 0;

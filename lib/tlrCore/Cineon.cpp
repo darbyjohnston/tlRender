@@ -54,19 +54,19 @@ namespace tlr
 
             void zero(char* value, size_t size)
             {
-                memset(value, 0, size);
+                std::memset(value, 0, size);
             }
 
         } // namespace
 
         Header::Header()
         {
-            memset(&file, 0xff, sizeof(Header::File));
+            std::memset(&file, 0xff, sizeof(Header::File));
             zero(file.version, 8);
             zero(file.name, 100);
             zero(file.time, 24);
 
-            memset(&image, 0xff, sizeof(Header::Image));
+            std::memset(&image, 0xff, sizeof(Header::Image));
 
             for (uint8_t i = 0; i < 8; ++i)
             {
@@ -76,7 +76,7 @@ namespace tlr
                 zero(&image.channel[i].highQuantity);
             }
 
-            memset(&source, 0xff, sizeof(Header::Source));
+            std::memset(&source, 0xff, sizeof(Header::Source));
             zero(&source.offset[0]);
             zero(&source.offset[1]);
             zero(source.file, 100);
@@ -88,7 +88,7 @@ namespace tlr
             zero(&source.inputPitch[1]);
             zero(&source.gamma);
 
-            memset(&film, 0xff, sizeof(Header::Film));
+            std::memset(&film, 0xff, sizeof(Header::Film));
             zero(film.format, 32);
             zero(&film.frameRate);
             zero(film.frameId, 32);

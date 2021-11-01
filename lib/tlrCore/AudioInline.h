@@ -4,6 +4,8 @@
 
 #include <tlrCore/Math.h>
 
+#include <cstring>
+
 namespace tlr
 {
     namespace audio
@@ -201,7 +203,7 @@ namespace tlr
             switch (channelCount)
             {
             case 1:
-                memcpy(out, in[0], sampleCount * channelCount * sizeof(T));
+                std::memcpy(out, in[0], sampleCount * channelCount * sizeof(T));
                 break;
             case 2:
             {

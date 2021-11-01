@@ -100,7 +100,7 @@ namespace tlr
                     const std::shared_ptr<imaging::Image>& image,
                     int quality)
                 {
-                    memset(&_jpeg, 0, sizeof(jpeg_compress_struct));
+                    std::memset(&_jpeg, 0, sizeof(jpeg_compress_struct));
 
                     _jpeg.err = jpeg_std_error(&_error.pub);
                     _error.pub.error_exit = errorFunc;

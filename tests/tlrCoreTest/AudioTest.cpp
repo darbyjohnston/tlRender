@@ -7,6 +7,8 @@
 #include <tlrCore/Assert.h>
 #include <tlrCore/AudioSystem.h>
 
+#include <cstring>
+
 using namespace tlr::audio;
 
 namespace tlr
@@ -109,7 +111,7 @@ namespace tlr
                 const audio::Info info(1, audio::DataType::S8, 10);
 
                 uint8_t data[10];
-                memset(data, 0, 10);
+                std::memset(data, 0, 10);
 
                 std::list<std::shared_ptr<Audio> > list;
                 for (size_t i = 0; i < 10; ++i)
@@ -131,7 +133,7 @@ namespace tlr
                 const audio::Info info(1, audio::DataType::S8, 10);
 
                 uint8_t data[10];
-                memset(data, 0, 10);
+                std::memset(data, 0, 10);
 
                 std::list<std::shared_ptr<Audio> > list;
                 for (size_t i = 0; i < 5; ++i)
@@ -158,7 +160,7 @@ namespace tlr
                 const audio::Info info(1, audio::DataType::S8, 10);
 
                 uint8_t data[10];
-                memset(data, 0, 10);
+                std::memset(data, 0, 10);
 
                 std::list<std::shared_ptr<Audio> > list;
                 for (size_t i = 0; i < 15; ++i)
@@ -181,7 +183,7 @@ namespace tlr
 
                 auto data = audio::Audio::create(info, 10);
                 uint8_t* dataP = data->getData();
-                memset(dataP, 0, 10);
+                std::memset(dataP, 0, 10);
 
                 std::list<std::shared_ptr<Audio> > list;
                 for (size_t i = 0; i < 4; ++i)
