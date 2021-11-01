@@ -376,6 +376,15 @@ namespace tlr
         TimelinePlayer::~TimelinePlayer()
         {
             TLR_PRIVATE_P();
+            if (p.threadData.rtAudio && p.threadData.rtAudio->isStreamOpen())
+            {
+                try
+                {
+                    p.threadData.rtAudio->abortStream();
+                }
+                catch (const std::exception&)
+                {}
+            }
             p.threadData.running = false;
             if (p.thread.joinable())
             {
