@@ -1031,13 +1031,18 @@ namespace tlr
             // Get uncached audio.
             {
                 std::vector<otime::TimeRange> audioCacheRanges;
+                //std::vector<std::string> s;
                 for (const auto& i : ranges)
                 {
                     const otime::TimeRange range(
                         time::floor(i.start_time().rescaled_to(1.0)),
-                        time::floor(i.duration().rescaled_to(1.0)));
+                        time::ceil(i.duration().rescaled_to(1.0)));
+                    //std::stringstream ss;
+                    //ss << range.start_time().value() << "/" << range.duration().value();
+                    //s.push_back(ss.str());
                     audioCacheRanges.push_back(range);
                 }
+                //std::cout << "audio cache: " << string::join(s, ", ") << std::endl;
                 std::unique_lock<std::mutex> lock(threadData.audioMutex);
                 for (const auto& i : audioCacheRanges)
                 {
