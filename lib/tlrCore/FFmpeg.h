@@ -49,13 +49,6 @@ namespace tlr
         //! Convert from FFmpeg.
         audio::DataType toAudioType(AVSampleFormat);
 
-        //! Extract audio data.
-        void extractAudio(
-            uint8_t**                     in,
-            int                           format,
-            uint8_t                       channelCount,
-            std::shared_ptr<audio::Audio> out);
-
         //! Get a label for a FFmpeg error code.
         std::string getErrorLabel(int);
 

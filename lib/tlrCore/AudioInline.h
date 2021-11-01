@@ -196,44 +196,6 @@ namespace tlr
         }
 
         template<typename T>
-        inline void extract(
-            const T* in,
-            T*       out,
-            size_t   sampleCount,
-            uint8_t  inChannelCount,
-            uint8_t  outChannelCount)
-        {
-            const T* inP = in;
-            T* outP = out;
-            T* const endP = outP + sampleCount * outChannelCount;
-            switch (outChannelCount)
-            {
-            case 1:
-                for (; outP < endP; inP += inChannelCount, outP += 1)
-                {
-                    outP[0] = inP[0];
-                }
-                break;
-            case 2:
-                for (; outP < endP; inP += inChannelCount, outP += 2)
-                {
-                    outP[0] = inP[0];
-                    outP[1] = inP[1];
-                }
-                break;
-            default:
-                for (; outP < endP; inP += inChannelCount, outP += outChannelCount)
-                {
-                    for (size_t i = 0; i < outChannelCount; ++i)
-                    {
-                        outP[i] = inP[i];
-                    }
-                }
-                break;
-            }
-        }
-
-        template<typename T>
         inline void planarInterleave(const T** in, T* out, uint8_t channelCount, size_t sampleCount)
         {
             switch (channelCount)

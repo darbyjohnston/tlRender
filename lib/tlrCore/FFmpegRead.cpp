@@ -89,6 +89,7 @@ namespace tlr
 
             size_t getAudioBufferSize() const;
             int decodeAudio();
+            void copyAudio(const std::shared_ptr<audio::Audio>&);
         };
 
         void Read::_init(
@@ -966,17 +967,58 @@ namespace tlr
                 if (time >= audioTime)
                 {
                     auto tmp = audio::Audio::create(info.audio, audio.avFrame->nb_samples);
-                    extractAudio(
-                        audio.avFrame->data,
-                        audio.avCodecParameters[audio.avStream]->format,
-                        audio.avCodecParameters[audio.avStream]->channels,
-                        tmp);
+                    copyAudio(tmp);
                     audio.buffer.push_back(tmp);
                     out = 1;
                     break;
                 }
             }
             return out;
+        }
+
+        void Read::Private::copyAudio(const std::shared_ptr<audio::Audio>& out)
+        {
+            const uint8_t outChannelCount = out->getChannelCount();
+            const size_t sampleCount = out->getSampleCount();
+            switch (audio.avCodecParameters[audio.avStream]->format)
+            {
+            case AV_SAMPLE_FMT_S16:
+            case AV_SAMPLE_FMT_S32:
+            case AV_SAMPLE_FMT_FLT:
+            case AV_SAMPLE_FMT_DBL:
+                memcpy(out->getData(), audio.avFrame->data[0], out->getByteCount());
+                break;
+            case AV_SAMPLE_FMT_S16P:
+                audio::planarInterleave(
+                    const_cast<const int16_t**>(reinterpret_cast<int16_t**>(audio.avFrame->data)),
+                    reinterpret_cast<int16_t*>(out->getData()),
+                    outChannelCount,
+                    out->getSampleCount());
+                break;
+            case AV_SAMPLE_FMT_S32P:
+                audio::planarInterleave(
+                    const_cast<const int32_t**>(reinterpret_cast<int32_t**>(audio.avFrame->data)),
+                    reinterpret_cast<int32_t*>(out->getData()),
+                    outChannelCount,
+                    out->getSampleCount());
+                break;
+            case AV_SAMPLE_FMT_FLTP:
+                audio::planarInterleave(
+                    const_cast<const float**>(reinterpret_cast<float**>(audio.avFrame->data)),
+                    reinterpret_cast<float*>(out->getData()),
+                    outChannelCount,
+                    out->getSampleCount());
+                break;
+            case AV_SAMPLE_FMT_DBLP:
+                audio::planarInterleave(
+                    const_cast<const double**>(reinterpret_cast<double**>(audio.avFrame->data)),
+                    reinterpret_cast<double*>(out->getData()),
+                    outChannelCount,
+                    out->getSampleCount());
+                break;
+            default: break;
+            }
+
         }
     }
 }

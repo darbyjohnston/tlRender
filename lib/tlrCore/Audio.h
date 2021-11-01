@@ -187,15 +187,6 @@ namespace tlr
             uint8_t        channelCount,
             DataType       dataType);
 
-        //! Extract audio channels.
-        template<typename T>
-        void extract(
-            const T* in,
-            T*       out,
-            size_t   sampleCount,
-            uint8_t  inChannelCount,
-            uint8_t  outChannelCount);
-
         //! Convert audio data.
         std::shared_ptr<Audio> convert(const std::shared_ptr<Audio>&, DataType);
 
