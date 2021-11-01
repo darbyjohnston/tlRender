@@ -192,8 +192,8 @@ namespace tlr
         class Layout
         {
         public:
-            constexpr Layout() noexcept;
-            constexpr Layout(
+            Layout() noexcept;
+            Layout(
                 const Mirror&   mirror,
                 uint8_t         alignment = 1,
                 memory::Endian  endian    = memory::getEndian()) noexcept;

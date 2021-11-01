@@ -192,15 +192,15 @@ namespace tlr
             }
             
             // Test the playback speed.
-            float speed = 24.F;
-            auto speedObserver = observer::ValueObserver<float>::create(
+            double speed = 24.0;
+            auto speedObserver = observer::ValueObserver<double>::create(
                 timelinePlayer->observeSpeed(),
-                [&speed](float value)
+                [&speed](double value)
                 {
                     speed = value;
                 });
-            const float defaultSpeed = timelinePlayer->getDefaultSpeed();
-            const float doubleSpeed = defaultSpeed * 2.F;
+            const double defaultSpeed = timelinePlayer->getDefaultSpeed();
+            const double doubleSpeed = defaultSpeed * 2.0;
             timelinePlayer->setSpeed(doubleSpeed);
             TLR_ASSERT(doubleSpeed == speed);
             timelinePlayer->setSpeed(defaultSpeed);

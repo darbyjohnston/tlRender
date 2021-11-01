@@ -85,10 +85,10 @@ namespace tlr
             return !(other == *this);
         }
 
-        constexpr Layout::Layout() noexcept
+        inline Layout::Layout() noexcept
         {}
 
-        constexpr Layout::Layout(const Mirror& mirror, uint8_t alignment, memory::Endian endian) noexcept :
+        inline Layout::Layout(const Mirror& mirror, uint8_t alignment, memory::Endian endian) noexcept :
             mirror(mirror),
             alignment(alignment),
             endian(endian)
