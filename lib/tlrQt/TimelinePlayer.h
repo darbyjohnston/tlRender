@@ -63,10 +63,10 @@ namespace tlr
             ///@{
 
             //! Get the default playback speed.
-            float defaultSpeed() const;
+            double defaultSpeed() const;
 
             //! Get the playback speed.
-            float speed() const;
+            double speed() const;
 
             //! Get the playback mode.
             timeline::Playback playback() const;
@@ -131,7 +131,7 @@ namespace tlr
             ///@{
 
             //! Set the playback speed.
-            void setSpeed(float);
+            void setSpeed(double);
 
             //! Set the playback mode.
             void setPlayback(tlr::timeline::Playback);
@@ -226,7 +226,7 @@ namespace tlr
             ///@{
 
             //! This signal is emitted when the playback speed is changed.
-            void speedChanged(float);
+            void speedChanged(double);
 
             //! This signal is emitted when the playback mode is changed.
             void playbackChanged(tlr::timeline::Playback);

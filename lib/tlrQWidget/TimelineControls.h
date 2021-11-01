@@ -31,7 +31,7 @@ namespace tlr
 
         private Q_SLOTS:
             void _speedCallback(int);
-            void _speedCallback(float);
+            void _speedCallback(double);
             void _playbackCallback(QAbstractButton*);
             void _playbackCallback(tlr::timeline::Playback);
             void _timeActionCallback(QAbstractButton*);

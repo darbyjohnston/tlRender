@@ -14,7 +14,7 @@ namespace tlr
         {
             std::shared_ptr<timeline::TimelinePlayer> timelinePlayer;
 
-            std::shared_ptr<observer::ValueObserver<float> > speedObserver;
+            std::shared_ptr<observer::ValueObserver<double> > speedObserver;
             std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
             std::shared_ptr<observer::ValueObserver<timeline::Loop> > loopObserver;
             std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
@@ -39,9 +39,9 @@ namespace tlr
 
             p.timelinePlayer = timeline::TimelinePlayer::create(path, context, options);
 
-            p.speedObserver = observer::ValueObserver<float>::create(
+            p.speedObserver = observer::ValueObserver<double>::create(
                 p.timelinePlayer->observeSpeed(),
-                [this](float value)
+                [this](double value)
                 {
                     Q_EMIT speedChanged(value);
                 });
@@ -152,12 +152,12 @@ namespace tlr
             return _p->timelinePlayer->getAVInfo();
         }
 
-       float TimelinePlayer::defaultSpeed() const
+        double TimelinePlayer::defaultSpeed() const
         {
             return _p->timelinePlayer->getDefaultSpeed();
         }
 
-        float TimelinePlayer::speed() const
+        double TimelinePlayer::speed() const
         {
             return _p->timelinePlayer->observeSpeed()->get();
         }
@@ -222,7 +222,7 @@ namespace tlr
             return _p->timelinePlayer->observeCachedAudioFrames()->get();
         }
 
-        void TimelinePlayer::setSpeed(float value)
+        void TimelinePlayer::setSpeed(double value)
         {
             _p->timelinePlayer->setSpeed(value);
         }

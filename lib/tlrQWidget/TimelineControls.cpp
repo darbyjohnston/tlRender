@@ -319,8 +319,8 @@ namespace tlr
                 }
                 connect(
                     p.timelinePlayer,
-                    SIGNAL(speedChanged(float)),
-                    SLOT(_speedCallback(float)));
+                    SIGNAL(speedChanged(double)),
+                    SLOT(_speedCallback(double)));
                 connect(
                     p.timelinePlayer,
                     SIGNAL(playbackChanged(tlr::timeline::Playback)),
@@ -358,7 +358,7 @@ namespace tlr
             }
         }
 
-        void TimelineControls::_speedCallback(float)
+        void TimelineControls::_speedCallback(double)
         {
             _playbackUpdate();
         }

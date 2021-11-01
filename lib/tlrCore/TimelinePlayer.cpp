@@ -105,7 +105,7 @@ namespace tlr
             std::shared_ptr<Timeline> timeline;
             avio::Info avInfo;
 
-            std::shared_ptr<observer::Value<float> > speed;
+            std::shared_ptr<observer::Value<double> > speed;
             std::shared_ptr<observer::Value<Playback> > playback;
             std::shared_ptr<observer::Value<Loop> > loop;
             std::shared_ptr<observer::Value<otime::RationalTime> > currentTime;
@@ -139,7 +139,7 @@ namespace tlr
                 std::map<otime::RationalTime, std::future<VideoData> > videoDataRequests;
                 std::map<otime::RationalTime, VideoData> videoDataCache;
 
-                float speed = 0.F;
+                double speed = 0.0;
                 float volume = 1.F;
                 bool mute = false;
                 std::map<int64_t, std::future<AudioData> > audioDataRequests;
@@ -168,7 +168,7 @@ namespace tlr
             p.avInfo = p.timeline->getAVInfo();
 
             // Create observers.
-            p.speed = observer::Value<float>::create(p.timeline->getDuration().rate());
+            p.speed = observer::Value<double>::create(p.timeline->getDuration().rate());
             p.playback = observer::Value<Playback>::create(Playback::Stop);
             p.loop = observer::Value<Loop>::create(Loop::Loop);
             p.currentTime = observer::Value<otime::RationalTime>::create(p.timeline->getGlobalStartTime());
@@ -428,35 +428,37 @@ namespace tlr
             return _p->avInfo;
         }
 
-        float TimelinePlayer::getDefaultSpeed() const
+        double TimelinePlayer::getDefaultSpeed() const
         {
             return _p->timeline->getDuration().rate();
         }
 
-        std::shared_ptr<observer::IValue<float> > TimelinePlayer::observeSpeed() const
+        std::shared_ptr<observer::IValue<double> > TimelinePlayer::observeSpeed() const
         {
             return _p->speed;
         }
 
-        void TimelinePlayer::setSpeed(float value)
+        void TimelinePlayer::setSpeed(double value)
         {
             TLR_PRIVATE_P();
             if (p.speed->setIfChanged(value))
-            if (p.playback->get() != Playback::Stop)
             {
+                if (p.playback->get() != Playback::Stop)
                 {
-                    std::unique_lock<std::mutex> lock(p.threadData.mutex);
-                    p.threadData.playbackStartTime = p.currentTime->get();
-                    p.threadData.playbackStartTimer = std::chrono::steady_clock::now();
+                    {
+                        std::unique_lock<std::mutex> lock(p.threadData.mutex);
+                        p.threadData.playbackStartTime = p.currentTime->get();
+                        p.threadData.playbackStartTimer = std::chrono::steady_clock::now();
+                    }
+                    {
+                        std::unique_lock<std::mutex> lock(p.threadData.audioMutex);
+                        p.threadData.rtAudioFrame = 0;
+                    }
                 }
                 {
                     std::unique_lock<std::mutex> lock(p.threadData.audioMutex);
-                    p.threadData.rtAudioFrame = 0;
+                    p.threadData.speed = value;
                 }
-            }
-            {
-                std::unique_lock<std::mutex> lock(p.threadData.audioMutex);
-                p.threadData.speed = value;
             }
         }
 
@@ -785,8 +787,8 @@ namespace tlr
             // Calculate the current time.
             const auto& duration = p.timeline->getDuration();
             const auto playback = p.playback->get();
-            const float timelineSpeed = p.timeline->getDuration().rate();
-            const float speed = p.speed->get();
+            const double timelineSpeed = p.timeline->getDuration().rate();
+            const double speed = p.speed->get();
             if (playback != Playback::Stop)
             {
                 otime::RationalTime playbackStartTime = time::invalidTime;
@@ -807,7 +809,7 @@ namespace tlr
                 else
                 {
                     const auto now = std::chrono::steady_clock::now();
-                    const std::chrono::duration<float> diff = now - playbackStartTimer;
+                    const std::chrono::duration<double> diff = now - playbackStartTimer;
                     seconds = diff.count() * (speed / timelineSpeed);
                 }
                 if (Playback::Reverse == playback)
@@ -1126,7 +1128,7 @@ namespace tlr
                 playback = p->threadData.playback;
                 playbackStartTime = p->threadData.playbackStartTime.rescaled_to(1.0).value();
             }
-            float speed = 0.F;
+            double speed = 0.F;
             float volume = 1.F;
             bool mute = false;
             size_t rtAudioFrame = 0;
