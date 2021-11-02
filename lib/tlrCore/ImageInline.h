@@ -94,12 +94,12 @@ namespace tlr
             endian(endian)
         {}
 
-        constexpr bool Layout::operator == (const Layout& other) const noexcept
+        inline bool Layout::operator == (const Layout& other) const noexcept
         {
             return other.mirror == mirror && other.alignment == alignment && other.endian == endian;
         }
 
-        constexpr bool Layout::operator != (const Layout& other) const noexcept
+        inline bool Layout::operator != (const Layout& other) const noexcept
         {
             return !(other == *this);
         }

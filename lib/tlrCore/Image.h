@@ -202,8 +202,8 @@ namespace tlr
             uint8_t        alignment = 1;
             memory::Endian endian    = memory::getEndian();
 
-            constexpr bool operator == (const Layout&) const noexcept;
-            constexpr bool operator != (const Layout&) const noexcept;
+            bool operator == (const Layout&) const noexcept;
+            bool operator != (const Layout&) const noexcept;
         };
 
         //! Align a number of bytes.
