@@ -28,8 +28,13 @@ namespace tlr
         enum class VideoType
         {
             Movie,
-            Sequence
+            Sequence,
+
+            Count,
+            First = Movie
         };
+        TLR_ENUM(VideoType);
+        TLR_ENUM_SERIALIZE(VideoType);
 
         //! I/O information.
         struct Info

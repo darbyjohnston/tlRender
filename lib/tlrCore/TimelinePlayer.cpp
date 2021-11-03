@@ -307,22 +307,32 @@ namespace tlr
                                     audioDataCacheSize = p.threadData.audioDataCache.size();
                                 }
 
-                                std::string currentTimeDisplay(80, '-');
+                                const size_t lineLength = 80;
+                                std::string currentTimeDisplay(lineLength, '-');
                                 double n = (currentTime - p.timeline->getGlobalStartTime()).value() / p.timeline->getDuration().value();
-                                currentTimeDisplay[math::clamp(n, 0.0, 1.0) * 80] = '^';
+                                currentTimeDisplay[math::clamp(n, 0.0, 1.0) * (lineLength - 1)] = '^';
 
                                 std::vector<otime::TimeRange> cachedVideoFrames;
                                 {
                                     std::unique_lock<std::mutex> lock(p.threadData.mutex);
                                     cachedVideoFrames = p.threadData.cachedVideoFrames;
                                 }
-                                std::string cachedVideoFramesDisplay(80, '.');
+                                std::string cachedVideoFramesDisplay(lineLength, '.');
                                 for (const auto& i : cachedVideoFrames)
                                 {
                                     double n = (i.start_time() - p.timeline->getGlobalStartTime()).value() / p.timeline->getDuration().value();
-                                    cachedVideoFramesDisplay[math::clamp(n, 0.0, 1.0) * 80] = '[';
+                                    const size_t t0 = math::clamp(n, 0.0, 1.0) * (lineLength - 1);
                                     n = (i.end_time_inclusive() - p.timeline->getGlobalStartTime()).value() / p.timeline->getDuration().value();
-                                    cachedVideoFramesDisplay[math::clamp(n, 0.0, 1.0) * 80] = ']';
+                                    const size_t t1 = math::clamp(n, 0.0, 1.0) * (lineLength - 1);
+                                    if (t0 != t1)
+                                    {
+                                        cachedVideoFramesDisplay[t0] = '[';
+                                        cachedVideoFramesDisplay[t1] = ']';
+                                    }
+                                    else
+                                    {
+                                        cachedVideoFramesDisplay[t0] = '|';
+                                    }
                                 }
 
                                 std::vector<otime::TimeRange> cachedAudioFrames;
@@ -330,13 +340,22 @@ namespace tlr
                                     std::unique_lock<std::mutex> lock(p.threadData.mutex);
                                     cachedAudioFrames = p.threadData.cachedAudioFrames;
                                 }
-                                std::string cachedAudioFramesDisplay(80, '.');
+                                std::string cachedAudioFramesDisplay(lineLength, '.');
                                 for (const auto& i : cachedAudioFrames)
                                 {
                                     double n = (i.start_time() - p.timeline->getGlobalStartTime()).value() / p.timeline->getDuration().value();
-                                    cachedAudioFramesDisplay[math::clamp(n, 0.0, 1.0) * 80] = '[';
+                                    const size_t t0 = math::clamp(n, 0.0, 1.0) * (lineLength - 1);
                                     n = (i.end_time_inclusive() - p.timeline->getGlobalStartTime()).value() / p.timeline->getDuration().value();
-                                    cachedAudioFramesDisplay[math::clamp(n, 0.0, 1.0) * 80] = ']';
+                                    const size_t t1 = math::clamp(n, 0.0, 1.0) * (lineLength - 1);
+                                    if (t0 != t1)
+                                    {
+                                        cachedAudioFramesDisplay[t0] = '[';
+                                        cachedAudioFramesDisplay[t1] = ']';
+                                    }
+                                    else
+                                    {
+                                        cachedAudioFramesDisplay[t0] = '|';
+                                    }
                                 }
 
                                 auto logSystem = context->getLogSystem();

@@ -28,8 +28,14 @@ namespace tlr
 
         void AVIOTest::run()
         {
+            _enums();
             _videoData();
             _ioSystem();
+        }
+
+        void AVIOTest::_enums()
+        {
+            _enum<VideoType>("VideoType", getVideoTypeEnums);
         }
 
         void AVIOTest::_videoData()

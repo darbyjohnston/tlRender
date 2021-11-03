@@ -4,10 +4,21 @@
 
 #include <tlrCore/AVIO.h>
 
+#include <tlrCore/Error.h>
+#include <tlrCore/String.h>
+
+#include <array>
+
 namespace tlr
 {
     namespace avio
     {
+        TLR_ENUM_IMPL(
+            VideoType,
+            "Movie",
+            "Sequence");
+        TLR_ENUM_SERIALIZE_IMPL(VideoType);
+
         VideoData::VideoData()
         {}
 

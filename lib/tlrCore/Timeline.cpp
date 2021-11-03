@@ -757,7 +757,6 @@ namespace tlr
                 logTimer = now;
                 if (auto context = this->context.lock())
                 {
-                    const std::string id = string::Format("tlr::timeline::Timeline {0}").arg(this);
                     size_t videoRequestsSize = 0;
                     size_t audioRequestsSize = 0;
                     {
@@ -766,7 +765,9 @@ namespace tlr
                         audioRequestsSize = audioRequests.size();
                     }
                     auto logSystem = context->getLogSystem();
-                    logSystem->print(id, string::Format(
+                    logSystem->print(
+                        string::Format("tlr::timeline::Timeline {0}").arg(this),
+                        string::Format(
                         "\n"
                         "    path: {0}\n"
                         "    video requests: {1}/{2}/{3} (size/in-progress/max)\n"
@@ -1024,7 +1025,22 @@ namespace tlr
                     }
                     if (read && !info.video.empty())
                     {
-                        context->log("tlr::timeline::Timeline", this->path.get() + ": Read: " + path.get());
+                        context->log(
+                            string::Format("tlr::timeline::Timeline {0}").arg(this),
+                            string::Format(
+                                "\n"
+                                "    read: {0}\n"
+                                "    video: {1}\n"
+                                "    video type: {2}\n"
+                                "    video time: {3}\n"
+                                "    audio: {4}\n"
+                                "    audio time: {5}").
+                            arg(path.get()).
+                            arg(info.video[0]).
+                            arg(info.videoType).
+                            arg(info.videoTime).
+                            arg(info.audio).
+                            arg(info.audioTime));
 
                         // Get the clip start and end time taking transitions into account.
                         otio::ErrorStatus errorStatus;

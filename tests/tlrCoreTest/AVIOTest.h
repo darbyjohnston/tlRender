@@ -21,6 +21,7 @@ namespace tlr
             void run() override;
 
         private:
+            void _enums();
             void _videoData();
             void _ioSystem();
         };
