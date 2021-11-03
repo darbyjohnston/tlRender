@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <cmath>
+
 namespace tlr
 {
     namespace math
@@ -28,6 +30,16 @@ namespace tlr
         constexpr double smoothStep(double value, double min, double max) noexcept
         {
             return lerp(value * value * (3. - (2. * value)), min, max);
+        }
+        
+        inline bool fuzzyCompare(double a, double b, double e) noexcept
+        {
+            return fabs(a - b) < e;
+        }
+
+        inline bool fuzzyCompare(float a, float b, float e) noexcept
+        {
+            return fabsf(a - b) < e;
         }
     }
 }

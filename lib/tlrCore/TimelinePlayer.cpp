@@ -830,7 +830,7 @@ namespace tlr
                 double seconds = 0.0;
                 if (p.threadData.rtAudio &&
                     p.threadData.rtAudio->isStreamRunning() &&
-                    timelineSpeed == speed)
+                    math::fuzzyCompare(timelineSpeed, speed))
                 {
                     std::unique_lock<std::mutex> lock(p.threadData.audioMutex);
                     seconds = p.threadData.rtAudioFrame / static_cast<float>(p.avInfo.audio.sampleRate);

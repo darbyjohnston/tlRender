@@ -20,6 +20,12 @@ namespace tlr
         //! Smooth step function.
         template<typename T>
         constexpr T smoothStep(T value, T min, T max) noexcept;
+
+        //! Fuzzy double comparison.
+        bool fuzzyCompare(double a, double b, double e = .1e-9) noexcept;
+
+        //! Fuzzy float comparison.
+        bool fuzzyCompare(float a, float b, float e = .1e-6F) noexcept;
     }
 }
 
