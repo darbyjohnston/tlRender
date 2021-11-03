@@ -44,7 +44,7 @@ namespace tlr
             QMap<QString, QAbstractButton*> inOutButtons;
             TimeLabel* durationLabel = nullptr;
             SpeedLabel* speedLabel = nullptr;
-            QList<float> speeds;
+            QList<double> speeds;
             QComboBox* speedComboBox = nullptr;
             QToolButton* muteButton = nullptr;
             QSlider* volumeSlider = nullptr;
@@ -267,9 +267,9 @@ namespace tlr
             {
                 disconnect(
                     p.timelinePlayer,
-                    SIGNAL(speedChanged(float)),
+                    SIGNAL(speedChanged(double)),
                     this,
-                    SLOT(_speedCallback(float)));
+                    SLOT(_speedCallback(double)));
                 disconnect(
                     p.timelinePlayer,
                     SIGNAL(playbackChanged(tlr::timeline::Playback)),
@@ -298,21 +298,21 @@ namespace tlr
             }
             p.timelinePlayer = timelinePlayer;
             p.speeds.clear();
-            p.speeds.append(1.F);
-            p.speeds.append(3.F);
-            p.speeds.append(6.F);
-            p.speeds.append(9.F);
-            p.speeds.append(12.F);
-            p.speeds.append(16.F);
-            p.speeds.append(18.F);
-            p.speeds.append(24.F);
-            p.speeds.append(29.97F);
-            p.speeds.append(30.F);
-            p.speeds.append(59.94F);
-            p.speeds.append(60.F);
+            p.speeds.append(1.0);
+            p.speeds.append(3.0);
+            p.speeds.append(6.0);
+            p.speeds.append(9.0);
+            p.speeds.append(12.0);
+            p.speeds.append(16.0);
+            p.speeds.append(18.0);
+            p.speeds.append(24.0);
+            p.speeds.append(29.97);
+            p.speeds.append(30.0);
+            p.speeds.append(59.94);
+            p.speeds.append(60.0);
             if (p.timelinePlayer)
             {
-                const float defaultSpeed = p.timelinePlayer->defaultSpeed();
+                const double defaultSpeed = p.timelinePlayer->defaultSpeed();
                 if (!p.speeds.contains(defaultSpeed))
                 {
                     p.speeds.append(defaultSpeed);
@@ -518,7 +518,7 @@ namespace tlr
         void TimelineControls::_playbackUpdate()
         {
             TLR_PRIVATE_P();
-            float speed = 24.F;
+            double speed = 24.0;
             timeline::Playback playback = timeline::Playback::Stop;
             if (p.timelinePlayer)
             {
