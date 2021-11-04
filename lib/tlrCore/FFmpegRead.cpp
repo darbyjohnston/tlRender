@@ -289,6 +289,7 @@ namespace tlr
                 if (AVMEDIA_TYPE_VIDEO == p.video.avFormatContext->streams[i]->codecpar->codec_type)
                 {
                     p.video.avStream = i;
+                    break;
                 }
             }
             if (p.video.avStream != -1)
@@ -436,6 +437,7 @@ namespace tlr
                     AV_DISPOSITION_DEFAULT == p.audio.avFormatContext->streams[i]->disposition)
                 {
                     p.audio.avStream = i;
+                    break;
                 }
             }
             if (p.audio.avStream != -1)
@@ -838,7 +840,7 @@ namespace tlr
 
                 if (time >= videoTime)
                 {
-                    //std::cout << "frame: " << t << std::endl;
+                    //std::cout << "video frame: " << time << std::endl;
                     auto image = imaging::Image::create(info.video[0]);
                     image->setTags(info.tags);
                     copyVideo(image);
@@ -966,6 +968,7 @@ namespace tlr
 
                 if (time >= audioTime)
                 {
+                    //std::cout << "audio samples: " << time << std::endl;
                     auto tmp = audio::Audio::create(info.audio, audio.avFrame->nb_samples);
                     copyAudio(tmp);
                     audio.buffer.push_back(tmp);
