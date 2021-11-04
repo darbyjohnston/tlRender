@@ -95,6 +95,7 @@ namespace tlr
                 {
                     // Open the file.
 #if defined(TLR_ENABLE_MMAP)
+                    // \bug https://lists.aswf.io/g/openexr-dev/message/43
                     _s.reset(new MemoryMappedIStream(fileName.c_str()));
                     _f.reset(new Imf::InputFile(*_s.get()));
 #else // TLR_ENABLE_MMAP

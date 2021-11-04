@@ -15,5 +15,8 @@ ExternalProject_Add(
     DEPENDS Imath ZLIB
     GIT_REPOSITORY ${OpenEXR_GIT_REPOSITORY}
     GIT_TAG ${OpenEXR_GIT_TAG}
+    PATCH_COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_SOURCE_DIR}/OpenEXR-patch/src/lib/OpenEXR/ImfDwaCompressor.cpp
+        ${CMAKE_CURRENT_BINARY_DIR}/OpenEXR/src/OpenEXR/src/lib/OpenEXR/ImfDwaCompressor.cpp
     LIST_SEPARATOR |
     CMAKE_ARGS ${OpenEXR_ARGS})
