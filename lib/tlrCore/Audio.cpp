@@ -94,7 +94,7 @@ namespace tlr
             sampleRate(sampleRate)
         {}
 
-        std::ostream& operator << (std::ostream & os, const Info & value)
+        std::ostream& operator << (std::ostream& os, const Info& value)
         {
             os << static_cast<size_t>(value.channelCount) << "," << value.dataType << "," << value.sampleRate;
             return os;
@@ -108,6 +108,9 @@ namespace tlr
         }
 
         Audio::Audio()
+        {}
+
+        Audio::~Audio()
         {}
 
         std::shared_ptr<Audio> Audio::create(const Info& info, size_t sampleCount)

@@ -137,6 +137,8 @@ namespace tlr
             Audio();
 
         public:
+            ~Audio();
+
             //! Create new audio.
             static std::shared_ptr<Audio> create(const Info&, size_t sampleCount);
 
