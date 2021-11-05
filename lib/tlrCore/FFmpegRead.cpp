@@ -577,6 +577,7 @@ namespace tlr
                     }
 
                     AVPacket packet;
+                    av_init_packet(&packet);
                     int decoding = 0;
                     bool eof = false;
                     while (0 == decoding)
@@ -628,10 +629,14 @@ namespace tlr
                                 break;
                             }
                         }
-                        if (!eof)
+                        if (packet.buf)
                         {
                             av_packet_unref(&packet);
                         }
+                    }
+                    if (packet.buf)
+                    {
+                        av_packet_unref(&packet);
                     }
 
                     avio::VideoData data;
@@ -674,6 +679,7 @@ namespace tlr
                     }
 
                     AVPacket packet;
+                    av_init_packet(&packet);
                     int decoding = 0;
                     bool eof = false;
                     while (0 == decoding && p.getAudioBufferSize() < audioRequest->time.duration().value())
@@ -725,10 +731,14 @@ namespace tlr
                                 decoding = 0;
                             }
                         }
-                        if (!eof)
+                        if (packet.buf)
                         {
                             av_packet_unref(&packet);
                         }
+                    }
+                    if (packet.buf)
+                    {
+                        av_packet_unref(&packet);
                     }
 
                     avio::AudioData data;
