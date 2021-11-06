@@ -1052,7 +1052,7 @@ namespace tlr
             const ImageOptions& imageOptions)
         {
             TLR_PRIVATE_P();
-
+            //std::cout << "draw video: " << data.time << std::endl;
             for (const auto& i : data.layers)
             {
                 switch (i.transition)

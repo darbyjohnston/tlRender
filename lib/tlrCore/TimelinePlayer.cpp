@@ -293,8 +293,8 @@ namespace tlr
 
                         // Logging.
                         const auto now = std::chrono::steady_clock::now();
-                        const std::chrono::duration<float> diff = now - p.logTimer;
-                        if (diff.count() > 10.F)
+                        const std::chrono::duration<double> diff = now - p.logTimer;
+                        if (diff.count() > 10.0)
                         {
                             p.logTimer = now;
                             if (auto context = getContext().lock())
@@ -833,7 +833,7 @@ namespace tlr
                     math::fuzzyCompare(timelineSpeed, speed))
                 {
                     std::unique_lock<std::mutex> lock(p.threadData.audioMutex);
-                    seconds = p.threadData.rtAudioFrame / static_cast<float>(p.avInfo.audio.sampleRate);
+                    seconds = p.threadData.rtAudioFrame / static_cast<double>(p.avInfo.audio.sampleRate);
                 }
                 else
                 {
@@ -845,11 +845,12 @@ namespace tlr
                 {
                     seconds = -seconds;
                 }
-                otime::RationalTime currentTime = p.loopPlayback(
+                const otime::RationalTime currentTime = p.loopPlayback(
                     playbackStartTime + time::floor(otime::RationalTime(seconds, 1.0).rescaled_to(duration.rate())));
+                const double currentTimeDiff = currentTime.value() - p.currentTime->get().value();
                 if (p.currentTime->setIfChanged(currentTime))
                 {
-                    //std::cout << "current time: " << p.currentTime->get() << std::endl;
+                    std::cout << "current time: " << p.currentTime->get() << " / " << currentTimeDiff << std::endl;
                 }
             }
 
