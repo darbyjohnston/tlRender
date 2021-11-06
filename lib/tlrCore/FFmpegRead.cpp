@@ -767,8 +767,8 @@ namespace tlr
                     _logSystem->print(id, string::Format(
                         "\n"
                         "    path: {0}\n"
-                        "    video: {1} (requests)\n"
-                        "    audio: {2} (requests)\n"
+                        "    video requests: {1}\n"
+                        "    audio requests: {2}\n"
                         "    thread count: {3}").
                         arg(_path.get()).
                         arg(videoRequestsSize).
@@ -868,28 +868,35 @@ namespace tlr
             const std::size_t w = info.size.w;
             const std::size_t h = info.size.h;
             const AVPixelFormat avPixelFormat = static_cast<AVPixelFormat>(video.avCodecParameters[video.avStream]->format);
+            uint8_t* const data = image->getData();
+            const uint8_t* const data0 = video.avFrame->data[0];
+            const int linesize0 = video.avFrame->linesize[0];
             switch (avPixelFormat)
             {
             case AV_PIX_FMT_YUV420P:
             {
                 const std::size_t w2 = w / 2;
                 const std::size_t h2 = h / 2;
+                const uint8_t* const data1 = video.avFrame->data[1];
+                const uint8_t* const data2 = video.avFrame->data[2];
+                const int linesize1 = video.avFrame->linesize[1];
+                const int linesize2 = video.avFrame->linesize[2];
                 for (std::size_t i = 0; i < h; ++i)
                 {
                     std::memcpy(
-                        image->getData() + w * i,
-                        video.avFrame->data[0] + video.avFrame->linesize[0] * i,
+                        data + w * i,
+                        data0 + linesize0 * i,
                         w);
                 }
                 for (std::size_t i = 0; i < h2; ++i)
                 {
                     std::memcpy(
-                        image->getData() + (w * h) + w2 * i,
-                        video.avFrame->data[1] + video.avFrame->linesize[1] * i,
+                        data + (w * h) + w2 * i,
+                        data1 + linesize1 * i,
                         w2);
                     std::memcpy(
-                        image->getData() + (w * h) + (w2 * h2) + w2 * i,
-                        video.avFrame->data[2] + video.avFrame->linesize[2] * i,
+                        data + (w * h) + (w2 * h2) + w2 * i,
+                        data2 + linesize2 * i,
                         w2);
                 }
                 break;
@@ -898,8 +905,8 @@ namespace tlr
                 for (std::size_t i = 0; i < h; ++i)
                 {
                     std::memcpy(
-                        image->getData() + w * 3 * i,
-                        video.avFrame->data[0] + video.avFrame->linesize[0] * 3 * i,
+                        data + w * 3 * i,
+                        data0 + linesize0 * 3 * i,
                         w * 3);
                 }
                 break;
@@ -907,8 +914,8 @@ namespace tlr
                 for (std::size_t i = 0; i < h; ++i)
                 {
                     std::memcpy(
-                        image->getData() + w * i,
-                        video.avFrame->data[0] + video.avFrame->linesize[0] * i,
+                        data + w * i,
+                        data0 + linesize0 * i,
                         w);
                 }
                 break;
@@ -916,8 +923,8 @@ namespace tlr
                 for (std::size_t i = 0; i < h; ++i)
                 {
                     std::memcpy(
-                        image->getData() + w * 4 * i,
-                        video.avFrame->data[0] + video.avFrame->linesize[0] * 4 * i,
+                        data + w * 4 * i,
+                        data0 + linesize0 * 4 * i,
                         w * 4);
                 }
                 break;
@@ -925,7 +932,7 @@ namespace tlr
                 av_image_fill_arrays(
                     video.avFrame2->data,
                     video.avFrame2->linesize,
-                    image->getData(),
+                    data,
                     AV_PIX_FMT_YUV420P,
                     w,
                     h,
