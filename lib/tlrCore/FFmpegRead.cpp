@@ -461,6 +461,8 @@ namespace tlr
                 {
                     throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
                 }
+                p.audio.avCodecContext[p.audio.avStream]->thread_count = p.threadCount;
+                p.audio.avCodecContext[p.audio.avStream]->thread_type = FF_THREAD_FRAME;
                 r = avcodec_open2(p.audio.avCodecContext[p.audio.avStream], avAudioCodec, 0);
                 if (r < 0)
                 {
