@@ -11,6 +11,7 @@
 #include <QAbstractButton>
 #include <QButtonGroup>
 #include <QCheckBox>
+#include <QComboBox>
 #include <QMap>
 #include <QRadioButton>
 #include <QSpinBox>
@@ -45,12 +46,19 @@ namespace tlr
         PerformanceSettingsWidget(SettingsObject*, QWidget* parent = nullptr);
 
     private Q_SLOTS:
+        void _timerModeCallback(int);
+        void _timerModeCallback(tlr::timeline::TimerMode);
+        void _audioBufferFrameCountCallback(int);
+        void _audioBufferFrameCountCallback(tlr::timeline::AudioBufferFrameCount);
         void _videoRequestCountCallback(int);
         void _audioRequestCountCallback(int);
         void _sequenceThreadCountCallback(int);
         void _ffmpegThreadCountCallback(int);
 
     private:
+        SettingsObject* _settingsObject = nullptr;
+        QComboBox* _timerModeComboBox = nullptr;
+        QComboBox * _audioBufferFrameCountComboBox = nullptr;
         QSpinBox* _videoRequestCountSpinBox = nullptr;
         QSpinBox* _audioRequestCountSpinBox = nullptr;
         QSpinBox* _sequenceThreadCountSpinBox = nullptr;

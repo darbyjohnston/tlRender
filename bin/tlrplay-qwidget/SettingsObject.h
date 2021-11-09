@@ -7,6 +7,8 @@
 #include <tlrQt/TimeObject.h>
 #include <tlrQt/ToolTipsFilter.h>
 
+#include <tlrCore/TimelinePlayer.h>
+
 #include <QObject>
 
 namespace tlr
@@ -30,10 +32,16 @@ namespace tlr
         //! Get the cache read behind.
         int cacheReadBehind() const;
 
-        //! Get the timeline video request count.
+        //! Get the timer mode.
+        timeline::TimerMode timerMode();
+
+        //! Get the audio buffer frame count.
+        timeline::AudioBufferFrameCount audioBufferFrameCount() const;
+
+        //! Get the video request count.
         int videoRequestCount() const;
 
-        //! Get the timeline audio request count.
+        //! Get the audio request count.
         int audioRequestCount() const;
 
         //! Get the sequence I/O thread count.
@@ -55,10 +63,16 @@ namespace tlr
         //! Set the cache read behind.
         void setCacheReadBehind(int);
 
-        //! Set the timeline video request count.
+        //! Set the timer mode.
+        void setTimerMode(tlr::timeline::TimerMode);
+
+        //! Set the audio buffer frame count.
+        void setAudioBufferFrameCount(tlr::timeline::AudioBufferFrameCount);
+
+        //! Set the video request count.
         void setVideoRequestCount(int);
 
-        //! Set the timeline audio request count.
+        //! Set the audio request count.
         void setAudioRequestCount(int);
 
         //! Set the sequence I/O thread count.
@@ -80,10 +94,16 @@ namespace tlr
         //! This signal is emitted when the cache read behind is changed.
         void cacheReadBehindChanged(int);
 
-        //! This signal is emitted when the timeline video request count is changed.
+        //! This signal is emitted when the timer mode is changed.
+        void timerModeChanged(tlr::timeline::TimerMode);
+
+        //! This signal is emitted when the audio buffer frame count is changed.
+        void audioBufferFrameCountChanged(tlr::timeline::AudioBufferFrameCount);
+
+        //! This signal is emitted when the video request count is changed.
         void videoRequestCountChanged(int);
 
-        //! This signal is emitted when the timeline audio request count is changed.
+        //! This signal is emitted when the audio request count is changed.
         void audioRequestCountChanged(int);
 
         //! This signal is emitted when the sequence I/O thread count is changed.
@@ -102,6 +122,8 @@ namespace tlr
         const int _recentFilesMax = 10;
         int _cacheReadAhead = 100;
         int _cacheReadBehind = 10;
+        timeline::TimerMode _timerMode = timeline::TimerMode::System;
+        timeline::AudioBufferFrameCount _audioBufferFrameCount = timeline::AudioBufferFrameCount::_256;
         int _videoRequestCount = 16;
         int _audioRequestCount = 16;
         int _sequenceThreadCount = 16;

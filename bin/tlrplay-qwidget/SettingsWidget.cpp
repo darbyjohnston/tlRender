@@ -75,6 +75,20 @@ namespace tlr
     PerformanceSettingsWidget::PerformanceSettingsWidget(SettingsObject* settingsObject, QWidget* parent) :
         QWidget(parent)
     {
+        _settingsObject = settingsObject;
+
+        _timerModeComboBox = new QComboBox;
+        for (const auto& i : timeline::getTimerModeLabels())
+        {
+            _timerModeComboBox->addItem(i.c_str());
+        }
+
+        _audioBufferFrameCountComboBox = new QComboBox;
+        for (const auto& i : timeline::getAudioBufferFrameCountLabels())
+        {
+            _audioBufferFrameCountComboBox->addItem(i.c_str());
+        }
+
         _videoRequestCountSpinBox = new QSpinBox;
         _videoRequestCountSpinBox->setRange(1, 64);
 
@@ -88,45 +102,66 @@ namespace tlr
         _ffmpegThreadCountSpinBox->setRange(1, 64);
 
         auto layout = new QVBoxLayout;
-        auto vLayout = new QVBoxLayout;
-        vLayout->addWidget(_videoRequestCountSpinBox);
-        auto label = new QLabel(tr("(changes applied to new files)"));
+        auto label = new QLabel(tr("Changes are applied to newly opened files."));
         label->setWordWrap(true);
-        vLayout->addWidget(label);
-        auto groupBox = new QGroupBox(tr("Timeline Video Requests"));
+        layout->addWidget(label);
+        layout->addSpacing(10);
+
+        auto vLayout = new QVBoxLayout;
+        vLayout->addWidget(_timerModeComboBox);
+        auto groupBox = new QGroupBox(tr("Timer Mode"));
         groupBox->setLayout(vLayout);
         layout->addWidget(groupBox);
+
+        vLayout = new QVBoxLayout;
+        vLayout->addWidget(_audioBufferFrameCountComboBox);
+        groupBox = new QGroupBox(tr("Audio Buffer Frame Count"));
+        groupBox->setLayout(vLayout);
+        layout->addWidget(groupBox);
+
+        vLayout = new QVBoxLayout;
+        vLayout->addWidget(_videoRequestCountSpinBox);
+        groupBox = new QGroupBox(tr("Timeline Video Requests"));
+        groupBox->setLayout(vLayout);
+        layout->addWidget(groupBox);
+
         vLayout = new QVBoxLayout;
         vLayout->addWidget(_audioRequestCountSpinBox);
-        label = new QLabel(tr("(changes applied to new files)"));
-        label->setWordWrap(true);
-        vLayout->addWidget(label);
         groupBox = new QGroupBox(tr("Timeline Audio Requests"));
         groupBox->setLayout(vLayout);
         layout->addWidget(groupBox);
+
         vLayout = new QVBoxLayout;
         vLayout->addWidget(_sequenceThreadCountSpinBox);
-        label = new QLabel(tr("(changes applied to new files)"));
-        label->setWordWrap(true);
-        vLayout->addWidget(label);
         groupBox = new QGroupBox(tr("Sequence I/O Threads"));
         groupBox->setLayout(vLayout);
         layout->addWidget(groupBox);
+
         vLayout = new QVBoxLayout;
         vLayout->addWidget(_ffmpegThreadCountSpinBox);
-        label = new QLabel(tr("(changes applied to new files)"));
-        label->setWordWrap(true);
-        vLayout->addWidget(label);
         groupBox = new QGroupBox(tr("FFmpeg I/O threads"));
         groupBox->setLayout(vLayout);
         layout->addWidget(groupBox);
+
         layout->addStretch();
         setLayout(layout);
 
+        _timerModeComboBox->setCurrentIndex(static_cast<int>(settingsObject->timerMode()));
+        _audioBufferFrameCountComboBox->setCurrentIndex(static_cast<int>(settingsObject->audioBufferFrameCount()));
         _videoRequestCountSpinBox->setValue(settingsObject->videoRequestCount());
         _audioRequestCountSpinBox->setValue(settingsObject->audioRequestCount());
         _sequenceThreadCountSpinBox->setValue(settingsObject->sequenceThreadCount());
         _ffmpegThreadCountSpinBox->setValue(settingsObject->ffmpegThreadCount());
+
+        connect(
+            _timerModeComboBox,
+            SIGNAL(activated(int)),
+            SLOT(_timerModeCallback(int)));
+
+        connect(
+            _audioBufferFrameCountComboBox,
+            SIGNAL(activated(int)),
+            SLOT(_audioBufferFrameCountCallback(int)));
 
         connect(
             _videoRequestCountSpinBox,
@@ -154,23 +189,50 @@ namespace tlr
 
         connect(
             settingsObject,
+            SIGNAL(timerModeChanged(tlr::timeline::TimerMode)),
+            SLOT(_timerModeCallback(tlr::timeline::TimerMode)));
+        connect(
+            settingsObject,
+            SIGNAL(audioBufferFrameCountChanged(tlr::timeline::AudioBufferFrameCount)),
+            SLOT(_audioBufferFrameCountCallback(tlr::timeline::AudioBufferFrameCount)));
+        connect(
+            settingsObject,
             SIGNAL(videoRequestCountChanged(int)),
             SLOT(_videoRequestCountCallback(int)));
-
         connect(
             settingsObject,
             SIGNAL(audioRequestCountChanged(int)),
             SLOT(_audioRequestCountCallback(int)));
-
         connect(
             settingsObject,
             SIGNAL(sequenceThreadCountChanged(int)),
             SLOT(_sequenceThreadCountCallback(int)));
-
         connect(
             settingsObject,
             SIGNAL(ffmpegThreadCountChanged(int)),
             SLOT(_ffmpegThreadCountCallback(int)));
+    }
+
+    void PerformanceSettingsWidget::_timerModeCallback(int value)
+    {
+        _settingsObject->setTimerMode(static_cast<timeline::TimerMode>(value));
+    }
+
+    void PerformanceSettingsWidget::_timerModeCallback(timeline::TimerMode value)
+    {
+        QSignalBlocker signalBlocker(_timerModeComboBox);
+        _timerModeComboBox->setCurrentIndex(static_cast<int>(value));
+    }
+
+    void PerformanceSettingsWidget::_audioBufferFrameCountCallback(int value)
+    {
+        _settingsObject->setAudioBufferFrameCount(static_cast<timeline::AudioBufferFrameCount>(value));
+    }
+
+    void PerformanceSettingsWidget::_audioBufferFrameCountCallback(timeline::AudioBufferFrameCount value)
+    {
+        QSignalBlocker signalBlocker(_audioRequestCountSpinBox);
+        _audioBufferFrameCountComboBox->setCurrentIndex(static_cast<int>(value));
     }
 
     void PerformanceSettingsWidget::_videoRequestCountCallback(int value)

@@ -13,9 +13,48 @@ namespace tlr
     //! Timelines.
     namespace timeline
     {
-        //! Number of frames in the audio buffer.
-        const size_t bufferFrameCount = 256;
-    
+        //! Timer modes.
+        enum class TimerMode
+        {
+            System,
+            Audio,
+
+            Count,
+            First = System
+        };
+        TLR_ENUM(TimerMode);
+        TLR_ENUM_SERIALIZE(TimerMode);
+
+        //! Audio buffer frame counts.
+        enum class AudioBufferFrameCount
+        {
+            _16,
+            _32,
+            _64,
+            _128,
+            _256,
+            _512,
+            _1024,
+
+            Count,
+            First = _16
+        };
+        TLR_ENUM(AudioBufferFrameCount);
+        TLR_ENUM_SERIALIZE(AudioBufferFrameCount);
+
+        //! Get the audio buffer frame count.
+        size_t getAudioBufferFrameCount(AudioBufferFrameCount);
+
+        //! Timeline player options.
+        struct PlayerOptions
+        {
+            TimerMode             timerMode             = TimerMode::System;
+            AudioBufferFrameCount audioBufferFrameCount = AudioBufferFrameCount::_256;
+
+            bool operator == (const PlayerOptions&) const;
+            bool operator != (const PlayerOptions&) const;
+        };
+
         //! Playback modes.
         enum class Playback
         {
@@ -61,7 +100,10 @@ namespace tlr
         TLR_ENUM_SERIALIZE(TimeAction);
 
         //! Loop time.
-        otime::RationalTime loopTime(const otime::RationalTime&, const otime::TimeRange&, bool* loop = nullptr);
+        otime::RationalTime loopTime(
+            const otime::RationalTime&,
+            const otime::TimeRange&,
+            bool* loop = nullptr);
 
         //! Timeline player.
         class TimelinePlayer : public std::enable_shared_from_this<TimelinePlayer>
@@ -72,6 +114,7 @@ namespace tlr
             void _init(
                 const file::Path&,
                 const std::shared_ptr<core::Context>&,
+                const PlayerOptions&,
                 const Options&);
             TimelinePlayer();
 
@@ -82,6 +125,7 @@ namespace tlr
             static std::shared_ptr<TimelinePlayer> create(
                 const file::Path&,
                 const std::shared_ptr<core::Context>&,
+                const PlayerOptions& = PlayerOptions(),
                 const Options& = Options());
 
             //! Get the context.
@@ -93,7 +137,10 @@ namespace tlr
             //! Get the path.
             const file::Path& getPath() const;
 
-            //! Get the options.
+            //! Get the timeline player options.
+            const PlayerOptions& getPlayerOptions() const;
+
+            //! Get the timeline options.
             const Options& getOptions() const;
 
             //! \name Information

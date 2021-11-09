@@ -108,12 +108,20 @@ namespace tlr
     {
         try
         {
+            timeline::PlayerOptions playerOptions;
+            playerOptions.timerMode = _settingsObject->timerMode();
+            playerOptions.audioBufferFrameCount = _settingsObject->audioBufferFrameCount();
             timeline::Options options;
             options.videoRequestCount = _settingsObject->videoRequestCount();
             options.audioRequestCount = _settingsObject->audioRequestCount();
             options.avioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").arg(_settingsObject->sequenceThreadCount());
             options.avioOptions["ffmpeg/ThreadCount"] = string::Format("{0}").arg(_settingsObject->ffmpegThreadCount());
-            auto timelinePlayer = new qt::TimelinePlayer(file::Path(fileName.toUtf8().data()), _context, options, this);
+            auto timelinePlayer = new qt::TimelinePlayer(
+                file::Path(fileName.toUtf8().data()),
+                _context,
+                playerOptions,
+                options,
+                this);
             _settingsUpdate(timelinePlayer);
             _timelinePlayers.append(timelinePlayer);
 

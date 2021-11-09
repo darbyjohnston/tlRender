@@ -30,6 +30,7 @@ namespace tlr
         TimelinePlayer::TimelinePlayer(
             const file::Path& path,
             const std::shared_ptr<core::Context>& context,
+            const timeline::PlayerOptions& playerOptions,
             const timeline::Options& options,
             QObject* parent) :
             QObject(parent),
@@ -37,7 +38,7 @@ namespace tlr
         {
             TLR_PRIVATE_P();
 
-            p.timelinePlayer = timeline::TimelinePlayer::create(path, context, options);
+            p.timelinePlayer = timeline::TimelinePlayer::create(path, context, playerOptions, options);
 
             p.speedObserver = observer::ValueObserver<double>::create(
                 p.timelinePlayer->observeSpeed(),
@@ -137,14 +138,24 @@ namespace tlr
             return _p->timelinePlayer->getPath();
         }
 
-        const otime::RationalTime& TimelinePlayer::globalStartTime() const
+        const timeline::PlayerOptions& TimelinePlayer::getPlayerOptions() const
         {
-            return _p->timelinePlayer->getGlobalStartTime();
+            return _p->timelinePlayer->getPlayerOptions();
+        }
+
+        const timeline::Options& TimelinePlayer::getOptions() const
+        {
+            return _p->timelinePlayer->getOptions();
         }
 
         const otime::RationalTime& TimelinePlayer::duration() const
         {
             return _p->timelinePlayer->getDuration();
+        }
+
+        const otime::RationalTime& TimelinePlayer::globalStartTime() const
+        {
+            return _p->timelinePlayer->getGlobalStartTime();
         }
 
         const avio::Info& TimelinePlayer::avInfo() const

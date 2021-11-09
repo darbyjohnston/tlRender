@@ -26,6 +26,12 @@ namespace tlr
         settings.endArray();
         _cacheReadAhead = settings.value("Cache/ReadAhead", 100).toInt();
         _cacheReadBehind = settings.value("Cache/ReadBehind", 10).toInt();
+        _timerMode = static_cast<timeline::TimerMode>(settings.value(
+            "Performance/TimerMode",
+            static_cast<int>(timeline::TimerMode::System)).toInt());
+        _audioBufferFrameCount = static_cast<timeline::AudioBufferFrameCount>(settings.value(
+            "Performance/AudioBufferFrameCount",
+            static_cast<int>(timeline::AudioBufferFrameCount::_256)).toInt());
         _videoRequestCount = settings.value("Performance/VideoRequestCount", 16).toInt();
         _audioRequestCount = settings.value("Performance/AudioRequestCount", 16).toInt();
         _sequenceThreadCount = settings.value("Performance/SequenceThreadCount", 16).toInt();
@@ -46,8 +52,10 @@ namespace tlr
             settings.setValue("File", _recentFiles[i]);
         }
         settings.endArray();
-        settings.setValue("Cache/ReadAhead", _cacheReadAhead);
-        settings.setValue("Cache/ReadBehind", _cacheReadBehind);
+        settings.setValue("Performance/TimerMode", static_cast<int>(_timerMode));
+        settings.setValue("Performance/AudioBufferFrameCount", static_cast<int>(_audioBufferFrameCount));
+        settings.setValue("Performance/VideoRequestCount", _videoRequestCount);
+        settings.setValue("Performance/VideoRequestCount", _videoRequestCount);
         settings.setValue("Performance/VideoRequestCount", _videoRequestCount);
         settings.setValue("Performance/AudioRequestCount", _audioRequestCount);
         settings.setValue("Performance/SequenceThreadCount", _sequenceThreadCount);
@@ -68,6 +76,16 @@ namespace tlr
     int SettingsObject::cacheReadBehind() const
     {
         return _cacheReadBehind;
+    }
+
+    timeline::TimerMode SettingsObject::timerMode()
+    {
+        return _timerMode;
+    }
+
+    timeline::AudioBufferFrameCount SettingsObject::audioBufferFrameCount() const
+    {
+        return _audioBufferFrameCount;
     }
 
     int SettingsObject::videoRequestCount() const
@@ -120,6 +138,22 @@ namespace tlr
             return;
         _cacheReadBehind = value;
         Q_EMIT cacheReadBehindChanged(_cacheReadBehind);
+    }
+
+    void SettingsObject::setTimerMode(timeline::TimerMode value)
+    {
+        if (value == _timerMode)
+            return;
+        _timerMode = value;
+        Q_EMIT timerModeChanged(_timerMode);
+    }
+
+    void SettingsObject::setAudioBufferFrameCount(timeline::AudioBufferFrameCount value)
+    {
+        if (value == _audioBufferFrameCount)
+            return;
+        _audioBufferFrameCount = value;
+        Q_EMIT audioBufferFrameCountChanged(_audioBufferFrameCount);
     }
 
     void SettingsObject::setVideoRequestCount(int value)

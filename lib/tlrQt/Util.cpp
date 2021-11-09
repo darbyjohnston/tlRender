@@ -7,7 +7,7 @@
 #include <tlrQt/TimeObject.h>
 
 #include <tlrCore/Context.h>
-#include <tlrCore/Timeline.h>
+#include <tlrCore/TimelinePlayer.h>
 
 #include <QSurfaceFormat>
 
@@ -18,8 +18,10 @@ namespace tlr
         void init()
         {
             qRegisterMetaType<timeline::VideoData>("tlr::timeline::VideoData");
+            qRegisterMetaType<timeline::TimerMode>("tlr::timeline::TimerMode");
+            qRegisterMetaType<timeline::AudioBufferFrameCount>("tlr::timeline::AudioBufferFrameCount");
             qRegisterMetaType<TimeUnits>("tlr::qt::TimeUnits");
-            qRegisterMetaTypeStreamOperators<qt::TimeUnits>("tlr::qt::TimeUnits");
+            qRegisterMetaTypeStreamOperators<TimeUnits>("tlr::qt::TimeUnits");
 
             QSurfaceFormat surfaceFormat;
             surfaceFormat.setMajorVersion(4);

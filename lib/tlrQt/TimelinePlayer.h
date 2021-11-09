@@ -27,7 +27,8 @@ namespace tlr
             TimelinePlayer(
                 const file::Path&,
                 const std::shared_ptr<core::Context>&,
-                const timeline::Options& = timeline::Options(),
+                const timeline::PlayerOptions & = timeline::PlayerOptions(),
+                const timeline::Options & = timeline::Options(),
                 QObject* parent = nullptr);
 
             ~TimelinePlayer() override;
@@ -41,7 +42,10 @@ namespace tlr
             //! Get the path.
             const file::Path& path() const;
 
-            //! Get the options.
+            //! Get the timeline player options.
+            const timeline::PlayerOptions& getPlayerOptions() const;
+
+            //! Get the timeline options.
             const timeline::Options& getOptions() const;
 
             //! \name Information

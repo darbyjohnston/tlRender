@@ -6,6 +6,17 @@ namespace tlr
 {
     namespace timeline
     {
+        bool PlayerOptions::operator == (const PlayerOptions& other) const
+        {
+            return timer == other.timer &&
+                audioBufferFrameCount == other.audioBufferFrameCount;
+        }
+
+        bool PlayerOptions::operator != (const PlayerOptions& other) const
+        {
+            return !(*this == other);
+        }
+
         inline const file::Path& TimelinePlayer::getPath() const
         {
             return _timeline->getPath();

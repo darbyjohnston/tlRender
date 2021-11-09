@@ -142,7 +142,7 @@ namespace tlr
             //! Get the path.
             const file::Path& getPath() const;
 
-            //! Get the options.
+            //! Get the timeline options.
             const Options& getOptions() const;
 
             //! \name Information
