@@ -873,7 +873,7 @@ namespace tlr
                 const double currentTimeDiff = abs(currentTime.value() - p.currentTime->get().value());
                 if (p.currentTime->setIfChanged(currentTime))
                 {
-                    std::cout << "current time: " << p.currentTime->get() << " / " << currentTimeDiff << std::endl;
+                    //std::cout << "current time: " << p.currentTime->get() << " / " << currentTimeDiff << std::endl;
                 }
             }
 
