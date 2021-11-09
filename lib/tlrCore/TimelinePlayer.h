@@ -13,6 +13,9 @@ namespace tlr
     //! Timelines.
     namespace timeline
     {
+        //! Number of frames in the audio buffer.
+        const size_t bufferFrameCount = 256;
+    
         //! Playback modes.
         enum class Playback
         {

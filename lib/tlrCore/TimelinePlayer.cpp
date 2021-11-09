@@ -202,7 +202,7 @@ namespace tlr
                             auto audioSystem = context->getSystem<audio::System>();
                             rtParameters.deviceId = audioSystem->getDefaultOutputDevice();
                             rtParameters.nChannels = p.avInfo.audio.channelCount;
-                            unsigned int rtBufferFrames = p.avInfo.audio.sampleRate / 100; //! \todo
+                            unsigned int rtBufferFrames = bufferFrameCount;
                             p.threadData.rtAudio->openStream(
                                 &rtParameters,
                                 nullptr,
