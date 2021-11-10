@@ -286,10 +286,22 @@ namespace tlr
             //av_dump_format(p.avFormatContext, 0, fileName.c_str(), 0);
             for (unsigned int i = 0; i < p.video.avFormatContext->nb_streams; ++i)
             {
-                if (AVMEDIA_TYPE_VIDEO == p.video.avFormatContext->streams[i]->codecpar->codec_type)
+                if (AVMEDIA_TYPE_VIDEO == p.video.avFormatContext->streams[i]->codecpar->codec_type &&
+                    AV_DISPOSITION_DEFAULT == p.video.avFormatContext->streams[i]->disposition)
                 {
                     p.video.avStream = i;
                     break;
+                }
+            }
+            if (-1 == p.video.avStream)
+            {
+                for (unsigned int i = 0; i < p.video.avFormatContext->nb_streams; ++i)
+                {
+                    if (AVMEDIA_TYPE_VIDEO == p.video.avFormatContext->streams[i]->codecpar->codec_type)
+                    {
+                        p.video.avStream = i;
+                        break;
+                    }
                 }
             }
             if (p.video.avStream != -1)
@@ -438,6 +450,17 @@ namespace tlr
                 {
                     p.audio.avStream = i;
                     break;
+                }
+            }
+            if (-1 == p.audio.avStream)
+            {
+                for (unsigned int i = 0; i < p.audio.avFormatContext->nb_streams; ++i)
+                {
+                    if (AVMEDIA_TYPE_AUDIO == p.audio.avFormatContext->streams[i]->codecpar->codec_type)
+                    {
+                        p.audio.avStream = i;
+                        break;
+                    }
                 }
             }
             if (p.audio.avStream != -1)
