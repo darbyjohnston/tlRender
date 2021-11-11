@@ -22,7 +22,7 @@ namespace tlr
 
         private:
             void _enums();
-            void _loopTime();
+            void _loop();
             void _timelinePlayer();
         };
     }

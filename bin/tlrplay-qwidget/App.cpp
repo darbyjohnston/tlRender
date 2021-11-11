@@ -62,11 +62,11 @@ namespace tlr
         _settingsObject = new SettingsObject(_timeObject, this);
         connect(
             _settingsObject,
-            SIGNAL(cacheReadAheadChanged(int)),
+            SIGNAL(cacheReadAheadChanged(double)),
             SLOT(_settingsCallback()));
         connect(
             _settingsObject,
-            SIGNAL(cacheReadBehindChanged(int)),
+            SIGNAL(cacheReadBehindChanged(double)),
             SLOT(_settingsCallback()));
         connect(
             _settingsObject,
@@ -167,7 +167,7 @@ namespace tlr
 
     void App::_settingsUpdate(qt::TimelinePlayer* value)
     {
-        value->setCacheReadAhead(_settingsObject->cacheReadAhead());
-        value->setCacheReadBehind(_settingsObject->cacheReadBehind());
+        value->setCacheReadAhead(otime::RationalTime(_settingsObject->cacheReadAhead(), 1.0));
+        value->setCacheReadBehind(otime::RationalTime(_settingsObject->cacheReadBehind(), 1.0));
     }
 }

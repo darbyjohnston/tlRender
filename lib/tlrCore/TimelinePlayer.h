@@ -99,11 +99,16 @@ namespace tlr
         TLR_ENUM(TimeAction);
         TLR_ENUM_SERIALIZE(TimeAction);
 
-        //! Loop time.
-        otime::RationalTime loopTime(
+        //! Loop a time.
+        otime::RationalTime loop(
             const otime::RationalTime&,
             const otime::TimeRange&,
-            bool* loop = nullptr);
+            bool* looped = nullptr);
+
+        //! Loop a range.
+        std::vector<otime::TimeRange> loop(
+            const otime::TimeRange&,
+            const otime::TimeRange&);
 
         //! Timeline player.
         class TimelinePlayer : public std::enable_shared_from_this<TimelinePlayer>
@@ -245,24 +250,6 @@ namespace tlr
             //! Observe the current video data.
             std::shared_ptr<observer::IValue<VideoData> > observeVideo() const;
 
-            //! Get the cache read ahead.
-            size_t getCacheReadAhead();
-
-            //! Set the cache read ahead.
-            void setCacheReadAhead(size_t);
-
-            //! Get the cache read behind.
-            size_t getCacheReadBehind();
-
-            //! Set the cache read behind.
-            void setCacheReadBehind(size_t);
-
-            //! Observe the cache percentage.
-            std::shared_ptr<observer::IValue<float> > observeCachePercentage() const;
-
-            //! Observe the cached video frames.
-            std::shared_ptr<observer::IList<otime::TimeRange> > observeCachedVideoFrames() const;
-
             ///@}
 
             //! \name Audio
@@ -280,7 +267,30 @@ namespace tlr
             //! Set the audio mute.
             void setMute(bool);
 
-            //! Observe the cached audio frames.
+            ///@}
+
+            //! \name Cache
+            ///@{
+
+            //! Get the cache read ahead.
+            otime::RationalTime getCacheReadAhead();
+
+            //! Set the cache read ahead.
+            void setCacheReadAhead(const otime::RationalTime&);
+
+            //! Get the cache read behind.
+            otime::RationalTime getCacheReadBehind();
+
+            //! Set the cache read behind.
+            void setCacheReadBehind(const otime::RationalTime&);
+
+            //! Observe the cache percentage.
+            std::shared_ptr<observer::IValue<float> > observeCachePercentage() const;
+
+            //! Observe the cached video.
+            std::shared_ptr<observer::IList<otime::TimeRange> > observeCachedVideoFrames() const;
+
+            //! Observe the cached audio.
             std::shared_ptr<observer::IList<otime::TimeRange> > observeCachedAudioFrames() const;
 
             ///@}

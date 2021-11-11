@@ -14,11 +14,11 @@ namespace tlr
     CacheSettingsWidget::CacheSettingsWidget(SettingsObject* settingsObject, QWidget* parent) :
         QWidget(parent)
     {
-        _readAheadSpinBox = new QSpinBox;
-        _readAheadSpinBox->setRange(0, 5000);
+        _readAheadSpinBox = new QDoubleSpinBox;
+        _readAheadSpinBox->setRange(0.0, 60.0);
 
-        _readBehindSpinBox = new QSpinBox;
-        _readBehindSpinBox->setRange(0, 5000);
+        _readBehindSpinBox = new QDoubleSpinBox;
+        _readBehindSpinBox->setRange(0, 60.0);
 
         auto layout = new QVBoxLayout;
         auto vLayout = new QVBoxLayout;
@@ -39,34 +39,34 @@ namespace tlr
 
         connect(
             _readAheadSpinBox,
-            SIGNAL(valueChanged(int)),
+            SIGNAL(valueChanged(double)),
             settingsObject,
-            SLOT(setCacheReadAhead(int)));
+            SLOT(setCacheReadAhead(double)));
 
         connect(
             _readBehindSpinBox,
-            SIGNAL(valueChanged(int)),
+            SIGNAL(valueChanged(double)),
             settingsObject,
-            SLOT(setCacheReadBehind(int)));
+            SLOT(setCacheReadBehind(double)));
 
         connect(
             settingsObject,
-            SIGNAL(cacheReadAheadChanged(int)),
-            SLOT(_readAheadCallback(int)));
+            SIGNAL(cacheReadAheadChanged(double)),
+            SLOT(_readAheadCallback(double)));
 
         connect(
             settingsObject,
-            SIGNAL(cacheReadBehindChanged(int)),
-            SLOT(_readBehindCallback(int)));
+            SIGNAL(cacheReadBehindChanged(double)),
+            SLOT(_readBehindCallback(double)));
     }
 
-    void CacheSettingsWidget::_readAheadCallback(int value)
+    void CacheSettingsWidget::_readAheadCallback(double value)
     {
         QSignalBlocker signalBlocker(_readAheadSpinBox);
         _readAheadSpinBox->setValue(value);
     }
 
-    void CacheSettingsWidget::_readBehindCallback(int value)
+    void CacheSettingsWidget::_readBehindCallback(double value)
     {
         QSignalBlocker signalBlocker(_readBehindSpinBox);
         _readBehindSpinBox->setValue(value);

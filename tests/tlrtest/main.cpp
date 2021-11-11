@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
     std::vector<std::shared_ptr<Test::ITest> > tests;
     if (0)
     {
-        tests.push_back(CoreTest::AudioTest::create(context));
+        tests.push_back(CoreTest::TimelinePlayerTest::create(context));
     }
     else
     {

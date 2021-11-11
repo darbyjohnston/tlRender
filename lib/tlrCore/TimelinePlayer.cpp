@@ -70,24 +70,71 @@ namespace tlr
             "FrameNextX100");
         TLR_ENUM_SERIALIZE_IMPL(TimeAction);
 
-        otime::RationalTime loopTime(const otime::RationalTime& time, const otime::TimeRange& range, bool* loop)
+        otime::RationalTime loop(
+            const otime::RationalTime& value,
+            const otime::TimeRange& range,
+            bool* looped)
         {
-            auto out = time;
+            auto out = value;
             if (out < range.start_time())
             {
-                if (loop)
+                if (looped)
                 {
-                    *loop = true;
+                    *looped = true;
                 }
                 out = range.end_time_inclusive();
             }
             else if (out > range.end_time_inclusive())
             {
-                if (loop)
+                if (looped)
                 {
-                    *loop = true;
+                    *looped = true;
                 }
                 out = range.start_time();
+            }
+            return out;
+        }
+
+        std::vector<otime::TimeRange> loop(
+            const otime::TimeRange& value,
+            const otime::TimeRange& range)
+        {
+            std::vector<otime::TimeRange> out;
+            auto clamped = otime::TimeRange(value.start_time(), std::min(value.duration(), range.duration()));
+
+            auto start = clamped.start_time();
+            if (start < range.start_time())
+            {
+                start = range.end_time_inclusive() - (range.start_time() - start);
+            }
+            else if (start > range.end_time_inclusive())
+            {
+                start = range.start_time() + (start - range.end_time_inclusive());
+            }
+
+            auto end = otime::TimeRange(start, clamped.duration()).end_time_inclusive();
+            //auto end = start + clamped.duration();
+            bool wrapped = false;
+            if (end < range.start_time())
+            {
+                end = range.end_time_inclusive() - (range.start_time() - end);
+                wrapped = true;
+            }
+            else if (end > range.end_time_inclusive())
+            {
+                end = range.start_time() + (end - range.end_time_inclusive());
+                wrapped = true;
+            }
+
+            if (wrapped)
+            {
+                //! \bug range_from_start_end_time() or range_from_start_end_time_inclusive()?
+                out.push_back(otime::TimeRange::range_from_start_end_time(start, range.end_time_inclusive()));
+                out.push_back(otime::TimeRange::range_from_start_end_time_inclusive(range.start_time(), end));
+            }
+            else
+            {
+                out.push_back(otime::TimeRange::range_from_start_end_time_inclusive(start, end));
             }
             return out;
         }
@@ -110,8 +157,8 @@ namespace tlr
                 const otime::TimeRange& inOutRange,
                 uint16_t videoLayer,
                 CacheDirection,
-                std::size_t cacheReadAhead,
-                std::size_t cacheReadBehind);
+                const otime::RationalTime& cacheReadAhead,
+                const otime::RationalTime& cacheReadBehind);
 
             void resetAudioTime();
             static int rtAudioCallback(
@@ -136,10 +183,10 @@ namespace tlr
             std::shared_ptr<observer::Value<otime::TimeRange> > inOutRange;
             std::shared_ptr<observer::Value<uint16_t> > videoLayer;
             std::shared_ptr<observer::Value<VideoData> > video;
-            std::shared_ptr<observer::Value<float> > cachePercentage;
-            std::shared_ptr<observer::List<otime::TimeRange> > cachedVideoFrames;
             std::shared_ptr<observer::Value<float> > volume;
             std::shared_ptr<observer::Value<bool> > mute;
+            std::shared_ptr<observer::Value<float> > cachePercentage;
+            std::shared_ptr<observer::List<otime::TimeRange> > cachedVideoFrames;
             std::shared_ptr<observer::List<otime::TimeRange> > cachedAudioFrames;
 
             struct ThreadData
@@ -156,8 +203,8 @@ namespace tlr
                 std::vector<otime::TimeRange> cachedAudioFrames;
                 bool clearCache = false;
                 CacheDirection cacheDirection = CacheDirection::Forward;
-                std::size_t cacheReadAhead = 100;
-                std::size_t cacheReadBehind = 10;
+                otime::RationalTime cacheReadAhead = otime::RationalTime(4.0, 1.0);
+                otime::RationalTime cacheReadBehind = otime::RationalTime(0.4, 1.0);
                 std::mutex mutex;
 
                 std::map<otime::RationalTime, std::future<VideoData> > videoDataRequests;
@@ -203,10 +250,10 @@ namespace tlr
                 otime::TimeRange(p.timeline->getGlobalStartTime(), p.timeline->getDuration()));
             p.videoLayer = observer::Value<uint16_t>::create();
             p.video = observer::Value<VideoData>::create();
-            p.cachePercentage = observer::Value<float>::create();
-            p.cachedVideoFrames = observer::List<otime::TimeRange>::create();
             p.volume = observer::Value<float>::create(1.F);
             p.mute = observer::Value<bool>::create(false);
+            p.cachePercentage = observer::Value<float>::create();
+            p.cachedVideoFrames = observer::List<otime::TimeRange>::create();
             p.cachedAudioFrames = observer::List<otime::TimeRange>::create();
 
             // Create a new thread.
@@ -260,8 +307,8 @@ namespace tlr
                         bool clearRequests = false;
                         bool clearCache = false;
                         CacheDirection cacheDirection = CacheDirection::Forward;
-                        std::size_t cacheReadAhead = 0;
-                        std::size_t cacheReadBehind = 0;
+                        otime::RationalTime cacheReadAhead;
+                        otime::RationalTime cacheReadBehind;
                         {
                             std::unique_lock<std::mutex> lock(p.threadData.mutex);
                             playback = p.threadData.playback;
@@ -611,7 +658,7 @@ namespace tlr
 
             // Loop the time.
             auto range = otime::TimeRange(p.timeline->getGlobalStartTime(), p.timeline->getDuration());
-            const auto tmp = loopTime(time, range);
+            const auto tmp = loop(time, range);
 
             if (p.currentTime->setIfChanged(tmp))
             {
@@ -759,44 +806,6 @@ namespace tlr
             return _p->video;
         }
 
-        size_t TimelinePlayer::getCacheReadAhead()
-        {
-            TLR_PRIVATE_P();
-            std::unique_lock<std::mutex> lock(p.threadData.mutex);
-            return p.threadData.cacheReadAhead;
-        }
-
-        size_t TimelinePlayer::getCacheReadBehind()
-        {
-            TLR_PRIVATE_P();
-            std::unique_lock<std::mutex> lock(p.threadData.mutex);
-            return p.threadData.cacheReadBehind;
-        }
-
-        void TimelinePlayer::setCacheReadAhead(size_t value)
-        {
-            TLR_PRIVATE_P();
-            std::unique_lock<std::mutex> lock(p.threadData.mutex);
-            p.threadData.cacheReadAhead = value;
-        }
-
-        void TimelinePlayer::setCacheReadBehind(size_t value)
-        {
-            TLR_PRIVATE_P();
-            std::unique_lock<std::mutex> lock(p.threadData.mutex);
-            p.threadData.cacheReadBehind = value;
-        }
-
-        std::shared_ptr<observer::IValue<float> > TimelinePlayer::observeCachePercentage() const
-        {
-            return _p->cachePercentage;
-        }
-
-        std::shared_ptr<observer::IList<otime::TimeRange> > TimelinePlayer::observeCachedVideoFrames() const
-        {
-            return _p->cachedVideoFrames;
-        }
-
         std::shared_ptr<observer::IValue<float> > TimelinePlayer::observeVolume() const
         {
             return _p->volume;
@@ -825,6 +834,44 @@ namespace tlr
                 std::unique_lock<std::mutex> lock(p.threadData.audioMutex);
                 p.threadData.mute = value;
             }
+        }
+
+        otime::RationalTime TimelinePlayer::getCacheReadAhead()
+        {
+            TLR_PRIVATE_P();
+            std::unique_lock<std::mutex> lock(p.threadData.mutex);
+            return p.threadData.cacheReadAhead;
+        }
+
+        otime::RationalTime TimelinePlayer::getCacheReadBehind()
+        {
+            TLR_PRIVATE_P();
+            std::unique_lock<std::mutex> lock(p.threadData.mutex);
+            return p.threadData.cacheReadBehind;
+        }
+
+        void TimelinePlayer::setCacheReadAhead(const otime::RationalTime& value)
+        {
+            TLR_PRIVATE_P();
+            std::unique_lock<std::mutex> lock(p.threadData.mutex);
+            p.threadData.cacheReadAhead = value;
+        }
+
+        void TimelinePlayer::setCacheReadBehind(const otime::RationalTime& value)
+        {
+            TLR_PRIVATE_P();
+            std::unique_lock<std::mutex> lock(p.threadData.mutex);
+            p.threadData.cacheReadBehind = value;
+        }
+
+        std::shared_ptr<observer::IValue<float> > TimelinePlayer::observeCachePercentage() const
+        {
+            return _p->cachePercentage;
+        }
+
+        std::shared_ptr<observer::IList<otime::TimeRange> > TimelinePlayer::observeCachedVideoFrames() const
+        {
+            return _p->cachedVideoFrames;
         }
 
         std::shared_ptr<observer::IList<otime::TimeRange> > TimelinePlayer::observeCachedAudioFrames() const
@@ -879,8 +926,8 @@ namespace tlr
 
             // Sync with the thread.
             VideoData videoData;
-            int cacheReadAhead = 0;
-            int cacheReadBehind = 0;
+            otime::RationalTime cacheReadAhead;
+            otime::RationalTime cacheReadBehind;
             std::vector<otime::TimeRange> cachedVideoFrames;
             std::vector<otime::TimeRange> cachedAudioFrames;
             {
@@ -899,7 +946,10 @@ namespace tlr
                 cachedVideoFramesCount += i.duration().value();
             }
             p.cachePercentage->setIfChanged(
-                cachedVideoFramesCount / static_cast<float>(cacheReadAhead + cacheReadBehind) * 100.F);
+                cachedVideoFramesCount /
+                static_cast<float>(cacheReadAhead.rescaled_to(duration.value()).value() +
+                    cacheReadBehind.rescaled_to(duration.value()).value()) *
+                100.F);
             p.cachedVideoFrames->setIfChanged(cachedVideoFrames);
             p.cachedAudioFrames->setIfChanged(cachedAudioFrames);
         }
@@ -913,9 +963,9 @@ namespace tlr
             {
             case Loop::Loop:
             {
-                bool loop = false;
-                out = loopTime(out, range, &loop);
-                if (loop)
+                bool looped = false;
+                out = timeline::loop(out, range, &looped);
+                if (looped)
                 {
                     {
                         std::unique_lock<std::mutex> lock(threadData.mutex);
@@ -976,31 +1026,17 @@ namespace tlr
             const otime::TimeRange& inOutRange,
             uint16_t videoLayer,
             CacheDirection cacheDirection,
-            std::size_t cacheReadAhead,
-            std::size_t cacheReadBehind)
+            const otime::RationalTime& cacheReadAhead,
+            const otime::RationalTime& cacheReadBehind)
         {
-            // Get which frames should be cached.
-            std::vector<otime::RationalTime> frames;
+            // Get the ranges to be cached.
             const auto& duration = timeline->getDuration();
-            auto time = currentTime;
-            const auto& range = inOutRange;
-            const size_t backwardsCount = CacheDirection::Forward == cacheDirection ?
-                cacheReadBehind :
-                (cacheReadAhead - 1);
-            for (std::size_t i = 0; i < backwardsCount; ++i)
-            {
-                time = loopTime(time - otime::RationalTime(1, duration.rate()), range);
-            }
-            for (std::size_t i = 0; i < cacheReadBehind + cacheReadAhead; ++i)
-            {
-                if (!frames.empty() && time == frames[0])
-                {
-                    break;
-                }
-                frames.push_back(time);
-                time = loopTime(time + otime::RationalTime(1, duration.rate()), range);
-            }
-            const auto ranges = toRanges(frames);
+            const auto cacheReadAheadRescaled = time::floor(cacheReadAhead.rescaled_to(duration.rate()));
+            const auto cacheReadBehindRescaled = time::floor(cacheReadBehind.rescaled_to(duration.rate()));
+            const auto range = otime::TimeRange::range_from_start_end_time_inclusive(
+                currentTime - cacheReadBehindRescaled,
+                currentTime + cacheReadAheadRescaled);
+            const auto ranges = timeline::loop(range, inOutRange);
             timeline->setActiveRanges(ranges);
 
             // Remove old data from the cache.
@@ -1050,15 +1086,20 @@ namespace tlr
             }
 
             // Get uncached video.
-            for (const auto& i : frames)
+            for (const auto& i : ranges)
             {
-                const auto j = threadData.videoDataCache.find(i);
-                if (j == threadData.videoDataCache.end())
+                for (otime::RationalTime time = i.start_time();
+                    time < i.end_time_exclusive();
+                    time += otime::RationalTime(1.0, duration.rate()))
                 {
-                    const auto k = threadData.videoDataRequests.find(i);
-                    if (k == threadData.videoDataRequests.end())
+                    const auto j = threadData.videoDataCache.find(time);
+                    if (j == threadData.videoDataCache.end())
                     {
-                        threadData.videoDataRequests[i] = timeline->getVideo(i, videoLayer);
+                        const auto k = threadData.videoDataRequests.find(time);
+                        if (k == threadData.videoDataRequests.end())
+                        {
+                            threadData.videoDataRequests[time] = timeline->getVideo(time, videoLayer);
+                        }
                     }
                 }
             }

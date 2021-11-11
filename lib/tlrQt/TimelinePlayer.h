@@ -105,15 +105,6 @@ namespace tlr
             //! Get the video.
             const timeline::VideoData& video() const;
 
-            //! Get the cache read ahead.
-            int cacheReadAhead() const;
-
-            //! Get the cache read behind.
-            int cacheReadBehind() const;
-
-            //! Get the cached video frames.
-            const std::vector<otime::TimeRange>& cachedVideoFrames() const;
-
             ///@}
 
             //! \name Audio
@@ -124,6 +115,20 @@ namespace tlr
 
             //! Get the audio mute.
             bool isMuted() const;
+
+            ///@}
+
+            //! \name Cache
+            ///@{
+
+            //! Get the cache read ahead.
+            otime::RationalTime cacheReadAhead() const;
+
+            //! Get the cache read behind.
+            otime::RationalTime cacheReadBehind() const;
+
+            //! Get the cached video frames.
+            const std::vector<otime::TimeRange>& cachedVideoFrames() const;
 
             //! Get the cached audio frames.
             const std::vector<otime::TimeRange>& cachedAudioFrames() const;
@@ -206,12 +211,6 @@ namespace tlr
             //! Set the current video layer.
             void setVideoLayer(int);
 
-            //! Set the cache read ahead.
-            void setCacheReadAhead(int);
-
-            //! Set the cache read behind.
-            void setCacheReadBehind(int);
-
             ///@}
 
             //! \name Audio
@@ -222,6 +221,17 @@ namespace tlr
 
             //! Set the audio mute.
             void setMute(bool);
+
+            ///@}
+
+            //! \name Cache
+            ///@{
+
+            //! Set the cache read ahead.
+            void setCacheReadAhead(const otime::RationalTime&);
+
+            //! Set the cache read behind.
+            void setCacheReadBehind(const otime::RationalTime&);
 
             ///@}
 
@@ -255,9 +265,6 @@ namespace tlr
             //! This signal is emitted when the video is changed.
             void videoChanged(const tlr::timeline::VideoData&);
 
-            //! This signal is emitted when the cached video frames are changed.
-            void cachedVideoFramesChanged(const std::vector<otime::TimeRange>&);
-
             ///@}
 
             //! \name Audio
@@ -268,6 +275,14 @@ namespace tlr
 
             //! This signal is emitted when the audio mute is changed.
             void muteChanged(bool);
+
+            ///@}
+
+            //! \name Cache
+            ///@{
+
+            //! This signal is emitted when the cached video frames are changed.
+            void cachedVideoFramesChanged(const std::vector<otime::TimeRange>&);
 
             //! This signal is emitted when the cached audio frames are changed.
             void cachedAudioFramesChanged(const std::vector<otime::TimeRange>&);

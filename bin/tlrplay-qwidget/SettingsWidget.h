@@ -12,6 +12,7 @@
 #include <QButtonGroup>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QDoubleSpinBox>
 #include <QMap>
 #include <QRadioButton>
 #include <QSpinBox>
@@ -29,12 +30,12 @@ namespace tlr
         CacheSettingsWidget(SettingsObject*, QWidget* parent = nullptr);
 
     private Q_SLOTS:
-        void _readAheadCallback(int);
-        void _readBehindCallback(int);
+        void _readAheadCallback(double);
+        void _readBehindCallback(double);
 
     private:
-        QSpinBox* _readAheadSpinBox = nullptr;
-        QSpinBox* _readBehindSpinBox = nullptr;
+        QDoubleSpinBox* _readAheadSpinBox = nullptr;
+        QDoubleSpinBox* _readBehindSpinBox = nullptr;
     };
 
     //! Performance settings widget.

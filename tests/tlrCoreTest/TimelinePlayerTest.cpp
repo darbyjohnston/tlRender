@@ -32,7 +32,7 @@ namespace tlr
         void TimelinePlayerTest::run()
         {
             _enums();
-            _loopTime();
+            _loop();
             _timelinePlayer();
         }
 
@@ -43,14 +43,26 @@ namespace tlr
             ITest::_enum<TimeAction>("TimeAction", getTimeActionEnums);
         }
 
-        void TimelinePlayerTest::_loopTime()
+        void TimelinePlayerTest::_loop()
         {
-            const otime::TimeRange timeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0));
-            TLR_ASSERT(otime::RationalTime(0.0, 24.0) == loopTime(otime::RationalTime(0.0, 24.0), timeRange));
-            TLR_ASSERT(otime::RationalTime(1.0, 24.0) == loopTime(otime::RationalTime(1.0, 24.0), timeRange));
-            TLR_ASSERT(otime::RationalTime(23.0, 24.0) == loopTime(otime::RationalTime(23.0, 24.0), timeRange));
-            TLR_ASSERT(otime::RationalTime(0.0, 24.0) == loopTime(otime::RationalTime(24.0, 24.0), timeRange));
-            TLR_ASSERT(otime::RationalTime(23.0, 24.0) == loopTime(otime::RationalTime(-1.0, 24.0), timeRange));
+            {
+                const otime::TimeRange timeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0));
+                TLR_ASSERT(otime::RationalTime(0.0, 24.0) == loop(otime::RationalTime(0.0, 24.0), timeRange));
+                TLR_ASSERT(otime::RationalTime(1.0, 24.0) == loop(otime::RationalTime(1.0, 24.0), timeRange));
+                TLR_ASSERT(otime::RationalTime(23.0, 24.0) == loop(otime::RationalTime(23.0, 24.0), timeRange));
+                TLR_ASSERT(otime::RationalTime(0.0, 24.0) == loop(otime::RationalTime(24.0, 24.0), timeRange));
+                TLR_ASSERT(otime::RationalTime(23.0, 24.0) == loop(otime::RationalTime(-1.0, 24.0), timeRange));
+            }
+            {
+                const otime::TimeRange timeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0));
+                auto ranges = loop(otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0)), timeRange);
+                TLR_ASSERT(1 == ranges.size());
+                TLR_ASSERT(otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0)) == ranges[0]);
+                ranges = loop(otime::TimeRange(otime::RationalTime(-10.0, 24.0), otime::RationalTime(34.0, 24.0)), timeRange);
+                TLR_ASSERT(2 == ranges.size());
+                TLR_ASSERT(otime::TimeRange(otime::RationalTime(13.0, 24.0), otime::RationalTime(10.0, 24.0)) == ranges[0]);
+                TLR_ASSERT(otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(14.0, 24.0)) == ranges[1]);
+            }
         }
 
         void TimelinePlayerTest::_timelinePlayer()
@@ -119,14 +131,14 @@ namespace tlr
             struct FrameOptions
             {
                 uint16_t layer = 0;
-                int readAhead = 100;
-                int readBehind = 10;
+                otime::RationalTime readAhead = otime::RationalTime(4.0, 1.0);
+                otime::RationalTime readBehind = otime::RationalTime(0.4, 1.0);
                 size_t requestCount = 16;
                 size_t requestTimeout = 1;
             };
             for (const auto options : std::vector<FrameOptions>({
                 FrameOptions(),
-                { 1, 1, 0 } }))
+                { 1, otime::RationalTime(1.0, 24.0), otime::RationalTime(0.0, 1.0) }}))
             {
                 timelinePlayer->setCacheReadAhead(options.readAhead);
                 TLR_ASSERT(options.readAhead == timelinePlayer->getCacheReadAhead());

@@ -24,8 +24,8 @@ namespace tlr
             _recentFiles.push_back(settings.value("File").toString().toUtf8().data());
         }
         settings.endArray();
-        _cacheReadAhead = settings.value("Cache/ReadAhead", 100).toInt();
-        _cacheReadBehind = settings.value("Cache/ReadBehind", 10).toInt();
+        _cacheReadAhead = settings.value("Cache/ReadAhead", 4.0).toDouble();
+        _cacheReadBehind = settings.value("Cache/ReadBehind", 0.4).toDouble();
         _timerMode = static_cast<timeline::TimerMode>(settings.value(
             "Performance/TimerMode",
             static_cast<int>(timeline::TimerMode::System)).toInt());
@@ -52,6 +52,8 @@ namespace tlr
             settings.setValue("File", _recentFiles[i]);
         }
         settings.endArray();
+        settings.setValue("Cache/ReadAhead", _cacheReadAhead);
+        settings.setValue("Cache/ReadBehind", _cacheReadBehind);
         settings.setValue("Performance/TimerMode", static_cast<int>(_timerMode));
         settings.setValue("Performance/AudioBufferFrameCount", static_cast<int>(_audioBufferFrameCount));
         settings.setValue("Performance/VideoRequestCount", _videoRequestCount);
@@ -68,12 +70,12 @@ namespace tlr
         return _recentFiles;
     }
 
-    int SettingsObject::cacheReadAhead() const
+    double SettingsObject::cacheReadAhead() const
     {
         return _cacheReadAhead;
     }
 
-    int SettingsObject::cacheReadBehind() const
+    double SettingsObject::cacheReadBehind() const
     {
         return _cacheReadBehind;
     }
@@ -124,7 +126,7 @@ namespace tlr
         Q_EMIT recentFilesChanged(_recentFiles);
     }
 
-    void SettingsObject::setCacheReadAhead(int value)
+    void SettingsObject::setCacheReadAhead(double value)
     {
         if (value == _cacheReadAhead)
             return;
@@ -132,7 +134,7 @@ namespace tlr
         Q_EMIT cacheReadAheadChanged(_cacheReadAhead);
     }
 
-    void SettingsObject::setCacheReadBehind(int value)
+    void SettingsObject::setCacheReadBehind(double value)
     {
         if (value == _cacheReadBehind)
             return;

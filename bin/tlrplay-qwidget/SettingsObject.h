@@ -27,10 +27,10 @@ namespace tlr
         const QList<QString>& recentFiles() const;
 
         //! Get the cache read ahead.
-        int cacheReadAhead() const;
+        double cacheReadAhead() const;
 
         //! Get the cache read behind.
-        int cacheReadBehind() const;
+        double cacheReadBehind() const;
 
         //! Get the timer mode.
         timeline::TimerMode timerMode();
@@ -58,10 +58,10 @@ namespace tlr
         void addRecentFile(const QString&);
 
         //! Set the cache read ahead.
-        void setCacheReadAhead(int);
+        void setCacheReadAhead(double);
 
         //! Set the cache read behind.
-        void setCacheReadBehind(int);
+        void setCacheReadBehind(double);
 
         //! Set the timer mode.
         void setTimerMode(tlr::timeline::TimerMode);
@@ -89,10 +89,10 @@ namespace tlr
         void recentFilesChanged(const QList<QString>&);
 
         //! This signal is emitted when the cache read ahead is changed.
-        void cacheReadAheadChanged(int);
+        void cacheReadAheadChanged(double);
 
         //! This signal is emitted when the cache read behind is changed.
-        void cacheReadBehindChanged(int);
+        void cacheReadBehindChanged(double);
 
         //! This signal is emitted when the timer mode is changed.
         void timerModeChanged(tlr::timeline::TimerMode);
@@ -120,8 +120,8 @@ namespace tlr
 
         QList<QString> _recentFiles;
         const int _recentFilesMax = 10;
-        int _cacheReadAhead = 100;
-        int _cacheReadBehind = 10;
+        double _cacheReadAhead = 4.0;
+        double _cacheReadBehind = 0.4;
         timeline::TimerMode _timerMode = timeline::TimerMode::System;
         timeline::AudioBufferFrameCount _audioBufferFrameCount = timeline::AudioBufferFrameCount::_256;
         int _videoRequestCount = 16;
