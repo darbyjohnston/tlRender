@@ -440,6 +440,17 @@ namespace tlr
                     break;
                 }
             }
+            if (-1 == p.audio.avStream)
+            {
+                for (unsigned int i = 0; i < p.audio.avFormatContext->nb_streams; ++i)
+                {
+                    if (AVMEDIA_TYPE_AUDIO == p.audio.avFormatContext->streams[i]->codecpar->codec_type)
+                    {
+                        p.audio.avStream = i;
+                        break;
+                    }
+                }
+            }
             if (p.audio.avStream != -1)
             {
                 auto avAudioStream = p.audio.avFormatContext->streams[p.audio.avStream];

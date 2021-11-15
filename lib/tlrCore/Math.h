@@ -9,6 +9,18 @@ namespace tlr
     //! Math.
     namespace math
     {
+        //! Approximate value of PI.
+        static const float pi = 3.14159265359F;
+
+        //! Approximate value of PI times two.
+        static const float pi2 = pi * 2.F;
+
+        //! Convert degress to radians.
+        constexpr float deg2rad(float) noexcept;
+
+        //! Convert radians to degress.
+        constexpr float rad2deg(float) noexcept;
+
         //! Clamp a value.
         template<typename T>
         constexpr T clamp(T value, T min, T max);

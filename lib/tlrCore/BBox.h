@@ -4,23 +4,24 @@
 
 #pragma once
 
-#include <tlrCore/Vector.h>
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 
 namespace tlr
 {
     namespace math
     {
         //! Two-dimensional bounding box.
-        template<typename T>
+        template<typename T, glm::precision P = glm::defaultp>
         class BBox2
         {
         public:
             BBox2() noexcept;
-            explicit BBox2(const Vector2<T>&) noexcept;
-            BBox2(const Vector2<T>& min, const Vector2<T>& max) noexcept;
+            explicit BBox2(const glm::tvec2<T, P>&) noexcept;
+            BBox2(const glm::tvec2<T, P>& min, const glm::tvec2<T, P>& max) noexcept;
             BBox2(T x, T y, T w, T h) noexcept;
 
-            Vector2<T> min, max;
+            glm::tvec2<T, P> min, max;
 
             //! \name Components
             ///@{
@@ -39,8 +40,8 @@ namespace tlr
             //! \name Dimensions
             ///@{
 
-            Vector2<T> getSize() const noexcept;
-            Vector2<T> getCenter() const noexcept;
+            glm::tvec2<T, P> getSize() const noexcept;
+            glm::tvec2<T, P> getCenter() const noexcept;
             T getArea() const noexcept;
             float getAspect() const noexcept;
 
@@ -49,33 +50,33 @@ namespace tlr
             //! \name Intersections
             ///@{
 
-            bool contains(const BBox2<T>&) const noexcept;
-            bool contains(const Vector2<T>&) const noexcept;
+            bool contains(const BBox2<T, P>&) const noexcept;
+            bool contains(const glm::tvec2<T, P>&) const noexcept;
 
-            bool intersects(const BBox2<T>&) const noexcept;
-            BBox2<T> intersect(const BBox2<T>&) const;
+            bool intersects(const BBox2<T, P>&) const noexcept;
+            BBox2<T, P> intersect(const BBox2<T, P>&) const;
 
             ///@}
 
             //! \name Expand
             ///@{
 
-            void expand(const BBox2<T>&);
-            void expand(const Vector2<T>&);
+            void expand(const BBox2<T, P>&);
+            void expand(const glm::tvec2<T, P>&);
 
             ///@}
 
             //! \name Margin
             ///@{
 
-            constexpr BBox2<T> margin(const Vector2<T>&) const noexcept;
-            constexpr BBox2<T> margin(T) const noexcept;
-            constexpr BBox2<T> margin(T x0, T y0, T x1, T y1) const noexcept;
+            constexpr BBox2<T, P> margin(const glm::tvec2<T, P>&) const noexcept;
+            constexpr BBox2<T, P> margin(T) const noexcept;
+            constexpr BBox2<T, P> margin(T x0, T y0, T x1, T y1) const noexcept;
 
             ///@}
 
-            constexpr bool operator == (const BBox2<T>&) const noexcept;
-            constexpr bool operator != (const BBox2<T>&) const noexcept;
+            constexpr bool operator == (const BBox2<T, P>&) const noexcept;
+            constexpr bool operator != (const BBox2<T, P>&) const noexcept;
         };
 
         //! Two-dimensional integer bounding box.

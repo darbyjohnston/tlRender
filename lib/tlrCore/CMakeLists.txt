@@ -32,8 +32,6 @@ set(HEADERS
     MapObserverInline.h
     Math.h
     MathInline.h
-    Matrix.h
-    MatrixInline.h
     Memory.h
     MemoryInline.h
     Observer.h
@@ -53,9 +51,7 @@ set(HEADERS
     TimelinePlayerInline.h
     Util.h
     ValueObserver.h
-    ValueObserverInline.h
-    Vector.h
-    VectorInline.h)
+    ValueObserverInline.h)
 set(SOURCE
     AVIO.cpp
     AVIOSystem.cpp
@@ -101,7 +97,7 @@ else()
         TimeUnix.cpp)
 endif()
 
-set(tlrCore_LIBRARIES OTIO FSeq RtAudio libsamplerate)
+set(tlrCore_LIBRARIES OTIO FSeq GLM RtAudio libsamplerate)
 if(TLR_ENABLE_PYTHON)
     list(APPEND tlrCore_LIBRARIES Python3::Python)
 endif()

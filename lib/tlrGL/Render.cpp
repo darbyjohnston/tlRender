@@ -19,6 +19,8 @@
 
 #include <OpenColorIO/OpenColorIO.h>
 
+#include <glm/gtc/matrix_transform.hpp>
+
 #include <array>
 #include <list>
 
@@ -782,7 +784,7 @@ namespace tlr
                 p.shader = Shader::create(vertexSource, source);
             }
             p.shader->bind();
-            const auto viewMatrix = math::ortho(
+            const auto viewMatrix = glm::ortho(
                 0.F,
                 static_cast<float>(p.size.w),
                 static_cast<float>(p.size.h),
@@ -876,63 +878,63 @@ namespace tlr
                 return (f0 + f1) / 2.F;
             }
 
-            math::Matrix4x4f brightnessMatrix(const math::Vector3f& value)
+            glm::mat4x4 brightnessMatrix(const glm::vec3& value)
             {
-                return math::Matrix4x4f(
+                return glm::mat4x4(
                     value.x, 0.F,     0.F,     0.F,
                     0.F,     value.y, 0.F,     0.F,
                     0.F,     0.F,     value.z, 0.F,
                     0.F,     0.F,     0.F,     1.F);
             }
 
-            math::Matrix4x4f contrastMatrix(const math::Vector3f& value)
+            glm::mat4x4 contrastMatrix(const glm::vec3& value)
             {
                 return
-                    math::Matrix4x4f(
+                    glm::mat4x4(
                         1.F, 0.F, 0.F, -.5F,
                         0.F, 1.F, 0.F, -.5F,
                         0.F, 0.F, 1.F, -.5F,
                         0.F, 0.F, 0.F, 1.F) *
-                    math::Matrix4x4f(
+                    glm::mat4x4(
                         value.x, 0.F,      0.F,      0.F,
                         0.F,      value.y, 0.F,      0.F,
                         0.F,      0.F,      value.z, 0.F,
                         0.F,      0.F,      0.F,      1.F) *
-                    math::Matrix4x4f(
+                    glm::mat4x4(
                         1.F, 0.F, 0.F,  .5F,
                         0.F, 1.F, 0.F,  .5F,
                         0.F, 0.F, 1.F,  .5F,
                         0.F, 0.F, 0.F, 1.F);
             }
 
-            math::Matrix4x4f saturationMatrix(const math::Vector3f& value)
+            glm::mat4x4 saturationMatrix(const glm::vec3& value)
             {
-                const math::Vector3f s(
+                const glm::vec3 s(
                     (1.F - value.x) * .3086F,
                     (1.F - value.y) * .6094F,
                     (1.F - value.z) * .0820F);
-                return math::Matrix4x4f(
+                return glm::mat4x4(
                     s.x + value.x, s.y,           s.z,           0.F,
                     s.x,           s.y + value.y, s.z,           0.F,
                     s.x,           s.y,           s.z + value.z, 0.F,
                     0.F,           0.F,           0.F,           1.F);
             }
 
-            math::Matrix4x4f tintMatrix(float v)
+            glm::mat4x4 tintMatrix(float v)
             {
                 const float c = cos(v * M_PI * 2.F);
                 const float c2 = 1.F - c;
                 const float c3 = 1.F / 3.F * c2;
                 const float s = sin(v * M_PI * 2.F);
                 const float sq = sqrtf(1.F / 3.F);
-                return math::Matrix4x4f(
+                return glm::mat4x4(
                     c + c2 / 3.F, c3 - sq * s, c3 + sq * s, 0.F,
                     c3 + sq * s,  c + c3,      c3 - sq * s, 0.F,
                     c3 - sq * s,  c3 + sq * s, c + c3,      0.F,
                     0.F,          0.F,         0.F,         1.F);
             }
 
-            math::Matrix4x4f colorMatrix(const ImageColor& in)
+            glm::mat4x4 colorMatrix(const ImageColor& in)
             {
                 return
                     brightnessMatrix(in.brightness) *
@@ -1142,7 +1144,7 @@ namespace tlr
 
         void Render::drawText(
             const std::vector<std::shared_ptr<Glyph> >& glyphs,
-            const math::Vector2f& pos,
+            const glm::vec2& pos,
             const imaging::Color4f& color)
         {
             TLR_PRIVATE_P();
@@ -1183,7 +1185,7 @@ namespace tlr
                         glBindTexture(GL_TEXTURE_2D, texture->getID());
 
                         const imaging::Size& size = glyph->image->getSize();
-                        const math::Vector2f& offset = glyph->offset;
+                        const glm::vec2& offset = glyph->offset;
                         const math::BBox2f bbox(pos.x + x + offset.x, pos.y - offset.y, size.w, size.h);
 
                         std::vector<uint8_t> vboData;

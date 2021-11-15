@@ -60,7 +60,7 @@ namespace tlr
                 const std::basic_string<tlr_char_t>& utf32,
                 const FontInfo&,
                 uint16_t maxLineWidth,
-                math::Vector2f&,
+                glm::vec2&,
                 std::vector<math::BBox2f>* = nullptr);
 
             FT_Library ftLibrary = nullptr;
@@ -144,10 +144,10 @@ namespace tlr
             return out;
         }
 
-        math::Vector2f FontSystem::measure(const std::string& text, const FontInfo& fontInfo)
+        glm::vec2 FontSystem::measure(const std::string& text, const FontInfo& fontInfo)
         {
             TLR_PRIVATE_P();
-            math::Vector2f out;
+            glm::vec2 out;
             const auto utf32 = p.utf32Convert.from_bytes(text);
             p.measure(utf32, fontInfo, std::numeric_limits<int16_t>::max(), out);
             return out;
@@ -158,7 +158,7 @@ namespace tlr
             TLR_PRIVATE_P();
             std::vector<math::BBox2f> out;
             const auto utf32 = p.utf32Convert.from_bytes(text);
-            math::Vector2f size;
+            glm::vec2 size;
             p.measure(utf32, fontInfo, std::numeric_limits<int16_t>::max(), size, &out);
             return out;
         }
@@ -244,7 +244,7 @@ namespace tlr
                         out = std::make_shared<Glyph>();
                         out->glyphInfo = GlyphInfo(code, fontInfo);
                         out->image = convert(reinterpret_cast<FT_BitmapGlyph>(ftGlyph)->bitmap);
-                        out->offset = math::Vector2f(i->second->glyph->bitmap_left, i->second->glyph->bitmap_top);
+                        out->offset = glm::vec2(i->second->glyph->bitmap_left, i->second->glyph->bitmap_top);
                         out->advance = static_cast<float>(i->second->glyph->advance.x / 64.F);
                         out->lsbDelta = i->second->glyph->lsb_delta;
                         out->rsbDelta = i->second->glyph->rsb_delta;
@@ -274,13 +274,13 @@ namespace tlr
             const std::basic_string<tlr_char_t>& utf32,
             const FontInfo& fontInfo,
             uint16_t maxLineWidth,
-            math::Vector2f& size,
+            glm::vec2& size,
             std::vector<math::BBox2f>* glyphGeom)
         {
             const auto i = ftFaces.find(fontInfo.family);
             if (i != ftFaces.end())
             {
-                math::Vector2f pos(0.F, 0.F);
+                glm::vec2 pos(0.F, 0.F);
                 FT_Error ftError = FT_Set_Pixel_Sizes(
                     i->second,
                     0,
@@ -307,7 +307,7 @@ namespace tlr
                     }
 
                     int32_t x = 0;
-                    math::Vector2f posAndSize(0.F, 0.F);
+                    glm::vec2 posAndSize(0.F, 0.F);
                     if (glyph && glyph->image)
                     {
                         x = glyph->advance;
