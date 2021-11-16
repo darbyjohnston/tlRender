@@ -34,6 +34,7 @@ set(HEADERS
     MathInline.h
     Memory.h
     MemoryInline.h
+	Mesh.h
     Observer.h
     PPM.h
     Path.h
@@ -72,6 +73,7 @@ set(SOURCE
     Image.cpp
     LogSystem.cpp
     Memory.cpp
+	Mesh.cpp
     PPM.cpp
     PPMRead.cpp
     PPMWrite.cpp

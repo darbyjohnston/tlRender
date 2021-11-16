@@ -5,6 +5,7 @@
 #include <tlrGL/Mesh.h>
 
 #include <tlrCore/Math.h>
+#include <tlrCore/Mesh.h>
 
 #include <array>
 
@@ -12,6 +13,25 @@ namespace tlr
 {
     namespace gl
     {
+        namespace
+        {
+            struct PackedNormal
+            {
+                unsigned int x : 10;
+                unsigned int y : 10;
+                unsigned int z : 10;
+                unsigned int unused : 2;
+            };
+
+            struct PackedColor
+            {
+                unsigned int r : 8;
+                unsigned int g : 8;
+                unsigned int b : 8;
+                unsigned int a : 8;
+            };
+        }
+
         std::size_t getByteCount(VBOType value)
         {
             const std::array<size_t, static_cast<size_t>(VBOType::Count)> data =
@@ -26,6 +46,192 @@ namespace tlr
                 16  // 3 * sizeof(float) + sizeof(PackedColor)
             };
             return data[static_cast<size_t>(value)];
+        }
+
+        std::vector<uint8_t> convert(
+            const geom::TriangleMesh& mesh,
+            gl::VBOType type,
+            const math::SizeTRange& range)
+        {
+            const size_t vertexByteCount = gl::getByteCount(type);
+            std::vector<uint8_t> out((range.getMax() - range.getMin() + 1) * 3 * vertexByteCount);
+            uint8_t* p = out.data();
+            switch (type)
+            {
+            case gl::VBOType::Pos3_F32_UV_U16:
+                for (size_t i = range.getMin(); i <= range.getMax(); ++i)
+                {
+                    const geom::Vertex* vertices[] =
+                    {
+                        &mesh.triangles[i].v0,
+                        &mesh.triangles[i].v1,
+                        &mesh.triangles[i].v2
+                    };
+                    for (size_t k = 0; k < 3; ++k)
+                    {
+                        const size_t v = vertices[k]->v;
+                        float* pf = reinterpret_cast<float*>(p);
+                        pf[0] = v ? mesh.v[v - 1].x : 0.F;
+                        pf[1] = v ? mesh.v[v - 1].y : 0.F;
+                        pf[2] = v ? mesh.v[v - 1].z : 0.F;
+                        p += 3 * sizeof(float);
+
+                        const size_t t = vertices[k]->t;
+                        uint16_t* pu16 = reinterpret_cast<uint16_t*>(p);
+                        pu16[0] = t ? math::clamp(static_cast<int>(mesh.t[t - 1].x * 65535.F), 0, 65535) : 0;
+                        pu16[1] = t ? math::clamp(static_cast<int>(mesh.t[t - 1].y * 65535.F), 0, 65535) : 0;
+                        p += 2 * sizeof(uint16_t);
+                    }
+                }
+                break;
+            case gl::VBOType::Pos3_F32_UV_U16_Normal_U10:
+                for (size_t i = range.getMin(); i <= range.getMax(); ++i)
+                {
+                    const geom::Vertex* vertices[] =
+                    {
+                        &mesh.triangles[i].v0,
+                        &mesh.triangles[i].v1,
+                        &mesh.triangles[i].v2
+                    };
+                    for (size_t k = 0; k < 3; ++k)
+                    {
+                        const size_t v = vertices[k]->v;
+                        float* pf = reinterpret_cast<float*>(p);
+                        pf[0] = v ? mesh.v[v - 1].x : 0.F;
+                        pf[1] = v ? mesh.v[v - 1].y : 0.F;
+                        pf[2] = v ? mesh.v[v - 1].z : 0.F;
+                        p += 3 * sizeof(float);
+
+                        const size_t t = vertices[k]->t;
+                        uint16_t* pu16 = reinterpret_cast<uint16_t*>(p);
+                        pu16[0] = t ? math::clamp(static_cast<int>(mesh.t[t - 1].x * 65535.F), 0, 65535) : 0;
+                        pu16[1] = t ? math::clamp(static_cast<int>(mesh.t[t - 1].y * 65535.F), 0, 65535) : 0;
+                        p += 2 * sizeof(uint16_t);
+
+                        const size_t n = vertices[k]->n;
+                        auto packedNormal = reinterpret_cast<PackedNormal*>(p);
+                        packedNormal->x = n ? math::clamp(static_cast<int>(mesh.n[n - 1].x * 511.F), -512, 511) : 0;
+                        packedNormal->y = n ? math::clamp(static_cast<int>(mesh.n[n - 1].y * 511.F), -512, 511) : 0;
+                        packedNormal->z = n ? math::clamp(static_cast<int>(mesh.n[n - 1].z * 511.F), -512, 511) : 0;
+                        p += sizeof(PackedNormal);
+                    }
+                }
+                break;
+            case gl::VBOType::Pos3_F32_UV_U16_Normal_U10_Color_U8:
+                for (size_t i = range.getMin(); i <= range.getMax(); ++i)
+                {
+                    const geom::Vertex* vertices[] =
+                    {
+                        &mesh.triangles[i].v0,
+                        &mesh.triangles[i].v1,
+                        &mesh.triangles[i].v2
+                    };
+                    for (size_t k = 0; k < 3; ++k)
+                    {
+                        const size_t v = vertices[k]->v;
+                        float* pf = reinterpret_cast<float*>(p);
+                        pf[0] = v ? mesh.v[v - 1].x : 0.F;
+                        pf[1] = v ? mesh.v[v - 1].y : 0.F;
+                        pf[2] = v ? mesh.v[v - 1].z : 0.F;
+                        p += 3 * sizeof(float);
+
+                        const size_t t = vertices[k]->t;
+                        uint16_t* pu16 = reinterpret_cast<uint16_t*>(p);
+                        pu16[0] = t ? math::clamp(static_cast<int>(mesh.t[t - 1].x * 65535.F), 0, 65535) : 0;
+                        pu16[1] = t ? math::clamp(static_cast<int>(mesh.t[t - 1].y * 65535.F), 0, 65535) : 0;
+                        p += 2 * sizeof(uint16_t);
+
+                        const size_t n = vertices[k]->n;
+                        auto packedNormal = reinterpret_cast<PackedNormal*>(p);
+                        packedNormal->x = n ? math::clamp(static_cast<int>(mesh.n[n - 1].x * 511.F), -512, 511) : 0;
+                        packedNormal->y = n ? math::clamp(static_cast<int>(mesh.n[n - 1].y * 511.F), -512, 511) : 0;
+                        packedNormal->z = n ? math::clamp(static_cast<int>(mesh.n[n - 1].z * 511.F), -512, 511) : 0;
+                        p += sizeof(PackedNormal);
+
+                        auto packedColor = reinterpret_cast<PackedColor*>(p);
+                        packedColor->r = v ? math::clamp(static_cast<int>(mesh.c[v - 1].x * 255.F), 0, 255) : 0;
+                        packedColor->g = v ? math::clamp(static_cast<int>(mesh.c[v - 1].y * 255.F), 0, 255) : 0;
+                        packedColor->b = v ? math::clamp(static_cast<int>(mesh.c[v - 1].z * 255.F), 0, 255) : 0;
+                        packedColor->a = 255;
+                        p += sizeof(PackedColor);
+                    }
+                }
+                break;
+            case gl::VBOType::Pos3_F32_UV_F32_Normal_F32:
+                for (size_t i = range.getMin(); i <= range.getMax(); ++i)
+                {
+                    const geom::Vertex* vertices[] =
+                    {
+                        &mesh.triangles[i].v0,
+                        &mesh.triangles[i].v1,
+                        &mesh.triangles[i].v2
+                    };
+                    for (size_t k = 0; k < 3; ++k)
+                    {
+                        const size_t v = vertices[k]->v;
+                        float* pf = reinterpret_cast<float*>(p);
+                        pf[0] = v ? mesh.v[v - 1].x : 0.F;
+                        pf[1] = v ? mesh.v[v - 1].y : 0.F;
+                        pf[2] = v ? mesh.v[v - 1].z : 0.F;
+                        p += 3 * sizeof(float);
+
+                        const size_t t = vertices[k]->t;
+                        pf = reinterpret_cast<float*>(p);
+                        pf[0] = t ? mesh.t[t - 1].x : 0.F;
+                        pf[1] = t ? mesh.t[t - 1].y : 0.F;
+                        p += 2 * sizeof(float);
+
+                        const size_t n = vertices[k]->n;
+                        pf = reinterpret_cast<float*>(p);
+                        pf[0] = n ? mesh.n[n - 1].x : 0.F;
+                        pf[1] = n ? mesh.n[n - 1].y : 0.F;
+                        pf[2] = n ? mesh.n[n - 1].z : 0.F;
+                        p += 3 * sizeof(float);
+                    }
+                }
+                break;
+            case gl::VBOType::Pos3_F32_UV_F32_Normal_F32_Color_F32:
+                for (size_t i = range.getMin(); i <= range.getMax(); ++i)
+                {
+                    const geom::Vertex* vertices[] =
+                    {
+                        &mesh.triangles[i].v0,
+                        &mesh.triangles[i].v1,
+                        &mesh.triangles[i].v2
+                    };
+                    for (size_t k = 0; k < 3; ++k)
+                    {
+                        const size_t v = vertices[k]->v;
+                        float* pf = reinterpret_cast<float*>(p);
+                        pf[0] = v ? mesh.v[v - 1].x : 0.F;
+                        pf[1] = v ? mesh.v[v - 1].y : 0.F;
+                        pf[2] = v ? mesh.v[v - 1].z : 0.F;
+                        p += 3 * sizeof(float);
+
+                        const size_t t = vertices[k]->t;
+                        pf = reinterpret_cast<float*>(p);
+                        pf[0] = t ? mesh.t[t - 1].x : 0.F;
+                        pf[1] = t ? mesh.t[t - 1].y : 0.F;
+                        p += 2 * sizeof(float);
+
+                        const size_t n = vertices[k]->n;
+                        pf = reinterpret_cast<float*>(p);
+                        pf[0] = n ? mesh.n[n - 1].x : 0.F;
+                        pf[1] = n ? mesh.n[n - 1].y : 0.F;
+                        pf[2] = n ? mesh.n[n - 1].z : 0.F;
+                        p += 3 * sizeof(float);
+
+                        pf = reinterpret_cast<float*>(p);
+                        pf[0] = v ? mesh.c[v - 1].x : 1.F;
+                        pf[1] = v ? mesh.c[v - 1].y : 1.F;
+                        pf[2] = v ? mesh.c[v - 1].z : 1.F;
+                        p += 3 * sizeof(float);
+                    }
+                }
+                break;
+            default: break;
+            }
+            return out;
         }
 
         void VBO::_init(std::size_t size, VBOType type)
@@ -92,25 +298,6 @@ namespace tlr
         {
             glBindBuffer(GL_ARRAY_BUFFER, _vbo);
             glBufferSubData(GL_ARRAY_BUFFER, offset, static_cast<GLsizei>(size), (void*)data.data());
-        }
-
-        namespace
-        {
-            struct PackedNormal
-            {
-                unsigned int x : 10;
-                unsigned int y : 10;
-                unsigned int z : 10;
-                unsigned int unused : 2;
-            };
-
-            struct PackedColor
-            {
-                unsigned int r : 8;
-                unsigned int g : 8;
-                unsigned int b : 8;
-                unsigned int a : 8;
-            };
         }
 
         void VAO::_init(VBOType type, GLuint vbo)
