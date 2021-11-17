@@ -14,7 +14,6 @@ set(HEADERS
     ListObserverTest.h
     MapObserverTest.h
     MathTest.h
-    MatrixTest.h
     MemoryTest.h
     PPMTest.h
     PathTest.h
@@ -24,8 +23,7 @@ set(HEADERS
     TimeTest.h
     TimelinePlayerTest.h
     TimelineTest.h
-    ValueObserverTest.h
-    VectorTest.h)
+    ValueObserverTest.h)
 set(SOURCE
     AVIOTest.cpp
     AudioTest.cpp
@@ -42,7 +40,6 @@ set(SOURCE
     ListObserverTest.cpp
     MapObserverTest.cpp
     MathTest.cpp
-    MatrixTest.cpp
     MemoryTest.cpp
     PPMTest.cpp
     PathTest.cpp
@@ -52,8 +49,7 @@ set(SOURCE
     TimeTest.cpp
     TimelinePlayerTest.cpp
     TimelineTest.cpp
-    ValueObserverTest.cpp
-    VectorTest.cpp)
+    ValueObserverTest.cpp)
 if(FFmpeg_FOUND)
     list(APPEND HEADERS FFmpegTest.h)
     list(APPEND SOURCE FFmpegTest.cpp)
