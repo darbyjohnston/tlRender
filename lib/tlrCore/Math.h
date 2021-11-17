@@ -10,10 +10,10 @@ namespace tlr
     namespace math
     {
         //! Approximate value of PI.
-        static const float pi = 3.14159265359F;
+        constexpr float pi = 3.14159265359F;
 
         //! Approximate value of PI times two.
-        static const float pi2 = pi * 2.F;
+        constexpr float pi2 = pi * 2.F;
 
         //! Convert degress to radians.
         constexpr float deg2rad(float) noexcept;
