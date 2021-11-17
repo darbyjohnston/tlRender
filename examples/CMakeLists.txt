@@ -1,3 +1,4 @@
 if(TLR_BUILD_QT)
+    add_subdirectory(panorama-qwidget)
     add_subdirectory(simple-qwidget)
 endif()
