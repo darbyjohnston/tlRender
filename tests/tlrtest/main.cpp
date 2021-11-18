@@ -17,7 +17,6 @@
 #include <tlrCoreTest/ListObserverTest.h>
 #include <tlrCoreTest/MapObserverTest.h>
 #include <tlrCoreTest/MathTest.h>
-#include <tlrCoreTest/MatrixTest.h>
 #include <tlrCoreTest/MemoryTest.h>
 #include <tlrCoreTest/PPMTest.h>
 #include <tlrCoreTest/PathTest.h>
@@ -28,7 +27,6 @@
 #include <tlrCoreTest/TimelinePlayerTest.h>
 #include <tlrCoreTest/TimelineTest.h>
 #include <tlrCoreTest/ValueObserverTest.h>
-#include <tlrCoreTest/VectorTest.h>
 #if defined(FFmpeg_FOUND)
 #include <tlrCoreTest/FFmpegTest.h>
 #endif
@@ -98,7 +96,6 @@ int main(int argc, char* argv[])
         tests.push_back(CoreTest::ListObserverTest::create(context));
         tests.push_back(CoreTest::MapObserverTest::create(context));
         tests.push_back(CoreTest::MathTest::create(context));
-        tests.push_back(CoreTest::MatrixTest::create(context));
         tests.push_back(CoreTest::MemoryTest::create(context));
         tests.push_back(CoreTest::PPMTest::create(context));
         tests.push_back(CoreTest::PathTest::create(context));
@@ -109,7 +106,6 @@ int main(int argc, char* argv[])
         tests.push_back(CoreTest::TimelinePlayerTest::create(context));
         tests.push_back(CoreTest::TimelineTest::create(context));
         tests.push_back(CoreTest::ValueObserverTest::create(context));
-        tests.push_back(CoreTest::VectorTest::create(context));
 #if defined(FFmpeg_FOUND)
         tests.push_back(CoreTest::FFmpegTest::create(context));
 #endif

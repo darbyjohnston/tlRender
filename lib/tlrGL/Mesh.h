@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <tlrCore/Range.h>
 #include <tlrCore/Util.h>
 
 #include <glad/gl.h>
@@ -13,6 +14,11 @@
 
 namespace tlr
 {
+    namespace geom
+    {
+        class TriangleMesh;
+    }
+
     namespace gl
     {
         //! Vertex buffer object types.
@@ -33,6 +39,12 @@ namespace tlr
 
         //! Get the number of bytes used to store vertex buffer object types.
         std::size_t getByteCount(VBOType);
+
+        //! Convert a triangle mesh to vertex buffer data.
+        std::vector<uint8_t> convert(
+            const geom::TriangleMesh& mesh,
+            gl::VBOType               type,
+            const math::SizeTRange& range);
 
         //! OpenGL vertex buffer object.
         class VBO : public std::enable_shared_from_this<VBO>

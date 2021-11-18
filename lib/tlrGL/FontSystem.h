@@ -73,7 +73,7 @@ namespace tlr
         {
             GlyphInfo glyphInfo;
             std::shared_ptr<imaging::Image> image;
-            math::Vector2f offset;
+            glm::vec2 offset;
             int16_t advance = 0;
             int32_t lsbDelta = 0;
             int32_t rsbDelta = 0;
@@ -115,7 +115,7 @@ namespace tlr
             FontMetrics getMetrics(const FontInfo&);
 
             //! Measure the size of text.
-            math::Vector2f measure(const std::string&, const FontInfo&);
+            glm::vec2 measure(const std::string&, const FontInfo&);
 
             //! Measure the size of glyphs.
             std::vector<math::BBox2f> measureGlyphs(const std::string&, const FontInfo&);

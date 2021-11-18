@@ -28,10 +28,10 @@ namespace tlr
 
         const float margin = fontSize;
         const math::BBox2f marginBBox = math::BBox2f(0.F, 0.F, window.w, window.h).margin(-margin);
-        const math::Vector2f labelSize = fontSystem->measure(text, fontInfo);
+        const glm::vec2 labelSize = fontSystem->measure(text, fontInfo);
         const float labelMargin = fontSize / 5.F;
         math::BBox2f bbox;
-        math::Vector2f pos;
+        glm::vec2 pos;
         switch (hudElement)
         {
         case HUDElement::UpperLeft:
@@ -40,7 +40,7 @@ namespace tlr
                 floorf(marginBBox.min.y),
                 ceilf(labelSize.x + labelMargin * 2.F),
                 ceilf(fontMetrics.lineHeight + labelMargin * 2.F));
-            pos = math::Vector2f(
+            pos = glm::vec2(
                 floorf(marginBBox.min.x + labelMargin),
                 floorf(marginBBox.min.y + labelMargin + fontMetrics.ascender));
             break;
@@ -50,7 +50,7 @@ namespace tlr
                 floorf(marginBBox.min.y),
                 ceilf(labelSize.x + labelMargin * 2.F),
                 ceilf(fontMetrics.lineHeight + labelMargin * 2.F));
-            pos = math::Vector2f(
+            pos = glm::vec2(
                 floorf(marginBBox.max.x - labelMargin - labelSize.x),
                 floorf(marginBBox.min.y + labelMargin + fontMetrics.ascender));
             break;
@@ -60,7 +60,7 @@ namespace tlr
                 floorf(marginBBox.max.y - labelMargin * 2.F - fontMetrics.lineHeight),
                 ceilf(labelSize.x + labelMargin * 2.F),
                 ceilf(fontMetrics.lineHeight + labelMargin * 2.F));
-            pos = math::Vector2f(
+            pos = glm::vec2(
                 floorf(marginBBox.min.x + labelMargin),
                 floorf(marginBBox.max.y - labelMargin - fontMetrics.lineHeight + fontMetrics.ascender));
             break;
@@ -70,7 +70,7 @@ namespace tlr
                 floorf(marginBBox.max.y - labelMargin * 2.F - fontMetrics.lineHeight),
                 ceilf(labelSize.x + labelMargin * 2.F),
                 ceilf(fontMetrics.lineHeight + labelMargin * 2.F));
-            pos = math::Vector2f(
+            pos = glm::vec2(
                 floorf(marginBBox.max.x - labelMargin - labelSize.x),
                 floorf(marginBBox.max.y - labelMargin - fontMetrics.lineHeight + fontMetrics.ascender));
             break;

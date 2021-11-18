@@ -117,7 +117,7 @@ namespace tlr
                     for (size_t i = 0; i < _layers.size(); ++i)
                     {
                         const auto& layer = _layers[i];
-                        const math::Vector2i sampling(layer.channels[0].sampling.x, layer.channels[0].sampling.y);
+                        const glm::ivec2 sampling(layer.channels[0].sampling.x, layer.channels[0].sampling.y);
                         if (sampling.x != 1 || sampling.y != 1)
                             _fast = false;
                         auto& info = _info.video[i];
@@ -170,7 +170,7 @@ namespace tlr
                         for (size_t c = 0; c < channels; ++c)
                         {
                             const std::string& name = _layers[layer].channels[c].name;
-                            const math::Vector2i& sampling = _layers[layer].channels[c].sampling;
+                            const glm::ivec2& sampling = _layers[layer].channels[c].sampling;
                             frameBuffer.insert(
                                 name.c_str(),
                                 Imf::Slice(
@@ -192,7 +192,7 @@ namespace tlr
                         for (int c = 0; c < channels; ++c)
                         {
                             const std::string& name = _layers[layer].channels[c].name;
-                            const math::Vector2i& sampling = _layers[layer].channels[c].sampling;
+                            const glm::ivec2& sampling = _layers[layer].channels[c].sampling;
                             frameBuffer.insert(
                                 name.c_str(),
                                 Imf::Slice(

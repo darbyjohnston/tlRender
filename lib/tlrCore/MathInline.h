@@ -10,6 +10,16 @@ namespace tlr
 {
     namespace math
     {
+        constexpr float deg2rad(float value) noexcept
+        {
+            return value / 360.F * pi2;
+        }
+
+        constexpr float rad2deg(float value) noexcept
+        {
+            return value / pi2 * 360.F;
+        }
+
         template<typename T>
         constexpr T clamp(T value, T min, T max)
         {

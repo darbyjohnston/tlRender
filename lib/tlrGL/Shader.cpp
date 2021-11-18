@@ -127,29 +127,29 @@ namespace tlr
             glUniform1f(location, value);
         }
 
-        void Shader::setUniform(GLint location, const math::Vector2f& value)
+        void Shader::setUniform(GLint location, const glm::vec2& value)
         {
             glUniform2fv(location, 1, &value.x);
         }
 
-        void Shader::setUniform(GLint location, const math::Vector3f& value)
+        void Shader::setUniform(GLint location, const glm::vec3& value)
         {
             glUniform3fv(location, 1, &value.x);
         }
 
-        void Shader::setUniform(GLint location, const math::Vector4f& value)
+        void Shader::setUniform(GLint location, const glm::vec4& value)
         {
             glUniform4fv(location, 1, &value.x);
         }
 
-        void Shader::setUniform(GLint location, const math::Matrix3x3f& value)
+        void Shader::setUniform(GLint location, const glm::mat3x3& value)
         {
-            glUniformMatrix3fv(location, 1, GL_FALSE, value.v);
+            glUniformMatrix3fv(location, 1, GL_FALSE, &value[0][0]);
         }
 
-        void Shader::setUniform(GLint location, const math::Matrix4x4f& value)
+        void Shader::setUniform(GLint location, const glm::mat4x4& value)
         {
-            glUniformMatrix4fv(location, 1, GL_FALSE, value.v);
+            glUniformMatrix4fv(location, 1, GL_FALSE, &value[0][0]);
         }
 
         void Shader::setUniform(GLint location, const imaging::Color4f& value)
@@ -172,12 +172,12 @@ namespace tlr
             glUniform1fv(location, value.size(), &value[0]);
         }
 
-        void Shader::setUniform(GLint location, const std::vector<math::Vector3f>& value)
+        void Shader::setUniform(GLint location, const std::vector<glm::vec3>& value)
         {
             glUniform3fv(location, value.size(), &value[0].x);
         }
 
-        void Shader::setUniform(GLint location, const std::vector<math::Vector4f>& value)
+        void Shader::setUniform(GLint location, const std::vector<glm::vec4>& value)
         {
             glUniform4fv(location, value.size(), &value[0].x);
         }
@@ -194,34 +194,34 @@ namespace tlr
             glUniform1f(location, value);
         }
 
-        void Shader::setUniform(const std::string& name, const math::Vector2f& value)
+        void Shader::setUniform(const std::string& name, const glm::vec2& value)
         {
             const GLint location = glGetUniformLocation(_program, name.c_str());
             glUniform2fv(location, 1, &value.x);
         }
 
-        void Shader::setUniform(const std::string& name, const math::Vector3f& value)
+        void Shader::setUniform(const std::string& name, const glm::vec3& value)
         {
             const GLint location = glGetUniformLocation(_program, name.c_str());
             glUniform3fv(location, 1, &value.x);
         }
 
-        void Shader::setUniform(const std::string& name, const math::Vector4f& value)
+        void Shader::setUniform(const std::string& name, const glm::vec4& value)
         {
             const GLint location = glGetUniformLocation(_program, name.c_str());
             glUniform4fv(location, 1, &value.x);
         }
 
-        void Shader::setUniform(const std::string& name, const math::Matrix3x3f& value)
+        void Shader::setUniform(const std::string& name, const glm::mat3x3& value)
         {
             const GLint location = glGetUniformLocation(_program, name.c_str());
-            glUniformMatrix3fv(location, 1, GL_FALSE, &value.v[0]);
+            glUniformMatrix3fv(location, 1, GL_FALSE, &value[0][0]);
         }
 
-        void Shader::setUniform(const std::string& name, const math::Matrix4x4f& value)
+        void Shader::setUniform(const std::string& name, const glm::mat4x4& value)
         {
             const GLint location = glGetUniformLocation(_program, name.c_str());
-            glUniformMatrix4fv(location, 1, GL_FALSE, &value.v[0]);
+            glUniformMatrix4fv(location, 1, GL_FALSE, &value[0][0]);
         }
         
         void Shader::setUniform(const std::string& name, const imaging::Color4f& value)
@@ -248,13 +248,13 @@ namespace tlr
             glUniform1fv(location, value.size(), &value[0]);
         }
 
-        void Shader::setUniform(const std::string& name, const std::vector<math::Vector3f>& value)
+        void Shader::setUniform(const std::string& name, const std::vector<glm::vec3>& value)
         {
             const GLint location = glGetUniformLocation(_program, name.c_str());
             glUniform3fv(location, value.size(), &value[0].x);
         }
 
-        void Shader::setUniform(const std::string& name, const std::vector<math::Vector4f>& value)
+        void Shader::setUniform(const std::string& name, const std::vector<glm::vec4>& value)
         {
             const GLint location = glGetUniformLocation(_program, name.c_str());
             glUniform4fv(location, value.size(), &value[0].x);

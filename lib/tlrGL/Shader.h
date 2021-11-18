@@ -4,11 +4,15 @@
 
 #pragma once
 
-#include <tlrCore/Matrix.h>
 #include <tlrCore/Util.h>
-#include <tlrCore/Vector.h>
 
 #include <glad/gl.h>
+
+#include <glm/mat3x3.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 
 #include <memory>
 #include <string>
@@ -58,33 +62,33 @@ namespace tlr
 
             void setUniform(GLint, int);
             void setUniform(GLint, float);
-            void setUniform(GLint, const math::Vector2f&);
-            void setUniform(GLint, const math::Vector3f&);
-            void setUniform(GLint, const math::Vector4f&);
-            void setUniform(GLint, const math::Matrix3x3f&);
-            void setUniform(GLint, const math::Matrix4x4f&);
+            void setUniform(GLint, const glm::vec2&);
+            void setUniform(GLint, const glm::vec3&);
+            void setUniform(GLint, const glm::vec4&);
+            void setUniform(GLint, const glm::mat3x3&);
+            void setUniform(GLint, const glm::mat4x4&);
             void setUniform(GLint, const imaging::Color4f&);
             void setUniform(GLint, const float[4]);
 
             void setUniform(GLint, const std::vector<int>&);
             void setUniform(GLint, const std::vector<float>&);
-            void setUniform(GLint, const std::vector<math::Vector3f>&);
-            void setUniform(GLint, const std::vector<math::Vector4f>&);
+            void setUniform(GLint, const std::vector<glm::vec3>&);
+            void setUniform(GLint, const std::vector<glm::vec4>&);
 
             void setUniform(const std::string&, int);
             void setUniform(const std::string&, float);
-            void setUniform(const std::string&, const math::Vector2f&);
-            void setUniform(const std::string&, const math::Vector3f&);
-            void setUniform(const std::string&, const math::Vector4f&);
-            void setUniform(const std::string&, const math::Matrix3x3f&);
-            void setUniform(const std::string&, const math::Matrix4x4f&);
+            void setUniform(const std::string&, const glm::vec2&);
+            void setUniform(const std::string&, const glm::vec3&);
+            void setUniform(const std::string&, const glm::vec4&);
+            void setUniform(const std::string&, const glm::mat3x3&);
+            void setUniform(const std::string&, const glm::mat4x4&);
             void setUniform(const std::string&, const imaging::Color4f&);
             void setUniform(const std::string&, const float[4]);
 
             void setUniform(const std::string&, const std::vector<int>&);
             void setUniform(const std::string&, const std::vector<float>&);
-            void setUniform(const std::string&, const std::vector<math::Vector3f>&);
-            void setUniform(const std::string&, const std::vector<math::Vector4f>&);
+            void setUniform(const std::string&, const std::vector<glm::vec3>&);
+            void setUniform(const std::string&, const std::vector<glm::vec4>&);
 
             ///@}
 
