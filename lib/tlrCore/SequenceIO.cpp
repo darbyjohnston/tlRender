@@ -259,7 +259,7 @@ namespace tlr
                     }
                 }
 
-                // Iniitalize new requests.
+                // Initialize new requests.
                 while (!newVideoRequests.empty())
                 {
                     auto request = std::move(newVideoRequests.front());
