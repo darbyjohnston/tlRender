@@ -34,13 +34,16 @@ namespace tlr
         ~App() override;
 
     public Q_SLOTS:
-        //! Open a timeline.
+        //! Open a file.
         void open(const QString&);
 
-        //! Close a timeline.
+        //! Open a file and an audio file.
+        void openPlusAudio(const QString& fileName, const QString& audioFileName);
+
+        //! Close a file.
         void close(tlr::qt::TimelinePlayer*);
 
-        //! Close all of the timelines.
+        //! Close all files.
         void closeAll();
 
     Q_SIGNALS:

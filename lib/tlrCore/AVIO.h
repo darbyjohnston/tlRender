@@ -36,6 +36,19 @@ namespace tlr
         TLR_ENUM(VideoType);
         TLR_ENUM_SERIALIZE(VideoType);
 
+        //! File extension types.
+        enum class FileExtensionType
+        {
+            VideoAndAudio = 1,
+            VideoOnly     = 2,
+            AudioOnly     = 4,
+
+            Count,
+            First = VideoAndAudio
+        };
+        TLR_ENUM(FileExtensionType);
+        TLR_ENUM_SERIALIZE(FileExtensionType);
+
         //! I/O information.
         struct Info
         {
@@ -180,7 +193,7 @@ namespace tlr
         protected:
             void _init(
                 const std::string& name,
-                const std::set<std::string>& extensions,
+                const std::map<std::string, FileExtensionType>& extensions,
                 const std::shared_ptr<core::LogSystem>&);
             IPlugin();
 
@@ -191,7 +204,10 @@ namespace tlr
             const std::string& getName() const;
 
             //! Get the supported file extensions.
-            const std::set<std::string>& getExtensions() const;
+            std::set<std::string> getExtensions(
+                int types = static_cast<int>(FileExtensionType::VideoAndAudio) |
+                static_cast<int>(FileExtensionType::VideoOnly) |
+                static_cast<int>(FileExtensionType::AudioOnly)) const;
 
             //! Set the plugin options.
             void setOptions(const Options&);

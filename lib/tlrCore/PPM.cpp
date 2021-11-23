@@ -119,7 +119,7 @@ namespace tlr
             auto out = std::shared_ptr<Plugin>(new Plugin);
             out->_init(
                 "PPM",
-                { ".ppm" },
+                { { ".ppm", avio::FileExtensionType::VideoOnly } },
                 logSystem);
             return out;
         }

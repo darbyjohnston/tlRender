@@ -176,7 +176,9 @@ namespace tlr
         
         void TimelineTest::_timeline()
         {
-            for (const auto& i : getExtensions())
+            for (const auto& i : getExtensions(
+                static_cast<int>(avio::FileExtensionType::VideoAndAudio),
+                _context))
             {
                 std::stringstream ss;
                 ss << "Timeline extension: " << i;

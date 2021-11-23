@@ -37,7 +37,10 @@ namespace tlr
             auto out = std::shared_ptr<Plugin>(new Plugin);
             out->_init(
                 "JPEG",
-                { ".jpeg", ".jpg" },
+                {
+                    { ".jpeg", avio::FileExtensionType::VideoOnly },
+                    { ".jpg", avio::FileExtensionType::VideoOnly }
+                },
                 logSystem);
             return out;
         }

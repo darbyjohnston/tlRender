@@ -40,7 +40,10 @@ namespace tlr
             std::shared_ptr<IPlugin> getPlugin(const file::Path&) const;
 
             //! Get the supported file extensions.
-            std::set<std::string> getExtensions() const;
+            std::set<std::string> getExtensions(
+                int types = static_cast<int>(FileExtensionType::VideoAndAudio) |
+                static_cast<int>(FileExtensionType::VideoOnly) |
+                static_cast<int>(FileExtensionType::AudioOnly)) const;
 
             // Create a reader for the given path.
             std::shared_ptr<IRead> read(

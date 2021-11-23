@@ -23,12 +23,27 @@ namespace tlr
             Q_OBJECT
             Q_PROPERTY(tlr::timeline::VideoData video READ video NOTIFY videoChanged)
 
+            void _init(
+                const file::Path& path,
+                const file::Path& audioPath,
+                const std::shared_ptr<core::Context>&,
+                const timeline::PlayerOptions& = timeline::PlayerOptions(),
+                const timeline::Options& = timeline::Options());
+
         public:
             TimelinePlayer(
                 const file::Path&,
                 const std::shared_ptr<core::Context>&,
-                const timeline::PlayerOptions & = timeline::PlayerOptions(),
-                const timeline::Options & = timeline::Options(),
+                const timeline::PlayerOptions& = timeline::PlayerOptions(),
+                const timeline::Options& = timeline::Options(),
+                QObject* parent = nullptr);
+
+            TimelinePlayer(
+                const file::Path& path,
+                const file::Path& audioPath,
+                const std::shared_ptr<core::Context>&,
+                const timeline::PlayerOptions& = timeline::PlayerOptions(),
+                const timeline::Options& = timeline::Options(),
                 QObject* parent = nullptr);
 
             ~TimelinePlayer() override;

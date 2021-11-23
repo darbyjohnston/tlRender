@@ -117,7 +117,8 @@ namespace tlr
 
         protected:
             void _init(
-                const file::Path&,
+                const file::Path& path,
+                const file::Path& audioPath,
                 const std::shared_ptr<core::Context>&,
                 const PlayerOptions&,
                 const Options&);
@@ -130,8 +131,16 @@ namespace tlr
             static std::shared_ptr<TimelinePlayer> create(
                 const file::Path&,
                 const std::shared_ptr<core::Context>&,
-                const PlayerOptions& = PlayerOptions(),
-                const Options& = Options());
+                const PlayerOptions & = PlayerOptions(),
+                const Options & = Options());
+
+            //! Create a new timeline player.
+            static std::shared_ptr<TimelinePlayer> create(
+                const file::Path& path,
+                const file::Path& audioPath,
+                const std::shared_ptr<core::Context>&,
+                const PlayerOptions & = PlayerOptions(),
+                const Options & = Options());
 
             //! Get the context.
             const std::weak_ptr<core::Context>& getContext() const;

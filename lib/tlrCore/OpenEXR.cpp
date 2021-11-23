@@ -1022,7 +1022,10 @@ namespace tlr
 
         void Plugin::_init(const std::shared_ptr<core::LogSystem>& logSystem)
         {
-            IPlugin::_init("OpenEXR", { ".exr" }, logSystem);
+            IPlugin::_init(
+                "OpenEXR",
+                { { ".exr", avio::FileExtensionType::VideoOnly } },
+                logSystem);
 
             //Imf::setGlobalThreadCount(0);
         }

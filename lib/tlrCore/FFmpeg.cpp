@@ -70,7 +70,18 @@ namespace tlr
         {
             IPlugin::_init(
                 "FFmpeg",
-                { ".mov", ".m4v", ".mp4", ".y4m", ".mkv", ".mxf", ".wmv", ".wav", ".mp3", ".aiff" },
+                {
+                    { ".mov", avio::FileExtensionType::VideoAndAudio },
+                    { ".m4v", avio::FileExtensionType::VideoAndAudio },
+                    { ".mp4", avio::FileExtensionType::VideoAndAudio },
+                    { ".y4m", avio::FileExtensionType::VideoAndAudio },
+                    { ".mkv", avio::FileExtensionType::VideoAndAudio },
+                    { ".mxf", avio::FileExtensionType::VideoAndAudio },
+                    { ".wmv", avio::FileExtensionType::VideoAndAudio },
+                    { ".wav", avio::FileExtensionType::AudioOnly },
+                    { ".mp3", avio::FileExtensionType::AudioOnly },
+                    { ".aiff", avio::FileExtensionType::AudioOnly }
+                },
                 logSystem);
 
             _logSystemWeak = logSystem;

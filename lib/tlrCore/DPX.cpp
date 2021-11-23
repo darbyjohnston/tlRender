@@ -901,7 +901,7 @@ namespace tlr
         {
             IPlugin::_init(
                 "DPX",
-                { ".dpx" },
+                { { ".dpx", avio::FileExtensionType::VideoOnly } },
                 logSystem);
         }
 

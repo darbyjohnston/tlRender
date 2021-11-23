@@ -16,7 +16,10 @@ namespace tlr
         {
             IPlugin::_init(
                 "TIFF",
-                { ".tiff", ".tif" },
+                {
+                    { ".tiff", avio::FileExtensionType::VideoOnly },
+                    { ".tif", avio::FileExtensionType::VideoOnly }
+                },
                 logSystem);
             TIFFSetErrorHandler(nullptr);
             TIFFSetWarningHandler(nullptr);

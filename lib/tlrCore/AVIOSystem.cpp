@@ -101,12 +101,12 @@ namespace tlr
             return nullptr;
         }
         
-        std::set<std::string> System::getExtensions() const
+        std::set<std::string> System::getExtensions(int types) const
         {
             std::set<std::string> out;
             for (const auto& i : _plugins)
             {
-                const auto& extensions = i->getExtensions();
+                const auto& extensions = i->getExtensions(types);
                 out.insert(extensions.begin(), extensions.end());
             }            
             return out;

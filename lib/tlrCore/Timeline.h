@@ -19,7 +19,9 @@ namespace tlr
     namespace timeline
     {
         //! Get the timeline file extensions.
-        std::vector<std::string> getExtensions();
+        std::vector<std::string> getExtensions(
+            int types,
+            const std::shared_ptr<core::Context>&);
 
         //! Convert frames to ranges.
         std::vector<otime::TimeRange> toRanges(std::vector<otime::RationalTime>);
@@ -126,12 +128,21 @@ namespace tlr
                 const std::shared_ptr<core::Context>&,
                 const Options& = Options());
 
-            //! Create a new timeline from a file path. The file path can point
-            //! to an .otio file, movie file, or image sequence.
+            //! Create a new timeline from a file path. The file path can
+            //! point to an .otio file, movie file, or image sequence.
             static std::shared_ptr<Timeline> create(
                 const file::Path&,
                 const std::shared_ptr<core::Context>&,
-                const Options& = Options());
+                const Options & = Options());
+
+            //! Create a new timeline from a file path and audio file path.
+            //! The file path can point to an .otio file, movie file, or
+            //! image sequence.
+            static std::shared_ptr<Timeline> create(
+                const file::Path& path,
+                const file::Path& audioPath,
+                const std::shared_ptr<core::Context>&,
+                const Options & = Options());
 
             //! Get the context.
             const std::weak_ptr<core::Context>& getContext() const;
@@ -139,7 +150,7 @@ namespace tlr
             //! Get the timeline.
             const otio::SerializableObject::Retainer<otio::Timeline>& getTimeline() const;
 
-            //! Get the path.
+            //! Get the file path.
             const file::Path& getPath() const;
 
             //! Get the timeline options.

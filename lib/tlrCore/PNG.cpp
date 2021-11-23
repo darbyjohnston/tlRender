@@ -33,7 +33,7 @@ namespace tlr
             auto out = std::shared_ptr<Plugin>(new Plugin);
             out->_init(
                 "PNG",
-                { ".png" },
+                { { ".png", avio::FileExtensionType::VideoOnly } },
                 logSystem);
             return out;
         }

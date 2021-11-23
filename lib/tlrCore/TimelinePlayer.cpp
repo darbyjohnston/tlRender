@@ -229,6 +229,7 @@ namespace tlr
 
         void TimelinePlayer::_init(
             const file::Path& path,
+            const file::Path& audioPath,
             const std::shared_ptr<core::Context>& context,
             const PlayerOptions& playerOptions,
             const Options& options)
@@ -238,7 +239,9 @@ namespace tlr
             p.playerOptions = playerOptions;
 
             // Create the timeline.
-            p.timeline = timeline::Timeline::create(path, context, options);
+            p.timeline = !audioPath.isEmpty() ?
+                timeline::Timeline::create(path, audioPath, context, options) :
+                timeline::Timeline::create(path, context, options);
             p.avInfo = p.timeline->getAVInfo();
 
             // Create observers.
@@ -492,7 +495,19 @@ namespace tlr
             const Options& options)
         {
             auto out = std::shared_ptr<TimelinePlayer>(new TimelinePlayer);
-            out->_init(path, context, playerOptions, options);
+            out->_init(path, file::Path(), context, playerOptions, options);
+            return out;
+        }
+
+        std::shared_ptr<TimelinePlayer> TimelinePlayer::create(
+            const file::Path& path,
+            const file::Path& audioPath,
+            const std::shared_ptr<core::Context>& context,
+            const PlayerOptions& playerOptions,
+            const Options& options)
+        {
+            auto out = std::shared_ptr<TimelinePlayer>(new TimelinePlayer);
+            out->_init(path, audioPath, context, playerOptions, options);
             return out;
         }
 

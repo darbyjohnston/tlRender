@@ -593,7 +593,7 @@ namespace tlr
         {
             IPlugin::_init(
                 "Cineon",
-                { ".cin" },
+                { { ".cin", avio::FileExtensionType::VideoOnly } },
                 logSystem);
         }
 

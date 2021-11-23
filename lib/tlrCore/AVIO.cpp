@@ -19,6 +19,13 @@ namespace tlr
             "Sequence");
         TLR_ENUM_SERIALIZE_IMPL(VideoType);
 
+        TLR_ENUM_IMPL(
+            FileExtensionType,
+            "VideoAndAudio",
+            "VideoOnly",
+            "AudioOnly");
+        TLR_ENUM_SERIALIZE_IMPL(FileExtensionType);
+
         VideoData::VideoData()
         {}
 
@@ -107,12 +114,12 @@ namespace tlr
         struct IPlugin::Private
         {
             std::string name;
-            std::set<std::string> extensions;
+            std::map<std::string, FileExtensionType> extensions;
         };
 
         void IPlugin::_init(
             const std::string& name,
-            const std::set<std::string>& extensions,
+            const std::map<std::string, FileExtensionType>& extensions,
             const std::shared_ptr<core::LogSystem>& logSystem)
         {
             TLR_PRIVATE_P();
@@ -133,9 +140,17 @@ namespace tlr
             return _p->name;
         }
 
-        const std::set<std::string>& IPlugin::getExtensions() const
+        std::set<std::string> IPlugin::getExtensions(int types) const
         {
-            return _p->extensions;
+            std::set<std::string> out;
+            for (const auto& i : _p->extensions)
+            {
+                if (static_cast<int>(i.second) & types)
+                {
+                    out.insert(i.first);
+                }
+            }
+            return out;
         }
 
         void IPlugin::setOptions(const Options& options)
