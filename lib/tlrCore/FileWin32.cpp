@@ -21,11 +21,11 @@ namespace tlr
 {
     namespace file
     {
-        bool exists(const std::string& fileName)
+        bool exists(const Path& path)
         {
             _STAT info;
             std::memset(&info, 0, sizeof(_STAT));
-            return 0 == _STAT_FNC(string::toWide(fileName).c_str(), &info);
+            return 0 == _STAT_FNC(string::toWide(path.get()).c_str(), &info);
         }
         
         std::string getTemp()
