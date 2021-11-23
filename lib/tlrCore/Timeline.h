@@ -39,10 +39,13 @@ namespace tlr
         //! Timeline options.
         struct Options
         {
-            size_t                    videoRequestCount = 16;
-            size_t                    audioRequestCount = 16;
-            std::chrono::milliseconds requestTimeout    = std::chrono::milliseconds(1);
-            avio::Options             avioOptions;
+            size_t videoRequestCount = 16;
+            size_t audioRequestCount = 16;
+            std::chrono::milliseconds requestTimeout = std::chrono::milliseconds(1);
+
+            avio::Options avioOptions;
+
+            bool autoOpenAudioTrack = true;
 
             bool operator == (const Options&) const;
             bool operator != (const Options&) const;
@@ -136,7 +139,7 @@ namespace tlr
             static std::shared_ptr<Timeline> create(
                 const file::Path&,
                 const std::shared_ptr<core::Context>&,
-                const Options & = Options());
+                const Options& = Options());
 
             //! Create a new timeline from a file path and audio file path.
             //! The file path can point to an .otio file, movie file, or
@@ -145,7 +148,7 @@ namespace tlr
                 const file::Path& path,
                 const file::Path& audioPath,
                 const std::shared_ptr<core::Context>&,
-                const Options & = Options());
+                const Options& = Options());
 
             //! Get the context.
             const std::weak_ptr<core::Context>& getContext() const;

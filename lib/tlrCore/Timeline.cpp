@@ -126,7 +126,8 @@ namespace tlr
             return videoRequestCount == other.videoRequestCount &&
                 audioRequestCount == other.audioRequestCount &&
                 requestTimeout == other.requestTimeout &&
-                avioOptions == other.avioOptions;
+                avioOptions == other.avioOptions &&
+                autoOpenAudioTrack == other.autoOpenAudioTrack;
         }
 
         bool Options::operator != (const Options& other) const
@@ -560,19 +561,22 @@ namespace tlr
             std::string error;
             try
             {
-                if (auto read = context->getSystem<avio::System>()->read(path, options.avioOptions))
+                auto avioSystem = context->getSystem<avio::System>();
+                if (auto read = avioSystem->read(path, options.avioOptions))
                 {
                     const auto info = read->getInfo().get();
                     otime::RationalTime globalStartTime = time::invalidTime;
 
                     otio::Track* videoTrack = nullptr;
+                    otio::Track* audioTrack = nullptr;
                     otio::ErrorStatus errorStatus;
                     if (!info.video.empty())
                     {
                         globalStartTime = otime::RationalTime(0.0, info.videoTime.duration().rate());
                         auto videoClip = new otio::Clip;
                         videoClip->set_source_range(info.videoTime);
-                        if (avio::VideoType::Sequence == info.videoType && !path.getNumber().empty())
+                        const bool isSequence = avio::VideoType::Sequence == info.videoType && !path.getNumber().empty();
+                        if (isSequence)
                         {
                             globalStartTime = info.videoTime.start_time();
                             videoClip->set_media_reference(new otio::ImageSequenceReference(
@@ -594,10 +598,56 @@ namespace tlr
                         {
                             throw std::runtime_error("Cannot append child");
                         }
+
+                        if (options.autoOpenAudioTrack)
+                        {
+                            for (const auto& audioExtension :
+                                avioSystem->getExtensions(static_cast<int>(avio::FileExtensionType::AudioOnly)))
+                            {
+                                file::Path audioPath;
+                                if (isSequence)
+                                {
+                                    std::string baseName = path.getBaseName();
+                                    if (!baseName.empty() && '.' == baseName[baseName.size() - 1])
+                                    {
+                                        baseName.pop_back();
+                                    }
+                                    audioPath = file::Path(path.getDirectory() +
+                                        baseName +
+                                        audioExtension);
+                                }
+                                else
+                                {
+                                    audioPath = file::Path(path.getDirectory() +
+                                        path.getBaseName() +
+                                        path.getNumber() +
+                                        audioExtension);
+                                }
+                                if (file::exists(audioPath))
+                                {
+                                    if (auto audioRead = avioSystem->read(audioPath, options.avioOptions))
+                                    {
+                                        const auto audioInfo = audioRead->getInfo().get();
+
+                                        auto audioClip = new otio::Clip;
+                                        audioClip->set_source_range(audioInfo.audioTime);
+                                        audioClip->set_media_reference(new otio::ExternalReference(audioPath.get()));
+
+                                        audioTrack = new otio::Track("Audio", otio::nullopt, otio::Track::Kind::audio);
+                                        audioTrack->append_child(audioClip, &errorStatus);
+                                        if (errorStatus != otio::ErrorStatus::OK)
+                                        {
+                                            throw std::runtime_error("Cannot append child");
+                                        }
+
+                                        break;
+                                    }
+                                }
+                            }
+                        }
                     }
 
-                    otio::Track* audioTrack = nullptr;
-                    if (info.audio.isValid())
+                    if (!audioTrack && info.audio.isValid())
                     {
                         auto audioClip = new otio::Clip;
                         audioClip->set_source_range(info.audioTime);
