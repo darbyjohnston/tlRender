@@ -49,7 +49,7 @@ namespace tlr
             {
                 for (const auto& path : { "/tmp", "/var/tmp", "/usr/tmp" })
                 {
-                    if (exists(std::string(path)))
+                    if (exists(Path(path)))
                     {
                         out = path;
                         break;
