@@ -99,6 +99,28 @@ namespace tlr
             return out;
         }
 
+        otio::optional<otime::RationalTime> getDuration(const otio::Timeline* timeline, const std::string& kind)
+        {
+            otio::optional<otime::RationalTime> out;
+            otio::ErrorStatus errorStatus;
+            for (auto track : timeline->children_if<otio::Track>(&errorStatus))
+            {
+                if (kind == track->kind())
+                {
+                    const otime::RationalTime duration = track->duration(&errorStatus);
+                    if (out.has_value())
+                    {
+                        out = std::max(out.value(), duration);
+                    }
+                    else
+                    {
+                        out = duration;
+                    }
+                }
+            }
+            return out;
+        }
+
         bool Options::operator == (const Options& other) const
         {
             return videoRequestCount == other.videoRequestCount &&
@@ -369,10 +391,14 @@ namespace tlr
 
             // Get information about the timeline.
             otio::ErrorStatus errorStatus;
-            p.duration = p.otioTimeline.value->duration(&errorStatus);
-            if (errorStatus != otio::ErrorStatus::OK)
+            auto duration = timeline::getDuration(p.otioTimeline.value, otio::Track::Kind::video);
+            if (!duration.has_value())
             {
-                throw std::runtime_error(errorStatus.full_description);
+                duration = timeline::getDuration(p.otioTimeline.value, otio::Track::Kind::audio);
+            }
+            if (duration.has_value())
+            {
+                p.duration = duration.value();
             }
             if (p.otioTimeline.value->global_start_time().has_value())
             {

@@ -33,6 +33,9 @@ namespace tlr
         template<typename T>
         const T* getParent(const otio::Item*);
 
+        //! Get the duration of all tracks of the same kind.
+        otio::optional<otime::RationalTime> getDuration(const otio::Timeline*, const std::string& kind);
+
         //! Timeline options.
         struct Options
         {
