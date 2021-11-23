@@ -543,7 +543,8 @@ namespace tlr
             std::vector<std::string> extensions;
             for (const auto& i : timeline::getExtensions(
                 static_cast<int>(avio::FileExtensionType::VideoAndAudio) |
-                static_cast<int>(avio::FileExtensionType::VideoOnly),
+                static_cast<int>(avio::FileExtensionType::VideoOnly) |
+                static_cast<int>(avio::FileExtensionType::AudioOnly),
                 context))
             {
                 extensions.push_back("*" + i);
@@ -577,7 +578,8 @@ namespace tlr
             std::vector<std::string> extensions;
             for (const auto& i : timeline::getExtensions(
                 static_cast<int>(avio::FileExtensionType::VideoAndAudio) |
-                static_cast<int>(avio::FileExtensionType::VideoOnly),
+                static_cast<int>(avio::FileExtensionType::VideoOnly) |
+                static_cast<int>(avio::FileExtensionType::AudioOnly),
                 context))
             {
                 extensions.push_back("*" + i);

@@ -711,22 +711,22 @@ namespace tlr
                 seek(p.inOutRange->get().end_time_inclusive());
                 break;
             case TimeAction::FramePrev:
-                seek(otime::RationalTime(currentTime.value() - 1, duration.rate()));
+                seek(currentTime - otime::RationalTime(1, duration.rate()));
                 break;
             case TimeAction::FramePrevX10:
-                seek(otime::RationalTime(currentTime.value() - 10, duration.rate()));
+                seek(currentTime - otime::RationalTime(10, duration.rate()));
                 break;
             case TimeAction::FramePrevX100:
-                seek(otime::RationalTime(currentTime.value() - 100, duration.rate()));
+                seek(currentTime - otime::RationalTime(100, duration.rate()));
                 break;
             case TimeAction::FrameNext:
-                seek(otime::RationalTime(currentTime.value() + 1, duration.rate()));
+                seek(currentTime + otime::RationalTime(1, duration.rate()));
                 break;
             case TimeAction::FrameNextX10:
-                seek(otime::RationalTime(currentTime.value() + 10, duration.rate()));
+                seek(currentTime + otime::RationalTime(10, duration.rate()));
                 break;
             case TimeAction::FrameNextX100:
-                seek(otime::RationalTime(currentTime.value() + 100, duration.rate()));
+                seek(currentTime + otime::RationalTime(100, duration.rate()));
                 break;
             default: break;
             }
@@ -1101,25 +1101,29 @@ namespace tlr
             }
 
             // Get uncached video.
-            for (const auto& i : ranges)
+            if (!avInfo.video.empty())
             {
-                for (otime::RationalTime time = i.start_time();
-                    time < i.end_time_exclusive();
-                    time += otime::RationalTime(1.0, duration.rate()))
+                for (const auto& i : ranges)
                 {
-                    const auto j = threadData.videoDataCache.find(time);
-                    if (j == threadData.videoDataCache.end())
+                    for (otime::RationalTime time = i.start_time();
+                        time < i.end_time_exclusive();
+                        time += otime::RationalTime(1.0, duration.rate()))
                     {
-                        const auto k = threadData.videoDataRequests.find(time);
-                        if (k == threadData.videoDataRequests.end())
+                        const auto j = threadData.videoDataCache.find(time);
+                        if (j == threadData.videoDataCache.end())
                         {
-                            threadData.videoDataRequests[time] = timeline->getVideo(time, videoLayer);
+                            const auto k = threadData.videoDataRequests.find(time);
+                            if (k == threadData.videoDataRequests.end())
+                            {
+                                threadData.videoDataRequests[time] = timeline->getVideo(time, videoLayer);
+                            }
                         }
                     }
                 }
             }
 
             // Get uncached audio.
+            if (avInfo.audio.isValid())
             {
                 std::vector<otime::TimeRange> audioCacheRanges;
                 //std::vector<std::string> s;

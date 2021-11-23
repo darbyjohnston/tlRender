@@ -537,12 +537,13 @@ namespace tlr
                 if (auto read = context->getSystem<avio::System>()->read(path, options.avioOptions))
                 {
                     const auto info = read->getInfo().get();
-                    otime::RationalTime globalStartTime(0.0, info.videoTime.duration().rate());
+                    otime::RationalTime globalStartTime = time::invalidTime;
 
                     otio::Track* videoTrack = nullptr;
                     otio::ErrorStatus errorStatus;
                     if (!info.video.empty())
                     {
+                        globalStartTime = otime::RationalTime(0.0, info.videoTime.duration().rate());
                         auto videoClip = new otio::Clip;
                         videoClip->set_source_range(info.videoTime);
                         if (avio::VideoType::Sequence == info.videoType && !path.getNumber().empty())
@@ -604,7 +605,10 @@ namespace tlr
 
                     otioTimeline = new otio::Timeline;
                     otioTimeline->set_tracks(otioStack);
-                    otioTimeline->set_global_start_time(globalStartTime);
+                    if (globalStartTime != time::invalidTime)
+                    {
+                        otioTimeline->set_global_start_time(globalStartTime);
+                    }
                 }
             }
             catch (const std::exception& e)

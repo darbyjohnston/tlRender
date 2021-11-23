@@ -513,22 +513,31 @@ namespace tlr
 
                 p.audio.avFrame = av_frame_alloc();
 
+                const int sampleRate = p.audio.avCodecParameters[p.audio.avStream]->sample_rate;
                 int64_t sampleCount = 0;
                 if (avAudioStream->duration != AV_NOPTS_VALUE)
                 {
-                    sampleCount = avAudioStream->duration;
+                    AVRational r;
+                    r.num = 1;
+                    r.den = sampleRate;
+                    sampleCount = av_rescale_q(
+                        avAudioStream->duration,
+                        avAudioStream->time_base,
+                        r);
                 }
                 else if (p.audio.avFormatContext->duration != AV_NOPTS_VALUE)
                 {
+                    AVRational r;
+                    r.num = 1;
+                    r.den = sampleRate;
                     sampleCount = av_rescale_q(
                         p.audio.avFormatContext->duration,
                         av_get_time_base_q(),
-                        avAudioStream->time_base);
+                        r);
                 }
 
                 p.info.audio.channelCount = channelCount;
                 p.info.audio.dataType = dataType;
-                const int sampleRate = p.audio.avCodecParameters[p.audio.avStream]->sample_rate;
                 p.info.audio.sampleRate = sampleRate;
                 p.info.audioTime = otime::TimeRange::range_from_start_end_time(
                     otime::RationalTime(0.0, sampleRate),
