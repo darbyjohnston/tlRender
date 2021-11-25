@@ -13,6 +13,7 @@
 #include <tlrCore/String.h>
 #include <tlrCore/StringFormat.h>
 #include <tlrCore/Time.h>
+#include <tlrCore/TimelineUtil.h>
 
 #include <opentimelineio/externalReference.h>
 #include <opentimelineio/stackAlgorithm.h>
@@ -228,20 +229,14 @@ namespace tlr
         };
 
         void TimelinePlayer::_init(
-            const file::Path& path,
-            const file::Path& audioPath,
+            const std::shared_ptr<Timeline>& timeline,
             const std::shared_ptr<core::Context>& context,
-            const PlayerOptions& playerOptions,
-            const Options& options)
+            const PlayerOptions& playerOptions)
         {
             TLR_PRIVATE_P();
 
             p.playerOptions = playerOptions;
-
-            // Create the timeline.
-            p.timeline = !audioPath.isEmpty() ?
-                timeline::Timeline::create(path, audioPath, context, options) :
-                timeline::Timeline::create(path, context, options);
+            p.timeline = timeline;
             p.avInfo = p.timeline->getAVInfo();
 
             // Create observers.
@@ -489,25 +484,12 @@ namespace tlr
         }
 
         std::shared_ptr<TimelinePlayer> TimelinePlayer::create(
-            const file::Path& path,
+            const std::shared_ptr<Timeline>& timeline,
             const std::shared_ptr<core::Context>& context,
-            const PlayerOptions& playerOptions,
-            const Options& options)
+            const PlayerOptions& playerOptions)
         {
             auto out = std::shared_ptr<TimelinePlayer>(new TimelinePlayer);
-            out->_init(path, file::Path(), context, playerOptions, options);
-            return out;
-        }
-
-        std::shared_ptr<TimelinePlayer> TimelinePlayer::create(
-            const file::Path& path,
-            const file::Path& audioPath,
-            const std::shared_ptr<core::Context>& context,
-            const PlayerOptions& playerOptions,
-            const Options& options)
-        {
-            auto out = std::shared_ptr<TimelinePlayer>(new TimelinePlayer);
-            out->_init(path, audioPath, context, playerOptions, options);
+            out->_init(timeline, context, playerOptions);
             return out;
         }
 
@@ -516,9 +498,9 @@ namespace tlr
             return _p->timeline->getContext();
         }
         
-        const otio::SerializableObject::Retainer<otio::Timeline>& TimelinePlayer::getTimeline() const
+        const std::shared_ptr<Timeline>& TimelinePlayer::getTimeline() const
         {
-            return _p->timeline->getTimeline();
+            return _p->timeline;
         }
         
         const file::Path& TimelinePlayer::getPath() const

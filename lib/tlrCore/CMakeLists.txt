@@ -50,6 +50,7 @@ set(HEADERS
     TimelineInline.h
     TimelinePlayer.h
     TimelinePlayerInline.h
+	TimelineUtil.h
     Util.h
     ValueObserver.h
     ValueObserverInline.h)
@@ -83,7 +84,8 @@ set(SOURCE
     StringFormat.cpp
     Time.cpp
     Timeline.cpp
-    TimelinePlayer.cpp)
+    TimelinePlayer.cpp
+	TimelineUtil.cpp)
 if (WIN32)
     set(SOURCE
         ${SOURCE}

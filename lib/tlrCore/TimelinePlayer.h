@@ -117,11 +117,9 @@ namespace tlr
 
         protected:
             void _init(
-                const file::Path& path,
-                const file::Path& audioPath,
+                const std::shared_ptr<Timeline>&,
                 const std::shared_ptr<core::Context>&,
-                const PlayerOptions&,
-                const Options&);
+                const PlayerOptions&);
             TimelinePlayer();
 
         public:
@@ -129,24 +127,15 @@ namespace tlr
 
             //! Create a new timeline player.
             static std::shared_ptr<TimelinePlayer> create(
-                const file::Path&,
+                const std::shared_ptr<Timeline>&,
                 const std::shared_ptr<core::Context>&,
-                const PlayerOptions & = PlayerOptions(),
-                const Options & = Options());
-
-            //! Create a new timeline player.
-            static std::shared_ptr<TimelinePlayer> create(
-                const file::Path& path,
-                const file::Path& audioPath,
-                const std::shared_ptr<core::Context>&,
-                const PlayerOptions & = PlayerOptions(),
-                const Options & = Options());
+                const PlayerOptions& = PlayerOptions());
 
             //! Get the context.
             const std::weak_ptr<core::Context>& getContext() const;
 
             //! Get the timeline.
-            const otio::SerializableObject::Retainer<otio::Timeline>& getTimeline() const;
+            const std::shared_ptr<Timeline>& getTimeline() const;
             
             //! Get the path.
             const file::Path& getPath() const;

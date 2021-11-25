@@ -43,9 +43,6 @@ namespace tlr
         _actions["File/Open"] = new QAction(this);
         _actions["File/Open"]->setText(tr("Open"));
         _actions["File/Open"]->setShortcut(QKeySequence::Open);
-        _actions["File/Open+Audio"] = new QAction(this);
-        _actions["File/Open+Audio"]->setText(tr("Open + Audio"));
-        _actions["File/Open+Audio"]->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_A));
         _actions["File/Close"] = new QAction(this);
         _actions["File/Close"]->setText(tr("Close"));
         _actions["File/Close"]->setShortcut(QKeySequence::Close);
@@ -187,7 +184,6 @@ namespace tlr
         auto fileMenu = new QMenu;
         fileMenu->setTitle(tr("&File"));
         fileMenu->addAction(_actions["File/Open"]);
-        fileMenu->addAction(_actions["File/Open+Audio"]);
         fileMenu->addAction(_actions["File/Close"]);
         fileMenu->addAction(_actions["File/CloseAll"]);
         _recentFilesMenu = new QMenu;
@@ -286,10 +282,6 @@ namespace tlr
             _actions["File/Open"],
             SIGNAL(triggered()),
             SLOT(_openCallback()));
-        connect(
-            _actions["File/Open+Audio"],
-            SIGNAL(triggered()),
-            SLOT(_openPlusAudioCallback()));
         connect(
             _actions["File/Close"],
             SIGNAL(triggered()),
@@ -566,56 +558,6 @@ namespace tlr
                 if (auto app = qobject_cast<App*>(qApp))
                 {
                     app->open(fileName);
-                }
-            }
-        }
-    }
-
-    void MainWindow::_openPlusAudioCallback()
-    {
-        if (auto context = _context.lock())
-        {
-            std::vector<std::string> extensions;
-            for (const auto& i : timeline::getExtensions(
-                static_cast<int>(avio::FileExtensionType::VideoAndAudio) |
-                static_cast<int>(avio::FileExtensionType::VideoOnly) |
-                static_cast<int>(avio::FileExtensionType::AudioOnly),
-                context))
-            {
-                extensions.push_back("*" + i);
-            }
-            std::vector<std::string> audioExtensions;
-            for (const auto& i : timeline::getExtensions(
-                static_cast<int>(avio::FileExtensionType::AudioOnly),
-                context))
-            {
-                audioExtensions.push_back("*" + i);
-            }
-
-            QString dir;
-            if (_currentTimelinePlayer)
-            {
-                dir = QString::fromUtf8(_currentTimelinePlayer->path().get().c_str());
-            }
-
-            const auto fileName = QFileDialog::getOpenFileName(
-                this,
-                tr("Open"),
-                dir,
-                tr("Files") + " (" + QString::fromUtf8(string::join(extensions, " ").c_str()) + ")");
-            if (!fileName.isEmpty())
-            {
-                const auto audioFileName = QFileDialog::getOpenFileName(
-                    this,
-                    tr("Open Audio"),
-                    dir,
-                    tr("Files") + " (" + QString::fromUtf8(string::join(audioExtensions, " ").c_str()) + ")");
-                if (!audioFileName.isEmpty())
-                {
-                    if (auto app = qobject_cast<App*>(qApp))
-                    {
-                        app->openPlusAudio(fileName, audioFileName);
-                    }
                 }
             }
         }

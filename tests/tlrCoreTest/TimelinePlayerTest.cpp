@@ -116,7 +116,8 @@ namespace tlr
             }
 
             // Create a timeline player from the OTIO timeline.
-            auto timelinePlayer = TimelinePlayer::create(path, _context);
+            auto timeline = Timeline::create(path, _context);
+            auto timelinePlayer = TimelinePlayer::create(timeline, _context);
             TLR_ASSERT(timelinePlayer->getTimeline());
             TLR_ASSERT(path == timelinePlayer->getPath());
             TLR_ASSERT(Options() == timelinePlayer->getOptions());

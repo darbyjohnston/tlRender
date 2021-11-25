@@ -23,18 +23,19 @@ namespace tlr
             int types,
             const std::shared_ptr<core::Context>&);
 
-        //! Convert frames to ranges.
-        std::vector<otime::TimeRange> toRanges(std::vector<otime::RationalTime>);
+        //! Separate audio for file sequences.
+        enum class SeparateAudio
+        {
+            None,      //!< No separate audio file
+            BaseName,  //!< Search for an audio file with the same base name
+            Name,      //!< Specify the audio file name
+            Directory, //!< Search for an audio file in a directory
 
-        //! Get the root (highest parent).
-        const otio::Composable* getRoot(const otio::Composable*);
-
-        //! Get the parent of the given type.
-        template<typename T>
-        const T* getParent(const otio::Item*);
-
-        //! Get the duration of all tracks of the same kind.
-        otio::optional<otime::RationalTime> getDuration(const otio::Timeline*, const std::string& kind);
+            Count,
+            First = None
+        };
+        TLR_ENUM(SeparateAudio);
+        TLR_ENUM_SERIALIZE(SeparateAudio);
 
         //! Timeline options.
         struct Options
@@ -45,7 +46,9 @@ namespace tlr
 
             avio::Options avioOptions;
 
-            bool autoOpenAudioTrack = true;
+            SeparateAudio separateAudio = SeparateAudio::BaseName;
+            std::string separateAudioName;
+            std::string separateAudioDirectory;
 
             bool operator == (const Options&) const;
             bool operator != (const Options&) const;
@@ -129,24 +132,18 @@ namespace tlr
             ~Timeline();
 
             //! Create a new timeline.
+            //!
+            //! To create a new timeline from a file path, use the utility function
+            //! create() in TimelineUtil.h.
             static std::shared_ptr<Timeline> create(
                 const otio::SerializableObject::Retainer<otio::Timeline>&,
                 const std::shared_ptr<core::Context>&,
                 const Options& = Options());
 
-            //! Create a new timeline from a file path. The file path can
-            //! point to an .otio file, movie file, or image sequence.
+            //! Create a new timeline from a file path. The file path can point
+            //! to an .otio file, movie file, or image sequence.
             static std::shared_ptr<Timeline> create(
                 const file::Path&,
-                const std::shared_ptr<core::Context>&,
-                const Options& = Options());
-
-            //! Create a new timeline from a file path and audio file path.
-            //! The file path can point to an .otio file, movie file, or
-            //! image sequence.
-            static std::shared_ptr<Timeline> create(
-                const file::Path& path,
-                const file::Path& audioPath,
                 const std::shared_ptr<core::Context>&,
                 const Options& = Options());
 

@@ -23,6 +23,7 @@ set(HEADERS
     TimeTest.h
     TimelinePlayerTest.h
     TimelineTest.h
+    TimelineUtilTest.h
     ValueObserverTest.h)
 set(SOURCE
     AVIOTest.cpp
@@ -49,6 +50,7 @@ set(SOURCE
     TimeTest.cpp
     TimelinePlayerTest.cpp
     TimelineTest.cpp
+    TimelineUtilTest.cpp
     ValueObserverTest.cpp)
 if(FFmpeg_FOUND)
     list(APPEND HEADERS FFmpegTest.h)

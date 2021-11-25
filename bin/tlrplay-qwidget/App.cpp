@@ -7,6 +7,7 @@
 #include <tlrCore/Math.h>
 #include <tlrCore/StringFormat.h>
 #include <tlrCore/Time.h>
+#include <tlrCore/TimelineUtil.h>
 
 #include <QMessageBox>
 
@@ -116,45 +117,13 @@ namespace tlr
             options.audioRequestCount = _settingsObject->audioRequestCount();
             options.avioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").arg(_settingsObject->sequenceThreadCount());
             options.avioOptions["ffmpeg/ThreadCount"] = string::Format("{0}").arg(_settingsObject->ffmpegThreadCount());
-            auto timelinePlayer = new qt::TimelinePlayer(
+            auto timeline = timeline::Timeline::create(
                 file::Path(fileName.toUtf8().data()),
                 _context,
-                playerOptions,
-                options,
-                this);
-            _settingsUpdate(timelinePlayer);
-            _timelinePlayers.append(timelinePlayer);
-
-            Q_EMIT opened(timelinePlayer);
-
-            _settingsObject->addRecentFile(fileName);
-        }
-        catch (const std::exception& e)
-        {
-            QMessageBox dialog;
-            dialog.setText(e.what());
-            dialog.exec();
-        }
-    }
-
-    void App::openPlusAudio(const QString& fileName, const QString& audioFileName)
-    {
-        try
-        {
-            timeline::PlayerOptions playerOptions;
-            playerOptions.timerMode = _settingsObject->timerMode();
-            playerOptions.audioBufferFrameCount = _settingsObject->audioBufferFrameCount();
-            timeline::Options options;
-            options.videoRequestCount = _settingsObject->videoRequestCount();
-            options.audioRequestCount = _settingsObject->audioRequestCount();
-            options.avioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").arg(_settingsObject->sequenceThreadCount());
-            options.avioOptions["ffmpeg/ThreadCount"] = string::Format("{0}").arg(_settingsObject->ffmpegThreadCount());
+                options);
             auto timelinePlayer = new qt::TimelinePlayer(
-                file::Path(fileName.toUtf8().data()),
-                file::Path(audioFileName.toUtf8().data()),
+                timeline::TimelinePlayer::create(timeline, _context, playerOptions),
                 _context,
-                playerOptions,
-                options,
                 this);
             _settingsUpdate(timelinePlayer);
             _timelinePlayers.append(timelinePlayer);

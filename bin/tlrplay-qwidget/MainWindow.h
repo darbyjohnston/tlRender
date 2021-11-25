@@ -45,7 +45,6 @@ namespace tlr
 
     private Q_SLOTS:
         void _openCallback();
-        void _openPlusAudioCallback();
         void _openedCallback(tlr::qt::TimelinePlayer*);
         void _closeCallback();
         void _closeAllCallback();

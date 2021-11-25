@@ -28,17 +28,12 @@ namespace tlr
         };
 
         void TimelinePlayer::_init(
-            const file::Path& path,
-            const file::Path& audioPath,
-            const std::shared_ptr<core::Context>& context,
-            const timeline::PlayerOptions& playerOptions,
-            const timeline::Options& options)
+            const std::shared_ptr<timeline::TimelinePlayer>& timelinePlayer,
+            const std::shared_ptr<core::Context>& context)
         {
             TLR_PRIVATE_P();
 
-            p.timelinePlayer = !audioPath.isEmpty() ?
-                timeline::TimelinePlayer::create(path, audioPath, context, playerOptions, options) :
-                timeline::TimelinePlayer::create(path, context, playerOptions, options);
+            p.timelinePlayer = timelinePlayer;
 
             p.speedObserver = observer::ValueObserver<double>::create(
                 p.timelinePlayer->observeSpeed(),
@@ -121,28 +116,13 @@ namespace tlr
         }
 
         TimelinePlayer::TimelinePlayer(
-            const file::Path& path,
+            const std::shared_ptr<timeline::TimelinePlayer>& timelinePlayer,
             const std::shared_ptr<core::Context>& context,
-            const timeline::PlayerOptions& playerOptions,
-            const timeline::Options& options,
             QObject* parent) :
             QObject(parent),
             _p(new Private)
         {
-            _init(path, file::Path(), context, playerOptions, options);
-        }
-
-        TimelinePlayer::TimelinePlayer(
-            const file::Path& path,
-            const file::Path& audioPath,
-            const std::shared_ptr<core::Context>& context,
-            const timeline::PlayerOptions& playerOptions,
-            const timeline::Options& options,
-            QObject* parent) :
-            QObject(parent),
-            _p(new Private)
-        {
-            _init(path, audioPath, context, playerOptions, options);
+            _init(timelinePlayer, context);
         }
 
         TimelinePlayer::~TimelinePlayer()
@@ -153,7 +133,12 @@ namespace tlr
             return _p->timelinePlayer->getContext();
         }
 
-        const otio::SerializableObject::Retainer<otio::Timeline>& TimelinePlayer::timeline() const
+        const std::shared_ptr<timeline::TimelinePlayer>& TimelinePlayer::timelinePlayer() const
+        {
+            return _p->timelinePlayer;
+        }
+
+        const std::shared_ptr<timeline::Timeline>& TimelinePlayer::timeline() const
         {
             return _p->timelinePlayer->getTimeline();
         }

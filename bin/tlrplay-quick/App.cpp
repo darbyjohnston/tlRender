@@ -44,7 +44,8 @@ namespace tlr
         _timeObject = new qt::TimeObject(this);
 
         // Open the input file.
-        _timelinePlayer = new qt::TimelinePlayer(file::Path(_input), _context);
+        auto timeline = timeline::Timeline::create(file::Path(_input), _context);
+        _timelinePlayer = new qt::TimelinePlayer(timeline::TimelinePlayer::create(timeline, _context), _context);
 
         // Load the QML.
         _qmlEngine = new QQmlApplicationEngine;

@@ -17,33 +17,20 @@ namespace tlr
         //! The timeline player timer interval.
         const int playerTimerInterval = 0;
 
-        //! Timeline player.
+        //! Qt based timeline player.
         class TimelinePlayer : public QObject
         {
             Q_OBJECT
             Q_PROPERTY(tlr::timeline::VideoData video READ video NOTIFY videoChanged)
 
             void _init(
-                const file::Path& path,
-                const file::Path& audioPath,
-                const std::shared_ptr<core::Context>&,
-                const timeline::PlayerOptions& = timeline::PlayerOptions(),
-                const timeline::Options& = timeline::Options());
+                const std::shared_ptr<timeline::TimelinePlayer>&,
+                const std::shared_ptr<core::Context>&);
 
         public:
             TimelinePlayer(
-                const file::Path&,
+                const std::shared_ptr<timeline::TimelinePlayer>&,
                 const std::shared_ptr<core::Context>&,
-                const timeline::PlayerOptions& = timeline::PlayerOptions(),
-                const timeline::Options& = timeline::Options(),
-                QObject* parent = nullptr);
-
-            TimelinePlayer(
-                const file::Path& path,
-                const file::Path& audioPath,
-                const std::shared_ptr<core::Context>&,
-                const timeline::PlayerOptions& = timeline::PlayerOptions(),
-                const timeline::Options& = timeline::Options(),
                 QObject* parent = nullptr);
 
             ~TimelinePlayer() override;
@@ -51,8 +38,11 @@ namespace tlr
             //! Get the context.
             const std::weak_ptr<core::Context>& context() const;
 
+            //! Get the timeline player.
+            const std::shared_ptr<timeline::TimelinePlayer>& timelinePlayer() const;
+
             //! Get the timeline.
-            const otio::SerializableObject::Retainer<otio::Timeline>& timeline() const;
+            const std::shared_ptr<timeline::Timeline>& timeline() const;
 
             //! Get the path.
             const file::Path& path() const;

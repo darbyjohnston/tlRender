@@ -8,6 +8,7 @@
 
 #include <tlrCore/Math.h>
 #include <tlrCore/StringFormat.h>
+#include <tlrCore/TimelineUtil.h>
 
 #include <QMouseEvent>
 #include <QPainter>
@@ -100,7 +101,7 @@ namespace tlr
                     options.requestTimeout = std::chrono::milliseconds(100);
                     options.avioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").arg(1);
                     options.avioOptions["ffmpeg/ThreadCount"] = string::Format("{0}").arg(1);
-                    auto timeline = timeline::Timeline::create(p.timelinePlayer->path(), context, options);
+                    auto timeline = timeline::Timeline::create(p.timelinePlayer->timeline()->getPath(), context, options);
                     p.thumbnailProvider = new qt::TimelineThumbnailProvider(timeline, context, this);
                     p.thumbnailProvider->setColorConfig(p.colorConfig);
                     connect(
