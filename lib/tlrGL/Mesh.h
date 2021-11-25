@@ -16,7 +16,7 @@ namespace tlr
 {
     namespace geom
     {
-        class TriangleMesh;
+        struct TriangleMesh;
     }
 
     namespace gl
