@@ -5,6 +5,7 @@
 #include "SettingsWidget.h"
 
 #include <QBoxLayout>
+#include <QFormLayout>
 #include <QGroupBox>
 #include <QLabel>
 #include <QSettings>
@@ -53,7 +54,6 @@ namespace tlr
             settingsObject,
             SIGNAL(cacheReadAheadChanged(double)),
             SLOT(_readAheadCallback(double)));
-
         connect(
             settingsObject,
             SIGNAL(cacheReadBehindChanged(double)),
@@ -70,6 +70,92 @@ namespace tlr
     {
         QSignalBlocker signalBlocker(_readBehindSpinBox);
         _readBehindSpinBox->setValue(value);
+    }
+
+    AudioSettingsWidget::AudioSettingsWidget(SettingsObject* settingsObject, QWidget* parent) :
+        QWidget(parent),
+        _settingsObject(settingsObject)
+    {
+        _separateAudioComboBox = new QComboBox;
+        for (const auto& i : timeline::getSeparateAudioLabels())
+        {
+            _separateAudioComboBox->addItem(i.c_str());
+        }
+
+        _separateAudioFileName = new QLineEdit;
+
+        _separateAudioDirectory = new QLineEdit;
+
+        auto layout = new QVBoxLayout;
+        auto vLayout = new QVBoxLayout;
+        auto label = new QLabel(tr("Separate audio for file sequences."));
+        label->setWordWrap(true);
+        vLayout->addWidget(label);
+        vLayout->addWidget(_separateAudioComboBox);
+        auto formLayout = new QFormLayout;
+        formLayout->addRow(tr("File name:"), _separateAudioFileName);
+        formLayout->addRow(tr("Directory:"), _separateAudioDirectory);
+        vLayout->addLayout(formLayout);
+        auto groupBox = new QGroupBox(tr("Separate Audio"));
+        groupBox->setLayout(vLayout);
+        layout->addWidget(groupBox);
+        layout->addStretch();
+        setLayout(layout);
+
+        _separateAudioComboBox->setCurrentIndex(static_cast<int>(settingsObject->separateAudio()));
+        _separateAudioFileName->setText(settingsObject->separateAudioFileName());
+        _separateAudioDirectory->setText(settingsObject->separateAudioDirectory());
+
+        connect(
+            _separateAudioComboBox,
+            SIGNAL(activated(int)),
+            SLOT(_separateAudioCallback(int)));
+
+        connect(
+            _separateAudioFileName,
+            SIGNAL(textChanged(const QString&)),
+            settingsObject,
+            SLOT(setSeparateAudioFileName(const QString&)));
+
+        connect(
+            _separateAudioDirectory,
+            SIGNAL(textChanged(const QString&)),
+            settingsObject,
+            SLOT(setSeparateAudioDirectory(const QString&)));
+
+        connect(
+            settingsObject,
+            SIGNAL(separateAudioChanged(tlr::timeline::SeparateAudio)),
+            SLOT(_separateAudioCallback(tlr::timeline::SeparateAudio)));
+        connect(
+            settingsObject,
+            SIGNAL(separateAudioFileNameChanged(const QString&)),
+            SLOT(_separateAudioFileNameCallback(const QString&)));
+        connect(
+            settingsObject,
+            SIGNAL(separateAudioDirectoryChanged(const QString&)),
+            SLOT(_separateAudioDirectoryCallback(const QString&)));
+    }
+
+    void AudioSettingsWidget::_separateAudioCallback(int value)
+    {
+        _settingsObject->setSeparateAudio(static_cast<timeline::SeparateAudio>(value));
+    }
+
+    void AudioSettingsWidget::_separateAudioCallback(timeline::SeparateAudio value)
+    {
+        QSignalBlocker signalBlocker(_separateAudioComboBox);
+        _separateAudioComboBox->setCurrentIndex(static_cast<int>(value));
+    }
+
+    void AudioSettingsWidget::_separateAudioFileNameCallback(const QString& value)
+    {
+        _separateAudioFileName->setText(value);
+    }
+
+    void AudioSettingsWidget::_separateAudioDirectoryCallback(const QString& value)
+    {
+        _separateAudioDirectory->setText(value);
     }
 
     PerformanceSettingsWidget::PerformanceSettingsWidget(SettingsObject* settingsObject, QWidget* parent) :
@@ -375,6 +461,7 @@ namespace tlr
         QToolBox(parent)
     {
         addItem(new CacheSettingsWidget(settingsObject), tr("Cache"));
+        addItem(new AudioSettingsWidget(settingsObject), tr("Audio"));
         addItem(new PerformanceSettingsWidget(settingsObject), tr("Performance"));
         addItem(new TimeSettingsWidget(timeObject), tr("Time"));
         addItem(new MiscSettingsWidget(settingsObject), tr("Miscellaneous"));

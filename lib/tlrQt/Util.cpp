@@ -17,6 +17,7 @@ namespace tlr
     {
         void init()
         {
+            qRegisterMetaType<timeline::TimerMode>("tlr::timeline::SeparateAudio");
             qRegisterMetaType<timeline::VideoData>("tlr::timeline::VideoData");
             qRegisterMetaType<timeline::TimerMode>("tlr::timeline::TimerMode");
             qRegisterMetaType<timeline::AudioBufferFrameCount>("tlr::timeline::AudioBufferFrameCount");

@@ -13,6 +13,7 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDoubleSpinBox>
+#include <QLineEdit>
 #include <QMap>
 #include <QRadioButton>
 #include <QSpinBox>
@@ -36,6 +37,27 @@ namespace tlr
     private:
         QDoubleSpinBox* _readAheadSpinBox = nullptr;
         QDoubleSpinBox* _readBehindSpinBox = nullptr;
+    };
+
+    //! Audio settings widget.
+    class AudioSettingsWidget : public QWidget
+    {
+        Q_OBJECT
+
+    public:
+        AudioSettingsWidget(SettingsObject*, QWidget* parent = nullptr);
+
+    private Q_SLOTS:
+        void _separateAudioCallback(int);
+        void _separateAudioCallback(tlr::timeline::SeparateAudio);
+        void _separateAudioFileNameCallback(const QString&);
+        void _separateAudioDirectoryCallback(const QString&);
+
+    private:
+        SettingsObject* _settingsObject = nullptr;
+        QComboBox* _separateAudioComboBox = nullptr;
+        QLineEdit* _separateAudioFileName = nullptr;
+        QLineEdit* _separateAudioDirectory = nullptr;
     };
 
     //! Performance settings widget.

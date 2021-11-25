@@ -66,19 +66,19 @@ namespace tlr
             SeparateAudio,
             "None",
             "BaseName",
-            "Name",
+            "FileName",
             "Directory");
         TLR_ENUM_SERIALIZE_IMPL(SeparateAudio);
 
         bool Options::operator == (const Options& other) const
         {
-            return videoRequestCount == other.videoRequestCount &&
+            return separateAudio == other.separateAudio &&
+                separateAudioFileName == other.separateAudioFileName &&
+                separateAudioDirectory == other.separateAudioDirectory &&
+                videoRequestCount == other.videoRequestCount &&
                 audioRequestCount == other.audioRequestCount &&
                 requestTimeout == other.requestTimeout &&
-                avioOptions == other.avioOptions &&
-                separateAudio == other.separateAudio &&
-                separateAudioName == other.separateAudioName &&
-                separateAudioDirectory == other.separateAudioDirectory;
+                avioOptions == other.avioOptions;
         }
 
         bool Options::operator != (const Options& other) const
@@ -217,7 +217,7 @@ namespace tlr
                 return out;
             }
 
-            std::vector<file::Path> getDirList(const std::string& path)
+            std::vector<file::Path> getDirectoryList(const std::string& path)
             {
                 std::vector<file::Path> out;
                 FSeqDirOptions dirOptions;
@@ -228,11 +228,9 @@ namespace tlr
                 {
                     for (auto entry = dirList; entry; entry = entry->next)
                     {
-                        out.push_back(file::Path(
-                            std::string(entry->fileName.path) +
-                            std::string(entry->fileName.base) +
-                            std::string(entry->fileName.number) +
-                            std::string(entry->fileName.extension)));
+                        char tmp[string::cBufferSize];
+                        fseqDirEntryToString(entry, tmp, FSEQ_TRUE, string::cBufferSize);
+                        out.push_back(file::Path(path, tmp));
                     }
                 }
                 fseqDirListDel(dirList);
@@ -242,7 +240,7 @@ namespace tlr
             file::Path getAudioPath(
                 const file::Path& path,
                 const SeparateAudio& separateAudio,
-                const std::string& separateAudioName,
+                const std::string& separateAudioFileName,
                 const std::string& separateAudioDirectory,
                 const std::shared_ptr<core::Context>& context)
             {
@@ -275,22 +273,25 @@ namespace tlr
                     }
                     break;
                 }
-                case SeparateAudio::Name:
-                    out = file::Path(path.getDirectory() + separateAudioName);
+                case SeparateAudio::FileName:
+                    out = file::Path(path.getDirectory() + separateAudioFileName);
                     break;
                 case SeparateAudio::Directory:
-                    for (const auto& path : getDirList(file::Path(path.getDirectory(), separateAudioDirectory).get()))
+                {
+                    const file::Path directoryPath(path.getDirectory(), separateAudioDirectory);
+                    for (const auto& item : getDirectoryList(directoryPath.get()))
                     {
                         for (const auto& extension : audioExtensions)
                         {
-                            if (extension == path.getExtension())
+                            if (extension == item.getExtension())
                             {
-                                out = path;
+                                out = item;
                                 break;
                             }
                         }
                     }
                     break;
+                }
                 default: break;
                 }
                 return out;
@@ -633,7 +634,7 @@ namespace tlr
                             const file::Path audioPath = getAudioPath(
                                 path,
                                 options.separateAudio,
-                                options.separateAudioName,
+                                options.separateAudioFileName,
                                 options.separateAudioDirectory,
                                 context);
                             if (!audioPath.isEmpty())

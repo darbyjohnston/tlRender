@@ -28,7 +28,7 @@ namespace tlr
         {
             None,      //!< No separate audio file
             BaseName,  //!< Search for an audio file with the same base name
-            Name,      //!< Specify the audio file name
+            FileName,  //!< Specify the audio file name
             Directory, //!< Search for an audio file in a directory
 
             Count,
@@ -40,15 +40,15 @@ namespace tlr
         //! Timeline options.
         struct Options
         {
+            SeparateAudio separateAudio = SeparateAudio::BaseName;
+            std::string separateAudioFileName;
+            std::string separateAudioDirectory;
+
             size_t videoRequestCount = 16;
             size_t audioRequestCount = 16;
             std::chrono::milliseconds requestTimeout = std::chrono::milliseconds(1);
 
             avio::Options avioOptions;
-
-            SeparateAudio separateAudio = SeparateAudio::BaseName;
-            std::string separateAudioName;
-            std::string separateAudioDirectory;
 
             bool operator == (const Options&) const;
             bool operator != (const Options&) const;

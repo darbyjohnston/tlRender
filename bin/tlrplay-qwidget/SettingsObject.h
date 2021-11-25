@@ -32,6 +32,15 @@ namespace tlr
         //! Get the cache read behind.
         double cacheReadBehind() const;
 
+        //! Get the separate audio for file sequences.
+        timeline::SeparateAudio separateAudio() const;
+
+        //! Get the separate audio for file sequences file name.
+        const QString& separateAudioFileName() const;
+
+        //! Get the separate audio for file sequences directory.
+        const QString& separateAudioDirectory() const;
+
         //! Get the timer mode.
         timeline::TimerMode timerMode();
 
@@ -62,6 +71,15 @@ namespace tlr
 
         //! Set the cache read behind.
         void setCacheReadBehind(double);
+
+        //! Set the separate audio for file sequences.
+        void setSeparateAudio(tlr::timeline::SeparateAudio);
+
+        //! Set the separate audio for file sequences file name.
+        void setSeparateAudioFileName(const QString&);
+
+        //! Set the separate audio for file sequences directory.
+        void setSeparateAudioDirectory(const QString&);
 
         //! Set the timer mode.
         void setTimerMode(tlr::timeline::TimerMode);
@@ -94,6 +112,15 @@ namespace tlr
         //! This signal is emitted when the cache read behind is changed.
         void cacheReadBehindChanged(double);
 
+        //! This signal is emitted when the separate audio for file sequences is changed.
+        void separateAudioChanged(tlr::timeline::SeparateAudio);
+
+        //! This signal is emitted when the separate audio for file sequences file name is changed.
+        void separateAudioFileNameChanged(const QString&);
+
+        //! This signal is emitted when the separate audio for file sequences directory is changed.
+        void separateAudioDirectoryChanged(const QString&);
+
         //! This signal is emitted when the timer mode is changed.
         void timerModeChanged(tlr::timeline::TimerMode);
 
@@ -122,6 +149,9 @@ namespace tlr
         const int _recentFilesMax = 10;
         double _cacheReadAhead = 4.0;
         double _cacheReadBehind = 0.4;
+        timeline::SeparateAudio _separateAudio = timeline::SeparateAudio::BaseName;
+        QString _separateAudioFileName;
+        QString _separateAudioDirectory;
         timeline::TimerMode _timerMode = timeline::TimerMode::System;
         timeline::AudioBufferFrameCount _audioBufferFrameCount = timeline::AudioBufferFrameCount::_256;
         int _videoRequestCount = 16;

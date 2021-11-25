@@ -26,6 +26,11 @@ namespace tlr
         settings.endArray();
         _cacheReadAhead = settings.value("Cache/ReadAhead", 4.0).toDouble();
         _cacheReadBehind = settings.value("Cache/ReadBehind", 0.4).toDouble();
+        _separateAudio = static_cast<timeline::SeparateAudio>(settings.value(
+            "Audio/SeparateAudio",
+            static_cast<int>(timeline::SeparateAudio::BaseName)).toInt());
+        _separateAudioFileName = settings.value("Audio/SeparateAudioFileName", "").toString();
+        _separateAudioDirectory = settings.value("Audio/SeparateAudioDirectory", "").toString();
         _timerMode = static_cast<timeline::TimerMode>(settings.value(
             "Performance/TimerMode",
             static_cast<int>(timeline::TimerMode::System)).toInt());
@@ -54,6 +59,9 @@ namespace tlr
         settings.endArray();
         settings.setValue("Cache/ReadAhead", _cacheReadAhead);
         settings.setValue("Cache/ReadBehind", _cacheReadBehind);
+        settings.setValue("Audio/SeparateAudio", static_cast<int>(_separateAudio));
+        settings.setValue("Audio/SeparateAudioFileName", _separateAudioFileName);
+        settings.setValue("Audio/SeparateAudioDirectory", _separateAudioDirectory);
         settings.setValue("Performance/TimerMode", static_cast<int>(_timerMode));
         settings.setValue("Performance/AudioBufferFrameCount", static_cast<int>(_audioBufferFrameCount));
         settings.setValue("Performance/VideoRequestCount", _videoRequestCount);
@@ -78,6 +86,21 @@ namespace tlr
     double SettingsObject::cacheReadBehind() const
     {
         return _cacheReadBehind;
+    }
+
+    timeline::SeparateAudio SettingsObject::separateAudio() const
+    {
+        return _separateAudio;
+    }
+
+    const QString& SettingsObject::separateAudioFileName() const
+    {
+        return _separateAudioFileName;
+    }
+
+    const QString& SettingsObject::separateAudioDirectory() const
+    {
+        return _separateAudioDirectory;
     }
 
     timeline::TimerMode SettingsObject::timerMode()
@@ -140,6 +163,30 @@ namespace tlr
             return;
         _cacheReadBehind = value;
         Q_EMIT cacheReadBehindChanged(_cacheReadBehind);
+    }
+
+    void SettingsObject::setSeparateAudio(tlr::timeline::SeparateAudio value)
+    {
+        if (value == _separateAudio)
+            return;
+        _separateAudio = value;
+        Q_EMIT separateAudioChanged(_separateAudio);
+    }
+
+    void SettingsObject::setSeparateAudioFileName(const QString& value)
+    {
+        if (value == _separateAudioFileName)
+            return;
+        _separateAudioFileName = value;
+        Q_EMIT separateAudioFileNameChanged(_separateAudioFileName);
+    }
+
+    void SettingsObject::setSeparateAudioDirectory(const QString& value)
+    {
+        if (value == _separateAudioDirectory)
+            return;
+        _separateAudioDirectory = value;
+        Q_EMIT separateAudioDirectoryChanged(_separateAudioDirectory);
     }
 
     void SettingsObject::setTimerMode(timeline::TimerMode value)
