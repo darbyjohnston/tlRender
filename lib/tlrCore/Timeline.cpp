@@ -480,18 +480,6 @@ namespace tlr
                 arg(!p.avInfo.video.empty() ? p.avInfo.video[0] : imaging::Info()).
                 arg(p.avInfo.audio));
 
-            //! \bug
-            if (p.avInfo.videoTime != time::invalidTimeRange &&
-                p.duration.rate() != p.avInfo.videoTime.duration().rate())
-            {
-                p.duration = p.duration.rescaled_to(p.avInfo.videoTime.duration().rate());
-            }
-            if (p.avInfo.videoTime != time::invalidTimeRange &&
-                p.globalStartTime.rate() != p.avInfo.videoTime.duration().rate())
-            {
-                p.globalStartTime = p.duration.rescaled_to(p.avInfo.videoTime.duration().rate());
-            }
-
             // Create a new thread.
             p.running = true;
             p.thread = std::thread(
