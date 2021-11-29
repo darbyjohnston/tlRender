@@ -1133,9 +1133,10 @@ namespace tlr
                     {
                         if (otio::Track::Kind::audio == i.track->kind())
                         {
-                            const otime::TimeRange timeRange(
-                                otime::RationalTime(request.seconds, 1.0) - globalStartTime.rescaled_to(1.0),
-                                otime::RationalTime(1.0, 1.0));
+                            const otime::RationalTime time = otime::RationalTime(request.seconds, 1.0) - globalStartTime.rescaled_to(1.0);
+                            const otime::TimeRange timeRange = otime::TimeRange::range_from_start_end_time(
+                                std::max(otime::RationalTime(0.0, 1.0), time),
+                                std::max(otime::RationalTime(0.0, 1.0), time + otime::RationalTime(1.0, 1.0)));
                             if (i.range.intersects(timeRange))
                             {
                                 AudioLayerData audioData;
