@@ -91,13 +91,13 @@ namespace tlr
             
             av_register_all();
             avcodec_register_all();
-            AVCodec* avCodec = nullptr;
+            /*AVCodec* avCodec = nullptr;
             std::vector<std::string> codecNames;
             while ((avCodec = av_codec_next(avCodec)))
             {
                 codecNames.push_back(avCodec->name);
             }
-            logSystem->print("tlr::ffmpeg::Plugin", "Codecs: " + string::join(codecNames, ", "));
+            logSystem->print("tlr::ffmpeg::Plugin", "Codecs: " + string::join(codecNames, ", "));*/
         }
 
         Plugin::Plugin()

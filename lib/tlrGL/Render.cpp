@@ -779,7 +779,8 @@ namespace tlr
                 }
                 if (auto context = p.context.lock())
                 {
-                    context->log("tlr::gl::Render", source);
+                    //context->log("tlr::gl::Render", source);
+                    context->log("tlr::gl::Render", "Creating fragment shader");
                 }
                 p.shader = Shader::create(vertexSource, source);
             }

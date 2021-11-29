@@ -466,6 +466,19 @@ namespace tlr
                     }
                 }
             }
+            auto logSystem = context->getLogSystem();
+            logSystem->print(
+                string::Format("tlr::timeline::Timeline {0}").arg(this),
+                string::Format(
+                    "\n"
+                    "    duration: {0}\n"
+                    "    global start time: {1}\n"
+                    "    video: {2}\n"
+                    "    audio: {3}").
+                arg(p.duration).
+                arg(p.globalStartTime).
+                arg(!p.avInfo.video.empty() ? p.avInfo.video[0] : imaging::Info()).
+                arg(p.avInfo.audio));
 
             //! \bug
             if (p.avInfo.videoTime != time::invalidTimeRange &&
@@ -588,6 +601,8 @@ namespace tlr
             const Options& options)
         {
             otio::SerializableObject::Retainer<otio::Timeline> otioTimeline;
+            bool isSequence = false;
+            file::Path audioPath;
             std::string error;
             try
             {
@@ -596,7 +611,6 @@ namespace tlr
                 {
                     const auto info = read->getInfo().get();
                     otime::RationalTime globalStartTime = time::invalidTime;
-
                     otio::Track* videoTrack = nullptr;
                     otio::Track* audioTrack = nullptr;
                     otio::ErrorStatus errorStatus;
@@ -605,7 +619,7 @@ namespace tlr
                         globalStartTime = otime::RationalTime(0.0, info.videoTime.duration().rate());
                         auto videoClip = new otio::Clip;
                         videoClip->set_source_range(info.videoTime);
-                        const bool isSequence = avio::VideoType::Sequence == info.videoType && !path.getNumber().empty();
+                        isSequence = avio::VideoType::Sequence == info.videoType && !path.getNumber().empty();
                         if (isSequence)
                         {
                             globalStartTime = info.videoTime.start_time();
@@ -631,7 +645,7 @@ namespace tlr
 
                         if (isSequence)
                         {
-                            const file::Path audioPath = getAudioPath(
+                            audioPath = getAudioPath(
                                 path,
                                 options.separateAudio,
                                 options.separateAudioFileName,
@@ -702,6 +716,23 @@ namespace tlr
             {
                 error = e.what();
             }
+
+            auto logSystem = context->getLogSystem();
+            logSystem->print(
+                "tlr::timeline::Timeline",
+                string::Format(
+                    "\n"
+                    "    create from path: {0}\n"
+                    "    audio path: {1}\n"
+                    "    separate audio: {2}\n"
+                    "    separate audio file name: {3}\n"
+                    "    separate audio directory: {4}").
+                arg(path.get()).
+                arg(audioPath.get()).
+                arg(options.separateAudio).
+                arg(options.separateAudioFileName).
+                arg(options.separateAudioDirectory));
+
             if (!otioTimeline)
             {
                 otio::ErrorStatus errorStatus;
@@ -720,6 +751,7 @@ namespace tlr
             {
                 throw std::runtime_error(error);
             }
+
             auto out = std::shared_ptr<Timeline>(new Timeline);
             out->_p->path = path;
             out->_init(otioTimeline, context, options);
