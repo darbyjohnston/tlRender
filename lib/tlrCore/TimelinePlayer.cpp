@@ -1021,7 +1021,7 @@ namespace tlr
             const auto& duration = timeline->getDuration();
             const auto cacheReadAheadRescaled = time::floor(cacheReadAhead.rescaled_to(duration.rate()));
             const auto cacheReadBehindRescaled = time::floor(cacheReadBehind.rescaled_to(duration.rate()));
-            otime::TimeRange range;
+            otime::TimeRange range = time::invalidTimeRange;
             switch (cacheDirection)
             {
             case CacheDirection::Forward:
