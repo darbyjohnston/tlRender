@@ -101,41 +101,32 @@ namespace tlr
             const otime::TimeRange& range)
         {
             std::vector<otime::TimeRange> out;
-            auto clamped = otime::TimeRange(value.start_time(), std::min(value.duration(), range.duration()));
-
-            auto start = clamped.start_time();
-            if (start < range.start_time())
+            if (value.duration() >= range.duration())
             {
-                start = range.end_time_inclusive() - (range.start_time() - start);
+                out.push_back(range);
             }
-            else if (start > range.end_time_inclusive())
+            else if (value.start_time() >= range.start_time() &&
+                value.end_time_inclusive() <= range.end_time_inclusive())
             {
-                start = range.start_time() + (start - range.end_time_inclusive());
+                out.push_back(value);
             }
-
-            auto end = otime::TimeRange(start, clamped.duration()).end_time_inclusive();
-            //auto end = start + clamped.duration();
-            bool wrapped = false;
-            if (end < range.start_time())
+            else if (value.start_time() < range.start_time())
             {
-                end = range.end_time_inclusive() - (range.start_time() - end);
-                wrapped = true;
+                out.push_back(otime::TimeRange::range_from_start_end_time_inclusive(
+                    range.end_time_exclusive() - (range.start_time() - value.start_time()),
+                    range.end_time_inclusive()));
+                out.push_back(otime::TimeRange::range_from_start_end_time_inclusive(
+                    range.start_time(),
+                    value.end_time_inclusive()));
             }
-            else if (end > range.end_time_inclusive())
+            else if (value.end_time_inclusive() > range.end_time_inclusive())
             {
-                end = range.start_time() + (end - range.end_time_inclusive());
-                wrapped = true;
-            }
-
-            if (wrapped)
-            {
-                //! \bug range_from_start_end_time() or range_from_start_end_time_inclusive()?
-                out.push_back(otime::TimeRange::range_from_start_end_time(start, range.end_time_inclusive()));
-                out.push_back(otime::TimeRange::range_from_start_end_time_inclusive(range.start_time(), end));
-            }
-            else
-            {
-                out.push_back(otime::TimeRange::range_from_start_end_time_inclusive(start, end));
+                out.push_back(otime::TimeRange::range_from_start_end_time_inclusive(
+                    value.start_time(),
+                    range.end_time_inclusive()));
+                out.push_back(otime::TimeRange::range_from_start_end_time_inclusive(
+                    range.start_time(),
+                    range.start_time() + (value.end_time_inclusive() - range.end_time_exclusive())));
             }
             return out;
         }
@@ -1030,9 +1021,21 @@ namespace tlr
             const auto& duration = timeline->getDuration();
             const auto cacheReadAheadRescaled = time::floor(cacheReadAhead.rescaled_to(duration.rate()));
             const auto cacheReadBehindRescaled = time::floor(cacheReadBehind.rescaled_to(duration.rate()));
-            const auto range = otime::TimeRange::range_from_start_end_time_inclusive(
-                currentTime - cacheReadBehindRescaled,
-                currentTime + cacheReadAheadRescaled);
+            otime::TimeRange range;
+            switch (cacheDirection)
+            {
+            case CacheDirection::Forward:
+                range = otime::TimeRange::range_from_start_end_time_inclusive(
+                    currentTime - cacheReadBehindRescaled,
+                    currentTime + cacheReadAheadRescaled);
+                break;
+            case CacheDirection::Reverse:
+                range = otime::TimeRange::range_from_start_end_time_inclusive(
+                    currentTime - cacheReadAheadRescaled,
+                    currentTime + cacheReadBehindRescaled);
+                break;
+            default: break;
+            }
             const auto ranges = timeline::loop(range, inOutRange);
             timeline->setActiveRanges(ranges);
 

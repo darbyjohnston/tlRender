@@ -59,9 +59,22 @@ namespace tlr
                 TLR_ASSERT(1 == ranges.size());
                 TLR_ASSERT(otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0)) == ranges[0]);
                 ranges = loop(otime::TimeRange(otime::RationalTime(-10.0, 24.0), otime::RationalTime(34.0, 24.0)), timeRange);
+                TLR_ASSERT(1 == ranges.size());
+                TLR_ASSERT(otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0)) == ranges[0]);
+                ranges = loop(otime::TimeRange(otime::RationalTime(-10.0, 24.0), otime::RationalTime(20.0, 24.0)), timeRange);
                 TLR_ASSERT(2 == ranges.size());
-                TLR_ASSERT(otime::TimeRange(otime::RationalTime(13.0, 24.0), otime::RationalTime(10.0, 24.0)) == ranges[0]);
-                TLR_ASSERT(otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(14.0, 24.0)) == ranges[1]);
+                TLR_ASSERT(otime::TimeRange(otime::RationalTime(14.0, 24.0), otime::RationalTime(10.0, 24.0)) == ranges[0]);
+                TLR_ASSERT(otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(10.0, 24.0)) == ranges[1]);
+                ranges = loop(otime::TimeRange(otime::RationalTime(10.0, 24.0), otime::RationalTime(20.0, 24.0)), timeRange);
+                TLR_ASSERT(2 == ranges.size());
+                TLR_ASSERT(otime::TimeRange(otime::RationalTime(10.0, 24.0), otime::RationalTime(14.0, 24.0)) == ranges[0]);
+                TLR_ASSERT(otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(6.0, 24.0)) == ranges[1]);
+            }
+            {
+                const otime::TimeRange timeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(1.0, 24.0));
+                auto ranges = loop(otime::TimeRange(otime::RationalTime(-1.0, 24.0), otime::RationalTime(2.0, 24.0)), timeRange);
+                TLR_ASSERT(1 == ranges.size());
+                TLR_ASSERT(otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(1.0, 24.0)) == ranges[0]);
             }
         }
 
