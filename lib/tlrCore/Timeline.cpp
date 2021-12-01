@@ -746,6 +746,138 @@ namespace tlr
             return out;
         }
 
+        std::shared_ptr<Timeline> Timeline::create(
+            const file::Path& path,
+            const file::Path& audioPath,
+            const std::shared_ptr<core::Context>& context,
+            const Options& options)
+        {
+            otio::SerializableObject::Retainer<otio::Timeline> otioTimeline;
+            bool isSequence = false;
+            std::string error;
+            try
+            {
+                auto avioSystem = context->getSystem<avio::System>();
+                if (auto read = avioSystem->read(path, options.avioOptions))
+                {
+                    const auto info = read->getInfo().get();
+                    otime::RationalTime globalStartTime = time::invalidTime;
+                    otio::Track* videoTrack = nullptr;
+                    otio::Track* audioTrack = nullptr;
+                    otio::ErrorStatus errorStatus;
+                    if (!info.video.empty())
+                    {
+                        globalStartTime = otime::RationalTime(0.0, info.videoTime.duration().rate());
+                        auto videoClip = new otio::Clip;
+                        videoClip->set_source_range(info.videoTime);
+                        isSequence = avio::VideoType::Sequence == info.videoType && !path.getNumber().empty();
+                        if (isSequence)
+                        {
+                            globalStartTime = info.videoTime.start_time();
+                            videoClip->set_media_reference(new otio::ImageSequenceReference(
+                                path.getDirectory(),
+                                path.getBaseName(),
+                                path.getExtension(),
+                                info.videoTime.start_time().value(),
+                                1,
+                                info.videoTime.duration().rate(),
+                                path.getPadding()));
+                        }
+                        else
+                        {
+                            videoClip->set_media_reference(new otio::ExternalReference(path.get()));
+                        }
+                        videoTrack = new otio::Track("Video", otio::nullopt, otio::Track::Kind::video);
+                        videoTrack->append_child(videoClip, &errorStatus);
+                        if (errorStatus != otio::ErrorStatus::OK)
+                        {
+                            throw std::runtime_error("Cannot append child");
+                        }
+                    }
+
+                    if (auto audioRead = avioSystem->read(audioPath, options.avioOptions))
+                    {
+                        const auto audioInfo = audioRead->getInfo().get();
+
+                        auto audioClip = new otio::Clip;
+                        audioClip->set_source_range(audioInfo.audioTime);
+                        audioClip->set_media_reference(new otio::ExternalReference(audioPath.get()));
+
+                        audioTrack = new otio::Track("Audio", otio::nullopt, otio::Track::Kind::audio);
+                        audioTrack->append_child(audioClip, &errorStatus);
+                        if (errorStatus != otio::ErrorStatus::OK)
+                        {
+                            throw std::runtime_error("Cannot append child");
+                        }
+                    }
+
+                    auto otioStack = new otio::Stack;
+                    if (videoTrack)
+                    {
+                        otioStack->append_child(videoTrack, &errorStatus);
+                        if (errorStatus != otio::ErrorStatus::OK)
+                        {
+                            throw std::runtime_error("Cannot append child");
+                        }
+                    }
+                    if (audioTrack)
+                    {
+                        otioStack->append_child(audioTrack, &errorStatus);
+                        if (errorStatus != otio::ErrorStatus::OK)
+                        {
+                            throw std::runtime_error("Cannot append child");
+                        }
+                    }
+
+                    otioTimeline = new otio::Timeline(path.get());
+                    otioTimeline->set_tracks(otioStack);
+                    if (globalStartTime != time::invalidTime)
+                    {
+                        otioTimeline->set_global_start_time(globalStartTime);
+                    }
+                }
+            }
+            catch (const std::exception& e)
+            {
+                error = e.what();
+            }
+
+            auto logSystem = context->getLogSystem();
+            logSystem->print(
+                "tlr::timeline::Timeline",
+                string::Format(
+                    "\n"
+                    "    create from path: {0}\n"
+                    "    audio path: {1}\n"
+                    "    separate audio: {2}").
+                arg(path.get()).
+                arg(audioPath.get()));
+
+            if (!otioTimeline)
+            {
+                otio::ErrorStatus errorStatus;
+                otioTimeline = readTimeline(path.get(), &errorStatus);
+                if (errorStatus != otio::ErrorStatus::OK)
+                {
+                    otioTimeline = nullptr;
+                    error = errorStatus.full_description;
+                }
+                else if (!otioTimeline)
+                {
+                    error = "Cannot read timeline";
+                }
+            }
+            if (!otioTimeline)
+            {
+                throw std::runtime_error(error);
+            }
+
+            auto out = std::shared_ptr<Timeline>(new Timeline);
+            out->_p->path = path;
+            out->_init(otioTimeline, context, options);
+            return out;
+        }
+
         const std::weak_ptr<core::Context>& Timeline::getContext() const
         {
             return _p->context;

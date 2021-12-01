@@ -6,6 +6,7 @@
 
 #include "App.h"
 #include "ImageOptionsWidget.h"
+#include "OpenPlusAudioDialog.h"
 #include "SettingsWidget.h"
 
 #include <tlrCore/File.h>
@@ -43,6 +44,9 @@ namespace tlr
         _actions["File/Open"] = new QAction(this);
         _actions["File/Open"]->setText(tr("Open"));
         _actions["File/Open"]->setShortcut(QKeySequence::Open);
+        _actions["File/OpenPlusAudio"] = new QAction(this);
+        _actions["File/OpenPlusAudio"]->setText(tr("Open + Audio"));
+        _actions["File/OpenPlusAudio"]->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_O));
         _actions["File/Close"] = new QAction(this);
         _actions["File/Close"]->setText(tr("Close"));
         _actions["File/Close"]->setShortcut(QKeySequence::Close);
@@ -184,6 +188,7 @@ namespace tlr
         auto fileMenu = new QMenu;
         fileMenu->setTitle(tr("&File"));
         fileMenu->addAction(_actions["File/Open"]);
+        fileMenu->addAction(_actions["File/OpenPlusAudio"]);
         fileMenu->addAction(_actions["File/Close"]);
         fileMenu->addAction(_actions["File/CloseAll"]);
         _recentFilesMenu = new QMenu;
@@ -282,6 +287,10 @@ namespace tlr
             _actions["File/Open"],
             SIGNAL(triggered()),
             SLOT(_openCallback()));
+        connect(
+            _actions["File/OpenPlusAudio"],
+            SIGNAL(triggered()),
+            SLOT(_openPlusAudioCallback()));
         connect(
             _actions["File/Close"],
             SIGNAL(triggered()),
@@ -558,6 +567,21 @@ namespace tlr
                 if (auto app = qobject_cast<App*>(qApp))
                 {
                     app->open(fileName);
+                }
+            }
+        }
+    }
+
+    void MainWindow::_openPlusAudioCallback()
+    {
+        if (auto context = _context.lock())
+        {
+            auto dialog = std::make_unique<OpenPlusAudioDialog>(context);
+            if (QDialog::Accepted == dialog->exec())
+            {
+                if (auto app = qobject_cast<App*>(qApp))
+                {
+                    app->openPlusAudio(dialog->mediaFileName(), dialog->audioFileName());
                 }
             }
         }

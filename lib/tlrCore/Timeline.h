@@ -23,13 +23,13 @@ namespace tlr
             int types,
             const std::shared_ptr<core::Context>&);
 
-        //! Separate audio for file sequences.
+        //! Separate audio file.
         enum class SeparateAudio
         {
             None,      //!< No separate audio file
             BaseName,  //!< Search for an audio file with the same base name
-            FileName,  //!< Specify the audio file name
-            Directory, //!< Search for an audio file in a directory
+            FileName,  //!< Use the given audio file name
+            Directory, //!< Use the first audio file in the given directory
 
             Count,
             First = None
@@ -132,9 +132,6 @@ namespace tlr
             ~Timeline();
 
             //! Create a new timeline.
-            //!
-            //! To create a new timeline from a file path, use the utility function
-            //! create() in TimelineUtil.h.
             static std::shared_ptr<Timeline> create(
                 const otio::SerializableObject::Retainer<otio::Timeline>&,
                 const std::shared_ptr<core::Context>&,
@@ -145,7 +142,16 @@ namespace tlr
             static std::shared_ptr<Timeline> create(
                 const file::Path&,
                 const std::shared_ptr<core::Context>&,
-                const Options& = Options());
+                const Options & = Options());
+
+            //! Create a new timeline from a file path and audio file path.
+            //! The file path can point to an .otio file, movie file, or
+            //! image sequence.
+            static std::shared_ptr<Timeline> create(
+                const file::Path&,
+                const file::Path& audioPath,
+                const std::shared_ptr<core::Context>&,
+                const Options & = Options());
 
             //! Get the context.
             const std::weak_ptr<core::Context>& getContext() const;

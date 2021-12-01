@@ -37,6 +37,9 @@ namespace tlr
         //! Open a file.
         void open(const QString&);
 
+        //! Open a file plus audio.
+        void openPlusAudio(const QString&, const QString&);
+
         //! Close a file.
         void close(tlr::qt::TimelinePlayer*);
 
