@@ -1,7 +1,7 @@
 include(ExternalProject)
 
 set(FSeq_GIT_REPOSITORY "https://github.com/darbyjohnston/FSeq.git")
-set(FSeq_GIT_TAG "4df87b88f5377036a724fe0c3b3e9ee35ae161b5")
+set(FSeq_GIT_TAG "d88d5be1550ccc57806ca02f4caa9326c584348a")
 
 set(FSeq_ARGS ${TLR_EXTERNAL_ARGS})
 if(BUILD_SHARED_LIBS)

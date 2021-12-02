@@ -18,7 +18,9 @@ namespace tlr
         Path::Path()
         {}
 
-        Path::Path(const std::string& value)
+        Path::Path(
+            const std::string& value,
+            const PathOptions& options)
         {
             std::string tmp(value);
             for (auto i = tmp.begin(); i != tmp.end(); ++i)
@@ -29,9 +31,12 @@ namespace tlr
                 }
             }
 
+            FSeqFileNameOptions fseqOptions;
+            fseqFileNameOptionsInit(&fseqOptions);
+            fseqOptions.maxNumberDigits = options.maxNumberDigits;
             FSeqFileName f;
             fseqFileNameInit(&f);
-            fseqFileNameSplit(tmp.c_str(), &f, string::cBufferSize);
+            fseqFileNameSplit(tmp.c_str(), &f, string::cBufferSize, &fseqOptions);
             _directory = f.path;
             _baseName = f.base;
             if (_directory.empty() &&
@@ -62,8 +67,11 @@ namespace tlr
             }
         }
 
-        Path::Path(const std::string& directory, const std::string& value) :
-            Path(directoryFix(directory) + value)
+        Path::Path(
+            const std::string& directory,
+            const std::string& value,
+            const PathOptions& options) :
+            Path(directoryFix(directory) + value, options)
         {}
 
         std::string Path::get(int number, bool directory) const

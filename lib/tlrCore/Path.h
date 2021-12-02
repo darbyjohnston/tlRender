@@ -13,13 +13,24 @@ namespace tlr
 {
     namespace file
     {
+        //! File system path options.
+        struct PathOptions
+        {
+            uint8_t maxNumberDigits = 9;
+        };
+
         //! File system path.
         class Path
         {
         public:
             Path();
-            explicit Path(const std::string&);
-            Path(const std::string&, const std::string&);
+            explicit Path(
+                const std::string&,
+                const PathOptions& = PathOptions());
+            Path(
+                const std::string&,
+                const std::string&,
+                const PathOptions& = PathOptions());
 
             //! Get the path.
             std::string get(int number = -1, bool directory = true) const;
