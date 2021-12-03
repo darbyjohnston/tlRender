@@ -53,6 +53,19 @@ namespace tlr
             fseqFileNameDel(&f);
         }
 
+        Path::Path(
+            const std::string& directory,
+            const std::string& baseName,
+            const std::string& number,
+            uint8_t padding,
+            const std::string& extension) :
+            _directory(directory),
+            _baseName(baseName),
+            _number(number),
+            _padding(padding),
+            _extension(extension)
+        {}
+
         namespace
         {
             std::string directoryFix(const std::string& value)

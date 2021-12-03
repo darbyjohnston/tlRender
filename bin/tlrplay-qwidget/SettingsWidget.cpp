@@ -72,90 +72,114 @@ namespace tlr
         _readBehindSpinBox->setValue(value);
     }
 
-    AudioSettingsWidget::AudioSettingsWidget(SettingsObject* settingsObject, QWidget* parent) :
+    FileSequenceSettingsWidget::FileSequenceSettingsWidget(SettingsObject* settingsObject, QWidget* parent) :
         QWidget(parent),
         _settingsObject(settingsObject)
     {
-        _separateAudioComboBox = new QComboBox;
-        for (const auto& i : timeline::getSeparateAudioLabels())
+        _audioComboBox = new QComboBox;
+        for (const auto& i : timeline::getFileSequenceAudioLabels())
         {
-            _separateAudioComboBox->addItem(i.c_str());
+            _audioComboBox->addItem(i.c_str());
         }
 
-        _separateAudioFileName = new QLineEdit;
+        _audioFileName = new QLineEdit;
 
-        _separateAudioDirectory = new QLineEdit;
+        _audioDirectory = new QLineEdit;
+
+        _maxDigitsSpinBox = new QSpinBox;
+        _maxDigitsSpinBox->setRange(0, 255);
 
         auto layout = new QVBoxLayout;
         auto vLayout = new QVBoxLayout;
-        auto label = new QLabel(tr("Separate audio for file sequences."));
-        label->setWordWrap(true);
-        vLayout->addWidget(label);
-        vLayout->addWidget(_separateAudioComboBox);
+        vLayout->addWidget(_audioComboBox);
         auto formLayout = new QFormLayout;
-        formLayout->addRow(tr("File name:"), _separateAudioFileName);
-        formLayout->addRow(tr("Directory:"), _separateAudioDirectory);
+        formLayout->addRow(tr("File name:"), _audioFileName);
+        formLayout->addRow(tr("Directory:"), _audioDirectory);
         vLayout->addLayout(formLayout);
-        auto groupBox = new QGroupBox(tr("Separate Audio"));
+        auto groupBox = new QGroupBox(tr("Audio"));
+        groupBox->setLayout(vLayout);
+        layout->addWidget(groupBox);
+        vLayout = new QVBoxLayout;
+        vLayout->addWidget(_maxDigitsSpinBox);
+        groupBox = new QGroupBox(tr("Maximum Digits"));
         groupBox->setLayout(vLayout);
         layout->addWidget(groupBox);
         layout->addStretch();
         setLayout(layout);
 
-        _separateAudioComboBox->setCurrentIndex(static_cast<int>(settingsObject->separateAudio()));
-        _separateAudioFileName->setText(settingsObject->separateAudioFileName());
-        _separateAudioDirectory->setText(settingsObject->separateAudioDirectory());
+        _audioComboBox->setCurrentIndex(static_cast<int>(settingsObject->fileSequenceAudio()));
+        _audioFileName->setText(settingsObject->fileSequenceAudioFileName());
+        _audioDirectory->setText(settingsObject->fileSequenceAudioDirectory());
+        _maxDigitsSpinBox->setValue(static_cast<int>(settingsObject->maxFileSequenceDigits()));
 
         connect(
-            _separateAudioComboBox,
+            _audioComboBox,
             SIGNAL(activated(int)),
-            SLOT(_separateAudioCallback(int)));
+            SLOT(_audioCallback(int)));
 
         connect(
-            _separateAudioFileName,
+            _audioFileName,
             SIGNAL(textChanged(const QString&)),
             settingsObject,
-            SLOT(setSeparateAudioFileName(const QString&)));
+            SLOT(setFileSequenceAudioFileName(const QString&)));
 
         connect(
-            _separateAudioDirectory,
+            _audioDirectory,
             SIGNAL(textChanged(const QString&)),
             settingsObject,
-            SLOT(setSeparateAudioDirectory(const QString&)));
+            SLOT(setFileSequenceAudioDirectory(const QString&)));
+
+        connect(
+            _maxDigitsSpinBox,
+            SIGNAL(valueChanged(int)),
+            settingsObject,
+            SLOT(setMaxFileSequenceDigits(int)));
 
         connect(
             settingsObject,
-            SIGNAL(separateAudioChanged(tlr::timeline::SeparateAudio)),
-            SLOT(_separateAudioCallback(tlr::timeline::SeparateAudio)));
+            SIGNAL(fileSequenceAudioChanged(tlr::timeline::FileSequenceAudio)),
+            SLOT(_audioCallback(tlr::timeline::FileSequenceAudio)));
         connect(
             settingsObject,
-            SIGNAL(separateAudioFileNameChanged(const QString&)),
-            SLOT(_separateAudioFileNameCallback(const QString&)));
+            SIGNAL(fileSequenceAudioFileNameChanged(const QString&)),
+            SLOT(_audioFileNameCallback(const QString&)));
         connect(
             settingsObject,
-            SIGNAL(separateAudioDirectoryChanged(const QString&)),
-            SLOT(_separateAudioDirectoryCallback(const QString&)));
+            SIGNAL(fileSequenceAudioDirectoryChanged(const QString&)),
+            SLOT(_audioDirectoryCallback(const QString&)));
+        connect(
+            settingsObject,
+            SIGNAL(maxFileSequenceDigitsChanged(int)),
+            SLOT(_maxDigitsCallback(int)));
     }
 
-    void AudioSettingsWidget::_separateAudioCallback(int value)
+    void FileSequenceSettingsWidget::_audioCallback(int value)
     {
-        _settingsObject->setSeparateAudio(static_cast<timeline::SeparateAudio>(value));
+        _settingsObject->setFileSequenceAudio(static_cast<timeline::FileSequenceAudio>(value));
     }
 
-    void AudioSettingsWidget::_separateAudioCallback(timeline::SeparateAudio value)
+    void FileSequenceSettingsWidget::_audioCallback(timeline::FileSequenceAudio value)
     {
-        QSignalBlocker signalBlocker(_separateAudioComboBox);
-        _separateAudioComboBox->setCurrentIndex(static_cast<int>(value));
+        QSignalBlocker signalBlocker(_audioComboBox);
+        _audioComboBox->setCurrentIndex(static_cast<int>(value));
     }
 
-    void AudioSettingsWidget::_separateAudioFileNameCallback(const QString& value)
+    void FileSequenceSettingsWidget::_audioFileNameCallback(const QString& value)
     {
-        _separateAudioFileName->setText(value);
+        QSignalBlocker signalBlocker(_audioFileName);
+        _audioFileName->setText(value);
     }
 
-    void AudioSettingsWidget::_separateAudioDirectoryCallback(const QString& value)
+    void FileSequenceSettingsWidget::_audioDirectoryCallback(const QString& value)
     {
-        _separateAudioDirectory->setText(value);
+        QSignalBlocker signalBlocker(_audioDirectory);
+        _audioDirectory->setText(value);
+    }
+
+    void FileSequenceSettingsWidget::_maxDigitsCallback(int value)
+    {
+        QSignalBlocker signalBlocker(_maxDigitsSpinBox);
+        _maxDigitsSpinBox->setValue(value);
     }
 
     PerformanceSettingsWidget::PerformanceSettingsWidget(SettingsObject* settingsObject, QWidget* parent) :
@@ -461,7 +485,7 @@ namespace tlr
         QToolBox(parent)
     {
         addItem(new CacheSettingsWidget(settingsObject), tr("Cache"));
-        addItem(new AudioSettingsWidget(settingsObject), tr("Audio"));
+        addItem(new FileSequenceSettingsWidget(settingsObject), tr("File Sequences"));
         addItem(new PerformanceSettingsWidget(settingsObject), tr("Performance"));
         addItem(new TimeSettingsWidget(timeObject), tr("Time"));
         addItem(new MiscSettingsWidget(settingsObject), tr("Miscellaneous"));

@@ -131,7 +131,7 @@ namespace tlr
         }
         
         // Read the timeline.
-        auto timeline = timeline::Timeline::create(file::Path(_input), _context);
+        auto timeline = timeline::Timeline::create(_input, _context);
         _timelinePlayer = timeline::TimelinePlayer::create(timeline, _context);
 
         // Initialize GLFW.

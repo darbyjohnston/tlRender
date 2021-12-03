@@ -140,7 +140,7 @@ namespace tlr
         _startTime = std::chrono::steady_clock::now();
         
         // Read the timeline.
-        _timeline = timeline::Timeline::create(file::Path(_input), _context);
+        _timeline = timeline::Timeline::create(_input, _context);
         _duration = _timeline->getDuration();
         _print(string::Format("Timeline duration: {0}").arg(_duration.value()));
         _print(string::Format("Timeline speed: {0}").arg(_duration.rate()));

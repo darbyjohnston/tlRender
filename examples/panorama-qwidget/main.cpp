@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
 
     // Create the context and timeline player.
     auto context = tlr::core::Context::create();
-    auto timeline = tlr::timeline::Timeline::create(tlr::file::Path(argv[1]), context);
+    auto timeline = tlr::timeline::Timeline::create(argv[1], context);
     auto timelinePlayer = new tlr::qt::TimelinePlayer(tlr::timeline::TimelinePlayer::create(timeline, context), context);
 
     // Hook up logging.

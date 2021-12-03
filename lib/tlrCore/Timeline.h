@@ -23,32 +23,34 @@ namespace tlr
             int types,
             const std::shared_ptr<core::Context>&);
 
-        //! Separate audio file.
-        enum class SeparateAudio
+        //! File sequence.
+        enum class FileSequenceAudio
         {
-            None,      //!< No separate audio file
-            BaseName,  //!< Search for an audio file with the same base name
+            None,      //!< No audio
+            BaseName,  //!< Search for an audio file with the same base name as the file sequence
             FileName,  //!< Use the given audio file name
             Directory, //!< Use the first audio file in the given directory
 
             Count,
             First = None
         };
-        TLR_ENUM(SeparateAudio);
-        TLR_ENUM_SERIALIZE(SeparateAudio);
+        TLR_ENUM(FileSequenceAudio);
+        TLR_ENUM_SERIALIZE(FileSequenceAudio);
 
         //! Timeline options.
         struct Options
         {
-            SeparateAudio separateAudio = SeparateAudio::BaseName;
-            std::string separateAudioFileName;
-            std::string separateAudioDirectory;
+            FileSequenceAudio fileSequenceAudio = FileSequenceAudio::BaseName;
+            std::string fileSequenceAudioFileName;
+            std::string fileSequenceAudioDirectory;
 
             size_t videoRequestCount = 16;
             size_t audioRequestCount = 16;
             std::chrono::milliseconds requestTimeout = std::chrono::milliseconds(1);
 
             avio::Options avioOptions;
+
+            file::PathOptions pathOptions;
 
             bool operator == (const Options&) const;
             bool operator != (const Options&) const;
@@ -137,19 +139,19 @@ namespace tlr
                 const std::shared_ptr<core::Context>&,
                 const Options& = Options());
 
-            //! Create a new timeline from a file path. The file path can point
+            //! Create a new timeline from a file name. The file name can point
             //! to an .otio file, movie file, or image sequence.
             static std::shared_ptr<Timeline> create(
-                const file::Path&,
+                const std::string&,
                 const std::shared_ptr<core::Context>&,
                 const Options & = Options());
 
-            //! Create a new timeline from a file path and audio file path.
-            //! The file path can point to an .otio file, movie file, or
+            //! Create a new timeline from a file name and audio file name.
+            //! The file name can point to an .otio file, movie file, or
             //! image sequence.
             static std::shared_ptr<Timeline> create(
-                const file::Path&,
-                const file::Path& audioPath,
+                const std::string&,
+                const std::string& audioFileName,
                 const std::shared_ptr<core::Context>&,
                 const Options & = Options());
 
@@ -161,6 +163,9 @@ namespace tlr
 
             //! Get the file path.
             const file::Path& getPath() const;
+
+            //! Get the audio file path.
+            const file::Path& getAudioPath() const;
 
             //! Get the timeline options.
             const Options& getOptions() const;

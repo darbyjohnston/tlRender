@@ -148,6 +148,11 @@ namespace tlr
             return _p->timelinePlayer->getPath();
         }
 
+        const file::Path& TimelinePlayer::audioPath() const
+        {
+            return _p->timelinePlayer->getAudioPath();
+        }
+
         const timeline::PlayerOptions& TimelinePlayer::getPlayerOptions() const
         {
             return _p->timelinePlayer->getPlayerOptions();

@@ -63,22 +63,23 @@ namespace tlr
         }
 
         TLR_ENUM_IMPL(
-            SeparateAudio,
+            FileSequenceAudio,
             "None",
             "BaseName",
             "FileName",
             "Directory");
-        TLR_ENUM_SERIALIZE_IMPL(SeparateAudio);
+        TLR_ENUM_SERIALIZE_IMPL(FileSequenceAudio);
 
         bool Options::operator == (const Options& other) const
         {
-            return separateAudio == other.separateAudio &&
-                separateAudioFileName == other.separateAudioFileName &&
-                separateAudioDirectory == other.separateAudioDirectory &&
+            return fileSequenceAudio == other.fileSequenceAudio &&
+                fileSequenceAudioFileName == other.fileSequenceAudioFileName &&
+                fileSequenceAudioDirectory == other.fileSequenceAudioDirectory &&
                 videoRequestCount == other.videoRequestCount &&
                 audioRequestCount == other.audioRequestCount &&
                 requestTimeout == other.requestTimeout &&
-                avioOptions == other.avioOptions;
+                avioOptions == other.avioOptions &&
+                pathOptions == other.pathOptions;
         }
 
         bool Options::operator != (const Options& other) const
@@ -217,39 +218,44 @@ namespace tlr
                 return out;
             }
 
-            std::vector<file::Path> getDirectoryList(const std::string& path)
+            std::vector<file::Path> getDirectoryList(const std::string& path, const file::PathOptions& pathOptions)
             {
                 std::vector<file::Path> out;
                 FSeqDirOptions dirOptions;
                 fseqDirOptionsInit(&dirOptions);
+                dirOptions.fileNameOptions.maxNumberDigits = pathOptions.maxNumberDigits;
                 FSeqBool error = FSEQ_FALSE;
                 auto dirList = fseqDirList(path.c_str(), &dirOptions, &error);
                 if (FSEQ_FALSE == error)
                 {
                     for (auto entry = dirList; entry; entry = entry->next)
                     {
-                        char tmp[string::cBufferSize];
-                        fseqDirEntryToString(entry, tmp, FSEQ_TRUE, string::cBufferSize);
-                        out.push_back(file::Path(path, tmp));
+                        out.push_back(file::Path(
+                            path,
+                            entry->fileName.base,
+                            entry->fileName.number,
+                            entry->framePadding,
+                            entry->fileName.extension));
                     }
                 }
                 fseqDirListDel(dirList);
                 return out;
             }
 
-            file::Path getAudioPath(
+            file::Path _getAudioPath(
                 const file::Path& path,
-                const SeparateAudio& separateAudio,
-                const std::string& separateAudioFileName,
-                const std::string& separateAudioDirectory,
+                const FileSequenceAudio& fileSequenceAudio,
+                const std::string& fileSequenceAudioFileName,
+                const std::string& fileSequenceAudioDirectory,
+                const file::PathOptions& pathOptions,
                 const std::shared_ptr<core::Context>& context)
             {
                 file::Path out;
                 auto avioSystem = context->getSystem<avio::System>();
                 const auto audioExtensions = avioSystem->getExtensions(static_cast<int>(avio::FileExtensionType::AudioOnly));
-                switch (separateAudio)
+                switch (fileSequenceAudio)
                 {
-                case SeparateAudio::BaseName:
+                case FileSequenceAudio::BaseName:
                 {
                     std::vector<std::string> names;
                     names.push_back(path.getDirectory() + path.getBaseName());
@@ -263,7 +269,7 @@ namespace tlr
                     {
                         for (const auto& extension : audioExtensions)
                         {
-                            const file::Path audioPath(name + extension);
+                            const file::Path audioPath(name + extension, pathOptions);
                             if (file::exists(audioPath))
                             {
                                 out = audioPath;
@@ -273,13 +279,13 @@ namespace tlr
                     }
                     break;
                 }
-                case SeparateAudio::FileName:
-                    out = file::Path(path.getDirectory() + separateAudioFileName);
+                case FileSequenceAudio::FileName:
+                    out = file::Path(path.getDirectory() + fileSequenceAudioFileName, pathOptions);
                     break;
-                case SeparateAudio::Directory:
+                case FileSequenceAudio::Directory:
                 {
-                    const file::Path directoryPath(path.getDirectory(), separateAudioDirectory);
-                    for (const auto& item : getDirectoryList(directoryPath.get()))
+                    const file::Path directoryPath(path.getDirectory(), fileSequenceAudioDirectory, pathOptions);
+                    for (const auto& item : getDirectoryList(directoryPath.get(), pathOptions))
                     {
                         for (const auto& extension : audioExtensions)
                         {
@@ -331,6 +337,7 @@ namespace tlr
             std::weak_ptr<core::Context> context;
             otio::SerializableObject::Retainer<otio::Timeline> otioTimeline;
             file::Path path;
+            file::Path audioPath;
             Options options;
             otime::RationalTime duration = time::invalidTime;
             otime::RationalTime globalStartTime = time::invalidTime;
@@ -584,12 +591,13 @@ namespace tlr
         }
 
         std::shared_ptr<Timeline> Timeline::create(
-            const file::Path& path,
+            const std::string& fileName,
             const std::shared_ptr<core::Context>& context,
             const Options& options)
         {
             otio::SerializableObject::Retainer<otio::Timeline> otioTimeline;
             bool isSequence = false;
+            const file::Path path(fileName, options.pathOptions);
             file::Path audioPath;
             std::string error;
             try
@@ -633,11 +641,12 @@ namespace tlr
 
                         if (isSequence)
                         {
-                            audioPath = getAudioPath(
+                            audioPath = _getAudioPath(
                                 path,
-                                options.separateAudio,
-                                options.separateAudioFileName,
-                                options.separateAudioDirectory,
+                                options.fileSequenceAudio,
+                                options.fileSequenceAudioFileName,
+                                options.fileSequenceAudioDirectory,
+                                options.pathOptions,
                                 context);
                             if (!audioPath.isEmpty())
                             {
@@ -712,14 +721,14 @@ namespace tlr
                     "\n"
                     "    create from path: {0}\n"
                     "    audio path: {1}\n"
-                    "    separate audio: {2}\n"
-                    "    separate audio file name: {3}\n"
-                    "    separate audio directory: {4}").
+                    "    file sequence audio: {2}\n"
+                    "    file sequence audio file name: {3}\n"
+                    "    file sequence audio directory: {4}").
                 arg(path.get()).
                 arg(audioPath.get()).
-                arg(options.separateAudio).
-                arg(options.separateAudioFileName).
-                arg(options.separateAudioDirectory));
+                arg(options.fileSequenceAudio).
+                arg(options.fileSequenceAudioFileName).
+                arg(options.fileSequenceAudioDirectory));
 
             if (!otioTimeline)
             {
@@ -742,19 +751,22 @@ namespace tlr
 
             auto out = std::shared_ptr<Timeline>(new Timeline);
             out->_p->path = path;
+            out->_p->audioPath = audioPath;
             out->_init(otioTimeline, context, options);
             return out;
         }
 
         std::shared_ptr<Timeline> Timeline::create(
-            const file::Path& path,
-            const file::Path& audioPath,
+            const std::string& fileName,
+            const std::string& audioFileName,
             const std::shared_ptr<core::Context>& context,
             const Options& options)
         {
             otio::SerializableObject::Retainer<otio::Timeline> otioTimeline;
             bool isSequence = false;
             std::string error;
+            const file::Path path(fileName, options.pathOptions);
+            const file::Path audioPath(audioFileName, options.pathOptions);
             try
             {
                 auto avioSystem = context->getSystem<avio::System>();
@@ -848,8 +860,7 @@ namespace tlr
                 string::Format(
                     "\n"
                     "    create from path: {0}\n"
-                    "    audio path: {1}\n"
-                    "    separate audio: {2}").
+                    "    audio path: {1}").
                 arg(path.get()).
                 arg(audioPath.get()));
 
@@ -874,6 +885,7 @@ namespace tlr
 
             auto out = std::shared_ptr<Timeline>(new Timeline);
             out->_p->path = path;
+            out->_p->audioPath = audioPath;
             out->_init(otioTimeline, context, options);
             return out;
         }
@@ -891,6 +903,11 @@ namespace tlr
         const file::Path& Timeline::getPath() const
         {
             return _p->path;
+        }
+
+        const file::Path& Timeline::getAudioPath() const
+        {
+            return _p->audioPath;
         }
 
         const Options& Timeline::getOptions() const
@@ -990,7 +1007,7 @@ namespace tlr
             {
                 directory = this->path.getDirectory();
             }
-            return file::Path(directory, path.get());
+            return file::Path(directory, path.get(), options.pathOptions);
         }
 
         file::Path Timeline::Private::getPath(const otio::ImageSequenceReference* ref) const
@@ -1000,7 +1017,7 @@ namespace tlr
                 ref->name_prefix() <<
                 std::setfill('0') << std::setw(ref->frame_zero_padding()) << ref->start_frame() <<
                 ref->name_suffix();
-            return file::Path(ss.str());
+            return file::Path(ss.str(), options.pathOptions);
         }
 
         file::Path Timeline::Private::getPath(const otio::MediaReference* ref) const
@@ -1009,7 +1026,7 @@ namespace tlr
             if (auto externalRef = dynamic_cast<const otio::ExternalReference*>(ref))
             {
                 //! \bug Handle URL parsing.
-                out = file::Path(externalRef->target_url());
+                out = file::Path(externalRef->target_url(), options.pathOptions);
             }
             else if (auto imageSequenceRef = dynamic_cast<const otio::ImageSequenceReference*>(ref))
             {

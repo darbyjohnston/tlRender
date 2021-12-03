@@ -39,25 +39,27 @@ namespace tlr
         QDoubleSpinBox* _readBehindSpinBox = nullptr;
     };
 
-    //! Audio settings widget.
-    class AudioSettingsWidget : public QWidget
+    //! File sequence settings widget.
+    class FileSequenceSettingsWidget : public QWidget
     {
         Q_OBJECT
 
     public:
-        AudioSettingsWidget(SettingsObject*, QWidget* parent = nullptr);
+        FileSequenceSettingsWidget(SettingsObject*, QWidget* parent = nullptr);
 
     private Q_SLOTS:
-        void _separateAudioCallback(int);
-        void _separateAudioCallback(tlr::timeline::SeparateAudio);
-        void _separateAudioFileNameCallback(const QString&);
-        void _separateAudioDirectoryCallback(const QString&);
+        void _audioCallback(int);
+        void _audioCallback(tlr::timeline::FileSequenceAudio);
+        void _audioFileNameCallback(const QString&);
+        void _audioDirectoryCallback(const QString&);
+        void _maxDigitsCallback(int);
 
     private:
         SettingsObject* _settingsObject = nullptr;
-        QComboBox* _separateAudioComboBox = nullptr;
-        QLineEdit* _separateAudioFileName = nullptr;
-        QLineEdit* _separateAudioDirectory = nullptr;
+        QComboBox* _audioComboBox = nullptr;
+        QLineEdit* _audioFileName = nullptr;
+        QLineEdit* _audioDirectory = nullptr;
+        QSpinBox* _maxDigitsSpinBox = nullptr;
     };
 
     //! Performance settings widget.

@@ -47,6 +47,9 @@ namespace tlr
             //! Get the path.
             const file::Path& path() const;
 
+            //! Get the audio path.
+            const file::Path& audioPath() const;
+
             //! Get the timeline player options.
             const timeline::PlayerOptions& getPlayerOptions() const;
 

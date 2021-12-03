@@ -104,11 +104,11 @@ namespace tlr
             }
             otio::SerializableObject::Retainer<otio::Timeline> otioTimeline(new otio::Timeline);
             otioTimeline->set_tracks(otioStack);
-            const file::Path path("TimelineTest.otio");
-            otioTimeline->to_json_file(path.get(), &errorStatus);
+            const std::string fileName("TimelineTest.otio");
+            otioTimeline->to_json_file(fileName, &errorStatus);
             if (errorStatus != otio::ErrorStatus::OK)
             {
-                throw std::runtime_error("Cannot write file: " + path.get());
+                throw std::runtime_error("Cannot write file: " + fileName);
             }
 
             // Write the image sequence files.
@@ -124,9 +124,9 @@ namespace tlr
             }
 
             // Create a timeline from the OTIO timeline.
-            auto timeline = Timeline::create(path, _context);
+            auto timeline = Timeline::create(fileName, _context);
             TLR_ASSERT(timeline->getTimeline());
-            TLR_ASSERT(path == timeline->getPath());
+            TLR_ASSERT(fileName == timeline->getPath().get());
             TLR_ASSERT(Options() == timeline->getOptions());
             const otime::RationalTime timelineDuration(48.0, 24.0);
             TLR_ASSERT(timelineDuration == timeline->getDuration());
@@ -210,7 +210,7 @@ namespace tlr
         void TimelineTest::_imageSequence()
         {
             //! \bug This uses the image sequence created by _timeline().
-            auto timeline = Timeline::create(file::Path("TimelineTest.0.ppm"), _context);
+            auto timeline = Timeline::create("TimelineTest.0.ppm", _context);
             {
                 std::stringstream ss;
                 ss << timeline->getDuration();

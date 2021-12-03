@@ -113,15 +113,16 @@ namespace tlr
             playerOptions.timerMode = _settingsObject->timerMode();
             playerOptions.audioBufferFrameCount = _settingsObject->audioBufferFrameCount();
             timeline::Options options;
-            options.separateAudio = _settingsObject->separateAudio();
-            options.separateAudioFileName = _settingsObject->separateAudioFileName().toUtf8();
-            options.separateAudioDirectory = _settingsObject->separateAudioDirectory().toUtf8();
+            options.fileSequenceAudio = _settingsObject->fileSequenceAudio();
+            options.fileSequenceAudioFileName = _settingsObject->fileSequenceAudioFileName().toUtf8();
+            options.fileSequenceAudioDirectory = _settingsObject->fileSequenceAudioDirectory().toUtf8();
             options.videoRequestCount = _settingsObject->videoRequestCount();
             options.audioRequestCount = _settingsObject->audioRequestCount();
             options.avioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").arg(_settingsObject->sequenceThreadCount());
             options.avioOptions["ffmpeg/ThreadCount"] = string::Format("{0}").arg(_settingsObject->ffmpegThreadCount());
+            options.pathOptions.maxNumberDigits = std::min(_settingsObject->maxFileSequenceDigits(), 255);
             auto timeline = timeline::Timeline::create(
-                file::Path(fileName.toUtf8().data()),
+                fileName.toUtf8().data(),
                 _context,
                 options);
             auto timelinePlayer = new qt::TimelinePlayer(
@@ -156,8 +157,8 @@ namespace tlr
             options.avioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").arg(_settingsObject->sequenceThreadCount());
             options.avioOptions["ffmpeg/ThreadCount"] = string::Format("{0}").arg(_settingsObject->ffmpegThreadCount());
             auto timeline = timeline::Timeline::create(
-                file::Path(fileName.toUtf8().data()),
-                file::Path(audioFileName.toUtf8().data()),
+                fileName.toUtf8().data(),
+                audioFileName.toUtf8().data(),
                 _context,
                 options);
             auto timelinePlayer = new qt::TimelinePlayer(

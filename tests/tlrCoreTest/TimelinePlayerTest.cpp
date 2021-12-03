@@ -109,11 +109,11 @@ namespace tlr
             auto otioTimeline = new otio::Timeline;
             otioTimeline->set_tracks(otioStack);
             otioTimeline->set_global_start_time(otime::RationalTime(10.0, 24.0));
-            const file::Path path("TimelinePlayerTest.otio");
-            otioTimeline->to_json_file(path.get(), &errorStatus);
+            const std::string fileName("TimelinePlayerTest.otio");
+            otioTimeline->to_json_file(fileName, &errorStatus);
             if (errorStatus != otio::ErrorStatus::OK)
             {
-                throw std::runtime_error("Cannot write file: " + path.get());
+                throw std::runtime_error("Cannot write file: " + fileName);
             }
 
             // Write the image sequence files.
@@ -129,10 +129,10 @@ namespace tlr
             }
 
             // Create a timeline player from the OTIO timeline.
-            auto timeline = Timeline::create(path, _context);
+            auto timeline = Timeline::create(fileName, _context);
             auto timelinePlayer = TimelinePlayer::create(timeline, _context);
             TLR_ASSERT(timelinePlayer->getTimeline());
-            TLR_ASSERT(path == timelinePlayer->getPath());
+            TLR_ASSERT(fileName == timelinePlayer->getPath().get());
             TLR_ASSERT(Options() == timelinePlayer->getOptions());
             const otime::RationalTime timelineDuration(48.0, 24.0);
             TLR_ASSERT(timelineDuration == timelinePlayer->getDuration());

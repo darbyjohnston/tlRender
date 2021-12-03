@@ -17,6 +17,9 @@ namespace tlr
         struct PathOptions
         {
             uint8_t maxNumberDigits = 9;
+
+            bool operator == (const PathOptions&) const;
+            bool operator != (const PathOptions&) const;
         };
 
         //! File system path.
@@ -31,6 +34,12 @@ namespace tlr
                 const std::string&,
                 const std::string&,
                 const PathOptions& = PathOptions());
+            Path(
+                const std::string& directory,
+                const std::string& baseName,
+                const std::string& number,
+                uint8_t padding,
+                const std::string& extension);
 
             //! Get the path.
             std::string get(int number = -1, bool directory = true) const;
@@ -45,7 +54,7 @@ namespace tlr
             const std::string& getNumber() const;
 
             //! Get the number zero padding.
-            int getPadding() const;
+            uint8_t getPadding() const;
 
             //! Get the extension.
             const std::string& getExtension() const;
@@ -63,7 +72,7 @@ namespace tlr
             std::string _directory;
             std::string _baseName;
             std::string _number;
-            int _padding = 0;
+            uint8_t _padding = 0;
             std::string _extension;
         };
     }

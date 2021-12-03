@@ -32,14 +32,14 @@ namespace tlr
         //! Get the cache read behind.
         double cacheReadBehind() const;
 
-        //! Get the separate audio for file sequences.
-        timeline::SeparateAudio separateAudio() const;
+        //! Get the file sequence audio.
+        timeline::FileSequenceAudio fileSequenceAudio() const;
 
-        //! Get the separate audio for file sequences file name.
-        const QString& separateAudioFileName() const;
+        //! Get the file sequence audio file name.
+        const QString& fileSequenceAudioFileName() const;
 
-        //! Get the separate audio for file sequences directory.
-        const QString& separateAudioDirectory() const;
+        //! Get the file sequence audio directory.
+        const QString& fileSequenceAudioDirectory() const;
 
         //! Get the timer mode.
         timeline::TimerMode timerMode();
@@ -59,6 +59,9 @@ namespace tlr
         //! Get the FFmpeg I/O thread count.
         int ffmpegThreadCount() const;
 
+        //! Get the maximum number of file seqeunce digits.
+        int maxFileSequenceDigits() const;
+
         //! Get whether tool tips are enabled.
         bool hasToolTipsEnabled() const;
 
@@ -72,14 +75,14 @@ namespace tlr
         //! Set the cache read behind.
         void setCacheReadBehind(double);
 
-        //! Set the separate audio for file sequences.
-        void setSeparateAudio(tlr::timeline::SeparateAudio);
+        //! Set the file sequence audio.
+        void setFileSequenceAudio(tlr::timeline::FileSequenceAudio);
 
-        //! Set the separate audio for file sequences file name.
-        void setSeparateAudioFileName(const QString&);
+        //! Set the file sequence audio file name.
+        void setFileSequenceAudioFileName(const QString&);
 
-        //! Set the separate audio for file sequences directory.
-        void setSeparateAudioDirectory(const QString&);
+        //! Set the file sequence audio directory.
+        void setFileSequenceAudioDirectory(const QString&);
 
         //! Set the timer mode.
         void setTimerMode(tlr::timeline::TimerMode);
@@ -99,6 +102,9 @@ namespace tlr
         //! Set the FFmepg I/O thread count.
         void setFFmpegThreadCount(int);
 
+        //! Set the maximum number of file sequence digits.
+        void setMaxFileSequenceDigits(int);
+
         //! Set whether tool tips are enabled.
         void setToolTipsEnabled(bool);
 
@@ -112,14 +118,14 @@ namespace tlr
         //! This signal is emitted when the cache read behind is changed.
         void cacheReadBehindChanged(double);
 
-        //! This signal is emitted when the separate audio for file sequences is changed.
-        void separateAudioChanged(tlr::timeline::SeparateAudio);
+        //! This signal is emitted when the file sequence audio is changed.
+        void fileSequenceAudioChanged(tlr::timeline::FileSequenceAudio);
 
-        //! This signal is emitted when the separate audio for file sequences file name is changed.
-        void separateAudioFileNameChanged(const QString&);
+        //! This signal is emitted when the file sequence audio file name is changed.
+        void fileSequenceAudioFileNameChanged(const QString&);
 
-        //! This signal is emitted when the separate audio for file sequences directory is changed.
-        void separateAudioDirectoryChanged(const QString&);
+        //! This signal is emitted when the file sequence audio directory is changed.
+        void fileSequenceAudioDirectoryChanged(const QString&);
 
         //! This signal is emitted when the timer mode is changed.
         void timerModeChanged(tlr::timeline::TimerMode);
@@ -139,6 +145,9 @@ namespace tlr
         //! This signal is emitted when the FFmpeg thread count is changed.
         void ffmpegThreadCountChanged(int);
 
+        //!This signal is emitted when maximum number of file sequence digits is changed.
+        void maxFileSequenceDigitsChanged(int);
+
         //! This signal is emitted when tool tips are enabled or disabled.
         void toolTipsEnabledChanged(bool);
 
@@ -149,9 +158,9 @@ namespace tlr
         const int _recentFilesMax = 10;
         double _cacheReadAhead = 4.0;
         double _cacheReadBehind = 0.4;
-        timeline::SeparateAudio _separateAudio = timeline::SeparateAudio::BaseName;
-        QString _separateAudioFileName;
-        QString _separateAudioDirectory;
+        timeline::FileSequenceAudio _fileSequenceAudio = timeline::FileSequenceAudio::BaseName;
+        QString _fileSequenceAudioFileName;
+        QString _fileSequenceAudioDirectory;
         timeline::TimerMode _timerMode = timeline::TimerMode::System;
         timeline::AudioBufferFrameCount _audioBufferFrameCount = timeline::AudioBufferFrameCount::_256;
         int _videoRequestCount = 16;
@@ -159,6 +168,7 @@ namespace tlr
         int _sequenceThreadCount = 16;
         int _ffmpegThreadCount = 4;
         qt::TimeObject* _timeObject = nullptr;
+        int _maxFileSequenceDigits = 9;
         bool _toolTipsEnabled = true;
         qt::ToolTipsFilter* _toolTipsFilter = nullptr;
     };

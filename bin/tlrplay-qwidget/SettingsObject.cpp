@@ -26,11 +26,11 @@ namespace tlr
         settings.endArray();
         _cacheReadAhead = settings.value("Cache/ReadAhead", 4.0).toDouble();
         _cacheReadBehind = settings.value("Cache/ReadBehind", 0.4).toDouble();
-        _separateAudio = static_cast<timeline::SeparateAudio>(settings.value(
-            "Audio/SeparateAudio",
-            static_cast<int>(timeline::SeparateAudio::BaseName)).toInt());
-        _separateAudioFileName = settings.value("Audio/SeparateAudioFileName", "").toString();
-        _separateAudioDirectory = settings.value("Audio/SeparateAudioDirectory", "").toString();
+        _fileSequenceAudio = static_cast<timeline::FileSequenceAudio>(settings.value(
+            "FileSequence/Audio",
+            static_cast<int>(timeline::FileSequenceAudio::BaseName)).toInt());
+        _fileSequenceAudioFileName = settings.value("FileSequence/AudioFileName", "").toString();
+        _fileSequenceAudioDirectory = settings.value("FileSequence/AudioDirectory", "").toString();
         _timerMode = static_cast<timeline::TimerMode>(settings.value(
             "Performance/TimerMode",
             static_cast<int>(timeline::TimerMode::System)).toInt());
@@ -41,6 +41,7 @@ namespace tlr
         _audioRequestCount = settings.value("Performance/AudioRequestCount", 16).toInt();
         _sequenceThreadCount = settings.value("Performance/SequenceThreadCount", 16).toInt();
         _ffmpegThreadCount = settings.value("Performance/FFmpegThreadCount", 4).toInt();
+        _maxFileSequenceDigits = settings.value("Misc/MaxFileSequenceDigits", 9).toInt();
         _toolTipsEnabled = settings.value("Misc/ToolTipsEnabled", true).toBool();
 
         _toolTipsUpdate();
@@ -59,9 +60,9 @@ namespace tlr
         settings.endArray();
         settings.setValue("Cache/ReadAhead", _cacheReadAhead);
         settings.setValue("Cache/ReadBehind", _cacheReadBehind);
-        settings.setValue("Audio/SeparateAudio", static_cast<int>(_separateAudio));
-        settings.setValue("Audio/SeparateAudioFileName", _separateAudioFileName);
-        settings.setValue("Audio/SeparateAudioDirectory", _separateAudioDirectory);
+        settings.setValue("FileSequence/Audio", static_cast<int>(_fileSequenceAudio));
+        settings.setValue("FileSequence/AudioFileName", _fileSequenceAudioFileName);
+        settings.setValue("FileSequence/AudioDirectory", _fileSequenceAudioDirectory);
         settings.setValue("Performance/TimerMode", static_cast<int>(_timerMode));
         settings.setValue("Performance/AudioBufferFrameCount", static_cast<int>(_audioBufferFrameCount));
         settings.setValue("Performance/VideoRequestCount", _videoRequestCount);
@@ -70,6 +71,7 @@ namespace tlr
         settings.setValue("Performance/AudioRequestCount", _audioRequestCount);
         settings.setValue("Performance/SequenceThreadCount", _sequenceThreadCount);
         settings.setValue("Performance/FFmpegThreadCount", _ffmpegThreadCount);
+        settings.setValue("Misc/MaxFileSequenceDigits", _maxFileSequenceDigits);
         settings.setValue("Misc/ToolTipsEnabled", _toolTipsEnabled);
     }
 
@@ -88,19 +90,19 @@ namespace tlr
         return _cacheReadBehind;
     }
 
-    timeline::SeparateAudio SettingsObject::separateAudio() const
+    timeline::FileSequenceAudio SettingsObject::fileSequenceAudio() const
     {
-        return _separateAudio;
+        return _fileSequenceAudio;
     }
 
-    const QString& SettingsObject::separateAudioFileName() const
+    const QString& SettingsObject::fileSequenceAudioFileName() const
     {
-        return _separateAudioFileName;
+        return _fileSequenceAudioFileName;
     }
 
-    const QString& SettingsObject::separateAudioDirectory() const
+    const QString& SettingsObject::fileSequenceAudioDirectory() const
     {
-        return _separateAudioDirectory;
+        return _fileSequenceAudioDirectory;
     }
 
     timeline::TimerMode SettingsObject::timerMode()
@@ -131,6 +133,11 @@ namespace tlr
     int SettingsObject::ffmpegThreadCount() const
     {
         return _ffmpegThreadCount;
+    }
+
+    int SettingsObject::maxFileSequenceDigits() const
+    {
+        return _maxFileSequenceDigits;
     }
 
     bool SettingsObject::hasToolTipsEnabled() const
@@ -165,28 +172,28 @@ namespace tlr
         Q_EMIT cacheReadBehindChanged(_cacheReadBehind);
     }
 
-    void SettingsObject::setSeparateAudio(tlr::timeline::SeparateAudio value)
+    void SettingsObject::setFileSequenceAudio(timeline::FileSequenceAudio value)
     {
-        if (value == _separateAudio)
+        if (value == _fileSequenceAudio)
             return;
-        _separateAudio = value;
-        Q_EMIT separateAudioChanged(_separateAudio);
+        _fileSequenceAudio = value;
+        Q_EMIT fileSequenceAudioChanged(_fileSequenceAudio);
     }
 
-    void SettingsObject::setSeparateAudioFileName(const QString& value)
+    void SettingsObject::setFileSequenceAudioFileName(const QString& value)
     {
-        if (value == _separateAudioFileName)
+        if (value == _fileSequenceAudioFileName)
             return;
-        _separateAudioFileName = value;
-        Q_EMIT separateAudioFileNameChanged(_separateAudioFileName);
+        _fileSequenceAudioFileName = value;
+        Q_EMIT fileSequenceAudioFileNameChanged(_fileSequenceAudioFileName);
     }
 
-    void SettingsObject::setSeparateAudioDirectory(const QString& value)
+    void SettingsObject::setFileSequenceAudioDirectory(const QString& value)
     {
-        if (value == _separateAudioDirectory)
+        if (value == _fileSequenceAudioDirectory)
             return;
-        _separateAudioDirectory = value;
-        Q_EMIT separateAudioDirectoryChanged(_separateAudioDirectory);
+        _fileSequenceAudioDirectory = value;
+        Q_EMIT fileSequenceAudioDirectoryChanged(_fileSequenceAudioDirectory);
     }
 
     void SettingsObject::setTimerMode(timeline::TimerMode value)
@@ -235,6 +242,14 @@ namespace tlr
             return;
         _ffmpegThreadCount = value;
         Q_EMIT ffmpegThreadCountChanged(_ffmpegThreadCount);
+    }
+
+    void SettingsObject::setMaxFileSequenceDigits(int value)
+    {
+        if (value == _maxFileSequenceDigits)
+            return;
+        _maxFileSequenceDigits = value;
+        Q_EMIT maxFileSequenceDigitsChanged(_maxFileSequenceDigits);
     }
 
     void SettingsObject::setToolTipsEnabled(bool value)

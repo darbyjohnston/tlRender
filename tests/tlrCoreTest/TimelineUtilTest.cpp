@@ -33,7 +33,7 @@ namespace tlr
 
         void TimelineUtilTest::_enums()
         {
-            _enum<SeparateAudio>("SeparateAudio", getSeparateAudioEnums);
+            _enum<FileSequenceAudio>("FileSequenceAudio", getFileSequenceAudioEnums);
         }
         
         void TimelineUtilTest::_ranges()

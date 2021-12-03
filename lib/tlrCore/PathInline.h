@@ -6,6 +6,16 @@ namespace tlr
 {
     namespace file
     {
+        inline bool PathOptions::operator == (const PathOptions& other) const
+        {
+            return maxNumberDigits == other.maxNumberDigits;
+        }
+
+        inline bool PathOptions::operator != (const PathOptions& other) const
+        {
+            return !(*this == other);
+        }
+
         inline const std::string& Path::getDirectory() const
         {
             return _directory;
@@ -21,7 +31,7 @@ namespace tlr
             return _number;
         }
 
-        inline int Path::getPadding() const
+        inline uint8_t Path::getPadding() const
         {
             return _padding;
         }
