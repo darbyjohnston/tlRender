@@ -112,4 +112,4 @@ jobs:
       run: >
         cd build &&
         cd tlRender\src\tlRender-build &&
-        tests\tlrtest\Debug\tlrtest
+        ctest --rerun-failed --output-on-failure
