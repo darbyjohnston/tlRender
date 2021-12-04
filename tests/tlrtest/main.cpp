@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
     std::vector<std::shared_ptr<Test::ITest> > tests;
     if (1)
     {
-        tests.push_back(CoreTest::TimelineTest::create(context));
+        tests.push_back(CoreTest::TimelinePlayerTest::create(context));
     }
     else
     {
