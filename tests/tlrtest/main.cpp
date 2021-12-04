@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
     std::vector<std::shared_ptr<Test::ITest> > tests;
     if (1)
     {
-        tests.push_back(CoreTest::AVIOTest::create(context));
+        tests.push_back(GLTest::MeshTest::create(context));
     }
     else
     {
