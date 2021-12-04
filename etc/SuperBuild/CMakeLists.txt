@@ -5,6 +5,7 @@ project(tlRender-SuperBuild)
 
 # Build options.
 set(TLR_ENABLE_MMAP TRUE CACHE BOOL "Enable memory-mapped file I/O")
+set(TLR_ENABLE_COVERAGE FALSE CACHE BOOL "Enable code coverage")
 set(TLR_ENABLE_PYTHON FALSE CACHE BOOL "Enable Python support (for OTIO Python adapters)")
 set(TLR_BUILD_GL TRUE CACHE BOOL "Build OpenGL library (tlrGL)")
 set(TLR_BUILD_QT FALSE CACHE BOOL "Build Qt libraries (tlrQt, tlrQWidget, tlrQuick)")
