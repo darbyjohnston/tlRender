@@ -148,20 +148,20 @@ jobs:
   windows-build:
     runs-on: windows-latest
 
-    env:
-      TLR_ENABLE_MMAP: ON
-      TLR_ENABLE_COVERAGE: OFF
-      TLR_ENABLE_PYTHON: OFF
-      TLR_BUILD_GL: OFF
-      TLR_BUILD_QT: OFF
-      TLR_BUILD_APPS: OFF
-      TLR_BUILD_EXAMPLES: OFF
-      TLR_BUILD_TESTS: OFF
-      TLR_BUILD_FFmpeg: OFF
-      TLR_BUILD_JPEG: OFF
-      TLR_BUILD_PNG: OFF
-      TLR_BUILD_OpenEXR: OFF
-      TLR_BUILD_TIFF: OFF
+    #env:
+    #  TLR_ENABLE_MMAP: ON
+    #  TLR_ENABLE_COVERAGE: OFF
+    #  TLR_ENABLE_PYTHON: OFF
+    #  TLR_BUILD_GL: OFF
+    #  TLR_BUILD_QT: OFF
+    #  TLR_BUILD_APPS: OFF
+    #  TLR_BUILD_EXAMPLES: OFF
+    #  TLR_BUILD_TESTS: OFF
+    #  TLR_BUILD_FFmpeg: OFF
+    #  TLR_BUILD_JPEG: OFF
+    #  TLR_BUILD_PNG: OFF
+    #  TLR_BUILD_OpenEXR: OFF
+    #  TLR_BUILD_TIFF: OFF
 
     steps:
     - uses: actions/checkout@v2
