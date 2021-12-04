@@ -5,6 +5,21 @@ on: [push]
 jobs:
   linux-build:
     runs-on: ubuntu-latest
+
+    env:
+      TLR_ENABLE_MMAP: ON
+      TLR_ENABLE_PYTHON: OFF
+      TLR_BUILD_GL: ON
+      TLR_BUILD_QT: ON
+      TLR_BUILD_APPS: ON
+      TLR_BUILD_EXAMPLES: ON
+      TLR_BUILD_TESTS: ON
+      TLR_BUILD_FFmpeg: ON
+      TLR_BUILD_JPEG: ON
+      TLR_BUILD_PNG: ON
+      TLR_BUILD_OpenEXR: ON
+      TLR_BUILD_TIFF: ON
+
     steps:
     - uses: actions/checkout@v2
 
@@ -43,8 +58,18 @@ jobs:
           -DCMAKE_BUILD_TYPE=Debug \
           -DCMAKE_INSTALL_PREFIX=$PWD/install \
           -DCMAKE_PREFIX_PATH=$PWD/install \
-          -DTLR_BUILD_QT=ON \
-          -DTLR_ENABLE_COVERAGE=ON &&
+          -DTLR_ENABLE_MMAP=$TLR_ENABLE_MMAP \
+          -DTLR_ENABLE_PYTHON=$TLR_ENABLE_PYTHON \
+          -DTLR_BUILD_GL=$TLR_BUILD_GL \
+          -DTLR_BUILD_QT=$TLR_BUILD_QT \
+          -DTLR_BUILD_APPS=$TLR_BUILD_APPS \
+          -DTLR_BUILD_EXAMPLES=$TLR_BUILD_EXAMPLES \
+          -DTLR_BUILD_TESTS=$TLR_BUILD_TESTS \
+          -DTLR_BUILD_FFmpeg=$TLR_BUILD_FFmpeg \
+          -DTLR_BUILD_JPEG=$TLR_BUILD_JPEG \
+          -DTLR_BUILD_PNG=$TLR_BUILD_PNG \
+          -DTLR_BUILD_OpenEXR=$TLR_BUILD_OpenEXR \
+          -DTLR_BUILD_TIFF=$TLR_BUILD_TIFF &&
         cmake --build . -j 4
 
     - name: Run tests
@@ -57,11 +82,27 @@ jobs:
       run: >
         cd build &&
         cd tlRender/src/tlRender-build &&
-        find . -name "*.gc*" &&
+        cmake ../../../.. -DTLR_ENABLE_COVERAGE=ON &&
+        cmake --build . -j 4 &&
         sh ../../../../etc/Linux/lcov.sh
 
   macos-build:
     runs-on: macos-latest
+
+    env:
+      TLR_ENABLE_MMAP: ON
+      TLR_ENABLE_PYTHON: OFF
+      TLR_BUILD_GL: ON
+      TLR_BUILD_QT: OFF
+      TLR_BUILD_APPS: ON
+      TLR_BUILD_EXAMPLES: ON
+      TLR_BUILD_TESTS: ON
+      TLR_BUILD_FFmpeg: ON
+      TLR_BUILD_JPEG: ON
+      TLR_BUILD_PNG: ON
+      TLR_BUILD_OpenEXR: ON
+      TLR_BUILD_TIFF: ON
+
     steps:
     - uses: actions/checkout@v2
 
@@ -80,7 +121,19 @@ jobs:
         cmake ../etc/SuperBuild \
           -DCMAKE_BUILD_TYPE=Debug \
           -DCMAKE_INSTALL_PREFIX=$PWD/install \
-          -DCMAKE_PREFIX_PATH=$PWD/install &&
+          -DCMAKE_PREFIX_PATH=$PWD/install \
+          -DTLR_ENABLE_MMAP=$TLR_ENABLE_MMAP \
+          -DTLR_ENABLE_PYTHON=$TLR_ENABLE_PYTHON \
+          -DTLR_BUILD_GL=$TLR_BUILD_GL \
+          -DTLR_BUILD_QT=$TLR_BUILD_QT \
+          -DTLR_BUILD_APPS=$TLR_BUILD_APPS \
+          -DTLR_BUILD_EXAMPLES=$TLR_BUILD_EXAMPLES \
+          -DTLR_BUILD_TESTS=$TLR_BUILD_TESTS \
+          -DTLR_BUILD_FFmpeg=$TLR_BUILD_FFmpeg \
+          -DTLR_BUILD_JPEG=$TLR_BUILD_JPEG \
+          -DTLR_BUILD_PNG=$TLR_BUILD_PNG \
+          -DTLR_BUILD_OpenEXR=$TLR_BUILD_OpenEXR \
+          -DTLR_BUILD_TIFF=$TLR_BUILD_TIFF &&
         cmake --build . -j 4
 
     - name: Run tests
@@ -92,6 +145,21 @@ jobs:
 
   windows-build:
     runs-on: windows-latest
+
+    env:
+      TLR_ENABLE_MMAP: ON
+      TLR_ENABLE_PYTHON: OFF
+      TLR_BUILD_GL: ON
+      TLR_BUILD_QT: OFF
+      TLR_BUILD_APPS: ON
+      TLR_BUILD_EXAMPLES: ON
+      TLR_BUILD_TESTS: ON
+      TLR_BUILD_FFmpeg: OFF
+      TLR_BUILD_JPEG: ON
+      TLR_BUILD_PNG: ON
+      TLR_BUILD_OpenEXR: ON
+      TLR_BUILD_TIFF: ON
+
     steps:
     - uses: actions/checkout@v2
 
@@ -106,7 +174,19 @@ jobs:
         cmake ..\etc\SuperBuild `
           -DCMAKE_BUILD_TYPE=Debug `
           -DCMAKE_INSTALL_PREFIX=install `
-          -DCMAKE_PREFIX_PATH=install &&
+          -DCMAKE_PREFIX_PATH=install `
+          -DTLR_ENABLE_MMAP=$TLR_ENABLE_MMAP `
+          -DTLR_ENABLE_PYTHON=$TLR_ENABLE_PYTHON `
+          -DTLR_BUILD_GL=$TLR_BUILD_GL `
+          -DTLR_BUILD_QT=$TLR_BUILD_QT `
+          -DTLR_BUILD_APPS=$TLR_BUILD_APPS `
+          -DTLR_BUILD_EXAMPLES=$TLR_BUILD_EXAMPLES `
+          -DTLR_BUILD_TESTS=$TLR_BUILD_TESTS `
+          -DTLR_BUILD_FFmpeg=$TLR_BUILD_FFmpeg `
+          -DTLR_BUILD_JPEG=$TLR_BUILD_JPEG `
+          -DTLR_BUILD_PNG=$TLR_BUILD_PNG `
+          -DTLR_BUILD_OpenEXR=$TLR_BUILD_OpenEXR `
+          -DTLR_BUILD_TIFF=$TLR_BUILD_TIFF &&
         cmake --build . -j 4
 
     - name: Run tests
