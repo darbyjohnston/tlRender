@@ -33,7 +33,7 @@ namespace tlr
         {
             _enums();
             _loop();
-            //_timelinePlayer();
+            _timelinePlayer();
         }
 
         void TimelinePlayerTest::_enums()
@@ -216,6 +216,8 @@ namespace tlr
                 }
                 timelinePlayer->setPlayback(Playback::Stop);
             }
+
+            return;
             
             // Test the playback speed.
             double speed = 24.0;
