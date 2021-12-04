@@ -168,6 +168,7 @@ jobs:
 
     - name: Setup environment
       run: >
+        echo "TLR_BUILD_FFmpeg=OFF" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8
         echo "$pwd\build\install\bin;$pwd\build\install\lib;$env:path" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
         
     - name: Build tlRender
@@ -186,7 +187,7 @@ jobs:
           -DTLR_BUILD_APPS=$TLR_BUILD_APPS `
           -DTLR_BUILD_EXAMPLES=$TLR_BUILD_EXAMPLES `
           -DTLR_BUILD_TESTS=$TLR_BUILD_TESTS `
-          -DTLR_BUILD_FFmpeg=%TLR_BUILD_FFmpeg% `
+          -DTLR_BUILD_FFmpeg=$TLR_BUILD_FFmpeg `
           -DTLR_BUILD_JPEG=$TLR_BUILD_JPEG `
           -DTLR_BUILD_PNG=$TLR_BUILD_PNG `
           -DTLR_BUILD_OpenEXR=$TLR_BUILD_OpenEXR `
