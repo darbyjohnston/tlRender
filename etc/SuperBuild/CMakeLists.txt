@@ -50,7 +50,9 @@ set(TLR_EXTERNAL_ARGS
 
 # External dependencies.
 find_package(Threads REQUIRED)
-find_package(OpenGL REQUIRED)
+if(TLR_BUILD_GL)
+	find_package(OpenGL REQUIRED)
+endif()
 list(APPEND TLR_EXTERNAL_DEPS FSeq)
 list(APPEND TLR_EXTERNAL_DEPS GLM)
 list(APPEND TLR_EXTERNAL_DEPS ZLIB)
