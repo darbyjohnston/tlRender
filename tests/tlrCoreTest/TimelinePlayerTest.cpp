@@ -33,7 +33,7 @@ namespace tlr
         {
             _enums();
             _loop();
-            _timelinePlayer();
+            //_timelinePlayer();
         }
 
         void TimelinePlayerTest::_enums()
