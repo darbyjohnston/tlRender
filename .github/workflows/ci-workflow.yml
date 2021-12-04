@@ -168,7 +168,7 @@ jobs:
 
     - name: Setup environment
       run: >
-        echo "TLR_BUILD_FFmpeg=OFF" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8
+        echo "TLR_BUILD_FFmpeg=OFF" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8 &&
         echo "$pwd\build\install\bin;$pwd\build\install\lib;$env:path" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
         
     - name: Build tlRender
