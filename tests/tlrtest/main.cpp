@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
         observer::CallbackAction::Suppress);
 
     std::vector<std::shared_ptr<Test::ITest> > tests;
-    if (0)
+    if (1)
     {
         tests.push_back(CoreTest::TimelinePlayerTest::create(context));
     }
