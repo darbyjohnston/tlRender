@@ -206,8 +206,15 @@ namespace tlr
         void ISequenceRead::cancelRequests()
         {
             TLR_PRIVATE_P();
-            std::unique_lock<std::mutex> lock(p.mutex);
-            p.videoRequests.clear();
+            std::list<Private::VideoRequest> videoRequests;
+            {
+                std::unique_lock<std::mutex> lock(p.mutex);
+                videoRequests = std::move(p.videoRequests);
+            }
+            for (auto& request : videoRequests)
+            {
+                request.promise.set_value(VideoData());
+            }
         }
 
         void ISequenceRead::stop()

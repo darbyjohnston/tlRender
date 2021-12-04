@@ -991,9 +991,21 @@ namespace tlr
         void Timeline::cancelRequests()
         {
             TLR_PRIVATE_P();
-            std::unique_lock<std::mutex> lock(p.mutex);
-            p.videoRequests.clear();
-            p.audioRequests.clear();
+            std::list<Private::VideoRequest> videoRequestsCleanup;
+            std::list<Private::AudioRequest> audioRequestsCleanup;
+            {
+                std::unique_lock<std::mutex> lock(p.mutex);
+                videoRequestsCleanup = std::move(p.videoRequests);
+                audioRequestsCleanup = std::move(p.audioRequests);
+            }
+            for (auto& request : videoRequestsCleanup)
+            {
+                request.promise.set_value(VideoData());
+            }
+            for (auto& request : audioRequestsCleanup)
+            {
+                request.promise.set_value(AudioData());
+            }
             for (auto& i : p.readers)
             {
                 i.second.read->cancelRequests();

@@ -248,9 +248,21 @@ namespace tlr
         void Read::cancelRequests()
         {
             TLR_PRIVATE_P();
-            std::unique_lock<std::mutex> lock(p.mutex);
-            p.videoRequests.clear();
-            p.audioRequests.clear();
+            std::list<std::shared_ptr<Private::VideoRequest> > videoRequestsCleanup;
+            std::list<std::shared_ptr<Private::AudioRequest> > audioRequestsCleanup;
+            {
+                std::unique_lock<std::mutex> lock(p.mutex);
+                videoRequestsCleanup = std::move(p.videoRequests);
+                audioRequestsCleanup = std::move(p.audioRequests);
+            }
+            for (auto& request : videoRequestsCleanup)
+            {
+                request->promise.set_value(avio::VideoData());
+            }
+            for (auto& request : audioRequestsCleanup)
+            {
+                request->promise.set_value(avio::AudioData());
+            }
         }
 
         void Read::stop()
