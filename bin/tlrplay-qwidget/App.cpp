@@ -114,8 +114,8 @@ namespace tlr
             playerOptions.audioBufferFrameCount = _settingsObject->audioBufferFrameCount();
             timeline::Options options;
             options.fileSequenceAudio = _settingsObject->fileSequenceAudio();
-            options.fileSequenceAudioFileName = _settingsObject->fileSequenceAudioFileName().toUtf8();
-            options.fileSequenceAudioDirectory = _settingsObject->fileSequenceAudioDirectory().toUtf8();
+            options.fileSequenceAudioFileName = _settingsObject->fileSequenceAudioFileName().toUtf8().data();
+            options.fileSequenceAudioDirectory = _settingsObject->fileSequenceAudioDirectory().toUtf8().data();
             options.videoRequestCount = _settingsObject->videoRequestCount();
             options.audioRequestCount = _settingsObject->audioRequestCount();
             options.avioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").arg(_settingsObject->sequenceThreadCount());
