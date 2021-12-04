@@ -186,7 +186,7 @@ jobs:
           -DTLR_BUILD_APPS=$TLR_BUILD_APPS `
           -DTLR_BUILD_EXAMPLES=$TLR_BUILD_EXAMPLES `
           -DTLR_BUILD_TESTS=$TLR_BUILD_TESTS `
-          -DTLR_BUILD_FFmpeg=$TLR_BUILD_FFmpeg `
+          -DTLR_BUILD_FFmpeg=%TLR_BUILD_FFmpeg% `
           -DTLR_BUILD_JPEG=$TLR_BUILD_JPEG `
           -DTLR_BUILD_PNG=$TLR_BUILD_PNG `
           -DTLR_BUILD_OpenEXR=$TLR_BUILD_OpenEXR `
