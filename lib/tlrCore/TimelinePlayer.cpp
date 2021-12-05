@@ -257,31 +257,38 @@ namespace tlr
 
                     if (auto context = getContext().lock())
                     {
-                        try
+                        auto audioSystem = context->getSystem<audio::System>();
+                        if (!audioSystem->getDevices().empty() &&
+                            p.avInfo.audio.channelCount &&
+                            p.avInfo.audio.dataType != audio::DataType::None &&
+                            p.avInfo.audio.sampleRate > 0)
                         {
-                            p.threadData.rtAudio.reset(new RtAudio);
-                            RtAudio::StreamParameters rtParameters;
-                            auto audioSystem = context->getSystem<audio::System>();
-                            rtParameters.deviceId = audioSystem->getDefaultOutputDevice();
-                            rtParameters.nChannels = p.avInfo.audio.channelCount;
-                            unsigned int rtBufferFrames = getAudioBufferFrameCount(p.playerOptions.audioBufferFrameCount);
-                            p.threadData.rtAudio->openStream(
-                                &rtParameters,
-                                nullptr,
-                                audio::toRtAudio(p.avInfo.audio.dataType),
-                                p.avInfo.audio.sampleRate,
-                                &rtBufferFrames,
-                                p.rtAudioCallback,
-                                _p.get(),
-                                nullptr,
-                                p.rtAudioErrorCallback);
-                            p.threadData.rtAudio->startStream();
-                        }
-                        catch (const std::exception& e)
-                        {
-                            std::stringstream ss;
-                            ss << "Cannot open audio stream: " << e.what();
-                            context->log("tlr::core::TimelinePlayer", ss.str(), core::LogType::Error);
+                            try
+                            {
+                                p.threadData.rtAudio.reset(new RtAudio);
+                                RtAudio::StreamParameters rtParameters;
+                                auto audioSystem = context->getSystem<audio::System>();
+                                rtParameters.deviceId = audioSystem->getDefaultOutputDevice();
+                                rtParameters.nChannels = p.avInfo.audio.channelCount;
+                                unsigned int rtBufferFrames = getAudioBufferFrameCount(p.playerOptions.audioBufferFrameCount);
+                                p.threadData.rtAudio->openStream(
+                                    &rtParameters,
+                                    nullptr,
+                                    audio::toRtAudio(p.avInfo.audio.dataType),
+                                    p.avInfo.audio.sampleRate,
+                                    &rtBufferFrames,
+                                    p.rtAudioCallback,
+                                    _p.get(),
+                                    nullptr,
+                                    p.rtAudioErrorCallback);
+                                p.threadData.rtAudio->startStream();
+                            }
+                            catch (const std::exception& e)
+                            {
+                                std::stringstream ss;
+                                ss << "Cannot open audio stream: " << e.what();
+                                context->log("tlr::core::TimelinePlayer", ss.str(), core::LogType::Error);
+                            }
                         }
                     }
 
