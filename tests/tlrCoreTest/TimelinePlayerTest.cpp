@@ -142,7 +142,7 @@ namespace tlr
             TLR_ASSERT(timelineDuration.rate() == timelinePlayer->getDefaultSpeed());
 
             // Test frames.
-            struct FrameOptions
+            /*struct FrameOptions
             {
                 uint16_t layer = 0;
                 otime::RationalTime readAhead = otime::RationalTime(4.0, 1.0);
@@ -215,9 +215,7 @@ namespace tlr
                     }
                 }
                 timelinePlayer->setPlayback(Playback::Stop);
-            }
-
-            return;
+            }*/
             
             // Test the playback speed.
             double speed = 24.0;
