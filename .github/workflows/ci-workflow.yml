@@ -50,7 +50,7 @@ jobs:
       run: >
         cd build &&
         cd tlRender/src/tlRender-build &&
-        ctest --rerun-failed --output-on-failure
+        tests\tlrtest\tlrtest
 
   macos-build:
     runs-on: macos-latest
