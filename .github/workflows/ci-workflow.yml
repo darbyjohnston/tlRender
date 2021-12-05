@@ -10,16 +10,16 @@ jobs:
       TLR_ENABLE_MMAP: ON
       TLR_ENABLE_COVERAGE: ON
       TLR_ENABLE_PYTHON: OFF
-      TLR_BUILD_GL: ON
-      TLR_BUILD_QT: ON
-      TLR_BUILD_APPS: ON
-      TLR_BUILD_EXAMPLES: ON
+      TLR_BUILD_GL: OFF
+      TLR_BUILD_QT: OFF
+      TLR_BUILD_APPS: OFF
+      TLR_BUILD_EXAMPLES: OFF
       TLR_BUILD_TESTS: ON
-      TLR_BUILD_FFmpeg: ON
-      TLR_BUILD_JPEG: ON
-      TLR_BUILD_PNG: ON
-      TLR_BUILD_OpenEXR: ON
-      TLR_BUILD_TIFF: ON
+      TLR_BUILD_FFmpeg: OFF
+      TLR_BUILD_JPEG: OFF
+      TLR_BUILD_PNG: OFF
+      TLR_BUILD_OpenEXR: OFF
+      TLR_BUILD_TIFF: OFF
 
     steps:
     - uses: actions/checkout@v2
@@ -28,9 +28,11 @@ jobs:
       run: sudo apt-get update
 
     - name: Install lcov
+      if: env.TLR_ENABLE_COVERAGE == 'ON'
       run: sudo apt-get install lcov
 
     - name: Install OpenGL dev
+      if: env.TLR_BUILD_GL == 'ON'
       run: sudo apt-get install xorg-dev libglu1-mesa-dev mesa-common-dev
 
     - name: Install ALSA dev
@@ -40,9 +42,11 @@ jobs:
       run: sudo apt-get install libpulse-dev
 
     - name: Install Python dev
+      if: env.TLR_ENABLE_PYTHON == 'ON'
       run: sudo apt-get install python3.8-dev
       
     - name: Install Qt dev
+      if: env.TLR_BUILD_QT == 'ON'
       run: sudo apt-get install qt5-default qtdeclarative5-dev libqt5quick5 qtbase5-dev libqt5svg5-dev
 
     - name: Setup environment
@@ -81,10 +85,12 @@ jobs:
         ctest --rerun-failed --output-on-failure
     
     - name: Code coverage
+      if: env.TLR_ENABLE_COVERAGE == 'ON'
       run: >
         cd build &&
         cd tlRender/src/tlRender-build &&
-        sh ../../../../etc/Linux/lcov.sh
+        sh ../../../../etc/Linux/lcov.sh &&
+        bash <(curl -s https://codecov.io/bash) -f coverage_filtered.info || echo "Codecov did not collect coverage reports"
 
   macos-build:
     runs-on: macos-latest
@@ -93,16 +99,16 @@ jobs:
       TLR_ENABLE_MMAP: ON
       TLR_ENABLE_COVERAGE: OFF
       TLR_ENABLE_PYTHON: OFF
-      TLR_BUILD_GL: ON
+      TLR_BUILD_GL: OFF
       TLR_BUILD_QT: OFF
-      TLR_BUILD_APPS: ON
-      TLR_BUILD_EXAMPLES: ON
-      TLR_BUILD_TESTS: ON
-      TLR_BUILD_FFmpeg: ON
-      TLR_BUILD_JPEG: ON
-      TLR_BUILD_PNG: ON
-      TLR_BUILD_OpenEXR: ON
-      TLR_BUILD_TIFF: ON
+      TLR_BUILD_APPS: OFF
+      TLR_BUILD_EXAMPLES: OFF
+      TLR_BUILD_TESTS: OFF
+      TLR_BUILD_FFmpeg: OFF
+      TLR_BUILD_JPEG: OFF
+      TLR_BUILD_PNG: OFF
+      TLR_BUILD_OpenEXR: OFF
+      TLR_BUILD_TIFF: OFF
 
     steps:
     - uses: actions/checkout@v2
@@ -152,16 +158,16 @@ jobs:
       TLR_ENABLE_MMAP: ON
       TLR_ENABLE_COVERAGE: OFF
       TLR_ENABLE_PYTHON: OFF
-      TLR_BUILD_GL: ON
+      TLR_BUILD_GL: OFF
       TLR_BUILD_QT: OFF
-      TLR_BUILD_APPS: ON
-      TLR_BUILD_EXAMPLES: ON
-      TLR_BUILD_TESTS: ON
+      TLR_BUILD_APPS: OFF
+      TLR_BUILD_EXAMPLES: OFF
+      TLR_BUILD_TESTS: OFF
       TLR_BUILD_FFmpeg: OFF
-      TLR_BUILD_JPEG: ON
-      TLR_BUILD_PNG: ON
-      TLR_BUILD_OpenEXR: ON
-      TLR_BUILD_TIFF: ON
+      TLR_BUILD_JPEG: OFF
+      TLR_BUILD_PNG: OFF
+      TLR_BUILD_OpenEXR: OFF
+      TLR_BUILD_TIFF: OFF
 
     steps:
     - uses: actions/checkout@v2
