@@ -116,6 +116,8 @@ namespace tlr
                 throw std::runtime_error("Cannot write file: " + fileName);
             }
 
+            return;
+
             // Write the image sequence files.
             const imaging::Info imageInfo(16, 16, imaging::PixelType::RGB_U8);
             const auto image = imaging::Image::create(imageInfo);
