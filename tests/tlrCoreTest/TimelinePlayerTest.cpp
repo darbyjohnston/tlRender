@@ -128,8 +128,6 @@ namespace tlr
                 write->writeVideo(otime::RationalTime(i, 24.0), image);
             }
 
-            return;
-
             // Create a timeline player from the OTIO timeline.
             auto timeline = Timeline::create(fileName, _context);
             auto timelinePlayer = TimelinePlayer::create(timeline, _context);
@@ -142,6 +140,8 @@ namespace tlr
             TLR_ASSERT(imageInfo.size == timelinePlayer->getAVInfo().video[0].size);
             TLR_ASSERT(imageInfo.pixelType == timelinePlayer->getAVInfo().video[0].pixelType);
             TLR_ASSERT(timelineDuration.rate() == timelinePlayer->getDefaultSpeed());
+
+            return;
 
             // Test frames.
             /*struct FrameOptions
