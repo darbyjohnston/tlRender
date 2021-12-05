@@ -141,10 +141,8 @@ namespace tlr
             TLR_ASSERT(imageInfo.pixelType == timelinePlayer->getAVInfo().video[0].pixelType);
             TLR_ASSERT(timelineDuration.rate() == timelinePlayer->getDefaultSpeed());
 
-            return;
-
             // Test frames.
-            /*struct FrameOptions
+            struct FrameOptions
             {
                 uint16_t layer = 0;
                 otime::RationalTime readAhead = otime::RationalTime(4.0, 1.0);
@@ -217,7 +215,7 @@ namespace tlr
                     }
                 }
                 timelinePlayer->setPlayback(Playback::Stop);
-            }*/
+            }
             
             // Test the playback speed.
             double speed = 24.0;

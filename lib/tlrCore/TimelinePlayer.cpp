@@ -259,7 +259,7 @@ namespace tlr
                     {
                         auto audioSystem = context->getSystem<audio::System>();
                         if (!audioSystem->getDevices().empty() &&
-                            p.avInfo.audio.channelCount &&
+                            p.avInfo.audio.channelCount > 0 &&
                             p.avInfo.audio.dataType != audio::DataType::None &&
                             p.avInfo.audio.sampleRate > 0)
                         {
