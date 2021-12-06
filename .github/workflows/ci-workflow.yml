@@ -10,16 +10,16 @@ jobs:
       TLR_ENABLE_MMAP: ON
       TLR_ENABLE_COVERAGE: ON
       TLR_ENABLE_PYTHON: OFF
-      TLR_BUILD_GL: OFF
-      TLR_BUILD_QT: OFF
-      TLR_BUILD_APPS: OFF
-      TLR_BUILD_EXAMPLES: OFF
+      TLR_BUILD_GL: ON
+      TLR_BUILD_QT: ON
+      TLR_BUILD_APPS: ON
+      TLR_BUILD_EXAMPLES: ON
       TLR_BUILD_TESTS: ON
-      TLR_BUILD_FFmpeg: OFF
-      TLR_BUILD_JPEG: OFF
-      TLR_BUILD_PNG: OFF
-      TLR_BUILD_OpenEXR: OFF
-      TLR_BUILD_TIFF: OFF
+      TLR_BUILD_FFmpeg: ON
+      TLR_BUILD_JPEG: ON
+      TLR_BUILD_PNG: ON
+      TLR_BUILD_OpenEXR: ON
+      TLR_BUILD_TIFF: ON
 
     steps:
     - uses: actions/checkout@v2
@@ -104,16 +104,16 @@ jobs:
       TLR_ENABLE_MMAP: ON
       TLR_ENABLE_COVERAGE: OFF
       TLR_ENABLE_PYTHON: OFF
-      TLR_BUILD_GL: OFF
+      TLR_BUILD_GL: ON
       TLR_BUILD_QT: OFF
-      TLR_BUILD_APPS: OFF
-      TLR_BUILD_EXAMPLES: OFF
-      TLR_BUILD_TESTS: OFF
-      TLR_BUILD_FFmpeg: OFF
-      TLR_BUILD_JPEG: OFF
-      TLR_BUILD_PNG: OFF
-      TLR_BUILD_OpenEXR: OFF
-      TLR_BUILD_TIFF: OFF
+      TLR_BUILD_APPS: ON
+      TLR_BUILD_EXAMPLES: ON
+      TLR_BUILD_TESTS: ON
+      TLR_BUILD_FFmpeg: ON
+      TLR_BUILD_JPEG: ON
+      TLR_BUILD_PNG: ON
+      TLR_BUILD_OpenEXR: ON
+      TLR_BUILD_TIFF: ON
 
     steps:
     - uses: actions/checkout@v2
@@ -163,16 +163,16 @@ jobs:
       TLR_ENABLE_MMAP: ON
       TLR_ENABLE_COVERAGE: OFF
       TLR_ENABLE_PYTHON: OFF
-      TLR_BUILD_GL: OFF
+      TLR_BUILD_GL: ON
       TLR_BUILD_QT: OFF
-      TLR_BUILD_APPS: OFF
-      TLR_BUILD_EXAMPLES: OFF
-      TLR_BUILD_TESTS: OFF
+      TLR_BUILD_APPS: ON
+      TLR_BUILD_EXAMPLES: ON
+      TLR_BUILD_TESTS: ON
       TLR_BUILD_FFmpeg: OFF
-      TLR_BUILD_JPEG: OFF
-      TLR_BUILD_PNG: OFF
-      TLR_BUILD_OpenEXR: OFF
-      TLR_BUILD_TIFF: OFF
+      TLR_BUILD_JPEG: ON
+      TLR_BUILD_PNG: ON
+      TLR_BUILD_OpenEXR: ON
+      TLR_BUILD_TIFF: ON
 
     steps:
     - uses: actions/checkout@v2
