@@ -89,8 +89,13 @@ jobs:
       run: >
         cd build &&
         cd tlRender/src/tlRender-build &&
-        sh ../../../../etc/Linux/lcov.sh &&
-        bash <(curl -s https://codecov.io/bash) -f coverage_filtered.info || echo "Codecov did not collect coverage reports"
+        sh ../../../../etc/Linux/lcov.sh
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v2.1.0
+      with:
+        files: build/tlRender/src/tlRender-build/coverage.filtered.info
+        fail_ci_if_error: true
 
   macos-build:
     runs-on: macos-latest
