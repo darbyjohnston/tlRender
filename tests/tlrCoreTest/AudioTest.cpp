@@ -220,10 +220,58 @@ namespace tlr
 
         void AudioTest::_convert()
         {
+            for (auto i : getDataTypeEnums())
+            {
+                const auto in = Audio::create(Info(1, i, 44100), 1);
+                for (auto j : getDataTypeEnums())
+                {
+                    const auto out = convert(in, j);
+                    TLR_ASSERT(out->getChannelCount() == in->getChannelCount());
+                    TLR_ASSERT(out->getDataType() == j);
+                    TLR_ASSERT(out->getSampleRate() == in->getSampleRate());
+                    TLR_ASSERT(out->getSampleCount() == in->getSampleCount());
+                }
+            }
         }
 
         void AudioTest::_interleave()
         {
+            {
+                auto in = Audio::create(Info(2, DataType::S8, 44100), 3);
+                int8_t* inP = reinterpret_cast<int8_t*>(in->getData());
+                inP[0] = 0;
+                inP[1] = 1;
+                inP[2] = 2;
+                inP[3] = 3;
+                inP[4] = 4;
+                inP[5] = 5;
+                const auto out = planarInterleave(in);
+                const int8_t* outP = reinterpret_cast<const int8_t*>(out->getData());
+                TLR_ASSERT(0 == outP[0]);
+                TLR_ASSERT(3 == outP[1]);
+                TLR_ASSERT(1 == outP[2]);
+                TLR_ASSERT(4 == outP[3]);
+                TLR_ASSERT(2 == outP[4]);
+                TLR_ASSERT(5 == outP[5]);
+            }
+            {
+                auto in = Audio::create(Info(2, DataType::S8, 44100), 3);
+                int8_t* inP = reinterpret_cast<int8_t*>(in->getData());
+                inP[0] = 0;
+                inP[1] = 3;
+                inP[2] = 1;
+                inP[3] = 4;
+                inP[4] = 2;
+                inP[5] = 5;
+                const auto out = planarDeinterleave(in);
+                const int8_t* outP = reinterpret_cast<const int8_t*>(out->getData());
+                TLR_ASSERT(0 == outP[0]);
+                TLR_ASSERT(1 == outP[1]);
+                TLR_ASSERT(2 == outP[2]);
+                TLR_ASSERT(3 == outP[3]);
+                TLR_ASSERT(4 == outP[4]);
+                TLR_ASSERT(5 == outP[5]);
+            }
         }
 
         void AudioTest::_copy()
