@@ -1310,7 +1310,7 @@ namespace tlr
                             //    " frame: " << rtAudioFrame <<
                             //    " offset: " << offset <<
                             //    " size: " << size << std::endl;
-                            //std::memcpy(outputBufferP, data->getData() + offset * byteCount, size * byteCount);
+                            //std::memcpy(outputBufferP, data[0]->getData() + offset * byteCount, size * byteCount);
                             audio::mix(
                                 dataP.data(),
                                 dataP.size(),
