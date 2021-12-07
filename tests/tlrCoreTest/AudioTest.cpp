@@ -240,7 +240,41 @@ namespace tlr
             void _interleaveT()
             {
                 {
-                    auto in = Audio::create(Info(2, DT, 44100), 3);
+                    auto in = Audio::create(Info(2, DT, 44100), 1);
+                    T* inP = reinterpret_cast<T*>(in->getData());
+                    inP[0] = 0;
+                    inP[1] = 1;
+                    const auto out0 = planarInterleave(in);
+                    const T* out0P = reinterpret_cast<const T*>(out0->getData());
+                    TLR_ASSERT(0 == out0P[0]);
+                    TLR_ASSERT(1 == out0P[1]);
+                    const auto out1 = planarDeinterleave(out0);
+                    const T* out1P = reinterpret_cast<const T*>(out1->getData());
+                    TLR_ASSERT(0 == out1P[0]);
+                    TLR_ASSERT(1 == out1P[1]);
+                }
+                {
+                    auto in = Audio::create(Info(2, DT, 44100), 2);
+                    T* inP = reinterpret_cast<T*>(in->getData());
+                    inP[0] = 0;
+                    inP[1] = 1;
+                    inP[2] = 2;
+                    inP[3] = 3;
+                    const auto out0 = planarInterleave(in);
+                    const T* out0P = reinterpret_cast<const T*>(out0->getData());
+                    TLR_ASSERT(0 == out0P[0]);
+                    TLR_ASSERT(2 == out0P[1]);
+                    TLR_ASSERT(1 == out0P[2]);
+                    TLR_ASSERT(3 == out0P[3]);
+                    const auto out1 = planarDeinterleave(out0);
+                    const T* out1P = reinterpret_cast<const T*>(out1->getData());
+                    TLR_ASSERT(0 == out1P[0]);
+                    TLR_ASSERT(1 == out1P[1]);
+                    TLR_ASSERT(2 == out1P[2]);
+                    TLR_ASSERT(3 == out1P[3]);
+                }
+                {
+                    auto in = Audio::create(Info(3, DT, 44100), 2);
                     T* inP = reinterpret_cast<T*>(in->getData());
                     inP[0] = 0;
                     inP[1] = 1;
@@ -248,32 +282,66 @@ namespace tlr
                     inP[3] = 3;
                     inP[4] = 4;
                     inP[5] = 5;
-                    const auto out = planarInterleave(in);
-                    const T* outP = reinterpret_cast<const T*>(out->getData());
-                    TLR_ASSERT(0 == outP[0]);
-                    TLR_ASSERT(3 == outP[1]);
-                    TLR_ASSERT(1 == outP[2]);
-                    TLR_ASSERT(4 == outP[3]);
-                    TLR_ASSERT(2 == outP[4]);
-                    TLR_ASSERT(5 == outP[5]);
+                    const auto out0 = planarInterleave(in);
+                    const T* out0P = reinterpret_cast<const T*>(out0->getData());
+                    TLR_ASSERT(0 == out0P[0]);
+                    TLR_ASSERT(2 == out0P[1]);
+                    TLR_ASSERT(4 == out0P[2]);
+                    TLR_ASSERT(1 == out0P[3]);
+                    TLR_ASSERT(3 == out0P[4]);
+                    TLR_ASSERT(5 == out0P[5]);
+                    const auto out1 = planarDeinterleave(out0);
+                    const T* out1P = reinterpret_cast<const T*>(out1->getData());
+                    TLR_ASSERT(0 == out1P[0]);
+                    TLR_ASSERT(1 == out1P[1]);
+                    TLR_ASSERT(2 == out1P[2]);
+                    TLR_ASSERT(3 == out1P[3]);
+                    TLR_ASSERT(4 == out1P[4]);
+                    TLR_ASSERT(5 == out1P[5]);
                 }
                 {
-                    auto in = Audio::create(Info(2, DT, 44100), 3);
+                    auto in = Audio::create(Info(6, DT, 44100), 2);
                     T* inP = reinterpret_cast<T*>(in->getData());
                     inP[0] = 0;
-                    inP[1] = 3;
-                    inP[2] = 1;
-                    inP[3] = 4;
-                    inP[4] = 2;
+                    inP[1] = 1;
+                    inP[2] = 2;
+                    inP[3] = 3;
+                    inP[4] = 4;
                     inP[5] = 5;
-                    const auto out = planarDeinterleave(in);
-                    const T* outP = reinterpret_cast<const T*>(out->getData());
-                    TLR_ASSERT(0 == outP[0]);
-                    TLR_ASSERT(1 == outP[1]);
-                    TLR_ASSERT(2 == outP[2]);
-                    TLR_ASSERT(3 == outP[3]);
-                    TLR_ASSERT(4 == outP[4]);
-                    TLR_ASSERT(5 == outP[5]);
+                    inP[6] = 6;
+                    inP[7] = 7;
+                    inP[8] = 8;
+                    inP[9] = 9;
+                    inP[10] = 10;
+                    inP[11] = 11;
+                    const auto out0 = planarInterleave(in);
+                    const T* out0P = reinterpret_cast<const T*>(out0->getData());
+                    TLR_ASSERT(0 == out0P[0]);
+                    TLR_ASSERT(2 == out0P[1]);
+                    TLR_ASSERT(4 == out0P[2]);
+                    TLR_ASSERT(6 == out0P[3]);
+                    TLR_ASSERT(8 == out0P[4]);
+                    TLR_ASSERT(10 == out0P[5]);
+                    TLR_ASSERT(1 == out0P[6]);
+                    TLR_ASSERT(3 == out0P[7]);
+                    TLR_ASSERT(5 == out0P[8]);
+                    TLR_ASSERT(7 == out0P[9]);
+                    TLR_ASSERT(9 == out0P[10]);
+                    TLR_ASSERT(11 == out0P[11]);
+                    const auto out1 = planarDeinterleave(out0);
+                    const T* out1P = reinterpret_cast<const T*>(out1->getData());
+                    TLR_ASSERT(0 == out1P[0]);
+                    TLR_ASSERT(1 == out1P[1]);
+                    TLR_ASSERT(2 == out1P[2]);
+                    TLR_ASSERT(3 == out1P[3]);
+                    TLR_ASSERT(4 == out1P[4]);
+                    TLR_ASSERT(5 == out1P[5]);
+                    TLR_ASSERT(6 == out1P[6]);
+                    TLR_ASSERT(7 == out1P[7]);
+                    TLR_ASSERT(8 == out1P[8]);
+                    TLR_ASSERT(9 == out1P[9]);
+                    TLR_ASSERT(10 == out1P[10]);
+                    TLR_ASSERT(11 == out1P[11]);
                 }
             }
         }

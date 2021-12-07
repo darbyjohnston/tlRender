@@ -243,7 +243,7 @@ namespace tlr
                 for (uint8_t c = 0; c < channelCount; ++c)
                 {
                     const T* inP = in[c];
-                    const T* endP = inP + sampleCount;
+                    const T* const endP = inP + sampleCount;
                     T* outP = out + c;
                     for (; inP < endP; ++inP, outP += channelCount)
                     {
