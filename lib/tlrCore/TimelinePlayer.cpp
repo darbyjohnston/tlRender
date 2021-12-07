@@ -1301,7 +1301,10 @@ namespace tlr
                             std::vector<const uint8_t*> dataP;
                             for (size_t i = 0; i < data.size(); ++i)
                             {
-                                dataP.push_back(data[i]->getData() + offset * byteCount);
+                                if (i > 0 ? data[i]->getInfo() == data[0]->getInfo() : true)
+                                {
+                                    dataP.push_back(data[i]->getData() + offset * byteCount);
+                                }
                             }
                             size = std::min(data[0]->getSampleCount() - offset, static_cast<size_t>(sampleCount));
                             //std::cout << count <<
