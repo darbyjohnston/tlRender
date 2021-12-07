@@ -124,42 +124,50 @@ namespace tlr
         {
             std::memset(_data.data(), 0, getByteCount());
         }
-
+        
         namespace
         {
-            template<typename T>
-            void _mix(
+            template<typename T, typename TI>
+            void mixI(
                 const uint8_t** in,
                 size_t inCount,
                 uint8_t* out,
                 float volume,
-                size_t sampleCount,
-                uint8_t channelCount,
-                DataType type)
+                size_t size)
             {
                 const T** const inP = reinterpret_cast<const T**>(in);
                 T* const outP = reinterpret_cast<T*>(out);
-                T* const endP = outP + sampleCount * channelCount;
-                const size_t size = sampleCount * channelCount;
                 for (size_t i = 0; i < size; ++i)
                 {
-                    if (inCount > 0)
+                    const TI min = static_cast<TI>(std::numeric_limits<T>::min());
+                    const TI max = static_cast<TI>(std::numeric_limits<T>::max());
+                    TI v = 0;
+                    for (size_t j = 0; j < inCount; ++j)
                     {
-                        outP[i] = static_cast<T>(inP[0][i] * volume);
+                        v += math::clamp(static_cast<TI>(inP[j][i] * volume), min, max);
                     }
-                    for (size_t j = 1; j < inCount; ++j)
+                    outP[i] = math::clamp(v, min, max);
+                }
+            }
+
+            template<typename T>
+            void mixF(
+                const uint8_t** in,
+                size_t inCount,
+                uint8_t* out,
+                float volume,
+                size_t size)
+            {
+                const T** const inP = reinterpret_cast<const T**>(in);
+                T* const outP = reinterpret_cast<T*>(out);
+                for (size_t i = 0; i < size; ++i)
+                {
+                    T v = static_cast<T>(0);
+                    for (size_t j = 0; j < inCount; ++j)
                     {
-                        T tmp = static_cast<T>(inP[j][i] * volume);
-                        if (outP[i] > 0 && tmp > 0)
-                        {
-                            tmp = std::min(tmp, static_cast<T>(std::numeric_limits<T>::max() - outP[i]));
-                        }
-                        else if (outP[i] < 0 && tmp < 0)
-                        {
-                            tmp = std::max(tmp, static_cast<T>(std::numeric_limits<T>::min() - outP[i]));
-                        }
-                        outP[i] += tmp;
+                        v += inP[j][i] * volume;
                     }
+                    outP[i] = v;
                 }
             }
         }
@@ -173,13 +181,24 @@ namespace tlr
             uint8_t channelCount,
             DataType type)
         {
+            const size_t size = sampleCount * channelCount;
             switch (type)
             {
-            case DataType::S8:  _mix<int8_t>(in, inCount, out, volume, sampleCount, channelCount, type); break;
-            case DataType::S16: _mix<int16_t>(in, inCount, out, volume, sampleCount, channelCount, type); break;
-            case DataType::S32: _mix<int32_t>(in, inCount, out, volume, sampleCount, channelCount, type); break;
-            case DataType::F32: _mix<float>(in, inCount, out, volume, sampleCount, channelCount, type);   break;
-            case DataType::F64: _mix<double>(in, inCount, out, volume, sampleCount, channelCount, type);  break;
+            case DataType::S8:
+                mixI<int8_t, int16_t>(in, inCount, out, volume, size);
+                break;
+            case DataType::S16:
+                mixI<int16_t, int32_t>(in, inCount, out, volume, size);
+                break;
+            case DataType::S32:
+                mixI<int32_t, int64_t>(in, inCount, out, volume, size);
+                break;
+            case DataType::F32:
+                mixF<float>(in, inCount, out, volume, size);
+                break;
+            case DataType::F64:
+                mixF<double>(in, inCount, out, volume, size);
+                break;
             default: break;
             }
         }
@@ -264,69 +283,21 @@ namespace tlr
             return out;
         }
 
-        namespace
-        {
-            template<typename U>
-            void _planarInterleave(const U* value, U* out, uint8_t channelCount, size_t size)
-            {
-                const size_t planeSize = size;
-                for (uint8_t c = 0; c < channelCount; ++c)
-                {
-                    const U* inP = value + c * planeSize;
-                    const U* endP = inP + planeSize;
-                    U* outP = out + c;
-                    for (; inP < endP; ++inP, outP += channelCount)
-                    {
-                        *outP = *inP;
-                    }
-                }
-            }
-        }
-
         std::shared_ptr<Audio> planarInterleave(const std::shared_ptr<Audio>& value)
         {
             const size_t sampleCount = value->getSampleCount();
-            const size_t channelCount = value->getChannelCount();
             auto out = Audio::create(value->getInfo(), sampleCount);
-            switch (value->getDataType())
+            std::vector<const uint8_t*> planes;
+            const uint8_t channelCount = value->getChannelCount();
+            for (uint8_t i = 0; i < channelCount; ++i)
             {
-            case DataType::S8:
-                _planarInterleave(
-                    reinterpret_cast<const S8_T*> (value->getData()),
-                    reinterpret_cast<S8_T*> (out->getData()),
-                    channelCount,
-                    sampleCount);
-                break;
-            case DataType::S16:
-                _planarInterleave(
-                    reinterpret_cast<const S16_T*>(value->getData()),
-                    reinterpret_cast<S16_T*>(out->getData()),
-                    channelCount,
-                    sampleCount);
-                break;
-            case DataType::S32:
-                _planarInterleave(
-                    reinterpret_cast<const S32_T*>(value->getData()),
-                    reinterpret_cast<S32_T*>(out->getData()),
-                    channelCount,
-                    sampleCount);
-                break;
-            case DataType::F32:
-                _planarInterleave(
-                    reinterpret_cast<const F32_T*>(value->getData()),
-                    reinterpret_cast<F32_T*>(out->getData()),
-                    channelCount,
-                    sampleCount);
-                break;
-            case DataType::F64:
-                _planarInterleave(
-                    reinterpret_cast<const F64_T*>(value->getData()),
-                    reinterpret_cast<F64_T*>(out->getData()),
-                    channelCount,
-                    sampleCount);
-                break;
-            default: break;
+                planes.push_back(value->getData() + i * sampleCount);
             }
+            planarInterleave(
+                planes.data(),
+                out->getData(),
+                channelCount,
+                sampleCount);
             return out;
         }
 

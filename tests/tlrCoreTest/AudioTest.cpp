@@ -30,7 +30,10 @@ namespace tlr
             _types();
             _audio();
             _audioSystem();
-            _util();
+            _mix();
+            _convert();
+            _interleave();
+            _copy();
         }
 
         void AudioTest::_enums()
@@ -58,6 +61,12 @@ namespace tlr
                 std::stringstream ss;
                 ss << i << " bytes float type: " << getFloatType(i);
                 _print(ss.str());
+            }
+            {
+                TLR_ASSERT(RTAUDIO_SINT16 == toRtAudio(DataType::S16));
+                TLR_ASSERT(RTAUDIO_SINT32 == toRtAudio(DataType::S32));
+                TLR_ASSERT(RTAUDIO_FLOAT32 == toRtAudio(DataType::F32));
+                TLR_ASSERT(RTAUDIO_FLOAT64 == toRtAudio(DataType::F64));
             }
         }
 
@@ -105,60 +114,122 @@ namespace tlr
             }
         }
 
-        void AudioTest::_util()
+        namespace
         {
+            template<DataType DT, typename T>
+            void _mixI()
             {
-                const std::vector<int8_t> in0 =
+                const std::vector<T> in0 =
                 {
                     0,
-                    1,
-                    100,
-                    -1,
-                    -100,
-                    127,
-                    -128,
-                    -128
+                    std::numeric_limits<T>::max(),
+                    std::numeric_limits<T>::min(),
+                    std::numeric_limits<T>::max(),
+                    std::numeric_limits<T>::min()
                 };
-                const std::vector<int8_t> in1 =
+                const std::vector<T> in1 =
                 {
                     0,
-                    0,
-                    100,
-                    0,
-                    -100,
-                    -128,
-                    -128,
-                    127
+                    std::numeric_limits<T>::max(),
+                    std::numeric_limits<T>::min(),
+                    std::numeric_limits<T>::min(),
+                    std::numeric_limits<T>::max()
                 };
                 const uint8_t* in[2] =
                 {
                     reinterpret_cast<const uint8_t*>(in0.data()),
                     reinterpret_cast<const uint8_t*>(in1.data())
                 };
-                const std::vector<int8_t> out =
+                const std::vector<T> out =
                 {
                     0,
-                    1,
-                    127,
-                    -1,
-                    -128,
-                    -1,
-                    -128,
-                    -1
+                    std::numeric_limits<T>::max(),
+                    std::numeric_limits<T>::min(),
+                    std::numeric_limits<T>::max() + std::numeric_limits<T>::min(),
+                    std::numeric_limits<T>::max() + std::numeric_limits<T>::min()
                 };
-                std::vector<int8_t> result(in0.size(), 0);
-                audio::mix(
-                    in,
+                std::vector<T> result(in0.size(), 0);
+                mix(in,
                     2,
                     reinterpret_cast<uint8_t*>(result.data()),
                     1.F,
                     in0.size(),
                     1,
-                    audio::DataType::S8);
-                TLR_ASSERT(0 == memcmp(out.data(), result.data(), in0.size()));
+                    DT);
+                for (size_t i = 0; i < in0.size(); ++i)
+                {
+                    TLR_ASSERT(out[i] == result[i]);
+                }
             }
+
+            template<DataType DT, typename T>
+            void _mixF()
             {
-                const audio::Info info(1, audio::DataType::S8, 10);
+                const std::vector<T> in0 =
+                {
+                    0,
+                    1,
+                    -1,
+                    1,
+                    -1
+                };
+                const std::vector<T> in1 =
+                {
+                    0,
+                    1,
+                    -1,
+                    -1,
+                    1
+                };
+                const uint8_t* in[2] =
+                {
+                    reinterpret_cast<const uint8_t*>(in0.data()),
+                    reinterpret_cast<const uint8_t*>(in1.data())
+                };
+                const std::vector<T> out =
+                {
+                    0,
+                    2,
+                    -2,
+                    0,
+                    0
+                };
+                std::vector<T> result(in0.size(), 0);
+                mix(in,
+                    2,
+                    reinterpret_cast<uint8_t*>(result.data()),
+                    1.F,
+                    in0.size(),
+                    1,
+                    DT);
+                for (size_t i = 0; i < in0.size(); ++i)
+                {
+                    TLR_ASSERT(math::fuzzyCompare(out[i], result[i]));
+                }
+            }
+        }
+
+        void AudioTest::_mix()
+        {
+            _mixI<DataType::S8, int8_t>();
+            _mixI<DataType::S16, int16_t>();
+            _mixI<DataType::S32, int32_t>();
+            _mixF<DataType::F32, float>();
+            _mixF<DataType::F64, double>();
+        }
+
+        void AudioTest::_convert()
+        {
+        }
+
+        void AudioTest::_interleave()
+        {
+        }
+
+        void AudioTest::_copy()
+        {
+            {
+                const Info info(1, DataType::S8, 10);
 
                 uint8_t data[10];
                 std::memset(data, 0, 10);
@@ -166,12 +237,12 @@ namespace tlr
                 std::list<std::shared_ptr<Audio> > list;
                 for (size_t i = 0; i < 10; ++i)
                 {
-                    auto item = audio::Audio::create(info, 1);
+                    auto item = Audio::create(info, 1);
                     item->getData()[0] = i;
                     list.push_back(item);
                 }
 
-                audio::copy(list, data, 10);
+                copy(list, data, 10);
 
                 TLR_ASSERT(list.empty());
                 for (size_t i = 0; i < 10; ++i)
@@ -180,7 +251,7 @@ namespace tlr
                 }
             }
             {
-                const audio::Info info(1, audio::DataType::S8, 10);
+                const Info info(1, DataType::S8, 10);
 
                 uint8_t data[10];
                 std::memset(data, 0, 10);
@@ -188,12 +259,12 @@ namespace tlr
                 std::list<std::shared_ptr<Audio> > list;
                 for (size_t i = 0; i < 5; ++i)
                 {
-                    auto item = audio::Audio::create(info, 1);
+                    auto item = Audio::create(info, 1);
                     item->getData()[0] = i;
                     list.push_back(item);
                 }
 
-                audio::copy(list, data, 10);
+                copy(list, data, 10);
 
                 TLR_ASSERT(list.empty());
                 size_t i = 0;
@@ -207,7 +278,7 @@ namespace tlr
                 }
             }
             {
-                const audio::Info info(1, audio::DataType::S8, 10);
+                const Info info(1, DataType::S8, 10);
 
                 uint8_t data[10];
                 std::memset(data, 0, 10);
@@ -215,12 +286,12 @@ namespace tlr
                 std::list<std::shared_ptr<Audio> > list;
                 for (size_t i = 0; i < 15; ++i)
                 {
-                    auto item = audio::Audio::create(info, 1);
+                    auto item = Audio::create(info, 1);
                     item->getData()[0] = i;
                     list.push_back(item);
                 }
 
-                audio::copy(list, data, 10);
+                copy(list, data, 10);
 
                 TLR_ASSERT(5 == list.size());
                 for (size_t i = 0; i < 10; ++i)
@@ -229,16 +300,16 @@ namespace tlr
                 }
             }
             {
-                const audio::Info info(1, audio::DataType::S8, 10);
+                const Info info(1, DataType::S8, 10);
 
-                auto data = audio::Audio::create(info, 10);
+                auto data = Audio::create(info, 10);
                 uint8_t* dataP = data->getData();
                 std::memset(dataP, 0, 10);
 
                 std::list<std::shared_ptr<Audio> > list;
                 for (size_t i = 0; i < 4; ++i)
                 {
-                    auto item = audio::Audio::create(info, 4);
+                    auto item = Audio::create(info, 4);
                     for (size_t j = 0; j < 4; ++j)
                     {
                         item->getData()[j] = i * 4 + j;
@@ -246,7 +317,7 @@ namespace tlr
                     list.push_back(item);
                 }
 
-                audio::copy(list, dataP, 10);
+                copy(list, dataP, 10);
 
                 TLR_ASSERT(2 == list.size());
                 TLR_ASSERT(2 == list.front()->getByteCount());

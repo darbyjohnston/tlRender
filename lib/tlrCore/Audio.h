@@ -199,13 +199,20 @@ namespace tlr
 
         //! Interleave audio data.
         template<typename T>
-        void planarInterleave(const T**, T*, uint8_t channelCount, size_t sampleCount);
+        void planarInterleave(
+            const T** in,
+            T*        out,
+            uint8_t   channelCount,
+            size_t    sampleCount);
 
         //! De-interleave audio data.
         std::shared_ptr<Audio> planarDeinterleave(const std::shared_ptr<Audio>&);
 
         //! Copy audio data.
-        void copy(std::list<std::shared_ptr<Audio> >&, uint8_t* out, size_t byteCount);
+        void copy(
+            std::list<std::shared_ptr<Audio> >& in,
+            uint8_t*                            out,
+            size_t                              byteCount);
 
         ///@}
     }

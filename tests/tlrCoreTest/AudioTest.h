@@ -25,7 +25,10 @@ namespace tlr
             void _types();
             void _audio();
             void _audioSystem();
-            void _util();
+            void _mix();
+            void _convert();
+            void _interleave();
+            void _copy();
         };
     }
 }
