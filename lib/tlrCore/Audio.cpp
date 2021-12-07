@@ -128,7 +128,7 @@ namespace tlr
         namespace
         {
             template<typename T, typename TI>
-            void mixI(
+            void _mixI(
                 const uint8_t** in,
                 size_t inCount,
                 uint8_t* out,
@@ -151,7 +151,7 @@ namespace tlr
             }
 
             template<typename T>
-            void mixF(
+            void _mixF(
                 const uint8_t** in,
                 size_t inCount,
                 uint8_t* out,
@@ -185,19 +185,19 @@ namespace tlr
             switch (type)
             {
             case DataType::S8:
-                mixI<int8_t, int16_t>(in, inCount, out, volume, size);
+                _mixI<int8_t, int16_t>(in, inCount, out, volume, size);
                 break;
             case DataType::S16:
-                mixI<int16_t, int32_t>(in, inCount, out, volume, size);
+                _mixI<int16_t, int32_t>(in, inCount, out, volume, size);
                 break;
             case DataType::S32:
-                mixI<int32_t, int64_t>(in, inCount, out, volume, size);
+                _mixI<int32_t, int64_t>(in, inCount, out, volume, size);
                 break;
             case DataType::F32:
-                mixF<float>(in, inCount, out, volume, size);
+                _mixF<float>(in, inCount, out, volume, size);
                 break;
             case DataType::F64:
-                mixF<double>(in, inCount, out, volume, size);
+                _mixF<double>(in, inCount, out, volume, size);
                 break;
             default: break;
             }
@@ -283,21 +283,38 @@ namespace tlr
             return out;
         }
 
+        namespace
+        {
+            template<typename T>
+            void _planarInterleave(const std::shared_ptr<Audio>& value, const std::shared_ptr<Audio>& out)
+            {
+                const uint8_t channelCount = value->getChannelCount();
+                const size_t sampleCount = value->getSampleCount();
+                std::vector<const T*> planes;
+                for (uint8_t i = 0; i < channelCount; ++i)
+                {
+                    planes.push_back(reinterpret_cast<const T*>(value->getData()) + i * sampleCount);
+                }
+                planarInterleave(
+                    planes.data(),
+                    reinterpret_cast<T*>(out->getData()),
+                    channelCount,
+                    sampleCount);
+            }
+        }
+
         std::shared_ptr<Audio> planarInterleave(const std::shared_ptr<Audio>& value)
         {
-            const size_t sampleCount = value->getSampleCount();
-            auto out = Audio::create(value->getInfo(), sampleCount);
-            std::vector<const uint8_t*> planes;
-            const uint8_t channelCount = value->getChannelCount();
-            for (uint8_t i = 0; i < channelCount; ++i)
+            auto out = Audio::create(value->getInfo(), value->getSampleCount());
+            switch (value->getDataType())
             {
-                planes.push_back(value->getData() + i * sampleCount);
+            case DataType::S8: _planarInterleave<int8_t>(value, out); break;
+            case DataType::S16: _planarInterleave<int16_t>(value, out); break;
+            case DataType::S32: _planarInterleave<int32_t>(value, out); break;
+            case DataType::F32: _planarInterleave<float>(value, out); break;
+            case DataType::F64: _planarInterleave<double>(value, out); break;
+            default: break;
             }
-            planarInterleave(
-                planes.data(),
-                out->getData(),
-                channelCount,
-                sampleCount);
             return out;
         }
 
