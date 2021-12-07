@@ -1275,30 +1275,35 @@ namespace tlr
                         cacheSeconds * p->avInfo.audio.sampleRate;
                     size_t sampleCount = nFrames;
                     //size_t count = 0;
-                    std::shared_ptr<audio::Audio> dataPrev;
+                    int64_t secondsPrev = -1;
                     while (sampleCount > 0)
                     {
-                        std::shared_ptr<audio::Audio> data;
+                        std::vector<std::shared_ptr<audio::Audio> > data;
                         {
                             std::unique_lock<std::mutex> lock(p->threadData.audioMutex);
                             const auto i = p->threadData.audioDataCache.find(cacheSeconds);
                             if (i != p->threadData.audioDataCache.end())
                             {
-                                if (!i->second.layers.empty())
+                                if (secondsPrev != -1 && i->second.seconds != secondsPrev)
                                 {
-                                    data = i->second.layers.front().audio;
-                                    if (dataPrev && data != dataPrev)
-                                    {
-                                        offset = 0;
-                                    }
-                                    dataPrev = data;
+                                    offset = 0;
+                                }
+                                secondsPrev = i->second.seconds;
+                                for (const auto& layer : i->second.layers)
+                                {
+                                    data.push_back(layer.audio);
                                 }
                             }
                         }
                         size_t size = 0;
-                        if (data)
+                        if (!data.empty())
                         {
-                            size = std::min(data->getSampleCount() - offset, static_cast<size_t>(sampleCount));
+                            std::vector<const uint8_t*> dataP;
+                            for (size_t i = 0; i < data.size(); ++i)
+                            {
+                                dataP.push_back(data[i]->getData() + offset * byteCount);
+                            }
+                            size = std::min(data[0]->getSampleCount() - offset, static_cast<size_t>(sampleCount));
                             //std::cout << count <<
                             //    " samples: " << sampleCount <<
                             //    " cache: " << cacheSeconds <<
@@ -1306,8 +1311,9 @@ namespace tlr
                             //    " offset: " << offset <<
                             //    " size: " << size << std::endl;
                             //std::memcpy(outputBufferP, data->getData() + offset * byteCount, size * byteCount);
-                            audio::volume(
-                                data->getData() + offset * byteCount,
+                            audio::mix(
+                                dataP.data(),
+                                dataP.size(),
                                 outputBufferP,
                                 volume,
                                 size,

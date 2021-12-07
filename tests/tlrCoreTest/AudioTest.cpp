@@ -108,6 +108,56 @@ namespace tlr
         void AudioTest::_util()
         {
             {
+                const std::vector<int8_t> in0 =
+                {
+                    0,
+                    1,
+                    100,
+                    -1,
+                    -100,
+                    127,
+                    -128,
+                    -128
+                };
+                const std::vector<int8_t> in1 =
+                {
+                    0,
+                    0,
+                    100,
+                    0,
+                    -100,
+                    -128,
+                    -128,
+                    127
+                };
+                const uint8_t* in[2] =
+                {
+                    reinterpret_cast<const uint8_t*>(in0.data()),
+                    reinterpret_cast<const uint8_t*>(in1.data())
+                };
+                const std::vector<int8_t> out =
+                {
+                    0,
+                    1,
+                    127,
+                    -1,
+                    -128,
+                    -1,
+                    -128,
+                    -1
+                };
+                std::vector<int8_t> result(in0.size(), 0);
+                audio::mix(
+                    in,
+                    2,
+                    reinterpret_cast<uint8_t*>(result.data()),
+                    1.F,
+                    in0.size(),
+                    1,
+                    audio::DataType::S8);
+                TLR_ASSERT(0 == memcmp(out.data(), result.data(), in0.size()));
+            }
+            {
                 const audio::Info info(1, audio::DataType::S8, 10);
 
                 uint8_t data[10];

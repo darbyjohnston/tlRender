@@ -125,26 +125,61 @@ namespace tlr
             std::memset(_data.data(), 0, getByteCount());
         }
 
-#define _VOLUME(t) \
-    { \
-        const t##_T* inP = reinterpret_cast<const t##_T*>(in); \
-        t##_T* outP = reinterpret_cast<t##_T*>(out); \
-        t##_T* const endP = outP + sampleCount * channelCount; \
-        for (; outP < endP; ++inP, ++outP) \
-        { \
-            *outP = *inP * volume; \
-        } \
-    }
+        namespace
+        {
+            template<typename T>
+            void _mix(
+                const uint8_t** in,
+                size_t inCount,
+                uint8_t* out,
+                float volume,
+                size_t sampleCount,
+                uint8_t channelCount,
+                DataType type)
+            {
+                const T** const inP = reinterpret_cast<const T**>(in);
+                T* const outP = reinterpret_cast<T*>(out);
+                T* const endP = outP + sampleCount * channelCount;
+                const size_t size = sampleCount * channelCount;
+                for (size_t i = 0; i < size; ++i)
+                {
+                    if (inCount > 0)
+                    {
+                        outP[i] = static_cast<T>(inP[0][i] * volume);
+                    }
+                    for (size_t j = 1; j < inCount; ++j)
+                    {
+                        T tmp = static_cast<T>(inP[j][i] * volume);
+                        if (outP[i] > 0 && tmp > 0)
+                        {
+                            tmp = std::min(tmp, static_cast<T>(std::numeric_limits<T>::max() - outP[i]));
+                        }
+                        else if (outP[i] < 0 && tmp < 0)
+                        {
+                            tmp = std::max(tmp, static_cast<T>(std::numeric_limits<T>::min() - outP[i]));
+                        }
+                        outP[i] += tmp;
+                    }
+                }
+            }
+        }
 
-        void volume(const uint8_t* in, uint8_t* out, float volume, size_t sampleCount, uint8_t channelCount, DataType type)
+        void mix(
+            const uint8_t** in,
+            size_t inCount,
+            uint8_t* out,
+            float volume,
+            size_t sampleCount,
+            uint8_t channelCount,
+            DataType type)
         {
             switch (type)
             {
-            case DataType::S8:  _VOLUME(S8);  break;
-            case DataType::S16: _VOLUME(S16); break;
-            case DataType::S32: _VOLUME(S32); break;
-            case DataType::F32: _VOLUME(F32); break;
-            case DataType::F64: _VOLUME(F64); break;
+            case DataType::S8:  _mix<int8_t>(in, inCount, out, volume, sampleCount, channelCount, type); break;
+            case DataType::S16: _mix<int16_t>(in, inCount, out, volume, sampleCount, channelCount, type); break;
+            case DataType::S32: _mix<int32_t>(in, inCount, out, volume, sampleCount, channelCount, type); break;
+            case DataType::F32: _mix<float>(in, inCount, out, volume, sampleCount, channelCount, type);   break;
+            case DataType::F64: _mix<double>(in, inCount, out, volume, sampleCount, channelCount, type);  break;
             default: break;
             }
         }

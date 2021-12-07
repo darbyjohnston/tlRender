@@ -181,14 +181,15 @@ namespace tlr
         //! \name Utility
         ///@{
 
-        //! Adjust the volume of audio data.
-        void volume(
-            const uint8_t* in,
-            uint8_t*       out,
-            float          volume,
-            size_t         sampleCount,
-            uint8_t        channelCount,
-            DataType       dataType);
+        //! Mix audio sources.
+        void mix(
+            const uint8_t** in,
+            size_t          inCount,
+            uint8_t*        out,
+            float           volume,
+            size_t          sampleCount,
+            uint8_t         channelCount,
+            DataType        dataType);
 
         //! Convert audio data.
         std::shared_ptr<Audio> convert(const std::shared_ptr<Audio>&, DataType);
