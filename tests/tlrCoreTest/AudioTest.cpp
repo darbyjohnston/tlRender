@@ -240,7 +240,7 @@ namespace tlr
             void _interleaveT()
             {
                 {
-                    auto in = Audio::create(Info(2, DT, 44100), 1);
+                    auto in = Audio::create(Info(1, DT, 44100), 2);
                     T* inP = reinterpret_cast<T*>(in->getData());
                     inP[0] = 0;
                     inP[1] = 1;
