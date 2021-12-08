@@ -53,6 +53,7 @@ namespace tlr
                             std::stringstream ss;
                             ss << fileName << '_' << size << '_' << pixelType << ".0.tif";
                             _print(ss.str());
+                            path = file::Path(ss.str());
                         }
                         auto imageInfo = imaging::Info(size, pixelType);
                         imageInfo.layout.alignment = plugin->getWriteAlignment(pixelType);
