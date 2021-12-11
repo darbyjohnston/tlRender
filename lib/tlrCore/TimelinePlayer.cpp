@@ -299,7 +299,7 @@ namespace tlr
 
                     while (p.threadData.running)
                     {
-                        // Get mutex protected variables.
+                        // Get mutex protected values.
                         Playback playback = Playback::Stop;
                         otime::RationalTime currentTime = time::invalidTime;
                         otime::TimeRange inOutRange = time::invalidTimeRange;
@@ -1165,7 +1165,7 @@ namespace tlr
         {
             auto p = reinterpret_cast<TimelinePlayer::Private*>(userData);
             
-            // Get mutex protected variables.
+            // Get mutex protected values.
             Playback playback = Playback::Stop;
             double playbackStartTimeInSeconds = 0.0;
             {
@@ -1173,8 +1173,6 @@ namespace tlr
                 playback = p->threadData.playback;
                 playbackStartTimeInSeconds = p->threadData.playbackStartTime.rescaled_to(1.0).value();
             }
-
-            // Get audio mutex protected variables.
             double speed = 0.F;
             float volume = 1.F;
             bool mute = false;
@@ -1326,7 +1324,7 @@ namespace tlr
         {
             const std::string id = string::Format("tlr::timeline::TimelinePlayer {0}").arg(this);
 
-            // Get mutex protected variables.
+            // Get mutex protected values.
             otime::RationalTime currentTime = time::invalidTime;
             std::vector<otime::TimeRange> cachedVideoFrames;
             {
@@ -1334,8 +1332,6 @@ namespace tlr
                 currentTime = threadData.currentTime;
                 cachedVideoFrames = threadData.cachedVideoFrames;
             }
-
-            // Get audio mutex protected variables.
             size_t audioDataCacheSize = 0;
             {
                 std::unique_lock<std::mutex> lock(threadData.audioMutex);
