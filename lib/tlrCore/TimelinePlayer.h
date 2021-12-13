@@ -242,7 +242,7 @@ namespace tlr
             //! \name Video
             ///@{
 
-            //! Observer the current video layer.
+            //! Observe the current video layer.
             std::shared_ptr<observer::IValue<uint16_t> > observeVideoLayer() const;
 
             //! Set the current video layer.
@@ -256,13 +256,13 @@ namespace tlr
             //! \name Audio
             ///@{
 
-            //! Observer the audio volume.
+            //! Observe the audio volume.
             std::shared_ptr<observer::IValue<float> > observeVolume() const;
 
             //! Set the audio volume.
             void setVolume(float);
 
-            //! Observer the audio mute.
+            //! Observe the audio mute.
             std::shared_ptr<observer::IValue<bool> > observeMute() const;
 
             //! Set the audio mute.
