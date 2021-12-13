@@ -973,7 +973,8 @@ namespace tlr
             default: break;
             }
             const auto ranges = timeline::loop(range, inOutRange);
-            timeline->setActiveRanges(ranges);
+            timeline->setVideoRanges(ranges);
+            timeline->setAudioRanges(ranges);
 
             // Remove old data from the cache.
             auto videoDataCacheIt = threadData.videoDataCache.begin();

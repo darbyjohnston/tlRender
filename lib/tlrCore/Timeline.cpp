@@ -318,7 +318,13 @@ namespace tlr
             void init();
             void tick();
             void requests();
-            void createReader(
+            struct Reader
+            {
+                std::shared_ptr<avio::IRead> read;
+                avio::Info info;
+                otime::TimeRange range;
+            };
+            Reader createReader(
                 const otio::Track*,
                 const otio::Clip*,
                 const avio::Options&);
@@ -342,7 +348,8 @@ namespace tlr
             otime::RationalTime duration = time::invalidTime;
             otime::RationalTime globalStartTime = time::invalidTime;
             avio::Info avInfo;
-            std::vector<otime::TimeRange> activeRanges;
+            std::vector<otime::TimeRange> videoRanges;
+            std::vector<otime::TimeRange> audioRanges;
 
             struct Item
             {
@@ -400,13 +407,8 @@ namespace tlr
 
             std::condition_variable requestCV;
 
-            struct Reader
-            {
-                std::shared_ptr<avio::IRead> read;
-                avio::Info info;
-                otime::TimeRange range;
-            };
-            std::map<const otio::Clip*, Reader> readers;
+            std::map<const otio::Clip*, Reader> videoReaders;
+            std::map<const otio::Clip*, Reader> audioReaders;
             std::list<std::shared_ptr<avio::IRead> > stoppedReaders;
 
             std::thread thread;
@@ -930,6 +932,11 @@ namespace tlr
             return _p->avInfo;
         }
 
+        void Timeline::setVideoRanges(const std::vector<otime::TimeRange>& ranges)
+        {
+            _p->videoRanges = ranges;
+        }
+
         std::future<VideoData> Timeline::getVideo(const otime::RationalTime& time, uint16_t videoLayer)
         {
             TLR_PRIVATE_P();
@@ -955,6 +962,11 @@ namespace tlr
                 request.promise.set_value(VideoData());
             }
             return future;
+        }
+
+        void Timeline::setAudioRanges(const std::vector<otime::TimeRange>& ranges)
+        {
+            _p->audioRanges = ranges;
         }
 
         std::future<AudioData> Timeline::getAudio(int64_t seconds)
@@ -983,11 +995,6 @@ namespace tlr
             return future;
         }
 
-        void Timeline::setActiveRanges(const std::vector<otime::TimeRange>& ranges)
-        {
-            _p->activeRanges = ranges;
-        }
-
         void Timeline::cancelRequests()
         {
             TLR_PRIVATE_P();
@@ -1006,7 +1013,11 @@ namespace tlr
             {
                 request.promise.set_value(AudioData());
             }
-            for (auto& i : p.readers)
+            for (auto& i : p.videoReaders)
+            {
+                i.second.read->cancelRequests();
+            }
+            for (auto& i : p.audioReaders)
             {
                 i.second.read->cancelRequests();
             }
@@ -1172,16 +1183,18 @@ namespace tlr
                         "\n"
                         "    path: {0}\n"
                         "    video requests: {1}/{2}/{3} (size/in-progress/max)\n"
-                        "    audio requests: {4}/{5}/{6} (size/in-progress/max)\n"
-                        "    readers: {7}").
+                        "    video readers: {4}\n"
+                        "    audio requests: {5}/{6}/{7} (size/in-progress/max)\n"
+                        "    video readers: {8}").
                         arg(path.get()).
                         arg(videoRequestsSize).
                         arg(videoRequestsInProgress.size()).
                         arg(options.videoRequestCount).
+                        arg(videoReaders.size()).
                         arg(audioRequestsSize).
                         arg(audioRequestsInProgress.size()).
                         arg(options.audioRequestCount).
-                        arg(readers.size()));
+                        arg(audioReaders.size()));
                 }
             }
         }
@@ -1232,7 +1245,14 @@ namespace tlr
                                 VideoLayerData videoData;
                                 if (auto otioClip = dynamic_cast<const otio::Clip*>(i.item))
                                 {
-                                    createReader(i.track, otioClip, options.avioOptions);
+                                    if (videoReaders.find(otioClip) == videoReaders.end())
+                                    {
+                                        auto reader = createReader(i.track, otioClip, options.avioOptions);
+                                        if (reader.read)
+                                        {
+                                            videoReaders[otioClip] = reader;
+                                        }
+                                    }
                                     videoData.image = readVideo(i.track, otioClip, time, request.videoLayer);
                                 }
                                 otio::ErrorStatus errorStatus;
@@ -1249,7 +1269,14 @@ namespace tlr
                                         const auto transitionNeighbors = i.track->neighbors_of(otioTransition, &errorStatus);
                                         if (const auto otioClipB = dynamic_cast<otio::Clip*>(transitionNeighbors.second.value))
                                         {
-                                            createReader(i.track, otioClipB, options.avioOptions);
+                                            if (videoReaders.find(otioClipB) == videoReaders.end())
+                                            {
+                                                auto reader = createReader(i.track, otioClipB, options.avioOptions);
+                                                if (reader.read)
+                                                {
+                                                    videoReaders[otioClipB] = reader;
+                                                }
+                                            }
                                             videoData.imageB = readVideo(i.track, otioClipB, time, request.videoLayer);
                                         }
                                     }
@@ -1267,7 +1294,14 @@ namespace tlr
                                         const auto transitionNeighbors = i.track->neighbors_of(otioTransition, &errorStatus);
                                         if (const auto otioClipB = dynamic_cast<otio::Clip*>(transitionNeighbors.first.value))
                                         {
-                                            createReader(i.track, otioClipB, options.avioOptions);
+                                            if (videoReaders.find(otioClipB) == videoReaders.end())
+                                            {
+                                                auto reader = createReader(i.track, otioClipB, options.avioOptions);
+                                                if (reader.read)
+                                                {
+                                                    videoReaders[otioClipB] = reader;
+                                                }
+                                            }
                                             videoData.image = readVideo(i.track, otioClipB, time, request.videoLayer);
                                         }
                                     }
@@ -1303,7 +1337,14 @@ namespace tlr
                                 AudioLayerData audioData;
                                 if (auto otioClip = dynamic_cast<const otio::Clip*>(i.item))
                                 {
-                                    createReader(i.track, otioClip, options.avioOptions);
+                                    if (audioReaders.find(otioClip) == audioReaders.end())
+                                    {
+                                        auto reader = createReader(i.track, otioClip, options.avioOptions);
+                                        if (reader.read)
+                                        {
+                                            audioReaders[otioClip] = reader;
+                                        }
+                                    }
                                     audioData.audio = readAudio(i.track, otioClip, timeRange);
                                 }
                                 request.layerData.push_back(std::move(audioData));
@@ -1412,71 +1453,68 @@ namespace tlr
             }
         }
 
-        void Timeline::Private::createReader(
+        Timeline::Private::Reader Timeline::Private::createReader(
             const otio::Track* track,
             const otio::Clip* clip,
             const avio::Options& ioOptions)
         {
-            if (readers.find(clip) == readers.end())
+            Reader out;
+            if (auto context = this->context.lock())
             {
-                if (auto context = this->context.lock())
+                const file::Path path = getPath(clip->media_reference());
+                avio::Options options = ioOptions;
+                options["SequenceIO/DefaultSpeed"] = string::Format("{0}").arg(duration.rate());
+                const auto ioSystem = context->getSystem<avio::System>();
+                auto read = ioSystem->read(path, options);
+                avio::Info info;
+                if (read)
                 {
-                    const file::Path path = getPath(clip->media_reference());
-                    avio::Options options = ioOptions;
-                    options["SequenceIO/DefaultSpeed"] = string::Format("{0}").arg(duration.rate());
-                    const auto ioSystem = context->getSystem<avio::System>();
-                    auto read = ioSystem->read(path, options);
-                    avio::Info info;
-                    if (read)
-                    {
-                        info = read->getInfo().get();
-                    }
-                    if (read)
-                    {
-                        context->log(
-                            string::Format("tlr::timeline::Timeline {0}").arg(this),
-                            string::Format(
-                                "\n"
-                                "    read: {0}\n"
-                                "    video: {1}\n"
-                                "    video type: {2}\n"
-                                "    video time: {3}\n"
-                                "    audio: {4}\n"
-                                "    audio time: {5}").
-                            arg(path.get()).
-                            arg(!info.video.empty() ? info.video[0] : imaging::Info()).
-                            arg(info.videoType).
-                            arg(info.videoTime).
-                            arg(info.audio).
-                            arg(info.audioTime));
+                    info = read->getInfo().get();
+                }
+                if (read)
+                {
+                    context->log(
+                        string::Format("tlr::timeline::Timeline {0}").arg(this),
+                        string::Format(
+                            "\n"
+                            "    read: {0}\n"
+                            "    video: {1}\n"
+                            "    video type: {2}\n"
+                            "    video time: {3}\n"
+                            "    audio: {4}\n"
+                            "    audio time: {5}").
+                        arg(path.get()).
+                        arg(!info.video.empty() ? info.video[0] : imaging::Info()).
+                        arg(info.videoType).
+                        arg(info.videoTime).
+                        arg(info.audio).
+                        arg(info.audioTime));
 
-                        // Get the clip start and end time taking transitions into account.
-                        otio::ErrorStatus errorStatus;
-                        const auto range = clip->trimmed_range(&errorStatus);
-                        otime::RationalTime startTime = range.start_time();
-                        auto endTime = startTime + range.duration();
-                        const auto neighbors = track->neighbors_of(clip, &errorStatus);
-                        if (auto transition = dynamic_cast<const otio::Transition*>(neighbors.first.value))
-                        {
-                            startTime -= transition->in_offset();
-                        }
-                        if (auto transition = dynamic_cast<const otio::Transition*>(neighbors.second.value))
-                        {
-                            endTime += transition->out_offset();
-                        }
-
-                        Reader reader;
-                        reader.read = read;
-                        reader.info = info;
-                        const auto ancestor = dynamic_cast<const otio::Item*>(getRoot(clip));
-                        reader.range = clip->transformed_time_range(
-                            otime::TimeRange::range_from_start_end_time(globalStartTime + startTime, globalStartTime + endTime),
-                            ancestor,
-                            &errorStatus);
-                        readers[clip] = std::move(reader);
+                    // Get the clip start and end time taking transitions into account.
+                    otio::ErrorStatus errorStatus;
+                    const auto range = clip->trimmed_range(&errorStatus);
+                    otime::RationalTime startTime = range.start_time();
+                    auto endTime = startTime + range.duration();
+                    const auto neighbors = track->neighbors_of(clip, &errorStatus);
+                    if (auto transition = dynamic_cast<const otio::Transition*>(neighbors.first.value))
+                    {
+                        startTime -= transition->in_offset();
                     }
+                    if (auto transition = dynamic_cast<const otio::Transition*>(neighbors.second.value))
+                    {
+                        endTime += transition->out_offset();
+                    }
+
+                    out.read = read;
+                    out.info = info;
+                    const auto ancestor = dynamic_cast<const otio::Item*>(getRoot(clip));
+                    out.range = clip->transformed_time_range(
+                        otime::TimeRange::range_from_start_end_time(globalStartTime + startTime, globalStartTime + endTime),
+                        ancestor,
+                        &errorStatus);
                 }
             }
+            return out;
         }
 
         std::future<avio::VideoData> Timeline::Private::readVideo(
@@ -1488,8 +1526,8 @@ namespace tlr
             std::future<avio::VideoData> out;
             if (auto context = this->context.lock())
             {
-                const auto j = readers.find(clip);
-                if (j != readers.end())
+                const auto j = videoReaders.find(clip);
+                if (j != videoReaders.end())
                 {
                     otio::ErrorStatus errorStatus;
                     const auto clipTime = track->transformed_time(time, clip, &errorStatus);
@@ -1509,8 +1547,8 @@ namespace tlr
             std::future<avio::AudioData> out;
             if (auto context = this->context.lock())
             {
-                const auto j = readers.find(clip);
-                if (j != readers.end())
+                const auto j = audioReaders.find(clip);
+                if (j != audioReaders.end())
                 {
                     otio::ErrorStatus errorStatus;
                     const auto clipRange = track->transformed_time_range(timeRange, clip, &errorStatus);
@@ -1525,11 +1563,11 @@ namespace tlr
 
         void Timeline::Private::stopReaders()
         {
-            auto i = readers.begin();
-            while (i != readers.end())
+            auto i = videoReaders.begin();
+            while (i != videoReaders.end())
             {
                 bool del = true;
-                for (const auto& activeRange : activeRanges)
+                for (const auto& activeRange : videoRanges)
                 {
                     if (i->second.range.intersects(activeRange))
                     {
@@ -1546,7 +1584,35 @@ namespace tlr
                     auto read = i->second.read;
                     read->stop();
                     stoppedReaders.push_back(read);
-                    i = readers.erase(i);
+                    i = videoReaders.erase(i);
+                }
+                else
+                {
+                    ++i;
+                }
+            }
+            i = audioReaders.begin();
+            while (i != audioReaders.end())
+            {
+                bool del = true;
+                for (const auto& activeRange : audioRanges)
+                {
+                    if (i->second.range.intersects(activeRange))
+                    {
+                        del = false;
+                        break;
+                    }
+                }
+                if (del && !i->second.read->hasRequests())
+                {
+                    if (auto context = this->context.lock())
+                    {
+                        context->log("tlr::timeline::Timeline", path.get() + ": Stop: " + i->second.read->getPath().get());
+                    }
+                    auto read = i->second.read;
+                    read->stop();
+                    stoppedReaders.push_back(read);
+                    i = audioReaders.erase(i);
                 }
                 else
                 {

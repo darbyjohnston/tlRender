@@ -274,7 +274,7 @@ namespace tlr
         _printProgress();
 
         // Set the active range.
-        _timeline->setActiveRanges({ otime::TimeRange(
+        _timeline->setVideoRanges({ otime::TimeRange(
             _timeline->getGlobalStartTime() + _currentTime,
             otime::RationalTime(1.0, _currentTime.rate())) });
 

@@ -188,12 +188,16 @@ namespace tlr
             //! \name Video and Audio Data
             ///@{
 
-            //! Set the active time ranges. This informs the timeline which
+            //! Set the video time ranges. This informs the timeline which
             //! I/O readers to keep active.
-            void setActiveRanges(const std::vector<otime::TimeRange>&);
+            void setVideoRanges(const std::vector<otime::TimeRange>&);
 
             //! Get video data.
             std::future<VideoData> getVideo(const otime::RationalTime&, uint16_t layer = 0);
+
+            //! Set the audio time ranges. This informs the timeline which
+            //! I/O readers to keep active.
+            void setAudioRanges(const std::vector<otime::TimeRange>&);
 
             //! Get audio data.
             std::future<AudioData> getAudio(int64_t seconds);
