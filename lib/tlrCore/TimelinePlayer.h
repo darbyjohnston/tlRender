@@ -268,6 +268,12 @@ namespace tlr
             //! Set the audio mute.
             void setMute(bool);
 
+            //! Observe the audio offset.
+            std::shared_ptr<observer::IValue<otime::RationalTime> > observeAudioOffset() const;
+
+            //! Set the audio offset.
+            void setAudioOffset(const otime::RationalTime&);
+
             ///@}
 
             //! \name Cache

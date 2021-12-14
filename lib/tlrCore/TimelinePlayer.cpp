@@ -179,6 +179,7 @@ namespace tlr
             std::shared_ptr<observer::Value<VideoData> > video;
             std::shared_ptr<observer::Value<float> > volume;
             std::shared_ptr<observer::Value<bool> > mute;
+            std::shared_ptr<observer::Value<otime::RationalTime> > audioOffset;
             std::shared_ptr<observer::Value<float> > cachePercentage;
             std::shared_ptr<observer::List<otime::TimeRange> > cachedVideoFrames;
             std::shared_ptr<observer::List<otime::TimeRange> > cachedAudioFrames;
@@ -250,6 +251,7 @@ namespace tlr
             p.video = observer::Value<VideoData>::create();
             p.volume = observer::Value<float>::create(1.F);
             p.mute = observer::Value<bool>::create(false);
+            p.audioOffset = observer::Value<otime::RationalTime>::create(otime::RationalTime(0.0, 0.0));
             p.cachePercentage = observer::Value<float>::create();
             p.cachedVideoFrames = observer::List<otime::TimeRange>::create();
             p.cachedAudioFrames = observer::List<otime::TimeRange>::create();
@@ -765,6 +767,16 @@ namespace tlr
                 std::unique_lock<std::mutex> lock(p.audioMutex);
                 p.audioMutexData.mute = value;
             }
+        }
+
+        std::shared_ptr<observer::IValue<otime::RationalTime> > TimelinePlayer::observeAudioOffset() const
+        {
+            _p->audioOffset;
+        }
+
+        void TimelinePlayer::setAudioOffset(const otime::RationalTime& value)
+        {
+            _p->audioOffset->setIfChanged(value);
         }
 
         otime::RationalTime TimelinePlayer::getCacheReadAhead()
