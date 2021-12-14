@@ -771,7 +771,7 @@ namespace tlr
 
         std::shared_ptr<observer::IValue<otime::RationalTime> > TimelinePlayer::observeAudioOffset() const
         {
-            _p->audioOffset;
+            return _p->audioOffset;
         }
 
         void TimelinePlayer::setAudioOffset(const otime::RationalTime& value)
@@ -992,8 +992,7 @@ namespace tlr
             default: break;
             }
             const auto ranges = timeline::loop(range, inOutRange);
-            timeline->setVideoRanges(ranges);
-            timeline->setAudioRanges(ranges);
+            timeline->setActiveRanges(ranges);
 
             // Remove old data from the cache.
             auto videoDataCacheIt = threadData.videoDataCache.begin();

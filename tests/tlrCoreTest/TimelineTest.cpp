@@ -164,7 +164,7 @@ namespace tlr
             }
 
             // Get video from the timeline, setting the active range.
-            timeline->setVideoRanges({ otime::TimeRange(otime::RationalTime(0.0, 24.0), timelineDuration) });
+            timeline->setActiveRanges({ otime::TimeRange(otime::RationalTime(0.0, 24.0), timelineDuration) });
             videoData.clear();
             futures.clear();
             for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)

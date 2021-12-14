@@ -348,8 +348,7 @@ namespace tlr
             otime::RationalTime duration = time::invalidTime;
             otime::RationalTime globalStartTime = time::invalidTime;
             avio::Info avInfo;
-            std::vector<otime::TimeRange> videoRanges;
-            std::vector<otime::TimeRange> audioRanges;
+            std::vector<otime::TimeRange> activeRanges;
 
             struct Item
             {
@@ -407,8 +406,7 @@ namespace tlr
 
             std::condition_variable requestCV;
 
-            std::map<const otio::Clip*, Reader> videoReaders;
-            std::map<const otio::Clip*, Reader> audioReaders;
+            std::map<const otio::Clip*, Reader> readers;
             std::list<std::shared_ptr<avio::IRead> > stoppedReaders;
 
             std::thread thread;
@@ -932,9 +930,9 @@ namespace tlr
             return _p->avInfo;
         }
 
-        void Timeline::setVideoRanges(const std::vector<otime::TimeRange>& ranges)
+        void Timeline::setActiveRanges(const std::vector<otime::TimeRange>& ranges)
         {
-            _p->videoRanges = ranges;
+            _p->activeRanges = ranges;
         }
 
         std::future<VideoData> Timeline::getVideo(const otime::RationalTime& time, uint16_t videoLayer)
@@ -962,11 +960,6 @@ namespace tlr
                 request.promise.set_value(VideoData());
             }
             return future;
-        }
-
-        void Timeline::setAudioRanges(const std::vector<otime::TimeRange>& ranges)
-        {
-            _p->audioRanges = ranges;
         }
 
         std::future<AudioData> Timeline::getAudio(int64_t seconds)
@@ -1013,11 +1006,7 @@ namespace tlr
             {
                 request.promise.set_value(AudioData());
             }
-            for (auto& i : p.videoReaders)
-            {
-                i.second.read->cancelRequests();
-            }
-            for (auto& i : p.audioReaders)
+            for (auto& i : p.readers)
             {
                 i.second.read->cancelRequests();
             }
@@ -1183,18 +1172,16 @@ namespace tlr
                         "\n"
                         "    path: {0}\n"
                         "    video requests: {1}/{2}/{3} (size/in-progress/max)\n"
-                        "    video readers: {4}\n"
-                        "    audio requests: {5}/{6}/{7} (size/in-progress/max)\n"
-                        "    video readers: {8}").
+                        "    audio requests: {4}/{5}/{6} (size/in-progress/max)\n"
+                        "    readers: {7}").
                         arg(path.get()).
                         arg(videoRequestsSize).
                         arg(videoRequestsInProgress.size()).
                         arg(options.videoRequestCount).
-                        arg(videoReaders.size()).
                         arg(audioRequestsSize).
                         arg(audioRequestsInProgress.size()).
                         arg(options.audioRequestCount).
-                        arg(audioReaders.size()));
+                        arg(readers.size()));
                 }
             }
         }
@@ -1245,12 +1232,12 @@ namespace tlr
                                 VideoLayerData videoData;
                                 if (auto otioClip = dynamic_cast<const otio::Clip*>(i.item))
                                 {
-                                    if (videoReaders.find(otioClip) == videoReaders.end())
+                                    if (readers.find(otioClip) == readers.end())
                                     {
                                         auto reader = createReader(i.track, otioClip, options.avioOptions);
                                         if (reader.read)
                                         {
-                                            videoReaders[otioClip] = reader;
+                                            readers[otioClip] = reader;
                                         }
                                     }
                                     videoData.image = readVideo(i.track, otioClip, time, request.videoLayer);
@@ -1269,12 +1256,12 @@ namespace tlr
                                         const auto transitionNeighbors = i.track->neighbors_of(otioTransition, &errorStatus);
                                         if (const auto otioClipB = dynamic_cast<otio::Clip*>(transitionNeighbors.second.value))
                                         {
-                                            if (videoReaders.find(otioClipB) == videoReaders.end())
+                                            if (readers.find(otioClipB) == readers.end())
                                             {
                                                 auto reader = createReader(i.track, otioClipB, options.avioOptions);
                                                 if (reader.read)
                                                 {
-                                                    videoReaders[otioClipB] = reader;
+                                                    readers[otioClipB] = reader;
                                                 }
                                             }
                                             videoData.imageB = readVideo(i.track, otioClipB, time, request.videoLayer);
@@ -1294,12 +1281,12 @@ namespace tlr
                                         const auto transitionNeighbors = i.track->neighbors_of(otioTransition, &errorStatus);
                                         if (const auto otioClipB = dynamic_cast<otio::Clip*>(transitionNeighbors.first.value))
                                         {
-                                            if (videoReaders.find(otioClipB) == videoReaders.end())
+                                            if (readers.find(otioClipB) == readers.end())
                                             {
                                                 auto reader = createReader(i.track, otioClipB, options.avioOptions);
                                                 if (reader.read)
                                                 {
-                                                    videoReaders[otioClipB] = reader;
+                                                    readers[otioClipB] = reader;
                                                 }
                                             }
                                             videoData.image = readVideo(i.track, otioClipB, time, request.videoLayer);
@@ -1337,12 +1324,12 @@ namespace tlr
                                 AudioLayerData audioData;
                                 if (auto otioClip = dynamic_cast<const otio::Clip*>(i.item))
                                 {
-                                    if (audioReaders.find(otioClip) == audioReaders.end())
+                                    if (readers.find(otioClip) == readers.end())
                                     {
                                         auto reader = createReader(i.track, otioClip, options.avioOptions);
                                         if (reader.read)
                                         {
-                                            audioReaders[otioClip] = reader;
+                                            readers[otioClip] = reader;
                                         }
                                     }
                                     audioData.audio = readAudio(i.track, otioClip, timeRange);
@@ -1526,8 +1513,8 @@ namespace tlr
             std::future<avio::VideoData> out;
             if (auto context = this->context.lock())
             {
-                const auto j = videoReaders.find(clip);
-                if (j != videoReaders.end())
+                const auto j = readers.find(clip);
+                if (j != readers.end())
                 {
                     otio::ErrorStatus errorStatus;
                     const auto clipTime = track->transformed_time(time, clip, &errorStatus);
@@ -1547,8 +1534,8 @@ namespace tlr
             std::future<avio::AudioData> out;
             if (auto context = this->context.lock())
             {
-                const auto j = audioReaders.find(clip);
-                if (j != audioReaders.end())
+                const auto j = readers.find(clip);
+                if (j != readers.end())
                 {
                     otio::ErrorStatus errorStatus;
                     const auto clipRange = track->transformed_time_range(timeRange, clip, &errorStatus);
@@ -1563,11 +1550,11 @@ namespace tlr
 
         void Timeline::Private::stopReaders()
         {
-            auto i = videoReaders.begin();
-            while (i != videoReaders.end())
+            auto i = readers.begin();
+            while (i != readers.end())
             {
                 bool del = true;
-                for (const auto& activeRange : videoRanges)
+                for (const auto& activeRange : activeRanges)
                 {
                     if (i->second.range.intersects(activeRange))
                     {
@@ -1584,35 +1571,7 @@ namespace tlr
                     auto read = i->second.read;
                     read->stop();
                     stoppedReaders.push_back(read);
-                    i = videoReaders.erase(i);
-                }
-                else
-                {
-                    ++i;
-                }
-            }
-            i = audioReaders.begin();
-            while (i != audioReaders.end())
-            {
-                bool del = true;
-                for (const auto& activeRange : audioRanges)
-                {
-                    if (i->second.range.intersects(activeRange))
-                    {
-                        del = false;
-                        break;
-                    }
-                }
-                if (del && !i->second.read->hasRequests())
-                {
-                    if (auto context = this->context.lock())
-                    {
-                        context->log("tlr::timeline::Timeline", path.get() + ": Stop: " + i->second.read->getPath().get());
-                    }
-                    auto read = i->second.read;
-                    read->stop();
-                    stoppedReaders.push_back(read);
-                    i = audioReaders.erase(i);
+                    i = readers.erase(i);
                 }
                 else
                 {

@@ -207,7 +207,7 @@ namespace tlr
                     // Initialize new requests.
                     for (auto& request : newRequests)
                     {
-                        p.timeline->setVideoRanges({ otime::TimeRange(
+                        p.timeline->setActiveRanges({ otime::TimeRange(
                             p.timeline->getGlobalStartTime() + request.time,
                             otime::RationalTime(1.0, request.time.rate())) });
 
