@@ -5,6 +5,7 @@
 #include "MainWindow.h"
 
 #include "App.h"
+#include "AudioSyncWidget.h"
 #include "ImageOptionsWidget.h"
 #include "OpenPlusAudioDialog.h"
 #include "SettingsWidget.h"
@@ -181,6 +182,9 @@ namespace tlr
         _actions["Tools/ImageOptions"] = new QAction(this);
         _actions["Tools/ImageOptions"]->setCheckable(true);
         _actions["Tools/ImageOptions"]->setText(tr("Image Options"));
+        _actions["Tools/AudioSync"] = new QAction(this);
+        _actions["Tools/AudioSync"]->setCheckable(true);
+        _actions["Tools/AudioSync"]->setText(tr("Audio Sync"));
         _actions["Tools/Settings"] = new QAction(this);
         _actions["Tools/Settings"]->setCheckable(true);
         _actions["Tools/Settings"]->setText(tr("Settings"));
@@ -245,6 +249,7 @@ namespace tlr
         auto toolsMenu = new QMenu;
         toolsMenu->setTitle(tr("&Tools"));
         toolsMenu->addAction(_actions["Tools/ImageOptions"]);
+        toolsMenu->addAction(_actions["Tools/AudioSync"]);
         toolsMenu->addAction(_actions["Tools/Settings"]);
 
         auto menuBar = new QMenuBar;
@@ -268,6 +273,15 @@ namespace tlr
         imageOptionsDockWidget->setWidget(imageOptionsWidget);
         imageOptionsDockWidget->hide();
         addDockWidget(Qt::RightDockWidgetArea, imageOptionsDockWidget);
+
+        auto audioSyncWidget = new AudioSyncWidget();
+        auto audioSyncDockWidget = new QDockWidget;
+        audioSyncDockWidget->setObjectName("AudioSync");
+        audioSyncDockWidget->setWindowTitle(tr("Audio Sync"));
+        audioSyncDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+        audioSyncDockWidget->setWidget(audioSyncWidget);
+        audioSyncDockWidget->hide();
+        addDockWidget(Qt::RightDockWidgetArea, audioSyncDockWidget);
 
         auto settingsWidget = new SettingsWidget(settingsObject, _timeObject);
         auto settingsDockWidget = new QDockWidget;
@@ -394,6 +408,11 @@ namespace tlr
             imageOptionsDockWidget,
             SLOT(setVisible(bool)));
         connect(
+            _actions["Tools/AudioSync"],
+            SIGNAL(triggered(bool)),
+            audioSyncDockWidget,
+            SLOT(setVisible(bool)));
+        connect(
             _actions["Tools/Settings"],
             SIGNAL(triggered(bool)),
             settingsDockWidget,
@@ -426,6 +445,15 @@ namespace tlr
             imageOptionsDockWidget,
             SIGNAL(visibilityChanged(bool)),
             SLOT(_imageOptionsVisibleCallback(bool)));
+
+        connect(
+            audioSyncWidget,
+            SIGNAL(audioOffsetChanged(double)),
+            SLOT(_audioOffsetCallback(double)));
+        connect(
+            audioSyncDockWidget,
+            SIGNAL(visibilityChanged(bool)),
+            SLOT(_audioSyncVisibleCallback(bool)));
 
         connect(
             settingsDockWidget,
@@ -594,6 +622,7 @@ namespace tlr
             auto widget = new qwidget::TimelineWidget(context);
             widget->setTimeObject(_timeObject);
             widget->setColorConfig(_colorConfig);
+            widget->setImageOptions(_imageOptions);
             widget->setTimelinePlayer(timelinePlayer);
             const file::Path& path = timelinePlayer->path();
             const int tab = _tabWidget->addTab(widget, QString::fromUtf8(path.get(-1, false).c_str()));
@@ -603,6 +632,7 @@ namespace tlr
                 arg(!info.video.empty() ? info.video[0] : imaging::Info()).
                 arg(info.audio);
             _tabWidget->setTabToolTip(tab, QString::fromUtf8(toolTip.c_str()));
+            timelinePlayer->setAudioOffset(_audioOffset);
             _timelinePlayers.append(timelinePlayer);
             _timelineWidgets.append(widget);
             _setCurrentTimeline(timelinePlayer);
@@ -921,6 +951,7 @@ namespace tlr
 
     void MainWindow::_imageOptionsCallback(const tlr::gl::ImageOptions& value)
     {
+        _imageOptions = value;
         for (int i = 0; i < _timelineWidgets.count(); ++i)
         {
             _timelineWidgets[i]->setImageOptions(value);
@@ -930,6 +961,20 @@ namespace tlr
     void MainWindow::_imageOptionsVisibleCallback(bool value)
     {
         _actions["Tools/ImageOptions"]->setChecked(value);
+    }
+
+    void MainWindow::_audioOffsetCallback(double value)
+    {
+        _audioOffset = value;
+        for (int i = 0; i < _timelinePlayers.count(); ++i)
+        {
+            _timelinePlayers[i]->setAudioOffset(value);
+        }
+    }
+
+    void MainWindow::_audioSyncVisibleCallback(bool value)
+    {
+        _actions["Tools/AudioSync"]->setChecked(value);
     }
 
     void MainWindow::_settingsVisibleCallback(bool value)

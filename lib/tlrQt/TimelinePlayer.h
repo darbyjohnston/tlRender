@@ -124,6 +124,9 @@ namespace tlr
             //! Get the audio mute.
             bool isMuted() const;
 
+            //! Get the audio sync offset (in seconds).
+            double audioOffset() const;
+
             ///@}
 
             //! \name Cache
@@ -230,6 +233,9 @@ namespace tlr
             //! Set the audio mute.
             void setMute(bool);
 
+            //! Set the audio sync offset (in seconds).
+            void setAudioOffset(double);
+
             ///@}
 
             //! \name Cache
@@ -283,6 +289,9 @@ namespace tlr
 
             //! This signal is emitted when the audio mute is changed.
             void muteChanged(bool);
+
+            //! This signal is emitted when the audio sync offset is changed.
+            void audioOffsetChanged(double);
 
             ///@}
 

@@ -148,6 +148,7 @@ namespace tlr
                 const otime::RationalTime& currentTime,
                 const otime::TimeRange& inOutRange,
                 uint16_t videoLayer,
+                double audioOffset,
                 CacheDirection,
                 const otime::RationalTime& cacheReadAhead,
                 const otime::RationalTime& cacheReadBehind);
@@ -179,7 +180,7 @@ namespace tlr
             std::shared_ptr<observer::Value<VideoData> > video;
             std::shared_ptr<observer::Value<float> > volume;
             std::shared_ptr<observer::Value<bool> > mute;
-            std::shared_ptr<observer::Value<otime::RationalTime> > audioOffset;
+            std::shared_ptr<observer::Value<double> > audioOffset;
             std::shared_ptr<observer::Value<float> > cachePercentage;
             std::shared_ptr<observer::List<otime::TimeRange> > cachedVideoFrames;
             std::shared_ptr<observer::List<otime::TimeRange> > cachedAudioFrames;
@@ -193,6 +194,7 @@ namespace tlr
                 otime::TimeRange inOutRange = time::invalidTimeRange;
                 uint16_t videoLayer = 0;
                 VideoData videoData;
+                double audioOffset = 0.0;
                 bool clearRequests = false;
                 std::vector<otime::TimeRange> cachedVideoFrames;
                 std::vector<otime::TimeRange> cachedAudioFrames;
@@ -251,7 +253,7 @@ namespace tlr
             p.video = observer::Value<VideoData>::create();
             p.volume = observer::Value<float>::create(1.F);
             p.mute = observer::Value<bool>::create(false);
-            p.audioOffset = observer::Value<otime::RationalTime>::create(otime::RationalTime(0.0, 0.0));
+            p.audioOffset = observer::Value<double>::create(0.0);
             p.cachePercentage = observer::Value<float>::create();
             p.cachedVideoFrames = observer::List<otime::TimeRange>::create();
             p.cachedAudioFrames = observer::List<otime::TimeRange>::create();
@@ -259,6 +261,7 @@ namespace tlr
             // Create a new thread.
             p.mutexData.currentTime = p.currentTime->get();
             p.mutexData.inOutRange = p.inOutRange->get();
+            p.mutexData.audioOffset = p.audioOffset->get();
             p.audioMutexData.speed = p.speed->get();
             p.threadData.running = true;
             p.thread = std::thread(
@@ -313,6 +316,7 @@ namespace tlr
                         otime::RationalTime currentTime = time::invalidTime;
                         otime::TimeRange inOutRange = time::invalidTimeRange;
                         uint16_t videoLayer = 0;
+                        double audioOffset = 0.0;
                         bool clearRequests = false;
                         bool clearCache = false;
                         CacheDirection cacheDirection = CacheDirection::Forward;
@@ -324,6 +328,7 @@ namespace tlr
                             currentTime = p.mutexData.currentTime;
                             inOutRange = p.mutexData.inOutRange;
                             videoLayer = p.mutexData.videoLayer;
+                            audioOffset = p.mutexData.audioOffset;
                             clearRequests = p.mutexData.clearRequests;
                             p.mutexData.clearRequests = false;
                             clearCache = p.mutexData.clearCache;
@@ -361,6 +366,7 @@ namespace tlr
                             currentTime,
                             inOutRange,
                             videoLayer,
+                            audioOffset,
                             cacheDirection,
                             cacheReadAhead,
                             cacheReadBehind);
@@ -769,14 +775,19 @@ namespace tlr
             }
         }
 
-        std::shared_ptr<observer::IValue<otime::RationalTime> > TimelinePlayer::observeAudioOffset() const
+        std::shared_ptr<observer::IValue<double> > TimelinePlayer::observeAudioOffset() const
         {
             return _p->audioOffset;
         }
 
-        void TimelinePlayer::setAudioOffset(const otime::RationalTime& value)
+        void TimelinePlayer::setAudioOffset(double value)
         {
-            _p->audioOffset->setIfChanged(value);
+            TLR_PRIVATE_P();
+            if (p.audioOffset->setIfChanged(value))
+            {
+                std::unique_lock<std::mutex> lock(p.mutex);
+                p.mutexData.audioOffset = value;
+            }
         }
 
         otime::RationalTime TimelinePlayer::getCacheReadAhead()
@@ -968,26 +979,35 @@ namespace tlr
             const otime::RationalTime& currentTime,
             const otime::TimeRange& inOutRange,
             uint16_t videoLayer,
+            double audioOffset,
             CacheDirection cacheDirection,
             const otime::RationalTime& cacheReadAhead,
             const otime::RationalTime& cacheReadBehind)
         {
             // Get the ranges to be cached.
             const auto& duration = timeline->getDuration();
-            const auto cacheReadAheadRescaled = time::floor(cacheReadAhead.rescaled_to(duration.rate()));
-            const auto cacheReadBehindRescaled = time::floor(cacheReadBehind.rescaled_to(duration.rate()));
+            const otime::RationalTime audioOffsetRescaled =
+                time::floor(otime::RationalTime(audioOffset, 1.0).rescaled_to(duration.rate()));
+            const otime::RationalTime audioOffsetAhead =
+                audioOffsetRescaled.value() > 0.0 ? audioOffsetRescaled : otime::RationalTime(0.0, duration.rate());
+            const otime::RationalTime audioOffsetBehind =
+                audioOffsetRescaled.value() < 0.0 ? audioOffsetRescaled : otime::RationalTime(0.0, duration.rate());
+            const otime::RationalTime cacheReadAheadRescaled =
+                time::floor(cacheReadAhead.rescaled_to(duration.rate()));
+            const otime::RationalTime cacheReadBehindRescaled =
+                time::floor(cacheReadBehind.rescaled_to(duration.rate()));
             otime::TimeRange range = time::invalidTimeRange;
             switch (cacheDirection)
             {
             case CacheDirection::Forward:
                 range = otime::TimeRange::range_from_start_end_time_inclusive(
-                    currentTime - cacheReadBehindRescaled,
-                    currentTime + cacheReadAheadRescaled);
+                    currentTime - cacheReadBehindRescaled + audioOffsetBehind,
+                    currentTime + cacheReadAheadRescaled + audioOffsetAhead);
                 break;
             case CacheDirection::Reverse:
                 range = otime::TimeRange::range_from_start_end_time_inclusive(
-                    currentTime - cacheReadAheadRescaled,
-                    currentTime + cacheReadBehindRescaled);
+                    currentTime - cacheReadAheadRescaled + audioOffsetBehind,
+                    currentTime + cacheReadBehindRescaled + audioOffsetAhead);
                 break;
             default: break;
             }
@@ -1187,10 +1207,12 @@ namespace tlr
             // Get mutex protected values.
             Playback playback = Playback::Stop;
             double playbackStartTimeInSeconds = 0.0;
+            double audioOffset = 0.0;
             {
                 std::unique_lock<std::mutex> lock(p->mutex);
                 playback = p->mutexData.playback;
                 playbackStartTimeInSeconds = p->mutexData.playbackStartTime.rescaled_to(1.0).value();
+                audioOffset = p->mutexData.audioOffset;
             }
             double speed = 0.F;
             float volume = 1.F;
@@ -1219,11 +1241,11 @@ namespace tlr
                     // the speed is equal to the timeline speed.
 
                     // The nearest time in seconds.
-                    int64_t seconds = playbackStartTimeInSeconds +
+                    int64_t seconds = playbackStartTimeInSeconds + audioOffset +
                         rtAudioCurrentFrame / static_cast<double>(p->avInfo.audio.sampleRate);
 
                     // Offset into the audio data.
-                    size_t offset = playbackStartTimeInSeconds * p->avInfo.audio.sampleRate +
+                    size_t offset = (playbackStartTimeInSeconds + audioOffset) * p->avInfo.audio.sampleRate +
                         rtAudioCurrentFrame -
                         seconds * p->avInfo.audio.sampleRate;
 

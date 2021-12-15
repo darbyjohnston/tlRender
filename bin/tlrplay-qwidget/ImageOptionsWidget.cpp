@@ -35,7 +35,7 @@ namespace tlr
 
     void YUVRangeWidget::_yuvRangeCallback(int value)
     {
-        Q_EMIT(yuvRangeChanged(static_cast<gl::YUVRange>(value)));
+        Q_EMIT yuvRangeChanged(static_cast<gl::YUVRange>(value));
     }
 
     ImageOptionsWidget::ImageOptionsWidget(QWidget* parent) :
@@ -48,6 +48,7 @@ namespace tlr
             yuvRangeWidget,
             SIGNAL(yuvRangeChanged(tlr::gl::YUVRange)),
             SLOT(_yuvRangeCallback(tlr::gl::YUVRange)));
+
         connect(
             this,
             SIGNAL(currentChanged(int)),

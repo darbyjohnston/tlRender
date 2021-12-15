@@ -81,6 +81,8 @@ namespace tlr
         void _frameNextX100Callback();
         void _imageOptionsCallback(const tlr::gl::ImageOptions&);
         void _imageOptionsVisibleCallback(bool);
+        void _audioOffsetCallback(double);
+        void _audioSyncVisibleCallback(bool);
         void _settingsVisibleCallback(bool);
         void _saveSettingsCallback();
 
@@ -112,6 +114,8 @@ namespace tlr
         QTabWidget* _tabWidget = nullptr;
         SecondaryWindow* _secondaryWindow = nullptr;
         gl::ColorConfig _colorConfig;
+        gl::ImageOptions _imageOptions;
+        double _audioOffset = 0.0;
         SettingsObject* _settingsObject = nullptr;
         qt::TimeObject* _timeObject = nullptr;
     };

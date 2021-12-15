@@ -268,11 +268,11 @@ namespace tlr
             //! Set the audio mute.
             void setMute(bool);
 
-            //! Observe the audio offset.
-            std::shared_ptr<observer::IValue<otime::RationalTime> > observeAudioOffset() const;
+            //! Observe the audio sync offset (in seconds).
+            std::shared_ptr<observer::IValue<double> > observeAudioOffset() const;
 
-            //! Set the audio offset.
-            void setAudioOffset(const otime::RationalTime&);
+            //! Set the audio sync offset (in seconds).
+            void setAudioOffset(double);
 
             ///@}
 

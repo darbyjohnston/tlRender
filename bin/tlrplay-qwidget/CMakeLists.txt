@@ -1,5 +1,6 @@
 set(HEADERS
     App.h
+	AudioSyncWidget.h
     ImageOptionsWidget.h
     MainWindow.h
 	OpenPlusAudioDialog.h
@@ -8,6 +9,7 @@ set(HEADERS
     SettingsWidget.h)
 set(SOURCE
     App.cpp
+	AudioSyncWidget.cpp
     ImageOptionsWidget.cpp
     MainWindow.cpp
 	OpenPlusAudioDialog.cpp
