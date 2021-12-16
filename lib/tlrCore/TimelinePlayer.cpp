@@ -1246,12 +1246,10 @@ namespace tlr
 
                     // Offset into the audio data.
                     size_t offset = (playbackStartTimeInSeconds + audioOffset) * p->avInfo.audio.sampleRate +
-                        rtAudioCurrentFrame -
-                        seconds * p->avInfo.audio.sampleRate;
+                        rtAudioCurrentFrame - seconds * p->avInfo.audio.sampleRate;
 
                     // Copy audio data to RtAudio.
                     size_t sampleCount = nFrames;
-                    int64_t secondsPrev = -1;
                     uint8_t* outputBufferP = reinterpret_cast<uint8_t*>(outputBuffer);
                     //size_t count = 0;
                     while (sampleCount > 0)
@@ -1260,15 +1258,10 @@ namespace tlr
                         std::vector<std::shared_ptr<audio::Audio> > audioData;
                         {
                             std::unique_lock<std::mutex> lock(p->audioMutex);
-                            const auto i = p->audioMutexData.audioDataCache.find(seconds);
-                            if (i != p->audioMutexData.audioDataCache.end())
+                            const auto j = p->audioMutexData.audioDataCache.find(seconds);
+                            if (j != p->audioMutexData.audioDataCache.end())
                             {
-                                if (secondsPrev != -1 && i->second.seconds != secondsPrev)
-                                {
-                                    offset = 0;
-                                }
-                                secondsPrev = i->second.seconds;
-                                for (const auto& layer : i->second.layers)
+                                for (const auto& layer : j->second.layers)
                                 {
                                     audioData.push_back(layer.audio);
                                 }
@@ -1282,11 +1275,11 @@ namespace tlr
                             // that has the same information (channels, data
                             // type, sample rate) is used.
                             std::vector<const uint8_t*> audioDataP;
-                            for (size_t i = 0; i < audioData.size(); ++i)
+                            for (size_t j = 0; j < audioData.size(); ++j)
                             {
-                                if (i > 0 ? audioData[i]->getInfo() == audioData[0]->getInfo() : true)
+                                if (j > 0 ? audioData[j]->getInfo() == audioData[0]->getInfo() : true)
                                 {
-                                    audioDataP.push_back(audioData[i]->getData() + offset * byteCount);
+                                    audioDataP.push_back(audioData[j]->getData() + offset * byteCount);
                                 }
                             }
 
@@ -1317,9 +1310,9 @@ namespace tlr
                             std::memset(outputBufferP, 0, size * byteCount);
                         }
 
+                        offset = 0;
                         sampleCount -= size;
                         ++seconds;
-                        offset += size;
                         outputBufferP += size * byteCount;
                         //++count;
                     }
