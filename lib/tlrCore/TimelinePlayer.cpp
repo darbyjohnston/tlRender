@@ -1207,12 +1207,12 @@ namespace tlr
             // Get mutex protected values.
             Playback playback = Playback::Stop;
             double playbackStartTimeInSeconds = 0.0;
-            double audioOffset = 0.0;
             {
                 std::unique_lock<std::mutex> lock(p->mutex);
                 playback = p->mutexData.playback;
-                playbackStartTimeInSeconds = p->mutexData.playbackStartTime.rescaled_to(1.0).value();
-                audioOffset = p->mutexData.audioOffset;
+                playbackStartTimeInSeconds =
+                    p->mutexData.playbackStartTime.rescaled_to(1.0).value() +
+                    p->mutexData.audioOffset;
             }
             double speed = 0.F;
             float volume = 1.F;
@@ -1235,18 +1235,18 @@ namespace tlr
             {
             case Playback::Forward:
             {
-                // Audio playback is only enabled when the current speed is
-                // equal to the timeline speed.
-                if (speed == p->timeline->getDuration().rate() && !mute)
+                // Time in seconds for indexing into the audio cache.
+                int64_t seconds = playbackStartTimeInSeconds +
+                    rtAudioCurrentFrame / static_cast<double>(p->avInfo.audio.sampleRate);
+
+                // Offset into the audio data.
+                int64_t offset = playbackStartTimeInSeconds * p->avInfo.audio.sampleRate +
+                    rtAudioCurrentFrame -
+                    seconds * p->avInfo.audio.sampleRate;
+
+                // Audio playback needs the current speed equal to the timeline speed.
+                if (speed == p->timeline->getDuration().rate() && !mute && offset >= 0)
                 {
-                    // The time in seconds for indexing into the audio cache.
-                    int64_t seconds = playbackStartTimeInSeconds + audioOffset +
-                        rtAudioCurrentFrame / static_cast<double>(p->avInfo.audio.sampleRate);
-
-                    // Initial offset into the audio data.
-                    size_t offset = (playbackStartTimeInSeconds + audioOffset) * p->avInfo.audio.sampleRate +
-                        rtAudioCurrentFrame - seconds * p->avInfo.audio.sampleRate;
-
                     // Copy audio data to RtAudio.
                     size_t sampleCount = nFrames;
                     uint8_t* outputBufferP = reinterpret_cast<uint8_t*>(outputBuffer);
