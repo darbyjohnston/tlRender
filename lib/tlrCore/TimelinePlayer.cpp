@@ -1235,16 +1235,15 @@ namespace tlr
             {
             case Playback::Forward:
             {
+                // Audio playback is only enabled when the current speed is
+                // equal to the timeline speed.
                 if (speed == p->timeline->getDuration().rate() && !mute)
                 {
-                    // Audio playback only happens for forward playback when
-                    // the speed is equal to the timeline speed.
-
-                    // The nearest time in seconds.
+                    // The time in seconds for indexing into the audio cache.
                     int64_t seconds = playbackStartTimeInSeconds + audioOffset +
                         rtAudioCurrentFrame / static_cast<double>(p->avInfo.audio.sampleRate);
 
-                    // Offset into the audio data.
+                    // Initial offset into the audio data.
                     size_t offset = (playbackStartTimeInSeconds + audioOffset) * p->avInfo.audio.sampleRate +
                         rtAudioCurrentFrame - seconds * p->avInfo.audio.sampleRate;
 
@@ -1268,7 +1267,7 @@ namespace tlr
                             }
                         }
 
-                        size_t size = 0;
+                        size_t size = sampleCount;
                         if (!audioData.empty())
                         {
                             // Get pointers to the audio data. Only audio data
@@ -1283,7 +1282,7 @@ namespace tlr
                                 }
                             }
 
-                            size = std::min(audioData[0]->getSampleCount() - offset, static_cast<size_t>(sampleCount));
+                            size = std::min(size, audioData[0]->getSampleCount() - offset);
                             
                             //std::cout << count <<
                             //    " samples: " << sampleCount <<
@@ -1304,8 +1303,6 @@ namespace tlr
                         }
                         else
                         {
-                            size = static_cast<size_t>(sampleCount);
-
                             // Copy empty audio data to RtAudio.
                             std::memset(outputBufferP, 0, size * byteCount);
                         }
