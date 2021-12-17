@@ -1282,7 +1282,7 @@ namespace tlr
                                 }
                             }
 
-                            size = std::min(size, audioData[0]->getSampleCount() - offset);
+                            size = std::min(size, static_cast<size_t>(audioData[0]->getSampleCount() - offset));
                             
                             //std::cout << count <<
                             //    " samples: " << sampleCount <<
