@@ -175,7 +175,7 @@ namespace tlr
                                 name.c_str(),
                                 Imf::Slice(
                                     _layers[layer].channels[c].pixelType,
-                                    (char*)out.image->getData() + (c * channelByteCount),
+                                    reinterpret_cast<char*>(out.image->getData()) + (c * channelByteCount),
                                     cb,
                                     scb,
                                     sampling.x,
