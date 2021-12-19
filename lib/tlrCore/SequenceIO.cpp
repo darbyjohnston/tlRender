@@ -41,8 +41,8 @@ namespace tlr
                 std::string fileName;
                 std::future<VideoData> future;
             };
-            std::list<VideoRequest> videoRequests;
-            std::list<VideoRequest> videoRequestsInProgress;
+            std::list<std::shared_ptr<VideoRequest> > videoRequests;
+            std::list<std::shared_ptr<VideoRequest> > videoRequestsInProgress;
             std::condition_variable requestCV;
 
             std::thread thread;
@@ -127,30 +127,32 @@ namespace tlr
                         p.infoPromise.set_value(Info());
                     }
 
-                    std::list<Private::VideoRequest> videoRequestsCleanup;
                     {
-                        std::unique_lock<std::mutex> lock(p.mutex);
-                        p.stopped = true;
-                        while (!p.videoRequests.empty())
+                        std::list<std::shared_ptr<Private::VideoRequest> > videoRequestsCleanup;
                         {
-                            videoRequestsCleanup.push_back(std::move(p.videoRequests.front()));
-                            p.videoRequests.pop_front();
+                            std::unique_lock<std::mutex> lock(p.mutex);
+                            p.stopped = true;
+                            while (!p.videoRequests.empty())
+                            {
+                                videoRequestsCleanup.push_back(p.videoRequests.front());
+                                p.videoRequests.pop_front();
+                            }
                         }
-                    }
-                    while (!p.videoRequestsInProgress.empty())
-                    {
-                        videoRequestsCleanup.push_back(std::move(p.videoRequestsInProgress.front()));
-                        p.videoRequestsInProgress.pop_front();
-                    }
-                    for (auto& request : videoRequestsCleanup)
-                    {
-                        VideoData data;
-                        data.time = request.time;
-                        if (request.future.valid())
+                        while (!p.videoRequestsInProgress.empty())
                         {
-                            data = request.future.get();
+                            videoRequestsCleanup.push_back(p.videoRequestsInProgress.front());
+                            p.videoRequestsInProgress.pop_front();
                         }
-                        request.promise.set_value(data);
+                        for (auto& request : videoRequestsCleanup)
+                        {
+                            VideoData data;
+                            data.time = request->time;
+                            if (request->future.valid())
+                            {
+                                data = request->future.get();
+                            }
+                            request->promise.set_value(data);
+                        }
                     }
                 });
         }
@@ -172,17 +174,17 @@ namespace tlr
             uint16_t layer)
         {
             TLR_PRIVATE_P();
-            Private::VideoRequest request;
-            request.time = time;
-            request.layer = layer;
-            auto future = request.promise.get_future();
+            auto request = std::make_shared<Private::VideoRequest>();
+            request->time = time;
+            request->layer = layer;
+            auto future = request->promise.get_future();
             bool valid = false;
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
                 if (!p.stopped)
                 {
                     valid = true;
-                    p.videoRequests.push_back(std::move(request));
+                    p.videoRequests.push_back(request);
                 }
             }
             if (valid)
@@ -191,7 +193,7 @@ namespace tlr
             }
             else
             {
-                request.promise.set_value(VideoData());
+                request->promise.set_value(VideoData());
             }
             return future;
         }
@@ -206,14 +208,14 @@ namespace tlr
         void ISequenceRead::cancelRequests()
         {
             TLR_PRIVATE_P();
-            std::list<Private::VideoRequest> videoRequests;
+            std::list<std::shared_ptr<Private::VideoRequest> > videoRequests;
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
                 videoRequests = std::move(p.videoRequests);
             }
             for (auto& request : videoRequests)
             {
-                request.promise.set_value(VideoData());
+                request->promise.set_value(VideoData());
             }
         }
 
@@ -246,7 +248,7 @@ namespace tlr
             while (p.running)
             {
                 // Gather requests.
-                std::list<Private::VideoRequest> newVideoRequests;
+                std::list<std::shared_ptr<Private::VideoRequest> > newVideoRequests;
                 {
                     std::unique_lock<std::mutex> lock(p.mutex);
                     if (p.requestCV.wait_for(
@@ -260,7 +262,7 @@ namespace tlr
                         while (!p.videoRequests.empty() &&
                             (p.videoRequestsInProgress.size() + newVideoRequests.size()) < p.threadCount)
                         {
-                            newVideoRequests.push_back(std::move(p.videoRequests.front()));
+                            newVideoRequests.push_back(p.videoRequests.front());
                             p.videoRequests.pop_front();
                         }
                     }
@@ -269,22 +271,22 @@ namespace tlr
                 // Initialize new requests.
                 while (!newVideoRequests.empty())
                 {
-                    auto request = std::move(newVideoRequests.front());
+                    auto request = newVideoRequests.front();
                     newVideoRequests.pop_front();
                     
                     //std::cout << "request: " << request.time << std::endl;
                     if (!_path.getNumber().empty())
                     {
-                        request.fileName = _path.get(static_cast<int>(request.time.value()));
+                        request->fileName = _path.get(static_cast<int>(request->time.value()));
                     }
                     else
                     {
-                        request.fileName = _path.get();
+                        request->fileName = _path.get();
                     }
-                    const std::string fileName = request.fileName;
-                    const otime::RationalTime time = request.time;
-                    const uint16_t layer = request.layer;
-                    request.future = std::async(
+                    const std::string fileName = request->fileName;
+                    const otime::RationalTime time = request->time;
+                    const uint16_t layer = request->layer;
+                    request->future = std::async(
                         std::launch::async,
                         [this, fileName, time, layer]
                         {
@@ -298,7 +300,7 @@ namespace tlr
                             }
                             return out;
                         });
-                    p.videoRequestsInProgress.push_back(std::move(request));
+                    p.videoRequestsInProgress.push_back(request);
                 }
 
                 // Check for finished requests.
@@ -309,12 +311,12 @@ namespace tlr
                 auto requestIt = p.videoRequestsInProgress.begin();
                 while (requestIt != p.videoRequestsInProgress.end())
                 {
-                    if (requestIt->future.valid() &&
-                        requestIt->future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+                    if ((*requestIt)->future.valid() &&
+                        (*requestIt)->future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                     {
                         //std::cout << "finished: " << requestIt->time << std::endl;
-                        auto data = requestIt->future.get();
-                        requestIt->promise.set_value(data);
+                        auto data = (*requestIt)->future.get();
+                        (*requestIt)->promise.set_value(data);
                         requestIt = p.videoRequestsInProgress.erase(requestIt);
                         continue;
                     }
