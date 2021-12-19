@@ -277,14 +277,16 @@ namespace tlr
         {
             _info = info;
             _dataByteCount = imaging::getDataByteCount(info);
-            _data.resize(_dataByteCount);
+            _data = new uint8_t[_dataByteCount];
         }
 
         Image::Image()
         {}
 
         Image::~Image()
-        {}
+        {
+            delete[] _data;
+        }
 
         std::shared_ptr<Image> Image::create(const Info& info)
         {
@@ -300,10 +302,7 @@ namespace tlr
 
         void Image::zero()
         {
-            if (!_data.empty())
-            {
-                std::memset(&_data[0], 0, _dataByteCount);
-            }
+            std::memset(_data, 0, _dataByteCount);
         }
     }
 }

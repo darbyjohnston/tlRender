@@ -175,7 +175,7 @@ namespace tlr
         private:
             Info _info;
             size_t _sampleCount = 0;
-            std::vector<uint8_t> _data;
+            uint8_t* _data = nullptr;
         };
 
         //! \name Utility

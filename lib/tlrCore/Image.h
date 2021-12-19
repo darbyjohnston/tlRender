@@ -294,7 +294,7 @@ namespace tlr
             Info _info;
             std::map<std::string, std::string> _tags;
             size_t _dataByteCount = 0;
-            std::vector<uint8_t> _data;
+            uint8_t* _data = nullptr;
         };
     }
 }

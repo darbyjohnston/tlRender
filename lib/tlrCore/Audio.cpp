@@ -104,14 +104,16 @@ namespace tlr
         {
             _info = info;
             _sampleCount = sampleCount;
-            _data.resize(getByteCount());
+            _data = new uint8_t[getByteCount()];
         }
 
         Audio::Audio()
         {}
 
         Audio::~Audio()
-        {}
+        {
+            delete[] _data;
+        }
 
         std::shared_ptr<Audio> Audio::create(const Info& info, size_t sampleCount)
         {
@@ -122,7 +124,7 @@ namespace tlr
 
         void Audio::zero()
         {
-            std::memset(_data.data(), 0, getByteCount());
+            std::memset(_data, 0, getByteCount());
         }
         
         namespace
