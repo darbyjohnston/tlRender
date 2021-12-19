@@ -1027,7 +1027,7 @@ namespace tlr
                 { { ".exr", avio::FileExtensionType::VideoOnly } },
                 logSystem);
 
-            //Imf::setGlobalThreadCount(0);
+            Imf::setGlobalThreadCount(0);
         }
 
         Plugin::Plugin()
