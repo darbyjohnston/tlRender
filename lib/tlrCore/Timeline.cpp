@@ -379,8 +379,8 @@ namespace tlr
 
                 std::vector<VideoLayerData> layerData;
             };
-            std::list<VideoRequest> videoRequests;
-            std::list<VideoRequest> videoRequestsInProgress;
+            std::list<std::shared_ptr<VideoRequest> > videoRequests;
+            std::list<std::shared_ptr<VideoRequest> > videoRequestsInProgress;
 
             struct AudioLayerData
             {
@@ -401,8 +401,8 @@ namespace tlr
 
                 std::vector<AudioLayerData> layerData;
             };
-            std::list<AudioRequest> audioRequests;
-            std::list<AudioRequest> audioRequestsInProgress;
+            std::list<std::shared_ptr<AudioRequest> > audioRequests;
+            std::list<std::shared_ptr<AudioRequest> > audioRequestsInProgress;
 
             std::condition_variable requestCV;
 
@@ -501,67 +501,69 @@ namespace tlr
                         p.tick();
                     }
 
-                    std::list<Private::VideoRequest> videoRequestsCleanup;
-                    std::list<Private::AudioRequest> audioRequestsCleanup;
                     {
-                        std::unique_lock<std::mutex> lock(p.mutex);
-                        p.stopped = true;
-                        while (!p.videoRequests.empty())
+                        std::list<std::shared_ptr<Private::VideoRequest> > videoRequestsCleanup;
+                        std::list<std::shared_ptr<Private::AudioRequest> > audioRequestsCleanup;
                         {
-                            videoRequestsCleanup.push_back(std::move(p.videoRequests.front()));
-                            p.videoRequests.pop_front();
-                        }
-                        while (!p.audioRequests.empty())
-                        {
-                            audioRequestsCleanup.push_back(std::move(p.audioRequests.front()));
-                            p.audioRequests.pop_front();
-                        }
-                    }
-                    while (!p.videoRequestsInProgress.empty())
-                    {
-                        videoRequestsCleanup.push_back(std::move(p.videoRequestsInProgress.front()));
-                        p.videoRequestsInProgress.pop_front();
-                    }
-                    while (!p.audioRequestsInProgress.empty())
-                    {
-                        audioRequestsCleanup.push_back(std::move(p.audioRequestsInProgress.front()));
-                        p.audioRequestsInProgress.pop_front();
-                    }
-                    for (auto& request : videoRequestsCleanup)
-                    {
-                        VideoData data;
-                        data.time = request.time;
-                        for (auto& i : request.layerData)
-                        {
-                            VideoLayer layer;
-                            if (i.image.valid())
+                            std::unique_lock<std::mutex> lock(p.mutex);
+                            p.stopped = true;
+                            while (!p.videoRequests.empty())
                             {
-                                layer.image = i.image.get().image;
+                                videoRequestsCleanup.push_back(p.videoRequests.front());
+                                p.videoRequests.pop_front();
                             }
-                            if (i.imageB.valid())
+                            while (!p.audioRequests.empty())
                             {
-                                layer.imageB = i.imageB.get().image;
+                                audioRequestsCleanup.push_back(p.audioRequests.front());
+                                p.audioRequests.pop_front();
                             }
-                            layer.transition = i.transition;
-                            layer.transitionValue = i.transitionValue;
-                            data.layers.push_back(layer);
                         }
-                        request.promise.set_value(data);
-                    }
-                    for (auto& request : audioRequestsCleanup)
-                    {
-                        AudioData data;
-                        data.seconds = request.seconds;
-                        for (auto& i : request.layerData)
+                        while (!p.videoRequestsInProgress.empty())
                         {
-                            AudioLayer layer;
-                            if (i.audio.valid())
-                            {
-                                layer.audio = i.audio.get().audio;
-                            }
-                            data.layers.push_back(layer);
+                            videoRequestsCleanup.push_back(p.videoRequestsInProgress.front());
+                            p.videoRequestsInProgress.pop_front();
                         }
-                        request.promise.set_value(data);
+                        while (!p.audioRequestsInProgress.empty())
+                        {
+                            audioRequestsCleanup.push_back(p.audioRequestsInProgress.front());
+                            p.audioRequestsInProgress.pop_front();
+                        }
+                        for (auto& request : videoRequestsCleanup)
+                        {
+                            VideoData data;
+                            data.time = request->time;
+                            for (auto& i : request->layerData)
+                            {
+                                VideoLayer layer;
+                                if (i.image.valid())
+                                {
+                                    layer.image = i.image.get().image;
+                                }
+                                if (i.imageB.valid())
+                                {
+                                    layer.imageB = i.imageB.get().image;
+                                }
+                                layer.transition = i.transition;
+                                layer.transitionValue = i.transitionValue;
+                                data.layers.push_back(layer);
+                            }
+                            request->promise.set_value(data);
+                        }
+                        for (auto& request : audioRequestsCleanup)
+                        {
+                            AudioData data;
+                            data.seconds = request->seconds;
+                            for (auto& i : request->layerData)
+                            {
+                                AudioLayer layer;
+                                if (i.audio.valid())
+                                {
+                                    layer.audio = i.audio.get().audio;
+                                }
+                                data.layers.push_back(layer);
+                            }
+                            request->promise.set_value(data);
+                        }
                     }
                 });
         }
@@ -938,17 +940,17 @@ namespace tlr
         std::future<VideoData> Timeline::getVideo(const otime::RationalTime& time, uint16_t videoLayer)
         {
             TLR_PRIVATE_P();
-            Private::VideoRequest request;
-            request.time = time;
-            request.videoLayer = videoLayer;
-            auto future = request.promise.get_future();
+            auto request = std::make_shared<Private::VideoRequest>();
+            request->time = time;
+            request->videoLayer = videoLayer;
+            auto future = request->promise.get_future();
             bool valid = false;
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
                 if (!p.stopped)
                 {
                     valid = true;
-                    p.videoRequests.push_back(std::move(request));
+                    p.videoRequests.push_back(request);
                 }
             }
             if (valid)
@@ -957,7 +959,7 @@ namespace tlr
             }
             else
             {
-                request.promise.set_value(VideoData());
+                request->promise.set_value(VideoData());
             }
             return future;
         }
@@ -965,16 +967,16 @@ namespace tlr
         std::future<AudioData> Timeline::getAudio(int64_t seconds)
         {
             TLR_PRIVATE_P();
-            Private::AudioRequest request;
-            request.seconds = seconds;
-            auto future = request.promise.get_future();
+            auto request = std::make_shared<Private::AudioRequest>();
+            request->seconds = seconds;
+            auto future = request->promise.get_future();
             bool valid = false;
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
                 if (!p.stopped)
                 {
                     valid = true;
-                    p.audioRequests.push_back(std::move(request));
+                    p.audioRequests.push_back(request);
                 }
             }
             if (valid)
@@ -983,7 +985,7 @@ namespace tlr
             }
             else
             {
-                request.promise.set_value(AudioData());
+                request->promise.set_value(AudioData());
             }
             return future;
         }
@@ -991,8 +993,8 @@ namespace tlr
         void Timeline::cancelRequests()
         {
             TLR_PRIVATE_P();
-            std::list<Private::VideoRequest> videoRequestsCleanup;
-            std::list<Private::AudioRequest> audioRequestsCleanup;
+            std::list<std::shared_ptr<Private::VideoRequest> > videoRequestsCleanup;
+            std::list<std::shared_ptr<Private::AudioRequest> > audioRequestsCleanup;
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
                 videoRequestsCleanup = std::move(p.videoRequests);
@@ -1000,11 +1002,11 @@ namespace tlr
             }
             for (auto& request : videoRequestsCleanup)
             {
-                request.promise.set_value(VideoData());
+                request->promise.set_value(VideoData());
             }
             for (auto& request : audioRequestsCleanup)
             {
-                request.promise.set_value(AudioData());
+                request->promise.set_value(AudioData());
             }
             for (auto& i : p.readers)
             {
@@ -1184,13 +1186,16 @@ namespace tlr
                         arg(readers.size()));
                 }
             }
+
+            // Sleep for a bit...
+            time::sleep(std::chrono::microseconds(1000));
         }
 
         void Timeline::Private::requests()
         {
             // Gather requests.
-            std::list<VideoRequest> newVideoRequests;
-            std::list<AudioRequest> newAudioRequests;
+            std::list<std::shared_ptr<VideoRequest> > newVideoRequests;
+            std::list<std::shared_ptr<AudioRequest> > newAudioRequests;
             {
                 std::unique_lock<std::mutex> lock(mutex);
                 requestCV.wait_for(
@@ -1206,13 +1211,13 @@ namespace tlr
                 while (!videoRequests.empty() &&
                     (videoRequestsInProgress.size() + newVideoRequests.size()) < options.videoRequestCount)
                 {
-                    newVideoRequests.push_back(std::move(videoRequests.front()));
+                    newVideoRequests.push_back(videoRequests.front());
                     videoRequests.pop_front();
                 }
                 while (!audioRequests.empty() &&
                     (audioRequestsInProgress.size() + newAudioRequests.size()) < options.audioRequestCount)
                 {
-                    newAudioRequests.push_back(std::move(audioRequests.front()));
+                    newAudioRequests.push_back(audioRequests.front());
                     audioRequests.pop_front();
                 }
             }
@@ -1226,7 +1231,7 @@ namespace tlr
                     {
                         if (otio::Track::Kind::video == i.track->kind())
                         {
-                            const auto time = request.time - globalStartTime;
+                            const auto time = request->time - globalStartTime;
                             if (i.range.contains(time))
                             {
                                 VideoLayerData videoData;
@@ -1240,7 +1245,7 @@ namespace tlr
                                             readers[otioClip] = reader;
                                         }
                                     }
-                                    videoData.image = readVideo(i.track, otioClip, time, request.videoLayer);
+                                    videoData.image = readVideo(i.track, otioClip, time, request->videoLayer);
                                 }
                                 otio::ErrorStatus errorStatus;
                                 const auto neighbors = i.track->neighbors_of(i.item, &errorStatus);
@@ -1264,7 +1269,7 @@ namespace tlr
                                                     readers[otioClipB] = reader;
                                                 }
                                             }
-                                            videoData.imageB = readVideo(i.track, otioClipB, time, request.videoLayer);
+                                            videoData.imageB = readVideo(i.track, otioClipB, time, request->videoLayer);
                                         }
                                     }
                                 }
@@ -1289,11 +1294,11 @@ namespace tlr
                                                     readers[otioClipB] = reader;
                                                 }
                                             }
-                                            videoData.image = readVideo(i.track, otioClipB, time, request.videoLayer);
+                                            videoData.image = readVideo(i.track, otioClipB, time, request->videoLayer);
                                         }
                                     }
                                 }
-                                request.layerData.push_back(std::move(videoData));
+                                request->layerData.push_back(std::move(videoData));
                             }
                         }
                     }
@@ -1303,7 +1308,7 @@ namespace tlr
                     //! \todo How should this be handled?
                 }
 
-                videoRequestsInProgress.push_back(std::move(request));
+                videoRequestsInProgress.push_back(request);
             }
 
             // Traverse the timeline for new audio requests.
@@ -1315,7 +1320,7 @@ namespace tlr
                     {
                         if (otio::Track::Kind::audio == i.track->kind())
                         {
-                            const otime::RationalTime time = otime::RationalTime(request.seconds, 1.0) - globalStartTime.rescaled_to(1.0);
+                            const otime::RationalTime time = otime::RationalTime(request->seconds, 1.0) - globalStartTime.rescaled_to(1.0);
                             const otime::TimeRange timeRange = otime::TimeRange::range_from_start_end_time(
                                 std::max(otime::RationalTime(0.0, 1.0), time),
                                 std::max(otime::RationalTime(0.0, 1.0), time + otime::RationalTime(1.0, 1.0)));
@@ -1334,7 +1339,7 @@ namespace tlr
                                     }
                                     audioData.audio = readAudio(i.track, otioClip, timeRange);
                                 }
-                                request.layerData.push_back(std::move(audioData));
+                                request->layerData.push_back(std::move(audioData));
                             }
                         }
                     }
@@ -1344,7 +1349,7 @@ namespace tlr
                     //! \todo How should this be handled?
                 }
 
-                audioRequestsInProgress.push_back(std::move(request));
+                audioRequestsInProgress.push_back(request);
             }
 
             // Check for finished video requests.
@@ -1352,7 +1357,7 @@ namespace tlr
             while (videoRequestIt != videoRequestsInProgress.end())
             {
                 bool valid = true;
-                for (auto& i : videoRequestIt->layerData)
+                for (auto& i : (*videoRequestIt)->layerData)
                 {
                     if (i.image.valid())
                     {
@@ -1366,10 +1371,10 @@ namespace tlr
                 if (valid)
                 {
                     VideoData data;
-                    data.time = videoRequestIt->time;
+                    data.time = (*videoRequestIt)->time;
                     try
                     {
-                        for (auto& j : videoRequestIt->layerData)
+                        for (auto& j : (*videoRequestIt)->layerData)
                         {
                             VideoLayer layer;
                             if (j.image.valid())
@@ -1389,7 +1394,7 @@ namespace tlr
                     {
                         //! \todo How should this be handled?
                     }
-                    videoRequestIt->promise.set_value(data);
+                    (*videoRequestIt)->promise.set_value(data);
                     videoRequestIt = videoRequestsInProgress.erase(videoRequestIt);
                     continue;
                 }
@@ -1401,7 +1406,7 @@ namespace tlr
             while (audioRequestIt != audioRequestsInProgress.end())
             {
                 bool valid = true;
-                for (auto& i : audioRequestIt->layerData)
+                for (auto& i : (*audioRequestIt)->layerData)
                 {
                     if (i.audio.valid())
                     {
@@ -1415,10 +1420,10 @@ namespace tlr
                 if (valid)
                 {
                     AudioData data;
-                    data.seconds = audioRequestIt->seconds;
+                    data.seconds = (*audioRequestIt)->seconds;
                     try
                     {
-                        for (auto& j : audioRequestIt->layerData)
+                        for (auto& j : (*audioRequestIt)->layerData)
                         {
                             AudioLayer layer;
                             if (j.audio.valid())
@@ -1432,7 +1437,7 @@ namespace tlr
                     {
                         //! \todo How should this be handled?
                     }
-                    audioRequestIt->promise.set_value(data);
+                    (*audioRequestIt)->promise.set_value(data);
                     audioRequestIt = audioRequestsInProgress.erase(audioRequestIt);
                     continue;
                 }
