@@ -32,7 +32,7 @@ namespace tlr
             p.f = file::FileIO::create();
             p.f->open(fileName, file::Mode::Read);
             p.size = p.f->getSize();
-            p.p = (char*)(p.f->mmapP());
+            p.p = const_cast<char*>(reinterpret_cast<const char*>(p.f->mmapP()));
         }
 
         MemoryMappedIStream::~MemoryMappedIStream()
