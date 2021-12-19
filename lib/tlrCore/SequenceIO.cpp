@@ -345,6 +345,9 @@ namespace tlr
                         arg(p.videoRequestsInProgress.size()).
                         arg(p.threadCount));
                 }
+
+                // Sleep for a bit...
+                time::sleep(std::chrono::microseconds(1000));
             }
         }
 
