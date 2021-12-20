@@ -8,6 +8,9 @@
 
 #include <tlrCore/Context.h>
 #include <tlrCore/SequenceIO.h>
+#if defined(OpenEXR_FOUND)
+#include <tlrCore/OpenEXR.h>
+#endif
 #if defined(FFmpeg_FOUND)
 #include <tlrCore/FFmpeg.h>
 #endif
@@ -29,6 +32,10 @@ namespace tlr
         {
             float sequenceDefaultSpeed = avio::sequenceDefaultSpeed;
             int sequenceThreadCount = avio::sequenceThreadCount;
+#if defined(OpenEXR_FOUND)
+            exr::Compression exrCompression = exr::Compression::ZIP;
+            float exrDWACompressionLevel = 45.F;
+#endif
 #if defined(FFmpeg_FOUND)
             std::string ffmpegWriteProfile;
             int ffmpegThreadCount = ffmpeg::threadCount;

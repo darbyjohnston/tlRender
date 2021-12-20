@@ -7,6 +7,9 @@
 #include <tlrCore/AVIOSystem.h>
 #include <tlrCore/String.h>
 #include <tlrCore/StringFormat.h>
+#if defined(OpenEXR_FOUND)
+#include <tlrCore/OpenEXR.h>
+#endif
 #if defined(FFmpeg_FOUND)
 #include <tlrCore/FFmpeg.h>
 #endif
@@ -59,6 +62,19 @@ namespace tlr
                 { "-sequenceThreadCount" },
                 "Number of threads for image sequence I/O.",
                 string::Format("{0}").arg(_options.sequenceThreadCount)));
+#if defined(OpenEXR_FOUND)
+            p.cmdLineOptions.push_back(CmdLineValueOption<exr::Compression>::create(
+                _options.exrCompression,
+                { "-exrCompression" },
+                "OpenEXR output compression.",
+                string::Format("{0}").arg(_options.exrCompression),
+                string::join(exr::getCompressionLabels(), ", ")));
+            p.cmdLineOptions.push_back(CmdLineValueOption<float>::create(
+                _options.exrDWACompressionLevel,
+                { "-exrDWACompressionLevel" },
+                "OpenEXR DWA compression level.",
+                string::Format("{0}").arg(_options.exrDWACompressionLevel)));
+#endif
 #if defined(FFmpeg_FOUND)
             p.cmdLineOptions.push_back(CmdLineValueOption<int>::create(
                 _options.ffmpegThreadCount,
@@ -110,6 +126,18 @@ namespace tlr
                 ss << _options.sequenceThreadCount;
                 avioOptions["SequenceIO/ThreadCount"] = ss.str();
             }
+#if defined(OpenEXR_FOUND)
+            {
+                std::stringstream ss;
+                ss << _options.exrCompression;
+                avioOptions["exr/Compression"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << _options.exrDWACompressionLevel;
+                avioOptions["exr/DWACompressionLevel"] = ss.str();
+            }
+#endif
 #if defined(FFmpeg_FOUND)
             if (!_options.ffmpegWriteProfile.empty())
             {

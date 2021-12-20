@@ -21,7 +21,7 @@ namespace tlr
         class LogSystem;
     }
 
-    //! Audio/visual I/O.
+    //! Audio/video I/O.
     namespace avio
     {
         //! Video type.

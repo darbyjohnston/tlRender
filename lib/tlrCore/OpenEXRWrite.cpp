@@ -7,6 +7,7 @@
 #include <tlrCore/StringFormat.h>
 
 #include <ImfRgbaFile.h>
+#include <ImfStandardAttributes.h>
 
 namespace tlr
 {
@@ -19,6 +20,19 @@ namespace tlr
             const std::shared_ptr<core::LogSystem>& logSystem)
         {
             ISequenceWrite::_init(path, info, options, logSystem);
+
+            auto i = options.find("exr/Compression");
+            if (i != options.end())
+            {
+                std::stringstream ss(i->second);
+                ss >> _compression;
+            }
+            i = options.find("exr/DWACompressionLevel");
+            if (i != options.end())
+            {
+                std::stringstream ss(i->second);
+                ss >> _dwaCompressionLevel;
+            }
         }
 
         Write::Write()
@@ -44,7 +58,15 @@ namespace tlr
             const std::shared_ptr<imaging::Image>& image)
         {
             const auto& info = image->getInfo();
-            Imf::Header header(info.size.w, info.size.h);
+            Imf::Header header(
+                info.size.w,
+                info.size.h,
+                1.F,
+                Imath::V2f(0.F, 0.F),
+                1.F,
+                Imf::INCREASING_Y,
+                toImf(_compression));
+            addDwaCompressionLevel(header, _dwaCompressionLevel);
             writeTags(image->getTags(), avio::sequenceDefaultSpeed, header);
             Imf::RgbaOutputFile f(fileName.c_str(), header);
             const size_t scanlineSize = static_cast<size_t>(info.size.w) * 4 * 2;

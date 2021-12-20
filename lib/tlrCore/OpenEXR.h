@@ -76,6 +76,9 @@ namespace tlr
         TLR_ENUM(Compression);
         TLR_ENUM_SERIALIZE(Compression);
 
+        //! Convert to Imf.
+        Imf::Compression toImf(Compression);
+
         //! Get a layer name from a list of channel names.
         std::string getLayerName(const std::vector<std::string>&);
 
@@ -177,6 +180,10 @@ namespace tlr
                 const std::string& fileName,
                 const otime::RationalTime&,
                 const std::shared_ptr<imaging::Image>&) override;
+
+        private:
+            Compression _compression = Compression::ZIP;
+            float _dwaCompressionLevel = 45.F;
         };
 
         //! OpenEXR plugin.

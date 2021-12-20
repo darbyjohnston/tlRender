@@ -69,6 +69,24 @@ namespace tlr
             name = getLayerName(names);
         }
 
+        Imf::Compression toImf(Compression value)
+        {
+            const std::array<Imf::Compression, 10> data =
+            {
+                Imf::NO_COMPRESSION,
+                Imf::RLE_COMPRESSION,
+                Imf::ZIPS_COMPRESSION,
+                Imf::ZIP_COMPRESSION,
+                Imf::PIZ_COMPRESSION,
+                Imf::PXR24_COMPRESSION,
+                Imf::B44_COMPRESSION,
+                Imf::B44A_COMPRESSION,
+                Imf::DWAA_COMPRESSION,
+                Imf::DWAB_COMPRESSION
+            };
+            return data[static_cast<size_t>(value)];
+        }
+
         std::string getLayerName(const std::vector<std::string>& value)
         {
             std::string out;
