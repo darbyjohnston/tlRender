@@ -985,13 +985,13 @@ namespace tlr
             const otime::RationalTime& cacheReadBehind)
         {
             // Get the ranges to be cached.
-            const auto& duration = timeline->getDuration();
+            const otime::RationalTime& duration = timeline->getDuration();
             const otime::RationalTime audioOffsetRescaled =
                 time::floor(otime::RationalTime(audioOffset, 1.0).rescaled_to(duration.rate()));
             const otime::RationalTime audioOffsetAhead =
-                audioOffsetRescaled.value() > 0.0 ? audioOffsetRescaled : otime::RationalTime(0.0, duration.rate());
+                audioOffsetRescaled.value() < 0.0 ? -audioOffsetRescaled : otime::RationalTime(0.0, duration.rate());
             const otime::RationalTime audioOffsetBehind =
-                audioOffsetRescaled.value() < 0.0 ? audioOffsetRescaled : otime::RationalTime(0.0, duration.rate());
+                audioOffsetRescaled.value() > 0.0 ? audioOffsetRescaled : otime::RationalTime(0.0, duration.rate());
             const otime::RationalTime cacheReadAheadRescaled =
                 time::floor(cacheReadAhead.rescaled_to(duration.rate()));
             const otime::RationalTime cacheReadBehindRescaled =
@@ -1001,17 +1001,20 @@ namespace tlr
             {
             case CacheDirection::Forward:
                 range = otime::TimeRange::range_from_start_end_time_inclusive(
-                    currentTime - cacheReadBehindRescaled + audioOffsetBehind,
+                    currentTime - cacheReadBehindRescaled - audioOffsetBehind,
                     currentTime + cacheReadAheadRescaled + audioOffsetAhead);
                 break;
             case CacheDirection::Reverse:
                 range = otime::TimeRange::range_from_start_end_time_inclusive(
-                    currentTime - cacheReadAheadRescaled + audioOffsetBehind,
-                    currentTime + cacheReadBehindRescaled + audioOffsetAhead);
+                    currentTime - cacheReadAheadRescaled - audioOffsetAhead,
+                    currentTime + cacheReadBehindRescaled + audioOffsetBehind);
                 break;
             default: break;
             }
-            const auto ranges = timeline::loop(range, inOutRange);
+            const otime::TimeRange inOutAudioOffsetRange = otime::TimeRange::range_from_start_end_time_inclusive(
+                std::max(inOutRange.start_time() - audioOffsetBehind, otime::RationalTime(0.0, duration.rate())),
+                std::min(inOutRange.end_time_inclusive() + audioOffsetAhead, duration - otime::RationalTime(1.0, duration.rate())));
+            const auto ranges = timeline::loop(range, inOutAudioOffsetRange);
             timeline->setActiveRanges(ranges);
 
             // Remove old data from the cache.
@@ -1211,7 +1214,7 @@ namespace tlr
                 std::unique_lock<std::mutex> lock(p->mutex);
                 playback = p->mutexData.playback;
                 playbackStartTimeInSeconds =
-                    p->mutexData.playbackStartTime.rescaled_to(1.0).value() +
+                    p->mutexData.playbackStartTime.rescaled_to(1.0).value() -
                     p->mutexData.audioOffset;
             }
             double speed = 0.F;
