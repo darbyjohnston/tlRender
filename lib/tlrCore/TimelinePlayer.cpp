@@ -1234,6 +1234,9 @@ namespace tlr
             const audio::DataType dataType = p->avInfo.audio.dataType;
             const size_t byteCount = p->avInfo.audio.getByteCount();
 
+            // Zero output audio data.
+            std::memset(outputBuffer, 0, nFrames * byteCount);
+
             switch (playback)
             {
             case Playback::Forward:
@@ -1304,11 +1307,6 @@ namespace tlr
                                 channelCount,
                                 dataType);
                         }
-                        else
-                        {
-                            // Copy empty audio data to RtAudio.
-                            std::memset(outputBufferP, 0, size * byteCount);
-                        }
 
                         offset = 0;
                         sampleCount -= size;
@@ -1316,11 +1314,6 @@ namespace tlr
                         outputBufferP += size * byteCount;
                         //++count;
                     }
-                }
-                else
-                {
-                    // Copy empty audio data to RtAudio.
-                    std::memset(outputBuffer, 0, nFrames * byteCount);
                 }
 
                 // Update the audio frame.
@@ -1332,20 +1325,15 @@ namespace tlr
                 break;
             }
             case Playback::Reverse:
-                // Copy empty audio data to RtAudio.
-                std::memset(outputBuffer, 0, nFrames * byteCount);
-
                 // Update the audio frame.
                 {
                     std::unique_lock<std::mutex> lock(p->audioMutex);
                     p->audioMutexData.rtAudioCurrentFrame += nFrames;
                 }
                 break;
-            default:
-                // Copy empty audio data to RtAudio.
-                std::memset(outputBuffer, 0, nFrames * byteCount);
-                break;
+            default: break;
             }
+
             return 0;
         }
 
