@@ -1017,7 +1017,7 @@ namespace tlr
             const auto ranges = timeline::loop(range, inOutAudioOffsetRange);
             timeline->setActiveRanges(ranges);
 
-            // Remove old data from the cache.
+            // Remove old video from the cache.
             auto videoDataCacheIt = threadData.videoDataCache.begin();
             while (videoDataCacheIt != threadData.videoDataCache.end())
             {
@@ -1037,6 +1037,8 @@ namespace tlr
                 }
                 ++videoDataCacheIt;
             }
+
+            // Remove old audio from the cache.
             {
                 std::unique_lock<std::mutex> lock(audioMutex);
                 auto audioDataCacheIt = audioMutexData.audioDataCache.begin();
@@ -1193,7 +1195,12 @@ namespace tlr
             if (threadData.rtAudio &&
                 threadData.rtAudio->isStreamRunning())
             {
-                threadData.rtAudio->setStreamTime(0.0);
+                try
+                {
+                    threadData.rtAudio->setStreamTime(0.0);
+                }
+                catch (const std::exception&)
+                {}
             }
         }
 
@@ -1374,14 +1381,9 @@ namespace tlr
                 const size_t t0 = math::clamp(n, 0.0, 1.0) * (lineLength - 1);
                 n = (i.end_time_inclusive() - timeline->getGlobalStartTime()).value() / timeline->getDuration().value();
                 const size_t t1 = math::clamp(n, 0.0, 1.0) * (lineLength - 1);
-                if (t0 != t1)
+                for (size_t j = t0; j <= t1; ++j)
                 {
-                    cachedVideoFramesDisplay[t0] = '[';
-                    cachedVideoFramesDisplay[t1] = ']';
-                }
-                else
-                {
-                    cachedVideoFramesDisplay[t0] = '|';
+                    cachedVideoFramesDisplay[j] = '#';
                 }
             }
 
@@ -1398,14 +1400,9 @@ namespace tlr
                 const size_t t0 = math::clamp(n, 0.0, 1.0) * (lineLength - 1);
                 n = (i.end_time_inclusive() - timeline->getGlobalStartTime()).value() / timeline->getDuration().value();
                 const size_t t1 = math::clamp(n, 0.0, 1.0) * (lineLength - 1);
-                if (t0 != t1)
+                for (size_t j = t0; j <= t1; ++j)
                 {
-                    cachedAudioFramesDisplay[t0] = '[';
-                    cachedAudioFramesDisplay[t1] = ']';
-                }
-                else
-                {
-                    cachedAudioFramesDisplay[t0] = '|';
+                    cachedAudioFramesDisplay[j] = '#';
                 }
             }
 
