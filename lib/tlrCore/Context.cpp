@@ -6,6 +6,11 @@
 
 #include <tlrCore/AVIOSystem.h>
 #include <tlrCore/AudioSystem.h>
+#include <tlrCore/Memory.h>
+#include <tlrCore/OS.h>
+
+#include <cstdlib>
+#include <sstream>
 
 namespace tlr
 {
@@ -27,6 +32,19 @@ namespace tlr
                 },
                 observer::CallbackAction::Suppress);
             _systems.push_back(_logSystem);
+
+            {
+                std::stringstream ss;
+                ss << "System: " << os::getInfo();
+                log("tlr::core::Context", ss.str());
+            }
+            {
+                std::stringstream ss;
+                auto d = std::lldiv(os::getRAMSize(), memory::gigabyte);
+                ss << "RAM size: " << (d.quot + (d.rem ? 1 : 0)) << std::endl;
+                log("tlr::core::Context", ss.str());
+            }
+
             _systems.push_back(audio::System::create(shared_from_this()));
             _systems.push_back(avio::System::create(shared_from_this()));
         }

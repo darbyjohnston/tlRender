@@ -35,6 +35,7 @@ set(HEADERS
     Memory.h
     MemoryInline.h
 	Mesh.h
+	OS.h
     Observer.h
     PPM.h
     Path.h
@@ -75,6 +76,7 @@ set(SOURCE
     LogSystem.cpp
     Memory.cpp
 	Mesh.cpp
+	OS.cpp
     PPM.cpp
     PPMRead.cpp
     PPMWrite.cpp
@@ -92,12 +94,14 @@ if (WIN32)
         ErrorWin32.cpp
         FileIOWin32.cpp
         FileWin32.cpp
+		OSWin32.cpp
         TimeWin32.cpp)
 else()
     set(SOURCE
         ${SOURCE}
         FileIOUnix.cpp
         FileUnix.cpp
+		OSUnix.cpp
         TimeUnix.cpp)
 endif()
 

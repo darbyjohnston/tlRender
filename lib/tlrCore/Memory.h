@@ -15,6 +15,11 @@ namespace tlr
     //! Memory.
     namespace memory
     {
+        constexpr size_t kilobyte = 1024; //!< The number of bytes in a kilobyte
+        constexpr size_t megabyte = kilobyte * 1024; //!< The number of bytes in a megabyte
+        constexpr size_t gigabyte = megabyte * 1024; //!< The number of bytes in a gigabyte
+        constexpr size_t terabyte = gigabyte * 1024; //!< The number of bytes in a terabyte
+
         //! Endian type.
         enum class Endian
         {
