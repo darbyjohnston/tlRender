@@ -18,8 +18,11 @@ namespace tlr
         //! Get operating system information.
         std::string getInfo();
 
-        //! Get the total amount of RAM available.
+        //! Get the total amount of system RAM.
         size_t getRAMSize();
+
+        //! Get the total amount of system RAM in gigabytes.
+        size_t getRAMSizeGB();
 
         //! Get the current user.
         //!

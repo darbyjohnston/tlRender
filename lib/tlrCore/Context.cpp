@@ -6,10 +6,8 @@
 
 #include <tlrCore/AVIOSystem.h>
 #include <tlrCore/AudioSystem.h>
-#include <tlrCore/Memory.h>
 #include <tlrCore/OS.h>
 
-#include <cstdlib>
 #include <sstream>
 
 namespace tlr
@@ -40,8 +38,7 @@ namespace tlr
             }
             {
                 std::stringstream ss;
-                auto d = std::lldiv(os::getRAMSize(), memory::gigabyte);
-                ss << "RAM size: " << (d.quot + (d.rem ? 1 : 0)) << std::endl;
+                ss << "RAM size: " << os::getRAMSizeGB();
                 log("tlr::core::Context", ss.str());
             }
 
