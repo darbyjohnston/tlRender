@@ -24,12 +24,6 @@ namespace tlr
         //! Get the total amount of system RAM in gigabytes.
         size_t getRAMSizeGB();
 
-        //! Get the current user.
-        //!
-        //! Throws:
-        //! - std::exception
-        std::string getUserName();
-
         ///@}
 
         //! \name Environment Variables
