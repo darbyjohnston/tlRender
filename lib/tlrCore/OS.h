@@ -9,7 +9,7 @@
 
 namespace tlr
 {
-    //! Operating sysmtem functionality.
+    //! Operating system functionality.
     namespace os
     {
         //! \name Information
