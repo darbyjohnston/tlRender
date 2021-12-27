@@ -13,42 +13,61 @@ namespace tlr
 {
     namespace geom
     {
-        //! Vertex.
-        struct Vertex
+        //! Two-dimensional vertex.
+        struct Vertex2
+        {
+            size_t v = 0;
+            size_t t = 0;
+        };
+
+        //! Three-dimensional vertex.
+        struct Vertex3
         {
             size_t v = 0;
             size_t t = 0;
             size_t n = 0;
         };
 
-        //! Face.
-        struct Face
+        //! Two-dimensional triangle.
+        struct Triangle2
         {
-            std::vector<Vertex> v;
+            Vertex2 v[3];
         };
 
-        //! Triangle.
-        struct Triangle
+        //! Three-dimensional triangle.
+        struct Triangle3
         {
-            Vertex v0;
-            Vertex v1;
-            Vertex v2;
+            Vertex3 v[3];
         };
 
-        //! Triangle mesh.
-        struct TriangleMesh
+        //! Two-dimensional triangle mesh.
+        struct TriangleMesh2
+        {
+            std::vector<glm::vec2> v;
+            std::vector<glm::vec2> c;
+            std::vector<glm::vec2> t;
+            std::vector<Triangle2> triangles;
+        };
+
+        //! Three-dimensional triangle mesh.
+        struct TriangleMesh3
         {
             std::vector<glm::vec3> v;
             std::vector<glm::vec3> c;
             std::vector<glm::vec2> t;
             std::vector<glm::vec3> n;
-            std::vector<Triangle> triangles;
+            std::vector<Triangle3> triangles;
         };
 
+        //! Edge function.
+        int edge(const glm::vec2& p, const glm::vec2& v0, const glm::vec2& v1);
+
         //! Create a sphere triangle mesh.
-        TriangleMesh createSphere(
+        TriangleMesh3 createSphere(
             float radius,
             size_t xResolution,
             size_t yResolution);
     }
 }
+
+#include <tlrCore/MeshInline.h>

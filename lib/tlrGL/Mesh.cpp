@@ -49,7 +49,7 @@ namespace tlr
         }
 
         std::vector<uint8_t> convert(
-            const geom::TriangleMesh& mesh,
+            const geom::TriangleMesh3& mesh,
             gl::VBOType type,
             const math::SizeTRange& range)
         {
@@ -61,11 +61,11 @@ namespace tlr
             case gl::VBOType::Pos3_F32_UV_U16:
                 for (size_t i = range.getMin(); i <= range.getMax(); ++i)
                 {
-                    const geom::Vertex* vertices[] =
+                    const geom::Vertex3* vertices[] =
                     {
-                        &mesh.triangles[i].v0,
-                        &mesh.triangles[i].v1,
-                        &mesh.triangles[i].v2
+                        &mesh.triangles[i].v[0],
+                        &mesh.triangles[i].v[1],
+                        &mesh.triangles[i].v[2]
                     };
                     for (size_t k = 0; k < 3; ++k)
                     {
@@ -87,11 +87,11 @@ namespace tlr
             case gl::VBOType::Pos3_F32_UV_U16_Normal_U10:
                 for (size_t i = range.getMin(); i <= range.getMax(); ++i)
                 {
-                    const geom::Vertex* vertices[] =
+                    const geom::Vertex3* vertices[] =
                     {
-                        &mesh.triangles[i].v0,
-                        &mesh.triangles[i].v1,
-                        &mesh.triangles[i].v2
+                        &mesh.triangles[i].v[0],
+                        &mesh.triangles[i].v[1],
+                        &mesh.triangles[i].v[2]
                     };
                     for (size_t k = 0; k < 3; ++k)
                     {
@@ -120,11 +120,11 @@ namespace tlr
             case gl::VBOType::Pos3_F32_UV_U16_Normal_U10_Color_U8:
                 for (size_t i = range.getMin(); i <= range.getMax(); ++i)
                 {
-                    const geom::Vertex* vertices[] =
+                    const geom::Vertex3* vertices[] =
                     {
-                        &mesh.triangles[i].v0,
-                        &mesh.triangles[i].v1,
-                        &mesh.triangles[i].v2
+                        &mesh.triangles[i].v[0],
+                        &mesh.triangles[i].v[1],
+                        &mesh.triangles[i].v[2]
                     };
                     for (size_t k = 0; k < 3; ++k)
                     {
@@ -160,11 +160,11 @@ namespace tlr
             case gl::VBOType::Pos3_F32_UV_F32_Normal_F32:
                 for (size_t i = range.getMin(); i <= range.getMax(); ++i)
                 {
-                    const geom::Vertex* vertices[] =
+                    const geom::Vertex3* vertices[] =
                     {
-                        &mesh.triangles[i].v0,
-                        &mesh.triangles[i].v1,
-                        &mesh.triangles[i].v2
+                        &mesh.triangles[i].v[0],
+                        &mesh.triangles[i].v[1],
+                        &mesh.triangles[i].v[2]
                     };
                     for (size_t k = 0; k < 3; ++k)
                     {
@@ -193,11 +193,11 @@ namespace tlr
             case gl::VBOType::Pos3_F32_UV_F32_Normal_F32_Color_F32:
                 for (size_t i = range.getMin(); i <= range.getMax(); ++i)
                 {
-                    const geom::Vertex* vertices[] =
+                    const geom::Vertex3* vertices[] =
                     {
-                        &mesh.triangles[i].v0,
-                        &mesh.triangles[i].v1,
-                        &mesh.triangles[i].v2
+                        &mesh.triangles[i].v[0],
+                        &mesh.triangles[i].v[1],
+                        &mesh.triangles[i].v[2]
                     };
                     for (size_t k = 0; k < 3; ++k)
                     {

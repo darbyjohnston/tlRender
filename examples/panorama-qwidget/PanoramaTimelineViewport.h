@@ -52,7 +52,7 @@ private:
     tlr::timeline::VideoData _videoData;
     glm::vec2 _cameraRotation = glm::vec2(0.F, 0.F);
     float _cameraFOV = 45.F;
-    tlr::geom::TriangleMesh _sphereMesh;
+    tlr::geom::TriangleMesh3 _sphereMesh;
     std::shared_ptr<tlr::gl::VBO> _sphereVBO;
     std::shared_ptr<tlr::gl::VAO> _sphereVAO;
     std::shared_ptr<tlr::gl::Shader> _shader;

@@ -35,6 +35,7 @@ set(HEADERS
     Memory.h
     MemoryInline.h
 	Mesh.h
+	MeshInline.h
 	OS.h
     Observer.h
     PPM.h

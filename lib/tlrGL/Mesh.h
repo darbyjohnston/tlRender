@@ -16,7 +16,7 @@ namespace tlr
 {
     namespace geom
     {
-        struct TriangleMesh;
+        struct TriangleMesh3;
     }
 
     namespace gl
@@ -42,9 +42,9 @@ namespace tlr
 
         //! Convert a triangle mesh to vertex buffer data.
         std::vector<uint8_t> convert(
-            const geom::TriangleMesh& mesh,
-            gl::VBOType               type,
-            const math::SizeTRange& range);
+            const geom::TriangleMesh3& mesh,
+            gl::VBOType                type,
+            const math::SizeTRange&    range);
 
         //! OpenGL vertex buffer object.
         class VBO : public std::enable_shared_from_this<VBO>
