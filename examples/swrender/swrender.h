@@ -4,8 +4,10 @@
 
 #include <tlrApp/IApp.h>
 
+#include <tlrGL/Render.h>
+
 #include <tlrCore/FontSystem.h>
-#include <tlrCore/IRender.h>
+#include <tlrCore/SoftwareRender.h>
 #include <tlrCore/TimelinePlayer.h>
 
 struct GLFWwindow;
@@ -40,9 +42,10 @@ namespace tlr
         std::shared_ptr<timeline::TimelinePlayer> _timelinePlayer;
 
         GLFWwindow* _glfwWindow = nullptr;
-        std::shared_ptr<imaging::Image> _frameBuffer;
+        imaging::Size _windowSize = imaging::Size(1280, 720);
         glm::vec2 _contentScale;
-        std::shared_ptr<render::IRender> _glRender;
+        std::shared_ptr<render::SoftwareRender> _render;
+        std::shared_ptr<gl::Render> _glRender;
         bool _renderDirty = true;
         timeline::VideoData _videoData;
 

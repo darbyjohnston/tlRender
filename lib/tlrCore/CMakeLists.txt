@@ -49,6 +49,7 @@ set(HEADERS
     Range.h
     RangeInline.h
     SequenceIO.h
+	SoftwareRender.h
     String.h
     StringFormat.h
     StringFormatInline.h
@@ -91,6 +92,7 @@ set(SOURCE
     PPMWrite.cpp
     Path.cpp
     SequenceIO.cpp
+	SoftwareRender.cpp
     String.cpp
     StringFormat.cpp
     Time.cpp
