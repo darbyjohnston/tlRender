@@ -6,6 +6,7 @@
 
 #include <tlrGL/Render.h>
 
+#include <tlrCore/FontSystem.h>
 #include <tlrCore/Image.h>
 
 namespace tlr
@@ -22,10 +23,10 @@ namespace tlr
     //! Draw a HUD label.
     void drawHUDLabel(
         const std::shared_ptr<gl::Render>&,
-        const std::shared_ptr<gl::FontSystem>&,
+        const std::shared_ptr<imaging::FontSystem>&,
         const imaging::Size& window,
         const std::string& text,
-        gl::FontFamily,
+        imaging::FontFamily,
         uint16_t fontSize,
         HUDElement);
 }

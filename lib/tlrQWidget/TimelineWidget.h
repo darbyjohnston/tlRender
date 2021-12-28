@@ -9,6 +9,8 @@
 
 #include <tlrGL/Render.h>
 
+#include <tlrCore/OCIO.h>
+
 #include <QWidget>
 
 namespace tlr
@@ -31,7 +33,7 @@ namespace tlr
             void setTimeObject(qt::TimeObject*);
 
             //! Set the color configuration.
-            void setColorConfig(const gl::ColorConfig&);
+            void setColorConfig(const imaging::ColorConfig&);
 
             //! Set the image options.
             void setImageOptions(const gl::ImageOptions&);

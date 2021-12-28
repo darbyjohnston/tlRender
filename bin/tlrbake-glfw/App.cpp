@@ -228,7 +228,7 @@ namespace tlr
         _log(string::Format("OpenGL version: {0}.{1}.{2}").arg(glMajor).arg(glMinor).arg(glRevision));
 
         // Create the renderer.
-        _fontSystem = gl::FontSystem::create();
+        _fontSystem = imaging::FontSystem::create();
         _render = gl::Render::create(_context);
         _buffer = gl::OffscreenBuffer::create(_renderInfo.size, _renderInfo.pixelType);
 

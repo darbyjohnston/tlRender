@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <tlrGL/FontSystem.h>
-
 #include <tlrCore/BBox.h>
 #include <tlrCore/Color.h>
 #include <tlrCore/Timeline.h>
@@ -21,6 +19,8 @@ namespace tlr
 
     namespace imaging
     {
+        struct ColorConfig;
+        struct Glyph;
         class Image;
         class Size;
     }
@@ -29,19 +29,6 @@ namespace tlr
     {
         class Shader;
         class Texture;
-
-        //! OpenColorIO configuration.
-        struct ColorConfig
-        {
-            std::string config;
-            std::string input;
-            std::string display;
-            std::string view;
-            std::string look;
-
-            bool operator == (const ColorConfig&) const;
-            bool operator != (const ColorConfig&) const;
-        };
 
         //! YUV value range.
         enum class YUVRange
@@ -169,7 +156,7 @@ namespace tlr
 
             //! Set the color configuration. This function should be called before
             //! Render::begin().
-            void setColorConfig(const ColorConfig&);
+            void setColorConfig(const imaging::ColorConfig&);
 
             //! Start a render.
             void begin(const imaging::Size&);
@@ -196,12 +183,12 @@ namespace tlr
 
             //! Draw text.
             void drawText(
-                const std::vector<std::shared_ptr<Glyph> >& glyphs,
+                const std::vector<std::shared_ptr<imaging::Glyph> >& glyphs,
                 const glm::vec2& position,
                 const imaging::Color4f&);
 
         private:
-            void _setColorConfig(const ColorConfig&);
+            void _setColorConfig(const imaging::ColorConfig&);
             void _delColorConfig();
 
             TLR_PRIVATE();

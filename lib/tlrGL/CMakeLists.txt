@@ -1,5 +1,4 @@
 set(HEADERS
-    FontSystem.h
     Mesh.h
     OffscreenBuffer.h
     Render.h
@@ -9,7 +8,6 @@ set(HEADERS
     Util.h)
 set(SOURCE
     Mesh.cpp
-    FontSystem.cpp
     Mesh.cpp
     OffscreenBuffer.cpp
     Render.cpp
@@ -18,7 +16,7 @@ set(SOURCE
     Util.cpp)
 
 add_library(tlrGL ${HEADERS} ${SOURCE})
-target_link_libraries(tlrGL tlrCore glad OpenGL::GL OCIO FreeType)
+target_link_libraries(tlrGL tlrCore glad OpenGL::GL)
 set_target_properties(tlrGL PROPERTIES FOLDER lib)
 set_target_properties(tlrGL PROPERTIES PUBLIC_HEADER "${HEADERS}")
 

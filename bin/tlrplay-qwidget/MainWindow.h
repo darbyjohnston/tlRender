@@ -11,7 +11,7 @@
 
 #include <tlrQt/TimelinePlayer.h>
 
-#include <tlrGL/Render.h>
+#include <tlrCore/OCIO.h>
 
 #include <QAction>
 #include <QActionGroup>
@@ -34,7 +34,7 @@ namespace tlr
 
         ~MainWindow() override;
 
-        void setColorConfig(const gl::ColorConfig&);
+        void setColorConfig(const imaging::ColorConfig&);
 
     protected:
         void closeEvent(QCloseEvent*) override;
@@ -113,7 +113,7 @@ namespace tlr
         QMap<timeline::Loop, QAction*> _loopToActions;
         QTabWidget* _tabWidget = nullptr;
         SecondaryWindow* _secondaryWindow = nullptr;
-        gl::ColorConfig _colorConfig;
+        imaging::ColorConfig _colorConfig;
         gl::ImageOptions _imageOptions;
         double _audioOffset = 0.0;
         SettingsObject* _settingsObject = nullptr;

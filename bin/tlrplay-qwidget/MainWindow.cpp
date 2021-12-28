@@ -504,7 +504,7 @@ namespace tlr
         }
     }
 
-    void MainWindow::setColorConfig(const gl::ColorConfig& colorConfig)
+    void MainWindow::setColorConfig(const imaging::ColorConfig& colorConfig)
     {
         if (colorConfig != _colorConfig)
             return;

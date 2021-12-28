@@ -12,7 +12,7 @@
 #include <tlrQt/TimeObject.h>
 #include <tlrQt/TimelinePlayer.h>
 
-#include <tlrGL/Render.h>
+#include <tlrCore/OCIO.h>
 
 #include <QApplication>
 
@@ -21,7 +21,7 @@ namespace tlr
     //! Application options.
     struct Options
     {
-        gl::ColorConfig colorConfig;
+        imaging::ColorConfig colorConfig;
     };
 
     //! Application.

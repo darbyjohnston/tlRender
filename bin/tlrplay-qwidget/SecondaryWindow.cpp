@@ -24,7 +24,7 @@ namespace tlr
         setLayout(layout);
     }
 
-    void SecondaryWindow::setColorConfig(const gl::ColorConfig& value)
+    void SecondaryWindow::setColorConfig(const imaging::ColorConfig& value)
     {
         _viewport->setColorConfig(value);
     }

@@ -2,7 +2,7 @@
 // Copyright (c) 2021 Darby Johnston
 // All rights reserved.
 
-#include <tlrGL/FontSystem.h>
+#include <tlrCore/FontSystem.h>
 
 #include <tlrCore/Image.h>
 #include <tlrCore/LRUCache.h>
@@ -20,7 +20,7 @@
 
 namespace tlr
 {
-    namespace gl
+    namespace imaging
     {
         FontInfo::FontInfo() noexcept
         {}
@@ -177,10 +177,10 @@ namespace tlr
 
         namespace
         {
-            std::shared_ptr<imaging::Image> convert(FT_Bitmap bitmap)
+            std::shared_ptr<Image> convert(FT_Bitmap bitmap)
             {
-                std::shared_ptr<imaging::Image> out;
-                out = imaging::Image::create(imaging::Info(bitmap.width, bitmap.rows, imaging::PixelType::L_U8));
+                std::shared_ptr<Image> out;
+                out = Image::create(Info(bitmap.width, bitmap.rows, PixelType::L_U8));
                 for (uint16_t y = 0; y < bitmap.rows; ++y)
                 {
                     uint8_t* imageP = out->getData() + bitmap.width * y;

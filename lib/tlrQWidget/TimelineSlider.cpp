@@ -20,7 +20,7 @@ namespace tlr
     {
         struct TimelineSlider::Private
         {
-            gl::ColorConfig colorConfig;
+            imaging::ColorConfig colorConfig;
             qt::TimelinePlayer* timelinePlayer = nullptr;
             qt::TimelineThumbnailProvider* thumbnailProvider = nullptr;
             std::map<otime::RationalTime, QImage> thumbnails;
@@ -64,7 +64,7 @@ namespace tlr
             update();
         }
 
-        void TimelineSlider::setColorConfig(const gl::ColorConfig& colorConfig)
+        void TimelineSlider::setColorConfig(const imaging::ColorConfig& colorConfig)
         {
             TLR_PRIVATE_P();
             p.colorConfig = colorConfig;

@@ -16,7 +16,7 @@ namespace tlr
         struct TimelineViewport::Private
         {
             std::weak_ptr<core::Context> context;
-            gl::ColorConfig colorConfig;
+            imaging::ColorConfig colorConfig;
             gl::ImageOptions imageOptions;
             qt::TimelinePlayer* timelinePlayer = nullptr;
             timeline::VideoData videoData;
@@ -43,7 +43,7 @@ namespace tlr
         TimelineViewport::~TimelineViewport()
         {}
 
-        void TimelineViewport::setColorConfig(const gl::ColorConfig & colorConfig)
+        void TimelineViewport::setColorConfig(const imaging::ColorConfig & colorConfig)
         {
             if (colorConfig == _p->colorConfig)
                 return;

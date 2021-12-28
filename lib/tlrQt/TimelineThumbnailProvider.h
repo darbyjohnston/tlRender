@@ -6,8 +6,7 @@
 
 #include <tlrQt/Util.h>
 
-#include <tlrGL/Render.h>
-
+#include <tlrCore/OCIO.h>
 #include <tlrCore/Timeline.h>
 
 #include <QImage>
@@ -30,7 +29,7 @@ namespace tlr
             ~TimelineThumbnailProvider() override;
 
             //! Set the color configuration.
-            void setColorConfig(const gl::ColorConfig&);
+            void setColorConfig(const imaging::ColorConfig&);
 
         public Q_SLOTS:
             //! Request a thumbnail.

@@ -18,6 +18,7 @@ set(HEADERS
     Error.h
     File.h
     FileIO.h
+    FontSystem.h
     ICoreSystem.h
     ICoreSystemInline.h
     ISystem.h
@@ -36,6 +37,8 @@ set(HEADERS
     MemoryInline.h
 	Mesh.h
 	MeshInline.h
+	OCIO.h
+	OCIOInline.h
 	OS.h
     Observer.h
     PPM.h
@@ -71,12 +74,14 @@ set(SOURCE
     DPX.cpp
     Error.cpp
     FileIO.cpp
+    FontSystem.cpp
     ICoreSystem.cpp
     ISystem.cpp
     Image.cpp
     LogSystem.cpp
     Memory.cpp
 	Mesh.cpp
+	OCIO.cpp
 	OS.cpp
     PPM.cpp
     PPMRead.cpp
@@ -106,7 +111,7 @@ else()
         TimeUnix.cpp)
 endif()
 
-set(tlrCore_LIBRARIES OTIO FSeq GLM RtAudio libsamplerate)
+set(tlrCore_LIBRARIES OTIO OCIO FreeType FSeq GLM RtAudio libsamplerate)
 if(TLR_ENABLE_PYTHON)
     list(APPEND tlrCore_LIBRARIES Python3::Python)
 endif()

@@ -204,7 +204,7 @@ namespace tlr
         glfwShowWindow(_glfwWindow);
 
         // Create the renderer.
-        _fontSystem = gl::FontSystem::create();
+        _fontSystem = imaging::FontSystem::create();
         _render = gl::Render::create(_context);
 
         // Print the shortcuts help.
@@ -426,7 +426,7 @@ namespace tlr
                 _fontSystem,
                 _frameBufferSize,
                 i->second,
-                gl::FontFamily::NotoSans,
+                imaging::FontFamily::NotoSans,
                 fontSize,
                 HUDElement::UpperLeft);
         }
@@ -439,7 +439,7 @@ namespace tlr
                 _fontSystem,
                 _frameBufferSize,
                 i->second,
-                gl::FontFamily::NotoMono,
+                imaging::FontFamily::NotoMono,
                 fontSize,
                 HUDElement::LowerLeft);
         }
@@ -452,7 +452,7 @@ namespace tlr
                 _fontSystem,
                 _frameBufferSize,
                 i->second,
-                gl::FontFamily::NotoMono,
+                imaging::FontFamily::NotoMono,
                 fontSize,
                 HUDElement::UpperRight);
         }
@@ -465,7 +465,7 @@ namespace tlr
                 _fontSystem,
                 _frameBufferSize,
                 i->second,
-                gl::FontFamily::NotoMono,
+                imaging::FontFamily::NotoMono,
                 fontSize,
                 HUDElement::LowerRight);
         }

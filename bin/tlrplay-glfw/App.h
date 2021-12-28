@@ -6,9 +6,10 @@
 
 #include <tlrApp/IApp.h>
 
-#include <tlrGL/FontSystem.h>
 #include <tlrGL/Render.h>
 
+#include <tlrCore/FontSystem.h>
+#include <tlrCore/OCIO.h>
 #include <tlrCore/TimelinePlayer.h>
 
 struct GLFWwindow;
@@ -23,7 +24,7 @@ namespace tlr
         bool hud = true;
         bool startPlayback = true;
         bool loopPlayback = true;
-        gl::ColorConfig colorConfig;
+        imaging::ColorConfig colorConfig;
     };
 
     //! Application.
@@ -76,7 +77,7 @@ namespace tlr
         glm::ivec2 _windowPos;
         imaging::Size _frameBufferSize;
         glm::vec2 _contentScale;
-        std::shared_ptr<gl::FontSystem> _fontSystem;
+        std::shared_ptr<imaging::FontSystem> _fontSystem;
         std::shared_ptr<gl::Render> _render;
         bool _renderDirty = true;
         timeline::VideoData _videoData;

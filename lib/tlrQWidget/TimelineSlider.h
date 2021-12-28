@@ -7,7 +7,7 @@
 #include <tlrQt/TimeObject.h>
 #include <tlrQt/TimelinePlayer.h>
 
-#include <tlrGL/Render.h>
+#include <tlrCore/OCIO.h>
 
 #include <QWidget>
 
@@ -29,7 +29,7 @@ namespace tlr
             void setTimeObject(qt::TimeObject*);
 
             //! Set the color configuration.
-            void setColorConfig(const gl::ColorConfig&);
+            void setColorConfig(const imaging::ColorConfig&);
 
             //! Set the timeline player.
             void setTimelinePlayer(qt::TimelinePlayer*);

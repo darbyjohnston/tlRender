@@ -12,6 +12,7 @@
 #include <tlrGL/Shader.h>
 
 #include <tlrCore/Mesh.h>
+#include <tlrCore/OCIO.h>
 
 #include <QOpenGLWidget>
 
@@ -25,7 +26,7 @@ public:
         QWidget* parent = nullptr);
 
     //! Set the color configuration.
-    void setColorConfig(const tlr::gl::ColorConfig&);
+    void setColorConfig(const tlr::imaging::ColorConfig&);
 
     //! Set the image options.
     void setImageOptions(const tlr::gl::ImageOptions&);
@@ -45,7 +46,7 @@ protected:
 
 private:
     std::weak_ptr<tlr::core::Context> _context;
-    tlr::gl::ColorConfig _colorConfig;
+    tlr::imaging::ColorConfig _colorConfig;
     tlr::gl::ImageOptions _imageOptions;
     tlr::qt::TimelinePlayer* _timelinePlayer = nullptr;
     tlr::imaging::Size _videoSize;

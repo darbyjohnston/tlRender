@@ -4,11 +4,12 @@
 
 #include <tlrApp/IApp.h>
 
-#include <tlrGL/FontSystem.h>
 #include <tlrGL/OffscreenBuffer.h>
 #include <tlrGL/Render.h>
 
 #include <tlrCore/AVIO.h>
+#include <tlrCore/FontSystem.h>
+#include <tlrCore/OCIO.h>
 #include <tlrCore/Timeline.h>
 
 struct GLFWwindow;
@@ -23,7 +24,7 @@ namespace tlr
         imaging::Size renderSize;
         imaging::PixelType renderPixelType = imaging::PixelType::None;
         imaging::PixelType outputPixelType = imaging::PixelType::None;
-        gl::ColorConfig colorConfig;
+        imaging::ColorConfig colorConfig;
     };
 
     //! Application.
@@ -60,7 +61,7 @@ namespace tlr
         otime::RationalTime _currentTime = time::invalidTime;
 
         GLFWwindow* _glfwWindow = nullptr;
-        std::shared_ptr<gl::FontSystem> _fontSystem;
+        std::shared_ptr<imaging::FontSystem> _fontSystem;
         std::shared_ptr<gl::Render> _render;
         std::shared_ptr<gl::OffscreenBuffer> _buffer;
 

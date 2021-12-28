@@ -27,7 +27,7 @@ PanoramaTimelineViewport::PanoramaTimelineViewport(
     setFormat(surfaceFormat);
 }
 
-void PanoramaTimelineViewport::setColorConfig(const gl::ColorConfig& colorConfig)
+void PanoramaTimelineViewport::setColorConfig(const imaging::ColorConfig& colorConfig)
 {
     if (colorConfig == _colorConfig)
         return;

@@ -13,7 +13,9 @@
 #include <tlrCore/Color.h>
 #include <tlrCore/Context.h>
 #include <tlrCore/Error.h>
+#include <tlrCore/FontSystem.h>
 #include <tlrCore/LRUCache.h>
+#include <tlrCore/OCIO.h>
 #include <tlrCore/String.h>
 #include <tlrCore/StringFormat.h>
 
@@ -515,7 +517,7 @@ namespace tlr
         {
             std::weak_ptr<core::Context> context;
             
-            ColorConfig colorConfig;
+            imaging::ColorConfig colorConfig;
             OCIO::ConstConfigRcPtr ocioConfig;
             OCIO::DisplayViewTransformRcPtr ocioTransform;
             OCIO::LegacyViewingPipelineRcPtr ocioVP;
@@ -545,7 +547,7 @@ namespace tlr
 
             TextureCache textureCache;
 
-            memory::LRUCache<GlyphInfo, std::shared_ptr<Texture> > glyphTextureCache;
+            memory::LRUCache<imaging::GlyphInfo, std::shared_ptr<Texture> > glyphTextureCache;
         };
 
         Render::Private::TextureId::TextureId(
@@ -586,7 +588,7 @@ namespace tlr
             _p->textureCache.setSize(value);
         }
 
-        void Render::setColorConfig(const ColorConfig& config)
+        void Render::setColorConfig(const imaging::ColorConfig& config)
         {
             TLR_PRIVATE_P();
             if (config == p.colorConfig)
@@ -1144,7 +1146,7 @@ namespace tlr
         }
 
         void Render::drawText(
-            const std::vector<std::shared_ptr<Glyph> >& glyphs,
+            const std::vector<std::shared_ptr<imaging::Glyph> >& glyphs,
             const glm::vec2& pos,
             const imaging::Color4f& color)
         {

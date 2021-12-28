@@ -59,7 +59,7 @@ namespace tlr
             p.controls->setTimeObject(timeObject);
         }
 
-        void TimelineWidget::setColorConfig(const gl::ColorConfig& colorConfig)
+        void TimelineWidget::setColorConfig(const imaging::ColorConfig& colorConfig)
         {
             TLR_PRIVATE_P();
             p.viewport->setColorConfig(colorConfig);

@@ -25,7 +25,7 @@ namespace tlr
         {
             std::weak_ptr<core::Context> context;
             std::shared_ptr<timeline::Timeline> timeline;
-            gl::ColorConfig colorConfig;
+            imaging::ColorConfig colorConfig;
             struct Request
             {
                 otime::RationalTime time = time::invalidTime;
@@ -86,7 +86,7 @@ namespace tlr
             wait();
         }
 
-        void TimelineThumbnailProvider::setColorConfig(const gl::ColorConfig& colorConfig)
+        void TimelineThumbnailProvider::setColorConfig(const imaging::ColorConfig& colorConfig)
         {
             TLR_PRIVATE_P();
             std::unique_lock<std::mutex> lock(p.mutex);
@@ -172,7 +172,7 @@ namespace tlr
                 std::unique_ptr<QOpenGLFramebufferObject> fbo;
                 imaging::Info fboInfo;
 
-                gl::ColorConfig colorConfig;
+                imaging::ColorConfig colorConfig;
                 while (p.running)
                 {
                     // Gather requests.

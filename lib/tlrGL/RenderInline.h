@@ -6,20 +6,6 @@ namespace tlr
 {
     namespace gl
     {
-        inline bool ColorConfig::operator == (const ColorConfig& other) const
-        {
-            return config == other.config &&
-                input == other.input &&
-                display == other.display &&
-                view == other.view &&
-                look == other.look;
-        }
-
-        inline bool ColorConfig::operator != (const ColorConfig& other) const
-        {
-            return !(*this == other);
-        }
-
         inline bool ImageColor::operator == (const ImageColor& other) const
         {
             return

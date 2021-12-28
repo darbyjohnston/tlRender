@@ -21,7 +21,7 @@ namespace tlr
             QWidget* parent = nullptr);
 
         //! Set the color configuration.
-        void setColorConfig(const gl::ColorConfig&);
+        void setColorConfig(const imaging::ColorConfig&);
 
         //! Set the timeline player.
         void setTimelinePlayer(qt::TimelinePlayer*);
