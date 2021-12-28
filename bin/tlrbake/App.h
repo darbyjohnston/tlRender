@@ -18,7 +18,6 @@ namespace tlr
         int64_t startFrame = -1;
         int64_t endFrame = -1;
         imaging::Size renderSize;
-        imaging::PixelType renderPixelType = imaging::PixelType::None;
         imaging::PixelType outputPixelType = imaging::PixelType::None;
         imaging::ColorConfig colorConfig;
     };
@@ -50,7 +49,7 @@ namespace tlr
         Options _options;
 
         std::shared_ptr<timeline::Timeline> _timeline;
-        imaging::Info _renderInfo;
+        imaging::Size _renderSize;
         imaging::Info _outputInfo;
         otime::RationalTime _duration = time::invalidTime;
         otime::TimeRange _range = time::invalidTimeRange;

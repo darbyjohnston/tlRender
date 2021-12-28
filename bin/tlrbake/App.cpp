@@ -44,12 +44,6 @@ namespace tlr
                     { "-renderSize", "-rs" },
                     "Render size."),
                 app::CmdLineValueOption<imaging::PixelType>::create(
-                    _options.renderPixelType,
-                    { "-renderPixelType", "-rp" },
-                    "Render pixel type.",
-                    std::string(),
-                    string::join(imaging::getPixelTypeLabels(), ", ")),
-                app::CmdLineValueOption<imaging::PixelType>::create(
                     _options.outputPixelType,
                     { "-outputPixelType", "-op" },
                     "Output pixel type.",
@@ -118,17 +112,10 @@ namespace tlr
         {
             throw std::runtime_error("No video information");
         }
-        _renderInfo.size = _options.renderSize.isValid() ?
+        _renderSize = _options.renderSize.isValid() ?
             _options.renderSize :
             info.video[0].size;
-        const auto timelinePixelType = imaging::PixelType::YUV_420P == info.video[0].pixelType ?
-            imaging::PixelType::RGB_U8 :
-            info.video[0].pixelType;
-        _renderInfo.pixelType = _options.renderPixelType != imaging::PixelType::None ?
-            _options.renderPixelType :
-            timelinePixelType;
-        _print(string::Format("Render info: {0}").arg(_renderInfo));
-
+        _print(string::Format("Render size: {0}").arg(_renderSize));
 
         // Create the renderer.
         _fontSystem = imaging::FontSystem::create();
@@ -141,11 +128,14 @@ namespace tlr
             throw std::runtime_error(string::Format("{0}: Cannot open").arg(_output));
         }
         avio::Info ioInfo;
-        _outputInfo.size = _renderInfo.size;
+        _outputInfo.size = _renderSize;
+        const auto timelinePixelType = imaging::PixelType::YUV_420P == info.video[0].pixelType ?
+            imaging::PixelType::RGB_U8 :
+            info.video[0].pixelType;
         const auto writePixelTypes = _writerPlugin->getWritePixelTypes();
         _outputInfo.pixelType = _options.outputPixelType != imaging::PixelType::None ?
             _options.outputPixelType :
-            (!writePixelTypes.empty() ? imaging::getClosest(_renderInfo.pixelType, writePixelTypes) : _renderInfo.pixelType);
+            (!writePixelTypes.empty() ? imaging::getClosest(timelinePixelType, writePixelTypes) : timelinePixelType);
         _outputInfo.layout.alignment = _writerPlugin->getWriteAlignment(_outputInfo.pixelType);
         _outputInfo.layout.endian = _writerPlugin->getWriteEndian();
         _print(string::Format("Output info: {0}").arg(_outputInfo));
@@ -181,13 +171,13 @@ namespace tlr
 
         // Render the video.
         _render->setColorConfig(_options.colorConfig);
-        _render->begin(_renderInfo.size);
+        _render->begin(_renderSize);
         const auto videoData = _timeline->getVideo(_timeline->getGlobalStartTime() + _currentTime).get();
         _render->drawVideo(videoData);
         _render->end();
 
         // Write the frame.
-        _writer->writeVideo(_currentTime, _render->getFrameBuffer());
+        _writer->writeVideo(_currentTime, _render->copyFrameBuffer(_outputInfo.pixelType));
 
         // Advance the time.
         _currentTime += otime::RationalTime(1, _currentTime.rate());

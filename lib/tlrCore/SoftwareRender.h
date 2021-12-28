@@ -28,6 +28,9 @@ namespace tlr
             //! Get the frame buffer.
             const std::shared_ptr<imaging::Image> getFrameBuffer() const;
 
+            //! Copy the frame buffer.
+            std::shared_ptr<imaging::Image> copyFrameBuffer(imaging::PixelType) const;
+
             void setTextureCacheSize(size_t) override;
             void setColorConfig(const imaging::ColorConfig&) override;
             void begin(const imaging::Size&) override;
