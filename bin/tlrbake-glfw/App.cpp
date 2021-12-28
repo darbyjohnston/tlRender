@@ -4,6 +4,7 @@
 
 #include "App.h"
 
+#include <tlrGL/Render.h>
 #include <tlrGL/Util.h>
 
 #include <tlrCore/AVIOSystem.h>

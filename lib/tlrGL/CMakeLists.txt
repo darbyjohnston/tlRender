@@ -2,7 +2,6 @@ set(HEADERS
     Mesh.h
     OffscreenBuffer.h
     Render.h
-    RenderInline.h
     Shader.h
     Texture.h
     Util.h)

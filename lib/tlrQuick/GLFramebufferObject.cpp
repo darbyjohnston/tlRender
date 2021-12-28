@@ -63,7 +63,7 @@ namespace tlr
                 const GLFramebufferObject* _framebufferObject = nullptr;
                 bool _init = false;
                 timeline::VideoData _videoData;
-                std::shared_ptr<gl::Render> _render;
+                std::shared_ptr<render::IRender> _render;
             };
         }
 

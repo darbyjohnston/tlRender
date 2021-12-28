@@ -439,8 +439,8 @@ namespace tlr
 
         connect(
             imageOptionsWidget,
-            SIGNAL(imageOptionsChanged(const tlr::gl::ImageOptions&)),
-            SLOT(_imageOptionsCallback(const tlr::gl::ImageOptions&)));
+            SIGNAL(imageOptionsChanged(const tlr::render::ImageOptions&)),
+            SLOT(_imageOptionsCallback(const tlr::render::ImageOptions&)));
         connect(
             imageOptionsDockWidget,
             SIGNAL(visibilityChanged(bool)),
@@ -949,7 +949,7 @@ namespace tlr
         }
     }
 
-    void MainWindow::_imageOptionsCallback(const tlr::gl::ImageOptions& value)
+    void MainWindow::_imageOptionsCallback(const render::ImageOptions& value)
     {
         _imageOptions = value;
         for (int i = 0; i < _timelineWidgets.count(); ++i)

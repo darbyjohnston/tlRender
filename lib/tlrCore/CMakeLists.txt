@@ -21,6 +21,8 @@ set(HEADERS
     FontSystem.h
     ICoreSystem.h
     ICoreSystemInline.h
+	IRender.h
+	IRenderInline.h
     ISystem.h
     Image.h
     ImageInline.h
@@ -76,6 +78,7 @@ set(SOURCE
     FileIO.cpp
     FontSystem.cpp
     ICoreSystem.cpp
+	IRender.cpp
     ISystem.cpp
     Image.cpp
     LogSystem.cpp

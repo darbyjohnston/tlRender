@@ -4,6 +4,8 @@
 
 #include "App.h"
 
+#include <tlrGL/Render.h>
+
 #include <tlrCore/Math.h>
 #include <tlrCore/StringFormat.h>
 #include <tlrCore/Time.h>

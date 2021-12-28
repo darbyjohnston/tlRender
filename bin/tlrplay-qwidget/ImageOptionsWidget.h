@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlrGL/Render.h>
+#include <tlrCore/IRender.h>
 
 #include <QComboBox>
 #include <QToolBox>
@@ -20,7 +20,7 @@ namespace tlr
         YUVRangeWidget(QWidget* parent = nullptr);
 
     Q_SIGNALS:
-        void yuvRangeChanged(tlr::gl::YUVRange);
+        void yuvRangeChanged(tlr::render::YUVRange);
 
     private Q_SLOTS:
         void _yuvRangeCallback(int);
@@ -38,13 +38,13 @@ namespace tlr
         ImageOptionsWidget(QWidget* parent = nullptr);
 
     Q_SIGNALS:
-        void imageOptionsChanged(const tlr::gl::ImageOptions&);
+        void imageOptionsChanged(const tlr::render::ImageOptions&);
 
     private Q_SLOTS:
-        void _yuvRangeCallback(tlr::gl::YUVRange);
+        void _yuvRangeCallback(tlr::render::YUVRange);
         void _currentItemCallback(int);
 
     private:
-        gl::ImageOptions _imageOptions;
+        render::ImageOptions _imageOptions;
     };
 }

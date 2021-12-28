@@ -25,7 +25,7 @@ namespace tlr
         layout->addStretch();
         setLayout(layout);
 
-        _yuvRangeComboBox->setCurrentIndex(static_cast<int>(gl::YUVRange::FromFile));
+        _yuvRangeComboBox->setCurrentIndex(static_cast<int>(render::YUVRange::FromFile));
 
         connect(
             _yuvRangeComboBox,
@@ -35,7 +35,7 @@ namespace tlr
 
     void YUVRangeWidget::_yuvRangeCallback(int value)
     {
-        Q_EMIT yuvRangeChanged(static_cast<gl::YUVRange>(value));
+        Q_EMIT yuvRangeChanged(static_cast<render::YUVRange>(value));
     }
 
     ImageOptionsWidget::ImageOptionsWidget(QWidget* parent) :
@@ -46,8 +46,8 @@ namespace tlr
 
         connect(
             yuvRangeWidget,
-            SIGNAL(yuvRangeChanged(tlr::gl::YUVRange)),
-            SLOT(_yuvRangeCallback(tlr::gl::YUVRange)));
+            SIGNAL(yuvRangeChanged(tlr::render::YUVRange)),
+            SLOT(_yuvRangeCallback(tlr::render::YUVRange)));
 
         connect(
             this,
@@ -58,7 +58,7 @@ namespace tlr
         setCurrentIndex(settings.value("ImageOptions/CurrentItem").toInt());
     }
 
-    void ImageOptionsWidget::_yuvRangeCallback(tlr::gl::YUVRange value)
+    void ImageOptionsWidget::_yuvRangeCallback(render::YUVRange value)
     {
         _imageOptions.yuvRange = value;
         Q_EMIT imageOptionsChanged(_imageOptions);

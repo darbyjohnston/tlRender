@@ -4,7 +4,7 @@
 
 namespace tlr
 {
-    namespace gl
+    namespace render
     {
         inline bool ImageColor::operator == (const ImageColor& other) const
         {

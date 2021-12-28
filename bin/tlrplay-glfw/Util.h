@@ -4,9 +4,8 @@
 
 #pragma once
 
-#include <tlrGL/Render.h>
-
 #include <tlrCore/FontSystem.h>
+#include <tlrCore/IRender.h>
 #include <tlrCore/Image.h>
 
 namespace tlr
@@ -22,7 +21,7 @@ namespace tlr
 
     //! Draw a HUD label.
     void drawHUDLabel(
-        const std::shared_ptr<gl::Render>&,
+        const std::shared_ptr<render::IRender>&,
         const std::shared_ptr<imaging::FontSystem>&,
         const imaging::Size& window,
         const std::string& text,

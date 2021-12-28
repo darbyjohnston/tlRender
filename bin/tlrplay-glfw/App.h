@@ -6,9 +6,8 @@
 
 #include <tlrApp/IApp.h>
 
-#include <tlrGL/Render.h>
-
 #include <tlrCore/FontSystem.h>
+#include <tlrCore/IRender.h>
 #include <tlrCore/OCIO.h>
 #include <tlrCore/TimelinePlayer.h>
 
@@ -78,7 +77,7 @@ namespace tlr
         imaging::Size _frameBufferSize;
         glm::vec2 _contentScale;
         std::shared_ptr<imaging::FontSystem> _fontSystem;
-        std::shared_ptr<gl::Render> _render;
+        std::shared_ptr<render::IRender> _render;
         bool _renderDirty = true;
         timeline::VideoData _videoData;
         std::map<HUDElement, std::string> _hudLabels;

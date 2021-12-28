@@ -10,7 +10,6 @@
 #include <tlrGL/Texture.h>
 
 #include <tlrCore/Assert.h>
-#include <tlrCore/Color.h>
 #include <tlrCore/Context.h>
 #include <tlrCore/Error.h>
 #include <tlrCore/FontSystem.h>
@@ -35,29 +34,6 @@ namespace tlr
 {
     namespace gl
     {
-        TLR_ENUM_IMPL(
-            YUVRange,
-            "FromFile",
-            "Full",
-            "Video");
-        TLR_ENUM_SERIALIZE_IMPL(YUVRange);
-
-        TLR_ENUM_IMPL(
-            ImageChannelsDisplay,
-            "Color",
-            "Red",
-            "Green",
-            "Blue",
-            "Alpha");
-        TLR_ENUM_SERIALIZE_IMPL(ImageChannelsDisplay);
-
-        TLR_ENUM_IMPL(
-            AlphaBlend,
-            "None",
-            "Straight",
-            "Premultiplied");
-        TLR_ENUM_SERIALIZE_IMPL(AlphaBlend);
-
         namespace
         {
             struct VBOVertex
@@ -563,8 +539,7 @@ namespace tlr
 
         void Render::_init(const std::shared_ptr<core::Context>& context)
         {
-            TLR_PRIVATE_P();
-            p.context = context;
+            IRender::_init(context);
         }
 
         Render::Render() :
@@ -937,7 +912,7 @@ namespace tlr
                     0.F,          0.F,         0.F,         1.F);
             }
 
-            glm::mat4x4 colorMatrix(const ImageColor& in)
+            glm::mat4x4 colorMatrix(const render::ImageColor& in)
             {
                 return
                     brightnessMatrix(in.brightness) *
@@ -951,7 +926,7 @@ namespace tlr
             const std::shared_ptr<imaging::Image>& image,
             const math::BBox2f& bbox,
             const imaging::Color4f& color,
-            const ImageOptions& imageOptions)
+            const render::ImageOptions& imageOptions)
         {
             TLR_PRIVATE_P();
 
@@ -962,8 +937,8 @@ namespace tlr
             imaging::YUVRange yuvRange = info.yuvRange;
             switch (imageOptions.yuvRange)
             {
-            case YUVRange::Full:  yuvRange = imaging::YUVRange::Full;  break;
-            case YUVRange::Video: yuvRange = imaging::YUVRange::Video; break;
+            case render::YUVRange::Full:  yuvRange = imaging::YUVRange::Full;  break;
+            case render::YUVRange::Video: yuvRange = imaging::YUVRange::Video; break;
             default: break;
             }
             p.shader->setUniform("yuvRange", static_cast<int>(yuvRange));
@@ -971,7 +946,7 @@ namespace tlr
             p.shader->setUniform("textureSampler0", 0);
             p.shader->setUniform("textureSampler1", 1);
             p.shader->setUniform("textureSampler2", 2);
-            const bool colorMatrixEnabled = imageOptions.colorEnabled && imageOptions.color != ImageColor();
+            const bool colorMatrixEnabled = imageOptions.colorEnabled && imageOptions.color != render::ImageColor();
             p.shader->setUniform("colorEnabled", colorMatrixEnabled);
             p.shader->setUniform("colorAdd", imageOptions.color.add);
             if (colorMatrixEnabled)
@@ -1054,7 +1029,7 @@ namespace tlr
 
         void Render::drawVideo(
             const timeline::VideoData& data,
-            const ImageOptions& imageOptions)
+            const render::ImageOptions& imageOptions)
         {
             TLR_PRIVATE_P();
             //std::cout << "draw video: " << data.time << std::endl;

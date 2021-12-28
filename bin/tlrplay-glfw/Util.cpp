@@ -12,7 +12,7 @@
 namespace tlr
 {
     void drawHUDLabel(
-        const std::shared_ptr<gl::Render>& render,
+        const std::shared_ptr<render::IRender>& render,
         const std::shared_ptr<imaging::FontSystem>& fontSystem,
         const imaging::Size& window,
         const std::string& text,

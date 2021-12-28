@@ -17,10 +17,10 @@ namespace tlr
         {
             std::weak_ptr<core::Context> context;
             imaging::ColorConfig colorConfig;
-            gl::ImageOptions imageOptions;
+            render::ImageOptions imageOptions;
             qt::TimelinePlayer* timelinePlayer = nullptr;
             timeline::VideoData videoData;
-            std::shared_ptr<gl::Render> render;
+            std::shared_ptr<render::IRender> render;
         };
 
         TimelineViewport::TimelineViewport(
@@ -51,7 +51,7 @@ namespace tlr
             update();
         }
 
-        void TimelineViewport::setImageOptions(const gl::ImageOptions& imageOptions)
+        void TimelineViewport::setImageOptions(const render::ImageOptions& imageOptions)
         {
             if (imageOptions == _p->imageOptions)
                 return;

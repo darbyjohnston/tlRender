@@ -5,10 +5,10 @@
 #include <tlrApp/IApp.h>
 
 #include <tlrGL/OffscreenBuffer.h>
-#include <tlrGL/Render.h>
 
 #include <tlrCore/AVIO.h>
 #include <tlrCore/FontSystem.h>
+#include <tlrCore/IRender.h>
 #include <tlrCore/OCIO.h>
 #include <tlrCore/Timeline.h>
 
@@ -62,7 +62,7 @@ namespace tlr
 
         GLFWwindow* _glfwWindow = nullptr;
         std::shared_ptr<imaging::FontSystem> _fontSystem;
-        std::shared_ptr<gl::Render> _render;
+        std::shared_ptr<render::IRender> _render;
         std::shared_ptr<gl::OffscreenBuffer> _buffer;
 
         std::shared_ptr<avio::IPlugin> _writerPlugin;

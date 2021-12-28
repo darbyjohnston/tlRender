@@ -4,6 +4,8 @@
 
 #include "swrender.h"
 
+#include <tlrGL/Render.h>
+
 #include <tlrCore/Mesh.h>
 #include <tlrCore/StringFormat.h>
 
@@ -42,7 +44,7 @@ namespace tlr
 
     App::~App()
     {
-        _render.reset();
+        _glRender.reset();
         if (_glfwWindow)
         {
             glfwDestroyWindow(_glfwWindow);
@@ -118,7 +120,7 @@ namespace tlr
         glfwShowWindow(_glfwWindow);
 
         // Create the renderer.
-        _render = gl::Render::create(_context);
+        _glRender = gl::Render::create(_context);
 
         // Start the main loop.
         _timelinePlayer->setPlayback(timeline::Playback::Forward);
@@ -244,7 +246,7 @@ namespace tlr
             return { 0.F, 0.F, 0.F, 0.F };
         }
 
-        void render(
+        void renderImage(
             const std::shared_ptr<imaging::Image>& fb,
             const math::BBox2i& bbox,
             const std::shared_ptr<imaging::Image>& image)
@@ -348,7 +350,7 @@ namespace tlr
                     {
                         for (const auto& layer : _videoData.layers)
                         {
-                            render(_frameBuffer, strip, layer.image);
+                            renderImage(_frameBuffer, strip, layer.image);
                         }
                     }));
             }
@@ -357,9 +359,9 @@ namespace tlr
                 future.get();
             }
 
-            _render->begin(fbSize);
-            _render->drawImage(_frameBuffer, math::BBox2f(0, 0, fbSize.w, fbSize.h));
-            _render->end();
+            _glRender->begin(fbSize);
+            _glRender->drawImage(_frameBuffer, math::BBox2f(0, 0, fbSize.w, fbSize.h));
+            _glRender->end();
             glfwSwapBuffers(_glfwWindow);
             _renderDirty = false;
 

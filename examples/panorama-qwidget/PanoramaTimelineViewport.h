@@ -29,7 +29,7 @@ public:
     void setColorConfig(const tlr::imaging::ColorConfig&);
 
     //! Set the image options.
-    void setImageOptions(const tlr::gl::ImageOptions&);
+    void setImageOptions(const tlr::render::ImageOptions&);
 
     //! Set the timeline player.
     void setTimelinePlayer(tlr::qt::TimelinePlayer*);
@@ -47,7 +47,7 @@ protected:
 private:
     std::weak_ptr<tlr::core::Context> _context;
     tlr::imaging::ColorConfig _colorConfig;
-    tlr::gl::ImageOptions _imageOptions;
+    tlr::render::ImageOptions _imageOptions;
     tlr::qt::TimelinePlayer* _timelinePlayer = nullptr;
     tlr::imaging::Size _videoSize;
     tlr::timeline::VideoData _videoData;

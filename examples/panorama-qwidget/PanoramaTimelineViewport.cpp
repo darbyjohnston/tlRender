@@ -35,7 +35,7 @@ void PanoramaTimelineViewport::setColorConfig(const imaging::ColorConfig& colorC
     update();
 }
 
-void PanoramaTimelineViewport::setImageOptions(const gl::ImageOptions& imageOptions)
+void PanoramaTimelineViewport::setImageOptions(const render::ImageOptions& imageOptions)
 {
     if (imageOptions == _imageOptions)
         return;

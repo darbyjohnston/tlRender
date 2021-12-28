@@ -6,8 +6,7 @@
 
 #include <tlrQt/TimelinePlayer.h>
 
-#include <tlrGL/Render.h>
-
+#include <tlrCore/IRender.h>
 #include <tlrCore/OCIO.h>
 
 #include <QOpenGLWidget>
@@ -32,7 +31,7 @@ namespace tlr
             void setColorConfig(const imaging::ColorConfig&);
 
             //! Set the image options.
-            void setImageOptions(const gl::ImageOptions&);
+            void setImageOptions(const render::ImageOptions&);
 
             //! Set the timeline player.
             void setTimelinePlayer(qt::TimelinePlayer*);
