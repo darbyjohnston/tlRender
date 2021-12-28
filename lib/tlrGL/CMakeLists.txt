@@ -15,7 +15,7 @@ set(SOURCE
     Util.cpp)
 
 add_library(tlrGL ${HEADERS} ${SOURCE})
-target_link_libraries(tlrGL tlrCore glad OpenGL::GL)
+target_link_libraries(tlrGL tlrCore tlrGlad)
 set_target_properties(tlrGL PROPERTIES FOLDER lib)
 set_target_properties(tlrGL PROPERTIES PUBLIC_HEADER "${HEADERS}")
 

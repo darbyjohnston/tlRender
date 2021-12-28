@@ -7,7 +7,7 @@
 #include <tlrCore/Range.h>
 #include <tlrCore/Util.h>
 
-#include <glad/gl.h>
+#include <tlrGlad/gl.h>
 
 #include <memory>
 #include <vector>

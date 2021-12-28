@@ -10,7 +10,7 @@
 #include <tlrCore/StringFormat.h>
 #include <tlrCore/Time.h>
 
-#include <glad/gl.h>
+#include <tlrGlad/gl.h>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>

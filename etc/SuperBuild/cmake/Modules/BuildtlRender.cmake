@@ -24,11 +24,8 @@ endif()
 if(TLR_BUILD_FFmpeg)
     list(APPEND tlRender_DEPENDS FFmpeg)
 endif()
-if(TLR_BUILD_GL)
-    list(APPEND tlRender_DEPENDS glad FreeType)
-    if(TLR_BUILD_EXAMPLES)
-        list(PREPEND tlRender_DEPENDS GLFW)
-    endif()
+if(TLR_BUILD_GL AND TLR_BUILD_EXAMPLES)
+    list(PREPEND tlRender_DEPENDS GLFW)
 endif()
 
 ExternalProject_Add(

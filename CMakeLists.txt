@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.18)
 cmake_policy(SET CMP0091 NEW)
 
-project(tlRender LANGUAGES CXX)
+project(tlRender LANGUAGES CXX C)
 
 # Build options
 set(TLR_ENABLE_MMAP TRUE CACHE BOOL "Enable memory-mapped file I/O")
@@ -34,7 +34,11 @@ if(TLR_BUILD_TESTS)
     set(CTEST_OUTPUT_ON_FAILURE ON)
     enable_testing()
 endif()
-include_directories(${PROJECT_SOURCE_DIR}/lib ${PROJECT_SOURCE_DIR}/tests ${PROJECT_SOURCE_DIR}/etc)
+include_directories(
+	${PROJECT_SOURCE_DIR}/deps
+	${PROJECT_SOURCE_DIR}/lib
+	${PROJECT_SOURCE_DIR}/etc
+	${PROJECT_SOURCE_DIR}/tests)
 if(TLR_ENABLE_COVERAGE)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage")
@@ -63,21 +67,22 @@ if(TLR_ENABLE_PYTHON)
 endif()
 if(TLR_BUILD_GL)
     find_package(OpenGL REQUIRED)
-    find_package(glad REQUIRED)
     if(TLR_BUILD_EXAMPLES)
         find_package(GLFW REQUIRED)
     endif()
 endif()
 if(TLR_BUILD_QT)
+    find_package(OpenGL REQUIRED)
     set(CMAKE_AUTOMOC ON)
     set(CMAKE_AUTORCC ON)
     set(CMAKE_AUTOUIC ON)
-    find_package(OpenGL REQUIRED)
-    find_package(glad REQUIRED)
     find_package(Qt5 COMPONENTS Quick Widgets Svg HINTS "$ENV{QTDIR}" REQUIRED)
 endif()
 
 # Sub-directories
+if(TLR_BUILD_GL)
+	add_subdirectory(deps/tlrGlad)
+endif()
 add_subdirectory(lib)
 if(TLR_BUILD_PROGRAMS)
     add_subdirectory(bin)

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <glad/gl.h>
+#include <tlrGlad/gl.h>
 
 namespace tlr
 {
