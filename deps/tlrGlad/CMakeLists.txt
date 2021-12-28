@@ -2,7 +2,7 @@ set(HEADERS gl.h khrplatform.h)
 set(SOURCE gl.c)
 
 add_library(tlrGlad ${HEADERS} ${SOURCE})
-target_link_libraries(tlrGlad OpenGL::GL)
+target_link_libraries(tlrGlad OpenGL::GL ${CMAKE_DL_LIBS})
 set_target_properties(tlrGlad PROPERTIES FOLDER deps)
 set_target_properties(tlrGlad PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
