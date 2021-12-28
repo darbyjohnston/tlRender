@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>tlrplay-quick.qml</file>
+        <file>play-quick.qml</file>
     </qresource>
 </RCC>

@@ -18,10 +18,6 @@ set(SOURCE
     SettingsWidget.cpp
     main.cpp)
 
-add_executable(tlrplay-qwidget ${SOURCE} ${HEADERS})
-target_link_libraries(tlrplay-qwidget tlrQWidget tlrApp)
-set_target_properties(tlrplay-qwidget PROPERTIES FOLDER bin)
-
-install(
-    TARGETS tlrplay-qwidget
-    RUNTIME DESTINATION bin)
+add_executable(play-qwidget ${SOURCE} ${HEADERS})
+target_link_libraries(play-qwidget tlrQWidget tlrApp)
+set_target_properties(play-qwidget PROPERTIES FOLDER examples)

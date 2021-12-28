@@ -18,7 +18,7 @@ namespace tlr
         IApp::_init(
             argc,
             argv,
-            "tlrfilmstrip-qwidget",
+            "filmstrip-qwidget",
             "View a timeline as a series of thumbnail images.",
             {
                 app::CmdLineValueArg<std::string>::create(
@@ -36,7 +36,7 @@ namespace tlr
 
         // Initialize Qt.
         QCoreApplication::setOrganizationName("tlRender");
-        QCoreApplication::setApplicationName("tlrfilmstrip-qwidget");
+        QCoreApplication::setApplicationName("filmstrip-qwidget");
         setStyle("Fusion");
 
         // Create the main window.

@@ -49,7 +49,7 @@ namespace tlr
         IApp::_init(
             argc,
             argv,
-            "tlrplay-glfw",
+            "play-glfw",
             "Play an editorial timeline.",
             {
                 app::CmdLineValueArg<std::string>::create(
@@ -158,7 +158,7 @@ namespace tlr
         _glfwWindow = glfwCreateWindow(
             _options.windowSize.w,
             _options.windowSize.h,
-            "tlrplay-glfw",
+            "play-glfw",
             NULL,
             NULL);
         if (!_glfwWindow)

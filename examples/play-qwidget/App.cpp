@@ -19,7 +19,7 @@ namespace tlr
         IApp::_init(
             argc,
             argv,
-            "tlrplay-qwidget",
+            "play-qwidget",
             "Play an editorial timeline.",
             {
                 app::CmdLineValueArg<std::string>::create(
@@ -55,7 +55,7 @@ namespace tlr
 
         // Initialize Qt.
         QCoreApplication::setOrganizationName("tlRender");
-        QCoreApplication::setApplicationName("tlrplay-qwidget");
+        QCoreApplication::setApplicationName("play-qwidget");
         setStyle("Fusion");
 
         // Create objects.

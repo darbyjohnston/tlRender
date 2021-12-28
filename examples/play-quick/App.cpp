@@ -20,7 +20,7 @@ namespace tlr
         IApp::_init(
             argc,
             argv,
-            "tlrplay-quick",
+            "play-quick",
             "Play an editorial timeline.",
             {
                 app::CmdLineValueArg<std::string>::create(
@@ -37,7 +37,7 @@ namespace tlr
 
         // Initialize Qt.
         QCoreApplication::setOrganizationName("tlRender");
-        QCoreApplication::setApplicationName("tlrplay-quick");
+        QCoreApplication::setApplicationName("play-quick");
         quick::setContext(_context);
 
         // Create objects.
@@ -50,7 +50,7 @@ namespace tlr
         // Load the QML.
         _qmlEngine = new QQmlApplicationEngine;
         _qmlEngine->rootContext()->setContextProperty("timelinePlayer", _timelinePlayer);
-        QQmlComponent component(_qmlEngine, QUrl(QStringLiteral("qrc:/tlrplay-quick.qml")));
+        QQmlComponent component(_qmlEngine, QUrl(QStringLiteral("qrc:/play-quick.qml")));
         if (component.status() != QQmlComponent::Status::Ready)
         {
             throw std::runtime_error(component.errorString().toUtf8().data());

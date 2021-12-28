@@ -4,15 +4,11 @@
 
 #include <tlrApp/IApp.h>
 
-#include <tlrGL/OffscreenBuffer.h>
-
 #include <tlrCore/AVIO.h>
 #include <tlrCore/FontSystem.h>
-#include <tlrCore/IRender.h>
 #include <tlrCore/OCIO.h>
+#include <tlrCore/SoftwareRender.h>
 #include <tlrCore/Timeline.h>
-
-struct GLFWwindow;
 
 namespace tlr
 {
@@ -60,10 +56,8 @@ namespace tlr
         otime::TimeRange _range = time::invalidTimeRange;
         otime::RationalTime _currentTime = time::invalidTime;
 
-        GLFWwindow* _glfwWindow = nullptr;
         std::shared_ptr<imaging::FontSystem> _fontSystem;
-        std::shared_ptr<render::IRender> _render;
-        std::shared_ptr<gl::OffscreenBuffer> _buffer;
+        std::shared_ptr<render::SoftwareRender> _render;
 
         std::shared_ptr<avio::IPlugin> _writerPlugin;
         std::shared_ptr<avio::IWrite> _writer;
