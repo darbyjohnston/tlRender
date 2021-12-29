@@ -4,6 +4,7 @@
 
 #include <tlrCore/SoftwareRender.h>
 
+#include <tlrCore/FontSystem.h>
 #include <tlrCore/Mesh.h>
 
 using namespace tlr::core;
@@ -16,7 +17,7 @@ namespace tlr
         {
             std::shared_ptr<imaging::Image> convert_to_RGBA_F32(
                 const std::shared_ptr<imaging::Image>& image,
-                imaging::YUVRange yuvRange)
+                imaging::YUVRange yuvRange = imaging::YUVRange::Full)
             {
                 const imaging::Size size = image->getSize();
                 const size_t w = size.w;
@@ -24,6 +25,53 @@ namespace tlr
                 auto out = imaging::Image::create(imaging::Info(size, imaging::PixelType::RGBA_F32));
                 switch (image->getPixelType())
                 {
+                case imaging::PixelType::L_U8:
+                {
+                    imaging::F32_T* outP = reinterpret_cast<imaging::F32_T*>(out->getData());
+                    const float max = imaging::U8Range.getMax();
+                    for (size_t y = 0; y < h; ++y)
+                    {
+                        const imaging::U8_T* p = image->getData() + y * w;
+                        for (size_t x = 0; x < w; ++x, ++p, outP += 4)
+                        {
+                            outP[0] = outP[1] = outP[2] = *p / max;
+                            outP[3] = 1.F;
+                        }
+                    }
+                    break;
+                }
+                case imaging::PixelType::LA_U8:
+                {
+                    imaging::F32_T* outP = reinterpret_cast<imaging::F32_T*>(out->getData());
+                    const float max = imaging::U8Range.getMax();
+                    for (size_t y = 0; y < h; ++y)
+                    {
+                        const imaging::U8_T* p = image->getData() + y * w * 2;
+                        for (size_t x = 0; x < w; ++x, p += 2, outP += 4)
+                        {
+                            outP[0] = outP[1] = outP[2] = p[0] / max;
+                            outP[3] = p[1] / max;
+                        }
+                    }
+                    break;
+                }
+                case imaging::PixelType::RGB_U8:
+                {
+                    imaging::F32_T* outP = reinterpret_cast<imaging::F32_T*>(out->getData());
+                    const float max = imaging::U8Range.getMax();
+                    for (size_t y = 0; y < h; ++y)
+                    {
+                        const imaging::U8_T* p = image->getData() + y * w * 3;
+                        for (size_t x = 0; x < w; ++x, p += 3, outP += 4)
+                        {
+                            outP[0] = p[0] / max;
+                            outP[1] = p[1] / max;
+                            outP[2] = p[2] / max;
+                            outP[3] = 1.F;
+                        }
+                    }
+                    break;
+                }
                 case imaging::PixelType::RGBA_U8:
                 {
                     imaging::F32_T* outP = reinterpret_cast<imaging::F32_T*>(out->getData());
@@ -133,28 +181,19 @@ namespace tlr
                 return out;
             }
 
-            struct Pixel
+            imaging::Color4f sample_RGBA_F32(const imaging::F32_T* p, size_t w, size_t h, float x, float y)
             {
-                float r;
-                float g;
-                float b;
-                float a;
-            };
-
-            Pixel sample_RGBA_F32(const imaging::F32_T* p, size_t w, size_t h, float x, float y)
-            {
-                const size_t x0 = floor(x * (w - 1));
-                const size_t x1 = ceil(x * (w - 1));
-                const size_t y0 = floor(y * (h - 1));
-                const size_t y1 = ceil(y * (h - 1));
+                const size_t x0 = x * (w - 1);
+                const size_t x1 = std::min(static_cast<int>(x0) + 1, static_cast<int>(w) - 1);
+                const size_t y0 = y * (h - 1);
+                const size_t y1 = std::min(static_cast<int>(y0) + 1, static_cast<int>(h) - 1);
                 const imaging::F32_T* p0 = p + y0 * w * 4 + x0 * 4;
                 const imaging::F32_T* p1 = p + y0 * w * 4 + x1 * 4;
                 const imaging::F32_T* p2 = p + y1 * w * 4 + x0 * 4;
                 const imaging::F32_T* p3 = p + y1 * w * 4 + x1 * 4;
                 const float a = x * (w - 1) - x0;
                 const float b = y * (h - 1) - y0;
-                return
-                {
+                return imaging::Color4f(
                     (p0[0] * (1.F - a) + p1[0] * a) * (1.F - b) +
                     (p2[0] * (1.F - a) + p3[0] * a) * b,
                     (p0[1] * (1.F - a) + p1[1] * a) * (1.F - b) +
@@ -162,76 +201,77 @@ namespace tlr
                     (p0[2] * (1.F - a) + p1[2] * a) * (1.F - b) +
                     (p2[2] * (1.F - a) + p3[2] * a) * b,
                     (p0[3] * (1.F - a) + p1[3] * a) * (1.F - b) +
-                    (p2[3] * (1.F - a) + p3[3] * a) * b
-                };
+                    (p2[3] * (1.F - a) + p3[3] * a) * b);
             }
 
-            void drawImage_RGBA_F32(
+            void drawMesh(
+                const geom::TriangleMesh2& mesh,
                 const std::shared_ptr<imaging::Image>& fb,
-                const math::BBox2i& vp,
-                const std::shared_ptr<imaging::Image>& image,
-                const math::BBox2f& bbox)
+                const std::shared_ptr<imaging::Image>& texture,
+                const imaging::Color4f& color)
             {
-                const imaging::Size& fbSize = fb->getSize();
-                const imaging::Size& imageSize = image->getSize();
-                const imaging::PixelType imagePixelType = image->getPixelType();
-                const imaging::F32_T* imageP = reinterpret_cast<imaging::F32_T*>(image->getData());
-
-                geom::TriangleMesh2 mesh;
-                mesh.v.push_back(glm::vec2(bbox.min.x, bbox.min.y));
-                mesh.v.push_back(glm::vec2(bbox.max.x, bbox.min.y));
-                mesh.v.push_back(glm::vec2(bbox.max.x, bbox.max.y));
-                mesh.v.push_back(glm::vec2(bbox.min.x, bbox.max.y));
-                mesh.t.push_back(glm::vec2(0.F, 0.F));
-                mesh.t.push_back(glm::vec2(1.F, 0.F));
-                mesh.t.push_back(glm::vec2(1.F, 1.F));
-                mesh.t.push_back(glm::vec2(0.F, 1.F));
-                geom::Triangle2 triangle;
-                triangle.v[0].v = 0;
-                triangle.v[1].v = 1;
-                triangle.v[2].v = 2;
-                triangle.v[0].t = 0;
-                triangle.v[1].t = 1;
-                triangle.v[2].t = 2;
-                mesh.triangles.push_back(triangle);
-                triangle.v[0].v = 2;
-                triangle.v[1].v = 3;
-                triangle.v[2].v = 0;
-                triangle.v[0].t = 2;
-                triangle.v[1].t = 3;
-                triangle.v[2].t = 0;
-                mesh.triangles.push_back(triangle);
-
-                for (size_t y = vp.min.y; y <= vp.max.y; ++y)
+                if (!mesh.v.empty())
                 {
-                    float* fbP = reinterpret_cast<float*>(fb->getData()) +
-                        (static_cast<size_t>(fbSize.h) - 1 - y) * static_cast<size_t>(fbSize.w) * 3 +
-                        static_cast<size_t>(vp.min.x) * 3;
-                    for (size_t x = vp.min.x; x <= vp.max.x; ++x)
+                    math::BBox2i bbox;
+                    bbox.min.x = floor(mesh.v[0].x);
+                    bbox.min.y = floor(mesh.v[0].y);
+                    bbox.max.x = ceil(mesh.v[0].x);
+                    bbox.max.y = ceil(mesh.v[0].y);
+                    for (const auto& v : mesh.v)
                     {
-                        for (const auto& t : mesh.triangles)
+                        bbox.min.x = std::min(bbox.min.x, static_cast<int>(floor(v.x)));
+                        bbox.min.y = std::min(bbox.min.y, static_cast<int>(floor(v.y)));
+                        bbox.max.x = std::max(bbox.max.x, static_cast<int>(ceil(v.x)));
+                        bbox.max.y = std::max(bbox.max.y, static_cast<int>(ceil(v.y)));
+                    }
+
+                    const size_t fbW = fb->getWidth();
+                    const size_t fbH = fb->getHeight();
+                    bbox = bbox.intersect(math::BBox2i(0, 0, fbW, fbH));
+                    if (bbox.isValid())
+                    {
+                        imaging::Color4f textureColor;
+                        const imaging::Size textureSize = texture ? texture->getSize() : imaging::Size();
+                        const imaging::F32_T* textureP = texture ? reinterpret_cast<imaging::F32_T*>(texture->getData()) : nullptr;
+                        for (size_t y = bbox.min.y; y <= bbox.max.y; ++y)
                         {
-                            float w0 = geom::edge(glm::vec2(x, y), mesh.v[t.v[2].v], mesh.v[t.v[1].v]);
-                            float w1 = geom::edge(glm::vec2(x, y), mesh.v[t.v[0].v], mesh.v[t.v[2].v]);
-                            float w2 = geom::edge(glm::vec2(x, y), mesh.v[t.v[1].v], mesh.v[t.v[0].v]);
-                            if (w0 >= 0 && w1 >= 0 && w2 >= 0)
+                            imaging::F32_T* fbP = reinterpret_cast<imaging::F32_T*>(fb->getData()) +
+                                (fbH - 1 - y) * fbW * 3 +
+                                static_cast<size_t>(bbox.min.x) * 3;
+                            for (size_t x = bbox.min.x; x <= bbox.max.x; ++x, fbP += 3)
                             {
-                                const float area = geom::edge(
-                                    mesh.v[t.v[2].v],
-                                    mesh.v[t.v[1].v],
-                                    mesh.v[t.v[0].v]);
-                                w0 /= area;
-                                w1 /= area;
-                                w2 /= area;
-                                const float u = w0 * mesh.t[t.v[0].t].x + w1 * mesh.t[t.v[1].t].x + w2 * mesh.t[t.v[2].t].x;
-                                const float v = w0 * mesh.t[t.v[0].t].y + w1 * mesh.t[t.v[1].t].y + w2 * mesh.t[t.v[2].t].y;
-                                const Pixel pixel = sample_RGBA_F32(imageP, imageSize.w, imageSize.h, u, v);
-                                fbP[0] = pixel.r + fbP[0] * (1.F - pixel.a);
-                                fbP[1] = pixel.g + fbP[1] * (1.F - pixel.a);
-                                fbP[2] = pixel.b + fbP[2] * (1.F - pixel.a);
+                                for (const auto& t : mesh.triangles)
+                                {
+                                    float w0 = geom::edge(glm::vec2(x, y), mesh.v[t.v[2].v], mesh.v[t.v[1].v]);
+                                    float w1 = geom::edge(glm::vec2(x, y), mesh.v[t.v[0].v], mesh.v[t.v[2].v]);
+                                    float w2 = geom::edge(glm::vec2(x, y), mesh.v[t.v[1].v], mesh.v[t.v[0].v]);
+                                    if (w0 >= 0 && w1 >= 0 && w2 >= 0)
+                                    {
+                                        const float area = geom::edge(
+                                            mesh.v[t.v[2].v],
+                                            mesh.v[t.v[1].v],
+                                            mesh.v[t.v[0].v]);
+                                        w0 /= area;
+                                        w1 /= area;
+                                        w2 /= area;
+                                        const float u = w0 * mesh.t[t.v[0].t].x + w1 * mesh.t[t.v[1].t].x + w2 * mesh.t[t.v[2].t].x;
+                                        const float v = w0 * mesh.t[t.v[0].t].y + w1 * mesh.t[t.v[1].t].y + w2 * mesh.t[t.v[2].t].y;
+                                        imaging::Color4f pixel = color;
+                                        if (textureP)
+                                        {
+                                            textureColor = sample_RGBA_F32(textureP, textureSize.w, textureSize.h, u, v);
+                                            pixel.r *= textureColor.r;
+                                            pixel.g *= textureColor.g;
+                                            pixel.b *= textureColor.b;
+                                            pixel.a *= textureColor.a;
+                                        }
+                                        fbP[0] = pixel.r + fbP[0] * (1.F - pixel.a);
+                                        fbP[1] = pixel.g + fbP[1] * (1.F - pixel.a);
+                                        fbP[2] = pixel.b + fbP[2] * (1.F - pixel.a);
+                                    }
+                                }
                             }
                         }
-                        fbP += 3;
                     }
                 }
             }
@@ -296,9 +336,37 @@ namespace tlr
         {}
 
         void SoftwareRender::drawRect(
-            const math::BBox2f&,
-            const imaging::Color4f&)
-        {}
+            const math::BBox2f& bbox,
+            const imaging::Color4f& color)
+        {
+            TLR_PRIVATE_P();
+
+            geom::TriangleMesh2 mesh;
+            mesh.v.push_back(glm::vec2(bbox.min.x, bbox.min.y));
+            mesh.v.push_back(glm::vec2(bbox.max.x, bbox.min.y));
+            mesh.v.push_back(glm::vec2(bbox.max.x, bbox.max.y));
+            mesh.v.push_back(glm::vec2(bbox.min.x, bbox.max.y));
+            mesh.t.push_back(glm::vec2(0.F, 0.F));
+            mesh.t.push_back(glm::vec2(1.F, 0.F));
+            mesh.t.push_back(glm::vec2(1.F, 1.F));
+            mesh.t.push_back(glm::vec2(0.F, 1.F));
+            geom::Triangle2 triangle;
+            triangle.v[0].v = 0;
+            triangle.v[1].v = 1;
+            triangle.v[2].v = 2;
+            triangle.v[0].t = 0;
+            triangle.v[1].t = 1;
+            triangle.v[2].t = 2;
+            mesh.triangles.push_back(triangle);
+            triangle.v[0].v = 2;
+            triangle.v[1].v = 3;
+            triangle.v[2].v = 0;
+            triangle.v[0].t = 2;
+            triangle.v[1].t = 3;
+            triangle.v[2].t = 0;
+            mesh.triangles.push_back(triangle);
+            drawMesh(mesh, p.frameBuffer, nullptr, color);
+        }
 
         void SoftwareRender::drawImage(
             const std::shared_ptr<imaging::Image>& image,
@@ -319,31 +387,31 @@ namespace tlr
 
             if (auto image_RGBA_F32 = convert_to_RGBA_F32(image, yuvRange))
             {
-                const size_t stripCount = 8;
-                std::vector<math::BBox2i> strips;
-                const imaging::Size& fbSize = p.frameBuffer->getSize();
-                const size_t stripHeight = fbSize.h / stripCount;
-                size_t y = 0;
-                for (size_t i = 0; i < stripCount - 1; ++i, y += stripHeight)
-                {
-                    strips.push_back(math::BBox2i(0, y, fbSize.w, stripHeight));
-                }
-                strips.push_back(math::BBox2i(0, y, fbSize.w, fbSize.h - y));
-
-                std::vector<std::future<void> > stripFutures;
-                for (const auto& strip : strips)
-                {
-                    stripFutures.push_back(std::async(
-                        std::launch::async,
-                        [this, strip, image_RGBA_F32, bbox]
-                        {
-                            drawImage_RGBA_F32(_p->frameBuffer, strip, image_RGBA_F32, bbox);
-                        }));
-                }
-                for (auto& future : stripFutures)
-                {
-                    future.get();
-                }
+                geom::TriangleMesh2 mesh;
+                mesh.v.push_back(glm::vec2(bbox.min.x, bbox.min.y));
+                mesh.v.push_back(glm::vec2(bbox.max.x, bbox.min.y));
+                mesh.v.push_back(glm::vec2(bbox.max.x, bbox.max.y));
+                mesh.v.push_back(glm::vec2(bbox.min.x, bbox.max.y));
+                mesh.t.push_back(glm::vec2(0.F, 0.F));
+                mesh.t.push_back(glm::vec2(1.F, 0.F));
+                mesh.t.push_back(glm::vec2(1.F, 1.F));
+                mesh.t.push_back(glm::vec2(0.F, 1.F));
+                geom::Triangle2 triangle;
+                triangle.v[0].v = 0;
+                triangle.v[1].v = 1;
+                triangle.v[2].v = 2;
+                triangle.v[0].t = 0;
+                triangle.v[1].t = 1;
+                triangle.v[2].t = 2;
+                mesh.triangles.push_back(triangle);
+                triangle.v[0].v = 2;
+                triangle.v[1].v = 3;
+                triangle.v[2].v = 0;
+                triangle.v[0].t = 2;
+                triangle.v[1].t = 3;
+                triangle.v[2].t = 0;
+                mesh.triangles.push_back(triangle);
+                drawMesh(mesh, p.frameBuffer, image_RGBA_F32, color);
             }
         }
 
@@ -374,8 +442,67 @@ namespace tlr
 
         void SoftwareRender::drawText(
             const std::vector<std::shared_ptr<imaging::Glyph> >& glyphs,
-            const glm::vec2& position,
-            const imaging::Color4f&)
-        {}
+            const glm::vec2& pos,
+            const imaging::Color4f& color)
+        {
+            TLR_PRIVATE_P();
+            const math::BBox2f vp(0, 0, p.frameBuffer->getWidth(), p.frameBuffer->getHeight());
+            float x = 0.F;
+            int32_t rsbDeltaPrev = 0;
+            uint8_t textureIndex = 0;
+            for (const auto& glyph : glyphs)
+            {
+                if (glyph)
+                {
+                    if (rsbDeltaPrev - glyph->lsbDelta > 32)
+                    {
+                        x -= 1.F;
+                    }
+                    else if (rsbDeltaPrev - glyph->lsbDelta < -31)
+                    {
+                        x += 1.F;
+                    }
+                    rsbDeltaPrev = glyph->rsbDelta;
+
+                    if (glyph->image && glyph->image->isValid())
+                    {
+                        if (auto image_RGBA_F32 = convert_to_RGBA_F32(glyph->image))
+                        {
+                            const imaging::Size& size = glyph->image->getSize();
+                            const glm::vec2& offset = glyph->offset;
+                            const math::BBox2f bbox(pos.x + x + offset.x, pos.y - offset.y, size.w, size.h);
+
+                            geom::TriangleMesh2 mesh;
+                            mesh.v.push_back(glm::vec2(bbox.min.x, bbox.min.y));
+                            mesh.v.push_back(glm::vec2(bbox.max.x, bbox.min.y));
+                            mesh.v.push_back(glm::vec2(bbox.max.x, bbox.max.y));
+                            mesh.v.push_back(glm::vec2(bbox.min.x, bbox.max.y));
+                            mesh.t.push_back(glm::vec2(0.F, 0.F));
+                            mesh.t.push_back(glm::vec2(1.F, 0.F));
+                            mesh.t.push_back(glm::vec2(1.F, 1.F));
+                            mesh.t.push_back(glm::vec2(0.F, 1.F));
+                            geom::Triangle2 triangle;
+                            triangle.v[0].v = 0;
+                            triangle.v[1].v = 1;
+                            triangle.v[2].v = 2;
+                            triangle.v[0].t = 0;
+                            triangle.v[1].t = 1;
+                            triangle.v[2].t = 2;
+                            mesh.triangles.push_back(triangle);
+                            triangle.v[0].v = 2;
+                            triangle.v[1].v = 3;
+                            triangle.v[2].v = 0;
+                            triangle.v[0].t = 2;
+                            triangle.v[1].t = 3;
+                            triangle.v[2].t = 0;
+                            mesh.triangles.push_back(triangle);
+                            drawMesh(mesh, p.frameBuffer, image_RGBA_F32, color);
+                        }
+                    }
+
+                    x += glyph->advance;
+                }
+            }           
+        }
     }
 }

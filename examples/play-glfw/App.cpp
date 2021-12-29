@@ -7,6 +7,7 @@
 #include <tlrGL/Render.h>
 
 #include <tlrCore/Math.h>
+#include <tlrCore/SoftwareRender.h>
 #include <tlrCore/StringFormat.h>
 #include <tlrCore/Time.h>
 
@@ -15,8 +16,16 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
+#include <array>
+
 namespace tlr
 {
+    TLR_ENUM_IMPL(
+        RenderType,
+        "GL",
+        "Software");
+    TLR_ENUM_SERIALIZE_IMPL(RenderType);
+
     namespace
     {
         void glfwErrorCallback(int, const char* description)
@@ -100,7 +109,13 @@ namespace tlr
                 app::CmdLineValueOption<std::string>::create(
                     _options.colorConfig.view,
                     { "-colorView", "-cv" },
-                    "View color space.")
+                    "View color space."),
+                app::CmdLineValueOption<RenderType>::create(
+                    _options.renderType,
+                    { "-renderType", "-rt" },
+                    "Renderer type.",
+                    string::Format("{0}").arg(_options.renderType),
+                    string::join(getRenderTypeLabels(), ", "))
             });
     }
 
@@ -109,6 +124,7 @@ namespace tlr
 
     App::~App()
     {
+        _glRender.reset();
         _render.reset();
         _fontSystem.reset();
         if (_glfwWindow)
@@ -207,7 +223,17 @@ namespace tlr
 
         // Create the renderer.
         _fontSystem = imaging::FontSystem::create();
-        _render = gl::Render::create(_context);
+        switch (_options.renderType)
+        {
+        case RenderType::GL:
+            _render = gl::Render::create(_context);
+            break;
+        case RenderType::Software:
+            _render = render::SoftwareRender::create(_context);
+            _glRender = gl::Render::create(_context);
+            break;
+        default: break;
+        }
 
         // Print the shortcuts help.
         _printShortcutsHelp();
@@ -368,6 +394,14 @@ namespace tlr
                 _drawHUD();
             }
             _render->end();
+            if (RenderType::Software == _options.renderType)
+            {
+                _glRender->begin(_frameBufferSize);
+                _glRender->drawImage(
+                    std::dynamic_pointer_cast<render::SoftwareRender>(_render)->getFrameBuffer(),
+                    math::BBox2f(0.F, 0.F, _frameBufferSize.w, _frameBufferSize.h));
+                _glRender->end();
+            }
             glfwSwapBuffers(_glfwWindow);
             _renderDirty = false;
         }

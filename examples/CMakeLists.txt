@@ -1,6 +1,5 @@
 if(TLR_BUILD_GL)
     add_subdirectory(play-glfw)
-	add_subdirectory(swrender)
 endif()
 if(TLR_BUILD_QT)
     add_subdirectory(filmstrip-qwidget)

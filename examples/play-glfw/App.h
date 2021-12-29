@@ -15,6 +15,18 @@ struct GLFWwindow;
 
 namespace tlr
 {
+    //! Render type.
+    enum class RenderType
+    {
+        GL,
+        Software,
+
+        Count,
+        First = GL
+    };
+    TLR_ENUM(RenderType);
+    TLR_ENUM_SERIALIZE(RenderType);
+
     //! Application options.
     struct Options
     {
@@ -24,6 +36,7 @@ namespace tlr
         bool startPlayback = true;
         bool loopPlayback = true;
         imaging::ColorConfig colorConfig;
+        RenderType renderType = RenderType::GL;
     };
 
     //! Application.
@@ -78,6 +91,7 @@ namespace tlr
         glm::vec2 _contentScale;
         std::shared_ptr<imaging::FontSystem> _fontSystem;
         std::shared_ptr<render::IRender> _render;
+        std::shared_ptr<render::IRender> _glRender;
         bool _renderDirty = true;
         timeline::VideoData _videoData;
         std::map<HUDElement, std::string> _hudLabels;
