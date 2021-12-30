@@ -47,7 +47,7 @@ namespace tlr
 
         //! Get a bounding box with the given aspect ratio that fits the
         //! given size.
-        math::BBox2f getBBox(float aspect, const imaging::Size&) noexcept;
+        math::BBox2i getBBox(float aspect, const imaging::Size&) noexcept;
 
         std::ostream& operator << (std::ostream&, const imaging::Size&);
     

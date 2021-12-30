@@ -36,11 +36,11 @@ namespace tlr
             void begin(const imaging::Size&) override;
             void end() override;
             void drawRect(
-                const math::BBox2f&,
+                const math::BBox2i&,
                 const imaging::Color4f&) override;
             void drawImage(
                 const std::shared_ptr<imaging::Image>&,
-                const math::BBox2f&,
+                const math::BBox2i&,
                 const imaging::Color4f & = imaging::Color4f(1.F, 1.F, 1.F),
                 const render::ImageOptions & = render::ImageOptions()) override;
             void drawVideo(
@@ -48,7 +48,7 @@ namespace tlr
                 const render::ImageOptions & = render::ImageOptions()) override;
             void drawText(
                 const std::vector<std::shared_ptr<imaging::Glyph> >& glyphs,
-                const glm::vec2& position,
+                const glm::ivec2& position,
                 const imaging::Color4f&) override;
 
         private:

@@ -60,7 +60,7 @@ namespace tlr
         };
 
         //! Edge function.
-        int edge(const glm::vec2& p, const glm::vec2& v0, const glm::vec2& v1);
+        float edge(const glm::vec2& p, const glm::vec2& v0, const glm::vec2& v1);
 
         //! Create a sphere triangle mesh.
         TriangleMesh3 createSphere(

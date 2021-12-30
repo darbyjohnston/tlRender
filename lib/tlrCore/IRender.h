@@ -156,13 +156,13 @@ namespace tlr
 
             //! Draw a rectangle.
             virtual void drawRect(
-                const math::BBox2f&,
+                const math::BBox2i&,
                 const imaging::Color4f&) = 0;
 
             //! Draw an image.
             virtual void drawImage(
                 const std::shared_ptr<imaging::Image>&,
-                const math::BBox2f&,
+                const math::BBox2i&,
                 const imaging::Color4f& = imaging::Color4f(1.F, 1.F, 1.F),
                 const ImageOptions& = ImageOptions()) = 0;
 
@@ -174,7 +174,7 @@ namespace tlr
             //! Draw text.
             virtual void drawText(
                 const std::vector<std::shared_ptr<imaging::Glyph> >& glyphs,
-                const glm::vec2& position,
+                const glm::ivec2& position,
                 const imaging::Color4f&) = 0;
 
         protected:

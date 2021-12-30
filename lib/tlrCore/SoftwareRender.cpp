@@ -174,6 +174,24 @@ namespace tlr
                     }
                     break;
                 }
+                case imaging::PixelType::RGBA_U8:
+                {
+                    imaging::U8_T* outP = out->getData();
+                    const float min = imaging::U8Range.getMin();
+                    const float max = imaging::U8Range.getMax();
+                    for (size_t y = 0; y < h; ++y)
+                    {
+                        const imaging::F32_T* p = reinterpret_cast<imaging::F32_T*>(image->getData()) + y * w * 3;
+                        for (size_t x = 0; x < w; ++x, p += 3, outP += 4)
+                        {
+                            outP[0] = math::clamp(p[0] * max, min, max);
+                            outP[1] = math::clamp(p[1] * max, min, max);
+                            outP[2] = math::clamp(p[2] * max, min, max);
+                            outP[3] = max;
+                        }
+                    }
+                    break;
+                }
                 default:
                     out->zero();
                     break;
@@ -183,25 +201,21 @@ namespace tlr
 
             imaging::Color4f sample_RGBA_F32(const imaging::F32_T* p, size_t w, size_t h, float x, float y)
             {
-                const size_t x0 = x * (w - 1);
-                const size_t x1 = std::min(static_cast<int>(x0) + 1, static_cast<int>(w) - 1);
-                const size_t y0 = y * (h - 1);
-                const size_t y1 = std::min(static_cast<int>(y0) + 1, static_cast<int>(h) - 1);
+                const size_t x0 = x * (static_cast<int>(w) - 1);
+                const size_t x1 = std::min(static_cast<int>(x0) + 0, static_cast<int>(w) - 1);
+                const size_t y0 = y * (static_cast<int>(h) - 1);
+                const size_t y1 = std::min(static_cast<int>(y0) + 0, static_cast<int>(h) - 1);
                 const imaging::F32_T* p0 = p + y0 * w * 4 + x0 * 4;
                 const imaging::F32_T* p1 = p + y0 * w * 4 + x1 * 4;
                 const imaging::F32_T* p2 = p + y1 * w * 4 + x0 * 4;
                 const imaging::F32_T* p3 = p + y1 * w * 4 + x1 * 4;
-                const float a = x * (w - 1) - x0;
-                const float b = y * (h - 1) - y0;
+                const float a = x * (static_cast<int>(w) - 1) - x0;
+                const float b = y * (static_cast<int>(h) - 1) - y0;
                 return imaging::Color4f(
-                    (p0[0] * (1.F - a) + p1[0] * a) * (1.F - b) +
-                    (p2[0] * (1.F - a) + p3[0] * a) * b,
-                    (p0[1] * (1.F - a) + p1[1] * a) * (1.F - b) +
-                    (p2[1] * (1.F - a) + p3[1] * a) * b,
-                    (p0[2] * (1.F - a) + p1[2] * a) * (1.F - b) +
-                    (p2[2] * (1.F - a) + p3[2] * a) * b,
-                    (p0[3] * (1.F - a) + p1[3] * a) * (1.F - b) +
-                    (p2[3] * (1.F - a) + p3[3] * a) * b);
+                    (p0[0] * (1.F - a) + p1[0] * a) * (1.F - b) + (p2[0] * (1.F - a) + p3[0] * a) * b,
+                    (p0[1] * (1.F - a) + p1[1] * a) * (1.F - b) + (p2[1] * (1.F - a) + p3[1] * a) * b,
+                    (p0[2] * (1.F - a) + p1[2] * a) * (1.F - b) + (p2[2] * (1.F - a) + p3[2] * a) * b,
+                    (p0[3] * (1.F - a) + p1[3] * a) * (1.F - b) + (p2[3] * (1.F - a) + p3[3] * a) * b);
             }
 
             void drawMesh(
@@ -245,7 +259,7 @@ namespace tlr
                                     float w0 = geom::edge(glm::vec2(x, y), mesh.v[t.v[2].v], mesh.v[t.v[1].v]);
                                     float w1 = geom::edge(glm::vec2(x, y), mesh.v[t.v[0].v], mesh.v[t.v[2].v]);
                                     float w2 = geom::edge(glm::vec2(x, y), mesh.v[t.v[1].v], mesh.v[t.v[0].v]);
-                                    if (w0 >= 0 && w1 >= 0 && w2 >= 0)
+                                    if (w0 >= 0.F && w1 >= 0.F && w2 >= 0.F)
                                     {
                                         const float area = geom::edge(
                                             mesh.v[t.v[2].v],
@@ -336,16 +350,16 @@ namespace tlr
         {}
 
         void SoftwareRender::drawRect(
-            const math::BBox2f& bbox,
+            const math::BBox2i& bbox,
             const imaging::Color4f& color)
         {
             TLR_PRIVATE_P();
 
             geom::TriangleMesh2 mesh;
             mesh.v.push_back(glm::vec2(bbox.min.x, bbox.min.y));
-            mesh.v.push_back(glm::vec2(bbox.max.x, bbox.min.y));
-            mesh.v.push_back(glm::vec2(bbox.max.x, bbox.max.y));
-            mesh.v.push_back(glm::vec2(bbox.min.x, bbox.max.y));
+            mesh.v.push_back(glm::vec2(bbox.max.x + 1, bbox.min.y));
+            mesh.v.push_back(glm::vec2(bbox.max.x + 1, bbox.max.y + 1));
+            mesh.v.push_back(glm::vec2(bbox.min.x, bbox.max.y + 1));
             mesh.t.push_back(glm::vec2(0.F, 0.F));
             mesh.t.push_back(glm::vec2(1.F, 0.F));
             mesh.t.push_back(glm::vec2(1.F, 1.F));
@@ -370,7 +384,7 @@ namespace tlr
 
         void SoftwareRender::drawImage(
             const std::shared_ptr<imaging::Image>& image,
-            const math::BBox2f& bbox,
+            const math::BBox2i& bbox,
             const imaging::Color4f& color,
             const render::ImageOptions& imageOptions)
         {
@@ -389,9 +403,9 @@ namespace tlr
             {
                 geom::TriangleMesh2 mesh;
                 mesh.v.push_back(glm::vec2(bbox.min.x, bbox.min.y));
-                mesh.v.push_back(glm::vec2(bbox.max.x, bbox.min.y));
-                mesh.v.push_back(glm::vec2(bbox.max.x, bbox.max.y));
-                mesh.v.push_back(glm::vec2(bbox.min.x, bbox.max.y));
+                mesh.v.push_back(glm::vec2(bbox.max.x + 1, bbox.min.y));
+                mesh.v.push_back(glm::vec2(bbox.max.x + 1, bbox.max.y + 1));
+                mesh.v.push_back(glm::vec2(bbox.min.x, bbox.max.y + 1));
                 mesh.t.push_back(glm::vec2(0.F, 0.F));
                 mesh.t.push_back(glm::vec2(1.F, 0.F));
                 mesh.t.push_back(glm::vec2(1.F, 1.F));
@@ -442,12 +456,11 @@ namespace tlr
 
         void SoftwareRender::drawText(
             const std::vector<std::shared_ptr<imaging::Glyph> >& glyphs,
-            const glm::vec2& pos,
+            const glm::ivec2& pos,
             const imaging::Color4f& color)
         {
             TLR_PRIVATE_P();
-            const math::BBox2f vp(0, 0, p.frameBuffer->getWidth(), p.frameBuffer->getHeight());
-            float x = 0.F;
+            int x = 0;
             int32_t rsbDeltaPrev = 0;
             uint8_t textureIndex = 0;
             for (const auto& glyph : glyphs)
@@ -456,11 +469,11 @@ namespace tlr
                 {
                     if (rsbDeltaPrev - glyph->lsbDelta > 32)
                     {
-                        x -= 1.F;
+                        x -= 1;
                     }
                     else if (rsbDeltaPrev - glyph->lsbDelta < -31)
                     {
-                        x += 1.F;
+                        x += 1;
                     }
                     rsbDeltaPrev = glyph->rsbDelta;
 
@@ -469,14 +482,14 @@ namespace tlr
                         if (auto image_RGBA_F32 = convert_to_RGBA_F32(glyph->image))
                         {
                             const imaging::Size& size = glyph->image->getSize();
-                            const glm::vec2& offset = glyph->offset;
-                            const math::BBox2f bbox(pos.x + x + offset.x, pos.y - offset.y, size.w, size.h);
+                            const glm::ivec2& offset = glyph->offset;
+                            const math::BBox2i bbox(pos.x + x + offset.x, pos.y - offset.y, size.w, size.h);
 
                             geom::TriangleMesh2 mesh;
                             mesh.v.push_back(glm::vec2(bbox.min.x, bbox.min.y));
-                            mesh.v.push_back(glm::vec2(bbox.max.x, bbox.min.y));
-                            mesh.v.push_back(glm::vec2(bbox.max.x, bbox.max.y));
-                            mesh.v.push_back(glm::vec2(bbox.min.x, bbox.max.y));
+                            mesh.v.push_back(glm::vec2(bbox.max.x + 1, bbox.min.y));
+                            mesh.v.push_back(glm::vec2(bbox.max.x + 1, bbox.max.y + 1));
+                            mesh.v.push_back(glm::vec2(bbox.min.x, bbox.max.y + 1));
                             mesh.t.push_back(glm::vec2(0.F, 0.F));
                             mesh.t.push_back(glm::vec2(1.F, 0.F));
                             mesh.t.push_back(glm::vec2(1.F, 1.F));

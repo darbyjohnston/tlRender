@@ -783,7 +783,7 @@ namespace tlr
         {}
 
         void Render::drawRect(
-            const math::BBox2f& bbox,
+            const math::BBox2i& bbox,
             const imaging::Color4f& color)
         {
             TLR_PRIVATE_P();
@@ -798,16 +798,16 @@ namespace tlr
             vboP[0].vy = bbox.min.y;
             vboP[0].tx = 0;
             vboP[0].ty = 0;
-            vboP[1].vx = bbox.max.x;
+            vboP[1].vx = bbox.max.x + 1;
             vboP[1].vy = bbox.min.y;
             vboP[1].tx = 0;
             vboP[1].ty = 0;
             vboP[2].vx = bbox.min.x;
-            vboP[2].vy = bbox.max.y;
+            vboP[2].vy = bbox.max.y + 1;
             vboP[2].tx = 0;
             vboP[2].ty = 0;
-            vboP[3].vx = bbox.max.x;
-            vboP[3].vy = bbox.max.y;
+            vboP[3].vx = bbox.max.x + 1;
+            vboP[3].vy = bbox.max.y + 1;
             vboP[3].tx = 0;
             vboP[3].ty = 0;
             auto vbo = VBO::create(4, VBOType::Pos2_F32_UV_U16);
@@ -924,7 +924,7 @@ namespace tlr
 
         void Render::drawImage(
             const std::shared_ptr<imaging::Image>& image,
-            const math::BBox2f& bbox,
+            const math::BBox2i& bbox,
             const imaging::Color4f& color,
             const render::ImageOptions& imageOptions)
         {
@@ -987,16 +987,16 @@ namespace tlr
             vboP[0].vy = bbox.min.y;
             vboP[0].tx = 0;
             vboP[0].ty = 65535;
-            vboP[1].vx = bbox.max.x;
+            vboP[1].vx = bbox.max.x + 1;
             vboP[1].vy = bbox.min.y;
             vboP[1].tx = 65535;
             vboP[1].ty = 65535;
             vboP[2].vx = bbox.min.x;
-            vboP[2].vy = bbox.max.y;
+            vboP[2].vy = bbox.max.y + 1;
             vboP[2].tx = 0;
             vboP[2].ty = 0;
-            vboP[3].vx = bbox.max.x;
-            vboP[3].vy = bbox.max.y;
+            vboP[3].vx = bbox.max.x + 1;
+            vboP[3].vy = bbox.max.y + 1;
             vboP[3].tx = 65535;
             vboP[3].ty = 0;
             if (info.layout.mirror.x)
@@ -1122,7 +1122,7 @@ namespace tlr
 
         void Render::drawText(
             const std::vector<std::shared_ptr<imaging::Glyph> >& glyphs,
-            const glm::vec2& pos,
+            const glm::ivec2& pos,
             const imaging::Color4f& color)
         {
             TLR_PRIVATE_P();
@@ -1134,7 +1134,7 @@ namespace tlr
 
             glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
 
-            float x = 0.F;
+            int x = 0;
             int32_t rsbDeltaPrev = 0;
             uint8_t textureIndex = 0;
             for (const auto& glyph : glyphs)
@@ -1143,11 +1143,11 @@ namespace tlr
                 {
                     if (rsbDeltaPrev - glyph->lsbDelta > 32)
                     {
-                        x -= 1.F;
+                        x -= 1;
                     }
                     else if (rsbDeltaPrev - glyph->lsbDelta < -31)
                     {
-                        x += 1.F;
+                        x += 1;
                     }
                     rsbDeltaPrev = glyph->rsbDelta;
 
@@ -1163,8 +1163,8 @@ namespace tlr
                         glBindTexture(GL_TEXTURE_2D, texture->getID());
 
                         const imaging::Size& size = glyph->image->getSize();
-                        const glm::vec2& offset = glyph->offset;
-                        const math::BBox2f bbox(pos.x + x + offset.x, pos.y - offset.y, size.w, size.h);
+                        const glm::ivec2& offset = glyph->offset;
+                        const math::BBox2i bbox(pos.x + x + offset.x, pos.y - offset.y, size.w, size.h);
 
                         std::vector<uint8_t> vboData;
                         vboData.resize(4 * getByteCount(VBOType::Pos2_F32_UV_U16));
@@ -1173,16 +1173,16 @@ namespace tlr
                         vboP[0].vy = bbox.min.y;
                         vboP[0].tx = 0;
                         vboP[0].ty = 0;
-                        vboP[1].vx = bbox.max.x;
+                        vboP[1].vx = bbox.max.x + 1;
                         vboP[1].vy = bbox.min.y;
                         vboP[1].tx = 65535;
                         vboP[1].ty = 0;
                         vboP[2].vx = bbox.min.x;
-                        vboP[2].vy = bbox.max.y;
+                        vboP[2].vy = bbox.max.y + 1;
                         vboP[2].tx = 0;
                         vboP[2].ty = 65535;
-                        vboP[3].vx = bbox.max.x;
-                        vboP[3].vy = bbox.max.y;
+                        vboP[3].vx = bbox.max.x + 1;
+                        vboP[3].vy = bbox.max.y + 1;
                         vboP[3].tx = 65535;
                         vboP[3].ty = 65535;
                         auto vbo = VBO::create(4, VBOType::Pos2_F32_UV_U16);

@@ -61,9 +61,9 @@ namespace tlr
                 TLR_ASSERT(size == size2);
             }
             {
-                TLR_ASSERT(math::BBox2f(0.F, 0.F, 100.F, 100.F) == getBBox(1.F, Size(100, 100)));
-                TLR_ASSERT(math::BBox2f(50.F, 0.F, 100.F, 100.F) == getBBox(1.F, Size(200, 100)));
-                TLR_ASSERT(math::BBox2f(0.F, 50.F, 100.F, 100.F) == getBBox(1.F, Size(100, 200)));
+                TLR_ASSERT(math::BBox2i(0, 0, 100, 100) == getBBox(1.F, Size(100, 100)));
+                TLR_ASSERT(math::BBox2i(50, 0, 100, 100) == getBBox(1.F, Size(200, 100)));
+                TLR_ASSERT(math::BBox2i(0, 50, 100, 100) == getBBox(1.F, Size(100, 200)));
             }
         }
         

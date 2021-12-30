@@ -6,7 +6,7 @@ namespace tlr
 {
     namespace geom
     {
-        inline int edge(const glm::vec2& p, const glm::vec2& v0, const glm::vec2& v1)
+        inline float edge(const glm::vec2& p, const glm::vec2& v0, const glm::vec2& v1)
         {
             return (p.x - v0.x) * (v1.y - v0.y) - (p.y - v0.y) * (v1.x - v0.x);
         }

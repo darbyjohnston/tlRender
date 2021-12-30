@@ -19,23 +19,23 @@ namespace tlr
 {
     namespace imaging
     {
-        math::BBox2f getBBox(float aspect, const imaging::Size& size) noexcept
+        math::BBox2i getBBox(float aspect, const imaging::Size& size) noexcept
         {
-            math::BBox2f out;
+            math::BBox2i out;
             const float sizeAspect = size.getAspect();
-            math::BBox2f bbox;
+            math::BBox2i bbox;
             if (sizeAspect > aspect)
             {
-                out = math::BBox2f(
+                out = math::BBox2i(
                     size.w / 2.F - (size.h * aspect) / 2.F,
-                    0.F,
+                    0,
                     size.h * aspect,
                     size.h);
             }
             else
             {
-                out = math::BBox2f(
-                    0.F,
+                out = math::BBox2i(
+                    0,
                     size.h / 2.F - (size.w / aspect) / 2.F,
                     size.w,
                     size.w / aspect);

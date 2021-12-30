@@ -60,8 +60,8 @@ namespace tlr
                 const std::basic_string<tlr_char_t>& utf32,
                 const FontInfo&,
                 uint16_t maxLineWidth,
-                glm::vec2&,
-                std::vector<math::BBox2f>* = nullptr);
+                glm::ivec2&,
+                std::vector<math::BBox2i>* = nullptr);
 
             FT_Library ftLibrary = nullptr;
             std::map<FontFamily, FT_Face> ftFaces;
@@ -137,28 +137,28 @@ namespace tlr
                 {
                     throw std::runtime_error("Cannot set pixel sizes");
                 }
-                out.ascender = static_cast<float>(i->second->size->metrics.ascender) / 64.F;
-                out.descender = static_cast<float>(i->second->size->metrics.descender) / 64.F;
-                out.lineHeight = static_cast<float>(i->second->size->metrics.height) / 64.F;
+                out.ascender = i->second->size->metrics.ascender / 64;
+                out.descender = i->second->size->metrics.descender / 64;
+                out.lineHeight = i->second->size->metrics.height / 64;
             }
             return out;
         }
 
-        glm::vec2 FontSystem::measure(const std::string& text, const FontInfo& fontInfo)
+        glm::ivec2 FontSystem::measure(const std::string& text, const FontInfo& fontInfo)
         {
             TLR_PRIVATE_P();
-            glm::vec2 out;
+            glm::ivec2 out;
             const auto utf32 = p.utf32Convert.from_bytes(text);
             p.measure(utf32, fontInfo, std::numeric_limits<int16_t>::max(), out);
             return out;
         }
 
-        std::vector<math::BBox2f> FontSystem::measureGlyphs(const std::string& text, const FontInfo& fontInfo)
+        std::vector<math::BBox2i> FontSystem::measureGlyphs(const std::string& text, const FontInfo& fontInfo)
         {
             TLR_PRIVATE_P();
-            std::vector<math::BBox2f> out;
+            std::vector<math::BBox2i> out;
             const auto utf32 = p.utf32Convert.from_bytes(text);
-            glm::vec2 size;
+            glm::ivec2 size;
             p.measure(utf32, fontInfo, std::numeric_limits<int16_t>::max(), size, &out);
             return out;
         }
@@ -244,8 +244,8 @@ namespace tlr
                         out = std::make_shared<Glyph>();
                         out->glyphInfo = GlyphInfo(code, fontInfo);
                         out->image = convert(reinterpret_cast<FT_BitmapGlyph>(ftGlyph)->bitmap);
-                        out->offset = glm::vec2(i->second->glyph->bitmap_left, i->second->glyph->bitmap_top);
-                        out->advance = static_cast<float>(i->second->glyph->advance.x / 64.F);
+                        out->offset = glm::ivec2(i->second->glyph->bitmap_left, i->second->glyph->bitmap_top);
+                        out->advance = i->second->glyph->advance.x / 64;
                         out->lsbDelta = i->second->glyph->lsb_delta;
                         out->rsbDelta = i->second->glyph->rsb_delta;
                         FT_Done_Glyph(ftGlyph);
@@ -274,13 +274,13 @@ namespace tlr
             const std::basic_string<tlr_char_t>& utf32,
             const FontInfo& fontInfo,
             uint16_t maxLineWidth,
-            glm::vec2& size,
-            std::vector<math::BBox2f>* glyphGeom)
+            glm::ivec2& size,
+            std::vector<math::BBox2i>* glyphGeom)
         {
             const auto i = ftFaces.find(fontInfo.family);
             if (i != ftFaces.end())
             {
-                glm::vec2 pos(0.F, 0.F);
+                glm::ivec2 pos(0, 0);
                 FT_Error ftError = FT_Set_Pixel_Sizes(
                     i->second,
                     0,
@@ -290,24 +290,24 @@ namespace tlr
                     throw std::runtime_error("Cannot set pixel sizes");
                 }
 
-                pos.y = static_cast<float>(i->second->size->metrics.height) / 64.F;
+                pos.y = i->second->size->metrics.height / 64;
                 auto textLine = utf32.end();
-                float textLineX = 0.F;
+                int textLineX = 0;
                 int32_t rsbDeltaPrev = 0;
                 for (auto j = utf32.begin(); j != utf32.end(); ++j)
                 {
                     const auto glyph = getGlyph(*j, fontInfo);
                     if (glyph && glyphGeom)
                     {
-                        glyphGeom->push_back(math::BBox2f(
+                        glyphGeom->push_back(math::BBox2i(
                             pos.x,
                             glyph->advance,
                             glyph->advance,
-                            static_cast<float>(i->second->size->metrics.height) / 64.F));
+                            i->second->size->metrics.height / 64));
                     }
 
                     int32_t x = 0;
-                    glm::vec2 posAndSize(0.F, 0.F);
+                    glm::ivec2 posAndSize(0, 0);
                     if (glyph && glyph->image)
                     {
                         x = glyph->advance;
@@ -329,27 +329,27 @@ namespace tlr
                     if (isNewline(*j))
                     {
                         size.x = std::max(size.x, pos.x);
-                        pos.x = 0.F;
-                        pos.y += static_cast<float>(i->second->size->metrics.height) / 64.F;
+                        pos.x = 0;
+                        pos.y += i->second->size->metrics.height / 64;
                         rsbDeltaPrev = 0;
                     }
                     else if (
-                        pos.x > 0.F &&
-                        pos.x + (!isSpace(*j) ? static_cast<float>(x) : 0.F) >= maxLineWidth)
+                        pos.x > 0 &&
+                        pos.x + (!isSpace(*j) ? x : 0) >= maxLineWidth)
                     {
                         if (textLine != utf32.end())
                         {
                             j = textLine;
                             textLine = utf32.end();
                             size.x = std::max(size.x, textLineX);
-                            pos.x = 0.F;
-                            pos.y += static_cast<float>(i->second->size->metrics.height) / 64.F;
+                            pos.x = 0;
+                            pos.y += i->second->size->metrics.height / 64;
                         }
                         else
                         {
                             size.x = std::max(size.x, pos.x);
-                            pos.x = static_cast<float>(x);
-                            pos.y += static_cast<float>(i->second->size->metrics.height) / 64.F;
+                            pos.x = x;
+                            pos.y += i->second->size->metrics.height / 64;
                         }
                         rsbDeltaPrev = 0;
                     }
@@ -360,7 +360,7 @@ namespace tlr
                             textLine = j;
                             textLineX = pos.x;
                         }
-                        pos.x += static_cast<float>(x);
+                        pos.x += x;
                     }
                 }
                 size.x = std::max(size.x, pos.x);

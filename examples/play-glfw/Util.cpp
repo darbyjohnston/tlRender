@@ -26,53 +26,53 @@ namespace tlr
         const imaging::FontInfo fontInfo(fontFamily, fontSize);
         const imaging::FontMetrics fontMetrics = fontSystem->getMetrics(fontInfo);
 
-        const float margin = fontSize;
-        const math::BBox2f marginBBox = math::BBox2f(0.F, 0.F, window.w, window.h).margin(-margin);
-        const glm::vec2 labelSize = fontSystem->measure(text, fontInfo);
-        const float labelMargin = fontSize / 5.F;
-        math::BBox2f bbox;
-        glm::vec2 pos;
+        const int margin = fontSize;
+        const math::BBox2i marginBBox = math::BBox2i(0, 0, window.w, window.h).margin(-margin);
+        const glm::ivec2 labelSize = fontSystem->measure(text, fontInfo);
+        const int labelMargin = fontSize / 5;
+        math::BBox2i bbox;
+        glm::ivec2 pos;
         switch (hudElement)
         {
         case HUDElement::UpperLeft:
-            bbox = math::BBox2f(
-                floorf(marginBBox.min.x),
-                floorf(marginBBox.min.y),
-                ceilf(labelSize.x + labelMargin * 2.F),
-                ceilf(fontMetrics.lineHeight + labelMargin * 2.F));
-            pos = glm::vec2(
-                floorf(marginBBox.min.x + labelMargin),
-                floorf(marginBBox.min.y + labelMargin + fontMetrics.ascender));
+            bbox = math::BBox2i(
+                marginBBox.min.x,
+                marginBBox.min.y,
+                labelSize.x + labelMargin * 2,
+                fontMetrics.lineHeight + labelMargin * 2);
+            pos = glm::ivec2(
+                marginBBox.min.x + labelMargin,
+                marginBBox.min.y + labelMargin + fontMetrics.ascender);
             break;
         case HUDElement::UpperRight:
-            bbox = math::BBox2f(
-                floorf(marginBBox.max.x - labelMargin * 2.F - labelSize.x),
-                floorf(marginBBox.min.y),
-                ceilf(labelSize.x + labelMargin * 2.F),
-                ceilf(fontMetrics.lineHeight + labelMargin * 2.F));
-            pos = glm::vec2(
-                floorf(marginBBox.max.x - labelMargin - labelSize.x),
-                floorf(marginBBox.min.y + labelMargin + fontMetrics.ascender));
+            bbox = math::BBox2i(
+                marginBBox.max.x - labelMargin * 2 - labelSize.x,
+                marginBBox.min.y,
+                labelSize.x + labelMargin * 2,
+                fontMetrics.lineHeight + labelMargin * 2);
+            pos = glm::ivec2(
+                marginBBox.max.x - labelMargin - labelSize.x,
+                marginBBox.min.y + labelMargin + fontMetrics.ascender);
             break;
         case HUDElement::LowerLeft:
-            bbox = math::BBox2f(
-                floorf(marginBBox.min.x),
-                floorf(marginBBox.max.y - labelMargin * 2.F - fontMetrics.lineHeight),
-                ceilf(labelSize.x + labelMargin * 2.F),
-                ceilf(fontMetrics.lineHeight + labelMargin * 2.F));
-            pos = glm::vec2(
-                floorf(marginBBox.min.x + labelMargin),
-                floorf(marginBBox.max.y - labelMargin - fontMetrics.lineHeight + fontMetrics.ascender));
+            bbox = math::BBox2i(
+                marginBBox.min.x,
+                marginBBox.max.y - labelMargin * 2 - fontMetrics.lineHeight,
+                labelSize.x + labelMargin * 2,
+                fontMetrics.lineHeight + labelMargin * 2);
+            pos = glm::ivec2(
+                marginBBox.min.x + labelMargin,
+                marginBBox.max.y - labelMargin - fontMetrics.lineHeight + fontMetrics.ascender);
             break;
         case HUDElement::LowerRight:
-            bbox = math::BBox2f(
-                floorf(marginBBox.max.x - labelMargin * 2.F - labelSize.x),
-                floorf(marginBBox.max.y - labelMargin * 2.F - fontMetrics.lineHeight),
-                ceilf(labelSize.x + labelMargin * 2.F),
-                ceilf(fontMetrics.lineHeight + labelMargin * 2.F));
-            pos = glm::vec2(
-                floorf(marginBBox.max.x - labelMargin - labelSize.x),
-                floorf(marginBBox.max.y - labelMargin - fontMetrics.lineHeight + fontMetrics.ascender));
+            bbox = math::BBox2i(
+                marginBBox.max.x - labelMargin * 2 - labelSize.x,
+                marginBBox.max.y - labelMargin * 2 - fontMetrics.lineHeight,
+                labelSize.x + labelMargin * 2,
+                fontMetrics.lineHeight + labelMargin * 2);
+            pos = glm::ivec2(
+                marginBBox.max.x - labelMargin - labelSize.x,
+                marginBBox.max.y - labelMargin - fontMetrics.lineHeight + fontMetrics.ascender);
             break;
         }
 
