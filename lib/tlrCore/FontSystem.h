@@ -15,8 +15,6 @@ namespace tlr
 {
     namespace imaging
     {
-        class Image;
-
 #if defined(_WINDOWS)
         //! \bug https://social.msdn.microsoft.com/Forums/vstudio/en-US/8f40dcd8-c67f-4eba-9134-a19b9178e481/vs-2015-rc-linker-stdcodecvt-error?forum=vcgeneral
         typedef unsigned int tlr_char_t;
@@ -69,8 +67,10 @@ namespace tlr
         struct Glyph
         {
             GlyphInfo glyphInfo;
-            std::shared_ptr<Image> image;
-            glm::ivec2 offset;
+            std::vector<uint8_t> data;
+            uint16_t width = 0;
+            uint16_t height = 0;
+            glm::ivec2 offset = glm::ivec2(0, 0);
             int16_t advance = 0;
             int32_t lsbDelta = 0;
             int32_t rsbDelta = 0;

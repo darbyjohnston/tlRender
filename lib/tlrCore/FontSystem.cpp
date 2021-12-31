@@ -4,7 +4,6 @@
 
 #include <tlrCore/FontSystem.h>
 
-#include <tlrCore/Image.h>
 #include <tlrCore/LRUCache.h>
 
 #include <Fonts/NotoMono-Regular.font>
@@ -175,25 +174,6 @@ namespace tlr
             return out;
         }
 
-        namespace
-        {
-            std::shared_ptr<Image> convert(FT_Bitmap bitmap)
-            {
-                std::shared_ptr<Image> out;
-                out = Image::create(Info(bitmap.width, bitmap.rows, PixelType::L_U8));
-                for (uint16_t y = 0; y < bitmap.rows; ++y)
-                {
-                    uint8_t* imageP = out->getData() + bitmap.width * y;
-                    unsigned char* bitmapP = bitmap.buffer + static_cast<int>(y) * bitmap.pitch;
-                    for (uint16_t x = 0; x < bitmap.width; ++x)
-                    {
-                        imageP[x] = bitmapP[x];
-                    }
-                }
-                return out;
-            }
-        }
-
         std::shared_ptr<Glyph> FontSystem::Private::getGlyph(uint32_t code, const FontInfo& fontInfo)
         {
             std::shared_ptr<Glyph> out;
@@ -243,7 +223,19 @@ namespace tlr
 
                         out = std::make_shared<Glyph>();
                         out->glyphInfo = GlyphInfo(code, fontInfo);
-                        out->image = convert(reinterpret_cast<FT_BitmapGlyph>(ftGlyph)->bitmap);
+                        auto ftBitmapGlyph = reinterpret_cast<FT_BitmapGlyph>(ftGlyph)->bitmap;
+                        out->data.resize(ftBitmapGlyph.width * ftBitmapGlyph.rows);
+                        out->width = ftBitmapGlyph.width;
+                        out->height = ftBitmapGlyph.rows;
+                        for (size_t y = 0; y < ftBitmapGlyph.rows; ++y)
+                        {
+                            uint8_t* dataP = out->data.data() + ftBitmapGlyph.width * y;
+                            unsigned char* bitmapP = ftBitmapGlyph.buffer + y * ftBitmapGlyph.pitch;
+                            for (size_t x = 0; x < ftBitmapGlyph.width; ++x)
+                            {
+                                dataP[x] = bitmapP[x];
+                            }
+                        }
                         out->offset = glm::ivec2(i->second->glyph->bitmap_left, i->second->glyph->bitmap_top);
                         out->advance = i->second->glyph->advance.x / 64;
                         out->lsbDelta = i->second->glyph->lsb_delta;
@@ -308,7 +300,7 @@ namespace tlr
 
                     int32_t x = 0;
                     glm::ivec2 posAndSize(0, 0);
-                    if (glyph && glyph->image)
+                    if (glyph)
                     {
                         x = glyph->advance;
                         if (rsbDeltaPrev - glyph->lsbDelta > 32)

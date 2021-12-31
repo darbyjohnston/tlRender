@@ -182,9 +182,9 @@ namespace tlr
             throw std::runtime_error("Cannot create window");
         }
         glfwSetWindowUserPointer(_glfwWindow, this);
-        int width = 1000;
-        int height = 500;
-        //glfwGetFramebufferSize(_glfwWindow, &width, &height);
+        int width = 0;
+        int height = 0;
+        glfwGetFramebufferSize(_glfwWindow, &width, &height);
         _frameBufferSize.w = width;
         _frameBufferSize.h = height;
         glfwGetWindowContentScale(_glfwWindow, &_contentScale.x, &_contentScale.y);
@@ -397,9 +397,13 @@ namespace tlr
             if (RenderType::Software == _options.renderType)
             {
                 _glRender->begin(_frameBufferSize);
+                render::ImageOptions imageOptions;
+                imageOptions.mirror.y = true;
                 _glRender->drawImage(
                     std::dynamic_pointer_cast<render::SoftwareRender>(_render)->getFrameBuffer(),
-                    math::BBox2i(0, 0, _frameBufferSize.w, _frameBufferSize.h));
+                    math::BBox2i(0, 0, _frameBufferSize.w, _frameBufferSize.h),
+                    imaging::Color4f(1.F, 1.F, 1.F),
+                    imageOptions);
                 _glRender->end();
             }
             glfwSwapBuffers(_glfwWindow);

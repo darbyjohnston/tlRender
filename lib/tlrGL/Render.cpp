@@ -1049,6 +1049,8 @@ namespace tlr
                         glClearColor(0.F, 0.F, 0.F, 0.F);
                         glClear(GL_COLOR_BUFFER_BIT);
                         glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ONE);
+                        render::ImageOptions imageOptionsTmp;
+                        imageOptionsTmp.yuvRange = imageOptions.yuvRange;
                         if (i.image)
                         {
                             const float t = 1.F - i.transitionValue;
@@ -1056,7 +1058,7 @@ namespace tlr
                                 i.image,
                                 imaging::getBBox(i.image->getAspect(), p.size),
                                 imaging::Color4f(t, t, t, t),
-                                imageOptions);
+                                imageOptionsTmp);
                         }
                         if (i.imageB)
                         {
@@ -1065,7 +1067,7 @@ namespace tlr
                                 i.imageB,
                                 imaging::getBBox(i.imageB->getAspect(), p.size),
                                 imaging::Color4f(tB, tB, tB, tB),
-                                imageOptions);
+                                imageOptionsTmp);
                         }
                         glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                     }
@@ -1151,20 +1153,20 @@ namespace tlr
                     }
                     rsbDeltaPrev = glyph->rsbDelta;
 
-                    if (glyph->image && glyph->image->isValid())
+                    if (!glyph->data.empty())
                     {
                         std::shared_ptr<Texture> texture;
                         if (!p.glyphTextureCache.get(glyph->glyphInfo, texture))
                         {
-                            texture = Texture::create(glyph->image->getInfo());
-                            texture->copy(*glyph->image);
+                            const imaging::Info info(glyph->width, glyph->height, imaging::PixelType::L_U8);
+                            texture = Texture::create(info);
+                            texture->copy(glyph->data.data(), info);
                             p.glyphTextureCache.add(glyph->glyphInfo, texture);
                         }
                         glBindTexture(GL_TEXTURE_2D, texture->getID());
 
-                        const imaging::Size& size = glyph->image->getSize();
                         const glm::ivec2& offset = glyph->offset;
-                        const math::BBox2i bbox(pos.x + x + offset.x, pos.y - offset.y, size.w, size.h);
+                        const math::BBox2i bbox(pos.x + x + offset.x, pos.y - offset.y, glyph->width, glyph->height);
 
                         std::vector<uint8_t> vboData;
                         vboData.resize(4 * getByteCount(VBOType::Pos2_F32_UV_U16));

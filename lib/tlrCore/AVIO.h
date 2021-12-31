@@ -204,8 +204,8 @@ namespace tlr
             const std::string& getName() const;
 
             //! Get the supported file extensions.
-            std::set<std::string> getExtensions(
-                int types = static_cast<int>(FileExtensionType::VideoAndAudio) |
+            std::set<std::string> getExtensions(int types =
+                static_cast<int>(FileExtensionType::VideoAndAudio) |
                 static_cast<int>(FileExtensionType::VideoOnly) |
                 static_cast<int>(FileExtensionType::AudioOnly)) const;
 

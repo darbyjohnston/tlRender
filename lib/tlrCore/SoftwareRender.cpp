@@ -89,6 +89,22 @@ namespace tlr
                     }
                     break;
                 }
+                case imaging::PixelType::RGB_F32:
+                {
+                    imaging::F32_T* outP = reinterpret_cast<imaging::F32_T*>(out->getData());
+                    for (size_t y = 0; y < h; ++y)
+                    {
+                        const imaging::F32_T* p = reinterpret_cast<imaging::F32_T*>(image->getData()) + y * w * 3;
+                        for (size_t x = 0; x < w; ++x, p += 3, outP += 4)
+                        {
+                            outP[0] = p[0];
+                            outP[1] = p[1];
+                            outP[2] = p[2];
+                            outP[3] = 1.F;
+                        }
+                    }
+                    break;
+                }
                 case imaging::PixelType::RGBA_F32:
                 {
                     imaging::F32_T* outP = reinterpret_cast<imaging::F32_T*>(out->getData());
@@ -164,7 +180,7 @@ namespace tlr
                     const float max = imaging::U8Range.getMax();
                     for (size_t y = 0; y < h; ++y)
                     {
-                        const imaging::F32_T* p = reinterpret_cast<imaging::F32_T*>(image->getData()) + y * w * 3;
+                        const imaging::F32_T* p = reinterpret_cast<imaging::F32_T*>(image->getData()) + (h - 1 - y) * w * 3;
                         for (size_t x = 0; x < w; ++x, p += 3, outP += 3)
                         {
                             outP[0] = math::clamp(p[0] * max, min, max);
@@ -181,7 +197,7 @@ namespace tlr
                     const float max = imaging::U8Range.getMax();
                     for (size_t y = 0; y < h; ++y)
                     {
-                        const imaging::F32_T* p = reinterpret_cast<imaging::F32_T*>(image->getData()) + y * w * 3;
+                        const imaging::F32_T* p = reinterpret_cast<imaging::F32_T*>(image->getData()) + (h - 1 - y) * w * 3;
                         for (size_t x = 0; x < w; ++x, p += 3, outP += 4)
                         {
                             outP[0] = math::clamp(p[0] * max, min, max);
@@ -202,9 +218,9 @@ namespace tlr
             imaging::Color4f sample_RGBA_F32(const imaging::F32_T* p, size_t w, size_t h, float x, float y)
             {
                 const size_t x0 = x * (static_cast<int>(w) - 1);
-                const size_t x1 = std::min(static_cast<int>(x0) + 0, static_cast<int>(w) - 1);
+                const size_t x1 = std::min(static_cast<int>(x0) + 1, static_cast<int>(w) - 1);
                 const size_t y0 = y * (static_cast<int>(h) - 1);
-                const size_t y1 = std::min(static_cast<int>(y0) + 0, static_cast<int>(h) - 1);
+                const size_t y1 = std::min(static_cast<int>(y0) + 1, static_cast<int>(h) - 1);
                 const imaging::F32_T* p0 = p + y0 * w * 4 + x0 * 4;
                 const imaging::F32_T* p1 = p + y0 * w * 4 + x1 * 4;
                 const imaging::F32_T* p2 = p + y1 * w * 4 + x0 * 4;
@@ -220,9 +236,9 @@ namespace tlr
 
             void drawMesh(
                 const geom::TriangleMesh2& mesh,
-                const std::shared_ptr<imaging::Image>& fb,
                 const std::shared_ptr<imaging::Image>& texture,
-                const imaging::Color4f& color)
+                const imaging::Color4f& color,
+                const std::shared_ptr<imaging::Image>& frameBuffer)
             {
                 if (!mesh.v.empty())
                 {
@@ -239,8 +255,8 @@ namespace tlr
                         bbox.max.y = std::max(bbox.max.y, static_cast<int>(ceil(v.y)));
                     }
 
-                    const size_t fbW = fb->getWidth();
-                    const size_t fbH = fb->getHeight();
+                    const size_t fbW = frameBuffer->getWidth();
+                    const size_t fbH = frameBuffer->getHeight();
                     bbox = bbox.intersect(math::BBox2i(0, 0, fbW, fbH));
                     if (bbox.isValid())
                     {
@@ -249,8 +265,8 @@ namespace tlr
                         const imaging::F32_T* textureP = texture ? reinterpret_cast<imaging::F32_T*>(texture->getData()) : nullptr;
                         for (size_t y = bbox.min.y; y <= bbox.max.y; ++y)
                         {
-                            imaging::F32_T* fbP = reinterpret_cast<imaging::F32_T*>(fb->getData()) +
-                                (fbH - 1 - y) * fbW * 3 +
+                            imaging::F32_T* fbP = reinterpret_cast<imaging::F32_T*>(frameBuffer->getData()) +
+                                y * fbW * 3 +
                                 static_cast<size_t>(bbox.min.x) * 3;
                             for (size_t x = bbox.min.x; x <= bbox.max.x; ++x, fbP += 3)
                             {
@@ -357,9 +373,9 @@ namespace tlr
 
             geom::TriangleMesh2 mesh;
             mesh.v.push_back(glm::vec2(bbox.min.x, bbox.min.y));
-            mesh.v.push_back(glm::vec2(bbox.max.x + 1, bbox.min.y));
-            mesh.v.push_back(glm::vec2(bbox.max.x + 1, bbox.max.y + 1));
-            mesh.v.push_back(glm::vec2(bbox.min.x, bbox.max.y + 1));
+            mesh.v.push_back(glm::vec2(bbox.max.x, bbox.min.y));
+            mesh.v.push_back(glm::vec2(bbox.max.x, bbox.max.y));
+            mesh.v.push_back(glm::vec2(bbox.min.x, bbox.max.y));
             mesh.t.push_back(glm::vec2(0.F, 0.F));
             mesh.t.push_back(glm::vec2(1.F, 0.F));
             mesh.t.push_back(glm::vec2(1.F, 1.F));
@@ -379,7 +395,56 @@ namespace tlr
             triangle.v[1].t = 3;
             triangle.v[2].t = 0;
             mesh.triangles.push_back(triangle);
-            drawMesh(mesh, p.frameBuffer, nullptr, color);
+            drawMesh(mesh, nullptr, color, p.frameBuffer);
+        }
+
+        namespace
+        {
+            void _drawImage(
+                const std::shared_ptr<imaging::Image>& image,
+                const math::BBox2i& bbox,
+                const imaging::Color4f& color,
+                const render::ImageOptions& imageOptions,
+                const std::shared_ptr<imaging::Image>& frameBuffer)
+            {
+                const auto& info = image->getInfo();
+                imaging::YUVRange yuvRange = info.yuvRange;
+                switch (imageOptions.yuvRange)
+                {
+                case render::YUVRange::Full:  yuvRange = imaging::YUVRange::Full;  break;
+                case render::YUVRange::Video: yuvRange = imaging::YUVRange::Video; break;
+                default: break;
+                }
+
+                if (auto image_RGBA_F32 = convert_to_RGBA_F32(image, yuvRange))
+                {
+                    geom::TriangleMesh2 mesh;
+                    mesh.v.push_back(glm::vec2(bbox.min.x, bbox.min.y));
+                    mesh.v.push_back(glm::vec2(bbox.max.x, bbox.min.y));
+                    mesh.v.push_back(glm::vec2(bbox.max.x, bbox.max.y));
+                    mesh.v.push_back(glm::vec2(bbox.min.x, bbox.max.y));
+                    mesh.t.push_back(glm::vec2(0.F, 0.F));
+                    mesh.t.push_back(glm::vec2(1.F, 0.F));
+                    mesh.t.push_back(glm::vec2(1.F, 1.F));
+                    mesh.t.push_back(glm::vec2(0.F, 1.F));
+                    geom::Triangle2 triangle;
+                    triangle.v[0].v = 0;
+                    triangle.v[1].v = 1;
+                    triangle.v[2].v = 2;
+                    triangle.v[0].t = 0;
+                    triangle.v[1].t = 1;
+                    triangle.v[2].t = 2;
+                    mesh.triangles.push_back(triangle);
+                    triangle.v[0].v = 2;
+                    triangle.v[1].v = 3;
+                    triangle.v[2].v = 0;
+                    triangle.v[0].t = 2;
+                    triangle.v[1].t = 3;
+                    triangle.v[2].t = 0;
+                    mesh.triangles.push_back(triangle);
+                    drawMesh(mesh, image_RGBA_F32, color, frameBuffer);
+                }
+            }
         }
 
         void SoftwareRender::drawImage(
@@ -388,45 +453,7 @@ namespace tlr
             const imaging::Color4f& color,
             const render::ImageOptions& imageOptions)
         {
-            TLR_PRIVATE_P();
-
-            const auto& info = image->getInfo();
-            imaging::YUVRange yuvRange = info.yuvRange;
-            switch (imageOptions.yuvRange)
-            {
-            case render::YUVRange::Full:  yuvRange = imaging::YUVRange::Full;  break;
-            case render::YUVRange::Video: yuvRange = imaging::YUVRange::Video; break;
-            default: break;
-            }
-
-            if (auto image_RGBA_F32 = convert_to_RGBA_F32(image, yuvRange))
-            {
-                geom::TriangleMesh2 mesh;
-                mesh.v.push_back(glm::vec2(bbox.min.x, bbox.min.y));
-                mesh.v.push_back(glm::vec2(bbox.max.x + 1, bbox.min.y));
-                mesh.v.push_back(glm::vec2(bbox.max.x + 1, bbox.max.y + 1));
-                mesh.v.push_back(glm::vec2(bbox.min.x, bbox.max.y + 1));
-                mesh.t.push_back(glm::vec2(0.F, 0.F));
-                mesh.t.push_back(glm::vec2(1.F, 0.F));
-                mesh.t.push_back(glm::vec2(1.F, 1.F));
-                mesh.t.push_back(glm::vec2(0.F, 1.F));
-                geom::Triangle2 triangle;
-                triangle.v[0].v = 0;
-                triangle.v[1].v = 1;
-                triangle.v[2].v = 2;
-                triangle.v[0].t = 0;
-                triangle.v[1].t = 1;
-                triangle.v[2].t = 2;
-                mesh.triangles.push_back(triangle);
-                triangle.v[0].v = 2;
-                triangle.v[1].v = 3;
-                triangle.v[2].v = 0;
-                triangle.v[0].t = 2;
-                triangle.v[1].t = 3;
-                triangle.v[2].t = 0;
-                mesh.triangles.push_back(triangle);
-                drawMesh(mesh, p.frameBuffer, image_RGBA_F32, color);
-            }
+            _drawImage(image, bbox, color, imageOptions, _p->frameBuffer);
         }
 
         void SoftwareRender::drawVideo(
@@ -439,15 +466,50 @@ namespace tlr
                 switch (i.transition)
                 {
                 case timeline::Transition::Dissolve:
+                {
+                    auto buffer = imaging::Image::create(p.frameBuffer->getInfo());
+                    buffer->zero();
+
+                    ImageOptions imageOptionsTmp;
+                    imageOptionsTmp.yuvRange = imageOptions.yuvRange;
+                    if (i.image)
+                    {
+                        const float t = 1.F - i.transitionValue;
+                        _drawImage(
+                            i.image,
+                            imaging::getBBox(i.image->getAspect(), buffer->getSize()),
+                            imaging::Color4f(t, t, t, t),
+                            imageOptionsTmp,
+                            buffer);
+                    }
+                    if (i.imageB)
+                    {
+                        const float tB = i.transitionValue;
+                        _drawImage(
+                            i.imageB,
+                            imaging::getBBox(i.imageB->getAspect(), buffer->getSize()),
+                            imaging::Color4f(tB, tB, tB, tB),
+                            imageOptionsTmp,
+                            buffer);
+                    }
+
+                    _drawImage(
+                        buffer,
+                        imaging::getBBox(buffer->getAspect(), p.frameBuffer->getSize()),
+                        imaging::Color4f(1.F, 1.F, 1.F),
+                        imageOptions,
+                        p.frameBuffer);
                     break;
+                }
                 default:
                     if (i.image)
                     {
-                        drawImage(
+                        _drawImage(
                             i.image,
                             imaging::getBBox(i.image->getAspect(), p.frameBuffer->getSize()),
                             imaging::Color4f(1.F, 1.F, 1.F),
-                            imageOptions);
+                            imageOptions,
+                            p.frameBuffer);
                     }
                     break;
                 }
@@ -477,40 +539,53 @@ namespace tlr
                     }
                     rsbDeltaPrev = glyph->rsbDelta;
 
-                    if (glyph->image && glyph->image->isValid())
+                    if (!glyph->data.empty())
                     {
-                        if (auto image_RGBA_F32 = convert_to_RGBA_F32(glyph->image))
+                        auto image_RGBA_F32 = imaging::Image::create(imaging::Info(
+                            glyph->width,
+                            glyph->height,
+                            imaging::PixelType::RGBA_F32));
+                        for (size_t glyphY = 0; glyphY < glyph->height; ++glyphY)
                         {
-                            const imaging::Size& size = glyph->image->getSize();
-                            const glm::ivec2& offset = glyph->offset;
-                            const math::BBox2i bbox(pos.x + x + offset.x, pos.y - offset.y, size.w, size.h);
-
-                            geom::TriangleMesh2 mesh;
-                            mesh.v.push_back(glm::vec2(bbox.min.x, bbox.min.y));
-                            mesh.v.push_back(glm::vec2(bbox.max.x + 1, bbox.min.y));
-                            mesh.v.push_back(glm::vec2(bbox.max.x + 1, bbox.max.y + 1));
-                            mesh.v.push_back(glm::vec2(bbox.min.x, bbox.max.y + 1));
-                            mesh.t.push_back(glm::vec2(0.F, 0.F));
-                            mesh.t.push_back(glm::vec2(1.F, 0.F));
-                            mesh.t.push_back(glm::vec2(1.F, 1.F));
-                            mesh.t.push_back(glm::vec2(0.F, 1.F));
-                            geom::Triangle2 triangle;
-                            triangle.v[0].v = 0;
-                            triangle.v[1].v = 1;
-                            triangle.v[2].v = 2;
-                            triangle.v[0].t = 0;
-                            triangle.v[1].t = 1;
-                            triangle.v[2].t = 2;
-                            mesh.triangles.push_back(triangle);
-                            triangle.v[0].v = 2;
-                            triangle.v[1].v = 3;
-                            triangle.v[2].v = 0;
-                            triangle.v[0].t = 2;
-                            triangle.v[1].t = 3;
-                            triangle.v[2].t = 0;
-                            mesh.triangles.push_back(triangle);
-                            drawMesh(mesh, p.frameBuffer, image_RGBA_F32, color);
+                            const uint8_t* glyphP = glyph->data.data() + glyphY * glyph->width;
+                            float* imageP = reinterpret_cast<float*>(image_RGBA_F32->getData()) + glyphY * glyph->width * 4;
+                            for (size_t glyphX = 0; glyphX < glyph->width; ++glyphX, ++glyphP, imageP += 4)
+                            {
+                                imageP[0] = color.r * (*glyphP / 255.0);
+                                imageP[1] = color.g * (*glyphP / 255.0);
+                                imageP[2] = color.b * (*glyphP / 255.0);
+                                imageP[3] = color.a * (*glyphP / 255.0);
+                            }
                         }
+
+                        const glm::ivec2& offset = glyph->offset;
+                        const math::BBox2i bbox(pos.x + x + offset.x, pos.y - offset.y, glyph->width, glyph->height);
+
+                        geom::TriangleMesh2 mesh;
+                        mesh.v.push_back(glm::vec2(bbox.min.x, bbox.min.y));
+                        mesh.v.push_back(glm::vec2(bbox.max.x, bbox.min.y));
+                        mesh.v.push_back(glm::vec2(bbox.max.x, bbox.max.y));
+                        mesh.v.push_back(glm::vec2(bbox.min.x, bbox.max.y));
+                        mesh.t.push_back(glm::vec2(0.F, 0.F));
+                        mesh.t.push_back(glm::vec2(1.F, 0.F));
+                        mesh.t.push_back(glm::vec2(1.F, 1.F));
+                        mesh.t.push_back(glm::vec2(0.F, 1.F));
+                        geom::Triangle2 triangle;
+                        triangle.v[0].v = 0;
+                        triangle.v[1].v = 1;
+                        triangle.v[2].v = 2;
+                        triangle.v[0].t = 0;
+                        triangle.v[1].t = 1;
+                        triangle.v[2].t = 2;
+                        mesh.triangles.push_back(triangle);
+                        triangle.v[0].v = 2;
+                        triangle.v[1].v = 3;
+                        triangle.v[2].v = 0;
+                        triangle.v[0].t = 2;
+                        triangle.v[1].t = 3;
+                        triangle.v[2].t = 0;
+                        mesh.triangles.push_back(triangle);
+                        drawMesh(mesh, image_RGBA_F32, color, p.frameBuffer);
                     }
 
                     x += glyph->advance;
