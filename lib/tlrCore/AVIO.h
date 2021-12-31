@@ -230,7 +230,7 @@ namespace tlr
             virtual std::shared_ptr<IWrite> write(
                 const file::Path&,
                 const Info&,
-                const Options & = Options()) = 0;
+                const Options& = Options()) = 0;
 
         protected:
             bool _isWriteCompatible(const imaging::Info&) const;

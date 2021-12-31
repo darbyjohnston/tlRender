@@ -13,6 +13,7 @@ extern "C"
 {
 #include <libavutil/dict.h>
 #include <libavutil/imgutils.h>
+#include <libswresample/swresample.h>
 
 } // extern "C"
 
@@ -72,6 +73,7 @@ namespace tlr
                 std::map<int, AVCodecParameters*> avCodecParameters;
                 std::map<int, AVCodecContext*> avCodecContext;
                 AVFrame* avFrame = nullptr;
+                SwrContext* swrContext = nullptr;
                 std::list<std::shared_ptr<audio::Audio> > buffer;
             };
             Audio audio;
@@ -89,7 +91,6 @@ namespace tlr
 
             size_t getAudioBufferSize() const;
             int decodeAudio();
-            void copyAudio(const std::shared_ptr<audio::Audio>&);
         };
 
         void Read::_init(
@@ -101,7 +102,28 @@ namespace tlr
 
             TLR_PRIVATE_P();
 
-            auto i = options.find("ffmpeg/ThreadCount");
+            p.info.audio.channelCount = 2;
+            p.info.audio.dataType = audio::DataType::F32;
+            p.info.audio.sampleRate = 44100;
+            auto i = options.find("ffmpeg/AudioChannelCount");
+            if (i != options.end())
+            {
+                std::stringstream ss(i->second);
+                ss >> p.info.audio.channelCount;
+            }
+            i = options.find("ffmpeg/AudioDataType");
+            if (i != options.end())
+            {
+                std::stringstream ss(i->second);
+                ss >> p.info.audio.dataType;
+            }
+            i = options.find("ffmpeg/AudioSampleRate");
+            if (i != options.end())
+            {
+                std::stringstream ss(i->second);
+                ss >> p.info.audio.sampleRate;
+            }
+            i = options.find("ffmpeg/ThreadCount");
             if (i != options.end())
             {
                 std::stringstream ss(i->second);
@@ -517,7 +539,8 @@ namespace tlr
                     break;
                 }
 
-                const audio::DataType dataType = toAudioType(static_cast<AVSampleFormat>(avAudioCodecParameters->format));
+                const audio::DataType dataType = toAudioType(static_cast<AVSampleFormat>(
+                    p.audio.avCodecParameters[p.audio.avStream]->format));
                 if (audio::DataType::None == dataType)
                 {
                     throw std::runtime_error(string::Format("{0}: Unsupported audio format").arg(fileName));
@@ -525,7 +548,7 @@ namespace tlr
 
                 p.audio.avFrame = av_frame_alloc();
 
-                const int sampleRate = p.audio.avCodecParameters[p.audio.avStream]->sample_rate;
+                const int sampleRate = 44100;
                 int64_t sampleCount = 0;
                 if (avAudioStream->duration != AV_NOPTS_VALUE)
                 {
@@ -548,14 +571,22 @@ namespace tlr
                         r);
                 }
 
-                p.info.audio.channelCount = channelCount;
-                p.info.audio.dataType = dataType;
-                p.info.audio.sampleRate = sampleRate;
+                p.audio.swrContext = swr_alloc_set_opts(
+                    NULL,
+                    fromChannelCount(p.info.audio.channelCount),
+                    fromAudioType(p.info.audio.dataType),
+                    p.info.audio.sampleRate,
+                    p.audio.avCodecParameters[p.audio.avStream]->channel_layout,
+                    static_cast<AVSampleFormat>(p.audio.avCodecParameters[p.audio.avStream]->format),
+                    p.audio.avCodecParameters[p.audio.avStream]->sample_rate,
+                    0,
+                    NULL);
+                swr_init(p.audio.swrContext);
                 p.info.audioTime = otime::TimeRange::range_from_start_end_time(
                     otime::RationalTime(0.0, sampleRate),
                     otime::RationalTime(sampleCount, sampleRate));
 
-                p.audioTime = otime::RationalTime(0.0, p.info.audio.sampleRate);
+                p.audioTime = otime::RationalTime(0.0, sampleRate);
 
                 AVDictionaryEntry* tag = nullptr;
                 while ((tag = av_dict_get(p.audio.avFormatContext->metadata, "", tag, AV_DICT_IGNORE_SUFFIX)))
@@ -709,7 +740,7 @@ namespace tlr
                             avcodec_flush_buffers(p.audio.avCodecContext[p.audio.avStream]);
                             AVRational r;
                             r.num = 1;
-                            r.den = p.info.audio.sampleRate;
+                            r.den = p.audio.avCodecParameters[p.audio.avStream]->sample_rate;
                             if (av_seek_frame(
                                 p.audio.avFormatContext,
                                 p.audio.avStream,
@@ -721,6 +752,19 @@ namespace tlr
                             {
                                 //! \todo How should this be handled?
                             }
+
+                            std::vector<uint8_t> swrOutputBuffer;
+                            swrOutputBuffer.resize(
+                                static_cast<size_t>(p.info.audio.channelCount) *
+                                audio::getByteCount(p.info.audio.dataType) *
+                                p.audio.avFrame->nb_samples);
+                            uint8_t* swrOutputBufferP[] = { swrOutputBuffer.data() };
+                            swr_convert(
+                                p.audio.swrContext,
+                                swrOutputBufferP,
+                                p.audio.avFrame->nb_samples,
+                                NULL,
+                                0);
                         }
                     }
 
@@ -854,6 +898,10 @@ namespace tlr
                 avformat_close_input(&p.video.avFormatContext);
             }
 
+            if (p.audio.swrContext)
+            {
+                swr_free(&p.audio.swrContext);
+            }
             if (p.audio.avFrame)
             {
                 av_frame_free(&p.audio.avFrame);
@@ -1020,7 +1068,7 @@ namespace tlr
 
                 AVRational r;
                 r.num = 1;
-                r.den = info.audio.sampleRate;
+                r.den = 44100;
                 const auto time = otime::RationalTime(
                     av_rescale_q(
                         timestamp,
@@ -1032,59 +1080,29 @@ namespace tlr
                 if (time >= audioTime)
                 {
                     //std::cout << "audio samples: " << time << std::endl;
-                    auto tmp = audio::Audio::create(info.audio, audio.avFrame->nb_samples);
-                    copyAudio(tmp);
-                    audio.buffer.push_back(tmp);
+                    std::vector<uint8_t> swrOutputBuffer;
+                    swrOutputBuffer.resize(
+                        static_cast<size_t>(info.audio.channelCount) *
+                        audio::getByteCount(info.audio.dataType) *
+                        audio.avFrame->nb_samples);
+                    uint8_t* swrOutputBufferP[] = { swrOutputBuffer.data() };
+                    const int swrOutputCount = swr_convert(
+                        audio.swrContext,
+                        swrOutputBufferP,
+                        audio.avFrame->nb_samples,
+                        (const uint8_t **)audio.avFrame->data,
+                        audio.avFrame->nb_samples);
+                    if (swrOutputCount >= 0)
+                    {
+                        auto tmp = audio::Audio::create(info.audio, swrOutputCount);
+                        memcpy(tmp->getData(), swrOutputBuffer.data(), tmp->getByteCount());
+                        audio.buffer.push_back(tmp);
+                    }
                     out = 1;
                     break;
                 }
             }
             return out;
-        }
-
-        void Read::Private::copyAudio(const std::shared_ptr<audio::Audio>& out)
-        {
-            const uint8_t outChannelCount = out->getChannelCount();
-            const size_t sampleCount = out->getSampleCount();
-            switch (audio.avCodecParameters[audio.avStream]->format)
-            {
-            case AV_SAMPLE_FMT_S16:
-            case AV_SAMPLE_FMT_S32:
-            case AV_SAMPLE_FMT_FLT:
-            case AV_SAMPLE_FMT_DBL:
-                std::memcpy(out->getData(), audio.avFrame->data[0], out->getByteCount());
-                break;
-            case AV_SAMPLE_FMT_S16P:
-                audio::planarInterleave(
-                    const_cast<const int16_t**>(reinterpret_cast<int16_t**>(audio.avFrame->data)),
-                    reinterpret_cast<int16_t*>(out->getData()),
-                    outChannelCount,
-                    out->getSampleCount());
-                break;
-            case AV_SAMPLE_FMT_S32P:
-                audio::planarInterleave(
-                    const_cast<const int32_t**>(reinterpret_cast<int32_t**>(audio.avFrame->data)),
-                    reinterpret_cast<int32_t*>(out->getData()),
-                    outChannelCount,
-                    out->getSampleCount());
-                break;
-            case AV_SAMPLE_FMT_FLTP:
-                audio::planarInterleave(
-                    const_cast<const float**>(reinterpret_cast<float**>(audio.avFrame->data)),
-                    reinterpret_cast<float*>(out->getData()),
-                    outChannelCount,
-                    out->getSampleCount());
-                break;
-            case AV_SAMPLE_FMT_DBLP:
-                audio::planarInterleave(
-                    const_cast<const double**>(reinterpret_cast<double**>(audio.avFrame->data)),
-                    reinterpret_cast<double*>(out->getData()),
-                    outChannelCount,
-                    out->getSampleCount());
-                break;
-            default: break;
-            }
-
         }
     }
 }
