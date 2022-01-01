@@ -1096,12 +1096,13 @@ namespace tlr
                         audio.avFrame->nb_samples,
                         (const uint8_t **)audio.avFrame->data,
                         audio.avFrame->nb_samples);
-                    if (swrOutputCount >= 0)
+                    if (swrOutputCount < 0)
                     {
-                        auto tmp = audio::Audio::create(info.audio, swrOutputCount);
-                        memcpy(tmp->getData(), swrOutputBuffer.data(), tmp->getByteCount());
-                        audio.buffer.push_back(tmp);
+                        break;
                     }
+                    auto tmp = audio::Audio::create(info.audio, swrOutputCount);
+                    memcpy(tmp->getData(), swrOutputBuffer.data(), tmp->getByteCount());
+                    audio.buffer.push_back(tmp);
                     out = 1;
                     break;
                 }
