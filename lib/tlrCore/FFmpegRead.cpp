@@ -650,6 +650,8 @@ namespace tlr
                             {
                                 //! \todo How should this be handled?
                             }
+
+                            p.video.buffer.clear();
                         }
                     }
 
@@ -765,6 +767,8 @@ namespace tlr
                                 p.audio.avFrame->nb_samples,
                                 NULL,
                                 0);
+
+                            p.audio.buffer.clear();
                         }
                     }
 
