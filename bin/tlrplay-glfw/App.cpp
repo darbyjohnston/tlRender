@@ -4,6 +4,7 @@
 
 #include "App.h"
 
+#include <tlrCore/AudioSystem.h>
 #include <tlrCore/Math.h>
 #include <tlrCore/StringFormat.h>
 #include <tlrCore/Time.h>
@@ -131,7 +132,13 @@ namespace tlr
         }
         
         // Read the timeline.
-        auto timeline = timeline::Timeline::create(_input, _context);
+        timeline::Options options;
+        auto audioSystem = _context->getSystem<audio::System>();
+        const audio::Info audioInfo = audioSystem->getDefaultOutputInfo();
+        options.avioOptions["ffmpeg/AudioChannelCount"] = string::Format("{0}").arg(audioInfo.channelCount);
+        options.avioOptions["ffmpeg/AudioDataType"] = string::Format("{0}").arg(audioInfo.dataType);
+        options.avioOptions["ffmpeg/AudioSampleRate"] = string::Format("{0}").arg(audioInfo.sampleRate);
+        auto timeline = timeline::Timeline::create(_input, _context, options);
         _timelinePlayer = timeline::TimelinePlayer::create(timeline, _context);
 
         // Initialize GLFW.

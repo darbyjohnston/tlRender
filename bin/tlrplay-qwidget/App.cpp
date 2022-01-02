@@ -4,6 +4,7 @@
 
 #include "App.h"
 
+#include <tlrCore/AudioSystem.h>
 #include <tlrCore/Math.h>
 #include <tlrCore/StringFormat.h>
 #include <tlrCore/Time.h>
@@ -119,6 +120,11 @@ namespace tlr
             options.videoRequestCount = _settingsObject->videoRequestCount();
             options.audioRequestCount = _settingsObject->audioRequestCount();
             options.avioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").arg(_settingsObject->sequenceThreadCount());
+            auto audioSystem = _context->getSystem<audio::System>();
+            const audio::Info audioInfo = audioSystem->getDefaultOutputInfo();
+            options.avioOptions["ffmpeg/AudioChannelCount"] = string::Format("{0}").arg(audioInfo.channelCount);
+            options.avioOptions["ffmpeg/AudioDataType"] = string::Format("{0}").arg(audioInfo.dataType);
+            options.avioOptions["ffmpeg/AudioSampleRate"] = string::Format("{0}").arg(audioInfo.sampleRate);
             options.avioOptions["ffmpeg/ThreadCount"] = string::Format("{0}").arg(_settingsObject->ffmpegThreadCount());
             options.pathOptions.maxNumberDigits = std::min(_settingsObject->maxFileSequenceDigits(), 255);
             auto timeline = timeline::Timeline::create(
@@ -155,6 +161,11 @@ namespace tlr
             options.videoRequestCount = _settingsObject->videoRequestCount();
             options.audioRequestCount = _settingsObject->audioRequestCount();
             options.avioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").arg(_settingsObject->sequenceThreadCount());
+            auto audioSystem = _context->getSystem<audio::System>();
+            const audio::Info audioInfo = audioSystem->getDefaultOutputInfo();
+            options.avioOptions["ffmpeg/AudioChannelCount"] = string::Format("{0}").arg(audioInfo.channelCount);
+            options.avioOptions["ffmpeg/AudioDataType"] = string::Format("{0}").arg(audioInfo.dataType);
+            options.avioOptions["ffmpeg/AudioSampleRate"] = string::Format("{0}").arg(audioInfo.sampleRate);
             options.avioOptions["ffmpeg/ThreadCount"] = string::Format("{0}").arg(_settingsObject->ffmpegThreadCount());
             auto timeline = timeline::Timeline::create(
                 fileName.toUtf8().data(),

@@ -6,6 +6,7 @@
 
 #include <tlrQuick/GLFramebufferObject.h>
 
+#include <tlrCore/AudioSystem.h>
 #include <tlrCore/Path.h>
 #include <tlrCore/StringFormat.h>
 
@@ -44,7 +45,13 @@ namespace tlr
         _timeObject = new qt::TimeObject(this);
 
         // Open the input file.
-        auto timeline = timeline::Timeline::create(_input, _context);
+        timeline::Options options;
+        auto audioSystem = _context->getSystem<audio::System>();
+        const audio::Info audioInfo = audioSystem->getDefaultOutputInfo();
+        options.avioOptions["ffmpeg/AudioChannelCount"] = string::Format("{0}").arg(audioInfo.channelCount);
+        options.avioOptions["ffmpeg/AudioDataType"] = string::Format("{0}").arg(audioInfo.dataType);
+        options.avioOptions["ffmpeg/AudioSampleRate"] = string::Format("{0}").arg(audioInfo.sampleRate);
+        auto timeline = timeline::Timeline::create(_input, _context, options);
         _timelinePlayer = new qt::TimelinePlayer(timeline::TimelinePlayer::create(timeline, _context), _context);
 
         // Load the QML.
