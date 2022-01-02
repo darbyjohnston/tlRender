@@ -548,13 +548,12 @@ namespace tlr
 
                 p.audio.avFrame = av_frame_alloc();
 
-                const int sampleRate = 44100;
                 int64_t sampleCount = 0;
                 if (avAudioStream->duration != AV_NOPTS_VALUE)
                 {
                     AVRational r;
                     r.num = 1;
-                    r.den = sampleRate;
+                    r.den = p.info.audio.sampleRate;
                     sampleCount = av_rescale_q(
                         avAudioStream->duration,
                         avAudioStream->time_base,
@@ -564,7 +563,7 @@ namespace tlr
                 {
                     AVRational r;
                     r.num = 1;
-                    r.den = sampleRate;
+                    r.den = p.info.audio.sampleRate;
                     sampleCount = av_rescale_q(
                         p.audio.avFormatContext->duration,
                         av_get_time_base_q(),
@@ -582,11 +581,12 @@ namespace tlr
                     0,
                     NULL);
                 swr_init(p.audio.swrContext);
-                p.info.audioTime = otime::TimeRange::range_from_start_end_time(
-                    otime::RationalTime(0.0, sampleRate),
-                    otime::RationalTime(sampleCount, sampleRate));
 
-                p.audioTime = otime::RationalTime(0.0, sampleRate);
+                p.info.audioTime = otime::TimeRange::range_from_start_end_time(
+                    otime::RationalTime(0.0, p.info.audio.sampleRate),
+                    otime::RationalTime(sampleCount, p.info.audio.sampleRate));
+
+                p.audioTime = otime::RationalTime(0.0, p.info.audio.sampleRate);
 
                 AVDictionaryEntry* tag = nullptr;
                 while ((tag = av_dict_get(p.audio.avFormatContext->metadata, "", tag, AV_DICT_IGNORE_SUFFIX)))
@@ -742,7 +742,7 @@ namespace tlr
                             avcodec_flush_buffers(p.audio.avCodecContext[p.audio.avStream]);
                             AVRational r;
                             r.num = 1;
-                            r.den = p.audio.avCodecParameters[p.audio.avStream]->sample_rate;
+                            r.den = p.info.audio.sampleRate;
                             if (av_seek_frame(
                                 p.audio.avFormatContext,
                                 p.audio.avStream,
@@ -761,12 +761,14 @@ namespace tlr
                                 audio::getByteCount(p.info.audio.dataType) *
                                 p.audio.avFrame->nb_samples);
                             uint8_t* swrOutputBufferP[] = { swrOutputBuffer.data() };
-                            swr_convert(
+                            while (swr_convert(
                                 p.audio.swrContext,
                                 swrOutputBufferP,
                                 p.audio.avFrame->nb_samples,
                                 NULL,
-                                0);
+                                0) > 0)
+                                ;
+                            swr_init(p.audio.swrContext);
 
                             p.audio.buffer.clear();
                         }
@@ -1072,28 +1074,31 @@ namespace tlr
 
                 AVRational r;
                 r.num = 1;
-                r.den = 44100;
+                r.den = info.audio.sampleRate;
                 const auto time = otime::RationalTime(
                     av_rescale_q(
                         timestamp,
                         audio.avFormatContext->streams[audio.avStream]->time_base,
                         r),
                     info.audio.sampleRate);
-                //std::cout << "audio time: " << time.value() << std::endl;
+                //std::cout << "audio time: " << time << std::endl;
 
                 if (time >= audioTime)
                 {
-                    //std::cout << "audio samples: " << time << std::endl;
+                    //std::cout << "audio time: " << time << std::endl;
+                    const int64_t swrDelay = swr_get_delay(audio.swrContext, audio.avCodecParameters[audio.avStream]->sample_rate);
+                    //std::cout << "delay: " << swrDelay << std::endl;
+                    const size_t swrOutputSamples = audio.avFrame->nb_samples + swrDelay;
                     std::vector<uint8_t> swrOutputBuffer;
                     swrOutputBuffer.resize(
                         static_cast<size_t>(info.audio.channelCount) *
                         audio::getByteCount(info.audio.dataType) *
-                        audio.avFrame->nb_samples);
+                        swrOutputSamples);
                     uint8_t* swrOutputBufferP[] = { swrOutputBuffer.data() };
                     const int swrOutputCount = swr_convert(
                         audio.swrContext,
                         swrOutputBufferP,
-                        audio.avFrame->nb_samples,
+                        swrOutputSamples,
                         (const uint8_t **)audio.avFrame->data,
                         audio.avFrame->nb_samples);
                     if (swrOutputCount < 0)
