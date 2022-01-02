@@ -10,6 +10,7 @@
 #include <tlrCore/String.h>
 
 #include <array>
+#include <map>
 
 using namespace tlr::core;
 
@@ -146,7 +147,17 @@ namespace tlr
                 }
                 {
                     std::stringstream ss;
+                    ss << "Default input info: " << getDefaultInputInfo();
+                    _log(ss.str());
+                }
+                {
+                    std::stringstream ss;
                     ss << "Default output device: " << getDefaultOutputDevice();
+                    _log(ss.str());
+                }
+                {
+                    std::stringstream ss;
+                    ss << "Default output info: " << getDefaultOutputInfo();
                     _log(ss.str());
                 }
             }
@@ -186,7 +197,7 @@ namespace tlr
             return _p->devices;
         }
 
-        size_t System::getDefaultInputDevice()
+        size_t System::getDefaultInputDevice() const
         {
             TLR_PRIVATE_P();
             size_t out = p.rtAudio->getDefaultInputDevice();
@@ -213,7 +224,7 @@ namespace tlr
             return out;
         }
 
-        size_t System::getDefaultOutputDevice()
+        size_t System::getDefaultOutputDevice() const
         {
             TLR_PRIVATE_P();
             size_t out = p.rtAudio->getDefaultOutputDevice();
@@ -236,6 +247,69 @@ namespace tlr
                         }
                     }
                 }
+            }
+            return out;
+        }
+
+        namespace
+        {
+            DeviceFormat getBestFormat(std::vector<DeviceFormat> value)
+            {
+                std::sort(
+                    value.begin(),
+                    value.end(),
+                    [](DeviceFormat a, DeviceFormat b)
+                    {
+                        return static_cast<size_t>(a) < static_cast<size_t>(b);
+                    });
+                return !value.empty() ? value.back() : DeviceFormat::F32;
+            }
+        }
+
+        Info System::getDefaultOutputInfo() const
+        {
+            TLR_PRIVATE_P();
+            Info out;
+            const size_t deviceIndex = getDefaultOutputDevice();
+            if (deviceIndex < p.devices.size())
+            {
+                const auto& device = p.devices[deviceIndex];
+                out.channelCount = device.outputChannels;
+                switch (getBestFormat(device.nativeFormats))
+                {
+                case DeviceFormat::S8: out.dataType = DataType::S8; break;
+                case DeviceFormat::S16: out.dataType = DataType::S16; break;
+                case DeviceFormat::S24:
+                case DeviceFormat::S32: out.dataType = DataType::S32; break;
+                case DeviceFormat::F32: out.dataType = DataType::F32; break;
+                case DeviceFormat::F64: out.dataType = DataType::F64; break;
+                default: out.dataType = DataType::F32; break;
+                }
+                out.sampleRate = device.preferredSampleRate;
+            }
+            return out;
+        }
+
+        Info System::getDefaultInputInfo() const
+        {
+            TLR_PRIVATE_P();
+            Info out;
+            const size_t deviceIndex = getDefaultInputDevice();
+            if (deviceIndex < p.devices.size())
+            {
+                const auto& device = p.devices[deviceIndex];
+                out.channelCount = device.inputChannels;
+                switch (getBestFormat(device.nativeFormats))
+                {
+                case DeviceFormat::S8: out.dataType = DataType::S8; break;
+                case DeviceFormat::S16: out.dataType = DataType::S16; break;
+                case DeviceFormat::S24:
+                case DeviceFormat::S32: out.dataType = DataType::S32; break;
+                case DeviceFormat::F32: out.dataType = DataType::F32; break;
+                case DeviceFormat::F64: out.dataType = DataType::F64; break;
+                default: out.dataType = DataType::F32; break;
+                }
+                out.sampleRate = device.preferredSampleRate;
             }
             return out;
         }
