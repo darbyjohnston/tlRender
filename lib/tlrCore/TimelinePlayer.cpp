@@ -985,6 +985,7 @@ namespace tlr
             const otime::RationalTime& cacheReadBehind)
         {
             // Get the ranges to be cached.
+            const otime::RationalTime& globalStartTime = timeline->getGlobalStartTime();
             const otime::RationalTime& duration = timeline->getDuration();
             const otime::RationalTime audioOffsetRescaled =
                 time::floor(otime::RationalTime(audioOffset, 1.0).rescaled_to(duration.rate()));
@@ -1012,8 +1013,12 @@ namespace tlr
             default: break;
             }
             const otime::TimeRange inOutAudioOffsetRange = otime::TimeRange::range_from_start_end_time_inclusive(
-                std::max(inOutRange.start_time() - audioOffsetBehind, otime::RationalTime(0.0, duration.rate())),
-                std::min(inOutRange.end_time_inclusive() + audioOffsetAhead, duration - otime::RationalTime(1.0, duration.rate())));
+                std::max(
+                    inOutRange.start_time() - audioOffsetBehind,
+                    globalStartTime),
+                std::min(
+                    inOutRange.end_time_inclusive() + audioOffsetAhead,
+                    globalStartTime + duration - otime::RationalTime(1.0, duration.rate())));
             const auto ranges = timeline::loop(range, inOutAudioOffsetRange);
             timeline->setActiveRanges(ranges);
 
