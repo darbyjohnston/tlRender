@@ -1103,6 +1103,7 @@ namespace tlr
                         audio.avFrame->nb_samples);
                     if (swrOutputCount < 0)
                     {
+                        //! \todo How should this be handled?
                         break;
                     }
                     auto tmp = audio::Audio::create(info.audio, swrOutputCount);
