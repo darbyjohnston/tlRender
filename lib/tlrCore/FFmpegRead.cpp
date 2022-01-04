@@ -43,6 +43,7 @@ namespace tlr
             std::list<std::shared_ptr<VideoRequest> > videoRequests;
             otime::RationalTime videoTime = time::invalidTime;
 
+            audio::Info audioConvertInfo;
             struct AudioRequest
             {
                 otime::TimeRange time = time::invalidTimeRange;
@@ -102,26 +103,23 @@ namespace tlr
 
             TLR_PRIVATE_P();
 
-            p.info.audio.channelCount = 2;
-            p.info.audio.dataType = audio::DataType::F32;
-            p.info.audio.sampleRate = 44100;
             auto i = options.find("ffmpeg/AudioChannelCount");
             if (i != options.end())
             {
                 std::stringstream ss(i->second);
-                ss >> p.info.audio.channelCount;
+                ss >> p.audioConvertInfo.channelCount;
             }
             i = options.find("ffmpeg/AudioDataType");
             if (i != options.end())
             {
                 std::stringstream ss(i->second);
-                ss >> p.info.audio.dataType;
+                ss >> p.audioConvertInfo.dataType;
             }
             i = options.find("ffmpeg/AudioSampleRate");
             if (i != options.end())
             {
                 std::stringstream ss(i->second);
-                ss >> p.info.audio.sampleRate;
+                ss >> p.audioConvertInfo.sampleRate;
             }
             i = options.find("ffmpeg/ThreadCount");
             if (i != options.end())
@@ -538,12 +536,18 @@ namespace tlr
                     throw std::runtime_error(string::Format("{0}: Unsupported audio channels").arg(fileName));
                     break;
                 }
-
-                const audio::DataType dataType = toAudioType(static_cast<AVSampleFormat>(
+                audio::DataType dataType = toAudioType(static_cast<AVSampleFormat>(
                     p.audio.avCodecParameters[p.audio.avStream]->format));
                 if (audio::DataType::None == dataType)
                 {
                     throw std::runtime_error(string::Format("{0}: Unsupported audio format").arg(fileName));
+                }
+                size_t sampleRate = p.audio.avCodecParameters[p.audio.avStream]->sample_rate;
+                if (p.audioConvertInfo.isValid())
+                {
+                    channelCount = p.audioConvertInfo.channelCount;
+                    dataType = p.audioConvertInfo.dataType;
+                    sampleRate = p.audioConvertInfo.sampleRate;
                 }
 
                 p.audio.avFrame = av_frame_alloc();
@@ -553,7 +557,7 @@ namespace tlr
                 {
                     AVRational r;
                     r.num = 1;
-                    r.den = p.info.audio.sampleRate;
+                    r.den = sampleRate;
                     sampleCount = av_rescale_q(
                         avAudioStream->duration,
                         avAudioStream->time_base,
@@ -563,7 +567,7 @@ namespace tlr
                 {
                     AVRational r;
                     r.num = 1;
-                    r.den = p.info.audio.sampleRate;
+                    r.den = sampleRate;
                     sampleCount = av_rescale_q(
                         p.audio.avFormatContext->duration,
                         av_get_time_base_q(),
@@ -572,9 +576,9 @@ namespace tlr
 
                 p.audio.swrContext = swr_alloc_set_opts(
                     NULL,
-                    fromChannelCount(p.info.audio.channelCount),
-                    fromAudioType(p.info.audio.dataType),
-                    p.info.audio.sampleRate,
+                    fromChannelCount(channelCount),
+                    fromAudioType(dataType),
+                    sampleRate,
                     p.audio.avCodecParameters[p.audio.avStream]->channel_layout,
                     static_cast<AVSampleFormat>(p.audio.avCodecParameters[p.audio.avStream]->format),
                     p.audio.avCodecParameters[p.audio.avStream]->sample_rate,
@@ -582,11 +586,14 @@ namespace tlr
                     NULL);
                 swr_init(p.audio.swrContext);
 
+                p.info.audio.channelCount = channelCount;
+                p.info.audio.dataType = dataType;
+                p.info.audio.sampleRate = sampleRate;
                 p.info.audioTime = otime::TimeRange::range_from_start_end_time(
-                    otime::RationalTime(0.0, p.info.audio.sampleRate),
-                    otime::RationalTime(sampleCount, p.info.audio.sampleRate));
+                    otime::RationalTime(0.0, sampleRate),
+                    otime::RationalTime(sampleCount, sampleRate));
 
-                p.audioTime = otime::RationalTime(0.0, p.info.audio.sampleRate);
+                p.audioTime = otime::RationalTime(0.0, sampleRate);
 
                 AVDictionaryEntry* tag = nullptr;
                 while ((tag = av_dict_get(p.audio.avFormatContext->metadata, "", tag, AV_DICT_IGNORE_SUFFIX)))
