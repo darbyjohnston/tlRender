@@ -847,6 +847,7 @@ namespace tlr
                     avio::AudioData data;
                     data.time = audioRequest->time.start_time();
                     data.audio = audio::Audio::create(p.info.audio, audioRequest->time.duration().value());
+                    data.audio->zero();
                     audio::copy(p.audio.buffer, data.audio->getData(), data.audio->getByteCount());
                     audioRequest->promise.set_value(data);
 
