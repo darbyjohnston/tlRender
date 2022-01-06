@@ -854,29 +854,32 @@ namespace tlr
                 }
 
                 // Logging.
-                const auto now = std::chrono::steady_clock::now();
-                const std::chrono::duration<float> diff = now - p.logTimer;
-                if (diff.count() > 10.F)
+                if (auto logSystem = _logSystem.lock())
                 {
-                    p.logTimer = now;
-                    const std::string id = string::Format("tlr::ffmpeg::Read {0}").arg(this);
-                    size_t videoRequestsSize = 0;
-                    size_t audioRequestsSize = 0;
+                    const auto now = std::chrono::steady_clock::now();
+                    const std::chrono::duration<float> diff = now - p.logTimer;
+                    if (diff.count() > 10.F)
                     {
-                        std::unique_lock<std::mutex> lock(p.mutex);
-                        videoRequestsSize = p.videoRequests.size();
-                        audioRequestsSize = p.audioRequests.size();
+                        p.logTimer = now;
+                        const std::string id = string::Format("tlr::ffmpeg::Read {0}").arg(this);
+                        size_t videoRequestsSize = 0;
+                        size_t audioRequestsSize = 0;
+                        {
+                            std::unique_lock<std::mutex> lock(p.mutex);
+                            videoRequestsSize = p.videoRequests.size();
+                            audioRequestsSize = p.audioRequests.size();
+                        }
+                        logSystem->print(id, string::Format(
+                            "\n"
+                            "    path: {0}\n"
+                            "    video requests: {1}\n"
+                            "    audio requests: {2}\n"
+                            "    thread count: {3}").
+                            arg(_path.get()).
+                            arg(videoRequestsSize).
+                            arg(audioRequestsSize).
+                            arg(p.threadCount));
                     }
-                    _logSystem->print(id, string::Format(
-                        "\n"
-                        "    path: {0}\n"
-                        "    video requests: {1}\n"
-                        "    audio requests: {2}\n"
-                        "    thread count: {3}").
-                        arg(_path.get()).
-                        arg(videoRequestsSize).
-                        arg(audioRequestsSize).
-                        arg(p.threadCount));
                 }
             }
         }

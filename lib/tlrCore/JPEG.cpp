@@ -49,7 +49,12 @@ namespace tlr
             const file::Path& path,
             const avio::Options& options)
         {
-            return Read::create(path, avio::merge(options, _options), _logSystem);
+            std::shared_ptr<avio::IRead> out;
+            if (auto logSystem = _logSystem.lock())
+            {
+                out = Read::create(path, avio::merge(options, _options), logSystem);
+            }
+            return out;
         }
 
         std::vector<imaging::PixelType> Plugin::getWritePixelTypes() const
@@ -66,9 +71,14 @@ namespace tlr
             const avio::Info& info,
             const avio::Options& options)
         {
-            return !info.video.empty() && _isWriteCompatible(info.video[0]) ?
-                Write::create(path, info, avio::merge(options, _options), _logSystem) :
-                nullptr;
+            std::shared_ptr<avio::IWrite> out;
+            if (auto logSystem = _logSystem.lock())
+            {
+                out = !info.video.empty() && _isWriteCompatible(info.video[0]) ?
+                    Write::create(path, info, avio::merge(options, _options), logSystem) :
+                    nullptr;
+            }
+            return out;
         }
     }
 }

@@ -7,6 +7,8 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 
+#include <iostream>
+
 namespace tlr
 {
     namespace math
@@ -84,6 +86,12 @@ namespace tlr
 
         //! Two-dimensional floating point bounding box.
         typedef BBox2<float> BBox2f;
+
+        std::ostream& operator << (std::ostream&, const BBox2i&);
+        std::ostream& operator << (std::ostream&, const BBox2f&);
+
+        std::istream& operator >> (std::istream&, BBox2i&);
+        std::istream& operator >> (std::istream&, BBox2f&);
     }
 }
 

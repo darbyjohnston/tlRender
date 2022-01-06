@@ -5,10 +5,13 @@
 #include <tlrCore/OpenEXR.h>
 
 #include <tlrCore/FileIO.h>
+#include <tlrCore/LogSystem.h>
 #include <tlrCore/StringFormat.h>
 
+#include <ImfChannelList.h>
 #include <ImfRgbaFile.h>
 
+#include <array>
 #include <cstring>
 
 namespace tlr
@@ -88,10 +91,42 @@ namespace tlr
 
         namespace
         {
+            std::string getLabel(Imf::PixelType value)
+            {
+                const std::array<std::string, 3> data =
+                {
+                    "UInt",
+                    "Half",
+                    "Float"
+                };
+                return data[value];
+            }
+
+            std::string getLabel(Imf::Compression value)
+            {
+                const std::array<std::string, static_cast<size_t>(Imf::Compression::NUM_COMPRESSION_METHODS) > data =
+                {
+                    "None",
+                    "RLE",
+                    "ZIPS",
+                    "ZIP",
+                    "PIZ",
+                    "PXR24",
+                    "B44",
+                    "B44A",
+                    "DWAA",
+                    "DWAB"
+                };
+                return data[value];
+            }
+
             class File
             {
             public:
-                File(const std::string& fileName, ChannelGrouping channelGrouping)
+                File(
+                    const std::string& fileName,
+                    ChannelGrouping channelGrouping,
+                    const std::shared_ptr<core::LogSystem>& logSystem = nullptr)
                 {
                     // Open the file.
 #if defined(TLR_ENABLE_MMAP)
@@ -107,6 +142,30 @@ namespace tlr
                     _dataWindow = fromImath(_f->header().dataWindow());
                     _intersectedWindow = _displayWindow.intersect(_dataWindow);
                     _fast = _displayWindow == _dataWindow;
+
+                    if (logSystem)
+                    {
+                        const std::string id = string::Format("tlr::exr::Read {0}").arg(this);
+                        std::vector<std::string> s;
+                        s.push_back(string::Format(
+                            "\n"
+                            "    file name: {0}\n"
+                            "    display window {1}\n"
+                            "    data window: {2}\n"
+                            "    compression: {3}").
+                            arg(fileName).
+                            arg(_displayWindow).
+                            arg(_dataWindow).
+                            arg(getLabel(_f->header().compression())));
+                        const auto& channels = _f->header().channels();
+                        for (auto i = channels.begin(); i != channels.end(); ++i)
+                        {
+                            std::stringstream ss2;
+                            ss2 << "    channel " << i.name() << ": " << getLabel(i.channel().type) << ", " << i.channel().xSampling << "x" << i.channel().ySampling;
+                            s.push_back(ss2.str());
+                        }
+                        logSystem->print(id, string::join(s, '\n'));
+                    }
 
                     // Get the tags.
                     readTags(_f->header(), _info.tags);
@@ -276,7 +335,7 @@ namespace tlr
 
         avio::Info Read::_getInfo(const std::string& fileName)
         {
-            avio::Info out = File(fileName, _channelGrouping).getInfo();
+            avio::Info out = File(fileName, _channelGrouping, _logSystem.lock()).getInfo();
             float speed = _defaultSpeed;
             const auto i = out.tags.find("Frame Per Second");
             if (i != out.tags.end())
