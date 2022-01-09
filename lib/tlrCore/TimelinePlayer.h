@@ -48,8 +48,15 @@ namespace tlr
         //! Timeline player options.
         struct PlayerOptions
         {
-            TimerMode             timerMode             = TimerMode::System;
+            TimerMode timerMode = TimerMode::System;
+
             AudioBufferFrameCount audioBufferFrameCount = AudioBufferFrameCount::_256;
+
+            //! Timeout for muting the audio when playback stutters.
+            std::chrono::milliseconds muteTimeout = std::chrono::milliseconds(500);
+
+            //! Timeout to sleep each tick.
+            std::chrono::microseconds sleepTimeout = std::chrono::microseconds(1000);
 
             bool operator == (const PlayerOptions&) const;
             bool operator != (const PlayerOptions&) const;

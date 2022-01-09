@@ -9,7 +9,9 @@ namespace tlr
         bool PlayerOptions::operator == (const PlayerOptions& other) const
         {
             return timer == other.timer &&
-                audioBufferFrameCount == other.audioBufferFrameCount;
+                audioBufferFrameCount == other.audioBufferFrameCount &&
+                muteTimeout == other.muteTimeout &&
+                sleepTimeout == other.sleepTimeout;
         }
 
         bool PlayerOptions::operator != (const PlayerOptions& other) const
