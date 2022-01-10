@@ -19,7 +19,9 @@
 
 #include <array>
 #include <codecvt>
+#include <cstdlib>
 #include <locale>
+#include <thread>
 
 namespace tlr
 {
@@ -47,17 +49,17 @@ namespace tlr
                 const std::array<std::string, static_cast<size_t>(Windows::Count)> data =
                 {
                     "Unknown",
-                    "Windows 7",
-                    "Windows 8",
-                    "Windows 8.1",
-                    "Windows 10"
+                    "Windows 7+",
+                    "Windows 8+",
+                    "Windows 8.1+",
+                    "Windows 10+"
                 };
                 return data[static_cast<size_t>(value)];
             }
 
             typedef void (WINAPI* PGNSI)(LPSYSTEM_INFO);
 
-            Windows windowsVersion()
+            Windows getWindowsVersion()
             {
                 Windows out = Windows::Unknown;
                 if (IsWindows10OrGreater())
@@ -78,19 +80,25 @@ namespace tlr
                 }
                 return out;
             }
+
+            size_t getRAMSize()
+            {
+                MEMORYSTATUSEX statex;
+                statex.dwLength = sizeof(statex);
+                GlobalMemoryStatusEx(&statex);
+                return statex.ullTotalPhys;
+            }
         }
 
-        std::string getInfo()
+        SystemInfo getSystemInfo()
         {
-            return getLabel(windowsVersion());
-        }
-
-        size_t getRAMSize()
-        {
-            MEMORYSTATUSEX statex;
-            statex.dwLength = sizeof(statex);
-            GlobalMemoryStatusEx(&statex);
-            return statex.ullTotalPhys;
+            SystemInfo out;
+            out.name = getLabel(getWindowsVersion());
+            out.cores = std::thread::hardware_concurrency();
+            out.ram = getRAMSize();
+            const auto d = std::lldiv(getRAMSize(), memory::gigabyte);
+            out.ramGB = d.quot + (d.rem ? 1 : 0);
+            return out;
         }
 
         bool getEnv(const std::string& name, std::string& out)
