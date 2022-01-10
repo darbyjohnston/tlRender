@@ -61,6 +61,8 @@ namespace tlr
             try
             {
                 p.rtAudio.reset(new RtAudio);
+                std::vector<std::string> log;
+                log.push_back(std::string());
                 const size_t rtDeviceCount = p.rtAudio->getDeviceCount();
                 for (size_t i = 0; i < rtDeviceCount; ++i)
                 {
@@ -104,62 +106,63 @@ namespace tlr
                         p.devices.push_back(device);
                         {
                             std::stringstream ss;
-                            ss << "Device " << i << ": " << device.name;
-                            _log(ss.str());
+                            ss << "    Device " << i << ": " << device.name;
+                            log.push_back(ss.str());
                         }
                         {
                             std::stringstream ss;
-                            ss << "    Channels (output, input, duplex): " <<
-                                size_t(device.outputChannels) << ", " <<
-                                size_t(device.inputChannels) << ", " <<
-                                size_t(device.duplexChannels);
-                            _log(ss.str());
+                            ss << "        Channels: " <<
+                                size_t(device.outputChannels) << " output, " <<
+                                size_t(device.inputChannels) << " input, " <<
+                                size_t(device.duplexChannels) << " duplex";
+                            log.push_back(ss.str());
                         }
                         {
                             std::stringstream ss;
-                            ss << "    Sample rates: ";
+                            ss << "        Sample rates: ";
                             for (auto j : device.sampleRates)
                             {
                                 ss << j << " ";
                             }
-                            _log(ss.str());
+                            log.push_back(ss.str());
                         }
                         {
                             std::stringstream ss;
-                            ss << "    Preferred sample rate: " << device.preferredSampleRate;
-                            _log(ss.str());
+                            ss << "        Preferred sample rate: " << device.preferredSampleRate;
+                            log.push_back(ss.str());
                         }
                         {
                             std::stringstream ss;
-                            ss << "    Native formats: ";
+                            ss << "        Native formats: ";
                             for (auto j : device.nativeFormats)
                             {
                                 ss << j << " ";
                             }
-                            _log(ss.str());
+                            log.push_back(ss.str());
                         }
                     }
                 }
                 {
                     std::stringstream ss;
-                    ss << "Default input device: " << getDefaultInputDevice();
-                    _log(ss.str());
+                    ss << "    Default input device: " << getDefaultInputDevice();
+                    log.push_back(ss.str());
                 }
                 {
                     std::stringstream ss;
-                    ss << "Default input info: " << getDefaultInputInfo();
-                    _log(ss.str());
+                    ss << "    Default input info: " << getDefaultInputInfo();
+                    log.push_back(ss.str());
                 }
                 {
                     std::stringstream ss;
-                    ss << "Default output device: " << getDefaultOutputDevice();
-                    _log(ss.str());
+                    ss << "    Default output device: " << getDefaultOutputDevice();
+                    log.push_back(ss.str());
                 }
                 {
                     std::stringstream ss;
-                    ss << "Default output info: " << getDefaultOutputInfo();
-                    _log(ss.str());
+                    ss << "    Default output info: " << getDefaultOutputInfo();
+                    log.push_back(ss.str());
                 }
+                _log(string::join(log, "\n"));
             }
             catch (const std::exception& e)
             {

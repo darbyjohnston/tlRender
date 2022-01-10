@@ -424,6 +424,35 @@ namespace tlr
         {
             TLR_PRIVATE_P();
 
+            auto logSystem = context->getLogSystem();
+            {
+                std::vector<std::string> lines;
+                lines.push_back(std::string());
+                lines.push_back(string::Format("    File sequence audio: {0}").
+                    arg(options.fileSequenceAudio));
+                lines.push_back(string::Format("    File sequence audio file name: {0}").
+                    arg(options.fileSequenceAudioFileName));
+                lines.push_back(string::Format("    File sequence audio directory: {0}").
+                    arg(options.fileSequenceAudioDirectory));
+                lines.push_back(string::Format("    Video request count: {0}").
+                    arg(options.videoRequestCount));
+                lines.push_back(string::Format("    Audio request count: {0}").
+                    arg(options.audioRequestCount));
+                lines.push_back(string::Format("    Request timeout: {0}ms").
+                    arg(options.requestTimeout.count()));
+                for (const auto& i : options.avioOptions)
+                {
+                    lines.push_back(string::Format("    AV I/O {0}: {1}").
+                        arg(i.first).
+                        arg(i.second));
+                }
+                lines.push_back(string::Format("    Path max number digits: {0}").
+                    arg(options.pathOptions.maxNumberDigits));
+                logSystem->print(
+                    string::Format("tlr::timeline::Timeline {0}").arg(this),
+                    string::join(lines, "\n"));
+            }
+
             p.context = context;
             p.options = options;
             p.otioTimeline = otioTimeline;
@@ -473,15 +502,15 @@ namespace tlr
                     }
                 }
             }
-            auto logSystem = context->getLogSystem();
+
             logSystem->print(
                 string::Format("tlr::timeline::Timeline {0}").arg(this),
                 string::Format(
                     "\n"
-                    "    duration: {0}\n"
-                    "    global start time: {1}\n"
-                    "    video: {2}\n"
-                    "    audio: {3}").
+                    "    Duration: {0}\n"
+                    "    Global start time: {1}\n"
+                    "    Video: {2}\n"
+                    "    Audio: {3}").
                 arg(p.duration).
                 arg(p.globalStartTime).
                 arg(!p.avInfo.video.empty() ? p.avInfo.video[0] : imaging::Info()).
@@ -721,16 +750,10 @@ namespace tlr
                 "tlr::timeline::Timeline",
                 string::Format(
                     "\n"
-                    "    create from path: {0}\n"
-                    "    audio path: {1}\n"
-                    "    file sequence audio: {2}\n"
-                    "    file sequence audio file name: {3}\n"
-                    "    file sequence audio directory: {4}").
+                    "    Create from path: {0}\n"
+                    "    Audio path: {1}").
                 arg(path.get()).
-                arg(audioPath.get()).
-                arg(options.fileSequenceAudio).
-                arg(options.fileSequenceAudioFileName).
-                arg(options.fileSequenceAudioDirectory));
+                arg(audioPath.get()));
 
             if (!otioTimeline)
             {
@@ -861,8 +884,8 @@ namespace tlr
                 "tlr::timeline::Timeline",
                 string::Format(
                     "\n"
-                    "    create from path: {0}\n"
-                    "    audio path: {1}").
+                    "    Create from path: {0}\n"
+                    "    Audio path: {1}").
                 arg(path.get()).
                 arg(audioPath.get()));
 
@@ -1172,10 +1195,10 @@ namespace tlr
                         string::Format("tlr::timeline::Timeline {0}").arg(this),
                         string::Format(
                         "\n"
-                        "    path: {0}\n"
-                        "    video requests: {1}/{2}/{3} (size/in-progress/max)\n"
-                        "    audio requests: {4}/{5}/{6} (size/in-progress/max)\n"
-                        "    readers: {7}").
+                        "    Path: {0}\n"
+                        "    Video requests: {1}, {2} in-progress, {3} max\n"
+                        "    Audio requests: {4}, {5} in-progress, {6} max\n"
+                        "    Readers: {7}").
                         arg(path.get()).
                         arg(videoRequestsSize).
                         arg(videoRequestsInProgress.size()).
@@ -1469,12 +1492,12 @@ namespace tlr
                         string::Format("tlr::timeline::Timeline {0}").arg(this),
                         string::Format(
                             "\n"
-                            "    read: {0}\n"
-                            "    video: {1}\n"
-                            "    video type: {2}\n"
-                            "    video time: {3}\n"
-                            "    audio: {4}\n"
-                            "    audio time: {5}").
+                            "    Read: {0}\n"
+                            "    Video: {1}\n"
+                            "    Video type: {2}\n"
+                            "    Video time: {3}\n"
+                            "    Audio: {4}\n"
+                            "    Audio time: {5}").
                         arg(path.get()).
                         arg(!info.video.empty() ? info.video[0] : imaging::Info()).
                         arg(info.videoType).

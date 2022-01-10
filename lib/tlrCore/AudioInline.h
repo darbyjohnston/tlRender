@@ -203,14 +203,14 @@ namespace tlr
             switch (channelCount)
             {
             case 1:
-                std::memcpy(out, in[0], sampleCount * channelCount * sizeof(T));
+                std::memcpy(out, in[0], sampleCount * static_cast<size_t>(channelCount) * sizeof(T));
                 break;
             case 2:
             {
                 const T* inP0 = in[0];
                 const T* inP1 = in[1];
                 T* outP = out;
-                T* const endP = out + sampleCount * channelCount;
+                T* const endP = out + sampleCount * static_cast<size_t>(channelCount);
                 for (; outP < endP; outP += 2, ++inP0, ++inP1)
                 {
                     outP[0] = inP0[0];
@@ -227,7 +227,7 @@ namespace tlr
                 const T* inP4 = in[4];
                 const T* inP5 = in[5];
                 T* outP = out;
-                T* const endP = out + sampleCount * channelCount;
+                T* const endP = out + sampleCount * static_cast<size_t>(channelCount);
                 for (; outP < endP; outP += 6, ++inP0, ++inP1, ++inP2, ++inP3, ++inP4, ++inP5)
                 {
                     outP[0] = inP0[0];
@@ -240,7 +240,7 @@ namespace tlr
                 break;
             }
             default:
-                for (uint8_t c = 0; c < channelCount; ++c)
+                for (size_t c = 0; c < channelCount; ++c)
                 {
                     const T* inP = in[c];
                     const T* const endP = inP + sampleCount;
