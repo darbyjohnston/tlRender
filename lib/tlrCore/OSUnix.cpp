@@ -4,6 +4,8 @@
 
 #include <tlrCore/OS.h>
 
+#include <tlrCore/Memory.h>
+
 #if defined(__APPLE__)
 #include <ApplicationServices/ApplicationServices.h>
 #include <CoreFoundation/CFBundle.h>

@@ -4,7 +4,6 @@
 
 #include <tlrCore/OS.h>
 
-#include <tlrCore/Memory.h>
 #include <tlrCore/String.h>
 
 namespace tlr
