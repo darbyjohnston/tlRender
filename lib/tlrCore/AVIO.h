@@ -122,7 +122,7 @@ namespace tlr
             const file::Path& getPath() const;
 
         protected:
-            std::shared_ptr<core::LogSystem> _logSystem;
+            std::weak_ptr<core::LogSystem> _logSystem;
             file::Path _path;
             Options _options;
         };
@@ -230,12 +230,12 @@ namespace tlr
             virtual std::shared_ptr<IWrite> write(
                 const file::Path&,
                 const Info&,
-                const Options & = Options()) = 0;
+                const Options& = Options()) = 0;
 
         protected:
             bool _isWriteCompatible(const imaging::Info&) const;
 
-            std::shared_ptr<core::LogSystem> _logSystem;
+            std::weak_ptr<core::LogSystem> _logSystem;
             Options _options;
 
         private:

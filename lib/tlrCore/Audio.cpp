@@ -23,7 +23,7 @@ namespace tlr
             "F64");
         TLR_ENUM_SERIALIZE_IMPL(DataType);
 
-        uint8_t getByteCount(DataType value) noexcept
+        size_t getByteCount(DataType value) noexcept
         {
             const std::array<uint8_t, static_cast<size_t>(DataType::Count)> data =
             {
@@ -104,7 +104,8 @@ namespace tlr
         {
             _info = info;
             _sampleCount = sampleCount;
-            _data = new uint8_t[getByteCount()];
+            const size_t byteCount = getByteCount();
+            _data = new uint8_t[byteCount];
         }
 
         Audio::Audio()

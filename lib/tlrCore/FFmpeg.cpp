@@ -39,6 +39,20 @@ namespace tlr
             return AVRational({ value.den, value.num });
         }
 
+        int64_t fromChannelCount(uint8_t value)
+        {
+            int64_t out = 0;
+            switch (value)
+            {
+            case 1: out = AV_CH_LAYOUT_MONO; break;
+            case 2: out = AV_CH_LAYOUT_STEREO; break;
+            case 6: out = AV_CH_LAYOUT_5POINT1; break;
+            case 7: out = AV_CH_LAYOUT_6POINT1; break;
+            case 8: out = AV_CH_LAYOUT_7POINT1; break;
+            }
+            return out;
+        }
+
         audio::DataType toAudioType(AVSampleFormat value)
         {
             audio::DataType out = audio::DataType::None;
@@ -52,6 +66,20 @@ namespace tlr
             case AV_SAMPLE_FMT_S32P: out = audio::DataType::S32; break;
             case AV_SAMPLE_FMT_FLTP: out = audio::DataType::F32; break;
             case AV_SAMPLE_FMT_DBLP: out = audio::DataType::F64; break;
+            default: break;
+            }
+            return out;
+        }
+
+        AVSampleFormat fromAudioType(audio::DataType value)
+        {
+            AVSampleFormat out = AV_SAMPLE_FMT_NONE;
+            switch (value)
+            {
+            case audio::DataType::S16: out = AV_SAMPLE_FMT_S16; break;
+            case audio::DataType::S32: out = AV_SAMPLE_FMT_S32; break;
+            case audio::DataType::F32: out = AV_SAMPLE_FMT_FLT; break;
+            case audio::DataType::F64: out = AV_SAMPLE_FMT_DBL; break;
             default: break;
             }
             return out;
@@ -114,7 +142,12 @@ namespace tlr
             const file::Path& path,
             const avio::Options& options)
         {
-            return Read::create(path, avio::merge(options, _options), _logSystem);
+            std::shared_ptr<avio::IRead> out;
+            if (auto logSystem = _logSystem.lock())
+            {
+                out = Read::create(path, avio::merge(options, _options), logSystem);
+            }
+            return out;
         }
 
         std::vector<imaging::PixelType> Plugin::getWritePixelTypes() const
@@ -133,9 +166,14 @@ namespace tlr
             const avio::Info& info,
             const avio::Options& options)
         {
-            return !info.video.empty() && _isWriteCompatible(info.video[0]) ?
-                Write::create(path, info, avio::merge(options, _options), _logSystem) :
-                nullptr;
+            std::shared_ptr<avio::IWrite> out;
+            if (auto logSystem = _logSystem.lock())
+            {
+                out = !info.video.empty() && _isWriteCompatible(info.video[0]) ?
+                    Write::create(path, info, avio::merge(options, _options), logSystem) :
+                    nullptr;
+            }
+            return out;
         }
 
         void Plugin::_logCallback(void*, int level, const char* fmt, va_list vl)

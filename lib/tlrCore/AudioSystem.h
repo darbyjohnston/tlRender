@@ -56,8 +56,11 @@ namespace tlr
             const std::vector<std::string>& getAPIs() const;
             const std::vector<Device>& getDevices() const;
 
-            size_t getDefaultInputDevice();
-            size_t getDefaultOutputDevice();
+            size_t getDefaultInputDevice() const;
+            size_t getDefaultOutputDevice() const;
+
+            Info getDefaultOutputInfo() const;
+            Info getDefaultInputInfo() const;
 
         private:
             TLR_PRIVATE();

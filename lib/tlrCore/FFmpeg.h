@@ -46,8 +46,14 @@ namespace tlr
         //! Swap the numerator and denominator.
         AVRational swap(AVRational);
 
+        //! Convert to FFmpeg channel layout.
+        int64_t fromChannelCount(uint8_t);
+
         //! Convert from FFmpeg.
         audio::DataType toAudioType(AVSampleFormat);
+
+        //! Convert to FFmpeg.
+        AVSampleFormat fromAudioType(audio::DataType);
 
         //! Get a label for a FFmpeg error code.
         std::string getErrorLabel(int);

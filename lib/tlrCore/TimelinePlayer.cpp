@@ -211,6 +211,7 @@ namespace tlr
                 double speed = 0.0;
                 float volume = 1.F;
                 bool mute = false;
+                std::chrono::steady_clock::time_point muteTimeout;
                 std::map<int64_t, AudioData> audioDataCache;
                 size_t rtAudioCurrentFrame = 0;
             };
@@ -372,11 +373,28 @@ namespace tlr
                             cacheReadBehind);
 
                         // Update the video data.
-                        const auto i = p.threadData.videoDataCache.find(currentTime);
-                        if (i != p.threadData.videoDataCache.end())
+                        if (!p.avInfo.video.empty())
                         {
-                            std::unique_lock<std::mutex> lock(p.mutex);
-                            p.mutexData.videoData = i->second;
+                            const auto i = p.threadData.videoDataCache.find(currentTime);
+                            if (i != p.threadData.videoDataCache.end())
+                            {
+                                std::unique_lock<std::mutex> lock(p.mutex);
+                                p.mutexData.videoData = i->second;
+                            }
+                            else
+                            {
+                                {
+                                    std::unique_lock<std::mutex> lock(p.mutex);
+                                    p.mutexData.playbackStartTime = p.currentTime->get();
+                                    p.mutexData.playbackStartTimer = std::chrono::steady_clock::now();
+                                }
+                                p.resetAudioTime();
+                                {
+                                    const auto now = std::chrono::steady_clock::now();
+                                    std::unique_lock<std::mutex> lock(p.audioMutex);
+                                    p.audioMutexData.muteTimeout = now + p.playerOptions.muteTimeout;
+                                }
+                            }
                         }
 
                         // Logging.
@@ -392,7 +410,7 @@ namespace tlr
                         }
 
                         // Sleep for a bit...
-                        time::sleep(std::chrono::microseconds(1000));
+                        time::sleep(p.playerOptions.sleepTimeout);
                     }
                 });
         }
@@ -985,6 +1003,7 @@ namespace tlr
             const otime::RationalTime& cacheReadBehind)
         {
             // Get the ranges to be cached.
+            const otime::RationalTime& globalStartTime = timeline->getGlobalStartTime();
             const otime::RationalTime& duration = timeline->getDuration();
             const otime::RationalTime audioOffsetRescaled =
                 time::floor(otime::RationalTime(audioOffset, 1.0).rescaled_to(duration.rate()));
@@ -1012,8 +1031,12 @@ namespace tlr
             default: break;
             }
             const otime::TimeRange inOutAudioOffsetRange = otime::TimeRange::range_from_start_end_time_inclusive(
-                std::max(inOutRange.start_time() - audioOffsetBehind, otime::RationalTime(0.0, duration.rate())),
-                std::min(inOutRange.end_time_inclusive() + audioOffsetAhead, duration - otime::RationalTime(1.0, duration.rate())));
+                std::max(
+                    inOutRange.start_time() - audioOffsetBehind,
+                    globalStartTime),
+                std::min(
+                    inOutRange.end_time_inclusive() + audioOffsetAhead,
+                    globalStartTime + duration - otime::RationalTime(1.0, duration.rate())));
             const auto ranges = timeline::loop(range, inOutAudioOffsetRange);
             timeline->setActiveRanges(ranges);
 
@@ -1227,12 +1250,14 @@ namespace tlr
             double speed = 0.F;
             float volume = 1.F;
             bool mute = false;
+            std::chrono::steady_clock::time_point muteTimeout;
             size_t rtAudioCurrentFrame = 0;
             {
                 std::unique_lock<std::mutex> lock(p->audioMutex);
                 speed = p->audioMutexData.speed;
                 volume = p->audioMutexData.volume;
                 mute = p->audioMutexData.mute;
+                muteTimeout = p->audioMutexData.muteTimeout;
                 rtAudioCurrentFrame = p->audioMutexData.rtAudioCurrentFrame;
             }
 
@@ -1257,8 +1282,13 @@ namespace tlr
                     rtAudioCurrentFrame -
                     seconds * p->avInfo.audio.sampleRate;
 
+                const auto now = std::chrono::steady_clock::now();
+
                 // Audio playback needs the current speed equal to the timeline speed.
-                if (speed == p->timeline->getDuration().rate() && !mute && offset >= 0)
+                if (speed == p->timeline->getDuration().rate() &&
+                    !mute &&
+                    now >= muteTimeout &&
+                    offset >= 0)
                 {
                     // Copy audio data to RtAudio.
                     size_t sampleCount = nFrames;

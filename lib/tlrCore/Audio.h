@@ -47,20 +47,17 @@ namespace tlr
         const math::Range<S8_T> S8Range(
             std::numeric_limits<S8_T>::min(),
             std::numeric_limits<S8_T>::max());
-
         const math::Range<S16_T> S16Range(
             std::numeric_limits<S16_T>::min(),
             std::numeric_limits<S16_T>::max());
-
         const math::Range<S32_T> S32Range(
             std::numeric_limits<S32_T>::min(),
             std::numeric_limits<S32_T>::max());
-
         const math::Range<F32_T> F32Range(-1.F, 1.F);
         const math::Range<F64_T> F64Range(-1.F, 1.F);
 
         //! Get the byte count for the given data type.
-        uint8_t getByteCount(DataType) noexcept;
+        size_t getByteCount(DataType) noexcept;
 
         //! Determine the integer data type for a given byte count.
         DataType getIntType(uint8_t) noexcept;

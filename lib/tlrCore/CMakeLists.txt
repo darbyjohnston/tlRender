@@ -68,6 +68,7 @@ set(SOURCE
     Assert.cpp
     Audio.cpp
     AudioSystem.cpp
+	BBox.cpp
     CineonRead.cpp
     CineonWrite.cpp
     Cineon.cpp

@@ -17,7 +17,7 @@ namespace tlr
 
         inline size_t Info::getByteCount() const
         {
-            return static_cast<size_t>(channelCount) * static_cast<size_t>(audio::getByteCount(dataType));
+            return static_cast<size_t>(channelCount) * audio::getByteCount(dataType);
         }
 
         inline void S8ToS16(S8_T value, S16_T& out) noexcept
