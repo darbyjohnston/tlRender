@@ -36,6 +36,7 @@ utilities.
 Dependencies:
 * [OpenTimelineIO](https://github.com/PixarAnimationStudios/OpenTimelineIO)
 * [OpenColorIO](https://github.com/AcademySoftwareFoundation/OpenColorIO)
+* [FreeType](https://www.freetype.org)
 * [FSeq](https://github.com/darbyjohnston/FSeq)
 * [ZLIB](https://zlib.net)
 
@@ -49,10 +50,6 @@ Optional dependencies:
 tlrGL
 -----
 Timeline rendering using OpenGL.
-
-Dependencies:
-* [glad](https://github.com/Dav1dde/glad)
-* [FreeType](https://www.freetype.org)
 
 tlrQt
 -----
