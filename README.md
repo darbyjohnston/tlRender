@@ -4,32 +4,23 @@
 
 tlRender
 ========
-tlRender, or timeline render, is an early stage project for rendering
-editorial timelines.
+tlRender is an open source library for rendering editorial timelines used in
+visual effects, film, and animation.
 
-The project includes libraries for rendering timelines with OpenGL and
-Qt, and example applications showing the usage of the libraries. 
+The library can be used for building playback and review applications that
+support timelines with multiple video clips, image sequences, audio clips,
+and transitions. 
 
-The project is written in C++ and uses
-[OpenTimelineIO](https://github.com/PixarAnimationStudios/OpenTimelineIO)
-for reading timelines. FFmpeg (https://ffmpeg.org/) and other open source
-libraries are used for movie and image I/O.
-
-The tlRender code is provided under a BSD style open source license.
+The tlRender source code is provided under a BSD style open source license.
 
 Supported:
-* Movie clips
-* Image sequences (Cineon, DPX, JPEG, OpenEXR, PNG, TIFF)
-* OpenColorIO
-
-In progress:
-* Transitions
-* Rendering to files
+* Mutiple movie clips, image sequences (Cineon, DPX, JPEG, OpenEXR, PNG, TIFF),
+  audio clips, and transitions
+* Color management with OpenColorIO
 
 To do:
 * Effects
-* Audio support
-* Hardware movie decoding
+* GPU movie decoding
 * Nested timelines
 * Python bindings
 
@@ -39,11 +30,12 @@ Libraries
 
 tlrCore
 -------
-The core library providing timeline functionality, file I/O, and other
+The core library providing rendering, playback, file I/O, and basic
 utilities.
 
 Dependencies:
 * [OpenTimelineIO](https://github.com/PixarAnimationStudios/OpenTimelineIO)
+* [OpenColorIO](https://github.com/AcademySoftwareFoundation/OpenColorIO)
 * [FSeq](https://github.com/darbyjohnston/FSeq)
 * [ZLIB](https://zlib.net)
 
@@ -71,7 +63,7 @@ Dependencies:
 
 tlrQWidget
 ----------
-Qt QWidget widgets for working with timelines.
+Qt widgets for working with timelines.
 
 Dependencies:
 * [Qt](https://www.qt.io)
@@ -83,43 +75,36 @@ Qt Quick widgets for working with timelines.
 Dependencies:
 * [Qt](https://www.qt.io)
 
-tlrApp
-------
-Utility library for the example applications.
-
 
 Examples
 ========
 
-tlrplay-glfw
+play-glfw
 ------------
-![tlrplay](etc/Images/tlrplay-glfw-screenshot1.PNG)
+![play-glfw](etc/Images/play-glfw-screenshot1.PNG)
 
-The example "tlrplay-glfw" plays back timelines using a GLFW based
-application.
-
-Timelines can be opened from the command line. A HUD (heads up display),
-keyboard shortcuts, and command line options provide controls for the
-application. 
+GLFW example application for timeline playback.
 
 Dependencies:
 * [GLFW](https://www.glfw.org)
 
-tlrplay-qwidget
+play-qwidget
 ---------------
-![tlrplay](etc/Images/tlrplay-qwidget-screenshot1.PNG)
+![play-qwidget](etc/Images/play-qwidget-screenshot1.PNG)
 
-The example "tlrplay-qwidget" plays back timelines using a QWidget based
-application.
+Qt widget example application for timeline playback.
 
-Timelines can be opened from the "File/Open" menu, drag and dropped onto the
-window, or from the command line. Menus, playback buttons, a frame slider,
-and keyboard shortcuts provide controls for the application.
+play-quick
+----------
+Qt Quick example application for timeline playback.
 
-tlrbake-glfw
-------------
-The example "tlrbake-glfw" is a GLFW based command-line application for
-rendering a timeline to a movie file or image file sequence.
+
+Utilities
+=========
+
+tlrbake
+-------
+Command-line application for rendering a timeline to a movie or image sequence.
 
 
 Building
