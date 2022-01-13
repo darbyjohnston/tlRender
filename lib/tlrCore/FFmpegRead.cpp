@@ -317,7 +317,7 @@ namespace tlr
             {
                 throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
             }
-            //av_dump_format(p.avFormatContext, 0, fileName.c_str(), 0);
+            //av_dump_format(p.video.avFormatContext, 0, fileName.c_str(), 0);
             for (unsigned int i = 0; i < p.video.avFormatContext->nb_streams; ++i)
             {
                 if (AVMEDIA_TYPE_VIDEO == p.video.avFormatContext->streams[i]->codecpar->codec_type &&
@@ -476,7 +476,6 @@ namespace tlr
             {
                 throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
             }
-            //av_dump_format(p.avFormatContext, 0, fileName.c_str(), 0);
             for (unsigned int i = 0; i < p.audio.avFormatContext->nb_streams; ++i)
             {
                 if (AVMEDIA_TYPE_AUDIO == p.audio.avFormatContext->streams[i]->codecpar->codec_type &&
