@@ -81,7 +81,7 @@ Examples
 
 play-glfw
 ------------
-![play-glfw](etc/Images/play-glfw-screenshot1.PNG)
+![play-glfw](etc/Images/play-glfw-screenshot1.png)
 
 GLFW example application for timeline playback.
 
@@ -90,7 +90,7 @@ Dependencies:
 
 play-qwidget
 ---------------
-![play-qwidget](etc/Images/play-qwidget-screenshot1.PNG)
+![play-qwidget](etc/Images/play-qwidget-screenshot1.png)
 
 Qt widget example application for timeline playback.
 
