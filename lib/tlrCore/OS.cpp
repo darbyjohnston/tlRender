@@ -4,21 +4,12 @@
 
 #include <tlrCore/OS.h>
 
-#include <tlrCore/Memory.h>
 #include <tlrCore/String.h>
-
-#include <cstdlib>
 
 namespace tlr
 {
     namespace os
     {
-        size_t getRAMSizeGB()
-        {
-            auto d = std::lldiv(getRAMSize(), memory::gigabyte);
-            return d.quot + (d.rem ? 1 : 0);
-        }
-
         char getEnvListSeparator(EnvListSeparator value)
         {
             return EnvListSeparator::Unix == value ? ':' : ';';

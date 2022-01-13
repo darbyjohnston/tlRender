@@ -7,6 +7,7 @@
 #include <tlrCore/AVIOSystem.h>
 #include <tlrCore/AudioSystem.h>
 #include <tlrCore/OS.h>
+#include <tlrCore/StringFormat.h>
 
 #include <sstream>
 
@@ -31,16 +32,15 @@ namespace tlr
                 observer::CallbackAction::Suppress);
             _systems.push_back(_logSystem);
 
-            {
-                std::stringstream ss;
-                ss << "System: " << os::getInfo();
-                log("tlr::core::Context", ss.str());
-            }
-            {
-                std::stringstream ss;
-                ss << "RAM size: " << os::getRAMSizeGB();
-                log("tlr::core::Context", ss.str());
-            }
+            const os::SystemInfo info = os::getSystemInfo();
+            log("tlr::core::Context", string::Format(
+                "\n"
+                "    System: {0}\n"
+                "    Cores:  {1}\n"
+                "    RAM:    {2}GB").
+                arg(info.name).
+                arg(info.cores).
+                arg(info.ramGB));
 
             _systems.push_back(audio::System::create(shared_from_this()));
             _systems.push_back(avio::System::create(shared_from_this()));

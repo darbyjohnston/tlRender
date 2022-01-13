@@ -87,11 +87,39 @@ namespace tlr
             }
             return *this;
         }
-    
+
         Format& Format::arg(int value, int width)
         {
             std::stringstream ss;
             ss << std::setw(width) << value;
+            return arg(ss.str());
+        }
+
+        Format& Format::arg(int8_t value, int width)
+        {
+            std::stringstream ss;
+            ss << std::setw(width) << static_cast<int>(value);
+            return arg(ss.str());
+        }
+
+        Format& Format::arg(uint8_t value, int width)
+        {
+            std::stringstream ss;
+            ss << std::setw(width) << static_cast<int>(value);
+            return arg(ss.str());
+        }
+
+        Format& Format::arg(int16_t value, int width)
+        {
+            std::stringstream ss;
+            ss << std::setw(width) << static_cast<int>(value);
+            return arg(ss.str());
+        }
+
+        Format& Format::arg(uint16_t value, int width)
+        {
+            std::stringstream ss;
+            ss << std::setw(width) << static_cast<int>(value);
             return arg(ss.str());
         }
         

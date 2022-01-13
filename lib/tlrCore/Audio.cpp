@@ -184,7 +184,7 @@ namespace tlr
             uint8_t channelCount,
             DataType type)
         {
-            const size_t size = sampleCount * channelCount;
+            const size_t size = sampleCount * static_cast<size_t>(channelCount);
             switch (type)
             {
             case DataType::S8:
@@ -220,11 +220,14 @@ namespace tlr
         {
             const DataType inType = in->getDataType();
             const size_t sampleCount = in->getSampleCount();
-            const size_t channelCount = static_cast<size_t>(in->getChannelCount());
+            const size_t channelCount = in->getChannelCount();
             auto out = Audio::create(Info(channelCount, type, in->getSampleRate()), sampleCount);
             if (inType == type)
             {
-                std::memcpy(out->getData(), in->getData(), sampleCount * channelCount * getByteCount(type));
+                std::memcpy(
+                    out->getData(),
+                    in->getData(),
+                    sampleCount * channelCount * getByteCount(type));
             }
             else
             {
@@ -324,10 +327,10 @@ namespace tlr
         namespace
         {
             template<typename T>
-            void _planarDeinterleave(const T* value, T* out, uint8_t channelCount, size_t size)
+            void _planarDeinterleave(const T* value, T* out, size_t channelCount, size_t size)
             {
                 const size_t planeSize = size;
-                for (uint8_t c = 0; c < channelCount; ++c)
+                for (size_t c = 0; c < channelCount; ++c)
                 {
                     const T* inP = value + c;
                     T* outP = out + c * planeSize;

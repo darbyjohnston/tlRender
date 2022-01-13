@@ -339,9 +339,9 @@ namespace tlr
                         }
                         logSystem->print(id, string::Format(
                             "\n"
-                            "    path: {0}\n"
-                            "    video: {1}/{2} (requests/in progress)\n"
-                            "    thread count: {3}").
+                            "    Path: {0}\n"
+                            "    Video requests: {1}, {2} in progress\n"
+                            "    Thread count: {3}").
                             arg(_path.get()).
                             arg(videoRequestsSize).
                             arg(p.videoRequestsInProgress.size()).

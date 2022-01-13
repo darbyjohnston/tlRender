@@ -107,7 +107,9 @@ namespace tlr
             if (i != options.end())
             {
                 std::stringstream ss(i->second);
-                ss >> p.audioConvertInfo.channelCount;
+                size_t channelCount = 0;
+                ss >> channelCount;
+                p.audioConvertInfo.channelCount = std::min(channelCount, static_cast<size_t>(255));
             }
             i = options.find("ffmpeg/AudioDataType");
             if (i != options.end())
@@ -315,7 +317,7 @@ namespace tlr
             {
                 throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
             }
-            //av_dump_format(p.avFormatContext, 0, fileName.c_str(), 0);
+            //av_dump_format(p.video.avFormatContext, 0, fileName.c_str(), 0);
             for (unsigned int i = 0; i < p.video.avFormatContext->nb_streams; ++i)
             {
                 if (AVMEDIA_TYPE_VIDEO == p.video.avFormatContext->streams[i]->codecpar->codec_type &&
@@ -474,7 +476,6 @@ namespace tlr
             {
                 throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
             }
-            //av_dump_format(p.avFormatContext, 0, fileName.c_str(), 0);
             for (unsigned int i = 0; i < p.audio.avFormatContext->nb_streams; ++i)
             {
                 if (AVMEDIA_TYPE_AUDIO == p.audio.avFormatContext->streams[i]->codecpar->codec_type &&
@@ -524,7 +525,7 @@ namespace tlr
                     throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
                 }
 
-                uint8_t channelCount = p.audio.avCodecParameters[p.audio.avStream]->channels;
+                size_t channelCount = p.audio.avCodecParameters[p.audio.avStream]->channels;
                 switch (channelCount)
                 {
                 case 1:
@@ -872,10 +873,10 @@ namespace tlr
                         }
                         logSystem->print(id, string::Format(
                             "\n"
-                            "    path: {0}\n"
-                            "    video requests: {1}\n"
-                            "    audio requests: {2}\n"
-                            "    thread count: {3}").
+                            "    Path: {0}\n"
+                            "    Video requests: {1}\n"
+                            "    Audio requests: {2}\n"
+                            "    Thread count: {3}").
                             arg(_path.get()).
                             arg(videoRequestsSize).
                             arg(audioRequestsSize).

@@ -271,8 +271,8 @@ namespace tlr
             case imaging::PixelType::RGB_U8:
             case imaging::PixelType::RGBA_U8:
             {
-                const uint8_t channelCount = imaging::getChannelCount(info.pixelType);
-                for (uint8_t i = 0; i < channelCount; i++)
+                const size_t channelCount = imaging::getChannelCount(info.pixelType);
+                for (size_t i = 0; i < channelCount; i++)
                 {
                     p.avFrame2->data[i] += p.avFrame2->linesize[i] * (info.size.h - 1);
                     p.avFrame2->linesize[i] = -p.avFrame2->linesize[i];

@@ -15,14 +15,17 @@ namespace tlr
         //! \name Information
         ///@{
 
+        //! Operating system information.
+        struct SystemInfo
+        {
+            std::string name;
+            size_t cores     = 0;
+            size_t ram       = 0;
+            size_t ramGB     = 0;
+        };
+
         //! Get operating system information.
-        std::string getInfo();
-
-        //! Get the total amount of system RAM.
-        size_t getRAMSize();
-
-        //! Get the total amount of system RAM in gigabytes.
-        size_t getRAMSizeGB();
+        SystemInfo getSystemInfo();
 
         ///@}
 
