@@ -30,8 +30,7 @@ Libraries
 
 tlrCore
 -------
-The core library providing rendering, playback, file I/O, and basic
-utilities.
+The core library providing timeline rendering, playback, and I/O.
 
 Dependencies:
 * [OpenTimelineIO](https://github.com/PixarAnimationStudios/OpenTimelineIO)
@@ -49,25 +48,11 @@ Optional dependencies:
 
 tlrGL
 -----
-Timeline rendering using OpenGL.
+Library for rendering timelines with OpenGL.
 
-tlrQt
------
-Qt objects for working with timelines.
-
-Dependencies:
-* [Qt](https://www.qt.io)
-
-tlrQWidget
-----------
-Qt widgets for working with timelines.
-
-Dependencies:
-* [Qt](https://www.qt.io)
-
-tlrQuick
---------
-Qt Quick widgets for working with timelines.
+tlrQt, tlrQWidget, tlrQuick
+---------------------------
+Libraries for integrating timeline rendering with Qt based applications.
 
 Dependencies:
 * [Qt](https://www.qt.io)
