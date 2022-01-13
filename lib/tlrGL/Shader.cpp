@@ -6,6 +6,7 @@
 
 #include <tlrCore/Color.h>
 #include <tlrCore/String.h>
+#include <tlrCore/StringFormat.h>
 
 #include <iostream>
 
@@ -29,8 +30,13 @@ namespace tlr
             {
                 char infoLog[string::cBufferSize];
                 glGetShaderInfoLog(_vertex, string::cBufferSize, NULL, infoLog);
-                std::cout << infoLog << std::endl;
-                throw std::runtime_error(infoLog);
+                auto lines = string::split(_vertexSource, { '\n', '\r' }, true);
+                for (size_t i = 0; i < lines.size(); ++i)
+                {
+                    lines[i].insert(0, string::Format("{0}: ").arg(i));
+                }
+                lines.push_back(infoLog);
+                throw std::runtime_error(string::join(lines, '\n'));
             }
 
             _fragment = glCreateShader(GL_FRAGMENT_SHADER);
@@ -46,8 +52,13 @@ namespace tlr
             {
                 char infoLog[string::cBufferSize];
                 glGetShaderInfoLog(_fragment, string::cBufferSize, NULL, infoLog);
-                std::cout << infoLog << std::endl;
-                throw std::runtime_error(infoLog);
+                auto lines = string::split(_fragmentSource, { '\n', '\r' }, true);
+                for (size_t i = 0; i < lines.size(); ++i)
+                {
+                    lines[i].insert(0, string::Format("{0}: ").arg(i));
+                }
+                lines.push_back(infoLog);
+                throw std::runtime_error(string::join(lines, '\n'));
             }
 
             _program = glCreateProgram();
@@ -59,7 +70,6 @@ namespace tlr
             {
                 char infoLog[string::cBufferSize];
                 glGetProgramInfoLog(_program, string::cBufferSize, NULL, infoLog);
-                std::cout << infoLog << std::endl;
                 throw std::runtime_error(infoLog);
             }
         }
