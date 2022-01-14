@@ -6,6 +6,7 @@
 
 #include "MainWindow.h"
 #include "SettingsObject.h"
+#include "TimelineListModel.h"
 
 #include <tlrApp/IApp.h>
 
@@ -33,31 +34,36 @@ namespace tlr
         App(int& argc, char** argv);
         ~App() override;
 
+        //! Get the timeline model.
+        TimelineListModel* timelineListModel() const;
+
+        //! Get the current timeline player.
+        int current() const;
+
     public Q_SLOTS:
-        //! Open a file.
+        //! Open a timeline.
         void open(const QString&);
 
-        //! Open a file plus audio.
-        void openPlusAudio(const QString&, const QString&);
+        //! Open a timeline with audio.
+        void openWithAudio(const QString&, const QString&);
 
-        //! Close a file.
-        void close(tlr::qt::TimelinePlayer*);
+        //! Close the current timeline.
+        void close();
 
-        //! Close all files.
+        //! Close all timelines.
         void closeAll();
 
-    Q_SIGNALS:
-        //! This signal is emitted when a timeline is opened.
-        void opened(tlr::qt::TimelinePlayer*);
-
-        //! This signal is emitted when a timeline is closed.
-        void closed(tlr::qt::TimelinePlayer*);
+        //! Set the current timeline player.
+        void setCurrent(int);
 
     private Q_SLOTS:
-        void _settingsCallback();
+        void _timelinePlayerCallback();
 
     private:
-        void _settingsUpdate(qt::TimelinePlayer*);
+        qt::TimelinePlayer* _createTimelinePlayer(
+            const std::string& fileName,
+            const std::string& audioFileName = std::string());
+        qt::TimelinePlayer* _createTimelinePlayer(const TimelineListItem&);
 
         std::string _input;
         Options _options;
@@ -65,7 +71,9 @@ namespace tlr
         qt::TimeObject* _timeObject = nullptr;
         SettingsObject* _settingsObject = nullptr;
 
-        QList<qt::TimelinePlayer*> _timelinePlayers;
+        qt::TimelinePlayer* _timelinePlayer = nullptr;
+        TimelineListModel* _timelineListModel = nullptr;
+        int _current = -1;
 
         MainWindow* _mainWindow = nullptr;
     };

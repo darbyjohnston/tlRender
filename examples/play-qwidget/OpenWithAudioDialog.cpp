@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include "OpenPlusAudioDialog.h"
+#include "OpenWithAudioDialog.h"
 
 #include <tlrCore/String.h>
 #include <tlrCore/Timeline.h>
@@ -15,13 +15,13 @@
 
 namespace tlr
 {
-    OpenPlusAudioDialog::OpenPlusAudioDialog(
+    OpenWithAudioDialog::OpenWithAudioDialog(
         const std::shared_ptr<core::Context>& context,
         QWidget* parent) :
         QDialog(parent),
         _context(context)
     {
-        setWindowTitle(tr("Open + Audio"));
+        setWindowTitle(tr("Open with Audio"));
 
         auto mediaGroupBox = new QGroupBox(tr("Media"));
         _mediaLineEdit = new QLineEdit;
@@ -81,22 +81,22 @@ namespace tlr
             SLOT(reject()));
     }
 
-    const QString& OpenPlusAudioDialog::mediaFileName() const
+    const QString& OpenWithAudioDialog::mediaFileName() const
     {
         return _mediaFileName;
     }
 
-    const QString& OpenPlusAudioDialog::audioFileName() const
+    const QString& OpenWithAudioDialog::audioFileName() const
     {
         return _audioFileName;
     }
 
-    void OpenPlusAudioDialog::_mediaLineEditCallback(const QString& value)
+    void OpenWithAudioDialog::_mediaLineEditCallback(const QString& value)
     {
         _mediaFileName = value.toUtf8().data();
     }
 
-    void OpenPlusAudioDialog::_browseMediaCallback()
+    void OpenWithAudioDialog::_browseMediaCallback()
     {
         if (auto context = _context.lock())
         {
@@ -122,12 +122,12 @@ namespace tlr
         }
     }
 
-    void OpenPlusAudioDialog::_audioLineEditCallback(const QString& value)
+    void OpenWithAudioDialog::_audioLineEditCallback(const QString& value)
     {
         _audioFileName = value.toUtf8().data();
     }
 
-    void OpenPlusAudioDialog::_browseAudioCallback()
+    void OpenWithAudioDialog::_browseAudioCallback()
     {
         if (auto context = _context.lock())
         {

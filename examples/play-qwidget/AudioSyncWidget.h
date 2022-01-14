@@ -18,6 +18,9 @@ namespace tlr
     public:
         AudioOffsetWidget(QWidget* parent = nullptr);
 
+    public Q_SLOTS:
+        void setAudioOffset(double);
+
     Q_SIGNALS:
         void offsetChanged(double);
 
@@ -42,10 +45,16 @@ namespace tlr
     public:
         AudioSyncWidget(QWidget* parent = nullptr);
 
+    public Q_SLOTS:
+        void setAudioOffset(double);
+
     Q_SIGNALS:
         void audioOffsetChanged(double);
 
     private Q_SLOTS:
         void _currentItemCallback(int);
+
+    private:
+        AudioOffsetWidget* _offsetWidget = nullptr;
     };
 }

@@ -289,12 +289,12 @@ namespace tlr
                     p.timelinePlayer,
                     SIGNAL(volumeChanged(float)),
                     this,
-                    SLOT(_volumeCallback(float)));
+                    SLOT(_volumeCallback2(float)));
                 disconnect(
                     p.timelinePlayer,
                     SIGNAL(muteChanged(bool)),
                     this,
-                    SLOT(_muteCallback(bool)));
+                    SLOT(_muteCallback2(bool)));
             }
             p.timelinePlayer = timelinePlayer;
             p.speeds.clear();

@@ -11,13 +11,13 @@
 
 namespace tlr
 {
-    //! Open plus audio dialog.
-    class OpenPlusAudioDialog : public QDialog
+    //! Open with audio dialog.
+    class OpenWithAudioDialog : public QDialog
     {
         Q_OBJECT
 
     public:
-        OpenPlusAudioDialog(
+        OpenWithAudioDialog(
             const std::shared_ptr<core::Context>&,
             QWidget* parent = nullptr);
 

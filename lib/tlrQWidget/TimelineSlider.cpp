@@ -81,14 +81,16 @@ namespace tlr
                 return;
             if (p.timelinePlayer)
             {
-                p.thumbnailProvider->setParent(nullptr);
-                delete p.thumbnailProvider;
-                p.thumbnailProvider = nullptr;
                 disconnect(
                     p.timelinePlayer,
                     SIGNAL(currentTimeChanged(const otime::RationalTime&)),
                     this,
-                    SLOT(_currentTimeCallback(const otime::RationalTime&)));
+                    SLOT(update()));
+            }
+            if (p.thumbnailProvider)
+            {
+                delete p.thumbnailProvider;
+                p.thumbnailProvider = nullptr;
             }
             p.timelinePlayer = timelinePlayer;
             if (p.timelinePlayer)

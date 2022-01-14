@@ -49,6 +49,12 @@ namespace tlr
             SLOT(_resetCallback()));
     }
 
+    void AudioOffsetWidget::setAudioOffset(double value)
+    {
+        _offset = value;
+        _offsetUpdate();
+    }
+
     void AudioOffsetWidget::_sliderCallback(int value)
     {
         _offset = value / 100.0;
@@ -85,11 +91,11 @@ namespace tlr
     AudioSyncWidget::AudioSyncWidget(QWidget* parent) :
         QToolBox(parent)
     {
-        auto offsetWidget = new AudioOffsetWidget;
-        addItem(offsetWidget, tr("Offset"));
+        _offsetWidget = new AudioOffsetWidget;
+        addItem(_offsetWidget, tr("Offset"));
 
         connect(
-            offsetWidget,
+            _offsetWidget,
             SIGNAL(offsetChanged(double)),
             SIGNAL(audioOffsetChanged(double)));
 
@@ -100,6 +106,11 @@ namespace tlr
 
         QSettings settings;
         setCurrentIndex(settings.value("AudioSync/CurrentItem").toInt());
+    }
+
+    void AudioSyncWidget::setAudioOffset(double value)
+    {
+        _offsetWidget->setAudioOffset(value);
     }
 
     void AudioSyncWidget::_currentItemCallback(int value)

@@ -3,19 +3,21 @@ set(HEADERS
 	AudioSyncWidget.h
     ImageOptionsWidget.h
     MainWindow.h
-	OpenPlusAudioDialog.h
+	OpenWithAudioDialog.h
     SecondaryWindow.h
     SettingsObject.h
-    SettingsWidget.h)
+    SettingsWidget.h
+	TimelineListModel.h)
 set(SOURCE
     App.cpp
 	AudioSyncWidget.cpp
     ImageOptionsWidget.cpp
     MainWindow.cpp
-	OpenPlusAudioDialog.cpp
+	OpenWithAudioDialog.cpp
     SecondaryWindow.cpp
     SettingsObject.cpp
     SettingsWidget.cpp
+	TimelineListModel.cpp
     main.cpp)
 
 add_executable(play-qwidget ${SOURCE} ${HEADERS})
