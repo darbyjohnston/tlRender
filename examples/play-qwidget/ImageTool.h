@@ -29,13 +29,13 @@ namespace tlr
         QComboBox* _yuvRangeComboBox = nullptr;
     };
 
-    //! Image options widget.
-    class ImageOptionsWidget : public QToolBox
+    //! Image tool.
+    class ImageTool : public QToolBox
     {
         Q_OBJECT
 
     public:
-        ImageOptionsWidget(QWidget* parent = nullptr);
+        ImageTool(QWidget* parent = nullptr);
 
     Q_SIGNALS:
         void imageOptionsChanged(const tlr::render::ImageOptions&);

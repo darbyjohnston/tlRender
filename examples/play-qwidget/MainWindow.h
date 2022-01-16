@@ -4,7 +4,9 @@
 
 #pragma once
 
-#include "AudioSyncWidget.h"
+#include "AudioTool.h"
+#include "ImageTool.h"
+#include "LayersTool.h"
 #include "SecondaryWindow.h"
 #include "SettingsObject.h"
 
@@ -77,11 +79,8 @@ namespace tlr
         void _frameNextX10Callback();
         void _frameNextX100Callback();
         void _imageOptionsCallback(const tlr::render::ImageOptions&);
-        void _imageOptionsVisibleCallback(bool);
         void _audioOffsetCallback(double);
-        void _audioSyncVisibleCallback(bool);
         void _settingsCallback();
-        void _settingsVisibleCallback(bool);
         void _saveSettingsCallback();
 
     private:
@@ -94,7 +93,9 @@ namespace tlr
         std::weak_ptr<core::Context> _context;
         qt::TimelinePlayer* _timelinePlayer = nullptr;
         qwidget::TimelineWidget* _timelineWidget = nullptr;
-        AudioSyncWidget* _audioSyncWidget = nullptr;
+        AudioTool* _audioTool = nullptr;
+        ImageTool* _imageTool = nullptr;
+        LayersTool* _layersTool = nullptr;
         QMap<QString, QAction*> _actions;
         QActionGroup* _recentFilesActionGroup = nullptr;
         QMap<QAction*, QString> _actionToRecentFile;

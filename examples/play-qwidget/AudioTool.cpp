@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include "AudioSyncWidget.h"
+#include "AudioTool.h"
 
 #include <QBoxLayout>
 #include <QPushButton>
@@ -88,7 +88,7 @@ namespace tlr
         }
     }
 
-    AudioSyncWidget::AudioSyncWidget(QWidget* parent) :
+    AudioTool::AudioTool(QWidget* parent) :
         QToolBox(parent)
     {
         _offsetWidget = new AudioOffsetWidget;
@@ -105,17 +105,17 @@ namespace tlr
             SLOT(_currentItemCallback(int)));
 
         QSettings settings;
-        setCurrentIndex(settings.value("AudioSync/CurrentItem").toInt());
+        setCurrentIndex(settings.value("AudioTool/CurrentItem").toInt());
     }
 
-    void AudioSyncWidget::setAudioOffset(double value)
+    void AudioTool::setAudioOffset(double value)
     {
         _offsetWidget->setAudioOffset(value);
     }
 
-    void AudioSyncWidget::_currentItemCallback(int value)
+    void AudioTool::_currentItemCallback(int value)
     {
         QSettings settings;
-        settings.setValue("AudioSync/CurrentItem", value);
+        settings.setValue("AudioTool/CurrentItem", value);
     }
 }

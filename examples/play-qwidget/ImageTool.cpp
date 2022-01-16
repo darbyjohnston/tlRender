@@ -2,8 +2,7 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include "ImageOptionsWidget.h"
-
+#include "ImageTool.h"
 
 #include <QBoxLayout>
 #include <QGroupBox>
@@ -38,7 +37,7 @@ namespace tlr
         Q_EMIT yuvRangeChanged(static_cast<render::YUVRange>(value));
     }
 
-    ImageOptionsWidget::ImageOptionsWidget(QWidget* parent) :
+    ImageTool::ImageTool(QWidget* parent) :
         QToolBox(parent)
     {
         auto yuvRangeWidget = new YUVRangeWidget;
@@ -55,18 +54,18 @@ namespace tlr
             SLOT(_currentItemCallback(int)));
 
         QSettings settings;
-        setCurrentIndex(settings.value("ImageOptions/CurrentItem").toInt());
+        setCurrentIndex(settings.value("ImageTool/CurrentItem").toInt());
     }
 
-    void ImageOptionsWidget::_yuvRangeCallback(render::YUVRange value)
+    void ImageTool::_yuvRangeCallback(render::YUVRange value)
     {
         _imageOptions.yuvRange = value;
         Q_EMIT imageOptionsChanged(_imageOptions);
     }
 
-    void ImageOptionsWidget::_currentItemCallback(int value)
+    void ImageTool::_currentItemCallback(int value)
     {
         QSettings settings;
-        settings.setValue("ImageOptions/CurrentItem", value);
+        settings.setValue("ImageTool/CurrentItem", value);
     }
 }

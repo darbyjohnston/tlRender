@@ -4,9 +4,9 @@
 
 #pragma once
 
+#include "FilesModel.h"
 #include "MainWindow.h"
 #include "SettingsObject.h"
-#include "TimelineListModel.h"
 
 #include <tlrApp/IApp.h>
 
@@ -34,11 +34,8 @@ namespace tlr
         App(int& argc, char** argv);
         ~App() override;
 
-        //! Get the timeline model.
-        TimelineListModel* timelineListModel() const;
-
-        //! Get the current timeline player.
-        int current() const;
+        //! Get the files model.
+        FilesModel* filesModel() const;
 
     public Q_SLOTS:
         //! Open a timeline.
@@ -53,18 +50,11 @@ namespace tlr
         //! Close all timelines.
         void closeAll();
 
-        //! Set the current timeline player.
-        void setCurrent(int);
-
     private Q_SLOTS:
+        void _filesModelCallback(const FilesModelItem*);
         void _timelinePlayerCallback();
 
     private:
-        qt::TimelinePlayer* _createTimelinePlayer(
-            const std::string& fileName,
-            const std::string& audioFileName = std::string());
-        qt::TimelinePlayer* _createTimelinePlayer(const TimelineListItem&);
-
         std::string _input;
         Options _options;
 
@@ -72,8 +62,7 @@ namespace tlr
         SettingsObject* _settingsObject = nullptr;
 
         qt::TimelinePlayer* _timelinePlayer = nullptr;
-        TimelineListModel* _timelineListModel = nullptr;
-        int _current = -1;
+        FilesModel* _filesModel = nullptr;
 
         MainWindow* _mainWindow = nullptr;
     };

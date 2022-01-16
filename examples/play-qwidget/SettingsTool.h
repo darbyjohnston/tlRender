@@ -126,13 +126,13 @@ namespace tlr
         SettingsObject* _settingsObject = nullptr;
     };
 
-    //! Settings widget.
-    class SettingsWidget : public QToolBox
+    //! Settings tool.
+    class SettingsTool : public QToolBox
     {
         Q_OBJECT
 
     public:
-        SettingsWidget(
+        SettingsTool(
             SettingsObject*,
             qt::TimeObject*,
             QWidget* parent = nullptr);

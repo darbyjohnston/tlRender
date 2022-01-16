@@ -37,13 +37,13 @@ namespace tlr
         QSlider* _slider = nullptr;
     };
 
-    //! Audio sync widget.
-    class AudioSyncWidget : public QToolBox
+    //! Audio tool.
+    class AudioTool : public QToolBox
     {
         Q_OBJECT
 
     public:
-        AudioSyncWidget(QWidget* parent = nullptr);
+        AudioTool(QWidget* parent = nullptr);
 
     public Q_SLOTS:
         void setAudioOffset(double);

@@ -5,9 +5,11 @@
 #include "MainWindow.h"
 
 #include "App.h"
-#include "ImageOptionsWidget.h"
+#include "CompareTool.h"
+#include "FilesTool.h"
+#include "ImageTool.h"
 #include "OpenWithAudioDialog.h"
-#include "SettingsWidget.h"
+#include "SettingsTool.h"
 
 #include <tlrCore/File.h>
 #include <tlrCore/String.h>
@@ -132,61 +134,51 @@ namespace tlr
         _loopToActions[timeline::Loop::Once] = _actions["Playback/Once"];
         _loopToActions[timeline::Loop::PingPong] = _actions["Playback/PingPong"];
 
-        _actions["Time/Start"] = new QAction(this);
-        _actions["Time/Start"]->setText(tr("Start"));
-        _actions["Time/Start"]->setIcon(QIcon(":/Icons/TimeStart.svg"));
-        _actions["Time/Start"]->setShortcut(QKeySequence(Qt::Key_Home));
-        _actions["Time/End"] = new QAction(this);
-        _actions["Time/End"]->setText(tr("End"));
-        _actions["Time/End"]->setIcon(QIcon(":/Icons/TimeEnd.svg"));
-        _actions["Time/End"]->setShortcut(QKeySequence(Qt::Key_End));
-        _actions["Time/FramePrev"] = new QAction(this);
-        _actions["Time/FramePrev"]->setText(tr("Previous Frame"));
-        _actions["Time/FramePrev"]->setIcon(QIcon(":/Icons/FramePrev.svg"));
-        _actions["Time/FramePrev"]->setShortcut(QKeySequence(Qt::Key_Left));
-        _actions["Time/FramePrevX10"] = new QAction(this);
-        _actions["Time/FramePrevX10"]->setText(tr("Previous Frame X10"));
-        _actions["Time/FramePrevX10"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Left));
-        _actions["Time/FramePrevX100"] = new QAction(this);
-        _actions["Time/FramePrevX100"]->setText(tr("Previous Frame X100"));
-        _actions["Time/FramePrevX100"]->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Left));
-        _actions["Time/FrameNext"] = new QAction(this);
-        _actions["Time/FrameNext"]->setText(tr("Next Frame"));
-        _actions["Time/FrameNext"]->setIcon(QIcon(":/Icons/FrameNext.svg"));
-        _actions["Time/FrameNext"]->setShortcut(QKeySequence(Qt::Key_Right));
-        _actions["Time/FrameNextX10"] = new QAction(this);
-        _actions["Time/FrameNextX10"]->setText(tr("Next Frame X10"));
-        _actions["Time/FrameNextX10"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Right));
-        _actions["Time/FrameNextX100"] = new QAction(this);
-        _actions["Time/FrameNextX100"]->setText(tr("Next Frame X100"));
-        _actions["Time/FrameNextX100"]->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Right));
+        _actions["Playback/Start"] = new QAction(this);
+        _actions["Playback/Start"]->setText(tr("Go To Start"));
+        _actions["Playback/Start"]->setIcon(QIcon(":/Icons/TimeStart.svg"));
+        _actions["Playback/Start"]->setShortcut(QKeySequence(Qt::Key_Home));
+        _actions["Playback/End"] = new QAction(this);
+        _actions["Playback/End"]->setText(tr("Go To End"));
+        _actions["Playback/End"]->setIcon(QIcon(":/Icons/TimeEnd.svg"));
+        _actions["Playback/End"]->setShortcut(QKeySequence(Qt::Key_End));
+        _actions["Playback/FramePrev"] = new QAction(this);
+        _actions["Playback/FramePrev"]->setText(tr("Previous Frame"));
+        _actions["Playback/FramePrev"]->setIcon(QIcon(":/Icons/FramePrev.svg"));
+        _actions["Playback/FramePrev"]->setShortcut(QKeySequence(Qt::Key_Left));
+        _actions["Playback/FramePrevX10"] = new QAction(this);
+        _actions["Playback/FramePrevX10"]->setText(tr("Previous Frame X10"));
+        _actions["Playback/FramePrevX10"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Left));
+        _actions["Playback/FramePrevX100"] = new QAction(this);
+        _actions["Playback/FramePrevX100"]->setText(tr("Previous Frame X100"));
+        _actions["Playback/FramePrevX100"]->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Left));
+        _actions["Playback/FrameNext"] = new QAction(this);
+        _actions["Playback/FrameNext"]->setText(tr("Next Frame"));
+        _actions["Playback/FrameNext"]->setIcon(QIcon(":/Icons/FrameNext.svg"));
+        _actions["Playback/FrameNext"]->setShortcut(QKeySequence(Qt::Key_Right));
+        _actions["Playback/FrameNextX10"] = new QAction(this);
+        _actions["Playback/FrameNextX10"]->setText(tr("Next Frame X10"));
+        _actions["Playback/FrameNextX10"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Right));
+        _actions["Playback/FrameNextX100"] = new QAction(this);
+        _actions["Playback/FrameNextX100"]->setText(tr("Next Frame X100"));
+        _actions["Playback/FrameNextX100"]->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Right));
 
-        _actions["InOutPoints/SetInPoint"] = new QAction(this);
-        _actions["InOutPoints/SetInPoint"]->setText(tr("Set In Point"));
-        _actions["InOutPoints/SetInPoint"]->setIcon(QIcon(":/Icons/TimeStart.svg"));
-        _actions["InOutPoints/SetInPoint"]->setShortcut(QKeySequence(Qt::Key_I));
-        _actions["InOutPoints/ResetInPoint"] = new QAction(this);
-        _actions["InOutPoints/ResetInPoint"]->setText(tr("Reset In Point"));
-        _actions["InOutPoints/ResetInPoint"]->setIcon(QIcon(":/Icons/Reset.svg"));
-        _actions["InOutPoints/ResetInPoint"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_I));
-        _actions["InOutPoints/SetOutPoint"] = new QAction(this);
-        _actions["InOutPoints/SetOutPoint"]->setText(tr("Set Out Point"));
-        _actions["InOutPoints/SetOutPoint"]->setIcon(QIcon(":/Icons/TimeEnd.svg"));
-        _actions["InOutPoints/SetOutPoint"]->setShortcut(QKeySequence(Qt::Key_O));
-        _actions["InOutPoints/ResetOutPoint"] = new QAction(this);
-        _actions["InOutPoints/ResetOutPoint"]->setText(tr("Reset Out Point"));
-        _actions["InOutPoints/ResetOutPoint"]->setIcon(QIcon(":/Icons/Reset.svg"));
-        _actions["InOutPoints/ResetOutPoint"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_O));
-
-        _actions["Tools/ImageOptions"] = new QAction(this);
-        _actions["Tools/ImageOptions"]->setCheckable(true);
-        _actions["Tools/ImageOptions"]->setText(tr("Image Options"));
-        _actions["Tools/AudioSync"] = new QAction(this);
-        _actions["Tools/AudioSync"]->setCheckable(true);
-        _actions["Tools/AudioSync"]->setText(tr("Audio Sync"));
-        _actions["Tools/Settings"] = new QAction(this);
-        _actions["Tools/Settings"]->setCheckable(true);
-        _actions["Tools/Settings"]->setText(tr("Settings"));
+        _actions["Playback/SetInPoint"] = new QAction(this);
+        _actions["Playback/SetInPoint"]->setText(tr("Set In Point"));
+        _actions["Playback/SetInPoint"]->setIcon(QIcon(":/Icons/TimeStart.svg"));
+        _actions["Playback/SetInPoint"]->setShortcut(QKeySequence(Qt::Key_I));
+        _actions["Playback/ResetInPoint"] = new QAction(this);
+        _actions["Playback/ResetInPoint"]->setText(tr("Reset In Point"));
+        _actions["Playback/ResetInPoint"]->setIcon(QIcon(":/Icons/Reset.svg"));
+        _actions["Playback/ResetInPoint"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_I));
+        _actions["Playback/SetOutPoint"] = new QAction(this);
+        _actions["Playback/SetOutPoint"]->setText(tr("Set Out Point"));
+        _actions["Playback/SetOutPoint"]->setIcon(QIcon(":/Icons/TimeEnd.svg"));
+        _actions["Playback/SetOutPoint"]->setShortcut(QKeySequence(Qt::Key_O));
+        _actions["Playback/ResetOutPoint"] = new QAction(this);
+        _actions["Playback/ResetOutPoint"]->setText(tr("Reset Out Point"));
+        _actions["Playback/ResetOutPoint"]->setIcon(QIcon(":/Icons/Reset.svg"));
+        _actions["Playback/ResetOutPoint"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_O));
 
         auto fileMenu = new QMenu;
         fileMenu->setTitle(tr("&File"));
@@ -225,38 +217,29 @@ namespace tlr
         playbackMenu->addAction(_actions["Playback/Loop"]);
         playbackMenu->addAction(_actions["Playback/Once"]);
         playbackMenu->addAction(_actions["Playback/PingPong"]);
-
-        auto timeMenu = new QMenu;
-        timeMenu->setTitle(tr("&Time"));
-        timeMenu->addAction(_actions["Time/Start"]);
-        timeMenu->addAction(_actions["Time/End"]);
-        timeMenu->addSeparator();
-        timeMenu->addAction(_actions["Time/FramePrev"]);
-        timeMenu->addAction(_actions["Time/FramePrevX10"]);
-        timeMenu->addAction(_actions["Time/FramePrevX100"]);
-        timeMenu->addAction(_actions["Time/FrameNext"]);
-        timeMenu->addAction(_actions["Time/FrameNextX10"]);
-        timeMenu->addAction(_actions["Time/FrameNextX100"]);
-
-        auto inOutPointsMenu = new QMenu;
-        inOutPointsMenu->setTitle(tr("&In/Out Points"));
-        inOutPointsMenu->addAction(_actions["InOutPoints/SetInPoint"]);
-        inOutPointsMenu->addAction(_actions["InOutPoints/ResetInPoint"]);
-        inOutPointsMenu->addAction(_actions["InOutPoints/SetOutPoint"]);
-        inOutPointsMenu->addAction(_actions["InOutPoints/ResetOutPoint"]);
+        playbackMenu->addSeparator();
+        playbackMenu->addAction(_actions["Playback/Start"]);
+        playbackMenu->addAction(_actions["Playback/End"]);
+        playbackMenu->addSeparator();
+        playbackMenu->addAction(_actions["Playback/FramePrev"]);
+        playbackMenu->addAction(_actions["Playback/FramePrevX10"]);
+        playbackMenu->addAction(_actions["Playback/FramePrevX100"]);
+        playbackMenu->addAction(_actions["Playback/FrameNext"]);
+        playbackMenu->addAction(_actions["Playback/FrameNextX10"]);
+        playbackMenu->addAction(_actions["Playback/FrameNextX100"]);
+        playbackMenu->addSeparator();
+        playbackMenu->addAction(_actions["Playback/SetInPoint"]);
+        playbackMenu->addAction(_actions["Playback/ResetInPoint"]);
+        playbackMenu->addAction(_actions["Playback/SetOutPoint"]);
+        playbackMenu->addAction(_actions["Playback/ResetOutPoint"]);
 
         auto toolsMenu = new QMenu;
         toolsMenu->setTitle(tr("&Tools"));
-        toolsMenu->addAction(_actions["Tools/ImageOptions"]);
-        toolsMenu->addAction(_actions["Tools/AudioSync"]);
-        toolsMenu->addAction(_actions["Tools/Settings"]);
 
         auto menuBar = new QMenuBar;
         menuBar->addMenu(fileMenu);
         menuBar->addMenu(windowMenu);
         menuBar->addMenu(playbackMenu);
-        menuBar->addMenu(timeMenu);
-        menuBar->addMenu(inOutPointsMenu);
         menuBar->addMenu(toolsMenu);
         setMenuBar(menuBar);
 
@@ -264,31 +247,70 @@ namespace tlr
         _timelineWidget->setTimeObject(_timeObject);
         setCentralWidget(_timelineWidget);
 
-        auto imageOptionsWidget = new ImageOptionsWidget();
-        auto imageOptionsDockWidget = new QDockWidget;
-        imageOptionsDockWidget->setObjectName("ImageOptions");
-        imageOptionsDockWidget->setWindowTitle(tr("Image Options"));
-        imageOptionsDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-        imageOptionsDockWidget->setWidget(imageOptionsWidget);
-        imageOptionsDockWidget->hide();
-        addDockWidget(Qt::RightDockWidgetArea, imageOptionsDockWidget);
+        FilesModel* filesModel = nullptr;
+        auto app = qobject_cast<App*>(qApp);
+        if (app)
+        {
+            filesModel = app->filesModel();
+        }
+        auto filesTool = new FilesTool(filesModel, this);
+        auto filesToolDockWidget = new QDockWidget;
+        filesToolDockWidget->setObjectName("Files");
+        filesToolDockWidget->setWindowTitle(tr("Files"));
+        filesToolDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+        filesToolDockWidget->setWidget(filesTool);
+        filesToolDockWidget->hide();
+        toolsMenu->addAction(filesToolDockWidget->toggleViewAction());
+        addDockWidget(Qt::RightDockWidgetArea, filesToolDockWidget);
 
-        _audioSyncWidget = new AudioSyncWidget();
+        auto layersTool = new LayersTool();
+        auto layersToolDockWidget = new QDockWidget;
+        layersToolDockWidget->setObjectName("Layers");
+        layersToolDockWidget->setWindowTitle(tr("Layers"));
+        layersToolDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+        layersToolDockWidget->setWidget(layersTool);
+        layersToolDockWidget->hide();
+        toolsMenu->addAction(layersToolDockWidget->toggleViewAction());
+        addDockWidget(Qt::RightDockWidgetArea, layersToolDockWidget);
+
+        auto compareTool = new CompareTool();
+        auto compareToolDockWidget = new QDockWidget;
+        compareToolDockWidget->setObjectName("Compare");
+        compareToolDockWidget->setWindowTitle(tr("Compare"));
+        compareToolDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+        compareToolDockWidget->setWidget(compareTool);
+        compareToolDockWidget->hide();
+        toolsMenu->addAction(compareToolDockWidget->toggleViewAction());
+        addDockWidget(Qt::RightDockWidgetArea, compareToolDockWidget);
+
+        auto imageTool = new ImageTool();
+        auto imageToolDockWidget = new QDockWidget;
+        imageToolDockWidget->setObjectName("Image");
+        imageToolDockWidget->setWindowTitle(tr("Image"));
+        imageToolDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+        imageToolDockWidget->setWidget(imageTool);
+        imageToolDockWidget->hide();
+        toolsMenu->addAction(imageToolDockWidget->toggleViewAction());
+        addDockWidget(Qt::RightDockWidgetArea, imageToolDockWidget);
+
+        _audioTool = new AudioTool();
         auto audioSyncDockWidget = new QDockWidget;
-        audioSyncDockWidget->setObjectName("AudioSync");
-        audioSyncDockWidget->setWindowTitle(tr("Audio Sync"));
+        audioSyncDockWidget->setObjectName("Audio");
+        audioSyncDockWidget->setWindowTitle(tr("Audio"));
         audioSyncDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-        audioSyncDockWidget->setWidget(_audioSyncWidget);
+        audioSyncDockWidget->setWidget(_audioTool);
         audioSyncDockWidget->hide();
+        toolsMenu->addAction(audioSyncDockWidget->toggleViewAction());
         addDockWidget(Qt::RightDockWidgetArea, audioSyncDockWidget);
 
-        auto settingsWidget = new SettingsWidget(settingsObject, _timeObject);
+        auto settingsTool = new SettingsTool(settingsObject, _timeObject);
         auto settingsDockWidget = new QDockWidget;
         settingsDockWidget->setObjectName("Settings");
         settingsDockWidget->setWindowTitle(tr("Settings"));
         settingsDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-        settingsDockWidget->setWidget(settingsWidget);
+        settingsDockWidget->setWidget(settingsTool);
         settingsDockWidget->hide();
+        toolsMenu->addAction(settingsDockWidget->toggleViewAction());
         addDockWidget(Qt::RightDockWidgetArea, settingsDockWidget);
 
         _recentFilesUpdate();
@@ -369,53 +391,37 @@ namespace tlr
             SLOT(_togglePlaybackCallback()));
 
         connect(
-            _actions["Time/Start"],
+            _actions["Playback/Start"],
             SIGNAL(triggered()),
             SLOT(_startCallback()));
         connect(
-            _actions["Time/End"],
+            _actions["Playback/End"],
             SIGNAL(triggered()),
             SLOT(_endCallback()));
         connect(
-            _actions["Time/FramePrev"],
+            _actions["Playback/FramePrev"],
             SIGNAL(triggered()),
             SLOT(_framePrevCallback()));
         connect(
-            _actions["Time/FramePrevX10"],
+            _actions["Playback/FramePrevX10"],
             SIGNAL(triggered()),
             SLOT(_framePrevX10Callback()));
         connect(
-            _actions["Time/FramePrevX100"],
+            _actions["Playback/FramePrevX100"],
             SIGNAL(triggered()),
             SLOT(_framePrevX100Callback()));
         connect(
-            _actions["Time/FrameNext"],
+            _actions["Playback/FrameNext"],
             SIGNAL(triggered()),
             SLOT(_frameNextCallback()));
         connect(
-            _actions["Time/FrameNextX10"],
+            _actions["Playback/FrameNextX10"],
             SIGNAL(triggered()),
             SLOT(_frameNextX10Callback()));
         connect(
-            _actions["Time/FrameNextX100"],
+            _actions["Playback/FrameNextX100"],
             SIGNAL(triggered()),
             SLOT(_frameNextX100Callback()));
-
-        connect(
-            _actions["Tools/ImageOptions"],
-            SIGNAL(triggered(bool)),
-            imageOptionsDockWidget,
-            SLOT(setVisible(bool)));
-        connect(
-            _actions["Tools/AudioSync"],
-            SIGNAL(triggered(bool)),
-            audioSyncDockWidget,
-            SLOT(setVisible(bool)));
-        connect(
-            _actions["Tools/Settings"],
-            SIGNAL(triggered(bool)),
-            settingsDockWidget,
-            SLOT(setVisible(bool)));
 
         connect(
             _playbackActionGroup,
@@ -428,27 +434,14 @@ namespace tlr
             SLOT(_loopCallback(QAction*)));
 
         connect(
-            imageOptionsWidget,
+            imageTool,
             SIGNAL(imageOptionsChanged(const tlr::render::ImageOptions&)),
             SLOT(_imageOptionsCallback(const tlr::render::ImageOptions&)));
-        connect(
-            imageOptionsDockWidget,
-            SIGNAL(visibilityChanged(bool)),
-            SLOT(_imageOptionsVisibleCallback(bool)));
 
         connect(
-            _audioSyncWidget,
+            _audioTool,
             SIGNAL(audioOffsetChanged(double)),
             SLOT(_audioOffsetCallback(double)));
-        connect(
-            audioSyncDockWidget,
-            SIGNAL(visibilityChanged(bool)),
-            SLOT(_audioSyncVisibleCallback(bool)));
-
-        connect(
-            settingsDockWidget,
-            SIGNAL(visibilityChanged(bool)),
-            SLOT(_settingsVisibleCallback(bool)));
 
         connect(
             _settingsObject,
@@ -479,7 +472,7 @@ namespace tlr
             SIGNAL(ffmpegThreadCountChanged(int)),
             SLOT(_settingsCallback()));
 
-        if (auto app = qobject_cast<App*>(qApp))
+        if (app)
         {
             connect(
                 app,
@@ -532,26 +525,26 @@ namespace tlr
             disconnect(
                 _timelinePlayer,
                 SIGNAL(audioOffsetChanged(double)),
-                _audioSyncWidget,
+                _audioTool,
                 SLOT(setAudioOffset(double)));
 
             disconnect(
-                _actions["InOutPoints/SetInPoint"],
+                _actions["Playback/SetInPoint"],
                 SIGNAL(triggered(bool)),
                 _timelinePlayer,
                 SLOT(setInPoint()));
             disconnect(
-                _actions["InOutPoints/ResetInPoint"],
+                _actions["Playback/ResetInPoint"],
                 SIGNAL(triggered(bool)),
                 _timelinePlayer,
                 SLOT(resetInPoint()));
             disconnect(
-                _actions["InOutPoints/SetOutPoint"],
+                _actions["Playback/SetOutPoint"],
                 SIGNAL(triggered(bool)),
                 _timelinePlayer,
                 SLOT(setOutPoint()));
             disconnect(
-                _actions["InOutPoints/ResetOutPoint"],
+                _actions["Playback/ResetOutPoint"],
                 SIGNAL(triggered(bool)),
                 _timelinePlayer,
                 SLOT(resetOutPoint()));
@@ -576,26 +569,26 @@ namespace tlr
             connect(
                 _timelinePlayer,
                 SIGNAL(audioOffsetChanged(double)),
-                _audioSyncWidget,
+                _audioTool,
                 SLOT(setAudioOffset(double)));
 
             connect(
-                _actions["InOutPoints/SetInPoint"],
+                _actions["Playback/SetInPoint"],
                 SIGNAL(triggered(bool)),
                 _timelinePlayer,
                 SLOT(setInPoint()));
             connect(
-                _actions["InOutPoints/ResetInPoint"],
+                _actions["Playback/ResetInPoint"],
                 SIGNAL(triggered(bool)),
                 _timelinePlayer,
                 SLOT(resetInPoint()));
             connect(
-                _actions["InOutPoints/SetOutPoint"],
+                _actions["Playback/SetOutPoint"],
                 SIGNAL(triggered(bool)),
                 _timelinePlayer,
                 SLOT(setOutPoint()));
             connect(
-                _actions["InOutPoints/ResetOutPoint"],
+                _actions["Playback/ResetOutPoint"],
                 SIGNAL(triggered(bool)),
                 _timelinePlayer,
                 SLOT(resetOutPoint()));
@@ -686,8 +679,10 @@ namespace tlr
             QString dir;
             if (auto app = qobject_cast<App*>(qApp))
             {
-                const auto item = app->timelineListModel()->get(app->current());
-                dir = QString::fromUtf8(item.path.get().c_str());
+                if (const auto item = app->filesModel()->current())
+                {
+                    dir = QString::fromUtf8(item->path.get().c_str());
+                }
             }
 
             const auto fileName = QFileDialog::getOpenFileName(
@@ -757,13 +752,7 @@ namespace tlr
     {
         if (auto app = qobject_cast<App*>(qApp))
         {
-            int current = app->current();
-            ++current;
-            if (current >= app->timelineListModel()->rowCount())
-            {
-                current = 0;
-            }
-            app->setCurrent(current);
+            app->filesModel()->next();
         }
     }
 
@@ -771,13 +760,7 @@ namespace tlr
     {
         if (auto app = qobject_cast<App*>(qApp))
         {
-            int current = app->current();
-            --current;
-            if (current < 0)
-            {
-                current = app->timelineListModel()->rowCount() - 1;
-            }
-            app->setCurrent(current);
+            app->filesModel()->prev();
         }
     }
 
@@ -994,11 +977,6 @@ namespace tlr
         _timelineWidget->setImageOptions(value);
     }
 
-    void MainWindow::_imageOptionsVisibleCallback(bool value)
-    {
-        _actions["Tools/ImageOptions"]->setChecked(value);
-    }
-
     void MainWindow::_audioOffsetCallback(double value)
     {
         if (_timelinePlayer)
@@ -1007,19 +985,9 @@ namespace tlr
         }
     }
 
-    void MainWindow::_audioSyncVisibleCallback(bool value)
-    {
-        _actions["Tools/AudioSync"]->setChecked(value);
-    }
-
     void MainWindow::_settingsCallback()
     {
         _settingsUpdate();
-    }
-
-    void MainWindow::_settingsVisibleCallback(bool value)
-    {
-        _actions["Tools/Settings"]->setChecked(value);
     }
 
     void MainWindow::_saveSettingsCallback()
@@ -1095,7 +1063,7 @@ namespace tlr
         int count = 0;
         if (auto app = qobject_cast<App*>(qApp))
         {
-            count = app->timelineListModel()->rowCount();
+            count = app->filesModel()->rowCount();
         }
         _actions["File/Close"]->setEnabled(count > 0);
         _actions["File/CloseAll"]->setEnabled(count > 0);
@@ -1123,19 +1091,19 @@ namespace tlr
                 loopAction.value()->setChecked(true);
             }
 
-            _actions["Time/Start"]->setEnabled(true);
-            _actions["Time/End"]->setEnabled(true);
-            _actions["Time/FramePrev"]->setEnabled(true);
-            _actions["Time/FramePrevX10"]->setEnabled(true);
-            _actions["Time/FramePrevX100"]->setEnabled(true);
-            _actions["Time/FrameNext"]->setEnabled(true);
-            _actions["Time/FrameNextX10"]->setEnabled(true);
-            _actions["Time/FrameNextX100"]->setEnabled(true);
+            _actions["Playback/Start"]->setEnabled(true);
+            _actions["Playback/End"]->setEnabled(true);
+            _actions["Playback/FramePrev"]->setEnabled(true);
+            _actions["Playback/FramePrevX10"]->setEnabled(true);
+            _actions["Playback/FramePrevX100"]->setEnabled(true);
+            _actions["Playback/FrameNext"]->setEnabled(true);
+            _actions["Playback/FrameNextX10"]->setEnabled(true);
+            _actions["Playback/FrameNextX100"]->setEnabled(true);
 
-            _actions["InOutPoints/SetInPoint"]->setEnabled(true);
-            _actions["InOutPoints/ResetInPoint"]->setEnabled(true);
-            _actions["InOutPoints/SetOutPoint"]->setEnabled(true);
-            _actions["InOutPoints/ResetOutPoint"]->setEnabled(true);
+            _actions["Playback/SetInPoint"]->setEnabled(true);
+            _actions["Playback/ResetInPoint"]->setEnabled(true);
+            _actions["Playback/SetOutPoint"]->setEnabled(true);
+            _actions["Playback/ResetOutPoint"]->setEnabled(true);
         }
         else
         {
@@ -1154,23 +1122,23 @@ namespace tlr
             _actions["Playback/PingPong"]->setEnabled(false);
             _actions["Playback/PingPong"]->setChecked(false);
 
-            _actions["Time/Start"]->setEnabled(false);
-            _actions["Time/End"]->setEnabled(false);
-            _actions["Time/FramePrev"]->setEnabled(false);
-            _actions["Time/FramePrevX10"]->setEnabled(false);
-            _actions["Time/FramePrevX100"]->setEnabled(false);
-            _actions["Time/FrameNext"]->setEnabled(false);
-            _actions["Time/FrameNextX10"]->setEnabled(false);
-            _actions["Time/FrameNextX100"]->setEnabled(false);
+            _actions["Playback/Start"]->setEnabled(false);
+            _actions["Playback/End"]->setEnabled(false);
+            _actions["Playback/FramePrev"]->setEnabled(false);
+            _actions["Playback/FramePrevX10"]->setEnabled(false);
+            _actions["Playback/FramePrevX100"]->setEnabled(false);
+            _actions["Playback/FrameNext"]->setEnabled(false);
+            _actions["Playback/FrameNextX10"]->setEnabled(false);
+            _actions["Playback/FrameNextX100"]->setEnabled(false);
 
-            _actions["InOutPoints/SetInPoint"]->setEnabled(false);
-            _actions["InOutPoints/ResetInPoint"]->setEnabled(false);
-            _actions["InOutPoints/SetOutPoint"]->setEnabled(false);
-            _actions["InOutPoints/ResetOutPoint"]->setEnabled(false);
+            _actions["Playback/SetInPoint"]->setEnabled(false);
+            _actions["Playback/ResetInPoint"]->setEnabled(false);
+            _actions["Playback/SetOutPoint"]->setEnabled(false);
+            _actions["Playback/ResetOutPoint"]->setEnabled(false);
         }
 
         _timelineWidget->setTimelinePlayer(_timelinePlayer);
-        _audioSyncWidget->setAudioOffset(_timelinePlayer ? _timelinePlayer->audioOffset() : 0.0);
+        _audioTool->setAudioOffset(_timelinePlayer ? _timelinePlayer->audioOffset() : 0.0);
         if (_secondaryWindow)
         {
             _secondaryWindow->setTimelinePlayer(_timelinePlayer);

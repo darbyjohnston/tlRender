@@ -10,17 +10,22 @@
 
 namespace tlr
 {
-    struct TimelineListItem
+    //! Files model item.
+    struct FilesModelItem
     {
-        TimelineListItem();
-        TimelineListItem(const std::shared_ptr<timeline::TimelinePlayer>&);
+        FilesModelItem();
+        FilesModelItem(const std::string& fileName);
+        FilesModelItem(const std::string& fileName, const std::string& audioFileName);
+        FilesModelItem(const std::shared_ptr<timeline::TimelinePlayer>&);
 
         file::Path path;
         file::Path audioPath;
 
+        bool init = false;
+
         otime::RationalTime duration = time::invalidTime;
         otime::RationalTime globalStartTime = time::invalidTime;
-        avio::Info avIOInfo;
+        avio::Info avInfo;
 
         double speed = 0.0;
         timeline::Playback playback = timeline::Playback::Stop;
@@ -35,26 +40,39 @@ namespace tlr
         double audioOffset = 0.0;
     };
 
-    //! Timeline list model.
-    class TimelineListModel : public QAbstractListModel
+    //! Files model.
+    class FilesModel : public QAbstractListModel
     {
         Q_OBJECT
 
     public:
-        TimelineListModel(
+        FilesModel(
             const std::shared_ptr<core::Context>&,
             QObject* parent = nullptr);
 
-        void add(const TimelineListItem&);
-        void remove(int);
+        void add(const FilesModelItem&);
+        void remove();
+        void clear();
 
-        TimelineListItem get(int) const;
-        void set(int, const TimelineListItem&);
+        const FilesModelItem* current() const;
+        void setCurrent(const QModelIndex&);
+
+        void update(const FilesModelItem&);
 
         int rowCount(const QModelIndex& parent = QModelIndex()) const override;
         QVariant data(const QModelIndex&, int role = Qt::DisplayRole) const override;
 
+    public Q_SLOTS:
+        void first();
+        void last();
+        void next();
+        void prev();
+
+    Q_SIGNALS:
+        void currentChanged(const FilesModelItem*);
+
     private:
-        std::vector<TimelineListItem> _items;
+        std::vector<FilesModelItem> _items;
+        int _current = -1;
     };
 }

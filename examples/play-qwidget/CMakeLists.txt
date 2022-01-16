@@ -1,23 +1,29 @@
 set(HEADERS
     App.h
-	AudioSyncWidget.h
-    ImageOptionsWidget.h
+	AudioTool.h
+	CompareTool.h
+	FilesModel.h
+	FilesTool.h
+    ImageTool.h
+	LayersTool.h
     MainWindow.h
 	OpenWithAudioDialog.h
     SecondaryWindow.h
     SettingsObject.h
-    SettingsWidget.h
-	TimelineListModel.h)
+    SettingsTool.h)
 set(SOURCE
     App.cpp
-	AudioSyncWidget.cpp
-    ImageOptionsWidget.cpp
+	AudioTool.cpp
+	CompareTool.cpp
+	FilesModel.cpp
+	FilesTool.cpp
+    ImageTool.cpp
+	LayersTool.cpp
     MainWindow.cpp
 	OpenWithAudioDialog.cpp
     SecondaryWindow.cpp
     SettingsObject.cpp
-    SettingsWidget.cpp
-	TimelineListModel.cpp
+    SettingsTool.cpp
     main.cpp)
 
 add_executable(play-qwidget ${SOURCE} ${HEADERS})

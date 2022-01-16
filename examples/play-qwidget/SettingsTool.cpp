@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include "SettingsWidget.h"
+#include "SettingsTool.h"
 
 #include <QBoxLayout>
 #include <QFormLayout>
@@ -478,7 +478,7 @@ namespace tlr
         _toolTipsCheckBox->setChecked(value);
     }
 
-    SettingsWidget::SettingsWidget(
+    SettingsTool::SettingsTool(
         SettingsObject* settingsObject,
         qt::TimeObject* timeObject,
         QWidget* parent) :
@@ -496,12 +496,12 @@ namespace tlr
             SLOT(_currentItemCallback(int)));
 
         QSettings settings;
-        setCurrentIndex(settings.value("Settings/CurrentItem").toInt());
+        setCurrentIndex(settings.value("SettingsTool/CurrentItem").toInt());
     }
 
-    void SettingsWidget::_currentItemCallback(int value)
+    void SettingsTool::_currentItemCallback(int value)
     {
         QSettings settings;
-        settings.setValue("Settings/CurrentItem", value);
+        settings.setValue("SettingsTool/CurrentItem", value);
     }
 }

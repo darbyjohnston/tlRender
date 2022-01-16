@@ -62,7 +62,11 @@ namespace tlr
         // Create objects.
         _timeObject = new qt::TimeObject(this);
         _settingsObject = new SettingsObject(_timeObject, this);
-        _timelineListModel = new TimelineListModel(_context, this);
+        _filesModel = new FilesModel(_context, this);
+        connect(
+            _filesModel,
+            SIGNAL(currentChanged(const FilesModelItem*)),
+            SLOT(_filesModelCallback(const FilesModelItem*)));
 
         // Create the main window.
         _mainWindow = new MainWindow(_settingsObject, _timeObject, _context);
@@ -83,184 +87,137 @@ namespace tlr
         delete _settingsObject;
     }
 
-    TimelineListModel* App::timelineListModel() const
+    FilesModel* App::filesModel() const
     {
-        return _timelineListModel;
-    }
-
-    int App::current() const
-    {
-        return _current;
+        return _filesModel;
     }
 
     void App::open(const QString& fileName)
     {
-        _current = _timelineListModel->rowCount();
-        auto timelinePlayer = _createTimelinePlayer(fileName.toUtf8().data());
-        _timelineListModel->add(timelinePlayer ? timelinePlayer->timelinePlayer() : TimelineListItem());
-        _mainWindow->setTimelinePlayer(timelinePlayer);
-        if (_timelinePlayer)
-        {
-            delete _timelinePlayer;
-            _timelinePlayer = nullptr;
-        }
-        _timelinePlayer = timelinePlayer;
+        _filesModel->add(FilesModelItem(fileName.toUtf8().data()));
         _settingsObject->addRecentFile(fileName);
     }
 
     void App::openWithAudio(const QString& fileName, const QString& audioFileName)
     {
-        _current = _timelineListModel->rowCount();
-        auto timelinePlayer = _createTimelinePlayer(fileName.toUtf8().data(), audioFileName.toUtf8().data());
-        _timelineListModel->add(timelinePlayer ? timelinePlayer->timelinePlayer() : TimelineListItem());
-        _mainWindow->setTimelinePlayer(timelinePlayer);
+        _filesModel->add(FilesModelItem(fileName.toUtf8().data(), audioFileName.toUtf8().data()));
+        _settingsObject->addRecentFile(fileName);
+    }
+
+    void App::_filesModelCallback(const FilesModelItem* item)
+    {
+        qt::TimelinePlayer* qtTimelinePlayer = nullptr;
+        if (item)
+        {
+            try
+            {
+                timeline::Options options;
+                options.fileSequenceAudio = _settingsObject->fileSequenceAudio();
+                options.fileSequenceAudioFileName = _settingsObject->fileSequenceAudioFileName().toUtf8().data();
+                options.fileSequenceAudioDirectory = _settingsObject->fileSequenceAudioDirectory().toUtf8().data();
+                options.videoRequestCount = _settingsObject->videoRequestCount();
+                options.audioRequestCount = _settingsObject->audioRequestCount();
+                options.avioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").arg(_settingsObject->sequenceThreadCount());
+                auto audioSystem = _context->getSystem<audio::System>();
+                const audio::Info audioInfo = audioSystem->getDefaultOutputInfo();
+                options.avioOptions["ffmpeg/AudioChannelCount"] = string::Format("{0}").arg(audioInfo.channelCount);
+                options.avioOptions["ffmpeg/AudioDataType"] = string::Format("{0}").arg(audioInfo.dataType);
+                options.avioOptions["ffmpeg/AudioSampleRate"] = string::Format("{0}").arg(audioInfo.sampleRate);
+                options.avioOptions["ffmpeg/ThreadCount"] = string::Format("{0}").arg(_settingsObject->ffmpegThreadCount());
+                options.pathOptions.maxNumberDigits = std::min(_settingsObject->maxFileSequenceDigits(), 255);
+                auto timeline = item->audioPath.isEmpty() ?
+                    timeline::Timeline::create(item->path.get(), _context, options) :
+                    timeline::Timeline::create(item->path.get(), item->audioPath.get(), _context, options);
+
+                timeline::PlayerOptions playerOptions;
+                playerOptions.timerMode = _settingsObject->timerMode();
+                playerOptions.audioBufferFrameCount = _settingsObject->audioBufferFrameCount();
+                auto timelinePlayer = timeline::TimelinePlayer::create(timeline, _context, playerOptions);
+                if (item->init)
+                {
+                    timelinePlayer->setAudioOffset(item->audioOffset);
+                    timelinePlayer->setMute(item->mute);
+                    timelinePlayer->setVolume(item->volume);
+                    timelinePlayer->setVideoLayer(item->videoLayer);
+                    timelinePlayer->setSpeed(item->speed);
+                    timelinePlayer->setLoop(item->loop);
+                    timelinePlayer->setInOutRange(item->inOutRange);
+                    timelinePlayer->seek(item->currentTime);
+                    timelinePlayer->setPlayback(item->playback);
+                }
+                else
+                {
+                    _filesModel->update(timelinePlayer);
+                }
+
+                qtTimelinePlayer = new qt::TimelinePlayer(timelinePlayer, _context, this);
+            }
+            catch (const std::exception& e)
+            {
+                QMessageBox dialog;
+                dialog.setText(e.what());
+                dialog.exec();
+            }
+        }
+
+        _mainWindow->setTimelinePlayer(qtTimelinePlayer);
+
+        delete _timelinePlayer;
+        _timelinePlayer = qtTimelinePlayer;
+
         if (_timelinePlayer)
         {
-            delete _timelinePlayer;
-            _timelinePlayer = nullptr;
+            connect(
+                _timelinePlayer,
+                SIGNAL(speedChanged(double)),
+                SLOT(_timelinePlayerCallback()));
+            connect(
+                _timelinePlayer,
+                SIGNAL(playbackChanged(tlr::timeline::Playback)),
+                SLOT(_timelinePlayerCallback()));
+            connect(
+                _timelinePlayer,
+                SIGNAL(loopChanged(tlr::timeline::Loop)),
+                SLOT(_timelinePlayerCallback()));
+            connect(
+                _timelinePlayer,
+                SIGNAL(currentTimeChanged(const otime::RationalTime&)),
+                SLOT(_timelinePlayerCallback()));
+            connect(
+                _timelinePlayer,
+                SIGNAL(inOutRangeChanged(const otime::TimeRange&)),
+                SLOT(_timelinePlayerCallback()));
+            connect(
+                _timelinePlayer,
+                SIGNAL(videoLayerChanged(int)),
+                SLOT(_timelinePlayerCallback()));
+            connect(
+                _timelinePlayer,
+                SIGNAL(volumeChanged(float)),
+                SLOT(_timelinePlayerCallback()));
+            connect(
+                _timelinePlayer,
+                SIGNAL(muteChanged(bool)),
+                SLOT(_timelinePlayerCallback()));
+            connect(
+                _timelinePlayer,
+                SIGNAL(audioOffsetChanged(double)),
+                SLOT(_timelinePlayerCallback()));
         }
-        _timelinePlayer = timelinePlayer;
-        _settingsObject->addRecentFile(fileName);
     }
 
     void App::close()
     {
-        if (_current >= 0 && _current < _timelineListModel->rowCount())
-        {
-            _timelineListModel->remove(_current);
-            _current = std::min(_current, _timelineListModel->rowCount() - 1);
-            qt::TimelinePlayer* timelinePlayer = _current != -1 ?
-                _createTimelinePlayer(_timelineListModel->get(_current)) :
-                nullptr;
-            _mainWindow->setTimelinePlayer(timelinePlayer);
-            delete _timelinePlayer;
-            _timelinePlayer = timelinePlayer;
-        }
+        _filesModel->remove();
     }
 
     void App::closeAll()
     {
-        while (_timelineListModel->rowCount() > 0)
-        {
-            _timelineListModel->remove(0);
-        }
-        _current = -1;
-        _mainWindow->setTimelinePlayer(nullptr);
-        delete _timelinePlayer;
-        _timelinePlayer = nullptr;
-    }
-
-    void App::setCurrent(int value)
-    {
-        if (value == _current)
-            return;
-        _current = value;
-        qt::TimelinePlayer* timelinePlayer = _current != -1 ?
-            _createTimelinePlayer(_timelineListModel->get(_current)) :
-            nullptr;
-        _mainWindow->setTimelinePlayer(timelinePlayer);
-        delete _timelinePlayer;
-        _timelinePlayer = timelinePlayer;
+        _filesModel->clear();
     }
 
     void App::_timelinePlayerCallback()
     {
-        _timelineListModel->set(_current, _timelinePlayer->timelinePlayer());
-    }
-
-    qt::TimelinePlayer* App::_createTimelinePlayer(
-        const std::string& fileName,
-        const std::string& audioFileName)
-    {
-        qt::TimelinePlayer* out = nullptr;
-        try
-        {
-            timeline::Options options;
-            options.fileSequenceAudio = _settingsObject->fileSequenceAudio();
-            options.fileSequenceAudioFileName = _settingsObject->fileSequenceAudioFileName().toUtf8().data();
-            options.fileSequenceAudioDirectory = _settingsObject->fileSequenceAudioDirectory().toUtf8().data();
-            options.videoRequestCount = _settingsObject->videoRequestCount();
-            options.audioRequestCount = _settingsObject->audioRequestCount();
-            options.avioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").arg(_settingsObject->sequenceThreadCount());
-            auto audioSystem = _context->getSystem<audio::System>();
-            const audio::Info audioInfo = audioSystem->getDefaultOutputInfo();
-            options.avioOptions["ffmpeg/AudioChannelCount"] = string::Format("{0}").arg(audioInfo.channelCount);
-            options.avioOptions["ffmpeg/AudioDataType"] = string::Format("{0}").arg(audioInfo.dataType);
-            options.avioOptions["ffmpeg/AudioSampleRate"] = string::Format("{0}").arg(audioInfo.sampleRate);
-            options.avioOptions["ffmpeg/ThreadCount"] = string::Format("{0}").arg(_settingsObject->ffmpegThreadCount());
-            options.pathOptions.maxNumberDigits = std::min(_settingsObject->maxFileSequenceDigits(), 255);
-            auto timeline = audioFileName.empty() ?
-                timeline::Timeline::create(fileName, _context, options) :
-                timeline::Timeline::create(fileName, audioFileName, _context, options);
-
-            timeline::PlayerOptions playerOptions;
-            playerOptions.timerMode = _settingsObject->timerMode();
-            playerOptions.audioBufferFrameCount = _settingsObject->audioBufferFrameCount();
-            auto timelinePlayer = timeline::TimelinePlayer::create(timeline, _context, playerOptions);
-
-            out = new qt::TimelinePlayer(timelinePlayer, _context, this);
-
-            connect(
-                out,
-                SIGNAL(speedChanged(double)),
-                SLOT(_timelinePlayerCallback()));
-            connect(
-                out,
-                SIGNAL(playbackChanged(tlr::timeline::Playback)),
-                SLOT(_timelinePlayerCallback()));
-            connect(
-                out,
-                SIGNAL(loopChanged(tlr::timeline::Loop)),
-                SLOT(_timelinePlayerCallback()));
-            connect(
-                out,
-                SIGNAL(currentTimeChanged(const otime::RationalTime&)),
-                SLOT(_timelinePlayerCallback()));
-            connect(
-                out,
-                SIGNAL(inOutRangeChanged(const otime::TimeRange&)),
-                SLOT(_timelinePlayerCallback()));
-            connect(
-                out,
-                SIGNAL(videoLayerChanged(int)),
-                SLOT(_timelinePlayerCallback()));
-            connect(
-                out,
-                SIGNAL(volumeChanged(float)),
-                SLOT(_timelinePlayerCallback()));
-            connect(
-                out,
-                SIGNAL(muteChanged(bool)),
-                SLOT(_timelinePlayerCallback()));
-            connect(
-                out,
-                SIGNAL(audioOffsetChanged(double)),
-                SLOT(_timelinePlayerCallback()));
-        }
-        catch (const std::exception& e)
-        {
-            QMessageBox dialog;
-            dialog.setText(e.what());
-            dialog.exec();
-        }
-        return out;
-    }
-
-    qt::TimelinePlayer* App::_createTimelinePlayer(const TimelineListItem& item)
-    {
-        qt::TimelinePlayer* out = _createTimelinePlayer(item.path.get(), item.audioPath.get());
-        if (out)
-        {
-            out->setAudioOffset(item.audioOffset);
-            out->setMute(item.mute);
-            out->setVolume(item.volume);
-            out->setVideoLayer(item.videoLayer);
-            out->setSpeed(item.speed);
-            out->setLoop(item.loop);
-            out->setInOutRange(item.inOutRange);
-            out->seek(item.currentTime);
-            out->setPlayback(item.playback);
-        }
-        return out;
+        _filesModel->update(_timelinePlayer->timelinePlayer());
     }
 }
