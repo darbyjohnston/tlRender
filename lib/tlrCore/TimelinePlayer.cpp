@@ -771,6 +771,7 @@ namespace tlr
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
                 p.mutexData.videoLayer = layer;
+                p.mutexData.clearRequests = true;
                 p.mutexData.clearCache = true;
             }
         }
