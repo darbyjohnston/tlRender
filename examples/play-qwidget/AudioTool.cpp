@@ -27,7 +27,7 @@ namespace tlr
         auto layout = new QVBoxLayout;
         layout->addWidget(_slider);
         auto hLayout = new QHBoxLayout;
-        hLayout->addWidget(_spinBox);
+        hLayout->addWidget(_spinBox, 1);
         hLayout->addWidget(resetButton);
         layout->addLayout(hLayout);
         layout->addStretch();
@@ -92,7 +92,7 @@ namespace tlr
         QToolBox(parent)
     {
         _offsetWidget = new AudioOffsetWidget;
-        addItem(_offsetWidget, tr("Offset"));
+        addItem(_offsetWidget, tr("Sync Offset"));
 
         connect(
             _offsetWidget,
