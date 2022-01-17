@@ -10,11 +10,6 @@
 
 namespace tlr
 {
-    namespace core
-    {
-        class Context;
-    }
-
     namespace imaging
     {
         struct ColorConfig;
@@ -128,6 +123,29 @@ namespace tlr
 
             bool operator == (const ImageOptions&) const;
             bool operator != (const ImageOptions&) const;
+        };
+
+        //! A/B comparison.
+        enum ABCompare
+        {
+            A,
+            B,
+            A_B,
+
+            Count,
+            First = A
+        };
+        TLR_ENUM(ABCompare);
+        TLR_ENUM_SERIALIZE(ABCompare);
+
+        //! A/B comparison options.
+        struct ABCompareOptions
+        {
+            glm::ivec2 pos = glm::ivec2(0, 0);
+            float rotation = 0.F;
+
+            bool operator == (const ABCompareOptions&) const;
+            bool operator != (const ABCompareOptions&) const;
         };
     
         //! Base class for renderers.

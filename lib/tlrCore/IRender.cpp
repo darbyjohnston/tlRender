@@ -36,6 +36,13 @@ namespace tlr
             "Premultiplied");
         TLR_ENUM_SERIALIZE_IMPL(AlphaBlend);
 
+        TLR_ENUM_IMPL(
+            ABCompare,
+            "A",
+            "B",
+            "A/B");
+        TLR_ENUM_SERIALIZE_IMPL(ABCompare);
+
         void IRender::_init(const std::shared_ptr<core::Context>& context)
         {
             _context = context;
