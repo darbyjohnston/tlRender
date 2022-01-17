@@ -8,7 +8,7 @@
    version="1.1"
    id="svg8"
    inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
-   sodipodi:docname="FramePrev.svg"
+   sodipodi:docname="FileClose.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -26,18 +26,21 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="31.659099"
-     inkscape:cx="10.723615"
-     inkscape:cy="10.312991"
+     inkscape:cx="10.281404"
+     inkscape:cy="10.060299"
      inkscape:document-units="px"
      inkscape:current-layer="ForwardPlayback"
      showgrid="true"
      units="px"
-     inkscape:window-width="1920"
-     inkscape:window-height="1137"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
-     inkscape:window-maximized="1"
-     inkscape:pagecheckerboard="0">
+     inkscape:window-width="1516"
+     inkscape:window-height="971"
+     inkscape:window-x="334"
+     inkscape:window-y="136"
+     inkscape:window-maximized="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:snap-bbox="true"
+     inkscape:bbox-paths="false"
+     inkscape:bbox-nodes="true">
     <inkscape:grid
        type="xygrid"
        id="grid4526"
@@ -64,19 +67,11 @@
        inkscape:label="#g4524"
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96">
-      <rect
-         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.748355;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="rect831"
-         width="0.52916676"
-         height="3.7041667"
-         x="3.9687498"
-         y="292.50208" />
       <path
-         sodipodi:nodetypes="cccc"
-         inkscape:connector-curvature="0"
-         id="path4520"
-         d="M 3.4395833,296.20623 0.79374999,294.35414 3.4395833,292.50206 Z"
-         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.24153px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+         id="path1493"
+         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 1.0583334,294.08956 -1e-7,0.52917 3.1749999,0 v -0.52917 z"
+         sodipodi:nodetypes="ccccc" />
     </g>
   </g>
 </svg>

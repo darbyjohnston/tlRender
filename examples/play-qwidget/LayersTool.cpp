@@ -5,26 +5,77 @@
 #include "LayersTool.h"
 
 #include <QBoxLayout>
-#include <QSettings>
 #include <QSignalBlocker>
 
 namespace tlr
 {
-    LayersTool::LayersTool(QWidget* parent) :
-        QToolBox(parent)
+    LayersTool::LayersTool(
+        LayersModel* layersModel,
+        QWidget* parent) :
+        QWidget(parent),
+        _layersModel(layersModel)
     {
-        connect(
-            this,
-            SIGNAL(currentChanged(int)),
-            SLOT(_currentItemCallback(int)));
+        _listView = new QListView;
+        _listView->setSelectionMode(QAbstractItemView::NoSelection);
+        _listView->setModel(layersModel);
 
-        QSettings settings;
-        setCurrentIndex(settings.value("LayersTool/CurrentItem").toInt());
+        _nextButton = new QToolButton;
+        _nextButton->setIcon(QIcon(":/Icons/LayerNext.svg"));
+        _nextButton->setToolTip(tr("Go to the next layer"));
+        _prevButton = new QToolButton;
+        _prevButton->setIcon(QIcon(":/Icons/LayerPrev.svg"));
+        _prevButton->setToolTip(tr("Go to the previous layer"));
+
+        auto layout = new QVBoxLayout;
+        layout->addWidget(_listView);
+        auto hLayout = new QHBoxLayout;
+        hLayout->addStretch();
+        auto hLayout2 = new QHBoxLayout;
+        hLayout2->setSpacing(1);
+        hLayout2->addWidget(_prevButton);
+        hLayout2->addWidget(_nextButton);
+        hLayout->addLayout(hLayout2);
+        layout->addLayout(hLayout);
+        setLayout(layout);
+
+        _countUpdate();
+
+        connect(
+            _listView,
+            SIGNAL(activated(const QModelIndex&)),
+            SLOT(_activatedCallback(const QModelIndex&)));
+
+        connect(
+            _nextButton,
+            SIGNAL(clicked()),
+            layersModel,
+            SLOT(next()));
+        connect(
+            _prevButton,
+            SIGNAL(clicked()),
+            layersModel,
+            SLOT(prev()));
+
+        connect(
+            layersModel,
+            SIGNAL(countChanged(int)),
+            SLOT(_countCallback()));
     }
 
-    void LayersTool::_currentItemCallback(int value)
+    void LayersTool::_activatedCallback(const QModelIndex& index)
     {
-        QSettings settings;
-        settings.setValue("LayersTool/CurrentItem", value);
+        _layersModel->setCurrent(index.row());
+    }
+
+    void LayersTool::_countCallback()
+    {
+        _countUpdate();
+    }
+
+    void LayersTool::_countUpdate()
+    {
+        const int count = _layersModel->rowCount();
+        _nextButton->setEnabled(count > 1);
+        _prevButton->setEnabled(count > 1);
     }
 }

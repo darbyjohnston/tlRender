@@ -4,20 +4,33 @@
 
 #pragma once
 
-#include <QToolBox>
+#include "LayersModel.h"
+
+#include <QListView>
+#include <QToolButton>
 
 namespace tlr
 {
     //! Layers tool.
-    class LayersTool : public QToolBox
+    class LayersTool : public QWidget
     {
         Q_OBJECT
 
     public:
-        LayersTool(QWidget* parent = nullptr);
+        LayersTool(
+            LayersModel*,
+            QWidget* parent = nullptr);
+
     private Q_SLOTS:
-        void _currentItemCallback(int);
+        void _activatedCallback(const QModelIndex&);
+        void _countCallback();
 
     private:
+        void _countUpdate();
+
+        LayersModel* _layersModel = nullptr;
+        QListView* _listView = nullptr;
+        QToolButton* _nextButton = nullptr;
+        QToolButton* _prevButton = nullptr;
     };
 }

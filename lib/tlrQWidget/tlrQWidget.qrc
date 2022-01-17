@@ -1,10 +1,16 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
-    <file alias="Icons/ClipNext.svg">../../etc/Icons/ClipNext.svg</file>
-    <file alias="Icons/ClipPrev.svg">../../etc/Icons/ClipPrev.svg</file>
     <file alias="Icons/Empty.svg">../../etc/Icons/Empty.svg</file>
+    <file alias="Icons/FileClose.svg">../../etc/Icons/FileClose.svg</file>
+    <file alias="Icons/FileCloseAll.svg">../../etc/Icons/FileCloseAll.svg</file>
+    <file alias="Icons/FileNext.svg">../../etc/Icons/FileNext.svg</file>
+    <file alias="Icons/FileOpen.svg">../../etc/Icons/FileOpen.svg</file>
+    <file alias="Icons/FileOpenWithAudio.svg">../../etc/Icons/FileOpenWithAudio.svg</file>
+    <file alias="Icons/FilePrev.svg">../../etc/Icons/FilePrev.svg</file>
     <file alias="Icons/FrameNext.svg">../../etc/Icons/FrameNext.svg</file>
     <file alias="Icons/FramePrev.svg">../../etc/Icons/FramePrev.svg</file>
+    <file alias="Icons/LayerNext.svg">../../etc/Icons/LayerNext.svg</file>
+    <file alias="Icons/LayerPrev.svg">../../etc/Icons/LayerPrev.svg</file>
     <file alias="Icons/Mute.svg">../../etc/Icons/Mute.svg</file>
     <file alias="Icons/PlaybackForward.svg">../../etc/Icons/PlaybackForward.svg</file>
     <file alias="Icons/PlaybackReverse.svg">../../etc/Icons/PlaybackReverse.svg</file>

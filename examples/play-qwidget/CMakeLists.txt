@@ -5,6 +5,7 @@ set(HEADERS
 	FilesModel.h
 	FilesTool.h
     ImageTool.h
+	LayersModel.h
 	LayersTool.h
     MainWindow.h
 	OpenWithAudioDialog.h
@@ -18,6 +19,7 @@ set(SOURCE
 	FilesModel.cpp
 	FilesTool.cpp
     ImageTool.cpp
+	LayersModel.cpp
 	LayersTool.cpp
     MainWindow.cpp
 	OpenWithAudioDialog.cpp

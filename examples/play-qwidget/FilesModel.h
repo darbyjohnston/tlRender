@@ -13,11 +13,6 @@ namespace tlr
     //! Files model item.
     struct FilesModelItem
     {
-        FilesModelItem();
-        FilesModelItem(const std::string& fileName);
-        FilesModelItem(const std::string& fileName, const std::string& audioFileName);
-        FilesModelItem(const std::shared_ptr<timeline::TimelinePlayer>&);
-
         file::Path path;
         file::Path audioPath;
 
@@ -46,18 +41,16 @@ namespace tlr
         Q_OBJECT
 
     public:
-        FilesModel(
-            const std::shared_ptr<core::Context>&,
-            QObject* parent = nullptr);
+        FilesModel(QObject* parent = nullptr);
 
-        void add(const FilesModelItem&);
+        void add(
+            const std::string& fileName,
+            const std::string& audioFileName = std::string());
         void remove();
         void clear();
 
-        const FilesModelItem* current() const;
+        std::shared_ptr<FilesModelItem> current() const;
         void setCurrent(const QModelIndex&);
-
-        void update(const FilesModelItem&);
 
         int rowCount(const QModelIndex& parent = QModelIndex()) const override;
         QVariant data(const QModelIndex&, int role = Qt::DisplayRole) const override;
@@ -69,10 +62,11 @@ namespace tlr
         void prev();
 
     Q_SIGNALS:
-        void currentChanged(const FilesModelItem*);
+        void countChanged(int);
+        void currentChanged(const std::shared_ptr<FilesModelItem>&);
 
     private:
-        std::vector<FilesModelItem> _items;
+        std::vector<std::shared_ptr<FilesModelItem> > _items;
         int _current = -1;
     };
 }

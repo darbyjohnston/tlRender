@@ -7,7 +7,7 @@
 #include "FilesModel.h"
 
 #include <QListView>
-#include <QToolBox>
+#include <QToolButton>
 
 namespace tlr
 {
@@ -23,9 +23,16 @@ namespace tlr
 
     private Q_SLOTS:
         void _activatedCallback(const QModelIndex&);
+        void _countCallback();
 
     private:
-        FilesModel* _model = nullptr;
+        void _countUpdate();
+
+        FilesModel* _filesModel = nullptr;
         QListView* _listView = nullptr;
+        QToolButton* _closeButton = nullptr;
+        QToolButton* _closeAllButton = nullptr;
+        QToolButton* _nextButton = nullptr;
+        QToolButton* _prevButton = nullptr;
     };
 }

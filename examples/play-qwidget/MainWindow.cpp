@@ -8,7 +8,6 @@
 #include "CompareTool.h"
 #include "FilesTool.h"
 #include "ImageTool.h"
-#include "OpenWithAudioDialog.h"
 #include "SettingsTool.h"
 
 #include <tlrCore/File.h>
@@ -18,7 +17,6 @@
 #include <QDockWidget>
 #include <QDragEnterEvent>
 #include <QDragMoveEvent>
-#include <QFileDialog>
 #include <QFontDatabase>
 #include <QHBoxLayout>
 #include <QMenuBar>
@@ -30,11 +28,15 @@
 namespace tlr
 {
     MainWindow::MainWindow(
+        FilesModel* filesModel,
+        LayersModel* layersModel,
         SettingsObject* settingsObject,
         qt::TimeObject* timeObject,
         const std::shared_ptr<core::Context>& context,
         QWidget* parent) :
         QMainWindow(parent),
+        _filesModel(filesModel),
+        _layersModel(layersModel),
         _settingsObject(settingsObject),
         _timeObject(timeObject)
     {
@@ -61,8 +63,6 @@ namespace tlr
         _actions["File/Prev"]->setText(tr("Previous"));
         _actions["File/Prev"]->setShortcut(QKeySequence::MoveToPreviousPage);
         _recentFilesActionGroup = new QActionGroup(this);
-        _layersActionGroup = new QActionGroup(this);
-        _layersActionGroup->setExclusive(true);
         _actions["File/Exit"] = new QAction(this);
         _actions["File/Exit"]->setText(tr("Exit"));
         _actions["File/Exit"]->setShortcut(QKeySequence::Quit);
@@ -193,10 +193,6 @@ namespace tlr
         fileMenu->addAction(_actions["File/Next"]);
         fileMenu->addAction(_actions["File/Prev"]);
         fileMenu->addSeparator();
-        _layersMenu = new QMenu;
-        _layersMenu->setTitle(tr("&Layers"));
-        fileMenu->addMenu(_layersMenu);
-        fileMenu->addSeparator();
         fileMenu->addAction(_actions["File/Exit"]);
 
         auto windowMenu = new QMenu;
@@ -247,13 +243,7 @@ namespace tlr
         _timelineWidget->setTimeObject(_timeObject);
         setCentralWidget(_timelineWidget);
 
-        FilesModel* filesModel = nullptr;
-        auto app = qobject_cast<App*>(qApp);
-        if (app)
-        {
-            filesModel = app->filesModel();
-        }
-        auto filesTool = new FilesTool(filesModel, this);
+        auto filesTool = new FilesTool(filesModel);
         auto filesToolDockWidget = new QDockWidget;
         filesToolDockWidget->setObjectName("Files");
         filesToolDockWidget->setWindowTitle(tr("Files"));
@@ -263,7 +253,7 @@ namespace tlr
         toolsMenu->addAction(filesToolDockWidget->toggleViewAction());
         addDockWidget(Qt::RightDockWidgetArea, filesToolDockWidget);
 
-        auto layersTool = new LayersTool();
+        auto layersTool = new LayersTool(layersModel);
         auto layersToolDockWidget = new QDockWidget;
         layersToolDockWidget->setObjectName("Layers");
         layersToolDockWidget->setWindowTitle(tr("Layers"));
@@ -314,26 +304,30 @@ namespace tlr
         addDockWidget(Qt::RightDockWidgetArea, settingsDockWidget);
 
         _recentFilesUpdate();
-        _layersUpdate();
+        _filesCountUpdate();
         _playbackUpdate();
         _timelineUpdate();
 
         connect(
             _actions["File/Open"],
             SIGNAL(triggered()),
-            SLOT(_openCallback()));
+            qApp,
+            SLOT(open()));
         connect(
             _actions["File/OpenWithAudio"],
             SIGNAL(triggered()),
-            SLOT(_openWithAudioCallback()));
+            qApp,
+            SLOT(openWithAudio()));
         connect(
             _actions["File/Close"],
             SIGNAL(triggered()),
-            SLOT(_closeCallback()));
+            qApp,
+            SLOT(close()));
         connect(
             _actions["File/CloseAll"],
             SIGNAL(triggered()),
-            SLOT(_closeAllCallback()));
+            qApp,
+            SLOT(closeAll()));
         connect(
             _recentFilesActionGroup,
             SIGNAL(triggered(QAction*)),
@@ -341,15 +335,13 @@ namespace tlr
         connect(
             _actions["File/Next"],
             SIGNAL(triggered()),
-            SLOT(_nextCallback()));
+            _filesModel,
+            SLOT(next()));
         connect(
             _actions["File/Prev"],
             SIGNAL(triggered()),
-            SLOT(_prevCallback()));
-        connect(
-            _layersActionGroup,
-            SIGNAL(triggered(QAction*)),
-            SLOT(_layersCallback(QAction*)));
+            _filesModel,
+            SLOT(prev()));
         connect(
             _actions["File/Exit"],
             SIGNAL(triggered()),
@@ -444,35 +436,16 @@ namespace tlr
             SLOT(_audioOffsetCallback(double)));
 
         connect(
+            filesModel,
+            SIGNAL(countChanged(int)),
+            SLOT(_filesCountCallback()));
+
+        connect(
             _settingsObject,
             SIGNAL(recentFilesChanged(const QList<QString>&)),
             SLOT(_recentFilesCallback()));
-        connect(
-            _settingsObject,
-            SIGNAL(cacheReadAheadChanged(double)),
-            SLOT(_settingsCallback()));
-        connect(
-            _settingsObject,
-            SIGNAL(cacheReadBehindChanged(double)),
-            SLOT(_settingsCallback()));
-        connect(
-            _settingsObject,
-            SIGNAL(videoRequestCountChanged(int)),
-            SLOT(_settingsCallback()));
-        connect(
-            _settingsObject,
-            SIGNAL(audioRequestCountChanged(int)),
-            SLOT(_settingsCallback()));
-        connect(
-            _settingsObject,
-            SIGNAL(sequenceThreadCountChanged(int)),
-            SLOT(_settingsCallback()));
-        connect(
-            _settingsObject,
-            SIGNAL(ffmpegThreadCountChanged(int)),
-            SLOT(_settingsCallback()));
 
-        if (app)
+        if (auto app = qobject_cast<App*>(qApp))
         {
             connect(
                 app,
@@ -519,11 +492,6 @@ namespace tlr
                 SLOT(_loopCallback(tlr::timeline::Loop)));
             disconnect(
                 _timelinePlayer,
-                SIGNAL(videoLayerChanged(int)),
-                this,
-                SLOT(_layersCallback(int)));
-            disconnect(
-                _timelinePlayer,
                 SIGNAL(audioOffsetChanged(double)),
                 _audioTool,
                 SLOT(setAudioOffset(double)));
@@ -564,10 +532,6 @@ namespace tlr
                 SLOT(_loopCallback(tlr::timeline::Loop)));
             connect(
                 _timelinePlayer,
-                SIGNAL(videoLayerChanged(int)),
-                SLOT(_layersCallback(int)));
-            connect(
-                _timelinePlayer,
                 SIGNAL(audioOffsetChanged(double)),
                 _audioTool,
                 SLOT(setAudioOffset(double)));
@@ -594,10 +558,8 @@ namespace tlr
                 SLOT(resetOutPoint()));
         }
 
-        _layersUpdate();
         _playbackUpdate();
         _timelineUpdate();
-        _settingsUpdate();
     }
 
     void MainWindow::setColorConfig(const imaging::ColorConfig& colorConfig)
@@ -662,75 +624,6 @@ namespace tlr
         }
     }
 
-    void MainWindow::_openCallback()
-    {
-        if (auto context = _context.lock())
-        {
-            std::vector<std::string> extensions;
-            for (const auto& i : timeline::getExtensions(
-                static_cast<int>(avio::FileExtensionType::VideoAndAudio) |
-                static_cast<int>(avio::FileExtensionType::VideoOnly) |
-                static_cast<int>(avio::FileExtensionType::AudioOnly),
-                context))
-            {
-                extensions.push_back("*" + i);
-            }
-
-            QString dir;
-            if (auto app = qobject_cast<App*>(qApp))
-            {
-                if (const auto item = app->filesModel()->current())
-                {
-                    dir = QString::fromUtf8(item->path.get().c_str());
-                }
-            }
-
-            const auto fileName = QFileDialog::getOpenFileName(
-                this,
-                tr("Open"),
-                dir,
-                tr("Files") + " (" + QString::fromUtf8(string::join(extensions, " ").c_str()) + ")");
-            if (!fileName.isEmpty())
-            {
-                if (auto app = qobject_cast<App*>(qApp))
-                {
-                    app->open(fileName);
-                }
-            }
-        }
-    }
-
-    void MainWindow::_openWithAudioCallback()
-    {
-        if (auto context = _context.lock())
-        {
-            auto dialog = std::make_unique<OpenWithAudioDialog>(context);
-            if (QDialog::Accepted == dialog->exec())
-            {
-                if (auto app = qobject_cast<App*>(qApp))
-                {
-                    app->openWithAudio(dialog->mediaFileName(), dialog->audioFileName());
-                }
-            }
-        }
-    }
-
-    void MainWindow::_closeCallback()
-    {
-        if (auto app = qobject_cast<App*>(qApp))
-        {
-            app->close();
-        }
-    }
-
-    void MainWindow::_closeAllCallback()
-    {
-        if (auto app = qobject_cast<App*>(qApp))
-        {
-            app->closeAll();
-        }
-    }
-
     void MainWindow::_recentFilesCallback(QAction* action)
     {
         const auto i = _actionToRecentFile.find(action);
@@ -748,41 +641,9 @@ namespace tlr
         _recentFilesUpdate();
     }
 
-    void MainWindow::_nextCallback()
+    void MainWindow::_filesCountCallback()
     {
-        if (auto app = qobject_cast<App*>(qApp))
-        {
-            app->filesModel()->next();
-        }
-    }
-
-    void MainWindow::_prevCallback()
-    {
-        if (auto app = qobject_cast<App*>(qApp))
-        {
-            app->filesModel()->prev();
-        }
-    }
-
-    void MainWindow::_layersCallback(QAction* action)
-    {
-        if (_timelinePlayer)
-        {
-            const auto i = _actionToLayer.find(action);
-            if (i != _actionToLayer.end())
-            {
-                _timelinePlayer->setVideoLayer(i.value());
-            }
-        }
-    }
-
-    void MainWindow::_layersCallback(int value)
-    {
-        const auto& actions = _layersActionGroup->actions();
-        if (value >= 0 && value < actions.size())
-        {
-            actions[value]->setChecked(true);
-        }
+        _filesCountUpdate();
     }
 
     void MainWindow::_resize1280x720Callback()
@@ -985,11 +846,6 @@ namespace tlr
         }
     }
 
-    void MainWindow::_settingsCallback()
-    {
-        _settingsUpdate();
-    }
-
     void MainWindow::_saveSettingsCallback()
     {
         QSettings settings;
@@ -1019,31 +875,13 @@ namespace tlr
         }
     }
 
-    void MainWindow::_layersUpdate()
+    void MainWindow::_filesCountUpdate()
     {
-        for (const auto& i : _actionToLayer.keys())
-        {
-            _layersActionGroup->removeAction(i);
-            i->setParent(nullptr);
-            delete i;
-        }
-        _actionToLayer.clear();
-        _layersMenu->clear();
-        if (_timelinePlayer)
-        {
-            const auto& info = _timelinePlayer->avInfo();
-            const int videoLayer = _timelinePlayer->videoLayer();
-            for (size_t i = 0; i < info.video.size(); ++i)
-            {
-                auto action = new QAction;
-                action->setCheckable(true);
-                action->setChecked(i == videoLayer);
-                action->setText(QString::fromUtf8(info.video[i].name.c_str()));
-                _layersActionGroup->addAction(action);
-                _actionToLayer[action] = i;
-                _layersMenu->addAction(action);
-            }
-        }
+        const int count = _filesModel->rowCount();
+        _actions["File/Close"]->setEnabled(count > 0);
+        _actions["File/CloseAll"]->setEnabled(count > 0);
+        _actions["File/Next"]->setEnabled(count > 1);
+        _actions["File/Prev"]->setEnabled(count > 1);
     }
 
     void MainWindow::_playbackUpdate()
@@ -1060,16 +898,6 @@ namespace tlr
 
     void MainWindow::_timelineUpdate()
     {
-        int count = 0;
-        if (auto app = qobject_cast<App*>(qApp))
-        {
-            count = app->filesModel()->rowCount();
-        }
-        _actions["File/Close"]->setEnabled(count > 0);
-        _actions["File/CloseAll"]->setEnabled(count > 0);
-        _actions["File/Next"]->setEnabled(count > 1);
-        _actions["File/Prev"]->setEnabled(count > 1);
-
         if (_timelinePlayer)
         {
             _actions["Playback/Stop"]->setEnabled(true);
@@ -1138,19 +966,12 @@ namespace tlr
         }
 
         _timelineWidget->setTimelinePlayer(_timelinePlayer);
+
         _audioTool->setAudioOffset(_timelinePlayer ? _timelinePlayer->audioOffset() : 0.0);
+
         if (_secondaryWindow)
         {
             _secondaryWindow->setTimelinePlayer(_timelinePlayer);
-        }
-    }
-
-    void MainWindow::_settingsUpdate()
-    {
-        if (_timelinePlayer)
-        {
-            _timelinePlayer->setCacheReadAhead(otime::RationalTime(_settingsObject->cacheReadAhead(), 1.0));
-            _timelinePlayer->setCacheReadBehind(otime::RationalTime(_settingsObject->cacheReadBehind(), 1.0));
         }
     }
 }

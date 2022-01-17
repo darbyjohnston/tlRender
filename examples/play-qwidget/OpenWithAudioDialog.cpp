@@ -23,9 +23,9 @@ namespace tlr
     {
         setWindowTitle(tr("Open with Audio"));
 
-        auto mediaGroupBox = new QGroupBox(tr("Media"));
-        _mediaLineEdit = new QLineEdit;
-        auto mediaBrowseButton = new QPushButton(tr("Browse"));
+        auto videoGroupBox = new QGroupBox(tr("Viedo"));
+        _videoLineEdit = new QLineEdit;
+        auto videoBrowseButton = new QPushButton(tr("Browse"));
 
         auto audioGroupBox = new QGroupBox(tr("Audio"));
         _audioLineEdit = new QLineEdit;
@@ -38,10 +38,10 @@ namespace tlr
         auto layout = new QVBoxLayout;
         auto vLayout = new QVBoxLayout;
         auto hLayout = new QHBoxLayout;
-        hLayout->addWidget(_mediaLineEdit);
-        hLayout->addWidget(mediaBrowseButton);
-        mediaGroupBox->setLayout(hLayout);
-        vLayout->addWidget(mediaGroupBox);
+        hLayout->addWidget(_videoLineEdit);
+        hLayout->addWidget(videoBrowseButton);
+        videoGroupBox->setLayout(hLayout);
+        vLayout->addWidget(videoGroupBox);
         hLayout = new QHBoxLayout;
         hLayout->addWidget(_audioLineEdit);
         hLayout->addWidget(audioBrowseButton);
@@ -52,14 +52,14 @@ namespace tlr
         setLayout(layout);
 
         connect(
-            _mediaLineEdit,
+            _videoLineEdit,
             SIGNAL(textChanged(const QString&)),
-            SLOT(_mediaLineEditCallback(const QString&)));
+            SLOT(_videoLineEditCallback(const QString&)));
 
         connect(
-            mediaBrowseButton,
+            videoBrowseButton,
             SIGNAL(clicked()),
-            SLOT(_browseMediaCallback()));
+            SLOT(_browseVideoCallback()));
 
         connect(
             _audioLineEdit,
@@ -81,9 +81,9 @@ namespace tlr
             SLOT(reject()));
     }
 
-    const QString& OpenWithAudioDialog::mediaFileName() const
+    const QString& OpenWithAudioDialog::videoFileName() const
     {
-        return _mediaFileName;
+        return _videoFileName;
     }
 
     const QString& OpenWithAudioDialog::audioFileName() const
@@ -91,12 +91,12 @@ namespace tlr
         return _audioFileName;
     }
 
-    void OpenWithAudioDialog::_mediaLineEditCallback(const QString& value)
+    void OpenWithAudioDialog::_videoLineEditCallback(const QString& value)
     {
-        _mediaFileName = value.toUtf8().data();
+        _videoFileName = value.toUtf8().data();
     }
 
-    void OpenWithAudioDialog::_browseMediaCallback()
+    void OpenWithAudioDialog::_browseVideoCallback()
     {
         if (auto context = _context.lock())
         {
@@ -111,13 +111,13 @@ namespace tlr
 
             const auto fileName = QFileDialog::getOpenFileName(
                 this,
-                tr("Open Media"),
-                _mediaFileName,
+                tr("Open Video"),
+                _videoFileName,
                 tr("Files") + " (" + QString::fromUtf8(string::join(extensions, " ").c_str()) + ")");
             if (!fileName.isEmpty())
             {
-                _mediaFileName = fileName;
-                _mediaLineEdit->setText(_mediaFileName);
+                _videoFileName = fileName;
+                _videoLineEdit->setText(_videoFileName);
             }
         }
     }

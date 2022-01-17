@@ -5,7 +5,9 @@
 #pragma once
 
 #include "AudioTool.h"
+#include "FilesModel.h"
 #include "ImageTool.h"
+#include "LayersModel.h"
 #include "LayersTool.h"
 #include "SecondaryWindow.h"
 #include "SettingsObject.h"
@@ -29,6 +31,8 @@ namespace tlr
 
     public:
         MainWindow(
+            FilesModel*,
+            LayersModel*,
             SettingsObject*,
             qt::TimeObject*,
             const std::shared_ptr<core::Context>&,
@@ -47,16 +51,9 @@ namespace tlr
         void dropEvent(QDropEvent*) override;
 
     private Q_SLOTS:
-        void _openCallback();
-        void _openWithAudioCallback();
-        void _closeCallback();
-        void _closeAllCallback();
         void _recentFilesCallback(QAction*);
         void _recentFilesCallback();
-        void _nextCallback();
-        void _prevCallback();
-        void _layersCallback(QAction*);
-        void _layersCallback(int);
+        void _filesCountCallback();
         void _resize1280x720Callback();
         void _resize1920x1080Callback();
         void _fullScreenCallback();
@@ -80,17 +77,17 @@ namespace tlr
         void _frameNextX100Callback();
         void _imageOptionsCallback(const tlr::render::ImageOptions&);
         void _audioOffsetCallback(double);
-        void _settingsCallback();
         void _saveSettingsCallback();
 
     private:
         void _recentFilesUpdate();
-        void _layersUpdate();
+        void _filesCountUpdate();
         void _playbackUpdate();
         void _timelineUpdate();
-        void _settingsUpdate();
 
         std::weak_ptr<core::Context> _context;
+        FilesModel* _filesModel = nullptr;
+        LayersModel* _layersModel = nullptr;
         qt::TimelinePlayer* _timelinePlayer = nullptr;
         qwidget::TimelineWidget* _timelineWidget = nullptr;
         AudioTool* _audioTool = nullptr;
@@ -100,9 +97,6 @@ namespace tlr
         QActionGroup* _recentFilesActionGroup = nullptr;
         QMap<QAction*, QString> _actionToRecentFile;
         QMenu* _recentFilesMenu = nullptr;
-        QActionGroup* _layersActionGroup = nullptr;
-        QMap<QAction*, uint16_t> _actionToLayer;
-        QMenu* _layersMenu = nullptr;
         QActionGroup* _playbackActionGroup = nullptr;
         QMap<QAction*, timeline::Playback> _actionToPlayback;
         QMap<timeline::Playback, QAction*> _playbackToActions;

@@ -216,7 +216,8 @@ namespace tlr
                     uint16_t layer)
                 {
                     avio::VideoData out;
-                    imaging::Info imageInfo = _info.video[std::min(static_cast<size_t>(layer), _info.video.size() - 1)];
+                    layer = std::min(static_cast<size_t>(layer), _info.video.size() - 1);
+                    imaging::Info imageInfo = _info.video[layer];
                     out.image = imaging::Image::create(imageInfo);
                     out.image->setTags(_info.tags);
                     const size_t channels = imaging::getChannelCount(imageInfo.pixelType);
@@ -295,7 +296,7 @@ namespace tlr
                 math::BBox2i                         _dataWindow;
                 math::BBox2i                         _intersectedWindow;
                 std::vector<Layer>                   _layers;
-                bool                                 _fast              = false;
+                bool                                 _fast = false;
                 avio::Info                           _info;
             };
         }
