@@ -159,6 +159,11 @@ namespace tlr
         IApp::~IApp()
         {}
 
+        const std::shared_ptr<core::Context>& IApp::getContext() const
+        {
+            return _context;
+        }
+
         int IApp::getExit() const
         {
             return _exit;

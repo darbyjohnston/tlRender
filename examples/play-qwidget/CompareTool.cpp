@@ -2,29 +2,40 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
+#include "App.h"
 #include "CompareTool.h"
 
 #include <QBoxLayout>
-#include <QSettings>
+#include <QFormLayout>
 #include <QSignalBlocker>
 
 namespace tlr
 {
     CompareTool::CompareTool(QWidget* parent) :
-        QToolBox(parent)
+        QWidget(parent)
     {
-        connect(
-            this,
-            SIGNAL(currentChanged(int)),
-            SLOT(_currentItemCallback(int)));
+        _modeComboBox = new QComboBox;
+        for (const auto& i : render::getCompareModeLabels())
+        {
+            _modeComboBox->addItem(QString::fromUtf8(i.c_str()));
+        }
 
-        QSettings settings;
-        setCurrentIndex(settings.value("CompareTool/CurrentItem").toInt());
+        auto layout = new QVBoxLayout;
+        layout->addWidget(_modeComboBox);
+        setLayout(layout);
+
+        _optionsUpdate();
     }
 
-    void CompareTool::_currentItemCallback(int value)
+    void CompareTool::setOptions(const render::CompareOptions& options)
     {
-        QSettings settings;
-        settings.setValue("CompareTool/CurrentItem", value);
+        if (options == _options)
+            return;
+        _options = options;
+        _optionsUpdate();
+    }
+
+    void CompareTool::_optionsUpdate()
+    {
     }
 }

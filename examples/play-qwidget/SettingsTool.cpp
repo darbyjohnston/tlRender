@@ -79,7 +79,7 @@ namespace tlr
         _audioComboBox = new QComboBox;
         for (const auto& i : timeline::getFileSequenceAudioLabels())
         {
-            _audioComboBox->addItem(i.c_str());
+            _audioComboBox->addItem(QString::fromUtf8(i.c_str()));
         }
 
         _audioFileName = new QLineEdit;
@@ -190,13 +190,13 @@ namespace tlr
         _timerModeComboBox = new QComboBox;
         for (const auto& i : timeline::getTimerModeLabels())
         {
-            _timerModeComboBox->addItem(i.c_str());
+            _timerModeComboBox->addItem(QString::fromUtf8(i.c_str()));
         }
 
         _audioBufferFrameCountComboBox = new QComboBox;
         for (const auto& i : timeline::getAudioBufferFrameCountLabels())
         {
-            _audioBufferFrameCountComboBox->addItem(i.c_str());
+            _audioBufferFrameCountComboBox->addItem(QString::fromUtf8(i.c_str()));
         }
 
         _videoRequestCountSpinBox = new QSpinBox;

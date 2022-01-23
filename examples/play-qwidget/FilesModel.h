@@ -4,9 +4,10 @@
 
 #pragma once
 
+#include <tlrCore/IRender.h>
 #include <tlrCore/TimelinePlayer.h>
 
-#include <QAbstractListModel>
+#include <QAbstractTableModel>
 
 namespace tlr
 {
@@ -33,40 +34,62 @@ namespace tlr
         float volume = 0.F;
         bool mute = false;
         double audioOffset = 0.0;
+
+        render::ImageOptions imageOptions;
     };
 
     //! Files model.
-    class FilesModel : public QAbstractListModel
+    class FilesModel : public QAbstractTableModel
     {
         Q_OBJECT
 
     public:
         FilesModel(QObject* parent = nullptr);
 
-        void add(
-            const std::string& fileName,
-            const std::string& audioFileName = std::string());
-        void remove();
-        void clear();
-
-        std::shared_ptr<FilesModelItem> current() const;
-        void setCurrent(const QModelIndex&);
+        const std::vector<std::shared_ptr<FilesModelItem> >& items() const;
+        const std::shared_ptr<FilesModelItem>& a() const;
+        const std::vector<std::shared_ptr<FilesModelItem> >& b() const;
 
         int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+        int columnCount(const QModelIndex& parent = QModelIndex()) const override;
+        Qt::ItemFlags flags(const QModelIndex&) const override;
         QVariant data(const QModelIndex&, int role = Qt::DisplayRole) const override;
+        bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
+        QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
     public Q_SLOTS:
+        void add(const std::shared_ptr<FilesModelItem>&);
+        void close();
+        void closeAll();
+
+        void setA(int index);
+        void setB(int index, bool);
+
         void first();
         void last();
         void next();
         void prev();
 
+        void setLayer(int index, int layer);
+
+        void setImageOptions(int index, const render::ImageOptions&);
+
     Q_SIGNALS:
-        void countChanged(int);
-        void currentChanged(const std::shared_ptr<FilesModelItem>&);
+        void countChanged(int index);
+
+        void aChanged(const std::shared_ptr<FilesModelItem>&);
+        void bChanged(const std::vector<std::shared_ptr<FilesModelItem> >&);
+
+        void layerChanged(int index, int layer);
+
+        void imageOptionsChanged(int index, const render::ImageOptions&);
 
     private:
+        int _index(const std::shared_ptr<FilesModelItem>&) const;
+        std::vector<int> _bIndexes() const;
+
         std::vector<std::shared_ptr<FilesModelItem> > _items;
-        int _current = -1;
+        std::shared_ptr<FilesModelItem> _a;
+        std::vector<std::shared_ptr<FilesModelItem> > _b;
     };
 }

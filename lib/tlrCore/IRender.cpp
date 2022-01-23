@@ -37,11 +37,13 @@ namespace tlr
         TLR_ENUM_SERIALIZE_IMPL(AlphaBlend);
 
         TLR_ENUM_IMPL(
-            ABCompare,
+            CompareMode,
             "A",
             "B",
-            "A/B");
-        TLR_ENUM_SERIALIZE_IMPL(ABCompare);
+            "Wipe",
+            "Horizontal",
+            "Vertical");
+        TLR_ENUM_SERIALIZE_IMPL(CompareMode);
 
         void IRender::_init(const std::shared_ptr<core::Context>& context)
         {

@@ -19,14 +19,21 @@ namespace tlr
     public:
         YUVRangeWidget(QWidget* parent = nullptr);
 
+    public Q_SLOTS:
+        void setValue(tlr::render::YUVRange);
+
     Q_SIGNALS:
-        void yuvRangeChanged(tlr::render::YUVRange);
+        void valueChanged(tlr::render::YUVRange);
 
     private Q_SLOTS:
-        void _yuvRangeCallback(int);
+        void _callback(int);
 
     private:
-        QComboBox* _yuvRangeComboBox = nullptr;
+        void _valueUpdate();
+
+        render::YUVRange _value = tlr::render::YUVRange::First;
+
+        QComboBox* _comboBox = nullptr;
     };
 
     //! Image tool.
@@ -37,14 +44,21 @@ namespace tlr
     public:
         ImageTool(QWidget* parent = nullptr);
 
+    public Q_SLOTS:
+        void setOptions(const tlr::render::ImageOptions&);
+
     Q_SIGNALS:
-        void imageOptionsChanged(const tlr::render::ImageOptions&);
+        void optionsChanged(const tlr::render::ImageOptions&);
 
     private Q_SLOTS:
         void _yuvRangeCallback(tlr::render::YUVRange);
         void _currentItemCallback(int);
 
     private:
-        render::ImageOptions _imageOptions;
+        void _optionsUpdate();
+
+        render::ImageOptions _options;
+
+        YUVRangeWidget* _yuvRangeWidget = nullptr;
     };
 }

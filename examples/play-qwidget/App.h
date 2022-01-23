@@ -5,7 +5,6 @@
 #pragma once
 
 #include "FilesModel.h"
-#include "LayersModel.h"
 #include "MainWindow.h"
 #include "SettingsObject.h"
 
@@ -13,8 +12,6 @@
 
 #include <tlrQt/TimeObject.h>
 #include <tlrQt/TimelinePlayer.h>
-
-#include <tlrCore/OCIO.h>
 
 #include <QApplication>
 
@@ -35,28 +32,28 @@ namespace tlr
         App(int& argc, char** argv);
         ~App() override;
 
+        //! Get the time object.
+        qt::TimeObject* timeObject() const;
+
+        //! Get the settings object.
+        SettingsObject* settingsObject() const;
+
+        //! Get the file model.
+        FilesModel* filesModel() const;
+
     public Q_SLOTS:
         //! Open a file.
-        void open(const QString&);
+        void open(const QString&, const QString& = QString());
 
         //! Open a file dialog.
         void open();
 
-        //! Open a file with audio.
-        void openWithAudio(const QString&, const QString&);
-
         //! Open a file with audio dialog.
         void openWithAudio();
 
-        //! Close the current timeline.
-        void close();
-
-        //! Close all timelines.
-        void closeAll();
-
     private Q_SLOTS:
-        void _filesModelCallback(const std::shared_ptr<FilesModelItem>&);
-        void _layersModelCallback(int);
+        void _aCallback(const std::shared_ptr<FilesModelItem>&);
+        void _layerCallback(int, int);
         void _settingsCallback();
 
     private:
@@ -68,7 +65,6 @@ namespace tlr
         qt::TimeObject* _timeObject = nullptr;
         SettingsObject* _settingsObject = nullptr;
         FilesModel* _filesModel = nullptr;
-        LayersModel* _layersModel = nullptr;
         std::shared_ptr<FilesModelItem> _currentFile;
         qt::TimelinePlayer* _timelinePlayer = nullptr;
 

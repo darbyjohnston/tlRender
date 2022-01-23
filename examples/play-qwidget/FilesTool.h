@@ -6,7 +6,7 @@
 
 #include "FilesModel.h"
 
-#include <QListView>
+#include <QTreeView>
 #include <QToolButton>
 
 namespace tlr
@@ -29,7 +29,7 @@ namespace tlr
         void _countUpdate();
 
         FilesModel* _filesModel = nullptr;
-        QListView* _listView = nullptr;
+        QTreeView* _treeView = nullptr;
         QToolButton* _closeButton = nullptr;
         QToolButton* _closeAllButton = nullptr;
         QToolButton* _nextButton = nullptr;

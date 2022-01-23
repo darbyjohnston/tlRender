@@ -27,23 +27,12 @@
 
 namespace tlr
 {
-    MainWindow::MainWindow(
-        FilesModel* filesModel,
-        LayersModel* layersModel,
-        SettingsObject* settingsObject,
-        qt::TimeObject* timeObject,
-        const std::shared_ptr<core::Context>& context,
-        QWidget* parent) :
+    MainWindow::MainWindow(App* app, QWidget* parent) :
         QMainWindow(parent),
-        _filesModel(filesModel),
-        _layersModel(layersModel),
-        _settingsObject(settingsObject),
-        _timeObject(timeObject)
+        _app(app)
     {
         setFocusPolicy(Qt::ClickFocus);
         setAcceptDrops(true);
-
-        _context = context;
 
         _actions["File/Open"] = new QAction(this);
         _actions["File/Open"]->setText(tr("Open"));
@@ -239,11 +228,11 @@ namespace tlr
         menuBar->addMenu(toolsMenu);
         setMenuBar(menuBar);
 
-        _timelineWidget = new qwidget::TimelineWidget(context);
-        _timelineWidget->setTimeObject(_timeObject);
+        _timelineWidget = new qwidget::TimelineWidget(app->getContext());
+        _timelineWidget->setTimeObject(app->timeObject());
         setCentralWidget(_timelineWidget);
 
-        auto filesTool = new FilesTool(filesModel);
+        auto filesTool = new FilesTool(app->filesModel());
         auto filesToolDockWidget = new QDockWidget;
         filesToolDockWidget->setObjectName("Files");
         filesToolDockWidget->setWindowTitle(tr("Files"));
@@ -252,26 +241,6 @@ namespace tlr
         filesToolDockWidget->hide();
         toolsMenu->addAction(filesToolDockWidget->toggleViewAction());
         addDockWidget(Qt::RightDockWidgetArea, filesToolDockWidget);
-
-        auto layersTool = new LayersTool(layersModel);
-        auto layersToolDockWidget = new QDockWidget;
-        layersToolDockWidget->setObjectName("Layers");
-        layersToolDockWidget->setWindowTitle(tr("Layers"));
-        layersToolDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-        layersToolDockWidget->setWidget(layersTool);
-        layersToolDockWidget->hide();
-        toolsMenu->addAction(layersToolDockWidget->toggleViewAction());
-        addDockWidget(Qt::RightDockWidgetArea, layersToolDockWidget);
-
-        auto compareTool = new CompareTool();
-        auto compareToolDockWidget = new QDockWidget;
-        compareToolDockWidget->setObjectName("Compare");
-        compareToolDockWidget->setWindowTitle(tr("Compare"));
-        compareToolDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-        compareToolDockWidget->setWidget(compareTool);
-        compareToolDockWidget->hide();
-        toolsMenu->addAction(compareToolDockWidget->toggleViewAction());
-        addDockWidget(Qt::RightDockWidgetArea, compareToolDockWidget);
 
         auto imageTool = new ImageTool();
         auto imageToolDockWidget = new QDockWidget;
@@ -283,6 +252,16 @@ namespace tlr
         toolsMenu->addAction(imageToolDockWidget->toggleViewAction());
         addDockWidget(Qt::RightDockWidgetArea, imageToolDockWidget);
 
+        auto compareTool = new CompareTool();
+        auto compareToolDockWidget = new QDockWidget;
+        compareToolDockWidget->setObjectName("Compare");
+        compareToolDockWidget->setWindowTitle(tr("Compare"));
+        compareToolDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+        compareToolDockWidget->setWidget(compareTool);
+        compareToolDockWidget->hide();
+        toolsMenu->addAction(compareToolDockWidget->toggleViewAction());
+        addDockWidget(Qt::RightDockWidgetArea, compareToolDockWidget);
+
         _audioTool = new AudioTool();
         auto audioSyncDockWidget = new QDockWidget;
         audioSyncDockWidget->setObjectName("Audio");
@@ -293,7 +272,7 @@ namespace tlr
         toolsMenu->addAction(audioSyncDockWidget->toggleViewAction());
         addDockWidget(Qt::RightDockWidgetArea, audioSyncDockWidget);
 
-        auto settingsTool = new SettingsTool(settingsObject, _timeObject);
+        auto settingsTool = new SettingsTool(app->settingsObject(), app->timeObject());
         auto settingsDockWidget = new QDockWidget;
         settingsDockWidget->setObjectName("Settings");
         settingsDockWidget->setWindowTitle(tr("Settings"));
@@ -311,22 +290,22 @@ namespace tlr
         connect(
             _actions["File/Open"],
             SIGNAL(triggered()),
-            qApp,
+            app,
             SLOT(open()));
         connect(
             _actions["File/OpenWithAudio"],
             SIGNAL(triggered()),
-            qApp,
+            app,
             SLOT(openWithAudio()));
         connect(
             _actions["File/Close"],
             SIGNAL(triggered()),
-            qApp,
+            app->filesModel(),
             SLOT(close()));
         connect(
             _actions["File/CloseAll"],
             SIGNAL(triggered()),
-            qApp,
+            app->filesModel(),
             SLOT(closeAll()));
         connect(
             _recentFilesActionGroup,
@@ -335,17 +314,17 @@ namespace tlr
         connect(
             _actions["File/Next"],
             SIGNAL(triggered()),
-            _filesModel,
+            app->filesModel(),
             SLOT(next()));
         connect(
             _actions["File/Prev"],
             SIGNAL(triggered()),
-            _filesModel,
+            app->filesModel(),
             SLOT(prev()));
         connect(
             _actions["File/Exit"],
             SIGNAL(triggered()),
-            qApp,
+            app,
             SLOT(quit()));
 
         connect(
@@ -426,32 +405,24 @@ namespace tlr
             SLOT(_loopCallback(QAction*)));
 
         connect(
-            imageTool,
-            SIGNAL(imageOptionsChanged(const tlr::render::ImageOptions&)),
-            SLOT(_imageOptionsCallback(const tlr::render::ImageOptions&)));
-
-        connect(
             _audioTool,
             SIGNAL(audioOffsetChanged(double)),
             SLOT(_audioOffsetCallback(double)));
 
         connect(
-            filesModel,
+            app->filesModel(),
             SIGNAL(countChanged(int)),
             SLOT(_filesCountCallback()));
 
         connect(
-            _settingsObject,
+            app->settingsObject(),
             SIGNAL(recentFilesChanged(const QList<QString>&)),
             SLOT(_recentFilesCallback()));
 
-        if (auto app = qobject_cast<App*>(qApp))
-        {
-            connect(
-                app,
-                SIGNAL(aboutToQuit()),
-                SLOT(_saveSettingsCallback()));
-        }
+        connect(
+            app,
+            SIGNAL(aboutToQuit()),
+            SLOT(_saveSettingsCallback()));
 
         resize(1280, 720);
         QSettings settings;
@@ -616,10 +587,7 @@ namespace tlr
             const auto urlList = mimeData->urls();
             for (int i = 0; i < urlList.size(); ++i)
             {
-                if (auto app = qobject_cast<App*>(qApp))
-                {
-                    app->open(urlList[i].toLocalFile().toUtf8());
-                }
+                _app->open(urlList[i].toLocalFile().toUtf8());
             }
         }
     }
@@ -629,10 +597,7 @@ namespace tlr
         const auto i = _actionToRecentFile.find(action);
         if (i != _actionToRecentFile.end())
         {
-            if (auto app = qobject_cast<App*>(qApp))
-            {
-                app->open(i.value());
-            }
+            _app->open(i.value());
         }
     }
 
@@ -665,20 +630,17 @@ namespace tlr
     {
         if (value && !_secondaryWindow)
         {
-            if (auto context = _context.lock())
-            {
-                _secondaryWindow = new SecondaryWindow(context);
-                _secondaryWindow->setColorConfig(_colorConfig);
-                _secondaryWindow->setTimelinePlayer(_timelinePlayer);
+            _secondaryWindow = new SecondaryWindow(_app->getContext());
+            _secondaryWindow->setColorConfig(_colorConfig);
+            _secondaryWindow->setTimelinePlayer(_timelinePlayer);
 
-                connect(
-                    _secondaryWindow,
-                    SIGNAL(destroyed(QObject*)),
-                    SLOT(_secondaryWindowDestroyedCallback()));
+            connect(
+                _secondaryWindow,
+                SIGNAL(destroyed(QObject*)),
+                SLOT(_secondaryWindowDestroyedCallback()));
 
-                _secondaryWindow->resize(1280, 720);
-                _secondaryWindow->show();
-            }
+            _secondaryWindow->resize(1280, 720);
+            _secondaryWindow->show();
         }
         else if (!value && _secondaryWindow)
         {
@@ -835,7 +797,10 @@ namespace tlr
 
     void MainWindow::_imageOptionsCallback(const render::ImageOptions& value)
     {
-        _timelineWidget->setImageOptions(value);
+    }
+
+    void MainWindow::_compareOptionsCallback(const render::CompareOptions& value)
+    {
     }
 
     void MainWindow::_audioOffsetCallback(double value)
@@ -863,7 +828,7 @@ namespace tlr
         }
         _actionToRecentFile.clear();
         _recentFilesMenu->clear();
-        const auto& recentFiles = _settingsObject->recentFiles();
+        const auto& recentFiles = _app->settingsObject()->recentFiles();
         for (size_t i = 0; i < recentFiles.size(); ++i)
         {
             auto action = new QAction;
@@ -877,7 +842,7 @@ namespace tlr
 
     void MainWindow::_filesCountUpdate()
     {
-        const int count = _filesModel->rowCount();
+        const int count = _app->filesModel()->rowCount();
         _actions["File/Close"]->setEnabled(count > 0);
         _actions["File/CloseAll"]->setEnabled(count > 0);
         _actions["File/Next"]->setEnabled(count > 1);

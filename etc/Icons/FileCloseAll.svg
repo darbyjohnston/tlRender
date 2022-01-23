@@ -70,22 +70,22 @@
       <path
          id="path1493"
          style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         d="m 1.0583334,294.08956 -1e-7,0.52917 h 3.1749999 v -0.52917 z"
-         sodipodi:nodetypes="ccccc" />
-      <path
-         id="path2042"
-         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.162023px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         d="m 1.5874999,295.94164 v 0.79375 h 0.79375 v -0.79375 z"
-         sodipodi:nodetypes="ccccc" />
-      <path
-         id="path2042-3"
-         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.162023px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         d="m 2.9104165,295.94164 v 0.79375 h 0.79375 v -0.79375 z"
+         d="m 1.0583333,294.08956 -10e-8,0.52917 h 3.175 v -0.52917 z"
          sodipodi:nodetypes="ccccc" />
       <path
          id="path2042-3-5"
-         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.162023px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         d="m 4.2333332,295.94164 v 0.79375 h 0.79375 v -0.79375 z"
+         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.162022px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 4.4979165,295.67706 v 0.79375 h 0.7937501 v -0.79375 z"
+         sodipodi:nodetypes="ccccc" />
+      <path
+         id="path2042-3-5-9"
+         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.162022px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 3.175,295.67706 v 0.79375 h 0.7937499 v -0.79375 z"
+         sodipodi:nodetypes="ccccc" />
+      <path
+         id="path1151"
+         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.162022px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 1.8520832,295.67706 v 0.79375 h 0.79375 v -0.79375 z"
          sodipodi:nodetypes="ccccc" />
     </g>
   </g>

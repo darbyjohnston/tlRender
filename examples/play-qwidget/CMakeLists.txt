@@ -4,9 +4,8 @@ set(HEADERS
 	CompareTool.h
 	FilesModel.h
 	FilesTool.h
+	FilesView.h
     ImageTool.h
-	LayersModel.h
-	LayersTool.h
     MainWindow.h
 	OpenWithAudioDialog.h
     SecondaryWindow.h
@@ -18,9 +17,8 @@ set(SOURCE
 	CompareTool.cpp
 	FilesModel.cpp
 	FilesTool.cpp
+	FilesView.cpp
     ImageTool.cpp
-	LayersModel.cpp
-	LayersTool.cpp
     MainWindow.cpp
 	OpenWithAudioDialog.cpp
     SecondaryWindow.cpp

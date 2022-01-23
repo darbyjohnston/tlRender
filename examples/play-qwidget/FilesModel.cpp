@@ -12,80 +12,22 @@
 namespace tlr
 {
     FilesModel::FilesModel(QObject* parent) :
-        QAbstractListModel(parent)
+        QAbstractTableModel(parent)
     {}
 
-    void FilesModel::add(
-        const std::string& fileName,
-        const std::string& audioFileName)
+    const std::vector<std::shared_ptr<FilesModelItem> >& FilesModel::items() const
     {
-        beginInsertRows(QModelIndex(), _items.size(), _items.size());
-        auto item = std::make_shared<FilesModelItem>();
-        item->path = file::Path(fileName);
-        item->audioPath = file::Path(audioFileName);
-        _items.push_back(item);
-        endInsertRows();
-        _current = _items.size() - 1;
-        Q_EMIT currentChanged(_items[_current]);
-        Q_EMIT countChanged(_items.size());
-        Q_EMIT dataChanged(
-            index(_current, 0),
-            index(_current, 0),
-            { Qt::BackgroundRole, Qt::ForegroundRole });
+        return _items;
     }
 
-    void FilesModel::remove()
+    const std::shared_ptr<FilesModelItem>& FilesModel::a() const
     {
-        if (_current != -1)
-        {
-            beginRemoveRows(QModelIndex(), _current, _current);
-            _items.erase(_items.begin() + _current);
-            endRemoveRows();
-            _current = std::min(_current, static_cast<int>(_items.size()) - 1);
-            Q_EMIT currentChanged(_current != -1 ? _items[_current] : nullptr);
-            Q_EMIT countChanged(_items.size());
-            if (_current != -1)
-            {
-                Q_EMIT dataChanged(
-                    index(_current, 0),
-                    index(_current, 0),
-                    { Qt::BackgroundRole, Qt::ForegroundRole });
-            }
-        }
+        return _a;
     }
 
-    void FilesModel::clear()
+    const std::vector<std::shared_ptr<FilesModelItem> >& FilesModel::b() const
     {
-        if (!_items.empty())
-        {
-            beginRemoveRows(QModelIndex(), 0, _items.size() - 1);
-            _items.clear();
-            endRemoveRows();
-            _current = -1;
-            Q_EMIT currentChanged(nullptr);
-            Q_EMIT countChanged(_items.size());
-        }
-    }
-
-    std::shared_ptr<FilesModelItem> FilesModel::current() const
-    {
-        return _current != -1 ? _items[_current] : nullptr;
-    }
-
-    void FilesModel::setCurrent(const QModelIndex& index)
-    {
-        if (index.isValid() &&
-            index.row() >= 0 &&
-            index.row() < _items.size() &&
-            index.row() != _current)
-        {
-            _current = index.row();
-            Q_EMIT currentChanged(_items[_current]);
-            Q_EMIT dataChanged(
-                this->index(_current, 0),
-                this->index(_current, 0),
-                { Qt::BackgroundRole, Qt::ForegroundRole });
-        }
+        return _b;
     }
 
     int FilesModel::rowCount(const QModelIndex&) const
@@ -93,37 +35,88 @@ namespace tlr
         return _items.size();
     }
 
+    int FilesModel::columnCount(const QModelIndex& parent) const
+    {
+        return 4;
+    }
+
+    Qt::ItemFlags FilesModel::flags(const QModelIndex& index) const
+    {
+        Qt::ItemFlags out = Qt::NoItemFlags;
+        if (index.isValid() &&
+            index.row() >= 0 &&
+            index.row() < _items.size() &&
+            index.column() >= 0 &&
+            index.column() < 4)
+        {
+            out |= Qt::ItemIsEnabled;
+            out |= Qt::ItemIsSelectable;
+            switch (index.column())
+            {
+            case 0: out |= Qt::ItemIsUserCheckable; break;
+            case 1: out |= Qt::ItemIsUserCheckable; break;
+            case 3: out |= Qt::ItemIsEditable; break;
+            }
+        }
+        return out;
+    }
+
     QVariant FilesModel::data(const QModelIndex& index, int role) const
     {
         QVariant out;
         if (index.isValid() &&
             index.row() >= 0 &&
-            index.row() < _items.size())
+            index.row() < _items.size() &&
+            index.column() >= 0 &&
+            index.column() < 4)
         {
+            const auto& item = _items[index.row()];
+            const int aIndex = _index(_a);
             switch (role)
             {
             case Qt::DisplayRole:
             {
-                const auto& item = _items[index.row()];
-                std::string s = string::Format(
-                    "{0}\n"
-                    "    Video: {1}\n"
-                    "    Audio: {2}").
-                    arg(item->path.get(-1, false)).
-                    arg(!item->avInfo.video.empty() ? item->avInfo.video[0] : imaging::Info()).
-                    arg(item->avInfo.audio);
+                std::string s;
+                switch (index.column())
+                {
+                case 2:
+                    s = item->path.get(-1, false);
+                    break;
+                case 3:
+                    if (!item->avInfo.video.empty() &&
+                        item->videoLayer < item->avInfo.video.size())
+                    {
+                        s = item->avInfo.video[item->videoLayer].name;
+                    }
+                    break;
+                case 4:
+                    s = string::Format("{0}").arg(item->avInfo.audio);
+                    break;
+                }
                 out.setValue(QString::fromUtf8(s.c_str()));
                 break;
             }
-            case Qt::BackgroundRole:
-                out = qApp->palette().color(index.row() == _current ?
-                    QPalette::Highlight :
-                    QPalette::Base);
+            case Qt::EditRole:
+                switch (index.column())
+                {
+                case 3: out.setValue(item->videoLayer); break;
+                }
                 break;
-            case Qt::ForegroundRole:
-                out = qApp->palette().color(index.row() == _current ?
-                    QPalette::HighlightedText :
-                    QPalette::Foreground);
+            case Qt::CheckStateRole:
+                switch (index.column())
+                {
+                case 0: out.setValue(index.row() == aIndex ? Qt::Checked : Qt::Unchecked); break;
+                case 1:
+                {
+                    const auto bIndexes = _bIndexes();
+                    const auto i = std::find(bIndexes.begin(), bIndexes.end(), index.row());
+                    out.setValue(i != bIndexes.end() ? Qt::Checked : Qt::Unchecked);
+                    break;
+                }
+                }
+                break;
+            case Qt::ToolTipRole:
+                out.setValue(QString::fromUtf8(item->path.get().c_str()));
                 break;
             default: break;
             }
@@ -131,75 +124,328 @@ namespace tlr
         return out;
     }
 
+    bool FilesModel::setData(const QModelIndex& index, const QVariant& value, int role)
+    {
+        bool out = false;
+        if (index.isValid() &&
+            index.row() >= 0 &&
+            index.row() < _items.size() &&
+            index.column() >= 0 &&
+            index.column() < 4)
+        {
+            const auto& item = _items[index.row()];
+            const int aIndex = _index(_a);
+            switch (role)
+            {
+            case Qt::EditRole:
+                switch (index.column())
+                {
+                case 3:
+                    setLayer(index.row(), value.toInt());
+                    out = true;
+                    break;
+                }
+                break;
+            case Qt::CheckStateRole:
+                switch (index.column())
+                {
+                case 0:
+                    if (value.toBool())
+                    {
+                        setA(index.row());
+                        out = true;
+                    }
+                    break;
+                case 1:
+                    setB(index.row(), value == Qt::Checked);
+                    out = true;
+                    break;
+                }
+                break;
+            default: break;
+            }
+        }
+        return out;
+    }
+
+    QVariant FilesModel::headerData(int section, Qt::Orientation orientation, int role) const
+    {
+        QVariant out;
+        if (Qt::Horizontal == orientation)
+        {
+            switch (role)
+            {
+            case Qt::DisplayRole:
+                switch (section)
+                {
+                case 0: out = tr("A"); break;
+                case 1: out = tr("B"); break;
+                case 2: out = tr("File"); break;
+                case 3: out = tr("Layer"); break;
+                }
+                break;
+            default: break;
+            }
+        }
+        return out;
+    }
+
+    void FilesModel::add(const std::shared_ptr<FilesModelItem>& item)
+    {
+        const int index = _items.size();
+        beginInsertRows(QModelIndex(), index, index);
+        _items.push_back(item);
+        endInsertRows();
+        Q_EMIT countChanged(_items.size());
+
+        const int aIndex = _index(_a);
+        _a = item;
+        Q_EMIT aChanged(_a);
+        Q_EMIT dataChanged(
+            this->index(aIndex, 0),
+            this->index(aIndex, 0),
+            { Qt::CheckStateRole });
+        Q_EMIT dataChanged(
+            this->index(index, 0),
+            this->index(index, 0),
+            { Qt::CheckStateRole });
+    }
+
+    void FilesModel::close()
+    {
+        if (!_items.empty() && _a)
+        {
+            const auto i = std::find(_items.begin(), _items.end(), _a);
+            if (i != _items.end())
+            {
+                const int aIndex = i - _items.begin();
+                beginRemoveRows(QModelIndex(), aIndex, aIndex);
+                _items.erase(i);
+                endRemoveRows();
+                Q_EMIT countChanged(_items.size());
+
+                const int aNewIndex = math::clamp(aIndex, 0, static_cast<int>(_items.size()) - 1);
+                _a = aNewIndex != -1 ? _items[aNewIndex] : nullptr;
+                Q_EMIT aChanged(_a);
+                Q_EMIT dataChanged(
+                    this->index(aIndex, 0),
+                    this->index(aIndex, 0),
+                    { Qt::CheckStateRole });
+                Q_EMIT dataChanged(
+                    this->index(aNewIndex, 0),
+                    this->index(aNewIndex, 0),
+                    { Qt::CheckStateRole });
+
+                const size_t bSize = _b.size();
+                auto b = _b.begin();
+                while (b != _b.end())
+                {
+                    const auto j = std::find(_items.begin(), _items.end(), *b);
+                    if (j == _items.end())
+                    {
+                        b = _b.erase(b);
+                    }
+                    else
+                    {
+                        ++b;
+                    }
+                }
+                if (_b.size() != bSize)
+                {
+                    Q_EMIT bChanged(_b);
+                }
+            }
+        }
+    }
+
+    void FilesModel::closeAll()
+    {
+        if (!_items.empty())
+        {
+            beginRemoveRows(QModelIndex(), 0, _items.size() - 1);
+            _items.clear();
+            endRemoveRows();
+            Q_EMIT countChanged(_items.size());
+
+            _a = nullptr;
+            Q_EMIT aChanged(_a);
+
+            _b.clear();
+            Q_EMIT bChanged(_b);
+        }
+    }
+
+    void FilesModel::setA(int index)
+    {
+        const int aIndex = _index(_a);
+        if (index >= 0 && index < _items.size() && index != aIndex)
+        {
+            _a = _items[index];
+            Q_EMIT aChanged(_a);
+            Q_EMIT dataChanged(
+                this->index(aIndex, 0),
+                this->index(aIndex, 0),
+                { Qt::CheckStateRole });
+            Q_EMIT dataChanged(
+                this->index(index, 0),
+                this->index(index, 0),
+                { Qt::CheckStateRole });
+        }
+    }
+
+    void FilesModel::setB(int index, bool value)
+    {
+        if (index >= 0 && index < _items.size())
+        {
+            const auto bIndexes = _bIndexes();
+            const auto i = std::find(bIndexes.begin(), bIndexes.end(), index);
+            if (value && i == bIndexes.end())
+            {
+                _b.push_back(_items[index]);
+                Q_EMIT dataChanged(
+                    this->index(index, 1),
+                    this->index(index, 1),
+                    { Qt::CheckStateRole });
+            }
+            else if (!value && i != bIndexes.end())
+            {
+                _b.erase(_b.begin() + (i - bIndexes.begin()));
+                Q_EMIT dataChanged(
+                    this->index(index, 1),
+                    this->index(index, 1),
+                    { Qt::CheckStateRole });
+            }
+        }
+    }
+
     void FilesModel::first()
     {
-        if (!_items.empty() && _current != 0)
+        const int aIndex = _index(_a);
+        if (!_items.empty() && aIndex != 0)
         {
-            _current = 0;
-            Q_EMIT currentChanged(_items[_current]);
-            if (_current != -1)
-            {
-                Q_EMIT dataChanged(
-                    index(_current, 0),
-                    index(_current, 0),
-                    { Qt::BackgroundRole, Qt::ForegroundRole });
-            }
+            _a = _items[0];
+            Q_EMIT aChanged(_a);
+            Q_EMIT dataChanged(
+                index(aIndex, 0),
+                index(aIndex, 0),
+                { Qt::CheckStateRole });
+            Q_EMIT dataChanged(
+                index(0, 0),
+                index(0, 0),
+                { Qt::CheckStateRole });
         }
     }
 
     void FilesModel::last()
     {
-        if (!_items.empty() && _current != _items.size() - 1)
+        const int index = static_cast<int>(_items.size()) - 1;
+        const int aIndex = _index(_a);
+        if (!_items.empty() && index != aIndex)
         {
-            _current = _items.size() - 1;
-            Q_EMIT currentChanged(_items[_current]);
-            if (_current != -1)
-            {
-                Q_EMIT dataChanged(
-                    index(_current, 0),
-                    index(_current, 0),
-                    { Qt::BackgroundRole, Qt::ForegroundRole });
-            }
+            _a = _items[index];
+            Q_EMIT aChanged(_a);
+            Q_EMIT dataChanged(
+                this->index(index, 0),
+                this->index(index, 0),
+                { Qt::CheckStateRole });
+            Q_EMIT dataChanged(
+                this->index(aIndex, 0),
+                this->index(aIndex, 0),
+                { Qt::CheckStateRole });
         }
     }
 
     void FilesModel::next()
     {
-        if (_items.size() > 1)
+        if (!_items.empty())
         {
-            ++_current;
-            if (_current >= _items.size())
+            const int aIndex = _index(_a);
+            int aNewIndex = aIndex + 1;
+            if (aNewIndex >= _items.size())
             {
-                _current = 0;
+                aNewIndex = 0;
             }
-            Q_EMIT currentChanged(_items[_current]);
-            if (_current != -1)
-            {
-                Q_EMIT dataChanged(
-                    index(_current, 0),
-                    index(_current, 0),
-                    { Qt::BackgroundRole, Qt::ForegroundRole });
-            }
+            _a = _items[aNewIndex];
+            Q_EMIT aChanged(_a);
+            Q_EMIT dataChanged(
+                this->index(aIndex, 0),
+                this->index(aIndex, 0),
+                { Qt::CheckStateRole });
+            Q_EMIT dataChanged(
+                this->index(aNewIndex, 0),
+                this->index(aNewIndex, 0),
+                { Qt::CheckStateRole });
         }
     }
 
     void FilesModel::prev()
     {
-        if (_items.size() > 1)
+        if (!_items.empty())
         {
-            --_current;
-            if (_current < 0)
+            const int aIndex = _index(_a);
+            int aNewIndex = aIndex - 1;
+            if (aNewIndex < 0)
             {
-                _current = _items.size() - 1;
+                aNewIndex = _items.size() - 1;
             }
-            Q_EMIT currentChanged(_items[_current]);
-            if (_current != -1)
+            _a = _items[aNewIndex];
+            Q_EMIT aChanged(_a);
+            Q_EMIT dataChanged(
+                this->index(aIndex, 0),
+                this->index(aIndex, 0),
+                { Qt::CheckStateRole });
+            Q_EMIT dataChanged(
+                this->index(aNewIndex, 0),
+                this->index(aNewIndex, 0),
+                { Qt::CheckStateRole });
+        }
+    }
+
+    void FilesModel::setLayer(int index, int layer)
+    {
+        if (index >= 0 &&
+            index < _items.size() &&
+            layer >= 0 &&
+            layer < _items[index]->avInfo.video.size() &&
+            layer != _items[index]->videoLayer)
+        {
+            _items[index]->videoLayer = layer;
+            Q_EMIT layerChanged(index, layer);
+        }
+    }
+
+    void FilesModel::setImageOptions(int index, const render::ImageOptions& imageOptions)
+    {
+        if (index >= 0 &&
+            index < _items.size() &&
+            imageOptions != _items[index]->imageOptions)
+        {
+            _items[index]->imageOptions = imageOptions;
+            Q_EMIT imageOptionsChanged(index, imageOptions);
+        }
+    }
+
+    int FilesModel::_index(const std::shared_ptr<FilesModelItem>& item) const
+    {
+        int out = -1;
+        if (!_items.empty())
+        {
+            const auto i = std::find(_items.begin(), _items.end(), item);
+            if (i != _items.end())
             {
-                Q_EMIT dataChanged(
-                    index(_current, 0),
-                    index(_current, 0),
-                    { Qt::BackgroundRole, Qt::ForegroundRole });
+                out = i - _items.begin();
             }
         }
+        return out;
+    }
+
+    std::vector<int> FilesModel::_bIndexes() const
+    {
+        std::vector<int> out;
+        for (const auto& b : _b)
+        {
+            out.push_back(_index(b));
+        }
+        return out;
     }
 }

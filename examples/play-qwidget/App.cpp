@@ -95,17 +95,15 @@ namespace tlr
         _filesModel = new FilesModel(this);
         connect(
             _filesModel,
-            SIGNAL(currentChanged(const std::shared_ptr<FilesModelItem>&)),
-            SLOT(_filesModelCallback(const std::shared_ptr<FilesModelItem>&)));
-        
-        _layersModel = new LayersModel(this);
+            SIGNAL(aChanged(const std::shared_ptr<FilesModelItem>&)),
+            SLOT(_aCallback(const std::shared_ptr<FilesModelItem>&)));
         connect(
-            _layersModel,
-            SIGNAL(currentChanged(int)),
-            SLOT(_layersModelCallback(int)));
+            _filesModel,
+            SIGNAL(layerChanged(int, int)),
+            SLOT(_layerCallback(int, int)));
 
         // Create the main window.
-        _mainWindow = new MainWindow(_filesModel, _layersModel, _settingsObject, _timeObject, _context);
+        _mainWindow = new MainWindow(this);
         _mainWindow->setColorConfig(_options.colorConfig);
 
         // Open the input file.
@@ -123,9 +121,27 @@ namespace tlr
         delete _settingsObject;
     }
 
-    void App::open(const QString& fileName)
+    qt::TimeObject* App::timeObject() const
     {
-        _filesModel->add(fileName.toUtf8().data());
+        return _timeObject;
+    }
+
+    SettingsObject* App::settingsObject() const
+    {
+        return _settingsObject;
+    }
+
+    FilesModel* App::filesModel() const
+    {
+        return _filesModel;
+    }
+
+    void App::open(const QString& fileName, const QString& audioFileName)
+    {
+        auto item = std::make_shared<FilesModelItem>();
+        item->path = file::Path(fileName.toUtf8().data());
+        item->audioPath = file::Path(audioFileName.toUtf8().data());
+        _filesModel->add(item);
         _settingsObject->addRecentFile(fileName);
     }
 
@@ -142,9 +158,9 @@ namespace tlr
         }
 
         QString dir;
-        if (const auto item = _filesModel->current())
+        if (const auto a = _filesModel->a())
         {
-            dir = QString::fromUtf8(item->path.get().c_str());
+            dir = QString::fromUtf8(a->path.get().c_str());
         }
 
         const auto fileName = QFileDialog::getOpenFileName(
@@ -158,39 +174,20 @@ namespace tlr
         }
     }
 
-    void App::openWithAudio(const QString& fileName, const QString& audioFileName)
-    {
-        _filesModel->add(fileName.toUtf8().data(), audioFileName.toUtf8().data());
-        _settingsObject->addRecentFile(fileName);
-    }
-
     void App::openWithAudio()
     {
         auto dialog = std::make_unique<OpenWithAudioDialog>(_context);
         if (QDialog::Accepted == dialog->exec())
         {
-            openWithAudio(dialog->videoFileName(), dialog->audioFileName());
+            open(dialog->videoFileName(), dialog->audioFileName());
         }
     }
 
-    void App::close()
-    {
-        _filesModel->remove();
-    }
-
-    void App::closeAll()
-    {
-        _filesModel->clear();
-    }
-
-    void App::_filesModelCallback(const std::shared_ptr<FilesModelItem>& item)
+    void App::_aCallback(const std::shared_ptr<FilesModelItem>& item)
     {
         if (_currentFile)
         {
             _currentFile->init = true;
-            _currentFile->duration = _timelinePlayer->duration();
-            _currentFile->globalStartTime = _timelinePlayer->globalStartTime();
-            _currentFile->avInfo = _timelinePlayer->avInfo();
             _currentFile->speed = _timelinePlayer->speed();
             _currentFile->playback = _timelinePlayer->playback();
             _currentFile->loop = _timelinePlayer->loop();
@@ -272,10 +269,6 @@ namespace tlr
             }
         }
 
-        _layersModel->set(
-            _currentFile ? _currentFile->avInfo.video : std::vector<imaging::Info>(),
-            _currentFile ? _currentFile->videoLayer : -1);
-
         _mainWindow->setTimelinePlayer(qtTimelinePlayer);
 
         delete _timelinePlayer;
@@ -284,11 +277,14 @@ namespace tlr
         _settingsUpdate();
     }
 
-    void App::_layersModelCallback(int value)
+    void App::_layerCallback(int index, int layer)
     {
-        if (_timelinePlayer)
+        const auto& items = _filesModel->items();
+        if (index >= 0 &&
+            index < items.size() &&
+            _currentFile == items[index])
         {
-            _timelinePlayer->setVideoLayer(value);
+            _timelinePlayer->setVideoLayer(layer);
         }
     }
 

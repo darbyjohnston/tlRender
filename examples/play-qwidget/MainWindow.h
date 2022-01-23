@@ -7,8 +7,6 @@
 #include "AudioTool.h"
 #include "FilesModel.h"
 #include "ImageTool.h"
-#include "LayersModel.h"
-#include "LayersTool.h"
 #include "SecondaryWindow.h"
 #include "SettingsObject.h"
 
@@ -24,19 +22,15 @@
 
 namespace tlr
 {
+    class App;
+
     //! Main window.
     class MainWindow : public QMainWindow
     {
         Q_OBJECT
 
     public:
-        MainWindow(
-            FilesModel*,
-            LayersModel*,
-            SettingsObject*,
-            qt::TimeObject*,
-            const std::shared_ptr<core::Context>&,
-            QWidget* parent = nullptr);
+        MainWindow(App*, QWidget* parent = nullptr);
 
         ~MainWindow() override;
 
@@ -76,6 +70,7 @@ namespace tlr
         void _frameNextX10Callback();
         void _frameNextX100Callback();
         void _imageOptionsCallback(const tlr::render::ImageOptions&);
+        void _compareOptionsCallback(const tlr::render::CompareOptions&);
         void _audioOffsetCallback(double);
         void _saveSettingsCallback();
 
@@ -85,14 +80,11 @@ namespace tlr
         void _playbackUpdate();
         void _timelineUpdate();
 
-        std::weak_ptr<core::Context> _context;
-        FilesModel* _filesModel = nullptr;
-        LayersModel* _layersModel = nullptr;
+        App* _app = nullptr;
         qt::TimelinePlayer* _timelinePlayer = nullptr;
         qwidget::TimelineWidget* _timelineWidget = nullptr;
         AudioTool* _audioTool = nullptr;
         ImageTool* _imageTool = nullptr;
-        LayersTool* _layersTool = nullptr;
         QMap<QString, QAction*> _actions;
         QActionGroup* _recentFilesActionGroup = nullptr;
         QMap<QAction*, QString> _actionToRecentFile;
@@ -105,7 +97,5 @@ namespace tlr
         QMap<timeline::Loop, QAction*> _loopToActions;
         SecondaryWindow* _secondaryWindow = nullptr;
         imaging::ColorConfig _colorConfig;
-        SettingsObject* _settingsObject = nullptr;
-        qt::TimeObject* _timeObject = nullptr;
     };
 }

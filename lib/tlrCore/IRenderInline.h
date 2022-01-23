@@ -72,14 +72,16 @@ namespace tlr
             return !(*this == other);
         }
 
-        inline bool ABCompareOptions::operator == (const ABCompareOptions& other) const
+        inline bool CompareOptions::operator == (const CompareOptions& other) const
         {
             return
+                mode == other.mode &&
+                wipe == other.wipe &&
                 pos == other.pos &&
                 rotation == other.rotation;
         }
 
-        inline bool ABCompareOptions::operator != (const ABCompareOptions& other) const
+        inline bool CompareOptions::operator != (const CompareOptions& other) const
         {
             return !(*this == other);
         }

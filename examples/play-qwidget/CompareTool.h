@@ -4,21 +4,29 @@
 
 #pragma once
 
-#include <QToolBox>
+#include <QComboBox>
 
 namespace tlr
 {
     //! Compare tool.
-    class CompareTool : public QToolBox
+    class CompareTool : public QWidget
     {
         Q_OBJECT
 
     public:
         CompareTool(QWidget* parent = nullptr);
 
-    private Q_SLOTS:
-        void _currentItemCallback(int);
+    public Q_SLOTS:
+        void setOptions(const tlr::render::CompareOptions&);
+
+    Q_SIGNALS:
+        void optionsChanged(const tlr::render::CompareOptions&);
 
     private:
+        void _optionsUpdate();
+
+        render::CompareOptions _options;
+
+        QComboBox* _modeComboBox = nullptr;
     };
 }

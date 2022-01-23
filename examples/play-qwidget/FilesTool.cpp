@@ -4,6 +4,7 @@
 
 #include "App.h"
 #include "FilesTool.h"
+#include "FilesView.h"
 
 #include <QBoxLayout>
 #include <QSignalBlocker>
@@ -16,9 +17,15 @@ namespace tlr
         QWidget(parent),
         _filesModel(filesModel)
     {
-        _listView = new QListView;
-        _listView->setSelectionMode(QAbstractItemView::NoSelection);
-        _listView->setModel(filesModel);
+        _treeView = new QTreeView;
+        _treeView->setAllColumnsShowFocus(true);
+        _treeView->setAlternatingRowColors(true);
+        _treeView->setSelectionMode(QAbstractItemView::NoSelection);
+        _treeView->setItemDelegateForColumn(3, new FilesLayersItemDelegate);
+        _treeView->setEditTriggers(QAbstractItemView::CurrentChanged);
+        _treeView->setModel(filesModel);
+        _treeView->resizeColumnToContents(0);
+        _treeView->resizeColumnToContents(1);
 
         auto openButton = new QToolButton;
         openButton->setIcon(QIcon(":/Icons/FileOpen.svg"));
@@ -42,7 +49,7 @@ namespace tlr
         _prevButton->setToolTip(tr("Go to the previous file"));
 
         auto layout = new QVBoxLayout;
-        layout->addWidget(_listView);
+        layout->addWidget(_treeView);
         auto hLayout = new QHBoxLayout;
         auto hLayout2 = new QHBoxLayout;
         hLayout2->setSpacing(1);
@@ -63,7 +70,7 @@ namespace tlr
         _countUpdate();
 
         connect(
-            _listView,
+            _treeView,
             SIGNAL(activated(const QModelIndex&)),
             SLOT(_activatedCallback(const QModelIndex&)));
 
@@ -81,12 +88,12 @@ namespace tlr
         connect(
             _closeButton,
             SIGNAL(clicked()),
-            qApp,
+            filesModel,
             SLOT(close()));
         connect(
             _closeAllButton,
             SIGNAL(clicked()),
-            qApp,
+            filesModel,
             SLOT(closeAll()));
 
         connect(
@@ -108,7 +115,7 @@ namespace tlr
 
     void FilesTool::_activatedCallback(const QModelIndex& index)
     {
-        _filesModel->setCurrent(index);
+        _filesModel->setA(index.row());
     }
 
     void FilesTool::_countCallback()

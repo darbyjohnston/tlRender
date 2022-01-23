@@ -125,27 +125,33 @@ namespace tlr
             bool operator != (const ImageOptions&) const;
         };
 
-        //! A/B comparison.
-        enum ABCompare
+        //! Comparison mode.
+        enum CompareMode
         {
             A,
             B,
-            A_B,
+            Wipe,
+            Horizontal,
+            Vertical,
 
             Count,
             First = A
         };
-        TLR_ENUM(ABCompare);
-        TLR_ENUM_SERIALIZE(ABCompare);
+        TLR_ENUM(CompareMode);
+        TLR_ENUM_SERIALIZE(CompareMode);
 
-        //! A/B comparison options.
-        struct ABCompareOptions
+        //! Comparison options.
+        struct CompareOptions
         {
+            CompareMode mode = CompareMode::A;
+
+            float wipe = 0.F;
+
             glm::ivec2 pos = glm::ivec2(0, 0);
             float rotation = 0.F;
 
-            bool operator == (const ABCompareOptions&) const;
-            bool operator != (const ABCompareOptions&) const;
+            bool operator == (const CompareOptions&) const;
+            bool operator != (const CompareOptions&) const;
         };
     
         //! Base class for renderers.

@@ -62,6 +62,9 @@ namespace tlr
         public:
             virtual ~IApp() = 0;
 
+            //! Get the context.
+            const std::shared_ptr<core::Context>& getContext() const;
+
             //! Get the exit code.
             int getExit() const;
 

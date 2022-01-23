@@ -37,6 +37,9 @@ namespace tlr
             //! Set the image options.
             void setImageOptions(const render::ImageOptions&);
 
+            //! Set the comparison options.
+            void setCompareOptions(const render::CompareOptions&);
+
             //! Set the timeline player.
             void setTimelinePlayer(qt::TimelinePlayer*);
 
