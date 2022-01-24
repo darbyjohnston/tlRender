@@ -185,25 +185,29 @@ namespace tlr
 
     void App::_activeCallback(const std::vector<std::shared_ptr<FilesModelItem> >& items)
     {
-        for (size_t i = 0; i < _activeItems.size(); ++i)
+        if (!_activeItems.empty() &&
+            !_timelinePlayers.empty() &&
+            _timelinePlayers[0])
         {
-            _activeItems[i]->init = true;
-            _activeItems[i]->speed = _timelinePlayers[i]->speed();
-            _activeItems[i]->playback = _timelinePlayers[i]->playback();
-            _activeItems[i]->loop = _timelinePlayers[i]->loop();
-            _activeItems[i]->currentTime = _timelinePlayers[i]->currentTime();
-            _activeItems[i]->inOutRange = _timelinePlayers[i]->inOutRange();
-            _activeItems[i]->videoLayer = _timelinePlayers[i]->videoLayer();
-            _activeItems[i]->volume = _timelinePlayers[i]->volume();
-            _activeItems[i]->mute = _timelinePlayers[i]->isMuted();
-            _activeItems[i]->audioOffset = _timelinePlayers[i]->audioOffset();
+            _activeItems[0]->init = true;
+            _activeItems[0]->speed = _timelinePlayers[0]->speed();
+            _activeItems[0]->playback = _timelinePlayers[0]->playback();
+            _activeItems[0]->loop = _timelinePlayers[0]->loop();
+            _activeItems[0]->currentTime = _timelinePlayers[0]->currentTime();
+            _activeItems[0]->inOutRange = _timelinePlayers[0]->inOutRange();
+            _activeItems[0]->videoLayer = _timelinePlayers[0]->videoLayer();
+            _activeItems[0]->volume = _timelinePlayers[0]->volume();
+            _activeItems[0]->mute = _timelinePlayers[0]->isMuted();
+            _activeItems[0]->audioOffset = _timelinePlayers[0]->audioOffset();
         }
 
         _activeItems = items;
 
-        std::vector<qt::TimelinePlayer*> qtTimelinePlayers;
+        std::vector<qt::TimelinePlayer*> timelinePlayers;
+        std::vector<qt::TimelinePlayer*> timelinePlayersValid;
         for (const auto& i : _activeItems)
         {
+            qt::TimelinePlayer* qtTimelinePlayer = nullptr;
             try
             {
                 timeline::Options options;
@@ -228,37 +232,10 @@ namespace tlr
                 playerOptions.timerMode = _settingsObject->timerMode();
                 playerOptions.audioBufferFrameCount = _settingsObject->audioBufferFrameCount();
                 auto timelinePlayer = timeline::TimelinePlayer::create(timeline, _context, playerOptions);
+                timelinePlayer->setCacheReadAhead(otime::RationalTime(_settingsObject->cacheReadAhead(), 1.0));
+                timelinePlayer->setCacheReadBehind(otime::RationalTime(_settingsObject->cacheReadBehind(), 1.0));
 
-                if (!i->init)
-                {
-                    i->init = true;
-                    i->duration = timelinePlayer->getDuration();
-                    i->globalStartTime = timelinePlayer->getGlobalStartTime();
-                    i->avInfo = timelinePlayer->getAVInfo();
-                    i->speed = timelinePlayer->observeSpeed()->get();
-                    i->playback = timelinePlayer->observePlayback()->get();
-                    i->loop = timelinePlayer->observeLoop()->get();
-                    i->currentTime = timelinePlayer->observeCurrentTime()->get();
-                    i->inOutRange = timelinePlayer->observeInOutRange()->get();
-                    i->videoLayer = timelinePlayer->observeVideoLayer()->get();
-                    i->volume = timelinePlayer->observeVolume()->get();
-                    i->mute = timelinePlayer->observeMute()->get();
-                    i->audioOffset = timelinePlayer->observeAudioOffset()->get();
-                }
-                else
-                {
-                    timelinePlayer->setAudioOffset(i->audioOffset);
-                    timelinePlayer->setMute(i->mute);
-                    timelinePlayer->setVolume(i->volume);
-                    timelinePlayer->setVideoLayer(i->videoLayer);
-                    timelinePlayer->setSpeed(i->speed);
-                    timelinePlayer->setLoop(i->loop);
-                    timelinePlayer->setInOutRange(i->inOutRange);
-                    timelinePlayer->seek(i->currentTime);
-                    timelinePlayer->setPlayback(i->playback);
-                }
-
-                qtTimelinePlayers.push_back(new qt::TimelinePlayer(timelinePlayer, _context, this));
+                qtTimelinePlayer = new qt::TimelinePlayer(timelinePlayer, _context, this);
             }
             catch (const std::exception& e)
             {
@@ -266,17 +243,61 @@ namespace tlr
                 dialog.setText(e.what());
                 dialog.exec();
             }
+            timelinePlayers.push_back(qtTimelinePlayer);
+            if (qtTimelinePlayer)
+            {
+                timelinePlayersValid.push_back(qtTimelinePlayer);
+            }
         }
 
-        _mainWindow->setTimelinePlayers(qtTimelinePlayers);
+        if (!_activeItems.empty() &&
+            !timelinePlayers.empty() &&
+            timelinePlayers[0])
+        {
+            if (!_activeItems[0]->init)
+            {
+                _activeItems[0]->init = true;
+                _activeItems[0]->duration = timelinePlayers[0]->duration();
+                _activeItems[0]->globalStartTime = timelinePlayers[0]->globalStartTime();
+                _activeItems[0]->avInfo = timelinePlayers[0]->avInfo();
+                _activeItems[0]->speed = timelinePlayers[0]->speed();
+                _activeItems[0]->playback = timelinePlayers[0]->playback();
+                _activeItems[0]->loop = timelinePlayers[0]->loop();
+                _activeItems[0]->currentTime = timelinePlayers[0]->currentTime();
+                _activeItems[0]->inOutRange = timelinePlayers[0]->inOutRange();
+                _activeItems[0]->videoLayer = timelinePlayers[0]->videoLayer();
+                _activeItems[0]->volume = timelinePlayers[0]->volume();
+                _activeItems[0]->mute = timelinePlayers[0]->isMuted();
+                _activeItems[0]->audioOffset = timelinePlayers[0]->audioOffset();
+            }
+            else
+            {
+                timelinePlayers[0]->setAudioOffset(_activeItems[0]->audioOffset);
+                timelinePlayers[0]->setMute(_activeItems[0]->mute);
+                timelinePlayers[0]->setVolume(_activeItems[0]->volume);
+                timelinePlayers[0]->setVideoLayer(_activeItems[0]->videoLayer);
+                timelinePlayers[0]->setSpeed(_activeItems[0]->speed);
+                timelinePlayers[0]->setLoop(_activeItems[0]->loop);
+                timelinePlayers[0]->setInOutRange(_activeItems[0]->inOutRange);
+                timelinePlayers[0]->seek(_activeItems[0]->currentTime);
+                timelinePlayers[0]->setPlayback(_activeItems[0]->playback);
+            }
+        }
+        for (size_t i = 1; i < _activeItems.size(); ++i)
+        {
+            if (timelinePlayers[i])
+            {
+                timelinePlayers[i]->setVideoLayer(_activeItems[i]->videoLayer);
+            }
+        }
+
+        _mainWindow->setTimelinePlayers(timelinePlayersValid);
 
         for (size_t i = 0; i < _timelinePlayers.size(); ++i)
         {
             delete _timelinePlayers[i];
         }
-        _timelinePlayers = qtTimelinePlayers;
-
-        _settingsUpdate();
+        _timelinePlayers = timelinePlayers;
     }
 
     void App::_layerCallback(const std::shared_ptr<FilesModelItem>& item, int layer)
@@ -284,8 +305,11 @@ namespace tlr
         const auto i = std::find(_activeItems.begin(), _activeItems.end(), item);
         if (i != _activeItems.end())
         {
-            const size_t index = i - _activeItems.begin();
-            _timelinePlayers[index]->setVideoLayer(layer);
+            const int index = i - _activeItems.begin();
+            if (_timelinePlayers[index])
+            {
+                _timelinePlayers[index]->setVideoLayer(layer);
+            }
         }
     }
 

@@ -41,8 +41,7 @@ namespace tlr
             "A",
             "B",
             "Wipe",
-            "Horizontal",
-            "Vertical");
+            "Tiles");
         TLR_ENUM_SERIALIZE_IMPL(CompareMode);
 
         void IRender::_init(const std::shared_ptr<core::Context>& context)

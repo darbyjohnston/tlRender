@@ -72,7 +72,7 @@ namespace tlr
         {
             TLR_PRIVATE_P();
             p.videoData.clear();
-            for (auto i : p.timelinePlayers)
+            for (const auto& i : p.timelinePlayers)
             {
                 disconnect(
                     i,
@@ -81,7 +81,7 @@ namespace tlr
                     SLOT(_videoCallback(const tlr::timeline::VideoData&)));
             }
             p.timelinePlayers = timelinePlayers;
-            for (auto i : p.timelinePlayers)
+            for (const auto& i : p.timelinePlayers)
             {
                 _p->videoData.push_back(i->video());
                 connect(

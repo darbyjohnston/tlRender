@@ -100,13 +100,13 @@ namespace tlr
     void FilesTool::_widgetUpdate()
     {
         const int count = _filesModel->rowCount();
-        _compareComboBox->setEnabled(count > 1);
+        _compareComboBox->setEnabled(count > 0);
         {
             QSignalBlocker signalBlocker(_compareComboBox);
             _compareComboBox->setCurrentIndex(static_cast<int>(_compareOptions.mode));
         }
 
-        _compareSlider->setEnabled(count > 1);
+        _compareSlider->setEnabled(count > 0);
         {
             QSignalBlocker signalBlocker(_compareSlider);
             _compareSlider->setValue(_compareOptions.wipe * 100);

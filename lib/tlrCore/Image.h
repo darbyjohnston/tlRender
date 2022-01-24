@@ -45,9 +45,9 @@ namespace tlr
             constexpr bool operator < (const Size&) const noexcept;
         };
 
-        //! Get a bounding box with the given aspect ratio that fits the
-        //! given size.
-        math::BBox2i getBBox(float aspect, const imaging::Size&) noexcept;
+        //! Get a bounding box with the given aspect ratio that fits within
+        //! the given bounding box.
+        math::BBox2i getBBox(float aspect, const math::BBox2i&) noexcept;
 
         std::ostream& operator << (std::ostream&, const imaging::Size&);
     

@@ -49,9 +49,9 @@ namespace tlr
         private:
             void _delColorConfig();
             void _drawVideo(
-                const std::vector<timeline::VideoData>&,
-                const std::vector<render::ImageOptions> & = {},
-                const render::CompareOptions & = render::CompareOptions());
+                const timeline::VideoData&,
+                const math::BBox2i&,
+                const render::ImageOptions&);
 
             TLR_PRIVATE();
         };

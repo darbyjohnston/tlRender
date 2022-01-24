@@ -131,8 +131,7 @@ namespace tlr
             A,
             B,
             Wipe,
-            Horizontal,
-            Vertical,
+            Tiles,
 
             Count,
             First = A

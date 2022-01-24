@@ -483,7 +483,9 @@ namespace tlr
                             const float t = 1.F - layer.transitionValue;
                             _drawImage(
                                 layer.image,
-                                imaging::getBBox(layer.image->getAspect(), buffer->getSize()),
+                                imaging::getBBox(
+                                    layer.image->getAspect(),
+                                    math::BBox2i(0, 0, buffer->getWidth(), buffer->getHeight())),
                                 imaging::Color4f(t, t, t, t),
                                 imageOptionsTmp,
                                 buffer);
@@ -493,7 +495,9 @@ namespace tlr
                             const float tB = layer.transitionValue;
                             _drawImage(
                                 layer.imageB,
-                                imaging::getBBox(layer.imageB->getAspect(), buffer->getSize()),
+                                imaging::getBBox(
+                                    layer.imageB->getAspect(),
+                                    math::BBox2i(0, 0, buffer->getWidth(), buffer->getHeight())),
                                 imaging::Color4f(tB, tB, tB, tB),
                                 imageOptionsTmp,
                                 buffer);
@@ -501,7 +505,9 @@ namespace tlr
 
                         _drawImage(
                             buffer,
-                            imaging::getBBox(buffer->getAspect(), p.frameBuffer->getSize()),
+                            imaging::getBBox(
+                                buffer->getAspect(),
+                                math::BBox2i(0, 0, p.frameBuffer->getWidth(), p.frameBuffer->getHeight())),
                             imaging::Color4f(1.F, 1.F, 1.F),
                             i < imageOptions.size() ? imageOptions[i] : ImageOptions(),
                             p.frameBuffer);
@@ -512,7 +518,9 @@ namespace tlr
                         {
                             _drawImage(
                                 layer.image,
-                                imaging::getBBox(layer.image->getAspect(), p.frameBuffer->getSize()),
+                                imaging::getBBox(
+                                    layer.image->getAspect(),
+                                    math::BBox2i(0, 0, p.frameBuffer->getWidth(), p.frameBuffer->getHeight())),
                                 imaging::Color4f(1.F, 1.F, 1.F),
                                 i < imageOptions.size() ? imageOptions[i] : ImageOptions(),
                                 p.frameBuffer);
