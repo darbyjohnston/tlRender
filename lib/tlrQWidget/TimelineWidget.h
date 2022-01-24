@@ -35,13 +35,13 @@ namespace tlr
             void setColorConfig(const imaging::ColorConfig&);
 
             //! Set the image options.
-            void setImageOptions(const render::ImageOptions&);
+            void setImageOptions(const std::vector<render::ImageOptions>&);
 
             //! Set the comparison options.
             void setCompareOptions(const render::CompareOptions&);
 
-            //! Set the timeline player.
-            void setTimelinePlayer(qt::TimelinePlayer*);
+            //! Set the timeline players.
+            void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
 
         private:
             TLR_PRIVATE();

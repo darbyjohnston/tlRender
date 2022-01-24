@@ -17,10 +17,10 @@ namespace tlr
         {
             std::weak_ptr<core::Context> context;
             imaging::ColorConfig colorConfig;
-            render::ImageOptions imageOptions;
+            std::vector<render::ImageOptions> imageOptions;
             render::CompareOptions compareOptions;
-            qt::TimelinePlayer* timelinePlayer = nullptr;
-            timeline::VideoData videoData;
+            std::vector<qt::TimelinePlayer*> timelinePlayers;
+            std::vector<timeline::VideoData> videoData;
             std::shared_ptr<render::IRender> render;
         };
 
@@ -52,7 +52,7 @@ namespace tlr
             update();
         }
 
-        void TimelineViewport::setImageOptions(const render::ImageOptions& options)
+        void TimelineViewport::setImageOptions(const std::vector<render::ImageOptions>& options)
         {
             if (options == _p->imageOptions)
                 return;
@@ -68,24 +68,24 @@ namespace tlr
             update();
         }
 
-        void TimelineViewport::setTimelinePlayer(qt::TimelinePlayer* timelinePlayer)
+        void TimelineViewport::setTimelinePlayers(const std::vector<qt::TimelinePlayer*>& timelinePlayers)
         {
             TLR_PRIVATE_P();
-            p.videoData = timeline::VideoData();
-            if (p.timelinePlayer)
+            p.videoData.clear();
+            for (auto i : p.timelinePlayers)
             {
                 disconnect(
-                    p.timelinePlayer,
+                    i,
                     SIGNAL(videoChanged(const tlr::timeline::VideoData&)),
                     this,
                     SLOT(_videoCallback(const tlr::timeline::VideoData&)));
             }
-            p.timelinePlayer = timelinePlayer;
-            if (p.timelinePlayer)
+            p.timelinePlayers = timelinePlayers;
+            for (auto i : p.timelinePlayers)
             {
-                _p->videoData = p.timelinePlayer->video();
+                _p->videoData.push_back(i->video());
                 connect(
-                    p.timelinePlayer,
+                    i,
                     SIGNAL(videoChanged(const tlr::timeline::VideoData&)),
                     SLOT(_videoCallback(const tlr::timeline::VideoData&)));
             }
@@ -94,7 +94,13 @@ namespace tlr
 
         void TimelineViewport::_videoCallback(const timeline::VideoData& value)
         {
-            _p->videoData = value;
+            TLR_PRIVATE_P();
+            const auto i = std::find(p.timelinePlayers.begin(), p.timelinePlayers.end(), sender());
+            if (i != p.timelinePlayers.end())
+            {
+                const size_t index = i - p.timelinePlayers.begin();
+                _p->videoData[index] = value;
+            }
             update();
         }
 
@@ -134,7 +140,7 @@ namespace tlr
                 width() * devicePixelRatio,
                 height() * devicePixelRatio);
             p.render->begin(size);
-            p.render->drawVideo(p.videoData, p.imageOptions);
+            p.render->drawVideo(p.videoData, p.imageOptions, p.compareOptions);
             p.render->end();
         }
     }

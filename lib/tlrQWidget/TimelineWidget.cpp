@@ -66,7 +66,7 @@ namespace tlr
             p.slider->setColorConfig(colorConfig);
         }
 
-        void TimelineWidget::setImageOptions(const render::ImageOptions& options)
+        void TimelineWidget::setImageOptions(const std::vector<render::ImageOptions>& options)
         {
             TLR_PRIVATE_P();
             p.viewport->setImageOptions(options);
@@ -78,12 +78,12 @@ namespace tlr
             p.viewport->setCompareOptions(options);
         }
 
-        void TimelineWidget::setTimelinePlayer(qt::TimelinePlayer* timelinePlayer)
+        void TimelineWidget::setTimelinePlayers(const std::vector<qt::TimelinePlayer*>& timelinePlayers)
         {
             TLR_PRIVATE_P();
-            p.viewport->setTimelinePlayer(timelinePlayer);
-            p.slider->setTimelinePlayer(timelinePlayer);
-            p.controls->setTimelinePlayer(timelinePlayer);
+            p.viewport->setTimelinePlayers(timelinePlayers);
+            p.slider->setTimelinePlayer(!timelinePlayers.empty() ? timelinePlayers[0] : nullptr);
+            p.controls->setTimelinePlayer(!timelinePlayers.empty() ? timelinePlayers[0] : nullptr);
         }
     }
 }

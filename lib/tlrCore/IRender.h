@@ -144,11 +144,7 @@ namespace tlr
         struct CompareOptions
         {
             CompareMode mode = CompareMode::A;
-
             float wipe = 0.F;
-
-            glm::ivec2 pos = glm::ivec2(0, 0);
-            float rotation = 0.F;
 
             bool operator == (const CompareOptions&) const;
             bool operator != (const CompareOptions&) const;
@@ -192,8 +188,9 @@ namespace tlr
 
             //! Draw timeline video data.
             virtual void drawVideo(
-                const timeline::VideoData&,
-                const ImageOptions& = ImageOptions()) = 0;
+                const std::vector<timeline::VideoData>&,
+                const std::vector<ImageOptions>& = {},
+                const CompareOptions& = CompareOptions()) = 0;
 
             //! Draw text.
             virtual void drawText(

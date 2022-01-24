@@ -41,11 +41,12 @@ namespace tlr
             void drawImage(
                 const std::shared_ptr<imaging::Image>&,
                 const math::BBox2i&,
-                const imaging::Color4f & = imaging::Color4f(1.F, 1.F, 1.F),
-                const render::ImageOptions & = render::ImageOptions()) override;
+                const imaging::Color4f& = imaging::Color4f(1.F, 1.F, 1.F),
+                const render::ImageOptions& = render::ImageOptions()) override;
             void drawVideo(
-                const timeline::VideoData&,
-                const render::ImageOptions & = render::ImageOptions()) override;
+                const std::vector<timeline::VideoData>&,
+                const std::vector<ImageOptions>& = {},
+                const render::CompareOptions& = render::CompareOptions()) override;
             void drawText(
                 const std::vector<std::shared_ptr<imaging::Glyph> >& glyphs,
                 const glm::ivec2& position,

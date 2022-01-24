@@ -29,9 +29,19 @@ namespace tlr
         _viewport->setColorConfig(value);
     }
 
-    void SecondaryWindow::setTimelinePlayer(qt::TimelinePlayer* value)
+    void SecondaryWindow::setImageOptions(const std::vector<render::ImageOptions>& value)
     {
-        _viewport->setTimelinePlayer(value);
+        _viewport->setImageOptions(value);
+    }
+
+    void SecondaryWindow::setCompareOptions(const render::CompareOptions& value)
+    {
+        _viewport->setCompareOptions(value);
+    }
+
+    void SecondaryWindow::setTimelinePlayers(const std::vector<qt::TimelinePlayer*>& value)
+    {
+        _viewport->setTimelinePlayers(value);
     }
 
     void SecondaryWindow::keyPressEvent(QKeyEvent* event)

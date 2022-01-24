@@ -454,7 +454,7 @@ namespace tlr
 
     void App::_drawVideo()
     {
-        _render->drawVideo(_videoData);
+        _render->drawVideo({ _videoData });
     }
 
     void App::_drawHUD()

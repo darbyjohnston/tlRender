@@ -27,47 +27,24 @@ namespace tlr
         _treeView->resizeColumnToContents(0);
         _treeView->resizeColumnToContents(1);
 
-        auto openButton = new QToolButton;
-        openButton->setIcon(QIcon(":/Icons/FileOpen.svg"));
-        openButton->setToolTip(tr("Open a new file"));
-        auto openWithAudioButton = new QToolButton;
-        openWithAudioButton->setIcon(QIcon(":/Icons/FileOpenWithAudio.svg"));
-        openWithAudioButton->setToolTip(tr("Open a new file with audio"));
+        _compareComboBox = new QComboBox;
+        for (const auto& i : render::getCompareModeLabels())
+        {
+            _compareComboBox->addItem(QString::fromUtf8(i.c_str()));
+        }
 
-        _closeButton = new QToolButton;
-        _closeButton->setIcon(QIcon(":/Icons/FileClose.svg"));
-        _closeButton->setToolTip(tr("Close the current file"));
-        _closeAllButton = new QToolButton;
-        _closeAllButton->setIcon(QIcon(":/Icons/FileCloseAll.svg"));
-        _closeAllButton->setToolTip(tr("Close all files"));
-
-        _nextButton = new QToolButton;
-        _nextButton->setIcon(QIcon(":/Icons/FileNext.svg"));
-        _nextButton->setToolTip(tr("Go to the next file"));
-        _prevButton = new QToolButton;
-        _prevButton->setIcon(QIcon(":/Icons/FilePrev.svg"));
-        _prevButton->setToolTip(tr("Go to the previous file"));
+        _compareSlider = new QSlider(Qt::Orientation::Horizontal);
+        _compareSlider->setRange(0, 100);
 
         auto layout = new QVBoxLayout;
         layout->addWidget(_treeView);
         auto hLayout = new QHBoxLayout;
-        auto hLayout2 = new QHBoxLayout;
-        hLayout2->setSpacing(1);
-        hLayout2->addWidget(openButton);
-        hLayout2->addWidget(openWithAudioButton);
-        hLayout2->addWidget(_closeButton);
-        hLayout2->addWidget(_closeAllButton);
-        hLayout->addLayout(hLayout2);
-        hLayout->addStretch();
-        hLayout2 = new QHBoxLayout;
-        hLayout2->setSpacing(1);
-        hLayout2->addWidget(_prevButton);
-        hLayout2->addWidget(_nextButton);
-        hLayout->addLayout(hLayout2);
+        hLayout->addWidget(_compareComboBox);
+        hLayout->addWidget(_compareSlider, 1);
         layout->addLayout(hLayout);
         setLayout(layout);
 
-        _countUpdate();
+        _widgetUpdate();
 
         connect(
             _treeView,
@@ -75,37 +52,14 @@ namespace tlr
             SLOT(_activatedCallback(const QModelIndex&)));
 
         connect(
-            openButton,
-            SIGNAL(clicked()),
-            qApp,
-            SLOT(open()));
-        connect(
-            openWithAudioButton,
-            SIGNAL(clicked()),
-            qApp,
-            SLOT(openWithAudio()));
+            _compareComboBox,
+            SIGNAL(activated(int)),
+            SLOT(_compareCallback(int)));
 
         connect(
-            _closeButton,
-            SIGNAL(clicked()),
-            filesModel,
-            SLOT(close()));
-        connect(
-            _closeAllButton,
-            SIGNAL(clicked()),
-            filesModel,
-            SLOT(closeAll()));
-
-        connect(
-            _nextButton,
-            SIGNAL(clicked()),
-            filesModel,
-            SLOT(next()));
-        connect(
-            _prevButton,
-            SIGNAL(clicked()),
-            filesModel,
-            SLOT(prev()));
+            _compareSlider,
+            SIGNAL(valueChanged(int)),
+            SLOT(_sliderCallback(int)));
 
         connect(
             filesModel,
@@ -113,22 +67,49 @@ namespace tlr
             SLOT(_countCallback()));
     }
 
+    void FilesTool::setCompareOptions(const render::CompareOptions& value)
+    {
+        if (value == _compareOptions)
+            return;
+        _compareOptions = value;
+        _widgetUpdate();
+    }
+
     void FilesTool::_activatedCallback(const QModelIndex& index)
     {
         _filesModel->setA(index.row());
     }
 
-    void FilesTool::_countCallback()
+    void FilesTool::_compareCallback(int value)
     {
-        _countUpdate();
+        _compareOptions.mode = static_cast<render::CompareMode>(value);
+        Q_EMIT compareOptionsChanged(_compareOptions);
     }
 
-    void FilesTool::_countUpdate()
+    void FilesTool::_sliderCallback(int value)
+    {
+        _compareOptions.wipe = value / 100.F;
+        Q_EMIT compareOptionsChanged(_compareOptions);
+    }
+
+    void FilesTool::_countCallback()
+    {
+        _widgetUpdate();
+    }
+
+    void FilesTool::_widgetUpdate()
     {
         const int count = _filesModel->rowCount();
-        _closeButton->setEnabled(count > 0);
-        _closeAllButton->setEnabled(count > 0);
-        _nextButton->setEnabled(count > 1);
-        _prevButton->setEnabled(count > 1);
+        _compareComboBox->setEnabled(count > 1);
+        {
+            QSignalBlocker signalBlocker(_compareComboBox);
+            _compareComboBox->setCurrentIndex(static_cast<int>(_compareOptions.mode));
+        }
+
+        _compareSlider->setEnabled(count > 1);
+        {
+            QSignalBlocker signalBlocker(_compareSlider);
+            _compareSlider->setValue(_compareOptions.wipe * 100);
+        }
     }
 }

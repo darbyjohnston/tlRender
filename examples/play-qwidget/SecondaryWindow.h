@@ -23,8 +23,14 @@ namespace tlr
         //! Set the color configuration.
         void setColorConfig(const imaging::ColorConfig&);
 
-        //! Set the timeline player.
-        void setTimelinePlayer(qt::TimelinePlayer*);
+        //! Set the image options.
+        void setImageOptions(const std::vector<render::ImageOptions>&);
+
+        //! Set the comparison options.
+        void setCompareOptions(const render::CompareOptions&);
+
+        //! Set the timeline players.
+        void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
 
     protected:
         void keyPressEvent(QKeyEvent*) override;

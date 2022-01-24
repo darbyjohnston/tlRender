@@ -159,7 +159,7 @@ void PanoramaTimelineViewport::paintGL()
             gl::OffscreenBufferBinding binding(_buffer);
             _render->setColorConfig(_colorConfig);
             _render->begin(_videoSize);
-            _render->drawVideo(_videoData, _imageOptions);
+            _render->drawVideo({ _videoData }, { _imageOptions });
             _render->end();
         }
     }

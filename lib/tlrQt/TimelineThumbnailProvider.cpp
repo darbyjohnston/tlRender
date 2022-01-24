@@ -246,7 +246,7 @@ namespace tlr
                             }
                             
                             render->begin(info.size);
-                            render->drawVideo(videoData);
+                            render->drawVideo({ videoData });
                             render->end();
                             std::vector<uint8_t> pixels(
                                 static_cast<size_t>(info.size.w) *

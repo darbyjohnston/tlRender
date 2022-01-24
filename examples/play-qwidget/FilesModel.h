@@ -47,8 +47,6 @@ namespace tlr
         FilesModel(QObject* parent = nullptr);
 
         const std::vector<std::shared_ptr<FilesModelItem> >& items() const;
-        const std::shared_ptr<FilesModelItem>& a() const;
-        const std::vector<std::shared_ptr<FilesModelItem> >& b() const;
 
         int rowCount(const QModelIndex& parent = QModelIndex()) const override;
         int columnCount(const QModelIndex& parent = QModelIndex()) const override;
@@ -70,23 +68,23 @@ namespace tlr
         void next();
         void prev();
 
-        void setLayer(int index, int layer);
+        void setLayer(const std::shared_ptr<FilesModelItem>&, int layer);
 
-        void setImageOptions(int index, const render::ImageOptions&);
+        void setImageOptions(const std::shared_ptr<FilesModelItem>&, const render::ImageOptions&);
 
     Q_SIGNALS:
-        void countChanged(int index);
+        void countChanged(int);
 
-        void aChanged(const std::shared_ptr<FilesModelItem>&);
-        void bChanged(const std::vector<std::shared_ptr<FilesModelItem> >&);
+        void activeChanged(const std::vector<std::shared_ptr<FilesModelItem> >&);
 
-        void layerChanged(int index, int layer);
+        void layerChanged(const std::shared_ptr<FilesModelItem>&, int layer);
 
-        void imageOptionsChanged(int index, const render::ImageOptions&);
+        void imageOptionsChanged(const std::shared_ptr<FilesModelItem>&, const render::ImageOptions&);
 
     private:
         int _index(const std::shared_ptr<FilesModelItem>&) const;
         std::vector<int> _bIndexes() const;
+        std::vector<std::shared_ptr<FilesModelItem> > _active() const;
 
         std::vector<std::shared_ptr<FilesModelItem> > _items;
         std::shared_ptr<FilesModelItem> _a;

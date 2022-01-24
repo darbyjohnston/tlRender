@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 
     // Create the timeline viewport.
     auto timelineViewport = new tlr::qwidget::TimelineViewport(context);
-    timelineViewport->setTimelinePlayer(timelinePlayer);
+    timelineViewport->setTimelinePlayers({ timelinePlayer });
     timelineViewport->show();
 
     // Start playback.

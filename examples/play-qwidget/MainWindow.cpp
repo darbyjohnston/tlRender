@@ -5,7 +5,6 @@
 #include "MainWindow.h"
 
 #include "App.h"
-#include "CompareTool.h"
 #include "FilesTool.h"
 #include "ImageTool.h"
 #include "SettingsTool.h"
@@ -232,12 +231,12 @@ namespace tlr
         _timelineWidget->setTimeObject(app->timeObject());
         setCentralWidget(_timelineWidget);
 
-        auto filesTool = new FilesTool(app->filesModel());
+        _filesTool = new FilesTool(app->filesModel());
         auto filesToolDockWidget = new QDockWidget;
         filesToolDockWidget->setObjectName("Files");
         filesToolDockWidget->setWindowTitle(tr("Files"));
         filesToolDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-        filesToolDockWidget->setWidget(filesTool);
+        filesToolDockWidget->setWidget(_filesTool);
         filesToolDockWidget->hide();
         toolsMenu->addAction(filesToolDockWidget->toggleViewAction());
         addDockWidget(Qt::RightDockWidgetArea, filesToolDockWidget);
@@ -251,16 +250,6 @@ namespace tlr
         imageToolDockWidget->hide();
         toolsMenu->addAction(imageToolDockWidget->toggleViewAction());
         addDockWidget(Qt::RightDockWidgetArea, imageToolDockWidget);
-
-        auto compareTool = new CompareTool();
-        auto compareToolDockWidget = new QDockWidget;
-        compareToolDockWidget->setObjectName("Compare");
-        compareToolDockWidget->setWindowTitle(tr("Compare"));
-        compareToolDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-        compareToolDockWidget->setWidget(compareTool);
-        compareToolDockWidget->hide();
-        toolsMenu->addAction(compareToolDockWidget->toggleViewAction());
-        addDockWidget(Qt::RightDockWidgetArea, compareToolDockWidget);
 
         _audioTool = new AudioTool();
         auto audioSyncDockWidget = new QDockWidget;
@@ -285,7 +274,7 @@ namespace tlr
         _recentFilesUpdate();
         _filesCountUpdate();
         _playbackUpdate();
-        _timelineUpdate();
+        _widgetUpdate();
 
         connect(
             _actions["File/Open"],
@@ -405,6 +394,11 @@ namespace tlr
             SLOT(_loopCallback(QAction*)));
 
         connect(
+            _filesTool,
+            SIGNAL(compareOptionsChanged(const tlr::render::CompareOptions&)),
+            SLOT(_compareOptionsCallback(const tlr::render::CompareOptions&)));
+
+        connect(
             _audioTool,
             SIGNAL(audioOffsetChanged(double)),
             SLOT(_audioOffsetCallback(double)));
@@ -447,22 +441,22 @@ namespace tlr
         }
     }
 
-    void MainWindow::setTimelinePlayer(qt::TimelinePlayer* timelinePlayer)
+    void MainWindow::setTimelinePlayers(const std::vector<qt::TimelinePlayer*>& timelinePlayers)
     {
-        if (_timelinePlayer)
+        if (!_timelinePlayers.empty())
         {
             disconnect(
-                _timelinePlayer,
+                _timelinePlayers[0],
                 SIGNAL(playbackChanged(tlr::timeline::Playback)),
                 this,
                 SLOT(_playbackCallback(tlr::timeline::Playback)));
             disconnect(
-                _timelinePlayer,
+                _timelinePlayers[0],
                 SIGNAL(loopChanged(tlr::timeline::Loop)),
                 this,
                 SLOT(_loopCallback(tlr::timeline::Loop)));
             disconnect(
-                _timelinePlayer,
+                _timelinePlayers[0],
                 SIGNAL(audioOffsetChanged(double)),
                 _audioTool,
                 SLOT(setAudioOffset(double)));
@@ -470,39 +464,39 @@ namespace tlr
             disconnect(
                 _actions["Playback/SetInPoint"],
                 SIGNAL(triggered(bool)),
-                _timelinePlayer,
+                _timelinePlayers[0],
                 SLOT(setInPoint()));
             disconnect(
                 _actions["Playback/ResetInPoint"],
                 SIGNAL(triggered(bool)),
-                _timelinePlayer,
+                _timelinePlayers[0],
                 SLOT(resetInPoint()));
             disconnect(
                 _actions["Playback/SetOutPoint"],
                 SIGNAL(triggered(bool)),
-                _timelinePlayer,
+                _timelinePlayers[0],
                 SLOT(setOutPoint()));
             disconnect(
                 _actions["Playback/ResetOutPoint"],
                 SIGNAL(triggered(bool)),
-                _timelinePlayer,
+                _timelinePlayers[0],
                 SLOT(resetOutPoint()));
         }
 
-        _timelinePlayer = timelinePlayer;
+        _timelinePlayers = timelinePlayers;
 
-        if (_timelinePlayer)
+        if (!_timelinePlayers.empty())
         {
             connect(
-                _timelinePlayer,
+                _timelinePlayers[0],
                 SIGNAL(playbackChanged(tlr::timeline::Playback)),
                 SLOT(_playbackCallback(tlr::timeline::Playback)));
             connect(
-                _timelinePlayer,
+                _timelinePlayers[0],
                 SIGNAL(loopChanged(tlr::timeline::Loop)),
                 SLOT(_loopCallback(tlr::timeline::Loop)));
             connect(
-                _timelinePlayer,
+                _timelinePlayers[0],
                 SIGNAL(audioOffsetChanged(double)),
                 _audioTool,
                 SLOT(setAudioOffset(double)));
@@ -510,27 +504,27 @@ namespace tlr
             connect(
                 _actions["Playback/SetInPoint"],
                 SIGNAL(triggered(bool)),
-                _timelinePlayer,
+                _timelinePlayers[0],
                 SLOT(setInPoint()));
             connect(
                 _actions["Playback/ResetInPoint"],
                 SIGNAL(triggered(bool)),
-                _timelinePlayer,
+                _timelinePlayers[0],
                 SLOT(resetInPoint()));
             connect(
                 _actions["Playback/SetOutPoint"],
                 SIGNAL(triggered(bool)),
-                _timelinePlayer,
+                _timelinePlayers[0],
                 SLOT(setOutPoint()));
             connect(
                 _actions["Playback/ResetOutPoint"],
                 SIGNAL(triggered(bool)),
-                _timelinePlayer,
+                _timelinePlayers[0],
                 SLOT(resetOutPoint()));
         }
 
         _playbackUpdate();
-        _timelineUpdate();
+        _widgetUpdate();
     }
 
     void MainWindow::setColorConfig(const imaging::ColorConfig& colorConfig)
@@ -538,11 +532,7 @@ namespace tlr
         if (colorConfig != _colorConfig)
             return;
         _colorConfig = colorConfig;
-        _timelineWidget->setColorConfig(_colorConfig);
-        if (_secondaryWindow)
-        {
-            _secondaryWindow->setColorConfig(_colorConfig);
-        }
+        _widgetUpdate();
     }
 
     void MainWindow::closeEvent(QCloseEvent* event)
@@ -632,7 +622,7 @@ namespace tlr
         {
             _secondaryWindow = new SecondaryWindow(_app->getContext());
             _secondaryWindow->setColorConfig(_colorConfig);
-            _secondaryWindow->setTimelinePlayer(_timelinePlayer);
+            _secondaryWindow->setTimelinePlayers(_timelinePlayers);
 
             connect(
                 _secondaryWindow,
@@ -657,12 +647,12 @@ namespace tlr
 
     void MainWindow::_playbackCallback(QAction* action)
     {
-        if (_timelinePlayer)
+        if (!_timelinePlayers.empty())
         {
             const auto i = _actionToPlayback.find(action);
             if (i != _actionToPlayback.end())
             {
-                _timelinePlayer->setPlayback(i.value());
+                _timelinePlayers[0]->setPlayback(i.value());
             }
         }
     }
@@ -679,12 +669,12 @@ namespace tlr
 
     void MainWindow::_loopCallback(QAction* action)
     {
-        if (_timelinePlayer)
+        if (!_timelinePlayers.empty())
         {
             const auto i = _actionToLoop.find(action);
             if (i != _actionToLoop.end())
             {
-                _timelinePlayer->setLoop(i.value());
+                _timelinePlayers[0]->setLoop(i.value());
             }
         }
     }
@@ -701,97 +691,97 @@ namespace tlr
 
     void MainWindow::_stopCallback()
     {
-        if (_timelinePlayer)
+        if (!_timelinePlayers.empty())
         {
-            _timelinePlayer->stop();
+            _timelinePlayers[0]->stop();
         }
     }
 
     void MainWindow::_forwardCallback()
     {
-        if (_timelinePlayer)
+        if (!_timelinePlayers.empty())
         {
-            _timelinePlayer->forward();
+            _timelinePlayers[0]->forward();
         }
     }
 
     void MainWindow::_reverseCallback()
     {
-        if (_timelinePlayer)
+        if (!_timelinePlayers.empty())
         {
-            _timelinePlayer->reverse();
+            _timelinePlayers[0]->reverse();
         }
     }
 
     void MainWindow::_togglePlaybackCallback()
     {
-        if (_timelinePlayer)
+        if (!_timelinePlayers.empty())
         {
-            _timelinePlayer->togglePlayback();
+            _timelinePlayers[0]->togglePlayback();
         }
     }
 
     void MainWindow::_startCallback()
     {
-        if (_timelinePlayer)
+        if (!_timelinePlayers.empty())
         {
-            _timelinePlayer->start();
+            _timelinePlayers[0]->start();
         }
     }
 
     void MainWindow::_endCallback()
     {
-        if (_timelinePlayer)
+        if (!_timelinePlayers.empty())
         {
-            _timelinePlayer->end();
+            _timelinePlayers[0]->end();
         }
     }
 
     void MainWindow::_framePrevCallback()
     {
-        if (_timelinePlayer)
+        if (!_timelinePlayers.empty())
         {
-            _timelinePlayer->framePrev();
+            _timelinePlayers[0]->framePrev();
         }
     }
 
     void MainWindow::_framePrevX10Callback()
     {
-        if (_timelinePlayer)
+        if (!_timelinePlayers.empty())
         {
-            _timelinePlayer->timeAction(timeline::TimeAction::FramePrevX10);
+            _timelinePlayers[0]->timeAction(timeline::TimeAction::FramePrevX10);
         }
     }
 
     void MainWindow::_framePrevX100Callback()
     {
-        if (_timelinePlayer)
+        if (!_timelinePlayers.empty())
         {
-            _timelinePlayer->timeAction(timeline::TimeAction::FramePrevX100);
+            _timelinePlayers[0]->timeAction(timeline::TimeAction::FramePrevX100);
         }
     }
 
     void MainWindow::_frameNextCallback()
     {
-        if (_timelinePlayer)
+        if (!_timelinePlayers.empty())
         {
-            _timelinePlayer->frameNext();
+            _timelinePlayers[0]->frameNext();
         }
     }
 
     void MainWindow::_frameNextX10Callback()
     {
-        if (_timelinePlayer)
+        if (!_timelinePlayers.empty())
         {
-            _timelinePlayer->timeAction(timeline::TimeAction::FrameNextX10);
+            _timelinePlayers[0]->timeAction(timeline::TimeAction::FrameNextX10);
         }
     }
 
     void MainWindow::_frameNextX100Callback()
     {
-        if (_timelinePlayer)
+        if (!_timelinePlayers.empty())
         {
-            _timelinePlayer->timeAction(timeline::TimeAction::FrameNextX100);
+            _timelinePlayers[0]->timeAction(timeline::TimeAction::FrameNextX100);
         }
     }
 
@@ -801,13 +791,15 @@ namespace tlr
 
     void MainWindow::_compareOptionsCallback(const render::CompareOptions& value)
     {
+        _compareOptions = value;
+        _widgetUpdate();
     }
 
     void MainWindow::_audioOffsetCallback(double value)
     {
-        if (_timelinePlayer)
+        if (!_timelinePlayers.empty())
         {
-            _timelinePlayer->setAudioOffset(value);
+            _timelinePlayers[0]->setAudioOffset(value);
         }
     }
 
@@ -852,23 +844,23 @@ namespace tlr
     void MainWindow::_playbackUpdate()
     {
         timeline::Playback playback = timeline::Playback::Stop;
-        if (_timelinePlayer)
+        if (!_timelinePlayers.empty())
         {
-            playback = _timelinePlayer->playback();
+            playback = _timelinePlayers[0]->playback();
         }
         _actions["Playback/Stop"]->setChecked(timeline::Playback::Stop == playback);
         _actions["Playback/Forward"]->setChecked(timeline::Playback::Forward == playback);
         _actions["Playback/Reverse"]->setChecked(timeline::Playback::Reverse == playback);
     }
 
-    void MainWindow::_timelineUpdate()
+    void MainWindow::_widgetUpdate()
     {
-        if (_timelinePlayer)
+        if (!_timelinePlayers.empty())
         {
             _actions["Playback/Stop"]->setEnabled(true);
             _actions["Playback/Forward"]->setEnabled(true);
             _actions["Playback/Reverse"]->setEnabled(true);
-            const auto playbackAction = _playbackToActions.find(_timelinePlayer->playback());
+            const auto playbackAction = _playbackToActions.find(_timelinePlayers[0]->playback());
             if (playbackAction != _playbackToActions.end())
             {
                 playbackAction.value()->setChecked(true);
@@ -878,7 +870,7 @@ namespace tlr
             _actions["Playback/Loop"]->setEnabled(true);
             _actions["Playback/Once"]->setEnabled(true);
             _actions["Playback/PingPong"]->setEnabled(true);
-            const auto loopAction = _loopToActions.find(_timelinePlayer->loop());
+            const auto loopAction = _loopToActions.find(_timelinePlayers[0]->loop());
             if (loopAction != _loopToActions.end())
             {
                 loopAction.value()->setChecked(true);
@@ -930,13 +922,19 @@ namespace tlr
             _actions["Playback/ResetOutPoint"]->setEnabled(false);
         }
 
-        _timelineWidget->setTimelinePlayer(_timelinePlayer);
+        _timelineWidget->setTimelinePlayers(_timelinePlayers);
+        _timelineWidget->setColorConfig(_colorConfig);
+        _timelineWidget->setCompareOptions(_compareOptions);
 
-        _audioTool->setAudioOffset(_timelinePlayer ? _timelinePlayer->audioOffset() : 0.0);
+        _filesTool->setCompareOptions(_compareOptions);
+
+        _audioTool->setAudioOffset(!_timelinePlayers.empty() ? _timelinePlayers[0]->audioOffset() : 0.0);
 
         if (_secondaryWindow)
         {
-            _secondaryWindow->setTimelinePlayer(_timelinePlayer);
+            _secondaryWindow->setTimelinePlayers(_timelinePlayers);
+            _secondaryWindow->setColorConfig(_colorConfig);
+            _secondaryWindow->setCompareOptions(_compareOptions);
         }
     }
 }

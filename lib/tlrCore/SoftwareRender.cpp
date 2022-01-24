@@ -404,15 +404,15 @@ namespace tlr
                 const std::shared_ptr<imaging::Image>& image,
                 const math::BBox2i& bbox,
                 const imaging::Color4f& color,
-                const render::ImageOptions& imageOptions,
+                const ImageOptions& imageOptions,
                 const std::shared_ptr<imaging::Image>& frameBuffer)
             {
                 const auto& info = image->getInfo();
                 imaging::YUVRange yuvRange = info.yuvRange;
                 switch (imageOptions.yuvRange)
                 {
-                case render::YUVRange::Full:  yuvRange = imaging::YUVRange::Full;  break;
-                case render::YUVRange::Video: yuvRange = imaging::YUVRange::Video; break;
+                case YUVRange::Full:  yuvRange = imaging::YUVRange::Full;  break;
+                case YUVRange::Video: yuvRange = imaging::YUVRange::Video; break;
                 default: break;
                 }
 
@@ -451,67 +451,74 @@ namespace tlr
             const std::shared_ptr<imaging::Image>& image,
             const math::BBox2i& bbox,
             const imaging::Color4f& color,
-            const render::ImageOptions& imageOptions)
+            const ImageOptions& imageOptions)
         {
             _drawImage(image, bbox, color, imageOptions, _p->frameBuffer);
         }
 
         void SoftwareRender::drawVideo(
-            const timeline::VideoData& data,
-            const render::ImageOptions& imageOptions)
+            const std::vector<timeline::VideoData>& videoData,
+            const std::vector<ImageOptions>& imageOptions,
+            const CompareOptions& compareOptions)
         {
             TLR_PRIVATE_P();
-            for (const auto& i : data.layers)
+            for (size_t i = 0; i < videoData.size(); ++i)
             {
-                switch (i.transition)
+                for (const auto& layer : videoData[i].layers)
                 {
-                case timeline::Transition::Dissolve:
-                {
-                    auto buffer = imaging::Image::create(p.frameBuffer->getInfo());
-                    buffer->zero();
+                    switch (layer.transition)
+                    {
+                    case timeline::Transition::Dissolve:
+                    {
+                        auto buffer = imaging::Image::create(p.frameBuffer->getInfo());
+                        buffer->zero();
 
-                    ImageOptions imageOptionsTmp;
-                    imageOptionsTmp.yuvRange = imageOptions.yuvRange;
-                    if (i.image)
-                    {
-                        const float t = 1.F - i.transitionValue;
-                        _drawImage(
-                            i.image,
-                            imaging::getBBox(i.image->getAspect(), buffer->getSize()),
-                            imaging::Color4f(t, t, t, t),
-                            imageOptionsTmp,
-                            buffer);
-                    }
-                    if (i.imageB)
-                    {
-                        const float tB = i.transitionValue;
-                        _drawImage(
-                            i.imageB,
-                            imaging::getBBox(i.imageB->getAspect(), buffer->getSize()),
-                            imaging::Color4f(tB, tB, tB, tB),
-                            imageOptionsTmp,
-                            buffer);
-                    }
+                        ImageOptions imageOptionsTmp;
+                        if (i < imageOptions.size())
+                        {
+                            imageOptionsTmp.yuvRange = imageOptions[i].yuvRange;
+                        }
+                        if (layer.image)
+                        {
+                            const float t = 1.F - layer.transitionValue;
+                            _drawImage(
+                                layer.image,
+                                imaging::getBBox(layer.image->getAspect(), buffer->getSize()),
+                                imaging::Color4f(t, t, t, t),
+                                imageOptionsTmp,
+                                buffer);
+                        }
+                        if (layer.imageB)
+                        {
+                            const float tB = layer.transitionValue;
+                            _drawImage(
+                                layer.imageB,
+                                imaging::getBBox(layer.imageB->getAspect(), buffer->getSize()),
+                                imaging::Color4f(tB, tB, tB, tB),
+                                imageOptionsTmp,
+                                buffer);
+                        }
 
-                    _drawImage(
-                        buffer,
-                        imaging::getBBox(buffer->getAspect(), p.frameBuffer->getSize()),
-                        imaging::Color4f(1.F, 1.F, 1.F),
-                        imageOptions,
-                        p.frameBuffer);
-                    break;
-                }
-                default:
-                    if (i.image)
-                    {
                         _drawImage(
-                            i.image,
-                            imaging::getBBox(i.image->getAspect(), p.frameBuffer->getSize()),
+                            buffer,
+                            imaging::getBBox(buffer->getAspect(), p.frameBuffer->getSize()),
                             imaging::Color4f(1.F, 1.F, 1.F),
-                            imageOptions,
+                            i < imageOptions.size() ? imageOptions[i] : ImageOptions(),
                             p.frameBuffer);
+                        break;
                     }
-                    break;
+                    default:
+                        if (layer.image)
+                        {
+                            _drawImage(
+                                layer.image,
+                                imaging::getBBox(layer.image->getAspect(), p.frameBuffer->getSize()),
+                                imaging::Color4f(1.F, 1.F, 1.F),
+                                i < imageOptions.size() ? imageOptions[i] : ImageOptions(),
+                                p.frameBuffer);
+                        }
+                        break;
+                    }
                 }
             }
         }

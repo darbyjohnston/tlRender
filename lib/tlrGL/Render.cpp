@@ -1028,97 +1028,26 @@ namespace tlr
         }
 
         void Render::drawVideo(
-            const timeline::VideoData& data,
-            const render::ImageOptions& imageOptions)
+            const std::vector<timeline::VideoData>& videoData,
+            const std::vector<render::ImageOptions>& imageOptions,
+            const render::CompareOptions& compareOptions)
         {
             TLR_PRIVATE_P();
-            //std::cout << "draw video: " << data.time << std::endl;
-            for (const auto& i : data.layers)
+            switch (compareOptions.mode)
             {
-                switch (i.transition)
+            case render::CompareMode::A:
+                if (!videoData.empty())
                 {
-                case timeline::Transition::Dissolve:
+                    _drawVideo({ videoData[0] }, imageOptions, compareOptions);
+                }
+                break;
+            case render::CompareMode::B:
+                if (videoData.size() > 1)
                 {
-                    if (!p.offscreenBuffer || (p.offscreenBuffer && p.offscreenBuffer->getSize() != p.size))
-                    {
-                        p.offscreenBuffer = OffscreenBuffer::create(p.size, imaging::PixelType::RGBA_F32);
-                    }
-
-                    {
-                        auto binding = OffscreenBufferBinding(p.offscreenBuffer);
-                        glClearColor(0.F, 0.F, 0.F, 0.F);
-                        glClear(GL_COLOR_BUFFER_BIT);
-                        glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ONE);
-                        render::ImageOptions imageOptionsTmp;
-                        imageOptionsTmp.yuvRange = imageOptions.yuvRange;
-                        if (i.image)
-                        {
-                            const float t = 1.F - i.transitionValue;
-                            drawImage(
-                                i.image,
-                                imaging::getBBox(i.image->getAspect(), p.size),
-                                imaging::Color4f(t, t, t, t),
-                                imageOptionsTmp);
-                        }
-                        if (i.imageB)
-                        {
-                            const float tB = i.transitionValue;
-                            drawImage(
-                                i.imageB,
-                                imaging::getBBox(i.imageB->getAspect(), p.size),
-                                imaging::Color4f(tB, tB, tB, tB),
-                                imageOptionsTmp);
-                        }
-                        glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                    }
-
-                    p.shader->setUniform("drawMode", static_cast<int>(DrawMode::Image));
-                    p.shader->setUniform("color", imaging::Color4f(1.F, 1.F, 1.F));
-                    p.shader->setUniform("pixelType", static_cast<int>(imaging::PixelType::RGBA_F32));
-                    p.shader->setUniform("textureSampler0", 0);
-
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
-                    glBindTexture(GL_TEXTURE_2D, p.offscreenBuffer->getColorID());
-
-                    std::vector<uint8_t> vboData;
-                    vboData.resize(4 * getByteCount(VBOType::Pos2_F32_UV_U16));
-                    VBOVertex* vboP = reinterpret_cast<VBOVertex*>(vboData.data());
-                    vboP[0].vx = 0.F;
-                    vboP[0].vy = 0.F;
-                    vboP[0].tx = 0;
-                    vboP[0].ty = 65535;
-                    vboP[1].vx = p.size.w;
-                    vboP[1].vy = 0.F;
-                    vboP[1].tx = 65535;
-                    vboP[1].ty = 65535;
-                    vboP[2].vx = 0.F;
-                    vboP[2].vy = p.size.h;
-                    vboP[2].tx = 0;
-                    vboP[2].ty = 0;
-                    vboP[3].vx = p.size.w;
-                    vboP[3].vy = p.size.h;
-                    vboP[3].tx = 65535;
-                    vboP[3].ty = 0;
-                    auto vbo = VBO::create(4, VBOType::Pos2_F32_UV_U16);
-                    vbo->copy(vboData);
-
-                    auto vao = VAO::create(vbo->getType(), vbo->getID());
-                    vao->bind();
-                    vao->draw(GL_TRIANGLE_STRIP, 0, 4);
-
-                    break;
+                    _drawVideo({ videoData[1] }, imageOptions, compareOptions);
                 }
-                default:
-                    if (i.image)
-                    {
-                        drawImage(
-                            i.image,
-                            imaging::getBBox(i.image->getAspect(), p.size),
-                            imaging::Color4f(1.F, 1.F, 1.F),
-                            imageOptions);
-                    }
-                    break;
-                }
+                break;
+            default: break;
             }
         }
 
@@ -1214,6 +1143,107 @@ namespace tlr
             p.ocioVP.reset();
             p.ocioTransform.reset();
             p.ocioConfig.reset();
+        }
+
+        void Render::_drawVideo(
+            const std::vector<timeline::VideoData>& videoData,
+            const std::vector<render::ImageOptions>& imageOptions,
+            const render::CompareOptions& compareOptions)
+        {
+            TLR_PRIVATE_P();
+            for (size_t i = 0; i < videoData.size(); ++i)
+            {
+                for (const auto& layer : videoData[i].layers)
+                {
+                    switch (layer.transition)
+                    {
+                    case timeline::Transition::Dissolve:
+                    {
+                        if (!p.offscreenBuffer || (p.offscreenBuffer && p.offscreenBuffer->getSize() != p.size))
+                        {
+                            p.offscreenBuffer = OffscreenBuffer::create(p.size, imaging::PixelType::RGBA_F32);
+                        }
+
+                        {
+                            auto binding = OffscreenBufferBinding(p.offscreenBuffer);
+                            glClearColor(0.F, 0.F, 0.F, 0.F);
+                            glClear(GL_COLOR_BUFFER_BIT);
+                            glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ONE);
+                            render::ImageOptions imageOptionsTmp;
+                            if (i < imageOptions.size())
+                            {
+                                imageOptionsTmp.yuvRange = imageOptions[i].yuvRange;
+                            }
+                            if (layer.image)
+                            {
+                                const float t = 1.F - layer.transitionValue;
+                                drawImage(
+                                    layer.image,
+                                    imaging::getBBox(layer.image->getAspect(), p.size),
+                                    imaging::Color4f(t, t, t, t),
+                                    imageOptionsTmp);
+                            }
+                            if (layer.imageB)
+                            {
+                                const float tB = layer.transitionValue;
+                                drawImage(
+                                    layer.imageB,
+                                    imaging::getBBox(layer.imageB->getAspect(), p.size),
+                                    imaging::Color4f(tB, tB, tB, tB),
+                                    imageOptionsTmp);
+                            }
+                            glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                        }
+
+                        p.shader->setUniform("drawMode", static_cast<int>(DrawMode::Image));
+                        p.shader->setUniform("color", imaging::Color4f(1.F, 1.F, 1.F));
+                        p.shader->setUniform("pixelType", static_cast<int>(imaging::PixelType::RGBA_F32));
+                        p.shader->setUniform("textureSampler0", 0);
+
+                        glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
+                        glBindTexture(GL_TEXTURE_2D, p.offscreenBuffer->getColorID());
+
+                        std::vector<uint8_t> vboData;
+                        vboData.resize(4 * getByteCount(VBOType::Pos2_F32_UV_U16));
+                        VBOVertex* vboP = reinterpret_cast<VBOVertex*>(vboData.data());
+                        vboP[0].vx = 0.F;
+                        vboP[0].vy = 0.F;
+                        vboP[0].tx = 0;
+                        vboP[0].ty = 65535;
+                        vboP[1].vx = p.size.w;
+                        vboP[1].vy = 0.F;
+                        vboP[1].tx = 65535;
+                        vboP[1].ty = 65535;
+                        vboP[2].vx = 0.F;
+                        vboP[2].vy = p.size.h;
+                        vboP[2].tx = 0;
+                        vboP[2].ty = 0;
+                        vboP[3].vx = p.size.w;
+                        vboP[3].vy = p.size.h;
+                        vboP[3].tx = 65535;
+                        vboP[3].ty = 0;
+                        auto vbo = VBO::create(4, VBOType::Pos2_F32_UV_U16);
+                        vbo->copy(vboData);
+
+                        auto vao = VAO::create(vbo->getType(), vbo->getID());
+                        vao->bind();
+                        vao->draw(GL_TRIANGLE_STRIP, 0, 4);
+
+                        break;
+                    }
+                    default:
+                        if (layer.image)
+                        {
+                            drawImage(
+                                layer.image,
+                                imaging::getBBox(layer.image->getAspect(), p.size),
+                                imaging::Color4f(1.F, 1.F, 1.F),
+                                i < imageOptions.size() ? imageOptions[i] : render::ImageOptions());
+                        }
+                        break;
+                    }
+                }
+            }
         }
     }
 }

@@ -173,7 +173,7 @@ namespace tlr
         _render->setColorConfig(_options.colorConfig);
         _render->begin(_renderSize);
         const auto videoData = _timeline->getVideo(_timeline->getGlobalStartTime() + _currentTime).get();
-        _render->drawVideo(videoData);
+        _render->drawVideo({ videoData });
         _render->end();
 
         // Write the frame.

@@ -6,6 +6,7 @@
 
 #include "AudioTool.h"
 #include "FilesModel.h"
+#include "FilesTool.h"
 #include "ImageTool.h"
 #include "SecondaryWindow.h"
 #include "SettingsObject.h"
@@ -34,7 +35,8 @@ namespace tlr
 
         ~MainWindow() override;
 
-        void setTimelinePlayer(qt::TimelinePlayer*);
+        void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
+
         void setColorConfig(const imaging::ColorConfig&);
 
     protected:
@@ -78,13 +80,13 @@ namespace tlr
         void _recentFilesUpdate();
         void _filesCountUpdate();
         void _playbackUpdate();
-        void _timelineUpdate();
+        void _widgetUpdate();
 
         App* _app = nullptr;
-        qt::TimelinePlayer* _timelinePlayer = nullptr;
+        std::vector<qt::TimelinePlayer*> _timelinePlayers;
         qwidget::TimelineWidget* _timelineWidget = nullptr;
+        FilesTool* _filesTool = nullptr;
         AudioTool* _audioTool = nullptr;
-        ImageTool* _imageTool = nullptr;
         QMap<QString, QAction*> _actions;
         QActionGroup* _recentFilesActionGroup = nullptr;
         QMap<QAction*, QString> _actionToRecentFile;
@@ -97,5 +99,6 @@ namespace tlr
         QMap<timeline::Loop, QAction*> _loopToActions;
         SecondaryWindow* _secondaryWindow = nullptr;
         imaging::ColorConfig _colorConfig;
+        render::CompareOptions _compareOptions;
     };
 }

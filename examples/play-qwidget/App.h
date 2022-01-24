@@ -52,8 +52,8 @@ namespace tlr
         void openWithAudio();
 
     private Q_SLOTS:
-        void _aCallback(const std::shared_ptr<FilesModelItem>&);
-        void _layerCallback(int, int);
+        void _activeCallback(const std::vector<std::shared_ptr<FilesModelItem> >&);
+        void _layerCallback(const std::shared_ptr<FilesModelItem>&, int);
         void _settingsCallback();
 
     private:
@@ -65,8 +65,8 @@ namespace tlr
         qt::TimeObject* _timeObject = nullptr;
         SettingsObject* _settingsObject = nullptr;
         FilesModel* _filesModel = nullptr;
-        std::shared_ptr<FilesModelItem> _currentFile;
-        qt::TimelinePlayer* _timelinePlayer = nullptr;
+        std::vector<std::shared_ptr<FilesModelItem> > _activeItems;
+        std::vector<qt::TimelinePlayer*> _timelinePlayers;
 
         MainWindow* _mainWindow = nullptr;
     };

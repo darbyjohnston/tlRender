@@ -48,7 +48,7 @@ namespace tlr
 
                     QOpenGLFramebufferObject* fbo = framebufferObject();
                     _render->begin(imaging::Size(fbo->width(), fbo->height()));
-                    _render->drawVideo(_videoData);
+                    _render->drawVideo({ _videoData });
                     _render->end();
 
                     _framebufferObject->window()->resetOpenGLState();

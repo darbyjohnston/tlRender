@@ -20,16 +20,6 @@ namespace tlr
         return _items;
     }
 
-    const std::shared_ptr<FilesModelItem>& FilesModel::a() const
-    {
-        return _a;
-    }
-
-    const std::vector<std::shared_ptr<FilesModelItem> >& FilesModel::b() const
-    {
-        return _b;
-    }
-
     int FilesModel::rowCount(const QModelIndex&) const
     {
         return _items.size();
@@ -141,7 +131,7 @@ namespace tlr
                 switch (index.column())
                 {
                 case 3:
-                    setLayer(index.row(), value.toInt());
+                    setLayer(item, value.toInt());
                     out = true;
                     break;
                 }
@@ -200,7 +190,7 @@ namespace tlr
 
         const int aIndex = _index(_a);
         _a = item;
-        Q_EMIT aChanged(_a);
+        Q_EMIT activeChanged(_active());
         Q_EMIT dataChanged(
             this->index(aIndex, 0),
             this->index(aIndex, 0),
@@ -226,15 +216,6 @@ namespace tlr
 
                 const int aNewIndex = math::clamp(aIndex, 0, static_cast<int>(_items.size()) - 1);
                 _a = aNewIndex != -1 ? _items[aNewIndex] : nullptr;
-                Q_EMIT aChanged(_a);
-                Q_EMIT dataChanged(
-                    this->index(aIndex, 0),
-                    this->index(aIndex, 0),
-                    { Qt::CheckStateRole });
-                Q_EMIT dataChanged(
-                    this->index(aNewIndex, 0),
-                    this->index(aNewIndex, 0),
-                    { Qt::CheckStateRole });
 
                 const size_t bSize = _b.size();
                 auto b = _b.begin();
@@ -250,10 +231,16 @@ namespace tlr
                         ++b;
                     }
                 }
-                if (_b.size() != bSize)
-                {
-                    Q_EMIT bChanged(_b);
-                }
+
+                Q_EMIT activeChanged(_active());
+                Q_EMIT dataChanged(
+                    this->index(aIndex, 0),
+                    this->index(aIndex, 0),
+                    { Qt::CheckStateRole });
+                Q_EMIT dataChanged(
+                    this->index(aNewIndex, 0),
+                    this->index(aNewIndex, 0),
+                    { Qt::CheckStateRole });
             }
         }
     }
@@ -268,10 +255,8 @@ namespace tlr
             Q_EMIT countChanged(_items.size());
 
             _a = nullptr;
-            Q_EMIT aChanged(_a);
-
             _b.clear();
-            Q_EMIT bChanged(_b);
+            Q_EMIT activeChanged(_active());
         }
     }
 
@@ -281,7 +266,7 @@ namespace tlr
         if (index >= 0 && index < _items.size() && index != aIndex)
         {
             _a = _items[index];
-            Q_EMIT aChanged(_a);
+            Q_EMIT activeChanged(_active());
             Q_EMIT dataChanged(
                 this->index(aIndex, 0),
                 this->index(aIndex, 0),
@@ -302,19 +287,16 @@ namespace tlr
             if (value && i == bIndexes.end())
             {
                 _b.push_back(_items[index]);
-                Q_EMIT dataChanged(
-                    this->index(index, 1),
-                    this->index(index, 1),
-                    { Qt::CheckStateRole });
             }
             else if (!value && i != bIndexes.end())
             {
                 _b.erase(_b.begin() + (i - bIndexes.begin()));
-                Q_EMIT dataChanged(
-                    this->index(index, 1),
-                    this->index(index, 1),
-                    { Qt::CheckStateRole });
             }
+            Q_EMIT activeChanged(_active());
+            Q_EMIT dataChanged(
+                this->index(index, 1),
+                this->index(index, 1),
+                { Qt::CheckStateRole });
         }
     }
 
@@ -324,7 +306,7 @@ namespace tlr
         if (!_items.empty() && aIndex != 0)
         {
             _a = _items[0];
-            Q_EMIT aChanged(_a);
+            Q_EMIT activeChanged(_active());
             Q_EMIT dataChanged(
                 index(aIndex, 0),
                 index(aIndex, 0),
@@ -343,7 +325,7 @@ namespace tlr
         if (!_items.empty() && index != aIndex)
         {
             _a = _items[index];
-            Q_EMIT aChanged(_a);
+            Q_EMIT activeChanged(_active());
             Q_EMIT dataChanged(
                 this->index(index, 0),
                 this->index(index, 0),
@@ -366,7 +348,7 @@ namespace tlr
                 aNewIndex = 0;
             }
             _a = _items[aNewIndex];
-            Q_EMIT aChanged(_a);
+            Q_EMIT activeChanged(_active());
             Q_EMIT dataChanged(
                 this->index(aIndex, 0),
                 this->index(aIndex, 0),
@@ -389,7 +371,7 @@ namespace tlr
                 aNewIndex = _items.size() - 1;
             }
             _a = _items[aNewIndex];
-            Q_EMIT aChanged(_a);
+            Q_EMIT activeChanged(_active());
             Q_EMIT dataChanged(
                 this->index(aIndex, 0),
                 this->index(aIndex, 0),
@@ -401,27 +383,26 @@ namespace tlr
         }
     }
 
-    void FilesModel::setLayer(int index, int layer)
+    void FilesModel::setLayer(const std::shared_ptr<FilesModelItem>& item, int layer)
     {
-        if (index >= 0 &&
-            index < _items.size() &&
-            layer >= 0 &&
+        const int index = _index(item);
+        if (index != -1 &&
             layer < _items[index]->avInfo.video.size() &&
             layer != _items[index]->videoLayer)
         {
             _items[index]->videoLayer = layer;
-            Q_EMIT layerChanged(index, layer);
+            Q_EMIT layerChanged(item, layer);
         }
     }
 
-    void FilesModel::setImageOptions(int index, const render::ImageOptions& imageOptions)
+    void FilesModel::setImageOptions(const std::shared_ptr<FilesModelItem>& item, const render::ImageOptions& imageOptions)
     {
-        if (index >= 0 &&
-            index < _items.size() &&
+        const int index = _index(item);
+        if (index != -1 &&
             imageOptions != _items[index]->imageOptions)
         {
             _items[index]->imageOptions = imageOptions;
-            Q_EMIT imageOptionsChanged(index, imageOptions);
+            Q_EMIT imageOptionsChanged(item, imageOptions);
         }
     }
 
@@ -445,6 +426,20 @@ namespace tlr
         for (const auto& b : _b)
         {
             out.push_back(_index(b));
+        }
+        return out;
+    }
+
+    std::vector<std::shared_ptr<FilesModelItem> > FilesModel::_active() const
+    {
+        std::vector<std::shared_ptr<FilesModelItem> > out;
+        if (_a)
+        {
+            out.push_back(_a);
+        }
+        for (const auto& b : _b)
+        {
+            out.push_back(b);
         }
         return out;
     }

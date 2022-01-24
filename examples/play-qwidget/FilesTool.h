@@ -6,8 +6,9 @@
 
 #include "FilesModel.h"
 
+#include <QComboBox>
+#include <QSlider>
 #include <QTreeView>
-#include <QToolButton>
 
 namespace tlr
 {
@@ -21,18 +22,25 @@ namespace tlr
             FilesModel*,
             QWidget* parent = nullptr);
 
+    public Q_SLOTS:
+        void setCompareOptions(const tlr::render::CompareOptions&);
+
     private Q_SLOTS:
         void _activatedCallback(const QModelIndex&);
+        void _compareCallback(int);
+        void _sliderCallback(int);
         void _countCallback();
 
+    Q_SIGNALS:
+        void compareOptionsChanged(const tlr::render::CompareOptions&);
+
     private:
-        void _countUpdate();
+        void _widgetUpdate();
 
         FilesModel* _filesModel = nullptr;
+        render::CompareOptions _compareOptions;
         QTreeView* _treeView = nullptr;
-        QToolButton* _closeButton = nullptr;
-        QToolButton* _closeAllButton = nullptr;
-        QToolButton* _nextButton = nullptr;
-        QToolButton* _prevButton = nullptr;
+        QComboBox* _compareComboBox = nullptr;
+        QSlider* _compareSlider = nullptr;
     };
 }
