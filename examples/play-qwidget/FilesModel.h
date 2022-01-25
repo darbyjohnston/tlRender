@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <tlrQt/TimelineThumbnailProvider.h>
+
 #include <tlrCore/IRender.h>
 #include <tlrCore/TimelinePlayer.h>
 
@@ -44,7 +46,9 @@ namespace tlr
         Q_OBJECT
 
     public:
-        FilesModel(QObject* parent = nullptr);
+        FilesModel(
+            const std::shared_ptr<core::Context>&,
+            QObject* parent = nullptr);
 
         const std::vector<std::shared_ptr<FilesModelItem> >& items() const;
 
@@ -81,13 +85,21 @@ namespace tlr
 
         void imageOptionsChanged(const std::shared_ptr<FilesModelItem>&, const render::ImageOptions&);
 
+    private Q_SLOTS:
+        void _thumbailCallback(const QList<QPair<otime::RationalTime, QImage> >&);
+
     private:
         int _index(const std::shared_ptr<FilesModelItem>&) const;
         std::vector<int> _bIndexes() const;
         std::vector<std::shared_ptr<FilesModelItem> > _active() const;
 
+        std::weak_ptr<core::Context> _context;
+
         std::vector<std::shared_ptr<FilesModelItem> > _items;
         std::shared_ptr<FilesModelItem> _a;
         std::vector<std::shared_ptr<FilesModelItem> > _b;
+
+        std::map<std::shared_ptr<FilesModelItem>, QImage> _thumbnails;
+        std::map<std::shared_ptr<FilesModelItem>, qt::TimelineThumbnailProvider*> _thumbnailProviders;
     };
 }

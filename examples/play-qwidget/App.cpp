@@ -92,7 +92,7 @@ namespace tlr
             SLOT(_settingsCallback()));
         _settingsUpdate();
 
-        _filesModel = new FilesModel(this);
+        _filesModel = new FilesModel(_context, this);
         connect(
             _filesModel,
             SIGNAL(activeChanged(const std::vector<std::shared_ptr<FilesModelItem> >&)),

@@ -11,8 +11,11 @@
 
 namespace tlr
 {
-    FilesModel::FilesModel(QObject* parent) :
-        QAbstractTableModel(parent)
+    FilesModel::FilesModel(
+        const std::shared_ptr<core::Context>& context,
+        QObject* parent) :
+        QAbstractTableModel(parent),
+        _context(context)
     {}
 
     const std::vector<std::shared_ptr<FilesModelItem> >& FilesModel::items() const
@@ -43,9 +46,9 @@ namespace tlr
             out |= Qt::ItemIsSelectable;
             switch (index.column())
             {
-            case 0: out |= Qt::ItemIsUserCheckable; break;
-            case 1: out |= Qt::ItemIsUserCheckable; break;
-            case 3: out |= Qt::ItemIsEditable; break;
+            case 1: out |= Qt::ItemIsEditable; break;
+            case 2: out |= Qt::ItemIsUserCheckable; break;
+            case 3: out |= Qt::ItemIsUserCheckable; break;
             }
         }
         return out;
@@ -69,34 +72,45 @@ namespace tlr
                 std::string s;
                 switch (index.column())
                 {
-                case 2:
+                case 0:
                     s = item->path.get(-1, false);
                     break;
-                case 3:
+                case 1:
                     if (!item->avInfo.video.empty() &&
                         item->videoLayer < item->avInfo.video.size())
                     {
                         s = item->avInfo.video[item->videoLayer].name;
                     }
                     break;
-                case 4:
-                    s = string::Format("{0}").arg(item->avInfo.audio);
-                    break;
                 }
                 out.setValue(QString::fromUtf8(s.c_str()));
                 break;
             }
+            case Qt::DecorationRole:
+                switch (index.column())
+                {
+                case 0:
+                {
+                    const auto i = _thumbnails.find(item);
+                    if (i != _thumbnails.end())
+                    {
+                        out.setValue(i->second);
+                    }
+                    break;
+                }
+                }
+                break;
             case Qt::EditRole:
                 switch (index.column())
                 {
-                case 3: out.setValue(item->videoLayer); break;
+                case 1: out.setValue(item->videoLayer); break;
                 }
                 break;
             case Qt::CheckStateRole:
                 switch (index.column())
                 {
-                case 0: out.setValue(index.row() == aIndex ? Qt::Checked : Qt::Unchecked); break;
-                case 1:
+                case 2: out.setValue(index.row() == aIndex ? Qt::Checked : Qt::Unchecked); break;
+                case 3:
                 {
                     const auto bIndexes = _bIndexes();
                     const auto i = std::find(bIndexes.begin(), bIndexes.end(), index.row());
@@ -130,7 +144,7 @@ namespace tlr
             case Qt::EditRole:
                 switch (index.column())
                 {
-                case 3:
+                case 1:
                     setLayer(item, value.toInt());
                     out = true;
                     break;
@@ -139,14 +153,14 @@ namespace tlr
             case Qt::CheckStateRole:
                 switch (index.column())
                 {
-                case 0:
+                case 2:
                     if (value.toBool())
                     {
                         setA(index.row());
                         out = true;
                     }
                     break;
-                case 1:
+                case 3:
                     setB(index.row(), value == Qt::Checked);
                     out = true;
                     break;
@@ -168,10 +182,10 @@ namespace tlr
             case Qt::DisplayRole:
                 switch (section)
                 {
-                case 0: out = tr("A"); break;
-                case 1: out = tr("B"); break;
-                case 2: out = tr("File"); break;
-                case 3: out = tr("Layer"); break;
+                case 0: out = tr("Name"); break;
+                case 1: out = tr("Layer"); break;
+                case 2: out = tr("A"); break;
+                case 3: out = tr("B"); break;
                 }
                 break;
             default: break;
@@ -192,13 +206,24 @@ namespace tlr
         _a = item;
         Q_EMIT activeChanged(_active());
         Q_EMIT dataChanged(
-            this->index(aIndex, 0),
-            this->index(aIndex, 0),
+            this->index(aIndex, 2),
+            this->index(aIndex, 2),
             { Qt::CheckStateRole });
         Q_EMIT dataChanged(
-            this->index(index, 0),
-            this->index(index, 0),
+            this->index(index, 2),
+            this->index(index, 2),
             { Qt::CheckStateRole });
+
+        if (auto context = _context.lock())
+        {
+            auto timeline = timeline::Timeline::create(item->path.get(), context);
+            _thumbnailProviders[item] = new qt::TimelineThumbnailProvider(timeline, context);
+            connect(
+                _thumbnailProviders[item],
+                SIGNAL(thumbails(const QList<QPair<otime::RationalTime, QImage> >&)),
+                SLOT(_thumbailCallback(const QList<QPair<otime::RationalTime, QImage> >&)));
+            _thumbnailProviders[item]->request(timeline->getGlobalStartTime(), QSize(120, 80));
+        }
     }
 
     void FilesModel::close()
@@ -234,12 +259,12 @@ namespace tlr
 
                 Q_EMIT activeChanged(_active());
                 Q_EMIT dataChanged(
-                    this->index(aIndex, 0),
-                    this->index(aIndex, 0),
+                    this->index(aIndex, 2),
+                    this->index(aIndex, 2),
                     { Qt::CheckStateRole });
                 Q_EMIT dataChanged(
-                    this->index(aNewIndex, 0),
-                    this->index(aNewIndex, 0),
+                    this->index(aNewIndex, 2),
+                    this->index(aNewIndex, 2),
                     { Qt::CheckStateRole });
             }
         }
@@ -268,12 +293,12 @@ namespace tlr
             _a = _items[index];
             Q_EMIT activeChanged(_active());
             Q_EMIT dataChanged(
-                this->index(aIndex, 0),
-                this->index(aIndex, 0),
+                this->index(aIndex, 2),
+                this->index(aIndex, 2),
                 { Qt::CheckStateRole });
             Q_EMIT dataChanged(
-                this->index(index, 0),
-                this->index(index, 0),
+                this->index(index, 2),
+                this->index(index, 2),
                 { Qt::CheckStateRole });
         }
     }
@@ -294,8 +319,8 @@ namespace tlr
             }
             Q_EMIT activeChanged(_active());
             Q_EMIT dataChanged(
-                this->index(index, 1),
-                this->index(index, 1),
+                this->index(index, 3),
+                this->index(index, 3),
                 { Qt::CheckStateRole });
         }
     }
@@ -308,12 +333,12 @@ namespace tlr
             _a = _items[0];
             Q_EMIT activeChanged(_active());
             Q_EMIT dataChanged(
-                index(aIndex, 0),
-                index(aIndex, 0),
+                index(aIndex, 2),
+                index(aIndex, 2),
                 { Qt::CheckStateRole });
             Q_EMIT dataChanged(
-                index(0, 0),
-                index(0, 0),
+                index(0, 2),
+                index(0, 2),
                 { Qt::CheckStateRole });
         }
     }
@@ -327,12 +352,12 @@ namespace tlr
             _a = _items[index];
             Q_EMIT activeChanged(_active());
             Q_EMIT dataChanged(
-                this->index(index, 0),
-                this->index(index, 0),
+                this->index(index, 2),
+                this->index(index, 2),
                 { Qt::CheckStateRole });
             Q_EMIT dataChanged(
-                this->index(aIndex, 0),
-                this->index(aIndex, 0),
+                this->index(aIndex, 2),
+                this->index(aIndex, 2),
                 { Qt::CheckStateRole });
         }
     }
@@ -350,12 +375,12 @@ namespace tlr
             _a = _items[aNewIndex];
             Q_EMIT activeChanged(_active());
             Q_EMIT dataChanged(
-                this->index(aIndex, 0),
-                this->index(aIndex, 0),
+                this->index(aIndex, 2),
+                this->index(aIndex, 2),
                 { Qt::CheckStateRole });
             Q_EMIT dataChanged(
-                this->index(aNewIndex, 0),
-                this->index(aNewIndex, 0),
+                this->index(aNewIndex, 2),
+                this->index(aNewIndex, 2),
                 { Qt::CheckStateRole });
         }
     }
@@ -373,12 +398,12 @@ namespace tlr
             _a = _items[aNewIndex];
             Q_EMIT activeChanged(_active());
             Q_EMIT dataChanged(
-                this->index(aIndex, 0),
-                this->index(aIndex, 0),
+                this->index(aIndex, 2),
+                this->index(aIndex, 2),
                 { Qt::CheckStateRole });
             Q_EMIT dataChanged(
-                this->index(aNewIndex, 0),
-                this->index(aNewIndex, 0),
+                this->index(aNewIndex, 2),
+                this->index(aNewIndex, 2),
                 { Qt::CheckStateRole });
         }
     }
@@ -403,6 +428,32 @@ namespace tlr
         {
             _items[index]->imageOptions = imageOptions;
             Q_EMIT imageOptionsChanged(item, imageOptions);
+        }
+    }
+
+    void FilesModel::_thumbailCallback(const QList<QPair<otime::RationalTime, QImage> >& value)
+    {
+        if (!value.isEmpty())
+        {
+            for (auto i = _thumbnailProviders.begin(); i != _thumbnailProviders.end(); ++i)
+            {
+                if (i->second == sender())
+                {
+                    _thumbnails[i->first] = value[0].second;
+                    const auto j = std::find(_items.begin(), _items.end(), i->first);
+                    if (j != _items.end())
+                    {
+                        const int index = j - _items.begin();
+                        Q_EMIT dataChanged(
+                            this->index(index, 0),
+                            this->index(index, 0),
+                            { Qt::DecorationRole });
+                    }
+                    delete i->second;
+                    _thumbnailProviders.erase(i);
+                    break;
+                }
+            }
         }
     }
 

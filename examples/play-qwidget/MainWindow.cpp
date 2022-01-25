@@ -529,7 +529,7 @@ namespace tlr
 
     void MainWindow::setColorConfig(const imaging::ColorConfig& colorConfig)
     {
-        if (colorConfig != _colorConfig)
+        if (colorConfig == _colorConfig)
             return;
         _colorConfig = colorConfig;
         _widgetUpdate();

@@ -21,11 +21,12 @@ namespace tlr
         _treeView->setAllColumnsShowFocus(true);
         _treeView->setAlternatingRowColors(true);
         _treeView->setSelectionMode(QAbstractItemView::NoSelection);
-        _treeView->setItemDelegateForColumn(3, new FilesLayersItemDelegate);
+        _treeView->setItemDelegateForColumn(1, new FilesLayersItemDelegate);
         _treeView->setEditTriggers(QAbstractItemView::CurrentChanged);
+        _treeView->setIndentation(0);
         _treeView->setModel(filesModel);
-        _treeView->resizeColumnToContents(0);
-        _treeView->resizeColumnToContents(1);
+        _treeView->resizeColumnToContents(2);
+        _treeView->resizeColumnToContents(3);
 
         _compareComboBox = new QComboBox;
         for (const auto& i : render::getCompareModeLabels())
