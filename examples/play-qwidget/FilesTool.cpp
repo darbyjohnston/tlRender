@@ -84,12 +84,14 @@ namespace tlr
     void FilesTool::_compareCallback(int value)
     {
         _compareOptions.mode = static_cast<render::CompareMode>(value);
+        _widgetUpdate();
         Q_EMIT compareOptionsChanged(_compareOptions);
     }
 
     void FilesTool::_sliderCallback(int value)
     {
         _compareOptions.wipe = value / 100.F;
+        _widgetUpdate();
         Q_EMIT compareOptionsChanged(_compareOptions);
     }
 
@@ -107,7 +109,7 @@ namespace tlr
             _compareComboBox->setCurrentIndex(static_cast<int>(_compareOptions.mode));
         }
 
-        _compareSlider->setEnabled(count > 0);
+        _compareSlider->setEnabled(count > 0 && render::CompareMode::Wipe == _compareOptions.mode);
         {
             QSignalBlocker signalBlocker(_compareSlider);
             _compareSlider->setValue(_compareOptions.wipe * 100);

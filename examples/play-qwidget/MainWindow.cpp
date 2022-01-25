@@ -405,6 +405,10 @@ namespace tlr
 
         connect(
             app->filesModel(),
+            SIGNAL(compareOptionsChanged(const tlr::render::CompareOptions&)),
+            SLOT(_compareOptionsCallback2(const tlr::render::CompareOptions&)));
+        connect(
+            app->filesModel(),
             SIGNAL(countChanged(int)),
             SLOT(_filesCountCallback()));
 
@@ -790,6 +794,11 @@ namespace tlr
     }
 
     void MainWindow::_compareOptionsCallback(const render::CompareOptions& value)
+    {
+        _app->filesModel()->setCompareOptions(value);
+    }
+
+    void MainWindow::_compareOptionsCallback2(const render::CompareOptions& value)
     {
         _compareOptions = value;
         _widgetUpdate();

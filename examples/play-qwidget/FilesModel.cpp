@@ -18,6 +18,11 @@ namespace tlr
         _context(context)
     {}
 
+    const render::CompareOptions& FilesModel::compareOptions() const
+    {
+        return _compareOptions;
+    }
+
     const std::vector<std::shared_ptr<FilesModelItem> >& FilesModel::items() const
     {
         return _items;
@@ -194,6 +199,41 @@ namespace tlr
         return out;
     }
 
+    void FilesModel::setCompareOptions(const render::CompareOptions& value)
+    {
+        if (value == _compareOptions)
+            return;
+        _compareOptions = value;
+        switch (_compareOptions.mode)
+        {
+        case render::CompareMode::A:
+        case render::CompareMode::B:
+        case render::CompareMode::Wipe:
+        {
+            std::vector<int> removedIndexes;
+            while (_b.size() > 1)
+            {
+                removedIndexes.push_back(_index(_b.back()));
+                _b.pop_back();
+            }
+            if (!removedIndexes.empty())
+            {
+                Q_EMIT activeChanged(_active());
+                for (auto index : removedIndexes)
+                {
+                    Q_EMIT dataChanged(
+                        this->index(index, 3),
+                        this->index(index, 3),
+                        { Qt::CheckStateRole });
+                }
+            }
+            break;
+        }
+        default: break;
+        }
+        Q_EMIT compareOptionsChanged(_compareOptions);
+    }
+
     void FilesModel::add(const std::shared_ptr<FilesModelItem>& item)
     {
         const int index = _items.size();
@@ -308,10 +348,24 @@ namespace tlr
         if (index >= 0 && index < _items.size())
         {
             const auto bIndexes = _bIndexes();
+            int removedIndex = -1;
             const auto i = std::find(bIndexes.begin(), bIndexes.end(), index);
             if (value && i == bIndexes.end())
             {
                 _b.push_back(_items[index]);
+                switch (_compareOptions.mode)
+                {
+                case render::CompareMode::A:
+                case render::CompareMode::B:
+                case render::CompareMode::Wipe:
+                    if (_b.size() > 1)
+                    {
+                        removedIndex = _index(_b.front());
+                        _b.erase(_b.begin());
+                    }
+                    break;
+                default: break;
+                }
             }
             else if (!value && i != bIndexes.end())
             {
@@ -321,6 +375,10 @@ namespace tlr
             Q_EMIT dataChanged(
                 this->index(index, 3),
                 this->index(index, 3),
+                { Qt::CheckStateRole });
+            Q_EMIT dataChanged(
+                this->index(removedIndex, 3),
+                this->index(removedIndex, 3),
                 { Qt::CheckStateRole });
         }
     }

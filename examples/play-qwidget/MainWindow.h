@@ -73,6 +73,7 @@ namespace tlr
         void _frameNextX100Callback();
         void _imageOptionsCallback(const tlr::render::ImageOptions&);
         void _compareOptionsCallback(const tlr::render::CompareOptions&);
+        void _compareOptionsCallback2(const tlr::render::CompareOptions&);
         void _audioOffsetCallback(double);
         void _saveSettingsCallback();
 

@@ -143,7 +143,7 @@ namespace tlr
         struct CompareOptions
         {
             CompareMode mode = CompareMode::A;
-            float wipe = 0.F;
+            float wipe = .5F;
 
             bool operator == (const CompareOptions&) const;
             bool operator != (const CompareOptions&) const;

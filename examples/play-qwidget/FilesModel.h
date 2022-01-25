@@ -50,6 +50,8 @@ namespace tlr
             const std::shared_ptr<core::Context>&,
             QObject* parent = nullptr);
 
+        const render::CompareOptions& compareOptions() const;
+
         const std::vector<std::shared_ptr<FilesModelItem> >& items() const;
 
         int rowCount(const QModelIndex& parent = QModelIndex()) const override;
@@ -60,6 +62,8 @@ namespace tlr
         QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
     public Q_SLOTS:
+        void setCompareOptions(const render::CompareOptions&);
+
         void add(const std::shared_ptr<FilesModelItem>&);
         void close();
         void closeAll();
@@ -77,6 +81,8 @@ namespace tlr
         void setImageOptions(const std::shared_ptr<FilesModelItem>&, const render::ImageOptions&);
 
     Q_SIGNALS:
+        void compareOptionsChanged(const tlr::render::CompareOptions&);
+
         void countChanged(int);
 
         void activeChanged(const std::vector<std::shared_ptr<FilesModelItem> >&);
@@ -95,6 +101,7 @@ namespace tlr
 
         std::weak_ptr<core::Context> _context;
 
+        render::CompareOptions _compareOptions;
         std::vector<std::shared_ptr<FilesModelItem> > _items;
         std::shared_ptr<FilesModelItem> _a;
         std::vector<std::shared_ptr<FilesModelItem> > _b;
