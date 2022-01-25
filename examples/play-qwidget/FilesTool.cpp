@@ -33,7 +33,9 @@ namespace tlr
         {
             _compareComboBox->addItem(QString::fromUtf8(i.c_str()));
         }
-
+        _compareSpinBox = new QDoubleSpinBox;
+        _compareSpinBox->setRange(0.0, 1.0);
+        _compareSpinBox->setSingleStep(0.1);
         _compareSlider = new QSlider(Qt::Orientation::Horizontal);
         _compareSlider->setRange(0, 100);
 
@@ -41,7 +43,10 @@ namespace tlr
         layout->addWidget(_treeView);
         auto hLayout = new QHBoxLayout;
         hLayout->addWidget(_compareComboBox);
-        hLayout->addWidget(_compareSlider, 1);
+        auto hLayout2 = new QHBoxLayout;
+        hLayout2->addWidget(_compareSpinBox);
+        hLayout2->addWidget(_compareSlider, 1);
+        hLayout->addLayout(hLayout2, 1);
         layout->addLayout(hLayout);
         setLayout(layout);
 
@@ -56,11 +61,14 @@ namespace tlr
             _compareComboBox,
             SIGNAL(activated(int)),
             SLOT(_compareCallback(int)));
-
+        connect(
+            _compareSpinBox,
+            SIGNAL(valueChanged(double)),
+            SLOT(_compareSpinBoxCallback(double)));
         connect(
             _compareSlider,
             SIGNAL(valueChanged(int)),
-            SLOT(_sliderCallback(int)));
+            SLOT(_compareSliderCallback(int)));
 
         connect(
             filesModel,
@@ -88,7 +96,14 @@ namespace tlr
         Q_EMIT compareOptionsChanged(_compareOptions);
     }
 
-    void FilesTool::_sliderCallback(int value)
+    void FilesTool::_compareSpinBoxCallback(double value)
+    {
+        _compareOptions.wipe = value;
+        _widgetUpdate();
+        Q_EMIT compareOptionsChanged(_compareOptions);
+    }
+
+    void FilesTool::_compareSliderCallback(int value)
     {
         _compareOptions.wipe = value / 100.F;
         _widgetUpdate();
@@ -108,7 +123,11 @@ namespace tlr
             QSignalBlocker signalBlocker(_compareComboBox);
             _compareComboBox->setCurrentIndex(static_cast<int>(_compareOptions.mode));
         }
-
+        _compareSpinBox->setEnabled(count > 0 && render::CompareMode::Wipe == _compareOptions.mode);
+        {
+            QSignalBlocker signalBlocker(_compareSpinBox);
+            _compareSpinBox->setValue(_compareOptions.wipe);
+        }
         _compareSlider->setEnabled(count > 0 && render::CompareMode::Wipe == _compareOptions.mode);
         {
             QSignalBlocker signalBlocker(_compareSlider);

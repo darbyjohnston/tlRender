@@ -7,6 +7,7 @@
 #include "FilesModel.h"
 
 #include <QComboBox>
+#include <QDoubleSpinBox>
 #include <QSlider>
 #include <QTreeView>
 
@@ -28,7 +29,8 @@ namespace tlr
     private Q_SLOTS:
         void _activatedCallback(const QModelIndex&);
         void _compareCallback(int);
-        void _sliderCallback(int);
+        void _compareSpinBoxCallback(double);
+        void _compareSliderCallback(int);
         void _countCallback();
 
     Q_SIGNALS:
@@ -41,6 +43,7 @@ namespace tlr
         render::CompareOptions _compareOptions;
         QTreeView* _treeView = nullptr;
         QComboBox* _compareComboBox = nullptr;
+        QDoubleSpinBox* _compareSpinBox = nullptr;
         QSlider* _compareSlider = nullptr;
     };
 }
