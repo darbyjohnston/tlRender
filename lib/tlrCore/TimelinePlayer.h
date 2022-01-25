@@ -221,6 +221,9 @@ namespace tlr
             //! Go to the next frame.
             void frameNext();
 
+            //! Use the time from a separate timeline player.
+            void setExternalTime(const std::shared_ptr<TimelinePlayer>&);
+
             ///@}
 
             //! \name In/Out Points

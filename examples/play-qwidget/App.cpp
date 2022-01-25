@@ -234,6 +234,10 @@ namespace tlr
                 auto timelinePlayer = timeline::TimelinePlayer::create(timeline, _context, playerOptions);
                 timelinePlayer->setCacheReadAhead(otime::RationalTime(_settingsObject->cacheReadAhead(), 1.0));
                 timelinePlayer->setCacheReadBehind(otime::RationalTime(_settingsObject->cacheReadBehind(), 1.0));
+                if (!timelinePlayersValid.empty())
+                {
+                    timelinePlayer->setExternalTime(timelinePlayersValid[0]->timelinePlayer());
+                }
 
                 qtTimelinePlayer = new qt::TimelinePlayer(timelinePlayer, _context, this);
             }

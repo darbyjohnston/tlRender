@@ -185,12 +185,21 @@ namespace tlr
             std::shared_ptr<observer::List<otime::TimeRange> > cachedVideoFrames;
             std::shared_ptr<observer::List<otime::TimeRange> > cachedAudioFrames;
 
+            struct ExternalTime
+            {
+                std::shared_ptr<TimelinePlayer> player;
+                std::shared_ptr<observer::ValueObserver<Playback> > playbackObserver;
+                std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
+            };
+            ExternalTime externalTime;
+
             struct MutexData
             {
                 Playback playback = Playback::Stop;
                 otime::RationalTime playbackStartTime = time::invalidTime;
                 std::chrono::steady_clock::time_point playbackStartTimer;
                 otime::RationalTime currentTime = time::invalidTime;
+                bool externalTime = false;
                 otime::TimeRange inOutRange = time::invalidTimeRange;
                 uint16_t videoLayer = 0;
                 VideoData videoData;
@@ -711,6 +720,45 @@ namespace tlr
             timeAction(TimeAction::FrameNext);
         }
 
+        void TimelinePlayer::setExternalTime(const std::shared_ptr<TimelinePlayer>& value)
+        {
+            TLR_PRIVATE_P();
+            if (value == p.externalTime.player)
+                return;
+            p.externalTime.player = value;
+            if (p.externalTime.player)
+            {
+                auto weak = std::weak_ptr<TimelinePlayer>(shared_from_this());
+                p.externalTime.playbackObserver = observer::ValueObserver<Playback>::create(
+                    p.externalTime.player->observePlayback(),
+                    [weak](Playback value)
+                    {
+                        if (auto player = weak.lock())
+                        {
+                            player->setPlayback(value);
+                        }
+                    });
+                p.externalTime.currentTimeObserver = observer::ValueObserver<otime::RationalTime>::create(
+                    p.externalTime.player->observeCurrentTime(),
+                    [weak](const otime::RationalTime& value)
+                    {
+                        if (auto player = weak.lock())
+                        {
+                            player->_p->currentTime->setIfChanged(time::floor(value.rescaled_to(player->getDuration().rate())));
+                        }
+                    });
+            }
+            else
+            {
+                p.externalTime.playbackObserver.reset();
+                p.externalTime.currentTimeObserver.reset();
+            }
+            {
+                std::unique_lock<std::mutex> lock(p.mutex);
+                p.mutexData.externalTime = p.externalTime.player.get();
+            }
+        }
+
         std::shared_ptr<observer::IValue<otime::TimeRange> > TimelinePlayer::observeInOutRange() const
         {
             return _p->inOutRange;
@@ -876,10 +924,11 @@ namespace tlr
             // Calculate the current time.
             const auto& duration = p.timeline->getDuration();
             const auto playback = p.playback->get();
-            const double timelineSpeed = p.timeline->getDuration().rate();
-            const double speed = p.speed->get();
-            if (playback != Playback::Stop)
+            if (playback != Playback::Stop && !p.externalTime.player)
             {
+                const double timelineSpeed = p.timeline->getDuration().rate();
+                const double speed = p.speed->get();
+
                 otime::RationalTime playbackStartTime = time::invalidTime;
                 std::chrono::steady_clock::time_point playbackStartTimer;
                 {
@@ -907,7 +956,7 @@ namespace tlr
                 }
                 const otime::RationalTime currentTime = p.loopPlayback(
                     playbackStartTime + time::floor(otime::RationalTime(seconds, 1.0).rescaled_to(duration.rate())));
-                const double currentTimeDiff = abs(currentTime.value() - p.currentTime->get().value());
+                //const double currentTimeDiff = abs(currentTime.value() - p.currentTime->get().value());
                 if (p.currentTime->setIfChanged(currentTime))
                 {
                     //std::cout << "current time: " << p.currentTime->get() << " / " << currentTimeDiff << std::endl;
@@ -1258,12 +1307,14 @@ namespace tlr
             // Get mutex protected values.
             Playback playback = Playback::Stop;
             double playbackStartTimeInSeconds = 0.0;
+            bool externalTime = false;
             {
                 std::unique_lock<std::mutex> lock(p->mutex);
                 playback = p->mutexData.playback;
                 playbackStartTimeInSeconds =
                     p->mutexData.playbackStartTime.rescaled_to(1.0).value() -
                     p->mutexData.audioOffset;
+                externalTime = p->mutexData.externalTime;
             }
             double speed = 0.F;
             float volume = 1.F;
@@ -1302,13 +1353,13 @@ namespace tlr
 
                 const auto now = std::chrono::steady_clock::now();
 
-                // Audio playback needs the current speed equal to the timeline speed.
+                // Copy audio data to RtAudio.
                 if (speed == p->timeline->getDuration().rate() &&
+                    !externalTime &&
                     !mute &&
                     now >= muteTimeout &&
                     offset >= 0)
                 {
-                    // Copy audio data to RtAudio.
                     size_t sampleCount = nFrames;
                     uint8_t* outputBufferP = reinterpret_cast<uint8_t*>(outputBuffer);
                     //size_t count = 0;
