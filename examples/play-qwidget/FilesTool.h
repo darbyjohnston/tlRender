@@ -29,8 +29,11 @@ namespace tlr
     private Q_SLOTS:
         void _activatedCallback(const QModelIndex&);
         void _compareCallback(int);
-        void _compareSpinBoxCallback(double);
-        void _compareSliderCallback(int);
+        void _horizontalSliderCallback(int);
+        void _verticalSliderCallback(int);
+        void _freePosXSpinBoxCallback(double);
+        void _freePosYSpinBoxCallback(double);
+        void _freeRotSpinBoxCallback(double);
         void _countCallback();
 
     Q_SIGNALS:
@@ -43,7 +46,10 @@ namespace tlr
         render::CompareOptions _compareOptions;
         QTreeView* _treeView = nullptr;
         QComboBox* _compareComboBox = nullptr;
-        QDoubleSpinBox* _compareSpinBox = nullptr;
-        QSlider* _compareSlider = nullptr;
+        QSlider* _horizontalSlider = nullptr;
+        QSlider* _verticalSlider = nullptr;
+        QDoubleSpinBox* _freePosXSpinBox = nullptr;
+        QDoubleSpinBox* _freePosYSpinBox = nullptr;
+        QDoubleSpinBox* _freeRotSpinBox = nullptr;
     };
 }

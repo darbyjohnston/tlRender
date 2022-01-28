@@ -208,7 +208,9 @@ namespace tlr
         {
         case render::CompareMode::A:
         case render::CompareMode::B:
-        case render::CompareMode::Wipe:
+        case render::CompareMode::Horizontal:
+        case render::CompareMode::Vertical:
+        case render::CompareMode::Free:
         {
             std::vector<int> removedIndexes;
             while (_b.size() > 1)
@@ -357,7 +359,9 @@ namespace tlr
                 {
                 case render::CompareMode::A:
                 case render::CompareMode::B:
-                case render::CompareMode::Wipe:
+                case render::CompareMode::Horizontal:
+                case render::CompareMode::Vertical:
+                case render::CompareMode::Free:
                     if (_b.size() > 1)
                     {
                         removedIndex = _index(_b.front());

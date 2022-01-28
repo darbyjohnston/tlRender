@@ -38,6 +38,7 @@ namespace tlr
             surfaceFormat.setMajorVersion(4);
             surfaceFormat.setMinorVersion(1);
             surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
+            surfaceFormat.setStencilBufferSize(8);
             setFormat(surfaceFormat);
         }
         

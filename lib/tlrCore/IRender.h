@@ -8,6 +8,8 @@
 #include <tlrCore/Color.h>
 #include <tlrCore/Timeline.h>
 
+#include <glm/vec2.hpp>
+
 namespace tlr
 {
     namespace imaging
@@ -126,11 +128,13 @@ namespace tlr
         };
 
         //! Comparison mode.
-        enum CompareMode
+        enum class CompareMode
         {
             A,
             B,
-            Wipe,
+            Horizontal,
+            Vertical,
+            Free,
             Tiles,
 
             Count,
@@ -143,7 +147,10 @@ namespace tlr
         struct CompareOptions
         {
             CompareMode mode = CompareMode::A;
-            float wipe = .5F;
+            float horizontal = .5F;
+            float vertical = .5F;
+            glm::ivec2 freePos = glm::ivec2(0, 0);
+            float freeRot = 0.F;
 
             bool operator == (const CompareOptions&) const;
             bool operator != (const CompareOptions&) const;

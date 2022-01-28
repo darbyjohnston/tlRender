@@ -1053,11 +1053,71 @@ namespace tlr
                         imageOptions.size() > 1 ? imageOptions[1] : render::ImageOptions());
                 }
                 break;
-            case render::CompareMode::Wipe:
+            case render::CompareMode::Horizontal:
+            case render::CompareMode::Vertical:
+            case render::CompareMode::Free:
             {
-                const int x = p.size.w * compareOptions.wipe;
-                glEnable(GL_SCISSOR_TEST);
-                glScissor(0, 0, x, p.size.h);
+                const float radius = std::max(p.size.w, p.size.h) * 2.5F;
+                float x = 0.F;
+                float y = 0.F;
+                float rot = 0.F;
+                switch (compareOptions.mode)
+                {
+                case render::CompareMode::Horizontal:
+                    x = p.size.w * compareOptions.horizontal;
+                    break;
+                case render::CompareMode::Vertical:
+                    y = p.size.h * compareOptions.vertical;
+                    rot = 90.F;
+                    break;
+                case render::CompareMode::Free:
+                    x = compareOptions.freePos.x;
+                    y = compareOptions.freePos.y;
+                    rot = compareOptions.freeRot;
+                    break;
+                default: break;
+                }
+                glm::vec2 pts[4];
+                for (size_t i = 0; i < 4; ++i)
+                {
+                    float rad = math::deg2rad(rot + 90.F * i + 90.F);
+                    pts[i].x = cos(rad) * radius + x;
+                    pts[i].y = sin(rad) * radius + y;
+                }
+
+                glEnable(GL_STENCIL_TEST);
+
+                glClear(GL_STENCIL_BUFFER_BIT);
+                glStencilFunc(GL_ALWAYS, 1, 0xFF);
+                glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+                glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+                p.shader->setUniform("drawMode", static_cast<int>(DrawMode::Solid));
+                p.shader->setUniform("color", imaging::Color4f(1.F, 0.F, 0.F));
+                {
+                    std::vector<uint8_t> vboData;
+                    vboData.resize(3 * getByteCount(VBOType::Pos2_F32_UV_U16));
+                    VBOVertex* vboP = reinterpret_cast<VBOVertex*>(vboData.data());
+                    vboP[0].vx = pts[0].x;
+                    vboP[0].vy = pts[0].y;
+                    vboP[0].tx = 0;
+                    vboP[0].ty = 0;
+                    vboP[1].vx = pts[1].x;
+                    vboP[1].vy = pts[1].y;
+                    vboP[1].tx = 0;
+                    vboP[1].ty = 0;
+                    vboP[2].vx = pts[2].x;
+                    vboP[2].vy = pts[2].y;
+                    vboP[2].tx = 0;
+                    vboP[2].ty = 0;
+                    auto vbo = VBO::create(4, VBOType::Pos2_F32_UV_U16);
+                    vbo->copy(vboData);
+
+                    auto vao = VAO::create(vbo->getType(), vbo->getID());
+                    vao->bind();
+                    vao->draw(GL_TRIANGLE_STRIP, 0, 3);
+                }
+                glStencilFunc(GL_EQUAL, 1, 0xFF);
+                glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
                 if (!videoData.empty())
                 {
                     _drawVideo(
@@ -1065,7 +1125,37 @@ namespace tlr
                         math::BBox2i(0, 0, p.size.w, p.size.h),
                         !imageOptions.empty() ? imageOptions[0] : render::ImageOptions());
                 }
-                glScissor(x, 0, p.size.w - x, p.size.h);
+
+                glClear(GL_STENCIL_BUFFER_BIT);
+                glStencilFunc(GL_ALWAYS, 1, 0xFF);
+                glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+                p.shader->setUniform("drawMode", static_cast<int>(DrawMode::Solid));
+                p.shader->setUniform("color", imaging::Color4f(0.F, 1.F, 0.F));
+                {
+                    std::vector<uint8_t> vboData;
+                    vboData.resize(3 * getByteCount(VBOType::Pos2_F32_UV_U16));
+                    VBOVertex* vboP = reinterpret_cast<VBOVertex*>(vboData.data());
+                    vboP[0].vx = pts[2].x;
+                    vboP[0].vy = pts[2].y;
+                    vboP[0].tx = 0;
+                    vboP[0].ty = 0;
+                    vboP[1].vx = pts[3].x;
+                    vboP[1].vy = pts[3].y;
+                    vboP[1].tx = 0;
+                    vboP[1].ty = 0;
+                    vboP[2].vx = pts[0].x;
+                    vboP[2].vy = pts[0].y;
+                    vboP[2].tx = 0;
+                    vboP[2].ty = 0;
+                    auto vbo = VBO::create(4, VBOType::Pos2_F32_UV_U16);
+                    vbo->copy(vboData);
+
+                    auto vao = VAO::create(vbo->getType(), vbo->getID());
+                    vao->bind();
+                    vao->draw(GL_TRIANGLE_STRIP, 0, 3);
+                }
+                glStencilFunc(GL_EQUAL, 1, 0xFF);
+                glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
                 if (videoData.size() > 1)
                 {
                     _drawVideo(
@@ -1073,7 +1163,8 @@ namespace tlr
                         math::BBox2i(0, 0, p.size.w, p.size.h),
                         imageOptions.size() > 1 ? imageOptions[1] : render::ImageOptions());
                 }
-                glDisable(GL_SCISSOR_TEST);
+
+                glDisable(GL_STENCIL_TEST);
                 break;
             }
             case render::CompareMode::Tiles:

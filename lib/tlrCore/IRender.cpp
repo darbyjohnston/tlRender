@@ -40,7 +40,9 @@ namespace tlr
             CompareMode,
             "A",
             "B",
-            "Wipe",
+            "Horizontal",
+            "Vertical",
+            "Free",
             "Tiles");
         TLR_ENUM_SERIALIZE_IMPL(CompareMode);
 

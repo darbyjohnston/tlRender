@@ -201,102 +201,114 @@ namespace tlr
             _activeItems[0]->audioOffset = _timelinePlayers[0]->audioOffset();
         }
 
-        _activeItems = items;
-
-        std::vector<qt::TimelinePlayer*> timelinePlayers;
-        std::vector<qt::TimelinePlayer*> timelinePlayersValid;
-        for (const auto& i : _activeItems)
+        std::vector<qt::TimelinePlayer*> timelinePlayers(items.size(), nullptr);
+        for (size_t i = 0; i < items.size(); ++i)
         {
-            qt::TimelinePlayer* qtTimelinePlayer = nullptr;
-            try
+            if (i < items.size() &&
+                i < _activeItems.size() &&
+                items[i] == _activeItems[i])
             {
-                timeline::Options options;
-                options.fileSequenceAudio = _settingsObject->fileSequenceAudio();
-                options.fileSequenceAudioFileName = _settingsObject->fileSequenceAudioFileName().toUtf8().data();
-                options.fileSequenceAudioDirectory = _settingsObject->fileSequenceAudioDirectory().toUtf8().data();
-                options.videoRequestCount = _settingsObject->videoRequestCount();
-                options.audioRequestCount = _settingsObject->audioRequestCount();
-                options.avioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").arg(_settingsObject->sequenceThreadCount());
-                auto audioSystem = _context->getSystem<audio::System>();
-                const audio::Info audioInfo = audioSystem->getDefaultOutputInfo();
-                options.avioOptions["ffmpeg/AudioChannelCount"] = string::Format("{0}").arg(audioInfo.channelCount);
-                options.avioOptions["ffmpeg/AudioDataType"] = string::Format("{0}").arg(audioInfo.dataType);
-                options.avioOptions["ffmpeg/AudioSampleRate"] = string::Format("{0}").arg(audioInfo.sampleRate);
-                options.avioOptions["ffmpeg/ThreadCount"] = string::Format("{0}").arg(_settingsObject->ffmpegThreadCount());
-                options.pathOptions.maxNumberDigits = std::min(_settingsObject->maxFileSequenceDigits(), 255);
-                auto timeline = i->audioPath.isEmpty() ?
-                    timeline::Timeline::create(i->path.get(), _context, options) :
-                    timeline::Timeline::create(i->path.get(), i->audioPath.get(), _context, options);
-
-                timeline::PlayerOptions playerOptions;
-                playerOptions.timerMode = _settingsObject->timerMode();
-                playerOptions.audioBufferFrameCount = _settingsObject->audioBufferFrameCount();
-                auto timelinePlayer = timeline::TimelinePlayer::create(timeline, _context, playerOptions);
-                timelinePlayer->setCacheReadAhead(otime::RationalTime(_settingsObject->cacheReadAhead(), 1.0));
-                timelinePlayer->setCacheReadBehind(otime::RationalTime(_settingsObject->cacheReadBehind(), 1.0));
-                if (!timelinePlayersValid.empty())
-                {
-                    timelinePlayer->setExternalTime(timelinePlayersValid[0]->timelinePlayer());
-                }
-
-                qtTimelinePlayer = new qt::TimelinePlayer(timelinePlayer, _context, this);
-            }
-            catch (const std::exception& e)
-            {
-                QMessageBox dialog;
-                dialog.setText(e.what());
-                dialog.exec();
-            }
-            timelinePlayers.push_back(qtTimelinePlayer);
-            if (qtTimelinePlayer)
-            {
-                timelinePlayersValid.push_back(qtTimelinePlayer);
-            }
-        }
-
-        if (!_activeItems.empty() &&
-            !timelinePlayers.empty() &&
-            timelinePlayers[0])
-        {
-            if (!_activeItems[0]->init)
-            {
-                _activeItems[0]->init = true;
-                _activeItems[0]->duration = timelinePlayers[0]->duration();
-                _activeItems[0]->globalStartTime = timelinePlayers[0]->globalStartTime();
-                _activeItems[0]->avInfo = timelinePlayers[0]->avInfo();
-                _activeItems[0]->speed = timelinePlayers[0]->speed();
-                _activeItems[0]->playback = timelinePlayers[0]->playback();
-                _activeItems[0]->loop = timelinePlayers[0]->loop();
-                _activeItems[0]->currentTime = timelinePlayers[0]->currentTime();
-                _activeItems[0]->inOutRange = timelinePlayers[0]->inOutRange();
-                _activeItems[0]->videoLayer = timelinePlayers[0]->videoLayer();
-                _activeItems[0]->volume = timelinePlayers[0]->volume();
-                _activeItems[0]->mute = timelinePlayers[0]->isMuted();
-                _activeItems[0]->audioOffset = timelinePlayers[0]->audioOffset();
+                timelinePlayers[i] = _timelinePlayers[i];
+                _timelinePlayers[i] = nullptr;
             }
             else
             {
-                timelinePlayers[0]->setAudioOffset(_activeItems[0]->audioOffset);
-                timelinePlayers[0]->setMute(_activeItems[0]->mute);
-                timelinePlayers[0]->setVolume(_activeItems[0]->volume);
-                timelinePlayers[0]->setVideoLayer(_activeItems[0]->videoLayer);
-                timelinePlayers[0]->setSpeed(_activeItems[0]->speed);
-                timelinePlayers[0]->setLoop(_activeItems[0]->loop);
-                timelinePlayers[0]->setInOutRange(_activeItems[0]->inOutRange);
-                timelinePlayers[0]->seek(_activeItems[0]->currentTime);
-                timelinePlayers[0]->setPlayback(_activeItems[0]->playback);
+                qt::TimelinePlayer* qtTimelinePlayer = nullptr;
+                try
+                {
+                    timeline::Options options;
+                    options.fileSequenceAudio = _settingsObject->fileSequenceAudio();
+                    options.fileSequenceAudioFileName = _settingsObject->fileSequenceAudioFileName().toUtf8().data();
+                    options.fileSequenceAudioDirectory = _settingsObject->fileSequenceAudioDirectory().toUtf8().data();
+                    options.videoRequestCount = _settingsObject->videoRequestCount();
+                    options.audioRequestCount = _settingsObject->audioRequestCount();
+                    options.avioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").arg(_settingsObject->sequenceThreadCount());
+                    auto audioSystem = _context->getSystem<audio::System>();
+                    const audio::Info audioInfo = audioSystem->getDefaultOutputInfo();
+                    options.avioOptions["ffmpeg/AudioChannelCount"] = string::Format("{0}").arg(audioInfo.channelCount);
+                    options.avioOptions["ffmpeg/AudioDataType"] = string::Format("{0}").arg(audioInfo.dataType);
+                    options.avioOptions["ffmpeg/AudioSampleRate"] = string::Format("{0}").arg(audioInfo.sampleRate);
+                    options.avioOptions["ffmpeg/ThreadCount"] = string::Format("{0}").arg(_settingsObject->ffmpegThreadCount());
+                    options.pathOptions.maxNumberDigits = std::min(_settingsObject->maxFileSequenceDigits(), 255);
+                    auto timeline = items[i]->audioPath.isEmpty() ?
+                        timeline::Timeline::create(items[i]->path.get(), _context, options) :
+                        timeline::Timeline::create(items[i]->path.get(), items[i]->audioPath.get(), _context, options);
+
+                    timeline::PlayerOptions playerOptions;
+                    playerOptions.timerMode = _settingsObject->timerMode();
+                    playerOptions.audioBufferFrameCount = _settingsObject->audioBufferFrameCount();
+                    auto timelinePlayer = timeline::TimelinePlayer::create(timeline, _context, playerOptions);
+                    timelinePlayer->setCacheReadAhead(otime::RationalTime(_settingsObject->cacheReadAhead(), 1.0));
+                    timelinePlayer->setCacheReadBehind(otime::RationalTime(_settingsObject->cacheReadBehind(), 1.0));
+
+                    qtTimelinePlayer = new qt::TimelinePlayer(timelinePlayer, _context, this);
+                }
+                catch (const std::exception& e)
+                {
+                    QMessageBox dialog;
+                    dialog.setText(e.what());
+                    dialog.exec();
+                }
+                timelinePlayers[i] = qtTimelinePlayer;
             }
         }
-        for (size_t i = 1; i < _activeItems.size(); ++i)
+
+        if (!items.empty() &&
+            !timelinePlayers.empty() &&
+            timelinePlayers[0])
+        {
+            if (!items[0]->init)
+            {
+                items[0]->init = true;
+                items[0]->duration = timelinePlayers[0]->duration();
+                items[0]->globalStartTime = timelinePlayers[0]->globalStartTime();
+                items[0]->avInfo = timelinePlayers[0]->avInfo();
+                items[0]->speed = timelinePlayers[0]->speed();
+                items[0]->playback = timelinePlayers[0]->playback();
+                items[0]->loop = timelinePlayers[0]->loop();
+                items[0]->currentTime = timelinePlayers[0]->currentTime();
+                items[0]->inOutRange = timelinePlayers[0]->inOutRange();
+                items[0]->videoLayer = timelinePlayers[0]->videoLayer();
+                items[0]->volume = timelinePlayers[0]->volume();
+                items[0]->mute = timelinePlayers[0]->isMuted();
+                items[0]->audioOffset = timelinePlayers[0]->audioOffset();
+            }
+            else
+            {
+                timelinePlayers[0]->setAudioOffset(items[0]->audioOffset);
+                timelinePlayers[0]->setMute(items[0]->mute);
+                timelinePlayers[0]->setVolume(items[0]->volume);
+                timelinePlayers[0]->setVideoLayer(items[0]->videoLayer);
+                timelinePlayers[0]->setSpeed(items[0]->speed);
+                timelinePlayers[0]->setLoop(items[0]->loop);
+                timelinePlayers[0]->setInOutRange(items[0]->inOutRange);
+                timelinePlayers[0]->seek(items[0]->currentTime);
+                timelinePlayers[0]->setPlayback(items[0]->playback);
+            }
+        }
+        for (size_t i = 1; i < items.size(); ++i)
         {
             if (timelinePlayers[i])
             {
-                timelinePlayers[i]->setVideoLayer(_activeItems[i]->videoLayer);
+                timelinePlayers[i]->setVideoLayer(items[i]->videoLayer);
             }
         }
 
+        std::vector<qt::TimelinePlayer*> timelinePlayersValid;
+        for (const auto& i : timelinePlayers)
+        {
+            if (i)
+            {
+                if (!timelinePlayersValid.empty())
+                {
+                    i->timelinePlayer()->setExternalTime(timelinePlayersValid[0]->timelinePlayer());
+                }
+                timelinePlayersValid.push_back(i);
+            }
+        }
         _mainWindow->setTimelinePlayers(timelinePlayersValid);
 
+        _activeItems = items;
         for (size_t i = 0; i < _timelinePlayers.size(); ++i)
         {
             delete _timelinePlayers[i];
