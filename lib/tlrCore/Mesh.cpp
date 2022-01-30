@@ -28,8 +28,8 @@ namespace tlr
                     const float x = radius * sinf(v1 * math::pi) * cosf(u1 * math::pi2);
                     const float y = radius * cosf(v1 * math::pi);
                     const float z = radius * sinf(v1 * math::pi) * sinf(u1 * math::pi2);
-                    out.v.push_back(glm::vec3(x, y, z));
-                    out.t.push_back(glm::vec2(u1, 1.F - v1));
+                    out.v.push_back(math::Vector3f(x, y, z));
+                    out.t.push_back(math::Vector2f(u1, 1.F - v1));
                 }
             }
 

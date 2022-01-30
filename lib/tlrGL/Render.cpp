@@ -769,7 +769,13 @@ namespace tlr
                 0.F,
                 -1.F,
                 1.F);
-            p.shader->setUniform("transform.mvp", viewMatrix);
+            p.shader->setUniform(
+                "transform.mvp",
+                math::Matrix4x4f(
+                    viewMatrix[0][0], viewMatrix[0][1], viewMatrix[0][2], viewMatrix[0][3],
+                    viewMatrix[1][0], viewMatrix[1][1], viewMatrix[1][2], viewMatrix[1][3],
+                    viewMatrix[2][0], viewMatrix[2][1], viewMatrix[2][2], viewMatrix[2][3],
+                    viewMatrix[3][0], viewMatrix[3][1], viewMatrix[3][2], viewMatrix[3][3]));
 
             for (size_t i = 0; i < p.colorTextures.size(); ++i)
             {
@@ -856,63 +862,63 @@ namespace tlr
                 return (f0 + f1) / 2.F;
             }
 
-            glm::mat4x4 brightnessMatrix(const glm::vec3& value)
+            math::Matrix4x4f brightnessMatrix(const math::Vector3f& value)
             {
-                return glm::mat4x4(
+                return math::Matrix4x4f(
                     value.x, 0.F,     0.F,     0.F,
                     0.F,     value.y, 0.F,     0.F,
                     0.F,     0.F,     value.z, 0.F,
                     0.F,     0.F,     0.F,     1.F);
             }
 
-            glm::mat4x4 contrastMatrix(const glm::vec3& value)
+            math::Matrix4x4f contrastMatrix(const math::Vector3f& value)
             {
                 return
-                    glm::mat4x4(
+                    math::Matrix4x4f(
                         1.F, 0.F, 0.F, -.5F,
                         0.F, 1.F, 0.F, -.5F,
                         0.F, 0.F, 1.F, -.5F,
                         0.F, 0.F, 0.F, 1.F) *
-                    glm::mat4x4(
-                        value.x, 0.F,      0.F,      0.F,
-                        0.F,      value.y, 0.F,      0.F,
-                        0.F,      0.F,      value.z, 0.F,
-                        0.F,      0.F,      0.F,      1.F) *
-                    glm::mat4x4(
+                    math::Matrix4x4f(
+                        value.x, 0.F,      0.F,     0.F,
+                        0.F,      value.y, 0.F,     0.F,
+                        0.F,      0.F,     value.z, 0.F,
+                        0.F,      0.F,     0.F,     1.F) *
+                    math::Matrix4x4f(
                         1.F, 0.F, 0.F,  .5F,
                         0.F, 1.F, 0.F,  .5F,
                         0.F, 0.F, 1.F,  .5F,
                         0.F, 0.F, 0.F, 1.F);
             }
 
-            glm::mat4x4 saturationMatrix(const glm::vec3& value)
+            math::Matrix4x4f saturationMatrix(const math::Vector3f& value)
             {
-                const glm::vec3 s(
+                const math::Vector3f s(
                     (1.F - value.x) * .3086F,
                     (1.F - value.y) * .6094F,
                     (1.F - value.z) * .0820F);
-                return glm::mat4x4(
+                return math::Matrix4x4f(
                     s.x + value.x, s.y,           s.z,           0.F,
                     s.x,           s.y + value.y, s.z,           0.F,
                     s.x,           s.y,           s.z + value.z, 0.F,
                     0.F,           0.F,           0.F,           1.F);
             }
 
-            glm::mat4x4 tintMatrix(float v)
+            math::Matrix4x4f tintMatrix(float v)
             {
                 const float c = cos(v * M_PI * 2.F);
                 const float c2 = 1.F - c;
                 const float c3 = 1.F / 3.F * c2;
                 const float s = sin(v * M_PI * 2.F);
                 const float sq = sqrtf(1.F / 3.F);
-                return glm::mat4x4(
+                return math::Matrix4x4f(
                     c + c2 / 3.F, c3 - sq * s, c3 + sq * s, 0.F,
                     c3 + sq * s,  c + c3,      c3 - sq * s, 0.F,
                     c3 - sq * s,  c3 + sq * s, c + c3,      0.F,
                     0.F,          0.F,         0.F,         1.F);
             }
 
-            glm::mat4x4 colorMatrix(const render::ImageColor& in)
+            math::Matrix4x4f colorMatrix(const render::ImageColor& in)
             {
                 return
                     brightnessMatrix(in.brightness) *
@@ -1077,7 +1083,7 @@ namespace tlr
                     break;
                 default: break;
                 }
-                glm::vec2 pts[4];
+                math::Vector2f pts[4];
                 for (size_t i = 0; i < 4; ++i)
                 {
                     float rad = math::deg2rad(rot + 90.F * i + 90.F);
@@ -1188,7 +1194,7 @@ namespace tlr
 
         void Render::drawText(
             const std::vector<std::shared_ptr<imaging::Glyph> >& glyphs,
-            const glm::ivec2& pos,
+            const math::Vector2i& pos,
             const imaging::Color4f& color)
         {
             TLR_PRIVATE_P();
@@ -1229,7 +1235,7 @@ namespace tlr
                         }
                         glBindTexture(GL_TEXTURE_2D, texture->getID());
 
-                        const glm::ivec2& offset = glyph->offset;
+                        const math::Vector2i& offset = glyph->offset;
                         const math::BBox2i bbox(pos.x + x + offset.x, pos.y - offset.y, glyph->width, glyph->height);
 
                         std::vector<uint8_t> vboData;

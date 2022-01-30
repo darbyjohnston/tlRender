@@ -86,9 +86,9 @@ namespace tlr
         std::shared_ptr<timeline::TimelinePlayer> _timelinePlayer;
 
         GLFWwindow* _glfwWindow = nullptr;
-        glm::ivec2 _windowPos;
+        math::Vector2i _windowPos;
         imaging::Size _frameBufferSize;
-        glm::vec2 _contentScale;
+        math::Vector2f _contentScale;
         std::shared_ptr<imaging::FontSystem> _fontSystem;
         std::shared_ptr<render::IRender> _render;
         std::shared_ptr<render::IRender> _glRender;

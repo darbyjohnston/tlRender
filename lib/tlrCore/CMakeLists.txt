@@ -35,6 +35,8 @@ set(HEADERS
     MapObserverInline.h
     Math.h
     MathInline.h
+    Matrix.h
+    MatrixInline.h	
     Memory.h
     MemoryInline.h
 	Mesh.h
@@ -61,7 +63,9 @@ set(HEADERS
 	TimelineUtil.h
     Util.h
     ValueObserver.h
-    ValueObserverInline.h)
+    ValueObserverInline.h
+	Vector.h
+	VectorInline.h)
 set(SOURCE
     AVIO.cpp
     AVIOSystem.cpp
@@ -84,6 +88,7 @@ set(SOURCE
     ISystem.cpp
     Image.cpp
     LogSystem.cpp
+	Matrix.cpp
     Memory.cpp
 	Mesh.cpp
 	OCIO.cpp
@@ -99,7 +104,8 @@ set(SOURCE
     Time.cpp
     Timeline.cpp
     TimelinePlayer.cpp
-	TimelineUtil.cpp)
+	TimelineUtil.cpp
+	Vector.cpp)
 if (WIN32)
     set(SOURCE
         ${SOURCE}

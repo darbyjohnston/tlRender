@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
+#include <tlrCore/Vector.h>
 
 #include <vector>
 
@@ -43,24 +42,24 @@ namespace tlr
         //! Two-dimensional triangle mesh.
         struct TriangleMesh2
         {
-            std::vector<glm::vec2> v;
-            std::vector<glm::vec2> c;
-            std::vector<glm::vec2> t;
+            std::vector<math::Vector2f> v;
+            std::vector<math::Vector2f> c;
+            std::vector<math::Vector2f> t;
             std::vector<Triangle2> triangles;
         };
 
         //! Three-dimensional triangle mesh.
         struct TriangleMesh3
         {
-            std::vector<glm::vec3> v;
-            std::vector<glm::vec3> c;
-            std::vector<glm::vec2> t;
-            std::vector<glm::vec3> n;
+            std::vector<math::Vector3f> v;
+            std::vector<math::Vector3f> c;
+            std::vector<math::Vector2f> t;
+            std::vector<math::Vector3f> n;
             std::vector<Triangle3> triangles;
         };
 
         //! Edge function.
-        float edge(const glm::vec2& p, const glm::vec2& v0, const glm::vec2& v1);
+        float edge(const math::Vector2f& p, const math::Vector2f& v0, const math::Vector2f& v1);
 
         //! Create a sphere triangle mesh.
         TriangleMesh3 createSphere(

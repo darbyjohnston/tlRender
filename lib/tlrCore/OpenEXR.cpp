@@ -47,9 +47,9 @@ namespace tlr
         {}
 
         Channel::Channel(
-            const std::string& name,
-            Imf::PixelType     pixelType,
-            const glm::ivec2&  sampling) :
+            const std::string&    name,
+            Imf::PixelType        pixelType,
+            const math::Vector2i& sampling) :
             name(name),
             pixelType(pixelType),
             sampling(sampling)
@@ -1027,7 +1027,7 @@ namespace tlr
 
         math::BBox2i fromImath(const Imath::Box2i& value)
         {
-            return math::BBox2i(glm::ivec2(value.min.x, value.min.y), glm::ivec2(value.max.x, value.max.y));
+            return math::BBox2i(math::Vector2i(value.min.x, value.min.y), math::Vector2i(value.max.x, value.max.y));
         }
 
         Channel fromImf(const std::string& name, const Imf::Channel& channel)
@@ -1035,7 +1035,7 @@ namespace tlr
             return Channel(
                 name,
                 channel.type,
-                glm::ivec2(channel.xSampling, channel.ySampling));
+                math::Vector2i(channel.xSampling, channel.ySampling));
         }
 
         void Plugin::_init(const std::shared_ptr<core::LogSystem>& logSystem)

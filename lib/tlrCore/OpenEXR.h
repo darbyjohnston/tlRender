@@ -35,13 +35,13 @@ namespace tlr
         {
             Channel();
             Channel(
-                const std::string& name,
-                Imf::PixelType     pixelType,
-                const glm::ivec2&  sampling  = glm::ivec2(1, 1));
+                const std::string&    name,
+                Imf::PixelType        pixelType,
+                const math::Vector2i& sampling  = math::Vector2i(1, 1));
 
             std::string    name;
             Imf::PixelType pixelType = Imf::PixelType::HALF;
-            glm::ivec2     sampling  = glm::ivec2(1, 1);
+            math::Vector2i sampling  = math::Vector2i(1, 1);
         };
 
         //! Image layer.

@@ -22,7 +22,7 @@ namespace tlr
         math::BBox2i getBBox(float aspect, const math::BBox2i& bbox) noexcept
         {
             math::BBox2i out;
-            const glm::ivec2 bboxSize = bbox.getSize();
+            const math::Vector2i bboxSize = bbox.getSize();
             const float bboxAspect = bbox.getAspect();
             if (bboxAspect > aspect)
             {

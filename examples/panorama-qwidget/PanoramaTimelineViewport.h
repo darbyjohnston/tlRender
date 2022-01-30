@@ -51,7 +51,7 @@ private:
     tlr::qt::TimelinePlayer* _timelinePlayer = nullptr;
     tlr::imaging::Size _videoSize;
     tlr::timeline::VideoData _videoData;
-    glm::vec2 _cameraRotation = glm::vec2(0.F, 0.F);
+    tlr::math::Vector2f _cameraRotation;
     float _cameraFOV = 45.F;
     tlr::geom::TriangleMesh3 _sphereMesh;
     std::shared_ptr<tlr::gl::VBO> _sphereVBO;

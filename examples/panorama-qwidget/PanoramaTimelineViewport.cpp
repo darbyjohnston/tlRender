@@ -192,7 +192,14 @@ void PanoramaTimelineViewport::paintGL()
         .1F,
         10000.F);
     _shader->bind();
-    _shader->setUniform("transform.mvp", p * v);
+    glm::mat4x4 vp = p * v;
+    _shader->setUniform(
+        "transform.mvp",
+        math::Matrix4x4f(
+            vp[0][0], vp[0][1], vp[0][2], vp[0][3],
+            vp[1][0], vp[1][1], vp[1][2], vp[1][3],
+            vp[2][0], vp[2][1], vp[2][2], vp[2][3],
+            vp[3][0], vp[3][1], vp[3][2], vp[3][3]));
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, _buffer->getColorID());
     _sphereVAO->bind();

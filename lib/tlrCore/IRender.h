@@ -8,8 +8,6 @@
 #include <tlrCore/Color.h>
 #include <tlrCore/Timeline.h>
 
-#include <glm/vec2.hpp>
-
 namespace tlr
 {
     namespace imaging
@@ -70,12 +68,12 @@ namespace tlr
         struct ImageColor
         {
         public:
-            glm::vec3 add        = glm::vec3(0.F, 0.F, 0.F);
-            glm::vec3 brightness = glm::vec3(1.F, 1.F, 1.F);
-            glm::vec3 contrast   = glm::vec3(1.F, 1.F, 1.F);
-            glm::vec3 saturation = glm::vec3(1.F, 1.F, 1.F);
-            float     tint       = 0.F;
-            bool      invert     = false;
+            math::Vector3f add        = math::Vector3f(0.F, 0.F, 0.F);
+            math::Vector3f brightness = math::Vector3f(1.F, 1.F, 1.F);
+            math::Vector3f contrast   = math::Vector3f(1.F, 1.F, 1.F);
+            math::Vector3f saturation = math::Vector3f(1.F, 1.F, 1.F);
+            float          tint       = 0.F;
+            bool           invert     = false;
 
             bool operator == (const ImageColor&) const;
             bool operator != (const ImageColor&) const;
@@ -149,7 +147,7 @@ namespace tlr
             CompareMode mode = CompareMode::A;
             float horizontal = .5F;
             float vertical = .5F;
-            glm::ivec2 freePos = glm::ivec2(0, 0);
+            math::Vector2i freePos;
             float freeRot = 0.F;
 
             bool operator == (const CompareOptions&) const;
@@ -201,7 +199,7 @@ namespace tlr
             //! Draw text.
             virtual void drawText(
                 const std::vector<std::shared_ptr<imaging::Glyph> >& glyphs,
-                const glm::ivec2& position,
+                const math::Vector2i& position,
                 const imaging::Color4f&) = 0;
 
         protected:

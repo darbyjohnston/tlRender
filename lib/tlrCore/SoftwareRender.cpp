@@ -272,9 +272,9 @@ namespace tlr
                             {
                                 for (const auto& t : mesh.triangles)
                                 {
-                                    float w0 = geom::edge(glm::vec2(x, y), mesh.v[t.v[2].v], mesh.v[t.v[1].v]);
-                                    float w1 = geom::edge(glm::vec2(x, y), mesh.v[t.v[0].v], mesh.v[t.v[2].v]);
-                                    float w2 = geom::edge(glm::vec2(x, y), mesh.v[t.v[1].v], mesh.v[t.v[0].v]);
+                                    float w0 = geom::edge(math::Vector2f(x, y), mesh.v[t.v[2].v], mesh.v[t.v[1].v]);
+                                    float w1 = geom::edge(math::Vector2f(x, y), mesh.v[t.v[0].v], mesh.v[t.v[2].v]);
+                                    float w2 = geom::edge(math::Vector2f(x, y), mesh.v[t.v[1].v], mesh.v[t.v[0].v]);
                                     if (w0 >= 0.F && w1 >= 0.F && w2 >= 0.F)
                                     {
                                         const float area = geom::edge(
@@ -372,14 +372,14 @@ namespace tlr
             TLR_PRIVATE_P();
 
             geom::TriangleMesh2 mesh;
-            mesh.v.push_back(glm::vec2(bbox.min.x, bbox.min.y));
-            mesh.v.push_back(glm::vec2(bbox.max.x, bbox.min.y));
-            mesh.v.push_back(glm::vec2(bbox.max.x, bbox.max.y));
-            mesh.v.push_back(glm::vec2(bbox.min.x, bbox.max.y));
-            mesh.t.push_back(glm::vec2(0.F, 0.F));
-            mesh.t.push_back(glm::vec2(1.F, 0.F));
-            mesh.t.push_back(glm::vec2(1.F, 1.F));
-            mesh.t.push_back(glm::vec2(0.F, 1.F));
+            mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.min.y));
+            mesh.v.push_back(math::Vector2f(bbox.max.x, bbox.min.y));
+            mesh.v.push_back(math::Vector2f(bbox.max.x, bbox.max.y));
+            mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.max.y));
+            mesh.t.push_back(math::Vector2f(0.F, 0.F));
+            mesh.t.push_back(math::Vector2f(1.F, 0.F));
+            mesh.t.push_back(math::Vector2f(1.F, 1.F));
+            mesh.t.push_back(math::Vector2f(0.F, 1.F));
             geom::Triangle2 triangle;
             triangle.v[0].v = 0;
             triangle.v[1].v = 1;
@@ -419,14 +419,14 @@ namespace tlr
                 if (auto image_RGBA_F32 = convert_to_RGBA_F32(image, yuvRange))
                 {
                     geom::TriangleMesh2 mesh;
-                    mesh.v.push_back(glm::vec2(bbox.min.x, bbox.min.y));
-                    mesh.v.push_back(glm::vec2(bbox.max.x, bbox.min.y));
-                    mesh.v.push_back(glm::vec2(bbox.max.x, bbox.max.y));
-                    mesh.v.push_back(glm::vec2(bbox.min.x, bbox.max.y));
-                    mesh.t.push_back(glm::vec2(0.F, 0.F));
-                    mesh.t.push_back(glm::vec2(1.F, 0.F));
-                    mesh.t.push_back(glm::vec2(1.F, 1.F));
-                    mesh.t.push_back(glm::vec2(0.F, 1.F));
+                    mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.min.y));
+                    mesh.v.push_back(math::Vector2f(bbox.max.x, bbox.min.y));
+                    mesh.v.push_back(math::Vector2f(bbox.max.x, bbox.max.y));
+                    mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.max.y));
+                    mesh.t.push_back(math::Vector2f(0.F, 0.F));
+                    mesh.t.push_back(math::Vector2f(1.F, 0.F));
+                    mesh.t.push_back(math::Vector2f(1.F, 1.F));
+                    mesh.t.push_back(math::Vector2f(0.F, 1.F));
                     geom::Triangle2 triangle;
                     triangle.v[0].v = 0;
                     triangle.v[1].v = 1;
@@ -533,7 +533,7 @@ namespace tlr
 
         void SoftwareRender::drawText(
             const std::vector<std::shared_ptr<imaging::Glyph> >& glyphs,
-            const glm::ivec2& pos,
+            const math::Vector2i& pos,
             const imaging::Color4f& color)
         {
             TLR_PRIVATE_P();
@@ -573,18 +573,18 @@ namespace tlr
                             }
                         }
 
-                        const glm::ivec2& offset = glyph->offset;
+                        const math::Vector2i& offset = glyph->offset;
                         const math::BBox2i bbox(pos.x + x + offset.x, pos.y - offset.y, glyph->width, glyph->height);
 
                         geom::TriangleMesh2 mesh;
-                        mesh.v.push_back(glm::vec2(bbox.min.x, bbox.min.y));
-                        mesh.v.push_back(glm::vec2(bbox.max.x, bbox.min.y));
-                        mesh.v.push_back(glm::vec2(bbox.max.x, bbox.max.y));
-                        mesh.v.push_back(glm::vec2(bbox.min.x, bbox.max.y));
-                        mesh.t.push_back(glm::vec2(0.F, 0.F));
-                        mesh.t.push_back(glm::vec2(1.F, 0.F));
-                        mesh.t.push_back(glm::vec2(1.F, 1.F));
-                        mesh.t.push_back(glm::vec2(0.F, 1.F));
+                        mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.min.y));
+                        mesh.v.push_back(math::Vector2f(bbox.max.x, bbox.min.y));
+                        mesh.v.push_back(math::Vector2f(bbox.max.x, bbox.max.y));
+                        mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.max.y));
+                        mesh.t.push_back(math::Vector2f(0.F, 0.F));
+                        mesh.t.push_back(math::Vector2f(1.F, 0.F));
+                        mesh.t.push_back(math::Vector2f(1.F, 1.F));
+                        mesh.t.push_back(math::Vector2f(0.F, 1.F));
                         geom::Triangle2 triangle;
                         triangle.v[0].v = 0;
                         triangle.v[1].v = 1;

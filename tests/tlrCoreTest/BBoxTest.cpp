@@ -50,28 +50,28 @@ namespace tlr
                 TLR_ASSERT(0.F == b.max.y);
             }
             {
-                const BBox2i b(glm::ivec2(1, 2));
+                const BBox2i b(Vector2i(1, 2));
                 TLR_ASSERT(1 == b.min.x);
                 TLR_ASSERT(2 == b.min.y);
                 TLR_ASSERT(1 == b.max.x);
                 TLR_ASSERT(2 == b.max.y);
             }
             {
-                const BBox2f b(glm::vec2(1.F, 2.F));
+                const BBox2f b(Vector2f(1.F, 2.F));
                 TLR_ASSERT(1.F == b.min.x);
                 TLR_ASSERT(2.F == b.min.y);
                 TLR_ASSERT(1.F == b.max.x);
                 TLR_ASSERT(2.F == b.max.y);
             }
             {
-                const BBox2i b(glm::ivec2(1, 2), glm::ivec2(3, 4));
+                const BBox2i b(Vector2i(1, 2), Vector2i(3, 4));
                 TLR_ASSERT(1 == b.min.x);
                 TLR_ASSERT(2 == b.min.y);
                 TLR_ASSERT(3 == b.max.x);
                 TLR_ASSERT(4 == b.max.y);
             }
             {
-                const BBox2f b(glm::vec2(1.F, 2.F), glm::vec2(3.F, 4.F));
+                const BBox2f b(Vector2f(1.F, 2.F), Vector2f(3.F, 4.F));
                 TLR_ASSERT(1.F == b.min.x);
                 TLR_ASSERT(2.F == b.min.y);
                 TLR_ASSERT(3.F == b.max.x);
@@ -135,16 +135,16 @@ namespace tlr
         {
             {
                 BBox2i b(1, 2, 3, 4);
-                TLR_ASSERT(glm::ivec2(3, 4) == b.getSize());
-                TLR_ASSERT(glm::ivec2(2, 4) == b.getCenter());
+                TLR_ASSERT(Vector2i(3, 4) == b.getSize());
+                TLR_ASSERT(Vector2i(2, 4) == b.getCenter());
                 TLR_ASSERT(12 == b.getArea());
                 TLR_ASSERT(3 / static_cast<float>(4) == b.getAspect());
             }
             {
                 BBox2f b(1.F, 2.F, 3.F, 4.F);
-                TLR_ASSERT(glm::vec2(3.F, 4.F) == b.getSize());
+                TLR_ASSERT(Vector2f(3.F, 4.F) == b.getSize());
                 const auto c = b.getCenter();
-                TLR_ASSERT(glm::vec2(2.5F, 4.F) == c);
+                TLR_ASSERT(Vector2f(2.5F, 4.F) == c);
                 TLR_ASSERT(12.F == b.getArea());
                 TLR_ASSERT(3.F / 4.F == b.getAspect());
             }
@@ -200,12 +200,12 @@ namespace tlr
             }
             {
                 BBox2i b(0, 1, 2, 3);
-                b.expand(glm::ivec2(6, 7));
+                b.expand(Vector2i(6, 7));
                 TLR_ASSERT(BBox2i(0, 1, 7, 7) == b);
             }
             {
                 BBox2f b(0.F, 1.F, 2.F, 3.F);
-                b.expand(glm::vec2(6.F, 7.F));
+                b.expand(Vector2f(6.F, 7.F));
                 TLR_ASSERT(BBox2f(0.F, 1.F, 6.F, 6.F) == b);
             }
         }
@@ -213,8 +213,8 @@ namespace tlr
         void BBoxTest::_margin()
         {
             {
-                TLR_ASSERT(BBox2i(0, 1, 2, 3).margin(glm::ivec2(1, 2)) == BBox2i(-1, -1, 4, 7));
-                TLR_ASSERT(BBox2f(0.F, 1.F, 2.F, 3.F).margin(glm::vec2(1.F, 2.F)) == BBox2f(-1.F, -1.F, 4.F, 7.F));
+                TLR_ASSERT(BBox2i(0, 1, 2, 3).margin(Vector2i(1, 2)) == BBox2i(-1, -1, 4, 7));
+                TLR_ASSERT(BBox2f(0.F, 1.F, 2.F, 3.F).margin(Vector2f(1.F, 2.F)) == BBox2f(-1.F, -1.F, 4.F, 7.F));
             }
             {
                 TLR_ASSERT(BBox2i(0, 1, 2, 3).margin(1) == BBox2i(-1, 0, 4, 5));

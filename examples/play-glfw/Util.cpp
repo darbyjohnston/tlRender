@@ -28,10 +28,10 @@ namespace tlr
 
         const int margin = fontSize;
         const math::BBox2i marginBBox = math::BBox2i(0, 0, window.w, window.h).margin(-margin);
-        const glm::ivec2 labelSize = fontSystem->measure(text, fontInfo);
+        const math::Vector2i labelSize = fontSystem->measure(text, fontInfo);
         const int labelMargin = fontSize / 5;
         math::BBox2i bbox;
-        glm::ivec2 pos;
+        math::Vector2i pos;
         switch (hudElement)
         {
         case HUDElement::UpperLeft:
@@ -40,7 +40,7 @@ namespace tlr
                 marginBBox.min.y,
                 labelSize.x + labelMargin * 2,
                 fontMetrics.lineHeight + labelMargin * 2);
-            pos = glm::ivec2(
+            pos = math::Vector2i(
                 marginBBox.min.x + labelMargin,
                 marginBBox.min.y + labelMargin + fontMetrics.ascender);
             break;
@@ -50,7 +50,7 @@ namespace tlr
                 marginBBox.min.y,
                 labelSize.x + labelMargin * 2,
                 fontMetrics.lineHeight + labelMargin * 2);
-            pos = glm::ivec2(
+            pos = math::Vector2i(
                 marginBBox.max.x - labelMargin - labelSize.x,
                 marginBBox.min.y + labelMargin + fontMetrics.ascender);
             break;
@@ -60,7 +60,7 @@ namespace tlr
                 marginBBox.max.y - labelMargin * 2 - fontMetrics.lineHeight,
                 labelSize.x + labelMargin * 2,
                 fontMetrics.lineHeight + labelMargin * 2);
-            pos = glm::ivec2(
+            pos = math::Vector2i(
                 marginBBox.min.x + labelMargin,
                 marginBBox.max.y - labelMargin - fontMetrics.lineHeight + fontMetrics.ascender);
             break;
@@ -70,7 +70,7 @@ namespace tlr
                 marginBBox.max.y - labelMargin * 2 - fontMetrics.lineHeight,
                 labelSize.x + labelMargin * 2,
                 fontMetrics.lineHeight + labelMargin * 2);
-            pos = glm::ivec2(
+            pos = math::Vector2i(
                 marginBBox.max.x - labelMargin - labelSize.x,
                 marginBBox.max.y - labelMargin - fontMetrics.lineHeight + fontMetrics.ascender);
             break;

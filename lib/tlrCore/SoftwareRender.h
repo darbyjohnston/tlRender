@@ -49,7 +49,7 @@ namespace tlr
                 const render::CompareOptions& = render::CompareOptions()) override;
             void drawText(
                 const std::vector<std::shared_ptr<imaging::Glyph> >& glyphs,
-                const glm::ivec2& position,
+                const math::Vector2i& position,
                 const imaging::Color4f&) override;
 
         private:

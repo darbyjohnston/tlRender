@@ -70,7 +70,7 @@ namespace tlr
             std::vector<uint8_t> data;
             uint16_t width = 0;
             uint16_t height = 0;
-            glm::ivec2 offset = glm::ivec2(0, 0);
+            math::Vector2i offset;
             int16_t advance = 0;
             int32_t lsbDelta = 0;
             int32_t rsbDelta = 0;
@@ -112,7 +112,7 @@ namespace tlr
             FontMetrics getMetrics(const FontInfo&);
 
             //! Measure the size of text.
-            glm::ivec2 measure(const std::string&, const FontInfo&);
+            math::Vector2i measure(const std::string&, const FontInfo&);
 
             //! Measure the size of glyphs.
             std::vector<math::BBox2i> measureGlyphs(const std::string&, const FontInfo&);
