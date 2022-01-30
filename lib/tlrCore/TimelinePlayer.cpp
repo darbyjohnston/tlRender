@@ -413,6 +413,11 @@ namespace tlr
                                     std::unique_lock<std::mutex> lock(p.mutex);
                                     p.mutexData.playbackStartTime = p.currentTime->get();
                                     p.mutexData.playbackStartTimer = std::chrono::steady_clock::now();
+                                    if (currentTime < p.timeline->getGlobalStartTime() ||
+                                        currentTime - p.timeline->getGlobalStartTime() > p.timeline->getDuration())
+                                    {
+                                        p.mutexData.videoData = VideoData();
+                                    }
                                 }
                                 p.resetAudioTime();
                                 {
