@@ -585,9 +585,12 @@ namespace tlr
                 p.durationLabel->setValue(duration);
 
                 p.speedLabel->setValue(duration);
+                p.speedComboBox->setEnabled(true);
 
                 p.volumeSlider->setValue(p.timelinePlayer->volume() * volumeSliderSteps);
+                p.volumeSlider->setEnabled(true);
                 p.muteButton->setChecked(p.timelinePlayer->isMuted());
+                p.muteButton->setEnabled(true);
             }
             else
             {
@@ -617,9 +620,12 @@ namespace tlr
                 p.durationLabel->setValue(time::invalidTime);
 
                 p.speedLabel->setValue(time::invalidTime);
+                p.speedComboBox->setEnabled(false);
 
                 p.volumeSlider->setValue(volumeSliderSteps);
+                p.volumeSlider->setEnabled(false);
                 p.muteButton->setChecked(false);
+                p.muteButton->setEnabled(false);
             }
         }
     }

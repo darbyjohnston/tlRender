@@ -26,6 +26,8 @@ namespace tlr
         _treeView->setItemDelegateForColumn(1, new FilesLayersItemDelegate);
         _treeView->setEditTriggers(QAbstractItemView::CurrentChanged);
         _treeView->setIndentation(0);
+        //! \bug Setting the model causes this output to be printed on exit:
+        //! QBasicTimer::start: QBasicTimer can only be used with threads started with QThread
         _treeView->setModel(filesModel);
         _treeView->resizeColumnToContents(2);
         _treeView->resizeColumnToContents(3);

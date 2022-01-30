@@ -258,13 +258,18 @@ namespace tlr
 
         if (auto context = _context.lock())
         {
-            auto timeline = timeline::Timeline::create(item->path.get(), context);
-            _thumbnailProviders[item] = new qt::TimelineThumbnailProvider(timeline, context);
-            connect(
-                _thumbnailProviders[item],
-                SIGNAL(thumbails(const QList<QPair<otime::RationalTime, QImage> >&)),
-                SLOT(_thumbailCallback(const QList<QPair<otime::RationalTime, QImage> >&)));
-            _thumbnailProviders[item]->request(timeline->getGlobalStartTime(), QSize(120, 80));
+            try
+            {
+                auto timeline = timeline::Timeline::create(item->path.get(), context);
+                _thumbnailProviders[item] = new qt::TimelineThumbnailProvider(timeline, context);
+                connect(
+                    _thumbnailProviders[item],
+                    SIGNAL(thumbails(const QList<QPair<otime::RationalTime, QImage> >&)),
+                    SLOT(_thumbailCallback(const QList<QPair<otime::RationalTime, QImage> >&)));
+                _thumbnailProviders[item]->request(timeline->getGlobalStartTime(), QSize(120, 80));
+            }
+            catch (const std::exception&)
+            {}
         }
     }
 

@@ -581,7 +581,8 @@ namespace tlr
             const auto urlList = mimeData->urls();
             for (int i = 0; i < urlList.size(); ++i)
             {
-                _app->open(urlList[i].toLocalFile().toUtf8());
+                const QString fileName = urlList[i].toLocalFile();
+                _app->open(fileName);
             }
         }
     }

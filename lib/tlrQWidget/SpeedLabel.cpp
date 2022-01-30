@@ -54,7 +54,10 @@ namespace tlr
         void SpeedLabel::_textUpdate()
         {
             TLR_PRIVATE_P();
-            p.label->setText(QString("%1").arg(p.value.rate(), 0, 'f', 2));
+            p.label->setText(
+                p.value != time::invalidTime ?
+                QString("%1").arg(p.value.rate(), 0, 'f', 2) :
+                QString());
         }
     }
 }
