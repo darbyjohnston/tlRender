@@ -78,7 +78,7 @@ namespace tlr
                     float tmp = 0.F;
                     for (int k = 0; k < 3; ++k)
                     {
-                        tmp += e[i * 3 + k] * value.e[k * 3 + j];
+                        tmp += value.e[i * 3 + k] * e[k * 3 + j];
                     }
                     out.e[i * 3 + j] = tmp;
                 }
@@ -124,7 +124,7 @@ namespace tlr
                     float tmp = 0.F;
                     for (int k = 0; k < 4; ++k)
                     {
-                        tmp += e[i * 4 + k] * value.e[k * 4 + j];
+                        tmp += value.e[i * 4 + k] * e[k * 4 + j];
                     }
                     out.e[i * 4 + j] = tmp;
                 }

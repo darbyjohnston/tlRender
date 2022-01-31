@@ -49,9 +49,9 @@ namespace tlr
         {
             return
                 math::Matrix4x4f(
-                    1.F, 0.F, 0.F, .5F,
-                    0.F, 1.F, 0.F, .5F,
-                    0.F, 0.F, 1.F, .5F,
+                    1.F, 0.F, 0.F, -.5F,
+                    0.F, 1.F, 0.F, -.5F,
+                    0.F, 0.F, 1.F, -.5F,
                     0.F, 0.F, 0.F, 1.F) *
                 math::Matrix4x4f(
                     value.x, 0.F, 0.F, 0.F,
@@ -59,9 +59,9 @@ namespace tlr
                     0.F, 0.F, value.z, 0.F,
                     0.F, 0.F, 0.F, 1.F) *
                 math::Matrix4x4f(
-                    1.F, 0.F, 0.F, -.5F,
-                    0.F, 1.F, 0.F, -.5F,
-                    0.F, 0.F, 1.F, -.5F,
+                    1.F, 0.F, 0.F,  .5F,
+                    0.F, 1.F, 0.F,  .5F,
+                    0.F, 0.F, 1.F,  .5F,
                     0.F, 0.F, 0.F, 1.F);
         }
 
