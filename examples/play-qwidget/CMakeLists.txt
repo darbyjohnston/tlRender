@@ -9,7 +9,8 @@ set(HEADERS
 	OpenWithAudioDialog.h
     SecondaryWindow.h
     SettingsObject.h
-    SettingsTool.h)
+    SettingsTool.h
+	ToolWidget.h)
 set(SOURCE
     App.cpp
 	AudioTool.cpp
@@ -22,6 +23,7 @@ set(SOURCE
     SecondaryWindow.cpp
     SettingsObject.cpp
     SettingsTool.cpp
+	ToolWidget.cpp
     main.cpp)
 
 add_executable(play-qwidget ${SOURCE} ${HEADERS})

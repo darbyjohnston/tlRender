@@ -98,8 +98,8 @@ namespace tlr
         void TimeSpinBox::setValue(const otime::RationalTime& value)
         {
             TLR_PRIVATE_P();
-            if (p.value.value() == value.value() &&
-                p.value.rate() == value.rate())
+            if (value.value() == p.value.value() &&
+                value.rate() == p.value.rate())
                 return;
             p.value = value;
             Q_EMIT valueChanged(p.value);
@@ -109,7 +109,7 @@ namespace tlr
         void TimeSpinBox::setUnits(qt::TimeUnits units)
         {
             TLR_PRIVATE_P();
-            if (p.units == units)
+            if (units == p.units)
                 return;
             p.units = units;
             Q_EMIT unitsChanged(p.units);

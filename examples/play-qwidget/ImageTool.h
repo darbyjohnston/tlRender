@@ -4,13 +4,14 @@
 
 #pragma once
 
+#include "ToolWidget.h"
+
 #include <tlrCore/IRender.h>
 
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDoubleSpinBox>
 #include <QSlider>
-#include <QToolBox>
 
 namespace tlr
 {
@@ -131,6 +132,7 @@ namespace tlr
 
     public Q_SLOTS:
         void setValue(const tlr::math::Vector3f&);
+        void setComponents(bool);
 
     Q_SIGNALS:
         void valueChanged(const tlr::math::Vector3f&);
@@ -139,7 +141,6 @@ namespace tlr
         void _sliderCallback0(float);
         void _sliderCallback1(float);
         void _sliderCallback2(float);
-        void _componentsCallback(bool);
 
     private:
         void _widgetUpdate();
@@ -149,7 +150,6 @@ namespace tlr
         bool _components = false;
 
         ColorSliderWidget* _sliders[3] = { nullptr, nullptr, nullptr };
-        QCheckBox* _componentsCheckBox = nullptr;
     };
 
     //! Color widget.
@@ -170,6 +170,7 @@ namespace tlr
 
     private Q_SLOTS:
         void _colorEnabledCallback(bool);
+        void _componentsCallback(bool);
         void _addCallback(const tlr::math::Vector3f&);
         void _brightnessCallback(const tlr::math::Vector3f&);
         void _contrastCallback(const tlr::math::Vector3f&);
@@ -182,8 +183,10 @@ namespace tlr
 
         bool _colorEnabled = false;
         render::Color _color;
+        bool _components = false;
 
         QCheckBox* _colorEnabledCheckBox = nullptr;
+        QCheckBox* _componentsCheckBox = nullptr;
         ColorSlidersWidget* _addSliders = nullptr;
         ColorSlidersWidget* _brightnessSliders = nullptr;
         ColorSlidersWidget* _contrastSliders = nullptr;
@@ -297,7 +300,7 @@ namespace tlr
     };
 
     //! Image tool.
-    class ImageTool : public QToolBox
+    class ImageTool : public ToolWidget
     {
         Q_OBJECT
 
@@ -322,7 +325,6 @@ namespace tlr
         void _exposureCallback(const tlr::render::Exposure&);
         void _softClipEnabledCallback(bool);
         void _softClipCallback(float);
-        void _currentItemCallback(int);
 
     private:
         void _optionsUpdate();

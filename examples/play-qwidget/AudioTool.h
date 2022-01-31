@@ -4,9 +4,10 @@
 
 #pragma once
 
+#include "ToolWidget.h"
+
 #include <QDoubleSpinBox>
 #include <QSlider>
-#include <QToolBox>
 
 namespace tlr
 {
@@ -38,7 +39,7 @@ namespace tlr
     };
 
     //! Audio tool.
-    class AudioTool : public QToolBox
+    class AudioTool : public ToolWidget
     {
         Q_OBJECT
 
@@ -50,9 +51,6 @@ namespace tlr
 
     Q_SIGNALS:
         void audioOffsetChanged(double);
-
-    private Q_SLOTS:
-        void _currentItemCallback(int);
 
     private:
         AudioOffsetWidget* _offsetWidget = nullptr;

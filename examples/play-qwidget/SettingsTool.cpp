@@ -6,9 +6,7 @@
 
 #include <QBoxLayout>
 #include <QFormLayout>
-#include <QGroupBox>
 #include <QLabel>
-#include <QSettings>
 
 namespace tlr
 {
@@ -22,17 +20,10 @@ namespace tlr
         _readBehindSpinBox->setRange(0, 60.0);
 
         auto layout = new QVBoxLayout;
-        auto vLayout = new QVBoxLayout;
-        vLayout->addWidget(_readAheadSpinBox);
-        auto groupBox = new QGroupBox(tr("Read Ahead"));
-        groupBox->setLayout(vLayout);
-        layout->addWidget(groupBox);
-        vLayout = new QVBoxLayout;
-        vLayout->addWidget(_readBehindSpinBox);
-        groupBox = new QGroupBox(tr("Read Behind"));
-        groupBox->setLayout(vLayout);
-        layout->addWidget(groupBox);
-        layout->addStretch();
+        layout->addWidget(new QLabel(tr("Read Ahead")));
+        layout->addWidget(_readAheadSpinBox);
+        layout->addWidget(new QLabel(tr("Read Behind")));
+        layout->addWidget(_readBehindSpinBox);
         setLayout(layout);
 
         _readAheadSpinBox->setValue(settingsObject->cacheReadAhead());
@@ -90,21 +81,14 @@ namespace tlr
         _maxDigitsSpinBox->setRange(0, 255);
 
         auto layout = new QVBoxLayout;
-        auto vLayout = new QVBoxLayout;
-        vLayout->addWidget(_audioComboBox);
-        auto formLayout = new QFormLayout;
-        formLayout->addRow(tr("File name:"), _audioFileName);
-        formLayout->addRow(tr("Directory:"), _audioDirectory);
-        vLayout->addLayout(formLayout);
-        auto groupBox = new QGroupBox(tr("Audio"));
-        groupBox->setLayout(vLayout);
-        layout->addWidget(groupBox);
-        vLayout = new QVBoxLayout;
-        vLayout->addWidget(_maxDigitsSpinBox);
-        groupBox = new QGroupBox(tr("Maximum Digits"));
-        groupBox->setLayout(vLayout);
-        layout->addWidget(groupBox);
-        layout->addStretch();
+        layout->addWidget(new QLabel(tr("Audio")));
+        layout->addWidget(_audioComboBox);
+        layout->addWidget(new QLabel(tr("Audio File Name")));
+        layout->addWidget(_audioFileName);
+        layout->addWidget(new QLabel(tr("Audio Directory")));
+        layout->addWidget(_audioDirectory);
+        layout->addWidget(new QLabel(tr("Maximum Digits")));
+        layout->addWidget(_maxDigitsSpinBox);
         setLayout(layout);
 
         _audioComboBox->setCurrentIndex(static_cast<int>(settingsObject->fileSequenceAudio()));
@@ -215,45 +199,18 @@ namespace tlr
         auto label = new QLabel(tr("Changes are applied to newly opened files."));
         label->setWordWrap(true);
         layout->addWidget(label);
-        layout->addSpacing(10);
-
-        auto vLayout = new QVBoxLayout;
-        vLayout->addWidget(_timerModeComboBox);
-        auto groupBox = new QGroupBox(tr("Timer Mode"));
-        groupBox->setLayout(vLayout);
-        layout->addWidget(groupBox);
-
-        vLayout = new QVBoxLayout;
-        vLayout->addWidget(_audioBufferFrameCountComboBox);
-        groupBox = new QGroupBox(tr("Audio Buffer Frame Count"));
-        groupBox->setLayout(vLayout);
-        layout->addWidget(groupBox);
-
-        vLayout = new QVBoxLayout;
-        vLayout->addWidget(_videoRequestCountSpinBox);
-        groupBox = new QGroupBox(tr("Timeline Video Requests"));
-        groupBox->setLayout(vLayout);
-        layout->addWidget(groupBox);
-
-        vLayout = new QVBoxLayout;
-        vLayout->addWidget(_audioRequestCountSpinBox);
-        groupBox = new QGroupBox(tr("Timeline Audio Requests"));
-        groupBox->setLayout(vLayout);
-        layout->addWidget(groupBox);
-
-        vLayout = new QVBoxLayout;
-        vLayout->addWidget(_sequenceThreadCountSpinBox);
-        groupBox = new QGroupBox(tr("Sequence I/O Threads"));
-        groupBox->setLayout(vLayout);
-        layout->addWidget(groupBox);
-
-        vLayout = new QVBoxLayout;
-        vLayout->addWidget(_ffmpegThreadCountSpinBox);
-        groupBox = new QGroupBox(tr("FFmpeg I/O threads"));
-        groupBox->setLayout(vLayout);
-        layout->addWidget(groupBox);
-
-        layout->addStretch();
+        layout->addWidget(new QLabel(tr("Timer Mode")));
+        layout->addWidget(_timerModeComboBox);
+        layout->addWidget(new QLabel(tr("Audio Buffer Frame Count")));
+        layout->addWidget(_audioBufferFrameCountComboBox);
+        layout->addWidget(new QLabel(tr("Timeline Video Requests")));
+        layout->addWidget(_videoRequestCountSpinBox);
+        layout->addWidget(new QLabel(tr("Timeline Audio Requests")));
+        layout->addWidget(_audioRequestCountSpinBox);
+        layout->addWidget(new QLabel(tr("Sequence I/O Threads")));
+        layout->addWidget(_sequenceThreadCountSpinBox);
+        layout->addWidget(new QLabel(tr("FFmpeg I/O threads")));
+        layout->addWidget(_ffmpegThreadCountSpinBox);
         setLayout(layout);
 
         _timerModeComboBox->setCurrentIndex(static_cast<int>(settingsObject->timerMode()));
@@ -392,14 +349,10 @@ namespace tlr
         _unitsToButtons[qt::TimeUnits::Timecode] = timecodeButton;
 
         auto layout = new QVBoxLayout;
-        auto vLayout = new QVBoxLayout;
-        vLayout->addWidget(framesButton);
-        vLayout->addWidget(secondsButton);
-        vLayout->addWidget(timecodeButton);
-        auto groupBox = new QGroupBox(tr("Units"));
-        groupBox->setLayout(vLayout);
-        layout->addWidget(groupBox);
-        layout->addStretch();
+        layout->addWidget(new QLabel(tr("Units")));
+        layout->addWidget(framesButton);
+        layout->addWidget(secondsButton);
+        layout->addWidget(timecodeButton);
         setLayout(layout);
 
         const auto unitsButton = _unitsToButtons.find(_timeObject->units());
@@ -446,12 +399,7 @@ namespace tlr
         _toolTipsCheckBox->setText(tr("Enable tool tips"));
 
         auto layout = new QVBoxLayout;
-        auto vLayout = new QVBoxLayout;
-        vLayout->addWidget(_toolTipsCheckBox);
-        auto groupBox = new QGroupBox(tr("Tool Tips"));
-        groupBox->setLayout(vLayout);
-        layout->addWidget(groupBox);
-        layout->addStretch();
+        layout->addWidget(_toolTipsCheckBox);
         setLayout(layout);
 
         _toolTipsCheckBox->setChecked(settingsObject->hasToolTipsEnabled());
@@ -482,26 +430,19 @@ namespace tlr
         SettingsObject* settingsObject,
         qt::TimeObject* timeObject,
         QWidget* parent) :
-        QToolBox(parent)
+        ToolWidget(parent)
     {
-        addItem(new CacheSettingsWidget(settingsObject), tr("Cache"));
-        addItem(new FileSequenceSettingsWidget(settingsObject), tr("File Sequences"));
-        addItem(new PerformanceSettingsWidget(settingsObject), tr("Performance"));
-        addItem(new TimeSettingsWidget(timeObject), tr("Time"));
-        addItem(new MiscSettingsWidget(settingsObject), tr("Miscellaneous"));
+        auto cacheSettingsWidget = new CacheSettingsWidget(settingsObject);
+        auto fileSequenceSettingsWidget = new FileSequenceSettingsWidget(settingsObject);
+        auto performanceSettingsWidget = new PerformanceSettingsWidget(settingsObject);
+        auto timeSettingsWidget = new TimeSettingsWidget(timeObject);
+        auto miscSettingsWidget = new MiscSettingsWidget(settingsObject);
 
-        connect(
-            this,
-            SIGNAL(currentChanged(int)),
-            SLOT(_currentItemCallback(int)));
-
-        QSettings settings;
-        setCurrentIndex(settings.value("SettingsTool/CurrentItem").toInt());
-    }
-
-    void SettingsTool::_currentItemCallback(int value)
-    {
-        QSettings settings;
-        settings.setValue("SettingsTool/CurrentItem", value);
+        addBellows(tr("Cache"), cacheSettingsWidget);
+        addBellows(tr("File Sequences"), fileSequenceSettingsWidget);
+        addBellows(tr("Performance"), performanceSettingsWidget);
+        addBellows(tr("Time"), timeSettingsWidget);
+        addBellows(tr("Miscellaneous"), miscSettingsWidget);
+        addStretch();
     }
 }

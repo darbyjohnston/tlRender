@@ -6,7 +6,7 @@
 
 #include <QBoxLayout>
 #include <QLabel>
-#include <QSettings>
+#include <QSignalBlocker>
 
 namespace tlr
 {
@@ -21,7 +21,6 @@ namespace tlr
 
         auto layout = new QVBoxLayout;
         layout->addWidget(_comboBox);
-        layout->addStretch();
         setLayout(layout);
 
         _widgetUpdate();
@@ -63,7 +62,6 @@ namespace tlr
 
         auto layout = new QVBoxLayout;
         layout->addWidget(_comboBox);
-        layout->addStretch();
         setLayout(layout);
 
         _widgetUpdate();
@@ -105,7 +103,6 @@ namespace tlr
 
         auto layout = new QVBoxLayout;
         layout->addWidget(_comboBox);
-        layout->addStretch();
         setLayout(layout);
 
         _widgetUpdate();
@@ -214,7 +211,6 @@ namespace tlr
         {
             _sliders[i] = new ColorSliderWidget;
         }
-        _componentsCheckBox = new QCheckBox(tr("Components"));
 
         auto layout = new QVBoxLayout;
         layout->setMargin(0);
@@ -223,10 +219,6 @@ namespace tlr
         {
             layout->addWidget(_sliders[i]);
         }
-        auto hLayout = new QHBoxLayout;
-        hLayout->addStretch();
-        hLayout->addWidget(_componentsCheckBox);
-        layout->addLayout(hLayout);
         setLayout(layout);
 
         _widgetUpdate();
@@ -243,11 +235,6 @@ namespace tlr
             _sliders[2],
             SIGNAL(valueChanged(float)),
             SLOT(_sliderCallback2(float)));
-
-        connect(
-            _componentsCheckBox,
-            SIGNAL(toggled(bool)),
-            SLOT(_componentsCallback(bool)));
     }
 
     void ColorSlidersWidget::setRange(const math::FloatRange& value)
@@ -263,6 +250,14 @@ namespace tlr
         if (value == _value)
             return;
         _value = value;
+        _widgetUpdate();
+    }
+
+    void ColorSlidersWidget::setComponents(bool value)
+    {
+        if (value == _components)
+            return;
+        _components = value;
         _widgetUpdate();
     }
 
@@ -299,17 +294,6 @@ namespace tlr
         Q_EMIT valueChanged(_value);
     }
 
-    void ColorSlidersWidget::_componentsCallback(bool value)
-    {
-        _components = value;
-        if (!_components)
-        {
-            _value.x = _value.y = _value.z;
-        }
-        _widgetUpdate();
-        Q_EMIT valueChanged(_value);
-    }
-
     void ColorSlidersWidget::_widgetUpdate()
     {
         {
@@ -329,16 +313,14 @@ namespace tlr
             _sliders[2]->setValue(_value.z);
             _sliders[2]->setVisible(_components);
         }
-        {
-            QSignalBlocker signalBlocker(_componentsCheckBox);
-            _componentsCheckBox->setChecked(_components);
-        }
     }
 
     ColorWidget::ColorWidget(QWidget* parent) :
         QWidget(parent)
     {
         _colorEnabledCheckBox = new QCheckBox(tr("Enabled"));
+
+        _componentsCheckBox = new QCheckBox(tr("Components"));
 
         _addSliders = new ColorSlidersWidget;
 
@@ -356,7 +338,11 @@ namespace tlr
         _invertCheckBox = new QCheckBox(tr("Invert"));
 
         auto layout = new QVBoxLayout;
-        layout->addWidget(_colorEnabledCheckBox);
+        auto hLayout = new QHBoxLayout;
+        hLayout->addWidget(_colorEnabledCheckBox);
+        hLayout->addStretch();
+        hLayout->addWidget(_componentsCheckBox);
+        layout->addLayout(hLayout);
         layout->addWidget(new QLabel(tr("Add")));
         layout->addWidget(_addSliders);
         layout->addWidget(new QLabel(tr("Brightness")));
@@ -368,7 +354,6 @@ namespace tlr
         layout->addWidget(new QLabel(tr("Tint")));
         layout->addWidget(_tintSlider);
         layout->addWidget(_invertCheckBox);
-        layout->addStretch();
         setLayout(layout);
 
         _widgetUpdate();
@@ -377,6 +362,11 @@ namespace tlr
             _colorEnabledCheckBox,
             SIGNAL(toggled(bool)),
             SLOT(_colorEnabledCallback(bool)));
+
+        connect(
+            _componentsCheckBox,
+            SIGNAL(toggled(bool)),
+            SLOT(_componentsCallback(bool)));
 
         connect(
             _addSliders,
@@ -431,6 +421,12 @@ namespace tlr
         Q_EMIT colorEnabledChanged(_colorEnabled);
     }
 
+    void ColorWidget::_componentsCallback(bool value)
+    {
+        _components = value;
+        _widgetUpdate();
+    }
+
     void ColorWidget::_addCallback(const math::Vector3f& value)
     {
         _color.add = value;
@@ -474,19 +470,27 @@ namespace tlr
             _colorEnabledCheckBox->setChecked(_colorEnabled);
         }
         {
+            QSignalBlocker signalBlocker(_componentsCheckBox);
+            _componentsCheckBox->setChecked(_components);
+        }
+        {
             QSignalBlocker signalBlocker(_addSliders);
+            _addSliders->setComponents(_components);
             _addSliders->setValue(_color.add);
         }
         {
             QSignalBlocker signalBlocker(_brightnessSliders);
+            _brightnessSliders->setComponents(_components);
             _brightnessSliders->setValue(_color.brightness);
         }
         {
             QSignalBlocker signalBlocker(_contrastSliders);
+            _contrastSliders->setComponents(_components);
             _contrastSliders->setValue(_color.contrast);
         }
         {
             QSignalBlocker signalBlocker(_saturationSliders);
+            _saturationSliders->setComponents(_components);
             _saturationSliders->setValue(_color.saturation);
         }
         {
@@ -523,7 +527,6 @@ namespace tlr
         layout->addWidget(new QLabel(tr("Out")));
         layout->addWidget(_outLowSlider);
         layout->addWidget(_outHighSlider);
-        layout->addStretch();
         setLayout(layout);
 
         _widgetUpdate();
@@ -655,14 +658,12 @@ namespace tlr
 
         auto layout = new QVBoxLayout;
         layout->addWidget(_exposureEnabledCheckBox);
-        layout->addWidget(new QLabel(tr("Value")));
         layout->addWidget(_exposureSlider);
         layout->addWidget(new QLabel(tr("Defog")));
         layout->addWidget(_defogSlider);
         layout->addWidget(new QLabel(tr("Knee")));
         layout->addWidget(_kneeLowSlider);
         layout->addWidget(_kneeHighSlider);
-        layout->addStretch();
         setLayout(layout);
 
         _widgetUpdate();
@@ -771,9 +772,7 @@ namespace tlr
 
         auto layout = new QVBoxLayout;
         layout->addWidget(_softClipEnabledCheckBox);
-        layout->addWidget(new QLabel(tr("Value")));
         layout->addWidget(_softClipSlider);
-        layout->addStretch();
         setLayout(layout);
 
         _widgetUpdate();
@@ -830,28 +829,24 @@ namespace tlr
     }
 
     ImageTool::ImageTool(QWidget* parent) :
-        QToolBox(parent)
+        ToolWidget(parent)
     {
         _yuvRangeWidget = new YUVRangeWidget;
-        addItem(_yuvRangeWidget, tr("YUV Range"));
-
         _channelsWidget = new ChannelsWidget;
-        addItem(_channelsWidget, tr("Channels"));
-
         _alphaBlendWidget = new AlphaBlendWidget;
-        addItem(_alphaBlendWidget, tr("Alpha Blend"));
-
         _colorWidget = new ColorWidget;
-        addItem(_colorWidget, tr("Color"));
-
         _levelsWidget = new LevelsWidget;
-        addItem(_levelsWidget, tr("Levels"));
-
         _exposureWidget = new ExposureWidget;
-        addItem(_exposureWidget, tr("Exposure"));
-
         _softClipWidget = new SoftClipWidget;
-        addItem(_softClipWidget, tr("Soft Clip"));
+
+        addBellows(tr("YUV Range"), _yuvRangeWidget);
+        addBellows(tr("Channels"), _channelsWidget);
+        addBellows(tr("Alpha Blend"), _alphaBlendWidget);
+        addBellows(tr("Color"), _colorWidget);
+        addBellows(tr("Levels"), _levelsWidget);
+        addBellows(tr("Exposure"), _exposureWidget);
+        addBellows(tr("Soft Clip"), _softClipWidget);
+        addStretch();
 
         _optionsUpdate();
 
@@ -905,14 +900,6 @@ namespace tlr
             _softClipWidget,
             SIGNAL(softClipChanged(float)),
             SLOT(_softClipCallback(float)));
-
-        connect(
-            this,
-            SIGNAL(currentChanged(int)),
-            SLOT(_currentItemCallback(int)));
-
-        QSettings settings;
-        setCurrentIndex(settings.value("ImageTool/CurrentItem").toInt());
     }
 
     void ImageTool::setImageOptions(const render::ImageOptions& imageOptions)
@@ -987,12 +974,6 @@ namespace tlr
     {
         _imageOptions.softClip = value;
         Q_EMIT imageOptionsChanged(_imageOptions);
-    }
-
-    void ImageTool::_currentItemCallback(int value)
-    {
-        QSettings settings;
-        settings.setValue("ImageTool/CurrentItem", value);
     }
 
     void ImageTool::_optionsUpdate()

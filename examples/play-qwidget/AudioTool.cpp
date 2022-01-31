@@ -6,7 +6,6 @@
 
 #include <QBoxLayout>
 #include <QPushButton>
-#include <QSettings>
 #include <QSignalBlocker>
 
 namespace tlr
@@ -89,33 +88,21 @@ namespace tlr
     }
 
     AudioTool::AudioTool(QWidget* parent) :
-        QToolBox(parent)
+        ToolWidget(parent)
     {
         _offsetWidget = new AudioOffsetWidget;
-        addItem(_offsetWidget, tr("Sync Offset"));
+
+        addBellows(tr("Sync Offset"), _offsetWidget);
+        addStretch();
 
         connect(
             _offsetWidget,
             SIGNAL(offsetChanged(double)),
             SIGNAL(audioOffsetChanged(double)));
-
-        connect(
-            this,
-            SIGNAL(currentChanged(int)),
-            SLOT(_currentItemCallback(int)));
-
-        QSettings settings;
-        setCurrentIndex(settings.value("AudioTool/CurrentItem").toInt());
     }
 
     void AudioTool::setAudioOffset(double value)
     {
         _offsetWidget->setAudioOffset(value);
-    }
-
-    void AudioTool::_currentItemCallback(int value)
-    {
-        QSettings settings;
-        settings.setValue("AudioTool/CurrentItem", value);
     }
 }

@@ -7,8 +7,7 @@
 #include "FilesView.h"
 
 #include <QBoxLayout>
-#include <QFormLayout>
-#include <QGroupBox>
+#include <QLabel>
 #include <QSignalBlocker>
 
 namespace tlr
@@ -16,7 +15,7 @@ namespace tlr
     FilesTool::FilesTool(
         FilesModel* filesModel,
         QWidget* parent) :
-        QWidget(parent),
+        ToolWidget(parent),
         _filesModel(filesModel)
     {
         _treeView = new QTreeView;
@@ -54,21 +53,28 @@ namespace tlr
         _freeRotSpinBox->setSingleStep(10.0);
         _freeRotSpinBox->setToolTip(tr("Rotation"));
 
-        auto layout = new QVBoxLayout;
-        layout->addWidget(_treeView);
-        auto formLayout = new QFormLayout;
-        formLayout->addRow(tr("Mode:"), _compareComboBox);
-        formLayout->addRow(tr("Horizontal:"), _horizontalSlider);
-        formLayout->addRow(tr("Vertical:"), _verticalSlider);
+        auto vLayout = new QVBoxLayout;
+        vLayout->setMargin(10);
+        vLayout->addWidget(_treeView);
+        auto viewWidget = new QWidget;
+        viewWidget->setLayout(vLayout);
+        addWidget(viewWidget, 1);
+
+        vLayout = new QVBoxLayout;
+        vLayout->addWidget(_compareComboBox);
+        vLayout->addWidget(new QLabel(tr("Horizontal")));
+        vLayout->addWidget(_horizontalSlider);
+        vLayout->addWidget(new QLabel(tr("Vertical")));
+        vLayout->addWidget(_verticalSlider);
+        vLayout->addWidget(new QLabel(tr("Free")));
         auto hLayout = new QHBoxLayout;
         hLayout->addWidget(_freePosXSpinBox);
         hLayout->addWidget(_freePosYSpinBox);
         hLayout->addWidget(_freeRotSpinBox);
-        formLayout->addRow(tr("Free:"), hLayout);
-        auto groupBox = new QGroupBox(tr("Compare"));
-        groupBox->setLayout(formLayout);
-        layout->addWidget(groupBox);
-        setLayout(layout);
+        vLayout->addLayout(hLayout);
+        auto compareWidget = new QWidget;
+        compareWidget->setLayout(vLayout);
+        addBellows(tr("Compare"), compareWidget);
 
         _widgetUpdate();
 

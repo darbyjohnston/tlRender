@@ -5,6 +5,7 @@
 #pragma once
 
 #include "FilesModel.h"
+#include "ToolWidget.h"
 
 #include <QComboBox>
 #include <QDoubleSpinBox>
@@ -14,7 +15,7 @@
 namespace tlr
 {
     //! Files tool.
-    class FilesTool : public QWidget
+    class FilesTool : public ToolWidget
     {
         Q_OBJECT
 

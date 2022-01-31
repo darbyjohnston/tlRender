@@ -1,10 +1,10 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
+    <file alias="Icons/BellowsOpen.svg">../../etc/Icons/BellowsOpen.svg</file>
+    <file alias="Icons/BellowsClosed.svg">../../etc/Icons/BellowsClosed.svg</file>
     <file alias="Icons/Empty.svg">../../etc/Icons/Empty.svg</file>
     <file alias="Icons/FrameNext.svg">../../etc/Icons/FrameNext.svg</file>
     <file alias="Icons/FramePrev.svg">../../etc/Icons/FramePrev.svg</file>
-    <file alias="Icons/LayerNext.svg">../../etc/Icons/LayerNext.svg</file>
-    <file alias="Icons/LayerPrev.svg">../../etc/Icons/LayerPrev.svg</file>
     <file alias="Icons/Mute.svg">../../etc/Icons/Mute.svg</file>
     <file alias="Icons/PlaybackForward.svg">../../etc/Icons/PlaybackForward.svg</file>
     <file alias="Icons/PlaybackReverse.svg">../../etc/Icons/PlaybackReverse.svg</file>

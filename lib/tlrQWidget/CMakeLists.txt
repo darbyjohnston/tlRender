@@ -1,5 +1,7 @@
 set(HEADERS
+	BellowsWidget.h
     FilmstripWidget.h
+	Separator.h
     SpeedLabel.h
     TimeLabel.h
     TimeSpinBox.h
@@ -9,7 +11,9 @@ set(HEADERS
     TimelineWidget.h
     Util.h)
 set(SOURCE
+	BellowsWidget.cpp
     FilmstripWidget.cpp
+	Separator.cpp
     SpeedLabel.cpp
     TimeLabel.cpp
     TimeSpinBox.cpp

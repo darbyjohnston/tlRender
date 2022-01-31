@@ -55,17 +55,19 @@ namespace tlr
 
         void TimelineViewport::setImageOptions(const std::vector<render::ImageOptions>& options)
         {
-            if (options == _p->imageOptions)
+            TLR_PRIVATE_P();
+            if (options == p.imageOptions)
                 return;
-            _p->imageOptions = options;
+            p.imageOptions = options;
             update();
         }
 
         void TimelineViewport::setCompareOptions(const render::CompareOptions& options)
         {
-            if (options == _p->compareOptions)
+            TLR_PRIVATE_P();
+            if (options == p.compareOptions)
                 return;
-            _p->compareOptions = options;
+            p.compareOptions = options;
             update();
         }
 

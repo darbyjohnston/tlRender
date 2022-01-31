@@ -44,8 +44,8 @@ namespace tlr
         void SpeedLabel::setValue(const otime::RationalTime& value)
         {
             TLR_PRIVATE_P();
-            if (p.value.value() == value.value() &&
-                p.value.rate() == value.rate())
+            if (value.value() == p.value.value() &&
+                value.rate() == p.value.rate())
                 return;
             p.value = value;
             _textUpdate();

@@ -134,7 +134,7 @@ namespace tlr
         void TimelineSlider::setUnits(qt::TimeUnits units)
         {
             TLR_PRIVATE_P();
-            if (p.units == units)
+            if (units == p.units)
                 return;
             p.units = units;
             update();

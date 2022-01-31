@@ -4,11 +4,11 @@
 
 #pragma once
 
+#include "ToolWidget.h"
 #include "SettingsObject.h"
 
 #include <tlrQt/TimeObject.h>
 
-#include <QAbstractButton>
 #include <QButtonGroup>
 #include <QCheckBox>
 #include <QComboBox>
@@ -17,8 +17,6 @@
 #include <QMap>
 #include <QRadioButton>
 #include <QSpinBox>
-#include <QToolBox>
-#include <QWidget>
 
 namespace tlr
 {
@@ -127,7 +125,7 @@ namespace tlr
     };
 
     //! Settings tool.
-    class SettingsTool : public QToolBox
+    class SettingsTool : public ToolWidget
     {
         Q_OBJECT
 
@@ -136,8 +134,5 @@ namespace tlr
             SettingsObject*,
             qt::TimeObject*,
             QWidget* parent = nullptr);
-
-    private Q_SLOTS:
-        void _currentItemCallback(int);
     };
 }
