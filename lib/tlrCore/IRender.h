@@ -6,6 +6,7 @@
 
 #include <tlrCore/BBox.h>
 #include <tlrCore/Color.h>
+#include <tlrCore/Matrix.h>
 #include <tlrCore/Timeline.h>
 
 namespace tlr
@@ -78,6 +79,21 @@ namespace tlr
             bool operator == (const Color&) const;
             bool operator != (const Color&) const;
         };
+
+        //! Get a brightness color matrix.
+        math::Matrix4x4f brightness(const math::Vector3f&);
+
+        //! Get a contrast color matrix.
+        math::Matrix4x4f contrast(const math::Vector3f&);
+
+        //! Get a saturation color matrix.
+        math::Matrix4x4f saturation(const math::Vector3f&);
+
+        //! Get a tint color matrix.
+        math::Matrix4x4f tint(float);
+
+        //! Get a color matrix.
+        math::Matrix4x4f color(const Color&);
         
         //! Levels values.
         struct Levels

@@ -162,11 +162,11 @@ namespace tlr
 
     public Q_SLOTS:
         void setColorEnabled(bool);
-        void setValue(const tlr::render::Color&);
+        void setColor(const tlr::render::Color&);
 
     Q_SIGNALS:
         void colorEnabledChanged(bool);
-        void valueChanged(const tlr::render::Color&);
+        void colorChanged(const tlr::render::Color&);
 
     private Q_SLOTS:
         void _colorEnabledCallback(bool);
@@ -181,7 +181,7 @@ namespace tlr
         void _widgetUpdate();
 
         bool _colorEnabled = false;
-        render::Color _value;
+        render::Color _color;
 
         QCheckBox* _colorEnabledCheckBox = nullptr;
         ColorSlidersWidget* _addSliders = nullptr;
@@ -190,6 +190,110 @@ namespace tlr
         ColorSlidersWidget* _saturationSliders = nullptr;
         ColorSliderWidget* _tintSlider = nullptr;
         QCheckBox* _invertCheckBox = nullptr;
+    };
+
+    //! Levels widget.
+    class LevelsWidget : public QWidget
+    {
+        Q_OBJECT
+
+    public:
+        LevelsWidget(QWidget* parent = nullptr);
+
+    public Q_SLOTS:
+        void setLevelsEnabled(bool);
+        void setLevels(const tlr::render::Levels&);
+
+    Q_SIGNALS:
+        void levelsEnabledChanged(bool);
+        void levelsChanged(const tlr::render::Levels&);
+
+    private Q_SLOTS:
+        void _levelsEnabledCallback(bool);
+        void _inLowCallback(float);
+        void _inHighCallback(float);
+        void _gammaCallback(float);
+        void _outLowCallback(float);
+        void _outHighCallback(float);
+
+    private:
+        void _widgetUpdate();
+
+        bool _levelsEnabled = false;
+        render::Levels _levels;
+
+        QCheckBox* _levelsEnabledCheckBox = nullptr;
+        ColorSliderWidget* _inLowSlider = nullptr;
+        ColorSliderWidget* _inHighSlider = nullptr;
+        ColorSliderWidget* _gammaSlider = nullptr;
+        ColorSliderWidget* _outLowSlider = nullptr;
+        ColorSliderWidget* _outHighSlider = nullptr;
+    };
+
+    //! Exposure widget.
+    class ExposureWidget : public QWidget
+    {
+        Q_OBJECT
+
+    public:
+        ExposureWidget(QWidget* parent = nullptr);
+
+    public Q_SLOTS:
+        void setExposureEnabled(bool);
+        void setExposure(const tlr::render::Exposure&);
+
+    Q_SIGNALS:
+        void exposureEnabledChanged(bool);
+        void exposureChanged(const tlr::render::Exposure&);
+
+    private Q_SLOTS:
+        void _exposureEnabledCallback(bool);
+        void _exposureCallback(float);
+        void _defogCallback(float);
+        void _kneeLowCallback(float);
+        void _kneeHighCallback(float);
+
+    private:
+        void _widgetUpdate();
+
+        bool _exposureEnabled = false;
+        render::Exposure _exposure;
+
+        QCheckBox* _exposureEnabledCheckBox = nullptr;
+        ColorSliderWidget* _exposureSlider = nullptr;
+        ColorSliderWidget* _defogSlider = nullptr;
+        ColorSliderWidget* _kneeLowSlider = nullptr;
+        ColorSliderWidget* _kneeHighSlider = nullptr;
+    };
+
+    //! Soft clip widget.
+    class SoftClipWidget : public QWidget
+    {
+        Q_OBJECT
+
+    public:
+        SoftClipWidget(QWidget* parent = nullptr);
+
+    public Q_SLOTS:
+        void setSoftClipEnabled(bool);
+        void setSoftClip(float);
+
+    Q_SIGNALS:
+        void softClipEnabledChanged(bool);
+        void softClipChanged(float);
+
+    private Q_SLOTS:
+        void _softClipEnabledCallback(bool);
+        void _softClipCallback(float);
+
+    private:
+        void _widgetUpdate();
+
+        bool _softClipEnabled = false;
+        float _softClip = 0.F;
+
+        QCheckBox* _softClipEnabledCheckBox = nullptr;
+        ColorSliderWidget* _softClipSlider = nullptr;
     };
 
     //! Image tool.
@@ -212,6 +316,12 @@ namespace tlr
         void _alphaBlendCallback(tlr::render::AlphaBlend);
         void _colorEnabledCallback(bool);
         void _colorCallback(const tlr::render::Color&);
+        void _levelsEnabledCallback(bool);
+        void _levelsCallback(const tlr::render::Levels&);
+        void _exposureEnabledCallback(bool);
+        void _exposureCallback(const tlr::render::Exposure&);
+        void _softClipEnabledCallback(bool);
+        void _softClipCallback(float);
         void _currentItemCallback(int);
 
     private:
@@ -223,5 +333,8 @@ namespace tlr
         ChannelsWidget* _channelsWidget = nullptr;
         AlphaBlendWidget* _alphaBlendWidget = nullptr;
         ColorWidget* _colorWidget = nullptr;
+        LevelsWidget* _levelsWidget = nullptr;
+        ExposureWidget* _exposureWidget = nullptr;
+        SoftClipWidget* _softClipWidget = nullptr;
     };
 }

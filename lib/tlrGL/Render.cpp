@@ -861,71 +861,6 @@ namespace tlr
                 }
                 return (f0 + f1) / 2.F;
             }
-
-            math::Matrix4x4f brightnessMatrix(const math::Vector3f& value)
-            {
-                return math::Matrix4x4f(
-                    value.x, 0.F,     0.F,     0.F,
-                    0.F,     value.y, 0.F,     0.F,
-                    0.F,     0.F,     value.z, 0.F,
-                    0.F,     0.F,     0.F,     1.F);
-            }
-
-            math::Matrix4x4f contrastMatrix(const math::Vector3f& value)
-            {
-                return
-                    math::Matrix4x4f(
-                        1.F, 0.F, 0.F, -.5F,
-                        0.F, 1.F, 0.F, -.5F,
-                        0.F, 0.F, 1.F, -.5F,
-                        0.F, 0.F, 0.F, 1.F) *
-                    math::Matrix4x4f(
-                        value.x, 0.F,      0.F,     0.F,
-                        0.F,      value.y, 0.F,     0.F,
-                        0.F,      0.F,     value.z, 0.F,
-                        0.F,      0.F,     0.F,     1.F) *
-                    math::Matrix4x4f(
-                        1.F, 0.F, 0.F,  .5F,
-                        0.F, 1.F, 0.F,  .5F,
-                        0.F, 0.F, 1.F,  .5F,
-                        0.F, 0.F, 0.F, 1.F);
-            }
-
-            math::Matrix4x4f saturationMatrix(const math::Vector3f& value)
-            {
-                const math::Vector3f s(
-                    (1.F - value.x) * .3086F,
-                    (1.F - value.y) * .6094F,
-                    (1.F - value.z) * .0820F);
-                return math::Matrix4x4f(
-                    s.x + value.x, s.y,           s.z,           0.F,
-                    s.x,           s.y + value.y, s.z,           0.F,
-                    s.x,           s.y,           s.z + value.z, 0.F,
-                    0.F,           0.F,           0.F,           1.F);
-            }
-
-            math::Matrix4x4f tintMatrix(float v)
-            {
-                const float c = cos(v * M_PI * 2.F);
-                const float c2 = 1.F - c;
-                const float c3 = 1.F / 3.F * c2;
-                const float s = sin(v * M_PI * 2.F);
-                const float sq = sqrtf(1.F / 3.F);
-                return math::Matrix4x4f(
-                    c + c2 / 3.F, c3 - sq * s, c3 + sq * s, 0.F,
-                    c3 + sq * s,  c + c3,      c3 - sq * s, 0.F,
-                    c3 - sq * s,  c3 + sq * s, c + c3,      0.F,
-                    0.F,          0.F,         0.F,         1.F);
-            }
-
-            math::Matrix4x4f colorMatrix(const render::Color& in)
-            {
-                return
-                    brightnessMatrix(in.brightness) *
-                    contrastMatrix(in.contrast) *
-                    saturationMatrix(in.saturation) *
-                    tintMatrix(in.tint);
-            }
         }
 
         void Render::drawImage(
@@ -957,7 +892,7 @@ namespace tlr
             p.shader->setUniform("colorAdd", imageOptions.color.add);
             if (colorMatrixEnabled)
             {
-                p.shader->setUniform("colorMatrix", colorMatrix(imageOptions.color));
+                p.shader->setUniform("colorMatrix", render::color(imageOptions.color));
             }
             p.shader->setUniform("colorInvert", imageOptions.colorEnabled ? imageOptions.color.invert : false);
             p.shader->setUniform("levelsEnabled", imageOptions.levelsEnabled);
