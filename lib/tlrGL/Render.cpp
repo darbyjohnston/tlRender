@@ -1112,8 +1112,7 @@ namespace tlr
             {
                 const std::vector<math::BBox2i> tiles = render::tiles(
                     math::BBox2i(0, 0, p.size.w, p.size.h),
-                    videoData.size(),
-                    0);
+                    videoData.size());
                 for (size_t i = 0; i < tiles.size() && i < videoData.size(); ++i)
                 {
                     _drawVideo(

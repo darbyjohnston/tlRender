@@ -113,7 +113,7 @@ namespace tlr
             "Tiles");
         TLR_ENUM_SERIALIZE_IMPL(CompareMode);
 
-        std::vector<math::BBox2i> tiles(const math::BBox2i& bbox, int count, int spacing)
+        std::vector<math::BBox2i> tiles(const math::BBox2i& bbox, int count)
         {
             std::vector<math::BBox2i> out;
             int columns = 0;

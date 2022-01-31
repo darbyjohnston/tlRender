@@ -171,7 +171,7 @@ namespace tlr
         };
 
         //! Divide a bounding box into tiles.
-        std::vector<math::BBox2i> tiles(const math::BBox2i&, int count, int spacing);
+        std::vector<math::BBox2i> tiles(const math::BBox2i&, int count);
     
         //! Base class for renderers.
         class IRender : public std::enable_shared_from_this<IRender>
