@@ -169,6 +169,9 @@ namespace tlr
             bool operator == (const CompareOptions&) const;
             bool operator != (const CompareOptions&) const;
         };
+
+        //! Divide a bounding box into tiles.
+        std::vector<math::BBox2i> tiles(const math::BBox2i&, int count, int spacing);
     
         //! Base class for renderers.
         class IRender : public std::enable_shared_from_this<IRender>

@@ -8,6 +8,8 @@
 #include <tlrCore/String.h>
 
 #include <array>
+#include <cmath>
+#include <cstdlib>
 
 namespace tlr
 {
@@ -110,6 +112,36 @@ namespace tlr
             "Free",
             "Tiles");
         TLR_ENUM_SERIALIZE_IMPL(CompareMode);
+
+        std::vector<math::BBox2i> tiles(const math::BBox2i& bbox, int count, int spacing)
+        {
+            std::vector<math::BBox2i> out;
+            int columns = 0;
+            int rows = 0;
+            switch (count)
+            {
+            case 1: columns = 1; rows = 1; break;
+            case 2: columns = 1; rows = 2; break;
+            default:
+            {
+                const float sqrt = std::sqrt(count);
+                columns = std::ceil(sqrt);
+                const std::div_t d = std::div(count, columns);
+                rows = d.quot + (d.rem > 0 ? 1 : 0);
+                break;
+            }
+            }
+            const int w = bbox.w() / columns;
+            const int h = bbox.h() / rows;
+            for (int row = 0, y = 0; row < rows; ++row, y += h)
+            {
+                for (int column = 0, x = 0; column < columns; ++column, x += w)
+                {
+                    out.push_back(math::BBox2i(x, y, w, h));
+                }
+            }
+            return out;
+        }
 
         void IRender::_init(const std::shared_ptr<core::Context>& context)
         {

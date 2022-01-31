@@ -1110,15 +1110,15 @@ namespace tlr
             }
             case render::CompareMode::Tiles:
             {
-                for (size_t i = 0; i < 4 && i < videoData.size(); ++i)
+                const std::vector<math::BBox2i> tiles = render::tiles(
+                    math::BBox2i(0, 0, p.size.w, p.size.h),
+                    videoData.size(),
+                    0);
+                for (size_t i = 0; i < tiles.size() && i < videoData.size(); ++i)
                 {
-                    const int w = p.size.w / 2;
-                    const int h = p.size.h / 2;
-                    const int y = i / 2 * h;
-                    const int x = i % 2 * w;
                     _drawVideo(
                         videoData[i],
-                        math::BBox2i(x, y, w, h).margin(-10),
+                        tiles[i],
                         i < imageOptions.size() ? imageOptions[i] : render::ImageOptions());
                 }
                 break;
