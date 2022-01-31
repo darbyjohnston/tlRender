@@ -6,7 +6,7 @@ namespace tlr
 {
     namespace render
     {
-        inline bool ImageColor::operator == (const ImageColor& other) const
+        inline bool Color::operator == (const Color& other) const
         {
             return
                 add == other.add &&
@@ -17,12 +17,12 @@ namespace tlr
                 invert == other.invert;
         }
 
-        inline bool ImageColor::operator != (const ImageColor& other) const
+        inline bool Color::operator != (const Color& other) const
         {
             return !(*this == other);
         }
 
-        inline bool ImageLevels::operator == (const ImageLevels& other) const
+        inline bool Levels::operator == (const Levels& other) const
         {
             return
                 inLow == other.inLow &&
@@ -32,12 +32,12 @@ namespace tlr
                 outHigh == other.outHigh;
         }
 
-        inline bool ImageLevels::operator != (const ImageLevels& other) const
+        inline bool Levels::operator != (const Levels& other) const
         {
             return !(*this == other);
         }
 
-        inline bool ImageExposure::operator == (const ImageExposure& other) const
+        inline bool Exposure::operator == (const Exposure& other) const
         {
             return
                 exposure == other.exposure &&
@@ -46,7 +46,7 @@ namespace tlr
                 kneeHigh == other.kneeHigh;
         }
 
-        inline bool ImageExposure::operator != (const ImageExposure& other) const
+        inline bool Exposure::operator != (const Exposure& other) const
         {
             return !(*this == other);
         }
@@ -55,9 +55,10 @@ namespace tlr
         {
             return
                 yuvRange == other.yuvRange &&
-                channelsDisplay == other.channelsDisplay &&
+                channels == other.channels &&
                 alphaBlend == other.alphaBlend &&
                 mirror == other.mirror &&
+                colorEnabled == other.colorEnabled &&
                 color == other.color &&
                 levelsEnabled == other.levelsEnabled &&
                 levels == other.levels &&

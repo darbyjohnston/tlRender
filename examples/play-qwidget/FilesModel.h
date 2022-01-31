@@ -62,8 +62,6 @@ namespace tlr
         QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
     public Q_SLOTS:
-        void setCompareOptions(const render::CompareOptions&);
-
         void add(const std::shared_ptr<FilesModelItem>&);
         void close();
         void closeAll();
@@ -78,18 +76,20 @@ namespace tlr
 
         void setLayer(const std::shared_ptr<FilesModelItem>&, int layer);
 
-        void setImageOptions(const std::shared_ptr<FilesModelItem>&, const render::ImageOptions&);
+        void setImageOptions(const tlr::render::ImageOptions&);
+
+        void setCompareOptions(const tlr::render::CompareOptions&);
 
     Q_SIGNALS:
-        void compareOptionsChanged(const tlr::render::CompareOptions&);
-
         void countChanged(int);
 
         void activeChanged(const std::vector<std::shared_ptr<FilesModelItem> >&);
 
         void layerChanged(const std::shared_ptr<FilesModelItem>&, int layer);
 
-        void imageOptionsChanged(const std::shared_ptr<FilesModelItem>&, const render::ImageOptions&);
+        void imageOptionsChanged(const std::vector<tlr::render::ImageOptions>&);
+
+        void compareOptionsChanged(const tlr::render::CompareOptions&);
 
     private Q_SLOTS:
         void _thumbailCallback(const QList<QPair<otime::RationalTime, QImage> >&);
@@ -98,13 +98,14 @@ namespace tlr
         int _index(const std::shared_ptr<FilesModelItem>&) const;
         std::vector<int> _bIndexes() const;
         std::vector<std::shared_ptr<FilesModelItem> > _active() const;
+        std::vector<render::ImageOptions> _imageOptions() const;
 
         std::weak_ptr<core::Context> _context;
 
-        render::CompareOptions _compareOptions;
         std::vector<std::shared_ptr<FilesModelItem> > _items;
         std::shared_ptr<FilesModelItem> _a;
         std::vector<std::shared_ptr<FilesModelItem> > _b;
+        render::CompareOptions _compareOptions;
 
         std::map<std::shared_ptr<FilesModelItem>, QImage> _thumbnails;
         std::map<std::shared_ptr<FilesModelItem>, qt::TimelineThumbnailProvider*> _thumbnailProviders;

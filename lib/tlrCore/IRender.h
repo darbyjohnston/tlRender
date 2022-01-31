@@ -33,8 +33,8 @@ namespace tlr
         TLR_ENUM(YUVRange);
         TLR_ENUM_SERIALIZE(YUVRange);
 
-        //! Image channels display.
-        enum class ImageChannelsDisplay
+        //! Channels.
+        enum class Channels
         {
             Color,
             Red,
@@ -45,8 +45,8 @@ namespace tlr
             Count,
             First = Color
         };
-        TLR_ENUM(ImageChannelsDisplay);
-        TLR_ENUM_SERIALIZE(ImageChannelsDisplay);
+        TLR_ENUM(Channels);
+        TLR_ENUM_SERIALIZE(Channels);
 
         //! Alpha channel blending.
         //!
@@ -64,8 +64,8 @@ namespace tlr
         TLR_ENUM(AlphaBlend);
         TLR_ENUM_SERIALIZE(AlphaBlend);
 
-        //! Image color values.
-        struct ImageColor
+        //! Color values.
+        struct Color
         {
         public:
             math::Vector3f add        = math::Vector3f(0.F, 0.F, 0.F);
@@ -75,12 +75,12 @@ namespace tlr
             float          tint       = 0.F;
             bool           invert     = false;
 
-            bool operator == (const ImageColor&) const;
-            bool operator != (const ImageColor&) const;
+            bool operator == (const Color&) const;
+            bool operator != (const Color&) const;
         };
         
-        //! Image levels values.
-        struct ImageLevels
+        //! Levels values.
+        struct Levels
         {
             float inLow   = 0.F;
             float inHigh  = 1.F;
@@ -88,36 +88,36 @@ namespace tlr
             float outLow  = 0.F;
             float outHigh = 1.F;
 
-            bool operator == (const ImageLevels&) const;
-            bool operator != (const ImageLevels&) const;
+            bool operator == (const Levels&) const;
+            bool operator != (const Levels&) const;
         };
         
-        //! Image exposure values.
-        struct ImageExposure
+        //! Exposure values.
+        struct Exposure
         {
             float exposure = 0.F;
             float defog    = 0.F;
             float kneeLow  = 0.F;
             float kneeHigh = 5.F;
 
-            bool operator == (const ImageExposure&) const;
-            bool operator != (const ImageExposure&) const;
+            bool operator == (const Exposure&) const;
+            bool operator != (const Exposure&) const;
         };
 
         //! Image options.
         struct ImageOptions
         {
             YUVRange             yuvRange        = YUVRange::FromFile;
-            ImageChannelsDisplay channelsDisplay = ImageChannelsDisplay::Color;
+            Channels             channels        = Channels::Color;
             //! \todo Implement alpha blending options.
             AlphaBlend           alphaBlend      = AlphaBlend::Straight;
             imaging::Mirror      mirror;
             bool                 colorEnabled    = false;
-            ImageColor           color;
+            Color                color;
             bool                 levelsEnabled   = false;
-            ImageLevels          levels;
+            Levels               levels;
             bool                 exposureEnabled = false;
-            ImageExposure        exposure;
+            Exposure             exposure;
             bool                 softClipEnabled = false;
             float                softClip        = 0.F;
 

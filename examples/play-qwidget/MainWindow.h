@@ -35,9 +35,11 @@ namespace tlr
 
         ~MainWindow() override;
 
-        void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
-
         void setColorConfig(const imaging::ColorConfig&);
+
+        void setImageOptions(const std::vector<render::ImageOptions>&);
+
+        void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
 
     protected:
         void closeEvent(QCloseEvent*) override;
@@ -72,6 +74,7 @@ namespace tlr
         void _frameNextX10Callback();
         void _frameNextX100Callback();
         void _imageOptionsCallback(const tlr::render::ImageOptions&);
+        void _imageOptionsCallback(const std::vector<tlr::render::ImageOptions>&);
         void _compareOptionsCallback(const tlr::render::CompareOptions&);
         void _compareOptionsCallback2(const tlr::render::CompareOptions&);
         void _audioOffsetCallback(double);
@@ -87,6 +90,7 @@ namespace tlr
         std::vector<qt::TimelinePlayer*> _timelinePlayers;
         qwidget::TimelineWidget* _timelineWidget = nullptr;
         FilesTool* _filesTool = nullptr;
+        ImageTool* _imageTool = nullptr;
         AudioTool* _audioTool = nullptr;
         QMap<QString, QAction*> _actions;
         QActionGroup* _recentFilesActionGroup = nullptr;
@@ -100,6 +104,7 @@ namespace tlr
         QMap<timeline::Loop, QAction*> _loopToActions;
         SecondaryWindow* _secondaryWindow = nullptr;
         imaging::ColorConfig _colorConfig;
+        std::vector<render::ImageOptions> _imageOptions;
         render::CompareOptions _compareOptions;
     };
 }

@@ -21,13 +21,13 @@ namespace tlr
         TLR_ENUM_SERIALIZE_IMPL(YUVRange);
 
         TLR_ENUM_IMPL(
-            ImageChannelsDisplay,
+            Channels,
             "Color",
             "Red",
             "Green",
             "Blue",
             "Alpha");
-        TLR_ENUM_SERIALIZE_IMPL(ImageChannelsDisplay);
+        TLR_ENUM_SERIALIZE_IMPL(Channels);
 
         TLR_ENUM_IMPL(
             AlphaBlend,

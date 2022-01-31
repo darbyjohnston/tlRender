@@ -75,12 +75,12 @@ namespace tlr
             {
                 for (int j = 0; j < 3; ++j)
                 {
-                    int num = 0;
+                    float tmp = 0.F;
                     for (int k = 0; k < 3; ++k)
                     {
-                        num += e[i * 3 + k] * value.e[k * 3 + j];
+                        tmp += e[i * 3 + k] * value.e[k * 3 + j];
                     }
-                    out.e[i * 3 + j] = num;
+                    out.e[i * 3 + j] = tmp;
                 }
             }
             return out;
@@ -121,12 +121,12 @@ namespace tlr
             {
                 for (int j = 0; j < 4; ++j)
                 {
-                    int num = 0;
+                    float tmp = 0.F;
                     for (int k = 0; k < 4; ++k)
                     {
-                        num += e[i * 4 + k] * value.e[k * 4 + j];
+                        tmp += e[i * 4 + k] * value.e[k * 4 + j];
                     }
-                    out.e[i * 4 + j] = num;
+                    out.e[i * 4 + j] = tmp;
                 }
             }
             return out;

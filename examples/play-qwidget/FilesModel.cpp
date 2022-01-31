@@ -199,43 +199,6 @@ namespace tlr
         return out;
     }
 
-    void FilesModel::setCompareOptions(const render::CompareOptions& value)
-    {
-        if (value == _compareOptions)
-            return;
-        _compareOptions = value;
-        switch (_compareOptions.mode)
-        {
-        case render::CompareMode::A:
-        case render::CompareMode::B:
-        case render::CompareMode::Horizontal:
-        case render::CompareMode::Vertical:
-        case render::CompareMode::Free:
-        {
-            std::vector<int> removedIndexes;
-            while (_b.size() > 1)
-            {
-                removedIndexes.push_back(_index(_b.back()));
-                _b.pop_back();
-            }
-            if (!removedIndexes.empty())
-            {
-                Q_EMIT activeChanged(_active());
-                for (auto index : removedIndexes)
-                {
-                    Q_EMIT dataChanged(
-                        this->index(index, 3),
-                        this->index(index, 3),
-                        { Qt::CheckStateRole });
-                }
-            }
-            break;
-        }
-        default: break;
-        }
-        Q_EMIT compareOptionsChanged(_compareOptions);
-    }
-
     void FilesModel::add(const std::shared_ptr<FilesModelItem>& item)
     {
         const int index = _items.size();
@@ -247,6 +210,7 @@ namespace tlr
         const int aIndex = _index(_a);
         _a = item;
         Q_EMIT activeChanged(_active());
+        Q_EMIT imageOptionsChanged(_imageOptions());
         Q_EMIT dataChanged(
             this->index(aIndex, 2),
             this->index(aIndex, 2),
@@ -305,6 +269,7 @@ namespace tlr
                 }
 
                 Q_EMIT activeChanged(_active());
+                Q_EMIT imageOptionsChanged(_imageOptions());
                 Q_EMIT dataChanged(
                     this->index(aIndex, 2),
                     this->index(aIndex, 2),
@@ -329,6 +294,7 @@ namespace tlr
             _a = nullptr;
             _b.clear();
             Q_EMIT activeChanged(_active());
+            Q_EMIT imageOptionsChanged(_imageOptions());
         }
     }
 
@@ -339,6 +305,7 @@ namespace tlr
         {
             _a = _items[index];
             Q_EMIT activeChanged(_active());
+            Q_EMIT imageOptionsChanged(_imageOptions());
             Q_EMIT dataChanged(
                 this->index(aIndex, 2),
                 this->index(aIndex, 2),
@@ -381,6 +348,7 @@ namespace tlr
                 _b.erase(_b.begin() + (i - bIndexes.begin()));
             }
             Q_EMIT activeChanged(_active());
+            Q_EMIT imageOptionsChanged(_imageOptions());
             Q_EMIT dataChanged(
                 this->index(index, 3),
                 this->index(index, 3),
@@ -399,6 +367,7 @@ namespace tlr
         {
             _a = _items[0];
             Q_EMIT activeChanged(_active());
+            Q_EMIT imageOptionsChanged(_imageOptions());
             Q_EMIT dataChanged(
                 index(aIndex, 2),
                 index(aIndex, 2),
@@ -418,6 +387,7 @@ namespace tlr
         {
             _a = _items[index];
             Q_EMIT activeChanged(_active());
+            Q_EMIT imageOptionsChanged(_imageOptions());
             Q_EMIT dataChanged(
                 this->index(index, 2),
                 this->index(index, 2),
@@ -441,6 +411,7 @@ namespace tlr
             }
             _a = _items[aNewIndex];
             Q_EMIT activeChanged(_active());
+            Q_EMIT imageOptionsChanged(_imageOptions());
             Q_EMIT dataChanged(
                 this->index(aIndex, 2),
                 this->index(aIndex, 2),
@@ -464,6 +435,7 @@ namespace tlr
             }
             _a = _items[aNewIndex];
             Q_EMIT activeChanged(_active());
+            Q_EMIT imageOptionsChanged(_imageOptions());
             Q_EMIT dataChanged(
                 this->index(aIndex, 2),
                 this->index(aIndex, 2),
@@ -487,15 +459,53 @@ namespace tlr
         }
     }
 
-    void FilesModel::setImageOptions(const std::shared_ptr<FilesModelItem>& item, const render::ImageOptions& imageOptions)
+    void FilesModel::setImageOptions(const render::ImageOptions& imageOptions)
     {
-        const int index = _index(item);
+        const int index = _index(_a);
         if (index != -1 &&
             imageOptions != _items[index]->imageOptions)
         {
             _items[index]->imageOptions = imageOptions;
-            Q_EMIT imageOptionsChanged(item, imageOptions);
+            Q_EMIT imageOptionsChanged(_imageOptions());
         }
+    }
+
+    void FilesModel::setCompareOptions(const render::CompareOptions& value)
+    {
+        if (value == _compareOptions)
+            return;
+        _compareOptions = value;
+        switch (_compareOptions.mode)
+        {
+        case render::CompareMode::A:
+        case render::CompareMode::B:
+        case render::CompareMode::Horizontal:
+        case render::CompareMode::Vertical:
+        case render::CompareMode::Free:
+        {
+            std::vector<int> removedIndexes;
+            while (_b.size() > 1)
+            {
+                removedIndexes.push_back(_index(_b.back()));
+                _b.pop_back();
+            }
+            if (!removedIndexes.empty())
+            {
+                Q_EMIT activeChanged(_active());
+                Q_EMIT imageOptionsChanged(_imageOptions());
+                for (auto index : removedIndexes)
+                {
+                    Q_EMIT dataChanged(
+                        this->index(index, 3),
+                        this->index(index, 3),
+                        { Qt::CheckStateRole });
+                }
+            }
+            break;
+        }
+        default: break;
+        }
+        Q_EMIT compareOptionsChanged(_compareOptions);
     }
 
     void FilesModel::_thumbailCallback(const QList<QPair<otime::RationalTime, QImage> >& value)
@@ -558,6 +568,20 @@ namespace tlr
         for (const auto& b : _b)
         {
             out.push_back(b);
+        }
+        return out;
+    }
+
+    std::vector<render::ImageOptions> FilesModel::_imageOptions() const
+    {
+        std::vector<tlr::render::ImageOptions> out;
+        if (_a)
+        {
+            out.push_back(_a->imageOptions);
+        }
+        for (const auto& b : _b)
+        {
+            out.push_back(b->imageOptions);
         }
         return out;
     }

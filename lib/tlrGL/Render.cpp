@@ -120,16 +120,16 @@ namespace tlr
                 "const uint PixelType_RGBA_F32 = 21;\n"
                 "const uint PixelType_YUV_420P = 22;\n"
                 "\n"
-                "// enum tlr::imaging::YUVRange\n"
+                "// enum tlr::render::YUVRange\n"
                 "const uint YUVRange_Full  = 0;\n"
                 "const uint YUVRange_Video = 1;\n"
                 "\n"
-                "// enum tlr::gl::ImageChannelsDisplay\n"
-                "const uint ImageChannelsDisplay_Color = 0;\n"
-                "const uint ImageChannelsDisplay_Red   = 1;\n"
-                "const uint ImageChannelsDisplay_Green = 2;\n"
-                "const uint ImageChannelsDisplay_Blue  = 3;\n"
-                "const uint ImageChannelsDisplay_Alpha = 4;\n"
+                "// enum tlr::render::Channels\n"
+                "const uint Channels_Color = 0;\n"
+                "const uint Channels_Red   = 1;\n"
+                "const uint Channels_Green = 2;\n"
+                "const uint Channels_Blue  = 3;\n"
+                "const uint Channels_Alpha = 4;\n"
                 "\n"
                 "struct Levels\n"
                 "{\n"
@@ -169,7 +169,7 @@ namespace tlr
                 "uniform bool        exposureEnabled;\n"
                 "uniform Exposure    exposure;\n"
                 "uniform float       softClip;\n"
-                "uniform int         imageChannelsDisplay;\n"
+                "uniform int         channels;\n"
                 "\n"
                 "vec4 colorFunc(vec4 value, vec3 add, mat4 m)\n"
                 "{\n"
@@ -330,23 +330,23 @@ namespace tlr
                 "        // Apply color management.\n"
                 "        c = OCIODisplay(c);\n"
                 "\n"
-                "        // Swizzle for the image channels display.\n"
-                "        if (ImageChannelsDisplay_Red == imageChannelsDisplay)\n"
+                "        // Swizzle for the channels display.\n"
+                "        if (Channels_Red == channels)\n"
                 "        {\n"
                 "            c.g = c.r;\n"
                 "            c.b = c.r;\n"
                 "        }\n"
-                "        else if (ImageChannelsDisplay_Green == imageChannelsDisplay)\n"
+                "        else if (Channels_Green == channels)\n"
                 "        {\n"
                 "            c.r = c.g;\n"
                 "            c.b = c.g;\n"
                 "        }\n"
-                "        else if (ImageChannelsDisplay_Blue == imageChannelsDisplay)\n"
+                "        else if (Channels_Blue == channels)\n"
                 "        {\n"
                 "            c.r = c.b;\n"
                 "            c.g = c.b;\n"
                 "        }\n"
-                "        else if (ImageChannelsDisplay_Alpha == imageChannelsDisplay)\n"
+                "        else if (Channels_Alpha == channels)\n"
                 "        {\n"
                 "            c.r = c.a;\n"
                 "            c.g = c.a;\n"
@@ -918,7 +918,7 @@ namespace tlr
                     0.F,          0.F,         0.F,         1.F);
             }
 
-            math::Matrix4x4f colorMatrix(const render::ImageColor& in)
+            math::Matrix4x4f colorMatrix(const render::Color& in)
             {
                 return
                     brightnessMatrix(in.brightness) *
@@ -952,14 +952,14 @@ namespace tlr
             p.shader->setUniform("textureSampler0", 0);
             p.shader->setUniform("textureSampler1", 1);
             p.shader->setUniform("textureSampler2", 2);
-            const bool colorMatrixEnabled = imageOptions.colorEnabled && imageOptions.color != render::ImageColor();
+            const bool colorMatrixEnabled = imageOptions.colorEnabled && imageOptions.color != render::Color();
             p.shader->setUniform("colorEnabled", colorMatrixEnabled);
             p.shader->setUniform("colorAdd", imageOptions.color.add);
             if (colorMatrixEnabled)
             {
                 p.shader->setUniform("colorMatrix", colorMatrix(imageOptions.color));
             }
-            p.shader->setUniform("colorInvert", imageOptions.color.invert);
+            p.shader->setUniform("colorInvert", imageOptions.colorEnabled ? imageOptions.color.invert : false);
             p.shader->setUniform("levelsEnabled", imageOptions.levelsEnabled);
             p.shader->setUniform("levels.inLow", imageOptions.levels.inLow);
             p.shader->setUniform("levels.inHigh", imageOptions.levels.inHigh);
@@ -981,7 +981,7 @@ namespace tlr
                 p.shader->setUniform("exposure.f", f);
             }
             p.shader->setUniform("softClip", imageOptions.softClipEnabled ? imageOptions.softClip : 0.F);
-            p.shader->setUniform("imageChannelsDisplay", static_cast<int>(imageOptions.channelsDisplay));
+            p.shader->setUniform("channels", static_cast<int>(imageOptions.channels));
 
             auto textures = p.textureCache.get(info);
             copyTextures(image, textures);

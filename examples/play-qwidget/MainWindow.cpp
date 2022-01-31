@@ -5,8 +5,6 @@
 #include "MainWindow.h"
 
 #include "App.h"
-#include "FilesTool.h"
-#include "ImageTool.h"
 #include "SettingsTool.h"
 
 #include <tlrCore/File.h>
@@ -241,12 +239,12 @@ namespace tlr
         toolsMenu->addAction(filesToolDockWidget->toggleViewAction());
         addDockWidget(Qt::RightDockWidgetArea, filesToolDockWidget);
 
-        auto imageTool = new ImageTool();
+        _imageTool = new ImageTool();
         auto imageToolDockWidget = new QDockWidget;
         imageToolDockWidget->setObjectName("Image");
         imageToolDockWidget->setWindowTitle(tr("Image"));
         imageToolDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-        imageToolDockWidget->setWidget(imageTool);
+        imageToolDockWidget->setWidget(_imageTool);
         imageToolDockWidget->hide();
         toolsMenu->addAction(imageToolDockWidget->toggleViewAction());
         addDockWidget(Qt::RightDockWidgetArea, imageToolDockWidget);
@@ -399,18 +397,27 @@ namespace tlr
             SLOT(_compareOptionsCallback(const tlr::render::CompareOptions&)));
 
         connect(
+            _imageTool,
+            SIGNAL(imageOptionsChanged(const tlr::render::ImageOptions&)),
+            SLOT(_imageOptionsCallback(const tlr::render::ImageOptions&)));
+
+        connect(
             _audioTool,
             SIGNAL(audioOffsetChanged(double)),
             SLOT(_audioOffsetCallback(double)));
 
         connect(
             app->filesModel(),
+            SIGNAL(countChanged(int)),
+            SLOT(_filesCountCallback()));
+        connect(
+            app->filesModel(),
             SIGNAL(compareOptionsChanged(const tlr::render::CompareOptions&)),
             SLOT(_compareOptionsCallback2(const tlr::render::CompareOptions&)));
         connect(
             app->filesModel(),
-            SIGNAL(countChanged(int)),
-            SLOT(_filesCountCallback()));
+            SIGNAL(imageOptionsChanged(const std::vector<tlr::render::ImageOptions>&)),
+            SLOT(_imageOptionsCallback(const std::vector<tlr::render::ImageOptions>&)));
 
         connect(
             app->settingsObject(),
@@ -443,6 +450,22 @@ namespace tlr
             delete _secondaryWindow;
             _secondaryWindow = nullptr;
         }
+    }
+
+    void MainWindow::setColorConfig(const imaging::ColorConfig& colorConfig)
+    {
+        if (colorConfig == _colorConfig)
+            return;
+        _colorConfig = colorConfig;
+        _widgetUpdate();
+    }
+
+    void MainWindow::setImageOptions(const std::vector<render::ImageOptions>& imageOptions)
+    {
+        if (imageOptions == _imageOptions)
+            return;
+        _imageOptions = imageOptions;
+        _widgetUpdate();
     }
 
     void MainWindow::setTimelinePlayers(const std::vector<qt::TimelinePlayer*>& timelinePlayers)
@@ -528,14 +551,6 @@ namespace tlr
         }
 
         _playbackUpdate();
-        _widgetUpdate();
-    }
-
-    void MainWindow::setColorConfig(const imaging::ColorConfig& colorConfig)
-    {
-        if (colorConfig == _colorConfig)
-            return;
-        _colorConfig = colorConfig;
         _widgetUpdate();
     }
 
@@ -792,6 +807,13 @@ namespace tlr
 
     void MainWindow::_imageOptionsCallback(const render::ImageOptions& value)
     {
+        _app->filesModel()->setImageOptions(value);
+    }
+
+    void MainWindow::_imageOptionsCallback(const std::vector<render::ImageOptions>& value)
+    {
+        _imageOptions = value;
+        _widgetUpdate();
     }
 
     void MainWindow::_compareOptionsCallback(const render::CompareOptions& value)
@@ -934,9 +956,12 @@ namespace tlr
 
         _timelineWidget->setTimelinePlayers(_timelinePlayers);
         _timelineWidget->setColorConfig(_colorConfig);
+        _timelineWidget->setImageOptions(_imageOptions);
         _timelineWidget->setCompareOptions(_compareOptions);
 
         _filesTool->setCompareOptions(_compareOptions);
+
+        _imageTool->setImageOptions(!_imageOptions.empty() ? _imageOptions[0] : render::ImageOptions());
 
         _audioTool->setAudioOffset(!_timelinePlayers.empty() ? _timelinePlayers[0]->audioOffset() : 0.0);
 
@@ -944,6 +969,7 @@ namespace tlr
         {
             _secondaryWindow->setTimelinePlayers(_timelinePlayers);
             _secondaryWindow->setColorConfig(_colorConfig);
+            _secondaryWindow->setImageOptions(_imageOptions);
             _secondaryWindow->setCompareOptions(_compareOptions);
         }
     }
