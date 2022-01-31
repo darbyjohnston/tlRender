@@ -7,7 +7,7 @@ namespace tlr
     namespace math
     {
         template<typename T>
-        inline Matrix3x3<T>::Matrix3x3() noexcept :
+        inline Matrix3x3<T>::Matrix3x3() noexcept
         {
             e[0] = 1.F; e[1] = 0.F; e[2] = 0.F;
             e[3] = 0.F; e[4] = 1.F; e[5] = 0.F;
