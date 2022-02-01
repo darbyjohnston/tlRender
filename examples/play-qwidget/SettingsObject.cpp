@@ -16,33 +16,33 @@ namespace tlr
         _toolTipsFilter = new qt::ToolTipsFilter(this);
 
         QSettings settings;
-        _timeObject->setUnits(settings.value("TimeUnits", QVariant::fromValue(_timeObject->units())).value<qt::TimeUnits>());
-        int size = settings.beginReadArray("RecentFiles");
+        _timeObject->setUnits(settings.value("Settings/TimeUnits", QVariant::fromValue(_timeObject->units())).value<qt::TimeUnits>());
+        int size = settings.beginReadArray("Settings/RecentFiles");
         for (int i = 0; i < size; ++i)
         {
             settings.setArrayIndex(i);
             _recentFiles.push_back(settings.value("File").toString().toUtf8().data());
         }
         settings.endArray();
-        _cacheReadAhead = settings.value("Cache/ReadAhead", 4.0).toDouble();
-        _cacheReadBehind = settings.value("Cache/ReadBehind", 0.4).toDouble();
+        _cacheReadAhead = settings.value("Settings/Cache/ReadAhead", 4.0).toDouble();
+        _cacheReadBehind = settings.value("Settings/Cache/ReadBehind", 0.4).toDouble();
         _fileSequenceAudio = static_cast<timeline::FileSequenceAudio>(settings.value(
-            "FileSequence/Audio",
+            "Settings/FileSequence/Audio",
             static_cast<int>(timeline::FileSequenceAudio::BaseName)).toInt());
-        _fileSequenceAudioFileName = settings.value("FileSequence/AudioFileName", "").toString();
-        _fileSequenceAudioDirectory = settings.value("FileSequence/AudioDirectory", "").toString();
+        _fileSequenceAudioFileName = settings.value("Settings/FileSequence/AudioFileName", "").toString();
+        _fileSequenceAudioDirectory = settings.value("Settings/FileSequence/AudioDirectory", "").toString();
         _timerMode = static_cast<timeline::TimerMode>(settings.value(
-            "Performance/TimerMode",
+            "Settings/Performance/TimerMode",
             static_cast<int>(timeline::TimerMode::System)).toInt());
         _audioBufferFrameCount = static_cast<timeline::AudioBufferFrameCount>(settings.value(
-            "Performance/AudioBufferFrameCount",
+            "Settings/Performance/AudioBufferFrameCount",
             static_cast<int>(timeline::AudioBufferFrameCount::_256)).toInt());
-        _videoRequestCount = settings.value("Performance/VideoRequestCount", 16).toInt();
-        _audioRequestCount = settings.value("Performance/AudioRequestCount", 16).toInt();
-        _sequenceThreadCount = settings.value("Performance/SequenceThreadCount", 16).toInt();
-        _ffmpegThreadCount = settings.value("Performance/FFmpegThreadCount", 4).toInt();
-        _maxFileSequenceDigits = settings.value("Misc/MaxFileSequenceDigits", 9).toInt();
-        _toolTipsEnabled = settings.value("Misc/ToolTipsEnabled", true).toBool();
+        _videoRequestCount = settings.value("Settings/Performance/VideoRequestCount", 16).toInt();
+        _audioRequestCount = settings.value("Settings/Performance/AudioRequestCount", 16).toInt();
+        _sequenceThreadCount = settings.value("Settings/Performance/SequenceThreadCount", 16).toInt();
+        _ffmpegThreadCount = settings.value("Settings/Performance/FFmpegThreadCount", 4).toInt();
+        _maxFileSequenceDigits = settings.value("Settings/Misc/MaxFileSequenceDigits", 9).toInt();
+        _toolTipsEnabled = settings.value("Settings/Misc/ToolTipsEnabled", true).toBool();
 
         _toolTipsUpdate();
     }
@@ -50,29 +50,29 @@ namespace tlr
     SettingsObject::~SettingsObject()
     {
         QSettings settings;
-        settings.setValue("TimeUnits", QVariant::fromValue(_timeObject->units()));
-        settings.beginWriteArray("RecentFiles");
+        settings.setValue("Settings/TimeUnits", QVariant::fromValue(_timeObject->units()));
+        settings.beginWriteArray("Settings/RecentFiles");
         for (size_t i = 0; i < _recentFiles.size(); ++i)
         {
             settings.setArrayIndex(i);
             settings.setValue("File", _recentFiles[i]);
         }
         settings.endArray();
-        settings.setValue("Cache/ReadAhead", _cacheReadAhead);
-        settings.setValue("Cache/ReadBehind", _cacheReadBehind);
-        settings.setValue("FileSequence/Audio", static_cast<int>(_fileSequenceAudio));
-        settings.setValue("FileSequence/AudioFileName", _fileSequenceAudioFileName);
-        settings.setValue("FileSequence/AudioDirectory", _fileSequenceAudioDirectory);
-        settings.setValue("Performance/TimerMode", static_cast<int>(_timerMode));
-        settings.setValue("Performance/AudioBufferFrameCount", static_cast<int>(_audioBufferFrameCount));
-        settings.setValue("Performance/VideoRequestCount", _videoRequestCount);
-        settings.setValue("Performance/VideoRequestCount", _videoRequestCount);
-        settings.setValue("Performance/VideoRequestCount", _videoRequestCount);
-        settings.setValue("Performance/AudioRequestCount", _audioRequestCount);
-        settings.setValue("Performance/SequenceThreadCount", _sequenceThreadCount);
-        settings.setValue("Performance/FFmpegThreadCount", _ffmpegThreadCount);
-        settings.setValue("Misc/MaxFileSequenceDigits", _maxFileSequenceDigits);
-        settings.setValue("Misc/ToolTipsEnabled", _toolTipsEnabled);
+        settings.setValue("Settings/Cache/ReadAhead", _cacheReadAhead);
+        settings.setValue("Settings/Cache/ReadBehind", _cacheReadBehind);
+        settings.setValue("Settings/FileSequence/Audio", static_cast<int>(_fileSequenceAudio));
+        settings.setValue("Settings/FileSequence/AudioFileName", _fileSequenceAudioFileName);
+        settings.setValue("Settings/FileSequence/AudioDirectory", _fileSequenceAudioDirectory);
+        settings.setValue("Settings/Performance/TimerMode", static_cast<int>(_timerMode));
+        settings.setValue("Settings/Performance/AudioBufferFrameCount", static_cast<int>(_audioBufferFrameCount));
+        settings.setValue("Settings/Performance/VideoRequestCount", _videoRequestCount);
+        settings.setValue("Settings/Performance/VideoRequestCount", _videoRequestCount);
+        settings.setValue("Settings/Performance/VideoRequestCount", _videoRequestCount);
+        settings.setValue("Settings/Performance/AudioRequestCount", _audioRequestCount);
+        settings.setValue("Settings/Performance/SequenceThreadCount", _sequenceThreadCount);
+        settings.setValue("Settings/Performance/FFmpegThreadCount", _ffmpegThreadCount);
+        settings.setValue("Settings/Misc/MaxFileSequenceDigits", _maxFileSequenceDigits);
+        settings.setValue("Settings/Misc/ToolTipsEnabled", _toolTipsEnabled);
     }
 
     const QList<QString>& SettingsObject::recentFiles() const

@@ -42,7 +42,6 @@ namespace tlr
         void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
 
     protected:
-        void closeEvent(QCloseEvent*) override;
         void dragEnterEvent(QDragEnterEvent*) override;
         void dragMoveEvent(QDragMoveEvent*) override;
         void dragLeaveEvent(QDragLeaveEvent*) override;
@@ -78,7 +77,6 @@ namespace tlr
         void _compareOptionsCallback(const tlr::render::CompareOptions&);
         void _compareOptionsCallback2(const tlr::render::CompareOptions&);
         void _audioOffsetCallback(double);
-        void _saveSettingsCallback();
 
     private:
         void _recentFilesUpdate();

@@ -424,22 +424,17 @@ namespace tlr
             SIGNAL(recentFilesChanged(const QList<QString>&)),
             SLOT(_recentFilesCallback()));
 
-        connect(
-            app,
-            SIGNAL(aboutToQuit()),
-            SLOT(_saveSettingsCallback()));
-
         resize(1280, 720);
         QSettings settings;
-        auto ba = settings.value("geometry").toByteArray();
+        auto ba = settings.value("MainWindow/geometry").toByteArray();
         if (!ba.isEmpty())
         {
-            restoreGeometry(settings.value("geometry").toByteArray());
+            restoreGeometry(settings.value("MainWindow/geometry").toByteArray());
         }
-        ba = settings.value("geometry").toByteArray();
+        ba = settings.value("MainWindow/geometry").toByteArray();
         if (!ba.isEmpty())
         {
-            restoreState(settings.value("windowState").toByteArray());
+            restoreState(settings.value("MainWindow/windowState").toByteArray());
         }
     }
 
@@ -450,6 +445,9 @@ namespace tlr
             delete _secondaryWindow;
             _secondaryWindow = nullptr;
         }
+        QSettings settings;
+        settings.setValue("MainWindow/geometry", saveGeometry());
+        settings.setValue("MainWindow/windowState", saveState());
     }
 
     void MainWindow::setColorConfig(const imaging::ColorConfig& colorConfig)
@@ -552,17 +550,6 @@ namespace tlr
 
         _playbackUpdate();
         _widgetUpdate();
-    }
-
-    void MainWindow::closeEvent(QCloseEvent* event)
-    {
-        _saveSettingsCallback();
-        if (_secondaryWindow)
-        {
-            delete _secondaryWindow;
-            _secondaryWindow = nullptr;
-        }
-        QMainWindow::closeEvent(event);
     }
 
     void MainWindow::dragEnterEvent(QDragEnterEvent* event)
@@ -833,13 +820,6 @@ namespace tlr
         {
             _timelinePlayers[0]->setAudioOffset(value);
         }
-    }
-
-    void MainWindow::_saveSettingsCallback()
-    {
-        QSettings settings;
-        settings.setValue("geometry", saveGeometry());
-        settings.setValue("windowState", saveState());
     }
 
     void MainWindow::_recentFilesUpdate()

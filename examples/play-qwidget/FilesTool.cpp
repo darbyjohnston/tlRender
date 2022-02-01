@@ -7,8 +7,10 @@
 #include "FilesView.h"
 
 #include <QBoxLayout>
+#include <QHeaderView>
 #include <QLabel>
 #include <QSignalBlocker>
+#include <QSettings>
 
 namespace tlr
 {
@@ -78,6 +80,14 @@ namespace tlr
 
         _widgetUpdate();
 
+        QSettings settings;
+
+        auto ba = settings.value("FilesTool/Header").toByteArray();
+        if (!ba.isEmpty())
+        {
+            _treeView->header()->restoreState(ba);
+        }
+
         connect(
             _treeView,
             SIGNAL(activated(const QModelIndex&)),
@@ -112,6 +122,12 @@ namespace tlr
             filesModel,
             SIGNAL(countChanged(int)),
             SLOT(_countCallback()));
+    }
+
+    FilesTool::~FilesTool()
+    {
+        QSettings settings;
+        settings.setValue("FilesTool/Header", _treeView->header()->saveState());
     }
 
     void FilesTool::setCompareOptions(const render::CompareOptions& value)

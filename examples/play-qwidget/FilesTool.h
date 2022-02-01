@@ -24,6 +24,8 @@ namespace tlr
             FilesModel*,
             QWidget* parent = nullptr);
 
+        ~FilesTool() override;
+
     public Q_SLOTS:
         void setCompareOptions(const tlr::render::CompareOptions&);
 

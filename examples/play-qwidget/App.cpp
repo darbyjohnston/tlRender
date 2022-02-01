@@ -117,6 +117,7 @@ namespace tlr
 
     App::~App()
     {
+        delete _mainWindow;
         //! \bug Why is it necessary to manually delete this to get the settings to save?
         delete _settingsObject;
     }
