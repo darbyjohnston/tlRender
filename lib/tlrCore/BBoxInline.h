@@ -96,8 +96,8 @@ namespace tlr
         inline Vector2<int> BBox2<int>::getCenter() const noexcept
         {
             return Vector2<int>(
-                min.x + (max.x - min.x + 1) / 2.F,
-                min.y + (max.y - min.y + 1) / 2.F);
+                min.x + static_cast<int>((max.x - min.x + 1) / 2.F),
+                min.y + static_cast<int>((max.y - min.y + 1) / 2.F));
         }
 
         template<>
