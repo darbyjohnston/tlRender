@@ -6,6 +6,8 @@
 
 #include "OpenWithAudioDialog.h"
 
+#include <tlrQWidget/Util.h>
+
 #include <tlrCore/AudioSystem.h>
 #include <tlrCore/Math.h>
 #include <tlrCore/StringFormat.h>
@@ -101,6 +103,9 @@ namespace tlr
             _filesModel,
             SIGNAL(layerChanged(const std::shared_ptr<FilesModelItem>&, int)),
             SLOT(_layerCallback(const std::shared_ptr<FilesModelItem>&, int)));
+
+        // Set the dark style color palette.
+        setPalette(qwidget::darkStyle());
 
         // Create the main window.
         _mainWindow = new MainWindow(this);

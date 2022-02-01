@@ -65,7 +65,7 @@
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96">
       <rect
-         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.748355;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         style="fill:#f0f0f0;fill-opacity:1;stroke:none;stroke-width:0.748355;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          id="rect831"
          width="0.52916676"
          height="3.7041667"
@@ -77,7 +77,7 @@
          inkscape:connector-curvature="0"
          id="path4520-8"
          d="m 1.0583333,296.20623 2.6458333,-1.85209 -2.6458333,-1.85208 z"
-         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.24153px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+         style="fill:#f0f0f0;fill-opacity:1;stroke:none;stroke-width:0.24153px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     </g>
   </g>
 </svg>

@@ -26,7 +26,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="31.659099"
-     inkscape:cx="10.376164"
+     inkscape:cx="10.123472"
      inkscape:cy="9.8391935"
      inkscape:document-units="px"
      inkscape:current-layer="ForwardPlayback"
@@ -68,8 +68,8 @@
          sodipodi:nodetypes="cccc"
          inkscape:connector-curvature="0"
          id="path4520"
-         d="m 1.8520899,295.67705 1.5874934,-1.32291 -1.5874934,-1.32292 z"
-         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.158118px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+         d="m 1.8520898,295.67705 1.8520768,-1.32291 -1.8520768,-1.32292 z"
+         style="fill:#f0f0f0;fill-opacity:1;stroke:none;stroke-width:0.170787px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     </g>
   </g>
 </svg>

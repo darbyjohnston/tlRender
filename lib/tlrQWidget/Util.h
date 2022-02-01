@@ -6,6 +6,8 @@
 
 #include <tlrGlad/gl.h>
 
+#include <QPalette>
+
 namespace tlr
 {
     //! Qt QWidget support.
@@ -13,6 +15,9 @@ namespace tlr
     {
         //! Initialize the library. This needs to be called before the Qt application is instantiated.
         void init();
+
+        //! Get a dark style color palette.
+        QPalette darkStyle();
     }
 }
 
