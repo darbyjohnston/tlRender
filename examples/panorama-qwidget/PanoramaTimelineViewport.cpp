@@ -192,7 +192,7 @@ void PanoramaTimelineViewport::paintGL()
         .1F,
         10000.F);
     _shader->bind();
-    glm::mat4x4 vp = p * v;
+    const glm::mat4x4 vp = p * v;
     _shader->setUniform(
         "transform.mvp",
         math::Matrix4x4f(
