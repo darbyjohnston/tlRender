@@ -43,17 +43,14 @@ set(FFmpeg_LIBRARIES
     ${FFmpeg_avdevice_LIBRARY}
     ${ZLIB_LIBRARIES})
 if(APPLE)
-    set(FFmpeg_LIBRARIES
-        ${FFmpeg_LIBRARIES}
+    list(APPEND FFmpeg_LIBRARIES
         "-framework Security"
         "-framework VideoToolbox"
         "-framework CoreMedia"
         "-framework CoreVideo"
         "-framework CoreFoundation")
 elseif(${CMAKE_HOST_SYSTEM_PROCESSOR} MATCHES "arm")
-    set(FFmpeg_LIBRARIES
-        ${FFmpeg_LIBRARIES}
-        atomic)
+    list(APPEND FFmpeg_LIBRARIES atomic)
 endif()
 
 include(FindPackageHandleStandardArgs)

@@ -44,7 +44,7 @@ endif()
 
 set(OCIO_DEFINES)
 if(NOT BUILD_SHARED_LIBS)
-	set(OCIO_DEFINES OpenColorIO_SKIP_IMPORTS)
+	list(APPEND OCIO_DEFINES OpenColorIO_SKIP_IMPORTS)
 endif()
 
 include(FindPackageHandleStandardArgs)

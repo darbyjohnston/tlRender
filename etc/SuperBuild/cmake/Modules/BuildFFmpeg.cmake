@@ -42,14 +42,12 @@ else()
         ${FFmpeg_LDFLAGS}
         --x86asmexe=${CMAKE_INSTALL_PREFIX}/bin/nasm)
     if(FFmpeg_SHARED_LIBS)
-        set(FFmpeg_CONFIGURE_ARGS
-            ${FFmpeg_CONFIGURE_ARGS}
+        list(APPEND FFmpeg_CONFIGURE_ARGS
             --disable-static
             --enable-shared)
     endif()
     if(FFmpeg_DEBUG)
-        set(FFmpeg_CONFIGURE_ARGS
-            ${FFmpeg_CONFIGURE_ARGS}
+        list(APPEND FFmpeg_CONFIGURE_ARGS
             --disable-optimizations
             --disable-stripping
             --enable-debug=3
