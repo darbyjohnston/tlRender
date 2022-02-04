@@ -4,21 +4,29 @@
 
 tlRender
 ========
-tlRender is an open source library for rendering editorial timelines used in
-visual effects, film, and animation.
+tlRender is an open source library for building playback and review
+applications for visual effects, film, and animation.
 
-The library can be used for building playback and review applications that
-support timelines with multiple video clips, image sequences, audio clips,
-and transitions. 
+The library can render and playback timelines with multiple video clips,
+image sequences, audio clips, and transitions. Timeline support is provided
+by [OpenTimelineIO](https://github.com/PixarAnimationStudios/OpenTimelineIO),
+color management by [OpenColorIO](https://github.com/AcademySoftwareFoundation/OpenColorIO),
+and file I/O by [FFmpeg](https://ffmpeg.org), [OpenEXR](https://www.openexr.com/),
+and other open source libraries.
 
 The tlRender source code is provided under a BSD style open source license.
 
 Supported:
-* Mutiple movie clips, image sequences (Cineon, DPX, JPEG, OpenEXR, PNG, TIFF),
-  audio clips, and transitions
-* Color management with OpenColorIO
+* Movie files (H264, MP4, etc.)
+* Image files sequences (Cineon, DPX, JPEG, OpenEXR, PNG, PPM, TIFF)
+* Multi-channel audio
+* Color management
+* A/B comparison
 
 To do:
+* Software rendering
+* Apple Metal rendering
+* Microsoft DirectX rendering
 * Effects
 * GPU movie decoding
 * Nested timelines
@@ -52,7 +60,7 @@ Library for rendering timelines with OpenGL.
 
 tlrQt, tlrQWidget, tlrQuick
 ---------------------------
-Libraries for integrating timeline rendering with Qt based applications.
+Libraries for integrating with Qt based applications.
 
 Dependencies:
 * [Qt](https://www.qt.io)
@@ -65,7 +73,7 @@ play-glfw
 ------------
 ![play-glfw](etc/Images/play-glfw-screenshot1.png)
 
-GLFW example application for timeline playback.
+GLFW example playback application.
 
 Dependencies:
 * [GLFW](https://www.glfw.org)
@@ -74,11 +82,11 @@ play-qwidget
 ---------------
 ![play-qwidget](etc/Images/play-qwidget-screenshot1.png)
 
-Qt widget example application for timeline playback.
+Qt widget example playback application.
 
 play-quick
 ----------
-Qt Quick example application for timeline playback.
+Qt Quick example playback application.
 
 
 Utilities
@@ -102,11 +110,11 @@ separately.
 CMake Build Options
 -------------------
 * TLR_ENABLE_MMAP - Enable memory-mapped file I/O
-* TLR_ENABLE_GCOV - Enable gcov code coverage
+* TLR_ENABLE_COVERAGE - Enable code coverage
 * TLR_ENABLE_PYTHON - Enable Python support (for OTIO Python adapters)
 * TLR_BUILD_GL - Build OpenGL library (tlrGL)
 * TLR_BUILD_QT - Build Qt libraries (tlrQt, tlrQWidget, tlrQuick)
-* TLR_BUILD_APPS - Build applications
+* TLR_BUILD_PROGRAMS - Build applications
 * TLR_BUILD_EXAMPLES - Build examples
 * TLR_BUILD_TESTS - Build tests
 * TLR_BUILD_FFmpeg - Build FFmpeg support (Linux and macOS only)
