@@ -14,6 +14,9 @@ if(BUILD_SHARED_LIBS)
 else()
     set(RtAudio_ARGS ${RtAudio_ARGS} -DRTAUDIO_BUILD_STATIC_LIBS=TRUE)
 endif()
+if(APPLE)
+    list(APPEND RtAudio_ARGS RTAUDIO_API_JACK=OFF)
+endif()
 
 ExternalProject_Add(
     RtAudio
