@@ -177,7 +177,7 @@ cmake --build tlRender/src/tlRender-build -j 4 --config Debug
 ```
 Example for running gcovr for viewing code coverage:
 ```
-gcovr -r ../../../../tlRender/lib/tlrCore --html --object-directory $PWD --html-details --output gcov.html
+gcovr -r ../lib/tlrCore --html --object-directory $PWD --html-details --output gcov.html
 ```
 
 Building on macOS
