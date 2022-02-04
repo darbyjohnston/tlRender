@@ -9,7 +9,7 @@ set(LIBRARIES
 if(TLR_BUILD_GL)
     list(APPEND LIBRARIES tlrGLTest)
 endif()
-if(TLR_BUILD_QT)
+if(TLR_BUILD_QT6 OR TLR_BUILD_QT5)
     list(APPEND LIBRARIES tlrQtTest)
 endif()
 target_link_libraries(tlrtest ${LIBRARIES})
