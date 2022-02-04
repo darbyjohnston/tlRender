@@ -11,27 +11,10 @@ set(tlRender_ARGS
     -DTLR_BUILD_EXAMPLES=${TLR_BUILD_EXAMPLES}
     -DTLR_BUILD_TESTS=${TLR_BUILD_TESTS})
 
-set(tlRender_DEPENDS OTIO OCIO FSeq)
-if(TLR_BUILD_JPEG)
-    list(APPEND tlRender_DEPENDS JPEG)
-endif()
-if(TLR_BUILD_TIFF)
-    list(APPEND tlRender_DEPENDS TIFF)
-endif()
-if(TLR_BUILD_PNG)
-    list(APPEND tlRender_DEPENDS PNG)
-endif()
-if(TLR_BUILD_FFmpeg)
-    list(APPEND tlRender_DEPENDS FFmpeg)
-endif()
-if(TLR_BUILD_GL AND TLR_BUILD_EXAMPLES)
-    list(PREPEND tlRender_DEPENDS GLFW)
-endif()
-
 ExternalProject_Add(
     tlRender
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/tlRender
-    DEPENDS ${tlRender_DEPENDS}
+    DEPENDS ${TLR_EXTERNAL_DEPS}
     SOURCE_DIR ${CMAKE_SOURCE_DIR}/../..
     LIST_SEPARATOR |
     CMAKE_ARGS ${tlRender_ARGS})
