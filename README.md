@@ -170,6 +170,11 @@ export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
 
 Notes for building on Linux
 ---------------------------
+When working on the tlRender codebase you can skip the dependencies
+in subsequent builds:
+```
+cmake --build tlRender/src/tlRender-build -j 4 --config Debug
+```
 Running gcovr for viewing code coverage:
 ```
 gcovr -r ../../../../tlRender/lib/tlrCore --html --object-directory $PWD --html-details --output gcov.html
@@ -228,6 +233,11 @@ Try running the "tlrplay-qwidget" application:
 
 Notes for building on macOS
 ---------------------------
+When working on the tlRender codebase you can skip the dependencies
+in subsequent builds:
+```
+cmake --build tlRender/src/tlRender-build -j 4 --config Debug
+```
 The CMake variable "CMAKE_OSX_ARCHITECTURES" can be used to specify the build
 architecture:
 ```
@@ -311,4 +321,12 @@ Try running the "tlrplay-qwidget" application:
 ```
 set PATH=%CD%\install\bin;%PATH%
 .\install\bin\tlrplay-qwidget ..\etc\SampleData\multiple_clips.otio
+```
+
+Notes for building on Windows
+-----------------------------
+When working on the tlRender codebase you can skip the dependencies
+in subsequent builds:
+```
+cmake --build tlRender\src\tlRender-build -j 4 --config Debug
 ```
