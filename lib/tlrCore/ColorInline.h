@@ -2,6 +2,8 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
+#include <algorithm>
+
 namespace tlr
 {
     namespace imaging
