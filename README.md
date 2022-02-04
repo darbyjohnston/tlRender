@@ -18,7 +18,7 @@ The tlRender source code is provided under a BSD style open source license.
 
 Supported:
 * Movie files (H264, MP4, etc.)
-* Image files sequences (Cineon, DPX, JPEG, OpenEXR, PNG, PPM, TIFF)
+* Image file sequences (Cineon, DPX, JPEG, OpenEXR, PNG, PPM, TIFF)
 * Multi-channel audio
 * Color management
 * A/B comparison
