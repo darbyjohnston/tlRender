@@ -23,6 +23,9 @@ namespace tlr
         void setEditorData(QWidget* editor, const QModelIndex&) const override;
         void setModelData(QWidget* editor, QAbstractItemModel*, const QModelIndex&) const override;
 
+    private Q_SLOTS:
+        void _mapperCallback(QObject*);
+
     private:
         QSignalMapper* _mapper;
     };

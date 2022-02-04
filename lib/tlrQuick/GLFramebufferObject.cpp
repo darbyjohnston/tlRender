@@ -51,9 +51,11 @@ namespace tlr
                     _render->drawVideo({ _videoData });
                     _render->end();
 
+#if defined(TLR_BUILD_QT5)
                     _framebufferObject->window()->resetOpenGLState();
+#endif
                 }
-                    
+
                 void synchronize(QQuickFramebufferObject*) override
                 {
                     _videoData = _framebufferObject->video();

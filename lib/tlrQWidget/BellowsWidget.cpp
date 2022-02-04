@@ -33,7 +33,7 @@ namespace tlr
             p.textLabel = new QLabel;
 
             auto layout = new QHBoxLayout;
-            layout->setMargin(0);
+            layout->setContentsMargins(0, 0, 0, 0);
             layout->addWidget(p.iconLabel);
             layout->addWidget(p.textLabel, 1);
             setLayout(layout);
@@ -100,7 +100,7 @@ namespace tlr
             p.button = new BellowsButton;
 
             auto layout = new QVBoxLayout;
-            layout->setMargin(0);
+            layout->setContentsMargins(0, 0, 0, 0);
             layout->setSpacing(0);
             layout->addWidget(p.button);
             p.layout = new QVBoxLayout;

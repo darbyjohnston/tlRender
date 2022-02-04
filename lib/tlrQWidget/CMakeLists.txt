@@ -22,10 +22,18 @@ set(SOURCE
     TimelineViewport.cpp
     TimelineWidget.cpp
     Util.cpp)
-qt5_add_resources(SOURCE tlrQWidget.qrc)
+if(TLR_BUILD_QT6)
+	qt6_add_resources(SOURCE tlrQWidget.qrc)
+elseif(TLR_BUILD_QT5)
+	qt5_add_resources(SOURCE tlrQWidget.qrc)
+endif()
 
 add_library(tlrQWidget ${HEADERS} ${SOURCE})
-target_link_libraries(tlrQWidget Qt5::Widgets Qt5::Svg tlrQt)
+if(TLR_BUILD_QT6)
+	target_link_libraries(tlrQWidget Qt6::Widgets Qt6::OpenGLWidgets Qt6::Svg tlrQt)
+elseif(TLR_BUILD_QT5)
+	target_link_libraries(tlrQWidget Qt5::Widgets Qt5::Svg tlrQt)
+endif()
 set_target_properties(tlrQWidget PROPERTIES FOLDER lib)
 set_target_properties(tlrQWidget PROPERTIES PUBLIC_HEADER "${HEADERS}")
 

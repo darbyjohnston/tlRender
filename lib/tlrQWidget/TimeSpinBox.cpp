@@ -7,7 +7,7 @@
 #include <QApplication>
 #include <QFontDatabase>
 #include <QLineEdit>
-#include <QRegExpValidator>
+#include <QRegularExpressionValidator>
 #include <QStyleOptionSpinBox>
 
 namespace tlr
@@ -18,7 +18,7 @@ namespace tlr
         {
             otime::RationalTime value = time::invalidTime;
             qt::TimeUnits units = qt::TimeUnits::Timecode;
-            QRegExpValidator* validator = nullptr;
+            QRegularExpressionValidator* validator = nullptr;
             qt::TimeObject* timeObject = nullptr;
         };
 
@@ -135,8 +135,7 @@ namespace tlr
             QStyleOptionSpinBox opt;
             initStyleOption(&opt);
             QSize hint(w, h);
-            return style()->sizeFromContents(QStyle::CT_SpinBox, &opt, hint, this)
-                .expandedTo(QApplication::globalStrut());
+            return style()->sizeFromContents(QStyle::CT_SpinBox, &opt, hint, this);
         }
 
         void TimeSpinBox::_lineEditCallback()
@@ -159,7 +158,7 @@ namespace tlr
             {
                 p.validator->setParent(nullptr);
             }
-            p.validator = new QRegExpValidator(QRegExp(validator(p.units)), this);
+            p.validator = new QRegularExpressionValidator(QRegularExpression(validator(p.units)), this);
             lineEdit()->setValidator(p.validator);
         }
 

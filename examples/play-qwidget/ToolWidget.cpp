@@ -16,7 +16,7 @@ namespace tlr
         QWidget(parent)
     {
         _layout = new QVBoxLayout;
-        _layout->setMargin(0);
+        _layout->setContentsMargins(0, 0, 0, 0);
         _layout->setSpacing(0);
         auto scrollWidget = new QWidget;
         scrollWidget->setLayout(_layout);
@@ -25,7 +25,7 @@ namespace tlr
         scrollArea->setWidget(scrollWidget);
         auto scrollLayout = new QVBoxLayout;
         scrollLayout->addWidget(scrollArea);
-        scrollLayout->setMargin(0);
+        scrollLayout->setContentsMargins(0, 0, 0, 0);
         setLayout(scrollLayout);
     }
 

@@ -147,7 +147,7 @@ namespace tlr
             p.volumeSlider->setToolTip(tr("Audio volume"));
 
             auto layout = new QVBoxLayout;
-            layout->setMargin(0);
+            layout->setContentsMargins(0, 0, 0, 0);
             auto hLayout = new QHBoxLayout;
             auto hLayout2 = new QHBoxLayout;
             hLayout2->setSpacing(1);

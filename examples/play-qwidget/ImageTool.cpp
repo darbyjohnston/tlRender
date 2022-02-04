@@ -143,7 +143,7 @@ namespace tlr
         _slider->setRange(0, 1000);
 
         auto layout = new QHBoxLayout;
-        layout->setMargin(0);
+        layout->setContentsMargins(0, 0, 0, 0);
         layout->addWidget(_spinBox);
         layout->addWidget(_slider, 1);
         setLayout(layout);
@@ -213,7 +213,7 @@ namespace tlr
         }
 
         auto layout = new QVBoxLayout;
-        layout->setMargin(0);
+        layout->setContentsMargins(0, 0, 0, 0);
         layout->setSpacing(0);
         for (size_t i = 0; i < 3; ++i)
         {

@@ -36,7 +36,7 @@ namespace tlr
         _actions["File/Open"]->setShortcut(QKeySequence::Open);
         _actions["File/OpenWithAudio"] = new QAction(this);
         _actions["File/OpenWithAudio"]->setText(tr("Open with Audio"));
-        _actions["File/OpenWithAudio"]->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_O));
+        _actions["File/OpenWithAudio"]->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_O));
         _actions["File/Close"] = new QAction(this);
         _actions["File/Close"]->setText(tr("Close"));
         _actions["File/Close"]->setShortcut(QKeySequence::Close);

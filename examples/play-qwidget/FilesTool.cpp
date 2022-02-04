@@ -56,7 +56,7 @@ namespace tlr
         _freeRotSpinBox->setToolTip(tr("Rotation"));
 
         auto vLayout = new QVBoxLayout;
-        vLayout->setMargin(10);
+        vLayout->setContentsMargins(0, 0, 0, 0);
         vLayout->addWidget(_treeView);
         auto viewWidget = new QWidget;
         viewWidget->setLayout(vLayout);

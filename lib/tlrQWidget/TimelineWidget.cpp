@@ -37,11 +37,11 @@ namespace tlr
             p.controls = new TimelineControls;
 
             auto layout = new QVBoxLayout;
-            layout->setMargin(0);
+            layout->setContentsMargins(0, 0, 0, 0);
             layout->setSpacing(0);
             layout->addWidget(p.viewport, 1);
             auto vLayout = new QVBoxLayout;
-            vLayout->setMargin(5);
+            vLayout->setContentsMargins(5, 5, 5, 5);
             vLayout->setSpacing(5);
             vLayout->addWidget(p.slider, 1);
             vLayout->addWidget(p.controls);

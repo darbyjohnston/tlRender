@@ -14,8 +14,8 @@ namespace tlr
     {
         connect(
             _mapper,
-            SIGNAL(mapped(QWidget*)),
-            SIGNAL(commitData(QWidget*)));
+            SIGNAL(mappedObject(QObject*)),
+            SLOT(_mapperCallback(QObject*)));
     }
 
     QWidget* FilesLayersItemDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem& options, const QModelIndex& index) const
@@ -53,5 +53,10 @@ namespace tlr
     {
         QComboBox* comboBox = qobject_cast<QComboBox*>(editor);
         model->setData(index, comboBox->currentIndex(), Qt::EditRole);
+    }
+
+    void FilesLayersItemDelegate::_mapperCallback(QObject* value)
+    {
+        Q_EMIT commitData(qobject_cast<QWidget*>(value));
     }
 }

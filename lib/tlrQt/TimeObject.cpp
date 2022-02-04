@@ -7,7 +7,6 @@
 #include <tlrCore/StringFormat.h>
 
 #include <QDataStream>
-#include <QRegExpValidator>
 
 namespace tlr
 {

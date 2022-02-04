@@ -3,7 +3,11 @@ set(HEADERS
 set(SOURCE
     App.cpp
     main.cpp)
-qt5_add_resources(SOURCE play-quick.qrc)
+if(TLR_BUILD_QT6)
+	qt6_add_resources(SOURCE play-quick.qrc)
+elseif(TLR_BUILD_QT5)
+	qt5_add_resources(SOURCE play-quick.qrc)
+endif()
 
 add_executable(play-quick ${SOURCE} ${HEADERS})
 target_link_libraries(play-quick tlrQuick tlrApp)

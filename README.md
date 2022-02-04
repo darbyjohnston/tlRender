@@ -112,8 +112,9 @@ CMake Build Options
 * TLR_ENABLE_MMAP - Enable memory-mapped file I/O
 * TLR_ENABLE_COVERAGE - Enable code coverage
 * TLR_ENABLE_PYTHON - Enable Python support (for OTIO Python adapters)
-* TLR_BUILD_GL - Build OpenGL library (tlrGL)
-* TLR_BUILD_QT - Build Qt libraries (tlrQt, tlrQWidget, tlrQuick)
+* TLR_BUILD_GL - Build OpenGL libraries
+* TLR_BUILD_QT6 - Build Qt6 libraries
+* TLR_BUILD_QT5 - Build Qt5 libraries
 * TLR_BUILD_PROGRAMS - Build applications
 * TLR_BUILD_EXAMPLES - Build examples
 * TLR_BUILD_TESTS - Build tests
@@ -151,29 +152,10 @@ export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
 
 Building on Linux with Qt
 -------------------------
-Clone the repository:
+When running CMake with the super build script, add the Qt location to
+"CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLR_BUILD_QT5":
 ```
-git clone https://github.com/darbyjohnston/tlRender.git
-cd tlRender
-```
-Create a build directory:
-```
-mkdir build
-cd build
-```
-Run CMake with the super build script, adding the location of "Qt5Config.cmake" to "CMAKE_PREFIX_PATH"
-(make sure to use quotes), and enabling "TLR_BUILD_QT":
-```
-cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/5.15.2/gcc_64/lib/cmake/Qt5" -DTLR_BUILD_QT=ON -DCMAKE_BUILD_TYPE=Debug
-```
-Start the build:
-```
-cmake --build . -j 4
-```
-Try running the "tlrplay-qwidget" application:
-```
-export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
-./install/bin/tlrplay-qwidget ../etc/SampleData/multiple_clips.otio
+cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/5.15.2/gcc_64" -DTLR_BUILD_QT5=ON -DCMAKE_BUILD_TYPE=Debug
 ```
 
 Notes for building on Linux
@@ -215,28 +197,10 @@ Try running the "tlrplay-glfw" application:
 
 Building on macOS with Qt
 -------------------------
-Clone the repository:
+When running CMake with the super build script, add the Qt location to
+"CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLR_BUILD_QT5":
 ```
-git clone https://github.com/darbyjohnston/tlRender.git
-cd tlRender
-```
-Create a build directory:
-```
-mkdir build
-cd build
-```
-Run CMake with the super build script, adding the location of "Qt5Config.cmake" to "CMAKE_PREFIX_PATH"
-(make sure to use quotes), and enabling "TLR_BUILD_QT":
-```
-cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/5.15.2/clang_64/lib/cmake/Qt5" -DTLR_BUILD_QT=ON -DCMAKE_BUILD_TYPE=Debug
-```
-Start the build:
-```
-cmake --build . -j 4
-```
-Try running the "tlrplay-qwidget" application:
-```
-./tlRender/src/tlRender-build/bin/tlrplay-qwidget/tlrplay-qwidget ../etc/SampleData/multiple_clips.otio
+cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/5.15.2/clang_64" -DTLR_BUILD_QT5=ON -DCMAKE_BUILD_TYPE=Debug
 ```
 
 Notes for building on macOS
@@ -306,29 +270,10 @@ set PATH=%CD%\install\bin;%PATH%
 
 Building on Windows with Qt
 ---------------------------
-Clone the repository:
+When running CMake with the super build script, add the Qt location to
+"CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLR_BUILD_QT5":
 ```
-git clone https://github.com/darbyjohnston/tlRender.git
-cd tlRender
-```
-Create a build directory:
-```
-mkdir build
-cd build
-```
-Run CMake with the super build script, adding the location of "Qt5Config.cmake" to "CMAKE_PREFIX_PATH"
-(make sure to use quotes), and enabling "TLR_BUILD_QT":
-```
-cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=%CD%/install -DCMAKE_PREFIX_PATH="%CD%/install;C:\Qt\5.15.2\msvc2019_64\lib\cmake\Qt5" -DTLR_BUILD_QT=ON -DCMAKE_BUILD_TYPE=Debug
-```
-Start the build:
-```
-cmake --build . -j 4 --config Debug
-```
-Try running the "tlrplay-qwidget" application:
-```
-set PATH=%CD%\install\bin;%PATH%
-.\install\bin\tlrplay-qwidget ..\etc\SampleData\multiple_clips.otio
+cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=%CD%/install -DCMAKE_PREFIX_PATH="%CD%/install;C:\Qt\5.15.2\msvc2019_64" -DTLR_BUILD_QT5=ON -DCMAKE_BUILD_TYPE=Debug
 ```
 
 Notes for building on Windows

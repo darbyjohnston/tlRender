@@ -19,7 +19,7 @@ namespace tlr
         _viewport = new qwidget::TimelineViewport(context);
 
         auto layout = new QVBoxLayout;
-        layout->setMargin(0);
+        layout->setContentsMargins(0, 0, 0, 0);
         layout->addWidget(_viewport);
         setLayout(layout);
     }

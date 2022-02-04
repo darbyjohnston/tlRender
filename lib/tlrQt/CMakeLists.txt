@@ -12,7 +12,11 @@ set(SOURCE
     Util.cpp)
 
 add_library(tlrQt ${HEADERS} ${SOURCE})
-target_link_libraries(tlrQt Qt5::Gui tlrGL)
+if(TLR_BUILD_QT6)
+	target_link_libraries(tlrQt Qt6::Gui Qt6::OpenGL tlrGL)
+elseif(TLR_BUILD_QT5)
+	target_link_libraries(tlrQt Qt5::Gui Qt5::OpenGL tlrGL)
+endif()
 set_target_properties(tlrQt PROPERTIES FOLDER lib)
 set_target_properties(tlrQt PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
