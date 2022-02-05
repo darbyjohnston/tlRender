@@ -305,12 +305,14 @@ namespace tlr
             p.speeds.append(12.0);
             p.speeds.append(16.0);
             p.speeds.append(18.0);
+            p.speeds.append(23.98);
             p.speeds.append(24.0);
             p.speeds.append(29.97);
             p.speeds.append(30.0);
             p.speeds.append(48.0);
             p.speeds.append(59.94);
             p.speeds.append(60.0);
+            p.speeds.append(120.0);
             if (p.timelinePlayer)
             {
                 const double defaultSpeed = p.timelinePlayer->defaultSpeed();
