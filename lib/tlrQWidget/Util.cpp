@@ -39,7 +39,7 @@ namespace tlr
             palette.setColor(QPalette::ColorRole::Midlight, QColor(45, 45, 45));
             palette.setColor(QPalette::ColorRole::Dark, QColor(30, 30, 30));
             palette.setColor(QPalette::ColorRole::Mid, QColor(35, 35, 35));
-            palette.setColor(QPalette::ColorRole::Highlight, QColor(220, 180, 60));
+            palette.setColor(QPalette::ColorRole::Highlight, QColor(160, 120, 60));
             palette.setColor(QPalette::ColorRole::HighlightedText, QColor(240, 240, 240));
             return palette;
         }
