@@ -16,7 +16,3 @@ target_link_libraries(tlrtest ${LIBRARIES})
 set_target_properties(tlrtest PROPERTIES FOLDER tests)
 
 add_test(tlrtest ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/tlrtest${CMAKE_EXECUTABLE_SUFFIX})
-
-install(
-    TARGETS tlrtest
-    RUNTIME DESTINATION bin)
