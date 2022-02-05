@@ -1,7 +1,7 @@
 if(TLR_BUILD_GL)
     add_subdirectory(play-glfw)
 endif()
-if(TLR_BUILD_QT)
+if(TLR_BUILD_QT6 OR TLR_BUILD_QT5)
     add_subdirectory(filmstrip-qwidget)
     add_subdirectory(panorama-qwidget)
     add_subdirectory(play-qwidget)

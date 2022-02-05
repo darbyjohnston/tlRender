@@ -210,6 +210,9 @@ architecture:
 ```
 -DCMAKE_OSX_ARCHITECTURES=x86_64
 ```
+```
+-DCMAKE_OSX_ARCHITECTURES=arm64
+```
 When working on the tlRender codebase you can skip the dependencies
 in subsequent builds:
 ```
