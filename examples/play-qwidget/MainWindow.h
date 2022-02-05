@@ -42,6 +42,7 @@ namespace tlr
         void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
 
     protected:
+        void closeEvent(QCloseEvent*) override;
         void dragEnterEvent(QDragEnterEvent*) override;
         void dragMoveEvent(QDragMoveEvent*) override;
         void dragLeaveEvent(QDragLeaveEvent*) override;

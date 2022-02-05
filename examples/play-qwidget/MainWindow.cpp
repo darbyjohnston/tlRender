@@ -552,6 +552,15 @@ namespace tlr
         _widgetUpdate();
     }
 
+    void MainWindow::closeEvent(QCloseEvent*)
+    {
+        if (_secondaryWindow)
+        {
+            delete _secondaryWindow;
+            _secondaryWindow = nullptr;
+        }
+    }
+
     void MainWindow::dragEnterEvent(QDragEnterEvent* event)
     {
         const QMimeData* mimeData = event->mimeData();
@@ -629,6 +638,7 @@ namespace tlr
         {
             _secondaryWindow = new SecondaryWindow(_app->getContext());
             _secondaryWindow->setColorConfig(_colorConfig);
+            _secondaryWindow->setCompareOptions(_compareOptions);
             _secondaryWindow->setTimelinePlayers(_timelinePlayers);
 
             connect(
