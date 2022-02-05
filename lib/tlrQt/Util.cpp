@@ -22,7 +22,7 @@ namespace tlr
             qRegisterMetaType<timeline::TimerMode>("tlr::timeline::TimerMode");
             qRegisterMetaType<timeline::AudioBufferFrameCount>("tlr::timeline::AudioBufferFrameCount");
             qRegisterMetaType<TimeUnits>("tlr::qt::TimeUnits");
-#if defined(TLR_BUILD_QT5)
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
             qRegisterMetaTypeStreamOperators<TimeUnits>("tlr::qt::TimeUnits");
 #endif
             QSurfaceFormat surfaceFormat;

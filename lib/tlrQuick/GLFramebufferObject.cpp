@@ -51,7 +51,7 @@ namespace tlr
                     _render->drawVideo({ _videoData });
                     _render->end();
 
-#if defined(TLR_BUILD_QT5)
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
                     _framebufferObject->window()->resetOpenGLState();
 #endif
                 }
