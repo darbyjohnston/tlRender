@@ -70,15 +70,20 @@ namespace tlr
             switch (units)
             {
             case TimeUnits::Frames:
-                out = QString::fromStdString(string::Format("{0}").arg(time.to_frames()));
+                out = QString::fromStdString(string::Format("{0}").
+                    arg(time != time::invalidTime ? time.to_frames() : 0));
                 break;
             case TimeUnits::Seconds:
-                out = QString::fromStdString(string::Format("{0}").arg(time.to_seconds()));
+                out = QString::fromStdString(string::Format("{0}").
+                    arg(time != time::invalidTime ? time.to_seconds() : 0.0));
                 break;
             case TimeUnits::Timecode:
             {
                 otime::ErrorStatus errorStatus;
-                out = QString::fromStdString(time.to_timecode(&errorStatus));
+                out = QString::fromStdString(
+                    time != time::invalidTime ?
+                    time.to_timecode(&errorStatus) :
+                    "00:00:00:00");
                 break;
             }
             default: break;
