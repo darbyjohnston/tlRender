@@ -163,11 +163,12 @@ namespace tlr
         {
             TLR_PRIVATE_P();
             QPainter painter(this);
-            auto rect = this->rect();
-            auto rect2 = rect.adjusted(0, handleSize, 0, -handleSize);
-            painter.fillRect(rect2, QColor(0, 0, 0));
+            const QPalette& palette = this->palette();
+            QRect rect = this->rect();
+            painter.fillRect(rect, palette.color(QPalette::ColorRole::Base));
             if (p.timelinePlayer)
             {
+                QRect rect2 = rect.adjusted(0, handleSize, 0, -handleSize);
                 int x0 = 0;
                 int y0 = 0;
                 int x1 = 0;
@@ -177,7 +178,9 @@ namespace tlr
                 // Draw the current time.
                 x0 = _timeToPos(p.timelinePlayer->currentTime());
                 y0 = 0;
-                painter.fillRect(QRect(x0 - handleSize / 2, y0, handleSize, rect.height()), QColor(0, 0, 0));
+                painter.fillRect(
+                    QRect(x0 - handleSize / 2, y0, handleSize, rect.height()),
+                    palette.color(QPalette::ColorRole::Text));
 
                 // Draw thumbnails.
                 y0 = rect2.y();
@@ -192,7 +195,9 @@ namespace tlr
                 x1 = _timeToPos(inOutRange.end_time_inclusive());
                 y1 = y0 + rect2.height();
                 h = stripeSize * 2;
-                painter.fillRect(QRect(x0, y1 - h, x1 - x0, h), QColor(90, 90, 90));
+                painter.fillRect(
+                    QRect(x0, y1 - h, x1 - x0, h),
+                    palette.color(QPalette::ColorRole::Button));
 
                 // Draw cached frames.
                 auto color = QColor(40, 190, 40);
