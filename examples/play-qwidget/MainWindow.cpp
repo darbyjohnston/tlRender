@@ -426,15 +426,15 @@ namespace tlr
 
         resize(1280, 720);
         QSettings settings;
-        auto ba = settings.value("MainWindow/geometry").toByteArray();
+        auto ba = settings.value(qt::versionedSettingsKey("MainWindow/geometry")).toByteArray();
         if (!ba.isEmpty())
         {
-            restoreGeometry(settings.value("MainWindow/geometry").toByteArray());
+            restoreGeometry(settings.value(qt::versionedSettingsKey("MainWindow/geometry")).toByteArray());
         }
-        ba = settings.value("MainWindow/geometry").toByteArray();
+        ba = settings.value(qt::versionedSettingsKey("MainWindow/geometry")).toByteArray();
         if (!ba.isEmpty())
         {
-            restoreState(settings.value("MainWindow/windowState").toByteArray());
+            restoreState(settings.value(qt::versionedSettingsKey("MainWindow/windowState")).toByteArray());
         }
     }
 
@@ -446,8 +446,8 @@ namespace tlr
             _secondaryWindow = nullptr;
         }
         QSettings settings;
-        settings.setValue("MainWindow/geometry", saveGeometry());
-        settings.setValue("MainWindow/windowState", saveState());
+        settings.setValue(qt::versionedSettingsKey("MainWindow/geometry"), saveGeometry());
+        settings.setValue(qt::versionedSettingsKey("MainWindow/windowState"), saveState());
     }
 
     void MainWindow::setColorConfig(const imaging::ColorConfig& colorConfig)

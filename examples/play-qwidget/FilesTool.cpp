@@ -81,8 +81,7 @@ namespace tlr
         _widgetUpdate();
 
         QSettings settings;
-
-        auto ba = settings.value("FilesTool/Header").toByteArray();
+        auto ba = settings.value(qt::versionedSettingsKey("FilesTool/Header")).toByteArray();
         if (!ba.isEmpty())
         {
             _treeView->header()->restoreState(ba);
@@ -127,7 +126,7 @@ namespace tlr
     FilesTool::~FilesTool()
     {
         QSettings settings;
-        settings.setValue("FilesTool/Header", _treeView->header()->saveState());
+        settings.setValue(qt::versionedSettingsKey("FilesTool/Header"), _treeView->header()->saveState());
     }
 
     void FilesTool::setCompareOptions(const render::CompareOptions& value)
