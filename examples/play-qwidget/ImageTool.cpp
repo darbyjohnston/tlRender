@@ -323,6 +323,7 @@ namespace tlr
         _componentsCheckBox = new QCheckBox(tr("Components"));
 
         _addSliders = new ColorSlidersWidget;
+        _addSliders->setRange(math::FloatRange(-1.F, 1.F));
 
         _brightnessSliders = new ColorSlidersWidget;
         _brightnessSliders->setRange(math::FloatRange(0.F, 4.F));
