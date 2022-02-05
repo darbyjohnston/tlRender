@@ -155,9 +155,9 @@ namespace tlr
                 { 1, otime::RationalTime(1.0, 24.0), otime::RationalTime(0.0, 1.0) }}))
             {
                 timelinePlayer->setCacheReadAhead(options.readAhead);
-                TLR_ASSERT(options.readAhead == timelinePlayer->getCacheReadAhead());
+                TLR_ASSERT(options.readAhead == timelinePlayer->observeCacheReadAhead()->get());
                 timelinePlayer->setCacheReadBehind(options.readBehind);
-                TLR_ASSERT(options.readBehind == timelinePlayer->getCacheReadBehind());
+                TLR_ASSERT(options.readBehind == timelinePlayer->observeCacheReadBehind()->get());
                 auto videoDataObserver = observer::ValueObserver<timeline::VideoData>::create(
                     timelinePlayer->observeVideo(),
                     [this](const timeline::VideoData& value)

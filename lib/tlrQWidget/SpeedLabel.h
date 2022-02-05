@@ -18,11 +18,18 @@ namespace tlr
         class SpeedLabel : public QWidget
         {
             Q_OBJECT
+            Q_PROPERTY(
+                otime::RationalTime value
+                READ value
+                WRITE setValue)
 
         public:
             SpeedLabel(QWidget* parent = nullptr);
             
             ~SpeedLabel() override;
+
+            //! Get the speed value.
+            const otime::RationalTime& value() const;
 
         public Q_SLOTS:
             //! Set the speed value.

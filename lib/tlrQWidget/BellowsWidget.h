@@ -24,6 +24,9 @@ namespace tlr
 
             ~BellowsButton() override;
 
+            //! Get the text.
+            QString text() const;
+
             //! Is the bellows open?
             bool isOpen() const;
 
@@ -53,6 +56,15 @@ namespace tlr
         class BellowsWidget : public QWidget
         {
             Q_OBJECT
+            Q_PROPERTY(
+                QString title
+                READ title
+                WRITE setTitle)
+            Q_PROPERTY(
+                bool open
+                READ isOpen
+                WRITE setOpen
+                NOTIFY openChanged)
 
         public:
             BellowsWidget(QWidget* parent = nullptr);
@@ -61,6 +73,9 @@ namespace tlr
 
             //! Set the widget.
             void setWidget(QWidget*);
+
+            //! Get the title.
+            QString title() const;
 
             //! Is the bellows open?
             bool isOpen() const;

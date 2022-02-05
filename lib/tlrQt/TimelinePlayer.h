@@ -21,7 +21,72 @@ namespace tlr
         class TimelinePlayer : public QObject
         {
             Q_OBJECT
-            Q_PROPERTY(tlr::timeline::VideoData video READ video NOTIFY videoChanged)
+            Q_PROPERTY(
+                double defaultSpeed
+                READ defaultSpeed)
+            Q_PROPERTY(
+                double speed
+                READ speed
+                WRITE setSpeed
+                NOTIFY speedChanged)
+            Q_PROPERTY(
+                tlr::timeline::Playback playback
+                READ playback
+                WRITE setPlayback
+                NOTIFY playbackChanged)
+            Q_PROPERTY(
+                tlr::timeline::Loop loop
+                READ loop
+                WRITE setLoop
+                NOTIFY loopChanged)
+            Q_PROPERTY(
+                otime::RationalTime currentTime
+                READ currentTime
+                NOTIFY currentTimeChanged)
+            Q_PROPERTY(
+                otime::TimeRange inOutRange
+                READ inOutRange
+                WRITE setInOutRange
+                NOTIFY inOutRangeChanged)
+            Q_PROPERTY(
+                int videoLayer
+                READ videoLayer
+                WRITE setVideoLayer
+                NOTIFY videoLayerChanged)
+            Q_PROPERTY(
+                tlr::timeline::VideoData
+                video
+                READ video
+                NOTIFY videoChanged)
+            Q_PROPERTY(
+                float volume
+                READ volume
+                WRITE setVolume
+                NOTIFY volumeChanged)
+            Q_PROPERTY(
+                bool mute
+                READ isMuted
+                WRITE setMute
+                NOTIFY muteChanged)
+            Q_PROPERTY(
+                double audioOffset
+                READ audioOffset
+                WRITE setAudioOffset
+                NOTIFY audioOffsetChanged)
+            Q_PROPERTY(
+                otime::RationalTime cacheReadAhead
+                READ cacheReadAhead
+                WRITE setCacheReadAhead
+                NOTIFY cacheReadAheadChanged)
+            Q_PROPERTY(
+                otime::RationalTime cacheReadBehind
+                READ cacheReadBehind
+                WRITE setCacheReadBehind
+                NOTIFY cacheReadBehindChanged)
+            Q_PROPERTY(
+                float cachePercentage
+                READ cachePercentage
+                NOTIFY cachePercentageChanged)
 
             void _init(
                 const std::shared_ptr<timeline::TimelinePlayer>&,
@@ -137,6 +202,9 @@ namespace tlr
 
             //! Get the cache read behind.
             otime::RationalTime cacheReadBehind() const;
+
+            //! Get the cache percentage.
+            float cachePercentage() const;
 
             //! Get the cached video frames.
             const std::vector<otime::TimeRange>& cachedVideoFrames() const;
@@ -297,6 +365,15 @@ namespace tlr
 
             //! \name Cache
             ///@{
+
+            //! This signal is emitted when the cache read ahead has changed.
+            void cacheReadAheadChanged(const otime::RationalTime&);
+
+            //! This signal is emitted when the cache read behind has changed.
+            void cacheReadBehindChanged(const otime::RationalTime&);
+
+            //! This signal is emitted when the cache percentage has changed.
+            void cachePercentageChanged(float);
 
             //! This signal is emitted when the cached video frames are changed.
             void cachedVideoFramesChanged(const std::vector<otime::TimeRange>&);

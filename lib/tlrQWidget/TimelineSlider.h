@@ -19,6 +19,10 @@ namespace tlr
         class TimelineSlider : public QWidget
         {
             Q_OBJECT
+            Q_PROPERTY(
+                tlr::qt::TimeUnits units
+                READ units
+                WRITE setUnits)
 
         public:
             TimelineSlider(QWidget* parent = nullptr);
@@ -33,6 +37,9 @@ namespace tlr
 
             //! Set the timeline player.
             void setTimelinePlayer(qt::TimelinePlayer*);
+
+            //! Get the time units.
+            qt::TimeUnits units() const;
 
         public Q_SLOTS:
             //! Set the time units.

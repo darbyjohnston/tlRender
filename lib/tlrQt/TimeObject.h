@@ -48,6 +48,7 @@ namespace tlr
         class TimeObject : public QObject
         {
             Q_OBJECT
+            Q_PROPERTY(tlr::qt::TimeUnits units READ units WRITE setUnits NOTIFY unitsChanged)
 
         public:
             TimeObject(QObject* parent = nullptr);

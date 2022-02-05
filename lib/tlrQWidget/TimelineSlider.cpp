@@ -131,6 +131,11 @@ namespace tlr
             _thumbnailsUpdate();
         }
 
+        qt::TimeUnits TimelineSlider::units() const
+        {
+            return _p->units;
+        }
+
         void TimelineSlider::setUnits(qt::TimeUnits units)
         {
             TLR_PRIVATE_P();

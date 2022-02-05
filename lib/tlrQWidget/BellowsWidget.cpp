@@ -44,6 +44,11 @@ namespace tlr
         BellowsButton::~BellowsButton()
         {}
 
+        QString BellowsButton::text() const
+        {
+            return _p->textLabel->text();
+        }
+
         bool BellowsButton::isOpen() const
         {
             return _p->open;
@@ -136,6 +141,11 @@ namespace tlr
         bool BellowsWidget::isOpen() const
         {
             return _p->button->isOpen();
+        }
+
+        QString BellowsWidget::title() const
+        {
+            return _p->button->text();
         }
 
         void BellowsWidget::setTitle(const QString& value)

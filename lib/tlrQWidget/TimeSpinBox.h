@@ -18,6 +18,16 @@ namespace tlr
         class TimeSpinBox : public QAbstractSpinBox
         {
             Q_OBJECT
+            Q_PROPERTY(
+                otime::RationalTime value
+                READ value
+                WRITE setValue
+                NOTIFY valueChanged)
+            Q_PROPERTY(
+                tlr::qt::TimeUnits units
+                READ units
+                WRITE setUnits
+                NOTIFY unitsChanged)
 
         public:
             TimeSpinBox(QWidget* parent = nullptr);

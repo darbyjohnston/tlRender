@@ -18,6 +18,14 @@ namespace tlr
         class TimeLabel : public QWidget
         {
             Q_OBJECT
+            Q_PROPERTY(
+                otime::RationalTime value
+                READ value
+                WRITE setValue)
+            Q_PROPERTY(
+                tlr::qt::TimeUnits units
+                READ units
+                WRITE setUnits)
 
         public:
             TimeLabel(QWidget* parent = nullptr);
@@ -26,6 +34,12 @@ namespace tlr
             
             //! Set the time object.
             void setTimeObject(qt::TimeObject*);
+
+            //! Get the time value.
+            const otime::RationalTime& value() const;
+
+            //! Get the time units.
+            qt::TimeUnits units() const;
 
         public Q_SLOTS:
             //! Set the time value.

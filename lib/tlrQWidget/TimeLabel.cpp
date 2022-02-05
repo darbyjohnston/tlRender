@@ -69,6 +69,16 @@ namespace tlr
             updateGeometry();
         }
 
+        const otime::RationalTime& TimeLabel::value() const
+        {
+            return _p->value;
+        }
+
+        qt::TimeUnits TimeLabel::units() const
+        {
+            return _p->units;
+        }
+
         void TimeLabel::setValue(const otime::RationalTime& value)
         {
             TLR_PRIVATE_P();

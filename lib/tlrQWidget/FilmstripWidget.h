@@ -24,10 +24,10 @@ namespace tlr
             
             ~FilmstripWidget() override;
 
-        public Q_SLOTS:
             //! Set the timeline.
             void setTimeline(const std::shared_ptr<tlr::timeline::Timeline>&);
 
+        public Q_SLOTS:
             //! Set the row count.
             void setRowCount(int);
 

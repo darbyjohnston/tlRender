@@ -181,6 +181,8 @@ namespace tlr
             std::shared_ptr<observer::Value<float> > volume;
             std::shared_ptr<observer::Value<bool> > mute;
             std::shared_ptr<observer::Value<double> > audioOffset;
+            std::shared_ptr<observer::Value<otime::RationalTime> > cacheReadAhead;
+            std::shared_ptr<observer::Value<otime::RationalTime> > cacheReadBehind;
             std::shared_ptr<observer::Value<float> > cachePercentage;
             std::shared_ptr<observer::List<otime::TimeRange> > cachedVideoFrames;
             std::shared_ptr<observer::List<otime::TimeRange> > cachedAudioFrames;
@@ -281,6 +283,8 @@ namespace tlr
             p.volume = observer::Value<float>::create(1.F);
             p.mute = observer::Value<bool>::create(false);
             p.audioOffset = observer::Value<double>::create(0.0);
+            p.cacheReadAhead = observer::Value<otime::RationalTime>::create();
+            p.cacheReadBehind = observer::Value<otime::RationalTime>::create();
             p.cachePercentage = observer::Value<float>::create();
             p.cachedVideoFrames = observer::List<otime::TimeRange>::create();
             p.cachedAudioFrames = observer::List<otime::TimeRange>::create();
@@ -879,32 +883,34 @@ namespace tlr
             }
         }
 
-        otime::RationalTime TimelinePlayer::getCacheReadAhead()
+        std::shared_ptr<observer::IValue<otime::RationalTime> > TimelinePlayer::observeCacheReadAhead() const
         {
-            TLR_PRIVATE_P();
-            std::unique_lock<std::mutex> lock(p.mutex);
-            return p.mutexData.cacheReadAhead;
-        }
-
-        otime::RationalTime TimelinePlayer::getCacheReadBehind()
-        {
-            TLR_PRIVATE_P();
-            std::unique_lock<std::mutex> lock(p.mutex);
-            return p.mutexData.cacheReadBehind;
+            return _p->cacheReadAhead;
         }
 
         void TimelinePlayer::setCacheReadAhead(const otime::RationalTime& value)
         {
             TLR_PRIVATE_P();
-            std::unique_lock<std::mutex> lock(p.mutex);
-            p.mutexData.cacheReadAhead = value;
+            if (p.cacheReadAhead->setIfChanged(value))
+            {
+                std::unique_lock<std::mutex> lock(p.mutex);
+                p.mutexData.cacheReadAhead = value;
+            }
+        }
+
+        std::shared_ptr<observer::IValue<otime::RationalTime> > TimelinePlayer::observeCacheReadBehind() const
+        {
+            return _p->cacheReadBehind;
         }
 
         void TimelinePlayer::setCacheReadBehind(const otime::RationalTime& value)
         {
             TLR_PRIVATE_P();
-            std::unique_lock<std::mutex> lock(p.mutex);
-            p.mutexData.cacheReadBehind = value;
+            if (p.cacheReadBehind->setIfChanged(value))
+            {
+                std::unique_lock<std::mutex> lock(p.mutex);
+                p.mutexData.cacheReadBehind = value;
+            }
         }
 
         std::shared_ptr<observer::IValue<float> > TimelinePlayer::observeCachePercentage() const

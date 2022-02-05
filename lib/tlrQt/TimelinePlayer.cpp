@@ -24,6 +24,9 @@ namespace tlr
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
             std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
             std::shared_ptr<observer::ValueObserver<double> > audioOffsetObserver;
+            std::shared_ptr<observer::ValueObserver<otime::RationalTime> > cacheReadAheadObserver;
+            std::shared_ptr<observer::ValueObserver<otime::RationalTime> > cacheReadBehindObserver;
+            std::shared_ptr<observer::ValueObserver<float> > cachePercentageObserver;
             std::shared_ptr<observer::ListObserver<otime::TimeRange> > cachedVideoFramesObserver;
             std::shared_ptr<observer::ListObserver<otime::TimeRange> > cachedAudioFramesObserver;
         };
@@ -104,6 +107,27 @@ namespace tlr
                 [this](double value)
                 {
                     Q_EMIT audioOffsetChanged(value);
+                });
+
+            p.cacheReadAheadObserver = observer::ValueObserver<otime::RationalTime>::create(
+                p.timelinePlayer->observeCacheReadAhead(),
+                [this](const otime::RationalTime& value)
+                {
+                    Q_EMIT cacheReadAheadChanged(value);
+                });
+
+            p.cacheReadBehindObserver = observer::ValueObserver<otime::RationalTime>::create(
+                p.timelinePlayer->observeCacheReadBehind(),
+                [this](const otime::RationalTime& value)
+                {
+                    Q_EMIT cacheReadBehindChanged(value);
+                });
+
+            p.cachePercentageObserver = observer::ValueObserver<float>::create(
+                p.timelinePlayer->observeCachePercentage(),
+                [this](float value)
+                {
+                    Q_EMIT cachePercentageChanged(value);
                 });
 
             p.cachedVideoFramesObserver = observer::ListObserver<otime::TimeRange>::create(
@@ -243,12 +267,17 @@ namespace tlr
 
         otime::RationalTime TimelinePlayer::cacheReadAhead() const
         {
-            return _p->timelinePlayer->getCacheReadAhead();
+            return _p->timelinePlayer->observeCacheReadAhead()->get();
         }
 
         otime::RationalTime TimelinePlayer::cacheReadBehind() const
         {
-            return _p->timelinePlayer->getCacheReadBehind();
+            return _p->timelinePlayer->observeCacheReadBehind()->get();
+        }
+
+        float TimelinePlayer::cachePercentage() const
+        {
+            return _p->timelinePlayer->observeCachePercentage()->get();
         }
 
         const std::vector<otime::TimeRange>& TimelinePlayer::cachedVideoFrames() const

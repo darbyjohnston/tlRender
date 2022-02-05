@@ -41,6 +41,11 @@ namespace tlr
         SpeedLabel::~SpeedLabel()
         {}
 
+        const otime::RationalTime& SpeedLabel::value() const
+        {
+            return _p->value;
+        }
+
         void SpeedLabel::setValue(const otime::RationalTime& value)
         {
             TLR_PRIVATE_P();

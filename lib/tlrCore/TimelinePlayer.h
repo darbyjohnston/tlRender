@@ -289,14 +289,14 @@ namespace tlr
             //! \name Cache
             ///@{
 
-            //! Get the cache read ahead.
-            otime::RationalTime getCacheReadAhead();
+            //! Observe the cache read ahead.
+            std::shared_ptr<observer::IValue<otime::RationalTime> > observeCacheReadAhead() const;
 
             //! Set the cache read ahead.
             void setCacheReadAhead(const otime::RationalTime&);
 
-            //! Get the cache read behind.
-            otime::RationalTime getCacheReadBehind();
+            //! Observe the cache read behind.
+            std::shared_ptr<observer::IValue<otime::RationalTime> > observeCacheReadBehind() const;
 
             //! Set the cache read behind.
             void setCacheReadBehind(const otime::RationalTime&);
