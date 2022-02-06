@@ -385,6 +385,12 @@ namespace tlr
             Q_EMIT speedsChanged(p.speeds);
         }
 
+        void TimelineControls::focusCurrentFrame()
+        {
+            _p->currentTimeSpinBox->setFocus(Qt::OtherFocusReason);
+            _p->currentTimeSpinBox->selectAll();
+        }
+
         void TimelineControls::_speedCallback(double value)
         {
             TLR_PRIVATE_P();

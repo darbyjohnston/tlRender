@@ -85,5 +85,10 @@ namespace tlr
             p.slider->setTimelinePlayer(!timelinePlayers.empty() ? timelinePlayers[0] : nullptr);
             p.controls->setTimelinePlayer(!timelinePlayers.empty() ? timelinePlayers[0] : nullptr);
         }
+
+        void TimelineWidget::focusCurrentFrame()
+        {
+            _p->controls->focusCurrentFrame();
+        }
     }
 }

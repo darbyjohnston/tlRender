@@ -204,6 +204,10 @@ namespace tlr
         _actions["Playback/ResetOutPoint"]->setIcon(QIcon(":/Icons/Reset.svg"));
         _actions["Playback/ResetOutPoint"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_O));
 
+        _actions["Playback/FocusCurrentFrame"] = new QAction(this);
+        _actions["Playback/FocusCurrentFrame"]->setText(tr("Focus Current Frame"));
+        _actions["Playback/FocusCurrentFrame"]->setShortcut(QKeySequence(Qt::Key_F));
+
         _actions["Audio/IncreaseVolume"] = new QAction(this);
         _actions["Audio/IncreaseVolume"]->setText(tr("Increase Volume"));
         _actions["Audio/IncreaseVolume"]->setShortcut(QKeySequence(Qt::Key_Period));
@@ -273,6 +277,8 @@ namespace tlr
         playbackMenu->addAction(_actions["Playback/ResetInPoint"]);
         playbackMenu->addAction(_actions["Playback/SetOutPoint"]);
         playbackMenu->addAction(_actions["Playback/ResetOutPoint"]);
+        playbackMenu->addSeparator();
+        playbackMenu->addAction(_actions["Playback/FocusCurrentFrame"]);
 
         auto audioMenu = new QMenu;
         audioMenu->setTitle(tr("&Audio"));
@@ -483,7 +489,6 @@ namespace tlr
                     _timelinePlayers[0]->togglePlayback();
                 }
             });
-
         connect(
             _actions["Playback/Start"],
             &QAction::triggered,
@@ -563,6 +568,13 @@ namespace tlr
                 {
                     _timelinePlayers[0]->timeAction(timeline::TimeAction::FrameNextX100);
                 }
+            });
+        connect(
+            _actions["Playback/FocusCurrentFrame"],
+            &QAction::triggered,
+            [this]
+            {
+                _timelineWidget->focusCurrentFrame();
             });
 
         connect(

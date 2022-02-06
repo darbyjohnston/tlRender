@@ -43,6 +43,10 @@ namespace tlr
             //! Set the timeline players.
             void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
 
+        public Q_SLOTS:
+            //! Focus the current frame widget.
+            void focusCurrentFrame();
+
         private:
             TLR_PRIVATE();
         };

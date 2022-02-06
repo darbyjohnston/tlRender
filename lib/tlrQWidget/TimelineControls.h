@@ -41,6 +41,9 @@ namespace tlr
             //! Set the list of speeds.
             void setSpeeds(const QList<double>&);
 
+            //! Focus the current frame widget.
+            void focusCurrentFrame();
+
         Q_SIGNALS:
             //! This signal is emitted when the list of speeds is changed.
             void speedsChanged(const QList<double>&);
