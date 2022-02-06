@@ -601,14 +601,17 @@ namespace tlr
             SIGNAL(recentFilesChanged(const QList<QString>&)),
             SLOT(_recentFilesCallback()));
 
-        resize(1280, 720);
         QSettings settings;
         auto ba = settings.value(qt::versionedSettingsKey("MainWindow/geometry")).toByteArray();
         if (!ba.isEmpty())
         {
             restoreGeometry(settings.value(qt::versionedSettingsKey("MainWindow/geometry")).toByteArray());
         }
-        ba = settings.value(qt::versionedSettingsKey("MainWindow/geometry")).toByteArray();
+        else
+        {
+            resize(1280, 720);
+        }
+        ba = settings.value(qt::versionedSettingsKey("MainWindow/windowState")).toByteArray();
         if (!ba.isEmpty())
         {
             restoreState(settings.value(qt::versionedSettingsKey("MainWindow/windowState")).toByteArray());
@@ -834,7 +837,6 @@ namespace tlr
                 SIGNAL(destroyed(QObject*)),
                 SLOT(_secondaryWindowDestroyedCallback()));
 
-            _secondaryWindow->resize(1280, 720);
             _secondaryWindow->show();
         }
         else if (!value && _secondaryWindow)

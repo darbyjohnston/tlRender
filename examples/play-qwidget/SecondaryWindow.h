@@ -20,6 +20,8 @@ namespace tlr
             const std::shared_ptr<core::Context>&,
             QWidget* parent = nullptr);
 
+        ~SecondaryWindow() override;
+
         //! Set the color configuration.
         void setColorConfig(const imaging::ColorConfig&);
 

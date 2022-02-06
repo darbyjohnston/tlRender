@@ -6,6 +6,7 @@
 
 #include <QBoxLayout>
 #include <QKeyEvent>
+#include <QSettings>
 
 namespace tlr
 {
@@ -22,6 +23,23 @@ namespace tlr
         layout->setContentsMargins(0, 0, 0, 0);
         layout->addWidget(_viewport);
         setLayout(layout);
+
+        QSettings settings;
+        auto ba = settings.value(qt::versionedSettingsKey("SecondaryWindow/geometry")).toByteArray();
+        if (!ba.isEmpty())
+        {
+            restoreGeometry(settings.value(qt::versionedSettingsKey("SecondaryWindow/geometry")).toByteArray());
+        }
+        else
+        {
+            resize(1280, 720);
+        }
+    }
+
+    SecondaryWindow::~SecondaryWindow()
+    {
+        QSettings settings;
+        settings.setValue(qt::versionedSettingsKey("SecondaryWindow/geometry"), saveGeometry());
     }
 
     void SecondaryWindow::setColorConfig(const imaging::ColorConfig& value)
