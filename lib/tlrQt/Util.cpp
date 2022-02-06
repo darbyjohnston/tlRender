@@ -24,6 +24,9 @@ namespace tlr
     {
         void init()
         {
+            qRegisterMetaType<otime::RationalTime>("otime::RationalTime");
+            qRegisterMetaType<otime::TimeRange>("otime::TimeRange");
+
             qRegisterMetaType<audio::DataType>("tlr::audio::DataType");
             qRegisterMetaType<audio::DeviceFormat>("tlr::audio::DeviceFormat");
             qRegisterMetaType<audio::Device>("tlr::audio::Device");
