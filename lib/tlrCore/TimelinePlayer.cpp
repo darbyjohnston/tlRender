@@ -846,11 +846,23 @@ namespace tlr
         void TimelinePlayer::setVolume(float value)
         {
             TLR_PRIVATE_P();
-            if (p.volume->setIfChanged(value))
+            if (p.volume->setIfChanged(math::clamp(value, 0.F, 1.F)))
             {
                 std::unique_lock<std::mutex> lock(p.audioMutex);
                 p.audioMutexData.volume = value;
             }
+        }
+
+        void TimelinePlayer::increaseVolume()
+        {
+            TLR_PRIVATE_P();
+            setVolume(_p->volume->get() + .1F);
+        }
+
+        void TimelinePlayer::decreaseVolume()
+        {
+            TLR_PRIVATE_P();
+            setVolume(_p->volume->get() - .1F);
         }
 
         std::shared_ptr<observer::IValue<bool> > TimelinePlayer::observeMute() const

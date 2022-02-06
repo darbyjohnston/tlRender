@@ -193,6 +193,17 @@ namespace tlr
         _actions["Playback/ResetOutPoint"]->setIcon(QIcon(":/Icons/Reset.svg"));
         _actions["Playback/ResetOutPoint"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_O));
 
+        _actions["Audio/IncreaseVolume"] = new QAction(this);
+        _actions["Audio/IncreaseVolume"]->setText(tr("Increase Volume"));
+        _actions["Audio/IncreaseVolume"]->setShortcut(QKeySequence(Qt::Key_Period));
+        _actions["Audio/DecreaseVolume"] = new QAction(this);
+        _actions["Audio/DecreaseVolume"]->setText(tr("Decrease Volume"));
+        _actions["Audio/DecreaseVolume"]->setShortcut(QKeySequence(Qt::Key_Comma));
+        _actions["Audio/Mute"] = new QAction(this);
+        _actions["Audio/Mute"]->setCheckable(true);
+        _actions["Audio/Mute"]->setText(tr("Mute"));
+        _actions["Audio/Mute"]->setShortcut(QKeySequence(Qt::Key_M));
+
         auto fileMenu = new QMenu;
         fileMenu->setTitle(tr("&File"));
         fileMenu->addAction(_actions["File/Open"]);
@@ -249,6 +260,12 @@ namespace tlr
         playbackMenu->addAction(_actions["Playback/SetOutPoint"]);
         playbackMenu->addAction(_actions["Playback/ResetOutPoint"]);
 
+        auto audioMenu = new QMenu;
+        audioMenu->setTitle(tr("&Audio"));
+        audioMenu->addAction(_actions["Audio/IncreaseVolume"]);
+        audioMenu->addAction(_actions["Audio/DecreaseVolume"]);
+        audioMenu->addAction(_actions["Audio/Mute"]);
+
         auto toolsMenu = new QMenu;
         toolsMenu->setTitle(tr("&Tools"));
 
@@ -257,6 +274,7 @@ namespace tlr
         menuBar->addMenu(windowMenu);
         menuBar->addMenu(imageMenu);
         menuBar->addMenu(playbackMenu);
+        menuBar->addMenu(audioMenu);
         menuBar->addMenu(toolsMenu);
         setMenuBar(menuBar);
 
@@ -527,24 +545,40 @@ namespace tlr
 
             disconnect(
                 _actions["Playback/SetInPoint"],
-                SIGNAL(triggered(bool)),
+                SIGNAL(triggered()),
                 _timelinePlayers[0],
                 SLOT(setInPoint()));
             disconnect(
                 _actions["Playback/ResetInPoint"],
-                SIGNAL(triggered(bool)),
+                SIGNAL(triggered()),
                 _timelinePlayers[0],
                 SLOT(resetInPoint()));
             disconnect(
                 _actions["Playback/SetOutPoint"],
-                SIGNAL(triggered(bool)),
+                SIGNAL(triggered()),
                 _timelinePlayers[0],
                 SLOT(setOutPoint()));
             disconnect(
                 _actions["Playback/ResetOutPoint"],
-                SIGNAL(triggered(bool)),
+                SIGNAL(triggered()),
                 _timelinePlayers[0],
                 SLOT(resetOutPoint()));
+
+            disconnect(
+                _actions["Audio/IncreaseVolume"],
+                SIGNAL(triggered()),
+                _timelinePlayers[0],
+                SLOT(increaseVolume()));
+            disconnect(
+                _actions["Audio/DecreaseVolume"],
+                SIGNAL(triggered()),
+                _timelinePlayers[0],
+                SLOT(decreaseVolume()));
+            disconnect(
+                _actions["Audio/Mute"],
+                SIGNAL(toggled(bool)),
+                _timelinePlayers[0],
+                SLOT(setMute(bool)));
         }
 
         _timelinePlayers = timelinePlayers;
@@ -567,24 +601,40 @@ namespace tlr
 
             connect(
                 _actions["Playback/SetInPoint"],
-                SIGNAL(triggered(bool)),
+                SIGNAL(triggered()),
                 _timelinePlayers[0],
                 SLOT(setInPoint()));
             connect(
                 _actions["Playback/ResetInPoint"],
-                SIGNAL(triggered(bool)),
+                SIGNAL(triggered()),
                 _timelinePlayers[0],
                 SLOT(resetInPoint()));
             connect(
                 _actions["Playback/SetOutPoint"],
-                SIGNAL(triggered(bool)),
+                SIGNAL(triggered()),
                 _timelinePlayers[0],
                 SLOT(setOutPoint()));
             connect(
                 _actions["Playback/ResetOutPoint"],
-                SIGNAL(triggered(bool)),
+                SIGNAL(triggered()),
                 _timelinePlayers[0],
                 SLOT(resetOutPoint()));
+
+            connect(
+                _actions["Audio/IncreaseVolume"],
+                SIGNAL(triggered()),
+                _timelinePlayers[0],
+                SLOT(increaseVolume()));
+            connect(
+                _actions["Audio/DecreaseVolume"],
+                SIGNAL(triggered()),
+                _timelinePlayers[0],
+                SLOT(decreaseVolume()));
+            connect(
+                _actions["Audio/Mute"],
+                SIGNAL(toggled(bool)),
+                _timelinePlayers[0],
+                SLOT(setMute(bool)));
         }
 
         _widgetUpdate();
@@ -968,6 +1018,14 @@ namespace tlr
             _actions["Playback/ResetInPoint"]->setEnabled(true);
             _actions["Playback/SetOutPoint"]->setEnabled(true);
             _actions["Playback/ResetOutPoint"]->setEnabled(true);
+
+            _actions["Audio/IncreaseVolume"]->setEnabled(true);
+            _actions["Audio/DecreaseVolume"]->setEnabled(true);
+            _actions["Audio/Mute"]->setEnabled(true);
+            {
+                QSignalBlocker blocker(_actions["Audio/Mute"]);
+                _actions["Audio/Mute"]->setChecked(_timelinePlayers[0]->isMuted());
+            }
         }
         else
         {
@@ -1013,6 +1071,14 @@ namespace tlr
             _actions["Playback/ResetInPoint"]->setEnabled(false);
             _actions["Playback/SetOutPoint"]->setEnabled(false);
             _actions["Playback/ResetOutPoint"]->setEnabled(false);
+
+            _actions["Audio/IncreaseVolume"]->setEnabled(false);
+            _actions["Audio/DecreaseVolume"]->setEnabled(false);
+            _actions["Audio/Mute"]->setEnabled(false);
+            {
+                QSignalBlocker blocker(_actions["Audio/Mute"]);
+                _actions["Audio/Mute"]->setChecked(false);
+            }
         }
 
         _timelineWidget->setTimelinePlayers(_timelinePlayers);

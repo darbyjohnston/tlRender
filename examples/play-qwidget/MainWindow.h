@@ -75,6 +75,7 @@ namespace tlr
         void _frameNextCallback();
         void _frameNextX10Callback();
         void _frameNextX100Callback();
+
         void _imageOptionsCallback(const tlr::render::ImageOptions&);
         void _imageOptionsCallback(const std::vector<tlr::render::ImageOptions>&);
         void _compareOptionsCallback(const tlr::render::CompareOptions&);
@@ -84,7 +85,6 @@ namespace tlr
     private:
         void _recentFilesUpdate();
         void _filesCountUpdate();
-        void _playbackUpdate();
         void _widgetUpdate();
 
         App* _app = nullptr;
