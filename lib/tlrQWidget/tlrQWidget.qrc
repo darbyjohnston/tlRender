@@ -10,6 +10,7 @@
     <file alias="Icons/PlaybackReverse.svg">../../etc/Icons/PlaybackReverse.svg</file>
     <file alias="Icons/PlaybackStop.svg">../../etc/Icons/PlaybackStop.svg</file>
     <file alias="Icons/Reset.svg">../../etc/Icons/Reset.svg</file>
+    <file alias="Icons/Speed.svg">../../etc/Icons/Speed.svg</file>
     <file alias="Icons/TimeEnd.svg">../../etc/Icons/TimeEnd.svg</file>
     <file alias="Icons/TimeStart.svg">../../etc/Icons/TimeStart.svg</file>
     <file alias="Icons/Volume.svg">../../etc/Icons/Volume.svg</file>

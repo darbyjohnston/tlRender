@@ -17,6 +17,11 @@ namespace tlr
         class TimelineControls : public QWidget
         {
             Q_OBJECT
+            Q_PROPERTY(
+                QList<double> speeds
+                READ speeds
+                WRITE setSpeeds
+                NOTIFY speedsChanged)
 
         public:
             TimelineControls(QWidget* parent = nullptr);
@@ -29,9 +34,21 @@ namespace tlr
             //! Set the timeline player.
             void setTimelinePlayer(qt::TimelinePlayer*);
 
+            //! Get the list of speeds.
+            const QList<double>& speeds() const;
+
+        public Q_SLOTS:
+            //! Set the list of speeds.
+            void setSpeeds(const QList<double>&);
+
+        Q_SIGNALS:
+            //! This signal is emitted when the list of speeds is changed.
+            void speedsChanged(const QList<double>&);
+
         private Q_SLOTS:
-            void _speedCallback(int);
             void _speedCallback(double);
+            void _speedCallback2(double);
+            void _speedCallback(QAction*);
             void _playbackCallback(QAbstractButton*);
             void _playbackCallback(tlr::timeline::Playback);
             void _timeActionCallback(QAbstractButton*);
@@ -51,7 +68,7 @@ namespace tlr
 
         private:
             void _playbackUpdate();
-            void _timelineUpdate();
+            void _widgetUpdate();
 
             TLR_PRIVATE();
         };

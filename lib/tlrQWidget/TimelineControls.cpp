@@ -4,7 +4,6 @@
 
 #include <tlrQWidget/TimelineControls.h>
 
-#include <tlrQWidget/SpeedLabel.h>
 #include <tlrQWidget/TimeLabel.h>
 #include <tlrQWidget/TimeSpinBox.h>
 
@@ -12,9 +11,11 @@
 
 #include <QButtonGroup>
 #include <QComboBox>
+#include <QDoubleSpinBox>
 #include <QFontDatabase>
 #include <QHBoxLayout>
 #include <QMap>
+#include <QMenu>
 #include <QStyle>
 #include <QToolButton>
 #include <QVBoxLayout>
@@ -43,9 +44,11 @@ namespace tlr
             TimeSpinBox* outPointSpinBox = nullptr;
             QMap<QString, QAbstractButton*> inOutButtons;
             TimeLabel* durationLabel = nullptr;
-            SpeedLabel* speedLabel = nullptr;
             QList<double> speeds;
-            QComboBox* speedComboBox = nullptr;
+            QDoubleSpinBox* speedSpinBox = nullptr;
+            QMap<QAction*, double> actionToSpeed;
+            QMenu* speedMenu = nullptr;
+            QToolButton* speedButton = nullptr;
             QToolButton* muteButton = nullptr;
             QSlider* volumeSlider = nullptr;
         };
@@ -126,11 +129,31 @@ namespace tlr
             p.inOutButtons["ResetOutPoint"]->setIcon(QIcon(":/Icons/Reset.svg"));
             p.inOutButtons["ResetOutPoint"]->setToolTip(tr("Reset the playback out point"));
 
-            p.speedLabel = new SpeedLabel;
-            p.speedLabel->setToolTip(tr("Timeline speed (frames per second)"));
-
-            p.speedComboBox = new QComboBox;
-            p.speedComboBox->setToolTip(tr("Set the playback speed (frames per second)"));
+            p.speeds.append(1.0);
+            p.speeds.append(3.0);
+            p.speeds.append(6.0);
+            p.speeds.append(9.0);
+            p.speeds.append(12.0);
+            p.speeds.append(16.0);
+            p.speeds.append(18.0);
+            p.speeds.append(23.98);
+            p.speeds.append(24.0);
+            p.speeds.append(29.97);
+            p.speeds.append(30.0);
+            p.speeds.append(48.0);
+            p.speeds.append(59.94);
+            p.speeds.append(60.0);
+            p.speeds.append(120.0);
+            p.speedSpinBox = new QDoubleSpinBox;
+            p.speedSpinBox->setRange(0.0, 120.0);
+            p.speedSpinBox->setSingleStep(1.0);
+            p.speedSpinBox->setToolTip(tr("Timeline speed (frames per second)"));
+            p.speedMenu = new QMenu(this);
+            p.speedButton = new QToolButton;
+            p.speedButton->setIcon(QIcon(":/Icons/Speed.svg"));
+            p.speedButton->setMenu(p.speedMenu);
+            p.speedButton->setPopupMode(QToolButton::InstantPopup);
+            p.speedButton->setToolTip(tr("Timeline speed menu"));
 
             p.durationLabel = new TimeLabel;
             p.durationLabel->setToolTip(tr("Timeline duration"));
@@ -179,8 +202,11 @@ namespace tlr
             hLayout->addWidget(p.durationLabel);
             layout->addLayout(hLayout);
             hLayout = new QHBoxLayout;
-            hLayout->addWidget(p.speedLabel);
-            hLayout->addWidget(p.speedComboBox);
+            hLayout2 = new QHBoxLayout;
+            hLayout2->setSpacing(1);
+            hLayout2->addWidget(p.speedSpinBox);
+            hLayout2->addWidget(p.speedButton);
+            hLayout->addLayout(hLayout2);
             hLayout->addStretch(1);
             hLayout->addWidget(p.muteButton);
             hLayout->addWidget(p.volumeSlider);
@@ -188,7 +214,7 @@ namespace tlr
             setLayout(layout);
 
             _playbackUpdate();
-            _timelineUpdate();
+            _widgetUpdate();
 
             connect(
                 p.playbackButtonGroup,
@@ -232,9 +258,13 @@ namespace tlr
                 SLOT(_resetOutPointCallback()));
 
             connect(
-                p.speedComboBox,
-                SIGNAL(activated(int)),
-                SLOT(_speedCallback(int)));
+                p.speedSpinBox,
+                SIGNAL(valueChanged(double)),
+                SLOT(_speedCallback(double)));
+            connect(
+                p.speedButton,
+                SIGNAL(triggered(QAction*)),
+                SLOT(_speedCallback(QAction*)));
 
             connect(
                 p.volumeSlider,
@@ -269,7 +299,7 @@ namespace tlr
                     p.timelinePlayer,
                     SIGNAL(speedChanged(double)),
                     this,
-                    SLOT(_speedCallback(double)));
+                    SLOT(_speedCallback2(double)));
                 disconnect(
                     p.timelinePlayer,
                     SIGNAL(playbackChanged(tlr::timeline::Playback)),
@@ -297,33 +327,12 @@ namespace tlr
                     SLOT(_muteCallback2(bool)));
             }
             p.timelinePlayer = timelinePlayer;
-            p.speeds.clear();
-            p.speeds.append(1.0);
-            p.speeds.append(3.0);
-            p.speeds.append(6.0);
-            p.speeds.append(9.0);
-            p.speeds.append(12.0);
-            p.speeds.append(16.0);
-            p.speeds.append(18.0);
-            p.speeds.append(23.98);
-            p.speeds.append(24.0);
-            p.speeds.append(29.97);
-            p.speeds.append(30.0);
-            p.speeds.append(48.0);
-            p.speeds.append(59.94);
-            p.speeds.append(60.0);
-            p.speeds.append(120.0);
             if (p.timelinePlayer)
             {
-                const double defaultSpeed = p.timelinePlayer->defaultSpeed();
-                if (!p.speeds.contains(defaultSpeed))
-                {
-                    p.speeds.append(defaultSpeed);
-                }
                 connect(
                     p.timelinePlayer,
                     SIGNAL(speedChanged(double)),
-                    SLOT(_speedCallback(double)));
+                    SLOT(_speedCallback2(double)));
                 connect(
                     p.timelinePlayer,
                     SIGNAL(playbackChanged(tlr::timeline::Playback)),
@@ -346,24 +355,49 @@ namespace tlr
                     SLOT(_muteCallback2(bool)));
             }
             _playbackUpdate();
-            _timelineUpdate();
+            _widgetUpdate();
         }
 
-        void TimelineControls::_speedCallback(int index)
+        const QList<double>& TimelineControls::speeds() const
+        {
+            return _p->speeds;
+        }
+
+        void TimelineControls::setSpeeds(const QList<double>& value)
+        {
+            TLR_PRIVATE_P();
+            if (p.speeds == value)
+                return;
+            p.speeds = value;
+            _widgetUpdate();
+            Q_EMIT speedsChanged(p.speeds);
+        }
+
+        void TimelineControls::_speedCallback(double value)
         {
             TLR_PRIVATE_P();
             if (p.timelinePlayer)
             {
-                if (index >= 0 && index < p.speeds.size())
-                {
-                    p.timelinePlayer->setSpeed(p.speeds[index]);
-                }
+                p.timelinePlayer->setSpeed(value);
             }
         }
 
-        void TimelineControls::_speedCallback(double)
+        void TimelineControls::_speedCallback2(double)
         {
-            _playbackUpdate();
+            _widgetUpdate();
+        }
+
+        void TimelineControls::_speedCallback(QAction* action)
+        {
+            TLR_PRIVATE_P();
+            if (p.timelinePlayer)
+            {
+                auto i = p.actionToSpeed.find(action);
+                if (i != p.actionToSpeed.end())
+                {
+                    p.timelinePlayer->setSpeed(i.value());
+                }
+            }
         }
 
         void TimelineControls::_playbackCallback(QAbstractButton* button)
@@ -532,20 +566,22 @@ namespace tlr
                 const QSignalBlocker blocker(p.playbackButtonGroup);
                 p.playbackToButton[playback]->setChecked(true);
             }
-            {
-                const QSignalBlocker blocker(p.speedComboBox);
-                p.speedComboBox->clear();
-                for (auto speed : p.speeds)
-                {
-                    p.speedComboBox->addItem(QString::fromStdString(string::Format("{0}").arg(speed)));
-                }
-                p.speedComboBox->setCurrentIndex(p.speeds.indexOf(speed));
-            }
         }
 
-        void TimelineControls::_timelineUpdate()
+        void TimelineControls::_widgetUpdate()
         {
             TLR_PRIVATE_P();
+
+            p.actionToSpeed.clear();
+            p.speedMenu->clear();
+            for (const auto& i : p.speeds)
+            {
+                auto action = new QAction(this);
+                action->setText(QString("%1").arg(i, 0, 'f', 2));
+                p.actionToSpeed[action] = i;
+                p.speedMenu->addAction(action);
+            }
+
             if (p.timelinePlayer)
             {
                 {
@@ -586,12 +622,28 @@ namespace tlr
                 const auto& duration = p.timelinePlayer->duration();
                 p.durationLabel->setValue(duration);
 
-                p.speedLabel->setValue(duration);
-                p.speedComboBox->setEnabled(true);
+                {
+                    QSignalBlocker blocker(p.speedSpinBox);
+                    p.speedSpinBox->setValue(p.timelinePlayer->speed());
+                }
+                p.speedSpinBox->setEnabled(true);
+                p.speedButton->setEnabled(true);
+                const double defaultSpeed = p.timelinePlayer->defaultSpeed();
+                auto defaultSpeedAction = new QAction(this);
+                defaultSpeedAction->setText(QString(tr("Default: %1")).arg(defaultSpeed, 0, 'f', 2));
+                p.actionToSpeed[defaultSpeedAction] = defaultSpeed;
+                p.speedMenu->addSeparator();
+                p.speedMenu->addAction(defaultSpeedAction);
 
-                p.volumeSlider->setValue(p.timelinePlayer->volume() * volumeSliderSteps);
+                {
+                    QSignalBlocker blocker(p.volumeSlider);
+                    p.volumeSlider->setValue(p.timelinePlayer->volume() * volumeSliderSteps);
+                }
                 p.volumeSlider->setEnabled(true);
-                p.muteButton->setChecked(p.timelinePlayer->isMuted());
+                {
+                    QSignalBlocker blocker(p.muteButton);
+                    p.muteButton->setChecked(p.timelinePlayer->isMuted());
+                }
                 p.muteButton->setEnabled(true);
             }
             else
@@ -621,12 +673,22 @@ namespace tlr
 
                 p.durationLabel->setValue(time::invalidTime);
 
-                p.speedLabel->setValue(time::invalidTime);
-                p.speedComboBox->setEnabled(false);
+                {
+                    QSignalBlocker blocker(p.speedSpinBox);
+                    p.speedSpinBox->setValue(0.0);
+                }
+                p.speedSpinBox->setEnabled(false);
+                p.speedButton->setEnabled(false);
 
-                p.volumeSlider->setValue(volumeSliderSteps);
+                {
+                    QSignalBlocker blocker(p.volumeSlider);
+                    p.volumeSlider->setValue(volumeSliderSteps);
+                }
                 p.volumeSlider->setEnabled(false);
-                p.muteButton->setChecked(false);
+                {
+                    QSignalBlocker blocker(p.muteButton);
+                    p.muteButton->setChecked(false);
+                }
                 p.muteButton->setEnabled(false);
             }
         }
