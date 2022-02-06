@@ -98,6 +98,15 @@ namespace tlr
         _channelsToActions[render::Channels::Blue] = _actions["Image/BlueChannel"];
         _channelsToActions[render::Channels::Alpha] = _actions["Image/AlphaChannel"];
 
+        _actions["Image/MirrorX"] = new QAction(this);
+        _actions["Image/MirrorX"]->setText(tr("Mirror Horizontal"));
+        _actions["Image/MirrorX"]->setShortcut(QKeySequence(Qt::Key_H));
+        _actions["Image/MirrorX"]->setCheckable(true);
+        _actions["Image/MirrorY"] = new QAction(this);
+        _actions["Image/MirrorY"]->setText(tr("Mirror Vertical"));
+        _actions["Image/MirrorY"]->setShortcut(QKeySequence(Qt::Key_V));
+        _actions["Image/MirrorY"]->setCheckable(true);
+
         _actions["Playback/Stop"] = new QAction(this);
         _actions["Playback/Stop"]->setCheckable(true);
         _actions["Playback/Stop"]->setText(tr("Stop Playback"));
@@ -235,6 +244,9 @@ namespace tlr
         imageMenu->addAction(_actions["Image/GreenChannel"]);
         imageMenu->addAction(_actions["Image/BlueChannel"]);
         imageMenu->addAction(_actions["Image/AlphaChannel"]);
+        imageMenu->addSeparator();
+        imageMenu->addAction(_actions["Image/MirrorX"]);
+        imageMenu->addAction(_actions["Image/MirrorY"]);
 
         auto playbackMenu = new QMenu;
         playbackMenu->setTitle(tr("&Playback"));
@@ -435,6 +447,31 @@ namespace tlr
             _channelsActionGroup,
             SIGNAL(triggered(QAction*)),
             SLOT(_channelsCallback(QAction*)));
+
+        connect(
+            _actions["Image/MirrorX"],
+            &QAction::toggled,
+            [this](bool value)
+            {
+                if (!_imageOptions.empty())
+                {
+                    render::ImageOptions imageOptions = _imageOptions[0];
+                    imageOptions.mirror.x = value;
+                    _app->filesModel()->setImageOptions(imageOptions);
+                }
+            });
+        connect(
+            _actions["Image/MirrorY"],
+            &QAction::toggled,
+            [this](bool value)
+            {
+                if (!_imageOptions.empty())
+                {
+                    render::ImageOptions imageOptions = _imageOptions[0];
+                    imageOptions.mirror.y = value;
+                    _app->filesModel()->setImageOptions(imageOptions);
+                }
+            });
 
         connect(
             _actions["Playback/Toggle"],
@@ -948,6 +985,25 @@ namespace tlr
                 }
             }
 
+            _actions["Image/MirrorX"]->setEnabled(true);
+            {
+                QSignalBlocker blocker(_actions["Image/MirrorX"]);
+                _actions["Image/MirrorX"]->setChecked(false);
+                if (!_imageOptions.empty())
+                {
+                    _actions["Image/MirrorX"]->setChecked(_imageOptions[0].mirror.x);
+                }
+            }
+            _actions["Image/MirrorY"]->setEnabled(true);
+            {
+                QSignalBlocker blocker(_actions["Image/MirrorY"]);
+                _actions["Image/MirrorY"]->setChecked(false);
+                if (!_imageOptions.empty())
+                {
+                    _actions["Image/MirrorY"]->setChecked(_imageOptions[0].mirror.y);
+                }
+            }
+            
             _actions["Playback/Stop"]->setEnabled(true);
             _actions["Playback/Forward"]->setEnabled(true);
             _actions["Playback/Reverse"]->setEnabled(true);
@@ -1007,6 +1063,17 @@ namespace tlr
                 _actions["Image/GreenChannel"]->setChecked(false);
                 _actions["Image/BlueChannel"]->setChecked(false);
                 _actions["Image/AlphaChannel"]->setChecked(false);
+            }
+
+            _actions["Image/MirrorX"]->setEnabled(false);
+            {
+                QSignalBlocker blocker(_actions["Image/MirrorX"]);
+                _actions["Image/MirrorX"]->setChecked(false);
+            }
+            _actions["Image/MirrorY"]->setEnabled(false);
+            {
+                QSignalBlocker blocker(_actions["Image/MirrorY"]);
+                _actions["Image/MirrorY"]->setChecked(false);
             }
 
             _actions["Playback/Stop"]->setEnabled(false);
