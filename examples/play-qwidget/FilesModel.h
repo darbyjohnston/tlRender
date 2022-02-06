@@ -55,36 +55,70 @@ namespace tlr
         //! Create a new files model.
         static std::shared_ptr<FilesModel> create(const std::shared_ptr<core::Context>&);
 
+        //! Observe the files.
         std::shared_ptr<observer::IList<std::shared_ptr<FilesModelItem> > > observeFiles() const;
+
+        //! Observe the A file.
         std::shared_ptr<observer::IValue<std::shared_ptr<FilesModelItem> > > observeA() const;
+
+        //! Observe the B files.
         std::shared_ptr<observer::IList<std::shared_ptr<FilesModelItem> > > observeB() const;
+
+        //! Observe the active files.
         std::shared_ptr<observer::IList<std::shared_ptr<FilesModelItem> > > observeActive() const;
 
+        //! Add a file.
         void add(const std::shared_ptr<FilesModelItem>&);
+
+        //! Close the current A file.
         void close();
+
+        //! Close all the files.
         void closeAll();
 
+        //! Set the A file.
         void setA(int index);
+
+        //! Set the B files.
         void setB(int index, bool);
+
+        //! Toggle a B file.
         void toggleB(int index);
 
+        //! Set the A file to the first file.
         void first();
+
+        //! Set the A file to the list file.
         void last();
+
+        //! Set the A file to the next file.
         void next();
+
+        //! Set the A file to the previous file.
         void prev();
 
+        //! Observe the layers.
         std::shared_ptr<observer::IList<int> > observeLayers() const;
 
+        //! Set a layer.
         void setLayer(const std::shared_ptr<FilesModelItem>&, int layer);
+
+        //! Set the A file layer to the next layer.
         void nextLayer();
+
+        //! Set the A file layer to the previous layer.
         void prevLayer();
 
+        //! Observe the image options.
         std::shared_ptr<observer::IList<render::ImageOptions> > observeImageOptions() const;
 
+        //! Set the image options.
         void setImageOptions(const render::ImageOptions&);
 
+        //! Observe the compare options.
         std::shared_ptr<observer::IValue<render::CompareOptions> > observeCompareOptions() const;
 
+        //! Set the compare options.
         void setCompareOptions(const render::CompareOptions&);
 
     private:
@@ -104,17 +138,18 @@ namespace tlr
         std::shared_ptr<observer::Value<render::CompareOptions> > _compareOptions;
     };
 
-    //! Base class for files item models.
-    class FilesItemModel : public QAbstractTableModel
+    //! Base class for files table models.
+    class FilesTableModel : public QAbstractTableModel
     {
         Q_OBJECT
 
     public:
-        FilesItemModel(
+        FilesTableModel(
             const std::shared_ptr<FilesModel>&,
             const std::shared_ptr<core::Context>&,
             QObject* parent = nullptr);
 
+        //! Get the files.
         const std::vector<std::shared_ptr<FilesModelItem> >& files() const;
 
         int rowCount(const QModelIndex& parent = QModelIndex()) const override;
@@ -142,7 +177,7 @@ namespace tlr
     };
 
     //! Files A model.
-    class FilesAModel : public FilesItemModel
+    class FilesAModel : public FilesTableModel
     {
         Q_OBJECT
 
@@ -160,7 +195,7 @@ namespace tlr
     };
 
     //! Files B model.
-    class FilesBModel : public FilesItemModel
+    class FilesBModel : public FilesTableModel
     {
         Q_OBJECT
 

@@ -21,7 +21,7 @@ namespace tlr
     QWidget* FilesLayersItemDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem& options, const QModelIndex& index) const
     {
         QComboBox* out = new QComboBox(parent);
-        if (auto model = qobject_cast<const FilesItemModel*>(index.model()))
+        if (auto model = qobject_cast<const FilesTableModel*>(index.model()))
         {
             const auto& files = model->files();
             if (index.isValid() &&

@@ -402,7 +402,7 @@ namespace tlr
         return out;
     }
 
-    FilesItemModel::FilesItemModel(
+    FilesTableModel::FilesTableModel(
         const std::shared_ptr<FilesModel>& filesModel,
         const std::shared_ptr<core::Context>& context,
         QObject* parent) :
@@ -465,22 +465,22 @@ namespace tlr
             });
     }
 
-    const std::vector<std::shared_ptr<FilesModelItem> >& FilesItemModel::files() const
+    const std::vector<std::shared_ptr<FilesModelItem> >& FilesTableModel::files() const
     {
         return _files;
     }
 
-    int FilesItemModel::rowCount(const QModelIndex&) const
+    int FilesTableModel::rowCount(const QModelIndex&) const
     {
         return _files.size();
     }
 
-    int FilesItemModel::columnCount(const QModelIndex& parent) const
+    int FilesTableModel::columnCount(const QModelIndex& parent) const
     {
         return 2;
     }
 
-    Qt::ItemFlags FilesItemModel::flags(const QModelIndex& index) const
+    Qt::ItemFlags FilesTableModel::flags(const QModelIndex& index) const
     {
         Qt::ItemFlags out = Qt::NoItemFlags;
         if (index.isValid() &&
@@ -499,7 +499,7 @@ namespace tlr
         return out;
     }
 
-    QVariant FilesItemModel::data(const QModelIndex& index, int role) const
+    QVariant FilesTableModel::data(const QModelIndex& index, int role) const
     {
         QVariant out;
         if (index.isValid() &&
@@ -559,7 +559,7 @@ namespace tlr
         return out;
     }
 
-    bool FilesItemModel::setData(const QModelIndex& index, const QVariant& value, int role)
+    bool FilesTableModel::setData(const QModelIndex& index, const QVariant& value, int role)
     {
         bool out = false;
         if (index.isValid() &&
@@ -586,7 +586,7 @@ namespace tlr
         return out;
     }
 
-    QVariant FilesItemModel::headerData(int section, Qt::Orientation orientation, int role) const
+    QVariant FilesTableModel::headerData(int section, Qt::Orientation orientation, int role) const
     {
         QVariant out;
         if (Qt::Horizontal == orientation)
@@ -606,7 +606,7 @@ namespace tlr
         return out;
     }
 
-    void FilesItemModel::_thumbailCallback(const QList<QPair<otime::RationalTime, QImage> >& value)
+    void FilesTableModel::_thumbailCallback(const QList<QPair<otime::RationalTime, QImage> >& value)
     {
         if (!value.isEmpty())
         {
@@ -632,7 +632,7 @@ namespace tlr
         }
     }
 
-    int FilesItemModel::_index(const std::shared_ptr<FilesModelItem>& item) const
+    int FilesTableModel::_index(const std::shared_ptr<FilesModelItem>& item) const
     {
         int out = -1;
         if (!_files.empty())
@@ -650,7 +650,7 @@ namespace tlr
         const std::shared_ptr<FilesModel>& filesModel,
         const std::shared_ptr<core::Context>& context,
         QObject* parent) :
-        FilesItemModel(filesModel, context, parent)
+        FilesTableModel(filesModel, context, parent)
     {
         _aObserver = observer::ValueObserver<std::shared_ptr<FilesModelItem> >::create(
             filesModel->observeA(),
@@ -672,7 +672,7 @@ namespace tlr
 
     QVariant FilesAModel::data(const QModelIndex& index, int role) const
     {
-        QVariant out = FilesItemModel::data(index, role);
+        QVariant out = FilesTableModel::data(index, role);
         if (index.isValid() &&
             index.row() >= 0 &&
             index.row() < _files.size() &&
@@ -712,7 +712,7 @@ namespace tlr
         const std::shared_ptr<FilesModel>& filesModel,
         const std::shared_ptr<core::Context>& context,
         QObject* parent) :
-        FilesItemModel(filesModel, context, parent)
+        FilesTableModel(filesModel, context, parent)
     {
         _bObserver = observer::ListObserver<std::shared_ptr<FilesModelItem> >::create(
             filesModel->observeB(),
@@ -739,7 +739,7 @@ namespace tlr
 
     QVariant FilesBModel::data(const QModelIndex& index, int role) const
     {
-        QVariant out = FilesItemModel::data(index, role);
+        QVariant out = FilesTableModel::data(index, role);
         if (index.isValid() &&
             index.row() >= 0 &&
             index.row() < _files.size() &&
