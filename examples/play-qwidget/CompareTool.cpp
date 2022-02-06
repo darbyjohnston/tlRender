@@ -58,9 +58,11 @@ namespace tlr
 
         auto layout = new QVBoxLayout;
         layout->setContentsMargins(0, 0, 0, 0);
+        layout->setSpacing(0);
         layout->addWidget(_treeView);
         auto vLayout = new QVBoxLayout;
         vLayout->setContentsMargins(10, 10, 10, 10);
+        vLayout->setSpacing(10);
         vLayout->addWidget(_compareComboBox);
         vLayout->addWidget(new QLabel(tr("Horizontal")));
         vLayout->addWidget(_horizontalSlider);
