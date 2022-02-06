@@ -61,13 +61,11 @@ namespace tlr
         void _fullScreenCallback();
         void _secondaryWindowCallback(bool);
         void _secondaryWindowDestroyedCallback();
+        void _channelsCallback(QAction*);
         void _playbackCallback(QAction*);
         void _playbackCallback(tlr::timeline::Playback);
         void _loopCallback(QAction*);
         void _loopCallback(tlr::timeline::Loop);
-        void _stopCallback();
-        void _forwardCallback();
-        void _reverseCallback();
         void _togglePlaybackCallback();
         void _startCallback();
         void _endCallback();
@@ -103,6 +101,9 @@ namespace tlr
         QActionGroup* _recentFilesActionGroup = nullptr;
         QMap<QAction*, QString> _actionToRecentFile;
         QMenu* _recentFilesMenu = nullptr;
+        QActionGroup* _channelsActionGroup = nullptr;
+        QMap<QAction*, render::Channels> _actionToChannels;
+        QMap<render::Channels, QAction*> _channelsToActions;
         QActionGroup* _playbackActionGroup = nullptr;
         QMap<QAction*, timeline::Playback> _actionToPlayback;
         QMap<timeline::Playback, QAction*> _playbackToActions;

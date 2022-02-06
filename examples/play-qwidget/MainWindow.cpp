@@ -35,7 +35,7 @@ namespace tlr
         _actions["File/Open"]->setText(tr("Open"));
         _actions["File/Open"]->setShortcut(QKeySequence::Open);
         _actions["File/OpenWithAudio"] = new QAction(this);
-        _actions["File/OpenWithAudio"]->setText(tr("Open with Audio"));
+        _actions["File/OpenWithAudio"]->setText(tr("Open With Audio"));
         _actions["File/OpenWithAudio"]->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_O));
         _actions["File/Close"] = new QAction(this);
         _actions["File/Close"]->setText(tr("Close"));
@@ -65,24 +65,52 @@ namespace tlr
         _actions["Window/Secondary"]->setText(tr("Secondary Window"));
         _actions["Window/Secondary"]->setShortcut(QKeySequence(Qt::Key_Y));
 
+        _actions["Image/RedChannel"] = new QAction(this);
+        _actions["Image/RedChannel"]->setCheckable(true);
+        _actions["Image/RedChannel"]->setText(tr("Red Channel"));
+        _actions["Image/RedChannel"]->setShortcut(QKeySequence(Qt::Key_R));
+        _actions["Image/GreenChannel"] = new QAction(this);
+        _actions["Image/GreenChannel"]->setCheckable(true);
+        _actions["Image/GreenChannel"]->setText(tr("Green Channel"));
+        _actions["Image/GreenChannel"]->setShortcut(QKeySequence(Qt::Key_G));
+        _actions["Image/BlueChannel"] = new QAction(this);
+        _actions["Image/BlueChannel"]->setCheckable(true);
+        _actions["Image/BlueChannel"]->setText(tr("Blue Channel"));
+        _actions["Image/BlueChannel"]->setShortcut(QKeySequence(Qt::Key_B));
+        _actions["Image/AlphaChannel"] = new QAction(this);
+        _actions["Image/AlphaChannel"]->setCheckable(true);
+        _actions["Image/AlphaChannel"]->setText(tr("Alpha Channel"));
+        _actions["Image/AlphaChannel"]->setShortcut(QKeySequence(Qt::Key_A));
+        _channelsActionGroup = new QActionGroup(this);
+        _channelsActionGroup->setExclusionPolicy(QActionGroup::ExclusionPolicy::ExclusiveOptional);
+        _channelsActionGroup->addAction(_actions["Image/RedChannel"]);
+        _channelsActionGroup->addAction(_actions["Image/GreenChannel"]);
+        _channelsActionGroup->addAction(_actions["Image/BlueChannel"]);
+        _channelsActionGroup->addAction(_actions["Image/AlphaChannel"]);
+        _actionToChannels[_actions["Image/RedChannel"]] = render::Channels::Red;
+        _actionToChannels[_actions["Image/GreenChannel"]] = render::Channels::Green;
+        _actionToChannels[_actions["Image/BlueChannel"]] = render::Channels::Blue;
+        _actionToChannels[_actions["Image/AlphaChannel"]] = render::Channels::Alpha;
+        _channelsToActions[render::Channels::Red] = _actions["Image/RedChannel"];
+        _channelsToActions[render::Channels::Green] = _actions["Image/GreenChannel"];
+        _channelsToActions[render::Channels::Blue] = _actions["Image/BlueChannel"];
+        _channelsToActions[render::Channels::Alpha] = _actions["Image/AlphaChannel"];
+
         _actions["Playback/Stop"] = new QAction(this);
         _actions["Playback/Stop"]->setCheckable(true);
         _actions["Playback/Stop"]->setText(tr("Stop Playback"));
         _actions["Playback/Stop"]->setIcon(QIcon(":/Icons/PlaybackStop.svg"));
         _actions["Playback/Stop"]->setShortcut(QKeySequence(Qt::Key_K));
-        _actions["Playback/Stop"]->setToolTip(tr("Stop playback"));
         _actions["Playback/Forward"] = new QAction(this);
         _actions["Playback/Forward"]->setCheckable(true);
         _actions["Playback/Forward"]->setText(tr("Forward Playback"));
         _actions["Playback/Forward"]->setIcon(QIcon(":/Icons/PlaybackForward.svg"));
         _actions["Playback/Forward"]->setShortcut(QKeySequence(Qt::Key_L));
-        _actions["Playback/Forward"]->setToolTip(tr("Forward playback"));
         _actions["Playback/Reverse"] = new QAction(this);
         _actions["Playback/Reverse"]->setCheckable(true);
         _actions["Playback/Reverse"]->setText(tr("Reverse Playback"));
         _actions["Playback/Reverse"]->setIcon(QIcon(":/Icons/PlaybackReverse.svg"));
         _actions["Playback/Reverse"]->setShortcut(QKeySequence(Qt::Key_J));
-        _actions["Playback/Reverse"]->setToolTip(tr("Reverse playback"));
         _playbackActionGroup = new QActionGroup(this);
         _playbackActionGroup->setExclusive(true);
         _playbackActionGroup->addAction(_actions["Playback/Stop"]);
@@ -97,7 +125,6 @@ namespace tlr
         _actions["Playback/Toggle"] = new QAction(this);
         _actions["Playback/Toggle"]->setText(tr("Toggle Playback"));
         _actions["Playback/Toggle"]->setShortcut(QKeySequence(Qt::Key_Space));
-        _actions["Playback/Toggle"]->setToolTip(tr("Toggle playback"));
 
         _actions["Playback/Loop"] = new QAction(this);
         _actions["Playback/Loop"]->setCheckable(true);
@@ -189,6 +216,13 @@ namespace tlr
         windowMenu->addAction(_actions["Window/FullScreen"]);
         windowMenu->addAction(_actions["Window/Secondary"]);
 
+        auto imageMenu = new QMenu;
+        imageMenu->setTitle(tr("&Image"));
+        imageMenu->addAction(_actions["Image/RedChannel"]);
+        imageMenu->addAction(_actions["Image/GreenChannel"]);
+        imageMenu->addAction(_actions["Image/BlueChannel"]);
+        imageMenu->addAction(_actions["Image/AlphaChannel"]);
+
         auto playbackMenu = new QMenu;
         playbackMenu->setTitle(tr("&Playback"));
         playbackMenu->addAction(_actions["Playback/Stop"]);
@@ -221,6 +255,7 @@ namespace tlr
         auto menuBar = new QMenuBar;
         menuBar->addMenu(fileMenu);
         menuBar->addMenu(windowMenu);
+        menuBar->addMenu(imageMenu);
         menuBar->addMenu(playbackMenu);
         menuBar->addMenu(toolsMenu);
         setMenuBar(menuBar);
@@ -281,7 +316,6 @@ namespace tlr
 
         _recentFilesUpdate();
         _filesCountUpdate();
-        _playbackUpdate();
         _widgetUpdate();
 
         _filesObserver = observer::ListObserver<std::shared_ptr<FilesModelItem> >::create(
@@ -357,17 +391,10 @@ namespace tlr
             SLOT(_secondaryWindowCallback(bool)));
 
         connect(
-            _actions["Playback/Stop"],
-            SIGNAL(triggered()),
-            SLOT(_stopCallback()));
-        connect(
-            _actions["Playback/Forward"],
-            SIGNAL(triggered()),
-            SLOT(_forwardCallback()));
-        connect(
-            _actions["Playback/Reverse"],
-            SIGNAL(triggered()),
-            SLOT(_reverseCallback()));
+            _channelsActionGroup,
+            SIGNAL(triggered(QAction*)),
+            SLOT(_channelsCallback(QAction*)));
+
         connect(
             _actions["Playback/Toggle"],
             SIGNAL(triggered()),
@@ -560,7 +587,6 @@ namespace tlr
                 SLOT(resetOutPoint()));
         }
 
-        _playbackUpdate();
         _widgetUpdate();
     }
 
@@ -689,6 +715,20 @@ namespace tlr
         _actions["Window/Secondary"]->setChecked(false);
     }
 
+    void MainWindow::_channelsCallback(QAction* action)
+    {
+        if (!_imageOptions.empty())
+        {
+            const auto i = _actionToChannels.find(action);
+            if (i != _actionToChannels.end())
+            {
+                render::ImageOptions imageOptions = _imageOptions[0];
+                imageOptions.channels = action->isChecked() ? i.value() : render::Channels::Color;
+                _app->filesModel()->setImageOptions(imageOptions);
+            }
+        }
+    }
+
     void MainWindow::_playbackCallback(QAction* action)
     {
         if (!_timelinePlayers.empty())
@@ -730,30 +770,6 @@ namespace tlr
         if (i != _loopToActions.end())
         {
             i.value()->setChecked(true);
-        }
-    }
-
-    void MainWindow::_stopCallback()
-    {
-        if (!_timelinePlayers.empty())
-        {
-            _timelinePlayers[0]->stop();
-        }
-    }
-
-    void MainWindow::_forwardCallback()
-    {
-        if (!_timelinePlayers.empty())
-        {
-            _timelinePlayers[0]->forward();
-        }
-    }
-
-    void MainWindow::_reverseCallback()
-    {
-        if (!_timelinePlayers.empty())
-        {
-            _timelinePlayers[0]->reverse();
         }
     }
 
@@ -890,39 +906,53 @@ namespace tlr
         _actions["File/Prev"]->setEnabled(count > 1);
     }
 
-    void MainWindow::_playbackUpdate()
-    {
-        timeline::Playback playback = timeline::Playback::Stop;
-        if (!_timelinePlayers.empty())
-        {
-            playback = _timelinePlayers[0]->playback();
-        }
-        _actions["Playback/Stop"]->setChecked(timeline::Playback::Stop == playback);
-        _actions["Playback/Forward"]->setChecked(timeline::Playback::Forward == playback);
-        _actions["Playback/Reverse"]->setChecked(timeline::Playback::Reverse == playback);
-    }
-
     void MainWindow::_widgetUpdate()
     {
         if (!_timelinePlayers.empty())
         {
+            _actions["Image/RedChannel"]->setEnabled(true);
+            _actions["Image/GreenChannel"]->setEnabled(true);
+            _actions["Image/BlueChannel"]->setEnabled(true);
+            _actions["Image/AlphaChannel"]->setEnabled(true);
+            {
+                QSignalBlocker blocker(_channelsActionGroup);
+                _actions["Image/RedChannel"]->setChecked(false);
+                _actions["Image/GreenChannel"]->setChecked(false);
+                _actions["Image/BlueChannel"]->setChecked(false);
+                _actions["Image/AlphaChannel"]->setChecked(false);
+                if (!_imageOptions.empty())
+                {
+                    auto channelsAction = _channelsToActions.find(_imageOptions[0].channels);
+                    if (channelsAction != _channelsToActions.end())
+                    {
+                        channelsAction.value()->setChecked(true);
+                    }
+                }
+            }
+
             _actions["Playback/Stop"]->setEnabled(true);
             _actions["Playback/Forward"]->setEnabled(true);
             _actions["Playback/Reverse"]->setEnabled(true);
-            const auto playbackAction = _playbackToActions.find(_timelinePlayers[0]->playback());
-            if (playbackAction != _playbackToActions.end())
             {
-                playbackAction.value()->setChecked(true);
+                QSignalBlocker blocker(_playbackActionGroup);
+                auto playbackAction = _playbackToActions.find(_timelinePlayers[0]->playback());
+                if (playbackAction != _playbackToActions.end())
+                {
+                    playbackAction.value()->setChecked(true);
+                }
             }
             _actions["Playback/Toggle"]->setEnabled(true);
 
             _actions["Playback/Loop"]->setEnabled(true);
             _actions["Playback/Once"]->setEnabled(true);
             _actions["Playback/PingPong"]->setEnabled(true);
-            const auto loopAction = _loopToActions.find(_timelinePlayers[0]->loop());
-            if (loopAction != _loopToActions.end())
             {
-                loopAction.value()->setChecked(true);
+                QSignalBlocker blocker(_loopActionGroup);
+                auto loopAction = _loopToActions.find(_timelinePlayers[0]->loop());
+                if (loopAction != _loopToActions.end())
+                {
+                    loopAction.value()->setChecked(true);
+                }
             }
 
             _actions["Playback/Start"]->setEnabled(true);
@@ -941,20 +971,34 @@ namespace tlr
         }
         else
         {
+            _actions["Image/RedChannel"]->setEnabled(false);
+            _actions["Image/GreenChannel"]->setEnabled(false);
+            _actions["Image/BlueChannel"]->setEnabled(false);
+            _actions["Image/AlphaChannel"]->setEnabled(false);
+            {
+                QSignalBlocker blocker(_channelsActionGroup);
+                _actions["Image/RedChannel"]->setChecked(false);
+                _actions["Image/GreenChannel"]->setChecked(false);
+                _actions["Image/BlueChannel"]->setChecked(false);
+                _actions["Image/AlphaChannel"]->setChecked(false);
+            }
+
             _actions["Playback/Stop"]->setEnabled(false);
-            _actions["Playback/Stop"]->setChecked(false);
+            {
+                QSignalBlocker blocker(_playbackActionGroup);
+                _actions["Playback/Stop"]->setChecked(true);
+            }
             _actions["Playback/Forward"]->setEnabled(false);
-            _actions["Playback/Forward"]->setChecked(false);
             _actions["Playback/Reverse"]->setEnabled(false);
-            _actions["Playback/Reverse"]->setChecked(false);
             _actions["Playback/Toggle"]->setEnabled(false);
 
             _actions["Playback/Loop"]->setEnabled(false);
-            _actions["Playback/Loop"]->setChecked(false);
+            {
+                QSignalBlocker blocker(_loopActionGroup);
+                _actions["Playback/Loop"]->setChecked(true);
+            }
             _actions["Playback/Once"]->setEnabled(false);
-            _actions["Playback/Once"]->setChecked(false);
             _actions["Playback/PingPong"]->setEnabled(false);
-            _actions["Playback/PingPong"]->setChecked(false);
 
             _actions["Playback/Start"]->setEnabled(false);
             _actions["Playback/End"]->setEnabled(false);
