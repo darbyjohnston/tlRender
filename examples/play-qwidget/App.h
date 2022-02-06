@@ -39,7 +39,7 @@ namespace tlr
         SettingsObject* settingsObject() const;
 
         //! Get the file model.
-        FilesModel* filesModel() const;
+        const std::shared_ptr<FilesModel>& filesModel() const;
 
     public Q_SLOTS:
         //! Open a file.
@@ -53,7 +53,6 @@ namespace tlr
 
     private Q_SLOTS:
         void _activeCallback(const std::vector<std::shared_ptr<FilesModelItem> >&);
-        void _layerCallback(const std::shared_ptr<FilesModelItem>&, int);
         void _settingsCallback();
 
     private:
@@ -64,8 +63,11 @@ namespace tlr
 
         qt::TimeObject* _timeObject = nullptr;
         SettingsObject* _settingsObject = nullptr;
-        FilesModel* _filesModel = nullptr;
-        std::vector<std::shared_ptr<FilesModelItem> > _activeItems;
+        std::shared_ptr<FilesModel> _filesModel;
+        std::shared_ptr<observer::ListObserver<std::shared_ptr<FilesModelItem> > > _activeObserver;
+        std::vector<std::shared_ptr<FilesModelItem> > _active;
+        std::shared_ptr<observer::ListObserver<int> > _layersObserver;
+
         std::vector<qt::TimelinePlayer*> _timelinePlayers;
 
         MainWindow* _mainWindow = nullptr;

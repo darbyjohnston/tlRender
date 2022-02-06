@@ -11,65 +11,472 @@
 
 namespace tlr
 {
-    FilesModel::FilesModel(
-        const std::shared_ptr<core::Context>& context,
-        QObject* parent) :
-        QAbstractTableModel(parent),
-        _context(context)
+    void FilesModel::_init(const std::shared_ptr<core::Context>& context)
+    {
+        _context = context;
+
+        _files = observer::List<std::shared_ptr<FilesModelItem> >::create();
+        _a = observer::Value<std::shared_ptr<FilesModelItem> >::create();
+        _b = observer::List<std::shared_ptr<FilesModelItem> >::create();
+        _active = observer::List<std::shared_ptr<FilesModelItem> >::create();
+        _layers = observer::List<int>::create();
+        _imageOptions = observer::List<render::ImageOptions>::create();
+        _compareOptions = observer::Value<render::CompareOptions>::create();
+    }
+
+    FilesModel::FilesModel()
     {}
 
-    const render::CompareOptions& FilesModel::compareOptions() const
+    FilesModel::~FilesModel()
+    {}
+
+    std::shared_ptr<FilesModel> FilesModel::create(const std::shared_ptr<core::Context>& context)
+    {
+        auto out = std::shared_ptr<FilesModel>(new FilesModel);
+        out->_init(context);
+        return out;
+    }
+
+    std::shared_ptr<observer::IList<std::shared_ptr<FilesModelItem> > > FilesModel::observeFiles() const
+    {
+        return _files;
+    }
+
+    std::shared_ptr<observer::IValue<std::shared_ptr<FilesModelItem> > > FilesModel::observeA() const
+    {
+        return _a;
+    }
+
+    std::shared_ptr<observer::IList<std::shared_ptr<FilesModelItem> > > FilesModel::observeB() const
+    {
+        return _b;
+    }
+
+    std::shared_ptr<observer::IList<std::shared_ptr<FilesModelItem> > > FilesModel::observeActive() const
+    {
+        return _active;
+    }
+
+    void FilesModel::add(const std::shared_ptr<FilesModelItem>& item)
+    {
+        _files->pushBack(item);
+
+        _a->setIfChanged(_files->getItem(_files->getSize() - 1));
+
+        _active->setIfChanged(_getActive());
+        _layers->setIfChanged(_getLayers());
+        _imageOptions->setIfChanged(_getImageOptions());
+    }
+
+    void FilesModel::close()
+    {
+        if (_a->get())
+        {
+            auto files = _files->get();
+            const auto i = std::find(files.begin(), files.end(), _a->get());
+            if (i != files.end())
+            {
+                const int aPrevIndex = _index(_a->get());
+
+                files.erase(i);
+                _files->setIfChanged(files);
+
+                const int aNewIndex = math::clamp(aPrevIndex, 0, static_cast<int>(files.size()) - 1);
+                _a->setIfChanged(aNewIndex != -1 ? files[aNewIndex] : nullptr);
+
+                auto b = _b->get();
+                auto j = b.begin();
+                while (j != b.end())
+                {
+                    const auto k = std::find(files.begin(), files.end(), *j);
+                    if (k == files.end())
+                    {
+                        b.erase(j);
+                    }
+                    else
+                    {
+                        ++j;
+                    }
+                }
+                _b->setIfChanged(b);
+
+                _active->setIfChanged(_getActive());
+                _layers->setIfChanged(_getLayers());
+                _imageOptions->setIfChanged(_getImageOptions());
+            }
+        }
+    }
+
+    void FilesModel::closeAll()
+    {
+        _files->clear();
+
+        _a->setIfChanged(nullptr);
+
+        _b->clear();
+
+        _active->setIfChanged(_getActive());
+        _layers->setIfChanged(_getLayers());
+        _imageOptions->setIfChanged(_getImageOptions());
+    }
+
+    void FilesModel::setA(int index)
+    {
+        const int prevIndex = _index(_a->get());
+        if (index >= 0 && index < _files->getSize() && index != prevIndex)
+        {
+            _a->setIfChanged(_files->getItem(index));
+
+            _active->setIfChanged(_getActive());
+            _layers->setIfChanged(_getLayers());
+            _imageOptions->setIfChanged(_getImageOptions());
+        }
+    }
+
+    void FilesModel::setB(int index, bool value)
+    {
+        if (index >= 0 && index < _files->getSize())
+        {
+            auto b = _b->get();
+            int removedIndex = -1;
+            const auto bIndexes = _bIndexes();
+            const auto i = std::find(bIndexes.begin(), bIndexes.end(), index);
+            if (value && i == bIndexes.end())
+            {
+                b.push_back(_files->getItem(index));
+                switch (_compareOptions->get().mode)
+                {
+                case render::CompareMode::A:
+                case render::CompareMode::B:
+                case render::CompareMode::Horizontal:
+                case render::CompareMode::Vertical:
+                case render::CompareMode::Free:
+                    if (b.size() > 1)
+                    {
+                        removedIndex = _index(b.front());
+                        b.erase(b.begin());
+                    }
+                    break;
+                default: break;
+                }
+            }
+            else if (!value && i != bIndexes.end())
+            {
+                b.erase(b.begin() + (i - bIndexes.begin()));
+            }
+            _b->setIfChanged(b);
+
+            _active->setIfChanged(_getActive());
+            _layers->setIfChanged(_getLayers());
+            _imageOptions->setIfChanged(_getImageOptions());
+        }
+    }
+
+    void FilesModel::toggleB(int index)
+    {
+        if (index >= 0 && index < _files->getSize())
+        {
+            const auto& item = _files->getItem(index);
+            setB(index, _b->indexOf(item) == observer::invalidListIndex);
+        }
+    }
+
+    void FilesModel::first()
+    {
+        const int prevIndex = _index(_a->get());
+        if (!_files->isEmpty() && prevIndex != 0)
+        {
+            _a->setIfChanged(_files->getItem(0));
+
+            _active->setIfChanged(_getActive());
+            _layers->setIfChanged(_getLayers());
+            _imageOptions->setIfChanged(_getImageOptions());
+        }
+    }
+
+    void FilesModel::last()
+    {
+        const int index = static_cast<int>(_files->getSize()) - 1;
+        const int prevIndex = _index(_a->get());
+        if (!_files->isEmpty() && index != prevIndex)
+        {
+            _a->setIfChanged(_files->getItem(index));
+
+            _active->setIfChanged(_getActive());
+            _layers->setIfChanged(_getLayers());
+            _imageOptions->setIfChanged(_getImageOptions());
+        }
+    }
+
+    void FilesModel::next()
+    {
+        if (!_files->isEmpty())
+        {
+            const int prevIndex = _index(_a->get());
+            int index = prevIndex + 1;
+            if (index >= _files->getSize())
+            {
+                index = 0;
+            }
+            _a->setIfChanged(_files->getItem(index));
+
+            _active->setIfChanged(_getActive());
+            _layers->setIfChanged(_getLayers());
+            _imageOptions->setIfChanged(_getImageOptions());
+        }
+    }
+
+    void FilesModel::prev()
+    {
+        if (!_files->isEmpty())
+        {
+            const int prevIndex = _index(_a->get());
+            int index = prevIndex - 1;
+            if (index < 0)
+            {
+                index = _files->getSize() - 1;
+            }
+            _a->setIfChanged(_files->getItem(index));
+
+            _active->setIfChanged(_getActive());
+            _layers->setIfChanged(_getLayers());
+            _imageOptions->setIfChanged(_getImageOptions());
+        }
+    }
+
+    std::shared_ptr<observer::IList<int> > FilesModel::observeLayers() const
+    {
+        return _layers;
+    }
+
+    void FilesModel::setLayer(const std::shared_ptr<FilesModelItem>& item, int layer)
+    {
+        const int index = _index(item);
+        if (index != -1 &&
+            layer < _files->getItem(index)->avInfo.video.size() &&
+            layer != _files->getItem(index)->videoLayer)
+        {
+            _files->getItem(index)->videoLayer = layer;
+            _layers->setIfChanged(_getLayers());
+        }
+    }
+
+    std::shared_ptr<observer::IList<render::ImageOptions> > FilesModel::observeImageOptions() const
+    {
+        return _imageOptions;
+    }
+
+    void FilesModel::setImageOptions(const render::ImageOptions& imageOptions)
+    {
+        const int index = _index(_a->get());
+        if (index != -1 &&
+            imageOptions != _files->getItem(index)->imageOptions)
+        {
+            _files->getItem(index)->imageOptions = imageOptions;
+            _imageOptions->setIfChanged(_getImageOptions());
+        }
+    }
+
+    std::shared_ptr<observer::IValue<render::CompareOptions> > FilesModel::observeCompareOptions() const
     {
         return _compareOptions;
     }
 
-    const std::vector<std::shared_ptr<FilesModelItem> >& FilesModel::items() const
+    void FilesModel::setCompareOptions(const render::CompareOptions& value)
     {
-        return _items;
+        if (_compareOptions->setIfChanged(value))
+        {
+            switch (_compareOptions->get().mode)
+            {
+            case render::CompareMode::A:
+            case render::CompareMode::B:
+            case render::CompareMode::Horizontal:
+            case render::CompareMode::Vertical:
+            case render::CompareMode::Free:
+            {
+                auto b = _b->get();
+                while (b.size() > 1)
+                {
+                    b.pop_back();
+                }
+                if (_b->setIfChanged(b))
+                {
+                    _active->setIfChanged(_getActive());
+                    _layers->setIfChanged(_getLayers());
+                    _imageOptions->setIfChanged(_getImageOptions());
+                }
+                break;
+            }
+            default: break;
+            }
+        }
     }
 
-    int FilesModel::rowCount(const QModelIndex&) const
+    int FilesModel::_index(const std::shared_ptr<FilesModelItem>& item) const
     {
-        return _items.size();
+        size_t index = _files->indexOf(item);
+        return index != observer::invalidListIndex ? index : -1;
     }
 
-    int FilesModel::columnCount(const QModelIndex& parent) const
+    std::vector<int> FilesModel::_bIndexes() const
     {
-        return 4;
+        std::vector<int> out;
+        for (const auto& b : _b->get())
+        {
+            out.push_back(_index(b));
+        }
+        return out;
     }
 
-    Qt::ItemFlags FilesModel::flags(const QModelIndex& index) const
+    std::vector<std::shared_ptr<FilesModelItem> > FilesModel::_getActive() const
+    {
+        std::vector<std::shared_ptr<FilesModelItem> > out;
+        if (_a->get())
+        {
+            out.push_back(_a->get());
+        }
+        for (const auto& b : _b->get())
+        {
+            out.push_back(b);
+        }
+        return out;
+    }
+
+    std::vector<int> FilesModel::_getLayers() const
+    {
+        std::vector<int> out;
+        if (_a->get())
+        {
+            out.push_back(_a->get()->videoLayer);
+        }
+        for (const auto& b : _b->get())
+        {
+            out.push_back(b->videoLayer);
+        }
+        return out;
+    }
+
+    std::vector<render::ImageOptions> FilesModel::_getImageOptions() const
+    {
+        std::vector<tlr::render::ImageOptions> out;
+        if (_a->get())
+        {
+            out.push_back(_a->get()->imageOptions);
+        }
+        for (const auto& b : _b->get())
+        {
+            out.push_back(b->imageOptions);
+        }
+        return out;
+    }
+
+    FilesItemModel::FilesItemModel(
+        const std::shared_ptr<FilesModel>& filesModel,
+        const std::shared_ptr<core::Context>& context,
+        QObject* parent) :
+        QAbstractTableModel(parent),
+        _context(context),
+        _filesModel(filesModel)
+    {
+        _filesObserver = observer::ListObserver<std::shared_ptr<FilesModelItem> >::create(
+            filesModel->observeFiles(),
+            [this](const std::vector<std::shared_ptr<FilesModelItem> >& value)
+            {
+                beginResetModel();
+                _files = value;
+                for (auto i : _files)
+                {
+                    auto j = _thumbnailProviders.find(i);
+                    if (j == _thumbnailProviders.end())
+                    {
+                        if (auto context = _context.lock())
+                        {
+                            try
+                            {
+                                auto timeline = timeline::Timeline::create(i->path.get(), context);
+                                _thumbnailProviders[i] = new qt::TimelineThumbnailProvider(timeline, context);
+                                connect(
+                                    _thumbnailProviders[i],
+                                    SIGNAL(thumbails(const QList<QPair<otime::RationalTime, QImage> >&)),
+                                    SLOT(_thumbailCallback(const QList<QPair<otime::RationalTime, QImage> >&)));
+                                _thumbnailProviders[i]->request(timeline->getGlobalStartTime(), QSize(120, 80));
+                            }
+                            catch (const std::exception&)
+                            {}
+                        }
+                    }
+                }
+                endResetModel();
+            });
+        _activeObserver = observer::ListObserver<std::shared_ptr<FilesModelItem> >::create(
+            filesModel->observeActive(),
+            [this](const std::vector<std::shared_ptr<FilesModelItem> >& value)
+            {
+                _active = value;
+            });
+        _layersObserver = observer::ListObserver<int>::create(
+            filesModel->observeLayers(),
+            [this](const std::vector<int>& value)
+            {
+                for (size_t i = 0; i < value.size() && i < _active.size(); ++i)
+                {
+                    const auto j = std::find(_files.begin(), _files.end(), _active[i]);
+                    if (j != _files.end())
+                    {
+                        const int index = j - _files.begin();
+                        Q_EMIT dataChanged(
+                            this->index(index, 1),
+                            this->index(index, 1),
+                            { Qt::DisplayRole, Qt::EditRole });
+                    }
+                }
+            });
+    }
+
+    const std::vector<std::shared_ptr<FilesModelItem> >& FilesItemModel::files() const
+    {
+        return _files;
+    }
+
+    int FilesItemModel::rowCount(const QModelIndex&) const
+    {
+        return _files.size();
+    }
+
+    int FilesItemModel::columnCount(const QModelIndex& parent) const
+    {
+        return 2;
+    }
+
+    Qt::ItemFlags FilesItemModel::flags(const QModelIndex& index) const
     {
         Qt::ItemFlags out = Qt::NoItemFlags;
         if (index.isValid() &&
             index.row() >= 0 &&
-            index.row() < _items.size() &&
+            index.row() < _files.size() &&
             index.column() >= 0 &&
-            index.column() < 4)
+            index.column() < 2)
         {
             out |= Qt::ItemIsEnabled;
             out |= Qt::ItemIsSelectable;
             switch (index.column())
             {
             case 1: out |= Qt::ItemIsEditable; break;
-            case 2: out |= Qt::ItemIsUserCheckable; break;
-            case 3: out |= Qt::ItemIsUserCheckable; break;
             }
         }
         return out;
     }
 
-    QVariant FilesModel::data(const QModelIndex& index, int role) const
+    QVariant FilesItemModel::data(const QModelIndex& index, int role) const
     {
         QVariant out;
         if (index.isValid() &&
             index.row() >= 0 &&
-            index.row() < _items.size() &&
+            index.row() < _files.size() &&
             index.column() >= 0 &&
             index.column() < 4)
         {
-            const auto& item = _items[index.row()];
-            const int aIndex = _index(_a);
+            const auto& item = _files[index.row()];
             switch (role)
             {
             case Qt::DisplayRole:
@@ -111,19 +518,6 @@ namespace tlr
                 case 1: out.setValue(item->videoLayer); break;
                 }
                 break;
-            case Qt::CheckStateRole:
-                switch (index.column())
-                {
-                case 2: out.setValue(index.row() == aIndex ? Qt::Checked : Qt::Unchecked); break;
-                case 3:
-                {
-                    const auto bIndexes = _bIndexes();
-                    const auto i = std::find(bIndexes.begin(), bIndexes.end(), index.row());
-                    out.setValue(i != bIndexes.end() ? Qt::Checked : Qt::Unchecked);
-                    break;
-                }
-                }
-                break;
             case Qt::ToolTipRole:
                 out.setValue(QString::fromUtf8(item->path.get().c_str()));
                 break;
@@ -133,40 +527,23 @@ namespace tlr
         return out;
     }
 
-    bool FilesModel::setData(const QModelIndex& index, const QVariant& value, int role)
+    bool FilesItemModel::setData(const QModelIndex& index, const QVariant& value, int role)
     {
         bool out = false;
         if (index.isValid() &&
             index.row() >= 0 &&
-            index.row() < _items.size() &&
+            index.row() < _files.size() &&
             index.column() >= 0 &&
             index.column() < 4)
         {
-            const auto& item = _items[index.row()];
-            const int aIndex = _index(_a);
+            const auto& item = _files[index.row()];
             switch (role)
             {
             case Qt::EditRole:
                 switch (index.column())
                 {
                 case 1:
-                    setLayer(item, value.toInt());
-                    out = true;
-                    break;
-                }
-                break;
-            case Qt::CheckStateRole:
-                switch (index.column())
-                {
-                case 2:
-                    if (value.toBool())
-                    {
-                        setA(index.row());
-                        out = true;
-                    }
-                    break;
-                case 3:
-                    setB(index.row(), value == Qt::Checked);
+                    _filesModel->setLayer(item, value.toInt());
                     out = true;
                     break;
                 }
@@ -177,7 +554,7 @@ namespace tlr
         return out;
     }
 
-    QVariant FilesModel::headerData(int section, Qt::Orientation orientation, int role) const
+    QVariant FilesItemModel::headerData(int section, Qt::Orientation orientation, int role) const
     {
         QVariant out;
         if (Qt::Horizontal == orientation)
@@ -189,8 +566,6 @@ namespace tlr
                 {
                 case 0: out = tr("Name"); break;
                 case 1: out = tr("Layer"); break;
-                case 2: out = tr("A"); break;
-                case 3: out = tr("B"); break;
                 }
                 break;
             default: break;
@@ -199,316 +574,7 @@ namespace tlr
         return out;
     }
 
-    void FilesModel::add(const std::shared_ptr<FilesModelItem>& item)
-    {
-        const int index = _items.size();
-        beginInsertRows(QModelIndex(), index, index);
-        _items.push_back(item);
-        endInsertRows();
-        Q_EMIT countChanged(_items.size());
-
-        const int aIndex = _index(_a);
-        _a = item;
-        Q_EMIT activeChanged(_active());
-        Q_EMIT imageOptionsChanged(_imageOptions());
-        Q_EMIT dataChanged(
-            this->index(aIndex, 2),
-            this->index(aIndex, 2),
-            { Qt::CheckStateRole });
-        Q_EMIT dataChanged(
-            this->index(index, 2),
-            this->index(index, 2),
-            { Qt::CheckStateRole });
-
-        if (auto context = _context.lock())
-        {
-            try
-            {
-                auto timeline = timeline::Timeline::create(item->path.get(), context);
-                _thumbnailProviders[item] = new qt::TimelineThumbnailProvider(timeline, context);
-                connect(
-                    _thumbnailProviders[item],
-                    SIGNAL(thumbails(const QList<QPair<otime::RationalTime, QImage> >&)),
-                    SLOT(_thumbailCallback(const QList<QPair<otime::RationalTime, QImage> >&)));
-                _thumbnailProviders[item]->request(timeline->getGlobalStartTime(), QSize(120, 80));
-            }
-            catch (const std::exception&)
-            {}
-        }
-    }
-
-    void FilesModel::close()
-    {
-        if (!_items.empty() && _a)
-        {
-            const auto i = std::find(_items.begin(), _items.end(), _a);
-            if (i != _items.end())
-            {
-                const int aIndex = i - _items.begin();
-                beginRemoveRows(QModelIndex(), aIndex, aIndex);
-                _items.erase(i);
-                endRemoveRows();
-                Q_EMIT countChanged(_items.size());
-
-                const int aNewIndex = math::clamp(aIndex, 0, static_cast<int>(_items.size()) - 1);
-                _a = aNewIndex != -1 ? _items[aNewIndex] : nullptr;
-
-                const size_t bSize = _b.size();
-                auto b = _b.begin();
-                while (b != _b.end())
-                {
-                    const auto j = std::find(_items.begin(), _items.end(), *b);
-                    if (j == _items.end())
-                    {
-                        b = _b.erase(b);
-                    }
-                    else
-                    {
-                        ++b;
-                    }
-                }
-
-                Q_EMIT activeChanged(_active());
-                Q_EMIT imageOptionsChanged(_imageOptions());
-                Q_EMIT dataChanged(
-                    this->index(aIndex, 2),
-                    this->index(aIndex, 2),
-                    { Qt::CheckStateRole });
-                Q_EMIT dataChanged(
-                    this->index(aNewIndex, 2),
-                    this->index(aNewIndex, 2),
-                    { Qt::CheckStateRole });
-            }
-        }
-    }
-
-    void FilesModel::closeAll()
-    {
-        if (!_items.empty())
-        {
-            beginRemoveRows(QModelIndex(), 0, _items.size() - 1);
-            _items.clear();
-            endRemoveRows();
-            Q_EMIT countChanged(_items.size());
-
-            _a = nullptr;
-            _b.clear();
-            Q_EMIT activeChanged(_active());
-            Q_EMIT imageOptionsChanged(_imageOptions());
-        }
-    }
-
-    void FilesModel::setA(int index)
-    {
-        const int aIndex = _index(_a);
-        if (index >= 0 && index < _items.size() && index != aIndex)
-        {
-            _a = _items[index];
-            Q_EMIT activeChanged(_active());
-            Q_EMIT imageOptionsChanged(_imageOptions());
-            Q_EMIT dataChanged(
-                this->index(aIndex, 2),
-                this->index(aIndex, 2),
-                { Qt::CheckStateRole });
-            Q_EMIT dataChanged(
-                this->index(index, 2),
-                this->index(index, 2),
-                { Qt::CheckStateRole });
-        }
-    }
-
-    void FilesModel::setB(int index, bool value)
-    {
-        if (index >= 0 && index < _items.size())
-        {
-            const auto bIndexes = _bIndexes();
-            int removedIndex = -1;
-            const auto i = std::find(bIndexes.begin(), bIndexes.end(), index);
-            if (value && i == bIndexes.end())
-            {
-                _b.push_back(_items[index]);
-                switch (_compareOptions.mode)
-                {
-                case render::CompareMode::A:
-                case render::CompareMode::B:
-                case render::CompareMode::Horizontal:
-                case render::CompareMode::Vertical:
-                case render::CompareMode::Free:
-                    if (_b.size() > 1)
-                    {
-                        removedIndex = _index(_b.front());
-                        _b.erase(_b.begin());
-                    }
-                    break;
-                default: break;
-                }
-            }
-            else if (!value && i != bIndexes.end())
-            {
-                _b.erase(_b.begin() + (i - bIndexes.begin()));
-            }
-            Q_EMIT activeChanged(_active());
-            Q_EMIT imageOptionsChanged(_imageOptions());
-            Q_EMIT dataChanged(
-                this->index(index, 3),
-                this->index(index, 3),
-                { Qt::CheckStateRole });
-            Q_EMIT dataChanged(
-                this->index(removedIndex, 3),
-                this->index(removedIndex, 3),
-                { Qt::CheckStateRole });
-        }
-    }
-
-    void FilesModel::first()
-    {
-        const int aIndex = _index(_a);
-        if (!_items.empty() && aIndex != 0)
-        {
-            _a = _items[0];
-            Q_EMIT activeChanged(_active());
-            Q_EMIT imageOptionsChanged(_imageOptions());
-            Q_EMIT dataChanged(
-                index(aIndex, 2),
-                index(aIndex, 2),
-                { Qt::CheckStateRole });
-            Q_EMIT dataChanged(
-                index(0, 2),
-                index(0, 2),
-                { Qt::CheckStateRole });
-        }
-    }
-
-    void FilesModel::last()
-    {
-        const int index = static_cast<int>(_items.size()) - 1;
-        const int aIndex = _index(_a);
-        if (!_items.empty() && index != aIndex)
-        {
-            _a = _items[index];
-            Q_EMIT activeChanged(_active());
-            Q_EMIT imageOptionsChanged(_imageOptions());
-            Q_EMIT dataChanged(
-                this->index(index, 2),
-                this->index(index, 2),
-                { Qt::CheckStateRole });
-            Q_EMIT dataChanged(
-                this->index(aIndex, 2),
-                this->index(aIndex, 2),
-                { Qt::CheckStateRole });
-        }
-    }
-
-    void FilesModel::next()
-    {
-        if (!_items.empty())
-        {
-            const int aIndex = _index(_a);
-            int aNewIndex = aIndex + 1;
-            if (aNewIndex >= _items.size())
-            {
-                aNewIndex = 0;
-            }
-            _a = _items[aNewIndex];
-            Q_EMIT activeChanged(_active());
-            Q_EMIT imageOptionsChanged(_imageOptions());
-            Q_EMIT dataChanged(
-                this->index(aIndex, 2),
-                this->index(aIndex, 2),
-                { Qt::CheckStateRole });
-            Q_EMIT dataChanged(
-                this->index(aNewIndex, 2),
-                this->index(aNewIndex, 2),
-                { Qt::CheckStateRole });
-        }
-    }
-
-    void FilesModel::prev()
-    {
-        if (!_items.empty())
-        {
-            const int aIndex = _index(_a);
-            int aNewIndex = aIndex - 1;
-            if (aNewIndex < 0)
-            {
-                aNewIndex = _items.size() - 1;
-            }
-            _a = _items[aNewIndex];
-            Q_EMIT activeChanged(_active());
-            Q_EMIT imageOptionsChanged(_imageOptions());
-            Q_EMIT dataChanged(
-                this->index(aIndex, 2),
-                this->index(aIndex, 2),
-                { Qt::CheckStateRole });
-            Q_EMIT dataChanged(
-                this->index(aNewIndex, 2),
-                this->index(aNewIndex, 2),
-                { Qt::CheckStateRole });
-        }
-    }
-
-    void FilesModel::setLayer(const std::shared_ptr<FilesModelItem>& item, int layer)
-    {
-        const int index = _index(item);
-        if (index != -1 &&
-            layer < _items[index]->avInfo.video.size() &&
-            layer != _items[index]->videoLayer)
-        {
-            _items[index]->videoLayer = layer;
-            Q_EMIT layerChanged(item, layer);
-        }
-    }
-
-    void FilesModel::setImageOptions(const render::ImageOptions& imageOptions)
-    {
-        const int index = _index(_a);
-        if (index != -1 &&
-            imageOptions != _items[index]->imageOptions)
-        {
-            _items[index]->imageOptions = imageOptions;
-            Q_EMIT imageOptionsChanged(_imageOptions());
-        }
-    }
-
-    void FilesModel::setCompareOptions(const render::CompareOptions& value)
-    {
-        if (value == _compareOptions)
-            return;
-        _compareOptions = value;
-        switch (_compareOptions.mode)
-        {
-        case render::CompareMode::A:
-        case render::CompareMode::B:
-        case render::CompareMode::Horizontal:
-        case render::CompareMode::Vertical:
-        case render::CompareMode::Free:
-        {
-            std::vector<int> removedIndexes;
-            while (_b.size() > 1)
-            {
-                removedIndexes.push_back(_index(_b.back()));
-                _b.pop_back();
-            }
-            if (!removedIndexes.empty())
-            {
-                Q_EMIT activeChanged(_active());
-                Q_EMIT imageOptionsChanged(_imageOptions());
-                for (auto index : removedIndexes)
-                {
-                    Q_EMIT dataChanged(
-                        this->index(index, 3),
-                        this->index(index, 3),
-                        { Qt::CheckStateRole });
-                }
-            }
-            break;
-        }
-        default: break;
-        }
-        Q_EMIT compareOptionsChanged(_compareOptions);
-    }
-
-    void FilesModel::_thumbailCallback(const QList<QPair<otime::RationalTime, QImage> >& value)
+    void FilesItemModel::_thumbailCallback(const QList<QPair<otime::RationalTime, QImage> >& value)
     {
         if (!value.isEmpty())
         {
@@ -517,10 +583,10 @@ namespace tlr
                 if (i->second == sender())
                 {
                     _thumbnails[i->first] = value[0].second;
-                    const auto j = std::find(_items.begin(), _items.end(), i->first);
-                    if (j != _items.end())
+                    const auto j = std::find(_files.begin(), _files.end(), i->first);
+                    if (j != _files.end())
                     {
-                        const int index = j - _items.begin();
+                        const int index = j - _files.begin();
                         Q_EMIT dataChanged(
                             this->index(index, 0),
                             this->index(index, 0),
@@ -534,54 +600,157 @@ namespace tlr
         }
     }
 
-    int FilesModel::_index(const std::shared_ptr<FilesModelItem>& item) const
+    int FilesItemModel::_index(const std::shared_ptr<FilesModelItem>& item) const
     {
         int out = -1;
-        if (!_items.empty())
+        if (!_files.empty())
         {
-            const auto i = std::find(_items.begin(), _items.end(), item);
-            if (i != _items.end())
+            const auto i = std::find(_files.begin(), _files.end(), item);
+            if (i != _files.end())
             {
-                out = i - _items.begin();
+                out = i - _files.begin();
             }
         }
         return out;
     }
 
-    std::vector<int> FilesModel::_bIndexes() const
+    FilesAModel::FilesAModel(
+        const std::shared_ptr<FilesModel>& filesModel,
+        const std::shared_ptr<core::Context>& context,
+        QObject* parent) :
+        FilesItemModel(filesModel, context, parent)
+    {
+        _aObserver = observer::ValueObserver<std::shared_ptr<FilesModelItem> >::create(
+            filesModel->observeA(),
+            [this](const std::shared_ptr<FilesModelItem>& value)
+            {
+                const int prevIndex = _index(_a);
+                _a = value;
+                const int index = _index(_a);
+                Q_EMIT dataChanged(
+                    this->index(index, 0),
+                    this->index(index, 1),
+                    { Qt::BackgroundRole, Qt::ForegroundRole });
+                Q_EMIT dataChanged(
+                    this->index(prevIndex, 0),
+                    this->index(prevIndex, 1),
+                    { Qt::BackgroundRole, Qt::ForegroundRole });
+            });
+    }
+
+    QVariant FilesAModel::data(const QModelIndex& index, int role) const
+    {
+        QVariant out = FilesItemModel::data(index, role);
+        if (index.isValid() &&
+            index.row() >= 0 &&
+            index.row() < _files.size() &&
+            index.column() >= 0 &&
+            index.column() < 4)
+        {
+            const auto& item = _files[index.row()];
+            switch (role)
+            {
+            case Qt::BackgroundRole:
+            {
+                const int aIndex = _index(_a);
+                if (aIndex == index.row())
+                {
+                    out.setValue(
+                        QBrush(qApp->palette().color(QPalette::ColorRole::Highlight)));
+                }
+                break;
+            }
+            case Qt::ForegroundRole:
+            {
+                const int aIndex = _index(_a);
+                if (aIndex == index.row())
+                {
+                    out.setValue(
+                        QBrush(qApp->palette().color(QPalette::ColorRole::HighlightedText)));
+                }
+                break;
+            }
+            default: break;
+            }
+        }
+        return out;
+    }
+
+    FilesBModel::FilesBModel(
+        const std::shared_ptr<FilesModel>& filesModel,
+        const std::shared_ptr<core::Context>& context,
+        QObject* parent) :
+        FilesItemModel(filesModel, context, parent)
+    {
+        _bObserver = observer::ListObserver<std::shared_ptr<FilesModelItem> >::create(
+            filesModel->observeB(),
+            [this](const std::vector<std::shared_ptr<FilesModelItem> >& value)
+            {
+                const auto prevIndexes = _bIndexes();
+                _b = value;
+                for (const auto& i : _bIndexes())
+                {
+                    Q_EMIT dataChanged(
+                        this->index(i, 0),
+                        this->index(i, 1),
+                        { Qt::BackgroundRole, Qt::ForegroundRole });
+                }
+                for (const auto& i : prevIndexes)
+                {
+                    Q_EMIT dataChanged(
+                        this->index(i, 0),
+                        this->index(i, 1),
+                        { Qt::BackgroundRole, Qt::ForegroundRole });
+                }
+            });
+    }
+
+    QVariant FilesBModel::data(const QModelIndex& index, int role) const
+    {
+        QVariant out = FilesItemModel::data(index, role);
+        if (index.isValid() &&
+            index.row() >= 0 &&
+            index.row() < _files.size() &&
+            index.column() >= 0 &&
+            index.column() < 4)
+        {
+            const auto& item = _files[index.row()];
+            switch (role)
+            {
+            case Qt::BackgroundRole:
+            {
+                const auto bIndexes = _bIndexes();
+                const auto i = std::find(bIndexes.begin(), bIndexes.end(), index.row());
+                if (i != bIndexes.end())
+                {
+                    out.setValue(
+                        QBrush(qApp->palette().color(QPalette::ColorRole::Highlight)));
+                }
+                break;
+            }
+            case Qt::ForegroundRole:
+            {
+                const auto bIndexes = _bIndexes();
+                const auto i = std::find(bIndexes.begin(), bIndexes.end(), index.row());
+                if (i != bIndexes.end())
+                {
+                    out.setValue(
+                        QBrush(qApp->palette().color(QPalette::ColorRole::HighlightedText)));
+                }
+                break;
+            }
+            default: break;
+            }
+        }
+        return out;
+    }
+
+    std::vector<int> FilesBModel::_bIndexes() const
     {
         std::vector<int> out;
         for (const auto& b : _b)
         {
             out.push_back(_index(b));
-        }
-        return out;
-    }
-
-    std::vector<std::shared_ptr<FilesModelItem> > FilesModel::_active() const
-    {
-        std::vector<std::shared_ptr<FilesModelItem> > out;
-        if (_a)
-        {
-            out.push_back(_a);
-        }
-        for (const auto& b : _b)
-        {
-            out.push_back(b);
-        }
-        return out;
-    }
-
-    std::vector<render::ImageOptions> FilesModel::_imageOptions() const
-    {
-        std::vector<tlr::render::ImageOptions> out;
-        if (_a)
-        {
-            out.push_back(_a->imageOptions);
-        }
-        for (const auto& b : _b)
-        {
-            out.push_back(b->imageOptions);
         }
         return out;
     }

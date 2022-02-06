@@ -5,6 +5,7 @@
 #pragma once
 
 #include "AudioTool.h"
+#include "CompareTool.h"
 #include "FilesModel.h"
 #include "FilesTool.h"
 #include "ImageTool.h"
@@ -49,9 +50,12 @@ namespace tlr
         void dropEvent(QDropEvent*) override;
 
     private Q_SLOTS:
+        void _closeCallback();
+        void _closeAllCallback();
         void _recentFilesCallback(QAction*);
         void _recentFilesCallback();
-        void _filesCountCallback();
+        void _nextCallback();
+        void _prevCallback();
         void _resize1280x720Callback();
         void _resize1920x1080Callback();
         void _fullScreenCallback();
@@ -86,9 +90,13 @@ namespace tlr
         void _widgetUpdate();
 
         App* _app = nullptr;
+        std::shared_ptr<observer::ListObserver<std::shared_ptr<FilesModelItem> > > _filesObserver;
+        std::shared_ptr<observer::ListObserver<render::ImageOptions> > _imageOptionsObserver;
+        std::shared_ptr<observer::ValueObserver<render::CompareOptions> > _compareOptionsObserver;
         std::vector<qt::TimelinePlayer*> _timelinePlayers;
         qwidget::TimelineWidget* _timelineWidget = nullptr;
         FilesTool* _filesTool = nullptr;
+        CompareTool* _compareTool = nullptr;
         ImageTool* _imageTool = nullptr;
         AudioTool* _audioTool = nullptr;
         QMap<QString, QAction*> _actions;

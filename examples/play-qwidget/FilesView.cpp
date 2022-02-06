@@ -21,14 +21,14 @@ namespace tlr
     QWidget* FilesLayersItemDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem& options, const QModelIndex& index) const
     {
         QComboBox* out = new QComboBox(parent);
-        if (auto model = qobject_cast<const FilesModel*>(index.model()))
+        if (auto model = qobject_cast<const FilesItemModel*>(index.model()))
         {
-            const auto& items = model->items();
+            const auto& files = model->files();
             if (index.isValid() &&
                 index.row() >= 0 &&
-                index.row() < items.size())
+                index.row() < files.size())
             {
-                for (const auto& video : items[index.row()]->avInfo.video)
+                for (const auto& video : files[index.row()]->avInfo.video)
                 {
                     out->addItem(QString::fromUtf8(video.name.c_str()));
                 }

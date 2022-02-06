@@ -229,7 +229,7 @@ namespace tlr
         _timelineWidget->setTimeObject(app->timeObject());
         setCentralWidget(_timelineWidget);
 
-        _filesTool = new FilesTool(app->filesModel());
+        _filesTool = new FilesTool(app->filesModel(), app->getContext());
         auto filesToolDockWidget = new QDockWidget;
         filesToolDockWidget->setObjectName("Files");
         filesToolDockWidget->setWindowTitle(tr("Files"));
@@ -238,6 +238,16 @@ namespace tlr
         filesToolDockWidget->hide();
         toolsMenu->addAction(filesToolDockWidget->toggleViewAction());
         addDockWidget(Qt::RightDockWidgetArea, filesToolDockWidget);
+
+        _compareTool = new CompareTool(app->filesModel(), app->getContext());
+        auto compareToolDockWidget = new QDockWidget;
+        compareToolDockWidget->setObjectName("Compare");
+        compareToolDockWidget->setWindowTitle(tr("Compare"));
+        compareToolDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+        compareToolDockWidget->setWidget(_compareTool);
+        compareToolDockWidget->hide();
+        toolsMenu->addAction(compareToolDockWidget->toggleViewAction());
+        addDockWidget(Qt::RightDockWidgetArea, compareToolDockWidget);
 
         _imageTool = new ImageTool();
         auto imageToolDockWidget = new QDockWidget;
@@ -274,6 +284,25 @@ namespace tlr
         _playbackUpdate();
         _widgetUpdate();
 
+        _filesObserver = observer::ListObserver<std::shared_ptr<FilesModelItem> >::create(
+            app->filesModel()->observeFiles(),
+            [this](const std::vector<std::shared_ptr<FilesModelItem> >&)
+            {
+                _filesCountUpdate();
+            });
+        _imageOptionsObserver = observer::ListObserver<render::ImageOptions>::create(
+            app->filesModel()->observeImageOptions(),
+            [this](const std::vector<render::ImageOptions>& value)
+            {
+                _imageOptionsCallback(value);
+            });
+        _compareOptionsObserver = observer::ValueObserver<render::CompareOptions>::create(
+            app->filesModel()->observeCompareOptions(),
+            [this](const render::CompareOptions& value)
+            {
+                _compareOptionsCallback2(value);
+            });
+
         connect(
             _actions["File/Open"],
             SIGNAL(triggered()),
@@ -287,13 +316,11 @@ namespace tlr
         connect(
             _actions["File/Close"],
             SIGNAL(triggered()),
-            app->filesModel(),
-            SLOT(close()));
+            SLOT(_closeCallback()));
         connect(
             _actions["File/CloseAll"],
             SIGNAL(triggered()),
-            app->filesModel(),
-            SLOT(closeAll()));
+            SLOT(_closeAllCallback()));
         connect(
             _recentFilesActionGroup,
             SIGNAL(triggered(QAction*)),
@@ -301,13 +328,11 @@ namespace tlr
         connect(
             _actions["File/Next"],
             SIGNAL(triggered()),
-            app->filesModel(),
-            SLOT(next()));
+            SLOT(_nextCallback()));
         connect(
             _actions["File/Prev"],
             SIGNAL(triggered()),
-            app->filesModel(),
-            SLOT(prev()));
+            SLOT(_prevCallback()));
         connect(
             _actions["File/Exit"],
             SIGNAL(triggered()),
@@ -392,7 +417,7 @@ namespace tlr
             SLOT(_loopCallback(QAction*)));
 
         connect(
-            _filesTool,
+            _compareTool,
             SIGNAL(compareOptionsChanged(const tlr::render::CompareOptions&)),
             SLOT(_compareOptionsCallback(const tlr::render::CompareOptions&)));
 
@@ -405,19 +430,6 @@ namespace tlr
             _audioTool,
             SIGNAL(audioOffsetChanged(double)),
             SLOT(_audioOffsetCallback(double)));
-
-        connect(
-            app->filesModel(),
-            SIGNAL(countChanged(int)),
-            SLOT(_filesCountCallback()));
-        connect(
-            app->filesModel(),
-            SIGNAL(compareOptionsChanged(const tlr::render::CompareOptions&)),
-            SLOT(_compareOptionsCallback2(const tlr::render::CompareOptions&)));
-        connect(
-            app->filesModel(),
-            SIGNAL(imageOptionsChanged(const std::vector<tlr::render::ImageOptions>&)),
-            SLOT(_imageOptionsCallback(const std::vector<tlr::render::ImageOptions>&)));
 
         connect(
             app->settingsObject(),
@@ -598,6 +610,16 @@ namespace tlr
         }
     }
 
+    void MainWindow::_closeCallback()
+    {
+        _app->filesModel()->close();
+    }
+
+    void MainWindow::_closeAllCallback()
+    {
+        _app->filesModel()->closeAll();
+    }
+
     void MainWindow::_recentFilesCallback(QAction* action)
     {
         const auto i = _actionToRecentFile.find(action);
@@ -612,9 +634,14 @@ namespace tlr
         _recentFilesUpdate();
     }
 
-    void MainWindow::_filesCountCallback()
+    void MainWindow::_nextCallback()
     {
-        _filesCountUpdate();
+        _app->filesModel()->next();
+    }
+
+    void MainWindow::_prevCallback()
+    {
+        _app->filesModel()->prev();
     }
 
     void MainWindow::_resize1280x720Callback()
@@ -856,7 +883,7 @@ namespace tlr
 
     void MainWindow::_filesCountUpdate()
     {
-        const int count = _app->filesModel()->rowCount();
+        const int count = _app->filesModel()->observeFiles()->getSize();
         _actions["File/Close"]->setEnabled(count > 0);
         _actions["File/CloseAll"]->setEnabled(count > 0);
         _actions["File/Next"]->setEnabled(count > 1);
@@ -949,7 +976,7 @@ namespace tlr
         _timelineWidget->setImageOptions(_imageOptions);
         _timelineWidget->setCompareOptions(_compareOptions);
 
-        _filesTool->setCompareOptions(_compareOptions);
+        _compareTool->setCompareOptions(_compareOptions);
 
         _imageTool->setImageOptions(!_imageOptions.empty() ? _imageOptions[0] : render::ImageOptions());
 

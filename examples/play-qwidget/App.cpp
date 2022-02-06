@@ -94,15 +94,22 @@ namespace tlr
             SLOT(_settingsCallback()));
         _settingsUpdate();
 
-        _filesModel = new FilesModel(_context, this);
-        connect(
-            _filesModel,
-            SIGNAL(activeChanged(const std::vector<std::shared_ptr<FilesModelItem> >&)),
-            SLOT(_activeCallback(const std::vector<std::shared_ptr<FilesModelItem> >&)));
-        connect(
-            _filesModel,
-            SIGNAL(layerChanged(const std::shared_ptr<FilesModelItem>&, int)),
-            SLOT(_layerCallback(const std::shared_ptr<FilesModelItem>&, int)));
+        _filesModel = FilesModel::create(_context);
+        _activeObserver = observer::ListObserver<std::shared_ptr<FilesModelItem> >::create(
+            _filesModel->observeActive(),
+            [this](const std::vector<std::shared_ptr<FilesModelItem> >& value)
+            {
+                _activeCallback(value);
+            });
+        _layersObserver = observer::ListObserver<int>::create(
+            _filesModel->observeLayers(),
+            [this](const std::vector<int>& value)
+            {
+                for (size_t i = 0; i < value.size() && i < _timelinePlayers.size(); ++i)
+                {
+                    _timelinePlayers[i]->setVideoLayer(value[i]);
+                }
+            });
 
         // Set the dark style color palette.
         setPalette(qwidget::darkStyle());
@@ -137,7 +144,7 @@ namespace tlr
         return _settingsObject;
     }
 
-    FilesModel* App::filesModel() const
+    const std::shared_ptr<FilesModel>& App::filesModel() const
     {
         return _filesModel;
     }
@@ -164,9 +171,9 @@ namespace tlr
         }
 
         QString dir;
-        if (!_activeItems.empty())
+        if (!_active.empty())
         {
-            dir = QString::fromUtf8(_activeItems[0]->path.get().c_str());
+            dir = QString::fromUtf8(_active[0]->path.get().c_str());
         }
 
         const auto fileName = QFileDialog::getOpenFileName(
@@ -191,28 +198,28 @@ namespace tlr
 
     void App::_activeCallback(const std::vector<std::shared_ptr<FilesModelItem> >& items)
     {
-        if (!_activeItems.empty() &&
+        if (!_active.empty() &&
             !_timelinePlayers.empty() &&
             _timelinePlayers[0])
         {
-            _activeItems[0]->init = true;
-            _activeItems[0]->speed = _timelinePlayers[0]->speed();
-            _activeItems[0]->playback = _timelinePlayers[0]->playback();
-            _activeItems[0]->loop = _timelinePlayers[0]->loop();
-            _activeItems[0]->currentTime = _timelinePlayers[0]->currentTime();
-            _activeItems[0]->inOutRange = _timelinePlayers[0]->inOutRange();
-            _activeItems[0]->videoLayer = _timelinePlayers[0]->videoLayer();
-            _activeItems[0]->volume = _timelinePlayers[0]->volume();
-            _activeItems[0]->mute = _timelinePlayers[0]->isMuted();
-            _activeItems[0]->audioOffset = _timelinePlayers[0]->audioOffset();
+            _active[0]->init = true;
+            _active[0]->speed = _timelinePlayers[0]->speed();
+            _active[0]->playback = _timelinePlayers[0]->playback();
+            _active[0]->loop = _timelinePlayers[0]->loop();
+            _active[0]->currentTime = _timelinePlayers[0]->currentTime();
+            _active[0]->inOutRange = _timelinePlayers[0]->inOutRange();
+            _active[0]->videoLayer = _timelinePlayers[0]->videoLayer();
+            _active[0]->volume = _timelinePlayers[0]->volume();
+            _active[0]->mute = _timelinePlayers[0]->isMuted();
+            _active[0]->audioOffset = _timelinePlayers[0]->audioOffset();
         }
 
         std::vector<qt::TimelinePlayer*> timelinePlayers(items.size(), nullptr);
         for (size_t i = 0; i < items.size(); ++i)
         {
             if (i < items.size() &&
-                i < _activeItems.size() &&
-                items[i] == _activeItems[i])
+                i < _active.size() &&
+                items[i] == _active[i])
             {
                 timelinePlayers[i] = _timelinePlayers[i];
                 _timelinePlayers[i] = nullptr;
@@ -312,27 +319,17 @@ namespace tlr
                 timelinePlayersValid.push_back(i);
             }
         }
-        _mainWindow->setTimelinePlayers(timelinePlayersValid);
+        if (_mainWindow)
+        {
+            _mainWindow->setTimelinePlayers(timelinePlayersValid);
+        }
 
-        _activeItems = items;
+        _active = items;
         for (size_t i = 0; i < _timelinePlayers.size(); ++i)
         {
             delete _timelinePlayers[i];
         }
         _timelinePlayers = timelinePlayers;
-    }
-
-    void App::_layerCallback(const std::shared_ptr<FilesModelItem>& item, int layer)
-    {
-        const auto i = std::find(_activeItems.begin(), _activeItems.end(), item);
-        if (i != _activeItems.end())
-        {
-            const int index = i - _activeItems.begin();
-            if (_timelinePlayers[index])
-            {
-                _timelinePlayers[index]->setVideoLayer(layer);
-            }
-        }
     }
 
     void App::_settingsCallback()
