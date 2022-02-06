@@ -32,17 +32,17 @@ namespace tlr
         struct TimelineControls::Private
         {
             qt::TimelinePlayer* timelinePlayer = nullptr;
-            QMap<QString, QAbstractButton*> playbackButtons;
+            QMap<QString, QToolButton*> playbackButtons;
             QButtonGroup* playbackButtonGroup = nullptr;
             QMap<QAbstractButton*, timeline::Playback> buttonToPlayback;
             QMap<timeline::Playback, QAbstractButton*> playbackToButton;
-            QMap<QString, QAbstractButton*> timeActionButtons;
+            QMap<QString, QToolButton*> timeActionButtons;
             QButtonGroup* timeActionButtonGroup = nullptr;
             QMap<QAbstractButton*, timeline::TimeAction> buttonToTimeAction;
             TimeSpinBox* currentTimeSpinBox = nullptr;
             TimeSpinBox* inPointSpinBox = nullptr;
             TimeSpinBox* outPointSpinBox = nullptr;
-            QMap<QString, QAbstractButton*> inOutButtons;
+            QMap<QString, QToolButton*> inOutButtons;
             TimeLabel* durationLabel = nullptr;
             QList<double> speeds;
             QDoubleSpinBox* speedSpinBox = nullptr;
@@ -60,17 +60,19 @@ namespace tlr
             TLR_PRIVATE_P();
 
             p.playbackButtons["Stop"] = new QToolButton;
-            p.playbackButtons["Stop"]->setCheckable(true);
             p.playbackButtons["Stop"]->setIcon(QIcon(":/Icons/PlaybackStop.svg"));
             p.playbackButtons["Stop"]->setToolTip(tr("Stop playback"));
             p.playbackButtons["Forward"] = new QToolButton;
-            p.playbackButtons["Forward"]->setCheckable(true);
             p.playbackButtons["Forward"]->setIcon(QIcon(":/Icons/PlaybackForward.svg"));
             p.playbackButtons["Forward"]->setToolTip(tr("Forward playback"));
             p.playbackButtons["Reverse"] = new QToolButton;
-            p.playbackButtons["Reverse"]->setCheckable(true);
             p.playbackButtons["Reverse"]->setIcon(QIcon(":/Icons/PlaybackReverse.svg"));
             p.playbackButtons["Reverse"]->setToolTip(tr("Reverse playback"));
+            for (auto i : p.playbackButtons)
+            {
+                i->setCheckable(true);
+                i->setAutoRaise(true);
+            }
             p.playbackButtonGroup = new QButtonGroup(this);
             p.playbackButtonGroup->setExclusive(true);
             p.playbackButtonGroup->addButton(p.playbackButtons["Stop"]);
@@ -97,6 +99,10 @@ namespace tlr
             p.timeActionButtons["FrameNext"]->setAutoRepeat(true);
             p.timeActionButtons["FrameNext"]->setIcon(QIcon(":/Icons/FrameNext.svg"));
             p.timeActionButtons["FrameNext"]->setToolTip(tr("Go to the next frame"));
+            for (auto i : p.timeActionButtons)
+            {
+                i->setAutoRaise(true);
+            }
             p.timeActionButtonGroup = new QButtonGroup(this);
             p.timeActionButtonGroup->addButton(p.timeActionButtons["Start"]);
             p.timeActionButtonGroup->addButton(p.timeActionButtons["End"]);
@@ -128,6 +134,10 @@ namespace tlr
             p.inOutButtons["ResetOutPoint"] = new QToolButton;
             p.inOutButtons["ResetOutPoint"]->setIcon(QIcon(":/Icons/Reset.svg"));
             p.inOutButtons["ResetOutPoint"]->setToolTip(tr("Reset the playback out point"));
+            for (auto i : p.inOutButtons)
+            {
+                i->setAutoRaise(true);
+            }
 
             p.speeds.append(1.0);
             p.speeds.append(3.0);
@@ -153,6 +163,7 @@ namespace tlr
             p.speedButton->setIcon(QIcon(":/Icons/Speed.svg"));
             p.speedButton->setMenu(p.speedMenu);
             p.speedButton->setPopupMode(QToolButton::InstantPopup);
+            p.speedButton->setAutoRaise(true);
             p.speedButton->setToolTip(tr("Timeline speed menu"));
 
             p.durationLabel = new TimeLabel;
@@ -164,6 +175,7 @@ namespace tlr
             muteIcon.addFile(":/Icons/Volume.svg", QSize(20, 20), QIcon::Normal, QIcon::Off);
             muteIcon.addFile(":/Icons/Mute.svg", QSize(20, 20), QIcon::Normal, QIcon::On);
             p.muteButton->setIcon(muteIcon);
+            p.muteButton->setAutoRaise(true);
             p.muteButton->setToolTip(tr("Mute the audio"));
 
             p.volumeSlider = new QSlider(Qt::Horizontal);
