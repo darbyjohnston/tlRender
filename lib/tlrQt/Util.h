@@ -17,7 +17,9 @@ namespace tlr
         //! application is instantiated.
         void init();
 
-        //! Create a settings key unique to the Qt version.
+        //! Create a settings key unique to the Qt version. This is for
+        //! saving Qt window/widget state information which does not seem
+        //! to be compatible between Qt 5 and 6.
         QString versionedSettingsKey(const QString&);
     }
 }
