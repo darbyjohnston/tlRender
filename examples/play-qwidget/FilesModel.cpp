@@ -261,6 +261,38 @@ namespace tlr
         }
     }
 
+    void FilesModel::nextLayer()
+    {
+        const int index = _index(_a->get());
+        if (index != -1)
+        {
+            auto item = _files->getItem(index);
+            int layer = item->videoLayer + 1;
+            if (layer >= item->avInfo.video.size())
+            {
+                layer = 0;
+            }
+            item->videoLayer = layer;
+            _layers->setIfChanged(_getLayers());
+        }
+    }
+
+    void FilesModel::prevLayer()
+    {
+        const int index = _index(_a->get());
+        if (index != -1)
+        {
+            auto item = _files->getItem(index);
+            int layer = item->videoLayer - 1;
+            if (layer < 0)
+            {
+                layer = static_cast<int>(item->avInfo.video.size()) - 1;
+            }
+            item->videoLayer = std::max(layer, 0);
+            _layers->setIfChanged(_getLayers());
+        }
+    }
+
     std::shared_ptr<observer::IList<render::ImageOptions> > FilesModel::observeImageOptions() const
     {
         return _imageOptions;

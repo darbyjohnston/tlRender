@@ -76,6 +76,8 @@ namespace tlr
         std::shared_ptr<observer::IList<int> > observeLayers() const;
 
         void setLayer(const std::shared_ptr<FilesModelItem>&, int layer);
+        void nextLayer();
+        void prevLayer();
 
         std::shared_ptr<observer::IList<render::ImageOptions> > observeImageOptions() const;
 

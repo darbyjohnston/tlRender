@@ -66,7 +66,6 @@ namespace tlr
 
     private:
         void _recentFilesUpdate();
-        void _filesCountUpdate();
         void _widgetUpdate();
 
         App* _app = nullptr;

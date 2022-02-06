@@ -48,6 +48,12 @@ namespace tlr
         _actions["File/Prev"] = new QAction(this);
         _actions["File/Prev"]->setText(tr("Previous"));
         _actions["File/Prev"]->setShortcut(QKeySequence::MoveToPreviousPage);
+        _actions["File/NextLayer"] = new QAction(this);
+        _actions["File/NextLayer"]->setText(tr("Next Layer"));
+        _actions["File/NextLayer"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Equal));
+        _actions["File/PrevLayer"] = new QAction(this);
+        _actions["File/PrevLayer"]->setText(tr("Previous Layer"));
+        _actions["File/PrevLayer"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Minus));
         _recentFilesActionGroup = new QActionGroup(this);
         _actions["File/Exit"] = new QAction(this);
         _actions["File/Exit"]->setText(tr("Exit"));
@@ -232,6 +238,9 @@ namespace tlr
         fileMenu->addAction(_actions["File/Next"]);
         fileMenu->addAction(_actions["File/Prev"]);
         fileMenu->addSeparator();
+        fileMenu->addAction(_actions["File/NextLayer"]);
+        fileMenu->addAction(_actions["File/PrevLayer"]);
+        fileMenu->addSeparator();
         fileMenu->addAction(_actions["File/Exit"]);
 
         auto windowMenu = new QMenu;
@@ -353,14 +362,13 @@ namespace tlr
         addDockWidget(Qt::RightDockWidgetArea, settingsDockWidget);
 
         _recentFilesUpdate();
-        _filesCountUpdate();
         _widgetUpdate();
 
         _filesObserver = observer::ListObserver<std::shared_ptr<FilesModelItem> >::create(
             app->filesModel()->observeFiles(),
             [this](const std::vector<std::shared_ptr<FilesModelItem> >&)
             {
-                _filesCountUpdate();
+                _widgetUpdate();
             });
         _imageOptionsObserver = observer::ListObserver<render::ImageOptions>::create(
             app->filesModel()->observeImageOptions(),
@@ -416,6 +424,20 @@ namespace tlr
             [app]
             {
                 app->filesModel()->prev();
+            });
+        connect(
+            _actions["File/NextLayer"],
+            &QAction::triggered,
+            [app]
+            {
+                app->filesModel()->nextLayer();
+            });
+        connect(
+            _actions["File/PrevLayer"],
+            &QAction::triggered,
+            [app]
+            {
+                app->filesModel()->prevLayer();
             });
         connect(
             _actions["File/Exit"],
@@ -966,23 +988,50 @@ namespace tlr
         }
     }
 
-    void MainWindow::_filesCountUpdate()
+    void MainWindow::_widgetUpdate()
     {
         const int count = _app->filesModel()->observeFiles()->getSize();
         _actions["File/Close"]->setEnabled(count > 0);
         _actions["File/CloseAll"]->setEnabled(count > 0);
         _actions["File/Next"]->setEnabled(count > 1);
         _actions["File/Prev"]->setEnabled(count > 1);
-    }
+        _actions["File/NextLayer"]->setEnabled(count > 0);
+        _actions["File/PrevLayer"]->setEnabled(count > 0);
 
-    void MainWindow::_widgetUpdate()
-    {
+        _actions["Image/RedChannel"]->setEnabled(count > 0);
+        _actions["Image/GreenChannel"]->setEnabled(count > 0);
+        _actions["Image/BlueChannel"]->setEnabled(count > 0);
+        _actions["Image/AlphaChannel"]->setEnabled(count > 0);
+        _actions["Image/MirrorX"]->setEnabled(count > 0);
+        _actions["Image/MirrorY"]->setEnabled(count > 0);
+
+        _actions["Playback/Stop"]->setEnabled(count > 0);
+        _actions["Playback/Forward"]->setEnabled(count > 0);
+        _actions["Playback/Reverse"]->setEnabled(count > 0);
+        _actions["Playback/Toggle"]->setEnabled(count > 0);
+        _actions["Playback/Loop"]->setEnabled(count > 0);
+        _actions["Playback/Once"]->setEnabled(count > 0);
+        _actions["Playback/PingPong"]->setEnabled(count > 0);
+        _actions["Playback/Start"]->setEnabled(count > 0);
+        _actions["Playback/End"]->setEnabled(count > 0);
+        _actions["Playback/FramePrev"]->setEnabled(count > 0);
+        _actions["Playback/FramePrevX10"]->setEnabled(count > 0);
+        _actions["Playback/FramePrevX100"]->setEnabled(count > 0);
+        _actions["Playback/FrameNext"]->setEnabled(count > 0);
+        _actions["Playback/FrameNextX10"]->setEnabled(count > 0);
+        _actions["Playback/FrameNextX100"]->setEnabled(count > 0);
+        _actions["Playback/SetInPoint"]->setEnabled(count > 0);
+        _actions["Playback/ResetInPoint"]->setEnabled(count > 0);
+        _actions["Playback/SetOutPoint"]->setEnabled(count > 0);
+        _actions["Playback/ResetOutPoint"]->setEnabled(count > 0);
+        _actions["Playback/FocusCurrentFrame"]->setEnabled(count > 0);
+
+        _actions["Audio/IncreaseVolume"]->setEnabled(count > 0);
+        _actions["Audio/DecreaseVolume"]->setEnabled(count > 0);
+        _actions["Audio/Mute"]->setEnabled(count > 0);
+
         if (!_timelinePlayers.empty())
         {
-            _actions["Image/RedChannel"]->setEnabled(true);
-            _actions["Image/GreenChannel"]->setEnabled(true);
-            _actions["Image/BlueChannel"]->setEnabled(true);
-            _actions["Image/AlphaChannel"]->setEnabled(true);
             {
                 QSignalBlocker blocker(_channelsActionGroup);
                 _actions["Image/RedChannel"]->setChecked(false);
@@ -998,8 +1047,6 @@ namespace tlr
                     }
                 }
             }
-
-            _actions["Image/MirrorX"]->setEnabled(true);
             {
                 QSignalBlocker blocker(_actions["Image/MirrorX"]);
                 _actions["Image/MirrorX"]->setChecked(false);
@@ -1008,7 +1055,6 @@ namespace tlr
                     _actions["Image/MirrorX"]->setChecked(_imageOptions[0].mirror.x);
                 }
             }
-            _actions["Image/MirrorY"]->setEnabled(true);
             {
                 QSignalBlocker blocker(_actions["Image/MirrorY"]);
                 _actions["Image/MirrorY"]->setChecked(false);
@@ -1017,10 +1063,6 @@ namespace tlr
                     _actions["Image/MirrorY"]->setChecked(_imageOptions[0].mirror.y);
                 }
             }
-            
-            _actions["Playback/Stop"]->setEnabled(true);
-            _actions["Playback/Forward"]->setEnabled(true);
-            _actions["Playback/Reverse"]->setEnabled(true);
             {
                 QSignalBlocker blocker(_playbackActionGroup);
                 auto playbackAction = _playbackToActions.find(_timelinePlayers[0]->playback());
@@ -1029,11 +1071,6 @@ namespace tlr
                     playbackAction.value()->setChecked(true);
                 }
             }
-            _actions["Playback/Toggle"]->setEnabled(true);
-
-            _actions["Playback/Loop"]->setEnabled(true);
-            _actions["Playback/Once"]->setEnabled(true);
-            _actions["Playback/PingPong"]->setEnabled(true);
             {
                 QSignalBlocker blocker(_loopActionGroup);
                 auto loopAction = _loopToActions.find(_timelinePlayers[0]->loop());
@@ -1042,24 +1079,6 @@ namespace tlr
                     loopAction.value()->setChecked(true);
                 }
             }
-
-            _actions["Playback/Start"]->setEnabled(true);
-            _actions["Playback/End"]->setEnabled(true);
-            _actions["Playback/FramePrev"]->setEnabled(true);
-            _actions["Playback/FramePrevX10"]->setEnabled(true);
-            _actions["Playback/FramePrevX100"]->setEnabled(true);
-            _actions["Playback/FrameNext"]->setEnabled(true);
-            _actions["Playback/FrameNextX10"]->setEnabled(true);
-            _actions["Playback/FrameNextX100"]->setEnabled(true);
-
-            _actions["Playback/SetInPoint"]->setEnabled(true);
-            _actions["Playback/ResetInPoint"]->setEnabled(true);
-            _actions["Playback/SetOutPoint"]->setEnabled(true);
-            _actions["Playback/ResetOutPoint"]->setEnabled(true);
-
-            _actions["Audio/IncreaseVolume"]->setEnabled(true);
-            _actions["Audio/DecreaseVolume"]->setEnabled(true);
-            _actions["Audio/Mute"]->setEnabled(true);
             {
                 QSignalBlocker blocker(_actions["Audio/Mute"]);
                 _actions["Audio/Mute"]->setChecked(_timelinePlayers[0]->isMuted());
@@ -1067,10 +1086,6 @@ namespace tlr
         }
         else
         {
-            _actions["Image/RedChannel"]->setEnabled(false);
-            _actions["Image/GreenChannel"]->setEnabled(false);
-            _actions["Image/BlueChannel"]->setEnabled(false);
-            _actions["Image/AlphaChannel"]->setEnabled(false);
             {
                 QSignalBlocker blocker(_channelsActionGroup);
                 _actions["Image/RedChannel"]->setChecked(false);
@@ -1078,52 +1093,22 @@ namespace tlr
                 _actions["Image/BlueChannel"]->setChecked(false);
                 _actions["Image/AlphaChannel"]->setChecked(false);
             }
-
-            _actions["Image/MirrorX"]->setEnabled(false);
             {
                 QSignalBlocker blocker(_actions["Image/MirrorX"]);
                 _actions["Image/MirrorX"]->setChecked(false);
             }
-            _actions["Image/MirrorY"]->setEnabled(false);
             {
                 QSignalBlocker blocker(_actions["Image/MirrorY"]);
                 _actions["Image/MirrorY"]->setChecked(false);
             }
-
-            _actions["Playback/Stop"]->setEnabled(false);
             {
                 QSignalBlocker blocker(_playbackActionGroup);
                 _actions["Playback/Stop"]->setChecked(true);
             }
-            _actions["Playback/Forward"]->setEnabled(false);
-            _actions["Playback/Reverse"]->setEnabled(false);
-            _actions["Playback/Toggle"]->setEnabled(false);
-
-            _actions["Playback/Loop"]->setEnabled(false);
             {
                 QSignalBlocker blocker(_loopActionGroup);
                 _actions["Playback/Loop"]->setChecked(true);
             }
-            _actions["Playback/Once"]->setEnabled(false);
-            _actions["Playback/PingPong"]->setEnabled(false);
-
-            _actions["Playback/Start"]->setEnabled(false);
-            _actions["Playback/End"]->setEnabled(false);
-            _actions["Playback/FramePrev"]->setEnabled(false);
-            _actions["Playback/FramePrevX10"]->setEnabled(false);
-            _actions["Playback/FramePrevX100"]->setEnabled(false);
-            _actions["Playback/FrameNext"]->setEnabled(false);
-            _actions["Playback/FrameNextX10"]->setEnabled(false);
-            _actions["Playback/FrameNextX100"]->setEnabled(false);
-
-            _actions["Playback/SetInPoint"]->setEnabled(false);
-            _actions["Playback/ResetInPoint"]->setEnabled(false);
-            _actions["Playback/SetOutPoint"]->setEnabled(false);
-            _actions["Playback/ResetOutPoint"]->setEnabled(false);
-
-            _actions["Audio/IncreaseVolume"]->setEnabled(false);
-            _actions["Audio/DecreaseVolume"]->setEnabled(false);
-            _actions["Audio/Mute"]->setEnabled(false);
             {
                 QSignalBlocker blocker(_actions["Audio/Mute"]);
                 _actions["Audio/Mute"]->setChecked(false);
