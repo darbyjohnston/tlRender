@@ -46,10 +46,10 @@ namespace tlr
         void open(const QString&, const QString& = QString());
 
         //! Open a file dialog.
-        void open();
+        void openDialog();
 
         //! Open a file with audio dialog.
-        void openWithAudio();
+        void openWithAudioDialog();
 
     private Q_SLOTS:
         void _activeCallback(const std::vector<std::shared_ptr<FilesModelItem> >&);

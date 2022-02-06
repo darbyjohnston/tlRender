@@ -57,6 +57,8 @@ namespace tlr
         _actions["Window/Resize1280x720"]->setText(tr("Resize 1280x720"));
         _actions["Window/Resize1920x1080"] = new QAction(this);
         _actions["Window/Resize1920x1080"]->setText(tr("Resize 1920x1080"));
+        _actions["Window/Resize1920x1080"] = new QAction(this);
+        _actions["Window/Resize1920x1080"]->setText(tr("Resize 1920x1080"));
         _actions["Window/FullScreen"] = new QAction(this);
         _actions["Window/FullScreen"]->setText(tr("Toggle Full Screen"));
         _actions["Window/FullScreen"]->setShortcut(QKeySequence(Qt::Key_U));
@@ -357,52 +359,73 @@ namespace tlr
 
         connect(
             _actions["File/Open"],
-            SIGNAL(triggered()),
+            &QAction::triggered,
             app,
-            SLOT(open()));
+            &App::openDialog);
         connect(
             _actions["File/OpenWithAudio"],
-            SIGNAL(triggered()),
+            &QAction::triggered,
             app,
-            SLOT(openWithAudio()));
+            &App::openWithAudioDialog);
         connect(
             _actions["File/Close"],
-            SIGNAL(triggered()),
-            SLOT(_closeCallback()));
+            &QAction::triggered,
+            [app]
+            {
+                app->filesModel()->close();
+            });
         connect(
             _actions["File/CloseAll"],
-            SIGNAL(triggered()),
-            SLOT(_closeAllCallback()));
+            &QAction::triggered,
+            [app]
+            {
+                app->filesModel()->closeAll();
+            });
         connect(
             _recentFilesActionGroup,
             SIGNAL(triggered(QAction*)),
             SLOT(_recentFilesCallback(QAction*)));
         connect(
             _actions["File/Next"],
-            SIGNAL(triggered()),
-            SLOT(_nextCallback()));
+            &QAction::triggered,
+            [app]
+            {
+                app->filesModel()->next();
+            });
         connect(
             _actions["File/Prev"],
-            SIGNAL(triggered()),
-            SLOT(_prevCallback()));
+            &QAction::triggered,
+            [app]
+            {
+                app->filesModel()->prev();
+            });
         connect(
             _actions["File/Exit"],
-            SIGNAL(triggered()),
+            &QAction::triggered,
             app,
-            SLOT(quit()));
+            &App::quit);
 
         connect(
             _actions["Window/Resize1280x720"],
-            SIGNAL(triggered()),
-            SLOT(_resize1280x720Callback()));
+            &QAction::triggered,
+            [this]
+            {
+                resize(1280, 720);
+            });
         connect(
             _actions["Window/Resize1920x1080"],
-            SIGNAL(triggered()),
-            SLOT(_resize1920x1080Callback()));
+            &QAction::triggered,
+            [this]
+            {
+                resize(1920, 1080);
+            });
         connect(
             _actions["Window/FullScreen"],
-            SIGNAL(triggered()),
-            SLOT(_fullScreenCallback()));
+            &QAction::triggered,
+            [this]
+            {
+                setWindowState(windowState() ^ Qt::WindowFullScreen);
+            });
         connect(
             _actions["Window/Secondary"],
             SIGNAL(toggled(bool)),
@@ -415,41 +438,95 @@ namespace tlr
 
         connect(
             _actions["Playback/Toggle"],
-            SIGNAL(triggered()),
-            SLOT(_togglePlaybackCallback()));
+            &QAction::triggered,
+            [this]
+            {
+                if (!_timelinePlayers.empty())
+                {
+                    _timelinePlayers[0]->togglePlayback();
+                }
+            });
 
         connect(
             _actions["Playback/Start"],
-            SIGNAL(triggered()),
-            SLOT(_startCallback()));
+            &QAction::triggered,
+            [this]
+            {
+                if (!_timelinePlayers.empty())
+                {
+                    _timelinePlayers[0]->start();
+                }
+            });
         connect(
             _actions["Playback/End"],
-            SIGNAL(triggered()),
-            SLOT(_endCallback()));
+            &QAction::triggered,
+            [this]
+            {
+                if (!_timelinePlayers.empty())
+                {
+                    _timelinePlayers[0]->end();
+                }
+            });
         connect(
             _actions["Playback/FramePrev"],
-            SIGNAL(triggered()),
-            SLOT(_framePrevCallback()));
+            &QAction::triggered,
+            [this]
+            {
+                if (!_timelinePlayers.empty())
+                {
+                    _timelinePlayers[0]->framePrev();
+                }
+            });
         connect(
             _actions["Playback/FramePrevX10"],
-            SIGNAL(triggered()),
-            SLOT(_framePrevX10Callback()));
+            &QAction::triggered,
+            [this]
+            {
+                if (!_timelinePlayers.empty())
+                {
+                    _timelinePlayers[0]->timeAction(timeline::TimeAction::FramePrevX10);
+                }
+            });
         connect(
             _actions["Playback/FramePrevX100"],
-            SIGNAL(triggered()),
-            SLOT(_framePrevX100Callback()));
+            &QAction::triggered,
+            [this]
+            {
+                if (!_timelinePlayers.empty())
+                {
+                    _timelinePlayers[0]->timeAction(timeline::TimeAction::FramePrevX100);
+                }
+            });
         connect(
             _actions["Playback/FrameNext"],
-            SIGNAL(triggered()),
-            SLOT(_frameNextCallback()));
+            &QAction::triggered,
+            [this]
+            {
+                if (!_timelinePlayers.empty())
+                {
+                    _timelinePlayers[0]->frameNext();
+                }
+            });
         connect(
             _actions["Playback/FrameNextX10"],
-            SIGNAL(triggered()),
-            SLOT(_frameNextX10Callback()));
+            &QAction::triggered,
+            [this]
+            {
+                if (!_timelinePlayers.empty())
+                {
+                    _timelinePlayers[0]->timeAction(timeline::TimeAction::FrameNextX10);
+                }
+            });
         connect(
             _actions["Playback/FrameNextX100"],
-            SIGNAL(triggered()),
-            SLOT(_frameNextX100Callback()));
+            &QAction::triggered,
+            [this]
+            {
+                if (!_timelinePlayers.empty())
+                {
+                    _timelinePlayers[0]->timeAction(timeline::TimeAction::FrameNextX100);
+                }
+            });
 
         connect(
             _playbackActionGroup,
@@ -473,8 +550,14 @@ namespace tlr
 
         connect(
             _audioTool,
-            SIGNAL(audioOffsetChanged(double)),
-            SLOT(_audioOffsetCallback(double)));
+            &AudioTool::audioOffsetChanged,
+            [this](double value)
+            {
+                if (!_timelinePlayers.empty())
+                {
+                    _timelinePlayers[0]->setAudioOffset(value);
+                }
+            });
 
         connect(
             app->settingsObject(),
@@ -686,16 +769,6 @@ namespace tlr
         }
     }
 
-    void MainWindow::_closeCallback()
-    {
-        _app->filesModel()->close();
-    }
-
-    void MainWindow::_closeAllCallback()
-    {
-        _app->filesModel()->closeAll();
-    }
-
     void MainWindow::_recentFilesCallback(QAction* action)
     {
         const auto i = _actionToRecentFile.find(action);
@@ -708,31 +781,6 @@ namespace tlr
     void MainWindow::_recentFilesCallback()
     {
         _recentFilesUpdate();
-    }
-
-    void MainWindow::_nextCallback()
-    {
-        _app->filesModel()->next();
-    }
-
-    void MainWindow::_prevCallback()
-    {
-        _app->filesModel()->prev();
-    }
-
-    void MainWindow::_resize1280x720Callback()
-    {
-        resize(1280, 720);
-    }
-
-    void MainWindow::_resize1920x1080Callback()
-    {
-        resize(1920, 1080);
-    }
-
-    void MainWindow::_fullScreenCallback()
-    {
-        setWindowState(windowState() ^ Qt::WindowFullScreen);
     }
 
     void MainWindow::_secondaryWindowCallback(bool value)
@@ -823,78 +871,6 @@ namespace tlr
         }
     }
 
-    void MainWindow::_togglePlaybackCallback()
-    {
-        if (!_timelinePlayers.empty())
-        {
-            _timelinePlayers[0]->togglePlayback();
-        }
-    }
-
-    void MainWindow::_startCallback()
-    {
-        if (!_timelinePlayers.empty())
-        {
-            _timelinePlayers[0]->start();
-        }
-    }
-
-    void MainWindow::_endCallback()
-    {
-        if (!_timelinePlayers.empty())
-        {
-            _timelinePlayers[0]->end();
-        }
-    }
-
-    void MainWindow::_framePrevCallback()
-    {
-        if (!_timelinePlayers.empty())
-        {
-            _timelinePlayers[0]->framePrev();
-        }
-    }
-
-    void MainWindow::_framePrevX10Callback()
-    {
-        if (!_timelinePlayers.empty())
-        {
-            _timelinePlayers[0]->timeAction(timeline::TimeAction::FramePrevX10);
-        }
-    }
-
-    void MainWindow::_framePrevX100Callback()
-    {
-        if (!_timelinePlayers.empty())
-        {
-            _timelinePlayers[0]->timeAction(timeline::TimeAction::FramePrevX100);
-        }
-    }
-
-    void MainWindow::_frameNextCallback()
-    {
-        if (!_timelinePlayers.empty())
-        {
-            _timelinePlayers[0]->frameNext();
-        }
-    }
-
-    void MainWindow::_frameNextX10Callback()
-    {
-        if (!_timelinePlayers.empty())
-        {
-            _timelinePlayers[0]->timeAction(timeline::TimeAction::FrameNextX10);
-        }
-    }
-
-    void MainWindow::_frameNextX100Callback()
-    {
-        if (!_timelinePlayers.empty())
-        {
-            _timelinePlayers[0]->timeAction(timeline::TimeAction::FrameNextX100);
-        }
-    }
-
     void MainWindow::_imageOptionsCallback(const render::ImageOptions& value)
     {
         _app->filesModel()->setImageOptions(value);
@@ -915,14 +891,6 @@ namespace tlr
     {
         _compareOptions = value;
         _widgetUpdate();
-    }
-
-    void MainWindow::_audioOffsetCallback(double value)
-    {
-        if (!_timelinePlayers.empty())
-        {
-            _timelinePlayers[0]->setAudioOffset(value);
-        }
     }
 
     void MainWindow::_recentFilesUpdate()

@@ -158,7 +158,7 @@ namespace tlr
         _settingsObject->addRecentFile(fileName);
     }
 
-    void App::open()
+    void App::openDialog()
     {
         std::vector<std::string> extensions;
         for (const auto& i : timeline::getExtensions(
@@ -187,7 +187,7 @@ namespace tlr
         }
     }
 
-    void App::openWithAudio()
+    void App::openWithAudioDialog()
     {
         auto dialog = std::make_unique<OpenWithAudioDialog>(_context);
         if (QDialog::Accepted == dialog->exec())

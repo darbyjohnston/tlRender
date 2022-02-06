@@ -50,15 +50,8 @@ namespace tlr
         void dropEvent(QDropEvent*) override;
 
     private Q_SLOTS:
-        void _closeCallback();
-        void _closeAllCallback();
         void _recentFilesCallback(QAction*);
         void _recentFilesCallback();
-        void _nextCallback();
-        void _prevCallback();
-        void _resize1280x720Callback();
-        void _resize1920x1080Callback();
-        void _fullScreenCallback();
         void _secondaryWindowCallback(bool);
         void _secondaryWindowDestroyedCallback();
         void _channelsCallback(QAction*);
@@ -66,21 +59,10 @@ namespace tlr
         void _playbackCallback(tlr::timeline::Playback);
         void _loopCallback(QAction*);
         void _loopCallback(tlr::timeline::Loop);
-        void _togglePlaybackCallback();
-        void _startCallback();
-        void _endCallback();
-        void _framePrevCallback();
-        void _framePrevX10Callback();
-        void _framePrevX100Callback();
-        void _frameNextCallback();
-        void _frameNextX10Callback();
-        void _frameNextX100Callback();
-
         void _imageOptionsCallback(const tlr::render::ImageOptions&);
         void _imageOptionsCallback(const std::vector<tlr::render::ImageOptions>&);
         void _compareOptionsCallback(const tlr::render::CompareOptions&);
         void _compareOptionsCallback2(const tlr::render::CompareOptions&);
-        void _audioOffsetCallback(double);
 
     private:
         void _recentFilesUpdate();
