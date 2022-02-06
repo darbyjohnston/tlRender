@@ -66,13 +66,37 @@
        inkscape:label="#g4524"
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96">
-      <ellipse
-         style="fill:none;stroke:#f0f0f0;stroke-width:0.529167;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+      <path
          id="path1129"
-         cx="2.6458333"
-         cy="294.35416"
-         rx="1.5874999"
-         ry="1.5874965" />
+         style="color:#000000;fill:#f0f0f0;stroke-width:3.77953;-inkscape-stroke:none"
+         d="M 10.003906,2 C 5.6002539,2 2,5.5924527 2,9.9960938 2,14.399735 5.6002539,18 10.003906,18 14.407558,18 18,14.399735 18,9.9960938 18,5.5924527 14.407558,2 10.003906,2 Z m 0,2 C 13.331007,4 16,6.6689756 16,9.9960938 16,13.323174 13.331007,16 10.003906,16 6.6768051,16 4,13.323174 4,9.9960938 4,6.6689756 6.6768051,4 10.003906,4 Z"
+         transform="matrix(0.26458333,0,0,0.26458333,0,291.70831)" />
+      <g
+         id="path1528">
+        <path
+           style="color:#000000;fill:#f0f0f0;stroke-width:0.264583px;-inkscape-stroke:none"
+           d="m 2.6458333,294.35414 v -1.05833"
+           id="path8394" />
+        <path
+           style="color:#000000;fill:#f0f0f0;-inkscape-stroke:none"
+           d="m 2.3812499,293.03123 0,1.5875 h 0.5291667 l 0,-1.5875 z"
+           id="path8396"
+           sodipodi:nodetypes="ccccc" />
+      </g>
+      <g
+         id="path1528-6"
+         transform="matrix(-0.70710678,0.70710678,-0.56568845,-0.56568845,171.22452,459.19106)"
+         style="stroke-width:1.11803">
+        <path
+           style="color:#000000;fill:#f0f0f0;stroke-width:0.295812px;-inkscape-stroke:none"
+           d="m 2.6458333,294.35414 v -1.05833"
+           id="path8394-8" />
+        <path
+           style="color:#000000;fill:#f0f0f0;stroke-width:1.11803;-inkscape-stroke:none"
+           d="m 2.3812499,293.29581 v 1.32292 h 0.5291667 v -1.32292 z"
+           id="path8396-1"
+           sodipodi:nodetypes="ccccc" />
+      </g>
     </g>
   </g>
 </svg>
