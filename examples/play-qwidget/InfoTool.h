@@ -4,7 +4,10 @@
 
 #pragma once
 
+#include "InfoModel.h"
 #include "ToolWidget.h"
+
+#include <QTreeView>
 
 namespace tlr
 {
@@ -17,5 +20,11 @@ namespace tlr
         InfoTool(QWidget* parent = nullptr);
 
         ~InfoTool() override;
+
+        void setInfo(const avio::Info&);
+
+    private:
+        InfoModel* _infoModel = nullptr;
+        QTreeView* _treeView = nullptr;
     };
 }

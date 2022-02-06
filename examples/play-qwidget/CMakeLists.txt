@@ -8,6 +8,7 @@ set(HEADERS
 	FilesView.h
     ImageTool.h
     InfoTool.h
+	InfoModel.h
     MainWindow.h
 	MessagesTool.h
 	OpenWithAudioDialog.h
@@ -26,6 +27,7 @@ set(SOURCE
 	FilesView.cpp
     ImageTool.cpp
     InfoTool.cpp
+	InfoModel.cpp
     MainWindow.cpp
 	MessagesTool.cpp
 	OpenWithAudioDialog.cpp

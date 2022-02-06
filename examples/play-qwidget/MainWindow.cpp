@@ -1172,6 +1172,8 @@ namespace tlr
 
         _imageTool->setImageOptions(!_imageOptions.empty() ? _imageOptions[0] : render::ImageOptions());
 
+        _infoTool->setInfo(!_timelinePlayers.empty() ? _timelinePlayers[0]->avInfo() : avio::Info());
+
         _audioTool->setAudioOffset(!_timelinePlayers.empty() ? _timelinePlayers[0]->audioOffset() : 0.0);
 
         if (_secondaryWindow)

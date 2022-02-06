@@ -157,7 +157,7 @@ namespace tlr
         Qt::ItemFlags flags(const QModelIndex&) const override;
         QVariant data(const QModelIndex&, int role = Qt::DisplayRole) const override;
         bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
-        QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+        QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
     private Q_SLOTS:
         void _thumbailCallback(const QList<QPair<otime::RationalTime, QImage> >&);

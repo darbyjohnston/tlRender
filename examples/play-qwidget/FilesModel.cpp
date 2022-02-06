@@ -506,7 +506,7 @@ namespace tlr
             index.row() >= 0 &&
             index.row() < _files.size() &&
             index.column() >= 0 &&
-            index.column() < 4)
+            index.column() < 2)
         {
             const auto& item = _files[index.row()];
             switch (role)
@@ -566,7 +566,7 @@ namespace tlr
             index.row() >= 0 &&
             index.row() < _files.size() &&
             index.column() >= 0 &&
-            index.column() < 4)
+            index.column() < 2)
         {
             const auto& item = _files[index.row()];
             switch (role)
@@ -677,7 +677,7 @@ namespace tlr
             index.row() >= 0 &&
             index.row() < _files.size() &&
             index.column() >= 0 &&
-            index.column() < 4)
+            index.column() < 2)
         {
             const auto& item = _files[index.row()];
             switch (role)
@@ -744,7 +744,7 @@ namespace tlr
             index.row() >= 0 &&
             index.row() < _files.size() &&
             index.column() >= 0 &&
-            index.column() < 4)
+            index.column() < 2)
         {
             const auto& item = _files[index.row()];
             switch (role)

@@ -38,7 +38,7 @@ namespace tlr
         //! Get the settings object.
         SettingsObject* settingsObject() const;
 
-        //! Get the file model.
+        //! Get the files model.
         const std::shared_ptr<FilesModel>& filesModel() const;
 
     public Q_SLOTS:
