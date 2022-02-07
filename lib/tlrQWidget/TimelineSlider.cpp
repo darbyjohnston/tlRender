@@ -156,7 +156,7 @@ namespace tlr
         namespace
         {
             const int stripeSize = 5;
-            const int handleSize = 5;
+            const int handleSize = 3;
         }
 
         void TimelineSlider::paintEvent(QPaintEvent*)
@@ -175,14 +175,8 @@ namespace tlr
                 int y1 = 0;
                 int h = 0;
 
-                // Draw the current time.
-                x0 = _timeToPos(p.timelinePlayer->currentTime());
-                y0 = 0;
-                painter.fillRect(
-                    QRect(x0 - handleSize / 2, y0, handleSize, rect.height()),
-                    palette.color(QPalette::ColorRole::Text));
-
                 // Draw thumbnails.
+                x0 = _timeToPos(p.timelinePlayer->currentTime());
                 y0 = rect2.y();
                 for (const auto& i : p.thumbnails)
                 {
@@ -217,6 +211,13 @@ namespace tlr
                     x1 = _timeToPos(i.end_time_inclusive());
                     painter.fillRect(QRect(x0, y1 - h, x1 - x0, h), color);
                 }
+
+                // Draw the current time.
+                x0 = _timeToPos(p.timelinePlayer->currentTime());
+                y0 = 0;
+                painter.fillRect(
+                    QRect(x0 - handleSize / 2, y0, handleSize, rect.height()),
+                    palette.color(QPalette::ColorRole::Text));
             }
         }
 
