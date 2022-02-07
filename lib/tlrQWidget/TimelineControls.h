@@ -57,13 +57,6 @@ namespace tlr
             void _timeActionCallback(QAbstractButton*);
             void _currentTimeCallback(const otime::RationalTime&);
             void _currentTimeCallback2(const otime::RationalTime&);
-            void _inPointCallback(const otime::RationalTime&);
-            void _inPointCallback();
-            void _resetInPointCallback();
-            void _outPointCallback(const otime::RationalTime&);
-            void _outPointCallback();
-            void _resetOutPointCallback();
-            void _inOutRangeCallback(const otime::TimeRange&);
             void _volumeCallback(int);
             void _volumeCallback2(float);
             void _muteCallback(bool);
