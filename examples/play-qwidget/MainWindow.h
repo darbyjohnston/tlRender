@@ -74,24 +74,10 @@ namespace tlr
         void _widgetUpdate();
 
         App* _app = nullptr;
-        
-        std::shared_ptr<observer::ListObserver<std::shared_ptr<FilesModelItem> > > _filesObserver;
-        std::shared_ptr<observer::ListObserver<render::ImageOptions> > _imageOptionsObserver;
-        std::shared_ptr<observer::ValueObserver<render::CompareOptions> > _compareOptionsObserver;
-        
+                
         std::vector<qt::TimelinePlayer*> _timelinePlayers;
         qwidget::TimelineWidget* _timelineWidget = nullptr;
         
-        FilesTool* _filesTool = nullptr;
-        CompareTool* _compareTool = nullptr;
-        ColorTool* _colorTool = nullptr;
-        ImageTool* _imageTool = nullptr;
-        InfoTool* _infoTool = nullptr;
-        AudioTool* _audioTool = nullptr;
-        SettingsTool* _settingsTool = nullptr;
-        MessagesTool* _messagesTool = nullptr;
-        SystemLogTool* _systemLogTool = nullptr;
-
         QMap<QString, QAction*> _actions;
         QActionGroup* _recentFilesActionGroup = nullptr;
         QMap<QAction*, QString> _actionToRecentFile;
@@ -105,10 +91,25 @@ namespace tlr
         QActionGroup* _loopActionGroup = nullptr;
         QMap<QAction*, timeline::Loop> _actionToLoop;
         QMap<timeline::Loop, QAction*> _loopToActions;
+        
+        FilesTool* _filesTool = nullptr;
+        CompareTool* _compareTool = nullptr;
+        ColorTool* _colorTool = nullptr;
+        ImageTool* _imageTool = nullptr;
+        InfoTool* _infoTool = nullptr;
+        AudioTool* _audioTool = nullptr;
+        SettingsTool* _settingsTool = nullptr;
+        MessagesTool* _messagesTool = nullptr;
+        SystemLogTool* _systemLogTool = nullptr;
         SecondaryWindow* _secondaryWindow = nullptr;
         
         imaging::ColorConfig _colorConfig;
         std::vector<render::ImageOptions> _imageOptions;
         render::CompareOptions _compareOptions;
+
+        std::shared_ptr<observer::ListObserver<std::shared_ptr<FilesModelItem> > > _filesObserver;
+        std::shared_ptr<observer::ListObserver<render::ImageOptions> > _imageOptionsObserver;
+        std::shared_ptr<observer::ValueObserver<render::CompareOptions> > _compareOptionsObserver;
+        std::shared_ptr<observer::ValueObserver<core::LogItem> > _logObserver;
     };
 }

@@ -133,6 +133,11 @@ namespace tlr
         _comboBox->setCurrentIndex(static_cast<int>(_value));
     }
 
+    namespace
+    {
+        const size_t sliderSteps = 1000;
+    }
+
     ColorSliderWidget::ColorSliderWidget(QWidget* parent) :
         QWidget(parent)
     {
@@ -140,7 +145,7 @@ namespace tlr
         _spinBox->setSingleStep(0.1);
 
         _slider = new QSlider(Qt::Horizontal);
-        _slider->setRange(0, 1000);
+        _slider->setRange(0, sliderSteps);
 
         auto layout = new QHBoxLayout;
         layout->setContentsMargins(0, 0, 0, 0);
@@ -186,7 +191,7 @@ namespace tlr
 
     void ColorSliderWidget::_sliderCallback(int value)
     {
-        _value = value / 1000.F * (_range.getMax() - _range.getMin()) + _range.getMin();
+        _value = value / static_cast<float>(sliderSteps) * (_range.getMax() - _range.getMin()) + _range.getMin();
         _widgetUpdate();
         Q_EMIT valueChanged(_value);
     }
@@ -200,7 +205,7 @@ namespace tlr
         }
         {
             QSignalBlocker signalBlocker(_slider);
-            _slider->setValue((_value - _range.getMin()) / (_range.getMax() - _range.getMin()) * 1000);
+            _slider->setValue((_value - _range.getMin()) / (_range.getMax() - _range.getMin()) * sliderSteps);
         }
     }
 

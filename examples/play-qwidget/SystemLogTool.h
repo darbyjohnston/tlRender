@@ -6,6 +6,11 @@
 
 #include "ToolWidget.h"
 
+#include <tlrCore/Context.h>
+
+#include <QListWidget>
+#include <QToolButton>
+
 namespace tlr
 {
     //! System log tool.
@@ -14,8 +19,13 @@ namespace tlr
         Q_OBJECT
 
     public:
-        SystemLogTool(QWidget* parent = nullptr);
+        SystemLogTool(
+            const std::shared_ptr<core::Context>&,
+            QWidget* parent = nullptr);
 
-        ~SystemLogTool() override;
+    private:
+        QListWidget* _listWidget = nullptr;
+        QToolButton* _clearButton = nullptr;
+        std::shared_ptr<observer::ValueObserver<core::LogItem> > _logObserver;
     };
 }

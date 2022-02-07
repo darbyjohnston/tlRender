@@ -2,6 +2,7 @@
 <qresource>
     <file alias="Icons/BellowsOpen.svg">../../etc/Icons/BellowsOpen.svg</file>
     <file alias="Icons/BellowsClosed.svg">../../etc/Icons/BellowsClosed.svg</file>
+    <file alias="Icons/Clear.svg">../../etc/Icons/Clear.svg</file>
     <file alias="Icons/Empty.svg">../../etc/Icons/Empty.svg</file>
     <file alias="Icons/FrameNext.svg">../../etc/Icons/FrameNext.svg</file>
     <file alias="Icons/FramePrev.svg">../../etc/Icons/FramePrev.svg</file>

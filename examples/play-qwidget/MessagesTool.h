@@ -6,6 +6,11 @@
 
 #include "ToolWidget.h"
 
+#include <tlrCore/Context.h>
+
+#include <QListWidget>
+#include <QToolButton>
+
 namespace tlr
 {
     //! Messages tool.
@@ -14,8 +19,13 @@ namespace tlr
         Q_OBJECT
 
     public:
-        MessagesTool(QWidget* parent = nullptr);
+        MessagesTool(
+            const std::shared_ptr<core::Context>&,
+            QWidget* parent = nullptr);
 
-        ~MessagesTool() override;
+    private:
+        QListWidget* _listWidget = nullptr;
+        QToolButton* _clearButton = nullptr;
+        std::shared_ptr<observer::ValueObserver<core::LogItem> > _logObserver;
     };
 }

@@ -26,7 +26,7 @@ namespace tlr
     {
         namespace
         {
-            const size_t volumeSliderSteps = 100;
+            const size_t sliderSteps = 100;
         }
 
         struct TimelineControls::Private
@@ -543,7 +543,7 @@ namespace tlr
             TLR_PRIVATE_P();
             if (p.timelinePlayer)
             {
-                p.timelinePlayer->setVolume(value / static_cast<float>(volumeSliderSteps));
+                p.timelinePlayer->setVolume(value / static_cast<float>(sliderSteps));
             }
         }
 
@@ -551,7 +551,7 @@ namespace tlr
         {
             TLR_PRIVATE_P();
             const QSignalBlocker blocker(p.volumeSlider);
-            p.volumeSlider->setValue(value * volumeSliderSteps);
+            p.volumeSlider->setValue(value * sliderSteps);
         }
 
         void TimelineControls::_muteCallback(bool value)
@@ -655,7 +655,7 @@ namespace tlr
 
                 {
                     QSignalBlocker blocker(p.volumeSlider);
-                    p.volumeSlider->setValue(p.timelinePlayer->volume() * volumeSliderSteps);
+                    p.volumeSlider->setValue(p.timelinePlayer->volume() * sliderSteps);
                 }
                 p.volumeSlider->setEnabled(true);
                 {
@@ -700,7 +700,7 @@ namespace tlr
 
                 {
                     QSignalBlocker blocker(p.volumeSlider);
-                    p.volumeSlider->setValue(volumeSliderSteps);
+                    p.volumeSlider->setValue(0);
                 }
                 p.volumeSlider->setEnabled(false);
                 {

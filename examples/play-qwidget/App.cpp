@@ -15,7 +15,6 @@
 #include <tlrCore/TimelineUtil.h>
 
 #include <QFileDialog>
-#include <QMessageBox>
 
 namespace tlr
 {
@@ -107,7 +106,10 @@ namespace tlr
             {
                 for (size_t i = 0; i < value.size() && i < _timelinePlayers.size(); ++i)
                 {
-                    _timelinePlayers[i]->setVideoLayer(value[i]);
+                    if (_timelinePlayers[i])
+                    {
+                        _timelinePlayers[i]->setVideoLayer(value[i]);
+                    }
                 }
             });
 
@@ -258,9 +260,7 @@ namespace tlr
                 }
                 catch (const std::exception& e)
                 {
-                    QMessageBox dialog;
-                    dialog.setText(e.what());
-                    dialog.exec();
+                    _log(e.what(), core::LogType::Error);
                 }
                 timelinePlayers[i] = qtTimelinePlayer;
             }

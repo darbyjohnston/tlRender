@@ -18,11 +18,17 @@
 #include <QMenuBar>
 #include <QMimeData>
 #include <QSettings>
+#include <QStatusBar>
 #include <QStyle>
 #include <QToolBar>
 
 namespace tlr
 {
+    namespace
+    {
+        const size_t errorTimeout = 5000;
+    }
+
     MainWindow::MainWindow(App* app, QWidget* parent) :
         QMainWindow(parent),
         _app(app)
@@ -387,18 +393,18 @@ namespace tlr
         toolsMenu->addAction(settingsDockWidget->toggleViewAction());
         addDockWidget(Qt::RightDockWidgetArea, settingsDockWidget);
 
-        _messagesTool = new MessagesTool();
-        auto messageDockWidget = new QDockWidget;
-        messageDockWidget->setObjectName("Messages");
-        messageDockWidget->setWindowTitle(tr("Messages"));
-        messageDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-        messageDockWidget->setWidget(_messagesTool);
-        messageDockWidget->hide();
-        messageDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F10));
-        toolsMenu->addAction(messageDockWidget->toggleViewAction());
-        addDockWidget(Qt::RightDockWidgetArea, messageDockWidget);
+        _messagesTool = new MessagesTool(app->getContext());
+        auto messagesDockWidget = new QDockWidget;
+        messagesDockWidget->setObjectName("Messages");
+        messagesDockWidget->setWindowTitle(tr("Messages"));
+        messagesDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+        messagesDockWidget->setWidget(_messagesTool);
+        messagesDockWidget->hide();
+        messagesDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F10));
+        toolsMenu->addAction(messagesDockWidget->toggleViewAction());
+        addDockWidget(Qt::RightDockWidgetArea, messagesDockWidget);
 
-        _systemLogTool = new SystemLogTool();
+        _systemLogTool = new SystemLogTool(app->getContext());
         auto systemLogDockWidget = new QDockWidget;
         systemLogDockWidget->setObjectName("SystemLog");
         systemLogDockWidget->setWindowTitle(tr("System Log"));
@@ -408,6 +414,8 @@ namespace tlr
         systemLogDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F11));
         toolsMenu->addAction(systemLogDockWidget->toggleViewAction());
         addDockWidget(Qt::RightDockWidgetArea, systemLogDockWidget);
+
+        statusBar();
 
         _recentFilesUpdate();
         _widgetUpdate();
@@ -429,6 +437,22 @@ namespace tlr
             [this](const render::CompareOptions& value)
             {
                 _compareOptionsCallback2(value);
+            });
+
+        _logObserver = observer::ValueObserver<core::LogItem>::create(
+            app->getContext()->getLogSystem()->observeLog(),
+            [this](const core::LogItem& value)
+            {
+                switch (value.type)
+                {
+                case core::LogType::Error:
+                    statusBar()->showMessage(
+                        QString(tr("ERROR: %1")).
+                            arg(QString::fromUtf8(value.message.c_str())),
+                        errorTimeout);
+                    break;
+                default: break;
+                }
             });
 
         connect(
