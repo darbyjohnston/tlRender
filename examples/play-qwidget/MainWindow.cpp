@@ -206,19 +206,15 @@ namespace tlr
 
         _actions["Playback/SetInPoint"] = new QAction(this);
         _actions["Playback/SetInPoint"]->setText(tr("Set In Point"));
-        _actions["Playback/SetInPoint"]->setIcon(QIcon(":/Icons/TimeStart.svg"));
         _actions["Playback/SetInPoint"]->setShortcut(QKeySequence(Qt::Key_I));
         _actions["Playback/ResetInPoint"] = new QAction(this);
         _actions["Playback/ResetInPoint"]->setText(tr("Reset In Point"));
-        _actions["Playback/ResetInPoint"]->setIcon(QIcon(":/Icons/Reset.svg"));
         _actions["Playback/ResetInPoint"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_I));
         _actions["Playback/SetOutPoint"] = new QAction(this);
         _actions["Playback/SetOutPoint"]->setText(tr("Set Out Point"));
-        _actions["Playback/SetOutPoint"]->setIcon(QIcon(":/Icons/TimeEnd.svg"));
         _actions["Playback/SetOutPoint"]->setShortcut(QKeySequence(Qt::Key_O));
         _actions["Playback/ResetOutPoint"] = new QAction(this);
         _actions["Playback/ResetOutPoint"]->setText(tr("Reset Out Point"));
-        _actions["Playback/ResetOutPoint"]->setIcon(QIcon(":/Icons/Reset.svg"));
         _actions["Playback/ResetOutPoint"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_O));
 
         _actions["Playback/FocusCurrentFrame"] = new QAction(this);
