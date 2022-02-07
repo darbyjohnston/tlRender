@@ -71,12 +71,18 @@ namespace tlr
         _actions["Window/Resize1920x1080"] = new QAction(this);
         _actions["Window/Resize1920x1080"]->setText(tr("Resize 1920x1080"));
         _actions["Window/FullScreen"] = new QAction(this);
-        _actions["Window/FullScreen"]->setText(tr("Toggle Full Screen"));
+        _actions["Window/FullScreen"]->setText(tr("Full Screen"));
         _actions["Window/FullScreen"]->setShortcut(QKeySequence(Qt::Key_U));
+        _actions["Window/FloatOnTop"] = new QAction(this);
+        _actions["Window/FloatOnTop"]->setCheckable(true);
+        _actions["Window/FloatOnTop"]->setText(tr("Float On Top"));
         _actions["Window/Secondary"] = new QAction(this);
         _actions["Window/Secondary"]->setCheckable(true);
-        _actions["Window/Secondary"]->setText(tr("Secondary Window"));
+        _actions["Window/Secondary"]->setText(tr("Secondary"));
         _actions["Window/Secondary"]->setShortcut(QKeySequence(Qt::Key_Y));
+        _actions["Window/SecondaryFloatOnTop"] = new QAction(this);
+        _actions["Window/SecondaryFloatOnTop"]->setCheckable(true);
+        _actions["Window/SecondaryFloatOnTop"]->setText(tr("Secondary Float On Top"));
 
         _actions["Image/RedChannel"] = new QAction(this);
         _actions["Image/RedChannel"]->setCheckable(true);
@@ -254,7 +260,10 @@ namespace tlr
         windowMenu->addAction(_actions["Window/Resize1920x1080"]);
         windowMenu->addSeparator();
         windowMenu->addAction(_actions["Window/FullScreen"]);
+        windowMenu->addAction(_actions["Window/FloatOnTop"]);
+        windowMenu->addSeparator();
         windowMenu->addAction(_actions["Window/Secondary"]);
+        windowMenu->addAction(_actions["Window/SecondaryFloatOnTop"]);
 
         auto imageMenu = new QMenu;
         imageMenu->setTitle(tr("&Image"));
@@ -449,7 +458,7 @@ namespace tlr
                 case core::LogType::Error:
                     statusBar()->showMessage(
                         QString(tr("ERROR: %1")).
-                            arg(QString::fromUtf8(value.message.c_str())),
+                        arg(QString::fromUtf8(value.message.c_str())),
                         errorTimeout);
                     break;
                 default: break;
@@ -540,9 +549,44 @@ namespace tlr
                 setWindowState(windowState() ^ Qt::WindowFullScreen);
             });
         connect(
+            _actions["Window/FloatOnTop"],
+            &QAction::toggled,
+            [this](bool value)
+            {
+                _floatOnTop = value;
+                if (_floatOnTop)
+                {
+                    setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+                }
+                else
+                {
+                    setWindowFlags(windowFlags() & ~Qt::WindowStaysOnTopHint);
+                }
+                show();
+            });
+        connect(
             _actions["Window/Secondary"],
             SIGNAL(toggled(bool)),
             SLOT(_secondaryWindowCallback(bool)));
+        connect(
+            _actions["Window/SecondaryFloatOnTop"],
+            &QAction::toggled,
+            [this](bool value)
+            {
+                _secondaryFloatOnTop = value;
+                if (_secondaryWindow)
+                {
+                    if (_secondaryFloatOnTop)
+                    {
+                        _secondaryWindow->setWindowFlags(_secondaryWindow->windowFlags() | Qt::WindowStaysOnTopHint);
+                    }
+                    else
+                    {
+                        _secondaryWindow->setWindowFlags(_secondaryWindow->windowFlags() & ~Qt::WindowStaysOnTopHint);
+                    }
+                    _secondaryWindow->show();
+                }
+            });
 
         connect(
             _channelsActionGroup,
@@ -723,18 +767,40 @@ namespace tlr
         {
             restoreState(settings.value(qt::versionedSettingsKey("MainWindow/windowState")).toByteArray());
         }
+        if (settings.contains("MainWindow/FloatOnTop"))
+        {
+            _floatOnTop = settings.value("MainWindow/FloatOnTop").toBool();
+            if (_floatOnTop)
+            {
+                setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+            }
+            else
+            {
+                setWindowFlags(windowFlags() & ~Qt::WindowStaysOnTopHint);
+            }
+            QSignalBlocker blocker(_actions["Window/FloatOnTop"]);
+            _actions["Window/FloatOnTop"]->setChecked(_floatOnTop);
+        }
+        if (settings.contains("MainWindow/SecondaryFloatOnTop"))
+        {
+            _secondaryFloatOnTop = settings.value("MainWindow/SecondaryFloatOnTop").toBool();
+            QSignalBlocker blocker(_actions["Window/SecondaryFloatOnTop"]);
+            _actions["Window/SecondaryFloatOnTop"]->setChecked(_secondaryFloatOnTop);
+        }
     }
 
     MainWindow::~MainWindow()
     {
+        QSettings settings;
+        settings.setValue(qt::versionedSettingsKey("MainWindow/geometry"), saveGeometry());
+        settings.setValue(qt::versionedSettingsKey("MainWindow/windowState"), saveState());
+        settings.setValue("MainWindow/FloatOnTop", _floatOnTop);
+        settings.setValue("MainWindow/SecondaryFloatOnTop", _secondaryFloatOnTop);
         if (_secondaryWindow)
         {
             delete _secondaryWindow;
             _secondaryWindow = nullptr;
         }
-        QSettings settings;
-        settings.setValue(qt::versionedSettingsKey("MainWindow/geometry"), saveGeometry());
-        settings.setValue(qt::versionedSettingsKey("MainWindow/windowState"), saveState());
     }
 
     void MainWindow::setColorConfig(const imaging::ColorConfig& colorConfig)
@@ -944,6 +1010,14 @@ namespace tlr
                 SIGNAL(destroyed(QObject*)),
                 SLOT(_secondaryWindowDestroyedCallback()));
 
+            if (_secondaryFloatOnTop)
+            {
+                _secondaryWindow->setWindowFlags(_secondaryWindow->windowFlags() | Qt::WindowStaysOnTopHint);
+            }
+            else
+            {
+                _secondaryWindow->setWindowFlags(_secondaryWindow->windowFlags() & ~Qt::WindowStaysOnTopHint);
+            }
             _secondaryWindow->show();
         }
         else if (!value && _secondaryWindow)
