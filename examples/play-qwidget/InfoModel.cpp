@@ -24,44 +24,44 @@ namespace tlr
             {
                 std::stringstream ss;
                 ss << _info.video[0].size;
-                _items.push_back(QPair<QString, QString>("Resolution", QString::fromUtf8(ss.str().c_str())));
+                _items.push_back(QPair<QString, QString>("Video Resolution", QString::fromUtf8(ss.str().c_str())));
             }
             {
                 std::stringstream ss;
                 ss.precision(2);
                 ss << std::fixed;
                 ss << _info.video[0].pixelAspectRatio;
-                _items.push_back(QPair<QString, QString>("Pixel Aspect Ratio", QString::fromUtf8(ss.str().c_str())));
+                _items.push_back(QPair<QString, QString>("Video Pixel Aspect Ratio", QString::fromUtf8(ss.str().c_str())));
             }
             {
                 std::stringstream ss;
                 ss << _info.video[0].pixelType;
-                _items.push_back(QPair<QString, QString>("Pixel Type", QString::fromUtf8(ss.str().c_str())));
+                _items.push_back(QPair<QString, QString>("Video Pixel Type", QString::fromUtf8(ss.str().c_str())));
             }
             {
                 std::stringstream ss;
                 ss << _info.video[0].yuvRange;
-                _items.push_back(QPair<QString, QString>("YUV Range", QString::fromUtf8(ss.str().c_str())));
+                _items.push_back(QPair<QString, QString>("Video YUV Range", QString::fromUtf8(ss.str().c_str())));
             }
             {
                 std::stringstream ss;
                 ss << _info.video[0].layout.mirror.x;
-                _items.push_back(QPair<QString, QString>("Mirror X", QString::fromUtf8(ss.str().c_str())));
+                _items.push_back(QPair<QString, QString>("Video Mirror X", QString::fromUtf8(ss.str().c_str())));
             }
             {
                 std::stringstream ss;
                 ss << _info.video[0].layout.mirror.y;
-                _items.push_back(QPair<QString, QString>("Mirror Y", QString::fromUtf8(ss.str().c_str())));
+                _items.push_back(QPair<QString, QString>("Video Mirror Y", QString::fromUtf8(ss.str().c_str())));
             }
             {
                 std::stringstream ss;
                 ss << static_cast<int>(_info.video[0].layout.alignment);
-                _items.push_back(QPair<QString, QString>("Alignment", QString::fromUtf8(ss.str().c_str())));
+                _items.push_back(QPair<QString, QString>("Video Alignment", QString::fromUtf8(ss.str().c_str())));
             }
             {
                 std::stringstream ss;
                 ss << _info.video[0].layout.endian;
-                _items.push_back(QPair<QString, QString>("Endian", QString::fromUtf8(ss.str().c_str())));
+                _items.push_back(QPair<QString, QString>("Video Endian", QString::fromUtf8(ss.str().c_str())));
             }
             {
                 std::stringstream ss;
