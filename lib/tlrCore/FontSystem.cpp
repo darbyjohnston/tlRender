@@ -29,7 +29,7 @@ namespace tlr
             size(size)
         {}
 
-        bool FontInfo::operator == (const FontInfo & other) const noexcept
+        bool FontInfo::operator == (const FontInfo& other) const noexcept
         {
             return family == other.family && size == other.size;
         }
@@ -46,6 +46,11 @@ namespace tlr
             code(code),
             fontInfo(fontInfo)
         {}
+
+        bool GlyphInfo::operator == (const GlyphInfo& other) const noexcept
+        {
+            return code == other.code && fontInfo == other.fontInfo;
+        }
 
         bool GlyphInfo::operator < (const GlyphInfo& other) const
         {

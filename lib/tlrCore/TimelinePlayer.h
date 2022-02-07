@@ -326,3 +326,5 @@ namespace tlr
         };
     }
 }
+
+#include <tlrCore/TimelinePlayerInline.h>
