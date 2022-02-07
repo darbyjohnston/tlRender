@@ -25,6 +25,7 @@
 
 #include <QAction>
 #include <QActionGroup>
+#include <QLabel>
 #include <QMainWindow>
 
 namespace tlr
@@ -101,6 +102,7 @@ namespace tlr
         SettingsTool* _settingsTool = nullptr;
         MessagesTool* _messagesTool = nullptr;
         SystemLogTool* _systemLogTool = nullptr;
+        QLabel* _infoLabel = nullptr;
         SecondaryWindow* _secondaryWindow = nullptr;
         
         imaging::ColorConfig _colorConfig;

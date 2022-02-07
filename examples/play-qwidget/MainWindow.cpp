@@ -415,7 +415,8 @@ namespace tlr
         toolsMenu->addAction(systemLogDockWidget->toggleViewAction());
         addDockWidget(Qt::RightDockWidgetArea, systemLogDockWidget);
 
-        statusBar();
+        _infoLabel = new QLabel;
+        statusBar()->addPermanentWidget(_infoLabel);
 
         _recentFilesUpdate();
         _widgetUpdate();
@@ -1102,6 +1103,8 @@ namespace tlr
         _actions["Audio/DecreaseVolume"]->setEnabled(count > 0);
         _actions["Audio/Mute"]->setEnabled(count > 0);
 
+        std::vector<std::string> info;
+
         if (!_timelinePlayers.empty())
         {
             {
@@ -1155,6 +1158,20 @@ namespace tlr
                 QSignalBlocker blocker(_actions["Audio/Mute"]);
                 _actions["Audio/Mute"]->setChecked(_timelinePlayers[0]->isMuted());
             }
+
+            const auto& avInfo = _timelinePlayers[0]->avInfo();
+            if (!avInfo.video.empty())
+            {
+                std::stringstream ss;
+                ss << "Video: " << avInfo.video[0];
+                info.push_back(ss.str());
+            }
+            if (avInfo.audio.isValid())
+            {
+                std::stringstream ss;
+                ss << "Audio: " << avInfo.audio;
+                info.push_back(ss.str());
+            }
         }
         else
         {
@@ -1199,6 +1216,8 @@ namespace tlr
         _infoTool->setInfo(!_timelinePlayers.empty() ? _timelinePlayers[0]->avInfo() : avio::Info());
 
         _audioTool->setAudioOffset(!_timelinePlayers.empty() ? _timelinePlayers[0]->audioOffset() : 0.0);
+
+        _infoLabel->setText(QString::fromUtf8(string::join(info, " ").c_str()));
 
         if (_secondaryWindow)
         {
