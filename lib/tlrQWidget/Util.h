@@ -18,6 +18,9 @@ namespace tlr
 
         //! Get a dark style color palette.
         QPalette darkStyle();
+
+        //! Get a style sheet to fix the dock widget icons.
+        QString dockWidgetStyleSheet();
     }
 }
 

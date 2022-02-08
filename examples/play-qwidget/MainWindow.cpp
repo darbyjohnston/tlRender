@@ -6,6 +6,8 @@
 
 #include "App.h"
 
+#include <tlrQWidget/Util.h>
+
 #include <tlrCore/File.h>
 #include <tlrCore/String.h>
 #include <tlrCore/StringFormat.h>
@@ -326,6 +328,7 @@ namespace tlr
         fileDockWidget->setObjectName("Files");
         fileDockWidget->setWindowTitle(tr("Files"));
         fileDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+        fileDockWidget->setStyleSheet(qwidget::dockWidgetStyleSheet());
         fileDockWidget->setWidget(_filesTool);
         fileDockWidget->hide();
         fileDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F1));
@@ -337,6 +340,7 @@ namespace tlr
         compareDockWidget->setObjectName("Compare");
         compareDockWidget->setWindowTitle(tr("Compare"));
         compareDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+        compareDockWidget->setStyleSheet(qwidget::dockWidgetStyleSheet());
         compareDockWidget->setWidget(_compareTool);
         compareDockWidget->hide();
         compareDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F2));
@@ -348,6 +352,7 @@ namespace tlr
         colorDockWidget->setObjectName("Color");
         colorDockWidget->setWindowTitle(tr("Color"));
         colorDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+        colorDockWidget->setStyleSheet(qwidget::dockWidgetStyleSheet());
         colorDockWidget->setWidget(_colorTool);
         colorDockWidget->hide();
         colorDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F3));
@@ -359,6 +364,7 @@ namespace tlr
         imageDockWidget->setObjectName("Image");
         imageDockWidget->setWindowTitle(tr("Image"));
         imageDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+        imageDockWidget->setStyleSheet(qwidget::dockWidgetStyleSheet());
         imageDockWidget->setWidget(_imageTool);
         imageDockWidget->hide();
         imageDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F4));
@@ -370,6 +376,7 @@ namespace tlr
         infoDockWidget->setObjectName("Info");
         infoDockWidget->setWindowTitle(tr("Information"));
         infoDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+        infoDockWidget->setStyleSheet(qwidget::dockWidgetStyleSheet());
         infoDockWidget->setWidget(_infoTool);
         infoDockWidget->hide();
         infoDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F5));
@@ -381,6 +388,7 @@ namespace tlr
         audioDockWidget->setObjectName("Audio");
         audioDockWidget->setWindowTitle(tr("Audio"));
         audioDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+        audioDockWidget->setStyleSheet(qwidget::dockWidgetStyleSheet());
         audioDockWidget->setWidget(_audioTool);
         audioDockWidget->hide();
         audioDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F6));
@@ -392,6 +400,7 @@ namespace tlr
         settingsDockWidget->setObjectName("Settings");
         settingsDockWidget->setWindowTitle(tr("Settings"));
         settingsDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+        settingsDockWidget->setStyleSheet(qwidget::dockWidgetStyleSheet());
         settingsDockWidget->setWidget(_settingsTool);
         settingsDockWidget->hide();
         settingsDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F9));
@@ -403,6 +412,7 @@ namespace tlr
         messagesDockWidget->setObjectName("Messages");
         messagesDockWidget->setWindowTitle(tr("Messages"));
         messagesDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+        messagesDockWidget->setStyleSheet(qwidget::dockWidgetStyleSheet());
         messagesDockWidget->setWidget(_messagesTool);
         messagesDockWidget->hide();
         messagesDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F10));
@@ -414,6 +424,7 @@ namespace tlr
         systemLogDockWidget->setObjectName("SystemLog");
         systemLogDockWidget->setWindowTitle(tr("System Log"));
         systemLogDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+        systemLogDockWidget->setStyleSheet(qwidget::dockWidgetStyleSheet());
         systemLogDockWidget->setWidget(_systemLogTool);
         systemLogDockWidget->hide();
         systemLogDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F11));

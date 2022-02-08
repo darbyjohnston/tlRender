@@ -43,6 +43,15 @@ namespace tlr
             palette.setColor(QPalette::ColorRole::HighlightedText, QColor(240, 240, 240));
             return palette;
         }
+        
+        QString dockWidgetStyleSheet()
+        {
+            return
+                "QDockWidget {"
+                "    titlebar-close-icon: url(:/Icons/DockWidgetClose.svg);"
+                "    titlebar-normal-icon: url(:/Icons/DockWidgetNormal.svg);"
+                "}";
+        }
     }
 }
 
