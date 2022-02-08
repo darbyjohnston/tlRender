@@ -42,9 +42,9 @@ namespace tlr
             void openChanged(bool);
 
         protected:
-            virtual void mousePressEvent(QMouseEvent*);
-            virtual void mouseReleaseEvent(QMouseEvent*);
-            virtual void mouseMoveEvent(QMouseEvent*);
+            void mousePressEvent(QMouseEvent*) override;
+            void mouseReleaseEvent(QMouseEvent*) override;
+            void mouseMoveEvent(QMouseEvent*) override;
 
         private:
             void _widgetUpdate();
