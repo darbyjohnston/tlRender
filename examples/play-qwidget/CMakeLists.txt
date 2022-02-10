@@ -1,6 +1,7 @@
 set(HEADERS
     App.h
 	AudioTool.h
+	ColorModel.h
     ColorTool.h
 	CompareTool.h
 	FilesModel.h
@@ -20,6 +21,7 @@ set(HEADERS
 set(SOURCE
     App.cpp
 	AudioTool.cpp
+	ColorModel.cpp
     ColorTool.cpp
 	CompareTool.cpp
 	FilesModel.cpp

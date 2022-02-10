@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "ColorModel.h"
 #include "FilesModel.h"
 #include "MainWindow.h"
 #include "SettingsObject.h"
@@ -41,6 +42,9 @@ namespace tlr
         //! Get the files model.
         const std::shared_ptr<FilesModel>& filesModel() const;
 
+        //! Get the color model.
+        const std::shared_ptr<ColorModel>& colorModel() const;
+
     public Q_SLOTS:
         //! Open a file.
         void open(const QString&, const QString& = QString());
@@ -67,6 +71,7 @@ namespace tlr
         std::shared_ptr<observer::ListObserver<std::shared_ptr<FilesModelItem> > > _activeObserver;
         std::vector<std::shared_ptr<FilesModelItem> > _active;
         std::shared_ptr<observer::ListObserver<int> > _layersObserver;
+        std::shared_ptr<ColorModel> _colorModel;
 
         std::vector<qt::TimelinePlayer*> _timelinePlayers;
 

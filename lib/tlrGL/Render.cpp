@@ -573,9 +573,9 @@ namespace tlr
 
             p.colorConfig = config;
 
-            if (!p.colorConfig.config.empty())
+            if (!p.colorConfig.fileName.empty())
             {
-                p.ocioConfig = OCIO::Config::CreateFromFile(p.colorConfig.config.c_str());
+                p.ocioConfig = OCIO::Config::CreateFromFile(p.colorConfig.fileName.c_str());
             }
             else
             {

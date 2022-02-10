@@ -42,8 +42,6 @@ namespace tlr
 
         ~MainWindow() override;
 
-        void setColorConfig(const imaging::ColorConfig&);
-
         void setImageOptions(const std::vector<render::ImageOptions>&);
 
         void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
@@ -82,7 +80,7 @@ namespace tlr
         imaging::ColorConfig _colorConfig;
         std::vector<render::ImageOptions> _imageOptions;
         render::CompareOptions _compareOptions;
-        
+
         QMap<QString, QAction*> _actions;
         QActionGroup* _recentFilesActionGroup = nullptr;
         QMap<QAction*, QString> _actionToRecentFile;
@@ -113,6 +111,7 @@ namespace tlr
         std::shared_ptr<observer::ListObserver<std::shared_ptr<FilesModelItem> > > _filesObserver;
         std::shared_ptr<observer::ListObserver<render::ImageOptions> > _imageOptionsObserver;
         std::shared_ptr<observer::ValueObserver<render::CompareOptions> > _compareOptionsObserver;
+        std::shared_ptr<observer::ValueObserver<imaging::ColorConfig> > _colorConfigObserver;
         std::shared_ptr<observer::ValueObserver<core::LogItem> > _logObserver;
     };
 }

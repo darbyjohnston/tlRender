@@ -13,7 +13,7 @@ namespace tlr
         //! OpenColorIO configuration.
         struct ColorConfig
         {
-            std::string config;
+            std::string fileName;
             std::string input;
             std::string display;
             std::string view;

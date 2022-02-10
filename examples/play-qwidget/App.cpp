@@ -35,7 +35,7 @@ namespace tlr
             },
             {
                 app::CmdLineValueOption<std::string>::create(
-                    _options.colorConfig.config,
+                    _options.colorConfig.fileName,
                     { "-colorConfig", "-cc" },
                     "Color configuration file (config.ocio)."),
                 app::CmdLineValueOption<std::string>::create(
@@ -113,12 +113,17 @@ namespace tlr
                 }
             });
 
+        _colorModel = ColorModel::create(_context);
+        if (!_options.colorConfig.fileName.empty())
+        {
+            _colorModel->setConfig(_options.colorConfig);
+        }
+
         // Set the dark style color palette.
         setPalette(qwidget::darkStyle());
 
         // Create the main window.
         _mainWindow = new MainWindow(this);
-        _mainWindow->setColorConfig(_options.colorConfig);
 
         // Open the input file.
         if (!_input.empty())
@@ -149,6 +154,11 @@ namespace tlr
     const std::shared_ptr<FilesModel>& App::filesModel() const
     {
         return _filesModel;
+    }
+
+    const std::shared_ptr<ColorModel>& App::colorModel() const
+    {
+        return _colorModel;
     }
 
     void App::open(const QString& fileName, const QString& audioFileName)

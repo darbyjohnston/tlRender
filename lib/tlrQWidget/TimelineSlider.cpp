@@ -67,11 +67,14 @@ namespace tlr
         void TimelineSlider::setColorConfig(const imaging::ColorConfig& colorConfig)
         {
             TLR_PRIVATE_P();
+            if (colorConfig == p.colorConfig)
+                return;
             p.colorConfig = colorConfig;
             if (p.thumbnailProvider)
             {
                 p.thumbnailProvider->setColorConfig(p.colorConfig);
             }
+            _thumbnailsUpdate();
         }
 
         void TimelineSlider::setTimelinePlayer(qt::TimelinePlayer* timelinePlayer)

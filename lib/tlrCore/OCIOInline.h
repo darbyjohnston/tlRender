@@ -8,7 +8,7 @@ namespace tlr
     {
         inline bool ColorConfig::operator == (const ColorConfig& other) const
         {
-            return config == other.config &&
+            return fileName == other.fileName &&
                 input == other.input &&
                 display == other.display &&
                 view == other.view &&

@@ -20,7 +20,7 @@
 #include <QMenuBar>
 #include <QMimeData>
 #include <QSettings>
-#include <QStatusBar>
+//#include <QStatusBar>
 #include <QStyle>
 #include <QToolBar>
 
@@ -347,7 +347,7 @@ namespace tlr
         toolsMenu->addAction(compareDockWidget->toggleViewAction());
         addDockWidget(Qt::RightDockWidgetArea, compareDockWidget);
 
-        _colorTool = new ColorTool();
+        _colorTool = new ColorTool(app->colorModel());
         auto colorDockWidget = new QDockWidget;
         colorDockWidget->setObjectName("Color");
         colorDockWidget->setWindowTitle(tr("Color"));
@@ -432,7 +432,12 @@ namespace tlr
         addDockWidget(Qt::RightDockWidgetArea, systemLogDockWidget);
 
         _infoLabel = new QLabel;
-        statusBar()->addPermanentWidget(_infoLabel);
+    
+        //! \bug Creating the status bar gives this error:
+        //! QObject: Cannot create children for a parent that is in a different thread.
+        //! (Parent is QStatusBar(0x2992b2ff4c0), parent's thread is QThread(0x299271b5840),
+        //! current thread is tlr::qt::TimelineThumbnailProvider(0x299296ac1e0)
+        //statusBar()->addPermanentWidget(_infoLabel);
 
         _recentFilesUpdate();
         _widgetUpdate();
@@ -456,6 +461,14 @@ namespace tlr
                 _compareOptionsCallback2(value);
             });
 
+        _colorConfigObserver = observer::ValueObserver<imaging::ColorConfig>::create(
+            app->colorModel()->observeConfig(),
+            [this](const imaging::ColorConfig& value)
+            {
+                _colorConfig = value;
+                _widgetUpdate();
+            });
+
         _logObserver = observer::ValueObserver<core::LogItem>::create(
             app->getContext()->getLogSystem()->observeLog(),
             [this](const core::LogItem& value)
@@ -463,10 +476,10 @@ namespace tlr
                 switch (value.type)
                 {
                 case core::LogType::Error:
-                    statusBar()->showMessage(
-                        QString(tr("ERROR: %1")).
-                        arg(QString::fromUtf8(value.message.c_str())),
-                        errorTimeout);
+                    //statusBar()->showMessage(
+                    //    QString(tr("ERROR: %1")).
+                    //    arg(QString::fromUtf8(value.message.c_str())),
+                    //    errorTimeout);
                     break;
                 default: break;
                 }
@@ -808,14 +821,6 @@ namespace tlr
             delete _secondaryWindow;
             _secondaryWindow = nullptr;
         }
-    }
-
-    void MainWindow::setColorConfig(const imaging::ColorConfig& colorConfig)
-    {
-        if (colorConfig == _colorConfig)
-            return;
-        _colorConfig = colorConfig;
-        _widgetUpdate();
     }
 
     void MainWindow::setImageOptions(const std::vector<render::ImageOptions>& imageOptions)
