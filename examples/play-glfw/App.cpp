@@ -96,9 +96,9 @@ namespace tlr
                     string::Format("{0}").arg(_options.loopPlayback),
                     "0, 1"),
                 app::CmdLineValueOption<std::string>::create(
-                    _options.colorConfig.config,
+                    _options.colorConfig.fileName,
                     { "-colorConfig", "-cc" },
-                    "Color configuration file (config.ocio)."),
+                    "Color configuration file name (e.g., config.ocio)."),
                 app::CmdLineValueOption<std::string>::create(
                     _options.colorConfig.input,
                     { "-colorInput", "-ci" },

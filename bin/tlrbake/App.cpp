@@ -50,9 +50,9 @@ namespace tlr
                     std::string(),
                     string::join(imaging::getPixelTypeLabels(), ", ")),
                 app::CmdLineValueOption<std::string>::create(
-                    _options.colorConfig.config,
+                    _options.colorConfig.fileName,
                     { "-colorConfig", "-cc" },
-                    "Color configuration file (config.ocio)."),
+                    "Color configuration file name (e.g., config.ocio)."),
                 app::CmdLineValueOption<std::string>::create(
                     _options.colorConfig.input,
                     { "-colorInput", "-ci" },
