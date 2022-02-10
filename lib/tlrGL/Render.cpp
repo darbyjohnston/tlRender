@@ -994,34 +994,16 @@ namespace tlr
                         imageOptions.size() > 1 ? imageOptions[1] : render::ImageOptions());
                 }
                 break;
-            case render::CompareMode::Horizontal:
-            case render::CompareMode::Vertical:
-            case render::CompareMode::Free:
+            case render::CompareMode::Wipe:
             {
                 const float radius = std::max(p.size.w, p.size.h) * 2.5F;
-                float x = 0.F;
-                float y = 0.F;
-                float rot = 0.F;
-                switch (compareOptions.mode)
-                {
-                case render::CompareMode::Horizontal:
-                    x = p.size.w * compareOptions.horizontal;
-                    break;
-                case render::CompareMode::Vertical:
-                    y = p.size.h * compareOptions.vertical;
-                    rot = 90.F;
-                    break;
-                case render::CompareMode::Free:
-                    x = p.size.w * compareOptions.free.x;
-                    y = p.size.h * compareOptions.free.y;
-                    rot = compareOptions.freeRot;
-                    break;
-                default: break;
-                }
+                const float x = p.size.w * compareOptions.wipeCenter.x;
+                const float y = p.size.w * compareOptions.wipeCenter.y;
+                const float rotation = compareOptions.wipeRotation;
                 math::Vector2f pts[4];
                 for (size_t i = 0; i < 4; ++i)
                 {
-                    float rad = math::deg2rad(rot + 90.F * i + 90.F);
+                    float rad = math::deg2rad(rotation + 90.F * i + 90.F);
                     pts[i].x = cos(rad) * radius + x;
                     pts[i].y = sin(rad) * radius + y;
                 }
@@ -1108,7 +1090,7 @@ namespace tlr
                 glDisable(GL_STENCIL_TEST);
                 break;
             }
-            case render::CompareMode::Tiles:
+            case render::CompareMode::Tile:
             {
                 const std::vector<math::BBox2i> tiles = render::tiles(
                     math::BBox2i(0, 0, p.size.w, p.size.h),

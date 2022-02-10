@@ -344,9 +344,9 @@ namespace tlr
         _buttonToUnits[framesButton] = qt::TimeUnits::Frames;
         _buttonToUnits[secondsButton] = qt::TimeUnits::Seconds;
         _buttonToUnits[timecodeButton] = qt::TimeUnits::Timecode;
-        _unitsToButtons[qt::TimeUnits::Frames] = framesButton;
-        _unitsToButtons[qt::TimeUnits::Seconds] = secondsButton;
-        _unitsToButtons[qt::TimeUnits::Timecode] = timecodeButton;
+        _unitsToButton[qt::TimeUnits::Frames] = framesButton;
+        _unitsToButton[qt::TimeUnits::Seconds] = secondsButton;
+        _unitsToButton[qt::TimeUnits::Timecode] = timecodeButton;
 
         auto layout = new QVBoxLayout;
         layout->addWidget(new QLabel(tr("Units")));
@@ -355,8 +355,8 @@ namespace tlr
         layout->addWidget(timecodeButton);
         setLayout(layout);
 
-        const auto unitsButton = _unitsToButtons.find(_timeObject->units());
-        if (unitsButton != _unitsToButtons.end())
+        const auto unitsButton = _unitsToButton.find(_timeObject->units());
+        if (unitsButton != _unitsToButton.end())
         {
             unitsButton.value()->setChecked(true);
         }
@@ -384,8 +384,8 @@ namespace tlr
     void TimeSettingsWidget::_unitsCallback(qt::TimeUnits units)
     {
         const QSignalBlocker blocker(_unitsButtonGroup);
-        const auto i = _unitsToButtons.find(units);
-        if (i != _unitsToButtons.end())
+        const auto i = _unitsToButton.find(units);
+        if (i != _unitsToButton.end())
         {
             i.value()->setChecked(true);
         }

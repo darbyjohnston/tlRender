@@ -107,10 +107,8 @@ namespace tlr
             CompareMode,
             "A",
             "B",
-            "Horizontal",
-            "Vertical",
-            "Free",
-            "Tiles");
+            "Wipe",
+            "Tile");
         TLR_ENUM_SERIALIZE_IMPL(CompareMode);
 
         std::vector<math::BBox2i> tiles(const math::BBox2i& bbox, int count)

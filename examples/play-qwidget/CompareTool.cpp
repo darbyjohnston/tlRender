@@ -7,6 +7,7 @@
 #include "FilesView.h"
 
 #include <QBoxLayout>
+#include <QFormLayout>
 #include <QHeaderView>
 #include <QLabel>
 #include <QSignalBlocker>
@@ -39,23 +40,26 @@ namespace tlr
         //! QBasicTimer::start: QBasicTimer can only be used with threads started with QThread
         _treeView->setModel(_filesBModel);
 
-        _compareComboBox = new QComboBox;
-        for (const auto& i : render::getCompareModeLabels())
+        _modeButtonGroup = new QButtonGroup;
+        _modeButtonGroup->setExclusive(true);
+        for (const auto i : render::getCompareModeEnums())
         {
-            _compareComboBox->addItem(QString::fromUtf8(i.c_str()));
+            auto button = new QRadioButton;
+            button->setText(QString::fromUtf8(
+                render::getCompareModeLabels()[static_cast<size_t>(i)].c_str()));
+            _modeToButton[i] = button;
+            _buttonToMode[button] = i;
+            _modeButtonGroup->addButton(button);
         }
-        _horizontalSlider = new QSlider(Qt::Orientation::Horizontal);
-        _horizontalSlider->setRange(0, sliderSteps);
-        _verticalSlider = new QSlider(Qt::Orientation::Horizontal);
-        _verticalSlider->setRange(0, sliderSteps);
-        _freeXSlider = new QSlider(Qt::Orientation::Horizontal);
-        _freeXSlider->setRange(0, sliderSteps);
-        _freeYSlider = new QSlider(Qt::Orientation::Horizontal);
-        _freeYSlider->setRange(0, sliderSteps);
-        _freeRotSpinBox = new QDoubleSpinBox;
-        _freeRotSpinBox->setRange(0.0, 360.0);
-        _freeRotSpinBox->setSingleStep(10.0);
-        _freeRotSpinBox->setToolTip(tr("Rotation"));
+
+        _wipeXSlider = new QSlider(Qt::Orientation::Horizontal);
+        _wipeXSlider->setRange(0, sliderSteps);
+        _wipeYSlider = new QSlider(Qt::Orientation::Horizontal);
+        _wipeYSlider->setRange(0, sliderSteps);
+        _wipeRotationSpinBox = new QDoubleSpinBox;
+        _wipeRotationSpinBox->setRange(0.0, 360.0);
+        _wipeRotationSpinBox->setSingleStep(10.0);
+        _wipeRotationSpinBox->setToolTip(tr("Rotation"));
 
         auto layout = new QVBoxLayout;
         layout->setContentsMargins(0, 0, 0, 0);
@@ -64,15 +68,19 @@ namespace tlr
         auto vLayout = new QVBoxLayout;
         vLayout->setContentsMargins(10, 10, 10, 10);
         vLayout->setSpacing(10);
-        vLayout->addWidget(_compareComboBox);
-        vLayout->addWidget(new QLabel(tr("Horizontal")));
-        vLayout->addWidget(_horizontalSlider);
-        vLayout->addWidget(new QLabel(tr("Vertical")));
-        vLayout->addWidget(_verticalSlider);
-        vLayout->addWidget(new QLabel(tr("Free")));
-        vLayout->addWidget(_freeXSlider);
-        vLayout->addWidget(_freeYSlider);
-        vLayout->addWidget(_freeRotSpinBox);
+        auto hLayout = new QHBoxLayout;
+        for (const auto i : render::getCompareModeEnums())
+        {
+            hLayout->addWidget(_modeToButton[i]);
+        }
+        hLayout->addStretch();
+        vLayout->addLayout(hLayout);
+        vLayout->addWidget(new QLabel(tr("Wipe")));
+        auto formLayout = new QFormLayout;
+        formLayout->addRow(tr("X:"), _wipeXSlider);
+        formLayout->addRow(tr("Y:"), _wipeYSlider);
+        formLayout->addRow(tr("Rotation:"), _wipeRotationSpinBox);
+        vLayout->addLayout(formLayout);
         layout->addLayout(vLayout);
         auto widget = new QWidget;
         widget->setLayout(layout);
@@ -93,29 +101,22 @@ namespace tlr
             SLOT(_activatedCallback(const QModelIndex&)));
 
         connect(
-            _compareComboBox,
-            SIGNAL(activated(int)),
-            SLOT(_compareCallback(int)));
+            _modeButtonGroup,
+            SIGNAL(buttonToggled(QAbstractButton*, bool)),
+            SLOT(_modeCallback(QAbstractButton*, bool)));
+
         connect(
-            _horizontalSlider,
+            _wipeXSlider,
             SIGNAL(valueChanged(int)),
-            SLOT(_horizontalSliderCallback(int)));
+            SLOT(_wipeXCallback(int)));
         connect(
-            _verticalSlider,
+            _wipeYSlider,
             SIGNAL(valueChanged(int)),
-            SLOT(_verticalSliderCallback(int)));
+            SLOT(_wipeYCallback(int)));
         connect(
-            _freeXSlider,
-            SIGNAL(valueChanged(int)),
-            SLOT(_freeXSliderCallback(int)));
-        connect(
-            _freeYSlider,
-            SIGNAL(valueChanged(int)),
-            SLOT(_freeYSliderCallback(int)));
-        connect(
-            _freeRotSpinBox,
+            _wipeRotationSpinBox,
             SIGNAL(valueChanged(double)),
-            SLOT(_freeRotSpinBoxCallback(double)));
+            SLOT(_wipeRotationCallback(double)));
     }
 
     CompareTool::~CompareTool()
@@ -137,44 +138,34 @@ namespace tlr
         _filesModel->toggleB(index.row());
     }
 
-    void CompareTool::_compareCallback(int value)
+    void CompareTool::_modeCallback(QAbstractButton* button, bool value)
     {
-        _compareOptions.mode = static_cast<render::CompareMode>(value);
+        const auto i = _buttonToMode.find(button);
+        if (i != _buttonToMode.end())
+        {
+            _compareOptions.mode = i.value();
+            _widgetUpdate();
+            Q_EMIT compareOptionsChanged(_compareOptions);
+        }
+    }
+
+    void CompareTool::_wipeXCallback(int value)
+    {
+        _compareOptions.wipeCenter.x = value / static_cast<float>(sliderSteps);
         _widgetUpdate();
         Q_EMIT compareOptionsChanged(_compareOptions);
     }
 
-    void CompareTool::_horizontalSliderCallback(int value)
+    void CompareTool::_wipeYCallback(int value)
     {
-        _compareOptions.horizontal = value / static_cast<float>(sliderSteps);
+        _compareOptions.wipeCenter.y = value / static_cast<float>(sliderSteps);
         _widgetUpdate();
         Q_EMIT compareOptionsChanged(_compareOptions);
     }
 
-    void CompareTool::_verticalSliderCallback(int value)
+    void CompareTool::_wipeRotationCallback(double value)
     {
-        _compareOptions.vertical = value / static_cast<float>(sliderSteps);
-        _widgetUpdate();
-        Q_EMIT compareOptionsChanged(_compareOptions);
-    }
-
-    void CompareTool::_freeXSliderCallback(int value)
-    {
-        _compareOptions.free.x = value / static_cast<float>(sliderSteps);
-        _widgetUpdate();
-        Q_EMIT compareOptionsChanged(_compareOptions);
-    }
-
-    void CompareTool::_freeYSliderCallback(int value)
-    {
-        _compareOptions.free.y = value / static_cast<float>(sliderSteps);
-        _widgetUpdate();
-        Q_EMIT compareOptionsChanged(_compareOptions);
-    }
-
-    void CompareTool::_freeRotSpinBoxCallback(double value)
-    {
-        _compareOptions.freeRot = value;
+        _compareOptions.wipeRotation = value;
         _widgetUpdate();
         Q_EMIT compareOptionsChanged(_compareOptions);
     }
@@ -182,28 +173,24 @@ namespace tlr
     void CompareTool::_widgetUpdate()
     {
         {
-            QSignalBlocker signalBlocker(_compareComboBox);
-            _compareComboBox->setCurrentIndex(static_cast<int>(_compareOptions.mode));
+            QSignalBlocker signalBlocker(_modeButtonGroup);
+            const auto i = _modeToButton.find(_compareOptions.mode);
+            if (i != _modeToButton.end())
+            {
+                i.value()->setChecked(true);
+            }
         }
         {
-            QSignalBlocker signalBlocker(_horizontalSlider);
-            _horizontalSlider->setValue(_compareOptions.horizontal * sliderSteps);
+            QSignalBlocker signalBlocker(_wipeXSlider);
+            _wipeXSlider->setValue(_compareOptions.wipeCenter.x * sliderSteps);
         }
         {
-            QSignalBlocker signalBlocker(_verticalSlider);
-            _verticalSlider->setValue(_compareOptions.vertical * sliderSteps);
+            QSignalBlocker signalBlocker(_wipeYSlider);
+            _wipeYSlider->setValue(_compareOptions.wipeCenter.y * sliderSteps);
         }
         {
-            QSignalBlocker signalBlocker(_freeXSlider);
-            _freeXSlider->setValue(_compareOptions.free.x * sliderSteps);
-        }
-        {
-            QSignalBlocker signalBlocker(_freeYSlider);
-            _freeYSlider->setValue(_compareOptions.free.y * sliderSteps);
-        }
-        {
-            QSignalBlocker signalBlocker(_freeRotSpinBox);
-            _freeRotSpinBox->setValue(_compareOptions.freeRot);
+            QSignalBlocker signalBlocker(_wipeRotationSpinBox);
+            _wipeRotationSpinBox->setValue(_compareOptions.wipeRotation);
         }
     }
 }

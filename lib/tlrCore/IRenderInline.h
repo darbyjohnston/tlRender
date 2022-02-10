@@ -77,10 +77,8 @@ namespace tlr
         {
             return
                 mode == other.mode &&
-                horizontal == other.horizontal &&
-                vertical == other.vertical &&
-                free == other.free &&
-                freeRot == other.freeRot;
+                wipeCenter == other.wipeCenter &&
+                wipeRotation == other.wipeRotation;
         }
 
         inline bool CompareOptions::operator != (const CompareOptions& other) const

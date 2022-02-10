@@ -146,10 +146,8 @@ namespace tlr
         {
             A,
             B,
-            Horizontal,
-            Vertical,
-            Free,
-            Tiles,
+            Wipe,
+            Tile,
 
             Count,
             First = A
@@ -161,10 +159,8 @@ namespace tlr
         struct CompareOptions
         {
             CompareMode mode = CompareMode::A;
-            float horizontal = .5F;
-            float vertical = .5F;
-            math::Vector2f free = math::Vector2f(.5F, .5F);
-            float freeRot = 0.F;
+            math::Vector2f wipeCenter = math::Vector2f(.5F, .5F);
+            float wipeRotation = 0.F;
 
             bool operator == (const CompareOptions&) const;
             bool operator != (const CompareOptions&) const;

@@ -148,9 +148,7 @@ namespace tlr
                 {
                 case render::CompareMode::A:
                 case render::CompareMode::B:
-                case render::CompareMode::Horizontal:
-                case render::CompareMode::Vertical:
-                case render::CompareMode::Free:
+                case render::CompareMode::Wipe:
                     if (b.size() > 1)
                     {
                         removedIndex = _index(b.front());
@@ -322,9 +320,7 @@ namespace tlr
             {
             case render::CompareMode::A:
             case render::CompareMode::B:
-            case render::CompareMode::Horizontal:
-            case render::CompareMode::Vertical:
-            case render::CompareMode::Free:
+            case render::CompareMode::Wipe:
             {
                 auto b = _b->get();
                 while (b.size() > 1)

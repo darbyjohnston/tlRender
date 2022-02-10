@@ -9,6 +9,7 @@
 
 #include <QComboBox>
 #include <QDoubleSpinBox>
+#include <QRadioButton>
 #include <QSlider>
 #include <QTreeView>
 
@@ -32,12 +33,10 @@ namespace tlr
 
     private Q_SLOTS:
         void _activatedCallback(const QModelIndex&);
-        void _compareCallback(int);
-        void _horizontalSliderCallback(int);
-        void _verticalSliderCallback(int);
-        void _freeXSliderCallback(int);
-        void _freeYSliderCallback(int);
-        void _freeRotSpinBoxCallback(double);
+        void _modeCallback(QAbstractButton*, bool);
+        void _wipeXCallback(int);
+        void _wipeYCallback(int);
+        void _wipeRotationCallback(double);
 
     Q_SIGNALS:
         void compareOptionsChanged(const tlr::render::CompareOptions&);
@@ -49,11 +48,11 @@ namespace tlr
         FilesBModel* _filesBModel = nullptr;
         render::CompareOptions _compareOptions;
         QTreeView* _treeView = nullptr;
-        QComboBox* _compareComboBox = nullptr;
-        QSlider* _horizontalSlider = nullptr;
-        QSlider* _verticalSlider = nullptr;
-        QSlider* _freeXSlider = nullptr;
-        QSlider* _freeYSlider = nullptr;
-        QDoubleSpinBox* _freeRotSpinBox = nullptr;
+        QMap<render::CompareMode, QAbstractButton*> _modeToButton;
+        QMap<QAbstractButton*, render::CompareMode> _buttonToMode;
+        QButtonGroup* _modeButtonGroup = nullptr;
+        QSlider* _wipeXSlider = nullptr;
+        QSlider* _wipeYSlider = nullptr;
+        QDoubleSpinBox* _wipeRotationSpinBox = nullptr;
     };
 }

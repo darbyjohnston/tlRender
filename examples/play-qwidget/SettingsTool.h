@@ -103,7 +103,7 @@ namespace tlr
     private:
         QButtonGroup* _unitsButtonGroup = nullptr;
         QMap<QAbstractButton*, qt::TimeUnits> _buttonToUnits;
-        QMap<qt::TimeUnits, QAbstractButton*> _unitsToButtons;
+        QMap<qt::TimeUnits, QAbstractButton*> _unitsToButton;
         qt::TimeObject* _timeObject = nullptr;
     };
 
