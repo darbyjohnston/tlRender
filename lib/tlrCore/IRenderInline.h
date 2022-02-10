@@ -79,7 +79,7 @@ namespace tlr
                 mode == other.mode &&
                 horizontal == other.horizontal &&
                 vertical == other.vertical &&
-                freePos == other.freePos &&
+                free == other.free &&
                 freeRot == other.freeRot;
         }
 

@@ -14,6 +14,11 @@
 
 namespace tlr
 {
+    namespace
+    {
+        const size_t sliderSteps = 1000;
+    }
+
     CompareTool::CompareTool(
         const std::shared_ptr<FilesModel>& filesModel,
         const std::shared_ptr<core::Context>& context,
@@ -40,17 +45,13 @@ namespace tlr
             _compareComboBox->addItem(QString::fromUtf8(i.c_str()));
         }
         _horizontalSlider = new QSlider(Qt::Orientation::Horizontal);
-        _horizontalSlider->setRange(0, 1000);
+        _horizontalSlider->setRange(0, sliderSteps);
         _verticalSlider = new QSlider(Qt::Orientation::Horizontal);
-        _verticalSlider->setRange(0, 1000);
-        _freePosXSpinBox = new QDoubleSpinBox;
-        _freePosXSpinBox->setRange(0.0, 2000.0);
-        _freePosXSpinBox->setSingleStep(10.0);
-        _freePosXSpinBox->setToolTip(tr("X position"));
-        _freePosYSpinBox = new QDoubleSpinBox;
-        _freePosYSpinBox->setRange(0.0, 2000.0);
-        _freePosYSpinBox->setSingleStep(10.0);
-        _freePosYSpinBox->setToolTip(tr("Y position"));
+        _verticalSlider->setRange(0, sliderSteps);
+        _freeXSlider = new QSlider(Qt::Orientation::Horizontal);
+        _freeXSlider->setRange(0, sliderSteps);
+        _freeYSlider = new QSlider(Qt::Orientation::Horizontal);
+        _freeYSlider->setRange(0, sliderSteps);
         _freeRotSpinBox = new QDoubleSpinBox;
         _freeRotSpinBox->setRange(0.0, 360.0);
         _freeRotSpinBox->setSingleStep(10.0);
@@ -69,11 +70,9 @@ namespace tlr
         vLayout->addWidget(new QLabel(tr("Vertical")));
         vLayout->addWidget(_verticalSlider);
         vLayout->addWidget(new QLabel(tr("Free")));
-        auto hLayout = new QHBoxLayout;
-        hLayout->addWidget(_freePosXSpinBox);
-        hLayout->addWidget(_freePosYSpinBox);
-        hLayout->addWidget(_freeRotSpinBox);
-        vLayout->addLayout(hLayout);
+        vLayout->addWidget(_freeXSlider);
+        vLayout->addWidget(_freeYSlider);
+        vLayout->addWidget(_freeRotSpinBox);
         layout->addLayout(vLayout);
         auto widget = new QWidget;
         widget->setLayout(layout);
@@ -106,13 +105,13 @@ namespace tlr
             SIGNAL(valueChanged(int)),
             SLOT(_verticalSliderCallback(int)));
         connect(
-            _freePosXSpinBox,
-            SIGNAL(valueChanged(double)),
-            SLOT(_freePosXSpinBoxCallback(double)));
+            _freeXSlider,
+            SIGNAL(valueChanged(int)),
+            SLOT(_freeXSliderCallback(int)));
         connect(
-            _freePosYSpinBox,
-            SIGNAL(valueChanged(double)),
-            SLOT(_freePosYSpinBoxCallback(double)));
+            _freeYSlider,
+            SIGNAL(valueChanged(int)),
+            SLOT(_freeYSliderCallback(int)));
         connect(
             _freeRotSpinBox,
             SIGNAL(valueChanged(double)),
@@ -147,28 +146,28 @@ namespace tlr
 
     void CompareTool::_horizontalSliderCallback(int value)
     {
-        _compareOptions.horizontal = value / 1000.0;
+        _compareOptions.horizontal = value / static_cast<float>(sliderSteps);
         _widgetUpdate();
         Q_EMIT compareOptionsChanged(_compareOptions);
     }
 
     void CompareTool::_verticalSliderCallback(int value)
     {
-        _compareOptions.vertical = value / 1000.0;
+        _compareOptions.vertical = value / static_cast<float>(sliderSteps);
         _widgetUpdate();
         Q_EMIT compareOptionsChanged(_compareOptions);
     }
 
-    void CompareTool::_freePosXSpinBoxCallback(double value)
+    void CompareTool::_freeXSliderCallback(int value)
     {
-        _compareOptions.freePos.x = value;
+        _compareOptions.free.x = value / static_cast<float>(sliderSteps);
         _widgetUpdate();
         Q_EMIT compareOptionsChanged(_compareOptions);
     }
 
-    void CompareTool::_freePosYSpinBoxCallback(double value)
+    void CompareTool::_freeYSliderCallback(int value)
     {
-        _compareOptions.freePos.y = value;
+        _compareOptions.free.y = value / static_cast<float>(sliderSteps);
         _widgetUpdate();
         Q_EMIT compareOptionsChanged(_compareOptions);
     }
@@ -188,19 +187,19 @@ namespace tlr
         }
         {
             QSignalBlocker signalBlocker(_horizontalSlider);
-            _horizontalSlider->setValue(_compareOptions.horizontal * 1000.F);
+            _horizontalSlider->setValue(_compareOptions.horizontal * sliderSteps);
         }
         {
             QSignalBlocker signalBlocker(_verticalSlider);
-            _verticalSlider->setValue(_compareOptions.vertical * 1000.F);
+            _verticalSlider->setValue(_compareOptions.vertical * sliderSteps);
         }
         {
-            QSignalBlocker signalBlocker(_freePosXSpinBox);
-            _freePosXSpinBox->setValue(_compareOptions.freePos.x);
+            QSignalBlocker signalBlocker(_freeXSlider);
+            _freeXSlider->setValue(_compareOptions.free.x * sliderSteps);
         }
         {
-            QSignalBlocker signalBlocker(_freePosYSpinBox);
-            _freePosYSpinBox->setValue(_compareOptions.freePos.y);
+            QSignalBlocker signalBlocker(_freeYSlider);
+            _freeYSlider->setValue(_compareOptions.free.y * sliderSteps);
         }
         {
             QSignalBlocker signalBlocker(_freeRotSpinBox);

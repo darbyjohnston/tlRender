@@ -1012,8 +1012,8 @@ namespace tlr
                     rot = 90.F;
                     break;
                 case render::CompareMode::Free:
-                    x = compareOptions.freePos.x;
-                    y = compareOptions.freePos.y;
+                    x = p.size.w * compareOptions.free.x;
+                    y = p.size.h * compareOptions.free.y;
                     rot = compareOptions.freeRot;
                     break;
                 default: break;

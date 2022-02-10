@@ -163,7 +163,7 @@ namespace tlr
             CompareMode mode = CompareMode::A;
             float horizontal = .5F;
             float vertical = .5F;
-            math::Vector2i freePos;
+            math::Vector2f free = math::Vector2f(.5F, .5F);
             float freeRot = 0.F;
 
             bool operator == (const CompareOptions&) const;

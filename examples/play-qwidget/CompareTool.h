@@ -35,8 +35,8 @@ namespace tlr
         void _compareCallback(int);
         void _horizontalSliderCallback(int);
         void _verticalSliderCallback(int);
-        void _freePosXSpinBoxCallback(double);
-        void _freePosYSpinBoxCallback(double);
+        void _freeXSliderCallback(int);
+        void _freeYSliderCallback(int);
         void _freeRotSpinBoxCallback(double);
 
     Q_SIGNALS:
@@ -52,8 +52,8 @@ namespace tlr
         QComboBox* _compareComboBox = nullptr;
         QSlider* _horizontalSlider = nullptr;
         QSlider* _verticalSlider = nullptr;
-        QDoubleSpinBox* _freePosXSpinBox = nullptr;
-        QDoubleSpinBox* _freePosYSpinBox = nullptr;
+        QSlider* _freeXSlider = nullptr;
+        QSlider* _freeYSlider = nullptr;
         QDoubleSpinBox* _freeRotSpinBox = nullptr;
     };
 }
