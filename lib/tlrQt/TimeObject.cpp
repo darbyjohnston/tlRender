@@ -6,12 +6,24 @@
 
 #include <tlrCore/StringFormat.h>
 
+#include <tlrCore/Error.h>
+#include <tlrCore/String.h>
+
 #include <QDataStream>
+
+#include <array>
 
 namespace tlr
 {
     namespace qt
     {
+        TLR_ENUM_IMPL(
+            TimeUnits,
+            "Frames",
+            "Seconds",
+            "Timecode");
+        TLR_ENUM_SERIALIZE_IMPL(TimeUnits);
+
         QDataStream& operator << (QDataStream& ds, const TimeUnits& value)
         {
             ds << static_cast<qint32>(value);

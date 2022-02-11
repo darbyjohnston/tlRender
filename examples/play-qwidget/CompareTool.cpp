@@ -40,23 +40,11 @@ namespace tlr
         //! QBasicTimer::start: QBasicTimer can only be used with threads started with QThread
         _treeView->setModel(_filesBModel);
 
-        /*_modeButtonGroup = new QButtonGroup;
-        _modeButtonGroup->setExclusive(true);
-        for (const auto i : render::getCompareModeEnums())
-        {
-            auto button = new QRadioButton;
-            button->setText(QString::fromUtf8(
-                render::getCompareModeLabels()[static_cast<size_t>(i)].c_str()));
-            _modeToButton[i] = button;
-            _buttonToMode[button] = i;
-            _modeButtonGroup->addButton(button);
-        }*/
         _modeButtonGroup = new qwidget::RadioButtonGroup;
         for (const auto i : render::getCompareModeEnums())
         {
             _modeButtonGroup->addButton(
-                QString::fromUtf8(
-                    render::getCompareModeLabels()[static_cast<size_t>(i)].c_str()),
+                QString::fromUtf8(render::getLabel(i).c_str()),
                 QVariant::fromValue<render::CompareMode>(i));
         }
 

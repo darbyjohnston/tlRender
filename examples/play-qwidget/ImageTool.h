@@ -6,10 +6,13 @@
 
 #include "ToolWidget.h"
 
+#include <tlrQWidget/RadioButtonGroup.h>
+
+#include <tlrQt/MetaTypes.h>
+
 #include <tlrCore/IRender.h>
 
 #include <QCheckBox>
-#include <QComboBox>
 #include <QDoubleSpinBox>
 #include <QSlider>
 
@@ -30,14 +33,14 @@ namespace tlr
         void valueChanged(tlr::render::YUVRange);
 
     private Q_SLOTS:
-        void _callback(int);
+        void _callback(const QVariant&);
 
     private:
         void _widgetUpdate();
 
         render::YUVRange _value = tlr::render::YUVRange::First;
 
-        QComboBox* _comboBox = nullptr;
+        qwidget::RadioButtonGroup* _radioButtonGroup = nullptr;
     };
 
     //! Channels widget.
@@ -55,14 +58,14 @@ namespace tlr
         void valueChanged(tlr::render::Channels);
 
     private Q_SLOTS:
-        void _callback(int);
+        void _callback(const QVariant&);
 
     private:
         void _widgetUpdate();
 
         render::Channels _value = tlr::render::Channels::First;
 
-        QComboBox* _comboBox = nullptr;
+        qwidget::RadioButtonGroup* _radioButtonGroup = nullptr;
     };
 
     //! Alpha blend widget.
@@ -80,14 +83,14 @@ namespace tlr
         void valueChanged(tlr::render::AlphaBlend);
 
     private Q_SLOTS:
-        void _callback(int);
+        void _callback(const QVariant&);
 
     private:
         void _widgetUpdate();
 
         render::AlphaBlend _value = tlr::render::AlphaBlend::First;
 
-        QComboBox* _comboBox = nullptr;
+        qwidget::RadioButtonGroup* _radioButtonGroup = nullptr;
     };
 
     //! Color slider widget.

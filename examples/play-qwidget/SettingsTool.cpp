@@ -330,41 +330,25 @@ namespace tlr
         QWidget(parent),
         _timeObject(timeObject)
     {
-        auto framesButton = new QRadioButton;
-        framesButton->setText(tr("Frames"));
-        auto secondsButton = new QRadioButton;
-        secondsButton->setText(tr("Seconds"));
-        auto timecodeButton = new QRadioButton;
-        timecodeButton->setText(tr("Timecode"));
-        _unitsButtonGroup = new QButtonGroup(this);
-        _unitsButtonGroup->setExclusive(true);
-        _unitsButtonGroup->addButton(framesButton);
-        _unitsButtonGroup->addButton(secondsButton);
-        _unitsButtonGroup->addButton(timecodeButton);
-        _buttonToUnits[framesButton] = qt::TimeUnits::Frames;
-        _buttonToUnits[secondsButton] = qt::TimeUnits::Seconds;
-        _buttonToUnits[timecodeButton] = qt::TimeUnits::Timecode;
-        _unitsToButton[qt::TimeUnits::Frames] = framesButton;
-        _unitsToButton[qt::TimeUnits::Seconds] = secondsButton;
-        _unitsToButton[qt::TimeUnits::Timecode] = timecodeButton;
+        _unitsButtonGroup = new qwidget::RadioButtonGroup;
+        for (const auto i : qt::getTimeUnitsEnums())
+        {
+            _unitsButtonGroup->addButton(
+                QString::fromUtf8(qt::getLabel(i).c_str()),
+                QVariant::fromValue<qt::TimeUnits>(i));
+        }
 
         auto layout = new QVBoxLayout;
         layout->addWidget(new QLabel(tr("Units")));
-        layout->addWidget(framesButton);
-        layout->addWidget(secondsButton);
-        layout->addWidget(timecodeButton);
+        layout->addWidget(_unitsButtonGroup);
         setLayout(layout);
 
-        const auto unitsButton = _unitsToButton.find(_timeObject->units());
-        if (unitsButton != _unitsToButton.end())
-        {
-            unitsButton.value()->setChecked(true);
-        }
+        _unitsButtonGroup->setChecked(QVariant::fromValue<qt::TimeUnits>(_timeObject->units()));
 
         connect(
             _unitsButtonGroup,
-            SIGNAL(buttonClicked(QAbstractButton*)),
-            SLOT(_unitsCallback(QAbstractButton*)));
+            SIGNAL(checked(const QVariant&)),
+            SLOT(_unitsCallback(const QVariant&)));
 
         connect(
             _timeObject,
@@ -372,23 +356,15 @@ namespace tlr
             SLOT(_unitsCallback(tlr::qt::TimeUnits)));
     }
 
-    void TimeSettingsWidget::_unitsCallback(QAbstractButton* button)
+    void TimeSettingsWidget::_unitsCallback(const QVariant& value)
     {
-        const auto i = _buttonToUnits.find(button);
-        if (i != _buttonToUnits.end())
-        {
-            _timeObject->setUnits(i.value());
-        }
+        _timeObject->setUnits(value.value<qt::TimeUnits>());
     }
 
-    void TimeSettingsWidget::_unitsCallback(qt::TimeUnits units)
+    void TimeSettingsWidget::_unitsCallback(qt::TimeUnits value)
     {
         const QSignalBlocker blocker(_unitsButtonGroup);
-        const auto i = _unitsToButton.find(units);
-        if (i != _unitsToButton.end())
-        {
-            i.value()->setChecked(true);
-        }
+        _unitsButtonGroup->setChecked(QVariant::fromValue<qt::TimeUnits>(value));
     }
 
     MiscSettingsWidget::MiscSettingsWidget(SettingsObject* settingsObject, QWidget* parent) :

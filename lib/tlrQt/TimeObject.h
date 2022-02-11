@@ -22,8 +22,13 @@ namespace tlr
         {
             Frames,
             Seconds,
-            Timecode
+            Timecode,
+
+            Count,
+            First = Frames
         };
+        TLR_ENUM(TimeUnits);
+        TLR_ENUM_SERIALIZE(TimeUnits);
         Q_ENUM_NS(TimeUnits);
         QDataStream& operator << (QDataStream&, const TimeUnits&);
         QDataStream& operator >> (QDataStream&, TimeUnits&);

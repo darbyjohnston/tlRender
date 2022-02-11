@@ -9,6 +9,8 @@
 
 #include <tlrQWidget/RadioButtonGroup.h>
 
+#include <tlrQt/MetaTypes.h>
+
 #include <QComboBox>
 #include <QDoubleSpinBox>
 #include <QSlider>

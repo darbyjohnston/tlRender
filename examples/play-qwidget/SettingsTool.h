@@ -7,15 +7,15 @@
 #include "ToolWidget.h"
 #include "SettingsObject.h"
 
+#include <tlrQWidget/RadioButtonGroup.h>
+
 #include <tlrQt/TimeObject.h>
 
-#include <QButtonGroup>
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDoubleSpinBox>
 #include <QLineEdit>
 #include <QMap>
-#include <QRadioButton>
 #include <QSpinBox>
 
 namespace tlr
@@ -97,13 +97,11 @@ namespace tlr
         TimeSettingsWidget(qt::TimeObject*, QWidget* parent = nullptr);
 
     private Q_SLOTS:
-        void _unitsCallback(QAbstractButton*);
+        void _unitsCallback(const QVariant&);
         void _unitsCallback(tlr::qt::TimeUnits);
 
     private:
-        QButtonGroup* _unitsButtonGroup = nullptr;
-        QMap<QAbstractButton*, qt::TimeUnits> _buttonToUnits;
-        QMap<qt::TimeUnits, QAbstractButton*> _unitsToButton;
+        qwidget::RadioButtonGroup* _unitsButtonGroup = nullptr;
         qt::TimeObject* _timeObject = nullptr;
     };
 

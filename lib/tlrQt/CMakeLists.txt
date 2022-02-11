@@ -1,4 +1,5 @@
 set(HEADERS
+	MetaTypes.h
     TimeObject.h
     TimelinePlayer.h
     TimelineThumbnailProvider.h

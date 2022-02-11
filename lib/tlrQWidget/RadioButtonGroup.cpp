@@ -21,6 +21,7 @@ namespace tlr
             QMap<QAbstractButton*, QVariant> fromButton;
             QButtonGroup* group = nullptr;
             QBoxLayout* layout = nullptr;
+            QBoxLayout* buttonLayout = nullptr;
         };
 
         RadioButtonGroup::RadioButtonGroup(Qt::Orientation orientation, QWidget* parent) :
@@ -55,7 +56,7 @@ namespace tlr
             p.fromButton[button] = value;
             
             p.group->addButton(button);
-            p.layout->addWidget(button);
+            p.buttonLayout->addWidget(button);
         }
 
         void RadioButtonGroup::clear()
@@ -64,7 +65,7 @@ namespace tlr
 
             for (auto i : p.toButton)
             {
-                p.layout->removeWidget(i);
+                p.buttonLayout->removeWidget(i);
                 p.group->removeButton(i);
                 delete i;
             }
@@ -113,19 +114,28 @@ namespace tlr
             TLR_PRIVATE_P();
             for (auto i : p.toButton)
             {
-                p.layout->removeWidget(i);
+                p.buttonLayout->removeWidget(i);
             }
+            delete p.buttonLayout;
             delete p.layout;
             switch (p.orientation)
             {
-            case Qt::Horizontal: p.layout = new QHBoxLayout; break;
-            case Qt::Vertical: p.layout = new QVBoxLayout; break;
+            case Qt::Horizontal:
+                p.buttonLayout = new QHBoxLayout;
+                p.layout = new QHBoxLayout;
+                break;
+            case Qt::Vertical:
+                p.buttonLayout = new QVBoxLayout;
+                p.layout = new QVBoxLayout;
+                break;
             default: break;
             }
             for (auto i : p.toButton)
             {
-                p.layout->addWidget(i);
+                p.buttonLayout->addWidget(i);
             }
+            p.layout->addLayout(p.buttonLayout);
+            p.layout->addStretch();
             setLayout(p.layout);
         }
     }

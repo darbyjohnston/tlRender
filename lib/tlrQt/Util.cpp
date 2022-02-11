@@ -4,16 +4,11 @@
 
 #include <tlrQt/Util.h>
 
+#include <tlrQt/MetaTypes.h>
 #include <tlrQt/TimeObject.h>
 
-#include <tlrCore/AudioSystem.h>
 #include <tlrCore/Context.h>
-#include <tlrCore/FileIO.h>
-#include <tlrCore/FontSystem.h>
 #include <tlrCore/Mesh.h>
-#include <tlrCore/OCIO.h>
-#include <tlrCore/OS.h>
-#include <tlrCore/TimelinePlayer.h>
 
 #include <QSurfaceFormat>
 
@@ -29,18 +24,24 @@ namespace tlr
             qRegisterMetaType<audio::DataType>("tlr::audio::DataType");
             qRegisterMetaType<audio::DeviceFormat>("tlr::audio::DeviceFormat");
             qRegisterMetaType<audio::Device>("tlr::audio::Device");
+            QMetaType::registerComparators<audio::DataType>();
+            QMetaType::registerComparators<audio::DeviceFormat>();
 
             qRegisterMetaType<avio::FileExtensionType>("tlr::avio::FileExtensionType");
             qRegisterMetaType<avio::Info>("tlr::avio::Info");
             qRegisterMetaType<avio::VideoData>("tlr::avio::VideoData");
             qRegisterMetaType<avio::AudioData>("tlr::avio::AudioData");
             qRegisterMetaType<avio::VideoType>("tlr::avio::VideoType");
+            QMetaType::registerComparators<avio::FileExtensionType>();
+            QMetaType::registerComparators<avio::VideoType>();
 
             qRegisterMetaType<core::LogItem>("tlr::core::LogItem");
             qRegisterMetaType<core::LogType>("tlr::core::LogType");
+            QMetaType::registerComparators<core::LogType>();
 
             qRegisterMetaType<file::Mode>("tlr::file::Mode");
             qRegisterMetaType<file::PathOptions>("tlr::file::PathOptions");
+            QMetaType::registerComparators<file::Mode>();
 
             qRegisterMetaType<geom::Triangle2>("tlr::geom::Triangle2");
             qRegisterMetaType<geom::Triangle3>("tlr::geom::Triangle3");
@@ -57,24 +58,30 @@ namespace tlr
             qRegisterMetaType<imaging::Glyph>("tlr::imaging::Glyph");
             qRegisterMetaType<imaging::PixelType>("tlr::imaging::PixelType");
             qRegisterMetaType<imaging::YUVRange>("tlr::imaging::YUVRange");
+            QMetaType::registerComparators<imaging::FontFamily>();
 
             qRegisterMetaType<memory::Endian>("tlr::memory::Endian");
+            QMetaType::registerComparators<memory::Endian>();
 
             qRegisterMetaType<observer::CallbackAction>("tlr::observer::CallbackAction");
 
             qRegisterMetaType<os::EnvListSeparator>("tlr::os::EnvListSeparator");
             qRegisterMetaType<os::SystemInfo>("tlr::os::SystemInfo");
+            QMetaType::registerComparators<os::EnvListSeparator>();
 
             qRegisterMetaType<render::AlphaBlend>("tlr::render::AlphaBlend");
             qRegisterMetaType<render::Channels>("tlr::render::Channels");
             qRegisterMetaType<render::Color>("tlr::render::Color");
             qRegisterMetaType<render::CompareMode>("tlr::render::CompareMode");
-            QMetaType::registerComparators<render::CompareMode>();
             qRegisterMetaType<render::CompareOptions>("tlr::render::CompareOptions");
             qRegisterMetaType<render::ImageOptions>("tlr::render::ImageOptions");
             qRegisterMetaType<render::Exposure>("tlr::render::Exposure");
             qRegisterMetaType<render::Levels>("tlr::render::Levels");
             qRegisterMetaType<render::YUVRange>("tlr::render::YUVRange");
+            QMetaType::registerComparators<render::AlphaBlend>();
+            QMetaType::registerComparators<render::Channels>();
+            QMetaType::registerComparators<render::CompareMode>();
+            QMetaType::registerComparators<render::YUVRange>();
 
             qRegisterMetaType<timeline::AudioBufferFrameCount>("tlr::timeline::AudioBufferFrameCount");
             qRegisterMetaType<timeline::AudioData>("tlr::timeline::AudioData");
@@ -89,11 +96,19 @@ namespace tlr
             qRegisterMetaType<timeline::Transition>("tlr::timeline::Transition");
             qRegisterMetaType<timeline::VideoData>("tlr::timeline::VideoData");
             qRegisterMetaType<timeline::VideoLayer>("tlr::timeline::VideoLayer");
+            QMetaType::registerComparators<timeline::AudioBufferFrameCount>();
+            QMetaType::registerComparators<timeline::FileSequenceAudio>();
+            QMetaType::registerComparators<timeline::Loop>();
+            QMetaType::registerComparators<timeline::Playback>();
+            QMetaType::registerComparators<timeline::TimeAction>();
+            QMetaType::registerComparators<timeline::TimerMode>();
+            QMetaType::registerComparators<timeline::Transition>();
 
             qRegisterMetaType<TimeUnits>("tlr::qt::TimeUnits");
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
             qRegisterMetaTypeStreamOperators<TimeUnits>("tlr::qt::TimeUnits");
 #endif
+            QMetaType::registerComparators<TimeUnits>();
 
             QSurfaceFormat surfaceFormat;
             surfaceFormat.setMajorVersion(4);

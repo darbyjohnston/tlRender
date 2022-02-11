@@ -13,22 +13,24 @@ namespace tlr
     YUVRangeWidget::YUVRangeWidget(QWidget* parent) :
         QWidget(parent)
     {
-        _comboBox = new QComboBox;
-        for (const auto& i : render::getYUVRangeLabels())
+        _radioButtonGroup = new qwidget::RadioButtonGroup;
+        for (const auto& i : render::getYUVRangeEnums())
         {
-            _comboBox->addItem(QString::fromUtf8(i.c_str()));
+            _radioButtonGroup->addButton(
+                QString::fromUtf8(render::getLabel(i).c_str()),
+                QVariant::fromValue<render::YUVRange>(i));
         }
 
         auto layout = new QVBoxLayout;
-        layout->addWidget(_comboBox);
+        layout->addWidget(_radioButtonGroup);
         setLayout(layout);
 
         _widgetUpdate();
 
         connect(
-            _comboBox,
-            SIGNAL(activated(int)),
-            SLOT(_callback(int)));
+            _radioButtonGroup,
+            SIGNAL(checked(const QVariant&)),
+            SLOT(_callback(const QVariant&)));
     }
 
     void YUVRangeWidget::setValue(render::YUVRange value)
@@ -39,37 +41,39 @@ namespace tlr
         _widgetUpdate();
     }
 
-    void YUVRangeWidget::_callback(int value)
+    void YUVRangeWidget::_callback(const QVariant& value)
     {
-        _value = static_cast<render::YUVRange>(value);
+        _value = value.value<render::YUVRange>();
         Q_EMIT valueChanged(_value);
     }
 
     void YUVRangeWidget::_widgetUpdate()
     {
-        QSignalBlocker signalBlocker(_comboBox);
-        _comboBox->setCurrentIndex(static_cast<int>(_value));
+        QSignalBlocker signalBlocker(_radioButtonGroup);
+        _radioButtonGroup->setChecked(QVariant::fromValue<render::YUVRange>(_value));
     }
 
     ChannelsWidget::ChannelsWidget(QWidget* parent) :
         QWidget(parent)
     {
-        _comboBox = new QComboBox;
-        for (const auto& i : render::getChannelsLabels())
+        _radioButtonGroup = new qwidget::RadioButtonGroup;
+        for (const auto& i : render::getChannelsEnums())
         {
-            _comboBox->addItem(QString::fromUtf8(i.c_str()));
+            _radioButtonGroup->addButton(
+                QString::fromUtf8(render::getLabel(i).c_str()),
+                QVariant::fromValue<render::Channels>(i));
         }
 
         auto layout = new QVBoxLayout;
-        layout->addWidget(_comboBox);
+        layout->addWidget(_radioButtonGroup);
         setLayout(layout);
 
         _widgetUpdate();
 
         connect(
-            _comboBox,
-            SIGNAL(activated(int)),
-            SLOT(_callback(int)));
+            _radioButtonGroup,
+            SIGNAL(checked(const QVariant&)),
+            SLOT(_callback(const QVariant&)));
     }
 
     void ChannelsWidget::setValue(render::Channels value)
@@ -80,37 +84,39 @@ namespace tlr
         _widgetUpdate();
     }
 
-    void ChannelsWidget::_callback(int value)
+    void ChannelsWidget::_callback(const QVariant& value)
     {
-        _value = static_cast<render::Channels>(value);
+        _value = value.value<render::Channels>();
         Q_EMIT valueChanged(_value);
     }
 
     void ChannelsWidget::_widgetUpdate()
     {
-        QSignalBlocker signalBlocker(_comboBox);
-        _comboBox->setCurrentIndex(static_cast<int>(_value));
+        QSignalBlocker signalBlocker(_radioButtonGroup);
+        _radioButtonGroup->setChecked(QVariant::fromValue<render::Channels>(_value));
     }
 
     AlphaBlendWidget::AlphaBlendWidget(QWidget* parent) :
         QWidget(parent)
     {
-        _comboBox = new QComboBox;
-        for (const auto& i : render::getAlphaBlendLabels())
+        _radioButtonGroup = new qwidget::RadioButtonGroup;
+        for (const auto& i : render::getAlphaBlendEnums())
         {
-            _comboBox->addItem(QString::fromUtf8(i.c_str()));
+            _radioButtonGroup->addButton(
+                QString::fromUtf8(render::getLabel(i).c_str()),
+                QVariant::fromValue<render::AlphaBlend>(i));
         }
 
         auto layout = new QVBoxLayout;
-        layout->addWidget(_comboBox);
+        layout->addWidget(_radioButtonGroup);
         setLayout(layout);
 
         _widgetUpdate();
 
         connect(
-            _comboBox,
-            SIGNAL(activated(int)),
-            SLOT(_callback(int)));
+            _radioButtonGroup,
+            SIGNAL(checked(const QVariant&)),
+            SLOT(_callback(const QVariant&)));
     }
 
     void AlphaBlendWidget::setValue(render::AlphaBlend value)
@@ -121,16 +127,16 @@ namespace tlr
         _widgetUpdate();
     }
 
-    void AlphaBlendWidget::_callback(int value)
+    void AlphaBlendWidget::_callback(const QVariant& value)
     {
-        _value = static_cast<render::AlphaBlend>(value);
+        _value = value.value<render::AlphaBlend>();
         Q_EMIT valueChanged(_value);
     }
 
     void AlphaBlendWidget::_widgetUpdate()
     {
-        QSignalBlocker signalBlocker(_comboBox);
-        _comboBox->setCurrentIndex(static_cast<int>(_value));
+        QSignalBlocker signalBlocker(_radioButtonGroup);
+        _radioButtonGroup->setChecked(QVariant::fromValue<render::AlphaBlend>(_value));
     }
 
     namespace
