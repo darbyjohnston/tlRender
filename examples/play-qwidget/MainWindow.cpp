@@ -20,7 +20,6 @@
 #include <QMenuBar>
 #include <QMimeData>
 #include <QSettings>
-//#include <QStatusBar>
 #include <QStyle>
 #include <QToolBar>
 
@@ -433,11 +432,9 @@ namespace tlr
 
         _infoLabel = new QLabel;
     
-        //! \bug Creating the status bar gives this error:
-        //! QObject: Cannot create children for a parent that is in a different thread.
-        //! (Parent is QStatusBar(0x2992b2ff4c0), parent's thread is QThread(0x299271b5840),
-        //! current thread is tlr::qt::TimelineThumbnailProvider(0x299296ac1e0)
-        //statusBar()->addPermanentWidget(_infoLabel);
+        _statusBar = new QStatusBar;
+        _statusBar->addPermanentWidget(_infoLabel);
+        setStatusBar(_statusBar);
 
         _recentFilesUpdate();
         _widgetUpdate();
@@ -476,10 +473,10 @@ namespace tlr
                 switch (value.type)
                 {
                 case core::LogType::Error:
-                    //statusBar()->showMessage(
-                    //    QString(tr("ERROR: %1")).
-                    //    arg(QString::fromUtf8(value.message.c_str())),
-                    //    errorTimeout);
+                    _statusBar->showMessage(
+                        QString(tr("ERROR: %1")).
+                        arg(QString::fromUtf8(value.message.c_str())),
+                        errorTimeout);
                     break;
                 default: break;
                 }

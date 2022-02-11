@@ -27,6 +27,7 @@
 #include <QActionGroup>
 #include <QLabel>
 #include <QMainWindow>
+#include <QStatusBar>
 
 namespace tlr
 {
@@ -106,6 +107,7 @@ namespace tlr
         MessagesTool* _messagesTool = nullptr;
         SystemLogTool* _systemLogTool = nullptr;
         QLabel* _infoLabel = nullptr;
+        QStatusBar* _statusBar = nullptr;
         SecondaryWindow* _secondaryWindow = nullptr;
         
         std::shared_ptr<observer::ListObserver<std::shared_ptr<FilesModelItem> > > _filesObserver;

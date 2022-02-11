@@ -24,27 +24,30 @@ namespace tlr
         fileNameButton->setIcon(QIcon(":/Icons/FileBrowser.svg"));
         fileNameButton->setAutoRaise(true);
 
-        _inputComboBox = new QComboBox;
+        _inputListView = new QListView;
+        _inputListView->setAlternatingRowColors(true);
+        _inputListView->setSelectionMode(QAbstractItemView::NoSelection);
+        _inputListView->setModel(new ColorInputListModel(colorModel, this));
 
-        _displayComboBox = new QComboBox;
+        _displayListView = new QListView;
+        _displayListView->setAlternatingRowColors(true);
+        _displayListView->setSelectionMode(QAbstractItemView::NoSelection);
+        _displayListView->setModel(new ColorDisplayListModel(colorModel, this));
 
-        _viewComboBox = new QComboBox;
+        _viewListView = new QListView;
+        _viewListView->setAlternatingRowColors(true);
+        _viewListView->setSelectionMode(QAbstractItemView::NoSelection);
+        _viewListView->setModel(new ColorViewListModel(colorModel, this));
 
-        auto layout = new QVBoxLayout;
-        layout->addWidget(new QLabel(tr("Configuration")));
         auto hLayout = new QHBoxLayout;
         hLayout->addWidget(_fileNameLineEdit);
         hLayout->addWidget(fileNameButton);
-        layout->addLayout(hLayout);
-        layout->addWidget(new QLabel(tr("Input")));
-        layout->addWidget(_inputComboBox);
-        layout->addWidget(new QLabel(tr("Display")));
-        layout->addWidget(_displayComboBox);
-        layout->addWidget(new QLabel(tr("View")));
-        layout->addWidget(_viewComboBox);
         auto widget = new QWidget;
-        widget->setLayout(layout);
-        addWidget(widget);
+        widget->setLayout(hLayout);
+        addBellows(tr("Configuration"), widget);
+        addBellows(tr("Input"), _inputListView);
+        addBellows(tr("Display"), _displayListView);
+        addBellows(tr("View"), _viewListView);
         addStretch();
 
         connect(
@@ -70,27 +73,35 @@ namespace tlr
             });
 
         connect(
-            _inputComboBox,
-            QOverload<int>::of(&QComboBox::activated),
-            [this](int index)
+            _fileNameLineEdit,
+            &QLineEdit::editingFinished,
+            [this]
             {
-                _colorModel->setInputIndex(index);
+                _colorModel->setConfig(_fileNameLineEdit->text().toUtf8().data());
             });
 
         connect(
-            _displayComboBox,
-            QOverload<int>::of(&QComboBox::activated),
-            [this](int index)
+            _inputListView,
+            &QAbstractItemView::activated,
+            [this](const QModelIndex& index)
             {
-                _colorModel->setDisplayIndex(index);
+                _colorModel->setInputIndex(index.row());
             });
 
         connect(
-            _viewComboBox,
-            QOverload<int>::of(&QComboBox::activated),
-            [this](int index)
+            _displayListView,
+            &QAbstractItemView::activated,
+            [this](const QModelIndex& index)
             {
-                _colorModel->setViewIndex(index);
+                _colorModel->setDisplayIndex(index.row());
+            });
+
+        connect(
+            _viewListView,
+            &QAbstractItemView::activated,
+            [this](const QModelIndex& index)
+            {
+                _colorModel->setViewIndex(index.row());
             });
 
         _dataObserver = observer::ValueObserver<ColorModelData>::create(
@@ -110,33 +121,6 @@ namespace tlr
         {
             QSignalBlocker blocker(_fileNameLineEdit);
             _fileNameLineEdit->setText(QString::fromUtf8(_data.fileName.c_str()));
-        }
-        {
-            QSignalBlocker blocker(_inputComboBox);
-            _inputComboBox->clear();
-            for (const auto& i : _data.inputs)
-            {
-                _inputComboBox->addItem(QString::fromUtf8(i.c_str()));
-            }
-            _inputComboBox->setCurrentIndex(_data.inputIndex);
-        }
-        {
-            QSignalBlocker blocker(_displayComboBox);
-            _displayComboBox->clear();
-            for (const auto& i : _data.displays)
-            {
-                _displayComboBox->addItem(QString::fromUtf8(i.c_str()));
-            }
-            _displayComboBox->setCurrentIndex(_data.displayIndex);
-        }
-        {
-            QSignalBlocker blocker(_viewComboBox);
-            _viewComboBox->clear();
-            for (const auto& i : _data.views)
-            {
-                _viewComboBox->addItem(QString::fromUtf8(i.c_str()));
-            }
-            _viewComboBox->setCurrentIndex(_data.viewIndex);
         }
     }
 }

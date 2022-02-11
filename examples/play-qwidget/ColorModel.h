@@ -21,11 +21,11 @@ namespace tlr
     {
         std::string fileName;
         std::vector<std::string> inputs;
-        int inputIndex = -1;
+        size_t inputIndex = 0;
         std::vector<std::string> displays;
-        int displayIndex = -1;
+        size_t displayIndex = 0;
         std::vector<std::string> views;
-        int viewIndex = -1;
+        size_t viewIndex = 0;
 
         bool operator == (const ColorModelData&) const;
     };
@@ -58,13 +58,13 @@ namespace tlr
         std::shared_ptr<observer::IValue<ColorModelData> > observeData() const;
 
         //! Set the input index.
-        void setInputIndex(int);
+        void setInputIndex(size_t);
 
         //! Set the display index.
-        void setDisplayIndex(int);
+        void setDisplayIndex(size_t);
 
         //! Set the view index.
-        void setViewIndex(int);
+        void setViewIndex(size_t);
 
     private:
         void _configUpdate();
@@ -73,5 +73,62 @@ namespace tlr
         OCIO_NAMESPACE::ConstConfigRcPtr _ocioConfig;
         std::shared_ptr<observer::Value<imaging::ColorConfig> > _config;
         std::shared_ptr<observer::Value<ColorModelData> > _data;
+    };
+
+    //! Color input list model.
+    class ColorInputListModel : public QAbstractListModel
+    {
+        Q_OBJECT
+
+    public:
+        ColorInputListModel(
+            const std::shared_ptr<ColorModel>&,
+            QObject* parent = nullptr);
+
+        int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+        QVariant data(const QModelIndex&, int role = Qt::DisplayRole) const override;
+
+    protected:
+        std::vector<std::string> _inputs;
+        size_t _inputIndex = 0;
+        std::shared_ptr<observer::ValueObserver<ColorModelData> > _dataObserver;
+    };
+
+    //! Color display list model.
+    class ColorDisplayListModel : public QAbstractListModel
+    {
+        Q_OBJECT
+
+    public:
+        ColorDisplayListModel(
+            const std::shared_ptr<ColorModel>&,
+            QObject* parent = nullptr);
+
+        int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+        QVariant data(const QModelIndex&, int role = Qt::DisplayRole) const override;
+
+    protected:
+        std::vector<std::string> _displays;
+        size_t _displayIndex = 0;
+        std::shared_ptr<observer::ValueObserver<ColorModelData> > _dataObserver;
+    };
+
+    //! Color view list model.
+    class ColorViewListModel : public QAbstractListModel
+    {
+        Q_OBJECT
+
+    public:
+        ColorViewListModel(
+            const std::shared_ptr<ColorModel>&,
+            QObject* parent = nullptr);
+
+        int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+        QVariant data(const QModelIndex&, int role = Qt::DisplayRole) const override;
+
+    protected:
+        std::vector<std::string> _views;
+        size_t _viewIndex = 0;
+        std::shared_ptr<observer::ValueObserver<ColorModelData> > _dataObserver;
     };
 }

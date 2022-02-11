@@ -8,6 +8,7 @@
 #include "ToolWidget.h"
 
 #include <QLineEdit>
+#include <QListView>
 #include <QComboBox>
 
 namespace tlr
@@ -30,9 +31,9 @@ namespace tlr
         std::shared_ptr<ColorModel> _colorModel;
         ColorModelData _data;
         QLineEdit* _fileNameLineEdit = nullptr;
-        QComboBox* _inputComboBox = nullptr;
-        QComboBox* _displayComboBox = nullptr;
-        QComboBox* _viewComboBox = nullptr;
+        QListView* _inputListView = nullptr;
+        QListView* _displayListView = nullptr;
+        QListView* _viewListView = nullptr;
         std::shared_ptr<observer::ValueObserver<ColorModelData> > _dataObserver;
     };
 }
