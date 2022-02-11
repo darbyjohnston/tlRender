@@ -10,7 +10,6 @@
 #include <tlrCore/Context.h>
 #include <tlrCore/FileIO.h>
 #include <tlrCore/FontSystem.h>
-#include <tlrCore/IRender.h>
 #include <tlrCore/Mesh.h>
 #include <tlrCore/OCIO.h>
 #include <tlrCore/OS.h>
@@ -68,10 +67,10 @@ namespace tlr
 
             qRegisterMetaType<render::AlphaBlend>("tlr::render::AlphaBlend");
             qRegisterMetaType<render::Channels>("tlr::render::Channels");
-            qRegisterMetaType<render::CompareMode>("tlr::render::CompareMode");
-            qRegisterMetaType<render::CompareOptions>("tlr::render::CompareOptions");
             qRegisterMetaType<render::Color>("tlr::render::Color");
             qRegisterMetaType<render::CompareMode>("tlr::render::CompareMode");
+            QMetaType::registerComparators<render::CompareMode>();
+            qRegisterMetaType<render::CompareOptions>("tlr::render::CompareOptions");
             qRegisterMetaType<render::ImageOptions>("tlr::render::ImageOptions");
             qRegisterMetaType<render::Exposure>("tlr::render::Exposure");
             qRegisterMetaType<render::Levels>("tlr::render::Levels");

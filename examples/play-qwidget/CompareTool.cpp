@@ -40,7 +40,7 @@ namespace tlr
         //! QBasicTimer::start: QBasicTimer can only be used with threads started with QThread
         _treeView->setModel(_filesBModel);
 
-        _modeButtonGroup = new QButtonGroup;
+        /*_modeButtonGroup = new QButtonGroup;
         _modeButtonGroup->setExclusive(true);
         for (const auto i : render::getCompareModeEnums())
         {
@@ -50,16 +50,33 @@ namespace tlr
             _modeToButton[i] = button;
             _buttonToMode[button] = i;
             _modeButtonGroup->addButton(button);
+        }*/
+        _modeButtonGroup = new qwidget::RadioButtonGroup;
+        for (const auto i : render::getCompareModeEnums())
+        {
+            _modeButtonGroup->addButton(
+                QString::fromUtf8(
+                    render::getCompareModeLabels()[static_cast<size_t>(i)].c_str()),
+                QVariant::fromValue<render::CompareMode>(i));
         }
 
+        _wipeXSpinBox = new QDoubleSpinBox;
+        _wipeXSpinBox->setRange(0.0, 1.0);
+        _wipeXSpinBox->setSingleStep(0.1);
         _wipeXSlider = new QSlider(Qt::Orientation::Horizontal);
         _wipeXSlider->setRange(0, sliderSteps);
+
+        _wipeYSpinBox = new QDoubleSpinBox;
+        _wipeYSpinBox->setRange(0.0, 1.0);
+        _wipeYSpinBox->setSingleStep(0.1);
         _wipeYSlider = new QSlider(Qt::Orientation::Horizontal);
         _wipeYSlider->setRange(0, sliderSteps);
+
         _wipeRotationSpinBox = new QDoubleSpinBox;
         _wipeRotationSpinBox->setRange(0.0, 360.0);
         _wipeRotationSpinBox->setSingleStep(10.0);
-        _wipeRotationSpinBox->setToolTip(tr("Rotation"));
+        _wipeRotationSlider = new QSlider(Qt::Orientation::Horizontal);
+        _wipeRotationSlider->setRange(0, sliderSteps);
 
         auto layout = new QVBoxLayout;
         layout->setContentsMargins(0, 0, 0, 0);
@@ -68,18 +85,21 @@ namespace tlr
         auto vLayout = new QVBoxLayout;
         vLayout->setContentsMargins(10, 10, 10, 10);
         vLayout->setSpacing(10);
-        auto hLayout = new QHBoxLayout;
-        for (const auto i : render::getCompareModeEnums())
-        {
-            hLayout->addWidget(_modeToButton[i]);
-        }
-        hLayout->addStretch();
-        vLayout->addLayout(hLayout);
+        vLayout->addWidget(_modeButtonGroup);
         vLayout->addWidget(new QLabel(tr("Wipe")));
         auto formLayout = new QFormLayout;
-        formLayout->addRow(tr("X:"), _wipeXSlider);
-        formLayout->addRow(tr("Y:"), _wipeYSlider);
-        formLayout->addRow(tr("Rotation:"), _wipeRotationSpinBox);
+        auto hLayout = new QHBoxLayout;
+        hLayout->addWidget(_wipeXSpinBox);
+        hLayout->addWidget(_wipeXSlider);
+        formLayout->addRow(tr("X:"), hLayout);
+        hLayout = new QHBoxLayout;
+        hLayout->addWidget(_wipeYSpinBox);
+        hLayout->addWidget(_wipeYSlider);
+        formLayout->addRow(tr("Y:"), hLayout);
+        hLayout = new QHBoxLayout;
+        hLayout->addWidget(_wipeRotationSpinBox);
+        hLayout->addWidget(_wipeRotationSlider);
+        formLayout->addRow(tr("Rotation:"), hLayout);
         vLayout->addLayout(formLayout);
         layout->addLayout(vLayout);
         auto widget = new QWidget;
@@ -102,21 +122,35 @@ namespace tlr
 
         connect(
             _modeButtonGroup,
-            SIGNAL(buttonToggled(QAbstractButton*, bool)),
-            SLOT(_modeCallback(QAbstractButton*, bool)));
+            SIGNAL(checked(const QVariant&)),
+            SLOT(_modeCallback(const QVariant&)));
 
+        connect(
+            _wipeXSpinBox,
+            SIGNAL(valueChanged(double)),
+            SLOT(_wipeXSpinBoxCallback(double)));
         connect(
             _wipeXSlider,
             SIGNAL(valueChanged(int)),
-            SLOT(_wipeXCallback(int)));
+            SLOT(_wipeXSliderCallback(int)));
+
+        connect(
+            _wipeYSpinBox,
+            SIGNAL(valueChanged(double)),
+            SLOT(_wipeYSpinBoxCallback(double)));
         connect(
             _wipeYSlider,
             SIGNAL(valueChanged(int)),
-            SLOT(_wipeYCallback(int)));
+            SLOT(_wipeYSliderCallback(int)));
+
         connect(
             _wipeRotationSpinBox,
             SIGNAL(valueChanged(double)),
-            SLOT(_wipeRotationCallback(double)));
+            SLOT(_wipeRotationSpinBoxCallback(double)));
+        connect(
+            _wipeRotationSlider,
+            SIGNAL(valueChanged(int)),
+            SLOT(_wipeRotationSliderCallback(int)));
     }
 
     CompareTool::~CompareTool()
@@ -138,34 +172,51 @@ namespace tlr
         _filesModel->toggleB(index.row());
     }
 
-    void CompareTool::_modeCallback(QAbstractButton* button, bool value)
+    void CompareTool::_modeCallback(const QVariant& value)
     {
-        const auto i = _buttonToMode.find(button);
-        if (i != _buttonToMode.end())
-        {
-            _compareOptions.mode = i.value();
-            _widgetUpdate();
-            Q_EMIT compareOptionsChanged(_compareOptions);
-        }
+        _compareOptions.mode = value.value<render::CompareMode>();
+        _widgetUpdate();
+        Q_EMIT compareOptionsChanged(_compareOptions);
     }
 
-    void CompareTool::_wipeXCallback(int value)
+    void CompareTool::_wipeXSpinBoxCallback(double value)
+    {
+        _compareOptions.wipeCenter.x = value;
+        _widgetUpdate();
+        Q_EMIT compareOptionsChanged(_compareOptions);
+    }
+
+    void CompareTool::_wipeXSliderCallback(int value)
     {
         _compareOptions.wipeCenter.x = value / static_cast<float>(sliderSteps);
         _widgetUpdate();
         Q_EMIT compareOptionsChanged(_compareOptions);
     }
 
-    void CompareTool::_wipeYCallback(int value)
+    void CompareTool::_wipeYSliderCallback(int value)
     {
         _compareOptions.wipeCenter.y = value / static_cast<float>(sliderSteps);
         _widgetUpdate();
         Q_EMIT compareOptionsChanged(_compareOptions);
     }
 
-    void CompareTool::_wipeRotationCallback(double value)
+    void CompareTool::_wipeYSpinBoxCallback(double value)
+    {
+        _compareOptions.wipeCenter.y = value;
+        _widgetUpdate();
+        Q_EMIT compareOptionsChanged(_compareOptions);
+    }
+
+    void CompareTool::_wipeRotationSpinBoxCallback(double value)
     {
         _compareOptions.wipeRotation = value;
+        _widgetUpdate();
+        Q_EMIT compareOptionsChanged(_compareOptions);
+    }
+
+    void CompareTool::_wipeRotationSliderCallback(int value)
+    {
+        _compareOptions.wipeRotation = value / static_cast<float>(sliderSteps) * 360.F;
         _widgetUpdate();
         Q_EMIT compareOptionsChanged(_compareOptions);
     }
@@ -174,15 +225,19 @@ namespace tlr
     {
         {
             QSignalBlocker signalBlocker(_modeButtonGroup);
-            const auto i = _modeToButton.find(_compareOptions.mode);
-            if (i != _modeToButton.end())
-            {
-                i.value()->setChecked(true);
-            }
+            _modeButtonGroup->setChecked(QVariant::fromValue<render::CompareMode>(_compareOptions.mode));
+        }
+        {
+            QSignalBlocker signalBlocker(_wipeXSpinBox);
+            _wipeXSpinBox->setValue(_compareOptions.wipeCenter.x);
         }
         {
             QSignalBlocker signalBlocker(_wipeXSlider);
             _wipeXSlider->setValue(_compareOptions.wipeCenter.x * sliderSteps);
+        }
+        {
+            QSignalBlocker signalBlocker(_wipeYSpinBox);
+            _wipeYSpinBox->setValue(_compareOptions.wipeCenter.y);
         }
         {
             QSignalBlocker signalBlocker(_wipeYSlider);
@@ -191,6 +246,10 @@ namespace tlr
         {
             QSignalBlocker signalBlocker(_wipeRotationSpinBox);
             _wipeRotationSpinBox->setValue(_compareOptions.wipeRotation);
+        }
+        {
+            QSignalBlocker signalBlocker(_wipeYSlider);
+            _wipeRotationSlider->setValue(_compareOptions.wipeRotation / 360.F * sliderSteps);
         }
     }
 }

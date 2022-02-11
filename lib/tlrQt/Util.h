@@ -4,8 +4,11 @@
 
 #pragma once
 
+#include <tlrCore/IRender.h>
+
 #include <tlrGlad/gl.h>
 
+#include <QMetaType>
 #include <QString>
 
 namespace tlr
@@ -24,3 +27,4 @@ namespace tlr
     }
 }
 
+Q_DECLARE_METATYPE(tlr::render::CompareMode);

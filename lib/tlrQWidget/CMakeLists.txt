@@ -1,6 +1,7 @@
 set(HEADERS
 	BellowsWidget.h
     FilmstripWidget.h
+	RadioButtonGroup.h
 	Separator.h
     SpeedLabel.h
     TimeLabel.h
@@ -13,6 +14,7 @@ set(HEADERS
 set(SOURCE
 	BellowsWidget.cpp
     FilmstripWidget.cpp
+	RadioButtonGroup.cpp
 	Separator.cpp
     SpeedLabel.cpp
     TimeLabel.cpp
