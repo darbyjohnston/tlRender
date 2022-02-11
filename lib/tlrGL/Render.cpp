@@ -573,159 +573,157 @@ namespace tlr
 
             p.colorConfig = config;
 
-            if (!p.colorConfig.fileName.empty())
+            if (!p.colorConfig.input.empty() &&
+                !p.colorConfig.display.empty() &&
+                !p.colorConfig.view.empty())
             {
-                p.ocioConfig = OCIO::Config::CreateFromFile(p.colorConfig.fileName.c_str());
-            }
-            else
-            {
-                p.ocioConfig = OCIO::GetCurrentConfig();
-            }
-            if (!p.ocioConfig)
-            {
-                throw std::runtime_error("Cannot get OCIO configuration");
-            }
-
-            const std::string display = !p.colorConfig.display.empty() ?
-                p.colorConfig.display :
-                p.ocioConfig->getDefaultDisplay();
-            const std::string view = !p.colorConfig.view.empty() ?
-                p.colorConfig.view :
-                p.ocioConfig->getDefaultView(display.c_str());
-
-            p.ocioTransform = OCIO::DisplayViewTransform::Create();
-            if (!p.ocioTransform)
-            {
-                _delColorConfig();
-                throw std::runtime_error("Cannot create OCIO transform");
-            }
-            p.ocioTransform->setSrc(p.colorConfig.input.c_str());
-            p.ocioTransform->setDisplay(display.c_str());
-            p.ocioTransform->setView(view.c_str());
-
-            p.ocioVP = OCIO::LegacyViewingPipeline::Create();
-            if (!p.ocioVP)
-            {
-                _delColorConfig();
-                throw std::runtime_error("Cannot create OCIO viewing pipeline");
-            }
-            p.ocioVP->setDisplayViewTransform(p.ocioTransform);
-            p.ocioVP->setLooksOverrideEnabled(true);
-            p.ocioVP->setLooksOverride(p.colorConfig.look.c_str());
-
-            p.ocioProcessor = p.ocioVP->getProcessor(p.ocioConfig, p.ocioConfig->getCurrentContext());
-            if (!p.ocioProcessor)
-            {
-                _delColorConfig();
-                throw std::runtime_error("Cannot get OCIO processor");
-            }
-            p.ocioGpuProcessor = p.ocioProcessor->getDefaultGPUProcessor();
-            if (!p.ocioGpuProcessor)
-            {
-                _delColorConfig();
-                throw std::runtime_error("Cannot get OCIO GPU processor");
-            }
-            p.ocioShaderDesc = OCIO::GpuShaderDesc::CreateShaderDesc();
-            if (!p.ocioShaderDesc)
-            {
-                _delColorConfig();
-                throw std::runtime_error("Cannot create OCIO shader description");
-            }
-            p.ocioShaderDesc->setLanguage(OCIO::GPU_LANGUAGE_GLSL_4_0);
-            p.ocioShaderDesc->setFunctionName(colorFunctionName.c_str());
-            p.ocioGpuProcessor->extractGpuShaderInfo(p.ocioShaderDesc);
-
-            // Create 3D textures.
-            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-            glPixelStorei(GL_UNPACK_SWAP_BYTES, 0);
-            const unsigned num3DTextures = p.ocioShaderDesc->getNum3DTextures();
-            unsigned currentTexture = 0;
-            for (unsigned i = 0; i < num3DTextures; ++i, ++currentTexture)
-            {
-                const char* textureName = nullptr;
-                const char* samplerName = nullptr;
-                unsigned edgelen = 0;
-                OCIO::Interpolation interpolation = OCIO::INTERP_LINEAR;
-                p.ocioShaderDesc->get3DTexture(i, textureName, samplerName, edgelen, interpolation);
-                if (!textureName ||
-                    !*textureName ||
-                    !samplerName ||
-                    !*samplerName ||
-                    0 == edgelen)
+                if (!p.colorConfig.fileName.empty())
                 {
-                    _delColorConfig();
-                    throw std::runtime_error("The OCIO texture data is corrupted");
-                }
-
-                const float* values = nullptr;
-                p.ocioShaderDesc->get3DTextureValues(i, values);
-                if (!values)
-                {
-                    _delColorConfig();
-                    throw std::runtime_error("The OCIO texture values are missing");
-                }
-
-                unsigned textureId = 0;
-                glGenTextures(1, &textureId);
-                glActiveTexture(GL_TEXTURE3 + currentTexture);
-                glBindTexture(GL_TEXTURE_3D, textureId);
-                setTextureParameters(GL_TEXTURE_3D, interpolation);
-                glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB32F, edgelen, edgelen, edgelen, 0, GL_RGB, GL_FLOAT, values);
-                p.colorTextures.push_back(Private::TextureId(textureId, textureName, samplerName, GL_TEXTURE_3D));
-            }
-
-            // Create 1D textures.
-            const unsigned numTextures = p.ocioShaderDesc->getNumTextures();
-            for (unsigned i = 0; i < numTextures; ++i, ++currentTexture)
-            {
-                const char* textureName = nullptr;
-                const char* samplerName = nullptr;
-                unsigned width = 0;
-                unsigned height = 0;
-                OCIO::GpuShaderDesc::TextureType channel = OCIO::GpuShaderDesc::TEXTURE_RGB_CHANNEL;
-                OCIO::Interpolation interpolation = OCIO::INTERP_LINEAR;
-                p.ocioShaderDesc->getTexture(i, textureName, samplerName, width, height, channel, interpolation);
-                if (!textureName ||
-                    !*textureName ||
-                    !samplerName ||
-                    !*samplerName ||
-                    width == 0)
-                {
-                    _delColorConfig();
-                    throw std::runtime_error("The OCIO texture data is corrupted");
-                }
-
-                const float* values = nullptr;
-                p.ocioShaderDesc->getTextureValues(i, values);
-                if (!values)
-                {
-                    _delColorConfig();
-                    throw std::runtime_error("The OCIO texture values are missing");
-                }
-
-                unsigned textureId = 0;
-                GLint internalformat = GL_RGB32F;
-                GLenum format = GL_RGB;
-                if (OCIO::GpuShaderCreator::TEXTURE_RED_CHANNEL == channel)
-                {
-                    internalformat = GL_R32F;
-                    format = GL_RED;
-                }
-                glGenTextures(1, &textureId);
-                glActiveTexture(GL_TEXTURE3 + currentTexture);
-                if (height > 1)
-                {
-                    glBindTexture(GL_TEXTURE_2D, textureId);
-                    setTextureParameters(GL_TEXTURE_2D, interpolation);
-                    glTexImage2D(GL_TEXTURE_2D, 0, internalformat, width, height, 0, format, GL_FLOAT, values);
+                    p.ocioConfig = OCIO::Config::CreateFromFile(p.colorConfig.fileName.c_str());
                 }
                 else
                 {
-                    glBindTexture(GL_TEXTURE_1D, textureId);
-                    setTextureParameters(GL_TEXTURE_1D, interpolation);
-                    glTexImage1D(GL_TEXTURE_1D, 0, internalformat, width, 0, format, GL_FLOAT, values);
+                    p.ocioConfig = OCIO::GetCurrentConfig();
                 }
-                p.colorTextures.push_back(Private::TextureId(textureId, textureName, samplerName, (height > 1) ? GL_TEXTURE_2D : GL_TEXTURE_1D));
+                if (!p.ocioConfig)
+                {
+                    throw std::runtime_error("Cannot get OCIO configuration");
+                }
+
+                p.ocioTransform = OCIO::DisplayViewTransform::Create();
+                if (!p.ocioTransform)
+                {
+                    _delColorConfig();
+                    throw std::runtime_error("Cannot create OCIO transform");
+                }
+                p.ocioTransform->setSrc(p.colorConfig.input.c_str());
+                p.ocioTransform->setDisplay(p.colorConfig.display.c_str());
+                p.ocioTransform->setView(p.colorConfig.view.c_str());
+
+                p.ocioVP = OCIO::LegacyViewingPipeline::Create();
+                if (!p.ocioVP)
+                {
+                    _delColorConfig();
+                    throw std::runtime_error("Cannot create OCIO viewing pipeline");
+                }
+                p.ocioVP->setDisplayViewTransform(p.ocioTransform);
+                p.ocioVP->setLooksOverrideEnabled(true);
+                p.ocioVP->setLooksOverride(p.colorConfig.look.c_str());
+
+                p.ocioProcessor = p.ocioVP->getProcessor(p.ocioConfig, p.ocioConfig->getCurrentContext());
+                if (!p.ocioProcessor)
+                {
+                    _delColorConfig();
+                    throw std::runtime_error("Cannot get OCIO processor");
+                }
+                p.ocioGpuProcessor = p.ocioProcessor->getDefaultGPUProcessor();
+                if (!p.ocioGpuProcessor)
+                {
+                    _delColorConfig();
+                    throw std::runtime_error("Cannot get OCIO GPU processor");
+                }
+                p.ocioShaderDesc = OCIO::GpuShaderDesc::CreateShaderDesc();
+                if (!p.ocioShaderDesc)
+                {
+                    _delColorConfig();
+                    throw std::runtime_error("Cannot create OCIO shader description");
+                }
+                p.ocioShaderDesc->setLanguage(OCIO::GPU_LANGUAGE_GLSL_4_0);
+                p.ocioShaderDesc->setFunctionName(colorFunctionName.c_str());
+                p.ocioGpuProcessor->extractGpuShaderInfo(p.ocioShaderDesc);
+
+                // Create 3D textures.
+                glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+                glPixelStorei(GL_UNPACK_SWAP_BYTES, 0);
+                const unsigned num3DTextures = p.ocioShaderDesc->getNum3DTextures();
+                unsigned currentTexture = 0;
+                for (unsigned i = 0; i < num3DTextures; ++i, ++currentTexture)
+                {
+                    const char* textureName = nullptr;
+                    const char* samplerName = nullptr;
+                    unsigned edgelen = 0;
+                    OCIO::Interpolation interpolation = OCIO::INTERP_LINEAR;
+                    p.ocioShaderDesc->get3DTexture(i, textureName, samplerName, edgelen, interpolation);
+                    if (!textureName ||
+                        !*textureName ||
+                        !samplerName ||
+                        !*samplerName ||
+                        0 == edgelen)
+                    {
+                        _delColorConfig();
+                        throw std::runtime_error("The OCIO texture data is corrupted");
+                    }
+
+                    const float* values = nullptr;
+                    p.ocioShaderDesc->get3DTextureValues(i, values);
+                    if (!values)
+                    {
+                        _delColorConfig();
+                        throw std::runtime_error("The OCIO texture values are missing");
+                    }
+
+                    unsigned textureId = 0;
+                    glGenTextures(1, &textureId);
+                    glActiveTexture(GL_TEXTURE3 + currentTexture);
+                    glBindTexture(GL_TEXTURE_3D, textureId);
+                    setTextureParameters(GL_TEXTURE_3D, interpolation);
+                    glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB32F, edgelen, edgelen, edgelen, 0, GL_RGB, GL_FLOAT, values);
+                    p.colorTextures.push_back(Private::TextureId(textureId, textureName, samplerName, GL_TEXTURE_3D));
+                }
+
+                // Create 1D textures.
+                const unsigned numTextures = p.ocioShaderDesc->getNumTextures();
+                for (unsigned i = 0; i < numTextures; ++i, ++currentTexture)
+                {
+                    const char* textureName = nullptr;
+                    const char* samplerName = nullptr;
+                    unsigned width = 0;
+                    unsigned height = 0;
+                    OCIO::GpuShaderDesc::TextureType channel = OCIO::GpuShaderDesc::TEXTURE_RGB_CHANNEL;
+                    OCIO::Interpolation interpolation = OCIO::INTERP_LINEAR;
+                    p.ocioShaderDesc->getTexture(i, textureName, samplerName, width, height, channel, interpolation);
+                    if (!textureName ||
+                        !*textureName ||
+                        !samplerName ||
+                        !*samplerName ||
+                        width == 0)
+                    {
+                        _delColorConfig();
+                        throw std::runtime_error("The OCIO texture data is corrupted");
+                    }
+
+                    const float* values = nullptr;
+                    p.ocioShaderDesc->getTextureValues(i, values);
+                    if (!values)
+                    {
+                        _delColorConfig();
+                        throw std::runtime_error("The OCIO texture values are missing");
+                    }
+
+                    unsigned textureId = 0;
+                    GLint internalformat = GL_RGB32F;
+                    GLenum format = GL_RGB;
+                    if (OCIO::GpuShaderCreator::TEXTURE_RED_CHANNEL == channel)
+                    {
+                        internalformat = GL_R32F;
+                        format = GL_RED;
+                    }
+                    glGenTextures(1, &textureId);
+                    glActiveTexture(GL_TEXTURE3 + currentTexture);
+                    if (height > 1)
+                    {
+                        glBindTexture(GL_TEXTURE_2D, textureId);
+                        setTextureParameters(GL_TEXTURE_2D, interpolation);
+                        glTexImage2D(GL_TEXTURE_2D, 0, internalformat, width, height, 0, format, GL_FLOAT, values);
+                    }
+                    else
+                    {
+                        glBindTexture(GL_TEXTURE_1D, textureId);
+                        setTextureParameters(GL_TEXTURE_1D, interpolation);
+                        glTexImage1D(GL_TEXTURE_1D, 0, internalformat, width, 0, format, GL_FLOAT, values);
+                    }
+                    p.colorTextures.push_back(Private::TextureId(textureId, textureName, samplerName, (height > 1) ? GL_TEXTURE_2D : GL_TEXTURE_1D));
+                }
             }
 
             p.shader.reset();
