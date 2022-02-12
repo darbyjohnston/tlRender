@@ -22,7 +22,7 @@ namespace tl
             void setAudioOffset(double);
 
         Q_SIGNALS:
-            void offsetChanged(double);
+            void audioOffsetChanged(double);
 
         private Q_SLOTS:
             void _sliderCallback(int);

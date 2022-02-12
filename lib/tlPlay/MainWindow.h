@@ -26,8 +26,10 @@ namespace tl
 
             ~MainWindow() override;
 
+            //! Set the image options.
             void setImageOptions(const std::vector<render::ImageOptions>&);
 
+            //! Set the timeline players.
             void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
 
         protected:

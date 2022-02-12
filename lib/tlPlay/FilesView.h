@@ -13,7 +13,7 @@ namespace tl
 {
     namespace play
     {
-        //! Files tool.
+        //! Files layers item delegate.
         class FilesLayersItemDelegate : public QStyledItemDelegate
         {
             Q_OBJECT

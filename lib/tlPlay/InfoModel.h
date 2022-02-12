@@ -27,6 +27,7 @@ namespace tl
         public:
             InfoModel(QObject* parent = nullptr);
 
+            //! Set the information.
             void setInfo(const avio::Info&);
 
             int rowCount(const QModelIndex& parent = QModelIndex()) const override;

@@ -73,7 +73,7 @@ namespace tl
         {
             TLRENDER_P();
             p.offset = value / 100.0;
-            Q_EMIT offsetChanged(p.offset);
+            Q_EMIT audioOffsetChanged(p.offset);
             _offsetUpdate();
         }
 
@@ -81,7 +81,7 @@ namespace tl
         {
             TLRENDER_P();
             p.offset = value;
-            Q_EMIT offsetChanged(p.offset);
+            Q_EMIT audioOffsetChanged(p.offset);
             _offsetUpdate();
         }
 
@@ -89,7 +89,7 @@ namespace tl
         {
             TLRENDER_P();
             p.offset = 0.0;
-            Q_EMIT offsetChanged(p.offset);
+            Q_EMIT audioOffsetChanged(p.offset);
             _offsetUpdate();
         }
 
