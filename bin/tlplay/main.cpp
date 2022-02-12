@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include "App.h"
+#include <tlPlay/App.h>
 
 #include <tlQWidget/Util.h>
 
@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
     try
     {
         tl::qwidget::init();
-        tl::App app(argc, argv);
+        tl::play::App app(argc, argv);
         if (0 == app.getExit())
         {
             r = app.exec();
