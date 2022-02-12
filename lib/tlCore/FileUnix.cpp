@@ -2,7 +2,7 @@
 // Copyright (c) 2021 Darby Johnston
 // All rights reserved.
 
-#include <tlrCore/File.h>
+#include <tlCore/File.h>
 
 #include <cstring>
 
@@ -18,7 +18,7 @@
 #define _STAT_FNC    ::stat64
 #endif // __APPLE__
 
-namespace tlr
+namespace tl
 {
     namespace file
     {

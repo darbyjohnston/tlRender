@@ -2,9 +2,9 @@
 // Copyright (c) 2021 Darby Johnston
 // All rights reserved.
 
-#include <tlrCore/OS.h>
+#include <tlCore/OS.h>
 
-#include <tlrCore/Memory.h>
+#include <tlCore/Memory.h>
 
 #if defined(__APPLE__)
 #include <ApplicationServices/ApplicationServices.h>
@@ -27,7 +27,7 @@
 #include <pwd.h>
 #include <unistd.h>
 
-namespace tlr
+namespace tl
 {
     namespace os
     {

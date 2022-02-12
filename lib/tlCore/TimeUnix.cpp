@@ -2,11 +2,11 @@
 // Copyright (c) 2021 Darby Johnston
 // All rights reserved.
 
-#include <tlrCore/Time.h>
+#include <tlCore/Time.h>
 
 #include <time.h>
 
-namespace tlr
+namespace tl
 {
     namespace time
     {
