@@ -4,7 +4,7 @@ project(tlRender-external-tests)
 
 enable_testing()
 
-foreach(EXTERNAL_DEP ${TLR_EXTERNAL_DEPS})
+foreach(EXTERNAL_DEP ${TLRENDER_EXTERNAL_DEPS})
     find_package(${EXTERNAL_DEP})
     if(${EXTERNAL_DEP}_FOUND AND EXISTS ${CMAKE_SOURCE_DIR}/${EXTERNAL_DEP}Test)
         add_subdirectory(${EXTERNAL_DEP}Test)

@@ -7,16 +7,16 @@
 #include "FilesModel.h"
 #include "ToolWidget.h"
 
-#include <tlrQWidget/RadioButtonGroup.h>
+#include <tlQWidget/RadioButtonGroup.h>
 
-#include <tlrQt/MetaTypes.h>
+#include <tlQt/MetaTypes.h>
 
 #include <QComboBox>
 #include <QDoubleSpinBox>
 #include <QSlider>
 #include <QTreeView>
 
-namespace tlr
+namespace tl
 {
     //! Compare tool.
     class CompareTool : public ToolWidget
@@ -32,7 +32,7 @@ namespace tlr
         ~CompareTool() override;
 
     public Q_SLOTS:
-        void setCompareOptions(const tlr::render::CompareOptions&);
+        void setCompareOptions(const tl::render::CompareOptions&);
 
     private Q_SLOTS:
         void _activatedCallback(const QModelIndex&);
@@ -45,7 +45,7 @@ namespace tlr
         void _wipeRotationSliderCallback(int);
 
     Q_SIGNALS:
-        void compareOptionsChanged(const tlr::render::CompareOptions&);
+        void compareOptionsChanged(const tl::render::CompareOptions&);
 
     private:
         void _widgetUpdate();

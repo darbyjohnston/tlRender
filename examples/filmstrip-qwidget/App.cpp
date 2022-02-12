@@ -6,11 +6,11 @@
 
 #include "MainWindow.h"
 
-#include <tlrCore/Math.h>
-#include <tlrCore/StringFormat.h>
-#include <tlrCore/Time.h>
+#include <tlCore/Math.h>
+#include <tlCore/StringFormat.h>
+#include <tlCore/Time.h>
 
-namespace tlr
+namespace tl
 {
     App::App(int& argc, char** argv) :
         QApplication(argc, argv)

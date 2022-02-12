@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include <tlrCore/FontSystem.h>
-#include <tlrCore/IRender.h>
-#include <tlrCore/Image.h>
+#include <tlCore/FontSystem.h>
+#include <tlCore/IRender.h>
+#include <tlCore/Image.h>
 
-namespace tlr
+namespace tl
 {
     //! HUD elements.
     enum class HUDElement

@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <tlrCore/Context.h>
-#include <tlrCore/ListObserver.h>
-#include <tlrCore/OCIO.h>
+#include <tlCore/Context.h>
+#include <tlCore/ListObserver.h>
+#include <tlCore/OCIO.h>
 
 #include <QAbstractTableModel>
 
@@ -14,7 +14,7 @@
 
 #include <QAbstractListModel>
 
-namespace tlr
+namespace tl
 {
     //! Color model data.
     struct ColorModelData
@@ -33,7 +33,7 @@ namespace tlr
     //! Color model.
     class ColorModel : public std::enable_shared_from_this<ColorModel>
     {
-        TLR_NON_COPYABLE(ColorModel);
+        TLRENDER_NON_COPYABLE(ColorModel);
 
     protected:
         void _init(const std::shared_ptr<core::Context>&);

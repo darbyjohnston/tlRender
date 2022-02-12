@@ -4,16 +4,16 @@
 
 #include "App.h"
 
-#include <tlrQuick/GLFramebufferObject.h>
+#include <tlQuick/GLFramebufferObject.h>
 
-#include <tlrCore/AudioSystem.h>
-#include <tlrCore/Path.h>
-#include <tlrCore/StringFormat.h>
+#include <tlCore/AudioSystem.h>
+#include <tlCore/Path.h>
+#include <tlCore/StringFormat.h>
 
 #include <QQmlComponent>
 #include <QQmlContext>
 
-namespace tlr
+namespace tl
 {
     App::App(int& argc, char** argv) :
         QGuiApplication(argc, argv)

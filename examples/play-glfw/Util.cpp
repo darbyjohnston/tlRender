@@ -4,12 +4,12 @@
 
 #include "Util.h"
 
-#include <tlrCore/Color.h>
-#include <tlrCore/Math.h>
+#include <tlCore/Color.h>
+#include <tlCore/Math.h>
 
 #include <cmath>
 
-namespace tlr
+namespace tl
 {
     void drawHUDLabel(
         const std::shared_ptr<render::IRender>& render,

@@ -4,7 +4,7 @@ set(ZLIB_GIT_REPOSITORY "https://github.com/madler/zlib.git")
 set(ZLIB_GIT_TAG "cacf7f1d4e3d44d871b605da3b647f07d718623f") # tag: "v1.2.11"
 
 set(ZLIB_ARGS
-    ${TLR_EXTERNAL_ARGS}
+    ${TLRENDER_EXTERNAL_ARGS}
     -DSKIP_INSTALL_FILES=ON)
 
 ExternalProject_Add(

@@ -4,12 +4,12 @@
 
 #pragma once
 
-#include <tlrCore/Context.h>
+#include <tlCore/Context.h>
 
 #include <QDialog>
 #include <QLineEdit>
 
-namespace tlr
+namespace tl
 {
     //! Open with audio dialog.
     class OpenWithAudioDialog : public QDialog

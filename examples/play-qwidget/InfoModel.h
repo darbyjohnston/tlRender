@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include <tlrCore/AVIO.h>
+#include <tlCore/AVIO.h>
 
 #include <QAbstractTableModel>
 
-namespace tlr
+namespace tl
 {
     //! Information model.
     class InfoModel : public QAbstractTableModel

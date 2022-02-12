@@ -7,7 +7,7 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-namespace tlr
+namespace tl
 {
     //! Base class for tool widgets.
     class ToolWidget : public QWidget

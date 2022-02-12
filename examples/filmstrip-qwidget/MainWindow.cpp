@@ -6,14 +6,14 @@
 
 #include "App.h"
 
-#include <tlrCore/File.h>
+#include <tlCore/File.h>
 
 #include <QDragEnterEvent>
 #include <QDragMoveEvent>
 #include <QMessageBox>
 #include <QMimeData>
 
-namespace tlr
+namespace tl
 {
     MainWindow::MainWindow(
         const std::string& input,

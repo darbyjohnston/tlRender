@@ -9,7 +9,7 @@
 #include <QDoubleSpinBox>
 #include <QSlider>
 
-namespace tlr
+namespace tl
 {
     //! Audio offset widget.
     class AudioOffsetWidget : public QWidget

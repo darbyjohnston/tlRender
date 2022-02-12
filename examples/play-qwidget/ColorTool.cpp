@@ -4,14 +4,14 @@
 
 #include "ColorTool.h"
 
-#include <tlrCore/Path.h>
+#include <tlCore/Path.h>
 
 #include <QBoxLayout>
 #include <QFileDialog>
 #include <QLabel>
 #include <QToolButton>
 
-namespace tlr
+namespace tl
 {
     ColorTool::ColorTool(
         const std::shared_ptr<ColorModel>& colorModel,

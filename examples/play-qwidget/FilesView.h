@@ -9,7 +9,7 @@
 #include <QSignalMapper>
 #include <QStyledItemDelegate>
 
-namespace tlr
+namespace tl
 {
     //! Files tool.
     class FilesLayersItemDelegate : public QStyledItemDelegate

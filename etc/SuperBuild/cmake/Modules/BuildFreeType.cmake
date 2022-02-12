@@ -5,7 +5,7 @@ set(FreeType_GIT_REPOSITORY "https://github.com/freetype/freetype.git")
 set(FreeType_GIT_TAG "6a2b3e4007e794bfc6c91030d0ed987f925164a8") # tag: VER-2-10-4
 
 set(FreeType_ARGS
-    ${TLR_EXTERNAL_ARGS}
+    ${TLRENDER_EXTERNAL_ARGS}
     -DCMAKE_INSTALL_LIBDIR=lib
     -DFT_WITH_ZLIB=ON
     -DCMAKE_DISABLE_FIND_PACKAGE_BZip2=TRUE

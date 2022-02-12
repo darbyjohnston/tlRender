@@ -4,8 +4,8 @@
 
 #include "OpenWithAudioDialog.h"
 
-#include <tlrCore/String.h>
-#include <tlrCore/Timeline.h>
+#include <tlCore/String.h>
+#include <tlCore/Timeline.h>
 
 #include <QBoxLayout>
 #include <QDialogButtonBox>
@@ -13,7 +13,7 @@
 #include <QGroupBox>
 #include <QPushButton>
 
-namespace tlr
+namespace tl
 {
     OpenWithAudioDialog::OpenWithAudioDialog(
         const std::shared_ptr<core::Context>& context,

@@ -6,7 +6,7 @@
 
 #include <QComboBox>
 
-namespace tlr
+namespace tl
 {
     FilesLayersItemDelegate::FilesLayersItemDelegate(QObject* parent) :
         QStyledItemDelegate(parent),

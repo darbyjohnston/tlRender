@@ -4,14 +4,14 @@
 
 #pragma once
 
-#include <tlrQt/TimeObject.h>
-#include <tlrQt/ToolTipsFilter.h>
+#include <tlQt/TimeObject.h>
+#include <tlQt/ToolTipsFilter.h>
 
-#include <tlrCore/TimelinePlayer.h>
+#include <tlCore/TimelinePlayer.h>
 
 #include <QObject>
 
-namespace tlr
+namespace tl
 {
     //! Settings object.
     class SettingsObject : public QObject
@@ -76,7 +76,7 @@ namespace tlr
         void setCacheReadBehind(double);
 
         //! Set the file sequence audio.
-        void setFileSequenceAudio(tlr::timeline::FileSequenceAudio);
+        void setFileSequenceAudio(tl::timeline::FileSequenceAudio);
 
         //! Set the file sequence audio file name.
         void setFileSequenceAudioFileName(const QString&);
@@ -85,10 +85,10 @@ namespace tlr
         void setFileSequenceAudioDirectory(const QString&);
 
         //! Set the timer mode.
-        void setTimerMode(tlr::timeline::TimerMode);
+        void setTimerMode(tl::timeline::TimerMode);
 
         //! Set the audio buffer frame count.
-        void setAudioBufferFrameCount(tlr::timeline::AudioBufferFrameCount);
+        void setAudioBufferFrameCount(tl::timeline::AudioBufferFrameCount);
 
         //! Set the video request count.
         void setVideoRequestCount(int);
@@ -119,7 +119,7 @@ namespace tlr
         void cacheReadBehindChanged(double);
 
         //! This signal is emitted when the file sequence audio is changed.
-        void fileSequenceAudioChanged(tlr::timeline::FileSequenceAudio);
+        void fileSequenceAudioChanged(tl::timeline::FileSequenceAudio);
 
         //! This signal is emitted when the file sequence audio file name is changed.
         void fileSequenceAudioFileNameChanged(const QString&);
@@ -128,10 +128,10 @@ namespace tlr
         void fileSequenceAudioDirectoryChanged(const QString&);
 
         //! This signal is emitted when the timer mode is changed.
-        void timerModeChanged(tlr::timeline::TimerMode);
+        void timerModeChanged(tl::timeline::TimerMode);
 
         //! This signal is emitted when the audio buffer frame count is changed.
-        void audioBufferFrameCountChanged(tlr::timeline::AudioBufferFrameCount);
+        void audioBufferFrameCountChanged(tl::timeline::AudioBufferFrameCount);
 
         //! This signal is emitted when the video request count is changed.
         void videoRequestCountChanged(int);

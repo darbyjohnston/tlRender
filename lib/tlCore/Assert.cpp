@@ -1,0 +1,21 @@
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) 2021-2022 Darby Johnston
+// All rights reserved.
+
+#include <tlCore/Assert.h>
+
+#include <iostream>
+
+#include <stdlib.h>
+
+namespace tl
+{
+    namespace core
+    {
+        void _assert(const char* file, int line)
+        {
+            std::cout << "ASSERT: " << file << ":" << line << std::endl;
+            abort();
+        }
+    }
+}

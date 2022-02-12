@@ -4,7 +4,7 @@
 
 #include "App.h"
 
-#include <tlrQuick/Util.h>
+#include <tlQuick/Util.h>
 
 #include <iostream>
 
@@ -13,8 +13,8 @@ int main(int argc, char* argv[])
     int r = 0;
     try
     {
-        tlr::quick::init();
-        tlr::App app(argc, argv);
+        tl::quick::init();
+        tl::App app(argc, argv);
         if (0 == app.getExit())
         {
             r = app.exec();

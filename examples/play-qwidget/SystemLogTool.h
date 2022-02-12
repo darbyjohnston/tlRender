@@ -6,12 +6,12 @@
 
 #include "ToolWidget.h"
 
-#include <tlrCore/Context.h>
+#include <tlCore/Context.h>
 
 #include <QListWidget>
 #include <QToolButton>
 
-namespace tlr
+namespace tl
 {
     //! System log tool.
     class SystemLogTool : public ToolWidget

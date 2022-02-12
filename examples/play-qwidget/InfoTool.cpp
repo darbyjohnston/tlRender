@@ -4,13 +4,13 @@
 
 #include "InfoTool.h"
 
-#include <tlrQt/Util.h>
+#include <tlQt/Util.h>
 
 #include <QBoxLayout>
 #include <QHeaderView>
 #include <QSettings>
 
-namespace tlr
+namespace tl
 {
     InfoTool::InfoTool(QWidget* parent) :
         ToolWidget(parent)

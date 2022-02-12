@@ -4,9 +4,9 @@
 
 #include "PanoramaTimelineViewport.h"
 
-#include <tlrQWidget/Util.h>
+#include <tlQWidget/Util.h>
 
-#include <tlrQt/TimelinePlayer.h>
+#include <tlQt/TimelinePlayer.h>
 
 #include <QApplication>
 
@@ -14,8 +14,8 @@
 
 int main(int argc, char* argv[])
 {
-    // Initialize the tlrQWidget library.
-    tlr::qwidget::init();
+    // Initialize the tlQWidget library.
+    tl::qwidget::init();
 
     // Parse the command line.
     if (argc != 2)
@@ -28,23 +28,23 @@ int main(int argc, char* argv[])
     QApplication app(argc, argv);
 
     // Create the context and timeline player.
-    auto context = tlr::core::Context::create();
-    auto timeline = tlr::timeline::Timeline::create(argv[1], context);
-    auto timelinePlayer = new tlr::qt::TimelinePlayer(tlr::timeline::TimelinePlayer::create(timeline, context), context);
+    auto context = tl::core::Context::create();
+    auto timeline = tl::timeline::Timeline::create(argv[1], context);
+    auto timelinePlayer = new tl::qt::TimelinePlayer(tl::timeline::TimelinePlayer::create(timeline, context), context);
 
     // Hook up logging.
-    /*std::shared_ptr<tlr::observer::ValueObserver<tlr::core::LogItem> > logObserver;
+    /*std::shared_ptr<tl::observer::ValueObserver<tl::core::LogItem> > logObserver;
     for (const auto& i : context->getLogInit())
     {
-        std::cout << "[LOG] " << tlr::core::toString(i) << std::endl;
+        std::cout << "[LOG] " << tl::core::toString(i) << std::endl;
     }
-    logObserver = tlr::observer::ValueObserver<tlr::core::LogItem>::create(
-        context->getSystem<tlr::core::LogSystem>()->observeLog(),
-        [](const tlr::core::LogItem & value)
+    logObserver = tl::observer::ValueObserver<tl::core::LogItem>::create(
+        context->getSystem<tl::core::LogSystem>()->observeLog(),
+        [](const tl::core::LogItem & value)
         {
-            std::cout << "[LOG] " << tlr::core::toString(value) << std::endl;
+            std::cout << "[LOG] " << tl::core::toString(value) << std::endl;
         },
-        tlr::observer::CallbackAction::Suppress);*/
+        tl::observer::CallbackAction::Suppress);*/
 
     // Create the panorama timeline viewport.
     auto timelineViewport = new PanoramaTimelineViewport(context);
@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
     timelineViewport->show();
 
     // Start playback.
-    timelinePlayer->setPlayback(tlr::timeline::Playback::Forward);
+    timelinePlayer->setPlayback(tl::timeline::Playback::Forward);
 
     return app.exec();
 }

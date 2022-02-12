@@ -9,14 +9,14 @@
 #include "MainWindow.h"
 #include "SettingsObject.h"
 
-#include <tlrApp/IApp.h>
+#include <tlApp/IApp.h>
 
-#include <tlrQt/TimeObject.h>
-#include <tlrQt/TimelinePlayer.h>
+#include <tlQt/TimeObject.h>
+#include <tlQt/TimelinePlayer.h>
 
 #include <QApplication>
 
-namespace tlr
+namespace tl
 {
     //! Application options.
     struct Options

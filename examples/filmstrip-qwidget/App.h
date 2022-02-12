@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include <tlrApp/IApp.h>
+#include <tlApp/IApp.h>
 
 #include <QApplication>
 
-namespace tlr
+namespace tl
 {
     //! Application.
     class App : public QApplication, public app::IApp

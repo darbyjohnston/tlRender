@@ -7,5 +7,5 @@ set(SOURCE
     main.cpp)
 
 add_executable(filmstrip-qwidget ${SOURCE} ${HEADERS})
-target_link_libraries(filmstrip-qwidget tlrQWidget tlrApp)
+target_link_libraries(filmstrip-qwidget tlQWidget tlApp)
 set_target_properties(filmstrip-qwidget PROPERTIES FOLDER examples)

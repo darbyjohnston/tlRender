@@ -9,7 +9,7 @@
 
 #include <QTreeView>
 
-namespace tlr
+namespace tl
 {
     //! Information tool.
     class InfoTool : public ToolWidget

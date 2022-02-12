@@ -8,7 +8,7 @@
 #include <QKeyEvent>
 #include <QSettings>
 
-namespace tlr
+namespace tl
 {
     SecondaryWindow::SecondaryWindow(
         const std::shared_ptr<core::Context>& context,

@@ -4,13 +4,13 @@
 
 #include "ToolWidget.h"
 
-#include <tlrQWidget/BellowsWidget.h>
-#include <tlrQWidget/Separator.h>
+#include <tlQWidget/BellowsWidget.h>
+#include <tlQWidget/Separator.h>
 
 #include <QBoxLayout>
 #include <QScrollArea>
 
-namespace tlr
+namespace tl
 {
     ToolWidget::ToolWidget(QWidget* parent) :
         QWidget(parent)

@@ -8,7 +8,7 @@
 
 #include <QBoxLayout>
 
-namespace tlr
+namespace tl
 {
     namespace
     {

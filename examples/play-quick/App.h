@@ -4,18 +4,18 @@
 
 #pragma once
 
-#include <tlrApp/IApp.h>
+#include <tlApp/IApp.h>
 
-#include <tlrQt/TimeObject.h>
-#include <tlrQt/TimelinePlayer.h>
+#include <tlQt/TimeObject.h>
+#include <tlQt/TimelinePlayer.h>
 
-#include <tlrGL/Render.h>
+#include <tlGL/Render.h>
 
 #include <QGuiApplication>
 
 #include <QQmlApplicationEngine>
 
-namespace tlr
+namespace tl
 {
     //! Application.
     class App : public QGuiApplication, public app::IApp

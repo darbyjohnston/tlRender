@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include <tlrQWidget/TimelineViewport.h>
+#include <tlQWidget/TimelineViewport.h>
 
 #include <QWidget>
 
-namespace tlr
+namespace tl
 {
     //! Secondary window.
     class SecondaryWindow : public QWidget

@@ -4,7 +4,7 @@ set(TIFF_GIT_REPOSITORY "https://gitlab.com/libtiff/libtiff.git")
 set(TIFF_GIT_TAG "d21dcc67d0d3f4686ee989a085ad2bea9c58259d") # tag: v4.3.0
 
 set(TIFF_ARGS
-    ${TLR_EXTERNAL_ARGS}
+    ${TLRENDER_EXTERNAL_ARGS}
     -DCMAKE_INSTALL_LIBDIR=lib
     -Dold-jpeg=OFF
     -Djbig=OFF

@@ -11,7 +11,7 @@
 #include <QSignalBlocker>
 #include <QSettings>
 
-namespace tlr
+namespace tl
 {
     FilesTool::FilesTool(
         const std::shared_ptr<FilesModel>& filesModel,

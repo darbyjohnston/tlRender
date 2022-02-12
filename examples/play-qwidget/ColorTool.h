@@ -11,7 +11,7 @@
 #include <QListView>
 #include <QComboBox>
 
-namespace tlr
+namespace tl
 {
     //! Color tool.
     class ColorTool : public ToolWidget

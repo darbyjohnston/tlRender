@@ -4,7 +4,7 @@
 
 #include "App.h"
 
-#include <tlrQWidget/Util.h>
+#include <tlQWidget/Util.h>
 
 #include <iostream>
 
@@ -13,8 +13,8 @@ int main(int argc, char* argv[])
     int r = 0;
     try
     {
-        tlr::qwidget::init();
-        tlr::App app(argc, argv);
+        tl::qwidget::init();
+        tl::App app(argc, argv);
         if (0 == app.getExit())
         {
             r = app.exec();

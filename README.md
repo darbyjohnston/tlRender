@@ -36,8 +36,8 @@ To do:
 Libraries
 =========
 
-tlrCore
--------
+tlCore
+------
 The core library providing timeline rendering, playback, and I/O.
 
 Dependencies:
@@ -54,12 +54,12 @@ Optional dependencies:
 * [PNG](https://libpng.sourceforge.io/index.html)
 * [TIFF](http://www.libtiff.org)
 
-tlrGL
------
+tlGL
+----
 Library for rendering timelines with OpenGL.
 
-tlrQt, tlrQWidget, tlrQuick
----------------------------
+tlQt, tlQWidget, tlQuick
+------------------------
 Libraries for integrating with Qt based applications.
 
 Dependencies:
@@ -92,8 +92,8 @@ Qt Quick example playback application.
 Utilities
 =========
 
-tlrbake
--------
+tlbake
+------
 Command-line application for rendering a timeline to a movie or image sequence.
 
 
@@ -109,20 +109,20 @@ separately.
 
 CMake Build Options
 -------------------
-* TLR_ENABLE_MMAP - Enable memory-mapped file I/O
-* TLR_ENABLE_COVERAGE - Enable code coverage
-* TLR_ENABLE_PYTHON - Enable Python support (for OTIO Python adapters)
-* TLR_BUILD_GL - Build OpenGL libraries
-* TLR_BUILD_QT6 - Build Qt6 libraries
-* TLR_BUILD_QT5 - Build Qt5 libraries
-* TLR_BUILD_PROGRAMS - Build applications
-* TLR_BUILD_EXAMPLES - Build examples
-* TLR_BUILD_TESTS - Build tests
-* TLR_BUILD_FFmpeg - Build FFmpeg support (Linux and macOS only)
-* TLR_BUILD_JPEG - Build JPEG support
-* TLR_BUILD_PNG - Build PNG support
-* TLR_BUILD_OpenEXR - Build OpenEXR support
-* TLR_BUILD_TIFF - Build TIFF support
+* TLRENDER_ENABLE_MMAP - Enable memory-mapped file I/O
+* TLRENDER_ENABLE_COVERAGE - Enable code coverage
+* TLRENDER_ENABLE_PYTHON - Enable Python support (for OTIO Python adapters)
+* TLRENDER_BUILD_GL - Build OpenGL libraries
+* TLRENDER_BUILD_QT6 - Build Qt6 libraries
+* TLRENDER_BUILD_QT5 - Build Qt5 libraries
+* TLRENDER_BUILD_PROGRAMS - Build applications
+* TLRENDER_BUILD_EXAMPLES - Build examples
+* TLRENDER_BUILD_TESTS - Build tests
+* TLRENDER_BUILD_FFmpeg - Build FFmpeg support (Linux and macOS only)
+* TLRENDER_BUILD_JPEG - Build JPEG support
+* TLRENDER_BUILD_PNG - Build PNG support
+* TLRENDER_BUILD_OpenEXR - Build OpenEXR support
+* TLRENDER_BUILD_TIFF - Build TIFF support
 
 Building on Linux
 -----------------
@@ -144,18 +144,18 @@ Start the build:
 ```
 cmake --build . -j 4
 ```
-Try running the "tlrplay-glfw" application:
+Try running the "play-glfw" example:
 ```
 export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
-./install/bin/tlrplay-glfw ../etc/SampleData/multiple_clips.otio
+./examples/play-glfw/play-glfw ../etc/SampleData/multiple_clips.otio
 ```
 
 Building on Linux with Qt
 -------------------------
 When running CMake with the super build script, add the Qt location to
-"CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLR_BUILD_QT5":
+"CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLRENDER_BUILD_QT5":
 ```
-cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/5.15.2/gcc_64" -DTLR_BUILD_QT5=ON -DCMAKE_BUILD_TYPE=Debug
+cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/5.15.2/gcc_64" -DTLRENDER_BUILD_QT5=ON -DCMAKE_BUILD_TYPE=Debug
 ```
 
 Notes for building on Linux
@@ -167,7 +167,7 @@ cmake --build tlRender/src/tlRender-build -j 4 --config Debug
 ```
 Example for running gcovr for viewing code coverage:
 ```
-gcovr -r ../lib/tlrCore --html --object-directory $PWD --html-details --output gcov.html
+gcovr -r ../lib/tlCore --html --object-directory $PWD --html-details --output gcov.html
 ```
 
 Building on macOS
@@ -190,17 +190,17 @@ Start the build:
 ```
 cmake --build . -j 4
 ```
-Try running the "tlrplay-glfw" application:
+Try running the "play-glfw" example:
 ```
-./install/bin/tlrplay-glfw ../etc/SampleData/multiple_clips.otio
+./examples/play-glfw/play-glfw ../etc/SampleData/multiple_clips.otio
 ```
 
 Building on macOS with Qt
 -------------------------
 When running CMake with the super build script, add the Qt location to
-"CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLR_BUILD_QT5":
+"CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLRENDER_BUILD_QT5":
 ```
-cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/5.15.2/clang_64" -DTLR_BUILD_QT5=ON -DCMAKE_BUILD_TYPE=Debug
+cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/5.15.2/clang_64" -DTLRENDER_BUILD_QT5=ON -DCMAKE_BUILD_TYPE=Debug
 ```
 
 Notes for building on macOS
@@ -265,18 +265,18 @@ Start the build:
 ```
 cmake --build . -j 4 --config Debug
 ```
-Try running the "tlrplay-glfw" application:
+Try running the "play-glfw" example:
 ```
 set PATH=%CD%\install\bin;%PATH%
-.\install\bin\tlrplay-glfw ..\etc\SampleData\multiple_clips.otio
+.\examples\play-glfw\play-glfw ..\etc\SampleData\multiple_clips.otio
 ```
 
 Building on Windows with Qt
 ---------------------------
 When running CMake with the super build script, add the Qt location to
-"CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLR_BUILD_QT5":
+"CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLRENDER_BUILD_QT5":
 ```
-cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=%CD%/install -DCMAKE_PREFIX_PATH="%CD%/install;C:\Qt\5.15.2\msvc2019_64" -DTLR_BUILD_QT5=ON -DCMAKE_BUILD_TYPE=Debug
+cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=%CD%/install -DCMAKE_PREFIX_PATH="%CD%/install;C:\Qt\5.15.2\msvc2019_64" -DTLRENDER_BUILD_QT5=ON -DCMAKE_BUILD_TYPE=Debug
 ```
 
 Notes for building on Windows

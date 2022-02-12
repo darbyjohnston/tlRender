@@ -8,7 +8,7 @@
 #include <QFormLayout>
 #include <QLabel>
 
-namespace tlr
+namespace tl
 {
     CacheSettingsWidget::CacheSettingsWidget(SettingsObject* settingsObject, QWidget* parent) :
         QWidget(parent)
@@ -121,8 +121,8 @@ namespace tlr
 
         connect(
             settingsObject,
-            SIGNAL(fileSequenceAudioChanged(tlr::timeline::FileSequenceAudio)),
-            SLOT(_audioCallback(tlr::timeline::FileSequenceAudio)));
+            SIGNAL(fileSequenceAudioChanged(tl::timeline::FileSequenceAudio)),
+            SLOT(_audioCallback(tl::timeline::FileSequenceAudio)));
         connect(
             settingsObject,
             SIGNAL(fileSequenceAudioFileNameChanged(const QString&)),
@@ -256,12 +256,12 @@ namespace tlr
 
         connect(
             settingsObject,
-            SIGNAL(timerModeChanged(tlr::timeline::TimerMode)),
-            SLOT(_timerModeCallback(tlr::timeline::TimerMode)));
+            SIGNAL(timerModeChanged(tl::timeline::TimerMode)),
+            SLOT(_timerModeCallback(tl::timeline::TimerMode)));
         connect(
             settingsObject,
-            SIGNAL(audioBufferFrameCountChanged(tlr::timeline::AudioBufferFrameCount)),
-            SLOT(_audioBufferFrameCountCallback(tlr::timeline::AudioBufferFrameCount)));
+            SIGNAL(audioBufferFrameCountChanged(tl::timeline::AudioBufferFrameCount)),
+            SLOT(_audioBufferFrameCountCallback(tl::timeline::AudioBufferFrameCount)));
         connect(
             settingsObject,
             SIGNAL(videoRequestCountChanged(int)),
@@ -352,8 +352,8 @@ namespace tlr
 
         connect(
             _timeObject,
-            SIGNAL(unitsChanged(tlr::qt::TimeUnits)),
-            SLOT(_unitsCallback(tlr::qt::TimeUnits)));
+            SIGNAL(unitsChanged(tl::qt::TimeUnits)),
+            SLOT(_unitsCallback(tl::qt::TimeUnits)));
     }
 
     void TimeSettingsWidget::_unitsCallback(const QVariant& value)

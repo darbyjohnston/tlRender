@@ -4,14 +4,14 @@
 
 #pragma once
 
-#include <tlrQt/TimelineThumbnailProvider.h>
+#include <tlQt/TimelineThumbnailProvider.h>
 
-#include <tlrCore/IRender.h>
-#include <tlrCore/TimelinePlayer.h>
+#include <tlCore/IRender.h>
+#include <tlCore/TimelinePlayer.h>
 
 #include <QAbstractTableModel>
 
-namespace tlr
+namespace tl
 {
     //! Files model item.
     struct FilesModelItem
@@ -43,7 +43,7 @@ namespace tlr
     //! Files model.
     class FilesModel : public std::enable_shared_from_this<FilesModel>
     {
-        TLR_NON_COPYABLE(FilesModel);
+        TLRENDER_NON_COPYABLE(FilesModel);
 
     protected:
         void _init(const std::shared_ptr<core::Context>&);

@@ -13,7 +13,7 @@
 #include <QSignalBlocker>
 #include <QSettings>
 
-namespace tlr
+namespace tl
 {
     namespace
     {

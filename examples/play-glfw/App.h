@@ -4,16 +4,16 @@
 
 #include "Util.h"
 
-#include <tlrApp/IApp.h>
+#include <tlApp/IApp.h>
 
-#include <tlrCore/FontSystem.h>
-#include <tlrCore/IRender.h>
-#include <tlrCore/OCIO.h>
-#include <tlrCore/TimelinePlayer.h>
+#include <tlCore/FontSystem.h>
+#include <tlCore/IRender.h>
+#include <tlCore/OCIO.h>
+#include <tlCore/TimelinePlayer.h>
 
 struct GLFWwindow;
 
-namespace tlr
+namespace tl
 {
     //! Render type.
     enum class RenderType
@@ -24,8 +24,8 @@ namespace tlr
         Count,
         First = GL
     };
-    TLR_ENUM(RenderType);
-    TLR_ENUM_SERIALIZE(RenderType);
+    TLRENDER_ENUM(RenderType);
+    TLRENDER_ENUM_SERIALIZE(RenderType);
 
     //! Application options.
     struct Options
@@ -42,7 +42,7 @@ namespace tlr
     //! Application.
     class App : public app::IApp
     {
-        TLR_NON_COPYABLE(App);
+        TLRENDER_NON_COPYABLE(App);
 
     protected:
         void _init(int argc, char* argv[]);

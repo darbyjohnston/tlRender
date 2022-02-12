@@ -8,7 +8,7 @@
 #include <QPushButton>
 #include <QSignalBlocker>
 
-namespace tlr
+namespace tl
 {
     AudioOffsetWidget::AudioOffsetWidget(QWidget* parent) :
         QWidget(parent)

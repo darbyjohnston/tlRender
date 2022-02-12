@@ -4,28 +4,28 @@
 
 #include "App.h"
 
-#include <tlrGL/Render.h>
+#include <tlGL/Render.h>
 
-#include <tlrCore/AudioSystem.h>
-#include <tlrCore/Math.h>
-#include <tlrCore/SoftwareRender.h>
-#include <tlrCore/StringFormat.h>
-#include <tlrCore/Time.h>
+#include <tlCore/AudioSystem.h>
+#include <tlCore/Math.h>
+#include <tlCore/SoftwareRender.h>
+#include <tlCore/StringFormat.h>
+#include <tlCore/Time.h>
 
-#include <tlrGlad/gl.h>
+#include <tlGlad/gl.h>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
 #include <array>
 
-namespace tlr
+namespace tl
 {
-    TLR_ENUM_IMPL(
+    TLRENDER_ENUM_IMPL(
         RenderType,
         "GL",
         "Software");
-    TLR_ENUM_SERIALIZE_IMPL(RenderType);
+    TLRENDER_ENUM_SERIALIZE_IMPL(RenderType);
 
     namespace
     {

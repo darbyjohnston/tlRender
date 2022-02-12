@@ -8,7 +8,7 @@
 #include <QLabel>
 #include <QSignalBlocker>
 
-namespace tlr
+namespace tl
 {
     YUVRangeWidget::YUVRangeWidget(QWidget* parent) :
         QWidget(parent)
@@ -382,23 +382,23 @@ namespace tlr
 
         connect(
             _addSliders,
-            SIGNAL(valueChanged(const tlr::math::Vector3f&)),
-            SLOT(_addCallback(const tlr::math::Vector3f&)));
+            SIGNAL(valueChanged(const tl::math::Vector3f&)),
+            SLOT(_addCallback(const tl::math::Vector3f&)));
 
         connect(
             _brightnessSliders,
-            SIGNAL(valueChanged(const tlr::math::Vector3f&)),
-            SLOT(_brightnessCallback(const tlr::math::Vector3f&)));
+            SIGNAL(valueChanged(const tl::math::Vector3f&)),
+            SLOT(_brightnessCallback(const tl::math::Vector3f&)));
 
         connect(
             _contrastSliders,
-            SIGNAL(valueChanged(const tlr::math::Vector3f&)),
-            SLOT(_contrastCallback(const tlr::math::Vector3f&)));
+            SIGNAL(valueChanged(const tl::math::Vector3f&)),
+            SLOT(_contrastCallback(const tl::math::Vector3f&)));
 
         connect(
             _saturationSliders,
-            SIGNAL(valueChanged(const tlr::math::Vector3f&)),
-            SLOT(_saturationCallback(const tlr::math::Vector3f&)));
+            SIGNAL(valueChanged(const tl::math::Vector3f&)),
+            SLOT(_saturationCallback(const tl::math::Vector3f&)));
 
         connect(
             _tintSlider,
@@ -864,18 +864,18 @@ namespace tlr
 
         connect(
             _yuvRangeWidget,
-            SIGNAL(valueChanged(tlr::render::YUVRange)),
-            SLOT(_yuvRangeCallback(tlr::render::YUVRange)));
+            SIGNAL(valueChanged(tl::render::YUVRange)),
+            SLOT(_yuvRangeCallback(tl::render::YUVRange)));
 
         connect(
             _channelsWidget,
-            SIGNAL(valueChanged(tlr::render::Channels)),
-            SLOT(_channelsCallback(tlr::render::Channels)));
+            SIGNAL(valueChanged(tl::render::Channels)),
+            SLOT(_channelsCallback(tl::render::Channels)));
 
         connect(
             _alphaBlendWidget,
-            SIGNAL(valueChanged(tlr::render::AlphaBlend)),
-            SLOT(_alphaBlendCallback(tlr::render::AlphaBlend)));
+            SIGNAL(valueChanged(tl::render::AlphaBlend)),
+            SLOT(_alphaBlendCallback(tl::render::AlphaBlend)));
 
         connect(
             _colorWidget,
@@ -883,8 +883,8 @@ namespace tlr
             SLOT(_colorEnabledCallback(bool)));
         connect(
             _colorWidget,
-            SIGNAL(colorChanged(const tlr::render::Color&)),
-            SLOT(_colorCallback(const tlr::render::Color&)));
+            SIGNAL(colorChanged(const tl::render::Color&)),
+            SLOT(_colorCallback(const tl::render::Color&)));
 
         connect(
             _levelsWidget,
@@ -892,8 +892,8 @@ namespace tlr
             SLOT(_levelsEnabledCallback(bool)));
         connect(
             _levelsWidget,
-            SIGNAL(levelsChanged(const tlr::render::Levels&)),
-            SLOT(_levelsCallback(const tlr::render::Levels&)));
+            SIGNAL(levelsChanged(const tl::render::Levels&)),
+            SLOT(_levelsCallback(const tl::render::Levels&)));
 
         connect(
             _exposureWidget,
@@ -901,8 +901,8 @@ namespace tlr
             SLOT(_exposureEnabledCallback(bool)));
         connect(
             _exposureWidget,
-            SIGNAL(exposureChanged(const tlr::render::Exposure&)),
-            SLOT(_exposureCallback(const tlr::render::Exposure&)));
+            SIGNAL(exposureChanged(const tl::render::Exposure&)),
+            SLOT(_exposureCallback(const tl::render::Exposure&)));
 
         connect(
             _softClipWidget,

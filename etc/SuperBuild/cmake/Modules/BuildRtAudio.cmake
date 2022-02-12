@@ -4,7 +4,7 @@ set(RtAudio_GIT_REPOSITORY "https://github.com/thestk/rtaudio.git")
 set(RtAudio_GIT_TAG "d7f12763c55795ef8a71a9b589b39e7be01db7b2") # 2020/06/07
 
 set(RtAudio_ARGS
-    ${TLR_EXTERNAL_ARGS}
+    ${TLRENDER_EXTERNAL_ARGS}
     -DCMAKE_INSTALL_LIBDIR=lib
     -DCMAKE_DEBUG_POSTFIX=
     -DRTAUDIO_BUILD_TESTING=FALSE

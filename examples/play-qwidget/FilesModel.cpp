@@ -4,12 +4,12 @@
 
 #include "FilesModel.h"
 
-#include <tlrCore/StringFormat.h>
+#include <tlCore/StringFormat.h>
 
 #include <QApplication>
 #include <QPalette>
 
-namespace tlr
+namespace tl
 {
     void FilesModel::_init(const std::shared_ptr<core::Context>& context)
     {
@@ -386,7 +386,7 @@ namespace tlr
 
     std::vector<render::ImageOptions> FilesModel::_getImageOptions() const
     {
-        std::vector<tlr::render::ImageOptions> out;
+        std::vector<tl::render::ImageOptions> out;
         if (_a->get())
         {
             out.push_back(_a->get()->imageOptions);

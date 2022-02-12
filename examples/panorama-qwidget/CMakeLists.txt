@@ -5,5 +5,5 @@ set(SOURCE
     main.cpp)
 
 add_executable(panorama-qwidget ${SOURCE} ${HEADERS})
-target_link_libraries(panorama-qwidget tlrQWidget)
+target_link_libraries(panorama-qwidget tlQWidget)
 set_target_properties(panorama-qwidget PROPERTIES FOLDER examples)

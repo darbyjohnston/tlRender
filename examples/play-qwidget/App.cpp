@@ -6,17 +6,17 @@
 
 #include "OpenWithAudioDialog.h"
 
-#include <tlrQWidget/Util.h>
+#include <tlQWidget/Util.h>
 
-#include <tlrCore/AudioSystem.h>
-#include <tlrCore/Math.h>
-#include <tlrCore/StringFormat.h>
-#include <tlrCore/Time.h>
-#include <tlrCore/TimelineUtil.h>
+#include <tlCore/AudioSystem.h>
+#include <tlCore/Math.h>
+#include <tlCore/StringFormat.h>
+#include <tlCore/Time.h>
+#include <tlCore/TimelineUtil.h>
 
 #include <QFileDialog>
 
-namespace tlr
+namespace tl
 {
     App::App(int& argc, char** argv) :
         QApplication(argc, argv)

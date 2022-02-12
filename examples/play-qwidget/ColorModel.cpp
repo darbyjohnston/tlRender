@@ -4,14 +4,14 @@
 
 #include "ColorModel.h"
 
-#include <tlrCore/OS.h>
+#include <tlCore/OS.h>
 
 #include <QApplication>
 #include <QPalette>
 
 namespace OCIO = OCIO_NAMESPACE;
 
-namespace tlr
+namespace tl
 {
     bool ColorModelData::operator == (const ColorModelData& other) const
     {

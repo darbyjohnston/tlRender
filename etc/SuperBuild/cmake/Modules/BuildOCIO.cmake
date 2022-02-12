@@ -4,7 +4,7 @@ set(OCIO_GIT_REPOSITORY "https://github.com/AcademySoftwareFoundation/OpenColorI
 set(OCIO_GIT_TAG "ffddc3341f5775c7866fe2c93275e1d5e0b0540f") # tag: v2.1.0
 
 set(OCIO_ARGS
-    ${TLR_EXTERNAL_ARGS}
+    ${TLRENDER_EXTERNAL_ARGS}
     -DCMAKE_INSTALL_LIBDIR=lib
     -DOCIO_BUILD_APPS=OFF
     -DOCIO_BUILD_TESTS=OFF

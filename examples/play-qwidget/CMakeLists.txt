@@ -41,5 +41,5 @@ set(SOURCE
     main.cpp)
 
 add_executable(play-qwidget ${SOURCE} ${HEADERS})
-target_link_libraries(play-qwidget tlrQWidget tlrApp)
+target_link_libraries(play-qwidget tlQWidget tlApp)
 set_target_properties(play-qwidget PROPERTIES FOLDER examples)

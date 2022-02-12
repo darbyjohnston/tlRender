@@ -4,13 +4,13 @@
 
 #pragma once
 
-#include <tlrQWidget/FilmstripWidget.h>
+#include <tlQWidget/FilmstripWidget.h>
 
-#include <tlrCore/Timeline.h>
+#include <tlCore/Timeline.h>
 
 #include <QMainWindow>
 
-namespace tlr
+namespace tl
 {
     //! Main window.
     class MainWindow : public QMainWindow

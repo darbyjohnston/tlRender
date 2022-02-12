@@ -7,7 +7,7 @@
 #include <QApplication>
 #include <QSettings>
 
-namespace tlr
+namespace tl
 {
     SettingsObject::SettingsObject(qt::TimeObject* timeObject, QObject* parent) :
         QObject(parent),

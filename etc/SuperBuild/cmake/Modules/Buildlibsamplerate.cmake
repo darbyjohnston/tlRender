@@ -4,7 +4,7 @@ set(libsamplerate_GIT_REPOSITORY "https://github.com/libsndfile/libsamplerate.gi
 set(libsamplerate_GIT_TAG "c96f5e3de9c4488f4e6c97f59f5245f22fda22f7") # tag: 0.2.2
 
 set(libsamplerate_ARGS
-    ${TLR_EXTERNAL_ARGS}
+    ${TLRENDER_EXTERNAL_ARGS}
     -DBUILD_TESTING=OFF
     -DLIBSAMPLERATE_EXAMPLES=OFF)
 

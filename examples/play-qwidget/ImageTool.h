@@ -6,17 +6,17 @@
 
 #include "ToolWidget.h"
 
-#include <tlrQWidget/RadioButtonGroup.h>
+#include <tlQWidget/RadioButtonGroup.h>
 
-#include <tlrQt/MetaTypes.h>
+#include <tlQt/MetaTypes.h>
 
-#include <tlrCore/IRender.h>
+#include <tlCore/IRender.h>
 
 #include <QCheckBox>
 #include <QDoubleSpinBox>
 #include <QSlider>
 
-namespace tlr
+namespace tl
 {
     //! YUV range widget.
     class YUVRangeWidget : public QWidget
@@ -27,10 +27,10 @@ namespace tlr
         YUVRangeWidget(QWidget* parent = nullptr);
 
     public Q_SLOTS:
-        void setValue(tlr::render::YUVRange);
+        void setValue(tl::render::YUVRange);
 
     Q_SIGNALS:
-        void valueChanged(tlr::render::YUVRange);
+        void valueChanged(tl::render::YUVRange);
 
     private Q_SLOTS:
         void _callback(const QVariant&);
@@ -38,7 +38,7 @@ namespace tlr
     private:
         void _widgetUpdate();
 
-        render::YUVRange _value = tlr::render::YUVRange::First;
+        render::YUVRange _value = tl::render::YUVRange::First;
 
         qwidget::RadioButtonGroup* _radioButtonGroup = nullptr;
     };
@@ -52,10 +52,10 @@ namespace tlr
         ChannelsWidget(QWidget* parent = nullptr);
 
     public Q_SLOTS:
-        void setValue(tlr::render::Channels);
+        void setValue(tl::render::Channels);
 
     Q_SIGNALS:
-        void valueChanged(tlr::render::Channels);
+        void valueChanged(tl::render::Channels);
 
     private Q_SLOTS:
         void _callback(const QVariant&);
@@ -63,7 +63,7 @@ namespace tlr
     private:
         void _widgetUpdate();
 
-        render::Channels _value = tlr::render::Channels::First;
+        render::Channels _value = tl::render::Channels::First;
 
         qwidget::RadioButtonGroup* _radioButtonGroup = nullptr;
     };
@@ -77,10 +77,10 @@ namespace tlr
         AlphaBlendWidget(QWidget* parent = nullptr);
 
     public Q_SLOTS:
-        void setValue(tlr::render::AlphaBlend);
+        void setValue(tl::render::AlphaBlend);
 
     Q_SIGNALS:
-        void valueChanged(tlr::render::AlphaBlend);
+        void valueChanged(tl::render::AlphaBlend);
 
     private Q_SLOTS:
         void _callback(const QVariant&);
@@ -88,7 +88,7 @@ namespace tlr
     private:
         void _widgetUpdate();
 
-        render::AlphaBlend _value = tlr::render::AlphaBlend::First;
+        render::AlphaBlend _value = tl::render::AlphaBlend::First;
 
         qwidget::RadioButtonGroup* _radioButtonGroup = nullptr;
     };
@@ -134,11 +134,11 @@ namespace tlr
         void setRange(const math::FloatRange&);
 
     public Q_SLOTS:
-        void setValue(const tlr::math::Vector3f&);
+        void setValue(const tl::math::Vector3f&);
         void setComponents(bool);
 
     Q_SIGNALS:
-        void valueChanged(const tlr::math::Vector3f&);
+        void valueChanged(const tl::math::Vector3f&);
 
     private Q_SLOTS:
         void _sliderCallback0(float);
@@ -165,19 +165,19 @@ namespace tlr
 
     public Q_SLOTS:
         void setColorEnabled(bool);
-        void setColor(const tlr::render::Color&);
+        void setColor(const tl::render::Color&);
 
     Q_SIGNALS:
         void colorEnabledChanged(bool);
-        void colorChanged(const tlr::render::Color&);
+        void colorChanged(const tl::render::Color&);
 
     private Q_SLOTS:
         void _colorEnabledCallback(bool);
         void _componentsCallback(bool);
-        void _addCallback(const tlr::math::Vector3f&);
-        void _brightnessCallback(const tlr::math::Vector3f&);
-        void _contrastCallback(const tlr::math::Vector3f&);
-        void _saturationCallback(const tlr::math::Vector3f&);
+        void _addCallback(const tl::math::Vector3f&);
+        void _brightnessCallback(const tl::math::Vector3f&);
+        void _contrastCallback(const tl::math::Vector3f&);
+        void _saturationCallback(const tl::math::Vector3f&);
         void _tintCallback(float);
         void _invertCallback(bool);
 
@@ -208,11 +208,11 @@ namespace tlr
 
     public Q_SLOTS:
         void setLevelsEnabled(bool);
-        void setLevels(const tlr::render::Levels&);
+        void setLevels(const tl::render::Levels&);
 
     Q_SIGNALS:
         void levelsEnabledChanged(bool);
-        void levelsChanged(const tlr::render::Levels&);
+        void levelsChanged(const tl::render::Levels&);
 
     private Q_SLOTS:
         void _levelsEnabledCallback(bool);
@@ -246,11 +246,11 @@ namespace tlr
 
     public Q_SLOTS:
         void setExposureEnabled(bool);
-        void setExposure(const tlr::render::Exposure&);
+        void setExposure(const tl::render::Exposure&);
 
     Q_SIGNALS:
         void exposureEnabledChanged(bool);
-        void exposureChanged(const tlr::render::Exposure&);
+        void exposureChanged(const tl::render::Exposure&);
 
     private Q_SLOTS:
         void _exposureEnabledCallback(bool);
@@ -311,21 +311,21 @@ namespace tlr
         ImageTool(QWidget* parent = nullptr);
 
     public Q_SLOTS:
-        void setImageOptions(const tlr::render::ImageOptions&);
+        void setImageOptions(const tl::render::ImageOptions&);
 
     Q_SIGNALS:
-        void imageOptionsChanged(const tlr::render::ImageOptions&);
+        void imageOptionsChanged(const tl::render::ImageOptions&);
 
     private Q_SLOTS:
-        void _yuvRangeCallback(tlr::render::YUVRange);
-        void _channelsCallback(tlr::render::Channels);
-        void _alphaBlendCallback(tlr::render::AlphaBlend);
+        void _yuvRangeCallback(tl::render::YUVRange);
+        void _channelsCallback(tl::render::Channels);
+        void _alphaBlendCallback(tl::render::AlphaBlend);
         void _colorEnabledCallback(bool);
-        void _colorCallback(const tlr::render::Color&);
+        void _colorCallback(const tl::render::Color&);
         void _levelsEnabledCallback(bool);
-        void _levelsCallback(const tlr::render::Levels&);
+        void _levelsCallback(const tl::render::Levels&);
         void _exposureEnabledCallback(bool);
-        void _exposureCallback(const tlr::render::Exposure&);
+        void _exposureCallback(const tl::render::Exposure&);
         void _softClipEnabledCallback(bool);
         void _softClipCallback(float);
 

@@ -9,7 +9,7 @@
 
 #include <QTreeView>
 
-namespace tlr
+namespace tl
 {
     //! Files tool.
     class FilesTool : public ToolWidget

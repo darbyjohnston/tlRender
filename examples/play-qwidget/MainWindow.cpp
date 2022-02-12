@@ -6,11 +6,11 @@
 
 #include "App.h"
 
-#include <tlrQWidget/Util.h>
+#include <tlQWidget/Util.h>
 
-#include <tlrCore/File.h>
-#include <tlrCore/String.h>
-#include <tlrCore/StringFormat.h>
+#include <tlCore/File.h>
+#include <tlCore/String.h>
+#include <tlCore/StringFormat.h>
 
 #include <QDockWidget>
 #include <QDragEnterEvent>
@@ -23,7 +23,7 @@
 #include <QStyle>
 #include <QToolBar>
 
-namespace tlr
+namespace tl
 {
     namespace
     {
@@ -745,13 +745,13 @@ namespace tlr
 
         connect(
             _compareTool,
-            SIGNAL(compareOptionsChanged(const tlr::render::CompareOptions&)),
-            SLOT(_compareOptionsCallback(const tlr::render::CompareOptions&)));
+            SIGNAL(compareOptionsChanged(const tl::render::CompareOptions&)),
+            SLOT(_compareOptionsCallback(const tl::render::CompareOptions&)));
 
         connect(
             _imageTool,
-            SIGNAL(imageOptionsChanged(const tlr::render::ImageOptions&)),
-            SLOT(_imageOptionsCallback(const tlr::render::ImageOptions&)));
+            SIGNAL(imageOptionsChanged(const tl::render::ImageOptions&)),
+            SLOT(_imageOptionsCallback(const tl::render::ImageOptions&)));
 
         connect(
             _audioTool,
@@ -834,14 +834,14 @@ namespace tlr
         {
             disconnect(
                 _timelinePlayers[0],
-                SIGNAL(playbackChanged(tlr::timeline::Playback)),
+                SIGNAL(playbackChanged(tl::timeline::Playback)),
                 this,
-                SLOT(_playbackCallback(tlr::timeline::Playback)));
+                SLOT(_playbackCallback(tl::timeline::Playback)));
             disconnect(
                 _timelinePlayers[0],
-                SIGNAL(loopChanged(tlr::timeline::Loop)),
+                SIGNAL(loopChanged(tl::timeline::Loop)),
                 this,
-                SLOT(_loopCallback(tlr::timeline::Loop)));
+                SLOT(_loopCallback(tl::timeline::Loop)));
             disconnect(
                 _timelinePlayers[0],
                 SIGNAL(audioOffsetChanged(double)),
@@ -892,12 +892,12 @@ namespace tlr
         {
             connect(
                 _timelinePlayers[0],
-                SIGNAL(playbackChanged(tlr::timeline::Playback)),
-                SLOT(_playbackCallback(tlr::timeline::Playback)));
+                SIGNAL(playbackChanged(tl::timeline::Playback)),
+                SLOT(_playbackCallback(tl::timeline::Playback)));
             connect(
                 _timelinePlayers[0],
-                SIGNAL(loopChanged(tlr::timeline::Loop)),
-                SLOT(_loopCallback(tlr::timeline::Loop)));
+                SIGNAL(loopChanged(tl::timeline::Loop)),
+                SLOT(_loopCallback(tl::timeline::Loop)));
             connect(
                 _timelinePlayers[0],
                 SIGNAL(audioOffsetChanged(double)),
@@ -1068,7 +1068,7 @@ namespace tlr
         }
     }
 
-    void MainWindow::_playbackCallback(tlr::timeline::Playback value)
+    void MainWindow::_playbackCallback(tl::timeline::Playback value)
     {
         const QSignalBlocker blocker(_playbackActionGroup);
         const auto i = _playbackToActions.find(value);
@@ -1090,7 +1090,7 @@ namespace tlr
         }
     }
 
-    void MainWindow::_loopCallback(tlr::timeline::Loop value)
+    void MainWindow::_loopCallback(tl::timeline::Loop value)
     {
         const QSignalBlocker blocker(_loopActionGroup);
         const auto i = _loopToActions.find(value);

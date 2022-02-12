@@ -7,9 +7,9 @@
 #include "ToolWidget.h"
 #include "SettingsObject.h"
 
-#include <tlrQWidget/RadioButtonGroup.h>
+#include <tlQWidget/RadioButtonGroup.h>
 
-#include <tlrQt/TimeObject.h>
+#include <tlQt/TimeObject.h>
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -18,7 +18,7 @@
 #include <QMap>
 #include <QSpinBox>
 
-namespace tlr
+namespace tl
 {
     //! Cache settings widget.
     class CacheSettingsWidget : public QWidget
@@ -47,7 +47,7 @@ namespace tlr
 
     private Q_SLOTS:
         void _audioCallback(int);
-        void _audioCallback(tlr::timeline::FileSequenceAudio);
+        void _audioCallback(tl::timeline::FileSequenceAudio);
         void _audioFileNameCallback(const QString&);
         void _audioDirectoryCallback(const QString&);
         void _maxDigitsCallback(int);
@@ -70,9 +70,9 @@ namespace tlr
 
     private Q_SLOTS:
         void _timerModeCallback(int);
-        void _timerModeCallback(tlr::timeline::TimerMode);
+        void _timerModeCallback(tl::timeline::TimerMode);
         void _audioBufferFrameCountCallback(int);
-        void _audioBufferFrameCountCallback(tlr::timeline::AudioBufferFrameCount);
+        void _audioBufferFrameCountCallback(tl::timeline::AudioBufferFrameCount);
         void _videoRequestCountCallback(int);
         void _audioRequestCountCallback(int);
         void _sequenceThreadCountCallback(int);
@@ -98,7 +98,7 @@ namespace tlr
 
     private Q_SLOTS:
         void _unitsCallback(const QVariant&);
-        void _unitsCallback(tlr::qt::TimeUnits);
+        void _unitsCallback(tl::qt::TimeUnits);
 
     private:
         qwidget::RadioButtonGroup* _unitsButtonGroup = nullptr;

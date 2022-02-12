@@ -4,9 +4,9 @@
 
 #include "InfoModel.h"
 
-#include <tlrCore/StringFormat.h>
+#include <tlCore/StringFormat.h>
 
-namespace tlr
+namespace tl
 {
     InfoModel::InfoModel(QObject* parent) :
         QAbstractTableModel(parent)

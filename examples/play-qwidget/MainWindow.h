@@ -17,11 +17,11 @@
 #include "SettingsTool.h"
 #include "SystemLogTool.h"
 
-#include <tlrQWidget/TimelineWidget.h>
+#include <tlQWidget/TimelineWidget.h>
 
-#include <tlrQt/TimelinePlayer.h>
+#include <tlQt/TimelinePlayer.h>
 
-#include <tlrCore/OCIO.h>
+#include <tlCore/OCIO.h>
 
 #include <QAction>
 #include <QActionGroup>
@@ -29,7 +29,7 @@
 #include <QMainWindow>
 #include <QStatusBar>
 
-namespace tlr
+namespace tl
 {
     class App;
 
@@ -61,13 +61,13 @@ namespace tlr
         void _secondaryWindowDestroyedCallback();
         void _channelsCallback(QAction*);
         void _playbackCallback(QAction*);
-        void _playbackCallback(tlr::timeline::Playback);
+        void _playbackCallback(tl::timeline::Playback);
         void _loopCallback(QAction*);
-        void _loopCallback(tlr::timeline::Loop);
-        void _imageOptionsCallback(const tlr::render::ImageOptions&);
-        void _imageOptionsCallback(const std::vector<tlr::render::ImageOptions>&);
-        void _compareOptionsCallback(const tlr::render::CompareOptions&);
-        void _compareOptionsCallback2(const tlr::render::CompareOptions&);
+        void _loopCallback(tl::timeline::Loop);
+        void _imageOptionsCallback(const tl::render::ImageOptions&);
+        void _imageOptionsCallback(const std::vector<tl::render::ImageOptions>&);
+        void _compareOptionsCallback(const tl::render::CompareOptions&);
+        void _compareOptionsCallback2(const tl::render::CompareOptions&);
 
     private:
         void _recentFilesUpdate();

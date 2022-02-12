@@ -9,7 +9,7 @@
 #include <QBoxLayout>
 #include <QFontDatabase>
 
-namespace tlr
+namespace tl
 {
     namespace
     {

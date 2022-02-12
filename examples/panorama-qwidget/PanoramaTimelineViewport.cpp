@@ -4,14 +4,14 @@
 
 #include "PanoramaTimelineViewport.h"
 
-#include <tlrGL/Mesh.h>
+#include <tlGL/Mesh.h>
 
 #include <QMouseEvent>
 #include <QSurfaceFormat>
 
 #include <glm/gtc/matrix_transform.hpp>
 
-using namespace tlr;
+using namespace tl;
 
 PanoramaTimelineViewport::PanoramaTimelineViewport(
     const std::shared_ptr<core::Context>& context,
@@ -50,9 +50,9 @@ void PanoramaTimelineViewport::setTimelinePlayer(qt::TimelinePlayer* timelinePla
     {
         disconnect(
             _timelinePlayer,
-            SIGNAL(videoChanged(const tlr::timeline::VideoData&)),
+            SIGNAL(videoChanged(const tl::timeline::VideoData&)),
             this,
-            SLOT(_videoCallback(const tlr::timeline::VideoData&)));
+            SLOT(_videoCallback(const tl::timeline::VideoData&)));
     }
     _timelinePlayer = timelinePlayer;
     if (_timelinePlayer)
@@ -62,8 +62,8 @@ void PanoramaTimelineViewport::setTimelinePlayer(qt::TimelinePlayer* timelinePla
         _videoData = _timelinePlayer->video();
         connect(
             _timelinePlayer,
-            SIGNAL(videoChanged(const tlr::timeline::VideoData&)),
-            SLOT(_videoCallback(const tlr::timeline::VideoData&)));
+            SIGNAL(videoChanged(const tl::timeline::VideoData&)),
+            SLOT(_videoCallback(const tl::timeline::VideoData&)));
     }
     update();
 }

@@ -4,15 +4,15 @@
 
 #pragma once
 
-#include <tlrQt/TimelinePlayer.h>
+#include <tlQt/TimelinePlayer.h>
 
-#include <tlrGL/Mesh.h>
-#include <tlrGL/OffscreenBuffer.h>
-#include <tlrGL/Render.h>
-#include <tlrGL/Shader.h>
+#include <tlGL/Mesh.h>
+#include <tlGL/OffscreenBuffer.h>
+#include <tlGL/Render.h>
+#include <tlGL/Shader.h>
 
-#include <tlrCore/Mesh.h>
-#include <tlrCore/OCIO.h>
+#include <tlCore/Mesh.h>
+#include <tlCore/OCIO.h>
 
 #include <QOpenGLWidget>
 
@@ -22,20 +22,20 @@ class PanoramaTimelineViewport : public QOpenGLWidget
 
 public:
     PanoramaTimelineViewport(
-        const std::shared_ptr<tlr::core::Context>&,
+        const std::shared_ptr<tl::core::Context>&,
         QWidget* parent = nullptr);
 
     //! Set the color configuration.
-    void setColorConfig(const tlr::imaging::ColorConfig&);
+    void setColorConfig(const tl::imaging::ColorConfig&);
 
     //! Set the image options.
-    void setImageOptions(const tlr::render::ImageOptions&);
+    void setImageOptions(const tl::render::ImageOptions&);
 
     //! Set the timeline player.
-    void setTimelinePlayer(tlr::qt::TimelinePlayer*);
+    void setTimelinePlayer(tl::qt::TimelinePlayer*);
 
 private Q_SLOTS:
-    void _videoCallback(const tlr::timeline::VideoData&);
+    void _videoCallback(const tl::timeline::VideoData&);
 
 protected:
     void initializeGL() override;
@@ -45,19 +45,19 @@ protected:
     void mouseMoveEvent(QMouseEvent*) override;
 
 private:
-    std::weak_ptr<tlr::core::Context> _context;
-    tlr::imaging::ColorConfig _colorConfig;
-    tlr::render::ImageOptions _imageOptions;
-    tlr::qt::TimelinePlayer* _timelinePlayer = nullptr;
-    tlr::imaging::Size _videoSize;
-    tlr::timeline::VideoData _videoData;
-    tlr::math::Vector2f _cameraRotation;
+    std::weak_ptr<tl::core::Context> _context;
+    tl::imaging::ColorConfig _colorConfig;
+    tl::render::ImageOptions _imageOptions;
+    tl::qt::TimelinePlayer* _timelinePlayer = nullptr;
+    tl::imaging::Size _videoSize;
+    tl::timeline::VideoData _videoData;
+    tl::math::Vector2f _cameraRotation;
     float _cameraFOV = 45.F;
-    tlr::geom::TriangleMesh3 _sphereMesh;
-    std::shared_ptr<tlr::gl::VBO> _sphereVBO;
-    std::shared_ptr<tlr::gl::VAO> _sphereVAO;
-    std::shared_ptr<tlr::gl::Shader> _shader;
-    std::shared_ptr<tlr::gl::OffscreenBuffer> _buffer;
-    std::shared_ptr<tlr::gl::Render> _render;
+    tl::geom::TriangleMesh3 _sphereMesh;
+    std::shared_ptr<tl::gl::VBO> _sphereVBO;
+    std::shared_ptr<tl::gl::VAO> _sphereVAO;
+    std::shared_ptr<tl::gl::Shader> _shader;
+    std::shared_ptr<tl::gl::OffscreenBuffer> _buffer;
+    std::shared_ptr<tl::gl::Render> _render;
     QPoint _mousePosPrev;
 };
