@@ -60,7 +60,7 @@ namespace tl
 
         // Initialize Qt.
         QCoreApplication::setOrganizationName("tlRender");
-        QCoreApplication::setApplicationName("play-qwidget");
+        QCoreApplication::setApplicationName("tlplay");
         setStyle("Fusion");
 
         // Create objects.

@@ -40,6 +40,10 @@ set(SOURCE
 	ToolWidget.cpp
     main.cpp)
 
-add_executable(play-qwidget ${SOURCE} ${HEADERS})
-target_link_libraries(play-qwidget tlQWidget tlApp)
-set_target_properties(play-qwidget PROPERTIES FOLDER examples)
+add_executable(tlplay ${SOURCE} ${HEADERS})
+target_link_libraries(tlplay tlQWidget tlApp)
+set_target_properties(tlplay PROPERTIES FOLDER bin)
+
+install(
+    TARGETS tlplay
+    RUNTIME DESTINATION bin)
