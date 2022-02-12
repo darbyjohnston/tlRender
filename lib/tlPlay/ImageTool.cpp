@@ -4,141 +4,194 @@
 
 #include <tlPlay/ImageTool.h>
 
+#include <tlQWidget/RadioButtonGroup.h>
+
 #include <QBoxLayout>
+#include <QCheckBox>
+#include <QDoubleSpinBox>
 #include <QLabel>
 #include <QSignalBlocker>
+#include <QSlider>
 
 namespace tl
 {
     namespace play
     {
-        YUVRangeWidget::YUVRangeWidget(QWidget* parent) :
-            QWidget(parent)
+        struct YUVRangeWidget::Private
         {
-            _radioButtonGroup = new qwidget::RadioButtonGroup;
+            render::YUVRange value = tl::render::YUVRange::First;
+
+            qwidget::RadioButtonGroup* radioButtonGroup = nullptr;
+        };
+
+        YUVRangeWidget::YUVRangeWidget(QWidget* parent) :
+            QWidget(parent),
+            _p(new Private)
+        {
+            TLRENDER_P();
+
+            p.radioButtonGroup = new qwidget::RadioButtonGroup;
             for (const auto& i : render::getYUVRangeEnums())
             {
-                _radioButtonGroup->addButton(
+                p.radioButtonGroup->addButton(
                     QString::fromUtf8(render::getLabel(i).c_str()),
                     QVariant::fromValue<render::YUVRange>(i));
             }
 
             auto layout = new QVBoxLayout;
-            layout->addWidget(_radioButtonGroup);
+            layout->addWidget(p.radioButtonGroup);
             setLayout(layout);
 
             _widgetUpdate();
 
             connect(
-                _radioButtonGroup,
+                p.radioButtonGroup,
                 SIGNAL(checked(const QVariant&)),
                 SLOT(_callback(const QVariant&)));
         }
 
+        YUVRangeWidget::~YUVRangeWidget()
+        {}
+
         void YUVRangeWidget::setValue(render::YUVRange value)
         {
-            if (value == _value)
+            TLRENDER_P();
+            if (value == p.value)
                 return;
-            _value = value;
+            p.value = value;
             _widgetUpdate();
         }
 
         void YUVRangeWidget::_callback(const QVariant& value)
         {
-            _value = value.value<render::YUVRange>();
-            Q_EMIT valueChanged(_value);
+            TLRENDER_P();
+            p.value = value.value<render::YUVRange>();
+            Q_EMIT valueChanged(p.value);
         }
 
         void YUVRangeWidget::_widgetUpdate()
         {
-            QSignalBlocker signalBlocker(_radioButtonGroup);
-            _radioButtonGroup->setChecked(QVariant::fromValue<render::YUVRange>(_value));
+            TLRENDER_P();
+            QSignalBlocker signalBlocker(p.radioButtonGroup);
+            p.radioButtonGroup->setChecked(QVariant::fromValue<render::YUVRange>(p.value));
         }
 
-        ChannelsWidget::ChannelsWidget(QWidget* parent) :
-            QWidget(parent)
+        struct ChannelsWidget::Private
         {
-            _radioButtonGroup = new qwidget::RadioButtonGroup;
+            render::Channels value = tl::render::Channels::First;
+
+            qwidget::RadioButtonGroup* radioButtonGroup = nullptr;
+        };
+
+        ChannelsWidget::ChannelsWidget(QWidget* parent) :
+            QWidget(parent),
+            _p(new Private)
+        {
+            TLRENDER_P();
+
+            p.radioButtonGroup = new qwidget::RadioButtonGroup;
             for (const auto& i : render::getChannelsEnums())
             {
-                _radioButtonGroup->addButton(
+                p.radioButtonGroup->addButton(
                     QString::fromUtf8(render::getLabel(i).c_str()),
                     QVariant::fromValue<render::Channels>(i));
             }
 
             auto layout = new QVBoxLayout;
-            layout->addWidget(_radioButtonGroup);
+            layout->addWidget(p.radioButtonGroup);
             setLayout(layout);
 
             _widgetUpdate();
 
             connect(
-                _radioButtonGroup,
+                p.radioButtonGroup,
                 SIGNAL(checked(const QVariant&)),
                 SLOT(_callback(const QVariant&)));
         }
 
+        ChannelsWidget::~ChannelsWidget()
+        {}
+
         void ChannelsWidget::setValue(render::Channels value)
         {
-            if (value == _value)
+            TLRENDER_P();
+            if (value == p.value)
                 return;
-            _value = value;
+            p.value = value;
             _widgetUpdate();
         }
 
         void ChannelsWidget::_callback(const QVariant& value)
         {
-            _value = value.value<render::Channels>();
-            Q_EMIT valueChanged(_value);
+            TLRENDER_P();
+            p.value = value.value<render::Channels>();
+            Q_EMIT valueChanged(p.value);
         }
 
         void ChannelsWidget::_widgetUpdate()
         {
-            QSignalBlocker signalBlocker(_radioButtonGroup);
-            _radioButtonGroup->setChecked(QVariant::fromValue<render::Channels>(_value));
+            TLRENDER_P();
+            QSignalBlocker signalBlocker(p.radioButtonGroup);
+            p.radioButtonGroup->setChecked(QVariant::fromValue<render::Channels>(p.value));
         }
 
-        AlphaBlendWidget::AlphaBlendWidget(QWidget* parent) :
-            QWidget(parent)
+        struct AlphaBlendWidget::Private
         {
-            _radioButtonGroup = new qwidget::RadioButtonGroup;
+            render::AlphaBlend value = tl::render::AlphaBlend::First;
+
+            qwidget::RadioButtonGroup* radioButtonGroup = nullptr;
+        };
+
+        AlphaBlendWidget::AlphaBlendWidget(QWidget* parent) :
+            QWidget(parent),
+            _p(new Private)
+        {
+            TLRENDER_P();
+
+            p.radioButtonGroup = new qwidget::RadioButtonGroup;
             for (const auto& i : render::getAlphaBlendEnums())
             {
-                _radioButtonGroup->addButton(
+                p.radioButtonGroup->addButton(
                     QString::fromUtf8(render::getLabel(i).c_str()),
                     QVariant::fromValue<render::AlphaBlend>(i));
             }
 
             auto layout = new QVBoxLayout;
-            layout->addWidget(_radioButtonGroup);
+            layout->addWidget(p.radioButtonGroup);
             setLayout(layout);
 
             _widgetUpdate();
 
             connect(
-                _radioButtonGroup,
+                p.radioButtonGroup,
                 SIGNAL(checked(const QVariant&)),
                 SLOT(_callback(const QVariant&)));
         }
 
+        AlphaBlendWidget::~AlphaBlendWidget()
+        {}
+
         void AlphaBlendWidget::setValue(render::AlphaBlend value)
         {
-            if (value == _value)
+            TLRENDER_P();
+            if (value == p.value)
                 return;
-            _value = value;
+            p.value = value;
             _widgetUpdate();
         }
 
         void AlphaBlendWidget::_callback(const QVariant& value)
         {
-            _value = value.value<render::AlphaBlend>();
-            Q_EMIT valueChanged(_value);
+            TLRENDER_P();
+            p.value = value.value<render::AlphaBlend>();
+            Q_EMIT valueChanged(p.value);
         }
 
         void AlphaBlendWidget::_widgetUpdate()
         {
-            QSignalBlocker signalBlocker(_radioButtonGroup);
-            _radioButtonGroup->setChecked(QVariant::fromValue<render::AlphaBlend>(_value));
+            TLRENDER_P();
+            QSignalBlocker signalBlocker(p.radioButtonGroup);
+            p.radioButtonGroup->setChecked(QVariant::fromValue<render::AlphaBlend>(p.value));
         }
 
         namespace
@@ -146,83 +199,115 @@ namespace tl
             const size_t sliderSteps = 1000;
         }
 
-        ColorSliderWidget::ColorSliderWidget(QWidget* parent) :
-            QWidget(parent)
+        struct ColorSliderWidget::Private
         {
-            _spinBox = new QDoubleSpinBox;
-            _spinBox->setSingleStep(0.1);
+            math::FloatRange range = math::FloatRange(0.F, 1.F);
+            float value = 0.F;
 
-            _slider = new QSlider(Qt::Horizontal);
-            _slider->setRange(0, sliderSteps);
+            QDoubleSpinBox* spinBox = nullptr;
+            QSlider* slider = nullptr;
+        };
+
+        ColorSliderWidget::ColorSliderWidget(QWidget* parent) :
+            QWidget(parent),
+            _p(new Private)
+        {
+            TLRENDER_P();
+
+            p.spinBox = new QDoubleSpinBox;
+            p.spinBox->setSingleStep(0.1);
+
+            p.slider = new QSlider(Qt::Horizontal);
+            p.slider->setRange(0, sliderSteps);
 
             auto layout = new QHBoxLayout;
             layout->setContentsMargins(0, 0, 0, 0);
-            layout->addWidget(_spinBox);
-            layout->addWidget(_slider, 1);
+            layout->addWidget(p.spinBox);
+            layout->addWidget(p.slider, 1);
             setLayout(layout);
 
             _widgetUpdate();
 
             connect(
-                _spinBox,
+                p.spinBox,
                 SIGNAL(valueChanged(double)),
                 SLOT(_spinBoxCallback(double)));
 
             connect(
-                _slider,
+                p.slider,
                 SIGNAL(valueChanged(int)),
                 SLOT(_sliderCallback(int)));
         }
 
+        ColorSliderWidget::~ColorSliderWidget()
+        {}
+
         void ColorSliderWidget::setRange(const math::FloatRange& value)
         {
-            if (value == _range)
+            TLRENDER_P();
+            if (value == p.range)
                 return;
-            _range = value;
+            p.range = value;
             _widgetUpdate();
         }
 
         void ColorSliderWidget::setValue(float value)
         {
-            if (value == _value)
+            TLRENDER_P();
+            if (value == p.value)
                 return;
-            _value = value;
+            p.value = value;
             _widgetUpdate();
         }
 
         void ColorSliderWidget::_spinBoxCallback(double value)
         {
-            _value = value;
+            TLRENDER_P();
+            p.value = value;
             _widgetUpdate();
-            Q_EMIT valueChanged(_value);
+            Q_EMIT valueChanged(p.value);
         }
 
         void ColorSliderWidget::_sliderCallback(int value)
         {
-            _value = value / static_cast<float>(sliderSteps) * (_range.getMax() - _range.getMin()) + _range.getMin();
+            TLRENDER_P();
+            p.value = value / static_cast<float>(sliderSteps) * (p.range.getMax() - p.range.getMin()) + p.range.getMin();
             _widgetUpdate();
-            Q_EMIT valueChanged(_value);
+            Q_EMIT valueChanged(p.value);
         }
 
         void ColorSliderWidget::_widgetUpdate()
         {
+            TLRENDER_P();
             {
-                QSignalBlocker signalBlocker(_spinBox);
-                _spinBox->setRange(_range.getMin(), _range.getMax());
-                _spinBox->setValue(_value);
+                QSignalBlocker signalBlocker(p.spinBox);
+                p.spinBox->setRange(p.range.getMin(), p.range.getMax());
+                p.spinBox->setValue(p.value);
             }
             {
-                QSignalBlocker signalBlocker(_slider);
-                _slider->setValue((_value - _range.getMin()) / (_range.getMax() - _range.getMin()) * sliderSteps);
+                QSignalBlocker signalBlocker(p.slider);
+                p.slider->setValue((p.value - p.range.getMin()) / (p.range.getMax() - p.range.getMin()) * sliderSteps);
             }
         }
 
-        ColorSlidersWidget::ColorSlidersWidget(QWidget* parent) :
-            QWidget(parent)
+        struct ColorSlidersWidget::Private
         {
+            math::FloatRange range = math::FloatRange(0.F, 1.F);
+            math::Vector3f value;
+
+            bool components = false;
+            ColorSliderWidget* sliders[3] = { nullptr, nullptr, nullptr };
+        };
+
+        ColorSlidersWidget::ColorSlidersWidget(QWidget* parent) :
+            QWidget(parent),
+            _p(new Private)
+        {
+            TLRENDER_P();
+
             for (size_t i = 0; i < 3; ++i)
             {
-                _sliders[i] = new ColorSliderWidget;
+                p.sliders[i] = new ColorSliderWidget;
             }
 
             auto layout = new QVBoxLayout;
@@ -230,779 +315,928 @@ namespace tl
             layout->setSpacing(0);
             for (size_t i = 0; i < 3; ++i)
             {
-                layout->addWidget(_sliders[i]);
+                layout->addWidget(p.sliders[i]);
             }
             setLayout(layout);
 
             _widgetUpdate();
 
             connect(
-                _sliders[0],
+                p.sliders[0],
                 SIGNAL(valueChanged(float)),
                 SLOT(_sliderCallback0(float)));
             connect(
-                _sliders[1],
+                p.sliders[1],
                 SIGNAL(valueChanged(float)),
                 SLOT(_sliderCallback1(float)));
             connect(
-                _sliders[2],
+                p.sliders[2],
                 SIGNAL(valueChanged(float)),
                 SLOT(_sliderCallback2(float)));
         }
 
+        ColorSlidersWidget::~ColorSlidersWidget()
+        {}
+
         void ColorSlidersWidget::setRange(const math::FloatRange& value)
         {
-            if (value == _range)
+            TLRENDER_P();
+            if (value == p.range)
                 return;
-            _range = value;
+            p.range = value;
             _widgetUpdate();
         }
 
         void ColorSlidersWidget::setValue(const math::Vector3f& value)
         {
-            if (value == _value)
+            TLRENDER_P();
+            if (value == p.value)
                 return;
-            _value = value;
+            p.value = value;
             _widgetUpdate();
         }
 
         void ColorSlidersWidget::setComponents(bool value)
         {
-            if (value == _components)
+            TLRENDER_P();
+            if (value == p.components)
                 return;
-            _components = value;
+            p.components = value;
             _widgetUpdate();
         }
 
         void ColorSlidersWidget::_sliderCallback0(float value)
         {
-            _value.x = value;
-            if (!_components)
+            TLRENDER_P();
+            p.value.x = value;
+            if (!p.components)
             {
-                _value.y = _value.z = _value.x;
+                p.value.y = p.value.z = p.value.x;
             }
             _widgetUpdate();
-            Q_EMIT valueChanged(_value);
+            Q_EMIT valueChanged(p.value);
         }
 
         void ColorSlidersWidget::_sliderCallback1(float value)
         {
-            _value.y = value;
-            if (!_components)
+            TLRENDER_P();
+            p.value.y = value;
+            if (!p.components)
             {
-                _value.x = _value.z = _value.y;
+                p.value.x = p.value.z = p.value.y;
             }
             _widgetUpdate();
-            Q_EMIT valueChanged(_value);
+            Q_EMIT valueChanged(p.value);
         }
 
         void ColorSlidersWidget::_sliderCallback2(float value)
         {
-            _value.z = value;
-            if (!_components)
+            TLRENDER_P();
+            p.value.z = value;
+            if (!p.components)
             {
-                _value.x = _value.y = _value.z;
+                p.value.x = p.value.y = p.value.z;
             }
             _widgetUpdate();
-            Q_EMIT valueChanged(_value);
+            Q_EMIT valueChanged(p.value);
         }
 
         void ColorSlidersWidget::_widgetUpdate()
         {
+            TLRENDER_P();
             {
-                QSignalBlocker signalBlocker(_sliders[0]);
-                _sliders[0]->setRange(_range);
-                _sliders[0]->setValue(_value.x);
+                QSignalBlocker signalBlocker(p.sliders[0]);
+                p.sliders[0]->setRange(p.range);
+                p.sliders[0]->setValue(p.value.x);
             }
             {
-                QSignalBlocker signalBlocker(_sliders[1]);
-                _sliders[1]->setRange(_range);
-                _sliders[1]->setValue(_value.y);
-                _sliders[1]->setVisible(_components);
+                QSignalBlocker signalBlocker(p.sliders[1]);
+                p.sliders[1]->setRange(p.range);
+                p.sliders[1]->setValue(p.value.y);
+                p.sliders[1]->setVisible(p.components);
             }
             {
-                QSignalBlocker signalBlocker(_sliders[2]);
-                _sliders[2]->setRange(_range);
-                _sliders[2]->setValue(_value.z);
-                _sliders[2]->setVisible(_components);
+                QSignalBlocker signalBlocker(p.sliders[2]);
+                p.sliders[2]->setRange(p.range);
+                p.sliders[2]->setValue(p.value.z);
+                p.sliders[2]->setVisible(p.components);
             }
         }
 
-        ColorWidget::ColorWidget(QWidget* parent) :
-            QWidget(parent)
+        struct ColorWidget::Private
         {
-            _colorEnabledCheckBox = new QCheckBox(tr("Enabled"));
+            bool colorEnabled = false;
+            render::Color color;
+            bool components = false;
 
-            _componentsCheckBox = new QCheckBox(tr("Components"));
+            QCheckBox* colorEnabledCheckBox = nullptr;
+            QCheckBox* componentsCheckBox = nullptr;
+            ColorSlidersWidget* addSliders = nullptr;
+            ColorSlidersWidget* brightnessSliders = nullptr;
+            ColorSlidersWidget* contrastSliders = nullptr;
+            ColorSlidersWidget* saturationSliders = nullptr;
+            ColorSliderWidget* tintSlider = nullptr;
+            QCheckBox* invertCheckBox = nullptr;
+        };
 
-            _addSliders = new ColorSlidersWidget;
-            _addSliders->setRange(math::FloatRange(-1.F, 1.F));
+        ColorWidget::ColorWidget(QWidget* parent) :
+            QWidget(parent),
+            _p(new Private)
+        {
+            TLRENDER_P();
 
-            _brightnessSliders = new ColorSlidersWidget;
-            _brightnessSliders->setRange(math::FloatRange(0.F, 4.F));
+            p.colorEnabledCheckBox = new QCheckBox(tr("Enabled"));
 
-            _contrastSliders = new ColorSlidersWidget;
-            _contrastSliders->setRange(math::FloatRange(0.F, 4.F));
+            p.componentsCheckBox = new QCheckBox(tr("Components"));
 
-            _saturationSliders = new ColorSlidersWidget;
-            _saturationSliders->setRange(math::FloatRange(0.F, 4.F));
+            p.addSliders = new ColorSlidersWidget;
+            p.addSliders->setRange(math::FloatRange(-1.F, 1.F));
 
-            _tintSlider = new ColorSliderWidget;
+            p.brightnessSliders = new ColorSlidersWidget;
+            p.brightnessSliders->setRange(math::FloatRange(0.F, 4.F));
 
-            _invertCheckBox = new QCheckBox(tr("Invert"));
+            p.contrastSliders = new ColorSlidersWidget;
+            p.contrastSliders->setRange(math::FloatRange(0.F, 4.F));
+
+            p.saturationSliders = new ColorSlidersWidget;
+            p.saturationSliders->setRange(math::FloatRange(0.F, 4.F));
+
+            p.tintSlider = new ColorSliderWidget;
+
+            p.invertCheckBox = new QCheckBox(tr("Invert"));
 
             auto layout = new QVBoxLayout;
             auto hLayout = new QHBoxLayout;
-            hLayout->addWidget(_colorEnabledCheckBox);
+            hLayout->addWidget(p.colorEnabledCheckBox);
             hLayout->addStretch();
-            hLayout->addWidget(_componentsCheckBox);
+            hLayout->addWidget(p.componentsCheckBox);
             layout->addLayout(hLayout);
             layout->addWidget(new QLabel(tr("Add")));
-            layout->addWidget(_addSliders);
+            layout->addWidget(p.addSliders);
             layout->addWidget(new QLabel(tr("Brightness")));
-            layout->addWidget(_brightnessSliders);
+            layout->addWidget(p.brightnessSliders);
             layout->addWidget(new QLabel(tr("Contrast")));
-            layout->addWidget(_contrastSliders);
+            layout->addWidget(p.contrastSliders);
             layout->addWidget(new QLabel(tr("Saturation")));
-            layout->addWidget(_saturationSliders);
+            layout->addWidget(p.saturationSliders);
             layout->addWidget(new QLabel(tr("Tint")));
-            layout->addWidget(_tintSlider);
-            layout->addWidget(_invertCheckBox);
+            layout->addWidget(p.tintSlider);
+            layout->addWidget(p.invertCheckBox);
             setLayout(layout);
 
             _widgetUpdate();
 
             connect(
-                _colorEnabledCheckBox,
+                p.colorEnabledCheckBox,
                 SIGNAL(toggled(bool)),
                 SLOT(_colorEnabledCallback(bool)));
 
             connect(
-                _componentsCheckBox,
+                p.componentsCheckBox,
                 SIGNAL(toggled(bool)),
                 SLOT(_componentsCallback(bool)));
 
             connect(
-                _addSliders,
+                p.addSliders,
                 SIGNAL(valueChanged(const tl::math::Vector3f&)),
                 SLOT(_addCallback(const tl::math::Vector3f&)));
 
             connect(
-                _brightnessSliders,
+                p.brightnessSliders,
                 SIGNAL(valueChanged(const tl::math::Vector3f&)),
                 SLOT(_brightnessCallback(const tl::math::Vector3f&)));
 
             connect(
-                _contrastSliders,
+                p.contrastSliders,
                 SIGNAL(valueChanged(const tl::math::Vector3f&)),
                 SLOT(_contrastCallback(const tl::math::Vector3f&)));
 
             connect(
-                _saturationSliders,
+                p.saturationSliders,
                 SIGNAL(valueChanged(const tl::math::Vector3f&)),
                 SLOT(_saturationCallback(const tl::math::Vector3f&)));
 
             connect(
-                _tintSlider,
+                p.tintSlider,
                 SIGNAL(valueChanged(float)),
                 SLOT(_tintCallback(float)));
 
             connect(
-                _invertCheckBox,
+                p.invertCheckBox,
                 SIGNAL(toggled(bool)),
                 SLOT(_invertCallback(bool)));
         }
 
+        ColorWidget::~ColorWidget()
+        {}
+
         void ColorWidget::setColorEnabled(bool value)
         {
-            if (value == _colorEnabled)
+            TLRENDER_P();
+            if (value == p.colorEnabled)
                 return;
-            _colorEnabled = value;
+            p.colorEnabled = value;
             _widgetUpdate();
         }
 
         void ColorWidget::setColor(const render::Color& value)
         {
-            if (value == _color)
+            TLRENDER_P();
+            if (value == p.color)
                 return;
-            _color = value;
+            p.color = value;
             _widgetUpdate();
         }
 
         void ColorWidget::_colorEnabledCallback(bool value)
         {
-            _colorEnabled = value;
-            Q_EMIT colorEnabledChanged(_colorEnabled);
+            TLRENDER_P();
+            p.colorEnabled = value;
+            Q_EMIT colorEnabledChanged(p.colorEnabled);
         }
 
         void ColorWidget::_componentsCallback(bool value)
         {
-            _components = value;
+            TLRENDER_P();
+            p.components = value;
             _widgetUpdate();
         }
 
         void ColorWidget::_addCallback(const math::Vector3f& value)
         {
-            _color.add = value;
-            Q_EMIT colorChanged(_color);
+            TLRENDER_P();
+            p.color.add = value;
+            Q_EMIT colorChanged(p.color);
         }
 
         void ColorWidget::_brightnessCallback(const math::Vector3f& value)
         {
-            _color.brightness = value;
-            Q_EMIT colorChanged(_color);
+            TLRENDER_P();
+            p.color.brightness = value;
+            Q_EMIT colorChanged(p.color);
         }
 
         void ColorWidget::_contrastCallback(const math::Vector3f& value)
         {
-            _color.contrast = value;
-            Q_EMIT colorChanged(_color);
+            TLRENDER_P();
+            p.color.contrast = value;
+            Q_EMIT colorChanged(p.color);
         }
 
         void ColorWidget::_saturationCallback(const math::Vector3f& value)
         {
-            _color.saturation = value;
-            Q_EMIT colorChanged(_color);
+            TLRENDER_P();
+            p.color.saturation = value;
+            Q_EMIT colorChanged(p.color);
         }
 
         void ColorWidget::_tintCallback(float value)
         {
-            _color.tint = value;
-            Q_EMIT colorChanged(_color);
+            TLRENDER_P();
+            p.color.tint = value;
+            Q_EMIT colorChanged(p.color);
         }
 
         void ColorWidget::_invertCallback(bool value)
         {
-            _color.invert = value;
-            Q_EMIT colorChanged(_color);
+            TLRENDER_P();
+            p.color.invert = value;
+            Q_EMIT colorChanged(p.color);
         }
 
         void ColorWidget::_widgetUpdate()
         {
+            TLRENDER_P();
             {
-                QSignalBlocker signalBlocker(_colorEnabledCheckBox);
-                _colorEnabledCheckBox->setChecked(_colorEnabled);
+                QSignalBlocker signalBlocker(p.colorEnabledCheckBox);
+                p.colorEnabledCheckBox->setChecked(p.colorEnabled);
             }
             {
-                QSignalBlocker signalBlocker(_componentsCheckBox);
-                _componentsCheckBox->setChecked(_components);
+                QSignalBlocker signalBlocker(p.componentsCheckBox);
+                p.componentsCheckBox->setChecked(p.components);
             }
             {
-                QSignalBlocker signalBlocker(_addSliders);
-                _addSliders->setComponents(_components);
-                _addSliders->setValue(_color.add);
+                QSignalBlocker signalBlocker(p.addSliders);
+                p.addSliders->setComponents(p.components);
+                p.addSliders->setValue(p.color.add);
             }
             {
-                QSignalBlocker signalBlocker(_brightnessSliders);
-                _brightnessSliders->setComponents(_components);
-                _brightnessSliders->setValue(_color.brightness);
+                QSignalBlocker signalBlocker(p.brightnessSliders);
+                p.brightnessSliders->setComponents(p.components);
+                p.brightnessSliders->setValue(p.color.brightness);
             }
             {
-                QSignalBlocker signalBlocker(_contrastSliders);
-                _contrastSliders->setComponents(_components);
-                _contrastSliders->setValue(_color.contrast);
+                QSignalBlocker signalBlocker(p.contrastSliders);
+                p.contrastSliders->setComponents(p.components);
+                p.contrastSliders->setValue(p.color.contrast);
             }
             {
-                QSignalBlocker signalBlocker(_saturationSliders);
-                _saturationSliders->setComponents(_components);
-                _saturationSliders->setValue(_color.saturation);
+                QSignalBlocker signalBlocker(p.saturationSliders);
+                p.saturationSliders->setComponents(p.components);
+                p.saturationSliders->setValue(p.color.saturation);
             }
             {
-                QSignalBlocker signalBlocker(_tintSlider);
-                _tintSlider->setValue(_color.tint);
+                QSignalBlocker signalBlocker(p.tintSlider);
+                p.tintSlider->setValue(p.color.tint);
             }
             {
-                QSignalBlocker signalBlocker(_invertCheckBox);
-                _invertCheckBox->setChecked(_color.invert);
+                QSignalBlocker signalBlocker(p.invertCheckBox);
+                p.invertCheckBox->setChecked(p.color.invert);
             }
         }
 
-        LevelsWidget::LevelsWidget(QWidget* parent) :
-            QWidget(parent)
+        struct LevelsWidget::Private
         {
-            _levelsEnabledCheckBox = new QCheckBox(tr("Enabled"));
+            bool levelsEnabled = false;
+            render::Levels levels;
 
-            _inLowSlider = new ColorSliderWidget;
-            _inHighSlider = new ColorSliderWidget;
+            QCheckBox* levelsEnabledCheckBox = nullptr;
+            ColorSliderWidget* inLowSlider = nullptr;
+            ColorSliderWidget* inHighSlider = nullptr;
+            ColorSliderWidget* gammaSlider = nullptr;
+            ColorSliderWidget* outLowSlider = nullptr;
+            ColorSliderWidget* outHighSlider = nullptr;
+        };
 
-            _gammaSlider = new ColorSliderWidget;
-            _gammaSlider->setRange(math::FloatRange(.1F, 4.F));
+        LevelsWidget::LevelsWidget(QWidget* parent) :
+            QWidget(parent),
+            _p(new Private)
+        {
+            TLRENDER_P();
 
-            _outLowSlider = new ColorSliderWidget;
-            _outHighSlider = new ColorSliderWidget;
+            p.levelsEnabledCheckBox = new QCheckBox(tr("Enabled"));
+
+            p.inLowSlider = new ColorSliderWidget;
+            p.inHighSlider = new ColorSliderWidget;
+
+            p.gammaSlider = new ColorSliderWidget;
+            p.gammaSlider->setRange(math::FloatRange(.1F, 4.F));
+
+            p.outLowSlider = new ColorSliderWidget;
+            p.outHighSlider = new ColorSliderWidget;
 
             auto layout = new QVBoxLayout;
-            layout->addWidget(_levelsEnabledCheckBox);
+            layout->addWidget(p.levelsEnabledCheckBox);
             layout->addWidget(new QLabel(tr("In")));
-            layout->addWidget(_inLowSlider);
-            layout->addWidget(_inHighSlider);
+            layout->addWidget(p.inLowSlider);
+            layout->addWidget(p.inHighSlider);
             layout->addWidget(new QLabel(tr("Gamma")));
-            layout->addWidget(_gammaSlider);
+            layout->addWidget(p.gammaSlider);
             layout->addWidget(new QLabel(tr("Out")));
-            layout->addWidget(_outLowSlider);
-            layout->addWidget(_outHighSlider);
+            layout->addWidget(p.outLowSlider);
+            layout->addWidget(p.outHighSlider);
             setLayout(layout);
 
             _widgetUpdate();
 
             connect(
-                _levelsEnabledCheckBox,
+                p.levelsEnabledCheckBox,
                 SIGNAL(toggled(bool)),
                 SLOT(_levelsEnabledCallback(bool)));
 
             connect(
-                _inLowSlider,
+                p.inLowSlider,
                 SIGNAL(valueChanged(float)),
                 SLOT(_inLowCallback(float)));
             connect(
-                _inHighSlider,
+                p.inHighSlider,
                 SIGNAL(valueChanged(float)),
                 SLOT(_inHighCallback(float)));
 
             connect(
-                _gammaSlider,
+                p.gammaSlider,
                 SIGNAL(valueChanged(float)),
                 SLOT(_gammaCallback(float)));
 
             connect(
-                _outLowSlider,
+                p.outLowSlider,
                 SIGNAL(valueChanged(float)),
                 SLOT(_outLowCallback(float)));
             connect(
-                _outHighSlider,
+                p.outHighSlider,
                 SIGNAL(valueChanged(float)),
                 SLOT(_outHighCallback(float)));
         }
 
+        LevelsWidget::~LevelsWidget()
+        {}
+
         void LevelsWidget::setLevelsEnabled(bool value)
         {
-            if (value == _levelsEnabled)
+            TLRENDER_P();
+            if (value == p.levelsEnabled)
                 return;
-            _levelsEnabled = value;
+            p.levelsEnabled = value;
             _widgetUpdate();
         }
 
         void LevelsWidget::setLevels(const render::Levels& value)
         {
-            if (value == _levels)
+            TLRENDER_P();
+            if (value == p.levels)
                 return;
-            _levels = value;
+            p.levels = value;
             _widgetUpdate();
         }
 
         void LevelsWidget::_levelsEnabledCallback(bool value)
         {
-            _levelsEnabled = value;
-            Q_EMIT levelsEnabledChanged(_levelsEnabled);
+            TLRENDER_P();
+            p.levelsEnabled = value;
+            Q_EMIT levelsEnabledChanged(p.levelsEnabled);
         }
 
         void LevelsWidget::_inLowCallback(float value)
         {
-            _levels.inLow = value;
-            Q_EMIT levelsChanged(_levels);
+            TLRENDER_P();
+            p.levels.inLow = value;
+            Q_EMIT levelsChanged(p.levels);
         }
 
         void LevelsWidget::_inHighCallback(float value)
         {
-            _levels.inHigh = value;
-            Q_EMIT levelsChanged(_levels);
+            TLRENDER_P();
+            p.levels.inHigh = value;
+            Q_EMIT levelsChanged(p.levels);
         }
 
         void LevelsWidget::_gammaCallback(float value)
         {
-            _levels.gamma = value;
-            Q_EMIT levelsChanged(_levels);
+            TLRENDER_P();
+            p.levels.gamma = value;
+            Q_EMIT levelsChanged(p.levels);
         }
 
         void LevelsWidget::_outLowCallback(float value)
         {
-            _levels.outLow = value;
-            Q_EMIT levelsChanged(_levels);
+            TLRENDER_P();
+            p.levels.outLow = value;
+            Q_EMIT levelsChanged(p.levels);
         }
 
         void LevelsWidget::_outHighCallback(float value)
         {
-            _levels.outHigh = value;
-            Q_EMIT levelsChanged(_levels);
+            TLRENDER_P();
+            p.levels.outHigh = value;
+            Q_EMIT levelsChanged(p.levels);
         }
 
         void LevelsWidget::_widgetUpdate()
         {
+            TLRENDER_P();
             {
-                QSignalBlocker signalBlocker(_levelsEnabledCheckBox);
-                _levelsEnabledCheckBox->setChecked(_levelsEnabled);
+                QSignalBlocker signalBlocker(p.levelsEnabledCheckBox);
+                p.levelsEnabledCheckBox->setChecked(p.levelsEnabled);
             }
             {
-                QSignalBlocker signalBlocker(_inLowSlider);
-                _inLowSlider->setValue(_levels.inLow);
+                QSignalBlocker signalBlocker(p.inLowSlider);
+                p.inLowSlider->setValue(p.levels.inLow);
             }
             {
-                QSignalBlocker signalBlocker(_inHighSlider);
-                _inHighSlider->setValue(_levels.inHigh);
+                QSignalBlocker signalBlocker(p.inHighSlider);
+                p.inHighSlider->setValue(p.levels.inHigh);
             }
             {
-                QSignalBlocker signalBlocker(_gammaSlider);
-                _gammaSlider->setValue(_levels.gamma);
+                QSignalBlocker signalBlocker(p.gammaSlider);
+                p.gammaSlider->setValue(p.levels.gamma);
             }
             {
-                QSignalBlocker signalBlocker(_outLowSlider);
-                _outLowSlider->setValue(_levels.outLow);
+                QSignalBlocker signalBlocker(p.outLowSlider);
+                p.outLowSlider->setValue(p.levels.outLow);
             }
             {
-                QSignalBlocker signalBlocker(_outHighSlider);
-                _outHighSlider->setValue(_levels.outHigh);
+                QSignalBlocker signalBlocker(p.outHighSlider);
+                p.outHighSlider->setValue(p.levels.outHigh);
             }
         }
 
-        ExposureWidget::ExposureWidget(QWidget* parent) :
-            QWidget(parent)
+        struct ExposureWidget::Private
         {
-            _exposureEnabledCheckBox = new QCheckBox(tr("Enabled"));
+            bool exposureEnabled = false;
+            render::Exposure exposure;
 
-            _exposureSlider = new ColorSliderWidget;
-            _exposureSlider->setRange(math::FloatRange(-10.F, 10.F));
+            QCheckBox* exposureEnabledCheckBox = nullptr;
+            ColorSliderWidget* exposureSlider = nullptr;
+            ColorSliderWidget* defogSlider = nullptr;
+            ColorSliderWidget* kneeLowSlider = nullptr;
+            ColorSliderWidget* kneeHighSlider = nullptr;
+        };
 
-            _defogSlider = new ColorSliderWidget;
-            _defogSlider->setRange(math::FloatRange(0.F, .1F));
+        ExposureWidget::ExposureWidget(QWidget* parent) :
+            QWidget(parent),
+            _p(new Private)
+        {
+            TLRENDER_P();
 
-            _kneeLowSlider = new ColorSliderWidget;
-            _kneeLowSlider->setRange(math::FloatRange(-3.F, 3.F));
-            _kneeHighSlider = new ColorSliderWidget;
-            _kneeHighSlider->setRange(math::FloatRange(3.5F, 7.5F));
+            p.exposureEnabledCheckBox = new QCheckBox(tr("Enabled"));
+
+            p.exposureSlider = new ColorSliderWidget;
+            p.exposureSlider->setRange(math::FloatRange(-10.F, 10.F));
+
+            p.defogSlider = new ColorSliderWidget;
+            p.defogSlider->setRange(math::FloatRange(0.F, .1F));
+
+            p.kneeLowSlider = new ColorSliderWidget;
+            p.kneeLowSlider->setRange(math::FloatRange(-3.F, 3.F));
+            p.kneeHighSlider = new ColorSliderWidget;
+            p.kneeHighSlider->setRange(math::FloatRange(3.5F, 7.5F));
 
             auto layout = new QVBoxLayout;
-            layout->addWidget(_exposureEnabledCheckBox);
-            layout->addWidget(_exposureSlider);
+            layout->addWidget(p.exposureEnabledCheckBox);
+            layout->addWidget(p.exposureSlider);
             layout->addWidget(new QLabel(tr("Defog")));
-            layout->addWidget(_defogSlider);
+            layout->addWidget(p.defogSlider);
             layout->addWidget(new QLabel(tr("Knee")));
-            layout->addWidget(_kneeLowSlider);
-            layout->addWidget(_kneeHighSlider);
+            layout->addWidget(p.kneeLowSlider);
+            layout->addWidget(p.kneeHighSlider);
             setLayout(layout);
 
             _widgetUpdate();
 
             connect(
-                _exposureEnabledCheckBox,
+                p.exposureEnabledCheckBox,
                 SIGNAL(toggled(bool)),
                 SLOT(_exposureEnabledCallback(bool)));
 
             connect(
-                _exposureSlider,
+                p.exposureSlider,
                 SIGNAL(valueChanged(float)),
                 SLOT(_exposureCallback(float)));
 
             connect(
-                _defogSlider,
+                p.defogSlider,
                 SIGNAL(valueChanged(float)),
                 SLOT(_defogCallback(float)));
 
             connect(
-                _kneeLowSlider,
+                p.kneeLowSlider,
                 SIGNAL(valueChanged(float)),
                 SLOT(_kneeLowCallback(float)));
             connect(
-                _kneeHighSlider,
+                p.kneeHighSlider,
                 SIGNAL(valueChanged(float)),
                 SLOT(_kneeHighCallback(float)));
         }
 
+        ExposureWidget::~ExposureWidget()
+        {}
+
         void ExposureWidget::setExposureEnabled(bool value)
         {
-            if (value == _exposureEnabled)
+            TLRENDER_P();
+            if (value == p.exposureEnabled)
                 return;
-            _exposureEnabled = value;
+            p.exposureEnabled = value;
             _widgetUpdate();
         }
 
         void ExposureWidget::setExposure(const render::Exposure& value)
         {
-            if (value == _exposure)
+            TLRENDER_P();
+            if (value == p.exposure)
                 return;
-            _exposure = value;
+            p.exposure = value;
             _widgetUpdate();
         }
 
         void ExposureWidget::_exposureEnabledCallback(bool value)
         {
-            _exposureEnabled = value;
-            Q_EMIT exposureEnabledChanged(_exposureEnabled);
+            TLRENDER_P();
+            p.exposureEnabled = value;
+            Q_EMIT exposureEnabledChanged(p.exposureEnabled);
         }
 
         void ExposureWidget::_exposureCallback(float value)
         {
-            _exposure.exposure = value;
-            Q_EMIT exposureChanged(_exposure);
+            TLRENDER_P();
+            p.exposure.exposure = value;
+            Q_EMIT exposureChanged(p.exposure);
         }
 
         void ExposureWidget::_defogCallback(float value)
         {
-            _exposure.defog = value;
-            Q_EMIT exposureChanged(_exposure);
+            TLRENDER_P();
+            p.exposure.defog = value;
+            Q_EMIT exposureChanged(p.exposure);
         }
 
         void ExposureWidget::_kneeLowCallback(float value)
         {
-            _exposure.kneeLow = value;
-            Q_EMIT exposureChanged(_exposure);
+            TLRENDER_P();
+            p.exposure.kneeLow = value;
+            Q_EMIT exposureChanged(p.exposure);
         }
 
         void ExposureWidget::_kneeHighCallback(float value)
         {
-            _exposure.kneeHigh = value;
-            Q_EMIT exposureChanged(_exposure);
+            TLRENDER_P();
+            p.exposure.kneeHigh = value;
+            Q_EMIT exposureChanged(p.exposure);
         }
 
         void ExposureWidget::_widgetUpdate()
         {
+            TLRENDER_P();
             {
-                QSignalBlocker signalBlocker(_exposureEnabledCheckBox);
-                _exposureEnabledCheckBox->setChecked(_exposureEnabled);
+                QSignalBlocker signalBlocker(p.exposureEnabledCheckBox);
+                p.exposureEnabledCheckBox->setChecked(p.exposureEnabled);
             }
             {
-                QSignalBlocker signalBlocker(_exposureSlider);
-                _exposureSlider->setValue(_exposure.exposure);
+                QSignalBlocker signalBlocker(p.exposureSlider);
+                p.exposureSlider->setValue(p.exposure.exposure);
             }
             {
-                QSignalBlocker signalBlocker(_defogSlider);
-                _defogSlider->setValue(_exposure.defog);
+                QSignalBlocker signalBlocker(p.defogSlider);
+                p.defogSlider->setValue(p.exposure.defog);
             }
             {
-                QSignalBlocker signalBlocker(_kneeLowSlider);
-                _kneeLowSlider->setValue(_exposure.kneeLow);
+                QSignalBlocker signalBlocker(p.kneeLowSlider);
+                p.kneeLowSlider->setValue(p.exposure.kneeLow);
             }
             {
-                QSignalBlocker signalBlocker(_kneeHighSlider);
-                _kneeHighSlider->setValue(_exposure.kneeHigh);
+                QSignalBlocker signalBlocker(p.kneeHighSlider);
+                p.kneeHighSlider->setValue(p.exposure.kneeHigh);
             }
         }
 
-        SoftClipWidget::SoftClipWidget(QWidget* parent) :
-            QWidget(parent)
+        struct SoftClipWidget::Private
         {
-            _softClipEnabledCheckBox = new QCheckBox(tr("Enabled"));
+            bool softClipEnabled = false;
+            float softClip = 0.F;
 
-            _softClipSlider = new ColorSliderWidget;
+            QCheckBox* softClipEnabledCheckBox = nullptr;
+            ColorSliderWidget* softClipSlider = nullptr;
+        };
+
+        SoftClipWidget::SoftClipWidget(QWidget* parent) :
+            QWidget(parent),
+            _p(new Private)
+        {
+            TLRENDER_P();
+
+            p.softClipEnabledCheckBox = new QCheckBox(tr("Enabled"));
+
+            p.softClipSlider = new ColorSliderWidget;
 
             auto layout = new QVBoxLayout;
-            layout->addWidget(_softClipEnabledCheckBox);
-            layout->addWidget(_softClipSlider);
+            layout->addWidget(p.softClipEnabledCheckBox);
+            layout->addWidget(p.softClipSlider);
             setLayout(layout);
 
             _widgetUpdate();
 
             connect(
-                _softClipEnabledCheckBox,
+                p.softClipEnabledCheckBox,
                 SIGNAL(toggled(bool)),
                 SLOT(_softClipEnabledCallback(bool)));
 
             connect(
-                _softClipSlider,
+                p.softClipSlider,
                 SIGNAL(valueChanged(float)),
                 SLOT(_softClipCallback(float)));
         }
 
+        SoftClipWidget::~SoftClipWidget()
+        {}
+
         void SoftClipWidget::setSoftClipEnabled(bool value)
         {
-            if (value == _softClipEnabled)
+            TLRENDER_P();
+            if (value == p.softClipEnabled)
                 return;
-            _softClipEnabled = value;
+            p.softClipEnabled = value;
             _widgetUpdate();
         }
 
         void SoftClipWidget::setSoftClip(float value)
         {
-            if (value == _softClip)
+            TLRENDER_P();
+            if (value == p.softClip)
                 return;
-            _softClip = value;
+            p.softClip = value;
             _widgetUpdate();
         }
 
         void SoftClipWidget::_softClipEnabledCallback(bool value)
         {
-            _softClipEnabled = value;
-            Q_EMIT softClipEnabledChanged(_softClipEnabled);
+            TLRENDER_P();
+            p.softClipEnabled = value;
+            Q_EMIT softClipEnabledChanged(p.softClipEnabled);
         }
 
         void SoftClipWidget::_softClipCallback(float value)
         {
-            _softClip = value;
-            Q_EMIT softClipChanged(_softClip);
+            TLRENDER_P();
+            p.softClip = value;
+            Q_EMIT softClipChanged(p.softClip);
         }
 
         void SoftClipWidget::_widgetUpdate()
         {
+            TLRENDER_P();
             {
-                QSignalBlocker signalBlocker(_softClipEnabledCheckBox);
-                _softClipEnabledCheckBox->setChecked(_softClipEnabled);
+                QSignalBlocker signalBlocker(p.softClipEnabledCheckBox);
+                p.softClipEnabledCheckBox->setChecked(p.softClipEnabled);
             }
             {
-                QSignalBlocker signalBlocker(_softClipSlider);
-                _softClipSlider->setValue(_softClip);
+                QSignalBlocker signalBlocker(p.softClipSlider);
+                p.softClipSlider->setValue(p.softClip);
             }
         }
 
-        ImageTool::ImageTool(QWidget* parent) :
-            ToolWidget(parent)
+        struct ImageTool::Private
         {
-            _yuvRangeWidget = new YUVRangeWidget;
-            _channelsWidget = new ChannelsWidget;
-            _alphaBlendWidget = new AlphaBlendWidget;
-            _colorWidget = new ColorWidget;
-            _levelsWidget = new LevelsWidget;
-            _exposureWidget = new ExposureWidget;
-            _softClipWidget = new SoftClipWidget;
+            render::ImageOptions imageOptions;
 
-            addBellows(tr("YUV Range"), _yuvRangeWidget);
-            addBellows(tr("Channels"), _channelsWidget);
-            addBellows(tr("Alpha Blend"), _alphaBlendWidget);
-            addBellows(tr("Color"), _colorWidget);
-            addBellows(tr("Levels"), _levelsWidget);
-            addBellows(tr("Exposure"), _exposureWidget);
-            addBellows(tr("Soft Clip"), _softClipWidget);
+            YUVRangeWidget* yuvRangeWidget = nullptr;
+            ChannelsWidget* channelsWidget = nullptr;
+            AlphaBlendWidget* alphaBlendWidget = nullptr;
+            ColorWidget* colorWidget = nullptr;
+            LevelsWidget* levelsWidget = nullptr;
+            ExposureWidget* exposureWidget = nullptr;
+            SoftClipWidget* softClipWidget = nullptr;
+        };
+
+        ImageTool::ImageTool(QWidget* parent) :
+            ToolWidget(parent),
+            _p(new Private)
+        {
+            TLRENDER_P();
+
+            p.yuvRangeWidget = new YUVRangeWidget;
+            p.channelsWidget = new ChannelsWidget;
+            p.alphaBlendWidget = new AlphaBlendWidget;
+            p.colorWidget = new ColorWidget;
+            p.levelsWidget = new LevelsWidget;
+            p.exposureWidget = new ExposureWidget;
+            p.softClipWidget = new SoftClipWidget;
+
+            addBellows(tr("YUV Range"), p.yuvRangeWidget);
+            addBellows(tr("Channels"), p.channelsWidget);
+            addBellows(tr("Alpha Blend"), p.alphaBlendWidget);
+            addBellows(tr("Color"), p.colorWidget);
+            addBellows(tr("Levels"), p.levelsWidget);
+            addBellows(tr("Exposure"), p.exposureWidget);
+            addBellows(tr("Soft Clip"), p.softClipWidget);
             addStretch();
 
             _optionsUpdate();
 
             connect(
-                _yuvRangeWidget,
+                p.yuvRangeWidget,
                 SIGNAL(valueChanged(tl::render::YUVRange)),
                 SLOT(_yuvRangeCallback(tl::render::YUVRange)));
 
             connect(
-                _channelsWidget,
+                p.channelsWidget,
                 SIGNAL(valueChanged(tl::render::Channels)),
                 SLOT(_channelsCallback(tl::render::Channels)));
 
             connect(
-                _alphaBlendWidget,
+                p.alphaBlendWidget,
                 SIGNAL(valueChanged(tl::render::AlphaBlend)),
                 SLOT(_alphaBlendCallback(tl::render::AlphaBlend)));
 
             connect(
-                _colorWidget,
+                p.colorWidget,
                 SIGNAL(colorEnabledChanged(bool)),
                 SLOT(_colorEnabledCallback(bool)));
             connect(
-                _colorWidget,
+                p.colorWidget,
                 SIGNAL(colorChanged(const tl::render::Color&)),
                 SLOT(_colorCallback(const tl::render::Color&)));
 
             connect(
-                _levelsWidget,
+                p.levelsWidget,
                 SIGNAL(levelsEnabledChanged(bool)),
                 SLOT(_levelsEnabledCallback(bool)));
             connect(
-                _levelsWidget,
+                p.levelsWidget,
                 SIGNAL(levelsChanged(const tl::render::Levels&)),
                 SLOT(_levelsCallback(const tl::render::Levels&)));
 
             connect(
-                _exposureWidget,
+                p.exposureWidget,
                 SIGNAL(exposureEnabledChanged(bool)),
                 SLOT(_exposureEnabledCallback(bool)));
             connect(
-                _exposureWidget,
+                p.exposureWidget,
                 SIGNAL(exposureChanged(const tl::render::Exposure&)),
                 SLOT(_exposureCallback(const tl::render::Exposure&)));
 
             connect(
-                _softClipWidget,
+                p.softClipWidget,
                 SIGNAL(softClipEnabledChanged(bool)),
                 SLOT(_softClipEnabledCallback(bool)));
             connect(
-                _softClipWidget,
+                p.softClipWidget,
                 SIGNAL(softClipChanged(float)),
                 SLOT(_softClipCallback(float)));
         }
 
+        ImageTool::~ImageTool()
+        {}
+
         void ImageTool::setImageOptions(const render::ImageOptions& imageOptions)
         {
-            if (imageOptions == _imageOptions)
+            TLRENDER_P();
+            if (imageOptions == p.imageOptions)
                 return;
-            _imageOptions = imageOptions;
+            p.imageOptions = imageOptions;
             _optionsUpdate();
         }
 
         void ImageTool::_yuvRangeCallback(render::YUVRange value)
         {
-            _imageOptions.yuvRange = value;
-            Q_EMIT imageOptionsChanged(_imageOptions);
+            TLRENDER_P();
+            p.imageOptions.yuvRange = value;
+            Q_EMIT imageOptionsChanged(p.imageOptions);
         }
 
         void ImageTool::_channelsCallback(render::Channels value)
         {
-            _imageOptions.channels = value;
-            Q_EMIT imageOptionsChanged(_imageOptions);
+            TLRENDER_P();
+            p.imageOptions.channels = value;
+            Q_EMIT imageOptionsChanged(p.imageOptions);
         }
 
         void ImageTool::_alphaBlendCallback(render::AlphaBlend value)
         {
-            _imageOptions.alphaBlend = value;
-            Q_EMIT imageOptionsChanged(_imageOptions);
+            TLRENDER_P();
+            p.imageOptions.alphaBlend = value;
+            Q_EMIT imageOptionsChanged(p.imageOptions);
         }
 
         void ImageTool::_colorEnabledCallback(bool value)
         {
-            _imageOptions.colorEnabled = value;
-            Q_EMIT imageOptionsChanged(_imageOptions);
+            TLRENDER_P();
+            p.imageOptions.colorEnabled = value;
+            Q_EMIT imageOptionsChanged(p.imageOptions);
         }
 
         void ImageTool::_colorCallback(const render::Color& value)
         {
-            _imageOptions.color = value;
-            Q_EMIT imageOptionsChanged(_imageOptions);
+            TLRENDER_P();
+            p.imageOptions.color = value;
+            Q_EMIT imageOptionsChanged(p.imageOptions);
         }
 
         void ImageTool::_levelsEnabledCallback(bool value)
         {
-            _imageOptions.levelsEnabled = value;
-            Q_EMIT imageOptionsChanged(_imageOptions);
+            TLRENDER_P();
+            p.imageOptions.levelsEnabled = value;
+            Q_EMIT imageOptionsChanged(p.imageOptions);
         }
 
         void ImageTool::_levelsCallback(const render::Levels& value)
         {
-            _imageOptions.levels = value;
-            Q_EMIT imageOptionsChanged(_imageOptions);
+            TLRENDER_P();
+            p.imageOptions.levels = value;
+            Q_EMIT imageOptionsChanged(p.imageOptions);
         }
 
         void ImageTool::_exposureEnabledCallback(bool value)
         {
-            _imageOptions.exposureEnabled = value;
-            Q_EMIT imageOptionsChanged(_imageOptions);
+            TLRENDER_P();
+            p.imageOptions.exposureEnabled = value;
+            Q_EMIT imageOptionsChanged(p.imageOptions);
         }
 
         void ImageTool::_exposureCallback(const render::Exposure& value)
         {
-            _imageOptions.exposure = value;
-            Q_EMIT imageOptionsChanged(_imageOptions);
+            TLRENDER_P();
+            p.imageOptions.exposure = value;
+            Q_EMIT imageOptionsChanged(p.imageOptions);
         }
 
         void ImageTool::_softClipEnabledCallback(bool value)
         {
-            _imageOptions.softClipEnabled = value;
-            Q_EMIT imageOptionsChanged(_imageOptions);
+            TLRENDER_P();
+            p.imageOptions.softClipEnabled = value;
+            Q_EMIT imageOptionsChanged(p.imageOptions);
         }
 
         void ImageTool::_softClipCallback(float value)
         {
-            _imageOptions.softClip = value;
-            Q_EMIT imageOptionsChanged(_imageOptions);
+            TLRENDER_P();
+            p.imageOptions.softClip = value;
+            Q_EMIT imageOptionsChanged(p.imageOptions);
         }
 
         void ImageTool::_optionsUpdate()
         {
-            _yuvRangeWidget->setValue(_imageOptions.yuvRange);
-            _channelsWidget->setValue(_imageOptions.channels);
-            _alphaBlendWidget->setValue(_imageOptions.alphaBlend);
-            _colorWidget->setColorEnabled(_imageOptions.colorEnabled);
-            _colorWidget->setColor(_imageOptions.color);
-            _levelsWidget->setLevelsEnabled(_imageOptions.levelsEnabled);
-            _levelsWidget->setLevels(_imageOptions.levels);
-            _exposureWidget->setExposureEnabled(_imageOptions.exposureEnabled);
-            _exposureWidget->setExposure(_imageOptions.exposure);
-            _softClipWidget->setSoftClipEnabled(_imageOptions.softClipEnabled);
-            _softClipWidget->setSoftClip(_imageOptions.softClip);
+            TLRENDER_P();
+            p.yuvRangeWidget->setValue(p.imageOptions.yuvRange);
+            p.channelsWidget->setValue(p.imageOptions.channels);
+            p.alphaBlendWidget->setValue(p.imageOptions.alphaBlend);
+            p.colorWidget->setColorEnabled(p.imageOptions.colorEnabled);
+            p.colorWidget->setColor(p.imageOptions.color);
+            p.levelsWidget->setLevelsEnabled(p.imageOptions.levelsEnabled);
+            p.levelsWidget->setLevels(p.imageOptions.levels);
+            p.exposureWidget->setExposureEnabled(p.imageOptions.exposureEnabled);
+            p.exposureWidget->setExposure(p.imageOptions.exposure);
+            p.softClipWidget->setSoftClipEnabled(p.imageOptions.softClipEnabled);
+            p.softClipWidget->setSoftClip(p.imageOptions.softClip);
         }
     }
 }

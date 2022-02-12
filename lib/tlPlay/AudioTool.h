@@ -6,9 +6,6 @@
 
 #include <tlPlay/ToolWidget.h>
 
-#include <QDoubleSpinBox>
-#include <QSlider>
-
 namespace tl
 {
     namespace play
@@ -35,9 +32,7 @@ namespace tl
         private:
             void _offsetUpdate();
 
-            double _offset = 0.0;
-            QDoubleSpinBox* _spinBox = nullptr;
-            QSlider* _slider = nullptr;
+            TLRENDER_PRIVATE();
         };
 
         //! Audio tool.
@@ -55,7 +50,7 @@ namespace tl
             void audioOffsetChanged(double);
 
         private:
-            AudioOffsetWidget* _offsetWidget = nullptr;
+            TLRENDER_PRIVATE();
         };
     }
 }

@@ -4,23 +4,28 @@
 
 #pragma once
 
-#include <tlPlay/ColorModel.h>
-#include <tlPlay/FilesModel.h>
-#include <tlPlay/MainWindow.h>
-#include <tlPlay/SettingsObject.h>
-
 #include <tlApp/IApp.h>
 
-#include <tlQt/TimeObject.h>
-#include <tlQt/TimelinePlayer.h>
+#include <tlCore/OCIO.h>
 
 #include <QApplication>
 
 namespace tl
 {
+    namespace qt
+    {
+        class TimeObject;
+    }
+
     //! Playback application.
     namespace play
     {
+        struct FilesModelItem;
+
+        class ColorModel;
+        class FilesModel;
+        class SettingsObject;
+
         //! Application options.
         struct Options
         {
@@ -34,6 +39,7 @@ namespace tl
 
         public:
             App(int& argc, char** argv);
+
             ~App() override;
 
             //! Get the time object.
@@ -50,7 +56,7 @@ namespace tl
 
         public Q_SLOTS:
             //! Open a file.
-            void open(const QString&, const QString & = QString());
+            void open(const QString&, const QString& = QString());
 
             //! Open a file dialog.
             void openDialog();
@@ -59,26 +65,13 @@ namespace tl
             void openWithAudioDialog();
 
         private Q_SLOTS:
-            void _activeCallback(const std::vector<std::shared_ptr<FilesModelItem> >&);
+            void _activeCallback(const std::vector<std::shared_ptr<tl::play::FilesModelItem> >&);
             void _settingsCallback();
 
         private:
             void _settingsUpdate();
 
-            std::string _input;
-            Options _options;
-
-            qt::TimeObject* _timeObject = nullptr;
-            SettingsObject* _settingsObject = nullptr;
-            std::shared_ptr<FilesModel> _filesModel;
-            std::shared_ptr<observer::ListObserver<std::shared_ptr<FilesModelItem> > > _activeObserver;
-            std::vector<std::shared_ptr<FilesModelItem> > _active;
-            std::shared_ptr<observer::ListObserver<int> > _layersObserver;
-            std::shared_ptr<ColorModel> _colorModel;
-
-            std::vector<qt::TimelinePlayer*> _timelinePlayers;
-
-            MainWindow* _mainWindow = nullptr;
+            TLRENDER_PRIVATE();
         };
     }
 }

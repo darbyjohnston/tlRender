@@ -4,13 +4,15 @@
 
 #pragma once
 
-#include <tlPlay/InfoModel.h>
 #include <tlPlay/ToolWidget.h>
-
-#include <QTreeView>
 
 namespace tl
 {
+    namespace avio
+    {
+        struct Info;
+    }
+
     namespace play
     {
         //! Information tool.
@@ -26,8 +28,7 @@ namespace tl
             void setInfo(const avio::Info&);
 
         private:
-            InfoModel* _infoModel = nullptr;
-            QTreeView* _treeView = nullptr;
+            TLRENDER_PRIVATE();
         };
     }
 }

@@ -4,22 +4,16 @@
 
 #pragma once
 
-#include <tlPlay/FilesModel.h>
 #include <tlPlay/ToolWidget.h>
 
-#include <tlQWidget/RadioButtonGroup.h>
-
 #include <tlQt/MetaTypes.h>
-
-#include <QComboBox>
-#include <QDoubleSpinBox>
-#include <QSlider>
-#include <QTreeView>
 
 namespace tl
 {
     namespace play
     {
+        class FilesModel;
+
         //! Compare tool.
         class CompareTool : public ToolWidget
         {
@@ -52,17 +46,7 @@ namespace tl
         private:
             void _widgetUpdate();
 
-            std::shared_ptr<FilesModel> _filesModel;
-            FilesBModel* _filesBModel = nullptr;
-            render::CompareOptions _compareOptions;
-            QTreeView* _treeView = nullptr;
-            qwidget::RadioButtonGroup* _modeButtonGroup = nullptr;
-            QDoubleSpinBox* _wipeXSpinBox = nullptr;
-            QSlider* _wipeXSlider = nullptr;
-            QDoubleSpinBox* _wipeYSpinBox = nullptr;
-            QSlider* _wipeYSlider = nullptr;
-            QDoubleSpinBox* _wipeRotationSpinBox = nullptr;
-            QSlider* _wipeRotationSlider = nullptr;
+            TLRENDER_PRIVATE();
         };
     }
 }

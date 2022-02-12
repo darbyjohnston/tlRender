@@ -4,32 +4,44 @@
 
 #include <tlPlay/InfoTool.h>
 
+#include <tlPlay/InfoModel.h>
+
 #include <tlQt/Util.h>
 
 #include <QBoxLayout>
 #include <QHeaderView>
 #include <QSettings>
+#include <QTreeView>
 
 namespace tl
 {
     namespace play
     {
-        InfoTool::InfoTool(QWidget* parent) :
-            ToolWidget(parent)
+        struct InfoTool::Private
         {
-            _infoModel = new InfoModel(this);
+            InfoModel* infoModel = nullptr;
+            QTreeView* treeView = nullptr;
+        };
 
-            _treeView = new QTreeView;
-            _treeView->setAllColumnsShowFocus(true);
-            _treeView->setAlternatingRowColors(true);
-            _treeView->setSelectionMode(QAbstractItemView::NoSelection);
-            _treeView->setIndentation(0);
-            _treeView->setModel(_infoModel);
+        InfoTool::InfoTool(QWidget* parent) :
+            ToolWidget(parent),
+            _p(new Private)
+        {
+            TLRENDER_P();
+
+            p.infoModel = new InfoModel(this);
+
+            p.treeView = new QTreeView;
+            p.treeView->setAllColumnsShowFocus(true);
+            p.treeView->setAlternatingRowColors(true);
+            p.treeView->setSelectionMode(QAbstractItemView::NoSelection);
+            p.treeView->setIndentation(0);
+            p.treeView->setModel(p.infoModel);
 
             auto layout = new QVBoxLayout;
             layout->setContentsMargins(0, 0, 0, 0);
             layout->setSpacing(0);
-            layout->addWidget(_treeView);
+            layout->addWidget(p.treeView);
             auto widget = new QWidget;
             widget->setLayout(layout);
             addWidget(widget);
@@ -38,19 +50,21 @@ namespace tl
             auto ba = settings.value(qt::versionedSettingsKey("InfoTool/Header")).toByteArray();
             if (!ba.isEmpty())
             {
-                _treeView->header()->restoreState(ba);
+                p.treeView->header()->restoreState(ba);
             }
         }
 
         InfoTool::~InfoTool()
         {
+            TLRENDER_P();
             QSettings settings;
-            settings.setValue(qt::versionedSettingsKey("InfoTool/Header"), _treeView->header()->saveState());
+            settings.setValue(qt::versionedSettingsKey("InfoTool/Header"), p.treeView->header()->saveState());
         }
 
         void InfoTool::setInfo(const avio::Info& value)
         {
-            _infoModel->setInfo(value);
+            TLRENDER_P();
+            p.infoModel->setInfo(value);
         }
     }
 }

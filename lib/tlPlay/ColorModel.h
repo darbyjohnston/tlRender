@@ -5,12 +5,8 @@
 #pragma once
 
 #include <tlCore/Context.h>
-#include <tlCore/ListObserver.h>
 #include <tlCore/OCIO.h>
-
-#include <QAbstractTableModel>
-
-#include <OpenColorIO/OpenColorIO.h>
+#include <tlCore/ValueObserver.h>
 
 #include <QAbstractListModel>
 
@@ -71,10 +67,7 @@ namespace tl
         private:
             void _configUpdate();
 
-            std::weak_ptr<core::Context> _context;
-            OCIO_NAMESPACE::ConstConfigRcPtr _ocioConfig;
-            std::shared_ptr<observer::Value<imaging::ColorConfig> > _config;
-            std::shared_ptr<observer::Value<ColorModelData> > _data;
+            TLRENDER_PRIVATE();
         };
 
         //! Color input list model.
@@ -87,13 +80,13 @@ namespace tl
                 const std::shared_ptr<ColorModel>&,
                 QObject* parent = nullptr);
 
+            ~ColorInputListModel() override;
+
             int rowCount(const QModelIndex& parent = QModelIndex()) const override;
             QVariant data(const QModelIndex&, int role = Qt::DisplayRole) const override;
 
         protected:
-            std::vector<std::string> _inputs;
-            size_t _inputIndex = 0;
-            std::shared_ptr<observer::ValueObserver<ColorModelData> > _dataObserver;
+            TLRENDER_PRIVATE();
         };
 
         //! Color display list model.
@@ -106,13 +99,13 @@ namespace tl
                 const std::shared_ptr<ColorModel>&,
                 QObject* parent = nullptr);
 
+            ~ColorDisplayListModel() override;
+
             int rowCount(const QModelIndex& parent = QModelIndex()) const override;
             QVariant data(const QModelIndex&, int role = Qt::DisplayRole) const override;
 
         protected:
-            std::vector<std::string> _displays;
-            size_t _displayIndex = 0;
-            std::shared_ptr<observer::ValueObserver<ColorModelData> > _dataObserver;
+            TLRENDER_PRIVATE();
         };
 
         //! Color view list model.
@@ -125,13 +118,13 @@ namespace tl
                 const std::shared_ptr<ColorModel>&,
                 QObject* parent = nullptr);
 
+            ~ColorViewListModel() override;
+
             int rowCount(const QModelIndex& parent = QModelIndex()) const override;
             QVariant data(const QModelIndex&, int role = Qt::DisplayRole) const override;
 
         protected:
-            std::vector<std::string> _views;
-            size_t _viewIndex = 0;
-            std::shared_ptr<observer::ValueObserver<ColorModelData> > _dataObserver;
+            TLRENDER_PRIVATE();
         };
     }
 }

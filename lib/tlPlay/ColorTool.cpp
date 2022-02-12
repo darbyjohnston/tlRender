@@ -4,52 +4,71 @@
 
 #include <tlPlay/ColorTool.h>
 
+#include <tlPlay/ColorModel.h>
+
 #include <tlCore/Path.h>
 
 #include <QBoxLayout>
 #include <QFileDialog>
 #include <QLabel>
+#include <QLineEdit>
+#include <QListView>
 #include <QToolButton>
 
 namespace tl
 {
     namespace play
     {
+        struct ColorTool::Private
+        {
+            std::shared_ptr<ColorModel> colorModel;
+            ColorModelData data;
+            QLineEdit* fileNameLineEdit = nullptr;
+            QListView* inputListView = nullptr;
+            QListView* displayListView = nullptr;
+            QListView* viewListView = nullptr;
+            std::shared_ptr<observer::ValueObserver<ColorModelData> > dataObserver;
+        };
+
         ColorTool::ColorTool(
             const std::shared_ptr<ColorModel>& colorModel,
             QWidget* parent) :
             ToolWidget(parent),
-            _colorModel(colorModel)
+            _p(new Private)
         {
-            _fileNameLineEdit = new QLineEdit;
+            TLRENDER_P();
+
+            p.colorModel = colorModel;
+
+            p.fileNameLineEdit = new QLineEdit;
             auto fileNameButton = new QToolButton;
             fileNameButton->setIcon(QIcon(":/Icons/FileBrowser.svg"));
             fileNameButton->setAutoRaise(true);
 
-            _inputListView = new QListView;
-            _inputListView->setAlternatingRowColors(true);
-            _inputListView->setSelectionMode(QAbstractItemView::NoSelection);
-            _inputListView->setModel(new ColorInputListModel(colorModel, this));
+            p.inputListView = new QListView;
+            p.inputListView->setAlternatingRowColors(true);
+            p.inputListView->setSelectionMode(QAbstractItemView::NoSelection);
+            p.inputListView->setModel(new ColorInputListModel(colorModel, this));
 
-            _displayListView = new QListView;
-            _displayListView->setAlternatingRowColors(true);
-            _displayListView->setSelectionMode(QAbstractItemView::NoSelection);
-            _displayListView->setModel(new ColorDisplayListModel(colorModel, this));
+            p.displayListView = new QListView;
+            p.displayListView->setAlternatingRowColors(true);
+            p.displayListView->setSelectionMode(QAbstractItemView::NoSelection);
+            p.displayListView->setModel(new ColorDisplayListModel(colorModel, this));
 
-            _viewListView = new QListView;
-            _viewListView->setAlternatingRowColors(true);
-            _viewListView->setSelectionMode(QAbstractItemView::NoSelection);
-            _viewListView->setModel(new ColorViewListModel(colorModel, this));
+            p.viewListView = new QListView;
+            p.viewListView->setAlternatingRowColors(true);
+            p.viewListView->setSelectionMode(QAbstractItemView::NoSelection);
+            p.viewListView->setModel(new ColorViewListModel(colorModel, this));
 
             auto hLayout = new QHBoxLayout;
-            hLayout->addWidget(_fileNameLineEdit);
+            hLayout->addWidget(p.fileNameLineEdit);
             hLayout->addWidget(fileNameButton);
             auto widget = new QWidget;
             widget->setLayout(hLayout);
             addBellows(tr("Configuration"), widget);
-            addBellows(tr("Input"), _inputListView);
-            addBellows(tr("Display"), _displayListView);
-            addBellows(tr("View"), _viewListView);
+            addBellows(tr("Input"), p.inputListView);
+            addBellows(tr("Display"), p.displayListView);
+            addBellows(tr("View"), p.viewListView);
             addStretch();
 
             connect(
@@ -58,9 +77,9 @@ namespace tl
                 [this]
                 {
                     QString dir;
-                    if (!_data.fileName.empty())
+                    if (!_p->data.fileName.empty())
                     {
-                        dir = QString::fromUtf8(file::Path(_data.fileName).get().c_str());
+                        dir = QString::fromUtf8(file::Path(_p->data.fileName).get().c_str());
                     }
 
                     const auto fileName = QFileDialog::getOpenFileName(
@@ -70,47 +89,47 @@ namespace tl
                         tr("Files") + " (*.ocio)");
                     if (!fileName.isEmpty())
                     {
-                        _colorModel->setConfig(fileName.toUtf8().data());
+                        _p->colorModel->setConfig(fileName.toUtf8().data());
                     }
                 });
 
             connect(
-                _fileNameLineEdit,
+                p.fileNameLineEdit,
                 &QLineEdit::editingFinished,
                 [this]
                 {
-                    _colorModel->setConfig(_fileNameLineEdit->text().toUtf8().data());
+                    _p->colorModel->setConfig(_p->fileNameLineEdit->text().toUtf8().data());
                 });
 
             connect(
-                _inputListView,
+                p.inputListView,
                 &QAbstractItemView::activated,
                 [this](const QModelIndex& index)
                 {
-                    _colorModel->setInputIndex(index.row());
+                    _p->colorModel->setInputIndex(index.row());
                 });
 
             connect(
-                _displayListView,
+                p.displayListView,
                 &QAbstractItemView::activated,
                 [this](const QModelIndex& index)
                 {
-                    _colorModel->setDisplayIndex(index.row());
+                    _p->colorModel->setDisplayIndex(index.row());
                 });
 
             connect(
-                _viewListView,
+                p.viewListView,
                 &QAbstractItemView::activated,
                 [this](const QModelIndex& index)
                 {
-                    _colorModel->setViewIndex(index.row());
+                    _p->colorModel->setViewIndex(index.row());
                 });
 
-            _dataObserver = observer::ValueObserver<ColorModelData>::create(
+            p.dataObserver = observer::ValueObserver<ColorModelData>::create(
                 colorModel->observeData(),
                 [this](const ColorModelData& value)
                 {
-                    _data = value;
+                    _p->data = value;
                     _widgetUpdate();
                 });
         }
@@ -120,9 +139,10 @@ namespace tl
 
         void ColorTool::_widgetUpdate()
         {
+            TLRENDER_P();
             {
-                QSignalBlocker blocker(_fileNameLineEdit);
-                _fileNameLineEdit->setText(QString::fromUtf8(_data.fileName.c_str()));
+                QSignalBlocker blocker(p.fileNameLineEdit);
+                p.fileNameLineEdit->setText(QString::fromUtf8(p.data.fileName.c_str()));
             }
         }
     }

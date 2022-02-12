@@ -5,42 +5,54 @@
 #include <tlPlay/AudioTool.h>
 
 #include <QBoxLayout>
+#include <QDoubleSpinBox>
 #include <QPushButton>
 #include <QSignalBlocker>
+#include <QSlider>
 
 namespace tl
 {
     namespace play
     {
-        AudioOffsetWidget::AudioOffsetWidget(QWidget* parent) :
-            QWidget(parent)
+        struct AudioOffsetWidget::Private
         {
-            _slider = new QSlider;
-            _slider->setOrientation(Qt::Horizontal);
-            _slider->setRange(-100, 100);
+            double offset = 0.0;
+            QDoubleSpinBox* spinBox = nullptr;
+            QSlider* slider = nullptr;
+        };
 
-            _spinBox = new QDoubleSpinBox;
-            _spinBox->setRange(-1.0, 1.0);
-            _spinBox->setSingleStep(0.1);
+        AudioOffsetWidget::AudioOffsetWidget(QWidget* parent) :
+            QWidget(parent),
+            _p(new Private)
+        {
+            TLRENDER_P();
+
+            p.slider = new QSlider;
+            p.slider->setOrientation(Qt::Horizontal);
+            p.slider->setRange(-100, 100);
+
+            p.spinBox = new QDoubleSpinBox;
+            p.spinBox->setRange(-1.0, 1.0);
+            p.spinBox->setSingleStep(0.1);
 
             auto resetButton = new QPushButton(tr("Reset"));
 
             auto layout = new QVBoxLayout;
-            layout->addWidget(_slider);
+            layout->addWidget(p.slider);
             auto hLayout = new QHBoxLayout;
-            hLayout->addWidget(_spinBox, 1);
+            hLayout->addWidget(p.spinBox, 1);
             hLayout->addWidget(resetButton);
             layout->addLayout(hLayout);
             layout->addStretch();
             setLayout(layout);
 
             connect(
-                _slider,
+                p.slider,
                 SIGNAL(valueChanged(int)),
                 SLOT(_sliderCallback(int)));
 
             connect(
-                _spinBox,
+                p.spinBox,
                 SIGNAL(valueChanged(double)),
                 SLOT(_spinBoxCallback(double)));
 
@@ -52,60 +64,74 @@ namespace tl
 
         void AudioOffsetWidget::setAudioOffset(double value)
         {
-            _offset = value;
+            TLRENDER_P();
+            p.offset = value;
             _offsetUpdate();
         }
 
         void AudioOffsetWidget::_sliderCallback(int value)
         {
-            _offset = value / 100.0;
-            Q_EMIT offsetChanged(_offset);
+            TLRENDER_P();
+            p.offset = value / 100.0;
+            Q_EMIT offsetChanged(p.offset);
             _offsetUpdate();
         }
 
         void AudioOffsetWidget::_spinBoxCallback(double value)
         {
-            _offset = value;
-            Q_EMIT offsetChanged(_offset);
+            TLRENDER_P();
+            p.offset = value;
+            Q_EMIT offsetChanged(p.offset);
             _offsetUpdate();
         }
 
         void AudioOffsetWidget::_resetCallback()
         {
-            _offset = 0.0;
-            Q_EMIT offsetChanged(_offset);
+            TLRENDER_P();
+            p.offset = 0.0;
+            Q_EMIT offsetChanged(p.offset);
             _offsetUpdate();
         }
 
         void AudioOffsetWidget::_offsetUpdate()
         {
+            TLRENDER_P();
             {
-                QSignalBlocker signalBlocker(_spinBox);
-                _spinBox->setValue(_offset);
+                QSignalBlocker signalBlocker(p.spinBox);
+                p.spinBox->setValue(p.offset);
             }
             {
-                QSignalBlocker signalBlocker(_slider);
-                _slider->setValue(_offset * 100);
+                QSignalBlocker signalBlocker(p.slider);
+                p.slider->setValue(p.offset * 100);
             }
         }
 
-        AudioTool::AudioTool(QWidget* parent) :
-            ToolWidget(parent)
+        struct AudioTool::Private
         {
-            _offsetWidget = new AudioOffsetWidget;
+            AudioOffsetWidget* offsetWidget = nullptr;
+        };
 
-            addBellows(tr("Sync Offset"), _offsetWidget);
+        AudioTool::AudioTool(QWidget* parent) :
+            ToolWidget(parent),
+            _p(new Private)
+        {
+            TLRENDER_P();
+
+            p.offsetWidget = new AudioOffsetWidget;
+
+            addBellows(tr("Sync Offset"), p.offsetWidget);
             addStretch();
 
             connect(
-                _offsetWidget,
+                p.offsetWidget,
                 SIGNAL(offsetChanged(double)),
                 SIGNAL(audioOffsetChanged(double)));
         }
 
         void AudioTool::setAudioOffset(double value)
         {
-            _offsetWidget->setAudioOffset(value);
+            TLRENDER_P();
+            p.offsetWidget->setAudioOffset(value);
         }
     }
 }

@@ -11,26 +11,40 @@
 #include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QGroupBox>
+#include <QLineEdit>
 #include <QPushButton>
 
 namespace tl
 {
     namespace play
     {
+        struct OpenWithAudioDialog::Private
+        {
+            std::weak_ptr<core::Context> context;
+            QString videoFileName;
+            QString audioFileName;
+            QLineEdit* videoLineEdit = nullptr;
+            QLineEdit* audioLineEdit = nullptr;
+        };
+
         OpenWithAudioDialog::OpenWithAudioDialog(
             const std::shared_ptr<core::Context>& context,
             QWidget* parent) :
             QDialog(parent),
-            _context(context)
+            _p(new Private)
         {
+            TLRENDER_P();
+
+            p.context = context;
+
             setWindowTitle(tr("Open with Audio"));
 
             auto videoGroupBox = new QGroupBox(tr("Viedo"));
-            _videoLineEdit = new QLineEdit;
+            p.videoLineEdit = new QLineEdit;
             auto videoBrowseButton = new QPushButton(tr("Browse"));
 
             auto audioGroupBox = new QGroupBox(tr("Audio"));
-            _audioLineEdit = new QLineEdit;
+            p.audioLineEdit = new QLineEdit;
             auto audioBrowseButton = new QPushButton(tr("Browse"));
 
             auto buttonBox = new QDialogButtonBox;
@@ -40,12 +54,12 @@ namespace tl
             auto layout = new QVBoxLayout;
             auto vLayout = new QVBoxLayout;
             auto hLayout = new QHBoxLayout;
-            hLayout->addWidget(_videoLineEdit);
+            hLayout->addWidget(p.videoLineEdit);
             hLayout->addWidget(videoBrowseButton);
             videoGroupBox->setLayout(hLayout);
             vLayout->addWidget(videoGroupBox);
             hLayout = new QHBoxLayout;
-            hLayout->addWidget(_audioLineEdit);
+            hLayout->addWidget(p.audioLineEdit);
             hLayout->addWidget(audioBrowseButton);
             audioGroupBox->setLayout(hLayout);
             vLayout->addWidget(audioGroupBox);
@@ -54,7 +68,7 @@ namespace tl
             setLayout(layout);
 
             connect(
-                _videoLineEdit,
+                p.videoLineEdit,
                 SIGNAL(textChanged(const QString&)),
                 SLOT(_videoLineEditCallback(const QString&)));
 
@@ -64,7 +78,7 @@ namespace tl
                 SLOT(_browseVideoCallback()));
 
             connect(
-                _audioLineEdit,
+                p.audioLineEdit,
                 SIGNAL(textChanged(const QString&)),
                 SLOT(_audioLineEditCallback(const QString&)));
 
@@ -85,22 +99,23 @@ namespace tl
 
         const QString& OpenWithAudioDialog::videoFileName() const
         {
-            return _videoFileName;
+            return _p->videoFileName;
         }
 
         const QString& OpenWithAudioDialog::audioFileName() const
         {
-            return _audioFileName;
+            return _p->audioFileName;
         }
 
         void OpenWithAudioDialog::_videoLineEditCallback(const QString& value)
         {
-            _videoFileName = value.toUtf8().data();
+            _p->videoFileName = value.toUtf8().data();
         }
 
         void OpenWithAudioDialog::_browseVideoCallback()
         {
-            if (auto context = _context.lock())
+            TLRENDER_P();
+            if (auto context = p.context.lock())
             {
                 std::vector<std::string> extensions;
                 for (const auto& i : timeline::getExtensions(
@@ -114,24 +129,26 @@ namespace tl
                 const auto fileName = QFileDialog::getOpenFileName(
                     this,
                     tr("Open Video"),
-                    _videoFileName,
+                    p.videoFileName,
                     tr("Files") + " (" + QString::fromUtf8(string::join(extensions, " ").c_str()) + ")");
                 if (!fileName.isEmpty())
                 {
-                    _videoFileName = fileName;
-                    _videoLineEdit->setText(_videoFileName);
+                    p.videoFileName = fileName;
+                    p.videoLineEdit->setText(p.videoFileName);
                 }
             }
         }
 
         void OpenWithAudioDialog::_audioLineEditCallback(const QString& value)
         {
-            _audioFileName = value.toUtf8().data();
+            TLRENDER_P();
+            p.audioFileName = value.toUtf8().data();
         }
 
         void OpenWithAudioDialog::_browseAudioCallback()
         {
-            if (auto context = _context.lock())
+            TLRENDER_P();
+            if (auto context = p.context.lock())
             {
                 std::vector<std::string> extensions;
                 for (const auto& i : timeline::getExtensions(
@@ -144,12 +161,12 @@ namespace tl
                 const auto fileName = QFileDialog::getOpenFileName(
                     this,
                     tr("Open Audio"),
-                    _audioFileName,
+                    p.audioFileName,
                     tr("Files") + " (" + QString::fromUtf8(string::join(extensions, " ").c_str()) + ")");
                 if (!fileName.isEmpty())
                 {
-                    _audioFileName = fileName;
-                    _audioLineEdit->setText(_audioFileName);
+                    p.audioFileName = fileName;
+                    p.audioLineEdit->setText(p.audioFileName);
                 }
             }
         }

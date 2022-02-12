@@ -9,6 +9,8 @@
 #include <QApplication>
 #include <QPalette>
 
+#include <OpenColorIO/OpenColorIO.h>
+
 namespace OCIO = OCIO_NAMESPACE;
 
 namespace tl
@@ -27,31 +29,42 @@ namespace tl
                 viewIndex == other.viewIndex;
         }
 
+        struct ColorModel::Private
+        {
+            std::weak_ptr<core::Context> context;
+            OCIO_NAMESPACE::ConstConfigRcPtr ocioConfig;
+            std::shared_ptr<observer::Value<imaging::ColorConfig> > config;
+            std::shared_ptr<observer::Value<ColorModelData> > data;
+        };
+
         void ColorModel::_init(const std::shared_ptr<core::Context>& context)
         {
-            _context = context;
+            TLRENDER_P();
+            
+            p.context = context;
 
-            _config = observer::Value<imaging::ColorConfig>::create();
-            _data = observer::Value<ColorModelData>::create();
+            p.config = observer::Value<imaging::ColorConfig>::create();
+            p.data = observer::Value<ColorModelData>::create();
 
             std::string env;
             if (os::getEnv("OCIO", env) && !env.empty())
             {
-                _ocioConfig = OCIO::Config::CreateFromEnv();
-                if (_ocioConfig)
+                p.ocioConfig = OCIO::Config::CreateFromEnv();
+                if (p.ocioConfig)
                 {
                     imaging::ColorConfig config;
                     config.fileName = env;
-                    const char* display = _ocioConfig->getDefaultDisplay();
+                    const char* display = p.ocioConfig->getDefaultDisplay();
                     config.display = display;
-                    config.view = _ocioConfig->getDefaultView(display);
-                    _config->setIfChanged(config);
+                    config.view = p.ocioConfig->getDefaultView(display);
+                    p.config->setIfChanged(config);
                     _configUpdate();
                 }
             }
         }
 
-        ColorModel::ColorModel()
+        ColorModel::ColorModel() :
+            _p(new Private)
         {}
 
         ColorModel::~ColorModel()
@@ -66,23 +79,24 @@ namespace tl
 
         std::shared_ptr<observer::IValue<imaging::ColorConfig> > ColorModel::observeConfig() const
         {
-            return _config;
+            return _p->config;
         }
 
         void ColorModel::setConfig(const imaging::ColorConfig& value)
         {
+            TLRENDER_P();
             try
             {
-                _ocioConfig = OCIO::Config::CreateFromFile(value.fileName.c_str());
-                if (_ocioConfig)
+                p.ocioConfig = OCIO::Config::CreateFromFile(value.fileName.c_str());
+                if (p.ocioConfig)
                 {
-                    _config->setIfChanged(value);
+                    p.config->setIfChanged(value);
                     _configUpdate();
                 }
             }
             catch (const std::exception& e)
             {
-                if (const auto context = _context.lock())
+                if (const auto context = p.context.lock())
                 {
                     context->log(std::string(), e.what(), core::LogType::Error);
                 }
@@ -91,23 +105,24 @@ namespace tl
 
         void ColorModel::setConfig(const std::string& fileName)
         {
+            TLRENDER_P();
             try
             {
-                _ocioConfig = OCIO::Config::CreateFromFile(fileName.c_str());
-                if (_ocioConfig)
+                p.ocioConfig = OCIO::Config::CreateFromFile(fileName.c_str());
+                if (p.ocioConfig)
                 {
                     imaging::ColorConfig config;
                     config.fileName = fileName;
-                    const char* display = _ocioConfig->getDefaultDisplay();
+                    const char* display = p.ocioConfig->getDefaultDisplay();
                     config.display = display;
-                    config.view = _ocioConfig->getDefaultView(display);
-                    _config->setIfChanged(config);
+                    config.view = p.ocioConfig->getDefaultView(display);
+                    p.config->setIfChanged(config);
                     _configUpdate();
                 }
             }
             catch (const std::exception& e)
             {
-                if (const auto context = _context.lock())
+                if (const auto context = p.context.lock())
                 {
                     context->log(std::string(), e.what(), core::LogType::Error);
                 }
@@ -116,56 +131,60 @@ namespace tl
 
         std::shared_ptr<observer::IValue<ColorModelData> > ColorModel::observeData() const
         {
-            return _data;
+            return _p->data;
         }
 
         void ColorModel::setInputIndex(size_t value)
         {
-            const auto& inputs = _data->get().inputs;
+            TLRENDER_P();
+            const auto& inputs = p.data->get().inputs;
             if (value >= 0 && value < inputs.size())
             {
-                imaging::ColorConfig config = _config->get();
+                imaging::ColorConfig config = p.config->get();
                 config.input = value > 0 ? inputs[value] : std::string();
-                _config->setIfChanged(config);
+                p.config->setIfChanged(config);
                 _configUpdate();
             }
         }
 
         void ColorModel::setDisplayIndex(size_t value)
         {
-            const auto& displays = _data->get().displays;
+            TLRENDER_P();
+            const auto& displays = p.data->get().displays;
             if (value >= 0 && value < displays.size())
             {
-                imaging::ColorConfig config = _config->get();
+                imaging::ColorConfig config = p.config->get();
                 config.display = value > 0 ? displays[value] : std::string();
-                _config->setIfChanged(config);
+                p.config->setIfChanged(config);
                 _configUpdate();
             }
         }
 
         void ColorModel::setViewIndex(size_t value)
         {
-            const auto& views = _data->get().views;
+            TLRENDER_P();
+            const auto& views = p.data->get().views;
             if (value >= 0 && value < views.size())
             {
-                imaging::ColorConfig config = _config->get();
+                imaging::ColorConfig config = p.config->get();
                 config.view = value > 0 ? views[value] : std::string();
-                _config->setIfChanged(config);
+                p.config->setIfChanged(config);
                 _configUpdate();
             }
         }
 
         void ColorModel::_configUpdate()
         {
+            TLRENDER_P();
             ColorModelData data;
-            const auto& config = _config->get();
+            const auto& config = p.config->get();
             data.fileName = config.fileName;
-            if (_ocioConfig)
+            if (p.ocioConfig)
             {
                 data.inputs.push_back("None");
-                for (int i = 0; i < _ocioConfig->getNumColorSpaces(); ++i)
+                for (int i = 0; i < p.ocioConfig->getNumColorSpaces(); ++i)
                 {
-                    data.inputs.push_back(_ocioConfig->getColorSpaceNameByIndex(i));
+                    data.inputs.push_back(p.ocioConfig->getColorSpaceNameByIndex(i));
                 }
                 auto j = std::find(data.inputs.begin(), data.inputs.end(), config.input);
                 if (j != data.inputs.end())
@@ -174,9 +193,9 @@ namespace tl
                 }
 
                 data.displays.push_back("None");
-                for (int i = 0; i < _ocioConfig->getNumDisplays(); ++i)
+                for (int i = 0; i < p.ocioConfig->getNumDisplays(); ++i)
                 {
-                    data.displays.push_back(_ocioConfig->getDisplay(i));
+                    data.displays.push_back(p.ocioConfig->getDisplay(i));
                 }
                 j = std::find(data.displays.begin(), data.displays.end(), config.display);
                 if (j != data.displays.end())
@@ -185,10 +204,10 @@ namespace tl
                 }
 
                 data.views.push_back("None");
-                const std::string display = _config->get().display;
-                for (int i = 0; i < _ocioConfig->getNumViews(display.c_str()); ++i)
+                const std::string display = p.config->get().display;
+                for (int i = 0; i < p.ocioConfig->getNumViews(display.c_str()); ++i)
                 {
-                    data.views.push_back(_ocioConfig->getView(display.c_str(), i));
+                    data.views.push_back(p.ocioConfig->getView(display.c_str(), i));
                 }
                 j = std::find(data.views.begin(), data.views.end(), config.view);
                 if (j != data.views.end())
@@ -196,53 +215,67 @@ namespace tl
                     data.viewIndex = j - data.views.begin();
                 }
             }
-            _data->setIfChanged(data);
+            p.data->setIfChanged(data);
         }
+
+        struct ColorInputListModel::Private
+        {
+            std::vector<std::string> inputs;
+            size_t inputIndex = 0;
+            std::shared_ptr<observer::ValueObserver<ColorModelData> > dataObserver;
+        };
 
         ColorInputListModel::ColorInputListModel(
             const std::shared_ptr<ColorModel>& colorModel,
             QObject* parent) :
-            QAbstractListModel(parent)
+            QAbstractListModel(parent),
+            _p(new Private)
         {
-            _dataObserver = observer::ValueObserver<ColorModelData>::create(
+            TLRENDER_P();
+
+            p.dataObserver = observer::ValueObserver<ColorModelData>::create(
                 colorModel->observeData(),
                 [this](const ColorModelData& value)
                 {
                     beginResetModel();
-                    _inputs = value.inputs;
-                    _inputIndex = value.inputIndex;
+                    _p->inputs = value.inputs;
+                    _p->inputIndex = value.inputIndex;
                     endResetModel();
                 });
         }
 
+        ColorInputListModel::~ColorInputListModel()
+        {}
+
         int ColorInputListModel::rowCount(const QModelIndex& parent) const
         {
-            return _inputs.size();
+            return _p->inputs.size();
         }
 
         QVariant ColorInputListModel::data(const QModelIndex& index, int role) const
         {
+            TLRENDER_P();
             QVariant out;
             if (index.isValid() &&
                 index.row() >= 0 &&
-                index.row() < _inputs.size() &&
+                index.row() < p.inputs.size() &&
                 index.column() >= 0 &&
                 index.column() < 2)
             {
                 switch (role)
                 {
                 case Qt::DisplayRole:
-                    out.setValue(QString::fromUtf8(_inputs[index.row()].c_str()));
+                    out.setValue(QString::fromUtf8(p.inputs[index.row()].c_str()));
                     break;
                 case Qt::BackgroundRole:
-                    if (index.row() == _inputIndex)
+                    if (index.row() == p.inputIndex)
                     {
                         out.setValue(
                             QBrush(qApp->palette().color(QPalette::ColorRole::Highlight)));
                     }
                     break;
                 case Qt::ForegroundRole:
-                    if (index.row() == _inputIndex)
+                    if (index.row() == p.inputIndex)
                     {
                         out.setValue(
                             QBrush(qApp->palette().color(QPalette::ColorRole::HighlightedText)));
@@ -253,51 +286,65 @@ namespace tl
             }
             return out;
         }
+
+        struct ColorDisplayListModel::Private
+        {
+            std::vector<std::string> displays;
+            size_t displayIndex = 0;
+            std::shared_ptr<observer::ValueObserver<ColorModelData> > dataObserver;
+        };
 
         ColorDisplayListModel::ColorDisplayListModel(
             const std::shared_ptr<ColorModel>& colorModel,
             QObject* parent) :
-            QAbstractListModel(parent)
+            QAbstractListModel(parent),
+            _p(new Private)
         {
-            _dataObserver = observer::ValueObserver<ColorModelData>::create(
+            TLRENDER_P();
+
+            p.dataObserver = observer::ValueObserver<ColorModelData>::create(
                 colorModel->observeData(),
                 [this](const ColorModelData& value)
                 {
                     beginResetModel();
-                    _displays = value.displays;
-                    _displayIndex = value.displayIndex;
+                    _p->displays = value.displays;
+                    _p->displayIndex = value.displayIndex;
                     endResetModel();
                 });
         }
 
+        ColorDisplayListModel::~ColorDisplayListModel()
+        {}
+
         int ColorDisplayListModel::rowCount(const QModelIndex& parent) const
         {
-            return _displays.size();
+            return _p->displays.size();
         }
 
         QVariant ColorDisplayListModel::data(const QModelIndex& index, int role) const
         {
+            TLRENDER_P();
             QVariant out;
             if (index.isValid() &&
                 index.row() >= 0 &&
-                index.row() < _displays.size() &&
+                index.row() < p.displays.size() &&
                 index.column() >= 0 &&
                 index.column() < 2)
             {
                 switch (role)
                 {
                 case Qt::DisplayRole:
-                    out.setValue(QString::fromUtf8(_displays[index.row()].c_str()));
+                    out.setValue(QString::fromUtf8(p.displays[index.row()].c_str()));
                     break;
                 case Qt::BackgroundRole:
-                    if (index.row() == _displayIndex)
+                    if (index.row() == p.displayIndex)
                     {
                         out.setValue(
                             QBrush(qApp->palette().color(QPalette::ColorRole::Highlight)));
                     }
                     break;
                 case Qt::ForegroundRole:
-                    if (index.row() == _displayIndex)
+                    if (index.row() == p.displayIndex)
                     {
                         out.setValue(
                             QBrush(qApp->palette().color(QPalette::ColorRole::HighlightedText)));
@@ -309,50 +356,64 @@ namespace tl
             return out;
         }
 
+        struct ColorViewListModel::Private
+        {
+            std::vector<std::string> views;
+            size_t viewIndex = 0;
+            std::shared_ptr<observer::ValueObserver<ColorModelData> > dataObserver;
+        };
+
         ColorViewListModel::ColorViewListModel(
             const std::shared_ptr<ColorModel>& colorModel,
             QObject* parent) :
-            QAbstractListModel(parent)
+            QAbstractListModel(parent),
+            _p(new Private)
         {
-            _dataObserver = observer::ValueObserver<ColorModelData>::create(
+            TLRENDER_P();
+
+            p.dataObserver = observer::ValueObserver<ColorModelData>::create(
                 colorModel->observeData(),
                 [this](const ColorModelData& value)
                 {
                     beginResetModel();
-                    _views = value.views;
-                    _viewIndex = value.viewIndex;
+                    _p->views = value.views;
+                    _p->viewIndex = value.viewIndex;
                     endResetModel();
                 });
         }
 
+        ColorViewListModel::~ColorViewListModel()
+        {}
+
         int ColorViewListModel::rowCount(const QModelIndex& parent) const
         {
-            return _views.size();
+            return _p->views.size();
         }
 
         QVariant ColorViewListModel::data(const QModelIndex& index, int role) const
         {
+            TLRENDER_P();
             QVariant out;
             if (index.isValid() &&
                 index.row() >= 0 &&
-                index.row() < _views.size() &&
+                index.row() < p.views.size() &&
                 index.column() >= 0 &&
                 index.column() < 2)
             {
                 switch (role)
                 {
                 case Qt::DisplayRole:
-                    out.setValue(QString::fromUtf8(_views[index.row()].c_str()));
+                    out.setValue(QString::fromUtf8(p.views[index.row()].c_str()));
                     break;
                 case Qt::BackgroundRole:
-                    if (index.row() == _viewIndex)
+                    if (index.row() == p.viewIndex)
                     {
                         out.setValue(
                             QBrush(qApp->palette().color(QPalette::ColorRole::Highlight)));
                     }
                     break;
                 case Qt::ForegroundRole:
-                    if (index.row() == _viewIndex)
+                    if (index.row() == p.viewIndex)
                     {
                         out.setValue(
                             QBrush(qApp->palette().color(QPalette::ColorRole::HighlightedText)));

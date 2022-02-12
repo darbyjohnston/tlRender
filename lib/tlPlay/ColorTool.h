@@ -4,17 +4,14 @@
 
 #pragma once
 
-#include <tlPlay/ColorModel.h>
 #include <tlPlay/ToolWidget.h>
-
-#include <QLineEdit>
-#include <QListView>
-#include <QComboBox>
 
 namespace tl
 {
     namespace play
     {
+        class ColorModel;
+
         //! Color tool.
         class ColorTool : public ToolWidget
         {
@@ -30,13 +27,7 @@ namespace tl
         private:
             void _widgetUpdate();
 
-            std::shared_ptr<ColorModel> _colorModel;
-            ColorModelData _data;
-            QLineEdit* _fileNameLineEdit = nullptr;
-            QListView* _inputListView = nullptr;
-            QListView* _displayListView = nullptr;
-            QListView* _viewListView = nullptr;
-            std::shared_ptr<observer::ValueObserver<ColorModelData> > _dataObserver;
+            TLRENDER_PRIVATE();
         };
     }
 }

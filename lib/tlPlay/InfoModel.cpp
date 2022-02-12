@@ -4,100 +4,109 @@
 
 #include <tlPlay/InfoModel.h>
 
+#include <tlCore/AVIO.h>
 #include <tlCore/StringFormat.h>
 
 namespace tl
 {
     namespace play
     {
+        struct InfoModel::Private
+        {
+            avio::Info info;
+            QList<QPair<QString, QString> > items;
+        };
+
         InfoModel::InfoModel(QObject* parent) :
-            QAbstractTableModel(parent)
+            QAbstractTableModel(parent),
+            _p(new Private)
         {}
 
         void InfoModel::setInfo(const avio::Info& value)
         {
-            if (value == _info)
+            TLRENDER_P();
+            if (value == p.info)
                 return;
-            _info = value;
+            p.info = value;
             beginResetModel();
-            _items.clear();
+            p.items.clear();
             if (!value.video.empty())
             {
                 {
                     std::stringstream ss;
-                    ss << _info.video[0].size;
-                    _items.push_back(QPair<QString, QString>("Video Resolution", QString::fromUtf8(ss.str().c_str())));
+                    ss << p.info.video[0].size;
+                    p.items.push_back(QPair<QString, QString>("Video Resolution", QString::fromUtf8(ss.str().c_str())));
                 }
                 {
                     std::stringstream ss;
                     ss.precision(2);
                     ss << std::fixed;
-                    ss << _info.video[0].pixelAspectRatio;
-                    _items.push_back(QPair<QString, QString>("Video Pixel Aspect Ratio", QString::fromUtf8(ss.str().c_str())));
+                    ss << p.info.video[0].pixelAspectRatio;
+                    p.items.push_back(QPair<QString, QString>("Video Pixel Aspect Ratio", QString::fromUtf8(ss.str().c_str())));
                 }
                 {
                     std::stringstream ss;
-                    ss << _info.video[0].pixelType;
-                    _items.push_back(QPair<QString, QString>("Video Pixel Type", QString::fromUtf8(ss.str().c_str())));
+                    ss << p.info.video[0].pixelType;
+                    p.items.push_back(QPair<QString, QString>("Video Pixel Type", QString::fromUtf8(ss.str().c_str())));
                 }
                 {
                     std::stringstream ss;
-                    ss << _info.video[0].yuvRange;
-                    _items.push_back(QPair<QString, QString>("Video YUV Range", QString::fromUtf8(ss.str().c_str())));
+                    ss << p.info.video[0].yuvRange;
+                    p.items.push_back(QPair<QString, QString>("Video YUV Range", QString::fromUtf8(ss.str().c_str())));
                 }
                 {
                     std::stringstream ss;
-                    ss << _info.video[0].layout.mirror.x;
-                    _items.push_back(QPair<QString, QString>("Video Mirror X", QString::fromUtf8(ss.str().c_str())));
+                    ss << p.info.video[0].layout.mirror.x;
+                    p.items.push_back(QPair<QString, QString>("Video Mirror X", QString::fromUtf8(ss.str().c_str())));
                 }
                 {
                     std::stringstream ss;
-                    ss << _info.video[0].layout.mirror.y;
-                    _items.push_back(QPair<QString, QString>("Video Mirror Y", QString::fromUtf8(ss.str().c_str())));
+                    ss << p.info.video[0].layout.mirror.y;
+                    p.items.push_back(QPair<QString, QString>("Video Mirror Y", QString::fromUtf8(ss.str().c_str())));
                 }
                 {
                     std::stringstream ss;
-                    ss << static_cast<int>(_info.video[0].layout.alignment);
-                    _items.push_back(QPair<QString, QString>("Video Alignment", QString::fromUtf8(ss.str().c_str())));
+                    ss << static_cast<int>(p.info.video[0].layout.alignment);
+                    p.items.push_back(QPair<QString, QString>("Video Alignment", QString::fromUtf8(ss.str().c_str())));
                 }
                 {
                     std::stringstream ss;
-                    ss << _info.video[0].layout.endian;
-                    _items.push_back(QPair<QString, QString>("Video Endian", QString::fromUtf8(ss.str().c_str())));
+                    ss << p.info.video[0].layout.endian;
+                    p.items.push_back(QPair<QString, QString>("Video Endian", QString::fromUtf8(ss.str().c_str())));
                 }
                 {
                     std::stringstream ss;
-                    ss << _info.videoType;
-                    _items.push_back(QPair<QString, QString>("Video Type", QString::fromUtf8(ss.str().c_str())));
+                    ss << p.info.videoType;
+                    p.items.push_back(QPair<QString, QString>("Video Type", QString::fromUtf8(ss.str().c_str())));
                 }
                 {
                     std::stringstream ss;
-                    ss << _info.videoTime;
-                    _items.push_back(QPair<QString, QString>("Video Time", QString::fromUtf8(ss.str().c_str())));
+                    ss << p.info.videoTime;
+                    p.items.push_back(QPair<QString, QString>("Video Time", QString::fromUtf8(ss.str().c_str())));
                 }
                 {
                     std::stringstream ss;
-                    ss << static_cast<int>(_info.audio.channelCount);
-                    _items.push_back(QPair<QString, QString>("Audio Channels", QString::fromUtf8(ss.str().c_str())));
+                    ss << static_cast<int>(p.info.audio.channelCount);
+                    p.items.push_back(QPair<QString, QString>("Audio Channels", QString::fromUtf8(ss.str().c_str())));
                 }
                 {
                     std::stringstream ss;
-                    ss << _info.audio.dataType;
-                    _items.push_back(QPair<QString, QString>("Audio Type", QString::fromUtf8(ss.str().c_str())));
+                    ss << p.info.audio.dataType;
+                    p.items.push_back(QPair<QString, QString>("Audio Type", QString::fromUtf8(ss.str().c_str())));
                 }
                 {
                     std::stringstream ss;
-                    ss << _info.audio.sampleRate;
-                    _items.push_back(QPair<QString, QString>("Audio Sample Rate", QString::fromUtf8(ss.str().c_str())));
+                    ss << p.info.audio.sampleRate;
+                    p.items.push_back(QPair<QString, QString>("Audio Sample Rate", QString::fromUtf8(ss.str().c_str())));
                 }
                 {
                     std::stringstream ss;
-                    ss << _info.audioTime;
-                    _items.push_back(QPair<QString, QString>("Audio Time", QString::fromUtf8(ss.str().c_str())));
+                    ss << p.info.audioTime;
+                    p.items.push_back(QPair<QString, QString>("Audio Time", QString::fromUtf8(ss.str().c_str())));
                 }
-                for (const auto& i : _info.tags)
+                for (const auto& i : p.info.tags)
                 {
-                    _items.push_back(QPair<QString, QString>(
+                    p.items.push_back(QPair<QString, QString>(
                         QString::fromUtf8(i.first.c_str()),
                         QString::fromUtf8(i.second.c_str())));
                 }
@@ -107,7 +116,7 @@ namespace tl
 
         int InfoModel::rowCount(const QModelIndex& parent) const
         {
-            return _items.count();
+            return _p->items.count();
         }
 
         int InfoModel::columnCount(const QModelIndex& parent) const
@@ -117,10 +126,11 @@ namespace tl
 
         QVariant InfoModel::data(const QModelIndex& index, int role) const
         {
+            TLRENDER_P();
             QVariant out;
             if (index.isValid() &&
                 index.row() >= 0 &&
-                index.row() < _items.count() &&
+                index.row() < p.items.count() &&
                 index.column() >= 0 &&
                 index.column() < 2)
             {
@@ -130,13 +140,13 @@ namespace tl
                 {
                     switch (index.column())
                     {
-                    case 0: out.setValue(_items.at(index.row()).first); break;
-                    case 1: out.setValue(_items.at(index.row()).second); break;
+                    case 0: out.setValue(p.items.at(index.row()).first); break;
+                    case 1: out.setValue(p.items.at(index.row()).second); break;
                     }
                     break;
                 }
                 case Qt::ToolTipRole:
-                    out.setValue(QString("%1: %2").arg(_items.at(index.row()).first).arg(_items.at(index.row()).second));
+                    out.setValue(QString("%1: %2").arg(p.items.at(index.row()).first).arg(p.items.at(index.row()).second));
                     break;
                 default: break;
                 }

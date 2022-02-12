@@ -6,13 +6,13 @@
 
 #include <tlPlay/ToolWidget.h>
 
-#include <tlCore/Context.h>
-
-#include <QListWidget>
-#include <QToolButton>
-
 namespace tl
 {
+    namespace core
+    {
+        class Context;
+    }
+
     namespace play
     {
         //! System log tool.
@@ -26,9 +26,7 @@ namespace tl
                 QWidget* parent = nullptr);
 
         private:
-            QListWidget* _listWidget = nullptr;
-            QToolButton* _clearButton = nullptr;
-            std::shared_ptr<observer::ValueObserver<core::LogItem> > _logObserver;
+            TLRENDER_PRIVATE();
         };
     }
 }

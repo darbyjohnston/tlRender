@@ -5,23 +5,17 @@
 #pragma once
 
 #include <tlPlay/ToolWidget.h>
-#include <tlPlay/SettingsObject.h>
-
-#include <tlQWidget/RadioButtonGroup.h>
 
 #include <tlQt/TimeObject.h>
 
-#include <QCheckBox>
-#include <QComboBox>
-#include <QDoubleSpinBox>
-#include <QLineEdit>
-#include <QMap>
-#include <QSpinBox>
+#include <tlCore/TimelinePlayer.h>
 
 namespace tl
 {
     namespace play
     {
+        class SettingsObject;
+
         //! Cache settings widget.
         class CacheSettingsWidget : public QWidget
         {
@@ -35,8 +29,7 @@ namespace tl
             void _readBehindCallback(double);
 
         private:
-            QDoubleSpinBox* _readAheadSpinBox = nullptr;
-            QDoubleSpinBox* _readBehindSpinBox = nullptr;
+            TLRENDER_PRIVATE();
         };
 
         //! File sequence settings widget.
@@ -55,11 +48,7 @@ namespace tl
             void _maxDigitsCallback(int);
 
         private:
-            SettingsObject* _settingsObject = nullptr;
-            QComboBox* _audioComboBox = nullptr;
-            QLineEdit* _audioFileName = nullptr;
-            QLineEdit* _audioDirectory = nullptr;
-            QSpinBox* _maxDigitsSpinBox = nullptr;
+            TLRENDER_PRIVATE();
         };
 
         //! Performance settings widget.
@@ -81,13 +70,7 @@ namespace tl
             void _ffmpegThreadCountCallback(int);
 
         private:
-            SettingsObject* _settingsObject = nullptr;
-            QComboBox* _timerModeComboBox = nullptr;
-            QComboBox* _audioBufferFrameCountComboBox = nullptr;
-            QSpinBox* _videoRequestCountSpinBox = nullptr;
-            QSpinBox* _audioRequestCountSpinBox = nullptr;
-            QSpinBox* _sequenceThreadCountSpinBox = nullptr;
-            QSpinBox* _ffmpegThreadCountSpinBox = nullptr;
+            TLRENDER_PRIVATE();
         };
 
         //! Time settings widget.
@@ -103,8 +86,7 @@ namespace tl
             void _unitsCallback(tl::qt::TimeUnits);
 
         private:
-            qwidget::RadioButtonGroup* _unitsButtonGroup = nullptr;
-            qt::TimeObject* _timeObject = nullptr;
+            TLRENDER_PRIVATE();
         };
 
         //! Miscellaneous settings widget.
@@ -120,8 +102,7 @@ namespace tl
             void _toolTipsCallback(bool);
 
         private:
-            QCheckBox* _toolTipsCheckBox = nullptr;
-            SettingsObject* _settingsObject = nullptr;
+            TLRENDER_PRIVATE();
         };
 
         //! Settings tool.

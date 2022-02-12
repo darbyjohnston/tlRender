@@ -4,15 +4,19 @@
 
 #pragma once
 
-#include <tlPlay/FilesModel.h>
 #include <tlPlay/ToolWidget.h>
-
-#include <QTreeView>
 
 namespace tl
 {
+    namespace core
+    {
+        class Context;
+    }
+
     namespace play
     {
+        class FilesModel;
+
         //! Files tool.
         class FilesTool : public ToolWidget
         {
@@ -30,9 +34,7 @@ namespace tl
             void _activatedCallback(const QModelIndex&);
 
         private:
-            std::shared_ptr<FilesModel> _filesModel;
-            FilesAModel* _filesAModel = nullptr;
-            QTreeView* _treeView = nullptr;
+            TLRENDER_PRIVATE();
         };
     }
 }

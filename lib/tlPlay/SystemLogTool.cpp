@@ -8,6 +8,8 @@
 
 #include <QBoxLayout>
 #include <QFontDatabase>
+#include <QListWidget>
+#include <QToolButton>
 
 namespace tl
 {
@@ -18,68 +20,78 @@ namespace tl
             const int messagesMax = 100;
         }
 
+        struct SystemLogTool::Private
+        {
+            QListWidget* listWidget = nullptr;
+            QToolButton* clearButton = nullptr;
+            std::shared_ptr<observer::ValueObserver<core::LogItem> > logObserver;
+        };
+
         SystemLogTool::SystemLogTool(
             const std::shared_ptr<core::Context>& context,
             QWidget* parent) :
-            ToolWidget(parent)
+            ToolWidget(parent),
+            _p(new Private)
         {
-            _listWidget = new QListWidget;
+            TLRENDER_P();
+            
+            p.listWidget = new QListWidget;
             const QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
-            _listWidget->setFont(fixedFont);
+            p.listWidget->setFont(fixedFont);
 
-            _clearButton = new QToolButton;
-            _clearButton->setIcon(QIcon(":/Icons/Clear.svg"));
-            _clearButton->setAutoRaise(true);
-            _clearButton->setToolTip(tr("Clear the messages"));
+            p.clearButton = new QToolButton;
+            p.clearButton->setIcon(QIcon(":/Icons/Clear.svg"));
+            p.clearButton->setAutoRaise(true);
+            p.clearButton->setToolTip(tr("Clear the messages"));
 
             auto layout = new QVBoxLayout;
             layout->setContentsMargins(0, 0, 0, 0);
             layout->setSpacing(0);
-            layout->addWidget(_listWidget);
+            layout->addWidget(p.listWidget);
             auto hLayout = new QHBoxLayout;
             hLayout->setSpacing(1);
             hLayout->addStretch();
-            hLayout->addWidget(_clearButton);
+            hLayout->addWidget(p.clearButton);
             layout->addLayout(hLayout);
             auto widget = new QWidget;
             widget->setLayout(layout);
             addWidget(widget);
 
-            _logObserver = observer::ValueObserver<core::LogItem>::create(
+            p.logObserver = observer::ValueObserver<core::LogItem>::create(
                 context->getLogSystem()->observeLog(),
                 [this](const core::LogItem& value)
                 {
                     switch (value.type)
                     {
                     case core::LogType::Message:
-                        _listWidget->addItem(QString("%1 %2: %3").
+                        _p->listWidget->addItem(QString("%1 %2: %3").
                             arg(value.time).
                             arg(QString::fromUtf8(value.prefix.c_str())).
                             arg(QString::fromUtf8(value.message.c_str())));
                         break;
                     case core::LogType::Warning:
-                        _listWidget->addItem(QString("%1 Warning %2: %3").
+                        _p->listWidget->addItem(QString("%1 Warning %2: %3").
                             arg(value.time).
                             arg(QString::fromUtf8(value.prefix.c_str())).
                             arg(QString::fromUtf8(value.message.c_str())));
                         break;
                     case core::LogType::Error:
-                        _listWidget->addItem(QString("%1 ERROR %2: %3").
+                        _p->listWidget->addItem(QString("%1 ERROR %2: %3").
                             arg(value.time).
                             arg(QString::fromUtf8(value.prefix.c_str())).
                             arg(QString::fromUtf8(value.message.c_str())));
                         break;
                     }
-                    while (_listWidget->count() > messagesMax)
+                    while (_p->listWidget->count() > messagesMax)
                     {
-                        delete _listWidget->takeItem(0);
+                        delete _p->listWidget->takeItem(0);
                     }
                 });
 
             connect(
-                _clearButton,
+                p.clearButton,
                 &QToolButton::clicked,
-                _listWidget,
+                p.listWidget,
                 &QListWidget::clear);
         }
     }

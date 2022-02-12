@@ -4,13 +4,17 @@
 
 #pragma once
 
-#include <tlCore/Context.h>
+#include <tlCore/Util.h>
 
 #include <QDialog>
-#include <QLineEdit>
 
 namespace tl
 {
+    namespace core
+    {
+        class Context;
+    }
+
     namespace play
     {
         //! Open with audio dialog.
@@ -33,11 +37,7 @@ namespace tl
             void _browseAudioCallback();
 
         private:
-            std::weak_ptr<core::Context> _context;
-            QString _videoFileName;
-            QString _audioFileName;
-            QLineEdit* _videoLineEdit = nullptr;
-            QLineEdit* _audioLineEdit = nullptr;
+            TLRENDER_PRIVATE();
         };
     }
 }

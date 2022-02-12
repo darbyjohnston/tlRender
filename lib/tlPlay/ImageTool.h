@@ -6,15 +6,9 @@
 
 #include <tlPlay/ToolWidget.h>
 
-#include <tlQWidget/RadioButtonGroup.h>
-
 #include <tlQt/MetaTypes.h>
 
 #include <tlCore/IRender.h>
-
-#include <QCheckBox>
-#include <QDoubleSpinBox>
-#include <QSlider>
 
 namespace tl
 {
@@ -28,6 +22,8 @@ namespace tl
         public:
             YUVRangeWidget(QWidget* parent = nullptr);
 
+            ~YUVRangeWidget() override;
+
         public Q_SLOTS:
             void setValue(tl::render::YUVRange);
 
@@ -40,9 +36,7 @@ namespace tl
         private:
             void _widgetUpdate();
 
-            render::YUVRange _value = tl::render::YUVRange::First;
-
-            qwidget::RadioButtonGroup* _radioButtonGroup = nullptr;
+            TLRENDER_PRIVATE();
         };
 
         //! Channels widget.
@@ -52,6 +46,8 @@ namespace tl
 
         public:
             ChannelsWidget(QWidget* parent = nullptr);
+
+            ~ChannelsWidget() override;
 
         public Q_SLOTS:
             void setValue(tl::render::Channels);
@@ -65,9 +61,7 @@ namespace tl
         private:
             void _widgetUpdate();
 
-            render::Channels _value = tl::render::Channels::First;
-
-            qwidget::RadioButtonGroup* _radioButtonGroup = nullptr;
+            TLRENDER_PRIVATE();
         };
 
         //! Alpha blend widget.
@@ -77,6 +71,8 @@ namespace tl
 
         public:
             AlphaBlendWidget(QWidget* parent = nullptr);
+
+            ~AlphaBlendWidget() override;
 
         public Q_SLOTS:
             void setValue(tl::render::AlphaBlend);
@@ -90,9 +86,7 @@ namespace tl
         private:
             void _widgetUpdate();
 
-            render::AlphaBlend _value = tl::render::AlphaBlend::First;
-
-            qwidget::RadioButtonGroup* _radioButtonGroup = nullptr;
+            TLRENDER_PRIVATE();
         };
 
         //! Color slider widget.
@@ -102,6 +96,8 @@ namespace tl
 
         public:
             ColorSliderWidget(QWidget* parent = nullptr);
+
+            ~ColorSliderWidget() override;
 
             void setRange(const math::FloatRange&);
 
@@ -118,11 +114,7 @@ namespace tl
         private:
             void _widgetUpdate();
 
-            math::FloatRange _range = math::FloatRange(0.F, 1.F);
-            float _value = 0.F;
-
-            QDoubleSpinBox* _spinBox = nullptr;
-            QSlider* _slider = nullptr;
+            TLRENDER_PRIVATE();
         };
 
         //! Color sliders widget.
@@ -132,6 +124,8 @@ namespace tl
 
         public:
             ColorSlidersWidget(QWidget* parent = nullptr);
+
+            ~ColorSlidersWidget() override;
 
             void setRange(const math::FloatRange&);
 
@@ -150,11 +144,7 @@ namespace tl
         private:
             void _widgetUpdate();
 
-            math::FloatRange _range = math::FloatRange(0.F, 1.F);
-            math::Vector3f _value;
-            bool _components = false;
-
-            ColorSliderWidget* _sliders[3] = { nullptr, nullptr, nullptr };
+            TLRENDER_PRIVATE();
         };
 
         //! Color widget.
@@ -164,6 +154,8 @@ namespace tl
 
         public:
             ColorWidget(QWidget* parent = nullptr);
+
+            ~ColorWidget() override;
 
         public Q_SLOTS:
             void setColorEnabled(bool);
@@ -186,18 +178,7 @@ namespace tl
         private:
             void _widgetUpdate();
 
-            bool _colorEnabled = false;
-            render::Color _color;
-            bool _components = false;
-
-            QCheckBox* _colorEnabledCheckBox = nullptr;
-            QCheckBox* _componentsCheckBox = nullptr;
-            ColorSlidersWidget* _addSliders = nullptr;
-            ColorSlidersWidget* _brightnessSliders = nullptr;
-            ColorSlidersWidget* _contrastSliders = nullptr;
-            ColorSlidersWidget* _saturationSliders = nullptr;
-            ColorSliderWidget* _tintSlider = nullptr;
-            QCheckBox* _invertCheckBox = nullptr;
+            TLRENDER_PRIVATE();
         };
 
         //! Levels widget.
@@ -207,6 +188,8 @@ namespace tl
 
         public:
             LevelsWidget(QWidget* parent = nullptr);
+
+            ~LevelsWidget() override;
 
         public Q_SLOTS:
             void setLevelsEnabled(bool);
@@ -227,15 +210,7 @@ namespace tl
         private:
             void _widgetUpdate();
 
-            bool _levelsEnabled = false;
-            render::Levels _levels;
-
-            QCheckBox* _levelsEnabledCheckBox = nullptr;
-            ColorSliderWidget* _inLowSlider = nullptr;
-            ColorSliderWidget* _inHighSlider = nullptr;
-            ColorSliderWidget* _gammaSlider = nullptr;
-            ColorSliderWidget* _outLowSlider = nullptr;
-            ColorSliderWidget* _outHighSlider = nullptr;
+            TLRENDER_PRIVATE();
         };
 
         //! Exposure widget.
@@ -245,6 +220,8 @@ namespace tl
 
         public:
             ExposureWidget(QWidget* parent = nullptr);
+
+            ~ExposureWidget() override;
 
         public Q_SLOTS:
             void setExposureEnabled(bool);
@@ -264,14 +241,7 @@ namespace tl
         private:
             void _widgetUpdate();
 
-            bool _exposureEnabled = false;
-            render::Exposure _exposure;
-
-            QCheckBox* _exposureEnabledCheckBox = nullptr;
-            ColorSliderWidget* _exposureSlider = nullptr;
-            ColorSliderWidget* _defogSlider = nullptr;
-            ColorSliderWidget* _kneeLowSlider = nullptr;
-            ColorSliderWidget* _kneeHighSlider = nullptr;
+            TLRENDER_PRIVATE();
         };
 
         //! Soft clip widget.
@@ -281,6 +251,8 @@ namespace tl
 
         public:
             SoftClipWidget(QWidget* parent = nullptr);
+
+            ~SoftClipWidget() override;
 
         public Q_SLOTS:
             void setSoftClipEnabled(bool);
@@ -297,11 +269,7 @@ namespace tl
         private:
             void _widgetUpdate();
 
-            bool _softClipEnabled = false;
-            float _softClip = 0.F;
-
-            QCheckBox* _softClipEnabledCheckBox = nullptr;
-            ColorSliderWidget* _softClipSlider = nullptr;
+            TLRENDER_PRIVATE();
         };
 
         //! Image tool.
@@ -311,6 +279,8 @@ namespace tl
 
         public:
             ImageTool(QWidget* parent = nullptr);
+
+            ~ImageTool() override;
 
         public Q_SLOTS:
             void setImageOptions(const tl::render::ImageOptions&);
@@ -334,15 +304,7 @@ namespace tl
         private:
             void _optionsUpdate();
 
-            render::ImageOptions _imageOptions;
-
-            YUVRangeWidget* _yuvRangeWidget = nullptr;
-            ChannelsWidget* _channelsWidget = nullptr;
-            AlphaBlendWidget* _alphaBlendWidget = nullptr;
-            ColorWidget* _colorWidget = nullptr;
-            LevelsWidget* _levelsWidget = nullptr;
-            ExposureWidget* _exposureWidget = nullptr;
-            SoftClipWidget* _softClipWidget = nullptr;
+            TLRENDER_PRIVATE();
         };
     }
 }

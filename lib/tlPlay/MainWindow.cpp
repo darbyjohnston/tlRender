@@ -5,21 +5,39 @@
 #include <tlPlay/MainWindow.h>
 
 #include <tlPlay/App.h>
+#include <tlPlay/AudioTool.h>
+#include <tlPlay/ColorModel.h>
+#include <tlPlay/ColorTool.h>
+#include <tlPlay/CompareTool.h>
+#include <tlPlay/FilesModel.h>
+#include <tlPlay/FilesTool.h>
+#include <tlPlay/ImageTool.h>
+#include <tlPlay/InfoTool.h>
+#include <tlPlay/MessagesTool.h>
+#include <tlPlay/SecondaryWindow.h>
+#include <tlPlay/SettingsObject.h>
+#include <tlPlay/SettingsTool.h>
+#include <tlPlay/SystemLogTool.h>
 
+#include <tlQWidget/TimelineWidget.h>
 #include <tlQWidget/Util.h>
 
 #include <tlCore/File.h>
 #include <tlCore/String.h>
 #include <tlCore/StringFormat.h>
 
+#include <QAction>
+#include <QActionGroup>
 #include <QDockWidget>
 #include <QDragEnterEvent>
 #include <QDragMoveEvent>
 #include <QFontDatabase>
 #include <QHBoxLayout>
+#include <QLabel>
 #include <QMenuBar>
 #include <QMimeData>
 #include <QSettings>
+#include <QStatusBar>
 #include <QStyle>
 #include <QToolBar>
 
@@ -32,281 +50,331 @@ namespace tl
             const size_t errorTimeout = 5000;
         }
 
+        struct MainWindow::Private
+        {
+            App* app = nullptr;
+
+            std::vector<qt::TimelinePlayer*> timelinePlayers;
+            bool floatOnTop = false;
+            bool secondaryFloatOnTop = false;
+            imaging::ColorConfig colorConfig;
+            std::vector<render::ImageOptions> imageOptions;
+            render::CompareOptions compareOptions;
+
+            QMap<QString, QAction*> actions;
+            QActionGroup* recentFilesActionGroup = nullptr;
+            QMap<QAction*, QString> actionToRecentFile;
+            QMenu* recentFilesMenu = nullptr;
+            QActionGroup* channelsActionGroup = nullptr;
+            QMap<QAction*, render::Channels> actionToChannels;
+            QMap<render::Channels, QAction*> channelsToActions;
+            QActionGroup* playbackActionGroup = nullptr;
+            QMap<QAction*, timeline::Playback> actionToPlayback;
+            QMap<timeline::Playback, QAction*> playbackToActions;
+            QActionGroup* loopActionGroup = nullptr;
+            QMap<QAction*, timeline::Loop> actionToLoop;
+            QMap<timeline::Loop, QAction*> loopToActions;
+
+            qwidget::TimelineWidget* timelineWidget = nullptr;
+            FilesTool* filesTool = nullptr;
+            CompareTool* compareTool = nullptr;
+            ColorTool* colorTool = nullptr;
+            ImageTool* imageTool = nullptr;
+            InfoTool* infoTool = nullptr;
+            AudioTool* audioTool = nullptr;
+            SettingsTool* settingsTool = nullptr;
+            MessagesTool* messagesTool = nullptr;
+            SystemLogTool* systemLogTool = nullptr;
+            QLabel* infoLabel = nullptr;
+            QStatusBar* statusBar = nullptr;
+            SecondaryWindow* secondaryWindow = nullptr;
+
+            std::shared_ptr<observer::ListObserver<std::shared_ptr<FilesModelItem> > > filesObserver;
+            std::shared_ptr<observer::ListObserver<render::ImageOptions> > imageOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<render::CompareOptions> > compareOptionsObserver;
+            std::shared_ptr<observer::ValueObserver<imaging::ColorConfig> > colorConfigObserver;
+            std::shared_ptr<observer::ValueObserver<core::LogItem> > logObserver;
+        };
+
         MainWindow::MainWindow(App* app, QWidget* parent) :
             QMainWindow(parent),
-            _app(app)
+            _p(new Private)
         {
+            TLRENDER_P();
+
+            p.app = app;
+
             setFocusPolicy(Qt::ClickFocus);
             setAcceptDrops(true);
 
-            _actions["File/Open"] = new QAction(this);
-            _actions["File/Open"]->setText(tr("Open"));
-            _actions["File/Open"]->setShortcut(QKeySequence::Open);
-            _actions["File/OpenWithAudio"] = new QAction(this);
-            _actions["File/OpenWithAudio"]->setText(tr("Open With Audio"));
-            _actions["File/OpenWithAudio"]->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_O));
-            _actions["File/Close"] = new QAction(this);
-            _actions["File/Close"]->setText(tr("Close"));
-            _actions["File/Close"]->setShortcut(QKeySequence::Close);
-            _actions["File/CloseAll"] = new QAction(this);
-            _actions["File/CloseAll"]->setText(tr("Close All"));
-            _actions["File/Next"] = new QAction(this);
-            _actions["File/Next"]->setText(tr("Next"));
-            _actions["File/Next"]->setShortcut(QKeySequence::MoveToNextPage);
-            _actions["File/Prev"] = new QAction(this);
-            _actions["File/Prev"]->setText(tr("Previous"));
-            _actions["File/Prev"]->setShortcut(QKeySequence::MoveToPreviousPage);
-            _actions["File/NextLayer"] = new QAction(this);
-            _actions["File/NextLayer"]->setText(tr("Next Layer"));
-            _actions["File/NextLayer"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Equal));
-            _actions["File/PrevLayer"] = new QAction(this);
-            _actions["File/PrevLayer"]->setText(tr("Previous Layer"));
-            _actions["File/PrevLayer"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Minus));
-            _recentFilesActionGroup = new QActionGroup(this);
-            _actions["File/Exit"] = new QAction(this);
-            _actions["File/Exit"]->setText(tr("Exit"));
-            _actions["File/Exit"]->setShortcut(QKeySequence::Quit);
+            p.actions["File/Open"] = new QAction(this);
+            p.actions["File/Open"]->setText(tr("Open"));
+            p.actions["File/Open"]->setShortcut(QKeySequence::Open);
+            p.actions["File/OpenWithAudio"] = new QAction(this);
+            p.actions["File/OpenWithAudio"]->setText(tr("Open With Audio"));
+            p.actions["File/OpenWithAudio"]->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_O));
+            p.actions["File/Close"] = new QAction(this);
+            p.actions["File/Close"]->setText(tr("Close"));
+            p.actions["File/Close"]->setShortcut(QKeySequence::Close);
+            p.actions["File/CloseAll"] = new QAction(this);
+            p.actions["File/CloseAll"]->setText(tr("Close All"));
+            p.actions["File/Next"] = new QAction(this);
+            p.actions["File/Next"]->setText(tr("Next"));
+            p.actions["File/Next"]->setShortcut(QKeySequence::MoveToNextPage);
+            p.actions["File/Prev"] = new QAction(this);
+            p.actions["File/Prev"]->setText(tr("Previous"));
+            p.actions["File/Prev"]->setShortcut(QKeySequence::MoveToPreviousPage);
+            p.actions["File/NextLayer"] = new QAction(this);
+            p.actions["File/NextLayer"]->setText(tr("Next Layer"));
+            p.actions["File/NextLayer"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Equal));
+            p.actions["File/PrevLayer"] = new QAction(this);
+            p.actions["File/PrevLayer"]->setText(tr("Previous Layer"));
+            p.actions["File/PrevLayer"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Minus));
+            p.recentFilesActionGroup = new QActionGroup(this);
+            p.actions["File/Exit"] = new QAction(this);
+            p.actions["File/Exit"]->setText(tr("Exit"));
+            p.actions["File/Exit"]->setShortcut(QKeySequence::Quit);
 
-            _actions["Window/Resize1280x720"] = new QAction(this);
-            _actions["Window/Resize1280x720"]->setText(tr("Resize 1280x720"));
-            _actions["Window/Resize1920x1080"] = new QAction(this);
-            _actions["Window/Resize1920x1080"]->setText(tr("Resize 1920x1080"));
-            _actions["Window/Resize1920x1080"] = new QAction(this);
-            _actions["Window/Resize1920x1080"]->setText(tr("Resize 1920x1080"));
-            _actions["Window/FullScreen"] = new QAction(this);
-            _actions["Window/FullScreen"]->setText(tr("Full Screen"));
-            _actions["Window/FullScreen"]->setShortcut(QKeySequence(Qt::Key_U));
-            _actions["Window/FloatOnTop"] = new QAction(this);
-            _actions["Window/FloatOnTop"]->setCheckable(true);
-            _actions["Window/FloatOnTop"]->setText(tr("Float On Top"));
-            _actions["Window/Secondary"] = new QAction(this);
-            _actions["Window/Secondary"]->setCheckable(true);
-            _actions["Window/Secondary"]->setText(tr("Secondary"));
-            _actions["Window/Secondary"]->setShortcut(QKeySequence(Qt::Key_Y));
-            _actions["Window/SecondaryFloatOnTop"] = new QAction(this);
-            _actions["Window/SecondaryFloatOnTop"]->setCheckable(true);
-            _actions["Window/SecondaryFloatOnTop"]->setText(tr("Secondary Float On Top"));
+            p.actions["Window/Resize1280x720"] = new QAction(this);
+            p.actions["Window/Resize1280x720"]->setText(tr("Resize 1280x720"));
+            p.actions["Window/Resize1920x1080"] = new QAction(this);
+            p.actions["Window/Resize1920x1080"]->setText(tr("Resize 1920x1080"));
+            p.actions["Window/Resize1920x1080"] = new QAction(this);
+            p.actions["Window/Resize1920x1080"]->setText(tr("Resize 1920x1080"));
+            p.actions["Window/FullScreen"] = new QAction(this);
+            p.actions["Window/FullScreen"]->setText(tr("Full Screen"));
+            p.actions["Window/FullScreen"]->setShortcut(QKeySequence(Qt::Key_U));
+            p.actions["Window/FloatOnTop"] = new QAction(this);
+            p.actions["Window/FloatOnTop"]->setCheckable(true);
+            p.actions["Window/FloatOnTop"]->setText(tr("Float On Top"));
+            p.actions["Window/Secondary"] = new QAction(this);
+            p.actions["Window/Secondary"]->setCheckable(true);
+            p.actions["Window/Secondary"]->setText(tr("Secondary"));
+            p.actions["Window/Secondary"]->setShortcut(QKeySequence(Qt::Key_Y));
+            p.actions["Window/SecondaryFloatOnTop"] = new QAction(this);
+            p.actions["Window/SecondaryFloatOnTop"]->setCheckable(true);
+            p.actions["Window/SecondaryFloatOnTop"]->setText(tr("Secondary Float On Top"));
 
-            _actions["Image/RedChannel"] = new QAction(this);
-            _actions["Image/RedChannel"]->setCheckable(true);
-            _actions["Image/RedChannel"]->setText(tr("Red Channel"));
-            _actions["Image/RedChannel"]->setShortcut(QKeySequence(Qt::Key_R));
-            _actions["Image/GreenChannel"] = new QAction(this);
-            _actions["Image/GreenChannel"]->setCheckable(true);
-            _actions["Image/GreenChannel"]->setText(tr("Green Channel"));
-            _actions["Image/GreenChannel"]->setShortcut(QKeySequence(Qt::Key_G));
-            _actions["Image/BlueChannel"] = new QAction(this);
-            _actions["Image/BlueChannel"]->setCheckable(true);
-            _actions["Image/BlueChannel"]->setText(tr("Blue Channel"));
-            _actions["Image/BlueChannel"]->setShortcut(QKeySequence(Qt::Key_B));
-            _actions["Image/AlphaChannel"] = new QAction(this);
-            _actions["Image/AlphaChannel"]->setCheckable(true);
-            _actions["Image/AlphaChannel"]->setText(tr("Alpha Channel"));
-            _actions["Image/AlphaChannel"]->setShortcut(QKeySequence(Qt::Key_A));
-            _channelsActionGroup = new QActionGroup(this);
-            _channelsActionGroup->setExclusionPolicy(QActionGroup::ExclusionPolicy::ExclusiveOptional);
-            _channelsActionGroup->addAction(_actions["Image/RedChannel"]);
-            _channelsActionGroup->addAction(_actions["Image/GreenChannel"]);
-            _channelsActionGroup->addAction(_actions["Image/BlueChannel"]);
-            _channelsActionGroup->addAction(_actions["Image/AlphaChannel"]);
-            _actionToChannels[_actions["Image/RedChannel"]] = render::Channels::Red;
-            _actionToChannels[_actions["Image/GreenChannel"]] = render::Channels::Green;
-            _actionToChannels[_actions["Image/BlueChannel"]] = render::Channels::Blue;
-            _actionToChannels[_actions["Image/AlphaChannel"]] = render::Channels::Alpha;
-            _channelsToActions[render::Channels::Red] = _actions["Image/RedChannel"];
-            _channelsToActions[render::Channels::Green] = _actions["Image/GreenChannel"];
-            _channelsToActions[render::Channels::Blue] = _actions["Image/BlueChannel"];
-            _channelsToActions[render::Channels::Alpha] = _actions["Image/AlphaChannel"];
+            p.actions["Image/RedChannel"] = new QAction(this);
+            p.actions["Image/RedChannel"]->setCheckable(true);
+            p.actions["Image/RedChannel"]->setText(tr("Red Channel"));
+            p.actions["Image/RedChannel"]->setShortcut(QKeySequence(Qt::Key_R));
+            p.actions["Image/GreenChannel"] = new QAction(this);
+            p.actions["Image/GreenChannel"]->setCheckable(true);
+            p.actions["Image/GreenChannel"]->setText(tr("Green Channel"));
+            p.actions["Image/GreenChannel"]->setShortcut(QKeySequence(Qt::Key_G));
+            p.actions["Image/BlueChannel"] = new QAction(this);
+            p.actions["Image/BlueChannel"]->setCheckable(true);
+            p.actions["Image/BlueChannel"]->setText(tr("Blue Channel"));
+            p.actions["Image/BlueChannel"]->setShortcut(QKeySequence(Qt::Key_B));
+            p.actions["Image/AlphaChannel"] = new QAction(this);
+            p.actions["Image/AlphaChannel"]->setCheckable(true);
+            p.actions["Image/AlphaChannel"]->setText(tr("Alpha Channel"));
+            p.actions["Image/AlphaChannel"]->setShortcut(QKeySequence(Qt::Key_A));
+            p.channelsActionGroup = new QActionGroup(this);
+            p.channelsActionGroup->setExclusionPolicy(QActionGroup::ExclusionPolicy::ExclusiveOptional);
+            p.channelsActionGroup->addAction(p.actions["Image/RedChannel"]);
+            p.channelsActionGroup->addAction(p.actions["Image/GreenChannel"]);
+            p.channelsActionGroup->addAction(p.actions["Image/BlueChannel"]);
+            p.channelsActionGroup->addAction(p.actions["Image/AlphaChannel"]);
+            p.actionToChannels[p.actions["Image/RedChannel"]] = render::Channels::Red;
+            p.actionToChannels[p.actions["Image/GreenChannel"]] = render::Channels::Green;
+            p.actionToChannels[p.actions["Image/BlueChannel"]] = render::Channels::Blue;
+            p.actionToChannels[p.actions["Image/AlphaChannel"]] = render::Channels::Alpha;
+            p.channelsToActions[render::Channels::Red] = p.actions["Image/RedChannel"];
+            p.channelsToActions[render::Channels::Green] = p.actions["Image/GreenChannel"];
+            p.channelsToActions[render::Channels::Blue] = p.actions["Image/BlueChannel"];
+            p.channelsToActions[render::Channels::Alpha] = p.actions["Image/AlphaChannel"];
 
-            _actions["Image/MirrorX"] = new QAction(this);
-            _actions["Image/MirrorX"]->setText(tr("Mirror Horizontal"));
-            _actions["Image/MirrorX"]->setShortcut(QKeySequence(Qt::Key_H));
-            _actions["Image/MirrorX"]->setCheckable(true);
-            _actions["Image/MirrorY"] = new QAction(this);
-            _actions["Image/MirrorY"]->setText(tr("Mirror Vertical"));
-            _actions["Image/MirrorY"]->setShortcut(QKeySequence(Qt::Key_V));
-            _actions["Image/MirrorY"]->setCheckable(true);
+            p.actions["Image/MirrorX"] = new QAction(this);
+            p.actions["Image/MirrorX"]->setText(tr("Mirror Horizontal"));
+            p.actions["Image/MirrorX"]->setShortcut(QKeySequence(Qt::Key_H));
+            p.actions["Image/MirrorX"]->setCheckable(true);
+            p.actions["Image/MirrorY"] = new QAction(this);
+            p.actions["Image/MirrorY"]->setText(tr("Mirror Vertical"));
+            p.actions["Image/MirrorY"]->setShortcut(QKeySequence(Qt::Key_V));
+            p.actions["Image/MirrorY"]->setCheckable(true);
 
-            _actions["Playback/Stop"] = new QAction(this);
-            _actions["Playback/Stop"]->setCheckable(true);
-            _actions["Playback/Stop"]->setText(tr("Stop Playback"));
-            _actions["Playback/Stop"]->setIcon(QIcon(":/Icons/PlaybackStop.svg"));
-            _actions["Playback/Stop"]->setShortcut(QKeySequence(Qt::Key_K));
-            _actions["Playback/Forward"] = new QAction(this);
-            _actions["Playback/Forward"]->setCheckable(true);
-            _actions["Playback/Forward"]->setText(tr("Forward Playback"));
-            _actions["Playback/Forward"]->setIcon(QIcon(":/Icons/PlaybackForward.svg"));
-            _actions["Playback/Forward"]->setShortcut(QKeySequence(Qt::Key_L));
-            _actions["Playback/Reverse"] = new QAction(this);
-            _actions["Playback/Reverse"]->setCheckable(true);
-            _actions["Playback/Reverse"]->setText(tr("Reverse Playback"));
-            _actions["Playback/Reverse"]->setIcon(QIcon(":/Icons/PlaybackReverse.svg"));
-            _actions["Playback/Reverse"]->setShortcut(QKeySequence(Qt::Key_J));
-            _playbackActionGroup = new QActionGroup(this);
-            _playbackActionGroup->setExclusive(true);
-            _playbackActionGroup->addAction(_actions["Playback/Stop"]);
-            _playbackActionGroup->addAction(_actions["Playback/Forward"]);
-            _playbackActionGroup->addAction(_actions["Playback/Reverse"]);
-            _actionToPlayback[_actions["Playback/Stop"]] = timeline::Playback::Stop;
-            _actionToPlayback[_actions["Playback/Forward"]] = timeline::Playback::Forward;
-            _actionToPlayback[_actions["Playback/Reverse"]] = timeline::Playback::Reverse;
-            _playbackToActions[timeline::Playback::Stop] = _actions["Playback/Stop"];
-            _playbackToActions[timeline::Playback::Forward] = _actions["Playback/Forward"];
-            _playbackToActions[timeline::Playback::Reverse] = _actions["Playback/Reverse"];
-            _actions["Playback/Toggle"] = new QAction(this);
-            _actions["Playback/Toggle"]->setText(tr("Toggle Playback"));
-            _actions["Playback/Toggle"]->setShortcut(QKeySequence(Qt::Key_Space));
+            p.actions["Playback/Stop"] = new QAction(this);
+            p.actions["Playback/Stop"]->setCheckable(true);
+            p.actions["Playback/Stop"]->setText(tr("Stop Playback"));
+            p.actions["Playback/Stop"]->setIcon(QIcon(":/Icons/PlaybackStop.svg"));
+            p.actions["Playback/Stop"]->setShortcut(QKeySequence(Qt::Key_K));
+            p.actions["Playback/Forward"] = new QAction(this);
+            p.actions["Playback/Forward"]->setCheckable(true);
+            p.actions["Playback/Forward"]->setText(tr("Forward Playback"));
+            p.actions["Playback/Forward"]->setIcon(QIcon(":/Icons/PlaybackForward.svg"));
+            p.actions["Playback/Forward"]->setShortcut(QKeySequence(Qt::Key_L));
+            p.actions["Playback/Reverse"] = new QAction(this);
+            p.actions["Playback/Reverse"]->setCheckable(true);
+            p.actions["Playback/Reverse"]->setText(tr("Reverse Playback"));
+            p.actions["Playback/Reverse"]->setIcon(QIcon(":/Icons/PlaybackReverse.svg"));
+            p.actions["Playback/Reverse"]->setShortcut(QKeySequence(Qt::Key_J));
+            p.playbackActionGroup = new QActionGroup(this);
+            p.playbackActionGroup->setExclusive(true);
+            p.playbackActionGroup->addAction(p.actions["Playback/Stop"]);
+            p.playbackActionGroup->addAction(p.actions["Playback/Forward"]);
+            p.playbackActionGroup->addAction(p.actions["Playback/Reverse"]);
+            p.actionToPlayback[p.actions["Playback/Stop"]] = timeline::Playback::Stop;
+            p.actionToPlayback[p.actions["Playback/Forward"]] = timeline::Playback::Forward;
+            p.actionToPlayback[p.actions["Playback/Reverse"]] = timeline::Playback::Reverse;
+            p.playbackToActions[timeline::Playback::Stop] = p.actions["Playback/Stop"];
+            p.playbackToActions[timeline::Playback::Forward] = p.actions["Playback/Forward"];
+            p.playbackToActions[timeline::Playback::Reverse] = p.actions["Playback/Reverse"];
+            p.actions["Playback/Toggle"] = new QAction(this);
+            p.actions["Playback/Toggle"]->setText(tr("Toggle Playback"));
+            p.actions["Playback/Toggle"]->setShortcut(QKeySequence(Qt::Key_Space));
 
-            _actions["Playback/Loop"] = new QAction(this);
-            _actions["Playback/Loop"]->setCheckable(true);
-            _actions["Playback/Loop"]->setText(tr("Loop Playback"));
-            _actions["Playback/Once"] = new QAction(this);
-            _actions["Playback/Once"]->setCheckable(true);
-            _actions["Playback/Once"]->setText(tr("Playback Once"));
-            _actions["Playback/PingPong"] = new QAction(this);
-            _actions["Playback/PingPong"]->setCheckable(true);
-            _actions["Playback/PingPong"]->setText(tr("Ping-Pong Playback"));
-            _loopActionGroup = new QActionGroup(this);
-            _loopActionGroup->setExclusive(true);
-            _loopActionGroup->addAction(_actions["Playback/Loop"]);
-            _loopActionGroup->addAction(_actions["Playback/Once"]);
-            _loopActionGroup->addAction(_actions["Playback/PingPong"]);
-            _actionToLoop[_actions["Playback/Loop"]] = timeline::Loop::Loop;
-            _actionToLoop[_actions["Playback/Once"]] = timeline::Loop::Once;
-            _actionToLoop[_actions["Playback/PingPong"]] = timeline::Loop::PingPong;
-            _loopToActions[timeline::Loop::Loop] = _actions["Playback/Loop"];
-            _loopToActions[timeline::Loop::Once] = _actions["Playback/Once"];
-            _loopToActions[timeline::Loop::PingPong] = _actions["Playback/PingPong"];
+            p.actions["Playback/Loop"] = new QAction(this);
+            p.actions["Playback/Loop"]->setCheckable(true);
+            p.actions["Playback/Loop"]->setText(tr("Loop Playback"));
+            p.actions["Playback/Once"] = new QAction(this);
+            p.actions["Playback/Once"]->setCheckable(true);
+            p.actions["Playback/Once"]->setText(tr("Playback Once"));
+            p.actions["Playback/PingPong"] = new QAction(this);
+            p.actions["Playback/PingPong"]->setCheckable(true);
+            p.actions["Playback/PingPong"]->setText(tr("Ping-Pong Playback"));
+            p.loopActionGroup = new QActionGroup(this);
+            p.loopActionGroup->setExclusive(true);
+            p.loopActionGroup->addAction(p.actions["Playback/Loop"]);
+            p.loopActionGroup->addAction(p.actions["Playback/Once"]);
+            p.loopActionGroup->addAction(p.actions["Playback/PingPong"]);
+            p.actionToLoop[p.actions["Playback/Loop"]] = timeline::Loop::Loop;
+            p.actionToLoop[p.actions["Playback/Once"]] = timeline::Loop::Once;
+            p.actionToLoop[p.actions["Playback/PingPong"]] = timeline::Loop::PingPong;
+            p.loopToActions[timeline::Loop::Loop] = p.actions["Playback/Loop"];
+            p.loopToActions[timeline::Loop::Once] = p.actions["Playback/Once"];
+            p.loopToActions[timeline::Loop::PingPong] = p.actions["Playback/PingPong"];
 
-            _actions["Playback/Start"] = new QAction(this);
-            _actions["Playback/Start"]->setText(tr("Go To Start"));
-            _actions["Playback/Start"]->setIcon(QIcon(":/Icons/TimeStart.svg"));
-            _actions["Playback/Start"]->setShortcut(QKeySequence(Qt::Key_Home));
-            _actions["Playback/End"] = new QAction(this);
-            _actions["Playback/End"]->setText(tr("Go To End"));
-            _actions["Playback/End"]->setIcon(QIcon(":/Icons/TimeEnd.svg"));
-            _actions["Playback/End"]->setShortcut(QKeySequence(Qt::Key_End));
-            _actions["Playback/FramePrev"] = new QAction(this);
-            _actions["Playback/FramePrev"]->setText(tr("Previous Frame"));
-            _actions["Playback/FramePrev"]->setIcon(QIcon(":/Icons/FramePrev.svg"));
-            _actions["Playback/FramePrev"]->setShortcut(QKeySequence(Qt::Key_Left));
-            _actions["Playback/FramePrevX10"] = new QAction(this);
-            _actions["Playback/FramePrevX10"]->setText(tr("Previous Frame X10"));
-            _actions["Playback/FramePrevX10"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Left));
-            _actions["Playback/FramePrevX100"] = new QAction(this);
-            _actions["Playback/FramePrevX100"]->setText(tr("Previous Frame X100"));
-            _actions["Playback/FramePrevX100"]->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Left));
-            _actions["Playback/FrameNext"] = new QAction(this);
-            _actions["Playback/FrameNext"]->setText(tr("Next Frame"));
-            _actions["Playback/FrameNext"]->setIcon(QIcon(":/Icons/FrameNext.svg"));
-            _actions["Playback/FrameNext"]->setShortcut(QKeySequence(Qt::Key_Right));
-            _actions["Playback/FrameNextX10"] = new QAction(this);
-            _actions["Playback/FrameNextX10"]->setText(tr("Next Frame X10"));
-            _actions["Playback/FrameNextX10"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Right));
-            _actions["Playback/FrameNextX100"] = new QAction(this);
-            _actions["Playback/FrameNextX100"]->setText(tr("Next Frame X100"));
-            _actions["Playback/FrameNextX100"]->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Right));
+            p.actions["Playback/Start"] = new QAction(this);
+            p.actions["Playback/Start"]->setText(tr("Go To Start"));
+            p.actions["Playback/Start"]->setIcon(QIcon(":/Icons/TimeStart.svg"));
+            p.actions["Playback/Start"]->setShortcut(QKeySequence(Qt::Key_Home));
+            p.actions["Playback/End"] = new QAction(this);
+            p.actions["Playback/End"]->setText(tr("Go To End"));
+            p.actions["Playback/End"]->setIcon(QIcon(":/Icons/TimeEnd.svg"));
+            p.actions["Playback/End"]->setShortcut(QKeySequence(Qt::Key_End));
+            p.actions["Playback/FramePrev"] = new QAction(this);
+            p.actions["Playback/FramePrev"]->setText(tr("Previous Frame"));
+            p.actions["Playback/FramePrev"]->setIcon(QIcon(":/Icons/FramePrev.svg"));
+            p.actions["Playback/FramePrev"]->setShortcut(QKeySequence(Qt::Key_Left));
+            p.actions["Playback/FramePrevX10"] = new QAction(this);
+            p.actions["Playback/FramePrevX10"]->setText(tr("Previous Frame X10"));
+            p.actions["Playback/FramePrevX10"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Left));
+            p.actions["Playback/FramePrevX100"] = new QAction(this);
+            p.actions["Playback/FramePrevX100"]->setText(tr("Previous Frame X100"));
+            p.actions["Playback/FramePrevX100"]->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Left));
+            p.actions["Playback/FrameNext"] = new QAction(this);
+            p.actions["Playback/FrameNext"]->setText(tr("Next Frame"));
+            p.actions["Playback/FrameNext"]->setIcon(QIcon(":/Icons/FrameNext.svg"));
+            p.actions["Playback/FrameNext"]->setShortcut(QKeySequence(Qt::Key_Right));
+            p.actions["Playback/FrameNextX10"] = new QAction(this);
+            p.actions["Playback/FrameNextX10"]->setText(tr("Next Frame X10"));
+            p.actions["Playback/FrameNextX10"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Right));
+            p.actions["Playback/FrameNextX100"] = new QAction(this);
+            p.actions["Playback/FrameNextX100"]->setText(tr("Next Frame X100"));
+            p.actions["Playback/FrameNextX100"]->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Right));
 
-            _actions["Playback/SetInPoint"] = new QAction(this);
-            _actions["Playback/SetInPoint"]->setText(tr("Set In Point"));
-            _actions["Playback/SetInPoint"]->setShortcut(QKeySequence(Qt::Key_I));
-            _actions["Playback/ResetInPoint"] = new QAction(this);
-            _actions["Playback/ResetInPoint"]->setText(tr("Reset In Point"));
-            _actions["Playback/ResetInPoint"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_I));
-            _actions["Playback/SetOutPoint"] = new QAction(this);
-            _actions["Playback/SetOutPoint"]->setText(tr("Set Out Point"));
-            _actions["Playback/SetOutPoint"]->setShortcut(QKeySequence(Qt::Key_O));
-            _actions["Playback/ResetOutPoint"] = new QAction(this);
-            _actions["Playback/ResetOutPoint"]->setText(tr("Reset Out Point"));
-            _actions["Playback/ResetOutPoint"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_O));
+            p.actions["Playback/SetInPoint"] = new QAction(this);
+            p.actions["Playback/SetInPoint"]->setText(tr("Set In Point"));
+            p.actions["Playback/SetInPoint"]->setShortcut(QKeySequence(Qt::Key_I));
+            p.actions["Playback/ResetInPoint"] = new QAction(this);
+            p.actions["Playback/ResetInPoint"]->setText(tr("Reset In Point"));
+            p.actions["Playback/ResetInPoint"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_I));
+            p.actions["Playback/SetOutPoint"] = new QAction(this);
+            p.actions["Playback/SetOutPoint"]->setText(tr("Set Out Point"));
+            p.actions["Playback/SetOutPoint"]->setShortcut(QKeySequence(Qt::Key_O));
+            p.actions["Playback/ResetOutPoint"] = new QAction(this);
+            p.actions["Playback/ResetOutPoint"]->setText(tr("Reset Out Point"));
+            p.actions["Playback/ResetOutPoint"]->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_O));
 
-            _actions["Playback/FocusCurrentFrame"] = new QAction(this);
-            _actions["Playback/FocusCurrentFrame"]->setText(tr("Focus Current Frame"));
-            _actions["Playback/FocusCurrentFrame"]->setShortcut(QKeySequence(Qt::Key_F));
+            p.actions["Playback/FocusCurrentFrame"] = new QAction(this);
+            p.actions["Playback/FocusCurrentFrame"]->setText(tr("Focus Current Frame"));
+            p.actions["Playback/FocusCurrentFrame"]->setShortcut(QKeySequence(Qt::Key_F));
 
-            _actions["Audio/IncreaseVolume"] = new QAction(this);
-            _actions["Audio/IncreaseVolume"]->setText(tr("Increase Volume"));
-            _actions["Audio/IncreaseVolume"]->setShortcut(QKeySequence(Qt::Key_Period));
-            _actions["Audio/DecreaseVolume"] = new QAction(this);
-            _actions["Audio/DecreaseVolume"]->setText(tr("Decrease Volume"));
-            _actions["Audio/DecreaseVolume"]->setShortcut(QKeySequence(Qt::Key_Comma));
-            _actions["Audio/Mute"] = new QAction(this);
-            _actions["Audio/Mute"]->setCheckable(true);
-            _actions["Audio/Mute"]->setText(tr("Mute"));
-            _actions["Audio/Mute"]->setShortcut(QKeySequence(Qt::Key_M));
+            p.actions["Audio/IncreaseVolume"] = new QAction(this);
+            p.actions["Audio/IncreaseVolume"]->setText(tr("Increase Volume"));
+            p.actions["Audio/IncreaseVolume"]->setShortcut(QKeySequence(Qt::Key_Period));
+            p.actions["Audio/DecreaseVolume"] = new QAction(this);
+            p.actions["Audio/DecreaseVolume"]->setText(tr("Decrease Volume"));
+            p.actions["Audio/DecreaseVolume"]->setShortcut(QKeySequence(Qt::Key_Comma));
+            p.actions["Audio/Mute"] = new QAction(this);
+            p.actions["Audio/Mute"]->setCheckable(true);
+            p.actions["Audio/Mute"]->setText(tr("Mute"));
+            p.actions["Audio/Mute"]->setShortcut(QKeySequence(Qt::Key_M));
 
             auto fileMenu = new QMenu;
             fileMenu->setTitle(tr("&File"));
-            fileMenu->addAction(_actions["File/Open"]);
-            fileMenu->addAction(_actions["File/OpenWithAudio"]);
-            fileMenu->addAction(_actions["File/Close"]);
-            fileMenu->addAction(_actions["File/CloseAll"]);
-            _recentFilesMenu = new QMenu;
-            _recentFilesMenu->setTitle(tr("&Recent Files"));
-            fileMenu->addMenu(_recentFilesMenu);
+            fileMenu->addAction(p.actions["File/Open"]);
+            fileMenu->addAction(p.actions["File/OpenWithAudio"]);
+            fileMenu->addAction(p.actions["File/Close"]);
+            fileMenu->addAction(p.actions["File/CloseAll"]);
+            p.recentFilesMenu = new QMenu;
+            p.recentFilesMenu->setTitle(tr("&Recent Files"));
+            fileMenu->addMenu(p.recentFilesMenu);
             fileMenu->addSeparator();
-            fileMenu->addAction(_actions["File/Next"]);
-            fileMenu->addAction(_actions["File/Prev"]);
+            fileMenu->addAction(p.actions["File/Next"]);
+            fileMenu->addAction(p.actions["File/Prev"]);
             fileMenu->addSeparator();
-            fileMenu->addAction(_actions["File/NextLayer"]);
-            fileMenu->addAction(_actions["File/PrevLayer"]);
+            fileMenu->addAction(p.actions["File/NextLayer"]);
+            fileMenu->addAction(p.actions["File/PrevLayer"]);
             fileMenu->addSeparator();
-            fileMenu->addAction(_actions["File/Exit"]);
+            fileMenu->addAction(p.actions["File/Exit"]);
 
             auto windowMenu = new QMenu;
             windowMenu->setTitle(tr("&Window"));
-            windowMenu->addAction(_actions["Window/Resize1280x720"]);
-            windowMenu->addAction(_actions["Window/Resize1920x1080"]);
+            windowMenu->addAction(p.actions["Window/Resize1280x720"]);
+            windowMenu->addAction(p.actions["Window/Resize1920x1080"]);
             windowMenu->addSeparator();
-            windowMenu->addAction(_actions["Window/FullScreen"]);
-            windowMenu->addAction(_actions["Window/FloatOnTop"]);
+            windowMenu->addAction(p.actions["Window/FullScreen"]);
+            windowMenu->addAction(p.actions["Window/FloatOnTop"]);
             windowMenu->addSeparator();
-            windowMenu->addAction(_actions["Window/Secondary"]);
-            windowMenu->addAction(_actions["Window/SecondaryFloatOnTop"]);
+            windowMenu->addAction(p.actions["Window/Secondary"]);
+            windowMenu->addAction(p.actions["Window/SecondaryFloatOnTop"]);
 
             auto imageMenu = new QMenu;
             imageMenu->setTitle(tr("&Image"));
-            imageMenu->addAction(_actions["Image/RedChannel"]);
-            imageMenu->addAction(_actions["Image/GreenChannel"]);
-            imageMenu->addAction(_actions["Image/BlueChannel"]);
-            imageMenu->addAction(_actions["Image/AlphaChannel"]);
+            imageMenu->addAction(p.actions["Image/RedChannel"]);
+            imageMenu->addAction(p.actions["Image/GreenChannel"]);
+            imageMenu->addAction(p.actions["Image/BlueChannel"]);
+            imageMenu->addAction(p.actions["Image/AlphaChannel"]);
             imageMenu->addSeparator();
-            imageMenu->addAction(_actions["Image/MirrorX"]);
-            imageMenu->addAction(_actions["Image/MirrorY"]);
+            imageMenu->addAction(p.actions["Image/MirrorX"]);
+            imageMenu->addAction(p.actions["Image/MirrorY"]);
 
             auto playbackMenu = new QMenu;
             playbackMenu->setTitle(tr("&Playback"));
-            playbackMenu->addAction(_actions["Playback/Stop"]);
-            playbackMenu->addAction(_actions["Playback/Forward"]);
-            playbackMenu->addAction(_actions["Playback/Reverse"]);
-            playbackMenu->addAction(_actions["Playback/Toggle"]);
+            playbackMenu->addAction(p.actions["Playback/Stop"]);
+            playbackMenu->addAction(p.actions["Playback/Forward"]);
+            playbackMenu->addAction(p.actions["Playback/Reverse"]);
+            playbackMenu->addAction(p.actions["Playback/Toggle"]);
             playbackMenu->addSeparator();
-            playbackMenu->addAction(_actions["Playback/Loop"]);
-            playbackMenu->addAction(_actions["Playback/Once"]);
-            playbackMenu->addAction(_actions["Playback/PingPong"]);
+            playbackMenu->addAction(p.actions["Playback/Loop"]);
+            playbackMenu->addAction(p.actions["Playback/Once"]);
+            playbackMenu->addAction(p.actions["Playback/PingPong"]);
             playbackMenu->addSeparator();
-            playbackMenu->addAction(_actions["Playback/Start"]);
-            playbackMenu->addAction(_actions["Playback/End"]);
+            playbackMenu->addAction(p.actions["Playback/Start"]);
+            playbackMenu->addAction(p.actions["Playback/End"]);
             playbackMenu->addSeparator();
-            playbackMenu->addAction(_actions["Playback/FramePrev"]);
-            playbackMenu->addAction(_actions["Playback/FramePrevX10"]);
-            playbackMenu->addAction(_actions["Playback/FramePrevX100"]);
-            playbackMenu->addAction(_actions["Playback/FrameNext"]);
-            playbackMenu->addAction(_actions["Playback/FrameNextX10"]);
-            playbackMenu->addAction(_actions["Playback/FrameNextX100"]);
+            playbackMenu->addAction(p.actions["Playback/FramePrev"]);
+            playbackMenu->addAction(p.actions["Playback/FramePrevX10"]);
+            playbackMenu->addAction(p.actions["Playback/FramePrevX100"]);
+            playbackMenu->addAction(p.actions["Playback/FrameNext"]);
+            playbackMenu->addAction(p.actions["Playback/FrameNextX10"]);
+            playbackMenu->addAction(p.actions["Playback/FrameNextX100"]);
             playbackMenu->addSeparator();
-            playbackMenu->addAction(_actions["Playback/SetInPoint"]);
-            playbackMenu->addAction(_actions["Playback/ResetInPoint"]);
-            playbackMenu->addAction(_actions["Playback/SetOutPoint"]);
-            playbackMenu->addAction(_actions["Playback/ResetOutPoint"]);
+            playbackMenu->addAction(p.actions["Playback/SetInPoint"]);
+            playbackMenu->addAction(p.actions["Playback/ResetInPoint"]);
+            playbackMenu->addAction(p.actions["Playback/SetOutPoint"]);
+            playbackMenu->addAction(p.actions["Playback/ResetOutPoint"]);
             playbackMenu->addSeparator();
-            playbackMenu->addAction(_actions["Playback/FocusCurrentFrame"]);
+            playbackMenu->addAction(p.actions["Playback/FocusCurrentFrame"]);
 
             auto audioMenu = new QMenu;
             audioMenu->setTitle(tr("&Audio"));
-            audioMenu->addAction(_actions["Audio/IncreaseVolume"]);
-            audioMenu->addAction(_actions["Audio/DecreaseVolume"]);
-            audioMenu->addAction(_actions["Audio/Mute"]);
+            audioMenu->addAction(p.actions["Audio/IncreaseVolume"]);
+            audioMenu->addAction(p.actions["Audio/DecreaseVolume"]);
+            audioMenu->addAction(p.actions["Audio/Mute"]);
 
             auto toolsMenu = new QMenu;
             toolsMenu->setTitle(tr("&Tools"));
@@ -320,162 +388,162 @@ namespace tl
             menuBar->addMenu(toolsMenu);
             setMenuBar(menuBar);
 
-            _timelineWidget = new qwidget::TimelineWidget(app->getContext());
-            _timelineWidget->setTimeObject(app->timeObject());
-            setCentralWidget(_timelineWidget);
+            p.timelineWidget = new qwidget::TimelineWidget(app->getContext());
+            p.timelineWidget->setTimeObject(app->timeObject());
+            setCentralWidget(p.timelineWidget);
 
-            _filesTool = new FilesTool(app->filesModel(), app->getContext());
+            p.filesTool = new FilesTool(app->filesModel(), app->getContext());
             auto fileDockWidget = new QDockWidget;
             fileDockWidget->setObjectName("Files");
             fileDockWidget->setWindowTitle(tr("Files"));
             fileDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
             fileDockWidget->setStyleSheet(qwidget::dockWidgetStyleSheet());
-            fileDockWidget->setWidget(_filesTool);
+            fileDockWidget->setWidget(p.filesTool);
             fileDockWidget->hide();
             fileDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F1));
             toolsMenu->addAction(fileDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, fileDockWidget);
 
-            _compareTool = new CompareTool(app->filesModel(), app->getContext());
+            p.compareTool = new CompareTool(app->filesModel(), app->getContext());
             auto compareDockWidget = new QDockWidget;
             compareDockWidget->setObjectName("Compare");
             compareDockWidget->setWindowTitle(tr("Compare"));
             compareDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
             compareDockWidget->setStyleSheet(qwidget::dockWidgetStyleSheet());
-            compareDockWidget->setWidget(_compareTool);
+            compareDockWidget->setWidget(p.compareTool);
             compareDockWidget->hide();
             compareDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F2));
             toolsMenu->addAction(compareDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, compareDockWidget);
 
-            _colorTool = new ColorTool(app->colorModel());
+            p.colorTool = new ColorTool(app->colorModel());
             auto colorDockWidget = new QDockWidget;
             colorDockWidget->setObjectName("Color");
             colorDockWidget->setWindowTitle(tr("Color"));
             colorDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
             colorDockWidget->setStyleSheet(qwidget::dockWidgetStyleSheet());
-            colorDockWidget->setWidget(_colorTool);
+            colorDockWidget->setWidget(p.colorTool);
             colorDockWidget->hide();
             colorDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F3));
             toolsMenu->addAction(colorDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, colorDockWidget);
 
-            _imageTool = new ImageTool();
+            p.imageTool = new ImageTool();
             auto imageDockWidget = new QDockWidget;
             imageDockWidget->setObjectName("Image");
             imageDockWidget->setWindowTitle(tr("Image"));
             imageDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
             imageDockWidget->setStyleSheet(qwidget::dockWidgetStyleSheet());
-            imageDockWidget->setWidget(_imageTool);
+            imageDockWidget->setWidget(p.imageTool);
             imageDockWidget->hide();
             imageDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F4));
             toolsMenu->addAction(imageDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, imageDockWidget);
 
-            _infoTool = new InfoTool();
+            p.infoTool = new InfoTool();
             auto infoDockWidget = new QDockWidget;
             infoDockWidget->setObjectName("Info");
             infoDockWidget->setWindowTitle(tr("Information"));
             infoDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
             infoDockWidget->setStyleSheet(qwidget::dockWidgetStyleSheet());
-            infoDockWidget->setWidget(_infoTool);
+            infoDockWidget->setWidget(p.infoTool);
             infoDockWidget->hide();
             infoDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F5));
             toolsMenu->addAction(infoDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, infoDockWidget);
 
-            _audioTool = new AudioTool();
+            p.audioTool = new AudioTool();
             auto audioDockWidget = new QDockWidget;
             audioDockWidget->setObjectName("Audio");
             audioDockWidget->setWindowTitle(tr("Audio"));
             audioDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
             audioDockWidget->setStyleSheet(qwidget::dockWidgetStyleSheet());
-            audioDockWidget->setWidget(_audioTool);
+            audioDockWidget->setWidget(p.audioTool);
             audioDockWidget->hide();
             audioDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F6));
             toolsMenu->addAction(audioDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, audioDockWidget);
 
-            _settingsTool = new SettingsTool(app->settingsObject(), app->timeObject());
+            p.settingsTool = new SettingsTool(app->settingsObject(), app->timeObject());
             auto settingsDockWidget = new QDockWidget;
             settingsDockWidget->setObjectName("Settings");
             settingsDockWidget->setWindowTitle(tr("Settings"));
             settingsDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
             settingsDockWidget->setStyleSheet(qwidget::dockWidgetStyleSheet());
-            settingsDockWidget->setWidget(_settingsTool);
+            settingsDockWidget->setWidget(p.settingsTool);
             settingsDockWidget->hide();
             settingsDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F9));
             toolsMenu->addAction(settingsDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, settingsDockWidget);
 
-            _messagesTool = new MessagesTool(app->getContext());
+            p.messagesTool = new MessagesTool(app->getContext());
             auto messagesDockWidget = new QDockWidget;
             messagesDockWidget->setObjectName("Messages");
             messagesDockWidget->setWindowTitle(tr("Messages"));
             messagesDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
             messagesDockWidget->setStyleSheet(qwidget::dockWidgetStyleSheet());
-            messagesDockWidget->setWidget(_messagesTool);
+            messagesDockWidget->setWidget(p.messagesTool);
             messagesDockWidget->hide();
             messagesDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F10));
             toolsMenu->addAction(messagesDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, messagesDockWidget);
 
-            _systemLogTool = new SystemLogTool(app->getContext());
+            p.systemLogTool = new SystemLogTool(app->getContext());
             auto systemLogDockWidget = new QDockWidget;
             systemLogDockWidget->setObjectName("SystemLog");
             systemLogDockWidget->setWindowTitle(tr("System Log"));
             systemLogDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
             systemLogDockWidget->setStyleSheet(qwidget::dockWidgetStyleSheet());
-            systemLogDockWidget->setWidget(_systemLogTool);
+            systemLogDockWidget->setWidget(p.systemLogTool);
             systemLogDockWidget->hide();
             systemLogDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F11));
             toolsMenu->addAction(systemLogDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, systemLogDockWidget);
 
-            _infoLabel = new QLabel;
+            p.infoLabel = new QLabel;
     
-            _statusBar = new QStatusBar;
-            _statusBar->addPermanentWidget(_infoLabel);
-            setStatusBar(_statusBar);
+            p.statusBar = new QStatusBar;
+            p.statusBar->addPermanentWidget(p.infoLabel);
+            setStatusBar(p.statusBar);
 
             _recentFilesUpdate();
             _widgetUpdate();
 
-            _filesObserver = observer::ListObserver<std::shared_ptr<FilesModelItem> >::create(
+            p.filesObserver = observer::ListObserver<std::shared_ptr<FilesModelItem> >::create(
                 app->filesModel()->observeFiles(),
                 [this](const std::vector<std::shared_ptr<FilesModelItem> >&)
                 {
                     _widgetUpdate();
                 });
-            _imageOptionsObserver = observer::ListObserver<render::ImageOptions>::create(
+            p.imageOptionsObserver = observer::ListObserver<render::ImageOptions>::create(
                 app->filesModel()->observeImageOptions(),
                 [this](const std::vector<render::ImageOptions>& value)
                 {
                     _imageOptionsCallback(value);
                 });
-            _compareOptionsObserver = observer::ValueObserver<render::CompareOptions>::create(
+            p.compareOptionsObserver = observer::ValueObserver<render::CompareOptions>::create(
                 app->filesModel()->observeCompareOptions(),
                 [this](const render::CompareOptions& value)
                 {
                     _compareOptionsCallback2(value);
                 });
 
-            _colorConfigObserver = observer::ValueObserver<imaging::ColorConfig>::create(
+            p.colorConfigObserver = observer::ValueObserver<imaging::ColorConfig>::create(
                 app->colorModel()->observeConfig(),
                 [this](const imaging::ColorConfig& value)
                 {
-                    _colorConfig = value;
+                    _p->colorConfig = value;
                     _widgetUpdate();
                 });
 
-            _logObserver = observer::ValueObserver<core::LogItem>::create(
+            p.logObserver = observer::ValueObserver<core::LogItem>::create(
                 app->getContext()->getLogSystem()->observeLog(),
                 [this](const core::LogItem& value)
                 {
                     switch (value.type)
                     {
                     case core::LogType::Error:
-                        _statusBar->showMessage(
+                        _p->statusBar->showMessage(
                             QString(tr("ERROR: %1")).
                             arg(QString::fromUtf8(value.message.c_str())),
                             errorTimeout);
@@ -485,95 +553,95 @@ namespace tl
                 });
 
             connect(
-                _actions["File/Open"],
+                p.actions["File/Open"],
                 &QAction::triggered,
                 app,
                 &App::openDialog);
             connect(
-                _actions["File/OpenWithAudio"],
+                p.actions["File/OpenWithAudio"],
                 &QAction::triggered,
                 app,
                 &App::openWithAudioDialog);
             connect(
-                _actions["File/Close"],
+                p.actions["File/Close"],
                 &QAction::triggered,
                 [app]
                 {
                     app->filesModel()->close();
                 });
             connect(
-                _actions["File/CloseAll"],
+                p.actions["File/CloseAll"],
                 &QAction::triggered,
                 [app]
                 {
                     app->filesModel()->closeAll();
                 });
             connect(
-                _recentFilesActionGroup,
+                p.recentFilesActionGroup,
                 SIGNAL(triggered(QAction*)),
                 SLOT(_recentFilesCallback(QAction*)));
             connect(
-                _actions["File/Next"],
+                p.actions["File/Next"],
                 &QAction::triggered,
                 [app]
                 {
                     app->filesModel()->next();
                 });
             connect(
-                _actions["File/Prev"],
+                p.actions["File/Prev"],
                 &QAction::triggered,
                 [app]
                 {
                     app->filesModel()->prev();
                 });
             connect(
-                _actions["File/NextLayer"],
+                p.actions["File/NextLayer"],
                 &QAction::triggered,
                 [app]
                 {
                     app->filesModel()->nextLayer();
                 });
             connect(
-                _actions["File/PrevLayer"],
+                p.actions["File/PrevLayer"],
                 &QAction::triggered,
                 [app]
                 {
                     app->filesModel()->prevLayer();
                 });
             connect(
-                _actions["File/Exit"],
+                p.actions["File/Exit"],
                 &QAction::triggered,
                 app,
                 &App::quit);
 
             connect(
-                _actions["Window/Resize1280x720"],
+                p.actions["Window/Resize1280x720"],
                 &QAction::triggered,
                 [this]
                 {
                     resize(1280, 720);
                 });
             connect(
-                _actions["Window/Resize1920x1080"],
+                p.actions["Window/Resize1920x1080"],
                 &QAction::triggered,
                 [this]
                 {
                     resize(1920, 1080);
                 });
             connect(
-                _actions["Window/FullScreen"],
+                p.actions["Window/FullScreen"],
                 &QAction::triggered,
                 [this]
                 {
                     setWindowState(windowState() ^ Qt::WindowFullScreen);
                 });
             connect(
-                _actions["Window/FloatOnTop"],
+                p.actions["Window/FloatOnTop"],
                 &QAction::toggled,
                 [this](bool value)
                 {
-                    _floatOnTop = value;
-                    if (_floatOnTop)
+                    _p->floatOnTop = value;
+                    if (_p->floatOnTop)
                     {
                         setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
                     }
@@ -584,185 +652,185 @@ namespace tl
                     show();
                 });
             connect(
-                _actions["Window/Secondary"],
+                p.actions["Window/Secondary"],
                 SIGNAL(toggled(bool)),
                 SLOT(_secondaryWindowCallback(bool)));
             connect(
-                _actions["Window/SecondaryFloatOnTop"],
+                p.actions["Window/SecondaryFloatOnTop"],
                 &QAction::toggled,
                 [this](bool value)
                 {
-                    _secondaryFloatOnTop = value;
-                    if (_secondaryWindow)
+                    _p->secondaryFloatOnTop = value;
+                    if (_p->secondaryWindow)
                     {
-                        if (_secondaryFloatOnTop)
+                        if (_p->secondaryFloatOnTop)
                         {
-                            _secondaryWindow->setWindowFlags(_secondaryWindow->windowFlags() | Qt::WindowStaysOnTopHint);
+                            _p->secondaryWindow->setWindowFlags(_p->secondaryWindow->windowFlags() | Qt::WindowStaysOnTopHint);
                         }
                         else
                         {
-                            _secondaryWindow->setWindowFlags(_secondaryWindow->windowFlags() & ~Qt::WindowStaysOnTopHint);
+                            _p->secondaryWindow->setWindowFlags(_p->secondaryWindow->windowFlags() & ~Qt::WindowStaysOnTopHint);
                         }
-                        _secondaryWindow->show();
+                        _p->secondaryWindow->show();
                     }
                 });
 
             connect(
-                _channelsActionGroup,
+                p.channelsActionGroup,
                 SIGNAL(triggered(QAction*)),
                 SLOT(_channelsCallback(QAction*)));
 
             connect(
-                _actions["Image/MirrorX"],
+                p.actions["Image/MirrorX"],
                 &QAction::toggled,
                 [this](bool value)
                 {
-                    if (!_imageOptions.empty())
+                    if (!_p->imageOptions.empty())
                     {
-                        render::ImageOptions imageOptions = _imageOptions[0];
+                        render::ImageOptions imageOptions = _p->imageOptions[0];
                         imageOptions.mirror.x = value;
-                        _app->filesModel()->setImageOptions(imageOptions);
+                        _p->app->filesModel()->setImageOptions(imageOptions);
                     }
                 });
             connect(
-                _actions["Image/MirrorY"],
+                p.actions["Image/MirrorY"],
                 &QAction::toggled,
                 [this](bool value)
                 {
-                    if (!_imageOptions.empty())
+                    if (!_p->imageOptions.empty())
                     {
-                        render::ImageOptions imageOptions = _imageOptions[0];
+                        render::ImageOptions imageOptions = _p->imageOptions[0];
                         imageOptions.mirror.y = value;
-                        _app->filesModel()->setImageOptions(imageOptions);
+                        _p->app->filesModel()->setImageOptions(imageOptions);
                     }
                 });
 
             connect(
-                _actions["Playback/Toggle"],
+                p.actions["Playback/Toggle"],
                 &QAction::triggered,
                 [this]
                 {
-                    if (!_timelinePlayers.empty())
+                    if (!_p->timelinePlayers.empty())
                     {
-                        _timelinePlayers[0]->togglePlayback();
+                        _p->timelinePlayers[0]->togglePlayback();
                     }
                 });
             connect(
-                _actions["Playback/Start"],
+                p.actions["Playback/Start"],
                 &QAction::triggered,
                 [this]
                 {
-                    if (!_timelinePlayers.empty())
+                    if (!_p->timelinePlayers.empty())
                     {
-                        _timelinePlayers[0]->start();
+                        _p->timelinePlayers[0]->start();
                     }
                 });
             connect(
-                _actions["Playback/End"],
+                p.actions["Playback/End"],
                 &QAction::triggered,
                 [this]
                 {
-                    if (!_timelinePlayers.empty())
+                    if (!_p->timelinePlayers.empty())
                     {
-                        _timelinePlayers[0]->end();
+                        _p->timelinePlayers[0]->end();
                     }
                 });
             connect(
-                _actions["Playback/FramePrev"],
+                p.actions["Playback/FramePrev"],
                 &QAction::triggered,
                 [this]
                 {
-                    if (!_timelinePlayers.empty())
+                    if (!_p->timelinePlayers.empty())
                     {
-                        _timelinePlayers[0]->framePrev();
+                        _p->timelinePlayers[0]->framePrev();
                     }
                 });
             connect(
-                _actions["Playback/FramePrevX10"],
+                p.actions["Playback/FramePrevX10"],
                 &QAction::triggered,
                 [this]
                 {
-                    if (!_timelinePlayers.empty())
+                    if (!_p->timelinePlayers.empty())
                     {
-                        _timelinePlayers[0]->timeAction(timeline::TimeAction::FramePrevX10);
+                        _p->timelinePlayers[0]->timeAction(timeline::TimeAction::FramePrevX10);
                     }
                 });
             connect(
-                _actions["Playback/FramePrevX100"],
+                p.actions["Playback/FramePrevX100"],
                 &QAction::triggered,
                 [this]
                 {
-                    if (!_timelinePlayers.empty())
+                    if (!_p->timelinePlayers.empty())
                     {
-                        _timelinePlayers[0]->timeAction(timeline::TimeAction::FramePrevX100);
+                        _p->timelinePlayers[0]->timeAction(timeline::TimeAction::FramePrevX100);
                     }
                 });
             connect(
-                _actions["Playback/FrameNext"],
+                p.actions["Playback/FrameNext"],
                 &QAction::triggered,
                 [this]
                 {
-                    if (!_timelinePlayers.empty())
+                    if (!_p->timelinePlayers.empty())
                     {
-                        _timelinePlayers[0]->frameNext();
+                        _p->timelinePlayers[0]->frameNext();
                     }
                 });
             connect(
-                _actions["Playback/FrameNextX10"],
+                p.actions["Playback/FrameNextX10"],
                 &QAction::triggered,
                 [this]
                 {
-                    if (!_timelinePlayers.empty())
+                    if (!_p->timelinePlayers.empty())
                     {
-                        _timelinePlayers[0]->timeAction(timeline::TimeAction::FrameNextX10);
+                        _p->timelinePlayers[0]->timeAction(timeline::TimeAction::FrameNextX10);
                     }
                 });
             connect(
-                _actions["Playback/FrameNextX100"],
+                p.actions["Playback/FrameNextX100"],
                 &QAction::triggered,
                 [this]
                 {
-                    if (!_timelinePlayers.empty())
+                    if (!_p->timelinePlayers.empty())
                     {
-                        _timelinePlayers[0]->timeAction(timeline::TimeAction::FrameNextX100);
+                        _p->timelinePlayers[0]->timeAction(timeline::TimeAction::FrameNextX100);
                     }
                 });
             connect(
-                _actions["Playback/FocusCurrentFrame"],
+                p.actions["Playback/FocusCurrentFrame"],
                 &QAction::triggered,
                 [this]
                 {
-                    _timelineWidget->focusCurrentFrame();
+                    _p->timelineWidget->focusCurrentFrame();
                 });
 
             connect(
-                _playbackActionGroup,
+                p.playbackActionGroup,
                 SIGNAL(triggered(QAction*)),
                 SLOT(_playbackCallback(QAction*)));
 
             connect(
-                _loopActionGroup,
+                p.loopActionGroup,
                 SIGNAL(triggered(QAction*)),
                 SLOT(_loopCallback(QAction*)));
 
             connect(
-                _compareTool,
+                p.compareTool,
                 SIGNAL(compareOptionsChanged(const tl::render::CompareOptions&)),
                 SLOT(_compareOptionsCallback(const tl::render::CompareOptions&)));
 
             connect(
-                _imageTool,
+                p.imageTool,
                 SIGNAL(imageOptionsChanged(const tl::render::ImageOptions&)),
                 SLOT(_imageOptionsCallback(const tl::render::ImageOptions&)));
 
             connect(
-                _audioTool,
+                p.audioTool,
                 &AudioTool::audioOffsetChanged,
                 [this](double value)
                 {
-                    if (!_timelinePlayers.empty())
+                    if (!_p->timelinePlayers.empty())
                     {
-                        _timelinePlayers[0]->setAudioOffset(value);
+                        _p->timelinePlayers[0]->setAudioOffset(value);
                     }
                 });
 
@@ -788,8 +856,8 @@ namespace tl
             }
             if (settings.contains("MainWindow/FloatOnTop"))
             {
-                _floatOnTop = settings.value("MainWindow/FloatOnTop").toBool();
-                if (_floatOnTop)
+                p.floatOnTop = settings.value("MainWindow/FloatOnTop").toBool();
+                if (p.floatOnTop)
                 {
                     setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
                 }
@@ -797,150 +865,153 @@ namespace tl
                 {
                     setWindowFlags(windowFlags() & ~Qt::WindowStaysOnTopHint);
                 }
-                QSignalBlocker blocker(_actions["Window/FloatOnTop"]);
-                _actions["Window/FloatOnTop"]->setChecked(_floatOnTop);
+                QSignalBlocker blocker(p.actions["Window/FloatOnTop"]);
+                p.actions["Window/FloatOnTop"]->setChecked(p.floatOnTop);
             }
             if (settings.contains("MainWindow/SecondaryFloatOnTop"))
             {
-                _secondaryFloatOnTop = settings.value("MainWindow/SecondaryFloatOnTop").toBool();
-                QSignalBlocker blocker(_actions["Window/SecondaryFloatOnTop"]);
-                _actions["Window/SecondaryFloatOnTop"]->setChecked(_secondaryFloatOnTop);
+                p.secondaryFloatOnTop = settings.value("MainWindow/SecondaryFloatOnTop").toBool();
+                QSignalBlocker blocker(p.actions["Window/SecondaryFloatOnTop"]);
+                p.actions["Window/SecondaryFloatOnTop"]->setChecked(p.secondaryFloatOnTop);
             }
         }
 
         MainWindow::~MainWindow()
         {
+            TLRENDER_P();
             QSettings settings;
             settings.setValue(qt::versionedSettingsKey("MainWindow/geometry"), saveGeometry());
             settings.setValue(qt::versionedSettingsKey("MainWindow/windowState"), saveState());
-            settings.setValue("MainWindow/FloatOnTop", _floatOnTop);
-            settings.setValue("MainWindow/SecondaryFloatOnTop", _secondaryFloatOnTop);
-            if (_secondaryWindow)
+            settings.setValue("MainWindow/FloatOnTop", p.floatOnTop);
+            settings.setValue("MainWindow/SecondaryFloatOnTop", p.secondaryFloatOnTop);
+            if (p.secondaryWindow)
             {
-                delete _secondaryWindow;
-                _secondaryWindow = nullptr;
+                delete p.secondaryWindow;
+                p.secondaryWindow = nullptr;
             }
         }
 
         void MainWindow::setImageOptions(const std::vector<render::ImageOptions>& imageOptions)
         {
-            if (imageOptions == _imageOptions)
+            TLRENDER_P();
+            if (imageOptions == p.imageOptions)
                 return;
-            _imageOptions = imageOptions;
+            p.imageOptions = imageOptions;
             _widgetUpdate();
         }
 
         void MainWindow::setTimelinePlayers(const std::vector<qt::TimelinePlayer*>& timelinePlayers)
         {
-            if (!_timelinePlayers.empty())
+            TLRENDER_P();
+            if (!p.timelinePlayers.empty())
             {
                 disconnect(
-                    _timelinePlayers[0],
+                    p.timelinePlayers[0],
                     SIGNAL(playbackChanged(tl::timeline::Playback)),
                     this,
-                    SLOT(_playbackCallback(tl::timeline::Playback)));
+                    SLOT(p.playbackCallback(tl::timeline::Playback)));
                 disconnect(
-                    _timelinePlayers[0],
+                    p.timelinePlayers[0],
                     SIGNAL(loopChanged(tl::timeline::Loop)),
                     this,
-                    SLOT(_loopCallback(tl::timeline::Loop)));
+                    SLOT(p.loopCallback(tl::timeline::Loop)));
                 disconnect(
-                    _timelinePlayers[0],
+                    p.timelinePlayers[0],
                     SIGNAL(audioOffsetChanged(double)),
-                    _audioTool,
+                    p.audioTool,
                     SLOT(setAudioOffset(double)));
 
                 disconnect(
-                    _actions["Playback/SetInPoint"],
+                    p.actions["Playback/SetInPoint"],
                     SIGNAL(triggered()),
-                    _timelinePlayers[0],
+                    p.timelinePlayers[0],
                     SLOT(setInPoint()));
                 disconnect(
-                    _actions["Playback/ResetInPoint"],
+                    p.actions["Playback/ResetInPoint"],
                     SIGNAL(triggered()),
-                    _timelinePlayers[0],
+                    p.timelinePlayers[0],
                     SLOT(resetInPoint()));
                 disconnect(
-                    _actions["Playback/SetOutPoint"],
+                    p.actions["Playback/SetOutPoint"],
                     SIGNAL(triggered()),
-                    _timelinePlayers[0],
+                    p.timelinePlayers[0],
                     SLOT(setOutPoint()));
                 disconnect(
-                    _actions["Playback/ResetOutPoint"],
+                    p.actions["Playback/ResetOutPoint"],
                     SIGNAL(triggered()),
-                    _timelinePlayers[0],
+                    p.timelinePlayers[0],
                     SLOT(resetOutPoint()));
 
                 disconnect(
-                    _actions["Audio/IncreaseVolume"],
+                    p.actions["Audio/IncreaseVolume"],
                     SIGNAL(triggered()),
-                    _timelinePlayers[0],
+                    p.timelinePlayers[0],
                     SLOT(increaseVolume()));
                 disconnect(
-                    _actions["Audio/DecreaseVolume"],
+                    p.actions["Audio/DecreaseVolume"],
                     SIGNAL(triggered()),
-                    _timelinePlayers[0],
+                    p.timelinePlayers[0],
                     SLOT(decreaseVolume()));
                 disconnect(
-                    _actions["Audio/Mute"],
+                    p.actions["Audio/Mute"],
                     SIGNAL(toggled(bool)),
-                    _timelinePlayers[0],
+                    p.timelinePlayers[0],
                     SLOT(setMute(bool)));
             }
 
-            _timelinePlayers = timelinePlayers;
+            p.timelinePlayers = timelinePlayers;
 
-            if (!_timelinePlayers.empty())
+            if (!p.timelinePlayers.empty())
             {
                 connect(
-                    _timelinePlayers[0],
+                    p.timelinePlayers[0],
                     SIGNAL(playbackChanged(tl::timeline::Playback)),
                     SLOT(_playbackCallback(tl::timeline::Playback)));
                 connect(
-                    _timelinePlayers[0],
+                    p.timelinePlayers[0],
                     SIGNAL(loopChanged(tl::timeline::Loop)),
                     SLOT(_loopCallback(tl::timeline::Loop)));
                 connect(
-                    _timelinePlayers[0],
+                    p.timelinePlayers[0],
                     SIGNAL(audioOffsetChanged(double)),
-                    _audioTool,
+                    p.audioTool,
                     SLOT(setAudioOffset(double)));
 
                 connect(
-                    _actions["Playback/SetInPoint"],
+                    p.actions["Playback/SetInPoint"],
                     SIGNAL(triggered()),
-                    _timelinePlayers[0],
+                    p.timelinePlayers[0],
                     SLOT(setInPoint()));
                 connect(
-                    _actions["Playback/ResetInPoint"],
+                    p.actions["Playback/ResetInPoint"],
                     SIGNAL(triggered()),
-                    _timelinePlayers[0],
+                    p.timelinePlayers[0],
                     SLOT(resetInPoint()));
                 connect(
-                    _actions["Playback/SetOutPoint"],
+                    p.actions["Playback/SetOutPoint"],
                     SIGNAL(triggered()),
-                    _timelinePlayers[0],
+                    p.timelinePlayers[0],
                     SLOT(setOutPoint()));
                 connect(
-                    _actions["Playback/ResetOutPoint"],
+                    p.actions["Playback/ResetOutPoint"],
                     SIGNAL(triggered()),
-                    _timelinePlayers[0],
+                    p.timelinePlayers[0],
                     SLOT(resetOutPoint()));
 
                 connect(
-                    _actions["Audio/IncreaseVolume"],
+                    p.actions["Audio/IncreaseVolume"],
                     SIGNAL(triggered()),
-                    _timelinePlayers[0],
+                    p.timelinePlayers[0],
                     SLOT(increaseVolume()));
                 connect(
-                    _actions["Audio/DecreaseVolume"],
+                    p.actions["Audio/DecreaseVolume"],
                     SIGNAL(triggered()),
-                    _timelinePlayers[0],
+                    p.timelinePlayers[0],
                     SLOT(decreaseVolume()));
                 connect(
-                    _actions["Audio/Mute"],
+                    p.actions["Audio/Mute"],
                     SIGNAL(toggled(bool)),
-                    _timelinePlayers[0],
+                    p.timelinePlayers[0],
                     SLOT(setMute(bool)));
             }
 
@@ -949,10 +1020,11 @@ namespace tl
 
         void MainWindow::closeEvent(QCloseEvent*)
         {
-            if (_secondaryWindow)
+            TLRENDER_P();
+            if (p.secondaryWindow)
             {
-                delete _secondaryWindow;
-                _secondaryWindow = nullptr;
+                delete p.secondaryWindow;
+                p.secondaryWindow = nullptr;
             }
         }
 
@@ -981,6 +1053,7 @@ namespace tl
 
         void MainWindow::dropEvent(QDropEvent* event)
         {
+            TLRENDER_P();
             const QMimeData* mimeData = event->mimeData();
             if (mimeData->hasUrls())
             {
@@ -988,17 +1061,18 @@ namespace tl
                 for (int i = 0; i < urlList.size(); ++i)
                 {
                     const QString fileName = urlList[i].toLocalFile();
-                    _app->open(fileName);
+                    p.app->open(fileName);
                 }
             }
         }
 
         void MainWindow::_recentFilesCallback(QAction* action)
         {
-            const auto i = _actionToRecentFile.find(action);
-            if (i != _actionToRecentFile.end())
+            TLRENDER_P();
+            const auto i = p.actionToRecentFile.find(action);
+            if (i != p.actionToRecentFile.end())
             {
-                _app->open(i.value());
+                p.app->open(i.value());
             }
         }
 
@@ -1009,72 +1083,77 @@ namespace tl
 
         void MainWindow::_secondaryWindowCallback(bool value)
         {
-            if (value && !_secondaryWindow)
+            TLRENDER_P();
+            if (value && !p.secondaryWindow)
             {
-                _secondaryWindow = new SecondaryWindow(_app->getContext());
-                _secondaryWindow->setColorConfig(_colorConfig);
-                _secondaryWindow->setCompareOptions(_compareOptions);
-                _secondaryWindow->setTimelinePlayers(_timelinePlayers);
+                p.secondaryWindow = new SecondaryWindow(p.app->getContext());
+                p.secondaryWindow->setColorConfig(p.colorConfig);
+                p.secondaryWindow->setCompareOptions(p.compareOptions);
+                p.secondaryWindow->setTimelinePlayers(p.timelinePlayers);
 
                 connect(
-                    _secondaryWindow,
+                    p.secondaryWindow,
                     SIGNAL(destroyed(QObject*)),
                     SLOT(_secondaryWindowDestroyedCallback()));
 
-                if (_secondaryFloatOnTop)
+                if (p.secondaryFloatOnTop)
                 {
-                    _secondaryWindow->setWindowFlags(_secondaryWindow->windowFlags() | Qt::WindowStaysOnTopHint);
+                    p.secondaryWindow->setWindowFlags(p.secondaryWindow->windowFlags() | Qt::WindowStaysOnTopHint);
                 }
                 else
                 {
-                    _secondaryWindow->setWindowFlags(_secondaryWindow->windowFlags() & ~Qt::WindowStaysOnTopHint);
+                    p.secondaryWindow->setWindowFlags(p.secondaryWindow->windowFlags() & ~Qt::WindowStaysOnTopHint);
                 }
-                _secondaryWindow->show();
+                p.secondaryWindow->show();
             }
-            else if (!value && _secondaryWindow)
+            else if (!value && p.secondaryWindow)
             {
-                delete _secondaryWindow;
-                _secondaryWindow = nullptr;
+                delete p.secondaryWindow;
+                p.secondaryWindow = nullptr;
             }
         }
 
         void MainWindow::_secondaryWindowDestroyedCallback()
         {
-            _secondaryWindow = nullptr;
-            _actions["Window/Secondary"]->setChecked(false);
+            TLRENDER_P();
+            p.secondaryWindow = nullptr;
+            p.actions["Window/Secondary"]->setChecked(false);
         }
 
         void MainWindow::_channelsCallback(QAction* action)
         {
-            if (!_imageOptions.empty())
+            TLRENDER_P();
+            if (!p.imageOptions.empty())
             {
-                const auto i = _actionToChannels.find(action);
-                if (i != _actionToChannels.end())
+                const auto i = p.actionToChannels.find(action);
+                if (i != p.actionToChannels.end())
                 {
-                    render::ImageOptions imageOptions = _imageOptions[0];
+                    render::ImageOptions imageOptions = p.imageOptions[0];
                     imageOptions.channels = action->isChecked() ? i.value() : render::Channels::Color;
-                    _app->filesModel()->setImageOptions(imageOptions);
+                    p.app->filesModel()->setImageOptions(imageOptions);
                 }
             }
         }
 
         void MainWindow::_playbackCallback(QAction* action)
         {
-            if (!_timelinePlayers.empty())
+            TLRENDER_P();
+            if (!p.timelinePlayers.empty())
             {
-                const auto i = _actionToPlayback.find(action);
-                if (i != _actionToPlayback.end())
+                const auto i = p.actionToPlayback.find(action);
+                if (i != p.actionToPlayback.end())
                 {
-                    _timelinePlayers[0]->setPlayback(i.value());
+                    p.timelinePlayers[0]->setPlayback(i.value());
                 }
             }
         }
 
         void MainWindow::_playbackCallback(tl::timeline::Playback value)
         {
-            const QSignalBlocker blocker(_playbackActionGroup);
-            const auto i = _playbackToActions.find(value);
-            if (i != _playbackToActions.end())
+            TLRENDER_P();
+            const QSignalBlocker blocker(p.playbackActionGroup);
+            const auto i = p.playbackToActions.find(value);
+            if (i != p.playbackToActions.end())
             {
                 i.value()->setChecked(true);
             }
@@ -1082,21 +1161,23 @@ namespace tl
 
         void MainWindow::_loopCallback(QAction* action)
         {
-            if (!_timelinePlayers.empty())
+            TLRENDER_P();
+            if (!p.timelinePlayers.empty())
             {
-                const auto i = _actionToLoop.find(action);
-                if (i != _actionToLoop.end())
+                const auto i = p.actionToLoop.find(action);
+                if (i != p.actionToLoop.end())
                 {
-                    _timelinePlayers[0]->setLoop(i.value());
+                    p.timelinePlayers[0]->setLoop(i.value());
                 }
             }
         }
 
         void MainWindow::_loopCallback(tl::timeline::Loop value)
         {
-            const QSignalBlocker blocker(_loopActionGroup);
-            const auto i = _loopToActions.find(value);
-            if (i != _loopToActions.end())
+            TLRENDER_P();
+            const QSignalBlocker blocker(p.loopActionGroup);
+            const auto i = p.loopToActions.find(value);
+            if (i != p.loopToActions.end())
             {
                 i.value()->setChecked(true);
             }
@@ -1104,147 +1185,153 @@ namespace tl
 
         void MainWindow::_imageOptionsCallback(const render::ImageOptions& value)
         {
-            _app->filesModel()->setImageOptions(value);
+            TLRENDER_P();
+            p.app->filesModel()->setImageOptions(value);
         }
 
         void MainWindow::_imageOptionsCallback(const std::vector<render::ImageOptions>& value)
         {
-            _imageOptions = value;
+            TLRENDER_P();
+            p.imageOptions = value;
             _widgetUpdate();
         }
 
         void MainWindow::_compareOptionsCallback(const render::CompareOptions& value)
         {
-            _app->filesModel()->setCompareOptions(value);
+            TLRENDER_P();
+            p.app->filesModel()->setCompareOptions(value);
         }
 
         void MainWindow::_compareOptionsCallback2(const render::CompareOptions& value)
         {
-            _compareOptions = value;
+            TLRENDER_P();
+            p.compareOptions = value;
             _widgetUpdate();
         }
 
         void MainWindow::_recentFilesUpdate()
         {
-            for (const auto& i : _actionToRecentFile.keys())
+            TLRENDER_P();
+            for (const auto& i : p.actionToRecentFile.keys())
             {
-                _recentFilesActionGroup->removeAction(i);
+                p.recentFilesActionGroup->removeAction(i);
                 i->setParent(nullptr);
                 delete i;
             }
-            _actionToRecentFile.clear();
-            _recentFilesMenu->clear();
-            const auto& recentFiles = _app->settingsObject()->recentFiles();
+            p.actionToRecentFile.clear();
+            p.recentFilesMenu->clear();
+            const auto& recentFiles = p.app->settingsObject()->recentFiles();
             for (size_t i = 0; i < recentFiles.size(); ++i)
             {
                 auto action = new QAction;
                 const auto& file = recentFiles[i];
                 action->setText(QString("%1 %2").arg(i + 1).arg(file));
-                _recentFilesActionGroup->addAction(action);
-                _actionToRecentFile[action] = file;
-                _recentFilesMenu->addAction(action);
+                p.recentFilesActionGroup->addAction(action);
+                p.actionToRecentFile[action] = file;
+                p.recentFilesMenu->addAction(action);
             }
         }
 
         void MainWindow::_widgetUpdate()
         {
-            const int count = _app->filesModel()->observeFiles()->getSize();
-            _actions["File/Close"]->setEnabled(count > 0);
-            _actions["File/CloseAll"]->setEnabled(count > 0);
-            _actions["File/Next"]->setEnabled(count > 1);
-            _actions["File/Prev"]->setEnabled(count > 1);
-            _actions["File/NextLayer"]->setEnabled(count > 0);
-            _actions["File/PrevLayer"]->setEnabled(count > 0);
+            TLRENDER_P();
+            const int count = p.app->filesModel()->observeFiles()->getSize();
+            p.actions["File/Close"]->setEnabled(count > 0);
+            p.actions["File/CloseAll"]->setEnabled(count > 0);
+            p.actions["File/Next"]->setEnabled(count > 1);
+            p.actions["File/Prev"]->setEnabled(count > 1);
+            p.actions["File/NextLayer"]->setEnabled(count > 0);
+            p.actions["File/PrevLayer"]->setEnabled(count > 0);
 
-            _actions["Image/RedChannel"]->setEnabled(count > 0);
-            _actions["Image/GreenChannel"]->setEnabled(count > 0);
-            _actions["Image/BlueChannel"]->setEnabled(count > 0);
-            _actions["Image/AlphaChannel"]->setEnabled(count > 0);
-            _actions["Image/MirrorX"]->setEnabled(count > 0);
-            _actions["Image/MirrorY"]->setEnabled(count > 0);
+            p.actions["Image/RedChannel"]->setEnabled(count > 0);
+            p.actions["Image/GreenChannel"]->setEnabled(count > 0);
+            p.actions["Image/BlueChannel"]->setEnabled(count > 0);
+            p.actions["Image/AlphaChannel"]->setEnabled(count > 0);
+            p.actions["Image/MirrorX"]->setEnabled(count > 0);
+            p.actions["Image/MirrorY"]->setEnabled(count > 0);
 
-            _actions["Playback/Stop"]->setEnabled(count > 0);
-            _actions["Playback/Forward"]->setEnabled(count > 0);
-            _actions["Playback/Reverse"]->setEnabled(count > 0);
-            _actions["Playback/Toggle"]->setEnabled(count > 0);
-            _actions["Playback/Loop"]->setEnabled(count > 0);
-            _actions["Playback/Once"]->setEnabled(count > 0);
-            _actions["Playback/PingPong"]->setEnabled(count > 0);
-            _actions["Playback/Start"]->setEnabled(count > 0);
-            _actions["Playback/End"]->setEnabled(count > 0);
-            _actions["Playback/FramePrev"]->setEnabled(count > 0);
-            _actions["Playback/FramePrevX10"]->setEnabled(count > 0);
-            _actions["Playback/FramePrevX100"]->setEnabled(count > 0);
-            _actions["Playback/FrameNext"]->setEnabled(count > 0);
-            _actions["Playback/FrameNextX10"]->setEnabled(count > 0);
-            _actions["Playback/FrameNextX100"]->setEnabled(count > 0);
-            _actions["Playback/SetInPoint"]->setEnabled(count > 0);
-            _actions["Playback/ResetInPoint"]->setEnabled(count > 0);
-            _actions["Playback/SetOutPoint"]->setEnabled(count > 0);
-            _actions["Playback/ResetOutPoint"]->setEnabled(count > 0);
-            _actions["Playback/FocusCurrentFrame"]->setEnabled(count > 0);
+            p.actions["Playback/Stop"]->setEnabled(count > 0);
+            p.actions["Playback/Forward"]->setEnabled(count > 0);
+            p.actions["Playback/Reverse"]->setEnabled(count > 0);
+            p.actions["Playback/Toggle"]->setEnabled(count > 0);
+            p.actions["Playback/Loop"]->setEnabled(count > 0);
+            p.actions["Playback/Once"]->setEnabled(count > 0);
+            p.actions["Playback/PingPong"]->setEnabled(count > 0);
+            p.actions["Playback/Start"]->setEnabled(count > 0);
+            p.actions["Playback/End"]->setEnabled(count > 0);
+            p.actions["Playback/FramePrev"]->setEnabled(count > 0);
+            p.actions["Playback/FramePrevX10"]->setEnabled(count > 0);
+            p.actions["Playback/FramePrevX100"]->setEnabled(count > 0);
+            p.actions["Playback/FrameNext"]->setEnabled(count > 0);
+            p.actions["Playback/FrameNextX10"]->setEnabled(count > 0);
+            p.actions["Playback/FrameNextX100"]->setEnabled(count > 0);
+            p.actions["Playback/SetInPoint"]->setEnabled(count > 0);
+            p.actions["Playback/ResetInPoint"]->setEnabled(count > 0);
+            p.actions["Playback/SetOutPoint"]->setEnabled(count > 0);
+            p.actions["Playback/ResetOutPoint"]->setEnabled(count > 0);
+            p.actions["Playback/FocusCurrentFrame"]->setEnabled(count > 0);
 
-            _actions["Audio/IncreaseVolume"]->setEnabled(count > 0);
-            _actions["Audio/DecreaseVolume"]->setEnabled(count > 0);
-            _actions["Audio/Mute"]->setEnabled(count > 0);
+            p.actions["Audio/IncreaseVolume"]->setEnabled(count > 0);
+            p.actions["Audio/DecreaseVolume"]->setEnabled(count > 0);
+            p.actions["Audio/Mute"]->setEnabled(count > 0);
 
             std::vector<std::string> info;
 
-            if (!_timelinePlayers.empty())
+            if (!p.timelinePlayers.empty())
             {
                 {
-                    QSignalBlocker blocker(_channelsActionGroup);
-                    _actions["Image/RedChannel"]->setChecked(false);
-                    _actions["Image/GreenChannel"]->setChecked(false);
-                    _actions["Image/BlueChannel"]->setChecked(false);
-                    _actions["Image/AlphaChannel"]->setChecked(false);
-                    if (!_imageOptions.empty())
+                    QSignalBlocker blocker(p.channelsActionGroup);
+                    p.actions["Image/RedChannel"]->setChecked(false);
+                    p.actions["Image/GreenChannel"]->setChecked(false);
+                    p.actions["Image/BlueChannel"]->setChecked(false);
+                    p.actions["Image/AlphaChannel"]->setChecked(false);
+                    if (!p.imageOptions.empty())
                     {
-                        auto channelsAction = _channelsToActions.find(_imageOptions[0].channels);
-                        if (channelsAction != _channelsToActions.end())
+                        auto channelsAction = p.channelsToActions.find(p.imageOptions[0].channels);
+                        if (channelsAction != p.channelsToActions.end())
                         {
                             channelsAction.value()->setChecked(true);
                         }
                     }
                 }
                 {
-                    QSignalBlocker blocker(_actions["Image/MirrorX"]);
-                    _actions["Image/MirrorX"]->setChecked(false);
-                    if (!_imageOptions.empty())
+                    QSignalBlocker blocker(p.actions["Image/MirrorX"]);
+                    p.actions["Image/MirrorX"]->setChecked(false);
+                    if (!p.imageOptions.empty())
                     {
-                        _actions["Image/MirrorX"]->setChecked(_imageOptions[0].mirror.x);
+                        p.actions["Image/MirrorX"]->setChecked(p.imageOptions[0].mirror.x);
                     }
                 }
                 {
-                    QSignalBlocker blocker(_actions["Image/MirrorY"]);
-                    _actions["Image/MirrorY"]->setChecked(false);
-                    if (!_imageOptions.empty())
+                    QSignalBlocker blocker(p.actions["Image/MirrorY"]);
+                    p.actions["Image/MirrorY"]->setChecked(false);
+                    if (!p.imageOptions.empty())
                     {
-                        _actions["Image/MirrorY"]->setChecked(_imageOptions[0].mirror.y);
+                        p.actions["Image/MirrorY"]->setChecked(p.imageOptions[0].mirror.y);
                     }
                 }
                 {
-                    QSignalBlocker blocker(_playbackActionGroup);
-                    auto playbackAction = _playbackToActions.find(_timelinePlayers[0]->playback());
-                    if (playbackAction != _playbackToActions.end())
+                    QSignalBlocker blocker(p.playbackActionGroup);
+                    auto playbackAction = p.playbackToActions.find(p.timelinePlayers[0]->playback());
+                    if (playbackAction != p.playbackToActions.end())
                     {
                         playbackAction.value()->setChecked(true);
                     }
                 }
                 {
-                    QSignalBlocker blocker(_loopActionGroup);
-                    auto loopAction = _loopToActions.find(_timelinePlayers[0]->loop());
-                    if (loopAction != _loopToActions.end())
+                    QSignalBlocker blocker(p.loopActionGroup);
+                    auto loopAction = p.loopToActions.find(p.timelinePlayers[0]->loop());
+                    if (loopAction != p.loopToActions.end())
                     {
                         loopAction.value()->setChecked(true);
                     }
                 }
                 {
-                    QSignalBlocker blocker(_actions["Audio/Mute"]);
-                    _actions["Audio/Mute"]->setChecked(_timelinePlayers[0]->isMuted());
+                    QSignalBlocker blocker(p.actions["Audio/Mute"]);
+                    p.actions["Audio/Mute"]->setChecked(p.timelinePlayers[0]->isMuted());
                 }
 
-                const auto& avInfo = _timelinePlayers[0]->avInfo();
+                const auto& avInfo = p.timelinePlayers[0]->avInfo();
                 if (!avInfo.video.empty())
                 {
                     std::stringstream ss;
@@ -1261,55 +1348,55 @@ namespace tl
             else
             {
                 {
-                    QSignalBlocker blocker(_channelsActionGroup);
-                    _actions["Image/RedChannel"]->setChecked(false);
-                    _actions["Image/GreenChannel"]->setChecked(false);
-                    _actions["Image/BlueChannel"]->setChecked(false);
-                    _actions["Image/AlphaChannel"]->setChecked(false);
+                    QSignalBlocker blocker(p.channelsActionGroup);
+                    p.actions["Image/RedChannel"]->setChecked(false);
+                    p.actions["Image/GreenChannel"]->setChecked(false);
+                    p.actions["Image/BlueChannel"]->setChecked(false);
+                    p.actions["Image/AlphaChannel"]->setChecked(false);
                 }
                 {
-                    QSignalBlocker blocker(_actions["Image/MirrorX"]);
-                    _actions["Image/MirrorX"]->setChecked(false);
+                    QSignalBlocker blocker(p.actions["Image/MirrorX"]);
+                    p.actions["Image/MirrorX"]->setChecked(false);
                 }
                 {
-                    QSignalBlocker blocker(_actions["Image/MirrorY"]);
-                    _actions["Image/MirrorY"]->setChecked(false);
+                    QSignalBlocker blocker(p.actions["Image/MirrorY"]);
+                    p.actions["Image/MirrorY"]->setChecked(false);
                 }
                 {
-                    QSignalBlocker blocker(_playbackActionGroup);
-                    _actions["Playback/Stop"]->setChecked(true);
+                    QSignalBlocker blocker(p.playbackActionGroup);
+                    p.actions["Playback/Stop"]->setChecked(true);
                 }
                 {
-                    QSignalBlocker blocker(_loopActionGroup);
-                    _actions["Playback/Loop"]->setChecked(true);
+                    QSignalBlocker blocker(p.loopActionGroup);
+                    p.actions["Playback/Loop"]->setChecked(true);
                 }
                 {
-                    QSignalBlocker blocker(_actions["Audio/Mute"]);
-                    _actions["Audio/Mute"]->setChecked(false);
+                    QSignalBlocker blocker(p.actions["Audio/Mute"]);
+                    p.actions["Audio/Mute"]->setChecked(false);
                 }
             }
 
-            _timelineWidget->setTimelinePlayers(_timelinePlayers);
-            _timelineWidget->setColorConfig(_colorConfig);
-            _timelineWidget->setImageOptions(_imageOptions);
-            _timelineWidget->setCompareOptions(_compareOptions);
+            p.timelineWidget->setTimelinePlayers(p.timelinePlayers);
+            p.timelineWidget->setColorConfig(p.colorConfig);
+            p.timelineWidget->setImageOptions(p.imageOptions);
+            p.timelineWidget->setCompareOptions(p.compareOptions);
 
-            _compareTool->setCompareOptions(_compareOptions);
+            p.compareTool->setCompareOptions(p.compareOptions);
 
-            _imageTool->setImageOptions(!_imageOptions.empty() ? _imageOptions[0] : render::ImageOptions());
+            p.imageTool->setImageOptions(!p.imageOptions.empty() ? p.imageOptions[0] : render::ImageOptions());
 
-            _infoTool->setInfo(!_timelinePlayers.empty() ? _timelinePlayers[0]->avInfo() : avio::Info());
+            p.infoTool->setInfo(!p.timelinePlayers.empty() ? p.timelinePlayers[0]->avInfo() : avio::Info());
 
-            _audioTool->setAudioOffset(!_timelinePlayers.empty() ? _timelinePlayers[0]->audioOffset() : 0.0);
+            p.audioTool->setAudioOffset(!p.timelinePlayers.empty() ? p.timelinePlayers[0]->audioOffset() : 0.0);
 
-            _infoLabel->setText(QString::fromUtf8(string::join(info, " ").c_str()));
+            p.infoLabel->setText(QString::fromUtf8(string::join(info, " ").c_str()));
 
-            if (_secondaryWindow)
+            if (p.secondaryWindow)
             {
-                _secondaryWindow->setTimelinePlayers(_timelinePlayers);
-                _secondaryWindow->setColorConfig(_colorConfig);
-                _secondaryWindow->setImageOptions(_imageOptions);
-                _secondaryWindow->setCompareOptions(_compareOptions);
+                p.secondaryWindow->setTimelinePlayers(p.timelinePlayers);
+                p.secondaryWindow->setColorConfig(p.colorConfig);
+                p.secondaryWindow->setImageOptions(p.imageOptions);
+                p.secondaryWindow->setCompareOptions(p.compareOptions);
             }
         }
     }

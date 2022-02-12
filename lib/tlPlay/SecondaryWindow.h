@@ -4,12 +4,19 @@
 
 #pragma once
 
-#include <tlQWidget/TimelineViewport.h>
+#include <tlQt/TimelinePlayer.h>
+
+#include <tlCore/IRender.h>
 
 #include <QWidget>
 
 namespace tl
 {
+    namespace core
+    {
+        class Context;
+    }
+
     namespace play
     {
         //! Secondary window.
@@ -40,7 +47,7 @@ namespace tl
             void keyPressEvent(QKeyEvent*) override;
 
         private:
-            qwidget::TimelineViewport* _viewport = nullptr;
+            TLRENDER_PRIVATE();
         };
     }
 }

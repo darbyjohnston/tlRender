@@ -4,12 +4,19 @@
 
 #pragma once
 
-#include <tlCore/AVIO.h>
+#include <tlCore/Util.h>
 
 #include <QAbstractTableModel>
 
+#include <memory>
+
 namespace tl
 {
+    namespace avio
+    {
+        struct Info;
+    }
+
     namespace play
     {
         //! Information model.
@@ -28,8 +35,7 @@ namespace tl
             QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
         private:
-            avio::Info _info;
-            QList<QPair<QString, QString> > _items;
+            TLRENDER_PRIVATE();
         };
     }
 }

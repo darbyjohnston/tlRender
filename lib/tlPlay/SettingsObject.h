@@ -156,23 +156,7 @@ namespace tl
         private:
             void _toolTipsUpdate();
 
-            QList<QString> _recentFiles;
-            const int _recentFilesMax = 10;
-            double _cacheReadAhead = 4.0;
-            double _cacheReadBehind = 0.4;
-            timeline::FileSequenceAudio _fileSequenceAudio = timeline::FileSequenceAudio::BaseName;
-            QString _fileSequenceAudioFileName;
-            QString _fileSequenceAudioDirectory;
-            timeline::TimerMode _timerMode = timeline::TimerMode::System;
-            timeline::AudioBufferFrameCount _audioBufferFrameCount = timeline::AudioBufferFrameCount::_256;
-            int _videoRequestCount = 16;
-            int _audioRequestCount = 16;
-            int _sequenceThreadCount = 16;
-            int _ffmpegThreadCount = 4;
-            qt::TimeObject* _timeObject = nullptr;
-            int _maxFileSequenceDigits = 9;
-            bool _toolTipsEnabled = true;
-            qt::ToolTipsFilter* _toolTipsFilter = nullptr;
+            TLRENDER_PRIVATE();
         };
     }
 }
