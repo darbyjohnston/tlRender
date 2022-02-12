@@ -66,35 +66,18 @@ Dependencies:
 * [Qt](https://www.qt.io)
 
 
-Examples
-========
+Applications
+============
 
-play-glfw
-------------
-![play-glfw](etc/Images/play-glfw-screenshot1.png)
+tlplay
+------
+![tlplay](etc/Images/tlplay-screenshot1.png)
 
-GLFW example playback application.
-
-Dependencies:
-* [GLFW](https://www.glfw.org)
-
-play-qwidget
----------------
-![play-qwidget](etc/Images/play-qwidget-screenshot1.png)
-
-Qt widget example playback application.
-
-play-quick
-----------
-Qt Quick example playback application.
-
-
-Utilities
-=========
+Play timelines, movies, and image sequences.
 
 tlbake
 ------
-Command-line application for rendering a timeline to a movie or image sequence.
+Render a timeline to a movie or image sequence.
 
 
 Building

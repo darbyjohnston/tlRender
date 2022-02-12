@@ -19,7 +19,7 @@ namespace tl
             argc,
             argv,
             "tlbake",
-            "Convert an editorial timeline to a movie or image sequence.",
+            "Render a timeline to a movie or image sequence.",
             {
                 app::CmdLineValueArg<std::string>::create(
                     _input,
