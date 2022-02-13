@@ -42,6 +42,7 @@ namespace tl
         private Q_SLOTS:
             void _recentFilesCallback(QAction*);
             void _recentFilesCallback();
+            void _compareCallback(QAction*);
             void _secondaryWindowCallback(bool);
             void _secondaryWindowDestroyedCallback();
             void _channelsCallback(QAction*);

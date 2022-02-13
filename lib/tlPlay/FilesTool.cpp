@@ -4,6 +4,7 @@
 
 #include <tlPlay/FilesTool.h>
 
+#include <tlPlay/App.h>
 #include <tlPlay/FilesModel.h>
 #include <tlPlay/FilesView.h>
 
@@ -14,6 +15,7 @@
 #include <QLabel>
 #include <QSignalBlocker>
 #include <QSettings>
+#include <QToolBar>
 #include <QTreeView>
 
 namespace tl
@@ -22,23 +24,21 @@ namespace tl
     {
         struct FilesTool::Private
         {
-            std::shared_ptr<FilesModel> filesModel;
+            App* app = nullptr;
             FilesAModel* filesAModel = nullptr;
             QTreeView* treeView = nullptr;
         };
 
         FilesTool::FilesTool(
-            const std::shared_ptr<FilesModel>& filesModel,
-            const std::shared_ptr<core::Context>& context,
+            const QMap<QString, QAction*>& actions,
+            App* app,
             QWidget* parent) :
             ToolWidget(parent),
             _p(new Private)
         {
             TLRENDER_P();
 
-            p.filesModel = filesModel;
-
-            p.filesAModel = new FilesAModel(filesModel, context, this);
+            p.filesAModel = new FilesAModel(app->filesModel(), app->getContext(), this);
 
             p.treeView = new QTreeView;
             p.treeView->setAllColumnsShowFocus(true);
@@ -51,12 +51,26 @@ namespace tl
             //! QBasicTimer::start: QBasicTimer can only be used with threads started with QThread
             p.treeView->setModel(p.filesAModel);
 
+            auto toolBar = new QToolBar;
+            toolBar->setToolButtonStyle(Qt::ToolButtonIconOnly);
+            toolBar->setIconSize(QSize(20, 20));
+            toolBar->addAction(actions["File/Open"]);
+            toolBar->addAction(actions["File/OpenWithAudio"]);
+            toolBar->addAction(actions["File/Close"]);
+            toolBar->addAction(actions["File/CloseAll"]);
+            toolBar->addAction(actions["File/Prev"]);
+            toolBar->addAction(actions["File/Next"]);
+            toolBar->addAction(actions["File/PrevLayer"]);
+            toolBar->addAction(actions["File/NextLayer"]);
+
             auto vLayout = new QVBoxLayout;
             vLayout->setContentsMargins(0, 0, 0, 0);
+            vLayout->setSpacing(0);
             vLayout->addWidget(p.treeView);
-            auto viewWidget = new QWidget;
-            viewWidget->setLayout(vLayout);
-            addWidget(viewWidget, 1);
+            vLayout->addWidget(toolBar);
+            auto widget = new QWidget;
+            widget->setLayout(vLayout);
+            addWidget(widget, 1);
 
             QSettings settings;
             auto ba = settings.value(qt::versionedSettingsKey("FilesTool/Header")).toByteArray();
@@ -81,7 +95,7 @@ namespace tl
         void FilesTool::_activatedCallback(const QModelIndex& index)
         {
             TLRENDER_P();
-            p.filesModel->setA(index.row());
+            p.app->filesModel()->setA(index.row());
         }
     }
 }

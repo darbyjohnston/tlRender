@@ -24,6 +24,8 @@ namespace tl
 
         class ColorModel;
         class FilesModel;
+        class FilesAModel;
+        class FilesBModel;
         class SettingsObject;
 
         //! Application options.

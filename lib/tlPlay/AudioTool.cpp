@@ -124,7 +124,7 @@ namespace tl
 
             connect(
                 p.offsetWidget,
-                SIGNAL(offsetChanged(double)),
+                SIGNAL(audioOffsetChanged(double)),
                 SIGNAL(audioOffsetChanged(double)));
         }
 

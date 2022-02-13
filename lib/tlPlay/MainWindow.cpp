@@ -65,6 +65,9 @@ namespace tl
             QActionGroup* recentFilesActionGroup = nullptr;
             QMap<QAction*, QString> actionToRecentFile;
             QMenu* recentFilesMenu = nullptr;
+            QActionGroup* compareActionGroup = nullptr;
+            QMap<QAction*, render::CompareMode> actionToCompare;
+            QMap<render::CompareMode, QAction*> compareToActions;
             QActionGroup* channelsActionGroup = nullptr;
             QMap<QAction*, render::Channels> actionToChannels;
             QMap<render::Channels, QAction*> channelsToActions;
@@ -109,31 +112,101 @@ namespace tl
 
             p.actions["File/Open"] = new QAction(this);
             p.actions["File/Open"]->setText(tr("Open"));
-            p.actions["File/Open"]->setShortcut(QKeySequence::Open);
+            p.actions["File/Open"]->setIcon(QIcon(":/Icons/Open.svg"));
+            p.actions["File/Open"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_O));
+            p.actions["File/Open"]->setToolTip(tr("Open a file"));
             p.actions["File/OpenWithAudio"] = new QAction(this);
             p.actions["File/OpenWithAudio"]->setText(tr("Open With Audio"));
+            p.actions["File/OpenWithAudio"]->setIcon(QIcon(":/Icons/OpenWithAudio.svg"));
             p.actions["File/OpenWithAudio"]->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_O));
+            p.actions["File/OpenWithAudio"]->setToolTip(tr("Open a file with audio"));
             p.actions["File/Close"] = new QAction(this);
             p.actions["File/Close"]->setText(tr("Close"));
-            p.actions["File/Close"]->setShortcut(QKeySequence::Close);
+            p.actions["File/Close"]->setIcon(QIcon(":/Icons/Close.svg"));
+            p.actions["File/Close"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_E));
+            p.actions["File/Close"]->setToolTip(tr("Close the current file"));
             p.actions["File/CloseAll"] = new QAction(this);
             p.actions["File/CloseAll"]->setText(tr("Close All"));
+            p.actions["File/CloseAll"]->setIcon(QIcon(":/Icons/CloseAll.svg"));
+            p.actions["File/CloseAll"]->setToolTip(tr("Close all files"));
             p.actions["File/Next"] = new QAction(this);
             p.actions["File/Next"]->setText(tr("Next"));
-            p.actions["File/Next"]->setShortcut(QKeySequence::MoveToNextPage);
+            p.actions["File/Next"]->setIcon(QIcon(":/Icons/Next.svg"));
+            p.actions["File/Next"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_PageDown));
+            p.actions["File/Next"]->setToolTip(tr("Go to the next file"));
             p.actions["File/Prev"] = new QAction(this);
             p.actions["File/Prev"]->setText(tr("Previous"));
-            p.actions["File/Prev"]->setShortcut(QKeySequence::MoveToPreviousPage);
+            p.actions["File/Prev"]->setIcon(QIcon(":/Icons/Prev.svg"));
+            p.actions["File/Prev"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_PageUp));
+            p.actions["File/Prev"]->setToolTip(tr("Go to the previous file"));
             p.actions["File/NextLayer"] = new QAction(this);
             p.actions["File/NextLayer"]->setText(tr("Next Layer"));
+            p.actions["File/NextLayer"]->setIcon(QIcon(":/Icons/NextLayer.svg"));
             p.actions["File/NextLayer"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Equal));
+            p.actions["File/NextLayer"]->setToolTip(tr("Go to the next layer"));
             p.actions["File/PrevLayer"] = new QAction(this);
             p.actions["File/PrevLayer"]->setText(tr("Previous Layer"));
+            p.actions["File/PrevLayer"]->setIcon(QIcon(":/Icons/PrevLayer.svg"));
             p.actions["File/PrevLayer"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Minus));
+            p.actions["File/PrevLayer"]->setToolTip(tr("Go to the previous layer"));
             p.recentFilesActionGroup = new QActionGroup(this);
             p.actions["File/Exit"] = new QAction(this);
             p.actions["File/Exit"]->setText(tr("Exit"));
-            p.actions["File/Exit"]->setShortcut(QKeySequence::Quit);
+            p.actions["File/Exit"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Q));
+
+            p.actions["Compare/A"] = new QAction(this);
+            p.actions["Compare/A"]->setCheckable(true);
+            p.actions["Compare/A"]->setText(tr("A"));
+            p.actions["Compare/A"]->setIcon(QIcon(":/Icons/CompareA.svg"));
+            p.actions["Compare/A"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_A));
+            p.actions["Compare/A"]->setToolTip(tr("Show the A file"));
+            p.actions["Compare/B"] = new QAction(this);
+            p.actions["Compare/B"]->setCheckable(true);
+            p.actions["Compare/B"]->setText(tr("B"));
+            p.actions["Compare/B"]->setIcon(QIcon(":/Icons/CompareB.svg"));
+            p.actions["Compare/B"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_B));
+            p.actions["Compare/B"]->setToolTip(tr("Show the B file"));
+            p.actions["Compare/Wipe"] = new QAction(this);
+            p.actions["Compare/Wipe"]->setCheckable(true);
+            p.actions["Compare/Wipe"]->setText(tr("Wipe"));
+            p.actions["Compare/Wipe"]->setIcon(QIcon(":/Icons/CompareWipe.svg"));
+            p.actions["Compare/Wipe"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_W));
+            p.actions["Compare/Wipe"]->setToolTip(tr("Wipe between the A and B files"));
+            p.actions["Compare/Tile"] = new QAction(this);
+            p.actions["Compare/Tile"]->setCheckable(true);
+            p.actions["Compare/Tile"]->setText(tr("Tile"));
+            p.actions["Compare/Tile"]->setIcon(QIcon(":/Icons/CompareTile.svg"));
+            p.actions["Compare/Tile"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_T));
+            p.actions["Compare/Tile"]->setToolTip(tr("Tile the A and B files"));
+            p.compareActionGroup = new QActionGroup(this);
+            p.compareActionGroup->setExclusive(true);
+            p.compareActionGroup->addAction(p.actions["Compare/A"]);
+            p.compareActionGroup->addAction(p.actions["Compare/B"]);
+            p.compareActionGroup->addAction(p.actions["Compare/Wipe"]);
+            p.compareActionGroup->addAction(p.actions["Compare/Tile"]);
+            p.actionToCompare[p.actions["Compare/A"]] = render::CompareMode::A;
+            p.actionToCompare[p.actions["Compare/B"]] = render::CompareMode::B;
+            p.actionToCompare[p.actions["Compare/Wipe"]] = render::CompareMode::Wipe;
+            p.actionToCompare[p.actions["Compare/Tile"]] = render::CompareMode::Tile;
+            p.compareToActions[render::CompareMode::A] = p.actions["Compare/A"];
+            p.compareToActions[render::CompareMode::B] = p.actions["Compare/B"];
+            p.compareToActions[render::CompareMode::Wipe] = p.actions["Compare/Wipe"];
+            p.compareToActions[render::CompareMode::Tile] = p.actions["Compare/Tile"];
+            p.actions["Compare/Next"] = new QAction(this);
+            p.actions["Compare/Next"]->setText(tr("Next"));
+            p.actions["Compare/Next"]->setIcon(QIcon(":/Icons/Next.svg"));
+            p.actions["Compare/Next"]->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_PageDown));
+            p.actions["Compare/Next"]->setToolTip(tr("Change B to the next file"));
+            p.actions["Compare/Prev"] = new QAction(this);
+            p.actions["Compare/Prev"]->setText(tr("Previous"));
+            p.actions["Compare/Prev"]->setIcon(QIcon(":/Icons/Prev.svg"));
+            p.actions["Compare/Prev"]->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_PageUp));
+            p.actions["Compare/Prev"]->setToolTip(tr("Change B to the previous file"));
+            p.actions["Compare/Clear"] = new QAction(this);
+            p.actions["Compare/Clear"]->setText(tr("Clear"));
+            p.actions["Compare/Clear"]->setIcon(QIcon(":/Icons/Reset.svg"));
+            p.actions["Compare/Clear"]->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_B));
+            p.actions["Compare/Clear"]->setToolTip(tr("Clear the B files"));
 
             p.actions["Window/Resize1280x720"] = new QAction(this);
             p.actions["Window/Resize1280x720"]->setText(tr("Resize 1280x720"));
@@ -321,6 +394,18 @@ namespace tl
             fileMenu->addSeparator();
             fileMenu->addAction(p.actions["File/Exit"]);
 
+            auto compareMenu = new QMenu;
+            compareMenu->setTitle(tr("&Compare"));
+            compareMenu->addAction(p.actions["Compare/A"]);
+            compareMenu->addAction(p.actions["Compare/B"]);
+            compareMenu->addAction(p.actions["Compare/Wipe"]);
+            compareMenu->addAction(p.actions["Compare/Tile"]);
+            compareMenu->addSeparator();
+            compareMenu->addAction(p.actions["Compare/Next"]);
+            compareMenu->addAction(p.actions["Compare/Prev"]);
+            compareMenu->addSeparator();
+            compareMenu->addAction(p.actions["Compare/Clear"]);
+
             auto windowMenu = new QMenu;
             windowMenu->setTitle(tr("&Window"));
             windowMenu->addAction(p.actions["Window/Resize1280x720"]);
@@ -381,6 +466,7 @@ namespace tl
 
             auto menuBar = new QMenuBar;
             menuBar->addMenu(fileMenu);
+            menuBar->addMenu(compareMenu);
             menuBar->addMenu(windowMenu);
             menuBar->addMenu(imageMenu);
             menuBar->addMenu(playbackMenu);
@@ -392,7 +478,7 @@ namespace tl
             p.timelineWidget->setTimeObject(app->timeObject());
             setCentralWidget(p.timelineWidget);
 
-            p.filesTool = new FilesTool(app->filesModel(), app->getContext());
+            p.filesTool = new FilesTool(p.actions, app);
             auto fileDockWidget = new QDockWidget;
             fileDockWidget->setObjectName("Files");
             fileDockWidget->setWindowTitle(tr("Files"));
@@ -404,7 +490,7 @@ namespace tl
             toolsMenu->addAction(fileDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, fileDockWidget);
 
-            p.compareTool = new CompareTool(app->filesModel(), app->getContext());
+            p.compareTool = new CompareTool(p.actions, app);
             auto compareDockWidget = new QDockWidget;
             compareDockWidget->setObjectName("Compare");
             compareDockWidget->setWindowTitle(tr("Compare"));
@@ -613,6 +699,32 @@ namespace tl
                 &QAction::triggered,
                 app,
                 &App::quit);
+
+            connect(
+                p.compareActionGroup,
+                SIGNAL(triggered(QAction*)),
+                SLOT(_compareCallback(QAction*)));
+            connect(
+                p.actions["Compare/Next"],
+                &QAction::triggered,
+                [app]
+                {
+                    app->filesModel()->nextB();
+                });
+            connect(
+                p.actions["Compare/Prev"],
+                &QAction::triggered,
+                [app]
+                {
+                    app->filesModel()->prevB();
+                });
+            connect(
+                p.actions["Compare/Clear"],
+                &QAction::triggered,
+                [app]
+                {
+                    app->filesModel()->clearB();
+                });
 
             connect(
                 p.actions["Window/Resize1280x720"],
@@ -909,12 +1021,12 @@ namespace tl
                     p.timelinePlayers[0],
                     SIGNAL(playbackChanged(tl::timeline::Playback)),
                     this,
-                    SLOT(p.playbackCallback(tl::timeline::Playback)));
+                    SLOT(_playbackCallback(tl::timeline::Playback)));
                 disconnect(
                     p.timelinePlayers[0],
                     SIGNAL(loopChanged(tl::timeline::Loop)),
                     this,
-                    SLOT(p.loopCallback(tl::timeline::Loop)));
+                    SLOT(_loopCallback(tl::timeline::Loop)));
                 disconnect(
                     p.timelinePlayers[0],
                     SIGNAL(audioOffsetChanged(double)),
@@ -1081,6 +1193,18 @@ namespace tl
             _recentFilesUpdate();
         }
 
+        void MainWindow::_compareCallback(QAction* action)
+        {
+            TLRENDER_P();
+            const auto i = p.actionToCompare.find(action);
+            if (i != p.actionToCompare.end())
+            {
+                auto compareOptions = p.compareOptions;
+                compareOptions.mode = action->isChecked() ? i.value() : render::CompareMode::A;
+                p.app->filesModel()->setCompareOptions(compareOptions);
+            }
+        }
+
         void MainWindow::_secondaryWindowCallback(bool value)
         {
             TLRENDER_P();
@@ -1128,7 +1252,7 @@ namespace tl
                 const auto i = p.actionToChannels.find(action);
                 if (i != p.actionToChannels.end())
                 {
-                    render::ImageOptions imageOptions = p.imageOptions[0];
+                    auto imageOptions = p.imageOptions[0];
                     imageOptions.channels = action->isChecked() ? i.value() : render::Channels::Color;
                     p.app->filesModel()->setImageOptions(imageOptions);
                 }
@@ -1243,6 +1367,14 @@ namespace tl
             p.actions["File/NextLayer"]->setEnabled(count > 0);
             p.actions["File/PrevLayer"]->setEnabled(count > 0);
 
+            p.actions["Compare/A"]->setEnabled(count > 0);
+            p.actions["Compare/B"]->setEnabled(count > 0);
+            p.actions["Compare/Wipe"]->setEnabled(count > 0);
+            p.actions["Compare/Tile"]->setEnabled(count > 0);
+            p.actions["Compare/Clear"]->setEnabled(count > 0);
+            p.actions["Compare/Next"]->setEnabled(count > 0);
+            p.actions["Compare/Prev"]->setEnabled(count > 0);
+
             p.actions["Image/RedChannel"]->setEnabled(count > 0);
             p.actions["Image/GreenChannel"]->setEnabled(count > 0);
             p.actions["Image/BlueChannel"]->setEnabled(count > 0);
@@ -1279,6 +1411,14 @@ namespace tl
 
             if (!p.timelinePlayers.empty())
             {
+                {
+                    QSignalBlocker blocker(p.compareActionGroup);
+                    auto compareAction = p.compareToActions.find(p.compareOptions.mode);
+                    if (compareAction != p.compareToActions.end())
+                    {
+                        compareAction.value()->setChecked(true);
+                    }
+                }
                 {
                     QSignalBlocker blocker(p.channelsActionGroup);
                     p.actions["Image/RedChannel"]->setChecked(false);
@@ -1347,6 +1487,10 @@ namespace tl
             }
             else
             {
+                {
+                    QSignalBlocker blocker(p.compareActionGroup);
+                    p.actions["Compare/A"]->setChecked(true);
+                }
                 {
                     QSignalBlocker blocker(p.channelsActionGroup);
                     p.actions["Image/RedChannel"]->setChecked(false);

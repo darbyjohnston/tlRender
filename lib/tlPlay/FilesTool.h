@@ -8,14 +8,9 @@
 
 namespace tl
 {
-    namespace core
-    {
-        class Context;
-    }
-
     namespace play
     {
-        class FilesModel;
+        class App;
 
         //! Files tool.
         class FilesTool : public ToolWidget
@@ -24,8 +19,8 @@ namespace tl
 
         public:
             FilesTool(
-                const std::shared_ptr<FilesModel>&,
-                const std::shared_ptr<core::Context>&,
+                const QMap<QString, QAction*>&,
+                App*,
                 QWidget* parent = nullptr);
 
             ~FilesTool() override;

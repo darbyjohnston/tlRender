@@ -206,6 +206,19 @@ namespace tl
             }
         }
 
+        void FilesModel::clearB()
+        {
+            TLRENDER_P();
+            if (!p.b->isEmpty())
+            {
+                p.b->clear();
+
+                p.active->setIfChanged(_getActive());
+                p.layers->setIfChanged(_getLayers());
+                p.imageOptions->setIfChanged(_getImageOptions());
+            }
+        }
+
         void FilesModel::first()
         {
             TLRENDER_P();
@@ -271,6 +284,88 @@ namespace tl
                 p.layers->setIfChanged(_getLayers());
                 p.imageOptions->setIfChanged(_getImageOptions());
             }
+        }
+
+        void FilesModel::firstB()
+        {
+            TLRENDER_P();
+
+            p.b->clear();
+            if (!p.files->isEmpty())
+            {
+                p.b->pushBack(p.files->getItem(0));
+            }
+
+            p.active->setIfChanged(_getActive());
+            p.layers->setIfChanged(_getLayers());
+            p.imageOptions->setIfChanged(_getImageOptions());
+        }
+
+        void FilesModel::lastB()
+        {
+            TLRENDER_P();
+
+            p.b->clear();
+            if (!p.files->isEmpty())
+            {
+                p.b->pushBack(p.files->getItem(p.files->getSize() - 1));
+            }
+
+            p.active->setIfChanged(_getActive());
+            p.layers->setIfChanged(_getLayers());
+            p.imageOptions->setIfChanged(_getImageOptions());
+        }
+
+        void FilesModel::nextB()
+        {
+            TLRENDER_P();
+
+            int index = 0;
+            const auto bIndexes = _bIndexes();
+            if (!bIndexes.empty())
+            {
+                index = bIndexes[bIndexes.size() - 1];
+                ++index;
+            }
+            if (index >= p.files->getSize())
+            {
+                index = 0;
+            }
+            p.b->clear();
+            if (index >= 0 && index <= p.files->getSize())
+            {
+                p.b->pushBack(p.files->getItem(index));
+            }
+
+            p.active->setIfChanged(_getActive());
+            p.layers->setIfChanged(_getLayers());
+            p.imageOptions->setIfChanged(_getImageOptions());
+        }
+
+        void FilesModel::prevB()
+        {
+            TLRENDER_P();
+
+            int index = 0;
+            const auto bIndexes = _bIndexes();
+            if (!bIndexes.empty())
+            {
+                index = bIndexes[0];
+                --index;
+            }
+            if (index < 0)
+            {
+                index = static_cast<int>(p.files->getSize()) - 1;
+            }
+            p.b->clear();
+            if (index >= 0 && index <= p.files->getSize())
+            {
+                p.b->pushBack(p.files->getItem(index));
+            }
+
+            p.active->setIfChanged(_getActive());
+            p.layers->setIfChanged(_getLayers());
+            p.imageOptions->setIfChanged(_getImageOptions());
         }
 
         std::shared_ptr<observer::IList<int> > FilesModel::observeLayers() const

@@ -12,7 +12,7 @@ namespace tl
 {
     namespace play
     {
-        class FilesModel;
+        class App;
 
         //! Compare tool.
         class CompareTool : public ToolWidget
@@ -21,8 +21,8 @@ namespace tl
 
         public:
             CompareTool(
-                const std::shared_ptr<FilesModel>&,
-                const std::shared_ptr<core::Context>&,
+                const QMap<QString, QAction*>&,
+                App*,
                 QWidget* parent = nullptr);
 
             ~CompareTool() override;
@@ -32,7 +32,6 @@ namespace tl
 
         private Q_SLOTS:
             void _activatedCallback(const QModelIndex&);
-            void _modeCallback(const QVariant&);
             void _wipeXSpinBoxCallback(double);
             void _wipeXSliderCallback(int);
             void _wipeYSpinBoxCallback(double);

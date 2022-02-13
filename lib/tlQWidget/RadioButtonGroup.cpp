@@ -130,6 +130,8 @@ namespace tl
                 break;
             default: break;
             }
+            p.buttonLayout->setContentsMargins(0, 0, 0, 0);
+            p.layout->setContentsMargins(0, 0, 0, 0);
             for (auto i : p.toButton)
             {
                 p.buttonLayout->addWidget(i);

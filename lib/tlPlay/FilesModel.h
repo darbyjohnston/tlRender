@@ -85,6 +85,9 @@ namespace tl
             //! Toggle a B file.
             void toggleB(int index);
 
+            //! Clear the B files.
+            void clearB();
+
             //! Set the A file to the first file.
             void first();
 
@@ -96,6 +99,18 @@ namespace tl
 
             //! Set the A file to the previous file.
             void prev();
+
+            //! Set the A file to the first file.
+            void firstB();
+
+            //! Set the A file to the list file.
+            void lastB();
+
+            //! Set the A file to the next file.
+            void nextB();
+
+            //! Set the A file to the previous file.
+            void prevB();
 
             //! Observe the layers.
             std::shared_ptr<observer::IList<int> > observeLayers() const;

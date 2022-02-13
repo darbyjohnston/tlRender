@@ -7,8 +7,6 @@
 #include <tlPlay/FilesModel.h>
 #include <tlPlay/FilesView.h>
 
-#include <tlQWidget/RadioButtonGroup.h>
-
 #include <tlQt/Util.h>
 
 #include <QBoxLayout>
@@ -19,6 +17,7 @@
 #include <QSignalBlocker>
 #include <QSlider>
 #include <QSettings>
+#include <QToolBar>
 #include <QTreeView>
 
 namespace tl
@@ -32,11 +31,10 @@ namespace tl
 
         struct CompareTool::Private
         {
-            std::shared_ptr<FilesModel> filesModel;
+            App* app = nullptr;
             FilesBModel* filesBModel = nullptr;
             render::CompareOptions compareOptions;
             QTreeView* treeView = nullptr;
-            qwidget::RadioButtonGroup* modeButtonGroup = nullptr;
             QDoubleSpinBox* wipeXSpinBox = nullptr;
             QSlider* wipeXSlider = nullptr;
             QDoubleSpinBox* wipeYSpinBox = nullptr;
@@ -46,17 +44,17 @@ namespace tl
         };
 
         CompareTool::CompareTool(
-            const std::shared_ptr<FilesModel>& filesModel,
-            const std::shared_ptr<core::Context>& context,
+            const QMap<QString, QAction*>& actions,
+            App* app,
             QWidget* parent) :
             ToolWidget(parent),
             _p(new Private)
         {
             TLRENDER_P();
 
-            p.filesModel = filesModel;
+            p.app = app;
 
-            p.filesBModel = new FilesBModel(filesModel, context, this);
+            p.filesBModel = new FilesBModel(app->filesModel(), app->getContext(), this);
 
             p.treeView = new QTreeView;
             p.treeView->setAllColumnsShowFocus(true);
@@ -69,13 +67,18 @@ namespace tl
             //! QBasicTimer::start: QBasicTimer can only be used with threads started with QThread
             p.treeView->setModel(p.filesBModel);
 
-            p.modeButtonGroup = new qwidget::RadioButtonGroup;
-            for (const auto i : render::getCompareModeEnums())
-            {
-                p.modeButtonGroup->addButton(
-                    QString::fromUtf8(render::getLabel(i).c_str()),
-                    QVariant::fromValue<render::CompareMode>(i));
-            }
+            auto toolBar = new QToolBar;
+            toolBar->setToolButtonStyle(Qt::ToolButtonIconOnly);
+            toolBar->setIconSize(QSize(20, 20));
+            toolBar->addAction(actions["Compare/A"]);
+            toolBar->addAction(actions["Compare/B"]);
+            toolBar->addAction(actions["Compare/Wipe"]);
+            toolBar->addAction(actions["Compare/Tile"]);
+            toolBar->addSeparator();
+            toolBar->addAction(actions["Compare/Prev"]);
+            toolBar->addAction(actions["Compare/Next"]);
+            toolBar->addSeparator();
+            toolBar->addAction(actions["Compare/Clear"]);
 
             p.wipeXSpinBox = new QDoubleSpinBox;
             p.wipeXSpinBox->setRange(0.0, 1.0);
@@ -99,10 +102,10 @@ namespace tl
             layout->setContentsMargins(0, 0, 0, 0);
             layout->setSpacing(0);
             layout->addWidget(p.treeView);
+            layout->addWidget(toolBar);
             auto vLayout = new QVBoxLayout;
             vLayout->setContentsMargins(10, 10, 10, 10);
             vLayout->setSpacing(10);
-            vLayout->addWidget(p.modeButtonGroup);
             vLayout->addWidget(new QLabel(tr("Wipe")));
             auto formLayout = new QFormLayout;
             auto hLayout = new QHBoxLayout;
@@ -136,11 +139,6 @@ namespace tl
                 p.treeView,
                 SIGNAL(activated(const QModelIndex&)),
                 SLOT(_activatedCallback(const QModelIndex&)));
-
-            connect(
-                p.modeButtonGroup,
-                SIGNAL(checked(const QVariant&)),
-                SLOT(_modeCallback(const QVariant&)));
 
             connect(
                 p.wipeXSpinBox,
@@ -189,15 +187,7 @@ namespace tl
         void CompareTool::_activatedCallback(const QModelIndex& index)
         {
             TLRENDER_P();
-            p.filesModel->toggleB(index.row());
-        }
-
-        void CompareTool::_modeCallback(const QVariant& value)
-        {
-            TLRENDER_P();
-            p.compareOptions.mode = value.value<render::CompareMode>();
-            _widgetUpdate();
-            Q_EMIT compareOptionsChanged(p.compareOptions);
+            p.app->filesModel()->toggleB(index.row());
         }
 
         void CompareTool::_wipeXSpinBoxCallback(double value)
@@ -251,10 +241,6 @@ namespace tl
         void CompareTool::_widgetUpdate()
         {
             TLRENDER_P();
-            {
-                QSignalBlocker signalBlocker(p.modeButtonGroup);
-                p.modeButtonGroup->setChecked(QVariant::fromValue<render::CompareMode>(p.compareOptions.mode));
-            }
             {
                 QSignalBlocker signalBlocker(p.wipeXSpinBox);
                 p.wipeXSpinBox->setValue(p.compareOptions.wipeCenter.x);
