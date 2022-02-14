@@ -996,7 +996,7 @@ namespace tl
             {
                 const float radius = std::max(p.size.w, p.size.h) * 2.5F;
                 const float x = p.size.w * compareOptions.wipeCenter.x;
-                const float y = p.size.w * compareOptions.wipeCenter.y;
+                const float y = p.size.h * compareOptions.wipeCenter.y;
                 const float rotation = compareOptions.wipeRotation;
                 math::Vector2f pts[4];
                 for (size_t i = 0; i < 4; ++i)
