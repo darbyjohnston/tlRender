@@ -9,6 +9,8 @@
 #include <QAbstractButton>
 #include <QVariant>
 
+#include <memory>
+
 namespace tl
 {
     namespace qwidget
