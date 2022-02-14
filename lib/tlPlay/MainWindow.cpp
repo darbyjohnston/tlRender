@@ -19,6 +19,7 @@
 #include <tlPlay/SettingsTool.h>
 #include <tlPlay/SystemLogTool.h>
 
+#include <tlQWidget/TimelineViewport.h>
 #include <tlQWidget/TimelineWidget.h>
 #include <tlQWidget/Util.h>
 
@@ -228,6 +229,19 @@ namespace tl
             p.actions["Window/SecondaryFloatOnTop"]->setCheckable(true);
             p.actions["Window/SecondaryFloatOnTop"]->setText(tr("Secondary Float On Top"));
 
+            p.actions["View/Frame"] = new QAction(this);
+            p.actions["View/Frame"]->setText(tr("Frame"));
+            p.actions["View/Frame"]->setShortcut(QKeySequence(Qt::Key_Backspace));
+            p.actions["View/Zoom1To1"] = new QAction(this);
+            p.actions["View/Zoom1To1"]->setText(tr("Zoom 1:1"));
+            p.actions["View/Zoom1To1"]->setShortcut(QKeySequence(Qt::Key_0));
+            p.actions["View/ZoomIn"] = new QAction(this);
+            p.actions["View/ZoomIn"]->setText(tr("Zoom In"));
+            p.actions["View/ZoomIn"]->setShortcut(QKeySequence(Qt::Key_Equal));
+            p.actions["View/ZoomOut"] = new QAction(this);
+            p.actions["View/ZoomOut"]->setText(tr("Zoom Out"));
+            p.actions["View/ZoomOut"]->setShortcut(QKeySequence(Qt::Key_Minus));
+
             p.actions["Image/RedChannel"] = new QAction(this);
             p.actions["Image/RedChannel"]->setCheckable(true);
             p.actions["Image/RedChannel"]->setText(tr("Red Channel"));
@@ -417,6 +431,13 @@ namespace tl
             windowMenu->addAction(p.actions["Window/Secondary"]);
             windowMenu->addAction(p.actions["Window/SecondaryFloatOnTop"]);
 
+            auto viewMenu = new QMenu;
+            viewMenu->setTitle(tr("&View"));
+            viewMenu->addAction(p.actions["View/Frame"]);
+            viewMenu->addAction(p.actions["View/Zoom1To1"]);
+            viewMenu->addAction(p.actions["View/ZoomIn"]);
+            viewMenu->addAction(p.actions["View/ZoomOut"]);
+
             auto imageMenu = new QMenu;
             imageMenu->setTitle(tr("&Image"));
             imageMenu->addAction(p.actions["Image/RedChannel"]);
@@ -468,6 +489,7 @@ namespace tl
             menuBar->addMenu(fileMenu);
             menuBar->addMenu(compareMenu);
             menuBar->addMenu(windowMenu);
+            menuBar->addMenu(viewMenu);
             menuBar->addMenu(imageMenu);
             menuBar->addMenu(playbackMenu);
             menuBar->addMenu(audioMenu);
@@ -785,6 +807,35 @@ namespace tl
                         }
                         _p->secondaryWindow->show();
                     }
+                });
+
+            connect(
+                p.actions["View/Frame"],
+                &QAction::triggered,
+                [this]
+                {
+                    _p->timelineWidget->viewport()->frameView();
+                });
+            connect(
+                p.actions["View/Zoom1To1"],
+                &QAction::triggered,
+                [this]
+                {
+                    _p->timelineWidget->viewport()->viewZoom1To1();
+                });
+            connect(
+                p.actions["View/ZoomIn"],
+                &QAction::triggered,
+                [this]
+                {
+                    _p->timelineWidget->viewport()->viewZoomIn();
+                });
+            connect(
+                p.actions["View/ZoomOut"],
+                &QAction::triggered,
+                [this]
+                {
+                    _p->timelineWidget->viewport()->viewZoomOut();
                 });
 
             connect(

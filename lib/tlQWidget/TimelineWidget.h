@@ -16,6 +16,8 @@ namespace tl
 {
     namespace qwidget
     {
+        class TimelineViewport;
+
         //! Timeline widget.
         class TimelineWidget : public QWidget
         {
@@ -27,6 +29,9 @@ namespace tl
                 QWidget* parent = nullptr);
             
             ~TimelineWidget() override;
+
+            //! Get the viewport.
+            TimelineViewport* viewport() const;
 
             //! Set the time object.
             void setTimeObject(qt::TimeObject*);

@@ -39,14 +39,48 @@ namespace tl
             //! Set the timeline players.
             void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
 
+            //! Get the view position.
+            const math::Vector2i& viewPos() const;
+
+            //! Get the view zoom.
+            float viewZoom() const;
+
+        public Q_SLOTS:
+            //! Set the view position and zoom.
+            void setViewPosAndZoom(const math::Vector2i&, float);
+
+            //! Set the view zoom.
+            void setViewZoom(float, const math::Vector2i& focus = math::Vector2i());
+
+            //! Frame the view.
+            void frameView();
+
+            //! Set the view zoom to 1:1.
+            void viewZoom1To1();
+
+            //! Zoom the view in.
+            void viewZoomIn();
+
+            //! Zoom the view out.
+            void viewZoomOut();
+
         private Q_SLOTS:
             void _videoCallback(const tl::timeline::VideoData&);
 
         protected:
             void initializeGL() override;
+            void resizeGL(int w, int h) override;
             void paintGL() override;
+            void enterEvent(QEvent*) override;
+            void leaveEvent(QEvent*) override;
+            void mousePressEvent(QMouseEvent*) override;
+            void mouseReleaseEvent(QMouseEvent*) override;
+            void mouseMoveEvent(QMouseEvent*) override;
 
         private:
+            void _frameView();
+            math::Vector2i _center() const;
+
             TLRENDER_PRIVATE();
         };
     }

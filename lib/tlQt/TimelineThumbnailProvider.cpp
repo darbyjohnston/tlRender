@@ -4,6 +4,7 @@
 
 #include <tlQt/TimelineThumbnailProvider.h>
 
+#include <tlGL/OffscreenBuffer.h>
 #include <tlGL/Render.h>
 
 #include <tlCore/TimelinePlayer.h>
@@ -11,7 +12,6 @@
 #include <QImage>
 #include <QOffscreenSurface>
 #include <QOpenGLContext>
-#include <QOpenGLFramebufferObject>
 #include <QSurfaceFormat>
 
 #include <atomic>
@@ -169,9 +169,7 @@ namespace tl
             {
                 auto render = gl::Render::create(context);
 
-                std::unique_ptr<QOpenGLFramebufferObject> fbo;
-                imaging::Info fboInfo;
-
+                std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer;
                 imaging::ColorConfig colorConfig;
                 while (p.running)
                 {
@@ -184,7 +182,10 @@ namespace tl
                             p.requestTimeout,
                             [this]
                             {
-                                return !_p->requests.empty() || _p->cancelRequests || !_p->requestsInProgress.empty();
+                                return
+                                    !_p->requests.empty() ||
+                                    !_p->requestsInProgress.empty() ||
+                                    _p->cancelRequests;
                             }))
                         {
                             colorConfig = p.colorConfig;
@@ -224,18 +225,41 @@ namespace tl
                             requestIt->future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                         {
                             const auto videoData = requestIt->future.get();
-
-                            const imaging::Info info(requestIt->size.width(), requestIt->size.height(), imaging::PixelType::RGBA_U8);
-                            if (info != fboInfo)
-                            {
-                                fbo.reset(new QOpenGLFramebufferObject(info.size.w, info.size.h));
-                                fboInfo = info;
-                            }
-                            fbo->bind();
+                            const imaging::Info info(
+                                requestIt->size.width(),
+                                requestIt->size.height(),
+                                imaging::PixelType::RGBA_U8);
+                            std::vector<uint8_t> pixelData(
+                                static_cast<size_t>(info.size.w) *
+                                static_cast<size_t>(info.size.h) * 4);
 
                             try
                             {
+                                if (!offscreenBuffer ||
+                                    (offscreenBuffer && offscreenBuffer->getSize() != info.size))
+                                {
+                                    gl::OffscreenBufferOptions options;
+                                    options.colorType = imaging::PixelType::RGBA_U8;
+                                    offscreenBuffer = gl::OffscreenBuffer::create(info.size, options);
+                                }
+
                                 render->setColorConfig(colorConfig);
+
+                                gl::OffscreenBufferBinding binding(offscreenBuffer);
+
+                                render->begin(info.size);
+                                render->drawVideo({ videoData });
+                                render->end();
+
+                                glPixelStorei(GL_PACK_ALIGNMENT, 1);
+                                glReadPixels(
+                                    0,
+                                    0,
+                                    info.size.w,
+                                    info.size.h,
+                                    GL_RGBA,
+                                    GL_UNSIGNED_BYTE,
+                                    pixelData.data());
                             }
                             catch (const std::exception& e)
                             {
@@ -244,29 +268,13 @@ namespace tl
                                     e.what(),
                                     core::LogType::Error);
                             }
-                            
-                            render->begin(info.size);
-                            render->drawVideo({ videoData });
-                            render->end();
-                            std::vector<uint8_t> pixels(
-                                static_cast<size_t>(info.size.w) *
-                                static_cast<size_t>(info.size.h) * 4);
-                            glPixelStorei(GL_PACK_ALIGNMENT, 1);
-                            glReadPixels(
-                                0,
-                                0,
-                                info.size.w,
-                                info.size.h,
-                                GL_RGBA,
-                                GL_UNSIGNED_BYTE,
-                                pixels.data());
+
                             const auto qImage = QImage(
-                                pixels.data(),
+                                pixelData.data(),
                                 info.size.w,
                                 info.size.h,
                                 info.size.w * 4,
                                 QImage::Format_RGBA8888).mirrored();
-
                             {
                                 std::unique_lock<std::mutex> lock(p.mutex);
                                 p.results.push_back(QPair<otime::RationalTime, QImage>(requestIt->time, qImage));

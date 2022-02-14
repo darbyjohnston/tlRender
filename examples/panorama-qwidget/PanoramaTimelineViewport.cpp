@@ -76,11 +76,11 @@ void PanoramaTimelineViewport::_videoCallback(const timeline::VideoData& value)
 
 void PanoramaTimelineViewport::initializeGL()
 {
-    // Initialize GLAD.
-    gladLoaderLoadGL();
-
     try
     {
+        // Initialize GLAD.
+        gladLoaderLoadGL();
+
         // Create the sphere mesh.
         _sphereMesh = geom::createSphere(10.F, 100, 100);
         auto vboData = convert(
@@ -151,7 +151,9 @@ void PanoramaTimelineViewport::paintGL()
         // Create the offscreen buffer.
         if (!_buffer || (_buffer && _buffer->getSize() != _videoSize))
         {
-            _buffer = gl::OffscreenBuffer::create(_videoSize, imaging::PixelType::RGBA_F32);
+            gl::OffscreenBufferOptions options;
+            options.colorType = imaging::PixelType::RGBA_F32;
+            _buffer = gl::OffscreenBuffer::create(_videoSize, options);
         }
 
         // Render the video data into the offscreen buffer.
@@ -179,27 +181,26 @@ void PanoramaTimelineViewport::paintGL()
         0,
         GLsizei(windowSize.width()),
         GLsizei(windowSize.height()));
-    glClearColor(1.F, 0.F, 0.F, 0.F);
+    glClearColor(0.F, 0.F, 0.F, 0.F);
     glClear(GL_COLOR_BUFFER_BIT);
-    glm::mat4x4 v(1.F);
-    glm::mat4x4 p(1.F);
-    v = glm::translate(v, glm::vec3(0.F, 0.F, 0.F));
-    v = glm::rotate(v, math::deg2rad(_cameraRotation.x), glm::vec3(1.F, 0.F, 0.F));
-    v = glm::rotate(v, math::deg2rad(_cameraRotation.y), glm::vec3(0.F, 1.F, 0.F));
-    p = glm::perspective(
+    glm::mat4x4 vm(1.F);
+    vm = glm::translate(vm, glm::vec3(0.F, 0.F, 0.F));
+    vm = glm::rotate(vm, math::deg2rad(_cameraRotation.x), glm::vec3(1.F, 0.F, 0.F));
+    vm = glm::rotate(vm, math::deg2rad(_cameraRotation.y), glm::vec3(0.F, 1.F, 0.F));
+    const glm::mat4x4 pm = glm::perspective(
         math::deg2rad(_cameraFOV),
         windowSize.width() / static_cast<float>(windowSize.height() > 0 ? windowSize.height() : 1),
         .1F,
         10000.F);
     _shader->bind();
-    const glm::mat4x4 vp = p * v;
+    const glm::mat4x4 vpm = pm * vm;
     _shader->setUniform(
         "transform.mvp",
         math::Matrix4x4f(
-            vp[0][0], vp[0][1], vp[0][2], vp[0][3],
-            vp[1][0], vp[1][1], vp[1][2], vp[1][3],
-            vp[2][0], vp[2][1], vp[2][2], vp[2][3],
-            vp[3][0], vp[3][1], vp[3][2], vp[3][3]));
+            vpm[0][0], vpm[0][1], vpm[0][2], vpm[0][3],
+            vpm[1][0], vpm[1][1], vpm[1][2], vpm[1][3],
+            vpm[2][0], vpm[2][1], vpm[2][2], vpm[2][3],
+            vpm[3][0], vpm[3][1], vpm[3][2], vpm[3][3]));
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, _buffer->getColorID());
     _sphereVAO->bind();

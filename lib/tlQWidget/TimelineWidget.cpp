@@ -52,6 +52,11 @@ namespace tl
         TimelineWidget::~TimelineWidget()
         {}
 
+        TimelineViewport* TimelineWidget::viewport() const
+        {
+            return _p->viewport;
+        }
+
         void TimelineWidget::setTimeObject(qt::TimeObject* timeObject)
         {
             TLRENDER_P();

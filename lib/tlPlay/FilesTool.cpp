@@ -38,6 +38,7 @@ namespace tl
         {
             TLRENDER_P();
 
+            p.app = app;
             p.filesAModel = new FilesAModel(app->filesModel(), app->getContext(), this);
 
             p.treeView = new QTreeView;

@@ -1212,9 +1212,12 @@ namespace tl
                 {
                 case timeline::Transition::Dissolve:
                 {
-                    if (!p.offscreenBuffer || (p.offscreenBuffer && p.offscreenBuffer->getSize() != p.size))
+                    if (!p.offscreenBuffer ||
+                        (p.offscreenBuffer && p.offscreenBuffer->getSize() != p.size))
                     {
-                        p.offscreenBuffer = OffscreenBuffer::create(p.size, imaging::PixelType::RGBA_F32);
+                        OffscreenBufferOptions options;
+                        options.colorType = imaging::PixelType::RGBA_F32;
+                        p.offscreenBuffer = OffscreenBuffer::create(p.size, options);
                     }
 
                     {

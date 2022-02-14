@@ -14,6 +14,27 @@ namespace tl
 {
     namespace gl
     {
+        //! Offscreen buffer depth size.
+        enum class OffscreenDepth
+        {
+            None,
+            _24,
+            _32,
+
+            Count,
+            First = None
+        };
+
+        //! Offscreen buffer stencil size.
+        enum class OffscreenStencil
+        {
+            None,
+            _8,
+
+            Count,
+            First = None
+        };
+
         //! Offscreen buffer multisampling.
         enum class OffscreenSampling
         {
@@ -27,7 +48,18 @@ namespace tl
             First = None
         };
 
-        //! OpenGL offscreen buffer.
+        //! Offscreen buffer options.
+        struct OffscreenBufferOptions
+        {
+            imaging::PixelType colorType = imaging::PixelType::None;
+            GLint colorMin = GL_LINEAR;
+            GLint colorMag = GL_LINEAR;
+            OffscreenDepth depth = OffscreenDepth::None;
+            OffscreenStencil stencil = OffscreenStencil::None;
+            OffscreenSampling sampling = OffscreenSampling::None;
+        };
+
+        //! Offscreen buffer.
         class OffscreenBuffer : public std::enable_shared_from_this<OffscreenBuffer>
         {
             TLRENDER_NON_COPYABLE(OffscreenBuffer);
@@ -35,8 +67,7 @@ namespace tl
         protected:
             void _init(
                 const imaging::Size&,
-                imaging::PixelType,
-                OffscreenSampling);
+                const OffscreenBufferOptions&);
             OffscreenBuffer();
 
         public:
@@ -45,27 +76,18 @@ namespace tl
             //! Create a new offscreen buffer.
             static std::shared_ptr<OffscreenBuffer> create(
                 const imaging::Size&,
-                imaging::PixelType);
+                const OffscreenBufferOptions&);
 
-            //! Create a new offscreen buffer.
-            static std::shared_ptr<OffscreenBuffer> create(
-                const imaging::Size&,
-                imaging::PixelType,
-                OffscreenSampling);
-
-            //! Get the size.
+            //! Get the offscreen buffer size.
             const imaging::Size& getSize() const;
 
-            //! Get the color buffer pixel type.
-            imaging::PixelType getColorType() const;
-
-            //! Get the multisampling value.
-            OffscreenSampling getSampling() const;
+            //! Get the options.
+            const OffscreenBufferOptions& getOptions() const;
 
             //! Get the offscreen buffer ID.
             GLuint getID() const;
 
-            //! Get the color buffer ID.
+            //! Get the color texture ID.
             GLuint getColorID() const;
 
             //! Bind the offscreen buffer.
@@ -73,10 +95,10 @@ namespace tl
 
         private:
             imaging::Size _size;
-            imaging::PixelType _colorType = imaging::PixelType::None;
-            OffscreenSampling _sampling = OffscreenSampling::None;
+            OffscreenBufferOptions _options;
             GLuint _id = 0;
             GLuint _colorID = 0;
+            GLuint _depthStencilID = 0;
         };
 
         //! Offscreen Buffer Binding
@@ -84,6 +106,7 @@ namespace tl
         {
         public:
             explicit OffscreenBufferBinding(const std::shared_ptr<OffscreenBuffer>&);
+
             ~OffscreenBufferBinding();
 
         private:
