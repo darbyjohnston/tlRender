@@ -97,6 +97,9 @@ namespace tl
                 SLOT(reject()));
         }
 
+        OpenWithAudioDialog::~OpenWithAudioDialog()
+        {}
+
         const QString& OpenWithAudioDialog::videoFileName() const
         {
             return _p->videoFileName;

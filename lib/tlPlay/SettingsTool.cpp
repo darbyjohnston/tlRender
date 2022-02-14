@@ -72,6 +72,9 @@ namespace tl
                 SLOT(_readBehindCallback(double)));
         }
 
+        CacheSettingsWidget::~CacheSettingsWidget()
+        {}
+
         void CacheSettingsWidget::_readAheadCallback(double value)
         {
             TLRENDER_P();
@@ -172,6 +175,9 @@ namespace tl
                 SIGNAL(maxFileSequenceDigitsChanged(int)),
                 SLOT(_maxDigitsCallback(int)));
         }
+
+        FileSequenceSettingsWidget::~FileSequenceSettingsWidget()
+        {}
 
         void FileSequenceSettingsWidget::_audioCallback(int value)
         {
@@ -335,6 +341,9 @@ namespace tl
                 SLOT(_ffmpegThreadCountCallback(int)));
         }
 
+        PerformanceSettingsWidget::~PerformanceSettingsWidget()
+        {}
+
         void PerformanceSettingsWidget::_timerModeCallback(int value)
         {
             TLRENDER_P();
@@ -429,6 +438,9 @@ namespace tl
                 SLOT(_unitsCallback(tl::qt::TimeUnits)));
         }
 
+        TimeSettingsWidget::~TimeSettingsWidget()
+        {}
+
         void TimeSettingsWidget::_unitsCallback(const QVariant& value)
         {
             TLRENDER_P();
@@ -475,6 +487,9 @@ namespace tl
                 SIGNAL(toolTipsEnabledChanged(bool)),
                 SLOT(_toolTipsCallback(bool)));
         }
+
+        MiscSettingsWidget::~MiscSettingsWidget()
+        {}
 
         void MiscSettingsWidget::_toolTipsCallback(int value)
         {

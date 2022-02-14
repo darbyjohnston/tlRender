@@ -94,5 +94,8 @@ namespace tl
                 p.listWidget,
                 &QListWidget::clear);
         }
+
+        SystemLogTool::~SystemLogTool()
+        {}
     }
 }

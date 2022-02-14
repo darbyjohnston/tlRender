@@ -24,6 +24,8 @@ namespace tl
         public:
             CacheSettingsWidget(SettingsObject*, QWidget* parent = nullptr);
 
+            ~CacheSettingsWidget() override;
+
         private Q_SLOTS:
             void _readAheadCallback(double);
             void _readBehindCallback(double);
@@ -39,6 +41,8 @@ namespace tl
 
         public:
             FileSequenceSettingsWidget(SettingsObject*, QWidget* parent = nullptr);
+
+            ~FileSequenceSettingsWidget() override;
 
         private Q_SLOTS:
             void _audioCallback(int);
@@ -58,6 +62,8 @@ namespace tl
 
         public:
             PerformanceSettingsWidget(SettingsObject*, QWidget* parent = nullptr);
+
+            ~PerformanceSettingsWidget() override;
 
         private Q_SLOTS:
             void _timerModeCallback(int);
@@ -81,6 +87,8 @@ namespace tl
         public:
             TimeSettingsWidget(qt::TimeObject*, QWidget* parent = nullptr);
 
+            ~TimeSettingsWidget() override;
+
         private Q_SLOTS:
             void _unitsCallback(const QVariant&);
             void _unitsCallback(tl::qt::TimeUnits);
@@ -96,6 +104,8 @@ namespace tl
 
         public:
             MiscSettingsWidget(SettingsObject*, QWidget* parent = nullptr);
+
+            ~MiscSettingsWidget() override;
 
         private Q_SLOTS:
             void _toolTipsCallback(int);

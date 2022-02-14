@@ -62,6 +62,9 @@ namespace tl
                 SLOT(_resetCallback()));
         }
 
+        AudioOffsetWidget::~AudioOffsetWidget()
+        {}
+
         void AudioOffsetWidget::setAudioOffset(double value)
         {
             TLRENDER_P();
@@ -127,6 +130,9 @@ namespace tl
                 SIGNAL(audioOffsetChanged(double)),
                 SIGNAL(audioOffsetChanged(double)));
         }
+
+        AudioTool::~AudioTool()
+        {}
 
         void AudioTool::setAudioOffset(double value)
         {

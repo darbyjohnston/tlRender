@@ -80,5 +80,8 @@ namespace tl
                 p.listWidget,
                 &QListWidget::clear);
         }
+
+        MessagesTool::~MessagesTool()
+        {}
     }
 }

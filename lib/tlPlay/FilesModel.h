@@ -157,6 +157,8 @@ namespace tl
                 const std::shared_ptr<core::Context>&,
                 QObject* parent = nullptr);
 
+            ~FilesTableModel() override;
+
             //! Get the files.
             const std::vector<std::shared_ptr<FilesModelItem> >& files() const;
 
@@ -190,6 +192,8 @@ namespace tl
                 const std::shared_ptr<core::Context>&,
                 QObject* parent = nullptr);
 
+            ~FilesAModel() override;
+
             QVariant data(const QModelIndex&, int role = Qt::DisplayRole) const override;
 
         private:
@@ -206,6 +210,8 @@ namespace tl
                 const std::shared_ptr<FilesModel>&,
                 const std::shared_ptr<core::Context>&,
                 QObject* parent = nullptr);
+
+            ~FilesBModel() override;
 
             QVariant data(const QModelIndex&, int role = Qt::DisplayRole) const override;
         private:

@@ -25,6 +25,8 @@ namespace tl
                 const std::shared_ptr<core::Context>&,
                 QWidget* parent = nullptr);
 
+            ~SystemLogTool() override;
+
         private:
             TLRENDER_PRIVATE();
         };

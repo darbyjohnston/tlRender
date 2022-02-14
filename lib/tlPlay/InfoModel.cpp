@@ -22,6 +22,9 @@ namespace tl
             _p(new Private)
         {}
 
+        InfoModel::~InfoModel()
+        {}
+
         void InfoModel::setInfo(const avio::Info& value)
         {
             TLRENDER_P();

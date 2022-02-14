@@ -27,6 +27,8 @@ namespace tl
                 const std::shared_ptr<core::Context>&,
                 QWidget* parent = nullptr);
 
+            ~OpenWithAudioDialog() override;
+
             const QString& videoFileName() const;
             const QString& audioFileName() const;
 

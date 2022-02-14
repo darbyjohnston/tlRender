@@ -614,6 +614,9 @@ namespace tl
                 });
         }
 
+        FilesTableModel::~FilesTableModel()
+        {}
+
         const std::vector<std::shared_ptr<FilesModelItem> >& FilesTableModel::files() const
         {
             return _files;
@@ -833,6 +836,9 @@ namespace tl
                 });
         }
 
+        FilesAModel::~FilesAModel()
+        {}
+
         QVariant FilesAModel::data(const QModelIndex& index, int role) const
         {
             TLRENDER_P();
@@ -909,6 +915,9 @@ namespace tl
                     }
                 });
         }
+
+        FilesBModel::~FilesBModel()
+        {}
 
         QVariant FilesBModel::data(const QModelIndex& index, int role) const
         {

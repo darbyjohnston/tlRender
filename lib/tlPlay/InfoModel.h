@@ -27,6 +27,8 @@ namespace tl
         public:
             InfoModel(QObject* parent = nullptr);
 
+            ~InfoModel() override;
+
             //! Set the information.
             void setInfo(const avio::Info&);
 
