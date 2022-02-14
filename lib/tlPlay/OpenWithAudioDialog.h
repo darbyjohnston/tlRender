@@ -8,6 +8,8 @@
 
 #include <QDialog>
 
+#include <memory>
+
 namespace tl
 {
     namespace core
