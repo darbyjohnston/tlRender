@@ -9,6 +9,8 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+#include <memory>
+
 namespace tl
 {
     namespace play
