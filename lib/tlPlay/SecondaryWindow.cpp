@@ -54,24 +54,9 @@ namespace tl
             settings.setValue(qt::versionedSettingsKey("SecondaryWindow/geometry"), saveGeometry());
         }
 
-        void SecondaryWindow::setColorConfig(const imaging::ColorConfig& value)
+        qwidget::TimelineViewport* SecondaryWindow::viewport() const
         {
-            _p->viewport->setColorConfig(value);
-        }
-
-        void SecondaryWindow::setImageOptions(const std::vector<render::ImageOptions>& value)
-        {
-            _p->viewport->setImageOptions(value);
-        }
-
-        void SecondaryWindow::setCompareOptions(const render::CompareOptions& value)
-        {
-            _p->viewport->setCompareOptions(value);
-        }
-
-        void SecondaryWindow::setTimelinePlayers(const std::vector<qt::TimelinePlayer*>& value)
-        {
-            _p->viewport->setTimelinePlayers(value);
+            return _p->viewport;
         }
 
         void SecondaryWindow::keyPressEvent(QKeyEvent* event)

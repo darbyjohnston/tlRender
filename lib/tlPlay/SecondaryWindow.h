@@ -17,6 +17,11 @@ namespace tl
         class Context;
     }
 
+    namespace qwidget
+    {
+        class TimelineViewport;
+    }
+
     namespace play
     {
         //! Secondary window.
@@ -31,17 +36,8 @@ namespace tl
 
             ~SecondaryWindow() override;
 
-            //! Set the color configuration.
-            void setColorConfig(const imaging::ColorConfig&);
-
-            //! Set the image options.
-            void setImageOptions(const std::vector<render::ImageOptions>&);
-
-            //! Set the comparison options.
-            void setCompareOptions(const render::CompareOptions&);
-
-            //! Set the timeline players.
-            void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
+            //! Get the viewport.
+            qwidget::TimelineViewport* viewport() const;
 
         protected:
             void keyPressEvent(QKeyEvent*) override;

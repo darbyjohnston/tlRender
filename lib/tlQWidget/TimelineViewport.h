@@ -64,6 +64,13 @@ namespace tl
             //! Zoom the view out.
             void viewZoomOut();
 
+        Q_SIGNALS:
+            //! This signal is emitted when the position and zoom change.
+            void viewPosAndZoomChanged(const math::Vector2i&, float);
+
+            //! This signal is emitted when the view is framed.
+            void frameViewActivated();
+
         private Q_SLOTS:
             void _videoCallback(const tl::timeline::VideoData&);
 

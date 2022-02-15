@@ -1262,9 +1262,20 @@ namespace tl
             if (value && !p.secondaryWindow)
             {
                 p.secondaryWindow = new SecondaryWindow(p.app->getContext());
-                p.secondaryWindow->setColorConfig(p.colorConfig);
-                p.secondaryWindow->setCompareOptions(p.compareOptions);
-                p.secondaryWindow->setTimelinePlayers(p.timelinePlayers);
+                p.secondaryWindow->viewport()->setColorConfig(p.colorConfig);
+                p.secondaryWindow->viewport()->setCompareOptions(p.compareOptions);
+                p.secondaryWindow->viewport()->setTimelinePlayers(p.timelinePlayers);
+
+                connect(
+                    p.timelineWidget->viewport(),
+                    SIGNAL(viewPosAndZoomChanged(const math::Vector2i&, float)),
+                    p.secondaryWindow->viewport(),
+                    SLOT(setViewPosAndZoom(const math::Vector2i&, float)));
+                connect(
+                    p.timelineWidget->viewport(),
+                    SIGNAL(frameViewActivated()),
+                    p.secondaryWindow->viewport(),
+                    SLOT(frameView()));
 
                 connect(
                     p.secondaryWindow,
@@ -1588,10 +1599,10 @@ namespace tl
 
             if (p.secondaryWindow)
             {
-                p.secondaryWindow->setTimelinePlayers(p.timelinePlayers);
-                p.secondaryWindow->setColorConfig(p.colorConfig);
-                p.secondaryWindow->setImageOptions(p.imageOptions);
-                p.secondaryWindow->setCompareOptions(p.compareOptions);
+                p.secondaryWindow->viewport()->setTimelinePlayers(p.timelinePlayers);
+                p.secondaryWindow->viewport()->setColorConfig(p.colorConfig);
+                p.secondaryWindow->viewport()->setImageOptions(p.imageOptions);
+                p.secondaryWindow->viewport()->setCompareOptions(p.compareOptions);
             }
         }
     }

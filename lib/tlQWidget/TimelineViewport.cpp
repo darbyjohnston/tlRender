@@ -138,6 +138,7 @@ namespace tl
             p.viewZoom = zoom;
             p.frameView = false;
             update();
+            Q_EMIT viewPosAndZoomChanged(p.viewPos, p.viewZoom);
         }
 
         void TimelineViewport::setViewZoom(float zoom, const math::Vector2i& focus)
@@ -422,6 +423,7 @@ namespace tl
                 p.viewPos.y = p.viewPosMousePress.y + p.mousePos.y - p.mousePress.y;
                 p.frameView = false;
                 update();
+                Q_EMIT viewPosAndZoomChanged(p.viewPos, p.viewZoom);
             }
         }
 
@@ -444,6 +446,8 @@ namespace tl
                     p.viewPos.y = height() / 2.F - c.y * zoom;
                     p.viewZoom = zoom;
                     update();
+                    Q_EMIT viewPosAndZoomChanged(p.viewPos, p.viewZoom);
+                    Q_EMIT frameViewActivated();
                 }
             }
         }
