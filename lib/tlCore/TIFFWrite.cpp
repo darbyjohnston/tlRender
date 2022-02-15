@@ -169,7 +169,7 @@ namespace tl
             const file::Path& path,
             const avio::Info& info,
             const avio::Options& options,
-            const std::shared_ptr<core::LogSystem>& logSystem)
+            const std::weak_ptr<core::LogSystem>& logSystem)
         {
             ISequenceWrite::_init(path, info, options, logSystem);
         }
@@ -184,7 +184,7 @@ namespace tl
             const file::Path& path,
             const avio::Info& info,
             const avio::Options& options,
-            const std::shared_ptr<core::LogSystem>& logSystem)
+            const std::weak_ptr<core::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Write>(new Write);
             out->_init(path, info, options, logSystem);

@@ -112,7 +112,8 @@ namespace tl
             }
 
             // Write the image sequence files.
-            const imaging::Info imageInfo(16, 16, imaging::PixelType::RGB_U8);
+            imaging::Info imageInfo(16, 16, imaging::PixelType::RGB_U8);
+            imageInfo.layout.endian = memory::Endian::MSB;
             const auto image = imaging::Image::create(imageInfo);
             avio::Info ioInfo;
             ioInfo.video.push_back(imageInfo);

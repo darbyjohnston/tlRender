@@ -115,7 +115,6 @@ namespace tl
                 {
                     _io = file::FileIO::create();
                     _io->open(fileName, file::Mode::Read);
-
                     _io->setEndianConversion(memory::getEndian() != memory::Endian::MSB);
                     _io->readU16(&_header.magic);
                     if (_header.magic != 474)
@@ -135,10 +134,11 @@ namespace tl
                     _io->setPos(512);
                     if (_header.storage)
                     {
-                        _rleOffset.resize(_header.height * _header.channels);
-                        _rleSize.resize(_header.height * _header.channels);
-                        _io->readU32(_rleOffset.data(), _header.height * _header.channels);
-                        _io->readU32(_rleSize.data(), _header.height * _header.channels);
+                        const size_t size = _header.height * _header.channels;
+                        _rleOffset.resize(size);
+                        _rleSize.resize(size);
+                        _io->readU32(_rleOffset.data(), size);
+                        _io->readU32(_rleSize.data(), size);
                     }
                     _io->setEndianConversion(false);
 
@@ -277,7 +277,7 @@ namespace tl
         void Read::_init(
             const file::Path& path,
             const avio::Options& options,
-            const std::shared_ptr<core::LogSystem>& logSystem)
+            const std::weak_ptr<core::LogSystem>& logSystem)
         {
             ISequenceRead::_init(path, options, logSystem);
         }
@@ -293,7 +293,7 @@ namespace tl
         std::shared_ptr<Read> Read::create(
             const file::Path& path,
             const avio::Options& options,
-            const std::shared_ptr<core::LogSystem>& logSystem)
+            const std::weak_ptr<core::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
             out->_init(path, options, logSystem);

@@ -58,7 +58,7 @@ namespace tl
         void IIO::_init(
             const file::Path& path,
             const Options& options,
-            const std::shared_ptr<core::LogSystem>& logSystem)
+            const std::weak_ptr<core::LogSystem>& logSystem)
         {
             _logSystem = logSystem;
             _path = path;
@@ -74,7 +74,7 @@ namespace tl
         void IRead::_init(
             const file::Path& path,
             const Options& options,
-            const std::shared_ptr<core::LogSystem>& logSystem)
+            const std::weak_ptr<core::LogSystem>& logSystem)
         {
             IIO::_init(path, options, logSystem);
         }
@@ -99,7 +99,7 @@ namespace tl
             const file::Path& path,
             const Options& options,
             const Info& info,
-            const std::shared_ptr<core::LogSystem>& logSystem)
+            const std::weak_ptr<core::LogSystem>& logSystem)
         {
             IIO::_init(path, options, logSystem);
             _info = info;
@@ -120,7 +120,7 @@ namespace tl
         void IPlugin::_init(
             const std::string& name,
             const std::map<std::string, FileExtensionType>& extensions,
-            const std::shared_ptr<core::LogSystem>& logSystem)
+            const std::weak_ptr<core::LogSystem>& logSystem)
         {
             TLRENDER_P();
             _logSystem = logSystem;
@@ -158,23 +158,9 @@ namespace tl
             _options = options;
         }
 
-        uint8_t IPlugin::getWriteAlignment(imaging::PixelType) const
+        bool IPlugin::_isWriteCompatible(const imaging::Info& info, const Options& options) const
         {
-            return 1;
-        }
-
-        memory::Endian IPlugin::getWriteEndian() const
-        {
-            return memory::getEndian();
-        }
-
-        bool IPlugin::_isWriteCompatible(const imaging::Info& info) const
-        {
-            const auto pixelTypes = getWritePixelTypes();
-            const auto i = std::find(pixelTypes.begin(), pixelTypes.end(), info.pixelType);
-            return i != pixelTypes.end() &&
-                info.layout.alignment == getWriteAlignment(info.pixelType) &&
-                info.layout.endian == getWriteEndian();
+            return info.pixelType != imaging::PixelType::None && info == getWriteInfo(info, options);
         }
     }
 }

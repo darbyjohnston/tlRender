@@ -897,7 +897,7 @@ namespace tl
             io->writeU32(size);
         }
 
-        void Plugin::_init(const std::shared_ptr<core::LogSystem>& logSystem)
+        void Plugin::_init(const std::weak_ptr<core::LogSystem>& logSystem)
         {
             IPlugin::_init(
                 "DPX",
@@ -908,7 +908,7 @@ namespace tl
         Plugin::Plugin()
         {}
             
-        std::shared_ptr<Plugin> Plugin::create(const std::shared_ptr<core::LogSystem>& logSystem)
+        std::shared_ptr<Plugin> Plugin::create(const std::weak_ptr<core::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Plugin>(new Plugin);
             out->_init(logSystem);
@@ -919,25 +919,25 @@ namespace tl
             const file::Path& path,
             const avio::Options& options)
         {
-            std::shared_ptr<avio::IRead> out;
-            if (auto logSystem = _logSystem.lock())
+            return Read::create(path, avio::merge(options, _options), _logSystem);
+        }
+
+        imaging::Info Plugin::getWriteInfo(
+            const imaging::Info& info,
+            const avio::Options& options) const
+        {
+            imaging::Info out;
+            out.size = info.size;
+            switch (info.pixelType)
             {
-                out = Read::create(path, avio::merge(options, _options), logSystem);
+            case imaging::PixelType::RGB_U10:
+                out.pixelType = info.pixelType;
+                break;
+            default: break;
             }
+            out.layout.mirror.y = true;
+            out.layout.alignment = 4;
             return out;
-        }
-
-        std::vector<imaging::PixelType> Plugin::getWritePixelTypes() const
-        {
-            return
-            {
-                imaging::PixelType::RGB_U10
-            };
-        }
-
-        uint8_t Plugin::getWriteAlignment(imaging::PixelType) const
-        {
-            return 4;
         }
 
         std::shared_ptr<avio::IWrite> Plugin::write(
@@ -945,14 +945,11 @@ namespace tl
             const avio::Info& info,
             const avio::Options& options)
         {
-            std::shared_ptr<avio::IWrite> out;
-            if (auto logSystem = _logSystem.lock())
-            {
-                out = !info.video.empty() && _isWriteCompatible(info.video[0]) ?
-                    Write::create(path, info, avio::merge(options, _options), logSystem) :
-                    nullptr;
-            }
-            return out;
+            if (info.video.empty() || (!info.video.empty() && !_isWriteCompatible(info.video[0], options)))
+                throw std::runtime_error(string::Format("{0}: {1}").
+                    arg(path.get()).
+                    arg("Unsupported video"));
+            return Write::create(path, info, avio::merge(options, _options), _logSystem);
         }
     }
 }

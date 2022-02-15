@@ -129,15 +129,10 @@ namespace tl
         }
         avio::Info ioInfo;
         _outputInfo.size = _renderSize;
-        const auto timelinePixelType = imaging::PixelType::YUV_420P == info.video[0].pixelType ?
-            imaging::PixelType::RGB_U8 :
-            info.video[0].pixelType;
-        const auto writePixelTypes = _writerPlugin->getWritePixelTypes();
         _outputInfo.pixelType = _options.outputPixelType != imaging::PixelType::None ?
             _options.outputPixelType :
-            (!writePixelTypes.empty() ? imaging::getClosest(timelinePixelType, writePixelTypes) : timelinePixelType);
-        _outputInfo.layout.alignment = _writerPlugin->getWriteAlignment(_outputInfo.pixelType);
-        _outputInfo.layout.endian = _writerPlugin->getWriteEndian();
+            info.video[0].pixelType;
+        _outputInfo = _writerPlugin->getWriteInfo(_outputInfo);
         _print(string::Format("Output info: {0}").arg(_outputInfo));
         _outputImage = imaging::Image::create(_outputInfo);
         ioInfo.video.push_back(_outputInfo);

@@ -210,7 +210,7 @@ namespace tl
         void Read::_init(
             const file::Path& path,
             const avio::Options& options,
-            const std::shared_ptr<core::LogSystem>& logSystem)
+            const std::weak_ptr<core::LogSystem>& logSystem)
         {
             ISequenceRead::_init(path, options, logSystem);
         }
@@ -226,7 +226,7 @@ namespace tl
         std::shared_ptr<Read> Read::create(
             const file::Path& path,
             const avio::Options& options,
-            const std::shared_ptr<core::LogSystem>& logSystem)
+            const std::weak_ptr<core::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
             out->_init(path, options, logSystem);

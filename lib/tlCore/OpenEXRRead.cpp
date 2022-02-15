@@ -126,7 +126,7 @@ namespace tl
                 File(
                     const std::string& fileName,
                     ChannelGrouping channelGrouping,
-                    const std::shared_ptr<core::LogSystem>& logSystem = nullptr)
+                    const std::weak_ptr<core::LogSystem>& logSystemWeak)
                 {
                     // Open the file.
 #if defined(TLRENDER_ENABLE_MMAP)
@@ -143,7 +143,7 @@ namespace tl
                     _intersectedWindow = _displayWindow.intersect(_dataWindow);
                     _fast = _displayWindow == _dataWindow;
 
-                    if (logSystem)
+                    if (auto logSystem = logSystemWeak.lock())
                     {
                         const std::string id = string::Format("tl::exr::Read {0}").arg(this);
                         std::vector<std::string> s;
@@ -304,7 +304,7 @@ namespace tl
         void Read::_init(
             const file::Path& path,
             const avio::Options& options,
-            const std::shared_ptr<core::LogSystem>& logSystem)
+            const std::weak_ptr<core::LogSystem>& logSystem)
         {
             ISequenceRead::_init(path, options, logSystem);
 
@@ -327,7 +327,7 @@ namespace tl
         std::shared_ptr<Read> Read::create(
             const file::Path& path,
             const avio::Options& options,
-            const std::shared_ptr<core::LogSystem>& logSystem)
+            const std::weak_ptr<core::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
             out->_init(path, options, logSystem);
@@ -355,7 +355,7 @@ namespace tl
             const otime::RationalTime& time,
             uint16_t layer)
         {
-            return File(fileName, _channelGrouping).read(fileName, time, layer);
+            return File(fileName, _channelGrouping, _logSystem).read(fileName, time, layer);
         }
     }
 }

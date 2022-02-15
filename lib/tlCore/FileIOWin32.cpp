@@ -571,5 +571,46 @@ namespace tl
                 pos += value;
             }
         }
+
+        void truncate(const std::string& fileName, size_t size)
+        {
+            HANDLE h = INVALID_HANDLE_VALUE;
+            try
+            {
+                h = CreateFileW(
+                    string::toWide(fileName).c_str(),
+                    GENERIC_WRITE,
+                    0,
+                    0,
+                    OPEN_EXISTING,
+                    FILE_ATTRIBUTE_NORMAL,
+                    0);
+            }
+            catch (const std::exception&)
+            {
+                h = INVALID_HANDLE_VALUE;
+            }
+            if (INVALID_HANDLE_VALUE == h)
+            {
+                throw std::runtime_error(getErrorMessage(ErrorType::Open, fileName, getLastError()));
+            }
+            LARGE_INTEGER v;
+            v.QuadPart = size;
+            if (!::SetFilePointerEx(
+                h,
+                static_cast<LARGE_INTEGER>(v),
+                0,
+                FILE_BEGIN))
+            {
+                CloseHandle(h);
+                throw std::runtime_error(getErrorMessage(ErrorType::Seek, fileName, getLastError()));
+            }
+            if (!::SetEndOfFile(h))
+            {
+                CloseHandle(h);
+                throw std::runtime_error(getErrorMessage(ErrorType::Write, fileName, getLastError()));
+            }
+            CloseHandle(h);
+        }
     }
 }

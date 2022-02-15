@@ -26,7 +26,7 @@ namespace tl
             void _init(
                 const file::Path&,
                 const Options&,
-                const std::shared_ptr<core::LogSystem>&);
+                const std::weak_ptr<core::LogSystem>&);
             ISequenceRead();
 
         public:
@@ -67,7 +67,7 @@ namespace tl
                 const file::Path&,
                 const Info&,
                 const Options&,
-                const std::shared_ptr<core::LogSystem>&);
+                const std::weak_ptr<core::LogSystem>&);
             ISequenceWrite();
 
         public:

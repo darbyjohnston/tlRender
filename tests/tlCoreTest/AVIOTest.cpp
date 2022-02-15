@@ -79,9 +79,11 @@ namespace tl
                     return nullptr;
                 }
 
-                std::vector<imaging::PixelType> getWritePixelTypes() const override
+                imaging::Info getWriteInfo(
+                    const imaging::Info&,
+                    const avio::Options& = avio::Options()) const override
                 {
-                    return {};
+                    return imaging::Info();
                 }
 
                 std::shared_ptr<IWrite> write(

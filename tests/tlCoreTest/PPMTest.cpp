@@ -37,9 +37,6 @@ namespace tl
         void PPMTest::_io()
         {
             auto plugin = _context->getSystem<avio::System>()->getPlugin<ppm::Plugin>();
-            const std::map<std::string, std::string> tags =
-            {
-            };
             for (const auto& fileName : std::vector<std::string>(
                 {
                     "PPMTest",
@@ -53,7 +50,7 @@ namespace tl
                         imaging::Size(0, 0)
                     }))
                 {
-                    for (const auto& pixelType : plugin->getWritePixelTypes())
+                    for (const auto& pixelType : imaging::getPixelTypeEnums())
                     {
                         for (const auto& option : std::vector<std::pair<std::string, std::string> >(
                             {
@@ -61,43 +58,53 @@ namespace tl
                                 { "ppm/Data", "ASCII" }
                             }))
                         {
-                            file::Path path;
+                            avio::Options options;
+                            options[option.first] = option.second;
+                            auto imageInfo = plugin->getWriteInfo(imaging::Info(size, pixelType), options);
+                            if (imageInfo.isValid())
                             {
-                                std::stringstream ss;
-                                ss << fileName << '_' << size << '_' << pixelType << ".0.ppm";
-                                _print(ss.str());
-                                path = file::Path(ss.str());
-                            }
-                            auto imageInfo = imaging::Info(size, pixelType);
-                            imageInfo.layout.alignment = plugin->getWriteAlignment(pixelType);
-                            imageInfo.layout.endian = plugin->getWriteEndian();
-                            auto image = imaging::Image::create(imageInfo);
-                            image->setTags(tags);
-                            try
-                            {
+                                file::Path path;
                                 {
-                                    avio::Info info;
-                                    info.video.push_back(imageInfo);
-                                    info.videoTime = otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(1.0, 24.0));
-                                    info.tags = tags;
-                                    avio::Options options;
-                                    options[option.first] = option.second;
-                                    auto write = plugin->write(path, info, options);
-                                    write->writeVideo(otime::RationalTime(0.0, 24.0), image);
+                                    std::stringstream ss;
+                                    ss << fileName << '_' << size << '_' << pixelType << ".0.ppm";
+                                    _print(ss.str());
+                                    path = file::Path(ss.str());
                                 }
-                                auto read = plugin->read(path);
-                                const auto videoData = read->readVideo(otime::RationalTime(0.0, 24.0)).get();
-                                const auto frameTags = videoData.image->getTags();
-                                for (const auto& j : tags)
+                                auto image = imaging::Image::create(imageInfo);
+                                try
                                 {
-                                    const auto k = frameTags.find(j.first);
-                                    TLRENDER_ASSERT(k != frameTags.end());
-                                    TLRENDER_ASSERT(k->second == j.second);
+                                    {
+                                        avio::Info info;
+                                        info.video.push_back(imageInfo);
+                                        info.videoTime = otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(1.0, 24.0));
+                                        auto write = plugin->write(path, info, options);
+                                        _print(path.get());
+                                        write->writeVideo(otime::RationalTime(0.0, 24.0), image);
+                                    }
+                                    {
+                                        auto read = plugin->read(path);
+                                        const auto videoData = read->readVideo(otime::RationalTime(0.0, 24.0)).get();
+                                        TLRENDER_ASSERT(videoData.image);
+                                        TLRENDER_ASSERT(videoData.image->getInfo() == image->getInfo());
+                                        TLRENDER_ASSERT(0 == memcmp(
+                                            videoData.image->getData(),
+                                            image->getData(),
+                                            image->getDataByteCount()));
+                                    }
+                                    {
+                                        auto io = file::FileIO::create();
+                                        io->open(path.get(), file::Mode::Read);
+                                        const size_t size = io->getSize();
+                                        io->close();
+                                        file::truncate(path.get(), size / 2);
+                                        auto read = plugin->read(path);
+                                        const auto videoData = read->readVideo(otime::RationalTime(0.0, 24.0)).get();
+                                    }
                                 }
-                            }
-                            catch (const std::exception& e)
-                            {
-                                _printError(e.what());
+                                catch (const std::exception& e)
+                                {
+                                    _printError(e.what());
+                                }
                             }
                         }
                     }

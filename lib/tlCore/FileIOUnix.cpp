@@ -470,5 +470,13 @@ namespace tl
                 pos += in;
             }
         }
+
+        void truncate(const std::string& fileName, size_t size)
+        {
+			if (::truncate(fileName.c_str(), size) != 0)
+			{
+                throw std::runtime_error(getErrorMessage(ErrorType::Write, fileName, getErrorString()));
+			}				
+		}
     }
 }

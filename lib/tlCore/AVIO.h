@@ -112,7 +112,7 @@ namespace tl
             void _init(
                 const file::Path&,
                 const Options&,
-                const std::shared_ptr<core::LogSystem>&);
+                const std::weak_ptr<core::LogSystem>&);
             IIO();
 
         public:
@@ -134,7 +134,7 @@ namespace tl
             void _init(
                 const file::Path&,
                 const Options&,
-                const std::shared_ptr<core::LogSystem>&);
+                const std::weak_ptr<core::LogSystem>&);
             IRead();
 
         public:
@@ -170,7 +170,7 @@ namespace tl
                 const file::Path&,
                 const Options&,
                 const Info&,
-                const std::shared_ptr<core::LogSystem>&);
+                const std::weak_ptr<core::LogSystem>&);
             IWrite();
 
         public:
@@ -194,7 +194,7 @@ namespace tl
             void _init(
                 const std::string& name,
                 const std::map<std::string, FileExtensionType>& extensions,
-                const std::shared_ptr<core::LogSystem>&);
+                const std::weak_ptr<core::LogSystem>&);
             IPlugin();
 
         public:
@@ -217,14 +217,10 @@ namespace tl
                 const file::Path&,
                 const Options& = Options()) = 0;
 
-            //! Get the list of writable image pixel types.
-            virtual std::vector<imaging::PixelType> getWritePixelTypes() const = 0;
-
-            //! Get the writable image data alignment.
-            virtual uint8_t getWriteAlignment(imaging::PixelType) const;
-
-            //! Get the writable image data endian.
-            virtual memory::Endian getWriteEndian() const;
+            //! Get information for writing.
+            virtual imaging::Info getWriteInfo(
+                const imaging::Info&,
+                const Options& = Options()) const = 0;
 
             //! Create a writer for the given path.
             virtual std::shared_ptr<IWrite> write(
@@ -233,7 +229,7 @@ namespace tl
                 const Options& = Options()) = 0;
 
         protected:
-            bool _isWriteCompatible(const imaging::Info&) const;
+            bool _isWriteCompatible(const imaging::Info&, const Options&) const;
 
             std::weak_ptr<core::LogSystem> _logSystem;
             Options _options;

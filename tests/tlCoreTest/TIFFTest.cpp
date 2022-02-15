@@ -6,6 +6,7 @@
 
 #include <tlCore/AVIOSystem.h>
 #include <tlCore/Assert.h>
+#include <tlCore/FileIO.h>
 #include <tlCore/TIFF.h>
 
 #include <sstream>
@@ -46,46 +47,61 @@ namespace tl
                         imaging::Size(0, 0)
                     }))
                 {
-                    for (const auto& pixelType : plugin->getWritePixelTypes())
+                    for (const auto& pixelType : imaging::getPixelTypeEnums())
                     {
-                        file::Path path;
+                        auto imageInfo = plugin->getWriteInfo(imaging::Info(size, pixelType));
+                        if (imageInfo.isValid())
                         {
-                            std::stringstream ss;
-                            ss << fileName << '_' << size << '_' << pixelType << ".0.tif";
-                            _print(ss.str());
-                            path = file::Path(ss.str());
-                        }
-                        auto imageInfo = imaging::Info(size, pixelType);
-                        imageInfo.layout.alignment = plugin->getWriteAlignment(pixelType);
-                        imageInfo.layout.endian = plugin->getWriteEndian();
-                        auto image = imaging::Image::create(imageInfo);
-                        image->setTags(tags);
-                        try
-                        {
+                            file::Path path;
                             {
-                                avio::Info info;
-                                info.video.push_back(imageInfo);
-                                info.videoTime = otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(1.0, 24.0));
-                                info.tags = tags;
-                                auto write = plugin->write(path, info);
-                                write->writeVideo(otime::RationalTime(0.0, 24.0), image);
+                                std::stringstream ss;
+                                ss << fileName << '_' << size << '_' << pixelType << ".0.tif";
+                                _print(ss.str());
+                                path = file::Path(ss.str());
                             }
-                            auto read = plugin->read(path);
-                            const auto videoData = read->readVideo(otime::RationalTime(0.0, 24.0)).get();
-                            if (videoData.image)
+                            auto image = imaging::Image::create(imageInfo);
+                            image->setTags(tags);
+                            try
                             {
-                                const auto frameTags = videoData.image->getTags();
-                                for (const auto& j : tags)
                                 {
-                                    const auto k = frameTags.find(j.first);
-                                    TLRENDER_ASSERT(k != frameTags.end());
-                                    TLRENDER_ASSERT(k->second == j.second);
+                                    avio::Info info;
+                                    info.video.push_back(imageInfo);
+                                    info.videoTime = otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(1.0, 24.0));
+                                    info.tags = tags;
+                                    auto write = plugin->write(path, info);
+                                    write->writeVideo(otime::RationalTime(0.0, 24.0), image);
+                                }
+                                {
+                                    auto read = plugin->read(path);
+                                    const auto videoData = read->readVideo(otime::RationalTime(0.0, 24.0)).get();
+                                    TLRENDER_ASSERT(videoData.image);
+                                    TLRENDER_ASSERT(videoData.image->getInfo() == image->getInfo());
+                                    TLRENDER_ASSERT(0 == memcmp(
+                                        videoData.image->getData(),
+                                        image->getData(),
+                                        image->getDataByteCount()));
+                                    const auto frameTags = videoData.image->getTags();
+                                    for (const auto& j : tags)
+                                    {
+                                        const auto k = frameTags.find(j.first);
+                                        TLRENDER_ASSERT(k != frameTags.end());
+                                        TLRENDER_ASSERT(k->second == j.second);
+                                    }
+                                }
+                                {
+                                    auto io = file::FileIO::create();
+                                    io->open(path.get(), file::Mode::Read);
+                                    const size_t size = io->getSize();
+                                    io->close();
+                                    file::truncate(path.get(), size / 2);
+                                    auto read = plugin->read(path);
+                                    const auto videoData = read->readVideo(otime::RationalTime(0.0, 24.0)).get();
                                 }
                             }
-                        }
-                        catch (const std::exception& e)
-                        {
-                            _printError(e.what());
+                            catch (const std::exception& e)
+                            {
+                                _printError(e.what());
+                            }
                         }
                     }
                 }

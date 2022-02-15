@@ -169,5 +169,8 @@ namespace tl
 
         //! Write lines to a file.
         void writeLines(const std::string& fileName, const std::vector<std::string>&);
+
+        //! Truncate a file.
+        void truncate(const std::string& fileName, size_t);
     }
 }
