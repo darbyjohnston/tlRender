@@ -259,7 +259,7 @@ namespace tl
             p.actions["Image/AlphaChannel"]->setText(tr("Alpha Channel"));
             p.actions["Image/AlphaChannel"]->setShortcut(QKeySequence(Qt::Key_A));
             p.channelsActionGroup = new QActionGroup(this);
-            p.channelsActionGroup->setExclusionPolicy(QActionGroup::ExclusionPolicy::ExclusiveOptional);
+            p.channelsActionGroup->setExclusive(false);
             p.channelsActionGroup->addAction(p.actions["Image/RedChannel"]);
             p.channelsActionGroup->addAction(p.actions["Image/GreenChannel"]);
             p.channelsActionGroup->addAction(p.actions["Image/BlueChannel"]);
