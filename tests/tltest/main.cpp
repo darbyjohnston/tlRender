@@ -79,15 +79,8 @@ int main(int argc, char* argv[])
     std::vector<std::shared_ptr<Test::ITest> > tests;
     if (0)
     {
-        tests.push_back(CoreTest::CineonTest::create(context));
-        tests.push_back(CoreTest::DPXTest::create(context));
-        tests.push_back(CoreTest::FFmpegTest::create(context));
-        tests.push_back(CoreTest::JPEGTest::create(context));
-        tests.push_back(CoreTest::OpenEXRTest::create(context));
-        tests.push_back(CoreTest::PNGTest::create(context));
         tests.push_back(CoreTest::PPMTest::create(context));
         tests.push_back(CoreTest::SGITest::create(context));
-        tests.push_back(CoreTest::TIFFTest::create(context));
     }
     else
     {
