@@ -51,6 +51,7 @@ set(HEADERS
     Range.h
     RangeInline.h
     SequenceIO.h
+	SGI.h
 	SoftwareRender.h
     String.h
     StringFormat.h
@@ -98,6 +99,9 @@ set(SOURCE
     PPMWrite.cpp
     Path.cpp
     SequenceIO.cpp
+	SGI.cpp
+	SGIRead.cpp
+	SGIWrite.cpp
 	SoftwareRender.cpp
     String.cpp
     StringFormat.cpp

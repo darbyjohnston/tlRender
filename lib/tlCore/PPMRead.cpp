@@ -44,6 +44,16 @@ namespace tl
                     const int ppmType = magic[1] - '0';
                     _data = (2 == ppmType || 3 == ppmType) ? Data::ASCII : Data::Binary;
 
+                    char tmp[string::cBufferSize] = "";
+                    file::readWord(_io, tmp, string::cBufferSize);
+                    const int w = std::stoi(tmp);
+                    file::readWord(_io, tmp, string::cBufferSize);
+                    const int h = std::stoi(tmp);
+                    _info.size.w = w;
+                    _info.size.h = h;
+
+                    file::readWord(_io, tmp, string::cBufferSize);
+                    const int maxValue = std::stoi(tmp);
                     size_t channelCount = 0;
                     switch (ppmType)
                     {
@@ -53,37 +63,27 @@ namespace tl
                     case 6: channelCount = 3; break;
                     default: break;
                     }
-                    char tmp[string::cBufferSize] = "";
-                    file::readWord(_io, tmp, string::cBufferSize);
-                    const int w = std::stoi(tmp);
-                    file::readWord(_io, tmp, string::cBufferSize);
-                    const int h = std::stoi(tmp);
-                    file::readWord(_io, tmp, string::cBufferSize);
-                    const int maxValue = std::stoi(tmp);
                     const size_t bitDepth = maxValue < 256 ? 8 : 16;
-                    const auto pixelType = imaging::getIntType(channelCount, bitDepth);
-                    if (imaging::PixelType::None == pixelType)
+                    _info.pixelType = imaging::getIntType(channelCount, bitDepth);
+                    if (imaging::PixelType::None == _info.pixelType)
                     {
                         throw std::runtime_error(string::Format("{0}: {1}").
                             arg(fileName).
                             arg("Unsupported image type"));
                     }
-                    imaging::Layout layout;
-                    layout.endian = _data != Data::ASCII ? memory::Endian::MSB : memory::getEndian();
-                    auto imageInfo = imaging::Info(w, h, pixelType);
-                    imageInfo.layout = layout;
 
                     const size_t ioSize = _io->getSize();
                     const size_t ioPos = _io->getPos();
-                    const size_t fileDataByteCount = ioSize > 0 ? (ioSize - ioPos) : 0;
-                    const size_t dataByteCount = imaging::getDataByteCount(imageInfo);
+                    const size_t fileDataByteCount = ioSize >= ioPos ? (ioSize - ioPos) : 0;
+                    const size_t dataByteCount = imaging::getDataByteCount(_info);
                     if (Data::Binary == _data && dataByteCount > fileDataByteCount)
                     {
                         throw std::runtime_error(string::Format("{0}: {1}").
                             arg(fileName).
                             arg("Incomplete file"));
                     }
-                    _info.video.push_back(imageInfo);
+
+                    _info.layout.endian = _data != Data::ASCII ? memory::Endian::MSB : memory::getEndian();
                 }
 
                 Data getData() const
@@ -91,7 +91,7 @@ namespace tl
                     return _data;
                 }
 
-                const avio::Info& getInfo() const
+                const imaging::Info& getInfo() const
                 {
                     return _info;
                 }
@@ -102,21 +102,19 @@ namespace tl
                 {
                     avio::VideoData out;
                     out.time = time;
-                    const auto& info = _info.video[0];
-                    out.image = imaging::Image::create(info);
-                    out.image->setTags(_info.tags);
+                    out.image = imaging::Image::create(_info);
 
                     uint8_t* p = out.image->getData();
                     switch (_data)
                     {
                     case Data::ASCII:
                     {
-                        const size_t channelCount = imaging::getChannelCount(info.pixelType);
-                        const size_t bitDepth = imaging::getBitDepth(info.pixelType);
-                        const std::size_t scanlineByteCount = info.size.w * channelCount * (bitDepth / 8);
-                        for (uint16_t y = 0; y < info.size.h; ++y, p += scanlineByteCount)
+                        const size_t channelCount = imaging::getChannelCount(_info.pixelType);
+                        const size_t bitDepth = imaging::getBitDepth(_info.pixelType);
+                        const std::size_t scanlineByteCount = _info.size.w * channelCount * (bitDepth / 8);
+                        for (uint16_t y = 0; y < _info.size.h; ++y, p += scanlineByteCount)
                         {
-                            readASCII(_io, p, info.size.w * channelCount, bitDepth);
+                            readASCII(_io, p, _info.size.w * channelCount, bitDepth);
                         }
                         break;
                     }
@@ -134,7 +132,7 @@ namespace tl
             private:
                 std::shared_ptr<file::FileIO> _io;
                 Data _data = Data::First;
-                avio::Info _info;
+                imaging::Info _info;
             };
         }
 
@@ -166,7 +164,8 @@ namespace tl
 
         avio::Info Read::_getInfo(const std::string& fileName)
         {
-            avio::Info out = File(fileName).getInfo();
+            avio::Info out;
+            out.video.push_back(File(fileName).getInfo());
             out.videoTime = otime::TimeRange::range_from_start_end_time_inclusive(
                 otime::RationalTime(_startFrame, _defaultSpeed),
                 otime::RationalTime(_endFrame, _defaultSpeed));

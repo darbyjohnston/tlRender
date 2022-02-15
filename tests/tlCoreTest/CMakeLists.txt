@@ -18,6 +18,7 @@ set(HEADERS
     PPMTest.h
     PathTest.h
     RangeTest.h
+    SGITest.h
     StringTest.h
     StringFormatTest.h
     TimeTest.h
@@ -45,6 +46,7 @@ set(SOURCE
     PPMTest.cpp
     PathTest.cpp
     RangeTest.cpp
+    SGITest.cpp
     StringTest.cpp
     StringFormatTest.cpp
     TimeTest.cpp

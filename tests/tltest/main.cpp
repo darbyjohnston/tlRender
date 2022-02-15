@@ -21,6 +21,7 @@
 #include <tlCoreTest/PPMTest.h>
 #include <tlCoreTest/PathTest.h>
 #include <tlCoreTest/RangeTest.h>
+#include <tlCoreTest/SGITest.h>
 #include <tlCoreTest/StringTest.h>
 #include <tlCoreTest/StringFormatTest.h>
 #include <tlCoreTest/TimeTest.h>
@@ -78,7 +79,7 @@ int main(int argc, char* argv[])
     std::vector<std::shared_ptr<Test::ITest> > tests;
     if (0)
     {
-        tests.push_back(CoreTest::AVIOTest::create(context));
+        tests.push_back(CoreTest::SGITest::create(context));
     }
     else
     {
@@ -101,6 +102,7 @@ int main(int argc, char* argv[])
         tests.push_back(CoreTest::PPMTest::create(context));
         tests.push_back(CoreTest::PathTest::create(context));
         tests.push_back(CoreTest::RangeTest::create(context));
+        tests.push_back(CoreTest::SGITest::create(context));
         tests.push_back(CoreTest::StringTest::create(context));
         tests.push_back(CoreTest::StringFormatTest::create(context));
         tests.push_back(CoreTest::TimeTest::create(context));

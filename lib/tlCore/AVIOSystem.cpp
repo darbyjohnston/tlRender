@@ -11,6 +11,7 @@
 #include <tlCore/Cineon.h>
 #include <tlCore/DPX.h>
 #include <tlCore/PPM.h>
+#include <tlCore/SGI.h>
 #if defined(FFmpeg_FOUND)
 #include <tlCore/FFmpeg.h>
 #endif
@@ -44,6 +45,7 @@ namespace tl
                 _plugins.push_back(cineon::Plugin::create(logSystem));
                 _plugins.push_back(dpx::Plugin::create(logSystem));
                 _plugins.push_back(ppm::Plugin::create(logSystem));
+                _plugins.push_back(sgi::Plugin::create(logSystem));
 #if defined(FFmpeg_FOUND)
                 _plugins.push_back(ffmpeg::Plugin::create(logSystem));
 #endif
