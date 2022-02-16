@@ -28,6 +28,9 @@ namespace tl
             //! Get the list of recent files.
             const QList<QString>& recentFiles() const;
 
+            //! Get whether the timeline displays thumbnails.
+            bool hasTimelineThumbnails() const;
+
             //! Get the cache read ahead.
             double cacheReadAhead() const;
 
@@ -71,6 +74,9 @@ namespace tl
             //! Add a recent file.
             void addRecentFile(const QString&);
 
+            //! Set whether the timeline displays thumbnails.
+            void setTimelineThumbnails(bool);
+
             //! Set the cache read ahead.
             void setCacheReadAhead(double);
 
@@ -113,6 +119,9 @@ namespace tl
         Q_SIGNALS:
             //! This signal is emitted when the recent files list is changed.
             void recentFilesChanged(const QList<QString>&);
+
+            //! This signal is emitted when the timeline thumbnails display is changed.
+            void timelineThumbnailsChanged(bool);
 
             //! This signal is emitted when the cache read ahead is changed.
             void cacheReadAheadChanged(double);

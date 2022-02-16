@@ -57,6 +57,11 @@ namespace tl
             return _p->viewport;
         }
 
+        TimelineSlider* TimelineWidget::slider() const
+        {
+            return _p->slider;
+        }
+
         void TimelineWidget::setTimeObject(qt::TimeObject* timeObject)
         {
             TLRENDER_P();

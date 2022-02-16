@@ -17,6 +17,7 @@ namespace tl
     namespace qwidget
     {
         class TimelineViewport;
+        class TimelineSlider;
 
         //! Timeline widget.
         class TimelineWidget : public QWidget
@@ -32,6 +33,9 @@ namespace tl
 
             //! Get the viewport.
             TimelineViewport* viewport() const;
+
+            //! Get the slider.
+            TimelineSlider* slider() const;
 
             //! Set the time object.
             void setTimeObject(qt::TimeObject*);

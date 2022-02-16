@@ -454,6 +454,39 @@ namespace tl
             p.unitsButtonGroup->setChecked(QVariant::fromValue<qt::TimeUnits>(value));
         }
 
+        TimelineSettingsWidget::TimelineSettingsWidget(SettingsObject* settingsObject, QWidget* parent) :
+            QWidget(parent)
+        {
+            auto thumbnailsCheckBox = new QCheckBox;
+            thumbnailsCheckBox->setText(tr("Thumbnails"));
+
+            auto layout = new QVBoxLayout;
+            layout->addWidget(thumbnailsCheckBox);
+            setLayout(layout);
+
+            thumbnailsCheckBox->setChecked(settingsObject->hasTimelineThumbnails());
+
+            connect(
+                thumbnailsCheckBox,
+                &QCheckBox::stateChanged,
+                [settingsObject](int value)
+                {
+                    settingsObject->setTimelineThumbnails(Qt::Checked == value);
+                });
+
+            connect(
+                settingsObject,
+                &SettingsObject::timelineThumbnailsChanged,
+                [thumbnailsCheckBox](bool value)
+                {
+                    QSignalBlocker signalBlocker(thumbnailsCheckBox);
+                    thumbnailsCheckBox->setChecked(value);
+                });
+        }
+
+        TimelineSettingsWidget::~TimelineSettingsWidget()
+        {}
+
         struct MiscSettingsWidget::Private
         {
             QCheckBox* toolTipsCheckBox = nullptr;
@@ -510,17 +543,12 @@ namespace tl
             QWidget* parent) :
             ToolWidget(parent)
         {
-            auto cacheSettingsWidget = new CacheSettingsWidget(settingsObject);
-            auto fileSequenceSettingsWidget = new FileSequenceSettingsWidget(settingsObject);
-            auto performanceSettingsWidget = new PerformanceSettingsWidget(settingsObject);
-            auto timeSettingsWidget = new TimeSettingsWidget(timeObject);
-            auto miscSettingsWidget = new MiscSettingsWidget(settingsObject);
-
-            addBellows(tr("Cache"), cacheSettingsWidget);
-            addBellows(tr("File Sequences"), fileSequenceSettingsWidget);
-            addBellows(tr("Performance"), performanceSettingsWidget);
-            addBellows(tr("Time"), timeSettingsWidget);
-            addBellows(tr("Miscellaneous"), miscSettingsWidget);
+            addBellows(tr("Cache"), new CacheSettingsWidget(settingsObject));
+            addBellows(tr("File Sequences"), new FileSequenceSettingsWidget(settingsObject));
+            addBellows(tr("Performance"), new PerformanceSettingsWidget(settingsObject));
+            addBellows(tr("Time"), new TimeSettingsWidget(timeObject));
+            addBellows(tr("Timeline"), new TimelineSettingsWidget(settingsObject));
+            addBellows(tr("Miscellaneous"), new MiscSettingsWidget(settingsObject));
             addStretch();
         }
     }

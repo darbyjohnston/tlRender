@@ -19,6 +19,7 @@
 #include <tlPlay/SettingsTool.h>
 #include <tlPlay/SystemLogTool.h>
 
+#include <tlQWidget/TimelineSlider.h>
 #include <tlQWidget/TimelineViewport.h>
 #include <tlQWidget/TimelineWidget.h>
 #include <tlQWidget/Util.h>
@@ -497,6 +498,7 @@ namespace tl
             setMenuBar(menuBar);
 
             p.timelineWidget = new qwidget::TimelineWidget(app->getContext());
+            p.timelineWidget->slider()->setThumbnails(app->settingsObject()->hasTimelineThumbnails());
             p.timelineWidget->setTimeObject(app->timeObject());
             setCentralWidget(p.timelineWidget);
 
@@ -1001,6 +1003,13 @@ namespace tl
                 app->settingsObject(),
                 SIGNAL(recentFilesChanged(const QList<QString>&)),
                 SLOT(_recentFilesCallback()));
+            connect(
+                app->settingsObject(),
+                &SettingsObject::timelineThumbnailsChanged,
+                [this](bool value)
+                {
+                    _p->timelineWidget->slider()->setThumbnails(value);
+                });
 
             QSettings settings;
             auto ba = settings.value(qt::versionedSettingsKey("MainWindow/geometry")).toByteArray();

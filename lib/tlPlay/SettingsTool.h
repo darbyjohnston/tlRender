@@ -97,6 +97,17 @@ namespace tl
             TLRENDER_PRIVATE();
         };
 
+        //! Time settings widget.
+        class TimelineSettingsWidget : public QWidget
+        {
+            Q_OBJECT
+
+        public:
+            TimelineSettingsWidget(SettingsObject*, QWidget* parent = nullptr);
+
+            ~TimelineSettingsWidget() override;
+        };
+
         //! Miscellaneous settings widget.
         class MiscSettingsWidget : public QWidget
         {

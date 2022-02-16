@@ -20,6 +20,10 @@ namespace tl
         {
             Q_OBJECT
             Q_PROPERTY(
+                bool thumbnails
+                READ hasThumbnails
+                WRITE setThumbnails)
+            Q_PROPERTY(
                 tl::qt::TimeUnits units
                 READ units
                 WRITE setUnits)
@@ -38,10 +42,16 @@ namespace tl
             //! Set the timeline player.
             void setTimelinePlayer(qt::TimelinePlayer*);
 
+            //! Get whether thumbnails are displayed.
+            bool hasThumbnails() const;
+
             //! Get the time units.
             qt::TimeUnits units() const;
 
         public Q_SLOTS:
+            //! Set whether thumbnails are displayed.
+            void setThumbnails(bool);
+
             //! Set the time units.
             void setUnits(tl::qt::TimeUnits);
 

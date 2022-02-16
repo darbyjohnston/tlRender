@@ -15,6 +15,7 @@ namespace tl
         {
             QList<QString> recentFiles;
             const int recentFilesMax = 10;
+            bool timelineThumbnails = true;
             double cacheReadAhead = 4.0;
             double cacheReadBehind = 0.4;
             timeline::FileSequenceAudio fileSequenceAudio = timeline::FileSequenceAudio::BaseName;
@@ -51,6 +52,7 @@ namespace tl
                 p.recentFiles.push_back(settings.value("File").toString().toUtf8().data());
             }
             settings.endArray();
+            p.timelineThumbnails = settings.value("Settings/Timeline/Thumbnails", true).toBool();
             p.cacheReadAhead = settings.value("Settings/Cache/ReadAhead", 4.0).toDouble();
             p.cacheReadBehind = settings.value("Settings/Cache/ReadBehind", 0.4).toDouble();
             p.fileSequenceAudio = static_cast<timeline::FileSequenceAudio>(settings.value(
@@ -86,6 +88,7 @@ namespace tl
                 settings.setValue("File", p.recentFiles[i]);
             }
             settings.endArray();
+            settings.setValue("Settings/Timeline/Thumbnails", p.timelineThumbnails);
             settings.setValue("Settings/Cache/ReadAhead", p.cacheReadAhead);
             settings.setValue("Settings/Cache/ReadBehind", p.cacheReadBehind);
             settings.setValue("Settings/FileSequence/Audio", static_cast<int>(p.fileSequenceAudio));
@@ -106,6 +109,11 @@ namespace tl
         const QList<QString>& SettingsObject::recentFiles() const
         {
             return _p->recentFiles;
+        }
+
+        bool SettingsObject::hasTimelineThumbnails() const
+        {
+            return _p->timelineThumbnails;
         }
 
         double SettingsObject::cacheReadAhead() const
@@ -183,6 +191,15 @@ namespace tl
                 p.recentFiles.pop_back();
             }
             Q_EMIT recentFilesChanged(p.recentFiles);
+        }
+
+        void SettingsObject::setTimelineThumbnails(bool value)
+        {
+            TLRENDER_P();
+            if (value == p.timelineThumbnails)
+                return;
+            p.timelineThumbnails = value;
+            Q_EMIT timelineThumbnailsChanged(p.timelineThumbnails);
         }
 
         void SettingsObject::setCacheReadAhead(double value)

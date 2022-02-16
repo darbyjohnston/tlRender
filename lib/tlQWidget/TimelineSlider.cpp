@@ -18,12 +18,19 @@ namespace tl
 {
     namespace qwidget
     {
+        namespace
+        {
+            const int stripeSize = 5;
+            const int handleSize = 3;
+        }
+
         struct TimelineSlider::Private
         {
             imaging::ColorConfig colorConfig;
             qt::TimelinePlayer* timelinePlayer = nullptr;
+            bool thumbnails = true;
             qt::TimelineThumbnailProvider* thumbnailProvider = nullptr;
-            std::map<otime::RationalTime, QImage> thumbnails;
+            std::map<otime::RationalTime, QImage> thumbnailImages;
             qt::TimeUnits units = qt::TimeUnits::Timecode;
             qt::TimeObject* timeObject = nullptr;
         };
@@ -134,17 +141,33 @@ namespace tl
             _thumbnailsUpdate();
         }
 
+        bool TimelineSlider::hasThumbnails() const
+        {
+            return _p->thumbnails;
+        }
+
         qt::TimeUnits TimelineSlider::units() const
         {
             return _p->units;
         }
 
-        void TimelineSlider::setUnits(qt::TimeUnits units)
+        void TimelineSlider::setThumbnails(bool value)
         {
             TLRENDER_P();
-            if (units == p.units)
+            if (value == p.thumbnails)
                 return;
-            p.units = units;
+            p.thumbnails = value;
+            _thumbnailsUpdate();
+            setMinimumHeight(p.thumbnails ? 50 : (stripeSize * 2 + handleSize * 2));
+            updateGeometry();
+        }
+
+        void TimelineSlider::setUnits(qt::TimeUnits value)
+        {
+            TLRENDER_P();
+            if (value == p.units)
+                return;
+            p.units = value;
             update();
         }
 
@@ -154,12 +177,6 @@ namespace tl
             {
                 _thumbnailsUpdate();
             }
-        }
-
-        namespace
-        {
-            const int stripeSize = 5;
-            const int handleSize = 3;
         }
 
         void TimelineSlider::paintEvent(QPaintEvent*)
@@ -181,7 +198,7 @@ namespace tl
                 // Draw thumbnails.
                 x0 = _timeToPos(p.timelinePlayer->currentTime());
                 y0 = rect2.y();
-                for (const auto& i : p.thumbnails)
+                for (const auto& i : p.thumbnailImages)
                 {
                     painter.drawImage(QPoint(_timeToPos(i.first), y0), i.second);
                 }
@@ -250,11 +267,14 @@ namespace tl
         void TimelineSlider::_thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >& thumbnails)
         {
             TLRENDER_P();
-            for (const auto& i : thumbnails)
+            if (p.thumbnails)
             {
-                p.thumbnails[i.first] = i.second;
+                for (const auto& i : thumbnails)
+                {
+                    p.thumbnailImages[i.first] = i.second;
+                }
+                update();
             }
-            update();
         }
 
         otime::RationalTime TimelineSlider::_posToTime(int value) const
@@ -288,11 +308,13 @@ namespace tl
         void TimelineSlider::_thumbnailsUpdate()
         {
             TLRENDER_P();
-            if (p.timelinePlayer && p.thumbnailProvider)
+            if (p.thumbnailProvider)
             {
                 p.thumbnailProvider->cancelRequests();
-                p.thumbnails.clear();
-
+            }
+            p.thumbnailImages.clear();
+            if (p.timelinePlayer && p.thumbnails && p.thumbnailProvider)
+            {
                 const auto& duration = p.timelinePlayer->duration();
                 const auto& info = p.timelinePlayer->avInfo();
                 const auto rect = this->rect().adjusted(0, 0, 0, -(stripeSize * 2 + handleSize * 2));
@@ -313,10 +335,6 @@ namespace tl
                     }
                     p.thumbnailProvider->request(requests, QSize(thumbnailWidth, thumbnailHeight));
                 }
-            }
-            else
-            {
-                p.thumbnails.clear();
             }
             update();
         }
