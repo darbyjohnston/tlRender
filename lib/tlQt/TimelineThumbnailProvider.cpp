@@ -98,10 +98,6 @@ namespace tl
             TLRENDER_P();
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
-                if (p.cancelRequests)
-                {
-                    p.requests.clear();
-                }
                 Private::Request request;
                 request.time = time;
                 request.size = size;
@@ -115,10 +111,6 @@ namespace tl
             TLRENDER_P();
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
-                if (p.cancelRequests)
-                {
-                    p.requests.clear();
-                }
                 for (const auto& i : times)
                 {
                     Private::Request request;
@@ -134,6 +126,9 @@ namespace tl
         {
             TLRENDER_P();
             std::unique_lock<std::mutex> lock(p.mutex);
+            p.timeline->cancelRequests();
+            p.requests.clear();
+            p.results.clear();
             p.cancelRequests = true;
         }
 
@@ -192,9 +187,7 @@ namespace tl
                             if (p.cancelRequests)
                             {
                                 p.cancelRequests = false;
-                                p.timeline->cancelRequests();
                                 p.requestsInProgress.clear();
-                                p.results.clear();
                             }
                             while (!p.requests.empty() &&
                                 (p.requestsInProgress.size() + newRequests.size()) < p.requestCount)

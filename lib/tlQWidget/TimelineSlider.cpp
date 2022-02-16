@@ -288,10 +288,10 @@ namespace tl
         void TimelineSlider::_thumbnailsUpdate()
         {
             TLRENDER_P();
-            p.thumbnails.clear();
             if (p.timelinePlayer && p.thumbnailProvider)
             {
                 p.thumbnailProvider->cancelRequests();
+                p.thumbnails.clear();
 
                 const auto& duration = p.timelinePlayer->duration();
                 const auto& info = p.timelinePlayer->avInfo();
@@ -313,6 +313,10 @@ namespace tl
                     }
                     p.thumbnailProvider->request(requests, QSize(thumbnailWidth, thumbnailHeight));
                 }
+            }
+            else
+            {
+                p.thumbnails.clear();
             }
             update();
         }
