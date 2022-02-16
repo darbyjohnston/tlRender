@@ -95,9 +95,9 @@ CMake Build Options
 * TLRENDER_ENABLE_MMAP - Enable memory-mapped file I/O
 * TLRENDER_ENABLE_COVERAGE - Enable code coverage
 * TLRENDER_ENABLE_PYTHON - Enable Python support (for OTIO Python adapters)
-* TLRENDER_BUILD_GL - Build OpenGL libraries
-* TLRENDER_BUILD_QT6 - Build Qt6 libraries
-* TLRENDER_BUILD_QT5 - Build Qt5 libraries
+* TLRENDER_BUILD_GL - Build OpenGL support
+* TLRENDER_BUILD_QT6 - Build Qt6 support
+* TLRENDER_BUILD_QT5 - Build Qt5 support
 * TLRENDER_BUILD_PROGRAMS - Build applications
 * TLRENDER_BUILD_EXAMPLES - Build examples
 * TLRENDER_BUILD_TESTS - Build tests
