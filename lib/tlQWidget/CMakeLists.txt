@@ -45,4 +45,4 @@ install(TARGETS tlQWidget
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION bin
-        PUBLIC_HEADER DESTINATION include/tlQWidget)
+        PUBLIC_HEADER DESTINATION include/tlRender/tlQWidget)

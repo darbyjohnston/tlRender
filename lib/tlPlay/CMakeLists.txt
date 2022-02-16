@@ -57,4 +57,4 @@ install(TARGETS tlPlay
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION bin
-        PUBLIC_HEADER DESTINATION include/tlPlay)
+        PUBLIC_HEADER DESTINATION include/tlRender/tlPlay)
