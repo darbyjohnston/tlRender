@@ -18,6 +18,10 @@ namespace tl
         class FilmstripWidget : public QWidget
         {
             Q_OBJECT
+            Q_PROPERTY(
+                int rowCount
+                READ rowCount
+                WRITE setRowCount)
 
         public:
             FilmstripWidget(QWidget* parent = nullptr);
@@ -26,6 +30,9 @@ namespace tl
 
             //! Set the timeline.
             void setTimeline(const std::shared_ptr<tl::timeline::Timeline>&);
+
+            //! Get the row count.
+            int rowCount() const;
 
         public Q_SLOTS:
             //! Set the row count.

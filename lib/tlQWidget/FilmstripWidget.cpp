@@ -69,6 +69,11 @@ namespace tl
             _thumbnailsUpdate();
         }
 
+        int FilmstripWidget::rowCount() const
+        {
+            return _p->rowCount;
+        }
+
         void FilmstripWidget::setRowCount(int value)
         {
             TLRENDER_P();

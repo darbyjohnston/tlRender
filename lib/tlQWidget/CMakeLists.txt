@@ -1,4 +1,5 @@
 set(HEADERS
+	BellowsPrivate.h
 	BellowsWidget.h
     FilmstripWidget.h
 	RadioButtonGroup.h
@@ -12,6 +13,7 @@ set(HEADERS
     TimelineWidget.h
     Util.h)
 set(SOURCE
+	BellowsPrivate.cpp
 	BellowsWidget.cpp
     FilmstripWidget.cpp
 	RadioButtonGroup.cpp

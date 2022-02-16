@@ -14,44 +14,6 @@ namespace tl
 {
     namespace qwidget
     {
-        //! Bellows button.
-        class BellowsButton : public QWidget
-        {
-            Q_OBJECT
-
-        public:
-            BellowsButton(QWidget* parent = nullptr);
-
-            ~BellowsButton() override;
-
-            //! Get the text.
-            QString text() const;
-
-            //! Is the bellows open?
-            bool isOpen() const;
-
-        public Q_SLOTS:
-            //! Set the text.
-            void setText(const QString&);
-
-            //! Set whether the bellows is open.
-            void setOpen(bool);
-
-        Q_SIGNALS:
-            //! This signal is emitted when the bellows is opened or closed.
-            void openChanged(bool);
-
-        protected:
-            void mousePressEvent(QMouseEvent*) override;
-            void mouseReleaseEvent(QMouseEvent*) override;
-            void mouseMoveEvent(QMouseEvent*) override;
-
-        private:
-            void _widgetUpdate();
-
-            TLRENDER_PRIVATE();
-        };
-
         //! Bellows widget.
         class BellowsWidget : public QWidget
         {
