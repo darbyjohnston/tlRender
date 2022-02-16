@@ -87,7 +87,7 @@ namespace tl
                 break;
             case TimeUnits::Seconds:
                 out = QString::fromStdString(string::Format("{0}").
-                    arg(time != time::invalidTime ? time.to_seconds() : 0.0));
+                    arg(time != time::invalidTime ? time.to_seconds() : 0.0, 2));
                 break;
             case TimeUnits::Timecode:
             {
