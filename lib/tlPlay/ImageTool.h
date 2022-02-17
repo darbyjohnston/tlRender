@@ -30,9 +30,6 @@ namespace tl
         Q_SIGNALS:
             void valueChanged(tl::render::YUVRange);
 
-        private Q_SLOTS:
-            void _callback(const QVariant&);
-
         private:
             void _widgetUpdate();
 
@@ -55,9 +52,6 @@ namespace tl
         Q_SIGNALS:
             void valueChanged(tl::render::Channels);
 
-        private Q_SLOTS:
-            void _callback(const QVariant&);
-
         private:
             void _widgetUpdate();
 
@@ -79,9 +73,6 @@ namespace tl
 
         Q_SIGNALS:
             void valueChanged(tl::render::AlphaBlend);
-
-        private Q_SLOTS:
-            void _callback(const QVariant&);
 
         private:
             void _widgetUpdate();
@@ -106,10 +97,6 @@ namespace tl
 
         Q_SIGNALS:
             void valueChanged(float);
-
-        private Q_SLOTS:
-            void _spinBoxCallback(double);
-            void _sliderCallback(int);
 
         private:
             void _widgetUpdate();
@@ -136,11 +123,6 @@ namespace tl
         Q_SIGNALS:
             void valueChanged(const tl::math::Vector3f&);
 
-        private Q_SLOTS:
-            void _sliderCallback0(float);
-            void _sliderCallback1(float);
-            void _sliderCallback2(float);
-
         private:
             void _widgetUpdate();
 
@@ -166,14 +148,7 @@ namespace tl
             void colorChanged(const tl::render::Color&);
 
         private Q_SLOTS:
-            void _colorEnabledCallback(bool);
             void _componentsCallback(bool);
-            void _addCallback(const tl::math::Vector3f&);
-            void _brightnessCallback(const tl::math::Vector3f&);
-            void _contrastCallback(const tl::math::Vector3f&);
-            void _saturationCallback(const tl::math::Vector3f&);
-            void _tintCallback(float);
-            void _invertCallback(bool);
 
         private:
             void _widgetUpdate();
@@ -199,14 +174,6 @@ namespace tl
             void levelsEnabledChanged(bool);
             void levelsChanged(const tl::render::Levels&);
 
-        private Q_SLOTS:
-            void _levelsEnabledCallback(bool);
-            void _inLowCallback(float);
-            void _inHighCallback(float);
-            void _gammaCallback(float);
-            void _outLowCallback(float);
-            void _outHighCallback(float);
-
         private:
             void _widgetUpdate();
 
@@ -230,13 +197,6 @@ namespace tl
         Q_SIGNALS:
             void exposureEnabledChanged(bool);
             void exposureChanged(const tl::render::Exposure&);
-
-        private Q_SLOTS:
-            void _exposureEnabledCallback(bool);
-            void _exposureCallback(float);
-            void _defogCallback(float);
-            void _kneeLowCallback(float);
-            void _kneeHighCallback(float);
 
         private:
             void _widgetUpdate();
@@ -262,10 +222,6 @@ namespace tl
             void softClipEnabledChanged(bool);
             void softClipChanged(float);
 
-        private Q_SLOTS:
-            void _softClipEnabledCallback(bool);
-            void _softClipCallback(float);
-
         private:
             void _widgetUpdate();
 
@@ -287,19 +243,6 @@ namespace tl
 
         Q_SIGNALS:
             void imageOptionsChanged(const tl::render::ImageOptions&);
-
-        private Q_SLOTS:
-            void _yuvRangeCallback(tl::render::YUVRange);
-            void _channelsCallback(tl::render::Channels);
-            void _alphaBlendCallback(tl::render::AlphaBlend);
-            void _colorEnabledCallback(bool);
-            void _colorCallback(const tl::render::Color&);
-            void _levelsEnabledCallback(bool);
-            void _levelsCallback(const tl::render::Levels&);
-            void _exposureEnabledCallback(bool);
-            void _exposureCallback(const tl::render::Exposure&);
-            void _softClipEnabledCallback(bool);
-            void _softClipCallback(float);
 
         private:
             void _optionsUpdate();

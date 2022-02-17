@@ -46,8 +46,11 @@ namespace tl
 
             connect(
                 p.radioButtonGroup,
-                SIGNAL(checked(const QVariant&)),
-                SLOT(_callback(const QVariant&)));
+                &qwidget::RadioButtonGroup::checked,
+                [this](const QVariant& value)
+                {
+                    Q_EMIT valueChanged(value.value<render::YUVRange>());
+                });
         }
 
         YUVRangeWidget::~YUVRangeWidget()
@@ -60,13 +63,6 @@ namespace tl
                 return;
             p.value = value;
             _widgetUpdate();
-        }
-
-        void YUVRangeWidget::_callback(const QVariant& value)
-        {
-            TLRENDER_P();
-            p.value = value.value<render::YUVRange>();
-            Q_EMIT valueChanged(p.value);
         }
 
         void YUVRangeWidget::_widgetUpdate()
@@ -105,8 +101,11 @@ namespace tl
 
             connect(
                 p.radioButtonGroup,
-                SIGNAL(checked(const QVariant&)),
-                SLOT(_callback(const QVariant&)));
+                &qwidget::RadioButtonGroup::checked,
+                [this](const QVariant& value)
+                {
+                    Q_EMIT valueChanged(value.value<render::Channels>());
+                });
         }
 
         ChannelsWidget::~ChannelsWidget()
@@ -119,13 +118,6 @@ namespace tl
                 return;
             p.value = value;
             _widgetUpdate();
-        }
-
-        void ChannelsWidget::_callback(const QVariant& value)
-        {
-            TLRENDER_P();
-            p.value = value.value<render::Channels>();
-            Q_EMIT valueChanged(p.value);
         }
 
         void ChannelsWidget::_widgetUpdate()
@@ -164,8 +156,11 @@ namespace tl
 
             connect(
                 p.radioButtonGroup,
-                SIGNAL(checked(const QVariant&)),
-                SLOT(_callback(const QVariant&)));
+                &qwidget::RadioButtonGroup::checked,
+                [this](const QVariant& value)
+                {
+                    Q_EMIT valueChanged(value.value<render::AlphaBlend>());
+                });
         }
 
         AlphaBlendWidget::~AlphaBlendWidget()
@@ -178,13 +173,6 @@ namespace tl
                 return;
             p.value = value;
             _widgetUpdate();
-        }
-
-        void AlphaBlendWidget::_callback(const QVariant& value)
-        {
-            TLRENDER_P();
-            p.value = value.value<render::AlphaBlend>();
-            Q_EMIT valueChanged(p.value);
         }
 
         void AlphaBlendWidget::_widgetUpdate()
@@ -230,13 +218,22 @@ namespace tl
 
             connect(
                 p.spinBox,
-                SIGNAL(valueChanged(double)),
-                SLOT(_spinBoxCallback(double)));
+                QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+                [this](double value)
+                {
+                    Q_EMIT valueChanged(value);
+                });
 
             connect(
                 p.slider,
-                SIGNAL(valueChanged(int)),
-                SLOT(_sliderCallback(int)));
+                &QSlider::valueChanged,
+                [this](int value)
+                {
+                    Q_EMIT valueChanged(
+                        value / static_cast<float>(sliderSteps) *
+                        (_p->range.getMax() - _p->range.getMin()) +
+                        _p->range.getMin());
+                });
         }
 
         ColorSliderWidget::~ColorSliderWidget()
@@ -258,22 +255,6 @@ namespace tl
                 return;
             p.value = value;
             _widgetUpdate();
-        }
-
-        void ColorSliderWidget::_spinBoxCallback(double value)
-        {
-            TLRENDER_P();
-            p.value = value;
-            _widgetUpdate();
-            Q_EMIT valueChanged(p.value);
-        }
-
-        void ColorSliderWidget::_sliderCallback(int value)
-        {
-            TLRENDER_P();
-            p.value = value / static_cast<float>(sliderSteps) * (p.range.getMax() - p.range.getMin()) + p.range.getMin();
-            _widgetUpdate();
-            Q_EMIT valueChanged(p.value);
         }
 
         void ColorSliderWidget::_widgetUpdate()
@@ -323,16 +304,43 @@ namespace tl
 
             connect(
                 p.sliders[0],
-                SIGNAL(valueChanged(float)),
-                SLOT(_sliderCallback0(float)));
+                &ColorSliderWidget::valueChanged,
+                [this](float value)
+                {
+                    math::Vector3f v = _p->value;
+                    v.x = value;
+                    if (!_p->components)
+                    {
+                        v.y = v.z = v.x;
+                    }
+                    Q_EMIT valueChanged(v);
+                });
             connect(
                 p.sliders[1],
-                SIGNAL(valueChanged(float)),
-                SLOT(_sliderCallback1(float)));
+                &ColorSliderWidget::valueChanged,
+                [this](float value)
+                {
+                    math::Vector3f v = _p->value;
+                    v.y = value;
+                    if (!_p->components)
+                    {
+                        v.x = v.z = v.y;
+                    }
+                    Q_EMIT valueChanged(v);
+                });
             connect(
                 p.sliders[2],
-                SIGNAL(valueChanged(float)),
-                SLOT(_sliderCallback2(float)));
+                &ColorSliderWidget::valueChanged,
+                [this](float value)
+                {
+                    math::Vector3f v = _p->value;
+                    v.z = value;
+                    if (!_p->components)
+                    {
+                        v.x = v.y = v.z;
+                    }
+                    Q_EMIT valueChanged(v);
+                });
         }
 
         ColorSlidersWidget::~ColorSlidersWidget()
@@ -363,42 +371,6 @@ namespace tl
                 return;
             p.components = value;
             _widgetUpdate();
-        }
-
-        void ColorSlidersWidget::_sliderCallback0(float value)
-        {
-            TLRENDER_P();
-            p.value.x = value;
-            if (!p.components)
-            {
-                p.value.y = p.value.z = p.value.x;
-            }
-            _widgetUpdate();
-            Q_EMIT valueChanged(p.value);
-        }
-
-        void ColorSlidersWidget::_sliderCallback1(float value)
-        {
-            TLRENDER_P();
-            p.value.y = value;
-            if (!p.components)
-            {
-                p.value.x = p.value.z = p.value.y;
-            }
-            _widgetUpdate();
-            Q_EMIT valueChanged(p.value);
-        }
-
-        void ColorSlidersWidget::_sliderCallback2(float value)
-        {
-            TLRENDER_P();
-            p.value.z = value;
-            if (!p.components)
-            {
-                p.value.x = p.value.y = p.value.z;
-            }
-            _widgetUpdate();
-            Q_EMIT valueChanged(p.value);
         }
 
         void ColorSlidersWidget::_widgetUpdate()
@@ -488,43 +460,86 @@ namespace tl
 
             connect(
                 p.colorEnabledCheckBox,
-                SIGNAL(toggled(bool)),
-                SLOT(_colorEnabledCallback(bool)));
+                &QCheckBox::toggled,
+                [this](bool value)
+                {
+                    Q_EMIT colorEnabledChanged(value);
+                });
 
             connect(
                 p.componentsCheckBox,
-                SIGNAL(toggled(bool)),
-                SLOT(_componentsCallback(bool)));
+                &QCheckBox::toggled,
+                [this](bool value)
+                {
+                    _p->components = value;
+                    _widgetUpdate();
+                });
 
             connect(
                 p.addSliders,
-                SIGNAL(valueChanged(const tl::math::Vector3f&)),
-                SLOT(_addCallback(const tl::math::Vector3f&)));
+                &ColorSlidersWidget::valueChanged,
+                [this](const tl::math::Vector3f& value)
+                {
+                    tl::render::Color color = _p->color;
+                    color.add = value;
+                    Q_EMIT colorEnabledChanged(true);
+                    Q_EMIT colorChanged(color);
+                });
 
             connect(
                 p.brightnessSliders,
-                SIGNAL(valueChanged(const tl::math::Vector3f&)),
-                SLOT(_brightnessCallback(const tl::math::Vector3f&)));
+                &ColorSlidersWidget::valueChanged,
+                [this](const tl::math::Vector3f& value)
+                {
+                    tl::render::Color color = _p->color;
+                    color.brightness = value;
+                    Q_EMIT colorEnabledChanged(true);
+                    Q_EMIT colorChanged(color);
+                });
 
             connect(
                 p.contrastSliders,
-                SIGNAL(valueChanged(const tl::math::Vector3f&)),
-                SLOT(_contrastCallback(const tl::math::Vector3f&)));
+                &ColorSlidersWidget::valueChanged,
+                [this](const tl::math::Vector3f& value)
+                {
+                    tl::render::Color color = _p->color;
+                    color.contrast = value;
+                    Q_EMIT colorEnabledChanged(true);
+                    Q_EMIT colorChanged(color);
+                });
 
             connect(
                 p.saturationSliders,
-                SIGNAL(valueChanged(const tl::math::Vector3f&)),
-                SLOT(_saturationCallback(const tl::math::Vector3f&)));
+                &ColorSlidersWidget::valueChanged,
+                [this](const tl::math::Vector3f& value)
+                {
+                    tl::render::Color color = _p->color;
+                    color.saturation = value;
+                    Q_EMIT colorEnabledChanged(true);
+                    Q_EMIT colorChanged(color);
+                });
 
             connect(
                 p.tintSlider,
-                SIGNAL(valueChanged(float)),
-                SLOT(_tintCallback(float)));
+                &ColorSliderWidget::valueChanged,
+                [this](float value)
+                {
+                    tl::render::Color color = _p->color;
+                    color.tint = value;
+                    Q_EMIT colorEnabledChanged(true);
+                    Q_EMIT colorChanged(color);
+                });
 
             connect(
                 p.invertCheckBox,
-                SIGNAL(toggled(bool)),
-                SLOT(_invertCallback(bool)));
+                &QCheckBox::toggled,
+                [this](bool value)
+                {
+                    tl::render::Color color = _p->color;
+                    color.invert = value;
+                    Q_EMIT colorEnabledChanged(true);
+                    Q_EMIT colorChanged(color);
+                });
         }
 
         ColorWidget::~ColorWidget()
@@ -548,60 +563,11 @@ namespace tl
             _widgetUpdate();
         }
 
-        void ColorWidget::_colorEnabledCallback(bool value)
-        {
-            TLRENDER_P();
-            p.colorEnabled = value;
-            Q_EMIT colorEnabledChanged(p.colorEnabled);
-        }
-
         void ColorWidget::_componentsCallback(bool value)
         {
             TLRENDER_P();
             p.components = value;
             _widgetUpdate();
-        }
-
-        void ColorWidget::_addCallback(const math::Vector3f& value)
-        {
-            TLRENDER_P();
-            p.color.add = value;
-            Q_EMIT colorChanged(p.color);
-        }
-
-        void ColorWidget::_brightnessCallback(const math::Vector3f& value)
-        {
-            TLRENDER_P();
-            p.color.brightness = value;
-            Q_EMIT colorChanged(p.color);
-        }
-
-        void ColorWidget::_contrastCallback(const math::Vector3f& value)
-        {
-            TLRENDER_P();
-            p.color.contrast = value;
-            Q_EMIT colorChanged(p.color);
-        }
-
-        void ColorWidget::_saturationCallback(const math::Vector3f& value)
-        {
-            TLRENDER_P();
-            p.color.saturation = value;
-            Q_EMIT colorChanged(p.color);
-        }
-
-        void ColorWidget::_tintCallback(float value)
-        {
-            TLRENDER_P();
-            p.color.tint = value;
-            Q_EMIT colorChanged(p.color);
-        }
-
-        void ColorWidget::_invertCallback(bool value)
-        {
-            TLRENDER_P();
-            p.color.invert = value;
-            Q_EMIT colorChanged(p.color);
         }
 
         void ColorWidget::_widgetUpdate()
@@ -691,31 +657,64 @@ namespace tl
 
             connect(
                 p.levelsEnabledCheckBox,
-                SIGNAL(toggled(bool)),
-                SLOT(_levelsEnabledCallback(bool)));
+                &QCheckBox::toggled,
+                [this](bool value)
+                {
+                    Q_EMIT levelsEnabledChanged(value);
+                });
 
             connect(
                 p.inLowSlider,
-                SIGNAL(valueChanged(float)),
-                SLOT(_inLowCallback(float)));
+                &ColorSliderWidget::valueChanged,
+                [this](float value)
+                {
+                    render::Levels levels = _p->levels;
+                    levels.inLow = value;
+                    Q_EMIT levelsChanged(levels);
+                    Q_EMIT levelsEnabledChanged(true);
+                });
             connect(
                 p.inHighSlider,
-                SIGNAL(valueChanged(float)),
-                SLOT(_inHighCallback(float)));
+                &ColorSliderWidget::valueChanged,
+                [this](float value)
+                {
+                    render::Levels levels = _p->levels;
+                    levels.inHigh = value;
+                    Q_EMIT levelsChanged(levels);
+                    Q_EMIT levelsEnabledChanged(true);
+                });
 
             connect(
                 p.gammaSlider,
-                SIGNAL(valueChanged(float)),
-                SLOT(_gammaCallback(float)));
+                &ColorSliderWidget::valueChanged,
+                [this](float value)
+                {
+                    render::Levels levels = _p->levels;
+                    levels.gamma = value;
+                    Q_EMIT levelsChanged(levels);
+                    Q_EMIT levelsEnabledChanged(true);
+                });
 
             connect(
                 p.outLowSlider,
-                SIGNAL(valueChanged(float)),
-                SLOT(_outLowCallback(float)));
+                &ColorSliderWidget::valueChanged,
+                [this](float value)
+                {
+                    render::Levels levels = _p->levels;
+                    levels.outLow = value;
+                    Q_EMIT levelsChanged(levels);
+                    Q_EMIT levelsEnabledChanged(true);
+                });
             connect(
                 p.outHighSlider,
-                SIGNAL(valueChanged(float)),
-                SLOT(_outHighCallback(float)));
+                &ColorSliderWidget::valueChanged,
+                [this](float value)
+                {
+                    render::Levels levels = _p->levels;
+                    levels.outHigh = value;
+                    Q_EMIT levelsChanged(levels);
+                    Q_EMIT levelsEnabledChanged(true);
+                });
         }
 
         LevelsWidget::~LevelsWidget()
@@ -737,48 +736,6 @@ namespace tl
                 return;
             p.levels = value;
             _widgetUpdate();
-        }
-
-        void LevelsWidget::_levelsEnabledCallback(bool value)
-        {
-            TLRENDER_P();
-            p.levelsEnabled = value;
-            Q_EMIT levelsEnabledChanged(p.levelsEnabled);
-        }
-
-        void LevelsWidget::_inLowCallback(float value)
-        {
-            TLRENDER_P();
-            p.levels.inLow = value;
-            Q_EMIT levelsChanged(p.levels);
-        }
-
-        void LevelsWidget::_inHighCallback(float value)
-        {
-            TLRENDER_P();
-            p.levels.inHigh = value;
-            Q_EMIT levelsChanged(p.levels);
-        }
-
-        void LevelsWidget::_gammaCallback(float value)
-        {
-            TLRENDER_P();
-            p.levels.gamma = value;
-            Q_EMIT levelsChanged(p.levels);
-        }
-
-        void LevelsWidget::_outLowCallback(float value)
-        {
-            TLRENDER_P();
-            p.levels.outLow = value;
-            Q_EMIT levelsChanged(p.levels);
-        }
-
-        void LevelsWidget::_outHighCallback(float value)
-        {
-            TLRENDER_P();
-            p.levels.outHigh = value;
-            Q_EMIT levelsChanged(p.levels);
         }
 
         void LevelsWidget::_widgetUpdate()
@@ -855,27 +812,54 @@ namespace tl
 
             connect(
                 p.exposureEnabledCheckBox,
-                SIGNAL(toggled(bool)),
-                SLOT(_exposureEnabledCallback(bool)));
+                &QCheckBox::toggled,
+                [this](bool value)
+                {
+                    Q_EMIT exposureEnabledChanged(value);
+                });
 
             connect(
                 p.exposureSlider,
-                SIGNAL(valueChanged(float)),
-                SLOT(_exposureCallback(float)));
+                &ColorSliderWidget::valueChanged,
+                [this](float value)
+                {
+                    render::Exposure exposure = _p->exposure;
+                    exposure.exposure = value;
+                    Q_EMIT exposureChanged(exposure);
+                    Q_EMIT exposureEnabledChanged(true);
+                });
 
             connect(
                 p.defogSlider,
-                SIGNAL(valueChanged(float)),
-                SLOT(_defogCallback(float)));
+                &ColorSliderWidget::valueChanged,
+                [this](float value)
+                {
+                    render::Exposure exposure = _p->exposure;
+                    exposure.defog = value;
+                    Q_EMIT exposureChanged(exposure);
+                    Q_EMIT exposureEnabledChanged(true);
+                });
 
             connect(
                 p.kneeLowSlider,
-                SIGNAL(valueChanged(float)),
-                SLOT(_kneeLowCallback(float)));
+                &ColorSliderWidget::valueChanged,
+                [this](float value)
+                {
+                    render::Exposure exposure = _p->exposure;
+                    exposure.kneeLow = value;
+                    Q_EMIT exposureChanged(exposure);
+                    Q_EMIT exposureEnabledChanged(true);
+                });
             connect(
-                p.kneeHighSlider,
-                SIGNAL(valueChanged(float)),
-                SLOT(_kneeHighCallback(float)));
+                p.kneeHighSlider, &ColorSliderWidget::valueChanged,
+                [this](float value)
+                {
+                    render::Exposure exposure = _p->exposure;
+                    exposure.kneeHigh = value;
+                    Q_EMIT exposureChanged(exposure);
+                    Q_EMIT exposureEnabledChanged(true);
+                });
+
         }
 
         ExposureWidget::~ExposureWidget()
@@ -897,41 +881,6 @@ namespace tl
                 return;
             p.exposure = value;
             _widgetUpdate();
-        }
-
-        void ExposureWidget::_exposureEnabledCallback(bool value)
-        {
-            TLRENDER_P();
-            p.exposureEnabled = value;
-            Q_EMIT exposureEnabledChanged(p.exposureEnabled);
-        }
-
-        void ExposureWidget::_exposureCallback(float value)
-        {
-            TLRENDER_P();
-            p.exposure.exposure = value;
-            Q_EMIT exposureChanged(p.exposure);
-        }
-
-        void ExposureWidget::_defogCallback(float value)
-        {
-            TLRENDER_P();
-            p.exposure.defog = value;
-            Q_EMIT exposureChanged(p.exposure);
-        }
-
-        void ExposureWidget::_kneeLowCallback(float value)
-        {
-            TLRENDER_P();
-            p.exposure.kneeLow = value;
-            Q_EMIT exposureChanged(p.exposure);
-        }
-
-        void ExposureWidget::_kneeHighCallback(float value)
-        {
-            TLRENDER_P();
-            p.exposure.kneeHigh = value;
-            Q_EMIT exposureChanged(p.exposure);
         }
 
         void ExposureWidget::_widgetUpdate()
@@ -987,13 +936,20 @@ namespace tl
 
             connect(
                 p.softClipEnabledCheckBox,
-                SIGNAL(toggled(bool)),
-                SLOT(_softClipEnabledCallback(bool)));
+                &QCheckBox::toggled,
+                [this](bool value)
+                {
+                    Q_EMIT softClipEnabledChanged(value);
+                });
 
             connect(
                 p.softClipSlider,
-                SIGNAL(valueChanged(float)),
-                SLOT(_softClipCallback(float)));
+                &ColorSliderWidget::valueChanged,
+                [this](float value)
+                {
+                    Q_EMIT softClipChanged(value);
+                    Q_EMIT softClipEnabledChanged(true);
+                });
         }
 
         SoftClipWidget::~SoftClipWidget()
@@ -1015,20 +971,6 @@ namespace tl
                 return;
             p.softClip = value;
             _widgetUpdate();
-        }
-
-        void SoftClipWidget::_softClipEnabledCallback(bool value)
-        {
-            TLRENDER_P();
-            p.softClipEnabled = value;
-            Q_EMIT softClipEnabledChanged(p.softClipEnabled);
-        }
-
-        void SoftClipWidget::_softClipCallback(float value)
-        {
-            TLRENDER_P();
-            p.softClip = value;
-            Q_EMIT softClipChanged(p.softClip);
         }
 
         void SoftClipWidget::_widgetUpdate()
@@ -1084,54 +1026,109 @@ namespace tl
 
             connect(
                 p.yuvRangeWidget,
-                SIGNAL(valueChanged(tl::render::YUVRange)),
-                SLOT(_yuvRangeCallback(tl::render::YUVRange)));
+                &YUVRangeWidget::valueChanged,
+                [this](tl::render::YUVRange value)
+                {
+                    render::ImageOptions imageOptions = _p->imageOptions;
+                    imageOptions.yuvRange = value;
+                    Q_EMIT imageOptionsChanged(imageOptions);
+                });
 
             connect(
                 p.channelsWidget,
-                SIGNAL(valueChanged(tl::render::Channels)),
-                SLOT(_channelsCallback(tl::render::Channels)));
+                &ChannelsWidget::valueChanged,
+                [this](tl::render::Channels value)
+                {
+                    render::ImageOptions imageOptions = _p->imageOptions;
+                    imageOptions.channels = value;
+                    Q_EMIT imageOptionsChanged(imageOptions);
+                });
 
             connect(
                 p.alphaBlendWidget,
-                SIGNAL(valueChanged(tl::render::AlphaBlend)),
-                SLOT(_alphaBlendCallback(tl::render::AlphaBlend)));
+                &AlphaBlendWidget::valueChanged,
+                [this](tl::render::AlphaBlend value)
+                {
+                    render::ImageOptions imageOptions = _p->imageOptions;
+                    imageOptions.alphaBlend = value;
+                    Q_EMIT imageOptionsChanged(imageOptions);
+                });
 
             connect(
                 p.colorWidget,
-                SIGNAL(colorEnabledChanged(bool)),
-                SLOT(_colorEnabledCallback(bool)));
+                &ColorWidget::colorEnabledChanged,
+                [this](bool value)
+                {
+                    render::ImageOptions imageOptions = _p->imageOptions;
+                    imageOptions.colorEnabled = value;
+                    Q_EMIT imageOptionsChanged(imageOptions);
+                });
             connect(
                 p.colorWidget,
-                SIGNAL(colorChanged(const tl::render::Color&)),
-                SLOT(_colorCallback(const tl::render::Color&)));
+                &ColorWidget::colorChanged,
+                [this](const tl::render::Color& value)
+                {
+                    render::ImageOptions imageOptions = _p->imageOptions;
+                    imageOptions.color = value;
+                    Q_EMIT imageOptionsChanged(imageOptions);
+                });
 
             connect(
                 p.levelsWidget,
-                SIGNAL(levelsEnabledChanged(bool)),
-                SLOT(_levelsEnabledCallback(bool)));
+                &LevelsWidget::levelsEnabledChanged,
+                [this](bool value)
+                {
+                    render::ImageOptions imageOptions = _p->imageOptions;
+                    imageOptions.levelsEnabled = value;
+                    Q_EMIT imageOptionsChanged(imageOptions);
+                });
             connect(
                 p.levelsWidget,
-                SIGNAL(levelsChanged(const tl::render::Levels&)),
-                SLOT(_levelsCallback(const tl::render::Levels&)));
+                &LevelsWidget::levelsChanged,
+                [this](const tl::render::Levels& value)
+                {
+                    render::ImageOptions imageOptions = _p->imageOptions;
+                    imageOptions.levels = value;
+                    Q_EMIT imageOptionsChanged(imageOptions);
+                });
 
             connect(
                 p.exposureWidget,
-                SIGNAL(exposureEnabledChanged(bool)),
-                SLOT(_exposureEnabledCallback(bool)));
+                &ExposureWidget::exposureEnabledChanged,
+                [this](bool value)
+                {
+                    render::ImageOptions imageOptions = _p->imageOptions;
+                    imageOptions.exposureEnabled = value;
+                    Q_EMIT imageOptionsChanged(imageOptions);
+                });
             connect(
                 p.exposureWidget,
-                SIGNAL(exposureChanged(const tl::render::Exposure&)),
-                SLOT(_exposureCallback(const tl::render::Exposure&)));
+                &ExposureWidget::exposureChanged,
+                [this](const tl::render::Exposure& value)
+                {
+                    render::ImageOptions imageOptions = _p->imageOptions;
+                    imageOptions.exposure = value;
+                    Q_EMIT imageOptionsChanged(imageOptions);
+                });
 
             connect(
                 p.softClipWidget,
-                SIGNAL(softClipEnabledChanged(bool)),
-                SLOT(_softClipEnabledCallback(bool)));
+                &SoftClipWidget::softClipEnabledChanged,
+                [this](bool value)
+                {
+                    render::ImageOptions imageOptions = _p->imageOptions;
+                    imageOptions.softClipEnabled = value;
+                    Q_EMIT imageOptionsChanged(imageOptions);
+                });
             connect(
                 p.softClipWidget,
-                SIGNAL(softClipChanged(float)),
-                SLOT(_softClipCallback(float)));
+                &SoftClipWidget::softClipChanged,
+                [this](float value)
+                {
+                    render::ImageOptions imageOptions = _p->imageOptions;
+                    imageOptions.softClip = value;
+                    Q_EMIT imageOptionsChanged(imageOptions);
+                });
         }
 
         ImageTool::~ImageTool()
@@ -1144,83 +1141,6 @@ namespace tl
                 return;
             p.imageOptions = imageOptions;
             _optionsUpdate();
-        }
-
-        void ImageTool::_yuvRangeCallback(render::YUVRange value)
-        {
-            TLRENDER_P();
-            p.imageOptions.yuvRange = value;
-            Q_EMIT imageOptionsChanged(p.imageOptions);
-        }
-
-        void ImageTool::_channelsCallback(render::Channels value)
-        {
-            TLRENDER_P();
-            p.imageOptions.channels = value;
-            Q_EMIT imageOptionsChanged(p.imageOptions);
-        }
-
-        void ImageTool::_alphaBlendCallback(render::AlphaBlend value)
-        {
-            TLRENDER_P();
-            p.imageOptions.alphaBlend = value;
-            Q_EMIT imageOptionsChanged(p.imageOptions);
-        }
-
-        void ImageTool::_colorEnabledCallback(bool value)
-        {
-            TLRENDER_P();
-            p.imageOptions.colorEnabled = value;
-            Q_EMIT imageOptionsChanged(p.imageOptions);
-        }
-
-        void ImageTool::_colorCallback(const render::Color& value)
-        {
-            TLRENDER_P();
-            p.imageOptions.color = value;
-            Q_EMIT imageOptionsChanged(p.imageOptions);
-        }
-
-        void ImageTool::_levelsEnabledCallback(bool value)
-        {
-            TLRENDER_P();
-            p.imageOptions.levelsEnabled = value;
-            Q_EMIT imageOptionsChanged(p.imageOptions);
-        }
-
-        void ImageTool::_levelsCallback(const render::Levels& value)
-        {
-            TLRENDER_P();
-            p.imageOptions.levels = value;
-            Q_EMIT imageOptionsChanged(p.imageOptions);
-        }
-
-        void ImageTool::_exposureEnabledCallback(bool value)
-        {
-            TLRENDER_P();
-            p.imageOptions.exposureEnabled = value;
-            Q_EMIT imageOptionsChanged(p.imageOptions);
-        }
-
-        void ImageTool::_exposureCallback(const render::Exposure& value)
-        {
-            TLRENDER_P();
-            p.imageOptions.exposure = value;
-            Q_EMIT imageOptionsChanged(p.imageOptions);
-        }
-
-        void ImageTool::_softClipEnabledCallback(bool value)
-        {
-            TLRENDER_P();
-            p.imageOptions.softClipEnabled = value;
-            Q_EMIT imageOptionsChanged(p.imageOptions);
-        }
-
-        void ImageTool::_softClipCallback(float value)
-        {
-            TLRENDER_P();
-            p.imageOptions.softClip = value;
-            Q_EMIT imageOptionsChanged(p.imageOptions);
         }
 
         void ImageTool::_optionsUpdate()
