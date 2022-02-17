@@ -9,6 +9,7 @@
 
 #include <rtaudio/RtAudio.h>
 
+#include <limits>
 #include <list>
 #include <memory>
 #include <string>
