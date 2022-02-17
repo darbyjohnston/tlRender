@@ -180,7 +180,7 @@ namespace tl
         {
             switch (level)
             {
-            /*case AV_LOG_PANIC:
+            case AV_LOG_PANIC:
             case AV_LOG_FATAL:
             case AV_LOG_ERROR:
             case AV_LOG_WARNING:
@@ -192,7 +192,7 @@ namespace tl
                     vsnprintf(buf, string::cBufferSize, fmt, vl);
                     logSystem->print("tl::ffmpeg::Plugin", string::removeTrailingNewlines(buf));
                 }
-                break;*/
+                break;
             default: break;
             }
         }

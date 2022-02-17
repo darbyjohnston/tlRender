@@ -317,7 +317,6 @@ namespace tl
             {
                 throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
             }
-            //av_dump_format(p.video.avFormatContext, 0, fileName.c_str(), 0);
             for (unsigned int i = 0; i < p.video.avFormatContext->nb_streams; ++i)
             {
                 if (AVMEDIA_TYPE_VIDEO == p.video.avFormatContext->streams[i]->codecpar->codec_type &&
@@ -340,6 +339,8 @@ namespace tl
             }
             if (p.video.avStream != -1)
             {
+                //av_dump_format(p.video.avFormatContext, p.video.avStream, fileName.c_str(), 0);
+
                 auto avVideoStream = p.video.avFormatContext->streams[p.video.avStream];
                 auto avVideoCodecParameters = avVideoStream->codecpar;
                 auto avVideoCodec = avcodec_find_decoder(avVideoCodecParameters->codec_id);
@@ -498,6 +499,8 @@ namespace tl
             }
             if (p.audio.avStream != -1)
             {
+                //av_dump_format(p.audio.avFormatContext, p.audio.avStream, fileName.c_str(), 0);
+
                 auto avAudioStream = p.audio.avFormatContext->streams[p.audio.avStream];
                 auto avAudioCodecParameters = avAudioStream->codecpar;
                 auto avAudioCodec = avcodec_find_decoder(avAudioCodecParameters->codec_id);
