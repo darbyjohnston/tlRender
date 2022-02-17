@@ -121,7 +121,7 @@ namespace tl
                 p.settingsObject,
                 SIGNAL(ffmpegThreadCountChanged(int)),
                 SLOT(_settingsCallback()));
-            _settingsUpdate();
+            _cacheUpdate();
 
             p.filesModel = FilesModel::create(_context);
             p.activeObserver = observer::ListObserver<std::shared_ptr<FilesModelItem> >::create(
@@ -299,8 +299,6 @@ namespace tl
                         playerOptions.timerMode = p.settingsObject->timerMode();
                         playerOptions.audioBufferFrameCount = p.settingsObject->audioBufferFrameCount();
                         auto timelinePlayer = timeline::TimelinePlayer::create(timeline, _context, playerOptions);
-                        timelinePlayer->setCacheReadAhead(otime::RationalTime(p.settingsObject->cacheReadAhead(), 1.0));
-                        timelinePlayer->setCacheReadBehind(otime::RationalTime(p.settingsObject->cacheReadBehind(), 1.0));
 
                         qtTimelinePlayer = new qt::TimelinePlayer(timelinePlayer, _context, this);
                     }
@@ -376,20 +374,40 @@ namespace tl
                 delete p.timelinePlayers[i];
             }
             p.timelinePlayers = timelinePlayers;
+
+            _cacheUpdate();
         }
 
         void App::_settingsCallback()
         {
-            _settingsUpdate();
+            _cacheUpdate();
         }
 
-        void App::_settingsUpdate()
+        otime::RationalTime App::_cacheReadAhead() const
+        {
+            TLRENDER_P();
+            const size_t activeCount = p.filesModel->observeActive()->getSize();
+            return otime::RationalTime(
+                p.settingsObject->cacheReadAhead() / static_cast<double>(activeCount),
+                1.0);
+        }
+
+        otime::RationalTime App::_cacheReadBehind() const
+        {
+            TLRENDER_P();
+            const size_t activeCount = p.filesModel->observeActive()->getSize();
+            return otime::RationalTime(
+                p.settingsObject->cacheReadBehind() / static_cast<double>(activeCount),
+                1.0);
+        }
+
+        void App::_cacheUpdate()
         {
             TLRENDER_P();
             for (const auto& i : p.timelinePlayers)
             {
-                i->setCacheReadAhead(otime::RationalTime(p.settingsObject->cacheReadAhead(), 1.0));
-                i->setCacheReadBehind(otime::RationalTime(p.settingsObject->cacheReadBehind(), 1.0));
+                i->setCacheReadAhead(_cacheReadAhead());
+                i->setCacheReadBehind(_cacheReadBehind());
             }
         }
     }

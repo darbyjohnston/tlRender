@@ -71,7 +71,10 @@ namespace tl
             void _settingsCallback();
 
         private:
-            void _settingsUpdate();
+            otime::RationalTime _cacheReadAhead() const;
+            otime::RationalTime _cacheReadBehind() const;
+
+            void _cacheUpdate();
 
             TLRENDER_PRIVATE();
         };
