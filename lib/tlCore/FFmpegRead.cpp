@@ -156,10 +156,8 @@ namespace tl
                         {
                             std::unique_lock<std::mutex> lock(p.mutex);
                             p.stopped = true;
-                            videoRequests.insert(videoRequests.begin(), p.videoRequests.begin(), p.videoRequests.end());
-                            audioRequests.insert(audioRequests.begin(), p.audioRequests.begin(), p.audioRequests.end());
-                            p.videoRequests.clear();
-                            p.audioRequests.clear();
+                            videoRequests = std::move(p.videoRequests);
+                            audioRequests = std::move(p.audioRequests);
                         }
                         while (!videoRequests.empty())
                         {
@@ -374,7 +372,8 @@ namespace tl
                 videoInfo.layout.mirror.y = true;
 
                 p.video.avFrame = av_frame_alloc();
-                const AVPixelFormat avPixelFormat = static_cast<AVPixelFormat>(p.video.avCodecParameters[p.video.avStream]->format);
+                const AVPixelFormat avPixelFormat = static_cast<AVPixelFormat>(
+                    p.video.avCodecParameters[p.video.avStream]->format);
                 switch (avPixelFormat)
                 {
                 case AV_PIX_FMT_YUV420P:
@@ -578,18 +577,6 @@ namespace tl
                         r);
                 }
 
-                p.audio.swrContext = swr_alloc_set_opts(
-                    NULL,
-                    fromChannelCount(channelCount),
-                    fromAudioType(dataType),
-                    sampleRate,
-                    p.audio.avCodecParameters[p.audio.avStream]->channel_layout,
-                    static_cast<AVSampleFormat>(p.audio.avCodecParameters[p.audio.avStream]->format),
-                    p.audio.avCodecParameters[p.audio.avStream]->sample_rate,
-                    0,
-                    NULL);
-                swr_init(p.audio.swrContext);
-
                 p.info.audio.channelCount = channelCount;
                 p.info.audio.dataType = dataType;
                 p.info.audio.sampleRate = sampleRate;
@@ -612,6 +599,71 @@ namespace tl
         void Read::_run()
         {
             TLRENDER_P();
+
+            if (p.video.avStream != -1)
+            {
+                p.video.avFrame = av_frame_alloc();
+                const AVPixelFormat avPixelFormat = static_cast<AVPixelFormat>(
+                    p.video.avCodecParameters[p.video.avStream]->format);
+                switch (avPixelFormat)
+                {
+                case AV_PIX_FMT_YUV420P:
+                case AV_PIX_FMT_RGB24:
+                case AV_PIX_FMT_GRAY8:
+                case AV_PIX_FMT_RGBA: break;
+                default:
+                {
+                    p.video.avFrame2 = av_frame_alloc();
+                    p.video.swsContext = sws_getContext(
+                        p.video.avCodecParameters[p.video.avStream]->width,
+                        p.video.avCodecParameters[p.video.avStream]->height,
+                        avPixelFormat,
+                        p.video.avCodecParameters[p.video.avStream]->width,
+                        p.video.avCodecParameters[p.video.avStream]->height,
+                        AV_PIX_FMT_YUV420P,
+                        swsScaleFlags,
+                        0,
+                        0,
+                        0);
+                    const int srcColorRange = p.video.avCodecContext[p.video.avStream]->color_range;
+                    int srcColorSpace = SWS_CS_DEFAULT;
+                    if (p.video.avCodecContext[p.video.avStream]->color_primaries != AVCOL_PRI_UNSPECIFIED)
+                    {
+                        switch (p.video.avCodecContext[p.video.avStream]->colorspace)
+                        {
+                        case AVCOL_SPC_BT709: srcColorSpace = SWS_CS_ITU709; break;
+                        default: break;
+                        }
+                    }
+                    sws_setColorspaceDetails(
+                        p.video.swsContext,
+                        sws_getCoefficients(srcColorSpace),
+                        AVCOL_RANGE_JPEG == srcColorRange ? 1 : 0,
+                        sws_getCoefficients(SWS_CS_DEFAULT),
+                        1,
+                        0,
+                        1 << 16,
+                        1 << 16);
+                    break;
+                }
+                }
+            }
+
+            if (p.audio.avStream != -1)
+            {
+                p.audio.swrContext = swr_alloc_set_opts(
+                    NULL,
+                    fromChannelCount(p.info.audio.channelCount),
+                    fromAudioType(p.info.audio.dataType),
+                    p.info.audio.sampleRate,
+                    p.audio.avCodecParameters[p.audio.avStream]->channel_layout,
+                    static_cast<AVSampleFormat>(p.audio.avCodecParameters[p.audio.avStream]->format),
+                    p.audio.avCodecParameters[p.audio.avStream]->sample_rate,
+                    0,
+                    NULL);
+                swr_init(p.audio.swrContext);
+            }
+
             p.logTimer = std::chrono::steady_clock::now();
             while (p.running)
             {
