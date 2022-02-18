@@ -211,8 +211,8 @@ namespace tl
                 std::vector<otime::TimeRange> cachedAudioFrames;
                 bool clearCache = false;
                 CacheDirection cacheDirection = CacheDirection::Forward;
-                otime::RationalTime cacheReadAhead = otime::RationalTime(4.0, 1.0);
-                otime::RationalTime cacheReadBehind = otime::RationalTime(0.4, 1.0);
+                otime::RationalTime cacheReadAhead = time::invalidTime;
+                otime::RationalTime cacheReadBehind = time::invalidTime;
             };
             MutexData mutexData;
             std::mutex mutex;
@@ -254,6 +254,10 @@ namespace tl
             {
                 std::vector<std::string> lines;
                 lines.push_back(std::string());
+                lines.push_back(string::Format("    Cache read ahead: {0}").
+                    arg(playerOptions.cacheReadAhead));
+                lines.push_back(string::Format("    Cache read behind: {0}").
+                    arg(playerOptions.cacheReadBehind));
                 lines.push_back(string::Format("    Timer mode: {0}").
                     arg(playerOptions.timerMode));
                 lines.push_back(string::Format("    Audio buffer frame count: {0}").
@@ -283,8 +287,8 @@ namespace tl
             p.volume = observer::Value<float>::create(1.F);
             p.mute = observer::Value<bool>::create(false);
             p.audioOffset = observer::Value<double>::create(0.0);
-            p.cacheReadAhead = observer::Value<otime::RationalTime>::create();
-            p.cacheReadBehind = observer::Value<otime::RationalTime>::create();
+            p.cacheReadAhead = observer::Value<otime::RationalTime>::create(playerOptions.cacheReadAhead);
+            p.cacheReadBehind = observer::Value<otime::RationalTime>::create(playerOptions.cacheReadBehind);
             p.cachePercentage = observer::Value<float>::create();
             p.cachedVideoFrames = observer::List<otime::TimeRange>::create();
             p.cachedAudioFrames = observer::List<otime::TimeRange>::create();
@@ -293,6 +297,8 @@ namespace tl
             p.mutexData.currentTime = p.currentTime->get();
             p.mutexData.inOutRange = p.inOutRange->get();
             p.mutexData.audioOffset = p.audioOffset->get();
+            p.mutexData.cacheReadAhead = p.cacheReadAhead->get();
+            p.mutexData.cacheReadBehind = p.cacheReadBehind->get();
             p.audioMutexData.speed = p.speed->get();
             p.threadData.running = true;
             p.thread = std::thread(

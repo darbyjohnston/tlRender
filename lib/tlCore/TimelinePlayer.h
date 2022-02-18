@@ -48,6 +48,9 @@ namespace tl
         //! Timeline player options.
         struct PlayerOptions
         {
+            otime::RationalTime cacheReadAhead = otime::RationalTime(4.0, 1.0);
+            otime::RationalTime cacheReadBehind = otime::RationalTime(0.5, 1.0);
+
             TimerMode timerMode = TimerMode::System;
 
             AudioBufferFrameCount audioBufferFrameCount = AudioBufferFrameCount::_256;

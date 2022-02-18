@@ -296,6 +296,8 @@ namespace tl
                             timeline::Timeline::create(items[i]->path.get(), items[i]->audioPath.get(), _context, options);
 
                         timeline::PlayerOptions playerOptions;
+                        playerOptions.cacheReadAhead = _cacheReadAhead();
+                        playerOptions.cacheReadBehind = _cacheReadBehind();
                         playerOptions.timerMode = p.settingsObject->timerMode();
                         playerOptions.audioBufferFrameCount = p.settingsObject->audioBufferFrameCount();
                         auto timelinePlayer = timeline::TimelinePlayer::create(timeline, _context, playerOptions);
