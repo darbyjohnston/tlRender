@@ -97,46 +97,25 @@ namespace tl
                     this,
                     SLOT(update()));
             }
-            if (p.thumbnailProvider)
-            {
-                delete p.thumbnailProvider;
-                p.thumbnailProvider = nullptr;
-            }
             p.timelinePlayer = timelinePlayer;
             if (p.timelinePlayer)
             {
-                if (auto context = p.timelinePlayer->context().lock())
-                {
-                    timeline::Options options;
-                    options.videoRequestCount = 1;
-                    options.audioRequestCount = 1;
-                    options.requestTimeout = std::chrono::milliseconds(100);
-                    options.avioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").arg(1);
-                    options.avioOptions["ffmpeg/ThreadCount"] = string::Format("{0}").arg(1);
-                    auto timeline = timeline::Timeline::create(p.timelinePlayer->timeline()->getPath().get(), context, options);
-                    p.thumbnailProvider = new qt::TimelineThumbnailProvider(timeline, context, this);
-                    p.thumbnailProvider->setColorConfig(p.colorConfig);
-                    connect(
-                        p.timelinePlayer,
-                        SIGNAL(currentTimeChanged(const otime::RationalTime&)),
-                        SLOT(update()));
-                    connect(
-                        p.timelinePlayer,
-                        SIGNAL(inOutRangeChanged(const otime::TimeRange&)),
-                        SLOT(update()));
-                    connect(
-                        p.timelinePlayer,
-                        SIGNAL(cachedVideoFramesChanged(const std::vector<otime::TimeRange>&)),
-                        SLOT(update()));
-                    connect(
-                        p.timelinePlayer,
-                        SIGNAL(cachedAudioFramesChanged(const std::vector<otime::TimeRange>&)),
-                        SLOT(update()));
-                    connect(
-                        p.thumbnailProvider,
-                        SIGNAL(thumbails(const QList<QPair<otime::RationalTime, QImage> >&)),
-                        SLOT(_thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >&)));
-                }
+                connect(
+                    p.timelinePlayer,
+                    SIGNAL(currentTimeChanged(const otime::RationalTime&)),
+                    SLOT(update()));
+                connect(
+                    p.timelinePlayer,
+                    SIGNAL(inOutRangeChanged(const otime::TimeRange&)),
+                    SLOT(update()));
+                connect(
+                    p.timelinePlayer,
+                    SIGNAL(cachedVideoFramesChanged(const std::vector<otime::TimeRange>&)),
+                    SLOT(update()));
+                connect(
+                    p.timelinePlayer,
+                    SIGNAL(cachedAudioFramesChanged(const std::vector<otime::TimeRange>&)),
+                    SLOT(update()));
             }
             _thumbnailsUpdate();
         }
@@ -313,8 +292,28 @@ namespace tl
                 p.thumbnailProvider->cancelRequests();
             }
             p.thumbnailImages.clear();
-            if (p.timelinePlayer && p.thumbnails && p.thumbnailProvider)
+            if (p.timelinePlayer && p.thumbnails)
             {
+                if (!p.thumbnailProvider)
+                {
+                    if (auto context = p.timelinePlayer->context().lock())
+                    {
+                        timeline::Options options;
+                        options.videoRequestCount = 1;
+                        options.audioRequestCount = 1;
+                        options.requestTimeout = std::chrono::milliseconds(100);
+                        options.avioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").arg(1);
+                        options.avioOptions["ffmpeg/ThreadCount"] = string::Format("{0}").arg(1);
+                        auto timeline = timeline::Timeline::create(p.timelinePlayer->timeline()->getPath().get(), context, options);
+                        p.thumbnailProvider = new qt::TimelineThumbnailProvider(timeline, context, this);
+                        p.thumbnailProvider->setColorConfig(p.colorConfig);
+                        connect(
+                            p.thumbnailProvider,
+                            SIGNAL(thumbails(const QList<QPair<otime::RationalTime, QImage> >&)),
+                            SLOT(_thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >&)));
+                    }
+                }
+
                 const auto& duration = p.timelinePlayer->duration();
                 const auto& info = p.timelinePlayer->avInfo();
                 const auto rect = this->rect().adjusted(0, 0, 0, -(stripeSize * 2 + handleSize * 2));
@@ -335,6 +334,11 @@ namespace tl
                     }
                     p.thumbnailProvider->request(requests, QSize(thumbnailWidth, thumbnailHeight));
                 }
+            }
+            else if (p.thumbnailProvider)
+            {
+                delete p.thumbnailProvider;
+                p.thumbnailProvider = nullptr;
             }
             update();
         }
