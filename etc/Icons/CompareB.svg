@@ -67,13 +67,8 @@
       <path
          id="path1296"
          style="fill:#f0f0f0;stroke-width:0.529167"
-         d="m 0.7937499,293.82497 v 2.38125 h 2.6458334 v -2.38125 z m 0.5291667,0.52917 h 1.5875 v 1.32291 h -1.5875 z"
+         d="m 1.0583333,293.03123 1e-7,2.64583 h 3.1749999 l -1e-7,-2.64583 z M 1.5875,293.5604 h 2.1166665 l 1e-7,1.58749 H 1.5875001 Z"
          sodipodi:nodetypes="cccccccccc" />
-      <path
-         id="rect1020"
-         style="fill:#f0f0f0;stroke-width:0.529167"
-         d="m 1.8520833,292.50206 2.6458333,-10e-6 v 2.38125 l -2.6458333,10e-6 z"
-         sodipodi:nodetypes="ccccc" />
     </g>
   </g>
 </svg>

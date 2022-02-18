@@ -43,7 +43,7 @@ namespace tl
             void checked(const QVariant&);
 
         private Q_SLOTS:
-            void _groupCallback(QAbstractButton* button, bool);
+            void _callback(QAbstractButton*, bool);
 
         private:
             void _widgetUpdate();

@@ -45,7 +45,9 @@ namespace tl
             void _compareCallback(QAction*);
             void _secondaryWindowCallback(bool);
             void _secondaryWindowDestroyedCallback();
+            void _yuvRangeCallback(QAction*);
             void _channelsCallback(QAction*);
+            void _alphaBlendCallback(QAction*);
             void _playbackCallback(QAction*);
             void _playbackCallback(tl::timeline::Playback);
             void _loopCallback(QAction*);

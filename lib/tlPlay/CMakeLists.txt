@@ -7,7 +7,6 @@ set(HEADERS
 	FilesModel.h
 	FilesTool.h
 	FilesView.h
-    ImageTool.h
     InfoTool.h
 	InfoModel.h
     MainWindow.h
@@ -27,7 +26,6 @@ set(SOURCE
 	FilesModel.cpp
 	FilesTool.cpp
 	FilesView.cpp
-    ImageTool.cpp
     InfoTool.cpp
 	InfoModel.cpp
     MainWindow.cpp

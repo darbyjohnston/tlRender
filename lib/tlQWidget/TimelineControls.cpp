@@ -42,10 +42,10 @@ namespace tl
             TimeSpinBox* currentTimeSpinBox = nullptr;
             TimeLabel* durationLabel = nullptr;
             QList<double> speeds;
+            QDoubleSpinBox* speedSpinBox = nullptr;
             QMap<QAction*, double> actionToSpeed;
             QMenu* speedMenu = nullptr;
             QToolButton* speedButton = nullptr;
-            QDoubleSpinBox* speedSpinBox = nullptr;
             QToolButton* muteButton = nullptr;
             QSlider* volumeSlider = nullptr;
         };
@@ -113,6 +113,12 @@ namespace tl
             p.currentTimeSpinBox = new TimeSpinBox;
             p.currentTimeSpinBox->setToolTip(tr("Current time"));
 
+            p.speedSpinBox = new QDoubleSpinBox;
+            p.speedSpinBox->setRange(0.0, 120.0);
+            p.speedSpinBox->setSingleStep(1.0);
+            const QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+            p.speedSpinBox->setFont(fixedFont);
+            p.speedSpinBox->setToolTip(tr("Timeline speed (frames per second)"));
             p.speeds.append(1.0);
             p.speeds.append(3.0);
             p.speeds.append(6.0);
@@ -135,12 +141,6 @@ namespace tl
             p.speedButton->setPopupMode(QToolButton::InstantPopup);
             p.speedButton->setAutoRaise(true);
             p.speedButton->setToolTip(tr("Timeline speed menu"));
-            p.speedSpinBox = new QDoubleSpinBox;
-            p.speedSpinBox->setRange(0.0, 120.0);
-            p.speedSpinBox->setSingleStep(1.0);
-            const QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
-            p.speedSpinBox->setFont(fixedFont);
-            p.speedSpinBox->setToolTip(tr("Timeline speed (frames per second)"));
 
             p.durationLabel = new TimeLabel;
             p.durationLabel->setToolTip(tr("Timeline duration"));
@@ -173,12 +173,15 @@ namespace tl
             hLayout->addWidget(p.timeActionButtons["FrameNext"]);
             hLayout->addWidget(p.timeActionButtons["End"]);
             layout->addLayout(hLayout);
+            layout->addSpacing(10);
             layout->addWidget(p.currentTimeSpinBox);
+            layout->addSpacing(10);
             layout->addWidget(p.durationLabel);
+            layout->addSpacing(10);
             hLayout = new QHBoxLayout;
             hLayout->setSpacing(1);
-            hLayout->addWidget(p.speedButton);
             hLayout->addWidget(p.speedSpinBox);
+            hLayout->addWidget(p.speedButton);
             layout->addLayout(hLayout);
             layout->addStretch();
             hLayout = new QHBoxLayout;

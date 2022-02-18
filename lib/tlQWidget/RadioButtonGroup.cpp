@@ -38,7 +38,7 @@ namespace tl
             connect(
                 p.group,
                 SIGNAL(buttonToggled(QAbstractButton*, bool)),
-                SLOT(_groupCallback(QAbstractButton*, bool)));
+                SLOT(_callback(QAbstractButton*, bool)));
         }
         
         RadioButtonGroup::~RadioButtonGroup()
@@ -96,7 +96,7 @@ namespace tl
             _widgetUpdate();
         }
 
-        void RadioButtonGroup::_groupCallback(QAbstractButton* button, bool value)
+        void RadioButtonGroup::_callback(QAbstractButton* button, bool value)
         {
             TLRENDER_P();
             if (value)

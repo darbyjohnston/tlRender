@@ -55,22 +55,16 @@ namespace tl
             auto toolBar = new QToolBar;
             toolBar->setToolButtonStyle(Qt::ToolButtonIconOnly);
             toolBar->setIconSize(QSize(20, 20));
-            toolBar->addAction(actions["File/Open"]);
-            toolBar->addAction(actions["File/OpenWithAudio"]);
-            toolBar->addAction(actions["File/Close"]);
-            toolBar->addAction(actions["File/CloseAll"]);
             toolBar->addAction(actions["File/Prev"]);
             toolBar->addAction(actions["File/Next"]);
-            toolBar->addAction(actions["File/PrevLayer"]);
-            toolBar->addAction(actions["File/NextLayer"]);
 
-            auto vLayout = new QVBoxLayout;
-            vLayout->setContentsMargins(0, 0, 0, 0);
-            vLayout->setSpacing(0);
-            vLayout->addWidget(p.treeView);
-            vLayout->addWidget(toolBar);
+            auto layout = new QVBoxLayout;
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(0);
+            layout->addWidget(p.treeView);
+            layout->addWidget(toolBar);
             auto widget = new QWidget;
-            widget->setLayout(vLayout);
+            widget->setLayout(layout);
             addWidget(widget, 1);
 
             QSettings settings;

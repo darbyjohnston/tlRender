@@ -11,7 +11,6 @@
 #include <tlPlay/CompareTool.h>
 #include <tlPlay/FilesModel.h>
 #include <tlPlay/FilesTool.h>
-#include <tlPlay/ImageTool.h>
 #include <tlPlay/InfoTool.h>
 #include <tlPlay/MessagesTool.h>
 #include <tlPlay/SecondaryWindow.h>
@@ -68,23 +67,16 @@ namespace tl
             QMap<QAction*, QString> actionToRecentFile;
             QMenu* recentFilesMenu = nullptr;
             QActionGroup* compareActionGroup = nullptr;
-            QMap<QAction*, render::CompareMode> actionToCompare;
-            QMap<render::CompareMode, QAction*> compareToActions;
+            QActionGroup* yuvRangeActionGroup = nullptr;
             QActionGroup* channelsActionGroup = nullptr;
-            QMap<QAction*, render::Channels> actionToChannels;
-            QMap<render::Channels, QAction*> channelsToActions;
+            QActionGroup* alphaBlendActionGroup = nullptr;
             QActionGroup* playbackActionGroup = nullptr;
-            QMap<QAction*, timeline::Playback> actionToPlayback;
-            QMap<timeline::Playback, QAction*> playbackToActions;
             QActionGroup* loopActionGroup = nullptr;
-            QMap<QAction*, timeline::Loop> actionToLoop;
-            QMap<timeline::Loop, QAction*> loopToActions;
 
             qwidget::TimelineWidget* timelineWidget = nullptr;
             FilesTool* filesTool = nullptr;
             CompareTool* compareTool = nullptr;
             ColorTool* colorTool = nullptr;
-            ImageTool* imageTool = nullptr;
             InfoTool* infoTool = nullptr;
             AudioTool* audioTool = nullptr;
             SettingsTool* settingsTool = nullptr;
@@ -114,22 +106,18 @@ namespace tl
 
             p.actions["File/Open"] = new QAction(this);
             p.actions["File/Open"]->setText(tr("Open"));
-            p.actions["File/Open"]->setIcon(QIcon(":/Icons/Open.svg"));
             p.actions["File/Open"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_O));
             p.actions["File/Open"]->setToolTip(tr("Open a file"));
             p.actions["File/OpenWithAudio"] = new QAction(this);
             p.actions["File/OpenWithAudio"]->setText(tr("Open With Audio"));
-            p.actions["File/OpenWithAudio"]->setIcon(QIcon(":/Icons/OpenWithAudio.svg"));
             p.actions["File/OpenWithAudio"]->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_O));
             p.actions["File/OpenWithAudio"]->setToolTip(tr("Open a file with audio"));
             p.actions["File/Close"] = new QAction(this);
             p.actions["File/Close"]->setText(tr("Close"));
-            p.actions["File/Close"]->setIcon(QIcon(":/Icons/Close.svg"));
             p.actions["File/Close"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_E));
             p.actions["File/Close"]->setToolTip(tr("Close the current file"));
             p.actions["File/CloseAll"] = new QAction(this);
             p.actions["File/CloseAll"]->setText(tr("Close All"));
-            p.actions["File/CloseAll"]->setIcon(QIcon(":/Icons/CloseAll.svg"));
             p.actions["File/CloseAll"]->setToolTip(tr("Close all files"));
             p.actions["File/Next"] = new QAction(this);
             p.actions["File/Next"]->setText(tr("Next"));
@@ -143,12 +131,10 @@ namespace tl
             p.actions["File/Prev"]->setToolTip(tr("Go to the previous file"));
             p.actions["File/NextLayer"] = new QAction(this);
             p.actions["File/NextLayer"]->setText(tr("Next Layer"));
-            p.actions["File/NextLayer"]->setIcon(QIcon(":/Icons/NextLayer.svg"));
             p.actions["File/NextLayer"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Equal));
             p.actions["File/NextLayer"]->setToolTip(tr("Go to the next layer"));
             p.actions["File/PrevLayer"] = new QAction(this);
             p.actions["File/PrevLayer"]->setText(tr("Previous Layer"));
-            p.actions["File/PrevLayer"]->setIcon(QIcon(":/Icons/PrevLayer.svg"));
             p.actions["File/PrevLayer"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Minus));
             p.actions["File/PrevLayer"]->setToolTip(tr("Go to the previous layer"));
             p.recentFilesActionGroup = new QActionGroup(this);
@@ -156,44 +142,6 @@ namespace tl
             p.actions["File/Exit"]->setText(tr("Exit"));
             p.actions["File/Exit"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Q));
 
-            p.actions["Compare/A"] = new QAction(this);
-            p.actions["Compare/A"]->setCheckable(true);
-            p.actions["Compare/A"]->setText(tr("A"));
-            p.actions["Compare/A"]->setIcon(QIcon(":/Icons/CompareA.svg"));
-            p.actions["Compare/A"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_A));
-            p.actions["Compare/A"]->setToolTip(tr("Show the A file"));
-            p.actions["Compare/B"] = new QAction(this);
-            p.actions["Compare/B"]->setCheckable(true);
-            p.actions["Compare/B"]->setText(tr("B"));
-            p.actions["Compare/B"]->setIcon(QIcon(":/Icons/CompareB.svg"));
-            p.actions["Compare/B"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_B));
-            p.actions["Compare/B"]->setToolTip(tr("Show the B file"));
-            p.actions["Compare/Wipe"] = new QAction(this);
-            p.actions["Compare/Wipe"]->setCheckable(true);
-            p.actions["Compare/Wipe"]->setText(tr("Wipe"));
-            p.actions["Compare/Wipe"]->setIcon(QIcon(":/Icons/CompareWipe.svg"));
-            p.actions["Compare/Wipe"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_W));
-            p.actions["Compare/Wipe"]->setToolTip(tr("Wipe between the A and B files"));
-            p.actions["Compare/Tile"] = new QAction(this);
-            p.actions["Compare/Tile"]->setCheckable(true);
-            p.actions["Compare/Tile"]->setText(tr("Tile"));
-            p.actions["Compare/Tile"]->setIcon(QIcon(":/Icons/CompareTile.svg"));
-            p.actions["Compare/Tile"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_T));
-            p.actions["Compare/Tile"]->setToolTip(tr("Tile the A and B files"));
-            p.compareActionGroup = new QActionGroup(this);
-            p.compareActionGroup->setExclusive(true);
-            p.compareActionGroup->addAction(p.actions["Compare/A"]);
-            p.compareActionGroup->addAction(p.actions["Compare/B"]);
-            p.compareActionGroup->addAction(p.actions["Compare/Wipe"]);
-            p.compareActionGroup->addAction(p.actions["Compare/Tile"]);
-            p.actionToCompare[p.actions["Compare/A"]] = render::CompareMode::A;
-            p.actionToCompare[p.actions["Compare/B"]] = render::CompareMode::B;
-            p.actionToCompare[p.actions["Compare/Wipe"]] = render::CompareMode::Wipe;
-            p.actionToCompare[p.actions["Compare/Tile"]] = render::CompareMode::Tile;
-            p.compareToActions[render::CompareMode::A] = p.actions["Compare/A"];
-            p.compareToActions[render::CompareMode::B] = p.actions["Compare/B"];
-            p.compareToActions[render::CompareMode::Wipe] = p.actions["Compare/Wipe"];
-            p.compareToActions[render::CompareMode::Tile] = p.actions["Compare/Tile"];
             p.actions["Compare/Next"] = new QAction(this);
             p.actions["Compare/Next"]->setText(tr("Next"));
             p.actions["Compare/Next"]->setIcon(QIcon(":/Icons/Next.svg"));
@@ -209,6 +157,40 @@ namespace tl
             p.actions["Compare/Clear"]->setIcon(QIcon(":/Icons/Reset.svg"));
             p.actions["Compare/Clear"]->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_B));
             p.actions["Compare/Clear"]->setToolTip(tr("Clear the B files"));
+            p.actions["Compare/A"] = new QAction(this);
+            p.actions["Compare/A"]->setData(QVariant::fromValue<render::CompareMode>(render::CompareMode::A));
+            p.actions["Compare/A"]->setCheckable(true);
+            p.actions["Compare/A"]->setText(tr("Show A"));
+            p.actions["Compare/A"]->setIcon(QIcon(":/Icons/CompareA.svg"));
+            p.actions["Compare/A"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_A));
+            p.actions["Compare/A"]->setToolTip(tr("Show the A file"));
+            p.actions["Compare/B"] = new QAction(this);
+            p.actions["Compare/B"]->setData(QVariant::fromValue<render::CompareMode>(render::CompareMode::B));
+            p.actions["Compare/B"]->setCheckable(true);
+            p.actions["Compare/B"]->setText(tr("Show B"));
+            p.actions["Compare/B"]->setIcon(QIcon(":/Icons/CompareB.svg"));
+            p.actions["Compare/B"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_B));
+            p.actions["Compare/B"]->setToolTip(tr("Show the B file"));
+            p.actions["Compare/Wipe"] = new QAction(this);
+            p.actions["Compare/Wipe"]->setData(QVariant::fromValue<render::CompareMode>(render::CompareMode::Wipe));
+            p.actions["Compare/Wipe"]->setCheckable(true);
+            p.actions["Compare/Wipe"]->setText(tr("A/B Wipe"));
+            p.actions["Compare/Wipe"]->setIcon(QIcon(":/Icons/CompareWipe.svg"));
+            p.actions["Compare/Wipe"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_W));
+            p.actions["Compare/Wipe"]->setToolTip(tr("Wipe between the A and B files"));
+            p.actions["Compare/Tile"] = new QAction(this);
+            p.actions["Compare/Tile"]->setData(QVariant::fromValue<render::CompareMode>(render::CompareMode::Tile));
+            p.actions["Compare/Tile"]->setCheckable(true);
+            p.actions["Compare/Tile"]->setText(tr("A/B Tile"));
+            p.actions["Compare/Tile"]->setIcon(QIcon(":/Icons/CompareTile.svg"));
+            p.actions["Compare/Tile"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_T));
+            p.actions["Compare/Tile"]->setToolTip(tr("Tile the A and B files"));
+            p.compareActionGroup = new QActionGroup(this);
+            p.compareActionGroup->setExclusive(true);
+            p.compareActionGroup->addAction(p.actions["Compare/A"]);
+            p.compareActionGroup->addAction(p.actions["Compare/B"]);
+            p.compareActionGroup->addAction(p.actions["Compare/Wipe"]);
+            p.compareActionGroup->addAction(p.actions["Compare/Tile"]);
 
             p.actions["Window/Resize1280x720"] = new QAction(this);
             p.actions["Window/Resize1280x720"]->setText(tr("Resize 1280x720"));
@@ -243,37 +225,31 @@ namespace tl
             p.actions["View/ZoomOut"]->setText(tr("Zoom Out"));
             p.actions["View/ZoomOut"]->setShortcut(QKeySequence(Qt::Key_Minus));
 
-            p.actions["Image/RedChannel"] = new QAction(this);
-            p.actions["Image/RedChannel"]->setCheckable(true);
-            p.actions["Image/RedChannel"]->setText(tr("Red Channel"));
-            p.actions["Image/RedChannel"]->setShortcut(QKeySequence(Qt::Key_R));
-            p.actions["Image/GreenChannel"] = new QAction(this);
-            p.actions["Image/GreenChannel"]->setCheckable(true);
-            p.actions["Image/GreenChannel"]->setText(tr("Green Channel"));
-            p.actions["Image/GreenChannel"]->setShortcut(QKeySequence(Qt::Key_G));
-            p.actions["Image/BlueChannel"] = new QAction(this);
-            p.actions["Image/BlueChannel"]->setCheckable(true);
-            p.actions["Image/BlueChannel"]->setText(tr("Blue Channel"));
-            p.actions["Image/BlueChannel"]->setShortcut(QKeySequence(Qt::Key_B));
-            p.actions["Image/AlphaChannel"] = new QAction(this);
-            p.actions["Image/AlphaChannel"]->setCheckable(true);
-            p.actions["Image/AlphaChannel"]->setText(tr("Alpha Channel"));
-            p.actions["Image/AlphaChannel"]->setShortcut(QKeySequence(Qt::Key_A));
+            p.actions["Image/Channels/Red"] = new QAction(this);
+            p.actions["Image/Channels/Red"]->setData(QVariant::fromValue<render::Channels>(render::Channels::Red));
+            p.actions["Image/Channels/Red"]->setCheckable(true);
+            p.actions["Image/Channels/Red"]->setText(tr("Red Channel"));
+            p.actions["Image/Channels/Red"]->setShortcut(QKeySequence(Qt::Key_R));
+            p.actions["Image/Channels/Green"] = new QAction(this);
+            p.actions["Image/Channels/Green"]->setData(QVariant::fromValue<render::Channels>(render::Channels::Green));
+            p.actions["Image/Channels/Green"]->setCheckable(true);
+            p.actions["Image/Channels/Green"]->setText(tr("Green Channel"));
+            p.actions["Image/Channels/Green"]->setShortcut(QKeySequence(Qt::Key_G));
+            p.actions["Image/Channels/Blue"] = new QAction(this);
+            p.actions["Image/Channels/Blue"]->setData(QVariant::fromValue<render::Channels>(render::Channels::Blue));
+            p.actions["Image/Channels/Blue"]->setCheckable(true);
+            p.actions["Image/Channels/Blue"]->setText(tr("Blue Channel"));
+            p.actions["Image/Channels/Blue"]->setShortcut(QKeySequence(Qt::Key_B));
+            p.actions["Image/Channels/Alpha"] = new QAction(this);
+            p.actions["Image/Channels/Alpha"]->setData(QVariant::fromValue<render::Channels>(render::Channels::Alpha));
+            p.actions["Image/Channels/Alpha"]->setCheckable(true);
+            p.actions["Image/Channels/Alpha"]->setText(tr("Alpha Channel"));
+            p.actions["Image/Channels/Alpha"]->setShortcut(QKeySequence(Qt::Key_A));
             p.channelsActionGroup = new QActionGroup(this);
-            p.channelsActionGroup->setExclusive(false);
-            p.channelsActionGroup->addAction(p.actions["Image/RedChannel"]);
-            p.channelsActionGroup->addAction(p.actions["Image/GreenChannel"]);
-            p.channelsActionGroup->addAction(p.actions["Image/BlueChannel"]);
-            p.channelsActionGroup->addAction(p.actions["Image/AlphaChannel"]);
-            p.actionToChannels[p.actions["Image/RedChannel"]] = render::Channels::Red;
-            p.actionToChannels[p.actions["Image/GreenChannel"]] = render::Channels::Green;
-            p.actionToChannels[p.actions["Image/BlueChannel"]] = render::Channels::Blue;
-            p.actionToChannels[p.actions["Image/AlphaChannel"]] = render::Channels::Alpha;
-            p.channelsToActions[render::Channels::Red] = p.actions["Image/RedChannel"];
-            p.channelsToActions[render::Channels::Green] = p.actions["Image/GreenChannel"];
-            p.channelsToActions[render::Channels::Blue] = p.actions["Image/BlueChannel"];
-            p.channelsToActions[render::Channels::Alpha] = p.actions["Image/AlphaChannel"];
-
+            p.channelsActionGroup->addAction(p.actions["Image/Channels/Red"]);
+            p.channelsActionGroup->addAction(p.actions["Image/Channels/Green"]);
+            p.channelsActionGroup->addAction(p.actions["Image/Channels/Blue"]);
+            p.channelsActionGroup->addAction(p.actions["Image/Channels/Alpha"]);
             p.actions["Image/MirrorX"] = new QAction(this);
             p.actions["Image/MirrorX"]->setText(tr("Mirror Horizontal"));
             p.actions["Image/MirrorX"]->setShortcut(QKeySequence(Qt::Key_H));
@@ -282,18 +258,53 @@ namespace tl
             p.actions["Image/MirrorY"]->setText(tr("Mirror Vertical"));
             p.actions["Image/MirrorY"]->setShortcut(QKeySequence(Qt::Key_V));
             p.actions["Image/MirrorY"]->setCheckable(true);
+            p.actions["Image/YUVRange/FromFile"] = new QAction(this);
+            p.actions["Image/YUVRange/FromFile"]->setData(QVariant::fromValue<render::YUVRange>(render::YUVRange::FromFile));
+            p.actions["Image/YUVRange/FromFile"]->setCheckable(true);
+            p.actions["Image/YUVRange/FromFile"]->setText(tr("From File"));
+            p.actions["Image/YUVRange/Full"] = new QAction(this);
+            p.actions["Image/YUVRange/Full"]->setData(QVariant::fromValue<render::YUVRange>(render::YUVRange::Full));
+            p.actions["Image/YUVRange/Full"]->setCheckable(true);
+            p.actions["Image/YUVRange/Full"]->setText(tr("Full"));
+            p.actions["Image/YUVRange/Video"] = new QAction(this);
+            p.actions["Image/YUVRange/Video"]->setData(QVariant::fromValue<render::YUVRange>(render::YUVRange::Video));
+            p.actions["Image/YUVRange/Video"]->setCheckable(true);
+            p.actions["Image/YUVRange/Video"]->setText(tr("Video"));
+            p.yuvRangeActionGroup = new QActionGroup(this);
+            p.yuvRangeActionGroup->addAction(p.actions["Image/YUVRange/FromFile"]);
+            p.yuvRangeActionGroup->addAction(p.actions["Image/YUVRange/Full"]);
+            p.yuvRangeActionGroup->addAction(p.actions["Image/YUVRange/Video"]);
+            p.actions["Image/AlphaBlend/None"] = new QAction(this);
+            p.actions["Image/AlphaBlend/None"]->setData(QVariant::fromValue<render::AlphaBlend>(render::AlphaBlend::None));
+            p.actions["Image/AlphaBlend/None"]->setCheckable(true);
+            p.actions["Image/AlphaBlend/None"]->setText(tr("None"));
+            p.actions["Image/AlphaBlend/Straight"] = new QAction(this);
+            p.actions["Image/AlphaBlend/Straight"]->setData(QVariant::fromValue<render::AlphaBlend>(render::AlphaBlend::Straight));
+            p.actions["Image/AlphaBlend/Straight"]->setCheckable(true);
+            p.actions["Image/AlphaBlend/Straight"]->setText(tr("Straight"));
+            p.actions["Image/AlphaBlend/Premultiplied"] = new QAction(this);
+            p.actions["Image/AlphaBlend/Premultiplied"]->setData(QVariant::fromValue<render::AlphaBlend>(render::AlphaBlend::Premultiplied));
+            p.actions["Image/AlphaBlend/Premultiplied"]->setCheckable(true);
+            p.actions["Image/AlphaBlend/Premultiplied"]->setText(tr("Premultiplied"));
+            p.alphaBlendActionGroup = new QActionGroup(this);
+            p.alphaBlendActionGroup->addAction(p.actions["Image/AlphaBlend/None"]);
+            p.alphaBlendActionGroup->addAction(p.actions["Image/AlphaBlend/Straight"]);
+            p.alphaBlendActionGroup->addAction(p.actions["Image/AlphaBlend/Premultiplied"]);
 
             p.actions["Playback/Stop"] = new QAction(this);
+            p.actions["Playback/Stop"]->setData(QVariant::fromValue< timeline::Playback>(timeline::Playback::Stop));
             p.actions["Playback/Stop"]->setCheckable(true);
             p.actions["Playback/Stop"]->setText(tr("Stop Playback"));
             p.actions["Playback/Stop"]->setIcon(QIcon(":/Icons/PlaybackStop.svg"));
             p.actions["Playback/Stop"]->setShortcut(QKeySequence(Qt::Key_K));
             p.actions["Playback/Forward"] = new QAction(this);
+            p.actions["Playback/Forward"]->setData(QVariant::fromValue< timeline::Playback>(timeline::Playback::Forward));
             p.actions["Playback/Forward"]->setCheckable(true);
             p.actions["Playback/Forward"]->setText(tr("Forward Playback"));
             p.actions["Playback/Forward"]->setIcon(QIcon(":/Icons/PlaybackForward.svg"));
             p.actions["Playback/Forward"]->setShortcut(QKeySequence(Qt::Key_L));
             p.actions["Playback/Reverse"] = new QAction(this);
+            p.actions["Playback/Reverse"]->setData(QVariant::fromValue< timeline::Playback>(timeline::Playback::Reverse));
             p.actions["Playback/Reverse"]->setCheckable(true);
             p.actions["Playback/Reverse"]->setText(tr("Reverse Playback"));
             p.actions["Playback/Reverse"]->setIcon(QIcon(":/Icons/PlaybackReverse.svg"));
@@ -303,23 +314,20 @@ namespace tl
             p.playbackActionGroup->addAction(p.actions["Playback/Stop"]);
             p.playbackActionGroup->addAction(p.actions["Playback/Forward"]);
             p.playbackActionGroup->addAction(p.actions["Playback/Reverse"]);
-            p.actionToPlayback[p.actions["Playback/Stop"]] = timeline::Playback::Stop;
-            p.actionToPlayback[p.actions["Playback/Forward"]] = timeline::Playback::Forward;
-            p.actionToPlayback[p.actions["Playback/Reverse"]] = timeline::Playback::Reverse;
-            p.playbackToActions[timeline::Playback::Stop] = p.actions["Playback/Stop"];
-            p.playbackToActions[timeline::Playback::Forward] = p.actions["Playback/Forward"];
-            p.playbackToActions[timeline::Playback::Reverse] = p.actions["Playback/Reverse"];
             p.actions["Playback/Toggle"] = new QAction(this);
             p.actions["Playback/Toggle"]->setText(tr("Toggle Playback"));
             p.actions["Playback/Toggle"]->setShortcut(QKeySequence(Qt::Key_Space));
 
             p.actions["Playback/Loop"] = new QAction(this);
+            p.actions["Playback/Loop"]->setData(QVariant::fromValue<timeline::Loop>(timeline::Loop::Loop));
             p.actions["Playback/Loop"]->setCheckable(true);
             p.actions["Playback/Loop"]->setText(tr("Loop Playback"));
             p.actions["Playback/Once"] = new QAction(this);
+            p.actions["Playback/Once"]->setData(QVariant::fromValue<timeline::Loop>(timeline::Loop::Once));
             p.actions["Playback/Once"]->setCheckable(true);
             p.actions["Playback/Once"]->setText(tr("Playback Once"));
             p.actions["Playback/PingPong"] = new QAction(this);
+            p.actions["Playback/PingPong"]->setData(QVariant::fromValue<timeline::Loop>(timeline::Loop::PingPong));
             p.actions["Playback/PingPong"]->setCheckable(true);
             p.actions["Playback/PingPong"]->setText(tr("Ping-Pong Playback"));
             p.loopActionGroup = new QActionGroup(this);
@@ -327,12 +335,6 @@ namespace tl
             p.loopActionGroup->addAction(p.actions["Playback/Loop"]);
             p.loopActionGroup->addAction(p.actions["Playback/Once"]);
             p.loopActionGroup->addAction(p.actions["Playback/PingPong"]);
-            p.actionToLoop[p.actions["Playback/Loop"]] = timeline::Loop::Loop;
-            p.actionToLoop[p.actions["Playback/Once"]] = timeline::Loop::Once;
-            p.actionToLoop[p.actions["Playback/PingPong"]] = timeline::Loop::PingPong;
-            p.loopToActions[timeline::Loop::Loop] = p.actions["Playback/Loop"];
-            p.loopToActions[timeline::Loop::Once] = p.actions["Playback/Once"];
-            p.loopToActions[timeline::Loop::PingPong] = p.actions["Playback/PingPong"];
 
             p.actions["Playback/Start"] = new QAction(this);
             p.actions["Playback/Start"]->setText(tr("Go To Start"));
@@ -411,15 +413,14 @@ namespace tl
 
             auto compareMenu = new QMenu;
             compareMenu->setTitle(tr("&Compare"));
+            compareMenu->addAction(p.actions["Compare/Next"]);
+            compareMenu->addAction(p.actions["Compare/Prev"]);
+            compareMenu->addAction(p.actions["Compare/Clear"]);
+            compareMenu->addSeparator();
             compareMenu->addAction(p.actions["Compare/A"]);
             compareMenu->addAction(p.actions["Compare/B"]);
             compareMenu->addAction(p.actions["Compare/Wipe"]);
             compareMenu->addAction(p.actions["Compare/Tile"]);
-            compareMenu->addSeparator();
-            compareMenu->addAction(p.actions["Compare/Next"]);
-            compareMenu->addAction(p.actions["Compare/Prev"]);
-            compareMenu->addSeparator();
-            compareMenu->addAction(p.actions["Compare/Clear"]);
 
             auto windowMenu = new QMenu;
             windowMenu->setTitle(tr("&Window"));
@@ -441,13 +442,22 @@ namespace tl
 
             auto imageMenu = new QMenu;
             imageMenu->setTitle(tr("&Image"));
-            imageMenu->addAction(p.actions["Image/RedChannel"]);
-            imageMenu->addAction(p.actions["Image/GreenChannel"]);
-            imageMenu->addAction(p.actions["Image/BlueChannel"]);
-            imageMenu->addAction(p.actions["Image/AlphaChannel"]);
+            imageMenu->addAction(p.actions["Image/Channels/Red"]);
+            imageMenu->addAction(p.actions["Image/Channels/Green"]);
+            imageMenu->addAction(p.actions["Image/Channels/Blue"]);
+            imageMenu->addAction(p.actions["Image/Channels/Alpha"]);
             imageMenu->addSeparator();
             imageMenu->addAction(p.actions["Image/MirrorX"]);
             imageMenu->addAction(p.actions["Image/MirrorY"]);
+            imageMenu->addSeparator();
+            auto yuvRangeMenu = imageMenu->addMenu(tr("YUV Range"));
+            yuvRangeMenu->addAction(p.actions["Image/YUVRange/FromFile"]);
+            yuvRangeMenu->addAction(p.actions["Image/YUVRange/Full"]);
+            yuvRangeMenu->addAction(p.actions["Image/YUVRange/Video"]);
+            auto alphaBlendMenu = imageMenu->addMenu(tr("Alpha Blend"));
+            alphaBlendMenu->addAction(p.actions["Image/AlphaBlend/None"]);
+            alphaBlendMenu->addAction(p.actions["Image/AlphaBlend/Straight"]);
+            alphaBlendMenu->addAction(p.actions["Image/AlphaBlend/Premultiplied"]);
 
             auto playbackMenu = new QMenu;
             playbackMenu->setTitle(tr("&Playback"));
@@ -537,18 +547,6 @@ namespace tl
             colorDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F3));
             toolsMenu->addAction(colorDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, colorDockWidget);
-
-            p.imageTool = new ImageTool();
-            auto imageDockWidget = new QDockWidget;
-            imageDockWidget->setObjectName("Image");
-            imageDockWidget->setWindowTitle(tr("Image"));
-            imageDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-            imageDockWidget->setStyleSheet(qwidget::dockWidgetStyleSheet());
-            imageDockWidget->setWidget(p.imageTool);
-            imageDockWidget->hide();
-            imageDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F4));
-            toolsMenu->addAction(imageDockWidget->toggleViewAction());
-            addDockWidget(Qt::RightDockWidgetArea, imageDockWidget);
 
             p.infoTool = new InfoTool();
             auto infoDockWidget = new QDockWidget;
@@ -725,10 +723,6 @@ namespace tl
                 &App::quit);
 
             connect(
-                p.compareActionGroup,
-                SIGNAL(triggered(QAction*)),
-                SLOT(_compareCallback(QAction*)));
-            connect(
                 p.actions["Compare/Next"],
                 &QAction::triggered,
                 [app]
@@ -749,6 +743,10 @@ namespace tl
                 {
                     app->filesModel()->clearB();
                 });
+            connect(
+                p.compareActionGroup,
+                SIGNAL(triggered(QAction*)),
+                SLOT(_compareCallback(QAction*)));
 
             connect(
                 p.actions["Window/Resize1280x720"],
@@ -841,9 +839,17 @@ namespace tl
                 });
 
             connect(
+                p.yuvRangeActionGroup,
+                SIGNAL(triggered(QAction*)),
+                SLOT(_yuvRangeCallback(QAction*)));
+            connect(
                 p.channelsActionGroup,
                 SIGNAL(triggered(QAction*)),
                 SLOT(_channelsCallback(QAction*)));
+            connect(
+                p.alphaBlendActionGroup,
+                SIGNAL(triggered(QAction*)),
+                SLOT(_alphaBlendCallback(QAction*)));
 
             connect(
                 p.actions["Image/MirrorX"],
@@ -984,7 +990,7 @@ namespace tl
                 SLOT(_compareOptionsCallback(const tl::render::CompareOptions&)));
 
             connect(
-                p.imageTool,
+                p.colorTool,
                 SIGNAL(imageOptionsChanged(const tl::render::ImageOptions&)),
                 SLOT(_imageOptionsCallback(const tl::render::ImageOptions&)));
 
@@ -1256,13 +1262,9 @@ namespace tl
         void MainWindow::_compareCallback(QAction* action)
         {
             TLRENDER_P();
-            const auto i = p.actionToCompare.find(action);
-            if (i != p.actionToCompare.end())
-            {
-                auto compareOptions = p.compareOptions;
-                compareOptions.mode = action->isChecked() ? i.value() : render::CompareMode::A;
-                p.app->filesModel()->setCompareOptions(compareOptions);
-            }
+            auto compareOptions = p.compareOptions;
+            compareOptions.mode = action->data().value<render::CompareMode>();
+            p.app->filesModel()->setCompareOptions(compareOptions);
         }
 
         void MainWindow::_secondaryWindowCallback(bool value)
@@ -1315,18 +1317,38 @@ namespace tl
             p.actions["Window/Secondary"]->setChecked(false);
         }
 
+        void MainWindow::_yuvRangeCallback(QAction* action)
+        {
+            TLRENDER_P();
+            if (!p.imageOptions.empty())
+            {
+                auto imageOptions = p.imageOptions[0];
+                imageOptions.yuvRange = action->data().value<render::YUVRange>();
+                p.app->filesModel()->setImageOptions(imageOptions);
+            }
+        }
+
         void MainWindow::_channelsCallback(QAction* action)
         {
             TLRENDER_P();
             if (!p.imageOptions.empty())
             {
-                const auto i = p.actionToChannels.find(action);
-                if (i != p.actionToChannels.end())
-                {
-                    auto imageOptions = p.imageOptions[0];
-                    imageOptions.channels = action->isChecked() ? i.value() : render::Channels::Color;
-                    p.app->filesModel()->setImageOptions(imageOptions);
-                }
+                auto imageOptions = p.imageOptions[0];
+                imageOptions.channels = action->data().value<render::Channels>() != imageOptions.channels ?
+                    action->data().value<render::Channels>() :
+                    render::Channels::Color;
+                p.app->filesModel()->setImageOptions(imageOptions);
+            }
+        }
+
+        void MainWindow::_alphaBlendCallback(QAction* action)
+        {
+            TLRENDER_P();
+            if (!p.imageOptions.empty())
+            {
+                auto imageOptions = p.imageOptions[0];
+                imageOptions.alphaBlend = action->data().value<render::AlphaBlend>();
+                p.app->filesModel()->setImageOptions(imageOptions);
             }
         }
 
@@ -1335,11 +1357,7 @@ namespace tl
             TLRENDER_P();
             if (!p.timelinePlayers.empty())
             {
-                const auto i = p.actionToPlayback.find(action);
-                if (i != p.actionToPlayback.end())
-                {
-                    p.timelinePlayers[0]->setPlayback(i.value());
-                }
+                p.timelinePlayers[0]->setPlayback(action->data().value<timeline::Playback>());
             }
         }
 
@@ -1347,10 +1365,13 @@ namespace tl
         {
             TLRENDER_P();
             const QSignalBlocker blocker(p.playbackActionGroup);
-            const auto i = p.playbackToActions.find(value);
-            if (i != p.playbackToActions.end())
+            for (auto action : p.playbackActionGroup->actions())
             {
-                i.value()->setChecked(true);
+                if (action->data().value<timeline::Playback>() == value)
+                {
+                    action->setChecked(true);
+                    break;
+                }
             }
         }
 
@@ -1359,11 +1380,7 @@ namespace tl
             TLRENDER_P();
             if (!p.timelinePlayers.empty())
             {
-                const auto i = p.actionToLoop.find(action);
-                if (i != p.actionToLoop.end())
-                {
-                    p.timelinePlayers[0]->setLoop(i.value());
-                }
+                p.timelinePlayers[0]->setLoop(action->data().value<timeline::Loop>());
             }
         }
 
@@ -1371,10 +1388,13 @@ namespace tl
         {
             TLRENDER_P();
             const QSignalBlocker blocker(p.loopActionGroup);
-            const auto i = p.loopToActions.find(value);
-            if (i != p.loopToActions.end())
+            for (auto action : p.loopActionGroup->actions())
             {
-                i.value()->setChecked(true);
+                if (action->data().value<timeline::Loop>() == value)
+                {
+                    action->setChecked(true);
+                    break;
+                }
             }
         }
 
@@ -1438,18 +1458,24 @@ namespace tl
             p.actions["File/NextLayer"]->setEnabled(count > 0);
             p.actions["File/PrevLayer"]->setEnabled(count > 0);
 
+            p.actions["Compare/Next"]->setEnabled(count > 0);
+            p.actions["Compare/Prev"]->setEnabled(count > 0);
+            p.actions["Compare/Clear"]->setEnabled(count > 0);
             p.actions["Compare/A"]->setEnabled(count > 0);
             p.actions["Compare/B"]->setEnabled(count > 0);
             p.actions["Compare/Wipe"]->setEnabled(count > 0);
             p.actions["Compare/Tile"]->setEnabled(count > 0);
-            p.actions["Compare/Clear"]->setEnabled(count > 0);
-            p.actions["Compare/Next"]->setEnabled(count > 0);
-            p.actions["Compare/Prev"]->setEnabled(count > 0);
 
-            p.actions["Image/RedChannel"]->setEnabled(count > 0);
-            p.actions["Image/GreenChannel"]->setEnabled(count > 0);
-            p.actions["Image/BlueChannel"]->setEnabled(count > 0);
-            p.actions["Image/AlphaChannel"]->setEnabled(count > 0);
+            p.actions["Image/YUVRange/FromFile"]->setEnabled(count > 0);
+            p.actions["Image/YUVRange/Full"]->setEnabled(count > 0);
+            p.actions["Image/YUVRange/Video"]->setEnabled(count > 0);
+            p.actions["Image/Channels/Red"]->setEnabled(count > 0);
+            p.actions["Image/Channels/Green"]->setEnabled(count > 0);
+            p.actions["Image/Channels/Blue"]->setEnabled(count > 0);
+            p.actions["Image/Channels/Alpha"]->setEnabled(count > 0);
+            p.actions["Image/AlphaBlend/None"]->setEnabled(count > 0);
+            p.actions["Image/AlphaBlend/Straight"]->setEnabled(count > 0);
+            p.actions["Image/AlphaBlend/Premultiplied"]->setEnabled(count > 0);
             p.actions["Image/MirrorX"]->setEnabled(count > 0);
             p.actions["Image/MirrorY"]->setEnabled(count > 0);
 
@@ -1484,24 +1510,58 @@ namespace tl
             {
                 {
                     QSignalBlocker blocker(p.compareActionGroup);
-                    auto compareAction = p.compareToActions.find(p.compareOptions.mode);
-                    if (compareAction != p.compareToActions.end())
+                    for (auto action : p.compareActionGroup->actions())
                     {
-                        compareAction.value()->setChecked(true);
+                        if (action->data().value<render::CompareMode>() == p.compareOptions.mode)
+                        {
+                            action->setChecked(true);
+                            break;
+                        }
+                    }
+                }
+                {
+                    QSignalBlocker blocker(p.yuvRangeActionGroup);
+                    if (!p.imageOptions.empty())
+                    {
+                        for (auto action : p.yuvRangeActionGroup->actions())
+                        {
+                            if (action->data().value<render::YUVRange>() == p.imageOptions[0].yuvRange)
+                            {
+                                action->setChecked(true);
+                                break;
+                            }
+                        }
                     }
                 }
                 {
                     QSignalBlocker blocker(p.channelsActionGroup);
-                    p.actions["Image/RedChannel"]->setChecked(false);
-                    p.actions["Image/GreenChannel"]->setChecked(false);
-                    p.actions["Image/BlueChannel"]->setChecked(false);
-                    p.actions["Image/AlphaChannel"]->setChecked(false);
+                    p.actions["Image/Channels/Red"]->setChecked(false);
+                    p.actions["Image/Channels/Green"]->setChecked(false);
+                    p.actions["Image/Channels/Blue"]->setChecked(false);
+                    p.actions["Image/Channels/Alpha"]->setChecked(false);
                     if (!p.imageOptions.empty())
                     {
-                        auto channelsAction = p.channelsToActions.find(p.imageOptions[0].channels);
-                        if (channelsAction != p.channelsToActions.end())
+                        for (auto action : p.channelsActionGroup->actions())
                         {
-                            channelsAction.value()->setChecked(true);
+                            if (action->data().value<render::Channels>() == p.imageOptions[0].channels)
+                            {
+                                action->setChecked(true);
+                                break;
+                            }
+                        }
+                    }
+                }
+                {
+                    QSignalBlocker blocker(p.alphaBlendActionGroup);
+                    if (!p.imageOptions.empty())
+                    {
+                        for (auto action : p.alphaBlendActionGroup->actions())
+                        {
+                            if (action->data().value<render::AlphaBlend>() == p.imageOptions[0].alphaBlend)
+                            {
+                                action->setChecked(true);
+                                break;
+                            }
                         }
                     }
                 }
@@ -1523,18 +1583,24 @@ namespace tl
                 }
                 {
                     QSignalBlocker blocker(p.playbackActionGroup);
-                    auto playbackAction = p.playbackToActions.find(p.timelinePlayers[0]->playback());
-                    if (playbackAction != p.playbackToActions.end())
+                    for (auto action : p.playbackActionGroup->actions())
                     {
-                        playbackAction.value()->setChecked(true);
+                        if (action->data().value<timeline::Playback>() == p.timelinePlayers[0]->playback())
+                        {
+                            action->setChecked(true);
+                            break;
+                        }
                     }
                 }
                 {
                     QSignalBlocker blocker(p.loopActionGroup);
-                    auto loopAction = p.loopToActions.find(p.timelinePlayers[0]->loop());
-                    if (loopAction != p.loopToActions.end())
+                    for (auto action : p.loopActionGroup->actions())
                     {
-                        loopAction.value()->setChecked(true);
+                        if (action->data().value<timeline::Loop>() == p.timelinePlayers[0]->loop())
+                        {
+                            action->setChecked(true);
+                            break;
+                        }
                     }
                 }
                 {
@@ -1542,6 +1608,7 @@ namespace tl
                     p.actions["Audio/Mute"]->setChecked(p.timelinePlayers[0]->isMuted());
                 }
 
+                info.push_back(p.timelinePlayers[0]->path().get(-1, false));
                 const auto& avInfo = p.timelinePlayers[0]->avInfo();
                 if (!avInfo.video.empty())
                 {
@@ -1563,11 +1630,19 @@ namespace tl
                     p.actions["Compare/A"]->setChecked(true);
                 }
                 {
+                    QSignalBlocker blocker(p.yuvRangeActionGroup);
+                    p.actions["Image/YUVRange/FromFile"]->setChecked(true);
+                }
+                {
                     QSignalBlocker blocker(p.channelsActionGroup);
-                    p.actions["Image/RedChannel"]->setChecked(false);
-                    p.actions["Image/GreenChannel"]->setChecked(false);
-                    p.actions["Image/BlueChannel"]->setChecked(false);
-                    p.actions["Image/AlphaChannel"]->setChecked(false);
+                    p.actions["Image/Channels/Red"]->setChecked(false);
+                    p.actions["Image/Channels/Green"]->setChecked(false);
+                    p.actions["Image/Channels/Blue"]->setChecked(false);
+                    p.actions["Image/Channels/Alpha"]->setChecked(false);
+                }
+                {
+                    QSignalBlocker blocker(p.alphaBlendActionGroup);
+                    p.actions["Image/AlphaBlend/None"]->setChecked(true);
                 }
                 {
                     QSignalBlocker blocker(p.actions["Image/MirrorX"]);
@@ -1598,13 +1673,13 @@ namespace tl
 
             p.compareTool->setCompareOptions(p.compareOptions);
 
-            p.imageTool->setImageOptions(!p.imageOptions.empty() ? p.imageOptions[0] : render::ImageOptions());
+            p.colorTool->setImageOptions(!p.imageOptions.empty() ? p.imageOptions[0] : render::ImageOptions());
 
             p.infoTool->setInfo(!p.timelinePlayers.empty() ? p.timelinePlayers[0]->avInfo() : avio::Info());
 
             p.audioTool->setAudioOffset(!p.timelinePlayers.empty() ? p.timelinePlayers[0]->audioOffset() : 0.0);
 
-            p.infoLabel->setText(QString::fromUtf8(string::join(info, " ").c_str()));
+            p.infoLabel->setText(QString::fromUtf8(string::join(info, "  ").c_str()));
 
             if (p.secondaryWindow)
             {
