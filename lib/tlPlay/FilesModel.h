@@ -36,8 +36,6 @@ namespace tl
             float volume = 0.F;
             bool mute = false;
             double audioOffset = 0.0;
-
-            render::ImageOptions imageOptions;
         };
 
         //! Files model.
@@ -124,12 +122,6 @@ namespace tl
             //! Set the A file layer to the previous layer.
             void prevLayer();
 
-            //! Observe the image options.
-            std::shared_ptr<observer::IList<render::ImageOptions> > observeImageOptions() const;
-
-            //! Set the image options.
-            void setImageOptions(const render::ImageOptions&);
-
             //! Observe the compare options.
             std::shared_ptr<observer::IValue<render::CompareOptions> > observeCompareOptions() const;
 
@@ -141,7 +133,6 @@ namespace tl
             std::vector<int> _bIndexes() const;
             std::vector<std::shared_ptr<FilesModelItem> > _getActive() const;
             std::vector<int> _getLayers() const;
-            std::vector<render::ImageOptions> _getImageOptions() const;
 
             TLRENDER_PRIVATE();
         };

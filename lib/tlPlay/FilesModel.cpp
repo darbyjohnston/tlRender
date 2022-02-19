@@ -23,7 +23,6 @@ namespace tl
             std::shared_ptr<observer::List<std::shared_ptr<FilesModelItem> > > b;
             std::shared_ptr<observer::List<std::shared_ptr<FilesModelItem> > > active;
             std::shared_ptr<observer::List<int> > layers;
-            std::shared_ptr<observer::List<render::ImageOptions> > imageOptions;
             std::shared_ptr<observer::Value<render::CompareOptions> > compareOptions;
         };
 
@@ -38,7 +37,6 @@ namespace tl
             p.b = observer::List<std::shared_ptr<FilesModelItem> >::create();
             p.active = observer::List<std::shared_ptr<FilesModelItem> >::create();
             p.layers = observer::List<int>::create();
-            p.imageOptions = observer::List<render::ImageOptions>::create();
             p.compareOptions = observer::Value<render::CompareOptions>::create();
         }
 
@@ -86,7 +84,6 @@ namespace tl
 
             p.active->setIfChanged(_getActive());
             p.layers->setIfChanged(_getLayers());
-            p.imageOptions->setIfChanged(_getImageOptions());
         }
 
         void FilesModel::close()
@@ -124,7 +121,6 @@ namespace tl
 
                     p.active->setIfChanged(_getActive());
                     p.layers->setIfChanged(_getLayers());
-                    p.imageOptions->setIfChanged(_getImageOptions());
                 }
             }
         }
@@ -141,7 +137,6 @@ namespace tl
 
             p.active->setIfChanged(_getActive());
             p.layers->setIfChanged(_getLayers());
-            p.imageOptions->setIfChanged(_getImageOptions());
         }
 
         void FilesModel::setA(int index)
@@ -154,7 +149,6 @@ namespace tl
 
                 p.active->setIfChanged(_getActive());
                 p.layers->setIfChanged(_getLayers());
-                p.imageOptions->setIfChanged(_getImageOptions());
             }
         }
 
@@ -192,7 +186,6 @@ namespace tl
 
                 p.active->setIfChanged(_getActive());
                 p.layers->setIfChanged(_getLayers());
-                p.imageOptions->setIfChanged(_getImageOptions());
             }
         }
 
@@ -215,7 +208,6 @@ namespace tl
 
                 p.active->setIfChanged(_getActive());
                 p.layers->setIfChanged(_getLayers());
-                p.imageOptions->setIfChanged(_getImageOptions());
             }
         }
 
@@ -229,7 +221,6 @@ namespace tl
 
                 p.active->setIfChanged(_getActive());
                 p.layers->setIfChanged(_getLayers());
-                p.imageOptions->setIfChanged(_getImageOptions());
             }
         }
 
@@ -244,7 +235,6 @@ namespace tl
 
                 p.active->setIfChanged(_getActive());
                 p.layers->setIfChanged(_getLayers());
-                p.imageOptions->setIfChanged(_getImageOptions());
             }
         }
 
@@ -263,7 +253,6 @@ namespace tl
 
                 p.active->setIfChanged(_getActive());
                 p.layers->setIfChanged(_getLayers());
-                p.imageOptions->setIfChanged(_getImageOptions());
             }
         }
 
@@ -282,7 +271,6 @@ namespace tl
 
                 p.active->setIfChanged(_getActive());
                 p.layers->setIfChanged(_getLayers());
-                p.imageOptions->setIfChanged(_getImageOptions());
             }
         }
 
@@ -298,7 +286,6 @@ namespace tl
 
             p.active->setIfChanged(_getActive());
             p.layers->setIfChanged(_getLayers());
-            p.imageOptions->setIfChanged(_getImageOptions());
         }
 
         void FilesModel::lastB()
@@ -313,7 +300,6 @@ namespace tl
 
             p.active->setIfChanged(_getActive());
             p.layers->setIfChanged(_getLayers());
-            p.imageOptions->setIfChanged(_getImageOptions());
         }
 
         void FilesModel::nextB()
@@ -339,7 +325,6 @@ namespace tl
 
             p.active->setIfChanged(_getActive());
             p.layers->setIfChanged(_getLayers());
-            p.imageOptions->setIfChanged(_getImageOptions());
         }
 
         void FilesModel::prevB()
@@ -365,7 +350,6 @@ namespace tl
 
             p.active->setIfChanged(_getActive());
             p.layers->setIfChanged(_getLayers());
-            p.imageOptions->setIfChanged(_getImageOptions());
         }
 
         std::shared_ptr<observer::IList<int> > FilesModel::observeLayers() const
@@ -420,23 +404,6 @@ namespace tl
             }
         }
 
-        std::shared_ptr<observer::IList<render::ImageOptions> > FilesModel::observeImageOptions() const
-        {
-            return _p->imageOptions;
-        }
-
-        void FilesModel::setImageOptions(const render::ImageOptions& imageOptions)
-        {
-            TLRENDER_P();
-            const int index = _index(p.a->get());
-            if (index != -1 &&
-                imageOptions != p.files->getItem(index)->imageOptions)
-            {
-                p.files->getItem(index)->imageOptions = imageOptions;
-                p.imageOptions->setIfChanged(_getImageOptions());
-            }
-        }
-
         std::shared_ptr<observer::IValue<render::CompareOptions> > FilesModel::observeCompareOptions() const
         {
             return _p->compareOptions;
@@ -462,7 +429,6 @@ namespace tl
                     {
                         p.active->setIfChanged(_getActive());
                         p.layers->setIfChanged(_getLayers());
-                        p.imageOptions->setIfChanged(_getImageOptions());
                     }
                     break;
                 }
@@ -515,21 +481,6 @@ namespace tl
             for (const auto& b : p.b->get())
             {
                 out.push_back(b->videoLayer);
-            }
-            return out;
-        }
-
-        std::vector<render::ImageOptions> FilesModel::_getImageOptions() const
-        {
-            TLRENDER_P();
-            std::vector<tl::render::ImageOptions> out;
-            if (p.a->get())
-            {
-                out.push_back(p.a->get()->imageOptions);
-            }
-            for (const auto& b : p.b->get())
-            {
-                out.push_back(b->imageOptions);
             }
             return out;
         }

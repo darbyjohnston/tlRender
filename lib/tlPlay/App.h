@@ -6,6 +6,7 @@
 
 #include <tlApp/IApp.h>
 
+#include <tlCore/IRender.h>
 #include <tlCore/OCIO.h>
 
 #include <QApplication>
@@ -56,6 +57,9 @@ namespace tl
             //! Get the color model.
             const std::shared_ptr<ColorModel>& colorModel() const;
 
+            //! Get the image options.
+            const render::ImageOptions& imageOptions() const;
+
         public Q_SLOTS:
             //! Open a file.
             void open(const QString&, const QString& = QString());
@@ -65,6 +69,13 @@ namespace tl
 
             //! Open a file with audio dialog.
             void openWithAudioDialog();
+
+            //! Set the image options.
+            void setImageOptions(const render::ImageOptions&);
+
+        Q_SIGNALS:
+            //! This signal is emitted when the image options are changed.
+            void imageOptionsChanged(const render::ImageOptions&);
 
         private Q_SLOTS:
             void _activeCallback(const std::vector<std::shared_ptr<tl::play::FilesModelItem> >&);

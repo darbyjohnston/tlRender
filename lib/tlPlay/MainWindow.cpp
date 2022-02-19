@@ -59,7 +59,7 @@ namespace tl
             bool floatOnTop = false;
             bool secondaryFloatOnTop = false;
             imaging::ColorConfig colorConfig;
-            std::vector<render::ImageOptions> imageOptions;
+            render::ImageOptions imageOptions;
             render::CompareOptions compareOptions;
 
             QMap<QString, QAction*> actions;
@@ -100,6 +100,7 @@ namespace tl
             TLRENDER_P();
 
             p.app = app;
+            p.imageOptions = app->imageOptions();
 
             setFocusPolicy(Qt::ClickFocus);
             setAcceptDrops(true);
@@ -623,17 +624,12 @@ namespace tl
                 {
                     _widgetUpdate();
                 });
-            p.imageOptionsObserver = observer::ListObserver<render::ImageOptions>::create(
-                app->filesModel()->observeImageOptions(),
-                [this](const std::vector<render::ImageOptions>& value)
-                {
-                    _imageOptionsCallback(value);
-                });
             p.compareOptionsObserver = observer::ValueObserver<render::CompareOptions>::create(
                 app->filesModel()->observeCompareOptions(),
                 [this](const render::CompareOptions& value)
                 {
-                    _compareOptionsCallback2(value);
+                    _p->compareOptions = value;
+                    _widgetUpdate();
                 });
 
             p.colorConfigObserver = observer::ValueObserver<imaging::ColorConfig>::create(
@@ -658,6 +654,15 @@ namespace tl
                         break;
                     default: break;
                     }
+                });
+
+            connect(
+                app,
+                &App::imageOptionsChanged,
+                [this](const render::ImageOptions& value)
+                {
+                    _p->imageOptions = value;
+                    _widgetUpdate();
                 });
 
             connect(
@@ -856,24 +861,18 @@ namespace tl
                 &QAction::toggled,
                 [this](bool value)
                 {
-                    if (!_p->imageOptions.empty())
-                    {
-                        render::ImageOptions imageOptions = _p->imageOptions[0];
-                        imageOptions.mirror.x = value;
-                        _p->app->filesModel()->setImageOptions(imageOptions);
-                    }
+                    render::ImageOptions imageOptions = _p->imageOptions;
+                    imageOptions.mirror.x = value;
+                    _p->app->setImageOptions(imageOptions);
                 });
             connect(
                 p.actions["Image/MirrorY"],
                 &QAction::toggled,
                 [this](bool value)
                 {
-                    if (!_p->imageOptions.empty())
-                    {
-                        render::ImageOptions imageOptions = _p->imageOptions[0];
-                        imageOptions.mirror.y = value;
-                        _p->app->filesModel()->setImageOptions(imageOptions);
-                    }
+                    render::ImageOptions imageOptions = _p->imageOptions;
+                    imageOptions.mirror.y = value;
+                    _p->app->setImageOptions(imageOptions);
                 });
 
             connect(
@@ -986,13 +985,19 @@ namespace tl
 
             connect(
                 p.compareTool,
-                SIGNAL(compareOptionsChanged(const tl::render::CompareOptions&)),
-                SLOT(_compareOptionsCallback(const tl::render::CompareOptions&)));
+                &CompareTool::compareOptionsChanged,
+                [this](const render::CompareOptions& value)
+                {
+                    _p->app->filesModel()->setCompareOptions(value);
+                });
 
             connect(
                 p.colorTool,
-                SIGNAL(imageOptionsChanged(const tl::render::ImageOptions&)),
-                SLOT(_imageOptionsCallback(const tl::render::ImageOptions&)));
+                &ColorTool::imageOptionsChanged,
+                [this](const render::ImageOptions& value)
+                {
+                    _p->app->setImageOptions(value);
+                });
 
             connect(
                 p.audioTool,
@@ -1067,15 +1072,6 @@ namespace tl
                 delete p.secondaryWindow;
                 p.secondaryWindow = nullptr;
             }
-        }
-
-        void MainWindow::setImageOptions(const std::vector<render::ImageOptions>& imageOptions)
-        {
-            TLRENDER_P();
-            if (imageOptions == p.imageOptions)
-                return;
-            p.imageOptions = imageOptions;
-            _widgetUpdate();
         }
 
         void MainWindow::setTimelinePlayers(const std::vector<qt::TimelinePlayer*>& timelinePlayers)
@@ -1320,36 +1316,27 @@ namespace tl
         void MainWindow::_yuvRangeCallback(QAction* action)
         {
             TLRENDER_P();
-            if (!p.imageOptions.empty())
-            {
-                auto imageOptions = p.imageOptions[0];
-                imageOptions.yuvRange = action->data().value<render::YUVRange>();
-                p.app->filesModel()->setImageOptions(imageOptions);
-            }
+            auto imageOptions = p.imageOptions;
+            imageOptions.yuvRange = action->data().value<render::YUVRange>();
+            p.app->setImageOptions(imageOptions);
         }
 
         void MainWindow::_channelsCallback(QAction* action)
         {
             TLRENDER_P();
-            if (!p.imageOptions.empty())
-            {
-                auto imageOptions = p.imageOptions[0];
-                imageOptions.channels = action->data().value<render::Channels>() != imageOptions.channels ?
-                    action->data().value<render::Channels>() :
-                    render::Channels::Color;
-                p.app->filesModel()->setImageOptions(imageOptions);
-            }
+            auto imageOptions = p.imageOptions;
+            imageOptions.channels = action->data().value<render::Channels>() != imageOptions.channels ?
+                action->data().value<render::Channels>() :
+                render::Channels::Color;
+            p.app->setImageOptions(imageOptions);
         }
 
         void MainWindow::_alphaBlendCallback(QAction* action)
         {
             TLRENDER_P();
-            if (!p.imageOptions.empty())
-            {
-                auto imageOptions = p.imageOptions[0];
-                imageOptions.alphaBlend = action->data().value<render::AlphaBlend>();
-                p.app->filesModel()->setImageOptions(imageOptions);
-            }
+            auto imageOptions = p.imageOptions;
+            imageOptions.alphaBlend = action->data().value<render::AlphaBlend>();
+            p.app->setImageOptions(imageOptions);
         }
 
         void MainWindow::_playbackCallback(QAction* action)
@@ -1396,32 +1383,6 @@ namespace tl
                     break;
                 }
             }
-        }
-
-        void MainWindow::_imageOptionsCallback(const render::ImageOptions& value)
-        {
-            TLRENDER_P();
-            p.app->filesModel()->setImageOptions(value);
-        }
-
-        void MainWindow::_imageOptionsCallback(const std::vector<render::ImageOptions>& value)
-        {
-            TLRENDER_P();
-            p.imageOptions = value;
-            _widgetUpdate();
-        }
-
-        void MainWindow::_compareOptionsCallback(const render::CompareOptions& value)
-        {
-            TLRENDER_P();
-            p.app->filesModel()->setCompareOptions(value);
-        }
-
-        void MainWindow::_compareOptionsCallback2(const render::CompareOptions& value)
-        {
-            TLRENDER_P();
-            p.compareOptions = value;
-            _widgetUpdate();
         }
 
         void MainWindow::_recentFilesUpdate()
@@ -1521,15 +1482,12 @@ namespace tl
                 }
                 {
                     QSignalBlocker blocker(p.yuvRangeActionGroup);
-                    if (!p.imageOptions.empty())
+                    for (auto action : p.yuvRangeActionGroup->actions())
                     {
-                        for (auto action : p.yuvRangeActionGroup->actions())
+                        if (action->data().value<render::YUVRange>() == p.imageOptions.yuvRange)
                         {
-                            if (action->data().value<render::YUVRange>() == p.imageOptions[0].yuvRange)
-                            {
-                                action->setChecked(true);
-                                break;
-                            }
+                            action->setChecked(true);
+                            break;
                         }
                     }
                 }
@@ -1539,47 +1497,33 @@ namespace tl
                     p.actions["Image/Channels/Green"]->setChecked(false);
                     p.actions["Image/Channels/Blue"]->setChecked(false);
                     p.actions["Image/Channels/Alpha"]->setChecked(false);
-                    if (!p.imageOptions.empty())
+                    for (auto action : p.channelsActionGroup->actions())
                     {
-                        for (auto action : p.channelsActionGroup->actions())
+                        if (action->data().value<render::Channels>() == p.imageOptions.channels)
                         {
-                            if (action->data().value<render::Channels>() == p.imageOptions[0].channels)
-                            {
-                                action->setChecked(true);
-                                break;
-                            }
+                            action->setChecked(true);
+                            break;
                         }
                     }
                 }
                 {
                     QSignalBlocker blocker(p.alphaBlendActionGroup);
-                    if (!p.imageOptions.empty())
+                    for (auto action : p.alphaBlendActionGroup->actions())
                     {
-                        for (auto action : p.alphaBlendActionGroup->actions())
+                        if (action->data().value<render::AlphaBlend>() == p.imageOptions.alphaBlend)
                         {
-                            if (action->data().value<render::AlphaBlend>() == p.imageOptions[0].alphaBlend)
-                            {
-                                action->setChecked(true);
-                                break;
-                            }
+                            action->setChecked(true);
+                            break;
                         }
                     }
                 }
                 {
                     QSignalBlocker blocker(p.actions["Image/MirrorX"]);
-                    p.actions["Image/MirrorX"]->setChecked(false);
-                    if (!p.imageOptions.empty())
-                    {
-                        p.actions["Image/MirrorX"]->setChecked(p.imageOptions[0].mirror.x);
-                    }
+                    p.actions["Image/MirrorX"]->setChecked(p.imageOptions.mirror.x);
                 }
                 {
                     QSignalBlocker blocker(p.actions["Image/MirrorY"]);
-                    p.actions["Image/MirrorY"]->setChecked(false);
-                    if (!p.imageOptions.empty())
-                    {
-                        p.actions["Image/MirrorY"]->setChecked(p.imageOptions[0].mirror.y);
-                    }
+                    p.actions["Image/MirrorY"]->setChecked(p.imageOptions.mirror.y);
                 }
                 {
                     QSignalBlocker blocker(p.playbackActionGroup);
@@ -1668,12 +1612,17 @@ namespace tl
 
             p.timelineWidget->setTimelinePlayers(p.timelinePlayers);
             p.timelineWidget->setColorConfig(p.colorConfig);
-            p.timelineWidget->setImageOptions(p.imageOptions);
+            std::vector<render::ImageOptions> imageOptions;
+            for (const auto& i : p.timelinePlayers)
+            {
+                imageOptions.push_back(p.imageOptions);
+            }
+            p.timelineWidget->setImageOptions(imageOptions);
             p.timelineWidget->setCompareOptions(p.compareOptions);
 
             p.compareTool->setCompareOptions(p.compareOptions);
 
-            p.colorTool->setImageOptions(!p.imageOptions.empty() ? p.imageOptions[0] : render::ImageOptions());
+            p.colorTool->setImageOptions(p.imageOptions);
 
             p.infoTool->setInfo(!p.timelinePlayers.empty() ? p.timelinePlayers[0]->avInfo() : avio::Info());
 
@@ -1685,7 +1634,7 @@ namespace tl
             {
                 p.secondaryWindow->viewport()->setTimelinePlayers(p.timelinePlayers);
                 p.secondaryWindow->viewport()->setColorConfig(p.colorConfig);
-                p.secondaryWindow->viewport()->setImageOptions(p.imageOptions);
+                p.secondaryWindow->viewport()->setImageOptions(imageOptions);
                 p.secondaryWindow->viewport()->setCompareOptions(p.compareOptions);
             }
         }
