@@ -20,7 +20,9 @@ namespace tl
             std::weak_ptr<core::Context> context;
             std::shared_ptr<observer::List<std::shared_ptr<FilesModelItem> > > files;
             std::shared_ptr<observer::Value<std::shared_ptr<FilesModelItem> > > a;
+            std::shared_ptr<observer::Value<int> > aIndex;
             std::shared_ptr<observer::List<std::shared_ptr<FilesModelItem> > > b;
+            std::shared_ptr<observer::List<int> > bIndexes;
             std::shared_ptr<observer::List<std::shared_ptr<FilesModelItem> > > active;
             std::shared_ptr<observer::List<int> > layers;
             std::shared_ptr<observer::Value<render::CompareOptions> > compareOptions;
@@ -34,7 +36,9 @@ namespace tl
 
             p.files = observer::List<std::shared_ptr<FilesModelItem> >::create();
             p.a = observer::Value<std::shared_ptr<FilesModelItem> >::create();
+            p.aIndex = observer::Value<int>::create();
             p.b = observer::List<std::shared_ptr<FilesModelItem> >::create();
+            p.bIndexes = observer::List<int>::create();
             p.active = observer::List<std::shared_ptr<FilesModelItem> >::create();
             p.layers = observer::List<int>::create();
             p.compareOptions = observer::Value<render::CompareOptions>::create();
@@ -64,9 +68,19 @@ namespace tl
             return _p->a;
         }
 
+        std::shared_ptr<observer::IValue<int> > FilesModel::observeAIndex() const
+        {
+            return _p->aIndex;
+        }
+
         std::shared_ptr<observer::IList<std::shared_ptr<FilesModelItem> > > FilesModel::observeB() const
         {
             return _p->b;
+        }
+
+        std::shared_ptr<observer::IList<int> > FilesModel::observeBIndexes() const
+        {
+            return _p->bIndexes;
         }
 
         std::shared_ptr<observer::IList<std::shared_ptr<FilesModelItem> > > FilesModel::observeActive() const
@@ -81,6 +95,13 @@ namespace tl
             p.files->pushBack(item);
 
             p.a->setIfChanged(p.files->getItem(p.files->getSize() - 1));
+            p.aIndex->setIfChanged(_index(p.a->get()));
+
+            if (p.b->isEmpty())
+            {
+                p.b->pushBack(p.a->get());
+                p.bIndexes->setIfChanged(_bIndexes());
+            }
 
             p.active->setIfChanged(_getActive());
             p.layers->setIfChanged(_getLayers());
@@ -102,6 +123,7 @@ namespace tl
 
                     const int aNewIndex = math::clamp(aPrevIndex, 0, static_cast<int>(files.size()) - 1);
                     p.a->setIfChanged(aNewIndex != -1 ? files[aNewIndex] : nullptr);
+                    p.aIndex->setIfChanged(_index(p.a->get()));
 
                     auto b = p.b->get();
                     auto j = b.begin();
@@ -118,6 +140,7 @@ namespace tl
                         }
                     }
                     p.b->setIfChanged(b);
+                    p.bIndexes->setIfChanged(_bIndexes());
 
                     p.active->setIfChanged(_getActive());
                     p.layers->setIfChanged(_getLayers());
@@ -132,8 +155,10 @@ namespace tl
             p.files->clear();
 
             p.a->setIfChanged(nullptr);
+            p.aIndex->setIfChanged(-1);
 
             p.b->clear();
+            p.bIndexes->setIfChanged(_bIndexes());
 
             p.active->setIfChanged(_getActive());
             p.layers->setIfChanged(_getLayers());
@@ -146,6 +171,7 @@ namespace tl
             if (index >= 0 && index < p.files->getSize() && index != prevIndex)
             {
                 p.a->setIfChanged(p.files->getItem(index));
+                p.aIndex->setIfChanged(_index(p.a->get()));
 
                 p.active->setIfChanged(_getActive());
                 p.layers->setIfChanged(_getLayers());
@@ -183,6 +209,7 @@ namespace tl
                     b.erase(b.begin() + (i - bIndexes.begin()));
                 }
                 p.b->setIfChanged(b);
+                p.bIndexes->setIfChanged(_bIndexes());
 
                 p.active->setIfChanged(_getActive());
                 p.layers->setIfChanged(_getLayers());
@@ -205,6 +232,7 @@ namespace tl
             if (!p.b->isEmpty())
             {
                 p.b->clear();
+                p.bIndexes->setIfChanged(_bIndexes());
 
                 p.active->setIfChanged(_getActive());
                 p.layers->setIfChanged(_getLayers());
@@ -218,6 +246,7 @@ namespace tl
             if (!p.files->isEmpty() && prevIndex != 0)
             {
                 p.a->setIfChanged(p.files->getItem(0));
+                p.aIndex->setIfChanged(_index(p.a->get()));
 
                 p.active->setIfChanged(_getActive());
                 p.layers->setIfChanged(_getLayers());
@@ -232,6 +261,7 @@ namespace tl
             if (!p.files->isEmpty() && index != prevIndex)
             {
                 p.a->setIfChanged(p.files->getItem(index));
+                p.aIndex->setIfChanged(_index(p.a->get()));
 
                 p.active->setIfChanged(_getActive());
                 p.layers->setIfChanged(_getLayers());
@@ -250,6 +280,7 @@ namespace tl
                     index = 0;
                 }
                 p.a->setIfChanged(p.files->getItem(index));
+                p.aIndex->setIfChanged(_index(p.a->get()));
 
                 p.active->setIfChanged(_getActive());
                 p.layers->setIfChanged(_getLayers());
@@ -268,6 +299,7 @@ namespace tl
                     index = p.files->getSize() - 1;
                 }
                 p.a->setIfChanged(p.files->getItem(index));
+                p.aIndex->setIfChanged(_index(p.a->get()));
 
                 p.active->setIfChanged(_getActive());
                 p.layers->setIfChanged(_getLayers());
@@ -283,6 +315,7 @@ namespace tl
             {
                 p.b->pushBack(p.files->getItem(0));
             }
+            p.bIndexes->setIfChanged(_bIndexes());
 
             p.active->setIfChanged(_getActive());
             p.layers->setIfChanged(_getLayers());
@@ -297,6 +330,7 @@ namespace tl
             {
                 p.b->pushBack(p.files->getItem(p.files->getSize() - 1));
             }
+            p.bIndexes->setIfChanged(_bIndexes());
 
             p.active->setIfChanged(_getActive());
             p.layers->setIfChanged(_getLayers());
@@ -322,6 +356,7 @@ namespace tl
             {
                 p.b->pushBack(p.files->getItem(index));
             }
+            p.bIndexes->setIfChanged(_bIndexes());
 
             p.active->setIfChanged(_getActive());
             p.layers->setIfChanged(_getLayers());
@@ -347,6 +382,7 @@ namespace tl
             {
                 p.b->pushBack(p.files->getItem(index));
             }
+            p.bIndexes->setIfChanged(_bIndexes());
 
             p.active->setIfChanged(_getActive());
             p.layers->setIfChanged(_getLayers());
@@ -427,13 +463,15 @@ namespace tl
                     }
                     if (p.b->setIfChanged(b))
                     {
-                        p.active->setIfChanged(_getActive());
-                        p.layers->setIfChanged(_getLayers());
+                        p.bIndexes->setIfChanged(_bIndexes());
                     }
                     break;
                 }
                 default: break;
                 }
+
+                p.active->setIfChanged(_getActive());
+                p.layers->setIfChanged(_getLayers());
             }
         }
 
@@ -463,9 +501,17 @@ namespace tl
             {
                 out.push_back(p.a->get());
             }
-            for (const auto& b : p.b->get())
+            switch (p.compareOptions->get().mode)
             {
-                out.push_back(b);
+            case render::CompareMode::B:
+            case render::CompareMode::Wipe:
+            case render::CompareMode::Tile:
+                for (const auto& b : p.b->get())
+                {
+                    out.push_back(b);
+                }
+                break;
+            default: break;
             }
             return out;
         }
@@ -478,9 +524,17 @@ namespace tl
             {
                 out.push_back(p.a->get()->videoLayer);
             }
-            for (const auto& b : p.b->get())
+            switch (p.compareOptions->get().mode)
             {
-                out.push_back(b->videoLayer);
+            case render::CompareMode::B:
+            case render::CompareMode::Wipe:
+            case render::CompareMode::Tile:
+                for (const auto& b : p.b->get())
+                {
+                    out.push_back(b->videoLayer);
+                }
+                break;
+            default: break;
             }
             return out;
         }
@@ -808,8 +862,7 @@ namespace tl
                     const int aIndex = _index(p.a);
                     if (aIndex == index.row())
                     {
-                        out.setValue(
-                            QBrush(qApp->palette().color(QPalette::ColorRole::Highlight)));
+                        out.setValue(QBrush(qApp->palette().color(QPalette::ColorRole::Highlight)));
                     }
                     break;
                 }
@@ -818,8 +871,7 @@ namespace tl
                     const int aIndex = _index(p.a);
                     if (aIndex == index.row())
                     {
-                        out.setValue(
-                            QBrush(qApp->palette().color(QPalette::ColorRole::HighlightedText)));
+                        out.setValue(QBrush(qApp->palette().color(QPalette::ColorRole::HighlightedText)));
                     }
                     break;
                 }
@@ -888,8 +940,7 @@ namespace tl
                     const auto i = std::find(bIndexes.begin(), bIndexes.end(), index.row());
                     if (i != bIndexes.end())
                     {
-                        out.setValue(
-                            QBrush(qApp->palette().color(QPalette::ColorRole::Highlight)));
+                        out.setValue(QBrush(qApp->palette().color(QPalette::ColorRole::Highlight)));
                     }
                     break;
                 }
@@ -899,8 +950,7 @@ namespace tl
                     const auto i = std::find(bIndexes.begin(), bIndexes.end(), index.row());
                     if (i != bIndexes.end())
                     {
-                        out.setValue(
-                            QBrush(qApp->palette().color(QPalette::ColorRole::HighlightedText)));
+                        out.setValue(QBrush(qApp->palette().color(QPalette::ColorRole::HighlightedText)));
                     }
                     break;
                 }

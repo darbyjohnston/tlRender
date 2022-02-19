@@ -29,6 +29,7 @@
 
 #include <QAction>
 #include <QActionGroup>
+#include <QComboBox>
 #include <QDockWidget>
 #include <QDragEnterEvent>
 #include <QDragMoveEvent>
@@ -73,6 +74,10 @@ namespace tl
             QActionGroup* playbackActionGroup = nullptr;
             QActionGroup* loopActionGroup = nullptr;
 
+            QComboBox* filesComboBox = nullptr;
+
+            QComboBox* filesBComboBox = nullptr;
+
             qwidget::TimelineWidget* timelineWidget = nullptr;
             FilesTool* filesTool = nullptr;
             CompareTool* compareTool = nullptr;
@@ -87,6 +92,8 @@ namespace tl
             SecondaryWindow* secondaryWindow = nullptr;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<FilesModelItem> > > filesObserver;
+            std::shared_ptr<observer::ValueObserver<int> > aIndexObserver;
+            std::shared_ptr<observer::ListObserver<int> > bIndexesObserver;
             std::shared_ptr<observer::ListObserver<render::ImageOptions> > imageOptionsObserver;
             std::shared_ptr<observer::ValueObserver<render::CompareOptions> > compareOptionsObserver;
             std::shared_ptr<observer::ValueObserver<imaging::ColorConfig> > colorConfigObserver;
@@ -107,6 +114,7 @@ namespace tl
 
             p.actions["File/Open"] = new QAction(this);
             p.actions["File/Open"]->setText(tr("Open"));
+            p.actions["File/Open"]->setIcon(QIcon(":/Icons/FileOpen.svg"));
             p.actions["File/Open"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_O));
             p.actions["File/Open"]->setToolTip(tr("Open a file"));
             p.actions["File/OpenWithAudio"] = new QAction(this);
@@ -115,6 +123,7 @@ namespace tl
             p.actions["File/OpenWithAudio"]->setToolTip(tr("Open a file with audio"));
             p.actions["File/Close"] = new QAction(this);
             p.actions["File/Close"]->setText(tr("Close"));
+            p.actions["File/Close"]->setIcon(QIcon(":/Icons/FileClose.svg"));
             p.actions["File/Close"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_E));
             p.actions["File/Close"]->setToolTip(tr("Close the current file"));
             p.actions["File/CloseAll"] = new QAction(this);
@@ -124,40 +133,25 @@ namespace tl
             p.actions["File/Next"]->setText(tr("Next"));
             p.actions["File/Next"]->setIcon(QIcon(":/Icons/Next.svg"));
             p.actions["File/Next"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_PageDown));
-            p.actions["File/Next"]->setToolTip(tr("Go to the next file"));
+            p.actions["File/Next"]->setToolTip(tr("Change to the next file"));
             p.actions["File/Prev"] = new QAction(this);
             p.actions["File/Prev"]->setText(tr("Previous"));
             p.actions["File/Prev"]->setIcon(QIcon(":/Icons/Prev.svg"));
             p.actions["File/Prev"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_PageUp));
-            p.actions["File/Prev"]->setToolTip(tr("Go to the previous file"));
+            p.actions["File/Prev"]->setToolTip(tr("Change to the previous file"));
             p.actions["File/NextLayer"] = new QAction(this);
             p.actions["File/NextLayer"]->setText(tr("Next Layer"));
             p.actions["File/NextLayer"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Equal));
-            p.actions["File/NextLayer"]->setToolTip(tr("Go to the next layer"));
+            p.actions["File/NextLayer"]->setToolTip(tr("Change to the next layer"));
             p.actions["File/PrevLayer"] = new QAction(this);
             p.actions["File/PrevLayer"]->setText(tr("Previous Layer"));
             p.actions["File/PrevLayer"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Minus));
-            p.actions["File/PrevLayer"]->setToolTip(tr("Go to the previous layer"));
+            p.actions["File/PrevLayer"]->setToolTip(tr("Change to the previous layer"));
             p.recentFilesActionGroup = new QActionGroup(this);
             p.actions["File/Exit"] = new QAction(this);
             p.actions["File/Exit"]->setText(tr("Exit"));
             p.actions["File/Exit"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Q));
 
-            p.actions["Compare/Next"] = new QAction(this);
-            p.actions["Compare/Next"]->setText(tr("Next"));
-            p.actions["Compare/Next"]->setIcon(QIcon(":/Icons/Next.svg"));
-            p.actions["Compare/Next"]->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_PageDown));
-            p.actions["Compare/Next"]->setToolTip(tr("Change B to the next file"));
-            p.actions["Compare/Prev"] = new QAction(this);
-            p.actions["Compare/Prev"]->setText(tr("Previous"));
-            p.actions["Compare/Prev"]->setIcon(QIcon(":/Icons/Prev.svg"));
-            p.actions["Compare/Prev"]->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_PageUp));
-            p.actions["Compare/Prev"]->setToolTip(tr("Change B to the previous file"));
-            p.actions["Compare/Clear"] = new QAction(this);
-            p.actions["Compare/Clear"]->setText(tr("Clear"));
-            p.actions["Compare/Clear"]->setIcon(QIcon(":/Icons/Reset.svg"));
-            p.actions["Compare/Clear"]->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_B));
-            p.actions["Compare/Clear"]->setToolTip(tr("Clear the B files"));
             p.actions["Compare/A"] = new QAction(this);
             p.actions["Compare/A"]->setData(QVariant::fromValue<render::CompareMode>(render::CompareMode::A));
             p.actions["Compare/A"]->setCheckable(true);
@@ -192,6 +186,16 @@ namespace tl
             p.compareActionGroup->addAction(p.actions["Compare/B"]);
             p.compareActionGroup->addAction(p.actions["Compare/Wipe"]);
             p.compareActionGroup->addAction(p.actions["Compare/Tile"]);
+            p.actions["Compare/Next"] = new QAction(this);
+            p.actions["Compare/Next"]->setText(tr("Next"));
+            p.actions["Compare/Next"]->setIcon(QIcon(":/Icons/Next.svg"));
+            p.actions["Compare/Next"]->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_PageDown));
+            p.actions["Compare/Next"]->setToolTip(tr("Change to the next file"));
+            p.actions["Compare/Prev"] = new QAction(this);
+            p.actions["Compare/Prev"]->setText(tr("Previous"));
+            p.actions["Compare/Prev"]->setIcon(QIcon(":/Icons/Prev.svg"));
+            p.actions["Compare/Prev"]->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_PageUp));
+            p.actions["Compare/Prev"]->setToolTip(tr("Change to the previous file"));
 
             p.actions["Window/Resize1280x720"] = new QAction(this);
             p.actions["Window/Resize1280x720"]->setText(tr("Resize 1280x720"));
@@ -414,14 +418,13 @@ namespace tl
 
             auto compareMenu = new QMenu;
             compareMenu->setTitle(tr("&Compare"));
-            compareMenu->addAction(p.actions["Compare/Next"]);
-            compareMenu->addAction(p.actions["Compare/Prev"]);
-            compareMenu->addAction(p.actions["Compare/Clear"]);
-            compareMenu->addSeparator();
             compareMenu->addAction(p.actions["Compare/A"]);
             compareMenu->addAction(p.actions["Compare/B"]);
             compareMenu->addAction(p.actions["Compare/Wipe"]);
             compareMenu->addAction(p.actions["Compare/Tile"]);
+            compareMenu->addSeparator();
+            compareMenu->addAction(p.actions["Compare/Next"]);
+            compareMenu->addAction(p.actions["Compare/Prev"]);
 
             auto windowMenu = new QMenu;
             windowMenu->setTitle(tr("&Window"));
@@ -508,6 +511,32 @@ namespace tl
             menuBar->addMenu(toolsMenu);
             setMenuBar(menuBar);
 
+            p.filesComboBox = new QComboBox;
+            p.filesComboBox->setMinimumContentsLength(10);
+            p.filesComboBox->setToolTip(tr("Set the current file"));
+
+            auto fileToolBar = new QToolBar;
+            fileToolBar->setObjectName("FileToolBar");
+            fileToolBar->setIconSize(QSize(20, 20));
+            fileToolBar->addWidget(p.filesComboBox);
+            fileToolBar->addAction(p.actions["File/Open"]);
+            fileToolBar->addAction(p.actions["File/Close"]);
+            addToolBar(fileToolBar);
+
+            p.filesBComboBox = new QComboBox;
+            p.filesBComboBox->setMinimumContentsLength(10);
+            p.filesBComboBox->setToolTip(tr("Set the B file"));
+
+            auto compareToolBar = new QToolBar;
+            compareToolBar->setObjectName("FileToolBar");
+            compareToolBar->setIconSize(QSize(20, 20));
+            compareToolBar->addWidget(p.filesBComboBox);
+            compareToolBar->addAction(p.actions["Compare/A"]);
+            compareToolBar->addAction(p.actions["Compare/B"]);
+            compareToolBar->addAction(p.actions["Compare/Wipe"]);
+            compareToolBar->addAction(p.actions["Compare/Tile"]);
+            addToolBar(compareToolBar);
+
             p.timelineWidget = new qwidget::TimelineWidget(app->getContext());
             p.timelineWidget->slider()->setThumbnails(app->settingsObject()->hasTimelineThumbnails());
             p.timelineWidget->setTimeObject(app->timeObject());
@@ -515,7 +544,7 @@ namespace tl
 
             p.filesTool = new FilesTool(p.actions, app);
             auto fileDockWidget = new QDockWidget;
-            fileDockWidget->setObjectName("Files");
+            fileDockWidget->setObjectName("FilesTool");
             fileDockWidget->setWindowTitle(tr("Files"));
             fileDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
             fileDockWidget->setStyleSheet(qwidget::dockWidgetStyleSheet());
@@ -527,7 +556,7 @@ namespace tl
 
             p.compareTool = new CompareTool(p.actions, app);
             auto compareDockWidget = new QDockWidget;
-            compareDockWidget->setObjectName("Compare");
+            compareDockWidget->setObjectName("CompareTool");
             compareDockWidget->setWindowTitle(tr("Compare"));
             compareDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
             compareDockWidget->setStyleSheet(qwidget::dockWidgetStyleSheet());
@@ -539,7 +568,7 @@ namespace tl
 
             p.colorTool = new ColorTool(app->colorModel());
             auto colorDockWidget = new QDockWidget;
-            colorDockWidget->setObjectName("Color");
+            colorDockWidget->setObjectName("ColorTool");
             colorDockWidget->setWindowTitle(tr("Color"));
             colorDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
             colorDockWidget->setStyleSheet(qwidget::dockWidgetStyleSheet());
@@ -551,31 +580,31 @@ namespace tl
 
             p.infoTool = new InfoTool();
             auto infoDockWidget = new QDockWidget;
-            infoDockWidget->setObjectName("Info");
+            infoDockWidget->setObjectName("InfoTool");
             infoDockWidget->setWindowTitle(tr("Information"));
             infoDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
             infoDockWidget->setStyleSheet(qwidget::dockWidgetStyleSheet());
             infoDockWidget->setWidget(p.infoTool);
             infoDockWidget->hide();
-            infoDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F5));
+            infoDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F4));
             toolsMenu->addAction(infoDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, infoDockWidget);
 
             p.audioTool = new AudioTool();
             auto audioDockWidget = new QDockWidget;
-            audioDockWidget->setObjectName("Audio");
+            audioDockWidget->setObjectName("AudioTool");
             audioDockWidget->setWindowTitle(tr("Audio"));
             audioDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
             audioDockWidget->setStyleSheet(qwidget::dockWidgetStyleSheet());
             audioDockWidget->setWidget(p.audioTool);
             audioDockWidget->hide();
-            audioDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F6));
+            audioDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F5));
             toolsMenu->addAction(audioDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, audioDockWidget);
 
             p.settingsTool = new SettingsTool(app->settingsObject(), app->timeObject());
             auto settingsDockWidget = new QDockWidget;
-            settingsDockWidget->setObjectName("Settings");
+            settingsDockWidget->setObjectName("SettingsTool");
             settingsDockWidget->setWindowTitle(tr("Settings"));
             settingsDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
             settingsDockWidget->setStyleSheet(qwidget::dockWidgetStyleSheet());
@@ -587,7 +616,7 @@ namespace tl
 
             p.messagesTool = new MessagesTool(app->getContext());
             auto messagesDockWidget = new QDockWidget;
-            messagesDockWidget->setObjectName("Messages");
+            messagesDockWidget->setObjectName("MessagesTool");
             messagesDockWidget->setWindowTitle(tr("Messages"));
             messagesDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
             messagesDockWidget->setStyleSheet(qwidget::dockWidgetStyleSheet());
@@ -599,7 +628,7 @@ namespace tl
 
             p.systemLogTool = new SystemLogTool(app->getContext());
             auto systemLogDockWidget = new QDockWidget;
-            systemLogDockWidget->setObjectName("SystemLog");
+            systemLogDockWidget->setObjectName("SystemLogTool");
             systemLogDockWidget->setWindowTitle(tr("System Log"));
             systemLogDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
             systemLogDockWidget->setStyleSheet(qwidget::dockWidgetStyleSheet());
@@ -621,6 +650,18 @@ namespace tl
             p.filesObserver = observer::ListObserver<std::shared_ptr<FilesModelItem> >::create(
                 app->filesModel()->observeFiles(),
                 [this](const std::vector<std::shared_ptr<FilesModelItem> >&)
+                {
+                    _widgetUpdate();
+                });
+            p.aIndexObserver = observer::ValueObserver<int>::create(
+                app->filesModel()->observeAIndex(),
+                [this](int)
+                {
+                    _widgetUpdate();
+                });
+            p.bIndexesObserver = observer::ListObserver<int>::create(
+                app->filesModel()->observeBIndexes(),
+                [this](const std::vector<int>&)
                 {
                     _widgetUpdate();
                 });
@@ -728,6 +769,10 @@ namespace tl
                 &App::quit);
 
             connect(
+                p.compareActionGroup,
+                SIGNAL(triggered(QAction*)),
+                SLOT(_compareCallback(QAction*)));
+            connect(
                 p.actions["Compare/Next"],
                 &QAction::triggered,
                 [app]
@@ -741,17 +786,6 @@ namespace tl
                 {
                     app->filesModel()->prevB();
                 });
-            connect(
-                p.actions["Compare/Clear"],
-                &QAction::triggered,
-                [app]
-                {
-                    app->filesModel()->clearB();
-                });
-            connect(
-                p.compareActionGroup,
-                SIGNAL(triggered(QAction*)),
-                SLOT(_compareCallback(QAction*)));
 
             connect(
                 p.actions["Window/Resize1280x720"],
@@ -984,19 +1018,36 @@ namespace tl
                 SLOT(_loopCallback(QAction*)));
 
             connect(
+                p.filesComboBox,
+                QOverload<int>::of(&QComboBox::activated),
+                [app](int value)
+                {
+                    app->filesModel()->setA(value);
+                });
+
+            connect(
+                p.filesBComboBox,
+                QOverload<int>::of(&QComboBox::activated),
+                [app](int value)
+                {
+                    app->filesModel()->clearB();
+                    app->filesModel()->setB(value, true);
+                });
+
+            connect(
                 p.compareTool,
                 &CompareTool::compareOptionsChanged,
-                [this](const render::CompareOptions& value)
+                [app](const render::CompareOptions& value)
                 {
-                    _p->app->filesModel()->setCompareOptions(value);
+                    app->filesModel()->setCompareOptions(value);
                 });
 
             connect(
                 p.colorTool,
                 &ColorTool::imageOptionsChanged,
-                [this](const render::ImageOptions& value)
+                [app](const render::ImageOptions& value)
                 {
-                    _p->app->setImageOptions(value);
+                    app->setImageOptions(value);
                 });
 
             connect(
@@ -1419,13 +1470,12 @@ namespace tl
             p.actions["File/NextLayer"]->setEnabled(count > 0);
             p.actions["File/PrevLayer"]->setEnabled(count > 0);
 
-            p.actions["Compare/Next"]->setEnabled(count > 0);
-            p.actions["Compare/Prev"]->setEnabled(count > 0);
-            p.actions["Compare/Clear"]->setEnabled(count > 0);
             p.actions["Compare/A"]->setEnabled(count > 0);
             p.actions["Compare/B"]->setEnabled(count > 0);
             p.actions["Compare/Wipe"]->setEnabled(count > 0);
             p.actions["Compare/Tile"]->setEnabled(count > 0);
+            p.actions["Compare/Next"]->setEnabled(count > 0);
+            p.actions["Compare/Prev"]->setEnabled(count > 0);
 
             p.actions["Image/YUVRange/FromFile"]->setEnabled(count > 0);
             p.actions["Image/YUVRange/Full"]->setEnabled(count > 0);
@@ -1552,7 +1602,32 @@ namespace tl
                     p.actions["Audio/Mute"]->setChecked(p.timelinePlayers[0]->isMuted());
                 }
 
-                info.push_back(p.timelinePlayers[0]->path().get(-1, false));
+                {
+                    QSignalBlocker blocker(p.filesComboBox);
+                    p.filesComboBox->clear();
+                    for (const auto& i : p.app->filesModel()->observeFiles()->get())
+                    {
+                        p.filesComboBox->addItem(QString::fromUtf8(i->path.get(-1, false).c_str()));
+                    }
+                    p.filesComboBox->setCurrentIndex(p.app->filesModel()->observeAIndex()->get());
+                }
+
+                {
+                    QSignalBlocker blocker(p.filesBComboBox);
+                    p.filesBComboBox->clear();
+                    for (const auto& i : p.app->filesModel()->observeFiles()->get())
+                    {
+                        p.filesBComboBox->addItem(QString::fromUtf8(i->path.get(-1, false).c_str()));
+                    }
+                    int index = 0;
+                    const auto& indexes = p.app->filesModel()->observeBIndexes()->get();
+                    if (!indexes.empty())
+                    {
+                        index = indexes[0];
+                    }
+                    p.filesBComboBox->setCurrentIndex(index);
+                }
+
                 const auto& avInfo = p.timelinePlayers[0]->avInfo();
                 if (!avInfo.video.empty())
                 {
@@ -1608,6 +1683,15 @@ namespace tl
                     QSignalBlocker blocker(p.actions["Audio/Mute"]);
                     p.actions["Audio/Mute"]->setChecked(false);
                 }
+
+                {
+                    QSignalBlocker blocker(p.filesComboBox);
+                    p.filesComboBox->clear();
+                }
+                {
+                    QSignalBlocker blocker(p.filesBComboBox);
+                    p.filesBComboBox->clear();
+                }
             }
 
             p.timelineWidget->setTimelinePlayers(p.timelinePlayers);
@@ -1628,7 +1712,7 @@ namespace tl
 
             p.audioTool->setAudioOffset(!p.timelinePlayers.empty() ? p.timelinePlayers[0]->audioOffset() : 0.0);
 
-            p.infoLabel->setText(QString::fromUtf8(string::join(info, "  ").c_str()));
+            p.infoLabel->setText(QString::fromUtf8(string::join(info, " ").c_str()));
 
             if (p.secondaryWindow)
             {

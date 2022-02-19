@@ -11,6 +11,8 @@
     <file alias="Icons/DockWidgetNormal.svg">../../etc/Icons/DockWidgetNormal.svg</file>
     <file alias="Icons/Empty.svg">../../etc/Icons/Empty.svg</file>
     <file alias="Icons/FileBrowser.svg">../../etc/Icons/FileBrowser.svg</file>
+    <file alias="Icons/FileClose.svg">../../etc/Icons/FileClose.svg</file>
+    <file alias="Icons/FileOpen.svg">../../etc/Icons/FileOpen.svg</file>
     <file alias="Icons/FrameNext.svg">../../etc/Icons/FrameNext.svg</file>
     <file alias="Icons/FramePrev.svg">../../etc/Icons/FramePrev.svg</file>
     <file alias="Icons/Mute.svg">../../etc/Icons/Mute.svg</file>

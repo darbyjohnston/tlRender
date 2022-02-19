@@ -59,8 +59,14 @@ namespace tl
             //! Observe the A file.
             std::shared_ptr<observer::IValue<std::shared_ptr<FilesModelItem> > > observeA() const;
 
+            //! Observe the A file index.
+            std::shared_ptr<observer::IValue<int> > observeAIndex() const;
+
             //! Observe the B files.
             std::shared_ptr<observer::IList<std::shared_ptr<FilesModelItem> > > observeB() const;
+
+            //! Observe the B file indexes.
+            std::shared_ptr<observer::IList<int> > observeBIndexes() const;
 
             //! Observe the active files.
             std::shared_ptr<observer::IList<std::shared_ptr<FilesModelItem> > > observeActive() const;
@@ -205,6 +211,7 @@ namespace tl
             ~FilesBModel() override;
 
             QVariant data(const QModelIndex&, int role = Qt::DisplayRole) const override;
+
         private:
             std::vector<int> _bIndexes() const;
 

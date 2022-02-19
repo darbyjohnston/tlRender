@@ -70,14 +70,13 @@ namespace tl
             auto toolBar = new QToolBar;
             toolBar->setToolButtonStyle(Qt::ToolButtonIconOnly);
             toolBar->setIconSize(QSize(20, 20));
-            toolBar->addAction(actions["Compare/Prev"]);
-            toolBar->addAction(actions["Compare/Next"]);
-            toolBar->addAction(actions["Compare/Clear"]);
-            toolBar->addSeparator();
             toolBar->addAction(actions["Compare/A"]);
             toolBar->addAction(actions["Compare/B"]);
             toolBar->addAction(actions["Compare/Wipe"]);
             toolBar->addAction(actions["Compare/Tile"]);
+            toolBar->addSeparator();
+            toolBar->addAction(actions["Compare/Prev"]);
+            toolBar->addAction(actions["Compare/Next"]);
 
             p.wipeXSpinBox = new QDoubleSpinBox;
             p.wipeXSpinBox->setRange(0.0, 1.0);

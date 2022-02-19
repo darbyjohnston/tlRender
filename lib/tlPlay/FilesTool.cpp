@@ -55,6 +55,9 @@ namespace tl
             auto toolBar = new QToolBar;
             toolBar->setToolButtonStyle(Qt::ToolButtonIconOnly);
             toolBar->setIconSize(QSize(20, 20));
+            toolBar->addAction(actions["File/Open"]);
+            toolBar->addAction(actions["File/Close"]);
+            toolBar->addSeparator();
             toolBar->addAction(actions["File/Prev"]);
             toolBar->addAction(actions["File/Next"]);
 
