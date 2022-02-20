@@ -12,7 +12,9 @@
     <file alias="Icons/Empty.svg">../../etc/Icons/Empty.svg</file>
     <file alias="Icons/FileBrowser.svg">../../etc/Icons/FileBrowser.svg</file>
     <file alias="Icons/FileClose.svg">../../etc/Icons/FileClose.svg</file>
+    <file alias="Icons/FileCloseAll.svg">../../etc/Icons/FileCloseAll.svg</file>
     <file alias="Icons/FileOpen.svg">../../etc/Icons/FileOpen.svg</file>
+    <file alias="Icons/FileOpenWithAudio.svg">../../etc/Icons/FileOpenWithAudio.svg</file>
     <file alias="Icons/FrameNext.svg">../../etc/Icons/FrameNext.svg</file>
     <file alias="Icons/FramePrev.svg">../../etc/Icons/FramePrev.svg</file>
     <file alias="Icons/Mute.svg">../../etc/Icons/Mute.svg</file>
@@ -25,6 +27,10 @@
     <file alias="Icons/Speed.svg">../../etc/Icons/Speed.svg</file>
     <file alias="Icons/TimeEnd.svg">../../etc/Icons/TimeEnd.svg</file>
     <file alias="Icons/TimeStart.svg">../../etc/Icons/TimeStart.svg</file>
+    <file alias="Icons/ViewFrame.svg">../../etc/Icons/ViewFrame.svg</file>
+    <file alias="Icons/ViewZoom1To1.svg">../../etc/Icons/ViewZoom1To1.svg</file>
     <file alias="Icons/Volume.svg">../../etc/Icons/Volume.svg</file>
+    <file alias="Icons/WindowFullScreen.svg">../../etc/Icons/WindowFullScreen.svg</file>
+    <file alias="Icons/WindowSecondary.svg">../../etc/Icons/WindowSecondary.svg</file>
 </qresource>
 </RCC>

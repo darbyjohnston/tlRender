@@ -67,7 +67,13 @@
       <path
          id="rect831"
          style="opacity:1;fill:#f0f0f0;fill-opacity:1;stroke:none;stroke-width:0.748355;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         d="M 2.9103884,292.50226 H 2.3812782 v 1.58733 H 0.79394773 l 9e-8,0.52911 H 2.3812783 v 1.58733 h 0.52911 v -1.58733 h 1.5873305 l 10e-8,-0.52911 H 2.9103884 Z" />
+         d="M 1.5875282,294.6187 H 1.058418 l -2.82e-5,0.79378 -0.7937783,3e-5 1e-7,0.52911 0.7937783,-3e-5 2.83e-5,0.79378 h 0.52911 l -2.83e-5,-0.79378 0.7937783,3e-5 10e-8,-0.52911 -0.7937783,-3e-5 z"
+         sodipodi:nodetypes="ccccccccccccc" />
+      <path
+         style="fill:#f0f0f0;fill-opacity:1;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 2.9104166,291.97289 v 3.175 h 2.1166666 v -2.38125 l -0.7937499,-0.79375 z"
+         id="path1088"
+         sodipodi:nodetypes="cccccc" />
     </g>
   </g>
 </svg>

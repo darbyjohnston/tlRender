@@ -79,35 +79,6 @@ namespace tl
             TLRENDER_PRIVATE();
         };
 
-        //! Time settings widget.
-        class TimeSettingsWidget : public QWidget
-        {
-            Q_OBJECT
-
-        public:
-            TimeSettingsWidget(qt::TimeObject*, QWidget* parent = nullptr);
-
-            ~TimeSettingsWidget() override;
-
-        private Q_SLOTS:
-            void _unitsCallback(const QVariant&);
-            void _unitsCallback(tl::qt::TimeUnits);
-
-        private:
-            TLRENDER_PRIVATE();
-        };
-
-        //! Time settings widget.
-        class TimelineSettingsWidget : public QWidget
-        {
-            Q_OBJECT
-
-        public:
-            TimelineSettingsWidget(SettingsObject*, QWidget* parent = nullptr);
-
-            ~TimelineSettingsWidget() override;
-        };
-
         //! Miscellaneous settings widget.
         class MiscSettingsWidget : public QWidget
         {

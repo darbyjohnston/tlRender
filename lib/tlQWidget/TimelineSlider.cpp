@@ -26,6 +26,7 @@ namespace tl
 
         struct TimelineSlider::Private
         {
+            std::weak_ptr<core::Context> context;
             imaging::ColorConfig colorConfig;
             qt::TimelinePlayer* timelinePlayer = nullptr;
             bool thumbnails = true;
@@ -35,12 +36,19 @@ namespace tl
             qt::TimeObject* timeObject = nullptr;
         };
 
-        TimelineSlider::TimelineSlider(QWidget* parent) :
+        TimelineSlider::TimelineSlider(
+            const std::shared_ptr<core::Context>& context,
+            QWidget* parent) :
             QWidget(parent),
             _p(new Private)
         {
+            TLRENDER_P();
+
+            p.context = context;
+
             setSizePolicy(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
-            setMinimumHeight(50);
+
+            _thumbnailsUpdate();
         }
         
         TimelineSlider::~TimelineSlider()
@@ -137,7 +145,6 @@ namespace tl
                 return;
             p.thumbnails = value;
             _thumbnailsUpdate();
-            setMinimumHeight(p.thumbnails ? 50 : (stripeSize * 2 + handleSize * 2));
             updateGeometry();
         }
 
@@ -294,9 +301,11 @@ namespace tl
             p.thumbnailImages.clear();
             if (p.timelinePlayer && p.thumbnails)
             {
+                setMinimumHeight(50);
+
                 if (!p.thumbnailProvider)
                 {
-                    if (auto context = p.timelinePlayer->context().lock())
+                    if (auto context = p.context.lock())
                     {
                         timeline::Options options;
                         options.videoRequestCount = 1;
@@ -335,10 +344,15 @@ namespace tl
                     p.thumbnailProvider->request(requests, QSize(thumbnailWidth, thumbnailHeight));
                 }
             }
-            else if (p.thumbnailProvider)
+            else
             {
-                delete p.thumbnailProvider;
-                p.thumbnailProvider = nullptr;
+                setMinimumHeight(stripeSize * 2 + handleSize * 2);
+
+                if (p.thumbnailProvider)
+                {
+                    delete p.thumbnailProvider;
+                    p.thumbnailProvider = nullptr;
+                }
             }
             update();
         }

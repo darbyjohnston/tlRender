@@ -37,21 +37,15 @@ namespace tl
             void dropEvent(QDropEvent*) override;
 
         private Q_SLOTS:
-            void _recentFilesCallback(QAction*);
-            void _recentFilesCallback();
-            void _compareCallback(QAction*);
             void _secondaryWindowCallback(bool);
             void _secondaryWindowDestroyedCallback();
-            void _yuvRangeCallback(QAction*);
-            void _channelsCallback(QAction*);
-            void _alphaBlendCallback(QAction*);
-            void _playbackCallback(QAction*);
+            void _speedCallback(double);
             void _playbackCallback(tl::timeline::Playback);
-            void _loopCallback(QAction*);
-            void _loopCallback(tl::timeline::Loop);
+            void _currentTimeCallback(const otime::RationalTime&);
+            void _volumeCallback(int);
+            void _volumeCallback(float);
 
         private:
-            void _recentFilesUpdate();
             void _widgetUpdate();
 
             TLRENDER_PRIVATE();

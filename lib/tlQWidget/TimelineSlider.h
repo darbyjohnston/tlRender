@@ -29,7 +29,9 @@ namespace tl
                 WRITE setUnits)
 
         public:
-            TimelineSlider(QWidget* parent = nullptr);
+            TimelineSlider(
+                const std::shared_ptr<core::Context>&,
+                QWidget* parent = nullptr);
 
             ~TimelineSlider() override;
             

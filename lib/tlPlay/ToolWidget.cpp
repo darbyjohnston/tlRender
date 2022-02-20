@@ -35,7 +35,7 @@ namespace tl
         {
             if (_layout->count() > 0)
             {
-                _layout->addWidget(new qwidget::Separator(Qt::Orientation::Horizontal));
+                _layout->addWidget(new qwidget::Separator(Qt::Horizontal));
             }
             _layout->addWidget(widget, stretch);
         }
@@ -44,7 +44,7 @@ namespace tl
         {
             if (_layout->count() > 0)
             {
-                _layout->addWidget(new qwidget::Separator(Qt::Orientation::Horizontal));
+                _layout->addWidget(new qwidget::Separator(Qt::Horizontal));
             }
             auto bellowsWidget = new qwidget::BellowsWidget;
             bellowsWidget->setTitle(title);

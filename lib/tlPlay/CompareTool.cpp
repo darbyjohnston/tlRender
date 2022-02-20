@@ -70,30 +70,30 @@ namespace tl
             auto toolBar = new QToolBar;
             toolBar->setToolButtonStyle(Qt::ToolButtonIconOnly);
             toolBar->setIconSize(QSize(20, 20));
-            toolBar->addAction(actions["Compare/A"]);
-            toolBar->addAction(actions["Compare/B"]);
-            toolBar->addAction(actions["Compare/Wipe"]);
-            toolBar->addAction(actions["Compare/Tile"]);
+            toolBar->addAction(actions["A"]);
+            toolBar->addAction(actions["B"]);
+            toolBar->addAction(actions["Wipe"]);
+            toolBar->addAction(actions["Tile"]);
             toolBar->addSeparator();
-            toolBar->addAction(actions["Compare/Prev"]);
-            toolBar->addAction(actions["Compare/Next"]);
+            toolBar->addAction(actions["Prev"]);
+            toolBar->addAction(actions["Next"]);
 
             p.wipeXSpinBox = new QDoubleSpinBox;
             p.wipeXSpinBox->setRange(0.0, 1.0);
             p.wipeXSpinBox->setSingleStep(0.1);
-            p.wipeXSlider = new QSlider(Qt::Orientation::Horizontal);
+            p.wipeXSlider = new QSlider(Qt::Horizontal);
             p.wipeXSlider->setRange(0, sliderSteps);
 
             p.wipeYSpinBox = new QDoubleSpinBox;
             p.wipeYSpinBox->setRange(0.0, 1.0);
             p.wipeYSpinBox->setSingleStep(0.1);
-            p.wipeYSlider = new QSlider(Qt::Orientation::Horizontal);
+            p.wipeYSlider = new QSlider(Qt::Horizontal);
             p.wipeYSlider->setRange(0, sliderSteps);
 
             p.wipeRotationSpinBox = new QDoubleSpinBox;
             p.wipeRotationSpinBox->setRange(0.0, 360.0);
             p.wipeRotationSpinBox->setSingleStep(10.0);
-            p.wipeRotationSlider = new QSlider(Qt::Orientation::Horizontal);
+            p.wipeRotationSlider = new QSlider(Qt::Horizontal);
             p.wipeRotationSlider->setRange(0, sliderSteps);
 
             auto layout = new QVBoxLayout;

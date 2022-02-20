@@ -8,7 +8,7 @@
    version="1.1"
    id="svg8"
    inkscape:version="1.1.2 (0a00cf5339, 2022-02-04, custom)"
-   sodipodi:docname="FileClose.svg"
+   sodipodi:docname="FileCloseAll.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -72,8 +72,29 @@
       <path
          style="fill:#f0f0f0;fill-opacity:1;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
          d="m 2.9104166,291.97289 v 3.175 h 2.1166666 v -2.38125 l -0.7937499,-0.79375 z"
-         id="path1088"
+         id="path3424"
          sodipodi:nodetypes="cccccc" />
+      <rect
+         style="fill:#f0f0f0;fill-opacity:1;stroke:none;stroke-width:0.529167"
+         id="rect5218"
+         width="0.52916664"
+         height="0.52916664"
+         x="2.9104166"
+         y="295.94165" />
+      <rect
+         style="fill:#f0f0f0;fill-opacity:1;stroke:none;stroke-width:0.529167"
+         id="rect5220"
+         width="0.52916664"
+         height="0.52916664"
+         x="3.7041667"
+         y="295.94165" />
+      <rect
+         style="fill:#f0f0f0;fill-opacity:1;stroke:none;stroke-width:0.529167"
+         id="rect5222"
+         width="0.52916664"
+         height="0.52916664"
+         x="4.4979167"
+         y="295.94165" />
     </g>
   </g>
 </svg>

@@ -1,41 +1,55 @@
 set(HEADERS
     App.h
+	AudioActions.h
 	AudioTool.h
 	ColorModel.h
     ColorTool.h
+	CompareActions.h
 	CompareTool.h
+	FileActions.h
 	FilesModel.h
 	FilesTool.h
 	FilesView.h
+	ImageActions.h
     InfoTool.h
 	InfoModel.h
     MainWindow.h
 	MessagesTool.h
 	OpenWithAudioDialog.h
+	PlaybackActions.h
     SecondaryWindow.h
     SettingsObject.h
     SettingsTool.h
 	SystemLogTool.h
-	ToolWidget.h)
+	ToolWidget.h
+	ViewActions.h
+	WindowActions.h)
 set(SOURCE
     App.cpp
+	AudioActions.cpp
 	AudioTool.cpp
 	ColorModel.cpp
     ColorTool.cpp
+	CompareActions.cpp
 	CompareTool.cpp
+	FileActions.cpp
 	FilesModel.cpp
 	FilesTool.cpp
 	FilesView.cpp
+	ImageActions.cpp
     InfoTool.cpp
 	InfoModel.cpp
     MainWindow.cpp
 	MessagesTool.cpp
 	OpenWithAudioDialog.cpp
+	PlaybackActions.cpp
     SecondaryWindow.cpp
     SettingsObject.cpp
     SettingsTool.cpp
 	SystemLogTool.cpp
-	ToolWidget.cpp)
+	ToolWidget.cpp
+	ViewActions.cpp
+	WindowActions.cpp)
 if(TLRENDER_BUILD_QT6)
 	qt6_add_resources(SOURCE tlPlay.qrc)
 elseif(TLRENDER_BUILD_QT5)

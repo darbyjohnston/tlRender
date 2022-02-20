@@ -31,7 +31,7 @@ namespace tl
 
             p.viewport = new TimelineViewport(context);
 
-            p.slider = new TimelineSlider;
+            p.slider = new TimelineSlider(context);
             p.slider->setToolTip(tr("Timeline slider"));
 
             p.controls = new TimelineControls;

@@ -15,7 +15,7 @@ namespace tl
     {
         struct RadioButtonGroup::Private
         {
-            Qt::Orientation orientation = Qt::Orientation::Horizontal;
+            Qt::Orientation orientation = Qt::Horizontal;
             QMap<QVariant, QString> toText;
             QMap<QVariant, QAbstractButton*> toButton;
             QMap<QAbstractButton*, QVariant> fromButton;

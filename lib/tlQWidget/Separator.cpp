@@ -29,7 +29,7 @@ namespace tl
 
         void Separator::_widgetUpdate()
         {
-            setFrameShape(Qt::Orientation::Horizontal ? QFrame::HLine : QFrame::VLine);
+            setFrameShape(Qt::Horizontal ? QFrame::HLine : QFrame::VLine);
         }
     }
 }

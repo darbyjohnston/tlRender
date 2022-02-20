@@ -4,6 +4,7 @@ set(HEADERS
     FilmstripWidget.h
 	RadioButtonGroup.h
 	Separator.h
+	Spacer.h
     SpeedLabel.h
     TimeLabel.h
     TimeSpinBox.h
@@ -18,6 +19,7 @@ set(SOURCE
     FilmstripWidget.cpp
 	RadioButtonGroup.cpp
 	Separator.cpp
+	Spacer.cpp
     SpeedLabel.cpp
     TimeLabel.cpp
     TimeSpinBox.cpp

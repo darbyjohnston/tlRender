@@ -398,95 +398,6 @@ namespace tl
             p.ffmpegThreadCountSpinBox->setValue(value);
         }
 
-        struct TimeSettingsWidget::Private
-        {
-            qwidget::RadioButtonGroup* unitsButtonGroup = nullptr;
-            qt::TimeObject* timeObject = nullptr;
-        };
-        
-        TimeSettingsWidget::TimeSettingsWidget(qt::TimeObject* timeObject, QWidget* parent) :
-            QWidget(parent),
-            _p(new Private)
-        {
-            TLRENDER_P();
-
-            p.timeObject = timeObject;
-
-            p.unitsButtonGroup = new qwidget::RadioButtonGroup;
-            for (const auto i : qt::getTimeUnitsEnums())
-            {
-                p.unitsButtonGroup->addButton(
-                    QString::fromUtf8(qt::getLabel(i).c_str()),
-                    QVariant::fromValue<qt::TimeUnits>(i));
-            }
-
-            auto layout = new QVBoxLayout;
-            layout->addWidget(new QLabel(tr("Units")));
-            layout->addWidget(p.unitsButtonGroup);
-            setLayout(layout);
-
-            p.unitsButtonGroup->setChecked(QVariant::fromValue<qt::TimeUnits>(p.timeObject->units()));
-
-            connect(
-                p.unitsButtonGroup,
-                SIGNAL(checked(const QVariant&)),
-                SLOT(_unitsCallback(const QVariant&)));
-
-            connect(
-                p.timeObject,
-                SIGNAL(unitsChanged(tl::qt::TimeUnits)),
-                SLOT(_unitsCallback(tl::qt::TimeUnits)));
-        }
-
-        TimeSettingsWidget::~TimeSettingsWidget()
-        {}
-
-        void TimeSettingsWidget::_unitsCallback(const QVariant& value)
-        {
-            TLRENDER_P();
-            p.timeObject->setUnits(value.value<qt::TimeUnits>());
-        }
-
-        void TimeSettingsWidget::_unitsCallback(qt::TimeUnits value)
-        {
-            TLRENDER_P();
-            const QSignalBlocker blocker(p.unitsButtonGroup);
-            p.unitsButtonGroup->setChecked(QVariant::fromValue<qt::TimeUnits>(value));
-        }
-
-        TimelineSettingsWidget::TimelineSettingsWidget(SettingsObject* settingsObject, QWidget* parent) :
-            QWidget(parent)
-        {
-            auto thumbnailsCheckBox = new QCheckBox;
-            thumbnailsCheckBox->setText(tr("Thumbnails"));
-
-            auto layout = new QVBoxLayout;
-            layout->addWidget(thumbnailsCheckBox);
-            setLayout(layout);
-
-            thumbnailsCheckBox->setChecked(settingsObject->hasTimelineThumbnails());
-
-            connect(
-                thumbnailsCheckBox,
-                &QCheckBox::stateChanged,
-                [settingsObject](int value)
-                {
-                    settingsObject->setTimelineThumbnails(Qt::Checked == value);
-                });
-
-            connect(
-                settingsObject,
-                &SettingsObject::timelineThumbnailsChanged,
-                [thumbnailsCheckBox](bool value)
-                {
-                    QSignalBlocker signalBlocker(thumbnailsCheckBox);
-                    thumbnailsCheckBox->setChecked(value);
-                });
-        }
-
-        TimelineSettingsWidget::~TimelineSettingsWidget()
-        {}
-
         struct MiscSettingsWidget::Private
         {
             QCheckBox* toolTipsCheckBox = nullptr;
@@ -546,8 +457,6 @@ namespace tl
             addBellows(tr("Cache"), new CacheSettingsWidget(settingsObject));
             addBellows(tr("File Sequences"), new FileSequenceSettingsWidget(settingsObject));
             addBellows(tr("Performance"), new PerformanceSettingsWidget(settingsObject));
-            addBellows(tr("Time"), new TimeSettingsWidget(timeObject));
-            addBellows(tr("Timeline"), new TimelineSettingsWidget(settingsObject));
             addBellows(tr("Miscellaneous"), new MiscSettingsWidget(settingsObject));
             addStretch();
         }
