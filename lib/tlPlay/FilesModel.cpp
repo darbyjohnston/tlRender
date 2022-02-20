@@ -132,7 +132,7 @@ namespace tl
                         const auto k = std::find(files.begin(), files.end(), *j);
                         if (k == files.end())
                         {
-                            b.erase(j);
+                            j = b.erase(j);
                         }
                         else
                         {

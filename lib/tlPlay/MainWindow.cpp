@@ -36,8 +36,6 @@
 #include <tlCore/String.h>
 #include <tlCore/StringFormat.h>
 
-#include <QAction>
-#include <QActionGroup>
 #include <QComboBox>
 #include <QDockWidget>
 #include <QDoubleSpinBox>
@@ -48,11 +46,11 @@
 #include <QLabel>
 #include <QMenuBar>
 #include <QMimeData>
+#include <QMouseEvent>
 #include <QSettings>
 #include <QStatusBar>
 #include <QStyle>
 #include <QToolBar>
-#include <QToolButton>
 
 namespace tl
 {
@@ -110,6 +108,9 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<render::CompareOptions> > compareOptionsObserver;
             std::shared_ptr<observer::ValueObserver<imaging::ColorConfig> > colorConfigObserver;
             std::shared_ptr<observer::ValueObserver<core::LogItem> > logObserver;
+
+            bool mousePressed = false;
+            math::Vector2i mousePos;
         };
 
         MainWindow::MainWindow(App* app, QWidget* parent) :
@@ -132,9 +133,6 @@ namespace tl
             p.playbackActions = new PlaybackActions(app, this);
             p.audioActions = new AudioActions(app, this);
 
-            auto toolsMenu = new QMenu;
-            toolsMenu->setTitle(tr("&Tools"));
-
             auto menuBar = new QMenuBar;
             menuBar->addMenu(p.fileActions->menu());
             menuBar->addMenu(p.compareActions->menu());
@@ -143,7 +141,6 @@ namespace tl
             menuBar->addMenu(p.imageActions->menu());
             menuBar->addMenu(p.playbackActions->menu());
             menuBar->addMenu(p.audioActions->menu());
-            menuBar->addMenu(toolsMenu);
             setMenuBar(menuBar);
 
             p.filesComboBox = new QComboBox;
@@ -154,6 +151,7 @@ namespace tl
             p.filesBComboBox->setToolTip(tr("Set the B file"));
             auto topToolBar = new QToolBar;
             topToolBar->setObjectName("TopToolBar");
+            topToolBar->setWindowTitle(tr("Top ToolBar"));
             topToolBar->setIconSize(QSize(20, 20));
             topToolBar->setAllowedAreas(Qt::TopToolBarArea);
             topToolBar->setFloatable(false);
@@ -181,6 +179,7 @@ namespace tl
             addToolBar(Qt::TopToolBarArea, topToolBar);
 
             p.timelineViewport = new qwidget::TimelineViewport(app->getContext());
+            p.timelineViewport->installEventFilter(this);
             setCentralWidget(p.timelineViewport);
 
             p.timelineSlider = new qwidget::TimelineSlider(app->getContext());
@@ -188,7 +187,8 @@ namespace tl
             p.timelineSlider->setThumbnails(app->settingsObject()->hasTimelineThumbnails());
             auto timelineDockWidget = new QDockWidget;
             timelineDockWidget->setObjectName("Timeline");
-            timelineDockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
+            timelineDockWidget->setWindowTitle(tr("Timeline"));
+            timelineDockWidget->setFeatures(QDockWidget::DockWidgetClosable);
             timelineDockWidget->setStyleSheet(qwidget::dockWidgetStyleSheet());
             timelineDockWidget->setTitleBarWidget(new QWidget);
             timelineDockWidget->setWidget(p.timelineSlider);
@@ -211,6 +211,7 @@ namespace tl
             p.volumeSlider->setToolTip(tr("Audio volume"));
             auto bottomToolBar = new QToolBar;
             bottomToolBar->setObjectName("BottomToolBar");
+            bottomToolBar->setWindowTitle(tr("Bottom ToolBar"));
             bottomToolBar->setIconSize(QSize(20, 20));
             bottomToolBar->setAllowedAreas(Qt::BottomToolBarArea);
             bottomToolBar->setFloatable(false);
@@ -234,8 +235,12 @@ namespace tl
             bottomToolBar->addWidget(new qwidget::Spacer(Qt::Horizontal));
             bottomToolBar->addAction(p.audioActions->actions()["Mute"]);
             bottomToolBar->addWidget(p.volumeSlider);
-
             addToolBar(Qt::BottomToolBarArea, bottomToolBar);
+
+            p.windowActions->menu()->addSeparator();
+            p.windowActions->menu()->addAction(topToolBar->toggleViewAction());
+            p.windowActions->menu()->addAction(timelineDockWidget->toggleViewAction());
+            p.windowActions->menu()->addAction(bottomToolBar->toggleViewAction());
 
             p.filesTool = new FilesTool(p.fileActions->actions(), app);
             auto fileDockWidget = new QDockWidget;
@@ -246,7 +251,8 @@ namespace tl
             fileDockWidget->setWidget(p.filesTool);
             fileDockWidget->hide();
             fileDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F1));
-            toolsMenu->addAction(fileDockWidget->toggleViewAction());
+            p.windowActions->menu()->addSeparator();
+            p.windowActions->menu()->addAction(fileDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, fileDockWidget);
 
             p.compareTool = new CompareTool(p.compareActions->actions(), app);
@@ -258,7 +264,7 @@ namespace tl
             compareDockWidget->setWidget(p.compareTool);
             compareDockWidget->hide();
             compareDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F2));
-            toolsMenu->addAction(compareDockWidget->toggleViewAction());
+            p.windowActions->menu()->addAction(compareDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, compareDockWidget);
 
             p.colorTool = new ColorTool(app->colorModel());
@@ -270,7 +276,7 @@ namespace tl
             colorDockWidget->setWidget(p.colorTool);
             colorDockWidget->hide();
             colorDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F3));
-            toolsMenu->addAction(colorDockWidget->toggleViewAction());
+            p.windowActions->menu()->addAction(colorDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, colorDockWidget);
 
             p.infoTool = new InfoTool();
@@ -282,7 +288,7 @@ namespace tl
             infoDockWidget->setWidget(p.infoTool);
             infoDockWidget->hide();
             infoDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F4));
-            toolsMenu->addAction(infoDockWidget->toggleViewAction());
+            p.windowActions->menu()->addAction(infoDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, infoDockWidget);
 
             p.audioTool = new AudioTool();
@@ -294,7 +300,7 @@ namespace tl
             audioDockWidget->setWidget(p.audioTool);
             audioDockWidget->hide();
             audioDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F5));
-            toolsMenu->addAction(audioDockWidget->toggleViewAction());
+            p.windowActions->menu()->addAction(audioDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, audioDockWidget);
 
             p.settingsTool = new SettingsTool(app->settingsObject(), app->timeObject());
@@ -306,7 +312,7 @@ namespace tl
             settingsDockWidget->setWidget(p.settingsTool);
             settingsDockWidget->hide();
             settingsDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F9));
-            toolsMenu->addAction(settingsDockWidget->toggleViewAction());
+            p.windowActions->menu()->addAction(settingsDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, settingsDockWidget);
 
             p.messagesTool = new MessagesTool(app->getContext());
@@ -318,7 +324,7 @@ namespace tl
             messagesDockWidget->setWidget(p.messagesTool);
             messagesDockWidget->hide();
             messagesDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F10));
-            toolsMenu->addAction(messagesDockWidget->toggleViewAction());
+            p.windowActions->menu()->addAction(messagesDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, messagesDockWidget);
 
             p.systemLogTool = new SystemLogTool(app->getContext());
@@ -330,7 +336,7 @@ namespace tl
             systemLogDockWidget->setWidget(p.systemLogTool);
             systemLogDockWidget->hide();
             systemLogDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F11));
-            toolsMenu->addAction(systemLogDockWidget->toggleViewAction());
+            p.windowActions->menu()->addAction(systemLogDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, systemLogDockWidget);
 
             p.infoLabel = new QLabel;
@@ -401,18 +407,11 @@ namespace tl
                 });
 
             connect(
-                p.windowActions->actions()["Resize1280x720"],
-                &QAction::triggered,
-                [this]
+                p.windowActions,
+                &WindowActions::resize,
+                [this](const imaging::Size& size)
                 {
-                    resize(1280, 720);
-                });
-            connect(
-                p.windowActions->actions()["Resize1920x1080"],
-                &QAction::triggered,
-                [this]
-                {
-                    resize(1920, 1080);
+                    resize(size.w, size.h);
                 });
             connect(
                 p.windowActions->actions()["FullScreen"],
@@ -741,6 +740,67 @@ namespace tl
             }
         }
 
+        bool MainWindow::eventFilter(QObject* obj, QEvent* event)
+        {
+            TLRENDER_P();
+            bool out = QObject::eventFilter(obj, event);;
+            if (p.timelineViewport == obj)
+            {
+                if (event->type() == QEvent::Enter)
+                {
+                    p.mousePressed = false;
+                }
+                else if (event->type() == QEvent::Leave)
+                {
+                    p.mousePressed = false;
+                }
+                else if (event->type() == QEvent::MouseButtonPress)
+                {
+                    auto mouseEvent = static_cast<QMouseEvent*>(event);
+                    if (Qt::LeftButton == mouseEvent->button() && mouseEvent->modifiers() & Qt::AltModifier)
+                    {
+                        p.mousePressed = true;
+                        out = true;
+                    }
+                }
+                else if (event->type() == QEvent::MouseButtonRelease)
+                {
+                    if (p.mousePressed)
+                    {
+                        p.mousePressed = false;
+                        out = true;
+                    }
+                }
+                else if (event->type() == QEvent::MouseMove)
+                {
+                    auto mouseEvent = static_cast<QMouseEvent*>(event);
+                    p.mousePos.x = mouseEvent->x();
+                    p.mousePos.y = p.timelineViewport->height() - 1 - mouseEvent->y();
+                    if (p.mousePressed)
+                    {
+                        if (!p.timelinePlayers.empty())
+                        {
+                            const auto& avInfo = p.timelinePlayers[0]->avInfo();
+                            if (!avInfo.video.empty())
+                            {
+                                const auto& imageInfo = avInfo.video[0];
+                                const math::Vector2i& viewPos = p.timelineViewport->viewPos();
+                                const float viewZoom = p.timelineViewport->viewZoom();
+                                auto compareOptions = p.compareOptions;
+                                compareOptions.wipeCenter.x = (p.mousePos.x - viewPos.x) / viewZoom /
+                                    static_cast<float>(imageInfo.size.w);
+                                compareOptions.wipeCenter.y = 1.F - (p.mousePos.y - viewPos.y) / viewZoom /
+                                    static_cast<float>(imageInfo.size.h);
+                                p.app->filesModel()->setCompareOptions(compareOptions);
+                            }
+                        }
+                        out = true;
+                    }
+                }
+            }
+            return out;
+        }
+
         void MainWindow::_secondaryWindowCallback(bool value)
         {
             TLRENDER_P();
@@ -748,6 +808,12 @@ namespace tl
             {
                 p.secondaryWindow = new SecondaryWindow(p.app->getContext());
                 p.secondaryWindow->viewport()->setColorConfig(p.colorConfig);
+                std::vector<render::ImageOptions> imageOptions;
+                for (const auto& i : p.timelinePlayers)
+                {
+                    imageOptions.push_back(p.imageOptions);
+                }
+                p.secondaryWindow->viewport()->setImageOptions(imageOptions);
                 p.secondaryWindow->viewport()->setCompareOptions(p.compareOptions);
                 p.secondaryWindow->viewport()->setTimelinePlayers(p.timelinePlayers);
 

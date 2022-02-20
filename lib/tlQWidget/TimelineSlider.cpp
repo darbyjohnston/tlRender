@@ -105,6 +105,11 @@ namespace tl
                     this,
                     SLOT(update()));
             }
+            if (p.thumbnailProvider)
+            {
+                delete p.thumbnailProvider;
+                p.thumbnailProvider = nullptr;
+            }
             p.timelinePlayer = timelinePlayer;
             if (p.timelinePlayer)
             {
@@ -144,6 +149,11 @@ namespace tl
             if (value == p.thumbnails)
                 return;
             p.thumbnails = value;
+            if (!p.thumbnails && p.thumbnailProvider)
+            {
+                delete p.thumbnailProvider;
+                p.thumbnailProvider = nullptr;
+            }
             _thumbnailsUpdate();
             updateGeometry();
         }
@@ -250,6 +260,17 @@ namespace tl
             }
         }
 
+        void TimelineSlider::wheelEvent(QWheelEvent* event)
+        {
+            TLRENDER_P();
+            if (p.timelinePlayer)
+            {
+                const auto t = p.timelinePlayer->currentTime();
+                const float delta = event->angleDelta().y() / 8.F / 15.F;
+                p.timelinePlayer->seek(t + otime::RationalTime(delta, t.rate()));
+            }
+        }
+
         void TimelineSlider::_thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >& thumbnails)
         {
             TLRENDER_P();
@@ -347,12 +368,6 @@ namespace tl
             else
             {
                 setMinimumHeight(stripeSize * 2 + handleSize * 2);
-
-                if (p.thumbnailProvider)
-                {
-                    delete p.thumbnailProvider;
-                    p.thumbnailProvider = nullptr;
-                }
             }
             update();
         }

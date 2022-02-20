@@ -35,6 +35,7 @@ namespace tl
             void dragMoveEvent(QDragMoveEvent*) override;
             void dragLeaveEvent(QDragLeaveEvent*) override;
             void dropEvent(QDropEvent*) override;
+            bool eventFilter(QObject*, QEvent*) override;
 
         private Q_SLOTS:
             void _secondaryWindowCallback(bool);

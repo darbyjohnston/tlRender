@@ -54,7 +54,9 @@ namespace tl
             p.actions["Wipe"]->setText(tr("A/B Wipe"));
             p.actions["Wipe"]->setIcon(QIcon(":/Icons/CompareWipe.svg"));
             p.actions["Wipe"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_W));
-            p.actions["Wipe"]->setToolTip(tr("Wipe between the A and B files"));
+            p.actions["Wipe"]->setToolTip(tr(
+                "Wipe between the A and B files\n\n"
+                "Use the Alt key + left mouse button to move the wipe"));
             p.actions["Tile"] = new QAction(this);
             p.actions["Tile"]->setData(QVariant::fromValue<render::CompareMode>(render::CompareMode::Tile));
             p.actions["Tile"]->setCheckable(true);

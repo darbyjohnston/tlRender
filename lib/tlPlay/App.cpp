@@ -280,9 +280,7 @@ namespace tl
             std::vector<qt::TimelinePlayer*> timelinePlayers(items.size(), nullptr);
             for (size_t i = 0; i < items.size(); ++i)
             {
-                if (i < items.size() &&
-                    i < p.active.size() &&
-                    items[i] == p.active[i])
+                if (i < p.active.size() && items[i] == p.active[i])
                 {
                     timelinePlayers[i] = p.timelinePlayers[i];
                     p.timelinePlayers[i] = nullptr;

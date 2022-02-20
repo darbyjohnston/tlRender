@@ -8,10 +8,8 @@ set(HEADERS
     SpeedLabel.h
     TimeLabel.h
     TimeSpinBox.h
-    TimelineControls.h
     TimelineSlider.h
     TimelineViewport.h
-    TimelineWidget.h
     Util.h)
 set(SOURCE
 	BellowsPrivate.cpp
@@ -23,10 +21,8 @@ set(SOURCE
     SpeedLabel.cpp
     TimeLabel.cpp
     TimeSpinBox.cpp
-    TimelineControls.cpp
     TimelineSlider.cpp
     TimelineViewport.cpp
-    TimelineWidget.cpp
     Util.cpp)
 if(TLRENDER_BUILD_QT6)
 	qt6_add_resources(SOURCE tlQWidget.qrc)

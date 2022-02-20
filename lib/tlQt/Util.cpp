@@ -57,6 +57,7 @@ namespace tl
             qRegisterMetaType<imaging::GlyphInfo>("tl::imaging::GlyphInfo");
             qRegisterMetaType<imaging::Glyph>("tl::imaging::Glyph");
             qRegisterMetaType<imaging::PixelType>("tl::imaging::PixelType");
+            qRegisterMetaType<imaging::Size>("tl::imaging::Size");
             qRegisterMetaType<imaging::YUVRange>("tl::imaging::YUVRange");
             QMetaType::registerComparators<imaging::FontFamily>();
 

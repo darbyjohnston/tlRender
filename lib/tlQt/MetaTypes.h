@@ -6,6 +6,7 @@
 
 #include <tlCore/AudioSystem.h>
 #include <tlCore/FileIO.h>
+#include <tlCore/Image.h>
 #include <tlCore/FontSystem.h>
 #include <tlCore/IRender.h>
 #include <tlCore/OCIO.h>
@@ -24,6 +25,7 @@ Q_DECLARE_METATYPE(tl::core::LogType);
 
 Q_DECLARE_METATYPE(tl::file::Mode);
 
+Q_DECLARE_METATYPE(tl::imaging::Size);
 Q_DECLARE_METATYPE(tl::imaging::FontFamily);
 
 Q_DECLARE_METATYPE(tl::memory::Endian);

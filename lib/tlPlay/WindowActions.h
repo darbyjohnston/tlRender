@@ -35,8 +35,10 @@ namespace tl
             //! Set the timeline players.
             void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
 
-        private Q_SLOTS:
-        
+        Q_SIGNALS:
+            //! This signal is emitted to resize the window.
+            void resize(const tl::imaging::Size&);
+
         private:
             void _actionsUpdate();
 

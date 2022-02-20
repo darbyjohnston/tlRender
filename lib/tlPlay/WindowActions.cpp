@@ -6,6 +6,8 @@
 
 #include <tlPlay/App.h>
 
+#include <tlQt/MetaTypes.h>
+
 namespace tl
 {
     namespace play
@@ -18,6 +20,8 @@ namespace tl
 
             QMap<QString, QAction*> actions;
 
+            QActionGroup* resizeActionGroup = nullptr;
+
             QMenu* menu = nullptr;
         };
 
@@ -29,12 +33,24 @@ namespace tl
 
             p.app = app;
 
-            p.actions["Resize1280x720"] = new QAction(this);
-            p.actions["Resize1280x720"]->setText(tr("Resize 1280x720"));
-            p.actions["Resize1920x1080"] = new QAction(this);
-            p.actions["Resize1920x1080"]->setText(tr("Resize 1920x1080"));
-            p.actions["Resize1920x1080"] = new QAction(this);
-            p.actions["Resize1920x1080"]->setText(tr("Resize 1920x1080"));
+            std::vector<imaging::Size> sizes;
+            sizes.push_back(imaging::Size(1280, 720));
+            sizes.push_back(imaging::Size(1280, 720));
+            sizes.push_back(imaging::Size(1920, 1080));
+            for (const auto& i : sizes)
+            {
+                const QString key = QString("Resize/%1x%2").arg(i.w).arg(i.h);
+                p.actions[key] = new QAction(parent);
+                p.actions[key]->setData(QVariant::fromValue<imaging::Size>(i));
+                p.actions[key]->setText(QString("%1x%2").arg(i.w).arg(i.h));
+            }
+            p.resizeActionGroup = new QActionGroup(this);
+            for (auto i : sizes)
+            {
+                const QString key = QString("Resize/%1x%2").arg(i.w).arg(i.h);
+                p.resizeActionGroup->addAction(p.actions[key]);
+            }
+
             p.actions["FullScreen"] = new QAction(this);
             p.actions["FullScreen"]->setText(tr("Full Screen"));
             p.actions["FullScreen"]->setIcon(QIcon(":/Icons/WindowFullScreen.svg"));
@@ -55,8 +71,12 @@ namespace tl
 
             p.menu = new QMenu;
             p.menu->setTitle(tr("&Window"));
-            p.menu->addAction(p.actions["Resize1280x720"]);
-            p.menu->addAction(p.actions["Resize1920x1080"]);
+            auto resizeMenu = p.menu->addMenu(tr("Resize"));
+            for (auto i : sizes)
+            {
+                const QString key = QString("Resize/%1x%2").arg(i.w).arg(i.h);
+                resizeMenu->addAction(p.actions[key]);
+            }
             p.menu->addSeparator();
             p.menu->addAction(p.actions["FullScreen"]);
             p.menu->addAction(p.actions["FloatOnTop"]);
@@ -65,6 +85,14 @@ namespace tl
             p.menu->addAction(p.actions["SecondaryFloatOnTop"]);
 
             _actionsUpdate();
+
+            connect(
+                _p->resizeActionGroup,
+                &QActionGroup::triggered,
+                [this](QAction* action)
+                {
+                    Q_EMIT resize(action->data().value<imaging::Size>());
+                });
         }
 
         const QMap<QString, QAction*>& WindowActions::actions() const

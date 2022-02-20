@@ -83,6 +83,7 @@ namespace tl
             void mousePressEvent(QMouseEvent*) override;
             void mouseReleaseEvent(QMouseEvent*) override;
             void mouseMoveEvent(QMouseEvent*) override;
+            void wheelEvent(QWheelEvent*) override;
 
         private:
             void _frameView();

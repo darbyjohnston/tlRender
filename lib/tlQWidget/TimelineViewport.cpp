@@ -385,25 +385,32 @@ namespace tl
             }
         }
 
-        void TimelineViewport::enterEvent(QEvent*)
+        void TimelineViewport::enterEvent(QEvent* event)
         {
             TLRENDER_P();
+            event->accept();
             p.mouseInside = true;
+            p.mousePressed = false;
         }
 
-        void TimelineViewport::leaveEvent(QEvent*)
+        void TimelineViewport::leaveEvent(QEvent* event)
         {
             TLRENDER_P();
+            event->accept();
             p.mouseInside = false;
+            p.mousePressed = false;
         }
 
         void TimelineViewport::mousePressEvent(QMouseEvent* event)
         {
             TLRENDER_P();
-            p.mousePressed = true;
-            p.mousePress.x = event->x();
-            p.mousePress.y = height() - 1 - event->y();
-            p.viewPosMousePress = p.viewPos;
+            if (Qt::LeftButton == event->button() && event->modifiers() & Qt::ControlModifier)
+            {
+                p.mousePressed = true;
+                p.mousePress.x = event->x();
+                p.mousePress.y = height() - 1 - event->y();
+                p.viewPosMousePress = p.viewPos;
+            }
         }
 
         void TimelineViewport::mouseReleaseEvent(QMouseEvent*)
@@ -424,6 +431,17 @@ namespace tl
                 p.frameView = false;
                 update();
                 Q_EMIT viewPosAndZoomChanged(p.viewPos, p.viewZoom);
+            }
+        }
+
+        void TimelineViewport::wheelEvent(QWheelEvent* event)
+        {
+            TLRENDER_P();
+            if (!p.timelinePlayers.empty())
+            {
+                const auto t = p.timelinePlayers[0]->currentTime();
+                const float delta = event->angleDelta().y() / 8.F / 15.F;
+                p.timelinePlayers[0]->seek(t + otime::RationalTime(delta, t.rate()));
             }
         }
 

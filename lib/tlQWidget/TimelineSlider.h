@@ -63,6 +63,7 @@ namespace tl
             void mousePressEvent(QMouseEvent*) override;
             void mouseReleaseEvent(QMouseEvent*) override;
             void mouseMoveEvent(QMouseEvent*) override;
+            void wheelEvent(QWheelEvent*) override;
 
         private Q_SLOTS:
             void _thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >&);
