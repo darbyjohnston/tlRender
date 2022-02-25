@@ -175,6 +175,7 @@ namespace tl
                 break;
             default: break;
             }
+            p.layout->setMargin(0);
 
             p.layout->addWidget(p.spinBox);
             p.layout->addWidget(p.slider, 1);

@@ -13,6 +13,7 @@
 #include <QBoxLayout>
 #include <QCheckBox>
 #include <QFileDialog>
+#include <QFormLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QListView>
@@ -195,21 +196,14 @@ namespace tl
 
             p.invertCheckBox = new QCheckBox(tr("Invert"));
 
-            auto layout = new QVBoxLayout;
-            auto hLayout = new QHBoxLayout;
-            hLayout->addWidget(p.colorEnabledCheckBox);
-            layout->addLayout(hLayout);
-            layout->addWidget(new QLabel(tr("Add")));
-            layout->addWidget(p.addSlider);
-            layout->addWidget(new QLabel(tr("Brightness")));
-            layout->addWidget(p.brightnessSlider);
-            layout->addWidget(new QLabel(tr("Contrast")));
-            layout->addWidget(p.contrastSlider);
-            layout->addWidget(new QLabel(tr("Saturation")));
-            layout->addWidget(p.saturationSlider);
-            layout->addWidget(new QLabel(tr("Tint")));
-            layout->addWidget(p.tintSlider);
-            layout->addWidget(p.invertCheckBox);
+            auto layout = new QFormLayout;
+            layout->addRow(p.colorEnabledCheckBox);
+            layout->addRow(tr("Add:"), p.addSlider);
+            layout->addRow(tr("Brightness:"), p.brightnessSlider);
+            layout->addRow(tr("Contrast:"), p.contrastSlider);
+            layout->addRow(tr("Saturation:"), p.saturationSlider);
+            layout->addRow(tr("Tint:"), p.tintSlider);
+            layout->addRow(p.invertCheckBox);
             setLayout(layout);
 
             _widgetUpdate();
@@ -380,16 +374,13 @@ namespace tl
             p.outHighSlider = new qwidget::FloatSlider;
             p.outHighSlider->setDefaultValue(1.F);
 
-            auto layout = new QVBoxLayout;
-            layout->addWidget(p.levelsEnabledCheckBox);
-            layout->addWidget(new QLabel(tr("In")));
-            layout->addWidget(p.inLowSlider);
-            layout->addWidget(p.inHighSlider);
-            layout->addWidget(new QLabel(tr("Gamma")));
-            layout->addWidget(p.gammaSlider);
-            layout->addWidget(new QLabel(tr("Out")));
-            layout->addWidget(p.outLowSlider);
-            layout->addWidget(p.outHighSlider);
+            auto layout = new QFormLayout;
+            layout->addRow(p.levelsEnabledCheckBox);
+            layout->addRow(tr("In low:"), p.inLowSlider);
+            layout->addRow(tr("In high:"), p.inHighSlider);
+            layout->addRow(tr("Gamma:"), p.gammaSlider);
+            layout->addRow(tr("Out low:"), p.outLowSlider);
+            layout->addRow(tr("Out high:"), p.outHighSlider);
             setLayout(layout);
 
             _widgetUpdate();
@@ -542,14 +533,12 @@ namespace tl
             p.kneeHighSlider->setRange(math::FloatRange(3.5F, 7.5F));
             p.kneeHighSlider->setDefaultValue(5.F);
 
-            auto layout = new QVBoxLayout;
-            layout->addWidget(p.exposureEnabledCheckBox);
-            layout->addWidget(p.exposureSlider);
-            layout->addWidget(new QLabel(tr("Defog")));
-            layout->addWidget(p.defogSlider);
-            layout->addWidget(new QLabel(tr("Knee")));
-            layout->addWidget(p.kneeLowSlider);
-            layout->addWidget(p.kneeHighSlider);
+            auto layout = new QFormLayout;
+            layout->addRow(p.exposureEnabledCheckBox);
+            layout->addRow(tr("Exposure:"), p.exposureSlider);
+            layout->addRow(tr("Defog:"), p.defogSlider);
+            layout->addRow(tr("Knee low:"), p.kneeLowSlider);
+            layout->addRow(tr("Knee high:"), p.kneeHighSlider);
             setLayout(layout);
 
             _widgetUpdate();
@@ -673,9 +662,9 @@ namespace tl
             p.softClipSlider = new qwidget::FloatSlider;
             p.softClipSlider->setDefaultValue(0.F);
 
-            auto layout = new QVBoxLayout;
-            layout->addWidget(p.softClipEnabledCheckBox);
-            layout->addWidget(p.softClipSlider);
+            auto layout = new QFormLayout;
+            layout->addRow(p.softClipEnabledCheckBox);
+            layout->addRow(tr("Soft clip:"), p.softClipSlider);
             setLayout(layout);
 
             _widgetUpdate();

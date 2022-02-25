@@ -40,11 +40,9 @@ namespace tl
             p.readBehindSpinBox = new QDoubleSpinBox;
             p.readBehindSpinBox->setRange(0, 60.0);
 
-            auto layout = new QVBoxLayout;
-            layout->addWidget(new QLabel(tr("Read Ahead")));
-            layout->addWidget(p.readAheadSpinBox);
-            layout->addWidget(new QLabel(tr("Read Behind")));
-            layout->addWidget(p.readBehindSpinBox);
+            auto layout = new QFormLayout;
+            layout->addRow(tr("Read ahead:"), p.readAheadSpinBox);
+            layout->addRow(tr("Read behind:"), p.readBehindSpinBox);
             setLayout(layout);
 
             p.readAheadSpinBox->setValue(settingsObject->cacheReadAhead());
@@ -119,15 +117,11 @@ namespace tl
             p.maxDigitsSpinBox = new QSpinBox;
             p.maxDigitsSpinBox->setRange(0, 255);
 
-            auto layout = new QVBoxLayout;
-            layout->addWidget(new QLabel(tr("Audio")));
-            layout->addWidget(p.audioComboBox);
-            layout->addWidget(new QLabel(tr("Audio File Name")));
-            layout->addWidget(p.audioFileName);
-            layout->addWidget(new QLabel(tr("Audio Directory")));
-            layout->addWidget(p.audioDirectory);
-            layout->addWidget(new QLabel(tr("Maximum Digits")));
-            layout->addWidget(p.maxDigitsSpinBox);
+            auto layout = new QFormLayout;
+            layout->addRow(tr("Audio:"), p.audioComboBox);
+            layout->addRow(tr("Audio file name:"), p.audioFileName);
+            layout->addRow(tr("Audio directory:"), p.audioDirectory);
+            layout->addRow(tr("Maximum digits:"), p.maxDigitsSpinBox);
             setLayout(layout);
 
             p.audioComboBox->setCurrentIndex(static_cast<int>(settingsObject->fileSequenceAudio()));
@@ -256,22 +250,16 @@ namespace tl
             p.ffmpegThreadCountSpinBox = new QSpinBox;
             p.ffmpegThreadCountSpinBox->setRange(1, 64);
 
-            auto layout = new QVBoxLayout;
+            auto layout = new QFormLayout;
             auto label = new QLabel(tr("Changes are applied to newly opened files."));
             label->setWordWrap(true);
-            layout->addWidget(label);
-            layout->addWidget(new QLabel(tr("Timer Mode")));
-            layout->addWidget(p.timerModeComboBox);
-            layout->addWidget(new QLabel(tr("Audio Buffer Frame Count")));
-            layout->addWidget(p.audioBufferFrameCountComboBox);
-            layout->addWidget(new QLabel(tr("Timeline Video Requests")));
-            layout->addWidget(p.videoRequestCountSpinBox);
-            layout->addWidget(new QLabel(tr("Timeline Audio Requests")));
-            layout->addWidget(p.audioRequestCountSpinBox);
-            layout->addWidget(new QLabel(tr("Sequence I/O Threads")));
-            layout->addWidget(p.sequenceThreadCountSpinBox);
-            layout->addWidget(new QLabel(tr("FFmpeg I/O threads")));
-            layout->addWidget(p.ffmpegThreadCountSpinBox);
+            layout->addRow(label);
+            layout->addRow(tr("Timer mode:"), p.timerModeComboBox);
+            layout->addRow(tr("Audio buffer frames:"), p.audioBufferFrameCountComboBox);
+            layout->addRow(tr("Video requests:"), p.videoRequestCountSpinBox);
+            layout->addRow(tr("Audio requests:"), p.audioRequestCountSpinBox);
+            layout->addRow(tr("Sequence I/O threads:"), p.sequenceThreadCountSpinBox);
+            layout->addRow(tr("FFmpeg I/O threads:"), p.ffmpegThreadCountSpinBox);
             setLayout(layout);
 
             p.timerModeComboBox->setCurrentIndex(static_cast<int>(settingsObject->timerMode()));
@@ -415,8 +403,8 @@ namespace tl
             p.toolTipsCheckBox = new QCheckBox;
             p.toolTipsCheckBox->setText(tr("Enable tool tips"));
 
-            auto layout = new QVBoxLayout;
-            layout->addWidget(p.toolTipsCheckBox);
+            auto layout = new QFormLayout;
+            layout->addRow(p.toolTipsCheckBox);
             setLayout(layout);
 
             p.toolTipsCheckBox->setChecked(settingsObject->hasToolTipsEnabled());
