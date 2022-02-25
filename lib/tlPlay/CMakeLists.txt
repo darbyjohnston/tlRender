@@ -20,6 +20,7 @@ set(HEADERS
     SecondaryWindow.h
     SettingsObject.h
     SettingsTool.h
+	Style.h
 	SystemLogTool.h
 	ToolWidget.h
 	ViewActions.h
@@ -46,6 +47,7 @@ set(SOURCE
     SecondaryWindow.cpp
     SettingsObject.cpp
     SettingsTool.cpp
+	Style.cpp
 	SystemLogTool.cpp
 	ToolWidget.cpp
 	ViewActions.cpp

@@ -15,12 +15,6 @@ namespace tl
     {
         //! Initialize the library. This needs to be called before the Qt application is instantiated.
         void init();
-
-        //! Get a dark style color palette.
-        QPalette darkStyle();
-
-        //! Get a style sheet to fix the dock widget icons.
-        QString dockWidgetStyleSheet();
     }
 }
 

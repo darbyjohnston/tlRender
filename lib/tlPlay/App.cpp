@@ -9,6 +9,7 @@
 #include <tlPlay/MainWindow.h>
 #include <tlPlay/OpenWithAudioDialog.h>
 #include <tlPlay/SettingsObject.h>
+#include <tlPlay/Style.h>
 
 #include <tlQWidget/Util.h>
 
@@ -150,8 +151,9 @@ namespace tl
                 p.colorModel->setConfig(p.options.colorConfig);
             }
 
-            // Set the dark style color palette.
-            setPalette(qwidget::darkStyle());
+            // Set the style.
+            setPalette(darkStyle());
+            setStyleSheet(play::styleSheet());
 
             // Create the main window.
             p.mainWindow = new MainWindow(this);
