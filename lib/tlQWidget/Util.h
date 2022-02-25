@@ -6,8 +6,6 @@
 
 #include <tlGlad/gl.h>
 
-#include <QPalette>
-
 namespace tl
 {
     //! Qt QWidget support.

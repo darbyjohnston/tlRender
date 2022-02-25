@@ -9,7 +9,7 @@
 
 namespace tl
 {
-    namespace play
+    namespace qwidget
     {
         //! Get a dark style color palette.
         QPalette darkStyle();

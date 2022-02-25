@@ -34,30 +34,6 @@ namespace tl
             TLRENDER_PRIVATE();
         };
 
-        //! Color slider widget.
-        class ColorSliderWidget : public QWidget
-        {
-            Q_OBJECT
-
-        public:
-            ColorSliderWidget(QWidget* parent = nullptr);
-
-            ~ColorSliderWidget() override;
-
-            void setRange(const math::FloatRange&);
-
-        public Q_SLOTS:
-            void setValue(float);
-
-        Q_SIGNALS:
-            void valueChanged(float);
-
-        private:
-            void _widgetUpdate();
-
-            TLRENDER_PRIVATE();
-        };
-
         //! Color widget.
         class ColorWidget : public QWidget
         {

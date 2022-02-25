@@ -32,12 +32,6 @@ namespace tl
 
         private Q_SLOTS:
             void _activatedCallback(const QModelIndex&);
-            void _wipeXSpinBoxCallback(double);
-            void _wipeXSliderCallback(int);
-            void _wipeYSpinBoxCallback(double);
-            void _wipeYSliderCallback(int);
-            void _wipeRotationSpinBoxCallback(double);
-            void _wipeRotationSliderCallback(int);
 
         Q_SIGNALS:
             void compareOptionsChanged(const tl::render::CompareOptions&);

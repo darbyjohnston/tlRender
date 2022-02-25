@@ -2,11 +2,11 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include <tlPlay/Style.h>
+#include <tlQWidget/Style.h>
 
 namespace tl
 {
-    namespace play
+    namespace qwidget
     {
         QPalette darkStyle()
         {

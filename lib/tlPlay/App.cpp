@@ -9,8 +9,8 @@
 #include <tlPlay/MainWindow.h>
 #include <tlPlay/OpenWithAudioDialog.h>
 #include <tlPlay/SettingsObject.h>
-#include <tlPlay/Style.h>
 
+#include <tlQWidget/Style.h>
 #include <tlQWidget/Util.h>
 
 #include <tlQt/TimeObject.h>
@@ -94,6 +94,8 @@ namespace tl
             QCoreApplication::setOrganizationName("tlRender");
             QCoreApplication::setApplicationName("tlplay");
             setStyle("Fusion");
+            setPalette(qwidget::darkStyle());
+            setStyleSheet(qwidget::styleSheet());
 
             // Create objects.
             p.timeObject = new qt::TimeObject(this);
@@ -150,10 +152,6 @@ namespace tl
             {
                 p.colorModel->setConfig(p.options.colorConfig);
             }
-
-            // Set the style.
-            setPalette(darkStyle());
-            setStyleSheet(play::styleSheet());
 
             // Create the main window.
             p.mainWindow = new MainWindow(this);

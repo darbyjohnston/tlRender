@@ -6,16 +6,16 @@
 
 #include <tlPlay/ColorModel.h>
 
+#include <tlQWidget/FloatSlider.h>
+
 #include <tlCore/Path.h>
 
 #include <QBoxLayout>
 #include <QCheckBox>
-#include <QDoubleSpinBox>
 #include <QFileDialog>
 #include <QLabel>
 #include <QLineEdit>
 #include <QListView>
-#include <QSlider>
 #include <QTabWidget>
 #include <QToolButton>
 
@@ -152,106 +152,17 @@ namespace tl
             }
         }
 
-        namespace
-        {
-            const size_t sliderSteps = 1000;
-        }
-
-        struct ColorSliderWidget::Private
-        {
-            math::FloatRange range = math::FloatRange(0.F, 1.F);
-            float value = 0.F;
-
-            QDoubleSpinBox* spinBox = nullptr;
-            QSlider* slider = nullptr;
-        };
-
-        ColorSliderWidget::ColorSliderWidget(QWidget* parent) :
-            QWidget(parent),
-            _p(new Private)
-        {
-            TLRENDER_P();
-
-            p.spinBox = new QDoubleSpinBox;
-            p.spinBox->setSingleStep(0.1);
-
-            p.slider = new QSlider(Qt::Horizontal);
-            p.slider->setRange(0, sliderSteps);
-
-            auto layout = new QHBoxLayout;
-            layout->setContentsMargins(0, 0, 0, 0);
-            layout->addWidget(p.spinBox);
-            layout->addWidget(p.slider, 1);
-            setLayout(layout);
-
-            _widgetUpdate();
-
-            connect(
-                p.spinBox,
-                QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-                [this](double value)
-                {
-                    Q_EMIT valueChanged(value);
-                });
-
-            connect(
-                p.slider,
-                &QSlider::valueChanged,
-                [this](int value)
-                {
-                    Q_EMIT valueChanged(
-                        value / static_cast<float>(sliderSteps) *
-                        (_p->range.getMax() - _p->range.getMin()) +
-                        _p->range.getMin());
-                });
-        }
-
-        ColorSliderWidget::~ColorSliderWidget()
-        {}
-
-        void ColorSliderWidget::setRange(const math::FloatRange& value)
-        {
-            TLRENDER_P();
-            if (value == p.range)
-                return;
-            p.range = value;
-            _widgetUpdate();
-        }
-
-        void ColorSliderWidget::setValue(float value)
-        {
-            TLRENDER_P();
-            if (value == p.value)
-                return;
-            p.value = value;
-            _widgetUpdate();
-        }
-
-        void ColorSliderWidget::_widgetUpdate()
-        {
-            TLRENDER_P();
-            {
-                QSignalBlocker signalBlocker(p.spinBox);
-                p.spinBox->setRange(p.range.getMin(), p.range.getMax());
-                p.spinBox->setValue(p.value);
-            }
-            {
-                QSignalBlocker signalBlocker(p.slider);
-                p.slider->setValue((p.value - p.range.getMin()) / (p.range.getMax() - p.range.getMin()) * sliderSteps);
-            }
-        }
-
         struct ColorWidget::Private
         {
             bool colorEnabled = false;
             render::Color color;
 
             QCheckBox* colorEnabledCheckBox = nullptr;
-            ColorSliderWidget* addSlider = nullptr;
-            ColorSliderWidget* brightnessSlider = nullptr;
-            ColorSliderWidget* contrastSlider = nullptr;
-            ColorSliderWidget* saturationSlider = nullptr;
-            ColorSliderWidget* tintSlider = nullptr;
+            qwidget::FloatSlider* addSlider = nullptr;
+            qwidget::FloatSlider* brightnessSlider = nullptr;
+            qwidget::FloatSlider* contrastSlider = nullptr;
+            qwidget::FloatSlider* saturationSlider = nullptr;
+            qwidget::FloatSlider* tintSlider = nullptr;
             QCheckBox* invertCheckBox = nullptr;
         };
 
@@ -263,19 +174,24 @@ namespace tl
 
             p.colorEnabledCheckBox = new QCheckBox(tr("Enabled"));
 
-            p.addSlider = new ColorSliderWidget;
+            p.addSlider = new qwidget::FloatSlider;
             p.addSlider->setRange(math::FloatRange(-1.F, 1.F));
+            p.addSlider->setDefaultValue(0.F);
 
-            p.brightnessSlider = new ColorSliderWidget;
+            p.brightnessSlider = new qwidget::FloatSlider;
             p.brightnessSlider->setRange(math::FloatRange(0.F, 4.F));
+            p.brightnessSlider->setDefaultValue(1.F);
 
-            p.contrastSlider = new ColorSliderWidget;
+            p.contrastSlider = new qwidget::FloatSlider;
             p.contrastSlider->setRange(math::FloatRange(0.F, 4.F));
+            p.contrastSlider->setDefaultValue(1.F);
 
-            p.saturationSlider = new ColorSliderWidget;
+            p.saturationSlider = new qwidget::FloatSlider;
             p.saturationSlider->setRange(math::FloatRange(0.F, 4.F));
+            p.saturationSlider->setDefaultValue(1.F);
 
-            p.tintSlider = new ColorSliderWidget;
+            p.tintSlider = new qwidget::FloatSlider;
+            p.tintSlider->setDefaultValue(0.F);
 
             p.invertCheckBox = new QCheckBox(tr("Invert"));
 
@@ -308,7 +224,7 @@ namespace tl
 
             connect(
                 p.addSlider,
-                &ColorSliderWidget::valueChanged,
+                &qwidget::FloatSlider::valueChanged,
                 [this](const float value)
                 {
                     tl::render::Color color = _p->color;
@@ -319,7 +235,7 @@ namespace tl
 
             connect(
                 p.brightnessSlider,
-                &ColorSliderWidget::valueChanged,
+                &qwidget::FloatSlider::valueChanged,
                 [this](float value)
                 {
                     tl::render::Color color = _p->color;
@@ -330,7 +246,7 @@ namespace tl
 
             connect(
                 p.contrastSlider,
-                &ColorSliderWidget::valueChanged,
+                &qwidget::FloatSlider::valueChanged,
                 [this](float value)
                 {
                     tl::render::Color color = _p->color;
@@ -341,7 +257,7 @@ namespace tl
 
             connect(
                 p.saturationSlider,
-                &ColorSliderWidget::valueChanged,
+                &qwidget::FloatSlider::valueChanged,
                 [this](float value)
                 {
                     tl::render::Color color = _p->color;
@@ -352,7 +268,7 @@ namespace tl
 
             connect(
                 p.tintSlider,
-                &ColorSliderWidget::valueChanged,
+                &qwidget::FloatSlider::valueChanged,
                 [this](float value)
                 {
                     tl::render::Color color = _p->color;
@@ -433,11 +349,11 @@ namespace tl
             render::Levels levels;
 
             QCheckBox* levelsEnabledCheckBox = nullptr;
-            ColorSliderWidget* inLowSlider = nullptr;
-            ColorSliderWidget* inHighSlider = nullptr;
-            ColorSliderWidget* gammaSlider = nullptr;
-            ColorSliderWidget* outLowSlider = nullptr;
-            ColorSliderWidget* outHighSlider = nullptr;
+            qwidget::FloatSlider* inLowSlider = nullptr;
+            qwidget::FloatSlider* inHighSlider = nullptr;
+            qwidget::FloatSlider* gammaSlider = nullptr;
+            qwidget::FloatSlider* outLowSlider = nullptr;
+            qwidget::FloatSlider* outHighSlider = nullptr;
         };
 
         LevelsWidget::LevelsWidget(QWidget* parent) :
@@ -448,14 +364,21 @@ namespace tl
 
             p.levelsEnabledCheckBox = new QCheckBox(tr("Enabled"));
 
-            p.inLowSlider = new ColorSliderWidget;
-            p.inHighSlider = new ColorSliderWidget;
+            p.inLowSlider = new qwidget::FloatSlider;
+            p.inLowSlider->setDefaultValue(0.F);
 
-            p.gammaSlider = new ColorSliderWidget;
+            p.inHighSlider = new qwidget::FloatSlider;
+            p.inHighSlider->setDefaultValue(1.F);
+
+            p.gammaSlider = new qwidget::FloatSlider;
             p.gammaSlider->setRange(math::FloatRange(.1F, 4.F));
+            p.gammaSlider->setDefaultValue(1.F);
 
-            p.outLowSlider = new ColorSliderWidget;
-            p.outHighSlider = new ColorSliderWidget;
+            p.outLowSlider = new qwidget::FloatSlider;
+            p.outLowSlider->setDefaultValue(0.F);
+
+            p.outHighSlider = new qwidget::FloatSlider;
+            p.outHighSlider->setDefaultValue(1.F);
 
             auto layout = new QVBoxLayout;
             layout->addWidget(p.levelsEnabledCheckBox);
@@ -481,7 +404,7 @@ namespace tl
 
             connect(
                 p.inLowSlider,
-                &ColorSliderWidget::valueChanged,
+                &qwidget::FloatSlider::valueChanged,
                 [this](float value)
                 {
                     render::Levels levels = _p->levels;
@@ -491,7 +414,7 @@ namespace tl
                 });
             connect(
                 p.inHighSlider,
-                &ColorSliderWidget::valueChanged,
+                &qwidget::FloatSlider::valueChanged,
                 [this](float value)
                 {
                     render::Levels levels = _p->levels;
@@ -502,7 +425,7 @@ namespace tl
 
             connect(
                 p.gammaSlider,
-                &ColorSliderWidget::valueChanged,
+                &qwidget::FloatSlider::valueChanged,
                 [this](float value)
                 {
                     render::Levels levels = _p->levels;
@@ -513,7 +436,7 @@ namespace tl
 
             connect(
                 p.outLowSlider,
-                &ColorSliderWidget::valueChanged,
+                &qwidget::FloatSlider::valueChanged,
                 [this](float value)
                 {
                     render::Levels levels = _p->levels;
@@ -523,7 +446,7 @@ namespace tl
                 });
             connect(
                 p.outHighSlider,
-                &ColorSliderWidget::valueChanged,
+                &qwidget::FloatSlider::valueChanged,
                 [this](float value)
                 {
                     render::Levels levels = _p->levels;
@@ -589,10 +512,10 @@ namespace tl
             render::Exposure exposure;
 
             QCheckBox* exposureEnabledCheckBox = nullptr;
-            ColorSliderWidget* exposureSlider = nullptr;
-            ColorSliderWidget* defogSlider = nullptr;
-            ColorSliderWidget* kneeLowSlider = nullptr;
-            ColorSliderWidget* kneeHighSlider = nullptr;
+            qwidget::FloatSlider* exposureSlider = nullptr;
+            qwidget::FloatSlider* defogSlider = nullptr;
+            qwidget::FloatSlider* kneeLowSlider = nullptr;
+            qwidget::FloatSlider* kneeHighSlider = nullptr;
         };
 
         ExposureWidget::ExposureWidget(QWidget* parent) :
@@ -603,16 +526,21 @@ namespace tl
 
             p.exposureEnabledCheckBox = new QCheckBox(tr("Enabled"));
 
-            p.exposureSlider = new ColorSliderWidget;
+            p.exposureSlider = new qwidget::FloatSlider;
             p.exposureSlider->setRange(math::FloatRange(-10.F, 10.F));
+            p.exposureSlider->setDefaultValue(0.F);
 
-            p.defogSlider = new ColorSliderWidget;
+            p.defogSlider = new qwidget::FloatSlider;
             p.defogSlider->setRange(math::FloatRange(0.F, .1F));
+            p.defogSlider->setDefaultValue(0.F);
 
-            p.kneeLowSlider = new ColorSliderWidget;
+            p.kneeLowSlider = new qwidget::FloatSlider;
             p.kneeLowSlider->setRange(math::FloatRange(-3.F, 3.F));
-            p.kneeHighSlider = new ColorSliderWidget;
+            p.kneeLowSlider->setDefaultValue(0.F);
+
+            p.kneeHighSlider = new qwidget::FloatSlider;
             p.kneeHighSlider->setRange(math::FloatRange(3.5F, 7.5F));
+            p.kneeHighSlider->setDefaultValue(5.F);
 
             auto layout = new QVBoxLayout;
             layout->addWidget(p.exposureEnabledCheckBox);
@@ -636,7 +564,7 @@ namespace tl
 
             connect(
                 p.exposureSlider,
-                &ColorSliderWidget::valueChanged,
+                &qwidget::FloatSlider::valueChanged,
                 [this](float value)
                 {
                     render::Exposure exposure = _p->exposure;
@@ -647,7 +575,7 @@ namespace tl
 
             connect(
                 p.defogSlider,
-                &ColorSliderWidget::valueChanged,
+                &qwidget::FloatSlider::valueChanged,
                 [this](float value)
                 {
                     render::Exposure exposure = _p->exposure;
@@ -658,7 +586,7 @@ namespace tl
 
             connect(
                 p.kneeLowSlider,
-                &ColorSliderWidget::valueChanged,
+                &qwidget::FloatSlider::valueChanged,
                 [this](float value)
                 {
                     render::Exposure exposure = _p->exposure;
@@ -667,7 +595,8 @@ namespace tl
                     Q_EMIT exposureEnabledChanged(true);
                 });
             connect(
-                p.kneeHighSlider, &ColorSliderWidget::valueChanged,
+                p.kneeHighSlider,
+                &qwidget::FloatSlider::valueChanged,
                 [this](float value)
                 {
                     render::Exposure exposure = _p->exposure;
@@ -730,7 +659,7 @@ namespace tl
             float softClip = 0.F;
 
             QCheckBox* softClipEnabledCheckBox = nullptr;
-            ColorSliderWidget* softClipSlider = nullptr;
+            qwidget::FloatSlider* softClipSlider = nullptr;
         };
 
         SoftClipWidget::SoftClipWidget(QWidget* parent) :
@@ -741,7 +670,8 @@ namespace tl
 
             p.softClipEnabledCheckBox = new QCheckBox(tr("Enabled"));
 
-            p.softClipSlider = new ColorSliderWidget;
+            p.softClipSlider = new qwidget::FloatSlider;
+            p.softClipSlider->setDefaultValue(0.F);
 
             auto layout = new QVBoxLayout;
             layout->addWidget(p.softClipEnabledCheckBox);
@@ -760,7 +690,7 @@ namespace tl
 
             connect(
                 p.softClipSlider,
-                &ColorSliderWidget::valueChanged,
+                &qwidget::FloatSlider::valueChanged,
                 [this](float value)
                 {
                     Q_EMIT softClipChanged(value);

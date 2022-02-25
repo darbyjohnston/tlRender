@@ -4,11 +4,9 @@
 
 #include <tlPlay/AudioTool.h>
 
+#include <tlQWidget/FloatSlider.h>
+
 #include <QBoxLayout>
-#include <QDoubleSpinBox>
-#include <QPushButton>
-#include <QSignalBlocker>
-#include <QSlider>
 
 namespace tl
 {
@@ -17,8 +15,7 @@ namespace tl
         struct AudioOffsetWidget::Private
         {
             double offset = 0.0;
-            QDoubleSpinBox* spinBox = nullptr;
-            QSlider* slider = nullptr;
+            qwidget::FloatSlider* slider = nullptr;
         };
 
         AudioOffsetWidget::AudioOffsetWidget(QWidget* parent) :
@@ -27,39 +24,23 @@ namespace tl
         {
             TLRENDER_P();
 
-            p.slider = new QSlider;
-            p.slider->setOrientation(Qt::Horizontal);
-            p.slider->setRange(-100, 100);
-
-            p.spinBox = new QDoubleSpinBox;
-            p.spinBox->setRange(-1.0, 1.0);
-            p.spinBox->setSingleStep(0.1);
-
-            auto resetButton = new QPushButton(tr("Reset"));
+            p.slider = new qwidget::FloatSlider;
+            p.slider->setRange(math::FloatRange(-1.F, 1.F));
+            p.slider->setDefaultValue(0.F);
 
             auto layout = new QVBoxLayout;
             layout->addWidget(p.slider);
-            auto hLayout = new QHBoxLayout;
-            hLayout->addWidget(p.spinBox, 1);
-            hLayout->addWidget(resetButton);
-            layout->addLayout(hLayout);
             layout->addStretch();
             setLayout(layout);
 
             connect(
                 p.slider,
-                SIGNAL(valueChanged(int)),
-                SLOT(_sliderCallback(int)));
-
-            connect(
-                p.spinBox,
-                SIGNAL(valueChanged(double)),
-                SLOT(_spinBoxCallback(double)));
-
-            connect(
-                resetButton,
-                SIGNAL(clicked()),
-                SLOT(_resetCallback()));
+                &qwidget::FloatSlider::valueChanged,
+                [this](float value)
+                {
+                    _p->offset = value;
+                    Q_EMIT audioOffsetChanged(_p->offset);
+                });
         }
 
         AudioOffsetWidget::~AudioOffsetWidget()
@@ -72,40 +53,12 @@ namespace tl
             _offsetUpdate();
         }
 
-        void AudioOffsetWidget::_sliderCallback(int value)
-        {
-            TLRENDER_P();
-            p.offset = value / 100.0;
-            Q_EMIT audioOffsetChanged(p.offset);
-            _offsetUpdate();
-        }
-
-        void AudioOffsetWidget::_spinBoxCallback(double value)
-        {
-            TLRENDER_P();
-            p.offset = value;
-            Q_EMIT audioOffsetChanged(p.offset);
-            _offsetUpdate();
-        }
-
-        void AudioOffsetWidget::_resetCallback()
-        {
-            TLRENDER_P();
-            p.offset = 0.0;
-            Q_EMIT audioOffsetChanged(p.offset);
-            _offsetUpdate();
-        }
-
         void AudioOffsetWidget::_offsetUpdate()
         {
             TLRENDER_P();
             {
-                QSignalBlocker signalBlocker(p.spinBox);
-                p.spinBox->setValue(p.offset);
-            }
-            {
                 QSignalBlocker signalBlocker(p.slider);
-                p.slider->setValue(p.offset * 100);
+                p.slider->setValue(p.offset);
             }
         }
 

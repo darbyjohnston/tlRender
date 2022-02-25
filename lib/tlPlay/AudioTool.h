@@ -26,11 +26,6 @@ namespace tl
         Q_SIGNALS:
             void audioOffsetChanged(double);
 
-        private Q_SLOTS:
-            void _sliderCallback(int);
-            void _spinBoxCallback(double);
-            void _resetCallback();
-
         private:
             void _offsetUpdate();
 

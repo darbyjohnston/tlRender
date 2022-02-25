@@ -2,10 +2,13 @@ set(HEADERS
 	BellowsPrivate.h
 	BellowsWidget.h
     FilmstripWidget.h
+	FloatSlider.h
+	IntSlider.h
 	RadioButtonGroup.h
 	Separator.h
 	Spacer.h
     SpeedLabel.h
+	Style.h
     TimeLabel.h
     TimeSpinBox.h
     TimelineSlider.h
@@ -15,10 +18,13 @@ set(SOURCE
 	BellowsPrivate.cpp
 	BellowsWidget.cpp
     FilmstripWidget.cpp
+	FloatSlider.cpp
+	IntSlider.cpp
 	RadioButtonGroup.cpp
 	Separator.cpp
 	Spacer.cpp
     SpeedLabel.cpp
+	Style.cpp
     TimeLabel.cpp
     TimeSpinBox.cpp
     TimelineSlider.cpp
