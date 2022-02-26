@@ -1,9 +1,25 @@
 cmake_minimum_required(VERSION 3.18)
 cmake_policy(SET CMP0091 NEW)
 
-project(tlRender LANGUAGES CXX C)
+set(TLRENDER_VERSION_MAJOR "0")
+set(TLRENDER_VERSION_MINOR "1")
+set(TLRENDER_VERSION_PATCH "0")
+set(TLRENDER_VERSION ${TLRENDER_VERSION_MAJOR}.${TLRENDER_VERSION_MINOR}.${TLRENDER_VERSION_PATCH})
+add_definitions(-DTLRENDER_VERSION_MAJOR=${TLRENDER_VERSION_MAJOR})
+add_definitions(-DTLRENDER_VERSION_MINOR=${TLRENDER_VERSION_MINOR})
+add_definitions(-DTLRENDER_VERSION_PATCH=${TLRENDER_VERSION_PATCH})
+add_definitions(-DTLRENDER_VERSION="${TLRENDER_VERSION}")
 
+project(
+	tlRender
+    VERSION ${TLRENDER_VERSION}
+    DESCRIPTION "tlRender is an open source library for building playback and review applications for visual effects, film, and animation"
+    HOMEPAGE_URL "https://github.com/darbyjohnston/tlRender"
+	LANGUAGES CXX C)
+
+#-------------------------------------------------------------------------------
 # Build options
+
 set(TLRENDER_ENABLE_MMAP TRUE CACHE BOOL "Enable memory-mapped file I/O")
 set(TLRENDER_ENABLE_COVERAGE FALSE CACHE BOOL "Enable code coverage")
 set(TLRENDER_ENABLE_PYTHON FALSE CACHE BOOL "Enable Python support (for OTIO Python adapters)")
@@ -14,8 +30,11 @@ set(TLRENDER_BUILD_PROGRAMS TRUE CACHE BOOL "Build programs")
 set(TLRENDER_BUILD_EXAMPLES TRUE CACHE BOOL "Build examples")
 set(TLRENDER_BUILD_TESTS TRUE CACHE BOOL "Build tests")
 
-# Configure
+#-------------------------------------------------------------------------------
+# Internal configuration
+
 list(PREPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/Modules)
+
 if(TLRENDER_ENABLE_MMAP)
     add_definitions(-DTLRENDER_ENABLE_MMAP)
 endif()
@@ -37,20 +56,26 @@ if(TLRENDER_BUILD_TESTS)
     set(CTEST_OUTPUT_ON_FAILURE ON)
     enable_testing()
 endif()
+
 include_directories(
 	${PROJECT_SOURCE_DIR}/deps
 	${PROJECT_SOURCE_DIR}/lib
 	${PROJECT_SOURCE_DIR}/etc
 	${PROJECT_SOURCE_DIR}/tests)
+
 if(TLRENDER_ENABLE_COVERAGE)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage")
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
 endif()
+
 set(CMAKE_FIND_FRAMEWORK LAST)
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+#-------------------------------------------------------------------------------
 # Dependencies
+
 find_package(Threads REQUIRED)
 find_package(FSeq REQUIRED)
 find_package(GLM REQUIRED)
@@ -88,7 +113,9 @@ elseif(TLRENDER_BUILD_QT5)
     find_package(Qt5 REQUIRED COMPONENTS Quick Widgets Svg HINTS "$ENV{QTDIR}")
 endif()
 
+#-------------------------------------------------------------------------------
 # Sub-directories
+
 if(TLRENDER_BUILD_GL)
 	add_subdirectory(deps/tlGlad)
 endif()
