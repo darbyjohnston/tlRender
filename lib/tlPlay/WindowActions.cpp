@@ -95,6 +95,9 @@ namespace tl
                 });
         }
 
+        WindowActions::~WindowActions()
+        {}
+
         const QMap<QString, QAction*>& WindowActions::actions() const
         {
             return _p->actions;

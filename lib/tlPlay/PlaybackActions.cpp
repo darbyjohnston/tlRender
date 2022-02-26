@@ -381,6 +381,9 @@ namespace tl
                 });
         }
 
+        PlaybackActions::~PlaybackActions()
+        {}
+
         const QMap<QString, QAction*>& PlaybackActions::actions() const
         {
             return _p->actions;

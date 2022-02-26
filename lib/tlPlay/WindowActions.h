@@ -26,6 +26,8 @@ namespace tl
         public:
             WindowActions(App*, QObject* parent = nullptr);
 
+            ~WindowActions() override;
+
             //! Get the actions.
             const QMap<QString, QAction*>& actions() const;
 

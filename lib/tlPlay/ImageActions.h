@@ -28,6 +28,8 @@ namespace tl
         public:
             ImageActions(App*, QObject* parent = nullptr);
 
+            ~ImageActions() override;
+
             //! Get the actions.
             const QMap<QString, QAction*>& actions() const;
 

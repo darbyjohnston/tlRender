@@ -168,6 +168,9 @@ namespace tl
                 SLOT(_recentFilesCallback()));
         }
 
+        FileActions::~FileActions()
+        {}
+
         const QMap<QString, QAction*>& FileActions::actions() const
         {
             return _p->actions;

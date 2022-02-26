@@ -28,6 +28,8 @@ namespace tl
         public:
             CompareActions(App*, QObject* parent = nullptr);
 
+            ~CompareActions() override;
+
             //! Get the actions.
             const QMap<QString, QAction*>& actions() const;
 

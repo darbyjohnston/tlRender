@@ -56,6 +56,9 @@ namespace tl
             _actionsUpdate();
         }
 
+        ViewActions::~ViewActions()
+        {}
+
         const QMap<QString, QAction*>& ViewActions::actions() const
         {
             return _p->actions;

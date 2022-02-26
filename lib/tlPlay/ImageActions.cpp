@@ -174,6 +174,9 @@ namespace tl
                 });
         }
 
+        ImageActions::~ImageActions()
+        {}
+
         const QMap<QString, QAction*>& ImageActions::actions() const
         {
             return _p->actions;

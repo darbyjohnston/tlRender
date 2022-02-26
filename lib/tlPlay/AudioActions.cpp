@@ -54,6 +54,9 @@ namespace tl
             _actionsUpdate();
         }
 
+        AudioActions::~AudioActions()
+        {}
+
         const QMap<QString, QAction*>& AudioActions::actions() const
         {
             return _p->actions;

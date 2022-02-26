@@ -119,6 +119,9 @@ namespace tl
                 });
         }
 
+        CompareActions::~CompareActions()
+        {}
+
         const QMap<QString, QAction*>& CompareActions::actions() const
         {
             return _p->actions;
