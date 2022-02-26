@@ -9,6 +9,8 @@
 
 #include <QWidget>
 
+#include <memory>
+
 namespace tl
 {
     namespace qwidget
