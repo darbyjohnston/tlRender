@@ -117,11 +117,6 @@ namespace tl
             surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
             QSurfaceFormat::setDefaultFormat(surfaceFormat);
         }
-
-        QString versionedSettingsKey(const QString& value)
-        {
-            return QString("%1/%2").arg(QT_VERSION < QT_VERSION_CHECK(6, 0, 0) ? "5" : "6").arg(value);
-        }
     }
 }
 

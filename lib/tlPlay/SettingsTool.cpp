@@ -8,6 +8,8 @@
 
 #include <tlQWidget/RadioButtonGroup.h>
 
+#include <tlQt/MetaTypes.h>
+
 #include <QBoxLayout>
 #include <QCheckBox>
 #include <QComboBox>
@@ -15,7 +17,7 @@
 #include <QFormLayout>
 #include <QLabel>
 #include <QLineEdit>
-#include <QMap>
+#include <QPushButton>
 #include <QSpinBox>
 
 namespace tl
@@ -45,51 +47,48 @@ namespace tl
             layout->addRow(tr("Read behind:"), p.readBehindSpinBox);
             setLayout(layout);
 
-            p.readAheadSpinBox->setValue(settingsObject->cacheReadAhead());
-            p.readBehindSpinBox->setValue(settingsObject->cacheReadBehind());
+            p.readAheadSpinBox->setValue(settingsObject->value("Cache/ReadAhead").toDouble());
+            p.readBehindSpinBox->setValue(settingsObject->value("Cache/ReadBehind").toDouble());
 
             connect(
                 p.readAheadSpinBox,
-                SIGNAL(valueChanged(double)),
-                settingsObject,
-                SLOT(setCacheReadAhead(double)));
+                QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+                [settingsObject](double value)
+                {
+                    settingsObject->setValue("Cache/ReadAhead", value);
+                });
 
             connect(
                 p.readBehindSpinBox,
-                SIGNAL(valueChanged(double)),
-                settingsObject,
-                SLOT(setCacheReadBehind(double)));
+                QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+                [settingsObject](double value)
+                {
+                    settingsObject->setValue("Cache/ReadBehind", value);
+                });
 
             connect(
                 settingsObject,
-                SIGNAL(cacheReadAheadChanged(double)),
-                SLOT(_readAheadCallback(double)));
-            connect(
-                settingsObject,
-                SIGNAL(cacheReadBehindChanged(double)),
-                SLOT(_readBehindCallback(double)));
+                &SettingsObject::valueChanged,
+                [this](const QString& name, const QVariant& value)
+                {
+                    if (name == "Cache/ReadAhead")
+                    {
+                        QSignalBlocker signalBlocker(_p->readAheadSpinBox);
+                        _p->readAheadSpinBox->setValue(value.toDouble());
+                    }
+                    else if (name == "Cache/ReadBehind")
+                    {
+                        QSignalBlocker signalBlocker(_p->readBehindSpinBox);
+                        _p->readBehindSpinBox->setValue(value.toDouble());
+                    }
+                });
         }
 
         CacheSettingsWidget::~CacheSettingsWidget()
         {}
 
-        void CacheSettingsWidget::_readAheadCallback(double value)
-        {
-            TLRENDER_P();
-            QSignalBlocker signalBlocker(p.readAheadSpinBox);
-            p.readAheadSpinBox->setValue(value);
-        }
-
-        void CacheSettingsWidget::_readBehindCallback(double value)
-        {
-            TLRENDER_P();
-            QSignalBlocker signalBlocker(p.readBehindSpinBox);
-            p.readBehindSpinBox->setValue(value);
-        }
-
         struct FileSequenceSettingsWidget::Private
         {
-            SettingsObject* settingsObject = nullptr;
             QComboBox* audioComboBox = nullptr;
             QLineEdit* audioFileName = nullptr;
             QLineEdit* audioDirectory = nullptr;
@@ -101,8 +100,6 @@ namespace tl
             _p(new Private)
         {
             TLRENDER_P();
-
-            p.settingsObject = settingsObject;
 
             p.audioComboBox = new QComboBox;
             for (const auto& i : timeline::getFileSequenceAudioLabels())
@@ -124,92 +121,80 @@ namespace tl
             layout->addRow(tr("Maximum digits:"), p.maxDigitsSpinBox);
             setLayout(layout);
 
-            p.audioComboBox->setCurrentIndex(static_cast<int>(settingsObject->fileSequenceAudio()));
-            p.audioFileName->setText(settingsObject->fileSequenceAudioFileName());
-            p.audioDirectory->setText(settingsObject->fileSequenceAudioDirectory());
-            p.maxDigitsSpinBox->setValue(static_cast<int>(settingsObject->maxFileSequenceDigits()));
+            p.audioComboBox->setCurrentIndex(
+                static_cast<int>(settingsObject->value("FileSequence/Audio").toInt()));
+            p.audioFileName->setText(
+                settingsObject->value("FileSequence/AudioFileName").toString());
+            p.audioDirectory->setText(
+                settingsObject->value("FileSequence/AudioDirectory").toString());
+            p.maxDigitsSpinBox->setValue(
+                settingsObject->value("Misc/MaxFileSequenceDigits").toInt());
 
             connect(
                 p.audioComboBox,
-                SIGNAL(activated(int)),
-                SLOT(_audioCallback(int)));
+                QOverload<int>::of(&QComboBox::activated),
+                [settingsObject](int value)
+                {
+                    settingsObject->setValue("FileSequence/Audio", value);
+                });
 
             connect(
                 p.audioFileName,
-                SIGNAL(textChanged(const QString&)),
-                settingsObject,
-                SLOT(setFileSequenceAudioFileName(const QString&)));
+                &QLineEdit::textChanged,
+                [settingsObject](const QString& value)
+                {
+                    settingsObject->setValue("FileSequence/AudioFileName", value);
+                });
 
             connect(
                 p.audioDirectory,
-                SIGNAL(textChanged(const QString&)),
-                settingsObject,
-                SLOT(setFileSequenceAudioDirectory(const QString&)));
+                &QLineEdit::textChanged,
+                [settingsObject](const QString& value)
+                {
+                    settingsObject->setValue("FileSequence/AudioDirectory", value);
+                });
 
             connect(
                 p.maxDigitsSpinBox,
-                SIGNAL(valueChanged(int)),
-                settingsObject,
-                SLOT(setMaxFileSequenceDigits(int)));
+                QOverload<int>::of(&QSpinBox::valueChanged),
+                [settingsObject](int value)
+                {
+                    settingsObject->setValue("Misc/MaxFileSequenceDigits", value);
+                });
 
             connect(
                 settingsObject,
-                SIGNAL(fileSequenceAudioChanged(tl::timeline::FileSequenceAudio)),
-                SLOT(_audioCallback(tl::timeline::FileSequenceAudio)));
-            connect(
-                settingsObject,
-                SIGNAL(fileSequenceAudioFileNameChanged(const QString&)),
-                SLOT(_audioFileNameCallback(const QString&)));
-            connect(
-                settingsObject,
-                SIGNAL(fileSequenceAudioDirectoryChanged(const QString&)),
-                SLOT(_audioDirectoryCallback(const QString&)));
-            connect(
-                settingsObject,
-                SIGNAL(maxFileSequenceDigitsChanged(int)),
-                SLOT(_maxDigitsCallback(int)));
+                &SettingsObject::valueChanged,
+                [this](const QString& name, const QVariant& value)
+                {
+                    if (name == "FileSequence/Audio")
+                    {
+                        QSignalBlocker signalBlocker(_p->audioComboBox);
+                        _p->audioComboBox->setCurrentIndex(value.toInt());
+                    }
+                    else if (name == "FileSequence/AudioFileName")
+                    {
+                        QSignalBlocker signalBlocker(_p->audioFileName);
+                        _p->audioFileName->setText(value.toString());
+                    }
+                    else if (name == "FileSequence/AudioDirectory")
+                    {
+                        QSignalBlocker signalBlocker(_p->audioDirectory);
+                        _p->audioDirectory->setText(value.toString());
+                    }
+                    else if (name == "Misc/MaxFileSequenceDigits")
+                    {
+                        QSignalBlocker signalBlocker(_p->maxDigitsSpinBox);
+                        _p->maxDigitsSpinBox->setValue(value.toInt());
+                    }
+                });
         }
 
         FileSequenceSettingsWidget::~FileSequenceSettingsWidget()
         {}
 
-        void FileSequenceSettingsWidget::_audioCallback(int value)
-        {
-            TLRENDER_P();
-            p.settingsObject->setFileSequenceAudio(static_cast<timeline::FileSequenceAudio>(value));
-        }
-
-        void FileSequenceSettingsWidget::_audioCallback(timeline::FileSequenceAudio value)
-        {
-            TLRENDER_P();
-            QSignalBlocker signalBlocker(p.audioComboBox);
-            p.audioComboBox->setCurrentIndex(static_cast<int>(value));
-        }
-
-        void FileSequenceSettingsWidget::_audioFileNameCallback(const QString& value)
-        {
-            TLRENDER_P();
-            QSignalBlocker signalBlocker(p.audioFileName);
-            p.audioFileName->setText(value);
-        }
-
-        void FileSequenceSettingsWidget::_audioDirectoryCallback(const QString& value)
-        {
-            TLRENDER_P();
-            QSignalBlocker signalBlocker(p.audioDirectory);
-            p.audioDirectory->setText(value);
-        }
-
-        void FileSequenceSettingsWidget::_maxDigitsCallback(int value)
-        {
-            TLRENDER_P();
-            QSignalBlocker signalBlocker(p.maxDigitsSpinBox);
-            p.maxDigitsSpinBox->setValue(value);
-        }
-
         struct PerformanceSettingsWidget::Private
         {
-            SettingsObject* settingsObject = nullptr;
             QComboBox* timerModeComboBox = nullptr;
             QComboBox* audioBufferFrameCountComboBox = nullptr;
             QSpinBox* videoRequestCountSpinBox = nullptr;
@@ -223,8 +208,6 @@ namespace tl
             _p(new Private)
         {
             TLRENDER_P();
-
-            p.settingsObject = settingsObject;
 
             p.timerModeComboBox = new QComboBox;
             for (const auto& i : timeline::getTimerModeLabels())
@@ -262,134 +245,111 @@ namespace tl
             layout->addRow(tr("FFmpeg I/O threads:"), p.ffmpegThreadCountSpinBox);
             setLayout(layout);
 
-            p.timerModeComboBox->setCurrentIndex(static_cast<int>(settingsObject->timerMode()));
-            p.audioBufferFrameCountComboBox->setCurrentIndex(static_cast<int>(settingsObject->audioBufferFrameCount()));
-            p.videoRequestCountSpinBox->setValue(settingsObject->videoRequestCount());
-            p.audioRequestCountSpinBox->setValue(settingsObject->audioRequestCount());
-            p.sequenceThreadCountSpinBox->setValue(settingsObject->sequenceThreadCount());
-            p.ffmpegThreadCountSpinBox->setValue(settingsObject->ffmpegThreadCount());
+            p.timerModeComboBox->setCurrentIndex(
+                static_cast<int>(settingsObject->value("Performance/TimerMode").toInt()));
+            p.audioBufferFrameCountComboBox->setCurrentIndex(
+                static_cast<int>(settingsObject->value("Performance/AudioBufferFrameCount").toInt()));
+            p.videoRequestCountSpinBox->setValue(
+                settingsObject->value("Performance/VideoRequestCount").toInt());
+            p.audioRequestCountSpinBox->setValue(
+                settingsObject->value("Performance/AudioRequestCount").toInt());
+            p.sequenceThreadCountSpinBox->setValue(
+                settingsObject->value("Performance/SequenceThreadCount").toInt());
+            p.ffmpegThreadCountSpinBox->setValue(
+                settingsObject->value("Performance/FFmpegThreadCount").toInt());
 
             connect(
                 p.timerModeComboBox,
-                SIGNAL(activated(int)),
-                SLOT(_timerModeCallback(int)));
+                QOverload<int>::of(&QComboBox::activated),
+                [settingsObject](int value)
+                {
+                    settingsObject->setValue("Performance/TimerMode", value);
+                });
 
             connect(
                 p.audioBufferFrameCountComboBox,
-                SIGNAL(activated(int)),
-                SLOT(_audioBufferFrameCountCallback(int)));
+                QOverload<int>::of(&QComboBox::activated),
+                [settingsObject](int value)
+                {
+                    settingsObject->setValue("Performance/AudioBufferFrameCount", value);
+                });
 
             connect(
                 p.videoRequestCountSpinBox,
-                SIGNAL(valueChanged(int)),
-                settingsObject,
-                SLOT(setVideoRequestCount(int)));
+                QOverload<int>::of(&QSpinBox::valueChanged),
+                [settingsObject](int value)
+                {
+                    settingsObject->setValue("Performance/VideoRequestCount", value);
+                });
 
             connect(
                 p.audioRequestCountSpinBox,
-                SIGNAL(valueChanged(int)),
-                settingsObject,
-                SLOT(setAudioRequestCount(int)));
+                QOverload<int>::of(&QSpinBox::valueChanged),
+                [settingsObject](int value)
+                {
+                    settingsObject->setValue("Performance/AudioRequestCount", value);
+                });
 
             connect(
                 p.sequenceThreadCountSpinBox,
-                SIGNAL(valueChanged(int)),
-                settingsObject,
-                SLOT(setSequenceThreadCount(int)));
+                QOverload<int>::of(&QSpinBox::valueChanged),
+                [settingsObject](int value)
+                {
+                    settingsObject->setValue("Performance/SequenceThreadCount", value);
+                });
 
             connect(
                 p.ffmpegThreadCountSpinBox,
-                SIGNAL(valueChanged(int)),
-                settingsObject,
-                SLOT(setFFmpegThreadCount(int)));
+                QOverload<int>::of(&QSpinBox::valueChanged),
+                [settingsObject](int value)
+                {
+                    settingsObject->setValue("Performance/FFmpegThreadCount", value);
+                });
 
             connect(
                 settingsObject,
-                SIGNAL(timerModeChanged(tl::timeline::TimerMode)),
-                SLOT(_timerModeCallback(tl::timeline::TimerMode)));
-            connect(
-                settingsObject,
-                SIGNAL(audioBufferFrameCountChanged(tl::timeline::AudioBufferFrameCount)),
-                SLOT(_audioBufferFrameCountCallback(tl::timeline::AudioBufferFrameCount)));
-            connect(
-                settingsObject,
-                SIGNAL(videoRequestCountChanged(int)),
-                SLOT(_videoRequestCountCallback(int)));
-            connect(
-                settingsObject,
-                SIGNAL(audioRequestCountChanged(int)),
-                SLOT(_audioRequestCountCallback(int)));
-            connect(
-                settingsObject,
-                SIGNAL(sequenceThreadCountChanged(int)),
-                SLOT(_sequenceThreadCountCallback(int)));
-            connect(
-                settingsObject,
-                SIGNAL(ffmpegThreadCountChanged(int)),
-                SLOT(_ffmpegThreadCountCallback(int)));
+                &SettingsObject::valueChanged,
+                [this](const QString& name, const QVariant& value)
+                {
+                    if (name == "Performance/TimerMode")
+                    {
+                        QSignalBlocker signalBlocker(_p->timerModeComboBox);
+                        _p->timerModeComboBox->setCurrentIndex(value.toInt());
+                    }
+                    else if (name == "Performance/AudioBufferFrameCount")
+                    {
+                        QSignalBlocker signalBlocker(_p->audioRequestCountSpinBox);
+                        _p->audioBufferFrameCountComboBox->setCurrentIndex(value.toInt());
+                    }
+                    else if (name == "Performance/VideoRequestCount")
+                    {
+                        QSignalBlocker signalBlocker(_p->videoRequestCountSpinBox);
+                        _p->videoRequestCountSpinBox->setValue(value.toInt());
+                    }
+                    else if (name == "Performance/AudioRequestCount")
+                    {
+                        QSignalBlocker signalBlocker(_p->audioRequestCountSpinBox);
+                        _p->audioRequestCountSpinBox->setValue(value.toInt());
+                    }
+                    else if (name == "Performance/SequenceThreadCount")
+                    {
+                        QSignalBlocker signalBlocker(_p->sequenceThreadCountSpinBox);
+                        _p->sequenceThreadCountSpinBox->setValue(value.toInt());
+                    }
+                    else if (name == "Performance/FFmpegThreadCount")
+                    {
+                        QSignalBlocker signalBlocker(_p->ffmpegThreadCountSpinBox);
+                        _p->ffmpegThreadCountSpinBox->setValue(value.toInt());
+                    }
+                });
         }
 
         PerformanceSettingsWidget::~PerformanceSettingsWidget()
         {}
 
-        void PerformanceSettingsWidget::_timerModeCallback(int value)
-        {
-            TLRENDER_P();
-            p.settingsObject->setTimerMode(static_cast<timeline::TimerMode>(value));
-        }
-
-        void PerformanceSettingsWidget::_timerModeCallback(timeline::TimerMode value)
-        {
-            TLRENDER_P();
-            QSignalBlocker signalBlocker(p.timerModeComboBox);
-            p.timerModeComboBox->setCurrentIndex(static_cast<int>(value));
-        }
-
-        void PerformanceSettingsWidget::_audioBufferFrameCountCallback(int value)
-        {
-            TLRENDER_P();
-            p.settingsObject->setAudioBufferFrameCount(static_cast<timeline::AudioBufferFrameCount>(value));
-        }
-
-        void PerformanceSettingsWidget::_audioBufferFrameCountCallback(timeline::AudioBufferFrameCount value)
-        {
-            TLRENDER_P();
-            QSignalBlocker signalBlocker(p.audioRequestCountSpinBox);
-            p.audioBufferFrameCountComboBox->setCurrentIndex(static_cast<int>(value));
-        }
-
-        void PerformanceSettingsWidget::_videoRequestCountCallback(int value)
-        {
-            TLRENDER_P();
-            QSignalBlocker signalBlocker(p.videoRequestCountSpinBox);
-            p.videoRequestCountSpinBox->setValue(value);
-        }
-
-        void PerformanceSettingsWidget::_audioRequestCountCallback(int value)
-        {
-            TLRENDER_P();
-            QSignalBlocker signalBlocker(p.audioRequestCountSpinBox);
-            p.audioRequestCountSpinBox->setValue(value);
-        }
-
-        void PerformanceSettingsWidget::_sequenceThreadCountCallback(int value)
-        {
-            TLRENDER_P();
-            QSignalBlocker signalBlocker(p.sequenceThreadCountSpinBox);
-            p.sequenceThreadCountSpinBox->setValue(value);
-        }
-
-        void PerformanceSettingsWidget::_ffmpegThreadCountCallback(int value)
-        {
-            TLRENDER_P();
-            QSignalBlocker signalBlocker(p.ffmpegThreadCountSpinBox);
-            p.ffmpegThreadCountSpinBox->setValue(value);
-        }
-
         struct MiscSettingsWidget::Private
         {
             QCheckBox* toolTipsCheckBox = nullptr;
-            SettingsObject* settingsObject = nullptr;
         };
 
         MiscSettingsWidget::MiscSettingsWidget(SettingsObject* settingsObject, QWidget* parent) :
@@ -397,8 +357,6 @@ namespace tl
             _p(new Private)
         {
             TLRENDER_P();
-
-            p.settingsObject = settingsObject;
 
             p.toolTipsCheckBox = new QCheckBox;
             p.toolTipsCheckBox->setText(tr("Enable tool tips"));
@@ -411,30 +369,24 @@ namespace tl
 
             connect(
                 p.toolTipsCheckBox,
-                SIGNAL(stateChanged(int)),
-                SLOT(_toolTipsCallback(int)));
+                &QCheckBox::stateChanged,
+                [settingsObject](int value)
+                {
+                    settingsObject->setToolTipsEnabled(Qt::Checked == value);
+                });
 
             connect(
                 settingsObject,
-                SIGNAL(toolTipsEnabledChanged(bool)),
-                SLOT(_toolTipsCallback(bool)));
+                &SettingsObject::toolTipsEnabledChanged,
+                [this](bool value)
+                {
+                    QSignalBlocker signalBlocker(_p->toolTipsCheckBox);
+                    _p->toolTipsCheckBox->setChecked(value);
+                });
         }
 
         MiscSettingsWidget::~MiscSettingsWidget()
         {}
-
-        void MiscSettingsWidget::_toolTipsCallback(int value)
-        {
-            TLRENDER_P();
-            p.settingsObject->setToolTipsEnabled(Qt::Checked == value);
-        }
-
-        void MiscSettingsWidget::_toolTipsCallback(bool value)
-        {
-            TLRENDER_P();
-            QSignalBlocker signalBlocker(p.toolTipsCheckBox);
-            p.toolTipsCheckBox->setChecked(value);
-        }
 
         SettingsTool::SettingsTool(
             SettingsObject* settingsObject,
@@ -446,7 +398,17 @@ namespace tl
             addBellows(tr("File Sequences"), new FileSequenceSettingsWidget(settingsObject));
             addBellows(tr("Performance"), new PerformanceSettingsWidget(settingsObject));
             addBellows(tr("Miscellaneous"), new MiscSettingsWidget(settingsObject));
+            auto resetButton = new QPushButton(tr("Default Settings"));
+            addWidget(resetButton);
             addStretch();
+
+            connect(
+                resetButton,
+                &QPushButton::clicked,
+                [settingsObject]
+                {
+                    settingsObject->reset();
+                });
         }
     }
 }

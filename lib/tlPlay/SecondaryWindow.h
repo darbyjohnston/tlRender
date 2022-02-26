@@ -12,11 +12,6 @@
 
 namespace tl
 {
-    namespace core
-    {
-        class Context;
-    }
-
     namespace qwidget
     {
         class TimelineViewport;
@@ -24,6 +19,8 @@ namespace tl
 
     namespace play
     {
+        class App;
+
         //! Secondary window.
         class SecondaryWindow : public QWidget
         {
@@ -31,7 +28,7 @@ namespace tl
 
         public:
             SecondaryWindow(
-                const std::shared_ptr<core::Context>&,
+                App*,
                 QWidget* parent = nullptr);
 
             ~SecondaryWindow() override;

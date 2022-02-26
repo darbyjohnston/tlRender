@@ -47,7 +47,6 @@
 #include <QMenuBar>
 #include <QMimeData>
 #include <QMouseEvent>
-#include <QSettings>
 #include <QStatusBar>
 #include <QStyle>
 #include <QToolBar>
@@ -184,7 +183,7 @@ namespace tl
 
             p.timelineSlider = new qwidget::TimelineSlider(app->getContext());
             p.timelineSlider->setTimeObject(app->timeObject());
-            p.timelineSlider->setThumbnails(app->settingsObject()->hasTimelineThumbnails());
+            p.timelineSlider->setThumbnails(app->settingsObject()->value("Timeline/Thumbnails").toBool());
             auto timelineDockWidget = new QDockWidget;
             timelineDockWidget->setObjectName("Timeline");
             timelineDockWidget->setWindowTitle(tr("Timeline"));
@@ -275,7 +274,7 @@ namespace tl
             p.windowActions->menu()->addAction(colorDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, colorDockWidget);
 
-            p.infoTool = new InfoTool();
+            p.infoTool = new InfoTool(app);
             auto infoDockWidget = new QDockWidget;
             infoDockWidget->setObjectName("InfoTool");
             infoDockWidget->setWindowTitle(tr("Information"));
@@ -563,44 +562,48 @@ namespace tl
 
             connect(
                 app->settingsObject(),
-                &SettingsObject::timelineThumbnailsChanged,
-                [this](bool value)
+                &SettingsObject::valueChanged,
+                [this](const QString& name, const QVariant& value)
                 {
-                    _p->timelineSlider->setThumbnails(value);
+                    if ("Timeline/Thumbnails" == name)
+                    {
+                        _p->timelineSlider->setThumbnails(value.toBool());
+                    }
                 });
 
-            QSettings settings;
-            auto ba = settings.value(qt::versionedSettingsKey("MainWindow/geometry")).toByteArray();
+            app->settingsObject()->setDefaultValue("MainWindow/geometry", QByteArray());
+            auto ba = app->settingsObject()->value("MainWindow/geometry").toByteArray();
             if (!ba.isEmpty())
             {
-                restoreGeometry(settings.value(qt::versionedSettingsKey("MainWindow/geometry")).toByteArray());
+                restoreGeometry(ba);
             }
             else
             {
                 resize(1280, 720);
             }
-            ba = settings.value(qt::versionedSettingsKey("MainWindow/windowState")).toByteArray();
+            app->settingsObject()->setDefaultValue("MainWindow/windowState", QByteArray());
+            ba = app->settingsObject()->value("MainWindow/windowState").toByteArray();
             if (!ba.isEmpty())
             {
-                restoreState(settings.value(qt::versionedSettingsKey("MainWindow/windowState")).toByteArray());
+                restoreState(ba);
             }
-            if (settings.contains("MainWindow/FloatOnTop"))
+            app->settingsObject()->setDefaultValue("MainWindow/FloatOnTop", false);
+            p.floatOnTop = app->settingsObject()->value("MainWindow/FloatOnTop").toBool();
+            if (p.floatOnTop)
             {
-                p.floatOnTop = settings.value("MainWindow/FloatOnTop").toBool();
-                if (p.floatOnTop)
-                {
-                    setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
-                }
-                else
-                {
-                    setWindowFlags(windowFlags() & ~Qt::WindowStaysOnTopHint);
-                }
+                setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+            }
+            else
+            {
+                setWindowFlags(windowFlags() & ~Qt::WindowStaysOnTopHint);
+            }
+            {
                 QSignalBlocker blocker(p.windowActions->actions()["FloatOnTop"]);
                 p.windowActions->actions()["FloatOnTop"]->setChecked(p.floatOnTop);
             }
-            if (settings.contains("MainWindow/SecondaryFloatOnTop"))
+            app->settingsObject()->setDefaultValue("MainWindow/SecondaryFloatOnTop", false);
+            p.secondaryFloatOnTop = app->settingsObject()->value("MainWindow/SecondaryFloatOnTop").toBool();
             {
-                p.secondaryFloatOnTop = settings.value("MainWindow/SecondaryFloatOnTop").toBool();
                 QSignalBlocker blocker(p.windowActions->actions()["SecondaryFloatOnTop"]);
                 p.windowActions->actions()["SecondaryFloatOnTop"]->setChecked(p.secondaryFloatOnTop);
             }
@@ -609,11 +612,10 @@ namespace tl
         MainWindow::~MainWindow()
         {
             TLRENDER_P();
-            QSettings settings;
-            settings.setValue(qt::versionedSettingsKey("MainWindow/geometry"), saveGeometry());
-            settings.setValue(qt::versionedSettingsKey("MainWindow/windowState"), saveState());
-            settings.setValue("MainWindow/FloatOnTop", p.floatOnTop);
-            settings.setValue("MainWindow/SecondaryFloatOnTop", p.secondaryFloatOnTop);
+            p.app->settingsObject()->setValue("MainWindow/geometry", saveGeometry());
+            p.app->settingsObject()->setValue("MainWindow/windowState", saveState());
+            p.app->settingsObject()->setValue("MainWindow/FloatOnTop", p.floatOnTop);
+            p.app->settingsObject()->setValue("MainWindow/SecondaryFloatOnTop", p.secondaryFloatOnTop);
             if (p.secondaryWindow)
             {
                 delete p.secondaryWindow;
@@ -797,7 +799,7 @@ namespace tl
             TLRENDER_P();
             if (value && !p.secondaryWindow)
             {
-                p.secondaryWindow = new SecondaryWindow(p.app->getContext());
+                p.secondaryWindow = new SecondaryWindow(p.app);
                 p.secondaryWindow->viewport()->setColorConfig(p.colorConfig);
                 std::vector<render::ImageOptions> imageOptions;
                 for (const auto& i : p.timelinePlayers)

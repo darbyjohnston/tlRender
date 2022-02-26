@@ -335,7 +335,7 @@ namespace tl
                 &QAction::toggled,
                 [app](bool value)
                 {
-                    app->settingsObject()->setTimelineThumbnails(value);
+                    app->settingsObject()->setValue("Timeline/Thumbnails", value);
                 });
 
             connect(
@@ -574,7 +574,8 @@ namespace tl
 
             {
                 QSignalBlocker blocker(p.actions["Thumbnails"]);
-                p.actions["Thumbnails"]->setChecked(p.app->settingsObject()->hasTimelineThumbnails());
+                p.actions["Thumbnails"]->setChecked(
+                    p.app->settingsObject()->value("Timeline/Thumbnails").toBool());
             }
         }
     }

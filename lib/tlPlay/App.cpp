@@ -13,6 +13,7 @@
 #include <tlQWidget/Style.h>
 #include <tlQWidget/Util.h>
 
+#include <tlQt/MetaTypes.h>
 #include <tlQt/TimeObject.h>
 #include <tlQt/TimelinePlayer.h>
 
@@ -100,31 +101,23 @@ namespace tl
             // Create objects.
             p.timeObject = new qt::TimeObject(this);
 
-            p.settingsObject = new SettingsObject(p.timeObject, this);
+            p.settingsObject = new SettingsObject(false, p.timeObject, this);
             connect(
                 p.settingsObject,
-                SIGNAL(cacheReadAheadChanged(double)),
-                SLOT(_settingsCallback()));
-            connect(
-                p.settingsObject,
-                SIGNAL(cacheReadBehindChanged(double)),
-                SLOT(_settingsCallback()));
-            connect(
-                p.settingsObject,
-                SIGNAL(videoRequestCountChanged(int)),
-                SLOT(_settingsCallback()));
-            connect(
-                p.settingsObject,
-                SIGNAL(audioRequestCountChanged(int)),
-                SLOT(_settingsCallback()));
-            connect(
-                p.settingsObject,
-                SIGNAL(sequenceThreadCountChanged(int)),
-                SLOT(_settingsCallback()));
-            connect(
-                p.settingsObject,
-                SIGNAL(ffmpegThreadCountChanged(int)),
-                SLOT(_settingsCallback()));
+                &SettingsObject::valueChanged,
+                [this](const QString& name, const QVariant&)
+                {
+                    if ("Cache/ReadAhead" == name ||
+                        "Cache/ReadBehind" == name ||
+                        "Performance/VideoRequestCount" == name ||
+                        "Performance/AudioRequestCount" == name ||
+                        "Performance/SequenceThreadCount" == name ||
+                        "Performance/FFmpegThreadCount")
+                    {
+                        _cacheUpdate();
+                    }
+                });
+
             _cacheUpdate();
 
             p.filesModel = FilesModel::create(_context);
@@ -291,19 +284,26 @@ namespace tl
                     try
                     {
                         timeline::Options options;
-                        options.fileSequenceAudio = p.settingsObject->fileSequenceAudio();
-                        options.fileSequenceAudioFileName = p.settingsObject->fileSequenceAudioFileName().toUtf8().data();
-                        options.fileSequenceAudioDirectory = p.settingsObject->fileSequenceAudioDirectory().toUtf8().data();
-                        options.videoRequestCount = p.settingsObject->videoRequestCount();
-                        options.audioRequestCount = p.settingsObject->audioRequestCount();
-                        options.avioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").arg(p.settingsObject->sequenceThreadCount());
+                        options.fileSequenceAudio = p.settingsObject->value("FileSequence/Audio").
+                            value<timeline::FileSequenceAudio>();
+                        options.fileSequenceAudioFileName = p.settingsObject->value("FileSequence/AudioFileName").
+                            toString().toUtf8().data();
+                        options.fileSequenceAudioDirectory = p.settingsObject->value("FileSequence/AudioDirectory").
+                            toString().toUtf8().data();
+                        options.videoRequestCount = p.settingsObject->value("Performance/VideoRequestCount").toInt();
+                        options.audioRequestCount = p.settingsObject->value("Performance/AudioRequestCount").toInt();
+                        options.avioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").
+                            arg(p.settingsObject->value("Performance/SequenceThreadCount").toInt());
                         auto audioSystem = _context->getSystem<audio::System>();
                         const audio::Info audioInfo = audioSystem->getDefaultOutputInfo();
                         options.avioOptions["ffmpeg/AudioChannelCount"] = string::Format("{0}").arg(audioInfo.channelCount);
                         options.avioOptions["ffmpeg/AudioDataType"] = string::Format("{0}").arg(audioInfo.dataType);
                         options.avioOptions["ffmpeg/AudioSampleRate"] = string::Format("{0}").arg(audioInfo.sampleRate);
-                        options.avioOptions["ffmpeg/ThreadCount"] = string::Format("{0}").arg(p.settingsObject->ffmpegThreadCount());
-                        options.pathOptions.maxNumberDigits = std::min(p.settingsObject->maxFileSequenceDigits(), 255);
+                        options.avioOptions["ffmpeg/ThreadCount"] = string::Format("{0}").
+                            arg(p.settingsObject->value("Performance/FFmpegThreadCount").toInt());
+                        options.pathOptions.maxNumberDigits = std::min(
+                            p.settingsObject->value("Misc/MaxFileSequenceDigits").toInt(),
+                            255);
                         auto timeline = items[i]->audioPath.isEmpty() ?
                             timeline::Timeline::create(items[i]->path.get(), _context, options) :
                             timeline::Timeline::create(items[i]->path.get(), items[i]->audioPath.get(), _context, options);
@@ -311,8 +311,10 @@ namespace tl
                         timeline::PlayerOptions playerOptions;
                         playerOptions.cacheReadAhead = _cacheReadAhead();
                         playerOptions.cacheReadBehind = _cacheReadBehind();
-                        playerOptions.timerMode = p.settingsObject->timerMode();
-                        playerOptions.audioBufferFrameCount = p.settingsObject->audioBufferFrameCount();
+                        playerOptions.timerMode = p.settingsObject->value("Performance/TimerMode").
+                            value<timeline::TimerMode>();
+                        playerOptions.audioBufferFrameCount = p.settingsObject->value("Performance/AudioBufferFrameCount").
+                            value<timeline::AudioBufferFrameCount>();
                         auto timelinePlayer = timeline::TimelinePlayer::create(timeline, _context, playerOptions);
 
                         qtTimelinePlayer = new qt::TimelinePlayer(timelinePlayer, _context, this);
@@ -403,7 +405,7 @@ namespace tl
             TLRENDER_P();
             const size_t activeCount = p.filesModel->observeActive()->getSize();
             return otime::RationalTime(
-                p.settingsObject->cacheReadAhead() / static_cast<double>(activeCount),
+                p.settingsObject->value("Cache/ReadAhead").toInt() / static_cast<double>(activeCount),
                 1.0);
         }
 
@@ -412,7 +414,7 @@ namespace tl
             TLRENDER_P();
             const size_t activeCount = p.filesModel->observeActive()->getSize();
             return otime::RationalTime(
-                p.settingsObject->cacheReadBehind() / static_cast<double>(activeCount),
+                p.settingsObject->value("Cache/ReadBehind").toInt() / static_cast<double>(activeCount),
                 1.0);
         }
 

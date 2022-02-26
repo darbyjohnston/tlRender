@@ -10,6 +10,7 @@
 #include <tlCore/TimelinePlayer.h>
 
 #include <QObject>
+#include <QVariant>
 
 namespace tl
 {
@@ -21,145 +22,46 @@ namespace tl
             Q_OBJECT
 
         public:
-            SettingsObject(qt::TimeObject*, QObject* parent = nullptr);
+            SettingsObject(
+                bool reset,
+                qt::TimeObject*,
+                QObject* parent = nullptr);
 
             ~SettingsObject() override;
+
+            //! Get a settings value.
+            QVariant value(const QString&);
 
             //! Get the list of recent files.
             const QList<QString>& recentFiles() const;
 
-            //! Get whether the timeline displays thumbnails.
-            bool hasTimelineThumbnails() const;
-
-            //! Get the cache read ahead.
-            double cacheReadAhead() const;
-
-            //! Get the cache read behind.
-            double cacheReadBehind() const;
-
-            //! Get the file sequence audio.
-            timeline::FileSequenceAudio fileSequenceAudio() const;
-
-            //! Get the file sequence audio file name.
-            const QString& fileSequenceAudioFileName() const;
-
-            //! Get the file sequence audio directory.
-            const QString& fileSequenceAudioDirectory() const;
-
-            //! Get the timer mode.
-            timeline::TimerMode timerMode();
-
-            //! Get the audio buffer frame count.
-            timeline::AudioBufferFrameCount audioBufferFrameCount() const;
-
-            //! Get the video request count.
-            int videoRequestCount() const;
-
-            //! Get the audio request count.
-            int audioRequestCount() const;
-
-            //! Get the sequence I/O thread count.
-            int sequenceThreadCount() const;
-
-            //! Get the FFmpeg I/O thread count.
-            int ffmpegThreadCount() const;
-
-            //! Get the maximum number of file seqeunce digits.
-            int maxFileSequenceDigits() const;
-
-            //! Get whether tool tips are enabled.
+            //! Get whether tooltips are enabled.
             bool hasToolTipsEnabled() const;
 
         public Q_SLOTS:
+            //! Set a settings value.
+            void setValue(const QString&, const QVariant&);
+
+            //! Set a default settings value.
+            void setDefaultValue(const QString&, const QVariant&);
+
+            //! Reset the settings to defaults.
+            void reset();
+
             //! Add a recent file.
             void addRecentFile(const QString&);
 
-            //! Set whether the timeline displays thumbnails.
-            void setTimelineThumbnails(bool);
-
-            //! Set the cache read ahead.
-            void setCacheReadAhead(double);
-
-            //! Set the cache read behind.
-            void setCacheReadBehind(double);
-
-            //! Set the file sequence audio.
-            void setFileSequenceAudio(tl::timeline::FileSequenceAudio);
-
-            //! Set the file sequence audio file name.
-            void setFileSequenceAudioFileName(const QString&);
-
-            //! Set the file sequence audio directory.
-            void setFileSequenceAudioDirectory(const QString&);
-
-            //! Set the timer mode.
-            void setTimerMode(tl::timeline::TimerMode);
-
-            //! Set the audio buffer frame count.
-            void setAudioBufferFrameCount(tl::timeline::AudioBufferFrameCount);
-
-            //! Set the video request count.
-            void setVideoRequestCount(int);
-
-            //! Set the audio request count.
-            void setAudioRequestCount(int);
-
-            //! Set the sequence I/O thread count.
-            void setSequenceThreadCount(int);
-
-            //! Set the FFmepg I/O thread count.
-            void setFFmpegThreadCount(int);
-
-            //! Set the maximum number of file sequence digits.
-            void setMaxFileSequenceDigits(int);
-
-            //! Set whether tool tips are enabled.
+            //! Set whether tooltips are enabled.
             void setToolTipsEnabled(bool);
 
         Q_SIGNALS:
+            //! This signal is emitted when a settings value is changed.
+            void valueChanged(const QString&, const QVariant&);
+
             //! This signal is emitted when the recent files list is changed.
             void recentFilesChanged(const QList<QString>&);
 
-            //! This signal is emitted when the timeline thumbnails display is changed.
-            void timelineThumbnailsChanged(bool);
-
-            //! This signal is emitted when the cache read ahead is changed.
-            void cacheReadAheadChanged(double);
-
-            //! This signal is emitted when the cache read behind is changed.
-            void cacheReadBehindChanged(double);
-
-            //! This signal is emitted when the file sequence audio is changed.
-            void fileSequenceAudioChanged(tl::timeline::FileSequenceAudio);
-
-            //! This signal is emitted when the file sequence audio file name is changed.
-            void fileSequenceAudioFileNameChanged(const QString&);
-
-            //! This signal is emitted when the file sequence audio directory is changed.
-            void fileSequenceAudioDirectoryChanged(const QString&);
-
-            //! This signal is emitted when the timer mode is changed.
-            void timerModeChanged(tl::timeline::TimerMode);
-
-            //! This signal is emitted when the audio buffer frame count is changed.
-            void audioBufferFrameCountChanged(tl::timeline::AudioBufferFrameCount);
-
-            //! This signal is emitted when the video request count is changed.
-            void videoRequestCountChanged(int);
-
-            //! This signal is emitted when the audio request count is changed.
-            void audioRequestCountChanged(int);
-
-            //! This signal is emitted when the sequence I/O thread count is changed.
-            void sequenceThreadCountChanged(int);
-
-            //! This signal is emitted when the FFmpeg thread count is changed.
-            void ffmpegThreadCountChanged(int);
-
-            //!This signal is emitted when maximum number of file sequence digits is changed.
-            void maxFileSequenceDigitsChanged(int);
-
-            //! This signal is emitted when tool tips are enabled or disabled.
+            //! This signal is emitted when the tooltips enabled state is changed.
             void toolTipsEnabledChanged(bool);
 
         private:

@@ -7,6 +7,7 @@
 #include <tlPlay/App.h>
 #include <tlPlay/FilesModel.h>
 #include <tlPlay/FilesView.h>
+#include <tlPlay/SettingsObject.h>
 
 #include <tlQt/Util.h>
 
@@ -14,7 +15,6 @@
 #include <QHeaderView>
 #include <QLabel>
 #include <QSignalBlocker>
-#include <QSettings>
 #include <QToolBar>
 #include <QTreeView>
 
@@ -72,8 +72,8 @@ namespace tl
             widget->setLayout(layout);
             addWidget(widget, 1);
 
-            QSettings settings;
-            auto ba = settings.value(qt::versionedSettingsKey("FilesTool/Header")).toByteArray();
+            app->settingsObject()->setDefaultValue("FilesTool/Header", QByteArray());
+            auto ba = app->settingsObject()->value("FilesTool/Header").toByteArray();
             if (!ba.isEmpty())
             {
                 p.treeView->header()->restoreState(ba);
@@ -88,8 +88,9 @@ namespace tl
         FilesTool::~FilesTool()
         {
             TLRENDER_P();
-            QSettings settings;
-            settings.setValue(qt::versionedSettingsKey("FilesTool/Header"), p.treeView->header()->saveState());
+            p.app->settingsObject()->setValue(
+                "FilesTool/Header",
+                p.treeView->header()->saveState());
         }
 
         void FilesTool::_activatedCallback(const QModelIndex& index)

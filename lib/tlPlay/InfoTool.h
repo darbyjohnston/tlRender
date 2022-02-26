@@ -15,13 +15,17 @@ namespace tl
 
     namespace play
     {
+        class App;
+
         //! Information tool.
         class InfoTool : public ToolWidget
         {
             Q_OBJECT
 
         public:
-            InfoTool(QWidget* parent = nullptr);
+            InfoTool(
+                App*,
+                QWidget* parent = nullptr);
 
             ~InfoTool() override;
 

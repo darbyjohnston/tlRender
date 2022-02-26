@@ -4,11 +4,13 @@
 
 #include <tlPlay/SecondaryWindow.h>
 
+#include <tlPlay/App.h>
+#include <tlPlay/SettingsObject.h>
+
 #include <tlQWidget/TimelineViewport.h>
 
 #include <QBoxLayout>
 #include <QKeyEvent>
-#include <QSettings>
 
 namespace tl
 {
@@ -16,31 +18,34 @@ namespace tl
     {
         struct SecondaryWindow::Private
         {
+            App* app = nullptr;
             qwidget::TimelineViewport* viewport = nullptr;
         };
 
         SecondaryWindow::SecondaryWindow(
-            const std::shared_ptr<core::Context>& context,
+            App* app,
             QWidget* parent) :
             QWidget(parent),
             _p(new  Private)
         {
             TLRENDER_P();
 
+            p.app = app;
+
             setAttribute(Qt::WA_DeleteOnClose);
 
-            p.viewport = new qwidget::TimelineViewport(context);
+            p.viewport = new qwidget::TimelineViewport(app->getContext());
 
             auto layout = new QVBoxLayout;
             layout->setContentsMargins(0, 0, 0, 0);
             layout->addWidget(p.viewport);
             setLayout(layout);
 
-            QSettings settings;
-            auto ba = settings.value(qt::versionedSettingsKey("SecondaryWindow/geometry")).toByteArray();
+            app->settingsObject()->setDefaultValue("SecondaryWindow/geometry", QByteArray());
+            auto ba = app->settingsObject()->value("SecondaryWindow/geometry").toByteArray();
             if (!ba.isEmpty())
             {
-                restoreGeometry(settings.value(qt::versionedSettingsKey("SecondaryWindow/geometry")).toByteArray());
+                restoreGeometry(ba);
             }
             else
             {
@@ -50,8 +55,7 @@ namespace tl
 
         SecondaryWindow::~SecondaryWindow()
         {
-            QSettings settings;
-            settings.setValue(qt::versionedSettingsKey("SecondaryWindow/geometry"), saveGeometry());
+            _p->app->settingsObject()->setValue("SecondaryWindow/geometry", saveGeometry());
         }
 
         qwidget::TimelineViewport* SecondaryWindow::viewport() const

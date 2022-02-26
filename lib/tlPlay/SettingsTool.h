@@ -26,10 +26,6 @@ namespace tl
 
             ~CacheSettingsWidget() override;
 
-        private Q_SLOTS:
-            void _readAheadCallback(double);
-            void _readBehindCallback(double);
-
         private:
             TLRENDER_PRIVATE();
         };
@@ -43,13 +39,6 @@ namespace tl
             FileSequenceSettingsWidget(SettingsObject*, QWidget* parent = nullptr);
 
             ~FileSequenceSettingsWidget() override;
-
-        private Q_SLOTS:
-            void _audioCallback(int);
-            void _audioCallback(tl::timeline::FileSequenceAudio);
-            void _audioFileNameCallback(const QString&);
-            void _audioDirectoryCallback(const QString&);
-            void _maxDigitsCallback(int);
 
         private:
             TLRENDER_PRIVATE();
@@ -65,16 +54,6 @@ namespace tl
 
             ~PerformanceSettingsWidget() override;
 
-        private Q_SLOTS:
-            void _timerModeCallback(int);
-            void _timerModeCallback(tl::timeline::TimerMode);
-            void _audioBufferFrameCountCallback(int);
-            void _audioBufferFrameCountCallback(tl::timeline::AudioBufferFrameCount);
-            void _videoRequestCountCallback(int);
-            void _audioRequestCountCallback(int);
-            void _sequenceThreadCountCallback(int);
-            void _ffmpegThreadCountCallback(int);
-
         private:
             TLRENDER_PRIVATE();
         };
@@ -88,10 +67,6 @@ namespace tl
             MiscSettingsWidget(SettingsObject*, QWidget* parent = nullptr);
 
             ~MiscSettingsWidget() override;
-
-        private Q_SLOTS:
-            void _toolTipsCallback(int);
-            void _toolTipsCallback(bool);
 
         private:
             TLRENDER_PRIVATE();

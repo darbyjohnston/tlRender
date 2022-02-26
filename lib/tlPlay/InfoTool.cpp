@@ -4,13 +4,14 @@
 
 #include <tlPlay/InfoTool.h>
 
+#include <tlPlay/App.h>
 #include <tlPlay/InfoModel.h>
+#include <tlPlay/SettingsObject.h>
 
 #include <tlQt/Util.h>
 
 #include <QBoxLayout>
 #include <QHeaderView>
-#include <QSettings>
 #include <QTreeView>
 
 namespace tl
@@ -19,16 +20,20 @@ namespace tl
     {
         struct InfoTool::Private
         {
+            App* app = nullptr;
             InfoModel* infoModel = nullptr;
             QTreeView* treeView = nullptr;
         };
 
-        InfoTool::InfoTool(QWidget* parent) :
+        InfoTool::InfoTool(
+            App* app,
+            QWidget* parent) :
             ToolWidget(parent),
             _p(new Private)
         {
             TLRENDER_P();
 
+            p.app = app;
             p.infoModel = new InfoModel(this);
 
             p.treeView = new QTreeView;
@@ -46,8 +51,8 @@ namespace tl
             widget->setLayout(layout);
             addWidget(widget);
 
-            QSettings settings;
-            auto ba = settings.value(qt::versionedSettingsKey("InfoTool/Header")).toByteArray();
+            app->settingsObject()->setDefaultValue("InfoTool/Header", QByteArray());
+            auto ba = app->settingsObject()->value("InfoTool/Header").toByteArray();
             if (!ba.isEmpty())
             {
                 p.treeView->header()->restoreState(ba);
@@ -57,8 +62,9 @@ namespace tl
         InfoTool::~InfoTool()
         {
             TLRENDER_P();
-            QSettings settings;
-            settings.setValue(qt::versionedSettingsKey("InfoTool/Header"), p.treeView->header()->saveState());
+            p.app->settingsObject()->setValue(
+                "InfoTool/Header",
+                p.treeView->header()->saveState());
         }
 
         void InfoTool::setInfo(const avio::Info& value)

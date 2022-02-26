@@ -2,10 +2,12 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include <tlPlay/App.h>
 #include <tlPlay/CompareTool.h>
+
+#include <tlPlay/App.h>
 #include <tlPlay/FilesModel.h>
 #include <tlPlay/FilesView.h>
+#include <tlPlay/SettingsObject.h>
 
 #include <tlQWidget/FloatSlider.h>
 
@@ -16,7 +18,6 @@
 #include <QHeaderView>
 #include <QLabel>
 #include <QSignalBlocker>
-#include <QSettings>
 #include <QToolBar>
 #include <QTreeView>
 
@@ -98,8 +99,8 @@ namespace tl
 
             _widgetUpdate();
 
-            QSettings settings;
-            auto ba = settings.value(qt::versionedSettingsKey("CompareTool/Header")).toByteArray();
+            app->settingsObject()->setDefaultValue("CompareTool/Header", QByteArray());
+            auto ba = app->settingsObject()->value("CompareTool/Header").toByteArray();
             if (!ba.isEmpty())
             {
                 p.treeView->header()->restoreState(ba);
@@ -141,8 +142,9 @@ namespace tl
         CompareTool::~CompareTool()
         {
             TLRENDER_P();
-            QSettings settings;
-            settings.setValue(qt::versionedSettingsKey("CompareTool/Header"), p.treeView->header()->saveState());
+            p.app->settingsObject()->setValue(
+                "CompareTool/Header",
+                p.treeView->header()->saveState());
         }
 
         void CompareTool::setCompareOptions(const render::CompareOptions& value)
