@@ -13,71 +13,68 @@
 
 namespace tl
 {
-    namespace qt
+    namespace qtwidget
     {
-        namespace widget
+        //! Timeline slider.
+        class TimelineSlider : public QWidget
         {
-            //! Timeline slider.
-            class TimelineSlider : public QWidget
-            {
-                Q_OBJECT
-                Q_PROPERTY(
-                    bool thumbnails
-                    READ hasThumbnails
-                    WRITE setThumbnails)
-                Q_PROPERTY(
-                    tl::qt::TimeUnits units
-                    READ units
-                    WRITE setUnits)
+            Q_OBJECT
+            Q_PROPERTY(
+                bool thumbnails
+                READ hasThumbnails
+                WRITE setThumbnails)
+            Q_PROPERTY(
+                tl::qt::TimeUnits units
+                READ units
+                WRITE setUnits)
 
-            public:
-                TimelineSlider(
-                    const std::shared_ptr<core::system::Context>&,
-                    QWidget* parent = nullptr);
+        public:
+            TimelineSlider(
+                const std::shared_ptr<system::Context>&,
+                QWidget* parent = nullptr);
 
-                ~TimelineSlider() override;
+            ~TimelineSlider() override;
 
-                //! Set the time object.
-                void setTimeObject(qt::TimeObject*);
+            //! Set the time object.
+            void setTimeObject(qt::TimeObject*);
 
-                //! Set the color configuration.
-                void setColorConfig(const core::imaging::ColorConfig&);
+            //! Set the color configuration.
+            void setColorConfig(const imaging::ColorConfig&);
 
-                //! Set the timeline player.
-                void setTimelinePlayer(qt::TimelinePlayer*);
+            //! Set the timeline player.
+            void setTimelinePlayer(qt::TimelinePlayer*);
 
-                //! Get whether thumbnails are displayed.
-                bool hasThumbnails() const;
+            //! Get whether thumbnails are displayed.
+            bool hasThumbnails() const;
 
-                //! Get the time units.
-                qt::TimeUnits units() const;
+            //! Get the time units.
+            qt::TimeUnits units() const;
 
-            public Q_SLOTS:
-                //! Set whether thumbnails are displayed.
-                void setThumbnails(bool);
+        public Q_SLOTS:
+            //! Set whether thumbnails are displayed.
+            void setThumbnails(bool);
 
-                //! Set the time units.
-                void setUnits(tl::qt::TimeUnits);
+            //! Set the time units.
+            void setUnits(tl::qt::TimeUnits);
 
-            protected:
-                void resizeEvent(QResizeEvent*) override;
-                void paintEvent(QPaintEvent*) override;
-                void mousePressEvent(QMouseEvent*) override;
-                void mouseReleaseEvent(QMouseEvent*) override;
-                void mouseMoveEvent(QMouseEvent*) override;
-                void wheelEvent(QWheelEvent*) override;
+        protected:
+            void resizeEvent(QResizeEvent*) override;
+            void paintEvent(QPaintEvent*) override;
+            void mousePressEvent(QMouseEvent*) override;
+            void mouseReleaseEvent(QMouseEvent*) override;
+            void mouseMoveEvent(QMouseEvent*) override;
+            void wheelEvent(QWheelEvent*) override;
 
-            private Q_SLOTS:
-                void _thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >&);
+        private Q_SLOTS:
+            void _thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >&);
 
-            private:
-                otime::RationalTime _posToTime(int) const;
-                int _timeToPos(const otime::RationalTime&) const;
+        private:
+            otime::RationalTime _posToTime(int) const;
+            int _timeToPos(const otime::RationalTime&) const;
 
-                void _thumbnailsUpdate();
+            void _thumbnailsUpdate();
 
-                TLRENDER_PRIVATE();
-            };
-        }
+            TLRENDER_PRIVATE();
+        };
     }
 }

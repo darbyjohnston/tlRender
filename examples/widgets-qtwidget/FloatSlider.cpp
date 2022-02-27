@@ -6,8 +6,6 @@
 
 #include <QBoxLayout>
 
-using namespace tl::core;
-
 namespace tl
 {
     namespace examples
@@ -19,7 +17,7 @@ namespace tl
             {
                 for (size_t i = 0; i < 4; ++i)
                 {
-                    _sliders.push_back(new qt::widget::FloatSlider);
+                    _sliders.push_back(new qtwidget::FloatSlider);
                 }
                 _sliders[1]->setRange(math::FloatRange(0.F, 10.F));
                 _sliders[1]->setValue(5.F);

@@ -7,44 +7,40 @@
 #include <tlCore/Assert.h>
 #include <tlCore/Color.h>
 
-using namespace tl::core;
-using namespace tl::core::imaging;
+using namespace tl::imaging;
 
 namespace tl
 {
-    namespace tests
+    namespace core_tests
     {
-        namespace core_test
+        ColorTest::ColorTest(const std::shared_ptr<system::Context>& context) :
+            ITest("core_tests::ColorTest", context)
+        {}
+
+        std::shared_ptr<ColorTest> ColorTest::create(const std::shared_ptr<system::Context>& context)
         {
-            ColorTest::ColorTest(const std::shared_ptr<system::Context>& context) :
-                ITest("core_test::ColorTest", context)
-            {}
+            return std::shared_ptr<ColorTest>(new ColorTest(context));
+        }
 
-            std::shared_ptr<ColorTest> ColorTest::create(const std::shared_ptr<system::Context>& context)
+        void ColorTest::run()
+        {
             {
-                return std::shared_ptr<ColorTest>(new ColorTest(context));
+                const Color4f c;
+                TLRENDER_ASSERT(0.F == c.r);
+                TLRENDER_ASSERT(0.F == c.g);
+                TLRENDER_ASSERT(0.F == c.b);
+                TLRENDER_ASSERT(0.F == c.a);
             }
-
-            void ColorTest::run()
             {
-                {
-                    const Color4f c;
-                    TLRENDER_ASSERT(0.F == c.r);
-                    TLRENDER_ASSERT(0.F == c.g);
-                    TLRENDER_ASSERT(0.F == c.b);
-                    TLRENDER_ASSERT(0.F == c.a);
-                }
-                {
-                    const Color4f c(1.F, 2.F, 3.F, 4.F);
-                    TLRENDER_ASSERT(1.F == c.r);
-                    TLRENDER_ASSERT(2.F == c.g);
-                    TLRENDER_ASSERT(3.F == c.b);
-                    TLRENDER_ASSERT(4.F == c.a);
-                }
-                {
-                    TLRENDER_ASSERT(0 == fToU8(0.0));
-                    TLRENDER_ASSERT(255 == fToU8(1.0));
-                }
+                const Color4f c(1.F, 2.F, 3.F, 4.F);
+                TLRENDER_ASSERT(1.F == c.r);
+                TLRENDER_ASSERT(2.F == c.g);
+                TLRENDER_ASSERT(3.F == c.b);
+                TLRENDER_ASSERT(4.F == c.a);
+            }
+            {
+                TLRENDER_ASSERT(0 == fToU8(0.0));
+                TLRENDER_ASSERT(255 == fToU8(1.0));
             }
         }
     }

@@ -57,7 +57,7 @@ namespace tl
             return time < other.time;
         }
 
-        inline const core::file::Path& IIO::getPath() const
+        inline const file::Path& IIO::getPath() const
         {
             return _path;
         }

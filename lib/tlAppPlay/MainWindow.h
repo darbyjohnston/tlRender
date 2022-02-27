@@ -10,47 +10,44 @@
 
 namespace tl
 {
-    namespace app
+    namespace play
     {
-        namespace play
+        class App;
+
+        //! Main window.
+        class MainWindow : public QMainWindow
         {
-            class App;
+            Q_OBJECT
 
-            //! Main window.
-            class MainWindow : public QMainWindow
-            {
-                Q_OBJECT
+        public:
+            MainWindow(App*, QWidget* parent = nullptr);
 
-            public:
-                MainWindow(App*, QWidget* parent = nullptr);
+            ~MainWindow() override;
 
-                ~MainWindow() override;
+            //! Set the timeline players.
+            void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
 
-                //! Set the timeline players.
-                void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
+        protected:
+            void closeEvent(QCloseEvent*) override;
+            void dragEnterEvent(QDragEnterEvent*) override;
+            void dragMoveEvent(QDragMoveEvent*) override;
+            void dragLeaveEvent(QDragLeaveEvent*) override;
+            void dropEvent(QDropEvent*) override;
+            bool eventFilter(QObject*, QEvent*) override;
 
-            protected:
-                void closeEvent(QCloseEvent*) override;
-                void dragEnterEvent(QDragEnterEvent*) override;
-                void dragMoveEvent(QDragMoveEvent*) override;
-                void dragLeaveEvent(QDragLeaveEvent*) override;
-                void dropEvent(QDropEvent*) override;
-                bool eventFilter(QObject*, QEvent*) override;
+        private Q_SLOTS:
+            void _secondaryWindowCallback(bool);
+            void _secondaryWindowDestroyedCallback();
+            void _speedCallback(double);
+            void _playbackCallback(tl::timeline::Playback);
+            void _currentTimeCallback(const otime::RationalTime&);
+            void _volumeCallback(int);
+            void _volumeCallback(float);
 
-            private Q_SLOTS:
-                void _secondaryWindowCallback(bool);
-                void _secondaryWindowDestroyedCallback();
-                void _speedCallback(double);
-                void _playbackCallback(tl::timeline::Playback);
-                void _currentTimeCallback(const otime::RationalTime&);
-                void _volumeCallback(int);
-                void _volumeCallback(float);
+        private:
+            void _widgetUpdate();
 
-            private:
-                void _widgetUpdate();
-
-                TLRENDER_PRIVATE();
-            };
-        }
+            TLRENDER_PRIVATE();
+        };
     }
 }

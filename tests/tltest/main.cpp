@@ -11,7 +11,7 @@
 #include <tlTimelineTest/TimelineUtilTest.h>
 
 #if defined(TLRENDER_BUILD_GL)
-#include <tlRenderGLTest/MeshTest.h>
+#include <tlGLTest/MeshTest.h>
 #endif
 
 #include <tlIOTest/CineonTest.h>
@@ -62,7 +62,7 @@
 #include <iostream>
 #include <vector>
 
-using namespace tl::core;
+using namespace tl;
 using namespace tl::tests;
 
 int main(int argc, char* argv[])
@@ -82,64 +82,64 @@ int main(int argc, char* argv[])
         },
         observer::CallbackAction::Suppress);
 
-    std::vector<std::shared_ptr<Test::ITest> > tests;
+    std::vector<std::shared_ptr<tests::ITest> > tests;
     if (0)
     {
-        tests.push_back(core_test::MathTest::create(context));
+        tests.push_back(core_tests::MathTest::create(context));
     }
     else
     {
-        tests.push_back(core_test::AudioTest::create(context));
-        tests.push_back(core_test::BBoxTest::create(context));
-        tests.push_back(core_test::ColorTest::create(context));
-        tests.push_back(core_test::ContextTest::create(context));
-        tests.push_back(core_test::ErrorTest::create(context));
-        tests.push_back(core_test::FileTest::create(context));
-        tests.push_back(core_test::FileIOTest::create(context));
-        tests.push_back(core_test::ImageTest::create(context));
-        tests.push_back(core_test::LRUCacheTest::create(context));
-        tests.push_back(core_test::ListObserverTest::create(context));
-        tests.push_back(core_test::MapObserverTest::create(context));
-        tests.push_back(core_test::MathTest::create(context));
-        tests.push_back(core_test::MemoryTest::create(context));
-        tests.push_back(core_test::PathTest::create(context));
-        tests.push_back(core_test::RangeTest::create(context));
-        tests.push_back(core_test::StringTest::create(context));
-        tests.push_back(core_test::StringFormatTest::create(context));
-        tests.push_back(core_test::TimeTest::create(context));
-        tests.push_back(core_test::ValueObserverTest::create(context));
+        tests.push_back(core_tests::AudioTest::create(context));
+        tests.push_back(core_tests::BBoxTest::create(context));
+        tests.push_back(core_tests::ColorTest::create(context));
+        tests.push_back(core_tests::ContextTest::create(context));
+        tests.push_back(core_tests::ErrorTest::create(context));
+        tests.push_back(core_tests::FileTest::create(context));
+        tests.push_back(core_tests::FileIOTest::create(context));
+        tests.push_back(core_tests::ImageTest::create(context));
+        tests.push_back(core_tests::LRUCacheTest::create(context));
+        tests.push_back(core_tests::ListObserverTest::create(context));
+        tests.push_back(core_tests::MapObserverTest::create(context));
+        tests.push_back(core_tests::MathTest::create(context));
+        tests.push_back(core_tests::MemoryTest::create(context));
+        tests.push_back(core_tests::PathTest::create(context));
+        tests.push_back(core_tests::RangeTest::create(context));
+        tests.push_back(core_tests::StringTest::create(context));
+        tests.push_back(core_tests::StringFormatTest::create(context));
+        tests.push_back(core_tests::TimeTest::create(context));
+        tests.push_back(core_tests::ValueObserverTest::create(context));
 
-        tests.push_back(io_test::CineonTest::create(context));
-        tests.push_back(io_test::DPXTest::create(context));
-        tests.push_back(io_test::IOTest::create(context));
-        tests.push_back(io_test::PPMTest::create(context));
-        tests.push_back(io_test::SGITest::create(context));
+        tests.push_back(io_tests::CineonTest::create(context));
+        tests.push_back(io_tests::DPXTest::create(context));
+        tests.push_back(io_tests::IOTest::create(context));
+        tests.push_back(io_tests::PPMTest::create(context));
+        tests.push_back(io_tests::SGITest::create(context));
 #if defined(FFmpeg_FOUND)
-        tests.push_back(io_test::FFmpegTest::create(context));
+        tests.push_back(io_tests::FFmpegTest::create(context));
 #endif
 #if defined(JPEG_FOUND)
-        tests.push_back(io_test::JPEGTest::create(context));
+        tests.push_back(io_tests::JPEGTest::create(context));
 #endif
 #if defined(OpenEXR_FOUND)
-        tests.push_back(io_test::OpenEXRTest::create(context));
+        tests.push_back(io_tests::OpenEXRTest::create(context));
 #endif
 #if defined(PNG_FOUND)
-        tests.push_back(io_test::PNGTest::create(context));
+        tests.push_back(io_tests::PNGTest::create(context));
 #endif
 #if defined(TIFF_FOUND)
-        tests.push_back(io_test::TIFFTest::create(context));
+        tests.push_back(io_tests::TIFFTest::create(context));
 #endif
 
-        tests.push_back(timeline_test::TimelinePlayerTest::create(context));
-        tests.push_back(timeline_test::TimelineTest::create(context));
-        tests.push_back(timeline_test::TimelineUtilTest::create(context));
+        tests.push_back(timeline_tests::TimelinePlayerTest::create(context));
+        tests.push_back(timeline_tests::TimelineTest::create(context));
+        tests.push_back(timeline_tests::TimelineUtilTest::create(context));
 
 #if defined(TLRENDER_BUILD_GL)
-        tests.push_back(render_gl_test::MeshTest::create(context));
+        tests.push_back(gl_tests::MeshTest::create(context));
 #endif
 
 #if defined(TLRENDER_BUILD_QT5) || defined(TLRENDER_BUILD_QT6)
-        tests.push_back(qt_test::TimeObjectTest::create(context));
+        tests.push_back(qt_tests::TimeObjectTest::create(context));
 #endif
     }
     for (const auto& i : tests)

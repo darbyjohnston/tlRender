@@ -16,13 +16,13 @@
 
 namespace tl
 {
-    //! Timeline functionality.
+    //! Timelines.
     namespace timeline
     {
         //! Get the timeline file extensions.
         std::vector<std::string> getExtensions(
             int types,
-            const std::shared_ptr<core::system::Context>&);
+            const std::shared_ptr<system::Context>&);
 
         //! File sequence.
         enum class FileSequenceAudio
@@ -51,7 +51,7 @@ namespace tl
 
             io::Options ioOptions;
 
-            core::file::PathOptions pathOptions;
+            file::PathOptions pathOptions;
 
             bool operator == (const Options&) const;
             bool operator != (const Options&) const;
@@ -75,8 +75,8 @@ namespace tl
         //! Video layer.
         struct VideoLayer
         {
-            std::shared_ptr<core::imaging::Image> image;
-            std::shared_ptr<core::imaging::Image> imageB;
+            std::shared_ptr<imaging::Image> image;
+            std::shared_ptr<imaging::Image> imageB;
             Transition transition = Transition::None;
             float transitionValue = 0.F;
 
@@ -87,7 +87,7 @@ namespace tl
         //! Video data.
         struct VideoData
         {
-            otime::RationalTime time = core::time::invalidTime;
+            otime::RationalTime time = time::invalidTime;
             std::vector<VideoLayer> layers;
 
             bool operator == (const VideoData&) const;
@@ -100,7 +100,7 @@ namespace tl
         //! Audio layer.
         struct AudioLayer
         {
-            std::shared_ptr<core::audio::Audio> audio;
+            std::shared_ptr<audio::Audio> audio;
 
             bool operator == (const AudioLayer&) const;
             bool operator != (const AudioLayer&) const;
@@ -127,7 +127,7 @@ namespace tl
         protected:
             void _init(
                 const otio::SerializableObject::Retainer<otio::Timeline>&,
-                const std::shared_ptr<core::system::Context>&,
+                const std::shared_ptr<system::Context>&,
                 const Options&);
             Timeline();
 
@@ -137,14 +137,14 @@ namespace tl
             //! Create a new timeline.
             static std::shared_ptr<Timeline> create(
                 const otio::SerializableObject::Retainer<otio::Timeline>&,
-                const std::shared_ptr<core::system::Context>&,
+                const std::shared_ptr<system::Context>&,
                 const Options & = Options());
 
             //! Create a new timeline from a file name. The file name can point
             //! to an .otio file, movie file, or image sequence.
             static std::shared_ptr<Timeline> create(
                 const std::string&,
-                const std::shared_ptr<core::system::Context>&,
+                const std::shared_ptr<system::Context>&,
                 const Options & = Options());
 
             //! Create a new timeline from a file name and audio file name.
@@ -153,20 +153,20 @@ namespace tl
             static std::shared_ptr<Timeline> create(
                 const std::string&,
                 const std::string& audioFileName,
-                const std::shared_ptr<core::system::Context>&,
+                const std::shared_ptr<system::Context>&,
                 const Options & = Options());
 
             //! Get the context.
-            const std::weak_ptr<core::system::Context>& getContext() const;
+            const std::weak_ptr<system::Context>& getContext() const;
 
             //! Get the timeline.
             const otio::SerializableObject::Retainer<otio::Timeline>& getTimeline() const;
 
             //! Get the file path.
-            const core::file::Path& getPath() const;
+            const file::Path& getPath() const;
 
             //! Get the audio file path.
-            const core::file::Path& getAudioPath() const;
+            const file::Path& getAudioPath() const;
 
             //! Get the timeline options.
             const Options& getOptions() const;

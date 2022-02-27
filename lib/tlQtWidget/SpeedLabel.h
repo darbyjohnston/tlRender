@@ -12,36 +12,33 @@
 
 namespace tl
 {
-    namespace qt
+    namespace qtwidget
     {
-        namespace widget
+        //! Speed label.
+        class SpeedLabel : public QWidget
         {
-            //! Speed label.
-            class SpeedLabel : public QWidget
-            {
-                Q_OBJECT
-                Q_PROPERTY(
-                    otime::RationalTime value
-                    READ value
-                    WRITE setValue)
+            Q_OBJECT
+            Q_PROPERTY(
+                otime::RationalTime value
+                READ value
+                WRITE setValue)
 
-            public:
-                SpeedLabel(QWidget* parent = nullptr);
+        public:
+            SpeedLabel(QWidget* parent = nullptr);
 
-                ~SpeedLabel() override;
+            ~SpeedLabel() override;
 
-                //! Get the speed value.
-                const otime::RationalTime& value() const;
+            //! Get the speed value.
+            const otime::RationalTime& value() const;
 
-            public Q_SLOTS:
-                //! Set the speed value.
-                void setValue(const otime::RationalTime&);
+        public Q_SLOTS:
+            //! Set the speed value.
+            void setValue(const otime::RationalTime&);
 
-            private:
-                void _textUpdate();
+        private:
+            void _textUpdate();
 
-                TLRENDER_PRIVATE();
-            };
-        }
+            TLRENDER_PRIVATE();
+        };
     }
 }

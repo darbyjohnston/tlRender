@@ -12,68 +12,65 @@
 
 namespace tl
 {
-    namespace core
+    namespace system
     {
-        namespace system
+        struct Context::Private
         {
-            struct Context::Private
-            {
-                std::vector<log::Item> logInit;
-            };
+            std::vector<log::Item> logInit;
+        };
 
-            void Context::_init()
-            {
-                _logSystem = log::System::create(shared_from_this());
-                auto logObserver = observer::ValueObserver<log::Item>::create(
-                    _logSystem->observeLog(),
-                    [this](const log::Item& value)
-                    {
-                        _p->logInit.push_back(value);
-                    },
-                    observer::CallbackAction::Suppress);
-                _systems.push_back(_logSystem);
+        void Context::_init()
+        {
+            _logSystem = log::System::create(shared_from_this());
+            auto logObserver = observer::ValueObserver<log::Item>::create(
+                _logSystem->observeLog(),
+                [this](const log::Item& value)
+                {
+                    _p->logInit.push_back(value);
+                },
+                observer::CallbackAction::Suppress);
+            _systems.push_back(_logSystem);
 
-                const os::SystemInfo info = os::getSystemInfo();
-                log("tl::system::Context", string::Format(
-                    "\n"
-                    "    System: {0}\n"
-                    "    Cores:  {1}\n"
-                    "    RAM:    {2}GB").
-                    arg(info.name).
-                    arg(info.cores).
-                    arg(info.ramGB));
+            const os::SystemInfo info = os::getSystemInfo();
+            log("tl::system::Context", string::Format(
+                "\n"
+                "    System: {0}\n"
+                "    Cores:  {1}\n"
+                "    RAM:    {2}GB").
+                arg(info.name).
+                arg(info.cores).
+                arg(info.ramGB));
 
-                _systems.push_back(audio::System::create(shared_from_this()));
-            }
+            _systems.push_back(audio::System::create(shared_from_this()));
+        }
 
-            Context::Context() :
-                _p(new Private)
-            {}
+        Context::Context() :
+            _p(new Private)
+        {}
 
-            Context::~Context()
-            {}
+        Context::~Context()
+        {}
 
-            std::shared_ptr<Context> Context::create()
-            {
-                auto out = std::shared_ptr<Context>(new Context);
-                out->_init();
-                return out;
-            }
+        std::shared_ptr<Context> Context::create()
+        {
+            auto out = std::shared_ptr<Context>(new Context);
+            out->_init();
+            return out;
+        }
 
-            void Context::addSystem(const std::shared_ptr<ICoreSystem>& system)
-            {
-                _systems.push_back(system);
-            }
+        void Context::addSystem(const std::shared_ptr<ICoreSystem>& system)
+        {
+            _systems.push_back(system);
+        }
 
-            std::vector<log::Item> Context::getLogInit()
-            {
-                return std::move(_p->logInit);
-            }
+        std::vector<log::Item> Context::getLogInit()
+        {
+            return std::move(_p->logInit);
+        }
 
-            void Context::log(const std::string& prefix, const std::string& value, log::Type type)
-            {
-                _logSystem->print(prefix, value, type);
-            }
+        void Context::log(const std::string& prefix, const std::string& value, log::Type type)
+        {
+            _logSystem->print(prefix, value, type);
         }
     }
 }

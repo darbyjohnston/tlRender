@@ -6,8 +6,6 @@
 
 #include <tlCore/Math.h>
 
-using namespace tl::core;
-
 namespace tl
 {
     namespace qt

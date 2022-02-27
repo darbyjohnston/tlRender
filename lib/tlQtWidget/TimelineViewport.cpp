@@ -4,10 +4,10 @@
 
 #include <tlQtWidget/TimelineViewport.h>
 
-#include <tlRenderGL/Mesh.h>
-#include <tlRenderGL/OffscreenBuffer.h>
-#include <tlRenderGL/Render.h>
-#include <tlRenderGL/Shader.h>
+#include <tlGL/Mesh.h>
+#include <tlGL/OffscreenBuffer.h>
+#include <tlGL/Render.h>
+#include <tlGL/Shader.h>
 
 #include <tlCore/Mesh.h>
 
@@ -17,467 +17,462 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-using namespace tl::core;
-
 namespace tl
 {
-    namespace qt
+    namespace qtwidget
     {
-        namespace widget
+        struct TimelineViewport::Private
         {
-            struct TimelineViewport::Private
+            std::weak_ptr<system::Context> context;
+            imaging::ColorConfig colorConfig;
+            std::vector<timeline::ImageOptions> imageOptions;
+            timeline::CompareOptions compareOptions;
+            std::vector<qt::TimelinePlayer*> timelinePlayers;
+            math::Vector2i viewPos;
+            float viewZoom = 1.F;
+            bool frameView = true;
+            bool mouseInside = false;
+            bool mousePressed = false;
+            math::Vector2i mousePos;
+            math::Vector2i mousePress;
+            math::Vector2i viewPosMousePress;
+            std::vector<timeline::VideoData> videoData;
+            std::shared_ptr<timeline::IRender> render;
+            std::shared_ptr<tl::gl::Shader> shader;
+            std::shared_ptr<tl::gl::OffscreenBuffer> buffer;
+        };
+
+        TimelineViewport::TimelineViewport(
+            const std::shared_ptr<system::Context>& context,
+            QWidget* parent) :
+            QOpenGLWidget(parent),
+            _p(new Private)
+        {
+            TLRENDER_P();
+
+            p.context = context;
+
+            QSurfaceFormat surfaceFormat;
+            surfaceFormat.setMajorVersion(4);
+            surfaceFormat.setMinorVersion(1);
+            surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
+            surfaceFormat.setStencilBufferSize(8);
+            setFormat(surfaceFormat);
+
+            setMouseTracking(true);
+        }
+
+        TimelineViewport::~TimelineViewport()
+        {}
+
+        void TimelineViewport::setColorConfig(const imaging::ColorConfig& colorConfig)
+        {
+            if (colorConfig == _p->colorConfig)
+                return;
+            _p->colorConfig = colorConfig;
+            update();
+        }
+
+        void TimelineViewport::setImageOptions(const std::vector<timeline::ImageOptions>& options)
+        {
+            TLRENDER_P();
+            if (options == p.imageOptions)
+                return;
+            p.imageOptions = options;
+            update();
+        }
+
+        void TimelineViewport::setCompareOptions(const timeline::CompareOptions& options)
+        {
+            TLRENDER_P();
+            if (options == p.compareOptions)
+                return;
+            p.compareOptions = options;
+            update();
+        }
+
+        void TimelineViewport::setTimelinePlayers(const std::vector<qt::TimelinePlayer*>& timelinePlayers)
+        {
+            TLRENDER_P();
+            p.videoData.clear();
+            for (const auto& i : p.timelinePlayers)
             {
-                std::weak_ptr<system::Context> context;
-                imaging::ColorConfig colorConfig;
-                std::vector<timeline::ImageOptions> imageOptions;
-                timeline::CompareOptions compareOptions;
-                std::vector<qt::TimelinePlayer*> timelinePlayers;
-                math::Vector2i viewPos;
-                float viewZoom = 1.F;
-                bool frameView = true;
-                bool mouseInside = false;
-                bool mousePressed = false;
-                math::Vector2i mousePos;
-                math::Vector2i mousePress;
-                math::Vector2i viewPosMousePress;
-                std::vector<timeline::VideoData> videoData;
-                std::shared_ptr<timeline::IRender> render;
-                std::shared_ptr<tl::gl::Shader> shader;
-                std::shared_ptr<tl::gl::OffscreenBuffer> buffer;
-            };
-
-            TimelineViewport::TimelineViewport(
-                const std::shared_ptr<system::Context>& context,
-                QWidget* parent) :
-                QOpenGLWidget(parent),
-                _p(new Private)
-            {
-                TLRENDER_P();
-
-                p.context = context;
-
-                QSurfaceFormat surfaceFormat;
-                surfaceFormat.setMajorVersion(4);
-                surfaceFormat.setMinorVersion(1);
-                surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
-                surfaceFormat.setStencilBufferSize(8);
-                setFormat(surfaceFormat);
-
-                setMouseTracking(true);
+                disconnect(
+                    i,
+                    SIGNAL(videoChanged(const tl::timeline::VideoData&)),
+                    this,
+                    SLOT(_videoCallback(const tl::timeline::VideoData&)));
             }
-
-            TimelineViewport::~TimelineViewport()
-            {}
-
-            void TimelineViewport::setColorConfig(const imaging::ColorConfig& colorConfig)
+            p.timelinePlayers = timelinePlayers;
+            for (const auto& i : p.timelinePlayers)
             {
-                if (colorConfig == _p->colorConfig)
-                    return;
-                _p->colorConfig = colorConfig;
-                update();
+                _p->videoData.push_back(i->video());
+                connect(
+                    i,
+                    SIGNAL(videoChanged(const tl::timeline::VideoData&)),
+                    SLOT(_videoCallback(const tl::timeline::VideoData&)));
             }
-
-            void TimelineViewport::setImageOptions(const std::vector<timeline::ImageOptions>& options)
+            if (p.frameView)
             {
-                TLRENDER_P();
-                if (options == p.imageOptions)
-                    return;
-                p.imageOptions = options;
-                update();
+                _frameView();
             }
+            update();
+        }
 
-            void TimelineViewport::setCompareOptions(const timeline::CompareOptions& options)
+        const math::Vector2i& TimelineViewport::viewPos() const
+        {
+            return _p->viewPos;
+        }
+
+        float TimelineViewport::viewZoom() const
+        {
+            return _p->viewZoom;
+        }
+
+        void TimelineViewport::setViewPosAndZoom(const math::Vector2i& pos, float zoom)
+        {
+            TLRENDER_P();
+            if (pos == p.viewPos && zoom == p.viewZoom)
+                return;
+            p.viewPos = pos;
+            p.viewZoom = zoom;
+            p.frameView = false;
+            update();
+            Q_EMIT viewPosAndZoomChanged(p.viewPos, p.viewZoom);
+        }
+
+        void TimelineViewport::setViewZoom(float zoom, const math::Vector2i& focus)
+        {
+            TLRENDER_P();
+            math::Vector2i pos;
+            pos.x = focus.x + (p.viewPos.x - focus.x) * (zoom / p.viewZoom);
+            pos.y = focus.y + (p.viewPos.y - focus.y) * (zoom / p.viewZoom);
+            setViewPosAndZoom(pos, zoom);
+        }
+
+        void TimelineViewport::frameView()
+        {
+            TLRENDER_P();
+            p.frameView = true;
+            _frameView();
+            update();
+        }
+
+        void TimelineViewport::viewZoom1To1()
+        {
+            TLRENDER_P();
+            setViewZoom(1.F, p.mouseInside ? p.mousePos : _center());
+        }
+
+        void TimelineViewport::viewZoomIn()
+        {
+            TLRENDER_P();
+            setViewZoom(p.viewZoom * 2.F, p.mouseInside ? p.mousePos : _center());
+        }
+
+        void TimelineViewport::viewZoomOut()
+        {
+            TLRENDER_P();
+            setViewZoom(p.viewZoom / 2.F, p.mouseInside ? p.mousePos : _center());
+        }
+
+        void TimelineViewport::_videoCallback(const timeline::VideoData& value)
+        {
+            TLRENDER_P();
+            const auto i = std::find(p.timelinePlayers.begin(), p.timelinePlayers.end(), sender());
+            if (i != p.timelinePlayers.end())
             {
-                TLRENDER_P();
-                if (options == p.compareOptions)
-                    return;
-                p.compareOptions = options;
-                update();
+                const size_t index = i - p.timelinePlayers.begin();
+                _p->videoData[index] = value;
             }
+            update();
+        }
 
-            void TimelineViewport::setTimelinePlayers(const std::vector<qt::TimelinePlayer*>& timelinePlayers)
+        void TimelineViewport::initializeGL()
+        {
+            TLRENDER_P();
+            try
             {
-                TLRENDER_P();
-                p.videoData.clear();
-                for (const auto& i : p.timelinePlayers)
+                gladLoaderLoadGL();
+
+                if (auto context = p.context.lock())
                 {
-                    disconnect(
-                        i,
-                        SIGNAL(videoChanged(const tl::timeline::VideoData&)),
-                        this,
-                        SLOT(_videoCallback(const tl::timeline::VideoData&)));
+                    p.render = gl::Render::create(context);
                 }
-                p.timelinePlayers = timelinePlayers;
-                for (const auto& i : p.timelinePlayers)
+
+                const std::string vertexSource =
+                    "#version 410\n"
+                    "\n"
+                    "// Inputs\n"
+                    "in vec3 vPos;\n"
+                    "in vec2 vTexture;\n"
+                    "\n"
+                    "// Outputs\n"
+                    "out vec2 fTexture;\n"
+                    "\n"
+                    "// Uniforms\n"
+                    "uniform struct Transform\n"
+                    "{\n"
+                    "    mat4 mvp;\n"
+                    "} transform;\n"
+                    "\n"
+                    "void main()\n"
+                    "{\n"
+                    "    gl_Position = transform.mvp * vec4(vPos, 1.0);\n"
+                    "    fTexture = vTexture;\n"
+                    "}\n";
+                const std::string fragmentSource =
+                    "#version 410\n"
+                    "\n"
+                    "// Inputs\n"
+                    "in vec2 fTexture;\n"
+                    "\n"
+                    "// Outputs\n"
+                    "out vec4 fColor;\n"
+                    "\n"
+                    "// Uniforms\n"
+                    "uniform sampler2D textureSampler;\n"
+                    "\n"
+                    "void main()\n"
+                    "{\n"
+                    "    fColor = texture(textureSampler, fTexture);\n"
+                    "}\n";
+                p.shader = gl::Shader::create(vertexSource, fragmentSource);
+            }
+            catch (const std::exception& e)
+            {
+                if (auto context = p.context.lock())
                 {
-                    _p->videoData.push_back(i->video());
-                    connect(
-                        i,
-                        SIGNAL(videoChanged(const tl::timeline::VideoData&)),
-                        SLOT(_videoCallback(const tl::timeline::VideoData&)));
+                    context->log(
+                        "tl::qt::widget::TimelineViewport",
+                        e.what(),
+                        log::Type::Error);
                 }
-                if (p.frameView)
+            }
+        }
+
+        void TimelineViewport::resizeGL(int w, int h)
+        {
+            TLRENDER_P();
+            if (p.frameView)
+            {
+                _frameView();
+            }
+        }
+
+        void TimelineViewport::paintGL()
+        {
+            TLRENDER_P();
+
+            imaging::Info info;
+            if (!p.timelinePlayers.empty())
+            {
+                const auto& ioInfo = p.timelinePlayers[0]->ioInfo();
+                if (!ioInfo.video.empty())
                 {
-                    _frameView();
+                    info = ioInfo.video[0];
                 }
-                update();
             }
 
-            const math::Vector2i& TimelineViewport::viewPos() const
+            try
             {
-                return _p->viewPos;
+                if (info.size.isValid())
+                {
+                    if (!p.buffer ||
+                        (p.buffer && p.buffer->getSize() != info.size))
+                    {
+                        gl::OffscreenBufferOptions options;
+                        options.colorType = imaging::PixelType::RGBA_F32;
+                        options.depth = gl::OffscreenDepth::_24;
+                        options.stencil = gl::OffscreenStencil::_8;
+                        p.buffer = gl::OffscreenBuffer::create(info.size, options);
+                    }
+                }
+                else
+                {
+                    p.buffer.reset();
+                }
+
+                p.render->setColorConfig(p.colorConfig);
+
+                if (p.buffer)
+                {
+                    gl::OffscreenBufferBinding binding(p.buffer);
+                    p.render->begin(info.size);
+                    p.render->drawVideo(p.videoData, p.imageOptions, p.compareOptions);
+                    p.render->end();
+                }
+            }
+            catch (const std::exception& e)
+            {
+                if (auto context = p.context.lock())
+                {
+                    context->log(
+                        "tl::qt::widget::TimelineViewport",
+                        e.what(),
+                        log::Type::Error);
+                }
             }
 
-            float TimelineViewport::viewZoom() const
+            float devicePixelRatio = 1.F;
+            if (auto app = qobject_cast<QGuiApplication*>(QGuiApplication::instance()))
             {
-                return _p->viewZoom;
+                devicePixelRatio = app->devicePixelRatio();
             }
+            const auto size = imaging::Size(
+                width() * devicePixelRatio,
+                height() * devicePixelRatio);
+            glViewport(
+                0,
+                0,
+                GLsizei(size.w),
+                GLsizei(size.h));
+            glClearColor(0.F, 0.F, 0.F, 0.F);
+            glClear(GL_COLOR_BUFFER_BIT);
 
-            void TimelineViewport::setViewPosAndZoom(const math::Vector2i& pos, float zoom)
+            if (p.buffer)
             {
-                TLRENDER_P();
-                if (pos == p.viewPos && zoom == p.viewZoom)
-                    return;
-                p.viewPos = pos;
-                p.viewZoom = zoom;
+                p.shader->bind();
+                glm::mat4x4 vm(1.F);
+                vm = glm::translate(vm, glm::vec3(p.viewPos.x, p.viewPos.y, 0.F));
+                vm = glm::scale(vm, glm::vec3(p.viewZoom, p.viewZoom, 1.F));
+                const glm::mat4x4 pm = glm::ortho(
+                    0.F,
+                    static_cast<float>(size.w),
+                    0.F,
+                    static_cast<float>(size.h),
+                    -1.F,
+                    1.F);
+                const glm::mat4x4 vpm = pm * vm;
+                p.shader->setUniform(
+                    "transform.mvp",
+                    math::Matrix4x4f(
+                        vpm[0][0], vpm[0][1], vpm[0][2], vpm[0][3],
+                        vpm[1][0], vpm[1][1], vpm[1][2], vpm[1][3],
+                        vpm[2][0], vpm[2][1], vpm[2][2], vpm[2][3],
+                        vpm[3][0], vpm[3][1], vpm[3][2], vpm[3][3]));
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, p.buffer->getColorID());
+
+                geom::TriangleMesh3 mesh;
+                mesh.v.push_back(math::Vector3f(0.F, 0.F, 0.F));
+                mesh.t.push_back(math::Vector2f(0.F, 0.F));
+                mesh.v.push_back(math::Vector3f(info.size.w, 0.F, 0.F));
+                mesh.t.push_back(math::Vector2f(1.F, 0.F));
+                mesh.v.push_back(math::Vector3f(info.size.w, info.size.h, 0.F));
+                mesh.t.push_back(math::Vector2f(1.F, 1.F));
+                mesh.v.push_back(math::Vector3f(0.F, info.size.h, 0.F));
+                mesh.t.push_back(math::Vector2f(0.F, 1.F));
+                mesh.triangles.push_back(geom::Triangle3({
+                    geom::Vertex3({ 1, 1, 0 }),
+                    geom::Vertex3({ 2, 2, 0 }),
+                    geom::Vertex3({ 3, 3, 0 })
+                    }));
+                mesh.triangles.push_back(geom::Triangle3({
+                    geom::Vertex3({ 3, 3, 0 }),
+                    geom::Vertex3({ 4, 4, 0 }),
+                    geom::Vertex3({ 1, 1, 0 })
+                    }));
+                auto vboData = convert(
+                    mesh,
+                    gl::VBOType::Pos3_F32_UV_U16,
+                    math::SizeTRange(0, mesh.triangles.size() - 1));
+                auto vbo = gl::VBO::create(mesh.triangles.size() * 3, gl::VBOType::Pos3_F32_UV_U16);
+                vbo->copy(vboData);
+                auto vao = gl::VAO::create(gl::VBOType::Pos3_F32_UV_U16, vbo->getID());
+                vao->bind();
+                vao->draw(GL_TRIANGLES, 0, mesh.triangles.size() * 3);
+            }
+        }
+
+        void TimelineViewport::enterEvent(QEvent* event)
+        {
+            TLRENDER_P();
+            event->accept();
+            p.mouseInside = true;
+            p.mousePressed = false;
+        }
+
+        void TimelineViewport::leaveEvent(QEvent* event)
+        {
+            TLRENDER_P();
+            event->accept();
+            p.mouseInside = false;
+            p.mousePressed = false;
+        }
+
+        void TimelineViewport::mousePressEvent(QMouseEvent* event)
+        {
+            TLRENDER_P();
+            if (Qt::LeftButton == event->button() && event->modifiers() & Qt::ControlModifier)
+            {
+                p.mousePressed = true;
+                p.mousePress.x = event->x();
+                p.mousePress.y = height() - 1 - event->y();
+                p.viewPosMousePress = p.viewPos;
+            }
+        }
+
+        void TimelineViewport::mouseReleaseEvent(QMouseEvent*)
+        {
+            TLRENDER_P();
+            p.mousePressed = false;
+        }
+
+        void TimelineViewport::mouseMoveEvent(QMouseEvent* event)
+        {
+            TLRENDER_P();
+            p.mousePos.x = event->x();
+            p.mousePos.y = height() - 1 - event->y();
+            if (p.mousePressed)
+            {
+                p.viewPos.x = p.viewPosMousePress.x + p.mousePos.x - p.mousePress.x;
+                p.viewPos.y = p.viewPosMousePress.y + p.mousePos.y - p.mousePress.y;
                 p.frameView = false;
                 update();
                 Q_EMIT viewPosAndZoomChanged(p.viewPos, p.viewZoom);
             }
+        }
 
-            void TimelineViewport::setViewZoom(float zoom, const math::Vector2i& focus)
+        void TimelineViewport::wheelEvent(QWheelEvent* event)
+        {
+            TLRENDER_P();
+            if (!p.timelinePlayers.empty())
             {
-                TLRENDER_P();
-                math::Vector2i pos;
-                pos.x = focus.x + (p.viewPos.x - focus.x) * (zoom / p.viewZoom);
-                pos.y = focus.y + (p.viewPos.y - focus.y) * (zoom / p.viewZoom);
-                setViewPosAndZoom(pos, zoom);
+                const auto t = p.timelinePlayers[0]->currentTime();
+                const float delta = event->angleDelta().y() / 8.F / 15.F;
+                p.timelinePlayers[0]->seek(t + otime::RationalTime(delta, t.rate()));
             }
+        }
 
-            void TimelineViewport::frameView()
+        void TimelineViewport::_frameView()
+        {
+            TLRENDER_P();
+            if (!p.timelinePlayers.empty())
             {
-                TLRENDER_P();
-                p.frameView = true;
-                _frameView();
-                update();
-            }
-
-            void TimelineViewport::viewZoom1To1()
-            {
-                TLRENDER_P();
-                setViewZoom(1.F, p.mouseInside ? p.mousePos : _center());
-            }
-
-            void TimelineViewport::viewZoomIn()
-            {
-                TLRENDER_P();
-                setViewZoom(p.viewZoom * 2.F, p.mouseInside ? p.mousePos : _center());
-            }
-
-            void TimelineViewport::viewZoomOut()
-            {
-                TLRENDER_P();
-                setViewZoom(p.viewZoom / 2.F, p.mouseInside ? p.mousePos : _center());
-            }
-
-            void TimelineViewport::_videoCallback(const timeline::VideoData& value)
-            {
-                TLRENDER_P();
-                const auto i = std::find(p.timelinePlayers.begin(), p.timelinePlayers.end(), sender());
-                if (i != p.timelinePlayers.end())
+                const auto& ioInfo = p.timelinePlayers[0]->ioInfo();
+                if (!ioInfo.video.empty())
                 {
-                    const size_t index = i - p.timelinePlayers.begin();
-                    _p->videoData[index] = value;
-                }
-                update();
-            }
-
-            void TimelineViewport::initializeGL()
-            {
-                TLRENDER_P();
-                try
-                {
-                    gladLoaderLoadGL();
-
-                    if (auto context = p.context.lock())
+                    const auto& info = ioInfo.video[0];
+                    float zoom = width() / static_cast<float>(info.size.w);
+                    if (zoom * info.size.h > height())
                     {
-                        p.render = gl::Render::create(context);
+                        zoom = height() / static_cast<float>(info.size.h);
                     }
-
-                    const std::string vertexSource =
-                        "#version 410\n"
-                        "\n"
-                        "// Inputs\n"
-                        "in vec3 vPos;\n"
-                        "in vec2 vTexture;\n"
-                        "\n"
-                        "// Outputs\n"
-                        "out vec2 fTexture;\n"
-                        "\n"
-                        "// Uniforms\n"
-                        "uniform struct Transform\n"
-                        "{\n"
-                        "    mat4 mvp;\n"
-                        "} transform;\n"
-                        "\n"
-                        "void main()\n"
-                        "{\n"
-                        "    gl_Position = transform.mvp * vec4(vPos, 1.0);\n"
-                        "    fTexture = vTexture;\n"
-                        "}\n";
-                    const std::string fragmentSource =
-                        "#version 410\n"
-                        "\n"
-                        "// Inputs\n"
-                        "in vec2 fTexture;\n"
-                        "\n"
-                        "// Outputs\n"
-                        "out vec4 fColor;\n"
-                        "\n"
-                        "// Uniforms\n"
-                        "uniform sampler2D textureSampler;\n"
-                        "\n"
-                        "void main()\n"
-                        "{\n"
-                        "    fColor = texture(textureSampler, fTexture);\n"
-                        "}\n";
-                    p.shader = gl::Shader::create(vertexSource, fragmentSource);
-                }
-                catch (const std::exception& e)
-                {
-                    if (auto context = p.context.lock())
-                    {
-                        context->log(
-                            "tl::qt::widget::TimelineViewport",
-                            e.what(),
-                            log::Type::Error);
-                    }
-                }
-            }
-
-            void TimelineViewport::resizeGL(int w, int h)
-            {
-                TLRENDER_P();
-                if (p.frameView)
-                {
-                    _frameView();
-                }
-            }
-
-            void TimelineViewport::paintGL()
-            {
-                TLRENDER_P();
-
-                imaging::Info info;
-                if (!p.timelinePlayers.empty())
-                {
-                    const auto& ioInfo = p.timelinePlayers[0]->ioInfo();
-                    if (!ioInfo.video.empty())
-                    {
-                        info = ioInfo.video[0];
-                    }
-                }
-
-                try
-                {
-                    if (info.size.isValid())
-                    {
-                        if (!p.buffer ||
-                            (p.buffer && p.buffer->getSize() != info.size))
-                        {
-                            gl::OffscreenBufferOptions options;
-                            options.colorType = imaging::PixelType::RGBA_F32;
-                            options.depth = gl::OffscreenDepth::_24;
-                            options.stencil = gl::OffscreenStencil::_8;
-                            p.buffer = gl::OffscreenBuffer::create(info.size, options);
-                        }
-                    }
-                    else
-                    {
-                        p.buffer.reset();
-                    }
-
-                    p.render->setColorConfig(p.colorConfig);
-
-                    if (p.buffer)
-                    {
-                        gl::OffscreenBufferBinding binding(p.buffer);
-                        p.render->begin(info.size);
-                        p.render->drawVideo(p.videoData, p.imageOptions, p.compareOptions);
-                        p.render->end();
-                    }
-                }
-                catch (const std::exception& e)
-                {
-                    if (auto context = p.context.lock())
-                    {
-                        context->log(
-                            "tl::qt::widget::TimelineViewport",
-                            e.what(),
-                            log::Type::Error);
-                    }
-                }
-
-                float devicePixelRatio = 1.F;
-                if (auto app = qobject_cast<QGuiApplication*>(QGuiApplication::instance()))
-                {
-                    devicePixelRatio = app->devicePixelRatio();
-                }
-                const auto size = imaging::Size(
-                    width() * devicePixelRatio,
-                    height() * devicePixelRatio);
-                glViewport(
-                    0,
-                    0,
-                    GLsizei(size.w),
-                    GLsizei(size.h));
-                glClearColor(0.F, 0.F, 0.F, 0.F);
-                glClear(GL_COLOR_BUFFER_BIT);
-
-                if (p.buffer)
-                {
-                    p.shader->bind();
-                    glm::mat4x4 vm(1.F);
-                    vm = glm::translate(vm, glm::vec3(p.viewPos.x, p.viewPos.y, 0.F));
-                    vm = glm::scale(vm, glm::vec3(p.viewZoom, p.viewZoom, 1.F));
-                    const glm::mat4x4 pm = glm::ortho(
-                        0.F,
-                        static_cast<float>(size.w),
-                        0.F,
-                        static_cast<float>(size.h),
-                        -1.F,
-                        1.F);
-                    const glm::mat4x4 vpm = pm * vm;
-                    p.shader->setUniform(
-                        "transform.mvp",
-                        math::Matrix4x4f(
-                            vpm[0][0], vpm[0][1], vpm[0][2], vpm[0][3],
-                            vpm[1][0], vpm[1][1], vpm[1][2], vpm[1][3],
-                            vpm[2][0], vpm[2][1], vpm[2][2], vpm[2][3],
-                            vpm[3][0], vpm[3][1], vpm[3][2], vpm[3][3]));
-                    glActiveTexture(GL_TEXTURE0);
-                    glBindTexture(GL_TEXTURE_2D, p.buffer->getColorID());
-
-                    geom::TriangleMesh3 mesh;
-                    mesh.v.push_back(math::Vector3f(0.F, 0.F, 0.F));
-                    mesh.t.push_back(math::Vector2f(0.F, 0.F));
-                    mesh.v.push_back(math::Vector3f(info.size.w, 0.F, 0.F));
-                    mesh.t.push_back(math::Vector2f(1.F, 0.F));
-                    mesh.v.push_back(math::Vector3f(info.size.w, info.size.h, 0.F));
-                    mesh.t.push_back(math::Vector2f(1.F, 1.F));
-                    mesh.v.push_back(math::Vector3f(0.F, info.size.h, 0.F));
-                    mesh.t.push_back(math::Vector2f(0.F, 1.F));
-                    mesh.triangles.push_back(geom::Triangle3({
-                        geom::Vertex3({ 1, 1, 0 }),
-                        geom::Vertex3({ 2, 2, 0 }),
-                        geom::Vertex3({ 3, 3, 0 })
-                        }));
-                    mesh.triangles.push_back(geom::Triangle3({
-                        geom::Vertex3({ 3, 3, 0 }),
-                        geom::Vertex3({ 4, 4, 0 }),
-                        geom::Vertex3({ 1, 1, 0 })
-                        }));
-                    auto vboData = convert(
-                        mesh,
-                        gl::VBOType::Pos3_F32_UV_U16,
-                        math::SizeTRange(0, mesh.triangles.size() - 1));
-                    auto vbo = gl::VBO::create(mesh.triangles.size() * 3, gl::VBOType::Pos3_F32_UV_U16);
-                    vbo->copy(vboData);
-                    auto vao = gl::VAO::create(gl::VBOType::Pos3_F32_UV_U16, vbo->getID());
-                    vao->bind();
-                    vao->draw(GL_TRIANGLES, 0, mesh.triangles.size() * 3);
-                }
-            }
-
-            void TimelineViewport::enterEvent(QEvent* event)
-            {
-                TLRENDER_P();
-                event->accept();
-                p.mouseInside = true;
-                p.mousePressed = false;
-            }
-
-            void TimelineViewport::leaveEvent(QEvent* event)
-            {
-                TLRENDER_P();
-                event->accept();
-                p.mouseInside = false;
-                p.mousePressed = false;
-            }
-
-            void TimelineViewport::mousePressEvent(QMouseEvent* event)
-            {
-                TLRENDER_P();
-                if (Qt::LeftButton == event->button() && event->modifiers() & Qt::ControlModifier)
-                {
-                    p.mousePressed = true;
-                    p.mousePress.x = event->x();
-                    p.mousePress.y = height() - 1 - event->y();
-                    p.viewPosMousePress = p.viewPos;
-                }
-            }
-
-            void TimelineViewport::mouseReleaseEvent(QMouseEvent*)
-            {
-                TLRENDER_P();
-                p.mousePressed = false;
-            }
-
-            void TimelineViewport::mouseMoveEvent(QMouseEvent* event)
-            {
-                TLRENDER_P();
-                p.mousePos.x = event->x();
-                p.mousePos.y = height() - 1 - event->y();
-                if (p.mousePressed)
-                {
-                    p.viewPos.x = p.viewPosMousePress.x + p.mousePos.x - p.mousePress.x;
-                    p.viewPos.y = p.viewPosMousePress.y + p.mousePos.y - p.mousePress.y;
-                    p.frameView = false;
+                    math::Vector2i c(info.size.w / 2, info.size.h / 2);
+                    p.viewPos.x = width() / 2.F - c.x * zoom;
+                    p.viewPos.y = height() / 2.F - c.y * zoom;
+                    p.viewZoom = zoom;
                     update();
                     Q_EMIT viewPosAndZoomChanged(p.viewPos, p.viewZoom);
+                    Q_EMIT frameViewActivated();
                 }
             }
+        }
 
-            void TimelineViewport::wheelEvent(QWheelEvent* event)
-            {
-                TLRENDER_P();
-                if (!p.timelinePlayers.empty())
-                {
-                    const auto t = p.timelinePlayers[0]->currentTime();
-                    const float delta = event->angleDelta().y() / 8.F / 15.F;
-                    p.timelinePlayers[0]->seek(t + otime::RationalTime(delta, t.rate()));
-                }
-            }
-
-            void TimelineViewport::_frameView()
-            {
-                TLRENDER_P();
-                if (!p.timelinePlayers.empty())
-                {
-                    const auto& ioInfo = p.timelinePlayers[0]->ioInfo();
-                    if (!ioInfo.video.empty())
-                    {
-                        const auto& info = ioInfo.video[0];
-                        float zoom = width() / static_cast<float>(info.size.w);
-                        if (zoom * info.size.h > height())
-                        {
-                            zoom = height() / static_cast<float>(info.size.h);
-                        }
-                        math::Vector2i c(info.size.w / 2, info.size.h / 2);
-                        p.viewPos.x = width() / 2.F - c.x * zoom;
-                        p.viewPos.y = height() / 2.F - c.y * zoom;
-                        p.viewZoom = zoom;
-                        update();
-                        Q_EMIT viewPosAndZoomChanged(p.viewPos, p.viewZoom);
-                        Q_EMIT frameViewActivated();
-                    }
-                }
-            }
-
-            math::Vector2i TimelineViewport::_center() const
-            {
-                return math::Vector2i(width() / 2, height() / 2);
-            }
+        math::Vector2i TimelineViewport::_center() const
+        {
+            return math::Vector2i(width() / 2, height() / 2);
         }
     }
 }

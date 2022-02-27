@@ -13,63 +13,60 @@
 
 namespace tl
 {
-    namespace app
+    namespace play
     {
-        namespace play
+        //! Settings object.
+        class SettingsObject : public QObject
         {
-            //! Settings object.
-            class SettingsObject : public QObject
-            {
-                Q_OBJECT
+            Q_OBJECT
 
-            public:
-                SettingsObject(
-                    bool reset,
-                    qt::TimeObject*,
-                    QObject* parent = nullptr);
+        public:
+            SettingsObject(
+                bool reset,
+                qt::TimeObject*,
+                QObject* parent = nullptr);
 
-                ~SettingsObject() override;
+            ~SettingsObject() override;
 
-                //! Get a settings value.
-                QVariant value(const QString&);
+            //! Get a settings value.
+            QVariant value(const QString&);
 
-                //! Get the list of recent files.
-                const QList<QString>& recentFiles() const;
+            //! Get the list of recent files.
+            const QList<QString>& recentFiles() const;
 
-                //! Get whether tooltips are enabled.
-                bool hasToolTipsEnabled() const;
+            //! Get whether tooltips are enabled.
+            bool hasToolTipsEnabled() const;
 
-            public Q_SLOTS:
-                //! Set a settings value.
-                void setValue(const QString&, const QVariant&);
+        public Q_SLOTS:
+            //! Set a settings value.
+            void setValue(const QString&, const QVariant&);
 
-                //! Set a default settings value.
-                void setDefaultValue(const QString&, const QVariant&);
+            //! Set a default settings value.
+            void setDefaultValue(const QString&, const QVariant&);
 
-                //! Reset the settings to defaults.
-                void reset();
+            //! Reset the settings to defaults.
+            void reset();
 
-                //! Add a recent file.
-                void addRecentFile(const QString&);
+            //! Add a recent file.
+            void addRecentFile(const QString&);
 
-                //! Set whether tooltips are enabled.
-                void setToolTipsEnabled(bool);
+            //! Set whether tooltips are enabled.
+            void setToolTipsEnabled(bool);
 
-            Q_SIGNALS:
-                //! This signal is emitted when a settings value is changed.
-                void valueChanged(const QString&, const QVariant&);
+        Q_SIGNALS:
+            //! This signal is emitted when a settings value is changed.
+            void valueChanged(const QString&, const QVariant&);
 
-                //! This signal is emitted when the recent files list is changed.
-                void recentFilesChanged(const QList<QString>&);
+            //! This signal is emitted when the recent files list is changed.
+            void recentFilesChanged(const QList<QString>&);
 
-                //! This signal is emitted when the tooltips enabled state is changed.
-                void toolTipsEnabledChanged(bool);
+            //! This signal is emitted when the tooltips enabled state is changed.
+            void toolTipsEnabledChanged(bool);
 
-            private:
-                void _toolTipsUpdate();
+        private:
+            void _toolTipsUpdate();
 
-                TLRENDER_PRIVATE();
-            };
-        }
+            TLRENDER_PRIVATE();
+        };
     }
 }

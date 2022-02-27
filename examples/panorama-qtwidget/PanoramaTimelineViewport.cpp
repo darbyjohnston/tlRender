@@ -4,14 +4,10 @@
 
 #include "PanoramaTimelineViewport.h"
 
-#include <tlRenderGL/Mesh.h>
-
 #include <QMouseEvent>
 #include <QSurfaceFormat>
 
 #include <glm/gtc/matrix_transform.hpp>
-
-using namespace tl::core;
 
 namespace tl
 {

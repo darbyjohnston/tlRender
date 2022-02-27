@@ -30,8 +30,6 @@
 #include <iostream>
 #include <sstream>
 
-using namespace tl::core;
-
 namespace tl
 {
     namespace timeline
@@ -342,7 +340,7 @@ namespace tl
                             {
                                 std::stringstream ss;
                                 ss << "Cannot open audio stream: " << e.what();
-                                context->log("tl::core::TimelinePlayer", ss.str(), log::Type::Error);
+                                context->log("tl::timline::TimelinePlayer", ss.str(), log::Type::Error);
                             }
                         }
                     }

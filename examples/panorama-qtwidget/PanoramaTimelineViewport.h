@@ -6,10 +6,10 @@
 
 #include <tlQt/TimelinePlayer.h>
 
-#include <tlRenderGL/Mesh.h>
-#include <tlRenderGL/OffscreenBuffer.h>
-#include <tlRenderGL/Render.h>
-#include <tlRenderGL/Shader.h>
+#include <tlGL/Mesh.h>
+#include <tlGL/OffscreenBuffer.h>
+#include <tlGL/Render.h>
+#include <tlGL/Shader.h>
 
 #include <tlCore/Mesh.h>
 #include <tlCore/OCIO.h>
@@ -29,11 +29,11 @@ namespace tl
 
             public:
                 PanoramaTimelineViewport(
-                    const std::shared_ptr<core::system::Context>&,
+                    const std::shared_ptr<system::Context>&,
                     QWidget* parent = nullptr);
 
                 //! Set the color configuration.
-                void setColorConfig(const core::imaging::ColorConfig&);
+                void setColorConfig(const imaging::ColorConfig&);
 
                 //! Set the image options.
                 void setImageOptions(const timeline::ImageOptions&);
@@ -52,15 +52,15 @@ namespace tl
                 void mouseMoveEvent(QMouseEvent*) override;
 
             private:
-                std::weak_ptr<core::system::Context> _context;
-                core::imaging::ColorConfig _colorConfig;
+                std::weak_ptr<system::Context> _context;
+                imaging::ColorConfig _colorConfig;
                 timeline::ImageOptions _imageOptions;
                 qt::TimelinePlayer* _timelinePlayer = nullptr;
-                core::imaging::Size _videoSize;
+                imaging::Size _videoSize;
                 timeline::VideoData _videoData;
-                core::math::Vector2f _cameraRotation;
+                math::Vector2f _cameraRotation;
                 float _cameraFOV = 45.F;
-                core::geom::TriangleMesh3 _sphereMesh;
+                geom::TriangleMesh3 _sphereMesh;
                 std::shared_ptr<gl::VBO> _sphereVBO;
                 std::shared_ptr<gl::VAO> _sphereVAO;
                 std::shared_ptr<gl::Shader> _shader;

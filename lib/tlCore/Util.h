@@ -89,7 +89,7 @@
             }); \
         if (i == labels.end()) \
         { \
-            throw core::ParseError(); \
+            throw tl::error::ParseError(); \
         } \
         out = static_cast<ENUM>(i - labels.begin()); \
         return is; \

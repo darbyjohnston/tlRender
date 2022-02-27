@@ -14,40 +14,37 @@
 
 namespace tl
 {
-    namespace app
+    namespace play
     {
-        namespace play
+        class App;
+
+        //! File actions.
+        class FileActions : public QObject
         {
-            class App;
+            Q_OBJECT
 
-            //! File actions.
-            class FileActions : public QObject
-            {
-                Q_OBJECT
+        public:
+            FileActions(App*, QObject* parent = nullptr);
 
-            public:
-                FileActions(App*, QObject* parent = nullptr);
+            ~FileActions() override;
 
-                ~FileActions() override;
+            //! Get the actions.
+            const QMap<QString, QAction*>& actions() const;
 
-                //! Get the actions.
-                const QMap<QString, QAction*>& actions() const;
+            //! Get the menu.
+            QMenu* menu() const;
 
-                //! Get the menu.
-                QMenu* menu() const;
+            //! Set the timeline players.
+            void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
 
-                //! Set the timeline players.
-                void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
+        private Q_SLOTS:
+            void _recentFilesCallback();
 
-            private Q_SLOTS:
-                void _recentFilesCallback();
+        private:
+            void _recentFilesUpdate();
+            void _actionsUpdate();
 
-            private:
-                void _recentFilesUpdate();
-                void _actionsUpdate();
-
-                TLRENDER_PRIVATE();
-            };
-        }
+            TLRENDER_PRIVATE();
+        };
     }
 }

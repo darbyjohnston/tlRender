@@ -10,32 +10,29 @@ namespace tl
 {
     namespace tests
     {
-        namespace Test
+        ITest::ITest(
+            const std::string& name,
+            const std::shared_ptr<system::Context>& context) :
+            _context(context),
+            _name(name)
+        {}
+
+        ITest::~ITest()
+        {}
+
+        const std::string& ITest::getName() const
         {
-            ITest::ITest(
-                const std::string& name,
-                const std::shared_ptr<core::system::Context>& context) :
-                _context(context),
-                _name(name)
-            {}
+            return _name;
+        }
 
-            ITest::~ITest()
-            {}
+        void ITest::_print(const std::string& value)
+        {
+            std::cout << "    " << value << std::endl;
+        }
 
-            const std::string& ITest::getName() const
-            {
-                return _name;
-            }
-
-            void ITest::_print(const std::string& value)
-            {
-                std::cout << "    " << value << std::endl;
-            }
-
-            void ITest::_printError(const std::string& value)
-            {
-                std::cout << "    ERROR: " << value << std::endl;
-            }
+        void ITest::_printError(const std::string& value)
+        {
+            std::cout << "    ERROR: " << value << std::endl;
         }
     }
 }

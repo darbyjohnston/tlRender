@@ -14,40 +14,37 @@
 
 namespace tl
 {
-    namespace app
+    namespace play
     {
-        namespace play
+        class App;
+
+        //! Window actions.
+        class WindowActions : public QObject
         {
-            class App;
+            Q_OBJECT
 
-            //! Window actions.
-            class WindowActions : public QObject
-            {
-                Q_OBJECT
+        public:
+            WindowActions(App*, QObject* parent = nullptr);
 
-            public:
-                WindowActions(App*, QObject* parent = nullptr);
+            ~WindowActions() override;
 
-                ~WindowActions() override;
+            //! Get the actions.
+            const QMap<QString, QAction*>& actions() const;
 
-                //! Get the actions.
-                const QMap<QString, QAction*>& actions() const;
+            //! Get the menu.
+            QMenu* menu() const;
 
-                //! Get the menu.
-                QMenu* menu() const;
+            //! Set the timeline players.
+            void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
 
-                //! Set the timeline players.
-                void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
+        Q_SIGNALS:
+            //! This signal is emitted to resize the window.
+            void resize(const tl::imaging::Size&);
 
-            Q_SIGNALS:
-                //! This signal is emitted to resize the window.
-                void resize(const tl::core::imaging::Size&);
+        private:
+            void _actionsUpdate();
 
-            private:
-                void _actionsUpdate();
-
-                TLRENDER_PRIVATE();
-            };
-        }
+            TLRENDER_PRIVATE();
+        };
     }
 }

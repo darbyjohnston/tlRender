@@ -51,7 +51,7 @@ namespace tl
         //! Offscreen buffer options.
         struct OffscreenBufferOptions
         {
-            core::imaging::PixelType colorType = core::imaging::PixelType::None;
+            imaging::PixelType colorType = imaging::PixelType::None;
             GLint colorMin = GL_LINEAR;
             GLint colorMag = GL_LINEAR;
             OffscreenDepth depth = OffscreenDepth::None;
@@ -66,7 +66,7 @@ namespace tl
 
         protected:
             void _init(
-                const core::imaging::Size&,
+                const imaging::Size&,
                 const OffscreenBufferOptions&);
             OffscreenBuffer();
 
@@ -75,11 +75,11 @@ namespace tl
 
             //! Create a new offscreen buffer.
             static std::shared_ptr<OffscreenBuffer> create(
-                const core::imaging::Size&,
+                const imaging::Size&,
                 const OffscreenBufferOptions&);
 
             //! Get the offscreen buffer size.
-            const core::imaging::Size& getSize() const;
+            const imaging::Size& getSize() const;
 
             //! Get the options.
             const OffscreenBufferOptions& getOptions() const;
@@ -94,7 +94,7 @@ namespace tl
             void bind();
 
         private:
-            core::imaging::Size _size;
+            imaging::Size _size;
             OffscreenBufferOptions _options;
             GLuint _id = 0;
             GLuint _colorID = 0;

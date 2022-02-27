@@ -16,12 +16,9 @@
 
 namespace tl
 {
-    namespace core
+    namespace log
     {
-        namespace log
-        {
-            class System;
-        }
+        class System;
     }
 
     //! Audio and video I/O.
@@ -55,11 +52,11 @@ namespace tl
         //! I/O information.
         struct Info
         {
-            std::vector<core::imaging::Info>   video;
+            std::vector<imaging::Info>         video;
             VideoType                          videoType = VideoType::Movie;
-            otime::TimeRange                   videoTime = core::time::invalidTimeRange;
-            core::audio::Info                  audio;
-            otime::TimeRange                   audioTime = core::time::invalidTimeRange;
+            otime::TimeRange                   videoTime = time::invalidTimeRange;
+            audio::Info                        audio;
+            otime::TimeRange                   audioTime = time::invalidTimeRange;
             std::map<std::string, std::string> tags;
 
             bool operator == (const Info&) const;
@@ -73,11 +70,11 @@ namespace tl
             VideoData(
                 const otime::RationalTime&,
                 uint16_t layer,
-                const std::shared_ptr<core::imaging::Image>&);
+                const std::shared_ptr<imaging::Image>&);
 
-            otime::RationalTime                   time = core::time::invalidTime;
-            uint16_t                              layer = 0;
-            std::shared_ptr<core::imaging::Image> image;
+            otime::RationalTime             time = time::invalidTime;
+            uint16_t                        layer = 0;
+            std::shared_ptr<imaging::Image> image;
 
             bool operator == (const VideoData&) const;
             bool operator != (const VideoData&) const;
@@ -90,10 +87,10 @@ namespace tl
             AudioData();
             AudioData(
                 const otime::RationalTime&,
-                const std::shared_ptr<core::audio::Audio>&);
+                const std::shared_ptr<audio::Audio>&);
 
-            otime::RationalTime                 time = core::time::invalidTime;
-            std::shared_ptr<core::audio::Audio> audio;
+            otime::RationalTime           time = time::invalidTime;
+            std::shared_ptr<audio::Audio> audio;
 
             bool operator == (const AudioData&) const;
             bool operator != (const AudioData&) const;
@@ -113,20 +110,20 @@ namespace tl
 
         protected:
             void _init(
-                const core::file::Path&,
+                const file::Path&,
                 const Options&,
-                const std::weak_ptr<core::log::System>&);
+                const std::weak_ptr<log::System>&);
             IIO();
 
         public:
             virtual ~IIO() = 0;
 
             //! Get the path.
-            const core::file::Path& getPath() const;
+            const file::Path& getPath() const;
 
         protected:
-            std::weak_ptr<core::log::System> _logSystem;
-            core::file::Path _path;
+            std::weak_ptr<log::System> _logSystem;
+            file::Path _path;
             Options _options;
         };
 
@@ -135,9 +132,9 @@ namespace tl
         {
         protected:
             void _init(
-                const core::file::Path&,
+                const file::Path&,
                 const Options&,
-                const std::weak_ptr<core::log::System>&);
+                const std::weak_ptr<log::System>&);
             IRead();
 
         public:
@@ -170,10 +167,10 @@ namespace tl
         {
         protected:
             void _init(
-                const core::file::Path&,
+                const file::Path&,
                 const Options&,
                 const Info&,
-                const std::weak_ptr<core::log::System>&);
+                const std::weak_ptr<log::System>&);
             IWrite();
 
         public:
@@ -182,7 +179,7 @@ namespace tl
             //! Write video data.
             virtual void writeVideo(
                 const otime::RationalTime&,
-                const std::shared_ptr<core::imaging::Image>&) = 0;
+                const std::shared_ptr<imaging::Image>&) = 0;
 
         protected:
             Info _info;
@@ -197,7 +194,7 @@ namespace tl
             void _init(
                 const std::string& name,
                 const std::map<std::string, FileExtensionType>& extensions,
-                const std::weak_ptr<core::log::System>&);
+                const std::weak_ptr<log::System>&);
             IPlugin();
 
         public:
@@ -217,24 +214,24 @@ namespace tl
 
             //! Create a reader for the given path.
             virtual std::shared_ptr<IRead> read(
-                const core::file::Path&,
+                const file::Path&,
                 const Options & = Options()) = 0;
 
             //! Get information for writing.
-            virtual core::imaging::Info getWriteInfo(
-                const core::imaging::Info&,
+            virtual imaging::Info getWriteInfo(
+                const imaging::Info&,
                 const Options & = Options()) const = 0;
 
             //! Create a writer for the given path.
             virtual std::shared_ptr<IWrite> write(
-                const core::file::Path&,
+                const file::Path&,
                 const Info&,
                 const Options & = Options()) = 0;
 
         protected:
-            bool _isWriteCompatible(const core::imaging::Info&, const Options&) const;
+            bool _isWriteCompatible(const imaging::Info&, const Options&) const;
 
-            std::weak_ptr<core::log::System> _logSystem;
+            std::weak_ptr<log::System> _logSystem;
             Options _options;
 
         private:

@@ -9,15 +9,12 @@
 
 namespace tl
 {
-    namespace qt
+    namespace qtwidget
     {
-        namespace widget
-        {
-            //! Get a dark style color palette.
-            QPalette darkStyle();
+        //! Get a dark style color palette.
+        QPalette darkStyle();
 
-            //! Get a custom style sheet.
-            QString styleSheet();
-        }
+        //! Get a custom style sheet.
+        QString styleSheet();
     }
 }

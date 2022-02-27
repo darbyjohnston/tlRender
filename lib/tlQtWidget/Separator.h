@@ -8,28 +8,25 @@
 
 namespace tl
 {
-    namespace qt
+    namespace qtwidget
     {
-        namespace widget
+        //! Separator.
+        class Separator : public QFrame
         {
-            //! Separator.
-            class Separator : public QFrame
-            {
-                Q_OBJECT
+            Q_OBJECT
 
-            public:
-                Separator(Qt::Orientation, QWidget* parent = nullptr);
+        public:
+            Separator(Qt::Orientation, QWidget* parent = nullptr);
 
-                ~Separator() override;
+            ~Separator() override;
 
-                //! Set the orientation.
-                void setOrientation(Qt::Orientation);
+            //! Set the orientation.
+            void setOrientation(Qt::Orientation);
 
-            private:
-                void _widgetUpdate();
+        private:
+            void _widgetUpdate();
 
-                Qt::Orientation _orientation = Qt::Horizontal;
-            };
-        }
+            Qt::Orientation _orientation = Qt::Horizontal;
+        };
     }
 }

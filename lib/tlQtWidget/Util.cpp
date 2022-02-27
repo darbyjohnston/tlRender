@@ -15,16 +15,13 @@ void qtInitResources()
 
 namespace tl
 {
-    namespace qt
+    namespace qtwidget
     {
-        namespace widget
+        void init()
         {
-            void init()
-            {
-                qt::init();
+            qt::init();
 
-                qtInitResources();
-            }
+            qtInitResources();
         }
     }
 }

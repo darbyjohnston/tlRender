@@ -128,7 +128,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<Timeline>&,
-                const std::shared_ptr<core::system::Context>&,
+                const std::shared_ptr<system::Context>&,
                 const PlayerOptions&);
             TimelinePlayer();
 
@@ -138,20 +138,20 @@ namespace tl
             //! Create a new timeline player.
             static std::shared_ptr<TimelinePlayer> create(
                 const std::shared_ptr<Timeline>&,
-                const std::shared_ptr<core::system::Context>&,
+                const std::shared_ptr<system::Context>&,
                 const PlayerOptions & = PlayerOptions());
 
             //! Get the context.
-            const std::weak_ptr<core::system::Context>& getContext() const;
+            const std::weak_ptr<system::Context>& getContext() const;
 
             //! Get the timeline.
             const std::shared_ptr<Timeline>& getTimeline() const;
 
             //! Get the path.
-            const core::file::Path& getPath() const;
+            const file::Path& getPath() const;
 
             //! Get the audio path.
-            const core::file::Path& getAudioPath() const;
+            const file::Path& getAudioPath() const;
 
             //! Get the timeline player options.
             const PlayerOptions& getPlayerOptions() const;
@@ -181,19 +181,19 @@ namespace tl
             double getDefaultSpeed() const;
 
             //! Observe the playback speed.
-            std::shared_ptr<core::observer::IValue<double> > observeSpeed() const;
+            std::shared_ptr<observer::IValue<double> > observeSpeed() const;
 
             //! Set the playback speed.
             void setSpeed(double);
 
             //! Observe the playback mode.
-            std::shared_ptr<core::observer::IValue<Playback> > observePlayback() const;
+            std::shared_ptr<observer::IValue<Playback> > observePlayback() const;
 
             //! Set the playback mode.
             void setPlayback(Playback);
 
             //! Observe the playback loop mode.
-            std::shared_ptr<core::observer::IValue<Loop> > observeLoop() const;
+            std::shared_ptr<observer::IValue<Loop> > observeLoop() const;
 
             //! Set the playback loop mode.
             void setLoop(Loop);
@@ -204,7 +204,7 @@ namespace tl
             ///@{
 
             //! Observe the current time.
-            std::shared_ptr<core::observer::IValue<otime::RationalTime> > observeCurrentTime() const;
+            std::shared_ptr<observer::IValue<otime::RationalTime> > observeCurrentTime() const;
 
             //! Seek to the given time.
             void seek(const otime::RationalTime&);
@@ -233,7 +233,7 @@ namespace tl
             ///@{
 
             //! Observe the in/out points range.
-            std::shared_ptr<core::observer::IValue<otime::TimeRange> > observeInOutRange() const;
+            std::shared_ptr<observer::IValue<otime::TimeRange> > observeInOutRange() const;
 
             //! Set the in/out points range.
             void setInOutRange(const otime::TimeRange&);
@@ -256,13 +256,13 @@ namespace tl
             ///@{
 
             //! Observe the current video layer.
-            std::shared_ptr<core::observer::IValue<uint16_t> > observeVideoLayer() const;
+            std::shared_ptr<observer::IValue<uint16_t> > observeVideoLayer() const;
 
             //! Set the current video layer.
             void setVideoLayer(uint16_t);
 
             //! Observe the current video data.
-            std::shared_ptr<core::observer::IValue<VideoData> > observeVideo() const;
+            std::shared_ptr<observer::IValue<VideoData> > observeVideo() const;
 
             ///@}
 
@@ -270,7 +270,7 @@ namespace tl
             ///@{
 
             //! Observe the audio volume.
-            std::shared_ptr<core::observer::IValue<float> > observeVolume() const;
+            std::shared_ptr<observer::IValue<float> > observeVolume() const;
 
             //! Set the audio volume.
             void setVolume(float);
@@ -282,13 +282,13 @@ namespace tl
             void decreaseVolume();
 
             //! Observe the audio mute.
-            std::shared_ptr<core::observer::IValue<bool> > observeMute() const;
+            std::shared_ptr<observer::IValue<bool> > observeMute() const;
 
             //! Set the audio mute.
             void setMute(bool);
 
             //! Observe the audio sync offset (in seconds).
-            std::shared_ptr<core::observer::IValue<double> > observeAudioOffset() const;
+            std::shared_ptr<observer::IValue<double> > observeAudioOffset() const;
 
             //! Set the audio sync offset (in seconds).
             void setAudioOffset(double);
@@ -299,25 +299,25 @@ namespace tl
             ///@{
 
             //! Observe the cache read ahead.
-            std::shared_ptr<core::observer::IValue<otime::RationalTime> > observeCacheReadAhead() const;
+            std::shared_ptr<observer::IValue<otime::RationalTime> > observeCacheReadAhead() const;
 
             //! Set the cache read ahead.
             void setCacheReadAhead(const otime::RationalTime&);
 
             //! Observe the cache read behind.
-            std::shared_ptr<core::observer::IValue<otime::RationalTime> > observeCacheReadBehind() const;
+            std::shared_ptr<observer::IValue<otime::RationalTime> > observeCacheReadBehind() const;
 
             //! Set the cache read behind.
             void setCacheReadBehind(const otime::RationalTime&);
 
             //! Observe the cache percentage.
-            std::shared_ptr<core::observer::IValue<float> > observeCachePercentage() const;
+            std::shared_ptr<observer::IValue<float> > observeCachePercentage() const;
 
             //! Observe the cached video.
-            std::shared_ptr<core::observer::IList<otime::TimeRange> > observeCachedVideoFrames() const;
+            std::shared_ptr<observer::IList<otime::TimeRange> > observeCachedVideoFrames() const;
 
             //! Observe the cached audio.
-            std::shared_ptr<core::observer::IList<otime::TimeRange> > observeCachedAudioFrames() const;
+            std::shared_ptr<observer::IList<otime::TimeRange> > observeCachedAudioFrames() const;
 
             ///@}
 

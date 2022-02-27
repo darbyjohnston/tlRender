@@ -2,14 +2,12 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include <tlRenderGL/Texture.h>
+#include <tlGL/Texture.h>
 
 #include <tlCore/Assert.h>
 
 #include <array>
 #include <iostream>
-
-using namespace tl::core;
 
 namespace tl
 {

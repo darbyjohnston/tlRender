@@ -12,36 +12,33 @@
 
 namespace tl
 {
-    namespace qt
+    namespace qtquick
     {
-        namespace quick
+        //! OpenGL frame buffer object.
+        class GLFramebufferObject : public QQuickFramebufferObject
         {
-            //! OpenGL frame buffer object.
-            class GLFramebufferObject : public QQuickFramebufferObject
-            {
-                Q_OBJECT
-                    Q_PROPERTY(
-                        tl::timeline::VideoData video
-                        READ video
-                        WRITE setVideo)
+            Q_OBJECT
+                Q_PROPERTY(
+                    tl::timeline::VideoData video
+                    READ video
+                    WRITE setVideo)
 
-            public:
-                GLFramebufferObject(QQuickItem* parent = nullptr);
+        public:
+            GLFramebufferObject(QQuickItem* parent = nullptr);
 
-                ~GLFramebufferObject() override;
+            ~GLFramebufferObject() override;
 
-                //! Get the video data.
-                const timeline::VideoData& video() const;
+            //! Get the video data.
+            const timeline::VideoData& video() const;
 
-                Renderer* createRenderer() const override;
+            Renderer* createRenderer() const override;
 
-            public Q_SLOTS:
-                //! Set the video data.
-                void setVideo(const tl::timeline::VideoData&);
+        public Q_SLOTS:
+            //! Set the video data.
+            void setVideo(const tl::timeline::VideoData&);
 
-            private:
-                TLRENDER_PRIVATE();
-            };
-        }
+        private:
+            TLRENDER_PRIVATE();
+        };
     }
 }

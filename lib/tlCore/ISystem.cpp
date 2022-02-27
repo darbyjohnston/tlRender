@@ -8,41 +8,38 @@
 
 namespace tl
 {
-    namespace core
+    namespace system
     {
-        namespace system
+        void ISystem::_init(
+            const std::string& name,
+            const std::shared_ptr<Context>& context)
         {
-            void ISystem::_init(
-                const std::string& name,
-                const std::shared_ptr<Context>& context)
+            ICoreSystem::_init(name, context);
+
+            _logSystem = context->getSystem<log::System>();
+
+            if (auto logSystem = _logSystem.lock())
             {
-                ICoreSystem::_init(name, context);
-
-                _logSystem = context->getSystem<log::System>();
-
-                if (auto logSystem = _logSystem.lock())
-                {
-                    logSystem->print(name, "Create");
-                }
+                logSystem->print(name, "Create");
             }
+        }
 
-            ISystem::ISystem()
-            {}
+        ISystem::ISystem()
+        {}
 
-            ISystem::~ISystem()
+        ISystem::~ISystem()
+        {
+            if (auto logSystem = _logSystem.lock())
             {
-                if (auto logSystem = _logSystem.lock())
-                {
-                    logSystem->print(_name, "Delete");
-                }
+                logSystem->print(_name, "Delete");
             }
+        }
 
-            void ISystem::_log(const std::string& value, log::Type type)
+        void ISystem::_log(const std::string& value, log::Type type)
+        {
+            if (auto logSystem = _logSystem.lock())
             {
-                if (auto logSystem = _logSystem.lock())
-                {
-                    logSystem->print(_name, value, type);
-                }
+                logSystem->print(_name, value, type);
             }
         }
     }

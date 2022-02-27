@@ -8,19 +8,16 @@
 
 namespace tl
 {
-    namespace core
+    //! File system.
+    namespace file
     {
-        //! File system.
-        namespace file
-        {
-            // Does a file exist?
-            bool exists(const Path&);
+        // Does a file exist?
+        bool exists(const Path&);
 
-            // Get the temporary directory.
-            std::string getTemp();
+        // Get the temporary directory.
+        std::string getTemp();
 
-            // Create a temporary directory.
-            std::string createTempDir();
-        }
+        // Create a temporary directory.
+        std::string createTempDir();
     }
 }

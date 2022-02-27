@@ -8,30 +8,27 @@
 
 namespace tl
 {
-    namespace tests
+    namespace core_tests
     {
-        namespace core_test
+        class AudioTest : public tests::ITest
         {
-            class AudioTest : public Test::ITest
-            {
-            protected:
-                AudioTest(const std::shared_ptr<core::system::Context>&);
+        protected:
+            AudioTest(const std::shared_ptr<system::Context>&);
 
-            public:
-                static std::shared_ptr<AudioTest> create(const std::shared_ptr<core::system::Context>&);
+        public:
+            static std::shared_ptr<AudioTest> create(const std::shared_ptr<system::Context>&);
 
-                void run() override;
+            void run() override;
 
-            private:
-                void _enums();
-                void _types();
-                void _audio();
-                void _audioSystem();
-                void _mix();
-                void _convert();
-                void _interleave();
-                void _copy();
-            };
-        }
+        private:
+            void _enums();
+            void _types();
+            void _audio();
+            void _audioSystem();
+            void _mix();
+            void _convert();
+            void _interleave();
+            void _copy();
+        };
     }
 }

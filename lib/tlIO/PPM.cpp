@@ -11,169 +11,164 @@
 #include <array>
 #include <sstream>
 
-using namespace tl::core;
-
 namespace tl
 {
-    namespace io
+    namespace ppm
     {
-        namespace ppm
+        TLRENDER_ENUM_IMPL(
+            Data,
+            "ASCII",
+            "Binary");
+        TLRENDER_ENUM_SERIALIZE_IMPL(Data);
+
+        size_t getFileScanlineByteCount(
+            int    width,
+            size_t channelCount,
+            size_t bitDepth)
         {
-            TLRENDER_ENUM_IMPL(
-                Data,
-                "ASCII",
-                "Binary");
-            TLRENDER_ENUM_SERIALIZE_IMPL(Data);
-
-            size_t getFileScanlineByteCount(
-                int    width,
-                size_t channelCount,
-                size_t bitDepth)
+            size_t chars = 0;
+            switch (bitDepth)
             {
-                size_t chars = 0;
-                switch (bitDepth)
-                {
-                case  8: chars = 3; break;
-                case 16: chars = 5; break;
-                default: break;
-                }
-                return (chars + 1) * width * channelCount + 1;
+            case  8: chars = 3; break;
+            case 16: chars = 5; break;
+            default: break;
             }
+            return (chars + 1) * width * channelCount + 1;
+        }
 
-            namespace
-            {
-                template<typename T>
-                void _readASCII(
-                    const std::shared_ptr<file::FileIO>& io,
-                    uint8_t* out,
-                    size_t                               size)
-                {
-                    char tmp[string::cBufferSize] = "";
-                    T* outP = reinterpret_cast<T*>(out);
-                    for (int i = 0; i < size; ++i)
-                    {
-                        file::readWord(io, tmp, string::cBufferSize);
-                        int value = 0;
-                        string::fromString(tmp, string::cBufferSize, value);
-                        outP[i] = value;
-                    }
-                }
-
-            } // namespace
-
-            void readASCII(
+        namespace
+        {
+            template<typename T>
+            void _readASCII(
                 const std::shared_ptr<file::FileIO>& io,
                 uint8_t* out,
-                size_t                               size,
-                size_t                               bitDepth)
+                size_t                               size)
             {
-                switch (bitDepth)
+                char tmp[string::cBufferSize] = "";
+                T* outP = reinterpret_cast<T*>(out);
+                for (int i = 0; i < size; ++i)
                 {
-                case  8: _readASCII<uint8_t>(io, out, size); break;
-                case 16: _readASCII<uint16_t>(io, out, size); break;
-                default: break;
+                    file::readWord(io, tmp, string::cBufferSize);
+                    int value = 0;
+                    string::fromString(tmp, string::cBufferSize, value);
+                    outP[i] = value;
                 }
             }
 
-            namespace
+        } // namespace
+
+        void readASCII(
+            const std::shared_ptr<file::FileIO>& io,
+            uint8_t* out,
+            size_t                               size,
+            size_t                               bitDepth)
+        {
+            switch (bitDepth)
             {
-                template<typename T>
-                size_t _writeASCII(
-                    const uint8_t* in,
-                    char* out,
-                    size_t         size)
-                {
-                    char* outP = out;
-                    const T* inP = reinterpret_cast<const T*>(in);
-                    for (size_t i = 0; i < size; ++i)
-                    {
-                        const std::string s = std::to_string(static_cast<unsigned int>(inP[i]));
-                        const char* c = s.c_str();
-                        for (size_t j = 0; j < s.size(); ++j)
-                        {
-                            *outP++ = c[j];
-                        }
-                        *outP++ = ' ';
-                    }
-                    *outP++ = '\n';
-                    return outP - out;
-                }
+            case  8: _readASCII<uint8_t>(io, out, size); break;
+            case 16: _readASCII<uint16_t>(io, out, size); break;
+            default: break;
+            }
+        }
 
-            } // namespace
-
-            size_t writeASCII(
+        namespace
+        {
+            template<typename T>
+            size_t _writeASCII(
                 const uint8_t* in,
                 char* out,
-                size_t         size,
-                size_t         bitDepth)
+                size_t         size)
             {
-                switch (bitDepth)
+                char* outP = out;
+                const T* inP = reinterpret_cast<const T*>(in);
+                for (size_t i = 0; i < size; ++i)
                 {
-                case  8: return _writeASCII<uint8_t>(in, out, size);
-                case 16: return _writeASCII<uint16_t>(in, out, size);
-                default: break;
+                    const std::string s = std::to_string(static_cast<unsigned int>(inP[i]));
+                    const char* c = s.c_str();
+                    for (size_t j = 0; j < s.size(); ++j)
+                    {
+                        *outP++ = c[j];
+                    }
+                    *outP++ = ' ';
                 }
-                return 0;
+                *outP++ = '\n';
+                return outP - out;
             }
 
-            Plugin::Plugin()
-            {}
+        } // namespace
 
-            std::shared_ptr<Plugin> Plugin::create(const std::weak_ptr<log::System>& logSystem)
+        size_t writeASCII(
+            const uint8_t* in,
+            char* out,
+            size_t         size,
+            size_t         bitDepth)
+        {
+            switch (bitDepth)
             {
-                auto out = std::shared_ptr<Plugin>(new Plugin);
-                out->_init(
-                    "PPM",
-                    { { ".ppm", FileExtensionType::VideoOnly } },
-                    logSystem);
-                return out;
+            case  8: return _writeASCII<uint8_t>(in, out, size);
+            case 16: return _writeASCII<uint16_t>(in, out, size);
+            default: break;
             }
+            return 0;
+        }
 
-            std::shared_ptr<IRead> Plugin::read(
-                const file::Path& path,
-                const Options& options)
-            {
-                return Read::create(path, merge(options, _options), _logSystem);
-            }
+        Plugin::Plugin()
+        {}
 
-            imaging::Info Plugin::getWriteInfo(
-                const imaging::Info& info,
-                const Options& options) const
-            {
-                imaging::Info out;
-                out.size = info.size;
-                switch (info.pixelType)
-                {
-                case imaging::PixelType::L_U8:
-                case imaging::PixelType::L_U16:
-                case imaging::PixelType::RGB_U8:
-                case imaging::PixelType::RGB_U16:
-                    out.pixelType = info.pixelType;
-                    break;
-                default: break;
-                }
-                Data data = Data::Binary;
-                auto option = options.find("ppm/Data");
-                if (option != options.end())
-                {
-                    std::stringstream ss(option->second);
-                    ss >> data;
-                }
-                out.layout.endian = Data::Binary == data ? memory::Endian::MSB : memory::getEndian();
-                return out;
-            }
+        std::shared_ptr<Plugin> Plugin::create(const std::weak_ptr<log::System>& logSystem)
+        {
+            auto out = std::shared_ptr<Plugin>(new Plugin);
+            out->_init(
+                "PPM",
+                { { ".ppm", io::FileExtensionType::VideoOnly } },
+                logSystem);
+            return out;
+        }
 
-            std::shared_ptr<IWrite> Plugin::write(
-                const file::Path& path,
-                const Info& info,
-                const Options& options)
+        std::shared_ptr<io::IRead> Plugin::read(
+            const file::Path& path,
+            const io::Options& options)
+        {
+            return Read::create(path, io::merge(options, _options), _logSystem);
+        }
+
+        imaging::Info Plugin::getWriteInfo(
+            const imaging::Info& info,
+            const io::Options& options) const
+        {
+            imaging::Info out;
+            out.size = info.size;
+            switch (info.pixelType)
             {
-                if (info.video.empty() || (!info.video.empty() && !_isWriteCompatible(info.video[0], options)))
-                    throw std::runtime_error(string::Format("{0}: {1}").
-                        arg(path.get()).
-                        arg("Unsupported video"));
-                return Write::create(path, info, merge(options, _options), _logSystem);
+            case imaging::PixelType::L_U8:
+            case imaging::PixelType::L_U16:
+            case imaging::PixelType::RGB_U8:
+            case imaging::PixelType::RGB_U16:
+                out.pixelType = info.pixelType;
+                break;
+            default: break;
             }
+            Data data = Data::Binary;
+            auto option = options.find("ppm/Data");
+            if (option != options.end())
+            {
+                std::stringstream ss(option->second);
+                ss >> data;
+            }
+            out.layout.endian = Data::Binary == data ? memory::Endian::MSB : memory::getEndian();
+            return out;
+        }
+
+        std::shared_ptr<io::IWrite> Plugin::write(
+            const file::Path& path,
+            const io::Info& info,
+            const io::Options& options)
+        {
+            if (info.video.empty() || (!info.video.empty() && !_isWriteCompatible(info.video[0], options)))
+                throw std::runtime_error(string::Format("{0}: {1}").
+                    arg(path.get()).
+                    arg("Unsupported video"));
+            return Write::create(path, info, io::merge(options, _options), _logSystem);
         }
     }
 }

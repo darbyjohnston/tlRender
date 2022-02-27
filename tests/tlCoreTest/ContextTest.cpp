@@ -8,59 +8,54 @@
 #include <tlCore/Context.h>
 #include <tlCore/ISystem.h>
 
-using namespace tl::core;
-
 namespace tl
 {
-    namespace tests
+    namespace core_tests
     {
-        namespace core_test
+        ContextTest::ContextTest(const std::shared_ptr<system::Context>& context) :
+            ITest("core_tests::ContextTest", context)
+        {}
+
+        std::shared_ptr<ContextTest> ContextTest::create(const std::shared_ptr<system::Context>& context)
         {
-            ContextTest::ContextTest(const std::shared_ptr<system::Context>& context) :
-                ITest("core_test::ContextTest", context)
-            {}
+            return std::shared_ptr<ContextTest>(new ContextTest(context));
+        }
 
-            std::shared_ptr<ContextTest> ContextTest::create(const std::shared_ptr<system::Context>& context)
+        namespace
+        {
+            class TestSystem : public system::ISystem
             {
-                return std::shared_ptr<ContextTest>(new ContextTest(context));
-            }
+                TLRENDER_NON_COPYABLE(TestSystem);
 
-            namespace
-            {
-                class TestSystem : public system::ISystem
+            protected:
+                void _init(const std::shared_ptr<system::Context>& context)
                 {
-                    TLRENDER_NON_COPYABLE(TestSystem);
-
-                protected:
-                    void _init(const std::shared_ptr<system::Context>& context)
-                    {
-                        ISystem::_init("TestSystem", context);
-                        _log("Hello world!");
-                        _log("Hello world!", log::Type::Warning);
-                        _log("Hello world!", log::Type::Error);
-                    }
-
-                    TestSystem()
-                    {}
-
-                public:
-                    static std::shared_ptr<TestSystem> create(const std::shared_ptr<system::Context>& context)
-                    {
-                        auto out = std::shared_ptr<TestSystem>(new TestSystem);
-                        out->_init(context);
-                        return out;
-                    }
-                };
-            }
-
-            void ContextTest::run()
-            {
-                {
-                    auto testSystem = TestSystem::create(_context);
-                    TLRENDER_ASSERT(!_context->getSystem<TestSystem>());
-                    _context->addSystem(testSystem);
-                    TLRENDER_ASSERT(testSystem == _context->getSystem<TestSystem>());
+                    ISystem::_init("TestSystem", context);
+                    _log("Hello world!");
+                    _log("Hello world!", log::Type::Warning);
+                    _log("Hello world!", log::Type::Error);
                 }
+
+                TestSystem()
+                {}
+
+            public:
+                static std::shared_ptr<TestSystem> create(const std::shared_ptr<system::Context>& context)
+                {
+                    auto out = std::shared_ptr<TestSystem>(new TestSystem);
+                    out->_init(context);
+                    return out;
+                }
+            };
+        }
+
+        void ContextTest::run()
+        {
+            {
+                auto testSystem = TestSystem::create(_context);
+                TLRENDER_ASSERT(!_context->getSystem<TestSystem>());
+                _context->addSystem(testSystem);
+                TLRENDER_ASSERT(testSystem == _context->getSystem<TestSystem>());
             }
         }
     }

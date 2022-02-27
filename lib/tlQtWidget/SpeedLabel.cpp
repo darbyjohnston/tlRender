@@ -8,64 +8,59 @@
 #include <QHBoxLayout>
 #include <QLabel>
 
-using namespace tl::core;
-
 namespace tl
 {
-    namespace qt
+    namespace qtwidget
     {
-        namespace widget
+        struct SpeedLabel::Private
         {
-            struct SpeedLabel::Private
-            {
-                otime::RationalTime value = time::invalidTime;
-                QLabel* label = nullptr;
-            };
+            otime::RationalTime value = time::invalidTime;
+            QLabel* label = nullptr;
+        };
 
-            SpeedLabel::SpeedLabel(QWidget* parent) :
-                QWidget(parent),
-                _p(new Private)
-            {
-                TLRENDER_P();
+        SpeedLabel::SpeedLabel(QWidget* parent) :
+            QWidget(parent),
+            _p(new Private)
+        {
+            TLRENDER_P();
 
-                const QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
-                setFont(fixedFont);
+            const QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+            setFont(fixedFont);
 
-                p.label = new QLabel;
+            p.label = new QLabel;
 
-                auto layout = new QHBoxLayout;
-                layout->setContentsMargins(0, 0, 0, 0);
-                layout->setSpacing(0);
-                layout->addWidget(p.label);
-                setLayout(layout);
+            auto layout = new QHBoxLayout;
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(0);
+            layout->addWidget(p.label);
+            setLayout(layout);
 
-                _textUpdate();
-            }
+            _textUpdate();
+        }
 
-            SpeedLabel::~SpeedLabel()
-            {}
+        SpeedLabel::~SpeedLabel()
+        {}
 
-            const otime::RationalTime& SpeedLabel::value() const
-            {
-                return _p->value;
-            }
+        const otime::RationalTime& SpeedLabel::value() const
+        {
+            return _p->value;
+        }
 
-            void SpeedLabel::setValue(const otime::RationalTime& value)
-            {
-                TLRENDER_P();
-                if (value.value() == p.value.value() &&
-                    value.rate() == p.value.rate())
-                    return;
-                p.value = value;
-                _textUpdate();
-            }
+        void SpeedLabel::setValue(const otime::RationalTime& value)
+        {
+            TLRENDER_P();
+            if (value.value() == p.value.value() &&
+                value.rate() == p.value.rate())
+                return;
+            p.value = value;
+            _textUpdate();
+        }
 
-            void SpeedLabel::_textUpdate()
-            {
-                TLRENDER_P();
-                p.label->setText(QString("%1").
-                    arg(p.value != time::invalidTime ? p.value.rate() : 0.0, 0, 'f', 2));
-            }
+        void SpeedLabel::_textUpdate()
+        {
+            TLRENDER_P();
+            p.label->setText(QString("%1").
+                arg(p.value != time::invalidTime ? p.value.rate() : 0.0, 0, 'f', 2));
         }
     }
 }

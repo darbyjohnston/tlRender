@@ -19,7 +19,7 @@ namespace tl
                 Q_OBJECT
 
             public:
-                MainWindow(const std::shared_ptr<core::system::Context>&);
+                MainWindow(const std::shared_ptr<system::Context>&);
             };
         }
     }

@@ -8,23 +8,20 @@
 
 namespace tl
 {
-    namespace tests
+    namespace io_tests
     {
-        namespace io_test
+        class SGITest : public tests::ITest
         {
-            class SGITest : public Test::ITest
-            {
-            protected:
-                SGITest(const std::shared_ptr<core::system::Context>&);
+        protected:
+            SGITest(const std::shared_ptr<system::Context>&);
 
-            public:
-                static std::shared_ptr<SGITest> create(const std::shared_ptr<core::system::Context>&);
+        public:
+            static std::shared_ptr<SGITest> create(const std::shared_ptr<system::Context>&);
 
-                void run() override;
+            void run() override;
 
-            private:
-                void _io();
-            };
-        }
+        private:
+            void _io();
+        };
     }
 }

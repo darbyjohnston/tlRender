@@ -8,7 +8,8 @@
 
 namespace tl
 {
-    namespace core
+    //! Errors.
+    namespace error
     {
 #if defined(_WINDOWS)
         //! Get an error string from a Windows system call.

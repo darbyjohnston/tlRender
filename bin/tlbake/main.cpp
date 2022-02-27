@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
     int r = 0;
     try
     {
-        auto app = tl::app::bake::App::create(argc, argv);
+        auto app = tl::bake::App::create(argc, argv);
         app->run();
         r = app->getExit();
     }

@@ -16,7 +16,7 @@
 int main(int argc, char* argv[])
 {
     // Initialize the tlQtWidget library.
-    tl::qt::widget::init();
+    tl::qtwidget::init();
 
     // Parse the command line.
     if (argc != 2)
@@ -29,14 +29,14 @@ int main(int argc, char* argv[])
     QApplication app(argc, argv);
 
     // Create the context and timeline player.
-    auto context = tl::core::system::Context::create();
+    auto context = tl::system::Context::create();
     context->addSystem(tl::io::System::create(context));
     auto timeline = tl::timeline::Timeline::create(argv[1], context);
     auto timelinePlayer = new tl::qt::TimelinePlayer(
         tl::timeline::TimelinePlayer::create(timeline, context), context);
 
     // Create the timeline viewport.
-    auto timelineViewport = new tl::qt::widget::TimelineViewport(context);
+    auto timelineViewport = new tl::qtwidget::TimelineViewport(context);
     timelineViewport->setTimelinePlayers({ timelinePlayer });
     timelineViewport->show();
 

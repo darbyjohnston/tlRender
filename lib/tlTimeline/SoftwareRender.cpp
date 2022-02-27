@@ -7,8 +7,6 @@
 #include <tlCore/FontSystem.h>
 #include <tlCore/Mesh.h>
 
-using namespace tl::core;
-
 namespace tl
 {
     namespace timeline

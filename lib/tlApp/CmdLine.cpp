@@ -4,8 +4,6 @@
 
 #include <tlApp/CmdLine.h>
 
-using namespace tl::core;
-
 namespace tl
 {
     namespace app

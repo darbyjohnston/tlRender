@@ -17,12 +17,12 @@ namespace tl
             App::App(int& argc, char** argv) :
                 QApplication(argc, argv)
             {
-                _context = core::system::Context::create();
+                _context = system::Context::create();
                 _context->addSystem(io::System::create(_context));
 
                 setStyle("Fusion");
-                setPalette(qt::widget::darkStyle());
-                setStyleSheet(qt::widget::styleSheet());
+                setPalette(qtwidget::darkStyle());
+                setStyleSheet(qtwidget::styleSheet());
 
                 _mainWindow = new MainWindow(_context);
                 _mainWindow->show();

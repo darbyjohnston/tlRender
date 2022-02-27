@@ -16,7 +16,7 @@
 
 namespace tl
 {
-    namespace core
+    namespace error
     {
         std::string getLastError()
         {

@@ -20,7 +20,7 @@ namespace tl
                 IntSlider(QWidget* parent = nullptr);
 
             private:
-                std::vector<qt::widget::IntSlider*> _sliders;
+                std::vector<qtwidget::IntSlider*> _sliders;
             };
         }
     }

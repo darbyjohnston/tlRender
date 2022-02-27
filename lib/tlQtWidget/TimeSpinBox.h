@@ -12,69 +12,66 @@
 
 namespace tl
 {
-    namespace qt
+    namespace qtwidget
     {
-        namespace widget
+        //! Time spin box.
+        class TimeSpinBox : public QAbstractSpinBox
         {
-            //! Time spin box.
-            class TimeSpinBox : public QAbstractSpinBox
-            {
-                Q_OBJECT
-                Q_PROPERTY(
-                    otime::RationalTime value
-                    READ value
-                    WRITE setValue
-                    NOTIFY valueChanged)
-                Q_PROPERTY(
-                    tl::qt::TimeUnits units
-                    READ units
-                    WRITE setUnits
-                    NOTIFY unitsChanged)
+            Q_OBJECT
+            Q_PROPERTY(
+                otime::RationalTime value
+                READ value
+                WRITE setValue
+                NOTIFY valueChanged)
+            Q_PROPERTY(
+                tl::qt::TimeUnits units
+                READ units
+                WRITE setUnits
+                NOTIFY unitsChanged)
 
-            public:
-                TimeSpinBox(QWidget* parent = nullptr);
+        public:
+            TimeSpinBox(QWidget* parent = nullptr);
 
-                ~TimeSpinBox() override;
+            ~TimeSpinBox() override;
 
-                //! Set the time object.
-                void setTimeObject(qt::TimeObject*);
+            //! Set the time object.
+            void setTimeObject(qt::TimeObject*);
 
-                //! Get the time value.
-                const otime::RationalTime& value() const;
+            //! Get the time value.
+            const otime::RationalTime& value() const;
 
-                //! Get the time units.
-                qt::TimeUnits units() const;
+            //! Get the time units.
+            qt::TimeUnits units() const;
 
-                void stepBy(int steps) override;
-                QValidator::State validate(QString&, int& pos) const override;
-                QSize minimumSizeHint() const override;
+            void stepBy(int steps) override;
+            QValidator::State validate(QString&, int& pos) const override;
+            QSize minimumSizeHint() const override;
 
-            public Q_SLOTS:
-                //! Set the time value.
-                void setValue(const otime::RationalTime&);
+        public Q_SLOTS:
+            //! Set the time value.
+            void setValue(const otime::RationalTime&);
 
-                //! Set the time units.
-                void setUnits(tl::qt::TimeUnits);
+            //! Set the time units.
+            void setUnits(tl::qt::TimeUnits);
 
-            Q_SIGNALS:
-                //! This signal is emitted when the time is changed.
-                void valueChanged(const otime::RationalTime&);
+        Q_SIGNALS:
+            //! This signal is emitted when the time is changed.
+            void valueChanged(const otime::RationalTime&);
 
-                //! This signal is emitted when the time units are changed.
-                void unitsChanged(tl::qt::TimeUnits);
+            //! This signal is emitted when the time units are changed.
+            void unitsChanged(tl::qt::TimeUnits);
 
-            protected:
-                QAbstractSpinBox::StepEnabled stepEnabled() const override;
+        protected:
+            QAbstractSpinBox::StepEnabled stepEnabled() const override;
 
-            private Q_SLOTS:
-                void _lineEditCallback();
+        private Q_SLOTS:
+            void _lineEditCallback();
 
-            private:
-                void _vaidatorUpdate();
-                void _textUpdate();
+        private:
+            void _vaidatorUpdate();
+            void _textUpdate();
 
-                TLRENDER_PRIVATE();
-            };
-        }
+            TLRENDER_PRIVATE();
+        };
     }
 }

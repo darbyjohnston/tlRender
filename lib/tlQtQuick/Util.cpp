@@ -8,37 +8,32 @@
 
 #include <tlQt/Util.h>
 
-using namespace tl::core;
-
 namespace tl
 {
-    namespace qt
+    namespace qtquick
     {
-        namespace quick
+        void init()
         {
-            void init()
-            {
-                qt::init();
+            qt::init();
 
-                qmlRegisterType<GLFramebufferObject>("tlQuick", 1, 0, "GLFramebufferObject");
+            qmlRegisterType<GLFramebufferObject>("tlQuick", 1, 0, "GLFramebufferObject");
 
-                QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-            }
+            QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+        }
 
-            namespace
-            {
-                std::weak_ptr<system::Context> _context;
-            }
+        namespace
+        {
+            std::weak_ptr<system::Context> _context;
+        }
 
-            void setContext(const std::shared_ptr<system::Context>& context)
-            {
-                _context = context;
-            }
+        void setContext(const std::shared_ptr<system::Context>& context)
+        {
+            _context = context;
+        }
 
-            const std::weak_ptr<system::Context>& context()
-            {
-                return _context;
-            }
+        const std::weak_ptr<system::Context>& context()
+        {
+            return _context;
         }
     }
 }

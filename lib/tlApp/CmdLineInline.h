@@ -63,7 +63,7 @@ namespace tl
                     }
                     else
                     {
-                        throw core::ParseError();
+                        throw error::ParseError();
                     }
                 }
             }
@@ -86,7 +86,7 @@ namespace tl
                     }
                     else
                     {
-                        throw core::ParseError();
+                        throw error::ParseError();
                     }
                 }
             }
@@ -96,7 +96,7 @@ namespace tl
         inline std::vector<std::string> CmdLineValueOption<T>::getHelpText() const
         {
             std::vector<std::string> out;
-            out.push_back(core::string::join(_names, ", ") + " (value)");
+            out.push_back(string::join(_names, ", ") + " (value)");
             out.push_back(_help);
             if (!_defaultValue.empty())
             {
@@ -168,7 +168,7 @@ namespace tl
             }
             else
             {
-                throw core::ParseError();
+                throw error::ParseError();
             }
         }
 
@@ -183,7 +183,7 @@ namespace tl
             }
             else
             {
-                throw core::ParseError();
+                throw error::ParseError();
             }
         }
     }

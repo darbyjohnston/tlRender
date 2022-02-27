@@ -13,8 +13,6 @@
 #include <QQmlComponent>
 #include <QQmlContext>
 
-using namespace tl::core;
-
 namespace tl
 {
     namespace examples
@@ -45,7 +43,7 @@ namespace tl
                 // Initialize Qt.
                 QCoreApplication::setOrganizationName("tlRender");
                 QCoreApplication::setApplicationName("play-qtquick");
-                qt::quick::setContext(_context);
+                qtquick::setContext(_context);
 
                 // Create objects.
                 _timeObject = new qt::TimeObject(this);

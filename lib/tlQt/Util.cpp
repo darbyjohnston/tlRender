@@ -12,8 +12,6 @@
 
 #include <QSurfaceFormat>
 
-using namespace tl::core;
-
 namespace tl
 {
     namespace qt
@@ -23,45 +21,45 @@ namespace tl
             qRegisterMetaType<otime::RationalTime>("otime::RationalTime");
             qRegisterMetaType<otime::TimeRange>("otime::TimeRange");
 
-            qRegisterMetaType<audio::DataType>("tl::core::audio::DataType");
-            qRegisterMetaType<audio::DeviceFormat>("tl::core::audio::DeviceFormat");
-            qRegisterMetaType<audio::Device>("tl::core::audio::Device");
+            qRegisterMetaType<audio::DataType>("tl::audio::DataType");
+            qRegisterMetaType<audio::DeviceFormat>("tl::audio::DeviceFormat");
+            qRegisterMetaType<audio::Device>("tl::audio::Device");
             QMetaType::registerComparators<audio::DataType>();
             QMetaType::registerComparators<audio::DeviceFormat>();
 
-            qRegisterMetaType<log::Item>("tl::core::log::Item");
-            qRegisterMetaType<log::Type>("tl::core::log::Type");
+            qRegisterMetaType<log::Item>("tl::log::Item");
+            qRegisterMetaType<log::Type>("tl::log::Type");
             QMetaType::registerComparators<log::Type>();
 
-            qRegisterMetaType<file::Mode>("tl::core::file::Mode");
-            qRegisterMetaType<file::PathOptions>("tl::core::file::PathOptions");
+            qRegisterMetaType<file::Mode>("tl::file::Mode");
+            qRegisterMetaType<file::PathOptions>("tl::file::PathOptions");
             QMetaType::registerComparators<file::Mode>();
 
-            qRegisterMetaType<geom::Triangle2>("tl::core::geom::Triangle2");
-            qRegisterMetaType<geom::Triangle3>("tl::core::geom::Triangle3");
-            qRegisterMetaType<geom::Triangle2>("tl::core::geom::TriangleMesh2");
-            qRegisterMetaType<geom::Triangle3>("tl::core::geom::TriangleMesh3");
-            qRegisterMetaType<geom::Vertex2>("tl::core::geom::Vertex2");
-            qRegisterMetaType<geom::Vertex3>("tl::core::geom::Vertex3");
+            qRegisterMetaType<geom::Triangle2>("tl::geom::Triangle2");
+            qRegisterMetaType<geom::Triangle3>("tl::geom::Triangle3");
+            qRegisterMetaType<geom::Triangle2>("tl::geom::TriangleMesh2");
+            qRegisterMetaType<geom::Triangle3>("tl::geom::TriangleMesh3");
+            qRegisterMetaType<geom::Vertex2>("tl::geom::Vertex2");
+            qRegisterMetaType<geom::Vertex3>("tl::geom::Vertex3");
 
-            qRegisterMetaType<imaging::ColorConfig>("tl::core::imaging::ColorConfig");
-            qRegisterMetaType<imaging::FontInfo>("tl::core::imaging::FontInfo");
-            qRegisterMetaType<imaging::FontFamily>("tl::core::imaging::FontFamily");
-            qRegisterMetaType<imaging::FontMetrics>("tl::core::imaging::FontMetrics");
-            qRegisterMetaType<imaging::GlyphInfo>("tl::core::imaging::GlyphInfo");
-            qRegisterMetaType<imaging::Glyph>("tl::core::imaging::Glyph");
-            qRegisterMetaType<imaging::PixelType>("tl::core::imaging::PixelType");
-            qRegisterMetaType<imaging::Size>("tl::core::imaging::Size");
-            qRegisterMetaType<imaging::YUVRange>("tl::core::imaging::YUVRange");
+            qRegisterMetaType<imaging::ColorConfig>("tl::imaging::ColorConfig");
+            qRegisterMetaType<imaging::FontInfo>("tl::imaging::FontInfo");
+            qRegisterMetaType<imaging::FontFamily>("tl::imaging::FontFamily");
+            qRegisterMetaType<imaging::FontMetrics>("tl::imaging::FontMetrics");
+            qRegisterMetaType<imaging::GlyphInfo>("tl::imaging::GlyphInfo");
+            qRegisterMetaType<imaging::Glyph>("tl::imaging::Glyph");
+            qRegisterMetaType<imaging::PixelType>("tl::imaging::PixelType");
+            qRegisterMetaType<imaging::Size>("tl::imaging::Size");
+            qRegisterMetaType<imaging::YUVRange>("tl::imaging::YUVRange");
             QMetaType::registerComparators<imaging::FontFamily>();
 
-            qRegisterMetaType<memory::Endian>("tl::core::memory::Endian");
+            qRegisterMetaType<memory::Endian>("tl::memory::Endian");
             QMetaType::registerComparators<memory::Endian>();
 
-            qRegisterMetaType<observer::CallbackAction>("tl::core::observer::CallbackAction");
+            qRegisterMetaType<observer::CallbackAction>("tl::observer::CallbackAction");
 
-            qRegisterMetaType<os::EnvListSeparator>("tl::core::os::EnvListSeparator");
-            qRegisterMetaType<os::SystemInfo>("tl::core::os::SystemInfo");
+            qRegisterMetaType<os::EnvListSeparator>("tl::os::EnvListSeparator");
+            qRegisterMetaType<os::SystemInfo>("tl::os::SystemInfo");
             QMetaType::registerComparators<os::EnvListSeparator>();
 
             qRegisterMetaType<io::FileExtensionType>("tl::io::FileExtensionType");

@@ -36,12 +36,12 @@ namespace tl
             //! Application options.
             struct Options
             {
-                core::imaging::Size windowSize = core::imaging::Size(1280, 720);
+                imaging::Size windowSize = imaging::Size(1280, 720);
                 bool fullScreen = false;
                 bool hud = true;
                 bool startPlayback = true;
                 bool loopPlayback = true;
-                core::imaging::ColorConfig colorConfig;
+                imaging::ColorConfig colorConfig;
                 RenderType renderType = RenderType::GL;
             };
 
@@ -92,10 +92,10 @@ namespace tl
                 std::shared_ptr<timeline::TimelinePlayer> _timelinePlayer;
 
                 GLFWwindow* _glfwWindow = nullptr;
-                core::math::Vector2i _windowPos;
-                core::imaging::Size _frameBufferSize;
-                core::math::Vector2f _contentScale;
-                std::shared_ptr<core::imaging::FontSystem> _fontSystem;
+                math::Vector2i _windowPos;
+                imaging::Size _frameBufferSize;
+                math::Vector2f _contentScale;
+                std::shared_ptr<imaging::FontSystem> _fontSystem;
                 std::shared_ptr<timeline::IRender> _render;
                 std::shared_ptr<timeline::IRender> _glRender;
                 bool _renderDirty = true;

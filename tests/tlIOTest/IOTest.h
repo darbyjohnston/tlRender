@@ -8,25 +8,22 @@
 
 namespace tl
 {
-    namespace tests
+    namespace io_tests
     {
-        namespace io_test
+        class IOTest : public tests::ITest
         {
-            class IOTest : public Test::ITest
-            {
-            protected:
-                IOTest(const std::shared_ptr<core::system::Context>&);
+        protected:
+            IOTest(const std::shared_ptr<system::Context>&);
 
-            public:
-                static std::shared_ptr<IOTest> create(const std::shared_ptr<core::system::Context>&);
+        public:
+            static std::shared_ptr<IOTest> create(const std::shared_ptr<system::Context>&);
 
-                void run() override;
+            void run() override;
 
-            private:
-                void _enums();
-                void _videoData();
-                void _ioSystem();
-            };
-        }
+        private:
+            void _enums();
+            void _videoData();
+            void _ioSystem();
+        };
     }
 }

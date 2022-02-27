@@ -10,13 +10,13 @@
 
 namespace tl
 {
-    //! OpenGL functionality.
+    //! OpenGL renderer.
     namespace gl
     {
         //! Get the glReadPixels format.
-        GLenum getReadPixelsFormat(core::imaging::PixelType);
+        GLenum getReadPixelsFormat(imaging::PixelType);
 
         //! Get the glReadPixels type.
-        GLenum getReadPixelsType(core::imaging::PixelType);
+        GLenum getReadPixelsType(imaging::PixelType);
     }
 }

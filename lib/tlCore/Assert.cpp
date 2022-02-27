@@ -10,7 +10,7 @@
 
 namespace tl
 {
-    namespace core
+    namespace error
     {
         void _assert(const char* file, int line)
         {

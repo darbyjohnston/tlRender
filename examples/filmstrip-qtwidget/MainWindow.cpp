@@ -13,8 +13,6 @@
 #include <QMessageBox>
 #include <QMimeData>
 
-using namespace tl::core;
-
 namespace tl
 {
     namespace examples
@@ -30,7 +28,7 @@ namespace tl
             {
                 setAcceptDrops(true);
 
-                _filmstripWidget = new qt::widget::FilmstripWidget;
+                _filmstripWidget = new qtwidget::FilmstripWidget;
                 _filmstripWidget->setRowCount(5);
                 setCentralWidget(_filmstripWidget);
 

@@ -11,8 +11,6 @@
 #include <cmath>
 #include <cstdlib>
 
-using namespace tl::core;
-
 namespace tl
 {
     namespace timeline

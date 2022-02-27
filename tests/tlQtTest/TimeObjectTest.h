@@ -8,20 +8,17 @@
 
 namespace tl
 {
-    namespace tests
+    namespace qt_tests
     {
-        namespace qt_test
+        class TimeObjectTest : public tests::ITest
         {
-            class TimeObjectTest : public Test::ITest
-            {
-            protected:
-                TimeObjectTest(const std::shared_ptr<core::system::Context>&);
+        protected:
+            TimeObjectTest(const std::shared_ptr<system::Context>&);
 
-            public:
-                static std::shared_ptr<TimeObjectTest> create(const std::shared_ptr<core::system::Context>&);
+        public:
+            static std::shared_ptr<TimeObjectTest> create(const std::shared_ptr<system::Context>&);
 
-                void run() override;
-            };
-        }
+            void run() override;
+        };
     }
 }

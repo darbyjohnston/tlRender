@@ -9,31 +9,27 @@
 
 #include <sstream>
 
-using namespace tl::core;
-using namespace tl::core::file;
+using namespace tl::file;
 
 namespace tl
 {
-    namespace tests
+    namespace core_tests
     {
-        namespace core_test
+        FileTest::FileTest(const std::shared_ptr<system::Context>& context) :
+            ITest("core_tests::FileTest", context)
+        {}
+
+        std::shared_ptr<FileTest> FileTest::create(const std::shared_ptr<system::Context>& context)
         {
-            FileTest::FileTest(const std::shared_ptr<system::Context>& context) :
-                ITest("core_test::FileTest", context)
-            {}
+            return std::shared_ptr<FileTest>(new FileTest(context));
+        }
 
-            std::shared_ptr<FileTest> FileTest::create(const std::shared_ptr<system::Context>& context)
+        void FileTest::run()
+        {
             {
-                return std::shared_ptr<FileTest>(new FileTest(context));
-            }
-
-            void FileTest::run()
-            {
-                {
-                    std::stringstream ss;
-                    ss << "Temp dir:" << createTempDir();
-                    _print(ss.str());
-                }
+                std::stringstream ss;
+                ss << "Temp dir:" << createTempDir();
+                _print(ss.str());
             }
         }
     }

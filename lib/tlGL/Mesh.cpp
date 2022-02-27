@@ -2,14 +2,12 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include <tlRenderGL/Mesh.h>
+#include <tlGL/Mesh.h>
 
 #include <tlCore/Math.h>
 #include <tlCore/Mesh.h>
 
 #include <array>
-
-using namespace tl::core;
 
 namespace tl
 {

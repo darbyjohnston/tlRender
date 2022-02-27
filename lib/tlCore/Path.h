@@ -11,73 +11,70 @@
 
 namespace tl
 {
-    namespace core
+    namespace file
     {
-        namespace file
+        //! File system path options.
+        struct PathOptions
         {
-            //! File system path options.
-            struct PathOptions
-            {
-                uint8_t maxNumberDigits = 9;
+            uint8_t maxNumberDigits = 9;
 
-                bool operator == (const PathOptions&) const;
-                bool operator != (const PathOptions&) const;
-            };
+            bool operator == (const PathOptions&) const;
+            bool operator != (const PathOptions&) const;
+        };
 
-            //! File system path.
-            class Path
-            {
-            public:
-                Path();
-                explicit Path(
-                    const std::string&,
-                    const PathOptions & = PathOptions());
-                Path(
-                    const std::string&,
-                    const std::string&,
-                    const PathOptions & = PathOptions());
-                Path(
-                    const std::string& directory,
-                    const std::string& baseName,
-                    const std::string& number,
-                    uint8_t padding,
-                    const std::string& extension);
+        //! File system path.
+        class Path
+        {
+        public:
+            Path();
+            explicit Path(
+                const std::string&,
+                const PathOptions & = PathOptions());
+            Path(
+                const std::string&,
+                const std::string&,
+                const PathOptions & = PathOptions());
+            Path(
+                const std::string& directory,
+                const std::string& baseName,
+                const std::string& number,
+                uint8_t padding,
+                const std::string& extension);
 
-                //! Get the path.
-                std::string get(int number = -1, bool directory = true) const;
+            //! Get the path.
+            std::string get(int number = -1, bool directory = true) const;
 
-                //! Get the directory.
-                const std::string& getDirectory() const;
+            //! Get the directory.
+            const std::string& getDirectory() const;
 
-                //! Get the base name.
-                const std::string& getBaseName() const;
+            //! Get the base name.
+            const std::string& getBaseName() const;
 
-                //! Get the number.
-                const std::string& getNumber() const;
+            //! Get the number.
+            const std::string& getNumber() const;
 
-                //! Get the number zero padding.
-                uint8_t getPadding() const;
+            //! Get the number zero padding.
+            uint8_t getPadding() const;
 
-                //! Get the extension.
-                const std::string& getExtension() const;
+            //! Get the extension.
+            const std::string& getExtension() const;
 
-                //! Is the path empty?
-                bool isEmpty() const;
+            //! Is the path empty?
+            bool isEmpty() const;
 
-                //! Is the path absolute?
-                bool isAbsolute() const;
+            //! Is the path absolute?
+            bool isAbsolute() const;
 
-                bool operator == (const Path&) const;
-                bool operator != (const Path&) const;
+            bool operator == (const Path&) const;
+            bool operator != (const Path&) const;
 
-            private:
-                std::string _directory;
-                std::string _baseName;
-                std::string _number;
-                uint8_t _padding = 0;
-                std::string _extension;
-            };
-        }
+        private:
+            std::string _directory;
+            std::string _baseName;
+            std::string _number;
+            uint8_t _padding = 0;
+            std::string _extension;
+        };
     }
 }
 

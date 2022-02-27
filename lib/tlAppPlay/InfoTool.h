@@ -13,29 +13,26 @@ namespace tl
         struct Info;
     }
 
-    namespace app
+    namespace play
     {
-        namespace play
+        class App;
+
+        //! Information tool.
+        class InfoTool : public ToolWidget
         {
-            class App;
+            Q_OBJECT
 
-            //! Information tool.
-            class InfoTool : public ToolWidget
-            {
-                Q_OBJECT
+        public:
+            InfoTool(
+                App*,
+                QWidget* parent = nullptr);
 
-            public:
-                InfoTool(
-                    App*,
-                    QWidget* parent = nullptr);
+            ~InfoTool() override;
 
-                ~InfoTool() override;
+            void setInfo(const io::Info&);
 
-                void setInfo(const io::Info&);
-
-            private:
-                TLRENDER_PRIVATE();
-            };
-        }
+        private:
+            TLRENDER_PRIVATE();
+        };
     }
 }

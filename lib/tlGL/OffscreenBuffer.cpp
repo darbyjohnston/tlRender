@@ -2,14 +2,12 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include <tlRenderGL/OffscreenBuffer.h>
+#include <tlGL/OffscreenBuffer.h>
 
-#include <tlRenderGL/Texture.h>
+#include <tlGL/Texture.h>
 
 #include <array>
 #include <sstream>
-
-using namespace tl::core;
 
 namespace tl
 {

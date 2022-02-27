@@ -16,39 +16,36 @@
 
 namespace tl
 {
-    namespace app
+    namespace play
     {
-        namespace play
+        class App;
+
+        //! Compare actions.
+        class CompareActions : public QObject
         {
-            class App;
+            Q_OBJECT
 
-            //! Compare actions.
-            class CompareActions : public QObject
-            {
-                Q_OBJECT
+        public:
+            CompareActions(App*, QObject* parent = nullptr);
 
-            public:
-                CompareActions(App*, QObject* parent = nullptr);
+            ~CompareActions() override;
 
-                ~CompareActions() override;
+            //! Get the actions.
+            const QMap<QString, QAction*>& actions() const;
 
-                //! Get the actions.
-                const QMap<QString, QAction*>& actions() const;
+            //! Get the menu.
+            QMenu* menu() const;
 
-                //! Get the menu.
-                QMenu* menu() const;
+            //! Set the comparison options.
+            void setCompareOptions(const timeline::CompareOptions&);
 
-                //! Set the comparison options.
-                void setCompareOptions(const timeline::CompareOptions&);
+            //! Set the timeline players.
+            void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
 
-                //! Set the timeline players.
-                void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
+        private:
+            void _actionsUpdate();
 
-            private:
-                void _actionsUpdate();
-
-                TLRENDER_PRIVATE();
-            };
-        }
+            TLRENDER_PRIVATE();
+        };
     }
 }

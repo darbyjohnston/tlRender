@@ -12,42 +12,36 @@
 
 namespace tl
 {
-    namespace core
+    namespace system
     {
-        namespace system
-        {
-            class Context;
-        }
+        class Context;
     }
 
-    namespace app
+    namespace play
     {
-        namespace play
+        //! Open with audio dialog.
+        class OpenWithAudioDialog : public QDialog
         {
-            //! Open with audio dialog.
-            class OpenWithAudioDialog : public QDialog
-            {
-                Q_OBJECT
+            Q_OBJECT
 
-            public:
-                OpenWithAudioDialog(
-                    const std::shared_ptr<core::system::Context>&,
-                    QWidget* parent = nullptr);
+        public:
+            OpenWithAudioDialog(
+                const std::shared_ptr<system::Context>&,
+                QWidget* parent = nullptr);
 
-                ~OpenWithAudioDialog() override;
+            ~OpenWithAudioDialog() override;
 
-                const QString& videoFileName() const;
-                const QString& audioFileName() const;
+            const QString& videoFileName() const;
+            const QString& audioFileName() const;
 
-            private Q_SLOTS:
-                void _videoLineEditCallback(const QString&);
-                void _browseVideoCallback();
-                void _audioLineEditCallback(const QString&);
-                void _browseAudioCallback();
+        private Q_SLOTS:
+            void _videoLineEditCallback(const QString&);
+            void _browseVideoCallback();
+            void _audioLineEditCallback(const QString&);
+            void _browseAudioCallback();
 
-            private:
-                TLRENDER_PRIVATE();
-            };
-        }
+        private:
+            TLRENDER_PRIVATE();
+        };
     }
 }

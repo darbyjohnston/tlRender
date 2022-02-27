@@ -14,36 +14,33 @@
 
 namespace tl
 {
-    namespace app
+    namespace play
     {
-        namespace play
+        class App;
+
+        //! View actions.
+        class ViewActions : public QObject
         {
-            class App;
+            Q_OBJECT
 
-            //! View actions.
-            class ViewActions : public QObject
-            {
-                Q_OBJECT
+        public:
+            ViewActions(App*, QObject* parent = nullptr);
 
-            public:
-                ViewActions(App*, QObject* parent = nullptr);
+            ~ViewActions() override;
 
-                ~ViewActions() override;
+            //! Get the actions.
+            const QMap<QString, QAction*>& actions() const;
 
-                //! Get the actions.
-                const QMap<QString, QAction*>& actions() const;
+            //! Get the menu.
+            QMenu* menu() const;
 
-                //! Get the menu.
-                QMenu* menu() const;
+            //! Set the timeline players.
+            void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
 
-                //! Set the timeline players.
-                void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
+        private:
+            void _actionsUpdate();
 
-            private:
-                void _actionsUpdate();
-
-                TLRENDER_PRIVATE();
-            };
-        }
+            TLRENDER_PRIVATE();
+        };
     }
 }

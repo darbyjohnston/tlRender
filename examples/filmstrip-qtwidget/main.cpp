@@ -13,7 +13,7 @@ int main(int argc, char* argv[])
     int r = 0;
     try
     {
-        tl::qt::widget::init();
+        tl::qtwidget::init();
         tl::examples::filmstrip_qtwidget::App app(argc, argv);
         if (0 == app.getExit())
         {

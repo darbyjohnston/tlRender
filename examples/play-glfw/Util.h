@@ -28,10 +28,10 @@ namespace tl
             //! Draw a HUD label.
             void drawHUDLabel(
                 const std::shared_ptr<timeline::IRender>&,
-                const std::shared_ptr<core::imaging::FontSystem>&,
-                const core::imaging::Size& window,
+                const std::shared_ptr<imaging::FontSystem>&,
+                const imaging::Size& window,
                 const std::string& text,
-                core::imaging::FontFamily,
+                imaging::FontFamily,
                 uint16_t fontSize,
                 HUDElement);
         }

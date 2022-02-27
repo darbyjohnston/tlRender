@@ -11,125 +11,122 @@
 
 namespace tl
 {
-    namespace core
+    namespace math
     {
-        namespace math
+        std::ostream& operator << (std::ostream& os, const Vector2i& value)
         {
-            std::ostream& operator << (std::ostream& os, const Vector2i& value)
-            {
-                os << value.x << "," << value.y;
-                return os;
-            }
+            os << value.x << "," << value.y;
+            return os;
+        }
 
-            std::ostream& operator << (std::ostream& os, const Vector2f& value)
-            {
-                os << value.x << "," << value.y;
-                return os;
-            }
+        std::ostream& operator << (std::ostream& os, const Vector2f& value)
+        {
+            os << value.x << "," << value.y;
+            return os;
+        }
 
-            std::ostream& operator << (std::ostream& os, const Vector3f& value)
-            {
-                os << value.x << "," << value.y << "," << value.z;
-                return os;
-            }
+        std::ostream& operator << (std::ostream& os, const Vector3f& value)
+        {
+            os << value.x << "," << value.y << "," << value.z;
+            return os;
+        }
 
-            std::ostream& operator << (std::ostream& os, const Vector4f& value)
-            {
-                os << value.x << "," << value.y << "," << value.z << "," << value.w;
-                return os;
-            }
+        std::ostream& operator << (std::ostream& os, const Vector4f& value)
+        {
+            os << value.x << "," << value.y << "," << value.z << "," << value.w;
+            return os;
+        }
 
-            std::istream& operator >> (std::istream& is, Vector2i& value)
+        std::istream& operator >> (std::istream& is, Vector2i& value)
+        {
+            std::string s;
+            is >> s;
+            auto split = string::split(s, ',');
+            if (split.size() != 2)
             {
-                std::string s;
-                is >> s;
-                auto split = string::split(s, ',');
-                if (split.size() != 2)
-                {
-                    throw ParseError();
-                }
-                {
-                    std::stringstream ss(split[0]);
-                    ss >> value.x;
-                }
-                {
-                    std::stringstream ss(split[1]);
-                    ss >> value.y;
-                }
-                return is;
+                throw error::ParseError();
             }
+            {
+                std::stringstream ss(split[0]);
+                ss >> value.x;
+            }
+            {
+                std::stringstream ss(split[1]);
+                ss >> value.y;
+            }
+            return is;
+        }
 
-            std::istream& operator >> (std::istream& is, Vector2f& value)
+        std::istream& operator >> (std::istream& is, Vector2f& value)
+        {
+            std::string s;
+            is >> s;
+            auto split = string::split(s, ',');
+            if (split.size() != 2)
             {
-                std::string s;
-                is >> s;
-                auto split = string::split(s, ',');
-                if (split.size() != 2)
-                {
-                    throw ParseError();
-                }
-                {
-                    std::stringstream ss(split[0]);
-                    ss >> value.x;
-                }
-                {
-                    std::stringstream ss(split[1]);
-                    ss >> value.y;
-                }
-                return is;
+                throw error::ParseError();
             }
+            {
+                std::stringstream ss(split[0]);
+                ss >> value.x;
+            }
+            {
+                std::stringstream ss(split[1]);
+                ss >> value.y;
+            }
+            return is;
+        }
 
-            std::istream& operator >> (std::istream& is, Vector3f& value)
+        std::istream& operator >> (std::istream& is, Vector3f& value)
+        {
+            std::string s;
+            is >> s;
+            auto split = string::split(s, ',');
+            if (split.size() != 3)
             {
-                std::string s;
-                is >> s;
-                auto split = string::split(s, ',');
-                if (split.size() != 3)
-                {
-                    throw ParseError();
-                }
-                {
-                    std::stringstream ss(split[0]);
-                    ss >> value.x;
-                }
-                {
-                    std::stringstream ss(split[1]);
-                    ss >> value.y;
-                }
-                {
-                    std::stringstream ss(split[2]);
-                    ss >> value.z;
-                }
-                return is;
+                throw error::ParseError();
             }
+            {
+                std::stringstream ss(split[0]);
+                ss >> value.x;
+            }
+            {
+                std::stringstream ss(split[1]);
+                ss >> value.y;
+            }
+            {
+                std::stringstream ss(split[2]);
+                ss >> value.z;
+            }
+            return is;
+        }
 
-            std::istream& operator >> (std::istream& is, Vector4f& value)
+        std::istream& operator >> (std::istream& is, Vector4f& value)
+        {
+            std::string s;
+            is >> s;
+            auto split = string::split(s, ',');
+            if (split.size() != 4)
             {
-                std::string s;
-                is >> s;
-                auto split = string::split(s, ',');
-                if (split.size() != 4)
-                {
-                    throw ParseError();
-                }
-                {
-                    std::stringstream ss(split[0]);
-                    ss >> value.x;
-                }
-                {
-                    std::stringstream ss(split[1]);
-                    ss >> value.y;
-                }
-                {
-                    std::stringstream ss(split[2]);
-                    ss >> value.z;
-                }
-                {
-                    std::stringstream ss(split[3]);
-                    ss >> value.w;
-                }
-                return is;
+                throw error::ParseError();
             }
+            {
+                std::stringstream ss(split[0]);
+                ss >> value.x;
+            }
+            {
+                std::stringstream ss(split[1]);
+                ss >> value.y;
+            }
+            {
+                std::stringstream ss(split[2]);
+                ss >> value.z;
+            }
+            {
+                std::stringstream ss(split[3]);
+                ss >> value.w;
+            }
+            return is;
         }
     }
 }

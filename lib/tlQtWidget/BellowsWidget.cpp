@@ -10,91 +10,88 @@
 
 namespace tl
 {
-    namespace qt
+    namespace qtwidget
     {
-        namespace widget
+        struct BellowsWidget::Private
         {
-            struct BellowsWidget::Private
+            BellowsButton* button = nullptr;
+            QWidget* widget = nullptr;
+            QVBoxLayout* layout = nullptr;
+        };
+
+        BellowsWidget::BellowsWidget(QWidget* parent) :
+            QWidget(parent),
+            _p(new Private)
+        {
+            TLRENDER_P();
+
+            p.button = new BellowsButton;
+
+            auto layout = new QVBoxLayout;
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(0);
+            layout->addWidget(p.button);
+            p.layout = new QVBoxLayout;
+            layout->addLayout(p.layout);
+            setLayout(layout);
+
+            _widgetUpdate();
+
+            connect(
+                p.button,
+                SIGNAL(openChanged(bool)),
+                SLOT(_openCallback()));
+        }
+
+        BellowsWidget::~BellowsWidget()
+        {}
+
+        void BellowsWidget::setWidget(QWidget* widget)
+        {
+            TLRENDER_P();
+            if (p.widget)
             {
-                BellowsButton* button = nullptr;
-                QWidget* widget = nullptr;
-                QVBoxLayout* layout = nullptr;
-            };
-
-            BellowsWidget::BellowsWidget(QWidget* parent) :
-                QWidget(parent),
-                _p(new Private)
-            {
-                TLRENDER_P();
-
-                p.button = new BellowsButton;
-
-                auto layout = new QVBoxLayout;
-                layout->setContentsMargins(0, 0, 0, 0);
-                layout->setSpacing(0);
-                layout->addWidget(p.button);
-                p.layout = new QVBoxLayout;
-                layout->addLayout(p.layout);
-                setLayout(layout);
-
-                _widgetUpdate();
-
-                connect(
-                    p.button,
-                    SIGNAL(openChanged(bool)),
-                    SLOT(_openCallback()));
+                delete p.widget;
             }
-
-            BellowsWidget::~BellowsWidget()
-            {}
-
-            void BellowsWidget::setWidget(QWidget* widget)
+            p.widget = widget;
+            if (p.widget)
             {
-                TLRENDER_P();
-                if (p.widget)
-                {
-                    delete p.widget;
-                }
-                p.widget = widget;
-                if (p.widget)
-                {
-                    p.layout->addWidget(p.widget);
-                }
-                _widgetUpdate();
+                p.layout->addWidget(p.widget);
             }
+            _widgetUpdate();
+        }
 
-            bool BellowsWidget::isOpen() const
-            {
-                return _p->button->isOpen();
-            }
+        bool BellowsWidget::isOpen() const
+        {
+            return _p->button->isOpen();
+        }
 
-            QString BellowsWidget::title() const
-            {
-                return _p->button->text();
-            }
+        QString BellowsWidget::title() const
+        {
+            return _p->button->text();
+        }
 
-            void BellowsWidget::setTitle(const QString& value)
-            {
-                _p->button->setText(value);
-            }
+        void BellowsWidget::setTitle(const QString& value)
+        {
+            _p->button->setText(value);
+        }
 
-            void BellowsWidget::setOpen(bool value)
-            {
-                _p->button->setOpen(value);
-            }
+        void BellowsWidget::setOpen(bool value)
+        {
+            _p->button->setOpen(value);
+        }
 
-            void BellowsWidget::_openCallback()
-            {
-                _widgetUpdate();
-            }
+        void BellowsWidget::_openCallback()
+        {
+            _widgetUpdate();
+        }
 
-            void BellowsWidget::_widgetUpdate()
+        void BellowsWidget::_widgetUpdate()
+        {
+            TLRENDER_P();
+            if (p.widget)
             {
-                TLRENDER_P();
-                if (p.widget)
-                {
-                    p.widget->setVisible(p.button->isOpen());
-                }
+                p.widget->setVisible(p.button->isOpen());
             }
         }
     }

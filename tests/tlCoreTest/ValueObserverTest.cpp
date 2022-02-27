@@ -7,56 +7,51 @@
 #include <tlCore/Assert.h>
 #include <tlCore/ValueObserver.h>
 
-using namespace tl::core;
-
 namespace tl
 {
-    namespace tests
+    namespace core_tests
     {
-        namespace core_test
+        ValueObserverTest::ValueObserverTest(const std::shared_ptr<system::Context>& context) :
+            ITest("core_tests::ValueObserverTest", context)
+        {}
+
+        std::shared_ptr<ValueObserverTest> ValueObserverTest::create(const std::shared_ptr<system::Context>& context)
         {
-            ValueObserverTest::ValueObserverTest(const std::shared_ptr<system::Context>& context) :
-                ITest("core_test::ValueObserverTest", context)
-            {}
+            return std::shared_ptr<ValueObserverTest>(new ValueObserverTest(context));
+        }
 
-            std::shared_ptr<ValueObserverTest> ValueObserverTest::create(const std::shared_ptr<system::Context>& context)
-            {
-                return std::shared_ptr<ValueObserverTest>(new ValueObserverTest(context));
-            }
+        void ValueObserverTest::run()
+        {
+            auto value = observer::Value<int>::create(0);
+            TLRENDER_ASSERT(0 == value->get());
 
-            void ValueObserverTest::run()
-            {
-                auto value = observer::Value<int>::create(0);
-                TLRENDER_ASSERT(0 == value->get());
-
-                int result = 0;
-                auto observer = observer::ValueObserver<int>::create(
-                    value,
-                    [&result](int value)
-                    {
-                        result = value;
-                    });
-                bool changed = value->setIfChanged(1);
-                TLRENDER_ASSERT(changed);
-                TLRENDER_ASSERT(1 == result);
-
+            int result = 0;
+            auto observer = observer::ValueObserver<int>::create(
+                value,
+                [&result](int value)
                 {
-                    int result2 = 0;
-                    auto observer2 = observer::ValueObserver<int>::create(
-                        value,
-                        [&result2](int value)
-                        {
-                            result2 = value;
-                        });
-                    value->setIfChanged(2);
-                    TLRENDER_ASSERT(2 == result);
-                    TLRENDER_ASSERT(2 == result2);
+                    result = value;
+                });
+            bool changed = value->setIfChanged(1);
+            TLRENDER_ASSERT(changed);
+            TLRENDER_ASSERT(1 == result);
 
-                    TLRENDER_ASSERT(2 == value->getObserversCount());
-                }
+            {
+                int result2 = 0;
+                auto observer2 = observer::ValueObserver<int>::create(
+                    value,
+                    [&result2](int value)
+                    {
+                        result2 = value;
+                    });
+                value->setIfChanged(2);
+                TLRENDER_ASSERT(2 == result);
+                TLRENDER_ASSERT(2 == result2);
 
-                TLRENDER_ASSERT(1 == value->getObserversCount());
+                TLRENDER_ASSERT(2 == value->getObserversCount());
             }
+
+            TLRENDER_ASSERT(1 == value->getObserversCount());
         }
     }
 }

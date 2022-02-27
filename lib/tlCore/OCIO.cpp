@@ -6,10 +6,7 @@
 
 namespace tl
 {
-    namespace core
+    namespace imaging
     {
-        namespace imaging
-        {
-        }
     }
 }

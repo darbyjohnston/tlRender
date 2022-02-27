@@ -8,20 +8,17 @@
 
 namespace tl
 {
-    namespace tests
+    namespace core_tests
     {
-        namespace core_test
+        class ErrorTest : public tests::ITest
         {
-            class ErrorTest : public Test::ITest
-            {
-            protected:
-                ErrorTest(const std::shared_ptr<core::system::Context>&);
+        protected:
+            ErrorTest(const std::shared_ptr<system::Context>&);
 
-            public:
-                static std::shared_ptr<ErrorTest> create(const std::shared_ptr<core::system::Context>&);
+        public:
+            static std::shared_ptr<ErrorTest> create(const std::shared_ptr<system::Context>&);
 
-                void run() override;
-            };
-        }
+            void run() override;
+        };
     }
 }

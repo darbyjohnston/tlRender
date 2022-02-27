@@ -22,7 +22,7 @@
 
 namespace tl
 {
-    //! Functionality for the tlRender applications.
+    //! Application support.
     namespace app
     {
         class ICmdLineArg;
@@ -34,12 +34,12 @@ namespace tl
             float sequenceDefaultSpeed = io::sequenceDefaultSpeed;
             int sequenceThreadCount = io::sequenceThreadCount;
 #if defined(OpenEXR_FOUND)
-            io::exr::Compression exrCompression = io::exr::Compression::ZIP;
+            exr::Compression exrCompression = exr::Compression::ZIP;
             float exrDWACompressionLevel = 45.F;
 #endif
 #if defined(FFmpeg_FOUND)
             std::string ffmpegWriteProfile;
-            int ffmpegThreadCount = io::ffmpeg::threadCount;
+            int ffmpegThreadCount = ffmpeg::threadCount;
 #endif
             bool log = false;
             bool help = false;
@@ -64,19 +64,19 @@ namespace tl
             virtual ~IApp() = 0;
 
             //! Get the context.
-            const std::shared_ptr<core::system::Context>& getContext() const;
+            const std::shared_ptr<system::Context>& getContext() const;
 
             //! Get the exit code.
             int getExit() const;
 
         protected:
-            void _log(const std::string&, core::log::Type = core::log::Type::Message);
+            void _log(const std::string&, log::Type = log::Type::Message);
 
             void _print(const std::string&);
             void _printNewline();
             void _printError(const std::string&);
 
-            std::shared_ptr<core::system::Context> _context;
+            std::shared_ptr<system::Context> _context;
             Options _options;
             int _exit = 0;
 

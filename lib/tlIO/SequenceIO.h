@@ -24,9 +24,9 @@ namespace tl
         {
         protected:
             void _init(
-                const core::file::Path&,
+                const file::Path&,
                 const Options&,
-                const std::weak_ptr<core::log::System>&);
+                const std::weak_ptr<log::System>&);
             ISequenceRead();
 
         public:
@@ -64,10 +64,10 @@ namespace tl
         {
         protected:
             void _init(
-                const core::file::Path&,
+                const file::Path&,
                 const Info&,
                 const Options&,
-                const std::weak_ptr<core::log::System>&);
+                const std::weak_ptr<log::System>&);
             ISequenceWrite();
 
         public:
@@ -75,13 +75,13 @@ namespace tl
 
             void writeVideo(
                 const otime::RationalTime&,
-                const std::shared_ptr<core::imaging::Image>&) override;
+                const std::shared_ptr<imaging::Image>&) override;
 
         protected:
             virtual void _writeVideo(
                 const std::string& fileName,
                 const otime::RationalTime&,
-                const std::shared_ptr<core::imaging::Image>&) = 0;
+                const std::shared_ptr<imaging::Image>&) = 0;
 
         private:
             TLRENDER_PRIVATE();

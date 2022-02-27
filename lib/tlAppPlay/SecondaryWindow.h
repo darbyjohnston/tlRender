@@ -10,41 +10,35 @@
 
 namespace tl
 {
-    namespace qt
+    namespace qtwidget
     {
-        namespace widget
-        {
-            class TimelineViewport;
-        }
+        class TimelineViewport;
     }
 
-    namespace app
+    namespace play
     {
-        namespace play
+        class App;
+
+        //! Secondary window.
+        class SecondaryWindow : public QWidget
         {
-            class App;
+            Q_OBJECT
 
-            //! Secondary window.
-            class SecondaryWindow : public QWidget
-            {
-                Q_OBJECT
+        public:
+            SecondaryWindow(
+                App*,
+                QWidget* parent = nullptr);
 
-            public:
-                SecondaryWindow(
-                    App*,
-                    QWidget* parent = nullptr);
+            ~SecondaryWindow() override;
 
-                ~SecondaryWindow() override;
+            //! Get the viewport.
+            qtwidget::TimelineViewport* viewport() const;
 
-                //! Get the viewport.
-                qt::widget::TimelineViewport* viewport() const;
+        protected:
+            void keyPressEvent(QKeyEvent*) override;
 
-            protected:
-                void keyPressEvent(QKeyEvent*) override;
-
-            private:
-                TLRENDER_PRIVATE();
-            };
-        }
+        private:
+            TLRENDER_PRIVATE();
+        };
     }
 }

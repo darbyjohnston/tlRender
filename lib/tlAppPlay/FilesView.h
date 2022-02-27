@@ -11,28 +11,25 @@
 
 namespace tl
 {
-    namespace app
+    namespace play
     {
-        namespace play
+        //! Files layers item delegate.
+        class FilesLayersItemDelegate : public QStyledItemDelegate
         {
-            //! Files layers item delegate.
-            class FilesLayersItemDelegate : public QStyledItemDelegate
-            {
-                Q_OBJECT
+            Q_OBJECT
 
-            public:
-                FilesLayersItemDelegate(QObject* parent = nullptr);
+        public:
+            FilesLayersItemDelegate(QObject* parent = nullptr);
 
-                QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem&, const QModelIndex&) const override;
-                void setEditorData(QWidget* editor, const QModelIndex&) const override;
-                void setModelData(QWidget* editor, QAbstractItemModel*, const QModelIndex&) const override;
+            QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem&, const QModelIndex&) const override;
+            void setEditorData(QWidget* editor, const QModelIndex&) const override;
+            void setModelData(QWidget* editor, QAbstractItemModel*, const QModelIndex&) const override;
 
-            private Q_SLOTS:
-                void _mapperCallback(QObject*);
+        private Q_SLOTS:
+            void _mapperCallback(QObject*);
 
-            private:
-                QSignalMapper* _mapper;
-            };
-        }
+        private:
+            QSignalMapper* _mapper;
+        };
     }
 }

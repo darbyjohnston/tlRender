@@ -25,12 +25,12 @@ namespace tl
         public:
             TimelineThumbnailProvider(
                 const std::shared_ptr<timeline::Timeline>&,
-                const std::shared_ptr<core::system::Context>&,
+                const std::shared_ptr<system::Context>&,
                 QObject* parent = nullptr);
             ~TimelineThumbnailProvider() override;
 
             //! Set the color configuration.
-            void setColorConfig(const core::imaging::ColorConfig&);
+            void setColorConfig(const imaging::ColorConfig&);
 
         public Q_SLOTS:
             //! Request a thumbnail.

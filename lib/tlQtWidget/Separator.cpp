@@ -6,33 +6,30 @@
 
 namespace tl
 {
-    namespace qt
+    namespace qtwidget
     {
-        namespace widget
+        Separator::Separator(Qt::Orientation orientation, QWidget* parent) :
+            QFrame(parent),
+            _orientation(orientation)
         {
-            Separator::Separator(Qt::Orientation orientation, QWidget* parent) :
-                QFrame(parent),
-                _orientation(orientation)
-            {
-                setForegroundRole(QPalette::Mid);
-                _widgetUpdate();
-            }
+            setForegroundRole(QPalette::Mid);
+            _widgetUpdate();
+        }
 
-            Separator::~Separator()
-            {}
+        Separator::~Separator()
+        {}
 
-            void Separator::setOrientation(Qt::Orientation value)
-            {
-                if (value == _orientation)
-                    return;
-                _orientation = value;
-                _widgetUpdate();
-            }
+        void Separator::setOrientation(Qt::Orientation value)
+        {
+            if (value == _orientation)
+                return;
+            _orientation = value;
+            _widgetUpdate();
+        }
 
-            void Separator::_widgetUpdate()
-            {
-                setFrameShape(Qt::Horizontal ? QFrame::HLine : QFrame::VLine);
-            }
+        void Separator::_widgetUpdate()
+        {
+            setFrameShape(Qt::Horizontal ? QFrame::HLine : QFrame::VLine);
         }
     }
 }

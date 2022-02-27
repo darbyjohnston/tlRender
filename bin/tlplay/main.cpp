@@ -13,8 +13,8 @@ int main(int argc, char* argv[])
     int r = 0;
     try
     {
-        tl::qt::widget::init();
-        tl::app::play::App app(argc, argv);
+        tl::qtwidget::init();
+        tl::play::App app(argc, argv);
         if (0 == app.getExit())
         {
             r = app.exec();

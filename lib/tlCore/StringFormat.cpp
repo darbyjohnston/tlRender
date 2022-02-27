@@ -13,154 +13,151 @@
 
 namespace tl
 {
-    namespace core
+    namespace string
     {
-        namespace string
+        namespace
         {
-            namespace
+            struct Match
             {
-                struct Match
-                {
-                    Match()
-                    {}
+                Match()
+                {}
 
-                    Match(std::ptrdiff_t pos, std::ptrdiff_t length) :
-                        pos(pos),
-                        length(length)
-                    {}
+                Match(std::ptrdiff_t pos, std::ptrdiff_t length) :
+                    pos(pos),
+                    length(length)
+                {}
 
-                    std::ptrdiff_t pos = 0;
-                    std::ptrdiff_t length = 0;
-                };
+                std::ptrdiff_t pos = 0;
+                std::ptrdiff_t length = 0;
+            };
 
-            } // namespace
+        } // namespace
 
-            Format::Format(const std::string& value) :
-                _text(value)
-            {}
+        Format::Format(const std::string& value) :
+            _text(value)
+        {}
 
-            Format& Format::arg(const std::string& value)
+        Format& Format::arg(const std::string& value)
+        {
+            try
             {
-                try
+                std::string subject = _text;
+                std::regex r("\\{([0-9]+)\\}");
+                std::smatch m;
+                std::map<int, Match> matches;
+                std::ptrdiff_t currentPos = 0;
+                while (std::regex_search(subject, m, r))
                 {
-                    std::string subject = _text;
-                    std::regex r("\\{([0-9]+)\\}");
-                    std::smatch m;
-                    std::map<int, Match> matches;
-                    std::ptrdiff_t currentPos = 0;
-                    while (std::regex_search(subject, m, r))
+                    if (2 == m.size())
                     {
-                        if (2 == m.size())
+                        const int index = std::stoi(m[1]);
+                        const auto i = matches.find(index);
+                        if (i == matches.end())
                         {
-                            const int index = std::stoi(m[1]);
-                            const auto i = matches.find(index);
-                            if (i == matches.end())
-                            {
-                                const std::ptrdiff_t pos = m.position(0);
-                                const std::ptrdiff_t len = m.length(0);
-                                matches[std::stoi(m[1])] = Match(currentPos + pos, len);
-                                currentPos += pos + len;
-                            }
-                            else
-                            {
-                                throw std::invalid_argument("Duplicate argument");
-                            }
+                            const std::ptrdiff_t pos = m.position(0);
+                            const std::ptrdiff_t len = m.length(0);
+                            matches[std::stoi(m[1])] = Match(currentPos + pos, len);
+                            currentPos += pos + len;
                         }
                         else
                         {
-                            throw ParseError();
+                            throw std::invalid_argument("Duplicate argument");
                         }
-                        subject = m.suffix().str();
-                    }
-                    if (matches.size() > 0)
-                    {
-                        _text.replace(matches.begin()->second.pos, matches.begin()->second.length, value);
                     }
                     else
                     {
-                        throw std::invalid_argument("Argument not found");
+                        throw error::ParseError();
                     }
+                    subject = m.suffix().str();
                 }
-                catch (const std::exception& e)
+                if (matches.size() > 0)
                 {
-                    _error = e.what();
+                    _text.replace(matches.begin()->second.pos, matches.begin()->second.length, value);
                 }
-                return *this;
-            }
-
-            Format& Format::arg(int value, int width)
-            {
-                std::stringstream ss;
-                ss << std::setw(width) << value;
-                return arg(ss.str());
-            }
-
-            Format& Format::arg(int8_t value, int width)
-            {
-                std::stringstream ss;
-                ss << std::setw(width) << static_cast<int>(value);
-                return arg(ss.str());
-            }
-
-            Format& Format::arg(uint8_t value, int width)
-            {
-                std::stringstream ss;
-                ss << std::setw(width) << static_cast<int>(value);
-                return arg(ss.str());
-            }
-
-            Format& Format::arg(int16_t value, int width)
-            {
-                std::stringstream ss;
-                ss << std::setw(width) << static_cast<int>(value);
-                return arg(ss.str());
-            }
-
-            Format& Format::arg(uint16_t value, int width)
-            {
-                std::stringstream ss;
-                ss << std::setw(width) << static_cast<int>(value);
-                return arg(ss.str());
-            }
-
-            Format& Format::arg(float value, int precision, int width)
-            {
-                std::stringstream ss;
-                if (precision >= 0)
+                else
                 {
-                    ss.precision(precision);
-                    ss << std::fixed;
+                    throw std::invalid_argument("Argument not found");
                 }
-                ss << std::setw(width) << value;
-                return arg(ss.str());
             }
-
-            Format& Format::arg(double value, int precision, int width)
+            catch (const std::exception& e)
             {
-                std::stringstream ss;
-                if (precision >= 0)
-                {
-                    ss.precision(precision);
-                    ss << std::fixed;
-                }
-                ss << std::setw(width) << value;
-                return arg(ss.str());
+                _error = e.what();
             }
+            return *this;
+        }
 
-            bool Format::hasError() const
-            {
-                return _error.size() > 0;
-            }
+        Format& Format::arg(int value, int width)
+        {
+            std::stringstream ss;
+            ss << std::setw(width) << value;
+            return arg(ss.str());
+        }
 
-            const std::string& Format::getError() const
-            {
-                return _error;
-            }
+        Format& Format::arg(int8_t value, int width)
+        {
+            std::stringstream ss;
+            ss << std::setw(width) << static_cast<int>(value);
+            return arg(ss.str());
+        }
 
-            Format::operator std::string() const
+        Format& Format::arg(uint8_t value, int width)
+        {
+            std::stringstream ss;
+            ss << std::setw(width) << static_cast<int>(value);
+            return arg(ss.str());
+        }
+
+        Format& Format::arg(int16_t value, int width)
+        {
+            std::stringstream ss;
+            ss << std::setw(width) << static_cast<int>(value);
+            return arg(ss.str());
+        }
+
+        Format& Format::arg(uint16_t value, int width)
+        {
+            std::stringstream ss;
+            ss << std::setw(width) << static_cast<int>(value);
+            return arg(ss.str());
+        }
+
+        Format& Format::arg(float value, int precision, int width)
+        {
+            std::stringstream ss;
+            if (precision >= 0)
             {
-                return _text;
+                ss.precision(precision);
+                ss << std::fixed;
             }
+            ss << std::setw(width) << value;
+            return arg(ss.str());
+        }
+
+        Format& Format::arg(double value, int precision, int width)
+        {
+            std::stringstream ss;
+            if (precision >= 0)
+            {
+                ss.precision(precision);
+                ss << std::fixed;
+            }
+            ss << std::setw(width) << value;
+            return arg(ss.str());
+        }
+
+        bool Format::hasError() const
+        {
+            return _error.size() > 0;
+        }
+
+        const std::string& Format::getError() const
+        {
+            return _error;
+        }
+
+        Format::operator std::string() const
+        {
+            return _text;
         }
     }
 }

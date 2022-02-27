@@ -2,12 +2,12 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include <tlRenderGL/Render.h>
+#include <tlGL/Render.h>
 
-#include <tlRenderGL/Mesh.h>
-#include <tlRenderGL/OffscreenBuffer.h>
-#include <tlRenderGL/Shader.h>
-#include <tlRenderGL/Texture.h>
+#include <tlGL/Mesh.h>
+#include <tlGL/OffscreenBuffer.h>
+#include <tlGL/Shader.h>
+#include <tlGL/Texture.h>
 
 #include <tlCore/Assert.h>
 #include <tlCore/Context.h>
@@ -29,8 +29,6 @@
 #include <math.h>
 
 namespace OCIO = OCIO_NAMESPACE;
-
-using namespace tl::core;
 
 namespace tl
 {
@@ -97,7 +95,7 @@ namespace tl
                 "const uint DrawMode_TextureAlpha = 1;\n"
                 "const uint DrawMode_Image        = 2;\n"
                 "\n"
-                "// enum tl::core::imaging::PixelType\n"
+                "// enum tl::imaging::PixelType\n"
                 "const uint PixelType_None     = 0;\n"
                 "const uint PixelType_L_U8     = 1;\n"
                 "const uint PixelType_L_U16    = 2;\n"

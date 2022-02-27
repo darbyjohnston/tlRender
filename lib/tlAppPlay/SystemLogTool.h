@@ -8,33 +8,27 @@
 
 namespace tl
 {
-    namespace core
+    namespace system
     {
-        namespace system
-        {
-            class Context;
-        }
+        class Context;
     }
 
-    namespace app
+    namespace play
     {
-        namespace play
+        //! System log tool.
+        class SystemLogTool : public ToolWidget
         {
-            //! System log tool.
-            class SystemLogTool : public ToolWidget
-            {
-                Q_OBJECT
+            Q_OBJECT
 
-            public:
-                SystemLogTool(
-                    const std::shared_ptr<core::system::Context>&,
-                    QWidget* parent = nullptr);
+        public:
+            SystemLogTool(
+                const std::shared_ptr<system::Context>&,
+                QWidget* parent = nullptr);
 
-                ~SystemLogTool() override;
+            ~SystemLogTool() override;
 
-            private:
-                TLRENDER_PRIVATE();
-            };
-        }
+        private:
+            TLRENDER_PRIVATE();
+        };
     }
 }

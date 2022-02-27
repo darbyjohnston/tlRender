@@ -16,19 +16,19 @@
 
 #include <QMetaType>
 
-Q_DECLARE_METATYPE(tl::core::audio::DataType);
-Q_DECLARE_METATYPE(tl::core::audio::DeviceFormat);
+Q_DECLARE_METATYPE(tl::audio::DataType);
+Q_DECLARE_METATYPE(tl::audio::DeviceFormat);
 
-Q_DECLARE_METATYPE(tl::core::log::Type);
+Q_DECLARE_METATYPE(tl::log::Type);
 
-Q_DECLARE_METATYPE(tl::core::file::Mode);
+Q_DECLARE_METATYPE(tl::file::Mode);
 
-Q_DECLARE_METATYPE(tl::core::imaging::Size);
-Q_DECLARE_METATYPE(tl::core::imaging::FontFamily);
+Q_DECLARE_METATYPE(tl::imaging::Size);
+Q_DECLARE_METATYPE(tl::imaging::FontFamily);
 
-Q_DECLARE_METATYPE(tl::core::memory::Endian);
+Q_DECLARE_METATYPE(tl::memory::Endian);
 
-Q_DECLARE_METATYPE(tl::core::os::EnvListSeparator);
+Q_DECLARE_METATYPE(tl::os::EnvListSeparator);
 
 Q_DECLARE_METATYPE(tl::io::FileExtensionType);
 Q_DECLARE_METATYPE(tl::io::VideoType);

@@ -11,138 +11,133 @@
 #include <tlCore/StringFormat.h>
 
 #include <sstream>
-
-using namespace tl::core;
 using namespace tl::io;
 
 namespace tl
 {
-    namespace tests
+    namespace io_tests
     {
-        namespace io_test
+        IOTest::IOTest(const std::shared_ptr<system::Context>& context) :
+            ITest("IOTest::IOTest", context)
+        {}
+
+        std::shared_ptr<IOTest> IOTest::create(const std::shared_ptr<system::Context>& context)
         {
-            IOTest::IOTest(const std::shared_ptr<system::Context>& context) :
-                ITest("IOTest::IOTest", context)
-            {}
+            return std::shared_ptr<IOTest>(new IOTest(context));
+        }
 
-            std::shared_ptr<IOTest> IOTest::create(const std::shared_ptr<system::Context>& context)
+        void IOTest::run()
+        {
+            _enums();
+            _videoData();
+            _ioSystem();
+        }
+
+        void IOTest::_enums()
+        {
+            _enum<VideoType>("VideoType", getVideoTypeEnums);
+        }
+
+        void IOTest::_videoData()
+        {
             {
-                return std::shared_ptr<IOTest>(new IOTest(context));
+                const VideoData v;
+                TLRENDER_ASSERT(time::invalidTime == v.time);
+                TLRENDER_ASSERT(!v.image);
             }
-
-            void IOTest::run()
             {
-                _enums();
-                _videoData();
-                _ioSystem();
+                const auto time = otime::RationalTime(1.0, 24.0);
+                const uint16_t layer = 1;
+                const auto image = imaging::Image::create(imaging::Info(160, 80, imaging::PixelType::L_U8));
+                const VideoData v(time, layer, image);
+                TLRENDER_ASSERT(time == v.time);
+                TLRENDER_ASSERT(layer == v.layer);
+                TLRENDER_ASSERT(image == v.image);
             }
-
-            void IOTest::_enums()
             {
-                _enum<VideoType>("VideoType", getVideoTypeEnums);
+                const auto time = otime::RationalTime(1.0, 24.0);
+                const uint16_t layer = 1;
+                const auto image = imaging::Image::create(imaging::Info(16, 16, imaging::PixelType::L_U8));
+                const VideoData a(time, layer, image);
+                VideoData b(time, layer, image);
+                TLRENDER_ASSERT(a == b);
+                b.time = otime::RationalTime(2.0, 24.0);
+                TLRENDER_ASSERT(a != b);
+                TLRENDER_ASSERT(a < b);
             }
+        }
 
-            void IOTest::_videoData()
+        namespace
+        {
+            class DummyPlugin : public IPlugin
             {
+            public:
+                std::shared_ptr<IRead> read(
+                    const file::Path&,
+                    const Options & = Options()) override
                 {
-                    const VideoData v;
-                    TLRENDER_ASSERT(time::invalidTime == v.time);
-                    TLRENDER_ASSERT(!v.image);
+                    return nullptr;
                 }
-                {
-                    const auto time = otime::RationalTime(1.0, 24.0);
-                    const uint16_t layer = 1;
-                    const auto image = imaging::Image::create(imaging::Info(160, 80, imaging::PixelType::L_U8));
-                    const VideoData v(time, layer, image);
-                    TLRENDER_ASSERT(time == v.time);
-                    TLRENDER_ASSERT(layer == v.layer);
-                    TLRENDER_ASSERT(image == v.image);
-                }
-                {
-                    const auto time = otime::RationalTime(1.0, 24.0);
-                    const uint16_t layer = 1;
-                    const auto image = imaging::Image::create(imaging::Info(16, 16, imaging::PixelType::L_U8));
-                    const VideoData a(time, layer, image);
-                    VideoData b(time, layer, image);
-                    TLRENDER_ASSERT(a == b);
-                    b.time = otime::RationalTime(2.0, 24.0);
-                    TLRENDER_ASSERT(a != b);
-                    TLRENDER_ASSERT(a < b);
-                }
-            }
 
-            namespace
+                imaging::Info getWriteInfo(
+                    const imaging::Info&,
+                    const io::Options & = io::Options()) const override
+                {
+                    return imaging::Info();
+                }
+
+                std::shared_ptr<IWrite> write(
+                    const file::Path&,
+                    const Info&,
+                    const Options & = Options()) override
+                {
+                    return nullptr;
+                }
+            };
+        }
+
+        void IOTest::_ioSystem()
+        {
+            auto system = _context->getSystem<System>();
             {
-                class DummyPlugin : public IPlugin
+                std::vector<std::string> plugins;
+                for (const auto& plugin : system->getPlugins())
                 {
-                public:
-                    std::shared_ptr<IRead> read(
-                        const file::Path&,
-                        const Options & = Options()) override
-                    {
-                        return nullptr;
-                    }
-
-                    imaging::Info getWriteInfo(
-                        const imaging::Info&,
-                        const io::Options & = io::Options()) const override
-                    {
-                        return imaging::Info();
-                    }
-
-                    std::shared_ptr<IWrite> write(
-                        const file::Path&,
-                        const Info&,
-                        const Options & = Options()) override
-                    {
-                        return nullptr;
-                    }
-                };
+                    plugins.push_back(plugin->getName());
+                }
+                std::stringstream ss;
+                ss << "Plugins: " << string::join(plugins, ", ");
+                _print(ss.str());
             }
-
-            void IOTest::_ioSystem()
             {
-                auto system = _context->getSystem<System>();
+                std::map<std::string, std::shared_ptr<IPlugin> > plugins;
+                for (const auto& plugin : system->getPlugins())
                 {
-                    std::vector<std::string> plugins;
-                    for (const auto& plugin : system->getPlugins())
+                    const auto& extensions = plugin->getExtensions();
+                    if (!extensions.empty())
                     {
-                        plugins.push_back(plugin->getName());
+                        plugins[*(extensions.begin())] = plugin;
                     }
-                    std::stringstream ss;
-                    ss << "Plugins: " << string::join(plugins, ", ");
-                    _print(ss.str());
                 }
+                for (const auto& plugin : plugins)
                 {
-                    std::map<std::string, std::shared_ptr<IPlugin> > plugins;
-                    for (const auto& plugin : system->getPlugins())
-                    {
-                        const auto& extensions = plugin->getExtensions();
-                        if (!extensions.empty())
-                        {
-                            plugins[*(extensions.begin())] = plugin;
-                        }
-                    }
-                    for (const auto& plugin : plugins)
-                    {
-                        TLRENDER_ASSERT(system->getPlugin(file::Path("test" + plugin.first)) == plugin.second);
-                    }
-                    TLRENDER_ASSERT(!system->getPlugin(file::Path()));
-                    TLRENDER_ASSERT(!system->getPlugin<DummyPlugin>());
+                    TLRENDER_ASSERT(system->getPlugin(file::Path("test" + plugin.first)) == plugin.second);
                 }
-                {
-                    std::vector<std::string> extensions;
-                    for (const auto& extension : system->getExtensions())
-                    {
-                        extensions.push_back(extension);
-                    }
-                    std::stringstream ss;
-                    ss << "Extensions: " << string::join(extensions, ", ");
-                    _print(ss.str());
-                }
-                TLRENDER_ASSERT(!system->read(file::Path()));
-                TLRENDER_ASSERT(!system->write(file::Path(), Info()));
+                TLRENDER_ASSERT(!system->getPlugin(file::Path()));
+                TLRENDER_ASSERT(!system->getPlugin<DummyPlugin>());
             }
+            {
+                std::vector<std::string> extensions;
+                for (const auto& extension : system->getExtensions())
+                {
+                    extensions.push_back(extension);
+                }
+                std::stringstream ss;
+                ss << "Extensions: " << string::join(extensions, ", ");
+                _print(ss.str());
+            }
+            TLRENDER_ASSERT(!system->read(file::Path()));
+            TLRENDER_ASSERT(!system->write(file::Path(), Info()));
         }
     }
 }

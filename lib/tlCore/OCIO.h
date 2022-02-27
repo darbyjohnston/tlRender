@@ -8,23 +8,20 @@
 
 namespace tl
 {
-    namespace core
+    namespace imaging
     {
-        namespace imaging
+        //! OpenColorIO configuration.
+        struct ColorConfig
         {
-            //! OpenColorIO configuration.
-            struct ColorConfig
-            {
-                std::string fileName;
-                std::string input;
-                std::string display;
-                std::string view;
-                std::string look;
+            std::string fileName;
+            std::string input;
+            std::string display;
+            std::string view;
+            std::string look;
 
-                bool operator == (const ColorConfig&) const;
-                bool operator != (const ColorConfig&) const;
-            };
-        }
+            bool operator == (const ColorConfig&) const;
+            bool operator != (const ColorConfig&) const;
+        };
     }
 }
 

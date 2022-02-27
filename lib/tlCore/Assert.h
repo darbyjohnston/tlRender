@@ -7,8 +7,7 @@
 //! tlRender.
 namespace tl
 {
-    //! Core functionality.
-    namespace core
+    namespace error
     {
         //! Assert (for convenience use the TLRENDER_ASSERT macro).
         void _assert(const char* file, int line);
@@ -20,7 +19,7 @@ namespace tl
 #undef TLRENDER_ASSERT
 #define TLRENDER_ASSERT(value) \
     if (!(value)) \
-        tl::core::_assert(__FILE__, __LINE__)
+        tl::error::_assert(__FILE__, __LINE__)
 #else
 #define TLRENDER_ASSERT(value)
 #endif

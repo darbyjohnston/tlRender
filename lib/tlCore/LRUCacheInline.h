@@ -6,137 +6,134 @@
 
 namespace tl
 {
-    namespace core
+    namespace memory
     {
-        namespace memory
+        template<typename T, typename U>
+        inline std::size_t LRUCache<T, U>::getMax() const
         {
-            template<typename T, typename U>
-            inline std::size_t LRUCache<T, U>::getMax() const
-            {
-                return _max;
-            }
+            return _max;
+        }
 
-            template<typename T, typename U>
-            inline std::size_t LRUCache<T, U>::getSize() const
-            {
-                return _map.size();
-            }
+        template<typename T, typename U>
+        inline std::size_t LRUCache<T, U>::getSize() const
+        {
+            return _map.size();
+        }
 
-            template<typename T, typename U>
-            inline float LRUCache<T, U>::getPercentageUsed() const
-            {
-                return _map.size() / static_cast<float>(_max) * 100.F;
-            }
+        template<typename T, typename U>
+        inline float LRUCache<T, U>::getPercentageUsed() const
+        {
+            return _map.size() / static_cast<float>(_max) * 100.F;
+        }
 
-            template<typename T, typename U>
-            inline void LRUCache<T, U>::setMax(std::size_t value)
-            {
-                _max = value;
-                _maxUpdate();
-            }
+        template<typename T, typename U>
+        inline void LRUCache<T, U>::setMax(std::size_t value)
+        {
+            _max = value;
+            _maxUpdate();
+        }
 
-            template<typename T, typename U>
-            inline bool LRUCache<T, U>::contains(const T& key) const
-            {
-                return _map.find(key) != _map.end();
-            }
+        template<typename T, typename U>
+        inline bool LRUCache<T, U>::contains(const T& key) const
+        {
+            return _map.find(key) != _map.end();
+        }
 
-            template<typename T, typename U>
-            inline bool LRUCache<T, U>::get(const T& key, U& value) const
+        template<typename T, typename U>
+        inline bool LRUCache<T, U>::get(const T& key, U& value) const
+        {
+            auto i = _map.find(key);
+            if (i != _map.end())
             {
-                auto i = _map.find(key);
-                if (i != _map.end())
-                {
-                    value = i->second;
-                    auto j = _counts.find(key);
-                    if (j != _counts.end())
-                    {
-                        ++_counter;
-                        j->second = _counter;
-                    }
-                    return true;
-                }
-                return i != _map.end();
-            }
-
-            template<typename T, typename U>
-            inline void LRUCache<T, U>::add(const T& key, const U& value)
-            {
-                _map[key] = value;
-                ++_counter;
-                _counts[key] = _counter;
-                _maxUpdate();
-            }
-
-            template<typename T, typename U>
-            inline void LRUCache<T, U>::remove(const T& key)
-            {
-                const auto i = _map.find(key);
-                if (i != _map.end())
-                {
-                    _map.erase(i);
-                }
-                const auto j = _counts.find(key);
+                value = i->second;
+                auto j = _counts.find(key);
                 if (j != _counts.end())
                 {
-                    _counts.erase(j);
+                    ++_counter;
+                    j->second = _counter;
                 }
-                _maxUpdate();
+                return true;
             }
+            return i != _map.end();
+        }
 
-            template<typename T, typename U>
-            inline void LRUCache<T, U>::clear()
+        template<typename T, typename U>
+        inline void LRUCache<T, U>::add(const T& key, const U& value)
+        {
+            _map[key] = value;
+            ++_counter;
+            _counts[key] = _counter;
+            _maxUpdate();
+        }
+
+        template<typename T, typename U>
+        inline void LRUCache<T, U>::remove(const T& key)
+        {
+            const auto i = _map.find(key);
+            if (i != _map.end())
             {
-                _map.clear();
+                _map.erase(i);
             }
-
-            template<typename T, typename U>
-            inline std::vector<T> LRUCache<T, U>::getKeys() const
+            const auto j = _counts.find(key);
+            if (j != _counts.end())
             {
-                std::vector<T> out;
-                for (const auto& i : _map)
+                _counts.erase(j);
+            }
+            _maxUpdate();
+        }
+
+        template<typename T, typename U>
+        inline void LRUCache<T, U>::clear()
+        {
+            _map.clear();
+        }
+
+        template<typename T, typename U>
+        inline std::vector<T> LRUCache<T, U>::getKeys() const
+        {
+            std::vector<T> out;
+            for (const auto& i : _map)
+            {
+                out.push_back(i.first);
+            }
+            return out;
+        }
+
+        template<typename T, typename U>
+        inline std::vector<U> LRUCache<T, U>::getValues() const
+        {
+            std::vector<U> out;
+            for (const auto& i : _map)
+            {
+                out.push_back(i.second);
+            }
+            return out;
+        }
+
+        template<typename T, typename U>
+        inline void LRUCache<T, U>::_maxUpdate()
+        {
+            if (_map.size() > _max)
+            {
+                std::map<int64_t, T> sorted;
+                for (const auto& i : _counts)
                 {
-                    out.push_back(i.first);
+                    sorted[i.second] = i.first;
                 }
-                return out;
-            }
-
-            template<typename T, typename U>
-            inline std::vector<U> LRUCache<T, U>::getValues() const
-            {
-                std::vector<U> out;
-                for (const auto& i : _map)
+                while (_map.size() > _max)
                 {
-                    out.push_back(i.second);
-                }
-                return out;
-            }
-
-            template<typename T, typename U>
-            inline void LRUCache<T, U>::_maxUpdate()
-            {
-                if (_map.size() > _max)
-                {
-                    std::map<int64_t, T> sorted;
-                    for (const auto& i : _counts)
+                    auto begin = sorted.begin();
+                    auto i = _map.find(begin->second);
+                    if (i != _map.end())
                     {
-                        sorted[i.second] = i.first;
+                        _map.erase(i);
                     }
-                    while (_map.size() > _max)
+                    auto j = _counts.find(begin->second);
+                    if (j != _counts.end())
                     {
-                        auto begin = sorted.begin();
-                        auto i = _map.find(begin->second);
-                        if (i != _map.end())
-                        {
-                            _map.erase(i);
-                        }
-                        auto j = _counts.find(begin->second);
-                        if (j != _counts.end())
-                        {
-                            _counts.erase(j);
-                        }
-                        sorted.erase(begin);
+                        _counts.erase(j);
                     }
+                    sorted.erase(begin);
                 }
             }
         }

@@ -7,33 +7,28 @@
 #include <tlCore/Assert.h>
 #include <tlCore/Error.h>
 
-using namespace tl::core;
-
 namespace tl
 {
-    namespace tests
+    namespace core_tests
     {
-        namespace core_test
+        ErrorTest::ErrorTest(const std::shared_ptr<system::Context>& context) :
+            ITest("core_tests::ErrorTest", context)
+        {}
+
+        std::shared_ptr<ErrorTest> ErrorTest::create(const std::shared_ptr<system::Context>& context)
         {
-            ErrorTest::ErrorTest(const std::shared_ptr<system::Context>& context) :
-                ITest("core_test::ErrorTest", context)
-            {}
+            return std::shared_ptr<ErrorTest>(new ErrorTest(context));
+        }
 
-            std::shared_ptr<ErrorTest> ErrorTest::create(const std::shared_ptr<system::Context>& context)
+        void ErrorTest::run()
+        {
+            try
             {
-                return std::shared_ptr<ErrorTest>(new ErrorTest(context));
+                throw error::ParseError();
             }
-
-            void ErrorTest::run()
+            catch (const std::exception& e)
             {
-                try
-                {
-                    throw ParseError();
-                }
-                catch (const std::exception& e)
-                {
-                    _print(e.what());
-                }
+                _print(e.what());
             }
         }
     }

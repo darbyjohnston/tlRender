@@ -31,8 +31,6 @@
 #include <iomanip>
 #include <sstream>
 
-using namespace tl::core;
-
 namespace tl
 {
     namespace io

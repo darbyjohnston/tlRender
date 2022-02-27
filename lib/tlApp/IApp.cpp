@@ -11,8 +11,6 @@
 
 #include <iostream>
 
-using namespace tl::core;
-
 namespace tl
 {
     namespace app
@@ -61,12 +59,12 @@ namespace tl
                 "Number of threads for image sequence I/O.",
                 string::Format("{0}").arg(_options.sequenceThreadCount)));
 #if defined(OpenEXR_FOUND)
-            p.cmdLineOptions.push_back(CmdLineValueOption<io::exr::Compression>::create(
+            p.cmdLineOptions.push_back(CmdLineValueOption<exr::Compression>::create(
                 _options.exrCompression,
                 { "-exrCompression" },
                 "OpenEXR output compression.",
                 string::Format("{0}").arg(_options.exrCompression),
-                string::join(io::exr::getCompressionLabels(), ", ")));
+                string::join(exr::getCompressionLabels(), ", ")));
             p.cmdLineOptions.push_back(CmdLineValueOption<float>::create(
                 _options.exrDWACompressionLevel,
                 { "-exrDWACompressionLevel" },
@@ -84,7 +82,7 @@ namespace tl
                 { "-ffmpegProfile", "-ffp" },
                 "FFmpeg output profile.",
                 std::string(),
-                string::join(io::ffmpeg::getProfileLabels(), ", ")));
+                string::join(ffmpeg::getProfileLabels(), ", ")));
 #endif
             p.cmdLineOptions.push_back(CmdLineFlagOption::create(
                 _options.log,

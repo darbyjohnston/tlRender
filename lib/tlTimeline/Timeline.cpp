@@ -38,8 +38,6 @@
 #include <sstream>
 #include <thread>
 
-using namespace tl::core;
-
 namespace tl
 {
     namespace timeline

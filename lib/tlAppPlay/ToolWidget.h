@@ -13,25 +13,22 @@
 
 namespace tl
 {
-    namespace app
+    namespace play
     {
-        namespace play
+        //! Base class for tool widgets.
+        class ToolWidget : public QWidget
         {
-            //! Base class for tool widgets.
-            class ToolWidget : public QWidget
-            {
-                Q_OBJECT
+            Q_OBJECT
 
-            public:
-                ToolWidget(QWidget* parent = nullptr);
+        public:
+            ToolWidget(QWidget* parent = nullptr);
 
-                void addWidget(QWidget*, int stretch = 0);
-                void addBellows(const QString&, QWidget*);
-                void addStretch(int stretch = 0);
+            void addWidget(QWidget*, int stretch = 0);
+            void addBellows(const QString&, QWidget*);
+            void addStretch(int stretch = 0);
 
-            private:
-                QVBoxLayout* _layout = nullptr;
-            };
-        }
+        private:
+            QVBoxLayout* _layout = nullptr;
+        };
     }
 }

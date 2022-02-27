@@ -12,15 +12,12 @@
 
 namespace tl
 {
-    namespace core
+    namespace imaging
     {
-        namespace imaging
-        {
-            struct ColorConfig;
-            struct Glyph;
-            class Image;
-            class Size;
-        }
+        struct ColorConfig;
+        struct Glyph;
+        class Image;
+        class Size;
     }
 
     namespace timeline
@@ -73,10 +70,10 @@ namespace tl
         struct Color
         {
         public:
-            core::math::Vector3f add = core::math::Vector3f(0.F, 0.F, 0.F);
-            core::math::Vector3f brightness = core::math::Vector3f(1.F, 1.F, 1.F);
-            core::math::Vector3f contrast = core::math::Vector3f(1.F, 1.F, 1.F);
-            core::math::Vector3f saturation = core::math::Vector3f(1.F, 1.F, 1.F);
+            math::Vector3f add = math::Vector3f(0.F, 0.F, 0.F);
+            math::Vector3f brightness = math::Vector3f(1.F, 1.F, 1.F);
+            math::Vector3f contrast = math::Vector3f(1.F, 1.F, 1.F);
+            math::Vector3f saturation = math::Vector3f(1.F, 1.F, 1.F);
             float tint = 0.F;
             bool invert = false;
 
@@ -85,19 +82,19 @@ namespace tl
         };
 
         //! Get a brightness color matrix.
-        core::math::Matrix4x4f brightness(const core::math::Vector3f&);
+        math::Matrix4x4f brightness(const math::Vector3f&);
 
         //! Get a contrast color matrix.
-        core::math::Matrix4x4f contrast(const core::math::Vector3f&);
+        math::Matrix4x4f contrast(const math::Vector3f&);
 
         //! Get a saturation color matrix.
-        core::math::Matrix4x4f saturation(const core::math::Vector3f&);
+        math::Matrix4x4f saturation(const math::Vector3f&);
 
         //! Get a tint color matrix.
-        core::math::Matrix4x4f tint(float);
+        math::Matrix4x4f tint(float);
 
         //! Get a color matrix.
-        core::math::Matrix4x4f color(const Color&);
+        math::Matrix4x4f color(const Color&);
 
         //! Levels values.
         struct Levels
@@ -127,19 +124,19 @@ namespace tl
         //! Image options.
         struct ImageOptions
         {
-            YUVRange              yuvRange = YUVRange::FromFile;
-            Channels              channels = Channels::Color;
+            YUVRange        yuvRange = YUVRange::FromFile;
+            Channels        channels = Channels::Color;
             //! \todo Implement alpha blending options.
-            AlphaBlend            alphaBlend = AlphaBlend::Straight;
-            core::imaging::Mirror mirror;
-            bool                  colorEnabled = false;
-            Color                 color;
-            bool                  levelsEnabled = false;
-            Levels                levels;
-            bool                  exposureEnabled = false;
-            Exposure              exposure;
-            bool                  softClipEnabled = false;
-            float                 softClip = 0.F;
+            AlphaBlend      alphaBlend = AlphaBlend::Straight;
+            imaging::Mirror mirror;
+            bool            colorEnabled = false;
+            Color           color;
+            bool            levelsEnabled = false;
+            Levels          levels;
+            bool            exposureEnabled = false;
+            Exposure        exposure;
+            bool            softClipEnabled = false;
+            float           softClip = 0.F;
 
             bool operator == (const ImageOptions&) const;
             bool operator != (const ImageOptions&) const;
@@ -163,7 +160,7 @@ namespace tl
         struct CompareOptions
         {
             CompareMode mode = CompareMode::A;
-            core::math::Vector2f wipeCenter = core::math::Vector2f(.5F, .5F);
+            math::Vector2f wipeCenter = math::Vector2f(.5F, .5F);
             float wipeRotation = 0.F;
 
             bool operator == (const CompareOptions&) const;
@@ -171,13 +168,13 @@ namespace tl
         };
 
         //! Divide a bounding box into tiles.
-        std::vector<core::math::BBox2i> tiles(const core::math::BBox2i&, int count);
+        std::vector<math::BBox2i> tiles(const math::BBox2i&, int count);
 
         //! Base class for renderers.
         class IRender : public std::enable_shared_from_this<IRender>
         {
         protected:
-            void _init(const std::shared_ptr<core::system::Context>&);
+            void _init(const std::shared_ptr<system::Context>&);
             IRender();
 
         public:
@@ -189,24 +186,24 @@ namespace tl
 
             //! Set the color configuration. This function should be called before
             //! Render::begin().
-            virtual void setColorConfig(const core::imaging::ColorConfig&) = 0;
+            virtual void setColorConfig(const imaging::ColorConfig&) = 0;
 
             //! Start a render.
-            virtual void begin(const core::imaging::Size&) = 0;
+            virtual void begin(const imaging::Size&) = 0;
 
             //! Finish a render.
             virtual void end() = 0;
 
             //! Draw a rectangle.
             virtual void drawRect(
-                const core::math::BBox2i&,
-                const core::imaging::Color4f&) = 0;
+                const math::BBox2i&,
+                const imaging::Color4f&) = 0;
 
             //! Draw an image.
             virtual void drawImage(
-                const std::shared_ptr<core::imaging::Image>&,
-                const core::math::BBox2i&,
-                const core::imaging::Color4f & = core::imaging::Color4f(1.F, 1.F, 1.F),
+                const std::shared_ptr<imaging::Image>&,
+                const math::BBox2i&,
+                const imaging::Color4f & = imaging::Color4f(1.F, 1.F, 1.F),
                 const ImageOptions & = ImageOptions()) = 0;
 
             //! Draw timeline video data.
@@ -217,12 +214,12 @@ namespace tl
 
             //! Draw text.
             virtual void drawText(
-                const std::vector<std::shared_ptr<core::imaging::Glyph> >& glyphs,
-                const core::math::Vector2i& position,
-                const core::imaging::Color4f&) = 0;
+                const std::vector<std::shared_ptr<imaging::Glyph> >& glyphs,
+                const math::Vector2i& position,
+                const imaging::Color4f&) = 0;
 
         protected:
-            std::weak_ptr<core::system::Context> _context;
+            std::weak_ptr<system::Context> _context;
         };
     }
 }

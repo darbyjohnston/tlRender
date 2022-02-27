@@ -17,31 +17,28 @@ namespace tl
         struct Info;
     }
 
-    namespace app
+    namespace play
     {
-        namespace play
+        //! Information model.
+        class InfoModel : public QAbstractTableModel
         {
-            //! Information model.
-            class InfoModel : public QAbstractTableModel
-            {
-                Q_OBJECT
+            Q_OBJECT
 
-            public:
-                InfoModel(QObject* parent = nullptr);
+        public:
+            InfoModel(QObject* parent = nullptr);
 
-                ~InfoModel() override;
+            ~InfoModel() override;
 
-                //! Set the information.
-                void setInfo(const io::Info&);
+            //! Set the information.
+            void setInfo(const io::Info&);
 
-                int rowCount(const QModelIndex& parent = QModelIndex()) const override;
-                int columnCount(const QModelIndex& parent = QModelIndex()) const override;
-                QVariant data(const QModelIndex&, int role = Qt::DisplayRole) const override;
-                QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+            int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+            int columnCount(const QModelIndex& parent = QModelIndex()) const override;
+            QVariant data(const QModelIndex&, int role = Qt::DisplayRole) const override;
+            QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
-            private:
-                TLRENDER_PRIVATE();
-            };
-        }
+        private:
+            TLRENDER_PRIVATE();
+        };
     }
 }

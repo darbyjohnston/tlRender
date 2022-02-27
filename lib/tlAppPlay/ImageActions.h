@@ -16,41 +16,38 @@
 
 namespace tl
 {
-    namespace app
+    namespace play
     {
-        namespace play
+        class App;
+
+        //! Image actions.
+        class ImageActions : public QObject
         {
-            class App;
+            Q_OBJECT
 
-            //! Image actions.
-            class ImageActions : public QObject
-            {
-                Q_OBJECT
+        public:
+            ImageActions(App*, QObject* parent = nullptr);
 
-            public:
-                ImageActions(App*, QObject* parent = nullptr);
+            ~ImageActions() override;
 
-                ~ImageActions() override;
+            //! Get the actions.
+            const QMap<QString, QAction*>& actions() const;
 
-                //! Get the actions.
-                const QMap<QString, QAction*>& actions() const;
+            //! Get the menu.
+            QMenu* menu() const;
 
-                //! Get the menu.
-                QMenu* menu() const;
+            //! Set the image options.
+            void setImageOptions(const timeline::ImageOptions&);
 
-                //! Set the image options.
-                void setImageOptions(const timeline::ImageOptions&);
+            //! Set the timeline players.
+            void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
 
-                //! Set the timeline players.
-                void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
+        private Q_SLOTS:
 
-            private Q_SLOTS:
+        private:
+            void _actionsUpdate();
 
-            private:
-                void _actionsUpdate();
-
-                TLRENDER_PRIVATE();
-            };
-        }
+            TLRENDER_PRIVATE();
+        };
     }
 }

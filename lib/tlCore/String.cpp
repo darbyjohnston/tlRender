@@ -10,360 +10,357 @@
 
 namespace tl
 {
-    namespace core
+    namespace string
     {
-        namespace string
+        std::vector<std::string> split(const std::string& s, char delimeter, bool keepEmpty)
         {
-            std::vector<std::string> split(const std::string& s, char delimeter, bool keepEmpty)
+            std::vector<std::string> out;
+            bool word = false;
+            std::size_t wordStart = 0;
+            std::size_t i = 0;
+            for (; i < s.size(); ++i)
             {
-                std::vector<std::string> out;
-                bool word = false;
-                std::size_t wordStart = 0;
-                std::size_t i = 0;
-                for (; i < s.size(); ++i)
+                if (s[i] != delimeter)
                 {
-                    if (s[i] != delimeter)
+                    if (!word)
                     {
-                        if (!word)
-                        {
-                            word = true;
-                            wordStart = i;
-                        }
-                    }
-                    else
-                    {
-                        if (word)
-                        {
-                            word = false;
-                            out.push_back(s.substr(wordStart, i - wordStart));
-                        }
-                        if (keepEmpty && i > 0 && s[i - 1] == delimeter)
-                        {
-                            out.push_back(std::string());
-                        }
+                        word = true;
+                        wordStart = i;
                     }
                 }
-                if (word)
+                else
                 {
-                    out.push_back(s.substr(wordStart, i - wordStart));
-                }
-                return out;
-            }
-
-            std::vector<std::string> split(const std::string& s, const std::vector<char>& delimeters, bool keepEmpty)
-            {
-                std::vector<std::string> out;
-                bool word = false;
-                std::size_t wordStart = 0;
-                std::size_t i = 0;
-                for (; i < s.size(); ++i)
-                {
-                    if (std::find(delimeters.begin(), delimeters.end(), s[i]) == delimeters.end())
+                    if (word)
                     {
-                        if (!word)
-                        {
-                            word = true;
-                            wordStart = i;
-                        }
+                        word = false;
+                        out.push_back(s.substr(wordStart, i - wordStart));
                     }
-                    else
+                    if (keepEmpty && i > 0 && s[i - 1] == delimeter)
                     {
-                        if (word)
-                        {
-                            word = false;
-                            out.push_back(s.substr(wordStart, i - wordStart));
-                        }
-                        if (keepEmpty && i > 0 && std::find(delimeters.begin(), delimeters.end(), s[i - 1]) != delimeters.end())
-                        {
-                            out.push_back(std::string());
-                        }
+                        out.push_back(std::string());
                     }
                 }
-                if (word)
-                {
-                    out.push_back(s.substr(wordStart, i - wordStart));
-                }
-                return out;
             }
-
-            std::string join(const std::vector<std::string>& values, char delimeter)
+            if (word)
             {
-                std::string out;
-                const std::size_t size = values.size();
-                for (std::size_t i = 0; i < size; ++i)
+                out.push_back(s.substr(wordStart, i - wordStart));
+            }
+            return out;
+        }
+
+        std::vector<std::string> split(const std::string& s, const std::vector<char>& delimeters, bool keepEmpty)
+        {
+            std::vector<std::string> out;
+            bool word = false;
+            std::size_t wordStart = 0;
+            std::size_t i = 0;
+            for (; i < s.size(); ++i)
+            {
+                if (std::find(delimeters.begin(), delimeters.end(), s[i]) == delimeters.end())
                 {
-                    out += values[i];
-                    if (i < size - 1)
+                    if (!word)
                     {
-                        out += delimeter;
+                        word = true;
+                        wordStart = i;
                     }
                 }
-                return out;
-            }
-
-            std::string join(const std::vector<std::string>& values, const std::string& delimeter)
-            {
-                std::string out;
-                const std::size_t size = values.size();
-                for (std::size_t i = 0; i < size; ++i)
+                else
                 {
-                    out += values[i];
-                    if (i < size - 1)
+                    if (word)
                     {
-                        out += delimeter;
+                        word = false;
+                        out.push_back(s.substr(wordStart, i - wordStart));
+                    }
+                    if (keepEmpty && i > 0 && std::find(delimeters.begin(), delimeters.end(), s[i - 1]) != delimeters.end())
+                    {
+                        out.push_back(std::string());
                     }
                 }
-                return out;
             }
-
-            std::string toUpper(const std::string& value)
+            if (word)
             {
-                std::string out;
-                for (auto i : value)
-                {
-                    out.push_back(std::toupper(i));
-                }
-                return out;
+                out.push_back(s.substr(wordStart, i - wordStart));
             }
+            return out;
+        }
 
-            std::string toLower(const std::string& value)
+        std::string join(const std::vector<std::string>& values, char delimeter)
+        {
+            std::string out;
+            const std::size_t size = values.size();
+            for (std::size_t i = 0; i < size; ++i)
             {
-                std::string out;
-                for (auto i : value)
+                out += values[i];
+                if (i < size - 1)
                 {
-                    out.push_back(std::tolower(i));
-                }
-                return out;
-            }
-
-            void removeTrailingNewlines(std::string& value)
-            {
-                size_t size = value.size();
-                while (size && ('\n' == value[size - 1] || '\r' == value[size - 1]))
-                {
-                    value.pop_back();
-                    size = value.size();
+                    out += delimeter;
                 }
             }
+            return out;
+        }
 
-            std::string removeTrailingNewlines(const std::string& value)
+        std::string join(const std::vector<std::string>& values, const std::string& delimeter)
+        {
+            std::string out;
+            const std::size_t size = values.size();
+            for (std::size_t i = 0; i < size; ++i)
             {
-                std::string out = value;
-                removeTrailingNewlines(out);
-                return out;
-            }
-
-            bool compareNoCase(const std::string& a, const std::string& b)
-            {
-                return toLower(a) == toLower(b);
-            }
-
-            void fromString(const char* s, size_t size, int& out)
-            {
-                out = 0;
-
-                // Find the sign.
-                bool negativeSign = false;
-                if ('-' == s[0])
+                out += values[i];
+                if (i < size - 1)
                 {
-                    negativeSign = true;
-                    ++s;
-                    --size;
-                }
-                else if ('+' == s[0])
-                {
-                    ++s;
-                    --size;
-                }
-
-                // Find the end.
-                size_t end = 0;
-                for (; end < size && s[end]; ++end)
-                    ;
-
-                // Add up the digits.
-                int tens = 1;
-                for (int i = int(end) - 1; i >= 0; --i, tens *= 10)
-                {
-                    out += (s[i] - 48) * tens;
-                }
-
-                // Apply the sign.
-                if (negativeSign)
-                {
-                    out = -out;
+                    out += delimeter;
                 }
             }
+            return out;
+        }
 
-            void fromString(const char* s, size_t size, int64_t& out)
+        std::string toUpper(const std::string& value)
+        {
+            std::string out;
+            for (auto i : value)
             {
-                out = 0;
+                out.push_back(std::toupper(i));
+            }
+            return out;
+        }
 
-                // Find the sign.
-                bool negativeSign = false;
-                if ('-' == s[0])
-                {
-                    negativeSign = true;
-                    ++s;
-                    --size;
-                }
-                else if ('+' == s[0])
-                {
-                    ++s;
-                    --size;
-                }
+        std::string toLower(const std::string& value)
+        {
+            std::string out;
+            for (auto i : value)
+            {
+                out.push_back(std::tolower(i));
+            }
+            return out;
+        }
 
-                // Find the end.
-                size_t end = 0;
-                for (; end < size && s[end]; ++end)
-                    ;
+        void removeTrailingNewlines(std::string& value)
+        {
+            size_t size = value.size();
+            while (size && ('\n' == value[size - 1] || '\r' == value[size - 1]))
+            {
+                value.pop_back();
+                size = value.size();
+            }
+        }
 
-                // Add up the digits.
-                int64_t tens = 1;
-                for (int i = int(end) - 1; i >= 0; --i, tens *= 10)
-                {
-                    out += (static_cast<int64_t>(s[i] - 48)) * tens;
-                }
+        std::string removeTrailingNewlines(const std::string& value)
+        {
+            std::string out = value;
+            removeTrailingNewlines(out);
+            return out;
+        }
 
-                // Apply the sign.
-                if (negativeSign)
-                {
-                    out = -out;
-                }
+        bool compareNoCase(const std::string& a, const std::string& b)
+        {
+            return toLower(a) == toLower(b);
+        }
+
+        void fromString(const char* s, size_t size, int& out)
+        {
+            out = 0;
+
+            // Find the sign.
+            bool negativeSign = false;
+            if ('-' == s[0])
+            {
+                negativeSign = true;
+                ++s;
+                --size;
+            }
+            else if ('+' == s[0])
+            {
+                ++s;
+                --size;
             }
 
-            void fromString(const char* s, size_t size, size_t& out)
-            {
-                out = 0;
+            // Find the end.
+            size_t end = 0;
+            for (; end < size && s[end]; ++end)
+                ;
 
-                // Add up the digits.
-                size_t tens = 1;
-                for (int i = int(size) - 1; i >= 0; --i, tens *= 10)
-                {
-                    out += (static_cast<size_t>(s[i] - 48)) * tens;
-                }
+            // Add up the digits.
+            int tens = 1;
+            for (int i = int(end) - 1; i >= 0; --i, tens *= 10)
+            {
+                out += (s[i] - 48) * tens;
             }
 
-            void fromString(const char* s, size_t size, float& out)
+            // Apply the sign.
+            if (negativeSign)
             {
-                out = 0.F;
+                out = -out;
+            }
+        }
 
-                // Find the sign.
-                int isize = int(size);
-                bool negativeSign = false;
-                if ('-' == s[0])
-                {
-                    negativeSign = true;
-                    ++s;
-                    --isize;
-                }
-                else if ('+' == s[0])
-                {
-                    ++s;
-                    --isize;
-                }
+        void fromString(const char* s, size_t size, int64_t& out)
+        {
+            out = 0;
 
-                // Find the engineering notation.
-                int e = 0;
-                for (int j = isize - 1; j >= 0; --j)
+            // Find the sign.
+            bool negativeSign = false;
+            if ('-' == s[0])
+            {
+                negativeSign = true;
+                ++s;
+                --size;
+            }
+            else if ('+' == s[0])
+            {
+                ++s;
+                --size;
+            }
+
+            // Find the end.
+            size_t end = 0;
+            for (; end < size && s[end]; ++end)
+                ;
+
+            // Add up the digits.
+            int64_t tens = 1;
+            for (int i = int(end) - 1; i >= 0; --i, tens *= 10)
+            {
+                out += (static_cast<int64_t>(s[i] - 48)) * tens;
+            }
+
+            // Apply the sign.
+            if (negativeSign)
+            {
+                out = -out;
+            }
+        }
+
+        void fromString(const char* s, size_t size, size_t& out)
+        {
+            out = 0;
+
+            // Add up the digits.
+            size_t tens = 1;
+            for (int i = int(size) - 1; i >= 0; --i, tens *= 10)
+            {
+                out += (static_cast<size_t>(s[i] - 48)) * tens;
+            }
+        }
+
+        void fromString(const char* s, size_t size, float& out)
+        {
+            out = 0.F;
+
+            // Find the sign.
+            int isize = int(size);
+            bool negativeSign = false;
+            if ('-' == s[0])
+            {
+                negativeSign = true;
+                ++s;
+                --isize;
+            }
+            else if ('+' == s[0])
+            {
+                ++s;
+                --isize;
+            }
+
+            // Find the engineering notation.
+            int e = 0;
+            for (int j = isize - 1; j >= 0; --j)
+            {
+                if ('e' == s[j] || 'E' == s[j])
                 {
-                    if ('e' == s[j] || 'E' == s[j])
+                    if (j < isize - 1)
                     {
-                        if (j < isize - 1)
-                        {
-                            fromString(s + j + 1, isize - static_cast<size_t>(j) - static_cast<size_t>(1), e);
-                        }
-                        isize = j;
-                        break;
+                        fromString(s + j + 1, isize - static_cast<size_t>(j) - static_cast<size_t>(1), e);
                     }
+                    isize = j;
+                    break;
                 }
+            }
 
-                // Find the decimal point.
-                int decimalPoint = -1;
-                for (int j = isize - 1; j >= 0; --j)
+            // Find the decimal point.
+            int decimalPoint = -1;
+            for (int j = isize - 1; j >= 0; --j)
+            {
+                if ('.' == s[j])
                 {
-                    if ('.' == s[j])
-                    {
-                        decimalPoint = j;
-                        break;
-                    }
+                    decimalPoint = j;
+                    break;
                 }
+            }
 
-                // Add up the digits.
-                float tens = 1.F;
-                for (int j = (decimalPoint != -1 ? decimalPoint : isize) - 1; j >= 0; --j, tens *= 10.F)
+            // Add up the digits.
+            float tens = 1.F;
+            for (int j = (decimalPoint != -1 ? decimalPoint : isize) - 1; j >= 0; --j, tens *= 10.F)
+            {
+                out += (s[j] - 48) * tens;
+            }
+
+            // Add up the decimal digits.
+            if (decimalPoint != -1)
+            {
+                tens = .1F;
+                for (int j = decimalPoint + 1; j < isize; ++j, tens /= 10.F)
                 {
                     out += (s[j] - 48) * tens;
                 }
-
-                // Add up the decimal digits.
-                if (decimalPoint != -1)
-                {
-                    tens = .1F;
-                    for (int j = decimalPoint + 1; j < isize; ++j, tens /= 10.F)
-                    {
-                        out += (s[j] - 48) * tens;
-                    }
-                }
-
-                // Apply the engineering notation.
-                if (e != 0)
-                {
-                    tens = e < 0 ? .1F : 10.F;
-                    if (e < 0) e = -e;
-                    for (int j = 0; j < e; ++j)
-                    {
-                        out *= tens;
-                    }
-                }
-
-                // Apply the sign.
-                if (negativeSign)
-                {
-                    out = -out;
-                }
             }
 
-            std::wstring toWide(const std::string& value)
+            // Apply the engineering notation.
+            if (e != 0)
             {
-                std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-                return converter.from_bytes(value);
-            }
-
-            std::string fromWide(const std::wstring& value)
-            {
-                std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-                return converter.to_bytes(value);
-            }
-
-            std::string escape(const std::string& value)
-            {
-                std::string out;
-                for (const auto i : value)
+                tens = e < 0 ? .1F : 10.F;
+                if (e < 0) e = -e;
+                for (int j = 0; j < e; ++j)
                 {
-                    if ('\\' == i)
-                    {
-                        out.push_back('\\');
-                    }
-                    out.push_back(i);
+                    out *= tens;
                 }
-                return out;
             }
 
-            std::string unescape(const std::string& value)
+            // Apply the sign.
+            if (negativeSign)
             {
-                std::string out;
-                const size_t size = value.size();
-                for (size_t i = 0; i < size; ++i)
-                {
-                    out.push_back(value[i]);
-                    if (i < size - 1 && '\\' == value[i] && '\\' == value[i + 1])
-                    {
-                        ++i;
-                    }
-                }
-                return out;
+                out = -out;
             }
+        }
+
+        std::wstring toWide(const std::string& value)
+        {
+            std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+            return converter.from_bytes(value);
+        }
+
+        std::string fromWide(const std::wstring& value)
+        {
+            std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+            return converter.to_bytes(value);
+        }
+
+        std::string escape(const std::string& value)
+        {
+            std::string out;
+            for (const auto i : value)
+            {
+                if ('\\' == i)
+                {
+                    out.push_back('\\');
+                }
+                out.push_back(i);
+            }
+            return out;
+        }
+
+        std::string unescape(const std::string& value)
+        {
+            std::string out;
+            const size_t size = value.size();
+            for (size_t i = 0; i < size; ++i)
+            {
+                out.push_back(value[i]);
+                if (i < size - 1 && '\\' == value[i] && '\\' == value[i + 1])
+                {
+                    ++i;
+                }
+            }
+            return out;
         }
     }
 }

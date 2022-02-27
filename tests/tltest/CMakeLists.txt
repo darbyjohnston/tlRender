@@ -9,7 +9,7 @@ set(LIBRARIES
     tlIOTest
     tlTimelineTest)
 if(TLRENDER_BUILD_GL)
-    list(APPEND LIBRARIES tlRenderGLTest)
+    list(APPEND LIBRARIES tlGLTest)
 endif()
 if(TLRENDER_BUILD_QT6 OR TLRENDER_BUILD_QT5)
     list(APPEND LIBRARIES tlQtTest)

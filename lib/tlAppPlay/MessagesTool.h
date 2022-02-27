@@ -8,33 +8,27 @@
 
 namespace tl
 {
-    namespace core
+    namespace system
     {
-        namespace system
-        {
-            class Context;
-        }
+        class Context;
     }
 
-    namespace app
+    namespace play
     {
-        namespace play
+        //! Messages tool.
+        class MessagesTool : public ToolWidget
         {
-            //! Messages tool.
-            class MessagesTool : public ToolWidget
-            {
-                Q_OBJECT
+            Q_OBJECT
 
-            public:
-                MessagesTool(
-                    const std::shared_ptr<core::system::Context>&,
-                    QWidget* parent = nullptr);
+        public:
+            MessagesTool(
+                const std::shared_ptr<system::Context>&,
+                QWidget* parent = nullptr);
 
-                ~MessagesTool() override;
+            ~MessagesTool() override;
 
-            private:
-                TLRENDER_PRIVATE();
-            };
-        }
+        private:
+            TLRENDER_PRIVATE();
+        };
     }
 }

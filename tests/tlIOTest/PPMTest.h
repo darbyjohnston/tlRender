@@ -8,24 +8,21 @@
 
 namespace tl
 {
-    namespace tests
+    namespace io_tests
     {
-        namespace io_test
+        class PPMTest : public tests::ITest
         {
-            class PPMTest : public Test::ITest
-            {
-            protected:
-                PPMTest(const std::shared_ptr<core::system::Context>&);
+        protected:
+            PPMTest(const std::shared_ptr<system::Context>&);
 
-            public:
-                static std::shared_ptr<PPMTest> create(const std::shared_ptr<core::system::Context>&);
+        public:
+            static std::shared_ptr<PPMTest> create(const std::shared_ptr<system::Context>&);
 
-                void run() override;
+            void run() override;
 
-            private:
-                void _enums();
-                void _io();
-            };
-        }
+        private:
+            void _enums();
+            void _io();
+        };
     }
 }

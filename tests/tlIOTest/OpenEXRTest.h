@@ -8,20 +8,17 @@
 
 namespace tl
 {
-    namespace tests
+    namespace io_tests
     {
-        namespace io_test
+        class OpenEXRTest : public tests::ITest
         {
-            class OpenEXRTest : public Test::ITest
-            {
-            protected:
-                OpenEXRTest(const std::shared_ptr<core::system::Context>&);
+        protected:
+            OpenEXRTest(const std::shared_ptr<system::Context>&);
 
-            public:
-                static std::shared_ptr<OpenEXRTest> create(const std::shared_ptr<core::system::Context>&);
+        public:
+            static std::shared_ptr<OpenEXRTest> create(const std::shared_ptr<system::Context>&);
 
-                void run() override;
-            };
-        }
+            void run() override;
+        };
     }
 }

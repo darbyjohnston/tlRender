@@ -6,17 +6,14 @@
 
 namespace tl
 {
-    namespace core
+    //! Observer pattern.
+    namespace observer
     {
-        //! Observer pattern.
-        namespace observer
+        //! Observer callback options.
+        enum class CallbackAction
         {
-            //! Observer callback options.
-            enum class CallbackAction
-            {
-                Trigger,
-                Suppress
-            };
-        }
+            Trigger,
+            Suppress
+        };
     }
 }

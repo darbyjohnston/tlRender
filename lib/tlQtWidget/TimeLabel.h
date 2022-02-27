@@ -12,49 +12,46 @@
 
 namespace tl
 {
-    namespace qt
+    namespace qtwidget
     {
-        namespace widget
+        //! Time label.
+        class TimeLabel : public QWidget
         {
-            //! Time label.
-            class TimeLabel : public QWidget
-            {
-                Q_OBJECT
-                Q_PROPERTY(
-                    otime::RationalTime value
-                    READ value
-                    WRITE setValue)
-                Q_PROPERTY(
-                    tl::qt::TimeUnits units
-                    READ units
-                    WRITE setUnits)
+            Q_OBJECT
+            Q_PROPERTY(
+                otime::RationalTime value
+                READ value
+                WRITE setValue)
+            Q_PROPERTY(
+                tl::qt::TimeUnits units
+                READ units
+                WRITE setUnits)
 
-            public:
-                TimeLabel(QWidget* parent = nullptr);
+        public:
+            TimeLabel(QWidget* parent = nullptr);
 
-                ~TimeLabel() override;
+            ~TimeLabel() override;
 
-                //! Set the time object.
-                void setTimeObject(qt::TimeObject*);
+            //! Set the time object.
+            void setTimeObject(qt::TimeObject*);
 
-                //! Get the time value.
-                const otime::RationalTime& value() const;
+            //! Get the time value.
+            const otime::RationalTime& value() const;
 
-                //! Get the time units.
-                qt::TimeUnits units() const;
+            //! Get the time units.
+            qt::TimeUnits units() const;
 
-            public Q_SLOTS:
-                //! Set the time value.
-                void setValue(const otime::RationalTime&);
+        public Q_SLOTS:
+            //! Set the time value.
+            void setValue(const otime::RationalTime&);
 
-                //! Set the time units.
-                void setUnits(tl::qt::TimeUnits);
+            //! Set the time units.
+            void setUnits(tl::qt::TimeUnits);
 
-            private:
-                void _textUpdate();
+        private:
+            void _textUpdate();
 
-                TLRENDER_PRIVATE();
-            };
-        }
+            TLRENDER_PRIVATE();
+        };
     }
 }

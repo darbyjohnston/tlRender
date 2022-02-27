@@ -16,12 +16,9 @@
 
 namespace tl
 {
-    namespace core
+    namespace imaging
     {
-        namespace imaging
-        {
-            class Color4f;
-        }
+        class Color4f;
     }
 
     namespace gl
@@ -61,33 +58,33 @@ namespace tl
 
             void setUniform(GLint, int);
             void setUniform(GLint, float);
-            void setUniform(GLint, const core::math::Vector2f&);
-            void setUniform(GLint, const core::math::Vector3f&);
-            void setUniform(GLint, const core::math::Vector4f&);
-            void setUniform(GLint, const core::math::Matrix3x3f&);
-            void setUniform(GLint, const core::math::Matrix4x4f&);
-            void setUniform(GLint, const core::imaging::Color4f&);
+            void setUniform(GLint, const math::Vector2f&);
+            void setUniform(GLint, const math::Vector3f&);
+            void setUniform(GLint, const math::Vector4f&);
+            void setUniform(GLint, const math::Matrix3x3f&);
+            void setUniform(GLint, const math::Matrix4x4f&);
+            void setUniform(GLint, const imaging::Color4f&);
             void setUniform(GLint, const float[4]);
 
             void setUniform(GLint, const std::vector<int>&);
             void setUniform(GLint, const std::vector<float>&);
-            void setUniform(GLint, const std::vector<core::math::Vector3f>&);
-            void setUniform(GLint, const std::vector<core::math::Vector4f>&);
+            void setUniform(GLint, const std::vector<math::Vector3f>&);
+            void setUniform(GLint, const std::vector<math::Vector4f>&);
 
             void setUniform(const std::string&, int);
             void setUniform(const std::string&, float);
-            void setUniform(const std::string&, const core::math::Vector2f&);
-            void setUniform(const std::string&, const core::math::Vector3f&);
-            void setUniform(const std::string&, const core::math::Vector4f&);
-            void setUniform(const std::string&, const core::math::Matrix3x3f&);
-            void setUniform(const std::string&, const core::math::Matrix4x4f&);
-            void setUniform(const std::string&, const core::imaging::Color4f&);
+            void setUniform(const std::string&, const math::Vector2f&);
+            void setUniform(const std::string&, const math::Vector3f&);
+            void setUniform(const std::string&, const math::Vector4f&);
+            void setUniform(const std::string&, const math::Matrix3x3f&);
+            void setUniform(const std::string&, const math::Matrix4x4f&);
+            void setUniform(const std::string&, const imaging::Color4f&);
             void setUniform(const std::string&, const float[4]);
 
             void setUniform(const std::string&, const std::vector<int>&);
             void setUniform(const std::string&, const std::vector<float>&);
-            void setUniform(const std::string&, const std::vector<core::math::Vector3f>&);
-            void setUniform(const std::string&, const std::vector<core::math::Vector4f>&);
+            void setUniform(const std::string&, const std::vector<math::Vector3f>&);
+            void setUniform(const std::string&, const std::vector<math::Vector4f>&);
 
             ///@}
 

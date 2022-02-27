@@ -13,45 +13,42 @@
 
 namespace tl
 {
-    namespace qt
+    namespace qtwidget
     {
-        namespace widget
+        //! Radio button group.
+        class RadioButtonGroup : public QWidget
         {
-            //! Radio button group.
-            class RadioButtonGroup : public QWidget
-            {
-                Q_OBJECT
+            Q_OBJECT
 
-            public:
-                RadioButtonGroup(Qt::Orientation = Qt::Horizontal, QWidget* parent = nullptr);
+        public:
+            RadioButtonGroup(Qt::Orientation = Qt::Horizontal, QWidget* parent = nullptr);
 
-                ~RadioButtonGroup() override;
+            ~RadioButtonGroup() override;
 
-                //! Add a button.
-                void addButton(const QString&, const QVariant&);
+            //! Add a button.
+            void addButton(const QString&, const QVariant&);
 
-                //! Clear the buttons.
-                void clear();
+            //! Clear the buttons.
+            void clear();
 
-            public Q_SLOTS:
-                //! Set the checked radio button.
-                void setChecked(const QVariant&);
+        public Q_SLOTS:
+            //! Set the checked radio button.
+            void setChecked(const QVariant&);
 
-                //! Set the orientation.
-                void setOrientation(Qt::Orientation);
+            //! Set the orientation.
+            void setOrientation(Qt::Orientation);
 
-            Q_SIGNALS:
-                //! This signal is emitted when a radio button is checked.
-                void checked(const QVariant&);
+        Q_SIGNALS:
+            //! This signal is emitted when a radio button is checked.
+            void checked(const QVariant&);
 
-            private Q_SLOTS:
-                void _callback(QAbstractButton*, bool);
+        private Q_SLOTS:
+            void _callback(QAbstractButton*, bool);
 
-            private:
-                void _widgetUpdate();
+        private:
+            void _widgetUpdate();
 
-                TLRENDER_PRIVATE();
-            };
-        }
+            TLRENDER_PRIVATE();
+        };
     }
 }

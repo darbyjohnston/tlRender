@@ -6,103 +6,98 @@
 
 #include <tlQt/TimelinePlayer.h>
 
-#include <tlRenderGL/Render.h>
+#include <tlGL/Render.h>
 
 #include <QOpenGLFramebufferObject>
 
 #include <QQuickWindow>
 
-using namespace tl::core;
-
 namespace tl
 {
-    namespace qt
+    namespace qtquick
     {
-        namespace quick
+        namespace
         {
-            namespace
+            class Renderer : public QQuickFramebufferObject::Renderer
             {
-                class Renderer : public QQuickFramebufferObject::Renderer
+            public:
+                Renderer(
+                    const GLFramebufferObject* framebufferObject) :
+                    _framebufferObject(framebufferObject)
+                {}
+
+                ~Renderer() override
+                {}
+
+                QOpenGLFramebufferObject* createFramebufferObject(const QSize& size) override
                 {
-                public:
-                    Renderer(
-                        const GLFramebufferObject* framebufferObject) :
-                        _framebufferObject(framebufferObject)
-                    {}
+                    return QQuickFramebufferObject::Renderer::createFramebufferObject(size);
+                }
 
-                    ~Renderer() override
-                    {}
-
-                    QOpenGLFramebufferObject* createFramebufferObject(const QSize& size) override
+                void render() override
+                {
+                    if (!_init)
                     {
-                        return QQuickFramebufferObject::Renderer::createFramebufferObject(size);
+                        _init = true;
+                        gladLoaderLoadGL();
+                        if (auto context = qtquick::context().lock())
+                        {
+                            _render = gl::Render::create(context);
+                        }
                     }
 
-                    void render() override
-                    {
-                        if (!_init)
-                        {
-                            _init = true;
-                            gladLoaderLoadGL();
-                            if (auto context = quick::context().lock())
-                            {
-                                _render = gl::Render::create(context);
-                            }
-                        }
-
-                        QOpenGLFramebufferObject* fbo = framebufferObject();
-                        _render->begin(imaging::Size(fbo->width(), fbo->height()));
-                        _render->drawVideo({ _videoData });
-                        _render->end();
+                    QOpenGLFramebufferObject* fbo = framebufferObject();
+                    _render->begin(imaging::Size(fbo->width(), fbo->height()));
+                    _render->drawVideo({ _videoData });
+                    _render->end();
 
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-                        _framebufferObject->window()->resetOpenGLState();
+                    _framebufferObject->window()->resetOpenGLState();
 #endif
-                    }
+                }
 
-                    void synchronize(QQuickFramebufferObject*) override
-                    {
-                        _videoData = _framebufferObject->video();
-                    }
+                void synchronize(QQuickFramebufferObject*) override
+                {
+                    _videoData = _framebufferObject->video();
+                }
 
-                private:
-                    const GLFramebufferObject* _framebufferObject = nullptr;
-                    bool _init = false;
-                    timeline::VideoData _videoData;
-                    std::shared_ptr<timeline::IRender> _render;
-                };
-            }
-
-            struct GLFramebufferObject::Private
-            {
-                timeline::VideoData videoData;
+            private:
+                const GLFramebufferObject* _framebufferObject = nullptr;
+                bool _init = false;
+                timeline::VideoData _videoData;
+                std::shared_ptr<timeline::IRender> _render;
             };
+        }
 
-            GLFramebufferObject::GLFramebufferObject(QQuickItem* parent) :
-                QQuickFramebufferObject(parent),
-                _p(new Private)
-            {
-                setMirrorVertically(true);
-            }
+        struct GLFramebufferObject::Private
+        {
+            timeline::VideoData videoData;
+        };
 
-            GLFramebufferObject::~GLFramebufferObject()
-            {}
+        GLFramebufferObject::GLFramebufferObject(QQuickItem* parent) :
+            QQuickFramebufferObject(parent),
+            _p(new Private)
+        {
+            setMirrorVertically(true);
+        }
 
-            const timeline::VideoData& GLFramebufferObject::video() const
-            {
-                return _p->videoData;
-            }
+        GLFramebufferObject::~GLFramebufferObject()
+        {}
 
-            QQuickFramebufferObject::Renderer* GLFramebufferObject::createRenderer() const
-            {
-                return new quick::Renderer(this);
-            }
+        const timeline::VideoData& GLFramebufferObject::video() const
+        {
+            return _p->videoData;
+        }
 
-            void GLFramebufferObject::setVideo(const timeline::VideoData& value)
-            {
-                _p->videoData = value;
-                update();
-            }
+        QQuickFramebufferObject::Renderer* GLFramebufferObject::createRenderer() const
+        {
+            return new qtquick::Renderer(this);
+        }
+
+        void GLFramebufferObject::setVideo(const timeline::VideoData& value)
+        {
+            _p->videoData = value;
+            update();
         }
     }
 }

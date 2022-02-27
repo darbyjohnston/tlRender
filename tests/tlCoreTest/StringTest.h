@@ -8,27 +8,24 @@
 
 namespace tl
 {
-    namespace tests
+    namespace core_tests
     {
-        namespace core_test
+        class StringTest : public tests::ITest
         {
-            class StringTest : public Test::ITest
-            {
-            protected:
-                StringTest(const std::shared_ptr<core::system::Context>&);
+        protected:
+            StringTest(const std::shared_ptr<system::Context>&);
 
-            public:
-                static std::shared_ptr<StringTest> create(const std::shared_ptr<core::system::Context>&);
+        public:
+            static std::shared_ptr<StringTest> create(const std::shared_ptr<system::Context>&);
 
-                void run() override;
+            void run() override;
 
-            private:
-                void _split();
-                void _case();
-                void _util();
-                void _convert();
-                void _escape();
-            };
-        }
+        private:
+            void _split();
+            void _case();
+            void _util();
+            void _convert();
+            void _escape();
+        };
     }
 }

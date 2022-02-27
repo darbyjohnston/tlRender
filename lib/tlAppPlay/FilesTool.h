@@ -8,31 +8,28 @@
 
 namespace tl
 {
-    namespace app
+    namespace play
     {
-        namespace play
+        class App;
+
+        //! Files tool.
+        class FilesTool : public ToolWidget
         {
-            class App;
+            Q_OBJECT
 
-            //! Files tool.
-            class FilesTool : public ToolWidget
-            {
-                Q_OBJECT
+        public:
+            FilesTool(
+                const QMap<QString, QAction*>&,
+                App*,
+                QWidget* parent = nullptr);
 
-            public:
-                FilesTool(
-                    const QMap<QString, QAction*>&,
-                    App*,
-                    QWidget* parent = nullptr);
+            ~FilesTool() override;
 
-                ~FilesTool() override;
+        private Q_SLOTS:
+            void _activatedCallback(const QModelIndex&);
 
-            private Q_SLOTS:
-                void _activatedCallback(const QModelIndex&);
-
-            private:
-                TLRENDER_PRIVATE();
-            };
-        }
+        private:
+            TLRENDER_PRIVATE();
+        };
     }
 }

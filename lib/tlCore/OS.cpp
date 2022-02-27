@@ -8,36 +8,33 @@
 
 namespace tl
 {
-    namespace core
+    namespace os
     {
-        namespace os
+        char getEnvListSeparator(EnvListSeparator value)
         {
-            char getEnvListSeparator(EnvListSeparator value)
-            {
-                return EnvListSeparator::Unix == value ? ':' : ';';
-            }
+            return EnvListSeparator::Unix == value ? ':' : ';';
+        }
 
-            bool getIntEnv(const std::string& name, int& out)
+        bool getIntEnv(const std::string& name, int& out)
+        {
+            std::string value;
+            if (getEnv(name, value))
             {
-                std::string value;
-                if (getEnv(name, value))
-                {
-                    out = !value.empty() ? std::stoi(value) : 0;
-                    return true;
-                }
-                return false;
+                out = !value.empty() ? std::stoi(value) : 0;
+                return true;
             }
+            return false;
+        }
 
-            bool getStringListEnv(const std::string& name, std::vector<std::string>& out)
+        bool getStringListEnv(const std::string& name, std::vector<std::string>& out)
+        {
+            std::string value;
+            if (getEnv(name, value))
             {
-                std::string value;
-                if (getEnv(name, value))
-                {
-                    out = string::split(value, getEnvListSeparator());
-                    return true;
-                }
-                return false;
+                out = string::split(value, getEnvListSeparator());
+                return true;
             }
+            return false;
         }
     }
 }

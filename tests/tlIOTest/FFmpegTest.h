@@ -8,25 +8,22 @@
 
 namespace tl
 {
-    namespace tests
+    namespace io_tests
     {
-        namespace io_test
+        class FFmpegTest : public tests::ITest
         {
-            class FFmpegTest : public Test::ITest
-            {
-            protected:
-                FFmpegTest(const std::shared_ptr<core::system::Context>&);
+        protected:
+            FFmpegTest(const std::shared_ptr<system::Context>&);
 
-            public:
-                static std::shared_ptr<FFmpegTest> create(const std::shared_ptr<core::system::Context>&);
+        public:
+            static std::shared_ptr<FFmpegTest> create(const std::shared_ptr<system::Context>&);
 
-                void run() override;
+            void run() override;
 
-            private:
-                void _enums();
-                void _util();
-                void _io();
-            };
-        }
+        private:
+            void _enums();
+            void _util();
+            void _io();
+        };
     }
 }

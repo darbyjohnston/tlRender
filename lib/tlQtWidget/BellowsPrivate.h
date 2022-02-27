@@ -12,41 +12,38 @@
 
 namespace tl
 {
-    namespace qt
+    namespace qtwidget
     {
-        namespace widget
+        class BellowsButton : public QWidget
         {
-            class BellowsButton : public QWidget
-            {
-                Q_OBJECT
+            Q_OBJECT
 
-            public:
-                BellowsButton(QWidget* parent = nullptr);
+        public:
+            BellowsButton(QWidget* parent = nullptr);
 
-                ~BellowsButton() override;
+            ~BellowsButton() override;
 
-                QString text() const;
+            QString text() const;
 
-                bool isOpen() const;
+            bool isOpen() const;
 
-            public Q_SLOTS:
-                void setText(const QString&);
+        public Q_SLOTS:
+            void setText(const QString&);
 
-                void setOpen(bool);
+            void setOpen(bool);
 
-            Q_SIGNALS:
-                void openChanged(bool);
+        Q_SIGNALS:
+            void openChanged(bool);
 
-            protected:
-                void mousePressEvent(QMouseEvent*) override;
-                void mouseReleaseEvent(QMouseEvent*) override;
-                void mouseMoveEvent(QMouseEvent*) override;
+        protected:
+            void mousePressEvent(QMouseEvent*) override;
+            void mouseReleaseEvent(QMouseEvent*) override;
+            void mouseMoveEvent(QMouseEvent*) override;
 
-            private:
-                void _widgetUpdate();
+        private:
+            void _widgetUpdate();
 
-                TLRENDER_PRIVATE();
-            };
-        }
+            TLRENDER_PRIVATE();
+        };
     }
 }

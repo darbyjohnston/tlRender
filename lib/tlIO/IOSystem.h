@@ -13,19 +13,19 @@ namespace tl
     namespace io
     {
         //! I/O system.
-        class System : public core::system::ISystem
+        class System : public system::ISystem
         {
             TLRENDER_NON_COPYABLE(System);
 
         protected:
-            void _init(const std::shared_ptr<core::system::Context>&);
+            void _init(const std::shared_ptr<system::Context>&);
             System();
 
         public:
             ~System() override;
 
             //! Create a new I/O system.
-            static std::shared_ptr<System> create(const std::shared_ptr<core::system::Context>&);
+            static std::shared_ptr<System> create(const std::shared_ptr<system::Context>&);
 
             //! Set the plugin options.
             void setOptions(const Options&);
@@ -38,7 +38,7 @@ namespace tl
             std::shared_ptr<T> getPlugin() const;
 
             //! Get a plugin for the given path.
-            std::shared_ptr<IPlugin> getPlugin(const core::file::Path&) const;
+            std::shared_ptr<IPlugin> getPlugin(const file::Path&) const;
 
             //! Get the supported file extensions.
             std::set<std::string> getExtensions(
@@ -48,12 +48,12 @@ namespace tl
 
             // Create a reader for the given path.
             std::shared_ptr<IRead> read(
-                const core::file::Path&,
+                const file::Path&,
                 const Options & = Options());
 
             // Create a writer for the given path.
             std::shared_ptr<IWrite> write(
-                const core::file::Path&,
+                const file::Path&,
                 const Info&,
                 const Options & = Options());
 

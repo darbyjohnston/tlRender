@@ -8,29 +8,26 @@
 
 namespace tl
 {
-    namespace tests
+    namespace timeline_tests
     {
-        namespace timeline_test
+        class TimelineTest : public tests::ITest
         {
-            class TimelineTest : public Test::ITest
-            {
-            protected:
-                TimelineTest(const std::shared_ptr<core::system::Context>&);
+        protected:
+            TimelineTest(const std::shared_ptr<system::Context>&);
 
-            public:
-                static std::shared_ptr<TimelineTest> create(const std::shared_ptr<core::system::Context>&);
+        public:
+            static std::shared_ptr<TimelineTest> create(const std::shared_ptr<system::Context>&);
 
-                void run() override;
+            void run() override;
 
-            private:
-                void _enums();
-                void _ranges();
-                void _util();
-                void _transitions();
-                void _videoData();
-                void _timeline();
-                void _imageSequence();
-            };
-        }
+        private:
+            void _enums();
+            void _ranges();
+            void _util();
+            void _transitions();
+            void _videoData();
+            void _timeline();
+            void _imageSequence();
+        };
     }
 }

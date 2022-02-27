@@ -10,7 +10,7 @@
 
 int main(int argc, char* argv[])
 {
-    tl::qt::widget::init();
+    tl::qtwidget::init();
     tl::examples::widgets_qtwidget::App app(argc, argv);
     return app.exec();
 }

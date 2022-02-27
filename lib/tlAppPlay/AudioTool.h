@@ -8,51 +8,48 @@
 
 namespace tl
 {
-    namespace app
+    namespace play
     {
-        namespace play
+        //! Audio offset widget.
+        class AudioOffsetWidget : public QWidget
         {
-            //! Audio offset widget.
-            class AudioOffsetWidget : public QWidget
-            {
-                Q_OBJECT
+            Q_OBJECT
 
-            public:
-                AudioOffsetWidget(QWidget* parent = nullptr);
+        public:
+            AudioOffsetWidget(QWidget* parent = nullptr);
 
-                ~AudioOffsetWidget() override;
+            ~AudioOffsetWidget() override;
 
-            public Q_SLOTS:
-                void setAudioOffset(double);
+        public Q_SLOTS:
+            void setAudioOffset(double);
 
-            Q_SIGNALS:
-                void audioOffsetChanged(double);
+        Q_SIGNALS:
+            void audioOffsetChanged(double);
 
-            private:
-                void _offsetUpdate();
+        private:
+            void _offsetUpdate();
 
-                TLRENDER_PRIVATE();
-            };
+            TLRENDER_PRIVATE();
+        };
 
-            //! Audio tool.
-            class AudioTool : public ToolWidget
-            {
-                Q_OBJECT
+        //! Audio tool.
+        class AudioTool : public ToolWidget
+        {
+            Q_OBJECT
 
-            public:
-                AudioTool(QWidget* parent = nullptr);
+        public:
+            AudioTool(QWidget* parent = nullptr);
 
-                ~AudioTool() override;
+            ~AudioTool() override;
 
-            public Q_SLOTS:
-                void setAudioOffset(double);
+        public Q_SLOTS:
+            void setAudioOffset(double);
 
-            Q_SIGNALS:
-                void audioOffsetChanged(double);
+        Q_SIGNALS:
+            void audioOffsetChanged(double);
 
-            private:
-                TLRENDER_PRIVATE();
-            };
-        }
+        private:
+            TLRENDER_PRIVATE();
+        };
     }
 }

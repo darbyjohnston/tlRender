@@ -14,38 +14,35 @@
 
 namespace tl
 {
-    namespace app
+    namespace play
     {
-        namespace play
+        class App;
+
+        //! Audio actions.
+        class AudioActions : public QObject
         {
-            class App;
+            Q_OBJECT
 
-            //! Audio actions.
-            class AudioActions : public QObject
-            {
-                Q_OBJECT
+        public:
+            AudioActions(App*, QObject* parent = nullptr);
 
-            public:
-                AudioActions(App*, QObject* parent = nullptr);
+            ~AudioActions() override;
 
-                ~AudioActions() override;
+            //! Get the actions.
+            const QMap<QString, QAction*>& actions() const;
 
-                //! Get the actions.
-                const QMap<QString, QAction*>& actions() const;
+            //! Get the menu.
+            QMenu* menu() const;
 
-                //! Get the menu.
-                QMenu* menu() const;
+            //! Set the timeline players.
+            void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
 
-                //! Set the timeline players.
-                void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
+        private Q_SLOTS:
 
-            private Q_SLOTS:
+        private:
+            void _actionsUpdate();
 
-            private:
-                void _actionsUpdate();
-
-                TLRENDER_PRIVATE();
-            };
-        }
+            TLRENDER_PRIVATE();
+        };
     }
 }

@@ -8,13 +8,10 @@
 
 namespace tl
 {
-    namespace qt
+    //! Qt QWidget support.
+    namespace qtwidget
     {
-        //! Qt QWidget functionality.
-        namespace widget
-        {
-            //! Initialize the library. This needs to be called before the Qt application is instantiated.
-            void init();
-        }
+        //! Initialize the library. This needs to be called before the Qt application is instantiated.
+        void init();
     }
 }

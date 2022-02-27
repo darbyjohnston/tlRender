@@ -4,7 +4,7 @@
 
 #include "App.h"
 
-#include <tlRenderGL/Render.h>
+#include <tlGL/Render.h>
 
 #include <tlTimeline/SoftwareRender.h>
 
@@ -19,8 +19,6 @@
 #include <GLFW/glfw3.h>
 
 #include <array>
-
-using namespace tl::core;
 
 namespace tl
 {

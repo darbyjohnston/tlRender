@@ -10,39 +10,36 @@
 
 namespace tl
 {
-    namespace app
+    namespace play
     {
-        namespace play
+        class App;
+
+        //! Compare tool.
+        class CompareTool : public ToolWidget
         {
-            class App;
+            Q_OBJECT
 
-            //! Compare tool.
-            class CompareTool : public ToolWidget
-            {
-                Q_OBJECT
+        public:
+            CompareTool(
+                const QMap<QString, QAction*>&,
+                App*,
+                QWidget* parent = nullptr);
 
-            public:
-                CompareTool(
-                    const QMap<QString, QAction*>&,
-                    App*,
-                    QWidget* parent = nullptr);
+            ~CompareTool() override;
 
-                ~CompareTool() override;
+        public Q_SLOTS:
+            void setCompareOptions(const tl::timeline::CompareOptions&);
 
-            public Q_SLOTS:
-                void setCompareOptions(const tl::timeline::CompareOptions&);
+        private Q_SLOTS:
+            void _activatedCallback(const QModelIndex&);
 
-            private Q_SLOTS:
-                void _activatedCallback(const QModelIndex&);
+        Q_SIGNALS:
+            void compareOptionsChanged(const tl::timeline::CompareOptions&);
 
-            Q_SIGNALS:
-                void compareOptionsChanged(const tl::timeline::CompareOptions&);
+        private:
+            void _widgetUpdate();
 
-            private:
-                void _widgetUpdate();
-
-                TLRENDER_PRIVATE();
-            };
-        }
+            TLRENDER_PRIVATE();
+        };
     }
 }

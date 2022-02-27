@@ -14,64 +14,61 @@
 
 namespace tl
 {
-    namespace app
+    namespace play
     {
-        namespace play
+        struct SecondaryWindow::Private
         {
-            struct SecondaryWindow::Private
+            App* app = nullptr;
+            qtwidget::TimelineViewport* viewport = nullptr;
+        };
+
+        SecondaryWindow::SecondaryWindow(
+            App* app,
+            QWidget* parent) :
+            QWidget(parent),
+            _p(new  Private)
+        {
+            TLRENDER_P();
+
+            p.app = app;
+
+            setAttribute(Qt::WA_DeleteOnClose);
+
+            p.viewport = new qtwidget::TimelineViewport(app->getContext());
+
+            auto layout = new QVBoxLayout;
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->addWidget(p.viewport);
+            setLayout(layout);
+
+            app->settingsObject()->setDefaultValue("SecondaryWindow/geometry", QByteArray());
+            auto ba = app->settingsObject()->value("SecondaryWindow/geometry").toByteArray();
+            if (!ba.isEmpty())
             {
-                App* app = nullptr;
-                qt::widget::TimelineViewport* viewport = nullptr;
-            };
-
-            SecondaryWindow::SecondaryWindow(
-                App* app,
-                QWidget* parent) :
-                QWidget(parent),
-                _p(new  Private)
-            {
-                TLRENDER_P();
-
-                p.app = app;
-
-                setAttribute(Qt::WA_DeleteOnClose);
-
-                p.viewport = new qt::widget::TimelineViewport(app->getContext());
-
-                auto layout = new QVBoxLayout;
-                layout->setContentsMargins(0, 0, 0, 0);
-                layout->addWidget(p.viewport);
-                setLayout(layout);
-
-                app->settingsObject()->setDefaultValue("SecondaryWindow/geometry", QByteArray());
-                auto ba = app->settingsObject()->value("SecondaryWindow/geometry").toByteArray();
-                if (!ba.isEmpty())
-                {
-                    restoreGeometry(ba);
-                }
-                else
-                {
-                    resize(1280, 720);
-                }
+                restoreGeometry(ba);
             }
-
-            SecondaryWindow::~SecondaryWindow()
+            else
             {
-                _p->app->settingsObject()->setValue("SecondaryWindow/geometry", saveGeometry());
+                resize(1280, 720);
             }
+        }
 
-            qt::widget::TimelineViewport* SecondaryWindow::viewport() const
-            {
-                return _p->viewport;
-            }
+        SecondaryWindow::~SecondaryWindow()
+        {
+            _p->app->settingsObject()->setValue("SecondaryWindow/geometry", saveGeometry());
+        }
 
-            void SecondaryWindow::keyPressEvent(QKeyEvent* event)
+        qtwidget::TimelineViewport* SecondaryWindow::viewport() const
+        {
+            return _p->viewport;
+        }
+
+        void SecondaryWindow::keyPressEvent(QKeyEvent* event)
+        {
+            if (Qt::Key_Escape == event->key())
             {
-                if (Qt::Key_Escape == event->key())
-                {
-                    event->accept();
-                    close();
-                }
+                event->accept();
+                close();
             }
         }
     }

@@ -15,144 +15,141 @@ extern "C"
 
 namespace tl
 {
-    namespace io
+    //! FFmpeg I/O
+    namespace ffmpeg
     {
-        //! FFmpeg I/O
-        namespace ffmpeg
+        //! Profiles.
+        enum class Profile
         {
-            //! Profiles.
-            enum class Profile
-            {
-                H264,
-                ProRes,
-                ProRes_Proxy,
-                ProRes_LT,
-                ProRes_HQ,
-                ProRes_4444,
-                ProRes_XQ,
+            H264,
+            ProRes,
+            ProRes_Proxy,
+            ProRes_LT,
+            ProRes_HQ,
+            ProRes_4444,
+            ProRes_XQ,
 
-                Count
-            };
-            TLRENDER_ENUM(Profile);
-            TLRENDER_ENUM_SERIALIZE(Profile);
+            Count
+        };
+        TLRENDER_ENUM(Profile);
+        TLRENDER_ENUM_SERIALIZE(Profile);
 
-            //! Number of threads.
-            const size_t threadCount = 4;
+        //! Number of threads.
+        const size_t threadCount = 4;
 
-            //! Timeout for requests.
-            const std::chrono::milliseconds requestTimeout(1);
+        //! Timeout for requests.
+        const std::chrono::milliseconds requestTimeout(1);
 
-            //! Software scaler flags.
-            const int swsScaleFlags = SWS_FAST_BILINEAR;
+        //! Software scaler flags.
+        const int swsScaleFlags = SWS_FAST_BILINEAR;
 
-            //! Swap the numerator and denominator.
-            AVRational swap(AVRational);
+        //! Swap the numerator and denominator.
+        AVRational swap(AVRational);
 
-            //! Convert to FFmpeg channel layout.
-            int64_t fromChannelCount(uint8_t);
+        //! Convert to FFmpeg channel layout.
+        int64_t fromChannelCount(uint8_t);
 
-            //! Convert from FFmpeg.
-            core::audio::DataType toAudioType(AVSampleFormat);
+        //! Convert from FFmpeg.
+        audio::DataType toAudioType(AVSampleFormat);
 
-            //! Convert to FFmpeg.
-            AVSampleFormat fromAudioType(core::audio::DataType);
+        //! Convert to FFmpeg.
+        AVSampleFormat fromAudioType(audio::DataType);
 
-            //! Get a label for a FFmpeg error code.
-            std::string getErrorLabel(int);
+        //! Get a label for a FFmpeg error code.
+        std::string getErrorLabel(int);
 
-            //! FFmpeg reader
-            class Read : public IRead
-            {
-            protected:
-                void _init(
-                    const core::file::Path&,
-                    const Options&,
-                    const std::weak_ptr<core::log::System>&);
-                Read();
+        //! FFmpeg reader
+        class Read : public io::IRead
+        {
+        protected:
+            void _init(
+                const file::Path&,
+                const io::Options&,
+                const std::weak_ptr<log::System>&);
+            Read();
 
-            public:
-                ~Read() override;
+        public:
+            ~Read() override;
 
-                //! Create a new reader.
-                static std::shared_ptr<Read> create(
-                    const core::file::Path&,
-                    const Options&,
-                    const std::weak_ptr<core::log::System>&);
+            //! Create a new reader.
+            static std::shared_ptr<Read> create(
+                const file::Path&,
+                const io::Options&,
+                const std::weak_ptr<log::System>&);
 
-                std::future<Info> getInfo() override;
-                std::future<VideoData> readVideo(const otime::RationalTime&, uint16_t layer = 0) override;
-                std::future<AudioData> readAudio(const otime::TimeRange&) override;
-                bool hasRequests() override;
-                void cancelRequests() override;
-                void stop() override;
-                bool hasStopped() const override;
+            std::future<io::Info> getInfo() override;
+            std::future<io::VideoData> readVideo(const otime::RationalTime&, uint16_t layer = 0) override;
+            std::future<io::AudioData> readAudio(const otime::TimeRange&) override;
+            bool hasRequests() override;
+            void cancelRequests() override;
+            void stop() override;
+            bool hasStopped() const override;
 
-            private:
-                void _open(const std::string& fileName);
-                void _run();
-                void _close();
+        private:
+            void _open(const std::string& fileName);
+            void _run();
+            void _close();
 
-                TLRENDER_PRIVATE();
-            };
+            TLRENDER_PRIVATE();
+        };
 
-            //! FFmpeg writer.
-            class Write : public IWrite
-            {
-            protected:
-                void _init(
-                    const core::file::Path&,
-                    const Info&,
-                    const Options&,
-                    const std::weak_ptr<core::log::System>&);
-                Write();
+        //! FFmpeg writer.
+        class Write : public io::IWrite
+        {
+        protected:
+            void _init(
+                const file::Path&,
+                const io::Info&,
+                const io::Options&,
+                const std::weak_ptr<log::System>&);
+            Write();
 
-            public:
-                ~Write() override;
+        public:
+            ~Write() override;
 
-                //! Create a new writer.
-                static std::shared_ptr<Write> create(
-                    const core::file::Path&,
-                    const Info&,
-                    const Options&,
-                    const std::weak_ptr<core::log::System>&);
+            //! Create a new writer.
+            static std::shared_ptr<Write> create(
+                const file::Path&,
+                const io::Info&,
+                const io::Options&,
+                const std::weak_ptr<log::System>&);
 
-                void writeVideo(
-                    const otime::RationalTime&,
-                    const std::shared_ptr<core::imaging::Image>&) override;
+            void writeVideo(
+                const otime::RationalTime&,
+                const std::shared_ptr<imaging::Image>&) override;
 
-            private:
-                void _encodeVideo(AVFrame*);
+        private:
+            void _encodeVideo(AVFrame*);
 
-                TLRENDER_PRIVATE();
-            };
+            TLRENDER_PRIVATE();
+        };
 
-            //! FFmpeg Plugin
-            class Plugin : public IPlugin
-            {
-            protected:
-                void _init(const std::weak_ptr<core::log::System>&);
-                Plugin();
+        //! FFmpeg Plugin
+        class Plugin : public io::IPlugin
+        {
+        protected:
+            void _init(const std::weak_ptr<log::System>&);
+            Plugin();
 
-            public:
-                //! Create a new plugin.
-                static std::shared_ptr<Plugin> create(const std::weak_ptr<core::log::System>&);
+        public:
+            //! Create a new plugin.
+            static std::shared_ptr<Plugin> create(const std::weak_ptr<log::System>&);
 
-                std::shared_ptr<IRead> read(
-                    const core::file::Path&,
-                    const Options & = Options()) override;
-                core::imaging::Info getWriteInfo(
-                    const core::imaging::Info&,
-                    const Options & = Options()) const override;
-                std::shared_ptr<IWrite> write(
-                    const core::file::Path&,
-                    const Info&,
-                    const Options & = Options()) override;
+            std::shared_ptr<io::IRead> read(
+                const file::Path&,
+                const io::Options& = io::Options()) override;
+            imaging::Info getWriteInfo(
+                const imaging::Info&,
+                const io::Options& = io::Options()) const override;
+            std::shared_ptr<io::IWrite> write(
+                const file::Path&,
+                const io::Info&,
+                const io::Options& = io::Options()) override;
 
-            private:
-                static void _logCallback(void*, int, const char*, va_list);
+        private:
+            static void _logCallback(void*, int, const char*, va_list);
 
-                static std::weak_ptr<core::log::System> _logSystemWeak;
-            };
-        }
+            static std::weak_ptr<log::System> _logSystemWeak;
+        };
     }
 }

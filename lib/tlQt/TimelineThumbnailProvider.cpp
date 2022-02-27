@@ -4,8 +4,8 @@
 
 #include <tlQt/TimelineThumbnailProvider.h>
 
-#include <tlRenderGL/OffscreenBuffer.h>
-#include <tlRenderGL/Render.h>
+#include <tlGL/OffscreenBuffer.h>
+#include <tlGL/Render.h>
 
 #include <tlTimeline/TimelinePlayer.h>
 
@@ -16,8 +16,6 @@
 
 #include <atomic>
 #include <mutex>
-
-using namespace tl::core;
 
 namespace tl
 {

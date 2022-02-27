@@ -90,18 +90,18 @@ namespace tl
 
             void _init(
                 const std::shared_ptr<timeline::TimelinePlayer>&,
-                const std::shared_ptr<core::system::Context>&);
+                const std::shared_ptr<system::Context>&);
 
         public:
             TimelinePlayer(
                 const std::shared_ptr<timeline::TimelinePlayer>&,
-                const std::shared_ptr<core::system::Context>&,
+                const std::shared_ptr<system::Context>&,
                 QObject* parent = nullptr);
 
             ~TimelinePlayer() override;
             
             //! Get the context.
-            const std::weak_ptr<core::system::Context>& context() const;
+            const std::weak_ptr<system::Context>& context() const;
 
             //! Get the timeline player.
             const std::shared_ptr<timeline::TimelinePlayer>& timelinePlayer() const;
@@ -110,10 +110,10 @@ namespace tl
             const std::shared_ptr<timeline::Timeline>& timeline() const;
 
             //! Get the path.
-            const core::file::Path& path() const;
+            const file::Path& path() const;
 
             //! Get the audio path.
-            const core::file::Path& audioPath() const;
+            const file::Path& audioPath() const;
 
             //! Get the timeline player options.
             const timeline::PlayerOptions& getPlayerOptions() const;

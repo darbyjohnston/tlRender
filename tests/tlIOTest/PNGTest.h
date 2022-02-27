@@ -8,20 +8,17 @@
 
 namespace tl
 {
-    namespace tests
+    namespace io_tests
     {
-        namespace io_test
+        class PNGTest : public tests::ITest
         {
-            class PNGTest : public Test::ITest
-            {
-            protected:
-                PNGTest(const std::shared_ptr<core::system::Context>&);
+        protected:
+            PNGTest(const std::shared_ptr<system::Context>&);
 
-            public:
-                static std::shared_ptr<PNGTest> create(const std::shared_ptr<core::system::Context>&);
+        public:
+            static std::shared_ptr<PNGTest> create(const std::shared_ptr<system::Context>&);
 
-                void run() override;
-            };
-        }
+            void run() override;
+        };
     }
 }

@@ -2,15 +2,13 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include <tlRenderGL/Shader.h>
+#include <tlGL/Shader.h>
 
 #include <tlCore/Color.h>
 #include <tlCore/String.h>
 #include <tlCore/StringFormat.h>
 
 #include <iostream>
-
-using namespace tl::core;
 
 namespace tl
 {

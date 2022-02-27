@@ -6,7 +6,7 @@
 
 namespace tl
 {
-    namespace core
+    namespace error
     {
         ParseError::ParseError() :
             invalid_argument("Cannot parse value")

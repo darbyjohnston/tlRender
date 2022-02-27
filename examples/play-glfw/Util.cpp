@@ -9,8 +9,6 @@
 
 #include <cmath>
 
-using namespace tl::core;
-
 namespace tl
 {
     namespace examples

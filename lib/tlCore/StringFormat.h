@@ -7,56 +7,53 @@
 
 namespace tl
 {
-    namespace core
+    namespace string
     {
-        namespace string
+        //! Format
+        //!
+        //! Example:
+        //! std::string result = Format("Testing {2} {1} {0}").arg("one").arg("two").arg("three");
+        //!
+        //! Results in the string "Testing three two one".
+        class Format
         {
-            //! Format
-            //!
-            //! Example:
-            //! std::string result = Format("Testing {2} {1} {0}").arg("one").arg("two").arg("three");
-            //!
-            //! Results in the string "Testing three two one".
-            class Format
-            {
-            public:
-                Format(const std::string&);
+        public:
+            Format(const std::string&);
 
-                //! \name Arguments
-                //! Replace the next argument in the string with the given value.
-                //! Arguments consist of an integer enclosed by curly brackets (eg., "{0}").
-                //! The argument with the smallest integer will be replaced. The
-                //! object is returned so that you can chain calls together.
-                ///@{
+            //! \name Arguments
+            //! Replace the next argument in the string with the given value.
+            //! Arguments consist of an integer enclosed by curly brackets (eg., "{0}").
+            //! The argument with the smallest integer will be replaced. The
+            //! object is returned so that you can chain calls together.
+            ///@{
 
-                Format& arg(const std::string&);
-                Format& arg(int, int width = 0);
-                Format& arg(int8_t, int width = 0);
-                Format& arg(uint8_t, int width = 0);
-                Format& arg(int16_t, int width = 0);
-                Format& arg(uint16_t, int width = 0);
-                Format& arg(float, int precision = -1, int width = 0);
-                Format& arg(double, int precision = -1, int width = 0);
-                template<typename T>
-                Format& arg(T);
+            Format& arg(const std::string&);
+            Format& arg(int, int width = 0);
+            Format& arg(int8_t, int width = 0);
+            Format& arg(uint8_t, int width = 0);
+            Format& arg(int16_t, int width = 0);
+            Format& arg(uint16_t, int width = 0);
+            Format& arg(float, int precision = -1, int width = 0);
+            Format& arg(double, int precision = -1, int width = 0);
+            template<typename T>
+            Format& arg(T);
 
-                ///@}
+            ///@}
 
-                //! \name Errors
-                ///@{
+            //! \name Errors
+            ///@{
 
-                bool hasError() const;
-                const std::string& getError() const;
+            bool hasError() const;
+            const std::string& getError() const;
 
-                ///@}
+            ///@}
 
-                operator std::string() const;
+            operator std::string() const;
 
-            private:
-                std::string _text;
-                std::string _error;
-            };
-        }
+        private:
+            std::string _text;
+            std::string _error;
+        };
     }
 }
 

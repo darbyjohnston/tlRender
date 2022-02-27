@@ -20,7 +20,7 @@ namespace tl
                 FloatSlider(QWidget* parent = nullptr);
 
             private:
-                std::vector<qt::widget::FloatSlider*> _sliders;
+                std::vector<qtwidget::FloatSlider*> _sliders;
             };
         }
     }

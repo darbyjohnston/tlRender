@@ -10,79 +10,76 @@
 
 namespace tl
 {
-    namespace app
+    namespace play
     {
-        namespace play
+        class SettingsObject;
+
+        //! Cache settings widget.
+        class CacheSettingsWidget : public QWidget
         {
-            class SettingsObject;
+            Q_OBJECT
 
-            //! Cache settings widget.
-            class CacheSettingsWidget : public QWidget
-            {
-                Q_OBJECT
+        public:
+            CacheSettingsWidget(SettingsObject*, QWidget* parent = nullptr);
 
-            public:
-                CacheSettingsWidget(SettingsObject*, QWidget* parent = nullptr);
+            ~CacheSettingsWidget() override;
 
-                ~CacheSettingsWidget() override;
+        private:
+            TLRENDER_PRIVATE();
+        };
 
-            private:
-                TLRENDER_PRIVATE();
-            };
+        //! File sequence settings widget.
+        class FileSequenceSettingsWidget : public QWidget
+        {
+            Q_OBJECT
 
-            //! File sequence settings widget.
-            class FileSequenceSettingsWidget : public QWidget
-            {
-                Q_OBJECT
+        public:
+            FileSequenceSettingsWidget(SettingsObject*, QWidget* parent = nullptr);
 
-            public:
-                FileSequenceSettingsWidget(SettingsObject*, QWidget* parent = nullptr);
+            ~FileSequenceSettingsWidget() override;
 
-                ~FileSequenceSettingsWidget() override;
+        private:
+            TLRENDER_PRIVATE();
+        };
 
-            private:
-                TLRENDER_PRIVATE();
-            };
+        //! Performance settings widget.
+        class PerformanceSettingsWidget : public QWidget
+        {
+            Q_OBJECT
 
-            //! Performance settings widget.
-            class PerformanceSettingsWidget : public QWidget
-            {
-                Q_OBJECT
+        public:
+            PerformanceSettingsWidget(SettingsObject*, QWidget* parent = nullptr);
 
-            public:
-                PerformanceSettingsWidget(SettingsObject*, QWidget* parent = nullptr);
+            ~PerformanceSettingsWidget() override;
 
-                ~PerformanceSettingsWidget() override;
+        private:
+            TLRENDER_PRIVATE();
+        };
 
-            private:
-                TLRENDER_PRIVATE();
-            };
+        //! Miscellaneous settings widget.
+        class MiscSettingsWidget : public QWidget
+        {
+            Q_OBJECT
 
-            //! Miscellaneous settings widget.
-            class MiscSettingsWidget : public QWidget
-            {
-                Q_OBJECT
+        public:
+            MiscSettingsWidget(SettingsObject*, QWidget* parent = nullptr);
 
-            public:
-                MiscSettingsWidget(SettingsObject*, QWidget* parent = nullptr);
+            ~MiscSettingsWidget() override;
 
-                ~MiscSettingsWidget() override;
+        private:
+            TLRENDER_PRIVATE();
+        };
 
-            private:
-                TLRENDER_PRIVATE();
-            };
+        //! Settings tool.
+        class SettingsTool : public ToolWidget
+        {
+            Q_OBJECT
 
-            //! Settings tool.
-            class SettingsTool : public ToolWidget
-            {
-                Q_OBJECT
-
-            public:
-                SettingsTool(
-                    SettingsObject*,
-                    qt::TimeObject*,
-                    QWidget* parent = nullptr);
-            };
-        }
+        public:
+            SettingsTool(
+                SettingsObject*,
+                qt::TimeObject*,
+                QWidget* parent = nullptr);
+        };
     }
 }

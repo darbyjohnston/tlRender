@@ -8,20 +8,17 @@
 
 namespace tl
 {
-    namespace tests
+    namespace core_tests
     {
-        namespace core_test
+        class StringFormatTest : public tests::ITest
         {
-            class StringFormatTest : public Test::ITest
-            {
-            protected:
-                StringFormatTest(const std::shared_ptr<core::system::Context>&);
+        protected:
+            StringFormatTest(const std::shared_ptr<system::Context>&);
 
-            public:
-                static std::shared_ptr<StringFormatTest> create(const std::shared_ptr<core::system::Context>&);
+        public:
+            static std::shared_ptr<StringFormatTest> create(const std::shared_ptr<system::Context>&);
 
-                void run() override;
-            };
-        }
+            void run() override;
+        };
     }
 }

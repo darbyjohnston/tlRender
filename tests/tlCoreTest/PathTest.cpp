@@ -7,81 +7,77 @@
 #include <tlCore/Assert.h>
 #include <tlCore/Path.h>
 
-using namespace tl::core;
-using namespace tl::core::file;
+using namespace tl::file;
 
 namespace tl
 {
-    namespace tests
+    namespace core_tests
     {
-        namespace core_test
+        PathTest::PathTest(const std::shared_ptr<system::Context>& context) :
+            ITest("core_tests::PathTest", context)
+        {}
+
+        std::shared_ptr<PathTest> PathTest::create(const std::shared_ptr<system::Context>& context)
         {
-            PathTest::PathTest(const std::shared_ptr<system::Context>& context) :
-                ITest("core_test::PathTest", context)
-            {}
+            return std::shared_ptr<PathTest>(new PathTest(context));
+        }
 
-            std::shared_ptr<PathTest> PathTest::create(const std::shared_ptr<system::Context>& context)
+        void PathTest::run()
+        {
             {
-                return std::shared_ptr<PathTest>(new PathTest(context));
+                Path path;
+                TLRENDER_ASSERT(path.isEmpty());
+                TLRENDER_ASSERT(path.getDirectory().empty());
+                TLRENDER_ASSERT(path.getBaseName().empty());
+                TLRENDER_ASSERT(path.getNumber().empty());
+                TLRENDER_ASSERT(path.getExtension().empty());
             }
-
-            void PathTest::run()
             {
+                TLRENDER_ASSERT(Path("/tmp/file.txt").get() == "/tmp/file.txt");
+                TLRENDER_ASSERT(Path("/tmp", "file.txt").get() == "/tmp/file.txt");
+                TLRENDER_ASSERT(Path("/tmp/", "file.txt").get() == "/tmp/file.txt");
+                TLRENDER_ASSERT(Path("\\tmp\\file.txt").get() == "/tmp/file.txt");
+            }
+            {
+                struct Data
                 {
-                    Path path;
-                    TLRENDER_ASSERT(path.isEmpty());
-                    TLRENDER_ASSERT(path.getDirectory().empty());
-                    TLRENDER_ASSERT(path.getBaseName().empty());
-                    TLRENDER_ASSERT(path.getNumber().empty());
-                    TLRENDER_ASSERT(path.getExtension().empty());
-                }
+                    std::string fileName;
+                    std::string directory;
+                    std::string baseName;
+                    std::string number;
+                    int padding = 0;
+                    std::string extension;
+                };
+                const std::vector<Data> data =
                 {
-                    TLRENDER_ASSERT(Path("/tmp/file.txt").get() == "/tmp/file.txt");
-                    TLRENDER_ASSERT(Path("/tmp", "file.txt").get() == "/tmp/file.txt");
-                    TLRENDER_ASSERT(Path("/tmp/", "file.txt").get() == "/tmp/file.txt");
-                    TLRENDER_ASSERT(Path("\\tmp\\file.txt").get() == "/tmp/file.txt");
-                }
+                    { "", "", "", "", 0, "" },
+                    { "file", "", "file", "", 0, "" },
+                    { "file.txt", "", "file", "", 0, ".txt" },
+                    { "/tmp/file.txt", "/tmp/", "file", "", 0, ".txt" },
+                    { "/tmp/render.1.exr", "/tmp/", "render.", "1", 0, ".exr" },
+                    { "/tmp/render.0001.exr", "/tmp/", "render.", "0001", 4, ".exr" },
+                    { "/tmp/render0001.exr", "/tmp/", "render", "0001", 4, ".exr" }
+                };
+                for (const auto& i : data)
                 {
-                    struct Data
-                    {
-                        std::string fileName;
-                        std::string directory;
-                        std::string baseName;
-                        std::string number;
-                        int padding = 0;
-                        std::string extension;
-                    };
-                    const std::vector<Data> data =
-                    {
-                        { "", "", "", "", 0, "" },
-                        { "file", "", "file", "", 0, "" },
-                        { "file.txt", "", "file", "", 0, ".txt" },
-                        { "/tmp/file.txt", "/tmp/", "file", "", 0, ".txt" },
-                        { "/tmp/render.1.exr", "/tmp/", "render.", "1", 0, ".exr" },
-                        { "/tmp/render.0001.exr", "/tmp/", "render.", "0001", 4, ".exr" },
-                        { "/tmp/render0001.exr", "/tmp/", "render", "0001", 4, ".exr" }
-                    };
-                    for (const auto& i : data)
-                    {
-                        Path path(i.fileName);
-                        TLRENDER_ASSERT(i.fileName == path.get());
-                        TLRENDER_ASSERT(i.directory == path.getDirectory());
-                        TLRENDER_ASSERT(i.baseName == path.getBaseName());
-                        TLRENDER_ASSERT(i.number == path.getNumber());
-                        TLRENDER_ASSERT(i.padding == path.getPadding());
-                        TLRENDER_ASSERT(i.extension == path.getExtension());
-                    }
+                    Path path(i.fileName);
+                    TLRENDER_ASSERT(i.fileName == path.get());
+                    TLRENDER_ASSERT(i.directory == path.getDirectory());
+                    TLRENDER_ASSERT(i.baseName == path.getBaseName());
+                    TLRENDER_ASSERT(i.number == path.getNumber());
+                    TLRENDER_ASSERT(i.padding == path.getPadding());
+                    TLRENDER_ASSERT(i.extension == path.getExtension());
                 }
-                {
-                    TLRENDER_ASSERT(Path("/").isAbsolute());
-                    TLRENDER_ASSERT(Path("/tmp").isAbsolute());
-                    TLRENDER_ASSERT(Path("\\").isAbsolute());
-                    TLRENDER_ASSERT(Path("C:").isAbsolute());
-                    TLRENDER_ASSERT(Path("C:\\tmp").isAbsolute());
-                    TLRENDER_ASSERT(!Path("").isAbsolute());
-                    TLRENDER_ASSERT(!Path("../..").isAbsolute());
-                    TLRENDER_ASSERT(!Path("..\\..").isAbsolute());
-                }
+            }
+            {
+                TLRENDER_ASSERT(Path("/").isAbsolute());
+                TLRENDER_ASSERT(Path("/tmp").isAbsolute());
+                TLRENDER_ASSERT(Path("\\").isAbsolute());
+                TLRENDER_ASSERT(Path("C:").isAbsolute());
+                TLRENDER_ASSERT(Path("C:\\tmp").isAbsolute());
+                TLRENDER_ASSERT(!Path("").isAbsolute());
+                TLRENDER_ASSERT(!Path("../..").isAbsolute());
+                TLRENDER_ASSERT(!Path("..\\..").isAbsolute());
             }
         }
     }

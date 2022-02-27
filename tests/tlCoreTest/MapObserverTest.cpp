@@ -7,68 +7,63 @@
 #include <tlCore/Assert.h>
 #include <tlCore/MapObserver.h>
 
-using namespace tl::core;
-
 namespace tl
 {
-    namespace tests
+    namespace core_tests
     {
-        namespace core_test
+        MapObserverTest::MapObserverTest(const std::shared_ptr<system::Context>& context) :
+            ITest("core_tests::MapObserverTest", context)
+        {}
+
+        std::shared_ptr<MapObserverTest> MapObserverTest::create(const std::shared_ptr<system::Context>& context)
         {
-            MapObserverTest::MapObserverTest(const std::shared_ptr<system::Context>& context) :
-                ITest("core_test::MapObserverTest", context)
-            {}
+            return std::shared_ptr<MapObserverTest>(new MapObserverTest(context));
+        }
 
-            std::shared_ptr<MapObserverTest> MapObserverTest::create(const std::shared_ptr<system::Context>& context)
-            {
-                return std::shared_ptr<MapObserverTest>(new MapObserverTest(context));
-            }
+        void MapObserverTest::run()
+        {
+            std::map<int, int> map = {};
+            auto value = observer::Map<int, int>::create(map);
+            TLRENDER_ASSERT(map == value->get());
 
-            void MapObserverTest::run()
-            {
-                std::map<int, int> map = {};
-                auto value = observer::Map<int, int>::create(map);
-                TLRENDER_ASSERT(map == value->get());
-
-                std::map<int, int> result;
-                auto observer = observer::MapObserver<int, int>::create(
-                    value,
-                    [&result](const std::map<int, int>& value)
-                    {
-                        result = value;
-                    });
-                map[0] = 1;
-                bool changed = value->setIfChanged(map);
-                TLRENDER_ASSERT(changed);
-                changed = value->setIfChanged(map);
-                TLRENDER_ASSERT(!changed);
-                TLRENDER_ASSERT(map == result);
-                TLRENDER_ASSERT(1 == value->getSize());
-                TLRENDER_ASSERT(!value->isEmpty());
-                TLRENDER_ASSERT(value->hasKey(0));
-                TLRENDER_ASSERT(1 == value->getItem(0));
-
+            std::map<int, int> result;
+            auto observer = observer::MapObserver<int, int>::create(
+                value,
+                [&result](const std::map<int, int>& value)
                 {
-                    std::map<int, int> result2;
-                    auto observer2 = observer::MapObserver<int, int>::create(
-                        value,
-                        [&result2](const std::map<int, int>& value)
-                        {
-                            result2 = value;
-                        });
-                    map[1] = 2;
-                    value->setIfChanged(map);
-                    TLRENDER_ASSERT(map == result);
-                    TLRENDER_ASSERT(map == result2);
-                    TLRENDER_ASSERT(2 == value->getSize());
-                    TLRENDER_ASSERT(!value->isEmpty());
-                    TLRENDER_ASSERT(value->hasKey(1));
-                    TLRENDER_ASSERT(2 == value->getItem(1));
-                    TLRENDER_ASSERT(2 == value->getObserversCount());
-                }
+                    result = value;
+                });
+            map[0] = 1;
+            bool changed = value->setIfChanged(map);
+            TLRENDER_ASSERT(changed);
+            changed = value->setIfChanged(map);
+            TLRENDER_ASSERT(!changed);
+            TLRENDER_ASSERT(map == result);
+            TLRENDER_ASSERT(1 == value->getSize());
+            TLRENDER_ASSERT(!value->isEmpty());
+            TLRENDER_ASSERT(value->hasKey(0));
+            TLRENDER_ASSERT(1 == value->getItem(0));
 
-                TLRENDER_ASSERT(1 == value->getObserversCount());
+            {
+                std::map<int, int> result2;
+                auto observer2 = observer::MapObserver<int, int>::create(
+                    value,
+                    [&result2](const std::map<int, int>& value)
+                    {
+                        result2 = value;
+                    });
+                map[1] = 2;
+                value->setIfChanged(map);
+                TLRENDER_ASSERT(map == result);
+                TLRENDER_ASSERT(map == result2);
+                TLRENDER_ASSERT(2 == value->getSize());
+                TLRENDER_ASSERT(!value->isEmpty());
+                TLRENDER_ASSERT(value->hasKey(1));
+                TLRENDER_ASSERT(2 == value->getItem(1));
+                TLRENDER_ASSERT(2 == value->getObserversCount());
             }
+
+            TLRENDER_ASSERT(1 == value->getObserversCount());
         }
     }
 }

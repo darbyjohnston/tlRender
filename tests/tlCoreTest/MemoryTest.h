@@ -8,24 +8,21 @@
 
 namespace tl
 {
-    namespace tests
+    namespace core_tests
     {
-        namespace core_test
+        class MemoryTest : public tests::ITest
         {
-            class MemoryTest : public Test::ITest
-            {
-            protected:
-                MemoryTest(const std::shared_ptr<core::system::Context>&);
+        protected:
+            MemoryTest(const std::shared_ptr<system::Context>&);
 
-            public:
-                static std::shared_ptr<MemoryTest> create(const std::shared_ptr<core::system::Context>&);
+        public:
+            static std::shared_ptr<MemoryTest> create(const std::shared_ptr<system::Context>&);
 
-                void run() override;
+            void run() override;
 
-            private:
-                void _enums();
-                void _endian();
-            };
-        }
+        private:
+            void _enums();
+            void _endian();
+        };
     }
 }

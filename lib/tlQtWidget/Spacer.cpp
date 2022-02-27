@@ -6,42 +6,39 @@
 
 namespace tl
 {
-    namespace qt
+    namespace qtwidget
     {
-        namespace widget
+        Spacer::Spacer(Qt::Orientation orientation, QWidget* parent) :
+            QFrame(parent),
+            _orientation(orientation)
         {
-            Spacer::Spacer(Qt::Orientation orientation, QWidget* parent) :
-                QFrame(parent),
-                _orientation(orientation)
-            {
-                _widgetUpdate();
-            }
+            _widgetUpdate();
+        }
 
-            Spacer::~Spacer()
-            {}
+        Spacer::~Spacer()
+        {}
 
-            void Spacer::setOrientation(Qt::Orientation value)
-            {
-                if (value == _orientation)
-                    return;
-                _orientation = value;
-                _widgetUpdate();
-            }
+        void Spacer::setOrientation(Qt::Orientation value)
+        {
+            if (value == _orientation)
+                return;
+            _orientation = value;
+            _widgetUpdate();
+        }
 
-            void Spacer::_widgetUpdate()
+        void Spacer::_widgetUpdate()
+        {
+            switch (_orientation)
             {
-                switch (_orientation)
-                {
-                case Qt::Horizontal:
-                    setMinimumWidth(10);
-                    setMinimumHeight(1);
-                    break;
-                case Qt::Vertical:
-                    setMinimumWidth(1);
-                    setMinimumHeight(10);
-                    break;
-                default: break;
-                }
+            case Qt::Horizontal:
+                setMinimumWidth(10);
+                setMinimumHeight(1);
+                break;
+            case Qt::Vertical:
+                setMinimumWidth(1);
+                setMinimumHeight(10);
+                break;
+            default: break;
             }
         }
     }

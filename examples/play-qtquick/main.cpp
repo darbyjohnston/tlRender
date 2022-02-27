@@ -13,7 +13,7 @@ int main(int argc, char* argv[])
     int r = 0;
     try
     {
-        tl::qt::quick::init();
+        tl::qtquick::init();
         tl::examples::play_qtquick::App app(argc, argv);
         if (0 == app.getExit())
         {

@@ -4,26 +4,21 @@
 
 #include <tlQtTest/TimeObjectTest.h>
 
-using namespace tl::core;
-
 namespace tl
 {
-    namespace tests
+namespace qt_tests
     {
-        namespace qt_test
+        TimeObjectTest::TimeObjectTest(const std::shared_ptr<system::Context>& context) :
+            ITest("qt_tests::TimeObjectTest", context)
+        {}
+
+        std::shared_ptr<TimeObjectTest> TimeObjectTest::create(const std::shared_ptr<system::Context>& context)
         {
-            TimeObjectTest::TimeObjectTest(const std::shared_ptr<system::Context>& context) :
-                ITest("qt_test::TimeObjectTest", context)
-            {}
+            return std::shared_ptr<TimeObjectTest>(new TimeObjectTest(context));
+        }
 
-            std::shared_ptr<TimeObjectTest> TimeObjectTest::create(const std::shared_ptr<system::Context>& context)
-            {
-                return std::shared_ptr<TimeObjectTest>(new TimeObjectTest(context));
-            }
-
-            void TimeObjectTest::run()
-            {
-            }
+        void TimeObjectTest::run()
+        {
         }
     }
 }

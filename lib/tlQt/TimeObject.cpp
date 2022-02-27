@@ -13,8 +13,6 @@
 
 #include <array>
 
-using namespace tl::core;
-
 namespace tl
 {
     namespace qt

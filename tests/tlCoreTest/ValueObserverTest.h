@@ -8,20 +8,17 @@
 
 namespace tl
 {
-    namespace tests
+    namespace core_tests
     {
-        namespace core_test
+        class ValueObserverTest : public tests::ITest
         {
-            class ValueObserverTest : public Test::ITest
-            {
-            protected:
-                ValueObserverTest(const std::shared_ptr<core::system::Context>&);
+        protected:
+            ValueObserverTest(const std::shared_ptr<system::Context>&);
 
-            public:
-                static std::shared_ptr<ValueObserverTest> create(const std::shared_ptr<core::system::Context>&);
+        public:
+            static std::shared_ptr<ValueObserverTest> create(const std::shared_ptr<system::Context>&);
 
-                void run() override;
-            };
-        }
+            void run() override;
+        };
     }
 }

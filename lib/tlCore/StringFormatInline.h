@@ -6,17 +6,14 @@
 
 namespace tl
 {
-    namespace core
+    namespace string
     {
-        namespace string
+        template<typename T>
+        inline Format& Format::arg(T value)
         {
-            template<typename T>
-            inline Format& Format::arg(T value)
-            {
-                std::stringstream ss;
-                ss << value;
-                return arg(ss.str());
-            }
+            std::stringstream ss;
+            ss << value;
+            return arg(ss.str());
         }
     }
 }

@@ -12,46 +12,43 @@
 
 namespace tl
 {
-    namespace qt
+    namespace qtwidget
     {
-        namespace widget
+        //! Filmstrip widget.
+        class FilmstripWidget : public QWidget
         {
-            //! Filmstrip widget.
-            class FilmstripWidget : public QWidget
-            {
-                Q_OBJECT
-                Q_PROPERTY(
-                    int rowCount
-                    READ rowCount
-                    WRITE setRowCount)
+            Q_OBJECT
+            Q_PROPERTY(
+                int rowCount
+                READ rowCount
+                WRITE setRowCount)
 
-            public:
-                FilmstripWidget(QWidget* parent = nullptr);
+        public:
+            FilmstripWidget(QWidget* parent = nullptr);
 
-                ~FilmstripWidget() override;
+            ~FilmstripWidget() override;
 
-                //! Set the timeline.
-                void setTimeline(const std::shared_ptr<timeline::Timeline>&);
+            //! Set the timeline.
+            void setTimeline(const std::shared_ptr<timeline::Timeline>&);
 
-                //! Get the row count.
-                int rowCount() const;
+            //! Get the row count.
+            int rowCount() const;
 
-            public Q_SLOTS:
-                //! Set the row count.
-                void setRowCount(int);
+        public Q_SLOTS:
+            //! Set the row count.
+            void setRowCount(int);
 
-            protected:
-                void resizeEvent(QResizeEvent*) override;
-                void paintEvent(QPaintEvent*) override;
+        protected:
+            void resizeEvent(QResizeEvent*) override;
+            void paintEvent(QPaintEvent*) override;
 
-            private Q_SLOTS:
-                void _thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >&);
+        private Q_SLOTS:
+            void _thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >&);
 
-            private:
-                void _thumbnailsUpdate();
+        private:
+            void _thumbnailsUpdate();
 
-                TLRENDER_PRIVATE();
-            };
-        }
+            TLRENDER_PRIVATE();
+        };
     }
 }
