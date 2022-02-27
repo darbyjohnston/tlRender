@@ -6,19 +6,22 @@
 
 namespace tl
 {
-    namespace AppTest
+    namespace tests
     {
-        CmdLineTest::CmdLineTest(const std::shared_ptr<core::Context>& context) :
-            ITest("AppTest::CmdLineTest", context)
-        {}
-
-        std::shared_ptr<CmdLineTest> CmdLineTest::create(const std::shared_ptr<core::Context>& context)
+        namespace AppTest
         {
-            return std::shared_ptr<CmdLineTest>(new CmdLineTest(context));
-        }
+            CmdLineTest::CmdLineTest(const std::shared_ptr<core::Context>& context) :
+                ITest("AppTest::CmdLineTest", context)
+            {}
 
-        void CmdLineTest::run()
-        {
+            std::shared_ptr<CmdLineTest> CmdLineTest::create(const std::shared_ptr<core::Context>& context)
+            {
+                return std::shared_ptr<CmdLineTest>(new CmdLineTest(context));
+            }
+
+            void CmdLineTest::run()
+            {
+            }
         }
     }
 }

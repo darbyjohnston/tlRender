@@ -19,54 +19,57 @@
 
 namespace tl
 {
-    namespace file
+    namespace core
     {
-        bool exists(const Path& path)
+        namespace file
         {
-            _STAT info;
-            std::memset(&info, 0, sizeof(_STAT));
-            return 0 == _STAT_FNC(string::toWide(path.get()).c_str(), &info);
-        }
-        
-        std::string getTemp()
-        {
-            std::string out;
-            WCHAR buf[MAX_PATH];
-            DWORD r = GetTempPathW(MAX_PATH, buf);
-            if (r && r < MAX_PATH)
+            bool exists(const Path& path)
             {
-                out = string::fromWide(buf);
+                _STAT info;
+                std::memset(&info, 0, sizeof(_STAT));
+                return 0 == _STAT_FNC(string::toWide(path.get()).c_str(), &info);
             }
-            return out;
-        }
 
-        std::string createTempDir()
-        {
-            std::string out;
-
-            // Get the temporary directory.
-            char path[MAX_PATH];
-            DWORD r = GetTempPath(MAX_PATH, path);
-            if (r)
+            std::string getTemp()
             {
-                out = std::string(path);
-
-                // Create a unique name from a GUID.
-                GUID guid;
-                CoCreateGuid(&guid);
-                const uint8_t* guidP = reinterpret_cast<const uint8_t*>(&guid);
-                for (int i = 0; i < 16; ++i)
+                std::string out;
+                WCHAR buf[MAX_PATH];
+                DWORD r = GetTempPathW(MAX_PATH, buf);
+                if (r && r < MAX_PATH)
                 {
-                    char buf[3] = "";
-                    sprintf_s(buf, 3, "%02x", guidP[i]);
-                    out += buf;
+                    out = string::fromWide(buf);
+                }
+                return out;
+            }
+
+            std::string createTempDir()
+            {
+                std::string out;
+
+                // Get the temporary directory.
+                char path[MAX_PATH];
+                DWORD r = GetTempPath(MAX_PATH, path);
+                if (r)
+                {
+                    out = std::string(path);
+
+                    // Create a unique name from a GUID.
+                    GUID guid;
+                    CoCreateGuid(&guid);
+                    const uint8_t* guidP = reinterpret_cast<const uint8_t*>(&guid);
+                    for (int i = 0; i < 16; ++i)
+                    {
+                        char buf[3] = "";
+                        sprintf_s(buf, 3, "%02x", guidP[i]);
+                        out += buf;
+                    }
+
+                    // Create a unique directory.
+                    CreateDirectory(out.c_str(), NULL);
                 }
 
-                // Create a unique directory.
-                CreateDirectory(out.c_str(), NULL);
+                return out;
             }
-
-            return out;
         }
     }
 }

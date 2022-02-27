@@ -2,9 +2,9 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include <tlPlay/App.h>
+#include <tlAppPlay/App.h>
 
-#include <tlQWidget/Util.h>
+#include <tlQtWidget/Util.h>
 
 #include <iostream>
 
@@ -13,8 +13,8 @@ int main(int argc, char* argv[])
     int r = 0;
     try
     {
-        tl::qwidget::init();
-        tl::play::App app(argc, argv);
+        tl::qt::widget::init();
+        tl::app::play::App app(argc, argv);
         if (0 == app.getExit())
         {
             r = app.exec();

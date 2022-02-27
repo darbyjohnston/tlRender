@@ -7,5 +7,5 @@ set(SOURCE
     IApp.cpp)
 
 add_library(tlApp ${HEADERS} ${SOURCE})
-target_link_libraries(tlApp tlCore)
+target_link_libraries(tlApp tlTimeline)
 set_target_properties(tlApp PROPERTIES FOLDER lib)

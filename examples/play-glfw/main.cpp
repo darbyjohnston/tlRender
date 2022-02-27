@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
     int r = 0;
     try
     {
-        auto app = tl::App::create(argc, argv);
+        auto app = tl::examples::play_glfw::App::create(argc, argv);
         app->run();
         r = app->getExit();
     }

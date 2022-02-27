@@ -8,29 +8,31 @@
 
 namespace tl
 {
-    namespace Test
+    namespace tests
     {
-        template<typename T>
-        inline void ITest::_enum(
-            const std::string& name,
-            const std::function<std::vector<T>(void)>& value)
+        namespace Test
         {
-            for (auto i : value())
+            template<typename T>
+            inline void ITest::_enum(
+                const std::string& name,
+                const std::function<std::vector<T>(void)>& value)
             {
+                for (auto i : value())
                 {
-                    std::stringstream ss;
-                    ss << name << ": " << i;
-                    _print(ss.str());
-                }
-                {
-                    std::stringstream ss;
-                    ss << i;
-                    T j;
-                    ss >> j;
-                    TLRENDER_ASSERT(i == j);
+                    {
+                        std::stringstream ss;
+                        ss << name << ": " << i;
+                        _print(ss.str());
+                    }
+                    {
+                        std::stringstream ss;
+                        ss << i;
+                        T j;
+                        ss >> j;
+                        TLRENDER_ASSERT(i == j);
+                    }
                 }
             }
         }
     }
 }
-

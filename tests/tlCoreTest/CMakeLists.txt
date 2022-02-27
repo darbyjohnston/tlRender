@@ -1,11 +1,8 @@
 set(HEADERS
-    AVIOTest.h
     AudioTest.h
     BBoxTest.h
-    CineonTest.h
     ColorTest.h
     ContextTest.h
-    DPXTest.h
     ErrorTest.h
     FileIOTest.h
     FileTest.h
@@ -15,25 +12,17 @@ set(HEADERS
     MapObserverTest.h
     MathTest.h
     MemoryTest.h
-    PPMTest.h
     PathTest.h
     RangeTest.h
-    SGITest.h
     StringTest.h
     StringFormatTest.h
     TimeTest.h
-    TimelinePlayerTest.h
-    TimelineTest.h
-    TimelineUtilTest.h
     ValueObserverTest.h)
 set(SOURCE
-    AVIOTest.cpp
     AudioTest.cpp
     BBoxTest.cpp
-    CineonTest.cpp
     ColorTest.cpp
     ContextTest.cpp
-    DPXTest.cpp
     ErrorTest.cpp
     FileIOTest.cpp
     FileTest.cpp
@@ -43,37 +32,12 @@ set(SOURCE
     MapObserverTest.cpp
     MathTest.cpp
     MemoryTest.cpp
-    PPMTest.cpp
     PathTest.cpp
     RangeTest.cpp
-    SGITest.cpp
     StringTest.cpp
     StringFormatTest.cpp
     TimeTest.cpp
-    TimelinePlayerTest.cpp
-    TimelineTest.cpp
-    TimelineUtilTest.cpp
     ValueObserverTest.cpp)
-if(FFmpeg_FOUND)
-    list(APPEND HEADERS FFmpegTest.h)
-    list(APPEND SOURCE FFmpegTest.cpp)
-endif()
-if(JPEG_FOUND)
-    list(APPEND HEADERS JPEGTest.h)
-    list(APPEND SOURCE JPEGTest.cpp)
-endif()
-if(PNG_FOUND)
-    list(APPEND HEADERS PNGTest.h)
-    list(APPEND SOURCE PNGTest.cpp)
-endif()
-if(OpenEXR_FOUND)
-    list(APPEND HEADERS OpenEXRTest.h)
-    list(APPEND SOURCE OpenEXRTest.cpp)
-endif()
-if(TIFF_FOUND)
-    list(APPEND HEADERS TIFFTest.h)
-    list(APPEND SOURCE TIFFTest.cpp)
-endif()
 
 add_library(tlCoreTest ${SOURCE} ${HEADERS})
 target_link_libraries(tlCoreTest tlTestLib)

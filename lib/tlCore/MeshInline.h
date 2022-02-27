@@ -4,11 +4,14 @@
 
 namespace tl
 {
-    namespace geom
+    namespace core
     {
-        inline float edge(const math::Vector2f& p, const math::Vector2f& v0, const math::Vector2f& v1)
+        namespace geom
         {
-            return (p.x - v0.x) * (v1.y - v0.y) - (p.y - v0.y) * (v1.x - v0.x);
+            inline float edge(const math::Vector2f& p, const math::Vector2f& v0, const math::Vector2f& v1)
+            {
+                return (p.x - v0.x) * (v1.y - v0.y) - (p.y - v0.y) * (v1.x - v0.x);
+            }
         }
     }
 }

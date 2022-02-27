@@ -8,17 +8,20 @@
 
 namespace tl
 {
-    namespace CoreTest
+    namespace tests
     {
-        class LRUCacheTest : public Test::ITest
+        namespace core_test
         {
-        protected:
-            LRUCacheTest(const std::shared_ptr<core::Context>&);
+            class LRUCacheTest : public Test::ITest
+            {
+            protected:
+                LRUCacheTest(const std::shared_ptr<core::Context>&);
 
-        public:
-            static std::shared_ptr<LRUCacheTest> create(const std::shared_ptr<core::Context>&);
+            public:
+                static std::shared_ptr<LRUCacheTest> create(const std::shared_ptr<core::Context>&);
 
-            void run() override;
-        };
+                void run() override;
+            };
+        }
     }
 }

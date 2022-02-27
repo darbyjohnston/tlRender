@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include "App.h"
+#include <tlAppBake/App.h>
 
 #include <iostream>
 
@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
     int r = 0;
     try
     {
-        auto app = tl::App::create(argc, argv);
+        auto app = tl::app::bake::App::create(argc, argv);
         app->run();
         r = app->getExit();
     }

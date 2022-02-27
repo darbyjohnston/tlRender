@@ -6,6 +6,8 @@
 
 #include <tlCore/Math.h>
 
+using namespace tl::core;
+
 namespace tl
 {
     namespace qt
@@ -33,7 +35,7 @@ namespace tl
 
         void TimelinePlayer::_init(
             const std::shared_ptr<timeline::TimelinePlayer>& timelinePlayer,
-            const std::shared_ptr<core::Context>& context)
+            const std::shared_ptr<Context>& context)
         {
             TLRENDER_P();
 
@@ -149,7 +151,7 @@ namespace tl
 
         TimelinePlayer::TimelinePlayer(
             const std::shared_ptr<timeline::TimelinePlayer>& timelinePlayer,
-            const std::shared_ptr<core::Context>& context,
+            const std::shared_ptr<Context>& context,
             QObject* parent) :
             QObject(parent),
             _p(new Private)
@@ -160,7 +162,7 @@ namespace tl
         TimelinePlayer::~TimelinePlayer()
         {}
         
-        const std::weak_ptr<core::Context>& TimelinePlayer::context() const
+        const std::weak_ptr<Context>& TimelinePlayer::context() const
         {
             return _p->timelinePlayer->getContext();
         }
@@ -205,9 +207,9 @@ namespace tl
             return _p->timelinePlayer->getGlobalStartTime();
         }
 
-        const avio::Info& TimelinePlayer::avInfo() const
+        const io::Info& TimelinePlayer::ioInfo() const
         {
-            return _p->timelinePlayer->getAVInfo();
+            return _p->timelinePlayer->getIOInfo();
         }
 
         double TimelinePlayer::defaultSpeed() const

@@ -6,14 +6,15 @@
 
 #include <tlApp/CmdLine.h>
 
-#include <tlCore/Context.h>
-#include <tlCore/SequenceIO.h>
+#include <tlIO/SequenceIO.h>
 #if defined(OpenEXR_FOUND)
-#include <tlCore/OpenEXR.h>
+#include <tlIO/OpenEXR.h>
 #endif
 #if defined(FFmpeg_FOUND)
-#include <tlCore/FFmpeg.h>
+#include <tlIO/FFmpeg.h>
 #endif
+
+#include <tlCore/Context.h>
 
 #include <memory>
 #include <string>
@@ -21,7 +22,7 @@
 
 namespace tl
 {
-    //! Applications.
+    //! Functionality for the tlRender applications.
     namespace app
     {
         class ICmdLineArg;
@@ -30,15 +31,15 @@ namespace tl
         //! Application options.
         struct Options
         {
-            float sequenceDefaultSpeed = avio::sequenceDefaultSpeed;
-            int sequenceThreadCount = avio::sequenceThreadCount;
+            float sequenceDefaultSpeed = io::sequenceDefaultSpeed;
+            int sequenceThreadCount = io::sequenceThreadCount;
 #if defined(OpenEXR_FOUND)
-            exr::Compression exrCompression = exr::Compression::ZIP;
+            io::exr::Compression exrCompression = io::exr::Compression::ZIP;
             float exrDWACompressionLevel = 45.F;
 #endif
 #if defined(FFmpeg_FOUND)
             std::string ffmpegWriteProfile;
-            int ffmpegThreadCount = ffmpeg::threadCount;
+            int ffmpegThreadCount = io::ffmpeg::threadCount;
 #endif
             bool log = false;
             bool help = false;

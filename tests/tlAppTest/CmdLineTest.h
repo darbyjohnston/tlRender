@@ -8,17 +8,20 @@
 
 namespace tl
 {
-    namespace AppTest
+    namespace tests
     {
-        class CmdLineTest : public Test::ITest
+        namespace AppTest
         {
-        protected:
-            CmdLineTest(const std::shared_ptr<core::Context>&);
+            class CmdLineTest : public Test::ITest
+            {
+            protected:
+                CmdLineTest(const std::shared_ptr<core::Context>&);
 
-        public:
-            static std::shared_ptr<CmdLineTest> create(const std::shared_ptr<core::Context>&);
+            public:
+                static std::shared_ptr<CmdLineTest> create(const std::shared_ptr<core::Context>&);
 
-            void run() override;
-        };
+                void run() override;
+            };
+        }
     }
 }

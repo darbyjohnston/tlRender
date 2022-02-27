@@ -8,21 +8,24 @@
 
 namespace tl
 {
-    //! Imaging.
-    namespace imaging
+    namespace core
     {
-        //! Color.
-        class Color4f
+        //! Imaging.
+        namespace imaging
         {
-        public:
-            Color4f();
-            explicit Color4f(float r, float g, float b, float a = 1.F);
+            //! Color.
+            class Color4f
+            {
+            public:
+                Color4f();
+                explicit Color4f(float r, float g, float b, float a = 1.F);
 
-            float r, g, b, a;
-        };
+                float r, g, b, a;
+            };
 
-        //! Convert a floating point value to an 8-bit value.
-        uint8_t fToU8(float);
+            //! Convert a floating point value to an 8-bit value.
+            uint8_t fToU8(float);
+        }
     }
 }
 

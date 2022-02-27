@@ -1,11 +1,5 @@
-set(HEADERS
-    App.h)
-set(SOURCE
-    App.cpp
-    main.cpp)
-
-add_executable(tlbake ${SOURCE} ${HEADERS})
-target_link_libraries(tlbake tlApp)
+add_executable(tlbake main.cpp)
+target_link_libraries(tlbake tlAppBake)
 set_target_properties(tlbake PROPERTIES FOLDER bin)
 
 install(

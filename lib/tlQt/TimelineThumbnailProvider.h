@@ -6,8 +6,9 @@
 
 #include <tlQt/Util.h>
 
+#include <tlTimeline/Timeline.h>
+
 #include <tlCore/OCIO.h>
-#include <tlCore/Timeline.h>
 
 #include <QImage>
 #include <QThread>
@@ -23,13 +24,13 @@ namespace tl
 
         public:
             TimelineThumbnailProvider(
-                const std::shared_ptr<tl::timeline::Timeline>&,
+                const std::shared_ptr<timeline::Timeline>&,
                 const std::shared_ptr<core::Context>&,
                 QObject* parent = nullptr);
             ~TimelineThumbnailProvider() override;
 
             //! Set the color configuration.
-            void setColorConfig(const imaging::ColorConfig&);
+            void setColorConfig(const core::imaging::ColorConfig&);
 
         public Q_SLOTS:
             //! Request a thumbnail.

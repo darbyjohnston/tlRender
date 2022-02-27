@@ -1,8 +1,5 @@
-set(HEADERS)
-set(SOURCE main.cpp)
-
-add_executable(tlplay ${SOURCE} ${HEADERS})
-target_link_libraries(tlplay tlPlay)
+add_executable(tlplay main.cpp)
+target_link_libraries(tlplay tlAppPlay)
 set_target_properties(tlplay PROPERTIES FOLDER bin)
 
 install(

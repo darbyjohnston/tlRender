@@ -8,17 +8,20 @@
 
 namespace tl
 {
-    namespace CoreTest
+    namespace tests
     {
-        class MapObserverTest : public Test::ITest
+        namespace core_test
         {
-        protected:
-            MapObserverTest(const std::shared_ptr<core::Context>&);
+            class MapObserverTest : public Test::ITest
+            {
+            protected:
+                MapObserverTest(const std::shared_ptr<core::Context>&);
 
-        public:
-            static std::shared_ptr<MapObserverTest> create(const std::shared_ptr<core::Context>&);
+            public:
+                static std::shared_ptr<MapObserverTest> create(const std::shared_ptr<core::Context>&);
 
-            void run() override;
-        };
+                void run() override;
+            };
+        }
     }
 }

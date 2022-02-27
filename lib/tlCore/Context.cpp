@@ -4,7 +4,6 @@
 
 #include <tlCore/Context.h>
 
-#include <tlCore/AVIOSystem.h>
 #include <tlCore/AudioSystem.h>
 #include <tlCore/OS.h>
 #include <tlCore/StringFormat.h>
@@ -43,7 +42,6 @@ namespace tl
                 arg(info.ramGB));
 
             _systems.push_back(audio::System::create(shared_from_this()));
-            _systems.push_back(avio::System::create(shared_from_this()));
         }
 
         Context::Context() :

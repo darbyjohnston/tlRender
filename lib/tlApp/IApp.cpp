@@ -4,17 +4,14 @@
 
 #include <tlApp/IApp.h>
 
-#include <tlCore/AVIOSystem.h>
+#include <tlIO/IOSystem.h>
+
 #include <tlCore/String.h>
 #include <tlCore/StringFormat.h>
-#if defined(OpenEXR_FOUND)
-#include <tlCore/OpenEXR.h>
-#endif
-#if defined(FFmpeg_FOUND)
-#include <tlCore/FFmpeg.h>
-#endif
 
 #include <iostream>
+
+using namespace tl::core;
 
 namespace tl
 {
@@ -27,7 +24,7 @@ namespace tl
             std::string cmdLineSummary;
             std::vector<std::shared_ptr<ICmdLineArg> > cmdLineArgs;
             std::vector<std::shared_ptr<ICmdLineOption> > cmdLineOptions;
-            std::shared_ptr<observer::ValueObserver<core::LogItem> > logObserver;
+            std::shared_ptr<observer::ValueObserver<LogItem> > logObserver;
         };
 
         void IApp::_init(
@@ -41,7 +38,8 @@ namespace tl
             TLRENDER_P();
 
             // Create the context.
-            _context = core::Context::create();
+            _context = Context::create();
+            _context->addSystem(io::System::create(_context));
 
             // Parse the command line.
             for (int i = 1; i < argc; ++i)
@@ -63,12 +61,12 @@ namespace tl
                 "Number of threads for image sequence I/O.",
                 string::Format("{0}").arg(_options.sequenceThreadCount)));
 #if defined(OpenEXR_FOUND)
-            p.cmdLineOptions.push_back(CmdLineValueOption<exr::Compression>::create(
+            p.cmdLineOptions.push_back(CmdLineValueOption<io::exr::Compression>::create(
                 _options.exrCompression,
                 { "-exrCompression" },
                 "OpenEXR output compression.",
                 string::Format("{0}").arg(_options.exrCompression),
-                string::join(exr::getCompressionLabels(), ", ")));
+                string::join(io::exr::getCompressionLabels(), ", ")));
             p.cmdLineOptions.push_back(CmdLineValueOption<float>::create(
                 _options.exrDWACompressionLevel,
                 { "-exrDWACompressionLevel" },
@@ -86,7 +84,7 @@ namespace tl
                 { "-ffmpegProfile", "-ffp" },
                 "FFmpeg output profile.",
                 std::string(),
-                string::join(ffmpeg::getProfileLabels(), ", ")));
+                string::join(io::ffmpeg::getProfileLabels(), ", ")));
 #endif
             p.cmdLineOptions.push_back(CmdLineFlagOption::create(
                 _options.log,
@@ -103,53 +101,53 @@ namespace tl
             {
                 for (const auto& i : _context->getLogInit())
                 {
-                    _print("[LOG] " + core::toString(i));
+                    _print("[LOG] " + toString(i));
                 }
-                p.logObserver = observer::ValueObserver<core::LogItem>::create(
-                    _context->getSystem<core::LogSystem>()->observeLog(),
-                    [this](const core::LogItem& value)
+                p.logObserver = observer::ValueObserver<LogItem>::create(
+                    _context->getSystem<LogSystem>()->observeLog(),
+                    [this](const LogItem& value)
                     {
-                        _print("[LOG] " + core::toString(value));
+                        _print("[LOG] " + toString(value));
                     },
                     observer::CallbackAction::Suppress);
             }
 
-            // Set AV I/O options.
-            avio::Options avioOptions;
+            // Set I/O options.
+            io::Options ioOptions;
             {
                 std::stringstream ss;
                 ss << _options.sequenceDefaultSpeed;
-                avioOptions["SequenceIO/DefaultSpeed"] = ss.str();
+                ioOptions["SequenceIO/DefaultSpeed"] = ss.str();
             }
             {
                 std::stringstream ss;
                 ss << _options.sequenceThreadCount;
-                avioOptions["SequenceIO/ThreadCount"] = ss.str();
+                ioOptions["SequenceIO/ThreadCount"] = ss.str();
             }
 #if defined(OpenEXR_FOUND)
             {
                 std::stringstream ss;
                 ss << _options.exrCompression;
-                avioOptions["exr/Compression"] = ss.str();
+                ioOptions["exr/Compression"] = ss.str();
             }
             {
                 std::stringstream ss;
                 ss << _options.exrDWACompressionLevel;
-                avioOptions["exr/DWACompressionLevel"] = ss.str();
+                ioOptions["exr/DWACompressionLevel"] = ss.str();
             }
 #endif
 #if defined(FFmpeg_FOUND)
             if (!_options.ffmpegWriteProfile.empty())
             {
-                avioOptions["ffmpeg/WriteProfile"] = _options.ffmpegWriteProfile;
+                ioOptions["ffmpeg/WriteProfile"] = _options.ffmpegWriteProfile;
             }
             {
                 std::stringstream ss;
                 ss << _options.ffmpegThreadCount;
-                avioOptions["ffmpeg/ThreadCount"] = ss.str();
+                ioOptions["ffmpeg/ThreadCount"] = ss.str();
             }
 #endif
-            _context->getSystem<avio::System>()->setOptions(avioOptions);
+            _context->getSystem<io::System>()->setOptions(ioOptions);
         }
         
         IApp::IApp() :
@@ -159,7 +157,7 @@ namespace tl
         IApp::~IApp()
         {}
 
-        const std::shared_ptr<core::Context>& IApp::getContext() const
+        const std::shared_ptr<Context>& IApp::getContext() const
         {
             return _context;
         }
@@ -169,7 +167,7 @@ namespace tl
             return _exit;
         }
 
-        void IApp::_log(const std::string& value, core::LogType type)
+        void IApp::_log(const std::string& value, LogType type)
         {
             _context->log(_p->cmdLineName, value, type);
         }

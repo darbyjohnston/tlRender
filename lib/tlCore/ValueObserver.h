@@ -13,95 +13,96 @@
 
 namespace tl
 {
-    namespace observer
+    namespace core
     {
-        template<typename T>
-        class IValue;
-
-        //! Value observer.
-        template<typename T>
-        class ValueObserver : public std::enable_shared_from_this<ValueObserver<T> >
+        namespace observer
         {
-            TLRENDER_NON_COPYABLE(ValueObserver);
+            template<typename T>
+            class IValue;
 
-        protected:
-            void _init(
-                const std::weak_ptr<IValue<T> >&,
-                const std::function<void(const T&)>&,
-                CallbackAction);
+            //! Value observer.
+            template<typename T>
+            class ValueObserver : public std::enable_shared_from_this<ValueObserver<T> >
+            {
+                TLRENDER_NON_COPYABLE(ValueObserver);
 
-            ValueObserver();
+            protected:
+                void _init(
+                    const std::weak_ptr<IValue<T> >&,
+                    const std::function<void(const T&)>&,
+                    CallbackAction);
 
-        public:
-            ~ValueObserver();
+                ValueObserver();
 
-            //! Create a new value observer.
-            static std::shared_ptr<ValueObserver<T> > create(
-                const std::weak_ptr<IValue<T> >&,
-                const std::function<void(const T&)>&,
-                CallbackAction = CallbackAction::Trigger);
+            public:
+                ~ValueObserver();
 
-            //! Execute the callback.
-            void doCallback(const T&);
+                //! Create a new value observer.
+                static std::shared_ptr<ValueObserver<T> > create(
+                    const std::weak_ptr<IValue<T> >&,
+                    const std::function<void(const T&)>&,
+                    CallbackAction = CallbackAction::Trigger);
 
-        private:
-            std::function<void(const T&)> _callback;
-            std::weak_ptr<IValue<T> > _value;
-        };
+                //! Execute the callback.
+                void doCallback(const T&);
 
-        //! Base class for a value.
-        template<typename T>
-        class IValue
-        {
-        public:
-            virtual ~IValue() = 0;
+            private:
+                std::function<void(const T&)> _callback;
+                std::weak_ptr<IValue<T> > _value;
+            };
 
-            //! Get the value.
-            virtual const T& get() const = 0;
+            //! Base class for a value.
+            template<typename T>
+            class IValue
+            {
+            public:
+                virtual ~IValue() = 0;
 
-            //! Get the number of observers.
-            std::size_t getObserversCount() const;
+                //! Get the value.
+                virtual const T& get() const = 0;
 
-        protected:
-            void _add(const std::weak_ptr<ValueObserver<T> >&);
-            void _removeExpired();
+                //! Get the number of observers.
+                std::size_t getObserversCount() const;
 
-            std::vector<std::weak_ptr<ValueObserver<T> > > _observers;
+            protected:
+                void _add(const std::weak_ptr<ValueObserver<T> >&);
+                void _removeExpired();
 
-            friend class ValueObserver<T>;
-        };
+                std::vector<std::weak_ptr<ValueObserver<T> > > _observers;
 
-        //! Value.
-        template<typename T>
-        class Value : public IValue<T>
-        {
-            TLRENDER_NON_COPYABLE(Value);
+                friend class ValueObserver<T>;
+            };
 
-        protected:
-            Value();
-            explicit Value(const T&);
+            //! Value.
+            template<typename T>
+            class Value : public IValue<T>
+            {
+                TLRENDER_NON_COPYABLE(Value);
 
-        public:
-            //! Create a new value.
-            static std::shared_ptr<Value<T> > create();
+            protected:
+                Value();
+                explicit Value(const T&);
 
-            //! Create a new value.
-            static std::shared_ptr<Value<T> > create(const T&);
+            public:
+                //! Create a new value.
+                static std::shared_ptr<Value<T> > create();
 
-            //! Set the value.
-            void setAlways(const T&);
+                //! Create a new value.
+                static std::shared_ptr<Value<T> > create(const T&);
 
-            //! Set the value only if it has changed.
-            bool setIfChanged(const T&);
+                //! Set the value.
+                void setAlways(const T&);
 
-            const T& get() const override;
+                //! Set the value only if it has changed.
+                bool setIfChanged(const T&);
 
-        private:
-            T _value = T();
-        };
+                const T& get() const override;
 
+            private:
+                T _value = T();
+            };
+        }
     }
 }
 
 #include <tlCore/ValueObserverInline.h>
-

@@ -5,9 +5,11 @@ set(SOURCE
 add_executable(tltest ${SOURCE} ${HEADERS})
 set(LIBRARIES
     tlAppTest
-    tlCoreTest)
+    tlCoreTest
+    tlIOTest
+    tlTimelineTest)
 if(TLRENDER_BUILD_GL)
-    list(APPEND LIBRARIES tlGLTest)
+    list(APPEND LIBRARIES tlRenderGLTest)
 endif()
 if(TLRENDER_BUILD_QT6 OR TLRENDER_BUILD_QT5)
     list(APPEND LIBRARIES tlQtTest)

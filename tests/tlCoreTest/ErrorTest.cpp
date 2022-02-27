@@ -11,26 +11,29 @@ using namespace tl::core;
 
 namespace tl
 {
-    namespace CoreTest
+    namespace tests
     {
-        ErrorTest::ErrorTest(const std::shared_ptr<Context>& context) :
-            ITest("CoreTest::ErrorTest", context)
-        {}
-
-        std::shared_ptr<ErrorTest> ErrorTest::create(const std::shared_ptr<Context>& context)
+        namespace core_test
         {
-            return std::shared_ptr<ErrorTest>(new ErrorTest(context));
-        }
+            ErrorTest::ErrorTest(const std::shared_ptr<Context>& context) :
+                ITest("core_test::ErrorTest", context)
+            {}
 
-        void ErrorTest::run()
-        {
-            try
+            std::shared_ptr<ErrorTest> ErrorTest::create(const std::shared_ptr<Context>& context)
             {
-                throw ParseError();
+                return std::shared_ptr<ErrorTest>(new ErrorTest(context));
             }
-            catch (const std::exception& e)
+
+            void ErrorTest::run()
             {
-                _print(e.what());
+                try
+                {
+                    throw ParseError();
+                }
+                catch (const std::exception& e)
+                {
+                    _print(e.what());
+                }
             }
         }
     }

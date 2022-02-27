@@ -4,20 +4,23 @@
 
 namespace tl
 {
-    namespace imaging
+    namespace core
     {
-        inline bool ColorConfig::operator == (const ColorConfig& other) const
+        namespace imaging
         {
-            return fileName == other.fileName &&
-                input == other.input &&
-                display == other.display &&
-                view == other.view &&
-                look == other.look;
-        }
+            inline bool ColorConfig::operator == (const ColorConfig& other) const
+            {
+                return fileName == other.fileName &&
+                    input == other.input &&
+                    display == other.display &&
+                    view == other.view &&
+                    look == other.look;
+            }
 
-        inline bool ColorConfig::operator != (const ColorConfig& other) const
-        {
-            return !(*this == other);
+            inline bool ColorConfig::operator != (const ColorConfig& other) const
+            {
+                return !(*this == other);
+            }
         }
     }
 }

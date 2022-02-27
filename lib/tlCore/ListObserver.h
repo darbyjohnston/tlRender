@@ -13,130 +13,133 @@
 
 namespace tl
 {
-    namespace observer
+    namespace core
     {
-        template<typename T>
-        class IList;
-
-        //! Invalid index.
-        static const std::size_t invalidListIndex = static_cast<std::size_t>(-1);
-
-        //! List observer.
-        template<typename T>
-        class ListObserver : public std::enable_shared_from_this<ListObserver<T> >
+        namespace observer
         {
-            TLRENDER_NON_COPYABLE(ListObserver);
+            template<typename T>
+            class IList;
 
-        protected:
-            void _init(
-                const std::weak_ptr<IList<T> >&,
-                const std::function<void(const std::vector<T>&)>&,
-                CallbackAction);
+            //! Invalid index.
+            static const std::size_t invalidListIndex = static_cast<std::size_t>(-1);
 
-            ListObserver();
+            //! List observer.
+            template<typename T>
+            class ListObserver : public std::enable_shared_from_this<ListObserver<T> >
+            {
+                TLRENDER_NON_COPYABLE(ListObserver);
 
-        public:
-            ~ListObserver();
+            protected:
+                void _init(
+                    const std::weak_ptr<IList<T> >&,
+                    const std::function<void(const std::vector<T>&)>&,
+                    CallbackAction);
 
-            //! Create a new list observer.
-            static std::shared_ptr<ListObserver<T> > create(
-                const std::weak_ptr<IList<T> >&,
-                const std::function<void(const std::vector<T>&)>&,
-                CallbackAction = CallbackAction::Trigger);
+                ListObserver();
 
-            //! Execute the callback.
-            void doCallback(const std::vector<T>&);
+            public:
+                ~ListObserver();
 
-        private:
-            std::function<void(const std::vector<T>&)> _callback;
-            std::weak_ptr<IList<T> > _value;
-        };
+                //! Create a new list observer.
+                static std::shared_ptr<ListObserver<T> > create(
+                    const std::weak_ptr<IList<T> >&,
+                    const std::function<void(const std::vector<T>&)>&,
+                    CallbackAction = CallbackAction::Trigger);
 
-        //! Base class for a list.
-        template<typename T>
-        class IList
-        {
-        public:
-            virtual ~IList() = 0;
+                //! Execute the callback.
+                void doCallback(const std::vector<T>&);
 
-            //! Get the list.
-            virtual const std::vector<T>& get() const = 0;
+            private:
+                std::function<void(const std::vector<T>&)> _callback;
+                std::weak_ptr<IList<T> > _value;
+            };
 
-            //! Get the list size.
-            virtual std::size_t getSize() const = 0;
+            //! Base class for a list.
+            template<typename T>
+            class IList
+            {
+            public:
+                virtual ~IList() = 0;
 
-            //! Get whether the list is empty.
-            virtual bool isEmpty() const = 0;
+                //! Get the list.
+                virtual const std::vector<T>& get() const = 0;
 
-            //! Get a list item.
-            virtual const T& getItem(std::size_t) const = 0;
+                //! Get the list size.
+                virtual std::size_t getSize() const = 0;
 
-            //! Does the list contain the given item?
-            virtual bool contains(const T&) const = 0;
+                //! Get whether the list is empty.
+                virtual bool isEmpty() const = 0;
 
-            //! Get the index of the given item.
-            virtual std::size_t indexOf(const T&) const = 0;
+                //! Get a list item.
+                virtual const T& getItem(std::size_t) const = 0;
 
-            //! Get the number of observers.
-            std::size_t getObserversCount() const;
+                //! Does the list contain the given item?
+                virtual bool contains(const T&) const = 0;
 
-        protected:
-            void _add(const std::weak_ptr<ListObserver<T> >&);
-            void _removeExpired();
+                //! Get the index of the given item.
+                virtual std::size_t indexOf(const T&) const = 0;
 
-            std::vector<std::weak_ptr<ListObserver<T> > > _observers;
+                //! Get the number of observers.
+                std::size_t getObserversCount() const;
 
-            friend ListObserver<T>;
-        };
+            protected:
+                void _add(const std::weak_ptr<ListObserver<T> >&);
+                void _removeExpired();
 
-        //! List.
-        template<typename T>
-        class List : public IList<T>
-        {
-            TLRENDER_NON_COPYABLE(List);
+                std::vector<std::weak_ptr<ListObserver<T> > > _observers;
 
-        protected:
-            List();
-            explicit List(const std::vector<T>&);
+                friend ListObserver<T>;
+            };
 
-        public:
-            //! Create a new list .
-            static std::shared_ptr<List<T> > create();
+            //! List.
+            template<typename T>
+            class List : public IList<T>
+            {
+                TLRENDER_NON_COPYABLE(List);
 
-            //! Create a new list  with the given value.
-            static std::shared_ptr<List<T> > create(const std::vector<T>&);
+            protected:
+                List();
+                explicit List(const std::vector<T>&);
 
-            //! Set the list.
-            void setAlways(const std::vector<T>&);
+            public:
+                //! Create a new list .
+                static std::shared_ptr<List<T> > create();
 
-            //! Set the list only if it has changed.
-            bool setIfChanged(const std::vector<T>&);
+                //! Create a new list  with the given value.
+                static std::shared_ptr<List<T> > create(const std::vector<T>&);
 
-            //! Clear the list.
-            void clear();
+                //! Set the list.
+                void setAlways(const std::vector<T>&);
 
-            //! Set a list item.
-            void setItem(std::size_t, const T&);
+                //! Set the list only if it has changed.
+                bool setIfChanged(const std::vector<T>&);
 
-            //! Set a list item only if it has changed.
-            void setItemOnlyIfChanged(std::size_t, const T&);
+                //! Clear the list.
+                void clear();
 
-            //! Append a list item.
-            void pushBack(const T&);
+                //! Set a list item.
+                void setItem(std::size_t, const T&);
 
-            //! Remove an item.
-            void removeItem(std::size_t);
+                //! Set a list item only if it has changed.
+                void setItemOnlyIfChanged(std::size_t, const T&);
 
-            const std::vector<T>& get() const override;
-            std::size_t getSize() const override;
-            bool isEmpty() const override;
-            const T& getItem(std::size_t) const override;
-            bool contains(const T&) const override;
-            std::size_t indexOf(const T&) const override;
+                //! Append a list item.
+                void pushBack(const T&);
 
-        private:
-            std::vector<T> _value;
-        };
+                //! Remove an item.
+                void removeItem(std::size_t);
+
+                const std::vector<T>& get() const override;
+                std::size_t getSize() const override;
+                bool isEmpty() const override;
+                const T& getItem(std::size_t) const override;
+                bool contains(const T&) const override;
+                std::size_t indexOf(const T&) const override;
+
+            private:
+                std::vector<T> _value;
+            };
+        }
     }
 }
 

@@ -19,68 +19,71 @@ namespace tl
     namespace otime = opentime::OPENTIME_VERSION;
     namespace otio = opentimelineio::OPENTIMELINEIO_VERSION;
 
-    //! Time.
-    namespace time
+    namespace core
     {
-        //! Invalid time.
-        const otime::RationalTime invalidTime(-1.0, -1.0);
+        //! Time.
+        namespace time
+        {
+            //! Invalid time.
+            const otime::RationalTime invalidTime(-1.0, -1.0);
 
-        //! Invalid time range.
-        const otime::TimeRange invalidTimeRange(invalidTime, invalidTime);
+            //! Invalid time range.
+            const otime::TimeRange invalidTimeRange(invalidTime, invalidTime);
 
-        //! Round the given time downward.
-        otime::RationalTime floor(const otime::RationalTime&);
+            //! Round the given time downward.
+            otime::RationalTime floor(const otime::RationalTime&);
 
-        //! Round the given time upward.
-        otime::RationalTime ceil(const otime::RationalTime&);
+            //! Round the given time upward.
+            otime::RationalTime ceil(const otime::RationalTime&);
 
-        //! Sleep for the given time.
-        void sleep(const std::chrono::microseconds&);
+            //! Sleep for the given time.
+            void sleep(const std::chrono::microseconds&);
 
-        //! Convert a floating point rate to a rational.
-        std::pair<int, int> toRational(double);
+            //! Convert a floating point rate to a rational.
+            std::pair<int, int> toRational(double);
 
-        //! \name Keycode
-        ///@{
+            //! \name Keycode
+            ///@{
 
-        std::string keycodeToString(
-            int id,
-            int type,
-            int prefix,
-            int count,
-            int offset);
+            std::string keycodeToString(
+                int id,
+                int type,
+                int prefix,
+                int count,
+                int offset);
 
-        void stringToKeycode(
-            const std::string&,
-            int& id,
-            int& type,
-            int& prefix,
-            int& count,
-            int& offset);
+            void stringToKeycode(
+                const std::string&,
+                int& id,
+                int& type,
+                int& prefix,
+                int& count,
+                int& offset);
 
-        ///@}
+            ///@}
 
-        //! \name Timecode
-        ///@{
+            //! \name Timecode
+            ///@{
 
-        void timecodeToTime(
-            uint32_t,
-            int& hour,
-            int& minute,
-            int& second,
-            int& frame);
+            void timecodeToTime(
+                uint32_t,
+                int& hour,
+                int& minute,
+                int& second,
+                int& frame);
 
-        uint32_t timeToTimecode(
-            int hour,
-            int minute,
-            int second,
-            int frame);
+            uint32_t timeToTimecode(
+                int hour,
+                int minute,
+                int second,
+                int frame);
 
-        std::string timecodeToString(uint32_t);
+            std::string timecodeToString(uint32_t);
 
-        void stringToTimecode(const std::string&, uint32_t&);
+            void stringToTimecode(const std::string&, uint32_t&);
 
-        ///@}
+            ///@}
+        }
     }
 }
 

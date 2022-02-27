@@ -13,19 +13,22 @@
 
 namespace tl
 {
-    namespace time
+    namespace core
     {
-        void sleep(const std::chrono::microseconds& value)
+        namespace time
         {
-            if (HANDLE h = CreateWaitableTimer(NULL, TRUE, NULL))
+            void sleep(const std::chrono::microseconds& value)
             {
-                LARGE_INTEGER l;
-                l.QuadPart = -std::chrono::duration_cast<std::chrono::nanoseconds>(value).count() / 100;
-                if (SetWaitableTimer(h, &l, 0, NULL, NULL, FALSE))
+                if (HANDLE h = CreateWaitableTimer(NULL, TRUE, NULL))
                 {
-                    WaitForSingleObject(h, INFINITE);
+                    LARGE_INTEGER l;
+                    l.QuadPart = -std::chrono::duration_cast<std::chrono::nanoseconds>(value).count() / 100;
+                    if (SetWaitableTimer(h, &l, 0, NULL, NULL, FALSE))
+                    {
+                        WaitForSingleObject(h, INFINITE);
+                    }
+                    CloseHandle(h);
                 }
-                CloseHandle(h);
             }
         }
     }

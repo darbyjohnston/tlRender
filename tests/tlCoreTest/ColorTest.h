@@ -8,17 +8,20 @@
 
 namespace tl
 {
-    namespace CoreTest
+    namespace tests
     {
-        class ColorTest : public Test::ITest
+        namespace core_test
         {
-        protected:
-            ColorTest(const std::shared_ptr<core::Context>&);
+            class ColorTest : public Test::ITest
+            {
+            protected:
+                ColorTest(const std::shared_ptr<core::Context>&);
 
-        public:
-            static std::shared_ptr<ColorTest> create(const std::shared_ptr<core::Context>&);
+            public:
+                static std::shared_ptr<ColorTest> create(const std::shared_ptr<core::Context>&);
 
-            void run() override;
-        };
+                void run() override;
+            };
+        }
     }
 }

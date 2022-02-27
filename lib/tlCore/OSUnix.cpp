@@ -29,78 +29,81 @@
 
 namespace tl
 {
-    namespace os
-    {
-		namespace
+	namespace core
+	{
+		namespace os
 		{
-			std::string getName()
+			namespace
 			{
-				std::string out;
-				::utsname info;
-				uname(&info);
-				std::stringstream s;
-				s << info.sysname << " " << info.release << " " << info.machine;
-				out = s.str();
+				std::string getName()
+				{
+					std::string out;
+					::utsname info;
+					uname(&info);
+					std::stringstream s;
+					s << info.sysname << " " << info.release << " " << info.machine;
+					out = s.str();
+					return out;
+				}
+				
+				size_t getRAMSize()
+				{
+					size_t out = 0;
+#if defined(__APPLE__)
+					int name[2] = { CTL_HW, HW_MEMSIZE };
+					u_int namelen = sizeof(name) / sizeof(name[0]);
+					uint64_t size = 0;
+					size_t len = sizeof(size);
+					if (0 == sysctl(name, namelen, &size, &len, NULL, 0))
+					{
+						out = static_cast<size_t>(size);
+					}
+#else // __APPLE__
+					struct sysinfo info;
+					if (0 == sysinfo(&info))
+					{
+						out = info.totalram;
+					}
+#endif // __APPLE__
+					return out;
+				}
+			}
+			
+			SystemInfo getSystemInfo()
+			{
+				SystemInfo out;
+				out.name = getName();
+				out.cores = std::thread::hardware_concurrency();
+				out.ram = getRAMSize();
+				const auto d = std::lldiv(getRAMSize(), memory::gigabyte);
+				out.ramGB = d.quot + (d.rem ? 1 : 0);
 				return out;
 			}
 			
-			size_t getRAMSize()
+			char getEnvListSeparator()
 			{
-				size_t out = 0;
-	#if defined(__APPLE__)
-				int name[2] = { CTL_HW, HW_MEMSIZE };
-				u_int namelen = sizeof(name) / sizeof(name[0]);
-				uint64_t size = 0;
-				size_t len = sizeof(size);
-				if (0 == sysctl(name, namelen, &size, &len, NULL, 0))
-				{
-					out = static_cast<size_t>(size);
-				}
-	#else // __APPLE__
-				struct sysinfo info;
-				if (0 == sysinfo(&info))
-				{
-					out = info.totalram;
-				}
-	#endif // __APPLE__
-				return out;
+				return getEnvListSeparator(EnvListSeparator::Unix);
 			}
-		}
-		
-        SystemInfo getSystemInfo()
-        {
-            SystemInfo out;
-            out.name = getName();
-            out.cores = std::thread::hardware_concurrency();
-            out.ram = getRAMSize();
-            const auto d = std::lldiv(getRAMSize(), memory::gigabyte);
-            out.ramGB = d.quot + (d.rem ? 1 : 0);
-            return out;
-        }
-		
-        char getEnvListSeparator()
-        {
-            return getEnvListSeparator(EnvListSeparator::Unix);
-        }
-		
-		bool getEnv(const std::string& name, std::string& out)
-		{
-			if (const char* p = ::getenv(name.c_str()))
+			
+			bool getEnv(const std::string& name, std::string& out)
 			{
-				out = std::string(p);
-				return true;
+				if (const char* p = ::getenv(name.c_str()))
+				{
+					out = std::string(p);
+					return true;
+				}
+				return false;
 			}
-			return false;
-		}
 
-		bool setEnv(const std::string& name, const std::string& value)
-		{
-			return ::setenv(name.c_str(), value.c_str(), 1) == 0;
+			bool setEnv(const std::string& name, const std::string& value)
+			{
+				return ::setenv(name.c_str(), value.c_str(), 1) == 0;
+			}
+		
+			bool delEnv(const std::string& name)
+			{
+				return ::unsetenv(name.c_str()) == 0;
+			}
 		}
-	
-		bool delEnv(const std::string& name)
-		{
-			return ::unsetenv(name.c_str()) == 0;
-		}
-    }
+	}
 }

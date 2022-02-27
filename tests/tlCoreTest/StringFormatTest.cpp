@@ -7,60 +7,64 @@
 #include <tlCore/Assert.h>
 #include <tlCore/StringFormat.h>
 
-using namespace tl::string;
+using namespace tl::core;
+using namespace tl::core::string;
 
 namespace tl
 {
-    namespace CoreTest
+    namespace tests
     {
-        StringFormatTest::StringFormatTest(const std::shared_ptr<core::Context>& context) :
-            ITest("CoreTest::StringFormatTest", context)
-        {}
-
-        std::shared_ptr<StringFormatTest> StringFormatTest::create(const std::shared_ptr<core::Context>& context)
+        namespace core_test
         {
-            return std::shared_ptr<StringFormatTest>(new StringFormatTest(context));
-        }
+            StringFormatTest::StringFormatTest(const std::shared_ptr<core::Context>& context) :
+                ITest("core_test::StringFormatTest", context)
+            {}
 
-        void StringFormatTest::run()
-        {
+            std::shared_ptr<StringFormatTest> StringFormatTest::create(const std::shared_ptr<core::Context>& context)
             {
-                const std::string s = Format("");
-                TLRENDER_ASSERT(s.empty());
+                return std::shared_ptr<StringFormatTest>(new StringFormatTest(context));
             }
+
+            void StringFormatTest::run()
             {
-                const std::string s = Format("abc");
-                TLRENDER_ASSERT("abc" == s);
-            }
-            {
-                const std::string s = Format("{0}{1}{2}").arg("a").arg("b").arg("c");
-                TLRENDER_ASSERT("abc" == s);
-            }
-            {
-                const std::string s = Format("{0}{1}{2}").arg(1).arg(2).arg(3);
-                TLRENDER_ASSERT("123" == s);
-            }
-            {
-                const std::string s = Format("{0}").arg(1.0F, 2);
-                TLRENDER_ASSERT("1.00" == s);
-            }
-            {
-                const std::string s = Format("{0}").arg(1.0, 2);
-                TLRENDER_ASSERT("1.00" == s);
-            }
-            {
-                const auto f = Format("").arg(1);
-                TLRENDER_ASSERT(f.hasError());
-                std::stringstream ss;
-                ss << "String format error: " << f.getError();
-                _print(ss.str());
-            }
-            {
-                const auto f = Format("{0}{0}").arg(0).arg(1);
-                TLRENDER_ASSERT(f.hasError());
-                std::stringstream ss;
-                ss << "String format error: " << f.getError();
-                _print(ss.str());
+                {
+                    const std::string s = Format("");
+                    TLRENDER_ASSERT(s.empty());
+                }
+                {
+                    const std::string s = Format("abc");
+                    TLRENDER_ASSERT("abc" == s);
+                }
+                {
+                    const std::string s = Format("{0}{1}{2}").arg("a").arg("b").arg("c");
+                    TLRENDER_ASSERT("abc" == s);
+                }
+                {
+                    const std::string s = Format("{0}{1}{2}").arg(1).arg(2).arg(3);
+                    TLRENDER_ASSERT("123" == s);
+                }
+                {
+                    const std::string s = Format("{0}").arg(1.0F, 2);
+                    TLRENDER_ASSERT("1.00" == s);
+                }
+                {
+                    const std::string s = Format("{0}").arg(1.0, 2);
+                    TLRENDER_ASSERT("1.00" == s);
+                }
+                {
+                    const auto f = Format("").arg(1);
+                    TLRENDER_ASSERT(f.hasError());
+                    std::stringstream ss;
+                    ss << "String format error: " << f.getError();
+                    _print(ss.str());
+                }
+                {
+                    const auto f = Format("{0}{0}").arg(0).arg(1);
+                    TLRENDER_ASSERT(f.hasError());
+                    std::stringstream ss;
+                    ss << "String format error: " << f.getError();
+                    _print(ss.str());
+                }
             }
         }
     }

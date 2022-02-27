@@ -4,10 +4,10 @@
 
 #include <tlQt/TimelineThumbnailProvider.h>
 
-#include <tlGL/OffscreenBuffer.h>
-#include <tlGL/Render.h>
+#include <tlRenderGL/OffscreenBuffer.h>
+#include <tlRenderGL/Render.h>
 
-#include <tlCore/TimelinePlayer.h>
+#include <tlTimeline/TimelinePlayer.h>
 
 #include <QImage>
 #include <QOffscreenSurface>
@@ -17,13 +17,15 @@
 #include <atomic>
 #include <mutex>
 
+using namespace tl::core;
+
 namespace tl
 {
     namespace qt
     {
         struct TimelineThumbnailProvider::Private
         {
-            std::weak_ptr<core::Context> context;
+            std::weak_ptr<Context> context;
             std::shared_ptr<timeline::Timeline> timeline;
             imaging::ColorConfig colorConfig;
             struct Request
@@ -49,8 +51,8 @@ namespace tl
         };
 
         TimelineThumbnailProvider::TimelineThumbnailProvider(
-            const std::shared_ptr<tl::timeline::Timeline>& timeline,
-            const std::shared_ptr<core::Context>& context,
+            const std::shared_ptr<timeline::Timeline>& timeline,
+            const std::shared_ptr<Context>& context,
             QObject* parent) :
             QThread(parent),
             _p(new Private)
@@ -259,7 +261,7 @@ namespace tl
                                 context->log(
                                     "tl::qt::TimelineThumbnailProvider",
                                     e.what(),
-                                    core::LogType::Error);
+                                    LogType::Error);
                             }
 
                             const auto qImage = QImage(

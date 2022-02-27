@@ -10,7 +10,7 @@
 
 namespace tl
 {
-    //! Qt support.
+    //! Qt functionality.
     namespace qt
     {
         //! Initialize the library. This needs to be called before the Qt

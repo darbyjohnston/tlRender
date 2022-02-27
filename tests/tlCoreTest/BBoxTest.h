@@ -8,26 +8,29 @@
 
 namespace tl
 {
-    namespace CoreTest
+    namespace tests
     {
-        class BBoxTest : public Test::ITest
+        namespace core_test
         {
-        protected:
-            BBoxTest(const std::shared_ptr<core::Context>&);
+            class BBoxTest : public Test::ITest
+            {
+            protected:
+                BBoxTest(const std::shared_ptr<core::Context>&);
 
-        public:
-            static std::shared_ptr<BBoxTest> create(const std::shared_ptr<core::Context>&);
+            public:
+                static std::shared_ptr<BBoxTest> create(const std::shared_ptr<core::Context>&);
 
-            void run() override;
+                void run() override;
 
-        private:
-            void _ctors();
-            void _components();
-            void _dimensions();
-            void _intersections();
-            void _expand();
-            void _margin();
-            void _operators();
-        };
+            private:
+                void _ctors();
+                void _components();
+                void _dimensions();
+                void _intersections();
+                void _expand();
+                void _margin();
+                void _operators();
+            };
+        }
     }
 }

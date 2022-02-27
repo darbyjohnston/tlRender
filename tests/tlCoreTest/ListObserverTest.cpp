@@ -7,64 +7,69 @@
 #include <tlCore/Assert.h>
 #include <tlCore/ListObserver.h>
 
+using namespace tl::core;
+
 namespace tl
 {
-    namespace CoreTest
+    namespace tests
     {
-        ListObserverTest::ListObserverTest(const std::shared_ptr<core::Context>& context) :
-            ITest("CoreTest::ListObserverTest", context)
-        {}
-
-        std::shared_ptr<ListObserverTest> ListObserverTest::create(const std::shared_ptr<core::Context>& context)
+        namespace core_test
         {
-            return std::shared_ptr<ListObserverTest>(new ListObserverTest(context));
-        }
+            ListObserverTest::ListObserverTest(const std::shared_ptr<core::Context>& context) :
+                ITest("core_test::ListObserverTest", context)
+            {}
 
-        void ListObserverTest::run()
-        {
-            std::vector<int> list = {};
-            auto value = observer::List<int>::create(list);
-            TLRENDER_ASSERT(list == value->get());
-
-            std::vector<int> result;
-            auto observer = observer::ListObserver<int>::create(
-                value,
-                [&result](const std::vector<int>& value)
-                {
-                    result = value;
-                });
-            list.push_back(1);
-            bool changed = value->setIfChanged(list);
-            TLRENDER_ASSERT(changed);
-            changed = value->setIfChanged(list);
-            TLRENDER_ASSERT(!changed);
-            TLRENDER_ASSERT(list == result);
-            TLRENDER_ASSERT(1 == value->getSize());
-            TLRENDER_ASSERT(!value->isEmpty());
-            TLRENDER_ASSERT(1 == value->getItem(0));
-            TLRENDER_ASSERT(value->contains(1));
-            TLRENDER_ASSERT(0 == value->indexOf(1));
-
+            std::shared_ptr<ListObserverTest> ListObserverTest::create(const std::shared_ptr<core::Context>& context)
             {
-                std::vector<int> result2;
-                auto observer2 = observer::ListObserver<int>::create(
-                    value,
-                    [&result2](const std::vector<int>& value)
-                    {
-                        result2 = value;
-                    });
-                list.push_back(2);
-                value->setIfChanged(list);
-                TLRENDER_ASSERT(list == result);
-                TLRENDER_ASSERT(list == result2);
-                TLRENDER_ASSERT(2 == value->getSize());
-                TLRENDER_ASSERT(2 == value->getItem(1));
-                TLRENDER_ASSERT(value->contains(2));
-                TLRENDER_ASSERT(1 == value->indexOf(2));
-                TLRENDER_ASSERT(2 == value->getObserversCount());
+                return std::shared_ptr<ListObserverTest>(new ListObserverTest(context));
             }
 
-            TLRENDER_ASSERT(1 == value->getObserversCount());
+            void ListObserverTest::run()
+            {
+                std::vector<int> list = {};
+                auto value = observer::List<int>::create(list);
+                TLRENDER_ASSERT(list == value->get());
+
+                std::vector<int> result;
+                auto observer = observer::ListObserver<int>::create(
+                    value,
+                    [&result](const std::vector<int>& value)
+                    {
+                        result = value;
+                    });
+                list.push_back(1);
+                bool changed = value->setIfChanged(list);
+                TLRENDER_ASSERT(changed);
+                changed = value->setIfChanged(list);
+                TLRENDER_ASSERT(!changed);
+                TLRENDER_ASSERT(list == result);
+                TLRENDER_ASSERT(1 == value->getSize());
+                TLRENDER_ASSERT(!value->isEmpty());
+                TLRENDER_ASSERT(1 == value->getItem(0));
+                TLRENDER_ASSERT(value->contains(1));
+                TLRENDER_ASSERT(0 == value->indexOf(1));
+
+                {
+                    std::vector<int> result2;
+                    auto observer2 = observer::ListObserver<int>::create(
+                        value,
+                        [&result2](const std::vector<int>& value)
+                        {
+                            result2 = value;
+                        });
+                    list.push_back(2);
+                    value->setIfChanged(list);
+                    TLRENDER_ASSERT(list == result);
+                    TLRENDER_ASSERT(list == result2);
+                    TLRENDER_ASSERT(2 == value->getSize());
+                    TLRENDER_ASSERT(2 == value->getItem(1));
+                    TLRENDER_ASSERT(value->contains(2));
+                    TLRENDER_ASSERT(1 == value->indexOf(2));
+                    TLRENDER_ASSERT(2 == value->getObserversCount());
+                }
+
+                TLRENDER_ASSERT(1 == value->getObserversCount());
+            }
         }
     }
 }

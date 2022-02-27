@@ -6,19 +6,22 @@
 
 namespace tl
 {
-    namespace QtTest
+    namespace tests
     {
-        TimeObjectTest::TimeObjectTest(const std::shared_ptr<core::Context>& context) :
-            ITest("QtTest::TimeObjectTest", context)
-        {}
-
-        std::shared_ptr<TimeObjectTest> TimeObjectTest::create(const std::shared_ptr<core::Context>& context)
+        namespace qt_test
         {
-            return std::shared_ptr<TimeObjectTest>(new TimeObjectTest(context));
-        }
+            TimeObjectTest::TimeObjectTest(const std::shared_ptr<core::Context>& context) :
+                ITest("qt_test::TimeObjectTest", context)
+            {}
 
-        void TimeObjectTest::run()
-        {
+            std::shared_ptr<TimeObjectTest> TimeObjectTest::create(const std::shared_ptr<core::Context>& context)
+            {
+                return std::shared_ptr<TimeObjectTest>(new TimeObjectTest(context));
+            }
+
+            void TimeObjectTest::run()
+            {
+            }
         }
     }
 }

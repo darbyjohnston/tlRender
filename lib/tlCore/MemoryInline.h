@@ -6,17 +6,20 @@
 
 namespace tl
 {
-    namespace memory
+    namespace core
     {
-        inline Endian getEndian() noexcept
+        namespace memory
         {
-            const uint32_t tmp = 1;
-            return *(reinterpret_cast<const uint8_t*>(&tmp)) ? Endian::LSB : Endian::MSB;
-        }
+            inline Endian getEndian() noexcept
+            {
+                const uint32_t tmp = 1;
+                return *(reinterpret_cast<const uint8_t*>(&tmp)) ? Endian::LSB : Endian::MSB;
+            }
 
-        constexpr Endian opposite(Endian in) noexcept
-        {
-            return Endian::MSB == in ? Endian::LSB : Endian::MSB;
+            constexpr Endian opposite(Endian in) noexcept
+            {
+                return Endian::MSB == in ? Endian::LSB : Endian::MSB;
+            }
         }
     }
 }

@@ -13,38 +13,40 @@
 
 namespace tl
 {
-    namespace Test
+    namespace tests
     {
-        class ITest : public std::enable_shared_from_this<ITest>
+        namespace Test
         {
-            TLRENDER_NON_COPYABLE(ITest);
+            class ITest : public std::enable_shared_from_this<ITest>
+            {
+                TLRENDER_NON_COPYABLE(ITest);
 
-        protected:
-            ITest(
-                const std::string& name,
-                const std::shared_ptr<core::Context>&);
+            protected:
+                ITest(
+                    const std::string& name,
+                    const std::shared_ptr<core::Context>&);
 
-        public:
-            virtual ~ITest() = 0;
+            public:
+                virtual ~ITest() = 0;
 
-            const std::string& getName() const;
+                const std::string& getName() const;
 
-            virtual void run() = 0;
+                virtual void run() = 0;
 
-        protected:
-            template<typename T>
-            void _enum(
-                const std::string&,
-                const std::function<std::vector<T>(void)>&);
-        
-            void _print(const std::string&);
-            void _printError(const std::string&);
+            protected:
+                template<typename T>
+                void _enum(
+                    const std::string&,
+                    const std::function<std::vector<T>(void)>&);
 
-            std::shared_ptr<core::Context> _context;
-            std::string _name;
-        };
+                void _print(const std::string&);
+                void _printError(const std::string&);
+
+                std::shared_ptr<core::Context> _context;
+                std::string _name;
+            };
+        }
     }
 }
 
 #include <tlTestLib/ITestInline.h>
-

@@ -9,70 +9,71 @@
 
 #include <sstream>
 
-using namespace tl::core;
-
 namespace tl
 {
-    namespace math
+    namespace core
     {
-        std::ostream& operator << (std::ostream& os, const Matrix3x3f& value)
+        namespace math
         {
-            std::vector<std::string> s;
-            for (size_t i = 0; i < 9; ++i)
+            std::ostream& operator << (std::ostream& os, const Matrix3x3f& value)
             {
-                std::stringstream ss;
-                ss << value.e[i];
-                s.push_back(ss.str());
+                std::vector<std::string> s;
+                for (size_t i = 0; i < 9; ++i)
+                {
+                    std::stringstream ss;
+                    ss << value.e[i];
+                    s.push_back(ss.str());
+                }
+                os << string::join(s, ',');
+                return os;
             }
-            os << string::join(s, ',');
-            return os;
-        }
 
-        std::ostream& operator << (std::ostream& os, const Matrix4x4f& value)
-        {
-            std::vector<std::string> s;
-            for (size_t i = 0; i < 16; ++i)
+            std::ostream& operator << (std::ostream& os, const Matrix4x4f& value)
             {
-                std::stringstream ss;
-                ss << value.e[i];
-                s.push_back(ss.str());
+                std::vector<std::string> s;
+                for (size_t i = 0; i < 16; ++i)
+                {
+                    std::stringstream ss;
+                    ss << value.e[i];
+                    s.push_back(ss.str());
+                }
+                os << string::join(s, ',');
+                return os;
             }
-            os << string::join(s, ',');
-            return os;
-        }
 
-        std::istream& operator >> (std::istream& is, Matrix3x3f& value)
-        {
-            std::string s;
-            is >> s;
-            auto split = string::split(s, ',');
-            if (split.size() != 9)
+            std::istream& operator >> (std::istream& is, Matrix3x3f& value)
             {
-                throw ParseError();
+                std::string s;
+                is >> s;
+                auto split = string::split(s, ',');
+                if (split.size() != 9)
+                {
+                    throw ParseError();
+                }
+                for (size_t i = 0; i < 9; ++i)
+                {
+                    std::stringstream ss(split[i]);
+                    ss >> value.e[i];
+                }
+                return is;
             }
-            for (size_t i = 0; i < 9; ++i)
-            {
-                std::stringstream ss(split[i]);
-                ss >> value.e[i];
-            }
-            return is;
-        }
 
-        std::istream& operator >> (std::istream& is, Matrix4x4f& value)
-        {
-            std::string s;
-            is >> s;
-            auto split = string::split(s, ',');
-            if (split.size() != 16)
+            std::istream& operator >> (std::istream& is, Matrix4x4f& value)
             {
-                throw ParseError();
+                std::string s;
+                is >> s;
+                auto split = string::split(s, ',');
+                if (split.size() != 16)
+                {
+                    throw ParseError();
+                }
+                for (size_t i = 0; i < 16; ++i)
+                {
+                    std::stringstream ss(split[i]);
+                    ss >> value.e[i];
+                }
+                return is;
             }
-            for (size_t i = 0; i < 16; ++i)
-            {
-                std::stringstream ss(split[i]);
-                ss >> value.e[i];
-            }
-            return is;
         }
     }
 }

@@ -6,7 +6,7 @@
 
 #include <tlQt/Util.h>
 
-#include <tlCore/TimelinePlayer.h>
+#include <tlTimeline/TimelinePlayer.h>
 
 #include <QObject>
 
@@ -110,10 +110,10 @@ namespace tl
             const std::shared_ptr<timeline::Timeline>& timeline() const;
 
             //! Get the path.
-            const file::Path& path() const;
+            const core::file::Path& path() const;
 
             //! Get the audio path.
-            const file::Path& audioPath() const;
+            const core::file::Path& audioPath() const;
 
             //! Get the timeline player options.
             const timeline::PlayerOptions& getPlayerOptions() const;
@@ -130,9 +130,9 @@ namespace tl
             //! Get the global start time.
             const otime::RationalTime& globalStartTime() const;
 
-            //! Get the A/V information. This information is retreived from
+            //! Get the I/O information. This information is retreived from
             //! the first clip in the timeline.
-            const avio::Info& avInfo() const;
+            const io::Info& ioInfo() const;
 
             ///@}
 
