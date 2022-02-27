@@ -816,9 +816,9 @@ namespace tl
 
                     connect(
                         p.timelineViewport,
-                        SIGNAL(viewPosAndZoomChanged(const math::Vector2i&, float)),
+                        SIGNAL(viewPosAndZoomChanged(const tl::core::math::Vector2i&, float)),
                         p.secondaryWindow->viewport(),
-                        SLOT(setViewPosAndZoom(const math::Vector2i&, float)));
+                        SLOT(setViewPosAndZoom(const tl::core::math::Vector2i&, float)));
                     connect(
                         p.timelineViewport,
                         SIGNAL(frameViewActivated()),

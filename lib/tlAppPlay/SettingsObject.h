@@ -9,6 +9,8 @@
 #include <QObject>
 #include <QVariant>
 
+#include <memory>
+
 namespace tl
 {
     namespace app
