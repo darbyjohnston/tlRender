@@ -35,6 +35,9 @@ namespace tl
             template<typename T>
             constexpr T smoothStep(T value, T min, T max) noexcept;
 
+            //! Count the number of digits.
+            size_t digits(int) noexcept;
+
             //! Fuzzy double comparison.
             bool fuzzyCompare(double a, double b, double e = .1e-9) noexcept;
 

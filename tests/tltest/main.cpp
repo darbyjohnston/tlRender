@@ -85,6 +85,7 @@ int main(int argc, char* argv[])
     std::vector<std::shared_ptr<Test::ITest> > tests;
     if (0)
     {
+        tests.push_back(core_test::MathTest::create(context));
     }
     else
     {

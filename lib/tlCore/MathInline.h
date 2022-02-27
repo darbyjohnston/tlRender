@@ -44,6 +44,24 @@ namespace tl
                 return lerp(value * value * (3. - (2. * value)), min, max);
             }
 
+            inline size_t digits(int value) noexcept
+            {
+                size_t out = 0;
+                if (value)
+                {
+                    while (value)
+                    {
+                        value /= 10;
+                        ++out;
+                    }
+                }
+                else
+                {
+                    out = 1;
+                }
+                return out;
+            }
+
             inline bool fuzzyCompare(double a, double b, double e) noexcept
             {
                 return fabs(a - b) < e;

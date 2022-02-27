@@ -49,6 +49,15 @@ namespace tl
                         _print(ss.str());
                     }
                 }
+                {
+                    TLRENDER_ASSERT(1 == digits(0));
+                    TLRENDER_ASSERT(1 == digits(1));
+                    TLRENDER_ASSERT(2 == digits(10));
+                    TLRENDER_ASSERT(3 == digits(123));
+                    TLRENDER_ASSERT(1 == digits(-1));
+                    TLRENDER_ASSERT(2 == digits(-10));
+                    TLRENDER_ASSERT(3 == digits(-123));
+                }
             }
         }
     }
