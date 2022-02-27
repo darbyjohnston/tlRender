@@ -36,9 +36,9 @@ To do:
 Libraries
 =========
 
-tlCore
-------
-The core library providing timeline rendering, playback, and I/O.
+tlCore, tlIO, tlTimeline
+------------------------
+The core libraries providing timeline rendering, playback, and I/O.
 
 Dependencies:
 * [OpenTimelineIO](https://github.com/PixarAnimationStudios/OpenTimelineIO)
@@ -54,12 +54,12 @@ Optional dependencies:
 * [PNG](https://libpng.sourceforge.io/index.html)
 * [TIFF](http://www.libtiff.org)
 
-tlGL
-----
+tlRenderGL
+----------
 Library for rendering timelines with OpenGL.
 
-tlQt, tlQWidget, tlQuick
-------------------------
+tlQt, tlQtWidget, tlQtQuick
+---------------------------
 Libraries for integrating with Qt based applications.
 
 Dependencies:
