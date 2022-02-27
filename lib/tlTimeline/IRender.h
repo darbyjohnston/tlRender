@@ -177,7 +177,7 @@ namespace tl
         class IRender : public std::enable_shared_from_this<IRender>
         {
         protected:
-            void _init(const std::shared_ptr<core::Context>&);
+            void _init(const std::shared_ptr<core::system::Context>&);
             IRender();
 
         public:
@@ -222,7 +222,7 @@ namespace tl
                 const core::imaging::Color4f&) = 0;
 
         protected:
-            std::weak_ptr<core::Context> _context;
+            std::weak_ptr<core::system::Context> _context;
         };
     }
 }

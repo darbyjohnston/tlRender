@@ -19,7 +19,7 @@
 Q_DECLARE_METATYPE(tl::core::audio::DataType);
 Q_DECLARE_METATYPE(tl::core::audio::DeviceFormat);
 
-Q_DECLARE_METATYPE(tl::core::LogType);
+Q_DECLARE_METATYPE(tl::core::log::Type);
 
 Q_DECLARE_METATYPE(tl::core::file::Mode);
 

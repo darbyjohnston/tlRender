@@ -31,7 +31,7 @@ namespace tl
 
             struct TimelineSlider::Private
             {
-                std::weak_ptr<Context> context;
+                std::weak_ptr<system::Context> context;
                 imaging::ColorConfig colorConfig;
                 qt::TimelinePlayer* timelinePlayer = nullptr;
                 bool thumbnails = true;
@@ -42,7 +42,7 @@ namespace tl
             };
 
             TimelineSlider::TimelineSlider(
-                const std::shared_ptr<Context>& context,
+                const std::shared_ptr<system::Context>& context,
                 QWidget* parent) :
                 QWidget(parent),
                 _p(new Private)

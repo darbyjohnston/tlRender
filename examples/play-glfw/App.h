@@ -18,6 +18,7 @@ namespace tl
 {
     namespace examples
     {
+        //! Example GLFW playback application.
         namespace play_glfw
         {
             //! Render type.

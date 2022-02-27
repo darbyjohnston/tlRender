@@ -128,7 +128,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<Timeline>&,
-                const std::shared_ptr<core::Context>&,
+                const std::shared_ptr<core::system::Context>&,
                 const PlayerOptions&);
             TimelinePlayer();
 
@@ -138,11 +138,11 @@ namespace tl
             //! Create a new timeline player.
             static std::shared_ptr<TimelinePlayer> create(
                 const std::shared_ptr<Timeline>&,
-                const std::shared_ptr<core::Context>&,
+                const std::shared_ptr<core::system::Context>&,
                 const PlayerOptions & = PlayerOptions());
 
             //! Get the context.
-            const std::weak_ptr<core::Context>& getContext() const;
+            const std::weak_ptr<core::system::Context>& getContext() const;
 
             //! Get the timeline.
             const std::shared_ptr<Timeline>& getTimeline() const;

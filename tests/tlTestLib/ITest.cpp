@@ -14,7 +14,7 @@ namespace tl
         {
             ITest::ITest(
                 const std::string& name,
-                const std::shared_ptr<core::Context>& context) :
+                const std::shared_ptr<core::system::Context>& context) :
                 _context(context),
                 _name(name)
             {}

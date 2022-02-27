@@ -18,11 +18,11 @@ namespace tl
     {
         namespace core_test
         {
-            MemoryTest::MemoryTest(const std::shared_ptr<core::Context>& context) :
+            MemoryTest::MemoryTest(const std::shared_ptr<system::Context>& context) :
                 ITest("core_test::MemoryTest", context)
             {}
 
-            std::shared_ptr<MemoryTest> MemoryTest::create(const std::shared_ptr<core::Context>& context)
+            std::shared_ptr<MemoryTest> MemoryTest::create(const std::shared_ptr<system::Context>& context)
             {
                 return std::shared_ptr<MemoryTest>(new MemoryTest(context));
             }

@@ -32,7 +32,7 @@ namespace tl
 
             public:
                 TimelineSlider(
-                    const std::shared_ptr<core::Context>&,
+                    const std::shared_ptr<core::system::Context>&,
                     QWidget* parent = nullptr);
 
                 ~TimelineSlider() override;

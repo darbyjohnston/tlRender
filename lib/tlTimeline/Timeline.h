@@ -16,13 +16,13 @@
 
 namespace tl
 {
-    //! Timelines.
+    //! Timeline functionality.
     namespace timeline
     {
         //! Get the timeline file extensions.
         std::vector<std::string> getExtensions(
             int types,
-            const std::shared_ptr<core::Context>&);
+            const std::shared_ptr<core::system::Context>&);
 
         //! File sequence.
         enum class FileSequenceAudio
@@ -127,7 +127,7 @@ namespace tl
         protected:
             void _init(
                 const otio::SerializableObject::Retainer<otio::Timeline>&,
-                const std::shared_ptr<core::Context>&,
+                const std::shared_ptr<core::system::Context>&,
                 const Options&);
             Timeline();
 
@@ -137,14 +137,14 @@ namespace tl
             //! Create a new timeline.
             static std::shared_ptr<Timeline> create(
                 const otio::SerializableObject::Retainer<otio::Timeline>&,
-                const std::shared_ptr<core::Context>&,
+                const std::shared_ptr<core::system::Context>&,
                 const Options & = Options());
 
             //! Create a new timeline from a file name. The file name can point
             //! to an .otio file, movie file, or image sequence.
             static std::shared_ptr<Timeline> create(
                 const std::string&,
-                const std::shared_ptr<core::Context>&,
+                const std::shared_ptr<core::system::Context>&,
                 const Options & = Options());
 
             //! Create a new timeline from a file name and audio file name.
@@ -153,11 +153,11 @@ namespace tl
             static std::shared_ptr<Timeline> create(
                 const std::string&,
                 const std::string& audioFileName,
-                const std::shared_ptr<core::Context>&,
+                const std::shared_ptr<core::system::Context>&,
                 const Options & = Options());
 
             //! Get the context.
-            const std::weak_ptr<core::Context>& getContext() const;
+            const std::weak_ptr<core::system::Context>& getContext() const;
 
             //! Get the timeline.
             const otio::SerializableObject::Retainer<otio::Timeline>& getTimeline() const;

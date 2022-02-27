@@ -130,7 +130,7 @@ namespace tl
                     File(
                         const std::string& fileName,
                         ChannelGrouping channelGrouping,
-                        const std::weak_ptr<core::LogSystem>& logSystemWeak)
+                        const std::weak_ptr<log::System>& logSystemWeak)
                     {
                         // Open the file.
 #if defined(TLRENDER_ENABLE_MMAP)
@@ -308,7 +308,7 @@ namespace tl
             void Read::_init(
                 const file::Path& path,
                 const Options& options,
-                const std::weak_ptr<core::LogSystem>& logSystem)
+                const std::weak_ptr<log::System>& logSystem)
             {
                 ISequenceRead::_init(path, options, logSystem);
 
@@ -331,7 +331,7 @@ namespace tl
             std::shared_ptr<Read> Read::create(
                 const file::Path& path,
                 const Options& options,
-                const std::weak_ptr<core::LogSystem>& logSystem)
+                const std::weak_ptr<log::System>& logSystem)
             {
                 auto out = std::shared_ptr<Read>(new Read);
                 out->_init(path, options, logSystem);

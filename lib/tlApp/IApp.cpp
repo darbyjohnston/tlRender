@@ -24,7 +24,7 @@ namespace tl
             std::string cmdLineSummary;
             std::vector<std::shared_ptr<ICmdLineArg> > cmdLineArgs;
             std::vector<std::shared_ptr<ICmdLineOption> > cmdLineOptions;
-            std::shared_ptr<observer::ValueObserver<LogItem> > logObserver;
+            std::shared_ptr<observer::ValueObserver<log::Item> > logObserver;
         };
 
         void IApp::_init(
@@ -38,7 +38,7 @@ namespace tl
             TLRENDER_P();
 
             // Create the context.
-            _context = Context::create();
+            _context = system::Context::create();
             _context->addSystem(io::System::create(_context));
 
             // Parse the command line.
@@ -103,9 +103,9 @@ namespace tl
                 {
                     _print("[LOG] " + toString(i));
                 }
-                p.logObserver = observer::ValueObserver<LogItem>::create(
-                    _context->getSystem<LogSystem>()->observeLog(),
-                    [this](const LogItem& value)
+                p.logObserver = observer::ValueObserver<log::Item>::create(
+                    _context->getSystem<log::System>()->observeLog(),
+                    [this](const log::Item& value)
                     {
                         _print("[LOG] " + toString(value));
                     },
@@ -157,7 +157,7 @@ namespace tl
         IApp::~IApp()
         {}
 
-        const std::shared_ptr<Context>& IApp::getContext() const
+        const std::shared_ptr<system::Context>& IApp::getContext() const
         {
             return _context;
         }
@@ -167,7 +167,7 @@ namespace tl
             return _exit;
         }
 
-        void IApp::_log(const std::string& value, LogType type)
+        void IApp::_log(const std::string& value, log::Type type)
         {
             _context->log(_p->cmdLineName, value, type);
         }

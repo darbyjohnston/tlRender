@@ -67,7 +67,7 @@ namespace tl
                 void _init(
                     const core::file::Path&,
                     const Options&,
-                    const std::weak_ptr<core::LogSystem>&);
+                    const std::weak_ptr<core::log::System>&);
                 Read();
 
             public:
@@ -77,7 +77,7 @@ namespace tl
                 static std::shared_ptr<Read> create(
                     const core::file::Path&,
                     const Options&,
-                    const std::weak_ptr<core::LogSystem>&);
+                    const std::weak_ptr<core::log::System>&);
 
                 std::future<Info> getInfo() override;
                 std::future<VideoData> readVideo(const otime::RationalTime&, uint16_t layer = 0) override;
@@ -103,7 +103,7 @@ namespace tl
                     const core::file::Path&,
                     const Info&,
                     const Options&,
-                    const std::weak_ptr<core::LogSystem>&);
+                    const std::weak_ptr<core::log::System>&);
                 Write();
 
             public:
@@ -114,7 +114,7 @@ namespace tl
                     const core::file::Path&,
                     const Info&,
                     const Options&,
-                    const std::weak_ptr<core::LogSystem>&);
+                    const std::weak_ptr<core::log::System>&);
 
                 void writeVideo(
                     const otime::RationalTime&,
@@ -130,12 +130,12 @@ namespace tl
             class Plugin : public IPlugin
             {
             protected:
-                void _init(const std::weak_ptr<core::LogSystem>&);
+                void _init(const std::weak_ptr<core::log::System>&);
                 Plugin();
 
             public:
                 //! Create a new plugin.
-                static std::shared_ptr<Plugin> create(const std::weak_ptr<core::LogSystem>&);
+                static std::shared_ptr<Plugin> create(const std::weak_ptr<core::log::System>&);
 
                 std::shared_ptr<IRead> read(
                     const core::file::Path&,
@@ -151,7 +151,7 @@ namespace tl
             private:
                 static void _logCallback(void*, int, const char*, va_list);
 
-                static std::weak_ptr<core::LogSystem> _logSystemWeak;
+                static std::weak_ptr<core::log::System> _logSystemWeak;
             };
         }
     }

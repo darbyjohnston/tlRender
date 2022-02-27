@@ -4,17 +4,19 @@
 
 #include <tlRenderGLTest/MeshTest.h>
 
+using namespace tl::core;
+
 namespace tl
 {
     namespace tests
     {
         namespace render_gl_test
         {
-            MeshTest::MeshTest(const std::shared_ptr<core::Context>& context) :
+            MeshTest::MeshTest(const std::shared_ptr<system::Context>& context) :
                 ITest("gl_test::MeshTest", context)
             {}
 
-            std::shared_ptr<MeshTest> MeshTest::create(const std::shared_ptr<core::Context>& context)
+            std::shared_ptr<MeshTest> MeshTest::create(const std::shared_ptr<system::Context>& context)
             {
                 return std::shared_ptr<MeshTest>(new MeshTest(context));
             }

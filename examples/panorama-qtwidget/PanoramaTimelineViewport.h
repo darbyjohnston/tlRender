@@ -16,12 +16,11 @@
 
 #include <QOpenGLWidget>
 
-using namespace tl::core;
-
 namespace tl
 {
     namespace examples
     {
+        //! Example rendering a timeline as a panorama.
         namespace panorama_qtwidget
         {
             class PanoramaTimelineViewport : public QOpenGLWidget
@@ -30,7 +29,7 @@ namespace tl
 
             public:
                 PanoramaTimelineViewport(
-                    const std::shared_ptr<Context>&,
+                    const std::shared_ptr<core::system::Context>&,
                     QWidget* parent = nullptr);
 
                 //! Set the color configuration.
@@ -53,7 +52,7 @@ namespace tl
                 void mouseMoveEvent(QMouseEvent*) override;
 
             private:
-                std::weak_ptr<Context> _context;
+                std::weak_ptr<core::system::Context> _context;
                 core::imaging::ColorConfig _colorConfig;
                 timeline::ImageOptions _imageOptions;
                 qt::TimelinePlayer* _timelinePlayer = nullptr;

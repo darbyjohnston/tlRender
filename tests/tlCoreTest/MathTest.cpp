@@ -16,11 +16,11 @@ namespace tl
     {
         namespace core_test
         {
-            MathTest::MathTest(const std::shared_ptr<core::Context>& context) :
+            MathTest::MathTest(const std::shared_ptr<system::Context>& context) :
                 ITest("core_test::MathTest", context)
             {}
 
-            std::shared_ptr<MathTest> MathTest::create(const std::shared_ptr<core::Context>& context)
+            std::shared_ptr<MathTest> MathTest::create(const std::shared_ptr<system::Context>& context)
             {
                 return std::shared_ptr<MathTest>(new MathTest(context));
             }

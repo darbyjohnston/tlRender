@@ -15,11 +15,11 @@ namespace tl
     {
         namespace core_test
         {
-            ErrorTest::ErrorTest(const std::shared_ptr<Context>& context) :
+            ErrorTest::ErrorTest(const std::shared_ptr<system::Context>& context) :
                 ITest("core_test::ErrorTest", context)
             {}
 
-            std::shared_ptr<ErrorTest> ErrorTest::create(const std::shared_ptr<Context>& context)
+            std::shared_ptr<ErrorTest> ErrorTest::create(const std::shared_ptr<system::Context>& context)
             {
                 return std::shared_ptr<ErrorTest>(new ErrorTest(context));
             }

@@ -15,10 +15,10 @@ namespace tl
             class SGITest : public Test::ITest
             {
             protected:
-                SGITest(const std::shared_ptr<core::Context>&);
+                SGITest(const std::shared_ptr<core::system::Context>&);
 
             public:
-                static std::shared_ptr<SGITest> create(const std::shared_ptr<core::Context>&);
+                static std::shared_ptr<SGITest> create(const std::shared_ptr<core::system::Context>&);
 
                 void run() override;
 

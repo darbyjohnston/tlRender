@@ -11,6 +11,8 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+using namespace tl::core;
+
 namespace tl
 {
     namespace examples
@@ -18,7 +20,7 @@ namespace tl
         namespace panorama_qtwidget
         {
             PanoramaTimelineViewport::PanoramaTimelineViewport(
-                const std::shared_ptr<core::Context>& context,
+                const std::shared_ptr<system::Context>& context,
                 QWidget* parent) :
                 QOpenGLWidget(parent)
             {

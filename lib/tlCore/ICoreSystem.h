@@ -11,30 +11,34 @@ namespace tl
 {
     namespace core
     {
-        class Context;
-
-        //! Base class for core systems.
-        class ICoreSystem : public std::enable_shared_from_this<ICoreSystem>
+        //! Systems.
+        namespace system
         {
-        protected:
-            void _init(
-                const std::string& name,
-                const std::shared_ptr<Context>&);
-            ICoreSystem();
+            class Context;
 
-        public:
-            virtual ~ICoreSystem() = 0;
+            //! Base class for core systems.
+            class ICoreSystem : public std::enable_shared_from_this<ICoreSystem>
+            {
+            protected:
+                void _init(
+                    const std::string& name,
+                    const std::shared_ptr<Context>&);
+                ICoreSystem();
 
-            //! Get the context.
-            const std::weak_ptr<Context>& getContext() const;
+            public:
+                virtual ~ICoreSystem() = 0;
 
-            //! Get the system name.
-            const std::string& getName() const;
+                //! Get the context.
+                const std::weak_ptr<Context>& getContext() const;
 
-        protected:
-            std::weak_ptr<Context> _context;
-            std::string _name;
-        };
+                //! Get the system name.
+                const std::string& getName() const;
+
+            protected:
+                std::weak_ptr<Context> _context;
+                std::string _name;
+            };
+        }
     }
 }
 

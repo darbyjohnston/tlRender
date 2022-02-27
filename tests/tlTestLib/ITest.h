@@ -24,7 +24,7 @@ namespace tl
             protected:
                 ITest(
                     const std::string& name,
-                    const std::shared_ptr<core::Context>&);
+                    const std::shared_ptr<core::system::Context>&);
 
             public:
                 virtual ~ITest() = 0;
@@ -42,7 +42,7 @@ namespace tl
                 void _print(const std::string&);
                 void _printError(const std::string&);
 
-                std::shared_ptr<core::Context> _context;
+                std::shared_ptr<core::system::Context> _context;
                 std::string _name;
             };
         }

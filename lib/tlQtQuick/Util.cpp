@@ -27,15 +27,15 @@ namespace tl
 
             namespace
             {
-                std::weak_ptr<Context> _context;
+                std::weak_ptr<system::Context> _context;
             }
 
-            void setContext(const std::shared_ptr<Context>& context)
+            void setContext(const std::shared_ptr<system::Context>& context)
             {
                 _context = context;
             }
 
-            const std::weak_ptr<Context>& context()
+            const std::weak_ptr<system::Context>& context()
             {
                 return _context;
             }

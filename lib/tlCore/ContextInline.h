@@ -6,22 +6,25 @@ namespace tl
 {
     namespace core
     {
-        inline const std::shared_ptr<LogSystem>& Context::getLogSystem() const
+        namespace system
         {
-            return _logSystem;
-        }
-
-        template<typename T>
-        inline std::shared_ptr<T> Context::getSystem() const
-        {
-            for (const auto& i : _systems)
+            inline const std::shared_ptr<log::System>& Context::getLogSystem() const
             {
-                if (auto system = std::dynamic_pointer_cast<T>(i))
-                {
-                    return system;
-                }
+                return _logSystem;
             }
-            return nullptr;
+
+            template<typename T>
+            inline std::shared_ptr<T> Context::getSystem() const
+            {
+                for (const auto& i : _systems)
+                {
+                    if (auto system = std::dynamic_pointer_cast<T>(i))
+                    {
+                        return system;
+                    }
+                }
+                return nullptr;
+            }
         }
     }
 }

@@ -20,11 +20,11 @@ namespace tl
     {
         namespace io_test
         {
-            PPMTest::PPMTest(const std::shared_ptr<core::Context>& context) :
+            PPMTest::PPMTest(const std::shared_ptr<system::Context>& context) :
                 ITest("io_test::PPMTest", context)
             {}
 
-            std::shared_ptr<PPMTest> PPMTest::create(const std::shared_ptr<core::Context>& context)
+            std::shared_ptr<PPMTest> PPMTest::create(const std::shared_ptr<system::Context>& context)
             {
                 return std::shared_ptr<PPMTest>(new PPMTest(context));
             }

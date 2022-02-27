@@ -15,10 +15,10 @@ namespace tl
             class StringTest : public Test::ITest
             {
             protected:
-                StringTest(const std::shared_ptr<core::Context>&);
+                StringTest(const std::shared_ptr<core::system::Context>&);
 
             public:
-                static std::shared_ptr<StringTest> create(const std::shared_ptr<core::Context>&);
+                static std::shared_ptr<StringTest> create(const std::shared_ptr<core::system::Context>&);
 
                 void run() override;
 

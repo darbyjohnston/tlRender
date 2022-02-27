@@ -101,7 +101,7 @@ namespace tl
             void Read::_init(
                 const file::Path& path,
                 const Options& options,
-                const std::weak_ptr<core::LogSystem>& logSystem)
+                const std::weak_ptr<log::System>& logSystem)
             {
                 IRead::_init(path, options, logSystem);
 
@@ -196,7 +196,7 @@ namespace tl
             std::shared_ptr<Read> Read::create(
                 const file::Path& path,
                 const Options& options,
-                const std::weak_ptr<core::LogSystem>& logSystem)
+                const std::weak_ptr<log::System>& logSystem)
             {
                 auto out = std::shared_ptr<Read>(new Read);
                 out->_init(path, options, logSystem);

@@ -37,7 +37,7 @@ namespace tl
 {
     namespace io
     {
-        void System::_init(const std::shared_ptr<core::Context>& context)
+        void System::_init(const std::shared_ptr<system::Context>& context)
         {
             ISystem::_init("tl::io::System", context);
 
@@ -72,7 +72,7 @@ namespace tl
         System::~System()
         {}
 
-        std::shared_ptr<System> System::create(const std::shared_ptr<core::Context>& context)
+        std::shared_ptr<System> System::create(const std::shared_ptr<system::Context>& context)
         {
             auto out = context->getSystem<System>();
             if (!out)

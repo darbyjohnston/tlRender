@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
     QApplication app(argc, argv);
 
     // Create the context and timeline player.
-    auto context = tl::core::Context::create();
+    auto context = tl::core::system::Context::create();
     context->addSystem(tl::io::System::create(context));
     auto timeline = tl::timeline::Timeline::create(argv[1], context);
     auto timelinePlayer = new tl::qt::TimelinePlayer(

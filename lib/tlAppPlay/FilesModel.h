@@ -46,14 +46,14 @@ namespace tl
                 TLRENDER_NON_COPYABLE(FilesModel);
 
             protected:
-                void _init(const std::shared_ptr<core::Context>&);
+                void _init(const std::shared_ptr<core::system::Context>&);
                 FilesModel();
 
             public:
                 ~FilesModel();
 
                 //! Create a new files model.
-                static std::shared_ptr<FilesModel> create(const std::shared_ptr<core::Context>&);
+                static std::shared_ptr<FilesModel> create(const std::shared_ptr<core::system::Context>&);
 
                 //! Observe the files.
                 std::shared_ptr<core::observer::IList<std::shared_ptr<FilesModelItem> > > observeFiles() const;
@@ -153,7 +153,7 @@ namespace tl
             public:
                 FilesTableModel(
                     const std::shared_ptr<FilesModel>&,
-                    const std::shared_ptr<core::Context>&,
+                    const std::shared_ptr<core::system::Context>&,
                     QObject* parent = nullptr);
 
                 ~FilesTableModel() override;
@@ -188,7 +188,7 @@ namespace tl
             public:
                 FilesAModel(
                     const std::shared_ptr<FilesModel>&,
-                    const std::shared_ptr<core::Context>&,
+                    const std::shared_ptr<core::system::Context>&,
                     QObject* parent = nullptr);
 
                 ~FilesAModel() override;
@@ -207,7 +207,7 @@ namespace tl
             public:
                 FilesBModel(
                     const std::shared_ptr<FilesModel>&,
-                    const std::shared_ptr<core::Context>&,
+                    const std::shared_ptr<core::system::Context>&,
                     QObject* parent = nullptr);
 
                 ~FilesBModel() override;

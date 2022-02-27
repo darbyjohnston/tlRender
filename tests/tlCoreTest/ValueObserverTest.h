@@ -15,10 +15,10 @@ namespace tl
             class ValueObserverTest : public Test::ITest
             {
             protected:
-                ValueObserverTest(const std::shared_ptr<core::Context>&);
+                ValueObserverTest(const std::shared_ptr<core::system::Context>&);
 
             public:
-                static std::shared_ptr<ValueObserverTest> create(const std::shared_ptr<core::Context>&);
+                static std::shared_ptr<ValueObserverTest> create(const std::shared_ptr<core::system::Context>&);
 
                 void run() override;
             };

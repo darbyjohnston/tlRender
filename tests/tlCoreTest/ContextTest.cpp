@@ -16,35 +16,35 @@ namespace tl
     {
         namespace core_test
         {
-            ContextTest::ContextTest(const std::shared_ptr<Context>& context) :
+            ContextTest::ContextTest(const std::shared_ptr<system::Context>& context) :
                 ITest("core_test::ContextTest", context)
             {}
 
-            std::shared_ptr<ContextTest> ContextTest::create(const std::shared_ptr<Context>& context)
+            std::shared_ptr<ContextTest> ContextTest::create(const std::shared_ptr<system::Context>& context)
             {
                 return std::shared_ptr<ContextTest>(new ContextTest(context));
             }
 
             namespace
             {
-                class TestSystem : public ISystem
+                class TestSystem : public system::ISystem
                 {
                     TLRENDER_NON_COPYABLE(TestSystem);
 
                 protected:
-                    void _init(const std::shared_ptr<Context>& context)
+                    void _init(const std::shared_ptr<system::Context>& context)
                     {
                         ISystem::_init("TestSystem", context);
                         _log("Hello world!");
-                        _log("Hello world!", LogType::Warning);
-                        _log("Hello world!", LogType::Error);
+                        _log("Hello world!", log::Type::Warning);
+                        _log("Hello world!", log::Type::Error);
                     }
 
                     TestSystem()
                     {}
 
                 public:
-                    static std::shared_ptr<TestSystem> create(const std::shared_ptr<Context>& context)
+                    static std::shared_ptr<TestSystem> create(const std::shared_ptr<system::Context>& context)
                     {
                         auto out = std::shared_ptr<TestSystem>(new TestSystem);
                         out->_init(context);

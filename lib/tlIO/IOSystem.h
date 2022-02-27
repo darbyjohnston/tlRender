@@ -13,19 +13,19 @@ namespace tl
     namespace io
     {
         //! I/O system.
-        class System : public core::ISystem
+        class System : public core::system::ISystem
         {
             TLRENDER_NON_COPYABLE(System);
 
         protected:
-            void _init(const std::shared_ptr<core::Context>&);
+            void _init(const std::shared_ptr<core::system::Context>&);
             System();
 
         public:
             ~System() override;
 
             //! Create a new I/O system.
-            static std::shared_ptr<System> create(const std::shared_ptr<core::Context>&);
+            static std::shared_ptr<System> create(const std::shared_ptr<core::system::Context>&);
 
             //! Set the plugin options.
             void setOptions(const Options&);

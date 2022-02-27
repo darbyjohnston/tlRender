@@ -312,7 +312,7 @@ namespace tl
             std::shared_ptr<imaging::Image> frameBuffer;
         };
 
-        void SoftwareRender::_init(const std::shared_ptr<Context>& context)
+        void SoftwareRender::_init(const std::shared_ptr<system::Context>& context)
         {
             IRender::_init(context);
         }
@@ -324,7 +324,7 @@ namespace tl
         SoftwareRender::~SoftwareRender()
         {}
 
-        std::shared_ptr<SoftwareRender> SoftwareRender::create(const std::shared_ptr<Context>& context)
+        std::shared_ptr<SoftwareRender> SoftwareRender::create(const std::shared_ptr<system::Context>& context)
         {
             auto out = std::shared_ptr<SoftwareRender>(new SoftwareRender);
             out->_init(context);

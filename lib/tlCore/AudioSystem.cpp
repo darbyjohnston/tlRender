@@ -35,7 +35,7 @@ namespace tl
                 std::vector<Device> devices;
             };
 
-            void System::_init(const std::shared_ptr<core::Context>& context)
+            void System::_init(const std::shared_ptr<system::Context>& context)
             {
                 ISystem::_init("tl::audio::System", context);
 
@@ -168,7 +168,7 @@ namespace tl
                 {
                     std::stringstream ss;
                     ss << "Cannot initalize audio system: " << e.what();
-                    _log(ss.str(), LogType::Error);
+                    _log(ss.str(), log::Type::Error);
                 }
             }
 
@@ -179,7 +179,7 @@ namespace tl
             System::~System()
             {}
 
-            std::shared_ptr<System> System::create(const std::shared_ptr<Context>& context)
+            std::shared_ptr<System> System::create(const std::shared_ptr<system::Context>& context)
             {
                 auto out = context->getSystem<System>();
                 if (!out)

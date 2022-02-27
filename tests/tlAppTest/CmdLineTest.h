@@ -15,10 +15,10 @@ namespace tl
             class CmdLineTest : public Test::ITest
             {
             protected:
-                CmdLineTest(const std::shared_ptr<core::Context>&);
+                CmdLineTest(const std::shared_ptr<core::system::Context>&);
 
             public:
-                static std::shared_ptr<CmdLineTest> create(const std::shared_ptr<core::Context>&);
+                static std::shared_ptr<CmdLineTest> create(const std::shared_ptr<core::system::Context>&);
 
                 void run() override;
             };

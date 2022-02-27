@@ -67,16 +67,16 @@ using namespace tl::tests;
 
 int main(int argc, char* argv[])
 {
-    auto context = Context::create();
+    auto context = system::Context::create();
     context->addSystem(tl::io::System::create(context));
     
     for (const auto& i : context->getLogInit())
     {
         std::cout << "[LOG] " << toString(i) << std::endl;
     }
-    auto logObserver = observer::ValueObserver<LogItem>::create(
-        context->getSystem<LogSystem>()->observeLog(),
-        [](const LogItem& value)
+    auto logObserver = observer::ValueObserver<log::Item>::create(
+        context->getSystem<log::System>()->observeLog(),
+        [](const log::Item& value)
         {
             std::cout << "[LOG] " << toString(value) << std::endl;
         },

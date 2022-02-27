@@ -29,9 +29,9 @@ namespace tl
             QMetaType::registerComparators<audio::DataType>();
             QMetaType::registerComparators<audio::DeviceFormat>();
 
-            qRegisterMetaType<LogItem>("tl::core::LogItem");
-            qRegisterMetaType<LogType>("tl::core::LogType");
-            QMetaType::registerComparators<LogType>();
+            qRegisterMetaType<log::Item>("tl::core::log::Item");
+            qRegisterMetaType<log::Type>("tl::core::log::Type");
+            QMetaType::registerComparators<log::Type>();
 
             qRegisterMetaType<file::Mode>("tl::core::file::Mode");
             qRegisterMetaType<file::PathOptions>("tl::core::file::PathOptions");

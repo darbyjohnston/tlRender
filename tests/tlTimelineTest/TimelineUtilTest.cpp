@@ -19,11 +19,11 @@ namespace tl
     {
         namespace timeline_test
         {
-            TimelineUtilTest::TimelineUtilTest(const std::shared_ptr<core::Context>& context) :
+            TimelineUtilTest::TimelineUtilTest(const std::shared_ptr<system::Context>& context) :
                 ITest("timeline_test::TimelineUtilTest", context)
             {}
 
-            std::shared_ptr<TimelineUtilTest> TimelineUtilTest::create(const std::shared_ptr<core::Context>& context)
+            std::shared_ptr<TimelineUtilTest> TimelineUtilTest::create(const std::shared_ptr<system::Context>& context)
             {
                 return std::shared_ptr<TimelineUtilTest>(new TimelineUtilTest(context));
             }

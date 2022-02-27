@@ -4,17 +4,19 @@
 
 #include <tlAppTest/CmdLineTest.h>
 
+using namespace tl::core;
+
 namespace tl
 {
     namespace tests
     {
         namespace AppTest
         {
-            CmdLineTest::CmdLineTest(const std::shared_ptr<core::Context>& context) :
+            CmdLineTest::CmdLineTest(const std::shared_ptr<system::Context>& context) :
                 ITest("AppTest::CmdLineTest", context)
             {}
 
-            std::shared_ptr<CmdLineTest> CmdLineTest::create(const std::shared_ptr<core::Context>& context)
+            std::shared_ptr<CmdLineTest> CmdLineTest::create(const std::shared_ptr<system::Context>& context)
             {
                 return std::shared_ptr<CmdLineTest>(new CmdLineTest(context));
             }

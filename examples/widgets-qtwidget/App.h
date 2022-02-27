@@ -14,6 +14,7 @@ namespace tl
 {
     namespace examples
     {
+        //! Example showing various widgets.
         namespace widgets_qtwidget
         {
             class App : public QApplication
@@ -24,7 +25,7 @@ namespace tl
                 App(int& argc, char** argv);
 
             private:
-                std::shared_ptr<core::Context> _context;
+                std::shared_ptr<core::system::Context> _context;
                 MainWindow* _mainWindow = nullptr;
             };
         }

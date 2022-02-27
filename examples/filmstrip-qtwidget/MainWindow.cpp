@@ -23,7 +23,7 @@ namespace tl
         {
             MainWindow::MainWindow(
                 const std::string& input,
-                const std::shared_ptr<core::Context>& context,
+                const std::shared_ptr<system::Context>& context,
                 QWidget* parent) :
                 _context(context),
                 QMainWindow(parent)

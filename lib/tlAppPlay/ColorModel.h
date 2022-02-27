@@ -36,14 +36,14 @@ namespace tl
                 TLRENDER_NON_COPYABLE(ColorModel);
 
             protected:
-                void _init(const std::shared_ptr<core::Context>&);
+                void _init(const std::shared_ptr<core::system::Context>&);
                 ColorModel();
 
             public:
                 ~ColorModel();
 
                 //! Create a new color model.
-                static std::shared_ptr<ColorModel> create(const std::shared_ptr<core::Context>&);
+                static std::shared_ptr<ColorModel> create(const std::shared_ptr<core::system::Context>&);
 
                 //! Observe the configuration.
                 std::shared_ptr<core::observer::IValue<core::imaging::ColorConfig> > observeConfig() const;

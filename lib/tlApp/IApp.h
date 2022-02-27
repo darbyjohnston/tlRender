@@ -64,19 +64,19 @@ namespace tl
             virtual ~IApp() = 0;
 
             //! Get the context.
-            const std::shared_ptr<core::Context>& getContext() const;
+            const std::shared_ptr<core::system::Context>& getContext() const;
 
             //! Get the exit code.
             int getExit() const;
 
         protected:
-            void _log(const std::string&, core::LogType = core::LogType::Message);
+            void _log(const std::string&, core::log::Type = core::log::Type::Message);
 
             void _print(const std::string&);
             void _printNewline();
             void _printError(const std::string&);
 
-            std::shared_ptr<core::Context> _context;
+            std::shared_ptr<core::system::Context> _context;
             Options _options;
             int _exit = 0;
 

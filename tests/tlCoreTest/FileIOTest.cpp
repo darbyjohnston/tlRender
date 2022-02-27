@@ -21,14 +21,14 @@ namespace tl
     {
         namespace core_test
         {
-            FileIOTest::FileIOTest(const std::shared_ptr<core::Context>& context) :
+            FileIOTest::FileIOTest(const std::shared_ptr<system::Context>& context) :
                 ITest("core_test::FileIOTest", context),
                 _fileName("file.txt"),
                 _text("Hello"),
                 _text2("world!")
             {}
 
-            std::shared_ptr<FileIOTest> FileIOTest::create(const std::shared_ptr<core::Context>& context)
+            std::shared_ptr<FileIOTest> FileIOTest::create(const std::shared_ptr<system::Context>& context)
             {
                 return std::shared_ptr<FileIOTest>(new FileIOTest(context));
             }

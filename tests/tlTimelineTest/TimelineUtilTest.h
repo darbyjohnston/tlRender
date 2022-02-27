@@ -15,10 +15,10 @@ namespace tl
             class TimelineUtilTest : public Test::ITest
             {
             protected:
-                TimelineUtilTest(const std::shared_ptr<core::Context>&);
+                TimelineUtilTest(const std::shared_ptr<core::system::Context>&);
 
             public:
-                static std::shared_ptr<TimelineUtilTest> create(const std::shared_ptr<core::Context>&);
+                static std::shared_ptr<TimelineUtilTest> create(const std::shared_ptr<core::system::Context>&);
 
                 void run() override;
 

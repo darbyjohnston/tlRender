@@ -16,14 +16,14 @@ namespace tl
             TLRENDER_NON_COPYABLE(SoftwareRender);
 
         protected:
-            void _init(const std::shared_ptr<core::Context>&);
+            void _init(const std::shared_ptr<core::system::Context>&);
             SoftwareRender();
 
         public:
             ~SoftwareRender() override;
 
             //! Create a new renderer.
-            static std::shared_ptr<SoftwareRender> create(const std::shared_ptr<core::Context>&);
+            static std::shared_ptr<SoftwareRender> create(const std::shared_ptr<core::system::Context>&);
 
             //! Get the frame buffer.
             const std::shared_ptr<core::imaging::Image> getFrameBuffer() const;

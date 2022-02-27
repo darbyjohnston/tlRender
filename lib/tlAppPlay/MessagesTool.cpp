@@ -27,11 +27,11 @@ namespace tl
             {
                 QListWidget* listWidget = nullptr;
                 QToolButton* clearButton = nullptr;
-                std::shared_ptr<observer::ValueObserver<LogItem> > logObserver;
+                std::shared_ptr<observer::ValueObserver<log::Item> > logObserver;
             };
 
             MessagesTool::MessagesTool(
-                const std::shared_ptr<Context>& context,
+                const std::shared_ptr<system::Context>& context,
                 QWidget* parent) :
                 ToolWidget(parent),
                 _p(new Private)
@@ -58,16 +58,16 @@ namespace tl
                 widget->setLayout(layout);
                 addWidget(widget);
 
-                p.logObserver = observer::ValueObserver<LogItem>::create(
+                p.logObserver = observer::ValueObserver<log::Item>::create(
                     context->getLogSystem()->observeLog(),
-                    [this](const LogItem& value)
+                    [this](const log::Item& value)
                     {
                         switch (value.type)
                         {
-                        case LogType::Warning:
+                        case log::Type::Warning:
                             _p->listWidget->addItem(QString("Warning: %1").arg(QString::fromUtf8(value.message.c_str())));
                             break;
-                        case LogType::Error:
+                        case log::Type::Error:
                             _p->listWidget->addItem(QString("ERROR: %1").arg(QString::fromUtf8(value.message.c_str())));
                             break;
                         default: break;

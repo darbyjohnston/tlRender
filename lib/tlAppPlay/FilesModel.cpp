@@ -21,7 +21,7 @@ namespace tl
         {
             struct FilesModel::Private
             {
-                std::weak_ptr<Context> context;
+                std::weak_ptr<system::Context> context;
                 std::shared_ptr<observer::List<std::shared_ptr<FilesModelItem> > > files;
                 std::shared_ptr<observer::Value<std::shared_ptr<FilesModelItem> > > a;
                 std::shared_ptr<observer::Value<int> > aIndex;
@@ -32,7 +32,7 @@ namespace tl
                 std::shared_ptr<observer::Value<timeline::CompareOptions> > compareOptions;
             };
 
-            void FilesModel::_init(const std::shared_ptr<Context>& context)
+            void FilesModel::_init(const std::shared_ptr<system::Context>& context)
             {
                 TLRENDER_P();
 
@@ -55,7 +55,7 @@ namespace tl
             FilesModel::~FilesModel()
             {}
 
-            std::shared_ptr<FilesModel> FilesModel::create(const std::shared_ptr<Context>& context)
+            std::shared_ptr<FilesModel> FilesModel::create(const std::shared_ptr<system::Context>& context)
             {
                 auto out = std::shared_ptr<FilesModel>(new FilesModel);
                 out->_init(context);
@@ -545,7 +545,7 @@ namespace tl
 
             struct FilesTableModel::Private
             {
-                std::weak_ptr<Context> context;
+                std::weak_ptr<system::Context> context;
                 std::shared_ptr<FilesModel> filesModel;
                 std::vector<std::shared_ptr<FilesModelItem> > active;
                 std::shared_ptr<observer::ListObserver<std::shared_ptr<FilesModelItem> > > filesObserver;
@@ -557,7 +557,7 @@ namespace tl
 
             FilesTableModel::FilesTableModel(
                 const std::shared_ptr<FilesModel>& filesModel,
-                const std::shared_ptr<Context>& context,
+                const std::shared_ptr<system::Context>& context,
                 QObject* parent) :
                 QAbstractTableModel(parent),
                 _p(new Private)
@@ -820,7 +820,7 @@ namespace tl
 
             FilesAModel::FilesAModel(
                 const std::shared_ptr<FilesModel>& filesModel,
-                const std::shared_ptr<Context>& context,
+                const std::shared_ptr<system::Context>& context,
                 QObject* parent) :
                 FilesTableModel(filesModel, context, parent),
                 _p(new Private)
@@ -893,7 +893,7 @@ namespace tl
 
             FilesBModel::FilesBModel(
                 const std::shared_ptr<FilesModel>& filesModel,
-                const std::shared_ptr<Context>& context,
+                const std::shared_ptr<system::Context>& context,
                 QObject* parent) :
                 FilesTableModel(filesModel, context, parent),
                 _p(new Private)

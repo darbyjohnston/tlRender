@@ -10,7 +10,10 @@ namespace tl
 {
     namespace core
     {
-        class Context;
+        namespace system
+        {
+            class Context;
+        }
     }
 
     namespace app
@@ -24,7 +27,7 @@ namespace tl
 
             public:
                 SystemLogTool(
-                    const std::shared_ptr<core::Context>&,
+                    const std::shared_ptr<core::system::Context>&,
                     QWidget* parent = nullptr);
 
                 ~SystemLogTool() override;

@@ -96,9 +96,9 @@ namespace tl
                 return std::string(buf);
             }
 
-            std::weak_ptr<core::LogSystem> Plugin::_logSystemWeak;
+            std::weak_ptr<log::System> Plugin::_logSystemWeak;
 
-            void Plugin::_init(const std::weak_ptr<core::LogSystem>& logSystem)
+            void Plugin::_init(const std::weak_ptr<log::System>& logSystem)
             {
                 IPlugin::_init(
                     "FFmpeg",
@@ -135,7 +135,7 @@ namespace tl
             Plugin::Plugin()
             {}
 
-            std::shared_ptr<Plugin> Plugin::create(const std::weak_ptr<core::LogSystem>& logSystem)
+            std::shared_ptr<Plugin> Plugin::create(const std::weak_ptr<log::System>& logSystem)
             {
                 auto out = std::shared_ptr<Plugin>(new Plugin);
                 out->_init(logSystem);

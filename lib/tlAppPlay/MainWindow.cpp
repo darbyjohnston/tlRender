@@ -110,7 +110,7 @@ namespace tl
                 std::shared_ptr<observer::ListObserver<timeline::ImageOptions> > imageOptionsObserver;
                 std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
                 std::shared_ptr<observer::ValueObserver<imaging::ColorConfig> > colorConfigObserver;
-                std::shared_ptr<observer::ValueObserver<LogItem> > logObserver;
+                std::shared_ptr<observer::ValueObserver<log::Item> > logObserver;
 
                 bool mousePressed = false;
                 math::Vector2i mousePos;
@@ -375,13 +375,13 @@ namespace tl
                         _widgetUpdate();
                     });
 
-                p.logObserver = observer::ValueObserver<LogItem>::create(
+                p.logObserver = observer::ValueObserver<log::Item>::create(
                     app->getContext()->getLogSystem()->observeLog(),
-                    [this](const LogItem& value)
+                    [this](const log::Item& value)
                     {
                         switch (value.type)
                         {
-                        case LogType::Error:
+                        case log::Type::Error:
                             _p->statusBar->showMessage(
                                 QString(tr("ERROR: %1")).
                                 arg(QString::fromUtf8(value.message.c_str())),

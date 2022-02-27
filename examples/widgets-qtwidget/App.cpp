@@ -17,7 +17,7 @@ namespace tl
             App::App(int& argc, char** argv) :
                 QApplication(argc, argv)
             {
-                _context = core::Context::create();
+                _context = core::system::Context::create();
                 _context->addSystem(io::System::create(_context));
 
                 setStyle("Fusion");

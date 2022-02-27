@@ -10,25 +10,31 @@ namespace tl
 {
     namespace core
     {
-        class LogSystem;
-
-        //! Base class for systems.
-        class ISystem : public ICoreSystem
+        namespace log
         {
-        protected:
-            void _init(
-                const std::string& name,
-                const std::shared_ptr<Context>&);
-            ISystem();
+            class LogSystem;
+        }
 
-        public:
-            ~ISystem() override;
+        namespace system
+        {
+            //! Base class for systems.
+            class ISystem : public ICoreSystem
+            {
+            protected:
+                void _init(
+                    const std::string& name,
+                    const std::shared_ptr<Context>&);
+                ISystem();
 
-        protected:
-            void _log(const std::string&, LogType = LogType::Message);
+            public:
+                ~ISystem() override;
 
-        private:
-            std::weak_ptr<LogSystem> _logSystem;
-        };
+            protected:
+                void _log(const std::string&, log::Type = log::Type::Message);
+
+            private:
+                std::weak_ptr<log::System> _logSystem;
+            };
+        }
     }
 }

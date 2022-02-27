@@ -21,11 +21,11 @@ namespace tl
     {
         namespace io_test
         {
-            JPEGTest::JPEGTest(const std::shared_ptr<core::Context>& context) :
+            JPEGTest::JPEGTest(const std::shared_ptr<system::Context>& context) :
                 ITest("io_test::JPEGTest", context)
             {}
 
-            std::shared_ptr<JPEGTest> JPEGTest::create(const std::shared_ptr<core::Context>& context)
+            std::shared_ptr<JPEGTest> JPEGTest::create(const std::shared_ptr<system::Context>& context)
             {
                 return std::shared_ptr<JPEGTest>(new JPEGTest(context));
             }

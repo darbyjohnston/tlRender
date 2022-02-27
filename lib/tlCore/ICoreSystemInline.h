@@ -6,14 +6,17 @@ namespace tl
 {
     namespace core
     {
-        inline const std::weak_ptr<Context>& ICoreSystem::getContext() const
+        namespace system
         {
-            return _context;
-        }
+            inline const std::weak_ptr<Context>& ICoreSystem::getContext() const
+            {
+                return _context;
+            }
 
-        inline const std::string& ICoreSystem::getName() const
-        {
-            return _name;
+            inline const std::string& ICoreSystem::getName() const
+            {
+                return _name;
+            }
         }
     }
 }

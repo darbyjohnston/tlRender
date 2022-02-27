@@ -15,11 +15,11 @@ namespace tl
     {
         namespace core_test
         {
-            ListObserverTest::ListObserverTest(const std::shared_ptr<core::Context>& context) :
+            ListObserverTest::ListObserverTest(const std::shared_ptr<system::Context>& context) :
                 ITest("core_test::ListObserverTest", context)
             {}
 
-            std::shared_ptr<ListObserverTest> ListObserverTest::create(const std::shared_ptr<core::Context>& context)
+            std::shared_ptr<ListObserverTest> ListObserverTest::create(const std::shared_ptr<system::Context>& context)
             {
                 return std::shared_ptr<ListObserverTest>(new ListObserverTest(context));
             }

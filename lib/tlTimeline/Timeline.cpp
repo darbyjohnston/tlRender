@@ -46,7 +46,7 @@ namespace tl
     {
         std::vector<std::string> getExtensions(
             int types,
-            const std::shared_ptr<core::Context>& context)
+            const std::shared_ptr<system::Context>& context)
         {
             std::vector<std::string> out;
             //! \todo Get extensions for the Python adapters.
@@ -252,7 +252,7 @@ namespace tl
                 const std::string& fileSequenceAudioFileName,
                 const std::string& fileSequenceAudioDirectory,
                 const file::PathOptions& pathOptions,
-                const std::shared_ptr<core::Context>& context)
+                const std::shared_ptr<system::Context>& context)
             {
                 file::Path out;
                 auto ioSystem = context->getSystem<io::System>();
@@ -344,7 +344,7 @@ namespace tl
             void stopReaders();
             void delReaders();
 
-            std::weak_ptr<core::Context> context;
+            std::weak_ptr<system::Context> context;
             otio::SerializableObject::Retainer<otio::Timeline> otioTimeline;
             file::Path path;
             file::Path audioPath;
@@ -423,7 +423,7 @@ namespace tl
 
         void Timeline::_init(
             const otio::SerializableObject::Retainer<otio::Timeline>& otioTimeline,
-            const std::shared_ptr<core::Context>& context,
+            const std::shared_ptr<system::Context>& context,
             const Options& options)
         {
             TLRENDER_P();
@@ -617,7 +617,7 @@ namespace tl
 
         std::shared_ptr<Timeline> Timeline::create(
             const otio::SerializableObject::Retainer<otio::Timeline>& timeline,
-            const std::shared_ptr<core::Context>& context,
+            const std::shared_ptr<system::Context>& context,
             const Options& options)
         {
             auto out = std::shared_ptr<Timeline>(new Timeline);
@@ -627,7 +627,7 @@ namespace tl
 
         std::shared_ptr<Timeline> Timeline::create(
             const std::string& fileName,
-            const std::shared_ptr<core::Context>& context,
+            const std::shared_ptr<system::Context>& context,
             const Options& options)
         {
             otio::SerializableObject::Retainer<otio::Timeline> otioTimeline;
@@ -788,7 +788,7 @@ namespace tl
         std::shared_ptr<Timeline> Timeline::create(
             const std::string& fileName,
             const std::string& audioFileName,
-            const std::shared_ptr<core::Context>& context,
+            const std::shared_ptr<system::Context>& context,
             const Options& options)
         {
             otio::SerializableObject::Retainer<otio::Timeline> otioTimeline;
@@ -919,7 +919,7 @@ namespace tl
             return out;
         }
 
-        const std::weak_ptr<core::Context>& Timeline::getContext() const
+        const std::weak_ptr<system::Context>& Timeline::getContext() const
         {
             return _p->context;
         }

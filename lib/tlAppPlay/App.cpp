@@ -326,7 +326,7 @@ namespace tl
                         }
                         catch (const std::exception& e)
                         {
-                            _log(e.what(), LogType::Error);
+                            _log(e.what(), log::Type::Error);
                         }
                         timelinePlayers[i] = qtTimelinePlayer;
                     }

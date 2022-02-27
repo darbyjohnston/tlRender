@@ -42,18 +42,18 @@ namespace tl
             };
 
             //! Audio system.
-            class System : public core::ISystem
+            class System : public system::ISystem
             {
                 TLRENDER_NON_COPYABLE(System);
 
             protected:
-                void _init(const std::shared_ptr<core::Context>&);
+                void _init(const std::shared_ptr<system::Context>&);
                 System();
 
             public:
                 ~System() override;
 
-                static std::shared_ptr<System> create(const std::shared_ptr<core::Context>&);
+                static std::shared_ptr<System> create(const std::shared_ptr<system::Context>&);
 
                 const std::vector<std::string>& getAPIs() const;
                 const std::vector<Device>& getDevices() const;

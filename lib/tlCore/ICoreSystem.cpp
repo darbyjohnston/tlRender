@@ -8,18 +8,21 @@ namespace tl
 {
     namespace core
     {
-        void ICoreSystem::_init(
-            const std::string& name,
-            const std::shared_ptr<Context>& context)
+        namespace system
         {
-            _context = context;
-            _name = name;
+            void ICoreSystem::_init(
+                const std::string& name,
+                const std::shared_ptr<Context>& context)
+            {
+                _context = context;
+                _name = name;
+            }
+
+            ICoreSystem::ICoreSystem()
+            {}
+
+            ICoreSystem::~ICoreSystem()
+            {}
         }
-
-        ICoreSystem::ICoreSystem()
-        {}
-
-        ICoreSystem::~ICoreSystem()
-        {}
     }
 }

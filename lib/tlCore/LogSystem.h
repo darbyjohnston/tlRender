@@ -13,52 +13,56 @@ namespace tl
 {
     namespace core
     {
-        //! Log types.
-        enum class LogType
+        //! Logging.
+        namespace log
         {
-            Message,
-            Warning,
-            Error
-        };
+            //! Log types.
+            enum class Type
+            {
+                Message,
+                Warning,
+                Error
+            };
 
-        //! Log item.
-        struct LogItem
-        {
-            float time = 0.F;
-            std::string prefix;
-            std::string message;
-            LogType type = LogType::Message;
-        };
+            //! Log item.
+            struct Item
+            {
+                float time = 0.F;
+                std::string prefix;
+                std::string message;
+                Type type = Type::Message;
+            };
 
-        //! Convert a log item to a string.
-        std::string toString(const LogItem&);
+            //! Convert a log item to a string.
+            std::string toString(const Item&);
 
-        //! Log system.
-        class LogSystem : public ICoreSystem
-        {
-            TLRENDER_NON_COPYABLE(LogSystem);
+            //! Log system.
+            class System : public system::ICoreSystem
+            {
+                TLRENDER_NON_COPYABLE(System);
 
-        protected:
-            void _init(const std::shared_ptr<Context>&);
-            LogSystem();
+            protected:
+                void _init(const std::shared_ptr<system::Context>&);
+                System();
 
-        public:
-            ~LogSystem() override;
+            public:
+                ~System() override;
 
-            //! Create a new log system.
-            static std::shared_ptr<LogSystem> create(const std::shared_ptr<Context>&);
+                //! Create a new log system.
+                static std::shared_ptr<System> create(const std::shared_ptr<system::Context>&);
 
-            //! Print to the log.
-            void print(
-                const std::string& prefix,
-                const std::string&,
-                LogType = LogType::Message);
+                //! Print to the log.
+                void print(
+                    const std::string& prefix,
+                    const std::string&,
+                    Type = Type::Message);
 
-            //! Observe the log.
-            std::shared_ptr<observer::IValue<LogItem> > observeLog() const;
+                //! Observe the log.
+                std::shared_ptr<observer::IValue<Item> > observeLog() const;
 
-        private:
-            TLRENDER_PRIVATE();
-        };
+            private:
+                TLRENDER_PRIVATE();
+            };
+        }
     }
 }

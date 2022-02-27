@@ -16,11 +16,11 @@ namespace tl
     {
         namespace core_test
         {
-            StringFormatTest::StringFormatTest(const std::shared_ptr<core::Context>& context) :
+            StringFormatTest::StringFormatTest(const std::shared_ptr<system::Context>& context) :
                 ITest("core_test::StringFormatTest", context)
             {}
 
-            std::shared_ptr<StringFormatTest> StringFormatTest::create(const std::shared_ptr<core::Context>& context)
+            std::shared_ptr<StringFormatTest> StringFormatTest::create(const std::shared_ptr<system::Context>& context)
             {
                 return std::shared_ptr<StringFormatTest>(new StringFormatTest(context));
             }

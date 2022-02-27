@@ -20,11 +20,11 @@ namespace tl
     {
         namespace io_test
         {
-            SGITest::SGITest(const std::shared_ptr<core::Context>& context) :
+            SGITest::SGITest(const std::shared_ptr<system::Context>& context) :
                 ITest("io_test::SGITest", context)
             {}
 
-            std::shared_ptr<SGITest> SGITest::create(const std::shared_ptr<core::Context>& context)
+            std::shared_ptr<SGITest> SGITest::create(const std::shared_ptr<system::Context>& context)
             {
                 return std::shared_ptr<SGITest>(new SGITest(context));
             }

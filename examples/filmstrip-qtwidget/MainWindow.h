@@ -24,7 +24,7 @@ namespace tl
             public:
                 MainWindow(
                     const std::string& input,
-                    const std::shared_ptr<core::Context>& context,
+                    const std::shared_ptr<core::system::Context>&,
                     QWidget* parent = nullptr);
 
             protected:
@@ -36,7 +36,7 @@ namespace tl
             private:
                 void _open(const std::string&);
 
-                std::shared_ptr<core::Context> _context;
+                std::shared_ptr<core::system::Context> _context;
                 std::string _input;
                 std::shared_ptr<timeline::Timeline> _timeline;
                 qt::widget::FilmstripWidget* _filmstripWidget;

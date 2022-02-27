@@ -18,11 +18,11 @@ namespace tl
     {
         namespace core_test
         {
-            FileTest::FileTest(const std::shared_ptr<core::Context>& context) :
+            FileTest::FileTest(const std::shared_ptr<system::Context>& context) :
                 ITest("core_test::FileTest", context)
             {}
 
-            std::shared_ptr<FileTest> FileTest::create(const std::shared_ptr<core::Context>& context)
+            std::shared_ptr<FileTest> FileTest::create(const std::shared_ptr<system::Context>& context)
             {
                 return std::shared_ptr<FileTest>(new FileTest(context));
             }

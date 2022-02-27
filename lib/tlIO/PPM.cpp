@@ -119,7 +119,7 @@ namespace tl
             Plugin::Plugin()
             {}
 
-            std::shared_ptr<Plugin> Plugin::create(const std::weak_ptr<core::LogSystem>& logSystem)
+            std::shared_ptr<Plugin> Plugin::create(const std::weak_ptr<log::System>& logSystem)
             {
                 auto out = std::shared_ptr<Plugin>(new Plugin);
                 out->_init(

@@ -18,10 +18,13 @@ namespace tl
 {
     namespace core
     {
-        class LogSystem;
+        namespace log
+        {
+            class System;
+        }
     }
 
-    //! I/O.
+    //! Audio and video I/O.
     namespace io
     {
         //! Video type.
@@ -112,7 +115,7 @@ namespace tl
             void _init(
                 const core::file::Path&,
                 const Options&,
-                const std::weak_ptr<core::LogSystem>&);
+                const std::weak_ptr<core::log::System>&);
             IIO();
 
         public:
@@ -122,7 +125,7 @@ namespace tl
             const core::file::Path& getPath() const;
 
         protected:
-            std::weak_ptr<core::LogSystem> _logSystem;
+            std::weak_ptr<core::log::System> _logSystem;
             core::file::Path _path;
             Options _options;
         };
@@ -134,7 +137,7 @@ namespace tl
             void _init(
                 const core::file::Path&,
                 const Options&,
-                const std::weak_ptr<core::LogSystem>&);
+                const std::weak_ptr<core::log::System>&);
             IRead();
 
         public:
@@ -170,7 +173,7 @@ namespace tl
                 const core::file::Path&,
                 const Options&,
                 const Info&,
-                const std::weak_ptr<core::LogSystem>&);
+                const std::weak_ptr<core::log::System>&);
             IWrite();
 
         public:
@@ -194,7 +197,7 @@ namespace tl
             void _init(
                 const std::string& name,
                 const std::map<std::string, FileExtensionType>& extensions,
-                const std::weak_ptr<core::LogSystem>&);
+                const std::weak_ptr<core::log::System>&);
             IPlugin();
 
         public:
@@ -231,7 +234,7 @@ namespace tl
         protected:
             bool _isWriteCompatible(const core::imaging::Info&, const Options&) const;
 
-            std::weak_ptr<core::LogSystem> _logSystem;
+            std::weak_ptr<core::log::System> _logSystem;
             Options _options;
 
         private:

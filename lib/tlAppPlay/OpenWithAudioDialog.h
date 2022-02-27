@@ -14,7 +14,10 @@ namespace tl
 {
     namespace core
     {
-        class Context;
+        namespace system
+        {
+            class Context;
+        }
     }
 
     namespace app
@@ -28,7 +31,7 @@ namespace tl
 
             public:
                 OpenWithAudioDialog(
-                    const std::shared_ptr<core::Context>&,
+                    const std::shared_ptr<core::system::Context>&,
                     QWidget* parent = nullptr);
 
                 ~OpenWithAudioDialog() override;

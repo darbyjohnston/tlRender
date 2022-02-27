@@ -16,11 +16,11 @@ namespace tl
     {
         namespace core_test
         {
-            ColorTest::ColorTest(const std::shared_ptr<core::Context>& context) :
+            ColorTest::ColorTest(const std::shared_ptr<system::Context>& context) :
                 ITest("core_test::ColorTest", context)
             {}
 
-            std::shared_ptr<ColorTest> ColorTest::create(const std::shared_ptr<core::Context>& context)
+            std::shared_ptr<ColorTest> ColorTest::create(const std::shared_ptr<system::Context>& context)
             {
                 return std::shared_ptr<ColorTest>(new ColorTest(context));
             }

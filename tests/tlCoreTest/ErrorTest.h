@@ -15,10 +15,10 @@ namespace tl
             class ErrorTest : public Test::ITest
             {
             protected:
-                ErrorTest(const std::shared_ptr<core::Context>&);
+                ErrorTest(const std::shared_ptr<core::system::Context>&);
 
             public:
-                static std::shared_ptr<ErrorTest> create(const std::shared_ptr<core::Context>&);
+                static std::shared_ptr<ErrorTest> create(const std::shared_ptr<core::system::Context>&);
 
                 void run() override;
             };

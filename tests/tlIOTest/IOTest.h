@@ -15,10 +15,10 @@ namespace tl
             class IOTest : public Test::ITest
             {
             protected:
-                IOTest(const std::shared_ptr<core::Context>&);
+                IOTest(const std::shared_ptr<core::system::Context>&);
 
             public:
-                static std::shared_ptr<IOTest> create(const std::shared_ptr<core::Context>&);
+                static std::shared_ptr<IOTest> create(const std::shared_ptr<core::system::Context>&);
 
                 void run() override;
 

@@ -15,10 +15,10 @@ namespace tl
             class ImageTest : public Test::ITest
             {
             protected:
-                ImageTest(const std::shared_ptr<core::Context>&);
+                ImageTest(const std::shared_ptr<core::system::Context>&);
 
             public:
-                static std::shared_ptr<ImageTest> create(const std::shared_ptr<core::Context>&);
+                static std::shared_ptr<ImageTest> create(const std::shared_ptr<core::system::Context>&);
 
                 void run() override;
 

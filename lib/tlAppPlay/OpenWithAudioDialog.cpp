@@ -25,7 +25,7 @@ namespace tl
         {
             struct OpenWithAudioDialog::Private
             {
-                std::weak_ptr<Context> context;
+                std::weak_ptr<system::Context> context;
                 QString videoFileName;
                 QString audioFileName;
                 QLineEdit* videoLineEdit = nullptr;
@@ -33,7 +33,7 @@ namespace tl
             };
 
             OpenWithAudioDialog::OpenWithAudioDialog(
-                const std::shared_ptr<Context>& context,
+                const std::shared_ptr<system::Context>& context,
                 QWidget* parent) :
                 QDialog(parent),
                 _p(new Private)

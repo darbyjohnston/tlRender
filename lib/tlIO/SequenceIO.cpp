@@ -59,7 +59,7 @@ namespace tl
         void ISequenceRead::_init(
             const file::Path& path,
             const Options& options,
-            const std::weak_ptr<core::LogSystem>& logSystem)
+            const std::weak_ptr<log::System>& logSystem)
         {
             IRead::_init(path, options, logSystem);
 
@@ -375,7 +375,7 @@ namespace tl
             const file::Path& path,
             const Info& info,
             const Options& options,
-            const std::weak_ptr<core::LogSystem>& logSystem)
+            const std::weak_ptr<log::System>& logSystem)
         {
             IWrite::_init(path, options, info, logSystem);
 

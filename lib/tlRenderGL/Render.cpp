@@ -493,7 +493,7 @@ namespace tl
 
         struct Render::Private
         {
-            std::weak_ptr<Context> context;
+            std::weak_ptr<system::Context> context;
             
             imaging::ColorConfig colorConfig;
             OCIO::ConstConfigRcPtr ocioConfig;
@@ -539,7 +539,7 @@ namespace tl
             type(type)
         {}
 
-        void Render::_init(const std::shared_ptr<Context>& context)
+        void Render::_init(const std::shared_ptr<system::Context>& context)
         {
             IRender::_init(context);
         }
@@ -553,7 +553,7 @@ namespace tl
             _delColorConfig();
         }
 
-        std::shared_ptr<Render> Render::create(const std::shared_ptr<Context>& context)
+        std::shared_ptr<Render> Render::create(const std::shared_ptr<system::Context>& context)
         {
             auto out = std::shared_ptr<Render>(new Render);
             out->_init(context);

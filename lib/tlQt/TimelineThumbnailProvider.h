@@ -25,7 +25,7 @@ namespace tl
         public:
             TimelineThumbnailProvider(
                 const std::shared_ptr<timeline::Timeline>&,
-                const std::shared_ptr<core::Context>&,
+                const std::shared_ptr<core::system::Context>&,
                 QObject* parent = nullptr);
             ~TimelineThumbnailProvider() override;
 

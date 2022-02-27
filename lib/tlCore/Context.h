@@ -13,47 +13,50 @@ namespace tl
 {
     namespace core
     {
-        class ICoreSystem;
-
-        //! Context.
-        class Context : public std::enable_shared_from_this<Context>
+        namespace system
         {
-            TLRENDER_NON_COPYABLE(Context);
+            class ICoreSystem;
 
-        protected:
-            void _init();
-            Context();
+            //! Context.
+            class Context : public std::enable_shared_from_this<Context>
+            {
+                TLRENDER_NON_COPYABLE(Context);
 
-        public:
-            ~Context();
+            protected:
+                void _init();
+                Context();
 
-            //! Create a new context.
-            static std::shared_ptr<Context> create();
+            public:
+                ~Context();
 
-            //! Add a system.
-            void addSystem(const std::shared_ptr<ICoreSystem>&);
+                //! Create a new context.
+                static std::shared_ptr<Context> create();
 
-            //! Get the log system.
-            const std::shared_ptr<LogSystem>& getLogSystem() const;
+                //! Add a system.
+                void addSystem(const std::shared_ptr<ICoreSystem>&);
 
-            //! Get the log items from initialization.
-            std::vector<LogItem> getLogInit();
+                //! Get the log system.
+                const std::shared_ptr<log::System>& getLogSystem() const;
 
-            //! Get a system.
-            template<typename T>
-            std::shared_ptr<T> getSystem() const;
+                //! Get the log items from initialization.
+                std::vector<log::Item> getLogInit();
 
-            //! Print to the log.
-            void log(
-                const std::string& prefix,
-                const std::string&,
-                LogType = LogType::Message);
+                //! Get a system.
+                template<typename T>
+                std::shared_ptr<T> getSystem() const;
 
-        private:
-            std::shared_ptr<LogSystem> _logSystem;
-            std::vector<std::shared_ptr<ICoreSystem> > _systems;
-            TLRENDER_PRIVATE();
-        };
+                //! Print to the log.
+                void log(
+                    const std::string& prefix,
+                    const std::string&,
+                    log::Type = log::Type::Message);
+
+            private:
+                std::shared_ptr<log::System> _logSystem;
+                std::vector<std::shared_ptr<ICoreSystem> > _systems;
+                TLRENDER_PRIVATE();
+            };
+        }
     }
 }
 

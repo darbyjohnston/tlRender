@@ -28,11 +28,11 @@ namespace tl
             {
                 QListWidget* listWidget = nullptr;
                 QToolButton* clearButton = nullptr;
-                std::shared_ptr<observer::ValueObserver<core::LogItem> > logObserver;
+                std::shared_ptr<observer::ValueObserver<log::Item> > logObserver;
             };
 
             SystemLogTool::SystemLogTool(
-                const std::shared_ptr<core::Context>& context,
+                const std::shared_ptr<system::Context>& context,
                 QWidget* parent) :
                 ToolWidget(parent),
                 _p(new Private)
@@ -61,25 +61,25 @@ namespace tl
                 widget->setLayout(layout);
                 addWidget(widget);
 
-                p.logObserver = observer::ValueObserver<core::LogItem>::create(
+                p.logObserver = observer::ValueObserver<log::Item>::create(
                     context->getLogSystem()->observeLog(),
-                    [this](const core::LogItem& value)
+                    [this](const log::Item& value)
                     {
                         switch (value.type)
                         {
-                        case core::LogType::Message:
+                        case log::Type::Message:
                             _p->listWidget->addItem(QString("%1 %2: %3").
                                 arg(value.time).
                                 arg(QString::fromUtf8(value.prefix.c_str())).
                                 arg(QString::fromUtf8(value.message.c_str())));
                             break;
-                        case core::LogType::Warning:
+                        case log::Type::Warning:
                             _p->listWidget->addItem(QString("%1 Warning %2: %3").
                                 arg(value.time).
                                 arg(QString::fromUtf8(value.prefix.c_str())).
                                 arg(QString::fromUtf8(value.message.c_str())));
                             break;
-                        case core::LogType::Error:
+                        case log::Type::Error:
                             _p->listWidget->addItem(QString("%1 ERROR %2: %3").
                                 arg(value.time).
                                 arg(QString::fromUtf8(value.prefix.c_str())).

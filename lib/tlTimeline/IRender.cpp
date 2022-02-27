@@ -143,7 +143,7 @@ namespace tl
             return out;
         }
 
-        void IRender::_init(const std::shared_ptr<core::Context>& context)
+        void IRender::_init(const std::shared_ptr<system::Context>& context)
         {
             _context = context;
         }

@@ -19,11 +19,11 @@ namespace tl
     {
         namespace core_test
         {
-            StringTest::StringTest(const std::shared_ptr<core::Context>& context) :
+            StringTest::StringTest(const std::shared_ptr<system::Context>& context) :
                 ITest("core_test::StringTest", context)
             {}
 
-            std::shared_ptr<StringTest> StringTest::create(const std::shared_ptr<core::Context>& context)
+            std::shared_ptr<StringTest> StringTest::create(const std::shared_ptr<system::Context>& context)
             {
                 return std::shared_ptr<StringTest>(new StringTest(context));
             }

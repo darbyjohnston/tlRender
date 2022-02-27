@@ -15,10 +15,10 @@ namespace tl
             class TimeTest : public Test::ITest
             {
             protected:
-                TimeTest(const std::shared_ptr<core::Context>&);
+                TimeTest(const std::shared_ptr<core::system::Context>&);
 
             public:
-                static std::shared_ptr<TimeTest> create(const std::shared_ptr<core::Context>&);
+                static std::shared_ptr<TimeTest> create(const std::shared_ptr<core::system::Context>&);
 
                 void run() override;
             };

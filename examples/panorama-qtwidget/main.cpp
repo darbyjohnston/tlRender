@@ -30,20 +30,20 @@ int main(int argc, char* argv[])
     QApplication app(argc, argv);
 
     // Create the context and timeline player.
-    auto context = tl::core::Context::create();
+    auto context = tl::core::system::Context::create();
     context->addSystem(tl::io::System::create(context));
     auto timeline = tl::timeline::Timeline::create(argv[1], context);
     auto timelinePlayer = new tl::qt::TimelinePlayer(tl::timeline::TimelinePlayer::create(timeline, context), context);
 
     // Hook up logging.
-    /*std::shared_ptr<tl::core::observer::ValueObserver<tl::core::LogItem> > logObserver;
+    /*std::shared_ptr<tl::core::observer::ValueObserver<tl::core::log::Item> > logObserver;
     for (const auto& i : context->getLogInit())
     {
         std::cout << "[LOG] " << tl::core::toString(i) << std::endl;
     }
-    logObserver = tl::core::observer::ValueObserver<tl::core::LogItem>::create(
-        context->getSystem<tl::core::LogSystem>()->observeLog(),
-        [](const tl::core::LogItem & value)
+    logObserver = tl::core::observer::ValueObserver<tl::core::log::Item>::create(
+        context->getSystem<tl::core::log::System>()->observeLog(),
+        [](const tl::core::log::Item & value)
         {
             std::cout << "[LOG] " << tl::core::toString(value) << std::endl;
         },

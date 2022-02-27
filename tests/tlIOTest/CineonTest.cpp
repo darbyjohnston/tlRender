@@ -20,11 +20,11 @@ namespace tl
     {
         namespace io_test
         {
-            CineonTest::CineonTest(const std::shared_ptr<core::Context>& context) :
+            CineonTest::CineonTest(const std::shared_ptr<system::Context>& context) :
                 ITest("io_test::CineonTest", context)
             {}
 
-            std::shared_ptr<CineonTest> CineonTest::create(const std::shared_ptr<core::Context>& context)
+            std::shared_ptr<CineonTest> CineonTest::create(const std::shared_ptr<system::Context>& context)
             {
                 return std::shared_ptr<CineonTest>(new CineonTest(context));
             }

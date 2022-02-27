@@ -17,6 +17,7 @@ namespace tl
 {
     namespace examples
     {
+        //! Example Qt Quick playback application.
         namespace play_qtquick
         {
             //! Application.

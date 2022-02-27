@@ -12,7 +12,10 @@ namespace tl
 {
     namespace core
     {
-        class Context;
+        namespace system
+        {
+            class Context;
+        }
     }
 
     namespace qt
@@ -26,10 +29,10 @@ namespace tl
             //! Set the context singleton.
             //!
             //! \todo What's a better way to get the contet to QML objects?
-            void setContext(const std::shared_ptr<core::Context>&);
+            void setContext(const std::shared_ptr<core::system::Context>&);
 
             //! Get the context singleton.
-            const std::weak_ptr<core::Context>& context();
+            const std::weak_ptr<core::system::Context>& context();
         }
     }
 }

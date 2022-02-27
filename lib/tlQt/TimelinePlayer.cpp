@@ -35,7 +35,7 @@ namespace tl
 
         void TimelinePlayer::_init(
             const std::shared_ptr<timeline::TimelinePlayer>& timelinePlayer,
-            const std::shared_ptr<Context>& context)
+            const std::shared_ptr<system::Context>& context)
         {
             TLRENDER_P();
 
@@ -151,7 +151,7 @@ namespace tl
 
         TimelinePlayer::TimelinePlayer(
             const std::shared_ptr<timeline::TimelinePlayer>& timelinePlayer,
-            const std::shared_ptr<Context>& context,
+            const std::shared_ptr<system::Context>& context,
             QObject* parent) :
             QObject(parent),
             _p(new Private)
@@ -162,7 +162,7 @@ namespace tl
         TimelinePlayer::~TimelinePlayer()
         {}
         
-        const std::weak_ptr<Context>& TimelinePlayer::context() const
+        const std::weak_ptr<system::Context>& TimelinePlayer::context() const
         {
             return _p->timelinePlayer->getContext();
         }

@@ -15,10 +15,10 @@ namespace tl
             class FFmpegTest : public Test::ITest
             {
             protected:
-                FFmpegTest(const std::shared_ptr<core::Context>&);
+                FFmpegTest(const std::shared_ptr<core::system::Context>&);
 
             public:
-                static std::shared_ptr<FFmpegTest> create(const std::shared_ptr<core::Context>&);
+                static std::shared_ptr<FFmpegTest> create(const std::shared_ptr<core::system::Context>&);
 
                 void run() override;
 

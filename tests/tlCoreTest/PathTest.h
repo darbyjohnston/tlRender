@@ -15,10 +15,10 @@ namespace tl
             class PathTest : public Test::ITest
             {
             protected:
-                PathTest(const std::shared_ptr<core::Context>&);
+                PathTest(const std::shared_ptr<core::system::Context>&);
 
             public:
-                static std::shared_ptr<PathTest> create(const std::shared_ptr<core::Context>&);
+                static std::shared_ptr<PathTest> create(const std::shared_ptr<core::system::Context>&);
 
                 void run() override;
             };

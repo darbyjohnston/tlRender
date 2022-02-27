@@ -15,10 +15,10 @@ namespace tl
             class BBoxTest : public Test::ITest
             {
             protected:
-                BBoxTest(const std::shared_ptr<core::Context>&);
+                BBoxTest(const std::shared_ptr<core::system::Context>&);
 
             public:
-                static std::shared_ptr<BBoxTest> create(const std::shared_ptr<core::Context>&);
+                static std::shared_ptr<BBoxTest> create(const std::shared_ptr<core::system::Context>&);
 
                 void run() override;
 

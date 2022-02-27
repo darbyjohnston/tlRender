@@ -173,7 +173,7 @@ namespace tl
                 const file::Path& path,
                 const Info& info,
                 const Options& options,
-                const std::weak_ptr<core::LogSystem>& logSystem)
+                const std::weak_ptr<log::System>& logSystem)
             {
                 ISequenceWrite::_init(path, info, options, logSystem);
             }
@@ -188,7 +188,7 @@ namespace tl
                 const file::Path& path,
                 const Info& info,
                 const Options& options,
-                const std::weak_ptr<core::LogSystem>& logSystem)
+                const std::weak_ptr<log::System>& logSystem)
             {
                 auto out = std::shared_ptr<Write>(new Write);
                 out->_init(path, info, options, logSystem);

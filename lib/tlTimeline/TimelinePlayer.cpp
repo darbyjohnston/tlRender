@@ -168,7 +168,7 @@ namespace tl
                 RtAudioError::Type type,
                 const std::string& errorText);
 
-            void log(const std::shared_ptr<core::Context>&);
+            void log(const std::shared_ptr<system::Context>&);
 
             PlayerOptions playerOptions;
             std::shared_ptr<Timeline> timeline;
@@ -248,7 +248,7 @@ namespace tl
 
         void TimelinePlayer::_init(
             const std::shared_ptr<Timeline>& timeline,
-            const std::shared_ptr<core::Context>& context,
+            const std::shared_ptr<system::Context>& context,
             const PlayerOptions& playerOptions)
         {
             TLRENDER_P();
@@ -342,7 +342,7 @@ namespace tl
                             {
                                 std::stringstream ss;
                                 ss << "Cannot open audio stream: " << e.what();
-                                context->log("tl::core::TimelinePlayer", ss.str(), core::LogType::Error);
+                                context->log("tl::core::TimelinePlayer", ss.str(), log::Type::Error);
                             }
                         }
                     }
@@ -484,7 +484,7 @@ namespace tl
 
         std::shared_ptr<TimelinePlayer> TimelinePlayer::create(
             const std::shared_ptr<Timeline>& timeline,
-            const std::shared_ptr<core::Context>& context,
+            const std::shared_ptr<system::Context>& context,
             const PlayerOptions& playerOptions)
         {
             auto out = std::shared_ptr<TimelinePlayer>(new TimelinePlayer);
@@ -492,7 +492,7 @@ namespace tl
             return out;
         }
 
-        const std::weak_ptr<core::Context>& TimelinePlayer::getContext() const
+        const std::weak_ptr<system::Context>& TimelinePlayer::getContext() const
         {
             return _p->timeline->getContext();
         }
@@ -1480,7 +1480,7 @@ namespace tl
             const std::string& errorText)
         {}
 
-        void TimelinePlayer::Private::log(const std::shared_ptr<core::Context>& context)
+        void TimelinePlayer::Private::log(const std::shared_ptr<system::Context>& context)
         {
             const std::string id = string::Format("tl::timeline::TimelinePlayer {0}").arg(this);
 

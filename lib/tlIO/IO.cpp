@@ -60,7 +60,7 @@ namespace tl
         void IIO::_init(
             const file::Path& path,
             const Options& options,
-            const std::weak_ptr<core::LogSystem>& logSystem)
+            const std::weak_ptr<log::System>& logSystem)
         {
             _logSystem = logSystem;
             _path = path;
@@ -76,7 +76,7 @@ namespace tl
         void IRead::_init(
             const file::Path& path,
             const Options& options,
-            const std::weak_ptr<core::LogSystem>& logSystem)
+            const std::weak_ptr<log::System>& logSystem)
         {
             IIO::_init(path, options, logSystem);
         }
@@ -101,7 +101,7 @@ namespace tl
             const file::Path& path,
             const Options& options,
             const Info& info,
-            const std::weak_ptr<core::LogSystem>& logSystem)
+            const std::weak_ptr<log::System>& logSystem)
         {
             IIO::_init(path, options, logSystem);
             _info = info;
@@ -122,7 +122,7 @@ namespace tl
         void IPlugin::_init(
             const std::string& name,
             const std::map<std::string, FileExtensionType>& extensions,
-            const std::weak_ptr<core::LogSystem>& logSystem)
+            const std::weak_ptr<log::System>& logSystem)
         {
             TLRENDER_P();
             _logSystem = logSystem;

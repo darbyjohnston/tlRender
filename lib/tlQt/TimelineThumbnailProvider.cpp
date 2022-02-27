@@ -25,7 +25,7 @@ namespace tl
     {
         struct TimelineThumbnailProvider::Private
         {
-            std::weak_ptr<Context> context;
+            std::weak_ptr<system::Context> context;
             std::shared_ptr<timeline::Timeline> timeline;
             imaging::ColorConfig colorConfig;
             struct Request
@@ -52,7 +52,7 @@ namespace tl
 
         TimelineThumbnailProvider::TimelineThumbnailProvider(
             const std::shared_ptr<timeline::Timeline>& timeline,
-            const std::shared_ptr<Context>& context,
+            const std::shared_ptr<system::Context>& context,
             QObject* parent) :
             QThread(parent),
             _p(new Private)
@@ -261,7 +261,7 @@ namespace tl
                                 context->log(
                                     "tl::qt::TimelineThumbnailProvider",
                                     e.what(),
-                                    LogType::Error);
+                                    log::Type::Error);
                             }
 
                             const auto qImage = QImage(

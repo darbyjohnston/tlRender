@@ -35,13 +35,13 @@ namespace tl
 
             struct ColorModel::Private
             {
-                std::weak_ptr<Context> context;
+                std::weak_ptr<system::Context> context;
                 OCIO_NAMESPACE::ConstConfigRcPtr ocioConfig;
                 std::shared_ptr<observer::Value<imaging::ColorConfig> > config;
                 std::shared_ptr<observer::Value<ColorModelData> > data;
             };
 
-            void ColorModel::_init(const std::shared_ptr<Context>& context)
+            void ColorModel::_init(const std::shared_ptr<system::Context>& context)
             {
                 TLRENDER_P();
 
@@ -74,7 +74,7 @@ namespace tl
             ColorModel::~ColorModel()
             {}
 
-            std::shared_ptr<ColorModel> ColorModel::create(const std::shared_ptr<Context>& context)
+            std::shared_ptr<ColorModel> ColorModel::create(const std::shared_ptr<system::Context>& context)
             {
                 auto out = std::shared_ptr<ColorModel>(new ColorModel);
                 out->_init(context);
@@ -102,7 +102,7 @@ namespace tl
                 {
                     if (const auto context = p.context.lock())
                     {
-                        context->log(std::string(), e.what(), LogType::Error);
+                        context->log(std::string(), e.what(), log::Type::Error);
                     }
                 }
             }
@@ -128,7 +128,7 @@ namespace tl
                 {
                     if (const auto context = p.context.lock())
                     {
-                        context->log(std::string(), e.what(), LogType::Error);
+                        context->log(std::string(), e.what(), log::Type::Error);
                     }
                 }
             }

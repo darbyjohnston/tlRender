@@ -27,7 +27,7 @@ namespace tl
         {
             struct TimelineViewport::Private
             {
-                std::weak_ptr<Context> context;
+                std::weak_ptr<system::Context> context;
                 imaging::ColorConfig colorConfig;
                 std::vector<timeline::ImageOptions> imageOptions;
                 timeline::CompareOptions compareOptions;
@@ -47,7 +47,7 @@ namespace tl
             };
 
             TimelineViewport::TimelineViewport(
-                const std::shared_ptr<Context>& context,
+                const std::shared_ptr<system::Context>& context,
                 QWidget* parent) :
                 QOpenGLWidget(parent),
                 _p(new Private)
@@ -250,7 +250,7 @@ namespace tl
                         context->log(
                             "tl::qt::widget::TimelineViewport",
                             e.what(),
-                            LogType::Error);
+                            log::Type::Error);
                     }
                 }
             }
@@ -314,7 +314,7 @@ namespace tl
                         context->log(
                             "tl::qt::widget::TimelineViewport",
                             e.what(),
-                            LogType::Error);
+                            log::Type::Error);
                     }
                 }
 

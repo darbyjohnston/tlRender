@@ -21,11 +21,11 @@ namespace tl
     {
         namespace io_test
         {
-            IOTest::IOTest(const std::shared_ptr<core::Context>& context) :
+            IOTest::IOTest(const std::shared_ptr<system::Context>& context) :
                 ITest("IOTest::IOTest", context)
             {}
 
-            std::shared_ptr<IOTest> IOTest::create(const std::shared_ptr<core::Context>& context)
+            std::shared_ptr<IOTest> IOTest::create(const std::shared_ptr<system::Context>& context)
             {
                 return std::shared_ptr<IOTest>(new IOTest(context));
             }
