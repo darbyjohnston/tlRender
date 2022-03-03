@@ -8,6 +8,8 @@
 #include <tlAppPlay/FilesModel.h>
 #include <tlAppPlay/SettingsObject.h>
 
+#include <QActionGroup>
+
 namespace tl
 {
     namespace play

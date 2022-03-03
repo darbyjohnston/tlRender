@@ -9,6 +9,8 @@
 
 #include <tlQt/MetaTypes.h>
 
+#include <QActionGroup>
+
 namespace tl
 {
     namespace play

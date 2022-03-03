@@ -16,7 +16,7 @@ namespace tl
         {
             qt::init();
 
-            qmlRegisterType<GLFramebufferObject>("tlQuick", 1, 0, "GLFramebufferObject");
+            qmlRegisterType<GLFramebufferObject>("tlQtQuick", 1, 0, "GLFramebufferObject");
 
             QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
         }

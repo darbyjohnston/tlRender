@@ -6,8 +6,6 @@
 
 #include <tlAppPlay/SettingsObject.h>
 
-#include <tlQtWidget/RadioButtonGroup.h>
-
 #include <tlQt/MetaTypes.h>
 
 #include <QBoxLayout>

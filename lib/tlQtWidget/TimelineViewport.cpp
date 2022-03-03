@@ -385,7 +385,7 @@ namespace tl
             }
         }
 
-        void TimelineViewport::enterEvent(QEvent* event)
+        void TimelineViewport::enterEvent(QEnterEvent* event)
         {
             TLRENDER_P();
             event->accept();

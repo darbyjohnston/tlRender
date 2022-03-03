@@ -24,16 +24,22 @@ namespace tl
             qRegisterMetaType<audio::DataType>("tl::audio::DataType");
             qRegisterMetaType<audio::DeviceFormat>("tl::audio::DeviceFormat");
             qRegisterMetaType<audio::Device>("tl::audio::Device");
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
             QMetaType::registerComparators<audio::DataType>();
             QMetaType::registerComparators<audio::DeviceFormat>();
+#endif
 
             qRegisterMetaType<log::Item>("tl::log::Item");
             qRegisterMetaType<log::Type>("tl::log::Type");
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
             QMetaType::registerComparators<log::Type>();
+#endif
 
             qRegisterMetaType<file::Mode>("tl::file::Mode");
             qRegisterMetaType<file::PathOptions>("tl::file::PathOptions");
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
             QMetaType::registerComparators<file::Mode>();
+#endif
 
             qRegisterMetaType<geom::Triangle2>("tl::geom::Triangle2");
             qRegisterMetaType<geom::Triangle3>("tl::geom::Triangle3");
@@ -51,24 +57,32 @@ namespace tl
             qRegisterMetaType<imaging::PixelType>("tl::imaging::PixelType");
             qRegisterMetaType<imaging::Size>("tl::imaging::Size");
             qRegisterMetaType<imaging::YUVRange>("tl::imaging::YUVRange");
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
             QMetaType::registerComparators<imaging::FontFamily>();
+#endif
 
             qRegisterMetaType<memory::Endian>("tl::memory::Endian");
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
             QMetaType::registerComparators<memory::Endian>();
+#endif
 
             qRegisterMetaType<observer::CallbackAction>("tl::observer::CallbackAction");
 
             qRegisterMetaType<os::EnvListSeparator>("tl::os::EnvListSeparator");
             qRegisterMetaType<os::SystemInfo>("tl::os::SystemInfo");
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
             QMetaType::registerComparators<os::EnvListSeparator>();
+#endif
 
             qRegisterMetaType<io::FileExtensionType>("tl::io::FileExtensionType");
             qRegisterMetaType<io::Info>("tl::io::Info");
             qRegisterMetaType<io::VideoData>("tl::io::VideoData");
             qRegisterMetaType<io::AudioData>("tl::io::AudioData");
             qRegisterMetaType<io::VideoType>("tl::io::VideoType");
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
             QMetaType::registerComparators<io::FileExtensionType>();
             QMetaType::registerComparators<io::VideoType>();
+#endif
 
             qRegisterMetaType<timeline::AlphaBlend>("tl::timeline::AlphaBlend");
             qRegisterMetaType<timeline::AudioBufferFrameCount>("tl::timeline::AudioBufferFrameCount");
@@ -92,6 +106,7 @@ namespace tl
             qRegisterMetaType<timeline::VideoData>("tl::timeline::VideoData");
             qRegisterMetaType<timeline::VideoLayer>("tl::timeline::VideoLayer");
             qRegisterMetaType<timeline::YUVRange>("tl::timeline::YUVRange");
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
             QMetaType::registerComparators<timeline::AlphaBlend>();
             QMetaType::registerComparators<timeline::AudioBufferFrameCount>();
             QMetaType::registerComparators<timeline::Channels>();
@@ -103,12 +118,13 @@ namespace tl
             QMetaType::registerComparators<timeline::TimerMode>();
             QMetaType::registerComparators<timeline::Transition>();
             QMetaType::registerComparators<timeline::YUVRange>();
+#endif
 
             qRegisterMetaType<TimeUnits>("tl::qt::TimeUnits");
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
             qRegisterMetaTypeStreamOperators<TimeUnits>("tl::qt::TimeUnits");
-#endif
             QMetaType::registerComparators<TimeUnits>();
+#endif
 
             QSurfaceFormat surfaceFormat;
             surfaceFormat.setMajorVersion(4);

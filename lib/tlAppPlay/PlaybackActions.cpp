@@ -10,6 +10,8 @@
 #include <tlQt/MetaTypes.h>
 #include <tlQt/TimeObject.h>
 
+#include <QActionGroup>
+
 namespace tl
 {
     namespace play

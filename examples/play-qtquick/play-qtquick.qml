@@ -1,7 +1,7 @@
 import QtQuick 2.4
 import QtQuick.Controls 2.4
 
-import tlrQuick 1.0
+import tlQtQuick 1.0
 
 ApplicationWindow {
     id: window

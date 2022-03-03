@@ -79,7 +79,7 @@ namespace tl
             void initializeGL() override;
             void resizeGL(int w, int h) override;
             void paintGL() override;
-            void enterEvent(QEvent*) override;
+            void enterEvent(QEnterEvent*) override;
             void leaveEvent(QEvent*) override;
             void mousePressEvent(QMouseEvent*) override;
             void mouseReleaseEvent(QMouseEvent*) override;
