@@ -385,7 +385,11 @@ namespace tl
             }
         }
 
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
+        void TimelineViewport::enterEvent(QEvent* event)
+#else
         void TimelineViewport::enterEvent(QEnterEvent* event)
+#endif
         {
             TLRENDER_P();
             event->accept();
