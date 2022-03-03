@@ -4,21 +4,15 @@
 
 #include <tlCore/Time.h>
 
-#include <time.h>
+#include <thread>
 
 namespace tl
 {
-	namespace time
+    namespace time
 	{
-		void sleep(const std::chrono::microseconds& value)
+        void sleep(const std::chrono::microseconds& value)
 		{
-			const auto microseconds = value.count();
-			const auto seconds = microseconds / 1000000;
-			struct timespec t;
-			t.tv_sec = seconds;
-			t.tv_nsec = (microseconds - (seconds * 1000000)) * 1000;
-			struct timespec out;
-			nanosleep(&t, &out);
-		}
-	}
+            std::this_thread::sleep_for(value);
+        }
+    }
 }

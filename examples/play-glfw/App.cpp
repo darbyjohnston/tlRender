@@ -423,7 +423,7 @@ namespace tl
                 }
                 else
                 {
-                    time::sleep(std::chrono::microseconds(1000));
+                    time::sleep(std::chrono::milliseconds(10));
                 }
             }
 
