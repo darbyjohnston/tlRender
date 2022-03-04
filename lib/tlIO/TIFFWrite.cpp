@@ -34,13 +34,13 @@ namespace tl
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
 
-                    uint16 tiffPhotometric = 0;
-                    uint16 tiffSamples = 0;
-                    uint16 tiffSampleDepth = 0;
-                    uint16 tiffSampleFormat = 0;
-                    uint16 tiffExtraSamples[] = { EXTRASAMPLE_ASSOCALPHA };
-                    uint16 tiffExtraSamplesSize = 0;
-                    uint16 tiffCompression = 0;
+                    uint16_t tiffPhotometric = 0;
+                    uint16_t tiffSamples = 0;
+                    uint16_t tiffSampleDepth = 0;
+                    uint16_t tiffSampleFormat = 0;
+                    uint16_t tiffExtraSamples[] = { EXTRASAMPLE_ASSOCALPHA };
+                    uint16_t tiffExtraSamplesSize = 0;
+                    uint16_t tiffCompression = 0;
                     const auto& info = image->getInfo();
                     switch (imaging::getChannelCount(info.pixelType))
                     {

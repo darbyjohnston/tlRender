@@ -283,6 +283,7 @@ namespace tl
                 //! \bug How do we flip YUV data?
                 throw std::runtime_error(string::Format("{0}: Incompatible pixel type").arg(p.fileName));
                 break;
+            default: break;
             }
 
             sws_scale(
