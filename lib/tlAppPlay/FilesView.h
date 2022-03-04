@@ -6,7 +6,6 @@
 
 #include <tlAppPlay/FilesModel.h>
 
-#include <QSignalMapper>
 #include <QStyledItemDelegate>
 
 namespace tl
@@ -24,12 +23,6 @@ namespace tl
             QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem&, const QModelIndex&) const override;
             void setEditorData(QWidget* editor, const QModelIndex&) const override;
             void setModelData(QWidget* editor, QAbstractItemModel*, const QModelIndex&) const override;
-
-        private Q_SLOTS:
-            void _mapperCallback(QObject*);
-
-        private:
-            QSignalMapper* _mapper;
         };
     }
 }

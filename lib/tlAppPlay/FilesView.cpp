@@ -11,14 +11,8 @@ namespace tl
     namespace play
     {
         FilesLayersItemDelegate::FilesLayersItemDelegate(QObject* parent) :
-            QStyledItemDelegate(parent),
-            _mapper(new QSignalMapper(this))
-        {
-            connect(
-                _mapper,
-                SIGNAL(mappedObject(QObject*)),
-                SLOT(_mapperCallback(QObject*)));
-        }
+            QStyledItemDelegate(parent)
+        {}
 
         QWidget* FilesLayersItemDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem& options, const QModelIndex& index) const
         {
@@ -38,10 +32,12 @@ namespace tl
             }
             connect(
                 out,
-                SIGNAL(activated(int)),
-                _mapper,
-                SLOT(map()));
-            _mapper->setMapping(out, out);
+                QOverload<int>::of(&QComboBox::activated),
+                [this, out]
+                {
+                    //! \bug Is there a way to avoid this const cast?
+                    Q_EMIT const_cast<FilesLayersItemDelegate*>(this)->commitData(out);
+                });
             return out;
         }
 
@@ -55,11 +51,6 @@ namespace tl
         {
             QComboBox* comboBox = qobject_cast<QComboBox*>(editor);
             model->setData(index, comboBox->currentIndex(), Qt::EditRole);
-        }
-
-        void FilesLayersItemDelegate::_mapperCallback(QObject* value)
-        {
-            Q_EMIT commitData(qobject_cast<QWidget*>(value));
         }
     }
 }
