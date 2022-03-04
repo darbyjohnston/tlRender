@@ -14,8 +14,8 @@ namespace tl
 {
     namespace qt
     {
-        //! The timeline player timer interval.
-        const int playerTimerInterval = 0;
+        //! The timeline player sleep timeout.
+        const std::chrono::milliseconds playerSleepTimeout(5);
 
         //! Qt based timeline player.
         class TimelinePlayer : public QObject
@@ -388,9 +388,6 @@ namespace tl
             void cachedAudioFramesChanged(const std::vector<otime::TimeRange>&);
 
             ///@}
-
-        protected:
-            void timerEvent(QTimerEvent*) override;
 
         private:
             TLRENDER_PRIVATE();

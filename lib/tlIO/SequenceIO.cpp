@@ -352,9 +352,6 @@ namespace tl
                             arg(p.threadCount));
                     }
                 }
-
-                // Sleep for a bit...
-                time::sleep(std::chrono::milliseconds(10));
             }
         }
 

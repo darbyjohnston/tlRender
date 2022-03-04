@@ -229,7 +229,7 @@ namespace tl
             p.sequenceThreadCountSpinBox->setRange(1, 64);
 
             p.ffmpegThreadCountSpinBox = new QSpinBox;
-            p.ffmpegThreadCountSpinBox->setRange(1, 64);
+            p.ffmpegThreadCountSpinBox->setRange(0, 64);
 
             auto layout = new QFormLayout;
             auto label = new QLabel(tr("Changes are applied to newly opened files."));

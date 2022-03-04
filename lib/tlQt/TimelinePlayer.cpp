@@ -5,6 +5,10 @@
 #include <tlQt/TimelinePlayer.h>
 
 #include <tlCore/Math.h>
+#include <tlCore/Time.h>
+
+#include <atomic>
+#include <thread>
 
 namespace tl
 {
@@ -29,6 +33,9 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<float> > cachePercentageObserver;
             std::shared_ptr<observer::ListObserver<otime::TimeRange> > cachedVideoFramesObserver;
             std::shared_ptr<observer::ListObserver<otime::TimeRange> > cachedAudioFramesObserver;
+            
+            std::atomic<bool> running;
+            std::thread thread;
         };
 
         void TimelinePlayer::_init(
@@ -144,7 +151,16 @@ namespace tl
                     Q_EMIT cachedAudioFramesChanged(value);
                 });
 
-            startTimer(playerTimerInterval, Qt::PreciseTimer);
+            p.running = true;
+            p.thread = std::thread(
+                [this]
+                {
+                    while (_p->running)
+                    {
+                        _p->timelinePlayer->tick();
+                        time::sleep(playerSleepTimeout);
+                    }
+                });
         }
 
         TimelinePlayer::TimelinePlayer(
@@ -158,7 +174,14 @@ namespace tl
         }
 
         TimelinePlayer::~TimelinePlayer()
-        {}
+        {
+            TLRENDER_P();
+            p.running = false;
+            if (p.thread.joinable())
+            {
+                p.thread.join();
+            }
+        }
         
         const std::weak_ptr<system::Context>& TimelinePlayer::context() const
         {
@@ -421,11 +444,6 @@ namespace tl
         void TimelinePlayer::setCacheReadBehind(const otime::RationalTime& value)
         {
             _p->timelinePlayer->setCacheReadBehind(value);
-        }
-
-        void TimelinePlayer::timerEvent(QTimerEvent*)
-        {
-            _p->timelinePlayer->tick();
         }
     }
 }

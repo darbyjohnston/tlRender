@@ -38,9 +38,9 @@ namespace tl
             QList<QPair<otime::RationalTime, QImage> > results;
             bool cancelRequests = false;
             size_t requestCount = 1;
-            std::chrono::milliseconds requestTimeout = std::chrono::milliseconds(100);
+            std::chrono::milliseconds requestTimeout = std::chrono::milliseconds(50);
             int timer = 0;
-            int timerInterval = 100;
+            int timerInterval = 50;
             QScopedPointer<QOffscreenSurface> offscreenSurface;
             QScopedPointer<QOpenGLContext> glContext;
             std::condition_variable cv;

@@ -47,7 +47,7 @@ namespace tl
 
             size_t videoRequestCount = 16;
             size_t audioRequestCount = 16;
-            std::chrono::milliseconds requestTimeout = std::chrono::milliseconds(1);
+            std::chrono::milliseconds requestTimeout = std::chrono::milliseconds(5);
 
             io::Options ioOptions;
 

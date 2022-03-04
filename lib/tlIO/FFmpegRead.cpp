@@ -938,8 +938,6 @@ namespace tl
                             arg(p.threadCount));
                     }
                 }
-                
-                time::sleep(std::chrono::milliseconds(10));
             }
         }
 

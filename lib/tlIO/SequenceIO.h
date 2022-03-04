@@ -17,7 +17,7 @@ namespace tl
         const size_t sequenceThreadCount = 16;
 
         //! Timeout for requests.
-        const std::chrono::milliseconds sequenceRequestTimeout(1);
+        const std::chrono::milliseconds sequenceRequestTimeout(5);
 
         //! Base class for image sequence readers.
         class ISequenceRead : public IRead

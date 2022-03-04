@@ -59,7 +59,7 @@ namespace tl
             std::chrono::milliseconds muteTimeout = std::chrono::milliseconds(500);
 
             //! Timeout to sleep each tick.
-            std::chrono::milliseconds sleepTimeout = std::chrono::milliseconds(10);
+            std::chrono::milliseconds sleepTimeout = std::chrono::milliseconds(5);
 
             bool operator == (const PlayerOptions&) const;
             bool operator != (const PlayerOptions&) const;

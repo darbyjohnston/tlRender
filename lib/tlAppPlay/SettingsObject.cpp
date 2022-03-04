@@ -18,7 +18,7 @@ namespace tl
     {
         namespace
         {
-            const size_t settingsVersion = 1;
+            const size_t settingsVersion = 2;
             const int recentFilesMax = 10;
 
             QString version(const QString& value)
@@ -73,7 +73,7 @@ namespace tl
             p.defaultValues["Performance/VideoRequestCount"] = 16;
             p.defaultValues["Performance/AudioRequestCount"] = 16;
             p.defaultValues["Performance/SequenceThreadCount"] = 16;
-            p.defaultValues["Performance/FFmpegThreadCount"] = 4;
+            p.defaultValues["Performance/FFmpegThreadCount"] = 0;
             p.defaultValues["Misc/MaxFileSequenceDigits"] = 9;
 
             int size = p.settings.beginReadArray(version("RecentFiles"));

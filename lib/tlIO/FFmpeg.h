@@ -35,10 +35,10 @@ namespace tl
         TLRENDER_ENUM_SERIALIZE(Profile);
 
         //! Number of threads.
-        const size_t threadCount = 4;
+        const size_t threadCount = 0;
 
         //! Timeout for requests.
-        const std::chrono::milliseconds requestTimeout(1);
+        const std::chrono::milliseconds requestTimeout(5);
 
         //! Software scaler flags.
         const int swsScaleFlags = SWS_FAST_BILINEAR;

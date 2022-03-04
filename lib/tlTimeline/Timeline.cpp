@@ -1213,7 +1213,7 @@ namespace tl
             }
 
             // Sleep for a bit...
-            time::sleep(std::chrono::milliseconds(10));
+            time::sleep(std::chrono::milliseconds(1));
         }
 
         void Timeline::Private::requests()
