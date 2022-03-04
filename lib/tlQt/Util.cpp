@@ -20,6 +20,7 @@ namespace tl
         {
             qRegisterMetaType<otime::RationalTime>("otime::RationalTime");
             qRegisterMetaType<otime::TimeRange>("otime::TimeRange");
+            qRegisterMetaType<std::vector<otime::TimeRange> >("std::vector<otime::TimeRange>");
 
             qRegisterMetaType<audio::DataType>("tl::audio::DataType");
             qRegisterMetaType<audio::DeviceFormat>("tl::audio::DeviceFormat");
