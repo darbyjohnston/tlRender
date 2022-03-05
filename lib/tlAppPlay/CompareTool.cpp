@@ -175,7 +175,7 @@ namespace tl
             }
             {
                 QSignalBlocker signalBlocker(p.wipeYSlider);
-                p.wipeRotationSlider->setValue(p.compareOptions.wipeRotation / 360.F);
+                p.wipeRotationSlider->setValue(p.compareOptions.wipeRotation);
             }
         }
     }
