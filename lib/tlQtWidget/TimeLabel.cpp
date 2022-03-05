@@ -4,7 +4,8 @@
 
 #include <tlQtWidget/TimeLabel.h>
 
-#include <QFontDatabase>
+#include <tlQtWidget/Util.h>
+
 #include <QHBoxLayout>
 #include <QLabel>
 
@@ -26,7 +27,7 @@ namespace tl
         {
             TLRENDER_P();
 
-            const QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+            const QFont fixedFont = qtwidget::font("NotoMono-Regular");
             setFont(fixedFont);
 
             p.label = new QLabel;

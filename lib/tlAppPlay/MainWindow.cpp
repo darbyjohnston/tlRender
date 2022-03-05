@@ -41,7 +41,6 @@
 #include <QDoubleSpinBox>
 #include <QDragEnterEvent>
 #include <QDragMoveEvent>
-#include <QFontDatabase>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMenuBar>
@@ -201,7 +200,7 @@ namespace tl
             p.speedSpinBox = new QDoubleSpinBox;
             p.speedSpinBox->setRange(0.0, 120.0);
             p.speedSpinBox->setSingleStep(1.0);
-            const QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+            const QFont fixedFont = qtwidget::font("NotoMono-Regular");
             p.speedSpinBox->setFont(fixedFont);
             p.speedSpinBox->setToolTip(tr("Timeline speed (frames per second)"));
             p.volumeSlider = new QSlider(Qt::Horizontal);

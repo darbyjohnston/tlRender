@@ -4,8 +4,9 @@
 
 #include <tlQtWidget/TimeSpinBox.h>
 
+#include <tlQtWidget/Util.h>
+
 #include <QApplication>
-#include <QFontDatabase>
 #include <QLineEdit>
 #include <QRegularExpressionValidator>
 #include <QStyleOptionSpinBox>
@@ -26,7 +27,7 @@ namespace tl
             QAbstractSpinBox(parent),
             _p(new Private)
         {
-            const QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+            const QFont fixedFont = qtwidget::font("NotoMono-Regular");
             setFont(fixedFont);
 
             _vaidatorUpdate();

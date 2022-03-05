@@ -9,6 +9,10 @@
 #include <tlCore/Context.h>
 
 #include <QDir>
+#include <QFontDatabase>
+#include <QMap>
+
+#include <iostream>
 
 void qtInitResources()
 {
@@ -24,6 +28,31 @@ namespace tl
             qt::init(context);
 
             qtInitResources();
+        }
+
+        namespace
+        {
+            QMap<QString, int> fonts;
+        }
+
+        QFont font(const QString& name)
+        {
+            if (fonts.isEmpty())
+            {
+                fonts["NotoMono-Regular"] = QFontDatabase::addApplicationFont(":/Fonts/NotoMono-Regular.font");
+                fonts["NotoSans-Regular"] = QFontDatabase::addApplicationFont(":/Fonts/NotoSans-Regular.font");
+            }
+            QFont out;
+            const auto i = fonts.find(name);
+            if (i != fonts.end())
+            {
+                const auto families = QFontDatabase::applicationFontFamilies(i.value());
+                if (!families.isEmpty())
+                {
+                    out = families.at(0);
+                }
+            }
+            return out;
         }
     }
 }

@@ -4,6 +4,8 @@
 
 #include <tlQtWidget/FloatSlider.h>
 
+#include <tlQtWidget/Util.h>
+
 #include <QBoxLayout>
 #include <QDoubleSpinBox>
 #include <QSlider>
@@ -39,6 +41,7 @@ namespace tl
             TLRENDER_P();
 
             p.spinBox = new QDoubleSpinBox;
+            p.spinBox->setFont(qtwidget::font("NotoMono-Regular"));
 
             p.defaultValueButton = new QToolButton;
             p.defaultValueButton->setIconSize(QSize(12, 12));

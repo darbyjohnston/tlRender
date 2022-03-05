@@ -6,6 +6,8 @@
 
 #include <tlGlad/gl.h>
 
+#include <QFont>
+
 #include <memory>
 
 namespace tl
@@ -21,5 +23,8 @@ namespace tl
         //! Initialize the library. This needs to be called before the Qt
         //! application is created.
         void init(const std::shared_ptr<system::Context>&);
+
+        //! Get a font.
+        QFont font(const QString&);
     }
 }

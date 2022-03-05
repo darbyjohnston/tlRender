@@ -6,8 +6,9 @@
 
 #include <tlAppPlay/App.h>
 
+#include <tlQtWidget/Util.h>
+
 #include <QBoxLayout>
-#include <QFontDatabase>
 #include <QListWidget>
 #include <QToolButton>
 
@@ -36,7 +37,7 @@ namespace tl
             TLRENDER_P();
 
             p.listWidget = new QListWidget;
-            const QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+            const QFont fixedFont = qtwidget::font("NotoMono-Regular");
             p.listWidget->setFont(fixedFont);
 
             p.clearButton = new QToolButton;

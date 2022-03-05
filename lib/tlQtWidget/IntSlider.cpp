@@ -4,6 +4,8 @@
 
 #include <tlQtWidget/IntSlider.h>
 
+#include <tlQtWidget/Util.h>
+
 #include <QBoxLayout>
 #include <QSlider>
 #include <QSpinBox>
@@ -34,6 +36,7 @@ namespace tl
             TLRENDER_P();
 
             p.spinBox = new QSpinBox;
+            p.spinBox->setFont(qtwidget::font("NotoMono-Regular"));
 
             p.defaultValueButton = new QToolButton;
             p.defaultValueButton->setIconSize(QSize(12, 12));
