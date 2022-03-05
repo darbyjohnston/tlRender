@@ -54,12 +54,8 @@ namespace tl
                 p.settings.clear();
             }
 
-            //for (const auto& i : p.settings.allKeys())
-            //{
-            //    std::cout << i.toUtf8().data() << std::endl;
-            //}
-
             p.defaultValues["Timeline/Thumbnails"] = true;
+            p.defaultValues["Timeline/StopOnScrub"] = false;
             p.defaultValues["Cache/ReadAhead"] = 4.0;
             p.defaultValues["Cache/ReadBehind"] = 0.4;
             p.defaultValues["FileSequence/Audio"] =

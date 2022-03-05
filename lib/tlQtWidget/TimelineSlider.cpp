@@ -28,11 +28,12 @@ namespace tl
             std::weak_ptr<system::Context> context;
             imaging::ColorConfig colorConfig;
             qt::TimelinePlayer* timelinePlayer = nullptr;
+            qt::TimeUnits units = qt::TimeUnits::Timecode;
+            qt::TimeObject* timeObject = nullptr;
             bool thumbnails = true;
             qt::TimelineThumbnailProvider* thumbnailProvider = nullptr;
             std::map<otime::RationalTime, QImage> thumbnailImages;
-            qt::TimeUnits units = qt::TimeUnits::Timecode;
-            qt::TimeObject* timeObject = nullptr;
+            bool stopOnScrub = true;
         };
 
         TimelineSlider::TimelineSlider(
@@ -132,14 +133,28 @@ namespace tl
             _thumbnailsUpdate();
         }
 
+        qt::TimeUnits TimelineSlider::units() const
+        {
+            return _p->units;
+        }
+
         bool TimelineSlider::hasThumbnails() const
         {
             return _p->thumbnails;
         }
 
-        qt::TimeUnits TimelineSlider::units() const
+        bool TimelineSlider::hasStopOnScrub() const
         {
-            return _p->units;
+            return _p->stopOnScrub;
+        }
+
+        void TimelineSlider::setUnits(qt::TimeUnits value)
+        {
+            TLRENDER_P();
+            if (value == p.units)
+                return;
+            p.units = value;
+            update();
         }
 
         void TimelineSlider::setThumbnails(bool value)
@@ -157,13 +172,12 @@ namespace tl
             updateGeometry();
         }
 
-        void TimelineSlider::setUnits(qt::TimeUnits value)
+        void TimelineSlider::setStopOnScrub(bool value)
         {
             TLRENDER_P();
-            if (value == p.units)
+            if (value == p.stopOnScrub)
                 return;
-            p.units = value;
-            update();
+            p.stopOnScrub = value;
         }
 
         void TimelineSlider::resizeEvent(QResizeEvent* event)
@@ -242,6 +256,10 @@ namespace tl
             if (p.timelinePlayer)
             {
                 const auto& duration = p.timelinePlayer->duration();
+                if (p.stopOnScrub)
+                {
+                    p.timelinePlayer->setPlayback(timeline::Playback::Stop);
+                }
                 p.timelinePlayer->seek(_posToTime(event->x()));
             }
         }

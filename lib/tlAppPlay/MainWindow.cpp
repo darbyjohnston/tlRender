@@ -182,7 +182,6 @@ namespace tl
 
             p.timelineSlider = new qtwidget::TimelineSlider(app->getContext());
             p.timelineSlider->setTimeObject(app->timeObject());
-            p.timelineSlider->setThumbnails(app->settingsObject()->value("Timeline/Thumbnails").toBool());
             auto timelineDockWidget = new QDockWidget;
             timelineDockWidget->setObjectName("Timeline");
             timelineDockWidget->setWindowTitle(tr("Timeline"));
@@ -567,6 +566,16 @@ namespace tl
                     if ("Timeline/Thumbnails" == name)
                     {
                         _p->timelineSlider->setThumbnails(value.toBool());
+                    }
+                });
+            connect(
+                app->settingsObject(),
+                &SettingsObject::valueChanged,
+                [this](const QString& name, const QVariant& value)
+                {
+                    if ("Timeline/StopOnScrub" == name)
+                    {
+                        _p->timelineSlider->setStopOnScrub(value.toBool());
                     }
                 });
 
@@ -1012,6 +1021,8 @@ namespace tl
 
             p.timelineSlider->setColorConfig(p.colorConfig);
             p.timelineSlider->setTimelinePlayer(!p.timelinePlayers.empty() ? p.timelinePlayers[0] : nullptr);
+            p.timelineSlider->setThumbnails(p.app->settingsObject()->value("Timeline/Thumbnails").toBool());
+            p.timelineSlider->setStopOnScrub(p.app->settingsObject()->value("Timeline/StopOnScrub").toBool());
 
             p.compareTool->setCompareOptions(p.compareOptions);
 

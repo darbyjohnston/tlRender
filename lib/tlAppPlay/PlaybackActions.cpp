@@ -32,6 +32,7 @@ namespace tl
             QMenu* menu = nullptr;
             QMenu* timeUnitsMenu = nullptr;
             QMenu* speedMenu = nullptr;
+            QMenu* optionsMenu = nullptr;
         };
 
         PlaybackActions::PlaybackActions(App* app, QObject* parent) :
@@ -197,6 +198,10 @@ namespace tl
             p.actions["Thumbnails"]->setCheckable(true);
             p.actions["Thumbnails"]->setText(tr("Thumbnails"));
 
+            p.actions["StopOnScrub"] = new QAction(parent);
+            p.actions["StopOnScrub"]->setCheckable(true);
+            p.actions["StopOnScrub"]->setText(tr("Stop Playback When Scrubbing"));
+
             p.menu = new QMenu;
             p.menu->setTitle(tr("&Playback"));
             p.timeUnitsMenu = p.menu->addMenu(tr("Time Units"));
@@ -238,7 +243,9 @@ namespace tl
             p.menu->addSeparator();
             p.menu->addAction(p.actions["FocusCurrentFrame"]);
             p.menu->addSeparator();
-            p.menu->addAction(p.actions["Thumbnails"]);
+            p.optionsMenu = p.menu->addMenu(tr("Options"));
+            p.optionsMenu->addAction(p.actions["Thumbnails"]);
+            p.optionsMenu->addAction(p.actions["StopOnScrub"]);
 
             _actionsUpdate();
 
@@ -338,6 +345,13 @@ namespace tl
                 [app](bool value)
                 {
                     app->settingsObject()->setValue("Timeline/Thumbnails", value);
+                });
+            connect(
+                p.actions["StopOnScrub"],
+                &QAction::toggled,
+                [app](bool value)
+                {
+                    app->settingsObject()->setValue("Timeline/StopOnScrub", value);
                 });
 
             connect(
@@ -581,6 +595,12 @@ namespace tl
                 QSignalBlocker blocker(p.actions["Thumbnails"]);
                 p.actions["Thumbnails"]->setChecked(
                     p.app->settingsObject()->value("Timeline/Thumbnails").toBool());
+            }
+
+            {
+                QSignalBlocker blocker(p.actions["StopOnScrub"]);
+                p.actions["StopOnScrub"]->setChecked(
+                    p.app->settingsObject()->value("Timeline/StopOnScrub").toBool());
             }
         }
     }

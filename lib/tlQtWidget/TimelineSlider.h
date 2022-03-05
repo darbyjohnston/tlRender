@@ -20,13 +20,17 @@ namespace tl
         {
             Q_OBJECT
             Q_PROPERTY(
+                tl::qt::TimeUnits units
+                READ units
+                WRITE setUnits)
+            Q_PROPERTY(
                 bool thumbnails
                 READ hasThumbnails
                 WRITE setThumbnails)
             Q_PROPERTY(
-                tl::qt::TimeUnits units
-                READ units
-                WRITE setUnits)
+                bool stopOnScrub
+                READ hasStopOnScrub
+                WRITE setStopOnScrub)
 
         public:
             TimelineSlider(
@@ -44,18 +48,24 @@ namespace tl
             //! Set the timeline player.
             void setTimelinePlayer(qt::TimelinePlayer*);
 
-            //! Get whether thumbnails are displayed.
-            bool hasThumbnails() const;
-
             //! Get the time units.
             qt::TimeUnits units() const;
 
+            //! Get whether thumbnails are displayed.
+            bool hasThumbnails() const;
+
+            //! Get whether playback is stopped when scrubbing.
+            bool hasStopOnScrub() const;
+
         public Q_SLOTS:
+            //! Set the time units.
+            void setUnits(tl::qt::TimeUnits);
+
             //! Set whether thumbnails are displayed.
             void setThumbnails(bool);
 
-            //! Set the time units.
-            void setUnits(tl::qt::TimeUnits);
+            //! Set whether playback is stopped when scrubbing.
+            void setStopOnScrub(bool);
 
         protected:
             void resizeEvent(QResizeEvent*) override;
