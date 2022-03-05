@@ -22,8 +22,8 @@ namespace tl
         struct MemoryMappedIStream::Private
         {
             std::shared_ptr<file::FileIO> f;
-            uint64_t                      size = 0;
-            uint64_t                      pos = 0;
+            uint64_t size = 0;
+            uint64_t pos = 0;
             char* p = nullptr;
         };
 
@@ -346,7 +346,6 @@ namespace tl
             out.videoTime = otime::TimeRange::range_from_start_end_time_inclusive(
                 otime::RationalTime(_startFrame, speed),
                 otime::RationalTime(_endFrame, speed));
-            out.videoType = io::VideoType::Sequence;
             return out;
         }
 

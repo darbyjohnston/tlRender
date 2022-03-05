@@ -11,12 +11,11 @@
 #include <tlCore/Assert.h>
 #include <tlCore/Error.h>
 #include <tlCore/File.h>
+#include <tlCore/FileInfo.h>
 #include <tlCore/LogSystem.h>
 #include <tlCore/Math.h>
 #include <tlCore/String.h>
 #include <tlCore/StringFormat.h>
-
-#include <fseq.h>
 
 #include <opentimelineio/clip.h>
 #include <opentimelineio/externalReference.h>
@@ -48,8 +47,7 @@ namespace tl
         {
             std::vector<std::string> out;
             //! \todo Get extensions for the Python adapters.
-            if (types & static_cast<int>(io::FileExtensionType::VideoAndAudio) ||
-                types & static_cast<int>(io::FileExtensionType::VideoOnly))
+            if (types & static_cast<int>(io::FileType::Movie))
             {
                 out.push_back(".otio");
             }
@@ -220,30 +218,6 @@ namespace tl
                 return out;
             }
 
-            std::vector<file::Path> getDirectoryList(const std::string& path, const file::PathOptions& pathOptions)
-            {
-                std::vector<file::Path> out;
-                FSeqDirOptions dirOptions;
-                fseqDirOptionsInit(&dirOptions);
-                dirOptions.fileNameOptions.maxNumberDigits = pathOptions.maxNumberDigits;
-                FSeqBool error = FSEQ_FALSE;
-                auto dirList = fseqDirList(path.c_str(), &dirOptions, &error);
-                if (FSEQ_FALSE == error)
-                {
-                    for (auto entry = dirList; entry; entry = entry->next)
-                    {
-                        out.push_back(file::Path(
-                            path,
-                            entry->fileName.base,
-                            entry->fileName.number,
-                            entry->framePadding,
-                            entry->fileName.extension));
-                    }
-                }
-                fseqDirListDel(dirList);
-                return out;
-            }
-
             file::Path _getAudioPath(
                 const file::Path& path,
                 const FileSequenceAudio& fileSequenceAudio,
@@ -254,7 +228,7 @@ namespace tl
             {
                 file::Path out;
                 auto ioSystem = context->getSystem<io::System>();
-                const auto audioExtensions = ioSystem->getExtensions(static_cast<int>(io::FileExtensionType::AudioOnly));
+                const auto audioExtensions = ioSystem->getExtensions(static_cast<int>(io::FileType::Audio));
                 switch (fileSequenceAudio)
                 {
                 case FileSequenceAudio::BaseName:
@@ -287,14 +261,17 @@ namespace tl
                 case FileSequenceAudio::Directory:
                 {
                     const file::Path directoryPath(path.getDirectory(), fileSequenceAudioDirectory, pathOptions);
-                    for (const auto& item : getDirectoryList(directoryPath.get(), pathOptions))
+                    for (const auto& fileInfo : file::dirList(directoryPath.get(), pathOptions))
                     {
-                        for (const auto& extension : audioExtensions)
+                        if (file::Type::File == fileInfo.getType())
                         {
-                            if (extension == item.getExtension())
+                            for (const auto& extension : audioExtensions)
                             {
-                                out = item;
-                                break;
+                                if (extension == fileInfo.getPath().getExtension())
+                                {
+                                    out = fileInfo.getPath();
+                                    break;
+                                }
                             }
                         }
                     }
@@ -648,7 +625,8 @@ namespace tl
                         globalStartTime = otime::RationalTime(0.0, info.videoTime.duration().rate());
                         auto videoClip = new otio::Clip;
                         videoClip->set_source_range(info.videoTime);
-                        isSequence = io::VideoType::Sequence == info.videoType && !path.getNumber().empty();
+                        isSequence = static_cast<int>(io::FileType::Sequence) == ioSystem->getFileType(path.getExtension()) &&
+                            !path.getNumber().empty();
                         if (isSequence)
                         {
                             globalStartTime = info.videoTime.start_time();
@@ -809,7 +787,8 @@ namespace tl
                         globalStartTime = otime::RationalTime(0.0, info.videoTime.duration().rate());
                         auto videoClip = new otio::Clip;
                         videoClip->set_source_range(info.videoTime);
-                        isSequence = io::VideoType::Sequence == info.videoType && !path.getNumber().empty();
+                        isSequence = static_cast<int>(io::FileType::Sequence) == ioSystem->getFileType(path.getExtension()) &&
+                            !path.getNumber().empty();
                         if (isSequence)
                         {
                             globalStartTime = info.videoTime.start_time();
@@ -1089,7 +1068,6 @@ namespace tl
                     {
                         const auto ioInfo = read->getInfo().get();
                         this->ioInfo.video = ioInfo.video;
-                        this->ioInfo.videoType = ioInfo.videoType;
                         this->ioInfo.videoTime = ioInfo.videoTime;
                         this->ioInfo.tags.insert(ioInfo.tags.begin(), ioInfo.tags.end());
                         return true;
@@ -1496,13 +1474,11 @@ namespace tl
                             "\n"
                             "    Read: {0}\n"
                             "    Video: {1}\n"
-                            "    Video type: {2}\n"
-                            "    Video time: {3}\n"
-                            "    Audio: {4}\n"
-                            "    Audio time: {5}").
+                            "    Video time: {2}\n"
+                            "    Audio: {3}\n"
+                            "    Audio time: {4}").
                         arg(path.get()).
                         arg(!info.video.empty() ? info.video[0] : imaging::Info()).
-                        arg(info.videoType).
                         arg(info.videoTime).
                         arg(info.audio).
                         arg(info.audioTime));

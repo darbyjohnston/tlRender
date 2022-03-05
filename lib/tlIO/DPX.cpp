@@ -902,7 +902,7 @@ namespace tl
         {
             IPlugin::_init(
                 "DPX",
-                { { ".dpx", io::FileExtensionType::VideoOnly } },
+                { { ".dpx", io::FileType::Sequence } },
                 logSystem);
         }
 

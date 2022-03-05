@@ -138,14 +138,14 @@ namespace tl
             static std::shared_ptr<Timeline> create(
                 const otio::SerializableObject::Retainer<otio::Timeline>&,
                 const std::shared_ptr<system::Context>&,
-                const Options & = Options());
+                const Options& = Options());
 
             //! Create a new timeline from a file name. The file name can point
             //! to an .otio file, movie file, or image sequence.
             static std::shared_ptr<Timeline> create(
                 const std::string&,
                 const std::shared_ptr<system::Context>&,
-                const Options & = Options());
+                const Options& = Options());
 
             //! Create a new timeline from a file name and audio file name.
             //! The file name can point to an .otio file, movie file, or
@@ -154,7 +154,7 @@ namespace tl
                 const std::string&,
                 const std::string& audioFileName,
                 const std::shared_ptr<system::Context>&,
-                const Options & = Options());
+                const Options& = Options());
 
             //! Get the context.
             const std::weak_ptr<system::Context>& getContext() const;

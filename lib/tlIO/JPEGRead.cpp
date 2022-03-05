@@ -220,7 +220,6 @@ namespace tl
             out.videoTime = otime::TimeRange::range_from_start_end_time_inclusive(
                 otime::RationalTime(_startFrame, _defaultSpeed),
                 otime::RationalTime(_endFrame, _defaultSpeed));
-            out.videoType = io::VideoType::Sequence;
             return out;
         }
 

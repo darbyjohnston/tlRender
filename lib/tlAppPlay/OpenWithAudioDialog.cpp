@@ -40,7 +40,7 @@ namespace tl
 
             setWindowTitle(tr("Open with Audio"));
 
-            auto videoGroupBox = new QGroupBox(tr("Viedo"));
+            auto videoGroupBox = new QGroupBox(tr("Video"));
             p.videoLineEdit = new QLineEdit;
             auto videoBrowseButton = new QPushButton(tr("Browse"));
 
@@ -123,8 +123,8 @@ namespace tl
             {
                 std::vector<std::string> extensions;
                 for (const auto& i : timeline::getExtensions(
-                    static_cast<int>(io::FileExtensionType::VideoAndAudio) |
-                    static_cast<int>(io::FileExtensionType::VideoOnly),
+                    static_cast<int>(io::FileType::Movie) |
+                    static_cast<int>(io::FileType::Sequence),
                     context))
                 {
                     extensions.push_back("*" + i);
@@ -156,7 +156,7 @@ namespace tl
             {
                 std::vector<std::string> extensions;
                 for (const auto& i : timeline::getExtensions(
-                    static_cast<int>(io::FileExtensionType::AudioOnly),
+                    static_cast<int>(io::FileType::Audio),
                     context))
                 {
                     extensions.push_back("*" + i);

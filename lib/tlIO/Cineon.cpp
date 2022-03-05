@@ -593,7 +593,7 @@ namespace tl
         {
             IPlugin::_init(
                 "Cineon",
-                { { ".cin", io::FileExtensionType::VideoOnly } },
+                { { ".cin", io::FileType::Sequence } },
                 logSystem);
         }
 

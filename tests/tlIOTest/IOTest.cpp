@@ -28,14 +28,8 @@ namespace tl
 
         void IOTest::run()
         {
-            _enums();
             _videoData();
             _ioSystem();
-        }
-
-        void IOTest::_enums()
-        {
-            _enum<VideoType>("VideoType", getVideoTypeEnums);
         }
 
         void IOTest::_videoData()

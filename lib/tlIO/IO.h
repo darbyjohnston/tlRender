@@ -24,36 +24,23 @@ namespace tl
     //! Audio and video I/O.
     namespace io
     {
-        //! Video type.
-        enum class VideoType
+        //! File types.
+        enum class FileType
         {
-            Movie,
-            Sequence,
+            Movie    = 1,
+            Sequence = 2,
+            Audio    = 4,
 
             Count,
             First = Movie
         };
-        TLRENDER_ENUM(VideoType);
-        TLRENDER_ENUM_SERIALIZE(VideoType);
-
-        //! File extension types.
-        enum class FileExtensionType
-        {
-            VideoAndAudio = 1,
-            VideoOnly = 2,
-            AudioOnly = 4,
-
-            Count,
-            First = VideoAndAudio
-        };
-        TLRENDER_ENUM(FileExtensionType);
-        TLRENDER_ENUM_SERIALIZE(FileExtensionType);
+        TLRENDER_ENUM(FileType);
+        TLRENDER_ENUM_SERIALIZE(FileType);
 
         //! I/O information.
         struct Info
         {
             std::vector<imaging::Info>         video;
-            VideoType                          videoType = VideoType::Movie;
             otime::TimeRange                   videoTime = time::invalidTimeRange;
             audio::Info                        audio;
             otime::TimeRange                   audioTime = time::invalidTimeRange;
@@ -193,7 +180,7 @@ namespace tl
         protected:
             void _init(
                 const std::string& name,
-                const std::map<std::string, FileExtensionType>& extensions,
+                const std::map<std::string, FileType>& extensions,
                 const std::weak_ptr<log::System>&);
             IPlugin();
 
@@ -205,9 +192,9 @@ namespace tl
 
             //! Get the supported file extensions.
             std::set<std::string> getExtensions(int types =
-                static_cast<int>(FileExtensionType::VideoAndAudio) |
-                static_cast<int>(FileExtensionType::VideoOnly) |
-                static_cast<int>(FileExtensionType::AudioOnly)) const;
+                static_cast<int>(FileType::Movie) |
+                static_cast<int>(FileType::Sequence) |
+                static_cast<int>(FileType::Audio)) const;
 
             //! Set the plugin options.
             void setOptions(const Options&);

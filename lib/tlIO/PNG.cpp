@@ -35,7 +35,7 @@ namespace tl
             auto out = std::shared_ptr<Plugin>(new Plugin);
             out->_init(
                 "PNG",
-                { { ".png", io::FileExtensionType::VideoOnly } },
+                { { ".png", io::FileType::Sequence } },
                 logSystem);
             return out;
         }

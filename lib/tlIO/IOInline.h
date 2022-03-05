@@ -10,7 +10,6 @@ namespace tl
         {
             return
                 this->video == other.video &&
-                this->videoType == other.videoType &&
                 this->videoTime == other.videoTime &&
                 this->audio == other.audio &&
                 this->audioTime == other.audioTime &&

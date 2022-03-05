@@ -1042,7 +1042,7 @@ namespace tl
         {
             IPlugin::_init(
                 "OpenEXR",
-                { { ".exr", io::FileExtensionType::VideoOnly } },
+                { { ".exr", io::FileType::Sequence } },
                 logSystem);
 
             Imf::setGlobalThreadCount(0);

@@ -41,10 +41,13 @@ namespace tl
             std::shared_ptr<IPlugin> getPlugin(const file::Path&) const;
 
             //! Get the supported file extensions.
-            std::set<std::string> getExtensions(
-                int types = static_cast<int>(FileExtensionType::VideoAndAudio) |
-                static_cast<int>(FileExtensionType::VideoOnly) |
-                static_cast<int>(FileExtensionType::AudioOnly)) const;
+            std::set<std::string> getExtensions(int types =
+                static_cast<int>(FileType::Movie) |
+                static_cast<int>(FileType::Sequence) |
+                static_cast<int>(FileType::Audio)) const;
+
+            //! Get the file type for the given extension.
+            int getFileType(const std::string&) const;
 
             // Create a reader for the given path.
             std::shared_ptr<IRead> read(

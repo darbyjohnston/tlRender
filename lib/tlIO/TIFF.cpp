@@ -19,8 +19,8 @@ namespace tl
             IPlugin::_init(
                 "TIFF",
                 {
-                    { ".tiff", io::FileExtensionType::VideoOnly },
-                    { ".tif", io::FileExtensionType::VideoOnly }
+                    { ".tiff", io::FileType::Sequence },
+                    { ".tif", io::FileType::Sequence }
                 },
                 logSystem);
             TIFFSetErrorHandler(nullptr);

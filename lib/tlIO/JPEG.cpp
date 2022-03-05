@@ -40,8 +40,8 @@ namespace tl
             out->_init(
                 "JPEG",
                 {
-                    { ".jpeg", io::FileExtensionType::VideoOnly },
-                    { ".jpg", io::FileExtensionType::VideoOnly }
+                    { ".jpeg", io::FileType::Sequence },
+                    { ".jpg", io::FileType::Sequence }
                 },
                 logSystem);
             return out;

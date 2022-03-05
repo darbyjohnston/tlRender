@@ -99,16 +99,16 @@ namespace tl
             IPlugin::_init(
                 "FFmpeg",
                 {
-                    { ".mov", io::FileExtensionType::VideoAndAudio },
-                    { ".m4v", io::FileExtensionType::VideoAndAudio },
-                    { ".mp4", io::FileExtensionType::VideoAndAudio },
-                    { ".y4m", io::FileExtensionType::VideoAndAudio },
-                    { ".mkv", io::FileExtensionType::VideoAndAudio },
-                    { ".mxf", io::FileExtensionType::VideoAndAudio },
-                    { ".wmv", io::FileExtensionType::VideoAndAudio },
-                    { ".wav", io::FileExtensionType::AudioOnly },
-                    { ".mp3", io::FileExtensionType::AudioOnly },
-                    { ".aiff", io::FileExtensionType::AudioOnly }
+                    { ".mov", io::FileType::Movie },
+                    { ".m4v", io::FileType::Movie },
+                    { ".mp4", io::FileType::Movie },
+                    { ".y4m", io::FileType::Movie },
+                    { ".mkv", io::FileType::Movie },
+                    { ".mxf", io::FileType::Movie },
+                    { ".wmv", io::FileType::Movie },
+                    { ".wav", io::FileType::Audio },
+                    { ".mp3", io::FileType::Audio },
+                    { ".aiff", io::FileType::Audio }
                 },
                 logSystem);
 

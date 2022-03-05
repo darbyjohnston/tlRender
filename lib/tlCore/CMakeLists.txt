@@ -12,6 +12,8 @@ set(HEADERS
     Error.h
     File.h
     FileIO.h
+    FileInfo.h
+    FileInfoInline.h
     FontSystem.h
     ICoreSystem.h
     ICoreSystemInline.h
@@ -58,6 +60,7 @@ set(SOURCE
     Context.cpp
     Error.cpp
     FileIO.cpp
+    FileInfo.cpp
     FontSystem.cpp
     ICoreSystem.cpp
     ISystem.cpp
@@ -78,6 +81,7 @@ if (WIN32)
         ${SOURCE}
         ErrorWin32.cpp
         FileIOWin32.cpp
+        FileInfoWin32.cpp
         FileWin32.cpp
 		OSWin32.cpp
         TimeWin32.cpp)
@@ -85,6 +89,7 @@ else()
     set(SOURCE
         ${SOURCE}
         FileIOUnix.cpp
+        FileInfoUnix.cpp
         FileUnix.cpp
 		OSUnix.cpp
         TimeUnix.cpp)

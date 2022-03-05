@@ -113,6 +113,25 @@ namespace tl
             }
             return out;
         }
+        
+        int System::getFileType(const std::string& extension) const
+        {
+            int out = 0;
+            for (const auto& plugin : _plugins)
+            {
+                for (auto fileType : getFileTypeEnums())
+                {
+                    const auto& extensions = plugin->getExtensions(static_cast<int>(fileType));
+                    const auto i = extensions.find(extension);
+                    if (i != extensions.end())
+                    {
+                        out = static_cast<int>(fileType);
+                        break;
+                    }
+                }
+            }
+            return out;
+        }
 
         std::shared_ptr<IRead> System::read(
             const file::Path& path,

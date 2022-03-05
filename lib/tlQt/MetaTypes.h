@@ -30,8 +30,7 @@ Q_DECLARE_METATYPE(tl::memory::Endian);
 
 Q_DECLARE_METATYPE(tl::os::EnvListSeparator);
 
-Q_DECLARE_METATYPE(tl::io::FileExtensionType);
-Q_DECLARE_METATYPE(tl::io::VideoType);
+Q_DECLARE_METATYPE(tl::io::FileType);
 
 Q_DECLARE_METATYPE(tl::timeline::AlphaBlend);
 Q_DECLARE_METATYPE(tl::timeline::AudioBufferFrameCount);

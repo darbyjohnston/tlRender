@@ -79,14 +79,12 @@ namespace tl
             QMetaType::registerComparators<os::EnvListSeparator>();
 #endif
 
-            qRegisterMetaType<io::FileExtensionType>("tl::io::FileExtensionType");
+            qRegisterMetaType<io::FileType>("tl::io::FileType");
             qRegisterMetaType<io::Info>("tl::io::Info");
             qRegisterMetaType<io::VideoData>("tl::io::VideoData");
             qRegisterMetaType<io::AudioData>("tl::io::AudioData");
-            qRegisterMetaType<io::VideoType>("tl::io::VideoType");
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-            QMetaType::registerComparators<io::FileExtensionType>();
-            QMetaType::registerComparators<io::VideoType>();
+            QMetaType::registerComparators<io::FileType>();
 #endif
 
             qRegisterMetaType<timeline::AlphaBlend>("tl::timeline::AlphaBlend");

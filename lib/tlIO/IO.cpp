@@ -14,17 +14,11 @@ namespace tl
     namespace io
     {
         TLRENDER_ENUM_IMPL(
-            VideoType,
+            FileType,
             "Movie",
-            "Sequence");
-        TLRENDER_ENUM_SERIALIZE_IMPL(VideoType);
-
-        TLRENDER_ENUM_IMPL(
-            FileExtensionType,
-            "VideoAndAudio",
-            "VideoOnly",
-            "AudioOnly");
-        TLRENDER_ENUM_SERIALIZE_IMPL(FileExtensionType);
+            "Sequence",
+            "Audio");
+        TLRENDER_ENUM_SERIALIZE_IMPL(FileType);
 
         VideoData::VideoData()
         {}
@@ -114,12 +108,12 @@ namespace tl
         struct IPlugin::Private
         {
             std::string name;
-            std::map<std::string, FileExtensionType> extensions;
+            std::map<std::string, FileType> extensions;
         };
 
         void IPlugin::_init(
             const std::string& name,
-            const std::map<std::string, FileExtensionType>& extensions,
+            const std::map<std::string, FileType>& extensions,
             const std::weak_ptr<log::System>& logSystem)
         {
             TLRENDER_P();

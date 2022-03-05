@@ -24,10 +24,10 @@ namespace tl
             out->_init(
                 "SGI",
                 {
-                    { ".sgi", io::FileExtensionType::VideoOnly },
-                    { ".rgba", io::FileExtensionType::VideoOnly },
-                    { ".rgb", io::FileExtensionType::VideoOnly },
-                    { ".bw", io::FileExtensionType::VideoOnly }
+                    { ".sgi", io::FileType::Sequence },
+                    { ".rgba", io::FileType::Sequence },
+                    { ".rgb", io::FileType::Sequence },
+                    { ".bw", io::FileType::Sequence }
                 },
                 logSystem);
             return out;

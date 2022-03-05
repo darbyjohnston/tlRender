@@ -304,9 +304,9 @@ namespace tl
 
             std::vector<std::string> extensions;
             for (const auto& i : timeline::getExtensions(
-                static_cast<int>(io::FileExtensionType::VideoAndAudio) |
-                static_cast<int>(io::FileExtensionType::VideoOnly) |
-                static_cast<int>(io::FileExtensionType::AudioOnly),
+                static_cast<int>(io::FileType::Movie) |
+                static_cast<int>(io::FileType::Sequence) |
+                static_cast<int>(io::FileType::Audio),
                 _context))
             {
                 extensions.push_back("*" + i);

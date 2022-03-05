@@ -80,11 +80,6 @@ namespace tl
                 }
                 {
                     std::stringstream ss;
-                    ss << p.info.videoType;
-                    p.items.push_back(QPair<QString, QString>("Video Type", QString::fromUtf8(ss.str().c_str())));
-                }
-                {
-                    std::stringstream ss;
                     ss << p.info.videoTime;
                     p.items.push_back(QPair<QString, QString>("Video Time", QString::fromUtf8(ss.str().c_str())));
                 }

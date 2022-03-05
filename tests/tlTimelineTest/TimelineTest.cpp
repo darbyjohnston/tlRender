@@ -70,7 +70,9 @@ namespace tl
         void TimelineTest::_timeline()
         {
             for (const auto& i : getExtensions(
-                static_cast<int>(io::FileExtensionType::VideoAndAudio),
+                static_cast<int>(io::FileType::Movie) |
+                static_cast<int>(io::FileType::Sequence) |
+                static_cast<int>(io::FileType::Audio),
                 _context))
             {
                 std::stringstream ss;
