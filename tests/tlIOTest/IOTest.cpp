@@ -68,14 +68,14 @@ namespace tl
             public:
                 std::shared_ptr<IRead> read(
                     const file::Path&,
-                    const Options & = Options()) override
+                    const Options& = Options()) override
                 {
                     return nullptr;
                 }
 
                 imaging::Info getWriteInfo(
                     const imaging::Info&,
-                    const io::Options & = io::Options()) const override
+                    const io::Options& = io::Options()) const override
                 {
                     return imaging::Info();
                 }
@@ -83,7 +83,7 @@ namespace tl
                 std::shared_ptr<IWrite> write(
                     const file::Path&,
                     const Info&,
-                    const Options & = Options()) override
+                    const Options& = Options()) override
                 {
                     return nullptr;
                 }

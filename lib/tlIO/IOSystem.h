@@ -52,13 +52,13 @@ namespace tl
             // Create a reader for the given path.
             std::shared_ptr<IRead> read(
                 const file::Path&,
-                const Options & = Options());
+                const Options& = Options());
 
             // Create a writer for the given path.
             std::shared_ptr<IWrite> write(
                 const file::Path&,
                 const Info&,
-                const Options & = Options());
+                const Options& = Options());
 
         private:
             std::vector<std::shared_ptr<IPlugin> > _plugins;

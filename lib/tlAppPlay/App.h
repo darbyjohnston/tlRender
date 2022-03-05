@@ -60,7 +60,7 @@ namespace tl
 
         public Q_SLOTS:
             //! Open a file.
-            void open(const QString&, const QString & = QString());
+            void open(const QString&, const QString& = QString());
 
             //! Open a file dialog.
             void openDialog();

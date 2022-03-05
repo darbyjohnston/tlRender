@@ -29,11 +29,11 @@ namespace tl
             Path();
             explicit Path(
                 const std::string&,
-                const PathOptions & = PathOptions());
+                const PathOptions& = PathOptions());
             Path(
                 const std::string&,
                 const std::string&,
-                const PathOptions & = PathOptions());
+                const PathOptions& = PathOptions());
             Path(
                 const std::string& directory,
                 const std::string& baseName,

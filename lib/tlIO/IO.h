@@ -202,18 +202,18 @@ namespace tl
             //! Create a reader for the given path.
             virtual std::shared_ptr<IRead> read(
                 const file::Path&,
-                const Options & = Options()) = 0;
+                const Options& = Options()) = 0;
 
             //! Get information for writing.
             virtual imaging::Info getWriteInfo(
                 const imaging::Info&,
-                const Options & = Options()) const = 0;
+                const Options& = Options()) const = 0;
 
             //! Create a writer for the given path.
             virtual std::shared_ptr<IWrite> write(
                 const file::Path&,
                 const Info&,
-                const Options & = Options()) = 0;
+                const Options& = Options()) = 0;
 
         protected:
             bool _isWriteCompatible(const imaging::Info&, const Options&) const;

@@ -203,14 +203,14 @@ namespace tl
             virtual void drawImage(
                 const std::shared_ptr<imaging::Image>&,
                 const math::BBox2i&,
-                const imaging::Color4f & = imaging::Color4f(1.F, 1.F, 1.F),
-                const ImageOptions & = ImageOptions()) = 0;
+                const imaging::Color4f& = imaging::Color4f(1.F, 1.F, 1.F),
+                const ImageOptions& = ImageOptions()) = 0;
 
             //! Draw timeline video data.
             virtual void drawVideo(
                 const std::vector<timeline::VideoData>&,
-                const std::vector<ImageOptions> & = {},
-                const CompareOptions & = CompareOptions()) = 0;
+                const std::vector<ImageOptions>& = {},
+                const CompareOptions& = CompareOptions()) = 0;
 
             //! Draw text.
             virtual void drawText(
