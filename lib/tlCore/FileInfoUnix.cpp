@@ -7,7 +7,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include <memory>
+#include <cstring>
 
 #if defined(__APPLE__)
 //! \bug OS X doesn't have stat64?
