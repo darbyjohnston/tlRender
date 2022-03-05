@@ -923,12 +923,17 @@ namespace tl
                 }
 
                 {
-                    QSignalBlocker blocker(p.speedSpinBox);
-                    p.speedSpinBox->setValue(p.timelinePlayers[0]->speed());
+                    QSignalBlocker blocker(p.currentTimeSpinBox);
+                    p.currentTimeSpinBox->setValue(p.timelinePlayers[0]->currentTime());
                 }
 
                 const auto& duration = p.timelinePlayers[0]->duration();
                 p.durationLabel->setValue(duration);
+
+                {
+                    QSignalBlocker blocker(p.speedSpinBox);
+                    p.speedSpinBox->setValue(p.timelinePlayers[0]->speed());
+                }
 
                 {
                     QSignalBlocker blocker(p.volumeSlider);
@@ -962,11 +967,16 @@ namespace tl
                 }
 
                 {
-                    QSignalBlocker blocker(p.speedSpinBox);
-                    p.speedSpinBox->setValue(0.0);
+                    QSignalBlocker blocker(p.currentTimeSpinBox);
+                    p.currentTimeSpinBox->setValue(time::invalidTime);
                 }
 
                 p.durationLabel->setValue(time::invalidTime);
+
+                {
+                    QSignalBlocker blocker(p.speedSpinBox);
+                    p.speedSpinBox->setValue(0.0);
+                }
 
                 {
                     QSignalBlocker blocker(p.volumeSlider);
