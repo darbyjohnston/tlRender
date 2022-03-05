@@ -30,12 +30,6 @@ namespace tl
         class FilesBModel;
         class SettingsObject;
 
-        //! Application options.
-        struct Options
-        {
-            imaging::ColorConfig colorConfig;
-        };
-
         //! Application.
         class App : public QApplication, public app::IApp
         {

@@ -30,6 +30,24 @@ namespace tl
 {
     namespace play
     {
+        namespace
+        {
+            struct Options
+            {
+                std::string audioFileName;
+                std::string compareFileName;
+                timeline::CompareMode compareMode = timeline::CompareMode::A;
+                math::Vector2f wipeCenter = math::Vector2f(.5F, .5F);
+                float wipeRotation = 0.F;
+                double speed = 0.0;
+                timeline::Playback playback = timeline::Playback::Stop;
+                timeline::Loop loop = timeline::Loop::Loop;
+                otime::RationalTime seek = time::invalidTime;
+                imaging::ColorConfig colorConfig;
+                bool resetSettings = false;
+            };
+        }
+
         struct App::Private
         {
             std::string input;
@@ -68,10 +86,54 @@ namespace tl
                     app::CmdLineValueArg<std::string>::create(
                         p.input,
                         "input",
-                        "The input timeline.",
+                        "The input file.",
                         true)
                 },
         {
+            app::CmdLineValueOption<std::string>::create(
+                p.options.audioFileName,
+                { "-audio", "-a" },
+                "Audio file."),
+            app::CmdLineValueOption<std::string>::create(
+                p.options.compareFileName,
+                { "-compare", "-b" },
+                "A/B comparison \"B\" file."),
+            app::CmdLineValueOption<timeline::CompareMode>::create(
+                p.options.compareMode,
+                { "-compareMode", "-c" },
+                "A/B comparison mode.",
+                string::Format("{0}").arg(p.options.compareMode),
+                string::join(timeline::getCompareModeLabels(), ", ")),
+            app::CmdLineValueOption<math::Vector2f>::create(
+                p.options.wipeCenter,
+                { "-wipeCenter", "-wc" },
+                "A/B comparison wipe center.",
+                string::Format("{0}").arg(p.options.wipeCenter)),
+            app::CmdLineValueOption<float>::create(
+                p.options.wipeRotation,
+                { "-wipeRotation", "-wr" },
+                "A/B comparison wipe rotation.",
+                string::Format("{0}").arg(p.options.wipeRotation)),
+            app::CmdLineValueOption<double>::create(
+                p.options.speed,
+                { "-speed" },
+                "Playback speed."),
+            app::CmdLineValueOption<timeline::Playback>::create(
+                p.options.playback,
+                { "-playback", "-p" },
+                "Playback mode.",
+                string::Format("{0}").arg(p.options.playback),
+                string::join(timeline::getPlaybackLabels(), ", ")),
+            app::CmdLineValueOption<timeline::Loop>::create(
+                p.options.loop,
+                { "-loop" },
+                "Playback loop mode.",
+                string::Format("{0}").arg(p.options.loop),
+                string::join(timeline::getLoopLabels(), ", ")),
+            app::CmdLineValueOption<otime::RationalTime>::create(
+                p.options.seek,
+                { "-seek" },
+                "Seek to the given time."),
             app::CmdLineValueOption<std::string>::create(
                 p.options.colorConfig.fileName,
                 { "-colorConfig", "-cc" },
@@ -87,7 +149,11 @@ namespace tl
             app::CmdLineValueOption<std::string>::create(
                 p.options.colorConfig.view,
                 { "-colorView", "-cv" },
-                "View color space.")
+                "View color space."),
+            app::CmdLineFlagOption::create(
+                p.options.resetSettings,
+                { "-resetSettings" },
+                "Reset settings to defaults.")
         });
             const int exitCode = getExit();
             if (exitCode != 0)
@@ -106,7 +172,7 @@ namespace tl
             // Create objects.
             p.timeObject = new qt::TimeObject(this);
 
-            p.settingsObject = new SettingsObject(false, p.timeObject, this);
+            p.settingsObject = new SettingsObject(p.options.resetSettings, p.timeObject, this);
             connect(
                 p.settingsObject,
                 &SettingsObject::valueChanged,
@@ -154,10 +220,36 @@ namespace tl
             // Create the main window.
             p.mainWindow = new MainWindow(this);
 
-            // Open the input file.
+            // Open the input files.
             if (!p.input.empty())
             {
-                open(QString::fromUtf8(p.input.c_str()));
+                if (!p.options.compareFileName.empty())
+                {
+                    timeline::CompareOptions compareOptions;
+                    compareOptions.mode = p.options.compareMode;
+                    compareOptions.wipeCenter = p.options.wipeCenter;
+                    compareOptions.wipeRotation = p.options.wipeRotation;
+                    p.filesModel->setCompareOptions(compareOptions);
+                    open(QString::fromUtf8(p.options.compareFileName.c_str()));
+                }
+
+                open(
+                    QString::fromUtf8(p.input.c_str()),
+                    QString::fromUtf8(p.options.audioFileName.c_str()));
+
+                if (!p.timelinePlayers.empty())
+                {
+                    if (p.options.speed > 0.0)
+                    {
+                        p.timelinePlayers[0]->setSpeed(p.options.speed);
+                    }
+                    if (p.options.seek != time::invalidTime)
+                    {
+                        p.timelinePlayers[0]->seek(p.options.seek);
+                    }
+                    p.timelinePlayers[0]->setPlayback(p.options.playback);
+                    p.timelinePlayers[0]->setLoop(p.options.loop);
+                }
             }
 
             p.mainWindow->show();
