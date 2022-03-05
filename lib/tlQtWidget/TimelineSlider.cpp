@@ -6,8 +6,6 @@
 
 #include <tlQt/TimelineThumbnailProvider.h>
 
-#include <tlTimeline/TimelineUtil.h>
-
 #include <tlCore/Math.h>
 #include <tlCore/StringFormat.h>
 

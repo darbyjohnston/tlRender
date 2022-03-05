@@ -4,7 +4,7 @@
 
 #include <tlTimelineTest/TimelineUtilTest.h>
 
-#include <tlTimeline/TimelineUtil.h>
+#include <tlTimeline/Util.h>
 
 #include <tlCore/Assert.h>
 

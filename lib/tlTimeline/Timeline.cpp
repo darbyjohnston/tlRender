@@ -4,7 +4,7 @@
 
 #include <tlTimeline/Timeline.h>
 
-#include <tlTimeline/TimelineUtil.h>
+#include <tlTimeline/Util.h>
 
 #include <tlIO/IOSystem.h>
 

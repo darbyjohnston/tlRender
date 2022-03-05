@@ -22,10 +22,12 @@ namespace tl
                 Q_OBJECT
 
             public:
-                App(int& argc, char** argv);
+                App(
+                    int& argc,
+                    char** argv,
+                    const std::shared_ptr<system::Context>&);
 
             private:
-                std::shared_ptr<system::Context> _context;
                 MainWindow* _mainWindow = nullptr;
             };
         }

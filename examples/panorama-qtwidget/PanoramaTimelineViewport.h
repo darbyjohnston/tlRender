@@ -42,7 +42,7 @@ namespace tl
                 void setTimelinePlayer(qt::TimelinePlayer*);
 
             private Q_SLOTS:
-                void _videoCallback(const timeline::VideoData&);
+                void _videoCallback(const tl::timeline::VideoData&);
 
             protected:
                 void initializeGL() override;

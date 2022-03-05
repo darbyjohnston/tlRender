@@ -6,6 +6,8 @@
 
 #include <tlQtQuick/Util.h>
 
+#include <tlCore/Context.h>
+
 #include <iostream>
 
 int main(int argc, char* argv[])
@@ -13,8 +15,9 @@ int main(int argc, char* argv[])
     int r = 0;
     try
     {
-        tl::qtquick::init();
-        tl::examples::play_qtquick::App app(argc, argv);
+        auto context = tl::system::Context::create();
+        tl::qtquick::init(context);
+        tl::examples::play_qtquick::App app(argc, argv, context);
         if (0 == app.getExit())
         {
             r = app.exec();

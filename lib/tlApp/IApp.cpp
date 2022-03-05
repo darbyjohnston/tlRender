@@ -28,6 +28,7 @@ namespace tl
         void IApp::_init(
             int argc,
             char* argv[],
+            const std::shared_ptr<system::Context>& context,
             const std::string& cmdLineName,
             const std::string& cmdLineSummary,
             const std::vector<std::shared_ptr<ICmdLineArg> >& args,
@@ -35,9 +36,7 @@ namespace tl
         {
             TLRENDER_P();
 
-            // Create the context.
-            _context = system::Context::create();
-            _context->addSystem(io::System::create(_context));
+            _context = context;
 
             // Parse the command line.
             for (int i = 1; i < argc; ++i)
@@ -97,12 +96,12 @@ namespace tl
             // Setup the log.
             if (_options.log)
             {
-                for (const auto& i : _context->getLogInit())
+                for (const auto& i : context->getLogInit())
                 {
                     _print("[LOG] " + toString(i));
                 }
                 p.logObserver = observer::ValueObserver<log::Item>::create(
-                    _context->getSystem<log::System>()->observeLog(),
+                    context->getSystem<log::System>()->observeLog(),
                     [this](const log::Item& value)
                     {
                         _print("[LOG] " + toString(value));
@@ -145,7 +144,7 @@ namespace tl
                 ioOptions["ffmpeg/ThreadCount"] = ss.str();
             }
 #endif
-            _context->getSystem<io::System>()->setOptions(ioOptions);
+            context->getSystem<io::System>()->setOptions(ioOptions);
         }
         
         IApp::IApp() :

@@ -6,25 +6,23 @@
 
 #include <tlQtWidget/Style.h>
 
-#include <tlIO/IOSystem.h>
-
 namespace tl
 {
     namespace examples
     {
         namespace widgets_qtwidget
         {
-            App::App(int& argc, char** argv) :
+            App::App(
+                int& argc,
+                char** argv,
+                const std::shared_ptr<system::Context>& context) :
                 QApplication(argc, argv)
             {
-                _context = system::Context::create();
-                _context->addSystem(io::System::create(_context));
-
                 setStyle("Fusion");
                 setPalette(qtwidget::darkStyle());
                 setStyleSheet(qtwidget::styleSheet());
 
-                _mainWindow = new MainWindow(_context);
+                _mainWindow = new MainWindow(context);
                 _mainWindow->show();
             }
         }

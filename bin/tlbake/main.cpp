@@ -4,6 +4,8 @@
 
 #include <tlAppBake/App.h>
 
+#include <tlTimeline/Util.h>
+
 #include <iostream>
 
 int main(int argc, char* argv[])
@@ -11,7 +13,9 @@ int main(int argc, char* argv[])
     int r = 0;
     try
     {
-        auto app = tl::bake::App::create(argc, argv);
+        auto context = tl::system::Context::create();
+        tl::timeline::init(context);
+        auto app = tl::bake::App::create(argc, argv, context);
         app->run();
         r = app->getExit();
     }

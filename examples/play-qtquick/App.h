@@ -26,7 +26,10 @@ namespace tl
                 Q_OBJECT
 
             public:
-                App(int& argc, char** argv);
+                App(
+                    int& argc,
+                    char** argv,
+                    const std::shared_ptr<system::Context>&);
                 ~App() override;
 
             private:

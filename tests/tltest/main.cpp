@@ -4,15 +4,17 @@
 
 #if defined(TLRENDER_BUILD_QT5) || defined(TLRENDER_BUILD_QT6)
 #include <tlQtTest/TimeObjectTest.h>
+#include <tlQt/Util.h>
+#endif
+
+#if defined(TLRENDER_BUILD_GL)
+#include <tlGLTest/MeshTest.h>
+#include <tlGL/Util.h>
 #endif
 
 #include <tlTimelineTest/TimelinePlayerTest.h>
 #include <tlTimelineTest/TimelineTest.h>
 #include <tlTimelineTest/TimelineUtilTest.h>
-
-#if defined(TLRENDER_BUILD_GL)
-#include <tlGLTest/MeshTest.h>
-#endif
 
 #include <tlIOTest/CineonTest.h>
 #include <tlIOTest/DPXTest.h>
@@ -34,6 +36,7 @@
 #if defined(TIFF_FOUND)
 #include <tlIOTest/TIFFTest.h>
 #endif
+#include <tlIO/Util.h>
 
 #include <tlCoreTest/AudioTest.h>
 #include <tlCoreTest/BBoxTest.h>
@@ -55,8 +58,6 @@
 #include <tlCoreTest/TimeTest.h>
 #include <tlCoreTest/ValueObserverTest.h>
 
-#include <tlIO/IOSystem.h>
-
 #include <tlCore/Context.h>
 
 #include <iostream>
@@ -68,8 +69,14 @@ using namespace tl::tests;
 int main(int argc, char* argv[])
 {
     auto context = system::Context::create();
-    context->addSystem(tl::io::System::create(context));
-    
+#if defined(TLRENDER_BUILD_QT5) || defined(TLRENDER_BUILD_QT6)
+    qt::init(context);
+#elif defined(TLRENDER_BUILD_GL)
+    gl::init(context);
+#else
+    io::init(context);
+#endif
+
     for (const auto& i : context->getLogInit())
     {
         std::cout << "[LOG] " << toString(i) << std::endl;

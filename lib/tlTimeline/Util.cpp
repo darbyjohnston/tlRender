@@ -2,12 +2,21 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include <tlTimeline/TimelineUtil.h>
+#include <tlTimeline/Util.h>
+
+#include <tlIO/Util.h>
+
+#include <tlCore/Context.h>
 
 namespace tl
 {
     namespace timeline
     {
+        void init(const std::shared_ptr<system::Context>& context)
+        {
+            io::init(context);
+        }
+
         std::vector<otime::TimeRange> toRanges(std::vector<otime::RationalTime> frames)
         {
             std::vector<otime::TimeRange> out;

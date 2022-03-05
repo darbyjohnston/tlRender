@@ -6,12 +6,20 @@
 
 #include <tlGlad/gl.h>
 
+#include <memory>
+
 namespace tl
 {
+    namespace system
+    {
+        class Context;
+    }
+
     //! Qt QWidget support.
     namespace qtwidget
     {
-        //! Initialize the library. This needs to be called before the Qt application is instantiated.
-        void init();
+        //! Initialize the library. This needs to be called before the Qt
+        //! application is created.
+        void init(const std::shared_ptr<system::Context>&);
     }
 }

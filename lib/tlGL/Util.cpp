@@ -4,7 +4,10 @@
 
 #include <tlGL/Texture.h>
 
+#include <tlTimeline/Util.h>
+
 #include <tlCore/Assert.h>
+#include <tlCore/Context.h>
 
 #include <array>
 #include <iostream>
@@ -13,6 +16,11 @@ namespace tl
 {
     namespace gl
     {
+        void init(const std::shared_ptr<system::Context>& context)
+        {
+            timeline::init(context);
+        }
+
         GLenum getReadPixelsFormat(imaging::PixelType value)
         {
             const std::array<GLenum, static_cast<std::size_t>(imaging::PixelType::Count)> data =

@@ -19,12 +19,16 @@ namespace tl
     {
         namespace play_qtquick
         {
-            App::App(int& argc, char** argv) :
+            App::App(
+                int& argc,
+                char** argv,
+                const std::shared_ptr<system::Context>& context) :
                 QGuiApplication(argc, argv)
             {
                 IApp::_init(
                     argc,
                     argv,
+                    context,
                     "play-qtquick",
                     "Play an editorial timeline.",
                     {
@@ -43,20 +47,19 @@ namespace tl
                 // Initialize Qt.
                 QCoreApplication::setOrganizationName("tlRender");
                 QCoreApplication::setApplicationName("play-qtquick");
-                qtquick::setContext(_context);
 
                 // Create objects.
                 _timeObject = new qt::TimeObject(this);
 
                 // Open the input file.
                 timeline::Options options;
-                auto audioSystem = _context->getSystem<audio::System>();
+                auto audioSystem = context->getSystem<audio::System>();
                 const audio::Info audioInfo = audioSystem->getDefaultOutputInfo();
                 options.ioOptions["ffmpeg/AudioChannelCount"] = string::Format("{0}").arg(audioInfo.channelCount);
                 options.ioOptions["ffmpeg/AudioDataType"] = string::Format("{0}").arg(audioInfo.dataType);
                 options.ioOptions["ffmpeg/AudioSampleRate"] = string::Format("{0}").arg(audioInfo.sampleRate);
-                auto timeline = timeline::Timeline::create(_input, _context, options);
-                _timelinePlayer = new qt::TimelinePlayer(timeline::TimelinePlayer::create(timeline, _context), _context);
+                auto timeline = timeline::Timeline::create(_input, context, options);
+                _timelinePlayer = new qt::TimelinePlayer(timeline::TimelinePlayer::create(timeline, context), context);
 
                 // Load the QML.
                 _qmlEngine = new QQmlApplicationEngine;

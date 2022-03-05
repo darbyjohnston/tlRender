@@ -16,11 +16,15 @@ namespace tl
 {
     namespace bake
     {
-        void App::_init(int argc, char* argv[])
+        void App::_init(
+            int argc,
+            char* argv[],
+            const std::shared_ptr<system::Context>& context)
         {
             IApp::_init(
                 argc,
                 argv,
+                context,
                 "tlbake",
                 "Render a timeline to a movie or image sequence.",
                 {
@@ -77,10 +81,13 @@ namespace tl
         App::~App()
         {}
 
-        std::shared_ptr<App> App::create(int argc, char* argv[])
+        std::shared_ptr<App> App::create(
+            int argc,
+            char* argv[],
+            const std::shared_ptr<system::Context>& context)
         {
             auto out = std::shared_ptr<App>(new App);
-            out->_init(argc, argv);
+            out->_init(argc, argv, context);
             return out;
         }
 
@@ -136,6 +143,10 @@ namespace tl
                 _options.outputPixelType :
                 info.video[0].pixelType;
             _outputInfo = _writerPlugin->getWriteInfo(_outputInfo);
+            if (imaging::PixelType::None == _outputInfo.pixelType)
+            {
+                _outputInfo.pixelType = imaging::PixelType::RGB_U8;
+            }
             _print(string::Format("Output info: {0}").arg(_outputInfo));
             _outputImage = imaging::Image::create(_outputInfo);
             ioInfo.video.push_back(_outputInfo);

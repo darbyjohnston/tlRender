@@ -7,6 +7,8 @@
 #include <tlQt/MetaTypes.h>
 #include <tlQt/TimeObject.h>
 
+#include <tlGL/Util.h>
+
 #include <tlCore/Context.h>
 #include <tlCore/Mesh.h>
 
@@ -16,8 +18,10 @@ namespace tl
 {
     namespace qt
     {
-        void init()
+        void init(const std::shared_ptr<system::Context>& context)
         {
+            gl::init(context);
+
             qRegisterMetaType<otime::RationalTime>("otime::RationalTime");
             qRegisterMetaType<otime::TimeRange>("otime::TimeRange");
             qRegisterMetaType<std::vector<otime::TimeRange> >("std::vector<otime::TimeRange>");

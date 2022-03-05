@@ -2,28 +2,22 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include <tlQtWidget/Util.h>
+#include <tlIO/Util.h>
 
-#include <tlQt/Util.h>
+#include <tlIO/IOSystem.h>
 
 #include <tlCore/Context.h>
 
-#include <QDir>
-
-void qtInitResources()
-{
-    Q_INIT_RESOURCE(tlQtWidget);
-}
-
 namespace tl
 {
-    namespace qtwidget
+    namespace io
     {
         void init(const std::shared_ptr<system::Context>& context)
         {
-            qt::init(context);
-
-            qtInitResources();
+            if (!context->getSystem<System>())
+            {
+                context->addSystem(System::create(context));
+            }
         }
     }
 }

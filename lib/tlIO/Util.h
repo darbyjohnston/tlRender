@@ -4,9 +4,7 @@
 
 #pragma once
 
-#include <tlCore/Image.h>
-
-#include <tlGlad/gl.h>
+#include <memory>
 
 namespace tl
 {
@@ -15,16 +13,9 @@ namespace tl
         class Context;
     }
 
-    //! OpenGL renderer.
-    namespace gl
+    namespace io
     {
         //! Initialize the library.
         void init(const std::shared_ptr<system::Context>&);
-
-        //! Get the glReadPixels format.
-        GLenum getReadPixelsFormat(imaging::PixelType);
-
-        //! Get the glReadPixels type.
-        GLenum getReadPixelsType(imaging::PixelType);
     }
 }

@@ -6,15 +6,20 @@
 
 #include <tlGlad/gl.h>
 
-#include <QString>
+#include <memory>
 
 namespace tl
 {
+    namespace system
+    {
+        class Context;
+    }
+
     //! Qt support.
     namespace qt
     {
         //! Initialize the library. This needs to be called before the Qt
-        //! application is instantiated.
-        void init();
+        //! application is created.
+        void init(const std::shared_ptr<system::Context>&);
     }
 }

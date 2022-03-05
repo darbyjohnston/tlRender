@@ -7,7 +7,8 @@ set(HEADERS
     IOSystemInline.h
     PPM.h
     SequenceIO.h
-	SGI.h)
+	SGI.h
+	Util.h)
 set(SOURCE
     CineonRead.cpp
     CineonWrite.cpp
@@ -23,7 +24,8 @@ set(SOURCE
     SequenceIO.cpp
 	SGI.cpp
 	SGIRead.cpp
-	SGIWrite.cpp)
+	SGIWrite.cpp
+	Util.cpp)
 
 set(tlIO_LIBRARIES tlCore)
 if(JPEG_FOUND)

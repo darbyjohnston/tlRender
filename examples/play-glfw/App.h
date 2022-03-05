@@ -51,14 +51,20 @@ namespace tl
                 TLRENDER_NON_COPYABLE(App);
 
             protected:
-                void _init(int argc, char* argv[]);
+                void _init(
+                    int argc,
+                    char* argv[],
+                    const std::shared_ptr<system::Context>&);
                 App();
 
             public:
                 ~App();
 
                 //! Create a new application.
-                static std::shared_ptr<App> create(int argc, char* argv[]);
+                static std::shared_ptr<App> create(
+                    int argc,
+                    char* argv[],
+                    const std::shared_ptr<system::Context>&);
 
                 //! Run the application.
                 void run();

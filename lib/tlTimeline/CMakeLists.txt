@@ -6,13 +6,14 @@ set(HEADERS
     TimelineInline.h
     TimelinePlayer.h
     TimelinePlayerInline.h
-	TimelineUtil.h)
+	Util.h
+	UtilInline.h)
 set(SOURCE
 	IRender.cpp
 	SoftwareRender.cpp
     Timeline.cpp
     TimelinePlayer.cpp
-	TimelineUtil.cpp)
+	Util.cpp)
 
 add_library(tlTimeline ${HEADERS} ${SOURCE})
 target_link_libraries(tlTimeline tlIO)

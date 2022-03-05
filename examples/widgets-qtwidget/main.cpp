@@ -6,11 +6,14 @@
 
 #include <tlQtWidget/Util.h>
 
+#include <tlCore/Context.h>
+
 #include <iostream>
 
 int main(int argc, char* argv[])
 {
-    tl::qtwidget::init();
-    tl::examples::widgets_qtwidget::App app(argc, argv);
+    auto context = tl::system::Context::create();
+    tl::qtwidget::init(context);
+    tl::examples::widgets_qtwidget::App app(argc, argv, context);
     return app.exec();
 }

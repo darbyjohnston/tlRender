@@ -18,15 +18,13 @@ namespace tl
     //! Qt Quick support.
     namespace qtquick
     {
-        //! Initialize the library. This needs to be called before the Qt application is instantiated.
-        void init();
-
-        //! Set the context singleton.
-        //!
-        //! \todo What's a better way to get the contet to QML objects?
-        void setContext(const std::shared_ptr<system::Context>&);
+        //! Initialize the library. This needs to be called before the Qt
+        //! application is created.
+        void init(const std::shared_ptr<system::Context>&);
 
         //! Get the context singleton.
+        //!
+        //! \todo What's a better way to get the context to QML objects?
         const std::weak_ptr<system::Context>& context();
     }
 }

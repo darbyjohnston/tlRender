@@ -16,12 +16,16 @@ namespace tl
     {
         namespace filmstrip_qtwidget
         {
-            App::App(int& argc, char** argv) :
+            App::App(
+                int& argc,
+                char** argv,
+                const std::shared_ptr<system::Context>& context) :
                 QApplication(argc, argv)
             {
                 IApp::_init(
                     argc,
                     argv,
+                    context,
                     "filmstrip-qwidget",
                     "View a timeline as a series of thumbnail images.",
                     {

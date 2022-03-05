@@ -54,6 +54,7 @@ namespace tl
             void _init(
                 int argc,
                 char* argv[],
+                const std::shared_ptr<system::Context>&,
                 const std::string& cmdLineName,
                 const std::string& cmdLineSummary,
                 const std::vector<std::shared_ptr<ICmdLineArg> >& = {},

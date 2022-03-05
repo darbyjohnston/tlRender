@@ -17,7 +17,7 @@
 #include <tlQt/TimeObject.h>
 #include <tlQt/TimelinePlayer.h>
 
-#include <tlTimeline/TimelineUtil.h>
+#include <tlTimeline/Util.h>
 
 #include <tlCore/AudioSystem.h>
 #include <tlCore/Math.h>
@@ -49,7 +49,10 @@ namespace tl
             MainWindow* mainWindow = nullptr;
         };
 
-        App::App(int& argc, char** argv) :
+        App::App(
+            int& argc,
+            char** argv,
+            const std::shared_ptr<system::Context>& context) :
             QApplication(argc, argv),
             _p(new Private)
         {
@@ -58,6 +61,7 @@ namespace tl
             IApp::_init(
                 argc,
                 argv,
+                context,
                 "tlplay",
                 "Play timelines, movies, and image sequences.",
                 {
@@ -121,7 +125,7 @@ namespace tl
 
             _cacheUpdate();
 
-            p.filesModel = FilesModel::create(_context);
+            p.filesModel = FilesModel::create(context);
             p.activeObserver = observer::ListObserver<std::shared_ptr<FilesModelItem> >::create(
                 p.filesModel->observeActive(),
                 [this](const std::vector<std::shared_ptr<FilesModelItem> >& value)
@@ -141,7 +145,7 @@ namespace tl
                     }
                 });
 
-            p.colorModel = ColorModel::create(_context);
+            p.colorModel = ColorModel::create(context);
             if (!p.options.colorConfig.fileName.empty())
             {
                 p.colorModel->setConfig(p.options.colorConfig);
@@ -272,6 +276,7 @@ namespace tl
             }
 
             std::vector<qt::TimelinePlayer*> timelinePlayers(items.size(), nullptr);
+            auto audioSystem = _context->getSystem<audio::System>();
             for (size_t i = 0; i < items.size(); ++i)
             {
                 if (i < p.active.size() && items[i] == p.active[i])
@@ -295,7 +300,6 @@ namespace tl
                         options.audioRequestCount = p.settingsObject->value("Performance/AudioRequestCount").toInt();
                         options.ioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").
                             arg(p.settingsObject->value("Performance/SequenceThreadCount").toInt());
-                        auto audioSystem = _context->getSystem<audio::System>();
                         const audio::Info audioInfo = audioSystem->getDefaultOutputInfo();
                         options.ioOptions["ffmpeg/AudioChannelCount"] = string::Format("{0}").arg(audioInfo.channelCount);
                         options.ioOptions["ffmpeg/AudioDataType"] = string::Format("{0}").arg(audioInfo.dataType);
