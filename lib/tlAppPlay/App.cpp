@@ -34,6 +34,7 @@ namespace tl
         {
             struct Options
             {
+                std::string fileName;
                 std::string audioFileName;
                 std::string compareFileName;
                 timeline::CompareMode compareMode = timeline::CompareMode::A;
@@ -50,7 +51,6 @@ namespace tl
 
         struct App::Private
         {
-            std::string input;
             Options options;
 
             qt::TimeObject* timeObject = nullptr;
@@ -84,7 +84,7 @@ namespace tl
                 "Play timelines, movies, and image sequences.",
                 {
                     app::CmdLineValueArg<std::string>::create(
-                        p.input,
+                        p.options.fileName,
                         "input",
                         "The input file.",
                         true)
@@ -221,7 +221,7 @@ namespace tl
             p.mainWindow = new MainWindow(this);
 
             // Open the input files.
-            if (!p.input.empty())
+            if (!p.options.fileName.empty())
             {
                 if (!p.options.compareFileName.empty())
                 {
@@ -234,7 +234,7 @@ namespace tl
                 }
 
                 open(
-                    QString::fromUtf8(p.input.c_str()),
+                    QString::fromUtf8(p.options.fileName.c_str()),
                     QString::fromUtf8(p.options.audioFileName.c_str()));
 
                 if (!p.timelinePlayers.empty())
