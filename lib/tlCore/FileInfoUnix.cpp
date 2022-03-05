@@ -7,6 +7,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include <memory>
+
 #if defined(__APPLE__)
 //! \bug OS X doesn't have stat64?
 #define _STAT struct ::stat
