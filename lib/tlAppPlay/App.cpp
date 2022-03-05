@@ -88,7 +88,7 @@ namespace tl
                     app::CmdLineValueArg<std::string>::create(
                         p.options.fileName,
                         "input",
-                        "The input file.",
+                        "Timeline, movie, image sequence, or folder.",
                         true)
                 },
         {
