@@ -1,7 +1,6 @@
 set(HEADERS
 	IRender.h
 	IRenderInline.h
-	SoftwareRender.h
     Timeline.h
     TimelineInline.h
     TimelinePlayer.h
@@ -10,7 +9,6 @@ set(HEADERS
 	UtilInline.h)
 set(SOURCE
 	IRender.cpp
-	SoftwareRender.cpp
     Timeline.cpp
     TimelinePlayer.cpp
 	Util.cpp)

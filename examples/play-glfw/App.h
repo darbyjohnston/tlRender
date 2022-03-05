@@ -21,18 +21,6 @@ namespace tl
         //! Example GLFW playback application.
         namespace play_glfw
         {
-            //! Render type.
-            enum class RenderType
-            {
-                GL,
-                Software,
-
-                Count,
-                First = GL
-            };
-            TLRENDER_ENUM(RenderType);
-            TLRENDER_ENUM_SERIALIZE(RenderType);
-
             //! Application options.
             struct Options
             {
@@ -42,7 +30,6 @@ namespace tl
                 bool startPlayback = true;
                 bool loopPlayback = true;
                 imaging::ColorConfig colorConfig;
-                RenderType renderType = RenderType::GL;
             };
 
             //! Application.
@@ -103,7 +90,6 @@ namespace tl
                 math::Vector2f _contentScale;
                 std::shared_ptr<imaging::FontSystem> _fontSystem;
                 std::shared_ptr<timeline::IRender> _render;
-                std::shared_ptr<timeline::IRender> _glRender;
                 bool _renderDirty = true;
                 timeline::VideoData _videoData;
                 std::map<HUDElement, std::string> _hudLabels;

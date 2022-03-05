@@ -6,8 +6,6 @@
 
 #include <tlGL/Render.h>
 
-#include <tlTimeline/SoftwareRender.h>
-
 #include <tlCore/AudioSystem.h>
 #include <tlCore/Math.h>
 #include <tlCore/StringFormat.h>
@@ -26,12 +24,6 @@ namespace tl
     {
         namespace play_glfw
         {
-            TLRENDER_ENUM_IMPL(
-                RenderType,
-                "GL",
-                "Software");
-            TLRENDER_ENUM_SERIALIZE_IMPL(RenderType);
-
             namespace
             {
                 void glfwErrorCallback(int, const char* description)
@@ -119,13 +111,7 @@ namespace tl
                 app::CmdLineValueOption<std::string>::create(
                     _options.colorConfig.view,
                     { "-colorView", "-cv" },
-                    "View color space."),
-                app::CmdLineValueOption<RenderType>::create(
-                    _options.renderType,
-                    { "-renderType", "-rt" },
-                    "Renderer type.",
-                    string::Format("{0}").arg(_options.renderType),
-                    string::join(getRenderTypeLabels(), ", "))
+                    "View color space.")
             });
             }
 
@@ -134,7 +120,6 @@ namespace tl
 
             App::~App()
             {
-                _glRender.reset();
                 _render.reset();
                 _fontSystem.reset();
                 if (_glfwWindow)
@@ -242,17 +227,7 @@ namespace tl
 
                 // Create the renderer.
                 _fontSystem = imaging::FontSystem::create();
-                switch (_options.renderType)
-                {
-                case RenderType::GL:
-                    _render = gl::Render::create(_context);
-                    break;
-                case RenderType::Software:
-                    _render = timeline::SoftwareRender::create(_context);
-                    _glRender = gl::Render::create(_context);
-                    break;
-                default: break;
-                }
+                _render = gl::Render::create(_context);
 
                 // Print the shortcuts help.
                 _printShortcutsHelp();
@@ -413,18 +388,6 @@ namespace tl
                         _drawHUD();
                     }
                     _render->end();
-                    if (RenderType::Software == _options.renderType)
-                    {
-                        _glRender->begin(_frameBufferSize);
-                        timeline::ImageOptions imageOptions;
-                        imageOptions.mirror.y = true;
-                        _glRender->drawImage(
-                            std::dynamic_pointer_cast<timeline::SoftwareRender>(_render)->getFrameBuffer(),
-                            math::BBox2i(0, 0, _frameBufferSize.w, _frameBufferSize.h),
-                            imaging::Color4f(1.F, 1.F, 1.F),
-                            imageOptions);
-                        _glRender->end();
-                    }
                     glfwSwapBuffers(_glfwWindow);
                     _renderDirty = false;
                 }

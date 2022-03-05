@@ -7,5 +7,5 @@ set(SOURCE
     main.cpp)
 
 add_executable(play-glfw ${SOURCE} ${HEADERS})
-target_link_libraries(play-glfw tlGL tlApp GLFW)
+target_link_libraries(play-glfw tlApp tlGL GLFW)
 set_target_properties(play-glfw PROPERTIES FOLDER examples)
