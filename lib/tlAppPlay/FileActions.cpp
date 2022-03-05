@@ -220,8 +220,7 @@ namespace tl
         void FileActions::_actionsUpdate()
         {
             TLRENDER_P();
-
-            const int count = p.timelinePlayers.size();
+            const int count = p.app->filesModel()->observeFiles()->getSize();
             p.actions["Close"]->setEnabled(count > 0);
             p.actions["CloseAll"]->setEnabled(count > 0);
             p.actions["Next"]->setEnabled(count > 1);

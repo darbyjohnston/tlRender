@@ -47,7 +47,7 @@ namespace tl
                 static_cast<int>(FileType::Audio)) const;
 
             //! Get the file type for the given extension.
-            int getFileType(const std::string&) const;
+            FileType getFileType(const std::string&) const;
 
             // Create a reader for the given path.
             std::shared_ptr<IRead> read(

@@ -13,13 +13,6 @@ namespace tl
 {
     namespace io
     {
-        TLRENDER_ENUM_IMPL(
-            FileType,
-            "Movie",
-            "Sequence",
-            "Audio");
-        TLRENDER_ENUM_SERIALIZE_IMPL(FileType);
-
         VideoData::VideoData()
         {}
 

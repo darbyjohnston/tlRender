@@ -114,18 +114,18 @@ namespace tl
             return out;
         }
         
-        int System::getFileType(const std::string& extension) const
+        FileType System::getFileType(const std::string& extension) const
         {
-            int out = 0;
+            FileType out = FileType::Unknown;
             for (const auto& plugin : _plugins)
             {
-                for (auto fileType : getFileTypeEnums())
+                for (auto fileType : { FileType::Movie, FileType::Sequence, FileType::Audio })
                 {
                     const auto& extensions = plugin->getExtensions(static_cast<int>(fileType));
                     const auto i = extensions.find(extension);
                     if (i != extensions.end())
                     {
-                        out = static_cast<int>(fileType);
+                        out = fileType;
                         break;
                     }
                 }

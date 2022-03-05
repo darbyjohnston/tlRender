@@ -25,6 +25,12 @@ namespace tl
 
         //! Get the duration of all tracks of the same kind.
         otio::optional<otime::RationalTime> getDuration(const otio::Timeline*, const std::string& kind);
+
+        //! Get a list of files to open from the given path.
+        std::vector<file::Path> getPaths(
+            const std::string&,
+            const file::PathOptions&,
+            const std::shared_ptr<system::Context>&);
     }
 }
 

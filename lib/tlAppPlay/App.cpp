@@ -19,6 +19,8 @@
 
 #include <tlTimeline/Util.h>
 
+#include <tlIO/IOSystem.h>
+
 #include <tlCore/AudioSystem.h>
 #include <tlCore/Math.h>
 #include <tlCore/StringFormat.h>
@@ -291,11 +293,16 @@ namespace tl
         void App::open(const QString& fileName, const QString& audioFileName)
         {
             TLRENDER_P();
-            auto item = std::make_shared<FilesModelItem>();
-            item->path = file::Path(fileName.toUtf8().data());
-            item->audioPath = file::Path(audioFileName.toUtf8().data());
-            p.filesModel->add(item);
-            p.settingsObject->addRecentFile(fileName);
+            file::PathOptions pathOptions;
+            pathOptions.maxNumberDigits = p.settingsObject->value("Misc/MaxFileSequenceDigits").toInt();
+            for (const auto& path : timeline::getPaths(fileName.toUtf8().data(), pathOptions, _context))
+            {
+                auto item = std::make_shared<FilesModelItem>();
+                item->path = path;
+                item->audioPath = file::Path(audioFileName.toUtf8().data());
+                p.filesModel->add(item);
+                p.settingsObject->addRecentFile(QString::fromUtf8(path.get().c_str()));
+            }
         }
 
         void App::openDialog()
@@ -520,8 +527,11 @@ namespace tl
             TLRENDER_P();
             for (const auto& i : p.timelinePlayers)
             {
-                i->setCacheReadAhead(_cacheReadAhead());
-                i->setCacheReadBehind(_cacheReadBehind());
+                if (i)
+                {
+                    i->setCacheReadAhead(_cacheReadAhead());
+                    i->setCacheReadBehind(_cacheReadBehind());
+                }
             }
         }
     }

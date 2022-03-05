@@ -27,15 +27,14 @@ namespace tl
         //! File types.
         enum class FileType
         {
+            Unknown  = 0,
             Movie    = 1,
             Sequence = 2,
             Audio    = 4,
 
             Count,
-            First = Movie
+            First = Unknown
         };
-        TLRENDER_ENUM(FileType);
-        TLRENDER_ENUM_SERIALIZE(FileType);
 
         //! I/O information.
         struct Info

@@ -30,10 +30,16 @@ namespace tl
             auto dirList = fseqDirList(path.c_str(), &dirOptions, &error);
             if (FSEQ_FALSE == error)
             {
+                std::string directory = path;
+                const size_t size = directory.size();
+                if (size > 0 && !('/' == directory[size - 1] || '\\' == directory[size - 1]))
+                {
+                    directory += '/';
+                }
                 for (auto entry = dirList; entry; entry = entry->next)
                 {
                     out.push_back(FileInfo(Path(
-                        path,
+                        directory,
                         entry->fileName.base,
                         entry->fileName.number,
                         entry->framePadding,

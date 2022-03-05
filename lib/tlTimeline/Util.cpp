@@ -4,9 +4,11 @@
 
 #include <tlTimeline/Util.h>
 
+#include <tlIO/IOSystem.h>
 #include <tlIO/Util.h>
 
 #include <tlCore/Context.h>
+#include <tlCore/FileInfo.h>
 
 namespace tl
 {
@@ -75,6 +77,74 @@ namespace tl
                         out = duration;
                     }
                 }
+            }
+            return out;
+        }
+
+        std::vector<file::Path> getPaths(
+            const std::string& fileName,
+            const file::PathOptions& pathOptions,
+            const std::shared_ptr<system::Context>& context)
+        {
+            std::vector<file::Path> out;
+            const auto path = file::Path(fileName);
+            const auto fileInfo = file::FileInfo(path);
+            switch (fileInfo.getType())
+            {
+            case file::Type::Directory:
+            {
+                auto ioSystem = context->getSystem<io::System>();
+                for (const auto& fileInfo : file::dirList(fileName, pathOptions))
+                {
+                    const auto& path = fileInfo.getPath();
+                    const auto& extension = path.getExtension();
+                    switch (ioSystem->getFileType(extension))
+                    {
+                    case io::FileType::Sequence:
+                    {
+                        if (out.empty() || path.getNumber().empty())
+                        {
+                            out.push_back(path);
+                        }
+                        else
+                        {
+                            bool exists = false;
+                            for (const auto& i : out)
+                            {
+                                if (i.getDirectory() == path.getDirectory() &&
+                                    i.getBaseName() == path.getBaseName() &&
+                                    !i.getNumber().empty() &&
+                                    i.getPadding() == path.getPadding())
+                                {
+                                    exists = true;
+                                    break;
+                                }
+                            }
+                            if (!exists)
+                            {
+                                out.push_back(path);
+                            }
+                        }
+                        break;
+                    }
+                    case io::FileType::Movie:
+                    case io::FileType::Audio:
+                        out.push_back(path);
+                        break;
+                    default:
+                        //! \todo Get extensions for the Python adapters.
+                        if (".otio" == extension)
+                        {
+                            out.push_back(path);
+                        }
+                        break;
+                    }
+                }
+                break;
+            }
+            default:
+                out.push_back(path);
+                break;
             }
             return out;
         }

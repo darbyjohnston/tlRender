@@ -625,7 +625,7 @@ namespace tl
                         globalStartTime = otime::RationalTime(0.0, info.videoTime.duration().rate());
                         auto videoClip = new otio::Clip;
                         videoClip->set_source_range(info.videoTime);
-                        isSequence = static_cast<int>(io::FileType::Sequence) == ioSystem->getFileType(path.getExtension()) &&
+                        isSequence = io::FileType::Sequence == ioSystem->getFileType(path.getExtension()) &&
                             !path.getNumber().empty();
                         if (isSequence)
                         {
@@ -787,7 +787,7 @@ namespace tl
                         globalStartTime = otime::RationalTime(0.0, info.videoTime.duration().rate());
                         auto videoClip = new otio::Clip;
                         videoClip->set_source_range(info.videoTime);
-                        isSequence = static_cast<int>(io::FileType::Sequence) == ioSystem->getFileType(path.getExtension()) &&
+                        isSequence = io::FileType::Sequence == ioSystem->getFileType(path.getExtension()) &&
                             !path.getNumber().empty();
                         if (isSequence)
                         {
