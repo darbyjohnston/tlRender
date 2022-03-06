@@ -175,15 +175,10 @@ namespace tl
                     return _info;
                 }
 
-                io::VideoData read(
-                    const std::string& fileName,
-                    const otime::RationalTime& time)
+                std::shared_ptr<imaging::Image> read()
                 {
-                    io::VideoData out;
-                    out.time = time;
-                    out.image = imaging::Image::create(_info);
-
-                    uint8_t* p = out.image->getData();
+                    auto out = imaging::Image::create(_info);
+                    uint8_t* p = out->getData();
                     for (uint16_t y = 0; y < _info.size.h; ++y, p += _scanlineSize)
                     {
                         if (!pngScanline(_png, p))
@@ -192,7 +187,6 @@ namespace tl
                         }
                     }
                     pngEnd(_png, _pngInfoEnd);
-
                     return out;
                 }
 
@@ -248,7 +242,10 @@ namespace tl
             const otime::RationalTime& time,
             uint16_t layer)
         {
-            return File(fileName).read(fileName, time);
+            io::VideoData out;
+            out.time = time;
+            out.image = File(fileName).read();
+            return out;
         }
     }
 }
