@@ -324,7 +324,9 @@ namespace tl
             {
                 const auto& globalStartTime = p.timelinePlayer->globalStartTime();
                 const auto& duration = p.timelinePlayer->duration();
-                out = (value.value() - globalStartTime.value()) / (duration.value() - 1) * width();
+                out = (value.value() - globalStartTime.value()) /
+                    (duration.value() > 1 ? (duration.value() - 1) : 1) *
+                    width();
             }
             return out;
         }
