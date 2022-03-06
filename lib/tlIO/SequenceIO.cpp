@@ -82,7 +82,8 @@ namespace tl
                 {
                     for (auto entry = dirList; entry; entry = entry->next)
                     {
-                        if (0 == strcmp(entry->fileName.base, baseName.c_str()) &&
+                        if (strlen(entry->fileName.number) > 0 &&
+                            0 == strcmp(entry->fileName.base, baseName.c_str()) &&
                             0 == strcmp(entry->fileName.extension, extension.c_str()))
                         {
                             _startFrame = entry->frameMin;
