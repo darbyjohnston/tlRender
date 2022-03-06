@@ -418,11 +418,11 @@ namespace tl
                                 std::unique_lock<std::mutex> lock(p.mutex);
                                 p.mutexData.videoData = i->second;
                             }
-                            else
+                            else if (playback != Playback::Stop)
                             {
                                 {
                                     std::unique_lock<std::mutex> lock(p.mutex);
-                                    p.mutexData.playbackStartTime = p.currentTime->get();
+                                    p.mutexData.playbackStartTime = currentTime;
                                     p.mutexData.playbackStartTimer = std::chrono::steady_clock::now();
                                     if (currentTime < p.timeline->getGlobalStartTime() ||
                                         currentTime - p.timeline->getGlobalStartTime() > p.timeline->getDuration())
@@ -574,6 +574,8 @@ namespace tl
         void TimelinePlayer::setPlayback(Playback value)
         {
             TLRENDER_P();
+
+            // Update the frame for loop modes.
             switch (p.loop->get())
             {
             case Loop::Once:
@@ -614,6 +616,7 @@ namespace tl
                 break;
             default: break;
             }
+
             if (p.playback->setIfChanged(value))
             {
                 if (value != Playback::Stop)
@@ -623,7 +626,9 @@ namespace tl
                         p.mutexData.playback = value;
                         p.mutexData.playbackStartTime = p.currentTime->get();
                         p.mutexData.playbackStartTimer = std::chrono::steady_clock::now();
+                        p.mutexData.currentTime = p.currentTime->get();
                         p.mutexData.cacheDirection = Playback::Forward == value ? CacheDirection::Forward : CacheDirection::Reverse;
+                        p.mutexData.clearRequests = true;
                     }
                     p.resetAudioTime();
                 }
@@ -986,7 +991,7 @@ namespace tl
                 }
                 const otime::RationalTime currentTime = p.loopPlayback(
                     playbackStartTime + time::floor(otime::RationalTime(seconds, 1.0).rescaled_to(duration.rate())));
-                //const double currentTimeDiff = abs(currentTime.value() - p.currentTime->get().value());
+                const double currentTimeDiff = abs(currentTime.value() - p.currentTime->get().value());
                 if (p.currentTime->setIfChanged(currentTime))
                 {
                     //std::cout << "current time: " << p.currentTime->get() << " / " << currentTimeDiff << std::endl;
@@ -1046,17 +1051,30 @@ namespace tl
                 break;
             }
             case Loop::Once:
-                if (out < range.start_time())
+            {
+                const auto playbackValue = playback->get();
+                if (out < range.start_time() && Playback::Reverse == playbackValue)
                 {
                     out = range.start_time();
                     playback->setIfChanged(Playback::Stop);
+                    {
+                        std::unique_lock<std::mutex> lock(mutex);
+                        mutexData.playback = Playback::Stop;
+                        mutexData.clearRequests = true;
+                    }
                 }
-                else if (out > range.end_time_inclusive())
+                else if (out > range.end_time_inclusive() && Playback::Forward == playbackValue)
                 {
                     out = range.end_time_inclusive();
                     playback->setIfChanged(Playback::Stop);
+                    {
+                        std::unique_lock<std::mutex> lock(mutex);
+                        mutexData.playback = Playback::Stop;
+                        mutexData.clearRequests = true;
+                    }
                 }
                 break;
+            }
             case Loop::PingPong:
             {
                 const auto playbackValue = playback->get();
@@ -1066,8 +1084,12 @@ namespace tl
                     playback->setIfChanged(Playback::Forward);
                     {
                         std::unique_lock<std::mutex> lock(mutex);
+                        mutexData.playback = Playback::Forward;
                         mutexData.playbackStartTime = out;
                         mutexData.playbackStartTimer = std::chrono::steady_clock::now();
+                        mutexData.currentTime = currentTime->get();
+                        mutexData.clearRequests = true;
+                        mutexData.cacheDirection = CacheDirection::Forward;
                     }
                     resetAudioTime();
                 }
@@ -1077,8 +1099,12 @@ namespace tl
                     playback->setIfChanged(Playback::Reverse);
                     {
                         std::unique_lock<std::mutex> lock(mutex);
+                        mutexData.playback = Playback::Reverse;
                         mutexData.playbackStartTime = out;
                         mutexData.playbackStartTimer = std::chrono::steady_clock::now();
+                        mutexData.currentTime = currentTime->get();
+                        mutexData.clearRequests = true;
+                        mutexData.cacheDirection = CacheDirection::Reverse;
                     }
                     resetAudioTime();
                 }
@@ -1134,15 +1160,26 @@ namespace tl
                 std::min(
                     inOutRange.end_time_inclusive() + audioOffsetAhead,
                     globalStartTime + duration - otime::RationalTime(1.0, duration.rate())));
-            const auto ranges = timeline::loop(range, inOutAudioOffsetRange);
-            timeline->setActiveRanges(ranges);
+            const auto videoRanges = timeline::loop(range, inOutAudioOffsetRange);
+
+            std::vector<otime::TimeRange> audioRanges;
+            for (const auto& i : videoRanges)
+            {
+                const otime::TimeRange range = otime::TimeRange::range_from_start_end_time_inclusive(
+                    time::floor(i.start_time().rescaled_to(1.0)),
+                    time::ceil(i.end_time_inclusive().rescaled_to(1.0)));
+                audioRanges.push_back(otime::TimeRange(
+                    range.start_time().rescaled_to(duration.rate()),
+                    range.duration().rescaled_to(duration.rate())));
+            }
+            timeline->setActiveRanges(audioRanges);
 
             // Remove old video from the cache.
             auto videoDataCacheIt = threadData.videoDataCache.begin();
             while (videoDataCacheIt != threadData.videoDataCache.end())
             {
                 bool old = true;
-                for (const auto& i : ranges)
+                for (const auto& i : videoRanges)
                 {
                     if (i.contains(videoDataCacheIt->second.time))
                     {
@@ -1165,7 +1202,7 @@ namespace tl
                 while (audioDataCacheIt != audioMutexData.audioDataCache.end())
                 {
                     bool old = true;
-                    for (const auto& i : ranges)
+                    for (const auto& i : audioRanges)
                     {
                         if (i.intersects(otime::TimeRange(
                             otime::RationalTime(audioDataCacheIt->second.seconds, 1.0),
@@ -1188,7 +1225,7 @@ namespace tl
             // Get uncached video.
             if (!ioInfo.video.empty())
             {
-                for (const auto& i : ranges)
+                for (const auto& i : videoRanges)
                 {
                     for (otime::RationalTime time = i.start_time();
                         time < i.end_time_exclusive();
@@ -1212,13 +1249,13 @@ namespace tl
             {
                 std::vector<otime::TimeRange> audioCacheRanges;
                 //std::vector<std::string> s;
-                for (const auto& i : ranges)
+                for (const auto& i : audioRanges)
                 {
-                    const otime::TimeRange range(
-                        time::floor(i.start_time().rescaled_to(1.0)),
-                        time::ceil(i.duration().rescaled_to(1.0)));
+                    const otime::TimeRange range = otime::TimeRange(
+                        i.start_time().rescaled_to(1.0),
+                        i.duration().rescaled_to(1.0));
                     //std::stringstream ss;
-                    //ss << range.start_time().value() << "/" << range.duration().value();
+                    //ss << range;
                     //s.push_back(ss.str());
                     audioCacheRanges.push_back(range);
                 }
