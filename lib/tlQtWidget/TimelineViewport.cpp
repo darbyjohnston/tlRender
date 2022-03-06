@@ -264,28 +264,19 @@ namespace tl
         {
             TLRENDER_P();
 
-            imaging::Info info;
-            if (!p.timelinePlayers.empty())
-            {
-                const auto& ioInfo = p.timelinePlayers[0]->ioInfo();
-                if (!ioInfo.video.empty())
-                {
-                    info = ioInfo.video[0];
-                }
-            }
-
+            const auto renderSize = _renderSize();
             try
             {
-                if (info.size.isValid())
+                if (renderSize.isValid())
                 {
                     if (!p.buffer ||
-                        (p.buffer && p.buffer->getSize() != info.size))
+                        (p.buffer && p.buffer->getSize() != renderSize))
                     {
                         gl::OffscreenBufferOptions options;
                         options.colorType = imaging::PixelType::RGBA_F32;
                         options.depth = gl::OffscreenDepth::_24;
                         options.stencil = gl::OffscreenStencil::_8;
-                        p.buffer = gl::OffscreenBuffer::create(info.size, options);
+                        p.buffer = gl::OffscreenBuffer::create(renderSize, options);
                     }
                 }
                 else
@@ -298,7 +289,7 @@ namespace tl
                 if (p.buffer)
                 {
                     gl::OffscreenBufferBinding binding(p.buffer);
-                    p.render->begin(info.size);
+                    p.render->begin(renderSize);
                     p.render->drawVideo(p.videoData, p.imageOptions, p.compareOptions);
                     p.render->end();
                 }
@@ -319,14 +310,14 @@ namespace tl
             {
                 devicePixelRatio = app->devicePixelRatio();
             }
-            const auto size = imaging::Size(
+            const auto viewportSize = imaging::Size(
                 width() * devicePixelRatio,
                 height() * devicePixelRatio);
             glViewport(
                 0,
                 0,
-                GLsizei(size.w),
-                GLsizei(size.h));
+                GLsizei(viewportSize.w),
+                GLsizei(viewportSize.h));
             glClearColor(0.F, 0.F, 0.F, 0.F);
             glClear(GL_COLOR_BUFFER_BIT);
 
@@ -338,9 +329,9 @@ namespace tl
                 vm = glm::scale(vm, glm::vec3(p.viewZoom, p.viewZoom, 1.F));
                 const glm::mat4x4 pm = glm::ortho(
                     0.F,
-                    static_cast<float>(size.w),
+                    static_cast<float>(viewportSize.w),
                     0.F,
-                    static_cast<float>(size.h),
+                    static_cast<float>(viewportSize.h),
                     -1.F,
                     1.F);
                 const glm::mat4x4 vpm = pm * vm;
@@ -357,11 +348,11 @@ namespace tl
                 geom::TriangleMesh3 mesh;
                 mesh.v.push_back(math::Vector3f(0.F, 0.F, 0.F));
                 mesh.t.push_back(math::Vector2f(0.F, 0.F));
-                mesh.v.push_back(math::Vector3f(info.size.w, 0.F, 0.F));
+                mesh.v.push_back(math::Vector3f(renderSize.w, 0.F, 0.F));
                 mesh.t.push_back(math::Vector2f(1.F, 0.F));
-                mesh.v.push_back(math::Vector3f(info.size.w, info.size.h, 0.F));
+                mesh.v.push_back(math::Vector3f(renderSize.w, renderSize.h, 0.F));
                 mesh.t.push_back(math::Vector2f(1.F, 1.F));
-                mesh.v.push_back(math::Vector3f(0.F, info.size.h, 0.F));
+                mesh.v.push_back(math::Vector3f(0.F, renderSize.h, 0.F));
                 mesh.t.push_back(math::Vector2f(0.F, 1.F));
                 mesh.triangles.push_back(geom::Triangle3({
                     geom::Vertex3({ 1, 1, 0 }),
@@ -449,29 +440,55 @@ namespace tl
             }
         }
 
+        imaging::Size TimelineViewport::_renderSize() const
+        {
+            TLRENDER_P();
+            imaging::Size out;
+
+            std::vector<imaging::Size> sizes;
+            for (const auto& i : p.timelinePlayers)
+            {
+                imaging::Size size;
+                const auto& ioInfo = i->ioInfo();
+                if (!ioInfo.video.empty())
+                {
+                    size = ioInfo.video[0].size;
+                }
+                sizes.push_back(size);
+            }
+
+            switch (p.compareOptions.mode)
+            {
+            case timeline::CompareMode::Tile:
+                out = timeline::tiles(sizes).first;
+                break;
+            default:
+                if (!sizes.empty())
+                {
+                    out = sizes[0];
+                }
+                break;
+            }
+
+            return out;
+        }
+
         void TimelineViewport::_frameView()
         {
             TLRENDER_P();
-            if (!p.timelinePlayers.empty())
+            const auto renderSize = _renderSize();
+            float zoom = width() / static_cast<float>(renderSize.w);
+            if (zoom * renderSize.h > height())
             {
-                const auto& ioInfo = p.timelinePlayers[0]->ioInfo();
-                if (!ioInfo.video.empty())
-                {
-                    const auto& info = ioInfo.video[0];
-                    float zoom = width() / static_cast<float>(info.size.w);
-                    if (zoom * info.size.h > height())
-                    {
-                        zoom = height() / static_cast<float>(info.size.h);
-                    }
-                    math::Vector2i c(info.size.w / 2, info.size.h / 2);
-                    p.viewPos.x = width() / 2.F - c.x * zoom;
-                    p.viewPos.y = height() / 2.F - c.y * zoom;
-                    p.viewZoom = zoom;
-                    update();
-                    Q_EMIT viewPosAndZoomChanged(p.viewPos, p.viewZoom);
-                    Q_EMIT frameViewActivated();
-                }
+                zoom = height() / static_cast<float>(renderSize.h);
             }
+            math::Vector2i c(renderSize.w / 2, renderSize.h / 2);
+            p.viewPos.x = width() / 2.F - c.x * zoom;
+            p.viewPos.y = height() / 2.F - c.y * zoom;
+            p.viewZoom = zoom;
+            update();
+            Q_EMIT viewPosAndZoomChanged(p.viewPos, p.viewZoom);
+            Q_EMIT frameViewActivated();
         }
 
         math::Vector2i TimelineViewport::_center() const

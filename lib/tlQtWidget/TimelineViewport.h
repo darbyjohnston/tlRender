@@ -91,6 +91,7 @@ namespace tl
             void wheelEvent(QWheelEvent*) override;
 
         private:
+            imaging::Size _renderSize() const;
             void _frameView();
             math::Vector2i _center() const;
 

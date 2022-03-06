@@ -167,8 +167,8 @@ namespace tl
             bool operator != (const CompareOptions&) const;
         };
 
-        //! Divide a bounding box into tiles.
-        std::vector<math::BBox2i> tiles(const math::BBox2i&, int count);
+        //! Arrange the given sizes into tiles.
+        std::pair<imaging::Size, std::vector<math::BBox2i> > tiles(const std::vector<imaging::Size>&);
 
         //! Base class for renderers.
         class IRender : public std::enable_shared_from_this<IRender>

@@ -1090,14 +1090,20 @@ namespace tl
             }
             case timeline::CompareMode::Tile:
             {
-                const std::vector<math::BBox2i> tiles = timeline::tiles(
-                    math::BBox2i(0, 0, p.size.w, p.size.h),
-                    videoData.size());
-                for (size_t i = 0; i < tiles.size() && i < videoData.size(); ++i)
+                std::vector<imaging::Size> sizes;
+                for (const auto& v : videoData)
+                {
+                    if (!v.layers.empty())
+                    {
+                        sizes.push_back(v.layers[0].image->getSize());
+                    }
+                }
+                const auto tiles = timeline::tiles(sizes);
+                for (size_t i = 0; i < tiles.second.size() && i < videoData.size(); ++i)
                 {
                     _drawVideo(
                         videoData[i],
-                        tiles[i],
+                        tiles.second[i],
                         i < imageOptions.size() ? imageOptions[i] : timeline::ImageOptions());
                 }
                 break;

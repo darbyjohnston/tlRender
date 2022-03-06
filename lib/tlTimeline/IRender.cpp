@@ -111,33 +111,57 @@ namespace tl
             "Tile");
         TLRENDER_ENUM_SERIALIZE_IMPL(CompareMode);
 
-        std::vector<math::BBox2i> tiles(const math::BBox2i& bbox, int count)
+        std::pair<imaging::Size, std::vector<math::BBox2i> > tiles(const std::vector<imaging::Size>& sizes)
         {
-            std::vector<math::BBox2i> out;
+            std::pair<imaging::Size, std::vector<math::BBox2i> > out;
+
+            const size_t size = sizes.size();
             int columns = 0;
             int rows = 0;
-            switch (count)
+            switch (size)
             {
             case 1: columns = 1; rows = 1; break;
             case 2: columns = 1; rows = 2; break;
             default:
-            {
-                const float sqrt = std::sqrt(count);
-                columns = std::ceil(sqrt);
-                const std::div_t d = std::div(count, columns);
-                rows = d.quot + (d.rem > 0 ? 1 : 0);
+                if (size > 0)
+                {
+                    const float sqrt = std::sqrt(size);
+                    columns = std::ceil(sqrt);
+                    const std::div_t d = std::div(size, columns);
+                    rows = d.quot + (d.rem > 0 ? 1 : 0);
+                }
                 break;
             }
-            }
-            const int w = bbox.w() / columns;
-            const int h = bbox.h() / rows;
-            for (int row = 0, y = 0; row < rows; ++row, y += h)
+
+            imaging::Size tileSize;
+            for (const auto& i : sizes)
             {
-                for (int column = 0, x = 0; column < columns; ++column, x += w)
-                {
-                    out.push_back(math::BBox2i(x, y, w, h));
-                }
+                tileSize.w = std::max(tileSize.w, i.w);
+                tileSize.h = std::max(tileSize.h, i.h);
             }
+            out.first.w = tileSize.w * columns;
+            out.first.h = tileSize.h * rows;
+
+            int i = 0;
+            for (int r = 0, y = 0; r < rows; ++r)
+            {
+                for (int c = 0, x = 0; c < columns; ++c, ++i)
+                {
+                    if (i < size)
+                    {
+                        const auto& s = sizes[i];
+                        const math::BBox2i bbox(
+                            x + tileSize.w / 2 - s.w / 2,
+                            y + tileSize.h / 2 - s.h / 2,
+                            s.w,
+                            s.h);
+                        out.second.push_back(bbox);
+                    }
+                    x += tileSize.w;
+                }
+                y += tileSize.h;
+            }
+
             return out;
         }
 
