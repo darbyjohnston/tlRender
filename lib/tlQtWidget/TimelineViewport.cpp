@@ -13,6 +13,7 @@
 
 #include <QGuiApplication>
 #include <QMouseEvent>
+#include <QScreen>
 #include <QSurfaceFormat>
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -305,14 +306,7 @@ namespace tl
                 }
             }
 
-            float devicePixelRatio = 1.F;
-            if (auto app = qobject_cast<QGuiApplication*>(QGuiApplication::instance()))
-            {
-                devicePixelRatio = app->devicePixelRatio();
-            }
-            const auto viewportSize = imaging::Size(
-                width() * devicePixelRatio,
-                height() * devicePixelRatio);
+            const auto viewportSize = _viewportSize();
             glViewport(
                 0,
                 0,
@@ -401,9 +395,11 @@ namespace tl
             TLRENDER_P();
             if (Qt::LeftButton == event->button() && event->modifiers() & Qt::ControlModifier)
             {
+                const float devicePixelRatio = screen()->devicePixelRatio();
                 p.mousePressed = true;
-                p.mousePress.x = event->x();
-                p.mousePress.y = height() - 1 - event->y();
+                p.mousePress.x = event->x() * devicePixelRatio;
+                p.mousePress.y = height() * devicePixelRatio - 1 -
+                    event->y() * devicePixelRatio;
                 p.viewPosMousePress = p.viewPos;
             }
         }
@@ -417,12 +413,14 @@ namespace tl
         void TimelineViewport::mouseMoveEvent(QMouseEvent* event)
         {
             TLRENDER_P();
-            p.mousePos.x = event->x();
-            p.mousePos.y = height() - 1 - event->y();
+            const float devicePixelRatio = screen()->devicePixelRatio();
+            p.mousePos.x = event->x() * devicePixelRatio;
+            p.mousePos.y = height() * devicePixelRatio - 1 -
+                event->y() * devicePixelRatio;
             if (p.mousePressed)
             {
-                p.viewPos.x = p.viewPosMousePress.x + p.mousePos.x - p.mousePress.x;
-                p.viewPos.y = p.viewPosMousePress.y + p.mousePos.y - p.mousePress.y;
+                p.viewPos.x = p.viewPosMousePress.x + (p.mousePos.x - p.mousePress.x);
+                p.viewPos.y = p.viewPosMousePress.y + (p.mousePos.y - p.mousePress.y);
                 p.frameView = false;
                 update();
                 Q_EMIT viewPosAndZoomChanged(p.viewPos, p.viewZoom);
@@ -438,6 +436,14 @@ namespace tl
                 const float delta = event->angleDelta().y() / 8.F / 15.F;
                 p.timelinePlayers[0]->seek(t + otime::RationalTime(delta, t.rate()));
             }
+        }
+        
+        imaging::Size TimelineViewport::_viewportSize() const
+        {
+            const float devicePixelRatio = screen()->devicePixelRatio();
+            return imaging::Size(
+                width() * devicePixelRatio,
+                height() * devicePixelRatio);
         }
 
         imaging::Size TimelineViewport::_renderSize() const
@@ -476,15 +482,16 @@ namespace tl
         void TimelineViewport::_frameView()
         {
             TLRENDER_P();
+            const auto viewportSize = _viewportSize();
             const auto renderSize = _renderSize();
-            float zoom = width() / static_cast<float>(renderSize.w);
-            if (zoom * renderSize.h > height())
+            float zoom = viewportSize.w / static_cast<float>(renderSize.w);
+            if (zoom * renderSize.h > viewportSize.h)
             {
-                zoom = height() / static_cast<float>(renderSize.h);
+                zoom = viewportSize.h / static_cast<float>(renderSize.h);
             }
             math::Vector2i c(renderSize.w / 2, renderSize.h / 2);
-            p.viewPos.x = width() / 2.F - c.x * zoom;
-            p.viewPos.y = height() / 2.F - c.y * zoom;
+            p.viewPos.x = viewportSize.w / 2.F - c.x * zoom;
+            p.viewPos.y = viewportSize.h / 2.F - c.y * zoom;
             p.viewZoom = zoom;
             update();
             Q_EMIT viewPosAndZoomChanged(p.viewPos, p.viewZoom);
@@ -493,7 +500,8 @@ namespace tl
 
         math::Vector2i TimelineViewport::_center() const
         {
-            return math::Vector2i(width() / 2, height() / 2);
+            const auto viewportSize = _viewportSize();
+            return math::Vector2i(viewportSize.w / 2, viewportSize.h / 2);
         }
     }
 }

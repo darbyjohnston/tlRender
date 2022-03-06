@@ -71,17 +71,17 @@ namespace tl
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
 
-                    uint32  tiffWidth = 0;
-                    uint32  tiffHeight = 0;
-                    uint16  tiffPhotometric = 0;
-                    uint16  tiffSamples = 0;
-                    uint16  tiffSampleDepth = 0;
-                    uint16  tiffSampleFormat = 0;
-                    uint16* tiffExtraSamples = nullptr;
-                    uint16  tiffExtraSamplesSize = 0;
-                    uint16  tiffOrient = 0;
-                    uint16  tiffCompression = 0;
-                    uint16  tiffPlanarConfig = 0;
+                    uint32_t  tiffWidth = 0;
+                    uint32_t  tiffHeight = 0;
+                    uint16_t  tiffPhotometric = 0;
+                    uint16_t  tiffSamples = 0;
+                    uint16_t  tiffSampleDepth = 0;
+                    uint16_t  tiffSampleFormat = 0;
+                    uint16_t* tiffExtraSamples = nullptr;
+                    uint16_t  tiffExtraSamplesSize = 0;
+                    uint16_t  tiffOrient = 0;
+                    uint16_t  tiffCompression = 0;
+                    uint16_t  tiffPlanarConfig = 0;
                     TIFFGetFieldDefaulted(_f, TIFFTAG_IMAGEWIDTH, &tiffWidth);
                     TIFFGetFieldDefaulted(_f, TIFFTAG_IMAGELENGTH, &tiffHeight);
                     TIFFGetFieldDefaulted(_f, TIFFTAG_PHOTOMETRIC, &tiffPhotometric);
@@ -263,14 +263,14 @@ namespace tl
                 }
 
             private:
-                TIFF*    _f = nullptr;
-                bool     _palette = false;
-                uint16*  _colormap[3] = { nullptr, nullptr, nullptr };
-                bool     _planar = false;
-                size_t   _samples = 0;
-                size_t   _sampleDepth = 0;
-                size_t   _scanlineSize = 0;
-                io::Info _info;
+                TIFF*     _f = nullptr;
+                bool      _palette = false;
+                uint16_t* _colormap[3] = { nullptr, nullptr, nullptr };
+                bool      _planar = false;
+                size_t    _samples = 0;
+                size_t    _sampleDepth = 0;
+                size_t    _scanlineSize = 0;
+                io::Info  _info;
             };
         }
 
