@@ -13,8 +13,8 @@
 
 #include <QGuiApplication>
 #include <QMouseEvent>
-#include <QScreen>
 #include <QSurfaceFormat>
+#include <QWindow>
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -395,7 +395,7 @@ namespace tl
             TLRENDER_P();
             if (Qt::LeftButton == event->button() && event->modifiers() & Qt::ControlModifier)
             {
-                const float devicePixelRatio = screen()->devicePixelRatio();
+                const float devicePixelRatio = window()->devicePixelRatio();
                 p.mousePressed = true;
                 p.mousePress.x = event->x() * devicePixelRatio;
                 p.mousePress.y = height() * devicePixelRatio - 1 -
@@ -413,7 +413,7 @@ namespace tl
         void TimelineViewport::mouseMoveEvent(QMouseEvent* event)
         {
             TLRENDER_P();
-            const float devicePixelRatio = screen()->devicePixelRatio();
+            const float devicePixelRatio = window()->devicePixelRatio();
             p.mousePos.x = event->x() * devicePixelRatio;
             p.mousePos.y = height() * devicePixelRatio - 1 -
                 event->y() * devicePixelRatio;
@@ -440,7 +440,7 @@ namespace tl
         
         imaging::Size TimelineViewport::_viewportSize() const
         {
-            const float devicePixelRatio = screen()->devicePixelRatio();
+            const float devicePixelRatio = window()->devicePixelRatio();
             return imaging::Size(
                 width() * devicePixelRatio,
                 height() * devicePixelRatio);

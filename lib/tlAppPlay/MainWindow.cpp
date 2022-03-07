@@ -46,10 +46,10 @@
 #include <QMenuBar>
 #include <QMimeData>
 #include <QMouseEvent>
-#include <QScreen>
 #include <QStatusBar>
 #include <QStyle>
 #include <QToolBar>
+#include <QWindow>
 
 namespace tl
 {
@@ -776,7 +776,7 @@ namespace tl
                 else if (event->type() == QEvent::MouseMove)
                 {
                     auto mouseEvent = static_cast<QMouseEvent*>(event);
-                    const float devicePixelRatio = p.timelineViewport->screen()->devicePixelRatio();
+                    const float devicePixelRatio = p.timelineViewport->window()->devicePixelRatio();
                     p.mousePos.x = mouseEvent->x() * devicePixelRatio;
                     p.mousePos.y = p.timelineViewport->height() * devicePixelRatio - 1 -
                         mouseEvent->y() * devicePixelRatio;
