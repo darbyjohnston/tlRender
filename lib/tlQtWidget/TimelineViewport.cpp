@@ -465,9 +465,10 @@ namespace tl
 
             switch (p.compareOptions.mode)
             {
-            case timeline::CompareMode::Tile:
-                out = timeline::tiles(sizes).first;
-                break;
+            //! \todo Temporarily revert to previous functionality.
+            //case timeline::CompareMode::Tile:
+            //    out = timeline::tiles(sizes).first;
+            //    break;
             default:
                 if (!sizes.empty())
                 {

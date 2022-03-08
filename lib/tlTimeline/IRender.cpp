@@ -111,7 +111,8 @@ namespace tl
             "Tile");
         TLRENDER_ENUM_SERIALIZE_IMPL(CompareMode);
 
-        std::pair<imaging::Size, std::vector<math::BBox2i> > tiles(const std::vector<imaging::Size>& sizes)
+        //! \todo Temporarily revert to previous functionality.
+        /*std::pair<imaging::Size, std::vector<math::BBox2i> > tiles(const std::vector<imaging::Size>& sizes)
         {
             std::pair<imaging::Size, std::vector<math::BBox2i> > out;
 
@@ -162,6 +163,35 @@ namespace tl
                 y += tileSize.h;
             }
 
+            return out;
+        }*/
+        std::vector<math::BBox2i> tiles(const math::BBox2i& bbox, int count)
+        {
+            std::vector<math::BBox2i> out;
+            int columns = 0;
+            int rows = 0;
+            switch (count)
+            {
+            case 1: columns = 1; rows = 1; break;
+            case 2: columns = 1; rows = 2; break;
+            default:
+            {
+                const float sqrt = std::sqrt(count);
+                columns = std::ceil(sqrt);
+                const std::div_t d = std::div(count, columns);
+                rows = d.quot + (d.rem > 0 ? 1 : 0);
+                break;
+            }
+            }
+            const int w = bbox.w() / columns;
+            const int h = bbox.h() / rows;
+            for (int row = 0, y = 0; row < rows; ++row, y += h)
+            {
+                for (int column = 0, x = 0; column < columns; ++column, x += w)
+                {
+                    out.push_back(math::BBox2i(x, y, w, h));
+                }
+            }
             return out;
         }
 
