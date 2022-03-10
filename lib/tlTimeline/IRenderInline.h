@@ -78,7 +78,8 @@ namespace tl
             return
                 mode == other.mode &&
                 wipeCenter == other.wipeCenter &&
-                wipeRotation == other.wipeRotation;
+                wipeRotation == other.wipeRotation &&
+                overlay == other.overlay;
         }
 
         inline bool CompareOptions::operator != (const CompareOptions& other) const

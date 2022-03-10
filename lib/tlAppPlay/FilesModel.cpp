@@ -195,6 +195,9 @@ namespace tl
                     case timeline::CompareMode::A:
                     case timeline::CompareMode::B:
                     case timeline::CompareMode::Wipe:
+                    case timeline::CompareMode::Overlay:
+                    case timeline::CompareMode::Horizontal:
+                    case timeline::CompareMode::Vertical:
                         if (b.size() > 1)
                         {
                             removedIndex = _index(b.front());
@@ -455,6 +458,9 @@ namespace tl
                 case timeline::CompareMode::A:
                 case timeline::CompareMode::B:
                 case timeline::CompareMode::Wipe:
+                case timeline::CompareMode::Overlay:
+                case timeline::CompareMode::Horizontal:
+                case timeline::CompareMode::Vertical:
                 {
                     auto b = p.b->get();
                     while (b.size() > 1)
@@ -505,6 +511,9 @@ namespace tl
             {
             case timeline::CompareMode::B:
             case timeline::CompareMode::Wipe:
+            case timeline::CompareMode::Overlay:
+            case timeline::CompareMode::Horizontal:
+            case timeline::CompareMode::Vertical:
             case timeline::CompareMode::Tile:
                 for (const auto& b : p.b->get())
                 {
@@ -528,6 +537,9 @@ namespace tl
             {
             case timeline::CompareMode::B:
             case timeline::CompareMode::Wipe:
+            case timeline::CompareMode::Overlay:
+            case timeline::CompareMode::Horizontal:
+            case timeline::CompareMode::Vertical:
             case timeline::CompareMode::Tile:
                 for (const auto& b : p.b->get())
                 {

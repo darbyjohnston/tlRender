@@ -5,7 +5,10 @@
     <file alias="Icons/Clear.svg">../../etc/Icons/Clear.svg</file>
     <file alias="Icons/CompareA.svg">../../etc/Icons/CompareA.svg</file>
     <file alias="Icons/CompareB.svg">../../etc/Icons/CompareB.svg</file>
+    <file alias="Icons/CompareHorizontal.svg">../../etc/Icons/CompareHorizontal.svg</file>
+    <file alias="Icons/CompareOverlay.svg">../../etc/Icons/CompareOverlay.svg</file>
     <file alias="Icons/CompareTile.svg">../../etc/Icons/CompareTile.svg</file>
+    <file alias="Icons/CompareVertical.svg">../../etc/Icons/CompareVertical.svg</file>
     <file alias="Icons/CompareWipe.svg">../../etc/Icons/CompareWipe.svg</file>
     <file alias="Icons/DockWidgetClose.svg">../../etc/Icons/DockWidgetClose.svg</file>
     <file alias="Icons/DockWidgetNormal.svg">../../etc/Icons/DockWidgetNormal.svg</file>

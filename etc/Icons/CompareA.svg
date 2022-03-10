@@ -62,9 +62,9 @@
      id="layer1"
      transform="translate(0,-291.70831)">
     <path
-       id="rect1020"
+       id="path1296"
        style="fill:#f0f0f0;stroke-width:0.529167"
-       d="m 1.0583331,293.03124 3.1750001,-1e-5 v 2.64583 l -3.1750001,1e-5 z"
-       sodipodi:nodetypes="ccccc" />
+       d="m 1.0583333,293.03123 1e-7,2.64583 h 3.1749999 l -1e-7,-2.64583 z M 1.5875,293.5604 h 2.1166665 l 1e-7,1.58749 H 1.5875001 Z"
+       sodipodi:nodetypes="cccccccccc" />
   </g>
 </svg>

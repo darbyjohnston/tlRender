@@ -34,6 +34,7 @@ namespace tl
             qtwidget::FloatSlider* wipeXSlider = nullptr;
             qtwidget::FloatSlider* wipeYSlider = nullptr;
             qtwidget::FloatSlider* wipeRotationSlider = nullptr;
+            qtwidget::FloatSlider* overlaySlider = nullptr;
         };
 
         CompareTool::CompareTool(
@@ -66,6 +67,9 @@ namespace tl
             toolBar->addAction(actions["A"]);
             toolBar->addAction(actions["B"]);
             toolBar->addAction(actions["Wipe"]);
+            toolBar->addAction(actions["Overlay"]);
+            toolBar->addAction(actions["Horizontal"]);
+            toolBar->addAction(actions["Vertical"]);
             toolBar->addAction(actions["Tile"]);
             toolBar->addSeparator();
             toolBar->addAction(actions["Prev"]);
@@ -78,24 +82,30 @@ namespace tl
             p.wipeRotationSlider = new qtwidget::FloatSlider;
             p.wipeRotationSlider->setRange(math::FloatRange(0.F, 360.F));
 
+            p.overlaySlider = new qtwidget::FloatSlider;
+
             auto layout = new QVBoxLayout;
             layout->setContentsMargins(0, 0, 0, 0);
             layout->setSpacing(0);
             layout->addWidget(p.treeView);
             layout->addWidget(toolBar);
-            auto vLayout = new QVBoxLayout;
-            vLayout->setContentsMargins(10, 10, 10, 10);
-            vLayout->setSpacing(10);
-            vLayout->addWidget(new QLabel(tr("Wipe")));
+            auto widget = new QWidget;
+            widget->setLayout(layout);
+            addWidget(widget, 1);
+
             auto formLayout = new QFormLayout;
             formLayout->addRow(tr("X:"), p.wipeXSlider);
             formLayout->addRow(tr("Y:"), p.wipeYSlider);
             formLayout->addRow(tr("Rotation:"), p.wipeRotationSlider);
-            vLayout->addLayout(formLayout);
-            layout->addLayout(vLayout);
-            auto widget = new QWidget;
+            widget = new QWidget;
+            widget->setLayout(formLayout);
+            addBellows(tr("Wipe"), widget);
+
+            layout = new QVBoxLayout;
+            layout->addWidget(p.overlaySlider);
+            widget = new QWidget;
             widget->setLayout(layout);
-            addWidget(widget, 1);
+            addBellows(tr("Overlay"), widget);
 
             _widgetUpdate();
 
@@ -116,8 +126,9 @@ namespace tl
                 &qtwidget::FloatSlider::valueChanged,
                 [this](double value)
                 {
-                    _p->compareOptions.wipeCenter.x = value;
-                    Q_EMIT compareOptionsChanged(_p->compareOptions);
+                    timeline::CompareOptions compareOptions = _p->compareOptions;
+                    compareOptions.wipeCenter.x = value;
+                    Q_EMIT compareOptionsChanged(compareOptions);
                 });
 
             connect(
@@ -125,8 +136,9 @@ namespace tl
                 &qtwidget::FloatSlider::valueChanged,
                 [this](double value)
                 {
-                    _p->compareOptions.wipeCenter.y = value;
-                    Q_EMIT compareOptionsChanged(_p->compareOptions);
+                    timeline::CompareOptions compareOptions = _p->compareOptions;
+                    compareOptions.wipeCenter.y = value;
+                    Q_EMIT compareOptionsChanged(compareOptions);
                 });
 
             connect(
@@ -134,8 +146,19 @@ namespace tl
                 &qtwidget::FloatSlider::valueChanged,
                 [this](double value)
                 {
-                    _p->compareOptions.wipeRotation = value;
-                    Q_EMIT compareOptionsChanged(_p->compareOptions);
+                    timeline::CompareOptions compareOptions = _p->compareOptions;
+                    compareOptions.wipeRotation = value;
+                    Q_EMIT compareOptionsChanged(compareOptions);
+                });
+
+            connect(
+                p.overlaySlider,
+                &qtwidget::FloatSlider::valueChanged,
+                [this](double value)
+                {
+                    timeline::CompareOptions compareOptions = _p->compareOptions;
+                    compareOptions.overlay = value;
+                    Q_EMIT compareOptionsChanged(compareOptions);
                 });
         }
 
@@ -176,6 +199,10 @@ namespace tl
             {
                 QSignalBlocker signalBlocker(p.wipeYSlider);
                 p.wipeRotationSlider->setValue(p.compareOptions.wipeRotation);
+            }
+            {
+                QSignalBlocker signalBlocker(p.overlaySlider);
+                p.overlaySlider->setValue(p.compareOptions.overlay);
             }
         }
     }

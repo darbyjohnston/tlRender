@@ -148,6 +148,9 @@ namespace tl
             A,
             B,
             Wipe,
+            Overlay,
+            Horizontal,
+            Vertical,
             Tile,
 
             Count,
@@ -162,15 +165,17 @@ namespace tl
             CompareMode mode = CompareMode::A;
             math::Vector2f wipeCenter = math::Vector2f(.5F, .5F);
             float wipeRotation = 0.F;
+            float overlay = .5F;
 
             bool operator == (const CompareOptions&) const;
             bool operator != (const CompareOptions&) const;
         };
 
-        //! Arrange into tiles.
-        //! \todo Temporarily revert to previous functionality.
-        //std::pair<imaging::Size, std::vector<math::BBox2i> > tiles(const std::vector<imaging::Size>&);
-        std::vector<math::BBox2i> tiles(const math::BBox2i&, int count);
+        //! Get the bouncding boxes for the given compare mode and sizes.
+        std::vector<math::BBox2i> tiles(CompareMode, const std::vector<imaging::Size>&);
+
+        //! Get the render size for the given compare mode and sizes.
+        imaging::Size getRenderSize(CompareMode, const std::vector<imaging::Size>&);
 
         //! Base class for renderers.
         class IRender : public std::enable_shared_from_this<IRender>

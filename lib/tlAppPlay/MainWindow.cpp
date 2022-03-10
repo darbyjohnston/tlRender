@@ -166,6 +166,9 @@ namespace tl
             topToolBar->addAction(p.compareActions->actions()["A"]);
             topToolBar->addAction(p.compareActions->actions()["B"]);
             topToolBar->addAction(p.compareActions->actions()["Wipe"]);
+            topToolBar->addAction(p.compareActions->actions()["Overlay"]);
+            topToolBar->addAction(p.compareActions->actions()["Horizontal"]);
+            topToolBar->addAction(p.compareActions->actions()["Vertical"]);
             topToolBar->addAction(p.compareActions->actions()["Tile"]);
             topToolBar->addWidget(new qtwidget::Spacer(Qt::Horizontal));
             topToolBar->addWidget(new qtwidget::Spacer(Qt::Horizontal));

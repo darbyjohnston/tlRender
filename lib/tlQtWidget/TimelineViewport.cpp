@@ -449,8 +449,6 @@ namespace tl
         imaging::Size TimelineViewport::_renderSize() const
         {
             TLRENDER_P();
-            imaging::Size out;
-
             std::vector<imaging::Size> sizes;
             for (const auto& i : p.timelinePlayers)
             {
@@ -462,22 +460,7 @@ namespace tl
                 }
                 sizes.push_back(size);
             }
-
-            switch (p.compareOptions.mode)
-            {
-            //! \todo Temporarily revert to previous functionality.
-            //case timeline::CompareMode::Tile:
-            //    out = timeline::tiles(sizes).first;
-            //    break;
-            default:
-                if (!sizes.empty())
-                {
-                    out = sizes[0];
-                }
-                break;
-            }
-
-            return out;
+            return timeline::getRenderSize(p.compareOptions.mode, sizes);
         }
 
         void TimelineViewport::_frameView()
