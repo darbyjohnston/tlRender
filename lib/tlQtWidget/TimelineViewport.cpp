@@ -449,18 +449,7 @@ namespace tl
         imaging::Size TimelineViewport::_renderSize() const
         {
             TLRENDER_P();
-            std::vector<imaging::Size> sizes;
-            for (const auto& i : p.timelinePlayers)
-            {
-                imaging::Size size;
-                const auto& ioInfo = i->ioInfo();
-                if (!ioInfo.video.empty())
-                {
-                    size = ioInfo.video[0].size;
-                }
-                sizes.push_back(size);
-            }
-            return timeline::getRenderSize(p.compareOptions.mode, sizes);
+            return timeline::getRenderSize(p.compareOptions.mode, _viewportSize(), p.timelinePlayers.size());
         }
 
         void TimelineViewport::_frameView()

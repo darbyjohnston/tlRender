@@ -171,11 +171,11 @@ namespace tl
             bool operator != (const CompareOptions&) const;
         };
 
-        //! Get the bouncding boxes for the given compare mode and sizes.
-        std::vector<math::BBox2i> tiles(CompareMode, const std::vector<imaging::Size>&);
+        //! Get the bouncding boxes for the given compare mode and size.
+        std::vector<math::BBox2i> tiles(CompareMode, const imaging::Size&, size_t count);
 
         //! Get the render size for the given compare mode and sizes.
-        imaging::Size getRenderSize(CompareMode, const std::vector<imaging::Size>&);
+        imaging::Size getRenderSize(CompareMode, const imaging::Size&, size_t count);
 
         //! Base class for renderers.
         class IRender : public std::enable_shared_from_this<IRender>
