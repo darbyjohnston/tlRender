@@ -172,10 +172,10 @@ namespace tl
         };
 
         //! Get the bouncding boxes for the given compare mode and size.
-        std::vector<math::BBox2i> tiles(CompareMode, const imaging::Size&, size_t count);
+        std::vector<math::BBox2i> tiles(CompareMode, const std::vector<imaging::Size>&);
 
         //! Get the render size for the given compare mode and sizes.
-        imaging::Size getRenderSize(CompareMode, const imaging::Size&, size_t count);
+        imaging::Size getRenderSize(CompareMode, const std::vector<imaging::Size>&);
 
         //! Base class for renderers.
         class IRender : public std::enable_shared_from_this<IRender>

@@ -1164,7 +1164,7 @@ namespace tl
                         sizes.push_back(v.layers[0].image->getSize());
                     }
                 }
-                const auto tiles = timeline::tiles(compareOptions.mode, p.size, videoData.size());
+                const auto tiles = timeline::tiles(compareOptions.mode, sizes);
                 for (size_t i = 0; i < tiles.size() && i < videoData.size(); ++i)
                 {
                     _drawVideo(

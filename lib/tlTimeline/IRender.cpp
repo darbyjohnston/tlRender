@@ -114,9 +114,10 @@ namespace tl
             "Tile");
         TLRENDER_ENUM_SERIALIZE_IMPL(CompareMode);
 
-        std::vector<math::BBox2i> tiles(CompareMode mode, const imaging::Size& size, size_t count)
+        std::vector<math::BBox2i> tiles(CompareMode mode, const std::vector<imaging::Size>& sizes)
         {
             std::vector<math::BBox2i> out;
+            const size_t count = sizes.size();
             switch (mode)
             {
 
@@ -126,7 +127,7 @@ namespace tl
             case CompareMode::Overlay:
                 if (count > 0)
                 {
-                    out.push_back(math::BBox2i(0, 0, size.w, size.h));
+                    out.push_back(math::BBox2i(0, 0, sizes[0].w, sizes[0].h));
                 }
                 break;
             case CompareMode::Horizontal:
@@ -135,16 +136,16 @@ namespace tl
                     out.push_back(math::BBox2i(
                         0,
                         0,
-                        size.w / 2,
-                        size.h));
+                        sizes[0].w,
+                        sizes[0].h));
                 }
                 if (count > 1)
                 {
                     out.push_back(math::BBox2i(
-                        size.w / 2,
+                        sizes[0].w,
                         0,
-                        size.w / 2,
-                        size.h));
+                        sizes[1].w,
+                        sizes[1].h));
                 }
                 break;
             case CompareMode::Vertical:
@@ -153,50 +154,28 @@ namespace tl
                     out.push_back(math::BBox2i(
                         0,
                         0,
-                        size.w,
-                        size.h / 2));
+                        sizes[0].w,
+                        sizes[0].h));
                 }
                 if (count > 1)
                 {
                     out.push_back(math::BBox2i(
                         0,
-                        size.h / 2,
-                        size.w,
-                        size.h / 2));
+                        sizes[0].h,
+                        sizes[1].w,
+                        sizes[1].h));
                 }
                 break;
             case CompareMode::Tile:
                 if (count > 0)
                 {
-                    //! \todo Temporarily revert to previous functionality.
-                    /*imaging::Size tileSize;
+                    imaging::Size tileSize;
                     for (const auto& i : sizes)
                     {
                         tileSize.w = std::max(tileSize.w, i.w);
                         tileSize.h = std::max(tileSize.h, i.h);
                     }
-                    out.first.w = tileSize.w * columns;
-                    out.first.h = tileSize.h * rows;
 
-                    int i = 0;
-                    for (int r = 0, y = 0; r < rows; ++r)
-                    {
-                        for (int c = 0, x = 0; c < columns; ++c, ++i)
-                        {
-                            if (i < count)
-                            {
-                                const auto& s = sizes[i];
-                                const math::BBox2i bbox(
-                                    x + tileSize.w / 2 - s.w / 2,
-                                    y + tileSize.h / 2 - s.h / 2,
-                                    s.w,
-                                    s.h);
-                                out.second.push_back(bbox);
-                            }
-                            x += tileSize.w;
-                        }
-                        y += tileSize.h;
-                    }*/
                     int columns = 0;
                     int rows = 0;
                     switch (count)
@@ -212,14 +191,25 @@ namespace tl
                         break;
                     }
                     }
-                    const int w = size.w / columns;
-                    const int h = size.h / rows;
-                    for (int row = 0, y = 0; row < rows; ++row, y += h)
+
+                    int i = 0;
+                    for (int r = 0, y = 0; r < rows; ++r)
                     {
-                        for (int column = 0, x = 0; column < columns; ++column, x += w)
+                        for (int c = 0, x = 0; c < columns; ++c, ++i)
                         {
-                            out.push_back(math::BBox2i(x, y, w, h));
+                            if (i < count)
+                            {
+                                const auto& s = sizes[i];
+                                const math::BBox2i bbox(
+                                    x + tileSize.w / 2 - s.w / 2,
+                                    y + tileSize.h / 2 - s.h / 2,
+                                    s.w,
+                                    s.h);
+                                out.push_back(bbox);
+                            }
+                            x += tileSize.w;
                         }
+                        y += tileSize.h;
                     }
                 }
                 break;
@@ -228,10 +218,10 @@ namespace tl
             return out;
         }
 
-        imaging::Size getRenderSize(CompareMode mode, const imaging::Size& size, size_t count)
+        imaging::Size getRenderSize(CompareMode mode, const std::vector<imaging::Size>& sizes)
         {
             math::BBox2i bbox;
-            const auto tiles = timeline::tiles(mode, size, count);
+            const auto tiles = timeline::tiles(mode, sizes);
             if (!tiles.empty())
             {
                 bbox = tiles[0];
