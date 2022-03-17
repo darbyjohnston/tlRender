@@ -42,7 +42,7 @@ namespace tl
 
             constexpr bool operator == (const Size&) const noexcept;
             constexpr bool operator != (const Size&) const noexcept;
-            constexpr bool operator < (const Size&) const noexcept;
+            bool operator < (const Size&) const noexcept;
         };
 
         //! Get a bounding box with the given aspect ratio that fits within
