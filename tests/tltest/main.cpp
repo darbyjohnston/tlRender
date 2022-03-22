@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
         observer::CallbackAction::Suppress);
 
     std::vector<std::shared_ptr<tests::ITest> > tests;
-    if (1)
+    if (0)
     {
         tests.push_back(timeline_tests::IRenderTest::create(context));
     }
