@@ -1,8 +1,10 @@
 set(HEADERS
+	IRenderTest.h
     TimelinePlayerTest.h
     TimelineTest.h
     TimelineUtilTest.h)
 set(SOURCE
+	IRenderTest.cpp
     TimelinePlayerTest.cpp
     TimelineTest.cpp
     TimelineUtilTest.cpp)

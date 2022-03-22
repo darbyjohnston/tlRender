@@ -12,6 +12,7 @@
 #include <tlGL/Util.h>
 #endif
 
+#include <tlTimelineTest/IRenderTest.h>
 #include <tlTimelineTest/TimelinePlayerTest.h>
 #include <tlTimelineTest/TimelineTest.h>
 #include <tlTimelineTest/TimelineUtilTest.h>
@@ -90,9 +91,9 @@ int main(int argc, char* argv[])
         observer::CallbackAction::Suppress);
 
     std::vector<std::shared_ptr<tests::ITest> > tests;
-    if (0)
+    if (1)
     {
-        tests.push_back(core_tests::MathTest::create(context));
+        tests.push_back(timeline_tests::IRenderTest::create(context));
     }
     else
     {
@@ -137,6 +138,7 @@ int main(int argc, char* argv[])
         tests.push_back(io_tests::TIFFTest::create(context));
 #endif
 
+        tests.push_back(timeline_tests::IRenderTest::create(context));
         tests.push_back(timeline_tests::TimelinePlayerTest::create(context));
         tests.push_back(timeline_tests::TimelineTest::create(context));
         tests.push_back(timeline_tests::TimelineUtilTest::create(context));

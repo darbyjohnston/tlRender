@@ -17,7 +17,7 @@ namespace tl
     namespace timeline_tests
     {
         TimelineUtilTest::TimelineUtilTest(const std::shared_ptr<system::Context>& context) :
-            ITest("timeline_test::TimelineUtilTest", context)
+            ITest("timeline_tests::TimelineUtilTest", context)
         {}
 
         std::shared_ptr<TimelineUtilTest> TimelineUtilTest::create(const std::shared_ptr<system::Context>& context)

@@ -220,17 +220,20 @@ namespace tl
 
         imaging::Size getRenderSize(CompareMode mode, const std::vector<imaging::Size>& sizes)
         {
+            imaging::Size out;
             math::BBox2i bbox;
             const auto tiles = timeline::tiles(mode, sizes);
             if (!tiles.empty())
             {
                 bbox = tiles[0];
+                for (size_t i = 1; i < tiles.size(); ++i)
+                {
+                    bbox.expand(tiles[i]);
+                }
+                out.w = bbox.w();
+                out.h = bbox.h();
             }
-            for (size_t i = 1; i < tiles.size(); ++i)
-            {
-                bbox.expand(tiles[i]);
-            }
-            return imaging::Size(bbox.w(), bbox.h());
+            return out;
         }
 
         void IRender::_init(const std::shared_ptr<system::Context>& context)
