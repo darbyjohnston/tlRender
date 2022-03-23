@@ -437,6 +437,15 @@ namespace tl
                                     p.audioMutexData.muteTimeout = now + p.playerOptions.muteTimeout;
                                 }
                             }
+                            else
+                            {
+                                std::unique_lock<std::mutex> lock(p.mutex);
+                                if (currentTime < p.timeline->getGlobalStartTime() ||
+                                    currentTime - p.timeline->getGlobalStartTime() > p.timeline->getDuration())
+                                {
+                                    p.mutexData.videoData = VideoData();
+                                }
+                            }
                         }
 
                         // Logging.
