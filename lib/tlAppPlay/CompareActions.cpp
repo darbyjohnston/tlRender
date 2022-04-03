@@ -64,7 +64,13 @@ namespace tl
             p.actions["Overlay"]->setCheckable(true);
             p.actions["Overlay"]->setText(tr("Overlay"));
             p.actions["Overlay"]->setIcon(QIcon(":/Icons/CompareOverlay.svg"));
-            p.actions["Overlay"]->setToolTip(tr("Overlay the A file over the B file with transparency"));
+            p.actions["Overlay"]->setToolTip(tr("Overlay the A and B files with transparency"));
+            p.actions["Difference"] = new QAction(this);
+            p.actions["Difference"]->setData(QVariant::fromValue<timeline::CompareMode>(timeline::CompareMode::Difference));
+            p.actions["Difference"]->setCheckable(true);
+            p.actions["Difference"]->setText(tr("Difference"));
+            p.actions["Difference"]->setIcon(QIcon(":/Icons/CompareDifference.svg"));
+            p.actions["Difference"]->setToolTip(tr("Difference the A and B files"));
             p.actions["Horizontal"] = new QAction(this);
             p.actions["Horizontal"]->setData(QVariant::fromValue<timeline::CompareMode>(timeline::CompareMode::Horizontal));
             p.actions["Horizontal"]->setCheckable(true);
@@ -90,6 +96,7 @@ namespace tl
             p.compareActionGroup->addAction(p.actions["B"]);
             p.compareActionGroup->addAction(p.actions["Wipe"]);
             p.compareActionGroup->addAction(p.actions["Overlay"]);
+            p.compareActionGroup->addAction(p.actions["Difference"]);
             p.compareActionGroup->addAction(p.actions["Horizontal"]);
             p.compareActionGroup->addAction(p.actions["Vertical"]);
             p.compareActionGroup->addAction(p.actions["Tile"]);
@@ -110,6 +117,7 @@ namespace tl
             p.menu->addAction(p.actions["B"]);
             p.menu->addAction(p.actions["Wipe"]);
             p.menu->addAction(p.actions["Overlay"]);
+            p.menu->addAction(p.actions["Difference"]);
             p.menu->addAction(p.actions["Horizontal"]);
             p.menu->addAction(p.actions["Vertical"]);
             p.menu->addAction(p.actions["Tile"]);
@@ -183,6 +191,7 @@ namespace tl
             p.actions["B"]->setEnabled(count > 0);
             p.actions["Wipe"]->setEnabled(count > 0);
             p.actions["Overlay"]->setEnabled(count > 0);
+            p.actions["Difference"]->setEnabled(count > 0);
             p.actions["Horizontal"]->setEnabled(count > 0);
             p.actions["Vertical"]->setEnabled(count > 0);
             p.actions["Tile"]->setEnabled(count > 0);

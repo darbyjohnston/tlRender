@@ -167,6 +167,7 @@ namespace tl
             topToolBar->addAction(p.compareActions->actions()["B"]);
             topToolBar->addAction(p.compareActions->actions()["Wipe"]);
             topToolBar->addAction(p.compareActions->actions()["Overlay"]);
+            topToolBar->addAction(p.compareActions->actions()["Difference"]);
             topToolBar->addAction(p.compareActions->actions()["Horizontal"]);
             topToolBar->addAction(p.compareActions->actions()["Vertical"]);
             topToolBar->addAction(p.compareActions->actions()["Tile"]);

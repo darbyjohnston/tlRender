@@ -109,6 +109,7 @@ namespace tl
             "B",
             "Wipe",
             "Overlay",
+            "Difference",
             "Horizontal",
             "Vertical",
             "Tile");
@@ -120,16 +121,6 @@ namespace tl
             const size_t count = sizes.size();
             switch (mode)
             {
-
-            case CompareMode::A:
-            case CompareMode::B:
-            case CompareMode::Wipe:
-            case CompareMode::Overlay:
-                if (count > 0)
-                {
-                    out.push_back(math::BBox2i(0, 0, sizes[0].w, sizes[0].h));
-                }
-                break;
             case CompareMode::Horizontal:
                 if (count > 0)
                 {
@@ -213,7 +204,12 @@ namespace tl
                     }
                 }
                 break;
-            default: break;
+            default:
+                if (count > 0)
+                {
+                    out.push_back(math::BBox2i(0, 0, sizes[0].w, sizes[0].h));
+                }
+                break;
             }
             return out;
         }

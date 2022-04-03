@@ -196,6 +196,7 @@ namespace tl
                     case timeline::CompareMode::B:
                     case timeline::CompareMode::Wipe:
                     case timeline::CompareMode::Overlay:
+                    case timeline::CompareMode::Difference:
                     case timeline::CompareMode::Horizontal:
                     case timeline::CompareMode::Vertical:
                         if (b.size() > 1)
@@ -459,6 +460,7 @@ namespace tl
                 case timeline::CompareMode::B:
                 case timeline::CompareMode::Wipe:
                 case timeline::CompareMode::Overlay:
+                case timeline::CompareMode::Difference:
                 case timeline::CompareMode::Horizontal:
                 case timeline::CompareMode::Vertical:
                 {
@@ -512,6 +514,7 @@ namespace tl
             case timeline::CompareMode::B:
             case timeline::CompareMode::Wipe:
             case timeline::CompareMode::Overlay:
+            case timeline::CompareMode::Difference:
             case timeline::CompareMode::Horizontal:
             case timeline::CompareMode::Vertical:
             case timeline::CompareMode::Tile:
@@ -538,6 +541,7 @@ namespace tl
             case timeline::CompareMode::B:
             case timeline::CompareMode::Wipe:
             case timeline::CompareMode::Overlay:
+            case timeline::CompareMode::Difference:
             case timeline::CompareMode::Horizontal:
             case timeline::CompareMode::Vertical:
             case timeline::CompareMode::Tile:

@@ -68,6 +68,7 @@ namespace tl
             toolBar->addAction(actions["B"]);
             toolBar->addAction(actions["Wipe"]);
             toolBar->addAction(actions["Overlay"]);
+            toolBar->addAction(actions["Difference"]);
             toolBar->addAction(actions["Horizontal"]);
             toolBar->addAction(actions["Vertical"]);
             toolBar->addAction(actions["Tile"]);

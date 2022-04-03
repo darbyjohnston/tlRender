@@ -5,6 +5,7 @@
     <file alias="Icons/Clear.svg">../../etc/Icons/Clear.svg</file>
     <file alias="Icons/CompareA.svg">../../etc/Icons/CompareA.svg</file>
     <file alias="Icons/CompareB.svg">../../etc/Icons/CompareB.svg</file>
+    <file alias="Icons/CompareDifference.svg">../../etc/Icons/CompareDifference.svg</file>
     <file alias="Icons/CompareHorizontal.svg">../../etc/Icons/CompareHorizontal.svg</file>
     <file alias="Icons/CompareOverlay.svg">../../etc/Icons/CompareOverlay.svg</file>
     <file alias="Icons/CompareTile.svg">../../etc/Icons/CompareTile.svg</file>

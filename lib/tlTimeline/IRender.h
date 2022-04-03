@@ -149,6 +149,7 @@ namespace tl
             B,
             Wipe,
             Overlay,
+            Difference,
             Horizontal,
             Vertical,
             Tile,

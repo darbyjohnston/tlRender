@@ -332,6 +332,29 @@ namespace tl
                 "    }\n"
                 "}\n";
 
+            const std::string differenceFragmentSource =
+                "#version 410\n"
+                "\n"
+                "// Inputs\n"
+                "in vec2 fTexture;\n"
+                "\n"
+                "// Outputs\n"
+                "out vec4 fColor;\n"
+                "\n"
+                "uniform sampler2D textureSampler0;\n"
+                "uniform sampler2D textureSampler1;\n"
+                "\n"
+                "void main()\n"
+                "{\n"
+                "\n"
+                "    vec4 c0 = texture(textureSampler0, fTexture);\n"
+                "    vec4 c1 = texture(textureSampler1, fTexture);\n"
+                "    fColor.r = abs(c0.r - c1.r);\n"
+                "    fColor.g = abs(c0.g - c1.g);\n"
+                "    fColor.b = abs(c0.b - c1.b);\n"
+                "    fColor.a = max(c0.a, c1.a);\n"
+                "}\n";
+
             void setTextureParameters(GLenum textureType, OCIO::Interpolation interpolation)
             {
                 if (OCIO::INTERP_NEAREST == interpolation)
@@ -651,7 +674,7 @@ namespace tl
                 if (auto context = p.context.lock())
                 {
                     //context->log("tl::gl::Render", source);
-                    context->log("tl::gl::Render", "Creating fragment shader");
+                    context->log("tl::gl::Render", "Creating shader");
                 }
                 p.shader = Shader::create(vertexSource, source);
             }
@@ -663,20 +686,31 @@ namespace tl
                 0.F,
                 -1.F,
                 1.F);
-            p.shader->setUniform(
-                "transform.mvp",
-                math::Matrix4x4f(
-                    viewMatrix[0][0], viewMatrix[0][1], viewMatrix[0][2], viewMatrix[0][3],
-                    viewMatrix[1][0], viewMatrix[1][1], viewMatrix[1][2], viewMatrix[1][3],
-                    viewMatrix[2][0], viewMatrix[2][1], viewMatrix[2][2], viewMatrix[2][3],
-                    viewMatrix[3][0], viewMatrix[3][1], viewMatrix[3][2], viewMatrix[3][3]));
-
+            const math::Matrix4x4f mvp(
+                viewMatrix[0][0], viewMatrix[0][1], viewMatrix[0][2], viewMatrix[0][3],
+                viewMatrix[1][0], viewMatrix[1][1], viewMatrix[1][2], viewMatrix[1][3],
+                viewMatrix[2][0], viewMatrix[2][1], viewMatrix[2][2], viewMatrix[2][3],
+                viewMatrix[3][0], viewMatrix[3][1], viewMatrix[3][2], viewMatrix[3][3]);
+            p.shader->setUniform("transform.mvp", mvp);
             for (size_t i = 0; i < p.colorTextures.size(); ++i)
             {
                 glActiveTexture(GL_TEXTURE3 + i);
                 glBindTexture(p.colorTextures[i].type, p.colorTextures[i].id);
                 p.shader->setUniform(p.colorTextures[i].sampler, static_cast<int>(3 + i));
             }
+
+            if (!p.differenceShader)
+            {
+                std::string source = differenceFragmentSource;
+                if (auto context = p.context.lock())
+                {
+                    //context->log("tl::gl::Render", source);
+                    context->log("tl::gl::Render", "Creating difference shader");
+                }
+                p.differenceShader = Shader::create(vertexSource, source);
+            }
+            p.differenceShader->bind();
+            p.differenceShader->setUniform("transform.mvp", mvp);
         }
 
         void Render::end()

@@ -80,8 +80,10 @@ namespace tl
             imaging::Size size;
 
             std::shared_ptr<Shader> shader;
+            std::shared_ptr<Shader> differenceShader;
 
             std::shared_ptr<OffscreenBuffer> overlayBuffer;
+            std::array<std::shared_ptr<OffscreenBuffer>, 2> differenceBuffers;
             std::shared_ptr<OffscreenBuffer> dissolveBuffer;
 
             TextureCache textureCache;

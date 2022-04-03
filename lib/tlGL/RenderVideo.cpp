@@ -56,6 +56,7 @@ namespace tl
                 glStencilFunc(GL_ALWAYS, 1, 0xFF);
                 glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
                 glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+                p.shader->bind();
                 p.shader->setUniform("drawMode", static_cast<int>(DrawMode::Solid));
                 p.shader->setUniform("color", imaging::Color4f(1.F, 0.F, 0.F));
                 {
@@ -160,13 +161,103 @@ namespace tl
                             !imageOptions.empty() ? imageOptions[0] : timeline::ImageOptions());
                     }
 
+                    p.shader->bind();
                     p.shader->setUniform("drawMode", static_cast<int>(DrawMode::Image));
                     p.shader->setUniform("color", imaging::Color4f(1.F, 1.F, 1.F, compareOptions.overlay));
                     p.shader->setUniform("pixelType", static_cast<int>(imaging::PixelType::RGBA_F32));
                     p.shader->setUniform("textureSampler0", 0);
 
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
-                    glBindTexture(GL_TEXTURE_2D, p.overlayBuffer->getColorID());
+                    if (p.overlayBuffer)
+                    {
+                        glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
+                        glBindTexture(GL_TEXTURE_2D, p.overlayBuffer->getColorID());
+                    }
+
+                    std::vector<uint8_t> vboData;
+                    vboData.resize(4 * getByteCount(VBOType::Pos2_F32_UV_U16));
+                    VBOVertex* vboP = reinterpret_cast<VBOVertex*>(vboData.data());
+                    vboP[0].vx = 0.F;
+                    vboP[0].vy = 0.F;
+                    vboP[0].tx = 0;
+                    vboP[0].ty = 65535;
+                    vboP[1].vx = p.size.w;
+                    vboP[1].vy = 0.F;
+                    vboP[1].tx = 65535;
+                    vboP[1].ty = 65535;
+                    vboP[2].vx = 0.F;
+                    vboP[2].vy = p.size.h;
+                    vboP[2].tx = 0;
+                    vboP[2].ty = 0;
+                    vboP[3].vx = p.size.w;
+                    vboP[3].vy = p.size.h;
+                    vboP[3].tx = 65535;
+                    vboP[3].ty = 0;
+                    auto vbo = VBO::create(4, VBOType::Pos2_F32_UV_U16);
+                    vbo->copy(vboData);
+
+                    auto vao = VAO::create(vbo->getType(), vbo->getID());
+                    vao->bind();
+                    vao->draw(GL_TRIANGLE_STRIP, 0, 4);
+                }
+                break;
+            case timeline::CompareMode::Difference:
+                if (!videoData.empty())
+                {
+                    if (!p.differenceBuffers[0] ||
+                        (p.differenceBuffers[0] && p.differenceBuffers[0]->getSize() != p.size))
+                    {
+                        OffscreenBufferOptions options;
+                        options.colorType = imaging::PixelType::RGBA_F32;
+                        p.differenceBuffers[0] = OffscreenBuffer::create(p.size, options);
+                    }
+
+                    if (p.differenceBuffers[0])
+                    {
+                        auto binding = OffscreenBufferBinding(p.differenceBuffers[0]);
+                        glClearColor(0.F, 0.F, 0.F, 0.F);
+                        glClear(GL_COLOR_BUFFER_BIT);
+                        _drawVideo(
+                            videoData[0],
+                            math::BBox2i(0, 0, p.size.w, p.size.h),
+                            !imageOptions.empty() ? imageOptions[0] : timeline::ImageOptions());
+                    }
+
+                    if (videoData.size() > 1)
+                    {
+                        if (!p.differenceBuffers[1] ||
+                            (p.differenceBuffers[1] && p.differenceBuffers[1]->getSize() != p.size))
+                        {
+                            OffscreenBufferOptions options;
+                            options.colorType = imaging::PixelType::RGBA_F32;
+                            p.differenceBuffers[1] = OffscreenBuffer::create(p.size, options);
+                        }
+
+                        if (p.differenceBuffers[1])
+                        {
+                            auto binding = OffscreenBufferBinding(p.differenceBuffers[1]);
+                            glClearColor(0.F, 0.F, 0.F, 0.F);
+                            glClear(GL_COLOR_BUFFER_BIT);
+                            _drawVideo(
+                                videoData[1],
+                                math::BBox2i(0, 0, p.size.w, p.size.h),
+                                !imageOptions.empty() ? imageOptions[0] : timeline::ImageOptions());
+                        }
+                    }
+
+                    p.differenceShader->bind();
+                    p.differenceShader->setUniform("textureSampler0", 0);
+                    p.differenceShader->setUniform("textureSampler1", 1);
+
+                    if (p.differenceBuffers[0])
+                    {
+                        glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
+                        glBindTexture(GL_TEXTURE_2D, p.differenceBuffers[0]->getColorID());
+                    }
+                    if (p.differenceBuffers[1])
+                    {
+                        glActiveTexture(static_cast<GLenum>(GL_TEXTURE1));
+                        glBindTexture(GL_TEXTURE_2D, p.differenceBuffers[1]->getColorID());
+                    }
 
                     std::vector<uint8_t> vboData;
                     vboData.resize(4 * getByteCount(VBOType::Pos2_F32_UV_U16));
@@ -269,6 +360,7 @@ namespace tl
                         glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                     }
 
+                    p.shader->bind();
                     p.shader->setUniform("drawMode", static_cast<int>(DrawMode::Image));
                     p.shader->setUniform("color", imaging::Color4f(1.F, 1.F, 1.F));
                     p.shader->setUniform("pixelType", static_cast<int>(imaging::PixelType::RGBA_F32));

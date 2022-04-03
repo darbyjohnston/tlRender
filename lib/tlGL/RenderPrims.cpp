@@ -53,6 +53,7 @@ namespace tl
         {
             TLRENDER_P();
 
+            p.shader->bind();
             p.shader->setUniform("drawMode", static_cast<int>(DrawMode::Solid));
             p.shader->setUniform("color", color);
 
@@ -131,6 +132,7 @@ namespace tl
             TLRENDER_P();
 
             const auto& info = image->getInfo();
+            p.shader->bind();
             p.shader->setUniform("drawMode", static_cast<int>(DrawMode::Image));
             p.shader->setUniform("color", color);
             p.shader->setUniform("pixelType", static_cast<int>(info.pixelType));
@@ -234,6 +236,7 @@ namespace tl
         {
             TLRENDER_P();
 
+            p.shader->bind();
             p.shader->setUniform("drawMode", static_cast<int>(DrawMode::TextureAlpha));
             p.shader->setUniform("color", color);
             p.shader->setUniform("pixelType", static_cast<int>(imaging::PixelType::L_U8));

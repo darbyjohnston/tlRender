@@ -8,8 +8,8 @@
    version="1.1"
    id="svg8"
    inkscape:version="1.1.2 (0a00cf5339, 2022-02-04, custom)"
-   sodipodi:docname="ColorPattern.svg"
-   inkscape:export-filename="C:\dev\tlRender\etc\Images\ColorPattern.png"
+   sodipodi:docname="ColorPatternB.svg"
+   inkscape:export-filename="C:\dev\tlRender\etc\Images\ColorPattern2.png"
    inkscape:export-xdpi="96"
    inkscape:export-ydpi="96"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
@@ -43,7 +43,7 @@
        x2="105.83334"
        y2="257.31248"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="translate(-105.83334)" />
+       gradientTransform="translate(3.5058594e-6)" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -135,8 +135,7 @@
        id="rect815-3"
        width="105.83334"
        height="26.458334"
-       x="-105.83334"
-       y="244.08331"
-       transform="scale(-1,1)" />
+       x="1.4210855e-14"
+       y="244.08331" />
   </g>
 </svg>
