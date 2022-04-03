@@ -2,23 +2,15 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include <tlGL/Render.h>
+#include <tlGL/RenderPrivate.h>
 
 #include <tlGL/Mesh.h>
-#include <tlGL/OffscreenBuffer.h>
-#include <tlGL/Shader.h>
-#include <tlGL/Texture.h>
 
 #include <tlCore/Assert.h>
 #include <tlCore/Context.h>
 #include <tlCore/Error.h>
-#include <tlCore/FontSystem.h>
-#include <tlCore/LRUCache.h>
-#include <tlCore/OCIO.h>
 #include <tlCore/String.h>
 #include <tlCore/StringFormat.h>
-
-#include <OpenColorIO/OpenColorIO.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -28,29 +20,12 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-namespace OCIO = OCIO_NAMESPACE;
-
 namespace tl
 {
     namespace gl
     {
         namespace
         {
-            struct VBOVertex
-            {
-                float    vx;
-                float    vy;
-                uint16_t tx;
-                uint16_t ty;
-            };
-
-            enum class DrawMode
-            {
-                Solid,
-                TextureAlpha,
-                Image
-            };
-
             const std::string colorFunctionName = "OCIODisplay";
 
             const std::string colorFunctionNoOp =
@@ -408,124 +383,44 @@ namespace tl
                 }
                 return out;
             }
-
-            void copyTextures(
-                const std::shared_ptr<imaging::Image>& image,
-                const std::vector<std::shared_ptr<Texture> >& textures,
-                size_t offset = 0)
-            {
-                std::vector<std::shared_ptr<Texture> > out;
-                const auto& info = image->getInfo();
-                switch (info.pixelType)
-                {
-                case imaging::PixelType::YUV_420P:
-                {
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
-                    textures[0]->copy(image->getData(), textures[0]->getInfo());
-
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
-                    const std::size_t w = info.size.w;
-                    const std::size_t h = info.size.h;
-                    const std::size_t w2 = w / 2;
-                    const std::size_t h2 = h / 2;
-                    textures[1]->copy(image->getData() + (w * h), textures[1]->getInfo());
-
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 2 + offset));
-                    textures[2]->copy(image->getData() + (w * h) + (w2 * h2), textures[2]->getInfo());
-                    break;
-                }
-                default:
-                {
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
-                    textures[0]->copy(*image);
-                    break;
-                }
-                }
-            }
-
-            class TextureCache
-            {
-            public:
-                void setSize(size_t value)
-                {
-                    if (value == _size)
-                        return;
-                    _size = value;
-                    _cacheUpdate();
-                }
-
-                std::vector<std::shared_ptr<Texture> > get(const imaging::Info& info)
-                {
-                    std::vector<std::shared_ptr<Texture> > out;
-                    const auto i = std::find_if(_cache.begin(), _cache.end(),
-                        [info](const std::pair<imaging::Info, std::vector<std::shared_ptr<Texture> > >& value)
-                        {
-                            return info == value.first;
-                        });
-                    if (i != _cache.end())
-                    {
-                        out = i->second;
-                    }
-                    else
-                    {
-                        out = getTextures(info);
-                        _cache.push_front(std::make_pair(info, out));
-                        _cacheUpdate();
-                    }
-                    return out;
-                }
-
-            private:
-                void _cacheUpdate()
-                {
-                    while (_cache.size() > _size)
-                    {
-                        _cache.pop_back();
-                    }
-                }
-
-                size_t _size = 4;
-                std::list<std::pair<imaging::Info, std::vector<std::shared_ptr<Texture> > > > _cache;
-            };
         }
 
-        struct Render::Private
+        void TextureCache::setSize(size_t value)
         {
-            std::weak_ptr<system::Context> context;
-            
-            imaging::ColorConfig colorConfig;
-            OCIO::ConstConfigRcPtr ocioConfig;
-            OCIO::DisplayViewTransformRcPtr ocioTransform;
-            OCIO::LegacyViewingPipelineRcPtr ocioVP;
-            OCIO::ConstProcessorRcPtr ocioProcessor;
-            OCIO::ConstGPUProcessorRcPtr ocioGpuProcessor;
-            OCIO::GpuShaderDescRcPtr ocioShaderDesc;
-            struct TextureId
+            if (value == _size)
+                return;
+            _size = value;
+            _cacheUpdate();
+        }
+
+        std::vector<std::shared_ptr<Texture> > TextureCache::get(const imaging::Info& info)
+        {
+            std::vector<std::shared_ptr<Texture> > out;
+            const auto i = std::find_if(_cache.begin(), _cache.end(),
+                [info](const std::pair<imaging::Info, std::vector<std::shared_ptr<Texture> > >& value)
+                {
+                    return info == value.first;
+                });
+            if (i != _cache.end())
             {
-                TextureId(
-                    unsigned    id,
-                    std::string name,
-                    std::string sampler,
-                    unsigned    type);
+                out = i->second;
+            }
+            else
+            {
+                out = getTextures(info);
+                _cache.push_front(std::make_pair(info, out));
+                _cacheUpdate();
+            }
+            return out;
+        }
 
-                unsigned    id = -1;
-                std::string name;
-                std::string sampler;
-                unsigned    type = -1;
-            };
-            std::vector<TextureId> colorTextures;
-
-            imaging::Size size;
-
-            std::shared_ptr<Shader> shader;
-
-            std::shared_ptr<OffscreenBuffer> overlayBuffer;
-            std::shared_ptr<OffscreenBuffer> dissolveBuffer;
-
-            TextureCache textureCache;
-
-            memory::LRUCache<imaging::GlyphInfo, std::shared_ptr<Texture> > glyphTextureCache;
-        };
+        void TextureCache::_cacheUpdate()
+        {
+            while (_cache.size() > _size)
+            {
+                _cache.pop_back();
+            }
+        }
 
         Render::Private::TextureId::TextureId(
             unsigned id,
@@ -787,475 +682,6 @@ namespace tl
         void Render::end()
         {}
 
-        void Render::drawRect(
-            const math::BBox2i& bbox,
-            const imaging::Color4f& color)
-        {
-            TLRENDER_P();
-
-            p.shader->setUniform("drawMode", static_cast<int>(DrawMode::Solid));
-            p.shader->setUniform("color", color);
-
-            std::vector<uint8_t> vboData;
-            vboData.resize(4 * getByteCount(VBOType::Pos2_F32_UV_U16));
-            VBOVertex* vboP = reinterpret_cast<VBOVertex*>(vboData.data());
-            vboP[0].vx = bbox.min.x;
-            vboP[0].vy = bbox.min.y;
-            vboP[0].tx = 0;
-            vboP[0].ty = 0;
-            vboP[1].vx = bbox.max.x + 1;
-            vboP[1].vy = bbox.min.y;
-            vboP[1].tx = 0;
-            vboP[1].ty = 0;
-            vboP[2].vx = bbox.min.x;
-            vboP[2].vy = bbox.max.y + 1;
-            vboP[2].tx = 0;
-            vboP[2].ty = 0;
-            vboP[3].vx = bbox.max.x + 1;
-            vboP[3].vy = bbox.max.y + 1;
-            vboP[3].tx = 0;
-            vboP[3].ty = 0;
-            auto vbo = VBO::create(4, VBOType::Pos2_F32_UV_U16);
-            vbo->copy(vboData);
-
-            auto vao = VAO::create(vbo->getType(), vbo->getID());
-            vao->bind();
-            vao->draw(GL_TRIANGLE_STRIP, 0, 4);
-        }
-
-        namespace
-        {
-            void swap(uint16_t& a, uint16_t& b)
-            {
-                uint16_t tmp = a;
-                a = b;
-                b = tmp;
-            }
-
-            float knee(float x, float f)
-            {
-                return logf(x * f + 1.F) / f;
-            }
-
-            float knee2(float x, float y)
-            {
-                float f0 = 0.F;
-                float f1 = 1.F;
-                while (knee(x, f1) > y)
-                {
-                    f0 = f1;
-                    f1 = f1 * 2.F;
-                }
-                for (size_t i = 0; i < 30; ++i)
-                {
-                    const float f2 = (f0 + f1) / 2.F;
-                    if (knee(x, f2) < y)
-                    {
-                        f1 = f2;
-                    }
-                    else
-                    {
-                        f0 = f2;
-                    }
-                }
-                return (f0 + f1) / 2.F;
-            }
-        }
-
-        void Render::drawImage(
-            const std::shared_ptr<imaging::Image>& image,
-            const math::BBox2i& bbox,
-            const imaging::Color4f& color,
-            const timeline::ImageOptions& imageOptions)
-        {
-            TLRENDER_P();
-
-            const auto& info = image->getInfo();
-            p.shader->setUniform("drawMode", static_cast<int>(DrawMode::Image));
-            p.shader->setUniform("color", color);
-            p.shader->setUniform("pixelType", static_cast<int>(info.pixelType));
-            imaging::YUVRange yuvRange = info.yuvRange;
-            switch (imageOptions.yuvRange)
-            {
-            case timeline::YUVRange::Full:  yuvRange = imaging::YUVRange::Full;  break;
-            case timeline::YUVRange::Video: yuvRange = imaging::YUVRange::Video; break;
-            default: break;
-            }
-            p.shader->setUniform("yuvRange", static_cast<int>(yuvRange));
-            p.shader->setUniform("imageChannels", imaging::getChannelCount(info.pixelType));
-            p.shader->setUniform("textureSampler0", 0);
-            p.shader->setUniform("textureSampler1", 1);
-            p.shader->setUniform("textureSampler2", 2);
-            const bool colorMatrixEnabled = imageOptions.colorEnabled && imageOptions.color != timeline::Color();
-            p.shader->setUniform("colorEnabled", colorMatrixEnabled);
-            p.shader->setUniform("colorAdd", imageOptions.color.add);
-            if (colorMatrixEnabled)
-            {
-                p.shader->setUniform("colorMatrix", timeline::color(imageOptions.color));
-            }
-            p.shader->setUniform("colorInvert", imageOptions.colorEnabled ? imageOptions.color.invert : false);
-            p.shader->setUniform("levelsEnabled", imageOptions.levelsEnabled);
-            p.shader->setUniform("levels.inLow", imageOptions.levels.inLow);
-            p.shader->setUniform("levels.inHigh", imageOptions.levels.inHigh);
-            p.shader->setUniform("levels.gamma", imageOptions.levels.gamma > 0.F ? (1.F / imageOptions.levels.gamma) : 1000000.F);
-            p.shader->setUniform("levels.outLow", imageOptions.levels.outLow);
-            p.shader->setUniform("levels.outHigh", imageOptions.levels.outHigh);
-            p.shader->setUniform("exposureEnabled", imageOptions.exposureEnabled);
-            if (imageOptions.exposureEnabled)
-            {
-                const float v = powf(2.F, imageOptions.exposure.exposure + 2.47393F);
-                const float d = imageOptions.exposure.defog;
-                const float k = powf(2.F, imageOptions.exposure.kneeLow);
-                const float f = knee2(
-                    powf(2.F, imageOptions.exposure.kneeHigh) - k,
-                    powf(2.F, 3.5F) - k);
-                p.shader->setUniform("exposure.v", v);
-                p.shader->setUniform("exposure.d", d);
-                p.shader->setUniform("exposure.k", k);
-                p.shader->setUniform("exposure.f", f);
-            }
-            p.shader->setUniform("softClip", imageOptions.softClipEnabled ? imageOptions.softClip : 0.F);
-            p.shader->setUniform("channels", static_cast<int>(imageOptions.channels));
-
-            auto textures = p.textureCache.get(info);
-            copyTextures(image, textures);
-
-            std::vector<uint8_t> vboData;
-            vboData.resize(4 * getByteCount(VBOType::Pos2_F32_UV_U16));
-            VBOVertex* vboP = reinterpret_cast<VBOVertex*>(vboData.data());
-            vboP[0].vx = bbox.min.x;
-            vboP[0].vy = bbox.min.y;
-            vboP[0].tx = 0;
-            vboP[0].ty = 65535;
-            vboP[1].vx = bbox.max.x + 1;
-            vboP[1].vy = bbox.min.y;
-            vboP[1].tx = 65535;
-            vboP[1].ty = 65535;
-            vboP[2].vx = bbox.min.x;
-            vboP[2].vy = bbox.max.y + 1;
-            vboP[2].tx = 0;
-            vboP[2].ty = 0;
-            vboP[3].vx = bbox.max.x + 1;
-            vboP[3].vy = bbox.max.y + 1;
-            vboP[3].tx = 65535;
-            vboP[3].ty = 0;
-            if (info.layout.mirror.x)
-            {
-                swap(vboP[0].tx, vboP[1].tx);
-                swap(vboP[2].tx, vboP[3].tx);
-            }
-            if (info.layout.mirror.y)
-            {
-                swap(vboP[0].ty, vboP[2].ty);
-                swap(vboP[1].ty, vboP[3].ty);
-            }
-            if (imageOptions.mirror.x)
-            {
-                swap(vboP[0].tx, vboP[1].tx);
-                swap(vboP[2].tx, vboP[3].tx);
-            }
-            if (imageOptions.mirror.y)
-            {
-                swap(vboP[0].ty, vboP[2].ty);
-                swap(vboP[1].ty, vboP[3].ty);
-            }
-            auto vbo = VBO::create(4, VBOType::Pos2_F32_UV_U16);
-            vbo->copy(vboData);
-
-            auto vao = VAO::create(vbo->getType(), vbo->getID());
-            vao->bind();
-            vao->draw(GL_TRIANGLE_STRIP, 0, 4);
-        }
-
-        void Render::drawVideo(
-            const std::vector<timeline::VideoData>& videoData,
-            const std::vector<timeline::ImageOptions>& imageOptions,
-            const timeline::CompareOptions& compareOptions)
-        {
-            TLRENDER_P();
-            switch (compareOptions.mode)
-            {
-            case timeline::CompareMode::A:
-                if (!videoData.empty())
-                {
-                    _drawVideo(
-                        videoData[0],
-                        math::BBox2i(0, 0, p.size.w, p.size.h),
-                        !imageOptions.empty() ? imageOptions[0] : timeline::ImageOptions());
-                }
-                break;
-            case timeline::CompareMode::B:
-                if (videoData.size() > 1)
-                {
-                    _drawVideo(
-                        videoData[1],
-                        math::BBox2i(0, 0, p.size.w, p.size.h),
-                        imageOptions.size() > 1 ? imageOptions[1] : timeline::ImageOptions());
-                }
-                break;
-            case timeline::CompareMode::Wipe:
-            {
-                const float radius = std::max(p.size.w, p.size.h) * 2.5F;
-                const float x = p.size.w * compareOptions.wipeCenter.x;
-                const float y = p.size.h * compareOptions.wipeCenter.y;
-                const float rotation = compareOptions.wipeRotation;
-                math::Vector2f pts[4];
-                for (size_t i = 0; i < 4; ++i)
-                {
-                    float rad = math::deg2rad(rotation + 90.F * i + 90.F);
-                    pts[i].x = cos(rad) * radius + x;
-                    pts[i].y = sin(rad) * radius + y;
-                }
-
-                glEnable(GL_STENCIL_TEST);
-
-                glClear(GL_STENCIL_BUFFER_BIT);
-                glStencilFunc(GL_ALWAYS, 1, 0xFF);
-                glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-                glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-                p.shader->setUniform("drawMode", static_cast<int>(DrawMode::Solid));
-                p.shader->setUniform("color", imaging::Color4f(1.F, 0.F, 0.F));
-                {
-                    std::vector<uint8_t> vboData;
-                    vboData.resize(3 * getByteCount(VBOType::Pos2_F32_UV_U16));
-                    VBOVertex* vboP = reinterpret_cast<VBOVertex*>(vboData.data());
-                    vboP[0].vx = pts[0].x;
-                    vboP[0].vy = pts[0].y;
-                    vboP[0].tx = 0;
-                    vboP[0].ty = 0;
-                    vboP[1].vx = pts[1].x;
-                    vboP[1].vy = pts[1].y;
-                    vboP[1].tx = 0;
-                    vboP[1].ty = 0;
-                    vboP[2].vx = pts[2].x;
-                    vboP[2].vy = pts[2].y;
-                    vboP[2].tx = 0;
-                    vboP[2].ty = 0;
-                    auto vbo = VBO::create(4, VBOType::Pos2_F32_UV_U16);
-                    vbo->copy(vboData);
-
-                    auto vao = VAO::create(vbo->getType(), vbo->getID());
-                    vao->bind();
-                    vao->draw(GL_TRIANGLE_STRIP, 0, 3);
-                }
-                glStencilFunc(GL_EQUAL, 1, 0xFF);
-                glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-                if (!videoData.empty())
-                {
-                    _drawVideo(
-                        videoData[0],
-                        math::BBox2i(0, 0, p.size.w, p.size.h),
-                        !imageOptions.empty() ? imageOptions[0] : timeline::ImageOptions());
-                }
-
-                glClear(GL_STENCIL_BUFFER_BIT);
-                glStencilFunc(GL_ALWAYS, 1, 0xFF);
-                glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-                p.shader->setUniform("drawMode", static_cast<int>(DrawMode::Solid));
-                p.shader->setUniform("color", imaging::Color4f(0.F, 1.F, 0.F));
-                {
-                    std::vector<uint8_t> vboData;
-                    vboData.resize(3 * getByteCount(VBOType::Pos2_F32_UV_U16));
-                    VBOVertex* vboP = reinterpret_cast<VBOVertex*>(vboData.data());
-                    vboP[0].vx = pts[2].x;
-                    vboP[0].vy = pts[2].y;
-                    vboP[0].tx = 0;
-                    vboP[0].ty = 0;
-                    vboP[1].vx = pts[3].x;
-                    vboP[1].vy = pts[3].y;
-                    vboP[1].tx = 0;
-                    vboP[1].ty = 0;
-                    vboP[2].vx = pts[0].x;
-                    vboP[2].vy = pts[0].y;
-                    vboP[2].tx = 0;
-                    vboP[2].ty = 0;
-                    auto vbo = VBO::create(4, VBOType::Pos2_F32_UV_U16);
-                    vbo->copy(vboData);
-
-                    auto vao = VAO::create(vbo->getType(), vbo->getID());
-                    vao->bind();
-                    vao->draw(GL_TRIANGLE_STRIP, 0, 3);
-                }
-                glStencilFunc(GL_EQUAL, 1, 0xFF);
-                glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-                if (videoData.size() > 1)
-                {
-                    _drawVideo(
-                        videoData[1],
-                        math::BBox2i(0, 0, p.size.w, p.size.h),
-                        imageOptions.size() > 1 ? imageOptions[1] : timeline::ImageOptions());
-                }
-
-                glDisable(GL_STENCIL_TEST);
-                break;
-            }
-            case timeline::CompareMode::Overlay:
-                if (videoData.size() > 1)
-                {
-                    _drawVideo(
-                        videoData[1],
-                        math::BBox2i(0, 0, p.size.w, p.size.h),
-                        imageOptions.size() > 1 ? imageOptions[1] : timeline::ImageOptions());
-                }
-                if (!videoData.empty())
-                {
-                    if (!p.overlayBuffer ||
-                        (p.overlayBuffer && p.overlayBuffer->getSize() != p.size))
-                    {
-                        OffscreenBufferOptions options;
-                        options.colorType = imaging::PixelType::RGBA_F32;
-                        p.overlayBuffer = OffscreenBuffer::create(p.size, options);
-                    }
-
-                    {
-                        auto binding = OffscreenBufferBinding(p.overlayBuffer);
-                        glClearColor(0.F, 0.F, 0.F, 0.F);
-                        glClear(GL_COLOR_BUFFER_BIT);
-                        _drawVideo(
-                            videoData[0],
-                            math::BBox2i(0, 0, p.size.w, p.size.h),
-                            !imageOptions.empty() ? imageOptions[0] : timeline::ImageOptions());
-                    }
-
-                    p.shader->setUniform("drawMode", static_cast<int>(DrawMode::Image));
-                    p.shader->setUniform("color", imaging::Color4f(1.F, 1.F, 1.F, compareOptions.overlay));
-                    p.shader->setUniform("pixelType", static_cast<int>(imaging::PixelType::RGBA_F32));
-                    p.shader->setUniform("textureSampler0", 0);
-
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
-                    glBindTexture(GL_TEXTURE_2D, p.overlayBuffer->getColorID());
-
-                    std::vector<uint8_t> vboData;
-                    vboData.resize(4 * getByteCount(VBOType::Pos2_F32_UV_U16));
-                    VBOVertex* vboP = reinterpret_cast<VBOVertex*>(vboData.data());
-                    vboP[0].vx = 0.F;
-                    vboP[0].vy = 0.F;
-                    vboP[0].tx = 0;
-                    vboP[0].ty = 65535;
-                    vboP[1].vx = p.size.w;
-                    vboP[1].vy = 0.F;
-                    vboP[1].tx = 65535;
-                    vboP[1].ty = 65535;
-                    vboP[2].vx = 0.F;
-                    vboP[2].vy = p.size.h;
-                    vboP[2].tx = 0;
-                    vboP[2].ty = 0;
-                    vboP[3].vx = p.size.w;
-                    vboP[3].vy = p.size.h;
-                    vboP[3].tx = 65535;
-                    vboP[3].ty = 0;
-                    auto vbo = VBO::create(4, VBOType::Pos2_F32_UV_U16);
-                    vbo->copy(vboData);
-
-                    auto vao = VAO::create(vbo->getType(), vbo->getID());
-                    vao->bind();
-                    vao->draw(GL_TRIANGLE_STRIP, 0, 4);
-                }
-                break;
-            case timeline::CompareMode::Horizontal:
-            case timeline::CompareMode::Vertical:
-            case timeline::CompareMode::Tile:
-            {
-                std::vector<imaging::Size> sizes;
-                for (const auto& v : videoData)
-                {
-                    if (!v.layers.empty())
-                    {
-                        sizes.push_back(v.layers[0].image->getSize());
-                    }
-                }
-                const auto tiles = timeline::tiles(compareOptions.mode, sizes);
-                for (size_t i = 0; i < tiles.size() && i < videoData.size(); ++i)
-                {
-                    _drawVideo(
-                        videoData[i],
-                        tiles[i],
-                        i < imageOptions.size() ? imageOptions[i] : timeline::ImageOptions());
-                }
-                break;
-            }
-            default: break;
-            }
-        }
-
-        void Render::drawText(
-            const std::vector<std::shared_ptr<imaging::Glyph> >& glyphs,
-            const math::Vector2i& pos,
-            const imaging::Color4f& color)
-        {
-            TLRENDER_P();
-
-            p.shader->setUniform("drawMode", static_cast<int>(DrawMode::TextureAlpha));
-            p.shader->setUniform("color", color);
-            p.shader->setUniform("pixelType", static_cast<int>(imaging::PixelType::L_U8));
-            p.shader->setUniform("textureSampler0", 0);
-
-            glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
-
-            int x = 0;
-            int32_t rsbDeltaPrev = 0;
-            uint8_t textureIndex = 0;
-            for (const auto& glyph : glyphs)
-            {
-                if (glyph)
-                {
-                    if (rsbDeltaPrev - glyph->lsbDelta > 32)
-                    {
-                        x -= 1;
-                    }
-                    else if (rsbDeltaPrev - glyph->lsbDelta < -31)
-                    {
-                        x += 1;
-                    }
-                    rsbDeltaPrev = glyph->rsbDelta;
-
-                    if (!glyph->data.empty())
-                    {
-                        std::shared_ptr<Texture> texture;
-                        if (!p.glyphTextureCache.get(glyph->glyphInfo, texture))
-                        {
-                            const imaging::Info info(glyph->width, glyph->height, imaging::PixelType::L_U8);
-                            texture = Texture::create(info);
-                            texture->copy(glyph->data.data(), info);
-                            p.glyphTextureCache.add(glyph->glyphInfo, texture);
-                        }
-                        glBindTexture(GL_TEXTURE_2D, texture->getID());
-
-                        const math::Vector2i& offset = glyph->offset;
-                        const math::BBox2i bbox(pos.x + x + offset.x, pos.y - offset.y, glyph->width, glyph->height);
-
-                        std::vector<uint8_t> vboData;
-                        vboData.resize(4 * getByteCount(VBOType::Pos2_F32_UV_U16));
-                        VBOVertex* vboP = reinterpret_cast<VBOVertex*>(vboData.data());
-                        vboP[0].vx = bbox.min.x;
-                        vboP[0].vy = bbox.min.y;
-                        vboP[0].tx = 0;
-                        vboP[0].ty = 0;
-                        vboP[1].vx = bbox.max.x + 1;
-                        vboP[1].vy = bbox.min.y;
-                        vboP[1].tx = 65535;
-                        vboP[1].ty = 0;
-                        vboP[2].vx = bbox.min.x;
-                        vboP[2].vy = bbox.max.y + 1;
-                        vboP[2].tx = 0;
-                        vboP[2].ty = 65535;
-                        vboP[3].vx = bbox.max.x + 1;
-                        vboP[3].vy = bbox.max.y + 1;
-                        vboP[3].tx = 65535;
-                        vboP[3].ty = 65535;
-                        auto vbo = VBO::create(4, VBOType::Pos2_F32_UV_U16);
-                        vbo->copy(vboData);
-
-                        auto vao = VAO::create(vbo->getType(), vbo->getID());
-                        vao->bind();
-                        vao->draw(GL_TRIANGLE_STRIP, 0, 4);
-                    }
-
-                    x += glyph->advance;
-                }
-            }
-        }
-
         void Render::_delColorConfig()
         {
             TLRENDER_P();
@@ -1270,104 +696,6 @@ namespace tl
             p.ocioVP.reset();
             p.ocioTransform.reset();
             p.ocioConfig.reset();
-        }
-
-        void Render::_drawVideo(
-            const timeline::VideoData& videoData,
-            const math::BBox2i& bbox,
-            const timeline::ImageOptions& imageOptions)
-        {
-            TLRENDER_P();
-            for (const auto& layer : videoData.layers)
-            {
-                switch (layer.transition)
-                {
-                case timeline::Transition::Dissolve:
-                {
-                    if (!p.dissolveBuffer ||
-                        (p.dissolveBuffer && p.dissolveBuffer->getSize() != p.size))
-                    {
-                        OffscreenBufferOptions options;
-                        options.colorType = imaging::PixelType::RGBA_F32;
-                        p.dissolveBuffer = OffscreenBuffer::create(p.size, options);
-                    }
-
-                    {
-                        auto binding = OffscreenBufferBinding(p.dissolveBuffer);
-                        glClearColor(0.F, 0.F, 0.F, 0.F);
-                        glClear(GL_COLOR_BUFFER_BIT);
-                        glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ONE);
-                        timeline::ImageOptions imageOptionsTmp;
-                        imageOptionsTmp.yuvRange = imageOptions.yuvRange;
-                        if (layer.image)
-                        {
-                            const float t = 1.F - layer.transitionValue;
-                            drawImage(
-                                layer.image,
-                                imaging::getBBox(layer.image->getAspect(), bbox),
-                                imaging::Color4f(t, t, t, t),
-                                imageOptionsTmp);
-                        }
-                        if (layer.imageB)
-                        {
-                            const float tB = layer.transitionValue;
-                            drawImage(
-                                layer.imageB,
-                                imaging::getBBox(layer.imageB->getAspect(), bbox),
-                                imaging::Color4f(tB, tB, tB, tB),
-                                imageOptionsTmp);
-                        }
-                        glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                    }
-
-                    p.shader->setUniform("drawMode", static_cast<int>(DrawMode::Image));
-                    p.shader->setUniform("color", imaging::Color4f(1.F, 1.F, 1.F));
-                    p.shader->setUniform("pixelType", static_cast<int>(imaging::PixelType::RGBA_F32));
-                    p.shader->setUniform("textureSampler0", 0);
-
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
-                    glBindTexture(GL_TEXTURE_2D, p.dissolveBuffer->getColorID());
-
-                    std::vector<uint8_t> vboData;
-                    vboData.resize(4 * getByteCount(VBOType::Pos2_F32_UV_U16));
-                    VBOVertex* vboP = reinterpret_cast<VBOVertex*>(vboData.data());
-                    vboP[0].vx = 0.F;
-                    vboP[0].vy = 0.F;
-                    vboP[0].tx = 0;
-                    vboP[0].ty = 65535;
-                    vboP[1].vx = p.size.w;
-                    vboP[1].vy = 0.F;
-                    vboP[1].tx = 65535;
-                    vboP[1].ty = 65535;
-                    vboP[2].vx = 0.F;
-                    vboP[2].vy = p.size.h;
-                    vboP[2].tx = 0;
-                    vboP[2].ty = 0;
-                    vboP[3].vx = p.size.w;
-                    vboP[3].vy = p.size.h;
-                    vboP[3].tx = 65535;
-                    vboP[3].ty = 0;
-                    auto vbo = VBO::create(4, VBOType::Pos2_F32_UV_U16);
-                    vbo->copy(vboData);
-
-                    auto vao = VAO::create(vbo->getType(), vbo->getID());
-                    vao->bind();
-                    vao->draw(GL_TRIANGLE_STRIP, 0, 4);
-
-                    break;
-                }
-                default:
-                    if (layer.image)
-                    {
-                        drawImage(
-                            layer.image,
-                            imaging::getBBox(layer.image->getAspect(), bbox),
-                            imaging::Color4f(1.F, 1.F, 1.F),
-                            imageOptions);
-                    }
-                    break;
-                }
-            }
         }
     }
 }
