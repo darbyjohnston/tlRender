@@ -519,6 +519,7 @@ namespace tl
             TLRENDER_P();
 
             const int count = p.timelinePlayers.size();
+            p.actions["Speed/Default"]->setEnabled(count > 0);
             p.actions["Stop"]->setEnabled(count > 0);
             p.actions["Forward"]->setEnabled(count > 0);
             p.actions["Reverse"]->setEnabled(count > 0);
