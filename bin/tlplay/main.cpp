@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include <tlAppPlay/App.h>
+#include <tlPlayApp/App.h>
 
 #include <tlQtWidget/Util.h>
 
