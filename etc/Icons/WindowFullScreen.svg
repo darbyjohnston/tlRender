@@ -66,35 +66,24 @@
        inkscape:export-ydpi="96">
       <path
          style="fill:#f0f0f0;stroke-width:0.529168"
-         d="m 1.3229166,294.08956 v 1.32292 h 2.6458333 v -1.32292 z"
-         id="path1296" />
-      <rect
-         style="fill:#f0f0f0;stroke-width:0.529167"
+         d="m 1.3229166,293.82498 v 1.5875 h 2.6458333 v -1.5875 z"
+         id="path1394"
+         sodipodi:nodetypes="ccccc" />
+      <path
          id="rect6751"
-         width="2.6458333"
-         height="0.52916664"
-         x="1.3229165"
-         y="293.29581" />
+         style="fill:#f0f0f0;stroke-width:0.529167"
+         d="m 1.3229165,293.29581 h 2.6458333 l 1e-7,0.26458 H 1.3229166 Z"
+         sodipodi:nodetypes="ccccc" />
       <path
-         style="fill:#f0f0f0;fill-opacity:1;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         d="M 2.1166666,292.50206 H 3.1749999 L 2.6458333,291.70831 Z"
-         id="path7068"
-         sodipodi:nodetypes="cccc" />
+         id="path1086"
+         style="fill:#f0f0f0;stroke-width:0.529167"
+         d="m 5.0270799,293.29581 v 2.11667 h -0.26458 v -2.11667 z"
+         sodipodi:nodetypes="ccccc" />
       <path
-         style="fill:#f0f0f0;fill-opacity:1;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         d="m 2.1166666,296.20623 h 1.0583333 l -0.5291666,0.79375 z"
-         id="path7321"
-         sodipodi:nodetypes="cccc" />
-      <path
-         style="fill:#f0f0f0;fill-opacity:1;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         d="m 0.79374998,294.88331 v -1.05833 L -1.75e-8,294.35414 Z"
-         id="path7323"
-         sodipodi:nodetypes="cccc" />
-      <path
-         style="fill:#f0f0f0;fill-opacity:1;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         d="m 4.4979165,294.88331 v -1.05833 l 0.7937501,0.52916 z"
-         id="path7325"
-         sodipodi:nodetypes="cccc" />
+         id="path1088"
+         style="fill:#f0f0f0;stroke-width:0.529167"
+         d="m 0.52916332,293.29581 v 2.11667 H 0.26458333 v -2.11667 z"
+         sodipodi:nodetypes="ccccc" />
     </g>
   </g>
 </svg>

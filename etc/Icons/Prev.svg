@@ -8,7 +8,7 @@
    version="1.1"
    id="svg8"
    inkscape:version="1.1.2 (0a00cf5339, 2022-02-04, custom)"
-   sodipodi:docname="FilePrev.svg"
+   sodipodi:docname="Prev.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -65,9 +65,10 @@
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96">
       <path
-         id="rect831"
-         style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#f0f0f0;fill-opacity:1;stroke:none;stroke-width:0.748355;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000;stop-opacity:1"
-         d="m 2.5548828,292.85759 0.3741373,0.37414 -0.8578287,0.85783 h 2.1621419 v 0.52917 H 2.0711914 l 0.8578287,0.85783 -0.3741373,0.37413 -1.4965495,-1.49655 z" />
+         id="rect1997"
+         style="fill:#f0f0f0;stroke-width:0.79375"
+         d="m 2.5548828,292.59301 0.1870686,0.18707 -1.3094808,1.30948 h 2.8008627 v 0.26458 H 1.4324706 l 1.3094808,1.30948 -0.1870686,0.18707 -1.4965495,-1.49655 v -0.26458 z"
+         sodipodi:nodetypes="ccccccccccc" />
     </g>
   </g>
 </svg>

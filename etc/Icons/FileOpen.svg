@@ -65,15 +65,15 @@
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96">
       <path
-         id="rect831"
-         style="opacity:1;fill:#f0f0f0;fill-opacity:1;stroke:none;stroke-width:0.748355;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         d="M 1.5875282,294.6187 H 1.058418 l -2.82e-5,0.79378 -0.7937783,3e-5 1e-7,0.52911 0.7937783,-3e-5 2.83e-5,0.79378 h 0.52911 l -2.83e-5,-0.79378 0.7937783,3e-5 10e-8,-0.52911 -0.7937783,-3e-5 z"
-         sodipodi:nodetypes="ccccccccccccc" />
-      <path
          style="fill:#f0f0f0;fill-opacity:1;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
          d="m 2.9104166,291.97289 v 3.175 h 2.1166666 v -2.38125 l -0.7937499,-0.79375 z"
          id="path1088"
          sodipodi:nodetypes="cccccc" />
+      <path
+         id="rect831"
+         style="fill:#f0f0f0;fill-opacity:1;stroke:none;stroke-width:0.748355;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 1.5875533,294.35413 -0.2645979,2e-5 -3.88e-5,1.05833 H 0.26462053 l 1.453e-5,0.26457 1.05829604,-1e-5 -2.89e-5,1.05836 0.2645978,-1e-5 2.19e-5,-1.05838 1.0583491,5e-5 -1.45e-5,-0.26457 -1.0583421,-3e-5 z"
+         sodipodi:nodetypes="ccccccccccccc" />
     </g>
   </g>
 </svg>

@@ -7,7 +7,7 @@
    viewBox="0 0 5.2916665 5.2916666"
    version="1.1"
    id="svg8"
-   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04, custom)"
    sodipodi:docname="Reset.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -66,9 +66,9 @@
        inkscape:export-ydpi="96">
       <path
          id="rect831"
-         style="opacity:1;fill:#f0f0f0;fill-opacity:1;stroke:none;stroke-width:2.82843;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         d="M 5.7578125,4.34375 4.34375,5.7578125 8.5859375,10 4.34375,14.242188 5.7578125,15.65625 10,11.414062 14.242188,15.65625 15.65625,14.242188 11.414062,10 15.65625,5.7578125 14.242188,4.34375 10,8.5859375 Z"
-         transform="matrix(0.26458333,0,0,0.26458333,0,291.70831)" />
+         style="fill:#f0f0f0;fill-opacity:1;stroke:none;stroke-width:0.748355;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 1.6557098,295.42186 0.1869324,0.18721 0.9355635,-0.93532 0.9354798,0.93544 0.1869273,-0.18721 -0.9354798,-0.93544 0.9354845,-0.93545 -0.1869324,-0.18721 -0.9354845,0.93544 -0.9355584,-0.93532 -0.1869344,0.18721 0.9355654,0.93532 z"
+         sodipodi:nodetypes="ccccccccccccc" />
     </g>
   </g>
 </svg>

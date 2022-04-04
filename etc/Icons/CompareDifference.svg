@@ -67,17 +67,17 @@
       <path
          id="rect1020"
          style="fill:#f0f0f0;stroke-width:0.529167"
-         d="m 2.9104165,294.61873 h 2.1166667 v 2.11667 H 2.9104165 Z"
+         d="m 2.9104166,294.61873 h 2.1166667 v 2.11667 H 2.9104166 Z"
          sodipodi:nodetypes="ccccc" />
       <path
          id="path1296"
          style="fill:#f0f0f0;stroke-width:0.529167"
-         d="m 0.26458319,291.97289 v 2.11667 H 2.3812499 v -2.11667 z m 0.52916672,0.52917 H 1.8520833 v 1.05834 H 0.79374991 Z"
+         d="m 0.26458317,291.97289 v 2.11667 H 2.3812499 v -2.11667 z m 0.26458351,0.26459 H 2.1166666 v 1.58749 l -1.58749992,10e-6 z"
          sodipodi:nodetypes="cccccccccc" />
       <path
          id="path1064"
          style="fill:#f0f0f0;stroke-width:0.529165"
-         d="M 0.52916665,295.41247 H 2.1166666 v 0.26459 H 0.52916665 Z"
+         d="M 0.52916672,295.41247 H 2.1166666 v 0.26459 H 0.52916672 Z"
          sodipodi:nodetypes="ccccc" />
     </g>
   </g>
