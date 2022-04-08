@@ -125,9 +125,16 @@ namespace tl
         struct ImageOptions
         {
             YUVRange        yuvRange = YUVRange::FromFile;
-            Channels        channels = Channels::Color;
-            //! \todo Implement alpha blending options.
             AlphaBlend      alphaBlend = AlphaBlend::Straight;
+
+            bool operator == (const ImageOptions&) const;
+            bool operator != (const ImageOptions&) const;
+        };
+
+        //! Display options.
+        struct DisplayOptions
+        {
+            Channels        channels = Channels::Color;
             imaging::Mirror mirror;
             bool            colorEnabled = false;
             Color           color;
@@ -138,8 +145,8 @@ namespace tl
             bool            softClipEnabled = false;
             float           softClip = 0.F;
 
-            bool operator == (const ImageOptions&) const;
-            bool operator != (const ImageOptions&) const;
+            bool operator == (const DisplayOptions&) const;
+            bool operator != (const DisplayOptions&) const;
         };
 
         //! Comparison mode.
@@ -207,6 +214,12 @@ namespace tl
                 const math::BBox2i&,
                 const imaging::Color4f&) = 0;
 
+            //! Draw text.
+            virtual void drawText(
+                const std::vector<std::shared_ptr<imaging::Glyph> >& glyphs,
+                const math::Vector2i& position,
+                const imaging::Color4f&) = 0;
+
             //! Draw an image.
             virtual void drawImage(
                 const std::shared_ptr<imaging::Image>&,
@@ -217,14 +230,9 @@ namespace tl
             //! Draw timeline video data.
             virtual void drawVideo(
                 const std::vector<timeline::VideoData>&,
-                const std::vector<ImageOptions>& = {},
+                const std::vector<ImageOptions> & = {},
+                const std::vector<DisplayOptions> & = {},
                 const CompareOptions& = CompareOptions()) = 0;
-
-            //! Draw text.
-            virtual void drawText(
-                const std::vector<std::shared_ptr<imaging::Glyph> >& glyphs,
-                const math::Vector2i& position,
-                const imaging::Color4f&) = 0;
 
         protected:
             std::weak_ptr<system::Context> _context;

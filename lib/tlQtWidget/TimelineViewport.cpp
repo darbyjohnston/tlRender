@@ -27,6 +27,7 @@ namespace tl
             std::weak_ptr<system::Context> context;
             imaging::ColorConfig colorConfig;
             std::vector<timeline::ImageOptions> imageOptions;
+            std::vector<timeline::DisplayOptions> displayOptions;
             timeline::CompareOptions compareOptions;
             std::vector<qt::TimelinePlayer*> timelinePlayers;
             math::Vector2i viewPos;
@@ -80,6 +81,15 @@ namespace tl
             if (options == p.imageOptions)
                 return;
             p.imageOptions = options;
+            update();
+        }
+
+        void TimelineViewport::setDisplayOptions(const std::vector<timeline::DisplayOptions>& options)
+        {
+            TLRENDER_P();
+            if (options == p.displayOptions)
+                return;
+            p.displayOptions = options;
             update();
         }
 
@@ -204,14 +214,10 @@ namespace tl
                 const std::string vertexSource =
                     "#version 410\n"
                     "\n"
-                    "// Inputs\n"
                     "in vec3 vPos;\n"
                     "in vec2 vTexture;\n"
-                    "\n"
-                    "// Outputs\n"
                     "out vec2 fTexture;\n"
                     "\n"
-                    "// Uniforms\n"
                     "uniform struct Transform\n"
                     "{\n"
                     "    mat4 mvp;\n"
@@ -225,13 +231,9 @@ namespace tl
                 const std::string fragmentSource =
                     "#version 410\n"
                     "\n"
-                    "// Inputs\n"
                     "in vec2 fTexture;\n"
-                    "\n"
-                    "// Outputs\n"
                     "out vec4 fColor;\n"
                     "\n"
-                    "// Uniforms\n"
                     "uniform sampler2D textureSampler;\n"
                     "\n"
                     "void main()\n"
@@ -291,7 +293,7 @@ namespace tl
                 {
                     gl::OffscreenBufferBinding binding(p.buffer);
                     p.render->begin(renderSize);
-                    p.render->drawVideo(p.videoData, p.imageOptions, p.compareOptions);
+                    p.render->drawVideo(p.videoData, p.imageOptions, p.displayOptions, p.compareOptions);
                     p.render->end();
                 }
             }

@@ -39,6 +39,9 @@ namespace tl
             //! Set the image options.
             void setImageOptions(const timeline::ImageOptions&);
 
+            //! Set the display options.
+            void setDisplayOptions(const timeline::DisplayOptions&);
+
             //! Set the timeline players.
             void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
 

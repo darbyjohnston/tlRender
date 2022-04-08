@@ -723,7 +723,7 @@ namespace tl
 
         struct ColorTool::Private
         {
-            timeline::ImageOptions imageOptions;
+            timeline::DisplayOptions displayOptions;
 
             ConfigWidget* configWidget = nullptr;
             ColorWidget* colorWidget = nullptr;
@@ -758,18 +758,18 @@ namespace tl
                 &ColorWidget::colorEnabledChanged,
                 [this](bool value)
                 {
-                    timeline::ImageOptions imageOptions = _p->imageOptions;
-                    imageOptions.colorEnabled = value;
-                    Q_EMIT imageOptionsChanged(imageOptions);
+                    timeline::DisplayOptions displayOptions = _p->displayOptions;
+                    displayOptions.colorEnabled = value;
+                    Q_EMIT displayOptionsChanged(displayOptions);
                 });
             connect(
                 p.colorWidget,
                 &ColorWidget::colorChanged,
                 [this](const timeline::Color& value)
                 {
-                    timeline::ImageOptions imageOptions = _p->imageOptions;
-                    imageOptions.color = value;
-                    Q_EMIT imageOptionsChanged(imageOptions);
+                    timeline::DisplayOptions displayOptions = _p->displayOptions;
+                    displayOptions.color = value;
+                    Q_EMIT displayOptionsChanged(displayOptions);
                 });
 
             connect(
@@ -777,18 +777,18 @@ namespace tl
                 &LevelsWidget::levelsEnabledChanged,
                 [this](bool value)
                 {
-                    timeline::ImageOptions imageOptions = _p->imageOptions;
-                    imageOptions.levelsEnabled = value;
-                    Q_EMIT imageOptionsChanged(imageOptions);
+                    timeline::DisplayOptions displayOptions = _p->displayOptions;
+                    displayOptions.levelsEnabled = value;
+                    Q_EMIT displayOptionsChanged(displayOptions);
                 });
             connect(
                 p.levelsWidget,
                 &LevelsWidget::levelsChanged,
                 [this](const timeline::Levels& value)
                 {
-                    timeline::ImageOptions imageOptions = _p->imageOptions;
-                    imageOptions.levels = value;
-                    Q_EMIT imageOptionsChanged(imageOptions);
+                    timeline::DisplayOptions displayOptions = _p->displayOptions;
+                    displayOptions.levels = value;
+                    Q_EMIT displayOptionsChanged(displayOptions);
                 });
 
             connect(
@@ -796,18 +796,18 @@ namespace tl
                 &ExposureWidget::exposureEnabledChanged,
                 [this](bool value)
                 {
-                    timeline::ImageOptions imageOptions = _p->imageOptions;
-                    imageOptions.exposureEnabled = value;
-                    Q_EMIT imageOptionsChanged(imageOptions);
+                    timeline::DisplayOptions displayOptions = _p->displayOptions;
+                    displayOptions.exposureEnabled = value;
+                    Q_EMIT displayOptionsChanged(displayOptions);
                 });
             connect(
                 p.exposureWidget,
                 &ExposureWidget::exposureChanged,
                 [this](const timeline::Exposure& value)
                 {
-                    timeline::ImageOptions imageOptions = _p->imageOptions;
-                    imageOptions.exposure = value;
-                    Q_EMIT imageOptionsChanged(imageOptions);
+                    timeline::DisplayOptions displayOptions = _p->displayOptions;
+                    displayOptions.exposure = value;
+                    Q_EMIT displayOptionsChanged(displayOptions);
                 });
 
             connect(
@@ -815,30 +815,30 @@ namespace tl
                 &SoftClipWidget::softClipEnabledChanged,
                 [this](bool value)
                 {
-                    timeline::ImageOptions imageOptions = _p->imageOptions;
-                    imageOptions.softClipEnabled = value;
-                    Q_EMIT imageOptionsChanged(imageOptions);
+                    timeline::DisplayOptions displayOptions = _p->displayOptions;
+                    displayOptions.softClipEnabled = value;
+                    Q_EMIT displayOptionsChanged(displayOptions);
                 });
             connect(
                 p.softClipWidget,
                 &SoftClipWidget::softClipChanged,
                 [this](float value)
                 {
-                    timeline::ImageOptions imageOptions = _p->imageOptions;
-                    imageOptions.softClip = value;
-                    Q_EMIT imageOptionsChanged(imageOptions);
+                    timeline::DisplayOptions displayOptions = _p->displayOptions;
+                    displayOptions.softClip = value;
+                    Q_EMIT displayOptionsChanged(displayOptions);
                 });
         }
 
         ColorTool::~ColorTool()
         {}
 
-        void ColorTool::setImageOptions(const timeline::ImageOptions& imageOptions)
+        void ColorTool::setDisplayOptions(const timeline::DisplayOptions& displayOptions)
         {
             TLRENDER_P();
-            if (imageOptions == p.imageOptions)
+            if (displayOptions == p.displayOptions)
                 return;
-            p.imageOptions = imageOptions;
+            p.displayOptions = displayOptions;
             _widgetUpdate();
         }
 
@@ -847,23 +847,23 @@ namespace tl
             TLRENDER_P();
             {
                 QSignalBlocker blocker(p.colorWidget);
-                p.colorWidget->setColorEnabled(p.imageOptions.colorEnabled);
-                p.colorWidget->setColor(p.imageOptions.color);
+                p.colorWidget->setColorEnabled(p.displayOptions.colorEnabled);
+                p.colorWidget->setColor(p.displayOptions.color);
             }
             {
                 QSignalBlocker blocker(p.levelsWidget);
-                p.levelsWidget->setLevelsEnabled(p.imageOptions.levelsEnabled);
-                p.levelsWidget->setLevels(p.imageOptions.levels);
+                p.levelsWidget->setLevelsEnabled(p.displayOptions.levelsEnabled);
+                p.levelsWidget->setLevels(p.displayOptions.levels);
             }
             {
                 QSignalBlocker blocker(p.exposureWidget);
-                p.exposureWidget->setExposureEnabled(p.imageOptions.exposureEnabled);
-                p.exposureWidget->setExposure(p.imageOptions.exposure);
+                p.exposureWidget->setExposureEnabled(p.displayOptions.exposureEnabled);
+                p.exposureWidget->setExposure(p.displayOptions.exposure);
             }
             {
                 QSignalBlocker blocker(p.softClipWidget);
-                p.softClipWidget->setSoftClipEnabled(p.imageOptions.softClipEnabled);
-                p.softClipWidget->setSoftClip(p.imageOptions.softClip);
+                p.softClipWidget->setSoftClipEnabled(p.displayOptions.softClipEnabled);
+                p.softClipWidget->setSoftClip(p.displayOptions.softClip);
             }
         }
     }

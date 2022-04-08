@@ -1,17 +1,22 @@
 set(HEADERS
+	Audio.h
+	AudioInline.h
 	IRender.h
 	IRenderInline.h
     Timeline.h
-    TimelineInline.h
     TimelinePlayer.h
     TimelinePlayerInline.h
 	Util.h
-	UtilInline.h)
+	UtilInline.h
+	Video.h
+	VideoInline.h)
 set(SOURCE
+	Audio.cpp
 	IRender.cpp
     Timeline.cpp
     TimelinePlayer.cpp
-	Util.cpp)
+	Util.cpp
+	Video.cpp)
 
 add_library(tlTimeline ${HEADERS} ${SOURCE})
 target_link_libraries(tlTimeline tlIO)

@@ -143,10 +143,10 @@ namespace tl
             ~ColorTool() override;
 
         public Q_SLOTS:
-            void setImageOptions(const tl::timeline::ImageOptions&);
+            void setDisplayOptions(const tl::timeline::DisplayOptions&);
 
         Q_SIGNALS:
-            void imageOptionsChanged(const tl::timeline::ImageOptions&);
+            void displayOptionsChanged(const tl::timeline::DisplayOptions&);
 
         private:
             void _widgetUpdate();

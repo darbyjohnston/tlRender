@@ -58,6 +58,9 @@ namespace tl
             //! Get the image options.
             const timeline::ImageOptions& imageOptions() const;
 
+            //! Get the display options.
+            const timeline::DisplayOptions& displayOptions() const;
+
         public Q_SLOTS:
             //! Open a file.
             void open(const QString&, const QString& = QString());
@@ -71,9 +74,15 @@ namespace tl
             //! Set the image options.
             void setImageOptions(const tl::timeline::ImageOptions&);
 
+            //! Set the display options.
+            void setDisplayOptions(const tl::timeline::DisplayOptions&);
+
         Q_SIGNALS:
             //! This signal is emitted when the image options are changed.
             void imageOptionsChanged(const tl::timeline::ImageOptions&);
+
+            //! This signal is emitted when the display options are changed.
+            void displayOptionsChanged(const tl::timeline::DisplayOptions&);
 
         private Q_SLOTS:
             void _activeCallback(const std::vector<std::shared_ptr<tl::play::FilesModelItem> >&);

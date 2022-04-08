@@ -22,6 +22,17 @@ namespace tl
 {
     namespace gl
     {
+        std::string colorFunctionName();
+        std::string colorFunctionNoOp();
+        std::string vertexSource();
+        std::string rectFragmentSource();
+        std::string textFragmentSource();
+        std::string textureFragmentSource();
+        std::string imageFragmentSource();
+        std::string displayFragmentSource();
+        std::string wipeFragmentSource();
+        std::string differenceFragmentSource();
+
         struct VBOVertex
         {
             float    vx;
@@ -29,25 +40,25 @@ namespace tl
             uint16_t tx;
             uint16_t ty;
         };
-
-        enum class DrawMode
-        {
-            Solid,
-            TextureAlpha,
-            Image
-        };
+        
+        void copyTextures(
+            const std::shared_ptr<imaging::Image>&,
+            const std::vector<std::shared_ptr<Texture> >&,
+            size_t offset = 0);
 
         class TextureCache
         {
         public:
             void setSize(size_t);
 
-            std::vector<std::shared_ptr<Texture> > get(const imaging::Info&);
+            std::vector<std::shared_ptr<Texture> > get(const imaging::Info&, size_t offset = 0);
+
+            void add(const imaging::Info&, const std::vector<std::shared_ptr<Texture> >&);
 
         private:
             void _cacheUpdate();
 
-            size_t _size = 4;
+            size_t _size = 6;
             std::list<std::pair<imaging::Info, std::vector<std::shared_ptr<Texture> > > > _cache;
         };
 
@@ -79,12 +90,18 @@ namespace tl
 
             imaging::Size size;
 
-            std::shared_ptr<Shader> shader;
+            std::shared_ptr<Shader> rectShader;
+            std::shared_ptr<Shader> textShader;
+            std::shared_ptr<Shader> textureShader;
+            std::shared_ptr<Shader> imageShader;
+            std::shared_ptr<Shader> displayShader;
+            std::shared_ptr<Shader> wipeShader;
             std::shared_ptr<Shader> differenceShader;
 
+            std::shared_ptr<OffscreenBuffer> buffer;
+            std::shared_ptr<OffscreenBuffer> transitionBuffer;
             std::shared_ptr<OffscreenBuffer> overlayBuffer;
             std::array<std::shared_ptr<OffscreenBuffer>, 2> differenceBuffers;
-            std::shared_ptr<OffscreenBuffer> dissolveBuffer;
 
             TextureCache textureCache;
 

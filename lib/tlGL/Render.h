@@ -32,6 +32,10 @@ namespace tl
             void drawRect(
                 const math::BBox2i&,
                 const imaging::Color4f&) override;
+            void drawText(
+                const std::vector<std::shared_ptr<imaging::Glyph> >& glyphs,
+                const math::Vector2i& position,
+                const imaging::Color4f&) override;
             void drawImage(
                 const std::shared_ptr<imaging::Image>&,
                 const math::BBox2i&,
@@ -39,19 +43,17 @@ namespace tl
                 const timeline::ImageOptions& = timeline::ImageOptions()) override;
             void drawVideo(
                 const std::vector<timeline::VideoData>&,
-                const std::vector<timeline::ImageOptions>& = {},
+                const std::vector<timeline::ImageOptions> & = {},
+                const std::vector<timeline::DisplayOptions> & = {},
                 const timeline::CompareOptions& = timeline::CompareOptions()) override;
-            void drawText(
-                const std::vector<std::shared_ptr<imaging::Glyph> >& glyphs,
-                const math::Vector2i& position,
-                const imaging::Color4f&) override;
 
         private:
             void _delColorConfig();
             void _drawVideo(
                 const timeline::VideoData&,
                 const math::BBox2i&,
-                const timeline::ImageOptions&);
+                const timeline::ImageOptions&,
+                const timeline::DisplayOptions&);
 
             TLRENDER_PRIVATE();
         };

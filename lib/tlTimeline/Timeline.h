@@ -4,7 +4,8 @@
 
 #pragma once
 
-#include <tlIO/IO.h>
+#include <tlTimeline/Audio.h>
+#include <tlTimeline/Video.h>
 
 #include <tlCore/Context.h>
 
@@ -56,68 +57,6 @@ namespace tl
             bool operator == (const Options&) const;
             bool operator != (const Options&) const;
         };
-
-        //! Transitions.
-        enum class Transition
-        {
-            None,
-            Dissolve,
-
-            Count,
-            First = None
-        };
-        TLRENDER_ENUM(Transition);
-        TLRENDER_ENUM_SERIALIZE(Transition);
-
-        //! Convert to a transition.
-        Transition toTransition(const std::string&);
-
-        //! Video layer.
-        struct VideoLayer
-        {
-            std::shared_ptr<imaging::Image> image;
-            std::shared_ptr<imaging::Image> imageB;
-            Transition transition = Transition::None;
-            float transitionValue = 0.F;
-
-            bool operator == (const VideoLayer&) const;
-            bool operator != (const VideoLayer&) const;
-        };
-
-        //! Video data.
-        struct VideoData
-        {
-            otime::RationalTime time = time::invalidTime;
-            std::vector<VideoLayer> layers;
-
-            bool operator == (const VideoData&) const;
-            bool operator != (const VideoData&) const;
-        };
-
-        //! Compare the time values of video data.
-        bool isTimeEqual(const VideoData&, const VideoData&);
-
-        //! Audio layer.
-        struct AudioLayer
-        {
-            std::shared_ptr<audio::Audio> audio;
-
-            bool operator == (const AudioLayer&) const;
-            bool operator != (const AudioLayer&) const;
-        };
-
-        //! Audio data.
-        struct AudioData
-        {
-            int64_t seconds = -1;
-            std::vector<AudioLayer> layers;
-
-            bool operator == (const AudioData&) const;
-            bool operator != (const AudioData&) const;
-        };
-
-        //! Compare the time values of audio data.
-        bool isTimeEqual(const AudioData&, const AudioData&);
 
         //! Timeline.
         class Timeline : public std::enable_shared_from_this<Timeline>
@@ -209,5 +148,3 @@ namespace tl
         };
     }
 }
-
-#include <tlTimeline/TimelineInline.h>

@@ -55,8 +55,18 @@ namespace tl
         {
             return
                 yuvRange == other.yuvRange &&
+                alphaBlend == other.alphaBlend;
+        }
+
+        inline bool ImageOptions::operator != (const ImageOptions& other) const
+        {
+            return !(*this == other);
+        }
+
+        inline bool DisplayOptions::operator == (const DisplayOptions& other) const
+        {
+            return
                 channels == other.channels &&
-                alphaBlend == other.alphaBlend &&
                 mirror == other.mirror &&
                 colorEnabled == other.colorEnabled &&
                 color == other.color &&
@@ -68,7 +78,7 @@ namespace tl
                 softClip == other.softClip;
         }
 
-        inline bool ImageOptions::operator != (const ImageOptions& other) const
+        inline bool DisplayOptions::operator != (const DisplayOptions& other) const
         {
             return !(*this == other);
         }

@@ -12,6 +12,7 @@ set(SOURCE
     OffscreenBuffer.cpp
     Render.cpp
 	RenderPrims.cpp
+	RenderShaders.cpp
 	RenderVideo.cpp
     Shader.cpp
     Texture.cpp

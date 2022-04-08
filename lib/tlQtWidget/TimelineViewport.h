@@ -34,6 +34,9 @@ namespace tl
             //! Set the image options.
             void setImageOptions(const std::vector<timeline::ImageOptions>&);
 
+            //! Set the display options.
+            void setDisplayOptions(const std::vector<timeline::DisplayOptions>&);
+
             //! Set the comparison options.
             void setCompareOptions(const timeline::CompareOptions&);
 

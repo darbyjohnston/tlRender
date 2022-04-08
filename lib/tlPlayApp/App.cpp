@@ -63,6 +63,7 @@ namespace tl
             std::shared_ptr<observer::ListObserver<int> > layersObserver;
             std::shared_ptr<ColorModel> colorModel;
             timeline::ImageOptions imageOptions;
+            timeline::DisplayOptions displayOptions;
 
             std::vector<qt::TimelinePlayer*> timelinePlayers;
 
@@ -290,6 +291,11 @@ namespace tl
             return _p->imageOptions;
         }
 
+        const timeline::DisplayOptions& App::displayOptions() const
+        {
+            return _p->displayOptions;
+        }
+
         void App::open(const QString& fileName, const QString& audioFileName)
         {
             TLRENDER_P();
@@ -352,6 +358,15 @@ namespace tl
                 return;
             p.imageOptions = value;
             Q_EMIT imageOptionsChanged(p.imageOptions);
+        }
+
+        void App::setDisplayOptions(const timeline::DisplayOptions& value)
+        {
+            TLRENDER_P();
+            if (value == p.displayOptions)
+                return;
+            p.displayOptions = value;
+            Q_EMIT displayOptionsChanged(p.displayOptions);
         }
 
         void App::_activeCallback(const std::vector<std::shared_ptr<FilesModelItem> >& items)

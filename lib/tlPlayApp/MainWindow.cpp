@@ -70,6 +70,7 @@ namespace tl
             bool secondaryFloatOnTop = false;
             imaging::ColorConfig colorConfig;
             timeline::ImageOptions imageOptions;
+            timeline::DisplayOptions displayOptions;
             timeline::CompareOptions compareOptions;
 
             FileActions* fileActions = nullptr;
@@ -104,6 +105,7 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<int> > aIndexObserver;
             std::shared_ptr<observer::ListObserver<int> > bIndexesObserver;
             std::shared_ptr<observer::ListObserver<timeline::ImageOptions> > imageOptionsObserver;
+            std::shared_ptr<observer::ListObserver<timeline::DisplayOptions> > displayOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
             std::shared_ptr<observer::ValueObserver<imaging::ColorConfig> > colorConfigObserver;
             std::shared_ptr<observer::ValueObserver<log::Item> > logObserver;
@@ -120,6 +122,7 @@ namespace tl
 
             p.app = app;
             p.imageOptions = app->imageOptions();
+            p.displayOptions = app->displayOptions();
 
             setFocusPolicy(Qt::ClickFocus);
             setAcceptDrops(true);
@@ -398,6 +401,14 @@ namespace tl
                     _p->imageOptions = value;
                     _widgetUpdate();
                 });
+            connect(
+                app,
+                &App::displayOptionsChanged,
+                [this](const timeline::DisplayOptions& value)
+                {
+                    _p->displayOptions = value;
+                    _widgetUpdate();
+                });
 
             connect(
                 p.windowActions,
@@ -546,10 +557,10 @@ namespace tl
 
             connect(
                 p.colorTool,
-                &ColorTool::imageOptionsChanged,
-                [app](const timeline::ImageOptions& value)
+                &ColorTool::displayOptionsChanged,
+                [app](const timeline::DisplayOptions& value)
                 {
-                    app->setImageOptions(value);
+                    app->setDisplayOptions(value);
                 });
 
             connect(
@@ -817,11 +828,14 @@ namespace tl
                 p.secondaryWindow = new SecondaryWindow(p.app);
                 p.secondaryWindow->viewport()->setColorConfig(p.colorConfig);
                 std::vector<timeline::ImageOptions> imageOptions;
+                std::vector<timeline::DisplayOptions> displayOptions;
                 for (const auto& i : p.timelinePlayers)
                 {
                     imageOptions.push_back(p.imageOptions);
+                    displayOptions.push_back(p.displayOptions);
                 }
                 p.secondaryWindow->viewport()->setImageOptions(imageOptions);
+                p.secondaryWindow->viewport()->setDisplayOptions(displayOptions);
                 p.secondaryWindow->viewport()->setCompareOptions(p.compareOptions);
                 p.secondaryWindow->viewport()->setTimelinePlayers(p.timelinePlayers);
 
@@ -1010,6 +1024,7 @@ namespace tl
             p.viewActions->setTimelinePlayers(p.timelinePlayers);
 
             p.imageActions->setImageOptions(p.imageOptions);
+            p.imageActions->setDisplayOptions(p.displayOptions);
             p.imageActions->setTimelinePlayers(p.timelinePlayers);
 
             p.playbackActions->setTimelinePlayers(p.timelinePlayers);
@@ -1018,11 +1033,14 @@ namespace tl
 
             p.timelineViewport->setColorConfig(p.colorConfig);
             std::vector<timeline::ImageOptions> imageOptions;
+            std::vector<timeline::DisplayOptions> displayOptions;
             for (const auto& i : p.timelinePlayers)
             {
                 imageOptions.push_back(p.imageOptions);
+                displayOptions.push_back(p.displayOptions);
             }
             p.timelineViewport->setImageOptions(imageOptions);
+            p.timelineViewport->setDisplayOptions(displayOptions);
             p.timelineViewport->setCompareOptions(p.compareOptions);
             p.timelineViewport->setTimelinePlayers(p.timelinePlayers);
 
@@ -1033,7 +1051,7 @@ namespace tl
 
             p.compareTool->setCompareOptions(p.compareOptions);
 
-            p.colorTool->setImageOptions(p.imageOptions);
+            p.colorTool->setDisplayOptions(p.displayOptions);
 
             p.infoTool->setInfo(!p.timelinePlayers.empty() ? p.timelinePlayers[0]->ioInfo() : io::Info());
 

@@ -19,6 +19,7 @@ namespace tl
             App* app = nullptr;
 
             timeline::ImageOptions imageOptions;
+            timeline::DisplayOptions displayOptions;
             std::vector<qt::TimelinePlayer*> timelinePlayers;
 
             QMap<QString, QAction*> actions;
@@ -129,18 +130,18 @@ namespace tl
                 &QAction::toggled,
                 [this](bool value)
                 {
-                    timeline::ImageOptions imageOptions = _p->imageOptions;
-                    imageOptions.mirror.x = value;
-                    _p->app->setImageOptions(imageOptions);
+                    timeline::DisplayOptions displayOptions = _p->displayOptions;
+                    displayOptions.mirror.x = value;
+                    _p->app->setDisplayOptions(displayOptions);
                 });
             connect(
                 p.actions["MirrorY"],
                 &QAction::toggled,
                 [this](bool value)
                 {
-                    timeline::ImageOptions imageOptions = _p->imageOptions;
-                    imageOptions.mirror.y = value;
-                    _p->app->setImageOptions(imageOptions);
+                    timeline::DisplayOptions displayOptions = _p->displayOptions;
+                    displayOptions.mirror.y = value;
+                    _p->app->setDisplayOptions(displayOptions);
                 });
 
             connect(
@@ -158,11 +159,11 @@ namespace tl
                 &QActionGroup::triggered,
                 [this](QAction* action)
                 {
-                    auto imageOptions = _p->imageOptions;
-                    imageOptions.channels = action->data().value<timeline::Channels>() != imageOptions.channels ?
+                    auto displayOptions = _p->displayOptions;
+                    displayOptions.channels = action->data().value<timeline::Channels>() != displayOptions.channels ?
                         action->data().value<timeline::Channels>() :
                         timeline::Channels::Color;
-                    _p->app->setImageOptions(imageOptions);
+                    _p->app->setDisplayOptions(displayOptions);
                 });
 
             connect(
@@ -195,6 +196,15 @@ namespace tl
             if (value == p.imageOptions)
                 return;
             p.imageOptions = value;
+            _actionsUpdate();
+        }
+
+        void ImageActions::setDisplayOptions(const timeline::DisplayOptions& value)
+        {
+            TLRENDER_P();
+            if (value == p.displayOptions)
+                return;
+            p.displayOptions = value;
             _actionsUpdate();
         }
 
@@ -244,7 +254,7 @@ namespace tl
                     p.actions["Channels/Alpha"]->setChecked(false);
                     for (auto action : p.channelsActionGroup->actions())
                     {
-                        if (action->data().value<timeline::Channels>() == p.imageOptions.channels)
+                        if (action->data().value<timeline::Channels>() == p.displayOptions.channels)
                         {
                             action->setChecked(true);
                             break;
@@ -264,11 +274,11 @@ namespace tl
                 }
                 {
                     QSignalBlocker blocker(p.actions["MirrorX"]);
-                    p.actions["MirrorX"]->setChecked(p.imageOptions.mirror.x);
+                    p.actions["MirrorX"]->setChecked(p.displayOptions.mirror.x);
                 }
                 {
                     QSignalBlocker blocker(p.actions["MirrorY"]);
-                    p.actions["MirrorY"]->setChecked(p.imageOptions.mirror.y);
+                    p.actions["MirrorY"]->setChecked(p.displayOptions.mirror.y);
                 }
             }
             else
