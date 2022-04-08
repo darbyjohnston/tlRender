@@ -370,7 +370,6 @@ namespace tl
 
             glEnable(GL_BLEND);
             glBlendEquation(GL_FUNC_ADD);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
             const auto viewMatrix = glm::ortho(
                 0.F,

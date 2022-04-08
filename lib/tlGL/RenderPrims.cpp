@@ -21,6 +21,8 @@ namespace tl
             p.rectShader->bind();
             p.rectShader->setUniform("color", color);
 
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
             std::vector<uint8_t> vboData;
             vboData.resize(4 * getByteCount(VBOType::Pos2_F32_UV_U16));
             VBOVertex* vboP = reinterpret_cast<VBOVertex*>(vboData.data());
@@ -58,6 +60,8 @@ namespace tl
             p.textShader->bind();
             p.textShader->setUniform("color", color);
             p.textShader->setUniform("textureSampler", 0);
+
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
             glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
 
@@ -133,9 +137,8 @@ namespace tl
         {
             TLRENDER_P();
 
-            const auto& info = image->getInfo();
-
             p.imageShader->bind();
+            const auto& info = image->getInfo();
             p.imageShader->setUniform("pixelType", static_cast<int>(info.pixelType));
             imaging::YUVRange yuvRange = info.yuvRange;
             switch (imageOptions.yuvRange)
@@ -151,6 +154,20 @@ namespace tl
             p.imageShader->setUniform("textureSampler0", 0);
             p.imageShader->setUniform("textureSampler1", 1);
             p.imageShader->setUniform("textureSampler2", 2);
+
+            switch (imageOptions.alphaBlend)
+            {
+            case timeline::AlphaBlend::None:
+                glBlendFunc(GL_ONE, GL_ZERO);
+                break;
+            case timeline::AlphaBlend::Straight:
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                break;
+            case timeline::AlphaBlend::Premultiplied:
+                glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+                break;
+            default: break;
+            }
 
             auto textures = p.textureCache.get(info);
             copyTextures(image, textures);
