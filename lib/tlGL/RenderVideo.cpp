@@ -14,6 +14,7 @@ namespace tl
     {
         void Render::drawVideo(
             const std::vector<timeline::VideoData>& videoData,
+            const std::vector<math::BBox2i>& bboxes,
             const std::vector<timeline::ImageOptions>& imageOptions,
             const std::vector<timeline::DisplayOptions>& displayOptions,
             const timeline::CompareOptions& compareOptions)
@@ -298,20 +299,11 @@ namespace tl
             case timeline::CompareMode::Vertical:
             case timeline::CompareMode::Tile:
             {
-                std::vector<imaging::Size> sizes;
-                for (const auto& v : videoData)
-                {
-                    if (!v.layers.empty())
-                    {
-                        sizes.push_back(v.layers[0].image->getSize());
-                    }
-                }
-                const auto tiles = timeline::tiles(compareOptions.mode, sizes);
-                for (size_t i = 0; i < tiles.size() && i < videoData.size(); ++i)
+                for (size_t i = 0; i < bboxes.size() && i < videoData.size(); ++i)
                 {
                     _drawVideo(
                         videoData[i],
-                        tiles[i],
+                        bboxes[i],
                         i < imageOptions.size() ? imageOptions[i] : timeline::ImageOptions(),
                         i < displayOptions.size() ? displayOptions[i] : timeline::DisplayOptions());
                 }

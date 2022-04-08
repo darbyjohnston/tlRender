@@ -94,10 +94,11 @@ namespace tl
             void wheelEvent(QWheelEvent*) override;
 
         private:
-            imaging::Size _viewportSize() const;
-            imaging::Size _renderSize() const;
+            imaging::Size _getViewportSize() const;
+            std::vector<imaging::Size> _getTimelineSizes() const;
+            imaging::Size _getRenderSize() const;
+            math::Vector2i _getViewportCenter() const;
             void _frameView();
-            math::Vector2i _center() const;
 
             TLRENDER_PRIVATE();
         };

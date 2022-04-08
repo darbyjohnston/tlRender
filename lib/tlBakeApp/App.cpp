@@ -285,7 +285,7 @@ namespace tl
             _render->setColorConfig(_options.colorConfig);
             _render->begin(_renderSize);
             const auto videoData = _timeline->getVideo(_timeline->getGlobalStartTime() + _currentTime).get();
-            _render->drawVideo({ videoData });
+            _render->drawVideo({ videoData }, { math::BBox2i(0, 0, _renderSize.w, _renderSize.h ) });
             _render->end();
 
             // Write the frame.

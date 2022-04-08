@@ -172,19 +172,19 @@ namespace tl
         void TimelineViewport::viewZoom1To1()
         {
             TLRENDER_P();
-            setViewZoom(1.F, p.mouseInside ? p.mousePos : _center());
+            setViewZoom(1.F, p.mouseInside ? p.mousePos : _getViewportCenter());
         }
 
         void TimelineViewport::viewZoomIn()
         {
             TLRENDER_P();
-            setViewZoom(p.viewZoom * 2.F, p.mouseInside ? p.mousePos : _center());
+            setViewZoom(p.viewZoom * 2.F, p.mouseInside ? p.mousePos : _getViewportCenter());
         }
 
         void TimelineViewport::viewZoomOut()
         {
             TLRENDER_P();
-            setViewZoom(p.viewZoom / 2.F, p.mouseInside ? p.mousePos : _center());
+            setViewZoom(p.viewZoom / 2.F, p.mouseInside ? p.mousePos : _getViewportCenter());
         }
 
         void TimelineViewport::_videoCallback(const timeline::VideoData& value)
@@ -267,7 +267,7 @@ namespace tl
         {
             TLRENDER_P();
 
-            const auto renderSize = _renderSize();
+            const auto renderSize = _getRenderSize();
             try
             {
                 if (renderSize.isValid())
@@ -293,7 +293,12 @@ namespace tl
                 {
                     gl::OffscreenBufferBinding binding(p.buffer);
                     p.render->begin(renderSize);
-                    p.render->drawVideo(p.videoData, p.imageOptions, p.displayOptions, p.compareOptions);
+                    p.render->drawVideo(
+                        p.videoData,
+                        timeline::tiles(p.compareOptions.mode, _getTimelineSizes()),
+                        p.imageOptions,
+                        p.displayOptions,
+                        p.compareOptions);
                     p.render->end();
                 }
             }
@@ -308,7 +313,7 @@ namespace tl
                 }
             }
 
-            const auto viewportSize = _viewportSize();
+            const auto viewportSize = _getViewportSize();
             glViewport(
                 0,
                 0,
@@ -440,7 +445,7 @@ namespace tl
             }
         }
         
-        imaging::Size TimelineViewport::_viewportSize() const
+        imaging::Size TimelineViewport::_getViewportSize() const
         {
             const float devicePixelRatio = window()->devicePixelRatio();
             return imaging::Size(
@@ -448,7 +453,7 @@ namespace tl
                 height() * devicePixelRatio);
         }
 
-        imaging::Size TimelineViewport::_renderSize() const
+        std::vector<imaging::Size> TimelineViewport::_getTimelineSizes() const
         {
             TLRENDER_P();
             std::vector<imaging::Size> sizes;
@@ -460,14 +465,25 @@ namespace tl
                     sizes.push_back(ioInfo.video[0].size);
                 }
             }
-            return timeline::getRenderSize(p.compareOptions.mode, sizes);
+            return sizes;
+        }
+
+        imaging::Size TimelineViewport::_getRenderSize() const
+        {
+            return timeline::getRenderSize(_p->compareOptions.mode, _getTimelineSizes());
+        }
+
+        math::Vector2i TimelineViewport::_getViewportCenter() const
+        {
+            const auto viewportSize = _getViewportSize();
+            return math::Vector2i(viewportSize.w / 2, viewportSize.h / 2);
         }
 
         void TimelineViewport::_frameView()
         {
             TLRENDER_P();
-            const auto viewportSize = _viewportSize();
-            const auto renderSize = _renderSize();
+            const auto viewportSize = _getViewportSize();
+            const auto renderSize = _getRenderSize();
             float zoom = viewportSize.w / static_cast<float>(renderSize.w);
             if (zoom * renderSize.h > viewportSize.h)
             {
@@ -480,12 +496,6 @@ namespace tl
             update();
             Q_EMIT viewPosAndZoomChanged(p.viewPos, p.viewZoom);
             Q_EMIT frameViewActivated();
-        }
-
-        math::Vector2i TimelineViewport::_center() const
-        {
-            const auto viewportSize = _viewportSize();
-            return math::Vector2i(viewportSize.w / 2, viewportSize.h / 2);
         }
     }
 }

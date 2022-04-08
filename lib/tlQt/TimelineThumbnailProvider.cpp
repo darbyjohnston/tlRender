@@ -241,7 +241,9 @@ namespace tl
                                 gl::OffscreenBufferBinding binding(offscreenBuffer);
 
                                 render->begin(info.size);
-                                render->drawVideo({ videoData });
+                                render->drawVideo(
+                                    { videoData },
+                                    { math::BBox2i(0, 0, info.size.w, info.size.h) });
                                 render->end();
 
                                 glPixelStorei(GL_PACK_ALIGNMENT, 1);

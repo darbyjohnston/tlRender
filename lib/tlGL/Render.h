@@ -43,6 +43,7 @@ namespace tl
                 const timeline::ImageOptions& = timeline::ImageOptions()) override;
             void drawVideo(
                 const std::vector<timeline::VideoData>&,
+                const std::vector<math::BBox2i>&,
                 const std::vector<timeline::ImageOptions> & = {},
                 const std::vector<timeline::DisplayOptions> & = {},
                 const timeline::CompareOptions& = timeline::CompareOptions()) override;

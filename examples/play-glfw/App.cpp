@@ -429,7 +429,9 @@ namespace tl
 
             void App::_drawVideo()
             {
-                _render->drawVideo({ _videoData });
+                _render->drawVideo(
+                    { _videoData },
+                    { math::BBox2i(0, 0, _frameBufferSize.w, _frameBufferSize.h) });
             }
 
             void App::_drawHUD()
