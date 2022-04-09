@@ -39,7 +39,7 @@ namespace tl
             p.spinBox->setFont(qtwidget::font("NotoMono-Regular"));
 
             p.defaultValueButton = new QToolButton;
-            p.defaultValueButton->setIconSize(QSize(12, 12));
+            p.defaultValueButton->setAutoRaise(true);
             p.defaultValueButton->setIcon(QIcon(":/Icons/Reset.svg"));
             p.defaultValueButton->setToolTip(tr("Reset to the default value"));
 
