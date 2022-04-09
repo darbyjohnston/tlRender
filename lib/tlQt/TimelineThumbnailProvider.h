@@ -24,23 +24,26 @@ namespace tl
 
         public:
             TimelineThumbnailProvider(
-                const std::shared_ptr<timeline::Timeline>&,
                 const std::shared_ptr<system::Context>&,
                 QObject* parent = nullptr);
             ~TimelineThumbnailProvider() override;
 
-            //! Set the color configuration.
-            void setColorConfig(const imaging::ColorConfig&);
+            //! Request a thumbnail. The request ID is returned.
+            qint64 request(
+                const QString&,
+                const otime::RationalTime&,
+                const QSize&,
+                const imaging::ColorConfig& = imaging::ColorConfig());
 
-        public Q_SLOTS:
-            //! Request a thumbnail.
-            void request(const otime::RationalTime&, const QSize&);
+            //! Request a thumbnail. The request ID is returned.
+            qint64 request(
+                const QString&,
+                const QList<otime::RationalTime>&,
+                const QSize&,
+                const imaging::ColorConfig& = imaging::ColorConfig());
 
-            //! Request thumbnails.
-            void request(const QList<otime::RationalTime>&, const QSize&);
-
-            //! Cancel all thumbnail requests.
-            void cancelRequests();
+            //! Cancel thumbnail requests.
+            void cancelRequests(qint64);
 
             //! Set the request count.
             void setRequestCount(int);
@@ -53,7 +56,7 @@ namespace tl
 
         Q_SIGNALS:
             //! This signal is emitted when thumbnails are ready.
-            void thumbails(const QList<QPair<otime::RationalTime, QImage> >&);
+            void thumbails(qint64, const QList<QPair<otime::RationalTime, QImage> >&);
 
         protected:
             void run() override;

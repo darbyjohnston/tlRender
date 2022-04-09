@@ -39,7 +39,11 @@ namespace tl
             TLRENDER_P();
 
             p.app = app;
-            p.filesAModel = new FilesAModel(app->filesModel(), app->getContext(), this);
+            p.filesAModel = new FilesAModel(
+                app->filesModel(),
+                app->thumbnailProvider(),
+                app->getContext(),
+                this);
 
             p.treeView = new QTreeView;
             p.treeView->setAllColumnsShowFocus(true);

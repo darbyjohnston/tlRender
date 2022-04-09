@@ -15,6 +15,7 @@
 
 #include <tlQt/MetaTypes.h>
 #include <tlQt/TimeObject.h>
+#include <tlQt/TimelineThumbnailProvider.h>
 #include <tlQt/TimelinePlayer.h>
 
 #include <tlTimeline/Util.h>
@@ -57,6 +58,7 @@ namespace tl
 
             qt::TimeObject* timeObject = nullptr;
             SettingsObject* settingsObject = nullptr;
+            qt::TimelineThumbnailProvider* thumbnailProvider = nullptr;
             std::shared_ptr<FilesModel> filesModel;
             std::shared_ptr<observer::ListObserver<std::shared_ptr<FilesModelItem> > > activeObserver;
             std::vector<std::shared_ptr<FilesModelItem> > active;
@@ -194,6 +196,8 @@ namespace tl
 
             _cacheUpdate();
 
+            p.thumbnailProvider = new qt::TimelineThumbnailProvider(context, this);
+
             p.filesModel = FilesModel::create(context);
             p.activeObserver = observer::ListObserver<std::shared_ptr<FilesModelItem> >::create(
                 p.filesModel->observeActive(),
@@ -274,6 +278,11 @@ namespace tl
         SettingsObject* App::settingsObject() const
         {
             return _p->settingsObject;
+        }
+
+        qt::TimelineThumbnailProvider* App::thumbnailProvider() const
+        {
+            return _p->thumbnailProvider;
         }
 
         const std::shared_ptr<FilesModel>& App::filesModel() const

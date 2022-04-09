@@ -39,7 +39,8 @@ namespace tl
                 std::shared_ptr<system::Context> _context;
                 std::string _input;
                 std::shared_ptr<timeline::Timeline> _timeline;
-                qtwidget::FilmstripWidget* _filmstripWidget;
+                qt::TimelineThumbnailProvider* _thumbnailProvider = nullptr;
+                qtwidget::FilmstripWidget* _filmstripWidget = nullptr;
             };
         }
     }

@@ -12,6 +12,11 @@
 
 namespace tl
 {
+    namespace qt
+    {
+        class TimelineThumbnailProvider;
+    }
+
     namespace qtwidget
     {
         //! Filmstrip widget.
@@ -24,7 +29,7 @@ namespace tl
                 WRITE setRowCount)
 
         public:
-            FilmstripWidget(QWidget* parent = nullptr);
+            FilmstripWidget(qt::TimelineThumbnailProvider*, QWidget* parent = nullptr);
 
             ~FilmstripWidget() override;
 
@@ -43,7 +48,7 @@ namespace tl
             void paintEvent(QPaintEvent*) override;
 
         private Q_SLOTS:
-            void _thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >&);
+            void _thumbnailsCallback(qint64, const QList<QPair<otime::RationalTime, QImage> >&);
 
         private:
             void _thumbnailsUpdate();

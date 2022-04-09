@@ -6,6 +6,8 @@
 
 #include "App.h"
 
+#include <tlQt/TimelineThumbnailProvider.h>
+
 #include <tlCore/File.h>
 
 #include <QDragEnterEvent>
@@ -28,7 +30,9 @@ namespace tl
             {
                 setAcceptDrops(true);
 
-                _filmstripWidget = new qtwidget::FilmstripWidget;
+                _thumbnailProvider = new qt::TimelineThumbnailProvider(context, this);
+
+                _filmstripWidget = new qtwidget::FilmstripWidget(_thumbnailProvider);
                 _filmstripWidget->setRowCount(5);
                 setCentralWidget(_filmstripWidget);
 

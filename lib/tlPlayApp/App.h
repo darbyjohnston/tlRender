@@ -16,6 +16,7 @@ namespace tl
 {
     namespace qt
     {
+        class TimelineThumbnailProvider;
         class TimeObject;
     }
 
@@ -48,6 +49,9 @@ namespace tl
 
             //! Get the settings object.
             SettingsObject* settingsObject() const;
+
+            //! Get the thumbnail provider.
+            qt::TimelineThumbnailProvider* thumbnailProvider() const;
 
             //! Get the files model.
             const std::shared_ptr<FilesModel>& filesModel() const;

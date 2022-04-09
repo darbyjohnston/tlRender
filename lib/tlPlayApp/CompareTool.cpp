@@ -48,7 +48,11 @@ namespace tl
 
             p.app = app;
 
-            p.filesBModel = new FilesBModel(app->filesModel(), app->getContext(), this);
+            p.filesBModel = new FilesBModel(
+                app->filesModel(),
+                app->thumbnailProvider(),
+                app->getContext(),
+                this);
 
             p.treeView = new QTreeView;
             p.treeView->setAllColumnsShowFocus(true);

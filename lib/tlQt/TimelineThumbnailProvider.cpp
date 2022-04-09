@@ -9,6 +9,8 @@
 
 #include <tlTimeline/TimelinePlayer.h>
 
+#include <tlCore/StringFormat.h>
+
 #include <QImage>
 #include <QOffscreenSurface>
 #include <QOpenGLContext>
@@ -24,19 +26,31 @@ namespace tl
         struct TimelineThumbnailProvider::Private
         {
             std::weak_ptr<system::Context> context;
-            std::shared_ptr<timeline::Timeline> timeline;
-            imaging::ColorConfig colorConfig;
+
             struct Request
             {
-                otime::RationalTime time = time::invalidTime;
+                qint64 id;
+                QString fileName;
+                QList<otime::RationalTime> times;
                 QSize size;
+                imaging::ColorConfig colorConfig;
 
-                std::future<timeline::VideoData> future;
+                std::shared_ptr<timeline::Timeline> timeline;
+                std::vector<std::future<timeline::VideoData> > futures;
+                QList<QPair<otime::RationalTime, QImage> > thumbnails;
             };
             std::list<Request> requests;
             std::list<Request> requestsInProgress;
-            QList<QPair<otime::RationalTime, QImage> > results;
-            bool cancelRequests = false;
+
+            struct Result
+            {
+                qint64 id;
+                QList<QPair<otime::RationalTime, QImage> > thumbnails;
+            };
+            std::vector<Result> results;
+
+            qint64 id = 0;
+            std::vector<qint64> cancelRequests;
             size_t requestCount = 1;
             std::chrono::milliseconds requestTimeout = std::chrono::milliseconds(50);
             int timer = 0;
@@ -49,7 +63,6 @@ namespace tl
         };
 
         TimelineThumbnailProvider::TimelineThumbnailProvider(
-            const std::shared_ptr<timeline::Timeline>& timeline,
             const std::shared_ptr<system::Context>& context,
             QObject* parent) :
             QThread(parent),
@@ -58,7 +71,6 @@ namespace tl
             TLRENDER_P();
 
             p.context = context;
-            p.timeline = timeline;
 
             p.glContext.reset(new QOpenGLContext);
             QSurfaceFormat surfaceFormat;
@@ -86,50 +98,79 @@ namespace tl
             wait();
         }
 
-        void TimelineThumbnailProvider::setColorConfig(const imaging::ColorConfig& colorConfig)
+        qint64 TimelineThumbnailProvider::request(
+            const QString& fileName,
+            const otime::RationalTime& time,
+            const QSize& size,
+            const imaging::ColorConfig& colorConfig)
         {
             TLRENDER_P();
-            std::unique_lock<std::mutex> lock(p.mutex);
-            p.colorConfig = colorConfig;
-        }
-
-        void TimelineThumbnailProvider::request(const otime::RationalTime& time, const QSize& size)
-        {
-            TLRENDER_P();
+            qint64 out = 0;
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
+                p.id = p.id + 1;
                 Private::Request request;
-                request.time = time;
+                request.id = p.id;
+                request.fileName = fileName;
+                request.times.push_back(time);
                 request.size = size;
+                request.colorConfig = colorConfig;
                 p.requests.push_back(std::move(request));
+                out = p.id;
             }
             p.cv.notify_one();
+            return out;
         }
 
-        void TimelineThumbnailProvider::request(const QList<otime::RationalTime>& times, const QSize& size)
+        qint64 TimelineThumbnailProvider::request(
+            const QString& fileName,
+            const QList<otime::RationalTime>& times,
+            const QSize& size,
+            const imaging::ColorConfig& colorConfig)
         {
             TLRENDER_P();
+            qint64 out = 0;
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
-                for (const auto& i : times)
-                {
-                    Private::Request request;
-                    request.time = i;
-                    request.size = size;
-                    p.requests.push_back(std::move(request));
-                }
+                p.id = p.id + 1;
+                Private::Request request;
+                request.id = p.id;
+                request.fileName = fileName;
+                request.times = times;
+                request.size = size;
+                request.colorConfig = colorConfig;
+                p.requests.push_back(std::move(request));
+                out = p.id;
             }
             p.cv.notify_one();
+            return out;
         }
 
-        void TimelineThumbnailProvider::cancelRequests()
+        void TimelineThumbnailProvider::cancelRequests(qint64 id)
         {
             TLRENDER_P();
             std::unique_lock<std::mutex> lock(p.mutex);
-            p.timeline->cancelRequests();
-            p.requests.clear();
-            p.results.clear();
-            p.cancelRequests = true;
+            auto requestIt = p.requests.begin();
+            while (requestIt != p.requests.end())
+            {
+                if (id == requestIt->id)
+                {
+                    requestIt = p.requests.erase(requestIt);
+                    continue;
+                }
+                ++requestIt;
+            }
+            auto resultIt = p.results.begin();
+            while (resultIt != p.results.end())
+            {
+                if (id == resultIt->id)
+                {
+                    resultIt = p.results.erase(resultIt);
+                    continue;
+                }
+                ++resultIt;
+            }
+            p.cancelRequests.push_back(id);
         }
 
         void TimelineThumbnailProvider::setRequestCount(int value)
@@ -165,7 +206,6 @@ namespace tl
                 auto render = gl::Render::create(context);
 
                 std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer;
-                imaging::ColorConfig colorConfig;
                 while (p.running)
                 {
                     // Gather requests.
@@ -180,15 +220,23 @@ namespace tl
                                 return
                                     !_p->requests.empty() ||
                                     !_p->requestsInProgress.empty() ||
-                                    _p->cancelRequests;
+                                    !_p->cancelRequests.empty();
                             }))
                         {
-                            colorConfig = p.colorConfig;
-                            if (p.cancelRequests)
+                            for (auto i : p.cancelRequests)
                             {
-                                p.cancelRequests = false;
-                                p.requestsInProgress.clear();
+                                auto j = p.requestsInProgress.begin();
+                                while (j != p.requestsInProgress.end())
+                                {
+                                    if (i == j->id)
+                                    {
+                                        j = p.requestsInProgress.erase(j);
+                                        continue;
+                                    }
+                                    ++j;
+                                }
                             }
+                            p.cancelRequests.clear();
                             while (!p.requests.empty() &&
                                 (p.requestsInProgress.size() + newRequests.size()) < p.requestCount)
                             {
@@ -201,12 +249,28 @@ namespace tl
                     // Initialize new requests.
                     for (auto& request : newRequests)
                     {
-                        p.timeline->setActiveRanges({ otime::TimeRange(
-                            p.timeline->getGlobalStartTime() + request.time,
-                            otime::RationalTime(1.0, request.time.rate())) });
-
-                        request.future = p.timeline->getVideo(request.time);
-
+                        timeline::Options options;
+                        options.videoRequestCount = 1;
+                        options.audioRequestCount = 1;
+                        options.requestTimeout = std::chrono::milliseconds(100);
+                        options.ioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").arg(1);
+                        options.ioOptions["ffmpeg/ThreadCount"] = string::Format("{0}").arg(1);
+                        request.timeline = timeline::Timeline::create(request.fileName.toUtf8().data(), context, options);
+                        otime::TimeRange timeRange;
+                        if (!request.times.empty())
+                        {
+                            timeRange = otime::TimeRange(request.times[0], otime::RationalTime(1.0, request.times[0].rate()));
+                            for (size_t i = 1; i < request.times.size(); ++i)
+                            {
+                                timeRange = timeRange.extended_by(
+                                    otime::TimeRange(request.times[i], otime::RationalTime(1.0, request.times[i].rate())));
+                            }
+                            request.timeline->setActiveRanges({ timeRange });
+                        }
+                        for (const auto& i : request.times)
+                        {
+                            request.futures.push_back(request.timeline->getVideo(i));
+                        }
                         p.requestsInProgress.push_back(std::move(request));
                     }
 
@@ -214,77 +278,84 @@ namespace tl
                     auto requestIt = p.requestsInProgress.begin();
                     while (requestIt != p.requestsInProgress.end())
                     {
-                        if (requestIt->future.valid() &&
-                            requestIt->future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+                        auto futureIt = requestIt->futures.begin();
+                        while (futureIt != requestIt->futures.end())
                         {
-                            const auto videoData = requestIt->future.get();
-                            const imaging::Info info(
-                                requestIt->size.width(),
-                                requestIt->size.height(),
-                                imaging::PixelType::RGBA_U8);
-                            std::vector<uint8_t> pixelData(
-                                static_cast<size_t>(info.size.w) *
-                                static_cast<size_t>(info.size.h) * 4);
-
-                            try
+                            if (futureIt->valid() &&
+                                futureIt->wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                             {
-                                if (!offscreenBuffer ||
-                                    (offscreenBuffer && offscreenBuffer->getSize() != info.size))
+                                const auto videoData = futureIt->get();
+                                const imaging::Info info(
+                                    requestIt->size.width(),
+                                    requestIt->size.height(),
+                                    imaging::PixelType::RGBA_U8);
+                                std::vector<uint8_t> pixelData(
+                                    static_cast<size_t>(info.size.w) *
+                                    static_cast<size_t>(info.size.h) * 4);
+
+                                try
                                 {
-                                    gl::OffscreenBufferOptions options;
-                                    options.colorType = imaging::PixelType::RGBA_U8;
-                                    offscreenBuffer = gl::OffscreenBuffer::create(info.size, options);
+                                    if (!offscreenBuffer ||
+                                        (offscreenBuffer && offscreenBuffer->getSize() != info.size))
+                                    {
+                                        gl::OffscreenBufferOptions options;
+                                        options.colorType = imaging::PixelType::RGBA_U8;
+                                        offscreenBuffer = gl::OffscreenBuffer::create(info.size, options);
+                                    }
+
+                                    render->setColorConfig(requestIt->colorConfig);
+
+                                    gl::OffscreenBufferBinding binding(offscreenBuffer);
+
+                                    render->begin(info.size);
+                                    render->drawVideo(
+                                        { videoData },
+                                        { math::BBox2i(0, 0, info.size.w, info.size.h) });
+                                    render->end();
+
+                                    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+                                    glReadPixels(
+                                        0,
+                                        0,
+                                        info.size.w,
+                                        info.size.h,
+                                        GL_RGBA,
+                                        GL_UNSIGNED_BYTE,
+                                        pixelData.data());
+                                }
+                                catch (const std::exception& e)
+                                {
+                                    context->log(
+                                        "tl::qt::TimelineThumbnailProvider",
+                                        e.what(),
+                                        log::Type::Error);
                                 }
 
-                                render->setColorConfig(colorConfig);
-
-                                gl::OffscreenBufferBinding binding(offscreenBuffer);
-
-                                render->begin(info.size);
-                                render->drawVideo(
-                                    { videoData },
-                                    { math::BBox2i(0, 0, info.size.w, info.size.h) });
-                                render->end();
-
-                                glPixelStorei(GL_PACK_ALIGNMENT, 1);
-                                glReadPixels(
-                                    0,
-                                    0,
+                                const auto qImage = QImage(
+                                    pixelData.data(),
                                     info.size.w,
                                     info.size.h,
-                                    GL_RGBA,
-                                    GL_UNSIGNED_BYTE,
-                                    pixelData.data());
-                            }
-                            catch (const std::exception& e)
-                            {
-                                context->log(
-                                    "tl::qt::TimelineThumbnailProvider",
-                                    e.what(),
-                                    log::Type::Error);
-                            }
+                                    info.size.w * 4,
+                                    QImage::Format_RGBA8888).mirrored();
+                                {
+                                    std::unique_lock<std::mutex> lock(p.mutex);
+                                    requestIt->thumbnails.push_back(QPair<otime::RationalTime, QImage>(videoData.time, qImage));
+                                }
 
-                            const auto qImage = QImage(
-                                pixelData.data(),
-                                info.size.w,
-                                info.size.h,
-                                info.size.w * 4,
-                                QImage::Format_RGBA8888).mirrored();
-                            {
-                                std::unique_lock<std::mutex> lock(p.mutex);
-                                p.results.push_back(QPair<otime::RationalTime, QImage>(requestIt->time, qImage));
+                                futureIt = requestIt->futures.erase(futureIt);
+                                continue;
                             }
-
+                            ++futureIt;
+                        }
+                        if (requestIt->futures.empty())
+                        {
+                            std::unique_lock<std::mutex> lock(p.mutex);
+                            p.results.push_back({ requestIt->id, requestIt->thumbnails });
                             requestIt = p.requestsInProgress.erase(requestIt);
                             continue;
                         }
                         ++requestIt;
                     }
-                }
-                
-                for (auto& i : p.requestsInProgress)
-                {
-                    i.future.get();
                 }
             }
 
@@ -294,14 +365,14 @@ namespace tl
         void TimelineThumbnailProvider::timerEvent(QTimerEvent*)
         {
             TLRENDER_P();
-            QList<QPair<otime::RationalTime, QImage> > results;
+            std::vector<Private::Result> results;
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
                 results.swap(p.results);
             }
-            if (!results.empty())
+            for (const auto& i : results)
             {
-                Q_EMIT thumbails(results);
+                Q_EMIT thumbails(i.id, i.thumbnails);
             }
         }
     }

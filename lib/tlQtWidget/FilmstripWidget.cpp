@@ -19,10 +19,11 @@ namespace tl
     {
         struct FilmstripWidget::Private
         {
+            qt::TimelineThumbnailProvider* thumbnailProvider = nullptr;
             std::shared_ptr<timeline::Timeline> timeline;
             int rowCount = 1;
-            qt::TimelineThumbnailProvider* thumbnailProvider = nullptr;
             QSize thumbnailSize;
+            qint64 thumbnailRequestId = 0;
             struct Thumbnail
             {
                 QImage image;
@@ -31,13 +32,23 @@ namespace tl
             std::map<otime::RationalTime, Thumbnail> thumbnails;
         };
 
-        FilmstripWidget::FilmstripWidget(QWidget* parent) :
+        FilmstripWidget::FilmstripWidget(qt::TimelineThumbnailProvider* thumbnailProvider, QWidget* parent) :
             QWidget(parent),
             _p(new Private)
         {
             TLRENDER_P();
+
             setSizePolicy(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
             setMinimumHeight(50);
+
+            p.thumbnailProvider = thumbnailProvider;
+            if (p.thumbnailProvider)
+            {
+                connect(
+                    p.thumbnailProvider,
+                    SIGNAL(thumbails(qint64, const QList<QPair<otime::RationalTime, QImage> >&)),
+                    SLOT(_thumbnailsCallback(qint64, const QList<QPair<otime::RationalTime, QImage> >&)));
+            }
         }
 
         FilmstripWidget::~FilmstripWidget()
@@ -46,26 +57,9 @@ namespace tl
         void FilmstripWidget::setTimeline(const std::shared_ptr<timeline::Timeline>& timeline)
         {
             TLRENDER_P();
+            if (timeline == p.timeline)
+                return;
             p.timeline = timeline;
-            if (p.thumbnailProvider)
-            {
-                delete p.thumbnailProvider;
-                p.thumbnailProvider = nullptr;
-            }
-            if (p.timeline)
-            {
-                if (auto context = p.timeline->getContext().lock())
-                {
-                    p.thumbnailProvider = new qt::TimelineThumbnailProvider(
-                        p.timeline,
-                        context,
-                        this);
-                    connect(
-                        p.thumbnailProvider,
-                        SIGNAL(thumbails(const QList<QPair<otime::RationalTime, QImage> >&)),
-                        SLOT(_thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >&)));
-                }
-            }
             _thumbnailsUpdate();
         }
 
@@ -121,18 +115,21 @@ namespace tl
             }
         }
 
-        void FilmstripWidget::_thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >& thumbnails)
+        void FilmstripWidget::_thumbnailsCallback(qint64 id, const QList<QPair<otime::RationalTime, QImage> >& thumbnails)
         {
             TLRENDER_P();
-            for (const auto& i : thumbnails)
+            if (p.thumbnailRequestId == id)
             {
-                Private::Thumbnail thumbnail;
-                thumbnail.image = i.second;
-                thumbnail.time = std::chrono::steady_clock::now();
-                p.thumbnails[i.first] = thumbnail;
-
+                for (const auto& i : thumbnails)
+                {
+                    Private::Thumbnail thumbnail;
+                    thumbnail.image = i.second;
+                    thumbnail.time = std::chrono::steady_clock::now();
+                    p.thumbnails[i.first] = thumbnail;
+                }
+                p.thumbnailRequestId = 0;
+                update();
             }
-            update();
         }
 
         void FilmstripWidget::_thumbnailsUpdate()
@@ -141,7 +138,8 @@ namespace tl
             p.thumbnails.clear();
             if (p.timeline && p.thumbnailProvider)
             {
-                p.thumbnailProvider->cancelRequests();
+                p.thumbnailProvider->cancelRequests(p.thumbnailRequestId);
+                p.thumbnailRequestId = 0;
 
                 const auto& size = this->size();
                 const int width = size.width();
@@ -164,7 +162,10 @@ namespace tl
                             floor(i / static_cast<double>(count) * (duration.value() - 1) + globalStartTime.value()),
                             duration.rate()));
                     }
-                    p.thumbnailProvider->request(requests, QSize(thumbnailWidth, thumbnailHeight));
+                    p.thumbnailRequestId = p.thumbnailProvider->request(
+                        QString::fromUtf8(p.timeline->getPath().get().c_str()),
+                        requests,
+                        QSize(thumbnailWidth, thumbnailHeight));
                 }
             }
             update();

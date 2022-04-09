@@ -559,16 +559,18 @@ namespace tl
         {
             std::weak_ptr<system::Context> context;
             std::shared_ptr<FilesModel> filesModel;
+            qt::TimelineThumbnailProvider* thumbnailProvider = nullptr;
+            std::map<qint64, std::shared_ptr<FilesModelItem> > thumbnailRequestIds;
+            std::map<std::shared_ptr<FilesModelItem>, QImage> thumbnails;
             std::vector<std::shared_ptr<FilesModelItem> > active;
             std::shared_ptr<observer::ListObserver<std::shared_ptr<FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ListObserver<std::shared_ptr<FilesModelItem> > > activeObserver;
             std::shared_ptr<observer::ListObserver<int> > layersObserver;
-            std::map<std::shared_ptr<FilesModelItem>, QImage> thumbnails;
-            std::map<std::shared_ptr<FilesModelItem>, qt::TimelineThumbnailProvider*> thumbnailProviders;
         };
 
         FilesTableModel::FilesTableModel(
             const std::shared_ptr<FilesModel>& filesModel,
+            qt::TimelineThumbnailProvider* thumbnailProvider,
             const std::shared_ptr<system::Context>& context,
             QObject* parent) :
             QAbstractTableModel(parent),
@@ -578,6 +580,7 @@ namespace tl
 
             p.context = context;
             p.filesModel = filesModel;
+            p.thumbnailProvider = thumbnailProvider;
 
             p.filesObserver = observer::ListObserver<std::shared_ptr<FilesModelItem> >::create(
                 filesModel->observeFiles(),
@@ -585,22 +588,25 @@ namespace tl
                 {
                     beginResetModel();
                     _files = value;
-                    for (auto i : _files)
+                    if (_p->thumbnailProvider)
                     {
-                        auto j = _p->thumbnailProviders.find(i);
-                        if (j == _p->thumbnailProviders.end())
+                        for (auto i : _p->thumbnailRequestIds)
                         {
-                            if (auto context = _p->context.lock())
+                            _p->thumbnailProvider->cancelRequests(i.first);
+                        }
+                        _p->thumbnailRequestIds.clear();
+                        if (auto context = _p->context.lock())
+                        {
+                            for (auto i : _files)
                             {
                                 try
                                 {
                                     auto timeline = timeline::Timeline::create(i->path.get(), context);
-                                    _p->thumbnailProviders[i] = new qt::TimelineThumbnailProvider(timeline, context);
-                                    connect(
-                                        _p->thumbnailProviders[i],
-                                        SIGNAL(thumbails(const QList<QPair<otime::RationalTime, QImage> >&)),
-                                        SLOT(_thumbailCallback(const QList<QPair<otime::RationalTime, QImage> >&)));
-                                    _p->thumbnailProviders[i]->request(timeline->getGlobalStartTime(), QSize(120, 80));
+                                    qint64 id = _p->thumbnailProvider->request(
+                                        QString::fromUtf8(i->path.get().c_str()),
+                                        timeline->getGlobalStartTime(),
+                                        QSize(120, 80));
+                                    _p->thumbnailRequestIds[id] = i;
                                 }
                                 catch (const std::exception&)
                                 {
@@ -633,6 +639,15 @@ namespace tl
                         }
                     }
                 });
+
+
+            if (p.thumbnailProvider)
+            {
+                connect(
+                    p.thumbnailProvider,
+                    SIGNAL(thumbails(qint64, const QList<QPair<otime::RationalTime, QImage> >&)),
+                    SLOT(_thumbnailsCallback(qint64, const QList<QPair<otime::RationalTime, QImage> >&)));
+            }
         }
 
         FilesTableModel::~FilesTableModel()
@@ -782,29 +797,25 @@ namespace tl
             return out;
         }
 
-        void FilesTableModel::_thumbailCallback(const QList<QPair<otime::RationalTime, QImage> >& value)
+        void FilesTableModel::_thumbnailsCallback(qint64 id, const QList<QPair<otime::RationalTime, QImage> >& value)
         {
             TLRENDER_P();
             if (!value.isEmpty())
             {
-                for (auto i = p.thumbnailProviders.begin(); i != p.thumbnailProviders.end(); ++i)
+                auto i = p.thumbnailRequestIds.find(id);
+                if (i != p.thumbnailRequestIds.end())
                 {
-                    if (i->second == sender())
+                    p.thumbnails[i->second] = value[0].second;
+                    const auto j = std::find(_files.begin(), _files.end(), i->second);
+                    if (j != _files.end())
                     {
-                        p.thumbnails[i->first] = value[0].second;
-                        const auto j = std::find(_files.begin(), _files.end(), i->first);
-                        if (j != _files.end())
-                        {
-                            const int index = j - _files.begin();
-                            Q_EMIT dataChanged(
-                                this->index(index, 0),
-                                this->index(index, 0),
-                                { Qt::DecorationRole });
-                        }
-                        delete i->second;
-                        p.thumbnailProviders.erase(i);
-                        break;
+                        const int index = j - _files.begin();
+                        Q_EMIT dataChanged(
+                            this->index(index, 0),
+                            this->index(index, 0),
+                            { Qt::DecorationRole });
                     }
+                    p.thumbnailRequestIds.erase(i);
                 }
             }
         }
@@ -832,9 +843,10 @@ namespace tl
 
         FilesAModel::FilesAModel(
             const std::shared_ptr<FilesModel>& filesModel,
+            qt::TimelineThumbnailProvider* thumbnailProvider,
             const std::shared_ptr<system::Context>& context,
             QObject* parent) :
-            FilesTableModel(filesModel, context, parent),
+            FilesTableModel(filesModel, thumbnailProvider, context, parent),
             _p(new Private)
         {
             TLRENDER_P();
@@ -905,9 +917,10 @@ namespace tl
 
         FilesBModel::FilesBModel(
             const std::shared_ptr<FilesModel>& filesModel,
+            qt::TimelineThumbnailProvider* thumbnailProvider,
             const std::shared_ptr<system::Context>& context,
             QObject* parent) :
-            FilesTableModel(filesModel, context, parent),
+            FilesTableModel(filesModel, thumbnailProvider, context, parent),
             _p(new Private)
         {
             TLRENDER_P();

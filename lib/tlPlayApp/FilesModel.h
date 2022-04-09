@@ -11,6 +11,11 @@
 
 namespace tl
 {
+    namespace qt
+    {
+        class TimelineThumbnailProvider;
+    }
+
     namespace play
     {
         //! Files model item.
@@ -151,6 +156,7 @@ namespace tl
         public:
             FilesTableModel(
                 const std::shared_ptr<FilesModel>&,
+                qt::TimelineThumbnailProvider*,
                 const std::shared_ptr<system::Context>&,
                 QObject* parent = nullptr);
 
@@ -167,7 +173,7 @@ namespace tl
             QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
         private Q_SLOTS:
-            void _thumbailCallback(const QList<QPair<otime::RationalTime, QImage> >&);
+            void _thumbnailsCallback(qint64, const QList<QPair<otime::RationalTime, QImage> >&);
 
         protected:
             int _index(const std::shared_ptr<FilesModelItem>&) const;
@@ -186,6 +192,7 @@ namespace tl
         public:
             FilesAModel(
                 const std::shared_ptr<FilesModel>&,
+                qt::TimelineThumbnailProvider*,
                 const std::shared_ptr<system::Context>&,
                 QObject* parent = nullptr);
 
@@ -205,6 +212,7 @@ namespace tl
         public:
             FilesBModel(
                 const std::shared_ptr<FilesModel>&,
+                qt::TimelineThumbnailProvider*,
                 const std::shared_ptr<system::Context>&,
                 QObject* parent = nullptr);
 

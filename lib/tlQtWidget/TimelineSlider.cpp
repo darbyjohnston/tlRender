@@ -26,17 +26,19 @@ namespace tl
         struct TimelineSlider::Private
         {
             std::weak_ptr<system::Context> context;
+            qt::TimelineThumbnailProvider* thumbnailProvider = nullptr;
             imaging::ColorConfig colorConfig;
             qt::TimelinePlayer* timelinePlayer = nullptr;
             qt::TimeUnits units = qt::TimeUnits::Timecode;
             qt::TimeObject* timeObject = nullptr;
             bool thumbnails = true;
-            qt::TimelineThumbnailProvider* thumbnailProvider = nullptr;
+            qint64 thumbnailRequestId = 0;
             std::map<otime::RationalTime, QImage> thumbnailImages;
             bool stopOnScrub = true;
         };
 
         TimelineSlider::TimelineSlider(
+            qt::TimelineThumbnailProvider* thumbnailProvider,
             const std::shared_ptr<system::Context>& context,
             QWidget* parent) :
             QWidget(parent),
@@ -45,6 +47,15 @@ namespace tl
             TLRENDER_P();
 
             p.context = context;
+
+            p.thumbnailProvider = thumbnailProvider;
+            if (p.thumbnailProvider)
+            {
+                connect(
+                    p.thumbnailProvider,
+                    SIGNAL(thumbails(qint64, const QList<QPair<otime::RationalTime, QImage> >&)),
+                    SLOT(_thumbnailsCallback(qint64, const QList<QPair<otime::RationalTime, QImage> >&)));
+            }
 
             setSizePolicy(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
 
@@ -85,10 +96,6 @@ namespace tl
             if (colorConfig == p.colorConfig)
                 return;
             p.colorConfig = colorConfig;
-            if (p.thumbnailProvider)
-            {
-                p.thumbnailProvider->setColorConfig(p.colorConfig);
-            }
             _thumbnailsUpdate();
         }
 
@@ -104,11 +111,6 @@ namespace tl
                     SIGNAL(currentTimeChanged(const otime::RationalTime&)),
                     this,
                     SLOT(update()));
-            }
-            if (p.thumbnailProvider)
-            {
-                delete p.thumbnailProvider;
-                p.thumbnailProvider = nullptr;
             }
             p.timelinePlayer = timelinePlayer;
             if (p.timelinePlayer)
@@ -163,11 +165,6 @@ namespace tl
             if (value == p.thumbnails)
                 return;
             p.thumbnails = value;
-            if (!p.thumbnails && p.thumbnailProvider)
-            {
-                delete p.thumbnailProvider;
-                p.thumbnailProvider = nullptr;
-            }
             _thumbnailsUpdate();
             updateGeometry();
         }
@@ -288,14 +285,18 @@ namespace tl
             }
         }
 
-        void TimelineSlider::_thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >& thumbnails)
+        void TimelineSlider::_thumbnailsCallback(qint64 id, const QList<QPair<otime::RationalTime, QImage> >& thumbnails)
         {
             TLRENDER_P();
             if (p.thumbnails)
             {
-                for (const auto& i : thumbnails)
+                if (id == p.thumbnailRequestId)
                 {
-                    p.thumbnailImages[i.first] = i.second;
+                    for (const auto& i : thumbnails)
+                    {
+                        p.thumbnailImages[i.first] = i.second;
+                    }
+                    p.thumbnailRequestId = 0;
                 }
                 update();
             }
@@ -334,34 +335,20 @@ namespace tl
         void TimelineSlider::_thumbnailsUpdate()
         {
             TLRENDER_P();
+            QString fileName;
+            if (p.timelinePlayer)
+            {
+                fileName = QString::fromUtf8(p.timelinePlayer->path().get().c_str());
+            }
             if (p.thumbnailProvider)
             {
-                p.thumbnailProvider->cancelRequests();
+                p.thumbnailProvider->cancelRequests(p.thumbnailRequestId);
+                p.thumbnailRequestId = 0;
             }
             p.thumbnailImages.clear();
-            if (p.timelinePlayer && p.thumbnails)
+            if (p.thumbnailProvider && p.timelinePlayer && p.thumbnails)
             {
                 setMinimumHeight(50);
-
-                if (!p.thumbnailProvider)
-                {
-                    if (auto context = p.context.lock())
-                    {
-                        timeline::Options options;
-                        options.videoRequestCount = 1;
-                        options.audioRequestCount = 1;
-                        options.requestTimeout = std::chrono::milliseconds(100);
-                        options.ioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").arg(1);
-                        options.ioOptions["ffmpeg/ThreadCount"] = string::Format("{0}").arg(1);
-                        auto timeline = timeline::Timeline::create(p.timelinePlayer->timeline()->getPath().get(), context, options);
-                        p.thumbnailProvider = new qt::TimelineThumbnailProvider(timeline, context, this);
-                        p.thumbnailProvider->setColorConfig(p.colorConfig);
-                        connect(
-                            p.thumbnailProvider,
-                            SIGNAL(thumbails(const QList<QPair<otime::RationalTime, QImage> >&)),
-                            SLOT(_thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >&)));
-                    }
-                }
 
                 const auto& duration = p.timelinePlayer->duration();
                 const auto& info = p.timelinePlayer->ioInfo();
@@ -381,7 +368,11 @@ namespace tl
                         requests.push_back(_posToTime(x));
                         x += thumbnailWidth;
                     }
-                    p.thumbnailProvider->request(requests, QSize(thumbnailWidth, thumbnailHeight));
+                    p.thumbnailRequestId = p.thumbnailProvider->request(
+                        fileName,
+                        requests,
+                        QSize(thumbnailWidth, thumbnailHeight),
+                        p.colorConfig);
                 }
             }
             else

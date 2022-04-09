@@ -13,6 +13,11 @@
 
 namespace tl
 {
+    namespace qt
+    {
+        class TimelineThumbnailProvider;
+    };
+
     namespace qtwidget
     {
         //! Timeline slider.
@@ -34,6 +39,7 @@ namespace tl
 
         public:
             TimelineSlider(
+                qt::TimelineThumbnailProvider*,
                 const std::shared_ptr<system::Context>&,
                 QWidget* parent = nullptr);
 
@@ -76,7 +82,7 @@ namespace tl
             void wheelEvent(QWheelEvent*) override;
 
         private Q_SLOTS:
-            void _thumbnailsCallback(const QList<QPair<otime::RationalTime, QImage> >&);
+            void _thumbnailsCallback(qint64, const QList<QPair<otime::RationalTime, QImage> >&);
 
         private:
             otime::RationalTime _posToTime(int) const;
