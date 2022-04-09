@@ -478,6 +478,28 @@ namespace tl
                                 p.textureCache.add(info, textures);
                                 p.textureCache.add(infoB, texturesB);
                             }
+                            else if (layer.image)
+                            {
+                                p.imageShader->bind();
+                                p.imageShader->setUniform("transform.mvp", mvp);
+
+                                drawImage(
+                                    layer.image,
+                                    imaging::getBBox(layer.image->getAspect(), math::BBox2i(0, 0, size.w, size.h)),
+                                    imaging::Color4f(1.F, 1.F, 1.F, 1.F - layer.transitionValue),
+                                    imageOptions);
+                            }
+                            else if (layer.imageB)
+                            {
+                                p.imageShader->bind();
+                                p.imageShader->setUniform("transform.mvp", mvp);
+
+                                drawImage(
+                                    layer.imageB,
+                                    imaging::getBBox(layer.imageB->getAspect(), math::BBox2i(0, 0, size.w, size.h)),
+                                    imaging::Color4f(1.F, 1.F, 1.F, layer.transitionValue),
+                                    imageOptions);
+                            }
                             break;
                         }
                     default:

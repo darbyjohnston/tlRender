@@ -204,6 +204,7 @@ namespace tl
                 "\n"
                 "{2}\n"
                 "\n"
+                "uniform vec4      color;\n"
                 "uniform int       pixelType;\n"
                 "uniform int       yuvRange;\n"
                 "uniform int       imageChannels;\n"
@@ -231,7 +232,8 @@ namespace tl
                 "        imageChannels,\n"
                 "        textureSampler0,\n"
                 "        textureSampler1,\n"
-                "        textureSampler2);\n"
+                "        textureSampler2) *\n"
+                "        color;\n"
                 "}\n").
                 arg(pixelType).
                 arg(yuvRange).

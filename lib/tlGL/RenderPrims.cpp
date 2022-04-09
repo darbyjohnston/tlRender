@@ -138,6 +138,7 @@ namespace tl
             TLRENDER_P();
 
             p.imageShader->bind();
+            p.imageShader->setUniform("color", color);
             const auto& info = image->getInfo();
             p.imageShader->setUniform("pixelType", static_cast<int>(info.pixelType));
             imaging::YUVRange yuvRange = info.yuvRange;
