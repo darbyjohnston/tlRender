@@ -24,6 +24,9 @@ namespace tl
         //! application is created.
         void init(const std::shared_ptr<system::Context>&);
 
+        //! Shutdown the library.
+        void shutdown();
+
         //! Get a font.
         QFont font(const QString&);
     }

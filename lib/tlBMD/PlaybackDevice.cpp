@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include <tlDL/PlaybackDevice.h>
+#include <tlBMD/PlaybackDevice.h>
 
 #include <tlCore/Context.h>
 #include <tlCore/StringFormat.h>
@@ -13,7 +13,7 @@
 
 namespace tl
 {
-    namespace dl
+    namespace bmd
     {
         struct PlaybackDevice::Private
         {
@@ -38,7 +38,7 @@ namespace tl
                         dlstring_t modelName;
                         deckLink->GetModelName(&modelName);
                         context->log(
-                            "tl::dl::PlaybackDevice",
+                            "tl::bmd::PlaybackDevice",
                             string::Format("Using device {0}: {1}").
                             arg(deviceIndex).
                             arg(DlToStdString(modelName)));

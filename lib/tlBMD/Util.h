@@ -14,7 +14,7 @@ namespace tl
     }
 
     //! Blackmagic Design DeckLink support.
-    namespace dl
+    namespace bmd
     {
         //! Initialize the library.
         void init(const std::shared_ptr<system::Context>&);

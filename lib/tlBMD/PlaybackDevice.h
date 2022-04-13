@@ -13,7 +13,7 @@ namespace tl
         class Context;
     }
 
-    namespace dl
+    namespace bmd
     {
         //! Playback device.
         class PlaybackDevice : public std::enable_shared_from_this<PlaybackDevice>

@@ -15,5 +15,7 @@ int main(int argc, char* argv[])
     auto context = tl::system::Context::create();
     tl::qtwidget::init(context);
     tl::examples::widgets_qtwidget::App app(argc, argv, context);
-    return app.exec();
+    int r = app.exec();
+    tl::qtwidget::shutdown();
+    return r;
 }

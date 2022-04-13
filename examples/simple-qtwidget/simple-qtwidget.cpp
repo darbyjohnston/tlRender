@@ -40,5 +40,11 @@ int main(int argc, char* argv[])
     // Start playback.
     timelinePlayer->setPlayback(tl::timeline::Playback::Forward);
 
-    return app.exec();
+    // Start the application.
+    int r = app.exec();
+
+    // Shutdown the tlQtWidget library.
+    tl::qtwidget::shutdown();
+
+    return r;
 }

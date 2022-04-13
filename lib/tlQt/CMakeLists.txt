@@ -1,5 +1,6 @@
 set(HEADERS
 	MetaTypes.h
+	PlaybackDevice.h
     TimeObject.h
     TimelinePlayer.h
     TimelineThumbnailProvider.h
@@ -7,6 +8,7 @@ set(HEADERS
     Util.h)
 
 set(SOURCE
+	PlaybackDevice.cpp
     TimeObject.cpp
     TimelinePlayer.cpp
     TimelineThumbnailProvider.cpp
@@ -20,10 +22,8 @@ if(TLRENDER_BUILD_QT6)
 elseif(TLRENDER_BUILD_QT5)
 	list(APPEND LIBRARIES Qt5::Gui)
 endif()
-if(TLRENDER_BUILD_DL)
-	list(APPEND HEADERS DLPlayback.h)
-	list(APPEND SOURCE DLPlayback.cpp)
-    list(APPEND LIBRARIES tlDL)
+if(TLRENDER_BUILD_BMD)
+    list(APPEND LIBRARIES tlBMD)
 endif()
 list(APPEND LIBRARIES tlGL)
 

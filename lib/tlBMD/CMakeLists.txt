@@ -32,8 +32,7 @@ if(WIN32)
         ${MIDL_OUTPUT_HEADER}
         ${MIDL_OUTPUT_TLB})
 
-    set(DECKLINK_API_IDL "${CMAKE_CURRENT_SOURCE_DIR}/Win/DeckLinkAPI.idl")
-    set(DECKLINK_SDK_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR})
+    set(DECKLINK_API_IDL "${TLRENDER_BMD_SDK}/Win/include/DeckLinkAPI.idl")
 	
 	set(MIDL_MACHINE amd64)
 
@@ -46,17 +45,17 @@ if(WIN32)
     add_custom_target(MIDL_Target DEPENDS ${MIDL_OUTPUT})
 endif()
 
-add_library(tlDL ${HEADERS} ${SOURCE} ${DECKLINK_SOURCE})
-target_include_directories(tlDL PRIVATE ${DECKLINK_INCLUDE_DIR})
-target_link_libraries(tlDL tlTimeline ${DECKLINK_LIBRARIES})
-set_target_properties(tlDL PROPERTIES FOLDER lib)
-set_target_properties(tlDL PROPERTIES PUBLIC_HEADER "${HEADERS}")
+add_library(tlBMD ${HEADERS} ${SOURCE} ${DECKLINK_SOURCE})
+target_include_directories(tlBMD PRIVATE ${DECKLINK_INCLUDE_DIR})
+target_link_libraries(tlBMD tlTimeline ${DECKLINK_LIBRARIES})
+set_target_properties(tlBMD PROPERTIES FOLDER lib)
+set_target_properties(tlBMD PROPERTIES PUBLIC_HEADER "${HEADERS}")
 if(WIN32)
-    add_dependencies(tlDL MIDL_Target)
+    add_dependencies(tlBMD MIDL_Target)
 endif()
 
-install(TARGETS tlDL
+install(TARGETS tlBMD
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
-    PUBLIC_HEADER DESTINATION include/tlRender/tlDL)
+    PUBLIC_HEADER DESTINATION include/tlRender/tlBMD)

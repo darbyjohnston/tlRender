@@ -9,7 +9,7 @@
 
 namespace tl
 {
-    namespace dl
+    namespace bmd
     {
         //! Device information.
         struct DeviceInfo

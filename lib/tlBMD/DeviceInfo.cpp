@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include <tlDL/DeviceInfo.h>
+#include <tlBMD/DeviceInfo.h>
 
 #include <tlCore/Context.h>
 #include <tlCore/StringFormat.h>
@@ -11,7 +11,7 @@
 
 namespace tl
 {
-    namespace dl
+    namespace bmd
     {
         bool DeviceInfo::operator == (const DeviceInfo& other) const
         {
@@ -25,7 +25,7 @@ namespace tl
 
         void DeviceInfoSystem::_init(const std::shared_ptr<system::Context>& context)
         {
-            ISystem::_init("tl::dl::DeviceInfoSystem", context);
+            ISystem::_init("tl::bmd::DeviceInfoSystem", context);
 
             TLRENDER_P();
 
@@ -50,7 +50,7 @@ namespace tl
                     info.push_back(deviceInfo);
 
                     context->log(
-                        "tl::dl::DeviceInfoSystem",
+                        "tl::bmd::DeviceInfoSystem",
                         string::Format("Found device: {0}").arg(deviceInfo.model));
                 }
             }

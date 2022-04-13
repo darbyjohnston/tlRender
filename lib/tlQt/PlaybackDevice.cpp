@@ -2,12 +2,14 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include <tlQt/DLPlayback.h>
+#include <tlQt/PlaybackDevice.h>
 
 #include <tlGL/OffscreenBuffer.h>
 #include <tlGL/Render.h>
 
-#include <tlDL/PlaybackDevice.h>
+#if defined(TLRENDER_BUILD_BMD)
+#include <tlBMD/PlaybackDevice.h>
+#endif // TLRENDER_BUILD_BMD
 
 #include <tlCore/Context.h>
 
@@ -21,9 +23,11 @@ namespace tl
 {
     namespace qt
     {
-        struct DLPlayback::Private
+        struct PlaybackDevice::Private
         {
-            std::shared_ptr<dl::PlaybackDevice> device;
+#if defined(TLRENDER_BUILD_BMD)
+            std::shared_ptr<bmd::PlaybackDevice> device;
+#endif // TLRENDER_BUILD_BMD
             imaging::ColorConfig colorConfig;
             std::vector<timeline::ImageOptions> imageOptions;
             std::vector<timeline::DisplayOptions> displayOptions;
@@ -40,14 +44,16 @@ namespace tl
             QScopedPointer<QOpenGLContext> glContext;
         };
 
-        DLPlayback::DLPlayback(
+        PlaybackDevice::PlaybackDevice(
             int deviceIndex,
             const std::shared_ptr<system::Context>& context) :
             _p(new Private)
         {
             TLRENDER_P();
 
-            p.device = dl::PlaybackDevice::create(deviceIndex, context);
+#if defined(TLRENDER_BUILD_BMD)
+            p.device = bmd::PlaybackDevice::create(deviceIndex, context);
+#endif // TLRENDER_BUILD_BMD
 
             p.glContext.reset(new QOpenGLContext);
             QSurfaceFormat surfaceFormat;
@@ -67,10 +73,10 @@ namespace tl
             p.render = gl::Render::create(context);
         }
 
-        DLPlayback::~DLPlayback()
+        PlaybackDevice::~PlaybackDevice()
         {}
 
-        void DLPlayback::setColorConfig(const imaging::ColorConfig& value)
+        void PlaybackDevice::setColorConfig(const imaging::ColorConfig& value)
         {
             TLRENDER_P();
             if (value == p.colorConfig)
@@ -79,7 +85,7 @@ namespace tl
             _render();
         }
 
-        void DLPlayback::setImageOptions(const std::vector<timeline::ImageOptions>& value)
+        void PlaybackDevice::setImageOptions(const std::vector<timeline::ImageOptions>& value)
         {
             TLRENDER_P();
             if (value == p.imageOptions)
@@ -88,7 +94,7 @@ namespace tl
             _render();
         }
 
-        void DLPlayback::setDisplayOptions(const std::vector<timeline::DisplayOptions>& value)
+        void PlaybackDevice::setDisplayOptions(const std::vector<timeline::DisplayOptions>& value)
         {
             TLRENDER_P();
             if (value == p.displayOptions)
@@ -97,7 +103,7 @@ namespace tl
             _render();
         }
 
-        void DLPlayback::setCompareOptions(const timeline::CompareOptions& value)
+        void PlaybackDevice::setCompareOptions(const timeline::CompareOptions& value)
         {
             TLRENDER_P();
             if (value == p.compareOptions)
@@ -106,7 +112,7 @@ namespace tl
             _render();
         }
 
-        void DLPlayback::setTimelinePlayers(const std::vector<qt::TimelinePlayer*>& value)
+        void PlaybackDevice::setTimelinePlayers(const std::vector<qt::TimelinePlayer*>& value)
         {
             TLRENDER_P();
             p.videoData.clear();
@@ -134,26 +140,26 @@ namespace tl
             _render();
         }
 
-        const math::Vector2i& DLPlayback::viewPos() const
+        const math::Vector2i& PlaybackDevice::viewPos() const
         {
             return _p->viewPos;
         }
 
-        float DLPlayback::viewZoom() const
+        float PlaybackDevice::viewZoom() const
         {
             return _p->viewZoom;
         }
 
-        void DLPlayback::setViewPosAndZoom(const tl::math::Vector2i&, float)
+        void PlaybackDevice::setViewPosAndZoom(const tl::math::Vector2i&, float)
         {}
 
-        void DLPlayback::setViewZoom(float, const tl::math::Vector2i& focus)
+        void PlaybackDevice::setViewZoom(float, const tl::math::Vector2i& focus)
         {}
 
-        void DLPlayback::frameView()
+        void PlaybackDevice::frameView()
         {}
 
-        void DLPlayback::_videoCallback(const tl::timeline::VideoData& value)
+        void PlaybackDevice::_videoCallback(const tl::timeline::VideoData& value)
         {
             TLRENDER_P();
             const auto i = std::find(p.timelinePlayers.begin(), p.timelinePlayers.end(), sender());
@@ -165,10 +171,10 @@ namespace tl
             _render();
         }
 
-        void DLPlayback::_frameView()
+        void PlaybackDevice::_frameView()
         {}
 
-        void DLPlayback::_render()
+        void PlaybackDevice::_render()
         {
             TLRENDER_P();
 
@@ -208,7 +214,9 @@ namespace tl
                     GL_UNSIGNED_BYTE,
                     image->getData());
 
+#if defined(TLRENDER_BUILD_BMD)
                 p.device->display(image);
+#endif // TLRENDER_BUILD_BMD
             }
         }
     }

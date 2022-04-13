@@ -2,9 +2,9 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include <tlDL/Util.h>
+#include <tlBMD/Util.h>
 
-#include <tlDL/DeviceInfo.h>
+#include <tlBMD/DeviceInfo.h>
 
 #include <tlCore/Context.h>
 
@@ -14,7 +14,7 @@
 
 namespace tl
 {
-    namespace dl
+    namespace bmd
     {
         void init(const std::shared_ptr<system::Context>& context)
         {

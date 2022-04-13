@@ -21,5 +21,8 @@ namespace tl
         //! Initialize the library. This needs to be called before the Qt
         //! application is created.
         void init(const std::shared_ptr<system::Context>&);
+
+        //! Shutdown the library.
+        void shutdown();
     }
 }

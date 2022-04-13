@@ -33,9 +33,7 @@
 #include <tlQtWidget/TimelineViewport.h>
 #include <tlQtWidget/Util.h>
 
-#if defined(TLRENDER_BUILD_DL)
-#include <tlQt/DLPlayback.h>
-#endif // TLRENDER_BUILD_DL
+#include <tlQt/PlaybackDevice.h>
 
 #include <tlCore/File.h>
 #include <tlCore/String.h>
@@ -106,9 +104,7 @@ namespace tl
             QLabel* infoLabel = nullptr;
             QStatusBar* statusBar = nullptr;
             SecondaryWindow* secondaryWindow = nullptr;
-#if defined(TLRENDER_BUILD_DL)
-            qt::DLPlayback* dlPlayback = nullptr;
-#endif // TLRENDER_BUILD_DL
+            qt::PlaybackDevice* playbackDevice = nullptr;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ValueObserver<int> > aIndexObserver;
@@ -363,9 +359,7 @@ namespace tl
             p.statusBar->addPermanentWidget(p.infoLabel);
             setStatusBar(p.statusBar);
 
-#if defined(TLRENDER_BUILD_DL)
-            p.dlPlayback = new qt::DLPlayback(0, app->getContext());
-#endif // TLRENDER_BUILD_DL
+            p.playbackDevice = new qt::PlaybackDevice(0, app->getContext());
 
             _widgetUpdate();
 
@@ -671,13 +665,11 @@ namespace tl
                 delete p.secondaryWindow;
                 p.secondaryWindow = nullptr;
             }
-#if defined(TLRENDER_BUILD_DL)
-            if (p.dlPlayback)
+            if (p.playbackDevice)
             {
-                delete p.dlPlayback;
-                p.dlPlayback = nullptr;
+                delete p.playbackDevice;
+                p.playbackDevice = nullptr;
             }
-#endif // TLRENDER_BUILD_DL
         }
 
         void MainWindow::setTimelinePlayers(const std::vector<qt::TimelinePlayer*>& timelinePlayers)
@@ -1100,15 +1092,13 @@ namespace tl
                 p.secondaryWindow->viewport()->setTimelinePlayers(p.timelinePlayers);
             }
 
-#if defined(TLRENDER_BUILD_DL)
-            if (p.dlPlayback)
+            if (p.playbackDevice)
             {
-                p.dlPlayback->setColorConfig(p.colorConfig);
-                p.dlPlayback->setImageOptions(imageOptions);
-                p.dlPlayback->setCompareOptions(p.compareOptions);
-                p.dlPlayback->setTimelinePlayers(p.timelinePlayers);
+                p.playbackDevice->setColorConfig(p.colorConfig);
+                p.playbackDevice->setImageOptions(imageOptions);
+                p.playbackDevice->setCompareOptions(p.compareOptions);
+                p.playbackDevice->setTimelinePlayers(p.timelinePlayers);
             }
-#endif // TLRENDER_BUILD_DL
         }
     }
 }

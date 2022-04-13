@@ -20,17 +20,17 @@ namespace tl
 
     namespace qt
     {
-        //! DeckLink playback.
-        class DLPlayback : public QObject
+        //! Playback device.
+        class PlaybackDevice : public QObject
         {
             Q_OBJECT
 
         public:
-            DLPlayback(
+            PlaybackDevice(
                 int deviceIndex,
                 const std::shared_ptr<system::Context>&);
 
-            ~DLPlayback();
+            ~PlaybackDevice();
 
             //! Set the color configuration.
             void setColorConfig(const imaging::ColorConfig&);
