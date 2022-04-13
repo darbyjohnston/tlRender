@@ -4,12 +4,14 @@ set(HEADERS
     IOTest.h
     PPMTest.h
     SGITest.h)
+
 set(SOURCE
     CineonTest.cpp
     DPXTest.cpp
     IOTest.cpp
     PPMTest.cpp
     SGITest.cpp)
+
 if(FFmpeg_FOUND)
     list(APPEND HEADERS FFmpegTest.h)
     list(APPEND SOURCE FFmpegTest.cpp)

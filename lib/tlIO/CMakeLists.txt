@@ -9,6 +9,7 @@ set(HEADERS
     SequenceIO.h
 	SGI.h
 	Util.h)
+
 set(SOURCE
     CineonRead.cpp
     CineonWrite.cpp
@@ -27,40 +28,40 @@ set(SOURCE
 	SGIWrite.cpp
 	Util.cpp)
 
-set(tlIO_LIBRARIES tlCore)
+set(LIBRARIES tlCore)
 if(JPEG_FOUND)
     list(APPEND HEADERS JPEG.h)
     list(APPEND SOURCE JPEG.cpp JPEGRead.cpp JPEGWrite.cpp)
-    list(APPEND tlIO_LIBRARIES JPEG)
+    list(APPEND LIBRARIES JPEG)
 endif()
 if(TIFF_FOUND)
     list(APPEND HEADERS TIFF.h)
     list(APPEND SOURCE TIFF.cpp TIFFRead.cpp TIFFWrite.cpp)
-    list(APPEND tlIO_LIBRARIES TIFF)
+    list(APPEND LIBRARIES TIFF)
 endif()
 if(PNG_FOUND)
     list(APPEND HEADERS PNG.h)
     list(APPEND SOURCE PNG.cpp PNGRead.cpp PNGWrite.cpp)
-    list(APPEND tlIO_LIBRARIES PNG)
+    list(APPEND LIBRARIES PNG)
 endif()
 if(OpenEXR_FOUND)
     list(APPEND HEADERS OpenEXR.h)
     list(APPEND SOURCE OpenEXR.cpp OpenEXRRead.cpp OpenEXRWrite.cpp)
-    list(APPEND tlIO_LIBRARIES OpenEXR)
+    list(APPEND LIBRARIES OpenEXR)
 endif()
 if(FFmpeg_FOUND)
     list(APPEND HEADERS FFmpeg.h)
     list(APPEND SOURCE FFmpeg.cpp FFmpegRead.cpp FFmpegWrite.cpp)
-    list(APPEND tlIO_LIBRARIES FFmpeg)
+    list(APPEND LIBRARIES FFmpeg)
 endif()
 
 add_library(tlIO ${HEADERS} ${SOURCE})
-target_link_libraries(tlIO ${tlIO_LIBRARIES})
+target_link_libraries(tlIO ${LIBRARIES})
 set_target_properties(tlIO PROPERTIES FOLDER lib)
 set_target_properties(tlIO PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
 install(TARGETS tlIO
-        ARCHIVE DESTINATION lib
-        LIBRARY DESTINATION lib
-        RUNTIME DESTINATION bin
-        PUBLIC_HEADER DESTINATION include/tlRender/tlIO)
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+    PUBLIC_HEADER DESTINATION include/tlRender/tlIO)

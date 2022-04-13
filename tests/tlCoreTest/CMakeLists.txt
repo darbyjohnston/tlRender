@@ -18,6 +18,7 @@ set(HEADERS
     StringFormatTest.h
     TimeTest.h
     ValueObserverTest.h)
+
 set(SOURCE
     AudioTest.cpp
     BBoxTest.cpp

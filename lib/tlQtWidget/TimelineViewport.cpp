@@ -67,42 +67,43 @@ namespace tl
         TimelineViewport::~TimelineViewport()
         {}
 
-        void TimelineViewport::setColorConfig(const imaging::ColorConfig& colorConfig)
-        {
-            if (colorConfig == _p->colorConfig)
-                return;
-            _p->colorConfig = colorConfig;
-            update();
-        }
-
-        void TimelineViewport::setImageOptions(const std::vector<timeline::ImageOptions>& options)
+        void TimelineViewport::setColorConfig(const imaging::ColorConfig& value)
         {
             TLRENDER_P();
-            if (options == p.imageOptions)
+            if (value == p.colorConfig)
                 return;
-            p.imageOptions = options;
+            p.colorConfig = value;
             update();
         }
 
-        void TimelineViewport::setDisplayOptions(const std::vector<timeline::DisplayOptions>& options)
+        void TimelineViewport::setImageOptions(const std::vector<timeline::ImageOptions>& value)
         {
             TLRENDER_P();
-            if (options == p.displayOptions)
+            if (value == p.imageOptions)
                 return;
-            p.displayOptions = options;
+            p.imageOptions = value;
             update();
         }
 
-        void TimelineViewport::setCompareOptions(const timeline::CompareOptions& options)
+        void TimelineViewport::setDisplayOptions(const std::vector<timeline::DisplayOptions>& value)
         {
             TLRENDER_P();
-            if (options == p.compareOptions)
+            if (value == p.displayOptions)
                 return;
-            p.compareOptions = options;
+            p.displayOptions = value;
             update();
         }
 
-        void TimelineViewport::setTimelinePlayers(const std::vector<qt::TimelinePlayer*>& timelinePlayers)
+        void TimelineViewport::setCompareOptions(const timeline::CompareOptions& value)
+        {
+            TLRENDER_P();
+            if (value == p.compareOptions)
+                return;
+            p.compareOptions = value;
+            update();
+        }
+
+        void TimelineViewport::setTimelinePlayers(const std::vector<qt::TimelinePlayer*>& value)
         {
             TLRENDER_P();
             p.videoData.clear();
@@ -114,7 +115,7 @@ namespace tl
                     this,
                     SLOT(_videoCallback(const tl::timeline::VideoData&)));
             }
-            p.timelinePlayers = timelinePlayers;
+            p.timelinePlayers = value;
             for (const auto& i : p.timelinePlayers)
             {
                 _p->videoData.push_back(i->video());

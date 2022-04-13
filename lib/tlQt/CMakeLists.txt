@@ -5,6 +5,7 @@ set(HEADERS
     TimelineThumbnailProvider.h
     ToolTipsFilter.h
     Util.h)
+
 set(SOURCE
     TimeObject.cpp
     TimelinePlayer.cpp
@@ -12,12 +13,22 @@ set(SOURCE
     ToolTipsFilter.cpp
     Util.cpp)
 
-add_library(tlQt ${HEADERS} ${SOURCE})
+set(LIBRARIES)
+
 if(TLRENDER_BUILD_QT6)
-	target_link_libraries(tlQt Qt6::Gui Qt6::OpenGL tlGL)
+	list(APPEND LIBRARIES Qt6::Gui Qt6::OpenGL)
 elseif(TLRENDER_BUILD_QT5)
-	target_link_libraries(tlQt Qt5::Gui tlGL)
+	list(APPEND LIBRARIES Qt5::Gui)
 endif()
+if(TLRENDER_BUILD_DL)
+	list(APPEND HEADERS DLPlayback.h)
+	list(APPEND SOURCE DLPlayback.cpp)
+    list(APPEND LIBRARIES tlDL)
+endif()
+list(APPEND LIBRARIES tlGL)
+
+add_library(tlQt ${HEADERS} ${SOURCE})
+target_link_libraries(tlQt ${LIBRARIES})
 set_target_properties(tlQt PROPERTIES FOLDER lib)
 set_target_properties(tlQt PROPERTIES PUBLIC_HEADER "${HEADERS}")
 

@@ -13,6 +13,7 @@ set(HEADERS
     TimelineSlider.h
     TimelineViewport.h
     Util.h)
+
 set(SOURCE
 	BellowsPrivate.cpp
 	BellowsWidget.cpp
@@ -28,23 +29,28 @@ set(SOURCE
     TimelineSlider.cpp
     TimelineViewport.cpp
     Util.cpp)
+
 if(TLRENDER_BUILD_QT6)
 	qt6_add_resources(SOURCE tlQtWidget.qrc)
 elseif(TLRENDER_BUILD_QT5)
 	qt5_add_resources(SOURCE tlQtWidget.qrc)
 endif()
 
-add_library(tlQtWidget ${HEADERS} ${SOURCE})
+set(LIBRARIES)
 if(TLRENDER_BUILD_QT6)
-	target_link_libraries(tlQtWidget Qt6::Widgets Qt6::OpenGLWidgets Qt6::Svg tlQt)
+	list(APPEND LIBRARIES Qt6::Widgets Qt6::OpenGLWidgets Qt6::Svg)
 elseif(TLRENDER_BUILD_QT5)
-	target_link_libraries(tlQtWidget Qt5::Widgets Qt5::Svg tlQt)
+	list(APPEND LIBRARIES Qt5::Widgets Qt5::Svg)
 endif()
+list(APPEND LIBRARIES tlQt)
+
+add_library(tlQtWidget ${HEADERS} ${SOURCE})
+target_link_libraries(tlQtWidget ${LIBRARIES})
 set_target_properties(tlQtWidget PROPERTIES FOLDER lib)
 set_target_properties(tlQtWidget PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
 install(TARGETS tlQtWidget
-        ARCHIVE DESTINATION lib
-        LIBRARY DESTINATION lib
-        RUNTIME DESTINATION bin
-        PUBLIC_HEADER DESTINATION include/tlRender/tlQtWidget)
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+    PUBLIC_HEADER DESTINATION include/tlRender/tlQtWidget)

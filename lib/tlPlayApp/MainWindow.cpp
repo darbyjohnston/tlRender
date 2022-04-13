@@ -17,6 +17,7 @@
 #include <tlPlayApp/ImageActions.h>
 #include <tlPlayApp/InfoTool.h>
 #include <tlPlayApp/MessagesTool.h>
+#include <tlPlayApp/OutputTool.h>
 #include <tlPlayApp/PlaybackActions.h>
 #include <tlPlayApp/SecondaryWindow.h>
 #include <tlPlayApp/SettingsObject.h>
@@ -31,6 +32,10 @@
 #include <tlQtWidget/TimelineSlider.h>
 #include <tlQtWidget/TimelineViewport.h>
 #include <tlQtWidget/Util.h>
+
+#if defined(TLRENDER_BUILD_DL)
+#include <tlQt/DLPlayback.h>
+#endif // TLRENDER_BUILD_DL
 
 #include <tlCore/File.h>
 #include <tlCore/String.h>
@@ -94,12 +99,16 @@ namespace tl
             ColorTool* colorTool = nullptr;
             InfoTool* infoTool = nullptr;
             AudioTool* audioTool = nullptr;
+            OutputTool* outputTool = nullptr;
             SettingsTool* settingsTool = nullptr;
             MessagesTool* messagesTool = nullptr;
             SystemLogTool* systemLogTool = nullptr;
             QLabel* infoLabel = nullptr;
             QStatusBar* statusBar = nullptr;
             SecondaryWindow* secondaryWindow = nullptr;
+#if defined(TLRENDER_BUILD_DL)
+            qt::DLPlayback* dlPlayback = nullptr;
+#endif // TLRENDER_BUILD_DL
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ValueObserver<int> > aIndexObserver;
@@ -304,6 +313,17 @@ namespace tl
             p.windowActions->menu()->addAction(audioDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, audioDockWidget);
 
+            p.outputTool = new OutputTool();
+            auto outputDockWidget = new QDockWidget;
+            outputDockWidget->setObjectName("OutputTool");
+            outputDockWidget->setWindowTitle(tr("Output"));
+            outputDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+            outputDockWidget->setWidget(p.outputTool);
+            outputDockWidget->hide();
+            outputDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F6));
+            p.windowActions->menu()->addAction(outputDockWidget->toggleViewAction());
+            addDockWidget(Qt::RightDockWidgetArea, outputDockWidget);
+
             p.settingsTool = new SettingsTool(app->settingsObject(), app->timeObject());
             auto settingsDockWidget = new QDockWidget;
             settingsDockWidget->setObjectName("SettingsTool");
@@ -342,6 +362,10 @@ namespace tl
             p.statusBar = new QStatusBar;
             p.statusBar->addPermanentWidget(p.infoLabel);
             setStatusBar(p.statusBar);
+
+#if defined(TLRENDER_BUILD_DL)
+            p.dlPlayback = new qt::DLPlayback(0, app->getContext());
+#endif // TLRENDER_BUILD_DL
 
             _widgetUpdate();
 
@@ -647,6 +671,13 @@ namespace tl
                 delete p.secondaryWindow;
                 p.secondaryWindow = nullptr;
             }
+#if defined(TLRENDER_BUILD_DL)
+            if (p.dlPlayback)
+            {
+                delete p.dlPlayback;
+                p.dlPlayback = nullptr;
+            }
+#endif // TLRENDER_BUILD_DL
         }
 
         void MainWindow::setTimelinePlayers(const std::vector<qt::TimelinePlayer*>& timelinePlayers)
@@ -1063,11 +1094,21 @@ namespace tl
 
             if (p.secondaryWindow)
             {
-                p.secondaryWindow->viewport()->setTimelinePlayers(p.timelinePlayers);
                 p.secondaryWindow->viewport()->setColorConfig(p.colorConfig);
                 p.secondaryWindow->viewport()->setImageOptions(imageOptions);
                 p.secondaryWindow->viewport()->setCompareOptions(p.compareOptions);
+                p.secondaryWindow->viewport()->setTimelinePlayers(p.timelinePlayers);
             }
+
+#if defined(TLRENDER_BUILD_DL)
+            if (p.dlPlayback)
+            {
+                p.dlPlayback->setColorConfig(p.colorConfig);
+                p.dlPlayback->setImageOptions(imageOptions);
+                p.dlPlayback->setCompareOptions(p.compareOptions);
+                p.dlPlayback->setTimelinePlayers(p.timelinePlayers);
+            }
+#endif // TLRENDER_BUILD_DL
         }
     }
 }

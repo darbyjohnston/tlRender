@@ -6,6 +6,7 @@ set(HEADERS
     Shader.h
     Texture.h
     Util.h)
+
 set(SOURCE
     Mesh.cpp
     Mesh.cpp
@@ -18,13 +19,15 @@ set(SOURCE
     Texture.cpp
     Util.cpp)
 
+set(LIBRARIES tlTimeline tlGlad)
+
 add_library(tlGL ${HEADERS} ${SOURCE})
-target_link_libraries(tlGL tlTimeline tlGlad)
+target_link_libraries(tlGL ${LIBRARIES})
 set_target_properties(tlGL PROPERTIES FOLDER lib)
 set_target_properties(tlGL PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
 install(TARGETS tlGL
-        ARCHIVE DESTINATION lib
-        LIBRARY DESTINATION lib
-        RUNTIME DESTINATION bin
-        PUBLIC_HEADER DESTINATION include/tlRender/tlGL)
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+    PUBLIC_HEADER DESTINATION include/tlRender/tlGL)

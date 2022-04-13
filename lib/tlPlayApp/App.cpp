@@ -18,6 +18,10 @@
 #include <tlQt/TimelineThumbnailProvider.h>
 #include <tlQt/TimelinePlayer.h>
 
+#if defined(TLRENDER_BUILD_DL)
+#include <tlDL/Util.h>
+#endif // TLRENDER_BUILD_DL
+
 #include <tlTimeline/Util.h>
 
 #include <tlIO/IOSystem.h>
@@ -167,6 +171,11 @@ namespace tl
                 return;
             }
 
+            // Initialize libraries.
+#if defined(TLRENDER_BUILD_DL)
+            dl::init(context);
+#endif // TLRENDER_BUILD_DL
+
             // Initialize Qt.
             QCoreApplication::setOrganizationName("tlRender");
             QCoreApplication::setApplicationName("tlplay");
@@ -268,6 +277,11 @@ namespace tl
             delete p.mainWindow;
             //! \bug Why is it necessary to manually delete this to get the settings to save?
             delete p.settingsObject;
+
+            // Shutdown libraries.
+#if defined(TLRENDER_BUILD_DL)
+            dl::shutdown();
+#endif // TLRENDER_BUILD_DL
         }
 
         qt::TimeObject* App::timeObject() const

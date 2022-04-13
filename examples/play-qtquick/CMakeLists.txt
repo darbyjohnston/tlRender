@@ -1,8 +1,10 @@
 set(HEADERS
     App.h)
+
 set(SOURCE
     App.cpp
     main.cpp)
+
 if(TLRENDER_BUILD_QT6)
 	qt6_add_resources(SOURCE play-qtquick.qrc)
 elseif(TLRENDER_BUILD_QT5)

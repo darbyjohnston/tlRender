@@ -1,6 +1,7 @@
 set(HEADERS
     App.h
     MainWindow.h)
+
 set(SOURCE
     App.cpp
     MainWindow.cpp

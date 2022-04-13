@@ -1,5 +1,9 @@
-set(HEADERS gl.h khrplatform.h)
-set(SOURCE gl.c)
+set(HEADERS
+	gl.h
+	khrplatform.h)
+
+set(SOURCE
+	gl.c)
 
 add_library(tlGlad ${HEADERS} ${SOURCE})
 target_link_libraries(tlGlad OpenGL::GL ${CMAKE_DL_LIBS})

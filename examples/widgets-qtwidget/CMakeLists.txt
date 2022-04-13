@@ -3,6 +3,7 @@ set(HEADERS
 	FloatSlider.h
 	IntSlider.h
 	MainWindow.h)
+
 set(SOURCE
 	App.cpp
 	FloatSlider.cpp

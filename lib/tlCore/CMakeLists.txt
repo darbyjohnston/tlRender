@@ -52,6 +52,7 @@ set(HEADERS
     ValueObserverInline.h
 	Vector.h
 	VectorInline.h)
+
 set(SOURCE
     Assert.cpp
     Audio.cpp
@@ -77,8 +78,7 @@ set(SOURCE
     Time.cpp
 	Vector.cpp)
 if (WIN32)
-    set(SOURCE
-        ${SOURCE}
+    list(APPEND SOURCE
         ErrorWin32.cpp
         FileIOWin32.cpp
         FileInfoWin32.cpp
@@ -86,8 +86,7 @@ if (WIN32)
 		OSWin32.cpp
         TimeWin32.cpp)
 else()
-    set(SOURCE
-        ${SOURCE}
+    list(APPEND SOURCE
         FileIOUnix.cpp
         FileInfoUnix.cpp
         FileUnix.cpp
@@ -95,19 +94,19 @@ else()
         TimeUnix.cpp)
 endif()
 
-set(tlCore_LIBRARIES OTIO OCIO FreeType FSeq GLM RtAudio libsamplerate)
+set(LIBRARIES OTIO OCIO FreeType FSeq GLM RtAudio libsamplerate)
 if(TLRENDER_ENABLE_PYTHON)
-    list(APPEND tlCore_LIBRARIES Python3::Python)
+    list(APPEND LIBRARIES Python3::Python)
 endif()
-list(APPEND tlCore_LIBRARIES Imath Threads::Threads)
+list(APPEND LIBRARIES Imath Threads::Threads)
 
 add_library(tlCore ${HEADERS} ${SOURCE})
-target_link_libraries(tlCore ${tlCore_LIBRARIES})
+target_link_libraries(tlCore ${LIBRARIES})
 set_target_properties(tlCore PROPERTIES FOLDER lib)
 set_target_properties(tlCore PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
 install(TARGETS tlCore
-        ARCHIVE DESTINATION lib
-        LIBRARY DESTINATION lib
-        RUNTIME DESTINATION bin
-        PUBLIC_HEADER DESTINATION include/tlRender/tlCore)
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+    PUBLIC_HEADER DESTINATION include/tlRender/tlCore)

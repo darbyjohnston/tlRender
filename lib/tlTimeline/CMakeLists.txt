@@ -10,6 +10,7 @@ set(HEADERS
 	UtilInline.h
 	Video.h
 	VideoInline.h)
+
 set(SOURCE
 	Audio.cpp
 	IRender.cpp
@@ -24,7 +25,7 @@ set_target_properties(tlTimeline PROPERTIES FOLDER lib)
 set_target_properties(tlTimeline PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
 install(TARGETS tlTimeline
-        ARCHIVE DESTINATION lib
-        LIBRARY DESTINATION lib
-        RUNTIME DESTINATION bin
-        PUBLIC_HEADER DESTINATION include/tlRender/tlTimeline)
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+    PUBLIC_HEADER DESTINATION include/tlRender/tlTimeline)
