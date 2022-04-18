@@ -18,6 +18,7 @@ namespace tl
         struct PlaybackDevice::Private
         {
             int deviceIndex = -1;
+            IDeckLink* deckLink = nullptr;
         };
 
         void PlaybackDevice::_init(int deviceIndex, const std::shared_ptr<system::Context>& context)
@@ -28,24 +29,21 @@ namespace tl
             IDeckLinkIterator* deckLinkIterator = nullptr;
             if (GetDeckLinkIterator(&deckLinkIterator) == S_OK)
             {
-                IDeckLink* deckLink = nullptr;
-                while (deckLinkIterator->Next(&deckLink) == S_OK)
+                while (deckLinkIterator->Next(&p.deckLink) == S_OK)
                 {
                     if (count == deviceIndex)
                     {
                         p.deviceIndex = deviceIndex;
 
                         dlstring_t modelName;
-                        deckLink->GetModelName(&modelName);
+                        p.deckLink->GetModelName(&modelName);
                         context->log(
                             "tl::bmd::PlaybackDevice",
                             string::Format("Using device {0}: {1}").
                             arg(deviceIndex).
                             arg(DlToStdString(modelName)));
                         DeleteString(modelName);
-                        
-                        deckLink->Release();
-                        
+
                         break;
                     }
 
@@ -63,7 +61,13 @@ namespace tl
         {}
 
         PlaybackDevice::~PlaybackDevice()
-        {}
+        {
+            TLRENDER_P();
+            if (p.deckLink)
+            {
+                p.deckLink->Release();
+            }
+        }
 
         std::shared_ptr<PlaybackDevice> PlaybackDevice::create(
             int deviceIndex,
