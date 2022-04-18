@@ -11,11 +11,11 @@ add_definitions(-DTLRENDER_VERSION_PATCH=${TLRENDER_VERSION_PATCH})
 add_definitions(-DTLRENDER_VERSION="${TLRENDER_VERSION}")
 
 project(
-	tlRender
+    tlRender
     VERSION ${TLRENDER_VERSION}
     DESCRIPTION "tlRender is an open source library for building playback and review applications for visual effects, film, and animation"
     HOMEPAGE_URL "https://github.com/darbyjohnston/tlRender"
-	LANGUAGES CXX C)
+    LANGUAGES CXX C)
 
 #-------------------------------------------------------------------------------
 # Build options
