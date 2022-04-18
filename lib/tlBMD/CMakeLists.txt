@@ -43,6 +43,17 @@ if(WIN32)
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
     set_source_files_properties(${MIDL_OUTPUT} PROPERTIES GENERATED TRUE)
     add_custom_target(MIDL_Target DEPENDS ${MIDL_OUTPUT})
+elseif(APPLE)
+elseif(UNIX)
+	set(DECKLINK_INCLUDE_DIR
+	    ${CMAKE_CURRENT_SOURCE_DIR}/Linux
+		${TLRENDER_BMD_SDK})
+
+    set(DECKLINK_SOURCE
+        ${TLRENDER_BMD_SDK}/DeckLinkAPI.h
+        ${TLRENDER_BMD_SDK}/DeckLinkAPIDispatch.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Linux/platform.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Linux/platform.cpp)
 endif()
 
 add_library(tlBMD ${HEADERS} ${SOURCE} ${DECKLINK_SOURCE})
