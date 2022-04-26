@@ -523,6 +523,8 @@ namespace tl
             {
                 glViewport(0, 0, p.size.w, p.size.h);
 
+                glBlendFunc(GL_ONE, GL_ZERO);
+
                 p.displayShader->bind();
                 p.displayShader->setUniform("textureSampler0", 0);
                 p.displayShader->setUniform("textureSampler1", 1);

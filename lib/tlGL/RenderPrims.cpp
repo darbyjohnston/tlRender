@@ -159,13 +159,13 @@ namespace tl
             switch (imageOptions.alphaBlend)
             {
             case timeline::AlphaBlend::None:
-                glBlendFunc(GL_ONE, GL_ZERO);
+                glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ONE);
                 break;
             case timeline::AlphaBlend::Straight:
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
                 break;
             case timeline::AlphaBlend::Premultiplied:
-                glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+                glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
                 break;
             default: break;
             }
