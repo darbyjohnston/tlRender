@@ -438,9 +438,9 @@ namespace tl
                 p.displayShader->setUniform(p.colorTextures[i].sampler, static_cast<int>(3 + i));
             }
 
-            if (!p.wipeShader)
+            if (!p.dissolveShader)
             {
-                p.wipeShader = Shader::create(vertexSource(), wipeFragmentSource());
+                p.dissolveShader = Shader::create(vertexSource(), dissolveFragmentSource());
             }
 
             if (!p.differenceShader)

@@ -30,7 +30,7 @@ namespace tl
         std::string textureFragmentSource();
         std::string imageFragmentSource();
         std::string displayFragmentSource();
-        std::string wipeFragmentSource();
+        std::string dissolveFragmentSource();
         std::string differenceFragmentSource();
 
         struct VBOVertex
@@ -95,7 +95,7 @@ namespace tl
             std::shared_ptr<Shader> textureShader;
             std::shared_ptr<Shader> imageShader;
             std::shared_ptr<Shader> displayShader;
-            std::shared_ptr<Shader> wipeShader;
+            std::shared_ptr<Shader> dissolveShader;
             std::shared_ptr<Shader> differenceShader;
 
             std::shared_ptr<OffscreenBuffer> buffer;

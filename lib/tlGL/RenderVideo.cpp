@@ -159,6 +159,7 @@ namespace tl
                         p.overlayBuffer = OffscreenBuffer::create(p.size, options);
                     }
 
+                    if (p.overlayBuffer)
                     {
                         auto binding = OffscreenBufferBinding(p.overlayBuffer);
                         glClearColor(0.F, 0.F, 0.F, 0.F);
@@ -170,9 +171,11 @@ namespace tl
                             !displayOptions.empty() ? displayOptions[0] : timeline::DisplayOptions());
                     }
 
+                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
                     p.textureShader->bind();
                     p.textureShader->setUniform("color", imaging::Color4f(1.F, 1.F, 1.F, compareOptions.overlay));
-                    p.textureShader->setUniform("textureSampler0", 0);
+                    p.textureShader->setUniform("textureSampler", 0);
 
                     if (p.overlayBuffer)
                     {
@@ -390,12 +393,12 @@ namespace tl
                         {
                             if (layer.image && layer.imageB)
                             {
-                                p.wipeShader->bind();
-                                p.wipeShader->setUniform("transform.mvp", mvp);
-                                p.wipeShader->setUniform("transition", layer.transitionValue);
+                                p.dissolveShader->bind();
+                                p.dissolveShader->setUniform("transform.mvp", mvp);
+                                p.dissolveShader->setUniform("transition", layer.transitionValue);
 
                                 const auto& info = layer.image->getInfo();
-                                p.wipeShader->setUniform("pixelType", static_cast<int>(layer.image->getPixelType()));
+                                p.dissolveShader->setUniform("pixelType", static_cast<int>(layer.image->getPixelType()));
                                 imaging::YUVRange yuvRange = info.yuvRange;
                                 switch (imageOptions.yuvRange)
                                 {
@@ -403,24 +406,24 @@ namespace tl
                                 case timeline::YUVRange::Video: yuvRange = imaging::YUVRange::Video; break;
                                 default: break;
                                 }
-                                p.wipeShader->setUniform("yuvRange", static_cast<int>(yuvRange));
-                                p.wipeShader->setUniform("imageChannels", imaging::getChannelCount(info.pixelType));
-                                p.wipeShader->setUniform("flipX", info.layout.mirror.x);
-                                p.wipeShader->setUniform("flipY", info.layout.mirror.y);
+                                p.dissolveShader->setUniform("yuvRange", static_cast<int>(yuvRange));
+                                p.dissolveShader->setUniform("imageChannels", imaging::getChannelCount(info.pixelType));
+                                p.dissolveShader->setUniform("flipX", info.layout.mirror.x);
+                                p.dissolveShader->setUniform("flipY", info.layout.mirror.y);
                                 math::BBox2i bbox2 = imaging::getBBox(layer.image->getAspect(), math::BBox2i(0, 0, size.w, size.h));
                                 math::BBox2f textureRange(
                                     .5F - bbox2.w() / static_cast<float>(size.w) / 2.F,
                                     .5F - bbox2.h() / static_cast<float>(size.h) / 2.F,
                                     (bbox2.w() - 1) / static_cast<float>(size.w - 1),
                                     (bbox2.h() - 1) / static_cast<float>(size.h - 1));
-                                p.wipeShader->setUniform("textureRangeU", math::Vector2f(textureRange.min.x, textureRange.max.x));
-                                p.wipeShader->setUniform("textureRangeV", math::Vector2f(textureRange.min.y, textureRange.max.y));
-                                p.wipeShader->setUniform("textureSampler0", 0);
-                                p.wipeShader->setUniform("textureSampler1", 1);
-                                p.wipeShader->setUniform("textureSampler2", 2);
+                                p.dissolveShader->setUniform("textureRangeU", math::Vector2f(textureRange.min.x, textureRange.max.x));
+                                p.dissolveShader->setUniform("textureRangeV", math::Vector2f(textureRange.min.y, textureRange.max.y));
+                                p.dissolveShader->setUniform("textureSampler0", 0);
+                                p.dissolveShader->setUniform("textureSampler1", 1);
+                                p.dissolveShader->setUniform("textureSampler2", 2);
 
                                 const auto& infoB = layer.imageB->getInfo();
-                                p.wipeShader->setUniform("pixelTypeB", static_cast<int>(layer.imageB->getPixelType()));
+                                p.dissolveShader->setUniform("pixelTypeB", static_cast<int>(layer.imageB->getPixelType()));
                                 yuvRange = infoB.yuvRange;
                                 switch (imageOptions.yuvRange)
                                 {
@@ -428,21 +431,21 @@ namespace tl
                                 case timeline::YUVRange::Video: yuvRange = imaging::YUVRange::Video; break;
                                 default: break;
                                 }
-                                p.wipeShader->setUniform("yuvRangeB", static_cast<int>(yuvRange));
-                                p.wipeShader->setUniform("imageChannelsB", imaging::getChannelCount(infoB.pixelType));
-                                p.wipeShader->setUniform("flipBX", infoB.layout.mirror.x);
-                                p.wipeShader->setUniform("flipBY", infoB.layout.mirror.y);
+                                p.dissolveShader->setUniform("yuvRangeB", static_cast<int>(yuvRange));
+                                p.dissolveShader->setUniform("imageChannelsB", imaging::getChannelCount(infoB.pixelType));
+                                p.dissolveShader->setUniform("flipBX", infoB.layout.mirror.x);
+                                p.dissolveShader->setUniform("flipBY", infoB.layout.mirror.y);
                                 bbox2 = imaging::getBBox(layer.imageB->getAspect(), math::BBox2i(0, 0, size.w, size.h));
                                 textureRange = math::BBox2f(
                                     .5F - bbox2.w() / static_cast<float>(size.w) / 2.F,
                                     .5F - bbox2.h() / static_cast<float>(size.h) / 2.F,
                                     (bbox2.w() - 1) / static_cast<float>(size.w - 1),
                                     (bbox2.h() - 1) / static_cast<float>(size.h - 1));
-                                p.wipeShader->setUniform("textureRangeBU", math::Vector2f(textureRange.min.x, textureRange.max.x));
-                                p.wipeShader->setUniform("textureRangeBV", math::Vector2f(textureRange.min.y, textureRange.max.y));
-                                p.wipeShader->setUniform("textureSamplerB0", 3);
-                                p.wipeShader->setUniform("textureSamplerB1", 4);
-                                p.wipeShader->setUniform("textureSamplerB2", 5);
+                                p.dissolveShader->setUniform("textureRangeBU", math::Vector2f(textureRange.min.x, textureRange.max.x));
+                                p.dissolveShader->setUniform("textureRangeBV", math::Vector2f(textureRange.min.y, textureRange.max.y));
+                                p.dissolveShader->setUniform("textureSamplerB0", 3);
+                                p.dissolveShader->setUniform("textureSamplerB1", 4);
+                                p.dissolveShader->setUniform("textureSamplerB2", 5);
 
                                 auto textures = p.textureCache.get(info);
                                 copyTextures(layer.image, textures);
@@ -526,9 +529,10 @@ namespace tl
                 glBlendFunc(GL_ONE, GL_ZERO);
 
                 p.displayShader->bind();
-                p.displayShader->setUniform("textureSampler0", 0);
-                p.displayShader->setUniform("textureSampler1", 1);
-                p.displayShader->setUniform("textureSampler2", 2);
+                p.displayShader->setUniform("textureSampler", 0);
+                p.displayShader->setUniform("channels", static_cast<int>(displayOptions.channels));
+                p.displayShader->setUniform("mirrorX", displayOptions.mirror.x);
+                p.displayShader->setUniform("mirrorY", displayOptions.mirror.y);
                 const bool colorMatrixEnabled = displayOptions.colorEnabled && displayOptions.color != timeline::Color();
                 p.displayShader->setUniform("colorEnabled", colorMatrixEnabled);
                 p.displayShader->setUniform("colorAdd", displayOptions.color.add);
@@ -558,7 +562,6 @@ namespace tl
                     p.displayShader->setUniform("exposure.f", f);
                 }
                 p.displayShader->setUniform("softClip", displayOptions.softClipEnabled ? displayOptions.softClip : 0.F);
-                p.displayShader->setUniform("channels", static_cast<int>(displayOptions.channels));
 
                 glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
                 glBindTexture(GL_TEXTURE_2D, p.buffer->getColorID());
