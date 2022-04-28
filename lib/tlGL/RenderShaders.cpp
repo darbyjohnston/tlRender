@@ -275,6 +275,9 @@ namespace tl
                 "\n"
                 "uniform sampler2D textureSampler;\n"
                 "\n"
+                "uniform int      channels;\n"
+                "uniform int      mirrorX;\n"
+                "uniform int      mirrorY;\n"
                 "uniform bool     colorEnabled;\n"
                 "uniform vec3     colorAdd;\n"
                 "uniform mat4     colorMatrix;\n"
@@ -284,7 +287,6 @@ namespace tl
                 "uniform bool     exposureEnabled;\n"
                 "uniform Exposure exposure;\n"
                 "uniform float    softClip;\n"
-                "uniform int      channels;\n"
                 "\n"
                 "vec4 colorFunc(vec4 value, vec3 add, mat4 m)\n"
                 "{\n"
@@ -354,7 +356,17 @@ namespace tl
                 "\n"
                 "void main()\n"
                 "{\n"
-                "    fColor = texture(textureSampler, fTexture);\n"
+                "    vec2 t = fTexture;\n"
+                "    if (1 == mirrorX)\n"
+                "    {\n"
+                "        t.x = 1.0 - t.x;\n"
+                "    }\n"
+                "    if (1 == mirrorY)\n"
+                "    {\n"
+                "        t.y = 1.0 - t.y;\n"
+                "    }\n"
+                "\n"
+                "    fColor = texture(textureSampler, t);\n"
                 "\n"
                 "    // Apply color transformations.\n"
                 "    if (colorEnabled)\n"
@@ -408,7 +420,7 @@ namespace tl
                 "}\n";
         }
 
-        std::string wipeFragmentSource()
+        std::string dissolveFragmentSource()
         {
             return string::Format(
                 "#version 410\n"
