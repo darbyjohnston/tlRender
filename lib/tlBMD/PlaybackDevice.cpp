@@ -22,8 +22,6 @@ namespace tl
             class RenderDelegate : public IDeckLinkVideoOutputCallback
             {
             public:
-                void display(const std::shared_ptr<imaging::Image>&);
-
                 void setCallback(const std::function<void(IDeckLinkVideoFrame*)>&);
 
                 HRESULT STDMETHODCALLTYPE ScheduledFrameCompleted(IDeckLinkVideoFrame* completedFrame, BMDOutputFrameCompletionResult result) override;
@@ -90,7 +88,7 @@ namespace tl
             otime::RationalTime frameRate;
             uint64_t frameCount = 0;
             RenderDelegate* renderDelegate = nullptr;
-            std::list<std::shared_ptr<imaging::Image> > images;
+            std::shared_ptr<imaging::Image> image;
             std::mutex mutex;
         };
 
@@ -144,11 +142,7 @@ namespace tl
                         std::shared_ptr<imaging::Image> image;
                         {
                             std::unique_lock<std::mutex> lock(_p->mutex);
-                            if (!_p->images.empty())
-                            {
-                                image = _p->images.front();
-                                _p->images.pop_front();
-                            }
+                            image = _p->image;
                         }
                         if (image)
                         {
@@ -300,7 +294,7 @@ namespace tl
         {
             TLRENDER_P();
             std::unique_lock<std::mutex> lock(p.mutex);
-            p.images.push_back(image);
+            p.image = image;
         }
     }
 }
