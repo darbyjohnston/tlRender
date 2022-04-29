@@ -5,6 +5,7 @@
 #pragma once
 
 #include <tlCore/Image.h>
+#include <tlCore/Time.h>
 
 namespace tl
 {
@@ -34,6 +35,12 @@ namespace tl
             static std::shared_ptr<PlaybackDevice> create(
                 int deviceIndex,
                 const std::shared_ptr<system::Context>&);
+
+            //! Get the playback device size.
+            const imaging::Size& getSize() const;
+
+            //! Get the playback device frame rate.
+            const otime::RationalTime& getFrameRate() const;
 
             //! Display an image for playback.
             void display(const std::shared_ptr<imaging::Image>&);

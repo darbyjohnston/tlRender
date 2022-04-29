@@ -17,7 +17,9 @@
 #include <QOpenGLContext>
 #include <QSurfaceFormat>
 
+#include <atomic>
 #include <iostream>
+#include <mutex>
 
 namespace tl
 {
@@ -25,35 +27,40 @@ namespace tl
     {
         struct PlaybackDevice::Private
         {
-#if defined(TLRENDER_BUILD_BMD)
-            std::shared_ptr<bmd::PlaybackDevice> device;
-#endif // TLRENDER_BUILD_BMD
+            std::weak_ptr<system::Context> context;
+
+            int deviceIndex = 0;
+
             imaging::ColorConfig colorConfig;
             std::vector<timeline::ImageOptions> imageOptions;
             std::vector<timeline::DisplayOptions> displayOptions;
             timeline::CompareOptions compareOptions;
             std::vector<qt::TimelinePlayer*> timelinePlayers;
-            imaging::Size size = imaging::Size(1920, 1080);
+            imaging::Size size;
             math::Vector2i viewPos;
             float viewZoom = 1.F;
             bool frameView = true;
             std::vector<timeline::VideoData> videoData;
-            std::shared_ptr<timeline::IRender> render;
-            std::shared_ptr<tl::gl::OffscreenBuffer> buffer;
+            std::chrono::milliseconds timeout = std::chrono::milliseconds(50);
             QScopedPointer<QOffscreenSurface> offscreenSurface;
             QScopedPointer<QOpenGLContext> glContext;
+            std::condition_variable cv;
+            std::mutex mutex;
+            std::atomic<bool> running;
         };
 
         PlaybackDevice::PlaybackDevice(
             int deviceIndex,
-            const std::shared_ptr<system::Context>& context) :
+            const std::shared_ptr<system::Context>& context,
+            QObject* parent) :
+            QThread(parent),
             _p(new Private)
         {
             TLRENDER_P();
 
-#if defined(TLRENDER_BUILD_BMD)
-            p.device = bmd::PlaybackDevice::create(deviceIndex, context);
-#endif // TLRENDER_BUILD_BMD
+            p.context = context;
+
+            p.deviceIndex = deviceIndex;
 
             p.glContext.reset(new QOpenGLContext);
             QSurfaceFormat surfaceFormat;
@@ -67,55 +74,62 @@ namespace tl
             p.offscreenSurface->setFormat(p.glContext->format());
             p.offscreenSurface->create();
 
-            p.glContext->makeCurrent(p.offscreenSurface.get());
-            gladLoaderLoadGL();
+            p.glContext->moveToThread(this);
 
-            p.render = gl::Render::create(context);
+            p.running = true;
+            start();
         }
 
         PlaybackDevice::~PlaybackDevice()
-        {}
+        {
+            TLRENDER_P();
+            p.running = false;
+            wait();
+        }
 
         void PlaybackDevice::setColorConfig(const imaging::ColorConfig& value)
         {
             TLRENDER_P();
-            if (value == p.colorConfig)
-                return;
-            p.colorConfig = value;
-            _render();
+            {
+                std::unique_lock<std::mutex> lock(p.mutex);
+                p.colorConfig = value;
+            }
+            p.cv.notify_one();
         }
 
         void PlaybackDevice::setImageOptions(const std::vector<timeline::ImageOptions>& value)
         {
             TLRENDER_P();
-            if (value == p.imageOptions)
-                return;
-            p.imageOptions = value;
-            _render();
+            {
+                std::unique_lock<std::mutex> lock(p.mutex);
+                p.imageOptions = value;
+            }
+            p.cv.notify_one();
         }
 
         void PlaybackDevice::setDisplayOptions(const std::vector<timeline::DisplayOptions>& value)
         {
             TLRENDER_P();
-            if (value == p.displayOptions)
-                return;
-            p.displayOptions = value;
-            _render();
+            {
+                std::unique_lock<std::mutex> lock(p.mutex);
+                p.displayOptions = value;
+            }
+            p.cv.notify_one();
         }
 
         void PlaybackDevice::setCompareOptions(const timeline::CompareOptions& value)
         {
             TLRENDER_P();
-            if (value == p.compareOptions)
-                return;
-            p.compareOptions = value;
-            _render();
+            {
+                std::unique_lock<std::mutex> lock(p.mutex);
+                p.compareOptions = value;
+            }
+            p.cv.notify_one();
         }
 
         void PlaybackDevice::setTimelinePlayers(const std::vector<qt::TimelinePlayer*>& value)
         {
             TLRENDER_P();
-            p.videoData.clear();
             for (const auto& i : p.timelinePlayers)
             {
                 disconnect(
@@ -127,37 +141,57 @@ namespace tl
             p.timelinePlayers = value;
             for (const auto& i : p.timelinePlayers)
             {
-                _p->videoData.push_back(i->video());
                 connect(
                     i,
                     SIGNAL(videoChanged(const tl::timeline::VideoData&)),
                     SLOT(_videoCallback(const tl::timeline::VideoData&)));
             }
-            if (p.frameView)
+            bool frameView = false;
+            {
+                std::unique_lock<std::mutex> lock(p.mutex);
+                p.frameView = p.frameView;
+                p.videoData.clear();
+                for (const auto& i : p.timelinePlayers)
+                {
+                    p.videoData.push_back(i->video());
+                }
+            }
+            if (frameView)
             {
                 _frameView();
             }
-            _render();
         }
 
-        const math::Vector2i& PlaybackDevice::viewPos() const
+        void PlaybackDevice::setViewPosAndZoom(const tl::math::Vector2i& pos, float zoom)
         {
-            return _p->viewPos;
+            TLRENDER_P();
+            {
+                std::unique_lock<std::mutex> lock(p.mutex);
+                p.viewPos = pos;
+                p.viewZoom = zoom;
+            }
+            p.cv.notify_one();
         }
 
-        float PlaybackDevice::viewZoom() const
+        void PlaybackDevice::setViewZoom(float zoom, const tl::math::Vector2i& focus)
         {
-            return _p->viewZoom;
+            TLRENDER_P();
+            {
+                std::unique_lock<std::mutex> lock(p.mutex);
+                p.viewZoom = zoom;
+            }
+            p.cv.notify_one();
         }
-
-        void PlaybackDevice::setViewPosAndZoom(const tl::math::Vector2i&, float)
-        {}
-
-        void PlaybackDevice::setViewZoom(float, const tl::math::Vector2i& focus)
-        {}
 
         void PlaybackDevice::frameView()
-        {}
+        {
+            TLRENDER_P();
+            {
+                std::unique_lock<std::mutex> lock(p.mutex);
+                p.frameView = true;
+            }
+            p.cv.notify_one();
+        }
 
         void PlaybackDevice::_videoCallback(const tl::timeline::VideoData& value)
         {
@@ -166,58 +200,126 @@ namespace tl
             if (i != p.timelinePlayers.end())
             {
                 const size_t index = i - p.timelinePlayers.begin();
-                _p->videoData[index] = value;
+                {
+                    std::unique_lock<std::mutex> lock(p.mutex);
+                    p.videoData[index] = value;
+                }
+                p.cv.notify_one();
             }
-            _render();
         }
 
-        void PlaybackDevice::_frameView()
-        {}
-
-        void PlaybackDevice::_render()
+        void PlaybackDevice::run()
         {
             TLRENDER_P();
 
             p.glContext->makeCurrent(p.offscreenSurface.get());
+            gladLoaderLoadGL();
 
-            if (!p.buffer ||
-                (p.buffer && p.buffer->getSize() != p.size))
+            if (auto context = p.context.lock())
             {
-                gl::OffscreenBufferOptions options;
-                options.colorType = imaging::PixelType::RGBA_U8;
-                options.depth = gl::OffscreenDepth::_24;
-                options.stencil = gl::OffscreenStencil::_8;
-                p.buffer = gl::OffscreenBuffer::create(p.size, options);
-            }
+#if defined(TLRENDER_BUILD_BMD)
+                auto device = bmd::PlaybackDevice::create(p.deviceIndex, context);
+                p.size = device->getSize();
+#endif // TLRENDER_BUILD_BMD
 
-            p.render->setColorConfig(p.colorConfig);
+                auto render = gl::Render::create(context);
 
-            if (p.buffer)
-            {
-                gl::OffscreenBufferBinding binding(p.buffer);
+                imaging::ColorConfig colorConfig;
+                std::vector<timeline::ImageOptions> imageOptions;
+                std::vector<timeline::DisplayOptions> displayOptions;
+                timeline::CompareOptions compareOptions;
+                imaging::Size size = imaging::Size(1920, 1080);
+                math::Vector2i viewPos;
+                float viewZoom = 1.F;
+                bool frameView = true;
+                std::vector<timeline::VideoData> videoData;
 
-                p.render->begin(p.size);
-                p.render->drawVideo(
-                    { p.videoData },
-                    { math::BBox2i(0, 0, p.size.w, p.size.h) });
-                p.render->end();
+                bool doRender = false;
+                std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer;
+                while (p.running)
+                {
+                    {
+                        std::unique_lock<std::mutex> lock(p.mutex);
+                        if (p.cv.wait_for(
+                            lock,
+                            p.timeout,
+                            [this, colorConfig, imageOptions, displayOptions,
+                                compareOptions, size, viewPos, viewZoom, frameView,
+                                videoData]
+                            {
+                                return
+                                    colorConfig != _p->colorConfig ||
+                                    imageOptions != _p->imageOptions ||
+                                    displayOptions != _p->displayOptions ||
+                                    compareOptions != _p->compareOptions ||
+                                    size != _p->size ||
+                                    viewPos != _p->viewPos ||
+                                    viewZoom != _p->viewZoom ||
+                                    frameView != _p->frameView ||
+                                    videoData != _p->videoData;
+                            }))
+                        {
+                            doRender = true;
+                            colorConfig = p.colorConfig;
+                            imageOptions = p.imageOptions;
+                            displayOptions = p.displayOptions;
+                            compareOptions = p.compareOptions;
+                            size = p.size;
+                            viewPos = p.viewPos;
+                            viewZoom = p.viewZoom;
+                            frameView = p.frameView;
+                            videoData = p.videoData;
+                        }
+                    }
 
-                auto image = imaging::Image::create(imaging::Info(p.size, imaging::PixelType::RGBA_U8));
+                    if (doRender)
+                    {
+                        doRender = false;
 
-                glPixelStorei(GL_PACK_ALIGNMENT, 1);
-                glReadPixels(
-                    0,
-                    0,
-                    p.size.w,
-                    p.size.h,
-                    GL_RGBA,
-                    GL_UNSIGNED_BYTE,
-                    image->getData());
+                        if (!offscreenBuffer ||
+                            (offscreenBuffer && offscreenBuffer->getSize() != size))
+                        {
+                            gl::OffscreenBufferOptions options;
+                            options.colorType = imaging::PixelType::RGBA_U8;
+                            options.depth = gl::OffscreenDepth::_24;
+                            options.stencil = gl::OffscreenStencil::_8;
+                            offscreenBuffer = gl::OffscreenBuffer::create(size, options);
+                        }
+
+                        render->setColorConfig(colorConfig);
+
+                        if (offscreenBuffer)
+                        {
+                            gl::OffscreenBufferBinding binding(offscreenBuffer);
+
+                            render->begin(size);
+                            render->drawVideo(
+                                { videoData },
+                                { math::BBox2i(0, 0, size.w, size.h) });
+                            render->end();
+
+                            auto image = imaging::Image::create(imaging::Info(size, imaging::PixelType::RGBA_U8));
+
+                            glPixelStorei(GL_PACK_ALIGNMENT, 1);
+                            glReadPixels(
+                                0,
+                                0,
+                                size.w,
+                                size.h,
+                                GL_RGBA,
+                                GL_UNSIGNED_BYTE,
+                                image->getData());
 
 #if defined(TLRENDER_BUILD_BMD)
-                p.device->display(image);
+                            device->display(image);
 #endif // TLRENDER_BUILD_BMD
+                        }
+                    }
+                }
             }
         }
+
+        void PlaybackDevice::_frameView()
+        {}
     }
 }

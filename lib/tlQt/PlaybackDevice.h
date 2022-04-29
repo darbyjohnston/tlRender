@@ -11,6 +11,8 @@
 #include <tlCore/Image.h>
 #include <tlCore/OCIO.h>
 
+#include <QThread>
+
 namespace tl
 {
     namespace system
@@ -21,14 +23,15 @@ namespace tl
     namespace qt
     {
         //! Playback device.
-        class PlaybackDevice : public QObject
+        class PlaybackDevice : public QThread
         {
             Q_OBJECT
 
         public:
             PlaybackDevice(
                 int deviceIndex,
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<system::Context>&,
+                QObject* parent = nullptr);
 
             ~PlaybackDevice();
 
@@ -47,12 +50,6 @@ namespace tl
             //! Set the timeline players.
             void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
 
-            //! Get the view position.
-            const math::Vector2i& viewPos() const;
-
-            //! Get the view zoom.
-            float viewZoom() const;
-
         public Q_SLOTS:
             //! Set the view position and zoom.
             void setViewPosAndZoom(const tl::math::Vector2i&, float);
@@ -66,9 +63,11 @@ namespace tl
         private Q_SLOTS:
             void _videoCallback(const tl::timeline::VideoData&);
 
+        protected:
+            void run() override;
+
         private:
             void _frameView();
-            void _render();
 
             TLRENDER_PRIVATE();
         };
