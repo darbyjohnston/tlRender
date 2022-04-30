@@ -10,6 +10,7 @@
 #include "platform.h"
 
 #include <algorithm>
+#include <array>
 #include <iostream>
 #include <list>
 #include <mutex>
@@ -21,6 +22,18 @@ namespace tl
     {
         namespace
         {
+            std::string getLabel(BMDOutputFrameCompletionResult value)
+            {
+                const std::array<std::string, 4> data =
+                {
+                    "Completed",
+                    "Displayed Late",
+                    "Dropped",
+                    "Flushed"
+                };
+                return data[value];
+            }
+
             struct DisplayModeInfo
             {
                 DisplayModeInfo(IDeckLinkDisplayMode* displayMode)
@@ -43,7 +56,7 @@ namespace tl
                 }
             };
 
-            class RenderDelegate : public IDeckLinkVideoOutputCallback
+            class DLVideoOutputCallback : public IDeckLinkVideoOutputCallback
             {
             public:
                 void setCallback(const std::function<void(IDeckLinkVideoFrame*)>&);
@@ -60,23 +73,23 @@ namespace tl
                 std::function<void(IDeckLinkVideoFrame*)> _callback;
             };
 
-            void RenderDelegate::setCallback(const std::function<void(IDeckLinkVideoFrame*)>& callback)
+            void DLVideoOutputCallback::setCallback(const std::function<void(IDeckLinkVideoFrame*)>& callback)
             {
                 _callback = callback;
             }
 
-            HRESULT RenderDelegate::QueryInterface(REFIID iid, LPVOID* ppv)
+            HRESULT DLVideoOutputCallback::QueryInterface(REFIID iid, LPVOID* ppv)
             {
                 *ppv = NULL;
                 return E_NOINTERFACE;
             }
 
-            ULONG RenderDelegate::AddRef()
+            ULONG DLVideoOutputCallback::AddRef()
             {
                 return InterlockedIncrement((LONG*)&_refCount);
             }
 
-            ULONG RenderDelegate::Release()
+            ULONG DLVideoOutputCallback::Release()
             {
                 ULONG newRefValue;
                 newRefValue = InterlockedDecrement((LONG*)&_refCount);
@@ -88,7 +101,7 @@ namespace tl
                 return newRefValue;
             }
 
-            HRESULT	RenderDelegate::ScheduledFrameCompleted(
+            HRESULT	DLVideoOutputCallback::ScheduledFrameCompleted(
                 IDeckLinkVideoFrame* completedFrame,
                 BMDOutputFrameCompletionResult result)
             {
@@ -96,10 +109,11 @@ namespace tl
                 {
                     _callback(completedFrame);
                 }
+                //std::cout << "result: " << getLabel(result) << std::endl;
                 return S_OK;
             }
 
-            HRESULT	RenderDelegate::ScheduledPlaybackHasStopped()
+            HRESULT	DLVideoOutputCallback::ScheduledPlaybackHasStopped()
             {
                 return S_OK;
             }
@@ -108,12 +122,14 @@ namespace tl
         struct PlaybackDevice::Private
         {
             int deviceIndex = -1;
+
             IDeckLink* dl = nullptr;
             IDeckLinkOutput* dlOutput = nullptr;
+            DLVideoOutputCallback* dlVideoOutputCallback = nullptr;
+
             imaging::Size size;
             otime::RationalTime frameRate;
             uint64_t frameCount = 0;
-            RenderDelegate* renderDelegate = nullptr;
             std::shared_ptr<imaging::Image> image;
             std::mutex mutex;
         };
@@ -161,8 +177,8 @@ namespace tl
                     throw std::runtime_error("No output device found");
                 }
 
-                p.renderDelegate = new RenderDelegate;
-                p.renderDelegate->setCallback(
+                p.dlVideoOutputCallback = new DLVideoOutputCallback;
+                p.dlVideoOutputCallback->setCallback(
                     [this](IDeckLinkVideoFrame* dlVideoFrame)
                     {
                         std::shared_ptr<imaging::Image> image;
@@ -186,7 +202,7 @@ namespace tl
                         }
                     });
 
-                if (p.dlOutput->SetScheduledFrameCompletionCallback(p.renderDelegate) != S_OK)
+                if (p.dlOutput->SetScheduledFrameCompletionCallback(p.dlVideoOutputCallback) != S_OK)
                 {
                     throw std::runtime_error("Cannot set callback");
                 }
@@ -306,10 +322,10 @@ namespace tl
         PlaybackDevice::~PlaybackDevice()
         {
             TLRENDER_P();
-            if (p.renderDelegate)
+            if (p.dlVideoOutputCallback)
             {
-                p.renderDelegate->Release();
-                p.renderDelegate = nullptr;
+                p.dlVideoOutputCallback->Release();
+                p.dlVideoOutputCallback = nullptr;
             }
             if (p.dlOutput)
             {
