@@ -130,6 +130,8 @@ namespace tl
         void PlaybackDevice::setTimelinePlayers(const std::vector<qt::TimelinePlayer*>& value)
         {
             TLRENDER_P();
+            if (value == p.timelinePlayers)
+                return;
             for (const auto& i : p.timelinePlayers)
             {
                 disconnect(
@@ -295,7 +297,10 @@ namespace tl
                             render->begin(size);
                             render->drawVideo(
                                 { videoData },
-                                { math::BBox2i(0, 0, size.w, size.h) });
+                                { math::BBox2i(0, 0, size.w, size.h) },
+                                { imageOptions },
+                                { displayOptions },
+                                compareOptions);
                             render->end();
 
                             auto image = imaging::Image::create(imaging::Info(size, imaging::PixelType::RGBA_U8));
@@ -306,7 +311,7 @@ namespace tl
                                 0,
                                 size.w,
                                 size.h,
-                                GL_RGBA,
+                                GL_BGRA,
                                 GL_UNSIGNED_BYTE,
                                 image->getData());
 

@@ -1088,6 +1088,7 @@ namespace tl
             {
                 p.secondaryWindow->viewport()->setColorConfig(p.colorConfig);
                 p.secondaryWindow->viewport()->setImageOptions(imageOptions);
+                p.secondaryWindow->viewport()->setDisplayOptions(displayOptions);
                 p.secondaryWindow->viewport()->setCompareOptions(p.compareOptions);
                 p.secondaryWindow->viewport()->setTimelinePlayers(p.timelinePlayers);
             }
@@ -1096,6 +1097,7 @@ namespace tl
             {
                 p.playbackDevice->setColorConfig(p.colorConfig);
                 p.playbackDevice->setImageOptions(imageOptions);
+                p.playbackDevice->setDisplayOptions(displayOptions);
                 p.playbackDevice->setCompareOptions(p.compareOptions);
                 p.playbackDevice->setTimelinePlayers(p.timelinePlayers);
             }

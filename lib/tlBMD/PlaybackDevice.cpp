@@ -9,9 +9,11 @@
 
 #include "platform.h"
 
+#include <algorithm>
 #include <iostream>
 #include <list>
 #include <mutex>
+#include <tuple>
 
 namespace tl
 {
@@ -19,12 +21,34 @@ namespace tl
     {
         namespace
         {
+            struct DisplayModeInfo
+            {
+                DisplayModeInfo(IDeckLinkDisplayMode* displayMode)
+                {
+                    size.w = displayMode->GetWidth();
+                    size.h = displayMode->GetHeight();
+                    
+                    BMDTimeValue frameDuration;
+                    BMDTimeScale frameTimescale;
+                    displayMode->GetFrameRate(&frameDuration, &frameTimescale);
+                    frameRate = otime::RationalTime(frameDuration, frameTimescale);
+                }
+
+                imaging::Size size;
+                otime::RationalTime frameRate;
+
+                bool operator < (const DisplayModeInfo& other) const
+                {
+                    return std::tie(size, other.frameRate) < std::tie(other.size, frameRate);
+                }
+            };
+
             class RenderDelegate : public IDeckLinkVideoOutputCallback
             {
             public:
                 void setCallback(const std::function<void(IDeckLinkVideoFrame*)>&);
 
-                HRESULT STDMETHODCALLTYPE ScheduledFrameCompleted(IDeckLinkVideoFrame* completedFrame, BMDOutputFrameCompletionResult result) override;
+                HRESULT STDMETHODCALLTYPE ScheduledFrameCompleted(IDeckLinkVideoFrame*, BMDOutputFrameCompletionResult) override;
                 HRESULT STDMETHODCALLTYPE ScheduledPlaybackHasStopped() override;
 
                 HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, LPVOID* ppv) override;
@@ -64,7 +88,9 @@ namespace tl
                 return newRefValue;
             }
 
-            HRESULT	RenderDelegate::ScheduledFrameCompleted(IDeckLinkVideoFrame* completedFrame, BMDOutputFrameCompletionResult result)
+            HRESULT	RenderDelegate::ScheduledFrameCompleted(
+                IDeckLinkVideoFrame* completedFrame,
+                BMDOutputFrameCompletionResult result)
             {
                 if (_callback)
                 {
@@ -98,7 +124,7 @@ namespace tl
 
             IDeckLinkIterator* dlIterator = nullptr;
             IDeckLinkDisplayModeIterator* dlDisplayModeIterator = nullptr;
-            IDeckLinkDisplayMode* dlDisplayMode = nullptr;
+            std::vector<std::pair<IDeckLinkDisplayMode*, DisplayModeInfo> > displayModes;
             IDeckLinkMutableVideoFrame* dlVideoFrame = nullptr;
             try
             {
@@ -169,16 +195,28 @@ namespace tl
                 {
                     throw std::runtime_error("Cannot get display mode iterator");
                 }
-                if (dlDisplayModeIterator->Next(&dlDisplayMode) != S_OK)
+                IDeckLinkDisplayMode* dlDisplayMode = nullptr;
+                while (dlDisplayModeIterator->Next(&dlDisplayMode) == S_OK)
+                {
+                    const DisplayModeInfo info(dlDisplayMode);
+                    displayModes.push_back(std::make_pair(dlDisplayMode, info));
+                }
+                if (displayModes.empty())
                 {
                     throw std::runtime_error("No display modes");
                 }
-                p.size.w = dlDisplayMode->GetWidth();
-                p.size.h = dlDisplayMode->GetHeight();
-                BMDTimeValue frameDuration;
-                BMDTimeScale frameTimescale;
-                dlDisplayMode->GetFrameRate(&frameDuration, &frameTimescale);
-                p.frameRate = otime::RationalTime(frameDuration, frameTimescale);
+                std::sort(
+                    displayModes.begin(),
+                    displayModes.end(),
+                    [](
+                        const std::pair<IDeckLinkDisplayMode*, DisplayModeInfo>& a,
+                        const std::pair<IDeckLinkDisplayMode*, DisplayModeInfo>& b) -> bool
+                    {
+                        return a.second < b.second;
+                    });
+
+                p.size = displayModes.back().second.size;
+                p.frameRate = displayModes.back().second.frameRate;
 
                 context->log(
                     "tl::bmd::PlaybackDevice",
@@ -188,18 +226,30 @@ namespace tl
                     arg(p.size).
                     arg(p.frameRate));
 
-                if (p.dlOutput->EnableVideoOutput(dlDisplayMode->GetDisplayMode(), bmdVideoOutputFlagDefault) != S_OK)
+                if (p.dlOutput->EnableVideoOutput(
+                    displayModes.back().first->GetDisplayMode(),
+                    bmdVideoOutputFlagDefault) != S_OK)
                 {
                     throw std::runtime_error("Cannot enable video output");
                 }
 
                 for (int preroll = 0; preroll < 3; ++preroll)
                 {
-                    if (p.dlOutput->CreateVideoFrame(p.size.w, p.size.h, p.size.w * 4, bmdFormat8BitBGRA, bmdFrameFlagFlipVertical, &dlVideoFrame) != S_OK)
+                    if (p.dlOutput->CreateVideoFrame(
+                        p.size.w,
+                        p.size.h,
+                        p.size.w * 4,
+                        bmdFormat8BitBGRA,
+                        bmdFrameFlagFlipVertical,
+                        &dlVideoFrame) != S_OK)
                     {
                         throw std::runtime_error("Cannot create video frame");
                     }
-                    if (p.dlOutput->ScheduleVideoFrame(dlVideoFrame, (p.frameCount * p.frameRate.value()), p.frameRate.value(), p.frameRate.rate()) != S_OK)
+                    if (p.dlOutput->ScheduleVideoFrame(
+                        dlVideoFrame,
+                        (p.frameCount * p.frameRate.value()),
+                        p.frameRate.value(),
+                        p.frameRate.rate()) != S_OK)
                     {
                         throw std::runtime_error("Cannot schedule video frame");
                     }
@@ -208,7 +258,10 @@ namespace tl
                     p.frameCount = p.frameCount + 1;
                 }
 
-                p.dlOutput->StartScheduledPlayback(0, 100, 1.0);
+                p.dlOutput->StartScheduledPlayback(
+                    0,
+                    p.frameRate.rate(),
+                    1.0);
             }
             catch (const std::exception& e)
             {
@@ -232,9 +285,9 @@ namespace tl
             {
                 dlVideoFrame->Release();
             }
-            if (dlDisplayMode)
+            for (auto& i : displayModes)
             {
-                dlDisplayMode->Release();
+                i.first->Release();
             }
             if (dlDisplayModeIterator)
             {
@@ -253,13 +306,15 @@ namespace tl
         PlaybackDevice::~PlaybackDevice()
         {
             TLRENDER_P();
-            delete p.renderDelegate;
-            p.renderDelegate = nullptr;
+            if (p.renderDelegate)
+            {
+                p.renderDelegate->Release();
+                p.renderDelegate = nullptr;
+            }
             if (p.dlOutput)
             {
                 p.dlOutput->StopScheduledPlayback(0, nullptr, 0);
-                p.dlOutput->DisableAudioOutput();
-                p.dlOutput->SetScreenPreviewCallback(nullptr);
+                p.dlOutput->DisableVideoOutput();
                 p.dlOutput->SetScheduledFrameCompletionCallback(nullptr);
                 p.dlOutput->Release();
                 p.dlOutput = nullptr;
