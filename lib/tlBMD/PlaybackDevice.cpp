@@ -11,6 +11,7 @@
 
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <iostream>
 #include <list>
 #include <mutex>
@@ -59,6 +60,8 @@ namespace tl
             class DLVideoOutputCallback : public IDeckLinkVideoOutputCallback
             {
             public:
+                DLVideoOutputCallback();
+
                 void setCallback(const std::function<void(IDeckLinkVideoFrame*)>&);
 
                 HRESULT STDMETHODCALLTYPE ScheduledFrameCompleted(IDeckLinkVideoFrame*, BMDOutputFrameCompletionResult) override;
@@ -69,9 +72,13 @@ namespace tl
                 ULONG STDMETHODCALLTYPE Release() override;
 
             private:
-                ULONG _refCount = 1;
+                std::atomic<size_t> _refCount;
                 std::function<void(IDeckLinkVideoFrame*)> _callback;
             };
+
+            DLVideoOutputCallback::DLVideoOutputCallback() :
+                _refCount(1)
+            {}
 
             void DLVideoOutputCallback::setCallback(const std::function<void(IDeckLinkVideoFrame*)>& callback)
             {
@@ -86,19 +93,18 @@ namespace tl
 
             ULONG DLVideoOutputCallback::AddRef()
             {
-                return InterlockedIncrement((LONG*)&_refCount);
+                return ++_refCount;
             }
 
             ULONG DLVideoOutputCallback::Release()
             {
-                ULONG newRefValue;
-                newRefValue = InterlockedDecrement((LONG*)&_refCount);
-                if (newRefValue == 0)
+                --_refCount;
+                if (0 == _refCount)
                 {
                     delete this;
                     return 0;
                 }
-                return newRefValue;
+                return _refCount;
             }
 
             HRESULT	DLVideoOutputCallback::ScheduledFrameCompleted(
