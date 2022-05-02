@@ -41,7 +41,7 @@ namespace tl
             float viewZoom = 1.F;
             bool frameView = true;
             std::vector<timeline::VideoData> videoData;
-            std::chrono::milliseconds timeout = std::chrono::milliseconds(50);
+            std::chrono::milliseconds timeout = std::chrono::milliseconds(5);
             QScopedPointer<QOffscreenSurface> offscreenSurface;
             QScopedPointer<QOpenGLContext> glContext;
             std::condition_variable cv;
