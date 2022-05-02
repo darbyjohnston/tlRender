@@ -22,18 +22,19 @@ namespace tl
 
     namespace qt
     {
-        //! Playback device.
-        class PlaybackDevice : public QThread
+        //! Output device.
+        class OutputDevice : public QThread
         {
             Q_OBJECT
 
         public:
-            PlaybackDevice(
+            OutputDevice(
                 int deviceIndex,
+                int displayModeIndex,
                 const std::shared_ptr<system::Context>&,
                 QObject* parent = nullptr);
 
-            ~PlaybackDevice();
+            ~OutputDevice();
 
             //! Set the color configuration.
             void setColorConfig(const imaging::ColorConfig&);

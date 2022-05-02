@@ -30,11 +30,6 @@ namespace tl
             qtInitResources();
         }
 
-        void shutdown()
-        {
-            qt::shutdown();
-        }
-
         namespace
         {
             QMap<QString, int> fonts;

@@ -16,33 +16,35 @@ namespace tl
 
     namespace bmd
     {
-        //! Playback device.
-        class PlaybackDevice : public std::enable_shared_from_this<PlaybackDevice>
+        //! Output device.
+        class OutputDevice : public std::enable_shared_from_this<OutputDevice>
         {
-            TLRENDER_NON_COPYABLE(PlaybackDevice);
+            TLRENDER_NON_COPYABLE(OutputDevice);
 
         protected:
             void _init(
                 int deviceIndex,
+                int displayModeIndex,
                 const std::shared_ptr<system::Context>&);
 
-            PlaybackDevice();
+            OutputDevice();
 
         public:
-            ~PlaybackDevice();
+            ~OutputDevice();
 
-            //! Create a new playback device.
-            static std::shared_ptr<PlaybackDevice> create(
+            //! Create a new output device.
+            static std::shared_ptr<OutputDevice> create(
                 int deviceIndex,
+                int displayModeIndex,
                 const std::shared_ptr<system::Context>&);
 
-            //! Get the playback device size.
+            //! Get the output device size.
             const imaging::Size& getSize() const;
 
-            //! Get the playback device frame rate.
+            //! Get the output device frame rate.
             const otime::RationalTime& getFrameRate() const;
 
-            //! Display an image for playback.
+            //! Display an image.
             void display(const std::shared_ptr<imaging::Image>&);
 
         private:

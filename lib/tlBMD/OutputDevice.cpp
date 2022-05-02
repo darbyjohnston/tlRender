@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include <tlBMD/PlaybackDevice.h>
+#include <tlBMD/OutputDevice.h>
 
 #include <tlCore/Context.h>
 #include <tlCore/StringFormat.h>
@@ -125,7 +125,7 @@ namespace tl
             }
         }
 
-        struct PlaybackDevice::Private
+        struct OutputDevice::Private
         {
             int deviceIndex = -1;
 
@@ -140,13 +140,16 @@ namespace tl
             std::mutex mutex;
         };
 
-        void PlaybackDevice::_init(int deviceIndex, const std::shared_ptr<system::Context>& context)
+        void OutputDevice::_init(
+            int deviceIndex,
+            int displayModeIndex,
+            const std::shared_ptr<system::Context>& context)
         {
             TLRENDER_P();
 
             IDeckLinkIterator* dlIterator = nullptr;
             IDeckLinkDisplayModeIterator* dlDisplayModeIterator = nullptr;
-            std::vector<std::pair<IDeckLinkDisplayMode*, DisplayModeInfo> > displayModes;
+            IDeckLinkDisplayMode* dlDisplayMode = nullptr;
             IDeckLinkMutableVideoFrame* dlVideoFrame = nullptr;
             try
             {
@@ -171,16 +174,19 @@ namespace tl
                         break;
                     }
 
+                    p.dl->Release();
+                    p.dl = nullptr;
+
                     ++count;
                 }
                 if (!p.dl)
                 {
-                    throw std::runtime_error("No device found");
+                    throw std::runtime_error("Device not found");
                 }
 
                 if (p.dl->QueryInterface(IID_IDeckLinkOutput, (void**)&p.dlOutput) != S_OK)
                 {
-                    throw std::runtime_error("No output device found");
+                    throw std::runtime_error("Output device not found");
                 }
 
                 p.dlVideoOutputCallback = new DLVideoOutputCallback;
@@ -217,39 +223,41 @@ namespace tl
                 {
                     throw std::runtime_error("Cannot get display mode iterator");
                 }
-                IDeckLinkDisplayMode* dlDisplayMode = nullptr;
+                count = 0;
                 while (dlDisplayModeIterator->Next(&dlDisplayMode) == S_OK)
                 {
-                    const DisplayModeInfo info(dlDisplayMode);
-                    displayModes.push_back(std::make_pair(dlDisplayMode, info));
-                }
-                if (displayModes.empty())
-                {
-                    throw std::runtime_error("No display modes");
-                }
-                std::sort(
-                    displayModes.begin(),
-                    displayModes.end(),
-                    [](
-                        const std::pair<IDeckLinkDisplayMode*, DisplayModeInfo>& a,
-                        const std::pair<IDeckLinkDisplayMode*, DisplayModeInfo>& b) -> bool
+                    if (count == displayModeIndex)
                     {
-                        return a.second < b.second;
-                    });
+                        break;
+                    }
 
-                p.size = displayModes.back().second.size;
-                p.frameRate = displayModes.back().second.frameRate;
+                    dlDisplayMode->Release();
+                    dlDisplayMode = nullptr;
+
+                    ++count;
+                }
+                if (!dlDisplayMode)
+                {
+                    throw std::runtime_error("Display mode not found");
+                }
+
+                p.size.w = dlDisplayMode->GetWidth();
+                p.size.h = dlDisplayMode->GetHeight();
+                BMDTimeValue frameDuration;
+                BMDTimeScale frameTimescale;
+                dlDisplayMode->GetFrameRate(&frameDuration, &frameTimescale);
+                p.frameRate = otime::RationalTime(frameDuration, frameTimescale);
 
                 context->log(
-                    "tl::bmd::PlaybackDevice",
-                    string::Format("Using device {0}: {1} {2} {3}").
+                    "tl::bmd::OutputDevice",
+                    string::Format("Device {0}: {1} {2} {3}").
                     arg(deviceIndex).
                     arg(modelName).
                     arg(p.size).
                     arg(p.frameRate));
 
                 if (p.dlOutput->EnableVideoOutput(
-                    displayModes.back().first->GetDisplayMode(),
+                    dlDisplayMode->GetDisplayMode(),
                     bmdVideoOutputFlagDefault) != S_OK)
                 {
                     throw std::runtime_error("Cannot enable video output");
@@ -288,7 +296,7 @@ namespace tl
             catch (const std::exception& e)
             {
                 context->log(
-                    "tl::bmd::PlaybackDevice",
+                    "tl::bmd::OutputDevice",
                     e.what(),
                     log::Type::Error);
                 if (p.dlOutput)
@@ -307,9 +315,9 @@ namespace tl
             {
                 dlVideoFrame->Release();
             }
-            for (auto& i : displayModes)
+            if (dlDisplayMode)
             {
-                i.first->Release();
+                dlDisplayMode->Release();
             }
             if (dlDisplayModeIterator)
             {
@@ -321,11 +329,11 @@ namespace tl
             }
         }
 
-        PlaybackDevice::PlaybackDevice() :
+        OutputDevice::OutputDevice() :
             _p(new Private)
         {}
 
-        PlaybackDevice::~PlaybackDevice()
+        OutputDevice::~OutputDevice()
         {
             TLRENDER_P();
             if (p.dlVideoOutputCallback)
@@ -348,26 +356,27 @@ namespace tl
             }
         }
 
-        std::shared_ptr<PlaybackDevice> PlaybackDevice::create(
+        std::shared_ptr<OutputDevice> OutputDevice::create(
             int deviceIndex,
+            int displayModeIndex,
             const std::shared_ptr<system::Context>& context)
         {
-            auto out = std::shared_ptr<PlaybackDevice>(new PlaybackDevice);
-            out->_init(deviceIndex, context);
+            auto out = std::shared_ptr<OutputDevice>(new OutputDevice);
+            out->_init(deviceIndex, displayModeIndex, context);
             return out;
         }
 
-        const imaging::Size& PlaybackDevice::getSize() const
+        const imaging::Size& OutputDevice::getSize() const
         {
             return _p->size;
         }
 
-        const otime::RationalTime& PlaybackDevice::getFrameRate() const
+        const otime::RationalTime& OutputDevice::getFrameRate() const
         {
             return _p->frameRate;
         }
 
-        void PlaybackDevice::display(const std::shared_ptr<imaging::Image>& image)
+        void OutputDevice::display(const std::shared_ptr<imaging::Image>& image)
         {
             TLRENDER_P();
             std::unique_lock<std::mutex> lock(p.mutex);

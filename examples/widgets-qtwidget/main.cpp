@@ -16,6 +16,5 @@ int main(int argc, char* argv[])
     tl::qtwidget::init(context);
     tl::examples::widgets_qtwidget::App app(argc, argv, context);
     int r = app.exec();
-    tl::qtwidget::shutdown();
     return r;
 }

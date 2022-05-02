@@ -4,80 +4,106 @@
 
 #include <tlBMD/DeviceInfo.h>
 
-#include <tlCore/Context.h>
-#include <tlCore/StringFormat.h>
-
 #include "platform.h"
 
 namespace tl
 {
     namespace bmd
     {
+        namespace
+        {
+            std::chrono::milliseconds infoTimeout = std::chrono::milliseconds(1000);
+        }
+
+        bool DisplayMode::operator == (const DisplayMode& other) const
+        {
+            return
+                displayMode == other.displayMode &&
+                size == other.size &&
+                frameRate == other.frameRate;
+        }
+
         bool DeviceInfo::operator == (const DeviceInfo& other) const
         {
-            return model == other.model;
+            return
+                model == other.model &&
+                displayModes == other.displayModes;
         }
 
-        struct DeviceInfoSystem::Private
+        std::future<std::vector<DeviceInfo> > getInfo()
         {
-            std::shared_ptr<observer::List<DeviceInfo> > info;
-        };
-
-        void DeviceInfoSystem::_init(const std::shared_ptr<system::Context>& context)
-        {
-            ISystem::_init("tl::bmd::DeviceInfoSystem", context);
-
-            TLRENDER_P();
-
-            p.info = observer::List<DeviceInfo>::create();
-
-            std::vector<DeviceInfo> info;
-            IDeckLinkIterator* deckLinkIterator = nullptr;
-            if (GetDeckLinkIterator(&deckLinkIterator) == S_OK)
-            {
-                IDeckLink* deckLink = nullptr;
-                while (deckLinkIterator->Next(&deckLink) == S_OK)
+            return std::async(
+                std::launch::async,
+                []() -> std::vector<DeviceInfo>
                 {
-                    DeviceInfo deviceInfo;
+#if defined(_WIN32)
+                    CoInitialize(NULL);
+#endif // _WIN32
 
-                    dlstring_t modelName;
-                    deckLink->GetModelName(&modelName);
-                    deviceInfo.model = DlToStdString(modelName);
-                    DeleteString(modelName);
+                    std::vector<DeviceInfo> out;
 
-                    deckLink->Release();
+                    IDeckLinkIterator* dlIterator = nullptr;
+                    if (GetDeckLinkIterator(&dlIterator) == S_OK)
+                    {
+                        IDeckLink* dl = nullptr;
+                        while (dlIterator->Next(&dl) == S_OK)
+                        {
+                            DeviceInfo deviceInfo;
 
-                    info.push_back(deviceInfo);
+                            dlstring_t modelName;
+                            dl->GetModelName(&modelName);
+                            deviceInfo.model = DlToStdString(modelName);
+                            DeleteString(modelName);
 
-                    context->log(
-                        "tl::bmd::DeviceInfoSystem",
-                        string::Format("Found device: {0}").arg(deviceInfo.model));
-                }
-            }
-            if (deckLinkIterator)
-            {
-                deckLinkIterator->Release();
-            }
-            p.info->setIfChanged(info);
-        }
+                            IDeckLinkOutput* dlOutput = nullptr;
+                            if (dl->QueryInterface(IID_IDeckLinkOutput, (void**)&dlOutput) == S_OK)
+                            {
+                                IDeckLinkDisplayModeIterator* dlDisplayModeIterator = nullptr;
+                                if (dlOutput->GetDisplayModeIterator(&dlDisplayModeIterator) == S_OK)
+                                {
+                                    IDeckLinkDisplayMode* dlDisplayMode = nullptr;
+                                    while (dlDisplayModeIterator->Next(&dlDisplayMode) == S_OK)
+                                    {
+                                        DisplayMode displayMode;
+                                        displayMode.displayMode = dlDisplayMode->GetDisplayMode();
+                                        displayMode.size.w = dlDisplayMode->GetWidth();
+                                        displayMode.size.h = dlDisplayMode->GetHeight();
+                                        BMDTimeValue frameDuration;
+                                        BMDTimeScale frameTimescale;
+                                        dlDisplayMode->GetFrameRate(&frameDuration, &frameTimescale);
+                                        displayMode.frameRate = otime::RationalTime(frameDuration, frameTimescale);
 
-        DeviceInfoSystem::DeviceInfoSystem() :
-            _p(new Private)
-        {}
+                                        dlDisplayMode->Release();
 
-        DeviceInfoSystem::~DeviceInfoSystem()
-        {}
+                                        deviceInfo.displayModes.push_back(displayMode);
+                                    }
+                                }
+                                if (dlDisplayModeIterator)
+                                {
+                                    dlDisplayModeIterator->Release();
+                                }
+                            }
+                            if (dlOutput)
+                            {
+                                dlOutput->Release();
+                            }
 
-        std::shared_ptr<DeviceInfoSystem> DeviceInfoSystem::create(const std::shared_ptr<system::Context>& context)
-        {
-            auto out = std::shared_ptr<DeviceInfoSystem>(new DeviceInfoSystem);
-            out->_init(context);
-            return out;
-        }
+                            dl->Release();
 
-        std::shared_ptr<observer::IList<DeviceInfo> > DeviceInfoSystem::observeDeviceInfo() const
-        {
-            return _p->info;
+                            out.push_back(deviceInfo);
+                        }
+                    }
+                    if (dlIterator)
+                    {
+                        dlIterator->Release();
+                    }
+
+#if defined(_WIN32)
+                    CoUninitialize();
+#endif // _WIN32
+
+                    return out;
+                });
         }
     }
 }

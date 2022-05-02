@@ -1,6 +1,7 @@
 set(HEADERS
+	DeviceModel.h
 	MetaTypes.h
-	PlaybackDevice.h
+	OutputDevice.h
     TimeObject.h
     TimelinePlayer.h
     TimelineThumbnailProvider.h
@@ -8,7 +9,8 @@ set(HEADERS
     Util.h)
 
 set(SOURCE
-	PlaybackDevice.cpp
+	DeviceModel.cpp
+	OutputDevice.cpp
     TimeObject.cpp
     TimelinePlayer.cpp
     TimelineThumbnailProvider.cpp

@@ -22,7 +22,6 @@ int main(int argc, char* argv[])
         {
             r = app.exec();
         }
-        tl::qtwidget::shutdown();
     }
     catch(const std::exception& e)
     {

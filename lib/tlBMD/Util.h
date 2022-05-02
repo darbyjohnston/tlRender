@@ -4,22 +4,25 @@
 
 #pragma once
 
-#include <memory>
+#include "DeckLinkAPI.h"
+
+#include <string>
 
 namespace tl
 {
-    namespace system
-    {
-        class Context;
-    }
-
     //! Blackmagic Design DeckLink support.
     namespace bmd
     {
-        //! Initialize the library.
-        void init(const std::shared_ptr<system::Context>&);
+        //! Get a label.
+        std::string getLabel(BMDVideoConnection);
 
-        //! Shutdown the library.
-        void shutdown();
+        //! Get a label.
+        std::string getLabel(BMDAudioConnection);
+
+        //! Get a label.
+        std::string getLabel(BMDDisplayMode);
+
+        //! Get a label.
+        std::string getLabel(BMDPixelFormat);
     }
 }

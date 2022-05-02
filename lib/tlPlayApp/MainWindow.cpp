@@ -33,7 +33,7 @@
 #include <tlQtWidget/TimelineViewport.h>
 #include <tlQtWidget/Util.h>
 
-#include <tlQt/PlaybackDevice.h>
+#include <tlQt/OutputDevice.h>
 
 #include <tlCore/File.h>
 #include <tlCore/String.h>
@@ -104,7 +104,7 @@ namespace tl
             QLabel* infoLabel = nullptr;
             QStatusBar* statusBar = nullptr;
             SecondaryWindow* secondaryWindow = nullptr;
-            qt::PlaybackDevice* playbackDevice = nullptr;
+            qt::OutputDevice* outputDevice = nullptr;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ValueObserver<int> > aIndexObserver;
@@ -359,7 +359,7 @@ namespace tl
             p.statusBar->addPermanentWidget(p.infoLabel);
             setStatusBar(p.statusBar);
 
-            p.playbackDevice = new qt::PlaybackDevice(0, app->getContext());
+            p.outputDevice = new qt::OutputDevice(0, 0, app->getContext());
 
             _widgetUpdate();
 
@@ -665,10 +665,10 @@ namespace tl
                 delete p.secondaryWindow;
                 p.secondaryWindow = nullptr;
             }
-            if (p.playbackDevice)
+            if (p.outputDevice)
             {
-                delete p.playbackDevice;
-                p.playbackDevice = nullptr;
+                delete p.outputDevice;
+                p.outputDevice = nullptr;
             }
         }
 
@@ -1093,13 +1093,13 @@ namespace tl
                 p.secondaryWindow->viewport()->setTimelinePlayers(p.timelinePlayers);
             }
 
-            if (p.playbackDevice)
+            if (p.outputDevice)
             {
-                p.playbackDevice->setColorConfig(p.colorConfig);
-                p.playbackDevice->setImageOptions(imageOptions);
-                p.playbackDevice->setDisplayOptions(displayOptions);
-                p.playbackDevice->setCompareOptions(p.compareOptions);
-                p.playbackDevice->setTimelinePlayers(p.timelinePlayers);
+                p.outputDevice->setColorConfig(p.colorConfig);
+                p.outputDevice->setImageOptions(imageOptions);
+                p.outputDevice->setDisplayOptions(displayOptions);
+                p.outputDevice->setCompareOptions(p.compareOptions);
+                p.outputDevice->setTimelinePlayers(p.timelinePlayers);
             }
         }
     }

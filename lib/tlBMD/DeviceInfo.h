@@ -4,42 +4,37 @@
 
 #pragma once
 
-#include <tlCore/ISystem.h>
-#include <tlCore/ListObserver.h>
+#include <tlCore/Image.h>
+#include <tlCore/Time.h>
+
+#include "DeckLinkAPI.h"
+
+#include <future>
 
 namespace tl
 {
     namespace bmd
     {
+        //! Display mode.
+        struct DisplayMode
+        {
+            BMDDisplayMode displayMode = BMDDisplayMode::bmdModeUnknown;
+            imaging::Size size;
+            otime::RationalTime frameRate;
+
+            bool operator == (const DisplayMode&) const;
+        };
+
         //! Device information.
         struct DeviceInfo
         {
             std::string model;
+            std::vector<DisplayMode> displayModes;
 
             bool operator == (const DeviceInfo&) const;
         };
 
-        //! Device information system.
-        class DeviceInfoSystem : public system::ISystem
-        {
-            TLRENDER_NON_COPYABLE(DeviceInfoSystem);
-
-        protected:
-            void _init(const std::shared_ptr<system::Context>&);
-
-            DeviceInfoSystem();
-
-        public:
-            ~DeviceInfoSystem() override;
-
-            //! Create a new device information system.
-            static std::shared_ptr<DeviceInfoSystem> create(const std::shared_ptr<system::Context>&);
-
-            //! Observe device information.
-            std::shared_ptr<observer::IList<DeviceInfo> > observeDeviceInfo() const;
-
-        private:
-            TLRENDER_PRIVATE();
-        };
+        //! Get device information.
+        std::future<std::vector<DeviceInfo> > getInfo();
     }
 }

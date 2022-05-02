@@ -59,8 +59,5 @@ int main(int argc, char* argv[])
     // Start the application.
     int r = app.exec();
 
-    // Shutdown the tlQtWidget library.
-    tl::qtwidget::shutdown();
-
     return r;
 }

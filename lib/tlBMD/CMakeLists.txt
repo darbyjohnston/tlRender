@@ -1,11 +1,11 @@
 set(HEADERS
     DeviceInfo.h
-	PlaybackDevice.h
+	OutputDevice.h
 	Util.h)
 
 set(SOURCE
     DeviceInfo.cpp
-	PlaybackDevice.cpp
+	OutputDevice.cpp
 	Util.cpp)
 
 set(DECKLINK_INCLUDE_DIR)
@@ -57,7 +57,7 @@ elseif(UNIX)
 endif()
 
 add_library(tlBMD ${HEADERS} ${SOURCE} ${DECKLINK_SOURCE})
-target_include_directories(tlBMD PRIVATE ${DECKLINK_INCLUDE_DIR})
+target_include_directories(tlBMD PUBLIC ${DECKLINK_INCLUDE_DIR})
 target_link_libraries(tlBMD tlTimeline ${DECKLINK_LIBRARIES})
 set_target_properties(tlBMD PROPERTIES FOLDER lib)
 set_target_properties(tlBMD PROPERTIES PUBLIC_HEADER "${HEADERS}")
