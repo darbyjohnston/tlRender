@@ -9,6 +9,10 @@
 
 #include <tlGL/Util.h>
 
+#if defined(TLRENDER_BUILD_BMD)
+#include <tlBMD/Util.h>
+#endif // TLRENDER_BUILD_BMD
+
 #include <tlCore/Context.h>
 #include <tlCore/Mesh.h>
 
@@ -20,6 +24,9 @@ namespace tl
     {
         void init(const std::shared_ptr<system::Context>& context)
         {
+#if defined(TLRENDER_BUILD_BMD)
+            bmd::init(context);
+#endif // TLRENDER_BUILD_BMD
             gl::init(context);
 
             qRegisterMetaType<otime::RationalTime>("otime::RationalTime");

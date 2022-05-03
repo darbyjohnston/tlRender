@@ -47,6 +47,9 @@ namespace tl
                 QCoreApplication::setApplicationName("filmstrip-qwidget");
                 setStyle("Fusion");
 
+                // Create the context object.
+                _contextObject = new qt::ContextObject(context, this);
+
                 // Create the main window.
                 auto mainWindow = new MainWindow(_input, _context);
                 mainWindow->show();

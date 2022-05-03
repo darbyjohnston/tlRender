@@ -8,8 +8,8 @@
 
 #include <tlCore/Time.h>
 
-#include <QObject>
 #include <QMetaType>
+#include <QObject>
 
 namespace tl
 {

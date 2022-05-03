@@ -274,6 +274,8 @@ namespace tl
 
         void App::_tick()
         {
+            _context->tick();
+
             _printProgress();
 
             // Set the active range.

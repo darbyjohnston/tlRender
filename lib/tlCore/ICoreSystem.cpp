@@ -21,5 +21,13 @@ namespace tl
 
         ICoreSystem::~ICoreSystem()
         {}
+
+        void ICoreSystem::tick()
+        {}
+
+        std::chrono::milliseconds ICoreSystem::getTickTime() const
+        {
+            return std::chrono::milliseconds(0);
+        }
     }
 }

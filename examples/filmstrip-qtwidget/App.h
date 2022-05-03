@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <tlQt/ContextObject.h>
+
 #include <tlApp/IApp.h>
 
 #include <QApplication>
@@ -28,6 +30,7 @@ namespace tl
 
             private:
                 std::string _input;
+                qt::ContextObject* _contextObject = nullptr;
             };
         }
     }

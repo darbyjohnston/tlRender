@@ -6,7 +6,7 @@
 
 #include "MainWindow.h"
 
-#include <tlCore/Context.h>
+#include <tlQt/ContextObject.h>
 
 #include <QApplication>
 
@@ -28,6 +28,7 @@ namespace tl
                     const std::shared_ptr<system::Context>&);
 
             private:
+                qt::ContextObject* _contextObject = nullptr;
                 MainWindow* _mainWindow = nullptr;
             };
         }

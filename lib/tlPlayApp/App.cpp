@@ -13,6 +13,7 @@
 #include <tlQtWidget/Style.h>
 #include <tlQtWidget/Util.h>
 
+#include <tlQt/ContextObject.h>
 #include <tlQt/MetaTypes.h>
 #include <tlQt/TimeObject.h>
 #include <tlQt/TimelineThumbnailProvider.h>
@@ -56,6 +57,7 @@ namespace tl
         {
             Options options;
 
+            qt::ContextObject* contextObject = nullptr;
             qt::TimeObject* timeObject = nullptr;
             SettingsObject* settingsObject = nullptr;
             qt::TimelineThumbnailProvider* thumbnailProvider = nullptr;
@@ -175,6 +177,7 @@ namespace tl
             setStyleSheet(qtwidget::styleSheet());
 
             // Create objects.
+            p.contextObject = new qt::ContextObject(context, this);
             p.timeObject = new qt::TimeObject(this);
 
             p.settingsObject = new SettingsObject(p.options.resetSettings, p.timeObject, this);

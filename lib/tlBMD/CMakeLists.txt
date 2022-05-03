@@ -1,10 +1,10 @@
 set(HEADERS
-    DeviceInfo.h
+    DeviceSystem.h
 	OutputDevice.h
 	Util.h)
 
 set(SOURCE
-    DeviceInfo.cpp
+    DeviceSystem.cpp
 	OutputDevice.cpp
 	Util.cpp)
 

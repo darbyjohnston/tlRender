@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <chrono>
 #include <memory>
 #include <string>
 
@@ -31,6 +32,12 @@ namespace tl
 
             //! Get the system name.
             const std::string& getName() const;
+
+            //! Tick the system.
+            virtual void tick();
+
+            //! Get the system tick time interval.
+            virtual std::chrono::milliseconds getTickTime() const;
 
         protected:
             std::weak_ptr<Context> _context;

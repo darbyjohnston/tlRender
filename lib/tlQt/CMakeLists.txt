@@ -1,4 +1,5 @@
 set(HEADERS
+	ContextObject.h
 	DeviceModel.h
 	MetaTypes.h
 	OutputDevice.h
@@ -9,6 +10,7 @@ set(HEADERS
     Util.h)
 
 set(SOURCE
+	ContextObject.cpp
 	DeviceModel.cpp
 	OutputDevice.cpp
     TimeObject.cpp

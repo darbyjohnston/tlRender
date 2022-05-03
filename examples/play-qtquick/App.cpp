@@ -49,6 +49,7 @@ namespace tl
                 QCoreApplication::setApplicationName("play-qtquick");
 
                 // Create objects.
+                _contextObject = new qt::ContextObject(context, this);
                 _timeObject = new qt::TimeObject(this);
 
                 // Open the input file.

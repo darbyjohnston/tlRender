@@ -5,6 +5,7 @@
 #include <tlQtWidget/TimelineViewport.h>
 #include <tlQtWidget/Util.h>
 
+#include <tlQt/ContextObject.h>
 #include <tlQt/TimelinePlayer.h>
 
 #include <QApplication>
@@ -13,7 +14,7 @@
 
 int main(int argc, char* argv[])
 {
-    // Initialize the tlQtWidget library.
+    // Initialize.
     auto context = tl::system::Context::create();
     tl::qtwidget::init(context);
 
@@ -26,6 +27,9 @@ int main(int argc, char* argv[])
 
     // Create the Qt application.
     QApplication app(argc, argv);
+
+    // Create the context object.
+    auto contextObject = new tl::qt::ContextObject(context);
 
     // Create the timeline player.
     auto timeline = tl::timeline::Timeline::create(argv[1], context);

@@ -4,12 +4,24 @@
 
 #include <tlBMD/Util.h>
 
+#include <tlBMD/DeviceSystem.h>
+
+#include <tlCore/Context.h>
+
 #include <array>
 
 namespace tl
 {
     namespace bmd
     {
+        void init(const std::shared_ptr<system::Context>& context)
+        {
+            if (!context->getSystem<DeviceSystem>())
+            {
+                context->addSystem(DeviceSystem::create(context));
+            }
+        }
+
         std::string getLabel(BMDVideoConnection value)
         {
             const std::array<std::string, 7> data =

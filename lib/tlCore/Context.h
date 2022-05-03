@@ -6,6 +6,7 @@
 
 #include <tlCore/LogSystem.h>
 
+#include <map>
 #include <memory>
 #include <vector>
 
@@ -49,9 +50,13 @@ namespace tl
                 const std::string&,
                 log::Type = log::Type::Message);
 
+            //! Tick the context.
+            void tick();
+
         private:
             std::shared_ptr<log::System> _logSystem;
             std::vector<std::shared_ptr<ICoreSystem> > _systems;
+            std::map<std::shared_ptr<ICoreSystem>, std::chrono::steady_clock::time_point> _systemTimers;
             TLRENDER_PRIVATE();
         };
     }

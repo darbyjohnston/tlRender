@@ -6,6 +6,7 @@
 
 #include <tlApp/IApp.h>
 
+#include <tlQt/ContextObject.h>
 #include <tlQt/TimeObject.h>
 #include <tlQt/TimelinePlayer.h>
 
@@ -35,6 +36,7 @@ namespace tl
             private:
                 std::string _input;
 
+                qt::ContextObject* _contextObject = nullptr;
                 qt::TimeObject* _timeObject = nullptr;
                 qt::TimelinePlayer* _timelinePlayer = nullptr;
 

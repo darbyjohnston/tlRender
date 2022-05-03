@@ -61,6 +61,10 @@ namespace tl
         void Context::addSystem(const std::shared_ptr<ICoreSystem>& system)
         {
             _systems.push_back(system);
+            if (system->getTickTime() != std::chrono::milliseconds(0))
+            {
+                _systemTimers[system] = std::chrono::steady_clock::now();
+            }
         }
 
         std::vector<log::Item> Context::getLogInit()
@@ -71,6 +75,19 @@ namespace tl
         void Context::log(const std::string& prefix, const std::string& value, log::Type type)
         {
             _logSystem->print(prefix, value, type);
+        }
+
+        void Context::tick()
+        {
+            for (auto& i : _systemTimers)
+            {
+                const auto now = std::chrono::steady_clock::now();
+                if ((i.second + i.first->getTickTime()) <= now)
+                {
+                    i.first->tick();
+                    i.second = now;
+                }
+            }
         }
     }
 }

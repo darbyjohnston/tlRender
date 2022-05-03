@@ -368,6 +368,7 @@ namespace tl
             void App::_tick()
             {
                 // Update.
+                _context->tick();
                 _timelinePlayer->tick();
                 const auto& videoData = _timelinePlayer->observeVideo()->get();
                 if (!timeline::isTimeEqual(videoData, _videoData))
@@ -393,7 +394,7 @@ namespace tl
                 }
                 else
                 {
-                    time::sleep(std::chrono::milliseconds(1));
+                    time::sleep(std::chrono::milliseconds(5));
                 }
             }
 

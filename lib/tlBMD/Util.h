@@ -4,15 +4,27 @@
 
 #pragma once
 
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif // NOMINMAX
 #include "DeckLinkAPI.h"
 
+#include <memory>
 #include <string>
 
 namespace tl
 {
+    namespace system
+    {
+        class Context;
+    }
+
     //! Blackmagic Design DeckLink support.
     namespace bmd
     {
+        //! Initialize the library.
+        void init(const std::shared_ptr<system::Context>&);
+
         //! Get a label.
         std::string getLabel(BMDVideoConnection);
 
