@@ -11,13 +11,14 @@
 #include <tlPlayApp/ColorTool.h>
 #include <tlPlayApp/CompareActions.h>
 #include <tlPlayApp/CompareTool.h>
+#include <tlPlayApp/DeviceModel.h>
+#include <tlPlayApp/DeviceTool.h>
 #include <tlPlayApp/FileActions.h>
 #include <tlPlayApp/FilesModel.h>
 #include <tlPlayApp/FilesTool.h>
 #include <tlPlayApp/ImageActions.h>
 #include <tlPlayApp/InfoTool.h>
 #include <tlPlayApp/MessagesTool.h>
-#include <tlPlayApp/OutputTool.h>
 #include <tlPlayApp/PlaybackActions.h>
 #include <tlPlayApp/SecondaryWindow.h>
 #include <tlPlayApp/SettingsObject.h>
@@ -97,7 +98,7 @@ namespace tl
             ColorTool* colorTool = nullptr;
             InfoTool* infoTool = nullptr;
             AudioTool* audioTool = nullptr;
-            OutputTool* outputTool = nullptr;
+            DeviceTool* deviceTool = nullptr;
             SettingsTool* settingsTool = nullptr;
             MessagesTool* messagesTool = nullptr;
             SystemLogTool* systemLogTool = nullptr;
@@ -113,6 +114,7 @@ namespace tl
             std::shared_ptr<observer::ListObserver<timeline::DisplayOptions> > displayOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
             std::shared_ptr<observer::ValueObserver<imaging::ColorConfig> > colorConfigObserver;
+            std::shared_ptr<observer::ValueObserver<DeviceModelData> > deviceObserver;
             std::shared_ptr<observer::ValueObserver<log::Item> > logObserver;
 
             bool mousePressed = false;
@@ -309,16 +311,16 @@ namespace tl
             p.windowActions->menu()->addAction(audioDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, audioDockWidget);
 
-            p.outputTool = new OutputTool();
-            auto outputDockWidget = new QDockWidget;
-            outputDockWidget->setObjectName("OutputTool");
-            outputDockWidget->setWindowTitle(tr("Output"));
-            outputDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-            outputDockWidget->setWidget(p.outputTool);
-            outputDockWidget->hide();
-            outputDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F6));
-            p.windowActions->menu()->addAction(outputDockWidget->toggleViewAction());
-            addDockWidget(Qt::RightDockWidgetArea, outputDockWidget);
+            p.deviceTool = new DeviceTool(app);
+            auto deviceDockWidget = new QDockWidget;
+            deviceDockWidget->setObjectName("DeviceTool");
+            deviceDockWidget->setWindowTitle(tr("Devices"));
+            deviceDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+            deviceDockWidget->setWidget(p.deviceTool);
+            deviceDockWidget->hide();
+            deviceDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F7));
+            p.windowActions->menu()->addAction(deviceDockWidget->toggleViewAction());
+            addDockWidget(Qt::RightDockWidgetArea, deviceDockWidget);
 
             p.settingsTool = new SettingsTool(app->settingsObject(), app->timeObject());
             auto settingsDockWidget = new QDockWidget;
@@ -359,7 +361,7 @@ namespace tl
             p.statusBar->addPermanentWidget(p.infoLabel);
             setStatusBar(p.statusBar);
 
-            p.outputDevice = new qt::OutputDevice(0, 0, app->getContext());
+            p.outputDevice = new qt::OutputDevice(app->getContext());
 
             _widgetUpdate();
 
@@ -395,6 +397,13 @@ namespace tl
                 {
                     _p->colorConfig = value;
                     _widgetUpdate();
+                });
+
+            p.deviceObserver = observer::ValueObserver<DeviceModelData>::create(
+                app->deviceModel()->observeData(),
+                [this](const DeviceModelData& value)
+                {
+                    _p->outputDevice->setDevice(value.deviceIndex - 1, value.displayModeIndex - 1);
                 });
 
             p.logObserver = observer::ValueObserver<log::Item>::create(

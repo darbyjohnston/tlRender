@@ -1,6 +1,5 @@
 set(HEADERS
 	ContextObject.h
-	DeviceModel.h
 	MetaTypes.h
 	OutputDevice.h
     TimeObject.h
@@ -11,7 +10,6 @@ set(HEADERS
 
 set(SOURCE
 	ContextObject.cpp
-	DeviceModel.cpp
 	OutputDevice.cpp
     TimeObject.cpp
     TimelinePlayer.cpp
@@ -26,10 +24,7 @@ if(TLRENDER_BUILD_QT6)
 elseif(TLRENDER_BUILD_QT5)
 	list(APPEND LIBRARIES Qt5::Gui)
 endif()
-if(TLRENDER_BUILD_BMD)
-    list(APPEND LIBRARIES tlBMD)
-endif()
-list(APPEND LIBRARIES tlGL)
+list(APPEND LIBRARIES tlGL tlDevice)
 
 add_library(tlQt ${HEADERS} ${SOURCE})
 target_link_libraries(tlQt ${LIBRARIES})

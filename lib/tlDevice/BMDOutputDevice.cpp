@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include <tlBMD/OutputDevice.h>
+#include <tlDevice/BMDOutputDevice.h>
 
 #include <tlCore/Context.h>
 #include <tlCore/StringFormat.h>
@@ -19,44 +19,10 @@
 
 namespace tl
 {
-    namespace bmd
+    namespace device
     {
         namespace
         {
-            std::string getLabel(BMDOutputFrameCompletionResult value)
-            {
-                const std::array<std::string, 4> data =
-                {
-                    "Completed",
-                    "Displayed Late",
-                    "Dropped",
-                    "Flushed"
-                };
-                return data[value];
-            }
-
-            struct DisplayModeInfo
-            {
-                DisplayModeInfo(IDeckLinkDisplayMode* displayMode)
-                {
-                    size.w = displayMode->GetWidth();
-                    size.h = displayMode->GetHeight();
-                    
-                    BMDTimeValue frameDuration;
-                    BMDTimeScale frameTimescale;
-                    displayMode->GetFrameRate(&frameDuration, &frameTimescale);
-                    frameRate = otime::RationalTime(frameDuration, frameTimescale);
-                }
-
-                imaging::Size size;
-                otime::RationalTime frameRate;
-
-                bool operator < (const DisplayModeInfo& other) const
-                {
-                    return std::tie(size, other.frameRate) < std::tie(other.size, frameRate);
-                }
-            };
-
             class DLVideoOutputCallback : public IDeckLinkVideoOutputCallback
             {
             public:
@@ -125,10 +91,8 @@ namespace tl
             }
         }
 
-        struct OutputDevice::Private
+        struct BMDOutputDevice::Private
         {
-            int deviceIndex = -1;
-
             IDeckLink* dl = nullptr;
             IDeckLinkOutput* dlOutput = nullptr;
             DLVideoOutputCallback* dlVideoOutputCallback = nullptr;
@@ -140,11 +104,13 @@ namespace tl
             std::mutex mutex;
         };
 
-        void OutputDevice::_init(
+        void BMDOutputDevice::_init(
             int deviceIndex,
             int displayModeIndex,
             const std::shared_ptr<system::Context>& context)
         {
+            IOutputDevice::_init(deviceIndex, displayModeIndex, context);
+
             TLRENDER_P();
 
             IDeckLinkIterator* dlIterator = nullptr;
@@ -164,8 +130,6 @@ namespace tl
                 {
                     if (count == deviceIndex)
                     {
-                        p.deviceIndex = deviceIndex;
-
                         dlstring_t dlModelName;
                         p.dl ->GetModelName(&dlModelName);
                         modelName = DlToStdString(dlModelName);
@@ -249,7 +213,7 @@ namespace tl
                 p.frameRate = otime::RationalTime(frameDuration, frameTimescale);
 
                 context->log(
-                    "tl::bmd::OutputDevice",
+                    "tl::device::BMDOutputDevice",
                     string::Format("Device {0}: {1} {2} {3}").
                     arg(deviceIndex).
                     arg(modelName).
@@ -296,7 +260,7 @@ namespace tl
             catch (const std::exception& e)
             {
                 context->log(
-                    "tl::bmd::OutputDevice",
+                    "tl::device::BMDOutputDevice",
                     e.what(),
                     log::Type::Error);
                 if (p.dlOutput)
@@ -329,11 +293,11 @@ namespace tl
             }
         }
 
-        OutputDevice::OutputDevice() :
+        BMDOutputDevice::BMDOutputDevice() :
             _p(new Private)
         {}
 
-        OutputDevice::~OutputDevice()
+        BMDOutputDevice::~BMDOutputDevice()
         {
             TLRENDER_P();
             if (p.dlVideoOutputCallback)
@@ -356,27 +320,27 @@ namespace tl
             }
         }
 
-        std::shared_ptr<OutputDevice> OutputDevice::create(
+        std::shared_ptr<BMDOutputDevice> BMDOutputDevice::create(
             int deviceIndex,
             int displayModeIndex,
             const std::shared_ptr<system::Context>& context)
         {
-            auto out = std::shared_ptr<OutputDevice>(new OutputDevice);
+            auto out = std::shared_ptr<BMDOutputDevice>(new BMDOutputDevice);
             out->_init(deviceIndex, displayModeIndex, context);
             return out;
         }
 
-        const imaging::Size& OutputDevice::getSize() const
+        const imaging::Size& BMDOutputDevice::getSize() const
         {
             return _p->size;
         }
 
-        const otime::RationalTime& OutputDevice::getFrameRate() const
+        const otime::RationalTime& BMDOutputDevice::getFrameRate() const
         {
             return _p->frameRate;
         }
 
-        void OutputDevice::display(const std::shared_ptr<imaging::Image>& image)
+        void BMDOutputDevice::display(const std::shared_ptr<imaging::Image>& image)
         {
             TLRENDER_P();
             std::unique_lock<std::mutex> lock(p.mutex);

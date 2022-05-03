@@ -2,26 +2,14 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include <tlBMD/Util.h>
-
-#include <tlBMD/DeviceSystem.h>
-
-#include <tlCore/Context.h>
+#include <tlDevice/BMDUtil.h>
 
 #include <array>
 
 namespace tl
 {
-    namespace bmd
+    namespace device
     {
-        void init(const std::shared_ptr<system::Context>& context)
-        {
-            if (!context->getSystem<DeviceSystem>())
-            {
-                context->addSystem(DeviceSystem::create(context));
-            }
-        }
-
         std::string getLabel(BMDVideoConnection value)
         {
             const std::array<std::string, 7> data =
@@ -184,6 +172,18 @@ namespace tl
                 "Unknown"
             };
             return data[static_cast<size_t>(value)];
+        }
+
+        std::string getLabel(BMDOutputFrameCompletionResult value)
+        {
+            const std::array<std::string, 4> data =
+            {
+                "Completed",
+                "Displayed Late",
+                "Dropped",
+                "Flushed"
+            };
+            return data[value];
         }
     }
 }

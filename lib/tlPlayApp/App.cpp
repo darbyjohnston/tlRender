@@ -5,6 +5,7 @@
 #include <tlPlayApp/App.h>
 
 #include <tlPlayApp/ColorModel.h>
+#include <tlPlayApp/DeviceModel.h>
 #include <tlPlayApp/FilesModel.h>
 #include <tlPlayApp/MainWindow.h>
 #include <tlPlayApp/OpenWithAudioDialog.h>
@@ -68,6 +69,7 @@ namespace tl
             std::shared_ptr<ColorModel> colorModel;
             timeline::ImageOptions imageOptions;
             timeline::DisplayOptions displayOptions;
+            std::shared_ptr<DeviceModel> deviceModel;
 
             std::vector<qt::TimelinePlayer*> timelinePlayers;
 
@@ -227,6 +229,8 @@ namespace tl
                 p.colorModel->setConfig(p.options.colorConfig);
             }
 
+            p.deviceModel = DeviceModel::create(context);
+
             // Create the main window.
             p.mainWindow = new MainWindow(this);
 
@@ -308,6 +312,11 @@ namespace tl
         const timeline::DisplayOptions& App::displayOptions() const
         {
             return _p->displayOptions;
+        }
+
+        const std::shared_ptr<DeviceModel>& App::deviceModel() const
+        {
+            return _p->deviceModel;
         }
 
         void App::open(const QString& fileName, const QString& audioFileName)

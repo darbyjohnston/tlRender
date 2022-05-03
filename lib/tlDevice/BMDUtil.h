@@ -9,22 +9,12 @@
 #endif // NOMINMAX
 #include "DeckLinkAPI.h"
 
-#include <memory>
 #include <string>
 
 namespace tl
 {
-    namespace system
+    namespace device
     {
-        class Context;
-    }
-
-    //! Blackmagic Design DeckLink support.
-    namespace bmd
-    {
-        //! Initialize the library.
-        void init(const std::shared_ptr<system::Context>&);
-
         //! Get a label.
         std::string getLabel(BMDVideoConnection);
 
@@ -36,5 +26,8 @@ namespace tl
 
         //! Get a label.
         std::string getLabel(BMDPixelFormat);
+
+        //! Get a label.
+        std::string getLabel(BMDOutputFrameCompletionResult);
     }
 }

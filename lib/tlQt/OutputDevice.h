@@ -29,12 +29,13 @@ namespace tl
 
         public:
             OutputDevice(
-                int deviceIndex,
-                int displayModeIndex,
                 const std::shared_ptr<system::Context>&,
                 QObject* parent = nullptr);
 
             ~OutputDevice();
+
+            //! Set the device.
+            void setDevice(int deviceIndex, int displayModeIndex);
 
             //! Set the color configuration.
             void setColorConfig(const imaging::ColorConfig&);

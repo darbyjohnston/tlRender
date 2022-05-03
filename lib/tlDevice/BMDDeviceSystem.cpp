@@ -2,7 +2,9 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include <tlBMD/DeviceSystem.h>
+#include <tlDevice/BMDDeviceSystem.h>
+
+#include <tlDevice/BMDOutputDevice.h>
 
 #include "platform.h"
 
@@ -12,43 +14,21 @@
 
 namespace tl
 {
-    namespace bmd
+    namespace device
     {
-        bool DisplayMode::operator == (const DisplayMode& other) const
+        struct BMDDeviceSystem::Private
         {
-            return
-                displayMode == other.displayMode &&
-                size == other.size &&
-                frameRate == other.frameRate;
-        }
-
-        bool DeviceInfo::operator == (const DeviceInfo& other) const
-        {
-            return
-                model == other.model &&
-                displayModes == other.displayModes;
-        }
-
-        struct DeviceSystem::Private
-        {
-            std::shared_ptr<observer::List<DeviceInfo> > deviceInfo;
-            std::vector<DeviceInfo> deviceInfoThread;
+            std::vector<DeviceInfo> deviceInfo;
             std::thread thread;
             std::mutex mutex;
             std::atomic<bool> running;
         };
 
-        void DeviceSystem::_init(const std::shared_ptr<system::Context>& context)
+        void BMDDeviceSystem::_init(const std::shared_ptr<system::Context>& context)
         {
-            ISystem::_init("tl::bmd::DeviceSystem", context);
-        }
+            IDeviceSystem::_init("tl::device::BMDDeviceSystem", context);
 
-        DeviceSystem::DeviceSystem() :
-            _p(new Private)
-        {
             TLRENDER_P();
-
-            p.deviceInfo = observer::List<DeviceInfo>::create();
 
             p.running = true;
             p.thread = std::thread(
@@ -72,10 +52,10 @@ namespace tl
                             {
                                 DeviceInfo deviceInfo;
 
-                                dlstring_t modelName;
-                                dl->GetModelName(&modelName);
-                                deviceInfo.model = DlToStdString(modelName);
-                                DeleteString(modelName);
+                                dlstring_t dlstring;
+                                dl->GetModelName(&dlstring);
+                                deviceInfo.name = DlToStdString(dlstring);
+                                DeleteString(dlstring);
 
                                 IDeckLinkOutput* dlOutput = nullptr;
                                 if (dl->QueryInterface(IID_IDeckLinkOutput, (void**)&dlOutput) == S_OK)
@@ -87,7 +67,9 @@ namespace tl
                                         while (dlDisplayModeIterator->Next(&dlDisplayMode) == S_OK)
                                         {
                                             DisplayMode displayMode;
-                                            displayMode.displayMode = dlDisplayMode->GetDisplayMode();
+                                            dlDisplayMode->GetName(&dlstring);
+                                            displayMode.name = DlToStdString(dlstring);
+                                            DeleteString(dlstring);
                                             displayMode.size.w = dlDisplayMode->GetWidth();
                                             displayMode.size.h = dlDisplayMode->GetHeight();
                                             BMDTimeValue frameDuration;
@@ -122,7 +104,7 @@ namespace tl
 
                         {
                             std::unique_lock<std::mutex> lock(p.mutex);
-                            p.deviceInfoThread = deviceInfoList;
+                            p.deviceInfo = deviceInfoList;
                         }
 
                         time::sleep(getTickTime());
@@ -134,7 +116,11 @@ namespace tl
                 });
         }
 
-        DeviceSystem::~DeviceSystem()
+        BMDDeviceSystem::BMDDeviceSystem() :
+            _p(new Private)
+        {}
+
+        BMDDeviceSystem::~BMDDeviceSystem()
         {
             TLRENDER_P();
             p.running = false;
@@ -144,31 +130,35 @@ namespace tl
             }
         }
 
-        std::shared_ptr<DeviceSystem> DeviceSystem::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<BMDDeviceSystem> BMDDeviceSystem::create(const std::shared_ptr<system::Context>& context)
         {
-            auto out = std::shared_ptr<DeviceSystem>(new DeviceSystem);
+            auto out = std::shared_ptr<BMDDeviceSystem>(new BMDDeviceSystem);
             out->_init(context);
             return out;
         }
 
-        std::shared_ptr<observer::IList<DeviceInfo> > DeviceSystem::observeDeviceInfo() const
+        std::shared_ptr<IOutputDevice> BMDDeviceSystem::createDevice(int deviceIndex, int displayModeIndex)
         {
-            return _p->deviceInfo;
+            std::shared_ptr<IOutputDevice> out;
+            if (deviceIndex != -1 && displayModeIndex != -1)
+            {
+                if (auto context = getContext().lock())
+                {
+                    out = BMDOutputDevice::create(deviceIndex, displayModeIndex, context);
+                }
+            }
+            return out;
         }
 
-        void DeviceSystem::tick()
+        void BMDDeviceSystem::tick()
         {
             TLRENDER_P();
             std::vector<DeviceInfo> deviceInfo;
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
+                deviceInfo = p.deviceInfo;
             }
-            p.deviceInfo->setIfChanged(deviceInfo);
-        }
-
-        std::chrono::milliseconds DeviceSystem::getTickTime() const
-        {
-            return std::chrono::milliseconds(1000);
+            _deviceInfo->setIfChanged(deviceInfo);
         }
     }
 }

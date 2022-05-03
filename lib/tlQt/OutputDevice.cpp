@@ -7,9 +7,8 @@
 #include <tlGL/OffscreenBuffer.h>
 #include <tlGL/Render.h>
 
-#if defined(TLRENDER_BUILD_BMD)
-#include <tlBMD/OutputDevice.h>
-#endif // TLRENDER_BUILD_BMD
+#include <tlDevice/IDeviceSystem.h>
+#include <tlDevice/IOutputDevice.h>
 
 #include <tlCore/Context.h>
 
@@ -29,15 +28,12 @@ namespace tl
         {
             std::weak_ptr<system::Context> context;
 
-            int deviceIndex = 0;
-            int displayModeIndex = 0;
-
+            std::shared_ptr<device::IOutputDevice> device;
             imaging::ColorConfig colorConfig;
             std::vector<timeline::ImageOptions> imageOptions;
             std::vector<timeline::DisplayOptions> displayOptions;
             timeline::CompareOptions compareOptions;
             std::vector<qt::TimelinePlayer*> timelinePlayers;
-            imaging::Size size;
             math::Vector2i viewPos;
             float viewZoom = 1.F;
             bool frameView = true;
@@ -51,8 +47,6 @@ namespace tl
         };
 
         OutputDevice::OutputDevice(
-            int deviceIndex,
-            int displayModeIndex,
             const std::shared_ptr<system::Context>& context,
             QObject* parent) :
             QThread(parent),
@@ -61,9 +55,6 @@ namespace tl
             TLRENDER_P();
 
             p.context = context;
-
-            p.deviceIndex = deviceIndex;
-            p.displayModeIndex = displayModeIndex;
 
             p.glContext.reset(new QOpenGLContext);
             QSurfaceFormat surfaceFormat;
@@ -88,6 +79,24 @@ namespace tl
             TLRENDER_P();
             p.running = false;
             wait();
+        }
+
+        void OutputDevice::setDevice(int deviceIndex, int displayModeIndex)
+        {
+            TLRENDER_P();
+            std::shared_ptr<device::IOutputDevice> device;
+            if (auto context = p.context.lock())
+            {
+                if (auto deviceSystem = context->getSystem<device::IDeviceSystem>())
+                {
+                    device = deviceSystem->createDevice(deviceIndex, displayModeIndex);
+                }
+            }
+            {
+                std::unique_lock<std::mutex> lock(p.mutex);
+                p.device = device;
+            }
+            p.cv.notify_one();
         }
 
         void OutputDevice::setColorConfig(const imaging::ColorConfig& value)
@@ -222,18 +231,13 @@ namespace tl
 
             if (auto context = p.context.lock())
             {
-#if defined(TLRENDER_BUILD_BMD)
-                auto device = bmd::OutputDevice::create(p.deviceIndex, p.displayModeIndex, context);
-                p.size = device->getSize();
-#endif // TLRENDER_BUILD_BMD
-
                 auto render = gl::Render::create(context);
 
+                std::shared_ptr<device::IOutputDevice> device;
                 imaging::ColorConfig colorConfig;
                 std::vector<timeline::ImageOptions> imageOptions;
                 std::vector<timeline::DisplayOptions> displayOptions;
                 timeline::CompareOptions compareOptions;
-                imaging::Size size = imaging::Size(1920, 1080);
                 math::Vector2i viewPos;
                 float viewZoom = 1.F;
                 bool frameView = true;
@@ -248,16 +252,16 @@ namespace tl
                         if (p.cv.wait_for(
                             lock,
                             p.timeout,
-                            [this, colorConfig, imageOptions, displayOptions,
-                                compareOptions, size, viewPos, viewZoom, frameView,
+                            [this, device, colorConfig, imageOptions, displayOptions,
+                                compareOptions, viewPos, viewZoom, frameView,
                                 videoData]
                             {
                                 return
+                                    device != _p->device ||
                                     colorConfig != _p->colorConfig ||
                                     imageOptions != _p->imageOptions ||
                                     displayOptions != _p->displayOptions ||
                                     compareOptions != _p->compareOptions ||
-                                    size != _p->size ||
                                     viewPos != _p->viewPos ||
                                     viewZoom != _p->viewZoom ||
                                     frameView != _p->frameView ||
@@ -265,11 +269,11 @@ namespace tl
                             }))
                         {
                             doRender = true;
+                            device = p.device;
                             colorConfig = p.colorConfig;
                             imageOptions = p.imageOptions;
                             displayOptions = p.displayOptions;
                             compareOptions = p.compareOptions;
-                            size = p.size;
                             viewPos = p.viewPos;
                             viewZoom = p.viewZoom;
                             frameView = p.frameView;
@@ -281,46 +285,54 @@ namespace tl
                     {
                         doRender = false;
 
-                        if (!offscreenBuffer ||
-                            (offscreenBuffer && offscreenBuffer->getSize() != size))
+                        if (device && device->getSize().isValid())
                         {
-                            gl::OffscreenBufferOptions options;
-                            options.colorType = imaging::PixelType::RGBA_U8;
-                            options.depth = gl::OffscreenDepth::_24;
-                            options.stencil = gl::OffscreenStencil::_8;
-                            offscreenBuffer = gl::OffscreenBuffer::create(size, options);
-                        }
+                            const imaging::Size size = device->getSize();
+                            try
+                            {
+                                if (!offscreenBuffer ||
+                                    (offscreenBuffer && offscreenBuffer->getSize() != size))
+                                {
+                                    gl::OffscreenBufferOptions options;
+                                    options.colorType = imaging::PixelType::RGBA_U8;
+                                    options.depth = gl::OffscreenDepth::_24;
+                                    options.stencil = gl::OffscreenStencil::_8;
+                                    offscreenBuffer = gl::OffscreenBuffer::create(size, options);
+                                }
 
-                        render->setColorConfig(colorConfig);
+                                if (offscreenBuffer)
+                                {
+                                    gl::OffscreenBufferBinding binding(offscreenBuffer);
 
-                        if (offscreenBuffer)
-                        {
-                            gl::OffscreenBufferBinding binding(offscreenBuffer);
+                                    render->setColorConfig(colorConfig);
+                                    render->begin(size);
+                                    render->drawVideo(
+                                        { videoData },
+                                        { math::BBox2i(0, 0, size.w, size.h) },
+                                        { imageOptions },
+                                        { displayOptions },
+                                        compareOptions);
+                                    render->end();
 
-                            render->begin(size);
-                            render->drawVideo(
-                                { videoData },
-                                { math::BBox2i(0, 0, size.w, size.h) },
-                                { imageOptions },
-                                { displayOptions },
-                                compareOptions);
-                            render->end();
+                                    auto image = imaging::Image::create(imaging::Info(size, imaging::PixelType::RGBA_U8));
 
-                            auto image = imaging::Image::create(imaging::Info(size, imaging::PixelType::RGBA_U8));
+                                    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+                                    glReadPixels(
+                                        0,
+                                        0,
+                                        size.w,
+                                        size.h,
+                                        GL_BGRA,
+                                        GL_UNSIGNED_BYTE,
+                                        image->getData());
 
-                            glPixelStorei(GL_PACK_ALIGNMENT, 1);
-                            glReadPixels(
-                                0,
-                                0,
-                                size.w,
-                                size.h,
-                                GL_BGRA,
-                                GL_UNSIGNED_BYTE,
-                                image->getData());
-
-#if defined(TLRENDER_BUILD_BMD)
-                            device->display(image);
-#endif // TLRENDER_BUILD_BMD
+                                    device->display(image);
+                                }
+                            }
+                            catch (const std::exception& e)
+                            {
+                                context->log("tl::qt::OutputDevice", e.what(), log::Type::Error);
+                            }
                         }
                     }
                 }

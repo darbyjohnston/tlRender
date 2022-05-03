@@ -6,6 +6,8 @@ set(HEADERS
     ColorTool.h
 	CompareActions.h
 	CompareTool.h
+	DeviceModel.h
+	DeviceTool.h
 	FileActions.h
 	FilesModel.h
 	FilesTool.h
@@ -16,7 +18,6 @@ set(HEADERS
     MainWindow.h
 	MessagesTool.h
 	OpenWithAudioDialog.h
-	OutputTool.h
 	PlaybackActions.h
     SecondaryWindow.h
     SettingsObject.h
@@ -34,6 +35,8 @@ set(SOURCE
     ColorTool.cpp
 	CompareActions.cpp
 	CompareTool.cpp
+	DeviceModel.cpp
+	DeviceTool.cpp
 	FileActions.cpp
 	FilesModel.cpp
 	FilesTool.cpp
@@ -44,7 +47,6 @@ set(SOURCE
     MainWindow.cpp
 	MessagesTool.cpp
 	OpenWithAudioDialog.cpp
-	OutputTool.cpp
 	PlaybackActions.cpp
     SecondaryWindow.cpp
     SettingsObject.cpp

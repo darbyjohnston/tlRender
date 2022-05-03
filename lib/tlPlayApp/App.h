@@ -26,6 +26,7 @@ namespace tl
         struct FilesModelItem;
 
         class ColorModel;
+        class DeviceModel;
         class FilesModel;
         class FilesAModel;
         class FilesBModel;
@@ -64,6 +65,9 @@ namespace tl
 
             //! Get the display options.
             const timeline::DisplayOptions& displayOptions() const;
+
+            //! Get the device model.
+            const std::shared_ptr<DeviceModel>& deviceModel() const;
 
         public Q_SLOTS:
             //! Open a file.

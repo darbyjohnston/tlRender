@@ -9,16 +9,16 @@
 #include <tlCore/ListObserver.h>
 #include <tlCore/Time.h>
 
-#include "DeckLinkAPI.h"
-
 namespace tl
 {
-    namespace bmd
+    namespace device
     {
+        class IOutputDevice;
+
         //! Display mode.
         struct DisplayMode
         {
-            BMDDisplayMode displayMode = BMDDisplayMode::bmdModeUnknown;
+            std::string name;
             imaging::Size size;
             otime::RationalTime frameRate;
 
@@ -28,36 +28,37 @@ namespace tl
         //! Device information.
         struct DeviceInfo
         {
-            std::string model;
+            std::string name;
             std::vector<DisplayMode> displayModes;
 
             bool operator == (const DeviceInfo&) const;
         };
 
-        //! Device system.
-        class DeviceSystem : public system::ISystem
+        //! Base class for device systems.
+        class IDeviceSystem : public system::ISystem
         {
-            TLRENDER_NON_COPYABLE(DeviceSystem);
+            TLRENDER_NON_COPYABLE(IDeviceSystem);
 
         protected:
-            void _init(const std::shared_ptr<system::Context>&);
+            void _init(
+                const std::string& name,
+                const std::shared_ptr<system::Context>&);
 
-            DeviceSystem();
+            IDeviceSystem();
 
         public:
-            ~DeviceSystem() override;
-
-            //! Create a new device system.
-            static std::shared_ptr<DeviceSystem> create(const std::shared_ptr<system::Context>&);
+            ~IDeviceSystem() override = 0;
 
             //! Observe the device information.
             std::shared_ptr<observer::IList<DeviceInfo> > observeDeviceInfo() const;
 
-            void tick() override;
+            //! Create a new output device.
+            virtual std::shared_ptr<IOutputDevice> createDevice(int deviceIndex, int displayModeIndex) = 0;
+
             std::chrono::milliseconds getTickTime() const override;
 
-        private:
-            TLRENDER_PRIVATE();
+        protected:
+            std::shared_ptr<observer::List<DeviceInfo> > _deviceInfo;
         };
     }
 }
