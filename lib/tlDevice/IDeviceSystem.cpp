@@ -29,6 +29,8 @@ namespace tl
         {
             ISystem::_init(name, context);
 
+            _context = context;
+
             _deviceInfo = observer::List<DeviceInfo>::create();
         }
 

@@ -214,7 +214,7 @@ namespace tl
 
                 context->log(
                     "tl::device::BMDOutputDevice",
-                    string::Format("Device {0}: {1} {2} {3}").
+                    string::Format("#{0} {1} {2} {3}").
                     arg(deviceIndex).
                     arg(modelName).
                     arg(p.size).

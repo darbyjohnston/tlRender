@@ -6,6 +6,10 @@
 
 #include <tlDevice/BMDOutputDevice.h>
 
+#include <tlCore/Context.h>
+#include <tlCore/String.h>
+#include <tlCore/StringFormat.h>
+
 #include "platform.h"
 
 #include <atomic>
@@ -40,6 +44,7 @@ namespace tl
                     CoInitialize(NULL);
 #endif // _WIN32
 
+                    bool log = true;
                     while (p.running)
                     {
                         std::vector<DeviceInfo> deviceInfoList;
@@ -104,7 +109,29 @@ namespace tl
 
                         {
                             std::unique_lock<std::mutex> lock(p.mutex);
+                            log = deviceInfoList != p.deviceInfo;
                             p.deviceInfo = deviceInfoList;
+                        }
+
+                        if (log)
+                        {
+                            log = false;
+                            if (auto context = _context.lock())
+                            {
+                                for (const auto& i : deviceInfoList)
+                                {
+                                    std::vector<std::string> displayModes;
+                                    for (const auto& j : i.displayModes)
+                                    {
+                                        displayModes.push_back(j.name);
+                                    }
+                                    context->log(
+                                        "tl::device::BMDSystem",
+                                        string::Format("{0}: {1}").
+                                        arg(i.name).
+                                        arg(string::join(displayModes, ", ")));
+                                }
+                            }
                         }
 
                         time::sleep(getTickTime());

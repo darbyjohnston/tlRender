@@ -58,6 +58,7 @@ namespace tl
             std::chrono::milliseconds getTickTime() const override;
 
         protected:
+            std::weak_ptr<system::Context> _context;
             std::shared_ptr<observer::List<DeviceInfo> > _deviceInfo;
         };
     }
