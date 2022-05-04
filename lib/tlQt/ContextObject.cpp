@@ -26,6 +26,9 @@ namespace tl
             startTimer(5, Qt::PreciseTimer);
         }
 
+        ContextObject::~ContextObject()
+        {}
+
         const std::shared_ptr<system::Context>& ContextObject::context() const
         {
             return _p->context;
