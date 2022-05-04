@@ -69,8 +69,6 @@ namespace tl
             void run() override;
 
         private:
-            void _frameView();
-
             TLRENDER_PRIVATE();
         };
     }

@@ -288,11 +288,10 @@ namespace tl
                     p.buffer.reset();
                 }
 
-                p.render->setColorConfig(p.colorConfig);
-
                 if (p.buffer)
                 {
                     gl::OffscreenBufferBinding binding(p.buffer);
+                    p.render->setColorConfig(p.colorConfig);
                     p.render->begin(renderSize);
                     p.render->drawVideo(
                         p.videoData,
