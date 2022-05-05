@@ -40,7 +40,6 @@ namespace tl
             p.displayModeComboBox = new QComboBox;
 
             auto layout = new QFormLayout;
-            layout->setContentsMargins(0, 0, 0, 0);
             layout->addRow(tr("Device:"), p.deviceComboBox);
             layout->addRow(tr("Display mode:"), p.displayModeComboBox);
             auto widget = new QWidget;
