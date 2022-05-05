@@ -971,12 +971,13 @@ namespace tl
 
             std::vector<std::string> info;
 
-            if (!p.timelinePlayers.empty())
+            const auto files = p.app->filesModel()->observeFiles()->get();
+            if (!files.empty())
             {
                 {
                     QSignalBlocker blocker(p.filesComboBox);
                     p.filesComboBox->clear();
-                    for (const auto& i : p.app->filesModel()->observeFiles()->get())
+                    for (const auto& i : files)
                     {
                         p.filesComboBox->addItem(QString::fromUtf8(i->path.get(-1, false).c_str()));
                     }
@@ -998,7 +999,22 @@ namespace tl
                     }
                     p.filesBComboBox->setCurrentIndex(index);
                 }
+            }
+            else
+            {
+                {
+                    QSignalBlocker blocker(p.filesComboBox);
+                    p.filesComboBox->clear();
+                }
 
+                {
+                    QSignalBlocker blocker(p.filesBComboBox);
+                    p.filesBComboBox->clear();
+                }
+            }
+
+            if (!p.timelinePlayers.empty())
+            {
                 {
                     QSignalBlocker blocker(p.currentTimeSpinBox);
                     p.currentTimeSpinBox->setValue(p.timelinePlayers[0]->currentTime());
@@ -1033,16 +1049,6 @@ namespace tl
             }
             else
             {
-                {
-                    QSignalBlocker blocker(p.filesComboBox);
-                    p.filesComboBox->clear();
-                }
-
-                {
-                    QSignalBlocker blocker(p.filesBComboBox);
-                    p.filesBComboBox->clear();
-                }
-
                 {
                     QSignalBlocker blocker(p.currentTimeSpinBox);
                     p.currentTimeSpinBox->setValue(time::invalidTime);

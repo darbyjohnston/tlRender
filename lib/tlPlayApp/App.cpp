@@ -251,7 +251,7 @@ namespace tl
                     QString::fromUtf8(p.options.fileName.c_str()),
                     QString::fromUtf8(p.options.audioFileName.c_str()));
 
-                if (!p.timelinePlayers.empty())
+                if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
                 {
                     if (p.options.speed > 0.0)
                     {
