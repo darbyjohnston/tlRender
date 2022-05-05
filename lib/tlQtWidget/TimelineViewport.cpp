@@ -489,7 +489,7 @@ namespace tl
             {
                 zoom = viewportSize.h / static_cast<float>(renderSize.h);
             }
-            math::Vector2i c(renderSize.w / 2, renderSize.h / 2);
+            const math::Vector2i c(renderSize.w / 2, renderSize.h / 2);
             p.viewPos.x = viewportSize.w / 2.F - c.x * zoom;
             p.viewPos.y = viewportSize.h / 2.F - c.y * zoom;
             p.viewZoom = zoom;
