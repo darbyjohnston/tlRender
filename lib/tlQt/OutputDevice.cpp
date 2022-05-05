@@ -189,16 +189,7 @@ namespace tl
                 std::unique_lock<std::mutex> lock(p.mutex);
                 p.viewPos = pos;
                 p.viewZoom = zoom;
-            }
-            p.cv.notify_one();
-        }
-
-        void OutputDevice::setViewZoom(float zoom, const tl::math::Vector2i& focus)
-        {
-            TLRENDER_P();
-            {
-                std::unique_lock<std::mutex> lock(p.mutex);
-                p.viewZoom = zoom;
+                p.frameView = false;
             }
             p.cv.notify_one();
         }
@@ -331,6 +322,8 @@ namespace tl
                                 offscreenBuffer2 = gl::OffscreenBuffer::create(viewportSize, options);
                             }
 
+                            math::Vector2i viewPosTmp = viewPos;
+                            float viewZoomTmp = viewZoom;
                             if (frameView)
                             {
                                 float zoom = viewportSize.w / static_cast<float>(renderSize.w);
@@ -338,10 +331,10 @@ namespace tl
                                 {
                                     zoom = viewportSize.h / static_cast<float>(renderSize.h);
                                 }
-                                math::Vector2i c(renderSize.w / 2, renderSize.h / 2);
-                                viewPos.x = viewportSize.w / 2.F - c.x * zoom;
-                                viewPos.y = viewportSize.h / 2.F - c.y * zoom;
-                                viewZoom = zoom;
+                                const math::Vector2i c(renderSize.w / 2, renderSize.h / 2);
+                                viewPosTmp.x = viewportSize.w / 2.F - c.x * zoom;
+                                viewPosTmp.y = viewportSize.h / 2.F - c.y * zoom;
+                                viewZoomTmp = zoom;
                             }
 
                             if (!shader)
@@ -392,8 +385,8 @@ namespace tl
 
                                 shader->bind();
                                 glm::mat4x4 vm(1.F);
-                                vm = glm::translate(vm, glm::vec3(viewPos.x, viewPos.y, 0.F));
-                                vm = glm::scale(vm, glm::vec3(viewZoom, viewZoom, 1.F));
+                                vm = glm::translate(vm, glm::vec3(viewPosTmp.x, viewPosTmp.y, 0.F));
+                                vm = glm::scale(vm, glm::vec3(viewZoomTmp, viewZoomTmp, 1.F));
                                 const glm::mat4x4 pm = glm::ortho(
                                     0.F,
                                     static_cast<float>(viewportSize.w),

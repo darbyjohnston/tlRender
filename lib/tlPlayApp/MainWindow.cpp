@@ -604,6 +604,19 @@ namespace tl
                 });
 
             connect(
+                p.timelineViewport,
+                &qtwidget::TimelineViewport::viewPosAndZoomChanged,
+                [this](const tl::math::Vector2i& pos, float zoom)
+                {
+                    _p->outputDevice->setViewPosAndZoom(pos, zoom);
+                });
+            connect(
+                p.timelineViewport,
+                SIGNAL(frameViewActivated()),
+                p.outputDevice,
+                SLOT(frameView()));
+
+            connect(
                 app->settingsObject(),
                 &SettingsObject::valueChanged,
                 [this](const QString& name, const QVariant& value)
