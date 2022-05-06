@@ -125,7 +125,7 @@ cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH
 ```
 Start the build:
 ```
-cmake --build . -j 4
+cmake --build . -j 4 --config Debug
 ```
 Try running the "play-glfw" example:
 ```
@@ -171,7 +171,7 @@ cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH
 ```
 Start the build:
 ```
-cmake --build . -j 4
+cmake --build . -j 4 --config Debug
 ```
 Try running the "play-glfw" example:
 ```
