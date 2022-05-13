@@ -42,11 +42,13 @@ namespace tl
             {
                 switch (severity)
                 {
-                case GL_DEBUG_SEVERITY_HIGH_KHR:
-                case GL_DEBUG_SEVERITY_MEDIUM_KHR:
+                case GL_DEBUG_SEVERITY_HIGH:
+                case GL_DEBUG_SEVERITY_MEDIUM:
+                case GL_DEBUG_SEVERITY_LOW:
+                case GL_DEBUG_SEVERITY_NOTIFICATION:
+                default:
                     std::cerr << "DEBUG: " << message << std::endl;
                     break;
-                default: break;
                 }
             }*/
         }
@@ -212,14 +214,14 @@ namespace tl
             {
                 glEnable(GL_DEBUG_OUTPUT);
                 glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-                glDebugMessageCallback(glDebugOutput, context.get());
+                glDebugMessageCallback(glDebugOutput, _context.get());
                 glDebugMessageControl(
                     static_cast<GLenum>(GL_DONT_CARE),
                     static_cast<GLenum>(GL_DONT_CARE),
                     static_cast<GLenum>(GL_DONT_CARE),
                     0,
                     nullptr,
-                    GLFW_TRUE);
+                    GL_TRUE);
             }*/
             const int glMajor = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_VERSION_MAJOR);
             const int glMinor = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_VERSION_MINOR);
