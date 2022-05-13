@@ -119,13 +119,13 @@ namespace tl
                 otio::ErrorStatus errorStatus;
                 auto otioTrack = new otio::Track();
                 otioTrack->append_child(otioClip, &errorStatus);
-                if (errorStatus != otio::ErrorStatus::OK)
+                if (otio::is_error(errorStatus))
                 {
                     throw std::runtime_error("Cannot append child");
                 }
                 auto otioStack = new otio::Stack;
                 otioStack->append_child(otioTrack, &errorStatus);
-                if (errorStatus != otio::ErrorStatus::OK)
+                if (otio::is_error(errorStatus))
                 {
                     throw std::runtime_error("Cannot append child");
                 }

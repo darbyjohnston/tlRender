@@ -584,7 +584,7 @@ namespace tl
                         }
                         videoTrack = new otio::Track("Video", otio::nullopt, otio::Track::Kind::video);
                         videoTrack->append_child(videoClip, &errorStatus);
-                        if (errorStatus != otio::ErrorStatus::OK)
+                        if (otio::is_error(errorStatus))
                         {
                             throw std::runtime_error("Cannot append child");
                         }
@@ -610,7 +610,7 @@ namespace tl
 
                                     audioTrack = new otio::Track("Audio", otio::nullopt, otio::Track::Kind::audio);
                                     audioTrack->append_child(audioClip, &errorStatus);
-                                    if (errorStatus != otio::ErrorStatus::OK)
+                                    if (otio::is_error(errorStatus))
                                     {
                                         throw std::runtime_error("Cannot append child");
                                     }
@@ -627,7 +627,7 @@ namespace tl
 
                         audioTrack = new otio::Track("Audio", otio::nullopt, otio::Track::Kind::audio);
                         audioTrack->append_child(audioClip, &errorStatus);
-                        if (errorStatus != otio::ErrorStatus::OK)
+                        if (otio::is_error(errorStatus))
                         {
                             throw std::runtime_error("Cannot append child");
                         }
@@ -637,7 +637,7 @@ namespace tl
                     if (videoTrack)
                     {
                         otioStack->append_child(videoTrack, &errorStatus);
-                        if (errorStatus != otio::ErrorStatus::OK)
+                        if (otio::is_error(errorStatus))
                         {
                             throw std::runtime_error("Cannot append child");
                         }
@@ -645,7 +645,7 @@ namespace tl
                     if (audioTrack)
                     {
                         otioStack->append_child(audioTrack, &errorStatus);
-                        if (errorStatus != otio::ErrorStatus::OK)
+                        if (otio::is_error(errorStatus))
                         {
                             throw std::runtime_error("Cannot append child");
                         }
@@ -678,7 +678,7 @@ namespace tl
             {
                 otio::ErrorStatus errorStatus;
                 otioTimeline = readTimeline(path.get(), &errorStatus);
-                if (errorStatus != otio::ErrorStatus::OK)
+                if (otio::is_error(errorStatus))
                 {
                     otioTimeline = nullptr;
                     error = errorStatus.full_description;
@@ -746,7 +746,7 @@ namespace tl
                         }
                         videoTrack = new otio::Track("Video", otio::nullopt, otio::Track::Kind::video);
                         videoTrack->append_child(videoClip, &errorStatus);
-                        if (errorStatus != otio::ErrorStatus::OK)
+                        if (otio::is_error(errorStatus))
                         {
                             throw std::runtime_error("Cannot append child");
                         }
@@ -762,7 +762,7 @@ namespace tl
 
                         audioTrack = new otio::Track("Audio", otio::nullopt, otio::Track::Kind::audio);
                         audioTrack->append_child(audioClip, &errorStatus);
-                        if (errorStatus != otio::ErrorStatus::OK)
+                        if (otio::is_error(errorStatus))
                         {
                             throw std::runtime_error("Cannot append child");
                         }
@@ -772,7 +772,7 @@ namespace tl
                     if (videoTrack)
                     {
                         otioStack->append_child(videoTrack, &errorStatus);
-                        if (errorStatus != otio::ErrorStatus::OK)
+                        if (otio::is_error(errorStatus))
                         {
                             throw std::runtime_error("Cannot append child");
                         }
@@ -780,7 +780,7 @@ namespace tl
                     if (audioTrack)
                     {
                         otioStack->append_child(audioTrack, &errorStatus);
-                        if (errorStatus != otio::ErrorStatus::OK)
+                        if (otio::is_error(errorStatus))
                         {
                             throw std::runtime_error("Cannot append child");
                         }
@@ -813,7 +813,7 @@ namespace tl
             {
                 otio::ErrorStatus errorStatus;
                 otioTimeline = readTimeline(path.get(), &errorStatus);
-                if (errorStatus != otio::ErrorStatus::OK)
+                if (otio::is_error(errorStatus))
                 {
                     otioTimeline = nullptr;
                     error = errorStatus.full_description;

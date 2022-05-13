@@ -144,7 +144,7 @@ namespace tl
             TLRENDER_P();
             otime::ErrorStatus errorStatus;
             const auto time = textToTime(lineEdit()->text(), p.value.rate(), p.units, &errorStatus);
-            if (otime::ErrorStatus::OK == errorStatus && time != p.value)
+            if (!otime::is_error(errorStatus) && time != p.value)
             {
                 p.value = time;
                 Q_EMIT valueChanged(p.value);
