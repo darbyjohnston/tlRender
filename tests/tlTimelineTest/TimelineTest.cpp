@@ -82,7 +82,7 @@ namespace tl
 
             // Write an OTIO timeline.
             auto otioClip = new otio::Clip;
-            otioClip->set_media_reference(new otio::ImageSequenceReference("", "TimelineTest.", ".ppm", 0, 1, 1, 0));
+            otioClip->set_media_reference(new otio::ImageSequenceReference("file://", "TimelineTest.", ".ppm", 0, 1, 1, 0));
             const otime::TimeRange clipTimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0));
             otioClip->set_source_range(clipTimeRange);
             otio::ErrorStatus errorStatus;
