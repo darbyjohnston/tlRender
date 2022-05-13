@@ -565,6 +565,11 @@ namespace tl
 
                 glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
                 glBindTexture(GL_TEXTURE_2D, p.buffer->getColorID());
+                for (size_t i = 0; i < p.colorTextures.size(); ++i)
+                {
+                    glActiveTexture(GL_TEXTURE3 + i);
+                    glBindTexture(p.colorTextures[i].type, p.colorTextures[i].id);
+                }
 
                 std::vector<uint8_t> vboData;
                 vboData.resize(4 * getByteCount(VBOType::Pos2_F32_UV_U16));

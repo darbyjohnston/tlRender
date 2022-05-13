@@ -435,8 +435,6 @@ namespace tl
             p.displayShader->setUniform("transform.mvp", mvp);
             for (size_t i = 0; i < p.colorTextures.size(); ++i)
             {
-                glActiveTexture(GL_TEXTURE3 + i);
-                glBindTexture(p.colorTextures[i].type, p.colorTextures[i].id);
                 p.displayShader->setUniform(p.colorTextures[i].sampler, static_cast<int>(3 + i));
             }
 
