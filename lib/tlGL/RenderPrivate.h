@@ -64,8 +64,6 @@ namespace tl
 
         struct Render::Private
         {
-            std::weak_ptr<system::Context> context;
-
             imaging::ColorConfig colorConfig;
             OCIO::ConstConfigRcPtr ocioConfig;
             OCIO::DisplayViewTransformRcPtr ocioTransform;
