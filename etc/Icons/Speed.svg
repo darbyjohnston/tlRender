@@ -7,7 +7,7 @@
    viewBox="0 0 5.2916665 5.2916666"
    version="1.1"
    id="svg8"
-   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04, custom)"
+   inkscape:version="1.2-rc (6364d40632, 2022-05-08)"
    sodipodi:docname="Speed.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -39,7 +39,9 @@
      inkscape:window-maximized="1"
      inkscape:pagecheckerboard="0"
      inkscape:snap-bbox="true"
-     inkscape:bbox-nodes="true">
+     inkscape:bbox-nodes="true"
+     inkscape:showpageshadow="2"
+     inkscape:deskcolor="#d1d1d1">
     <inkscape:grid
        type="xygrid"
        id="grid4526"
@@ -67,36 +69,9 @@
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96">
       <path
-         id="path1129"
-         style="color:#000000;fill:#f0f0f0;stroke-width:3.77953;-inkscape-stroke:none"
-         d="M 10.003906,2 C 5.6002539,2 2,5.5924527 2,9.9960938 2,14.399735 5.6002539,18 10.003906,18 14.407558,18 18,14.399735 18,9.9960938 18,5.5924527 14.407558,2 10.003906,2 Z m 0,2 C 13.331007,4 16,6.6689756 16,9.9960938 16,13.323174 13.331007,16 10.003906,16 6.6768051,16 4,13.323174 4,9.9960938 4,6.6689756 6.6768051,4 10.003906,4 Z"
-         transform="matrix(0.26458333,0,0,0.26458333,0,291.70831)" />
-      <g
-         id="path1528">
-        <path
-           style="color:#000000;fill:#f0f0f0;stroke-width:0.264583px;-inkscape-stroke:none"
-           d="m 2.6458333,294.35414 v -1.05833"
-           id="path8394" />
-        <path
-           style="color:#000000;fill:#f0f0f0;-inkscape-stroke:none"
-           d="m 2.3812499,293.03123 0,1.5875 h 0.5291667 l 0,-1.5875 z"
-           id="path8396"
-           sodipodi:nodetypes="ccccc" />
-      </g>
-      <g
-         id="path1528-6"
-         transform="matrix(-0.70710678,0.70710678,-0.56568845,-0.56568845,171.22452,459.19106)"
-         style="stroke-width:1.11803">
-        <path
-           style="color:#000000;fill:#f0f0f0;stroke-width:0.295812px;-inkscape-stroke:none"
-           d="m 2.6458333,294.35414 v -1.05833"
-           id="path8394-8" />
-        <path
-           style="color:#000000;fill:#f0f0f0;stroke-width:1.11803;-inkscape-stroke:none"
-           d="m 2.3812499,293.29581 v 1.32292 h 0.5291667 v -1.32292 z"
-           id="path8396-1"
-           sodipodi:nodetypes="ccccc" />
-      </g>
+         id="path7133"
+         style="fill:#f0f0f0;stroke-width:0.264583;fill-opacity:1"
+         d="M 2.6458333 292.76664 A 1.5875 1.5875 0 0 0 1.0583333 294.35414 A 1.5875 1.5875 0 0 0 2.6458333 295.94164 A 1.5875 1.5875 0 0 0 4.2333332 294.35414 A 1.5875 1.5875 0 0 0 2.6458333 292.76664 z M 3.4876423 293.32527 L 3.674711 293.51233 L 2.5522989 294.63475 L 2.3652303 294.44768 L 3.4876423 293.32527 z " />
     </g>
   </g>
 </svg>

@@ -18,13 +18,16 @@ namespace tl
         {
             App* app = nullptr;
 
-            std::vector<qt::TimelinePlayer*> timelinePlayers;
-
             QMap<QString, QAction*> actions;
             QActionGroup* recentActionGroup = nullptr;
+            QActionGroup* currentActionGroup = nullptr;
 
             QMenu* menu = nullptr;
             QMenu* recentMenu = nullptr;
+            QMenu* currentMenu = nullptr;
+
+            std::shared_ptr<observer::ListObserver<std::shared_ptr<FilesModelItem> > > filesObserver;
+            std::shared_ptr<observer::ValueObserver<int> > aIndexObserver;
         };
 
         FileActions::FileActions(App* app, QObject* parent) :
@@ -72,10 +75,14 @@ namespace tl
             p.actions["PrevLayer"]->setText(tr("Previous Layer"));
             p.actions["PrevLayer"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Minus));
             p.actions["PrevLayer"]->setToolTip(tr("Change to the previous layer"));
-            p.recentActionGroup = new QActionGroup(this);
             p.actions["Exit"] = new QAction(this);
             p.actions["Exit"]->setText(tr("Exit"));
             p.actions["Exit"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Q));
+
+            p.recentActionGroup = new QActionGroup(this);
+
+            p.currentActionGroup = new QActionGroup(this);
+            p.currentActionGroup->setExclusive(true);
 
             p.menu = new QMenu;
             p.menu->setTitle(tr("&File"));
@@ -84,9 +91,12 @@ namespace tl
             p.menu->addAction(p.actions["Close"]);
             p.menu->addAction(p.actions["CloseAll"]);
             p.recentMenu = new QMenu;
-            p.recentMenu->setTitle(tr("&Recent Files"));
+            p.recentMenu->setTitle(tr("&Recent"));
             p.menu->addMenu(p.recentMenu);
             p.menu->addSeparator();
+            p.currentMenu = new QMenu;
+            p.currentMenu->setTitle(tr("&Current"));
+            p.menu->addMenu(p.currentMenu);
             p.menu->addAction(p.actions["Next"]);
             p.menu->addAction(p.actions["Prev"]);
             p.menu->addSeparator();
@@ -165,9 +175,31 @@ namespace tl
                 });
 
             connect(
+                p.currentActionGroup,
+                &QActionGroup::triggered,
+                [this, app](QAction* action)
+                {
+                    const int index = _p->currentActionGroup->actions().indexOf(action);
+                    app->filesModel()->setA(index);
+                });
+
+            connect(
                 app->settingsObject(),
                 SIGNAL(recentFilesChanged(const QList<QString>&)),
                 SLOT(_recentFilesCallback()));
+
+            p.filesObserver = observer::ListObserver<std::shared_ptr<FilesModelItem> >::create(
+                app->filesModel()->observeFiles(),
+                [this](const std::vector<std::shared_ptr<FilesModelItem> >&)
+                {
+                    _actionsUpdate();
+                });
+            p.aIndexObserver = observer::ValueObserver<int>::create(
+                app->filesModel()->observeAIndex(),
+                [this](int)
+                {
+                    _actionsUpdate();
+                });
         }
 
         FileActions::~FileActions()
@@ -181,13 +213,6 @@ namespace tl
         QMenu* FileActions::menu() const
         {
             return _p->menu;
-        }
-
-        void FileActions::setTimelinePlayers(const std::vector<qt::TimelinePlayer*>& timelinePlayers)
-        {
-            TLRENDER_P();
-            p.timelinePlayers = timelinePlayers;
-            _actionsUpdate();
         }
 
         void FileActions::_recentFilesCallback()
@@ -220,13 +245,31 @@ namespace tl
         void FileActions::_actionsUpdate()
         {
             TLRENDER_P();
-            const int count = p.app->filesModel()->observeFiles()->getSize();
+
+            const auto& files = p.app->filesModel()->observeFiles()->get();
+            const size_t count = files.size();
             p.actions["Close"]->setEnabled(count > 0);
             p.actions["CloseAll"]->setEnabled(count > 0);
             p.actions["Next"]->setEnabled(count > 1);
             p.actions["Prev"]->setEnabled(count > 1);
             p.actions["NextLayer"]->setEnabled(count > 0);
             p.actions["PrevLayer"]->setEnabled(count > 0);
+
+            for (auto i : p.currentActionGroup->actions())
+            {
+                p.currentActionGroup->removeAction(i);
+            }
+            p.currentMenu->clear();
+            const int aIndex = p.app->filesModel()->observeAIndex()->get();
+            for (size_t i = 0; i < files.size(); ++i)
+            {
+                auto action = new QAction;
+                action->setCheckable(true);
+                action->setChecked(i == aIndex);
+                action->setText(QString::fromUtf8(files[i]->path.get(-1, false).c_str()));
+                p.currentActionGroup->addAction(action);
+                p.currentMenu->addAction(action);
+            }
         }
     }
 }

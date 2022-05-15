@@ -42,9 +42,6 @@ namespace tl
             //! Set the display options.
             void setDisplayOptions(const timeline::DisplayOptions&);
 
-            //! Set the timeline players.
-            void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
-
         private Q_SLOTS:
 
         private:

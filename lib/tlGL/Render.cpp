@@ -262,7 +262,7 @@ namespace tl
                 p.ocioGpuProcessor->extractGpuShaderInfo(p.ocioShaderDesc);
 
                 // Create 3D textures.
-                glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+                glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
                 glPixelStorei(GL_UNPACK_SWAP_BYTES, 0);
                 const unsigned num3DTextures = p.ocioShaderDesc->getNum3DTextures();
                 unsigned currentTexture = 0;
@@ -273,9 +273,9 @@ namespace tl
                     unsigned edgelen = 0;
                     OCIO::Interpolation interpolation = OCIO::INTERP_LINEAR;
                     p.ocioShaderDesc->get3DTexture(i, textureName, samplerName, edgelen, interpolation);
-                    if (!textureName ||
+                    if (!textureName  ||
                         !*textureName ||
-                        !samplerName ||
+                        !samplerName  ||
                         !*samplerName ||
                         0 == edgelen)
                     {
@@ -293,7 +293,6 @@ namespace tl
 
                     unsigned textureId = 0;
                     glGenTextures(1, &textureId);
-                    glActiveTexture(GL_TEXTURE3 + currentTexture);
                     glBindTexture(GL_TEXTURE_3D, textureId);
                     setTextureParameters(GL_TEXTURE_3D, interpolation);
                     glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB32F, edgelen, edgelen, edgelen, 0, GL_RGB, GL_FLOAT, values);
@@ -311,9 +310,9 @@ namespace tl
                     OCIO::GpuShaderDesc::TextureType channel = OCIO::GpuShaderDesc::TEXTURE_RGB_CHANNEL;
                     OCIO::Interpolation interpolation = OCIO::INTERP_LINEAR;
                     p.ocioShaderDesc->getTexture(i, textureName, samplerName, width, height, channel, interpolation);
-                    if (!textureName ||
+                    if (!textureName  ||
                         !*textureName ||
-                        !samplerName ||
+                        !samplerName  ||
                         !*samplerName ||
                         width == 0)
                     {
@@ -338,7 +337,6 @@ namespace tl
                         format = GL_RED;
                     }
                     glGenTextures(1, &textureId);
-                    glActiveTexture(GL_TEXTURE3 + currentTexture);
                     if (height > 1)
                     {
                         glBindTexture(GL_TEXTURE_2D, textureId);
@@ -351,7 +349,11 @@ namespace tl
                         setTextureParameters(GL_TEXTURE_1D, interpolation);
                         glTexImage1D(GL_TEXTURE_1D, 0, internalformat, width, 0, format, GL_FLOAT, values);
                     }
-                    p.colorTextures.push_back(Private::TextureId(textureId, textureName, samplerName, (height > 1) ? GL_TEXTURE_2D : GL_TEXTURE_1D));
+                    p.colorTextures.push_back(Private::TextureId(
+                        textureId,
+                        textureName,
+                        samplerName,
+                        (height > 1) ? GL_TEXTURE_2D : GL_TEXTURE_1D));
                 }
             }
 
@@ -422,7 +424,7 @@ namespace tl
                         token.size(),
                         p.ocioShaderDesc ? p.ocioShaderDesc->getShaderText() : colorFunctionNoOp());
                 }
-                if (auto context = p.context.lock())
+                if (auto context = _context.lock())
                 {
                     //context->log("tl::gl::Render", source);
                     context->log("tl::gl::Render", "Creating shader");
@@ -433,8 +435,6 @@ namespace tl
             p.displayShader->setUniform("transform.mvp", mvp);
             for (size_t i = 0; i < p.colorTextures.size(); ++i)
             {
-                glActiveTexture(GL_TEXTURE3 + i);
-                glBindTexture(p.colorTextures[i].type, p.colorTextures[i].id);
                 p.displayShader->setUniform(p.colorTextures[i].sampler, static_cast<int>(3 + i));
             }
 

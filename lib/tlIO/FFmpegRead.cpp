@@ -18,6 +18,7 @@ extern "C"
 } // extern "C"
 
 #include <atomic>
+#include <bitset>
 #include <condition_variable>
 #include <cstring>
 #include <queue>
@@ -651,12 +652,22 @@ namespace tl
 
             if (p.audio.avStream != -1)
             {
+                uint64_t channelLayout = p.audio.avCodecParameters[p.audio.avStream]->channel_layout;
+                if (0 == channelLayout)
+                {
+                    std::bitset<64> bs;
+                    for (size_t i = 0; i < p.info.audio.channelCount; ++i)
+                    {
+                        bs[i] = 1;
+                    }
+                    channelLayout = bs.to_ulong();
+                }
                 p.audio.swrContext = swr_alloc_set_opts(
                     NULL,
                     fromChannelCount(p.info.audio.channelCount),
                     fromAudioType(p.info.audio.dataType),
                     p.info.audio.sampleRate,
-                    p.audio.avCodecParameters[p.audio.avStream]->channel_layout,
+                    channelLayout,
                     static_cast<AVSampleFormat>(p.audio.avCodecParameters[p.audio.avStream]->format),
                     p.audio.avCodecParameters[p.audio.avStream]->sample_rate,
                     0,

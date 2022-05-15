@@ -152,9 +152,15 @@ namespace tl
             p.imageShader->setUniform("imageChannels", imaging::getChannelCount(info.pixelType));
             p.imageShader->setUniform("flipX", info.layout.mirror.x);
             p.imageShader->setUniform("flipY", info.layout.mirror.y);
-            p.imageShader->setUniform("textureSampler0", 0);
-            p.imageShader->setUniform("textureSampler1", 1);
-            p.imageShader->setUniform("textureSampler2", 2);
+            switch (info.pixelType)
+            {
+            case imaging::PixelType::YUV_420P:
+                p.imageShader->setUniform("textureSampler1", 1);
+                p.imageShader->setUniform("textureSampler2", 2);
+            default:
+                p.imageShader->setUniform("textureSampler0", 0);
+                break;
+            }
 
             switch (imageOptions.alphaBlend)
             {

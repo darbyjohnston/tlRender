@@ -90,7 +90,7 @@ namespace tl
             otioClip->set_source_range(clipTimeRange);
             otio::ErrorStatus errorStatus = otio::ErrorStatus::OK;
             otioTrack->append_child(otioClip, &errorStatus);
-            if (errorStatus != otio::ErrorStatus::OK)
+            if (otio::is_error(errorStatus))
             {
                 throw std::runtime_error("Cannot append child");
             }
@@ -98,13 +98,13 @@ namespace tl
             otioClip->set_media_reference(new otio::ImageSequenceReference("", "TimelinePlayerTest.", ".ppm", 0, 1, 1, 0));
             otioClip->set_source_range(clipTimeRange);
             otioTrack->append_child(otioClip, &errorStatus);
-            if (errorStatus != otio::ErrorStatus::OK)
+            if (otio::is_error(errorStatus))
             {
                 throw std::runtime_error("Cannot append child");
             }
             auto otioStack = new otio::Stack;
             otioStack->append_child(otioTrack, &errorStatus);
-            if (errorStatus != otio::ErrorStatus::OK)
+            if (otio::is_error(errorStatus))
             {
                 throw std::runtime_error("Cannot append child");
             }
@@ -113,7 +113,7 @@ namespace tl
             otioTimeline->set_global_start_time(otime::RationalTime(10.0, 24.0));
             const std::string fileName("TimelinePlayerTest.otio");
             otioTimeline->to_json_file(fileName, &errorStatus);
-            if (errorStatus != otio::ErrorStatus::OK)
+            if (otio::is_error(errorStatus))
             {
                 throw std::runtime_error("Cannot write file: " + fileName);
             }

@@ -34,9 +34,6 @@ namespace tl
             //! Get the menu.
             QMenu* menu() const;
 
-            //! Set the timeline players.
-            void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
-
         private Q_SLOTS:
             void _recentFilesCallback();
 

@@ -18,10 +18,7 @@ namespace tl
         {
             App* app = nullptr;
 
-            std::vector<qt::TimelinePlayer*> timelinePlayers;
-
             QMap<QString, QAction*> actions;
-
             QActionGroup* resizeActionGroup = nullptr;
 
             QMenu* menu = nullptr;
@@ -110,15 +107,7 @@ namespace tl
             return _p->menu;
         }
 
-        void WindowActions::setTimelinePlayers(const std::vector<qt::TimelinePlayer*>& timelinePlayers)
-        {
-            TLRENDER_P();
-            p.timelinePlayers = timelinePlayers;
-            _actionsUpdate();
-        }
-
         void WindowActions::_actionsUpdate()
-        {
-        }
+        {}
     }
 }

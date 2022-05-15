@@ -157,6 +157,18 @@ namespace tl
                 return out;
             }
 
+            const std::string urlFilePrefix = "file://";
+
+            std::string removeURLFilePrefix(const std::string& value)
+            {
+                std::string out = value;
+                if (0 == out.compare(0, urlFilePrefix.size(), urlFilePrefix))
+                {
+                    out.replace(0, urlFilePrefix.size(), "");
+                }
+                return out;
+            }
+
             file::Path _getAudioPath(
                 const file::Path& path,
                 const FileSequenceAudio& fileSequenceAudio,
@@ -225,7 +237,6 @@ namespace tl
         struct Timeline::Private
         {
             file::Path fixPath(const file::Path&) const;
-            file::Path getPath(const otio::ImageSequenceReference*) const;
             file::Path getPath(const otio::MediaReference*) const;
 
             bool getVideoInfo(const otio::Composable*);
@@ -584,7 +595,7 @@ namespace tl
                         }
                         videoTrack = new otio::Track("Video", otio::nullopt, otio::Track::Kind::video);
                         videoTrack->append_child(videoClip, &errorStatus);
-                        if (errorStatus != otio::ErrorStatus::OK)
+                        if (otio::is_error(errorStatus))
                         {
                             throw std::runtime_error("Cannot append child");
                         }
@@ -610,7 +621,7 @@ namespace tl
 
                                     audioTrack = new otio::Track("Audio", otio::nullopt, otio::Track::Kind::audio);
                                     audioTrack->append_child(audioClip, &errorStatus);
-                                    if (errorStatus != otio::ErrorStatus::OK)
+                                    if (otio::is_error(errorStatus))
                                     {
                                         throw std::runtime_error("Cannot append child");
                                     }
@@ -627,7 +638,7 @@ namespace tl
 
                         audioTrack = new otio::Track("Audio", otio::nullopt, otio::Track::Kind::audio);
                         audioTrack->append_child(audioClip, &errorStatus);
-                        if (errorStatus != otio::ErrorStatus::OK)
+                        if (otio::is_error(errorStatus))
                         {
                             throw std::runtime_error("Cannot append child");
                         }
@@ -637,7 +648,7 @@ namespace tl
                     if (videoTrack)
                     {
                         otioStack->append_child(videoTrack, &errorStatus);
-                        if (errorStatus != otio::ErrorStatus::OK)
+                        if (otio::is_error(errorStatus))
                         {
                             throw std::runtime_error("Cannot append child");
                         }
@@ -645,7 +656,7 @@ namespace tl
                     if (audioTrack)
                     {
                         otioStack->append_child(audioTrack, &errorStatus);
-                        if (errorStatus != otio::ErrorStatus::OK)
+                        if (otio::is_error(errorStatus))
                         {
                             throw std::runtime_error("Cannot append child");
                         }
@@ -678,7 +689,7 @@ namespace tl
             {
                 otio::ErrorStatus errorStatus;
                 otioTimeline = readTimeline(path.get(), &errorStatus);
-                if (errorStatus != otio::ErrorStatus::OK)
+                if (otio::is_error(errorStatus))
                 {
                     otioTimeline = nullptr;
                     error = errorStatus.full_description;
@@ -746,7 +757,7 @@ namespace tl
                         }
                         videoTrack = new otio::Track("Video", otio::nullopt, otio::Track::Kind::video);
                         videoTrack->append_child(videoClip, &errorStatus);
-                        if (errorStatus != otio::ErrorStatus::OK)
+                        if (otio::is_error(errorStatus))
                         {
                             throw std::runtime_error("Cannot append child");
                         }
@@ -762,7 +773,7 @@ namespace tl
 
                         audioTrack = new otio::Track("Audio", otio::nullopt, otio::Track::Kind::audio);
                         audioTrack->append_child(audioClip, &errorStatus);
-                        if (errorStatus != otio::ErrorStatus::OK)
+                        if (otio::is_error(errorStatus))
                         {
                             throw std::runtime_error("Cannot append child");
                         }
@@ -772,7 +783,7 @@ namespace tl
                     if (videoTrack)
                     {
                         otioStack->append_child(videoTrack, &errorStatus);
-                        if (errorStatus != otio::ErrorStatus::OK)
+                        if (otio::is_error(errorStatus))
                         {
                             throw std::runtime_error("Cannot append child");
                         }
@@ -780,7 +791,7 @@ namespace tl
                     if (audioTrack)
                     {
                         otioStack->append_child(audioTrack, &errorStatus);
-                        if (errorStatus != otio::ErrorStatus::OK)
+                        if (otio::is_error(errorStatus))
                         {
                             throw std::runtime_error("Cannot append child");
                         }
@@ -813,7 +824,7 @@ namespace tl
             {
                 otio::ErrorStatus errorStatus;
                 otioTimeline = readTimeline(path.get(), &errorStatus);
-                if (errorStatus != otio::ErrorStatus::OK)
+                if (otio::is_error(errorStatus))
                 {
                     otioTimeline = nullptr;
                     error = errorStatus.full_description;
@@ -967,27 +978,23 @@ namespace tl
             return file::Path(directory, path.get(), options.pathOptions);
         }
 
-        file::Path Timeline::Private::getPath(const otio::ImageSequenceReference* ref) const
-        {
-            std::stringstream ss;
-            ss << ref->target_url_base() <<
-                ref->name_prefix() <<
-                std::setfill('0') << std::setw(ref->frame_zero_padding()) << ref->start_frame() <<
-                ref->name_suffix();
-            return file::Path(ss.str(), options.pathOptions);
-        }
-
         file::Path Timeline::Private::getPath(const otio::MediaReference* ref) const
         {
             file::Path out;
             if (auto externalRef = dynamic_cast<const otio::ExternalReference*>(ref))
             {
-                //! \bug Handle URL parsing.
-                out = file::Path(externalRef->target_url(), options.pathOptions);
+                const std::string url = removeURLFilePrefix(externalRef->target_url());
+                out = file::Path(url, options.pathOptions);
             }
             else if (auto imageSequenceRef = dynamic_cast<const otio::ImageSequenceReference*>(ref))
             {
-                out = getPath(imageSequenceRef);
+                const std::string urlBase = removeURLFilePrefix(imageSequenceRef->target_url_base());
+                std::stringstream ss;
+                ss << urlBase <<
+                    imageSequenceRef->name_prefix() <<
+                    std::setfill('0') << std::setw(imageSequenceRef->frame_zero_padding()) << imageSequenceRef->start_frame() <<
+                    imageSequenceRef->name_suffix();
+                out = file::Path(ss.str(), options.pathOptions);
             }
             return fixPath(out);
         }

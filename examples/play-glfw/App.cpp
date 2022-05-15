@@ -408,7 +408,7 @@ namespace tl
                 // Current time.
                 otime::ErrorStatus errorStatus;
                 const std::string label = _timelinePlayer->observeCurrentTime()->get().to_timecode(&errorStatus);
-                if (errorStatus != otio::ErrorStatus::OK)
+                if (otime::is_error(errorStatus))
                 {
                     throw std::runtime_error(errorStatus.details);
                 }

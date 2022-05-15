@@ -117,7 +117,7 @@ namespace tl
         {
             TLRENDER_P();
 
-            const int count = p.timelinePlayers.size();
+            const size_t count = p.timelinePlayers.size();
             p.actions["IncreaseVolume"]->setEnabled(count > 0);
             p.actions["DecreaseVolume"]->setEnabled(count > 0);
             p.actions["Mute"]->setEnabled(count > 0);

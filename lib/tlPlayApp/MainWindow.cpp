@@ -40,7 +40,6 @@
 #include <tlCore/String.h>
 #include <tlCore/StringFormat.h>
 
-#include <QComboBox>
 #include <QDockWidget>
 #include <QDoubleSpinBox>
 #include <QDragEnterEvent>
@@ -50,9 +49,11 @@
 #include <QMenuBar>
 #include <QMimeData>
 #include <QMouseEvent>
+#include <QSlider>
 #include <QStatusBar>
 #include <QStyle>
 #include <QToolBar>
+#include <QToolButton>
 #include <QWindow>
 
 namespace tl
@@ -63,6 +64,7 @@ namespace tl
         {
             const size_t sliderSteps = 100;
             const size_t errorTimeout = 5000;
+            const size_t infoLabelMax = 24;
         }
 
         struct MainWindow::Private
@@ -79,19 +81,19 @@ namespace tl
 
             FileActions* fileActions = nullptr;
             CompareActions* compareActions = nullptr;
-            WindowActions* windowActions = nullptr;
             ViewActions* viewActions = nullptr;
             ImageActions* imageActions = nullptr;
             PlaybackActions* playbackActions = nullptr;
             AudioActions* audioActions = nullptr;
+            WindowActions* windowActions = nullptr;
 
-            QComboBox* filesComboBox = nullptr;
-            QComboBox* filesBComboBox = nullptr;
             qtwidget::TimelineViewport* timelineViewport = nullptr;
             qtwidget::TimelineSlider* timelineSlider = nullptr;
             qtwidget::TimeSpinBox* currentTimeSpinBox = nullptr;
             qtwidget::TimeLabel* durationLabel = nullptr;
+            QToolButton* timeUnitsButton = nullptr;
             QDoubleSpinBox* speedSpinBox = nullptr;
+            QToolButton* speedButton = nullptr;
             QSlider* volumeSlider = nullptr;
             FilesTool* filesTool = nullptr;
             CompareTool* compareTool = nullptr;
@@ -136,60 +138,69 @@ namespace tl
 
             p.fileActions = new FileActions(app, this);
             p.compareActions = new CompareActions(app, this);
-            p.windowActions = new WindowActions(app, this);
             p.viewActions = new ViewActions(app, this);
             p.imageActions = new ImageActions(app, this);
             p.playbackActions = new PlaybackActions(app, this);
             p.audioActions = new AudioActions(app, this);
+            p.windowActions = new WindowActions(app, this);
 
             auto menuBar = new QMenuBar;
             menuBar->addMenu(p.fileActions->menu());
             menuBar->addMenu(p.compareActions->menu());
-            menuBar->addMenu(p.windowActions->menu());
             menuBar->addMenu(p.viewActions->menu());
             menuBar->addMenu(p.imageActions->menu());
             menuBar->addMenu(p.playbackActions->menu());
             menuBar->addMenu(p.audioActions->menu());
+            menuBar->addMenu(p.windowActions->menu());
             setMenuBar(menuBar);
 
-            p.filesComboBox = new QComboBox;
-            p.filesComboBox->setMinimumContentsLength(10);
-            p.filesComboBox->setToolTip(tr("Set the current file"));
-            p.filesBComboBox = new QComboBox;
-            p.filesBComboBox->setMinimumContentsLength(10);
-            p.filesBComboBox->setToolTip(tr("Set the B file"));
-            auto topToolBar = new QToolBar;
-            topToolBar->setObjectName("TopToolBar");
-            topToolBar->setWindowTitle(tr("Top ToolBar"));
-            topToolBar->setIconSize(QSize(20, 20));
-            topToolBar->setAllowedAreas(Qt::TopToolBarArea);
-            topToolBar->setFloatable(false);
-            topToolBar->setMovable(false);
-            topToolBar->addWidget(p.filesComboBox);
-            topToolBar->addAction(p.fileActions->actions()["Open"]);
-            topToolBar->addAction(p.fileActions->actions()["OpenWithAudio"]);
-            topToolBar->addAction(p.fileActions->actions()["Close"]);
-            topToolBar->addAction(p.fileActions->actions()["CloseAll"]);
-            topToolBar->addWidget(new qtwidget::Spacer(Qt::Horizontal));
-            topToolBar->addWidget(new qtwidget::Spacer(Qt::Horizontal));
-            topToolBar->addWidget(p.filesBComboBox);
-            topToolBar->addAction(p.compareActions->actions()["A"]);
-            topToolBar->addAction(p.compareActions->actions()["B"]);
-            topToolBar->addAction(p.compareActions->actions()["Wipe"]);
-            topToolBar->addAction(p.compareActions->actions()["Overlay"]);
-            topToolBar->addAction(p.compareActions->actions()["Difference"]);
-            topToolBar->addAction(p.compareActions->actions()["Horizontal"]);
-            topToolBar->addAction(p.compareActions->actions()["Vertical"]);
-            topToolBar->addAction(p.compareActions->actions()["Tile"]);
-            topToolBar->addWidget(new qtwidget::Spacer(Qt::Horizontal));
-            topToolBar->addWidget(new qtwidget::Spacer(Qt::Horizontal));
-            topToolBar->addAction(p.windowActions->actions()["FullScreen"]);
-            topToolBar->addAction(p.windowActions->actions()["Secondary"]);
-            topToolBar->addWidget(new qtwidget::Spacer(Qt::Horizontal));
-            topToolBar->addWidget(new qtwidget::Spacer(Qt::Horizontal));
-            topToolBar->addAction(p.viewActions->actions()["Frame"]);
-            topToolBar->addAction(p.viewActions->actions()["Zoom1To1"]);
-            addToolBar(Qt::TopToolBarArea, topToolBar);
+            auto fileToolBar = new QToolBar;
+            fileToolBar->setObjectName("FileToolBar");
+            fileToolBar->setWindowTitle("File Tool Bar");
+            fileToolBar->setIconSize(QSize(20, 20));
+            fileToolBar->setAllowedAreas(Qt::TopToolBarArea);
+            fileToolBar->setFloatable(false);
+            fileToolBar->addAction(p.fileActions->actions()["Open"]);
+            fileToolBar->addAction(p.fileActions->actions()["OpenWithAudio"]);
+            fileToolBar->addAction(p.fileActions->actions()["Close"]);
+            fileToolBar->addAction(p.fileActions->actions()["CloseAll"]);
+            addToolBar(Qt::TopToolBarArea, fileToolBar);
+
+            auto compareToolBar = new QToolBar;
+            compareToolBar->setObjectName("CompareToolBar");
+            compareToolBar->setWindowTitle("Compare Tool Bar");
+            compareToolBar->setIconSize(QSize(20, 20));
+            compareToolBar->setAllowedAreas(Qt::TopToolBarArea);
+            compareToolBar->setFloatable(false);
+            compareToolBar->addAction(p.compareActions->actions()["A"]);
+            compareToolBar->addAction(p.compareActions->actions()["B"]);
+            compareToolBar->addAction(p.compareActions->actions()["Wipe"]);
+            compareToolBar->addAction(p.compareActions->actions()["Overlay"]);
+            compareToolBar->addAction(p.compareActions->actions()["Difference"]);
+            compareToolBar->addAction(p.compareActions->actions()["Horizontal"]);
+            compareToolBar->addAction(p.compareActions->actions()["Vertical"]);
+            compareToolBar->addAction(p.compareActions->actions()["Tile"]);
+            addToolBar(Qt::TopToolBarArea, compareToolBar);
+
+            auto viewToolBar = new QToolBar;
+            viewToolBar->setObjectName("ViewToolBar");
+            viewToolBar->setWindowTitle("View Tool Bar");
+            viewToolBar->setIconSize(QSize(20, 20));
+            viewToolBar->setAllowedAreas(Qt::TopToolBarArea);
+            viewToolBar->setFloatable(false);
+            viewToolBar->addAction(p.viewActions->actions()["Frame"]);
+            viewToolBar->addAction(p.viewActions->actions()["Zoom1To1"]);
+            addToolBar(Qt::TopToolBarArea, viewToolBar);
+
+            auto windowToolBar = new QToolBar;
+            windowToolBar->setObjectName("WindowToolBar");
+            windowToolBar->setWindowTitle("Window Tool Bar");
+            windowToolBar->setIconSize(QSize(20, 20));
+            windowToolBar->setAllowedAreas(Qt::TopToolBarArea);
+            windowToolBar->setFloatable(false);
+            windowToolBar->addAction(p.windowActions->actions()["FullScreen"]);
+            windowToolBar->addAction(p.windowActions->actions()["Secondary"]);
+            addToolBar(Qt::TopToolBarArea, windowToolBar);
 
             p.timelineViewport = new qtwidget::TimelineViewport(app->getContext());
             p.timelineViewport->installEventFilter(this);
@@ -213,22 +224,32 @@ namespace tl
             p.durationLabel = new qtwidget::TimeLabel;
             p.durationLabel->setTimeObject(app->timeObject());
             p.durationLabel->setToolTip(tr("Timeline duration"));
+            p.durationLabel->setContentsMargins(5, 0, 5, 0);
+            p.timeUnitsButton = new QToolButton;
+            p.timeUnitsButton->setIcon(QIcon(":/Icons/TimeUnits.svg"));
+            p.timeUnitsButton->setPopupMode(QToolButton::InstantPopup);
+            p.timeUnitsButton->setMenu(p.playbackActions->timeUnitsMenu());
+            p.timeUnitsButton->setToolTip(tr("Time units"));
             p.speedSpinBox = new QDoubleSpinBox;
             p.speedSpinBox->setRange(0.0, 120.0);
             p.speedSpinBox->setSingleStep(1.0);
             const QFont fixedFont = qtwidget::font("NotoMono-Regular");
             p.speedSpinBox->setFont(fixedFont);
             p.speedSpinBox->setToolTip(tr("Timeline speed (frames per second)"));
+            p.speedButton = new QToolButton;
+            p.speedButton->setIcon(QIcon(":/Icons/Speed.svg"));
+            p.speedButton->setPopupMode(QToolButton::InstantPopup);
+            p.speedButton->setMenu(p.playbackActions->speedMenu());
+            p.speedButton->setToolTip(tr("Playback speed"));
             p.volumeSlider = new QSlider(Qt::Horizontal);
             p.volumeSlider->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
             p.volumeSlider->setToolTip(tr("Audio volume"));
             auto bottomToolBar = new QToolBar;
             bottomToolBar->setObjectName("BottomToolBar");
-            bottomToolBar->setWindowTitle(tr("Bottom ToolBar"));
+            bottomToolBar->setWindowTitle(tr("Bottom Tool Bar"));
             bottomToolBar->setIconSize(QSize(20, 20));
             bottomToolBar->setAllowedAreas(Qt::BottomToolBarArea);
             bottomToolBar->setFloatable(false);
-            bottomToolBar->setMovable(false);
             bottomToolBar->addAction(p.playbackActions->actions()["Reverse"]);
             bottomToolBar->addAction(p.playbackActions->actions()["Stop"]);
             bottomToolBar->addAction(p.playbackActions->actions()["Forward"]);
@@ -236,22 +257,21 @@ namespace tl
             bottomToolBar->addAction(p.playbackActions->actions()["FramePrev"]);
             bottomToolBar->addAction(p.playbackActions->actions()["FrameNext"]);
             bottomToolBar->addAction(p.playbackActions->actions()["End"]);
-            bottomToolBar->addWidget(new qtwidget::Spacer(Qt::Horizontal));
-            bottomToolBar->addWidget(new qtwidget::Spacer(Qt::Horizontal));
             bottomToolBar->addWidget(p.currentTimeSpinBox);
-            bottomToolBar->addWidget(new qtwidget::Spacer(Qt::Horizontal));
             bottomToolBar->addWidget(p.durationLabel);
-            bottomToolBar->addWidget(new qtwidget::Spacer(Qt::Horizontal));
+            bottomToolBar->addWidget(p.timeUnitsButton);
             bottomToolBar->addWidget(p.speedSpinBox);
-            bottomToolBar->addAction(p.playbackActions->actions()["Speed/Default"]);
-            bottomToolBar->addWidget(new qtwidget::Spacer(Qt::Horizontal));
+            bottomToolBar->addWidget(p.speedButton);
             bottomToolBar->addWidget(new qtwidget::Spacer(Qt::Horizontal));
             bottomToolBar->addAction(p.audioActions->actions()["Mute"]);
             bottomToolBar->addWidget(p.volumeSlider);
             addToolBar(Qt::BottomToolBarArea, bottomToolBar);
 
             p.windowActions->menu()->addSeparator();
-            p.windowActions->menu()->addAction(topToolBar->toggleViewAction());
+            p.windowActions->menu()->addAction(fileToolBar->toggleViewAction());
+            p.windowActions->menu()->addAction(compareToolBar->toggleViewAction());
+            p.windowActions->menu()->addAction(windowToolBar->toggleViewAction());
+            p.windowActions->menu()->addAction(viewToolBar->toggleViewAction());
             p.windowActions->menu()->addAction(timelineDockWidget->toggleViewAction());
             p.windowActions->menu()->addAction(bottomToolBar->toggleViewAction());
 
@@ -262,9 +282,12 @@ namespace tl
             fileDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
             fileDockWidget->setWidget(p.filesTool);
             fileDockWidget->hide();
+            fileDockWidget->toggleViewAction()->setIcon(QIcon(":/Icons/Files.svg"));
             fileDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F1));
+            fileDockWidget->toggleViewAction()->setToolTip(tr("Show files"));
             p.windowActions->menu()->addSeparator();
             p.windowActions->menu()->addAction(fileDockWidget->toggleViewAction());
+            windowToolBar->addAction(fileDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, fileDockWidget);
 
             p.compareTool = new CompareTool(p.compareActions->actions(), app);
@@ -274,8 +297,11 @@ namespace tl
             compareDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
             compareDockWidget->setWidget(p.compareTool);
             compareDockWidget->hide();
+            compareDockWidget->toggleViewAction()->setIcon(QIcon(":/Icons/Compare.svg"));
             compareDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F2));
+            compareDockWidget->toggleViewAction()->setToolTip(tr("Show compare controls"));
             p.windowActions->menu()->addAction(compareDockWidget->toggleViewAction());
+            windowToolBar->addAction(compareDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, compareDockWidget);
 
             p.colorTool = new ColorTool(app->colorModel());
@@ -285,8 +311,11 @@ namespace tl
             colorDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
             colorDockWidget->setWidget(p.colorTool);
             colorDockWidget->hide();
+            colorDockWidget->toggleViewAction()->setIcon(QIcon(":/Icons/Color.svg"));
             colorDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F3));
+            colorDockWidget->toggleViewAction()->setToolTip(tr("Show color controls"));
             p.windowActions->menu()->addAction(colorDockWidget->toggleViewAction());
+            windowToolBar->addAction(colorDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, colorDockWidget);
 
             p.infoTool = new InfoTool(app);
@@ -296,8 +325,11 @@ namespace tl
             infoDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
             infoDockWidget->setWidget(p.infoTool);
             infoDockWidget->hide();
+            infoDockWidget->toggleViewAction()->setIcon(QIcon(":/Icons/Info.svg"));
             infoDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F4));
+            infoDockWidget->toggleViewAction()->setToolTip(tr("Show information"));
             p.windowActions->menu()->addAction(infoDockWidget->toggleViewAction());
+            windowToolBar->addAction(infoDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, infoDockWidget);
 
             p.audioTool = new AudioTool();
@@ -307,8 +339,11 @@ namespace tl
             audioDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
             audioDockWidget->setWidget(p.audioTool);
             audioDockWidget->hide();
+            audioDockWidget->toggleViewAction()->setIcon(QIcon(":/Icons/Audio.svg"));
             audioDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F5));
+            audioDockWidget->toggleViewAction()->setToolTip(tr("Show audio"));
             p.windowActions->menu()->addAction(audioDockWidget->toggleViewAction());
+            windowToolBar->addAction(audioDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, audioDockWidget);
 
             p.deviceTool = new DeviceTool(app);
@@ -329,8 +364,11 @@ namespace tl
             settingsDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
             settingsDockWidget->setWidget(p.settingsTool);
             settingsDockWidget->hide();
+            settingsDockWidget->toggleViewAction()->setIcon(QIcon(":/Icons/Settings.svg"));
             settingsDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F9));
+            settingsDockWidget->toggleViewAction()->setToolTip(tr("Show the settings"));
             p.windowActions->menu()->addAction(settingsDockWidget->toggleViewAction());
+            windowToolBar->addAction(settingsDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, settingsDockWidget);
 
             p.messagesTool = new MessagesTool(app->getContext());
@@ -340,8 +378,11 @@ namespace tl
             messagesDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
             messagesDockWidget->setWidget(p.messagesTool);
             messagesDockWidget->hide();
+            messagesDockWidget->toggleViewAction()->setIcon(QIcon(":/Icons/Messages.svg"));
             messagesDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F10));
+            messagesDockWidget->toggleViewAction()->setToolTip(tr("Show messages"));
             p.windowActions->menu()->addAction(messagesDockWidget->toggleViewAction());
+            windowToolBar->addAction(messagesDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, messagesDockWidget);
 
             p.systemLogTool = new SystemLogTool(app->getContext());
@@ -440,6 +481,44 @@ namespace tl
                 });
 
             connect(
+                p.viewActions->actions()["Frame"],
+                &QAction::triggered,
+                [this]
+                {
+                    _p->timelineViewport->frameView();
+                });
+            connect(
+                p.viewActions->actions()["Zoom1To1"],
+                &QAction::triggered,
+                [this]
+                {
+                    _p->timelineViewport->viewZoom1To1();
+                });
+            connect(
+                p.viewActions->actions()["ZoomIn"],
+                &QAction::triggered,
+                [this]
+                {
+                    _p->timelineViewport->viewZoomIn();
+                });
+            connect(
+                p.viewActions->actions()["ZoomOut"],
+                &QAction::triggered,
+                [this]
+                {
+                    _p->timelineViewport->viewZoomOut();
+                });
+
+            connect(
+                p.playbackActions->actions()["FocusCurrentFrame"],
+                &QAction::triggered,
+                [this]
+                {
+                    _p->currentTimeSpinBox->setFocus(Qt::OtherFocusReason);
+                    _p->currentTimeSpinBox->selectAll();
+                });
+
+            connect(
                 p.windowActions,
                 &WindowActions::resize,
                 [this](const imaging::Size& size)
@@ -491,61 +570,6 @@ namespace tl
                         }
                         _p->secondaryWindow->show();
                     }
-                });
-
-            connect(
-                p.viewActions->actions()["Frame"],
-                &QAction::triggered,
-                [this]
-                {
-                    _p->timelineViewport->frameView();
-                });
-            connect(
-                p.viewActions->actions()["Zoom1To1"],
-                &QAction::triggered,
-                [this]
-                {
-                    _p->timelineViewport->viewZoom1To1();
-                });
-            connect(
-                p.viewActions->actions()["ZoomIn"],
-                &QAction::triggered,
-                [this]
-                {
-                    _p->timelineViewport->viewZoomIn();
-                });
-            connect(
-                p.viewActions->actions()["ZoomOut"],
-                &QAction::triggered,
-                [this]
-                {
-                    _p->timelineViewport->viewZoomOut();
-                });
-
-            connect(
-                p.playbackActions->actions()["FocusCurrentFrame"],
-                &QAction::triggered,
-                [this]
-                {
-                    _p->currentTimeSpinBox->setFocus(Qt::OtherFocusReason);
-                    _p->currentTimeSpinBox->selectAll();
-                });
-
-            connect(
-                p.filesComboBox,
-                QOverload<int>::of(&QComboBox::activated),
-                [app](int value)
-                {
-                    app->filesModel()->setA(value);
-                });
-
-            connect(
-                p.filesBComboBox,
-                QOverload<int>::of(&QComboBox::activated),
-                [app](int value)
-                {
-                    app->filesModel()->clearB();
-                    app->filesModel()->setB(value, true);
                 });
 
             connect(
@@ -963,55 +987,12 @@ namespace tl
         {
             TLRENDER_P();
 
-            const int count = p.app->filesModel()->observeFiles()->getSize();
+            const auto& files = p.app->filesModel()->observeFiles()->get();
+            const size_t count = files.size();
             p.timelineSlider->setEnabled(count > 0);
             p.currentTimeSpinBox->setEnabled(count > 0);
             p.speedSpinBox->setEnabled(count > 0);
             p.volumeSlider->setEnabled(count > 0);
-
-            std::vector<std::string> info;
-
-            const auto files = p.app->filesModel()->observeFiles()->get();
-            if (!files.empty())
-            {
-                {
-                    QSignalBlocker blocker(p.filesComboBox);
-                    p.filesComboBox->clear();
-                    for (const auto& i : files)
-                    {
-                        p.filesComboBox->addItem(QString::fromUtf8(i->path.get(-1, false).c_str()));
-                    }
-                    p.filesComboBox->setCurrentIndex(p.app->filesModel()->observeAIndex()->get());
-                }
-
-                {
-                    QSignalBlocker blocker(p.filesBComboBox);
-                    p.filesBComboBox->clear();
-                    for (const auto& i : p.app->filesModel()->observeFiles()->get())
-                    {
-                        p.filesBComboBox->addItem(QString::fromUtf8(i->path.get(-1, false).c_str()));
-                    }
-                    int index = 0;
-                    const auto& indexes = p.app->filesModel()->observeBIndexes()->get();
-                    if (!indexes.empty())
-                    {
-                        index = indexes[0];
-                    }
-                    p.filesBComboBox->setCurrentIndex(index);
-                }
-            }
-            else
-            {
-                {
-                    QSignalBlocker blocker(p.filesComboBox);
-                    p.filesComboBox->clear();
-                }
-
-                {
-                    QSignalBlocker blocker(p.filesBComboBox);
-                    p.filesBComboBox->clear();
-                }
-            }
 
             if (!p.timelinePlayers.empty())
             {
@@ -1031,20 +1012,6 @@ namespace tl
                 {
                     QSignalBlocker blocker(p.volumeSlider);
                     p.volumeSlider->setValue(p.timelinePlayers[0]->volume() * sliderSteps);
-                }
-
-                const auto& ioInfo = p.timelinePlayers[0]->ioInfo();
-                if (!ioInfo.video.empty())
-                {
-                    std::stringstream ss;
-                    ss << "Video: " << ioInfo.video[0];
-                    info.push_back(ss.str());
-                }
-                if (ioInfo.audio.isValid())
-                {
-                    std::stringstream ss;
-                    ss << "Audio: " << ioInfo.audio;
-                    info.push_back(ss.str());
                 }
             }
             else
@@ -1067,18 +1034,10 @@ namespace tl
                 }
             }
 
-            p.fileActions->setTimelinePlayers(p.timelinePlayers);
-
             p.compareActions->setCompareOptions(p.compareOptions);
-            p.compareActions->setTimelinePlayers(p.timelinePlayers);
-
-            p.windowActions->setTimelinePlayers(p.timelinePlayers);
-
-            p.viewActions->setTimelinePlayers(p.timelinePlayers);
 
             p.imageActions->setImageOptions(p.imageOptions);
             p.imageActions->setDisplayOptions(p.displayOptions);
-            p.imageActions->setTimelinePlayers(p.timelinePlayers);
 
             p.playbackActions->setTimelinePlayers(p.timelinePlayers);
 
@@ -1110,7 +1069,50 @@ namespace tl
 
             p.audioTool->setAudioOffset(!p.timelinePlayers.empty() ? p.timelinePlayers[0]->audioOffset() : 0.0);
 
-            p.infoLabel->setText(QString::fromUtf8(string::join(info, " ").c_str()));
+            std::vector<std::string> infoLabel;
+            std::vector<std::string> infoTooltip;
+            if (count > 0)
+            {
+                const int aIndex = p.app->filesModel()->observeAIndex()->get();
+                const std::string fileName = files[aIndex]->path.get(-1, false);
+                std::string fileNameLabel = fileName;
+                if (fileNameLabel.size() > infoLabelMax)
+                {
+                    fileNameLabel.replace(infoLabelMax, fileNameLabel.size() - infoLabelMax, "...");
+                }
+                infoLabel.push_back(fileNameLabel);
+                infoTooltip.push_back(fileName);
+
+                const auto& ioInfo = files[aIndex]->ioInfo;
+                if (!ioInfo.video.empty())
+                {
+                    {
+                        std::stringstream ss;
+                        ss << "V:" << ioInfo.video[0];
+                        infoLabel.push_back(ss.str());
+                    }
+                    {
+                        std::stringstream ss;
+                        ss << "Video :" << ioInfo.video[0];
+                        infoTooltip.push_back(ss.str());
+                    }
+                }
+                if (ioInfo.audio.isValid())
+                {
+                    {
+                        std::stringstream ss;
+                        ss << "A: " << ioInfo.audio;
+                        infoLabel.push_back(ss.str());
+                    }
+                    {
+                        std::stringstream ss;
+                        ss << "Audio: " << ioInfo.audio;
+                        infoTooltip.push_back(ss.str());
+                    }
+                }
+            }
+            p.infoLabel->setText(QString::fromUtf8(string::join(infoLabel, " ").c_str()));
+            p.infoLabel->setToolTip(QString::fromUtf8(string::join(infoTooltip, "\n").c_str()));
 
             if (p.secondaryWindow)
             {

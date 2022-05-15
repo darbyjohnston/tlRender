@@ -23,16 +23,14 @@ namespace tl
             std::vector<qt::TimelinePlayer*> timelinePlayers;
 
             QMap<QString, QAction*> actions;
-
-            QActionGroup* timeUnitsActionGroup = nullptr;
-            QActionGroup* speedActionGroup = nullptr;
             QActionGroup* playbackActionGroup = nullptr;
             QActionGroup* loopActionGroup = nullptr;
+            QActionGroup* timeUnitsActionGroup = nullptr;
+            QActionGroup* speedActionGroup = nullptr;
 
             QMenu* menu = nullptr;
             QMenu* timeUnitsMenu = nullptr;
             QMenu* speedMenu = nullptr;
-            QMenu* optionsMenu = nullptr;
         };
 
         PlaybackActions::PlaybackActions(App* app, QObject* parent) :
@@ -42,59 +40,6 @@ namespace tl
             TLRENDER_P();
 
             p.app = app;
-
-            p.actions["TimeUnits/Frames"] = new QAction(parent);
-            p.actions["TimeUnits/Frames"]->setData(QVariant::fromValue<qt::TimeUnits>(qt::TimeUnits::Frames));
-            p.actions["TimeUnits/Frames"]->setCheckable(true);
-            p.actions["TimeUnits/Frames"]->setText(tr("Frames"));
-            p.actions["TimeUnits/Seconds"] = new QAction(parent);
-            p.actions["TimeUnits/Seconds"]->setData(QVariant::fromValue<qt::TimeUnits>(qt::TimeUnits::Seconds));
-            p.actions["TimeUnits/Seconds"]->setCheckable(true);
-            p.actions["TimeUnits/Seconds"]->setText(tr("Seconds"));
-            p.actions["TimeUnits/Timecode"] = new QAction(parent);
-            p.actions["TimeUnits/Timecode"]->setData(QVariant::fromValue<qt::TimeUnits>(qt::TimeUnits::Timecode));
-            p.actions["TimeUnits/Timecode"]->setCheckable(true);
-            p.actions["TimeUnits/Timecode"]->setText(tr("Timecode"));
-            p.timeUnitsActionGroup = new QActionGroup(this);
-            p.timeUnitsActionGroup->addAction(p.actions["TimeUnits/Frames"]);
-            p.timeUnitsActionGroup->addAction(p.actions["TimeUnits/Seconds"]);
-            p.timeUnitsActionGroup->addAction(p.actions["TimeUnits/Timecode"]);
-
-            p.actions["Speed/Default"] = new QAction(parent);
-            p.actions["Speed/Default"]->setData(0.F);
-            p.actions["Speed/Default"]->setText(tr("Default"));
-            p.actions["Speed/Default"]->setIcon(QIcon(":/Icons/Reset.svg"));
-            p.actions["Speed/Default"]->setToolTip(tr("Default timeline speed"));
-            QList<double> speeds;
-            speeds.append(1.0);
-            speeds.append(3.0);
-            speeds.append(6.0);
-            speeds.append(9.0);
-            speeds.append(12.0);
-            speeds.append(16.0);
-            speeds.append(18.0);
-            speeds.append(23.98);
-            speeds.append(24.0);
-            speeds.append(29.97);
-            speeds.append(30.0);
-            speeds.append(48.0);
-            speeds.append(59.94);
-            speeds.append(60.0);
-            speeds.append(120.0);
-            for (auto i : speeds)
-            {
-                const QString key = QString("Speed/%1").arg(i);
-                p.actions[key] = new QAction(parent);
-                p.actions[key]->setData(i);
-                p.actions[key]->setText(QString("%1").arg(i, 0, 'f', 2));
-            }
-            p.speedActionGroup = new QActionGroup(this);
-            p.speedActionGroup->addAction(p.actions["Speed/Default"]);
-            for (auto i : speeds)
-            {
-                const QString key = QString("Speed/%1").arg(i);
-                p.speedActionGroup->addAction(p.actions[key]);
-            }
 
             p.actions["Stop"] = new QAction(parent);
             p.actions["Stop"]->setData(QVariant::fromValue<timeline::Playback>(timeline::Playback::Stop));
@@ -196,27 +141,66 @@ namespace tl
 
             p.actions["Thumbnails"] = new QAction(parent);
             p.actions["Thumbnails"]->setCheckable(true);
-            p.actions["Thumbnails"]->setText(tr("Thumbnails"));
+            p.actions["Thumbnails"]->setText(tr("Timeline Thumbnails"));
 
             p.actions["StopOnScrub"] = new QAction(parent);
             p.actions["StopOnScrub"]->setCheckable(true);
-            p.actions["StopOnScrub"]->setText(tr("Stop Playback When Scrubbing"));
+            p.actions["StopOnScrub"]->setText(tr("Stop When Scrubbing"));
 
-            p.menu = new QMenu;
-            p.menu->setTitle(tr("&Playback"));
-            p.timeUnitsMenu = p.menu->addMenu(tr("Time Units"));
-            p.timeUnitsMenu->addAction(p.actions["TimeUnits/Frames"]);
-            p.timeUnitsMenu->addAction(p.actions["TimeUnits/Seconds"]);
-            p.timeUnitsMenu->addAction(p.actions["TimeUnits/Timecode"]);
-            p.menu->addSeparator();
-            p.speedMenu = p.menu->addMenu(tr("Speed"));
-            p.speedMenu->addAction(p.actions["Speed/Default"]);
+            p.actions["TimeUnits/Frames"] = new QAction(parent);
+            p.actions["TimeUnits/Frames"]->setData(QVariant::fromValue<qt::TimeUnits>(qt::TimeUnits::Frames));
+            p.actions["TimeUnits/Frames"]->setCheckable(true);
+            p.actions["TimeUnits/Frames"]->setText(tr("Frames"));
+            p.actions["TimeUnits/Seconds"] = new QAction(parent);
+            p.actions["TimeUnits/Seconds"]->setData(QVariant::fromValue<qt::TimeUnits>(qt::TimeUnits::Seconds));
+            p.actions["TimeUnits/Seconds"]->setCheckable(true);
+            p.actions["TimeUnits/Seconds"]->setText(tr("Seconds"));
+            p.actions["TimeUnits/Timecode"] = new QAction(parent);
+            p.actions["TimeUnits/Timecode"]->setData(QVariant::fromValue<qt::TimeUnits>(qt::TimeUnits::Timecode));
+            p.actions["TimeUnits/Timecode"]->setCheckable(true);
+            p.actions["TimeUnits/Timecode"]->setText(tr("Timecode"));
+            p.timeUnitsActionGroup = new QActionGroup(this);
+            p.timeUnitsActionGroup->addAction(p.actions["TimeUnits/Frames"]);
+            p.timeUnitsActionGroup->addAction(p.actions["TimeUnits/Seconds"]);
+            p.timeUnitsActionGroup->addAction(p.actions["TimeUnits/Timecode"]);
+
+            QList<double> speeds;
+            speeds.append(1.0);
+            speeds.append(3.0);
+            speeds.append(6.0);
+            speeds.append(9.0);
+            speeds.append(12.0);
+            speeds.append(16.0);
+            speeds.append(18.0);
+            speeds.append(23.98);
+            speeds.append(24.0);
+            speeds.append(29.97);
+            speeds.append(30.0);
+            speeds.append(48.0);
+            speeds.append(59.94);
+            speeds.append(60.0);
+            speeds.append(120.0);
             for (auto i : speeds)
             {
                 const QString key = QString("Speed/%1").arg(i);
-                p.speedMenu->addAction(p.actions[key]);
+                p.actions[key] = new QAction(parent);
+                p.actions[key]->setData(i);
+                p.actions[key]->setText(QString("%1").arg(i, 0, 'f', 2));
             }
-            p.menu->addSeparator();
+            p.actions["Speed/Default"] = new QAction(parent);
+            p.actions["Speed/Default"]->setData(0.F);
+            p.actions["Speed/Default"]->setText(tr("Default"));
+            p.actions["Speed/Default"]->setToolTip(tr("Default timeline speed"));
+            p.speedActionGroup = new QActionGroup(this);
+            for (auto i : speeds)
+            {
+                const QString key = QString("Speed/%1").arg(i);
+                p.speedActionGroup->addAction(p.actions[key]);
+            }
+            p.speedActionGroup->addAction(p.actions["Speed/Default"]);
+
+            p.menu = new QMenu;
+            p.menu->setTitle(tr("&Playback"));
             p.menu->addAction(p.actions["Stop"]);
             p.menu->addAction(p.actions["Forward"]);
             p.menu->addAction(p.actions["Reverse"]);
@@ -243,9 +227,22 @@ namespace tl
             p.menu->addSeparator();
             p.menu->addAction(p.actions["FocusCurrentFrame"]);
             p.menu->addSeparator();
-            p.optionsMenu = p.menu->addMenu(tr("Options"));
-            p.optionsMenu->addAction(p.actions["Thumbnails"]);
-            p.optionsMenu->addAction(p.actions["StopOnScrub"]);
+            p.menu->addAction(p.actions["Thumbnails"]);
+            p.menu->addAction(p.actions["StopOnScrub"]);
+
+            p.timeUnitsMenu = new QMenu;
+            p.timeUnitsMenu->addAction(p.actions["TimeUnits/Frames"]);
+            p.timeUnitsMenu->addAction(p.actions["TimeUnits/Seconds"]);
+            p.timeUnitsMenu->addAction(p.actions["TimeUnits/Timecode"]);
+
+            p.speedMenu = new QMenu;
+            for (auto i : speeds)
+            {
+                const QString key = QString("Speed/%1").arg(i);
+                p.speedMenu->addAction(p.actions[key]);
+            }
+            p.speedMenu->addSeparator();
+            p.speedMenu->addAction(p.actions["Speed/Default"]);
 
             _actionsUpdate();
 
@@ -410,6 +407,16 @@ namespace tl
             return _p->menu;
         }
 
+        QMenu* PlaybackActions::timeUnitsMenu() const
+        {
+            return _p->timeUnitsMenu;
+        }
+
+        QMenu* PlaybackActions::speedMenu() const
+        {
+            return _p->speedMenu;
+        }
+
         void PlaybackActions::setTimelinePlayers(const std::vector<qt::TimelinePlayer*>& timelinePlayers)
         {
             TLRENDER_P();
@@ -518,7 +525,7 @@ namespace tl
         {
             TLRENDER_P();
 
-            const int count = p.timelinePlayers.size();
+            const size_t count = p.timelinePlayers.size();
             p.actions["Speed/Default"]->setEnabled(count > 0);
             p.actions["Stop"]->setEnabled(count > 0);
             p.actions["Forward"]->setEnabled(count > 0);
@@ -540,8 +547,10 @@ namespace tl
             p.actions["SetOutPoint"]->setEnabled(count > 0);
             p.actions["ResetOutPoint"]->setEnabled(count > 0);
             p.actions["FocusCurrentFrame"]->setEnabled(count > 0);
-
-            p.speedMenu->setEnabled(count > 0);
+            for (auto i : p.speedActionGroup->actions())
+            {
+                i->setEnabled(count > 0);
+            }
 
             if (!p.timelinePlayers.empty())
             {

@@ -39,9 +39,6 @@ namespace tl
             //! Set the comparison options.
             void setCompareOptions(const timeline::CompareOptions&);
 
-            //! Set the timeline players.
-            void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
-
         private:
             void _actionsUpdate();
 

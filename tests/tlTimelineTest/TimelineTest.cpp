@@ -82,13 +82,13 @@ namespace tl
 
             // Write an OTIO timeline.
             auto otioClip = new otio::Clip;
-            otioClip->set_media_reference(new otio::ImageSequenceReference("", "TimelineTest.", ".ppm", 0, 1, 1, 0));
+            otioClip->set_media_reference(new otio::ImageSequenceReference("file://", "TimelineTest.", ".ppm", 0, 1, 1, 0));
             const otime::TimeRange clipTimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0));
             otioClip->set_source_range(clipTimeRange);
             otio::ErrorStatus errorStatus;
             auto otioTrack = new otio::Track();
             otioTrack->append_child(otioClip, &errorStatus);
-            if (errorStatus != otio::ErrorStatus::OK)
+            if (otio::is_error(errorStatus))
             {
                 throw std::runtime_error("Cannot append child");
             }
@@ -96,13 +96,13 @@ namespace tl
             otioClip->set_media_reference(new otio::ImageSequenceReference("", "TimelineTest.", ".ppm", 0, 1, 1, 0));
             otioClip->set_source_range(clipTimeRange);
             otioTrack->append_child(otioClip, &errorStatus);
-            if (errorStatus != otio::ErrorStatus::OK)
+            if (otio::is_error(errorStatus))
             {
                 throw std::runtime_error("Cannot append child");
             }
             auto otioStack = new otio::Stack;
             otioStack->append_child(otioTrack, &errorStatus);
-            if (errorStatus != otio::ErrorStatus::OK)
+            if (otio::is_error(errorStatus))
             {
                 throw std::runtime_error("Cannot append child");
             }
@@ -110,7 +110,7 @@ namespace tl
             otioTimeline->set_tracks(otioStack);
             const std::string fileName("TimelineTest.otio");
             otioTimeline->to_json_file(fileName, &errorStatus);
-            if (errorStatus != otio::ErrorStatus::OK)
+            if (otio::is_error(errorStatus))
             {
                 throw std::runtime_error("Cannot write file: " + fileName);
             }
