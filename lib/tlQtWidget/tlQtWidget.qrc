@@ -14,6 +14,7 @@
     <file alias="Icons/CompareTile.svg">../../etc/Icons/CompareTile.svg</file>
     <file alias="Icons/CompareVertical.svg">../../etc/Icons/CompareVertical.svg</file>
     <file alias="Icons/CompareWipe.svg">../../etc/Icons/CompareWipe.svg</file>
+    <file alias="Icons/Devices.svg">../../etc/Icons/Devices.svg</file>
     <file alias="Icons/DockWidgetClose.svg">../../etc/Icons/DockWidgetClose.svg</file>
     <file alias="Icons/DockWidgetNormal.svg">../../etc/Icons/DockWidgetNormal.svg</file>
     <file alias="Icons/Empty.svg">../../etc/Icons/Empty.svg</file>

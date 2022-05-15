@@ -353,8 +353,11 @@ namespace tl
             deviceDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
             deviceDockWidget->setWidget(p.deviceTool);
             deviceDockWidget->hide();
-            deviceDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F7));
+            deviceDockWidget->toggleViewAction()->setIcon(QIcon(":/Icons/Devices.svg"));
+            deviceDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F6));
+            deviceDockWidget->toggleViewAction()->setToolTip(tr("Show devices"));
             p.windowActions->menu()->addAction(deviceDockWidget->toggleViewAction());
+            windowToolBar->addAction(deviceDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, deviceDockWidget);
 
             p.settingsTool = new SettingsTool(app->settingsObject(), app->timeObject());
