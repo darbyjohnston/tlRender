@@ -1,8 +1,11 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
+    <file alias="Icons/Audio.svg">../../etc/Icons/Audio.svg</file>
     <file alias="Icons/BellowsOpen.svg">../../etc/Icons/BellowsOpen.svg</file>
     <file alias="Icons/BellowsClosed.svg">../../etc/Icons/BellowsClosed.svg</file>
     <file alias="Icons/Clear.svg">../../etc/Icons/Clear.svg</file>
+    <file alias="Icons/Color.svg">../../etc/Icons/Color.svg</file>
+    <file alias="Icons/Compare.svg">../../etc/Icons/Compare.svg</file>
     <file alias="Icons/CompareA.svg">../../etc/Icons/CompareA.svg</file>
     <file alias="Icons/CompareB.svg">../../etc/Icons/CompareB.svg</file>
     <file alias="Icons/CompareDifference.svg">../../etc/Icons/CompareDifference.svg</file>
@@ -19,8 +22,11 @@
     <file alias="Icons/FileCloseAll.svg">../../etc/Icons/FileCloseAll.svg</file>
     <file alias="Icons/FileOpen.svg">../../etc/Icons/FileOpen.svg</file>
     <file alias="Icons/FileOpenWithAudio.svg">../../etc/Icons/FileOpenWithAudio.svg</file>
+    <file alias="Icons/Files.svg">../../etc/Icons/Files.svg</file>
     <file alias="Icons/FrameNext.svg">../../etc/Icons/FrameNext.svg</file>
     <file alias="Icons/FramePrev.svg">../../etc/Icons/FramePrev.svg</file>
+    <file alias="Icons/Info.svg">../../etc/Icons/Info.svg</file>
+    <file alias="Icons/Messages.svg">../../etc/Icons/Messages.svg</file>
     <file alias="Icons/Mute.svg">../../etc/Icons/Mute.svg</file>
     <file alias="Icons/Next.svg">../../etc/Icons/Next.svg</file>
     <file alias="Icons/PlaybackForward.svg">../../etc/Icons/PlaybackForward.svg</file>

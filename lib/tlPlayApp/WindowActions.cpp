@@ -19,7 +19,6 @@ namespace tl
             App* app = nullptr;
 
             QMap<QString, QAction*> actions;
-
             QActionGroup* resizeActionGroup = nullptr;
 
             QMenu* menu = nullptr;

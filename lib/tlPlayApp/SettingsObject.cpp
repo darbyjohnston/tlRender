@@ -18,7 +18,7 @@ namespace tl
     {
         namespace
         {
-            const size_t settingsVersion = 2;
+            const size_t settingsVersion = 3;
             const int recentFilesMax = 10;
 
             QString version(const QString& value)
