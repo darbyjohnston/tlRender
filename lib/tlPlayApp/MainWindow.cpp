@@ -49,6 +49,7 @@
 #include <QStatusBar>
 #include <QStyle>
 #include <QToolBar>
+#include <QToolButton>
 #include <QWindow>
 
 namespace tl
@@ -86,7 +87,9 @@ namespace tl
             qtwidget::TimelineSlider* timelineSlider = nullptr;
             qtwidget::TimeSpinBox* currentTimeSpinBox = nullptr;
             qtwidget::TimeLabel* durationLabel = nullptr;
+            QToolButton* timeUnitsButton = nullptr;
             QDoubleSpinBox* speedSpinBox = nullptr;
+            QToolButton* speedButton = nullptr;
             QSlider* volumeSlider = nullptr;
             FilesTool* filesTool = nullptr;
             CompareTool* compareTool = nullptr;
@@ -197,12 +200,23 @@ namespace tl
             p.durationLabel = new qtwidget::TimeLabel;
             p.durationLabel->setTimeObject(app->timeObject());
             p.durationLabel->setToolTip(tr("Timeline duration"));
+            p.durationLabel->setContentsMargins(5, 0, 5, 0);
+            p.timeUnitsButton = new QToolButton;
+            p.timeUnitsButton->setIcon(QIcon(":/Icons/TimeUnits.svg"));
+            p.timeUnitsButton->setPopupMode(QToolButton::InstantPopup);
+            p.timeUnitsButton->setMenu(p.playbackActions->timeUnitsMenu());
+            p.timeUnitsButton->setToolTip(tr("Time units"));
             p.speedSpinBox = new QDoubleSpinBox;
             p.speedSpinBox->setRange(0.0, 120.0);
             p.speedSpinBox->setSingleStep(1.0);
             const QFont fixedFont = qtwidget::font("NotoMono-Regular");
             p.speedSpinBox->setFont(fixedFont);
             p.speedSpinBox->setToolTip(tr("Timeline speed (frames per second)"));
+            p.speedButton = new QToolButton;
+            p.speedButton->setIcon(QIcon(":/Icons/Speed.svg"));
+            p.speedButton->setPopupMode(QToolButton::InstantPopup);
+            p.speedButton->setMenu(p.playbackActions->speedMenu());
+            p.speedButton->setToolTip(tr("Playback speed"));
             p.volumeSlider = new QSlider(Qt::Horizontal);
             p.volumeSlider->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
             p.volumeSlider->setToolTip(tr("Audio volume"));
@@ -223,11 +237,11 @@ namespace tl
             bottomToolBar->addWidget(new qtwidget::Spacer(Qt::Horizontal));
             bottomToolBar->addWidget(new qtwidget::Spacer(Qt::Horizontal));
             bottomToolBar->addWidget(p.currentTimeSpinBox);
-            bottomToolBar->addWidget(new qtwidget::Spacer(Qt::Horizontal));
             bottomToolBar->addWidget(p.durationLabel);
+            bottomToolBar->addWidget(p.timeUnitsButton);
             bottomToolBar->addWidget(new qtwidget::Spacer(Qt::Horizontal));
             bottomToolBar->addWidget(p.speedSpinBox);
-            bottomToolBar->addAction(p.playbackActions->actions()["Speed/Default"]);
+            bottomToolBar->addWidget(p.speedButton);
             bottomToolBar->addWidget(new qtwidget::Spacer(Qt::Horizontal));
             bottomToolBar->addWidget(new qtwidget::Spacer(Qt::Horizontal));
             bottomToolBar->addAction(p.audioActions->actions()["Mute"]);

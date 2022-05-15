@@ -34,6 +34,12 @@ namespace tl
             //! Get the menu.
             QMenu* menu() const;
 
+            //! Get the time units menu.
+            QMenu* timeUnitsMenu() const;
+
+            //! Get the speed menu.
+            QMenu* speedMenu() const;
+
             //! Set the timeline players.
             void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
 

@@ -28,9 +28,11 @@
     <file alias="Icons/PlaybackStop.svg">../../etc/Icons/PlaybackStop.svg</file>
     <file alias="Icons/Prev.svg">../../etc/Icons/Prev.svg</file>
     <file alias="Icons/Reset.svg">../../etc/Icons/Reset.svg</file>
+    <file alias="Icons/Settings.svg">../../etc/Icons/Settings.svg</file>
     <file alias="Icons/Speed.svg">../../etc/Icons/Speed.svg</file>
     <file alias="Icons/TimeEnd.svg">../../etc/Icons/TimeEnd.svg</file>
     <file alias="Icons/TimeStart.svg">../../etc/Icons/TimeStart.svg</file>
+    <file alias="Icons/TimeUnits.svg">../../etc/Icons/TimeUnits.svg</file>
     <file alias="Icons/ViewFrame.svg">../../etc/Icons/ViewFrame.svg</file>
     <file alias="Icons/ViewZoom1To1.svg">../../etc/Icons/ViewZoom1To1.svg</file>
     <file alias="Icons/Volume.svg">../../etc/Icons/Volume.svg</file>
