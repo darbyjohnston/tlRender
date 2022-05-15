@@ -34,9 +34,6 @@ namespace tl
             //! Get the menu.
             QMenu* menu() const;
 
-            //! Set the timeline players.
-            void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
-
         Q_SIGNALS:
             //! This signal is emitted to resize the window.
             void resize(const tl::imaging::Size&);

@@ -5,6 +5,7 @@
 #include <tlPlayApp/ImageActions.h>
 
 #include <tlPlayApp/App.h>
+#include <tlPlayApp/FilesModel.h>
 
 #include <tlQt/MetaTypes.h>
 
@@ -20,7 +21,6 @@ namespace tl
 
             timeline::ImageOptions imageOptions;
             timeline::DisplayOptions displayOptions;
-            std::vector<qt::TimelinePlayer*> timelinePlayers;
 
             QMap<QString, QAction*> actions;
             QActionGroup* yuvRangeActionGroup = nullptr;
@@ -28,6 +28,8 @@ namespace tl
             QActionGroup* alphaBlendActionGroup = nullptr;
 
             QMenu* menu = nullptr;
+
+            std::shared_ptr<observer::ListObserver<std::shared_ptr<FilesModelItem> > > filesObserver;
         };
 
         ImageActions::ImageActions(App* app, QObject* parent) :
@@ -175,6 +177,13 @@ namespace tl
                     imageOptions.alphaBlend = action->data().value<timeline::AlphaBlend>();
                     _p->app->setImageOptions(imageOptions);
                 });
+
+            p.filesObserver = observer::ListObserver<std::shared_ptr<FilesModelItem> >::create(
+                app->filesModel()->observeFiles(),
+                [this](const std::vector<std::shared_ptr<FilesModelItem> >&)
+                {
+                    _actionsUpdate();
+                });
         }
 
         ImageActions::~ImageActions()
@@ -208,18 +217,11 @@ namespace tl
             _actionsUpdate();
         }
 
-        void ImageActions::setTimelinePlayers(const std::vector<qt::TimelinePlayer*>& timelinePlayers)
-        {
-            TLRENDER_P();
-            p.timelinePlayers = timelinePlayers;
-            _actionsUpdate();
-        }
-
         void ImageActions::_actionsUpdate()
         {
             TLRENDER_P();
 
-            const int count = p.timelinePlayers.size();
+            const int count = p.app->filesModel()->observeFiles()->getSize();
             p.actions["YUVRange/FromFile"]->setEnabled(count > 0);
             p.actions["YUVRange/Full"]->setEnabled(count > 0);
             p.actions["YUVRange/Video"]->setEnabled(count > 0);
@@ -233,7 +235,7 @@ namespace tl
             p.actions["MirrorX"]->setEnabled(count > 0);
             p.actions["MirrorY"]->setEnabled(count > 0);
 
-            if (!p.timelinePlayers.empty())
+            if (count > 0)
             {
                 {
                     QSignalBlocker blocker(p.yuvRangeActionGroup);

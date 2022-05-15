@@ -20,12 +20,16 @@ namespace tl
             App* app = nullptr;
 
             timeline::CompareOptions compareOptions;
-            std::vector<qt::TimelinePlayer*> timelinePlayers;
 
             QMap<QString, QAction*> actions;
+            QActionGroup* currentActionGroup = nullptr;
             QActionGroup* compareActionGroup = nullptr;
 
             QMenu* menu = nullptr;
+            QMenu* currentMenu = nullptr;
+
+            std::shared_ptr<observer::ListObserver<std::shared_ptr<FilesModelItem> > > filesObserver;
+            std::shared_ptr<observer::ListObserver<int> > bIndexesObserver;
         };
 
         CompareActions::CompareActions(App* app, QObject* parent) :
@@ -90,16 +94,6 @@ namespace tl
             p.actions["Tile"]->setIcon(QIcon(":/Icons/CompareTile.svg"));
             p.actions["Tile"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_T));
             p.actions["Tile"]->setToolTip(tr("Tile the A and B files"));
-            p.compareActionGroup = new QActionGroup(this);
-            p.compareActionGroup->setExclusive(true);
-            p.compareActionGroup->addAction(p.actions["A"]);
-            p.compareActionGroup->addAction(p.actions["B"]);
-            p.compareActionGroup->addAction(p.actions["Wipe"]);
-            p.compareActionGroup->addAction(p.actions["Overlay"]);
-            p.compareActionGroup->addAction(p.actions["Difference"]);
-            p.compareActionGroup->addAction(p.actions["Horizontal"]);
-            p.compareActionGroup->addAction(p.actions["Vertical"]);
-            p.compareActionGroup->addAction(p.actions["Tile"]);
             p.actions["Next"] = new QAction(this);
             p.actions["Next"]->setText(tr("Next"));
             p.actions["Next"]->setIcon(QIcon(":/Icons/Next.svg"));
@@ -111,8 +105,25 @@ namespace tl
             p.actions["Prev"]->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_PageUp));
             p.actions["Prev"]->setToolTip(tr("Change to the previous file"));
 
+            p.currentActionGroup = new QActionGroup(this);
+
+            p.compareActionGroup = new QActionGroup(this);
+            p.compareActionGroup->setExclusive(true);
+            p.compareActionGroup->addAction(p.actions["A"]);
+            p.compareActionGroup->addAction(p.actions["B"]);
+            p.compareActionGroup->addAction(p.actions["Wipe"]);
+            p.compareActionGroup->addAction(p.actions["Overlay"]);
+            p.compareActionGroup->addAction(p.actions["Difference"]);
+            p.compareActionGroup->addAction(p.actions["Horizontal"]);
+            p.compareActionGroup->addAction(p.actions["Vertical"]);
+            p.compareActionGroup->addAction(p.actions["Tile"]);
+
             p.menu = new QMenu;
             p.menu->setTitle(tr("&Compare"));
+            p.currentMenu = new QMenu;
+            p.currentMenu->setTitle(tr("&Current"));
+            p.menu->addMenu(p.currentMenu);
+            p.menu->addSeparator();
             p.menu->addAction(p.actions["A"]);
             p.menu->addAction(p.actions["B"]);
             p.menu->addAction(p.actions["Wipe"]);
@@ -143,6 +154,17 @@ namespace tl
                 });
 
             connect(
+                p.currentActionGroup,
+                &QActionGroup::triggered,
+                [this, app](QAction* action)
+                {
+                    const int index = _p->currentActionGroup->actions().indexOf(action);
+                    const auto bIndexes = app->filesModel()->observeBIndexes()->get();
+                    const auto i = std::find(bIndexes.begin(), bIndexes.end(), index);
+                    app->filesModel()->setB(index, i == bIndexes.end());
+                });
+
+            connect(
                 p.compareActionGroup,
                 &QActionGroup::triggered,
                 [this](QAction* action)
@@ -150,6 +172,19 @@ namespace tl
                     auto compareOptions = _p->compareOptions;
                     compareOptions.mode = action->data().value<timeline::CompareMode>();
                     _p->app->filesModel()->setCompareOptions(compareOptions);
+                });
+
+            p.filesObserver = observer::ListObserver<std::shared_ptr<FilesModelItem> >::create(
+                app->filesModel()->observeFiles(),
+                [this](const std::vector<std::shared_ptr<FilesModelItem> >&)
+                {
+                    _actionsUpdate();
+                });
+            p.bIndexesObserver = observer::ListObserver<int>::create(
+                app->filesModel()->observeBIndexes(),
+                [this](const std::vector<int>&)
+                {
+                    _actionsUpdate();
                 });
         }
 
@@ -175,18 +210,12 @@ namespace tl
             _actionsUpdate();
         }
 
-        void CompareActions::setTimelinePlayers(const std::vector<qt::TimelinePlayer*>& timelinePlayers)
-        {
-            TLRENDER_P();
-            p.timelinePlayers = timelinePlayers;
-            _actionsUpdate();
-        }
-
         void CompareActions::_actionsUpdate()
         {
             TLRENDER_P();
 
-            const int count = p.timelinePlayers.size();
+            const auto& files = p.app->filesModel()->observeFiles()->get();
+            const size_t count = files.size();
             p.actions["A"]->setEnabled(count > 0);
             p.actions["B"]->setEnabled(count > 0);
             p.actions["Wipe"]->setEnabled(count > 0);
@@ -198,26 +227,38 @@ namespace tl
             p.actions["Next"]->setEnabled(count > 0);
             p.actions["Prev"]->setEnabled(count > 0);
 
-            if (!p.timelinePlayers.empty())
+            for (auto i : p.currentActionGroup->actions())
             {
+                p.currentActionGroup->removeAction(i);
+            }
+            p.currentMenu->clear();
+            const auto bIndexes = p.app->filesModel()->observeBIndexes()->get();
+            for (size_t i = 0; i < count; ++i)
+            {
+                auto action = new QAction;
+                action->setCheckable(true);
+                action->setChecked(std::find(bIndexes.begin(), bIndexes.end(), i) != bIndexes.end());
+                action->setText(QString::fromUtf8(files[i]->path.get(-1, false).c_str()));
+                p.currentActionGroup->addAction(action);
+                p.currentMenu->addAction(action);
+            }
+
+            if (count > 0)
+            {
+                QSignalBlocker blocker(p.compareActionGroup);
+                for (auto action : p.compareActionGroup->actions())
                 {
-                    QSignalBlocker blocker(p.compareActionGroup);
-                    for (auto action : p.compareActionGroup->actions())
+                    if (action->data().value<timeline::CompareMode>() == p.compareOptions.mode)
                     {
-                        if (action->data().value<timeline::CompareMode>() == p.compareOptions.mode)
-                        {
-                            action->setChecked(true);
-                            break;
-                        }
+                        action->setChecked(true);
+                        break;
                     }
                 }
             }
             else
             {
-                {
-                    QSignalBlocker blocker(p.compareActionGroup);
-                    p.actions["A"]->setChecked(true);
-                }
+                QSignalBlocker blocker(p.compareActionGroup);
+                p.actions["A"]->setChecked(true);
             }
         }
     }

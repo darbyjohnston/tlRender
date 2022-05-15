@@ -36,7 +36,6 @@
 #include <tlCore/String.h>
 #include <tlCore/StringFormat.h>
 
-#include <QComboBox>
 #include <QDockWidget>
 #include <QDoubleSpinBox>
 #include <QDragEnterEvent>
@@ -46,6 +45,7 @@
 #include <QMenuBar>
 #include <QMimeData>
 #include <QMouseEvent>
+#include <QSlider>
 #include <QStatusBar>
 #include <QStyle>
 #include <QToolBar>
@@ -59,6 +59,7 @@ namespace tl
         {
             const size_t sliderSteps = 100;
             const size_t errorTimeout = 5000;
+            const size_t infoLabelMax = 24;
         }
 
         struct MainWindow::Private
@@ -81,8 +82,6 @@ namespace tl
             PlaybackActions* playbackActions = nullptr;
             AudioActions* audioActions = nullptr;
 
-            QComboBox* filesComboBox = nullptr;
-            QComboBox* filesBComboBox = nullptr;
             qtwidget::TimelineViewport* timelineViewport = nullptr;
             qtwidget::TimelineSlider* timelineSlider = nullptr;
             qtwidget::TimeSpinBox* currentTimeSpinBox = nullptr;
@@ -145,12 +144,6 @@ namespace tl
             menuBar->addMenu(p.audioActions->menu());
             setMenuBar(menuBar);
 
-            p.filesComboBox = new QComboBox;
-            p.filesComboBox->setMinimumContentsLength(10);
-            p.filesComboBox->setToolTip(tr("Set the current file"));
-            p.filesBComboBox = new QComboBox;
-            p.filesBComboBox->setMinimumContentsLength(10);
-            p.filesBComboBox->setToolTip(tr("Set the B file"));
             auto topToolBar = new QToolBar;
             topToolBar->setObjectName("TopToolBar");
             topToolBar->setWindowTitle(tr("Top ToolBar"));
@@ -158,14 +151,12 @@ namespace tl
             topToolBar->setAllowedAreas(Qt::TopToolBarArea);
             topToolBar->setFloatable(false);
             topToolBar->setMovable(false);
-            topToolBar->addWidget(p.filesComboBox);
             topToolBar->addAction(p.fileActions->actions()["Open"]);
             topToolBar->addAction(p.fileActions->actions()["OpenWithAudio"]);
             topToolBar->addAction(p.fileActions->actions()["Close"]);
             topToolBar->addAction(p.fileActions->actions()["CloseAll"]);
             topToolBar->addWidget(new qtwidget::Spacer(Qt::Horizontal));
             topToolBar->addWidget(new qtwidget::Spacer(Qt::Horizontal));
-            topToolBar->addWidget(p.filesBComboBox);
             topToolBar->addAction(p.compareActions->actions()["A"]);
             topToolBar->addAction(p.compareActions->actions()["B"]);
             topToolBar->addAction(p.compareActions->actions()["Wipe"]);
@@ -502,23 +493,6 @@ namespace tl
                 {
                     _p->currentTimeSpinBox->setFocus(Qt::OtherFocusReason);
                     _p->currentTimeSpinBox->selectAll();
-                });
-
-            connect(
-                p.filesComboBox,
-                QOverload<int>::of(&QComboBox::activated),
-                [app](int value)
-                {
-                    app->filesModel()->setA(value);
-                });
-
-            connect(
-                p.filesBComboBox,
-                QOverload<int>::of(&QComboBox::activated),
-                [app](int value)
-                {
-                    app->filesModel()->clearB();
-                    app->filesModel()->setB(value, true);
                 });
 
             connect(
@@ -918,42 +892,15 @@ namespace tl
         {
             TLRENDER_P();
 
-            const int count = p.app->filesModel()->observeFiles()->getSize();
+            const auto& files = p.app->filesModel()->observeFiles()->get();
+            const size_t count = files.size();
             p.timelineSlider->setEnabled(count > 0);
             p.currentTimeSpinBox->setEnabled(count > 0);
             p.speedSpinBox->setEnabled(count > 0);
             p.volumeSlider->setEnabled(count > 0);
 
-            std::vector<std::string> info;
-
             if (!p.timelinePlayers.empty())
             {
-                {
-                    QSignalBlocker blocker(p.filesComboBox);
-                    p.filesComboBox->clear();
-                    for (const auto& i : p.app->filesModel()->observeFiles()->get())
-                    {
-                        p.filesComboBox->addItem(QString::fromUtf8(i->path.get(-1, false).c_str()));
-                    }
-                    p.filesComboBox->setCurrentIndex(p.app->filesModel()->observeAIndex()->get());
-                }
-
-                {
-                    QSignalBlocker blocker(p.filesBComboBox);
-                    p.filesBComboBox->clear();
-                    for (const auto& i : p.app->filesModel()->observeFiles()->get())
-                    {
-                        p.filesBComboBox->addItem(QString::fromUtf8(i->path.get(-1, false).c_str()));
-                    }
-                    int index = 0;
-                    const auto& indexes = p.app->filesModel()->observeBIndexes()->get();
-                    if (!indexes.empty())
-                    {
-                        index = indexes[0];
-                    }
-                    p.filesBComboBox->setCurrentIndex(index);
-                }
-
                 {
                     QSignalBlocker blocker(p.currentTimeSpinBox);
                     p.currentTimeSpinBox->setValue(p.timelinePlayers[0]->currentTime());
@@ -971,33 +918,9 @@ namespace tl
                     QSignalBlocker blocker(p.volumeSlider);
                     p.volumeSlider->setValue(p.timelinePlayers[0]->volume() * sliderSteps);
                 }
-
-                const auto& ioInfo = p.timelinePlayers[0]->ioInfo();
-                if (!ioInfo.video.empty())
-                {
-                    std::stringstream ss;
-                    ss << "Video: " << ioInfo.video[0];
-                    info.push_back(ss.str());
-                }
-                if (ioInfo.audio.isValid())
-                {
-                    std::stringstream ss;
-                    ss << "Audio: " << ioInfo.audio;
-                    info.push_back(ss.str());
-                }
             }
             else
             {
-                {
-                    QSignalBlocker blocker(p.filesComboBox);
-                    p.filesComboBox->clear();
-                }
-
-                {
-                    QSignalBlocker blocker(p.filesBComboBox);
-                    p.filesBComboBox->clear();
-                }
-
                 {
                     QSignalBlocker blocker(p.currentTimeSpinBox);
                     p.currentTimeSpinBox->setValue(time::invalidTime);
@@ -1016,18 +939,10 @@ namespace tl
                 }
             }
 
-            p.fileActions->setTimelinePlayers(p.timelinePlayers);
-
             p.compareActions->setCompareOptions(p.compareOptions);
-            p.compareActions->setTimelinePlayers(p.timelinePlayers);
-
-            p.windowActions->setTimelinePlayers(p.timelinePlayers);
-
-            p.viewActions->setTimelinePlayers(p.timelinePlayers);
 
             p.imageActions->setImageOptions(p.imageOptions);
             p.imageActions->setDisplayOptions(p.displayOptions);
-            p.imageActions->setTimelinePlayers(p.timelinePlayers);
 
             p.playbackActions->setTimelinePlayers(p.timelinePlayers);
 
@@ -1059,7 +974,50 @@ namespace tl
 
             p.audioTool->setAudioOffset(!p.timelinePlayers.empty() ? p.timelinePlayers[0]->audioOffset() : 0.0);
 
-            p.infoLabel->setText(QString::fromUtf8(string::join(info, " ").c_str()));
+            std::vector<std::string> infoLabel;
+            std::vector<std::string> infoTooltip;
+            if (count > 0)
+            {
+                const int aIndex = p.app->filesModel()->observeAIndex()->get();
+                const std::string fileName = files[aIndex]->path.get(-1, false);
+                std::string fileNameLabel = fileName;
+                if (fileNameLabel.size() > infoLabelMax)
+                {
+                    fileNameLabel.replace(infoLabelMax, fileNameLabel.size() - infoLabelMax, "...");
+                }
+                infoLabel.push_back(fileNameLabel);
+                infoTooltip.push_back(fileName);
+
+                const auto& ioInfo = files[aIndex]->ioInfo;
+                if (!ioInfo.video.empty())
+                {
+                    {
+                        std::stringstream ss;
+                        ss << "V:" << ioInfo.video[0];
+                        infoLabel.push_back(ss.str());
+                    }
+                    {
+                        std::stringstream ss;
+                        ss << "Video :" << ioInfo.video[0];
+                        infoTooltip.push_back(ss.str());
+                    }
+                }
+                if (ioInfo.audio.isValid())
+                {
+                    {
+                        std::stringstream ss;
+                        ss << "A: " << ioInfo.audio;
+                        infoLabel.push_back(ss.str());
+                    }
+                    {
+                        std::stringstream ss;
+                        ss << "Audio: " << ioInfo.audio;
+                        infoTooltip.push_back(ss.str());
+                    }
+                }
+            }
+            p.infoLabel->setText(QString::fromUtf8(string::join(infoLabel, " ").c_str()));
+            p.infoLabel->setToolTip(QString::fromUtf8(string::join(infoTooltip, "\n").c_str()));
 
             if (p.secondaryWindow)
             {
