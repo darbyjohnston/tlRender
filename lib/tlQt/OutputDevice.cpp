@@ -32,8 +32,10 @@ namespace tl
         struct OutputDevice::Private
         {
             std::weak_ptr<system::Context> context;
+            std::weak_ptr<device::IDeviceSystem> deviceSystem;
 
-            std::shared_ptr<device::IOutputDevice> device;
+            int deviceIndex = -1;
+            int displayModeIndex = -1;
             imaging::ColorConfig colorConfig;
             std::vector<timeline::ImageOptions> imageOptions;
             std::vector<timeline::DisplayOptions> displayOptions;
@@ -61,6 +63,7 @@ namespace tl
             TLRENDER_P();
 
             p.context = context;
+            p.deviceSystem = context->getSystem<device::IDeviceSystem>();
 
             p.glContext.reset(new QOpenGLContext);
             QSurfaceFormat surfaceFormat;
@@ -90,17 +93,10 @@ namespace tl
         void OutputDevice::setDevice(int deviceIndex, int displayModeIndex)
         {
             TLRENDER_P();
-            std::shared_ptr<device::IOutputDevice> device;
-            if (auto context = p.context.lock())
-            {
-                if (auto deviceSystem = context->getSystem<device::IDeviceSystem>())
-                {
-                    device = deviceSystem->createDevice(deviceIndex, displayModeIndex);
-                }
-            }
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
-                p.device = device;
+                p.deviceIndex = deviceIndex;
+                p.displayModeIndex = displayModeIndex;
             }
             p.cv.notify_one();
         }
@@ -226,65 +222,94 @@ namespace tl
             p.glContext->makeCurrent(p.offscreenSurface.get());
             gladLoaderLoadGL();
 
+            std::shared_ptr<timeline::IRender> render;
             if (auto context = p.context.lock())
             {
-                std::shared_ptr<device::IOutputDevice> device;
-                imaging::ColorConfig colorConfig;
-                std::vector<timeline::ImageOptions> imageOptions;
-                std::vector<timeline::DisplayOptions> displayOptions;
-                timeline::CompareOptions compareOptions;
-                std::vector<imaging::Size> sizes;
-                math::Vector2i viewPos;
-                float viewZoom = 1.F;
-                bool frameView = true;
-                std::vector<timeline::VideoData> videoData;
+                render = gl::Render::create(context);
+            }
 
-                bool doRender = false;
-                auto render = gl::Render::create(context);
-                std::shared_ptr<tl::gl::Shader> shader;
-                std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer;
-                std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer2;
-                while (p.running)
+            int deviceIndex = -1;
+            int displayModeIndex = -1;
+            std::shared_ptr<device::IOutputDevice> device;
+            imaging::ColorConfig colorConfig;
+            std::vector<timeline::ImageOptions> imageOptions;
+            std::vector<timeline::DisplayOptions> displayOptions;
+            timeline::CompareOptions compareOptions;
+            std::vector<imaging::Size> sizes;
+            math::Vector2i viewPos;
+            float viewZoom = 1.F;
+            bool frameView = true;
+            std::vector<timeline::VideoData> videoData;
+
+            bool doCreateDevice = false;
+            bool doRender = false;
+            std::shared_ptr<tl::gl::Shader> shader;
+            std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer;
+            std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer2;
+            while (p.running)
+            {
                 {
-                    {
-                        std::unique_lock<std::mutex> lock(p.mutex);
-                        if (p.cv.wait_for(
-                            lock,
-                            p.timeout,
-                            [this, device, colorConfig, imageOptions, displayOptions,
-                            compareOptions, sizes, viewPos, viewZoom, frameView,
-                            videoData]
-                            {
-                                return
-                                    device != _p->device ||
-                                    colorConfig != _p->colorConfig ||
-                                    imageOptions != _p->imageOptions ||
-                                    displayOptions != _p->displayOptions ||
-                                    compareOptions != _p->compareOptions ||
-                                    sizes != _p->sizes ||
-                                    viewPos != _p->viewPos ||
-                                    viewZoom != _p->viewZoom ||
-                                    frameView != _p->frameView ||
-                                    videoData != _p->videoData;
-                            }))
+                    std::unique_lock<std::mutex> lock(p.mutex);
+                    if (p.cv.wait_for(
+                        lock,
+                        p.timeout,
+                        [this, deviceIndex, displayModeIndex, colorConfig,
+                        imageOptions, displayOptions, compareOptions, sizes,
+                        viewPos, viewZoom, frameView, videoData]
                         {
-                            doRender = true;
-                            device = p.device;
-                            colorConfig = p.colorConfig;
-                            imageOptions = p.imageOptions;
-                            displayOptions = p.displayOptions;
-                            compareOptions = p.compareOptions;
-                            sizes = p.sizes;
-                            viewPos = p.viewPos;
-                            viewZoom = p.viewZoom;
-                            frameView = p.frameView;
-                            videoData = p.videoData;
+                            return
+                                deviceIndex != _p->deviceIndex ||
+                                displayModeIndex != _p->displayModeIndex ||
+                                colorConfig != _p->colorConfig ||
+                                imageOptions != _p->imageOptions ||
+                                displayOptions != _p->displayOptions ||
+                                compareOptions != _p->compareOptions ||
+                                sizes != _p->sizes ||
+                                viewPos != _p->viewPos ||
+                                viewZoom != _p->viewZoom ||
+                                frameView != _p->frameView ||
+                                videoData != _p->videoData;
+                        }))
+                    {
+                        if (p.deviceIndex != deviceIndex ||
+                            p.displayModeIndex != displayModeIndex)
+                        {
+                            doCreateDevice = true;
+                        }
+                        deviceIndex = p.deviceIndex;
+                        displayModeIndex = p.displayModeIndex;
+
+                        doRender = true;
+                        colorConfig = p.colorConfig;
+                        imageOptions = p.imageOptions;
+                        displayOptions = p.displayOptions;
+                        compareOptions = p.compareOptions;
+                        sizes = p.sizes;
+                        viewPos = p.viewPos;
+                        viewZoom = p.viewZoom;
+                        frameView = p.frameView;
+                        videoData = p.videoData;
+                    }
+                }
+
+                if (doCreateDevice)
+                {
+                    doCreateDevice = false;
+                    device.reset();
+                    if (deviceIndex != -1 && displayModeIndex != -1)
+                    {
+                        if (auto deviceSystem = p.deviceSystem.lock())
+                        {
+                            device = deviceSystem->createDevice(deviceIndex, displayModeIndex);
                         }
                     }
+                }
 
-                    if (doRender && device)
+                if (doRender)
+                {
+                    doRender = false;
+                    if (render && device)
                     {
-                        doRender = false;
                         try
                         {
                             const imaging::Size renderSize = timeline::getRenderSize(_p->compareOptions.mode, sizes);
@@ -450,7 +475,10 @@ namespace tl
                         }
                         catch (const std::exception& e)
                         {
-                            context->log("tl::qt::OutputDevice", e.what(), log::Type::Error);
+                            if (auto context = p.context.lock())
+                            {
+                                context->log("tl::qt::OutputDevice", e.what(), log::Type::Error);
+                            }
                         }
                     }
                 }
