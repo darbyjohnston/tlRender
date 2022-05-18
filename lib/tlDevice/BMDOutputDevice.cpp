@@ -4,6 +4,8 @@
 
 #include <tlDevice/BMDOutputDevice.h>
 
+#include <tlDevice/BMDUtil.h>
+
 #include <tlCore/Context.h>
 #include <tlCore/StringFormat.h>
 
@@ -100,16 +102,17 @@ namespace tl
             imaging::Size size;
             otime::RationalTime frameRate;
             uint64_t frameCount = 0;
-            std::shared_ptr<imaging::Image> image;
+            std::shared_ptr<device::PixelData> pixelData;
             std::mutex mutex;
         };
 
         void BMDOutputDevice::_init(
             int deviceIndex,
             int displayModeIndex,
+            PixelType pixelType,
             const std::shared_ptr<system::Context>& context)
         {
-            IOutputDevice::_init(deviceIndex, displayModeIndex, context);
+            IOutputDevice::_init(deviceIndex, displayModeIndex, pixelType, context);
 
             TLRENDER_P();
 
@@ -157,16 +160,16 @@ namespace tl
                 p.dlVideoOutputCallback->setCallback(
                     [this](IDeckLinkVideoFrame* dlVideoFrame)
                     {
-                        std::shared_ptr<imaging::Image> image;
+                        std::shared_ptr<device::PixelData> pixelData;
                         {
                             std::unique_lock<std::mutex> lock(_p->mutex);
-                            image = _p->image;
+                            pixelData = _p->pixelData;
                         }
-                        if (image)
+                        if (pixelData)
                         {
                             void* dlFrame = nullptr;
                             dlVideoFrame->GetBytes((void**)&dlFrame);
-                            memcpy(dlFrame, image->getData(), image->getDataByteCount());
+                            memcpy(dlFrame, pixelData->getData(), pixelData->getDataByteCount());
                         }
                         if (_p->dlOutput->ScheduleVideoFrame(
                             dlVideoFrame,
@@ -233,7 +236,7 @@ namespace tl
                         p.size.w,
                         p.size.h,
                         p.size.w * 4,
-                        bmdFormat8BitBGRA,
+                        toBMD(pixelType),
                         bmdFrameFlagFlipVertical,
                         &dlVideoFrame) != S_OK)
                     {
@@ -323,10 +326,11 @@ namespace tl
         std::shared_ptr<BMDOutputDevice> BMDOutputDevice::create(
             int deviceIndex,
             int displayModeIndex,
+            PixelType pixelType,
             const std::shared_ptr<system::Context>& context)
         {
             auto out = std::shared_ptr<BMDOutputDevice>(new BMDOutputDevice);
-            out->_init(deviceIndex, displayModeIndex, context);
+            out->_init(deviceIndex, displayModeIndex, pixelType, context);
             return out;
         }
 
@@ -340,11 +344,11 @@ namespace tl
             return _p->frameRate;
         }
 
-        void BMDOutputDevice::display(const std::shared_ptr<imaging::Image>& image)
+        void BMDOutputDevice::display(const std::shared_ptr<device::PixelData>& pixelData)
         {
             TLRENDER_P();
             std::unique_lock<std::mutex> lock(p.mutex);
-            p.image = image;
+            p.pixelData = pixelData;
         }
     }
 }

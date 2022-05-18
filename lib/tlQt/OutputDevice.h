@@ -8,6 +8,8 @@
 
 #include <tlTimeline/IRender.h>
 
+#include <tlDevice/DeviceData.h>
+
 #include <tlCore/Image.h>
 #include <tlCore/OCIO.h>
 
@@ -35,7 +37,10 @@ namespace tl
             ~OutputDevice();
 
             //! Set the device.
-            void setDevice(int deviceIndex, int displayModeIndex);
+            void setDevice(
+                int deviceIndex,
+                int displayModeIndex,
+                device::PixelType);
 
             //! Set the color configuration.
             void setColorConfig(const imaging::ColorConfig&);

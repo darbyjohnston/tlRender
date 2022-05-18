@@ -295,8 +295,7 @@ namespace tl
 
                                 try
                                 {
-                                    if (!offscreenBuffer ||
-                                        (offscreenBuffer && offscreenBuffer->getSize() != info.size))
+                                    if (gl::doCreate(offscreenBuffer, info.size))
                                     {
                                         gl::OffscreenBufferOptions options;
                                         options.colorType = imaging::PixelType::RGBA_U8;

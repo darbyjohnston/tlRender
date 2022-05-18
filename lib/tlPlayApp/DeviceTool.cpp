@@ -13,6 +13,8 @@
 #include <QFormLayout>
 #include <QSignalBlocker>
 
+#include <sstream>
+
 namespace tl
 {
     namespace play
@@ -23,6 +25,7 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<DeviceModelData> > dataObserver;
             QComboBox* deviceComboBox = nullptr;
             QComboBox* displayModeComboBox = nullptr;
+            QComboBox* pixelTypeComboBox = nullptr;
         };
 
         DeviceTool::DeviceTool(
@@ -39,9 +42,12 @@ namespace tl
 
             p.displayModeComboBox = new QComboBox;
 
+            p.pixelTypeComboBox = new QComboBox;
+
             auto layout = new QFormLayout;
             layout->addRow(tr("Device:"), p.deviceComboBox);
             layout->addRow(tr("Display mode:"), p.displayModeComboBox);
+            layout->addRow(tr("Pixel type:"), p.pixelTypeComboBox);
             auto widget = new QWidget;
             widget->setLayout(layout);
             addWidget(widget, 1);
@@ -55,6 +61,11 @@ namespace tl
                 p.displayModeComboBox,
                 SIGNAL(activated(int)),
                 SLOT(_displayModeCallback(int)));
+
+            connect(
+                p.pixelTypeComboBox,
+                SIGNAL(activated(int)),
+                SLOT(_pixelTypeCallback(int)));
 
             p.dataObserver = observer::ValueObserver<DeviceModelData>::create(
                 app->deviceModel()->observeData(),
@@ -78,6 +89,17 @@ namespace tl
                         }
                         _p->displayModeComboBox->setCurrentIndex(value.displayModeIndex);
                     }
+                    {
+                        QSignalBlocker blocker(_p->pixelTypeComboBox);
+                        _p->pixelTypeComboBox->clear();
+                        for (const auto& i : value.pixelTypes)
+                        {
+                            std::stringstream ss;
+                            ss << i;
+                            _p->pixelTypeComboBox->addItem(QString::fromUtf8(ss.str().c_str()));
+                        }
+                        _p->pixelTypeComboBox->setCurrentIndex(value.pixelTypeIndex);
+                    }
                 });
         }
 
@@ -87,13 +109,19 @@ namespace tl
         void DeviceTool::_deviceCallback(int index)
         {
             TLRENDER_P();
-            p.app->deviceModel()->setDevice(index);
+            p.app->deviceModel()->setDeviceIndex(index);
         }
 
         void DeviceTool::_displayModeCallback(int index)
         {
             TLRENDER_P();
-            p.app->deviceModel()->setDisplayMode(index);
+            p.app->deviceModel()->setDisplayModeIndex(index);
+        }
+
+        void DeviceTool::_pixelTypeCallback(int index)
+        {
+            TLRENDER_P();
+            p.app->deviceModel()->setPixelTypeIndex(index);
         }
     }
 }

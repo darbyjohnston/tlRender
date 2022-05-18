@@ -29,6 +29,7 @@ namespace tl
         private Q_SLOTS:
             void _deviceCallback(int);
             void _displayModeCallback(int);
+            void _pixelTypeCallback(int);
 
         private:
             TLRENDER_PRIVATE();

@@ -8,6 +8,7 @@
 #include <tlGL/OffscreenBuffer.h>
 #include <tlGL/Render.h>
 #include <tlGL/Shader.h>
+#include <tlGL/Util.h>
 
 #include <tlDevice/IDeviceSystem.h>
 #include <tlDevice/IOutputDevice.h>
@@ -21,6 +22,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <array>
 #include <atomic>
 #include <iostream>
 #include <mutex>
@@ -36,6 +38,8 @@ namespace tl
 
             int deviceIndex = -1;
             int displayModeIndex = -1;
+            device::PixelType pixelType = device::PixelType::_8BitBGRA;
+
             imaging::ColorConfig colorConfig;
             std::vector<timeline::ImageOptions> imageOptions;
             std::vector<timeline::DisplayOptions> displayOptions;
@@ -90,13 +94,17 @@ namespace tl
             wait();
         }
 
-        void OutputDevice::setDevice(int deviceIndex, int displayModeIndex)
+        void OutputDevice::setDevice(
+            int deviceIndex,
+            int displayModeIndex,
+            device::PixelType pixelType)
         {
             TLRENDER_P();
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
                 p.deviceIndex = deviceIndex;
                 p.displayModeIndex = displayModeIndex;
+                p.pixelType = pixelType;
             }
             p.cv.notify_one();
         }
@@ -215,6 +223,61 @@ namespace tl
             }
         }
 
+        namespace
+        {
+            GLenum getReadPixelsFormat(device::PixelType value)
+            {
+                const std::array<GLenum, 5> data =
+                {
+                    GL_NONE,
+                    GL_BGRA,
+                    GL_BGRA,
+                    GL_RGBA,
+                    GL_RGBA
+                };
+                return data[static_cast<size_t>(value)];
+            }
+
+            GLenum getReadPixelsType(device::PixelType value)
+            {
+                const std::array<GLenum, 5> data =
+                {
+                    GL_NONE,
+                    GL_UNSIGNED_BYTE,
+                    GL_UNSIGNED_INT_2_10_10_10_REV,
+                    GL_UNSIGNED_INT_10_10_10_2,
+                    GL_UNSIGNED_INT_10_10_10_2
+                };
+                return data[static_cast<size_t>(value)];
+            }
+
+            GLint getReadPixelsAlign(device::PixelType value)
+            {
+                const std::array<GLint, 5> data =
+                {
+                    0,
+                    4,
+                    256,
+                    256,
+                    256
+                };
+                return data[static_cast<size_t>(value)];
+            }
+
+            GLint getReadPixelsSwap(device::PixelType value)
+            {
+                const std::array<GLint, 5> data =
+                {
+                    GL_FALSE,
+                    GL_FALSE,
+                    GL_TRUE,
+                    GL_TRUE,
+                    GL_FALSE
+                };
+                return data[static_cast<size_t>(value)];
+            }
+        }
+
         void OutputDevice::run()
         {
             TLRENDER_P();
@@ -230,7 +293,7 @@ namespace tl
 
             int deviceIndex = -1;
             int displayModeIndex = -1;
-            std::shared_ptr<device::IOutputDevice> device;
+            device::PixelType pixelType = device::PixelType::None;
             imaging::ColorConfig colorConfig;
             std::vector<timeline::ImageOptions> imageOptions;
             std::vector<timeline::DisplayOptions> displayOptions;
@@ -242,6 +305,7 @@ namespace tl
             std::vector<timeline::VideoData> videoData;
 
             bool doCreateDevice = false;
+            std::shared_ptr<device::IOutputDevice> device;
             bool doRender = false;
             std::shared_ptr<tl::gl::Shader> shader;
             std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer;
@@ -253,13 +317,15 @@ namespace tl
                     if (p.cv.wait_for(
                         lock,
                         p.timeout,
-                        [this, deviceIndex, displayModeIndex, colorConfig,
-                        imageOptions, displayOptions, compareOptions, sizes,
-                        viewPos, viewZoom, frameView, videoData]
+                        [this, deviceIndex, displayModeIndex, pixelType,
+                        colorConfig, imageOptions, displayOptions,
+                        compareOptions, sizes, viewPos, viewZoom, frameView,
+                        videoData]
                         {
                             return
                                 deviceIndex != _p->deviceIndex ||
                                 displayModeIndex != _p->displayModeIndex ||
+                                pixelType != _p->pixelType ||
                                 colorConfig != _p->colorConfig ||
                                 imageOptions != _p->imageOptions ||
                                 displayOptions != _p->displayOptions ||
@@ -272,12 +338,14 @@ namespace tl
                         }))
                     {
                         if (p.deviceIndex != deviceIndex ||
-                            p.displayModeIndex != displayModeIndex)
+                            p.displayModeIndex != displayModeIndex ||
+                            p.pixelType != pixelType)
                         {
                             doCreateDevice = true;
                         }
                         deviceIndex = p.deviceIndex;
                         displayModeIndex = p.displayModeIndex;
+                        pixelType = p.pixelType;
 
                         doRender = true;
                         colorConfig = p.colorConfig;
@@ -296,11 +364,11 @@ namespace tl
                 {
                     doCreateDevice = false;
                     device.reset();
-                    if (deviceIndex != -1 && displayModeIndex != -1)
+                    if (deviceIndex != -1 && displayModeIndex != -1 && pixelType != device::PixelType::None)
                     {
                         if (auto deviceSystem = p.deviceSystem.lock())
                         {
-                            device = deviceSystem->createDevice(deviceIndex, displayModeIndex);
+                            device = deviceSystem->createDevice(deviceIndex, displayModeIndex, pixelType);
                         }
                     }
                 }
@@ -313,8 +381,7 @@ namespace tl
                         try
                         {
                             const imaging::Size renderSize = timeline::getRenderSize(_p->compareOptions.mode, sizes);
-                            if (!offscreenBuffer ||
-                                (offscreenBuffer && offscreenBuffer->getSize() != renderSize))
+                            if (gl::doCreate(offscreenBuffer, renderSize))
                             {
                                 gl::OffscreenBufferOptions options;
                                 options.colorType = imaging::PixelType::RGBA_U8;
@@ -339,8 +406,7 @@ namespace tl
                             }
 
                             const imaging::Size viewportSize = device->getSize();
-                            if (!offscreenBuffer2 ||
-                                (offscreenBuffer2 && offscreenBuffer2->getSize() != viewportSize))
+                            if (gl::doCreate(offscreenBuffer2, viewportSize))
                             {
                                 gl::OffscreenBufferOptions options;
                                 options.colorType = imaging::PixelType::RGBA_U8;
@@ -459,18 +525,18 @@ namespace tl
                                 vao->bind();
                                 vao->draw(GL_TRIANGLES, 0, mesh.triangles.size() * 3);
 
-                                auto image = imaging::Image::create(
-                                    imaging::Info(viewportSize, imaging::PixelType::RGBA_U8));
-                                glPixelStorei(GL_PACK_ALIGNMENT, 1);
+                                auto pixelData = device::PixelData::create(viewportSize, pixelType);
+                                glPixelStorei(GL_PACK_ALIGNMENT, getReadPixelsAlign(pixelType));
+                                glPixelStorei(GL_PACK_SWAP_BYTES, getReadPixelsSwap(pixelType));
                                 glReadPixels(
                                     0,
                                     0,
                                     viewportSize.w,
                                     viewportSize.h,
-                                    GL_BGRA,
-                                    GL_UNSIGNED_BYTE,
-                                    image->getData());
-                                device->display(image);
+                                    getReadPixelsFormat(pixelType),
+                                    getReadPixelsType(pixelType),
+                                    pixelData->getData());
+                                device->display(pixelData);
                             }
                         }
                         catch (const std::exception& e)

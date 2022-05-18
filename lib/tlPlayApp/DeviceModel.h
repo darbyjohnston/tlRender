@@ -4,6 +4,9 @@
 
 #pragma once
 
+#include <tlDevice/DeviceData.h>
+
+#include <tlCore/Image.h>
 #include <tlCore/ValueObserver.h>
 
 #include <memory>
@@ -25,6 +28,8 @@ namespace tl
             int deviceIndex = 0;
             std::vector<std::string> displayModes;
             int displayModeIndex = 0;
+            std::vector<device::PixelType> pixelTypes;
+            int pixelTypeIndex = 0;
 
             bool operator == (const DeviceModelData&) const;
         };
@@ -47,11 +52,14 @@ namespace tl
             //! Observe the model data.
             std::shared_ptr<observer::IValue<DeviceModelData> > observeData() const;
 
-            //! Set the device.
-            void setDevice(int);
+            //! Set the device index.
+            void setDeviceIndex(int);
 
-            //! Set the display mode.
-            void setDisplayMode(int);
+            //! Set the display mode index.
+            void setDisplayModeIndex(int);
+
+            //! Set the pixel type index.
+            void setPixelTypeIndex(int);
 
         private:
             void _deviceInfoUpdate();

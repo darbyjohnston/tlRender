@@ -151,8 +151,7 @@ namespace tl
                 }
                 if (!videoData.empty())
                 {
-                    if (!p.overlayBuffer ||
-                        (p.overlayBuffer && p.overlayBuffer->getSize() != p.size))
+                    if (doCreate(p.overlayBuffer, p.size))
                     {
                         OffscreenBufferOptions options;
                         options.colorType = imaging::PixelType::RGBA_F32;
@@ -213,8 +212,7 @@ namespace tl
             case timeline::CompareMode::Difference:
                 if (!videoData.empty())
                 {
-                    if (!p.differenceBuffers[0] ||
-                        (p.differenceBuffers[0] && p.differenceBuffers[0]->getSize() != p.size))
+                    if (doCreate(p.differenceBuffers[0], p.size))
                     {
                         OffscreenBufferOptions options;
                         options.colorType = imaging::PixelType::RGBA_F32;
@@ -235,8 +233,7 @@ namespace tl
 
                     if (videoData.size() > 1)
                     {
-                        if (!p.differenceBuffers[1] ||
-                            (p.differenceBuffers[1] && p.differenceBuffers[1]->getSize() != p.size))
+                        if (doCreate(p.differenceBuffers[1], p.size))
                         {
                             OffscreenBufferOptions options;
                             options.colorType = imaging::PixelType::RGBA_F32;
@@ -357,8 +354,7 @@ namespace tl
             TLRENDER_P();
 
             const imaging::Size size(bbox.w(), bbox.h());
-            if (!p.buffer ||
-                (p.buffer && p.buffer->getSize() != size))
+            if (doCreate(p.buffer, size))
             {
                 OffscreenBufferOptions options;
                 options.colorType = imaging::PixelType::RGBA_F32;

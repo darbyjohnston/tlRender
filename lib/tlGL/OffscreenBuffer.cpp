@@ -268,6 +268,14 @@ namespace tl
             glBindFramebuffer(GL_FRAMEBUFFER, _id);
         }
 
+        bool doCreate(const std::shared_ptr<OffscreenBuffer>& offscreenBuffer, const imaging::Size& size)
+        {
+            bool out = false;
+            out |= size.isValid() && !offscreenBuffer;
+            out |= size.isValid() && offscreenBuffer && offscreenBuffer->getSize() != size;
+            return out;
+        }
+
         OffscreenBufferBinding::OffscreenBufferBinding(const std::shared_ptr<OffscreenBuffer>& buffer) :
             _buffer(buffer)
         {

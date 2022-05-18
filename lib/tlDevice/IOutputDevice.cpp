@@ -11,10 +11,12 @@ namespace tl
         void IOutputDevice::_init(
             int deviceIndex,
             int displayModeIndex,
+            PixelType pixelType,
             const std::shared_ptr<system::Context>& context)
         {
             _deviceIndex = deviceIndex;
             _displayModeIndex = displayModeIndex;
+            _pixelType = pixelType;
         }
 
         IOutputDevice::IOutputDevice()

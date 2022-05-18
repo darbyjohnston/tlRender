@@ -1,9 +1,11 @@
 set(HEADERS
+	DeviceData.h
     IDeviceSystem.h
 	IOutputDevice.h
 	Util.h)
 
 set(SOURCE
+	DeviceData.cpp
     IDeviceSystem.cpp
 	IOutputDevice.cpp
 	Util.cpp)

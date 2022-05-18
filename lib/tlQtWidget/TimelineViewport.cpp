@@ -273,8 +273,7 @@ namespace tl
             {
                 if (renderSize.isValid())
                 {
-                    if (!p.buffer ||
-                        (p.buffer && p.buffer->getSize() != renderSize))
+                    if (gl::doCreate(p.buffer, renderSize))
                     {
                         gl::OffscreenBufferOptions options;
                         options.colorType = imaging::PixelType::RGBA_F32;

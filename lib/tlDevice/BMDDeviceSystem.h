@@ -26,7 +26,10 @@ namespace tl
             //! Create a new BMD device system.
             static std::shared_ptr<BMDDeviceSystem> create(const std::shared_ptr<system::Context>&);
 
-            virtual std::shared_ptr<IOutputDevice> createDevice(int deviceIndex, int displayModeIndex) override;
+            virtual std::shared_ptr<IOutputDevice> createDevice(
+                int deviceIndex,
+                int displayModeIndex,
+                PixelType) override;
             void tick() override;
 
         private:

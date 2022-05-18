@@ -447,7 +447,14 @@ namespace tl
                 app->deviceModel()->observeData(),
                 [this](const DeviceModelData& value)
                 {
-                    _p->outputDevice->setDevice(value.deviceIndex - 1, value.displayModeIndex - 1);
+                    const device::PixelType pixelType = value.pixelTypeIndex >= 0 &&
+                        value.pixelTypeIndex < value.pixelTypes.size() ?
+                        value.pixelTypes[value.pixelTypeIndex] :
+                        device::PixelType::None;
+                    _p->outputDevice->setDevice(
+                        value.deviceIndex - 1,
+                        value.displayModeIndex - 1,
+                        pixelType);
                 });
 
             p.logObserver = observer::ValueObserver<log::Item>::create(
@@ -1074,9 +1081,9 @@ namespace tl
 
             std::vector<std::string> infoLabel;
             std::vector<std::string> infoTooltip;
-            if (count > 0)
+            const int aIndex = p.app->filesModel()->observeAIndex()->get();
+            if (count > 0 && aIndex >= 0 && aIndex < count)
             {
-                const int aIndex = p.app->filesModel()->observeAIndex()->get();
                 const std::string fileName = files[aIndex]->path.get(-1, false);
                 std::string fileNameLabel = fileName;
                 if (fileNameLabel.size() > infoLabelMax)

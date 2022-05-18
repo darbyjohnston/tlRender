@@ -101,6 +101,9 @@ namespace tl
             GLuint _depthStencilID = 0;
         };
 
+        //! Check whether the offscreen buffer should be created or re-created.
+        bool doCreate(const std::shared_ptr<OffscreenBuffer>&, const imaging::Size&);
+
         //! Offscreen Buffer Binding
         class OffscreenBufferBinding
         {

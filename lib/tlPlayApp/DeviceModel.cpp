@@ -21,7 +21,9 @@ namespace tl
                 devices == other.devices &&
                 deviceIndex == other.deviceIndex &&
                 displayModes == other.displayModes &&
-                displayModeIndex == other.displayModeIndex;
+                displayModeIndex == other.displayModeIndex &&
+                pixelTypes == other.pixelTypes &&
+                pixelTypeIndex == other.pixelTypeIndex;
         }
 
         struct DeviceModel::Private
@@ -29,6 +31,7 @@ namespace tl
             std::vector<device::DeviceInfo> deviceInfo;
             int deviceIndex = 0;
             int displayModeIndex = 0;
+            int pixelTypeIndex = 0;
             std::shared_ptr<observer::Value<DeviceModelData> > data;
             std::shared_ptr<observer::ListObserver<device::DeviceInfo> > deviceInfoObserver;
         };
@@ -72,7 +75,7 @@ namespace tl
             return _p->data;
         }
 
-        void DeviceModel::setDevice(int index)
+        void DeviceModel::setDeviceIndex(int index)
         {
             TLRENDER_P();
             if (index == p.deviceIndex)
@@ -81,7 +84,7 @@ namespace tl
             _deviceInfoUpdate();
         }
 
-        void DeviceModel::setDisplayMode(int index)
+        void DeviceModel::setDisplayModeIndex(int index)
         {
             TLRENDER_P();
             if (index == p.displayModeIndex)
@@ -90,16 +93,28 @@ namespace tl
             _deviceInfoUpdate();
         }
 
+        void DeviceModel::setPixelTypeIndex(int index)
+        {
+            TLRENDER_P();
+            if (index == p.pixelTypeIndex)
+                return;
+            p.pixelTypeIndex = index;
+            _deviceInfoUpdate();
+        }
+
         void DeviceModel::_deviceInfoUpdate()
         {
             TLRENDER_P();
+
             DeviceModelData data;
+
             data.devices.push_back("None");
             for (const auto& i : p.deviceInfo)
             {
                 data.devices.push_back(i.name);
             }
             data.deviceIndex = p.deviceIndex;
+
             data.displayModes.push_back("None");
             if (!p.deviceInfo.empty() && p.deviceIndex >= 1 && (p.deviceIndex - 1) < p.deviceInfo.size())
             {
@@ -109,6 +124,17 @@ namespace tl
                 }
                 data.displayModeIndex = p.displayModeIndex;
             }
+
+            data.pixelTypes.push_back(device::PixelType::None);
+            if (!p.deviceInfo.empty() && p.deviceIndex >= 1 && (p.deviceIndex - 1) < p.deviceInfo.size())
+            {
+                for (const auto& i : p.deviceInfo[p.deviceIndex - 1].pixelTypes)
+                {
+                    data.pixelTypes.push_back(i);
+                }
+                data.pixelTypeIndex = p.pixelTypeIndex;
+            }
+
             p.data->setIfChanged(data);
         }
     }

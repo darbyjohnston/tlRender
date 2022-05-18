@@ -19,6 +19,7 @@ namespace tl
             void _init(
                 int deviceIndex,
                 int displayModeIndex,
+                PixelType,
                 const std::shared_ptr<system::Context>&);
 
             BMDOutputDevice();
@@ -30,11 +31,12 @@ namespace tl
             static std::shared_ptr<BMDOutputDevice> create(
                 int deviceIndex,
                 int displayModeIndex,
+                PixelType,
                 const std::shared_ptr<system::Context>&);
 
             const imaging::Size& getSize() const override;
             const otime::RationalTime& getFrameRate() const override;
-            void display(const std::shared_ptr<imaging::Image>&) override;
+            void display(const std::shared_ptr<device::PixelData>&) override;
 
         private:
             TLRENDER_PRIVATE();

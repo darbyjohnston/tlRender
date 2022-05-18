@@ -4,35 +4,16 @@
 
 #pragma once
 
+#include <tlDevice/DeviceData.h>
+
 #include <tlCore/ISystem.h>
-#include <tlCore/Image.h>
 #include <tlCore/ListObserver.h>
-#include <tlCore/Time.h>
 
 namespace tl
 {
     namespace device
     {
         class IOutputDevice;
-
-        //! Display mode.
-        struct DisplayMode
-        {
-            std::string name;
-            imaging::Size size;
-            otime::RationalTime frameRate;
-
-            bool operator == (const DisplayMode&) const;
-        };
-
-        //! Device information.
-        struct DeviceInfo
-        {
-            std::string name;
-            std::vector<DisplayMode> displayModes;
-
-            bool operator == (const DeviceInfo&) const;
-        };
 
         //! Base class for device systems.
         class IDeviceSystem : public system::ISystem
@@ -53,7 +34,10 @@ namespace tl
             std::shared_ptr<observer::IList<DeviceInfo> > observeDeviceInfo() const;
 
             //! Create a new output device.
-            virtual std::shared_ptr<IOutputDevice> createDevice(int deviceIndex, int displayModeIndex) = 0;
+            virtual std::shared_ptr<IOutputDevice> createDevice(
+                int deviceIndex,
+                int displayModeIndex,
+                PixelType) = 0;
 
             std::chrono::milliseconds getTickTime() const override;
 

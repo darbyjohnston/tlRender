@@ -99,6 +99,11 @@ namespace tl
 
                                 dl->Release();
 
+                                deviceInfo.pixelTypes.push_back(PixelType::_8BitBGRA);
+                                deviceInfo.pixelTypes.push_back(PixelType::_10BitRGB);
+                                deviceInfo.pixelTypes.push_back(PixelType::_10BitRGBX);
+                                deviceInfo.pixelTypes.push_back(PixelType::_10BitRGBXLE);
+
                                 deviceInfoList.push_back(deviceInfo);
                             }
                         }
@@ -164,14 +169,18 @@ namespace tl
             return out;
         }
 
-        std::shared_ptr<IOutputDevice> BMDDeviceSystem::createDevice(int deviceIndex, int displayModeIndex)
+        std::shared_ptr<IOutputDevice> BMDDeviceSystem::createDevice(
+            int deviceIndex,
+            int displayModeIndex,
+            PixelType pixelType)
         {
             std::shared_ptr<IOutputDevice> out;
-            if (deviceIndex != -1 && displayModeIndex != -1)
+            if (deviceIndex != -1 &&
+                displayModeIndex != -1)
             {
                 if (auto context = getContext().lock())
                 {
-                    out = BMDOutputDevice::create(deviceIndex, displayModeIndex, context);
+                    out = BMDOutputDevice::create(deviceIndex, displayModeIndex, pixelType, context);
                 }
             }
             return out;

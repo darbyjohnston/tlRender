@@ -231,7 +231,7 @@ namespace tl
             bool operator != (const Info&) const;
         };
 
-        //! Get the number of bytes used to store the image data.
+        //! Get the number of bytes used to store image data.
         std::size_t getDataByteCount(const Info&);
 
         std::ostream& operator << (std::ostream&, const Info&);

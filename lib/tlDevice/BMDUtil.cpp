@@ -10,6 +10,21 @@ namespace tl
 {
     namespace device
     {
+        BMDPixelFormat toBMD(PixelType value)
+        {
+            const std::array<
+                BMDPixelFormat,
+                static_cast<size_t>(PixelType::Count)> data =
+            {
+                bmdFormatUnspecified,
+                bmdFormat8BitBGRA,
+                bmdFormat10BitRGB,
+                bmdFormat10BitRGBX,
+                bmdFormat10BitRGBXLE
+            };
+            return data[static_cast<size_t>(value)];
+        }
+
         std::string getLabel(BMDVideoConnection value)
         {
             const std::array<std::string, 7> data =

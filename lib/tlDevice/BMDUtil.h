@@ -4,6 +4,12 @@
 
 #pragma once
 
+#include <tlDevice/DeviceData.h>
+
+#include <tlCore/Image.h>
+
+#include <tlGlad/gl.h>
+
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif // NOMINMAX
@@ -15,6 +21,9 @@ namespace tl
 {
     namespace device
     {
+        //! Convert to BMD.
+        BMDPixelFormat toBMD(PixelType);
+
         //! Get a label.
         std::string getLabel(BMDVideoConnection);
 

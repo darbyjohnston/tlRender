@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include <tlCore/Image.h>
-#include <tlCore/Time.h>
+#include <tlDevice/DeviceData.h>
 
 namespace tl
 {
@@ -25,6 +24,7 @@ namespace tl
             void _init(
                 int deviceIndex,
                 int displayModeIndex,
+                PixelType,
                 const std::shared_ptr<system::Context>&);
 
             IOutputDevice();
@@ -38,12 +38,13 @@ namespace tl
             //! Get the output device frame rate.
             virtual const otime::RationalTime& getFrameRate() const = 0;
 
-            //! Display an image.
-            virtual void display(const std::shared_ptr<imaging::Image>&) = 0;
+            //! Display pixel data.
+            virtual void display(const std::shared_ptr<PixelData>&) = 0;
 
         protected:
             int _deviceIndex = 0;
             int _displayModeIndex = 0;
+            PixelType _pixelType = PixelType::None;
         };
     }
 }

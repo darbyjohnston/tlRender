@@ -151,7 +151,7 @@ namespace tl
                 try
                 {
                     // Create the offscreen buffer.
-                    if (!_buffer || (_buffer && _buffer->getSize() != _videoSize))
+                    if (gl::doCreate(_buffer, _videoSize))
                     {
                         gl::OffscreenBufferOptions options;
                         options.colorType = imaging::PixelType::RGBA_F32;
@@ -159,6 +159,7 @@ namespace tl
                     }
 
                     // Render the video data into the offscreen buffer.
+                    if (_buffer)
                     {
                         gl::OffscreenBufferBinding binding(_buffer);
                         _render->setColorConfig(_colorConfig);

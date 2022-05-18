@@ -8,21 +8,6 @@ namespace tl
 {
     namespace device
     {
-        bool DisplayMode::operator == (const DisplayMode& other) const
-        {
-            return
-                name == other.name &&
-                size == other.size &&
-                frameRate == other.frameRate;
-        }
-
-        bool DeviceInfo::operator == (const DeviceInfo& other) const
-        {
-            return
-                name == other.name &&
-                displayModes == other.displayModes;
-        }
-
         void IDeviceSystem::_init(
             const std::string& name,
             const std::shared_ptr<system::Context>& context)
