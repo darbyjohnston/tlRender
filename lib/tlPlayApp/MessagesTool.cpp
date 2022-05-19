@@ -23,7 +23,7 @@ namespace tl
         {
             QListWidget* listWidget = nullptr;
             QToolButton* clearButton = nullptr;
-            std::shared_ptr<observer::ValueObserver<log::Item> > logObserver;
+            std::shared_ptr<observer::ListObserver<log::Item> > logObserver;
         };
 
         MessagesTool::MessagesTool(
@@ -54,23 +54,26 @@ namespace tl
             widget->setLayout(layout);
             addWidget(widget);
 
-            p.logObserver = observer::ValueObserver<log::Item>::create(
+            p.logObserver = observer::ListObserver<log::Item>::create(
                 context->getLogSystem()->observeLog(),
-                [this](const log::Item& value)
+                [this](const std::vector<log::Item>& value)
                 {
-                    switch (value.type)
+                    for (const auto& i : value)
                     {
-                    case log::Type::Warning:
-                        _p->listWidget->addItem(QString("Warning: %1").arg(QString::fromUtf8(value.message.c_str())));
-                        break;
-                    case log::Type::Error:
-                        _p->listWidget->addItem(QString("ERROR: %1").arg(QString::fromUtf8(value.message.c_str())));
-                        break;
-                    default: break;
-                    }
-                    while (_p->listWidget->count() > messagesMax)
-                    {
-                        delete _p->listWidget->takeItem(0);
+                        switch (i.type)
+                        {
+                        case log::Type::Warning:
+                            _p->listWidget->addItem(QString("Warning: %1").arg(QString::fromUtf8(i.message.c_str())));
+                            break;
+                        case log::Type::Error:
+                            _p->listWidget->addItem(QString("ERROR: %1").arg(QString::fromUtf8(i.message.c_str())));
+                            break;
+                        default: break;
+                        }
+                        while (_p->listWidget->count() > messagesMax)
+                        {
+                            delete _p->listWidget->takeItem(0);
+                        }
                     }
                 });
 

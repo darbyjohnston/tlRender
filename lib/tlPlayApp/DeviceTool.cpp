@@ -6,7 +6,6 @@
 
 #include <tlPlayApp/App.h>
 #include <tlPlayApp/DeviceModel.h>
-#include <tlPlayApp/SettingsObject.h>
 
 #include <QBoxLayout>
 #include <QComboBox>

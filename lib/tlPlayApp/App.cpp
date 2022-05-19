@@ -230,6 +230,9 @@ namespace tl
             }
 
             p.deviceModel = DeviceModel::create(context);
+            p.deviceModel->setDeviceIndex(p.settingsObject->value("Device/DeviceIndex").toInt());
+            p.deviceModel->setDisplayModeIndex(p.settingsObject->value("Device/DisplayModeIndex").toInt());
+            p.deviceModel->setPixelTypeIndex(p.settingsObject->value("Device/PixelTypeIndex").toInt());
 
             // Create the main window.
             p.mainWindow = new MainWindow(this);
@@ -272,11 +275,18 @@ namespace tl
         App::~App()
         {
             TLRENDER_P();
+
             delete p.mainWindow;
+            p.mainWindow = nullptr;
+
+            const auto& deviceData = p.deviceModel->observeData()->get();
+            p.settingsObject->setValue("Device/DeviceIndex", deviceData.deviceIndex);
+            p.settingsObject->setValue("Device/DisplayModeIndex", deviceData.displayModeIndex);
+            p.settingsObject->setValue("Device/PixelTypeIndex", deviceData.pixelTypeIndex);
+
             //! \bug Why is it necessary to manually delete this to get the settings to save?
             delete p.settingsObject;
-
-            // Shutdown libraries.
+            p.settingsObject = nullptr;
         }
 
         qt::TimeObject* App::timeObject() const

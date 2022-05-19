@@ -368,7 +368,17 @@ namespace tl
                     {
                         if (auto deviceSystem = p.deviceSystem.lock())
                         {
-                            device = deviceSystem->createDevice(deviceIndex, displayModeIndex, pixelType);
+                            try
+                            {
+                                device = deviceSystem->createDevice(deviceIndex, displayModeIndex, pixelType);
+                            }
+                            catch (const std::exception& e)
+                            {
+                                if (auto context = p.context.lock())
+                                {
+                                    context->log("tl::qt::OutputDevice", e.what(), log::Type::Error);
+                                }
+                            }
                         }
                     }
                 }

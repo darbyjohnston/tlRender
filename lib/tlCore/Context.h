@@ -55,8 +55,7 @@ namespace tl
 
         private:
             std::shared_ptr<log::System> _logSystem;
-            std::vector<std::shared_ptr<ICoreSystem> > _systems;
-            std::map<std::shared_ptr<ICoreSystem>, std::chrono::steady_clock::time_point> _systemTimers;
+            std::map<std::shared_ptr<ICoreSystem>, std::chrono::steady_clock::time_point> _systems;
             TLRENDER_PRIVATE();
         };
     }

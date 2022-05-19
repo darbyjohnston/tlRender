@@ -13,6 +13,15 @@ namespace tl
 {
     namespace log
     {
+        bool Item::operator == (const Item& other) const
+        {
+            return
+                time == other.time &&
+                prefix == other.prefix &&
+                message == other.message &&
+                type == other.type;
+        }
+
         std::string toString(const Item& item)
         {
             std::stringstream ss;
@@ -35,8 +44,11 @@ namespace tl
 
         struct System::Private
         {
-            std::shared_ptr<observer::Value<Item> > log;
-            std::chrono::steady_clock::time_point timer;
+            std::chrono::steady_clock::time_point startTime;
+
+            std::shared_ptr<observer::List<Item> > log;
+
+            std::vector<Item> items;
             std::mutex mutex;
         };
 
@@ -46,8 +58,9 @@ namespace tl
 
             TLRENDER_P();
 
-            p.log = observer::Value<Item>::create();
-            p.timer = std::chrono::steady_clock::now();
+            p.startTime = std::chrono::steady_clock::now();
+
+            p.log = observer::List<Item>::create();
         }
 
         System::System() :
@@ -75,14 +88,30 @@ namespace tl
         {
             TLRENDER_P();
             const auto now = std::chrono::steady_clock::now();
-            const std::chrono::duration<float> time = now - p.timer;
+            const std::chrono::duration<float> time = now - p.startTime;
             std::unique_lock<std::mutex> lock(p.mutex);
-            p.log->setAlways({ time.count(), prefix, value, type });
+            p.items.push_back({ time.count(), prefix, value, type });
         }
 
-        std::shared_ptr<observer::IValue<Item> > System::observeLog() const
+        std::shared_ptr<observer::IList<Item> > System::observeLog() const
         {
             return _p->log;
+        }
+
+        void System::tick()
+        {
+            TLRENDER_P();
+            std::vector<Item> items;
+            {
+                std::unique_lock<std::mutex> lock(p.mutex);
+                p.items.swap(items);
+            }
+            p.log->setAlways(items);
+        }
+
+        std::chrono::milliseconds System::getTickTime() const
+        {
+            return std::chrono::milliseconds(100);
         }
     }
 }

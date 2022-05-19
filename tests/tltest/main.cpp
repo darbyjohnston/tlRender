@@ -82,11 +82,14 @@ int main(int argc, char* argv[])
     {
         std::cout << "[LOG] " << toString(i) << std::endl;
     }
-    auto logObserver = observer::ValueObserver<log::Item>::create(
+    auto logObserver = observer::ListObserver<log::Item>::create(
         context->getSystem<log::System>()->observeLog(),
-        [](const log::Item& value)
+        [](const std::vector<log::Item>& value)
         {
-            std::cout << "[LOG] " << toString(value) << std::endl;
+            for (const auto& i : value)
+            {
+                std::cout << "[LOG] " << toString(i) << std::endl;
+            }
         },
         observer::CallbackAction::Suppress);
 
@@ -153,6 +156,8 @@ int main(int argc, char* argv[])
     }
     for (const auto& i : tests)
     {
+        context->tick();
+
         std::cout << "Running test: " << i->getName() << std::endl;
         i->run();
     }

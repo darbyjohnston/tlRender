@@ -117,7 +117,7 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
             std::shared_ptr<observer::ValueObserver<imaging::ColorConfig> > colorConfigObserver;
             std::shared_ptr<observer::ValueObserver<DeviceModelData> > deviceObserver;
-            std::shared_ptr<observer::ValueObserver<log::Item> > logObserver;
+            std::shared_ptr<observer::ListObserver<log::Item> > logObserver;
 
             bool mousePressed = false;
             math::Vector2i mousePos;
@@ -457,19 +457,22 @@ namespace tl
                         pixelType);
                 });
 
-            p.logObserver = observer::ValueObserver<log::Item>::create(
+            p.logObserver = observer::ListObserver<log::Item>::create(
                 app->getContext()->getLogSystem()->observeLog(),
-                [this](const log::Item& value)
+                [this](const std::vector<log::Item>& value)
                 {
-                    switch (value.type)
+                    for (const auto& i : value)
                     {
-                    case log::Type::Error:
-                        _p->statusBar->showMessage(
-                            QString(tr("ERROR: %1")).
-                            arg(QString::fromUtf8(value.message.c_str())),
-                            errorTimeout);
-                        break;
-                    default: break;
+                        switch (i.type)
+                        {
+                        case log::Type::Error:
+                            _p->statusBar->showMessage(
+                                QString(tr("ERROR: %1")).
+                                arg(QString::fromUtf8(i.message.c_str())),
+                                errorTimeout);
+                            break;
+                        default: break;
+                        }
                     }
                 });
 

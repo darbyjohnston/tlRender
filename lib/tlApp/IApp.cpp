@@ -22,7 +22,7 @@ namespace tl
             std::string cmdLineSummary;
             std::vector<std::shared_ptr<ICmdLineArg> > cmdLineArgs;
             std::vector<std::shared_ptr<ICmdLineOption> > cmdLineOptions;
-            std::shared_ptr<observer::ValueObserver<log::Item> > logObserver;
+            std::shared_ptr<observer::ListObserver<log::Item> > logObserver;
         };
 
         void IApp::_init(
@@ -100,11 +100,14 @@ namespace tl
                 {
                     _print("[LOG] " + toString(i));
                 }
-                p.logObserver = observer::ValueObserver<log::Item>::create(
+                p.logObserver = observer::ListObserver<log::Item>::create(
                     context->getSystem<log::System>()->observeLog(),
-                    [this](const log::Item& value)
+                    [this](const std::vector<log::Item>& value)
                     {
-                        _print("[LOG] " + toString(value));
+                        for (const auto& i : value)
+                        {
+                            _print("[LOG] " + toString(i));
+                        }
                     },
                     observer::CallbackAction::Suppress);
             }

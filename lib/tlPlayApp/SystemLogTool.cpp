@@ -25,7 +25,7 @@ namespace tl
         {
             QListWidget* listWidget = nullptr;
             QToolButton* clearButton = nullptr;
-            std::shared_ptr<observer::ValueObserver<log::Item> > logObserver;
+            std::shared_ptr<observer::ListObserver<log::Item> > logObserver;
         };
 
         SystemLogTool::SystemLogTool(
@@ -58,34 +58,37 @@ namespace tl
             widget->setLayout(layout);
             addWidget(widget);
 
-            p.logObserver = observer::ValueObserver<log::Item>::create(
+            p.logObserver = observer::ListObserver<log::Item>::create(
                 context->getLogSystem()->observeLog(),
-                [this](const log::Item& value)
+                [this](const std::vector<log::Item>& value)
                 {
-                    switch (value.type)
+                    for (const auto& i : value)
                     {
-                    case log::Type::Message:
-                        _p->listWidget->addItem(QString("%1 %2: %3").
-                            arg(value.time).
-                            arg(QString::fromUtf8(value.prefix.c_str())).
-                            arg(QString::fromUtf8(value.message.c_str())));
-                        break;
-                    case log::Type::Warning:
-                        _p->listWidget->addItem(QString("%1 Warning %2: %3").
-                            arg(value.time).
-                            arg(QString::fromUtf8(value.prefix.c_str())).
-                            arg(QString::fromUtf8(value.message.c_str())));
-                        break;
-                    case log::Type::Error:
-                        _p->listWidget->addItem(QString("%1 ERROR %2: %3").
-                            arg(value.time).
-                            arg(QString::fromUtf8(value.prefix.c_str())).
-                            arg(QString::fromUtf8(value.message.c_str())));
-                        break;
-                    }
-                    while (_p->listWidget->count() > messagesMax)
-                    {
-                        delete _p->listWidget->takeItem(0);
+                        switch (i.type)
+                        {
+                        case log::Type::Message:
+                            _p->listWidget->addItem(QString("%1 %2: %3").
+                                arg(i.time).
+                                arg(QString::fromUtf8(i.prefix.c_str())).
+                                arg(QString::fromUtf8(i.message.c_str())));
+                            break;
+                        case log::Type::Warning:
+                            _p->listWidget->addItem(QString("%1 Warning %2: %3").
+                                arg(i.time).
+                                arg(QString::fromUtf8(i.prefix.c_str())).
+                                arg(QString::fromUtf8(i.message.c_str())));
+                            break;
+                        case log::Type::Error:
+                            _p->listWidget->addItem(QString("%1 ERROR %2: %3").
+                                arg(i.time).
+                                arg(QString::fromUtf8(i.prefix.c_str())).
+                                arg(QString::fromUtf8(i.message.c_str())));
+                            break;
+                        }
+                        while (_p->listWidget->count() > messagesMax)
+                        {
+                            delete _p->listWidget->takeItem(0);
+                        }
                     }
                 });
 

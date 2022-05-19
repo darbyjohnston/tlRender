@@ -5,7 +5,7 @@
 #pragma once
 
 #include <tlCore/ICoreSystem.h>
-#include <tlCore/ValueObserver.h>
+#include <tlCore/ListObserver.h>
 
 #include <chrono>
 
@@ -29,6 +29,8 @@ namespace tl
             std::string prefix;
             std::string message;
             Type type = Type::Message;
+
+            bool operator == (const Item&) const;
         };
 
         //! Convert a log item to a string.
@@ -56,7 +58,10 @@ namespace tl
                 Type = Type::Message);
 
             //! Observe the log.
-            std::shared_ptr<observer::IValue<Item> > observeLog() const;
+            std::shared_ptr<observer::IList<Item> > observeLog() const;
+
+            void tick() override;
+            std::chrono::milliseconds getTickTime() const override;
 
         private:
             TLRENDER_PRIVATE();

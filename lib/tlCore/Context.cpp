@@ -22,14 +22,14 @@ namespace tl
         void Context::_init()
         {
             _logSystem = log::System::create(shared_from_this());
-            auto logObserver = observer::ValueObserver<log::Item>::create(
+            auto logObserver = observer::ListObserver<log::Item>::create(
                 _logSystem->observeLog(),
-                [this](const log::Item& value)
+                [this](const std::vector<log::Item>& value)
                 {
-                    _p->logInit.push_back(value);
+                    _p->logInit = value;
                 },
                 observer::CallbackAction::Suppress);
-            _systems.push_back(_logSystem);
+            addSystem(_logSystem);
 
             const os::SystemInfo info = os::getSystemInfo();
             log("tl::system::Context", string::Format(
@@ -41,7 +41,7 @@ namespace tl
                 arg(info.cores).
                 arg(info.ramGB));
 
-            _systems.push_back(audio::System::create(shared_from_this()));
+            addSystem(audio::System::create(shared_from_this()));
         }
 
         Context::Context() :
@@ -60,11 +60,7 @@ namespace tl
 
         void Context::addSystem(const std::shared_ptr<ICoreSystem>& system)
         {
-            _systems.push_back(system);
-            if (system->getTickTime() != std::chrono::milliseconds(0))
-            {
-                _systemTimers[system] = std::chrono::steady_clock::now();
-            }
+            _systems[system] = std::chrono::steady_clock::now();
         }
 
         std::vector<log::Item> Context::getLogInit()
@@ -79,10 +75,12 @@ namespace tl
 
         void Context::tick()
         {
-            for (auto& i : _systemTimers)
+            const auto now = std::chrono::steady_clock::now();
+            for (auto& i : _systems)
             {
-                const auto now = std::chrono::steady_clock::now();
-                if ((i.second + i.first->getTickTime()) <= now)
+                const auto tickTime = i.first->getTickTime();
+                if (tickTime > std::chrono::milliseconds(0) &&
+                    (i.second + i.first->getTickTime()) <= now)
                 {
                     i.first->tick();
                     i.second = now;
