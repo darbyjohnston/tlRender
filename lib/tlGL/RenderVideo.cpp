@@ -393,6 +393,8 @@ namespace tl
                         {
                             if (layer.image && layer.imageB)
                             {
+                                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
                                 p.dissolveShader->bind();
                                 p.dissolveShader->setUniform("transform.mvp", mvp);
                                 p.dissolveShader->setUniform("transition", layer.transitionValue);
