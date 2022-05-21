@@ -384,6 +384,8 @@ namespace tl
             p.statusBar->addPermanentWidget(p.infoLabel);
             setStatusBar(p.statusBar);
 
+            p.timelineViewport->setFocus();
+
             _widgetUpdate();
 
             p.filesObserver = observer::ListObserver<std::shared_ptr<FilesModelItem> >::create(
