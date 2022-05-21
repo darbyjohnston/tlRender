@@ -2,7 +2,8 @@ set(HEADERS
 	Audio.h
 	AudioInline.h
 	IRender.h
-	IRenderInline.h
+	RenderOptions.h
+	RenderOptionsInline.h
     Timeline.h
     TimelinePlayer.h
     TimelinePlayerInline.h
@@ -14,6 +15,7 @@ set(HEADERS
 set(SOURCE
 	Audio.cpp
 	IRender.cpp
+	RenderOptions.cpp
     Timeline.cpp
     TimelinePlayer.cpp
 	Util.cpp

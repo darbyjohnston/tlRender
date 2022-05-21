@@ -75,8 +75,10 @@ namespace tl
             memory::LRUCache<GlyphInfo, std::shared_ptr<Glyph> > glyphCache;
         };
 
-        void FontSystem::_init()
+        void FontSystem::_init(const std::shared_ptr<system::Context>& context)
         {
+            ISystem::_init("tl::imaging::FontSystem", context);
+
             TLRENDER_P();
 
             FT_Error ftError = FT_Init_FreeType(&p.ftLibrary);
@@ -114,10 +116,10 @@ namespace tl
             }
         }
 
-        std::shared_ptr<FontSystem> FontSystem::create()
+        std::shared_ptr<FontSystem> FontSystem::create(const std::shared_ptr<system::Context>& context)
         {
             auto out = std::shared_ptr<FontSystem>(new FontSystem);
-            out->_init();
+            out->_init(context);
             return out;
         }
 

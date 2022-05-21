@@ -1,0 +1,85 @@
+{
+    "OTIO_SCHEMA": "Timeline.1", 
+    "metadata": {
+		"tlRender": [
+			{
+				"id": "rect",
+				"bbox": "0,0-320,35",
+				"color":  "0.0,0.0,0.0,0.5"
+			},
+			{
+				"id": "text",
+				"text": "BART",
+				"fontSize": "20",
+				"position": "10,25"
+			},
+			{
+				"id": "text",
+				"text": "2021-02-07",
+				"position": "70,25"
+			}
+		]
+	},
+    "name": "test",
+    "tracks": {
+        "OTIO_SCHEMA": "Stack.1", 
+        "children": [
+            {
+                "OTIO_SCHEMA": "Track.1", 
+                "children": [
+                    {
+                        "OTIO_SCHEMA": "Clip.1",
+                        "media_reference": {
+                            "OTIO_SCHEMA": "ExternalReference.1",
+                            "available_range": {
+                                "OTIO_SCHEMA": "TimeRange.1",
+                                "duration": {
+                                    "OTIO_SCHEMA": "RationalTime.1",
+                                    "rate": 30,
+                                    "value": 704
+                                },
+                                "start_time": {
+                                    "OTIO_SCHEMA": "RationalTime.1",
+                                    "rate": 30,
+                                    "value": 0
+                                }
+                            },
+                            "target_url": "BART_2021-02-07.m4v"
+                        },
+                        "source_range": {
+                            "OTIO_SCHEMA": "TimeRange.1",
+                            "duration": {
+                                "OTIO_SCHEMA": "RationalTime.1",
+                                "rate": 30,
+                                "value": 90
+                            },
+                            "start_time": {
+                                "OTIO_SCHEMA": "RationalTime.1",
+                                "rate": 30,
+                                "value": 90
+                            }
+                        },
+                        "name": "BART_2021-02-07",
+						"metadata": {
+							"tlRender": [
+								{
+									"id": "rect",
+									"bbox": "0,160-320,180",
+									"color":  "0.0,0.0,0.0,0.5"
+								},
+								{
+									"id": "text",
+									"text": "Albany, CA",
+									"position": "10,175"
+								}
+							]
+						}
+                    }
+                ],
+                "kind": "Video", 
+                "name": "Sequence"
+            }
+        ], 
+        "name": "NestedScope"
+    }
+}

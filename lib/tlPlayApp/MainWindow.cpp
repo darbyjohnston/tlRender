@@ -203,6 +203,7 @@ namespace tl
             addToolBar(Qt::TopToolBarArea, windowToolBar);
 
             p.timelineViewport = new qtwidget::TimelineViewport(app->getContext());
+            p.timelineViewport->setFocus();
             p.timelineViewport->installEventFilter(this);
             setCentralWidget(p.timelineViewport);
 

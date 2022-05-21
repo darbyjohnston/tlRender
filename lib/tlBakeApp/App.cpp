@@ -119,7 +119,6 @@ namespace tl
         {
             _buffer.reset();
             _render.reset();
-            _fontSystem.reset();
             if (_glfwWindow)
             {
                 glfwDestroyWindow(_glfwWindow);
@@ -229,7 +228,6 @@ namespace tl
             _log(string::Format("OpenGL version: {0}.{1}.{2}").arg(glMajor).arg(glMinor).arg(glRevision));
 
             // Create the renderer.
-            _fontSystem = imaging::FontSystem::create();
             _render = gl::Render::create(_context);
             gl::OffscreenBufferOptions offscreenBufferOptions;
             offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;

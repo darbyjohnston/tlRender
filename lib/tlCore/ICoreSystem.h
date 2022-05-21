@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <tlCore/Util.h>
+
 #include <chrono>
 #include <memory>
 #include <string>
@@ -18,6 +20,8 @@ namespace tl
         //! Base class for core systems.
         class ICoreSystem : public std::enable_shared_from_this<ICoreSystem>
         {
+            TLRENDER_NON_COPYABLE(ICoreSystem);
+
         protected:
             void _init(
                 const std::string& name,

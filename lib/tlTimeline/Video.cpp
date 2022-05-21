@@ -4,6 +4,8 @@
 
 #include <tlTimeline/Video.h>
 
+#include <tlTimeline/IRender.h>
+
 #include <tlCore/Error.h>
 #include <tlCore/String.h>
 
@@ -31,28 +33,172 @@ namespace tl
             return out;
         }
 
-        bool VideoLayer::operator == (const VideoLayer& other) const
+        void IPrimitive::_init(
+            const otio::AnyDictionary&,
+            const std::shared_ptr<system::Context>& context)
         {
-            return image == other.image &&
-                imageB == other.imageB &&
-                transition == other.transition &&
-                transitionValue == other.transitionValue;
+            _context = context;
         }
 
-        bool VideoLayer::operator != (const VideoLayer& other) const
+        IPrimitive::IPrimitive()
+        {}
+
+        IPrimitive::~IPrimitive()
+        {}
+
+        void RectPrimitive::_init(
+            const otio::AnyDictionary& value,
+            const std::shared_ptr<system::Context>& context)
         {
-            return !(*this == other);
+            IPrimitive::_init(value, context);
+            for (const auto& l : value)
+            {
+                if ("bbox" == l.first)
+                {
+                    const auto s = otio::any_cast<std::string const&>(l.second);
+                    std::stringstream ss(s);
+                    ss >> _bbox;
+                }
+                else if ("color" == l.first)
+                {
+                    const auto s = otio::any_cast<std::string const&>(l.second);
+                    std::stringstream ss(s);
+                    ss >> _color;
+                }
+            }
         }
 
-        bool VideoData::operator == (const VideoData& other) const
+        RectPrimitive::RectPrimitive()
+        {}
+
+        RectPrimitive::~RectPrimitive()
+        {}
+
+        std::shared_ptr<RectPrimitive> RectPrimitive::create(
+            const otio::AnyDictionary& value,
+            const std::shared_ptr<system::Context>& context)
         {
-            return time == other.time &&
-                layers == other.layers;
+            auto out = std::shared_ptr<RectPrimitive>(new RectPrimitive);
+            out->_init(value, context);
+            return out;
         }
 
-        bool VideoData::operator != (const VideoData& other) const
+        void RectPrimitive::render(
+            const std::shared_ptr<imaging::FontSystem>&,
+            const std::shared_ptr<IRender>& render)
         {
-            return !(*this == other);
+            render->drawRect(_bbox, _color);
+        }
+
+        void TextPrimitive::_init(
+            const otio::AnyDictionary& value,
+            const std::shared_ptr<system::Context>& context)
+        {
+            IPrimitive::_init(value, context);
+            for (const auto& l : value)
+            {
+                if ("text" == l.first)
+                {
+                    _text = otio::any_cast<std::string const&>(l.second);
+                }
+                else if ("fontSize" == l.first)
+                {
+                    const auto s = otio::any_cast<std::string const&>(l.second);
+                    std::stringstream ss(s);
+                    ss >> _fontInfo.size;
+                }
+                else if ("position" == l.first)
+                {
+                    const auto s = otio::any_cast<std::string const&>(l.second);
+                    std::stringstream ss(s);
+                    ss >> _position;
+                }
+                else if ("color" == l.first)
+                {
+                    const auto s = otio::any_cast<std::string const&>(l.second);
+                    std::stringstream ss(s);
+                    ss >> _color;
+                }
+            }
+        }
+
+        TextPrimitive::TextPrimitive()
+        {}
+
+        TextPrimitive::~TextPrimitive()
+        {}
+
+        std::shared_ptr<TextPrimitive> TextPrimitive::create(
+            const otio::AnyDictionary& value,
+            const std::shared_ptr<system::Context>& context)
+        {
+            auto out = std::shared_ptr<TextPrimitive>(new TextPrimitive);
+            out->_init(value, context);
+            return out;
+        }
+
+        void TextPrimitive::render(
+            const std::shared_ptr<imaging::FontSystem>& fontSystem,
+            const std::shared_ptr<IRender>& render)
+        {
+            render->drawText(fontSystem->getGlyphs(_text, _fontInfo), _position, _color);
+        }
+
+        void PrimitiveFactory::_init(const std::shared_ptr<system::Context>& context)
+        {
+            _context = context;
+        }
+
+        PrimitiveFactory::PrimitiveFactory()
+        {}
+
+        std::shared_ptr<PrimitiveFactory> PrimitiveFactory::create(const std::shared_ptr<system::Context>& context)
+        {
+            auto out = std::shared_ptr<PrimitiveFactory>(new PrimitiveFactory);
+            out->_init(context);
+            return out;
+        }
+
+        void PrimitiveFactory::read(
+            const otio::AnyDictionary& value,
+            std::vector<std::shared_ptr<IPrimitive> >& out)
+        {
+            if (auto context = _context.lock())
+            {
+                try
+                {
+                    for (const auto& i : value)
+                    {
+                        if ("tlRender" == i.first)
+                        {
+                            for (const auto& j : otio::any_cast<otio::AnyVector const&>(i.second))
+                            {
+                                const auto& dict = otio::any_cast<otio::AnyDictionary const&>(j);
+                                for (const auto& k : dict)
+                                {
+                                    if ("id" == k.first)
+                                    {
+                                        const auto& s = otio::any_cast<std::string const&>(k.second);
+                                        if ("rect" == s)
+                                        {
+                                            out.push_back(RectPrimitive::create(dict, context));
+                                        }
+                                        else if ("text" == s)
+                                        {
+                                            out.push_back(TextPrimitive::create(dict, context));
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (const linb::bad_any_cast&)
+                {
+                    //! \todo How should this be handled?
+                }
+            }
         }
     }
 }

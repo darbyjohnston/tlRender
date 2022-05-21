@@ -44,8 +44,8 @@ namespace tl
             void drawVideo(
                 const std::vector<timeline::VideoData>&,
                 const std::vector<math::BBox2i>&,
-                const std::vector<timeline::ImageOptions> & = {},
-                const std::vector<timeline::DisplayOptions> & = {},
+                const std::vector<timeline::ImageOptions>& = {},
+                const std::vector<timeline::DisplayOptions>& = {},
                 const timeline::CompareOptions& = timeline::CompareOptions()) override;
 
         private:
@@ -53,7 +53,7 @@ namespace tl
             void _drawVideo(
                 const timeline::VideoData&,
                 const math::BBox2i&,
-                const timeline::ImageOptions&,
+                const std::shared_ptr<timeline::ImageOptions>&,
                 const timeline::DisplayOptions&);
 
             TLRENDER_PRIVATE();
