@@ -11,7 +11,6 @@
 
 #include <tlIO/IO.h>
 
-#include <tlCore/FontSystem.h>
 #include <tlCore/OCIO.h>
 
 struct GLFWwindow;
@@ -71,7 +70,6 @@ namespace tl
             otime::RationalTime _currentTime = time::invalidTime;
 
             GLFWwindow* _glfwWindow = nullptr;
-            std::shared_ptr<imaging::FontSystem> _fontSystem;
             std::shared_ptr<timeline::IRender> _render;
             std::shared_ptr<gl::OffscreenBuffer> _buffer;
 

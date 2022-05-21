@@ -278,6 +278,8 @@ namespace tl
             otime::RationalTime globalStartTime = time::invalidTime;
             io::Info ioInfo;
             std::vector<otime::TimeRange> activeRanges;
+            std::shared_ptr<PrimitiveFactory> primitiveFactory;
+            std::vector<std::shared_ptr<IPrimitive> > primitives;
 
             struct Item
             {
@@ -293,7 +295,11 @@ namespace tl
                 VideoLayerData(VideoLayerData&&) = default;
 
                 std::future<io::VideoData> image;
+                std::vector<std::shared_ptr<IPrimitive> > primitives;
+
                 std::future<io::VideoData> imageB;
+                std::vector<std::shared_ptr<IPrimitive> > primitivesB;
+
                 Transition transition = Transition::None;
                 float transitionValue = 0.F;
             };
@@ -431,6 +437,8 @@ namespace tl
                     }
                 }
             }
+            p.primitiveFactory = PrimitiveFactory::create(context);
+            p.primitiveFactory->read(p.otioTimeline->metadata(), p.primitives);
 
             logSystem->print(
                 string::Format("tl::timeline::Timeline {0}").arg(this),
@@ -1195,6 +1203,8 @@ namespace tl
                                         }
                                     }
                                     videoData.image = readVideo(i.track, otioClip, time, request->videoLayer);
+                                    videoData.primitives = primitives;
+                                    primitiveFactory->read(otioClip->metadata(), videoData.primitives);
                                 }
                                 otio::ErrorStatus errorStatus;
                                 const auto neighbors = i.track->neighbors_of(i.item, &errorStatus);
@@ -1219,6 +1229,8 @@ namespace tl
                                                 }
                                             }
                                             videoData.imageB = readVideo(i.track, otioClipB, time, request->videoLayer);
+                                            videoData.primitivesB = primitives;
+                                            primitiveFactory->read(otioClipB->metadata(), videoData.primitivesB);
                                         }
                                     }
                                 }
@@ -1227,6 +1239,7 @@ namespace tl
                                     if (time < i.range.start_time() + otioTransition->out_offset())
                                     {
                                         std::swap(videoData.image, videoData.imageB);
+                                        std::swap(videoData.primitives, videoData.primitivesB);
                                         videoData.transition = toTransition(otioTransition->transition_type());
                                         videoData.transitionValue = transitionValue(
                                             time.value(),
@@ -1244,6 +1257,8 @@ namespace tl
                                                 }
                                             }
                                             videoData.image = readVideo(i.track, otioClipB, time, request->videoLayer);
+                                            videoData.primitives = primitives;
+                                            primitiveFactory->read(otioClipB->metadata(), videoData.primitives);
                                         }
                                     }
                                 }
@@ -1330,10 +1345,12 @@ namespace tl
                             {
                                 layer.image = j.image.get().image;
                             }
+                            layer.primitives = j.primitives;
                             if (j.imageB.valid())
                             {
                                 layer.imageB = j.imageB.get().image;
                             }
+                            layer.primitivesB = j.primitivesB;
                             layer.transition = j.transition;
                             layer.transitionValue = j.transitionValue;
                             data.layers.push_back(layer);

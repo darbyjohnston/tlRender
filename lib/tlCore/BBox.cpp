@@ -30,25 +30,17 @@ namespace tl
             std::string s;
             is >> s;
             auto split = string::split(s, '-');
-            if (split.size() != 4)
+            if (split.size() != 2)
             {
                 throw error::ParseError();
             }
             {
                 std::stringstream ss(split[0]);
-                ss >> value.min.x;
+                ss >> value.min;
             }
             {
                 std::stringstream ss(split[1]);
-                ss >> value.min.y;
-            }
-            {
-                std::stringstream ss(split[2]);
-                ss >> value.max.x;
-            }
-            {
-                std::stringstream ss(split[3]);
-                ss >> value.max.y;
+                ss >> value.max;
             }
             return is;
         }
@@ -58,25 +50,17 @@ namespace tl
             std::string s;
             is >> s;
             auto split = string::split(s, '-');
-            if (split.size() != 4)
+            if (split.size() != 2)
             {
                 throw error::ParseError();
             }
             {
                 std::stringstream ss(split[0]);
-                ss >> value.min.x;
+                ss >> value.min;
             }
             {
                 std::stringstream ss(split[1]);
-                ss >> value.min.y;
-            }
-            {
-                std::stringstream ss(split[2]);
-                ss >> value.max.x;
-            }
-            {
-                std::stringstream ss(split[3]);
-                ss >> value.max.y;
+                ss >> value.max;
             }
             return is;
         }

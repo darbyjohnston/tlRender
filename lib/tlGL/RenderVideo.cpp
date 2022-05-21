@@ -28,7 +28,7 @@ namespace tl
                     _drawVideo(
                         videoData[0],
                         math::BBox2i(0, 0, p.size.w, p.size.h),
-                        !imageOptions.empty() ? imageOptions[0] : timeline::ImageOptions(),
+                        !imageOptions.empty() ? std::make_shared<timeline::ImageOptions>(imageOptions[0]) : nullptr,
                         !displayOptions.empty() ? displayOptions[0] : timeline::DisplayOptions());
                 }
                 break;
@@ -38,7 +38,7 @@ namespace tl
                     _drawVideo(
                         videoData[1],
                         math::BBox2i(0, 0, p.size.w, p.size.h),
-                        imageOptions.size() > 1 ? imageOptions[1] : timeline::ImageOptions(),
+                        imageOptions.size() > 1 ? std::make_shared<timeline::ImageOptions>(imageOptions[1]) : nullptr,
                         displayOptions.size() > 1 ? displayOptions[1] : timeline::DisplayOptions());
                 }
                 break;
@@ -94,7 +94,7 @@ namespace tl
                     _drawVideo(
                         videoData[0],
                         math::BBox2i(0, 0, p.size.w, p.size.h),
-                        !imageOptions.empty() ? imageOptions[0] : timeline::ImageOptions(),
+                        !imageOptions.empty() ? std::make_shared<timeline::ImageOptions>(imageOptions[0]) : nullptr,
                         !displayOptions.empty() ? displayOptions[0] : timeline::DisplayOptions());
                 }
 
@@ -133,7 +133,7 @@ namespace tl
                     _drawVideo(
                         videoData[1],
                         math::BBox2i(0, 0, p.size.w, p.size.h),
-                        imageOptions.size() > 1 ? imageOptions[1] : timeline::ImageOptions(),
+                        imageOptions.size() > 1 ? std::make_shared<timeline::ImageOptions>(imageOptions[1]) : nullptr,
                         !displayOptions.empty() ? displayOptions[1] : timeline::DisplayOptions());
                 }
 
@@ -146,7 +146,7 @@ namespace tl
                     _drawVideo(
                         videoData[1],
                         math::BBox2i(0, 0, p.size.w, p.size.h),
-                        imageOptions.size() > 1 ? imageOptions[1] : timeline::ImageOptions(),
+                        imageOptions.size() > 1 ? std::make_shared<timeline::ImageOptions>(imageOptions[1]) : nullptr,
                         displayOptions.size() > 1 ? displayOptions[1] : timeline::DisplayOptions());
                 }
                 if (!videoData.empty())
@@ -167,7 +167,7 @@ namespace tl
                         _drawVideo(
                             videoData[0],
                             math::BBox2i(0, 0, p.size.w, p.size.h),
-                            !imageOptions.empty() ? imageOptions[0] : timeline::ImageOptions(),
+                            !imageOptions.empty() ? std::make_shared<timeline::ImageOptions>(imageOptions[0]) : nullptr,
                             !displayOptions.empty() ? displayOptions[0] : timeline::DisplayOptions());
                     }
 
@@ -229,7 +229,7 @@ namespace tl
                         _drawVideo(
                             videoData[0],
                             math::BBox2i(0, 0, p.size.w, p.size.h),
-                            !imageOptions.empty() ? imageOptions[0] : timeline::ImageOptions(),
+                            !imageOptions.empty() ? std::make_shared<timeline::ImageOptions>(imageOptions[0]) : nullptr,
                             !displayOptions.empty() ? displayOptions[0] : timeline::DisplayOptions());
                     }
 
@@ -251,7 +251,7 @@ namespace tl
                             _drawVideo(
                                 videoData[1],
                                 math::BBox2i(0, 0, p.size.w, p.size.h),
-                                imageOptions.size() > 1 ? imageOptions[1] : timeline::ImageOptions(),
+                                imageOptions.size() > 1 ? std::make_shared<timeline::ImageOptions>(imageOptions[1]) : nullptr,
                                 displayOptions.size() > 1 ? displayOptions[1] : timeline::DisplayOptions());
                         }
                     }
@@ -307,7 +307,7 @@ namespace tl
                     _drawVideo(
                         videoData[i],
                         bboxes[i],
-                        i < imageOptions.size() ? imageOptions[i] : timeline::ImageOptions(),
+                        i < imageOptions.size() ? std::make_shared<timeline::ImageOptions>(imageOptions[i]) : nullptr,
                         i < displayOptions.size() ? displayOptions[i] : timeline::DisplayOptions());
                 }
                 break;
@@ -351,7 +351,7 @@ namespace tl
         void Render::_drawVideo(
             const timeline::VideoData& videoData,
             const math::BBox2i& bbox,
-            const timeline::ImageOptions& imageOptions,
+            const std::shared_ptr<timeline::ImageOptions>& imageOptions,
             const timeline::DisplayOptions& displayOptions)
         {
             TLRENDER_P();
@@ -400,7 +400,7 @@ namespace tl
                                 const auto& info = layer.image->getInfo();
                                 p.dissolveShader->setUniform("pixelType", static_cast<int>(layer.image->getPixelType()));
                                 imaging::YUVRange yuvRange = info.yuvRange;
-                                switch (imageOptions.yuvRange)
+                                switch (imageOptions.get() ? imageOptions->yuvRange : layer.imageOptions.yuvRange)
                                 {
                                 case timeline::YUVRange::Full:  yuvRange = imaging::YUVRange::Full;  break;
                                 case timeline::YUVRange::Video: yuvRange = imaging::YUVRange::Video; break;
@@ -425,7 +425,7 @@ namespace tl
                                 const auto& infoB = layer.imageB->getInfo();
                                 p.dissolveShader->setUniform("pixelTypeB", static_cast<int>(layer.imageB->getPixelType()));
                                 yuvRange = infoB.yuvRange;
-                                switch (imageOptions.yuvRange)
+                                switch (imageOptions.get() ? imageOptions->yuvRange : layer.imageOptionsB.yuvRange)
                                 {
                                 case timeline::YUVRange::Full:  yuvRange = imaging::YUVRange::Full;  break;
                                 case timeline::YUVRange::Video: yuvRange = imaging::YUVRange::Video; break;
@@ -490,7 +490,7 @@ namespace tl
                                     layer.image,
                                     imaging::getBBox(layer.image->getAspect(), math::BBox2i(0, 0, size.w, size.h)),
                                     imaging::Color4f(1.F, 1.F, 1.F, 1.F - layer.transitionValue),
-                                    imageOptions);
+                                    imageOptions.get() ? *imageOptions : layer.imageOptions);
                             }
                             else if (layer.imageB)
                             {
@@ -501,7 +501,7 @@ namespace tl
                                     layer.imageB,
                                     imaging::getBBox(layer.imageB->getAspect(), math::BBox2i(0, 0, size.w, size.h)),
                                     imaging::Color4f(1.F, 1.F, 1.F, layer.transitionValue),
-                                    imageOptions);
+                                    imageOptions.get() ? *imageOptions : layer.imageOptionsB);
                             }
                             break;
                         }
@@ -515,9 +515,18 @@ namespace tl
                                 layer.image,
                                 imaging::getBBox(layer.image->getAspect(), math::BBox2i(0, 0, size.w, size.h)),
                                 imaging::Color4f(1.F, 1.F, 1.F),
-                                imageOptions);
+                                imageOptions.get() ? *imageOptions : layer.imageOptions);
                         }
                         break;
+                    }
+
+                    if (auto fontSystem = _fontSystem.lock())
+                    {
+                        auto shared = shared_from_this();
+                        for (const auto& i : layer.primitives)
+                        {
+                            i->render(fontSystem, shared);
+                        }
                     }
                 }
             }

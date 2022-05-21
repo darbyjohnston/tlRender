@@ -57,6 +57,7 @@ set(SOURCE
     Audio.cpp
     AudioSystem.cpp
 	BBox.cpp
+	Color.cpp
     Context.cpp
     Error.cpp
     FileIO.cpp

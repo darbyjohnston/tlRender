@@ -5,6 +5,7 @@
 #pragma once
 
 #include <tlCore/BBox.h>
+#include <tlCore/ISystem.h>
 #include <tlCore/Util.h>
 
 #include <memory>
@@ -36,7 +37,7 @@ namespace tl
             FontInfo(FontFamily, uint16_t size);
 
             FontFamily family = FontFamily::NotoSans;
-            uint16_t size = 0;
+            uint16_t size = 12;
 
             bool operator == (const FontInfo&) const noexcept;
             bool operator < (const FontInfo&) const;
@@ -80,19 +81,19 @@ namespace tl
         //!
         //! \todo Add support for gamma correction?
         //! - https://www.freetype.org/freetype2/docs/text-rendering-general.html
-        class FontSystem : public std::enable_shared_from_this<FontSystem>
+        class FontSystem : public system::ISystem
         {
             TLRENDER_NON_COPYABLE(FontSystem);
 
         protected:
-            void _init();
+            void _init(const std::shared_ptr<system::Context>&);
             FontSystem();
 
         public:
             ~FontSystem();
 
             //! Create a new font system.
-            static std::shared_ptr<FontSystem> create();
+            static std::shared_ptr<FontSystem> create(const std::shared_ptr<system::Context>&);
 
             //! \name Information
             ///@{

@@ -5,6 +5,7 @@
 #include <tlCore/Context.h>
 
 #include <tlCore/AudioSystem.h>
+#include <tlCore/FontSystem.h>
 #include <tlCore/OS.h>
 #include <tlCore/StringFormat.h>
 
@@ -41,6 +42,7 @@ namespace tl
                 arg(info.cores).
                 arg(info.ramGB));
 
+            _systems.push_back(imaging::FontSystem::create(shared_from_this()));
             _systems.push_back(audio::System::create(shared_from_this()));
         }
 
