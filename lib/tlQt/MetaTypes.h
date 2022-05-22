@@ -9,8 +9,8 @@
 
 #include <tlCore/AudioSystem.h>
 #include <tlCore/FileIO.h>
-#include <tlCore/Image.h>
 #include <tlCore/FontSystem.h>
+#include <tlCore/Image.h>
 #include <tlCore/OCIO.h>
 #include <tlCore/OS.h>
 

@@ -7,6 +7,8 @@
 #include <tlTimeline/Video.h>
 
 #include <tlCore/Context.h>
+#include <tlCore/FontSystem.h>
+#include <tlCore/Mesh.h>
 
 namespace tl
 {
@@ -49,6 +51,11 @@ namespace tl
                 const math::BBox2i&,
                 const imaging::Color4f&) = 0;
 
+            //! Draw a triangle mesh.
+            virtual void drawMesh(
+                const geom::TriangleMesh2&,
+                const imaging::Color4f&) = 0;
+
             //! Draw text.
             virtual void drawText(
                 const std::vector<std::shared_ptr<imaging::Glyph> >& glyphs,
@@ -72,7 +79,7 @@ namespace tl
 
         protected:
             std::weak_ptr<system::Context> _context;
-            std::weak_ptr<imaging::FontSystem> _fontSystem;
+            std::shared_ptr<imaging::FontSystem> _fontSystem;
         };
     }
 }

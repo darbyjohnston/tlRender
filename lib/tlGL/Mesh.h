@@ -16,6 +16,7 @@ namespace tl
 {
     namespace geom
     {
+        struct TriangleMesh2;
         struct TriangleMesh3;
     }
 
@@ -24,6 +25,7 @@ namespace tl
         //! Vertex buffer object types.
         enum class VBOType
         {
+            Pos2_F32,
             Pos2_F32_UV_U16,
             Pos3_F32,
             Pos3_F32_UV_U16,
@@ -34,7 +36,7 @@ namespace tl
             Pos3_F32_Color_U8,
 
             Count,
-            First = Pos2_F32_UV_U16
+            First = Pos2_F32
         };
 
         //! Get the number of bytes used to store vertex buffer object types.
@@ -43,6 +45,12 @@ namespace tl
         //! Convert a triangle mesh to vertex buffer data.
         std::vector<uint8_t> convert(
             const geom::TriangleMesh3& mesh,
+            gl::VBOType                type,
+            const math::SizeTRange&    range);
+
+        //! Convert a triangle mesh to vertex buffer data.
+        std::vector<uint8_t> convert(
+            const geom::TriangleMesh2& mesh,
             gl::VBOType                type,
             const math::SizeTRange&    range);
 

@@ -10,7 +10,6 @@
 #include <tlGL/Shader.h>
 #include <tlGL/Texture.h>
 
-#include <tlCore/FontSystem.h>
 #include <tlCore/LRUCache.h>
 #include <tlCore/OCIO.h>
 
@@ -27,7 +26,7 @@ namespace tl
         std::string colorFunctionName();
         std::string colorFunctionNoOp();
         std::string vertexSource();
-        std::string rectFragmentSource();
+        std::string meshFragmentSource();
         std::string textFragmentSource();
         std::string textureFragmentSource();
         std::string imageFragmentSource();
@@ -35,7 +34,13 @@ namespace tl
         std::string dissolveFragmentSource();
         std::string differenceFragmentSource();
 
-        struct VBOVertex
+        struct Pos2_F32
+        {
+            float vx;
+            float vy;
+        };
+
+        struct Pos2_F32_UV_U16
         {
             float    vx;
             float    vy;
@@ -90,7 +95,7 @@ namespace tl
 
             imaging::Size size;
 
-            std::shared_ptr<Shader> rectShader;
+            std::shared_ptr<Shader> meshShader;
             std::shared_ptr<Shader> textShader;
             std::shared_ptr<Shader> textureShader;
             std::shared_ptr<Shader> imageShader;

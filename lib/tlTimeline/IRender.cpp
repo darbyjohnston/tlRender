@@ -13,7 +13,7 @@ namespace tl
         void IRender::_init(const std::shared_ptr<system::Context>& context)
         {
             _context = context;
-            _fontSystem = context->getSystem<imaging::FontSystem>();
+            _fontSystem = imaging::FontSystem::create(context);
         }
 
         IRender::IRender()

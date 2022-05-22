@@ -101,6 +101,90 @@ namespace tl
             render->drawRect(p.bbox, p.color);
         }
 
+        struct MeshPrimitive::Private
+        {
+            geom::TriangleMesh2 mesh;
+            imaging::Color4f color = imaging::Color4f(1.F, 1.F, 1.F);
+        };
+
+        void MeshPrimitive::_init(
+            const otio::AnyDictionary& value,
+            const std::shared_ptr<system::Context>& context)
+        {
+            IPrimitive::_init(value, context);
+            TLRENDER_P();
+            for (const auto& i : value)
+            {
+                if ("v" == i.first)
+                {
+                    for (const auto& j : otio::any_cast<otio::AnyVector const&>(i.second))
+                    {
+                        math::Vector2f v;
+                        const auto s = otio::any_cast<std::string const&>(j);
+                        std::stringstream ss(s);
+                        ss >> v;
+                        p.mesh.v.push_back(v);
+                    }
+                }
+                else if ("triangles" == i.first)
+                {
+                    for (const auto& j : otio::any_cast<otio::AnyVector const&>(i.second))
+                    {
+                        geom::Triangle2 t;
+                        const auto s = otio::any_cast<std::string const&>(j);
+                        const auto split = string::split(s, ',');
+                        if (split.size() != 3)
+                        {
+                            throw error::ParseError();
+                        }
+                        {
+                            std::stringstream ss(split[0]);
+                            ss >> t.v[0].v;
+                        }
+                        {
+                            std::stringstream ss(split[1]);
+                            ss >> t.v[1].v;
+                        }
+                        {
+                            std::stringstream ss(split[2]);
+                            ss >> t.v[2].v;
+                        }
+                        p.mesh.triangles.push_back(t);
+                    }
+                }
+                else if ("color" == i.first)
+                {
+                    const auto s = otio::any_cast<std::string const&>(i.second);
+                    std::stringstream ss(s);
+                    ss >> p.color;
+                }
+            }
+        }
+
+        MeshPrimitive::MeshPrimitive() :
+            _p(new Private)
+        {}
+
+        MeshPrimitive::~MeshPrimitive()
+        {}
+
+        std::shared_ptr<MeshPrimitive> MeshPrimitive::create(
+            const otio::AnyDictionary& value,
+            const std::shared_ptr<system::Context>& context)
+        {
+            auto out = std::shared_ptr<MeshPrimitive>(new MeshPrimitive);
+            out->_init(value, context);
+            return out;
+        }
+
+        void MeshPrimitive::render(
+            const std::shared_ptr<imaging::FontSystem>&,
+            const std::shared_ptr<IRender>& render)
+        {
+            TLRENDER_P();
+            render->drawMesh(p.mesh, p.color);
+        }
+
         struct TextPrimitive::Private
         {
             std::string text;
@@ -213,6 +297,10 @@ namespace tl
                                         {
                                             out.push_back(RectPrimitive::create(dict, context));
                                         }
+                                        else if ("mesh" == s)
+                                        {
+                                            out.push_back(MeshPrimitive::create(dict, context));
+                                        }
                                         else if ("text" == s)
                                         {
                                             out.push_back(TextPrimitive::create(dict, context));
@@ -224,7 +312,7 @@ namespace tl
                         }
                     }
                 }
-                catch (const linb::bad_any_cast&)
+                catch (const std::exception&)
                 {
                     //! \todo How should this be handled?
                 }

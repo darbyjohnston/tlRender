@@ -5,7 +5,6 @@
 #pragma once
 
 #include <tlCore/BBox.h>
-#include <tlCore/ISystem.h>
 #include <tlCore/Util.h>
 
 #include <memory>
@@ -14,6 +13,11 @@
 
 namespace tl
 {
+    namespace system
+    {
+        class Context;
+    }
+
     namespace imaging
     {
 #if defined(_WINDOWS)
@@ -81,7 +85,7 @@ namespace tl
         //!
         //! \todo Add support for gamma correction?
         //! - https://www.freetype.org/freetype2/docs/text-rendering-general.html
-        class FontSystem : public system::ISystem
+        class FontSystem : public std::enable_shared_from_this<FontSystem>
         {
             TLRENDER_NON_COPYABLE(FontSystem);
 

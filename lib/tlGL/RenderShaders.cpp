@@ -44,7 +44,7 @@ namespace tl
                 "}\n";
         }
 
-        std::string rectFragmentSource()
+        std::string meshFragmentSource()
         {
             return
                 "#version 410\n"

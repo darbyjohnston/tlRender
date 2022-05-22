@@ -68,6 +68,30 @@ namespace tl
             TLRENDER_PRIVATE();
         };
 
+        //! Mesh primitive.
+        class MeshPrimitive : public IPrimitive
+        {
+        protected:
+            void _init(
+                const otio::AnyDictionary&,
+                const std::shared_ptr<system::Context>&);
+            MeshPrimitive();
+
+        public:
+            ~MeshPrimitive() override;
+
+            static std::shared_ptr<MeshPrimitive> create(
+                const otio::AnyDictionary&,
+                const std::shared_ptr<system::Context>&);
+
+            void render(
+                const std::shared_ptr<imaging::FontSystem>&,
+                const std::shared_ptr<IRender>&) override;
+
+        private:
+            TLRENDER_PRIVATE();
+        };
+
         //! Text primitive.
         class TextPrimitive : public IPrimitive
         {

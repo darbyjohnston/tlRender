@@ -18,36 +18,52 @@ namespace tl
         {
             TLRENDER_P();
 
-            p.rectShader->bind();
-            p.rectShader->setUniform("color", color);
+            p.meshShader->bind();
+            p.meshShader->setUniform("color", color);
 
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
             std::vector<uint8_t> vboData;
-            vboData.resize(4 * getByteCount(VBOType::Pos2_F32_UV_U16));
-            VBOVertex* vboP = reinterpret_cast<VBOVertex*>(vboData.data());
+            vboData.resize(4 * getByteCount(VBOType::Pos2_F32));
+            Pos2_F32* vboP = reinterpret_cast<Pos2_F32*>(vboData.data());
             vboP[0].vx = bbox.min.x;
             vboP[0].vy = bbox.min.y;
-            vboP[0].tx = 0;
-            vboP[0].ty = 0;
             vboP[1].vx = bbox.max.x + 1;
             vboP[1].vy = bbox.min.y;
-            vboP[1].tx = 0;
-            vboP[1].ty = 0;
             vboP[2].vx = bbox.min.x;
             vboP[2].vy = bbox.max.y + 1;
-            vboP[2].tx = 0;
-            vboP[2].ty = 0;
             vboP[3].vx = bbox.max.x + 1;
             vboP[3].vy = bbox.max.y + 1;
-            vboP[3].tx = 0;
-            vboP[3].ty = 0;
-            auto vbo = VBO::create(4, VBOType::Pos2_F32_UV_U16);
+            auto vbo = VBO::create(4, VBOType::Pos2_F32);
             vbo->copy(vboData);
 
             auto vao = VAO::create(vbo->getType(), vbo->getID());
             vao->bind();
             vao->draw(GL_TRIANGLE_STRIP, 0, 4);
+        }
+
+        void Render::drawMesh(
+            const geom::TriangleMesh2& mesh,
+            const imaging::Color4f& color)
+        {
+            TLRENDER_P();
+
+            const size_t size = mesh.triangles.size();
+            if (size > 0)
+            {
+                p.meshShader->bind();
+                p.meshShader->setUniform("color", color);
+
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+                auto vbo = VBO::create(3 * size, VBOType::Pos2_F32);
+                auto vboData = convert(mesh, VBOType::Pos2_F32, math::SizeTRange(0, size - 1));
+                vbo->copy(vboData);
+
+                auto vao = VAO::create(vbo->getType(), vbo->getID());
+                vao->bind();
+                vao->draw(GL_TRIANGLES, 0, 3 * size);
+            }
         }
 
         void Render::drawText(
@@ -99,7 +115,7 @@ namespace tl
 
                         std::vector<uint8_t> vboData;
                         vboData.resize(4 * getByteCount(VBOType::Pos2_F32_UV_U16));
-                        VBOVertex* vboP = reinterpret_cast<VBOVertex*>(vboData.data());
+                        Pos2_F32_UV_U16* vboP = reinterpret_cast<Pos2_F32_UV_U16*>(vboData.data());
                         vboP[0].vx = bbox.min.x;
                         vboP[0].vy = bbox.min.y;
                         vboP[0].tx = 0;
@@ -181,7 +197,7 @@ namespace tl
 
             std::vector<uint8_t> vboData;
             vboData.resize(4 * getByteCount(VBOType::Pos2_F32_UV_U16));
-            VBOVertex* vboP = reinterpret_cast<VBOVertex*>(vboData.data());
+            Pos2_F32_UV_U16* vboP = reinterpret_cast<Pos2_F32_UV_U16*>(vboData.data());
             vboP[0].vx = bbox.min.x;
             vboP[0].vy = bbox.min.y;
             vboP[0].tx = 0;

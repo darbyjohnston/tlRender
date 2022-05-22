@@ -558,6 +558,7 @@ namespace tl
                         }
                     }
                 }
+                frameView = false;
             }
         }
     }

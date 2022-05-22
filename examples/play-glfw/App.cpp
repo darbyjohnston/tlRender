@@ -226,6 +226,7 @@ namespace tl
                 glfwShowWindow(_glfwWindow);
 
                 // Create the renderer.
+                _fontSystem = imaging::FontSystem::create(_context);
                 _render = gl::Render::create(_context);
 
                 // Print the shortcuts help.
@@ -436,65 +437,62 @@ namespace tl
 
             void App::_drawHUD()
             {
-                if (const auto fontSystem = _context->getSystem<imaging::FontSystem>())
+                const uint16_t fontSize =
+                    math::clamp(
+                        ceilf(14 * _contentScale.y),
+                        0.F,
+                        static_cast<float>(std::numeric_limits<uint16_t>::max()));
+
+                auto i = _hudLabels.find(HUDElement::UpperLeft);
+                if (i != _hudLabels.end())
                 {
-                    const uint16_t fontSize =
-                        math::clamp(
-                            ceilf(14 * _contentScale.y),
-                            0.F,
-                            static_cast<float>(std::numeric_limits<uint16_t>::max()));
+                    drawHUDLabel(
+                        _render,
+                        _fontSystem,
+                        _frameBufferSize,
+                        i->second,
+                        imaging::FontFamily::NotoSans,
+                        fontSize,
+                        HUDElement::UpperLeft);
+                }
 
-                    auto i = _hudLabels.find(HUDElement::UpperLeft);
-                    if (i != _hudLabels.end())
-                    {
-                        drawHUDLabel(
-                            _render,
-                            fontSystem,
-                            _frameBufferSize,
-                            i->second,
-                            imaging::FontFamily::NotoSans,
-                            fontSize,
-                            HUDElement::UpperLeft);
-                    }
+                i = _hudLabels.find(HUDElement::LowerLeft);
+                if (i != _hudLabels.end())
+                {
+                    drawHUDLabel(
+                        _render,
+                        _fontSystem,
+                        _frameBufferSize,
+                        i->second,
+                        imaging::FontFamily::NotoMono,
+                        fontSize,
+                        HUDElement::LowerLeft);
+                }
 
-                    i = _hudLabels.find(HUDElement::LowerLeft);
-                    if (i != _hudLabels.end())
-                    {
-                        drawHUDLabel(
-                            _render,
-                            fontSystem,
-                            _frameBufferSize,
-                            i->second,
-                            imaging::FontFamily::NotoMono,
-                            fontSize,
-                            HUDElement::LowerLeft);
-                    }
+                i = _hudLabels.find(HUDElement::UpperRight);
+                if (i != _hudLabels.end())
+                {
+                    drawHUDLabel(
+                        _render,
+                        _fontSystem,
+                        _frameBufferSize,
+                        i->second,
+                        imaging::FontFamily::NotoMono,
+                        fontSize,
+                        HUDElement::UpperRight);
+                }
 
-                    i = _hudLabels.find(HUDElement::UpperRight);
-                    if (i != _hudLabels.end())
-                    {
-                        drawHUDLabel(
-                            _render,
-                            fontSystem,
-                            _frameBufferSize,
-                            i->second,
-                            imaging::FontFamily::NotoMono,
-                            fontSize,
-                            HUDElement::UpperRight);
-                    }
-
-                    i = _hudLabels.find(HUDElement::LowerRight);
-                    if (i != _hudLabels.end())
-                    {
-                        drawHUDLabel(
-                            _render,
-                            fontSystem,
-                            _frameBufferSize,
-                            i->second,
-                            imaging::FontFamily::NotoMono,
-                            fontSize,
-                            HUDElement::LowerRight);
-                    }
+                i = _hudLabels.find(HUDElement::LowerRight);
+                if (i != _hudLabels.end())
+                {
+                    drawHUDLabel(
+                        _render,
+                        _fontSystem,
+                        _frameBufferSize,
+                        i->second,
+                        imaging::FontFamily::NotoMono,
+                        fontSize,
+                        HUDElement::LowerRight);
                 }
             }
 

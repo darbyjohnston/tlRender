@@ -10,6 +10,7 @@
 #include <tlTimeline/TimelinePlayer.h>
 
 #include <tlCore/OCIO.h>
+#include <tlCore/FontSystem.h>
 
 struct GLFWwindow;
 
@@ -87,6 +88,7 @@ namespace tl
                 math::Vector2i _windowPos;
                 imaging::Size _frameBufferSize;
                 math::Vector2f _contentScale;
+                std::shared_ptr<imaging::FontSystem> _fontSystem;
                 std::shared_ptr<timeline::IRender> _render;
                 bool _renderDirty = true;
                 timeline::VideoData _videoData;

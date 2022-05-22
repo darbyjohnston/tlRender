@@ -386,12 +386,12 @@ namespace tl
                 viewMatrix[2][0], viewMatrix[2][1], viewMatrix[2][2], viewMatrix[2][3],
                 viewMatrix[3][0], viewMatrix[3][1], viewMatrix[3][2], viewMatrix[3][3]);
 
-            if (!p.rectShader)
+            if (!p.meshShader)
             {
-                p.rectShader = Shader::create(vertexSource(), rectFragmentSource());
+                p.meshShader = Shader::create(vertexSource(), meshFragmentSource());
             }
-            p.rectShader->bind();
-            p.rectShader->setUniform("transform.mvp", mvp);
+            p.meshShader->bind();
+            p.meshShader->setUniform("transform.mvp", mvp);
 
             if (!p.textShader)
             {

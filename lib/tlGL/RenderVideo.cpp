@@ -64,25 +64,19 @@ namespace tl
                 glStencilFunc(GL_ALWAYS, 1, 0xFF);
                 glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
                 glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-                p.rectShader->bind();
-                p.rectShader->setUniform("color", imaging::Color4f(1.F, 0.F, 0.F));
+                p.meshShader->bind();
+                p.meshShader->setUniform("color", imaging::Color4f(1.F, 0.F, 0.F));
                 {
                     std::vector<uint8_t> vboData;
-                    vboData.resize(3 * getByteCount(VBOType::Pos2_F32_UV_U16));
-                    VBOVertex* vboP = reinterpret_cast<VBOVertex*>(vboData.data());
+                    vboData.resize(3 * getByteCount(VBOType::Pos2_F32));
+                    Pos2_F32* vboP = reinterpret_cast<Pos2_F32*>(vboData.data());
                     vboP[0].vx = pts[0].x;
                     vboP[0].vy = pts[0].y;
-                    vboP[0].tx = 0;
-                    vboP[0].ty = 0;
                     vboP[1].vx = pts[1].x;
                     vboP[1].vy = pts[1].y;
-                    vboP[1].tx = 0;
-                    vboP[1].ty = 0;
                     vboP[2].vx = pts[2].x;
                     vboP[2].vy = pts[2].y;
-                    vboP[2].tx = 0;
-                    vboP[2].ty = 0;
-                    auto vbo = VBO::create(4, VBOType::Pos2_F32_UV_U16);
+                    auto vbo = VBO::create(4, VBOType::Pos2_F32);
                     vbo->copy(vboData);
 
                     auto vao = VAO::create(vbo->getType(), vbo->getID());
@@ -103,25 +97,19 @@ namespace tl
                 glClear(GL_STENCIL_BUFFER_BIT);
                 glStencilFunc(GL_ALWAYS, 1, 0xFF);
                 glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-                p.rectShader->bind();
-                p.rectShader->setUniform("color", imaging::Color4f(0.F, 1.F, 0.F));
+                p.meshShader->bind();
+                p.meshShader->setUniform("color", imaging::Color4f(0.F, 1.F, 0.F));
                 {
                     std::vector<uint8_t> vboData;
-                    vboData.resize(3 * getByteCount(VBOType::Pos2_F32_UV_U16));
-                    VBOVertex* vboP = reinterpret_cast<VBOVertex*>(vboData.data());
+                    vboData.resize(3 * getByteCount(VBOType::Pos2_F32));
+                    Pos2_F32* vboP = reinterpret_cast<Pos2_F32*>(vboData.data());
                     vboP[0].vx = pts[2].x;
                     vboP[0].vy = pts[2].y;
-                    vboP[0].tx = 0;
-                    vboP[0].ty = 0;
                     vboP[1].vx = pts[3].x;
                     vboP[1].vy = pts[3].y;
-                    vboP[1].tx = 0;
-                    vboP[1].ty = 0;
                     vboP[2].vx = pts[0].x;
                     vboP[2].vy = pts[0].y;
-                    vboP[2].tx = 0;
-                    vboP[2].ty = 0;
-                    auto vbo = VBO::create(4, VBOType::Pos2_F32_UV_U16);
+                    auto vbo = VBO::create(4, VBOType::Pos2_F32);
                     vbo->copy(vboData);
 
                     auto vao = VAO::create(vbo->getType(), vbo->getID());
@@ -186,7 +174,7 @@ namespace tl
 
                     std::vector<uint8_t> vboData;
                     vboData.resize(4 * getByteCount(VBOType::Pos2_F32_UV_U16));
-                    VBOVertex* vboP = reinterpret_cast<VBOVertex*>(vboData.data());
+                    Pos2_F32_UV_U16* vboP = reinterpret_cast<Pos2_F32_UV_U16*>(vboData.data());
                     vboP[0].vx = 0.F;
                     vboP[0].vy = 0.F;
                     vboP[0].tx = 0;
@@ -272,7 +260,7 @@ namespace tl
 
                     std::vector<uint8_t> vboData;
                     vboData.resize(4 * getByteCount(VBOType::Pos2_F32_UV_U16));
-                    VBOVertex* vboP = reinterpret_cast<VBOVertex*>(vboData.data());
+                    Pos2_F32_UV_U16* vboP = reinterpret_cast<Pos2_F32_UV_U16*>(vboData.data());
                     vboP[0].vx = 0.F;
                     vboP[0].vy = 0.F;
                     vboP[0].tx = 0;
@@ -454,7 +442,7 @@ namespace tl
 
                                 std::vector<uint8_t> vboData;
                                 vboData.resize(4 * getByteCount(VBOType::Pos2_F32_UV_U16));
-                                VBOVertex* vboP = reinterpret_cast<VBOVertex*>(vboData.data());
+                                Pos2_F32_UV_U16* vboP = reinterpret_cast<Pos2_F32_UV_U16*>(vboData.data());
                                 vboP[0].vx = 0;
                                 vboP[0].vy = 0;
                                 vboP[0].tx = 0;
@@ -520,12 +508,11 @@ namespace tl
                         break;
                     }
 
-                    if (auto fontSystem = _fontSystem.lock())
                     {
                         auto shared = shared_from_this();
                         for (const auto& i : layer.primitives)
                         {
-                            i->render(fontSystem, shared);
+                            i->render(_fontSystem, shared);
                         }
                     }
                 }
@@ -582,7 +569,7 @@ namespace tl
 
                 std::vector<uint8_t> vboData;
                 vboData.resize(4 * getByteCount(VBOType::Pos2_F32_UV_U16));
-                VBOVertex* vboP = reinterpret_cast<VBOVertex*>(vboData.data());
+                Pos2_F32_UV_U16* vboP = reinterpret_cast<Pos2_F32_UV_U16*>(vboData.data());
                 vboP[0].vx = bbox.min.x;
                 vboP[0].vy = bbox.min.y;
                 vboP[0].tx = 0;

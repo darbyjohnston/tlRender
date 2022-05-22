@@ -36,6 +36,7 @@ namespace tl
         {
             const std::array<size_t, static_cast<size_t>(VBOType::Count)> data =
             {
+                8,  // 2 * sizeof(float)
                 12, // 2 * sizeof(float) + 2 * sizeof(uint16_t)
                 12, // 3 * sizeof(float)
                 16, // 3 * sizeof(float) + 2 * sizeof(uint16_t)
@@ -49,6 +50,65 @@ namespace tl
         }
 
         std::vector<uint8_t> convert(
+            const geom::TriangleMesh2& mesh,
+            gl::VBOType type,
+            const math::SizeTRange& range)
+        {
+            const size_t vertexByteCount = gl::getByteCount(type);
+            std::vector<uint8_t> out((range.getMax() - range.getMin() + 1) * 3 * vertexByteCount);
+            uint8_t* p = out.data();
+            switch (type)
+            {
+            case gl::VBOType::Pos2_F32:
+                for (size_t i = range.getMin(); i <= range.getMax(); ++i)
+                {
+                    const geom::Vertex2* vertices[] =
+                    {
+                        &mesh.triangles[i].v[0],
+                        &mesh.triangles[i].v[1],
+                        &mesh.triangles[i].v[2]
+                    };
+                    for (size_t k = 0; k < 3; ++k)
+                    {
+                        const size_t v = vertices[k]->v;
+                        float* pf = reinterpret_cast<float*>(p);
+                        pf[0] = v ? mesh.v[v - 1].x : 0.F;
+                        pf[1] = v ? mesh.v[v - 1].y : 0.F;
+                        p += 2 * sizeof(float);
+                    }
+                }
+                break;
+            case gl::VBOType::Pos2_F32_UV_U16:
+                for (size_t i = range.getMin(); i <= range.getMax(); ++i)
+                {
+                    const geom::Vertex2* vertices[] =
+                    {
+                        &mesh.triangles[i].v[0],
+                        &mesh.triangles[i].v[1],
+                        &mesh.triangles[i].v[2]
+                    };
+                    for (size_t k = 0; k < 3; ++k)
+                    {
+                        const size_t v = vertices[k]->v;
+                        float* pf = reinterpret_cast<float*>(p);
+                        pf[0] = v ? mesh.v[v - 1].x : 0.F;
+                        pf[1] = v ? mesh.v[v - 1].y : 0.F;
+                        p += 2 * sizeof(float);
+
+                        const size_t t = vertices[k]->t;
+                        uint16_t* pu16 = reinterpret_cast<uint16_t*>(p);
+                        pu16[0] = t ? math::clamp(static_cast<int>(mesh.t[t - 1].x * 65535.F), 0, 65535) : 0;
+                        pu16[1] = t ? math::clamp(static_cast<int>(mesh.t[t - 1].y * 65535.F), 0, 65535) : 0;
+                        p += 2 * sizeof(uint16_t);
+                    }
+                }
+                break;
+            default: break;
+            }
+            return out;
+        }
+
+        std::vector<uint8_t> convert(
             const geom::TriangleMesh3& mesh,
             gl::VBOType type,
             const math::SizeTRange& range)
@@ -58,6 +118,26 @@ namespace tl
             uint8_t* p = out.data();
             switch (type)
             {
+            case gl::VBOType::Pos3_F32:
+                for (size_t i = range.getMin(); i <= range.getMax(); ++i)
+                {
+                    const geom::Vertex3* vertices[] =
+                    {
+                        &mesh.triangles[i].v[0],
+                        &mesh.triangles[i].v[1],
+                        &mesh.triangles[i].v[2]
+                    };
+                    for (size_t k = 0; k < 3; ++k)
+                    {
+                        const size_t v = vertices[k]->v;
+                        float* pf = reinterpret_cast<float*>(p);
+                        pf[0] = v ? mesh.v[v - 1].x : 0.F;
+                        pf[1] = v ? mesh.v[v - 1].y : 0.F;
+                        pf[2] = v ? mesh.v[v - 1].z : 0.F;
+                        p += 3 * sizeof(float);
+                    }
+                }
+                break;
             case gl::VBOType::Pos3_F32_UV_U16:
                 for (size_t i = range.getMin(); i <= range.getMax(); ++i)
                 {
@@ -308,6 +388,10 @@ namespace tl
             const std::size_t byteCount = getByteCount(type);
             switch (type)
             {
+            case VBOType::Pos2_F32:
+                glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, static_cast<GLsizei>(byteCount), (GLvoid*)0);
+                glEnableVertexAttribArray(0);
+                break;
             case VBOType::Pos2_F32_UV_U16:
                 glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, static_cast<GLsizei>(byteCount), (GLvoid*)0);
                 glEnableVertexAttribArray(0);

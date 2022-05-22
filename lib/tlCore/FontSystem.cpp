@@ -4,6 +4,7 @@
 
 #include <tlCore/FontSystem.h>
 
+#include <tlCore/Context.h>
 #include <tlCore/LRUCache.h>
 
 #include <Fonts/NotoMono-Regular.font>
@@ -69,6 +70,7 @@ namespace tl
                 math::Vector2i&,
                 std::vector<math::BBox2i>* = nullptr);
 
+            std::weak_ptr<system::Context> context;
             FT_Library ftLibrary = nullptr;
             std::map<FontFamily, FT_Face> ftFaces;
             std::wstring_convert<std::codecvt_utf8<tl_char_t>, tl_char_t> utf32Convert;
@@ -77,9 +79,9 @@ namespace tl
 
         void FontSystem::_init(const std::shared_ptr<system::Context>& context)
         {
-            ISystem::_init("tl::imaging::FontSystem", context);
-
             TLRENDER_P();
+
+            p.context = context;
 
             FT_Error ftError = FT_Init_FreeType(&p.ftLibrary);
             if (ftError)
