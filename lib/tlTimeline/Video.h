@@ -6,9 +6,8 @@
 
 #include <tlTimeline/RenderOptions.h>
 
-#include <tlIO/IO.h>
-
-#include <tlCore/FontSystem.h>
+#include <tlCore/Context.h>
+#include <tlCore/Time.h>
 
 #include <opentimelineio/anyDictionary.h>
 
@@ -66,15 +65,12 @@ namespace tl
                 const std::shared_ptr<IRender>&) override;
 
         private:
-            math::BBox2i _bbox;
-            imaging::Color4f _color = imaging::Color4f(1.F, 1.F, 1.F);
+            TLRENDER_PRIVATE();
         };
 
         //! Text primitive.
         class TextPrimitive : public IPrimitive
         {
-            TLRENDER_NON_COPYABLE(TextPrimitive);
-
         protected:
             void _init(
                 const otio::AnyDictionary&,
@@ -93,10 +89,7 @@ namespace tl
                 const std::shared_ptr<IRender>&) override;
 
         private:
-            std::string _text;
-            imaging::FontInfo _fontInfo;
-            math::Vector2i _position;
-            imaging::Color4f _color = imaging::Color4f(1.F, 1.F, 1.F);
+            TLRENDER_PRIVATE();
         };
 
         //! Primitive factory.
@@ -115,8 +108,8 @@ namespace tl
                 const otio::AnyDictionary&,
                 std::vector<std::shared_ptr<IPrimitive> >&);
 
-        protected:
-            std::weak_ptr<system::Context> _context;
+        private:
+            TLRENDER_PRIVATE();
         };
 
         //! Transitions.

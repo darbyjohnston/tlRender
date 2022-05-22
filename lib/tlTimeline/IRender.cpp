@@ -4,6 +4,8 @@
 
 #include <tlTimeline/IRender.h>
 
+#include <tlCore/FontSystem.h>
+
 namespace tl
 {
     namespace timeline

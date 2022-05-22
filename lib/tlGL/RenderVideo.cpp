@@ -6,6 +6,8 @@
 
 #include <tlGL/Mesh.h>
 
+#include <tlCore/Math.h>
+
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace tl

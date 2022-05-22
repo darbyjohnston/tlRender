@@ -16,6 +16,8 @@
 
 #include <OpenColorIO/OpenColorIO.h>
 
+#include <list>
+
 namespace OCIO = OCIO_NAMESPACE;
 
 namespace tl

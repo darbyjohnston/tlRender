@@ -7,11 +7,13 @@
 #include <tlTimeline/IRender.h>
 
 #include <tlCore/Error.h>
+#include <tlCore/FontSystem.h>
 #include <tlCore/String.h>
 
 #include <opentimelineio/transition.h>
 
 #include <array>
+#include <sstream>
 
 namespace tl
 {
@@ -46,29 +48,37 @@ namespace tl
         IPrimitive::~IPrimitive()
         {}
 
+        struct RectPrimitive::Private
+        {
+            math::BBox2i bbox;
+            imaging::Color4f color = imaging::Color4f(1.F, 1.F, 1.F);
+        };
+
         void RectPrimitive::_init(
             const otio::AnyDictionary& value,
             const std::shared_ptr<system::Context>& context)
         {
             IPrimitive::_init(value, context);
+            TLRENDER_P();
             for (const auto& l : value)
             {
                 if ("bbox" == l.first)
                 {
                     const auto s = otio::any_cast<std::string const&>(l.second);
                     std::stringstream ss(s);
-                    ss >> _bbox;
+                    ss >> p.bbox;
                 }
                 else if ("color" == l.first)
                 {
                     const auto s = otio::any_cast<std::string const&>(l.second);
                     std::stringstream ss(s);
-                    ss >> _color;
+                    ss >> p.color;
                 }
             }
         }
 
-        RectPrimitive::RectPrimitive()
+        RectPrimitive::RectPrimitive() :
+            _p(new Private)
         {}
 
         RectPrimitive::~RectPrimitive()
@@ -87,42 +97,53 @@ namespace tl
             const std::shared_ptr<imaging::FontSystem>&,
             const std::shared_ptr<IRender>& render)
         {
-            render->drawRect(_bbox, _color);
+            TLRENDER_P();
+            render->drawRect(p.bbox, p.color);
         }
+
+        struct TextPrimitive::Private
+        {
+            std::string text;
+            imaging::FontInfo fontInfo;
+            math::Vector2i position;
+            imaging::Color4f color = imaging::Color4f(1.F, 1.F, 1.F);
+        };
 
         void TextPrimitive::_init(
             const otio::AnyDictionary& value,
             const std::shared_ptr<system::Context>& context)
         {
             IPrimitive::_init(value, context);
+            TLRENDER_P();
             for (const auto& l : value)
             {
                 if ("text" == l.first)
                 {
-                    _text = otio::any_cast<std::string const&>(l.second);
+                    p.text = otio::any_cast<std::string const&>(l.second);
                 }
                 else if ("fontSize" == l.first)
                 {
                     const auto s = otio::any_cast<std::string const&>(l.second);
                     std::stringstream ss(s);
-                    ss >> _fontInfo.size;
+                    ss >> p.fontInfo.size;
                 }
                 else if ("position" == l.first)
                 {
                     const auto s = otio::any_cast<std::string const&>(l.second);
                     std::stringstream ss(s);
-                    ss >> _position;
+                    ss >> p.position;
                 }
                 else if ("color" == l.first)
                 {
                     const auto s = otio::any_cast<std::string const&>(l.second);
                     std::stringstream ss(s);
-                    ss >> _color;
+                    ss >> p.color;
                 }
             }
         }
 
-        TextPrimitive::TextPrimitive()
+        TextPrimitive::TextPrimitive() :
+            _p(new Private)
         {}
 
         TextPrimitive::~TextPrimitive()
@@ -141,15 +162,23 @@ namespace tl
             const std::shared_ptr<imaging::FontSystem>& fontSystem,
             const std::shared_ptr<IRender>& render)
         {
-            render->drawText(fontSystem->getGlyphs(_text, _fontInfo), _position, _color);
+            TLRENDER_P();
+            render->drawText(fontSystem->getGlyphs(p.text, p.fontInfo), p.position, p.color);
         }
+
+        struct PrimitiveFactory::Private
+        {
+            std::weak_ptr<system::Context> context;
+        };
 
         void PrimitiveFactory::_init(const std::shared_ptr<system::Context>& context)
         {
-            _context = context;
+            TLRENDER_P();
+            p.context = context;
         }
 
-        PrimitiveFactory::PrimitiveFactory()
+        PrimitiveFactory::PrimitiveFactory() :
+            _p(new Private)
         {}
 
         std::shared_ptr<PrimitiveFactory> PrimitiveFactory::create(const std::shared_ptr<system::Context>& context)
@@ -163,7 +192,8 @@ namespace tl
             const otio::AnyDictionary& value,
             std::vector<std::shared_ptr<IPrimitive> >& out)
         {
-            if (auto context = _context.lock())
+            TLRENDER_P();
+            if (auto context = p.context.lock())
             {
                 try
                 {
