@@ -203,7 +203,6 @@ namespace tl
             addToolBar(Qt::TopToolBarArea, windowToolBar);
 
             p.timelineViewport = new qtwidget::TimelineViewport(app->getContext());
-            p.timelineViewport->setFocus();
             p.timelineViewport->installEventFilter(this);
             setCentralWidget(p.timelineViewport);
 
@@ -405,6 +404,8 @@ namespace tl
             p.statusBar = new QStatusBar;
             p.statusBar->addPermanentWidget(p.infoLabel);
             setStatusBar(p.statusBar);
+
+            p.timelineViewport->setFocus();
 
             p.outputDevice = new qt::OutputDevice(app->getContext());
 
