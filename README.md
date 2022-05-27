@@ -175,7 +175,7 @@ cmake --build . -j 4 --config Debug
 ```
 Try running the "play-glfw" example:
 ```
-./examples/play-glfw/play-glfw ../etc/SampleData/multiple_clips.otio
+./tlRender/src/tlRender-build/examples/play-glfw/play-glfw ../etc/SampleData/MultipleClips.otio
 ```
 
 Building on macOS with Qt
