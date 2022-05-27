@@ -141,6 +141,11 @@ namespace tl
             return _p->viewZoom;
         }
 
+        bool TimelineViewport::hasFrameView() const
+        {
+            return _p->frameView;
+        }
+
         void TimelineViewport::setViewPosAndZoom(const math::Vector2i& pos, float zoom)
         {
             TLRENDER_P();

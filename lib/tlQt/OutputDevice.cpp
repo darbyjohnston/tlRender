@@ -186,24 +186,17 @@ namespace tl
             }
         }
 
-        void OutputDevice::setViewPosAndZoom(const tl::math::Vector2i& pos, float zoom)
+        void OutputDevice::setView(
+            const tl::math::Vector2i& pos,
+            float                     zoom,
+            bool                      frame)
         {
             TLRENDER_P();
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
                 p.viewPos = pos;
                 p.viewZoom = zoom;
-                p.frameView = false;
-            }
-            p.cv.notify_one();
-        }
-
-        void OutputDevice::frameView()
-        {
-            TLRENDER_P();
-            {
-                std::unique_lock<std::mutex> lock(p.mutex);
-                p.frameView = true;
+                p.frameView = frame;
             }
             p.cv.notify_one();
         }
@@ -535,7 +528,11 @@ namespace tl
                                 vao->bind();
                                 vao->draw(GL_TRIANGLES, 0, mesh.triangles.size() * 3);
 
-                                auto pixelData = device::PixelData::create(viewportSize, pixelType);
+                                auto pixelData = device::PixelData::create(
+                                    viewportSize,
+                                    pixelType,
+                                    !videoData.empty() ? videoData[0].time : time::invalidTime);
+                                //std::cout << "time: " << pixelData->getTime() << std::endl;
                                 glPixelStorei(GL_PACK_ALIGNMENT, getReadPixelsAlign(pixelType));
                                 glPixelStorei(GL_PACK_SWAP_BYTES, getReadPixelsSwap(pixelType));
                                 glReadPixels(
@@ -558,7 +555,6 @@ namespace tl
                         }
                     }
                 }
-                frameView = false;
             }
         }
     }

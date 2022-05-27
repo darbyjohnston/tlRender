@@ -49,10 +49,14 @@ namespace tl
             return out;
         }
 
-        void PixelData::_init(const imaging::Size& size, PixelType pixelType)
+        void PixelData::_init(
+            const imaging::Size& size,
+            PixelType pixelType,
+            const otime::RationalTime& time)
         {
             _size = size;
             _pixelType = pixelType;
+            _time = time;
             _dataByteCount = device::getDataByteCount(_size, _pixelType);
             _data = new uint8_t[_dataByteCount];
         }
@@ -65,10 +69,13 @@ namespace tl
             delete[] _data;
         }
 
-        std::shared_ptr<PixelData> PixelData::create(const imaging::Size& size, PixelType pixelType)
+        std::shared_ptr<PixelData> PixelData::create(
+            const imaging::Size& size,
+            PixelType pixelType,
+            const otime::RationalTime& time)
         {
             auto out = std::shared_ptr<PixelData>(new PixelData);
-            out->_init(size, pixelType);
+            out->_init(size, pixelType, time);
             return out;
         }
 
@@ -80,6 +87,11 @@ namespace tl
         PixelType PixelData::getPixelType() const
         {
             return _pixelType;
+        }
+
+        const otime::RationalTime& PixelData::getTime() const
+        {
+            return _time;
         }
 
         bool PixelData::isValid() const

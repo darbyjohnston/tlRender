@@ -49,6 +49,9 @@ namespace tl
             //! Get the view zoom.
             float viewZoom() const;
 
+            //! Get whether the view is framed.
+            bool hasFrameView() const;
+
         public Q_SLOTS:
             //! Set the view position and zoom.
             void setViewPosAndZoom(const tl::math::Vector2i&, float);

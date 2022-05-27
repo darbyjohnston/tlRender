@@ -45,20 +45,29 @@ namespace tl
             TLRENDER_NON_COPYABLE(PixelData);
 
         protected:
-            void _init(const imaging::Size&, PixelType);
+            void _init(
+                const imaging::Size&,
+                PixelType,
+                const otime::RationalTime&);
             PixelData();
 
         public:
             ~PixelData();
 
             //! Create new pixel data.
-            static std::shared_ptr<PixelData> create(const imaging::Size&, PixelType);
+            static std::shared_ptr<PixelData> create(
+                const imaging::Size&,
+                PixelType,
+                const otime::RationalTime&);
 
             //! Get the pixel data size.
             const imaging::Size& getSize() const;
 
             //! Get the pixel type.
             PixelType getPixelType() const;
+
+            //! Get the time.
+            const otime::RationalTime& getTime() const;
 
             //! Is the pixel data valid?
             bool isValid() const;
@@ -78,6 +87,7 @@ namespace tl
         private:
             imaging::Size _size;
             PixelType _pixelType = PixelType::None;
+            otime::RationalTime _time;
             size_t _dataByteCount = 0;
             uint8_t* _data = nullptr;
         };

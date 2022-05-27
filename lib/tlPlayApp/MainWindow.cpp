@@ -647,13 +647,21 @@ namespace tl
                 &qtwidget::TimelineViewport::viewPosAndZoomChanged,
                 [this](const tl::math::Vector2i& pos, float zoom)
                 {
-                    _p->outputDevice->setViewPosAndZoom(pos, zoom);
+                    _p->outputDevice->setView(
+                        pos,
+                        zoom,
+                        _p->timelineViewport->hasFrameView());
                 });
             connect(
                 p.timelineViewport,
-                SIGNAL(frameViewActivated()),
-                p.outputDevice,
-                SLOT(frameView()));
+                &qtwidget::TimelineViewport::frameViewActivated,
+                [this]
+                {
+                    _p->outputDevice->setView(
+                        _p->timelineViewport->viewPos(),
+                        _p->timelineViewport->viewZoom(),
+                        _p->timelineViewport->hasFrameView());
+                });
 
             connect(
                 app->settingsObject(),

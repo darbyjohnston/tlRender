@@ -58,11 +58,11 @@ namespace tl
             void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
 
         public Q_SLOTS:
-            //! Set the view position and zoom.
-            void setViewPosAndZoom(const tl::math::Vector2i&, float);
-
-            //! Frame the view.
-            void frameView();
+            //! Set the view.
+            void setView(
+                const tl::math::Vector2i& position,
+                float                     zoom,
+                bool                      frame);
 
         private Q_SLOTS:
             void _videoCallback(const tl::timeline::VideoData&);

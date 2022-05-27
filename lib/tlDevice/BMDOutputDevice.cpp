@@ -25,6 +25,9 @@ namespace tl
     {
         namespace
         {
+            const size_t preroll = 3;
+            const size_t pixelDataListMax = 3;
+
             class DLVideoOutputCallback : public IDeckLinkVideoOutputCallback
             {
             public:
@@ -154,7 +157,8 @@ namespace tl
             imaging::Size size;
             otime::RationalTime frameRate;
 
-            std::shared_ptr<device::PixelData> pixelData;
+            std::list<std::shared_ptr<device::PixelData> > pixelData;
+            std::shared_ptr<device::PixelData> pixelDataTmp;
             std::mutex pixelDataMutex;
 
             DLWrapper dl;
@@ -213,17 +217,23 @@ namespace tl
                     std::shared_ptr<device::PixelData> pixelData;
                     {
                         std::unique_lock<std::mutex> lock(_p->pixelDataMutex);
-                        pixelData = _p->pixelData;
+                        if (!_p->pixelData.empty())
+                        {
+                            _p->pixelDataTmp = _p->pixelData.front();
+                            _p->pixelData.pop_front();
+                        }
+                        pixelData = _p->pixelDataTmp;
                     }
                     if (pixelData)
                     {
+                        //std::cout << "time: " << pixelData->getTime() << std::endl;
                         void* dlFrame = nullptr;
                         dlVideoFrame->GetBytes((void**)&dlFrame);
                         memcpy(dlFrame, pixelData->getData(), pixelData->getDataByteCount());
                     }
                     if (_p->dlOutput.p->ScheduleVideoFrame(
                         dlVideoFrame,
-                        (_p->frameCount * _p->frameRate.value()),
+                        _p->frameCount * _p->frameRate.value(),
                         _p->frameRate.value(),
                         _p->frameRate.rate()) == S_OK)
                     {
@@ -283,7 +293,7 @@ namespace tl
             }
 
             DLVideoFrameWrapper dlVideoFrame;
-            for (int preroll = 0; preroll < 3; ++preroll)
+            for (int i = 0; i < preroll; ++i)
             {
                 if (p.dlOutput.p->CreateVideoFrame(
                     p.size.w,
@@ -297,7 +307,7 @@ namespace tl
                 }
                 if (p.dlOutput.p->ScheduleVideoFrame(
                     dlVideoFrame.p,
-                    (p.frameCount * p.frameRate.value()),
+                    p.frameCount * p.frameRate.value(),
                     p.frameRate.value(),
                     p.frameRate.rate()) != S_OK)
                 {
@@ -346,7 +356,11 @@ namespace tl
         {
             TLRENDER_P();
             std::unique_lock<std::mutex> lock(p.pixelDataMutex);
-            p.pixelData = pixelData;
+            p.pixelData.push_back(pixelData);
+            while (p.pixelData.size() > pixelDataListMax)
+            {
+                p.pixelData.pop_front();
+            }
         }
     }
 }
