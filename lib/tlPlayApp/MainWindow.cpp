@@ -1026,9 +1026,9 @@ namespace tl
 
             std::vector<std::string> infoLabel;
             std::vector<std::string> infoTooltip;
-            if (count > 0)
+            const int aIndex = p.app->filesModel()->observeAIndex()->get();
+            if (count > 0 && aIndex >= 0 && aIndex < count)
             {
-                const int aIndex = p.app->filesModel()->observeAIndex()->get();
                 const std::string fileName = files[aIndex]->path.get(-1, false);
                 std::string fileNameLabel = fileName;
                 if (fileNameLabel.size() > infoLabelMax)
