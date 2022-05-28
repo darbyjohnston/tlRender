@@ -37,7 +37,6 @@ namespace tl
 
                 std::shared_ptr<timeline::Timeline> timeline;
                 std::vector<std::future<timeline::VideoData> > futures;
-                QList<QPair<otime::RationalTime, QImage> > thumbnails;
             };
             std::list<Request> requests;
             std::list<Request> requestsInProgress;
@@ -208,6 +207,10 @@ namespace tl
                 std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer;
                 while (p.running)
                 {
+                    //std::cout << "requests: " << p.requests.size() << std::endl;
+                    //std::cout << "requests in progress: " << p.requestsInProgress.size() << std::endl;
+                    //std::cout << "results: " << p.results.size() << std::endl;
+
                     // Gather requests.
                     std::list<Private::Request> newRequests;
                     {
@@ -275,6 +278,7 @@ namespace tl
                     }
 
                     // Check for finished requests.
+                    std::vector<Private::Result> results;
                     auto requestIt = p.requestsInProgress.begin();
                     while (requestIt != p.requestsInProgress.end())
                     {
@@ -338,8 +342,21 @@ namespace tl
                                     info.size.w * 4,
                                     QImage::Format_RGBA8888).mirrored();
                                 {
-                                    std::unique_lock<std::mutex> lock(p.mutex);
-                                    requestIt->thumbnails.push_back(QPair<otime::RationalTime, QImage>(videoData.time, qImage));
+                                    const auto i = std::find_if(
+                                        results.begin(),
+                                        results.end(),
+                                        [&requestIt](const Private::Result& value)
+                                        {
+                                            return requestIt->id == value.id;
+                                        });
+                                    if (i == results.end())
+                                    {
+                                        results.push_back({ requestIt->id, { QPair<otime::RationalTime, QImage>(videoData.time, qImage) } });
+                                    }
+                                    else
+                                    {
+                                        i->thumbnails.push_back(QPair<otime::RationalTime, QImage>(videoData.time, qImage));
+                                    }
                                 }
 
                                 futureIt = requestIt->futures.erase(futureIt);
@@ -349,12 +366,14 @@ namespace tl
                         }
                         if (requestIt->futures.empty())
                         {
-                            std::unique_lock<std::mutex> lock(p.mutex);
-                            p.results.push_back({ requestIt->id, requestIt->thumbnails });
                             requestIt = p.requestsInProgress.erase(requestIt);
                             continue;
                         }
                         ++requestIt;
+                    }
+                    {
+                        std::unique_lock<std::mutex> lock(p.mutex);
+                        p.results.insert(p.results.end(), results.begin(), results.end());
                     }
                 }
             }

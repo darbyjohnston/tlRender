@@ -296,7 +296,6 @@ namespace tl
                     {
                         p.thumbnailImages[i.first] = i.second;
                     }
-                    p.thumbnailRequestId = 0;
                 }
                 update();
             }

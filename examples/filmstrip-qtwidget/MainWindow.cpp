@@ -33,7 +33,7 @@ namespace tl
                 _thumbnailProvider = new qt::TimelineThumbnailProvider(context, this);
 
                 _filmstripWidget = new qtwidget::FilmstripWidget(_thumbnailProvider);
-                _filmstripWidget->setRowCount(5);
+                _filmstripWidget->setRowCount(10);
                 setCentralWidget(_filmstripWidget);
 
                 if (!input.empty())
