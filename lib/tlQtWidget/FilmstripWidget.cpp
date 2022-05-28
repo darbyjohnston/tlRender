@@ -127,7 +127,6 @@ namespace tl
                     thumbnail.time = std::chrono::steady_clock::now();
                     p.thumbnails[i.first] = thumbnail;
                 }
-                p.thumbnailRequestId = 0;
                 update();
             }
         }
