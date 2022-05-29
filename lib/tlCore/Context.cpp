@@ -16,19 +16,11 @@ namespace tl
     {
         struct Context::Private
         {
-            std::vector<log::Item> logInit;
         };
 
         void Context::_init()
         {
             _logSystem = log::System::create(shared_from_this());
-            auto logObserver = observer::ListObserver<log::Item>::create(
-                _logSystem->observeLog(),
-                [this](const std::vector<log::Item>& value)
-                {
-                    _p->logInit = value;
-                },
-                observer::CallbackAction::Suppress);
             addSystem(_logSystem);
 
             const os::SystemInfo info = os::getSystemInfo();
@@ -61,11 +53,6 @@ namespace tl
         void Context::addSystem(const std::shared_ptr<ICoreSystem>& system)
         {
             _systems[system] = std::chrono::steady_clock::now();
-        }
-
-        std::vector<log::Item> Context::getLogInit()
-        {
-            return std::move(_p->logInit);
         }
 
         void Context::log(const std::string& prefix, const std::string& value, log::Type type)

@@ -96,10 +96,6 @@ namespace tl
             // Setup the log.
             if (_options.log)
             {
-                for (const auto& i : context->getLogInit())
-                {
-                    _print("[LOG] " + toString(i));
-                }
                 p.logObserver = observer::ListObserver<log::Item>::create(
                     context->getSystem<log::System>()->observeLog(),
                     [this](const std::vector<log::Item>& value)

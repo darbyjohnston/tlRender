@@ -37,9 +37,6 @@ namespace tl
             //! Get the log system.
             const std::shared_ptr<log::System>& getLogSystem() const;
 
-            //! Get the log items from initialization.
-            std::vector<log::Item> getLogInit();
-
             //! Get a system.
             template<typename T>
             std::shared_ptr<T> getSystem() const;

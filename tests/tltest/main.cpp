@@ -78,10 +78,6 @@ int main(int argc, char* argv[])
     io::init(context);
 #endif
 
-    for (const auto& i : context->getLogInit())
-    {
-        std::cout << "[LOG] " << toString(i) << std::endl;
-    }
     auto logObserver = observer::ListObserver<log::Item>::create(
         context->getSystem<log::System>()->observeLog(),
         [](const std::vector<log::Item>& value)
