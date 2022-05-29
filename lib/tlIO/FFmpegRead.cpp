@@ -11,6 +11,7 @@
 
 extern "C"
 {
+#include <libavcodec/avcodec.h>
 #include <libavutil/dict.h>
 #include <libavutil/imgutils.h>
 #include <libswresample/swresample.h>
@@ -311,13 +312,16 @@ namespace tl
             {
                 throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
             }
-            r = avformat_find_stream_info(p.video.avFormatContext, 0);
+
+            r = avformat_find_stream_info(p.video.avFormatContext, nullptr);
             if (r < 0)
             {
                 throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
             }
             for (unsigned int i = 0; i < p.video.avFormatContext->nb_streams; ++i)
             {
+                //av_dump_format(p.video.avFormatContext, 0, fileName.c_str(), 0);
+
                 if (AVMEDIA_TYPE_VIDEO == p.video.avFormatContext->streams[i]->codecpar->codec_type &&
                     AV_DISPOSITION_DEFAULT == p.video.avFormatContext->streams[i]->disposition)
                 {
@@ -348,12 +352,20 @@ namespace tl
                     throw std::runtime_error(string::Format("{0}: No video codec found").arg(fileName));
                 }
                 p.video.avCodecParameters[p.video.avStream] = avcodec_parameters_alloc();
+                if (!p.video.avCodecParameters[p.video.avStream])
+                {
+                    throw std::runtime_error(string::Format("{0}: Cannot allocate parameters").arg(fileName));
+                }
                 r = avcodec_parameters_copy(p.video.avCodecParameters[p.video.avStream], avVideoCodecParameters);
                 if (r < 0)
                 {
                     throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
                 }
                 p.video.avCodecContext[p.video.avStream] = avcodec_alloc_context3(avVideoCodec);
+                if (!p.video.avCodecParameters[p.video.avStream])
+                {
+                    throw std::runtime_error(string::Format("{0}: Cannot allocate context").arg(fileName));
+                }
                 r = avcodec_parameters_to_context(p.video.avCodecContext[p.video.avStream], p.video.avCodecParameters[p.video.avStream]);
                 if (r < 0)
                 {
@@ -372,7 +384,6 @@ namespace tl
                 videoInfo.size.h = p.video.avCodecParameters[p.video.avStream]->height;
                 videoInfo.layout.mirror.y = true;
 
-                p.video.avFrame = av_frame_alloc();
                 const AVPixelFormat avPixelFormat = static_cast<AVPixelFormat>(
                     p.video.avCodecParameters[p.video.avStream]->format);
                 switch (avPixelFormat)
@@ -390,41 +401,8 @@ namespace tl
                     videoInfo.pixelType = imaging::PixelType::RGBA_U8;
                     break;
                 default:
-                {
                     videoInfo.pixelType = imaging::PixelType::YUV_420P;
-                    p.video.avFrame2 = av_frame_alloc();
-                    p.video.swsContext = sws_getContext(
-                        p.video.avCodecParameters[p.video.avStream]->width,
-                        p.video.avCodecParameters[p.video.avStream]->height,
-                        avPixelFormat,
-                        p.video.avCodecParameters[p.video.avStream]->width,
-                        p.video.avCodecParameters[p.video.avStream]->height,
-                        AV_PIX_FMT_YUV420P,
-                        swsScaleFlags,
-                        0,
-                        0,
-                        0);
-                    const int srcColorRange = p.video.avCodecContext[p.video.avStream]->color_range;
-                    int srcColorSpace = SWS_CS_DEFAULT;
-                    if (p.video.avCodecContext[p.video.avStream]->color_primaries != AVCOL_PRI_UNSPECIFIED)
-                    {
-                        switch (p.video.avCodecContext[p.video.avStream]->colorspace)
-                        {
-                        case AVCOL_SPC_BT709: srcColorSpace = SWS_CS_ITU709; break;
-                        default: break;
-                        }
-                    }
-                    sws_setColorspaceDetails(
-                        p.video.swsContext,
-                        sws_getCoefficients(srcColorSpace),
-                        AVCOL_RANGE_JPEG == srcColorRange ? 1 : 0,
-                        sws_getCoefficients(SWS_CS_DEFAULT),
-                        1,
-                        0,
-                        1 << 16,
-                        1 << 16);
                     break;
-                }
                 }
                 if (p.video.avCodecContext[p.video.avStream]->color_range != AVCOL_RANGE_JPEG)
                 {
@@ -509,12 +487,20 @@ namespace tl
                     throw std::runtime_error(string::Format("{0}: No audio codec found").arg(fileName));
                 }
                 p.audio.avCodecParameters[p.audio.avStream] = avcodec_parameters_alloc();
+                if (!p.audio.avCodecParameters[p.audio.avStream])
+                {
+                    throw std::runtime_error(string::Format("{0}: Cannot allocate parameters").arg(fileName));
+                }
                 r = avcodec_parameters_copy(p.audio.avCodecParameters[p.audio.avStream], avAudioCodecParameters);
                 if (r < 0)
                 {
                     throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
                 }
                 p.audio.avCodecContext[p.audio.avStream] = avcodec_alloc_context3(avAudioCodec);
+                if (!p.audio.avCodecContext[p.audio.avStream])
+                {
+                    throw std::runtime_error(string::Format("{0}: Cannot allocate context").arg(fileName));
+                }
                 r = avcodec_parameters_to_context(p.audio.avCodecContext[p.audio.avStream], p.audio.avCodecParameters[p.audio.avStream]);
                 if (r < 0)
                 {
@@ -553,8 +539,6 @@ namespace tl
                     dataType = p.audioConvertInfo.dataType;
                     sampleRate = p.audioConvertInfo.sampleRate;
                 }
-
-                p.audio.avFrame = av_frame_alloc();
 
                 int64_t sampleCount = 0;
                 if (avAudioStream->duration != AV_NOPTS_VALUE)
@@ -604,6 +588,11 @@ namespace tl
             if (p.video.avStream != -1)
             {
                 p.video.avFrame = av_frame_alloc();
+                if (!p.video.avFrame)
+                {
+                    throw std::runtime_error(string::Format("{0}: Cannot allocate frame").arg(_path.get()));
+                }
+
                 const AVPixelFormat avPixelFormat = static_cast<AVPixelFormat>(
                     p.video.avCodecParameters[p.video.avStream]->format);
                 switch (avPixelFormat)
@@ -615,6 +604,11 @@ namespace tl
                 default:
                 {
                     p.video.avFrame2 = av_frame_alloc();
+                    if (!p.video.avFrame2)
+                    {
+                        throw std::runtime_error(string::Format("{0}: Cannot allocate frame").arg(_path.get()));
+                    }
+
                     p.video.swsContext = sws_getContext(
                         p.video.avCodecParameters[p.video.avStream]->width,
                         p.video.avCodecParameters[p.video.avStream]->height,
@@ -626,6 +620,11 @@ namespace tl
                         0,
                         0,
                         0);
+                    if (!p.video.swsContext)
+                    {
+                        throw std::runtime_error(string::Format("{0}: Cannot get context").arg(_path.get()));
+                    }
+
                     const int srcColorRange = p.video.avCodecContext[p.video.avStream]->color_range;
                     int srcColorSpace = SWS_CS_DEFAULT;
                     if (p.video.avCodecContext[p.video.avStream]->color_primaries != AVCOL_PRI_UNSPECIFIED)
@@ -652,6 +651,12 @@ namespace tl
 
             if (p.audio.avStream != -1)
             {
+                p.audio.avFrame = av_frame_alloc();
+                if (!p.audio.avFrame)
+                {
+                    throw std::runtime_error(string::Format("{0}: Cannot allocate frame").arg(_path.get()));
+                }
+
                 uint64_t channelLayout = p.audio.avCodecParameters[p.audio.avStream]->channel_layout;
                 if (0 == channelLayout)
                 {
@@ -672,6 +677,10 @@ namespace tl
                     p.audio.avCodecParameters[p.audio.avStream]->sample_rate,
                     0,
                     NULL);
+                if (!p.audio.swrContext)
+                {
+                    throw std::runtime_error(string::Format("{0}: Cannot get context").arg(_path.get()));
+                }
                 swr_init(p.audio.swrContext);
             }
 

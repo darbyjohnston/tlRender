@@ -12,6 +12,7 @@
 
 extern "C"
 {
+#include <libavutil/channel_layout.h>
 #include <libavutil/dict.h>
 #include <libavutil/imgutils.h>
 
@@ -25,6 +26,7 @@ namespace tl
     {
         TLRENDER_ENUM_IMPL(
             Profile,
+            "None",
             "H264",
             "ProRes",
             "ProRes_Proxy",
@@ -117,15 +119,18 @@ namespace tl
             av_log_set_level(AV_LOG_VERBOSE);
             av_log_set_callback(_logCallback);
 
-            av_register_all();
-            avcodec_register_all();
-            /*AVCodec* avCodec = nullptr;
+            const AVCodec* avCodec = nullptr;
+            void* avCodecIterate = nullptr;
             std::vector<std::string> codecNames;
-            while ((avCodec = av_codec_next(avCodec)))
+            while ((avCodec = av_codec_iterate(&avCodecIterate)))
             {
                 codecNames.push_back(avCodec->name);
             }
-            logSystem->print("tl::io::ffmpeg::Plugin", "Codecs: " + string::join(codecNames, ", "));*/
+            //std::cout << string::join(codecNames, ", ") << std::endl;
+            if (auto logSystem = _logSystemWeak.lock())
+            {
+                logSystem->print("tl::io::ffmpeg::Plugin", "Codecs: " + string::join(codecNames, ", "));
+            }
         }
 
         Plugin::Plugin()
@@ -156,8 +161,10 @@ namespace tl
             case imaging::PixelType::L_U8:
             case imaging::PixelType::RGB_U8:
             case imaging::PixelType::RGBA_U8:
-            case imaging::PixelType::YUV_420P:
                 out.pixelType = info.pixelType;
+                break;
+            case imaging::PixelType::YUV_420P:
+                out.pixelType = imaging::PixelType::RGB_U8;
                 break;
             default: break;
             }

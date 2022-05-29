@@ -67,7 +67,7 @@ namespace tl
             {
                 for (const auto& size : std::vector<imaging::Size>(
                     {
-                        imaging::Size(16, 16),
+                        imaging::Size(640, 480),
                         imaging::Size(1, 1),
                         imaging::Size(0, 0)
                     }))
@@ -80,7 +80,7 @@ namespace tl
                             file::Path path;
                             {
                                 std::stringstream ss;
-                                ss << fileName << '_' << size << '_' << pixelType << ".mov";
+                                ss << fileName << '_' << size << '_' << pixelType << ".mp4";
                                 _print(ss.str());
                                 path = file::Path(ss.str());
                             }
