@@ -211,41 +211,6 @@ namespace tl
                 throw std::runtime_error("Output device not found");
             }
 
-            p.dlVideoOutputCallback.p = new DLVideoOutputCallback(
-                [this](IDeckLinkVideoFrame* dlVideoFrame)
-                {
-                    std::shared_ptr<device::PixelData> pixelData;
-                    {
-                        std::unique_lock<std::mutex> lock(_p->pixelDataMutex);
-                        if (!_p->pixelData.empty())
-                        {
-                            _p->pixelDataTmp = _p->pixelData.front();
-                            _p->pixelData.pop_front();
-                        }
-                        pixelData = _p->pixelDataTmp;
-                    }
-                    if (pixelData)
-                    {
-                        //std::cout << "time: " << pixelData->getTime() << std::endl;
-                        void* dlFrame = nullptr;
-                        dlVideoFrame->GetBytes((void**)&dlFrame);
-                        memcpy(dlFrame, pixelData->getData(), pixelData->getDataByteCount());
-                    }
-                    if (_p->dlOutput.p->ScheduleVideoFrame(
-                        dlVideoFrame,
-                        _p->frameCount * _p->frameRate.value(),
-                        _p->frameRate.value(),
-                        _p->frameRate.rate()) == S_OK)
-                    {
-                        _p->frameCount = _p->frameCount + 1;
-                    }
-                });
-
-            if (p.dlOutput.p->SetScheduledFrameCompletionCallback(p.dlVideoOutputCallback.p) != S_OK)
-            {
-                throw std::runtime_error("Cannot set callback");
-            }
-
             DLDisplayModeIteratorWrapper dlDisplayModeIterator;
             if (p.dlOutput.p->GetDisplayModeIterator(&dlDisplayModeIterator.p) != S_OK)
             {
@@ -290,6 +255,41 @@ namespace tl
                 bmdVideoOutputFlagDefault) != S_OK)
             {
                 throw std::runtime_error("Cannot enable video output");
+            }
+
+            p.dlVideoOutputCallback.p = new DLVideoOutputCallback(
+                [this](IDeckLinkVideoFrame* dlVideoFrame)
+                {
+                    std::shared_ptr<device::PixelData> pixelData;
+                    {
+                        std::unique_lock<std::mutex> lock(_p->pixelDataMutex);
+                        if (!_p->pixelData.empty())
+                        {
+                            _p->pixelDataTmp = _p->pixelData.front();
+                            _p->pixelData.pop_front();
+                        }
+                        pixelData = _p->pixelDataTmp;
+                    }
+                    if (pixelData)
+                    {
+                        //std::cout << "time: " << pixelData->getTime() << std::endl;
+                        void* dlFrame = nullptr;
+                        dlVideoFrame->GetBytes((void**)&dlFrame);
+                        memcpy(dlFrame, pixelData->getData(), pixelData->getDataByteCount());
+                    }
+                    if (_p->dlOutput.p->ScheduleVideoFrame(
+                        dlVideoFrame,
+                        _p->frameCount * _p->frameRate.value(),
+                        _p->frameRate.value(),
+                        _p->frameRate.rate()) == S_OK)
+                    {
+                        _p->frameCount = _p->frameCount + 1;
+                    }
+                });
+
+            if (p.dlOutput.p->SetScheduledFrameCompletionCallback(p.dlVideoOutputCallback.p) != S_OK)
+            {
+                throw std::runtime_error("Cannot set callback");
             }
 
             DLVideoFrameWrapper dlVideoFrame;
