@@ -21,6 +21,7 @@ namespace tl
         //! Profiles.
         enum class Profile
         {
+            None,
             H264,
             ProRes,
             ProRes_Proxy,
@@ -149,6 +150,8 @@ namespace tl
         private:
             static void _logCallback(void*, int, const char*, va_list);
 
+            //! \todo What is a better way to access the log system from the
+            //! FFmpeg callback?
             static std::weak_ptr<log::System> _logSystemWeak;
         };
     }
