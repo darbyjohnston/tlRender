@@ -14,6 +14,7 @@ extern "C"
 #include <libavcodec/avcodec.h>
 #include <libavutil/dict.h>
 #include <libavutil/imgutils.h>
+#include <libavutil/opt.h>
 #include <libswresample/swresample.h>
 
 } // extern "C"
@@ -64,7 +65,10 @@ namespace tl
                 std::map<int, AVCodecContext*> avCodecContext;
                 AVFrame* avFrame = nullptr;
                 AVFrame* avFrame2 = nullptr;
+                AVPixelFormat avInputPixelFormat = AV_PIX_FMT_NONE;
+                AVPixelFormat avOutputPixelFormat = AV_PIX_FMT_NONE;
                 SwsContext* swsContext = nullptr;
+                //std::vector<SwsContext*> swsContext;
                 std::list<std::shared_ptr<imaging::Image> > buffer;
             };
             Video video;
@@ -384,23 +388,35 @@ namespace tl
                 videoInfo.size.h = p.video.avCodecParameters[p.video.avStream]->height;
                 videoInfo.layout.mirror.y = true;
 
-                const AVPixelFormat avPixelFormat = static_cast<AVPixelFormat>(
+                p.video.avInputPixelFormat = static_cast<AVPixelFormat>(
                     p.video.avCodecParameters[p.video.avStream]->format);
-                switch (avPixelFormat)
+                switch (p.video.avInputPixelFormat)
                 {
-                case AV_PIX_FMT_YUV420P:
-                    videoInfo.pixelType = imaging::PixelType::YUV_420P;
-                    break;
                 case AV_PIX_FMT_RGB24:
+                    p.video.avOutputPixelFormat = p.video.avInputPixelFormat;
                     videoInfo.pixelType = imaging::PixelType::RGB_U8;
                     break;
                 case AV_PIX_FMT_GRAY8:
+                    p.video.avOutputPixelFormat = p.video.avInputPixelFormat;
                     videoInfo.pixelType = imaging::PixelType::L_U8;
                     break;
                 case AV_PIX_FMT_RGBA:
+                    p.video.avOutputPixelFormat = p.video.avInputPixelFormat;
                     videoInfo.pixelType = imaging::PixelType::RGBA_U8;
                     break;
+                /*case AV_PIX_FMT_YUV420P10BE:
+                case AV_PIX_FMT_YUV420P10LE:
+                case AV_PIX_FMT_YUV422P10BE:
+                case AV_PIX_FMT_YUV422P10LE:
+                case AV_PIX_FMT_YUV444P10BE:
+                case AV_PIX_FMT_YUV444P10LE:
+                case AV_PIX_FMT_YUV444P12BE:
+                case AV_PIX_FMT_YUV444P12LE:
+                    p.video.avOutputPixelFormat = AV_PIX_FMT_RGB48LE;
+                    videoInfo.pixelType = imaging::PixelType::RGB_U16;
+                    break;*/
                 default:
+                    p.video.avOutputPixelFormat = AV_PIX_FMT_YUV420P;
                     videoInfo.pixelType = imaging::PixelType::YUV_420P;
                     break;
                 }
@@ -593,9 +609,7 @@ namespace tl
                     throw std::runtime_error(string::Format("{0}: Cannot allocate frame").arg(_path.get()));
                 }
 
-                const AVPixelFormat avPixelFormat = static_cast<AVPixelFormat>(
-                    p.video.avCodecParameters[p.video.avStream]->format);
-                switch (avPixelFormat)
+                switch (p.video.avInputPixelFormat)
                 {
                 case AV_PIX_FMT_YUV420P:
                 case AV_PIX_FMT_RGB24:
@@ -609,22 +623,6 @@ namespace tl
                         throw std::runtime_error(string::Format("{0}: Cannot allocate frame").arg(_path.get()));
                     }
 
-                    p.video.swsContext = sws_getContext(
-                        p.video.avCodecParameters[p.video.avStream]->width,
-                        p.video.avCodecParameters[p.video.avStream]->height,
-                        avPixelFormat,
-                        p.video.avCodecParameters[p.video.avStream]->width,
-                        p.video.avCodecParameters[p.video.avStream]->height,
-                        AV_PIX_FMT_YUV420P,
-                        swsScaleFlags,
-                        0,
-                        0,
-                        0);
-                    if (!p.video.swsContext)
-                    {
-                        throw std::runtime_error(string::Format("{0}: Cannot get context").arg(_path.get()));
-                    }
-
                     const int srcColorRange = p.video.avCodecContext[p.video.avStream]->color_range;
                     int srcColorSpace = SWS_CS_DEFAULT;
                     if (p.video.avCodecContext[p.video.avStream]->color_primaries != AVCOL_PRI_UNSPECIFIED)
@@ -635,15 +633,64 @@ namespace tl
                         default: break;
                         }
                     }
-                    sws_setColorspaceDetails(
-                        p.video.swsContext,
-                        sws_getCoefficients(srcColorSpace),
-                        AVCOL_RANGE_JPEG == srcColorRange ? 1 : 0,
-                        sws_getCoefficients(SWS_CS_DEFAULT),
-                        1,
+                    p.video.swsContext = sws_getContext(
+                        p.video.avCodecParameters[p.video.avStream]->width,
+                        p.video.avCodecParameters[p.video.avStream]->height,
+                        p.video.avInputPixelFormat,
+                        p.video.avCodecParameters[p.video.avStream]->width,
+                        p.video.avCodecParameters[p.video.avStream]->height,
+                        p.video.avOutputPixelFormat,
+                        swsScaleFlags,
                         0,
-                        1 << 16,
-                        1 << 16);
+                        0,
+                        0);
+                    /*for (size_t i = 0; i < 4; ++i)
+                    {
+                        SwsContext* swsContext = sws_getContext(
+                            p.video.avCodecParameters[p.video.avStream]->width,
+                            p.video.avCodecParameters[p.video.avStream]->height,
+                            p.video.avInputPixelFormat,
+                            p.video.avCodecParameters[p.video.avStream]->width,
+                            p.video.avCodecParameters[p.video.avStream]->height,
+                            p.video.avOutputPixelFormat,
+                            swsScaleFlags,
+                            0,
+                            0,
+                            0);
+                        if (!swsContext)
+                        {
+                            throw std::runtime_error(string::Format("{0}: Cannot get context").arg(_path.get()));
+                        }
+                        sws_setColorspaceDetails(
+                            swsContext,
+                            sws_getCoefficients(srcColorSpace),
+                            AVCOL_RANGE_JPEG == srcColorRange ? 1 : 0,
+                            sws_getCoefficients(SWS_CS_DEFAULT),
+                            1,
+                            0,
+                            1 << 16,
+                            1 << 16);
+                        p.video.swsContext.push_back(swsContext);
+                    }*/
+                    /*p.video.swsContext = sws_alloc_context();
+                    if (!p.video.swsContext)
+                    {
+                        throw std::runtime_error(string::Format("{0}: Cannot allocate context").arg(_path.get()));
+                    }
+                    av_opt_set_defaults(p.video.swsContext);
+                    int r = av_opt_set_int(p.video.swsContext, "srcw", p.video.avCodecParameters[p.video.avStream]->width, AV_OPT_SEARCH_CHILDREN);
+                    r = av_opt_set_int(p.video.swsContext, "srch", p.video.avCodecParameters[p.video.avStream]->height, AV_OPT_SEARCH_CHILDREN);
+                    r = av_opt_set_int(p.video.swsContext, "src_format", p.video.avInputPixelFormat, AV_OPT_SEARCH_CHILDREN);
+                    r = av_opt_set_int(p.video.swsContext, "dstw", p.video.avCodecParameters[p.video.avStream]->width, AV_OPT_SEARCH_CHILDREN);
+                    r = av_opt_set_int(p.video.swsContext, "dsth", p.video.avCodecParameters[p.video.avStream]->height, AV_OPT_SEARCH_CHILDREN);
+                    r = av_opt_set_int(p.video.swsContext, "dst_format", p.video.avOutputPixelFormat, AV_OPT_SEARCH_CHILDREN);
+                    r = av_opt_set_int(p.video.swsContext, "sws_flags", swsScaleFlags, AV_OPT_SEARCH_CHILDREN);
+                    r = av_opt_set_int(p.video.swsContext, "threads", 0, AV_OPT_SEARCH_CHILDREN);
+                    r = sws_init_context(p.video.swsContext, nullptr, nullptr);
+                    if (r < 0)
+                    {
+                        throw std::runtime_error(string::Format("{0}: Cannot initialize sws context").arg(_path.get()));
+                    }*/
                     break;
                 }
                 }
@@ -969,6 +1016,10 @@ namespace tl
             {
                 sws_freeContext(p.video.swsContext);
             }
+            /*for (auto i : p.video.swsContext)
+            {
+                sws_freeContext(i);
+            }*/
             if (p.video.avFrame2)
             {
                 av_frame_free(&p.video.avFrame2);
@@ -1116,11 +1167,12 @@ namespace tl
                 }
                 break;
             default:
+            {
                 av_image_fill_arrays(
                     video.avFrame2->data,
                     video.avFrame2->linesize,
                     data,
-                    AV_PIX_FMT_YUV420P,
+                    video.avOutputPixelFormat,
                     w,
                     h,
                     1);
@@ -1132,7 +1184,42 @@ namespace tl
                     video.avCodecParameters[video.avStream]->height,
                     video.avFrame2->data,
                     video.avFrame2->linesize);
+                /*std::vector<std::future<void> > futures;
+                const int h2 = h / 4;
+                for (size_t i = 0; i < 4; ++i)
+                {
+                    futures.push_back(std::async(
+                        std::launch::async,
+                        [this, i, h2]
+                        {
+                            const uint8_t* srcSlice[3] =
+                            {
+                                (uint8_t*)video.avFrame->data[0] + video.avFrame->linesize[0] * i * h2,
+                                (uint8_t*)video.avFrame->data[1] + video.avFrame->linesize[1] * i * h2,
+                                (uint8_t*)video.avFrame->data[2] + video.avFrame->linesize[2] * i * h2
+                            };
+                            uint8_t* dstSlice[3] =
+                            {
+                                (uint8_t*)video.avFrame2->data[0] + video.avFrame2->linesize[0] * i * h2,
+                                (uint8_t*)video.avFrame2->data[1] + video.avFrame2->linesize[1] * i * h2,
+                                (uint8_t*)video.avFrame2->data[2] + video.avFrame2->linesize[2] * i * h2
+                            };
+                            sws_scale(
+                                video.swsContext[i],
+                                srcSlice,
+                                video.avFrame->linesize,
+                                0,
+                                h2,
+                                dstSlice,
+                                video.avFrame2->linesize);
+                        }));
+                }
+                for (size_t i = 0; i < 4; ++i)
+                {
+                    futures[i].get();
+                }*/
                 break;
+            }
             }
         }
 
