@@ -25,7 +25,7 @@ namespace tl
             return data[static_cast<size_t>(value)];
         }
 
-        std::string getLabel(BMDVideoConnection value)
+        std::string getVideoConnectionLabel(BMDVideoConnection value)
         {
             const std::array<std::string, 7> data =
             {
@@ -40,7 +40,7 @@ namespace tl
             return data[static_cast<size_t>(value)];
         }
 
-        std::string getLabel(BMDAudioConnection value)
+        std::string getAudioConnectionLabel(BMDAudioConnection value)
         {
             const std::array<std::string, 7> data =
             {
@@ -55,7 +55,7 @@ namespace tl
             return data[static_cast<size_t>(value)];
         }
 
-        std::string getLabel(BMDDisplayMode value)
+        std::string getDisplayModeLabel(BMDDisplayMode value)
         {
             const std::array<std::string, 7> data =
             {
@@ -70,7 +70,7 @@ namespace tl
             return data[static_cast<size_t>(value)];
         }
 
-        std::string getLabel(BMDPixelFormat value)
+        std::string getPixelFormatLabel(BMDPixelFormat value)
         {
             const std::array<std::string, 111> data =
             {
@@ -189,7 +189,7 @@ namespace tl
             return data[static_cast<size_t>(value)];
         }
 
-        std::string getLabel(BMDOutputFrameCompletionResult value)
+        std::string getOutputFrameCompletionResultLabel(BMDOutputFrameCompletionResult value)
         {
             const std::array<std::string, 4> data =
             {
