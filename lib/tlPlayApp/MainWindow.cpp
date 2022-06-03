@@ -1111,12 +1111,16 @@ namespace tl
                 {
                     {
                         std::stringstream ss;
-                        ss << "V:" << ioInfo.video[0].size << " " << ioInfo.video[0].pixelType;
+                        ss << "V:" <<
+                            ioInfo.video[0].size << " " <<
+                            ioInfo.video[0].pixelType;
                         infoLabel.push_back(ss.str());
                     }
                     {
                         std::stringstream ss;
-                        ss << "Video :" << ioInfo.video[0].size << " " << ioInfo.video[0].pixelType;
+                        ss << "Video :" <<
+                            ioInfo.video[0].size << " " <<
+                            ioInfo.video[0].pixelType;
                         infoTooltip.push_back(ss.str());
                     }
                 }
@@ -1124,12 +1128,18 @@ namespace tl
                 {
                     {
                         std::stringstream ss;
-                        ss << "A: " << ioInfo.audio;
+                        ss << "A: " <<
+                            ioInfo.audio.channelCount << " " <<
+                            ioInfo.audio.dataType << " " <<
+                            ioInfo.audio.sampleRate;
                         infoLabel.push_back(ss.str());
                     }
                     {
                         std::stringstream ss;
-                        ss << "Audio: " << ioInfo.audio;
+                        ss << "Audio: " <<
+                            ioInfo.audio.channelCount << " " <<
+                            ioInfo.audio.dataType << " " <<
+                            ioInfo.audio.sampleRate;
                         infoTooltip.push_back(ss.str());
                     }
                 }

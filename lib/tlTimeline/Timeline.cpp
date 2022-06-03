@@ -438,12 +438,14 @@ namespace tl
                     "    Duration: {0}\n"
                     "    Global start time: {1}\n"
                     "    Video: {2} {3}\n"
-                    "    Audio: {4}").
+                    "    Audio: {4} {5} {6}").
                 arg(p.duration).
                 arg(p.globalStartTime).
                 arg(!p.ioInfo.video.empty() ? p.ioInfo.video[0].size : imaging::Size()).
                 arg(!p.ioInfo.video.empty() ? p.ioInfo.video[0].pixelType : imaging::PixelType::None).
-                arg(p.ioInfo.audio));
+                arg(p.ioInfo.audio.channelCount).
+                arg(p.ioInfo.audio.dataType).
+                arg(p.ioInfo.audio.sampleRate));
 
             // Create a new thread.
             p.running = true;
@@ -1413,13 +1415,15 @@ namespace tl
                             "    Read: {0}\n"
                             "    Video: {1} {2}\n"
                             "    Video time: {3}\n"
-                            "    Audio: {4}\n"
-                            "    Audio time: {5}").
+                            "    Audio: {4} {5} {6}\n"
+                            "    Audio time: {7}").
                         arg(path.get()).
                         arg(!info.video.empty() ? info.video[0].size : imaging::Size()).
                         arg(!info.video.empty() ? info.video[0].pixelType : imaging::PixelType::None).
                         arg(info.videoTime).
-                        arg(info.audio).
+                        arg(info.audio.channelCount).
+                        arg(info.audio.dataType).
+                        arg(info.audio.sampleRate).
                         arg(info.audioTime));
 
                     // Get the clip start and end time taking transitions into account.

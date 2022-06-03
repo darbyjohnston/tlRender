@@ -123,8 +123,6 @@ namespace tl
             bool operator != (const Info&) const;
         };
 
-        std::ostream& operator << (std::ostream&, const Info&);
-
         //! Audio data.
         class Audio : public std::enable_shared_from_this<Audio>
         {

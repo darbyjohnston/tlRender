@@ -41,26 +41,6 @@ namespace tl
             return out;
         }
 
-        std::ostream& operator << (std::ostream& os, const imaging::Size& value)
-        {
-            os << value.w << "x" << value.h;
-            return os;
-        }
-
-        std::istream& operator >> (std::istream& is, imaging::Size& out)
-        {
-            std::string s;
-            is >> s;
-            auto split = string::split(s, 'x');
-            if (split.size() != 2)
-            {
-                throw error::ParseError();
-            }
-            out.w = std::stoi(split[0]);
-            out.h = std::stoi(split[1]);
-            return is;
-        }
-
         TLRENDER_ENUM_IMPL(
             PixelType,
             "None",
@@ -295,6 +275,26 @@ namespace tl
         void Image::zero()
         {
             std::memset(_data, 0, _dataByteCount);
+        }
+
+        std::ostream& operator << (std::ostream& os, const imaging::Size& value)
+        {
+            os << value.w << "x" << value.h;
+            return os;
+        }
+
+        std::istream& operator >> (std::istream& is, imaging::Size& out)
+        {
+            std::string s;
+            is >> s;
+            auto split = string::split(s, 'x');
+            if (split.size() != 2)
+            {
+                throw error::ParseError();
+            }
+            out.w = std::stoi(split[0]);
+            out.h = std::stoi(split[1]);
+            return is;
         }
     }
 }

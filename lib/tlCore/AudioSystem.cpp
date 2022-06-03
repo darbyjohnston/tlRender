@@ -147,7 +147,10 @@ namespace tl
                 }
                 {
                     std::stringstream ss;
-                    ss << "    Default input info: " << getDefaultInputInfo();
+                    ss << "    Default input info: " <<
+                        getDefaultInputInfo().channelCount << " " <<
+                        getDefaultInputInfo().dataType << " " <<
+                        getDefaultInputInfo().sampleRate;
                     log.push_back(ss.str());
                 }
                 {
@@ -157,7 +160,10 @@ namespace tl
                 }
                 {
                     std::stringstream ss;
-                    ss << "    Default output info: " << getDefaultOutputInfo();
+                    ss << "    Default output info: " <<
+                        getDefaultOutputInfo().channelCount << " " <<
+                        getDefaultOutputInfo().dataType << " " <<
+                        getDefaultOutputInfo().sampleRate;;
                     log.push_back(ss.str());
                 }
                 _log(string::join(log, "\n"));

@@ -49,10 +49,6 @@ namespace tl
         //! the given bounding box.
         math::BBox2i getBBox(float aspect, const math::BBox2i&) noexcept;
 
-        std::ostream& operator << (std::ostream&, const imaging::Size&);
-
-        std::istream& operator >> (std::istream&, imaging::Size&);
-
         ///@}
 
         //! \name Pixel Types
@@ -294,6 +290,10 @@ namespace tl
             size_t _dataByteCount = 0;
             uint8_t* _data = nullptr;
         };
+
+        std::ostream& operator << (std::ostream&, const imaging::Size&);
+
+        std::istream& operator >> (std::istream&, imaging::Size&);
     }
 }
 
