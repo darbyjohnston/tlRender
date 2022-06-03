@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <nlohmann/json.hpp>
+
 #include <string>
 
 namespace tl
@@ -22,7 +24,11 @@ namespace tl
             bool operator == (const ColorConfig&) const;
             bool operator != (const ColorConfig&) const;
         };
+
+        void to_json(nlohmann::json&, const ColorConfig&);
+
+        void from_json(const nlohmann::json&, ColorConfig&);
     }
 }
 
-#include <tlCore/OCIOInline.h>
+#include <tlCore/ColorConfigInline.h>

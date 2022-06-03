@@ -1,11 +1,13 @@
 set(HEADERS
     AudioTest.h
     BBoxTest.h
+	ColorConfigTest.h
     ColorTest.h
     ContextTest.h
     ErrorTest.h
     FileIOTest.h
     FileTest.h
+	HDRTest.h
     ImageTest.h
     LRUCacheTest.h
     ListObserverTest.h
@@ -22,11 +24,13 @@ set(HEADERS
 set(SOURCE
     AudioTest.cpp
     BBoxTest.cpp
+	ColorConfigTest.cpp
     ColorTest.cpp
     ContextTest.cpp
     ErrorTest.cpp
     FileIOTest.cpp
     FileTest.cpp
+	HDRTest.cpp
     ImageTest.cpp
     LRUCacheTest.cpp
     ListObserverTest.cpp

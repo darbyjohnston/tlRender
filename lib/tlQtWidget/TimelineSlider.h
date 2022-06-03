@@ -7,7 +7,7 @@
 #include <tlQt/TimeObject.h>
 #include <tlQt/TimelinePlayer.h>
 
-#include <tlCore/OCIO.h>
+#include <tlCore/ColorConfig.h>
 
 #include <QWidget>
 

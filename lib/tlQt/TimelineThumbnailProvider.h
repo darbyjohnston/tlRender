@@ -8,7 +8,7 @@
 
 #include <tlTimeline/Timeline.h>
 
-#include <tlCore/OCIO.h>
+#include <tlCore/ColorConfig.h>
 
 #include <QImage>
 #include <QThread>

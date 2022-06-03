@@ -194,9 +194,9 @@ namespace tl
         public:
             Layout() noexcept;
             Layout(
-                const Mirror& mirror,
-                uint8_t         alignment = 1,
-                memory::Endian  endian = memory::getEndian()) noexcept;
+                const Mirror&  mirror,
+                uint8_t        alignment = 1,
+                memory::Endian endian    = memory::getEndian()) noexcept;
 
             Mirror         mirror;
             uint8_t        alignment = 1;
@@ -205,9 +205,6 @@ namespace tl
             bool operator == (const Layout&) const noexcept;
             bool operator != (const Layout&) const noexcept;
         };
-
-        //! Align a number of bytes.
-        size_t align(size_t value, size_t alignment);
 
         //! Image information.
         class Info
@@ -231,10 +228,11 @@ namespace tl
             bool operator != (const Info&) const;
         };
 
+        //! Get the number of bytes required to align data.
+        size_t getAlignedByteCount(size_t value, size_t alignment);
+
         //! Get the number of bytes used to store image data.
         std::size_t getDataByteCount(const Info&);
-
-        std::ostream& operator << (std::ostream&, const Info&);
 
         //! Image.
         class Image : public std::enable_shared_from_this<Image>
@@ -269,14 +267,14 @@ namespace tl
             //! Get the image pixel type.
             PixelType getPixelType() const;
 
+            //! Is the image valid?
+            bool isValid() const;
+
             //! Get the image tags.
             const std::map<std::string, std::string>& getTags() const;
 
             //! Set the image tags.
             void setTags(const std::map<std::string, std::string>&);
-
-            //! Is the image valid?
-            bool isValid() const;
 
             //! Get the number of bytes used to store the image data.
             size_t getDataByteCount() const;
@@ -296,6 +294,8 @@ namespace tl
             size_t _dataByteCount = 0;
             uint8_t* _data = nullptr;
         };
+
+        std::ostream& operator << (std::ostream&, const Info&);
     }
 }
 

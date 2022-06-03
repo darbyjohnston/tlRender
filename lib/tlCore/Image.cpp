@@ -217,7 +217,7 @@ namespace tl
             return !diff.empty() ? diff.begin()->second : PixelType::None;
         }
 
-        size_t align(size_t value, size_t alignment)
+        size_t getAlignedByteCount(size_t value, size_t alignment)
         {
             return (value / alignment * alignment) + (value % alignment != 0 ? alignment : 0);
         }
@@ -230,30 +230,30 @@ namespace tl
             const size_t alignment = info.layout.alignment;
             switch (info.pixelType)
             {
-            case PixelType::L_U8:     out = align(w, alignment) * h; break;
-            case PixelType::L_U16:    out = align(w * 2, alignment) * h; break;
-            case PixelType::L_U32:    out = align(w * 4, alignment) * h; break;
-            case PixelType::L_F16:    out = align(w * 2, alignment) * h; break;
-            case PixelType::L_F32:    out = align(w * 4, alignment) * h; break;
+            case PixelType::L_U8:     out = getAlignedByteCount(w, alignment) * h; break;
+            case PixelType::L_U16:    out = getAlignedByteCount(w * 2, alignment) * h; break;
+            case PixelType::L_U32:    out = getAlignedByteCount(w * 4, alignment) * h; break;
+            case PixelType::L_F16:    out = getAlignedByteCount(w * 2, alignment) * h; break;
+            case PixelType::L_F32:    out = getAlignedByteCount(w * 4, alignment) * h; break;
 
-            case PixelType::LA_U8:    out = align(w * 2, alignment) * h; break;
-            case PixelType::LA_U16:   out = align(w * 2 * 2, alignment) * h; break;
-            case PixelType::LA_U32:   out = align(w * 2 * 4, alignment) * h; break;
-            case PixelType::LA_F16:   out = align(w * 2 * 2, alignment) * h; break;
-            case PixelType::LA_F32:   out = align(w * 2 * 4, alignment) * h; break;
+            case PixelType::LA_U8:    out = getAlignedByteCount(w * 2, alignment) * h; break;
+            case PixelType::LA_U16:   out = getAlignedByteCount(w * 2 * 2, alignment) * h; break;
+            case PixelType::LA_U32:   out = getAlignedByteCount(w * 2 * 4, alignment) * h; break;
+            case PixelType::LA_F16:   out = getAlignedByteCount(w * 2 * 2, alignment) * h; break;
+            case PixelType::LA_F32:   out = getAlignedByteCount(w * 2 * 4, alignment) * h; break;
 
-            case PixelType::RGB_U8:   out = align(w * 3, alignment) * h; break;
-            case PixelType::RGB_U10:  out = align(w * 4, alignment) * h; break;
-            case PixelType::RGB_U16:  out = align(w * 3 * 2, alignment) * h; break;
-            case PixelType::RGB_U32:  out = align(w * 3 * 4, alignment) * h; break;
-            case PixelType::RGB_F16:  out = align(w * 3 * 2, alignment) * h; break;
-            case PixelType::RGB_F32:  out = align(w * 3 * 4, alignment) * h; break;
+            case PixelType::RGB_U8:   out = getAlignedByteCount(w * 3, alignment) * h; break;
+            case PixelType::RGB_U10:  out = getAlignedByteCount(w * 4, alignment) * h; break;
+            case PixelType::RGB_U16:  out = getAlignedByteCount(w * 3 * 2, alignment) * h; break;
+            case PixelType::RGB_U32:  out = getAlignedByteCount(w * 3 * 4, alignment) * h; break;
+            case PixelType::RGB_F16:  out = getAlignedByteCount(w * 3 * 2, alignment) * h; break;
+            case PixelType::RGB_F32:  out = getAlignedByteCount(w * 3 * 4, alignment) * h; break;
 
-            case PixelType::RGBA_U8:  out = align(w * 4, alignment) * h; break;
-            case PixelType::RGBA_U16: out = align(w * 4 * 2, alignment) * h; break;
-            case PixelType::RGBA_U32: out = align(w * 4 * 4, alignment) * h; break;
-            case PixelType::RGBA_F16: out = align(w * 4 * 2, alignment) * h; break;
-            case PixelType::RGBA_F32: out = align(w * 4 * 4, alignment) * h; break;
+            case PixelType::RGBA_U8:  out = getAlignedByteCount(w * 4, alignment) * h; break;
+            case PixelType::RGBA_U16: out = getAlignedByteCount(w * 4 * 2, alignment) * h; break;
+            case PixelType::RGBA_U32: out = getAlignedByteCount(w * 4 * 4, alignment) * h; break;
+            case PixelType::RGBA_F16: out = getAlignedByteCount(w * 4 * 2, alignment) * h; break;
+            case PixelType::RGBA_F32: out = getAlignedByteCount(w * 4 * 4, alignment) * h; break;
 
             case PixelType::YUV_420P:
                 //! \todo Is YUV data aligned?
@@ -263,12 +263,6 @@ namespace tl
             default: break;
             }
             return out;
-        }
-
-        std::ostream& operator << (std::ostream& os, const imaging::Info& value)
-        {
-            os << value.size << "," << value.pixelType;
-            return os;
         }
 
         void Image::_init(const Info& info)
@@ -301,6 +295,12 @@ namespace tl
         void Image::zero()
         {
             std::memset(_data, 0, _dataByteCount);
+        }
+
+        std::ostream& operator << (std::ostream& os, const imaging::Info& value)
+        {
+            os << value.size << "," << value.pixelType;
+            return os;
         }
     }
 }

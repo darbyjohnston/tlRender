@@ -10,8 +10,9 @@ set(SOURCE
 	IOutputDevice.cpp
 	Util.cpp)
 
-set(DEVICE_INCLUDE_DIRECTORIES)
-set(DEVICE_LINK_LIBRARIES tlTimeline)
+set(INCLUDE_DIRS)
+set(LIBRARIES tlTimeline)
+set(LIBRARIES_PRIVATE)
 
 if(TLRENDER_BUILD_BMD)
 
@@ -31,10 +32,10 @@ if(TLRENDER_BUILD_BMD)
 		list(APPEND SOURCE
 			${CMAKE_CURRENT_BINARY_DIR}/DeckLinkAPI_i.c
 			${CMAKE_CURRENT_SOURCE_DIR}/BMD/Win/platform.cpp)
-		list(APPEND DEVICE_INCLUDE_DIRECTORIES
+		list(APPEND INCLUDE_DIRS
 			${CMAKE_CURRENT_SOURCE_DIR}/BMD/Win
 			${CMAKE_CURRENT_BINARY_DIR})
-		list(APPEND DEVICE_LINK_LIBRARIES comsuppw.lib)
+		list(APPEND LIBRARIES_PRIVATE comsuppw.lib)
 
 		set(MIDL_OUTPUT_SOURCE "${CMAKE_CURRENT_BINARY_DIR}/DeckLinkAPI_i.c")
 		set(MIDL_OUTPUT_HEADER "${CMAKE_CURRENT_BINARY_DIR}/DeckLinkAPI.h")
@@ -60,15 +61,15 @@ if(TLRENDER_BUILD_BMD)
 		list(APPEND SOURCE
 			${TLRENDER_BMD_SDK}/DeckLinkAPIDispatch.cpp
 			${CMAKE_CURRENT_SOURCE_DIR}/BMD/Linux/platform.cpp)
-		list(APPEND DEVICE_INCLUDE_DIRECTORIES
+		list(APPEND INCLUDE_DIRS
 			${CMAKE_CURRENT_SOURCE_DIR}/BMD/Linux
 			${TLRENDER_BMD_SDK})
 	endif()
 endif()
 
 add_library(tlDevice ${HEADERS} ${SOURCE})
-target_include_directories(tlDevice PUBLIC ${DEVICE_INCLUDE_DIRECTORIES})
-target_link_libraries(tlDevice ${DEVICE_LINK_LIBRARIES})
+target_include_directories(tlDevice PUBLIC ${INCLUDE_DIRS})
+target_link_libraries(tlDevice PUBLIC ${LIBRARIES} PRIVATE ${LIBRARIES_PRIVATE})
 set_target_properties(tlDevice PROPERTIES FOLDER lib)
 set_target_properties(tlDevice PROPERTIES PUBLIC_HEADER "${HEADERS}")
 if(TLRENDER_BUILD_BMD)

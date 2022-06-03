@@ -94,12 +94,15 @@ namespace tl
             endian(endian)
         {}
 
-        inline bool Layout::operator == (const Layout& other) const noexcept
+        inline bool Layout::operator == (const Layout & other) const noexcept
         {
-            return other.mirror == mirror && other.alignment == alignment && other.endian == endian;
+            return
+                other.mirror == mirror &&
+                other.alignment == alignment &&
+                other.endian == endian;
         }
 
-        inline bool Layout::operator != (const Layout& other) const noexcept
+        inline bool Layout::operator != (const Layout & other) const noexcept
         {
             return !(other == *this);
         }
@@ -167,14 +170,14 @@ namespace tl
             return _info.pixelType;
         }
 
-        inline const std::map<std::string, std::string>& Image::getTags() const
-        {
-            return _tags;
-        }
-
         inline bool Image::isValid() const
         {
             return _info.isValid();
+        }
+
+        inline const std::map<std::string, std::string>& Image::getTags() const
+        {
+            return _tags;
         }
 
         inline size_t Image::getDataByteCount() const

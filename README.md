@@ -44,6 +44,7 @@ Dependencies:
 * [OpenTimelineIO](https://github.com/PixarAnimationStudios/OpenTimelineIO)
 * [OpenColorIO](https://github.com/AcademySoftwareFoundation/OpenColorIO)
 * [FreeType](https://www.freetype.org)
+* [nlohmann_json](https://github.com/nlohmann/json)
 * [FSeq](https://github.com/darbyjohnston/FSeq)
 * [ZLIB](https://zlib.net)
 

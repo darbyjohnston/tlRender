@@ -141,9 +141,11 @@ namespace tl
                         TIFFSetField(_f, TIFFTAG_IMAGEDESCRIPTION, i->second.c_str());
                     }
 
-                    const size_t scanlineSize = imaging::align(info.size.w * tiffSamples * tiffSampleDepth / 8, info.layout.alignment);
-                    const uint8_t* p = image->getData() + (info.size.h - 1) * scanlineSize;
-                    for (uint16_t y = 0; y < info.size.h; ++y, p -= scanlineSize)
+                    const size_t scanlineByteCount = imaging::getAlignedByteCount(
+                        info.size.w * tiffSamples * tiffSampleDepth / 8,
+                        info.layout.alignment);
+                    const uint8_t* p = image->getData() + (info.size.h - 1) * scanlineByteCount;
+                    for (uint16_t y = 0; y < info.size.h; ++y, p -= scanlineByteCount)
                     {
                         if (TIFFWriteScanline(_f, (tdata_t*)p, y) == -1)
                         {

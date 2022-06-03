@@ -8,7 +8,7 @@
 
 #include <tlTimeline/IRender.h>
 
-#include <tlCore/OCIO.h>
+#include <tlCore/ColorConfig.h>
 
 #include <QApplication>
 

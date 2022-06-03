@@ -10,8 +10,8 @@
 #include <tlGL/Shader.h>
 #include <tlGL/Texture.h>
 
+#include <tlCore/ColorConfig.h>
 #include <tlCore/LRUCache.h>
-#include <tlCore/OCIO.h>
 
 #include <OpenColorIO/OpenColorIO.h>
 

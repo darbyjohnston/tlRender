@@ -4,8 +4,8 @@
 
 #pragma once
 
+#include <tlCore/ColorConfig.h>
 #include <tlCore/Context.h>
-#include <tlCore/OCIO.h>
 #include <tlCore/ValueObserver.h>
 
 #include <QAbstractListModel>

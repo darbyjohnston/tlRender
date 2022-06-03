@@ -9,7 +9,7 @@
 #include <tlTimeline/IRender.h>
 #include <tlTimeline/TimelinePlayer.h>
 
-#include <tlCore/OCIO.h>
+#include <tlCore/ColorConfig.h>
 #include <tlCore/FontSystem.h>
 
 struct GLFWwindow;

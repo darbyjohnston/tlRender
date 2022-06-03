@@ -11,8 +11,8 @@
 #include <tlGL/Render.h>
 #include <tlGL/Shader.h>
 
+#include <tlCore/ColorConfig.h>
 #include <tlCore/Mesh.h>
-#include <tlCore/OCIO.h>
 
 #include <QOpenGLWidget>
 

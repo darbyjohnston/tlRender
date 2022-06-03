@@ -7,6 +7,8 @@ set(HEADERS
     BBoxInline.h
     Color.h
     ColorInline.h
+	ColorConfig.h
+	ColorConfigInline.h
     Context.h
     ContextInline.h
     Error.h
@@ -15,6 +17,8 @@ set(HEADERS
     FileInfo.h
     FileInfoInline.h
     FontSystem.h
+	HDR.h
+	HDRInline.h
     ICoreSystem.h
     ICoreSystemInline.h
     ISystem.h
@@ -35,8 +39,6 @@ set(HEADERS
     MemoryInline.h
 	Mesh.h
 	MeshInline.h
-	OCIO.h
-	OCIOInline.h
 	OS.h
     Observer.h
     Path.h
@@ -59,11 +61,13 @@ set(SOURCE
     AudioSystem.cpp
 	BBox.cpp
 	Color.cpp
+	ColorConfig.cpp
     Context.cpp
     Error.cpp
     FileIO.cpp
     FileInfo.cpp
     FontSystem.cpp
+	HDR.cpp
     ICoreSystem.cpp
     ISystem.cpp
     Image.cpp
@@ -71,9 +75,9 @@ set(SOURCE
 	Matrix.cpp
     Memory.cpp
 	Mesh.cpp
-	OCIO.cpp
 	OS.cpp
     Path.cpp
+	Range.cpp
     String.cpp
     StringFormat.cpp
     Time.cpp
@@ -95,14 +99,15 @@ else()
         TimeUnix.cpp)
 endif()
 
-set(LIBRARIES OTIO OCIO FreeType FSeq GLM RtAudio libsamplerate)
+set(LIBRARIES OTIO OCIO Imath)
+set(LIBRARIES_PRIVATE RtAudio libsamplerate FreeType nlohmann_json::nlohmann_json GLM FSeq)
 if(TLRENDER_ENABLE_PYTHON)
-    list(APPEND LIBRARIES Python3::Python)
+    list(APPEND LIBRARIES_PRIVATE Python3::Python)
 endif()
-list(APPEND LIBRARIES Imath Threads::Threads)
+list(APPEND LIBRARIES_PRIVATE Threads::Threads)
 
 add_library(tlCore ${HEADERS} ${SOURCE})
-target_link_libraries(tlCore ${LIBRARIES})
+target_link_libraries(tlCore PUBLIC ${LIBRARIES} PRIVATE ${LIBRARIES_PRIVATE})
 set_target_properties(tlCore PROPERTIES FOLDER lib)
 set_target_properties(tlCore PROPERTIES PUBLIC_HEADER "${HEADERS}")
 

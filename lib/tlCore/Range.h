@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <nlohmann/json.hpp>
+
 #include <cstddef>
 
 namespace tl
@@ -57,6 +59,14 @@ namespace tl
 
         //! This typedef provides a floating point range.
         typedef Range<float> FloatRange;
+
+        void to_json(nlohmann::json&, const IntRange&);
+        void to_json(nlohmann::json&, const SizeTRange&);
+        void to_json(nlohmann::json&, const FloatRange&);
+
+        void from_json(const nlohmann::json&, IntRange&);
+        void from_json(const nlohmann::json&, SizeTRange&);
+        void from_json(const nlohmann::json&, FloatRange&);
     }
 }
 

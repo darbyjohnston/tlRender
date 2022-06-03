@@ -11,7 +11,7 @@
 
 #include <tlIO/IO.h>
 
-#include <tlCore/OCIO.h>
+#include <tlCore/ColorConfig.h>
 
 struct GLFWwindow;
 

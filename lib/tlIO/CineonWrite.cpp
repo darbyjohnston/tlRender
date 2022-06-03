@@ -52,11 +52,13 @@ namespace tl
             info.tags = image->getTags();
             write(io, info);
 
-            const size_t scanlineSize = imaging::align(static_cast<size_t>(imageInfo.size.w) * 4, imageInfo.layout.alignment);
-            const uint8_t* imageP = image->getData() + (imageInfo.size.h - 1) * scanlineSize;
-            for (uint16_t y = 0; y < imageInfo.size.h; ++y, imageP -= scanlineSize)
+            const size_t scanlineByteCount = imaging::getAlignedByteCount(
+                static_cast<size_t>(imageInfo.size.w) * 4,
+                imageInfo.layout.alignment);
+            const uint8_t* imageP = image->getData() + (imageInfo.size.h - 1) * scanlineByteCount;
+            for (uint16_t y = 0; y < imageInfo.size.h; ++y, imageP -= scanlineByteCount)
             {
-                io->write(imageP, scanlineSize);
+                io->write(imageP, scanlineByteCount);
             }
 
             finishWrite(io);

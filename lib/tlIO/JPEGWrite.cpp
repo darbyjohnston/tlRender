@@ -128,16 +128,16 @@ namespace tl
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
 
-                    size_t scanlineSize = 0;
+                    size_t scanlineByteCount = 0;
                     switch (info.pixelType)
                     {
-                    case imaging::PixelType::L_U8: scanlineSize = info.size.w; break;
-                    case imaging::PixelType::RGB_U8: scanlineSize = static_cast<size_t>(info.size.w) * 3; break;
+                    case imaging::PixelType::L_U8: scanlineByteCount = info.size.w; break;
+                    case imaging::PixelType::RGB_U8: scanlineByteCount = static_cast<size_t>(info.size.w) * 3; break;
                     default: break;
                     }
-                    scanlineSize = imaging::align(scanlineSize, info.layout.alignment);
-                    const uint8_t* imageP = image->getData() + (info.size.h - 1) * scanlineSize;
-                    for (uint16_t y = 0; y < info.size.h; ++y, imageP -= scanlineSize)
+                    scanlineByteCount = imaging::getAlignedByteCount(scanlineByteCount, info.layout.alignment);
+                    const uint8_t* imageP = image->getData() + (info.size.h - 1) * scanlineByteCount;
+                    for (uint16_t y = 0; y < info.size.h; ++y, imageP -= scanlineByteCount)
                     {
                         if (!jpegScanline(&_jpeg, imageP, &_error))
                         {

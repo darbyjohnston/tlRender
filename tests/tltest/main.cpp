@@ -41,11 +41,13 @@
 
 #include <tlCoreTest/AudioTest.h>
 #include <tlCoreTest/BBoxTest.h>
+#include <tlCoreTest/ColorConfigTest.h>
 #include <tlCoreTest/ColorTest.h>
 #include <tlCoreTest/ContextTest.h>
 #include <tlCoreTest/ErrorTest.h>
 #include <tlCoreTest/FileTest.h>
 #include <tlCoreTest/FileIOTest.h>
+#include <tlCoreTest/HDRTest.h>
 #include <tlCoreTest/ImageTest.h>
 #include <tlCoreTest/LRUCacheTest.h>
 #include <tlCoreTest/ListObserverTest.h>
@@ -92,17 +94,20 @@ int main(int argc, char* argv[])
     std::vector<std::shared_ptr<tests::ITest> > tests;
     if (0)
     {
-        tests.push_back(timeline_tests::TimelineTest::create(context));
+        tests.push_back(core_tests::ColorConfigTest::create(context));
+        tests.push_back(core_tests::HDRTest::create(context));
     }
     else
     {
         tests.push_back(core_tests::AudioTest::create(context));
         tests.push_back(core_tests::BBoxTest::create(context));
+        tests.push_back(core_tests::ColorConfigTest::create(context));
         tests.push_back(core_tests::ColorTest::create(context));
         tests.push_back(core_tests::ContextTest::create(context));
         tests.push_back(core_tests::ErrorTest::create(context));
         tests.push_back(core_tests::FileTest::create(context));
         tests.push_back(core_tests::FileIOTest::create(context));
+        tests.push_back(core_tests::HDRTest::create(context));
         tests.push_back(core_tests::ImageTest::create(context));
         tests.push_back(core_tests::LRUCacheTest::create(context));
         tests.push_back(core_tests::ListObserverTest::create(context));

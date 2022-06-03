@@ -10,8 +10,8 @@
 
 #include <tlDevice/DeviceData.h>
 
+#include <tlCore/ColorConfig.h>
 #include <tlCore/Image.h>
-#include <tlCore/OCIO.h>
 
 #include <QThread>
 
