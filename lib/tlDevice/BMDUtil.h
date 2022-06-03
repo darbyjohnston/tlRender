@@ -25,18 +25,18 @@ namespace tl
         BMDPixelFormat toBMD(PixelType);
 
         //! Get a label.
-        std::string getLabel(BMDVideoConnection);
+        std::string getVideoConnectionLabel(BMDVideoConnection);
 
         //! Get a label.
-        std::string getLabel(BMDAudioConnection);
+        std::string getAudioConnectionLabel(BMDAudioConnection);
 
         //! Get a label.
-        std::string getLabel(BMDDisplayMode);
+        std::string getDisplayModeLabel(BMDDisplayMode);
 
         //! Get a label.
-        std::string getLabel(BMDPixelFormat);
+        std::string getPixelFormatLabel(BMDPixelFormat);
 
         //! Get a label.
-        std::string getLabel(BMDOutputFrameCompletionResult);
+        std::string getOutputFrameCompletionResultLabel(BMDOutputFrameCompletionResult);
     }
 }

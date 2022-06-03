@@ -56,14 +56,14 @@ if(TLRENDER_BUILD_BMD)
 	elseif(APPLE)
 	elseif(UNIX)
 		list(APPEND HEADERS
-			${TLRENDER_BMD_SDK}/DeckLinkAPI.h
+			${TLRENDER_BMD_SDK}/Linux/include/DeckLinkAPI.h
 			${CMAKE_CURRENT_SOURCE_DIR}/BMD/Linux/platform.h)
 		list(APPEND SOURCE
-			${TLRENDER_BMD_SDK}/DeckLinkAPIDispatch.cpp
+			${TLRENDER_BMD_SDK}/Linux/include/DeckLinkAPIDispatch.cpp
 			${CMAKE_CURRENT_SOURCE_DIR}/BMD/Linux/platform.cpp)
 		list(APPEND INCLUDE_DIRS
 			${CMAKE_CURRENT_SOURCE_DIR}/BMD/Linux
-			${TLRENDER_BMD_SDK})
+			${TLRENDER_BMD_SDK}/Linux/include)
 	endif()
 endif()
 
