@@ -294,8 +294,6 @@ namespace tl
             size_t _dataByteCount = 0;
             uint8_t* _data = nullptr;
         };
-
-        std::ostream& operator << (std::ostream&, const Info&);
     }
 }
 

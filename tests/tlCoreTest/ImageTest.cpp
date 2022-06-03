@@ -169,7 +169,7 @@ namespace tl
             {
                 const Info info(1, 2, i);
                 std::stringstream ss;
-                ss << info << " data byte count: " << getDataByteCount(info);
+                ss << info.size << " " << info.pixelType << " data byte count: " << getDataByteCount(info);
                 _print(ss.str());
             }
         }

@@ -249,7 +249,9 @@ namespace tl
             {
                 _outputInfo.pixelType = imaging::PixelType::RGB_U8;
             }
-            _print(string::Format("Output info: {0}").arg(_outputInfo));
+            _print(string::Format("Output info: {0} {1}").
+                arg(_outputInfo.size).
+                arg(_outputInfo.pixelType));
             _outputImage = imaging::Image::create(_outputInfo);
             ioInfo.video.push_back(_outputInfo);
             ioInfo.videoTime = _range;

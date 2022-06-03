@@ -296,11 +296,5 @@ namespace tl
         {
             std::memset(_data, 0, _dataByteCount);
         }
-
-        std::ostream& operator << (std::ostream& os, const imaging::Info& value)
-        {
-            os << value.size << "," << value.pixelType;
-            return os;
-        }
     }
 }

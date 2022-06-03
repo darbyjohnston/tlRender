@@ -437,11 +437,12 @@ namespace tl
                     "\n"
                     "    Duration: {0}\n"
                     "    Global start time: {1}\n"
-                    "    Video: {2}\n"
-                    "    Audio: {3}").
+                    "    Video: {2} {3}\n"
+                    "    Audio: {4}").
                 arg(p.duration).
                 arg(p.globalStartTime).
-                arg(!p.ioInfo.video.empty() ? p.ioInfo.video[0] : imaging::Info()).
+                arg(!p.ioInfo.video.empty() ? p.ioInfo.video[0].size : imaging::Size()).
+                arg(!p.ioInfo.video.empty() ? p.ioInfo.video[0].pixelType : imaging::PixelType::None).
                 arg(p.ioInfo.audio));
 
             // Create a new thread.
@@ -1410,12 +1411,13 @@ namespace tl
                         string::Format(
                             "\n"
                             "    Read: {0}\n"
-                            "    Video: {1}\n"
-                            "    Video time: {2}\n"
-                            "    Audio: {3}\n"
-                            "    Audio time: {4}").
+                            "    Video: {1} {2}\n"
+                            "    Video time: {3}\n"
+                            "    Audio: {4}\n"
+                            "    Audio time: {5}").
                         arg(path.get()).
-                        arg(!info.video.empty() ? info.video[0] : imaging::Info()).
+                        arg(!info.video.empty() ? info.video[0].size : imaging::Size()).
+                        arg(!info.video.empty() ? info.video[0].pixelType : imaging::PixelType::None).
                         arg(info.videoTime).
                         arg(info.audio).
                         arg(info.audioTime));
