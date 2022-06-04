@@ -32,21 +32,126 @@ namespace tl
                 TLRENDER_ASSERT(a != b);
             }
             {
-                const Vector2i c(1, 2);
-                nlohmann::json json;
-                to_json(json, c);
-                Vector2i c2;
-                from_json(json, c2);
-                TLRENDER_ASSERT(c == c2);
+                Vector2f a;
+                Vector2f b;
+                TLRENDER_ASSERT(a == b);
+                a.x = 1.F;
+                TLRENDER_ASSERT(a != b);
             }
             {
-                const Vector2i c(1, 2);
-                std::stringstream ss;
-                ss << c;
-                Vector2i c2;
-                ss >> c2;
-                TLRENDER_ASSERT(c == c2);
+                Vector3f a;
+                Vector3f b;
+                TLRENDER_ASSERT(a == b);
+                a.x = 1.F;
+                TLRENDER_ASSERT(a != b);
             }
+            {
+                Vector4f a;
+                Vector4f b;
+                TLRENDER_ASSERT(a == b);
+                a.x = 1.F;
+                TLRENDER_ASSERT(a != b);
+            }
+            {
+                const Vector2i v(1, 2);
+                nlohmann::json json;
+                to_json(json, v);
+                Vector2i v2;
+                from_json(json, v2);
+                TLRENDER_ASSERT(v == v2);
+            }
+            {
+                const Vector2f v(1.F, 2.F);
+                nlohmann::json json;
+                to_json(json, v);
+                Vector2f v2;
+                from_json(json, v2);
+                TLRENDER_ASSERT(v == v2);
+            }
+            {
+                const Vector3f v(1.F, 2.F, 3.F);
+                nlohmann::json json;
+                to_json(json, v);
+                Vector3f v2;
+                from_json(json, v2);
+                TLRENDER_ASSERT(v == v2);
+            }
+            {
+                const Vector4f v(1.F, 2.F, 3.F, 4.F);
+                nlohmann::json json;
+                to_json(json, v);
+                Vector4f v2;
+                from_json(json, v2);
+                TLRENDER_ASSERT(v == v2);
+            }
+            {
+                const Vector2i v(1, 2);
+                std::stringstream ss;
+                ss << v;
+                Vector2i v2;
+                ss >> v2;
+                TLRENDER_ASSERT(v == v2);
+            }
+            {
+                const Vector2f v(1.F, 2.F);
+                std::stringstream ss;
+                ss << v;
+                Vector2f v2;
+                ss >> v2;
+                TLRENDER_ASSERT(v == v2);
+            }
+            {
+                const Vector3f v(1.F, 2.F, 3.F);
+                std::stringstream ss;
+                ss << v;
+                Vector3f v2;
+                ss >> v2;
+                TLRENDER_ASSERT(v == v2);
+            }
+            {
+                const Vector4f v(1.F, 2.F, 3.F, 4.F);
+                std::stringstream ss;
+                ss << v;
+                Vector4f v2;
+                ss >> v2;
+                TLRENDER_ASSERT(v == v2);
+            }
+            try
+            {
+                Vector2i v;
+                std::stringstream ss("...");
+                ss >> v;
+                TLRENDER_ASSERT(false);
+            }
+            catch (const std::exception&)
+            {}
+            try
+            {
+                Vector2f v;
+                std::stringstream ss("...");
+                ss >> v;
+                TLRENDER_ASSERT(false);
+            }
+            catch (const std::exception&)
+            {}
+            try
+            {
+                Vector3f v;
+                std::stringstream ss("...");
+                ss >> v;
+                TLRENDER_ASSERT(false);
+            }
+            catch (const std::exception&)
+            {}
+            try
+            {
+                Vector4f v;
+                std::stringstream ss("...");
+                ss >> v;
+                TLRENDER_ASSERT(false);
+            }
+            catch (const std::exception&)
+            {}
         }
     }
 }

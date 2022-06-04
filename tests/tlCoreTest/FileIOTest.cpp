@@ -32,6 +32,17 @@ namespace tl
 
         void FileIOTest::run()
         {
+            _enums();
+            _tests();
+        }
+        
+        void FileIOTest::_enums()
+        {
+            _enum<Mode>("Mode", getModeEnums);
+        }
+        
+        void FileIOTest::_tests()
+        {
             {
                 auto io = FileIO::create();
                 TLRENDER_ASSERT(!io->isOpen());

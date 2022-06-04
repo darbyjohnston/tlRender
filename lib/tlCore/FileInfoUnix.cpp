@@ -24,25 +24,25 @@ namespace tl
     {
         bool FileInfo::_stat(std::string* error)
         {
-			 _STAT info;
-			memset(&info, 0, sizeof(_STAT));
-			if (_STAT_FNC(_path.get().c_str(), &info) != 0)
-			{
-				return false;
-			}
-			
-			_exists = true;
-			if (S_ISDIR(info.st_mode))
-			{
-				_type = Type::Directory;
-			}
-			_size = info.st_size;
-			_permissions |= (info.st_mode & S_IRUSR) ? static_cast<int>(Permissions::Read)  : 0;
-			_permissions |= (info.st_mode & S_IWUSR) ? static_cast<int>(Permissions::Write) : 0;
-			_permissions |= (info.st_mode & S_IXUSR) ? static_cast<int>(Permissions::Exec)  : 0;
-			_time = info.st_mtime;
-			
-			return true;
-		}
+            _STAT info;
+            memset(&info, 0, sizeof(_STAT));
+            if (_STAT_FNC(_path.get().c_str(), &info) != 0)
+            {
+            	return false;
+            }
+            
+            _exists = true;
+            if (S_ISDIR(info.st_mode))
+            {
+            	_type = Type::Directory;
+            }
+            _size = info.st_size;
+            _permissions |= (info.st_mode & S_IRUSR) ? static_cast<int>(Permissions::Read)  : 0;
+            _permissions |= (info.st_mode & S_IWUSR) ? static_cast<int>(Permissions::Write) : 0;
+            _permissions |= (info.st_mode & S_IXUSR) ? static_cast<int>(Permissions::Exec)  : 0;
+            _time = info.st_mtime;
+            
+            return true;
+        }
     }
 }

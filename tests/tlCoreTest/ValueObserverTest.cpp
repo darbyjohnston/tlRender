@@ -22,8 +22,10 @@ namespace tl
 
         void ValueObserverTest::run()
         {
-            auto value = observer::Value<int>::create(0);
+            auto value = observer::Value<int>::create();
             TLRENDER_ASSERT(0 == value->get());
+            value = observer::Value<int>::create(1);
+            TLRENDER_ASSERT(1 == value->get());
 
             int result = 0;
             auto observer = observer::ValueObserver<int>::create(
@@ -32,9 +34,11 @@ namespace tl
                 {
                     result = value;
                 });
-            bool changed = value->setIfChanged(1);
+            bool changed = value->setIfChanged(2);
             TLRENDER_ASSERT(changed);
-            TLRENDER_ASSERT(1 == result);
+            TLRENDER_ASSERT(2 == result);
+            changed = value->setIfChanged(2);
+            TLRENDER_ASSERT(!changed);
 
             {
                 int result2 = 0;
@@ -44,9 +48,9 @@ namespace tl
                     {
                         result2 = value;
                     });
-                value->setIfChanged(2);
-                TLRENDER_ASSERT(2 == result);
-                TLRENDER_ASSERT(2 == result2);
+                value->setIfChanged(3);
+                TLRENDER_ASSERT(3 == result);
+                TLRENDER_ASSERT(3 == result2);
 
                 TLRENDER_ASSERT(2 == value->getObserversCount());
             }

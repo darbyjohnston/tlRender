@@ -10,23 +10,19 @@ namespace tl
 {
     namespace core_tests
     {
-        class FileIOTest : public tests::ITest
+        class FileInfoTest : public tests::ITest
         {
         protected:
-            FileIOTest(const std::shared_ptr<system::Context>&);
+            FileInfoTest(const std::shared_ptr<system::Context>&);
 
         public:
-            static std::shared_ptr<FileIOTest> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<FileInfoTest> create(const std::shared_ptr<system::Context>&);
 
             void run() override;
 
         private:
             void _enums();
             void _tests();
-            
-            std::string _fileName;
-            std::string _text;
-            std::string _text2;
         };
     }
 }

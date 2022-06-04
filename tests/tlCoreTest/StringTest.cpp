@@ -134,6 +134,10 @@ namespace tl
                 removeTrailingNewlines(s);
                 TLRENDER_ASSERT("abc" == s);
             }
+            {
+                const std::string s = "abc\n";
+                TLRENDER_ASSERT(removeTrailingNewlines(s) == "abc");
+            }
         }
 
         void StringTest::_convert()

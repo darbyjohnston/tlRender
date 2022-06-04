@@ -154,26 +154,34 @@ namespace tl
             return out;
         }
 
-        math::Vector2i FontSystem::measure(const std::string& text, const FontInfo& fontInfo)
+        math::Vector2i FontSystem::measure(
+            const std::string& text,
+            const FontInfo& fontInfo,
+            uint16_t maxLineWidth)
         {
             TLRENDER_P();
             math::Vector2i out;
             const auto utf32 = p.utf32Convert.from_bytes(text);
-            p.measure(utf32, fontInfo, std::numeric_limits<int16_t>::max(), out);
+            p.measure(utf32, fontInfo, maxLineWidth, out);
             return out;
         }
 
-        std::vector<math::BBox2i> FontSystem::measureGlyphs(const std::string& text, const FontInfo& fontInfo)
+        std::vector<math::BBox2i> FontSystem::measureGlyphs(
+            const std::string& text,
+            const FontInfo& fontInfo,
+            uint16_t maxLineWidth)
         {
             TLRENDER_P();
             std::vector<math::BBox2i> out;
             const auto utf32 = p.utf32Convert.from_bytes(text);
             math::Vector2i size;
-            p.measure(utf32, fontInfo, std::numeric_limits<int16_t>::max(), size, &out);
+            p.measure(utf32, fontInfo, maxLineWidth, size, &out);
             return out;
         }
 
-        std::vector<std::shared_ptr<Glyph> > FontSystem::getGlyphs(const std::string& text, const FontInfo& fontInfo)
+        std::vector<std::shared_ptr<Glyph> > FontSystem::getGlyphs(
+            const std::string& text,
+            const FontInfo& fontInfo)
         {
             TLRENDER_P();
             std::vector<std::shared_ptr<Glyph> > out;
@@ -300,13 +308,18 @@ namespace tl
                 for (auto j = utf32.begin(); j != utf32.end(); ++j)
                 {
                     const auto glyph = getGlyph(*j, fontInfo);
-                    if (glyph && glyphGeom)
+                    if (glyphGeom)
                     {
-                        glyphGeom->push_back(math::BBox2i(
-                            pos.x,
-                            glyph->advance,
-                            glyph->advance,
-                            i->second->size->metrics.height / 64));
+                        math::BBox2i bbox;
+                        if (glyph)
+                        {
+                            bbox = math::BBox2i(
+                                pos.x,
+                                glyph->advance,
+                                glyph->advance,
+                                i->second->size->metrics.height / 64);
+                        }
+                        glyphGeom->push_back(bbox);
                     }
 
                     int32_t x = 0;
@@ -337,6 +350,7 @@ namespace tl
                         rsbDeltaPrev = 0;
                     }
                     else if (
+                        maxLineWidth > 0 &&
                         pos.x > 0 &&
                         pos.x + (!isSpace(*j) ? x : 0) >= maxLineWidth)
                     {

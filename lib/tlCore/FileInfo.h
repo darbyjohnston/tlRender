@@ -64,7 +64,9 @@ namespace tl
         };
 
         //! Get the contents of the given directory.
-        std::vector<FileInfo> dirList(const std::string&, const file::PathOptions&);
+        std::vector<FileInfo> dirList(
+            const std::string&,
+            const PathOptions& = PathOptions());
     }
 }
 

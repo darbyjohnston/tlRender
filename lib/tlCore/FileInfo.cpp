@@ -4,12 +4,24 @@
 
 #include <tlCore/FileInfo.h>
 
+#include <tlCore/Error.h>
+#include <tlCore/String.h>
+
 #include <fseq.h>
+
+#include <algorithm>
+#include <array>
 
 namespace tl
 {
     namespace file
     {
+        TLRENDER_ENUM_IMPL(
+            Type,
+            "File",
+            "Directory");
+        TLRENDER_ENUM_SERIALIZE_IMPL(Type);
+
         FileInfo::FileInfo()
         {}
 

@@ -32,6 +32,23 @@ namespace tl
                 TLRENDER_ASSERT(a != b);
             }
             {
+                Matrix4x4f a;
+                Matrix4x4f b;
+                TLRENDER_ASSERT(a == b);
+                a.e[1] = 1.F;
+                TLRENDER_ASSERT(a != b);
+            }
+            {
+                Matrix3x3f a;
+                Matrix3x3f b;
+                TLRENDER_ASSERT(a * b == Matrix3x3f());
+            }
+            {
+                Matrix4x4f a;
+                Matrix4x4f b;
+                TLRENDER_ASSERT(a * b == Matrix4x4f());
+            }
+            {
                 const Matrix3x3f m;
                 nlohmann::json json;
                 to_json(json, m);
@@ -40,13 +57,54 @@ namespace tl
                 TLRENDER_ASSERT(m == m2);
             }
             {
+                const Matrix4x4f m;
+                nlohmann::json json;
+                to_json(json, m);
+                Matrix4x4f m2;
+                from_json(json, m2);
+                TLRENDER_ASSERT(m == m2);
+            }
+            {
                 const Matrix3x3f m;
                 std::stringstream ss;
                 ss << m;
-                Matrix3x3f m2(0.F, 0.F, 0.F, 0.F, 0.F, 0.F, 0.F, 0.F, 0.F);
+                Matrix3x3f m2(
+                    0.F, 0.F, 0.F,
+                    0.F, 0.F, 0.F,
+                    0.F, 0.F, 0.F);
                 ss >> m2;
                 TLRENDER_ASSERT(m == m2);
             }
+            {
+                const Matrix4x4f m;
+                std::stringstream ss;
+                ss << m;
+                Matrix4x4f m2(
+                    0.F, 0.F, 0.F, 0.F,
+                    0.F, 0.F, 0.F, 0.F,
+                    0.F, 0.F, 0.F, 0.F,
+                    0.F, 0.F, 0.F, 0.F);
+                ss >> m2;
+                TLRENDER_ASSERT(m == m2);
+            }
+            try
+            {
+                Matrix3x3f m;
+                std::stringstream ss("...");
+                ss >> m;
+                TLRENDER_ASSERT(false);
+            }
+            catch (const std::exception&)
+            {}
+            try
+            {
+                Matrix4x4f m;
+                std::stringstream ss("...");
+                ss >> m;
+                TLRENDER_ASSERT(false);
+            }
+            catch (const std::exception&)
+            {}
         }
     }
 }

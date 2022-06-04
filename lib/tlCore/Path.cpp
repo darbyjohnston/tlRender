@@ -122,10 +122,6 @@ namespace tl
             {
                 return true;
             }
-            else if (size > 0 && '\\' == _directory[0])
-            {
-                return true;
-            }
             if (size > 1 && _directory[0] >= 'A' && _directory[0] <= 'Z' && ':' == _directory[1])
             {
                 return true;

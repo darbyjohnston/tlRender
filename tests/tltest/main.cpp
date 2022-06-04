@@ -45,8 +45,10 @@
 #include <tlCoreTest/ColorTest.h>
 #include <tlCoreTest/ContextTest.h>
 #include <tlCoreTest/ErrorTest.h>
-#include <tlCoreTest/FileTest.h>
 #include <tlCoreTest/FileIOTest.h>
+#include <tlCoreTest/FileInfoTest.h>
+#include <tlCoreTest/FileTest.h>
+#include <tlCoreTest/FontSystemTest.h>
 #include <tlCoreTest/HDRTest.h>
 #include <tlCoreTest/ImageTest.h>
 #include <tlCoreTest/LRUCacheTest.h>
@@ -55,6 +57,8 @@
 #include <tlCoreTest/MathTest.h>
 #include <tlCoreTest/MatrixTest.h>
 #include <tlCoreTest/MemoryTest.h>
+#include <tlCoreTest/MeshTest.h>
+#include <tlCoreTest/OSTest.h>
 #include <tlCoreTest/PathTest.h>
 #include <tlCoreTest/RangeTest.h>
 #include <tlCoreTest/StringTest.h>
@@ -96,8 +100,7 @@ int main(int argc, char* argv[])
     std::vector<std::shared_ptr<tests::ITest> > tests;
     if (0)
     {
-        tests.push_back(core_tests::ColorConfigTest::create(context));
-        tests.push_back(core_tests::HDRTest::create(context));
+        tests.push_back(core_tests::PathTest::create(context));
     }
     else
     {
@@ -109,8 +112,10 @@ int main(int argc, char* argv[])
             tests.push_back(core_tests::ColorTest::create(context));
             tests.push_back(core_tests::ContextTest::create(context));
             tests.push_back(core_tests::ErrorTest::create(context));
-            tests.push_back(core_tests::FileTest::create(context));
             tests.push_back(core_tests::FileIOTest::create(context));
+            tests.push_back(core_tests::FileInfoTest::create(context));
+            tests.push_back(core_tests::FileTest::create(context));
+            tests.push_back(core_tests::FontSystemTest::create(context));
             tests.push_back(core_tests::HDRTest::create(context));
             tests.push_back(core_tests::ImageTest::create(context));
             tests.push_back(core_tests::LRUCacheTest::create(context));
@@ -119,6 +124,8 @@ int main(int argc, char* argv[])
             tests.push_back(core_tests::MathTest::create(context));
             tests.push_back(core_tests::MatrixTest::create(context));
             tests.push_back(core_tests::MemoryTest::create(context));
+            tests.push_back(core_tests::MeshTest::create(context));
+            tests.push_back(core_tests::OSTest::create(context));
             tests.push_back(core_tests::PathTest::create(context));
             tests.push_back(core_tests::RangeTest::create(context));
             tests.push_back(core_tests::StringTest::create(context));
@@ -163,7 +170,6 @@ int main(int argc, char* argv[])
             tests.push_back(gl_tests::MeshTest::create(context));
 #endif
         }
-        if (1)
         {
 #if defined(TLRENDER_BUILD_QT5) || defined(TLRENDER_BUILD_QT6)
             tests.push_back(qt_tests::TimeObjectTest::create(context));

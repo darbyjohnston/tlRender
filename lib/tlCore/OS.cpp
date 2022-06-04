@@ -12,10 +12,10 @@ namespace tl
     {
         char getEnvListSeparator(EnvListSeparator value)
         {
-            return EnvListSeparator::Unix == value ? ':' : ';';
+            return EnvListSeparator::UNIX == value ? ':' : ';';
         }
 
-        bool getIntEnv(const std::string& name, int& out)
+        bool getEnv(const std::string& name, int& out)
         {
             std::string value;
             if (getEnv(name, value))
@@ -26,7 +26,7 @@ namespace tl
             return false;
         }
 
-        bool getStringListEnv(const std::string& name, std::vector<std::string>& out)
+        bool getEnv(const std::string& name, std::vector<std::string>& out)
         {
             std::string value;
             if (getEnv(name, value))

@@ -65,6 +65,15 @@ namespace tl
             }
 
             TLRENDER_ASSERT(1 == value->getObserversCount());
+
+            value->clear();
+            TLRENDER_ASSERT(value->isEmpty());
+            value->setItem(0, 2);
+            value->setItemOnlyIfChanged(1, 3);
+            value->setItemOnlyIfChanged(1, 3);
+            value->pushBack(4);
+            value->removeItem(0);
+            TLRENDER_ASSERT(value->isEmpty());
         }
     }
 }

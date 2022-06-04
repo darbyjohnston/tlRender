@@ -61,32 +61,17 @@ namespace tl
 
 		std::string createTempDir()
 		{
-			// Find the temporary directory.
-			std::string path;
-			char* env = nullptr;
-			if ((env = getenv("TEMP"))) path = env;
-			else if ((env = getenv("TMP"))) path = env;
-			else if ((env = getenv("TMPDIR"))) path = env;
-			else
-			{
-				for (const auto& i : { "/tmp", "/var/tmp", "/usr/tmp" })
-				{
-					struct stat buffer;
-					if (0 == stat(i, &buffer))
-					{
-						path = i;
-						break;
-					}
-				}
-			}
-
-			// Create a unique directory.
-			path = path + "/XXXXXX";
+		    std::string out;
+			const std::string path = getTemp() + "/XXXXXX";
 			const size_t size = path.size();
 			std::vector<char> buf(size + 1);
 			std::memcpy(buf.data(), path.c_str(), size);
 			buf[size] = 0;
-			return mkdtemp(buf.data());
+			if (char* s = mkdtemp(buf.data()))
+			{
+			    out = s;
+			}
+			return out;
 		}
 	}
 }

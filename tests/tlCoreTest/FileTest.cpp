@@ -6,6 +6,7 @@
 
 #include <tlCore/Assert.h>
 #include <tlCore/File.h>
+#include <tlCore/OS.h>
 
 #include <sstream>
 
@@ -28,7 +29,21 @@ namespace tl
         {
             {
                 std::stringstream ss;
-                ss << "Temp dir:" << createTempDir();
+                ss << "Temp dir: " << getTemp();
+                _print(ss.str());
+            }
+            {
+                const std::string value = "tmp";
+                for (const auto& env : { "TEMP", "TMP", "TMPDIR" })
+                {
+                    os::setEnv(env, value);
+                    TLRENDER_ASSERT(value == getTemp());
+                    os::delEnv(env);
+                }
+            }
+            {
+                std::stringstream ss;
+                ss << "Temp dir: " << createTempDir();
                 _print(ss.str());
             }
         }

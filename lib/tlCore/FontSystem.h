@@ -117,10 +117,16 @@ namespace tl
             FontMetrics getMetrics(const FontInfo&);
 
             //! Measure the size of text.
-            math::Vector2i measure(const std::string&, const FontInfo&);
+            math::Vector2i measure(
+                const std::string&,
+                const FontInfo&,
+                uint16_t maxLineWidth = 0);
 
             //! Measure the size of glyphs.
-            std::vector<math::BBox2i> measureGlyphs(const std::string&, const FontInfo&);
+            std::vector<math::BBox2i> measureGlyphs(
+                const std::string&,
+                const FontInfo&,
+                uint16_t maxLineWidth = 0);
 
             ///@}
 
@@ -128,7 +134,9 @@ namespace tl
             ///@{
 
             //! Get font glyphs.
-            std::vector<std::shared_ptr<Glyph> > getGlyphs(const std::string&, const FontInfo&);
+            std::vector<std::shared_ptr<Glyph> > getGlyphs(
+                const std::string&,
+                const FontInfo&);
 
             ///@}
 

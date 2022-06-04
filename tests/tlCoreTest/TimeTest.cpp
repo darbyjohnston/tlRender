@@ -27,6 +27,16 @@ namespace tl
 
         void TimeTest::run()
         {
+            _otime();
+            _sleep();
+            _util();
+            _keycode();
+            _timecode();
+            _serialize();
+        }
+        
+        void TimeTest::_otime()
+        {
             {
                 std::stringstream ss;
                 ss << "Invalid time: " << invalidTime;
@@ -37,9 +47,15 @@ namespace tl
                 ss << "Invalid time range: " << invalidTimeRange;
                 _print(ss.str());
             }
-            {
-                sleep(std::chrono::microseconds(1000000));
-            }
+        }
+        
+        void TimeTest::_sleep()
+        {
+            sleep(std::chrono::microseconds(1000));
+        }
+        
+        void TimeTest::_util()
+        {
             {
                 struct Data
                 {
@@ -65,6 +81,72 @@ namespace tl
                     TLRENDER_ASSERT(rational.first == i.rational.first && rational.second == i.rational.second);
                 }
             }
+        }
+        
+        void TimeTest::_keycode()
+        {
+            {
+                const std::string s = keycodeToString(1, 2, 3, 4, 5);
+                int id = 0;
+                int type = 0;
+                int prefix = 0;
+                int count = 0;
+                int offset = 0;
+                stringToKeycode(s, id, type, prefix, count, offset);
+                TLRENDER_ASSERT(1 == id);
+                TLRENDER_ASSERT(2 == type);
+                TLRENDER_ASSERT(3 == prefix);
+                TLRENDER_ASSERT(4 == count);
+                TLRENDER_ASSERT(5 == offset);
+            }
+            try
+            {
+                const std::string s = "...";
+                int id = 0;
+                int type = 0;
+                int prefix = 0;
+                int count = 0;
+                int offset = 0;
+                stringToKeycode(s, id, type, prefix, count, offset);
+                TLRENDER_ASSERT(false);
+            }
+            catch (const std::exception&)
+            {}
+        }
+        
+        void TimeTest::_timecode()
+        {
+            {
+                const uint32_t t = timeToTimecode(1, 2, 3, 4);
+                int hour = 0;
+                int minute = 0;
+                int second = 0;
+                int frame = 0;
+                timecodeToTime(t, hour, minute, second, frame);
+                TLRENDER_ASSERT(1 == hour);
+                TLRENDER_ASSERT(2 == minute);
+                TLRENDER_ASSERT(3 == second);
+                TLRENDER_ASSERT(4 == frame);
+            }
+            {
+                const std::string s = "01:02:03:04";
+                uint32_t t = 0;
+                stringToTimecode(s, t);
+                TLRENDER_ASSERT(s == timecodeToString(t));
+            }
+            try
+            {
+                const std::string s = "...";
+                uint32_t t = 0;
+                stringToTimecode(s, t);
+                TLRENDER_ASSERT(false);
+            }
+            catch (const std::exception&)
+            {}
+        }
+
+        void TimeTest::_serialize()
+        {
             {
                 const otime::RationalTime t(1.0, 24.0);
                 nlohmann::json json;
@@ -89,6 +171,15 @@ namespace tl
                 ss >> t2;
                 TLRENDER_ASSERT(t == t2);
             }
+            try
+            {
+                otime::RationalTime t = invalidTime;
+                std::stringstream ss("...");
+                ss >> t;
+                TLRENDER_ASSERT(false);
+            }
+            catch (const std::exception&)
+            {}
             {
                 const auto t = otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(1.0, 24.0));
                 std::stringstream ss;
@@ -97,6 +188,24 @@ namespace tl
                 ss >> t2;
                 TLRENDER_ASSERT(t == t2);
             }
-        }
+            try
+            {
+                otime::TimeRange t = invalidTimeRange;
+                std::stringstream ss("...");
+                ss >> t;
+                TLRENDER_ASSERT(false);
+            }
+            catch (const std::exception&)
+            {}
+            try
+            {
+                otime::TimeRange t = invalidTimeRange;
+                std::stringstream ss(".-.");
+                ss >> t;
+                TLRENDER_ASSERT(false);
+            }
+            catch (const std::exception&)
+            {}
+       }
     }
 }

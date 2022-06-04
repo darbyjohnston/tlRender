@@ -6,7 +6,9 @@ set(HEADERS
     ContextTest.h
     ErrorTest.h
     FileIOTest.h
+    FileInfoTest.h
     FileTest.h
+    FontSystemTest.h
 	HDRTest.h
     ImageTest.h
     LRUCacheTest.h
@@ -15,6 +17,8 @@ set(HEADERS
     MathTest.h
 	MatrixTest.h
     MemoryTest.h
+    MeshTest.h
+    OSTest.h
     PathTest.h
     RangeTest.h
     StringTest.h
@@ -31,7 +35,9 @@ set(SOURCE
     ContextTest.cpp
     ErrorTest.cpp
     FileIOTest.cpp
+    FileInfoTest.cpp
     FileTest.cpp
+    FontSystemTest.cpp
 	HDRTest.cpp
     ImageTest.cpp
     LRUCacheTest.cpp
@@ -40,6 +46,8 @@ set(SOURCE
     MathTest.cpp
 	MatrixTest.cpp
     MemoryTest.cpp
+    MeshTest.cpp
+    OSTest.cpp
     PathTest.cpp
     RangeTest.cpp
     StringTest.cpp

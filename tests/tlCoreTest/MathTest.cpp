@@ -25,6 +25,9 @@ namespace tl
         void MathTest::run()
         {
             {
+                TLRENDER_ASSERT(rad2deg(deg2rad(360.F)) == 360.F);
+            }
+            {
                 TLRENDER_ASSERT(0 == clamp(-1, 0, 1));
                 TLRENDER_ASSERT(1 == clamp(2, 0, 1));
             }

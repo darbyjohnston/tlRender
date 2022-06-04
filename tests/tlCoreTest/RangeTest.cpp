@@ -82,6 +82,22 @@ namespace tl
                 TLRENDER_ASSERT(r == r2);
             }
             {
+                const SizeTRange r(1, 10);
+                nlohmann::json json;
+                to_json(json, r);
+                SizeTRange r2;
+                from_json(json, r2);
+                TLRENDER_ASSERT(r == r2);
+            }
+            {
+                const FloatRange r(1.F, 10.F);
+                nlohmann::json json;
+                to_json(json, r);
+                FloatRange r2;
+                from_json(json, r2);
+                TLRENDER_ASSERT(r == r2);
+            }
+            {
                 const IntRange r(1, 10);
                 std::stringstream ss;
                 ss << r;
@@ -89,6 +105,49 @@ namespace tl
                 ss >> r2;
                 TLRENDER_ASSERT(r == r2);
             }
+            try
+            {
+                IntRange r;
+                std::stringstream ss("...");
+                ss >> r;
+                TLRENDER_ASSERT(false);
+            }
+            catch (const std::exception&)
+            {}
+            {
+                const SizeTRange r(1, 10);
+                std::stringstream ss;
+                ss << r;
+                SizeTRange r2;
+                ss >> r2;
+                TLRENDER_ASSERT(r == r2);
+            }
+            try
+            {
+                SizeTRange r;
+                std::stringstream ss("...");
+                ss >> r;
+                TLRENDER_ASSERT(false);
+            }
+            catch (const std::exception&)
+            {}
+            {
+                const FloatRange r(1.F, 10.F);
+                std::stringstream ss;
+                ss << r;
+                FloatRange r2;
+                ss >> r2;
+                TLRENDER_ASSERT(r == r2);
+            }
+            try
+            {
+                FloatRange r;
+                std::stringstream ss("...");
+                ss >> r;
+                TLRENDER_ASSERT(false);
+            }
+            catch (const std::exception&)
+            {}
         }
     }
 }

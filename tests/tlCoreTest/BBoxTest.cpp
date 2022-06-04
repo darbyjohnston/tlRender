@@ -242,37 +242,55 @@ namespace tl
         void BBoxTest::_serialize()
         {
             {
-                const BBox2i c(1, 2, 3, 4);
+                const BBox2i b(1, 2, 3, 4);
                 nlohmann::json json;
-                to_json(json, c);
-                BBox2i c2;
-                from_json(json, c2);
-                TLRENDER_ASSERT(c == c2);
+                to_json(json, b);
+                BBox2i b2;
+                from_json(json, b2);
+                TLRENDER_ASSERT(b == b2);
             }
             {
-                const BBox2f c(1.F, 2.F, 3.F, 4.F);
+                const BBox2f b(1.F, 2.F, 3.F, 4.F);
                 nlohmann::json json;
-                to_json(json, c);
-                BBox2f c2;
-                from_json(json, c2);
-                TLRENDER_ASSERT(c == c2);
+                to_json(json, b);
+                BBox2f b2;
+                from_json(json, b2);
+                TLRENDER_ASSERT(b == b2);
             }
             {
-                const BBox2i c(1, 2, 3, 4);
+                const BBox2i b(1, 2, 3, 4);
                 std::stringstream ss;
-                ss << c;
-                BBox2i c2;
-                ss >> c2;
-                TLRENDER_ASSERT(c == c2);
+                ss << b;
+                BBox2i b2;
+                ss >> b2;
+                TLRENDER_ASSERT(b == b2);
             }
             {
-                const BBox2f c(1.F, 2.F, 3.F, 4.F);
+                const BBox2f b(1.F, 2.F, 3.F, 4.F);
                 std::stringstream ss;
-                ss << c;
-                BBox2f c2;
-                ss >> c2;
-                TLRENDER_ASSERT(c == c2);
+                ss << b;
+                BBox2f b2;
+                ss >> b2;
+                TLRENDER_ASSERT(b == b2);
             }
+            try
+            {
+                BBox2i b;
+                std::stringstream ss("...");
+                ss >> b;
+                TLRENDER_ASSERT(false);
+            }
+            catch (const std::exception&)
+            {}
+            try
+            {
+                BBox2f b;
+                std::stringstream ss("...");
+                ss >> b;
+                TLRENDER_ASSERT(false);
+            }
+            catch (const std::exception&)
+            {}
         }
     }
 }

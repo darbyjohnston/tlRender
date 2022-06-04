@@ -46,6 +46,21 @@ namespace tl
                     out->_init(context);
                     return out;
                 }
+                
+                void tick() override
+                {
+                    std::stringstream ss;
+                    ss << "Tick: " << _ticks;
+                    _log(ss.str());
+                }
+                
+                std::chrono::milliseconds getTickTime() const override
+                {
+                    return std::chrono::milliseconds(1);
+                }
+            
+            private:
+                size_t _ticks = 0;
             };
         }
 
@@ -53,9 +68,19 @@ namespace tl
         {
             {
                 auto testSystem = TestSystem::create(_context);
+                TLRENDER_ASSERT(testSystem->getContext().lock());
+                {
+                    std::stringstream ss;
+                    ss << "Name: " << testSystem->getName();
+                    _print(ss.str());
+                }
                 TLRENDER_ASSERT(!_context->getSystem<TestSystem>());
                 _context->addSystem(testSystem);
                 TLRENDER_ASSERT(testSystem == _context->getSystem<TestSystem>());
+                for (size_t i = 0; i < 10; ++i)
+                {
+                    _context->tick();
+                }
             }
         }
     }

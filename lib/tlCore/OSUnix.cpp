@@ -80,7 +80,7 @@ namespace tl
 		
 		char getEnvListSeparator()
 		{
-			return getEnvListSeparator(EnvListSeparator::Unix);
+			return getEnvListSeparator(EnvListSeparator::UNIX);
 		}
 		
 		bool getEnv(const std::string& name, std::string& out)

@@ -7,6 +7,8 @@
 #include <tlCore/Assert.h>
 #include <tlCore/Path.h>
 
+#include <iostream>
+
 using namespace tl::file;
 
 namespace tl
@@ -25,6 +27,13 @@ namespace tl
         void PathTest::run()
         {
             {
+                PathOptions a;
+                PathOptions b;
+                TLRENDER_ASSERT(a == b);
+                a.maxNumberDigits = 0;
+                TLRENDER_ASSERT(a != b);
+            }
+            {
                 Path path;
                 TLRENDER_ASSERT(path.isEmpty());
                 TLRENDER_ASSERT(path.getDirectory().empty());
@@ -37,6 +46,12 @@ namespace tl
                 TLRENDER_ASSERT(Path("/tmp", "file.txt").get() == "/tmp/file.txt");
                 TLRENDER_ASSERT(Path("/tmp/", "file.txt").get() == "/tmp/file.txt");
                 TLRENDER_ASSERT(Path("\\tmp\\file.txt").get() == "/tmp/file.txt");
+            }
+            {
+                TLRENDER_ASSERT(Path("/tmp/", "render.", "0001", 4, ".exr").get() ==
+                    "/tmp/render.0001.exr");
+                TLRENDER_ASSERT(Path("/tmp/", "render.", "0001", 4, ".exr").get(2) ==
+                    "/tmp/render.0002.exr");
             }
             {
                 struct Data
@@ -78,6 +93,13 @@ namespace tl
                 TLRENDER_ASSERT(!Path("").isAbsolute());
                 TLRENDER_ASSERT(!Path("../..").isAbsolute());
                 TLRENDER_ASSERT(!Path("..\\..").isAbsolute());
+            }
+            {
+                Path a("/");
+                Path b("\\");
+                TLRENDER_ASSERT(a == b);
+                b = Path("/tmp");
+                TLRENDER_ASSERT(a != b);
             }
         }
     }

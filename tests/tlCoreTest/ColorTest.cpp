@@ -65,6 +65,15 @@ namespace tl
                 ss >> c2;
                 TLRENDER_ASSERT(c == c2);
             }
+            try
+            {
+                Color4f c;
+                std::stringstream ss("...");
+                ss >> c;
+                TLRENDER_ASSERT(false);
+            }
+            catch (const std::exception&)
+            {}
         }
     }
 }

@@ -35,7 +35,7 @@ namespace tl
         //! Environment variable list separators.
         enum class EnvListSeparator
         {
-            Unix,
+            UNIX,
             Windows
         };
 
@@ -56,13 +56,13 @@ namespace tl
         //!
         //! Throws:
         //! - std::exception
-        bool getIntEnv(const std::string& name, int& value);
+        bool getEnv(const std::string& name, int& value);
 
         //! Get an environment variable and convert it to a list of strings.
         //!
         //! Throws:
         //! - std::exception
-        bool getStringListEnv(const std::string& name, std::vector<std::string>&);
+        bool getEnv(const std::string& name, std::vector<std::string>&);
 
         //! Set an environment variable.
         //! 

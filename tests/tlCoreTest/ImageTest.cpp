@@ -211,6 +211,15 @@ namespace tl
                 ss >> s2;
                 TLRENDER_ASSERT(s == s2);
             }
+            try
+            {
+                Size s;
+                std::stringstream ss("...");
+                ss >> s;
+                TLRENDER_ASSERT(false);
+            }
+            catch (const std::exception&)
+            {}
         }
     }
 }

@@ -60,7 +60,10 @@ namespace tl
         };
 
         //! Edge function.
-        float edge(const math::Vector2f& p, const math::Vector2f& v0, const math::Vector2f& v1);
+        float edge(
+            const math::Vector2f& p,
+            const math::Vector2f& v0,
+            const math::Vector2f& v1);
 
         //! Create a sphere triangle mesh.
         TriangleMesh3 createSphere(
@@ -71,3 +74,4 @@ namespace tl
 }
 
 #include <tlCore/MeshInline.h>
+

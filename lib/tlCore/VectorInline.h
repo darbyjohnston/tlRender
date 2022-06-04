@@ -38,6 +38,22 @@ namespace tl
             z(z)
         {}
 
+        template<>
+        inline Vector4<float>::Vector4() noexcept :
+            x(0.F),
+            y(0.F),
+            z(0.F),
+            w(0.F)
+        {}
+
+        template<typename T>
+        inline Vector4<T>::Vector4(T x, T y, T z, T w) noexcept :
+            x(x),
+            y(y),
+            z(z),
+            w(w)
+        {}
+
         template<typename T>
         inline bool Vector2<T>::operator == (const Vector2<T>& other) const
         {
