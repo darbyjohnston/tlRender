@@ -6,6 +6,8 @@
 
 #include <tlCore/Path.h>
 
+#include <iostream>
+
 namespace tl
 {
     namespace file
