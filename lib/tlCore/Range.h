@@ -7,6 +7,7 @@
 #include <nlohmann/json.hpp>
 
 #include <cstddef>
+#include <iostream>
 
 namespace tl
 {
@@ -67,6 +68,14 @@ namespace tl
         void from_json(const nlohmann::json&, IntRange&);
         void from_json(const nlohmann::json&, SizeTRange&);
         void from_json(const nlohmann::json&, FloatRange&);
+
+        std::ostream& operator << (std::ostream&, const IntRange&);
+        std::ostream& operator << (std::ostream&, const SizeTRange&);
+        std::ostream& operator << (std::ostream&, const FloatRange&);
+
+        std::istream& operator >> (std::istream&, IntRange&);
+        std::istream& operator >> (std::istream&, SizeTRange&);
+        std::istream& operator >> (std::istream&, FloatRange&);
     }
 }
 

@@ -13,6 +13,19 @@ namespace tl
 {
     namespace imaging
     {
+        void to_json(nlohmann::json& json, const Color4f& value)
+        {
+            json = { value.r, value.g, value.b, value.a };
+        }
+
+        void from_json(const nlohmann::json& json, Color4f& value)
+        {
+            json.at(0).get_to(value.r);
+            json.at(1).get_to(value.g);
+            json.at(2).get_to(value.b);
+            json.at(3).get_to(value.a);
+        }
+
         std::ostream& operator << (std::ostream& os, const Color4f& value)
         {
             os << value.r << "," << value.g << "," << value.b << "," << value.a;

@@ -13,13 +13,15 @@ set(HEADERS
     ListObserverTest.h
     MapObserverTest.h
     MathTest.h
+	MatrixTest.h
     MemoryTest.h
     PathTest.h
     RangeTest.h
     StringTest.h
     StringFormatTest.h
     TimeTest.h
-    ValueObserverTest.h)
+    ValueObserverTest.h
+	VectorTest.h)
 
 set(SOURCE
     AudioTest.cpp
@@ -36,13 +38,15 @@ set(SOURCE
     ListObserverTest.cpp
     MapObserverTest.cpp
     MathTest.cpp
+	MatrixTest.cpp
     MemoryTest.cpp
     PathTest.cpp
     RangeTest.cpp
     StringTest.cpp
     StringFormatTest.cpp
     TimeTest.cpp
-    ValueObserverTest.cpp)
+    ValueObserverTest.cpp
+	VectorTest.cpp)
 
 add_library(tlCoreTest ${SOURCE} ${HEADERS})
 target_link_libraries(tlCoreTest tlTestLib)

@@ -53,6 +53,7 @@
 #include <tlCoreTest/ListObserverTest.h>
 #include <tlCoreTest/MapObserverTest.h>
 #include <tlCoreTest/MathTest.h>
+#include <tlCoreTest/MatrixTest.h>
 #include <tlCoreTest/MemoryTest.h>
 #include <tlCoreTest/PathTest.h>
 #include <tlCoreTest/RangeTest.h>
@@ -60,6 +61,7 @@
 #include <tlCoreTest/StringFormatTest.h>
 #include <tlCoreTest/TimeTest.h>
 #include <tlCoreTest/ValueObserverTest.h>
+#include <tlCoreTest/VectorTest.h>
 
 #include <tlCore/Context.h>
 
@@ -99,61 +101,74 @@ int main(int argc, char* argv[])
     }
     else
     {
-        tests.push_back(core_tests::AudioTest::create(context));
-        tests.push_back(core_tests::BBoxTest::create(context));
-        tests.push_back(core_tests::ColorConfigTest::create(context));
-        tests.push_back(core_tests::ColorTest::create(context));
-        tests.push_back(core_tests::ContextTest::create(context));
-        tests.push_back(core_tests::ErrorTest::create(context));
-        tests.push_back(core_tests::FileTest::create(context));
-        tests.push_back(core_tests::FileIOTest::create(context));
-        tests.push_back(core_tests::HDRTest::create(context));
-        tests.push_back(core_tests::ImageTest::create(context));
-        tests.push_back(core_tests::LRUCacheTest::create(context));
-        tests.push_back(core_tests::ListObserverTest::create(context));
-        tests.push_back(core_tests::MapObserverTest::create(context));
-        tests.push_back(core_tests::MathTest::create(context));
-        tests.push_back(core_tests::MemoryTest::create(context));
-        tests.push_back(core_tests::PathTest::create(context));
-        tests.push_back(core_tests::RangeTest::create(context));
-        tests.push_back(core_tests::StringTest::create(context));
-        tests.push_back(core_tests::StringFormatTest::create(context));
-        tests.push_back(core_tests::TimeTest::create(context));
-        tests.push_back(core_tests::ValueObserverTest::create(context));
-
-        tests.push_back(io_tests::CineonTest::create(context));
-        tests.push_back(io_tests::DPXTest::create(context));
-        tests.push_back(io_tests::IOTest::create(context));
-        tests.push_back(io_tests::PPMTest::create(context));
-        tests.push_back(io_tests::SGITest::create(context));
+        if (1)
+        {
+            tests.push_back(core_tests::AudioTest::create(context));
+            tests.push_back(core_tests::BBoxTest::create(context));
+            tests.push_back(core_tests::ColorConfigTest::create(context));
+            tests.push_back(core_tests::ColorTest::create(context));
+            tests.push_back(core_tests::ContextTest::create(context));
+            tests.push_back(core_tests::ErrorTest::create(context));
+            tests.push_back(core_tests::FileTest::create(context));
+            tests.push_back(core_tests::FileIOTest::create(context));
+            tests.push_back(core_tests::HDRTest::create(context));
+            tests.push_back(core_tests::ImageTest::create(context));
+            tests.push_back(core_tests::LRUCacheTest::create(context));
+            tests.push_back(core_tests::ListObserverTest::create(context));
+            tests.push_back(core_tests::MapObserverTest::create(context));
+            tests.push_back(core_tests::MathTest::create(context));
+            tests.push_back(core_tests::MatrixTest::create(context));
+            tests.push_back(core_tests::MemoryTest::create(context));
+            tests.push_back(core_tests::PathTest::create(context));
+            tests.push_back(core_tests::RangeTest::create(context));
+            tests.push_back(core_tests::StringTest::create(context));
+            tests.push_back(core_tests::StringFormatTest::create(context));
+            tests.push_back(core_tests::TimeTest::create(context));
+            tests.push_back(core_tests::ValueObserverTest::create(context));
+            tests.push_back(core_tests::VectorTest::create(context));
+        }
+        if (1)
+        {
+            tests.push_back(io_tests::CineonTest::create(context));
+            tests.push_back(io_tests::DPXTest::create(context));
+            tests.push_back(io_tests::IOTest::create(context));
+            tests.push_back(io_tests::PPMTest::create(context));
+            tests.push_back(io_tests::SGITest::create(context));
 #if defined(FFmpeg_FOUND)
-        tests.push_back(io_tests::FFmpegTest::create(context));
+            tests.push_back(io_tests::FFmpegTest::create(context));
 #endif
 #if defined(JPEG_FOUND)
-        tests.push_back(io_tests::JPEGTest::create(context));
+            tests.push_back(io_tests::JPEGTest::create(context));
 #endif
 #if defined(OpenEXR_FOUND)
-        tests.push_back(io_tests::OpenEXRTest::create(context));
+            tests.push_back(io_tests::OpenEXRTest::create(context));
 #endif
 #if defined(PNG_FOUND)
-        tests.push_back(io_tests::PNGTest::create(context));
+            tests.push_back(io_tests::PNGTest::create(context));
 #endif
 #if defined(TIFF_FOUND)
-        tests.push_back(io_tests::TIFFTest::create(context));
+            tests.push_back(io_tests::TIFFTest::create(context));
 #endif
-
-        tests.push_back(timeline_tests::IRenderTest::create(context));
-        tests.push_back(timeline_tests::TimelinePlayerTest::create(context));
-        tests.push_back(timeline_tests::TimelineTest::create(context));
-        tests.push_back(timeline_tests::TimelineUtilTest::create(context));
-
+        }
+        if (1)
+        {
+            tests.push_back(timeline_tests::IRenderTest::create(context));
+            tests.push_back(timeline_tests::TimelinePlayerTest::create(context));
+            tests.push_back(timeline_tests::TimelineTest::create(context));
+            tests.push_back(timeline_tests::TimelineUtilTest::create(context));
+        }
+        if (1)
+        {
 #if defined(TLRENDER_BUILD_GL)
-        tests.push_back(gl_tests::MeshTest::create(context));
+            tests.push_back(gl_tests::MeshTest::create(context));
 #endif
-
+        }
+        if (1)
+        {
 #if defined(TLRENDER_BUILD_QT5) || defined(TLRENDER_BUILD_QT6)
-        tests.push_back(qt_tests::TimeObjectTest::create(context));
+            tests.push_back(qt_tests::TimeObjectTest::create(context));
 #endif
+        }
     }
     for (const auto& i : tests)
     {

@@ -29,6 +29,7 @@ namespace tl
             _util();
             _info();
             _image();
+            _serialize();
         }
 
         void ImageTest::_size()
@@ -189,6 +190,26 @@ namespace tl
                 TLRENDER_ASSERT(image->isValid());
                 TLRENDER_ASSERT(image->getData());
                 TLRENDER_ASSERT(static_cast<const Image*>(image.get())->getData());
+            }
+        }
+
+        void ImageTest::_serialize()
+        {
+            {
+                const Size s(1, 2);
+                nlohmann::json json;
+                to_json(json, s);
+                Size s2;
+                from_json(json, s2);
+                TLRENDER_ASSERT(s == s2);
+            }
+            {
+                const Size s(1, 2);
+                std::stringstream ss;
+                ss << s;
+                Size s2;
+                ss >> s2;
+                TLRENDER_ASSERT(s == s2);
             }
         }
     }

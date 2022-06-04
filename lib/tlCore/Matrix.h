@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <nlohmann/json.hpp>
+
 #include <iostream>
 
 namespace tl
@@ -54,6 +56,12 @@ namespace tl
 
         //! 4x4 floating point matrix.
         typedef Matrix4x4<float> Matrix4x4f;
+
+        void to_json(nlohmann::json&, const Matrix3x3f&);
+        void to_json(nlohmann::json&, const Matrix4x4f&);
+
+        void from_json(const nlohmann::json&, Matrix3x3f&);
+        void from_json(const nlohmann::json&, Matrix4x4f&);
 
         std::ostream& operator << (std::ostream&, const Matrix3x3f&);
         std::ostream& operator << (std::ostream&, const Matrix4x4f&);

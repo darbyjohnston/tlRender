@@ -28,6 +28,7 @@ namespace tl
             void _expand();
             void _margin();
             void _operators();
+            void _serialize();
         };
     }
 }

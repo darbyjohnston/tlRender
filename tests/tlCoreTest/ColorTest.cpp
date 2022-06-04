@@ -39,8 +39,31 @@ namespace tl
                 TLRENDER_ASSERT(4.F == c.a);
             }
             {
+                Color4f a;
+                Color4f b;
+                TLRENDER_ASSERT(a == b);
+                a.r = 1.F;
+                TLRENDER_ASSERT(a != b);
+            }
+            {
                 TLRENDER_ASSERT(0 == fToU8(0.0));
                 TLRENDER_ASSERT(255 == fToU8(1.0));
+            }
+            {
+                const Color4f c(1.F, .5F, 0.F);
+                nlohmann::json json;
+                to_json(json, c);
+                Color4f c2;
+                from_json(json, c2);
+                TLRENDER_ASSERT(c == c2);
+            }
+            {
+                const Color4f c(1.F, .5F, 0.F);
+                std::stringstream ss;
+                ss << c;
+                Color4f c2;
+                ss >> c2;
+                TLRENDER_ASSERT(c == c2);
             }
         }
     }

@@ -277,13 +277,24 @@ namespace tl
             std::memset(_data, 0, _dataByteCount);
         }
 
-        std::ostream& operator << (std::ostream& os, const imaging::Size& value)
+        void to_json(nlohmann::json& json, const Size& value)
+        {
+            json = { value.w, value.h };
+        }
+
+        void from_json(const nlohmann::json& json, Size& value)
+        {
+            json.at(0).get_to(value.w);
+            json.at(1).get_to(value.h);
+        }
+
+        std::ostream& operator << (std::ostream& os, const Size& value)
         {
             os << value.w << "x" << value.h;
             return os;
         }
 
-        std::istream& operator >> (std::istream& is, imaging::Size& out)
+        std::istream& operator >> (std::istream& is, Size& out)
         {
             std::string s;
             is >> s;

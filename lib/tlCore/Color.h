@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <nlohmann/json.hpp>
+
 #include <cstdint>
 #include <iostream>
 
@@ -17,7 +19,7 @@ namespace tl
         {
         public:
             Color4f();
-            explicit Color4f(float r, float g, float b, float a = 1.F);
+            Color4f(float r, float g, float b, float a = 1.F);
 
             float r, g, b, a;
 
@@ -27,6 +29,10 @@ namespace tl
 
         //! Convert a floating point value to an 8-bit value.
         uint8_t fToU8(float);
+
+        void to_json(nlohmann::json&, const Color4f&);
+
+        void from_json(const nlohmann::json&, Color4f&);
 
         std::ostream& operator << (std::ostream&, const Color4f&);
 

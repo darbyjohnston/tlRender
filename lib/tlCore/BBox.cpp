@@ -13,6 +13,28 @@ namespace tl
 {
     namespace math
     {
+        void to_json(nlohmann::json& json, const BBox2i& value)
+        {
+            json = { value.min, value.max };
+        }
+
+        void to_json(nlohmann::json& json, const BBox2f& value)
+        {
+            json = { value.min, value.max };
+        }
+
+        void from_json(const nlohmann::json& json, BBox2i& value)
+        {
+            json.at(0).get_to(value.min);
+            json.at(1).get_to(value.max);
+        }
+
+        void from_json(const nlohmann::json& json, BBox2f& value)
+        {
+            json.at(0).get_to(value.min);
+            json.at(1).get_to(value.max);
+        }
+
         std::ostream& operator << (std::ostream& os, const BBox2i& value)
         {
             os << value.min.x << "," << value.min.y << "-" << value.max.x << "," << value.max.y;

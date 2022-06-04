@@ -25,6 +25,13 @@ namespace tl
         void ColorConfigTest::run()
         {
             {
+                ColorConfig a;
+                ColorConfig b;
+                TLRENDER_ASSERT(a == b);
+                a.fileName = "fileName";
+                TLRENDER_ASSERT(a != b);
+            }
+            {
                 imaging::ColorConfig value;
                 value.fileName = "fileName";
                 value.input = "input";

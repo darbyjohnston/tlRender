@@ -13,6 +13,53 @@ namespace tl
 {
     namespace math
     {
+        void to_json(nlohmann::json& json, const Vector2i& value)
+        {
+            json = { value.x, value.y };
+        }
+
+        void to_json(nlohmann::json& json, const Vector2f& value)
+        {
+            json = { value.x, value.y };
+        }
+
+        void to_json(nlohmann::json& json, const Vector3f& value)
+        {
+            json = { value.x, value.y, value.z };
+        }
+
+        void to_json(nlohmann::json& json, const Vector4f& value)
+        {
+            json = { value.x, value.y, value.z, value.w };
+        }
+
+        void from_json(const nlohmann::json& json, Vector2i& value)
+        {
+            json.at(0).get_to(value.x);
+            json.at(1).get_to(value.y);
+        }
+
+        void from_json(const nlohmann::json& json, Vector2f& value)
+        {
+            json.at(0).get_to(value.x);
+            json.at(1).get_to(value.y);
+        }
+
+        void from_json(const nlohmann::json& json, Vector3f& value)
+        {
+            json.at(0).get_to(value.x);
+            json.at(1).get_to(value.y);
+            json.at(2).get_to(value.z);
+        }
+
+        void from_json(const nlohmann::json& json, Vector4f& value)
+        {
+            json.at(0).get_to(value.x);
+            json.at(1).get_to(value.y);
+            json.at(2).get_to(value.z);
+            json.at(3).get_to(value.w);
+        }
+
         std::ostream& operator << (std::ostream& os, const Vector2i& value)
         {
             os << value.x << "," << value.y;

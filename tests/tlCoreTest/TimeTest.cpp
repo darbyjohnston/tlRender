@@ -66,6 +66,22 @@ namespace tl
                 }
             }
             {
+                const otime::RationalTime t(1.0, 24.0);
+                nlohmann::json json;
+                to_json(json, t);
+                otime::RationalTime t2 = invalidTime;
+                from_json(json, t2);
+                TLRENDER_ASSERT(t == t2);
+            }
+            {
+                const auto t = otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(1.0, 24.0));
+                nlohmann::json json;
+                to_json(json, t);
+                otime::TimeRange t2 = invalidTimeRange;
+                from_json(json, t2);
+                TLRENDER_ASSERT(t == t2);
+            }
+            {
                 const auto t = otime::RationalTime(1.0, 24.0);
                 std::stringstream ss;
                 ss << t;

@@ -4,6 +4,11 @@
 
 #include <tlCore/Range.h>
 
+#include <tlCore/Error.h>
+#include <tlCore/String.h>
+
+#include <sstream>
+
 namespace tl
 {
     namespace math
@@ -48,6 +53,93 @@ namespace tl
             json.at(0).get_to(min);
             json.at(1).get_to(max);
             value = FloatRange(min, max);
+        }
+
+        std::ostream& operator << (std::ostream& os, const IntRange& value)
+        {
+            os << value.getMin() << "-" << value.getMax();
+            return os;
+        }
+
+        std::ostream& operator << (std::ostream& os, const SizeTRange& value)
+        {
+            os << value.getMin() << "-" << value.getMax();
+            return os;
+        }
+
+        std::ostream& operator << (std::ostream& os, const FloatRange& value)
+        {
+            os << value.getMin() << "-" << value.getMax();
+            return os;
+        }
+
+        std::istream& operator >> (std::istream& is, IntRange& value)
+        {
+            std::string s;
+            is >> s;
+            auto split = string::split(s, '-');
+            if (split.size() != 2)
+            {
+                throw error::ParseError();
+            }
+            int min = 0;
+            int max = 0;
+            {
+                std::stringstream ss(split[0]);
+                ss >> min;
+            }
+            {
+                std::stringstream ss(split[1]);
+                ss >> max;
+            }
+            value = IntRange(min, max);
+            return is;
+        }
+
+        std::istream& operator >> (std::istream& is, SizeTRange& value)
+        {
+            std::string s;
+            is >> s;
+            auto split = string::split(s, '-');
+            if (split.size() != 2)
+            {
+                throw error::ParseError();
+            }
+            size_t min = 0;
+            size_t max = 0;
+            {
+                std::stringstream ss(split[0]);
+                ss >> min;
+            }
+            {
+                std::stringstream ss(split[1]);
+                ss >> max;
+            }
+            value = SizeTRange(min, max);
+            return is;
+        }
+
+        std::istream& operator >> (std::istream& is, FloatRange& value)
+        {
+            std::string s;
+            is >> s;
+            auto split = string::split(s, '-');
+            if (split.size() != 2)
+            {
+                throw error::ParseError();
+            }
+            float min = 0.F;
+            float max = 0.F;
+            {
+                std::stringstream ss(split[0]);
+                ss >> min;
+            }
+            {
+                std::stringstream ss(split[1]);
+                ss >> max;
+            }
+            value = FloatRange(min, max);
+            return is;
         }
     }
 }

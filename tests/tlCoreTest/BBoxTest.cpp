@@ -31,6 +31,7 @@ namespace tl
             _expand();
             _margin();
             _operators();
+            _serialize();
         }
 
         void BBoxTest::_ctors()
@@ -235,6 +236,42 @@ namespace tl
                 TLRENDER_ASSERT(BBox2i(0, 1, 2, 3) != BBox2i(3, 2, 1, 0));
                 TLRENDER_ASSERT(BBox2f(0.F, 1.F, 2.F, 3.F) == BBox2f(0.F, 1.F, 2.F, 3.F));
                 TLRENDER_ASSERT(BBox2f(0.F, 1.F, 2.F, 3.F) != BBox2f(3.F, 2.F, 1.F, 0.F));
+            }
+        }
+
+        void BBoxTest::_serialize()
+        {
+            {
+                const BBox2i c(1, 2, 3, 4);
+                nlohmann::json json;
+                to_json(json, c);
+                BBox2i c2;
+                from_json(json, c2);
+                TLRENDER_ASSERT(c == c2);
+            }
+            {
+                const BBox2f c(1.F, 2.F, 3.F, 4.F);
+                nlohmann::json json;
+                to_json(json, c);
+                BBox2f c2;
+                from_json(json, c2);
+                TLRENDER_ASSERT(c == c2);
+            }
+            {
+                const BBox2i c(1, 2, 3, 4);
+                std::stringstream ss;
+                ss << c;
+                BBox2i c2;
+                ss >> c2;
+                TLRENDER_ASSERT(c == c2);
+            }
+            {
+                const BBox2f c(1.F, 2.F, 3.F, 4.F);
+                std::stringstream ss;
+                ss << c;
+                BBox2f c2;
+                ss >> c2;
+                TLRENDER_ASSERT(c == c2);
             }
         }
     }

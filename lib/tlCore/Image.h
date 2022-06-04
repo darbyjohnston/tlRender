@@ -291,9 +291,13 @@ namespace tl
             uint8_t* _data = nullptr;
         };
 
-        std::ostream& operator << (std::ostream&, const imaging::Size&);
+        void to_json(nlohmann::json&, const Size&);
 
-        std::istream& operator >> (std::istream&, imaging::Size&);
+        void from_json(const nlohmann::json&, Size&);
+
+        std::ostream& operator << (std::ostream&, const Size&);
+
+        std::istream& operator >> (std::istream&, Size&);
     }
 }
 

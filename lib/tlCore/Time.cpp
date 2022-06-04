@@ -165,6 +165,34 @@ namespace opentime
 {
     namespace OPENTIME_VERSION
     {
+        void to_json(nlohmann::json& json, const RationalTime& value)
+        {
+            json = { value.value(), value.rate() };
+        }
+
+        void to_json(nlohmann::json& json, const TimeRange& value)
+        {
+            json = { value.start_time(), value.duration() };
+        }
+
+        void from_json(const nlohmann::json& json, RationalTime& value)
+        {
+            double v = 0.0;
+            double rate = 0.0;
+            json.at(0).get_to(v);
+            json.at(1).get_to(rate);
+            value = RationalTime(v, rate);
+        }
+
+        void from_json(const nlohmann::json& json, TimeRange& value)
+        {
+            RationalTime start;
+            RationalTime duration;
+            json.at(0).get_to(start);
+            json.at(1).get_to(duration);
+            value = TimeRange(start, duration);
+        }
+
         std::ostream& operator << (std::ostream& os, const RationalTime& value)
         {
             os << std::fixed << value.value() << "/" << value.rate();

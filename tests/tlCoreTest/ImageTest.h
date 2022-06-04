@@ -26,6 +26,7 @@ namespace tl
             void _info();
             void _util();
             void _image();
+            void _serialize();
         };
     }
 }

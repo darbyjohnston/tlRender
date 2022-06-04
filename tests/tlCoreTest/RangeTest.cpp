@@ -73,6 +73,22 @@ namespace tl
                 TLRENDER_ASSERT(IntRange(1, 10) != IntRange(0, 11));
                 TLRENDER_ASSERT(IntRange(0, 10) < IntRange(1, 11));
             }
+            {
+                const IntRange r(1, 10);
+                nlohmann::json json;
+                to_json(json, r);
+                IntRange r2;
+                from_json(json, r2);
+                TLRENDER_ASSERT(r == r2);
+            }
+            {
+                const IntRange r(1, 10);
+                std::stringstream ss;
+                ss << r;
+                IntRange r2;
+                ss >> r2;
+                TLRENDER_ASSERT(r == r2);
+            }
         }
     }
 }

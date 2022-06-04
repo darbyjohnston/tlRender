@@ -85,6 +85,12 @@ namespace tl
         //! Two-dimensional floating point bounding box.
         typedef BBox2<float> BBox2f;
 
+        void to_json(nlohmann::json&, const BBox2i&);
+        void to_json(nlohmann::json&, const BBox2f&);
+
+        void from_json(const nlohmann::json&, BBox2i&);
+        void from_json(const nlohmann::json&, BBox2f&);
+
         std::ostream& operator << (std::ostream&, const BBox2i&);
         std::ostream& operator << (std::ostream&, const BBox2f&);
 

@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <nlohmann/json.hpp>
+
 #include <iostream>
 
 namespace tl
@@ -69,6 +71,16 @@ namespace tl
 
         //! Four-dimensional floating point vector.
         typedef Vector4<float> Vector4f;
+
+        void to_json(nlohmann::json&, const Vector2i&);
+        void to_json(nlohmann::json&, const Vector2f&);
+        void to_json(nlohmann::json&, const Vector3f&);
+        void to_json(nlohmann::json&, const Vector4f&);
+
+        void from_json(const nlohmann::json&, Vector2i&);
+        void from_json(const nlohmann::json&, Vector2f&);
+        void from_json(const nlohmann::json&, Vector3f&);
+        void from_json(const nlohmann::json&, Vector4f&);
 
         std::ostream& operator << (std::ostream&, const Vector2i&);
         std::ostream& operator << (std::ostream&, const Vector2f&);

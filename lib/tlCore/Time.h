@@ -11,6 +11,8 @@
 #include <opentime/rationalTime.h>
 #include <opentime/timeRange.h>
 
+#include <nlohmann/json.hpp>
+
 #include <chrono>
 #include <iostream>
 
@@ -88,6 +90,12 @@ namespace opentime
 {
     namespace OPENTIME_VERSION
     {
+        void to_json(nlohmann::json&, const RationalTime&);
+        void to_json(nlohmann::json&, const TimeRange&);
+
+        void from_json(const nlohmann::json&, RationalTime&);
+        void from_json(const nlohmann::json&, TimeRange&);
+
         std::ostream& operator << (std::ostream&, const RationalTime&);
         std::ostream& operator << (std::ostream&, const TimeRange&);
 
