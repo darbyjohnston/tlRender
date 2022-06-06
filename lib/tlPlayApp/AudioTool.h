@@ -6,6 +6,8 @@
 
 #include <tlPlayApp/ToolWidget.h>
 
+#include <QDockWidget>
+
 namespace tl
 {
     namespace play
@@ -50,6 +52,17 @@ namespace tl
 
         private:
             TLRENDER_PRIVATE();
+        };
+
+        //! Audio tool dock widget.
+        class AudioDockWidget : public QDockWidget
+        {
+            Q_OBJECT
+
+        public:
+            AudioDockWidget(
+                AudioTool*,
+                QWidget* parent = nullptr);
         };
     }
 }

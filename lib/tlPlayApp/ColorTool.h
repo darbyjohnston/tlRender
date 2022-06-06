@@ -10,6 +10,8 @@
 
 #include <tlTimeline/IRender.h>
 
+#include <QDockWidget>
+
 namespace tl
 {
     namespace play
@@ -152,6 +154,17 @@ namespace tl
             void _widgetUpdate();
 
             TLRENDER_PRIVATE();
+        };
+
+        //! Color tool dock widget.
+        class ColorDockWidget : public QDockWidget
+        {
+            Q_OBJECT
+
+        public:
+            ColorDockWidget(
+                ColorTool*,
+                QWidget* parent = nullptr);
         };
     }
 }

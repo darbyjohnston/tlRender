@@ -5,6 +5,7 @@
 #include <tlPlayApp/CompareTool.h>
 
 #include <tlPlayApp/App.h>
+#include <tlPlayApp/DockTitleBar.h>
 #include <tlPlayApp/FilesModel.h>
 #include <tlPlayApp/FilesView.h>
 #include <tlPlayApp/SettingsObject.h>
@@ -209,6 +210,27 @@ namespace tl
                 QSignalBlocker signalBlocker(p.overlaySlider);
                 p.overlaySlider->setValue(p.compareOptions.overlay);
             }
+        }
+
+        CompareDockWidget::CompareDockWidget(
+            CompareTool* compareTool,
+            QWidget* parent)
+        {
+            setObjectName("CompareTool");
+            setWindowTitle(tr("Compare"));
+            setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+
+            auto dockTitleBar = new DockTitleBar;
+            dockTitleBar->setText(tr("COMPARE"));
+            dockTitleBar->setIcon(QIcon(":/Icons/Compare.svg"));
+            auto dockWidget = new QDockWidget;
+            setTitleBarWidget(dockTitleBar);
+
+            setWidget(compareTool);
+
+            toggleViewAction()->setIcon(QIcon(":/Icons/Compare.svg"));
+            toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F2));
+            toggleViewAction()->setToolTip(tr("Show compare controls"));
         }
     }
 }

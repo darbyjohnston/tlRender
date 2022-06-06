@@ -6,6 +6,8 @@
 
 #include <tlPlayApp/ToolWidget.h>
 
+#include <QDockWidget>
+
 namespace tl
 {
     namespace io
@@ -33,6 +35,17 @@ namespace tl
 
         private:
             TLRENDER_PRIVATE();
+        };
+
+        //! Information tool dock widget.
+        class InfoDockWidget : public QDockWidget
+        {
+            Q_OBJECT
+
+        public:
+            InfoDockWidget(
+                InfoTool*,
+                QWidget* parent = nullptr);
         };
     }
 }

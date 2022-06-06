@@ -6,6 +6,8 @@
 
 #include <tlPlayApp/ToolWidget.h>
 
+#include <QDockWidget>
+
 namespace tl
 {
     namespace system
@@ -29,6 +31,17 @@ namespace tl
 
         private:
             TLRENDER_PRIVATE();
+        };
+
+        //! System log tool dock widget.
+        class SystemLogDockWidget : public QDockWidget
+        {
+            Q_OBJECT
+
+        public:
+            SystemLogDockWidget(
+                SystemLogTool*,
+                QWidget* parent = nullptr);
         };
     }
 }

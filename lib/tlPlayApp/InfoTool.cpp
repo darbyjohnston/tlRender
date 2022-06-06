@@ -5,11 +5,13 @@
 #include <tlPlayApp/InfoTool.h>
 
 #include <tlPlayApp/App.h>
+#include <tlPlayApp/DockTitleBar.h>
 #include <tlPlayApp/InfoModel.h>
 #include <tlPlayApp/SettingsObject.h>
 
 #include <tlQt/Util.h>
 
+#include <QAction>
 #include <QBoxLayout>
 #include <QHeaderView>
 #include <QTreeView>
@@ -71,6 +73,27 @@ namespace tl
         {
             TLRENDER_P();
             p.infoModel->setInfo(value);
+        }
+
+        InfoDockWidget::InfoDockWidget(
+            InfoTool* infoTool,
+            QWidget* parent)
+        {
+            setObjectName("InfoTool");
+            setWindowTitle(tr("Information"));
+            setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+
+            auto dockTitleBar = new DockTitleBar;
+            dockTitleBar->setText(tr("INFORMATION"));
+            dockTitleBar->setIcon(QIcon(":/Icons/Info.svg"));
+            auto dockWidget = new QDockWidget;
+            setTitleBarWidget(dockTitleBar);
+
+            setWidget(infoTool);
+
+            toggleViewAction()->setIcon(QIcon(":/Icons/Info.svg"));
+            toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F4));
+            toggleViewAction()->setToolTip(tr("Show information"));
         }
     }
 }

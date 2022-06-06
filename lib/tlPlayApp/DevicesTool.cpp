@@ -2,11 +2,13 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include <tlPlayApp/DeviceTool.h>
+#include <tlPlayApp/DevicesTool.h>
 
 #include <tlPlayApp/App.h>
-#include <tlPlayApp/DeviceModel.h>
+#include <tlPlayApp/DockTitleBar.h>
+#include <tlPlayApp/DevicesModel.h>
 
+#include <QAction>
 #include <QBoxLayout>
 #include <QComboBox>
 #include <QFormLayout>
@@ -18,16 +20,16 @@ namespace tl
 {
     namespace play
     {
-        struct DeviceTool::Private
+        struct DevicesTool::Private
         {
             App* app = nullptr;
-            std::shared_ptr<observer::ValueObserver<DeviceModelData> > dataObserver;
+            std::shared_ptr<observer::ValueObserver<DevicesModelData> > dataObserver;
             QComboBox* deviceComboBox = nullptr;
             QComboBox* displayModeComboBox = nullptr;
             QComboBox* pixelTypeComboBox = nullptr;
         };
 
-        DeviceTool::DeviceTool(
+        DevicesTool::DevicesTool(
             App* app,
             QWidget* parent) :
             ToolWidget(parent),
@@ -66,9 +68,9 @@ namespace tl
                 SIGNAL(activated(int)),
                 SLOT(_pixelTypeCallback(int)));
 
-            p.dataObserver = observer::ValueObserver<DeviceModelData>::create(
-                app->deviceModel()->observeData(),
-                [this](const DeviceModelData& value)
+            p.dataObserver = observer::ValueObserver<DevicesModelData>::create(
+                app->devicesModel()->observeData(),
+                [this](const DevicesModelData& value)
                 {
                     {
                         QSignalBlocker blocker(_p->deviceComboBox);
@@ -102,25 +104,46 @@ namespace tl
                 });
         }
 
-        DeviceTool::~DeviceTool()
+        DevicesTool::~DevicesTool()
         {}
 
-        void DeviceTool::_deviceCallback(int index)
+        void DevicesTool::_deviceCallback(int index)
         {
             TLRENDER_P();
-            p.app->deviceModel()->setDeviceIndex(index);
+            p.app->devicesModel()->setDeviceIndex(index);
         }
 
-        void DeviceTool::_displayModeCallback(int index)
+        void DevicesTool::_displayModeCallback(int index)
         {
             TLRENDER_P();
-            p.app->deviceModel()->setDisplayModeIndex(index);
+            p.app->devicesModel()->setDisplayModeIndex(index);
         }
 
-        void DeviceTool::_pixelTypeCallback(int index)
+        void DevicesTool::_pixelTypeCallback(int index)
         {
             TLRENDER_P();
-            p.app->deviceModel()->setPixelTypeIndex(index);
+            p.app->devicesModel()->setPixelTypeIndex(index);
+        }
+
+        DevicesDockWidget::DevicesDockWidget(
+            DevicesTool* devicesTool,
+            QWidget* parent)
+        {
+            setObjectName("DevicesTool");
+            setWindowTitle(tr("Devices"));
+            setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+
+            auto dockTitleBar = new DockTitleBar;
+            dockTitleBar->setText(tr("DEVICES"));
+            dockTitleBar->setIcon(QIcon(":/Icons/Devices.svg"));
+            auto dockWidget = new QDockWidget;
+            setTitleBarWidget(dockTitleBar);
+
+            setWidget(devicesTool);
+
+            toggleViewAction()->setIcon(QIcon(":/Icons/Devices.svg"));
+            toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F6));
+            toggleViewAction()->setToolTip(tr("Show devices"));
         }
     }
 }

@@ -8,6 +8,8 @@
 
 #include <tlQt/TimeObject.h>
 
+#include <QDockWidget>
+
 namespace tl
 {
     namespace play
@@ -79,6 +81,17 @@ namespace tl
             SettingsTool(
                 SettingsObject*,
                 qt::TimeObject*,
+                QWidget* parent = nullptr);
+        };
+
+        //! Settings tool dock widget.
+        class SettingsDockWidget : public QDockWidget
+        {
+            Q_OBJECT
+
+        public:
+            SettingsDockWidget(
+                SettingsTool*,
                 QWidget* parent = nullptr);
         };
     }

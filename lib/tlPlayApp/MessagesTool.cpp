@@ -5,7 +5,9 @@
 #include <tlPlayApp/MessagesTool.h>
 
 #include <tlPlayApp/App.h>
+#include <tlPlayApp/DockTitleBar.h>
 
+#include <QAction>
 #include <QBoxLayout>
 #include <QListWidget>
 #include <QToolButton>
@@ -86,5 +88,26 @@ namespace tl
 
         MessagesTool::~MessagesTool()
         {}
+
+        MessagesDockWidget::MessagesDockWidget(
+            MessagesTool * messagesTool,
+            QWidget * parent)
+        {
+            setObjectName("MessagesTool");
+            setWindowTitle(tr("Messages"));
+            setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+
+            auto dockTitleBar = new DockTitleBar;
+            dockTitleBar->setText(tr("MESSAGES"));
+            dockTitleBar->setIcon(QIcon(":/Icons/Messages.svg"));
+            auto dockWidget = new QDockWidget;
+            setTitleBarWidget(dockTitleBar);
+
+            setWidget(messagesTool);
+
+            toggleViewAction()->setIcon(QIcon(":/Icons/Messages.svg"));
+            toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F10));
+            toggleViewAction()->setToolTip(tr("Show messages"));
+        }
     }
 }

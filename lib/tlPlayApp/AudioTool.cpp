@@ -4,8 +4,11 @@
 
 #include <tlPlayApp/AudioTool.h>
 
+#include <tlPlayApp/DockTitleBar.h>
+
 #include <tlQtWidget/FloatSlider.h>
 
+#include <QAction>
 #include <QBoxLayout>
 
 namespace tl
@@ -91,6 +94,27 @@ namespace tl
         {
             TLRENDER_P();
             p.offsetWidget->setAudioOffset(value);
+        }
+
+        AudioDockWidget::AudioDockWidget(
+            AudioTool* audioTool,
+            QWidget* parent)
+        {
+            setObjectName("AudioTool");
+            setWindowTitle(tr("Audio"));
+            setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+
+            auto dockTitleBar = new DockTitleBar;
+            dockTitleBar->setText(tr("AUDIO"));
+            dockTitleBar->setIcon(QIcon(":/Icons/Audio.svg"));
+            auto dockWidget = new QDockWidget;
+            setTitleBarWidget(dockTitleBar);
+
+            setWidget(audioTool);
+
+            toggleViewAction()->setIcon(QIcon(":/Icons/Audio.svg"));
+            toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F5));
+            toggleViewAction()->setToolTip(tr("Show audio controls"));
         }
     }
 }

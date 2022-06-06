@@ -4,10 +4,12 @@
 
 #include <tlPlayApp/SettingsTool.h>
 
+#include <tlPlayApp/DockTitleBar.h>
 #include <tlPlayApp/SettingsObject.h>
 
 #include <tlQt/MetaTypes.h>
 
+#include <QAction>
 #include <QBoxLayout>
 #include <QCheckBox>
 #include <QComboBox>
@@ -407,6 +409,27 @@ namespace tl
                 {
                     settingsObject->reset();
                 });
+        }
+
+        SettingsDockWidget::SettingsDockWidget(
+            SettingsTool* settingsTool,
+            QWidget* parent)
+        {
+            setObjectName("SettingsTool");
+            setWindowTitle(tr("Settings"));
+            setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+
+            auto dockTitleBar = new DockTitleBar;
+            dockTitleBar->setText(tr("SETTINGS"));
+            dockTitleBar->setIcon(QIcon(":/Icons/Settings.svg"));
+            auto dockWidget = new QDockWidget;
+            setTitleBarWidget(dockTitleBar);
+
+            setWidget(settingsTool);
+
+            toggleViewAction()->setIcon(QIcon(":/Icons/Settings.svg"));
+            toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F9));
+            toggleViewAction()->setToolTip(tr("Show settings"));
         }
     }
 }

@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include <tlPlayApp/DeviceModel.h>
+#include <tlPlayApp/DevicesModel.h>
 
 #include <tlDevice/IDeviceSystem.h>
 
@@ -15,7 +15,7 @@ namespace tl
 {
     namespace play
     {
-        bool DeviceModelData::operator == (const DeviceModelData& other) const
+        bool DevicesModelData::operator == (const DevicesModelData& other) const
         {
             return
                 devices == other.devices &&
@@ -26,21 +26,21 @@ namespace tl
                 pixelTypeIndex == other.pixelTypeIndex;
         }
 
-        struct DeviceModel::Private
+        struct DevicesModel::Private
         {
             std::vector<device::DeviceInfo> deviceInfo;
             int deviceIndex = 0;
             int displayModeIndex = 0;
             int pixelTypeIndex = 0;
-            std::shared_ptr<observer::Value<DeviceModelData> > data;
+            std::shared_ptr<observer::Value<DevicesModelData> > data;
             std::shared_ptr<observer::ListObserver<device::DeviceInfo> > deviceInfoObserver;
         };
 
-        void DeviceModel::_init(const std::shared_ptr<system::Context>& context)
+        void DevicesModel::_init(const std::shared_ptr<system::Context>& context)
         {
             TLRENDER_P();
 
-            p.data = observer::Value<DeviceModelData>::create();
+            p.data = observer::Value<DevicesModelData>::create();
 
             _deviceInfoUpdate();
 
@@ -56,26 +56,26 @@ namespace tl
             }
         }
 
-        DeviceModel::DeviceModel() :
+        DevicesModel::DevicesModel() :
             _p(new Private)
         {}
 
-        DeviceModel::~DeviceModel()
+        DevicesModel::~DevicesModel()
         {}
 
-        std::shared_ptr<DeviceModel> DeviceModel::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<DevicesModel> DevicesModel::create(const std::shared_ptr<system::Context>& context)
         {
-            auto out = std::shared_ptr<DeviceModel>(new DeviceModel);
+            auto out = std::shared_ptr<DevicesModel>(new DevicesModel);
             out->_init(context);
             return out;
         }
 
-        std::shared_ptr<observer::IValue<DeviceModelData> > DeviceModel::observeData() const
+        std::shared_ptr<observer::IValue<DevicesModelData> > DevicesModel::observeData() const
         {
             return _p->data;
         }
 
-        void DeviceModel::setDeviceIndex(int index)
+        void DevicesModel::setDeviceIndex(int index)
         {
             TLRENDER_P();
             if (index == p.deviceIndex)
@@ -84,7 +84,7 @@ namespace tl
             _deviceInfoUpdate();
         }
 
-        void DeviceModel::setDisplayModeIndex(int index)
+        void DevicesModel::setDisplayModeIndex(int index)
         {
             TLRENDER_P();
             if (index == p.displayModeIndex)
@@ -93,7 +93,7 @@ namespace tl
             _deviceInfoUpdate();
         }
 
-        void DeviceModel::setPixelTypeIndex(int index)
+        void DevicesModel::setPixelTypeIndex(int index)
         {
             TLRENDER_P();
             if (index == p.pixelTypeIndex)
@@ -102,11 +102,11 @@ namespace tl
             _deviceInfoUpdate();
         }
 
-        void DeviceModel::_deviceInfoUpdate()
+        void DevicesModel::_deviceInfoUpdate()
         {
             TLRENDER_P();
 
-            DeviceModelData data;
+            DevicesModelData data;
 
             data.devices.push_back("None");
             for (const auto& i : p.deviceInfo)

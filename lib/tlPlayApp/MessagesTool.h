@@ -6,6 +6,8 @@
 
 #include <tlPlayApp/ToolWidget.h>
 
+#include <QDockWidget>
+
 namespace tl
 {
     namespace system
@@ -29,6 +31,17 @@ namespace tl
 
         private:
             TLRENDER_PRIVATE();
+        };
+
+        //! Messages tool dock widget.
+        class MessagesDockWidget : public QDockWidget
+        {
+            Q_OBJECT
+
+        public:
+            MessagesDockWidget(
+                MessagesTool*,
+                QWidget* parent = nullptr);
         };
     }
 }

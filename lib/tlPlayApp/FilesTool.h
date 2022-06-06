@@ -6,6 +6,8 @@
 
 #include <tlPlayApp/ToolWidget.h>
 
+#include <QDockWidget>
+
 namespace tl
 {
     namespace play
@@ -30,6 +32,17 @@ namespace tl
 
         private:
             TLRENDER_PRIVATE();
+        };
+
+        //! Files tool dock widget.
+        class FilesDockWidget : public QDockWidget
+        {
+            Q_OBJECT
+
+        public:
+            FilesDockWidget(
+                FilesTool*,
+                QWidget* parent = nullptr);
         };
     }
 }

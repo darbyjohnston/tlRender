@@ -6,8 +6,9 @@ set(HEADERS
     ColorTool.h
 	CompareActions.h
 	CompareTool.h
-	DeviceModel.h
-	DeviceTool.h
+	DevicesModel.h
+	DevicesTool.h
+	DockTitleBar.h
 	FileActions.h
 	FilesModel.h
 	FilesTool.h
@@ -35,8 +36,9 @@ set(SOURCE
     ColorTool.cpp
 	CompareActions.cpp
 	CompareTool.cpp
-	DeviceModel.cpp
-	DeviceTool.cpp
+	DevicesModel.cpp
+	DevicesTool.cpp
+	DockTitleBar.cpp
 	FileActions.cpp
 	FilesModel.cpp
 	FilesTool.cpp

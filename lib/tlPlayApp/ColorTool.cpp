@@ -5,11 +5,13 @@
 #include <tlPlayApp/ColorTool.h>
 
 #include <tlPlayApp/ColorModel.h>
+#include <tlPlayApp/DockTitleBar.h>
 
 #include <tlQtWidget/FloatSlider.h>
 
 #include <tlCore/Path.h>
 
+#include <QAction>
 #include <QBoxLayout>
 #include <QCheckBox>
 #include <QFileDialog>
@@ -865,6 +867,27 @@ namespace tl
                 p.softClipWidget->setSoftClipEnabled(p.displayOptions.softClipEnabled);
                 p.softClipWidget->setSoftClip(p.displayOptions.softClip);
             }
+        }
+
+        ColorDockWidget::ColorDockWidget(
+            ColorTool* colorTool,
+            QWidget* parent)
+        {
+            setObjectName("ColorTool");
+            setWindowTitle(tr("Color"));
+            setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+
+            auto dockTitleBar = new DockTitleBar;
+            dockTitleBar->setText(tr("COLOR"));
+            dockTitleBar->setIcon(QIcon(":/Icons/Color.svg"));
+            auto dockWidget = new QDockWidget;
+            setTitleBarWidget(dockTitleBar);
+
+            setWidget(colorTool);
+
+            toggleViewAction()->setIcon(QIcon(":/Icons/Color.svg"));
+            toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F3));
+            toggleViewAction()->setToolTip(tr("Show color controls"));
         }
     }
 }

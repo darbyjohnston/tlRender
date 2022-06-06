@@ -11,8 +11,8 @@
 #include <tlPlayApp/ColorTool.h>
 #include <tlPlayApp/CompareActions.h>
 #include <tlPlayApp/CompareTool.h>
-#include <tlPlayApp/DeviceModel.h>
-#include <tlPlayApp/DeviceTool.h>
+#include <tlPlayApp/DevicesModel.h>
+#include <tlPlayApp/DevicesTool.h>
 #include <tlPlayApp/FileActions.h>
 #include <tlPlayApp/FilesModel.h>
 #include <tlPlayApp/FilesTool.h>
@@ -40,7 +40,6 @@
 #include <tlCore/String.h>
 #include <tlCore/StringFormat.h>
 
-#include <QDockWidget>
 #include <QDoubleSpinBox>
 #include <QDragEnterEvent>
 #include <QDragMoveEvent>
@@ -100,7 +99,7 @@ namespace tl
             ColorTool* colorTool = nullptr;
             InfoTool* infoTool = nullptr;
             AudioTool* audioTool = nullptr;
-            DeviceTool* deviceTool = nullptr;
+            DevicesTool* devicesTool = nullptr;
             SettingsTool* settingsTool = nullptr;
             MessagesTool* messagesTool = nullptr;
             SystemLogTool* systemLogTool = nullptr;
@@ -116,7 +115,7 @@ namespace tl
             std::shared_ptr<observer::ListObserver<timeline::DisplayOptions> > displayOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
             std::shared_ptr<observer::ValueObserver<imaging::ColorConfig> > colorConfigObserver;
-            std::shared_ptr<observer::ValueObserver<DeviceModelData> > deviceObserver;
+            std::shared_ptr<observer::ValueObserver<DevicesModelData> > devicesObserver;
             std::shared_ptr<observer::ListObserver<log::Item> > logObserver;
 
             bool mousePressed = false;
@@ -276,124 +275,64 @@ namespace tl
             p.windowActions->menu()->addAction(bottomToolBar->toggleViewAction());
 
             p.filesTool = new FilesTool(p.fileActions->actions(), app);
-            auto fileDockWidget = new QDockWidget;
-            fileDockWidget->setObjectName("FilesTool");
-            fileDockWidget->setWindowTitle(tr("Files"));
-            fileDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-            fileDockWidget->setWidget(p.filesTool);
-            fileDockWidget->hide();
-            fileDockWidget->toggleViewAction()->setIcon(QIcon(":/Icons/Files.svg"));
-            fileDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F1));
-            fileDockWidget->toggleViewAction()->setToolTip(tr("Show files"));
+            auto filesDockWidget = new FilesDockWidget(p.filesTool);
+            filesDockWidget->hide();
             p.windowActions->menu()->addSeparator();
-            p.windowActions->menu()->addAction(fileDockWidget->toggleViewAction());
-            windowToolBar->addAction(fileDockWidget->toggleViewAction());
-            addDockWidget(Qt::RightDockWidgetArea, fileDockWidget);
+            p.windowActions->menu()->addAction(filesDockWidget->toggleViewAction());
+            windowToolBar->addAction(filesDockWidget->toggleViewAction());
+            addDockWidget(Qt::RightDockWidgetArea, filesDockWidget);
 
             p.compareTool = new CompareTool(p.compareActions->actions(), app);
-            auto compareDockWidget = new QDockWidget;
-            compareDockWidget->setObjectName("CompareTool");
-            compareDockWidget->setWindowTitle(tr("Compare"));
-            compareDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-            compareDockWidget->setWidget(p.compareTool);
+            auto compareDockWidget = new CompareDockWidget(p.compareTool);
             compareDockWidget->hide();
-            compareDockWidget->toggleViewAction()->setIcon(QIcon(":/Icons/Compare.svg"));
-            compareDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F2));
-            compareDockWidget->toggleViewAction()->setToolTip(tr("Show compare controls"));
             p.windowActions->menu()->addAction(compareDockWidget->toggleViewAction());
             windowToolBar->addAction(compareDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, compareDockWidget);
 
             p.colorTool = new ColorTool(app->colorModel());
-            auto colorDockWidget = new QDockWidget;
-            colorDockWidget->setObjectName("ColorTool");
-            colorDockWidget->setWindowTitle(tr("Color"));
-            colorDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-            colorDockWidget->setWidget(p.colorTool);
+            auto colorDockWidget = new ColorDockWidget(p.colorTool);
             colorDockWidget->hide();
-            colorDockWidget->toggleViewAction()->setIcon(QIcon(":/Icons/Color.svg"));
-            colorDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F3));
-            colorDockWidget->toggleViewAction()->setToolTip(tr("Show color controls"));
             p.windowActions->menu()->addAction(colorDockWidget->toggleViewAction());
             windowToolBar->addAction(colorDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, colorDockWidget);
 
             p.infoTool = new InfoTool(app);
-            auto infoDockWidget = new QDockWidget;
-            infoDockWidget->setObjectName("InfoTool");
-            infoDockWidget->setWindowTitle(tr("Information"));
-            infoDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-            infoDockWidget->setWidget(p.infoTool);
+            auto infoDockWidget = new InfoDockWidget(p.infoTool);
             infoDockWidget->hide();
-            infoDockWidget->toggleViewAction()->setIcon(QIcon(":/Icons/Info.svg"));
-            infoDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F4));
-            infoDockWidget->toggleViewAction()->setToolTip(tr("Show information"));
             p.windowActions->menu()->addAction(infoDockWidget->toggleViewAction());
             windowToolBar->addAction(infoDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, infoDockWidget);
 
             p.audioTool = new AudioTool();
-            auto audioDockWidget = new QDockWidget;
-            audioDockWidget->setObjectName("AudioTool");
-            audioDockWidget->setWindowTitle(tr("Audio"));
-            audioDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-            audioDockWidget->setWidget(p.audioTool);
+            auto audioDockWidget = new AudioDockWidget(p.audioTool);
             audioDockWidget->hide();
-            audioDockWidget->toggleViewAction()->setIcon(QIcon(":/Icons/Audio.svg"));
-            audioDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F5));
-            audioDockWidget->toggleViewAction()->setToolTip(tr("Show audio"));
             p.windowActions->menu()->addAction(audioDockWidget->toggleViewAction());
             windowToolBar->addAction(audioDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, audioDockWidget);
 
-            p.deviceTool = new DeviceTool(app);
-            auto deviceDockWidget = new QDockWidget;
-            deviceDockWidget->setObjectName("DeviceTool");
-            deviceDockWidget->setWindowTitle(tr("Devices"));
-            deviceDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-            deviceDockWidget->setWidget(p.deviceTool);
+            p.devicesTool = new DevicesTool(app);
+            auto deviceDockWidget = new DevicesDockWidget(p.devicesTool);
             deviceDockWidget->hide();
-            deviceDockWidget->toggleViewAction()->setIcon(QIcon(":/Icons/Devices.svg"));
-            deviceDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F6));
-            deviceDockWidget->toggleViewAction()->setToolTip(tr("Show devices"));
             p.windowActions->menu()->addAction(deviceDockWidget->toggleViewAction());
             windowToolBar->addAction(deviceDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, deviceDockWidget);
 
             p.settingsTool = new SettingsTool(app->settingsObject(), app->timeObject());
-            auto settingsDockWidget = new QDockWidget;
-            settingsDockWidget->setObjectName("SettingsTool");
-            settingsDockWidget->setWindowTitle(tr("Settings"));
-            settingsDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-            settingsDockWidget->setWidget(p.settingsTool);
+            auto settingsDockWidget = new SettingsDockWidget(p.settingsTool);
             settingsDockWidget->hide();
-            settingsDockWidget->toggleViewAction()->setIcon(QIcon(":/Icons/Settings.svg"));
-            settingsDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F9));
-            settingsDockWidget->toggleViewAction()->setToolTip(tr("Show the settings"));
             p.windowActions->menu()->addAction(settingsDockWidget->toggleViewAction());
             windowToolBar->addAction(settingsDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, settingsDockWidget);
 
             p.messagesTool = new MessagesTool(app->getContext());
-            auto messagesDockWidget = new QDockWidget;
-            messagesDockWidget->setObjectName("MessagesTool");
-            messagesDockWidget->setWindowTitle(tr("Messages"));
-            messagesDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-            messagesDockWidget->setWidget(p.messagesTool);
+            auto messagesDockWidget = new MessagesDockWidget(p.messagesTool);
             messagesDockWidget->hide();
-            messagesDockWidget->toggleViewAction()->setIcon(QIcon(":/Icons/Messages.svg"));
-            messagesDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F10));
-            messagesDockWidget->toggleViewAction()->setToolTip(tr("Show messages"));
             p.windowActions->menu()->addAction(messagesDockWidget->toggleViewAction());
             windowToolBar->addAction(messagesDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, messagesDockWidget);
 
             p.systemLogTool = new SystemLogTool(app->getContext());
-            auto systemLogDockWidget = new QDockWidget;
-            systemLogDockWidget->setObjectName("SystemLogTool");
-            systemLogDockWidget->setWindowTitle(tr("System Log"));
-            systemLogDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-            systemLogDockWidget->setWidget(p.systemLogTool);
+            auto systemLogDockWidget = new SystemLogDockWidget(p.systemLogTool);
             systemLogDockWidget->hide();
             systemLogDockWidget->toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F11));
             p.windowActions->menu()->addAction(systemLogDockWidget->toggleViewAction());
@@ -445,9 +384,9 @@ namespace tl
                     _widgetUpdate();
                 });
 
-            p.deviceObserver = observer::ValueObserver<DeviceModelData>::create(
-                app->deviceModel()->observeData(),
-                [this](const DeviceModelData& value)
+            p.devicesObserver = observer::ValueObserver<DevicesModelData>::create(
+                app->devicesModel()->observeData(),
+                [this](const DevicesModelData& value)
                 {
                     const device::PixelType pixelType = value.pixelTypeIndex >= 0 &&
                         value.pixelTypeIndex < value.pixelTypes.size() ?

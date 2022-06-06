@@ -21,8 +21,8 @@ namespace tl
 
     namespace play
     {
-        //! Device model data.
-        struct DeviceModelData
+        //! Devices model data.
+        struct DevicesModelData
         {
             std::vector<std::string> devices;
             int deviceIndex = 0;
@@ -31,26 +31,26 @@ namespace tl
             std::vector<device::PixelType> pixelTypes;
             int pixelTypeIndex = 0;
 
-            bool operator == (const DeviceModelData&) const;
+            bool operator == (const DevicesModelData&) const;
         };
 
-        //! Device model.
-        class DeviceModel : public std::enable_shared_from_this<DeviceModel>
+        //! Devices model.
+        class DevicesModel : public std::enable_shared_from_this<DevicesModel>
         {
-            TLRENDER_NON_COPYABLE(DeviceModel);
+            TLRENDER_NON_COPYABLE(DevicesModel);
 
         protected:
             void _init(const std::shared_ptr<system::Context>&);
-            DeviceModel();
+            DevicesModel();
 
         public:
-            ~DeviceModel();
+            ~DevicesModel();
 
             //! Create a new device model.
-            static std::shared_ptr<DeviceModel> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<DevicesModel> create(const std::shared_ptr<system::Context>&);
 
             //! Observe the model data.
-            std::shared_ptr<observer::IValue<DeviceModelData> > observeData() const;
+            std::shared_ptr<observer::IValue<DevicesModelData> > observeData() const;
 
             //! Set the device index.
             void setDeviceIndex(int);

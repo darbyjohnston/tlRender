@@ -5,7 +5,7 @@
 #include <tlPlayApp/App.h>
 
 #include <tlPlayApp/ColorModel.h>
-#include <tlPlayApp/DeviceModel.h>
+#include <tlPlayApp/DevicesModel.h>
 #include <tlPlayApp/FilesModel.h>
 #include <tlPlayApp/MainWindow.h>
 #include <tlPlayApp/OpenWithAudioDialog.h>
@@ -69,7 +69,7 @@ namespace tl
             std::shared_ptr<ColorModel> colorModel;
             timeline::ImageOptions imageOptions;
             timeline::DisplayOptions displayOptions;
-            std::shared_ptr<DeviceModel> deviceModel;
+            std::shared_ptr<DevicesModel> devicesModel;
 
             std::vector<qt::TimelinePlayer*> timelinePlayers;
 
@@ -229,10 +229,10 @@ namespace tl
                 p.colorModel->setConfig(p.options.colorConfig);
             }
 
-            p.deviceModel = DeviceModel::create(context);
-            p.deviceModel->setDeviceIndex(p.settingsObject->value("Device/DeviceIndex").toInt());
-            p.deviceModel->setDisplayModeIndex(p.settingsObject->value("Device/DisplayModeIndex").toInt());
-            p.deviceModel->setPixelTypeIndex(p.settingsObject->value("Device/PixelTypeIndex").toInt());
+            p.devicesModel = DevicesModel::create(context);
+            p.devicesModel->setDeviceIndex(p.settingsObject->value("Device/DeviceIndex").toInt());
+            p.devicesModel->setDisplayModeIndex(p.settingsObject->value("Device/DisplayModeIndex").toInt());
+            p.devicesModel->setPixelTypeIndex(p.settingsObject->value("Device/PixelTypeIndex").toInt());
 
             // Create the main window.
             p.mainWindow = new MainWindow(this);
@@ -279,7 +279,7 @@ namespace tl
             delete p.mainWindow;
             p.mainWindow = nullptr;
 
-            const auto& deviceData = p.deviceModel->observeData()->get();
+            const auto& deviceData = p.devicesModel->observeData()->get();
             p.settingsObject->setValue("Device/DeviceIndex", deviceData.deviceIndex);
             p.settingsObject->setValue("Device/DisplayModeIndex", deviceData.displayModeIndex);
             p.settingsObject->setValue("Device/PixelTypeIndex", deviceData.pixelTypeIndex);
@@ -324,9 +324,9 @@ namespace tl
             return _p->displayOptions;
         }
 
-        const std::shared_ptr<DeviceModel>& App::deviceModel() const
+        const std::shared_ptr<DevicesModel>& App::devicesModel() const
         {
-            return _p->deviceModel;
+            return _p->devicesModel;
         }
 
         void App::open(const QString& fileName, const QString& audioFileName)

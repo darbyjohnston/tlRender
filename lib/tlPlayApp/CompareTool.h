@@ -8,6 +8,8 @@
 
 #include <tlQt/MetaTypes.h>
 
+#include <QDockWidget>
+
 namespace tl
 {
     namespace play
@@ -40,6 +42,17 @@ namespace tl
             void _widgetUpdate();
 
             TLRENDER_PRIVATE();
+        };
+
+        //! Compare tool dock widget.
+        class CompareDockWidget : public QDockWidget
+        {
+            Q_OBJECT
+
+        public:
+            CompareDockWidget(
+                CompareTool*,
+                QWidget* parent = nullptr);
         };
     }
 }

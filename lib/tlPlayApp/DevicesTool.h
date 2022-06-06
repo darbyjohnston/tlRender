@@ -8,23 +8,25 @@
 
 #include <tlQt/MetaTypes.h>
 
+#include <QDockWidget>
+
 namespace tl
 {
     namespace play
     {
         class App;
 
-        //! Device tool.
-        class DeviceTool : public ToolWidget
+        //! Devices tool.
+        class DevicesTool : public ToolWidget
         {
             Q_OBJECT
 
         public:
-            DeviceTool(
+            DevicesTool(
                 App*,
                 QWidget* parent = nullptr);
 
-            ~DeviceTool() override;
+            ~DevicesTool() override;
 
         private Q_SLOTS:
             void _deviceCallback(int);
@@ -33,6 +35,17 @@ namespace tl
 
         private:
             TLRENDER_PRIVATE();
+        };
+
+        //! Devices tool dock widget.
+        class DevicesDockWidget : public QDockWidget
+        {
+            Q_OBJECT
+
+        public:
+            DevicesDockWidget(
+                DevicesTool*,
+                QWidget* parent = nullptr);
         };
     }
 }

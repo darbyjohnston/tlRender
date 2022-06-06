@@ -5,6 +5,7 @@
 #include <tlPlayApp/FilesTool.h>
 
 #include <tlPlayApp/App.h>
+#include <tlPlayApp/DockTitleBar.h>
 #include <tlPlayApp/FilesModel.h>
 #include <tlPlayApp/FilesView.h>
 #include <tlPlayApp/SettingsObject.h>
@@ -101,6 +102,27 @@ namespace tl
         {
             TLRENDER_P();
             p.app->filesModel()->setA(index.row());
+        }
+
+        FilesDockWidget::FilesDockWidget(
+            FilesTool* filesTool,
+            QWidget* parent)
+        {
+            setObjectName("FilesTool");
+            setWindowTitle(tr("Files"));
+            setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+
+            auto dockTitleBar = new DockTitleBar;
+            dockTitleBar->setText(tr("FILES"));
+            dockTitleBar->setIcon(QIcon(":/Icons/Files.svg"));
+            auto dockWidget = new QDockWidget;
+            setTitleBarWidget(dockTitleBar);
+
+            setWidget(filesTool);
+
+            toggleViewAction()->setIcon(QIcon(":/Icons/Files.svg"));
+            toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F1));
+            toggleViewAction()->setToolTip(tr("Show files"));
         }
     }
 }

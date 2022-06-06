@@ -5,9 +5,11 @@
 #include <tlPlayApp/SystemLogTool.h>
 
 #include <tlPlayApp/App.h>
+#include <tlPlayApp/DockTitleBar.h>
 
 #include <tlQtWidget/Util.h>
 
+#include <QAction>
 #include <QBoxLayout>
 #include <QListWidget>
 #include <QToolButton>
@@ -101,5 +103,24 @@ namespace tl
 
         SystemLogTool::~SystemLogTool()
         {}
+
+        SystemLogDockWidget::SystemLogDockWidget(
+            SystemLogTool * systemLogTool,
+            QWidget * parent)
+        {
+            setObjectName("SystemLogTool");
+            setWindowTitle(tr("System Log"));
+            setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+
+            auto dockTitleBar = new DockTitleBar;
+            dockTitleBar->setText(tr("SYSTEM LOG"));
+            auto dockWidget = new QDockWidget;
+            setTitleBarWidget(dockTitleBar);
+
+            setWidget(systemLogTool);
+
+            toggleViewAction()->setShortcut(QKeySequence(Qt::Key_F11));
+            toggleViewAction()->setToolTip(tr("Show system log"));
+        }
     }
 }
