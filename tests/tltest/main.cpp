@@ -12,6 +12,9 @@
 #include <tlGL/Util.h>
 #endif
 
+#include <tlAppTest/AppTest.h>
+#include <tlAppTest/CmdLineTest.h>
+
 #include <tlTimelineTest/IRenderTest.h>
 #include <tlTimelineTest/TimelinePlayerTest.h>
 #include <tlTimelineTest/TimelineTest.h>
@@ -100,7 +103,7 @@ int main(int argc, char* argv[])
     std::vector<std::shared_ptr<tests::ITest> > tests;
     if (0)
     {
-        tests.push_back(core_tests::PathTest::create(context));
+        tests.push_back(app_tests::AppTest::create(context));
     }
     else
     {
@@ -166,10 +169,16 @@ int main(int argc, char* argv[])
         }
         if (1)
         {
+            tests.push_back(app_tests::AppTest::create(context));
+            tests.push_back(app_tests::CmdLineTest::create(context));
+        }
+        if (1)
+        {
 #if defined(TLRENDER_BUILD_GL)
             tests.push_back(gl_tests::MeshTest::create(context));
 #endif
         }
+        if (1)
         {
 #if defined(TLRENDER_BUILD_QT5) || defined(TLRENDER_BUILD_QT6)
             tests.push_back(qt_tests::TimeObjectTest::create(context));

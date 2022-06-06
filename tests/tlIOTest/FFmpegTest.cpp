@@ -85,6 +85,7 @@ namespace tl
                                 path = file::Path(ss.str());
                             }
                             auto image = imaging::Image::create(imageInfo);
+                            image->zero();
                             image->setTags(tags);
                             const otime::RationalTime duration(24.0, 24.0);
                             try

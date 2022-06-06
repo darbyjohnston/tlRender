@@ -1,7 +1,9 @@
 set(HEADERS
+    AppTest.h
     CmdLineTest.h)
 
 set(SOURCE
+    AppTest.cpp
     CmdLineTest.cpp)
 
 add_library(tlAppTest ${SOURCE} ${HEADERS})

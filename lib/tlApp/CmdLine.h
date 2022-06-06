@@ -27,7 +27,7 @@ namespace tl
 
         public:
             virtual ~ICmdLineOption() = 0;
-
+            
             //! Parse the option.
             virtual void parse(std::vector<std::string>& args) = 0;
 

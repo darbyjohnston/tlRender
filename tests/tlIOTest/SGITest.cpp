@@ -60,6 +60,7 @@ namespace tl
                                 path = file::Path(ss.str());
                             }
                             auto image = imaging::Image::create(imageInfo);
+                            image->zero();
                             try
                             {
                                 {

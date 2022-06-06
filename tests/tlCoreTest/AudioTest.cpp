@@ -223,6 +223,7 @@ namespace tl
             for (auto i : getDataTypeEnums())
             {
                 const auto in = Audio::create(Info(1, i, 44100), 1);
+                in->zero();
                 for (auto j : getDataTypeEnums())
                 {
                     const auto out = convert(in, j);

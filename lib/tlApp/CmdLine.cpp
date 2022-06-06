@@ -38,10 +38,10 @@ namespace tl
         {
             for (const auto& name : _names)
             {
-                _matchedName = name;
                 auto i = std::find(args.begin(), args.end(), name);
                 if (i != args.end())
                 {
+                    _matchedName = name;
                     _value = true;
                     i = args.erase(i);
                 }

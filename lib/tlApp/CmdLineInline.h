@@ -50,10 +50,10 @@ namespace tl
         {
             for (const auto& name : _names)
             {
-                _matchedName = name;
                 auto i = std::find(args.begin(), args.end(), name);
                 if (i != args.end())
                 {
+                    _matchedName = name;
                     i = args.erase(i);
                     if (i != args.end())
                     {
@@ -74,10 +74,10 @@ namespace tl
         {
             for (const auto& name : _names)
             {
-                _matchedName = name;
                 auto i = std::find(args.begin(), args.end(), name);
                 if (i != args.end())
                 {
+                    _matchedName = name;
                     i = args.erase(i);
                     if (i != args.end())
                     {

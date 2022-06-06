@@ -29,7 +29,7 @@ set(SOURCE
 	Util.cpp)
 
 set(LIBRARIES tlCore)
-set(LIBRARIES_PRIVATE tlCore)
+set(LIBRARIES_PRIVATE)
 if(JPEG_FOUND)
     list(APPEND HEADERS JPEG.h)
     list(APPEND SOURCE JPEG.cpp JPEGRead.cpp JPEGWrite.cpp)

@@ -110,9 +110,9 @@ namespace tl
                         {
                             std::stringstream ss;
                             ss << "        Channels: " <<
-                                size_t(device.outputChannels) << " output, " <<
-                                size_t(device.inputChannels) << " input, " <<
-                                size_t(device.duplexChannels) << " duplex";
+                                device.outputChannels << " output, " <<
+                                device.inputChannels << " input, " <<
+                                device.duplexChannels << " duplex";
                             log.push_back(ss.str());
                         }
                         {
@@ -148,7 +148,7 @@ namespace tl
                 {
                     std::stringstream ss;
                     ss << "    Default input info: " <<
-                        getDefaultInputInfo().channelCount << " " <<
+                        static_cast<size_t>(getDefaultInputInfo().channelCount) << " " <<
                         getDefaultInputInfo().dataType << " " <<
                         getDefaultInputInfo().sampleRate;
                     log.push_back(ss.str());
@@ -161,9 +161,9 @@ namespace tl
                 {
                     std::stringstream ss;
                     ss << "    Default output info: " <<
-                        getDefaultOutputInfo().channelCount << " " <<
+                        static_cast<size_t>(getDefaultOutputInfo().channelCount) << " " <<
                         getDefaultOutputInfo().dataType << " " <<
-                        getDefaultOutputInfo().sampleRate;;
+                        getDefaultOutputInfo().sampleRate;
                     log.push_back(ss.str());
                 }
                 _log(string::join(log, "\n"));
