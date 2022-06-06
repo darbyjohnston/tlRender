@@ -22,7 +22,7 @@
     <file alias="Icons/FileClose.svg">../../etc/Icons/FileClose.svg</file>
     <file alias="Icons/FileCloseAll.svg">../../etc/Icons/FileCloseAll.svg</file>
     <file alias="Icons/FileOpen.svg">../../etc/Icons/FileOpen.svg</file>
-    <file alias="Icons/FileOpenWithAudio.svg">../../etc/Icons/FileOpenWithAudio.svg</file>
+    <file alias="Icons/FileOpenSeparateAudio.svg">../../etc/Icons/FileOpenSeparateAudio.svg</file>
     <file alias="Icons/Files.svg">../../etc/Icons/Files.svg</file>
     <file alias="Icons/FrameNext.svg">../../etc/Icons/FrameNext.svg</file>
     <file alias="Icons/FramePrev.svg">../../etc/Icons/FramePrev.svg</file>

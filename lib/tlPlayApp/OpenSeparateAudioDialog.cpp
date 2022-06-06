@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include <tlPlayApp/OpenWithAudioDialog.h>
+#include <tlPlayApp/OpenSeparateAudioDialog.h>
 
 #include <tlTimeline/Timeline.h>
 
@@ -19,7 +19,7 @@ namespace tl
 {
     namespace play
     {
-        struct OpenWithAudioDialog::Private
+        struct OpenSeparateAudioDialog::Private
         {
             std::weak_ptr<system::Context> context;
             QString videoFileName;
@@ -28,7 +28,7 @@ namespace tl
             QLineEdit* audioLineEdit = nullptr;
         };
 
-        OpenWithAudioDialog::OpenWithAudioDialog(
+        OpenSeparateAudioDialog::OpenSeparateAudioDialog(
             const std::shared_ptr<system::Context>& context,
             QWidget* parent) :
             QDialog(parent),
@@ -98,25 +98,25 @@ namespace tl
                 SLOT(reject()));
         }
 
-        OpenWithAudioDialog::~OpenWithAudioDialog()
+        OpenSeparateAudioDialog::~OpenSeparateAudioDialog()
         {}
 
-        const QString& OpenWithAudioDialog::videoFileName() const
+        const QString& OpenSeparateAudioDialog::videoFileName() const
         {
             return _p->videoFileName;
         }
 
-        const QString& OpenWithAudioDialog::audioFileName() const
+        const QString& OpenSeparateAudioDialog::audioFileName() const
         {
             return _p->audioFileName;
         }
 
-        void OpenWithAudioDialog::_videoLineEditCallback(const QString& value)
+        void OpenSeparateAudioDialog::_videoLineEditCallback(const QString& value)
         {
             _p->videoFileName = value.toUtf8().data();
         }
 
-        void OpenWithAudioDialog::_browseVideoCallback()
+        void OpenSeparateAudioDialog::_browseVideoCallback()
         {
             TLRENDER_P();
             if (auto context = p.context.lock())
@@ -143,13 +143,13 @@ namespace tl
             }
         }
 
-        void OpenWithAudioDialog::_audioLineEditCallback(const QString& value)
+        void OpenSeparateAudioDialog::_audioLineEditCallback(const QString& value)
         {
             TLRENDER_P();
             p.audioFileName = value.toUtf8().data();
         }
 
-        void OpenWithAudioDialog::_browseAudioCallback()
+        void OpenSeparateAudioDialog::_browseAudioCallback()
         {
             TLRENDER_P();
             if (auto context = p.context.lock())

@@ -160,7 +160,7 @@ namespace tl
             fileToolBar->setAllowedAreas(Qt::TopToolBarArea);
             fileToolBar->setFloatable(false);
             fileToolBar->addAction(p.fileActions->actions()["Open"]);
-            fileToolBar->addAction(p.fileActions->actions()["OpenWithAudio"]);
+            fileToolBar->addAction(p.fileActions->actions()["OpenSeparateAudio"]);
             fileToolBar->addAction(p.fileActions->actions()["Close"]);
             fileToolBar->addAction(p.fileActions->actions()["CloseAll"]);
             addToolBar(Qt::TopToolBarArea, fileToolBar);

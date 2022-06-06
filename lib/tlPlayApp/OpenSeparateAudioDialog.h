@@ -19,17 +19,17 @@ namespace tl
 
     namespace play
     {
-        //! Open with audio dialog.
-        class OpenWithAudioDialog : public QDialog
+        //! Open with separate audio dialog.
+        class OpenSeparateAudioDialog : public QDialog
         {
             Q_OBJECT
 
         public:
-            OpenWithAudioDialog(
+            OpenSeparateAudioDialog(
                 const std::shared_ptr<system::Context>&,
                 QWidget* parent = nullptr);
 
-            ~OpenWithAudioDialog() override;
+            ~OpenSeparateAudioDialog() override;
 
             const QString& videoFileName() const;
             const QString& audioFileName() const;

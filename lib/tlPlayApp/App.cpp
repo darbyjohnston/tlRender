@@ -8,7 +8,7 @@
 #include <tlPlayApp/DevicesModel.h>
 #include <tlPlayApp/FilesModel.h>
 #include <tlPlayApp/MainWindow.h>
-#include <tlPlayApp/OpenWithAudioDialog.h>
+#include <tlPlayApp/OpenSeparateAudioDialog.h>
 #include <tlPlayApp/SettingsObject.h>
 
 #include <tlQtWidget/Style.h>
@@ -375,9 +375,9 @@ namespace tl
             }
         }
 
-        void App::openWithAudioDialog()
+        void App::openSeparateAudioDialog()
         {
-            auto dialog = std::make_unique<OpenWithAudioDialog>(_context);
+            auto dialog = std::make_unique<OpenSeparateAudioDialog>(_context);
             if (QDialog::Accepted == dialog->exec())
             {
                 open(dialog->videoFileName(), dialog->audioFileName());

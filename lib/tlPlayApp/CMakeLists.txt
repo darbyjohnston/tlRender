@@ -18,7 +18,7 @@ set(HEADERS
 	InfoModel.h
     MainWindow.h
 	MessagesTool.h
-	OpenWithAudioDialog.h
+	OpenSeparateAudioDialog.h
 	PlaybackActions.h
     SecondaryWindow.h
     SettingsObject.h
@@ -48,7 +48,7 @@ set(SOURCE
 	InfoModel.cpp
     MainWindow.cpp
 	MessagesTool.cpp
-	OpenWithAudioDialog.cpp
+	OpenSeparateAudioDialog.cpp
 	PlaybackActions.cpp
     SecondaryWindow.cpp
     SettingsObject.cpp

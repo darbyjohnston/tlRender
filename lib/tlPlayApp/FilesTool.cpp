@@ -61,7 +61,7 @@ namespace tl
             toolBar->setToolButtonStyle(Qt::ToolButtonIconOnly);
             toolBar->setIconSize(QSize(20, 20));
             toolBar->addAction(actions["Open"]);
-            toolBar->addAction(actions["OpenWithAudio"]);
+            toolBar->addAction(actions["OpenSeparateAudio"]);
             toolBar->addAction(actions["Close"]);
             toolBar->addAction(actions["CloseAll"]);
             toolBar->addSeparator();

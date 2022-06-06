@@ -43,11 +43,11 @@ namespace tl
             p.actions["Open"]->setIcon(QIcon(":/Icons/FileOpen.svg"));
             p.actions["Open"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_O));
             p.actions["Open"]->setToolTip(tr("Open a file"));
-            p.actions["OpenWithAudio"] = new QAction(this);
-            p.actions["OpenWithAudio"]->setText(tr("Open With Audio"));
-            p.actions["OpenWithAudio"]->setIcon(QIcon(":/Icons/FileOpenWithAudio.svg"));
-            p.actions["OpenWithAudio"]->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_O));
-            p.actions["OpenWithAudio"]->setToolTip(tr("Open a file with audio"));
+            p.actions["OpenSeparateAudio"] = new QAction(this);
+            p.actions["OpenSeparateAudio"]->setText(tr("Open With Separate Audio"));
+            p.actions["OpenSeparateAudio"]->setIcon(QIcon(":/Icons/FileOpenSeparateAudio.svg"));
+            p.actions["OpenSeparateAudio"]->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_O));
+            p.actions["OpenSeparateAudio"]->setToolTip(tr("Open a file with separate audio"));
             p.actions["Close"] = new QAction(this);
             p.actions["Close"]->setText(tr("Close"));
             p.actions["Close"]->setIcon(QIcon(":/Icons/FileClose.svg"));
@@ -87,7 +87,7 @@ namespace tl
             p.menu = new QMenu;
             p.menu->setTitle(tr("&File"));
             p.menu->addAction(p.actions["Open"]);
-            p.menu->addAction(p.actions["OpenWithAudio"]);
+            p.menu->addAction(p.actions["OpenSeparateAudio"]);
             p.menu->addAction(p.actions["Close"]);
             p.menu->addAction(p.actions["CloseAll"]);
             p.recentMenu = new QMenu;
@@ -114,10 +114,10 @@ namespace tl
                 app,
                 &App::openDialog);
             connect(
-                p.actions["OpenWithAudio"],
+                p.actions["OpenSeparateAudio"],
                 &QAction::triggered,
                 app,
-                &App::openWithAudioDialog);
+                &App::openSeparateAudioDialog);
             connect(
                 p.actions["Close"],
                 &QAction::triggered,

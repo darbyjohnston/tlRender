@@ -76,8 +76,8 @@ namespace tl
             //! Open a file dialog.
             void openDialog();
 
-            //! Open a file with audio dialog.
-            void openWithAudioDialog();
+            //! Open a file with separate audio dialog.
+            void openSeparateAudioDialog();
 
             //! Set the image options.
             void setImageOptions(const tl::timeline::ImageOptions&);
