@@ -69,103 +69,31 @@
        inkscape:label="#g4524"
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96">
+      <path
+         style="fill:#f0f0f0;stroke-width:0.264582"
+         d="m 1.0583333,292.76665 v 2.38125 h 3.1749999 v -2.38125 z"
+         id="rect1637" />
       <rect
          style="fill:#f0f0f0;stroke-width:0.264583"
-         id="rect1637"
-         width="2.1166668"
-         height="2.1166821"
-         x="1.5875"
-         y="293.29581" />
+         id="rect9549"
+         width="2.1166666"
+         height="0.26460791"
+         x="1.5875001"
+         y="295.67706" />
       <rect
-         style="fill:#f0f0f0;stroke-width:0.264583"
-         id="rect1647"
-         width="0.26458338"
-         height="0.52918142"
-         x="1.5875"
-         y="292.76663" />
-      <rect
-         style="fill:#f0f0f0;stroke-width:0.264583"
-         id="rect3135"
-         width="0.26458338"
-         height="0.52918142"
+         style="fill:#f0f0f0;stroke-width:0.264582"
+         id="rect9551"
+         width="0.52916676"
+         height="0.52917194"
          x="2.3812499"
-         y="292.76663" />
+         y="295.14789" />
       <rect
-         style="fill:#f0f0f0;stroke-width:0.264583"
-         id="rect3139"
-         width="0.26458338"
-         height="0.52916765"
-         x="2.6458333"
-         y="295.41248" />
-      <rect
-         style="fill:#f0f0f0;stroke-width:0.264583"
-         id="rect3143"
-         width="0.26458338"
-         height="0.52916765"
-         x="3.4395833"
-         y="295.41248" />
-      <rect
-         style="fill:#f0f0f0;stroke-width:0.264583"
-         id="rect3145"
-         width="0.26459047"
-         height="0.52916652"
-         x="293.29581"
-         y="-4.2333331"
-         transform="rotate(90)" />
-      <rect
-         style="fill:#f0f0f0;stroke-width:0.264583"
-         id="rect3147"
-         width="0.26459047"
-         height="0.52916652"
-         x="294.08957"
-         y="-4.2333331"
-         transform="rotate(90)" />
-      <rect
-         style="fill:#f0f0f0;stroke-width:0.264583"
-         id="rect3153"
-         width="0.26459047"
-         height="0.5291667"
-         x="294.35413"
-         y="-1.5875"
-         transform="rotate(90)" />
-      <rect
-         style="fill:#f0f0f0;stroke-width:0.264583"
-         id="rect3155"
-         width="0.26459047"
-         height="0.5291667"
-         x="295.14789"
-         y="-1.5875"
-         transform="rotate(90)" />
-      <rect
-         style="fill:#f0f0f0;stroke-width:0.264583"
-         id="rect4651"
-         width="0.26458338"
-         height="0.52918142"
-         x="3.175"
-         y="292.76663" />
-      <rect
-         style="fill:#f0f0f0;stroke-width:0.264583"
-         id="rect4653"
-         width="0.26459047"
-         height="0.52916652"
-         x="294.8833"
-         y="-4.2333331"
-         transform="rotate(90)" />
-      <rect
-         style="fill:#f0f0f0;stroke-width:0.264583"
-         id="rect4658"
-         width="0.26458338"
-         height="0.52916765"
-         x="1.8520832"
-         y="295.41248" />
-      <rect
-         style="fill:#f0f0f0;stroke-width:0.264583"
-         id="rect4660"
-         width="0.26459047"
-         height="0.5291667"
-         x="293.56039"
-         y="-1.5875"
-         transform="rotate(90)" />
+         style="fill:#5a5a5a;fill-opacity:1;stroke-width:6.35"
+         id="rect10053"
+         width="2.6458333"
+         height="1.8520905"
+         x="1.3229166"
+         y="293.03122" />
     </g>
   </g>
 </svg>

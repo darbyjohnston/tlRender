@@ -7,7 +7,7 @@
    viewBox="0 0 5.2916665 5.2916666"
    version="1.1"
    id="svg8"
-   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04, custom)"
+   inkscape:version="1.2-rc (6364d40632, 2022-05-08)"
    sodipodi:docname="ViewZoom1To1.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -39,7 +39,9 @@
      inkscape:window-maximized="1"
      inkscape:pagecheckerboard="0"
      inkscape:snap-bbox="true"
-     inkscape:bbox-nodes="true">
+     inkscape:bbox-nodes="true"
+     inkscape:showpageshadow="2"
+     inkscape:deskcolor="#d1d1d1">
     <inkscape:grid
        type="xygrid"
        id="grid4526"
@@ -95,6 +97,12 @@
          height="0.26459047"
          x="1.0583333"
          y="295.94165" />
+      <circle
+         style="fill:#5a5a5a;fill-opacity:1;stroke-width:6.35"
+         id="path17442"
+         cx="2.9104166"
+         cy="293.03122"
+         r="0.79374999" />
     </g>
   </g>
 </svg>

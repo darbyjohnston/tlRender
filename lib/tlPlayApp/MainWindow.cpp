@@ -226,7 +226,7 @@ namespace tl
             p.durationLabel->setToolTip(tr("Timeline duration"));
             p.durationLabel->setContentsMargins(5, 0, 5, 0);
             p.timeUnitsButton = new QToolButton;
-            p.timeUnitsButton->setIcon(QIcon(":/Icons/TimeUnits.svg"));
+            p.timeUnitsButton->setText(tr("Time"));
             p.timeUnitsButton->setPopupMode(QToolButton::InstantPopup);
             p.timeUnitsButton->setMenu(p.playbackActions->timeUnitsMenu());
             p.timeUnitsButton->setToolTip(tr("Time units"));
@@ -237,7 +237,7 @@ namespace tl
             p.speedSpinBox->setFont(fixedFont);
             p.speedSpinBox->setToolTip(tr("Timeline speed (frames per second)"));
             p.speedButton = new QToolButton;
-            p.speedButton->setIcon(QIcon(":/Icons/Speed.svg"));
+            p.speedButton->setText(tr("Speed"));
             p.speedButton->setPopupMode(QToolButton::InstantPopup);
             p.speedButton->setMenu(p.playbackActions->speedMenu());
             p.speedButton->setToolTip(tr("Playback speed"));
