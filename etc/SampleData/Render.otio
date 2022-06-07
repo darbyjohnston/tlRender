@@ -63,7 +63,7 @@
                                     "value": 0
                                 }
                             },
-                            "target_url": "BART_2021-02-07.m4v"
+                            "target_url": "file://BART_2021-02-07.m4v"
                         },
                         "source_range": {
                             "OTIO_SCHEMA": "TimeRange.1",
