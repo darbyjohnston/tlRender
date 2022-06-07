@@ -4,6 +4,7 @@ set(HEADERS
     FilmstripWidget.h
 	FloatSlider.h
 	IntSlider.h
+	SearchWidget.h
 	Separator.h
 	Spacer.h
     SpeedLabel.h
@@ -20,6 +21,7 @@ set(SOURCE
     FilmstripWidget.cpp
 	FloatSlider.cpp
 	IntSlider.cpp
+	SearchWidget.cpp
 	Separator.cpp
 	Spacer.cpp
     SpeedLabel.cpp

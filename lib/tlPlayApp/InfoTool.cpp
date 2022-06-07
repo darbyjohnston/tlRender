@@ -9,11 +9,16 @@
 #include <tlPlayApp/InfoModel.h>
 #include <tlPlayApp/SettingsObject.h>
 
+#include <tlQtWidget/SearchWidget.h>
+
 #include <tlQt/Util.h>
 
 #include <QAction>
 #include <QBoxLayout>
 #include <QHeaderView>
+#include <QLineEdit>
+#include <QSortFilterProxyModel>
+#include <QToolButton>
 #include <QTreeView>
 
 namespace tl
@@ -23,8 +28,20 @@ namespace tl
         struct InfoTool::Private
         {
             App* app = nullptr;
-            InfoModel* infoModel = nullptr;
-            QTreeView* treeView = nullptr;
+
+            VideoInfoModel* videoInfoModel = nullptr;
+            QSortFilterProxyModel* videoInfoProxyModel = nullptr;
+            AudioInfoModel* audioInfoModel = nullptr;
+            QSortFilterProxyModel* audioInfoProxyModel = nullptr;
+            TagsModel* tagsModel = nullptr;
+            QSortFilterProxyModel* tagsProxyModel = nullptr;
+
+            QTreeView* videoInfoView = nullptr;
+            qtwidget::SearchWidget* videoSearchWidget = nullptr;
+            QTreeView* audioInfoView = nullptr;
+            qtwidget::SearchWidget* audioSearchWidget = nullptr;
+            QTreeView* tagsView = nullptr;
+            qtwidget::SearchWidget* tagsSearchWidget = nullptr;
         };
 
         InfoTool::InfoTool(
@@ -36,28 +53,119 @@ namespace tl
             TLRENDER_P();
 
             p.app = app;
-            p.infoModel = new InfoModel(this);
 
-            p.treeView = new QTreeView;
-            p.treeView->setAllColumnsShowFocus(true);
-            p.treeView->setAlternatingRowColors(true);
-            p.treeView->setSelectionMode(QAbstractItemView::NoSelection);
-            p.treeView->setIndentation(0);
-            p.treeView->setModel(p.infoModel);
+            p.videoInfoModel = new VideoInfoModel(this);
+            p.videoInfoProxyModel = new QSortFilterProxyModel(this);
+            p.videoInfoProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+            p.videoInfoProxyModel->setFilterKeyColumn(-1);
+            p.videoInfoProxyModel->setSourceModel(p.videoInfoModel);
 
+            p.audioInfoModel = new AudioInfoModel(this);
+            p.audioInfoProxyModel = new QSortFilterProxyModel(this);
+            p.audioInfoProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+            p.audioInfoProxyModel->setFilterKeyColumn(-1);
+            p.audioInfoProxyModel->setSourceModel(p.audioInfoModel);
+
+            p.tagsModel = new TagsModel(this);
+            p.tagsProxyModel = new QSortFilterProxyModel(this);
+            p.tagsProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+            p.tagsProxyModel->setFilterKeyColumn(-1);
+            p.tagsProxyModel->setSourceModel(p.tagsModel);
+
+            p.videoInfoView = new QTreeView;
+            p.videoInfoView->setAllColumnsShowFocus(true);
+            p.videoInfoView->setAlternatingRowColors(true);
+            p.videoInfoView->setSelectionMode(QAbstractItemView::NoSelection);
+            p.videoInfoView->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
+            p.videoInfoView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+            p.videoInfoView->setIndentation(0);
+            p.videoInfoView->setModel(p.videoInfoProxyModel);
+
+            p.videoSearchWidget = new qtwidget::SearchWidget;
+
+            p.audioInfoView = new QTreeView;
+            p.audioInfoView->setAllColumnsShowFocus(true);
+            p.audioInfoView->setAlternatingRowColors(true);
+            p.audioInfoView->setSelectionMode(QAbstractItemView::NoSelection);
+            p.audioInfoView->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
+            p.audioInfoView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+            p.audioInfoView->setIndentation(0);
+            p.audioInfoView->setModel(p.audioInfoProxyModel);
+
+            p.audioSearchWidget = new qtwidget::SearchWidget;
+
+            p.tagsView = new QTreeView;
+            p.tagsView->setAllColumnsShowFocus(true);
+            p.tagsView->setAlternatingRowColors(true);
+            p.tagsView->setSelectionMode(QAbstractItemView::NoSelection);
+            p.tagsView->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
+            p.tagsView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+            p.tagsView->setIndentation(0);
+            p.tagsView->setModel(p.tagsProxyModel);
+
+            p.tagsSearchWidget = new qtwidget::SearchWidget;
+
+            auto widget = new QWidget;
             auto layout = new QVBoxLayout;
             layout->setContentsMargins(0, 0, 0, 0);
-            layout->setSpacing(0);
-            layout->addWidget(p.treeView);
-            auto widget = new QWidget;
+            layout->addWidget(p.videoInfoView);
+            layout->addWidget(p.videoSearchWidget);
             widget->setLayout(layout);
-            addWidget(widget);
+            addBellows(tr("Video"), widget);
 
-            app->settingsObject()->setDefaultValue("InfoTool/Header", QByteArray());
-            auto ba = app->settingsObject()->value("InfoTool/Header").toByteArray();
+            widget = new QWidget;
+            layout = new QVBoxLayout;
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->addWidget(p.audioInfoView);
+            layout->addWidget(p.audioSearchWidget);
+            widget->setLayout(layout);
+            addBellows(tr("Audio"), widget);
+
+            widget = new QWidget;
+            layout = new QVBoxLayout;
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->addWidget(p.tagsView);
+            layout->addWidget(p.tagsSearchWidget);
+            widget->setLayout(layout);
+            addBellows(tr("Tags"), widget);
+
+            addStretch();
+
+            connect(
+                p.videoSearchWidget,
+                SIGNAL(searchChanged(const QString&)),
+                p.videoInfoProxyModel,
+                SLOT(setFilterFixedString(const QString&)));
+
+            connect(
+                p.audioSearchWidget,
+                SIGNAL(searchChanged(const QString&)),
+                p.audioInfoProxyModel,
+                SLOT(setFilterFixedString(const QString&)));
+
+            connect(
+                p.tagsSearchWidget,
+                SIGNAL(searchChanged(const QString&)),
+                p.tagsProxyModel,
+                SLOT(setFilterFixedString(const QString&)));
+
+            app->settingsObject()->setDefaultValue("InfoTool/VideoHeader", QByteArray());
+            auto ba = app->settingsObject()->value("InfoTool/VideoHeader").toByteArray();
             if (!ba.isEmpty())
             {
-                p.treeView->header()->restoreState(ba);
+                p.videoInfoView->header()->restoreState(ba);
+            }
+            app->settingsObject()->setDefaultValue("InfoTool/AudioHeader", QByteArray());
+            ba = app->settingsObject()->value("InfoTool/AudioHeader").toByteArray();
+            if (!ba.isEmpty())
+            {
+                p.audioInfoView->header()->restoreState(ba);
+            }
+            app->settingsObject()->setDefaultValue("InfoTool/TagsHeader", QByteArray());
+            ba = app->settingsObject()->value("InfoTool/TagsHeader").toByteArray();
+            if (!ba.isEmpty())
+            {
+                p.tagsView->header()->restoreState(ba);
             }
         }
 
@@ -65,14 +173,22 @@ namespace tl
         {
             TLRENDER_P();
             p.app->settingsObject()->setValue(
-                "InfoTool/Header",
-                p.treeView->header()->saveState());
+                "InfoTool/VideoHeader",
+                p.videoInfoView->header()->saveState());
+            p.app->settingsObject()->setValue(
+                "InfoTool/AudioHeader",
+                p.audioInfoView->header()->saveState());
+            p.app->settingsObject()->setValue(
+                "InfoTool/TagsHeader",
+                p.tagsView->header()->saveState());
         }
 
         void InfoTool::setInfo(const io::Info& value)
         {
             TLRENDER_P();
-            p.infoModel->setInfo(value);
+            p.videoInfoModel->setInfo(value);
+            p.audioInfoModel->setInfo(value);
+            p.tagsModel->setTags(value.tags);
         }
 
         InfoDockWidget::InfoDockWidget(

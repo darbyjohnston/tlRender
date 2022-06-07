@@ -156,6 +156,11 @@ namespace tl
             return toLower(a) == toLower(b);
         }
 
+        std::string getLabel(bool value)
+        {
+            return value ? "true" : "false";
+        }
+
         void fromString(const char* s, size_t size, int& out)
         {
             out = 0;

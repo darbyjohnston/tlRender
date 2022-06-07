@@ -56,6 +56,13 @@ namespace tl
 
         ///@}
 
+        //! \name Labels
+        ///@{
+        
+        std::string getLabel(bool);
+
+        ///@}
+
         //! \name Conversion
         ///@{
 

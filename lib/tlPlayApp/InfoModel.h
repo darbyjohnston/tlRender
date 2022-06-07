@@ -19,18 +19,62 @@ namespace tl
 
     namespace play
     {
-        //! Information model.
-        class InfoModel : public QAbstractTableModel
+        //! Video information model.
+        class VideoInfoModel : public QAbstractTableModel
         {
             Q_OBJECT
 
         public:
-            InfoModel(QObject* parent = nullptr);
+            VideoInfoModel(QObject* parent = nullptr);
 
-            ~InfoModel() override;
+            ~VideoInfoModel() override;
 
             //! Set the information.
             void setInfo(const io::Info&);
+
+            int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+            int columnCount(const QModelIndex& parent = QModelIndex()) const override;
+            QVariant data(const QModelIndex&, int role = Qt::DisplayRole) const override;
+            QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+
+        private:
+            TLRENDER_PRIVATE();
+        };
+
+        //! Audio information model.
+        class AudioInfoModel : public QAbstractTableModel
+        {
+            Q_OBJECT
+
+        public:
+            AudioInfoModel(QObject* parent = nullptr);
+
+            ~AudioInfoModel() override;
+
+            //! Set the information.
+            void setInfo(const io::Info&);
+
+            int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+            int columnCount(const QModelIndex& parent = QModelIndex()) const override;
+            QVariant data(const QModelIndex&, int role = Qt::DisplayRole) const override;
+            QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+
+        private:
+            TLRENDER_PRIVATE();
+        };
+
+        //! Tags model.
+        class TagsModel : public QAbstractTableModel
+        {
+            Q_OBJECT
+
+        public:
+            TagsModel(QObject* parent = nullptr);
+
+            ~TagsModel() override;
+
+            //! Set the tags.
+            void setTags(const std::map<std::string, std::string>&);
 
             int rowCount(const QModelIndex& parent = QModelIndex()) const override;
             int columnCount(const QModelIndex& parent = QModelIndex()) const override;

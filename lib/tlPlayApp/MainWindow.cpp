@@ -1068,7 +1068,7 @@ namespace tl
                     {
                         std::stringstream ss;
                         ss << "A: " <<
-                            ioInfo.audio.channelCount << " " <<
+                            static_cast<size_t>(ioInfo.audio.channelCount) << " " <<
                             ioInfo.audio.dataType << " " <<
                             ioInfo.audio.sampleRate;
                         infoLabel.push_back(ss.str());
@@ -1076,14 +1076,14 @@ namespace tl
                     {
                         std::stringstream ss;
                         ss << "Audio: " <<
-                            ioInfo.audio.channelCount << " " <<
+                            static_cast<size_t>(ioInfo.audio.channelCount) << " " <<
                             ioInfo.audio.dataType << " " <<
                             ioInfo.audio.sampleRate;
                         infoTooltip.push_back(ss.str());
                     }
                 }
             }
-            p.infoLabel->setText(QString::fromUtf8(string::join(infoLabel, " ").c_str()));
+            p.infoLabel->setText(QString::fromUtf8(string::join(infoLabel, ", ").c_str()));
             p.infoLabel->setToolTip(QString::fromUtf8(string::join(infoTooltip, "\n").c_str()));
 
             if (p.secondaryWindow)

@@ -53,8 +53,8 @@ namespace tl
             p.treeView->setItemDelegateForColumn(1, new FilesLayersItemDelegate);
             p.treeView->setEditTriggers(QAbstractItemView::CurrentChanged);
             p.treeView->setIndentation(0);
-            //! \bug Setting the model causes this output to be printed on exit:
-            //! QBasicTimer::start: QBasicTimer can only be used with threads started with QThread
+            p.treeView->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
+            p.treeView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
             p.treeView->setModel(p.filesAModel);
 
             auto toolBar = new QToolBar;
