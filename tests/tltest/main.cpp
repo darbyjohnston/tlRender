@@ -145,7 +145,7 @@ int main(int argc, char* argv[])
             tests.push_back(io_tests::PPMTest::create(context));
             tests.push_back(io_tests::SGITest::create(context));
 #if defined(FFmpeg_FOUND)
-            tests.push_back(io_tests::FFmpegTest::create(context));
+            //tests.push_back(io_tests::FFmpegTest::create(context));
 #endif
 #if defined(JPEG_FOUND)
             tests.push_back(io_tests::JPEGTest::create(context));
