@@ -101,9 +101,11 @@ int main(int argc, char* argv[])
         observer::CallbackAction::Suppress);
 
     std::vector<std::shared_ptr<tests::ITest> > tests;
-    if (0)
+    if (1)
     {
-        tests.push_back(app_tests::AppTest::create(context));
+#if defined(FFmpeg_FOUND)
+        tests.push_back(io_tests::FFmpegTest::create(context));
+#endif
     }
     else
     {
@@ -145,7 +147,7 @@ int main(int argc, char* argv[])
             tests.push_back(io_tests::PPMTest::create(context));
             tests.push_back(io_tests::SGITest::create(context));
 #if defined(FFmpeg_FOUND)
-            //tests.push_back(io_tests::FFmpegTest::create(context));
+            tests.push_back(io_tests::FFmpegTest::create(context));
 #endif
 #if defined(JPEG_FOUND)
             tests.push_back(io_tests::JPEGTest::create(context));
