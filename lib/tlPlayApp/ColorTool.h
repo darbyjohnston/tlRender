@@ -36,15 +36,15 @@ namespace tl
             TLRENDER_PRIVATE();
         };
 
-        //! Color widget.
-        class ColorWidget : public QWidget
+        //! Color controls widget.
+        class ColorControlsWidget : public QWidget
         {
             Q_OBJECT
 
         public:
-            ColorWidget(QWidget* parent = nullptr);
+            ColorControlsWidget(QWidget* parent = nullptr);
 
-            ~ColorWidget() override;
+            ~ColorControlsWidget() override;
 
         public Q_SLOTS:
             void setColorEnabled(bool);

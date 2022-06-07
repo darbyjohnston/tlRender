@@ -236,7 +236,7 @@ namespace tl
             p.speedSpinBox->setFont(fixedFont);
             p.speedSpinBox->setToolTip(tr("Timeline speed (frames per second)"));
             p.speedButton = new QToolButton;
-            p.speedButton->setText(tr("Speed"));
+            p.speedButton->setText(tr("FPS"));
             p.speedButton->setPopupMode(QToolButton::InstantPopup);
             p.speedButton->setMenu(p.playbackActions->speedMenu());
             p.speedButton->setToolTip(tr("Playback speed"));

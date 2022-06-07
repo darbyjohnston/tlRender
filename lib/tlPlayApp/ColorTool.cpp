@@ -7,18 +7,19 @@
 #include <tlPlayApp/ColorModel.h>
 #include <tlPlayApp/DockTitleBar.h>
 
+#include <tlQtWidget/FileWidget.h>
 #include <tlQtWidget/FloatSlider.h>
+#include <tlQtWidget/SearchWidget.h>
 
 #include <tlCore/Path.h>
 
 #include <QAction>
 #include <QBoxLayout>
 #include <QCheckBox>
-#include <QFileDialog>
 #include <QFormLayout>
 #include <QLabel>
-#include <QLineEdit>
 #include <QListView>
+#include <QSortFilterProxyModel>
 #include <QTabWidget>
 #include <QToolButton>
 
@@ -30,10 +31,7 @@ namespace tl
         {
             std::shared_ptr<ColorModel> colorModel;
             ColorModelData data;
-            QLineEdit* fileNameLineEdit = nullptr;
-            QListView* inputListView = nullptr;
-            QListView* displayListView = nullptr;
-            QListView* viewListView = nullptr;
+            qtwidget::FileWidget* fileWidget = nullptr;
             std::shared_ptr<observer::ValueObserver<ColorModelData> > dataObserver;
         };
 
@@ -47,92 +45,133 @@ namespace tl
 
             p.colorModel = colorModel;
 
-            p.fileNameLineEdit = new QLineEdit;
-            auto fileNameButton = new QToolButton;
-            fileNameButton->setIcon(QIcon(":/Icons/FileBrowser.svg"));
-            fileNameButton->setAutoRaise(true);
+            auto inputListModel = new ColorInputListModel(colorModel, this);
+            auto inputListProxyModel = new QSortFilterProxyModel(this);
+            inputListProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+            inputListProxyModel->setFilterKeyColumn(-1);
+            inputListProxyModel->setSourceModel(inputListModel);
 
-            p.inputListView = new QListView;
-            p.inputListView->setAlternatingRowColors(true);
-            p.inputListView->setSelectionMode(QAbstractItemView::NoSelection);
-            p.inputListView->setModel(new ColorInputListModel(colorModel, this));
+            auto displayListModel = new ColorDisplayListModel(colorModel, this);
+            auto displayListProxyModel = new QSortFilterProxyModel(this);
+            displayListProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+            displayListProxyModel->setFilterKeyColumn(-1);
+            displayListProxyModel->setSourceModel(displayListModel);
 
-            p.displayListView = new QListView;
-            p.displayListView->setAlternatingRowColors(true);
-            p.displayListView->setSelectionMode(QAbstractItemView::NoSelection);
-            p.displayListView->setModel(new ColorDisplayListModel(colorModel, this));
+            auto viewListModel = new ColorViewListModel(colorModel, this);
+            auto viewListProxyModel = new QSortFilterProxyModel(this);
+            viewListProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+            viewListProxyModel->setFilterKeyColumn(-1);
+            viewListProxyModel->setSourceModel(viewListModel);
 
-            p.viewListView = new QListView;
-            p.viewListView->setAlternatingRowColors(true);
-            p.viewListView->setSelectionMode(QAbstractItemView::NoSelection);
-            p.viewListView->setModel(new ColorViewListModel(colorModel, this));
+            p.fileWidget = new qtwidget::FileWidget;
+
+            auto inputListView = new QListView;
+            inputListView->setAlternatingRowColors(true);
+            inputListView->setSelectionMode(QAbstractItemView::NoSelection);
+            inputListView->setModel(inputListProxyModel);
+
+            auto inputSearchWidget = new qtwidget::SearchWidget;
+            inputSearchWidget->setContentsMargins(2, 2, 2, 2);
+
+            auto displayListView = new QListView;
+            displayListView->setAlternatingRowColors(true);
+            displayListView->setSelectionMode(QAbstractItemView::NoSelection);
+            displayListView->setModel(displayListProxyModel);
+
+            auto displaySearchWidget = new qtwidget::SearchWidget;
+            displaySearchWidget->setContentsMargins(2, 2, 2, 2);
+
+            auto viewListView = new QListView;
+            viewListView->setAlternatingRowColors(true);
+            viewListView->setSelectionMode(QAbstractItemView::NoSelection);
+            viewListView->setModel(viewListProxyModel);
+
+            auto viewSearchWidget = new qtwidget::SearchWidget;
+            viewSearchWidget->setContentsMargins(2, 2, 2, 2);
 
             auto tabWidget = new QTabWidget;
-            tabWidget->addTab(p.inputListView, tr("Input"));
-            tabWidget->addTab(p.displayListView, tr("Display"));
-            tabWidget->addTab(p.viewListView, tr("View"));
-
+            auto widget = new QWidget;
             auto layout = new QVBoxLayout;
-            auto hLayout = new QHBoxLayout;
-            hLayout->addWidget(p.fileNameLineEdit);
-            hLayout->addWidget(fileNameButton);
-            layout->addLayout(hLayout);
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(0);
+            layout->addWidget(inputListView);
+            layout->addWidget(inputSearchWidget);
+            widget->setLayout(layout);
+            tabWidget->addTab(widget, tr("Input"));
+            widget = new QWidget;
+            layout = new QVBoxLayout;
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(0);
+            layout->addWidget(displayListView);
+            layout->addWidget(displaySearchWidget);
+            widget->setLayout(layout);
+            tabWidget->addTab(widget, tr("Display"));
+            widget = new QWidget;
+            layout = new QVBoxLayout;
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(0);
+            layout->addWidget(viewListView);
+            layout->addWidget(viewSearchWidget);
+            widget->setLayout(layout);
+            tabWidget->addTab(widget, tr("View"));
+
+            layout = new QVBoxLayout;
+            layout->addWidget(p.fileWidget);
             layout->addWidget(tabWidget);
             setLayout(layout);
 
             connect(
-                fileNameButton,
-                &QToolButton::clicked,
-                [this]
+                p.fileWidget,
+                &qtwidget::FileWidget::fileChanged,
+                [this](const QString& value)
                 {
-                    QString dir;
-                    if (!_p->data.fileName.empty())
-                    {
-                        dir = QString::fromUtf8(file::Path(_p->data.fileName).get().c_str());
-                    }
-
-                    const auto fileName = QFileDialog::getOpenFileName(
-                        window(),
-                        tr("Open"),
-                        dir,
-                        tr("Files") + " (*.ocio)");
-                    if (!fileName.isEmpty())
-                    {
-                        _p->colorModel->setConfig(fileName.toUtf8().data());
-                    }
+                    _p->colorModel->setConfig(value.toUtf8().data());
                 });
 
             connect(
-                p.fileNameLineEdit,
-                &QLineEdit::editingFinished,
-                [this]
-                {
-                    _p->colorModel->setConfig(_p->fileNameLineEdit->text().toUtf8().data());
-                });
-
-            connect(
-                p.inputListView,
+                inputListView,
                 &QAbstractItemView::activated,
-                [this](const QModelIndex& index)
+                [this, inputListProxyModel](const QModelIndex& index)
                 {
-                    _p->colorModel->setInputIndex(index.row());
+                    auto sourceIndex = inputListProxyModel->mapToSource(index);
+                    _p->colorModel->setInputIndex(sourceIndex.row());
                 });
 
             connect(
-                p.displayListView,
+                inputSearchWidget,
+                SIGNAL(searchChanged(const QString&)),
+                inputListProxyModel,
+                SLOT(setFilterFixedString(const QString&)));
+
+            connect(
+                displayListView,
                 &QAbstractItemView::activated,
-                [this](const QModelIndex& index)
+                [this, displayListProxyModel](const QModelIndex& index)
                 {
-                    _p->colorModel->setDisplayIndex(index.row());
+                    auto sourceIndex = displayListProxyModel->mapToSource(index);
+                    _p->colorModel->setDisplayIndex(sourceIndex.row());
                 });
 
             connect(
-                p.viewListView,
+                displaySearchWidget,
+                SIGNAL(searchChanged(const QString&)),
+                displayListProxyModel,
+                SLOT(setFilterFixedString(const QString&)));
+
+            connect(
+                viewListView,
                 &QAbstractItemView::activated,
-                [this](const QModelIndex& index)
+                [this, viewListProxyModel](const QModelIndex& index)
                 {
-                    _p->colorModel->setViewIndex(index.row());
+                    auto sourceIndex = viewListProxyModel->mapToSource(index);
+                    _p->colorModel->setViewIndex(sourceIndex.row());
                 });
+
+            connect(
+                viewSearchWidget,
+                SIGNAL(searchChanged(const QString&)),
+                viewListProxyModel,
+                SLOT(setFilterFixedString(const QString&)));
 
             p.dataObserver = observer::ValueObserver<ColorModelData>::create(
                 colorModel->observeData(),
@@ -150,12 +189,12 @@ namespace tl
         {
             TLRENDER_P();
             {
-                QSignalBlocker blocker(p.fileNameLineEdit);
-                p.fileNameLineEdit->setText(QString::fromUtf8(p.data.fileName.c_str()));
+                QSignalBlocker blocker(p.fileWidget);
+                p.fileWidget->setFile(QString::fromUtf8(p.data.fileName.c_str()));
             }
         }
 
-        struct ColorWidget::Private
+        struct ColorControlsWidget::Private
         {
             bool colorEnabled = false;
             timeline::Color color;
@@ -169,7 +208,7 @@ namespace tl
             QCheckBox* invertCheckBox = nullptr;
         };
 
-        ColorWidget::ColorWidget(QWidget* parent) :
+        ColorControlsWidget::ColorControlsWidget(QWidget* parent) :
             QWidget(parent),
             _p(new Private)
         {
@@ -285,10 +324,10 @@ namespace tl
                 });
         }
 
-        ColorWidget::~ColorWidget()
+        ColorControlsWidget::~ColorControlsWidget()
         {}
 
-        void ColorWidget::setColorEnabled(bool value)
+        void ColorControlsWidget::setColorEnabled(bool value)
         {
             TLRENDER_P();
             if (value == p.colorEnabled)
@@ -297,7 +336,7 @@ namespace tl
             _widgetUpdate();
         }
 
-        void ColorWidget::setColor(const timeline::Color& value)
+        void ColorControlsWidget::setColor(const timeline::Color& value)
         {
             TLRENDER_P();
             if (value == p.color)
@@ -306,7 +345,7 @@ namespace tl
             _widgetUpdate();
         }
 
-        void ColorWidget::_widgetUpdate()
+        void ColorControlsWidget::_widgetUpdate()
         {
             TLRENDER_P();
             {
@@ -728,7 +767,7 @@ namespace tl
             timeline::DisplayOptions displayOptions;
 
             ConfigWidget* configWidget = nullptr;
-            ColorWidget* colorWidget = nullptr;
+            ColorControlsWidget* colorControlsWidget = nullptr;
             LevelsWidget* levelsWidget = nullptr;
             ExposureWidget* exposureWidget = nullptr;
             SoftClipWidget* softClipWidget = nullptr;
@@ -743,21 +782,21 @@ namespace tl
             TLRENDER_P();
 
             p.configWidget = new ConfigWidget(colorModel);
-            p.colorWidget = new ColorWidget;
+            p.colorControlsWidget = new ColorControlsWidget;
             p.levelsWidget = new LevelsWidget;
             p.exposureWidget = new ExposureWidget;
             p.softClipWidget = new SoftClipWidget;
 
             addBellows(tr("Configuration"), p.configWidget);
-            addBellows(tr("Color"), p.colorWidget);
+            addBellows(tr("Color Controls"), p.colorControlsWidget);
             addBellows(tr("Levels"), p.levelsWidget);
             addBellows(tr("Exposure"), p.exposureWidget);
             addBellows(tr("Soft Clip"), p.softClipWidget);
             addStretch();
 
             connect(
-                p.colorWidget,
-                &ColorWidget::colorEnabledChanged,
+                p.colorControlsWidget,
+                &ColorControlsWidget::colorEnabledChanged,
                 [this](bool value)
                 {
                     timeline::DisplayOptions displayOptions = _p->displayOptions;
@@ -765,8 +804,8 @@ namespace tl
                     Q_EMIT displayOptionsChanged(displayOptions);
                 });
             connect(
-                p.colorWidget,
-                &ColorWidget::colorChanged,
+                p.colorControlsWidget,
+                &ColorControlsWidget::colorChanged,
                 [this](const timeline::Color& value)
                 {
                     timeline::DisplayOptions displayOptions = _p->displayOptions;
@@ -848,9 +887,9 @@ namespace tl
         {
             TLRENDER_P();
             {
-                QSignalBlocker blocker(p.colorWidget);
-                p.colorWidget->setColorEnabled(p.displayOptions.colorEnabled);
-                p.colorWidget->setColor(p.displayOptions.color);
+                QSignalBlocker blocker(p.colorControlsWidget);
+                p.colorControlsWidget->setColorEnabled(p.displayOptions.colorEnabled);
+                p.colorControlsWidget->setColor(p.displayOptions.color);
             }
             {
                 QSignalBlocker blocker(p.levelsWidget);

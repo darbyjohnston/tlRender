@@ -49,16 +49,27 @@ namespace tl
             std::string env;
             if (os::getEnv("OCIO", env) && !env.empty())
             {
-                p.ocioConfig = OCIO::Config::CreateFromEnv();
-                if (p.ocioConfig)
+                try
                 {
-                    imaging::ColorConfig config;
-                    config.fileName = env;
-                    const char* display = p.ocioConfig->getDefaultDisplay();
-                    config.display = display;
-                    config.view = p.ocioConfig->getDefaultView(display);
-                    p.config->setIfChanged(config);
-                    _configUpdate();
+                    p.ocioConfig.reset();
+                    p.ocioConfig = OCIO::Config::CreateFromEnv();
+                    if (p.ocioConfig)
+                    {
+                        imaging::ColorConfig config;
+                        config.fileName = env;
+                        const char* display = p.ocioConfig->getDefaultDisplay();
+                        config.display = display;
+                        config.view = p.ocioConfig->getDefaultView(display);
+                        p.config->setIfChanged(config);
+                        _configUpdate();
+                    }
+                }
+                catch (const std::exception& e)
+                {
+                    if (const auto context = p.context.lock())
+                    {
+                        context->log(std::string(), e.what(), log::Type::Error);
+                    }
                 }
             }
         }
@@ -87,20 +98,13 @@ namespace tl
             TLRENDER_P();
             try
             {
+                p.ocioConfig.reset();
                 p.ocioConfig = OCIO::Config::CreateFromFile(value.fileName.c_str());
-                if (p.ocioConfig)
-                {
-                    p.config->setIfChanged(value);
-                    _configUpdate();
-                }
             }
             catch (const std::exception& e)
-            {
-                if (const auto context = p.context.lock())
-                {
-                    context->log(std::string(), e.what(), log::Type::Error);
-                }
-            }
+            {}
+            p.config->setIfChanged(value);
+            _configUpdate();
         }
 
         void ColorModel::setConfig(const std::string& fileName)
@@ -108,25 +112,21 @@ namespace tl
             TLRENDER_P();
             try
             {
+                p.ocioConfig.reset();
                 p.ocioConfig = OCIO::Config::CreateFromFile(fileName.c_str());
-                if (p.ocioConfig)
-                {
-                    imaging::ColorConfig config;
-                    config.fileName = fileName;
-                    const char* display = p.ocioConfig->getDefaultDisplay();
-                    config.display = display;
-                    config.view = p.ocioConfig->getDefaultView(display);
-                    p.config->setIfChanged(config);
-                    _configUpdate();
-                }
             }
-            catch (const std::exception& e)
+            catch (const std::exception&)
+            {}
+            imaging::ColorConfig config;
+            config.fileName = fileName;
+            if (p.ocioConfig)
             {
-                if (const auto context = p.context.lock())
-                {
-                    context->log(std::string(), e.what(), log::Type::Error);
-                }
+                const char* display = p.ocioConfig->getDefaultDisplay();
+                config.display = display;
+                config.view = p.ocioConfig->getDefaultView(display);
             }
+            p.config->setIfChanged(config);
+            _configUpdate();
         }
 
         std::shared_ptr<observer::IValue<ColorModelData> > ColorModel::observeData() const

@@ -14,23 +14,26 @@ namespace tl
 {
     namespace qtwidget
     {
-        //! Search widget.
-        class SearchWidget : public QWidget
+        //! File widget.
+        class FileWidget : public QWidget
         {
             Q_OBJECT
 
         public:
-            SearchWidget(QWidget* parent = nullptr);
+            FileWidget(QWidget* parent = nullptr);
 
-            ~SearchWidget() override;
+            ~FileWidget() override;
 
         public Q_SLOTS:
-            //! Clear the search.
+            //! Set the file.
+            void setFile(const QString&);
+
+            //! Clear the file.
             void clear();
 
         Q_SIGNALS:
-            //! This signal is emitted when the search is changed.
-            void searchChanged(const QString&);
+            //! This signal is emitted when the file is changed.
+            void fileChanged(const QString&);
 
         private:
             void _widgetUpdate();
