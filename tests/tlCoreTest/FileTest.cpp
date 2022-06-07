@@ -33,15 +33,6 @@ namespace tl
                 _print(ss.str());
             }
             {
-                const std::string value = "tmp";
-                for (const auto& env : { "TEMP", "TMP", "TMPDIR" })
-                {
-                    os::setEnv(env, value);
-                    TLRENDER_ASSERT(value == getTemp());
-                    os::delEnv(env);
-                }
-            }
-            {
                 std::stringstream ss;
                 ss << "Temp dir: " << createTempDir();
                 _print(ss.str());
