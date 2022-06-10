@@ -104,16 +104,16 @@ jobs:
       TLRENDER_ENABLE_MMAP: ON
       TLRENDER_ENABLE_COVERAGE: OFF
       TLRENDER_ENABLE_PYTHON: OFF
-      TLRENDER_BUILD_GL: ON
+      TLRENDER_BUILD_GL: OFF
       TLRENDER_BUILD_QT5: OFF
-      TLRENDER_BUILD_APPS: ON
-      TLRENDER_BUILD_EXAMPLES: ON
+      TLRENDER_BUILD_APPS: OFF
+      TLRENDER_BUILD_EXAMPLES: OFF
       TLRENDER_BUILD_TESTS: ON
       TLRENDER_BUILD_FFmpeg: ON
-      TLRENDER_BUILD_JPEG: ON
-      TLRENDER_BUILD_PNG: ON
-      TLRENDER_BUILD_OpenEXR: ON
-      TLRENDER_BUILD_TIFF: ON
+      TLRENDER_BUILD_JPEG: OFF
+      TLRENDER_BUILD_PNG: OFF
+      TLRENDER_BUILD_OpenEXR: OFF
+      TLRENDER_BUILD_TIFF: OFF
 
     steps:
     - uses: actions/checkout@v2
@@ -154,7 +154,7 @@ jobs:
         export DYLD_LIBRARY_PATH=$PWD/build/install/lib:$DYLD_LIBRARY_PATH &&
         cd build &&
         cd tlRender/src/tlRender-build &&
-        ctest --rerun-failed --output-on-failure
+        tests/tltest/tltest
 
   windows-build:
     runs-on: windows-latest
