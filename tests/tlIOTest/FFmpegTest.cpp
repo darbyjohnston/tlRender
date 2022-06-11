@@ -101,7 +101,7 @@ namespace tl
                                         write->writeVideo(otime::RationalTime(i, 24.0), image);
                                     }
                                 }
-                                {
+                                /*{
                                     auto read = plugin->read(path);
                                     for (size_t i = 0; i < static_cast<size_t>(duration.value()); ++i)
                                     {
@@ -137,7 +137,7 @@ namespace tl
                                     auto read = plugin->read(path);
                                     //! \bug This causes the test to hang.
                                     //const auto videoData = read->readVideo(otime::RationalTime(0.0, 24.0)).get();
-                                }
+                                }*/
                             }
                             catch (const std::exception& e)
                             {
