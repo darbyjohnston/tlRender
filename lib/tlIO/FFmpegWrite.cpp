@@ -303,14 +303,14 @@ namespace tl
             default: break;
             }
 
-            sws_scale(
+            /*sws_scale(
                 p.swsContext,
                 (uint8_t const* const*)p.avFrame2->data,
                 p.avFrame2->linesize,
                 0,
                 p.avVideoStream->codecpar->height,
                 p.avFrame->data,
-                p.avFrame->linesize);
+                p.avFrame->linesize);*/
 
             const auto timeRational = time::toRational(time.rate());
             p.avFrame->pts = av_rescale_q(
