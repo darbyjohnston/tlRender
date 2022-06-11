@@ -96,10 +96,10 @@ namespace tl
                                     info.videoTime = otime::TimeRange(otime::RationalTime(0.0, 24.0), duration);
                                     info.tags = tags;
                                     auto write = plugin->write(path, info);
-                                    for (size_t i = 0; i < static_cast<size_t>(duration.value()); ++i)
-                                    {
-                                        write->writeVideo(otime::RationalTime(i, 24.0), image);
-                                    }
+                                    //for (size_t i = 0; i < static_cast<size_t>(duration.value()); ++i)
+                                    //{
+                                    //    write->writeVideo(otime::RationalTime(i, 24.0), image);
+                                    //}
                                 }
                                 /*{
                                     auto read = plugin->read(path);
