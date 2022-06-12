@@ -136,17 +136,12 @@ namespace tl
                         {
                             std::unique_lock<std::mutex> lock(p.mutex);
                             p.stopped = true;
-                            while (!p.videoRequests.empty())
-                            {
-                                videoRequestsCleanup.push_back(p.videoRequests.front());
-                                p.videoRequests.pop_front();
-                            }
+                            videoRequestsCleanup = std::move(p.videoRequests);
                         }
-                        while (!p.videoRequestsInProgress.empty())
-                        {
-                            videoRequestsCleanup.push_back(p.videoRequestsInProgress.front());
-                            p.videoRequestsInProgress.pop_front();
-                        }
+                        videoRequestsCleanup.insert(
+                            videoRequestsCleanup.end(),
+                            p.videoRequestsInProgress.begin(),
+                            p.videoRequestsInProgress.end());
                         for (auto& request : videoRequestsCleanup)
                         {
                             VideoData data;

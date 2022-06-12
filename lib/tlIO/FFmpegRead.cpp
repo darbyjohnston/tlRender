@@ -166,15 +166,13 @@ namespace tl
                             videoRequests = std::move(p.videoRequests);
                             audioRequests = std::move(p.audioRequests);
                         }
-                        while (!videoRequests.empty())
+                        for (auto& request: videoRequests)
                         {
-                            videoRequests.front()->promise.set_value(io::VideoData());
-                            videoRequests.pop_front();
+                            request->promise.set_value(io::VideoData());
                         }
-                        while (!audioRequests.empty())
+                        for (auto& request : audioRequests)
                         {
-                            audioRequests.front()->promise.set_value(io::AudioData());
-                            audioRequests.pop_front();
+                            request->promise.set_value(io::AudioData());
                         }
                     }
 
