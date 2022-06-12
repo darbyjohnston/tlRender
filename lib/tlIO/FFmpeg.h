@@ -6,6 +6,8 @@
 
 #include <tlIO/IO.h>
 
+#include <tlCore/HDR.h>
+
 extern "C"
 {
 #include <libavformat/avformat.h>
@@ -49,6 +51,9 @@ namespace tl
 
         //! Convert to FFmpeg channel layout.
         int64_t fromChannelCount(uint8_t);
+
+        //! Convert to HDR.
+        void toHDR(AVFrameSideData**, int size, imaging::HDR&);
 
         //! Convert from FFmpeg.
         audio::DataType toAudioType(AVSampleFormat);

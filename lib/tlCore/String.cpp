@@ -158,7 +158,7 @@ namespace tl
 
         std::string getLabel(bool value)
         {
-            return value ? "true" : "false";
+            return value ? "True" : "False";
         }
 
         void fromString(const char* s, size_t size, int& out)

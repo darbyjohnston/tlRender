@@ -14,9 +14,7 @@ extern "C"
 {
 #include <libavcodec/avcodec.h>
 #include <libavutil/dict.h>
-#include <libavutil/hdr_dynamic_metadata.h>
 #include <libavutil/imgutils.h>
-#include <libavutil/mastering_display_metadata.h>
 #include <libavutil/opt.h>
 #include <libswresample/swresample.h>
 
@@ -36,40 +34,6 @@ namespace tl
 {
     namespace ffmpeg
     {
-        namespace
-        {
-            void toHDR(const AVFrameSideData* sideData, int size, imaging::HDR& hdr)
-            {
-                for (int i = 0; i < size; ++i)
-                {
-                    switch (sideData[i].type)
-                    {
-                    case AV_FRAME_DATA_MASTERING_DISPLAY_METADATA:
-                    {
-                        auto data = reinterpret_cast<AVMasteringDisplayMetadata*>(sideData[i].data);
-                        hdr.displayMasteringLuminance = math::FloatRange(
-                            data->min_luminance.num / data->min_luminance.den,
-                            data->max_luminance.num / data->max_luminance.den);
-                        break;
-                    }
-                    case AV_FRAME_DATA_CONTENT_LIGHT_LEVEL:
-                    {
-                        auto data = reinterpret_cast<AVContentLightMetadata*>(sideData[i].data);
-                        hdr.maxCLL = data->MaxCLL;
-                        hdr.maxFALL = data->MaxFALL;
-                        break;
-                    }
-                    case AV_FRAME_DATA_DYNAMIC_HDR_PLUS:
-                    {
-                        auto data = reinterpret_cast<AVDynamicHDRPlus*>(sideData[i].data);
-                        break;
-                    }
-                    default: break;
-                    }
-                }
-            }
-        }
-
         struct Read::Private
         {
             io::Info info;
@@ -1129,33 +1093,7 @@ namespace tl
                     auto image = imaging::Image::create(info.video[0]);
                     
                     imaging::HDR hdr;
-                    for (int i = 0; i < video.avFrame->nb_side_data; ++i)
-                    {
-                        switch (video.avFrame->side_data[i]->type)
-                        {
-                        case AV_FRAME_DATA_MASTERING_DISPLAY_METADATA:
-                        {
-                            auto data = reinterpret_cast<AVMasteringDisplayMetadata*>(video.avFrame->side_data[i]->data);
-                            hdr.displayMasteringLuminance = math::FloatRange(
-                                data->min_luminance.num / data->min_luminance.den,
-                                data->max_luminance.num / data->max_luminance.den);
-                            break;
-                        }
-                        case AV_FRAME_DATA_CONTENT_LIGHT_LEVEL:
-                        {
-                            auto data = reinterpret_cast<AVContentLightMetadata*>(video.avFrame->side_data[i]->data);
-                            hdr.maxCLL = data->MaxCLL;
-                            hdr.maxFALL = data->MaxFALL;
-                            break;
-                        }
-                        case AV_FRAME_DATA_DYNAMIC_HDR_PLUS:
-                        {
-                            auto data = reinterpret_cast<AVDynamicHDRPlus*>(video.avFrame->side_data[i]->data);
-                            break;
-                        }
-                        default: break;
-                        }
-                    }
+                    toHDR(video.avFrame->side_data, video.avFrame->nb_side_data, hdr);
 
                     auto tags = info.tags;
                     AVDictionaryEntry* tag = nullptr;

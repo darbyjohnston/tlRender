@@ -14,7 +14,9 @@ extern "C"
 {
 #include <libavutil/channel_layout.h>
 #include <libavutil/dict.h>
+#include <libavutil/hdr_dynamic_metadata.h>
 #include <libavutil/imgutils.h>
+#include <libavutil/mastering_display_metadata.h>
 
 } // extern "C"
 
@@ -53,6 +55,37 @@ namespace tl
             case 8: out = AV_CH_LAYOUT_7POINT1; break;
             }
             return out;
+        }
+
+        void toHDR(AVFrameSideData** sideData, int size, imaging::HDR& hdr)
+        {
+            for (int i = 0; i < size; ++i)
+            {
+                switch (sideData[i]->type)
+                {
+                case AV_FRAME_DATA_MASTERING_DISPLAY_METADATA:
+                {
+                    auto data = reinterpret_cast<AVMasteringDisplayMetadata*>(sideData[i]->data);
+                    hdr.displayMasteringLuminance = math::FloatRange(
+                        data->min_luminance.num / data->min_luminance.den,
+                        data->max_luminance.num / data->max_luminance.den);
+                    break;
+                }
+                case AV_FRAME_DATA_CONTENT_LIGHT_LEVEL:
+                {
+                    auto data = reinterpret_cast<AVContentLightMetadata*>(sideData[i]->data);
+                    hdr.maxCLL = data->MaxCLL;
+                    hdr.maxFALL = data->MaxFALL;
+                    break;
+                }
+                case AV_FRAME_DATA_DYNAMIC_HDR_PLUS:
+                {
+                    auto data = reinterpret_cast<AVDynamicHDRPlus*>(sideData[i]->data);
+                    break;
+                }
+                default: break;
+                }
+            }
         }
 
         audio::DataType toAudioType(AVSampleFormat value)
