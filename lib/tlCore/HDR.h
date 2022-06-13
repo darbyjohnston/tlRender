@@ -5,6 +5,7 @@
 #pragma once
 
 #include <tlCore/Range.h>
+#include <tlCore/Vector.h>
 
 namespace tl
 {
@@ -14,10 +15,10 @@ namespace tl
         struct HDR
         {
             uint8_t eotf = 0;
-            std::pair<float, float> redPrimaries = std::make_pair(0.F, 0.F);
-            std::pair<float, float> greenPrimaries = std::make_pair(0.F, 0.F);
-            std::pair<float, float> bluePrimaries = std::make_pair(0.F, 0.F);
-            std::pair<float, float> whitePrimaries = std::make_pair(0.F, 0.F);
+            math::Vector2f redPrimaries;
+            math::Vector2f greenPrimaries;
+            math::Vector2f bluePrimaries;
+            math::Vector2f whitePrimaries;
             math::FloatRange displayMasteringLuminance = math::FloatRange(0.F, 0.F);
             float maxCLL = 0.F;
             float maxFALL = 0.F;

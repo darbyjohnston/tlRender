@@ -297,14 +297,14 @@ namespace tl
             bool frameView = true;
             std::vector<timeline::VideoData> videoData;
 
-            bool doCreateDevice = false;
             std::shared_ptr<device::IOutputDevice> device;
-            bool doRender = false;
             std::shared_ptr<tl::gl::Shader> shader;
             std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer;
             std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer2;
             while (p.running)
             {
+                bool doCreateDevice = false;
+                bool doRender = false;
                 {
                     std::unique_lock<std::mutex> lock(p.mutex);
                     if (p.cv.wait_for(
@@ -355,7 +355,6 @@ namespace tl
 
                 if (doCreateDevice)
                 {
-                    doCreateDevice = false;
                     device.reset();
                     if (deviceIndex != -1 && displayModeIndex != -1 && pixelType != device::PixelType::None)
                     {
@@ -378,7 +377,6 @@ namespace tl
 
                 if (doRender)
                 {
-                    doRender = false;
                     if (render && device)
                     {
                         try
@@ -533,6 +531,10 @@ namespace tl
                                     pixelType,
                                     !videoData.empty() ? videoData[0].time : time::invalidTime);
                                 //std::cout << "time: " << pixelData->getTime() << std::endl;
+                                if (!videoData.empty())
+                                {
+                                    pixelData->setHDR(device::getHDR(videoData[0]));
+                                }
                                 glPixelStorei(GL_PACK_ALIGNMENT, getReadPixelsAlign(pixelType));
                                 glPixelStorei(GL_PACK_SWAP_BYTES, getReadPixelsSwap(pixelType));
                                 glReadPixels(

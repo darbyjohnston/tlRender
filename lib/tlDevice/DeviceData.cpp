@@ -119,12 +119,43 @@ namespace tl
             std::memset(_data, 0, _dataByteCount);
         }
 
+        const std::shared_ptr<imaging::HDR>& PixelData::getHDR() const
+        {
+            return _hdr;
+        }
+
+        void PixelData::setHDR(const std::shared_ptr<imaging::HDR>& value)
+        {
+            _hdr = value;
+        }
+
         bool DeviceInfo::operator == (const DeviceInfo& other) const
         {
             return
                 name == other.name &&
                 displayModes == other.displayModes &&
                 pixelTypes == other.pixelTypes;
+        }
+
+        std::shared_ptr<imaging::HDR> getHDR(const timeline::VideoData& videoData)
+        {
+            std::shared_ptr<imaging::HDR> out;
+            for (const auto& i : videoData.layers)
+            {
+                if (i.image)
+                {
+                    const auto& tags = i.image->getTags();
+                    const auto k = tags.find("hdr");
+                    if (k != tags.end())
+                    {
+                        out = std::shared_ptr<imaging::HDR>(new imaging::HDR);
+                        auto json = nlohmann::json::parse(k->second);
+                        from_json(json, *out);
+                        break;
+                    }
+                }
+            }
+            return out;
         }
     }
 }

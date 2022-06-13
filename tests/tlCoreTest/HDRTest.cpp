@@ -34,14 +34,14 @@ namespace tl
             {
                 HDR value;
                 value.eotf = 1;
-                value.redPrimaries.first = .1F;
-                value.redPrimaries.second = 1.F;
-                value.greenPrimaries.first = .2F;
-                value.greenPrimaries.second = .9F;
-                value.bluePrimaries.first = .3F;
-                value.bluePrimaries.second = .8F;
-                value.whitePrimaries.first = .4F;
-                value.whitePrimaries.second = .7F;
+                value.redPrimaries.x = .1F;
+                value.redPrimaries.y = 1.F;
+                value.greenPrimaries.x = .2F;
+                value.greenPrimaries.y = .9F;
+                value.bluePrimaries.x = .3F;
+                value.bluePrimaries.y = .8F;
+                value.whitePrimaries.x = .4F;
+                value.whitePrimaries.y = .7F;
                 value.displayMasteringLuminance = math::FloatRange(.5F, .6F);
                 value.maxCLL = 0.1F;
                 value.maxFALL = 0.2F;

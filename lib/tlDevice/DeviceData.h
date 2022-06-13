@@ -4,6 +4,9 @@
 
 #pragma once
 
+#include <tlTimeline/Video.h>
+
+#include <tlCore/HDR.h>
 #include <tlCore/Image.h>
 #include <tlCore/Time.h>
 
@@ -84,12 +87,19 @@ namespace tl
             //! Zero the pixel data.
             void zero();
 
+            //! Get HDR metadata.
+            const std::shared_ptr<imaging::HDR>& getHDR() const;
+
+            //! Set HDR metadata.
+            void setHDR(const std::shared_ptr<imaging::HDR>&);
+
         private:
             imaging::Size _size;
             PixelType _pixelType = PixelType::None;
             otime::RationalTime _time;
             size_t _dataByteCount = 0;
             uint8_t* _data = nullptr;
+            std::shared_ptr<imaging::HDR> _hdr;
         };
 
         //! Device information.
@@ -101,5 +111,8 @@ namespace tl
 
             bool operator == (const DeviceInfo&) const;
         };
+
+        //! Get HDR metadata from timeline video data.
+        std::shared_ptr<imaging::HDR> getHDR(const timeline::VideoData&);
     }
 }
