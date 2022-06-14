@@ -25,14 +25,14 @@ namespace tl
         void HDRTest::run()
         {
             {
-                HDR a;
-                HDR b;
+                HDRData a;
+                HDRData b;
                 TLRENDER_ASSERT(a == b);
                 a.eotf = 1;
                 TLRENDER_ASSERT(a != b);
             }
             {
-                HDR value;
+                HDRData value;
                 value.eotf = 1;
                 value.redPrimaries.x = .1F;
                 value.redPrimaries.y = 1.F;
@@ -47,7 +47,7 @@ namespace tl
                 value.maxFALL = 0.2F;
                 nlohmann::json json;
                 to_json(json, value);
-                HDR value2;
+                HDRData value2;
                 from_json(json, value2);
                 TLRENDER_ASSERT(value == value2);
             }

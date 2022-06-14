@@ -8,7 +8,7 @@ namespace tl
 {
     namespace imaging
     {
-        void to_json(nlohmann::json& json, const HDR& value)
+        void to_json(nlohmann::json& json, const HDRData& value)
         {
             json = nlohmann::json
             {
@@ -23,7 +23,7 @@ namespace tl
             };
         }
 
-        void from_json(const nlohmann::json& json, HDR& value)
+        void from_json(const nlohmann::json& json, HDRData& value)
         {
             json.at("eotf").get_to(value.eotf);
             json.at("redPrimaries").at(0).get_to(value.redPrimaries.x);

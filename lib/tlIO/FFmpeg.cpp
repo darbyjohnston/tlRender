@@ -57,7 +57,7 @@ namespace tl
             return out;
         }
 
-        void toHDR(AVFrameSideData** sideData, int size, imaging::HDR& hdr)
+        void toHDRData(AVFrameSideData** sideData, int size, imaging::HDRData& hdr)
         {
             for (int i = 0; i < size; ++i)
             {

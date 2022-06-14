@@ -87,11 +87,11 @@ namespace tl
             //! Zero the pixel data.
             void zero();
 
-            //! Get HDR metadata.
-            const std::shared_ptr<imaging::HDR>& getHDR() const;
+            //! Get HDR data.
+            const std::shared_ptr<imaging::HDRData>& getHDRData() const;
 
-            //! Set HDR metadata.
-            void setHDR(const std::shared_ptr<imaging::HDR>&);
+            //! Set HDR data.
+            void setHDRData(const std::shared_ptr<imaging::HDRData>&);
 
         private:
             imaging::Size _size;
@@ -99,7 +99,7 @@ namespace tl
             otime::RationalTime _time;
             size_t _dataByteCount = 0;
             uint8_t* _data = nullptr;
-            std::shared_ptr<imaging::HDR> _hdr;
+            std::shared_ptr<imaging::HDRData> _hdrData;
         };
 
         //! Device information.
@@ -112,7 +112,21 @@ namespace tl
             bool operator == (const DeviceInfo&) const;
         };
 
-        //! Get HDR metadata from timeline video data.
-        std::shared_ptr<imaging::HDR> getHDR(const timeline::VideoData&);
+        //! HDR mode.
+        enum HDRMode
+        {
+            None,
+            FromFile,
+            BT2020,
+            Custom,
+
+            Count,
+            First = None
+        };
+        TLRENDER_ENUM(HDRMode);
+        TLRENDER_ENUM_SERIALIZE(HDRMode);
+
+        //! Get HDR data from timeline video data.
+        std::shared_ptr<imaging::HDRData> getHDRData(const timeline::VideoData&);
     }
 }

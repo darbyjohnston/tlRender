@@ -11,8 +11,8 @@ namespace tl
 {
     namespace imaging
     {
-        //! HDR metadata.
-        struct HDR
+        //! HDR data.
+        struct HDRData
         {
             uint8_t eotf = 0;
             math::Vector2f redPrimaries;
@@ -23,13 +23,13 @@ namespace tl
             float maxCLL = 0.F;
             float maxFALL = 0.F;
 
-            bool operator == (const HDR&) const noexcept;
-            bool operator != (const HDR&) const noexcept;
+            bool operator == (const HDRData&) const noexcept;
+            bool operator != (const HDRData&) const noexcept;
         };
 
-        void to_json(nlohmann::json&, const HDR&);
+        void to_json(nlohmann::json&, const HDRData&);
 
-        void from_json(const nlohmann::json&, HDR&);
+        void from_json(const nlohmann::json&, HDRData&);
     }
 }
 

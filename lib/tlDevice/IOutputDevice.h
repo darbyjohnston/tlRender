@@ -33,10 +33,16 @@ namespace tl
             virtual ~IOutputDevice() = 0;
 
             //! Get the output device size.
-            virtual const imaging::Size& getSize() const = 0;
+            const imaging::Size& getSize() const;
 
             //! Get the output device frame rate.
-            virtual const otime::RationalTime& getFrameRate() const = 0;
+            const otime::RationalTime& getFrameRate() const;
+
+            //! Get the HDR mode and metadata.
+            std::pair<HDRMode, imaging::HDRData> getHDR() const;
+
+            //! Set the HDR mode and metadata.
+            void setHDR(HDRMode, const imaging::HDRData&);
 
             //! Display pixel data.
             virtual void display(const std::shared_ptr<PixelData>&) = 0;
@@ -44,7 +50,11 @@ namespace tl
         protected:
             int _deviceIndex = 0;
             int _displayModeIndex = 0;
+            imaging::Size _size;
             PixelType _pixelType = PixelType::None;
+            otime::RationalTime _frameRate;
+            HDRMode _hdrMode = HDRMode::FromFile;
+            imaging::HDRData _hdrData;
         };
     }
 }

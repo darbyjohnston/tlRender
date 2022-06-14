@@ -52,8 +52,8 @@ namespace tl
         //! Convert to FFmpeg channel layout.
         int64_t fromChannelCount(uint8_t);
 
-        //! Convert to HDR.
-        void toHDR(AVFrameSideData**, int size, imaging::HDR&);
+        //! Convert to HDR data.
+        void toHDRData(AVFrameSideData**, int size, imaging::HDRData&);
 
         //! Convert from FFmpeg.
         audio::DataType toAudioType(AVSampleFormat);

@@ -24,5 +24,26 @@ namespace tl
 
         IOutputDevice::~IOutputDevice()
         {}
+
+        const imaging::Size& IOutputDevice::getSize() const
+        {
+            return _size;
+        }
+
+        const otime::RationalTime& IOutputDevice::getFrameRate() const
+        {
+            return _frameRate;
+        }
+
+        std::pair<HDRMode, imaging::HDRData> IOutputDevice::getHDR() const
+        {
+            return std::make_pair(_hdrMode, _hdrData);
+        }
+
+        void IOutputDevice::setHDR(HDRMode hdrMode, const imaging::HDRData& hdrData)
+        {
+            _hdrMode = hdrMode;
+            _hdrData = hdrData;
+        }
     }
 }

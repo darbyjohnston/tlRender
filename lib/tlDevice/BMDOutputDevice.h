@@ -17,6 +17,7 @@ namespace tl
     {
         class BMDOutputDevice;
 
+        //! DeckLink video output callback.
         class DLVideoOutputCallback : public IDeckLinkVideoOutputCallback
         {
         public:
@@ -34,25 +35,31 @@ namespace tl
             std::function<void(IDeckLinkVideoFrame*)> _callback;
         };
 
+        //! DeckLink video output callback wrapper.
         class DLVideoOutputCallbackWrapper
         {
         public:
-            DLVideoOutputCallback* p = nullptr;
             ~DLVideoOutputCallbackWrapper();
+
+            DLVideoOutputCallback* p = nullptr;
         };
 
+        //! DeckLink wrapper.
         class DLWrapper
         {
         public:
-            IDeckLink* p = nullptr;
             ~DLWrapper();
+
+            IDeckLink* p = nullptr;
         };
 
+        //! DeckLink output wrapper.
         class DLOutputWrapper
         {
         public:
-            IDeckLinkOutput* p = nullptr;
             ~DLOutputWrapper();
+
+            IDeckLinkOutput* p = nullptr;
         };
 
         //! BMD output device.
@@ -79,14 +86,10 @@ namespace tl
                 PixelType,
                 const std::shared_ptr<system::Context>&);
 
-            const imaging::Size& getSize() const override;
-            const otime::RationalTime& getFrameRate() const override;
             void display(const std::shared_ptr<device::PixelData>&) override;
 
         private:
             uint64_t _frameCount = 0;
-            imaging::Size _size;
-            otime::RationalTime _frameRate;
 
             std::list<std::shared_ptr<device::PixelData> > _pixelData;
             std::shared_ptr<device::PixelData> _pixelDataTmp;

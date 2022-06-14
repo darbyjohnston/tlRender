@@ -6,7 +6,7 @@ namespace tl
 {
     namespace imaging
     {
-        inline bool HDR::operator == (const HDR& other) const noexcept
+        inline bool HDRData::operator == (const HDRData& other) const noexcept
         {
             return
                 other.eotf == eotf &&
@@ -19,7 +19,7 @@ namespace tl
                 other.maxFALL == maxFALL;
         }
 
-        inline bool HDR::operator != (const HDR& other) const noexcept
+        inline bool HDRData::operator != (const HDRData& other) const noexcept
         {
             return !(other == *this);
         }

@@ -25,7 +25,8 @@ namespace tl
             const size_t pixelDataListMax = 3;
         }
 
-        DLVideoOutputCallback::DLVideoOutputCallback(const std::function<void(IDeckLinkVideoFrame*)>& callback) :
+        DLVideoOutputCallback::DLVideoOutputCallback(
+            const std::function<void(IDeckLinkVideoFrame*)>& callback) :
             _refCount(1),
             _callback(callback)
         {}
@@ -99,29 +100,33 @@ namespace tl
             class DLIteratorWrapper
             {
             public:
-                IDeckLinkIterator* p = nullptr;
                 ~DLIteratorWrapper() { if (p) p->Release(); }
+
+                IDeckLinkIterator* p = nullptr;
             };
 
             class DLDisplayModeIteratorWrapper
             {
             public:
-                IDeckLinkDisplayModeIterator* p = nullptr;
                 ~DLDisplayModeIteratorWrapper() { if (p) p->Release(); }
+
+                IDeckLinkDisplayModeIterator* p = nullptr;
             };
 
             class DLDisplayModeWrapper
             {
             public:
-                IDeckLinkDisplayMode* p = nullptr;
                 ~DLDisplayModeWrapper() { if (p) p->Release(); }
+
+                IDeckLinkDisplayMode* p = nullptr;
             };
 
             class DLVideoFrameWrapper
             {
             public:
-                IDeckLinkMutableVideoFrame* p = nullptr;
                 ~DLVideoFrameWrapper() { if (p) p->Release(); }
+
+                IDeckLinkMutableVideoFrame* p = nullptr;
             };
         }
 
@@ -296,16 +301,6 @@ namespace tl
             auto out = std::shared_ptr<BMDOutputDevice>(new BMDOutputDevice);
             out->_init(deviceIndex, displayModeIndex, pixelType, context);
             return out;
-        }
-
-        const imaging::Size& BMDOutputDevice::getSize() const
-        {
-            return _size;
-        }
-
-        const otime::RationalTime& BMDOutputDevice::getFrameRate() const
-        {
-            return _frameRate;
         }
 
         void BMDOutputDevice::display(const std::shared_ptr<device::PixelData>& pixelData)

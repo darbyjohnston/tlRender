@@ -119,14 +119,14 @@ namespace tl
             std::memset(_data, 0, _dataByteCount);
         }
 
-        const std::shared_ptr<imaging::HDR>& PixelData::getHDR() const
+        const std::shared_ptr<imaging::HDRData>& PixelData::getHDRData() const
         {
-            return _hdr;
+            return _hdrData;
         }
 
-        void PixelData::setHDR(const std::shared_ptr<imaging::HDR>& value)
+        void PixelData::setHDRData(const std::shared_ptr<imaging::HDRData>& value)
         {
-            _hdr = value;
+            _hdrData = value;
         }
 
         bool DeviceInfo::operator == (const DeviceInfo& other) const
@@ -137,9 +137,17 @@ namespace tl
                 pixelTypes == other.pixelTypes;
         }
 
-        std::shared_ptr<imaging::HDR> getHDR(const timeline::VideoData& videoData)
+        TLRENDER_ENUM_IMPL(
+            HDRMode,
+            "None",
+            "FromFile",
+            "BT2020",
+            "Custom");
+        TLRENDER_ENUM_SERIALIZE_IMPL(HDRMode);
+
+        std::shared_ptr<imaging::HDRData> getHDRData(const timeline::VideoData& videoData)
         {
-            std::shared_ptr<imaging::HDR> out;
+            std::shared_ptr<imaging::HDRData> out;
             for (const auto& i : videoData.layers)
             {
                 if (i.image)
@@ -148,7 +156,7 @@ namespace tl
                     const auto k = tags.find("hdr");
                     if (k != tags.end())
                     {
-                        out = std::shared_ptr<imaging::HDR>(new imaging::HDR);
+                        out = std::shared_ptr<imaging::HDRData>(new imaging::HDRData);
                         auto json = nlohmann::json::parse(k->second);
                         from_json(json, *out);
                         break;

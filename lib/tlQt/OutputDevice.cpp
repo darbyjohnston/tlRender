@@ -533,7 +533,7 @@ namespace tl
                                 //std::cout << "time: " << pixelData->getTime() << std::endl;
                                 if (!videoData.empty())
                                 {
-                                    pixelData->setHDR(device::getHDR(videoData[0]));
+                                    pixelData->setHDRData(device::getHDRData(videoData[0]));
                                 }
                                 glPixelStorei(GL_PACK_ALIGNMENT, getReadPixelsAlign(pixelType));
                                 glPixelStorei(GL_PACK_SWAP_BYTES, getReadPixelsSwap(pixelType));

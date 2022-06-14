@@ -100,11 +100,17 @@ namespace tl
         typedef half     F16_T;
         typedef float    F32_T;
 
-        const math::Range<U8_T>  U8Range(std::numeric_limits<U8_T>::min(), std::numeric_limits<U8_T>::max());
+        const math::Range<U8_T>  U8Range(
+            std::numeric_limits<U8_T>::min(),
+            std::numeric_limits<U8_T>::max());
         const math::Range<U10_T> U10Range(0, 1023);
         const math::Range<U12_T> U12Range(0, 4095);
-        const math::Range<U16_T> U16Range(std::numeric_limits<U16_T>::min(), std::numeric_limits<U16_T>::max());
-        const math::Range<U32_T> U32Range(std::numeric_limits<U32_T>::min(), std::numeric_limits<U32_T>::max());
+        const math::Range<U16_T> U16Range(
+            std::numeric_limits<U16_T>::min(),
+            std::numeric_limits<U16_T>::max());
+        const math::Range<U32_T> U32Range(
+            std::numeric_limits<U32_T>::min(),
+            std::numeric_limits<U32_T>::max());
         const math::Range<F16_T> F16Range(0.F, 1.F);
         const math::Range<F32_T> F32Range(0.F, 1.F);
 
