@@ -1058,20 +1058,6 @@ namespace tl
                         tags[tag->key] = tag->value;
                     }
                     imaging::HDRData hdrData;
-                    switch (video.avFrame->colorspace)
-                    {
-                    case AVCOL_SPC_BT2020_NCL:
-                    case AVCOL_SPC_BT2020_CL:
-                        hdrData.redPrimaries.x   = .708F;
-                        hdrData.redPrimaries.y   = .292F;
-                        hdrData.greenPrimaries.x = .170F;
-                        hdrData.greenPrimaries.y = .797F;
-                        hdrData.bluePrimaries.x  = .131F;
-                        hdrData.bluePrimaries.y  = .046F;
-                        hdrData.whitePrimaries.x = .3127F;
-                        hdrData.whitePrimaries.y = .3290F;
-                        break;
-                    }
                     toHDRData(video.avFrame->side_data, video.avFrame->nb_side_data, hdrData);
                     tags["hdr"] = nlohmann::json(hdrData).dump();
                     image->setTags(tags);

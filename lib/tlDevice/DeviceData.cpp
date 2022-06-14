@@ -141,7 +141,6 @@ namespace tl
             HDRMode,
             "None",
             "FromFile",
-            "BT2020",
             "Custom");
         TLRENDER_ENUM_SERIALIZE_IMPL(HDRMode);
 

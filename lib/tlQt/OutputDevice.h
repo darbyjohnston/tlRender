@@ -51,6 +51,9 @@ namespace tl
             //! Set the display options.
             void setDisplayOptions(const std::vector<timeline::DisplayOptions>&);
 
+            //! Set the HDR mode and metadata.
+            void setHDR(device::HDRMode, const imaging::HDRData&);
+
             //! Set the comparison options.
             void setCompareOptions(const timeline::CompareOptions&);
 

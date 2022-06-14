@@ -113,11 +113,10 @@ namespace tl
         };
 
         //! HDR mode.
-        enum HDRMode
+        enum class HDRMode
         {
             None,
             FromFile,
-            BT2020,
             Custom,
 
             Count,

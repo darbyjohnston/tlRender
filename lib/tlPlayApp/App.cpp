@@ -16,6 +16,7 @@
 
 #include <tlQt/ContextObject.h>
 #include <tlQt/MetaTypes.h>
+#include <tlQt/OutputDevice.h>
 #include <tlQt/TimeObject.h>
 #include <tlQt/TimelineThumbnailProvider.h>
 #include <tlQt/TimelinePlayer.h>
@@ -69,7 +70,9 @@ namespace tl
             std::shared_ptr<ColorModel> colorModel;
             timeline::ImageOptions imageOptions;
             timeline::DisplayOptions displayOptions;
+            qt::OutputDevice* outputDevice = nullptr;
             std::shared_ptr<DevicesModel> devicesModel;
+            std::shared_ptr<observer::ValueObserver<DevicesModelData> > devicesObserver;
 
             std::vector<qt::TimelinePlayer*> timelinePlayers;
 
@@ -229,10 +232,37 @@ namespace tl
                 p.colorModel->setConfig(p.options.colorConfig);
             }
 
+            p.outputDevice = new qt::OutputDevice(context);
             p.devicesModel = DevicesModel::create(context);
-            p.devicesModel->setDeviceIndex(p.settingsObject->value("Device/DeviceIndex").toInt());
-            p.devicesModel->setDisplayModeIndex(p.settingsObject->value("Device/DisplayModeIndex").toInt());
-            p.devicesModel->setPixelTypeIndex(p.settingsObject->value("Device/PixelTypeIndex").toInt());
+            p.devicesModel->setDeviceIndex(p.settingsObject->value("Devices/DeviceIndex").toInt());
+            p.devicesModel->setDisplayModeIndex(p.settingsObject->value("Devices/DisplayModeIndex").toInt());
+            p.devicesModel->setPixelTypeIndex(p.settingsObject->value("Devices/PixelTypeIndex").toInt());
+            p.settingsObject->setDefaultValue("Devices/HDRMode",\
+                static_cast<int>(device::HDRMode::FromFile));
+            p.devicesModel->setHDRMode(
+                static_cast<device::HDRMode>(p.settingsObject->value("Devices/HDRMode").toInt()));
+            std::string s = p.settingsObject->value("Devices/HDRData").toString().toUtf8().data();
+            if (!s.empty())
+            {
+                auto json = nlohmann::json::parse(s);
+                imaging::HDRData hdrData;
+                from_json(json, hdrData);
+                p.devicesModel->setHDRData(hdrData);
+            }
+            p.devicesObserver = observer::ValueObserver<DevicesModelData>::create(
+                p.devicesModel->observeData(),
+                [this](const DevicesModelData& value)
+                {
+                    const device::PixelType pixelType = value.pixelTypeIndex >= 0 &&
+                        value.pixelTypeIndex < value.pixelTypes.size() ?
+                        value.pixelTypes[value.pixelTypeIndex] :
+                        device::PixelType::None;
+                    _p->outputDevice->setDevice(
+                        value.deviceIndex - 1,
+                        value.displayModeIndex - 1,
+                        pixelType);
+                    _p->outputDevice->setHDR(value.hdrMode, value.hdrData);
+                });
 
             // Create the main window.
             p.mainWindow = new MainWindow(this);
@@ -279,10 +309,17 @@ namespace tl
             delete p.mainWindow;
             p.mainWindow = nullptr;
 
+            delete p.outputDevice;
+            p.outputDevice = nullptr;
+
             const auto& deviceData = p.devicesModel->observeData()->get();
-            p.settingsObject->setValue("Device/DeviceIndex", deviceData.deviceIndex);
-            p.settingsObject->setValue("Device/DisplayModeIndex", deviceData.displayModeIndex);
-            p.settingsObject->setValue("Device/PixelTypeIndex", deviceData.pixelTypeIndex);
+            p.settingsObject->setValue("Devices/DeviceIndex", deviceData.deviceIndex);
+            p.settingsObject->setValue("Devices/DisplayModeIndex", deviceData.displayModeIndex);
+            p.settingsObject->setValue("Devices/PixelTypeIndex", deviceData.pixelTypeIndex);
+            p.settingsObject->setValue("Devices/HDRMode", static_cast<int>(deviceData.hdrMode));
+            nlohmann::json json;
+            to_json(json, deviceData.hdrData);
+            p.settingsObject->setValue("Devices/HDRData", QString::fromUtf8(json.dump().c_str()));
 
             //! \bug Why is it necessary to manually delete this to get the settings to save?
             delete p.settingsObject;
@@ -322,6 +359,11 @@ namespace tl
         const timeline::DisplayOptions& App::displayOptions() const
         {
             return _p->displayOptions;
+        }
+
+        qt::OutputDevice* App::outputDevice() const
+        {
+            return _p->outputDevice;
         }
 
         const std::shared_ptr<DevicesModel>& App::devicesModel() const

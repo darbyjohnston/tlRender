@@ -30,6 +30,8 @@ namespace tl
             int displayModeIndex = 0;
             std::vector<device::PixelType> pixelTypes;
             int pixelTypeIndex = 0;
+            device::HDRMode hdrMode = device::HDRMode::FromFile;
+            imaging::HDRData hdrData;
 
             bool operator == (const DevicesModelData&) const;
         };
@@ -61,8 +63,14 @@ namespace tl
             //! Set the pixel type index.
             void setPixelTypeIndex(int);
 
+            //! Set the HDR mode.
+            void setHDRMode(device::HDRMode);
+
+            //! Set the HDR data.
+            void setHDRData(const imaging::HDRData&);
+
         private:
-            void _deviceInfoUpdate();
+            void _update();
 
             TLRENDER_PRIVATE();
         };

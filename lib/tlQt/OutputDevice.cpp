@@ -39,6 +39,8 @@ namespace tl
             int deviceIndex = -1;
             int displayModeIndex = -1;
             device::PixelType pixelType = device::PixelType::_8BitBGRA;
+            device::HDRMode hdrMode = device::HDRMode::FromFile;
+            imaging::HDRData hdrData;
 
             imaging::ColorConfig colorConfig;
             std::vector<timeline::ImageOptions> imageOptions;
@@ -135,6 +137,17 @@ namespace tl
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
                 p.displayOptions = value;
+            }
+            p.cv.notify_one();
+        }
+
+        void OutputDevice::setHDR(device::HDRMode hdrMode, const imaging::HDRData& hdrData)
+        {
+            TLRENDER_P();
+            {
+                std::unique_lock<std::mutex> lock(p.mutex);
+                p.hdrMode = hdrMode;
+                p.hdrData = hdrData;
             }
             p.cv.notify_one();
         }
@@ -290,6 +303,8 @@ namespace tl
             imaging::ColorConfig colorConfig;
             std::vector<timeline::ImageOptions> imageOptions;
             std::vector<timeline::DisplayOptions> displayOptions;
+            device::HDRMode hdrMode = device::HDRMode::FromFile;
+            imaging::HDRData hdrData;
             timeline::CompareOptions compareOptions;
             std::vector<imaging::Size> sizes;
             math::Vector2i viewPos;
@@ -311,7 +326,7 @@ namespace tl
                         lock,
                         p.timeout,
                         [this, deviceIndex, displayModeIndex, pixelType,
-                        colorConfig, imageOptions, displayOptions,
+                        colorConfig, imageOptions, displayOptions, hdrMode, hdrData,
                         compareOptions, sizes, viewPos, viewZoom, frameView,
                         videoData]
                         {
@@ -322,6 +337,8 @@ namespace tl
                                 colorConfig != _p->colorConfig ||
                                 imageOptions != _p->imageOptions ||
                                 displayOptions != _p->displayOptions ||
+                                hdrMode != _p->hdrMode ||
+                                hdrData != _p->hdrData ||
                                 compareOptions != _p->compareOptions ||
                                 sizes != _p->sizes ||
                                 viewPos != _p->viewPos ||
@@ -344,6 +361,8 @@ namespace tl
                         colorConfig = p.colorConfig;
                         imageOptions = p.imageOptions;
                         displayOptions = p.displayOptions;
+                        hdrMode = p.hdrMode;
+                        hdrData = p.hdrData;
                         compareOptions = p.compareOptions;
                         sizes = p.sizes;
                         viewPos = p.viewPos;
@@ -531,10 +550,23 @@ namespace tl
                                     pixelType,
                                     !videoData.empty() ? videoData[0].time : time::invalidTime);
                                 //std::cout << "time: " << pixelData->getTime() << std::endl;
-                                if (!videoData.empty())
+                                
+                                std::shared_ptr<imaging::HDRData> hdrDataP;
+                                switch (hdrMode)
                                 {
-                                    pixelData->setHDRData(device::getHDRData(videoData[0]));
+                                case device::HDRMode::FromFile:
+                                    if (!videoData.empty())
+                                    {
+                                        hdrDataP = device::getHDRData(videoData[0]);
+                                    }
+                                    break;
+                                case device::HDRMode::Custom:
+                                    hdrDataP.reset(new imaging::HDRData(hdrData));
+                                    break;
+                                default: break;
                                 }
+                                pixelData->setHDRData(hdrDataP);
+
                                 glPixelStorei(GL_PACK_ALIGNMENT, getReadPixelsAlign(pixelType));
                                 glPixelStorei(GL_PACK_SWAP_BYTES, getReadPixelsSwap(pixelType));
                                 glReadPixels(

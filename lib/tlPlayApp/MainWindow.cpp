@@ -106,7 +106,6 @@ namespace tl
             QLabel* infoLabel = nullptr;
             QStatusBar* statusBar = nullptr;
             SecondaryWindow* secondaryWindow = nullptr;
-            qt::OutputDevice* outputDevice = nullptr;
 
             std::shared_ptr<observer::ListObserver<std::shared_ptr<FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ValueObserver<int> > aIndexObserver;
@@ -115,7 +114,6 @@ namespace tl
             std::shared_ptr<observer::ListObserver<timeline::DisplayOptions> > displayOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
             std::shared_ptr<observer::ValueObserver<imaging::ColorConfig> > colorConfigObserver;
-            std::shared_ptr<observer::ValueObserver<DevicesModelData> > devicesObserver;
             std::shared_ptr<observer::ListObserver<log::Item> > logObserver;
 
             bool mousePressed = false;
@@ -346,8 +344,6 @@ namespace tl
 
             p.timelineViewport->setFocus();
 
-            p.outputDevice = new qt::OutputDevice(app->getContext());
-
             _widgetUpdate();
 
             p.filesObserver = observer::ListObserver<std::shared_ptr<FilesModelItem> >::create(
@@ -382,20 +378,6 @@ namespace tl
                 {
                     _p->colorConfig = value;
                     _widgetUpdate();
-                });
-
-            p.devicesObserver = observer::ValueObserver<DevicesModelData>::create(
-                app->devicesModel()->observeData(),
-                [this](const DevicesModelData& value)
-                {
-                    const device::PixelType pixelType = value.pixelTypeIndex >= 0 &&
-                        value.pixelTypeIndex < value.pixelTypes.size() ?
-                        value.pixelTypes[value.pixelTypeIndex] :
-                        device::PixelType::None;
-                    _p->outputDevice->setDevice(
-                        value.deviceIndex - 1,
-                        value.displayModeIndex - 1,
-                        pixelType);
                 });
 
             p.logObserver = observer::ListObserver<log::Item>::create(
@@ -586,7 +568,7 @@ namespace tl
                 &qtwidget::TimelineViewport::viewPosAndZoomChanged,
                 [this](const tl::math::Vector2i& pos, float zoom)
                 {
-                    _p->outputDevice->setView(
+                    _p->app->outputDevice()->setView(
                         pos,
                         zoom,
                         _p->timelineViewport->hasFrameView());
@@ -596,7 +578,7 @@ namespace tl
                 &qtwidget::TimelineViewport::frameViewActivated,
                 [this]
                 {
-                    _p->outputDevice->setView(
+                    _p->app->outputDevice()->setView(
                         _p->timelineViewport->viewPos(),
                         _p->timelineViewport->viewZoom(),
                         _p->timelineViewport->hasFrameView());
@@ -672,11 +654,6 @@ namespace tl
             {
                 delete p.secondaryWindow;
                 p.secondaryWindow = nullptr;
-            }
-            if (p.outputDevice)
-            {
-                delete p.outputDevice;
-                p.outputDevice = nullptr;
             }
         }
 
@@ -1095,14 +1072,11 @@ namespace tl
                 p.secondaryWindow->viewport()->setTimelinePlayers(p.timelinePlayers);
             }
 
-            if (p.outputDevice)
-            {
-                p.outputDevice->setColorConfig(p.colorConfig);
-                p.outputDevice->setImageOptions(imageOptions);
-                p.outputDevice->setDisplayOptions(displayOptions);
-                p.outputDevice->setCompareOptions(p.compareOptions);
-                p.outputDevice->setTimelinePlayers(p.timelinePlayers);
-            }
+            p.app->outputDevice()->setColorConfig(p.colorConfig);
+            p.app->outputDevice()->setImageOptions(imageOptions);
+            p.app->outputDevice()->setDisplayOptions(displayOptions);
+            p.app->outputDevice()->setCompareOptions(p.compareOptions);
+            p.app->outputDevice()->setTimelinePlayers(p.timelinePlayers);
         }
     }
 }

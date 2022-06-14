@@ -23,7 +23,9 @@ namespace tl
                 displayModes == other.displayModes &&
                 displayModeIndex == other.displayModeIndex &&
                 pixelTypes == other.pixelTypes &&
-                pixelTypeIndex == other.pixelTypeIndex;
+                pixelTypeIndex == other.pixelTypeIndex &&
+                hdrMode == other.hdrMode &&
+                hdrData == other.hdrData;
         }
 
         struct DevicesModel::Private
@@ -32,6 +34,8 @@ namespace tl
             int deviceIndex = 0;
             int displayModeIndex = 0;
             int pixelTypeIndex = 0;
+            device::HDRMode hdrMode = device::HDRMode::FromFile;
+            imaging::HDRData hdrData;
             std::shared_ptr<observer::Value<DevicesModelData> > data;
             std::shared_ptr<observer::ListObserver<device::DeviceInfo> > deviceInfoObserver;
         };
@@ -42,7 +46,7 @@ namespace tl
 
             p.data = observer::Value<DevicesModelData>::create();
 
-            _deviceInfoUpdate();
+            _update();
 
             if (auto deviceSystem = context->getSystem<device::IDeviceSystem>())
             {
@@ -51,7 +55,7 @@ namespace tl
                     [this](const std::vector<device::DeviceInfo>& value)
                     {
                         _p->deviceInfo = value;
-                        _deviceInfoUpdate();
+                        _update();
                     });
             }
         }
@@ -81,7 +85,7 @@ namespace tl
             if (index == p.deviceIndex)
                 return;
             p.deviceIndex = index;
-            _deviceInfoUpdate();
+            _update();
         }
 
         void DevicesModel::setDisplayModeIndex(int index)
@@ -90,7 +94,7 @@ namespace tl
             if (index == p.displayModeIndex)
                 return;
             p.displayModeIndex = index;
-            _deviceInfoUpdate();
+            _update();
         }
 
         void DevicesModel::setPixelTypeIndex(int index)
@@ -99,10 +103,28 @@ namespace tl
             if (index == p.pixelTypeIndex)
                 return;
             p.pixelTypeIndex = index;
-            _deviceInfoUpdate();
+            _update();
         }
 
-        void DevicesModel::_deviceInfoUpdate()
+        void DevicesModel::setHDRMode(device::HDRMode value)
+        {
+            TLRENDER_P();
+            if (value == p.hdrMode)
+                return;
+            p.hdrMode = value;
+            _update();
+        }
+
+        void DevicesModel::setHDRData(const imaging::HDRData& value)
+        {
+            TLRENDER_P();
+            if (value == p.hdrData)
+                return;
+            p.hdrData = value;
+            _update();
+        }
+
+        void DevicesModel::_update()
         {
             TLRENDER_P();
 
@@ -134,6 +156,9 @@ namespace tl
                 }
                 data.pixelTypeIndex = p.pixelTypeIndex;
             }
+
+            data.hdrMode = p.hdrMode;
+            data.hdrData = p.hdrData;
 
             p.data->setIfChanged(data);
         }

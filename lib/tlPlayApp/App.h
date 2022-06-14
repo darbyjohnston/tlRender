@@ -16,6 +16,7 @@ namespace tl
 {
     namespace qt
     {
+        class OutputDevice;
         class TimelineThumbnailProvider;
         class TimeObject;
     }
@@ -65,6 +66,9 @@ namespace tl
 
             //! Get the display options.
             const timeline::DisplayOptions& displayOptions() const;
+
+            //! Get the output device.
+            qt::OutputDevice* outputDevice() const;
 
             //! Get the devices model.
             const std::shared_ptr<DevicesModel>& devicesModel() const;
