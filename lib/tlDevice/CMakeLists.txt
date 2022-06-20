@@ -3,6 +3,7 @@ set(HEADERS
     IDeviceSystem.h
 	IOutputDevice.h
 	Util.h)
+set(HEADERS_PRIVATE)
 
 set(SOURCE
 	DeviceData.cpp
@@ -16,7 +17,7 @@ set(LIBRARIES_PRIVATE)
 
 if(TLRENDER_BUILD_BMD)
 
-	list(APPEND HEADERS
+	list(APPEND HEADERS_PRIVATE
 		BMDDeviceSystem.h
 		BMDOutputDevice.h
 		BMDUtil.h)
@@ -26,7 +27,7 @@ if(TLRENDER_BUILD_BMD)
 		BMDUtil.cpp)
 
 	if(WIN32)
-		list(APPEND HEADERS
+		list(APPEND HEADERS_PRIVATE
 			${CMAKE_CURRENT_BINARY_DIR}/DeckLinkAPI.h
 			${CMAKE_CURRENT_SOURCE_DIR}/BMD/Win/platform.h)
 		list(APPEND SOURCE
@@ -55,7 +56,7 @@ if(TLRENDER_BUILD_BMD)
 		add_custom_target(MIDL_Target DEPENDS ${MIDL_OUTPUT})
 	elseif(APPLE)
 	elseif(UNIX)
-		list(APPEND HEADERS
+		list(APPEND HEADERS_PRIVATE
 			${TLRENDER_BMD_SDK}/Linux/include/DeckLinkAPI.h
 			${CMAKE_CURRENT_SOURCE_DIR}/BMD/Linux/platform.h)
 		list(APPEND SOURCE
@@ -67,7 +68,7 @@ if(TLRENDER_BUILD_BMD)
 	endif()
 endif()
 
-add_library(tlDevice ${HEADERS} ${SOURCE})
+add_library(tlDevice ${HEADERS} ${HEADERS_PRIVATE} ${SOURCE})
 target_include_directories(tlDevice PUBLIC ${INCLUDE_DIRS})
 target_link_libraries(tlDevice PUBLIC ${LIBRARIES} PRIVATE ${LIBRARIES_PRIVATE})
 set_target_properties(tlDevice PROPERTIES FOLDER lib)

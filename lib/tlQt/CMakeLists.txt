@@ -18,7 +18,6 @@ set(SOURCE
     Util.cpp)
 
 set(LIBRARIES)
-
 if(TLRENDER_BUILD_QT6)
 	list(APPEND LIBRARIES Qt6::Gui Qt6::OpenGL)
 elseif(TLRENDER_BUILD_QT5)

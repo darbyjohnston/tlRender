@@ -9,6 +9,7 @@ set(HEADERS
     SequenceIO.h
 	SGI.h
 	Util.h)
+set(HEADERS_PRIVATE)
 
 set(SOURCE
     CineonRead.cpp
@@ -31,33 +32,33 @@ set(SOURCE
 set(LIBRARIES tlCore)
 set(LIBRARIES_PRIVATE)
 if(JPEG_FOUND)
-    list(APPEND HEADERS JPEG.h)
+    list(APPEND HEADERS_PRIVATE JPEG.h)
     list(APPEND SOURCE JPEG.cpp JPEGRead.cpp JPEGWrite.cpp)
     list(APPEND LIBRARIES_PRIVATE JPEG)
 endif()
 if(TIFF_FOUND)
-    list(APPEND HEADERS TIFF.h)
+    list(APPEND HEADERS_PRIVATE TIFF.h)
     list(APPEND SOURCE TIFF.cpp TIFFRead.cpp TIFFWrite.cpp)
     list(APPEND LIBRARIES_PRIVATE TIFF)
 endif()
 if(PNG_FOUND)
-    list(APPEND HEADERS PNG.h)
+    list(APPEND HEADERS_PRIVATE PNG.h)
     list(APPEND SOURCE PNG.cpp PNGRead.cpp PNGWrite.cpp)
     list(APPEND LIBRARIES_PRIVATE PNG)
 endif()
 if(OpenEXR_FOUND)
+	# \todo Make this library private.
     list(APPEND HEADERS OpenEXR.h)
     list(APPEND SOURCE OpenEXR.cpp OpenEXRRead.cpp OpenEXRWrite.cpp)
-	# \todo Make this library private.
     list(APPEND LIBRARIES OpenEXR)
 endif()
 if(FFmpeg_FOUND)
-    list(APPEND HEADERS FFmpeg.h)
+    list(APPEND HEADERS_PRIVATE FFmpeg.h)
     list(APPEND SOURCE FFmpeg.cpp FFmpegRead.cpp FFmpegWrite.cpp)
     list(APPEND LIBRARIES_PRIVATE FFmpeg)
 endif()
 
-add_library(tlIO ${HEADERS} ${SOURCE})
+add_library(tlIO ${HEADERS} ${HEADERS_PRIVATE} ${SOURCE})
 target_link_libraries(tlIO PUBLIC ${LIBRARIES} PRIVATE ${LIBRARIES_PRIVATE})
 set_target_properties(tlIO PROPERTIES FOLDER lib)
 set_target_properties(tlIO PROPERTIES PUBLIC_HEADER "${HEADERS}")
