@@ -672,7 +672,7 @@ namespace tl
                 if (0 == channelLayout)
                 {
                     std::bitset<64> bs;
-                    for (size_t i = 0; i < p.info.audio.channelCount; ++i)
+                    for (size_t i = 0; i < p.audio.avCodecParameters[p.audio.avStream]->channels; ++i)
                     {
                         bs[i] = 1;
                     }
