@@ -70,8 +70,30 @@ namespace tl
             "RGBA_F16",
             "RGBA_F32",
 
-            "YUV_420P");
+            "YUV_420P_U8",
+            "YUV_422P_U8",
+            "YUV_444P_U8",
+
+            "YUV_420P_U16",
+            "YUV_422P_U16",
+            "YUV_444P_U16");
         TLRENDER_ENUM_SERIALIZE_IMPL(PixelType);
+
+        TLRENDER_ENUM_IMPL(
+            YUVCoefficients,
+            "REC709",
+            "BT2020");
+        TLRENDER_ENUM_SERIALIZE_IMPL(YUVCoefficients);
+
+        math::Vector4f getYUVCoefficients(YUVCoefficients value) noexcept
+        {
+            const std::array<math::Vector4f, static_cast<size_t>(YUVCoefficients::Count)> data =
+            {
+                math::Vector4f(1.79274, 2.1124, 0.213242, 0.532913),
+                math::Vector4f(1.67867, 2.14177, 0.187332, 0.650421)
+            };
+            return data[static_cast<size_t>(value)];
+        }
 
         TLRENDER_ENUM_IMPL(
             YUVRange,
@@ -88,7 +110,8 @@ namespace tl
                 2, 2, 2, 2, 2,
                 3, 3, 3, 3, 3, 3,
                 4, 4, 4, 4, 4,
-                3
+                3, 3, 3,
+                3, 3, 3
             };
             return values[static_cast<size_t>(value)];
         }
@@ -102,7 +125,8 @@ namespace tl
                 8, 16, 32, 16, 32,
                 8, 10, 16, 32, 16, 32,
                 8, 16, 32, 16, 32,
-                0
+                8, 8, 8,
+                16, 16, 16
             };
             return values[static_cast<size_t>(value)];
         }
@@ -235,10 +259,13 @@ namespace tl
             case PixelType::RGBA_F16: out = getAlignedByteCount(w * 4 * 2, alignment) * h; break;
             case PixelType::RGBA_F32: out = getAlignedByteCount(w * 4 * 4, alignment) * h; break;
 
-            case PixelType::YUV_420P:
-                //! \todo Is YUV data aligned?
-                out = w * h + (w / 2 * h / 2) * 2;
-                break;
+            //! \todo Is YUV data aligned?
+            case PixelType::YUV_420P_U8:  out = w * h + (w / 2 * h / 2) + (w / 2 * h / 2); break;
+            case PixelType::YUV_422P_U8:  out = w * h + (w / 2 * h) + (w / 2 * h); break;
+            case PixelType::YUV_444P_U8:  out = w * h * 3; break;
+            case PixelType::YUV_420P_U16: out = (w * h + (w / 2 * h / 2) + (w / 2 * h / 2)) * 2; break;
+            case PixelType::YUV_422P_U16: out = (w * h + (w / 2 * h) + (w / 2 * h)) * 2; break;
+            case PixelType::YUV_444P_U16: out = (w * h * 3) * 2; break;
 
             default: break;
             }
@@ -248,10 +275,10 @@ namespace tl
         void Image::_init(const Info& info)
         {
             _info = info;
+            _dataByteCount = imaging::getDataByteCount(info);
             //! \bug Allocate a bit of extra space since FFmpeg sws_scale()
             //! seems to be reading past the end?
-            _dataByteCount = imaging::getDataByteCount(info) + 16;
-            _data = new uint8_t[_dataByteCount];
+            _data = new uint8_t[_dataByteCount + 16];
         }
 
         Image::Image()

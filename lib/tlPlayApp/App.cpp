@@ -489,6 +489,8 @@ namespace tl
                         options.audioRequestCount = p.settingsObject->value("Performance/AudioRequestCount").toInt();
                         options.ioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").
                             arg(p.settingsObject->value("Performance/SequenceThreadCount").toInt());
+                        options.ioOptions["ffmpeg/YUVToRGBConversion"] = string::Format("{0}").
+                            arg(p.settingsObject->value("Performance/FFmpegYUVToRGBConversion").toBool());
                         const audio::Info audioInfo = audioSystem->getDefaultOutputInfo();
                         options.ioOptions["ffmpeg/AudioChannelCount"] = string::Format("{0}").arg(audioInfo.channelCount);
                         options.ioOptions["ffmpeg/AudioDataType"] = string::Format("{0}").arg(audioInfo.dataType);
@@ -525,12 +527,12 @@ namespace tl
                 !timelinePlayers.empty() &&
                 timelinePlayers[0])
             {
+                items[0]->duration = timelinePlayers[0]->duration();
+                items[0]->globalStartTime = timelinePlayers[0]->globalStartTime();
+                items[0]->ioInfo = timelinePlayers[0]->ioInfo();
                 if (!items[0]->init)
                 {
                     items[0]->init = true;
-                    items[0]->duration = timelinePlayers[0]->duration();
-                    items[0]->globalStartTime = timelinePlayers[0]->globalStartTime();
-                    items[0]->ioInfo = timelinePlayers[0]->ioInfo();
                     items[0]->speed = timelinePlayers[0]->speed();
                     items[0]->playback = timelinePlayers[0]->playback();
                     items[0]->loop = timelinePlayers[0]->loop();

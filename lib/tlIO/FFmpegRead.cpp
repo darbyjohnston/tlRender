@@ -39,6 +39,7 @@ namespace tl
             io::Info info;
             std::promise<io::Info> infoPromise;
 
+            bool yuvToRGBConversion = false;
             struct VideoRequest
             {
                 otime::RationalTime time = time::invalidTime;
@@ -109,7 +110,13 @@ namespace tl
 
             TLRENDER_P();
 
-            auto i = options.find("ffmpeg/AudioChannelCount");
+            auto i = options.find("ffmpeg/YUVToRGBConversion");
+            if (i != options.end())
+            {
+                std::stringstream ss(i->second);
+                ss >> p.yuvToRGBConversion;
+            }
+            i = options.find("ffmpeg/AudioChannelCount");
             if (i != options.end())
             {
                 std::stringstream ss(i->second);
@@ -402,25 +409,122 @@ namespace tl
                     p.video.avOutputPixelFormat = p.video.avInputPixelFormat;
                     videoInfo.pixelType = imaging::PixelType::RGBA_U8;
                     break;
-                /*case AV_PIX_FMT_YUV420P10BE:
+                case AV_PIX_FMT_YUV420P:
+                    if (p.yuvToRGBConversion)
+                    {
+                        p.video.avOutputPixelFormat = AV_PIX_FMT_RGB24;
+                        videoInfo.pixelType = imaging::PixelType::RGB_U8;
+                    }
+                    else
+                    {
+                        p.video.avOutputPixelFormat = p.video.avInputPixelFormat;
+                        videoInfo.pixelType = imaging::PixelType::YUV_420P_U8;
+                    }
+                    break;
+                case AV_PIX_FMT_YUV422P:
+                    if (p.yuvToRGBConversion)
+                    {
+                        p.video.avOutputPixelFormat = AV_PIX_FMT_RGB24;
+                        videoInfo.pixelType = imaging::PixelType::RGB_U8;
+                    }
+                    else
+                    {
+                        p.video.avOutputPixelFormat = p.video.avInputPixelFormat;
+                        videoInfo.pixelType = imaging::PixelType::YUV_422P_U8;
+                    }
+                    break;
+                case AV_PIX_FMT_YUV444P:
+                    if (p.yuvToRGBConversion)
+                    {
+                        p.video.avOutputPixelFormat = AV_PIX_FMT_RGB24;
+                        videoInfo.pixelType = imaging::PixelType::RGB_U8;
+                    }
+                    else
+                    {
+                        p.video.avOutputPixelFormat = p.video.avInputPixelFormat;
+                        videoInfo.pixelType = imaging::PixelType::YUV_444P_U8;
+                    }
+                    break;
+                case AV_PIX_FMT_YUV420P10BE:
                 case AV_PIX_FMT_YUV420P10LE:
+                case AV_PIX_FMT_YUV420P12BE:
+                case AV_PIX_FMT_YUV420P12LE:
+                case AV_PIX_FMT_YUV420P16BE:
+                case AV_PIX_FMT_YUV420P16LE:
+                    if (p.yuvToRGBConversion)
+                    {
+                        p.video.avOutputPixelFormat = AV_PIX_FMT_RGB48;
+                        videoInfo.pixelType = imaging::PixelType::RGB_U16;
+                    }
+                    else
+                    {
+                        //! \todo Use the videoInfo.layout.endian field instead of
+                        //! converting endianness.
+                        p.video.avOutputPixelFormat = AV_PIX_FMT_YUV420P16LE;
+                        videoInfo.pixelType = imaging::PixelType::YUV_420P_U16;
+                    }
+                    break;
                 case AV_PIX_FMT_YUV422P10BE:
                 case AV_PIX_FMT_YUV422P10LE:
+                case AV_PIX_FMT_YUV422P12BE:
+                case AV_PIX_FMT_YUV422P12LE:
+                case AV_PIX_FMT_YUV422P16BE:
+                case AV_PIX_FMT_YUV422P16LE:
+                    if (p.yuvToRGBConversion)
+                    {
+                        p.video.avOutputPixelFormat = AV_PIX_FMT_RGB48;
+                        videoInfo.pixelType = imaging::PixelType::RGB_U16;
+                    }
+                    else
+                    {
+                        //! \todo Use the videoInfo.layout.endian field instead of
+                        //! converting endianness.
+                        p.video.avOutputPixelFormat = AV_PIX_FMT_YUV422P16LE;
+                        videoInfo.pixelType = imaging::PixelType::YUV_422P_U16;
+                    }
+                    break;
                 case AV_PIX_FMT_YUV444P10BE:
                 case AV_PIX_FMT_YUV444P10LE:
                 case AV_PIX_FMT_YUV444P12BE:
                 case AV_PIX_FMT_YUV444P12LE:
-                    p.video.avOutputPixelFormat = AV_PIX_FMT_RGB48LE;
-                    videoInfo.pixelType = imaging::PixelType::RGB_U16;
-                    break;*/
+                case AV_PIX_FMT_YUV444P16BE:
+                case AV_PIX_FMT_YUV444P16LE:
+                    if (p.yuvToRGBConversion)
+                    {
+                        p.video.avOutputPixelFormat = AV_PIX_FMT_RGB48;
+                        videoInfo.pixelType = imaging::PixelType::RGB_U16;
+                    }
+                    else
+                    {
+                        //! \todo Use the videoInfo.layout.endian field instead of
+                        //! converting endianness.
+                        p.video.avOutputPixelFormat = AV_PIX_FMT_YUV444P16LE;
+                        videoInfo.pixelType = imaging::PixelType::YUV_444P_U16;
+                    }
+                    break;
                 default:
-                    p.video.avOutputPixelFormat = AV_PIX_FMT_YUV420P;
-                    videoInfo.pixelType = imaging::PixelType::YUV_420P;
+                    if (p.yuvToRGBConversion)
+                    {
+                        p.video.avOutputPixelFormat = AV_PIX_FMT_RGB24;
+                        videoInfo.pixelType = imaging::PixelType::RGB_U8;
+                    }
+                    else
+                    {
+                        p.video.avOutputPixelFormat = AV_PIX_FMT_YUV420P;
+                        videoInfo.pixelType = imaging::PixelType::YUV_420P_U8;
+                    }
                     break;
                 }
                 if (p.video.avCodecContext[p.video.avStream]->color_range != AVCOL_RANGE_JPEG)
                 {
                     videoInfo.yuvRange = imaging::YUVRange::Video;
+                }
+                switch (p.video.avCodecParameters[p.video.avStream]->color_space)
+                {
+                case AVCOL_PRI_BT2020:
+                    videoInfo.yuvCoefficients = imaging::YUVCoefficients::BT2020;
+                    break;
+                default: break;
                 }
 
                 std::size_t sequenceSize = 0;
@@ -609,10 +713,11 @@ namespace tl
 
                 switch (p.video.avInputPixelFormat)
                 {
-                case AV_PIX_FMT_YUV420P:
                 case AV_PIX_FMT_RGB24:
                 case AV_PIX_FMT_GRAY8:
-                case AV_PIX_FMT_RGBA: break;
+                case AV_PIX_FMT_RGBA:
+                case AV_PIX_FMT_YUV420P:
+                    break;
                 default:
                 {
                     p.video.avFrame2 = av_frame_alloc();
@@ -1082,6 +1187,33 @@ namespace tl
             const int linesize0 = video.avFrame->linesize[0];
             switch (avPixelFormat)
             {
+            case AV_PIX_FMT_RGB24:
+                for (std::size_t i = 0; i < h; ++i)
+                {
+                    std::memcpy(
+                        data + w * 3 * i,
+                        data0 + linesize0 * 3 * i,
+                        w * 3);
+                }
+                break;
+            case AV_PIX_FMT_GRAY8:
+                for (std::size_t i = 0; i < h; ++i)
+                {
+                    std::memcpy(
+                        data + w * i,
+                        data0 + linesize0 * i,
+                        w);
+                }
+                break;
+            case AV_PIX_FMT_RGBA:
+                for (std::size_t i = 0; i < h; ++i)
+                {
+                    std::memcpy(
+                        data + w * 4 * i,
+                        data0 + linesize0 * 4 * i,
+                        w * 4);
+                }
+                break;
             case AV_PIX_FMT_YUV420P:
             {
                 const std::size_t w2 = w / 2;
@@ -1110,33 +1242,6 @@ namespace tl
                 }
                 break;
             }
-            case AV_PIX_FMT_RGB24:
-                for (std::size_t i = 0; i < h; ++i)
-                {
-                    std::memcpy(
-                        data + w * 3 * i,
-                        data0 + linesize0 * 3 * i,
-                        w * 3);
-                }
-                break;
-            case AV_PIX_FMT_GRAY8:
-                for (std::size_t i = 0; i < h; ++i)
-                {
-                    std::memcpy(
-                        data + w * i,
-                        data0 + linesize0 * i,
-                        w);
-                }
-                break;
-            case AV_PIX_FMT_RGBA:
-                for (std::size_t i = 0; i < h; ++i)
-                {
-                    std::memcpy(
-                        data + w * 4 * i,
-                        data0 + linesize0 * 4 * i,
-                        w * 4);
-                }
-                break;
             default:
             {
                 av_image_fill_arrays(

@@ -49,11 +49,11 @@ namespace tl
         //! Swap the numerator and denominator.
         AVRational swap(AVRational);
 
-        //! Convert to FFmpeg channel layout.
-        int64_t fromChannelCount(uint8_t);
-
         //! Convert to HDR data.
         void toHDRData(AVFrameSideData**, int size, imaging::HDRData&);
+
+        //! Convert to FFmpeg channel layout.
+        int64_t fromChannelCount(uint8_t);
 
         //! Convert from FFmpeg.
         audio::DataType toAudioType(AVSampleFormat);

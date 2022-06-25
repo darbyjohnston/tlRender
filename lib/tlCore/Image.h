@@ -84,7 +84,13 @@ namespace tl
             RGBA_F16,
             RGBA_F32,
 
-            YUV_420P,
+            YUV_420P_U8,
+            YUV_422P_U8,
+            YUV_444P_U8,
+
+            YUV_420P_U16,
+            YUV_422P_U16,
+            YUV_444P_U16,
 
             Count,
             First = None
@@ -115,20 +121,35 @@ namespace tl
         const math::Range<F32_T> F32Range(0.F, 1.F);
 
         //! YUV value range.
-        //! 
+        //!
         //! References:
+        //! - https://en.wikipedia.org/wiki/YUV
         //! - https://trac.ffmpeg.org/wiki/colorspace
-        //! - https://web.archive.org/web/20180423091842/http://www.equasys.de/colorconversion.html
         enum class YUVRange
         {
-            Full,  //!< 0-255
-            Video, //!< 16-240 (Y) and 16-235 (Cb/Cr)
+            Full,
+            Video,
 
             Count,
             First = Full
         };
         TLRENDER_ENUM(YUVRange);
         TLRENDER_ENUM_SERIALIZE(YUVRange);
+
+        //! YUV coefficients.
+        enum class YUVCoefficients
+        {
+            REC709,
+            BT2020,
+
+            Count,
+            First = REC709
+        };
+        TLRENDER_ENUM(YUVCoefficients);
+        TLRENDER_ENUM_SERIALIZE(YUVCoefficients);
+
+        //! Get YUV coefficients.
+        math::Vector4f getYUVCoefficients(YUVCoefficients) noexcept;
 
         //! 10-bit MSB pixel data.
         struct U10_MSB
@@ -202,7 +223,7 @@ namespace tl
 
             Mirror         mirror;
             uint8_t        alignment = 1;
-            memory::Endian endian = memory::getEndian();
+            memory::Endian endian    = memory::getEndian();
 
             bool operator == (const Layout&) const noexcept;
             bool operator != (const Layout&) const noexcept;
@@ -216,12 +237,13 @@ namespace tl
             explicit Info(const Size&, PixelType);
             explicit Info(uint16_t w, uint16_t h, PixelType);
 
-            std::string name = "Default";
-            Size        size;
-            float       pixelAspectRatio = 1.F;
-            PixelType   pixelType = PixelType::None;
-            YUVRange    yuvRange = YUVRange::Full;
-            Layout      layout;
+            std::string     name             = "Default";
+            Size            size;
+            float           pixelAspectRatio = 1.F;
+            PixelType       pixelType        = PixelType::None;
+            YUVRange        yuvRange         = YUVRange::Full;
+            YUVCoefficients yuvCoefficients  = YUVCoefficients::REC709;
+            Layout          layout;
 
             //! Is the information valid?
             bool isValid() const;

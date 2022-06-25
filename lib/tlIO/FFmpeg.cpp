@@ -43,20 +43,6 @@ namespace tl
             return AVRational({ value.den, value.num });
         }
 
-        int64_t fromChannelCount(uint8_t value)
-        {
-            int64_t out = 0;
-            switch (value)
-            {
-            case 1: out = AV_CH_LAYOUT_MONO; break;
-            case 2: out = AV_CH_LAYOUT_STEREO; break;
-            case 6: out = AV_CH_LAYOUT_5POINT1; break;
-            case 7: out = AV_CH_LAYOUT_6POINT1; break;
-            case 8: out = AV_CH_LAYOUT_7POINT1; break;
-            }
-            return out;
-        }
-
         void toHDRData(AVFrameSideData** sideData, int size, imaging::HDRData& hdr)
         {
             for (int i = 0; i < size; ++i)
@@ -86,6 +72,20 @@ namespace tl
                 default: break;
                 }
             }
+        }
+
+        int64_t fromChannelCount(uint8_t value)
+        {
+            int64_t out = 0;
+            switch (value)
+            {
+            case 1: out = AV_CH_LAYOUT_MONO; break;
+            case 2: out = AV_CH_LAYOUT_STEREO; break;
+            case 6: out = AV_CH_LAYOUT_5POINT1; break;
+            case 7: out = AV_CH_LAYOUT_6POINT1; break;
+            case 8: out = AV_CH_LAYOUT_7POINT1; break;
+            }
+            return out;
         }
 
         audio::DataType toAudioType(AVSampleFormat value)
@@ -194,10 +194,13 @@ namespace tl
             case imaging::PixelType::L_U8:
             case imaging::PixelType::RGB_U8:
             case imaging::PixelType::RGBA_U8:
+            case imaging::PixelType::YUV_420P_U8:
+            case imaging::PixelType::YUV_422P_U8:
+            case imaging::PixelType::YUV_444P_U8:
+            case imaging::PixelType::YUV_420P_U16:
+            case imaging::PixelType::YUV_422P_U16:
+            case imaging::PixelType::YUV_444P_U16:
                 out.pixelType = info.pixelType;
-                break;
-            case imaging::PixelType::YUV_420P:
-                out.pixelType = imaging::PixelType::RGB_U8;
                 break;
             default: break;
             }

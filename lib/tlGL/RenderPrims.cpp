@@ -165,12 +165,18 @@ namespace tl
             default: break;
             }
             p.imageShader->setUniform("yuvRange", static_cast<int>(yuvRange));
+            p.imageShader->setUniform("yuvCoefficients", imaging::getYUVCoefficients(info.yuvCoefficients));
             p.imageShader->setUniform("imageChannels", imaging::getChannelCount(info.pixelType));
             p.imageShader->setUniform("flipX", info.layout.mirror.x);
             p.imageShader->setUniform("flipY", info.layout.mirror.y);
             switch (info.pixelType)
             {
-            case imaging::PixelType::YUV_420P:
+            case imaging::PixelType::YUV_420P_U8:
+            case imaging::PixelType::YUV_422P_U8:
+            case imaging::PixelType::YUV_444P_U8:
+            case imaging::PixelType::YUV_420P_U16:
+            case imaging::PixelType::YUV_422P_U16:
+            case imaging::PixelType::YUV_444P_U16:
                 p.imageShader->setUniform("textureSampler1", 1);
                 p.imageShader->setUniform("textureSampler2", 2);
             default:

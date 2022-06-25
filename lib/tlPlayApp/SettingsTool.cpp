@@ -200,6 +200,7 @@ namespace tl
             QSpinBox* videoRequestCountSpinBox = nullptr;
             QSpinBox* audioRequestCountSpinBox = nullptr;
             QSpinBox* sequenceThreadCountSpinBox = nullptr;
+            QCheckBox* ffmpegYUVToRGBConversionCheckBox = nullptr;
             QSpinBox* ffmpegThreadCountSpinBox = nullptr;
         };
 
@@ -230,6 +231,8 @@ namespace tl
             p.sequenceThreadCountSpinBox = new QSpinBox;
             p.sequenceThreadCountSpinBox->setRange(1, 64);
 
+            p.ffmpegYUVToRGBConversionCheckBox = new QCheckBox;
+
             p.ffmpegThreadCountSpinBox = new QSpinBox;
             p.ffmpegThreadCountSpinBox->setRange(0, 64);
 
@@ -242,6 +245,7 @@ namespace tl
             layout->addRow(tr("Video requests:"), p.videoRequestCountSpinBox);
             layout->addRow(tr("Audio requests:"), p.audioRequestCountSpinBox);
             layout->addRow(tr("Sequence I/O threads:"), p.sequenceThreadCountSpinBox);
+            layout->addRow(tr("FFmpeg YUV to RGB conversion:"), p.ffmpegYUVToRGBConversionCheckBox);
             layout->addRow(tr("FFmpeg I/O threads:"), p.ffmpegThreadCountSpinBox);
             setLayout(layout);
 
@@ -255,6 +259,8 @@ namespace tl
                 settingsObject->value("Performance/AudioRequestCount").toInt());
             p.sequenceThreadCountSpinBox->setValue(
                 settingsObject->value("Performance/SequenceThreadCount").toInt());
+            p.ffmpegYUVToRGBConversionCheckBox->setChecked(
+                settingsObject->value("Performance/FFmpegYUVToRGBConversion").toBool());
             p.ffmpegThreadCountSpinBox->setValue(
                 settingsObject->value("Performance/FFmpegThreadCount").toInt());
 
@@ -299,6 +305,14 @@ namespace tl
                 });
 
             connect(
+                p.ffmpegYUVToRGBConversionCheckBox,
+                &QCheckBox::toggled,
+                [settingsObject](bool value)
+                {
+                    settingsObject->setValue("Performance/FFmpegYUVToRGBConversion", value);
+                });
+
+            connect(
                 p.ffmpegThreadCountSpinBox,
                 QOverload<int>::of(&QSpinBox::valueChanged),
                 [settingsObject](int value)
@@ -335,6 +349,11 @@ namespace tl
                     {
                         QSignalBlocker signalBlocker(_p->sequenceThreadCountSpinBox);
                         _p->sequenceThreadCountSpinBox->setValue(value.toInt());
+                    }
+                    else if (name == "Performance/FFmpegYUVToRGBConversion")
+                    {
+                        QSignalBlocker signalBlocker(_p->ffmpegYUVToRGBConversionCheckBox);
+                        _p->ffmpegYUVToRGBConversionCheckBox->setChecked(value.toInt());
                     }
                     else if (name == "Performance/FFmpegThreadCount")
                     {

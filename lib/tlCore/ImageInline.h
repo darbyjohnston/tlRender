@@ -132,6 +132,7 @@ namespace tl
                 pixelAspectRatio == other.pixelAspectRatio &&
                 pixelType == other.pixelType &&
                 yuvRange == other.yuvRange &&
+                yuvCoefficients == other.yuvCoefficients &&
                 layout == other.layout;
         }
 

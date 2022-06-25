@@ -101,10 +101,10 @@ int main(int argc, char* argv[])
         observer::CallbackAction::Suppress);
 
     std::vector<std::shared_ptr<tests::ITest> > tests;
-    if (1)
+    if (0)
     {
 #if defined(FFmpeg_FOUND)
-        tests.push_back(io_tests::FFmpegTest::create(context));
+        tests.push_back(io_tests::PPMTest::create(context));
 #endif
     }
     else
