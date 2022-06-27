@@ -39,10 +39,19 @@ namespace tl
         //! I/O information.
         struct Info
         {
-            std::vector<imaging::Info>         video;
-            otime::TimeRange                   videoTime = time::invalidTimeRange;
-            audio::Info                        audio;
-            otime::TimeRange                   audioTime = time::invalidTimeRange;
+            //! Video layer information.
+            std::vector<imaging::Info> video;
+
+            //! Video time range.
+            otime::TimeRange videoTime = time::invalidTimeRange;
+
+            //! Audio information.
+            audio::Info audio;
+
+            //! Audio time range.
+            otime::TimeRange audioTime = time::invalidTimeRange;
+
+            //! Metadata tags.
             std::map<std::string, std::string> tags;
 
             bool operator == (const Info&) const;

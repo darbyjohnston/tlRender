@@ -34,81 +34,11 @@ namespace tl
             p.info = value;
             beginResetModel();
             p.items.clear();
-            if (!value.video.empty())
+            for (const auto& i : p.info.tags)
             {
-                {
-                    std::stringstream ss;
-                    ss << p.info.video[0].size;
-                    p.items.push_back(QPair<QString, QString>("Video Resolution", QString::fromUtf8(ss.str().c_str())));
-                }
-                {
-                    std::stringstream ss;
-                    ss.precision(2);
-                    ss << std::fixed;
-                    ss << p.info.video[0].pixelAspectRatio;
-                    p.items.push_back(QPair<QString, QString>("Video Pixel Aspect Ratio", QString::fromUtf8(ss.str().c_str())));
-                }
-                {
-                    std::stringstream ss;
-                    ss << p.info.video[0].pixelType;
-                    p.items.push_back(QPair<QString, QString>("Video Pixel Type", QString::fromUtf8(ss.str().c_str())));
-                }
-                {
-                    std::stringstream ss;
-                    ss << p.info.video[0].yuvRange;
-                    p.items.push_back(QPair<QString, QString>("Video YUV Range", QString::fromUtf8(ss.str().c_str())));
-                }
-                {
-                    std::stringstream ss;
-                    ss << p.info.video[0].layout.mirror.x;
-                    p.items.push_back(QPair<QString, QString>("Video Mirror X", QString::fromUtf8(ss.str().c_str())));
-                }
-                {
-                    std::stringstream ss;
-                    ss << p.info.video[0].layout.mirror.y;
-                    p.items.push_back(QPair<QString, QString>("Video Mirror Y", QString::fromUtf8(ss.str().c_str())));
-                }
-                {
-                    std::stringstream ss;
-                    ss << static_cast<int>(p.info.video[0].layout.alignment);
-                    p.items.push_back(QPair<QString, QString>("Video Alignment", QString::fromUtf8(ss.str().c_str())));
-                }
-                {
-                    std::stringstream ss;
-                    ss << p.info.video[0].layout.endian;
-                    p.items.push_back(QPair<QString, QString>("Video Endian", QString::fromUtf8(ss.str().c_str())));
-                }
-                {
-                    std::stringstream ss;
-                    ss << p.info.videoTime;
-                    p.items.push_back(QPair<QString, QString>("Video Time", QString::fromUtf8(ss.str().c_str())));
-                }
-                {
-                    std::stringstream ss;
-                    ss << static_cast<int>(p.info.audio.channelCount);
-                    p.items.push_back(QPair<QString, QString>("Audio Channels", QString::fromUtf8(ss.str().c_str())));
-                }
-                {
-                    std::stringstream ss;
-                    ss << p.info.audio.dataType;
-                    p.items.push_back(QPair<QString, QString>("Audio Type", QString::fromUtf8(ss.str().c_str())));
-                }
-                {
-                    std::stringstream ss;
-                    ss << p.info.audio.sampleRate;
-                    p.items.push_back(QPair<QString, QString>("Audio Sample Rate", QString::fromUtf8(ss.str().c_str())));
-                }
-                {
-                    std::stringstream ss;
-                    ss << p.info.audioTime;
-                    p.items.push_back(QPair<QString, QString>("Audio Time", QString::fromUtf8(ss.str().c_str())));
-                }
-                for (const auto& i : p.info.tags)
-                {
-                    p.items.push_back(QPair<QString, QString>(
-                        QString::fromUtf8(i.first.c_str()),
-                        QString::fromUtf8(i.second.c_str())));
-                }
+                p.items.push_back(QPair<QString, QString>(
+                    QString::fromUtf8(i.first.c_str()),
+                    QString::fromUtf8(i.second.c_str())));
             }
             endResetModel();
         }
