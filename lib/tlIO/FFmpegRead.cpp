@@ -552,6 +552,45 @@ namespace tl
 
                 p.videoTime = otime::RationalTime(0.0, speed);
 
+                {
+                    std::stringstream ss;
+                    ss << videoInfo.size.w << " " << videoInfo.size.h;
+                    p.info.tags["Video Resolution"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss.precision(2);
+                    ss << std::fixed;
+                    ss << videoInfo.pixelAspectRatio;
+                    p.info.tags["Video Pixel Aspect Ratio"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss << videoInfo.pixelType;
+                    p.info.tags["Video Pixel Type"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss << videoInfo.yuvRange;
+                    p.info.tags["Video YUV Range"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss << p.info.videoTime.start_time().to_timecode();
+                    p.info.tags["Video Start Time"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss << p.info.videoTime.duration().to_timecode();
+                    p.info.tags["Video Duration"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss.precision(2);
+                    ss << std::fixed;
+                    ss << p.info.videoTime.start_time().rate() << " FPS";
+                    p.info.tags["Video Speed"] = ss.str();
+                }
                 AVDictionaryEntry* tag = nullptr;
                 while ((tag = av_dict_get(p.video.avFormatContext->metadata, "", tag, AV_DICT_IGNORE_SUFFIX)))
                 {
@@ -632,8 +671,8 @@ namespace tl
                     throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
                 }
 
-                size_t channelCount = p.audio.avCodecParameters[p.audio.avStream]->channels;
-                switch (channelCount)
+                const size_t fileChannelCount = p.audio.avCodecParameters[p.audio.avStream]->channels;
+                switch (fileChannelCount)
                 {
                 case 1:
                 case 2:
@@ -644,13 +683,17 @@ namespace tl
                     throw std::runtime_error(string::Format("{0}: Unsupported audio channels").arg(fileName));
                     break;
                 }
-                audio::DataType dataType = toAudioType(static_cast<AVSampleFormat>(
+                const audio::DataType fileDataType = toAudioType(static_cast<AVSampleFormat>(
                     p.audio.avCodecParameters[p.audio.avStream]->format));
-                if (audio::DataType::None == dataType)
+                if (audio::DataType::None == fileDataType)
                 {
                     throw std::runtime_error(string::Format("{0}: Unsupported audio format").arg(fileName));
                 }
-                size_t sampleRate = p.audio.avCodecParameters[p.audio.avStream]->sample_rate;
+                const size_t fileSampleRate = p.audio.avCodecParameters[p.audio.avStream]->sample_rate;
+
+                size_t channelCount = fileChannelCount;
+                audio::DataType dataType = fileDataType;
+                size_t sampleRate = fileSampleRate;
                 if (p.audioConvertInfo.isValid())
                 {
                     channelCount = p.audioConvertInfo.channelCount;
@@ -689,6 +732,37 @@ namespace tl
 
                 p.audioTime = otime::RationalTime(0.0, sampleRate);
 
+                {
+                    std::stringstream ss;
+                    ss << static_cast<int>(fileChannelCount);
+                    p.info.tags["Audio Channels"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss << fileDataType;
+                    p.info.tags["Audio Data Type"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss.precision(1);
+                    ss << std::fixed;
+                    ss << fileSampleRate / 1000.F << " kHz";
+                    p.info.tags["Audio Sample Rate"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss.precision(2);
+                    ss << std::fixed;
+                    ss << p.info.audioTime.start_time().rescaled_to(1.0).value() << " seconds";
+                    p.info.tags["Audio Start Time"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss.precision(2);
+                    ss << std::fixed;
+                    ss << p.info.audioTime.duration().rescaled_to(1.0).value() << " seconds";
+                    p.info.tags["Audio Duration"] = ss.str();
+                }
                 AVDictionaryEntry* tag = nullptr;
                 while ((tag = av_dict_get(p.audio.avFormatContext->metadata, "", tag, AV_DICT_IGNORE_SUFFIX)))
                 {

@@ -19,50 +19,6 @@ namespace tl
 
     namespace play
     {
-        //! Video information model.
-        class VideoInfoModel : public QAbstractTableModel
-        {
-            Q_OBJECT
-
-        public:
-            VideoInfoModel(QObject* parent = nullptr);
-
-            ~VideoInfoModel() override;
-
-            //! Set the information.
-            void setInfo(const io::Info&);
-
-            int rowCount(const QModelIndex& parent = QModelIndex()) const override;
-            int columnCount(const QModelIndex& parent = QModelIndex()) const override;
-            QVariant data(const QModelIndex&, int role = Qt::DisplayRole) const override;
-            QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
-
-        private:
-            TLRENDER_PRIVATE();
-        };
-
-        //! Audio information model.
-        class AudioInfoModel : public QAbstractTableModel
-        {
-            Q_OBJECT
-
-        public:
-            AudioInfoModel(QObject* parent = nullptr);
-
-            ~AudioInfoModel() override;
-
-            //! Set the information.
-            void setInfo(const io::Info&);
-
-            int rowCount(const QModelIndex& parent = QModelIndex()) const override;
-            int columnCount(const QModelIndex& parent = QModelIndex()) const override;
-            QVariant data(const QModelIndex&, int role = Qt::DisplayRole) const override;
-            QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
-
-        private:
-            TLRENDER_PRIVATE();
-        };
-
         //! Tags model.
         class TagsModel : public QAbstractTableModel
         {
