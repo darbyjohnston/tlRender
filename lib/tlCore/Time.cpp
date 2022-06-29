@@ -15,6 +15,11 @@ namespace tl
 {
     namespace time
     {
+        otime::RationalTime round(const otime::RationalTime& value)
+        {
+            return otime::RationalTime(std::round(value.value()), value.rate());
+        }
+
         otime::RationalTime floor(const otime::RationalTime& value)
         {
             return otime::RationalTime(std::floor(value.value()), value.rate());

@@ -1471,8 +1471,8 @@ namespace tl
                     otio::ErrorStatus errorStatus;
                     const auto clipTime = track->transformed_time(time, clip, &errorStatus);
                     const auto readTime = clipTime.rescaled_to(j->second.info.videoTime.duration().rate());
-                    const auto floorTime = time::floor(readTime);
-                    out = j->second.read->readVideo(floorTime, videoLayer);
+                    const auto roundedTime = time::round(readTime);
+                    out = j->second.read->readVideo(roundedTime, videoLayer);
                 }
             }
             return out;
@@ -1491,10 +1491,10 @@ namespace tl
                 {
                     otio::ErrorStatus errorStatus;
                     const auto clipRange = track->transformed_time_range(timeRange, clip, &errorStatus);
-                    const auto floorRange = otime::TimeRange(
-                        time::floor(clipRange.start_time().rescaled_to(ioInfo.audio.sampleRate)),
-                        time::floor(clipRange.duration().rescaled_to(ioInfo.audio.sampleRate)));
-                    out = j->second.read->readAudio(floorRange);
+                    const auto roundedRange = otime::TimeRange(
+                        time::round(clipRange.start_time().rescaled_to(ioInfo.audio.sampleRate)),
+                        time::round(clipRange.duration().rescaled_to(ioInfo.audio.sampleRate)));
+                    out = j->second.read->readAudio(roundedRange);
                 }
             }
             return out;

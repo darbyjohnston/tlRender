@@ -61,6 +61,7 @@ namespace tl
                 int avStream = -1;
                 std::map<int, AVCodecParameters*> avCodecParameters;
                 std::map<int, AVCodecContext*> avCodecContext;
+                otime::RationalTime timeOffset = time::invalidTime;
                 AVFrame* avFrame = nullptr;
                 AVFrame* avFrame2 = nullptr;
                 SwsContext* swsContext = nullptr;
@@ -212,6 +213,10 @@ namespace tl
             TLRENDER_P();
             auto request = std::make_shared<Private::VideoRequest>();
             request->time = time;
+            if (p.video.timeOffset != time::invalidTime)
+            {
+                request->time -= p.video.timeOffset;
+            }
             auto future = request->promise.get_future();
             bool valid = false;
             {
@@ -447,12 +452,10 @@ namespace tl
                         swap(avVideoStream->r_frame_rate));
                 }
                 p.info.video.push_back(videoInfo);
-                const float speed = avVideoStream->r_frame_rate.num / double(avVideoStream->r_frame_rate.den);
+                const double speed = avVideoStream->r_frame_rate.num / double(avVideoStream->r_frame_rate.den);
                 p.info.videoTime = otime::TimeRange(
                     otime::RationalTime(0.0, speed),
-                    otime::RationalTime(
-                        sequenceSize,
-                        avVideoStream->r_frame_rate.num / double(avVideoStream->r_frame_rate.den)));
+                    otime::RationalTime(sequenceSize, speed));
 
                 p.videoTime = otime::RationalTime(0.0, speed);
 
@@ -498,7 +501,21 @@ namespace tl
                 AVDictionaryEntry* tag = nullptr;
                 while ((tag = av_dict_get(p.video.avFormatContext->metadata, "", tag, AV_DICT_IGNORE_SUFFIX)))
                 {
-                    p.info.tags[tag->key] = tag->value;
+                    const std::string key(tag->key);
+                    const std::string value(tag->value);
+                    p.info.tags[key] = value;
+                    if (string::compareNoCase(key, "timecode"))
+                    {
+                        otime::ErrorStatus errorStatus;
+                        const otime::RationalTime time = otime::RationalTime::from_timecode(
+                            value,
+                            speed,
+                            &errorStatus);
+                        if (!otime::is_error(errorStatus))
+                        {
+                            p.video.timeOffset = time;
+                        }
+                    }
                 }
             }
 
@@ -779,10 +796,10 @@ namespace tl
 
                 if (videoRequest)
                 {
-                    //std::cout << "video request: " << videoRequest->time << std::endl;
+                    //std::cout << this << " video request: " << videoRequest->time << std::endl;
                     if (videoRequest->time != p.videoTime)
                     {
-                        //std::cout << "video seek: " << videoRequest->time << std::endl;
+                        //std::cout << this << " video seek: " << videoRequest->time << std::endl;
                         p.videoTime = videoRequest->time;
                         if (p.video.avStream != -1)
                         {

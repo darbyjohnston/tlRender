@@ -28,6 +28,9 @@ namespace tl
         //! Invalid time range.
         const otime::TimeRange invalidTimeRange(invalidTime, invalidTime);
 
+        //! Round the given time.
+        otime::RationalTime round(const otime::RationalTime&);
+
         //! Round the given time downward.
         otime::RationalTime floor(const otime::RationalTime&);
 

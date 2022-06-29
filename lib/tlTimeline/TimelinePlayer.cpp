@@ -774,7 +774,8 @@ namespace tl
                     {
                         if (auto player = weak.lock())
                         {
-                            player->_p->currentTime->setIfChanged(time::floor(value.rescaled_to(player->getDuration().rate())));
+                            player->_p->currentTime->setIfChanged(
+                                time::round(value.rescaled_to(player->getDuration().rate())));
                         }
                     });
             }
@@ -999,7 +1000,7 @@ namespace tl
                     seconds = -seconds;
                 }
                 const otime::RationalTime currentTime = p.loopPlayback(
-                    playbackStartTime + time::floor(otime::RationalTime(seconds, 1.0).rescaled_to(duration.rate())));
+                    playbackStartTime + time::round(otime::RationalTime(seconds, 1.0).rescaled_to(duration.rate())));
                 const double currentTimeDiff = abs(currentTime.value() - p.currentTime->get().value());
                 if (p.currentTime->setIfChanged(currentTime))
                 {
@@ -1138,15 +1139,15 @@ namespace tl
             const otime::RationalTime& globalStartTime = timeline->getGlobalStartTime();
             const otime::RationalTime& duration = timeline->getDuration();
             const otime::RationalTime audioOffsetRescaled =
-                time::floor(otime::RationalTime(audioOffset, 1.0).rescaled_to(duration.rate()));
+                time::round(otime::RationalTime(audioOffset, 1.0).rescaled_to(duration.rate()));
             const otime::RationalTime audioOffsetAhead =
                 audioOffsetRescaled.value() < 0.0 ? -audioOffsetRescaled : otime::RationalTime(0.0, duration.rate());
             const otime::RationalTime audioOffsetBehind =
                 audioOffsetRescaled.value() > 0.0 ? audioOffsetRescaled : otime::RationalTime(0.0, duration.rate());
             const otime::RationalTime cacheReadAheadRescaled =
-                time::floor(cacheReadAhead.rescaled_to(duration.rate()));
+                time::round(cacheReadAhead.rescaled_to(duration.rate()));
             const otime::RationalTime cacheReadBehindRescaled =
-                time::floor(cacheReadBehind.rescaled_to(duration.rate()));
+                time::round(cacheReadBehind.rescaled_to(duration.rate()));
             otime::TimeRange range = time::invalidTimeRange;
             switch (cacheDirection)
             {
