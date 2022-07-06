@@ -1465,7 +1465,7 @@ namespace tl
                             std::vector<const uint8_t*> audioDataP;
                             for (size_t j = 0; j < audioData.size(); ++j)
                             {
-                                if (j > 0 ? audioData[j]->getInfo() == audioData[0]->getInfo() : true)
+                                if (audioData[j] && audioData[j]->getInfo() == p->ioInfo.audio)
                                 {
                                     audioDataP.push_back(audioData[j]->getData() + offset * byteCount);
                                 }
