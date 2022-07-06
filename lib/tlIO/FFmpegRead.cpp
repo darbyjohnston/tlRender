@@ -75,6 +75,7 @@ namespace tl
                 int avStream = -1;
                 std::map<int, AVCodecParameters*> avCodecParameters;
                 std::map<int, AVCodecContext*> avCodecContext;
+                otime::RationalTime timeOffset = time::invalidTime;
                 AVFrame* avFrame = nullptr;
                 SwrContext* swrContext = nullptr;
                 std::list<std::shared_ptr<audio::Audio> > buffer;
@@ -243,6 +244,12 @@ namespace tl
             TLRENDER_P();
             auto request = std::make_shared<Private::AudioRequest>();
             request->time = time;
+            if (p.audio.timeOffset != time::invalidTime)
+            {
+                request->time = otime::TimeRange(
+                    request->time.start_time() - p.audio.timeOffset,
+                    request->time.duration());
+            }
             auto future = request->promise.get_future();
             bool valid = false;
             {
@@ -681,7 +688,21 @@ namespace tl
                 AVDictionaryEntry* tag = nullptr;
                 while ((tag = av_dict_get(p.audio.avFormatContext->metadata, "", tag, AV_DICT_IGNORE_SUFFIX)))
                 {
-                    p.info.tags[tag->key] = tag->value;
+                    const std::string key(tag->key);
+                    const std::string value(tag->value);
+                    p.info.tags[key] = value;
+                    if (string::compareNoCase(key, "timecode"))
+                    {
+                        otime::ErrorStatus errorStatus;
+                        const otime::RationalTime time = otime::RationalTime::from_timecode(
+                            value,
+                            p.videoTime.rate(),
+                            &errorStatus);
+                        if (!otime::is_error(errorStatus))
+                        {
+                            p.audio.timeOffset = time::round(time.rescaled_to(sampleRate));
+                        }
+                    }
                 }
             }
 
