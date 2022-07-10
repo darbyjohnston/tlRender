@@ -468,7 +468,7 @@ namespace tl
                         if (!otime::is_error(errorStatus))
                         {
                             startTime = time::floor(time.rescaled_to(speed));
-                            std::cout << "start time: " << startTime << std::endl;
+                            //std::cout << "start time: " << startTime << std::endl;
                         }
                     }
                 }
@@ -661,7 +661,7 @@ namespace tl
                         if (!otime::is_error(errorStatus))
                         {
                             startTime = time::floor(time.rescaled_to(sampleRate));
-                            std::cout << "start time: " << startTime << std::endl;
+                            //std::cout << "start time: " << startTime << std::endl;
                         }
                     }
                 }
