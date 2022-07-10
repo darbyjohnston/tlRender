@@ -1456,7 +1456,7 @@ namespace tl
                         }
 
                         size_t size = sampleCount;
-                        if (!audioData.empty())
+                        if (!audioData.empty() && audioData[0])
                         {
                             // Get pointers to the audio data. Only audio data
                             // that has the same information (channels, data
@@ -1464,7 +1464,7 @@ namespace tl
                             std::vector<const uint8_t*> audioDataP;
                             for (size_t j = 0; j < audioData.size(); ++j)
                             {
-                                if (j > 0 ? audioData[j]->getInfo() == audioData[0]->getInfo() : true)
+                                if (audioData[j] && audioData[j]->getInfo() == p->ioInfo.audio)
                                 {
                                     audioDataP.push_back(audioData[j]->getData() + offset * byteCount);
                                 }
