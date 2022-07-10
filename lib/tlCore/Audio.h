@@ -183,7 +183,7 @@ namespace tl
         void mix(
             const uint8_t** in,
             size_t          inCount,
-            uint8_t* out,
+            uint8_t*        out,
             float           volume,
             size_t          sampleCount,
             uint8_t         channelCount,
