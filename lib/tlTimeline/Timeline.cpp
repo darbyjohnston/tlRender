@@ -572,14 +572,13 @@ namespace tl
                     otio::ErrorStatus errorStatus;
                     if (!info.video.empty())
                     {
-                        globalStartTime = otime::RationalTime(0.0, info.videoTime.duration().rate());
+                        globalStartTime = info.videoTime.start_time();
                         auto videoClip = new otio::Clip;
                         videoClip->set_source_range(info.videoTime);
                         isSequence = io::FileType::Sequence == ioSystem->getFileType(path.getExtension()) &&
                             !path.getNumber().empty();
                         if (isSequence)
                         {
-                            globalStartTime = info.videoTime.start_time();
                             videoClip->set_media_reference(new otio::ImageSequenceReference(
                                 path.getDirectory(),
                                 path.getBaseName(),
