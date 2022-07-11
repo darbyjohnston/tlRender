@@ -1157,12 +1157,12 @@ namespace tl
                 break;
             default: break;
             }
-            //std::cout << "video range: " << videoRange << std::endl;
             //std::cout << "in out range: " << inOutRange << std::endl;
+            //std::cout << "video range: " << videoRange << std::endl;
             const auto videoRanges = timeline::loop(videoRange, inOutRange);
             //for (const auto& i : videoRanges)
             //{
-            //    std::cout << "video range: " << i << std::endl;
+            //    std::cout << "video ranges: " << i << std::endl;
             //}
 
             // Get the audio ranges to be cached.
@@ -1193,19 +1193,20 @@ namespace tl
             //std::cout << "audio range: " << audioRange << std::endl;
             const otime::TimeRange totalRange(globalStartTime, duration);
             //std::cout << "total range: " << totalRange << std::endl;
-            const otime::TimeRange inOutAudioRange = otime::TimeRange(
+            const otime::TimeRange inOutAudioRange = otime::TimeRange::range_from_start_end_time_inclusive(
                 inOutRange.start_time() - audioOffsetBehind,
-                inOutRange.duration() + audioOffsetAhead).
+                inOutRange.end_time_inclusive() + audioOffsetAhead).
                     clamped(totalRange);
             //std::cout << "in out audio range: " << inOutAudioRange << std::endl;
             const auto audioRanges = timeline::loop(audioRange, inOutAudioRange);
             std::vector<otime::TimeRange> audioCacheRanges;
             for (const auto& i : audioRanges)
             {
-                const otime::TimeRange range(
+                const otime::TimeRange range = otime::TimeRange::range_from_start_end_time_inclusive(
                     time::floor(i.start_time().rescaled_to(1.0)),
-                    time::ceil(i.duration().rescaled_to(1.0)));
-                //std::cout << "audio range: " << range << std::endl;
+                    time::ceil(i.end_time_inclusive().rescaled_to(1.0)));
+                //std::cout << "audio ranges: " << range.start_time() <<  " " <<
+                //    range.end_time_inclusive() << std::endl;
                 audioCacheRanges.push_back(range);
             }
             //std::cout << std::endl;
@@ -1287,7 +1288,7 @@ namespace tl
                 std::unique_lock<std::mutex> lock(audioMutex);
                 for (const auto& i : audioCacheRanges)
                 {
-                    for (auto j = i.start_time(); j <= i.end_time_inclusive(); j += otime::RationalTime(1.0, 1.0))
+                    for (auto j = i.start_time(); j < i.end_time_inclusive(); j += otime::RationalTime(1.0, 1.0))
                     {
                         const int64_t time = j.value();
                         const auto k = audioMutexData.audioDataCache.find(time);
@@ -1357,7 +1358,9 @@ namespace tl
             auto cachedAudioRanges = toRanges(cachedAudioFrames);
             for (auto& i : cachedAudioRanges)
             {
-                i = otime::TimeRange(i.start_time().rescaled_to(duration.rate()), i.duration().rescaled_to(duration.rate()));
+                i = otime::TimeRange(
+                    time::floor(i.start_time().rescaled_to(duration.rate())),
+                    time::ceil(i.duration().rescaled_to(duration.rate())));
             }
             {
                 std::unique_lock<std::mutex> lock(mutex);
