@@ -574,14 +574,13 @@ namespace tl
                     otio::ErrorStatus errorStatus;
                     if (!info.video.empty())
                     {
-                        globalStartTime = otime::RationalTime(0.0, info.videoTime.duration().rate());
+                        globalStartTime = info.videoTime.start_time();
                         auto videoClip = new otio::Clip;
                         videoClip->set_source_range(info.videoTime);
                         isSequence = io::FileType::Sequence == ioSystem->getFileType(path.getExtension()) &&
                             !path.getNumber().empty();
                         if (isSequence)
                         {
-                            globalStartTime = info.videoTime.start_time();
                             videoClip->set_media_reference(new otio::ImageSequenceReference(
                                 path.getDirectory(),
                                 path.getBaseName(),
@@ -1258,10 +1257,9 @@ namespace tl
                         {
                             if (auto otioItem = dynamic_cast<otio::Item*>(otioChild.value))
                             {
-                                const otime::RationalTime time = otime::RationalTime(request->seconds, 1.0) - globalStartTime.rescaled_to(1.0);
-                                const otime::TimeRange timeRange = otime::TimeRange::range_from_start_end_time(
-                                    std::max(otime::RationalTime(0.0, 1.0), time),
-                                    std::max(otime::RationalTime(0.0, 1.0), time + otime::RationalTime(1.0, 1.0)));
+                                const otime::RationalTime time = time::floor(
+                                    otime::RationalTime(request->seconds, 1.0) - globalStartTime.rescaled_to(1.0));
+                                const otime::TimeRange timeRange = otime::TimeRange(time, otime::RationalTime(1.0, 1.0));
                                 otio::ErrorStatus errorStatus;
                                 const auto range = otioItem->trimmed_range_in_parent(&errorStatus);
                                 if (range.has_value() && range.value().intersects(timeRange))
@@ -1467,9 +1465,8 @@ namespace tl
                 {
                     otio::ErrorStatus errorStatus;
                     const auto clipTime = track->transformed_time(time, clip, &errorStatus);
-                    const auto readTime = clipTime.rescaled_to(j->second.info.videoTime.duration().rate());
-                    const auto floorTime = time::floor(readTime);
-                    out = j->second.read->readVideo(floorTime, videoLayer);
+                    const auto readTime = time::floor(clipTime.rescaled_to(j->second.info.videoTime.duration().rate()));
+                    out = j->second.read->readVideo(readTime, videoLayer);
                 }
             }
             return out;
@@ -1488,10 +1485,10 @@ namespace tl
                 {
                     otio::ErrorStatus errorStatus;
                     const auto clipRange = track->transformed_time_range(timeRange, clip, &errorStatus);
-                    const auto floorRange = otime::TimeRange(
+                    const auto readRange = otime::TimeRange(
                         time::floor(clipRange.start_time().rescaled_to(ioInfo.audio.sampleRate)),
-                        time::floor(clipRange.duration().rescaled_to(ioInfo.audio.sampleRate)));
-                    out = j->second.read->readAudio(floorRange);
+                        time::ceil(clipRange.duration().rescaled_to(ioInfo.audio.sampleRate)));
+                    out = j->second.read->readAudio(readRange);
                 }
             }
             return out;

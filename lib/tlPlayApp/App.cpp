@@ -601,7 +601,7 @@ namespace tl
             TLRENDER_P();
             const size_t activeCount = p.filesModel->observeActive()->getSize();
             return otime::RationalTime(
-                p.settingsObject->value("Cache/ReadAhead").toInt() / static_cast<double>(activeCount),
+                p.settingsObject->value("Cache/ReadAhead").toDouble() / static_cast<double>(activeCount),
                 1.0);
         }
 
@@ -610,7 +610,7 @@ namespace tl
             TLRENDER_P();
             const size_t activeCount = p.filesModel->observeActive()->getSize();
             return otime::RationalTime(
-                p.settingsObject->value("Cache/ReadBehind").toInt() / static_cast<double>(activeCount),
+                p.settingsObject->value("Cache/ReadBehind").toDouble() / static_cast<double>(activeCount),
                 1.0);
         }
 
