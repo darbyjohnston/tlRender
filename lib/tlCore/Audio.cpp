@@ -8,6 +8,7 @@
 #include <tlCore/String.h>
 
 #include <array>
+#include <iostream>
 
 namespace tl
 {
@@ -71,15 +72,15 @@ namespace tl
             return value < data.size() ? data[value] : DataType::None;
         }
 
-        RtAudioFormat toRtAudio(DataType value) noexcept
+        PaSampleFormat toPortAudio(DataType value) noexcept
         {
-            RtAudioFormat out = 0;
+            PaSampleFormat out = paInt8;
             switch (value)
             {
-            case DataType::S16: out = RTAUDIO_SINT16; break;
-            case DataType::S32: out = RTAUDIO_SINT32; break;
-            case DataType::F32: out = RTAUDIO_FLOAT32; break;
-            case DataType::F64: out = RTAUDIO_FLOAT64; break;
+            case DataType::S16: out = paInt16; break;
+            case DataType::S32: out = paInt32; break;
+            case DataType::F32: out = paFloat32; break;
+            case DataType::F64: out = paFloat32; break;
             default: break;
             }
             return out;

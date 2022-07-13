@@ -7,7 +7,7 @@
 #include <tlCore/Range.h>
 #include <tlCore/Util.h>
 
-#include <rtaudio/RtAudio.h>
+#include <portaudio.h>
 
 #include <limits>
 #include <list>
@@ -66,8 +66,8 @@ namespace tl
         //! Determine the floating point data type for a given byte count.
         DataType getFloatType(uint8_t) noexcept;
 
-        //! Convert a data type to a RtAudio type.
-        RtAudioFormat toRtAudio(DataType) noexcept;
+        //! Convert a data type to a PortAudio type.
+        PaSampleFormat toPortAudio(DataType) noexcept;
 
         ///@}
 
@@ -183,7 +183,7 @@ namespace tl
         void mix(
             const uint8_t** in,
             size_t          inCount,
-            uint8_t*        out,
+            uint8_t* out,
             float           volume,
             size_t          sampleCount,
             uint8_t         channelCount,

@@ -116,7 +116,7 @@ namespace tl
                 out = otime::RationalTime::from_frames(text.toInt(), rate);
                 break;
             case TimeUnits::Seconds:
-                out = otime::RationalTime::from_seconds(text.toDouble()).rescaled_to(rate);
+                out = otime::RationalTime::from_seconds(text.toDouble());
                 break;
             case TimeUnits::Timecode:
                 out = otime::RationalTime::from_timecode(text.toUtf8().data(), rate, errorStatus);

@@ -11,6 +11,8 @@
 
 #include <array>
 #include <map>
+#include <sstream>
+#include <iostream>
 
 namespace tl
 {
@@ -28,7 +30,7 @@ namespace tl
 
         struct System::Private
         {
-            std::unique_ptr<RtAudio> rtAudio;
+            PaStream* portAudio;
             std::vector<std::string> apis;
             std::vector<Device> devices;
         };
@@ -41,216 +43,150 @@ namespace tl
 
             {
                 std::stringstream ss;
-                ss << "RtAudio version: " << RtAudio::getVersion();
-                _log(ss.str());
-            }
-
-            std::vector<RtAudio::Api> rtAudioApis;
-            RtAudio::getCompiledApi(rtAudioApis);
-            for (auto i : rtAudioApis)
-            {
-                p.apis.push_back(RtAudio::getApiDisplayName(i));
-
-                std::stringstream ss;
-                ss << "Audio API: " << RtAudio::getApiDisplayName(i);
+                ss << "PortAudio version: " << Pa_GetVersionText();
                 _log(ss.str());
             }
 
             try
-            {
-                p.rtAudio.reset(new RtAudio);
+              {
+                PaError err = Pa_Initialize();
+                if ( err != paNoError )
+                  {
+                    _log( Pa_GetErrorText( err ), log::Type::Error );
+                    throw "Could not initialize portaudio.";
+                  }
+
                 std::vector<std::string> log;
                 log.push_back(std::string());
-                const size_t rtDeviceCount = p.rtAudio->getDeviceCount();
-                for (size_t i = 0; i < rtDeviceCount; ++i)
-                {
-                    const RtAudio::DeviceInfo rtInfo = p.rtAudio->getDeviceInfo(i);
-                    if (rtInfo.probed)
+                const size_t paDeviceCount = Pa_GetDeviceCount();
+                for (size_t i = 0; i < paDeviceCount; ++i)
+                  {
+                    const PaDeviceInfo* info = Pa_GetDeviceInfo(i);
+                    Device device;
+                    device.name = info->name;
+                    device.outputChannels = info->maxOutputChannels;
+                    device.inputChannels = info->maxInputChannels;
+                    device.preferredSampleRate = info->defaultSampleRate;
+                    device.nativeFormats.push_back(DeviceFormat::S8);
+                    device.nativeFormats.push_back(DeviceFormat::S16);
+                    device.nativeFormats.push_back(DeviceFormat::S24);
+                    device.nativeFormats.push_back(DeviceFormat::S32);
+                    device.nativeFormats.push_back(DeviceFormat::F32);
+                    p.devices.push_back(device);
                     {
-                        Device device;
-                        device.name = rtInfo.name;
-                        device.outputChannels = rtInfo.outputChannels;
-                        device.inputChannels = rtInfo.inputChannels;
-                        device.duplexChannels = rtInfo.duplexChannels;
-                        for (auto j : rtInfo.sampleRates)
-                        {
-                            device.sampleRates.push_back(j);
-                        }
-                        device.preferredSampleRate = rtInfo.preferredSampleRate;
-                        if (rtInfo.nativeFormats & RTAUDIO_SINT8)
-                        {
-                            device.nativeFormats.push_back(DeviceFormat::S8);
-                        }
-                        if (rtInfo.nativeFormats & RTAUDIO_SINT8)
-                        {
-                            device.nativeFormats.push_back(DeviceFormat::S16);
-                        }
-                        if (rtInfo.nativeFormats & RTAUDIO_SINT16)
-                        {
-                            device.nativeFormats.push_back(DeviceFormat::S24);
-                        }
-                        if (rtInfo.nativeFormats & RTAUDIO_SINT24)
-                        {
-                            device.nativeFormats.push_back(DeviceFormat::S32);
-                        }
-                        if (rtInfo.nativeFormats & RTAUDIO_FLOAT32)
-                        {
-                            device.nativeFormats.push_back(DeviceFormat::F32);
-                        }
-                        if (rtInfo.nativeFormats & RTAUDIO_FLOAT64)
-                        {
-                            device.nativeFormats.push_back(DeviceFormat::F64);
-                        }
-                        p.devices.push_back(device);
-                        {
-                            std::stringstream ss;
-                            ss << "    Device " << i << ": " << device.name;
-                            log.push_back(ss.str());
-                        }
-                        {
-                            std::stringstream ss;
-                            ss << "        Channels: " <<
-                                size_t(device.outputChannels) << " output, " <<
-                                size_t(device.inputChannels) << " input, " <<
-                                size_t(device.duplexChannels) << " duplex";
-                            log.push_back(ss.str());
-                        }
-                        {
-                            std::stringstream ss;
-                            ss << "        Sample rates: ";
-                            for (auto j : device.sampleRates)
-                            {
-                                ss << j << " ";
-                            }
-                            log.push_back(ss.str());
-                        }
-                        {
-                            std::stringstream ss;
-                            ss << "        Preferred sample rate: " << device.preferredSampleRate;
-                            log.push_back(ss.str());
-                        }
-                        {
-                            std::stringstream ss;
-                            ss << "        Native formats: ";
-                            for (auto j : device.nativeFormats)
-                            {
-                                ss << j << " ";
-                            }
-                            log.push_back(ss.str());
-                        }
+                      std::stringstream ss;
+                      ss << "    Device " << i << ": " << device.name;
+                      log.push_back(ss.str());
                     }
+                    {
+                      std::stringstream ss;
+                      ss << "        Channels: " <<
+                        size_t(device.outputChannels) << " output, " <<
+                        size_t(device.inputChannels) << " input";
+                      log.push_back(ss.str());
+                    }
+                    {
+                      std::stringstream ss;
+                      ss << "        Preferred sample rate: " << device.preferredSampleRate;
+                      log.push_back(ss.str());
+                    }
+                    {
+                      std::stringstream ss;
+                      ss << "        Native formats: ";
+                      for (auto j : device.nativeFormats)
+                        {
+                          ss << j << " ";
+                        }
+                      log.push_back(ss.str());
+                    }
+                  }
+                {
+                  std::stringstream ss;
+                  ss << "    Default input device: " << getDefaultInputDevice();
+                  log.push_back(ss.str());
                 }
                 {
-                    std::stringstream ss;
-                    ss << "    Default input device: " << getDefaultInputDevice();
-                    log.push_back(ss.str());
-                }
-                {
-                    std::stringstream ss;
-                    ss << "    Default input info: " << getDefaultInputInfo();
-                    log.push_back(ss.str());
-                }
-                {
-                    std::stringstream ss;
-                    ss << "    Default output device: " << getDefaultOutputDevice();
-                    log.push_back(ss.str());
-                }
-                {
-                    std::stringstream ss;
-                    ss << "    Default output info: " << getDefaultOutputInfo();
-                    log.push_back(ss.str());
+                  std::stringstream ss;
+                  ss << "    Default output device: " << getDefaultOutputDevice();
+                  log.push_back(ss.str());
                 }
                 _log(string::join(log, "\n"));
-            }
+              }
             catch (const std::exception& e)
-            {
+              {
                 std::stringstream ss;
                 ss << "Cannot initalize audio system: " << e.what();
                 _log(ss.str(), log::Type::Error);
-            }
+              }
         }
 
-        System::System() :
-            _p(new Private)
-        {}
+      System::System() :
+        _p(new Private)
+      {}
 
-        System::~System()
-        {}
+      System::~System()
+      {
+        PaError err = Pa_Terminate();
+        if ( err != paNoError )
+          {
+            _log( Pa_GetErrorText( err ), log::Type::Error );
+          }
+      }
 
-        std::shared_ptr<System> System::create(const std::shared_ptr<system::Context>& context)
+      std::shared_ptr<System> System::create(const std::shared_ptr<system::Context>& context)
+      {
+        auto out = context->getSystem<System>();
+        if (!out)
+          {
+            out = std::shared_ptr<System>(new System);
+            out->_init(context);
+          }
+        return out;
+      }
+
+      const std::vector<std::string>& System::getAPIs() const
+      {
+        return _p->apis;
+      }
+
+      const std::vector<Device>& System::getDevices() const
+      {
+        return _p->devices;
+      }
+
+      size_t System::getDefaultInputDevice() const
+      {
+        TLRENDER_P();
+        size_t out = Pa_GetDefaultInputDevice();
+        return out;
+      }
+
+      size_t System::getDefaultOutputDevice() const
+      {
+        TLRENDER_P();
+        size_t out = Pa_GetDefaultOutputDevice();
+        const size_t rtDeviceCount = Pa_GetDeviceCount();
+        std::vector<size_t> outputChannels;
+        for (size_t i = 0; i < rtDeviceCount; ++i)
         {
-            auto out = context->getSystem<System>();
-            if (!out)
+            const PaDeviceInfo* info = Pa_GetDeviceInfo(i);
+            outputChannels.push_back( info->maxOutputChannels );
+        }
+        if (out < outputChannels.size())
+        {
+            if (0 == outputChannels[out])
             {
-                out = std::shared_ptr<System>(new System);
-                out->_init(context);
-            }
-            return out;
-        }
-
-        const std::vector<std::string>& System::getAPIs() const
-        {
-            return _p->apis;
-        }
-
-        const std::vector<Device>& System::getDevices() const
-        {
-            return _p->devices;
-        }
-
-        size_t System::getDefaultInputDevice() const
-        {
-            TLRENDER_P();
-            size_t out = p.rtAudio->getDefaultInputDevice();
-            const size_t rtDeviceCount = p.rtAudio->getDeviceCount();
-            std::vector<size_t> inputChannels;
-            for (size_t i = 0; i < rtDeviceCount; ++i)
-            {
-                const RtAudio::DeviceInfo rtInfo = p.rtAudio->getDeviceInfo(i);
-                inputChannels.push_back(rtInfo.inputChannels);
-            }
-            if (out < inputChannels.size())
-            {
-                if (0 == inputChannels[out])
+                for (out = 0; out < rtDeviceCount; ++out)
                 {
-                    for (out = 0; out < rtDeviceCount; ++out)
+                    if (outputChannels[out] > 0)
                     {
-                        if (inputChannels[out] > 0)
-                        {
-                            break;
-                        }
+                        break;
                     }
                 }
             }
-            return out;
         }
-
-        size_t System::getDefaultOutputDevice() const
-        {
-            TLRENDER_P();
-            size_t out = p.rtAudio->getDefaultOutputDevice();
-            const size_t rtDeviceCount = p.rtAudio->getDeviceCount();
-            std::vector<size_t> outputChannels;
-            for (size_t i = 0; i < rtDeviceCount; ++i)
-            {
-                const RtAudio::DeviceInfo rtInfo = p.rtAudio->getDeviceInfo(i);
-                outputChannels.push_back(rtInfo.outputChannels);
-            }
-            if (out < outputChannels.size())
-            {
-                if (0 == outputChannels[out])
-                {
-                    for (out = 0; out < rtDeviceCount; ++out)
-                    {
-                        if (outputChannels[out] > 0)
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
-            return out;
-        }
+        return out;
+      }
 
         namespace
         {
