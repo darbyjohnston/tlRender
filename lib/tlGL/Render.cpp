@@ -567,6 +567,8 @@ namespace tl
             {
                 p.imageShader = Shader::create(vertexSource(), imageFragmentSource());
             }
+            p.imageShader->bind();
+            p.imageShader->setUniform("transform.mvp", mvp);
 
             if (!p.displayShader)
             {
