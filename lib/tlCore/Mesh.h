@@ -16,16 +16,22 @@ namespace tl
         //! Two-dimensional vertex.
         struct Vertex2
         {
-            size_t v = 0;
-            size_t t = 0;
+            Vertex2();
+            Vertex2(size_t v, size_t t = 0);
+
+            size_t v;
+            size_t t;
         };
 
         //! Three-dimensional vertex.
         struct Vertex3
         {
-            size_t v = 0;
-            size_t t = 0;
-            size_t n = 0;
+            Vertex3();
+            Vertex3(size_t v, size_t t = 0, size_t n = 0);
+
+            size_t v;
+            size_t t;
+            size_t n;
         };
 
         //! Two-dimensional triangle.
