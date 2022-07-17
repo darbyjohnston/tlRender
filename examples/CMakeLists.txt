@@ -1,3 +1,4 @@
+add_subdirectory(test-patterns)
 if(TLRENDER_BUILD_GL)
     add_subdirectory(play-glfw)
 endif()

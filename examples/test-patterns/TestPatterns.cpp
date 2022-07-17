@@ -1,0 +1,312 @@
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) 2021-2022 Darby Johnston
+// All rights reserved.
+
+#include "TestPatterns.h"
+
+#include <tlCore/Math.h>
+#include <tlCore/StringFormat.h>
+
+namespace tl
+{
+    namespace examples
+    {
+        namespace test_patterns
+        {
+            void ITestPattern::_init(
+                const std::string& name,
+                const imaging::Size& size,
+                const std::shared_ptr<system::Context>& context)
+            {
+                _context = context;
+                _name = name;
+                _size = size;
+            }
+
+            ITestPattern::ITestPattern()
+            {}
+
+            ITestPattern::~ITestPattern()
+            {}
+
+            const std::string& ITestPattern::getName() const
+            {
+                return _name;
+            }
+
+            void CountTestPattern::_init(
+                const imaging::Size& size,
+                const std::shared_ptr<system::Context>& context)
+            {
+                ITestPattern::_init(getClassName(), size, context);
+
+                _fontSystem = imaging::FontSystem::create(context);
+
+                _secondsFontInfo = imaging::FontInfo(
+                    imaging::FontFamily::NotoMono,
+                    _size.h / 2.F);
+                _secondsFontMetrics = _fontSystem->getMetrics(_secondsFontInfo);
+
+                _framesFontInfo = imaging::FontInfo(
+                    imaging::FontFamily::NotoMono,
+                    _secondsFontInfo.size / 4.F);
+                _framesFontMetrics = _fontSystem->getMetrics(_framesFontInfo);
+            }
+
+            CountTestPattern::~CountTestPattern()
+            {}
+
+            std::string CountTestPattern::getClassName()
+            {
+                return "Count";
+            }
+
+            std::shared_ptr<CountTestPattern> CountTestPattern::create(
+                const imaging::Size& size,
+                const std::shared_ptr<system::Context>& context)
+            {
+                auto out = std::shared_ptr<CountTestPattern>(new CountTestPattern);
+                out->_init(size, context);
+                return out;
+            }
+
+            void CountTestPattern::render(
+                const std::shared_ptr<timeline::IRender>& render,
+                const otime::RationalTime& time)
+            {
+                const otime::RationalTime seconds = time.rescaled_to(1.0);
+                const int wholeSeconds = static_cast<int>(seconds.value());
+                const int frames = static_cast<int>(time.value()) % static_cast<int>(time.rate());
+
+                const std::string secondsString = string::Format("{0}").arg(wholeSeconds);
+                const math::Vector2i secondsSize = _fontSystem->measure(secondsString, _secondsFontInfo);
+                const math::Vector2i secondsPos(
+                    _size.w / 2.F - secondsSize.x / 2.F,
+                    _size.h / 2.F - secondsSize.y / 2.F);
+
+                const std::string framesString = string::Format("{0}").arg(frames);
+                const math::Vector2i framesSize = _fontSystem->measure(framesString, _framesFontInfo);
+                const math::Vector2i framesPos(
+                    _size.w / 2.F - framesSize.x / 2.F,
+                    secondsPos.y + secondsSize.y);
+
+                render->drawRect(
+                    math::BBox2i(0, 0, _size.w, _size.h),
+                    imaging::Color4f(.1F, .1F, .1F));
+
+                /*render->drawRect(
+                    math::BBox2i(secondsPos.x, secondsPos.y, secondsSize.x, secondsSize.y),
+                    imaging::Color4f(.5F, 0.F, 0.F));
+                render->drawRect(
+                    math::BBox2i(framesPos.x, framesPos.y, framesSize.x, framesSize.y),
+                    imaging::Color4f(0.F, .5F, 0.F));*/
+
+                const size_t resolution = 100;
+                geom::TriangleMesh2 mesh;
+                mesh.v.push_back(math::Vector2f(
+                    _size.w / 2.F,
+                    _size.h / 2.F));
+                for (int i = 0; i < resolution; ++i)
+                {
+                    const float f = i / static_cast<float>(resolution - 1);
+                    const float a = f * math::pi2;
+                    const float r = secondsSize.y / 2.F + framesSize.y + 10.F;
+                    mesh.v.push_back(math::Vector2f(
+                        _size.w / 2.F + std::cosf(a) * r,
+                        _size.h / 2.F + std::sinf(a) * r));
+                }
+                for (int i = 1; i < resolution; ++i)
+                {
+                    mesh.triangles.push_back(geom::Triangle2({
+                        geom::Vertex2(1),
+                        geom::Vertex2(i + 1),
+                        geom::Vertex2(i - 1 + 1) }));
+                }
+                mesh.triangles.push_back(geom::Triangle2({
+                    geom::Vertex2(1),
+                    geom::Vertex2(1 + resolution - 1),
+                    geom::Vertex2(1 + 1) }));
+                render->drawMesh(mesh, imaging::Color4f(.2F, .2F, .2F));
+
+                mesh.v.clear();
+                mesh.triangles.clear();
+                mesh.v.push_back(math::Vector2f(
+                    _size.w / 2.F,
+                    _size.h / 2.F));
+                for (int i = 0; i < resolution; ++i)
+                {
+                    const float v = frames / time.rate();
+                    const float f = i / static_cast<float>(resolution - 1);
+                    const float a = v * f * math::pi2 - math::pi / 2.F;
+                    const float r = secondsSize.y / 2.F + framesSize.y + 10.F;
+                    mesh.v.push_back(math::Vector2f(
+                        _size.w / 2.F + std::cosf(a) * r,
+                        _size.h / 2.F + std::sinf(a) * r));
+                }
+                for (int i = 1; i < resolution; ++i)
+                {
+                    mesh.triangles.push_back(geom::Triangle2({
+                        geom::Vertex2(1),
+                        geom::Vertex2(i + 1),
+                        geom::Vertex2((i - 1) + 1) }));
+                }
+                render->drawMesh(mesh, imaging::Color4f(.3F, .3F, .3F));
+
+                render->drawText(
+                    _fontSystem->getGlyphs(secondsString, _secondsFontInfo),
+                    math::Vector2i(secondsPos.x, secondsPos.y + _secondsFontMetrics.ascender),
+                    imaging::Color4f(1.F, 1.F, 1.F));
+
+                render->drawText(
+                    _fontSystem->getGlyphs(framesString, _framesFontInfo),
+                    math::Vector2i(framesPos.x, framesPos.y + _framesFontMetrics.ascender),
+                    imaging::Color4f(1.F, 1.F, 1.F));
+            }
+
+            void SwatchesTestPattern::_init(
+                const imaging::Size& size,
+                const std::shared_ptr<system::Context>& context)
+            {
+                ITestPattern::_init(getClassName(), size, context);
+
+                const imaging::Info info(_size.w, 1, imaging::PixelType::L_F32);
+                _gradient = imaging::Image::create(info);
+                float* data = reinterpret_cast<float*>(_gradient->getData());
+                for (float* p = data, v = 0.F; p < data + _size.w; ++p, v += 1.F / _size.w)
+                {
+                    *p = v;
+                }
+            }
+
+            SwatchesTestPattern::~SwatchesTestPattern()
+            {}
+
+            std::string SwatchesTestPattern::getClassName()
+            {
+                return "Swatches";
+            }
+
+            std::shared_ptr<SwatchesTestPattern> SwatchesTestPattern::create(
+                const imaging::Size& size,
+                const std::shared_ptr<system::Context>& context)
+            {
+                auto out = std::shared_ptr<SwatchesTestPattern>(new SwatchesTestPattern);
+                out->_init(size, context);
+                return out;
+            }
+
+            void SwatchesTestPattern::render(
+                const std::shared_ptr<timeline::IRender>& render,
+                const otime::RationalTime& time)
+            {
+                const std::array<imaging::Color4f, 8> colors =
+                {
+                    imaging::Color4f(0.F, 0.F, 0.F),
+                    imaging::Color4f(1.F, 0.F, 0.F),
+                    imaging::Color4f(1.F, 1.F, 0.F),
+                    imaging::Color4f(0.F, 1.F, 0.F),
+                    imaging::Color4f(0.F, 1.F, 1.F),
+                    imaging::Color4f(0.F, 0.F, 1.F),
+                    imaging::Color4f(1.F, 0.F, 1.F),
+                    imaging::Color4f(1.F, 1.F, 1.F)
+                };
+                const int swatchWidth = _size.w / colors.size();
+                for (int x = 0, i = 0; x < _size.w; x += swatchWidth, ++i)
+                {
+                    render->drawRect(
+                        math::BBox2i(x, 0, swatchWidth, _size.h / 2),
+                        colors[i]);
+                }
+                render->drawImage(_gradient, math::BBox2i(0, _size.h / 2, _size.w, _size.h / 2));
+            }
+
+            GridTestPattern::~GridTestPattern()
+            {}
+
+            std::string GridTestPattern::getClassName()
+            {
+                return "Grid";
+            }
+
+            std::shared_ptr<GridTestPattern> GridTestPattern::create(
+                const imaging::Size& size,
+                const std::shared_ptr<system::Context>& context)
+            {
+                auto out = std::shared_ptr<GridTestPattern>(new GridTestPattern);
+                out->_init(getClassName(), size, context);
+                return out;
+            }
+
+            void GridTestPattern::render(
+                const std::shared_ptr<timeline::IRender>& render,
+                const otime::RationalTime& time)
+            {
+                int cellSize = 2;
+                switch (static_cast<int>(time.value() / 24.0) % 3)
+                {
+                case 1: cellSize = 10; break;
+                case 2: cellSize = 100; break;
+                }
+                {
+                    geom::TriangleMesh2 mesh;
+                    for (int x = 0, i = 0; x < _size.w; x += cellSize, ++i)
+                    {
+                        mesh.v.push_back(math::Vector2f(x, 0.F));
+                        mesh.v.push_back(math::Vector2f(x + 1, 0.F));
+                        mesh.v.push_back(math::Vector2f(x + 1, _size.h));
+                        mesh.v.push_back(math::Vector2f(x, _size.h));
+                        mesh.triangles.push_back(geom::Triangle2({
+                            geom::Vertex2(i * 4 + 1),
+                            geom::Vertex2(i * 4 + 2),
+                            geom::Vertex2(i * 4 + 3) }));
+                        mesh.triangles.push_back(geom::Triangle2({
+                            geom::Vertex2(i * 4 + 3),
+                            geom::Vertex2(i * 4 + 4),
+                            geom::Vertex2(i * 4 + 1) }));
+                    }
+                    render->drawMesh(mesh, imaging::Color4f(1.F, 1.F, 1.F));
+                }
+                {
+                    geom::TriangleMesh2 mesh;
+                    for (int y = 0, i = 0; y < _size.h; y += cellSize, ++i)
+                    {
+                        mesh.v.push_back(math::Vector2f(0.F, y));
+                        mesh.v.push_back(math::Vector2f(_size.w, y));
+                        mesh.v.push_back(math::Vector2f(_size.w, y + 1));
+                        mesh.v.push_back(math::Vector2f(0.F, y + 1));
+                        mesh.triangles.push_back(geom::Triangle2({
+                            geom::Vertex2(i * 4 + 1),
+                            geom::Vertex2(i * 4 + 2),
+                            geom::Vertex2(i * 4 + 3) }));
+                        mesh.triangles.push_back(geom::Triangle2({
+                            geom::Vertex2(i * 4 + 3),
+                            geom::Vertex2(i * 4 + 4),
+                            geom::Vertex2(i * 4 + 1) }));
+                    }
+                    render->drawMesh(mesh, imaging::Color4f(1.F, 1.F, 1.F));
+                }
+            }
+
+            std::shared_ptr<ITestPattern> TestPatternFactory::create(
+                const std::string& name,
+                const imaging::Size& size,
+                const std::shared_ptr<system::Context>& context)
+            {
+                std::shared_ptr<ITestPattern> out;
+                if (name == CountTestPattern::getClassName())
+                {
+                    out = CountTestPattern::create(size, context);
+                }
+                else if (name == SwatchesTestPattern::getClassName())
+                {
+                    out = SwatchesTestPattern::create(size, context);
+                }
+                else if (name == GridTestPattern::getClassName())
+                {
+                    out = GridTestPattern::create(size, context);
+                }
+                return out;
+            };
+        }
+    }
+}
