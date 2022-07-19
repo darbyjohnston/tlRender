@@ -12,7 +12,6 @@
 #include <array>
 #include <map>
 #include <sstream>
-#include <iostream>
 
 namespace tl
 {
@@ -113,11 +112,11 @@ namespace tl
                 _log(string::join(log, "\n"));
               }
             catch (const std::exception& e)
-              {
+            {
                 std::stringstream ss;
                 ss << "Cannot initalize audio system: " << e.what();
                 _log(ss.str(), log::Type::Error);
-              }
+            }
         }
 
       System::System() :

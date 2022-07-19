@@ -850,7 +850,7 @@ namespace tl
         {
             return _p->context;
         }
-        
+
         const otio::SerializableObject::Retainer<otio::Timeline>& Timeline::getTimeline() const
         {
             return _p->otioTimeline;

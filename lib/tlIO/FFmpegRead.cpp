@@ -459,8 +459,73 @@ namespace tl
                 AVDictionaryEntry* tag = nullptr;
                 while ((tag = av_dict_get(p.video.avFormatContext->metadata, "", tag, AV_DICT_IGNORE_SUFFIX)))
                 {
-                    p.info.tags[tag->key] = tag->value;
+-                    const std::string key(tag->key);
+-                    const std::string value(tag->value);
+-                    tags[key] = value;
+-                    if (string::compareNoCase(key, "timecode"))
+-                    {
+-                        otime::ErrorStatus errorStatus;
+-                        const otime::RationalTime time = otime::RationalTime::from_timecode(
+-                            value,
+-                            speed,
+-                            &errorStatus);
+-                        if (!otime::is_error(errorStatus))
+-                        {
+-                            startTime = time::floor(time.rescaled_to(speed));
+-                            //std::cout << "start time: " << startTime << std::endl;
+-                        }
+-                    }
                 }
+
+                p.info.videoTime = otime::TimeRange(
+                    startTime,
+                    otime::RationalTime(sequenceSize, speed));
+
+                p.videoTime = p.info.videoTime.start_time();
+
+                for (const auto& i : tags)
+                {
+                    p.info.tags[i.first] = i.second;
+                }
+                {
+                    std::stringstream ss;
+                    ss << videoInfo.size.w << " " << videoInfo.size.h;
+                    p.info.tags["Video Resolution"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss.precision(2);
+                    ss << std::fixed;
+                    ss << videoInfo.pixelAspectRatio;
+                    p.info.tags["Video Pixel Aspect Ratio"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss << videoInfo.pixelType;
+                    p.info.tags["Video Pixel Type"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss << videoInfo.yuvRange;
+                    p.info.tags["Video YUV Range"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss << p.info.videoTime.start_time().to_timecode();
+                    p.info.tags["Video Start Time"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss << p.info.videoTime.duration().to_timecode();
+                    p.info.tags["Video Duration"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss.precision(2);
+                    ss << std::fixed;
+                    ss << p.info.videoTime.start_time().rate() << " FPS";
+                    p.info.tags["Video Speed"] = ss.str();
+                 }
             }
 
             r = avformat_open_input(

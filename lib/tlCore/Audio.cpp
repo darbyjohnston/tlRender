@@ -8,7 +8,6 @@
 #include <tlCore/String.h>
 
 #include <array>
-#include <iostream>
 
 namespace tl
 {
