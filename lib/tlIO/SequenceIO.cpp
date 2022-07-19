@@ -406,8 +406,6 @@ namespace tl
             }
         }
 
-
-
         struct ISequenceWrite::Private
         {
             std::string path;
