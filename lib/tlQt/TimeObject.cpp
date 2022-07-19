@@ -29,7 +29,7 @@ namespace tl
             ds << static_cast<qint32>(value);
             return ds;
         }
-        
+
         QDataStream& operator >> (QDataStream& ds, TimeUnits& value)
         {
             qint32 tmp = 0;
@@ -37,7 +37,7 @@ namespace tl
             value = static_cast<TimeUnits>(tmp);
             return ds;
         }
-        
+
         QString sizeHintString(TimeUnits units)
         {
             QString out;

@@ -63,10 +63,9 @@ namespace tl
                 _print(ss.str());
             }
             {
-                TLRENDER_ASSERT(RTAUDIO_SINT16 == toRtAudio(DataType::S16));
-                TLRENDER_ASSERT(RTAUDIO_SINT32 == toRtAudio(DataType::S32));
-                TLRENDER_ASSERT(RTAUDIO_FLOAT32 == toRtAudio(DataType::F32));
-                TLRENDER_ASSERT(RTAUDIO_FLOAT64 == toRtAudio(DataType::F64));
+                TLRENDER_ASSERT(paInt16 == toPortAudio(DataType::S16));
+                TLRENDER_ASSERT(paInt32 == toPortAudio(DataType::S32));
+                TLRENDER_ASSERT(paFloat32 == toPortAudio(DataType::F32));
             }
         }
 

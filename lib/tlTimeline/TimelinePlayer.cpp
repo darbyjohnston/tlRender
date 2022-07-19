@@ -155,16 +155,14 @@ namespace tl
                 const otime::RationalTime& cacheReadBehind);
 
             void resetAudioTime();
-            static int rtAudioCallback(
-                void* outputBuffer,
-                void* inputBuffer,
-                unsigned int nFrames,
-                double streamTime,
-                RtAudioStreamStatus status,
-                void* userData);
-            static void rtAudioErrorCallback(
-                RtAudioError::Type type,
-                const std::string& errorText);
+
+
+      static int portAudioCallback( const void *inputBuffer,
+                                    void *outputBuffer,
+                                    unsigned long nFrames,
+                                    const PaStreamCallbackTimeInfo* streamTime,
+                                    PaStreamCallbackFlags status,
+                                    void *userData );
 
             void log(const std::shared_ptr<system::Context>&);
 
@@ -225,7 +223,7 @@ namespace tl
                 bool mute = false;
                 std::chrono::steady_clock::time_point muteTimeout;
                 std::map<int64_t, AudioData> audioDataCache;
-                size_t rtAudioCurrentFrame = 0;
+                size_t portAudioCurrentFrame = 0;
             };
             AudioMutexData audioMutexData;
             std::mutex audioMutex;
@@ -234,7 +232,7 @@ namespace tl
             {
                 std::map<otime::RationalTime, std::future<VideoData> > videoDataRequests;
                 std::map<otime::RationalTime, VideoData> videoDataCache;
-                std::unique_ptr<RtAudio> rtAudio;
+                PaStream* portAudio;
                 std::map<int64_t, std::future<AudioData> > audioDataRequests;
                 std::atomic<bool> running;
             };
@@ -318,23 +316,42 @@ namespace tl
                         {
                             try
                             {
-                                p.threadData.rtAudio.reset(new RtAudio);
-                                RtAudio::StreamParameters rtParameters;
+                                PaStreamParameters portParameters;
+                                memset( &portParameters, 0,
+                                        sizeof(PaStreamParameters) );
                                 auto audioSystem = context->getSystem<audio::System>();
-                                rtParameters.deviceId = audioSystem->getDefaultOutputDevice();
-                                rtParameters.nChannels = p.ioInfo.audio.channelCount;
-                                unsigned int rtBufferFrames = getAudioBufferFrameCount(p.playerOptions.audioBufferFrameCount);
-                                p.threadData.rtAudio->openStream(
-                                    &rtParameters,
-                                    nullptr,
-                                    audio::toRtAudio(p.ioInfo.audio.dataType),
-                                    p.ioInfo.audio.sampleRate,
-                                    &rtBufferFrames,
-                                    p.rtAudioCallback,
-                                    _p.get(),
-                                    nullptr,
-                                    p.rtAudioErrorCallback);
-                                p.threadData.rtAudio->startStream();
+                                portParameters.device = audioSystem->getDefaultOutputDevice();
+                                const PaDeviceInfo* info = Pa_GetDeviceInfo( portParameters.device );
+                                portParameters.channelCount = (int) p.ioInfo.audio.channelCount;
+                                portParameters.suggestedLatency = info->defaultLowOutputLatency;
+                                portParameters.hostApiSpecificStreamInfo = NULL;
+                                portParameters.sampleFormat = audio::toPortAudio( p.ioInfo.audio.dataType );
+
+                                PaError err = Pa_IsFormatSupported( NULL, &portParameters, p.ioInfo.audio.sampleRate );
+                                if ( err != paNoError )
+                                {
+                                    throw Pa_GetErrorText( err );
+                                }
+
+                                unsigned int portBufferFrames = getAudioBufferFrameCount(p.playerOptions.audioBufferFrameCount);
+                                err = Pa_OpenStream( &p.threadData.portAudio,
+                                                     nullptr,
+                                                     &portParameters,
+                                                     p.ioInfo.audio.sampleRate,
+                                                     portBufferFrames,
+                                                     paClipOff,
+                                                     p.portAudioCallback,
+                                                     _p.get() );
+                                if ( err != paNoError )
+                                {
+                                    throw Pa_GetErrorText( err );
+                                }
+
+                                err = Pa_StartStream( p.threadData.portAudio );
+                                if ( err != paNoError )
+                                {
+                                    throw Pa_GetErrorText( err );
+                                }
                             }
                             catch (const std::exception& e)
                             {
@@ -473,11 +490,11 @@ namespace tl
         TimelinePlayer::~TimelinePlayer()
         {
             TLRENDER_P();
-            if (p.threadData.rtAudio && p.threadData.rtAudio->isStreamOpen())
+            if (p.threadData.portAudio && Pa_IsStreamActive( p.threadData.portAudio ))
             {
                 try
                 {
-                    p.threadData.rtAudio->abortStream();
+                    Pa_CloseStream( p.threadData.portAudio );
                 }
                 catch (const std::exception&)
                 {}
@@ -982,12 +999,12 @@ namespace tl
                     playbackStartTimer = p.mutexData.playbackStartTimer;
                 }
                 double seconds = 0.0;
-                if (p.threadData.rtAudio &&
-                    p.threadData.rtAudio->isStreamRunning() &&
+                if (p.threadData.portAudio &&
+                    ! Pa_IsStreamStopped( p.threadData.portAudio ) &&
                     TimerMode::Audio == p.playerOptions.timerMode &&
                     math::fuzzyCompare(timelineSpeed, speed))
                 {
-                    seconds = p.threadData.rtAudio->getStreamTime();
+                    seconds = Pa_GetStreamTime( p.threadData.portAudio );
                 }
                 else
                 {
@@ -1329,6 +1346,7 @@ namespace tl
                     audioDataRequestsIt->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                 {
                     auto data = audioDataRequestsIt->second.get();
+                    //std::cout << "audio result: " << data.seconds << std::endl;
                     data.seconds = audioDataRequestsIt->first;
                     {
                         std::unique_lock<std::mutex> lock(audioMutex);
@@ -1373,26 +1391,29 @@ namespace tl
         {
             {
                 std::unique_lock<std::mutex> lock(audioMutex);
-                audioMutexData.rtAudioCurrentFrame = 0;
+                audioMutexData.portAudioCurrentFrame = 0;
             }
-            if (threadData.rtAudio &&
-                threadData.rtAudio->isStreamRunning())
+            if (threadData.portAudio &&
+                !Pa_IsStreamStopped( threadData.portAudio ) )
             {
                 try
                 {
-                    threadData.rtAudio->setStreamTime(0.0);
+                    // Pa_StopStream( threadData.portAudio );
+                    // Pa_StartStream( threadData.portAudio );
+                    // @todo: @bug:
+                    // threadData.rtAudio->setStreamTime(0.0);
                 }
                 catch (const std::exception&)
                 {}
             }
         }
 
-        int TimelinePlayer::Private::rtAudioCallback(
+        int TimelinePlayer::Private::portAudioCallback(
+            const void* inputBuffer,
             void* outputBuffer,
-            void* inputBuffer,
-            unsigned int nFrames,
-            double streamTime,
-            RtAudioStreamStatus status,
+            unsigned long nFrames,
+            const PaStreamCallbackTimeInfo* streamTime,
+            PaStreamCallbackFlags status,
             void* userData)
         {
             auto p = reinterpret_cast<TimelinePlayer::Private*>(userData);
@@ -1413,14 +1434,14 @@ namespace tl
             float volume = 1.F;
             bool mute = false;
             std::chrono::steady_clock::time_point muteTimeout;
-            size_t rtAudioCurrentFrame = 0;
+            size_t portAudioCurrentFrame = 0;
             {
                 std::unique_lock<std::mutex> lock(p->audioMutex);
                 speed = p->audioMutexData.speed;
                 volume = p->audioMutexData.volume;
                 mute = p->audioMutexData.mute;
                 muteTimeout = p->audioMutexData.muteTimeout;
-                rtAudioCurrentFrame = p->audioMutexData.rtAudioCurrentFrame;
+                portAudioCurrentFrame = p->audioMutexData.portAudioCurrentFrame;
             }
 
             // Audio information constants.
@@ -1437,16 +1458,16 @@ namespace tl
             {
                 // Time in seconds for indexing into the audio cache.
                 int64_t seconds = playbackStartTimeInSeconds +
-                    rtAudioCurrentFrame / static_cast<double>(p->ioInfo.audio.sampleRate);
+                    portAudioCurrentFrame / static_cast<double>(p->ioInfo.audio.sampleRate);
 
                 // Offset into the audio data.
                 int64_t offset = playbackStartTimeInSeconds * p->ioInfo.audio.sampleRate +
-                    rtAudioCurrentFrame -
+                    portAudioCurrentFrame -
                     seconds * p->ioInfo.audio.sampleRate;
 
                 const auto now = std::chrono::steady_clock::now();
 
-                // Copy audio data to RtAudio.
+                // Copy audio data to portudio.
                 if (speed == p->timeline->getDuration().rate() &&
                     !externalTime &&
                     !mute &&
@@ -1518,7 +1539,7 @@ namespace tl
                 // Update the audio frame.
                 {
                     std::unique_lock<std::mutex> lock(p->audioMutex);
-                    p->audioMutexData.rtAudioCurrentFrame += nFrames;
+                    p->audioMutexData.portAudioCurrentFrame += nFrames;
                 }
 
                 break;
@@ -1527,19 +1548,14 @@ namespace tl
                 // Update the audio frame.
                 {
                     std::unique_lock<std::mutex> lock(p->audioMutex);
-                    p->audioMutexData.rtAudioCurrentFrame += nFrames;
+                    p->audioMutexData.portAudioCurrentFrame += nFrames;
                 }
                 break;
             default: break;
             }
 
-            return 0;
+            return paContinue;
         }
-
-        void TimelinePlayer::Private::rtAudioErrorCallback(
-            RtAudioError::Type type,
-            const std::string& errorText)
-        {}
 
         void TimelinePlayer::Private::log(const std::shared_ptr<system::Context>& context)
         {

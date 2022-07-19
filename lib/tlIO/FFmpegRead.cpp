@@ -614,9 +614,12 @@ namespace tl
                 size_t sampleRate = fileSampleRate;
                 if (p.audioConvertInfo.isValid())
                 {
-                    channelCount = p.audioConvertInfo.channelCount;
-                    dataType = p.audioConvertInfo.dataType;
-                    sampleRate = p.audioConvertInfo.sampleRate;
+                    if ( p.audioConvertInfo.channelCount < channelCount )
+                    {
+                        channelCount = p.audioConvertInfo.channelCount;
+                        dataType = p.audioConvertInfo.dataType;
+                        sampleRate = p.audioConvertInfo.sampleRate;
+                    }
                 }
 
                 p.audio.avFrame = av_frame_alloc();

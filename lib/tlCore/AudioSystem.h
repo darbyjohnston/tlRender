@@ -1,3 +1,4 @@
+
 // SPDX-License-Identifier: BSD-3-Clause
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
@@ -33,8 +34,6 @@ namespace tl
             std::string               name;
             size_t                    outputChannels = 0;
             size_t                    inputChannels = 0;
-            size_t                    duplexChannels = 0;
-            std::vector<size_t>       sampleRates;
             size_t                    preferredSampleRate = 0;
             std::vector<DeviceFormat> nativeFormats;
         };

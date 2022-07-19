@@ -95,7 +95,7 @@ else()
         TimeUnix.cpp)
 endif()
 
-set(tlCore_LIBRARIES OTIO OCIO FreeType FSeq GLM RtAudio libsamplerate)
+set(tlCore_LIBRARIES OTIO OCIO FreeType FSeq GLM portaudio libsamplerate)
 if(TLRENDER_ENABLE_PYTHON)
     list(APPEND tlCore_LIBRARIES Python3::Python)
 endif()
