@@ -29,7 +29,7 @@ namespace tl
             ds << static_cast<qint32>(value);
             return ds;
         }
-        
+
         QDataStream& operator >> (QDataStream& ds, TimeUnits& value)
         {
             qint32 tmp = 0;
@@ -37,7 +37,7 @@ namespace tl
             value = static_cast<TimeUnits>(tmp);
             return ds;
         }
-        
+
         QString sizeHintString(TimeUnits units)
         {
             QString out;
@@ -116,7 +116,7 @@ namespace tl
                 out = otime::RationalTime::from_frames(text.toInt(), rate);
                 break;
             case TimeUnits::Seconds:
-                out = otime::RationalTime::from_seconds(text.toDouble());
+                out = otime::RationalTime::from_seconds(text.toDouble()).rescaled_to(rate);
                 break;
             case TimeUnits::Timecode:
                 out = otime::RationalTime::from_timecode(text.toUtf8().data(), rate, errorStatus);

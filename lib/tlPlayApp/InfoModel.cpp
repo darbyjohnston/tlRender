@@ -34,7 +34,7 @@ namespace tl
             p.info = value;
             beginResetModel();
             p.items.clear();
-            if (!value.video.empty())
+            for (const auto& i : p.info.tags)
             {
                 {
                     std::stringstream ss;
