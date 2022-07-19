@@ -27,6 +27,8 @@ namespace tl
     {
         struct ISequenceRead::Private
         {
+            void addTags(Info&);
+
             std::promise<Info> infoPromise;
 
             struct VideoRequest
@@ -115,7 +117,9 @@ namespace tl
                     TLRENDER_P();
                     try
                     {
-                        p.infoPromise.set_value(_getInfo(path.get()));
+                        auto info = _getInfo(path.get());
+                        p.addTags(info);
+                        p.infoPromise.set_value(info);
                         try
                         {
                             _run();
@@ -355,6 +359,54 @@ namespace tl
                 }
             }
         }
+
+        void ISequenceRead::Private::addTags(Info& info)
+        {
+            if (!info.video.empty())
+            {
+                {
+                    std::stringstream ss;
+                    ss << info.video[0].size.w << " " << info.video[0].size.h;
+                    info.tags["Video Resolution"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss.precision(2);
+                    ss << std::fixed;
+                    ss << info.video[0].pixelAspectRatio;
+                    info.tags["Video Pixel Aspect Ratio"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss << info.video[0].pixelType;
+                    info.tags["Video Pixel Type"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss << info.video[0].yuvRange;
+                    info.tags["Video YUV Range"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss << info.videoTime.start_time().to_timecode();
+                    info.tags["Video Start Time"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss << info.videoTime.duration().to_timecode();
+                    info.tags["Video Duration"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss.precision(2);
+                    ss << std::fixed;
+                    ss << info.videoTime.start_time().rate() << " FPS";
+                    info.tags["Video Speed"] = ss.str();
+                }
+            }
+        }
+
+
 
         struct ISequenceWrite::Private
         {

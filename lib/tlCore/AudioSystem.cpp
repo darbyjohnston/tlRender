@@ -155,35 +155,13 @@ namespace tl
 
       size_t System::getDefaultInputDevice() const
       {
-        TLRENDER_P();
         size_t out = Pa_GetDefaultInputDevice();
         return out;
       }
 
       size_t System::getDefaultOutputDevice() const
       {
-        TLRENDER_P();
         size_t out = Pa_GetDefaultOutputDevice();
-        const size_t rtDeviceCount = Pa_GetDeviceCount();
-        std::vector<size_t> outputChannels;
-        for (size_t i = 0; i < rtDeviceCount; ++i)
-        {
-            const PaDeviceInfo* info = Pa_GetDeviceInfo(i);
-            outputChannels.push_back( info->maxOutputChannels );
-        }
-        if (out < outputChannels.size())
-        {
-            if (0 == outputChannels[out])
-            {
-                for (out = 0; out < rtDeviceCount; ++out)
-                {
-                    if (outputChannels[out] > 0)
-                    {
-                        break;
-                    }
-                }
-            }
-        }
         return out;
       }
 

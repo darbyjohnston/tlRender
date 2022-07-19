@@ -170,7 +170,6 @@ namespace tl
             std::shared_ptr<Timeline> timeline;
             io::Info ioInfo;
 
-
             std::shared_ptr<observer::Value<double> > speed;
             std::shared_ptr<observer::Value<Playback> > playback;
             std::shared_ptr<observer::Value<Loop> > loop;
@@ -328,7 +327,7 @@ namespace tl
                                     portParameters.hostApiSpecificStreamInfo = NULL;
                                     portParameters.sampleFormat = audio::toPortAudio( p.ioInfo.audio.dataType );
 
-                                    PaError err = Pa_IsFormatSupported( NULL, &outputParameters, p.ioInfo.audio.sampleRate );
+                                    PaError err = Pa_IsFormatSupported( NULL, &portParameters, p.ioInfo.audio.sampleRate );
                                     if ( err != paNoError )
                                     {
                                         throw Pa_GetErrorText( err );
@@ -496,7 +495,7 @@ namespace tl
             {
                 try
                 {
-                    Pa_AbortStream( p.threadData.portAudio );
+                    Pa_CloseStream( p.threadData.portAudio );
                 }
                 catch (const std::exception&)
                 {}
@@ -1006,7 +1005,7 @@ namespace tl
               TimerMode::Audio == p.playerOptions.timerMode &&
               math::fuzzyCompare(timelineSpeed, speed))
             {
-              seconds = Pa_GetStreamTime( p.threadData.portAudio );
+                    seconds = Pa_GetStreamTime( p.threadData.portAudio );
             }
           else
             {
@@ -1154,7 +1153,7 @@ namespace tl
                                               const otime::RationalTime& cacheReadAhead,
                                               const otime::RationalTime& cacheReadBehind)
     {
-      // Get the ranges to be cached.
+      // Get the video ranges to be cached.
       const otime::RationalTime& globalStartTime = timeline->getGlobalStartTime();
       const otime::RationalTime& duration = timeline->getDuration();
     const otime::RationalTime cacheReadAheadRescaled =
@@ -1228,6 +1227,7 @@ namespace tl
                 //    range.end_time_inclusive() << std::endl;
                 audioCacheRanges.push_back(range);
         }
+            //std::cout << std::endl;
       timeline->setActiveRanges(audioRanges);
 
       // Remove old video from the cache.

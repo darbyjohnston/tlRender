@@ -150,7 +150,7 @@ namespace tl
                     {
                         p.infoPromise.set_value(io::Info());
                     }
-
+                    
                     {
                         std::list<std::shared_ptr<Private::VideoRequest> > videoRequests;
                         std::list<std::shared_ptr<Private::AudioRequest> > audioRequests;
@@ -447,34 +447,30 @@ namespace tl
                         swap(avVideoStream->r_frame_rate));
                 }
                 p.info.video.push_back(videoInfo);
-                const float speed = avVideoStream->r_frame_rate.num / double(avVideoStream->r_frame_rate.den);
-                p.info.videoTime = otime::TimeRange(
-                    otime::RationalTime(0.0, speed),
-                    otime::RationalTime(
-                        sequenceSize,
-                        avVideoStream->r_frame_rate.num / double(avVideoStream->r_frame_rate.den)));
 
-                p.videoTime = otime::RationalTime(0.0, speed);
+                const double speed = avVideoStream->r_frame_rate.num / double(avVideoStream->r_frame_rate.den);
 
+                std::map<std::string, std::string> tags;
                 AVDictionaryEntry* tag = nullptr;
+                otime::RationalTime startTime(0.0, speed);
                 while ((tag = av_dict_get(p.video.avFormatContext->metadata, "", tag, AV_DICT_IGNORE_SUFFIX)))
                 {
--                    const std::string key(tag->key);
--                    const std::string value(tag->value);
--                    tags[key] = value;
--                    if (string::compareNoCase(key, "timecode"))
--                    {
--                        otime::ErrorStatus errorStatus;
--                        const otime::RationalTime time = otime::RationalTime::from_timecode(
--                            value,
--                            speed,
--                            &errorStatus);
--                        if (!otime::is_error(errorStatus))
--                        {
--                            startTime = time::floor(time.rescaled_to(speed));
--                            //std::cout << "start time: " << startTime << std::endl;
--                        }
--                    }
+                    const std::string key(tag->key);
+                    const std::string value(tag->value);
+                    tags[key] = value;
+                    if (string::compareNoCase(key, "timecode"))
+                    {
+                        otime::ErrorStatus errorStatus;
+                        const otime::RationalTime time = otime::RationalTime::from_timecode(
+                            value,
+                            speed,
+                            &errorStatus);
+                        if (!otime::is_error(errorStatus))
+                        {
+                            startTime = time::floor(time.rescaled_to(speed));
+                            //std::cout << "start time: " << startTime << std::endl;
+                        }
+                    }
                 }
 
                 p.info.videoTime = otime::TimeRange(
@@ -525,7 +521,7 @@ namespace tl
                     ss << std::fixed;
                     ss << p.info.videoTime.start_time().rate() << " FPS";
                     p.info.tags["Video Speed"] = ss.str();
-                 }
+                }
             }
 
             r = avformat_open_input(
@@ -593,8 +589,8 @@ namespace tl
                     throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
                 }
 
-                size_t channelCount = p.audio.avCodecParameters[p.audio.avStream]->channels;
-                switch (channelCount)
+                const size_t fileChannelCount = p.audio.avCodecParameters[p.audio.avStream]->channels;
+                switch (fileChannelCount)
                 {
                 case 1:
                 case 2:
@@ -605,13 +601,17 @@ namespace tl
                     throw std::runtime_error(string::Format("{0}: Unsupported audio channels").arg(fileName));
                     break;
                 }
-                audio::DataType dataType = toAudioType(static_cast<AVSampleFormat>(
+                const audio::DataType fileDataType = toAudioType(static_cast<AVSampleFormat>(
                     p.audio.avCodecParameters[p.audio.avStream]->format));
-                if (audio::DataType::None == dataType)
+                if (audio::DataType::None == fileDataType)
                 {
                     throw std::runtime_error(string::Format("{0}: Unsupported audio format").arg(fileName));
                 }
-                size_t sampleRate = p.audio.avCodecParameters[p.audio.avStream]->sample_rate;
+                const size_t fileSampleRate = p.audio.avCodecParameters[p.audio.avStream]->sample_rate;
+
+                size_t channelCount = fileChannelCount;
+                audio::DataType dataType = fileDataType;
+                size_t sampleRate = fileSampleRate;
                 if (p.audioConvertInfo.isValid())
                 {
                     if ( p.audioConvertInfo.channelCount < channelCount )
@@ -645,20 +645,73 @@ namespace tl
                         av_get_time_base_q(),
                         r);
                 }
+                
+                std::map<std::string, std::string> tags;
+                AVDictionaryEntry* tag = nullptr;
+                otime::RationalTime startTime(0.0, sampleRate);
+                while ((tag = av_dict_get(p.audio.avFormatContext->metadata, "", tag, AV_DICT_IGNORE_SUFFIX)))
+                {
+                    const std::string key(tag->key);
+                    const std::string value(tag->value);
+                    tags[key] = value;
+                    if (string::compareNoCase(key, "timecode"))
+                    {
+                        otime::ErrorStatus errorStatus;
+                        const otime::RationalTime time = otime::RationalTime::from_timecode(
+                            value,
+                            p.videoTime.rate(),
+                            &errorStatus);
+                        if (!otime::is_error(errorStatus))
+                        {
+                            startTime = time::floor(time.rescaled_to(sampleRate));
+                            //std::cout << "start time: " << startTime << std::endl;
+                        }
+                    }
+                }
 
                 p.info.audio.channelCount = channelCount;
                 p.info.audio.dataType = dataType;
                 p.info.audio.sampleRate = sampleRate;
-                p.info.audioTime = otime::TimeRange::range_from_start_end_time(
-                    otime::RationalTime(0.0, sampleRate),
+                p.info.audioTime = otime::TimeRange(
+                    startTime,
                     otime::RationalTime(sampleCount, sampleRate));
 
-                p.audioTime = otime::RationalTime(0.0, sampleRate);
+                p.audioTime = p.info.audioTime.start_time();
 
-                AVDictionaryEntry* tag = nullptr;
-                while ((tag = av_dict_get(p.audio.avFormatContext->metadata, "", tag, AV_DICT_IGNORE_SUFFIX)))
+                for (const auto& i : tags)
                 {
-                    p.info.tags[tag->key] = tag->value;
+                    p.info.tags[i.first] = i.second;
+                }
+                {
+                    std::stringstream ss;
+                    ss << static_cast<int>(fileChannelCount);
+                    p.info.tags["Audio Channels"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss << fileDataType;
+                    p.info.tags["Audio Data Type"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss.precision(1);
+                    ss << std::fixed;
+                    ss << fileSampleRate / 1000.F << " kHz";
+                    p.info.tags["Audio Sample Rate"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss.precision(2);
+                    ss << std::fixed;
+                    ss << p.info.audioTime.start_time().rescaled_to(1.0).value() << " seconds";
+                    p.info.tags["Audio Start Time"] = ss.str();
+                }
+                {
+                    std::stringstream ss;
+                    ss.precision(2);
+                    ss << std::fixed;
+                    ss << p.info.audioTime.duration().rescaled_to(1.0).value() << " seconds";
+                    p.info.tags["Audio Duration"] = ss.str();
                 }
             }
 
@@ -785,7 +838,7 @@ namespace tl
                                 p.video.avFormatContext,
                                 p.video.avStream,
                                 av_rescale_q(
-                                    videoRequest->time.value(),
+                                    videoRequest->time.value() - p.info.videoTime.start_time().value(),
                                     swap(p.video.avFormatContext->streams[p.video.avStream]->r_frame_rate),
                                     p.video.avFormatContext->streams[p.video.avStream]->time_base),
                                 AVSEEK_FLAG_BACKWARD) < 0)
@@ -889,7 +942,7 @@ namespace tl
                                 p.audio.avFormatContext,
                                 p.audio.avStream,
                                 av_rescale_q(
-                                    audioRequest->time.start_time().value(),
+                                    audioRequest->time.start_time().value() - p.info.audioTime.start_time().value(),
                                     r,
                                     p.audio.avFormatContext->streams[p.audio.avStream]->time_base),
                                 AVSEEK_FLAG_BACKWARD) < 0)
@@ -920,7 +973,8 @@ namespace tl
                     av_init_packet(&packet);
                     int decoding = 0;
                     bool eof = false;
-                    while (0 == decoding && p.getAudioBufferSize() < audioRequest->time.duration().value())
+                    while (0 == decoding &&
+                        p.getAudioBufferSize() < audioRequest->time.clamped(p.info.audioTime).duration().value())
                     {
                         if (!eof)
                         {
@@ -983,7 +1037,12 @@ namespace tl
                     data.time = audioRequest->time.start_time();
                     data.audio = audio::Audio::create(p.info.audio, audioRequest->time.duration().value());
                     data.audio->zero();
-                    audio::copy(p.audio.buffer, data.audio->getData(), data.audio->getByteCount());
+                    size_t offset = 0;
+                    if (data.time < p.info.audioTime.start_time())
+                    {
+                        offset = (p.info.audioTime.start_time() - data.time).value() * p.info.audio.getByteCount();
+                    }
+                    audio::copy(p.audio.buffer, data.audio->getData() + offset, data.audio->getByteCount() - offset);
                     audioRequest->promise.set_value(data);
 
                     p.audioTime += audioRequest->time.duration();
@@ -1087,6 +1146,7 @@ namespace tl
                 //std::cout << "video timestamp: " << timestamp << std::endl;
 
                 const auto time = otime::RationalTime(
+                    info.videoTime.start_time().value() +
                     av_rescale_q(
                         timestamp,
                         video.avFormatContext->streams[video.avStream]->time_base,
@@ -1222,6 +1282,7 @@ namespace tl
                 r.num = 1;
                 r.den = info.audio.sampleRate;
                 const auto time = otime::RationalTime(
+                    info.audioTime.start_time().value() +
                     av_rescale_q(
                         timestamp,
                         audio.avFormatContext->streams[audio.avStream]->time_base,
