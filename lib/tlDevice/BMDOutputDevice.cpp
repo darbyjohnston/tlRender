@@ -11,7 +11,6 @@
 
 #include <algorithm>
 #include <array>
-#include <atomic>
 #include <iostream>
 #include <tuple>
 

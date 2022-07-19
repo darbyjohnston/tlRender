@@ -8,6 +8,7 @@
 
 #include "platform.h"
 
+#include <atomic>
 #include <list>
 #include <mutex>
 

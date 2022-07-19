@@ -7,6 +7,8 @@
 #include <tlCore/Math.h>
 #include <tlCore/StringFormat.h>
 
+#include <cmath>
+
 namespace tl
 {
     namespace examples
@@ -112,8 +114,8 @@ namespace tl
                     const float a = f * math::pi2;
                     const float r = secondsSize.y / 2.F + framesSize.y + 10.F;
                     mesh.v.push_back(math::Vector2f(
-                        _size.w / 2.F + std::cosf(a) * r,
-                        _size.h / 2.F + std::sinf(a) * r));
+                        _size.w / 2.F + std::cos(a) * r,
+                        _size.h / 2.F + std::sin(a) * r));
                 }
                 for (int i = 1; i < resolution; ++i)
                 {
@@ -140,8 +142,8 @@ namespace tl
                     const float a = v * f * math::pi2 - math::pi / 2.F;
                     const float r = secondsSize.y / 2.F + framesSize.y + 10.F;
                     mesh.v.push_back(math::Vector2f(
-                        _size.w / 2.F + std::cosf(a) * r,
-                        _size.h / 2.F + std::sinf(a) * r));
+                        _size.w / 2.F + std::cos(a) * r,
+                        _size.h / 2.F + std::sin(a) * r));
                 }
                 for (int i = 1; i < resolution; ++i)
                 {
