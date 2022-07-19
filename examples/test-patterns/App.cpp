@@ -21,7 +21,7 @@
 
 #include <opentimelineio/clip.h>
 #include <opentimelineio/imageSequenceReference.h>
-#include <opentimelineio/ExternalReference.h>
+#include <opentimelineio/externalReference.h>
 #include <opentimelineio/track.h>
 #include <opentimelineio/timeline.h>
 
