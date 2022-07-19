@@ -55,6 +55,15 @@ if(TLRENDER_BUILD_BMD)
 		set_source_files_properties(${MIDL_OUTPUT} PROPERTIES GENERATED TRUE)
 		add_custom_target(MIDL_Target DEPENDS ${MIDL_OUTPUT})
 	elseif(APPLE)
+		list(APPEND HEADERS_PRIVATE
+			${TLRENDER_BMD_SDK}/Mac/include/DeckLinkAPI.h
+			${CMAKE_CURRENT_SOURCE_DIR}/BMD/macOS/platform.h)
+		list(APPEND SOURCE
+			${TLRENDER_BMD_SDK}/Mac/include/DeckLinkAPIDispatch.cpp
+			${CMAKE_CURRENT_SOURCE_DIR}/BMD/macOS/platform.cpp)
+		list(APPEND INCLUDE_DIRS
+			${CMAKE_CURRENT_SOURCE_DIR}/BMD/macOS
+			${TLRENDER_BMD_SDK}/Mac/include)
 	elseif(UNIX)
 		list(APPEND HEADERS_PRIVATE
 			${TLRENDER_BMD_SDK}/Linux/include/DeckLinkAPI.h

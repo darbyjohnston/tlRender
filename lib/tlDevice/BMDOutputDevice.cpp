@@ -150,11 +150,17 @@ namespace tl
             {
                 if (count == deviceIndex)
                 {
+#if defined(__APPLE__)
+                    CFStringRef dlModelName;
+                    _dl.p->GetModelName(&dlModelName);
+                    StringToStdString(dlModelName, modelName);
+                    CFRelease(dlModelName);
+#else // __APPLE__
                     dlstring_t dlModelName;
                     _dl.p->GetModelName(&dlModelName);
                     modelName = DlToStdString(dlModelName);
                     DeleteString(dlModelName);
-
+#endif // __APPLE__
                     break;
                 }
 
