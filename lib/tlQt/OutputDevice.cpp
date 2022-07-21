@@ -559,16 +559,29 @@ namespace tl
                                 }
                                 pixelData->setHDRData(hdrDataP);
 
-                                glPixelStorei(GL_PACK_ALIGNMENT, getReadPixelsAlign(pixelType));
-                                glPixelStorei(GL_PACK_SWAP_BYTES, getReadPixelsSwap(pixelType));
-                                glReadPixels(
-                                    0,
-                                    0,
-                                    viewportSize.w,
-                                    viewportSize.h,
-                                    getReadPixelsFormat(pixelType),
-                                    getReadPixelsType(pixelType),
-                                    pixelData->getData());
+                                if (0 == viewportSize.w % getReadPixelsAlign(pixelType))
+                                {
+                                    glBindTexture(GL_TEXTURE_2D, offscreenBuffer2->getColorID());
+                                    glGetTexImage(
+                                        GL_TEXTURE_2D,
+                                        0,
+                                        getReadPixelsFormat(pixelType),
+                                        getReadPixelsType(pixelType),
+                                        pixelData->getData());
+                                }
+                                else
+                                {
+                                    glPixelStorei(GL_PACK_ALIGNMENT, getReadPixelsAlign(pixelType));
+                                    glPixelStorei(GL_PACK_SWAP_BYTES, getReadPixelsSwap(pixelType));
+                                    glReadPixels(
+                                        0,
+                                        0,
+                                        viewportSize.w,
+                                        viewportSize.h,
+                                        getReadPixelsFormat(pixelType),
+                                        getReadPixelsType(pixelType),
+                                        pixelData->getData());
+                                }
                                 device->display(pixelData);
                             }
                         }
