@@ -100,8 +100,6 @@ namespace tl
                                 dl->Release();
 
                                 deviceInfo.pixelTypes.push_back(PixelType::_8BitBGRA);
-                                deviceInfo.pixelTypes.push_back(PixelType::_10BitRGB);
-                                deviceInfo.pixelTypes.push_back(PixelType::_10BitRGBX);
                                 deviceInfo.pixelTypes.push_back(PixelType::_10BitRGBXLE);
 
                                 deviceInfoList.push_back(deviceInfo);

@@ -26,8 +26,6 @@ namespace tl
             PixelType,
             "None",
             "8BitBGRA",
-            "10BitRGB",
-            "10BitRGBX",
             "10BitRGBXLE");
         TLRENDER_ENUM_SERIALIZE_IMPL(PixelType);
 
@@ -39,8 +37,6 @@ namespace tl
             case PixelType::_8BitBGRA:
                 out = (size.w * 32 / 8) * size.h;
                 break;
-            case PixelType::_10BitRGB:
-            case PixelType::_10BitRGBX:
             case PixelType::_10BitRGBXLE:
                 out = ((size.w + 63) / 64) * 256 * size.h;
                 break;

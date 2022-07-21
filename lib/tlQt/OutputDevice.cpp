@@ -233,12 +233,10 @@ namespace tl
         {
             GLenum getReadPixelsFormat(device::PixelType value)
             {
-                const std::array<GLenum, 5> data =
+                const std::array<GLenum, static_cast<size_t>(device::PixelType::Count)> data =
                 {
                     GL_NONE,
                     GL_BGRA,
-                    GL_BGRA,
-                    GL_RGBA,
                     GL_RGBA
                 };
                 return data[static_cast<size_t>(value)];
@@ -246,12 +244,10 @@ namespace tl
 
             GLenum getReadPixelsType(device::PixelType value)
             {
-                const std::array<GLenum, 5> data =
+                const std::array<GLenum, static_cast<size_t>(device::PixelType::Count)> data =
                 {
                     GL_NONE,
                     GL_UNSIGNED_BYTE,
-                    GL_UNSIGNED_INT_2_10_10_10_REV,
-                    GL_UNSIGNED_INT_10_10_10_2,
                     GL_UNSIGNED_INT_10_10_10_2
                 };
                 return data[static_cast<size_t>(value)];
@@ -259,12 +255,10 @@ namespace tl
 
             GLint getReadPixelsAlign(device::PixelType value)
             {
-                const std::array<GLint, 5> data =
+                const std::array<GLint, static_cast<size_t>(device::PixelType::Count)> data =
                 {
                     0,
                     4,
-                    256,
-                    256,
                     256
                 };
                 return data[static_cast<size_t>(value)];
@@ -272,12 +266,10 @@ namespace tl
 
             GLint getReadPixelsSwap(device::PixelType value)
             {
-                const std::array<GLint, 5> data =
+                const std::array<GLint, static_cast<size_t>(device::PixelType::Count)> data =
                 {
                     GL_FALSE,
                     GL_FALSE,
-                    GL_TRUE,
-                    GL_TRUE,
                     GL_FALSE
                 };
                 return data[static_cast<size_t>(value)];

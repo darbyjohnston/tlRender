@@ -29,8 +29,6 @@ namespace tl
         {
             None,
             _8BitBGRA,
-            _10BitRGB,
-            _10BitRGBX,
             _10BitRGBXLE,
 
             Count,
