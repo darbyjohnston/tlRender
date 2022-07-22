@@ -338,7 +338,8 @@ namespace tl
                 1.0);
         }
 
-        BMDOutputDevice::BMDOutputDevice()
+        BMDOutputDevice::BMDOutputDevice() :
+            _p(new Private)
         {}
 
         BMDOutputDevice::~BMDOutputDevice()
