@@ -559,7 +559,8 @@ namespace tl
                                 }
                                 pixelData->setHDRData(hdrDataP);
 
-                                if (0 == viewportSize.w % getReadPixelsAlign(pixelType))
+                                if (0 == viewportSize.w % getReadPixelsAlign(pixelType) &&
+                                    !getReadPixelsSwap(pixelType))
                                 {
                                     glBindTexture(GL_TEXTURE_2D, offscreenBuffer2->getColorID());
                                     glGetTexImage(
