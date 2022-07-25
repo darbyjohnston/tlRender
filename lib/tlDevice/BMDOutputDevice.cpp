@@ -81,7 +81,7 @@ namespace tl
                 {
                     _callback(completedFrame);
                 }
-                //std::cout << "result: " << getLabel(result) << std::endl;
+                //std::cout << "result: " << getOutputFrameCompletionResultLabel(result) << std::endl;
                 return S_OK;
             }
 

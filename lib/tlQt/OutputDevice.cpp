@@ -231,6 +231,17 @@ namespace tl
 
         namespace
         {
+            imaging::PixelType getOffscreenType(device::PixelType value)
+            {
+                const std::array<imaging::PixelType, static_cast<size_t>(device::PixelType::Count)> data =
+                {
+                    imaging::PixelType::None,
+                    imaging::PixelType::RGBA_U8,
+                    imaging::PixelType::RGB_U10
+                };
+                return data[static_cast<size_t>(value)];
+            }
+
             GLenum getReadPixelsFormat(device::PixelType value)
             {
                 const std::array<GLenum, static_cast<size_t>(device::PixelType::Count)> data =
@@ -308,8 +319,8 @@ namespace tl
             std::shared_ptr<tl::gl::Shader> shader;
             std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer;
             std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer2;
-            std::array<GLuint, 1> pbo;
-            std::array<otime::RationalTime, 1> pboTime;
+            std::array<GLuint, 2> pbo;
+            std::array<otime::RationalTime, 2> pboTime;
             size_t pboIndex = 0;
             while (p.running)
             {
@@ -369,6 +380,8 @@ namespace tl
 
                 if (doCreateDevice)
                 {
+                    offscreenBuffer2.reset();
+                    offscreenBuffer.reset();
                     device.reset();
                     if (deviceIndex != -1 && displayModeIndex != -1 && pixelType != device::PixelType::None)
                     {
@@ -413,7 +426,7 @@ namespace tl
                         if (gl::doCreate(offscreenBuffer, renderSize))
                         {
                             gl::OffscreenBufferOptions options;
-                            options.colorType = imaging::PixelType::RGBA_U8;
+                            options.colorType = imaging::PixelType::RGBA_F32;
                             options.depth = gl::OffscreenDepth::_24;
                             options.stencil = gl::OffscreenStencil::_8;
                             offscreenBuffer = gl::OffscreenBuffer::create(renderSize, options);
@@ -438,7 +451,7 @@ namespace tl
                         if (gl::doCreate(offscreenBuffer2, viewportSize))
                         {
                             gl::OffscreenBufferOptions options;
-                            options.colorType = imaging::PixelType::RGBA_U8;
+                            options.colorType = getOffscreenType(pixelType);
                             offscreenBuffer2 = gl::OffscreenBuffer::create(viewportSize, options);
                         }
 
