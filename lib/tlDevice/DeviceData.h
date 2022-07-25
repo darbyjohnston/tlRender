@@ -106,6 +106,7 @@ namespace tl
             std::string name;
             std::vector<DisplayMode> displayModes;
             std::vector<PixelType> pixelTypes;
+            bool hdrMetaData = false;
 
             bool operator == (const DeviceInfo&) const;
         };

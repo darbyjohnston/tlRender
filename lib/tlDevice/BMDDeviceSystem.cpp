@@ -97,6 +97,17 @@ namespace tl
                                     dlOutput->Release();
                                 }
 
+                                IDeckLinkProfileAttributes* dlProfileAttributes = nullptr;
+                                if (dl->QueryInterface(IID_IDeckLinkProfileAttributes, (void**)&dlProfileAttributes) == S_OK)
+                                {
+                                    BOOL hdrMetaData = false;
+                                    if (dlProfileAttributes->GetFlag(BMDDeckLinkSupportsHDRMetadata, &hdrMetaData) == S_OK)
+                                    {
+                                        deviceInfo.hdrMetaData = hdrMetaData;
+                                    }
+                                }
+                                dlProfileAttributes->Release();
+
                                 dl->Release();
 
                                 deviceInfo.pixelTypes.push_back(PixelType::_8BitBGRA);

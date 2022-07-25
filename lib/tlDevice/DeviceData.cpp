@@ -130,7 +130,8 @@ namespace tl
             return
                 name == other.name &&
                 displayModes == other.displayModes &&
-                pixelTypes == other.pixelTypes;
+                pixelTypes == other.pixelTypes &&
+                hdrMetaData == other.hdrMetaData;
         }
 
         TLRENDER_ENUM_IMPL(
