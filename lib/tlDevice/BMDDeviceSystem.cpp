@@ -57,10 +57,17 @@ namespace tl
                             {
                                 DeviceInfo deviceInfo;
 
+#if defined(__APPLE__)
+                                CFStringRef dlstring;
+                                dl->GetModelName(&dlstring);
+                                StringToStdString(dlstring, deviceInfo.name);
+                                CFRelease(dlstring);
+#else // __APPLE__
                                 dlstring_t dlstring;
                                 dl->GetModelName(&dlstring);
                                 deviceInfo.name = DlToStdString(dlstring);
                                 DeleteString(dlstring);
+#endif // __APPLE__
 
                                 IDeckLinkOutput* dlOutput = nullptr;
                                 if (dl->QueryInterface(IID_IDeckLinkOutput, (void**)&dlOutput) == S_OK)
@@ -73,8 +80,13 @@ namespace tl
                                         {
                                             DisplayMode displayMode;
                                             dlDisplayMode->GetName(&dlstring);
+#if defined(__APPLE__)
+                                            StringToStdString(dlstring, displayMode.name);
+                                            CFRelease(dlstring);
+#else // __APPLE__
                                             displayMode.name = DlToStdString(dlstring);
                                             DeleteString(dlstring);
+#endif // __APPLE__
                                             displayMode.size.w = dlDisplayMode->GetWidth();
                                             displayMode.size.h = dlDisplayMode->GetHeight();
                                             BMDTimeValue frameDuration;
