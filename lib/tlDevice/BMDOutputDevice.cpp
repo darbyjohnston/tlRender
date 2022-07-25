@@ -165,7 +165,7 @@ namespace tl
                 IDeckLinkMutableVideoFrame* p = nullptr;
             };
 
-            class DLHDRVideoFrame :
+            /*class DLHDRVideoFrame :
                 public IDeckLinkVideoFrame,
                 public IDeckLinkVideoFrameMetadataExtensions
             {
@@ -320,7 +320,7 @@ namespace tl
             {
                 *bufferSize = 0;
                 return E_INVALIDARG;
-            }
+            }*/
         }
 
         struct BMDOutputDevice::Private
