@@ -10,6 +10,8 @@
 #include <tlCore/String.h>
 #include <tlCore/StringFormat.h>
 
+#include "platform.h"
+
 #include <atomic>
 #include <mutex>
 #include <thread>

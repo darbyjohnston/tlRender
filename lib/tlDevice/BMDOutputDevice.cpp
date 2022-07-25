@@ -203,7 +203,7 @@ namespace tl
                 {
 #if defined(__APPLE__)
                     CFStringRef dlModelName;
-                    _dl.p->GetModelName(&dlModelName);
+                    p.dl.p->GetModelName(&dlModelName);
                     StringToStdString(dlModelName, modelName);
                     CFRelease(dlModelName);
 #else // __APPLE__
