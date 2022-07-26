@@ -850,7 +850,7 @@ namespace tl
                         throw std::runtime_error(string::Format("{0}: Cannot allocate frame").arg(_path.get()));
                     }
 
-                    p.video.swsContext = sws_getContext(
+                    /*p.video.swsContext = sws_getContext(
                         p.video.avCodecParameters[p.video.avStream]->width,
                         p.video.avCodecParameters[p.video.avStream]->height,
                         p.video.avInputPixelFormat,
@@ -864,8 +864,8 @@ namespace tl
                     if (!p.video.swsContext)
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot get context").arg(_path.get()));
-                    }
-                    /*p.video.swsContext = sws_alloc_context();
+                    }*/
+                    p.video.swsContext = sws_alloc_context();
                     if (!p.video.swsContext)
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot allocate context").arg(_path.get()));
@@ -883,7 +883,7 @@ namespace tl
                     if (r < 0)
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot initialize sws context").arg(_path.get()));
-                    }*/
+                    }
                     break;
                 }
                 }
