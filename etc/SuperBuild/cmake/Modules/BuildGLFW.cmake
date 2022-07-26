@@ -1,7 +1,7 @@
 include(ExternalProject)
 
 set(GLFW_GIT_REPOSITORY "https://github.com/glfw/glfw.git")
-set(GLFW_GIT_TAG "814b7929c5add4b0541ccad26fb81f28b71dc4d8") # tag: 3.3.4
+set(GLFW_GIT_TAG "3.3.8")
 
 set(GLFW_ARGS
     ${TLRENDER_EXTERNAL_ARGS}
