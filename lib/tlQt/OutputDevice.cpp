@@ -319,8 +319,8 @@ namespace tl
             std::shared_ptr<tl::gl::Shader> shader;
             std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer;
             std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer2;
-            std::array<GLuint, 2> pbo;
-            std::array<otime::RationalTime, 2> pboTime;
+            std::array<GLuint, 1> pbo;
+            std::array<otime::RationalTime, 1> pboTime;
             size_t pboIndex = 0;
             while (p.running)
             {
