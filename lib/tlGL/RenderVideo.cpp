@@ -395,6 +395,7 @@ namespace tl
                                 default: break;
                                 }
                                 p.dissolveShader->setUniform("yuvRange", static_cast<int>(yuvRange));
+                                p.dissolveShader->setUniform("yuvCoefficients", imaging::getYUVCoefficients(info.yuvCoefficients));
                                 p.dissolveShader->setUniform("imageChannels", imaging::getChannelCount(info.pixelType));
                                 p.dissolveShader->setUniform("flipX", info.layout.mirror.x);
                                 p.dissolveShader->setUniform("flipY", info.layout.mirror.y);
@@ -420,6 +421,7 @@ namespace tl
                                 default: break;
                                 }
                                 p.dissolveShader->setUniform("yuvRangeB", static_cast<int>(yuvRange));
+                                p.dissolveShader->setUniform("yuvCoefficientsB", imaging::getYUVCoefficients(infoB.yuvCoefficients));
                                 p.dissolveShader->setUniform("imageChannelsB", imaging::getChannelCount(infoB.pixelType));
                                 p.dissolveShader->setUniform("flipBX", infoB.layout.mirror.x);
                                 p.dissolveShader->setUniform("flipBY", infoB.layout.mirror.y);
@@ -506,14 +508,6 @@ namespace tl
                                 imageOptions.get() ? *imageOptions : layer.imageOptions);
                         }
                         break;
-                    }
-
-                    {
-                        auto shared = shared_from_this();
-                        for (const auto& i : layer.primitives)
-                        {
-                            i->render(_fontSystem, shared);
-                        }
                     }
                 }
             }

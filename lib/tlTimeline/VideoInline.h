@@ -11,10 +11,8 @@ namespace tl
             return
                 image == other.image &&
                 imageOptions == other.imageOptions &&
-                primitives == other.primitives &&
                 imageB == other.imageB &&
                 imageOptionsB == other.imageOptionsB &&
-                primitivesB == other.primitivesB &&
                 transition == other.transition &&
                 transitionValue == other.transitionValue;
         }
