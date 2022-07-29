@@ -217,7 +217,7 @@ namespace tl
                 info.size.h,
                 getTextureFormat(info.pixelType),
                 getTextureType(info.pixelType),
-                NULL);
+                _pbo ? NULL : data.getData());
             if (_pbo)
             {
                 glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
@@ -247,7 +247,7 @@ namespace tl
                 info.size.h,
                 getTextureFormat(info.pixelType),
                 getTextureType(info.pixelType),
-                NULL);
+                _pbo ? NULL : data);
             if (_pbo)
             {
                 glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
@@ -278,7 +278,7 @@ namespace tl
                 info.size.h,
                 getTextureFormat(info.pixelType),
                 getTextureType(info.pixelType),
-                NULL);
+                _pbo ? NULL : data.getData());
             if (_pbo)
             {
                 glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
