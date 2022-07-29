@@ -153,9 +153,12 @@ namespace tl
         {
             TLRENDER_P();
 
+            const auto& info = image->getInfo();
+            auto textures = p.textureCache.get(info);
+            copyTextures(image, textures);
+
             p.imageShader->bind();
             p.imageShader->setUniform("color", color);
-            const auto& info = image->getInfo();
             p.imageShader->setUniform("pixelType", static_cast<int>(info.pixelType));
             imaging::YUVRange yuvRange = info.yuvRange;
             switch (imageOptions.yuvRange)
@@ -197,9 +200,6 @@ namespace tl
                 break;
             default: break;
             }
-
-            auto textures = p.textureCache.get(info);
-            copyTextures(image, textures);
 
             std::vector<uint8_t> vboData;
             vboData.resize(4 * getByteCount(VBOType::Pos2_F32_UV_U16));

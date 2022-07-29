@@ -21,6 +21,14 @@ namespace tl
         //! Get the OpenGL texture type.
         GLenum getTextureType(imaging::PixelType);
 
+        //! OpenGL texture options.
+        struct TextureOptions
+        {
+            GLenum filterMin = GL_LINEAR;
+            GLenum filterMag = GL_LINEAR;
+            bool pbo = false;
+        };
+
         //! OpenGL texture.
         class Texture : public std::enable_shared_from_this<Texture>
         {
@@ -29,8 +37,7 @@ namespace tl
         protected:
             void _init(
                 const imaging::Info&,
-                GLenum filterMin = GL_LINEAR,
-                GLenum filterMag = GL_LINEAR);
+                const TextureOptions& = TextureOptions());
             Texture();
 
         public:
@@ -39,17 +46,13 @@ namespace tl
             //! Create a new texture.
             static std::shared_ptr<Texture> create(
                 const imaging::Info&,
-                GLenum filterMin = GL_LINEAR,
-                GLenum filterMag = GL_LINEAR);
+                const TextureOptions& = TextureOptions());
 
             //! Get the OpenGL texture ID.
             GLuint getID() const;
 
             //! Get image information.
             const imaging::Info& getInfo() const;
-
-            //! Set image information.
-            void set(const imaging::Info&);
 
             //! \name Copy
             //! Copy image data to the texture.
@@ -66,8 +69,7 @@ namespace tl
 
         private:
             imaging::Info _info;
-            GLenum _filterMin = GL_LINEAR;
-            GLenum _filterMag = GL_LINEAR;
+            GLuint _pbo = 0;
             GLuint _id = 0;
         };
     }
