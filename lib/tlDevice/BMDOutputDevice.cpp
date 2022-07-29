@@ -12,7 +12,6 @@
 #include "platform.h"
 
 #include <algorithm>
-#include <array>
 #include <atomic>
 #include <iostream>
 #include <list>
