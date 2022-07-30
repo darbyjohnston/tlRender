@@ -62,6 +62,7 @@ namespace tl
                 if (!p.meshVBO || (p.meshVBO && p.meshVBO->getSize() != size * 3))
                 {
                     p.meshVBO = VBO::create(size * 3, VBOType::Pos2_F32);
+                    p.meshVAO.reset();
                 }
                 if (p.meshVBO)
                 {
