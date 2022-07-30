@@ -126,7 +126,9 @@ namespace tl
             _info = info;
             if (_info.isValid())
             {
-                if (options.pbo)
+                if (options.pbo &&
+                    1 == _info.layout.alignment &&
+                    memory::getEndian() == _info.layout.endian)
                 {
                     glGenBuffers(1, &_pbo);
                     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, _pbo);
@@ -135,6 +137,7 @@ namespace tl
                         imaging::getDataByteCount(_info),
                         NULL,
                         GL_STREAM_DRAW);
+                    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
                 }
                 glGenTextures(1, &_id);
                 glBindTexture(GL_TEXTURE_2D, _id);
@@ -152,10 +155,6 @@ namespace tl
                     getTextureFormat(_info.pixelType),
                     getTextureType(_info.pixelType),
                     NULL);
-                if (_pbo)
-                {
-                    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
-                }
             }
         }
 
