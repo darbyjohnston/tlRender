@@ -153,14 +153,14 @@ namespace tl
             std::vector<std::shared_ptr<Texture> > getTextures(const imaging::Info& info, size_t offset)
             {
                 std::vector<std::shared_ptr<Texture> > out;
+                TextureOptions options;
+                options.pbo = true;
                 switch (info.pixelType)
                 {
                 case imaging::PixelType::YUV_420P_U8:
                 {
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
                     auto infoTmp = imaging::Info(info.size, imaging::PixelType::L_U8);
-                    TextureOptions options;
-                    options.pbo = true;
                     out.push_back(Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
@@ -179,8 +179,6 @@ namespace tl
                 {
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
                     auto infoTmp = imaging::Info(info.size, imaging::PixelType::L_U8);
-                    TextureOptions options;
-                    options.pbo = true;
                     out.push_back(Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
@@ -198,8 +196,6 @@ namespace tl
                 {
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
                     auto infoTmp = imaging::Info(info.size, imaging::PixelType::L_U8);
-                    TextureOptions options;
-                    options.pbo = true;
                     out.push_back(Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
@@ -216,8 +212,6 @@ namespace tl
                 {
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
                     auto infoTmp = imaging::Info(info.size, imaging::PixelType::L_U16);
-                    TextureOptions options;
-                    options.pbo = true;
                     out.push_back(Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
@@ -236,8 +230,6 @@ namespace tl
                 {
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
                     auto infoTmp = imaging::Info(info.size, imaging::PixelType::L_U16);
-                    TextureOptions options;
-                    options.pbo = true;
                     out.push_back(Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
@@ -255,8 +247,6 @@ namespace tl
                 {
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
                     auto infoTmp = imaging::Info(info.size, imaging::PixelType::L_U16);
-                    TextureOptions options;
-                    options.pbo = true;
                     out.push_back(Texture::create(infoTmp, options));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
@@ -272,8 +262,6 @@ namespace tl
                 default:
                 {
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
-                    TextureOptions options;
-                    options.pbo = true;
                     auto texture = Texture::create(info, options);
                     out.push_back(texture);
                     break;

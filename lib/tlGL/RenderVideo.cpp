@@ -379,13 +379,19 @@ namespace tl
                         {
                             if (layer.image && layer.imageB)
                             {
+                                const auto& info = layer.image->getInfo();
+                                auto textures = p.textureCache.get(info);
+                                copyTextures(layer.image, textures);
+                                const auto& infoB = layer.imageB->getInfo();
+                                auto texturesB = p.textureCache.get(infoB, 3);
+                                copyTextures(layer.imageB, texturesB, 3);
+
                                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
                                 p.dissolveShader->bind();
                                 p.dissolveShader->setUniform("transform.mvp", mvp);
                                 p.dissolveShader->setUniform("transition", layer.transitionValue);
 
-                                const auto& info = layer.image->getInfo();
                                 p.dissolveShader->setUniform("pixelType", static_cast<int>(layer.image->getPixelType()));
                                 imaging::YUVRange yuvRange = info.yuvRange;
                                 switch (imageOptions.get() ? imageOptions->yuvRange : layer.imageOptions.yuvRange)
@@ -411,7 +417,6 @@ namespace tl
                                 p.dissolveShader->setUniform("textureSampler1", 1);
                                 p.dissolveShader->setUniform("textureSampler2", 2);
 
-                                const auto& infoB = layer.imageB->getInfo();
                                 p.dissolveShader->setUniform("pixelTypeB", static_cast<int>(layer.imageB->getPixelType()));
                                 yuvRange = infoB.yuvRange;
                                 switch (imageOptions.get() ? imageOptions->yuvRange : layer.imageOptionsB.yuvRange)
@@ -436,11 +441,6 @@ namespace tl
                                 p.dissolveShader->setUniform("textureSamplerB0", 3);
                                 p.dissolveShader->setUniform("textureSamplerB1", 4);
                                 p.dissolveShader->setUniform("textureSamplerB2", 5);
-
-                                auto textures = p.textureCache.get(info);
-                                copyTextures(layer.image, textures);
-                                auto texturesB = p.textureCache.get(infoB, 3);
-                                copyTextures(layer.imageB, texturesB, 3);
 
                                 std::vector<uint8_t> vboData;
                                 vboData.resize(4 * getByteCount(VBOType::Pos2_F32_UV_U16));
