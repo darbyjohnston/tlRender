@@ -6,6 +6,7 @@
 
 #include <tlGL/Render.h>
 
+#include <tlGL/Mesh.h>
 #include <tlGL/OffscreenBuffer.h>
 #include <tlGL/Shader.h>
 #include <tlGL/Texture.h>
@@ -109,8 +110,14 @@ namespace tl
             std::array<std::shared_ptr<OffscreenBuffer>, 2> differenceBuffers;
 
             TextureCache textureCache;
-
             memory::LRUCache<imaging::GlyphInfo, std::shared_ptr<Texture> > glyphTextureCache;
+
+            std::shared_ptr<gl::VBO> rectVBO;
+            std::shared_ptr<gl::VBO> meshVBO;
+            std::shared_ptr<gl::VBO> imageVBO;
+            std::shared_ptr<gl::VAO> rectVAO;
+            std::shared_ptr<gl::VAO> meshVAO;
+            std::shared_ptr<gl::VAO> imageVAO;
         };
     }
 }

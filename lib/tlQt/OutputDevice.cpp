@@ -319,6 +319,8 @@ namespace tl
             std::shared_ptr<tl::gl::Shader> shader;
             std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer;
             std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer2;
+            std::shared_ptr<gl::VBO> vbo;
+            std::shared_ptr<gl::VAO> vao;
             std::array<GLuint, 1> pbo;
             std::array<otime::RationalTime, 1> pboTime;
             size_t pboIndex = 0;
@@ -400,6 +402,9 @@ namespace tl
                             }
                         }
                     }
+
+                    vao.reset();
+                    vbo.reset();
 
                     glDeleteBuffers(pbo.size(), pbo.data());
                     glGenBuffers(pbo.size(), pbo.data());
@@ -561,11 +566,24 @@ namespace tl
                                 mesh,
                                 gl::VBOType::Pos3_F32_UV_U16,
                                 math::SizeTRange(0, mesh.triangles.size() - 1));
-                            auto vbo = gl::VBO::create(mesh.triangles.size() * 3, gl::VBOType::Pos3_F32_UV_U16);
-                            vbo->copy(vboData);
-                            auto vao = gl::VAO::create(gl::VBOType::Pos3_F32_UV_U16, vbo->getID());
-                            vao->bind();
-                            vao->draw(GL_TRIANGLES, 0, mesh.triangles.size() * 3);
+                            if (!vbo)
+                            {
+                                vbo = gl::VBO::create(mesh.triangles.size() * 3, gl::VBOType::Pos3_F32_UV_U16);
+                            }
+                            if (vbo)
+                            {
+                                vbo->copy(vboData);
+                            }
+
+                            if (!vao && vbo)
+                            {
+                                vao = gl::VAO::create(gl::VBOType::Pos3_F32_UV_U16, vbo->getID());
+                            }
+                            if (vao && vbo)
+                            {
+                                vao->bind();
+                                vao->draw(GL_TRIANGLES, 0, vbo->getSize());
+                            }
 
                             glBindBuffer(GL_PIXEL_PACK_BUFFER, pbo[pboIndex % pbo.size()]);
                             pboTime[pboIndex % pbo.size()] = !videoData.empty() ? videoData[0].time : time::invalidTime;

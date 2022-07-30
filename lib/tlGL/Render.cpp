@@ -609,6 +609,23 @@ namespace tl
             }
             p.differenceShader->bind();
             p.differenceShader->setUniform("transform.mvp", mvp);
+
+            if (!p.rectVBO)
+            {
+                p.rectVBO = VBO::create(4, VBOType::Pos2_F32);
+            }
+            if (!p.rectVAO && p.rectVBO)
+            {
+                p.rectVAO = VAO::create(p.rectVBO->getType(), p.rectVBO->getID());
+            }
+            if (!p.imageVBO)
+            {
+                p.imageVBO = VBO::create(4, VBOType::Pos2_F32_UV_U16);
+            }
+            if (!p.imageVAO && p.imageVBO)
+            {
+                p.imageVAO = VAO::create(p.imageVBO->getType(), p.imageVBO->getID());
+            }
         }
 
         void Render::end()

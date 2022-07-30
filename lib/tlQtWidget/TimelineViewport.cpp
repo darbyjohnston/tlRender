@@ -42,6 +42,8 @@ namespace tl
             std::shared_ptr<timeline::IRender> render;
             std::shared_ptr<tl::gl::Shader> shader;
             std::shared_ptr<tl::gl::OffscreenBuffer> buffer;
+            std::shared_ptr<gl::VBO> vbo;
+            std::shared_ptr<gl::VAO> vao;
         };
 
         TimelineViewport::TimelineViewport(
@@ -263,10 +265,14 @@ namespace tl
         void TimelineViewport::resizeGL(int w, int h)
         {
             TLRENDER_P();
+
             if (p.frameView)
             {
                 _frameView();
             }
+
+            p.vao.reset();
+            p.vbo.reset();
         }
 
         void TimelineViewport::paintGL()
@@ -339,7 +345,7 @@ namespace tl
                     static_cast<float>(viewportSize.h),
                     -1.F,
                     1.F);
-                const glm::mat4x4 vpm = pm * vm;
+                glm::mat4x4 vpm = pm * vm;
                 p.shader->setUniform(
                     "transform.mvp",
                     math::Matrix4x4f(
@@ -347,37 +353,47 @@ namespace tl
                         vpm[1][0], vpm[1][1], vpm[1][2], vpm[1][3],
                         vpm[2][0], vpm[2][1], vpm[2][2], vpm[2][3],
                         vpm[3][0], vpm[3][1], vpm[3][2], vpm[3][3]));
+                
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, p.buffer->getColorID());
 
-                geom::TriangleMesh3 mesh;
-                mesh.v.push_back(math::Vector3f(0.F, 0.F, 0.F));
-                mesh.t.push_back(math::Vector2f(0.F, 0.F));
-                mesh.v.push_back(math::Vector3f(renderSize.w, 0.F, 0.F));
-                mesh.t.push_back(math::Vector2f(1.F, 0.F));
-                mesh.v.push_back(math::Vector3f(renderSize.w, renderSize.h, 0.F));
-                mesh.t.push_back(math::Vector2f(1.F, 1.F));
-                mesh.v.push_back(math::Vector3f(0.F, renderSize.h, 0.F));
-                mesh.t.push_back(math::Vector2f(0.F, 1.F));
-                mesh.triangles.push_back(geom::Triangle3({
-                    geom::Vertex3({ 1, 1, 0 }),
-                    geom::Vertex3({ 2, 2, 0 }),
-                    geom::Vertex3({ 3, 3, 0 })
-                    }));
-                mesh.triangles.push_back(geom::Triangle3({
-                    geom::Vertex3({ 3, 3, 0 }),
-                    geom::Vertex3({ 4, 4, 0 }),
-                    geom::Vertex3({ 1, 1, 0 })
-                    }));
-                auto vboData = convert(
-                    mesh,
-                    gl::VBOType::Pos3_F32_UV_U16,
-                    math::SizeTRange(0, mesh.triangles.size() - 1));
-                auto vbo = gl::VBO::create(mesh.triangles.size() * 3, gl::VBOType::Pos3_F32_UV_U16);
-                vbo->copy(vboData);
-                auto vao = gl::VAO::create(gl::VBOType::Pos3_F32_UV_U16, vbo->getID());
-                vao->bind();
-                vao->draw(GL_TRIANGLES, 0, mesh.triangles.size() * 3);
+                if (!p.vbo)
+                {
+                    geom::TriangleMesh3 mesh;
+                    mesh.v.push_back(math::Vector3f(0.F, 0.F, 0.F));
+                    mesh.t.push_back(math::Vector2f(0.F, 0.F));
+                    mesh.v.push_back(math::Vector3f(renderSize.w, 0.F, 0.F));
+                    mesh.t.push_back(math::Vector2f(1.F, 0.F));
+                    mesh.v.push_back(math::Vector3f(renderSize.w, renderSize.h, 0.F));
+                    mesh.t.push_back(math::Vector2f(1.F, 1.F));
+                    mesh.v.push_back(math::Vector3f(0.F, renderSize.h, 0.F));
+                    mesh.t.push_back(math::Vector2f(0.F, 1.F));
+                    mesh.triangles.push_back(geom::Triangle3({
+                        geom::Vertex3({ 1, 1, 0 }),
+                        geom::Vertex3({ 2, 2, 0 }),
+                        geom::Vertex3({ 3, 3, 0 })
+                        }));
+                    mesh.triangles.push_back(geom::Triangle3({
+                        geom::Vertex3({ 3, 3, 0 }),
+                        geom::Vertex3({ 4, 4, 0 }),
+                        geom::Vertex3({ 1, 1, 0 })
+                        }));
+                    auto vboData = convert(
+                        mesh,
+                        gl::VBOType::Pos3_F32_UV_U16,
+                        math::SizeTRange(0, mesh.triangles.size() - 1));
+                    p.vbo = gl::VBO::create(mesh.triangles.size() * 3, gl::VBOType::Pos3_F32_UV_U16);
+                    p.vbo->copy(vboData);
+                }
+                if (!p.vao && p.vbo)
+                {
+                    p.vao = gl::VAO::create(gl::VBOType::Pos3_F32_UV_U16, p.vbo->getID());
+                }
+                if (p.vbo && p.vao)
+                {
+                    p.vao->bind();
+                    p.vao->draw(GL_TRIANGLES, 0, p.vbo->getSize());
+                }
             }
         }
 

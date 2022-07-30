@@ -76,12 +76,16 @@ namespace tl
                     vboP[1].vy = pts[1].y;
                     vboP[2].vx = pts[2].x;
                     vboP[2].vy = pts[2].y;
-                    auto vbo = VBO::create(4, VBOType::Pos2_F32);
-                    vbo->copy(vboData);
+                    if (p.rectVBO)
+                    {
+                        p.rectVBO->copy(vboData);
+                    }
 
-                    auto vao = VAO::create(vbo->getType(), vbo->getID());
-                    vao->bind();
-                    vao->draw(GL_TRIANGLE_STRIP, 0, 3);
+                    if (p.rectVAO)
+                    {
+                        p.rectVAO->bind();
+                        p.rectVAO->draw(GL_TRIANGLE_STRIP, 0, 3);
+                    }
                 }
                 glStencilFunc(GL_EQUAL, 1, 0xFF);
                 glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
@@ -109,12 +113,16 @@ namespace tl
                     vboP[1].vy = pts[3].y;
                     vboP[2].vx = pts[0].x;
                     vboP[2].vy = pts[0].y;
-                    auto vbo = VBO::create(4, VBOType::Pos2_F32);
-                    vbo->copy(vboData);
+                    if (p.rectVBO)
+                    {
+                        p.rectVBO->copy(vboData);
+                    }
 
-                    auto vao = VAO::create(vbo->getType(), vbo->getID());
-                    vao->bind();
-                    vao->draw(GL_TRIANGLE_STRIP, 0, 3);
+                    if (p.rectVAO)
+                    {
+                        p.rectVAO->bind();
+                        p.rectVAO->draw(GL_TRIANGLE_STRIP, 0, 3);
+                    }
                 }
                 glStencilFunc(GL_EQUAL, 1, 0xFF);
                 glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
@@ -191,12 +199,16 @@ namespace tl
                     vboP[3].vy = p.size.h;
                     vboP[3].tx = 65535;
                     vboP[3].ty = 0;
-                    auto vbo = VBO::create(4, VBOType::Pos2_F32_UV_U16);
-                    vbo->copy(vboData);
+                    if (p.imageVBO)
+                    {
+                        p.imageVBO->copy(vboData);
+                    }
 
-                    auto vao = VAO::create(vbo->getType(), vbo->getID());
-                    vao->bind();
-                    vao->draw(GL_TRIANGLE_STRIP, 0, 4);
+                    if (p.imageVAO)
+                    {
+                        p.imageVAO->bind();
+                        p.imageVAO->draw(GL_TRIANGLE_STRIP, 0, 4);
+                    }
                 }
                 break;
             case timeline::CompareMode::Difference:
@@ -277,12 +289,16 @@ namespace tl
                     vboP[3].vy = p.size.h;
                     vboP[3].tx = 65535;
                     vboP[3].ty = 0;
-                    auto vbo = VBO::create(4, VBOType::Pos2_F32_UV_U16);
-                    vbo->copy(vboData);
+                    if (p.imageVBO)
+                    {
+                        p.imageVBO->copy(vboData);
+                    }
 
-                    auto vao = VAO::create(vbo->getType(), vbo->getID());
-                    vao->bind();
-                    vao->draw(GL_TRIANGLE_STRIP, 0, 4);
+                    if (p.imageVAO)
+                    {
+                        p.imageVAO->bind();
+                        p.imageVAO->draw(GL_TRIANGLE_STRIP, 0, 4);
+                    }
                 }
                 break;
             case timeline::CompareMode::Horizontal:
@@ -461,12 +477,16 @@ namespace tl
                                 vboP[3].vy = size.h;
                                 vboP[3].tx = 65535;
                                 vboP[3].ty = 0;
-                                auto vbo = VBO::create(4, VBOType::Pos2_F32_UV_U16);
-                                vbo->copy(vboData);
+                                if (p.imageVBO)
+                                {
+                                    p.imageVBO->copy(vboData);
+                                }
 
-                                auto vao = VAO::create(vbo->getType(), vbo->getID());
-                                vao->bind();
-                                vao->draw(GL_TRIANGLE_STRIP, 0, 4);
+                                if (p.imageVAO)
+                                {
+                                    p.imageVAO->bind();
+                                    p.imageVAO->draw(GL_TRIANGLE_STRIP, 0, 4);
+                                }
 
                                 p.textureCache.add(info, textures);
                                 p.textureCache.add(infoB, texturesB);
@@ -580,12 +600,16 @@ namespace tl
                 vboP[3].vy = bbox.max.y + 1;
                 vboP[3].tx = 65535;
                 vboP[3].ty = 0;
-                auto vbo = VBO::create(4, VBOType::Pos2_F32_UV_U16);
-                vbo->copy(vboData);
+                if (p.imageVBO)
+                {
+                    p.imageVBO->copy(vboData);
+                }
 
-                auto vao = VAO::create(vbo->getType(), vbo->getID());
-                vao->bind();
-                vao->draw(GL_TRIANGLE_STRIP, 0, 4);
+                if (p.imageVAO)
+                {
+                    p.imageVAO->bind();
+                    p.imageVAO->draw(GL_TRIANGLE_STRIP, 0, 4);
+                }
             }
         }
     }

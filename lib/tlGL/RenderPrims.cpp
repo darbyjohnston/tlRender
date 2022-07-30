@@ -4,8 +4,6 @@
 
 #include <tlGL/RenderPrivate.h>
 
-#include <tlGL/Mesh.h>
-
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace tl
@@ -34,12 +32,16 @@ namespace tl
             vboP[2].vy = bbox.max.y + 1;
             vboP[3].vx = bbox.max.x + 1;
             vboP[3].vy = bbox.max.y + 1;
-            auto vbo = VBO::create(4, VBOType::Pos2_F32);
-            vbo->copy(vboData);
+            if (p.rectVBO)
+            {
+                p.rectVBO->copy(vboData);
+            }
 
-            auto vao = VAO::create(vbo->getType(), vbo->getID());
-            vao->bind();
-            vao->draw(GL_TRIANGLE_STRIP, 0, 4);
+            if (p.rectVAO)
+            {
+                p.rectVAO->bind();
+                p.rectVAO->draw(GL_TRIANGLE_STRIP, 0, 4);
+            }
         }
 
         void Render::drawMesh(
@@ -56,13 +58,25 @@ namespace tl
 
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-                auto vbo = VBO::create(3 * size, VBOType::Pos2_F32);
                 auto vboData = convert(mesh, VBOType::Pos2_F32, math::SizeTRange(0, size - 1));
-                vbo->copy(vboData);
+                if (!p.meshVBO || (p.meshVBO && p.meshVBO->getSize() != size * 3))
+                {
+                    p.meshVBO = VBO::create(size * 3, VBOType::Pos2_F32);
+                }
+                if (p.meshVBO)
+                {
+                    p.meshVBO->copy(vboData);
+                }
 
-                auto vao = VAO::create(vbo->getType(), vbo->getID());
-                vao->bind();
-                vao->draw(GL_TRIANGLES, 0, 3 * size);
+                if (!p.meshVAO && p.meshVBO)
+                {
+                    p.meshVAO = VAO::create(p.meshVBO->getType(), p.meshVBO->getID());
+                }
+                if (p.meshVAO && p.meshVBO)
+                {
+                    p.meshVAO->bind();
+                    p.meshVAO->draw(GL_TRIANGLES, 0, p.meshVBO->getSize());
+                }
             }
         }
 
@@ -132,12 +146,16 @@ namespace tl
                         vboP[3].vy = bbox.max.y + 1;
                         vboP[3].tx = 65535;
                         vboP[3].ty = 65535;
-                        auto vbo = VBO::create(4, VBOType::Pos2_F32_UV_U16);
-                        vbo->copy(vboData);
+                        if (p.imageVBO)
+                        {
+                            p.imageVBO->copy(vboData);
+                        }
 
-                        auto vao = VAO::create(vbo->getType(), vbo->getID());
-                        vao->bind();
-                        vao->draw(GL_TRIANGLE_STRIP, 0, 4);
+                        if (p.imageVAO)
+                        {
+                            p.imageVAO->bind();
+                            p.imageVAO->draw(GL_TRIANGLE_STRIP, 0, 4);
+                        }
                     }
 
                     x += glyph->advance;
@@ -220,12 +238,16 @@ namespace tl
             vboP[3].vy = bbox.max.y + 1;
             vboP[3].tx = 65535;
             vboP[3].ty = 0;
-            auto vbo = VBO::create(4, VBOType::Pos2_F32_UV_U16);
-            vbo->copy(vboData);
+            if (p.imageVBO)
+            {
+                p.imageVBO->copy(vboData);
+            }
 
-            auto vao = VAO::create(vbo->getType(), vbo->getID());
-            vao->bind();
-            vao->draw(GL_TRIANGLE_STRIP, 0, 4);
+            if (p.imageVAO)
+            {
+                p.imageVAO->bind();
+                p.imageVAO->draw(GL_TRIANGLE_STRIP, 0, 4);
+            }
 
             p.textureCache.add(info, textures);
         }
