@@ -197,11 +197,14 @@ namespace tl
             if (_pbo)
             {
                 glBindBuffer(GL_PIXEL_UNPACK_BUFFER, _pbo);
-                memcpy(
-                    glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY),
-                    data.getData(),
-                    data.getDataByteCount());
-                glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+                if (void* buffer = glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY))
+                {
+                    memcpy(
+                        buffer,
+                        data.getData(),
+                        data.getDataByteCount());
+                    glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+                }
             }
             const auto& info = data.getInfo();
             glBindTexture(GL_TEXTURE_2D, _id);
@@ -228,11 +231,14 @@ namespace tl
             if (_pbo)
             {
                 glBindBuffer(GL_PIXEL_UNPACK_BUFFER, _pbo);
-                memcpy(
-                    glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY),
-                    data,
-                    imaging::getDataByteCount(info));
-                glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+                if (void* buffer = glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY))
+                {
+                    memcpy(
+                        buffer,
+                        data,
+                        imaging::getDataByteCount(info));
+                    glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+                }
             }
             glBindTexture(GL_TEXTURE_2D, _id);
             glPixelStorei(GL_UNPACK_ALIGNMENT, info.layout.alignment);
@@ -258,11 +264,14 @@ namespace tl
             if (_pbo)
             {
                 glBindBuffer(GL_PIXEL_UNPACK_BUFFER, _pbo);
-                memcpy(
-                    glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY),
-                    data.getData(),
-                    data.getDataByteCount());
-                glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+                if (void* buffer = glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY))
+                {
+                    memcpy(
+                        buffer,
+                        data.getData(),
+                        data.getDataByteCount());
+                    glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+                }
             }
             const auto& info = data.getInfo();
             glBindTexture(GL_TEXTURE_2D, _id);
