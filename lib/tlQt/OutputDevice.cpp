@@ -638,11 +638,15 @@ namespace tl
                                 pixelData->setHDRData(hdrDataP);
 
                                 glBindBuffer(GL_PIXEL_PACK_BUFFER, pbo[pboIndex % pbo.size()]);
-                                memcpy(
-                                    pixelData->getData(),
-                                    glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY),
-                                    pixelData->getDataByteCount());
-                                glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+                                if (void* buffer = glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY))
+                                {
+                                    memcpy(
+                                        pixelData->getData(),
+                                        buffer,
+                                        pixelData->getDataByteCount());
+                                    glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+                                }
+                                glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
                                 device->display(pixelData);
                             }
                         }
