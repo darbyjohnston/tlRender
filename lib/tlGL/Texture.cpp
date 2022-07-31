@@ -204,25 +204,39 @@ namespace tl
                         data.getData(),
                         data.getDataByteCount());
                     glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+                    const auto& info = data.getInfo();
+                    glBindTexture(GL_TEXTURE_2D, _id);
+                    glPixelStorei(GL_UNPACK_ALIGNMENT, info.layout.alignment);
+                    glPixelStorei(GL_UNPACK_SWAP_BYTES, info.layout.endian != memory::getEndian());
+                    glTexSubImage2D(
+                        GL_TEXTURE_2D,
+                        0,
+                        0,
+                        0,
+                        info.size.w,
+                        info.size.h,
+                        getTextureFormat(info.pixelType),
+                        getTextureType(info.pixelType),
+                        NULL);
                 }
-            }
-            const auto& info = data.getInfo();
-            glBindTexture(GL_TEXTURE_2D, _id);
-            glPixelStorei(GL_UNPACK_ALIGNMENT, info.layout.alignment);
-            glPixelStorei(GL_UNPACK_SWAP_BYTES, info.layout.endian != memory::getEndian());
-            glTexSubImage2D(
-                GL_TEXTURE_2D,
-                0,
-                0,
-                0,
-                info.size.w,
-                info.size.h,
-                getTextureFormat(info.pixelType),
-                getTextureType(info.pixelType),
-                _pbo ? NULL : data.getData());
-            if (_pbo)
-            {
                 glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+            }
+            else
+            {
+                const auto& info = data.getInfo();
+                glBindTexture(GL_TEXTURE_2D, _id);
+                glPixelStorei(GL_UNPACK_ALIGNMENT, info.layout.alignment);
+                glPixelStorei(GL_UNPACK_SWAP_BYTES, info.layout.endian != memory::getEndian());
+                glTexSubImage2D(
+                    GL_TEXTURE_2D,
+                    0,
+                    0,
+                    0,
+                    info.size.w,
+                    info.size.h,
+                    getTextureFormat(info.pixelType),
+                    getTextureType(info.pixelType),
+                    data.getData());
             }
         }
 
@@ -238,24 +252,37 @@ namespace tl
                         data,
                         imaging::getDataByteCount(info));
                     glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+                    glBindTexture(GL_TEXTURE_2D, _id);
+                    glPixelStorei(GL_UNPACK_ALIGNMENT, info.layout.alignment);
+                    glPixelStorei(GL_UNPACK_SWAP_BYTES, info.layout.endian != memory::getEndian());
+                    glTexSubImage2D(
+                        GL_TEXTURE_2D,
+                        0,
+                        0,
+                        0,
+                        info.size.w,
+                        info.size.h,
+                        getTextureFormat(info.pixelType),
+                        getTextureType(info.pixelType),
+                        NULL);
                 }
-            }
-            glBindTexture(GL_TEXTURE_2D, _id);
-            glPixelStorei(GL_UNPACK_ALIGNMENT, info.layout.alignment);
-            glPixelStorei(GL_UNPACK_SWAP_BYTES, info.layout.endian != memory::getEndian());
-            glTexSubImage2D(
-                GL_TEXTURE_2D,
-                0,
-                0,
-                0,
-                info.size.w,
-                info.size.h,
-                getTextureFormat(info.pixelType),
-                getTextureType(info.pixelType),
-                _pbo ? NULL : data);
-            if (_pbo)
-            {
                 glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+            }
+            else
+            {
+                glBindTexture(GL_TEXTURE_2D, _id);
+                glPixelStorei(GL_UNPACK_ALIGNMENT, info.layout.alignment);
+                glPixelStorei(GL_UNPACK_SWAP_BYTES, info.layout.endian != memory::getEndian());
+                glTexSubImage2D(
+                    GL_TEXTURE_2D,
+                    0,
+                    0,
+                    0,
+                    info.size.w,
+                    info.size.h,
+                    getTextureFormat(info.pixelType),
+                    getTextureType(info.pixelType),
+                    data);
             }
         }
 
@@ -271,25 +298,39 @@ namespace tl
                         data.getData(),
                         data.getDataByteCount());
                     glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+                    const auto& info = data.getInfo();
+                    glBindTexture(GL_TEXTURE_2D, _id);
+                    glPixelStorei(GL_UNPACK_ALIGNMENT, info.layout.alignment);
+                    glPixelStorei(GL_UNPACK_SWAP_BYTES, info.layout.endian != memory::getEndian());
+                    glTexSubImage2D(
+                        GL_TEXTURE_2D,
+                        0,
+                        x,
+                        y,
+                        info.size.w,
+                        info.size.h,
+                        getTextureFormat(info.pixelType),
+                        getTextureType(info.pixelType),
+                        NULL);
                 }
-            }
-            const auto& info = data.getInfo();
-            glBindTexture(GL_TEXTURE_2D, _id);
-            glPixelStorei(GL_UNPACK_ALIGNMENT, info.layout.alignment);
-            glPixelStorei(GL_UNPACK_SWAP_BYTES, info.layout.endian != memory::getEndian());
-            glTexSubImage2D(
-                GL_TEXTURE_2D,
-                0,
-                x,
-                y,
-                info.size.w,
-                info.size.h,
-                getTextureFormat(info.pixelType),
-                getTextureType(info.pixelType),
-                _pbo ? NULL : data.getData());
-            if (_pbo)
-            {
                 glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+            }
+            else
+            {
+                const auto& info = data.getInfo();
+                glBindTexture(GL_TEXTURE_2D, _id);
+                glPixelStorei(GL_UNPACK_ALIGNMENT, info.layout.alignment);
+                glPixelStorei(GL_UNPACK_SWAP_BYTES, info.layout.endian != memory::getEndian());
+                glTexSubImage2D(
+                    GL_TEXTURE_2D,
+                    0,
+                    x,
+                    y,
+                    info.size.w,
+                    info.size.h,
+                    getTextureFormat(info.pixelType),
+                    getTextureType(info.pixelType),
+                    data.getData());
             }
         }
 

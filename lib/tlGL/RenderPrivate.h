@@ -115,9 +115,11 @@ namespace tl
             std::shared_ptr<gl::VBO> rectVBO;
             std::shared_ptr<gl::VBO> meshVBO;
             std::shared_ptr<gl::VBO> imageVBO;
+            std::shared_ptr<gl::VBO> videoVBO;
             std::shared_ptr<gl::VAO> rectVAO;
             std::shared_ptr<gl::VAO> meshVAO;
             std::shared_ptr<gl::VAO> imageVAO;
+            std::shared_ptr<gl::VAO> videoVAO;
         };
     }
 }

@@ -199,15 +199,15 @@ namespace tl
                     vboP[3].vy = p.size.h;
                     vboP[3].tx = 65535;
                     vboP[3].ty = 0;
-                    if (p.imageVBO)
+                    if (p.videoVBO)
                     {
-                        p.imageVBO->copy(vboData);
+                        p.videoVBO->copy(vboData);
                     }
 
-                    if (p.imageVAO)
+                    if (p.videoVAO)
                     {
-                        p.imageVAO->bind();
-                        p.imageVAO->draw(GL_TRIANGLE_STRIP, 0, 4);
+                        p.videoVAO->bind();
+                        p.videoVAO->draw(GL_TRIANGLE_STRIP, 0, 4);
                     }
                 }
                 break;
@@ -289,15 +289,15 @@ namespace tl
                     vboP[3].vy = p.size.h;
                     vboP[3].tx = 65535;
                     vboP[3].ty = 0;
-                    if (p.imageVBO)
+                    if (p.videoVBO)
                     {
-                        p.imageVBO->copy(vboData);
+                        p.videoVBO->copy(vboData);
                     }
 
-                    if (p.imageVAO)
+                    if (p.videoVAO)
                     {
-                        p.imageVAO->bind();
-                        p.imageVAO->draw(GL_TRIANGLE_STRIP, 0, 4);
+                        p.videoVAO->bind();
+                        p.videoVAO->draw(GL_TRIANGLE_STRIP, 0, 4);
                     }
                 }
                 break;
@@ -477,15 +477,15 @@ namespace tl
                                 vboP[3].vy = size.h;
                                 vboP[3].tx = 65535;
                                 vboP[3].ty = 0;
-                                if (p.imageVBO)
+                                if (p.videoVBO)
                                 {
-                                    p.imageVBO->copy(vboData);
+                                    p.videoVBO->copy(vboData);
                                 }
 
-                                if (p.imageVAO)
+                                if (p.videoVAO)
                                 {
-                                    p.imageVAO->bind();
-                                    p.imageVAO->draw(GL_TRIANGLE_STRIP, 0, 4);
+                                    p.videoVAO->bind();
+                                    p.videoVAO->draw(GL_TRIANGLE_STRIP, 0, 4);
                                 }
 
                                 p.textureCache.add(info, textures);
@@ -600,15 +600,15 @@ namespace tl
                 vboP[3].vy = bbox.max.y + 1;
                 vboP[3].tx = 65535;
                 vboP[3].ty = 0;
-                if (p.imageVBO)
+                if (p.videoVBO)
                 {
-                    p.imageVBO->copy(vboData);
+                    p.videoVBO->copy(vboData);
                 }
 
-                if (p.imageVAO)
+                if (p.videoVAO)
                 {
-                    p.imageVAO->bind();
-                    p.imageVAO->draw(GL_TRIANGLE_STRIP, 0, 4);
+                    p.videoVAO->bind();
+                    p.videoVAO->draw(GL_TRIANGLE_STRIP, 0, 4);
                 }
             }
         }

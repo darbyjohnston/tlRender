@@ -626,6 +626,14 @@ namespace tl
             {
                 p.imageVAO = VAO::create(p.imageVBO->getType(), p.imageVBO->getID());
             }
+            if (!p.videoVBO)
+            {
+                p.videoVBO = VBO::create(4, VBOType::Pos2_F32_UV_U16);
+            }
+            if (!p.videoVAO && p.videoVBO)
+            {
+                p.videoVAO = VAO::create(p.videoVBO->getType(), p.videoVBO->getID());
+            }
         }
 
         void Render::end()
