@@ -154,7 +154,7 @@ namespace tl
             {
                 std::vector<std::shared_ptr<Texture> > out;
                 TextureOptions options;
-                //options.pbo = true;
+                options.pbo = true;
                 switch (info.pixelType)
                 {
                 case imaging::PixelType::YUV_420P_U8:
