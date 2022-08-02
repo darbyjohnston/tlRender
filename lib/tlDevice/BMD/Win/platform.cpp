@@ -36,7 +36,7 @@ HRESULT GetDeckLinkIterator(IDeckLinkIterator **deckLinkIterator)
 	result = CoCreateInstance(CLSID_CDeckLinkIterator, NULL, CLSCTX_ALL, IID_IDeckLinkIterator, (void**)deckLinkIterator);
 	if (FAILED(result))
 	{
-		fprintf(stderr, "A DeckLink iterator could not be created.  The DeckLink drivers may not be installed.\n");
+		//fprintf(stderr, "A DeckLink iterator could not be created.  The DeckLink drivers may not be installed.\n");
 	}
 
 	return result;

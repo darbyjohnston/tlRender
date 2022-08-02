@@ -40,7 +40,7 @@ HRESULT GetDeckLinkIterator(IDeckLinkIterator **deckLinkIterator)
     *deckLinkIterator = CreateDeckLinkIteratorInstance();
     if (*deckLinkIterator == NULL)
     {
-        fprintf(stderr, "A DeckLink iterator could not be created.  The DeckLink drivers may not be installed.\n");
+        //fprintf(stderr, "A DeckLink iterator could not be created.  The DeckLink drivers may not be installed.\n");
         return E_FAIL;
     }
     return S_OK;
@@ -51,7 +51,7 @@ HRESULT GetDeckLinkDiscoveryInstance(IDeckLinkDiscovery **deckLinkDiscovery)
     *deckLinkDiscovery = CreateDeckLinkDiscoveryInstance();
     if (*deckLinkDiscovery == NULL)
     {
-        fprintf(stderr, "A DeckLink discovery instance could not be created.\n");
+        //fprintf(stderr, "A DeckLink discovery instance could not be created.\n");
         return E_FAIL;
     }
     return S_OK;

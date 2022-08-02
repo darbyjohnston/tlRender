@@ -36,7 +36,7 @@ HRESULT GetDeckLinkIterator(IDeckLinkIterator **deckLinkIterator)
 	*deckLinkIterator = CreateDeckLinkIteratorInstance();
 	if (*deckLinkIterator == NULL)
 	{
-		fprintf(stderr, "A DeckLink iterator could not be created.  The DeckLink drivers may not be installed.\n");
+		//fprintf(stderr, "A DeckLink iterator could not be created.  The DeckLink drivers may not be installed.\n");
 		result = E_FAIL;
 	}
 
