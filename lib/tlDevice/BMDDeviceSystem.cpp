@@ -156,7 +156,7 @@ namespace tl
                                         displayModes.push_back(j.name);
                                     }
                                     context->log(
-                                        "tl::device::BMDSystem",
+                                        "tl::device::BMDDeviceSystem",
                                         string::Format("{0}: {1}").
                                         arg(i.name).
                                         arg(string::join(displayModes, ", ")));
