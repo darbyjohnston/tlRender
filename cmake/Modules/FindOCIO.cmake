@@ -3,7 +3,7 @@
 # This module defines the following variables:
 #
 # * OCIO_FOUND
-# * OCIO_DEFINES
+# * OCIO_COMPILE_DEFINITIONS
 # * OCIO_INCLUDE_DIRS
 # * OCIO_LIBRARIES
 #
@@ -40,11 +40,6 @@ set(OCIO_LIBRARIES
     ${Imath_LIBRARIES})
 if(APPLE)
     list(APPEND OCIO_LIBRARIES "-framework ColorSync" "-framework CoreGraphics" "-framework IOKit" "-framework Foundation")
-endif()
-
-set(OCIO_DEFINES)
-if(NOT BUILD_SHARED_LIBS)
-	list(APPEND OCIO_DEFINES OpenColorIO_SKIP_IMPORTS)
 endif()
 
 include(FindPackageHandleStandardArgs)
