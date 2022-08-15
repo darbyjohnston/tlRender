@@ -134,7 +134,7 @@ namespace tl
                 "const uint PixelType_YUV_444P_U16 = 27;\n";
 
             const std::string yuvRange =
-                "// enum tl::render::YUVRange\n"
+                "// enum tl::imaging::YUVRange\n"
                 "const uint YUVRange_Full  = 0;\n"
                 "const uint YUVRange_Video = 1;\n";
 
@@ -286,6 +286,10 @@ namespace tl
                 "    float g;\n"
                 "};\n"
                 "\n"
+                "// enum tl::render::OutputRange\n"
+                "const uint OutputRange_Full  = 0;\n"
+                "const uint OutputRange_Video = 1;\n"
+                "\n"
                 "uniform sampler2D textureSampler;\n"
                 "\n"
                 "uniform int      channels;\n"
@@ -300,6 +304,7 @@ namespace tl
                 "uniform bool     exposureEnabled;\n"
                 "uniform Exposure exposure;\n"
                 "uniform float    softClip;\n"
+                "uniform int      outputRange;\n"
                 "\n"
                 "vec4 colorFunc(vec4 value, vec3 add, mat4 m)\n"
                 "{\n"
@@ -429,6 +434,17 @@ namespace tl
                 "        fColor.r = fColor.a;\n"
                 "        fColor.g = fColor.a;\n"
                 "        fColor.b = fColor.a;\n"
+                "    }\n"
+                "\n"
+                "    // Output range.\n"
+                "    if (OutputRange_Video == outputRange)\n"
+                "    {\n"
+                "        const float scale = (940.0 - 64.0) / 1023.0;\n"
+                "        const float offset = 64.0 / 1023.0;\n"
+                "        fColor.r = fColor.r * scale + offset;\n"
+                "        fColor.g = fColor.g * scale + offset;\n"
+                "        fColor.b = fColor.b * scale + offset;\n"
+                "        fColor.a = fColor.a * scale + offset;\n"
                 "    }\n"
                 "}\n";
         }

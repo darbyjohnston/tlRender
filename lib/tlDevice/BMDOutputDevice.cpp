@@ -13,6 +13,10 @@
 #include <iostream>
 #include <tuple>
 
+#if defined(__linux__)
+typedef bool BOOL;
+#endif
+
 namespace tl
 {
     namespace device
@@ -220,6 +224,14 @@ namespace tl
             }
         }
 
+        DLConfigWrapper::~DLConfigWrapper()
+        {
+            if (p)
+            {
+                p->Release();
+            }
+        }
+
         DLOutputWrapper::~DLOutputWrapper()
         {
             if (p)
@@ -325,6 +337,11 @@ namespace tl
                 {
                     throw std::runtime_error("Device not found");
                 }
+            }
+
+            if (_dl.p->QueryInterface(IID_IDeckLinkConfiguration, (void**)&_dlConfig) != S_OK)
+            {
+                throw std::runtime_error("Configuration device not found");
             }
 
             if (_dl.p->QueryInterface(IID_IDeckLinkOutput, (void**)&_dlOutput) != S_OK)

@@ -75,7 +75,8 @@ namespace tl
                 exposureEnabled == other.exposureEnabled &&
                 exposure == other.exposure &&
                 softClipEnabled == other.softClipEnabled &&
-                softClip == other.softClip;
+                softClip == other.softClip &&
+                outputRange == other.outputRange;
         }
 
         inline bool DisplayOptions::operator != (const DisplayOptions& other) const

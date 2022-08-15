@@ -26,6 +26,15 @@ namespace tl
             IDeckLink* p = nullptr;
         };
 
+        //! Decklink configuration wrapper.
+        class DLConfigWrapper
+        {
+        public:
+            ~DLConfigWrapper();
+
+            IDeckLinkConfiguration* p = nullptr;
+        };
+
         //! Decklink output wrapper.
         class DLOutputWrapper
         {
@@ -96,6 +105,7 @@ namespace tl
             std::mutex _pixelDataMutex;
 
             DLWrapper _dl;
+            DLConfigWrapper _dlConfig;
             DLOutputWrapper _dlOutput;
             DLVideoOutputCallbackWrapper _dlVideoOutputCallback;
         };

@@ -104,6 +104,12 @@ namespace tl
         }
 
         TLRENDER_ENUM_IMPL(
+            OutputRange,
+            "Full",
+            "Video");
+        TLRENDER_ENUM_SERIALIZE_IMPL(OutputRange);
+
+        TLRENDER_ENUM_IMPL(
             CompareMode,
             "A",
             "B",

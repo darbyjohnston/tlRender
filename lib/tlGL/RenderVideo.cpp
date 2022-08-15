@@ -572,6 +572,7 @@ namespace tl
                     p.displayShader->setUniform("exposure.f", f);
                 }
                 p.displayShader->setUniform("softClip", displayOptions.softClipEnabled ? displayOptions.softClip : 0.F);
+                p.displayShader->setUniform("outputRange", static_cast<int>(displayOptions.outputRange));
 
                 glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
                 glBindTexture(GL_TEXTURE_2D, p.buffer->getColorID());

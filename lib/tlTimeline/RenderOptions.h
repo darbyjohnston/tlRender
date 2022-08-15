@@ -121,6 +121,18 @@ namespace tl
             bool operator != (const Exposure&) const;
         };
 
+        //! Output value range.
+        enum class OutputRange
+        {
+            Full,
+            Video,
+
+            Count,
+            First = Full
+        };
+        TLRENDER_ENUM(OutputRange);
+        TLRENDER_ENUM_SERIALIZE(OutputRange);
+
         //! Image options.
         struct ImageOptions
         {
@@ -144,6 +156,7 @@ namespace tl
             Exposure        exposure;
             bool            softClipEnabled = false;
             float           softClip = 0.F;
+            OutputRange     outputRange = OutputRange::Full;
 
             bool operator == (const DisplayOptions&) const;
             bool operator != (const DisplayOptions&) const;
