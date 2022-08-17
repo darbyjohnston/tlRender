@@ -155,11 +155,30 @@ namespace tl
                         {
                             _run();
                         }
-                        catch (const std::exception&)
-                        {}
+                        catch (const std::exception& e)
+                        {
+                            if (auto logSystem = _logSystem.lock())
+                            {
+                                const std::string id = string::Format("tl::io::ffmpeg::Read ({0}: {1})").
+                                    arg(__FILE__).
+                                    arg(__LINE__);
+                                logSystem->print(id, string::Format("{0}: {1}").
+                                    arg(_path.get()).
+                                    arg(e.what()));
+                            }
+                        }
                     }
                     catch (const std::exception& e)
                     {
+                        if (auto logSystem = _logSystem.lock())
+                        {
+                            const std::string id = string::Format("tl::io::ffmpeg::Read ({0}: {1})").
+                                arg(__FILE__).
+                                arg(__LINE__);
+                            logSystem->print(id, string::Format("{0}: {1}").
+                                arg(_path.get()).
+                                arg(e.what()));
+                        }
                         p.infoPromise.set_value(io::Info());
                     }
                     
