@@ -480,7 +480,9 @@ namespace tl
                     p.threadData.rtAudio->abortStream();
                 }
                 catch (const std::exception&)
-                {}
+                {
+                    //! \todo How should this be handled?
+                }
             }
             p.threadData.running = false;
             if (p.thread.joinable())
@@ -1383,7 +1385,9 @@ namespace tl
                     threadData.rtAudio->setStreamTime(0.0);
                 }
                 catch (const std::exception&)
-                {}
+                {
+                    //! \todo How should this be handled?
+                }
             }
         }
 
