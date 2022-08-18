@@ -69,51 +69,51 @@ namespace tl
                             "input",
                             "The input timeline.")
                     },
-            {
-                app::CmdLineValueOption<imaging::Size>::create(
-                    _options.windowSize,
-                    { "-windowSize", "-ws" },
-                    "Window size.",
-                    string::Format("{0}x{1}").arg(_options.windowSize.w).arg(_options.windowSize.h)),
-                app::CmdLineFlagOption::create(
-                    _options.fullScreen,
-                    { "-fullScreen", "-fs" },
-                    "Enable full screen mode."),
-                app::CmdLineValueOption<bool>::create(
-                    _options.hud,
-                    { "-hud" },
-                    "Enable the HUD (heads up display).",
-                    string::Format("{0}").arg(_options.hud),
-                    "0, 1"),
-                app::CmdLineValueOption<bool>::create(
-                    _options.startPlayback,
-                    { "-startPlayback", "-sp" },
-                    "Automatically start playback.",
-                    string::Format("{0}").arg(_options.startPlayback),
-                    "0, 1"),
-                app::CmdLineValueOption<bool>::create(
-                    _options.loopPlayback,
-                    { "-loopPlayback", "-lp" },
-                    "Loop playback.",
-                    string::Format("{0}").arg(_options.loopPlayback),
-                    "0, 1"),
-                app::CmdLineValueOption<std::string>::create(
-                    _options.colorConfig.fileName,
-                    { "-colorConfig", "-cc" },
-                    "Color configuration file name (e.g., config.ocio)."),
-                app::CmdLineValueOption<std::string>::create(
-                    _options.colorConfig.input,
-                    { "-colorInput", "-ci" },
-                    "Input color space."),
-                app::CmdLineValueOption<std::string>::create(
-                    _options.colorConfig.display,
-                    { "-colorDisplay", "-cd" },
-                    "Display color space."),
-                app::CmdLineValueOption<std::string>::create(
-                    _options.colorConfig.view,
-                    { "-colorView", "-cv" },
-                    "View color space.")
-            });
+                {
+                    app::CmdLineValueOption<imaging::Size>::create(
+                        _options.windowSize,
+                        { "-windowSize", "-ws" },
+                        "Window size.",
+                        string::Format("{0}x{1}").arg(_options.windowSize.w).arg(_options.windowSize.h)),
+                    app::CmdLineFlagOption::create(
+                        _options.fullScreen,
+                        { "-fullScreen", "-fs" },
+                        "Enable full screen mode."),
+                    app::CmdLineValueOption<bool>::create(
+                        _options.hud,
+                        { "-hud" },
+                        "Enable the HUD (heads up display).",
+                        string::Format("{0}").arg(_options.hud),
+                        "0, 1"),
+                    app::CmdLineValueOption<bool>::create(
+                        _options.startPlayback,
+                        { "-startPlayback", "-sp" },
+                        "Automatically start playback.",
+                        string::Format("{0}").arg(_options.startPlayback),
+                        "0, 1"),
+                    app::CmdLineValueOption<bool>::create(
+                        _options.loopPlayback,
+                        { "-loopPlayback", "-lp" },
+                        "Loop playback.",
+                        string::Format("{0}").arg(_options.loopPlayback),
+                        "0, 1"),
+                    app::CmdLineValueOption<std::string>::create(
+                        _options.colorConfig.fileName,
+                        { "-colorConfig", "-cc" },
+                        "Color configuration file name (e.g., config.ocio)."),
+                    app::CmdLineValueOption<std::string>::create(
+                        _options.colorConfig.input,
+                        { "-colorInput", "-ci" },
+                        "Input color space."),
+                    app::CmdLineValueOption<std::string>::create(
+                        _options.colorConfig.display,
+                        { "-colorDisplay", "-cd" },
+                        "Display color space."),
+                    app::CmdLineValueOption<std::string>::create(
+                        _options.colorConfig.view,
+                        { "-colorView", "-cv" },
+                        "View color space.")
+                });
             }
 
             App::App()
