@@ -11,7 +11,8 @@ set(TIFF_ARGS
     -Dlzma=OFF
     -Dzstd=OFF
     -Dwebp=OFF
-    -Djpeg12=OFF)
+    -Djpeg12=OFF
+    -Dlibdeflate=OFF)
 
 ExternalProject_Add(
     TIFF
