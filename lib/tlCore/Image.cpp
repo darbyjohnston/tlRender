@@ -98,7 +98,7 @@ namespace tl
         TLRENDER_ENUM_IMPL(
             VideoLevels,
             "FullRange",
-            "VideoRange");
+            "LegalRange");
         TLRENDER_ENUM_SERIALIZE_IMPL(VideoLevels);
 
         uint8_t getChannelCount(PixelType value) noexcept

@@ -16,11 +16,11 @@ namespace tl
     namespace timeline
     {
         TLRENDER_ENUM_IMPL(
-            VideoLevels,
+            InputVideoLevels,
             "FromFile",
             "FullRange",
             "LegalRange");
-        TLRENDER_ENUM_SERIALIZE_IMPL(VideoLevels);
+        TLRENDER_ENUM_SERIALIZE_IMPL(InputVideoLevels);
 
         TLRENDER_ENUM_IMPL(
             Channels,
@@ -102,12 +102,6 @@ namespace tl
                 saturation(in.saturation) *
                 tint(in.tint);
         }
-
-        TLRENDER_ENUM_IMPL(
-            OutputRange,
-            "Full",
-            "Video");
-        TLRENDER_ENUM_SERIALIZE_IMPL(OutputRange);
 
         TLRENDER_ENUM_IMPL(
             CompareMode,

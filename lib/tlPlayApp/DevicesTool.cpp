@@ -45,6 +45,7 @@ namespace tl
             QComboBox* deviceComboBox = nullptr;
             QComboBox* displayModeComboBox = nullptr;
             QComboBox* pixelTypeComboBox = nullptr;
+            QComboBox* videoLevelsComboBox = nullptr;
             QComboBox* hdrModeComboBox = nullptr;
             std::pair<QDoubleSpinBox*, QDoubleSpinBox*> redPrimariesSpinBoxes =
                 std::make_pair(nullptr, nullptr);
@@ -76,6 +77,8 @@ namespace tl
 
             p.pixelTypeComboBox = new QComboBox;
 
+            p.videoLevelsComboBox = new QComboBox;
+
             p.hdrModeComboBox = new QComboBox;
 
             p.redPrimariesSpinBoxes.first = createPrimariesSpinBox();
@@ -105,6 +108,7 @@ namespace tl
             layout->addRow(tr("Name:"), p.deviceComboBox);
             layout->addRow(tr("Display mode:"), p.displayModeComboBox);
             layout->addRow(tr("Pixel type:"), p.pixelTypeComboBox);
+            layout->addRow(tr("Video levels:"), p.videoLevelsComboBox);
             auto widget = new QWidget;
             widget->setLayout(layout);
             addBellows(tr("Output"), widget);
@@ -163,6 +167,14 @@ namespace tl
                 [this](int value)
                 {
                     _p->app->devicesModel()->setPixelTypeIndex(value);
+                });
+
+            connect(
+                p.videoLevelsComboBox,
+                QOverload<int>::of(&QComboBox::activated),
+                [this](int value)
+                {
+                    _p->app->devicesModel()->setVideoLevels(static_cast<imaging::VideoLevels>(value));
                 });
 
             connect(
@@ -319,6 +331,17 @@ namespace tl
                             _p->pixelTypeComboBox->addItem(QString::fromUtf8(ss.str().c_str()));
                         }
                         _p->pixelTypeComboBox->setCurrentIndex(value.pixelTypeIndex);
+                    }
+                    {
+                        QSignalBlocker blocker(_p->videoLevelsComboBox);
+                        _p->videoLevelsComboBox->clear();
+                        for (const auto& i : imaging::getVideoLevelsEnums())
+                        {
+                            std::stringstream ss;
+                            ss << i;
+                            _p->videoLevelsComboBox->addItem(QString::fromUtf8(ss.str().c_str()));
+                        }
+                        _p->videoLevelsComboBox->setCurrentIndex(static_cast<int>(value.videoLevels));
                     }
                     {
                         QSignalBlocker blocker(_p->hdrModeComboBox);

@@ -182,8 +182,8 @@ namespace tl
             imaging::VideoLevels videoLevels = info.videoLevels;
             switch (imageOptions.videoLevels)
             {
-            case timeline::VideoLevels::FullRange:  videoLevels = imaging::VideoLevels::FullRange;  break;
-            case timeline::VideoLevels::LegalRange: videoLevels = imaging::VideoLevels::LegalRange; break;
+            case timeline::InputVideoLevels::FullRange:  videoLevels = imaging::VideoLevels::FullRange;  break;
+            case timeline::InputVideoLevels::LegalRange: videoLevels = imaging::VideoLevels::LegalRange; break;
             default: break;
             }
             p.imageShader->setUniform("videoLevels", static_cast<int>(videoLevels));

@@ -22,8 +22,8 @@ namespace tl
 
     namespace timeline
     {
-        //! Video levels.
-        enum class VideoLevels
+        //! Input video levels.
+        enum class InputVideoLevels
         {
             FromFile,
             FullRange,
@@ -32,8 +32,8 @@ namespace tl
             Count,
             First = FromFile
         };
-        TLRENDER_ENUM(VideoLevels);
-        TLRENDER_ENUM_SERIALIZE(VideoLevels);
+        TLRENDER_ENUM(InputVideoLevels);
+        TLRENDER_ENUM_SERIALIZE(InputVideoLevels);
 
         //! Channels.
         enum class Channels
@@ -121,23 +121,11 @@ namespace tl
             bool operator != (const Exposure&) const;
         };
 
-        //! Output value range.
-        enum class OutputRange
-        {
-            Full,
-            Video,
-
-            Count,
-            First = Full
-        };
-        TLRENDER_ENUM(OutputRange);
-        TLRENDER_ENUM_SERIALIZE(OutputRange);
-
         //! Image options.
         struct ImageOptions
         {
-            VideoLevels     videoLevels = VideoLevels::FromFile;
-            AlphaBlend      alphaBlend  = AlphaBlend::Straight;
+            InputVideoLevels videoLevels = InputVideoLevels::FromFile;
+            AlphaBlend       alphaBlend = AlphaBlend::Straight;
 
             bool operator == (const ImageOptions&) const;
             bool operator != (const ImageOptions&) const;
@@ -146,17 +134,17 @@ namespace tl
         //! Display options.
         struct DisplayOptions
         {
-            Channels        channels = Channels::Color;
-            imaging::Mirror mirror;
-            bool            colorEnabled = false;
-            Color           color;
-            bool            levelsEnabled = false;
-            Levels          levels;
-            bool            exposureEnabled = false;
-            Exposure        exposure;
-            bool            softClipEnabled = false;
-            float           softClip = 0.F;
-            OutputRange     outputRange = OutputRange::Full;
+            Channels             channels = Channels::Color;
+            imaging::Mirror      mirror;
+            bool                 colorEnabled = false;
+            Color                color;
+            bool                 levelsEnabled = false;
+            Levels               levels;
+            bool                 exposureEnabled = false;
+            Exposure             exposure;
+            bool                 softClipEnabled = false;
+            float                softClip = 0.F;
+            imaging::VideoLevels videoLevels = imaging::VideoLevels::FullRange;
 
             bool operator == (const DisplayOptions&) const;
             bool operator != (const DisplayOptions&) const;

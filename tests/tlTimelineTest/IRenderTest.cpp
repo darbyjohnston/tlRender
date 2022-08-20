@@ -31,7 +31,7 @@ namespace tl
 
         void IRenderTest::_enums()
         {
-            _enum<VideoLevels>("VideoLevels", getVideoLevelsEnums);
+            _enum<InputVideoLevels>("InputVideoLevels", getInputVideoLevelsEnums);
             _enum<Channels>("Channels", getChannelsEnums);
             _enum<AlphaBlend>("AlphaBlend", getAlphaBlendEnums);
             _enum<CompareMode>("CompareMode", getCompareModeEnums);

@@ -74,15 +74,18 @@ namespace tl
             p.actions["MirrorY"]->setShortcut(QKeySequence(Qt::Key_V));
             p.actions["MirrorY"]->setCheckable(true);
             p.actions["VideoLevels/FromFile"] = new QAction(this);
-            p.actions["VideoLevels/FromFile"]->setData(QVariant::fromValue<timeline::VideoLevels>(timeline::VideoLevels::FromFile));
+            p.actions["VideoLevels/FromFile"]->setData(
+                QVariant::fromValue<timeline::InputVideoLevels>(timeline::InputVideoLevels::FromFile));
             p.actions["VideoLevels/FromFile"]->setCheckable(true);
             p.actions["VideoLevels/FromFile"]->setText(tr("From File"));
             p.actions["VideoLevels/FullRange"] = new QAction(this);
-            p.actions["VideoLevels/FullRange"]->setData(QVariant::fromValue<timeline::VideoLevels>(timeline::VideoLevels::FullRange));
+            p.actions["VideoLevels/FullRange"]->setData(
+                QVariant::fromValue<timeline::InputVideoLevels>(timeline::InputVideoLevels::FullRange));
             p.actions["VideoLevels/FullRange"]->setCheckable(true);
             p.actions["VideoLevels/FullRange"]->setText(tr("Full Range"));
             p.actions["VideoLevels/LegalRange"] = new QAction(this);
-            p.actions["VideoLevels/LegalRange"]->setData(QVariant::fromValue<timeline::VideoLevels>(timeline::VideoLevels::LegalRange));
+            p.actions["VideoLevels/LegalRange"]->setData(
+                QVariant::fromValue<timeline::InputVideoLevels>(timeline::InputVideoLevels::LegalRange));
             p.actions["VideoLevels/LegalRange"]->setCheckable(true);
             p.actions["VideoLevels/LegalRange"]->setText(tr("Legal Range"));
             p.videoLevelsActionGroup = new QActionGroup(this);
@@ -152,7 +155,7 @@ namespace tl
                 [this](QAction* action)
                 {
                     auto imageOptions = _p->imageOptions;
-                    imageOptions.videoLevels = action->data().value<timeline::VideoLevels>();
+                    imageOptions.videoLevels = action->data().value<timeline::InputVideoLevels>();
                     _p->app->setImageOptions(imageOptions);
                 });
 
@@ -241,7 +244,7 @@ namespace tl
                     QSignalBlocker blocker(p.videoLevelsActionGroup);
                     for (auto action : p.videoLevelsActionGroup->actions())
                     {
-                        if (action->data().value<timeline::VideoLevels>() == p.imageOptions.videoLevels)
+                        if (action->data().value<timeline::InputVideoLevels>() == p.imageOptions.videoLevels)
                         {
                             action->setChecked(true);
                             break;

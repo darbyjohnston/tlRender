@@ -412,8 +412,8 @@ namespace tl
                                 imaging::VideoLevels videoLevels = info.videoLevels;
                                 switch (imageOptions.get() ? imageOptions->videoLevels : layer.imageOptions.videoLevels)
                                 {
-                                case timeline::VideoLevels::FullRange:  videoLevels = imaging::VideoLevels::FullRange;  break;
-                                case timeline::VideoLevels::LegalRange: videoLevels = imaging::VideoLevels::LegalRange; break;
+                                case timeline::InputVideoLevels::FullRange:  videoLevels = imaging::VideoLevels::FullRange;  break;
+                                case timeline::InputVideoLevels::LegalRange: videoLevels = imaging::VideoLevels::LegalRange; break;
                                 default: break;
                                 }
                                 p.dissolveShader->setUniform("videoLevels", static_cast<int>(videoLevels));
@@ -437,8 +437,8 @@ namespace tl
                                 videoLevels = infoB.videoLevels;
                                 switch (imageOptions.get() ? imageOptions->videoLevels : layer.imageOptionsB.videoLevels)
                                 {
-                                case timeline::VideoLevels::FullRange:  videoLevels = imaging::VideoLevels::FullRange;  break;
-                                case timeline::VideoLevels::LegalRange: videoLevels = imaging::VideoLevels::LegalRange; break;
+                                case timeline::InputVideoLevels::FullRange:  videoLevels = imaging::VideoLevels::FullRange;  break;
+                                case timeline::InputVideoLevels::LegalRange: videoLevels = imaging::VideoLevels::LegalRange; break;
                                 default: break;
                                 }
                                 p.dissolveShader->setUniform("videoLevelsB", static_cast<int>(videoLevels));
@@ -572,7 +572,7 @@ namespace tl
                     p.displayShader->setUniform("exposure.f", f);
                 }
                 p.displayShader->setUniform("softClip", displayOptions.softClipEnabled ? displayOptions.softClip : 0.F);
-                p.displayShader->setUniform("outputRange", static_cast<int>(displayOptions.outputRange));
+                p.displayShader->setUniform("videoLevels", static_cast<int>(displayOptions.videoLevels));
 
                 glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
                 glBindTexture(GL_TEXTURE_2D, p.buffer->getColorID());

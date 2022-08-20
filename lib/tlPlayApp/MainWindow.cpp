@@ -77,6 +77,7 @@ namespace tl
             timeline::ImageOptions imageOptions;
             timeline::DisplayOptions displayOptions;
             timeline::CompareOptions compareOptions;
+            imaging::VideoLevels outputVideoLevels;
 
             FileActions* fileActions = nullptr;
             CompareActions* compareActions = nullptr;
@@ -114,6 +115,7 @@ namespace tl
             std::shared_ptr<observer::ListObserver<timeline::DisplayOptions> > displayOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
             std::shared_ptr<observer::ValueObserver<imaging::ColorConfig> > colorConfigObserver;
+            std::shared_ptr<observer::ValueObserver<DevicesModelData> > devicesModelObserver;
             std::shared_ptr<observer::ListObserver<log::Item> > logObserver;
 
             bool mousePressed = false;
@@ -377,6 +379,14 @@ namespace tl
                 [this](const imaging::ColorConfig& value)
                 {
                     _p->colorConfig = value;
+                    _widgetUpdate();
+                });
+
+            p.devicesModelObserver = observer::ValueObserver<DevicesModelData>::create(
+                app->devicesModel()->observeData(),
+                [this](const DevicesModelData& value)
+                {
+                    _p->outputVideoLevels = value.videoLevels;
                     _widgetUpdate();
                 });
 
@@ -1074,6 +1084,10 @@ namespace tl
 
             p.app->outputDevice()->setColorConfig(p.colorConfig);
             p.app->outputDevice()->setImageOptions(imageOptions);
+            for (auto& i : displayOptions)
+            {
+                i.videoLevels = p.outputVideoLevels;
+            }
             p.app->outputDevice()->setDisplayOptions(displayOptions);
             p.app->outputDevice()->setCompareOptions(p.compareOptions);
             p.app->outputDevice()->setTimelinePlayers(p.timelinePlayers);

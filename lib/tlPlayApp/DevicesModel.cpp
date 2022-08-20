@@ -24,6 +24,7 @@ namespace tl
                 displayModeIndex == other.displayModeIndex &&
                 pixelTypes == other.pixelTypes &&
                 pixelTypeIndex == other.pixelTypeIndex &&
+                videoLevels == other.videoLevels &&
                 hdrMode == other.hdrMode &&
                 hdrData == other.hdrData;
         }
@@ -34,6 +35,7 @@ namespace tl
             int deviceIndex = 0;
             int displayModeIndex = 0;
             int pixelTypeIndex = 0;
+            imaging::VideoLevels videoLevels = imaging::VideoLevels::LegalRange;
             device::HDRMode hdrMode = device::HDRMode::FromFile;
             imaging::HDRData hdrData;
             std::shared_ptr<observer::Value<DevicesModelData> > data;
@@ -106,6 +108,15 @@ namespace tl
             _update();
         }
 
+        void DevicesModel::setVideoLevels(imaging::VideoLevels value)
+        {
+            TLRENDER_P();
+            if (value == p.videoLevels)
+                return;
+            p.videoLevels = value;
+            _update();
+        }
+
         void DevicesModel::setHDRMode(device::HDRMode value)
         {
             TLRENDER_P();
@@ -156,6 +167,8 @@ namespace tl
                 }
                 data.pixelTypeIndex = p.pixelTypeIndex;
             }
+
+            data.videoLevels = p.videoLevels;
 
             data.hdrMode = p.hdrMode;
             data.hdrData = p.hdrData;

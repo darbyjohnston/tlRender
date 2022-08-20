@@ -101,6 +101,7 @@ namespace tl
             qRegisterMetaType<timeline::ImageOptions>("tl::timeline::ImageOptions");
             qRegisterMetaType<timeline::Exposure>("tl::timeline::Exposure");
             qRegisterMetaType<timeline::FileSequenceAudio>("tl::timeline::FileSequenceAudio");
+            qRegisterMetaType<timeline::InputVideoLevels>("tl::timeline::InputVideoLevels");
             qRegisterMetaType<timeline::Levels>("tl::timeline::Levels");
             qRegisterMetaType<timeline::Loop>("tl::timeline::Loop");
             qRegisterMetaType<timeline::Options>("tl::timeline::Options");
@@ -111,19 +112,18 @@ namespace tl
             qRegisterMetaType<timeline::Transition>("tl::timeline::Transition");
             qRegisterMetaType<timeline::VideoData>("tl::timeline::VideoData");
             qRegisterMetaType<timeline::VideoLayer>("tl::timeline::VideoLayer");
-            qRegisterMetaType<timeline::VideoLevels>("tl::timeline::VideoLevels");
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
             QMetaType::registerComparators<timeline::AlphaBlend>();
             QMetaType::registerComparators<timeline::AudioBufferFrameCount>();
             QMetaType::registerComparators<timeline::Channels>();
             QMetaType::registerComparators<timeline::CompareMode>();
             QMetaType::registerComparators<timeline::FileSequenceAudio>();
+            QMetaType::registerComparators<timeline::InputVideoLevels>();
             QMetaType::registerComparators<timeline::Loop>();
             QMetaType::registerComparators<timeline::Playback>();
             QMetaType::registerComparators<timeline::TimeAction>();
             QMetaType::registerComparators<timeline::TimerMode>();
             QMetaType::registerComparators<timeline::Transition>();
-            QMetaType::registerComparators<timeline::VideoLevels>();
 #endif
 
             qRegisterMetaType<TimeUnits>("tl::qt::TimeUnits");

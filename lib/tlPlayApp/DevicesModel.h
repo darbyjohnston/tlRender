@@ -30,6 +30,7 @@ namespace tl
             int displayModeIndex = 0;
             std::vector<device::PixelType> pixelTypes;
             int pixelTypeIndex = 0;
+            imaging::VideoLevels videoLevels = imaging::VideoLevels::LegalRange;
             device::HDRMode hdrMode = device::HDRMode::FromFile;
             imaging::HDRData hdrData;
 
@@ -62,6 +63,9 @@ namespace tl
 
             //! Set the pixel type index.
             void setPixelTypeIndex(int);
+
+            //! Set the video levels.
+            void setVideoLevels(imaging::VideoLevels);
 
             //! Set the HDR mode.
             void setHDRMode(device::HDRMode);

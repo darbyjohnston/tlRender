@@ -25,6 +25,7 @@ Q_DECLARE_METATYPE(tl::file::Mode);
 
 Q_DECLARE_METATYPE(tl::imaging::Size);
 Q_DECLARE_METATYPE(tl::imaging::FontFamily);
+Q_DECLARE_METATYPE(tl::imaging::VideoLevels);
 
 Q_DECLARE_METATYPE(tl::memory::Endian);
 
@@ -37,9 +38,9 @@ Q_DECLARE_METATYPE(tl::timeline::AudioBufferFrameCount);
 Q_DECLARE_METATYPE(tl::timeline::Channels);
 Q_DECLARE_METATYPE(tl::timeline::CompareMode);
 Q_DECLARE_METATYPE(tl::timeline::FileSequenceAudio);
+Q_DECLARE_METATYPE(tl::timeline::InputVideoLevels);
 Q_DECLARE_METATYPE(tl::timeline::Loop);
 Q_DECLARE_METATYPE(tl::timeline::Playback);
 Q_DECLARE_METATYPE(tl::timeline::TimeAction);
 Q_DECLARE_METATYPE(tl::timeline::TimerMode);
 Q_DECLARE_METATYPE(tl::timeline::Transition);
-Q_DECLARE_METATYPE(tl::timeline::VideoLevels);

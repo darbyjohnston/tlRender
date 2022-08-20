@@ -120,11 +120,7 @@ namespace tl
         const math::Range<F16_T> F16Range(0.F, 1.F);
         const math::Range<F32_T> F32Range(0.F, 1.F);
 
-        //! YUV value range.
-        //!
-        //! References:
-        //! - https://en.wikipedia.org/wiki/YUV
-        //! - https://trac.ffmpeg.org/wiki/colorspace
+        //! Video levels.
         enum class VideoLevels
         {
             FullRange,

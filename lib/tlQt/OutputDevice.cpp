@@ -441,18 +441,6 @@ namespace tl
                         {
                             gl::OffscreenBufferBinding binding(offscreenBuffer);
 
-                            switch (pixelType)
-                            {
-                            case device::PixelType::_8BitBGRA:
-                            case device::PixelType::_10BitRGBXLE:
-                                for (auto& i : displayOptions)
-                                {
-                                    i.outputRange = timeline::OutputRange::Video;
-                                }
-                                break;
-                            default: break;
-                            }
-
                             render->setColorConfig(colorConfig);
                             render->begin(renderSize);
                             render->drawVideo(

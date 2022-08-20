@@ -76,7 +76,7 @@ namespace tl
                 exposure == other.exposure &&
                 softClipEnabled == other.softClipEnabled &&
                 softClip == other.softClip &&
-                outputRange == other.outputRange;
+                videoLevels == other.videoLevels;
         }
 
         inline bool DisplayOptions::operator != (const DisplayOptions& other) const

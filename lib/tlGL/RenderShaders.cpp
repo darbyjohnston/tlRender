@@ -255,7 +255,7 @@ namespace tl
 
         std::string displayFragmentSource()
         {
-            return
+            return string::Format(
                 "#version 410\n"
                 "\n"
                 "in vec2 fTexture;\n"
@@ -286,9 +286,7 @@ namespace tl
                 "    float g;\n"
                 "};\n"
                 "\n"
-                "// enum tl::render::OutputRange\n"
-                "const uint OutputRange_Full  = 0;\n"
-                "const uint OutputRange_Video = 1;\n"
+                "{0}\n"
                 "\n"
                 "uniform sampler2D textureSampler;\n"
                 "\n"
@@ -304,7 +302,7 @@ namespace tl
                 "uniform bool     exposureEnabled;\n"
                 "uniform Exposure exposure;\n"
                 "uniform float    softClip;\n"
-                "uniform int      outputRange;\n"
+                "uniform int      videoLevels;\n"
                 "\n"
                 "vec4 colorFunc(vec4 value, vec3 add, mat4 m)\n"
                 "{\n"
@@ -436,8 +434,8 @@ namespace tl
                 "        fColor.b = fColor.a;\n"
                 "    }\n"
                 "\n"
-                "    // Output range.\n"
-                "    if (OutputRange_Video == outputRange)\n"
+                "    // Video levels.\n"
+                "    if (VideoLevels_LegalRange == videoLevels)\n"
                 "    {\n"
                 "        const float scale = (940.0 - 64.0) / 1023.0;\n"
                 "        const float offset = 64.0 / 1023.0;\n"
@@ -446,7 +444,8 @@ namespace tl
                 "        fColor.b = fColor.b * scale + offset;\n"
                 "        fColor.a = fColor.a * scale + offset;\n"
                 "    }\n"
-                "}\n";
+                "}\n").
+                arg(videoLevels);
         }
 
         std::string dissolveFragmentSource()
