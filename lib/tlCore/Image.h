@@ -125,16 +125,16 @@ namespace tl
         //! References:
         //! - https://en.wikipedia.org/wiki/YUV
         //! - https://trac.ffmpeg.org/wiki/colorspace
-        enum class YUVRange
+        enum class VideoLevels
         {
-            Full,
-            Video,
+            FullRange,
+            LegalRange,
 
             Count,
-            First = Full
+            First = FullRange
         };
-        TLRENDER_ENUM(YUVRange);
-        TLRENDER_ENUM_SERIALIZE(YUVRange);
+        TLRENDER_ENUM(VideoLevels);
+        TLRENDER_ENUM_SERIALIZE(VideoLevels);
 
         //! YUV coefficients.
         enum class YUVCoefficients
@@ -241,7 +241,7 @@ namespace tl
             Size            size;
             float           pixelAspectRatio = 1.F;
             PixelType       pixelType        = PixelType::None;
-            YUVRange        yuvRange         = YUVRange::Full;
+            VideoLevels     videoLevels      = VideoLevels::FullRange;
             YUVCoefficients yuvCoefficients  = YUVCoefficients::REC709;
             Layout          layout;
 

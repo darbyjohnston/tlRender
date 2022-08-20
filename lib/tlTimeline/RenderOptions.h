@@ -22,18 +22,18 @@ namespace tl
 
     namespace timeline
     {
-        //! YUV value range.
-        enum class YUVRange
+        //! Video levels.
+        enum class VideoLevels
         {
             FromFile,
-            Full,
-            Video,
+            FullRange,
+            LegalRange,
 
             Count,
             First = FromFile
         };
-        TLRENDER_ENUM(YUVRange);
-        TLRENDER_ENUM_SERIALIZE(YUVRange);
+        TLRENDER_ENUM(VideoLevels);
+        TLRENDER_ENUM_SERIALIZE(VideoLevels);
 
         //! Channels.
         enum class Channels
@@ -136,8 +136,8 @@ namespace tl
         //! Image options.
         struct ImageOptions
         {
-            YUVRange        yuvRange = YUVRange::FromFile;
-            AlphaBlend      alphaBlend = AlphaBlend::Straight;
+            VideoLevels     videoLevels = VideoLevels::FromFile;
+            AlphaBlend      alphaBlend  = AlphaBlend::Straight;
 
             bool operator == (const ImageOptions&) const;
             bool operator != (const ImageOptions&) const;

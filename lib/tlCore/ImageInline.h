@@ -131,7 +131,7 @@ namespace tl
                 size == other.size &&
                 pixelAspectRatio == other.pixelAspectRatio &&
                 pixelType == other.pixelType &&
-                yuvRange == other.yuvRange &&
+                videoLevels == other.videoLevels &&
                 yuvCoefficients == other.yuvCoefficients &&
                 layout == other.layout;
         }

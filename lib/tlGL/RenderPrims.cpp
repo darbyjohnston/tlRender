@@ -179,14 +179,14 @@ namespace tl
             p.imageShader->bind();
             p.imageShader->setUniform("color", color);
             p.imageShader->setUniform("pixelType", static_cast<int>(info.pixelType));
-            imaging::YUVRange yuvRange = info.yuvRange;
-            switch (imageOptions.yuvRange)
+            imaging::VideoLevels videoLevels = info.videoLevels;
+            switch (imageOptions.videoLevels)
             {
-            case timeline::YUVRange::Full:  yuvRange = imaging::YUVRange::Full;  break;
-            case timeline::YUVRange::Video: yuvRange = imaging::YUVRange::Video; break;
+            case timeline::VideoLevels::FullRange:  videoLevels = imaging::VideoLevels::FullRange;  break;
+            case timeline::VideoLevels::LegalRange: videoLevels = imaging::VideoLevels::LegalRange; break;
             default: break;
             }
-            p.imageShader->setUniform("yuvRange", static_cast<int>(yuvRange));
+            p.imageShader->setUniform("videoLevels", static_cast<int>(videoLevels));
             p.imageShader->setUniform("yuvCoefficients", imaging::getYUVCoefficients(info.yuvCoefficients));
             p.imageShader->setUniform("imageChannels", imaging::getChannelCount(info.pixelType));
             p.imageShader->setUniform("flipX", info.layout.mirror.x);

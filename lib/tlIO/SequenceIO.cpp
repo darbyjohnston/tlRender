@@ -397,8 +397,8 @@ namespace tl
                 }
                 {
                     std::stringstream ss;
-                    ss << info.video[0].yuvRange;
-                    info.tags["Video YUV Range"] = ss.str();
+                    ss << info.video[0].videoLevels;
+                    info.tags["Video Levels"] = ss.str();
                 }
                 {
                     std::stringstream ss;

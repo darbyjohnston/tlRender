@@ -23,7 +23,7 @@ namespace tl
             timeline::DisplayOptions displayOptions;
 
             QMap<QString, QAction*> actions;
-            QActionGroup* yuvRangeActionGroup = nullptr;
+            QActionGroup* videoLevelsActionGroup = nullptr;
             QActionGroup* channelsActionGroup = nullptr;
             QActionGroup* alphaBlendActionGroup = nullptr;
 
@@ -73,22 +73,22 @@ namespace tl
             p.actions["MirrorY"]->setText(tr("Mirror Vertical"));
             p.actions["MirrorY"]->setShortcut(QKeySequence(Qt::Key_V));
             p.actions["MirrorY"]->setCheckable(true);
-            p.actions["YUVRange/FromFile"] = new QAction(this);
-            p.actions["YUVRange/FromFile"]->setData(QVariant::fromValue<timeline::YUVRange>(timeline::YUVRange::FromFile));
-            p.actions["YUVRange/FromFile"]->setCheckable(true);
-            p.actions["YUVRange/FromFile"]->setText(tr("From File"));
-            p.actions["YUVRange/Full"] = new QAction(this);
-            p.actions["YUVRange/Full"]->setData(QVariant::fromValue<timeline::YUVRange>(timeline::YUVRange::Full));
-            p.actions["YUVRange/Full"]->setCheckable(true);
-            p.actions["YUVRange/Full"]->setText(tr("Full"));
-            p.actions["YUVRange/Video"] = new QAction(this);
-            p.actions["YUVRange/Video"]->setData(QVariant::fromValue<timeline::YUVRange>(timeline::YUVRange::Video));
-            p.actions["YUVRange/Video"]->setCheckable(true);
-            p.actions["YUVRange/Video"]->setText(tr("Video"));
-            p.yuvRangeActionGroup = new QActionGroup(this);
-            p.yuvRangeActionGroup->addAction(p.actions["YUVRange/FromFile"]);
-            p.yuvRangeActionGroup->addAction(p.actions["YUVRange/Full"]);
-            p.yuvRangeActionGroup->addAction(p.actions["YUVRange/Video"]);
+            p.actions["VideoLevels/FromFile"] = new QAction(this);
+            p.actions["VideoLevels/FromFile"]->setData(QVariant::fromValue<timeline::VideoLevels>(timeline::VideoLevels::FromFile));
+            p.actions["VideoLevels/FromFile"]->setCheckable(true);
+            p.actions["VideoLevels/FromFile"]->setText(tr("From File"));
+            p.actions["VideoLevels/FullRange"] = new QAction(this);
+            p.actions["VideoLevels/FullRange"]->setData(QVariant::fromValue<timeline::VideoLevels>(timeline::VideoLevels::FullRange));
+            p.actions["VideoLevels/FullRange"]->setCheckable(true);
+            p.actions["VideoLevels/FullRange"]->setText(tr("Full Range"));
+            p.actions["VideoLevels/LegalRange"] = new QAction(this);
+            p.actions["VideoLevels/LegalRange"]->setData(QVariant::fromValue<timeline::VideoLevels>(timeline::VideoLevels::LegalRange));
+            p.actions["VideoLevels/LegalRange"]->setCheckable(true);
+            p.actions["VideoLevels/LegalRange"]->setText(tr("Legal Range"));
+            p.videoLevelsActionGroup = new QActionGroup(this);
+            p.videoLevelsActionGroup->addAction(p.actions["VideoLevels/FromFile"]);
+            p.videoLevelsActionGroup->addAction(p.actions["VideoLevels/FullRange"]);
+            p.videoLevelsActionGroup->addAction(p.actions["VideoLevels/LegalRange"]);
             p.actions["AlphaBlend/None"] = new QAction(this);
             p.actions["AlphaBlend/None"]->setData(QVariant::fromValue<timeline::AlphaBlend>(timeline::AlphaBlend::None));
             p.actions["AlphaBlend/None"]->setCheckable(true);
@@ -116,10 +116,10 @@ namespace tl
             p.menu->addAction(p.actions["MirrorX"]);
             p.menu->addAction(p.actions["MirrorY"]);
             p.menu->addSeparator();
-            auto yuvRangeMenu = p.menu->addMenu(tr("YUV Range"));
-            yuvRangeMenu->addAction(p.actions["YUVRange/FromFile"]);
-            yuvRangeMenu->addAction(p.actions["YUVRange/Full"]);
-            yuvRangeMenu->addAction(p.actions["YUVRange/Video"]);
+            auto videoLevelsMenu = p.menu->addMenu(tr("Video Levels"));
+            videoLevelsMenu->addAction(p.actions["VideoLevels/FromFile"]);
+            videoLevelsMenu->addAction(p.actions["VideoLevels/FullRange"]);
+            videoLevelsMenu->addAction(p.actions["VideoLevels/LegalRange"]);
             auto alphaBlendMenu = p.menu->addMenu(tr("Alpha Blend"));
             alphaBlendMenu->addAction(p.actions["AlphaBlend/None"]);
             alphaBlendMenu->addAction(p.actions["AlphaBlend/Straight"]);
@@ -147,12 +147,12 @@ namespace tl
                 });
 
             connect(
-                p.yuvRangeActionGroup,
+                p.videoLevelsActionGroup,
                 &QActionGroup::triggered,
                 [this](QAction* action)
                 {
                     auto imageOptions = _p->imageOptions;
-                    imageOptions.yuvRange = action->data().value<timeline::YUVRange>();
+                    imageOptions.videoLevels = action->data().value<timeline::VideoLevels>();
                     _p->app->setImageOptions(imageOptions);
                 });
 
@@ -222,9 +222,9 @@ namespace tl
             TLRENDER_P();
 
             const int count = p.app->filesModel()->observeFiles()->getSize();
-            p.actions["YUVRange/FromFile"]->setEnabled(count > 0);
-            p.actions["YUVRange/Full"]->setEnabled(count > 0);
-            p.actions["YUVRange/Video"]->setEnabled(count > 0);
+            p.actions["VideoLevels/FromFile"]->setEnabled(count > 0);
+            p.actions["VideoLevels/FullRange"]->setEnabled(count > 0);
+            p.actions["VideoLevels/LegalRange"]->setEnabled(count > 0);
             p.actions["Channels/Red"]->setEnabled(count > 0);
             p.actions["Channels/Green"]->setEnabled(count > 0);
             p.actions["Channels/Blue"]->setEnabled(count > 0);
@@ -238,10 +238,10 @@ namespace tl
             if (count > 0)
             {
                 {
-                    QSignalBlocker blocker(p.yuvRangeActionGroup);
-                    for (auto action : p.yuvRangeActionGroup->actions())
+                    QSignalBlocker blocker(p.videoLevelsActionGroup);
+                    for (auto action : p.videoLevelsActionGroup->actions())
                     {
-                        if (action->data().value<timeline::YUVRange>() == p.imageOptions.yuvRange)
+                        if (action->data().value<timeline::VideoLevels>() == p.imageOptions.videoLevels)
                         {
                             action->setChecked(true);
                             break;
@@ -286,8 +286,8 @@ namespace tl
             else
             {
                 {
-                    QSignalBlocker blocker(p.yuvRangeActionGroup);
-                    p.actions["YUVRange/FromFile"]->setChecked(true);
+                    QSignalBlocker blocker(p.videoLevelsActionGroup);
+                    p.actions["VideoLevels/FromFile"]->setChecked(true);
                 }
                 {
                     QSignalBlocker blocker(p.channelsActionGroup);

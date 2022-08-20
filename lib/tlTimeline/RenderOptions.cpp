@@ -16,11 +16,11 @@ namespace tl
     namespace timeline
     {
         TLRENDER_ENUM_IMPL(
-            YUVRange,
+            VideoLevels,
             "FromFile",
-            "Full",
-            "Video");
-        TLRENDER_ENUM_SERIALIZE_IMPL(YUVRange);
+            "FullRange",
+            "LegalRange");
+        TLRENDER_ENUM_SERIALIZE_IMPL(VideoLevels);
 
         TLRENDER_ENUM_IMPL(
             Channels,

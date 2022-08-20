@@ -542,7 +542,7 @@ namespace tl
                 }
                 if (p.video.avCodecContext[p.video.avStream]->color_range != AVCOL_RANGE_JPEG)
                 {
-                    videoInfo.yuvRange = imaging::YUVRange::Video;
+                    videoInfo.videoLevels = imaging::VideoLevels::LegalRange;
                 }
                 switch (p.video.avCodecParameters[p.video.avStream]->color_space)
                 {
@@ -623,8 +623,8 @@ namespace tl
                 }
                 {
                     std::stringstream ss;
-                    ss << videoInfo.yuvRange;
-                    p.info.tags["Video YUV Range"] = ss.str();
+                    ss << videoInfo.videoLevels;
+                    p.info.tags["Video Levels"] = ss.str();
                 }
                 {
                     std::stringstream ss;

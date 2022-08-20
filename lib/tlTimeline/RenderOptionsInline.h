@@ -54,7 +54,7 @@ namespace tl
         inline bool ImageOptions::operator == (const ImageOptions& other) const
         {
             return
-                yuvRange == other.yuvRange &&
+                videoLevels == other.videoLevels &&
                 alphaBlend == other.alphaBlend;
         }
 

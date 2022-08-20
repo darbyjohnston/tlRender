@@ -71,7 +71,7 @@ namespace tl
         void ImageTest::_enums()
         {
             _enum<PixelType>("PixelType", getPixelTypeEnums);
-            _enum<YUVRange>("YUVRange", getYUVRangeEnums);
+            _enum<VideoLevels>("VideoLevels", getVideoLevelsEnums);
         }
 
         void ImageTest::_info()

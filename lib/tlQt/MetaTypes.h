@@ -42,4 +42,4 @@ Q_DECLARE_METATYPE(tl::timeline::Playback);
 Q_DECLARE_METATYPE(tl::timeline::TimeAction);
 Q_DECLARE_METATYPE(tl::timeline::TimerMode);
 Q_DECLARE_METATYPE(tl::timeline::Transition);
-Q_DECLARE_METATYPE(tl::timeline::YUVRange);
+Q_DECLARE_METATYPE(tl::timeline::VideoLevels);

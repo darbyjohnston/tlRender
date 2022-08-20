@@ -64,7 +64,7 @@ namespace tl
             qRegisterMetaType<imaging::Glyph>("tl::imaging::Glyph");
             qRegisterMetaType<imaging::PixelType>("tl::imaging::PixelType");
             qRegisterMetaType<imaging::Size>("tl::imaging::Size");
-            qRegisterMetaType<imaging::YUVRange>("tl::imaging::YUVRange");
+            qRegisterMetaType<imaging::VideoLevels>("tl::imaging::VideoLevels");
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
             QMetaType::registerComparators<imaging::FontFamily>();
 #endif
@@ -111,7 +111,7 @@ namespace tl
             qRegisterMetaType<timeline::Transition>("tl::timeline::Transition");
             qRegisterMetaType<timeline::VideoData>("tl::timeline::VideoData");
             qRegisterMetaType<timeline::VideoLayer>("tl::timeline::VideoLayer");
-            qRegisterMetaType<timeline::YUVRange>("tl::timeline::YUVRange");
+            qRegisterMetaType<timeline::VideoLevels>("tl::timeline::VideoLevels");
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
             QMetaType::registerComparators<timeline::AlphaBlend>();
             QMetaType::registerComparators<timeline::AudioBufferFrameCount>();
@@ -123,7 +123,7 @@ namespace tl
             QMetaType::registerComparators<timeline::TimeAction>();
             QMetaType::registerComparators<timeline::TimerMode>();
             QMetaType::registerComparators<timeline::Transition>();
-            QMetaType::registerComparators<timeline::YUVRange>();
+            QMetaType::registerComparators<timeline::VideoLevels>();
 #endif
 
             qRegisterMetaType<TimeUnits>("tl::qt::TimeUnits");

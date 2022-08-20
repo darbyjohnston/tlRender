@@ -94,7 +94,7 @@ namespace tl
                                     TLRENDER_ASSERT(videoData.image->getInfo().size == image->getInfo().size);
                                     TLRENDER_ASSERT(videoData.image->getInfo().pixelAspectRatio == image->getInfo().pixelAspectRatio);
                                     TLRENDER_ASSERT(videoData.image->getInfo().pixelType == image->getInfo().pixelType);
-                                    TLRENDER_ASSERT(videoData.image->getInfo().yuvRange == image->getInfo().yuvRange);
+                                    TLRENDER_ASSERT(videoData.image->getInfo().videoLevels == image->getInfo().videoLevels);
                                     TLRENDER_ASSERT(videoData.image->getInfo().layout == image->getInfo().layout);
                                     //! \todo Compare image data.
                                     //TLRENDER_ASSERT(0 == memcmp(

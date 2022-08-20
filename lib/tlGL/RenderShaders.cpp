@@ -133,16 +133,16 @@ namespace tl
                 "const uint PixelType_YUV_422P_U16 = 26;\n"
                 "const uint PixelType_YUV_444P_U16 = 27;\n";
 
-            const std::string yuvRange =
-                "// enum tl::imaging::YUVRange\n"
-                "const uint YUVRange_Full  = 0;\n"
-                "const uint YUVRange_Video = 1;\n";
+            const std::string videoLevels =
+                "// enum tl::imaging::VideoLevels\n"
+                "const uint VideoLevels_FullRange  = 0;\n"
+                "const uint VideoLevels_LegalRange = 1;\n";
 
             const std::string sampleTexture =
                 "vec4 sampleTexture("
                 "    vec2 textureCoord,\n"
                 "    int pixelType,\n"
-                "    int yuvRange,\n"
+                "    int videoLevels,\n"
                 "    vec4 yuvCoefficients,\n"
                 "    int imageChannels,\n"
                 "    sampler2D s0,\n"
@@ -157,7 +157,7 @@ namespace tl
                 "        PixelType_YUV_422P_U16 == pixelType ||\n"
                 "        PixelType_YUV_444P_U16 == pixelType)\n"
                 "    {\n"
-                "        if (YUVRange_Full == yuvRange)\n"
+                "        if (VideoLevels_FullRange == videoLevels)\n"
                 "        {\n"
                 "            float y  = texture(s0, textureCoord).r;\n"
                 "            float cb = texture(s1, textureCoord).r - 0.5;\n"
@@ -166,7 +166,7 @@ namespace tl
                 "            c.g = y - (yuvCoefficients.z * cb) - (yuvCoefficients.w * cr);\n"
                 "            c.b = y + (yuvCoefficients.y * cb);\n"
                 "        }\n"
-                "        else if (YUVRange_Video == yuvRange)\n"
+                "        else if (VideoLevels_LegalRange == videoLevels)\n"
                 "        {\n"
                 "            float y  = (texture(s0, textureCoord).r - (16.0 / 255.0)) * (255.0 / (235.0 - 16.0));\n"
                 "            float cb = (texture(s1, textureCoord).r - (16.0 / 255.0)) * (255.0 / (240.0 - 16.0)) - 0.5;\n"
@@ -217,7 +217,7 @@ namespace tl
                 "\n"
                 "uniform vec4      color;\n"
                 "uniform int       pixelType;\n"
-                "uniform int       yuvRange;\n"
+                "uniform int       videoLevels;\n"
                 "uniform vec4      yuvCoefficients;\n"
                 "uniform int       imageChannels;\n"
                 "uniform int       flipX;\n"
@@ -240,7 +240,7 @@ namespace tl
                 "    fColor = sampleTexture("
                 "        t,\n"
                 "        pixelType,\n"
-                "        yuvRange,\n"
+                "        videoLevels,\n"
                 "        yuvCoefficients,\n"
                 "        imageChannels,\n"
                 "        textureSampler0,\n"
@@ -249,7 +249,7 @@ namespace tl
                 "        color;\n"
                 "}\n").
                 arg(pixelType).
-                arg(yuvRange).
+                arg(videoLevels).
                 arg(sampleTexture);
         }
 
@@ -466,7 +466,7 @@ namespace tl
                 "uniform float transition;\n"
                 "\n"
                 "uniform int       pixelType;\n"
-                "uniform int       yuvRange;\n"
+                "uniform int       videoLevels;\n"
                 "uniform vec4      yuvCoefficients;\n"
                 "uniform int       imageChannels;\n"
                 "uniform int       flipX;\n"
@@ -478,7 +478,7 @@ namespace tl
                 "uniform sampler2D textureSampler2;\n"
                 "\n"
                 "uniform int       pixelTypeB;\n"
-                "uniform int       yuvRangeB;\n"
+                "uniform int       videoLevelsB;\n"
                 "uniform vec4      yuvCoefficientsB;\n"
                 "uniform int       imageChannelsB;\n"
                 "uniform int       flipBX;\n"
@@ -511,7 +511,7 @@ namespace tl
                 "        c = sampleTexture(\n"
                 "            t,\n"
                 "            pixelType,\n"
-                "            yuvRange,\n"
+                "            videoLevels,\n"
                 "            yuvCoefficients,\n"
                 "            imageChannels,\n"
                 "            textureSampler0,\n"
@@ -538,7 +538,7 @@ namespace tl
                 "        cB = sampleTexture(\n"
                 "            t,\n"
                 "            pixelTypeB,\n"
-                "            yuvRangeB,\n"
+                "            videoLevelsB,\n"
                 "            yuvCoefficientsB,\n"
                 "            imageChannelsB,\n"
                 "            textureSamplerB0,\n"
@@ -548,7 +548,7 @@ namespace tl
                 "    fColor = c * (1.0 - transition) + cB * transition;\n"
                 "}\n").
                 arg(pixelType).
-                arg(yuvRange).
+                arg(videoLevels).
                 arg(sampleTexture);
         }
 

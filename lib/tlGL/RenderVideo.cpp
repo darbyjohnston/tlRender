@@ -409,14 +409,14 @@ namespace tl
                                 p.dissolveShader->setUniform("transition", layer.transitionValue);
 
                                 p.dissolveShader->setUniform("pixelType", static_cast<int>(layer.image->getPixelType()));
-                                imaging::YUVRange yuvRange = info.yuvRange;
-                                switch (imageOptions.get() ? imageOptions->yuvRange : layer.imageOptions.yuvRange)
+                                imaging::VideoLevels videoLevels = info.videoLevels;
+                                switch (imageOptions.get() ? imageOptions->videoLevels : layer.imageOptions.videoLevels)
                                 {
-                                case timeline::YUVRange::Full:  yuvRange = imaging::YUVRange::Full;  break;
-                                case timeline::YUVRange::Video: yuvRange = imaging::YUVRange::Video; break;
+                                case timeline::VideoLevels::FullRange:  videoLevels = imaging::VideoLevels::FullRange;  break;
+                                case timeline::VideoLevels::LegalRange: videoLevels = imaging::VideoLevels::LegalRange; break;
                                 default: break;
                                 }
-                                p.dissolveShader->setUniform("yuvRange", static_cast<int>(yuvRange));
+                                p.dissolveShader->setUniform("videoLevels", static_cast<int>(videoLevels));
                                 p.dissolveShader->setUniform("yuvCoefficients", imaging::getYUVCoefficients(info.yuvCoefficients));
                                 p.dissolveShader->setUniform("imageChannels", imaging::getChannelCount(info.pixelType));
                                 p.dissolveShader->setUniform("flipX", info.layout.mirror.x);
@@ -434,14 +434,14 @@ namespace tl
                                 p.dissolveShader->setUniform("textureSampler2", 2);
 
                                 p.dissolveShader->setUniform("pixelTypeB", static_cast<int>(layer.imageB->getPixelType()));
-                                yuvRange = infoB.yuvRange;
-                                switch (imageOptions.get() ? imageOptions->yuvRange : layer.imageOptionsB.yuvRange)
+                                videoLevels = infoB.videoLevels;
+                                switch (imageOptions.get() ? imageOptions->videoLevels : layer.imageOptionsB.videoLevels)
                                 {
-                                case timeline::YUVRange::Full:  yuvRange = imaging::YUVRange::Full;  break;
-                                case timeline::YUVRange::Video: yuvRange = imaging::YUVRange::Video; break;
+                                case timeline::VideoLevels::FullRange:  videoLevels = imaging::VideoLevels::FullRange;  break;
+                                case timeline::VideoLevels::LegalRange: videoLevels = imaging::VideoLevels::LegalRange; break;
                                 default: break;
                                 }
-                                p.dissolveShader->setUniform("yuvRangeB", static_cast<int>(yuvRange));
+                                p.dissolveShader->setUniform("videoLevelsB", static_cast<int>(videoLevels));
                                 p.dissolveShader->setUniform("yuvCoefficientsB", imaging::getYUVCoefficients(infoB.yuvCoefficients));
                                 p.dissolveShader->setUniform("imageChannelsB", imaging::getChannelCount(infoB.pixelType));
                                 p.dissolveShader->setUniform("flipBX", infoB.layout.mirror.x);

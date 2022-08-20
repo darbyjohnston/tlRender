@@ -96,10 +96,10 @@ namespace tl
         }
 
         TLRENDER_ENUM_IMPL(
-            YUVRange,
-            "Full",
-            "Video");
-        TLRENDER_ENUM_SERIALIZE_IMPL(YUVRange);
+            VideoLevels,
+            "FullRange",
+            "VideoRange");
+        TLRENDER_ENUM_SERIALIZE_IMPL(VideoLevels);
 
         uint8_t getChannelCount(PixelType value) noexcept
         {
