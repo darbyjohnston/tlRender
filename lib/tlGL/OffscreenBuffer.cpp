@@ -90,6 +90,22 @@ namespace tl
             }
         }
 
+        bool OffscreenBufferOptions::operator == (const OffscreenBufferOptions& other) const
+        {
+            return
+                colorType == other.colorType &&
+                colorMinifyFilter == other.colorMinifyFilter &&
+                colorMagnifyFilter == other.colorMagnifyFilter &&
+                depth == other.depth &&
+                stencil == other.stencil &&
+                sampling == other.sampling;
+        }
+
+        bool OffscreenBufferOptions::operator != (const OffscreenBufferOptions& other) const
+        {
+            return !(*this == other);
+        }
+
         void OffscreenBuffer::_init(
             const imaging::Size& size,
             const OffscreenBufferOptions& options)
@@ -146,8 +162,8 @@ namespace tl
                 default:
                     glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
                     glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-                    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, _options.colorMag);
-                    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, _options.colorMin);
+                    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, _options.colorMinifyFilter);
+                    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, _options.colorMagnifyFilter);
                     glTexImage2D(
                         target,
                         0,
@@ -268,11 +284,15 @@ namespace tl
             glBindFramebuffer(GL_FRAMEBUFFER, _id);
         }
 
-        bool doCreate(const std::shared_ptr<OffscreenBuffer>& offscreenBuffer, const imaging::Size& size)
+        bool doCreate(
+            const std::shared_ptr<OffscreenBuffer>& offscreenBuffer,
+            const imaging::Size& size,
+            const OffscreenBufferOptions& options)
         {
             bool out = false;
             out |= size.isValid() && !offscreenBuffer;
             out |= size.isValid() && offscreenBuffer && offscreenBuffer->getSize() != size;
+            out |= offscreenBuffer && offscreenBuffer->getOptions() != options;
             return out;
         }
 

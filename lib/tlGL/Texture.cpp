@@ -143,8 +143,8 @@ namespace tl
                 glBindTexture(GL_TEXTURE_2D, _id);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, options.filterMin);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, options.filterMag);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, options.minifyFilter);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, options.magnifyFilter);
                 glTexImage2D(
                     GL_TEXTURE_2D,
                     0,

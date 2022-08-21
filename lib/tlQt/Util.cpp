@@ -101,6 +101,7 @@ namespace tl
             qRegisterMetaType<timeline::ImageOptions>("tl::timeline::ImageOptions");
             qRegisterMetaType<timeline::Exposure>("tl::timeline::Exposure");
             qRegisterMetaType<timeline::FileSequenceAudio>("tl::timeline::FileSequenceAudio");
+            qRegisterMetaType<timeline::ImageFilter>("tl::timeline::ImageFilter");
             qRegisterMetaType<timeline::InputVideoLevels>("tl::timeline::InputVideoLevels");
             qRegisterMetaType<timeline::Levels>("tl::timeline::Levels");
             qRegisterMetaType<timeline::Loop>("tl::timeline::Loop");
@@ -118,6 +119,7 @@ namespace tl
             QMetaType::registerComparators<timeline::Channels>();
             QMetaType::registerComparators<timeline::CompareMode>();
             QMetaType::registerComparators<timeline::FileSequenceAudio>();
+            QMetaType::registerComparators<timeline::ImageFilter>();
             QMetaType::registerComparators<timeline::InputVideoLevels>();
             QMetaType::registerComparators<timeline::Loop>();
             QMetaType::registerComparators<timeline::Playback>();

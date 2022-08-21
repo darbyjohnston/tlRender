@@ -24,8 +24,8 @@ namespace tl
         //! OpenGL texture options.
         struct TextureOptions
         {
-            GLenum filterMin = GL_LINEAR;
-            GLenum filterMag = GL_LINEAR;
+            GLenum minifyFilter = GL_LINEAR;
+            GLenum magnifyFilter = GL_LINEAR;
             bool pbo = false;
         };
 

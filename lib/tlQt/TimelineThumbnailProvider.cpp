@@ -299,11 +299,11 @@ namespace tl
 
                                 try
                                 {
-                                    if (gl::doCreate(offscreenBuffer, info.size))
+                                    gl::OffscreenBufferOptions offscreenBufferOptions;
+                                    offscreenBufferOptions.colorType = imaging::PixelType::RGBA_U8;
+                                    if (gl::doCreate(offscreenBuffer, info.size, offscreenBufferOptions))
                                     {
-                                        gl::OffscreenBufferOptions options;
-                                        options.colorType = imaging::PixelType::RGBA_U8;
-                                        offscreenBuffer = gl::OffscreenBuffer::create(info.size, options);
+                                        offscreenBuffer = gl::OffscreenBuffer::create(info.size, offscreenBufferOptions);
                                     }
 
                                     render->setColorConfig(requestIt->colorConfig);

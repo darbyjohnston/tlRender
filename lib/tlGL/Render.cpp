@@ -5,6 +5,7 @@
 #include <tlGL/RenderPrivate.h>
 
 #include <tlGL/Mesh.h>
+#include <tlGL/Util.h>
 
 #include <tlCore/Assert.h>
 #include <tlCore/Context.h>
@@ -150,10 +151,15 @@ namespace tl
                 glTexParameteri(textureType, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
             }
 
-            std::vector<std::shared_ptr<Texture> > getTextures(const imaging::Info& info, size_t offset)
+            std::vector<std::shared_ptr<Texture> > getTextures(
+                const imaging::Info& info,
+                const timeline::ImageFilters& imageFilters,
+                size_t offset)
             {
                 std::vector<std::shared_ptr<Texture> > out;
                 TextureOptions options;
+                options.minifyFilter = getTextureFilter(imageFilters.minify);
+                options.magnifyFilter = getTextureFilter(imageFilters.magnify);
                 options.pbo = true;
                 switch (info.pixelType)
                 {
@@ -279,29 +285,38 @@ namespace tl
             _cacheUpdate();
         }
 
-        std::vector<std::shared_ptr<Texture> > TextureCache::get(const imaging::Info& info, size_t offset)
+        std::vector<std::shared_ptr<Texture> > TextureCache::get(
+            const imaging::Info& info,
+            const timeline::ImageFilters& imageFilters,
+            size_t offset)
         {
             std::vector<std::shared_ptr<Texture> > out;
-            const auto i = std::find_if(_cache.begin(), _cache.end(),
-                [info](const std::pair<imaging::Info, std::vector<std::shared_ptr<Texture> > >& value)
+            const auto i = std::find_if(
+                _cache.begin(), 
+                _cache.end(),
+                [info, imageFilters](const TextureData& value)
                 {
-                    return info == value.first;
+                    return info == value.info &&
+                        imageFilters == value.imageFilters;
                 });
             if (i != _cache.end())
             {
-                out = i->second;
+                out = i->texture;
                 _cache.erase(i);
             }
             else
             {
-                out = getTextures(info, offset);
+                out = getTextures(info, imageFilters, offset);
             }
             return out;
         }
 
-        void TextureCache::add(const imaging::Info& info, const std::vector<std::shared_ptr<Texture> >& textures)
+        void TextureCache::add(
+            const imaging::Info& info,
+            const timeline::ImageFilters& imageFilters,
+            const std::vector<std::shared_ptr<Texture> >& textures)
         {
-            _cache.push_front(std::make_pair(info, textures));
+            _cache.push_front({ info, imageFilters, textures });
             _cacheUpdate();
         }
 

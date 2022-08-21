@@ -428,13 +428,18 @@ namespace tl
                     try
                     {
                         const imaging::Size renderSize = timeline::getRenderSize(_p->compareOptions.mode, sizes);
-                        if (gl::doCreate(offscreenBuffer, renderSize))
+                        gl::OffscreenBufferOptions offscreenBufferOptions;
+                        offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
+                        if (!displayOptions.empty())
                         {
-                            gl::OffscreenBufferOptions options;
-                            options.colorType = imaging::PixelType::RGBA_F32;
-                            options.depth = gl::OffscreenDepth::_24;
-                            options.stencil = gl::OffscreenStencil::_8;
-                            offscreenBuffer = gl::OffscreenBuffer::create(renderSize, options);
+                            offscreenBufferOptions.colorMinifyFilter = gl::getTextureFilter(displayOptions[0].imageFilters.minify);
+                            offscreenBufferOptions.colorMagnifyFilter = gl::getTextureFilter(displayOptions[0].imageFilters.magnify);
+                        }
+                        offscreenBufferOptions.depth = gl::OffscreenDepth::_24;
+                        offscreenBufferOptions.stencil = gl::OffscreenStencil::_8;
+                        if (gl::doCreate(offscreenBuffer, renderSize, offscreenBufferOptions))
+                        {
+                            offscreenBuffer = gl::OffscreenBuffer::create(renderSize, offscreenBufferOptions);
                         }
 
                         if (offscreenBuffer)
@@ -453,11 +458,16 @@ namespace tl
                         }
 
                         const imaging::Size viewportSize = device->getSize();
-                        if (gl::doCreate(offscreenBuffer2, viewportSize))
+                        offscreenBufferOptions = gl::OffscreenBufferOptions();
+                        offscreenBufferOptions.colorType = getOffscreenType(pixelType);
+                        if (!displayOptions.empty())
                         {
-                            gl::OffscreenBufferOptions options;
-                            options.colorType = getOffscreenType(pixelType);
-                            offscreenBuffer2 = gl::OffscreenBuffer::create(viewportSize, options);
+                            offscreenBufferOptions.colorMinifyFilter = gl::getTextureFilter(displayOptions[0].imageFilters.minify);
+                            offscreenBufferOptions.colorMagnifyFilter = gl::getTextureFilter(displayOptions[0].imageFilters.magnify);
+                        }
+                        if (gl::doCreate(offscreenBuffer2, viewportSize, offscreenBufferOptions))
+                        {
+                            offscreenBuffer2 = gl::OffscreenBuffer::create(viewportSize, offscreenBufferOptions);
                         }
 
                         math::Vector2i viewPosTmp = viewPos;

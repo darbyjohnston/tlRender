@@ -5,6 +5,7 @@
 #include <tlGL/RenderPrivate.h>
 
 #include <tlGL/Mesh.h>
+#include <tlGL/Util.h>
 
 #include <tlCore/Math.h>
 
@@ -149,11 +150,16 @@ namespace tl
                 }
                 if (!videoData.empty())
                 {
-                    if (doCreate(p.overlayBuffer, p.size))
+                    OffscreenBufferOptions offscreenBufferOptions;
+                    offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
+                    if (!displayOptions.empty())
                     {
-                        OffscreenBufferOptions options;
-                        options.colorType = imaging::PixelType::RGBA_F32;
-                        p.overlayBuffer = OffscreenBuffer::create(p.size, options);
+                        offscreenBufferOptions.colorMinifyFilter = getTextureFilter(displayOptions[0].imageFilters.minify);
+                        offscreenBufferOptions.colorMagnifyFilter = getTextureFilter(displayOptions[0].imageFilters.magnify);
+                    }
+                    if (doCreate(p.overlayBuffer, p.size, offscreenBufferOptions))
+                    {
+                        p.overlayBuffer = OffscreenBuffer::create(p.size, offscreenBufferOptions);
                     }
 
                     if (p.overlayBuffer)
@@ -214,11 +220,16 @@ namespace tl
             case timeline::CompareMode::Difference:
                 if (!videoData.empty())
                 {
-                    if (doCreate(p.differenceBuffers[0], p.size))
+                    OffscreenBufferOptions offscreenBufferOptions;
+                    offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
+                    if (!imageOptions.empty())
                     {
-                        OffscreenBufferOptions options;
-                        options.colorType = imaging::PixelType::RGBA_F32;
-                        p.differenceBuffers[0] = OffscreenBuffer::create(p.size, options);
+                        offscreenBufferOptions.colorMinifyFilter = getTextureFilter(displayOptions[0].imageFilters.minify);
+                        offscreenBufferOptions.colorMagnifyFilter = getTextureFilter(displayOptions[0].imageFilters.magnify);
+                    }
+                    if (doCreate(p.differenceBuffers[0], p.size, offscreenBufferOptions))
+                    {
+                        p.differenceBuffers[0] = OffscreenBuffer::create(p.size, offscreenBufferOptions);
                     }
 
                     if (p.differenceBuffers[0])
@@ -235,11 +246,16 @@ namespace tl
 
                     if (videoData.size() > 1)
                     {
-                        if (doCreate(p.differenceBuffers[1], p.size))
+                        offscreenBufferOptions = OffscreenBufferOptions();
+                        offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
+                        if (imageOptions.size() > 1)
                         {
-                            OffscreenBufferOptions options;
-                            options.colorType = imaging::PixelType::RGBA_F32;
-                            p.differenceBuffers[1] = OffscreenBuffer::create(p.size, options);
+                            offscreenBufferOptions.colorMinifyFilter = getTextureFilter(displayOptions[1].imageFilters.minify);
+                            offscreenBufferOptions.colorMagnifyFilter = getTextureFilter(displayOptions[1].imageFilters.magnify);
+                        }
+                        if (doCreate(p.differenceBuffers[1], p.size, offscreenBufferOptions))
+                        {
+                            p.differenceBuffers[1] = OffscreenBuffer::create(p.size, offscreenBufferOptions);
                         }
 
                         if (p.differenceBuffers[1])
@@ -360,11 +376,16 @@ namespace tl
             TLRENDER_P();
 
             const imaging::Size size(bbox.w(), bbox.h());
-            if (doCreate(p.buffer, size))
+            OffscreenBufferOptions offscreenBufferOptions;
+            offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
+            if (imageOptions.get())
             {
-                OffscreenBufferOptions options;
-                options.colorType = imaging::PixelType::RGBA_F32;
-                p.buffer = OffscreenBuffer::create(size, options);
+                offscreenBufferOptions.colorMinifyFilter = getTextureFilter(displayOptions.imageFilters.minify);
+                offscreenBufferOptions.colorMagnifyFilter = getTextureFilter(displayOptions.imageFilters.magnify);
+            }
+            if (doCreate(p.buffer, size, offscreenBufferOptions))
+            {
+                p.buffer = OffscreenBuffer::create(size, offscreenBufferOptions);
             }
 
             if (p.buffer)
@@ -396,10 +417,10 @@ namespace tl
                             if (layer.image && layer.imageB)
                             {
                                 const auto& info = layer.image->getInfo();
-                                auto textures = p.textureCache.get(info);
+                                auto textures = p.textureCache.get(info, displayOptions.imageFilters);
                                 copyTextures(layer.image, textures);
                                 const auto& infoB = layer.imageB->getInfo();
-                                auto texturesB = p.textureCache.get(infoB, 3);
+                                auto texturesB = p.textureCache.get(infoB, displayOptions.imageFilters, 3);
                                 copyTextures(layer.imageB, texturesB, 3);
 
                                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -488,8 +509,8 @@ namespace tl
                                     p.videoVAO->draw(GL_TRIANGLE_STRIP, 0, 4);
                                 }
 
-                                p.textureCache.add(info, textures);
-                                p.textureCache.add(infoB, texturesB);
+                                p.textureCache.add(info, displayOptions.imageFilters, textures);
+                                p.textureCache.add(infoB, displayOptions.imageFilters, texturesB);
                             }
                             else if (layer.image)
                             {

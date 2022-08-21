@@ -52,11 +52,14 @@ namespace tl
         struct OffscreenBufferOptions
         {
             imaging::PixelType colorType = imaging::PixelType::None;
-            GLint colorMin = GL_LINEAR;
-            GLint colorMag = GL_LINEAR;
+            GLenum colorMinifyFilter = GL_LINEAR;
+            GLenum colorMagnifyFilter = GL_LINEAR;
             OffscreenDepth depth = OffscreenDepth::None;
             OffscreenStencil stencil = OffscreenStencil::None;
             OffscreenSampling sampling = OffscreenSampling::None;
+
+            bool operator == (const OffscreenBufferOptions&) const;
+            bool operator != (const OffscreenBufferOptions&) const;
         };
 
         //! Offscreen buffer.
@@ -102,7 +105,10 @@ namespace tl
         };
 
         //! Check whether the offscreen buffer should be created or re-created.
-        bool doCreate(const std::shared_ptr<OffscreenBuffer>&, const imaging::Size&);
+        bool doCreate(
+            const std::shared_ptr<OffscreenBuffer>&,
+            const imaging::Size&,
+            const OffscreenBufferOptions&);
 
         //! Offscreen Buffer Binding
         class OffscreenBufferBinding

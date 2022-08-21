@@ -151,11 +151,11 @@ namespace tl
                 try
                 {
                     // Create the offscreen buffer.
-                    if (gl::doCreate(_buffer, _videoSize))
+                    gl::OffscreenBufferOptions offscreenBufferOptions;
+                    offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
+                    if (gl::doCreate(_buffer, _videoSize, offscreenBufferOptions))
                     {
-                        gl::OffscreenBufferOptions options;
-                        options.colorType = imaging::PixelType::RGBA_F32;
-                        _buffer = gl::OffscreenBuffer::create(_videoSize, options);
+                        _buffer = gl::OffscreenBuffer::create(_videoSize, offscreenBufferOptions);
                     }
 
                     // Render the video data into the offscreen buffer.

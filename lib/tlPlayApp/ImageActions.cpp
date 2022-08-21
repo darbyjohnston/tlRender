@@ -23,9 +23,10 @@ namespace tl
             timeline::DisplayOptions displayOptions;
 
             QMap<QString, QAction*> actions;
-            QActionGroup* videoLevelsActionGroup = nullptr;
             QActionGroup* channelsActionGroup = nullptr;
+            QActionGroup* videoLevelsActionGroup = nullptr;
             QActionGroup* alphaBlendActionGroup = nullptr;
+            QActionGroup* imageFilterActionGroup = nullptr;
 
             QMenu* menu = nullptr;
 
@@ -108,6 +109,17 @@ namespace tl
             p.alphaBlendActionGroup->addAction(p.actions["AlphaBlend/None"]);
             p.alphaBlendActionGroup->addAction(p.actions["AlphaBlend/Straight"]);
             p.alphaBlendActionGroup->addAction(p.actions["AlphaBlend/Premultiplied"]);
+            p.actions["ImageFilter/Nearest"] = new QAction(this);
+            p.actions["ImageFilter/Nearest"]->setData(QVariant::fromValue<timeline::ImageFilter>(timeline::ImageFilter::Nearest));
+            p.actions["ImageFilter/Nearest"]->setCheckable(true);
+            p.actions["ImageFilter/Nearest"]->setText(tr("Nearest"));
+            p.actions["ImageFilter/Linear"] = new QAction(this);
+            p.actions["ImageFilter/Linear"]->setData(QVariant::fromValue<timeline::ImageFilter>(timeline::ImageFilter::Linear));
+            p.actions["ImageFilter/Linear"]->setCheckable(true);
+            p.actions["ImageFilter/Linear"]->setText(tr("Linear"));
+            p.imageFilterActionGroup = new QActionGroup(this);
+            p.imageFilterActionGroup->addAction(p.actions["ImageFilter/Nearest"]);
+            p.imageFilterActionGroup->addAction(p.actions["ImageFilter/Linear"]);
 
             p.menu = new QMenu;
             p.menu->setTitle(tr("&Image"));
@@ -127,6 +139,9 @@ namespace tl
             alphaBlendMenu->addAction(p.actions["AlphaBlend/None"]);
             alphaBlendMenu->addAction(p.actions["AlphaBlend/Straight"]);
             alphaBlendMenu->addAction(p.actions["AlphaBlend/Premultiplied"]);
+            auto imageFilterMenu = p.menu->addMenu(tr("Image Filter"));
+            imageFilterMenu->addAction(p.actions["ImageFilter/Nearest"]);
+            imageFilterMenu->addAction(p.actions["ImageFilter/Linear"]);
 
             _actionsUpdate();
 
@@ -150,16 +165,6 @@ namespace tl
                 });
 
             connect(
-                p.videoLevelsActionGroup,
-                &QActionGroup::triggered,
-                [this](QAction* action)
-                {
-                    auto imageOptions = _p->imageOptions;
-                    imageOptions.videoLevels = action->data().value<timeline::InputVideoLevels>();
-                    _p->app->setImageOptions(imageOptions);
-                });
-
-            connect(
                 p.channelsActionGroup,
                 &QActionGroup::triggered,
                 [this](QAction* action)
@@ -172,6 +177,16 @@ namespace tl
                 });
 
             connect(
+                p.videoLevelsActionGroup,
+                &QActionGroup::triggered,
+                [this](QAction* action)
+                {
+                    auto imageOptions = _p->imageOptions;
+                    imageOptions.videoLevels = action->data().value<timeline::InputVideoLevels>();
+                    _p->app->setImageOptions(imageOptions);
+                });
+
+            connect(
                 _p->alphaBlendActionGroup,
                 &QActionGroup::triggered,
                 [this](QAction* action)
@@ -179,6 +194,22 @@ namespace tl
                     auto imageOptions = _p->imageOptions;
                     imageOptions.alphaBlend = action->data().value<timeline::AlphaBlend>();
                     _p->app->setImageOptions(imageOptions);
+                });
+
+            connect(
+                _p->imageFilterActionGroup,
+                &QActionGroup::triggered,
+                [this](QAction* action)
+                {
+                    auto imageOptions = _p->imageOptions;
+                    const auto imageFilter = action->data().value<timeline::ImageFilter>();
+                    imageOptions.imageFilters.minify = imageFilter;
+                    imageOptions.imageFilters.magnify = imageFilter;
+                    auto displayOptions = _p->displayOptions;
+                    displayOptions.imageFilters.minify = imageFilter;
+                    displayOptions.imageFilters.magnify = imageFilter;
+                    _p->app->setImageOptions(imageOptions);
+                    _p->app->setDisplayOptions(displayOptions);
                 });
 
             p.filesObserver = observer::ListObserver<std::shared_ptr<FilesModelItem> >::create(
@@ -225,31 +256,30 @@ namespace tl
             TLRENDER_P();
 
             const int count = p.app->filesModel()->observeFiles()->getSize();
-            p.actions["VideoLevels/FromFile"]->setEnabled(count > 0);
-            p.actions["VideoLevels/FullRange"]->setEnabled(count > 0);
-            p.actions["VideoLevels/LegalRange"]->setEnabled(count > 0);
+            p.actions["MirrorX"]->setEnabled(count > 0);
+            p.actions["MirrorY"]->setEnabled(count > 0);
             p.actions["Channels/Red"]->setEnabled(count > 0);
             p.actions["Channels/Green"]->setEnabled(count > 0);
             p.actions["Channels/Blue"]->setEnabled(count > 0);
             p.actions["Channels/Alpha"]->setEnabled(count > 0);
+            p.actions["VideoLevels/FromFile"]->setEnabled(count > 0);
+            p.actions["VideoLevels/FullRange"]->setEnabled(count > 0);
+            p.actions["VideoLevels/LegalRange"]->setEnabled(count > 0);
             p.actions["AlphaBlend/None"]->setEnabled(count > 0);
             p.actions["AlphaBlend/Straight"]->setEnabled(count > 0);
             p.actions["AlphaBlend/Premultiplied"]->setEnabled(count > 0);
-            p.actions["MirrorX"]->setEnabled(count > 0);
-            p.actions["MirrorY"]->setEnabled(count > 0);
+            p.actions["ImageFilter/Nearest"]->setEnabled(count > 0);
+            p.actions["ImageFilter/Linear"]->setEnabled(count > 0);
 
             if (count > 0)
             {
                 {
-                    QSignalBlocker blocker(p.videoLevelsActionGroup);
-                    for (auto action : p.videoLevelsActionGroup->actions())
-                    {
-                        if (action->data().value<timeline::InputVideoLevels>() == p.imageOptions.videoLevels)
-                        {
-                            action->setChecked(true);
-                            break;
-                        }
-                    }
+                    QSignalBlocker blocker(p.actions["MirrorX"]);
+                    p.actions["MirrorX"]->setChecked(p.displayOptions.mirror.x);
+                }
+                {
+                    QSignalBlocker blocker(p.actions["MirrorY"]);
+                    p.actions["MirrorY"]->setChecked(p.displayOptions.mirror.y);
                 }
                 {
                     QSignalBlocker blocker(p.channelsActionGroup);
@@ -260,6 +290,17 @@ namespace tl
                     for (auto action : p.channelsActionGroup->actions())
                     {
                         if (action->data().value<timeline::Channels>() == p.displayOptions.channels)
+                        {
+                            action->setChecked(true);
+                            break;
+                        }
+                    }
+                }
+                {
+                    QSignalBlocker blocker(p.videoLevelsActionGroup);
+                    for (auto action : p.videoLevelsActionGroup->actions())
+                    {
+                        if (action->data().value<timeline::InputVideoLevels>() == p.imageOptions.videoLevels)
                         {
                             action->setChecked(true);
                             break;
@@ -278,19 +319,26 @@ namespace tl
                     }
                 }
                 {
-                    QSignalBlocker blocker(p.actions["MirrorX"]);
-                    p.actions["MirrorX"]->setChecked(p.displayOptions.mirror.x);
-                }
-                {
-                    QSignalBlocker blocker(p.actions["MirrorY"]);
-                    p.actions["MirrorY"]->setChecked(p.displayOptions.mirror.y);
+                    QSignalBlocker blocker(p.imageFilterActionGroup);
+                    for (auto action : p.imageFilterActionGroup->actions())
+                    {
+                        if (action->data().value<timeline::ImageFilter>() == p.imageOptions.imageFilters.minify)
+                        {
+                            action->setChecked(true);
+                            break;
+                        }
+                    }
                 }
             }
             else
             {
                 {
-                    QSignalBlocker blocker(p.videoLevelsActionGroup);
-                    p.actions["VideoLevels/FromFile"]->setChecked(true);
+                    QSignalBlocker blocker(p.actions["MirrorX"]);
+                    p.actions["MirrorX"]->setChecked(false);
+                }
+                {
+                    QSignalBlocker blocker(p.actions["MirrorY"]);
+                    p.actions["MirrorY"]->setChecked(false);
                 }
                 {
                     QSignalBlocker blocker(p.channelsActionGroup);
@@ -300,16 +348,16 @@ namespace tl
                     p.actions["Channels/Alpha"]->setChecked(false);
                 }
                 {
+                    QSignalBlocker blocker(p.videoLevelsActionGroup);
+                    p.actions["VideoLevels/FromFile"]->setChecked(true);
+                }
+                {
                     QSignalBlocker blocker(p.alphaBlendActionGroup);
                     p.actions["AlphaBlend/None"]->setChecked(true);
                 }
                 {
-                    QSignalBlocker blocker(p.actions["MirrorX"]);
-                    p.actions["MirrorX"]->setChecked(false);
-                }
-                {
-                    QSignalBlocker blocker(p.actions["MirrorY"]);
-                    p.actions["MirrorY"]->setChecked(false);
+                    QSignalBlocker blocker(p.imageFilterActionGroup);
+                    p.actions["ImageFilter/Nearest"]->setChecked(true);
                 }
             }
         }

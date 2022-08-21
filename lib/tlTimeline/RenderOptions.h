@@ -35,21 +35,6 @@ namespace tl
         TLRENDER_ENUM(InputVideoLevels);
         TLRENDER_ENUM_SERIALIZE(InputVideoLevels);
 
-        //! Channels.
-        enum class Channels
-        {
-            Color,
-            Red,
-            Green,
-            Blue,
-            Alpha,
-
-            Count,
-            First = Color
-        };
-        TLRENDER_ENUM(Channels);
-        TLRENDER_ENUM_SERIALIZE(Channels);
-
         //! Alpha channel blending.
         //!
         //! References:
@@ -65,6 +50,54 @@ namespace tl
         };
         TLRENDER_ENUM(AlphaBlend);
         TLRENDER_ENUM_SERIALIZE(AlphaBlend);
+
+        //! Image filtering.
+        enum class ImageFilter
+        {
+            Nearest,
+            Linear,
+
+            Count,
+            First = Nearest
+        };
+        TLRENDER_ENUM(ImageFilter);
+        TLRENDER_ENUM_SERIALIZE(ImageFilter);
+
+        //! Image filters.
+        struct ImageFilters
+        {
+            ImageFilter minify = ImageFilter::Linear;
+            ImageFilter magnify = ImageFilter::Linear;
+
+            bool operator == (const ImageFilters&) const;
+            bool operator != (const ImageFilters&) const;
+        };
+
+        //! Image options.
+        struct ImageOptions
+        {
+            InputVideoLevels videoLevels = InputVideoLevels::FromFile;
+            AlphaBlend       alphaBlend = AlphaBlend::Straight;
+            ImageFilters     imageFilters;
+
+            bool operator == (const ImageOptions&) const;
+            bool operator != (const ImageOptions&) const;
+        };
+
+        //! Channels.
+        enum class Channels
+        {
+            Color,
+            Red,
+            Green,
+            Blue,
+            Alpha,
+
+            Count,
+            First = Color
+        };
+        TLRENDER_ENUM(Channels);
+        TLRENDER_ENUM_SERIALIZE(Channels);
 
         //! Color values.
         struct Color
@@ -121,16 +154,6 @@ namespace tl
             bool operator != (const Exposure&) const;
         };
 
-        //! Image options.
-        struct ImageOptions
-        {
-            InputVideoLevels videoLevels = InputVideoLevels::FromFile;
-            AlphaBlend       alphaBlend = AlphaBlend::Straight;
-
-            bool operator == (const ImageOptions&) const;
-            bool operator != (const ImageOptions&) const;
-        };
-
         //! Display options.
         struct DisplayOptions
         {
@@ -144,6 +167,7 @@ namespace tl
             Exposure             exposure;
             bool                 softClipEnabled = false;
             float                softClip = 0.F;
+            ImageFilters         imageFilters;
             imaging::VideoLevels videoLevels = imaging::VideoLevels::FullRange;
 
             bool operator == (const DisplayOptions&) const;

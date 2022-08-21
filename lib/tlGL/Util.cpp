@@ -21,6 +21,18 @@ namespace tl
             timeline::init(context);
         }
 
+        GLenum getTextureFilter(timeline::ImageFilter value)
+        {
+            GLenum out = GL_NONE;
+            switch (value)
+            {
+            case timeline::ImageFilter::Nearest: out = GL_NEAREST; break;
+            case timeline::ImageFilter::Linear: out = GL_LINEAR; break;
+            default: break;
+            }
+            return out;
+        }
+
         GLenum getReadPixelsFormat(imaging::PixelType value)
         {
             const std::array<GLenum, static_cast<std::size_t>(imaging::PixelType::Count)> data =

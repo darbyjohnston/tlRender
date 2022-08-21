@@ -8,6 +8,7 @@
 #include <tlGL/OffscreenBuffer.h>
 #include <tlGL/Render.h>
 #include <tlGL/Shader.h>
+#include <tlGL/Util.h>
 
 #include <tlCore/Mesh.h>
 
@@ -284,13 +285,18 @@ namespace tl
             {
                 if (renderSize.isValid())
                 {
-                    if (gl::doCreate(p.buffer, renderSize))
+                    gl::OffscreenBufferOptions offscreenBufferOptions;
+                    offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
+                    if (!p.displayOptions.empty())
                     {
-                        gl::OffscreenBufferOptions options;
-                        options.colorType = imaging::PixelType::RGBA_F32;
-                        options.depth = gl::OffscreenDepth::_24;
-                        options.stencil = gl::OffscreenStencil::_8;
-                        p.buffer = gl::OffscreenBuffer::create(renderSize, options);
+                        offscreenBufferOptions.colorMinifyFilter = gl::getTextureFilter(p.displayOptions[0].imageFilters.minify);
+                        offscreenBufferOptions.colorMagnifyFilter = gl::getTextureFilter(p.displayOptions[0].imageFilters.magnify);
+                    }
+                    offscreenBufferOptions.depth = gl::OffscreenDepth::_24;
+                    offscreenBufferOptions.stencil = gl::OffscreenStencil::_8;
+                    if (gl::doCreate(p.buffer, renderSize, offscreenBufferOptions))
+                    {
+                        p.buffer = gl::OffscreenBuffer::create(renderSize, offscreenBufferOptions);
                     }
                 }
                 else

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlCore/Image.h>
+#include <tlTimeline/RenderOptions.h>
 
 #include <tlGlad/gl.h>
 
@@ -20,6 +20,9 @@ namespace tl
     {
         //! Initialize the library.
         void init(const std::shared_ptr<system::Context>&);
+
+        //! Get the OpenGL texture filter.
+        GLenum getTextureFilter(timeline::ImageFilter);
 
         //! Get the glReadPixels format.
         GLenum getReadPixelsFormat(imaging::PixelType);

@@ -48,7 +48,7 @@ namespace tl
             uint16_t tx;
             uint16_t ty;
         };
-        
+
         void copyTextures(
             const std::shared_ptr<imaging::Image>&,
             const std::vector<std::shared_ptr<Texture> >&,
@@ -59,15 +59,29 @@ namespace tl
         public:
             void setSize(size_t);
 
-            std::vector<std::shared_ptr<Texture> > get(const imaging::Info&, size_t offset = 0);
+            std::vector<std::shared_ptr<Texture> > get(
+                const imaging::Info&,
+                const timeline::ImageFilters&,
+                size_t offset = 0);
 
-            void add(const imaging::Info&, const std::vector<std::shared_ptr<Texture> >&);
+            void add(
+                const imaging::Info&,
+                const timeline::ImageFilters&,
+                const std::vector<std::shared_ptr<Texture> >&);
 
         private:
             void _cacheUpdate();
 
             size_t _size = 6;
-            std::list<std::pair<imaging::Info, std::vector<std::shared_ptr<Texture> > > > _cache;
+
+            struct TextureData
+            {
+                imaging::Info info;
+                timeline::ImageFilters imageFilters;
+                std::vector<std::shared_ptr<Texture> > texture;
+            };
+
+            std::list<TextureData> _cache;
         };
 
         struct Render::Private

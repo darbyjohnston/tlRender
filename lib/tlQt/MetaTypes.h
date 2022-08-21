@@ -38,6 +38,7 @@ Q_DECLARE_METATYPE(tl::timeline::AudioBufferFrameCount);
 Q_DECLARE_METATYPE(tl::timeline::Channels);
 Q_DECLARE_METATYPE(tl::timeline::CompareMode);
 Q_DECLARE_METATYPE(tl::timeline::FileSequenceAudio);
+Q_DECLARE_METATYPE(tl::timeline::ImageFilter);
 Q_DECLARE_METATYPE(tl::timeline::InputVideoLevels);
 Q_DECLARE_METATYPE(tl::timeline::Loop);
 Q_DECLARE_METATYPE(tl::timeline::Playback);

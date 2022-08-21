@@ -23,6 +23,19 @@ namespace tl
         TLRENDER_ENUM_SERIALIZE_IMPL(InputVideoLevels);
 
         TLRENDER_ENUM_IMPL(
+            AlphaBlend,
+            "None",
+            "Straight",
+            "Premultiplied");
+        TLRENDER_ENUM_SERIALIZE_IMPL(AlphaBlend);
+
+        TLRENDER_ENUM_IMPL(
+            ImageFilter,
+            "Nearest",
+            "Linear");
+        TLRENDER_ENUM_SERIALIZE_IMPL(ImageFilter);
+
+        TLRENDER_ENUM_IMPL(
             Channels,
             "Color",
             "Red",
@@ -30,13 +43,6 @@ namespace tl
             "Blue",
             "Alpha");
         TLRENDER_ENUM_SERIALIZE_IMPL(Channels);
-
-        TLRENDER_ENUM_IMPL(
-            AlphaBlend,
-            "None",
-            "Straight",
-            "Premultiplied");
-        TLRENDER_ENUM_SERIALIZE_IMPL(AlphaBlend);
 
         math::Matrix4x4f brightness(const math::Vector3f& value)
         {

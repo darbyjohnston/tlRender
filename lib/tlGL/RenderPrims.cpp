@@ -173,7 +173,7 @@ namespace tl
             TLRENDER_P();
 
             const auto& info = image->getInfo();
-            auto textures = p.textureCache.get(info);
+            auto textures = p.textureCache.get(info, imageOptions.imageFilters);
             copyTextures(image, textures);
 
             p.imageShader->bind();
@@ -250,7 +250,7 @@ namespace tl
                 p.imageVAO->draw(GL_TRIANGLE_STRIP, 0, 4);
             }
 
-            p.textureCache.add(info, textures);
+            p.textureCache.add(info, imageOptions.imageFilters, textures);
         }
     }
 }
