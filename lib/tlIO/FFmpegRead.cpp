@@ -164,7 +164,8 @@ namespace tl
                                     arg(__LINE__);
                                 logSystem->print(id, string::Format("{0}: {1}").
                                     arg(_path.get()).
-                                    arg(e.what()));
+                                    arg(e.what()),
+                                    log::Type::Error);
                             }
                         }
                     }
@@ -177,7 +178,8 @@ namespace tl
                                 arg(__LINE__);
                             logSystem->print(id, string::Format("{0}: {1}").
                                 arg(_path.get()).
-                                arg(e.what()));
+                                arg(e.what()),
+                                log::Type::Error);
                         }
                         p.infoPromise.set_value(io::Info());
                     }
