@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include <tlPlayApp/ImageActions.h>
+#include <tlPlayApp/RenderActions.h>
 
 #include <tlPlayApp/App.h>
 #include <tlPlayApp/FilesModel.h>
@@ -15,7 +15,7 @@ namespace tl
 {
     namespace play
     {
-        struct ImageActions::Private
+        struct RenderActions::Private
         {
             App* app = nullptr;
 
@@ -33,7 +33,7 @@ namespace tl
             std::shared_ptr<observer::ListObserver<std::shared_ptr<FilesModelItem> > > filesObserver;
         };
 
-        ImageActions::ImageActions(App* app, QObject* parent) :
+        RenderActions::RenderActions(App* app, QObject* parent) :
             QObject(parent),
             _p(new Private)
         {
@@ -122,7 +122,7 @@ namespace tl
             p.imageFilterActionGroup->addAction(p.actions["ImageFilter/Linear"]);
 
             p.menu = new QMenu;
-            p.menu->setTitle(tr("&Image"));
+            p.menu->setTitle(tr("&Render"));
             p.menu->addAction(p.actions["Channels/Red"]);
             p.menu->addAction(p.actions["Channels/Green"]);
             p.menu->addAction(p.actions["Channels/Blue"]);
@@ -220,20 +220,20 @@ namespace tl
                 });
         }
 
-        ImageActions::~ImageActions()
+        RenderActions::~RenderActions()
         {}
 
-        const QMap<QString, QAction*>& ImageActions::actions() const
+        const QMap<QString, QAction*>& RenderActions::actions() const
         {
             return _p->actions;
         }
 
-        QMenu* ImageActions::menu() const
+        QMenu* RenderActions::menu() const
         {
             return _p->menu;
         }
 
-        void ImageActions::setImageOptions(const timeline::ImageOptions& value)
+        void RenderActions::setImageOptions(const timeline::ImageOptions& value)
         {
             TLRENDER_P();
             if (value == p.imageOptions)
@@ -242,7 +242,7 @@ namespace tl
             _actionsUpdate();
         }
 
-        void ImageActions::setDisplayOptions(const timeline::DisplayOptions& value)
+        void RenderActions::setDisplayOptions(const timeline::DisplayOptions& value)
         {
             TLRENDER_P();
             if (value == p.displayOptions)
@@ -251,7 +251,7 @@ namespace tl
             _actionsUpdate();
         }
 
-        void ImageActions::_actionsUpdate()
+        void RenderActions::_actionsUpdate()
         {
             TLRENDER_P();
 

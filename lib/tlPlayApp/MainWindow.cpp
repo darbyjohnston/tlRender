@@ -16,10 +16,10 @@
 #include <tlPlayApp/FileActions.h>
 #include <tlPlayApp/FilesModel.h>
 #include <tlPlayApp/FilesTool.h>
-#include <tlPlayApp/ImageActions.h>
 #include <tlPlayApp/InfoTool.h>
 #include <tlPlayApp/MessagesTool.h>
 #include <tlPlayApp/PlaybackActions.h>
+#include <tlPlayApp/RenderActions.h>
 #include <tlPlayApp/SecondaryWindow.h>
 #include <tlPlayApp/SettingsObject.h>
 #include <tlPlayApp/SettingsTool.h>
@@ -82,7 +82,7 @@ namespace tl
             FileActions* fileActions = nullptr;
             CompareActions* compareActions = nullptr;
             ViewActions* viewActions = nullptr;
-            ImageActions* imageActions = nullptr;
+            RenderActions* renderActions = nullptr;
             PlaybackActions* playbackActions = nullptr;
             AudioActions* audioActions = nullptr;
             WindowActions* windowActions = nullptr;
@@ -138,7 +138,7 @@ namespace tl
             p.fileActions = new FileActions(app, this);
             p.compareActions = new CompareActions(app, this);
             p.viewActions = new ViewActions(app, this);
-            p.imageActions = new ImageActions(app, this);
+            p.renderActions = new RenderActions(app, this);
             p.playbackActions = new PlaybackActions(app, this);
             p.audioActions = new AudioActions(app, this);
             p.windowActions = new WindowActions(app, this);
@@ -147,7 +147,7 @@ namespace tl
             menuBar->addMenu(p.fileActions->menu());
             menuBar->addMenu(p.compareActions->menu());
             menuBar->addMenu(p.viewActions->menu());
-            menuBar->addMenu(p.imageActions->menu());
+            menuBar->addMenu(p.renderActions->menu());
             menuBar->addMenu(p.playbackActions->menu());
             menuBar->addMenu(p.audioActions->menu());
             menuBar->addMenu(p.windowActions->menu());
@@ -985,8 +985,8 @@ namespace tl
 
             p.compareActions->setCompareOptions(p.compareOptions);
 
-            p.imageActions->setImageOptions(p.imageOptions);
-            p.imageActions->setDisplayOptions(p.displayOptions);
+            p.renderActions->setImageOptions(p.imageOptions);
+            p.renderActions->setDisplayOptions(p.displayOptions);
 
             p.playbackActions->setTimelinePlayers(p.timelinePlayers);
 

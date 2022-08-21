@@ -13,13 +13,13 @@ set(HEADERS
 	FilesModel.h
 	FilesTool.h
 	FilesView.h
-	ImageActions.h
     InfoTool.h
 	InfoModel.h
     MainWindow.h
 	MessagesTool.h
 	OpenSeparateAudioDialog.h
 	PlaybackActions.h
+	RenderActions.h
     SecondaryWindow.h
     SettingsObject.h
     SettingsTool.h
@@ -43,13 +43,13 @@ set(SOURCE
 	FilesModel.cpp
 	FilesTool.cpp
 	FilesView.cpp
-	ImageActions.cpp
     InfoTool.cpp
 	InfoModel.cpp
     MainWindow.cpp
 	MessagesTool.cpp
 	OpenSeparateAudioDialog.cpp
 	PlaybackActions.cpp
+	RenderActions.cpp
     SecondaryWindow.cpp
     SettingsObject.cpp
     SettingsTool.cpp

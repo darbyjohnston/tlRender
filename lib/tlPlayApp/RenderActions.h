@@ -20,15 +20,15 @@ namespace tl
     {
         class App;
 
-        //! Image actions.
-        class ImageActions : public QObject
+        //! Render actions.
+        class RenderActions : public QObject
         {
             Q_OBJECT
 
         public:
-            ImageActions(App*, QObject* parent = nullptr);
+            RenderActions(App*, QObject* parent = nullptr);
 
-            ~ImageActions() override;
+            ~RenderActions() override;
 
             //! Get the actions.
             const QMap<QString, QAction*>& actions() const;
