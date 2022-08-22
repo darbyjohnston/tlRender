@@ -87,7 +87,7 @@ namespace tl
                 GLFWwindow* _glfwWindow = nullptr;
                 math::Vector2i _windowPos;
                 imaging::Size _frameBufferSize;
-                math::Vector2f _contentScale;
+                math::Vector2f _contentScale = math::Vector2f(1.F, 1.F);
                 std::shared_ptr<imaging::FontSystem> _fontSystem;
                 std::shared_ptr<timeline::IRender> _render;
                 bool _renderDirty = true;
