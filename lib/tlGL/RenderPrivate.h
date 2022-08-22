@@ -110,30 +110,12 @@ namespace tl
 
             imaging::Size size;
 
-            std::shared_ptr<Shader> meshShader;
-            std::shared_ptr<Shader> textShader;
-            std::shared_ptr<Shader> textureShader;
-            std::shared_ptr<Shader> imageShader;
-            std::shared_ptr<Shader> displayShader;
-            std::shared_ptr<Shader> dissolveShader;
-            std::shared_ptr<Shader> differenceShader;
-
-            std::shared_ptr<OffscreenBuffer> buffer;
-            std::shared_ptr<OffscreenBuffer> transitionBuffer;
-            std::shared_ptr<OffscreenBuffer> overlayBuffer;
-            std::array<std::shared_ptr<OffscreenBuffer>, 2> differenceBuffers;
-
+            std::map<std::string, std::shared_ptr<Shader> > shaders;
+            std::map<std::string, std::shared_ptr<OffscreenBuffer> > buffers;
             TextureCache textureCache;
             memory::LRUCache<imaging::GlyphInfo, std::shared_ptr<Texture> > glyphTextureCache;
-
-            std::shared_ptr<gl::VBO> rectVBO;
-            std::shared_ptr<gl::VBO> meshVBO;
-            std::shared_ptr<gl::VBO> imageVBO;
-            std::shared_ptr<gl::VBO> videoVBO;
-            std::shared_ptr<gl::VAO> rectVAO;
-            std::shared_ptr<gl::VAO> meshVAO;
-            std::shared_ptr<gl::VAO> imageVAO;
-            std::shared_ptr<gl::VAO> videoVAO;
+            std::map<std::string, std::shared_ptr<gl::VBO> > vbos;
+            std::map<std::string, std::shared_ptr<gl::VAO> > vaos;
         };
     }
 }
