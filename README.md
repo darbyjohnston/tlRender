@@ -54,6 +54,7 @@ Optional dependencies:
 * [OpenEXR](https://www.openexr.com/)
 * [PNG](https://libpng.sourceforge.io/index.html)
 * [TIFF](http://www.libtiff.org)
+* [FLTK](https://www.fltk.org)
 
 tlRenderGL
 ----------
