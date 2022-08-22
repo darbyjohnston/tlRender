@@ -312,14 +312,17 @@ namespace tl
             delete p.outputDevice;
             p.outputDevice = nullptr;
 
-            const auto& deviceData = p.devicesModel->observeData()->get();
-            p.settingsObject->setValue("Devices/DeviceIndex", deviceData.deviceIndex);
-            p.settingsObject->setValue("Devices/DisplayModeIndex", deviceData.displayModeIndex);
-            p.settingsObject->setValue("Devices/PixelTypeIndex", deviceData.pixelTypeIndex);
-            p.settingsObject->setValue("Devices/HDRMode", static_cast<int>(deviceData.hdrMode));
-            nlohmann::json json;
-            to_json(json, deviceData.hdrData);
-            p.settingsObject->setValue("Devices/HDRData", QString::fromUtf8(json.dump().c_str()));
+            if (p.settingsObject && p.devicesModel)
+            {
+                const auto& deviceData = p.devicesModel->observeData()->get();
+                p.settingsObject->setValue("Devices/DeviceIndex", deviceData.deviceIndex);
+                p.settingsObject->setValue("Devices/DisplayModeIndex", deviceData.displayModeIndex);
+                p.settingsObject->setValue("Devices/PixelTypeIndex", deviceData.pixelTypeIndex);
+                p.settingsObject->setValue("Devices/HDRMode", static_cast<int>(deviceData.hdrMode));
+                nlohmann::json json;
+                to_json(json, deviceData.hdrData);
+                p.settingsObject->setValue("Devices/HDRData", QString::fromUtf8(json.dump().c_str()));
+            }
 
             //! \bug Why is it necessary to manually delete this to get the settings to save?
             delete p.settingsObject;
