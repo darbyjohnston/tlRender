@@ -530,7 +530,7 @@ namespace tl
                 }
             }
 
-            p.displayShader.reset();
+            p.shaders["display"].reset();
         }
 
         void Render::begin(const imaging::Size& size)
@@ -559,35 +559,35 @@ namespace tl
                 viewMatrix[2][0], viewMatrix[2][1], viewMatrix[2][2], viewMatrix[2][3],
                 viewMatrix[3][0], viewMatrix[3][1], viewMatrix[3][2], viewMatrix[3][3]);
 
-            if (!p.meshShader)
+            if (!p.shaders["mesh"])
             {
-                p.meshShader = Shader::create(vertexSource(), meshFragmentSource());
+                p.shaders["mesh"] = Shader::create(vertexSource(), meshFragmentSource());
             }
-            p.meshShader->bind();
-            p.meshShader->setUniform("transform.mvp", mvp);
+            p.shaders["mesh"]->bind();
+            p.shaders["mesh"]->setUniform("transform.mvp", mvp);
 
-            if (!p.textShader)
+            if (!p.shaders["text"])
             {
-                p.textShader = Shader::create(vertexSource(), textFragmentSource());
+                p.shaders["text"] = Shader::create(vertexSource(), textFragmentSource());
             }
-            p.textShader->bind();
-            p.textShader->setUniform("transform.mvp", mvp);
+            p.shaders["text"]->bind();
+            p.shaders["text"]->setUniform("transform.mvp", mvp);
 
-            if (!p.textureShader)
+            if (!p.shaders["texture"])
             {
-                p.textureShader = Shader::create(vertexSource(), textureFragmentSource());
+                p.shaders["texture"] = Shader::create(vertexSource(), textureFragmentSource());
             }
-            p.textureShader->bind();
-            p.textureShader->setUniform("transform.mvp", mvp);
+            p.shaders["texture"]->bind();
+            p.shaders["texture"]->setUniform("transform.mvp", mvp);
 
-            if (!p.imageShader)
+            if (!p.shaders["image"])
             {
-                p.imageShader = Shader::create(vertexSource(), imageFragmentSource());
+                p.shaders["image"] = Shader::create(vertexSource(), imageFragmentSource());
             }
-            p.imageShader->bind();
-            p.imageShader->setUniform("transform.mvp", mvp);
+            p.shaders["image"]->bind();
+            p.shaders["image"]->setUniform("transform.mvp", mvp);
 
-            if (!p.displayShader)
+            if (!p.shaders["display"])
             {
                 std::string source = displayFragmentSource();
                 const std::string token = "// $color";
@@ -604,51 +604,37 @@ namespace tl
                     //context->log("tl::gl::Render", source);
                     context->log("tl::gl::Render", "Creating shader");
                 }
-                p.displayShader = Shader::create(vertexSource(), source);
+                p.shaders["display"] = Shader::create(vertexSource(), source);
             }
-            p.displayShader->bind();
-            p.displayShader->setUniform("transform.mvp", mvp);
+            p.shaders["display"]->bind();
+            p.shaders["display"]->setUniform("transform.mvp", mvp);
             for (size_t i = 0; i < p.colorTextures.size(); ++i)
             {
-                p.displayShader->setUniform(p.colorTextures[i].sampler, static_cast<int>(3 + i));
+                p.shaders["display"]->setUniform(p.colorTextures[i].sampler, static_cast<int>(3 + i));
             }
 
-            if (!p.dissolveShader)
+            if (!p.shaders["dissolve"])
             {
-                p.dissolveShader = Shader::create(vertexSource(), dissolveFragmentSource());
+                p.shaders["dissolve"] = Shader::create(vertexSource(), dissolveFragmentSource());
             }
 
-            if (!p.differenceShader)
+            if (!p.shaders["difference"])
             {
-                p.differenceShader = Shader::create(vertexSource(), differenceFragmentSource());
+                p.shaders["difference"] = Shader::create(vertexSource(), differenceFragmentSource());
             }
-            p.differenceShader->bind();
-            p.differenceShader->setUniform("transform.mvp", mvp);
+            p.shaders["difference"]->bind();
+            p.shaders["difference"]->setUniform("transform.mvp", mvp);
 
-            if (!p.rectVBO)
-            {
-                p.rectVBO = VBO::create(4, VBOType::Pos2_F32);
-            }
-            if (!p.rectVAO && p.rectVBO)
-            {
-                p.rectVAO = VAO::create(p.rectVBO->getType(), p.rectVBO->getID());
-            }
-            if (!p.imageVBO)
-            {
-                p.imageVBO = VBO::create(4, VBOType::Pos2_F32_UV_U16);
-            }
-            if (!p.imageVAO && p.imageVBO)
-            {
-                p.imageVAO = VAO::create(p.imageVBO->getType(), p.imageVBO->getID());
-            }
-            if (!p.videoVBO)
-            {
-                p.videoVBO = VBO::create(4, VBOType::Pos2_F32_UV_U16);
-            }
-            if (!p.videoVAO && p.videoVBO)
-            {
-                p.videoVAO = VAO::create(p.videoVBO->getType(), p.videoVBO->getID());
-            }
+            p.vbos["rect"] = VBO::create(2 * 3, VBOType::Pos2_F32);
+            p.vaos["rect"] = VAO::create(p.vbos["rect"]->getType(), p.vbos["rect"]->getID());
+            p.vbos["text"] = VBO::create(2 * 3, VBOType::Pos2_F32_UV_U16);
+            p.vaos["text"] = VAO::create(p.vbos["text"]->getType(), p.vbos["text"]->getID());
+            p.vbos["image"] = VBO::create(2 * 3, VBOType::Pos2_F32_UV_U16);
+            p.vaos["image"] = VAO::create(p.vbos["image"]->getType(), p.vbos["image"]->getID());
+            p.vbos["wipe"] = VBO::create(2 * 3, VBOType::Pos2_F32);
+            p.vaos["wipe"] = VAO::create(p.vbos["wipe"]->getType(), p.vbos["wipe"]->getID());
+            p.vbos["video"] = VBO::create(2 * 3, VBOType::Pos2_F32_UV_U16);
+            p.vaos["video"] = VAO::create(p.vbos["video"]->getType(), p.vbos["video"]->getID());
         }
 
         void Render::end()
