@@ -93,7 +93,6 @@ namespace tl
             ///@{
 
             void copy(const std::vector<uint8_t>&);
-            void copy(const std::vector<uint8_t>&, std::size_t offset);
             void copy(const std::vector<uint8_t>&, std::size_t offset, std::size_t size);
 
             ///@}
