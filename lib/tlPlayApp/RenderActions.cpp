@@ -26,7 +26,8 @@ namespace tl
             QActionGroup* channelsActionGroup = nullptr;
             QActionGroup* videoLevelsActionGroup = nullptr;
             QActionGroup* alphaBlendActionGroup = nullptr;
-            QActionGroup* imageFilterActionGroup = nullptr;
+            QActionGroup* minifyFilterActionGroup = nullptr;
+            QActionGroup* magnifyFilterActionGroup = nullptr;
 
             QMenu* menu = nullptr;
 
@@ -109,17 +110,28 @@ namespace tl
             p.alphaBlendActionGroup->addAction(p.actions["AlphaBlend/None"]);
             p.alphaBlendActionGroup->addAction(p.actions["AlphaBlend/Straight"]);
             p.alphaBlendActionGroup->addAction(p.actions["AlphaBlend/Premultiplied"]);
-            p.actions["ImageFilter/Nearest"] = new QAction(this);
-            p.actions["ImageFilter/Nearest"]->setData(QVariant::fromValue<timeline::ImageFilter>(timeline::ImageFilter::Nearest));
-            p.actions["ImageFilter/Nearest"]->setCheckable(true);
-            p.actions["ImageFilter/Nearest"]->setText(tr("Nearest"));
-            p.actions["ImageFilter/Linear"] = new QAction(this);
-            p.actions["ImageFilter/Linear"]->setData(QVariant::fromValue<timeline::ImageFilter>(timeline::ImageFilter::Linear));
-            p.actions["ImageFilter/Linear"]->setCheckable(true);
-            p.actions["ImageFilter/Linear"]->setText(tr("Linear"));
-            p.imageFilterActionGroup = new QActionGroup(this);
-            p.imageFilterActionGroup->addAction(p.actions["ImageFilter/Nearest"]);
-            p.imageFilterActionGroup->addAction(p.actions["ImageFilter/Linear"]);
+            p.actions["MinifyFilter/Nearest"] = new QAction(this);
+            p.actions["MinifyFilter/Nearest"]->setData(QVariant::fromValue<timeline::ImageFilter>(timeline::ImageFilter::Nearest));
+            p.actions["MinifyFilter/Nearest"]->setCheckable(true);
+            p.actions["MinifyFilter/Nearest"]->setText(tr("Nearest"));
+            p.actions["MinifyFilter/Linear"] = new QAction(this);
+            p.actions["MinifyFilter/Linear"]->setData(QVariant::fromValue<timeline::ImageFilter>(timeline::ImageFilter::Linear));
+            p.actions["MinifyFilter/Linear"]->setCheckable(true);
+            p.actions["MinifyFilter/Linear"]->setText(tr("Linear"));
+            p.minifyFilterActionGroup = new QActionGroup(this);
+            p.minifyFilterActionGroup->addAction(p.actions["MinifyFilter/Nearest"]);
+            p.minifyFilterActionGroup->addAction(p.actions["MinifyFilter/Linear"]);
+            p.actions["MagnifyFilter/Nearest"] = new QAction(this);
+            p.actions["MagnifyFilter/Nearest"]->setData(QVariant::fromValue<timeline::ImageFilter>(timeline::ImageFilter::Nearest));
+            p.actions["MagnifyFilter/Nearest"]->setCheckable(true);
+            p.actions["MagnifyFilter/Nearest"]->setText(tr("Nearest"));
+            p.actions["MagnifyFilter/Linear"] = new QAction(this);
+            p.actions["MagnifyFilter/Linear"]->setData(QVariant::fromValue<timeline::ImageFilter>(timeline::ImageFilter::Linear));
+            p.actions["MagnifyFilter/Linear"]->setCheckable(true);
+            p.actions["MagnifyFilter/Linear"]->setText(tr("Linear"));
+            p.magnifyFilterActionGroup = new QActionGroup(this);
+            p.magnifyFilterActionGroup->addAction(p.actions["MagnifyFilter/Nearest"]);
+            p.magnifyFilterActionGroup->addAction(p.actions["MagnifyFilter/Linear"]);
 
             p.menu = new QMenu;
             p.menu->setTitle(tr("&Render"));
@@ -139,9 +151,12 @@ namespace tl
             alphaBlendMenu->addAction(p.actions["AlphaBlend/None"]);
             alphaBlendMenu->addAction(p.actions["AlphaBlend/Straight"]);
             alphaBlendMenu->addAction(p.actions["AlphaBlend/Premultiplied"]);
-            auto imageFilterMenu = p.menu->addMenu(tr("Image Filter"));
-            imageFilterMenu->addAction(p.actions["ImageFilter/Nearest"]);
-            imageFilterMenu->addAction(p.actions["ImageFilter/Linear"]);
+            auto minifyFilterMenu = p.menu->addMenu(tr("Minify Filter"));
+            minifyFilterMenu->addAction(p.actions["MinifyFilter/Nearest"]);
+            minifyFilterMenu->addAction(p.actions["MinifyFilter/Linear"]);
+            auto magnifyFilterMenu = p.menu->addMenu(tr("Magnify Filter"));
+            magnifyFilterMenu->addAction(p.actions["MagnifyFilter/Nearest"]);
+            magnifyFilterMenu->addAction(p.actions["MagnifyFilter/Linear"]);
 
             _actionsUpdate();
 
@@ -197,16 +212,27 @@ namespace tl
                 });
 
             connect(
-                _p->imageFilterActionGroup,
+                _p->minifyFilterActionGroup,
                 &QActionGroup::triggered,
                 [this](QAction* action)
                 {
                     auto imageOptions = _p->imageOptions;
                     const auto imageFilter = action->data().value<timeline::ImageFilter>();
                     imageOptions.imageFilters.minify = imageFilter;
-                    imageOptions.imageFilters.magnify = imageFilter;
                     auto displayOptions = _p->displayOptions;
                     displayOptions.imageFilters.minify = imageFilter;
+                    _p->app->setImageOptions(imageOptions);
+                    _p->app->setDisplayOptions(displayOptions);
+                });
+            connect(
+                _p->magnifyFilterActionGroup,
+                &QActionGroup::triggered,
+                [this](QAction* action)
+                {
+                    auto imageOptions = _p->imageOptions;
+                    const auto imageFilter = action->data().value<timeline::ImageFilter>();
+                    imageOptions.imageFilters.magnify = imageFilter;
+                    auto displayOptions = _p->displayOptions;
                     displayOptions.imageFilters.magnify = imageFilter;
                     _p->app->setImageOptions(imageOptions);
                     _p->app->setDisplayOptions(displayOptions);
@@ -268,8 +294,10 @@ namespace tl
             p.actions["AlphaBlend/None"]->setEnabled(count > 0);
             p.actions["AlphaBlend/Straight"]->setEnabled(count > 0);
             p.actions["AlphaBlend/Premultiplied"]->setEnabled(count > 0);
-            p.actions["ImageFilter/Nearest"]->setEnabled(count > 0);
-            p.actions["ImageFilter/Linear"]->setEnabled(count > 0);
+            p.actions["MinifyFilter/Nearest"]->setEnabled(count > 0);
+            p.actions["MinifyFilter/Linear"]->setEnabled(count > 0);
+            p.actions["MagnifyFilter/Nearest"]->setEnabled(count > 0);
+            p.actions["MagnifyFilter/Linear"]->setEnabled(count > 0);
 
             if (count > 0)
             {
@@ -319,10 +347,21 @@ namespace tl
                     }
                 }
                 {
-                    QSignalBlocker blocker(p.imageFilterActionGroup);
-                    for (auto action : p.imageFilterActionGroup->actions())
+                    QSignalBlocker blocker(p.minifyFilterActionGroup);
+                    for (auto action : p.minifyFilterActionGroup->actions())
                     {
                         if (action->data().value<timeline::ImageFilter>() == p.imageOptions.imageFilters.minify)
+                        {
+                            action->setChecked(true);
+                            break;
+                        }
+                    }
+                }
+                {
+                    QSignalBlocker blocker(p.magnifyFilterActionGroup);
+                    for (auto action : p.magnifyFilterActionGroup->actions())
+                    {
+                        if (action->data().value<timeline::ImageFilter>() == p.imageOptions.imageFilters.magnify)
                         {
                             action->setChecked(true);
                             break;
@@ -356,8 +395,12 @@ namespace tl
                     p.actions["AlphaBlend/None"]->setChecked(true);
                 }
                 {
-                    QSignalBlocker blocker(p.imageFilterActionGroup);
-                    p.actions["ImageFilter/Nearest"]->setChecked(true);
+                    QSignalBlocker blocker(p.minifyFilterActionGroup);
+                    p.actions["MinifyFilter/Nearest"]->setChecked(true);
+                }
+                {
+                    QSignalBlocker blocker(p.magnifyFilterActionGroup);
+                    p.actions["MagnifyFilter/Nearest"]->setChecked(true);
                 }
             }
         }
