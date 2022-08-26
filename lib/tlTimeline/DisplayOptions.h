@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlTimeline/RenderOptions.h>
+#include <tlTimeline/ImageOptions.h>
 
 #include <tlCore/Color.h>
 #include <tlCore/Image.h>
@@ -12,78 +12,8 @@
 
 namespace tl
 {
-    namespace imaging
-    {
-        struct ColorConfig;
-        struct Glyph;
-        class Image;
-        class Size;
-    }
-
     namespace timeline
     {
-        //! Input video levels.
-        enum class InputVideoLevels
-        {
-            FromFile,
-            FullRange,
-            LegalRange,
-
-            Count,
-            First = FromFile
-        };
-        TLRENDER_ENUM(InputVideoLevels);
-        TLRENDER_ENUM_SERIALIZE(InputVideoLevels);
-
-        //! Alpha channel blending.
-        //!
-        //! References:
-        //! - https://microsoft.github.io/Win2D/html/PremultipliedAlpha.htm
-        enum class AlphaBlend
-        {
-            None,
-            Straight,
-            Premultiplied,
-
-            Count,
-            First = None
-        };
-        TLRENDER_ENUM(AlphaBlend);
-        TLRENDER_ENUM_SERIALIZE(AlphaBlend);
-
-        //! Image filtering.
-        enum class ImageFilter
-        {
-            Nearest,
-            Linear,
-
-            Count,
-            First = Nearest
-        };
-        TLRENDER_ENUM(ImageFilter);
-        TLRENDER_ENUM_SERIALIZE(ImageFilter);
-
-        //! Image filters.
-        struct ImageFilters
-        {
-            ImageFilter minify = ImageFilter::Linear;
-            ImageFilter magnify = ImageFilter::Linear;
-
-            bool operator == (const ImageFilters&) const;
-            bool operator != (const ImageFilters&) const;
-        };
-
-        //! Image options.
-        struct ImageOptions
-        {
-            InputVideoLevels videoLevels = InputVideoLevels::FromFile;
-            AlphaBlend       alphaBlend = AlphaBlend::Straight;
-            ImageFilters     imageFilters;
-
-            bool operator == (const ImageOptions&) const;
-            bool operator != (const ImageOptions&) const;
-        };
-
         //! Channels.
         enum class Channels
         {
@@ -173,43 +103,7 @@ namespace tl
             bool operator == (const DisplayOptions&) const;
             bool operator != (const DisplayOptions&) const;
         };
-
-        //! Comparison mode.
-        enum class CompareMode
-        {
-            A,
-            B,
-            Wipe,
-            Overlay,
-            Difference,
-            Horizontal,
-            Vertical,
-            Tile,
-
-            Count,
-            First = A
-        };
-        TLRENDER_ENUM(CompareMode);
-        TLRENDER_ENUM_SERIALIZE(CompareMode);
-
-        //! Comparison options.
-        struct CompareOptions
-        {
-            CompareMode mode = CompareMode::A;
-            math::Vector2f wipeCenter = math::Vector2f(.5F, .5F);
-            float wipeRotation = 0.F;
-            float overlay = .5F;
-
-            bool operator == (const CompareOptions&) const;
-            bool operator != (const CompareOptions&) const;
-        };
-
-        //! Get the bounding boxes for the given compare mode and size.
-        std::vector<math::BBox2i> tiles(CompareMode, const std::vector<imaging::Size>&);
-
-        //! Get the render size for the given compare mode and sizes.
-        imaging::Size getRenderSize(CompareMode, const std::vector<imaging::Size>&);
     }
 }
 
-#include <tlTimeline/RenderOptionsInline.h>
+#include <tlTimeline/DisplayOptionsInline.h>

@@ -4,7 +4,8 @@
 
 #pragma once
 
-#include <tlTimeline/RenderOptions.h>
+#include <tlTimeline/DisplayOptions.h>
+#include <tlTimeline/Transition.h>
 
 #include <tlCore/Context.h>
 #include <tlCore/Time.h>
@@ -21,21 +22,6 @@ namespace tl
     namespace timeline
     {
         class IRender;
-
-        //! Transitions.
-        enum class Transition
-        {
-            None,
-            Dissolve,
-
-            Count,
-            First = None
-        };
-        TLRENDER_ENUM(Transition);
-        TLRENDER_ENUM_SERIALIZE(Transition);
-
-        //! Convert to a transition.
-        Transition toTransition(const std::string&);
 
         //! Video layer.
         struct VideoLayer
