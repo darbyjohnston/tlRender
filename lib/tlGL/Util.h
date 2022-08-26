@@ -4,7 +4,9 @@
 
 #pragma once
 
-#include <tlTimeline/RenderOptions.h>
+#include <tlTimeline/ImageOptions.h>
+
+#include <tlCore/Image.h>
 
 #include <tlGlad/gl.h>
 

@@ -6,31 +6,6 @@ namespace tl
 {
     namespace timeline
     {
-        inline bool ImageFilters::operator == (const ImageFilters& other) const
-        {
-            return
-                minify == other.minify &&
-                magnify == other.magnify;
-        }
-
-        inline bool ImageFilters::operator != (const ImageFilters& other) const
-        {
-            return !(*this == other);
-        }
-
-        inline bool ImageOptions::operator == (const ImageOptions& other) const
-        {
-            return
-                videoLevels == other.videoLevels &&
-                alphaBlend == other.alphaBlend &&
-                imageFilters == other.imageFilters;
-        }
-
-        inline bool ImageOptions::operator != (const ImageOptions& other) const
-        {
-            return !(*this == other);
-        }
-
         inline bool Color::operator == (const Color& other) const
         {
             return
@@ -94,20 +69,6 @@ namespace tl
         }
 
         inline bool DisplayOptions::operator != (const DisplayOptions& other) const
-        {
-            return !(*this == other);
-        }
-
-        inline bool CompareOptions::operator == (const CompareOptions& other) const
-        {
-            return
-                mode == other.mode &&
-                wipeCenter == other.wipeCenter &&
-                wipeRotation == other.wipeRotation &&
-                overlay == other.overlay;
-        }
-
-        inline bool CompareOptions::operator != (const CompareOptions& other) const
         {
             return !(*this == other);
         }

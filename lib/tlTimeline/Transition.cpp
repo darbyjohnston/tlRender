@@ -2,13 +2,11 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include <tlTimeline/Video.h>
-
-#include <tlTimeline/IRender.h>
+#include <tlTimeline/Transition.h>
 
 #include <tlCore/Error.h>
-#include <tlCore/FontSystem.h>
 #include <tlCore/String.h>
+#include <tlCore/Time.h>
 
 #include <opentimelineio/transition.h>
 

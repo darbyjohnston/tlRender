@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <tlTimeline/CompareOptions.h>
 #include <tlTimeline/Video.h>
 
 #include <tlCore/Context.h>
@@ -15,9 +16,6 @@ namespace tl
     namespace imaging
     {
         struct ColorConfig;
-        struct Glyph;
-        class Image;
-        class Size;
     }
 
     namespace timeline
@@ -27,6 +25,7 @@ namespace tl
         {
         protected:
             void _init(const std::shared_ptr<system::Context>&);
+
             IRender();
 
         public:
