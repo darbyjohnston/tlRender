@@ -35,6 +35,7 @@ namespace tl
             p.actions["DecreaseVolume"] = new QAction(this);
             p.actions["DecreaseVolume"]->setText(tr("Decrease Volume"));
             p.actions["DecreaseVolume"]->setShortcut(QKeySequence(Qt::Key_Comma));
+
             p.actions["Mute"] = new QAction(this);
             p.actions["Mute"]->setCheckable(true);
             p.actions["Mute"]->setText(tr("Mute"));
@@ -118,9 +119,10 @@ namespace tl
             TLRENDER_P();
 
             const size_t count = p.timelinePlayers.size();
-            p.actions["IncreaseVolume"]->setEnabled(count > 0);
-            p.actions["DecreaseVolume"]->setEnabled(count > 0);
-            p.actions["Mute"]->setEnabled(count > 0);
+            for (auto i : p.actions)
+            {
+                i->setEnabled(count > 0);
+            }
 
             if (!p.timelinePlayers.empty())
             {

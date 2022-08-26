@@ -23,11 +23,7 @@ namespace tl
             timeline::DisplayOptions displayOptions;
 
             QMap<QString, QAction*> actions;
-            QActionGroup* channelsActionGroup = nullptr;
-            QActionGroup* videoLevelsActionGroup = nullptr;
-            QActionGroup* alphaBlendActionGroup = nullptr;
-            QActionGroup* minifyFilterActionGroup = nullptr;
-            QActionGroup* magnifyFilterActionGroup = nullptr;
+            QMap<QString, QActionGroup*> actionGroups;
 
             QMenu* menu = nullptr;
 
@@ -62,11 +58,12 @@ namespace tl
             p.actions["Channels/Alpha"]->setCheckable(true);
             p.actions["Channels/Alpha"]->setText(tr("Alpha Channel"));
             p.actions["Channels/Alpha"]->setShortcut(QKeySequence(Qt::Key_A));
-            p.channelsActionGroup = new QActionGroup(this);
-            p.channelsActionGroup->addAction(p.actions["Channels/Red"]);
-            p.channelsActionGroup->addAction(p.actions["Channels/Green"]);
-            p.channelsActionGroup->addAction(p.actions["Channels/Blue"]);
-            p.channelsActionGroup->addAction(p.actions["Channels/Alpha"]);
+            p.actionGroups["Channels"] = new QActionGroup(this);
+            p.actionGroups["Channels"]->addAction(p.actions["Channels/Red"]);
+            p.actionGroups["Channels"]->addAction(p.actions["Channels/Green"]);
+            p.actionGroups["Channels"]->addAction(p.actions["Channels/Blue"]);
+            p.actionGroups["Channels"]->addAction(p.actions["Channels/Alpha"]);
+
             p.actions["MirrorX"] = new QAction(this);
             p.actions["MirrorX"]->setText(tr("Mirror Horizontal"));
             p.actions["MirrorX"]->setShortcut(QKeySequence(Qt::Key_H));
@@ -75,6 +72,7 @@ namespace tl
             p.actions["MirrorY"]->setText(tr("Mirror Vertical"));
             p.actions["MirrorY"]->setShortcut(QKeySequence(Qt::Key_V));
             p.actions["MirrorY"]->setCheckable(true);
+
             p.actions["VideoLevels/FromFile"] = new QAction(this);
             p.actions["VideoLevels/FromFile"]->setData(
                 QVariant::fromValue<timeline::InputVideoLevels>(timeline::InputVideoLevels::FromFile));
@@ -90,10 +88,11 @@ namespace tl
                 QVariant::fromValue<timeline::InputVideoLevels>(timeline::InputVideoLevels::LegalRange));
             p.actions["VideoLevels/LegalRange"]->setCheckable(true);
             p.actions["VideoLevels/LegalRange"]->setText(tr("Legal Range"));
-            p.videoLevelsActionGroup = new QActionGroup(this);
-            p.videoLevelsActionGroup->addAction(p.actions["VideoLevels/FromFile"]);
-            p.videoLevelsActionGroup->addAction(p.actions["VideoLevels/FullRange"]);
-            p.videoLevelsActionGroup->addAction(p.actions["VideoLevels/LegalRange"]);
+            p.actionGroups["VideoLevels"] = new QActionGroup(this);
+            p.actionGroups["VideoLevels"]->addAction(p.actions["VideoLevels/FromFile"]);
+            p.actionGroups["VideoLevels"]->addAction(p.actions["VideoLevels/FullRange"]);
+            p.actionGroups["VideoLevels"]->addAction(p.actions["VideoLevels/LegalRange"]);
+
             p.actions["AlphaBlend/None"] = new QAction(this);
             p.actions["AlphaBlend/None"]->setData(QVariant::fromValue<timeline::AlphaBlend>(timeline::AlphaBlend::None));
             p.actions["AlphaBlend/None"]->setCheckable(true);
@@ -106,10 +105,11 @@ namespace tl
             p.actions["AlphaBlend/Premultiplied"]->setData(QVariant::fromValue<timeline::AlphaBlend>(timeline::AlphaBlend::Premultiplied));
             p.actions["AlphaBlend/Premultiplied"]->setCheckable(true);
             p.actions["AlphaBlend/Premultiplied"]->setText(tr("Premultiplied"));
-            p.alphaBlendActionGroup = new QActionGroup(this);
-            p.alphaBlendActionGroup->addAction(p.actions["AlphaBlend/None"]);
-            p.alphaBlendActionGroup->addAction(p.actions["AlphaBlend/Straight"]);
-            p.alphaBlendActionGroup->addAction(p.actions["AlphaBlend/Premultiplied"]);
+            p.actionGroups["AlphaBlend"] = new QActionGroup(this);
+            p.actionGroups["AlphaBlend"]->addAction(p.actions["AlphaBlend/None"]);
+            p.actionGroups["AlphaBlend"]->addAction(p.actions["AlphaBlend/Straight"]);
+            p.actionGroups["AlphaBlend"]->addAction(p.actions["AlphaBlend/Premultiplied"]);
+
             p.actions["MinifyFilter/Nearest"] = new QAction(this);
             p.actions["MinifyFilter/Nearest"]->setData(QVariant::fromValue<timeline::ImageFilter>(timeline::ImageFilter::Nearest));
             p.actions["MinifyFilter/Nearest"]->setCheckable(true);
@@ -118,9 +118,10 @@ namespace tl
             p.actions["MinifyFilter/Linear"]->setData(QVariant::fromValue<timeline::ImageFilter>(timeline::ImageFilter::Linear));
             p.actions["MinifyFilter/Linear"]->setCheckable(true);
             p.actions["MinifyFilter/Linear"]->setText(tr("Linear"));
-            p.minifyFilterActionGroup = new QActionGroup(this);
-            p.minifyFilterActionGroup->addAction(p.actions["MinifyFilter/Nearest"]);
-            p.minifyFilterActionGroup->addAction(p.actions["MinifyFilter/Linear"]);
+            p.actionGroups["MinifyFilter"] = new QActionGroup(this);
+            p.actionGroups["MinifyFilter"]->addAction(p.actions["MinifyFilter/Nearest"]);
+            p.actionGroups["MinifyFilter"]->addAction(p.actions["MinifyFilter/Linear"]);
+
             p.actions["MagnifyFilter/Nearest"] = new QAction(this);
             p.actions["MagnifyFilter/Nearest"]->setData(QVariant::fromValue<timeline::ImageFilter>(timeline::ImageFilter::Nearest));
             p.actions["MagnifyFilter/Nearest"]->setCheckable(true);
@@ -129,9 +130,9 @@ namespace tl
             p.actions["MagnifyFilter/Linear"]->setData(QVariant::fromValue<timeline::ImageFilter>(timeline::ImageFilter::Linear));
             p.actions["MagnifyFilter/Linear"]->setCheckable(true);
             p.actions["MagnifyFilter/Linear"]->setText(tr("Linear"));
-            p.magnifyFilterActionGroup = new QActionGroup(this);
-            p.magnifyFilterActionGroup->addAction(p.actions["MagnifyFilter/Nearest"]);
-            p.magnifyFilterActionGroup->addAction(p.actions["MagnifyFilter/Linear"]);
+            p.actionGroups["MagnifyFilter"] = new QActionGroup(this);
+            p.actionGroups["MagnifyFilter"]->addAction(p.actions["MagnifyFilter/Nearest"]);
+            p.actionGroups["MagnifyFilter"]->addAction(p.actions["MagnifyFilter/Linear"]);
 
             p.menu = new QMenu;
             p.menu->setTitle(tr("&Render"));
@@ -180,7 +181,7 @@ namespace tl
                 });
 
             connect(
-                p.channelsActionGroup,
+                p.actionGroups["Channels"],
                 &QActionGroup::triggered,
                 [this](QAction* action)
                 {
@@ -192,7 +193,7 @@ namespace tl
                 });
 
             connect(
-                p.videoLevelsActionGroup,
+                p.actionGroups["VideoLevels"],
                 &QActionGroup::triggered,
                 [this](QAction* action)
                 {
@@ -202,7 +203,7 @@ namespace tl
                 });
 
             connect(
-                _p->alphaBlendActionGroup,
+                _p->actionGroups["AlphaBlend"],
                 &QActionGroup::triggered,
                 [this](QAction* action)
                 {
@@ -212,7 +213,7 @@ namespace tl
                 });
 
             connect(
-                _p->minifyFilterActionGroup,
+                _p->actionGroups["MinifyFilter"],
                 &QActionGroup::triggered,
                 [this](QAction* action)
                 {
@@ -225,7 +226,7 @@ namespace tl
                     _p->app->setDisplayOptions(displayOptions);
                 });
             connect(
-                _p->magnifyFilterActionGroup,
+                _p->actionGroups["MagnifyFilter"],
                 &QActionGroup::triggered,
                 [this](QAction* action)
                 {
@@ -281,23 +282,11 @@ namespace tl
         {
             TLRENDER_P();
 
-            const int count = p.app->filesModel()->observeFiles()->getSize();
-            p.actions["MirrorX"]->setEnabled(count > 0);
-            p.actions["MirrorY"]->setEnabled(count > 0);
-            p.actions["Channels/Red"]->setEnabled(count > 0);
-            p.actions["Channels/Green"]->setEnabled(count > 0);
-            p.actions["Channels/Blue"]->setEnabled(count > 0);
-            p.actions["Channels/Alpha"]->setEnabled(count > 0);
-            p.actions["VideoLevels/FromFile"]->setEnabled(count > 0);
-            p.actions["VideoLevels/FullRange"]->setEnabled(count > 0);
-            p.actions["VideoLevels/LegalRange"]->setEnabled(count > 0);
-            p.actions["AlphaBlend/None"]->setEnabled(count > 0);
-            p.actions["AlphaBlend/Straight"]->setEnabled(count > 0);
-            p.actions["AlphaBlend/Premultiplied"]->setEnabled(count > 0);
-            p.actions["MinifyFilter/Nearest"]->setEnabled(count > 0);
-            p.actions["MinifyFilter/Linear"]->setEnabled(count > 0);
-            p.actions["MagnifyFilter/Nearest"]->setEnabled(count > 0);
-            p.actions["MagnifyFilter/Linear"]->setEnabled(count > 0);
+            const size_t count = p.app->filesModel()->observeFiles()->getSize();
+            for (auto i : p.actions)
+            {
+                i->setEnabled(count > 0);
+            }
 
             if (count > 0)
             {
@@ -310,12 +299,12 @@ namespace tl
                     p.actions["MirrorY"]->setChecked(p.displayOptions.mirror.y);
                 }
                 {
-                    QSignalBlocker blocker(p.channelsActionGroup);
+                    QSignalBlocker blocker(p.actionGroups["Channels"]);
                     p.actions["Channels/Red"]->setChecked(false);
                     p.actions["Channels/Green"]->setChecked(false);
                     p.actions["Channels/Blue"]->setChecked(false);
                     p.actions["Channels/Alpha"]->setChecked(false);
-                    for (auto action : p.channelsActionGroup->actions())
+                    for (auto action : p.actionGroups["Channels"]->actions())
                     {
                         if (action->data().value<timeline::Channels>() == p.displayOptions.channels)
                         {
@@ -325,8 +314,8 @@ namespace tl
                     }
                 }
                 {
-                    QSignalBlocker blocker(p.videoLevelsActionGroup);
-                    for (auto action : p.videoLevelsActionGroup->actions())
+                    QSignalBlocker blocker(p.actionGroups["VideoLevels"]);
+                    for (auto action : p.actionGroups["VideoLevels"]->actions())
                     {
                         if (action->data().value<timeline::InputVideoLevels>() == p.imageOptions.videoLevels)
                         {
@@ -336,8 +325,8 @@ namespace tl
                     }
                 }
                 {
-                    QSignalBlocker blocker(p.alphaBlendActionGroup);
-                    for (auto action : p.alphaBlendActionGroup->actions())
+                    QSignalBlocker blocker(p.actionGroups["AlphaBlend"]);
+                    for (auto action : p.actionGroups["AlphaBlend"]->actions())
                     {
                         if (action->data().value<timeline::AlphaBlend>() == p.imageOptions.alphaBlend)
                         {
@@ -347,8 +336,8 @@ namespace tl
                     }
                 }
                 {
-                    QSignalBlocker blocker(p.minifyFilterActionGroup);
-                    for (auto action : p.minifyFilterActionGroup->actions())
+                    QSignalBlocker blocker(p.actionGroups["MinifyFilter"]);
+                    for (auto action : p.actionGroups["MinifyFilter"]->actions())
                     {
                         if (action->data().value<timeline::ImageFilter>() == p.imageOptions.imageFilters.minify)
                         {
@@ -358,8 +347,8 @@ namespace tl
                     }
                 }
                 {
-                    QSignalBlocker blocker(p.magnifyFilterActionGroup);
-                    for (auto action : p.magnifyFilterActionGroup->actions())
+                    QSignalBlocker blocker(p.actionGroups["MagnifyFilter"]);
+                    for (auto action : p.actionGroups["MagnifyFilter"]->actions())
                     {
                         if (action->data().value<timeline::ImageFilter>() == p.imageOptions.imageFilters.magnify)
                         {
@@ -380,26 +369,26 @@ namespace tl
                     p.actions["MirrorY"]->setChecked(false);
                 }
                 {
-                    QSignalBlocker blocker(p.channelsActionGroup);
+                    QSignalBlocker blocker(p.actionGroups["Channels"]);
                     p.actions["Channels/Red"]->setChecked(false);
                     p.actions["Channels/Green"]->setChecked(false);
                     p.actions["Channels/Blue"]->setChecked(false);
                     p.actions["Channels/Alpha"]->setChecked(false);
                 }
                 {
-                    QSignalBlocker blocker(p.videoLevelsActionGroup);
+                    QSignalBlocker blocker(p.actionGroups["VideoLevels"]);
                     p.actions["VideoLevels/FromFile"]->setChecked(true);
                 }
                 {
-                    QSignalBlocker blocker(p.alphaBlendActionGroup);
+                    QSignalBlocker blocker(p.actionGroups["AlphaBlend"]);
                     p.actions["AlphaBlend/None"]->setChecked(true);
                 }
                 {
-                    QSignalBlocker blocker(p.minifyFilterActionGroup);
+                    QSignalBlocker blocker(p.actionGroups["MinifyFilter"]);
                     p.actions["MinifyFilter/Nearest"]->setChecked(true);
                 }
                 {
-                    QSignalBlocker blocker(p.magnifyFilterActionGroup);
+                    QSignalBlocker blocker(p.actionGroups["MagnifyFilter"]);
                     p.actions["MagnifyFilter/Nearest"]->setChecked(true);
                 }
             }
