@@ -412,6 +412,9 @@ namespace tl
                         // Update the video data.
                         if (!p.ioInfo.video.empty())
                         {
+                            const otime::TimeRange range(
+                                p.timeline->getGlobalStartTime(),
+                                p.timeline->getDuration());
                             const auto i = p.threadData.videoDataCache.find(currentTime);
                             if (i != p.threadData.videoDataCache.end())
                             {
@@ -424,8 +427,7 @@ namespace tl
                                     std::unique_lock<std::mutex> lock(p.mutex);
                                     p.mutexData.playbackStartTime = currentTime;
                                     p.mutexData.playbackStartTimer = std::chrono::steady_clock::now();
-                                    if (currentTime < p.timeline->getGlobalStartTime() ||
-                                        currentTime - p.timeline->getGlobalStartTime() > p.timeline->getDuration())
+                                    if (!range.contains(currentTime))
                                     {
                                         p.mutexData.videoData = VideoData();
                                     }
@@ -440,8 +442,7 @@ namespace tl
                             else
                             {
                                 std::unique_lock<std::mutex> lock(p.mutex);
-                                if (currentTime < p.timeline->getGlobalStartTime() ||
-                                    currentTime - p.timeline->getGlobalStartTime() > p.timeline->getDuration())
+                                if (!range.contains(currentTime))
                                 {
                                     p.mutexData.videoData = VideoData();
                                 }
@@ -777,7 +778,8 @@ namespace tl
                     {
                         if (auto player = weak.lock())
                         {
-                            player->_p->currentTime->setIfChanged(time::floor(value.rescaled_to(player->getDuration().rate())));
+                            const otime::RationalTime time = time::floor(value.rescaled_to(player->getDuration().rate()));
+                            player->_p->currentTime->setIfChanged(time);
                         }
                     });
             }
@@ -1277,6 +1279,7 @@ namespace tl
                             const auto k = threadData.videoDataRequests.find(time);
                             if (k == threadData.videoDataRequests.end())
                             {
+                                //std::cout << this << " video request: " << time << std::endl;
                                 threadData.videoDataRequests[time] = timeline->getVideo(time, videoLayer);
                             }
                         }
@@ -1299,7 +1302,7 @@ namespace tl
                             const auto l = threadData.audioDataRequests.find(time);
                             if (l == threadData.audioDataRequests.end())
                             {
-                                //std::cout << "audio request: " << time << std::endl;
+                                //std::cout << this << " audio request: " << time << std::endl;
                                 threadData.audioDataRequests[time] = timeline->getAudio(time);
                             }
                         }
