@@ -34,49 +34,70 @@ namespace tl
             switch (mode)
             {
             case CompareMode::Horizontal:
+            {
+                imaging::Size size;
+                if (count > 0)
+                {
+                    size = sizes[0];
+                }
+                if (count > 1)
+                {
+                    size = std::max(size, sizes[1]);
+                }
                 if (count > 0)
                 {
                     out.push_back(math::BBox2i(
                         0,
                         0,
-                        sizes[0].w,
-                        sizes[0].h));
+                        size.w,
+                        size.h));
                 }
                 if (count > 1)
                 {
                     out.push_back(math::BBox2i(
-                        sizes[0].w,
+                        size.w,
                         0,
-                        sizes[1].w,
-                        sizes[1].h));
+                        size.w,
+                        size.h));
                 }
                 break;
+            }
             case CompareMode::Vertical:
-                if (count >  0)
+            {
+                imaging::Size size;
+                if (count > 0)
+                {
+                    size = sizes[0];
+                }
+                if (count > 1)
+                {
+                    size = std::max(size, sizes[1]);
+                }
+                if (count > 0)
                 {
                     out.push_back(math::BBox2i(
                         0,
                         0,
-                        sizes[0].w,
-                        sizes[0].h));
+                        size.w,
+                        size.h));
                 }
                 if (count > 1)
                 {
                     out.push_back(math::BBox2i(
                         0,
-                        sizes[0].h,
-                        sizes[1].w,
-                        sizes[1].h));
+                        size.h,
+                        size.w,
+                        size.h));
                 }
                 break;
+            }
             case CompareMode::Tile:
                 if (count > 0)
                 {
                     imaging::Size tileSize;
                     for (const auto& i : sizes)
                     {
-                        tileSize.w = std::max(tileSize.w, i.w);
-                        tileSize.h = std::max(tileSize.h, i.h);
+                        tileSize = std::max(tileSize, i);
                     }
 
                     int columns = 0;
@@ -104,10 +125,10 @@ namespace tl
                             {
                                 const auto& s = sizes[i];
                                 const math::BBox2i bbox(
-                                    x + tileSize.w / 2 - s.w / 2,
-                                    y + tileSize.h / 2 - s.h / 2,
-                                    s.w,
-                                    s.h);
+                                    x,
+                                    y,
+                                    tileSize.w,
+                                    tileSize.h);
                                 out.push_back(bbox);
                             }
                             x += tileSize.w;
