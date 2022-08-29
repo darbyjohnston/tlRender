@@ -764,7 +764,10 @@ namespace tl
 
             if (!p.shaders["display"])
             {
-                std::string source = displayFragmentSource();
+                std::string colorConfigDef;
+                std::string colorConfig;
+                std::string lutDef;
+                std::string lut;
                 if (p.colorConfigData && p.colorConfigData->shaderDesc)
                 {
                     std::string token = "// $colorConfig";
@@ -789,29 +792,19 @@ namespace tl
                 }
                 if (p.lutData && p.lutData->shaderDesc)
                 {
-                    std::string token = "// $lut";
-                    auto i = source.find(token);
-                    if (i != std::string::npos)
-                    {
-                        source.replace(
-                            i,
-                            token.size(),
-                            p.lutData->shaderDesc->getShaderText());
-                    }
-                    token = "// $lutFunc";
-                    i = source.find(token);
-                    if (i != std::string::npos)
-                    {
-                        source.replace(
-                            i,
-                            token.size(),
-                            "fColor = lutFunc(fColor);");
-                    }
+                    lutDef = p.lutData->shaderDesc->getShaderText();
+                    lut = "fColor = lutFunc(fColor);";
                 }
+                std::string source = displayFragmentSource(
+                    colorConfigDef,
+                    colorConfig,
+                    lutDef,
+                    lut,
+                    p.lutOptions.order);
                 if (auto context = _context.lock())
                 {
-                    context->log("tl::gl::Render", source);
-                    context->log("tl::gl::Render", "Creating shader");
+                    //context->log("tl::gl::Render", source);
+                    context->log("tl::gl::Render", "Creating display shader");
                 }
                 p.shaders["display"] = Shader::create(vertexSource(), source);
             }

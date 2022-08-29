@@ -10,6 +10,7 @@
 
 #include <tlDevice/DeviceData.h>
 
+#include <QImage>
 #include <QThread>
 
 namespace tl
@@ -33,11 +34,24 @@ namespace tl
 
             ~OutputDevice();
 
-            //! Set the device.
+            //! Get the output device index. A value of -1 is returned if there
+            //! is no output device.
+            int getDeviceIndex() const;
+
+            //! Get the output device display mode index. A value of -1 is
+            //! returned if there is no display mode.
+            int getDisplayModeIndex() const;
+
+            //! Get the output device pixel type.
+            device::PixelType getPixelType() const;
+
+            //! Set the output device. If deviceIndex or displayModeIndex
+            //! is set to -1, or pixelType is set to None, the output device
+            //! is disabled.
             void setDevice(
                 int deviceIndex,
                 int displayModeIndex,
-                device::PixelType);
+                device::PixelType pixelType);
 
             //! Set the color configuration options.
             void setColorConfigOptions(const timeline::ColorConfigOptions&);
@@ -60,12 +74,27 @@ namespace tl
             //! Set the timeline players.
             void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
 
+            //! Set a QImage overlay. The output device takes ownership of
+            //! the given QImage. The QImage format must be:
+            //! * QImage::Format_RGBA8888
+            //! * QImage::Format_ARGB4444_Premultiplied
+            //! \todo Temporary
+            void setOverlay(QImage*);
+
         public Q_SLOTS:
             //! Set the view.
             void setView(
                 const tl::math::Vector2i& position,
                 float                     zoom,
                 bool                      frame);
+
+        Q_SIGNALS:
+            //! This signal is emitted when the output device size is changed.
+            void sizeChanged(const tl::imaging::Size&);
+
+            //! This signal is emitted when the output device frame rate is
+            //! changed.
+            void frameRateChanged(const otime::RationalTime&);
 
         private Q_SLOTS:
             void _videoCallback(const tl::timeline::VideoData&);

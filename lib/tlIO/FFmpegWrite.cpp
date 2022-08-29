@@ -187,15 +187,12 @@ namespace tl
             }
             switch (videoInfo.pixelType)
             {
-            case imaging::PixelType::L_U8:         p.avPixelFormatIn = AV_PIX_FMT_GRAY8;       break;
-            case imaging::PixelType::RGB_U8:       p.avPixelFormatIn = AV_PIX_FMT_RGB24;       break;
-            case imaging::PixelType::RGBA_U8:      p.avPixelFormatIn = AV_PIX_FMT_RGBA;        break;
-            case imaging::PixelType::YUV_420P_U8:  p.avPixelFormatIn = AV_PIX_FMT_YUV420P;     break;
-            case imaging::PixelType::YUV_422P_U8:  p.avPixelFormatIn = AV_PIX_FMT_YUV422P;     break;
-            case imaging::PixelType::YUV_444P_U8:  p.avPixelFormatIn = AV_PIX_FMT_YUV444P;     break;
-            case imaging::PixelType::YUV_420P_U16: p.avPixelFormatIn = AV_PIX_FMT_YUV420P16LE; break;
-            case imaging::PixelType::YUV_422P_U16: p.avPixelFormatIn = AV_PIX_FMT_YUV422P16LE; break;
-            case imaging::PixelType::YUV_444P_U16: p.avPixelFormatIn = AV_PIX_FMT_YUV444P16LE; break;
+            case imaging::PixelType::L_U8:     p.avPixelFormatIn = AV_PIX_FMT_GRAY8;  break;
+            case imaging::PixelType::RGB_U8:   p.avPixelFormatIn = AV_PIX_FMT_RGB24;  break;
+            case imaging::PixelType::RGBA_U8:  p.avPixelFormatIn = AV_PIX_FMT_RGBA;   break;
+            case imaging::PixelType::L_U16:    p.avPixelFormatIn = AV_PIX_FMT_GRAY16; break;
+            case imaging::PixelType::RGB_U16:  p.avPixelFormatIn = AV_PIX_FMT_RGB48;  break;
+            case imaging::PixelType::RGBA_U16: p.avPixelFormatIn = AV_PIX_FMT_RGBA64; break;
             default:
                 throw std::runtime_error(string::Format("{0}: Incompatible pixel type").arg(p.fileName));
                 break;

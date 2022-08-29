@@ -16,6 +16,7 @@
 #include <QAction>
 #include <QBoxLayout>
 #include <QCheckBox>
+#include <QComboBox>
 #include <QFormLayout>
 #include <QLabel>
 #include <QListView>
@@ -202,6 +203,7 @@ namespace tl
             timeline::LUTOptions lutOptions;
 
             qtwidget::FileWidget* fileWidget = nullptr;
+            QComboBox* orderComboBox = nullptr;
         };
 
         LUTWidget::LUTWidget(QWidget* parent) :
@@ -210,10 +212,18 @@ namespace tl
         {
             TLRENDER_P();
 
-            p.fileWidget = new qtwidget::FileWidget({ ".lut" });
+            QStringList extensions;
+            for (const auto& i : timeline::getLUTFormatExtensions())
+            {
+                extensions.push_back(QString::fromUtf8(i.c_str()));
+            }
+            p.fileWidget = new qtwidget::FileWidget(extensions);
+
+            p.orderComboBox = new QComboBox;
 
             auto layout = new QFormLayout;
             layout->addRow(tr("File name:"), p.fileWidget);
+            layout->addRow(tr("Order:"), p.orderComboBox);
             setLayout(layout);
 
             _widgetUpdate();
@@ -225,6 +235,16 @@ namespace tl
                 {
                     timeline::LUTOptions options = _p->lutOptions;
                     options.fileName = value.toUtf8().data();
+                    Q_EMIT lutOptionsChanged(options);
+                });
+
+            connect(
+                p.orderComboBox,
+                QOverload<int>::of(&QComboBox::activated),
+                [this](int value)
+                {
+                    timeline::LUTOptions options = _p->lutOptions;
+                    options.order = static_cast<timeline::LUTOrder>(value);
                     Q_EMIT lutOptionsChanged(options);
                 });
         }
@@ -247,6 +267,17 @@ namespace tl
             {
                 QSignalBlocker blocker(p.fileWidget);
                 p.fileWidget->setFile(QString::fromUtf8(p.lutOptions.fileName.c_str()));
+            }
+            {
+                QSignalBlocker blocker(_p->orderComboBox);
+                _p->orderComboBox->clear();
+                for (const auto& i : timeline::getLUTOrderEnums())
+                {
+                    std::stringstream ss;
+                    ss << i;
+                    _p->orderComboBox->addItem(QString::fromUtf8(ss.str().c_str()));
+                }
+                _p->orderComboBox->setCurrentIndex(static_cast<int>(p.lutOptions.order));
             }
         }
 

@@ -51,8 +51,14 @@ namespace tl
             //! Get the OpenGL texture ID.
             GLuint getID() const;
 
-            //! Get image information.
+            //! Get the image information.
             const imaging::Info& getInfo() const;
+
+            //! Get the size.
+            const imaging::Size& getSize() const;
+
+            //! Get the pixel type.
+            imaging::PixelType getPixelType() const;
 
             //! \name Copy
             //! Copy image data to the texture.

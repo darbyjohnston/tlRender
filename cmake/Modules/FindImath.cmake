@@ -26,15 +26,15 @@ if(CMAKE_BUILD_TYPE MATCHES "^Debug$")
 else()
     find_library(Imath_LIBRARY NAMES Imath-3_1)
 endif()
-set(Imath_LIBRARIES ${Imath_Imath_LIBRARY})
+set(Imath_LIBRARIES ${Imath_LIBRARY})
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(
     Imath
-    REQUIRED_VARS 
-        Imath_INCLUDE_DIR
-        Imath_INCLUDE_DIR2
-        Imath_LIBRARY
+    REQUIRED_VARS
+	Imath_INCLUDE_DIR
+	Imath_INCLUDE_DIR2
+	Imath_LIBRARY
     VERSION_VAR Imath_VERSION)
 mark_as_advanced(
     Imath_INCLUDE_DIR
@@ -49,9 +49,9 @@ endif()
 if(Imath_FOUND AND NOT TARGET Imath::Imath)
     add_library(Imath::Imath UNKNOWN IMPORTED)
     set_target_properties(Imath::Imath PROPERTIES
-        IMPORTED_LOCATION "${Imath_LIBRARY}"
-        INTERFACE_COMPILE_DEFINITIONS "${Imath_COMPILE_DEFINITIONS}"
-        INTERFACE_INCLUDE_DIRECTORIES "${Imath_INCLUDE_DIR};${Imath_INCLUDE_DIR2}")
+	IMPORTED_LOCATION "${Imath_LIBRARY}"
+	INTERFACE_COMPILE_DEFINITIONS "${Imath_COMPILE_DEFINITIONS}"
+	INTERFACE_INCLUDE_DIRECTORIES "${Imath_INCLUDE_DIR};${Imath_INCLUDE_DIR2}")
 endif()
 if(Imath_FOUND AND NOT TARGET Imath)
     add_library(Imath INTERFACE)

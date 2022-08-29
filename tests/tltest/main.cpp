@@ -17,6 +17,7 @@
 
 #include <tlTimelineTest/ColorConfigOptionsTest.h>
 #include <tlTimelineTest/IRenderTest.h>
+#include <tlTimelineTest/LUTOptionsTest.h>
 #include <tlTimelineTest/TimelinePlayerTest.h>
 #include <tlTimelineTest/TimelineTest.h>
 #include <tlTimelineTest/TimelineUtilTest.h>
@@ -103,9 +104,7 @@ int main(int argc, char* argv[])
     std::vector<std::shared_ptr<tests::ITest> > tests;
     if (0)
     {
-#if defined(FFmpeg_FOUND)
-        tests.push_back(io_tests::PPMTest::create(context));
-#endif
+        tests.push_back(timeline_tests::LUTOptionsTest::create(context));
     }
     else
     {
@@ -165,6 +164,7 @@ int main(int argc, char* argv[])
         {
             tests.push_back(timeline_tests::ColorConfigOptionsTest::create(context));
             tests.push_back(timeline_tests::IRenderTest::create(context));
+            tests.push_back(timeline_tests::LUTOptionsTest::create(context));
             tests.push_back(timeline_tests::TimelinePlayerTest::create(context));
             tests.push_back(timeline_tests::TimelineTest::create(context));
             tests.push_back(timeline_tests::TimelineUtilTest::create(context));

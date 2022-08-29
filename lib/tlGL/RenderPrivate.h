@@ -28,7 +28,12 @@ namespace tl
         std::string textFragmentSource();
         std::string textureFragmentSource();
         std::string imageFragmentSource();
-        std::string displayFragmentSource();
+        std::string displayFragmentSource(
+            const std::string& colorConfigDef,
+            const std::string& colorConfig,
+            const std::string& lutDef,
+            const std::string& lut,
+            timeline::LUTOrder);
         std::string dissolveFragmentSource();
         std::string differenceFragmentSource();
 
@@ -124,7 +129,6 @@ namespace tl
         {
             timeline::ColorConfigOptions colorConfigOptions;
             std::unique_ptr<OCIOColorConfigData> colorConfigData;
-            std::string lutFileName;
             timeline::LUTOptions lutOptions;
             std::unique_ptr<OCIOLUTData> lutData;
 

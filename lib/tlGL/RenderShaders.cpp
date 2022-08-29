@@ -242,8 +242,30 @@ namespace tl
                 arg(sampleTexture);
         }
 
-        std::string displayFragmentSource()
+        std::string displayFragmentSource(
+            const std::string& colorConfigDef,
+            const std::string& colorConfig,
+            const std::string& lutDef,
+            const std::string& lut,
+            timeline::LUTOrder lutOrder)
         {
+            std::vector<std::string> args;
+            args.push_back(videoLevels);
+            args.push_back(colorConfigDef);
+            args.push_back(lutDef);
+            switch (lutOrder)
+            {
+            case timeline::LUTOrder::PreColorConfig:
+                args.push_back(lut);
+                args.push_back(colorConfig);
+                break;
+            case timeline::LUTOrder::PostColorConfig:
+                args.push_back(colorConfig);
+                args.push_back(lut);
+                break;
+            default: break;
+            }
+            const bool swap = timeline::LUTOrder::PreColorConfig == lutOrder;
             return string::Format(
                 "#version 410\n"
                 "\n"
@@ -357,9 +379,9 @@ namespace tl
                 "    return value;\n"
                 "}\n"
                 "\n"
-                "// $colorConfig\n"
+                "{1}\n"
                 "\n"
-                "// $lut\n"
+                "{2}\n"
                 "\n"
                 "void main()\n"
                 "{\n"
@@ -376,8 +398,8 @@ namespace tl
                 "    fColor = texture(textureSampler, t);\n"
                 "\n"
                 "    // Apply color management.\n"
-                "    // $colorConfigFunc\n"
-                "    // $lutFunc\n"
+                "    {3}\n"
+                "    {4}\n"
                 "\n"
                 "    // Apply color transformations.\n"
                 "    if (colorEnabled)\n"
@@ -437,7 +459,11 @@ namespace tl
                 "        fColor.a = fColor.a * scale + offset;\n"
                 "    }\n"
                 "}\n").
-                arg(videoLevels);
+                arg(args[0]).
+                arg(args[1]).
+                arg(args[2]).
+                arg(args[3]).
+                arg(args[4]);
         }
 
         std::string dissolveFragmentSource()

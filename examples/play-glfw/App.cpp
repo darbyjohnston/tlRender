@@ -85,18 +85,26 @@ namespace tl
                         "Enable the HUD (heads up display).",
                         string::Format("{0}").arg(_options.hud),
                         "0, 1"),
-                    app::CmdLineValueOption<bool>::create(
-                        _options.startPlayback,
-                        { "-startPlayback", "-sp" },
-                        "Automatically start playback.",
-                        string::Format("{0}").arg(_options.startPlayback),
-                        "0, 1"),
-                    app::CmdLineValueOption<bool>::create(
-                        _options.loopPlayback,
-                        { "-loopPlayback", "-lp" },
-                        "Loop playback.",
-                        string::Format("{0}").arg(_options.loopPlayback),
-                        "0, 1"),
+                    app::CmdLineValueOption<timeline::Playback>::create(
+                        _options.playback,
+                        { "-playback", "-p" },
+                        "Playback mode.",
+                        string::Format("{0}").arg(_options.playback),
+                        string::join(timeline::getPlaybackLabels(), ", ")),
+                    app::CmdLineValueOption<timeline::Loop>::create(
+                        _options.loop,
+                        { "-loop", "-lp" },
+                        "Playback loop mode.",
+                        string::Format("{0}").arg(_options.loop),
+                        string::join(timeline::getLoopLabels(), ", ")),
+                    app::CmdLineValueOption<otime::RationalTime>::create(
+                        _options.seek,
+                        { "-seek" },
+                        "Seek to the given time."),
+                    app::CmdLineValueOption<otime::TimeRange>::create(
+                        _options.inOutRange,
+                        { "-inOutRange" },
+                        "Set the in/out points range."),
                     app::CmdLineValueOption<std::string>::create(
                         _options.colorConfigOptions.fileName,
                         { "-colorConfig", "-cc" },
@@ -112,7 +120,17 @@ namespace tl
                     app::CmdLineValueOption<std::string>::create(
                         _options.colorConfigOptions.view,
                         { "-colorView", "-cv" },
-                        "View color space.")
+                        "View color space."),
+                    app::CmdLineValueOption<std::string>::create(
+                        _options.lutOptions.fileName,
+                        { "-lut" },
+                        "LUT file name."),
+                    app::CmdLineValueOption<timeline::LUTOrder>::create(
+                        _options.lutOptions.order,
+                        { "-lutOrder" },
+                        "LUT operation order.",
+                        string::Format("{0}").arg(_options.lutOptions.order),
+                        string::join(timeline::getLUTOrderLabels(), ", "))
                 });
             }
 
@@ -233,10 +251,17 @@ namespace tl
                 _printShortcutsHelp();
 
                 // Start the main loop.
-                if (_options.startPlayback)
+                if (_options.inOutRange != time::invalidTimeRange)
                 {
-                    _timelinePlayer->setPlayback(timeline::Playback::Forward);
+                    _timelinePlayer->setInOutRange(_options.inOutRange);
+                    _timelinePlayer->seek(_options.inOutRange.start_time());
                 }
+                if (_options.seek != time::invalidTime)
+                {
+                    _timelinePlayer->seek(_options.seek);
+                }
+                _timelinePlayer->setLoop(_options.loop);
+                _timelinePlayer->setPlayback(_options.playback);
                 while (_running && !glfwWindowShouldClose(_glfwWindow))
                 {
                     glfwPollEvents();
@@ -382,6 +407,7 @@ namespace tl
                 if (_renderDirty)
                 {
                     _render->setColorConfig(_options.colorConfigOptions);
+                    _render->setLUT(_options.lutOptions);
                     _render->begin(_frameBufferSize);
                     _drawVideo();
                     if (_options.hud)
