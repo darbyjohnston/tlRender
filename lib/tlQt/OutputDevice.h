@@ -45,6 +45,9 @@ namespace tl
             //! Set the color configuration.
             void setColorConfig(const imaging::ColorConfig&);
 
+            //! Set the LUT options.
+            void setLUTOptions(const timeline::LUTOptions&);
+
             //! Set the image options.
             void setImageOptions(const std::vector<timeline::ImageOptions>&);
 

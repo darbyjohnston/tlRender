@@ -61,6 +61,9 @@ namespace tl
             //! Get the color model.
             const std::shared_ptr<ColorModel>& colorModel() const;
 
+            //! Get the LUT options.
+            const timeline::LUTOptions& lutOptions() const;
+
             //! Get the image options.
             const timeline::ImageOptions& imageOptions() const;
 
@@ -83,6 +86,9 @@ namespace tl
             //! Open a file with separate audio dialog.
             void openSeparateAudioDialog();
 
+            //! Set the LUT options.
+            void setLUTOptions(const tl::timeline::LUTOptions&);
+
             //! Set the image options.
             void setImageOptions(const tl::timeline::ImageOptions&);
 
@@ -90,6 +96,9 @@ namespace tl
             void setDisplayOptions(const tl::timeline::DisplayOptions&);
 
         Q_SIGNALS:
+            //! This signal is emitted when the LUT options are changed.
+            void lutOptionsChanged(const tl::timeline::LUTOptions&);
+
             //! This signal is emitted when the image options are changed.
             void imageOptionsChanged(const tl::timeline::ImageOptions&);
 

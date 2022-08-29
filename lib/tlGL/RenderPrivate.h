@@ -24,8 +24,6 @@ namespace tl
 {
     namespace gl
     {
-        std::string colorFunctionName();
-        std::string colorFunctionNoOp();
         std::string vertexSource();
         std::string meshFragmentSource();
         std::string textFragmentSource();
@@ -84,29 +82,52 @@ namespace tl
             std::list<TextureData> _cache;
         };
 
+        struct OCIOTexture
+        {
+            OCIOTexture(
+                unsigned    id,
+                std::string name,
+                std::string sampler,
+                unsigned    type);
+
+            unsigned    id = -1;
+            std::string name;
+            std::string sampler;
+            unsigned    type = -1;
+        };
+
+        struct OCIOColorConfigData
+        {
+            ~OCIOColorConfigData();
+
+            OCIO::ConstConfigRcPtr config;
+            OCIO::DisplayViewTransformRcPtr transform;
+            OCIO::LegacyViewingPipelineRcPtr lvp;
+            OCIO::ConstProcessorRcPtr processor;
+            OCIO::ConstGPUProcessorRcPtr gpuProcessor;
+            OCIO::GpuShaderDescRcPtr shaderDesc;
+            std::vector<OCIOTexture> textures;
+        };
+
+        struct OCIOLUTData
+        {
+            ~OCIOLUTData();
+
+            OCIO::ConstConfigRcPtr config;
+            OCIO::FileTransformRcPtr transform;
+            OCIO::ConstProcessorRcPtr processor;
+            OCIO::ConstGPUProcessorRcPtr gpuProcessor;
+            OCIO::GpuShaderDescRcPtr shaderDesc;
+            std::vector<OCIOTexture> textures;
+        };
+
         struct Render::Private
         {
             imaging::ColorConfig colorConfig;
-            OCIO::ConstConfigRcPtr ocioConfig;
-            OCIO::DisplayViewTransformRcPtr ocioTransform;
-            OCIO::LegacyViewingPipelineRcPtr ocioVP;
-            OCIO::ConstProcessorRcPtr ocioProcessor;
-            OCIO::ConstGPUProcessorRcPtr ocioGpuProcessor;
-            OCIO::GpuShaderDescRcPtr ocioShaderDesc;
-            struct TextureId
-            {
-                TextureId(
-                    unsigned    id,
-                    std::string name,
-                    std::string sampler,
-                    unsigned    type);
-
-                unsigned    id = -1;
-                std::string name;
-                std::string sampler;
-                unsigned    type = -1;
-            };
-            std::vector<TextureId> colorTextures;
+            std::unique_ptr<OCIOColorConfigData> colorConfigData;
+            std::string lutFileName;
+            timeline::LUTOptions lutOptions;
+            std::unique_ptr<OCIOLUTData> lutData;
 
             imaging::Size size;
 

@@ -68,6 +68,7 @@ namespace tl
             std::vector<std::shared_ptr<FilesModelItem> > active;
             std::shared_ptr<observer::ListObserver<int> > layersObserver;
             std::shared_ptr<ColorModel> colorModel;
+            timeline::LUTOptions lutOptions;
             timeline::ImageOptions imageOptions;
             timeline::DisplayOptions displayOptions;
             qt::OutputDevice* outputDevice = nullptr;
@@ -354,6 +355,11 @@ namespace tl
             return _p->colorModel;
         }
 
+        const timeline::LUTOptions& App::lutOptions() const
+        {
+            return _p->lutOptions;
+        }
+
         const timeline::ImageOptions& App::imageOptions() const
         {
             return _p->imageOptions;
@@ -427,6 +433,15 @@ namespace tl
             {
                 open(dialog->videoFileName(), dialog->audioFileName());
             }
+        }
+
+        void App::setLUTOptions(const timeline::LUTOptions& value)
+        {
+            TLRENDER_P();
+            if (value == p.lutOptions)
+                return;
+            p.lutOptions = value;
+            Q_EMIT lutOptionsChanged(p.lutOptions);
         }
 
         void App::setImageOptions(const timeline::ImageOptions& value)

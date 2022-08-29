@@ -7,6 +7,8 @@
 #include <tlQt/TimeObject.h>
 #include <tlQt/TimelinePlayer.h>
 
+#include <tlTimeline/IRender.h>
+
 #include <tlCore/ColorConfig.h>
 
 #include <QWidget>
@@ -50,6 +52,9 @@ namespace tl
 
             //! Set the color configuration.
             void setColorConfig(const imaging::ColorConfig&);
+
+            //! Set the LUT options.
+            void setLUTOptions(const timeline::LUTOptions&);
 
             //! Set the timeline player.
             void setTimelinePlayer(qt::TimelinePlayer*);

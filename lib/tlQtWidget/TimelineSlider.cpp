@@ -28,6 +28,7 @@ namespace tl
             std::weak_ptr<system::Context> context;
             qt::TimelineThumbnailProvider* thumbnailProvider = nullptr;
             imaging::ColorConfig colorConfig;
+            timeline::LUTOptions lutOptions;
             qt::TimelinePlayer* timelinePlayer = nullptr;
             qt::TimeUnits units = qt::TimeUnits::Timecode;
             qt::TimeObject* timeObject = nullptr;
@@ -96,6 +97,15 @@ namespace tl
             if (colorConfig == p.colorConfig)
                 return;
             p.colorConfig = colorConfig;
+            _thumbnailsUpdate();
+        }
+
+        void TimelineSlider::setLUTOptions(const timeline::LUTOptions& value)
+        {
+            TLRENDER_P();
+            if (value == p.lutOptions)
+                return;
+            p.lutOptions = value;
             _thumbnailsUpdate();
         }
 
@@ -371,7 +381,8 @@ namespace tl
                         fileName,
                         requests,
                         QSize(thumbnailWidth, thumbnailHeight),
-                        p.colorConfig);
+                        p.colorConfig,
+                        p.lutOptions);
                 }
             }
             else

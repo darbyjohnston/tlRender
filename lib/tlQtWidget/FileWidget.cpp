@@ -17,16 +17,21 @@ namespace tl
     {
         struct FileWidget::Private
         {
+            QStringList extensions;
             std::string fileName;
 
             QLineEdit* lineEdit = nullptr;
         };
 
-        FileWidget::FileWidget(QWidget* parent) :
+        FileWidget::FileWidget(
+            const QStringList& extensions,
+            QWidget* parent) :
             QWidget(parent),
             _p(new Private)
         {
             TLRENDER_P();
+
+            p.extensions = extensions;
 
             p.lineEdit = new QLineEdit;
             p.lineEdit->setToolTip(tr("File"));
@@ -70,11 +75,22 @@ namespace tl
                         dir = QString::fromUtf8(file::Path(_p->fileName).get().c_str());
                     }
 
+                    QString filter;
+                    if (!_p->extensions.isEmpty())
+                    {
+                        filter.append(tr("Files"));
+                        filter.append(" (");
+                        Q_FOREACH(QString i, _p->extensions)
+                        {
+                            filter.append(QString("*%1").arg(i));
+                        }
+                        filter.append(")");
+                    }
                     const auto fileName = QFileDialog::getOpenFileName(
                         window(),
                         tr("Open"),
                         dir,
-                        tr("Files") + " (*.ocio)");
+                        filter);
                     setFile(fileName);
                 });
 

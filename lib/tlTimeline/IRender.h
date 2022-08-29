@@ -5,6 +5,7 @@
 #pragma once
 
 #include <tlTimeline/CompareOptions.h>
+#include <tlTimeline/LUTOptions.h>
 #include <tlTimeline/Video.h>
 
 #include <tlCore/Context.h>
@@ -35,9 +36,13 @@ namespace tl
             //! Render::begin().
             virtual void setTextureCacheSize(size_t) = 0;
 
-            //! Set the color configuration. This function should be called before
+            //! Set the color configuration. This function needs to be called before
             //! Render::begin().
             virtual void setColorConfig(const imaging::ColorConfig&) = 0;
+
+            //! Set the LUT options. This function needs to be called before
+            //! Render::begin().
+            virtual void setLUTOptions(const LUTOptions&) = 0;
 
             //! Start a render.
             virtual void begin(const imaging::Size&) = 0;

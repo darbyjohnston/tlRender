@@ -74,6 +74,8 @@ namespace tl
             bool floatOnTop = false;
             bool secondaryFloatOnTop = false;
             imaging::ColorConfig colorConfig;
+            std::string lutFileName;
+            timeline::LUTOptions lutOptions;
             timeline::ImageOptions imageOptions;
             timeline::DisplayOptions displayOptions;
             timeline::CompareOptions compareOptions;
@@ -111,8 +113,6 @@ namespace tl
             std::shared_ptr<observer::ListObserver<std::shared_ptr<FilesModelItem> > > filesObserver;
             std::shared_ptr<observer::ValueObserver<int> > aIndexObserver;
             std::shared_ptr<observer::ListObserver<int> > bIndexesObserver;
-            std::shared_ptr<observer::ListObserver<timeline::ImageOptions> > imageOptionsObserver;
-            std::shared_ptr<observer::ListObserver<timeline::DisplayOptions> > displayOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
             std::shared_ptr<observer::ValueObserver<imaging::ColorConfig> > colorConfigObserver;
             std::shared_ptr<observer::ValueObserver<DevicesModelData> > devicesModelObserver;
@@ -129,6 +129,7 @@ namespace tl
             TLRENDER_P();
 
             p.app = app;
+            p.lutOptions = app->lutOptions();
             p.imageOptions = app->imageOptions();
             p.displayOptions = app->displayOptions();
 
@@ -411,6 +412,14 @@ namespace tl
 
             connect(
                 app,
+                &App::lutOptionsChanged,
+                [this](const timeline::LUTOptions& value)
+                {
+                    _p->lutOptions = value;
+                    _widgetUpdate();
+                });
+            connect(
+                app,
                 &App::imageOptionsChanged,
                 [this](const timeline::ImageOptions& value)
                 {
@@ -554,6 +563,13 @@ namespace tl
                     app->filesModel()->setCompareOptions(value);
                 });
 
+            connect(
+                p.colorTool,
+                &ColorTool::lutOptionsChanged,
+                [app](const timeline::LUTOptions& value)
+                {
+                    app->setLUTOptions(value);
+                });
             connect(
                 p.colorTool,
                 &ColorTool::displayOptionsChanged,
@@ -847,6 +863,7 @@ namespace tl
             {
                 p.secondaryWindow = new SecondaryWindow(p.app);
                 p.secondaryWindow->viewport()->setColorConfig(p.colorConfig);
+                p.secondaryWindow->viewport()->setLUTOptions(p.lutOptions);
                 std::vector<timeline::ImageOptions> imageOptions;
                 std::vector<timeline::DisplayOptions> displayOptions;
                 for (const auto& i : p.timelinePlayers)
@@ -993,6 +1010,7 @@ namespace tl
             p.audioActions->setTimelinePlayers(p.timelinePlayers);
 
             p.timelineViewport->setColorConfig(p.colorConfig);
+            p.timelineViewport->setLUTOptions(p.lutOptions);
             std::vector<timeline::ImageOptions> imageOptions;
             std::vector<timeline::DisplayOptions> displayOptions;
             for (const auto& i : p.timelinePlayers)
@@ -1006,6 +1024,7 @@ namespace tl
             p.timelineViewport->setTimelinePlayers(p.timelinePlayers);
 
             p.timelineSlider->setColorConfig(p.colorConfig);
+            p.timelineSlider->setLUTOptions(p.lutOptions);
             p.timelineSlider->setTimelinePlayer(!p.timelinePlayers.empty() ? p.timelinePlayers[0] : nullptr);
             p.timelineSlider->setThumbnails(p.app->settingsObject()->value("Timeline/Thumbnails").toBool());
             p.timelineSlider->setStopOnScrub(p.app->settingsObject()->value("Timeline/StopOnScrub").toBool());
@@ -1076,6 +1095,7 @@ namespace tl
             if (p.secondaryWindow)
             {
                 p.secondaryWindow->viewport()->setColorConfig(p.colorConfig);
+                p.secondaryWindow->viewport()->setLUTOptions(p.lutOptions);
                 p.secondaryWindow->viewport()->setImageOptions(imageOptions);
                 p.secondaryWindow->viewport()->setDisplayOptions(displayOptions);
                 p.secondaryWindow->viewport()->setCompareOptions(p.compareOptions);
@@ -1083,6 +1103,7 @@ namespace tl
             }
 
             p.app->outputDevice()->setColorConfig(p.colorConfig);
+            p.app->outputDevice()->setLUTOptions(p.lutOptions);
             p.app->outputDevice()->setImageOptions(imageOptions);
             for (auto& i : displayOptions)
             {
