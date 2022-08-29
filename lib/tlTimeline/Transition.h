@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlCore./Util.h>
+#include <tlCore/Util.h>
 
 #include <string>
 #include <vector>
