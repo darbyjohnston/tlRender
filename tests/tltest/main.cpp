@@ -15,6 +15,7 @@
 #include <tlAppTest/AppTest.h>
 #include <tlAppTest/CmdLineTest.h>
 
+#include <tlTimelineTest/ColorConfigOptionsTest.h>
 #include <tlTimelineTest/IRenderTest.h>
 #include <tlTimelineTest/TimelinePlayerTest.h>
 #include <tlTimelineTest/TimelineTest.h>
@@ -44,7 +45,6 @@
 
 #include <tlCoreTest/AudioTest.h>
 #include <tlCoreTest/BBoxTest.h>
-#include <tlCoreTest/ColorConfigTest.h>
 #include <tlCoreTest/ColorTest.h>
 #include <tlCoreTest/ContextTest.h>
 #include <tlCoreTest/ErrorTest.h>
@@ -113,7 +113,6 @@ int main(int argc, char* argv[])
         {
             tests.push_back(core_tests::AudioTest::create(context));
             tests.push_back(core_tests::BBoxTest::create(context));
-            tests.push_back(core_tests::ColorConfigTest::create(context));
             tests.push_back(core_tests::ColorTest::create(context));
             tests.push_back(core_tests::ContextTest::create(context));
             tests.push_back(core_tests::ErrorTest::create(context));
@@ -164,6 +163,7 @@ int main(int argc, char* argv[])
         }
         if (1)
         {
+            tests.push_back(timeline_tests::ColorConfigOptionsTest::create(context));
             tests.push_back(timeline_tests::IRenderTest::create(context));
             tests.push_back(timeline_tests::TimelinePlayerTest::create(context));
             tests.push_back(timeline_tests::TimelineTest::create(context));

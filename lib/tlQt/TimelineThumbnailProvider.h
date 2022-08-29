@@ -9,8 +9,6 @@
 #include <tlTimeline/IRender.h>
 #include <tlTimeline/Timeline.h>
 
-#include <tlCore/ColorConfig.h>
-
 #include <QImage>
 #include <QThread>
 
@@ -34,7 +32,7 @@ namespace tl
                 const QString&,
                 const otime::RationalTime&,
                 const QSize&,
-                const imaging::ColorConfig& = imaging::ColorConfig(),
+                const timeline::ColorConfigOptions& = timeline::ColorConfigOptions(),
                 const timeline::LUTOptions& = timeline::LUTOptions());
 
             //! Request a thumbnail. The request ID is returned.
@@ -42,8 +40,8 @@ namespace tl
                 const QString&,
                 const QList<otime::RationalTime>&,
                 const QSize&,
-                const imaging::ColorConfig& = imaging::ColorConfig(),
-                const timeline::LUTOptions & = timeline::LUTOptions());
+                const timeline::ColorConfigOptions & = timeline::ColorConfigOptions(),
+                const timeline::LUTOptions& = timeline::LUTOptions());
 
             //! Cancel thumbnail requests.
             void cancelRequests(qint64);

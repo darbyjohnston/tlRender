@@ -1,6 +1,8 @@
 set(HEADERS
 	Audio.h
 	AudioInline.h
+	ColorConfigOptions.h
+	ColorConfigOptionsInline.h
 	CompareOptions.h
 	CompareOptionsInline.h
 	DisplayOptions.h
@@ -20,6 +22,7 @@ set(HEADERS
 	VideoInline.h)
 
 set(SOURCE
+	ColorConfigOptions.cpp
 	CompareOptions.cpp
 	DisplayOptions.cpp
 	ImageOptions.cpp

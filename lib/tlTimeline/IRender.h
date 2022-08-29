@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <tlTimeline/ColorConfigOptions.h>
 #include <tlTimeline/CompareOptions.h>
 #include <tlTimeline/LUTOptions.h>
 #include <tlTimeline/Video.h>
@@ -14,11 +15,6 @@
 
 namespace tl
 {
-    namespace imaging
-    {
-        struct ColorConfig;
-    }
-
     namespace timeline
     {
         //! Base class for renderers.
@@ -38,11 +34,11 @@ namespace tl
 
             //! Set the color configuration. This function needs to be called before
             //! Render::begin().
-            virtual void setColorConfig(const imaging::ColorConfig&) = 0;
+            virtual void setColorConfig(const ColorConfigOptions&) = 0;
 
-            //! Set the LUT options. This function needs to be called before
+            //! Set the LUT. This function needs to be called before
             //! Render::begin().
-            virtual void setLUTOptions(const LUTOptions&) = 0;
+            virtual void setLUT(const LUTOptions&) = 0;
 
             //! Start a render.
             virtual void begin(const imaging::Size&) = 0;

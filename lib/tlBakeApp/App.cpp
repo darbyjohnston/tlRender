@@ -94,19 +94,19 @@ namespace tl
                 std::string(),
                 string::join(imaging::getPixelTypeLabels(), ", ")),
             app::CmdLineValueOption<std::string>::create(
-                _options.colorConfig.fileName,
+                _options.colorConfigOptions.fileName,
                 { "-colorConfig", "-cc" },
                 "Color configuration file name (e.g., config.ocio)."),
             app::CmdLineValueOption<std::string>::create(
-                _options.colorConfig.input,
+                _options.colorConfigOptions.input,
                 { "-colorInput", "-ci" },
                 "Input color space."),
             app::CmdLineValueOption<std::string>::create(
-                _options.colorConfig.display,
+                _options.colorConfigOptions.display,
                 { "-colorDisplay", "-cd" },
                 "Display color space."),
             app::CmdLineValueOption<std::string>::create(
-                _options.colorConfig.view,
+                _options.colorConfigOptions.view,
                 { "-colorView", "-cv" },
                 "View color space.")
         });
@@ -286,7 +286,7 @@ namespace tl
                 otime::RationalTime(1.0, _currentTime.rate())) });
 
             // Render the video.
-            _render->setColorConfig(_options.colorConfig);
+            _render->setColorConfig(_options.colorConfigOptions);
             _render->begin(_renderSize);
             const auto videoData = _timeline->getVideo(_timeline->getGlobalStartTime() + _currentTime).get();
             _render->drawVideo({ videoData }, { math::BBox2i(0, 0, _renderSize.w, _renderSize.h ) });

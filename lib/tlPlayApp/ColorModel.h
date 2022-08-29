@@ -4,7 +4,8 @@
 
 #pragma once
 
-#include <tlCore/ColorConfig.h>
+#include <tlTimeline/IRender.h>
+
 #include <tlCore/Context.h>
 #include <tlCore/ValueObserver.h>
 
@@ -43,13 +44,13 @@ namespace tl
             //! Create a new color model.
             static std::shared_ptr<ColorModel> create(const std::shared_ptr<system::Context>&);
 
-            //! Observe the configuration.
-            std::shared_ptr<observer::IValue<imaging::ColorConfig> > observeConfig() const;
+            //! Observe the color configuration options.
+            std::shared_ptr<observer::IValue<timeline::ColorConfigOptions> > observeConfigOptions() const;
 
-            //! Set the configuration.
-            void setConfig(const imaging::ColorConfig&);
+            //! Set the color configuration options.
+            void setConfigOptions(const timeline::ColorConfigOptions&);
 
-            //! Set the configuration.
+            //! Set the color configuration.
             void setConfig(const std::string& fileName);
 
             //! Observe the model data.

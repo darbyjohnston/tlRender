@@ -10,9 +10,6 @@
 
 #include <tlDevice/DeviceData.h>
 
-#include <tlCore/ColorConfig.h>
-#include <tlCore/Image.h>
-
 #include <QThread>
 
 namespace tl
@@ -42,8 +39,8 @@ namespace tl
                 int displayModeIndex,
                 device::PixelType);
 
-            //! Set the color configuration.
-            void setColorConfig(const imaging::ColorConfig&);
+            //! Set the color configuration options.
+            void setColorConfigOptions(const timeline::ColorConfigOptions&);
 
             //! Set the LUT options.
             void setLUTOptions(const timeline::LUTOptions&);

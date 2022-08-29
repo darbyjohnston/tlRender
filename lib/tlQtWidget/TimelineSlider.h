@@ -9,8 +9,6 @@
 
 #include <tlTimeline/IRender.h>
 
-#include <tlCore/ColorConfig.h>
-
 #include <QWidget>
 
 namespace tl
@@ -50,8 +48,8 @@ namespace tl
             //! Set the time object.
             void setTimeObject(qt::TimeObject*);
 
-            //! Set the color configuration.
-            void setColorConfig(const imaging::ColorConfig&);
+            //! Set the color configuration options.
+            void setColorConfigOptions(const timeline::ColorConfigOptions&);
 
             //! Set the LUT options.
             void setLUTOptions(const timeline::LUTOptions&);
