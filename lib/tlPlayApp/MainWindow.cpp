@@ -1030,6 +1030,7 @@ namespace tl
 
             p.compareTool->setCompareOptions(p.compareOptions);
 
+            p.colorTool->setLUTOptions(p.lutOptions);
             p.colorTool->setDisplayOptions(p.displayOptions);
 
             p.infoTool->setInfo(!p.timelinePlayers.empty() ? p.timelinePlayers[0]->ioInfo() : io::Info());
