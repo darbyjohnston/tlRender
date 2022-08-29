@@ -35,6 +35,9 @@ namespace tl
                 //! Set the color configuration.
                 void setColorConfig(const imaging::ColorConfig&);
 
+                //! Set the LUT options.
+                void setLUTOptions(const timeline::LUTOptions&);
+
                 //! Set the image options.
                 void setImageOptions(const timeline::ImageOptions&);
 
@@ -54,6 +57,7 @@ namespace tl
             private:
                 std::weak_ptr<system::Context> _context;
                 imaging::ColorConfig _colorConfig;
+                timeline::LUTOptions _lutOptions;
                 timeline::ImageOptions _imageOptions;
                 qt::TimelinePlayer* _timelinePlayer = nullptr;
                 imaging::Size _videoSize;

@@ -27,6 +27,7 @@ namespace tl
         {
             std::weak_ptr<system::Context> context;
             imaging::ColorConfig colorConfig;
+            timeline::LUTOptions lutOptions;
             std::vector<timeline::ImageOptions> imageOptions;
             std::vector<timeline::DisplayOptions> displayOptions;
             timeline::CompareOptions compareOptions;
@@ -76,6 +77,15 @@ namespace tl
             if (value == p.colorConfig)
                 return;
             p.colorConfig = value;
+            update();
+        }
+
+        void TimelineViewport::setLUTOptions(const timeline::LUTOptions& value)
+        {
+            TLRENDER_P();
+            if (value == p.lutOptions)
+                return;
+            p.lutOptions = value;
             update();
         }
 
@@ -308,6 +318,7 @@ namespace tl
                 {
                     gl::OffscreenBufferBinding binding(p.buffer);
                     p.render->setColorConfig(p.colorConfig);
+                    p.render->setLUTOptions(p.lutOptions);
                     p.render->begin(renderSize);
                     p.render->drawVideo(
                         p.videoData,

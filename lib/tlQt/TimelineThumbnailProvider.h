@@ -6,6 +6,7 @@
 
 #include <tlQt/Util.h>
 
+#include <tlTimeline/IRender.h>
 #include <tlTimeline/Timeline.h>
 
 #include <tlCore/ColorConfig.h>
@@ -33,14 +34,16 @@ namespace tl
                 const QString&,
                 const otime::RationalTime&,
                 const QSize&,
-                const imaging::ColorConfig& = imaging::ColorConfig());
+                const imaging::ColorConfig& = imaging::ColorConfig(),
+                const timeline::LUTOptions& = timeline::LUTOptions());
 
             //! Request a thumbnail. The request ID is returned.
             qint64 request(
                 const QString&,
                 const QList<otime::RationalTime>&,
                 const QSize&,
-                const imaging::ColorConfig& = imaging::ColorConfig());
+                const imaging::ColorConfig& = imaging::ColorConfig(),
+                const timeline::LUTOptions & = timeline::LUTOptions());
 
             //! Cancel thumbnail requests.
             void cancelRequests(qint64);

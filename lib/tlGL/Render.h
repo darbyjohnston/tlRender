@@ -27,6 +27,7 @@ namespace tl
 
             void setTextureCacheSize(size_t) override;
             void setColorConfig(const imaging::ColorConfig&) override;
+            void setLUTOptions(const timeline::LUTOptions&);
             void begin(const imaging::Size&) override;
             void end() override;
             void drawRect(
@@ -52,7 +53,6 @@ namespace tl
                 const timeline::CompareOptions& = timeline::CompareOptions()) override;
 
         private:
-            void _delColorConfig();
             void _drawVideo(
                 const timeline::VideoData&,
                 const math::BBox2i&,

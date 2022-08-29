@@ -37,6 +37,14 @@ namespace tl
                 update();
             }
 
+            void PanoramaTimelineViewport::setLUTOptions(const timeline::LUTOptions& lutOptions)
+            {
+                if (lutOptions == _lutOptions)
+                    return;
+                _lutOptions = lutOptions;
+                update();
+            }
+
             void PanoramaTimelineViewport::setImageOptions(const timeline::ImageOptions& imageOptions)
             {
                 if (imageOptions == _imageOptions)
@@ -163,6 +171,7 @@ namespace tl
                     {
                         gl::OffscreenBufferBinding binding(_buffer);
                         _render->setColorConfig(_colorConfig);
+                        _render->setLUTOptions(_lutOptions);
                         _render->begin(_videoSize);
                         _render->drawVideo(
                             { _videoData },

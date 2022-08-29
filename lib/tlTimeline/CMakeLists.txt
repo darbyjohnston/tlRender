@@ -8,6 +8,8 @@ set(HEADERS
 	ImageOptions.h
 	ImageOptionsInline.h
 	IRender.h
+	LUTOptions.h
+	LUTOptionsInline.h
     Timeline.h
     TimelinePlayer.h
     TimelinePlayerInline.h
@@ -22,6 +24,7 @@ set(SOURCE
 	DisplayOptions.cpp
 	ImageOptions.cpp
 	IRender.cpp
+	LUTOptions.cpp
     Timeline.cpp
     TimelinePlayer.cpp
 	Transition.cpp

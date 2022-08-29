@@ -541,10 +541,28 @@ namespace tl
 
                 glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
                 glBindTexture(GL_TEXTURE_2D, p.buffers["video"]->getColorID());
-                for (size_t i = 0; i < p.colorTextures.size(); ++i)
+                size_t texturesOffset = 1;
+                if (p.colorConfigData)
                 {
-                    glActiveTexture(GL_TEXTURE3 + i);
-                    glBindTexture(p.colorTextures[i].type, p.colorTextures[i].id);
+                    for (size_t i = 0; i < p.colorConfigData->textures.size(); ++i)
+                    {
+                        glActiveTexture(GL_TEXTURE0 + texturesOffset + i);
+                        glBindTexture(
+                            p.colorConfigData->textures[i].type,
+                            p.colorConfigData->textures[i].id);
+                    }
+                    texturesOffset += p.colorConfigData->textures.size();
+                }
+                if (p.lutData)
+                {
+                    for (size_t i = 0; i < p.lutData->textures.size(); ++i)
+                    {
+                        glActiveTexture(GL_TEXTURE0 + texturesOffset + i);
+                        glBindTexture(
+                            p.lutData->textures[i].type,
+                            p.lutData->textures[i].id);
+                    }
+                    texturesOffset += p.lutData->textures.size();
                 }
 
                 if (p.vbos["video"])

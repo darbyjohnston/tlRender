@@ -10,17 +10,6 @@ namespace tl
 {
     namespace gl
     {
-        std::string colorFunctionName() { return "OCIODisplay"; }
-
-        std::string colorFunctionNoOp()
-        {
-            return
-                "vec4 OCIODisplay(vec4 inPixel)\n"
-                "{\n"
-                "    return inPixel;\n"
-                "}\n";
-        }
-
         std::string vertexSource()
         {
             return
@@ -368,7 +357,9 @@ namespace tl
                 "    return value;\n"
                 "}\n"
                 "\n"
-                "// $color"
+                "// $colorConfig\n"
+                "\n"
+                "// $lut\n"
                 "\n"
                 "void main()\n"
                 "{\n"
@@ -383,6 +374,10 @@ namespace tl
                 "    }\n"
                 "\n"
                 "    fColor = texture(textureSampler, t);\n"
+                "\n"
+                "    // Apply color management.\n"
+                "    // $colorConfigFunc\n"
+                "    // $lutFunc\n"
                 "\n"
                 "    // Apply color transformations.\n"
                 "    if (colorEnabled)\n"
@@ -407,9 +402,6 @@ namespace tl
                 "    {\n"
                 "        fColor = softClipFunc(fColor, softClip);\n"
                 "    }\n"
-                "\n"
-                "    // Apply color management.\n"
-                "    fColor = OCIODisplay(fColor);\n"
                 "\n"
                 "    // Swizzle for the channels display.\n"
                 "    if (Channels_Red == channels)\n"
