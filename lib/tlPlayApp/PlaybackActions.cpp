@@ -513,9 +513,12 @@ namespace tl
             TLRENDER_P();
 
             const size_t count = p.timelinePlayers.size();
-            for (auto i : p.actions)
+            QList<QString> keys = p.actions.keys();
+            keys.removeAll("Thumbnails");
+            keys.removeAll("StopOnScrub");
+            for (auto i : keys)
             {
-                i->setEnabled(count > 0);
+                p.actions[i]->setEnabled(count > 0);
             }
 
             if (!p.timelinePlayers.empty())
