@@ -7,6 +7,7 @@
 #include <tlCore/Error.h>
 #include <tlCore/String.h>
 
+#include <algorithm>
 #include <array>
 
 namespace tl
