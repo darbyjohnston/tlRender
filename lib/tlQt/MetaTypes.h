@@ -8,7 +8,6 @@
 #include <tlTimeline/TimelinePlayer.h>
 
 #include <tlCore/AudioSystem.h>
-#include <tlCore/ColorConfig.h>
 #include <tlCore/FileIO.h>
 #include <tlCore/FontSystem.h>
 #include <tlCore/Image.h>

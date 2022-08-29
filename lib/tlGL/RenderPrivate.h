@@ -11,7 +11,6 @@
 #include <tlGL/Shader.h>
 #include <tlGL/Texture.h>
 
-#include <tlCore/ColorConfig.h>
 #include <tlCore/LRUCache.h>
 
 #include <OpenColorIO/OpenColorIO.h>
@@ -123,7 +122,7 @@ namespace tl
 
         struct Render::Private
         {
-            imaging::ColorConfig colorConfig;
+            timeline::ColorConfigOptions colorConfigOptions;
             std::unique_ptr<OCIOColorConfigData> colorConfigData;
             std::string lutFileName;
             timeline::LUTOptions lutOptions;

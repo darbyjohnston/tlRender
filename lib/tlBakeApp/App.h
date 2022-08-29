@@ -11,8 +11,6 @@
 
 #include <tlIO/IO.h>
 
-#include <tlCore/ColorConfig.h>
-
 struct GLFWwindow;
 
 namespace tl
@@ -27,7 +25,7 @@ namespace tl
             int64_t endFrame = -1;
             imaging::Size renderSize;
             imaging::PixelType outputPixelType = imaging::PixelType::None;
-            imaging::ColorConfig colorConfig;
+            timeline::ColorConfigOptions colorConfigOptions;
         };
 
         //! Application.

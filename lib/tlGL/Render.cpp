@@ -379,25 +379,25 @@ namespace tl
             _p->textureCache.setSize(value);
         }
 
-        void Render::setColorConfig(const imaging::ColorConfig& config)
+        void Render::setColorConfig(const timeline::ColorConfigOptions& value)
         {
             TLRENDER_P();
-            if (config == p.colorConfig)
+            if (value == p.colorConfigOptions)
                 return;
 
             p.colorConfigData.reset();
 
-            p.colorConfig = config;
+            p.colorConfigOptions = value;
 
-            if (!p.colorConfig.input.empty() &&
-                !p.colorConfig.display.empty() &&
-                !p.colorConfig.view.empty())
+            if (!p.colorConfigOptions.input.empty() &&
+                !p.colorConfigOptions.display.empty() &&
+                !p.colorConfigOptions.view.empty())
             {
                 p.colorConfigData.reset(new OCIOColorConfigData);
 
-                if (!p.colorConfig.fileName.empty())
+                if (!p.colorConfigOptions.fileName.empty())
                 {
-                    p.colorConfigData->config = OCIO::Config::CreateFromFile(p.colorConfig.fileName.c_str());
+                    p.colorConfigData->config = OCIO::Config::CreateFromFile(p.colorConfigOptions.fileName.c_str());
                 }
                 else
                 {
@@ -414,9 +414,9 @@ namespace tl
                     p.colorConfigData.reset();
                     throw std::runtime_error("Cannot create OCIO transform");
                 }
-                p.colorConfigData->transform->setSrc(p.colorConfig.input.c_str());
-                p.colorConfigData->transform->setDisplay(p.colorConfig.display.c_str());
-                p.colorConfigData->transform->setView(p.colorConfig.view.c_str());
+                p.colorConfigData->transform->setSrc(p.colorConfigOptions.input.c_str());
+                p.colorConfigData->transform->setDisplay(p.colorConfigOptions.display.c_str());
+                p.colorConfigData->transform->setView(p.colorConfigOptions.view.c_str());
 
                 p.colorConfigData->lvp = OCIO::LegacyViewingPipeline::Create();
                 if (!p.colorConfigData->lvp)
@@ -426,7 +426,7 @@ namespace tl
                 }
                 p.colorConfigData->lvp->setDisplayViewTransform(p.colorConfigData->transform);
                 p.colorConfigData->lvp->setLooksOverrideEnabled(true);
-                p.colorConfigData->lvp->setLooksOverride(p.colorConfig.look.c_str());
+                p.colorConfigData->lvp->setLooksOverride(p.colorConfigOptions.look.c_str());
 
                 p.colorConfigData->processor = p.colorConfigData->lvp->getProcessor(
                     p.colorConfigData->config,
@@ -552,7 +552,7 @@ namespace tl
             p.shaders["display"].reset();
         }
 
-        void Render::setLUTOptions(const timeline::LUTOptions& value)
+        void Render::setLUT(const timeline::LUTOptions& value)
         {
             TLRENDER_P();
             if (value == p.lutOptions)

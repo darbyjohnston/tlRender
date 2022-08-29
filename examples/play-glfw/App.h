@@ -9,7 +9,6 @@
 #include <tlTimeline/IRender.h>
 #include <tlTimeline/TimelinePlayer.h>
 
-#include <tlCore/ColorConfig.h>
 #include <tlCore/FontSystem.h>
 
 struct GLFWwindow;
@@ -29,7 +28,7 @@ namespace tl
                 bool hud = true;
                 bool startPlayback = true;
                 bool loopPlayback = true;
-                imaging::ColorConfig colorConfig;
+                timeline::ColorConfigOptions colorConfigOptions;
             };
 
             //! Application.

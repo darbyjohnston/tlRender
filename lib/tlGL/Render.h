@@ -26,8 +26,8 @@ namespace tl
             static std::shared_ptr<Render> create(const std::shared_ptr<system::Context>&);
 
             void setTextureCacheSize(size_t) override;
-            void setColorConfig(const imaging::ColorConfig&) override;
-            void setLUTOptions(const timeline::LUTOptions&);
+            void setColorConfig(const timeline::ColorConfigOptions&) override;
+            void setLUT(const timeline::LUTOptions&);
             void begin(const imaging::Size&) override;
             void end() override;
             void drawRect(

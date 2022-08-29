@@ -73,8 +73,7 @@ namespace tl
             std::vector<qt::TimelinePlayer*> timelinePlayers;
             bool floatOnTop = false;
             bool secondaryFloatOnTop = false;
-            imaging::ColorConfig colorConfig;
-            std::string lutFileName;
+            timeline::ColorConfigOptions colorConfigOptions;
             timeline::LUTOptions lutOptions;
             timeline::ImageOptions imageOptions;
             timeline::DisplayOptions displayOptions;
@@ -114,7 +113,7 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<int> > aIndexObserver;
             std::shared_ptr<observer::ListObserver<int> > bIndexesObserver;
             std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<imaging::ColorConfig> > colorConfigObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::ColorConfigOptions> > colorConfigOptionsObserver;
             std::shared_ptr<observer::ValueObserver<DevicesModelData> > devicesModelObserver;
             std::shared_ptr<observer::ListObserver<log::Item> > logObserver;
 
@@ -375,11 +374,11 @@ namespace tl
                     _widgetUpdate();
                 });
 
-            p.colorConfigObserver = observer::ValueObserver<imaging::ColorConfig>::create(
-                app->colorModel()->observeConfig(),
-                [this](const imaging::ColorConfig& value)
+            p.colorConfigOptionsObserver = observer::ValueObserver<timeline::ColorConfigOptions>::create(
+                app->colorModel()->observeConfigOptions(),
+                [this](const timeline::ColorConfigOptions& value)
                 {
-                    _p->colorConfig = value;
+                    _p->colorConfigOptions = value;
                     _widgetUpdate();
                 });
 
@@ -862,7 +861,7 @@ namespace tl
             if (value && !p.secondaryWindow)
             {
                 p.secondaryWindow = new SecondaryWindow(p.app);
-                p.secondaryWindow->viewport()->setColorConfig(p.colorConfig);
+                p.secondaryWindow->viewport()->setColorConfigOptions(p.colorConfigOptions);
                 p.secondaryWindow->viewport()->setLUTOptions(p.lutOptions);
                 std::vector<timeline::ImageOptions> imageOptions;
                 std::vector<timeline::DisplayOptions> displayOptions;
@@ -1009,7 +1008,7 @@ namespace tl
 
             p.audioActions->setTimelinePlayers(p.timelinePlayers);
 
-            p.timelineViewport->setColorConfig(p.colorConfig);
+            p.timelineViewport->setColorConfigOptions(p.colorConfigOptions);
             p.timelineViewport->setLUTOptions(p.lutOptions);
             std::vector<timeline::ImageOptions> imageOptions;
             std::vector<timeline::DisplayOptions> displayOptions;
@@ -1023,7 +1022,7 @@ namespace tl
             p.timelineViewport->setCompareOptions(p.compareOptions);
             p.timelineViewport->setTimelinePlayers(p.timelinePlayers);
 
-            p.timelineSlider->setColorConfig(p.colorConfig);
+            p.timelineSlider->setColorConfigOptions(p.colorConfigOptions);
             p.timelineSlider->setLUTOptions(p.lutOptions);
             p.timelineSlider->setTimelinePlayer(!p.timelinePlayers.empty() ? p.timelinePlayers[0] : nullptr);
             p.timelineSlider->setThumbnails(p.app->settingsObject()->value("Timeline/Thumbnails").toBool());
@@ -1094,7 +1093,7 @@ namespace tl
 
             if (p.secondaryWindow)
             {
-                p.secondaryWindow->viewport()->setColorConfig(p.colorConfig);
+                p.secondaryWindow->viewport()->setColorConfigOptions(p.colorConfigOptions);
                 p.secondaryWindow->viewport()->setLUTOptions(p.lutOptions);
                 p.secondaryWindow->viewport()->setImageOptions(imageOptions);
                 p.secondaryWindow->viewport()->setDisplayOptions(displayOptions);
@@ -1102,7 +1101,7 @@ namespace tl
                 p.secondaryWindow->viewport()->setTimelinePlayers(p.timelinePlayers);
             }
 
-            p.app->outputDevice()->setColorConfig(p.colorConfig);
+            p.app->outputDevice()->setColorConfigOptions(p.colorConfigOptions);
             p.app->outputDevice()->setLUTOptions(p.lutOptions);
             p.app->outputDevice()->setImageOptions(imageOptions);
             for (auto& i : displayOptions)

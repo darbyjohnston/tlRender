@@ -7,8 +7,6 @@ set(HEADERS
     BBoxInline.h
     Color.h
     ColorInline.h
-	ColorConfig.h
-	ColorConfigInline.h
     Context.h
     ContextInline.h
     Error.h
@@ -61,7 +59,6 @@ set(SOURCE
     AudioSystem.cpp
 	BBox.cpp
 	Color.cpp
-	ColorConfig.cpp
     Context.cpp
     Error.cpp
     FileIO.cpp

@@ -50,7 +50,7 @@ namespace tl
                 timeline::Playback playback = timeline::Playback::Stop;
                 timeline::Loop loop = timeline::Loop::Loop;
                 otime::RationalTime seek = time::invalidTime;
-                imaging::ColorConfig colorConfig;
+                timeline::ColorConfigOptions colorConfigOptions;
                 bool resetSettings = false;
             };
         }
@@ -148,19 +148,19 @@ namespace tl
                 { "-seek" },
                 "Seek to the given time."),
             app::CmdLineValueOption<std::string>::create(
-                p.options.colorConfig.fileName,
+                p.options.colorConfigOptions.fileName,
                 { "-colorConfig", "-cc" },
                 "Color configuration file (config.ocio)."),
             app::CmdLineValueOption<std::string>::create(
-                p.options.colorConfig.input,
+                p.options.colorConfigOptions.input,
                 { "-colorInput", "-ci" },
                 "Input color space."),
             app::CmdLineValueOption<std::string>::create(
-                p.options.colorConfig.display,
+                p.options.colorConfigOptions.display,
                 { "-colorDisplay", "-cd" },
                 "Display color space."),
             app::CmdLineValueOption<std::string>::create(
-                p.options.colorConfig.view,
+                p.options.colorConfigOptions.view,
                 { "-colorView", "-cv" },
                 "View color space."),
             app::CmdLineFlagOption::create(
@@ -228,9 +228,9 @@ namespace tl
                 });
 
             p.colorModel = ColorModel::create(context);
-            if (!p.options.colorConfig.fileName.empty())
+            if (!p.options.colorConfigOptions.fileName.empty())
             {
-                p.colorModel->setConfig(p.options.colorConfig);
+                p.colorModel->setConfigOptions(p.options.colorConfigOptions);
             }
 
             p.outputDevice = new qt::OutputDevice(context);

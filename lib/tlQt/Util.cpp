@@ -56,7 +56,6 @@ namespace tl
             qRegisterMetaType<geom::Vertex2>("tl::geom::Vertex2");
             qRegisterMetaType<geom::Vertex3>("tl::geom::Vertex3");
 
-            qRegisterMetaType<imaging::ColorConfig>("tl::imaging::ColorConfig");
             qRegisterMetaType<imaging::FontInfo>("tl::imaging::FontInfo");
             qRegisterMetaType<imaging::FontFamily>("tl::imaging::FontFamily");
             qRegisterMetaType<imaging::FontMetrics>("tl::imaging::FontMetrics");
@@ -96,6 +95,7 @@ namespace tl
             qRegisterMetaType<timeline::AudioLayer>("tl::timeline::AudioLayer");
             qRegisterMetaType<timeline::Channels>("tl::timeline::Channels");
             qRegisterMetaType<timeline::Color>("tl::timeline::Color");
+            qRegisterMetaType<timeline::ColorConfigOptions>("tl::timeline::ColorConfigOptions");
             qRegisterMetaType<timeline::CompareMode>("tl::timeline::CompareMode");
             qRegisterMetaType<timeline::CompareOptions>("tl::timeline::CompareOptions");
             qRegisterMetaType<timeline::Exposure>("tl::timeline::Exposure");

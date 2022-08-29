@@ -42,8 +42,7 @@ namespace tl
             device::HDRMode hdrMode = device::HDRMode::FromFile;
             imaging::HDRData hdrData;
 
-            imaging::ColorConfig colorConfig;
-            std::string lutFileName;
+            timeline::ColorConfigOptions colorConfigOptions;
             timeline::LUTOptions lutOptions;
             std::vector<timeline::ImageOptions> imageOptions;
             std::vector<timeline::DisplayOptions> displayOptions;
@@ -113,12 +112,12 @@ namespace tl
             p.cv.notify_one();
         }
 
-        void OutputDevice::setColorConfig(const imaging::ColorConfig& value)
+        void OutputDevice::setColorConfigOptions(const timeline::ColorConfigOptions& value)
         {
             TLRENDER_P();
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
-                p.colorConfig = value;
+                p.colorConfigOptions = value;
             }
             p.cv.notify_one();
         }
@@ -315,7 +314,7 @@ namespace tl
             int deviceIndex = -1;
             int displayModeIndex = -1;
             device::PixelType pixelType = device::PixelType::None;
-            imaging::ColorConfig colorConfig;
+            timeline::ColorConfigOptions colorConfigOptions;
             timeline::LUTOptions lutOptions;
             std::vector<timeline::ImageOptions> imageOptions;
             std::vector<timeline::DisplayOptions> displayOptions;
@@ -347,7 +346,7 @@ namespace tl
                         lock,
                         p.timeout,
                         [this, deviceIndex, displayModeIndex, pixelType,
-                        colorConfig, lutOptions, imageOptions,
+                        colorConfigOptions, lutOptions, imageOptions,
                         displayOptions, hdrMode, hdrData, compareOptions,
                         sizes, viewPos, viewZoom, frameView, videoData]
                         {
@@ -355,7 +354,7 @@ namespace tl
                                 deviceIndex != _p->deviceIndex ||
                                 displayModeIndex != _p->displayModeIndex ||
                                 pixelType != _p->pixelType ||
-                                colorConfig != _p->colorConfig ||
+                                colorConfigOptions != _p->colorConfigOptions ||
                                 lutOptions != _p->lutOptions ||
                                 imageOptions != _p->imageOptions ||
                                 displayOptions != _p->displayOptions ||
@@ -380,7 +379,7 @@ namespace tl
                         pixelType = p.pixelType;
 
                         doRender = true;
-                        colorConfig = p.colorConfig;
+                        colorConfigOptions = p.colorConfigOptions;
                         lutOptions = p.lutOptions;
                         imageOptions = p.imageOptions;
                         displayOptions = p.displayOptions;
@@ -461,8 +460,8 @@ namespace tl
                         {
                             gl::OffscreenBufferBinding binding(offscreenBuffer);
 
-                            render->setColorConfig(colorConfig);
-                            render->setLUTOptions(lutOptions);
+                            render->setColorConfig(colorConfigOptions);
+                            render->setLUT(lutOptions);
                             render->begin(renderSize);
                             render->drawVideo(
                                 videoData,
