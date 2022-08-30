@@ -212,7 +212,12 @@ namespace tl
         {
             TLRENDER_P();
 
-            p.fileWidget = new qtwidget::FileWidget({ ".lut" });
+            QStringList extensions;
+            for (const auto& i : timeline::getLUTFormatExtensions())
+            {
+                extensions.push_back(QString::fromUtf8(i.c_str()));
+            }
+            p.fileWidget = new qtwidget::FileWidget(extensions);
 
             p.orderComboBox = new QComboBox;
 

@@ -7,8 +7,12 @@
 #include <tlCore/Error.h>
 #include <tlCore/String.h>
 
+#include <OpenColorIO/OpenColorTransforms.h>
+
 #include <algorithm>
 #include <array>
+
+namespace OCIO = OCIO_NAMESPACE;
 
 namespace tl
 {
@@ -19,5 +23,30 @@ namespace tl
             "PostColorConfig",
             "PreColorConfig");
         TLRENDER_ENUM_SERIALIZE_IMPL(LUTOrder);
+
+        std::vector<std::string> getLUTFormatNames()
+        {
+            std::vector<std::string> out;
+            for (int i = 0; i < OCIO::FileTransform::GetNumFormats(); ++i)
+            {
+                out.push_back(OCIO::FileTransform::GetFormatNameByIndex(i));
+            }
+            return out;
+        }
+
+        std::vector<std::string> getLUTFormatExtensions()
+        {
+            std::vector<std::string> out;
+            for (int i = 0; i < OCIO::FileTransform::GetNumFormats(); ++i)
+            {
+                std::string extension = OCIO::FileTransform::GetFormatExtensionByIndex(i);
+                if (!extension.empty() && extension[0] != '.')
+                {
+                    extension.insert(extension.begin(), '.');
+                }
+                out.push_back(extension);
+            }
+            return out;
+        }
     }
 }

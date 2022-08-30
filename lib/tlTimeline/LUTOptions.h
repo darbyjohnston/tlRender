@@ -35,6 +35,12 @@ namespace tl
             bool operator == (const LUTOptions&) const;
             bool operator != (const LUTOptions&) const;
         };
+
+        //! Get the list of LUT format names.
+        std::vector<std::string> getLUTFormatNames();
+
+        //! Get the list of LUT format file extensions.
+        std::vector<std::string> getLUTFormatExtensions();
     }
 }
 

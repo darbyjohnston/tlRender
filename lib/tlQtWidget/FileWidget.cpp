@@ -80,10 +80,12 @@ namespace tl
                     {
                         filter.append(tr("Files"));
                         filter.append(" (");
+                        QStringList extensions;
                         Q_FOREACH(QString i, _p->extensions)
                         {
-                            filter.append(QString("*%1").arg(i));
+                            extensions.push_back(QString("*%1").arg(i));
                         }
+                        filter.append(extensions.join(' '));
                         filter.append(")");
                     }
                     const auto fileName = QFileDialog::getOpenFileName(
