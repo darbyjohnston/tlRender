@@ -14,7 +14,7 @@ namespace tl
 {
     namespace timeline
     {
-        //! LUT order.
+        //! LUT operation order.
         enum class LUTOrder
         {
             PostColorConfig,

@@ -50,7 +50,9 @@ namespace tl
                 timeline::Playback playback = timeline::Playback::Stop;
                 timeline::Loop loop = timeline::Loop::Loop;
                 otime::RationalTime seek = time::invalidTime;
+                otime::TimeRange inOutRange = time::invalidTimeRange;
                 timeline::ColorConfigOptions colorConfigOptions;
+                timeline::LUTOptions lutOptions;
                 bool resetSettings = false;
             };
         }
@@ -106,11 +108,11 @@ namespace tl
             app::CmdLineValueOption<std::string>::create(
                 p.options.audioFileName,
                 { "-audio", "-a" },
-                "Audio file."),
+                "Audio file name."),
             app::CmdLineValueOption<std::string>::create(
                 p.options.compareFileName,
                 { "-compare", "-b" },
-                "A/B comparison \"B\" file."),
+                "A/B comparison \"B\" file name."),
             app::CmdLineValueOption<timeline::CompareMode>::create(
                 p.options.compareMode,
                 { "-compareMode", "-c" },
@@ -147,10 +149,14 @@ namespace tl
                 p.options.seek,
                 { "-seek" },
                 "Seek to the given time."),
+            app::CmdLineValueOption<otime::TimeRange>::create(
+                p.options.inOutRange,
+                { "-inOutRange" },
+                "Set the in/out points range."),
             app::CmdLineValueOption<std::string>::create(
                 p.options.colorConfigOptions.fileName,
                 { "-colorConfig", "-cc" },
-                "Color configuration file (config.ocio)."),
+                "Color configuration file name (config.ocio)."),
             app::CmdLineValueOption<std::string>::create(
                 p.options.colorConfigOptions.input,
                 { "-colorInput", "-ci" },
@@ -163,6 +169,16 @@ namespace tl
                 p.options.colorConfigOptions.view,
                 { "-colorView", "-cv" },
                 "View color space."),
+            app::CmdLineValueOption<std::string>::create(
+                p.options.lutOptions.fileName,
+                { "-lut" },
+                "LUT file name."),
+            app::CmdLineValueOption<timeline::LUTOrder>::create(
+                p.options.lutOptions.order,
+                { "-lutOrder" },
+                "LUT operation order.",
+                string::Format("{0}").arg(p.options.lutOptions.order),
+                string::join(timeline::getLUTOrderLabels(), ", ")),
             app::CmdLineFlagOption::create(
                 p.options.resetSettings,
                 { "-resetSettings" },
@@ -233,6 +249,8 @@ namespace tl
                 p.colorModel->setConfigOptions(p.options.colorConfigOptions);
             }
 
+            p.lutOptions = p.options.lutOptions;
+
             p.outputDevice = new qt::OutputDevice(context);
             p.devicesModel = DevicesModel::create(context);
             p.devicesModel->setDeviceIndex(p.settingsObject->value("Devices/DeviceIndex").toInt());
@@ -291,12 +309,17 @@ namespace tl
                     {
                         p.timelinePlayers[0]->setSpeed(p.options.speed);
                     }
+                    if (p.options.inOutRange != time::invalidTimeRange)
+                    {
+                        p.timelinePlayers[0]->setInOutRange(p.options.inOutRange);
+                        p.timelinePlayers[0]->seek(p.options.inOutRange.start_time());
+                    }
                     if (p.options.seek != time::invalidTime)
                     {
                         p.timelinePlayers[0]->seek(p.options.seek);
                     }
-                    p.timelinePlayers[0]->setPlayback(p.options.playback);
                     p.timelinePlayers[0]->setLoop(p.options.loop);
+                    p.timelinePlayers[0]->setPlayback(p.options.playback);
                 }
             }
 

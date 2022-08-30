@@ -26,9 +26,12 @@ namespace tl
                 imaging::Size windowSize = imaging::Size(1280, 720);
                 bool fullScreen = false;
                 bool hud = true;
-                bool startPlayback = true;
-                bool loopPlayback = true;
+                timeline::Playback playback = timeline::Playback::Forward;
+                timeline::Loop loop = timeline::Loop::Loop;
+                otime::RationalTime seek = time::invalidTime;
+                otime::TimeRange inOutRange = time::invalidTimeRange;
                 timeline::ColorConfigOptions colorConfigOptions;
+                timeline::LUTOptions lutOptions;
             };
 
             //! Application.

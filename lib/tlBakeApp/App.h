@@ -21,11 +21,11 @@ namespace tl
         //! Application options.
         struct Options
         {
-            int64_t startFrame = -1;
-            int64_t endFrame = -1;
+            otime::TimeRange inOutRange = time::invalidTimeRange;
             imaging::Size renderSize;
             imaging::PixelType outputPixelType = imaging::PixelType::None;
             timeline::ColorConfigOptions colorConfigOptions;
+            timeline::LUTOptions lutOptions;
         };
 
         //! Application.

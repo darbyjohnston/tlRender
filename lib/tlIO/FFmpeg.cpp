@@ -194,12 +194,9 @@ namespace tl
             case imaging::PixelType::L_U8:
             case imaging::PixelType::RGB_U8:
             case imaging::PixelType::RGBA_U8:
-            case imaging::PixelType::YUV_420P_U8:
-            case imaging::PixelType::YUV_422P_U8:
-            case imaging::PixelType::YUV_444P_U8:
-            case imaging::PixelType::YUV_420P_U16:
-            case imaging::PixelType::YUV_422P_U16:
-            case imaging::PixelType::YUV_444P_U16:
+            case imaging::PixelType::L_U16:
+            case imaging::PixelType::RGB_U16:
+            case imaging::PixelType::RGBA_U16:
                 out.pixelType = info.pixelType;
                 break;
             default: break;
