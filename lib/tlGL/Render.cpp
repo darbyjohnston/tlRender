@@ -781,7 +781,7 @@ namespace tl
                     p.lutOptions.order);
                 if (auto context = _context.lock())
                 {
-                    context->log("tl::gl::Render", source);
+                    //context->log("tl::gl::Render", source);
                     context->log("tl::gl::Render", "Creating display shader");
                 }
                 p.shaders["display"] = Shader::create(vertexSource(), source);
