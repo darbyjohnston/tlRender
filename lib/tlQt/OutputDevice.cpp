@@ -229,7 +229,7 @@ namespace tl
                 {
                     memcpy(
                         image->getData() + y * scanlineSize,
-                        qImage.scanLine(y),
+                        qImage.scanLine(info.size.h - 1 - y),
                         scanlineSize);
                 }
                 {
