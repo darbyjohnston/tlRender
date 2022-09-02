@@ -219,11 +219,19 @@ namespace tl
             TLRENDER_P();
             if (QImage::Format_RGBA8888 == qImage.format())
             {
-                auto image = imaging::Image::create(imaging::Info(
+                const imaging::Info info(
                     qImage.width(),
                     qImage.height(),
-                    imaging::PixelType::RGBA_U8));
-                memcpy(image->getData(), qImage.bits(), image->getDataByteCount());
+                    imaging::PixelType::RGBA_U8);
+                auto image = imaging::Image::create(info);
+                const size_t scanlineSize = info.size.w * 4;
+                for (size_t y = 0; y < info.size.h; ++y)
+                {
+                    memcpy(
+                        image->getData() + y * scanlineSize,
+                        qImage.scanLine(y),
+                        scanlineSize);
+                }
                 {
                     std::unique_lock<std::mutex> lock(p.mutex);
                     p.overlay = image;
