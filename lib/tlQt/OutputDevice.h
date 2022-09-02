@@ -10,6 +10,7 @@
 
 #include <tlDevice/DeviceData.h>
 
+#include <QImage>
 #include <QThread>
 
 namespace tl
@@ -59,6 +60,10 @@ namespace tl
 
             //! Set the timeline players.
             void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
+
+            //! Set a QImage overlay. The format must be QImage::Format_RGBA8888.
+            //! \todo Temporary
+            void setOverlay(const QImage&);
 
         public Q_SLOTS:
             //! Set the view.

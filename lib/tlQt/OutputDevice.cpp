@@ -8,6 +8,7 @@
 #include <tlGL/OffscreenBuffer.h>
 #include <tlGL/Render.h>
 #include <tlGL/Shader.h>
+#include <tlGL/Texture.h>
 #include <tlGL/Util.h>
 
 #include <tlDevice/IDeviceSystem.h>
@@ -41,6 +42,9 @@ namespace tl
             device::PixelType pixelType = device::PixelType::_8BitBGRA;
             device::HDRMode hdrMode = device::HDRMode::FromFile;
             imaging::HDRData hdrData;
+
+            //! \todo Temporary
+            std::shared_ptr<imaging::Image> overlay;
 
             timeline::ColorConfigOptions colorConfigOptions;
             timeline::LUTOptions lutOptions;
@@ -210,6 +214,24 @@ namespace tl
             }
         }
 
+        void OutputDevice::setOverlay(const QImage& qImage)
+        {
+            TLRENDER_P();
+            if (QImage::Format_RGBA8888 == qImage.format())
+            {
+                auto image = imaging::Image::create(imaging::Info(
+                    qImage.width(),
+                    qImage.height(),
+                    imaging::PixelType::RGBA_U8));
+                memcpy(image->getData(), qImage.bits(), image->getDataByteCount());
+                {
+                    std::unique_lock<std::mutex> lock(p.mutex);
+                    p.overlay = image;
+                }
+                p.cv.notify_one();
+            }
+        }
+
         void OutputDevice::setView(
             const tl::math::Vector2i& pos,
             float                     zoom,
@@ -336,10 +358,17 @@ namespace tl
             std::array<GLuint, 1> pbo;
             std::array<otime::RationalTime, 1> pboTime;
             size_t pboIndex = 0;
+
+            std::shared_ptr<imaging::Image> overlay;
+            std::shared_ptr<gl::Texture> overlayTexture;
+            std::shared_ptr<gl::VBO> overlayVbo;
+            std::shared_ptr<gl::VAO> overlayVao;
+
             while (p.running)
             {
                 bool doCreateDevice = false;
                 bool doRender = false;
+                bool doOverlay = false;
                 {
                     std::unique_lock<std::mutex> lock(p.mutex);
                     if (p.cv.wait_for(
@@ -348,7 +377,8 @@ namespace tl
                         [this, deviceIndex, displayModeIndex, pixelType,
                         colorConfigOptions, lutOptions, imageOptions,
                         displayOptions, hdrMode, hdrData, compareOptions,
-                        sizes, viewPos, viewZoom, frameView, videoData]
+                        sizes, viewPos, viewZoom, frameView, videoData,
+                        overlay]
                         {
                             return
                                 deviceIndex != _p->deviceIndex ||
@@ -365,7 +395,8 @@ namespace tl
                                 viewPos != _p->viewPos ||
                                 viewZoom != _p->viewZoom ||
                                 frameView != _p->frameView ||
-                                videoData != _p->videoData;
+                                videoData != _p->videoData ||
+                                overlay != _p->overlay;
                         }))
                     {
                         if (p.deviceIndex != deviceIndex ||
@@ -391,6 +422,9 @@ namespace tl
                         viewZoom = p.viewZoom;
                         frameView = p.frameView;
                         videoData = p.videoData;
+
+                        doOverlay = overlay != p.overlay;
+                        overlay = p.overlay;
                     }
                 }
 
@@ -557,7 +591,7 @@ namespace tl
                                 static_cast<float>(viewportSize.h),
                                 -1.F,
                                 1.F);
-                            const glm::mat4x4 vpm = pm * vm;
+                            glm::mat4x4 vpm = pm * vm;
                             shader->setUniform(
                                 "transform.mvp",
                                 math::Matrix4x4f(
@@ -608,6 +642,74 @@ namespace tl
                             {
                                 vao->bind();
                                 vao->draw(GL_TRIANGLES, 0, vbo->getSize());
+                            }
+
+                            if ((overlay && !overlayTexture) ||
+                                (overlay && overlayTexture && overlay->getInfo() != overlayTexture->getInfo()))
+                            {
+                                overlayTexture = gl::Texture::create(overlay->getInfo());
+                            }
+                            if (overlay && overlayTexture && doOverlay)
+                            {
+                                overlayTexture->copy(*overlay);
+                            }
+                            if (overlay && overlayTexture)
+                            {
+                                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+                                vpm = pm;
+                                shader->setUniform(
+                                    "transform.mvp",
+                                    math::Matrix4x4f(
+                                        vpm[0][0], vpm[0][1], vpm[0][2], vpm[0][3],
+                                        vpm[1][0], vpm[1][1], vpm[1][2], vpm[1][3],
+                                        vpm[2][0], vpm[2][1], vpm[2][2], vpm[2][3],
+                                        vpm[3][0], vpm[3][1], vpm[3][2], vpm[3][3]));
+
+                                glBindTexture(GL_TEXTURE_2D, overlayTexture->getID());
+
+                                geom::TriangleMesh3 mesh;
+                                mesh.v.push_back(math::Vector3f(0.F, 0.F, 0.F));
+                                mesh.t.push_back(math::Vector2f(0.F, 0.F));
+                                mesh.v.push_back(math::Vector3f(overlay->getWidth(), 0.F, 0.F));
+                                mesh.t.push_back(math::Vector2f(1.F, 0.F));
+                                mesh.v.push_back(math::Vector3f(overlay->getWidth(), overlay->getHeight(), 0.F));
+                                mesh.t.push_back(math::Vector2f(1.F, 1.F));
+                                mesh.v.push_back(math::Vector3f(0.F, overlay->getHeight(), 0.F));
+                                mesh.t.push_back(math::Vector2f(0.F, 1.F));
+                                mesh.triangles.push_back(geom::Triangle3({
+                                    geom::Vertex3({ 1, 1, 0 }),
+                                    geom::Vertex3({ 2, 2, 0 }),
+                                    geom::Vertex3({ 3, 3, 0 })
+                                    }));
+                                mesh.triangles.push_back(geom::Triangle3({
+                                    geom::Vertex3({ 3, 3, 0 }),
+                                    geom::Vertex3({ 4, 4, 0 }),
+                                    geom::Vertex3({ 1, 1, 0 })
+                                    }));
+                                auto vboData = convert(
+                                    mesh,
+                                    gl::VBOType::Pos3_F32_UV_U16,
+                                    math::SizeTRange(0, mesh.triangles.size() - 1));
+                                if (!overlayVbo)
+                                {
+                                    overlayVbo = gl::VBO::create(mesh.triangles.size() * 3, gl::VBOType::Pos3_F32_UV_U16);
+                                }
+                                if (overlayVbo)
+                                {
+                                    overlayVbo->copy(vboData);
+                                }
+
+                                if (!overlayVao && overlayVbo)
+                                {
+                                    overlayVao = gl::VAO::create(gl::VBOType::Pos3_F32_UV_U16, overlayVbo->getID());
+                                }
+                                if (overlayVao && overlayVbo)
+                                {
+                                    overlayVao->bind();
+                                    overlayVao->draw(GL_TRIANGLES, 0, overlayVbo->getSize());
+                                }
+                                glBlendEquation(GL_FUNC_ADD);
                             }
 
                             glBindBuffer(GL_PIXEL_PACK_BUFFER, pbo[pboIndex % pbo.size()]);
