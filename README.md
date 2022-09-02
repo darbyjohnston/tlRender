@@ -122,7 +122,7 @@ cd build
 ```
 Run CMake with the super build script:
 ```
-cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install -DCMAKE_BUILD_TYPE=Debug
+cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install -DCMAKE_BUILD_TYPE=Debug
 ```
 Start the build:
 ```
@@ -139,7 +139,7 @@ Building on Linux with Qt
 When running CMake with the super build script, add the Qt location to
 "CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLRENDER_BUILD_QT5":
 ```
-cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/5.15.2/gcc_64" -DTLRENDER_BUILD_QT5=ON -DCMAKE_BUILD_TYPE=Debug
+cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/5.15.2/gcc_64" -DTLRENDER_BUILD_QT5=ON -DCMAKE_BUILD_TYPE=Debug
 ```
 
 Notes for building on Linux
@@ -168,7 +168,7 @@ cd build
 ```
 Run CMake with the super build script:
 ```
-cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install -DCMAKE_BUILD_TYPE=Debug
+cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install -DCMAKE_BUILD_TYPE=Debug
 ```
 Start the build:
 ```
@@ -184,7 +184,7 @@ Building on macOS with Qt
 When running CMake with the super build script, add the Qt location to
 "CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLRENDER_BUILD_QT5":
 ```
-cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/5.15.2/clang_64" -DTLRENDER_BUILD_QT5=ON -DCMAKE_BUILD_TYPE=Debug
+cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/5.15.2/clang_64" -DTLRENDER_BUILD_QT5=ON -DCMAKE_BUILD_TYPE=Debug
 ```
 
 Notes for building on macOS
@@ -243,7 +243,7 @@ cd build
 ```
 Run CMake with the super build script:
 ```
-cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=%CD%/install -DCMAKE_PREFIX_PATH=%CD%/install -DCMAKE_BUILD_TYPE=Debug
+cmake ..\etc\SuperBuild -DCMAKE_INSTALL_PREFIX=%CD%\install -DCMAKE_PREFIX_PATH=%CD%\install -DCMAKE_BUILD_TYPE=Debug
 ```
 Start the build:
 ```
@@ -260,7 +260,7 @@ Building on Windows with Qt
 When running CMake with the super build script, add the Qt location to
 "CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLRENDER_BUILD_QT5":
 ```
-cmake ../etc/SuperBuild/ -DCMAKE_INSTALL_PREFIX=%CD%/install -DCMAKE_PREFIX_PATH="%CD%/install;C:\Qt\5.15.2\msvc2019_64" -DTLRENDER_BUILD_QT5=ON -DCMAKE_BUILD_TYPE=Debug
+cmake ..\etc\SuperBuild -DCMAKE_INSTALL_PREFIX=%CD%\install -DCMAKE_PREFIX_PATH="%CD%\install;C:\Qt\5.15.2\msvc2019_64" -DTLRENDER_BUILD_QT5=ON -DCMAKE_BUILD_TYPE=Debug
 ```
 
 Notes for building on Windows
