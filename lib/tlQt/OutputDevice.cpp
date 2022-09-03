@@ -57,8 +57,6 @@ namespace tl
             float viewZoom = 1.F;
             bool frameView = true;
             std::vector<timeline::VideoData> videoData;
-            imaging::Size deviceSize;
-            otime::RationalTime deviceFrameRate = time::invalidTime;
             std::chrono::milliseconds timeout = std::chrono::milliseconds(5);
             QScopedPointer<QOffscreenSurface> offscreenSurface;
             QScopedPointer<QOpenGLContext> glContext;
@@ -116,20 +114,6 @@ namespace tl
         device::PixelType OutputDevice::getPixelType() const
         {
             return _p->pixelType;
-        }
-
-        const imaging::Size& OutputDevice::getSize() const
-        {
-            TLRENDER_P();
-            std::unique_lock<std::mutex> lock(p.mutex);
-            return p.deviceSize;
-        }
-
-        const otime::RationalTime& OutputDevice::getFrameRate() const
-        {
-            TLRENDER_P();
-            std::unique_lock<std::mutex> lock(p.mutex);
-            return p.deviceFrameRate;
         }
 
         void OutputDevice::setDevice(
@@ -493,11 +477,8 @@ namespace tl
                             }
                         }
                     }
-                    {
-                        std::unique_lock<std::mutex> lock(p.mutex);
-                        p.deviceSize = deviceSize;
-                        p.deviceFrameRate = deviceFrameRate;
-                    }
+                    Q_EMIT sizeChanged(deviceSize);
+                    Q_EMIT frameRateChanged(deviceFrameRate);
 
                     vao.reset();
                     vbo.reset();

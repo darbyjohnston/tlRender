@@ -45,12 +45,6 @@ namespace tl
             //! Get the output device pixel type.
             device::PixelType getPixelType() const;
 
-            //! Get the output device size.
-            const imaging::Size& getSize() const;
-
-            //! Get the output device frame rate.
-            const otime::RationalTime& getFrameRate() const;
-
             //! Set the output device. If deviceIndex or displayModeIndex
             //! is set to -1, or pixelType is set to None, the output device
             //! is disabled.
@@ -90,6 +84,14 @@ namespace tl
                 const tl::math::Vector2i& position,
                 float                     zoom,
                 bool                      frame);
+
+        Q_SIGNALS:
+            //! This signal is emitted when the output device size is changed.
+            void sizeChanged(const imaging::Size&);
+
+            //! This signal is emitted when the output device frame rate is
+            //! changed.
+            void frameRateChanged(const otime::RationalTime&);
 
         private Q_SLOTS:
             void _videoCallback(const tl::timeline::VideoData&);
