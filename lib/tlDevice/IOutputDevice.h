@@ -32,6 +32,17 @@ namespace tl
         public:
             virtual ~IOutputDevice() = 0;
 
+            //! Get the output device index. A value of -1 is returned if there
+            //! is no output device.
+            int getDeviceIndex() const;
+
+            //! Get the output device display mode index. A value of -1 is
+            //! returned if there is no display mode.
+            int getDisplayModeIndex() const;
+
+            //! Get the output device pixel type.
+            PixelType getPixelType() const;
+
             //! Get the output device size.
             const imaging::Size& getSize() const;
 
@@ -44,8 +55,8 @@ namespace tl
         protected:
             int _deviceIndex = 0;
             int _displayModeIndex = 0;
-            imaging::Size _size;
             PixelType _pixelType = PixelType::None;
+            imaging::Size _size;
             otime::RationalTime _frameRate;
         };
     }

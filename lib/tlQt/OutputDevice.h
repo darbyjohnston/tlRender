@@ -34,11 +34,30 @@ namespace tl
 
             ~OutputDevice();
 
-            //! Set the device.
+            //! Get the output device index. A value of -1 is returned if there
+            //! is no output device.
+            int getDeviceIndex() const;
+
+            //! Get the output device display mode index. A value of -1 is
+            //! returned if there is no display mode.
+            int getDisplayModeIndex() const;
+
+            //! Get the output device pixel type.
+            device::PixelType getPixelType() const;
+
+            //! Get the output device size.
+            const imaging::Size& getSize() const;
+
+            //! Get the output device frame rate.
+            const otime::RationalTime& getFrameRate() const;
+
+            //! Set the output device. If deviceIndex or displayModeIndex
+            //! is set to -1, or pixelType is set to None, the output device
+            //! is disabled.
             void setDevice(
                 int deviceIndex,
                 int displayModeIndex,
-                device::PixelType);
+                device::PixelType pixelType);
 
             //! Set the color configuration options.
             void setColorConfigOptions(const timeline::ColorConfigOptions&);

@@ -57,6 +57,8 @@ namespace tl
             float viewZoom = 1.F;
             bool frameView = true;
             std::vector<timeline::VideoData> videoData;
+            imaging::Size deviceSize;
+            otime::RationalTime deviceFrameRate = time::invalidTime;
             std::chrono::milliseconds timeout = std::chrono::milliseconds(5);
             QScopedPointer<QOffscreenSurface> offscreenSurface;
             QScopedPointer<QOpenGLContext> glContext;
@@ -99,6 +101,35 @@ namespace tl
             TLRENDER_P();
             p.running = false;
             wait();
+        }
+
+        int OutputDevice::getDeviceIndex() const
+        {
+            return _p->deviceIndex;
+        }
+
+        int OutputDevice::getDisplayModeIndex() const
+        {
+            return _p->displayModeIndex;
+        }
+
+        device::PixelType OutputDevice::getPixelType() const
+        {
+            return _p->pixelType;
+        }
+
+        const imaging::Size& OutputDevice::getSize() const
+        {
+            TLRENDER_P();
+            std::unique_lock<std::mutex> lock(p.mutex);
+            return p.deviceSize;
+        }
+
+        const otime::RationalTime& OutputDevice::getFrameRate() const
+        {
+            TLRENDER_P();
+            std::unique_lock<std::mutex> lock(p.mutex);
+            return p.deviceFrameRate;
         }
 
         void OutputDevice::setDevice(
@@ -441,6 +472,8 @@ namespace tl
                     offscreenBuffer2.reset();
                     offscreenBuffer.reset();
                     device.reset();
+                    imaging::Size deviceSize;
+                    otime::RationalTime deviceFrameRate = time::invalidTime;
                     if (deviceIndex != -1 && displayModeIndex != -1 && pixelType != device::PixelType::None)
                     {
                         if (auto deviceSystem = p.deviceSystem.lock())
@@ -448,6 +481,8 @@ namespace tl
                             try
                             {
                                 device = deviceSystem->createDevice(deviceIndex, displayModeIndex, pixelType);
+                                deviceSize = device->getSize();
+                                deviceFrameRate = device->getFrameRate();
                             }
                             catch (const std::exception& e)
                             {
@@ -457,6 +492,11 @@ namespace tl
                                 }
                             }
                         }
+                    }
+                    {
+                        std::unique_lock<std::mutex> lock(p.mutex);
+                        p.deviceSize = deviceSize;
+                        p.deviceFrameRate = deviceFrameRate;
                     }
 
                     vao.reset();

@@ -25,6 +25,21 @@ namespace tl
         IOutputDevice::~IOutputDevice()
         {}
 
+        int IOutputDevice::getDeviceIndex() const
+        {
+            return _deviceIndex;
+        }
+
+        int IOutputDevice::getDisplayModeIndex() const
+        {
+            return _displayModeIndex;
+        }
+
+        PixelType IOutputDevice::getPixelType() const
+        {
+            return _pixelType;
+        }
+
         const imaging::Size& IOutputDevice::getSize() const
         {
             return _size;
