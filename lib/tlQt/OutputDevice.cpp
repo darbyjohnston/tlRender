@@ -232,13 +232,14 @@ namespace tl
         void OutputDevice::setOverlay(const QImage& qImage)
         {
             TLRENDER_P();
+            std::shared_ptr<imaging::Image> image;
             if (QImage::Format_RGBA8888 == qImage.format())
             {
                 const imaging::Info info(
                     qImage.width(),
                     qImage.height(),
                     imaging::PixelType::RGBA_U8);
-                auto image = imaging::Image::create(info);
+                image = imaging::Image::create(info);
                 const size_t scanlineSize = info.size.w * 4;
                 for (size_t y = 0; y < info.size.h; ++y)
                 {
@@ -247,12 +248,12 @@ namespace tl
                         qImage.scanLine(info.size.h - 1 - y),
                         scanlineSize);
                 }
-                {
-                    std::unique_lock<std::mutex> lock(p.mutex);
-                    p.overlay = image;
-                }
-                p.cv.notify_one();
             }
+            {
+                std::unique_lock<std::mutex> lock(p.mutex);
+                p.overlay = image;
+            }
+            p.cv.notify_one();
         }
 
         void OutputDevice::setView(
@@ -681,6 +682,10 @@ namespace tl
                             if (overlay && overlayTexture && doOverlay)
                             {
                                 overlayTexture->copy(*overlay);
+                            }
+                            if (!overlay && overlayTexture)
+                            {
+                                overlayTexture.reset();
                             }
                             if (overlay && overlayTexture)
                             {
