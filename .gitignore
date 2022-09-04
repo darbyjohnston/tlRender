@@ -3,6 +3,7 @@ Debug
 Release
 RelWithDebInfo
 doc/doxygen
+examples/mrv2
 *~
 .git
 .vscode
