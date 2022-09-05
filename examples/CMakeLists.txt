@@ -1,6 +1,5 @@
 add_subdirectory(test-patterns)
 if(TLRENDER_BUILD_GL)
-  add_subdirectory(play-fltk)
   add_subdirectory(play-glfw)
 endif()
 if(TLRENDER_BUILD_QT6 OR TLRENDER_BUILD_QT5)
