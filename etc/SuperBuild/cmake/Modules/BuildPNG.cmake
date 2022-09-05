@@ -28,7 +28,7 @@ ExternalProject_Add(
     GIT_REPOSITORY ${PNG_GIT_REPOSITORY}
     GIT_TAG ${PNG_GIT_TAG}
     PATCH_COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_SOURCE_DIR}/PNG-patch/CMakeLists.txt
-        ${CMAKE_CURRENT_BINARY_DIR}/PNG/src/PNG/CMakeLists.txt
+	${CMAKE_CURRENT_SOURCE_DIR}/PNG-patch/CMakeLists.txt
+	${CMAKE_CURRENT_BINARY_DIR}/PNG/src/PNG/CMakeLists.txt
     LIST_SEPARATOR |
     CMAKE_ARGS ${PNG_ARGS})
