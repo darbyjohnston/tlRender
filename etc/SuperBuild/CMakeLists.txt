@@ -89,7 +89,7 @@ if(TLRENDER_BUILD_TIFF)
 endif()
 if(TLRENDER_BUILD_GL)
     if(TLRENDER_BUILD_PROGRAMS OR TLRENDER_BUILD_EXAMPLES)
-        list(APPEND TLRENDER_EXTERNAL_DEPS GLFW)
+	list(APPEND TLRENDER_EXTERNAL_DEPS GLFW)
     endif()
 endif()
 foreach(EXTERNAL_DEP ${TLRENDER_EXTERNAL_DEPS})
@@ -97,7 +97,10 @@ foreach(EXTERNAL_DEP ${TLRENDER_EXTERNAL_DEPS})
 endforeach()
 
 # Build tests.
-include(Buildtests)
+
+if (TLRENDER_BUILD_TESTS)
+  include(Buildtests)
+endif()
 
 # Build tlRender.
 include(BuildtlRender)
