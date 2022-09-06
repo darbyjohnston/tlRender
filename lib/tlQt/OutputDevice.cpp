@@ -705,11 +705,11 @@ namespace tl
                                 geom::TriangleMesh3 mesh;
                                 mesh.v.push_back(math::Vector3f(0.F, 0.F, 0.F));
                                 mesh.t.push_back(math::Vector2f(0.F, 0.F));
-                                mesh.v.push_back(math::Vector3f(overlay->getWidth(), 0.F, 0.F));
+                                mesh.v.push_back(math::Vector3f(viewportSize.w, 0.F, 0.F));
                                 mesh.t.push_back(math::Vector2f(1.F, 0.F));
-                                mesh.v.push_back(math::Vector3f(overlay->getWidth(), overlay->getHeight(), 0.F));
+                                mesh.v.push_back(math::Vector3f(viewportSize.w, viewportSize.h, 0.F));
                                 mesh.t.push_back(math::Vector2f(1.F, 1.F));
-                                mesh.v.push_back(math::Vector3f(0.F, overlay->getHeight(), 0.F));
+                                mesh.v.push_back(math::Vector3f(0.F, viewportSize.w, 0.F));
                                 mesh.t.push_back(math::Vector2f(0.F, 1.F));
                                 mesh.triangles.push_back(geom::Triangle3({
                                     geom::Vertex3({ 1, 1, 0 }),
