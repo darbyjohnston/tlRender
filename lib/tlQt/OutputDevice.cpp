@@ -44,7 +44,7 @@ namespace tl
             imaging::HDRData hdrData;
 
             //! \todo Temporary
-            std::shared_ptr<imaging::Image> overlay;
+            std::shared_ptr<QImage> overlay;
 
             timeline::ColorConfigOptions colorConfigOptions;
             timeline::LUTOptions lutOptions;
@@ -232,26 +232,21 @@ namespace tl
         void OutputDevice::setOverlay(const QImage& qImage)
         {
             TLRENDER_P();
-            std::shared_ptr<imaging::Image> image;
-            if (QImage::Format_RGBA8888 == qImage.format())
+            std::shared_ptr<QImage> tmp;
+            switch (qImage.format())
             {
-                const imaging::Info info(
+            case QImage::Format_RGBA8888:
+            case QImage::Format_ARGB4444_Premultiplied:
+                tmp = std::shared_ptr<QImage>(new QImage(
+                    qImage.bits(),
                     qImage.width(),
                     qImage.height(),
-                    imaging::PixelType::RGBA_U8);
-                image = imaging::Image::create(info);
-                const size_t scanlineSize = info.size.w * 4;
-                for (size_t y = 0; y < info.size.h; ++y)
-                {
-                    memcpy(
-                        image->getData() + y * scanlineSize,
-                        qImage.scanLine(info.size.h - 1 - y),
-                        scanlineSize);
-                }
+                    qImage.format()));
+                break;
             }
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
-                p.overlay = image;
+                p.overlay = tmp;
             }
             p.cv.notify_one();
         }
@@ -342,6 +337,100 @@ namespace tl
                 };
                 return data[static_cast<size_t>(value)];
             }
+
+            class OverlayTexture
+            {
+                OverlayTexture(const QSize&, QImage::Format);
+
+            public:
+                ~OverlayTexture();
+
+                static std::shared_ptr<OverlayTexture> create(const QSize&, QImage::Format);
+
+                const QSize& getSize() const { return _size; }
+                QImage::Format getFormat() const { return _format; }
+                GLuint getID() const { return _id; }
+
+                void copy(const QImage&);
+
+            private:
+                QSize _size;
+                QImage::Format _format = QImage::Format::Format_Invalid;
+                GLenum _textureFormat = GL_NONE;
+                GLenum _textureType = GL_NONE;
+                GLuint _id = 0;
+            };
+
+            OverlayTexture::OverlayTexture(const QSize& size, QImage::Format format) :
+                _size(size),
+                _format(format)
+            {
+                switch (format)
+                {
+                case QImage::Format_RGBA8888:
+                    _textureFormat = GL_RGBA;
+                    _textureType = GL_UNSIGNED_BYTE;
+                    break;
+                case QImage::Format_ARGB4444_Premultiplied:
+                    _textureFormat = GL_BGRA;
+                    _textureType = GL_UNSIGNED_SHORT_4_4_4_4_REV;
+                    break;
+                default: break;
+                }
+                if (_textureFormat != GL_NONE && _textureType != GL_NONE)
+                {
+                    glGenTextures(1, &_id);
+                    glBindTexture(GL_TEXTURE_2D, _id);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                    glTexImage2D(
+                        GL_TEXTURE_2D,
+                        0,
+                        GL_RGBA8,
+                        _size.width(),
+                        _size.height(),
+                        0,
+                        _textureFormat,
+                        _textureType,
+                        NULL);
+                }
+            }
+
+            OverlayTexture::~OverlayTexture()
+            {
+                if (_id)
+                {
+                    glDeleteTextures(1, &_id);
+                    _id = 0;
+                }
+            }
+
+            std::shared_ptr<OverlayTexture> OverlayTexture::create(const QSize& size, QImage::Format format)
+            {
+                return std::shared_ptr<OverlayTexture>(new OverlayTexture(size, format));
+            }
+
+            void OverlayTexture::copy(const QImage& value)
+            {
+                if (value.size() == _size && value.format() == _format)
+                {
+                    glBindTexture(GL_TEXTURE_2D, _id);
+                    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+                    glPixelStorei(GL_UNPACK_SWAP_BYTES, 0);
+                    glTexSubImage2D(
+                        GL_TEXTURE_2D,
+                        0,
+                        0,
+                        0,
+                        _size.width(),
+                        _size.height(),
+                        _textureFormat,
+                        _textureType,
+                        value.bits());
+                }
+            }
         }
 
         void OutputDevice::run()
@@ -383,8 +472,8 @@ namespace tl
             std::array<otime::RationalTime, 1> pboTime;
             size_t pboIndex = 0;
 
-            std::shared_ptr<imaging::Image> overlay;
-            std::shared_ptr<gl::Texture> overlayTexture;
+            std::shared_ptr<QImage> overlay;
+            std::shared_ptr<OverlayTexture> overlayTexture;
             std::shared_ptr<gl::VBO> overlayVbo;
             std::shared_ptr<gl::VAO> overlayVao;
 
@@ -589,11 +678,17 @@ namespace tl
                                 "in vec2 fTexture;\n"
                                 "out vec4 fColor;\n"
                                 "\n"
+                                "uniform int       mirrorY;\n"
                                 "uniform sampler2D textureSampler;\n"
                                 "\n"
                                 "void main()\n"
                                 "{\n"
-                                "    fColor = texture(textureSampler, fTexture);\n"
+                                "    vec2 t = fTexture;\n"
+                                "    if (1 == mirrorY)\n"
+                                "    {\n"
+                                "        t.y = 1.0 - t.y;\n"
+                                "    }\n"
+                                "    fColor = texture(textureSampler, t);\n"
                                 "}\n";
                             shader = gl::Shader::create(vertexSource, fragmentSource);
                         }
@@ -629,6 +724,7 @@ namespace tl
                                     vpm[1][0], vpm[1][1], vpm[1][2], vpm[1][3],
                                     vpm[2][0], vpm[2][1], vpm[2][2], vpm[2][3],
                                     vpm[3][0], vpm[3][1], vpm[3][2], vpm[3][3]));
+                            shader->setUniform("mirrorY", false);
                             glActiveTexture(GL_TEXTURE0);
                             glBindTexture(GL_TEXTURE_2D, offscreenBuffer->getColorID());
 
@@ -675,9 +771,11 @@ namespace tl
                             }
 
                             if ((overlay && !overlayTexture) ||
-                                (overlay && overlayTexture && overlay->getInfo() != overlayTexture->getInfo()))
+                                (overlay && overlayTexture &&
+                                    (overlay->size() != overlayTexture->getSize() ||
+                                        overlay->format() != overlayTexture->getFormat())))
                             {
-                                overlayTexture = gl::Texture::create(overlay->getInfo());
+                                overlayTexture = OverlayTexture::create(overlay->size(), overlay->format());
                             }
                             if (overlay && overlayTexture && doOverlay)
                             {
@@ -699,6 +797,7 @@ namespace tl
                                         vpm[1][0], vpm[1][1], vpm[1][2], vpm[1][3],
                                         vpm[2][0], vpm[2][1], vpm[2][2], vpm[2][3],
                                         vpm[3][0], vpm[3][1], vpm[3][2], vpm[3][3]));
+                                shader->setUniform("mirrorY", true);
 
                                 glBindTexture(GL_TEXTURE_2D, overlayTexture->getID());
 
