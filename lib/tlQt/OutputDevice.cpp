@@ -787,7 +787,16 @@ namespace tl
                             }
                             if (overlay && overlayTexture)
                             {
-                                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                                switch (overlay->format())
+                                {
+                                case QImage::Format_RGBA8888:
+                                    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+                                    break;
+                                case QImage::Format_ARGB4444_Premultiplied:
+                                    glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+                                    break;
+                                default: break;
+                                }
 
                                 vpm = pm;
                                 shader->setUniform(
