@@ -793,7 +793,7 @@ namespace tl
                                     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
                                     break;
                                 case QImage::Format_ARGB4444_Premultiplied:
-                                    glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ONE);
+                                    glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
                                     break;
                                 default: break;
                                 }
