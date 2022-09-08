@@ -44,13 +44,23 @@ namespace tl
 
         //! Convert a triangle mesh to vertex buffer data.
         std::vector<uint8_t> convert(
-            const geom::TriangleMesh3& mesh,
+            const geom::TriangleMesh2& mesh,
             gl::VBOType                type,
             const math::SizeTRange&    range);
 
         //! Convert a triangle mesh to vertex buffer data.
         std::vector<uint8_t> convert(
             const geom::TriangleMesh2& mesh,
+            gl::VBOType                type);
+
+        //! Convert a triangle mesh to vertex buffer data.
+        std::vector<uint8_t> convert(
+            const geom::TriangleMesh3& mesh,
+            gl::VBOType                type);
+
+        //! Convert a triangle mesh to vertex buffer data.
+        std::vector<uint8_t> convert(
+            const geom::TriangleMesh3& mesh,
             gl::VBOType                type,
             const math::SizeTRange&    range);
 
@@ -83,7 +93,6 @@ namespace tl
             ///@{
 
             void copy(const std::vector<uint8_t>&);
-            void copy(const std::vector<uint8_t>&, std::size_t offset);
             void copy(const std::vector<uint8_t>&, std::size_t offset, std::size_t size);
 
             ///@}

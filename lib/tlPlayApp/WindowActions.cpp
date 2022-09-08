@@ -19,7 +19,7 @@ namespace tl
             App* app = nullptr;
 
             QMap<QString, QAction*> actions;
-            QActionGroup* resizeActionGroup = nullptr;
+            QMap<QString, QActionGroup*> actionGroups;
 
             QMenu* menu = nullptr;
         };
@@ -32,10 +32,12 @@ namespace tl
 
             p.app = app;
 
-            std::vector<imaging::Size> sizes;
-            sizes.push_back(imaging::Size(1280, 720));
-            sizes.push_back(imaging::Size(1280, 720));
-            sizes.push_back(imaging::Size(1920, 1080));
+            const std::vector<imaging::Size> sizes =
+            {
+                imaging::Size(1280, 720),
+                imaging::Size(1280, 720),
+                imaging::Size(1920, 1080)
+            };
             for (const auto& i : sizes)
             {
                 const QString key = QString("Resize/%1x%2").arg(i.w).arg(i.h);
@@ -43,11 +45,11 @@ namespace tl
                 p.actions[key]->setData(QVariant::fromValue<imaging::Size>(i));
                 p.actions[key]->setText(QString("%1x%2").arg(i.w).arg(i.h));
             }
-            p.resizeActionGroup = new QActionGroup(this);
+            p.actionGroups["Resize"] = new QActionGroup(this);
             for (auto i : sizes)
             {
                 const QString key = QString("Resize/%1x%2").arg(i.w).arg(i.h);
-                p.resizeActionGroup->addAction(p.actions[key]);
+                p.actionGroups["Resize"]->addAction(p.actions[key]);
             }
 
             p.actions["FullScreen"] = new QAction(this);
@@ -55,15 +57,18 @@ namespace tl
             p.actions["FullScreen"]->setIcon(QIcon(":/Icons/WindowFullScreen.svg"));
             p.actions["FullScreen"]->setShortcut(QKeySequence(Qt::Key_U));
             p.actions["FullScreen"]->setToolTip(tr("Toggle full screen"));
+
             p.actions["FloatOnTop"] = new QAction(this);
             p.actions["FloatOnTop"]->setCheckable(true);
             p.actions["FloatOnTop"]->setText(tr("Float On Top"));
+
             p.actions["Secondary"] = new QAction(this);
             p.actions["Secondary"]->setCheckable(true);
             p.actions["Secondary"]->setText(tr("Secondary"));
             p.actions["Secondary"]->setIcon(QIcon(":/Icons/WindowSecondary.svg"));
             p.actions["Secondary"]->setShortcut(QKeySequence(Qt::Key_Y));
             p.actions["Secondary"]->setToolTip(tr("Toggle secondary window"));
+
             p.actions["SecondaryFloatOnTop"] = new QAction(this);
             p.actions["SecondaryFloatOnTop"]->setCheckable(true);
             p.actions["SecondaryFloatOnTop"]->setText(tr("Secondary Float On Top"));
@@ -86,7 +91,7 @@ namespace tl
             _actionsUpdate();
 
             connect(
-                _p->resizeActionGroup,
+                _p->actionGroups["Resize"],
                 &QActionGroup::triggered,
                 [this](QAction* action)
                 {

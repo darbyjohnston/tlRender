@@ -10,17 +10,6 @@ namespace tl
 {
     namespace gl
     {
-        std::string colorFunctionName() { return "OCIODisplay"; }
-
-        std::string colorFunctionNoOp()
-        {
-            return
-                "vec4 OCIODisplay(vec4 inPixel)\n"
-                "{\n"
-                "    return inPixel;\n"
-                "}\n";
-        }
-
         std::string vertexSource()
         {
             return
@@ -220,8 +209,8 @@ namespace tl
                 "uniform int       videoLevels;\n"
                 "uniform vec4      yuvCoefficients;\n"
                 "uniform int       imageChannels;\n"
-                "uniform int       flipX;\n"
-                "uniform int       flipY;\n"
+                "uniform int       mirrorX;\n"
+                "uniform int       mirrorY;\n"
                 "uniform sampler2D textureSampler0;\n"
                 "uniform sampler2D textureSampler1;\n"
                 "uniform sampler2D textureSampler2;\n"
@@ -229,11 +218,11 @@ namespace tl
                 "void main()\n"
                 "{\n"
                 "    vec2 t = fTexture;\n"
-                "    if (1 == flipX)\n"
+                "    if (1 == mirrorX)\n"
                 "    {\n"
                 "        t.x = 1.0 - t.x;\n"
                 "    }\n"
-                "    if (1 == flipY)\n"
+                "    if (1 == mirrorY)\n"
                 "    {\n"
                 "        t.y = 1.0 - t.y;\n"
                 "    }\n"
@@ -253,8 +242,30 @@ namespace tl
                 arg(sampleTexture);
         }
 
-        std::string displayFragmentSource()
+        std::string displayFragmentSource(
+            const std::string& colorConfigDef,
+            const std::string& colorConfig,
+            const std::string& lutDef,
+            const std::string& lut,
+            timeline::LUTOrder lutOrder)
         {
+            std::vector<std::string> args;
+            args.push_back(videoLevels);
+            args.push_back(colorConfigDef);
+            args.push_back(lutDef);
+            switch (lutOrder)
+            {
+            case timeline::LUTOrder::PreColorConfig:
+                args.push_back(lut);
+                args.push_back(colorConfig);
+                break;
+            case timeline::LUTOrder::PostColorConfig:
+                args.push_back(colorConfig);
+                args.push_back(lut);
+                break;
+            default: break;
+            }
+            const bool swap = timeline::LUTOrder::PreColorConfig == lutOrder;
             return string::Format(
                 "#version 410\n"
                 "\n"
@@ -368,7 +379,9 @@ namespace tl
                 "    return value;\n"
                 "}\n"
                 "\n"
-                "// $color"
+                "{1}\n"
+                "\n"
+                "{2}\n"
                 "\n"
                 "void main()\n"
                 "{\n"
@@ -383,6 +396,10 @@ namespace tl
                 "    }\n"
                 "\n"
                 "    fColor = texture(textureSampler, t);\n"
+                "\n"
+                "    // Apply color management.\n"
+                "    {3}\n"
+                "    {4}\n"
                 "\n"
                 "    // Apply color transformations.\n"
                 "    if (colorEnabled)\n"
@@ -407,9 +424,6 @@ namespace tl
                 "    {\n"
                 "        fColor = softClipFunc(fColor, softClip);\n"
                 "    }\n"
-                "\n"
-                "    // Apply color management.\n"
-                "    fColor = OCIODisplay(fColor);\n"
                 "\n"
                 "    // Swizzle for the channels display.\n"
                 "    if (Channels_Red == channels)\n"
@@ -445,7 +459,11 @@ namespace tl
                 "        fColor.a = fColor.a * scale + offset;\n"
                 "    }\n"
                 "}\n").
-                arg(videoLevels);
+                arg(args[0]).
+                arg(args[1]).
+                arg(args[2]).
+                arg(args[3]).
+                arg(args[4]);
         }
 
         std::string dissolveFragmentSource()
@@ -468,8 +486,8 @@ namespace tl
                 "uniform int       videoLevels;\n"
                 "uniform vec4      yuvCoefficients;\n"
                 "uniform int       imageChannels;\n"
-                "uniform int       flipX;\n"
-                "uniform int       flipY;\n"
+                "uniform int       mirrorX;\n"
+                "uniform int       mirrorY;\n"
                 "uniform vec2      textureRangeU;\n"
                 "uniform vec2      textureRangeV;\n"
                 "uniform sampler2D textureSampler0;\n"
@@ -480,8 +498,8 @@ namespace tl
                 "uniform int       videoLevelsB;\n"
                 "uniform vec4      yuvCoefficientsB;\n"
                 "uniform int       imageChannelsB;\n"
-                "uniform int       flipBX;\n"
-                "uniform int       flipBY;\n"
+                "uniform int       mirrorBX;\n"
+                "uniform int       mirrorBY;\n"
                 "uniform vec2      textureRangeBU;\n"
                 "uniform vec2      textureRangeBV;\n"
                 "uniform sampler2D textureSamplerB0;\n"
@@ -499,11 +517,11 @@ namespace tl
                 "        vec2 t = vec2(\n"
                 "            (fTexture.x - textureRangeU.x) / (textureRangeU.y - textureRangeU.x),\n"
                 "            (fTexture.y - textureRangeV.x) / (textureRangeV.y - textureRangeV.x));\n"
-                "        if (1 == flipX)\n"
+                "        if (1 == mirrorX)\n"
                 "        {\n"
                 "            t.x = 1.0 - t.x;\n"
                 "        }\n"
-                "        if (1 == flipY)\n"
+                "        if (1 == mirrorY)\n"
                 "        {\n"
                 "            t.y = 1.0 - t.y;\n"
                 "        }\n"
@@ -526,11 +544,11 @@ namespace tl
                 "        vec2 t = vec2(\n"
                 "            (fTexture.x - textureRangeBU.x) / (textureRangeBU.y - textureRangeBU.x),\n"
                 "            (fTexture.y - textureRangeBV.x) / (textureRangeBV.y - textureRangeBV.x));\n"
-                "        if (1 == flipBX)\n"
+                "        if (1 == mirrorBX)\n"
                 "        {\n"
                 "            t.x = 1.0 - t.x;\n"
                 "        }\n"
-                "        if (1 == flipBY)\n"
+                "        if (1 == mirrorBY)\n"
                 "        {\n"
                 "            t.y = 1.0 - t.y;\n"
                 "        }\n"

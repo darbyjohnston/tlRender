@@ -10,6 +10,74 @@ namespace tl
 {
     namespace geom
     {
+        TriangleMesh2 bbox(const math::BBox2i& bbox, bool flipV)
+        {
+            TriangleMesh2 out;
+
+            const auto& min = bbox.min;
+            const auto& max = bbox.max;
+            out.v.push_back(math::Vector2f(min.x, min.y));
+            out.v.push_back(math::Vector2f(max.x + 1, min.y));
+            out.v.push_back(math::Vector2f(max.x + 1, max.y + 1));
+            out.v.push_back(math::Vector2f(min.x, max.y + 1));
+            out.t.push_back(math::Vector2f(0.F, flipV ? 1.F : 0.F));
+            out.t.push_back(math::Vector2f(1.F, flipV ? 1.F : 0.F));
+            out.t.push_back(math::Vector2f(1.F, flipV ? 0.F : 1.F));
+            out.t.push_back(math::Vector2f(0.F, flipV ? 0.F : 1.F));
+
+            Triangle2 triangle;
+            triangle.v[0].v = 1;
+            triangle.v[1].v = 2;
+            triangle.v[2].v = 3;
+            triangle.v[0].t = 1;
+            triangle.v[1].t = 2;
+            triangle.v[2].t = 3;
+            out.triangles.push_back(triangle);
+            triangle.v[0].v = 3;
+            triangle.v[1].v = 4;
+            triangle.v[2].v = 1;
+            triangle.v[0].t = 3;
+            triangle.v[1].t = 4;
+            triangle.v[2].t = 1;
+            out.triangles.push_back(triangle);
+
+            return out;
+        }
+
+        TriangleMesh2 bbox(const math::BBox2f& bbox, bool flipV)
+        {
+            TriangleMesh2 out;
+
+            const auto& min = bbox.min;
+            const auto& max = bbox.max;
+            out.v.push_back(math::Vector2f(min.x, min.y));
+            out.v.push_back(math::Vector2f(max.x, min.y));
+            out.v.push_back(math::Vector2f(max.x, max.y));
+            out.v.push_back(math::Vector2f(min.x, max.y));
+            out.t.push_back(math::Vector2f(0.F, flipV ? 1.F : 0.F));
+            out.t.push_back(math::Vector2f(1.F, flipV ? 1.F : 0.F));
+            out.t.push_back(math::Vector2f(1.F, flipV ? 0.F : 1.F));
+            out.t.push_back(math::Vector2f(0.F, flipV ? 0.F : 1.F));
+
+            Triangle2 triangle;
+            triangle.v[0].v = 1;
+            triangle.v[1].v = 2;
+            triangle.v[2].v = 3;
+            triangle.v[0].t = 1;
+            triangle.v[1].t = 2;
+            triangle.v[2].t = 3;
+            out.triangles.push_back(triangle);
+            triangle.v[0].v = 3;
+            triangle.v[1].v = 4;
+            triangle.v[2].v = 1;
+            triangle.v[0].t = 3;
+            triangle.v[1].t = 4;
+            triangle.v[2].t = 1;
+            out.triangles.push_back(triangle);
+
+            return out;
+        }
+
         TriangleMesh3 createSphere(
             float radius,
             size_t xResolution,

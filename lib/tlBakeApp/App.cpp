@@ -75,14 +75,10 @@ namespace tl
                         "The output file.")
                 },
         {
-            app::CmdLineValueOption<int64_t>::create(
-                _options.startFrame,
-                { "-startFrame", "-sf" },
-                "Start frame."),
-            app::CmdLineValueOption<int64_t>::create(
-                _options.endFrame,
-                { "-endFrame", "-ef" },
-                "End frame."),
+            app::CmdLineValueOption<otime::TimeRange>::create(
+                _options.inOutRange,
+                { "-inOutRange" },
+                "Set the in/out points range."),
             app::CmdLineValueOption<imaging::Size>::create(
                 _options.renderSize,
                 { "-renderSize", "-rs" },
@@ -94,21 +90,31 @@ namespace tl
                 std::string(),
                 string::join(imaging::getPixelTypeLabels(), ", ")),
             app::CmdLineValueOption<std::string>::create(
-                _options.colorConfig.fileName,
+                _options.colorConfigOptions.fileName,
                 { "-colorConfig", "-cc" },
                 "Color configuration file name (e.g., config.ocio)."),
             app::CmdLineValueOption<std::string>::create(
-                _options.colorConfig.input,
+                _options.colorConfigOptions.input,
                 { "-colorInput", "-ci" },
                 "Input color space."),
             app::CmdLineValueOption<std::string>::create(
-                _options.colorConfig.display,
+                _options.colorConfigOptions.display,
                 { "-colorDisplay", "-cd" },
                 "Display color space."),
             app::CmdLineValueOption<std::string>::create(
-                _options.colorConfig.view,
+                _options.colorConfigOptions.view,
                 { "-colorView", "-cv" },
-                "View color space.")
+                "View color space."),
+            app::CmdLineValueOption<std::string>::create(
+                _options.lutOptions.fileName,
+                { "-lut" },
+                "LUT file name."),
+            app::CmdLineValueOption<timeline::LUTOrder>::create(
+                _options.lutOptions.order,
+                { "-lutOrder" },
+                "LUT operation order.",
+                string::Format("{0}").arg(_options.lutOptions.order),
+                string::join(timeline::getLUTOrderLabels(), ", "))
         });
         }
 
@@ -152,12 +158,11 @@ namespace tl
             _print(string::Format("Timeline speed: {0}").arg(_duration.rate()));
 
             // Time range.
-            auto startTime = _options.startFrame >= 0 ?
-                otime::RationalTime(_options.startFrame, _duration.rate()) :
-                otime::RationalTime(0, _duration.rate());
-            _range = _options.endFrame >= 0 ?
-                otime::TimeRange::range_from_start_end_time_inclusive(startTime, otime::RationalTime(_options.endFrame, _duration.rate())) :
-                otime::TimeRange::range_from_start_end_time(startTime, startTime + _duration);
+            _range = _options.inOutRange != time::invalidTimeRange ?
+                _options.inOutRange :
+                otime::TimeRange::range_from_start_end_time(
+                    otime::RationalTime(0, _duration.rate()), 
+                    _duration);
             _currentTime = _range.start_time();
             _print(string::Format("Frame range: {0}-{1}").arg(_range.start_time().value()).arg(_range.end_time_inclusive().value()));
 
@@ -286,7 +291,8 @@ namespace tl
                 otime::RationalTime(1.0, _currentTime.rate())) });
 
             // Render the video.
-            _render->setColorConfig(_options.colorConfig);
+            _render->setColorConfig(_options.colorConfigOptions);
+            _render->setLUT(_options.lutOptions);
             _render->begin(_renderSize);
             const auto videoData = _timeline->getVideo(_timeline->getGlobalStartTime() + _currentTime).get();
             _render->drawVideo({ videoData }, { math::BBox2i(0, 0, _renderSize.w, _renderSize.h ) });

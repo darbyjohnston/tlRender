@@ -187,6 +187,16 @@ namespace tl
             return _info;
         }
 
+        const imaging::Size& Texture::getSize() const
+        {
+            return _info.size;
+        }
+
+        imaging::PixelType Texture::getPixelType() const
+        {
+            return _info.pixelType;
+        }
+
         GLuint Texture::getID() const
         {
             return _id;

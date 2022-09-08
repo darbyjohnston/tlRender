@@ -4,6 +4,9 @@
 
 #pragma once
 
+#include <tlTimeline/ColorConfigOptions.h>
+#include <tlTimeline/CompareOptions.h>
+#include <tlTimeline/LUTOptions.h>
 #include <tlTimeline/Video.h>
 
 #include <tlCore/Context.h>
@@ -12,14 +15,6 @@
 
 namespace tl
 {
-    namespace imaging
-    {
-        struct ColorConfig;
-        struct Glyph;
-        class Image;
-        class Size;
-    }
-
     namespace timeline
     {
         //! Base class for renderers.
@@ -27,6 +22,7 @@ namespace tl
         {
         protected:
             void _init(const std::shared_ptr<system::Context>&);
+
             IRender();
 
         public:
@@ -36,9 +32,13 @@ namespace tl
             //! Render::begin().
             virtual void setTextureCacheSize(size_t) = 0;
 
-            //! Set the color configuration. This function should be called before
+            //! Set the color configuration. This function needs to be called before
             //! Render::begin().
-            virtual void setColorConfig(const imaging::ColorConfig&) = 0;
+            virtual void setColorConfig(const ColorConfigOptions&) = 0;
+
+            //! Set the LUT. This function needs to be called before
+            //! Render::begin().
+            virtual void setLUT(const LUTOptions&) = 0;
 
             //! Start a render.
             virtual void begin(const imaging::Size&) = 0;

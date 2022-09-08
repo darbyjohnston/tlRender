@@ -29,11 +29,19 @@ namespace tl
                 setFormat(surfaceFormat);
             }
 
-            void PanoramaTimelineViewport::setColorConfig(const imaging::ColorConfig& colorConfig)
+            void PanoramaTimelineViewport::setColorConfigOptions(const timeline::ColorConfigOptions& colorConfigOptions)
             {
-                if (colorConfig == _colorConfig)
+                if (colorConfigOptions == _colorConfigOptions)
                     return;
-                _colorConfig = colorConfig;
+                _colorConfigOptions = colorConfigOptions;
+                update();
+            }
+
+            void PanoramaTimelineViewport::setLUTOptions(const timeline::LUTOptions& lutOptions)
+            {
+                if (lutOptions == _lutOptions)
+                    return;
+                _lutOptions = lutOptions;
                 update();
             }
 
@@ -162,7 +170,8 @@ namespace tl
                     if (_buffer)
                     {
                         gl::OffscreenBufferBinding binding(_buffer);
-                        _render->setColorConfig(_colorConfig);
+                        _render->setColorConfig(_colorConfigOptions);
+                        _render->setLUT(_lutOptions);
                         _render->begin(_videoSize);
                         _render->drawVideo(
                             { _videoData },

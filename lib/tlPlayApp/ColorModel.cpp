@@ -33,7 +33,7 @@ namespace tl
         {
             std::weak_ptr<system::Context> context;
             OCIO_NAMESPACE::ConstConfigRcPtr ocioConfig;
-            std::shared_ptr<observer::Value<imaging::ColorConfig> > config;
+            std::shared_ptr<observer::Value<timeline::ColorConfigOptions> > configOptions;
             std::shared_ptr<observer::Value<ColorModelData> > data;
         };
 
@@ -43,7 +43,7 @@ namespace tl
 
             p.context = context;
 
-            p.config = observer::Value<imaging::ColorConfig>::create();
+            p.configOptions = observer::Value<timeline::ColorConfigOptions>::create();
             p.data = observer::Value<ColorModelData>::create();
 
             std::string env;
@@ -55,12 +55,12 @@ namespace tl
                     p.ocioConfig = OCIO::Config::CreateFromEnv();
                     if (p.ocioConfig)
                     {
-                        imaging::ColorConfig config;
-                        config.fileName = env;
+                        timeline::ColorConfigOptions configOptions;
+                        configOptions.fileName = env;
                         const char* display = p.ocioConfig->getDefaultDisplay();
-                        config.display = display;
-                        config.view = p.ocioConfig->getDefaultView(display);
-                        p.config->setIfChanged(config);
+                        configOptions.display = display;
+                        configOptions.view = p.ocioConfig->getDefaultView(display);
+                        p.configOptions->setIfChanged(configOptions);
                         _configUpdate();
                     }
                 }
@@ -88,12 +88,12 @@ namespace tl
             return out;
         }
 
-        std::shared_ptr<observer::IValue<imaging::ColorConfig> > ColorModel::observeConfig() const
+        std::shared_ptr<observer::IValue<timeline::ColorConfigOptions> > ColorModel::observeConfigOptions() const
         {
-            return _p->config;
+            return _p->configOptions;
         }
 
-        void ColorModel::setConfig(const imaging::ColorConfig& value)
+        void ColorModel::setConfigOptions(const timeline::ColorConfigOptions& value)
         {
             TLRENDER_P();
             try
@@ -103,7 +103,7 @@ namespace tl
             }
             catch (const std::exception& e)
             {}
-            p.config->setIfChanged(value);
+            p.configOptions->setIfChanged(value);
             _configUpdate();
         }
 
@@ -117,15 +117,15 @@ namespace tl
             }
             catch (const std::exception&)
             {}
-            imaging::ColorConfig config;
-            config.fileName = fileName;
+            timeline::ColorConfigOptions configOptions;
+            configOptions.fileName = fileName;
             if (p.ocioConfig)
             {
                 const char* display = p.ocioConfig->getDefaultDisplay();
-                config.display = display;
-                config.view = p.ocioConfig->getDefaultView(display);
+                configOptions.display = display;
+                configOptions.view = p.ocioConfig->getDefaultView(display);
             }
-            p.config->setIfChanged(config);
+            p.configOptions->setIfChanged(configOptions);
             _configUpdate();
         }
 
@@ -140,9 +140,9 @@ namespace tl
             const auto& inputs = p.data->get().inputs;
             if (value >= 0 && value < inputs.size())
             {
-                imaging::ColorConfig config = p.config->get();
-                config.input = value > 0 ? inputs[value] : std::string();
-                p.config->setIfChanged(config);
+                timeline::ColorConfigOptions configOptions = p.configOptions->get();
+                configOptions.input = value > 0 ? inputs[value] : std::string();
+                p.configOptions->setIfChanged(configOptions);
                 _configUpdate();
             }
         }
@@ -153,9 +153,9 @@ namespace tl
             const auto& displays = p.data->get().displays;
             if (value >= 0 && value < displays.size())
             {
-                imaging::ColorConfig config = p.config->get();
-                config.display = value > 0 ? displays[value] : std::string();
-                p.config->setIfChanged(config);
+                timeline::ColorConfigOptions configOptions = p.configOptions->get();
+                configOptions.display = value > 0 ? displays[value] : std::string();
+                p.configOptions->setIfChanged(configOptions);
                 _configUpdate();
             }
         }
@@ -166,9 +166,9 @@ namespace tl
             const auto& views = p.data->get().views;
             if (value >= 0 && value < views.size())
             {
-                imaging::ColorConfig config = p.config->get();
-                config.view = value > 0 ? views[value] : std::string();
-                p.config->setIfChanged(config);
+                timeline::ColorConfigOptions configOptions = p.configOptions->get();
+                configOptions.view = value > 0 ? views[value] : std::string();
+                p.configOptions->setIfChanged(configOptions);
                 _configUpdate();
             }
         }
@@ -177,8 +177,8 @@ namespace tl
         {
             TLRENDER_P();
             ColorModelData data;
-            const auto& config = p.config->get();
-            data.fileName = config.fileName;
+            const auto& configOptions = p.configOptions->get();
+            data.fileName = configOptions.fileName;
             if (p.ocioConfig)
             {
                 data.inputs.push_back("None");
@@ -186,7 +186,7 @@ namespace tl
                 {
                     data.inputs.push_back(p.ocioConfig->getColorSpaceNameByIndex(i));
                 }
-                auto j = std::find(data.inputs.begin(), data.inputs.end(), config.input);
+                auto j = std::find(data.inputs.begin(), data.inputs.end(), configOptions.input);
                 if (j != data.inputs.end())
                 {
                     data.inputIndex = j - data.inputs.begin();
@@ -197,19 +197,19 @@ namespace tl
                 {
                     data.displays.push_back(p.ocioConfig->getDisplay(i));
                 }
-                j = std::find(data.displays.begin(), data.displays.end(), config.display);
+                j = std::find(data.displays.begin(), data.displays.end(), configOptions.display);
                 if (j != data.displays.end())
                 {
                     data.displayIndex = j - data.displays.begin();
                 }
 
                 data.views.push_back("None");
-                const std::string display = p.config->get().display;
+                const std::string display = p.configOptions->get().display;
                 for (int i = 0; i < p.ocioConfig->getNumViews(display.c_str()); ++i)
                 {
                     data.views.push_back(p.ocioConfig->getView(display.c_str(), i));
                 }
-                j = std::find(data.views.begin(), data.views.end(), config.view);
+                j = std::find(data.views.begin(), data.views.end(), configOptions.view);
                 if (j != data.views.end())
                 {
                     data.viewIndex = j - data.views.begin();

@@ -33,7 +33,8 @@ namespace tl
                 QString fileName;
                 QList<otime::RationalTime> times;
                 QSize size;
-                imaging::ColorConfig colorConfig;
+                timeline::ColorConfigOptions colorConfigOptions;
+                timeline::LUTOptions lutOptions;
 
                 std::shared_ptr<timeline::Timeline> timeline;
                 std::vector<std::future<timeline::VideoData> > futures;
@@ -101,7 +102,8 @@ namespace tl
             const QString& fileName,
             const otime::RationalTime& time,
             const QSize& size,
-            const imaging::ColorConfig& colorConfig)
+            const timeline::ColorConfigOptions& colorConfigOptions,
+            const timeline::LUTOptions& lutOptions)
         {
             TLRENDER_P();
             qint64 out = 0;
@@ -113,7 +115,8 @@ namespace tl
                 request.fileName = fileName;
                 request.times.push_back(time);
                 request.size = size;
-                request.colorConfig = colorConfig;
+                request.colorConfigOptions = colorConfigOptions;
+                request.lutOptions = lutOptions;
                 p.requests.push_back(std::move(request));
                 out = p.id;
             }
@@ -125,7 +128,8 @@ namespace tl
             const QString& fileName,
             const QList<otime::RationalTime>& times,
             const QSize& size,
-            const imaging::ColorConfig& colorConfig)
+            const timeline::ColorConfigOptions& colorConfigOptions,
+            const timeline::LUTOptions& lutOptions)
         {
             TLRENDER_P();
             qint64 out = 0;
@@ -137,7 +141,8 @@ namespace tl
                 request.fileName = fileName;
                 request.times = times;
                 request.size = size;
-                request.colorConfig = colorConfig;
+                request.colorConfigOptions = colorConfigOptions;
+                request.lutOptions = lutOptions;
                 p.requests.push_back(std::move(request));
                 out = p.id;
             }
@@ -306,7 +311,8 @@ namespace tl
                                         offscreenBuffer = gl::OffscreenBuffer::create(info.size, offscreenBufferOptions);
                                     }
 
-                                    render->setColorConfig(requestIt->colorConfig);
+                                    render->setColorConfig(requestIt->colorConfigOptions);
+                                    render->setLUT(requestIt->lutOptions);
 
                                     gl::OffscreenBufferBinding binding(offscreenBuffer);
 

@@ -50,7 +50,9 @@ namespace tl
                 timeline::Playback playback = timeline::Playback::Stop;
                 timeline::Loop loop = timeline::Loop::Loop;
                 otime::RationalTime seek = time::invalidTime;
-                imaging::ColorConfig colorConfig;
+                otime::TimeRange inOutRange = time::invalidTimeRange;
+                timeline::ColorConfigOptions colorConfigOptions;
+                timeline::LUTOptions lutOptions;
                 bool resetSettings = false;
             };
         }
@@ -68,6 +70,7 @@ namespace tl
             std::vector<std::shared_ptr<FilesModelItem> > active;
             std::shared_ptr<observer::ListObserver<int> > layersObserver;
             std::shared_ptr<ColorModel> colorModel;
+            timeline::LUTOptions lutOptions;
             timeline::ImageOptions imageOptions;
             timeline::DisplayOptions displayOptions;
             qt::OutputDevice* outputDevice = nullptr;
@@ -105,11 +108,11 @@ namespace tl
             app::CmdLineValueOption<std::string>::create(
                 p.options.audioFileName,
                 { "-audio", "-a" },
-                "Audio file."),
+                "Audio file name."),
             app::CmdLineValueOption<std::string>::create(
                 p.options.compareFileName,
                 { "-compare", "-b" },
-                "A/B comparison \"B\" file."),
+                "A/B comparison \"B\" file name."),
             app::CmdLineValueOption<timeline::CompareMode>::create(
                 p.options.compareMode,
                 { "-compareMode", "-c" },
@@ -146,22 +149,36 @@ namespace tl
                 p.options.seek,
                 { "-seek" },
                 "Seek to the given time."),
+            app::CmdLineValueOption<otime::TimeRange>::create(
+                p.options.inOutRange,
+                { "-inOutRange" },
+                "Set the in/out points range."),
             app::CmdLineValueOption<std::string>::create(
-                p.options.colorConfig.fileName,
+                p.options.colorConfigOptions.fileName,
                 { "-colorConfig", "-cc" },
-                "Color configuration file (config.ocio)."),
+                "Color configuration file name (config.ocio)."),
             app::CmdLineValueOption<std::string>::create(
-                p.options.colorConfig.input,
+                p.options.colorConfigOptions.input,
                 { "-colorInput", "-ci" },
                 "Input color space."),
             app::CmdLineValueOption<std::string>::create(
-                p.options.colorConfig.display,
+                p.options.colorConfigOptions.display,
                 { "-colorDisplay", "-cd" },
                 "Display color space."),
             app::CmdLineValueOption<std::string>::create(
-                p.options.colorConfig.view,
+                p.options.colorConfigOptions.view,
                 { "-colorView", "-cv" },
                 "View color space."),
+            app::CmdLineValueOption<std::string>::create(
+                p.options.lutOptions.fileName,
+                { "-lut" },
+                "LUT file name."),
+            app::CmdLineValueOption<timeline::LUTOrder>::create(
+                p.options.lutOptions.order,
+                { "-lutOrder" },
+                "LUT operation order.",
+                string::Format("{0}").arg(p.options.lutOptions.order),
+                string::join(timeline::getLUTOrderLabels(), ", ")),
             app::CmdLineFlagOption::create(
                 p.options.resetSettings,
                 { "-resetSettings" },
@@ -227,10 +244,12 @@ namespace tl
                 });
 
             p.colorModel = ColorModel::create(context);
-            if (!p.options.colorConfig.fileName.empty())
+            if (!p.options.colorConfigOptions.fileName.empty())
             {
-                p.colorModel->setConfig(p.options.colorConfig);
+                p.colorModel->setConfigOptions(p.options.colorConfigOptions);
             }
+
+            p.lutOptions = p.options.lutOptions;
 
             p.outputDevice = new qt::OutputDevice(context);
             p.devicesModel = DevicesModel::create(context);
@@ -290,12 +309,17 @@ namespace tl
                     {
                         p.timelinePlayers[0]->setSpeed(p.options.speed);
                     }
+                    if (p.options.inOutRange != time::invalidTimeRange)
+                    {
+                        p.timelinePlayers[0]->setInOutRange(p.options.inOutRange);
+                        p.timelinePlayers[0]->seek(p.options.inOutRange.start_time());
+                    }
                     if (p.options.seek != time::invalidTime)
                     {
                         p.timelinePlayers[0]->seek(p.options.seek);
                     }
-                    p.timelinePlayers[0]->setPlayback(p.options.playback);
                     p.timelinePlayers[0]->setLoop(p.options.loop);
+                    p.timelinePlayers[0]->setPlayback(p.options.playback);
                 }
             }
 
@@ -312,14 +336,17 @@ namespace tl
             delete p.outputDevice;
             p.outputDevice = nullptr;
 
-            const auto& deviceData = p.devicesModel->observeData()->get();
-            p.settingsObject->setValue("Devices/DeviceIndex", deviceData.deviceIndex);
-            p.settingsObject->setValue("Devices/DisplayModeIndex", deviceData.displayModeIndex);
-            p.settingsObject->setValue("Devices/PixelTypeIndex", deviceData.pixelTypeIndex);
-            p.settingsObject->setValue("Devices/HDRMode", static_cast<int>(deviceData.hdrMode));
-            nlohmann::json json;
-            to_json(json, deviceData.hdrData);
-            p.settingsObject->setValue("Devices/HDRData", QString::fromUtf8(json.dump().c_str()));
+            if (p.settingsObject && p.devicesModel)
+            {
+                const auto& deviceData = p.devicesModel->observeData()->get();
+                p.settingsObject->setValue("Devices/DeviceIndex", deviceData.deviceIndex);
+                p.settingsObject->setValue("Devices/DisplayModeIndex", deviceData.displayModeIndex);
+                p.settingsObject->setValue("Devices/PixelTypeIndex", deviceData.pixelTypeIndex);
+                p.settingsObject->setValue("Devices/HDRMode", static_cast<int>(deviceData.hdrMode));
+                nlohmann::json json;
+                to_json(json, deviceData.hdrData);
+                p.settingsObject->setValue("Devices/HDRData", QString::fromUtf8(json.dump().c_str()));
+            }
 
             //! \bug Why is it necessary to manually delete this to get the settings to save?
             delete p.settingsObject;
@@ -349,6 +376,11 @@ namespace tl
         const std::shared_ptr<ColorModel>& App::colorModel() const
         {
             return _p->colorModel;
+        }
+
+        const timeline::LUTOptions& App::lutOptions() const
+        {
+            return _p->lutOptions;
         }
 
         const timeline::ImageOptions& App::imageOptions() const
@@ -424,6 +456,15 @@ namespace tl
             {
                 open(dialog->videoFileName(), dialog->audioFileName());
             }
+        }
+
+        void App::setLUTOptions(const timeline::LUTOptions& value)
+        {
+            TLRENDER_P();
+            if (value == p.lutOptions)
+                return;
+            p.lutOptions = value;
+            Q_EMIT lutOptionsChanged(p.lutOptions);
         }
 
         void App::setImageOptions(const timeline::ImageOptions& value)

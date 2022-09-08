@@ -51,6 +51,16 @@ namespace tl
 
         std::vector<uint8_t> convert(
             const geom::TriangleMesh2& mesh,
+            gl::VBOType type)
+        {
+            return convert(
+                mesh,
+                type,
+                math::SizeTRange(0, mesh.triangles.size() > 0 ? (mesh.triangles.size() - 1) : 0));
+        }
+
+        std::vector<uint8_t> convert(
+            const geom::TriangleMesh2& mesh,
             gl::VBOType type,
             const math::SizeTRange& range)
         {
@@ -106,6 +116,16 @@ namespace tl
             default: break;
             }
             return out;
+        }
+
+        std::vector<uint8_t> convert(
+            const geom::TriangleMesh3& mesh,
+            gl::VBOType type)
+        {
+            return convert(
+                mesh,
+                type,
+                math::SizeTRange(0, mesh.triangles.size() > 0 ? (mesh.triangles.size() - 1) : 0));
         }
 
         std::vector<uint8_t> convert(
@@ -366,12 +386,6 @@ namespace tl
         {
             glBindBuffer(GL_ARRAY_BUFFER, _vbo);
             glBufferSubData(GL_ARRAY_BUFFER, 0, static_cast<GLsizei>(data.size()), (void*)data.data());
-        }
-
-        void VBO::copy(const std::vector<uint8_t>& data, std::size_t offset)
-        {
-            glBindBuffer(GL_ARRAY_BUFFER, _vbo);
-            glBufferSubData(GL_ARRAY_BUFFER, offset, static_cast<GLsizei>(data.size()), (void*)data.data());
         }
 
         void VBO::copy(const std::vector<uint8_t>& data, std::size_t offset, std::size_t size)

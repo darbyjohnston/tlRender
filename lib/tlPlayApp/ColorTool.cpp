@@ -16,6 +16,7 @@
 #include <QAction>
 #include <QBoxLayout>
 #include <QCheckBox>
+#include <QComboBox>
 #include <QFormLayout>
 #include <QLabel>
 #include <QListView>
@@ -63,7 +64,7 @@ namespace tl
             viewListProxyModel->setFilterKeyColumn(-1);
             viewListProxyModel->setSourceModel(viewListModel);
 
-            p.fileWidget = new qtwidget::FileWidget;
+            p.fileWidget = new qtwidget::FileWidget({ ".ocio" });
 
             auto inputListView = new QListView;
             inputListView->setAlternatingRowColors(true);
@@ -88,6 +89,9 @@ namespace tl
 
             auto viewSearchWidget = new qtwidget::SearchWidget;
             viewSearchWidget->setContentsMargins(2, 2, 2, 2);
+
+            auto formLayout = new QFormLayout;
+            formLayout->addRow(tr("File name:"), p.fileWidget);
 
             auto tabWidget = new QTabWidget;
             auto widget = new QWidget;
@@ -116,7 +120,7 @@ namespace tl
             tabWidget->addTab(widget, tr("View"));
 
             layout = new QVBoxLayout;
-            layout->addWidget(p.fileWidget);
+            layout->addLayout(formLayout);
             layout->addWidget(tabWidget);
             setLayout(layout);
 
@@ -191,6 +195,89 @@ namespace tl
             {
                 QSignalBlocker blocker(p.fileWidget);
                 p.fileWidget->setFile(QString::fromUtf8(p.data.fileName.c_str()));
+            }
+        }
+
+        struct LUTWidget::Private
+        {
+            timeline::LUTOptions lutOptions;
+
+            qtwidget::FileWidget* fileWidget = nullptr;
+            QComboBox* orderComboBox = nullptr;
+        };
+
+        LUTWidget::LUTWidget(QWidget* parent) :
+            QWidget(parent),
+            _p(new Private)
+        {
+            TLRENDER_P();
+
+            QStringList extensions;
+            for (const auto& i : timeline::getLUTFormatExtensions())
+            {
+                extensions.push_back(QString::fromUtf8(i.c_str()));
+            }
+            p.fileWidget = new qtwidget::FileWidget(extensions);
+
+            p.orderComboBox = new QComboBox;
+
+            auto layout = new QFormLayout;
+            layout->addRow(tr("File name:"), p.fileWidget);
+            layout->addRow(tr("Order:"), p.orderComboBox);
+            setLayout(layout);
+
+            _widgetUpdate();
+
+            connect(
+                p.fileWidget,
+                &qtwidget::FileWidget::fileChanged,
+                [this](const QString& value)
+                {
+                    timeline::LUTOptions options = _p->lutOptions;
+                    options.fileName = value.toUtf8().data();
+                    Q_EMIT lutOptionsChanged(options);
+                });
+
+            connect(
+                p.orderComboBox,
+                QOverload<int>::of(&QComboBox::activated),
+                [this](int value)
+                {
+                    timeline::LUTOptions options = _p->lutOptions;
+                    options.order = static_cast<timeline::LUTOrder>(value);
+                    Q_EMIT lutOptionsChanged(options);
+                });
+        }
+
+        LUTWidget::~LUTWidget()
+        {}
+
+        void LUTWidget::setLUTOptions(const timeline::LUTOptions& value)
+        {
+            TLRENDER_P();
+            if (value == p.lutOptions)
+                return;
+            p.lutOptions = value;
+            _widgetUpdate();
+        }
+
+        void LUTWidget::_widgetUpdate()
+        {
+            TLRENDER_P();
+            {
+                QSignalBlocker blocker(p.fileWidget);
+                p.fileWidget->setFile(QString::fromUtf8(p.lutOptions.fileName.c_str()));
+            }
+            {
+                QSignalBlocker blocker(_p->orderComboBox);
+                _p->orderComboBox->clear();
+                for (const auto& i : timeline::getLUTOrderEnums())
+                {
+                    std::stringstream ss;
+                    ss << i;
+                    _p->orderComboBox->addItem(QString::fromUtf8(ss.str().c_str()));
+                }
+                _p->orderComboBox->setCurrentIndex(static_cast<int>(p.lutOptions.order));
             }
         }
 
@@ -764,9 +851,11 @@ namespace tl
 
         struct ColorTool::Private
         {
+            timeline::LUTOptions lutOptions;
             timeline::DisplayOptions displayOptions;
 
             ConfigWidget* configWidget = nullptr;
+            LUTWidget* lutWidget = nullptr;
             ColorControlsWidget* colorControlsWidget = nullptr;
             LevelsWidget* levelsWidget = nullptr;
             ExposureWidget* exposureWidget = nullptr;
@@ -782,17 +871,27 @@ namespace tl
             TLRENDER_P();
 
             p.configWidget = new ConfigWidget(colorModel);
+            p.lutWidget = new LUTWidget;
             p.colorControlsWidget = new ColorControlsWidget;
             p.levelsWidget = new LevelsWidget;
             p.exposureWidget = new ExposureWidget;
             p.softClipWidget = new SoftClipWidget;
 
             addBellows(tr("Configuration"), p.configWidget);
+            addBellows(tr("LUT"), p.lutWidget);
             addBellows(tr("Color Controls"), p.colorControlsWidget);
             addBellows(tr("Levels"), p.levelsWidget);
             addBellows(tr("Exposure"), p.exposureWidget);
             addBellows(tr("Soft Clip"), p.softClipWidget);
             addStretch();
+
+            connect(
+                p.lutWidget,
+                &LUTWidget::lutOptionsChanged,
+                [this](const timeline::LUTOptions& value)
+                {
+                    Q_EMIT lutOptionsChanged(value);
+                });
 
             connect(
                 p.colorControlsWidget,
@@ -874,6 +973,15 @@ namespace tl
         ColorTool::~ColorTool()
         {}
 
+        void ColorTool::setLUTOptions(const timeline::LUTOptions & lutOptions)
+        {
+            TLRENDER_P();
+            if (lutOptions == p.lutOptions)
+                return;
+            p.lutOptions = lutOptions;
+            _widgetUpdate();
+        }
+
         void ColorTool::setDisplayOptions(const timeline::DisplayOptions& displayOptions)
         {
             TLRENDER_P();
@@ -886,6 +994,10 @@ namespace tl
         void ColorTool::_widgetUpdate()
         {
             TLRENDER_P();
+            {
+                QSignalBlocker blocker(p.lutWidget);
+                p.lutWidget->setLUTOptions(p.lutOptions);
+            }
             {
                 QSignalBlocker blocker(p.colorControlsWidget);
                 p.colorControlsWidget->setColorEnabled(p.displayOptions.colorEnabled);
