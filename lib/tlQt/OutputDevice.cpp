@@ -238,10 +238,10 @@ namespace tl
             case QImage::Format_RGBA8888:
             case QImage::Format_ARGB4444_Premultiplied:
                 tmp = std::shared_ptr<QImage>(new QImage(
+                    qImage.bits(),
                     qImage.width(),
                     qImage.height(),
                     qImage.format()));
-                memcpy(tmp->bits(), qImage.bits(), qImage.byteCount());
                 break;
             }
             {
