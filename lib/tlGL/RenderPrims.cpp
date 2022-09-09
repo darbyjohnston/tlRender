@@ -16,31 +16,19 @@ namespace tl
         {
             TLRENDER_P();
 
-            p.meshShader->bind();
-            p.meshShader->setUniform("color", color);
+            p.shaders["mesh"]->bind();
+            p.shaders["mesh"]->setUniform("color", color);
 
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-            std::vector<uint8_t> vboData;
-            vboData.resize(4 * getByteCount(VBOType::Pos2_F32));
-            Pos2_F32* vboP = reinterpret_cast<Pos2_F32*>(vboData.data());
-            vboP[0].vx = bbox.min.x;
-            vboP[0].vy = bbox.min.y;
-            vboP[1].vx = bbox.max.x + 1;
-            vboP[1].vy = bbox.min.y;
-            vboP[2].vx = bbox.min.x;
-            vboP[2].vy = bbox.max.y + 1;
-            vboP[3].vx = bbox.max.x + 1;
-            vboP[3].vy = bbox.max.y + 1;
-            if (p.rectVBO)
+            if (p.vbos["rect"])
             {
-                p.rectVBO->copy(vboData);
+                p.vbos["rect"]->copy(convert(geom::bbox(bbox), p.vbos["rect"]->getType()));
             }
-
-            if (p.rectVAO)
+            if (p.vaos["rect"])
             {
-                p.rectVAO->bind();
-                p.rectVAO->draw(GL_TRIANGLE_STRIP, 0, 4);
+                p.vaos["rect"]->bind();
+                p.vaos["rect"]->draw(GL_TRIANGLES, 0, p.vbos["rect"]->getSize());
             }
         }
 
@@ -53,30 +41,29 @@ namespace tl
             const size_t size = mesh.triangles.size();
             if (size > 0)
             {
-                p.meshShader->bind();
-                p.meshShader->setUniform("color", color);
+                p.shaders["mesh"]->bind();
+                p.shaders["mesh"]->setUniform("color", color);
 
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-                auto vboData = convert(mesh, VBOType::Pos2_F32, math::SizeTRange(0, size - 1));
-                if (!p.meshVBO || (p.meshVBO && p.meshVBO->getSize() != size * 3))
+                if (!p.vbos["mesh"] || (p.vbos["mesh"] && p.vbos["mesh"]->getSize() != size * 3))
                 {
-                    p.meshVBO = VBO::create(size * 3, VBOType::Pos2_F32);
-                    p.meshVAO.reset();
+                    p.vbos["mesh"] = VBO::create(size * 3, VBOType::Pos2_F32);
+                    p.vaos["mesh"].reset();
                 }
-                if (p.meshVBO)
+                if (p.vbos["mesh"])
                 {
-                    p.meshVBO->copy(vboData);
+                    p.vbos["mesh"]->copy(convert(mesh, VBOType::Pos2_F32));
                 }
 
-                if (!p.meshVAO && p.meshVBO)
+                if (!p.vaos["mesh"] && p.vbos["mesh"])
                 {
-                    p.meshVAO = VAO::create(p.meshVBO->getType(), p.meshVBO->getID());
+                    p.vaos["mesh"] = VAO::create(p.vbos["mesh"]->getType(), p.vbos["mesh"]->getID());
                 }
-                if (p.meshVAO && p.meshVBO)
+                if (p.vaos["mesh"] && p.vbos["mesh"])
                 {
-                    p.meshVAO->bind();
-                    p.meshVAO->draw(GL_TRIANGLES, 0, p.meshVBO->getSize());
+                    p.vaos["mesh"]->bind();
+                    p.vaos["mesh"]->draw(GL_TRIANGLES, 0, p.vbos["mesh"]->getSize());
                 }
             }
         }
@@ -88,9 +75,9 @@ namespace tl
         {
             TLRENDER_P();
 
-            p.textShader->bind();
-            p.textShader->setUniform("color", color);
-            p.textShader->setUniform("textureSampler", 0);
+            p.shaders["text"]->bind();
+            p.shaders["text"]->setUniform("color", color);
+            p.shaders["text"]->setUniform("textureSampler", 0);
 
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -128,34 +115,14 @@ namespace tl
                         const math::Vector2i& offset = glyph->offset;
                         const math::BBox2i bbox(pos.x + x + offset.x, pos.y - offset.y, glyph->width, glyph->height);
 
-                        std::vector<uint8_t> vboData;
-                        vboData.resize(4 * getByteCount(VBOType::Pos2_F32_UV_U16));
-                        Pos2_F32_UV_U16* vboP = reinterpret_cast<Pos2_F32_UV_U16*>(vboData.data());
-                        vboP[0].vx = bbox.min.x;
-                        vboP[0].vy = bbox.min.y;
-                        vboP[0].tx = 0;
-                        vboP[0].ty = 0;
-                        vboP[1].vx = bbox.max.x + 1;
-                        vboP[1].vy = bbox.min.y;
-                        vboP[1].tx = 65535;
-                        vboP[1].ty = 0;
-                        vboP[2].vx = bbox.min.x;
-                        vboP[2].vy = bbox.max.y + 1;
-                        vboP[2].tx = 0;
-                        vboP[2].ty = 65535;
-                        vboP[3].vx = bbox.max.x + 1;
-                        vboP[3].vy = bbox.max.y + 1;
-                        vboP[3].tx = 65535;
-                        vboP[3].ty = 65535;
-                        if (p.imageVBO)
+                        if (p.vbos["text"])
                         {
-                            p.imageVBO->copy(vboData);
+                            p.vbos["text"]->copy(convert(geom::bbox(bbox), p.vbos["text"]->getType()));
                         }
-
-                        if (p.imageVAO)
+                        if (p.vaos["text"])
                         {
-                            p.imageVAO->bind();
-                            p.imageVAO->draw(GL_TRIANGLE_STRIP, 0, 4);
+                            p.vaos["text"]->bind();
+                            p.vaos["text"]->draw(GL_TRIANGLES, 0, p.vbos["text"]->getSize());
                         }
                     }
 
@@ -176,9 +143,9 @@ namespace tl
             auto textures = p.textureCache.get(info, imageOptions.imageFilters);
             copyTextures(image, textures);
 
-            p.imageShader->bind();
-            p.imageShader->setUniform("color", color);
-            p.imageShader->setUniform("pixelType", static_cast<int>(info.pixelType));
+            p.shaders["image"]->bind();
+            p.shaders["image"]->setUniform("color", color);
+            p.shaders["image"]->setUniform("pixelType", static_cast<int>(info.pixelType));
             imaging::VideoLevels videoLevels = info.videoLevels;
             switch (imageOptions.videoLevels)
             {
@@ -186,11 +153,11 @@ namespace tl
             case timeline::InputVideoLevels::LegalRange: videoLevels = imaging::VideoLevels::LegalRange; break;
             default: break;
             }
-            p.imageShader->setUniform("videoLevels", static_cast<int>(videoLevels));
-            p.imageShader->setUniform("yuvCoefficients", imaging::getYUVCoefficients(info.yuvCoefficients));
-            p.imageShader->setUniform("imageChannels", imaging::getChannelCount(info.pixelType));
-            p.imageShader->setUniform("flipX", info.layout.mirror.x);
-            p.imageShader->setUniform("flipY", info.layout.mirror.y);
+            p.shaders["image"]->setUniform("videoLevels", static_cast<int>(videoLevels));
+            p.shaders["image"]->setUniform("yuvCoefficients", imaging::getYUVCoefficients(info.yuvCoefficients));
+            p.shaders["image"]->setUniform("imageChannels", imaging::getChannelCount(info.pixelType));
+            p.shaders["image"]->setUniform("mirrorX", info.layout.mirror.x);
+            p.shaders["image"]->setUniform("mirrorY", info.layout.mirror.y);
             switch (info.pixelType)
             {
             case imaging::PixelType::YUV_420P_U8:
@@ -199,10 +166,10 @@ namespace tl
             case imaging::PixelType::YUV_420P_U16:
             case imaging::PixelType::YUV_422P_U16:
             case imaging::PixelType::YUV_444P_U16:
-                p.imageShader->setUniform("textureSampler1", 1);
-                p.imageShader->setUniform("textureSampler2", 2);
+                p.shaders["image"]->setUniform("textureSampler1", 1);
+                p.shaders["image"]->setUniform("textureSampler2", 2);
             default:
-                p.imageShader->setUniform("textureSampler0", 0);
+                p.shaders["image"]->setUniform("textureSampler0", 0);
                 break;
             }
 
@@ -220,34 +187,14 @@ namespace tl
             default: break;
             }
 
-            std::vector<uint8_t> vboData;
-            vboData.resize(4 * getByteCount(VBOType::Pos2_F32_UV_U16));
-            Pos2_F32_UV_U16* vboP = reinterpret_cast<Pos2_F32_UV_U16*>(vboData.data());
-            vboP[0].vx = bbox.min.x;
-            vboP[0].vy = bbox.min.y;
-            vboP[0].tx = 0;
-            vboP[0].ty = 65535;
-            vboP[1].vx = bbox.max.x + 1;
-            vboP[1].vy = bbox.min.y;
-            vboP[1].tx = 65535;
-            vboP[1].ty = 65535;
-            vboP[2].vx = bbox.min.x;
-            vboP[2].vy = bbox.max.y + 1;
-            vboP[2].tx = 0;
-            vboP[2].ty = 0;
-            vboP[3].vx = bbox.max.x + 1;
-            vboP[3].vy = bbox.max.y + 1;
-            vboP[3].tx = 65535;
-            vboP[3].ty = 0;
-            if (p.imageVBO)
+            if (p.vbos["image"])
             {
-                p.imageVBO->copy(vboData);
+                p.vbos["image"]->copy(convert(geom::bbox(bbox), p.vbos["image"]->getType()));
             }
-
-            if (p.imageVAO)
+            if (p.vaos["image"])
             {
-                p.imageVAO->bind();
-                p.imageVAO->draw(GL_TRIANGLE_STRIP, 0, 4);
+                p.vaos["image"]->bind();
+                p.vaos["image"]->draw(GL_TRIANGLES, 0, p.vbos["image"]->getSize());
             }
 
             p.textureCache.add(info, imageOptions.imageFilters, textures);

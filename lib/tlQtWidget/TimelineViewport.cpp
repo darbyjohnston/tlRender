@@ -26,7 +26,8 @@ namespace tl
         struct TimelineViewport::Private
         {
             std::weak_ptr<system::Context> context;
-            imaging::ColorConfig colorConfig;
+            timeline::ColorConfigOptions colorConfigOptions;
+            timeline::LUTOptions lutOptions;
             std::vector<timeline::ImageOptions> imageOptions;
             std::vector<timeline::DisplayOptions> displayOptions;
             timeline::CompareOptions compareOptions;
@@ -70,12 +71,21 @@ namespace tl
         TimelineViewport::~TimelineViewport()
         {}
 
-        void TimelineViewport::setColorConfig(const imaging::ColorConfig& value)
+        void TimelineViewport::setColorConfigOptions(const timeline::ColorConfigOptions& value)
         {
             TLRENDER_P();
-            if (value == p.colorConfig)
+            if (value == p.colorConfigOptions)
                 return;
-            p.colorConfig = value;
+            p.colorConfigOptions = value;
+            update();
+        }
+
+        void TimelineViewport::setLUTOptions(const timeline::LUTOptions& value)
+        {
+            TLRENDER_P();
+            if (value == p.lutOptions)
+                return;
+            p.lutOptions = value;
             update();
         }
 
@@ -307,7 +317,8 @@ namespace tl
                 if (p.buffer)
                 {
                     gl::OffscreenBufferBinding binding(p.buffer);
-                    p.render->setColorConfig(p.colorConfig);
+                    p.render->setColorConfig(p.colorConfigOptions);
+                    p.render->setLUT(p.lutOptions);
                     p.render->begin(renderSize);
                     p.render->drawVideo(
                         p.videoData,

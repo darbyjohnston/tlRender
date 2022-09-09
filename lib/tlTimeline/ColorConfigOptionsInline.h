@@ -4,9 +4,9 @@
 
 namespace tl
 {
-    namespace imaging
+    namespace timeline
     {
-        inline bool ColorConfig::operator == (const ColorConfig& other) const
+        inline bool ColorConfigOptions::operator == (const ColorConfigOptions& other) const
         {
             return fileName == other.fileName &&
                 input == other.input &&
@@ -15,7 +15,7 @@ namespace tl
                 look == other.look;
         }
 
-        inline bool ColorConfig::operator != (const ColorConfig& other) const
+        inline bool ColorConfigOptions::operator != (const ColorConfigOptions& other) const
         {
             return !(*this == other);
         }

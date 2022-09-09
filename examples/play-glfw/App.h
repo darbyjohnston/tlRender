@@ -9,7 +9,6 @@
 #include <tlTimeline/IRender.h>
 #include <tlTimeline/TimelinePlayer.h>
 
-#include <tlCore/ColorConfig.h>
 #include <tlCore/FontSystem.h>
 
 struct GLFWwindow;
@@ -27,9 +26,12 @@ namespace tl
                 imaging::Size windowSize = imaging::Size(1280, 720);
                 bool fullScreen = false;
                 bool hud = true;
-                bool startPlayback = true;
-                bool loopPlayback = true;
-                imaging::ColorConfig colorConfig;
+                timeline::Playback playback = timeline::Playback::Forward;
+                timeline::Loop loop = timeline::Loop::Loop;
+                otime::RationalTime seek = time::invalidTime;
+                otime::TimeRange inOutRange = time::invalidTimeRange;
+                timeline::ColorConfigOptions colorConfigOptions;
+                timeline::LUTOptions lutOptions;
             };
 
             //! Application.
@@ -87,7 +89,7 @@ namespace tl
                 GLFWwindow* _glfwWindow = nullptr;
                 math::Vector2i _windowPos;
                 imaging::Size _frameBufferSize;
-                math::Vector2f _contentScale;
+                math::Vector2f _contentScale = math::Vector2f(1.F, 1.F);
                 std::shared_ptr<imaging::FontSystem> _fontSystem;
                 std::shared_ptr<timeline::IRender> _render;
                 bool _renderDirty = true;

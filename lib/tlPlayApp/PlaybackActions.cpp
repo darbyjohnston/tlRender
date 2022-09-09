@@ -23,10 +23,7 @@ namespace tl
             std::vector<qt::TimelinePlayer*> timelinePlayers;
 
             QMap<QString, QAction*> actions;
-            QActionGroup* playbackActionGroup = nullptr;
-            QActionGroup* loopActionGroup = nullptr;
-            QActionGroup* timeUnitsActionGroup = nullptr;
-            QActionGroup* speedActionGroup = nullptr;
+            QMap<QString, QActionGroup*> actionGroups;
 
             QMenu* menu = nullptr;
             QMenu* timeUnitsMenu = nullptr;
@@ -62,11 +59,11 @@ namespace tl
             p.actions["Reverse"]->setIcon(QIcon(":/Icons/PlaybackReverse.svg"));
             p.actions["Reverse"]->setShortcut(QKeySequence(Qt::Key_J));
             p.actions["Reverse"]->setToolTip(tr("Reverse playback"));
-            p.playbackActionGroup = new QActionGroup(this);
-            p.playbackActionGroup->setExclusive(true);
-            p.playbackActionGroup->addAction(p.actions["Stop"]);
-            p.playbackActionGroup->addAction(p.actions["Forward"]);
-            p.playbackActionGroup->addAction(p.actions["Reverse"]);
+            p.actionGroups["Playback"] = new QActionGroup(this);
+            p.actionGroups["Playback"]->setExclusive(true);
+            p.actionGroups["Playback"]->addAction(p.actions["Stop"]);
+            p.actionGroups["Playback"]->addAction(p.actions["Forward"]);
+            p.actionGroups["Playback"]->addAction(p.actions["Reverse"]);
             p.actions["Toggle"] = new QAction(parent);
             p.actions["Toggle"]->setText(tr("Toggle Playback"));
             p.actions["Toggle"]->setShortcut(QKeySequence(Qt::Key_Space));
@@ -83,11 +80,11 @@ namespace tl
             p.actions["PingPong"]->setData(QVariant::fromValue<timeline::Loop>(timeline::Loop::PingPong));
             p.actions["PingPong"]->setCheckable(true);
             p.actions["PingPong"]->setText(tr("Ping-Pong Playback"));
-            p.loopActionGroup = new QActionGroup(this);
-            p.loopActionGroup->setExclusive(true);
-            p.loopActionGroup->addAction(p.actions["Loop"]);
-            p.loopActionGroup->addAction(p.actions["Once"]);
-            p.loopActionGroup->addAction(p.actions["PingPong"]);
+            p.actionGroups["Loop"] = new QActionGroup(this);
+            p.actionGroups["Loop"]->setExclusive(true);
+            p.actionGroups["Loop"]->addAction(p.actions["Loop"]);
+            p.actionGroups["Loop"]->addAction(p.actions["Once"]);
+            p.actionGroups["Loop"]->addAction(p.actions["PingPong"]);
 
             p.actions["Start"] = new QAction(parent);
             p.actions["Start"]->setText(tr("Go To Start"));
@@ -159,27 +156,17 @@ namespace tl
             p.actions["TimeUnits/Timecode"]->setData(QVariant::fromValue<qt::TimeUnits>(qt::TimeUnits::Timecode));
             p.actions["TimeUnits/Timecode"]->setCheckable(true);
             p.actions["TimeUnits/Timecode"]->setText(tr("Timecode"));
-            p.timeUnitsActionGroup = new QActionGroup(this);
-            p.timeUnitsActionGroup->addAction(p.actions["TimeUnits/Frames"]);
-            p.timeUnitsActionGroup->addAction(p.actions["TimeUnits/Seconds"]);
-            p.timeUnitsActionGroup->addAction(p.actions["TimeUnits/Timecode"]);
+            p.actionGroups["TimeUnits"] = new QActionGroup(this);
+            p.actionGroups["TimeUnits"]->addAction(p.actions["TimeUnits/Frames"]);
+            p.actionGroups["TimeUnits"]->addAction(p.actions["TimeUnits/Seconds"]);
+            p.actionGroups["TimeUnits"]->addAction(p.actions["TimeUnits/Timecode"]);
 
-            QList<double> speeds;
-            speeds.append(1.0);
-            speeds.append(3.0);
-            speeds.append(6.0);
-            speeds.append(9.0);
-            speeds.append(12.0);
-            speeds.append(16.0);
-            speeds.append(18.0);
-            speeds.append(23.98);
-            speeds.append(24.0);
-            speeds.append(29.97);
-            speeds.append(30.0);
-            speeds.append(48.0);
-            speeds.append(59.94);
-            speeds.append(60.0);
-            speeds.append(120.0);
+            const QList<double> speeds =
+            {
+                1.0, 3.0, 6.0, 9.0, 12.0,
+                16.0, 18.0, 23.98, 24.0, 29.97,
+                30.0, 48.0, 59.94, 60.0, 120.0
+            };
             for (auto i : speeds)
             {
                 const QString key = QString("Speed/%1").arg(i);
@@ -191,13 +178,13 @@ namespace tl
             p.actions["Speed/Default"]->setData(0.F);
             p.actions["Speed/Default"]->setText(tr("Default"));
             p.actions["Speed/Default"]->setToolTip(tr("Default timeline speed"));
-            p.speedActionGroup = new QActionGroup(this);
+            p.actionGroups["Speed"] = new QActionGroup(this);
             for (auto i : speeds)
             {
                 const QString key = QString("Speed/%1").arg(i);
-                p.speedActionGroup->addAction(p.actions[key]);
+                p.actionGroups["Speed"]->addAction(p.actions[key]);
             }
-            p.speedActionGroup->addAction(p.actions["Speed/Default"]);
+            p.actionGroups["Speed"]->addAction(p.actions["Speed/Default"]);
 
             p.menu = new QMenu;
             p.menu->setTitle(tr("&Playback"));
@@ -352,7 +339,7 @@ namespace tl
                 });
 
             connect(
-                p.timeUnitsActionGroup,
+                p.actionGroups["TimeUnits"],
                 &QActionGroup::triggered,
                 [app](QAction* action)
                 {
@@ -360,7 +347,7 @@ namespace tl
                 });
 
             connect(
-                _p->speedActionGroup,
+                _p->actionGroups["Speed"],
                 &QActionGroup::triggered,
                 [this](QAction* action)
                 {
@@ -372,7 +359,7 @@ namespace tl
                 });
 
             connect(
-                p.playbackActionGroup,
+                p.actionGroups["Playback"],
                 &QActionGroup::triggered,
                 [this](QAction* action)
                 {
@@ -383,7 +370,7 @@ namespace tl
                 });
 
             connect(
-                p.loopActionGroup,
+                p.actionGroups["Loop"],
                 &QActionGroup::triggered,
                 [this](QAction* action)
                 {
@@ -496,8 +483,8 @@ namespace tl
         void PlaybackActions::_playbackCallback(timeline::Playback value)
         {
             TLRENDER_P();
-            const QSignalBlocker blocker(p.playbackActionGroup);
-            for (auto action : p.playbackActionGroup->actions())
+            const QSignalBlocker blocker(p.actionGroups["Playback"]);
+            for (auto action : p.actionGroups["Playback"]->actions())
             {
                 if (action->data().value<timeline::Playback>() == value)
                 {
@@ -510,8 +497,8 @@ namespace tl
         void PlaybackActions::_loopCallback(timeline::Loop value)
         {
             TLRENDER_P();
-            const QSignalBlocker blocker(p.loopActionGroup);
-            for (auto action : p.loopActionGroup->actions())
+            const QSignalBlocker blocker(p.actionGroups["Loop"]);
+            for (auto action : p.actionGroups["Loop"]->actions())
             {
                 if (action->data().value<timeline::Loop>() == value)
                 {
@@ -526,37 +513,19 @@ namespace tl
             TLRENDER_P();
 
             const size_t count = p.timelinePlayers.size();
-            p.actions["Speed/Default"]->setEnabled(count > 0);
-            p.actions["Stop"]->setEnabled(count > 0);
-            p.actions["Forward"]->setEnabled(count > 0);
-            p.actions["Reverse"]->setEnabled(count > 0);
-            p.actions["Toggle"]->setEnabled(count > 0);
-            p.actions["Loop"]->setEnabled(count > 0);
-            p.actions["Once"]->setEnabled(count > 0);
-            p.actions["PingPong"]->setEnabled(count > 0);
-            p.actions["Start"]->setEnabled(count > 0);
-            p.actions["End"]->setEnabled(count > 0);
-            p.actions["FramePrev"]->setEnabled(count > 0);
-            p.actions["FramePrevX10"]->setEnabled(count > 0);
-            p.actions["FramePrevX100"]->setEnabled(count > 0);
-            p.actions["FrameNext"]->setEnabled(count > 0);
-            p.actions["FrameNextX10"]->setEnabled(count > 0);
-            p.actions["FrameNextX100"]->setEnabled(count > 0);
-            p.actions["SetInPoint"]->setEnabled(count > 0);
-            p.actions["ResetInPoint"]->setEnabled(count > 0);
-            p.actions["SetOutPoint"]->setEnabled(count > 0);
-            p.actions["ResetOutPoint"]->setEnabled(count > 0);
-            p.actions["FocusCurrentFrame"]->setEnabled(count > 0);
-            for (auto i : p.speedActionGroup->actions())
+            QList<QString> keys = p.actions.keys();
+            keys.removeAll("Thumbnails");
+            keys.removeAll("StopOnScrub");
+            for (auto i : keys)
             {
-                i->setEnabled(count > 0);
+                p.actions[i]->setEnabled(count > 0);
             }
 
             if (!p.timelinePlayers.empty())
             {
                 {
-                    QSignalBlocker blocker(p.playbackActionGroup);
-                    for (auto action : p.playbackActionGroup->actions())
+                    QSignalBlocker blocker(p.actionGroups["Playback"]);
+                    for (auto action : p.actionGroups["Playback"]->actions())
                     {
                         if (action->data().value<timeline::Playback>() == p.timelinePlayers[0]->playback())
                         {
@@ -566,8 +535,8 @@ namespace tl
                     }
                 }
                 {
-                    QSignalBlocker blocker(p.loopActionGroup);
-                    for (auto action : p.loopActionGroup->actions())
+                    QSignalBlocker blocker(p.actionGroups["Loop"]);
+                    for (auto action : p.actionGroups["Loop"]->actions())
                     {
                         if (action->data().value<timeline::Loop>() == p.timelinePlayers[0]->loop())
                         {
@@ -580,18 +549,18 @@ namespace tl
             else
             {
                 {
-                    QSignalBlocker blocker(p.playbackActionGroup);
+                    QSignalBlocker blocker(p.actionGroups["Playback"]);
                     p.actions["Stop"]->setChecked(true);
                 }
                 {
-                    QSignalBlocker blocker(p.loopActionGroup);
+                    QSignalBlocker blocker(p.actionGroups["Loop"]);
                     p.actions["Loop"]->setChecked(true);
                 }
             }
 
             {
-                QSignalBlocker blocker(p.timeUnitsActionGroup);
-                for (auto action : p.timeUnitsActionGroup->actions())
+                QSignalBlocker blocker(p.actionGroups["TimeUnits"]);
+                for (auto action : p.actionGroups["TimeUnits"]->actions())
                 {
                     if (action->data().value<qt::TimeUnits>() == p.app->timeObject()->units())
                     {

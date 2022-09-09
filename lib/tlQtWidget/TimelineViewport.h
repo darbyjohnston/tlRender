@@ -8,8 +8,6 @@
 
 #include <tlTimeline/IRender.h>
 
-#include <tlCore/ColorConfig.h>
-
 #include <QOpenGLWidget>
 
 namespace tl
@@ -28,8 +26,11 @@ namespace tl
 
             ~TimelineViewport() override;
 
-            //! Set the color configuration.
-            void setColorConfig(const imaging::ColorConfig&);
+            //! Set the color configuration options.
+            void setColorConfigOptions(const timeline::ColorConfigOptions&);
+
+            //! Set the LUT options.
+            void setLUTOptions(const timeline::LUTOptions&);
 
             //! Set the image options.
             void setImageOptions(const std::vector<timeline::ImageOptions>&);

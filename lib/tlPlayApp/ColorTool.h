@@ -36,6 +36,28 @@ namespace tl
             TLRENDER_PRIVATE();
         };
 
+        //! LUT widget.
+        class LUTWidget : public QWidget
+        {
+            Q_OBJECT
+
+        public:
+            LUTWidget(QWidget* parent = nullptr);
+
+            ~LUTWidget() override;
+
+        public Q_SLOTS:
+            void setLUTOptions(const tl::timeline::LUTOptions&);
+
+        Q_SIGNALS:
+            void lutOptionsChanged(const tl::timeline::LUTOptions&);
+
+        private:
+            void _widgetUpdate();
+
+            TLRENDER_PRIVATE();
+        };
+
         //! Color controls widget.
         class ColorControlsWidget : public QWidget
         {
@@ -145,9 +167,11 @@ namespace tl
             ~ColorTool() override;
 
         public Q_SLOTS:
+            void setLUTOptions(const tl::timeline::LUTOptions&);
             void setDisplayOptions(const tl::timeline::DisplayOptions&);
 
         Q_SIGNALS:
+            void lutOptionsChanged(const tl::timeline::LUTOptions&);
             void displayOptionsChanged(const tl::timeline::DisplayOptions&);
 
         private:

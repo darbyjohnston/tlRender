@@ -1,25 +1,37 @@
 set(HEADERS
 	Audio.h
 	AudioInline.h
+	ColorConfigOptions.h
+	ColorConfigOptionsInline.h
+	CompareOptions.h
+	CompareOptionsInline.h
+	DisplayOptions.h
+	DisplayOptionsInline.h
+	ImageOptions.h
+	ImageOptionsInline.h
 	IRender.h
-	RenderOptions.h
-	RenderOptionsInline.h
+	LUTOptions.h
+	LUTOptionsInline.h
     Timeline.h
     TimelinePlayer.h
     TimelinePlayerInline.h
+	Transition.h
 	Util.h
 	UtilInline.h
 	Video.h
 	VideoInline.h)
 
 set(SOURCE
-	Audio.cpp
+	ColorConfigOptions.cpp
+	CompareOptions.cpp
+	DisplayOptions.cpp
+	ImageOptions.cpp
 	IRender.cpp
-	RenderOptions.cpp
+	LUTOptions.cpp
     Timeline.cpp
     TimelinePlayer.cpp
-	Util.cpp
-	Video.cpp)
+	Transition.cpp
+	Util.cpp)
 
 add_library(tlTimeline ${HEADERS} ${SOURCE})
 target_link_libraries(tlTimeline tlIO)

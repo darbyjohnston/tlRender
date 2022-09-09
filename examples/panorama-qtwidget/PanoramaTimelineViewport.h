@@ -11,7 +11,6 @@
 #include <tlGL/Render.h>
 #include <tlGL/Shader.h>
 
-#include <tlCore/ColorConfig.h>
 #include <tlCore/Mesh.h>
 
 #include <QOpenGLWidget>
@@ -32,8 +31,11 @@ namespace tl
                     const std::shared_ptr<system::Context>&,
                     QWidget* parent = nullptr);
 
-                //! Set the color configuration.
-                void setColorConfig(const imaging::ColorConfig&);
+                //! Set the color configuration options.
+                void setColorConfigOptions(const timeline::ColorConfigOptions&);
+
+                //! Set the LUT options.
+                void setLUTOptions(const timeline::LUTOptions&);
 
                 //! Set the image options.
                 void setImageOptions(const timeline::ImageOptions&);
@@ -53,7 +55,8 @@ namespace tl
 
             private:
                 std::weak_ptr<system::Context> _context;
-                imaging::ColorConfig _colorConfig;
+                timeline::ColorConfigOptions _colorConfigOptions;
+                timeline::LUTOptions _lutOptions;
                 timeline::ImageOptions _imageOptions;
                 qt::TimelinePlayer* _timelinePlayer = nullptr;
                 imaging::Size _videoSize;

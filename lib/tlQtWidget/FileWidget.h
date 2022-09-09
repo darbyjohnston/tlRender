@@ -20,7 +20,9 @@ namespace tl
             Q_OBJECT
 
         public:
-            FileWidget(QWidget* parent = nullptr);
+            FileWidget(
+                const QStringList& extensions = QStringList(),
+                QWidget* parent = nullptr);
 
             ~FileWidget() override;
 

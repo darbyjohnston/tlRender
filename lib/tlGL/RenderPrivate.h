@@ -11,7 +11,6 @@
 #include <tlGL/Shader.h>
 #include <tlGL/Texture.h>
 
-#include <tlCore/ColorConfig.h>
 #include <tlCore/LRUCache.h>
 
 #include <OpenColorIO/OpenColorIO.h>
@@ -24,14 +23,17 @@ namespace tl
 {
     namespace gl
     {
-        std::string colorFunctionName();
-        std::string colorFunctionNoOp();
         std::string vertexSource();
         std::string meshFragmentSource();
         std::string textFragmentSource();
         std::string textureFragmentSource();
         std::string imageFragmentSource();
-        std::string displayFragmentSource();
+        std::string displayFragmentSource(
+            const std::string& colorConfigDef,
+            const std::string& colorConfig,
+            const std::string& lutDef,
+            const std::string& lut,
+            timeline::LUTOrder);
         std::string dissolveFragmentSource();
         std::string differenceFragmentSource();
 
@@ -84,56 +86,60 @@ namespace tl
             std::list<TextureData> _cache;
         };
 
+        struct OCIOTexture
+        {
+            OCIOTexture(
+                unsigned    id,
+                std::string name,
+                std::string sampler,
+                unsigned    type);
+
+            unsigned    id = -1;
+            std::string name;
+            std::string sampler;
+            unsigned    type = -1;
+        };
+
+        struct OCIOColorConfigData
+        {
+            ~OCIOColorConfigData();
+
+            OCIO::ConstConfigRcPtr config;
+            OCIO::DisplayViewTransformRcPtr transform;
+            OCIO::LegacyViewingPipelineRcPtr lvp;
+            OCIO::ConstProcessorRcPtr processor;
+            OCIO::ConstGPUProcessorRcPtr gpuProcessor;
+            OCIO::GpuShaderDescRcPtr shaderDesc;
+            std::vector<OCIOTexture> textures;
+        };
+
+        struct OCIOLUTData
+        {
+            ~OCIOLUTData();
+
+            OCIO::ConstConfigRcPtr config;
+            OCIO::FileTransformRcPtr transform;
+            OCIO::ConstProcessorRcPtr processor;
+            OCIO::ConstGPUProcessorRcPtr gpuProcessor;
+            OCIO::GpuShaderDescRcPtr shaderDesc;
+            std::vector<OCIOTexture> textures;
+        };
+
         struct Render::Private
         {
-            imaging::ColorConfig colorConfig;
-            OCIO::ConstConfigRcPtr ocioConfig;
-            OCIO::DisplayViewTransformRcPtr ocioTransform;
-            OCIO::LegacyViewingPipelineRcPtr ocioVP;
-            OCIO::ConstProcessorRcPtr ocioProcessor;
-            OCIO::ConstGPUProcessorRcPtr ocioGpuProcessor;
-            OCIO::GpuShaderDescRcPtr ocioShaderDesc;
-            struct TextureId
-            {
-                TextureId(
-                    unsigned    id,
-                    std::string name,
-                    std::string sampler,
-                    unsigned    type);
-
-                unsigned    id = -1;
-                std::string name;
-                std::string sampler;
-                unsigned    type = -1;
-            };
-            std::vector<TextureId> colorTextures;
+            timeline::ColorConfigOptions colorConfigOptions;
+            std::unique_ptr<OCIOColorConfigData> colorConfigData;
+            timeline::LUTOptions lutOptions;
+            std::unique_ptr<OCIOLUTData> lutData;
 
             imaging::Size size;
 
-            std::shared_ptr<Shader> meshShader;
-            std::shared_ptr<Shader> textShader;
-            std::shared_ptr<Shader> textureShader;
-            std::shared_ptr<Shader> imageShader;
-            std::shared_ptr<Shader> displayShader;
-            std::shared_ptr<Shader> dissolveShader;
-            std::shared_ptr<Shader> differenceShader;
-
-            std::shared_ptr<OffscreenBuffer> buffer;
-            std::shared_ptr<OffscreenBuffer> transitionBuffer;
-            std::shared_ptr<OffscreenBuffer> overlayBuffer;
-            std::array<std::shared_ptr<OffscreenBuffer>, 2> differenceBuffers;
-
+            std::map<std::string, std::shared_ptr<Shader> > shaders;
+            std::map<std::string, std::shared_ptr<OffscreenBuffer> > buffers;
             TextureCache textureCache;
             memory::LRUCache<imaging::GlyphInfo, std::shared_ptr<Texture> > glyphTextureCache;
-
-            std::shared_ptr<gl::VBO> rectVBO;
-            std::shared_ptr<gl::VBO> meshVBO;
-            std::shared_ptr<gl::VBO> imageVBO;
-            std::shared_ptr<gl::VBO> videoVBO;
-            std::shared_ptr<gl::VAO> rectVAO;
-            std::shared_ptr<gl::VAO> meshVAO;
-            std::shared_ptr<gl::VAO> imageVAO;
-            std::shared_ptr<gl::VAO> videoVAO;
+            std::map<std::string, std::shared_ptr<gl::VBO> > vbos;
+            std::map<std::string, std::shared_ptr<gl::VAO> > vaos;
         };
     }
 }

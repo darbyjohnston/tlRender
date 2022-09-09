@@ -56,7 +56,6 @@ namespace tl
             qRegisterMetaType<geom::Vertex2>("tl::geom::Vertex2");
             qRegisterMetaType<geom::Vertex3>("tl::geom::Vertex3");
 
-            qRegisterMetaType<imaging::ColorConfig>("tl::imaging::ColorConfig");
             qRegisterMetaType<imaging::FontInfo>("tl::imaging::FontInfo");
             qRegisterMetaType<imaging::FontFamily>("tl::imaging::FontFamily");
             qRegisterMetaType<imaging::FontMetrics>("tl::imaging::FontMetrics");
@@ -96,13 +95,15 @@ namespace tl
             qRegisterMetaType<timeline::AudioLayer>("tl::timeline::AudioLayer");
             qRegisterMetaType<timeline::Channels>("tl::timeline::Channels");
             qRegisterMetaType<timeline::Color>("tl::timeline::Color");
+            qRegisterMetaType<timeline::ColorConfigOptions>("tl::timeline::ColorConfigOptions");
             qRegisterMetaType<timeline::CompareMode>("tl::timeline::CompareMode");
             qRegisterMetaType<timeline::CompareOptions>("tl::timeline::CompareOptions");
-            qRegisterMetaType<timeline::ImageOptions>("tl::timeline::ImageOptions");
             qRegisterMetaType<timeline::Exposure>("tl::timeline::Exposure");
             qRegisterMetaType<timeline::FileSequenceAudio>("tl::timeline::FileSequenceAudio");
             qRegisterMetaType<timeline::ImageFilter>("tl::timeline::ImageFilter");
+            qRegisterMetaType<timeline::ImageOptions>("tl::timeline::ImageOptions");
             qRegisterMetaType<timeline::InputVideoLevels>("tl::timeline::InputVideoLevels");
+            qRegisterMetaType<timeline::LUTOptions>("tl::timeline::LUTOptions");
             qRegisterMetaType<timeline::Levels>("tl::timeline::Levels");
             qRegisterMetaType<timeline::Loop>("tl::timeline::Loop");
             qRegisterMetaType<timeline::Options>("tl::timeline::Options");

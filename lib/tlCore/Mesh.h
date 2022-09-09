@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include <tlCore/Vector.h>
+#include <tlCore/BBox.h>
 
+#include <array>
 #include <vector>
 
 namespace tl
@@ -37,13 +38,13 @@ namespace tl
         //! Two-dimensional triangle.
         struct Triangle2
         {
-            Vertex2 v[3];
+            std::array<Vertex2, 3> v;
         };
 
         //! Three-dimensional triangle.
         struct Triangle3
         {
-            Vertex3 v[3];
+            std::array<Vertex3, 3> v;
         };
 
         //! Two-dimensional triangle mesh.
@@ -64,6 +65,12 @@ namespace tl
             std::vector<math::Vector3f> n;
             std::vector<Triangle3> triangles;
         };
+
+        //! Create a two-dimensional bounding box mesh.
+        TriangleMesh2 bbox(const math::BBox2i&, bool flipV = false);
+
+        //! Create a two-dimensional bounding box mesh.
+        TriangleMesh2 bbox(const math::BBox2f&, bool flipV = false);
 
         //! Edge function.
         float edge(

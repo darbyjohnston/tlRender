@@ -8,15 +8,15 @@
 
 namespace tl
 {
-    namespace core_tests
+    namespace timeline_tests
     {
-        class ColorConfigTest : public tests::ITest
+        class LUTOptionsTest : public tests::ITest
         {
         protected:
-            ColorConfigTest(const std::shared_ptr<system::Context>&);
+            LUTOptionsTest(const std::shared_ptr<system::Context>&);
 
         public:
-            static std::shared_ptr<ColorConfigTest> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<LUTOptionsTest> create(const std::shared_ptr<system::Context>&);
 
             void run() override;
         };

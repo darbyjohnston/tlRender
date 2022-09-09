@@ -2,13 +2,13 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include <tlCore/ColorConfig.h>
+#include <tlTimeline/ColorConfigOptions.h>
 
 namespace tl
 {
-    namespace imaging
+    namespace timeline
     {
-        void to_json(nlohmann::json& json, const ColorConfig& value)
+        void to_json(nlohmann::json& json, const ColorConfigOptions& value)
         {
             json = nlohmann::json
             {
@@ -20,7 +20,7 @@ namespace tl
             };
         }
 
-        void from_json(const nlohmann::json& json, ColorConfig& value)
+        void from_json(const nlohmann::json& json, ColorConfigOptions& value)
         {
             json.at("fileName").get_to(value.fileName);
             json.at("input").get_to(value.input);
