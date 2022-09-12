@@ -229,20 +229,19 @@ namespace tl
             }
         }
 
-        void OutputDevice::setOverlay(const QImage& qImage)
+        void OutputDevice::setOverlay(QImage* qImage)
         {
             TLRENDER_P();
             std::shared_ptr<QImage> tmp;
-            switch (qImage.format())
+            if (qImage)
             {
-            case QImage::Format_RGBA8888:
-            case QImage::Format_ARGB4444_Premultiplied:
-                tmp = std::shared_ptr<QImage>(new QImage(
-                    qImage.bits(),
-                    qImage.width(),
-                    qImage.height(),
-                    qImage.format()));
-                break;
+                switch (qImage->format())
+                {
+                case QImage::Format_RGBA8888:
+                case QImage::Format_ARGB4444_Premultiplied:
+                    tmp = std::shared_ptr<QImage>(qImage);
+                    break;
+                }
             }
             {
                 std::unique_lock<std::mutex> lock(p.mutex);

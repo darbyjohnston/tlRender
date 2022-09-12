@@ -74,9 +74,12 @@ namespace tl
             //! Set the timeline players.
             void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
 
-            //! Set a QImage overlay. The format must be QImage::Format_RGBA8888.
+            //! Set a QImage overlay. The output device takes ownership of
+            //! the given QImage. The QImage format must be:
+            //! * QImage::Format_RGBA8888
+            //! * QImage::Format_ARGB4444_Premultiplied
             //! \todo Temporary
-            void setOverlay(const QImage&);
+            void setOverlay(QImage*);
 
         public Q_SLOTS:
             //! Set the view.
