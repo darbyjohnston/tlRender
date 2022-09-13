@@ -2,10 +2,11 @@ set(HEADERS
     Mesh.h
     OffscreenBuffer.h
     Render.h
-	RenderPrivate.h
     Shader.h
     Texture.h
     Util.h)
+set(PRIVATE_HEADERS
+	RenderPrivate.h)
 
 set(SOURCE
     Mesh.cpp
@@ -21,7 +22,7 @@ set(SOURCE
 
 set(LIBRARIES tlTimeline tlGlad)
 
-add_library(tlGL ${HEADERS} ${SOURCE})
+add_library(tlGL ${HEADERS} ${PRIVATE_HEADERS} ${SOURCE})
 target_link_libraries(tlGL ${LIBRARIES})
 set_target_properties(tlGL PROPERTIES FOLDER lib)
 set_target_properties(tlGL PROPERTIES PUBLIC_HEADER "${HEADERS}")

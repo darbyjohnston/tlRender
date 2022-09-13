@@ -20,6 +20,9 @@ set(HEADERS
 	UtilInline.h
 	Video.h
 	VideoInline.h)
+set(PRIVATE_HEADERS
+	TimelinePrivate.h
+	TimelinePlayerPrivate.h)
 
 set(SOURCE
 	ColorConfigOptions.cpp
@@ -29,11 +32,14 @@ set(SOURCE
 	IRender.cpp
 	LUTOptions.cpp
     Timeline.cpp
+	TimelineCreate.cpp
+	TimelinePrivate.cpp
     TimelinePlayer.cpp
+    TimelinePlayerPrivate.cpp
 	Transition.cpp
 	Util.cpp)
 
-add_library(tlTimeline ${HEADERS} ${SOURCE})
+add_library(tlTimeline ${HEADERS} ${PRIVATE_HEADERS} ${SOURCE})
 target_link_libraries(tlTimeline tlIO)
 set_target_properties(tlTimeline PROPERTIES FOLDER lib)
 set_target_properties(tlTimeline PROPERTIES PUBLIC_HEADER "${HEADERS}")
