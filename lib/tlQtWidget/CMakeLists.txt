@@ -1,5 +1,4 @@
 set(HEADERS
-	BellowsPrivate.h
 	BellowsWidget.h
 	FileWidget.h
     FilmstripWidget.h
@@ -15,6 +14,8 @@ set(HEADERS
     TimelineSlider.h
     TimelineViewport.h
     Util.h)
+set(PRIVATE_HEADERS
+	BellowsPrivate.h)
 
 set(SOURCE
 	BellowsPrivate.cpp
@@ -48,7 +49,7 @@ elseif(TLRENDER_BUILD_QT5)
 endif()
 list(APPEND LIBRARIES tlQt)
 
-add_library(tlQtWidget ${HEADERS} ${SOURCE})
+add_library(tlQtWidget ${HEADERS} ${PRIVATE_HEADERS} ${SOURCE})
 target_link_libraries(tlQtWidget ${LIBRARIES})
 set_target_properties(tlQtWidget PROPERTIES FOLDER lib)
 set_target_properties(tlQtWidget PROPERTIES PUBLIC_HEADER "${HEADERS}")

@@ -252,6 +252,20 @@ namespace tl
             p.lutOptions = p.options.lutOptions;
 
             p.outputDevice = new qt::OutputDevice(context);
+            /*connect(
+                p.outputDevice,
+                &qt::OutputDevice::sizeChanged,
+                [this](const imaging::Size& value)
+                {
+                    std::cout << "output device size: " << value << std::endl;
+                });
+            connect(
+                p.outputDevice,
+                &qt::OutputDevice::frameRateChanged,
+                [this](const otime::RationalTime& value)
+                {
+                    std::cout << "output device frame rate: " << value << std::endl;
+                });*/
             p.devicesModel = DevicesModel::create(context);
             p.devicesModel->setDeviceIndex(p.settingsObject->value("Devices/DeviceIndex").toInt());
             p.devicesModel->setDisplayModeIndex(p.settingsObject->value("Devices/DisplayModeIndex").toInt());

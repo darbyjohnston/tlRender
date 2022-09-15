@@ -8,6 +8,7 @@
 #include <tlGL/OffscreenBuffer.h>
 #include <tlGL/Render.h>
 #include <tlGL/Shader.h>
+#include <tlGL/Texture.h>
 #include <tlGL/Util.h>
 
 #include <tlDevice/IDeviceSystem.h>
@@ -41,6 +42,9 @@ namespace tl
             device::PixelType pixelType = device::PixelType::_8BitBGRA;
             device::HDRMode hdrMode = device::HDRMode::FromFile;
             imaging::HDRData hdrData;
+
+            //! \todo Temporary
+            std::shared_ptr<QImage> overlay;
 
             timeline::ColorConfigOptions colorConfigOptions;
             timeline::LUTOptions lutOptions;
@@ -95,6 +99,21 @@ namespace tl
             TLRENDER_P();
             p.running = false;
             wait();
+        }
+
+        int OutputDevice::getDeviceIndex() const
+        {
+            return _p->deviceIndex;
+        }
+
+        int OutputDevice::getDisplayModeIndex() const
+        {
+            return _p->displayModeIndex;
+        }
+
+        device::PixelType OutputDevice::getPixelType() const
+        {
+            return _p->pixelType;
         }
 
         void OutputDevice::setDevice(
@@ -210,6 +229,27 @@ namespace tl
             }
         }
 
+        void OutputDevice::setOverlay(QImage* qImage)
+        {
+            TLRENDER_P();
+            std::shared_ptr<QImage> tmp;
+            if (qImage)
+            {
+                switch (qImage->format())
+                {
+                case QImage::Format_RGBA8888:
+                case QImage::Format_ARGB4444_Premultiplied:
+                    tmp = std::shared_ptr<QImage>(qImage);
+                    break;
+                }
+            }
+            {
+                std::unique_lock<std::mutex> lock(p.mutex);
+                p.overlay = tmp;
+            }
+            p.cv.notify_one();
+        }
+
         void OutputDevice::setView(
             const tl::math::Vector2i& pos,
             float                     zoom,
@@ -296,6 +336,100 @@ namespace tl
                 };
                 return data[static_cast<size_t>(value)];
             }
+
+            class OverlayTexture
+            {
+                OverlayTexture(const QSize&, QImage::Format);
+
+            public:
+                ~OverlayTexture();
+
+                static std::shared_ptr<OverlayTexture> create(const QSize&, QImage::Format);
+
+                const QSize& getSize() const { return _size; }
+                QImage::Format getFormat() const { return _format; }
+                GLuint getID() const { return _id; }
+
+                void copy(const QImage&);
+
+            private:
+                QSize _size;
+                QImage::Format _format = QImage::Format::Format_Invalid;
+                GLenum _textureFormat = GL_NONE;
+                GLenum _textureType = GL_NONE;
+                GLuint _id = 0;
+            };
+
+            OverlayTexture::OverlayTexture(const QSize& size, QImage::Format format) :
+                _size(size),
+                _format(format)
+            {
+                switch (format)
+                {
+                case QImage::Format_RGBA8888:
+                    _textureFormat = GL_RGBA;
+                    _textureType = GL_UNSIGNED_BYTE;
+                    break;
+                case QImage::Format_ARGB4444_Premultiplied:
+                    _textureFormat = GL_BGRA;
+                    _textureType = GL_UNSIGNED_SHORT_4_4_4_4_REV;
+                    break;
+                default: break;
+                }
+                if (_textureFormat != GL_NONE && _textureType != GL_NONE)
+                {
+                    glGenTextures(1, &_id);
+                    glBindTexture(GL_TEXTURE_2D, _id);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                    glTexImage2D(
+                        GL_TEXTURE_2D,
+                        0,
+                        GL_RGBA8,
+                        _size.width(),
+                        _size.height(),
+                        0,
+                        _textureFormat,
+                        _textureType,
+                        NULL);
+                }
+            }
+
+            OverlayTexture::~OverlayTexture()
+            {
+                if (_id)
+                {
+                    glDeleteTextures(1, &_id);
+                    _id = 0;
+                }
+            }
+
+            std::shared_ptr<OverlayTexture> OverlayTexture::create(const QSize& size, QImage::Format format)
+            {
+                return std::shared_ptr<OverlayTexture>(new OverlayTexture(size, format));
+            }
+
+            void OverlayTexture::copy(const QImage& value)
+            {
+                if (value.size() == _size && value.format() == _format)
+                {
+                    glBindTexture(GL_TEXTURE_2D, _id);
+                    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+                    glPixelStorei(GL_UNPACK_SWAP_BYTES, 0);
+                    glTexSubImage2D(
+                        GL_TEXTURE_2D,
+                        0,
+                        0,
+                        0,
+                        _size.width(),
+                        _size.height(),
+                        _textureFormat,
+                        _textureType,
+                        value.bits());
+                }
+            }
         }
 
         void OutputDevice::run()
@@ -336,10 +470,17 @@ namespace tl
             std::array<GLuint, 1> pbo;
             std::array<otime::RationalTime, 1> pboTime;
             size_t pboIndex = 0;
+
+            std::shared_ptr<QImage> overlay;
+            std::shared_ptr<OverlayTexture> overlayTexture;
+            std::shared_ptr<gl::VBO> overlayVbo;
+            std::shared_ptr<gl::VAO> overlayVao;
+
             while (p.running)
             {
                 bool doCreateDevice = false;
                 bool doRender = false;
+                bool doOverlay = false;
                 {
                     std::unique_lock<std::mutex> lock(p.mutex);
                     if (p.cv.wait_for(
@@ -348,7 +489,8 @@ namespace tl
                         [this, deviceIndex, displayModeIndex, pixelType,
                         colorConfigOptions, lutOptions, imageOptions,
                         displayOptions, hdrMode, hdrData, compareOptions,
-                        sizes, viewPos, viewZoom, frameView, videoData]
+                        sizes, viewPos, viewZoom, frameView, videoData,
+                        overlay]
                         {
                             return
                                 deviceIndex != _p->deviceIndex ||
@@ -365,7 +507,8 @@ namespace tl
                                 viewPos != _p->viewPos ||
                                 viewZoom != _p->viewZoom ||
                                 frameView != _p->frameView ||
-                                videoData != _p->videoData;
+                                videoData != _p->videoData ||
+                                overlay != _p->overlay;
                         }))
                     {
                         if (p.deviceIndex != deviceIndex ||
@@ -391,6 +534,9 @@ namespace tl
                         viewZoom = p.viewZoom;
                         frameView = p.frameView;
                         videoData = p.videoData;
+
+                        doOverlay = overlay != p.overlay;
+                        overlay = p.overlay;
                     }
                 }
 
@@ -399,6 +545,8 @@ namespace tl
                     offscreenBuffer2.reset();
                     offscreenBuffer.reset();
                     device.reset();
+                    imaging::Size deviceSize;
+                    otime::RationalTime deviceFrameRate = time::invalidTime;
                     if (deviceIndex != -1 && displayModeIndex != -1 && pixelType != device::PixelType::None)
                     {
                         if (auto deviceSystem = p.deviceSystem.lock())
@@ -406,6 +554,8 @@ namespace tl
                             try
                             {
                                 device = deviceSystem->createDevice(deviceIndex, displayModeIndex, pixelType);
+                                deviceSize = device->getSize();
+                                deviceFrameRate = device->getFrameRate();
                             }
                             catch (const std::exception& e)
                             {
@@ -416,6 +566,8 @@ namespace tl
                             }
                         }
                     }
+                    Q_EMIT sizeChanged(deviceSize);
+                    Q_EMIT frameRateChanged(deviceFrameRate);
 
                     vao.reset();
                     vbo.reset();
@@ -525,11 +677,17 @@ namespace tl
                                 "in vec2 fTexture;\n"
                                 "out vec4 fColor;\n"
                                 "\n"
+                                "uniform int       mirrorY;\n"
                                 "uniform sampler2D textureSampler;\n"
                                 "\n"
                                 "void main()\n"
                                 "{\n"
-                                "    fColor = texture(textureSampler, fTexture);\n"
+                                "    vec2 t = fTexture;\n"
+                                "    if (1 == mirrorY)\n"
+                                "    {\n"
+                                "        t.y = 1.0 - t.y;\n"
+                                "    }\n"
+                                "    fColor = texture(textureSampler, t);\n"
                                 "}\n";
                             shader = gl::Shader::create(vertexSource, fragmentSource);
                         }
@@ -557,7 +715,7 @@ namespace tl
                                 static_cast<float>(viewportSize.h),
                                 -1.F,
                                 1.F);
-                            const glm::mat4x4 vpm = pm * vm;
+                            glm::mat4x4 vpm = pm * vm;
                             shader->setUniform(
                                 "transform.mvp",
                                 math::Matrix4x4f(
@@ -565,6 +723,7 @@ namespace tl
                                     vpm[1][0], vpm[1][1], vpm[1][2], vpm[1][3],
                                     vpm[2][0], vpm[2][1], vpm[2][2], vpm[2][3],
                                     vpm[3][0], vpm[3][1], vpm[3][2], vpm[3][3]));
+                            shader->setUniform("mirrorY", false);
                             glActiveTexture(GL_TEXTURE0);
                             glBindTexture(GL_TEXTURE_2D, offscreenBuffer->getColorID());
 
@@ -608,6 +767,89 @@ namespace tl
                             {
                                 vao->bind();
                                 vao->draw(GL_TRIANGLES, 0, vbo->getSize());
+                            }
+
+                            if ((overlay && !overlayTexture) ||
+                                (overlay && overlayTexture &&
+                                    (overlay->size() != overlayTexture->getSize() ||
+                                        overlay->format() != overlayTexture->getFormat())))
+                            {
+                                overlayTexture = OverlayTexture::create(overlay->size(), overlay->format());
+                            }
+                            if (overlay && overlayTexture && doOverlay)
+                            {
+                                overlayTexture->copy(*overlay);
+                            }
+                            if (!overlay && overlayTexture)
+                            {
+                                overlayTexture.reset();
+                            }
+                            if (overlay && overlayTexture)
+                            {
+                                switch (overlay->format())
+                                {
+                                case QImage::Format_RGBA8888:
+                                    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+                                    break;
+                                case QImage::Format_ARGB4444_Premultiplied:
+                                    glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+                                    break;
+                                default: break;
+                                }
+
+                                vpm = pm;
+                                shader->setUniform(
+                                    "transform.mvp",
+                                    math::Matrix4x4f(
+                                        vpm[0][0], vpm[0][1], vpm[0][2], vpm[0][3],
+                                        vpm[1][0], vpm[1][1], vpm[1][2], vpm[1][3],
+                                        vpm[2][0], vpm[2][1], vpm[2][2], vpm[2][3],
+                                        vpm[3][0], vpm[3][1], vpm[3][2], vpm[3][3]));
+                                shader->setUniform("mirrorY", true);
+
+                                glBindTexture(GL_TEXTURE_2D, overlayTexture->getID());
+
+                                geom::TriangleMesh3 mesh;
+                                mesh.v.push_back(math::Vector3f(0.F, 0.F, 0.F));
+                                mesh.t.push_back(math::Vector2f(0.F, 0.F));
+                                mesh.v.push_back(math::Vector3f(viewportSize.w, 0.F, 0.F));
+                                mesh.t.push_back(math::Vector2f(1.F, 0.F));
+                                mesh.v.push_back(math::Vector3f(viewportSize.w, viewportSize.h, 0.F));
+                                mesh.t.push_back(math::Vector2f(1.F, 1.F));
+                                mesh.v.push_back(math::Vector3f(0.F, viewportSize.h, 0.F));
+                                mesh.t.push_back(math::Vector2f(0.F, 1.F));
+                                mesh.triangles.push_back(geom::Triangle3({
+                                    geom::Vertex3({ 1, 1, 0 }),
+                                    geom::Vertex3({ 2, 2, 0 }),
+                                    geom::Vertex3({ 3, 3, 0 })
+                                    }));
+                                mesh.triangles.push_back(geom::Triangle3({
+                                    geom::Vertex3({ 3, 3, 0 }),
+                                    geom::Vertex3({ 4, 4, 0 }),
+                                    geom::Vertex3({ 1, 1, 0 })
+                                    }));
+                                auto vboData = convert(
+                                    mesh,
+                                    gl::VBOType::Pos3_F32_UV_U16,
+                                    math::SizeTRange(0, mesh.triangles.size() - 1));
+                                if (!overlayVbo)
+                                {
+                                    overlayVbo = gl::VBO::create(mesh.triangles.size() * 3, gl::VBOType::Pos3_F32_UV_U16);
+                                }
+                                if (overlayVbo)
+                                {
+                                    overlayVbo->copy(vboData);
+                                }
+
+                                if (!overlayVao && overlayVbo)
+                                {
+                                    overlayVao = gl::VAO::create(gl::VBOType::Pos3_F32_UV_U16, overlayVbo->getID());
+                                }
+                                if (overlayVao && overlayVbo)
+                                {
+                                    overlayVao->bind();
+                                    overlayVao->draw(GL_TRIANGLES, 0, overlayVbo->getSize());
+                                }
                             }
 
                             glBindBuffer(GL_PIXEL_PACK_BUFFER, pbo[pboIndex % pbo.size()]);
