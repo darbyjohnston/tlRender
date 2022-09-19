@@ -614,6 +614,14 @@ namespace tl
             return Read::create(path, io::merge(options, _options), _logSystem);
         }
 
+        std::shared_ptr<io::IRead> Plugin::read(
+            const file::Path& path,
+            const std::vector<io::MemoryFileRead>& memoryFiles,
+            const io::Options& options)
+        {
+            return Read::create(path, memoryFiles, io::merge(options, _options), _logSystem);
+        }
+
         imaging::Info Plugin::getWriteInfo(
             const imaging::Info& info,
             const io::Options& options) const

@@ -9,11 +9,11 @@ namespace tl
     namespace timeline
     {
         MemoryReference::MemoryReference(
-            std::string const& target_url,
-            uint8_t* memory_ptr,
+            const std::string& target_url,
+            const uint8_t* memory_ptr,
             size_t memory_size,
-            otio::optional<otio::TimeRange> const& available_range,
-            otio::AnyDictionary const& metadata) :
+            const otio::optional<otio::TimeRange>& available_range,
+            const otio::AnyDictionary& metadata) :
             otio::MediaReference(std::string(), available_range, metadata),
             _target_url(target_url),
             _memory_ptr(memory_ptr),
@@ -23,17 +23,17 @@ namespace tl
         MemoryReference::~MemoryReference()
         {}
 
-        std::string MemoryReference::target_url() const noexcept
+        const std::string& MemoryReference::target_url() const noexcept
         {
             return _target_url;
         }
 
-        void MemoryReference::set_target_url(std::string const& target_url)
+        void MemoryReference::set_target_url(const std::string& target_url)
         {
             _target_url = target_url;
         }
 
-        uint8_t* MemoryReference::memory_ptr() const noexcept
+        const uint8_t* MemoryReference::memory_ptr() const noexcept
         {
             return _memory_ptr;
         }
@@ -43,7 +43,7 @@ namespace tl
             return _memory_size;
         }
 
-        void MemoryReference::set_memory_ptr(uint8_t* value)
+        void MemoryReference::set_memory_ptr(const uint8_t* value)
         {
             _memory_ptr = value;
         }

@@ -49,6 +49,29 @@ namespace tl
                 return true;
             }
 
+            bool jpegOpen(
+                const uint8_t* memoryPtr,
+                size_t memorySize,
+                jpeg_decompress_struct* decompress,
+                ErrorStruct* error)
+            {
+                if (::setjmp(error->jump))
+                {
+                    return false;
+                }
+                jpeg_mem_src(decompress, memoryPtr, memorySize);
+                jpeg_save_markers(decompress, JPEG_COM, 0xFFFF);
+                if (!jpeg_read_header(decompress, static_cast<boolean>(1)))
+                {
+                    return false;
+                }
+                if (!jpeg_start_decompress(decompress))
+                {
+                    return false;
+                }
+                return true;
+            }
+
             bool jpegScanline(
                 jpeg_decompress_struct* decompress,
                 uint8_t* out,
@@ -81,7 +104,9 @@ namespace tl
             class File
             {
             public:
-                File(const std::string& fileName)
+                File(
+                    const std::string& fileName,
+                    const io::MemoryFileRead* memoryFile)
                 {
                     std::memset(&_decompress, 0, sizeof(jpeg_decompress_struct));
 
@@ -93,21 +118,31 @@ namespace tl
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
                     _init = true;
+                    if (memoryFile)
+                    {
+                        if (!jpegOpen(memoryFile->p, memoryFile->size, &_decompress, &_error))
+                        {
+                            throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
+                        }
+                    }
+                    else
+                    {
 #if defined(_WINDOWS)
-                    if (_wfopen_s(&_f, string::toWide(fileName).c_str(), L"rb") != 0)
-                    {
-                        _f = nullptr;
-                    }
+                        if (_wfopen_s(&_f, string::toWide(fileName).c_str(), L"rb") != 0)
+                        {
+                            _f = nullptr;
+                        }
 #else
-                    _f = fopen(fileName.c_str(), "rb");
+                        _f = fopen(fileName.c_str(), "rb");
 #endif
-                    if (!_f)
-                    {
-                        throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
-                    }
-                    if (!jpegOpen(_f, &_decompress, &_error))
-                    {
-                        throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
+                        if (!_f)
+                        {
+                            throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
+                        }
+                        if (!jpegOpen(_f, &_decompress, &_error))
+                        {
+                            throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
+                        }
                     }
 
                     imaging::PixelType pixelType = imaging::getIntType(_decompress.out_color_components, 8);
@@ -190,10 +225,11 @@ namespace tl
 
         void Read::_init(
             const file::Path& path,
+            const std::vector<io::MemoryFileRead>& memoryFiles,
             const io::Options& options,
             const std::weak_ptr<log::System>& logSystem)
         {
-            ISequenceRead::_init(path, options, logSystem);
+            ISequenceRead::_init(path, memoryFiles, options, logSystem);
         }
 
         Read::Read()
@@ -210,13 +246,26 @@ namespace tl
             const std::weak_ptr<log::System>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
-            out->_init(path, options, logSystem);
+            out->_init(path, {}, options, logSystem);
             return out;
         }
 
-        io::Info Read::_getInfo(const std::string& fileName)
+        std::shared_ptr<Read> Read::create(
+            const file::Path& path,
+            const std::vector<io::MemoryFileRead>& memoryFiles,
+            const io::Options& options,
+            const std::weak_ptr<log::System>& logSystem)
         {
-            io::Info out = File(fileName).getInfo();
+            auto out = std::shared_ptr<Read>(new Read);
+            out->_init(path, memoryFiles, options, logSystem);
+            return out;
+        }
+
+        io::Info Read::_getInfo(
+            const std::string& fileName,
+            const io::MemoryFileRead* memoryFile)
+        {
+            io::Info out = File(fileName, memoryFile).getInfo();
             out.videoTime = otime::TimeRange::range_from_start_end_time_inclusive(
                 otime::RationalTime(_startFrame, _defaultSpeed),
                 otime::RationalTime(_endFrame, _defaultSpeed));
@@ -225,10 +274,11 @@ namespace tl
 
         io::VideoData Read::_readVideo(
             const std::string& fileName,
+            const io::MemoryFileRead* memoryFile,
             const otime::RationalTime& time,
             uint16_t layer)
         {
-            return File(fileName).read(fileName, time);
+            return File(fileName, memoryFile).read(fileName, time);
         }
     }
 }

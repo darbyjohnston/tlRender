@@ -41,6 +41,9 @@ namespace tl
             //! Create a new file I/O object.
             static std::shared_ptr<FileIO> create();
 
+            //! Create a new file I/O object.
+            static std::shared_ptr<FileIO> create(const std::string& fileName, Mode);
+
             //! \name Open and Close
             ///@{
 

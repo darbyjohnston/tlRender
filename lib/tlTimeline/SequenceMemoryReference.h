@@ -16,28 +16,28 @@ namespace tl
         {
         public:
             SequenceMemoryReference(
-                std::string const& target_url = std::string(),
-                std::vector<uint8_t*> const& memory_ptrs = std::vector<uint8_t*>(),
-                std::vector<size_t> const& memory_sizes = std::vector<size_t>(),
-                otio::optional<otio::TimeRange> const& available_range = otio::nullopt,
-                otio::AnyDictionary const& metadata = otio::AnyDictionary());
+                const std::string& target_url = std::string(),
+                const std::vector<const uint8_t*>& memory_ptrs = std::vector<const uint8_t*>(),
+                const std::vector<size_t>& memory_sizes = std::vector<size_t>(),
+                const otio::optional<otio::TimeRange>& available_range = otio::nullopt,
+                const otio::AnyDictionary& metadata = otio::AnyDictionary());
 
-            std::string target_url() const noexcept;
+            const std::string& target_url() const noexcept;
 
-            void set_target_url(std::string const&);
+            void set_target_url(const std::string&);
 
-            std::vector<uint8_t*> const& memory_ptrs() const noexcept;
-            std::vector<size_t> const& memory_sizes() const noexcept;
+            const std::vector<const uint8_t*>& memory_ptrs() const noexcept;
+            const std::vector<size_t>& memory_sizes() const noexcept;
 
-            void set_memory_ptrs(std::vector<uint8_t*> const&);
-            void set_memory_sizes(std::vector<size_t> const&);
+            void set_memory_ptrs(const std::vector<const uint8_t*>&);
+            void set_memory_sizes(const std::vector<size_t>&);
 
         protected:
             virtual ~SequenceMemoryReference();
 
         private:
             std::string _target_url;
-            std::vector<uint8_t*> _memory_ptrs;
+            std::vector<const uint8_t*> _memory_ptrs;
             std::vector<size_t> _memory_sizes;
         };
     }

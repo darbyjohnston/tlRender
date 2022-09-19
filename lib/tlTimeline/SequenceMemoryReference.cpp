@@ -9,11 +9,11 @@ namespace tl
     namespace timeline
     {
         SequenceMemoryReference::SequenceMemoryReference(
-            std::string const& target_url,
-            std::vector<uint8_t*> const& memory_ptrs,
-            std::vector<size_t> const& memory_sizes,
-            otio::optional<otio::TimeRange> const& available_range,
-            otio::AnyDictionary const& metadata) :
+            const std::string& target_url,
+            const std::vector<const uint8_t*>& memory_ptrs,
+            const std::vector<size_t>& memory_sizes,
+            const otio::optional<otio::TimeRange>& available_range,
+            const otio::AnyDictionary& metadata) :
             otio::MediaReference(std::string(), available_range, metadata),
             _target_url(target_url),
             _memory_ptrs(memory_ptrs),
@@ -23,32 +23,32 @@ namespace tl
         SequenceMemoryReference::~SequenceMemoryReference()
         {}
 
-        std::string SequenceMemoryReference::target_url() const noexcept
+        const std::string& SequenceMemoryReference::target_url() const noexcept
         {
             return _target_url;
         }
 
-        void SequenceMemoryReference::set_target_url(std::string const& target_url)
+        void SequenceMemoryReference::set_target_url(const std::string& target_url)
         {
             _target_url = target_url;
         }
 
-        std::vector<uint8_t*> const& SequenceMemoryReference::memory_ptrs() const noexcept
+        const std::vector<const uint8_t*>& SequenceMemoryReference::memory_ptrs() const noexcept
         {
             return _memory_ptrs;
         }
 
-        std::vector<size_t> const& SequenceMemoryReference::memory_sizes() const noexcept
+        const std::vector<size_t>& SequenceMemoryReference::memory_sizes() const noexcept
         {
             return _memory_sizes;
         }
 
-        void SequenceMemoryReference::set_memory_ptrs(std::vector<uint8_t*> const& value)
+        void SequenceMemoryReference::set_memory_ptrs(const std::vector<const uint8_t*>& value)
         {
             _memory_ptrs = value;
         }
 
-        void SequenceMemoryReference::set_memory_sizes(std::vector<size_t> const& value)
+        void SequenceMemoryReference::set_memory_sizes(const std::vector<size_t>& value)
         {
             _memory_sizes = value;
         }

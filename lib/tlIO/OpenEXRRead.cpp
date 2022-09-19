@@ -303,10 +303,11 @@ namespace tl
 
         void Read::_init(
             const file::Path& path,
+            const std::vector<io::MemoryFileRead>& memoryFiles,
             const io::Options& options,
             const std::weak_ptr<log::System>& logSystem)
         {
-            ISequenceRead::_init(path, options, logSystem);
+            ISequenceRead::_init(path, memoryFiles, options, logSystem);
 
             auto option = options.find("exr/ChannelGrouping");
             if (option != options.end())
@@ -330,11 +331,24 @@ namespace tl
             const std::weak_ptr<log::System>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
-            out->_init(path, options, logSystem);
+            out->_init(path, {}, options, logSystem);
             return out;
         }
 
-        io::Info Read::_getInfo(const std::string& fileName)
+        std::shared_ptr<Read> Read::create(
+            const file::Path& path,
+            const std::vector<io::MemoryFileRead>& memoryFiles,
+            const io::Options& options,
+            const std::weak_ptr<log::System>& logSystem)
+        {
+            auto out = std::shared_ptr<Read>(new Read);
+            out->_init(path, memoryFiles, options, logSystem);
+            return out;
+        }
+
+        io::Info Read::_getInfo(
+            const std::string& fileName,
+            const io::MemoryFileRead* memoryFiles)
         {
             io::Info out = File(fileName, _channelGrouping, _logSystem.lock()).getInfo();
             float speed = _defaultSpeed;
@@ -351,6 +365,7 @@ namespace tl
 
         io::VideoData Read::_readVideo(
             const std::string& fileName,
+            const io::MemoryFileRead* memoryFile,
             const otime::RationalTime& time,
             uint16_t layer)
         {

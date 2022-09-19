@@ -36,6 +36,19 @@ namespace tl
             First = Unknown
         };
 
+        //! In-memory file read data.
+        struct MemoryFileRead
+        {
+            MemoryFileRead();
+            MemoryFileRead(const uint8_t*, size_t size);
+
+            const uint8_t* p = nullptr;
+            size_t size = 0;
+
+            bool operator == (const MemoryFileRead&) const;
+            bool operator != (const MemoryFileRead&) const;
+        };
+
         //! I/O information.
         struct Info
         {
@@ -108,6 +121,7 @@ namespace tl
                 const file::Path&,
                 const Options&,
                 const std::weak_ptr<log::System>&);
+
             IIO();
 
         public:
@@ -128,8 +142,10 @@ namespace tl
         protected:
             void _init(
                 const file::Path&,
+                const std::vector<MemoryFileRead>&,
                 const Options&,
                 const std::weak_ptr<log::System>&);
+
             IRead();
 
         public:
@@ -155,6 +171,9 @@ namespace tl
 
             //! Has the reader stopped?
             virtual bool hasStopped() const = 0;
+
+        protected:
+            std::vector<MemoryFileRead> _memoryFiles;
         };
 
         //! Base class for writers.
@@ -166,6 +185,7 @@ namespace tl
                 const Options&,
                 const Info&,
                 const std::weak_ptr<log::System>&);
+
             IWrite();
 
         public:
@@ -190,6 +210,7 @@ namespace tl
                 const std::string& name,
                 const std::map<std::string, FileType>& extensions,
                 const std::weak_ptr<log::System>&);
+
             IPlugin();
 
         public:
@@ -210,7 +231,13 @@ namespace tl
             //! Create a reader for the given path.
             virtual std::shared_ptr<IRead> read(
                 const file::Path&,
-                const Options& = Options()) = 0;
+                const Options & = Options()) = 0;
+
+            //! Create a reader for the given path and memory locations.
+            virtual std::shared_ptr<IRead> read(
+                const file::Path&,
+                const std::vector<MemoryFileRead>&,
+                const Options & = Options()) = 0;
 
             //! Get information for writing.
             virtual imaging::Info getWriteInfo(

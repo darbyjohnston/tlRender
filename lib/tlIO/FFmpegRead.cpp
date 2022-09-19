@@ -103,10 +103,11 @@ namespace tl
 
         void Read::_init(
             const file::Path& path,
+            const std::vector<io::MemoryFileRead>& memoryFiles,
             const io::Options& options,
             const std::weak_ptr<log::System>& logSystem)
         {
-            IRead::_init(path, options, logSystem);
+            IRead::_init(path, {}, options, logSystem);
 
             TLRENDER_P();
 
@@ -227,7 +228,18 @@ namespace tl
             const std::weak_ptr<log::System>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
-            out->_init(path, options, logSystem);
+            out->_init(path, {}, options, logSystem);
+            return out;
+        }
+
+        std::shared_ptr<Read> Read::create(
+            const file::Path& path,
+            const std::vector<io::MemoryFileRead>& memoryFiles,
+            const io::Options& options,
+            const std::weak_ptr<log::System>& logSystem)
+        {
+            auto out = std::shared_ptr<Read>(new Read);
+            out->_init(path, memoryFiles, options, logSystem);
             return out;
         }
 

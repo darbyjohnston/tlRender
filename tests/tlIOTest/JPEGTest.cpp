@@ -86,6 +86,27 @@ namespace tl
                                     }
                                 }
                                 {
+                                    std::vector<uint8_t> memoryFilesData;
+                                    std::vector<io::MemoryFileRead> memoryFiles;
+                                    {
+                                        auto fileIO = file::FileIO::create(path.get(), file::Mode::Read);
+                                        memoryFilesData.resize(fileIO->getSize());
+                                        fileIO->read(memoryFilesData.data(), memoryFilesData.size());
+                                        memoryFiles.push_back(io::MemoryFileRead(memoryFilesData.data(), memoryFilesData.size()));
+                                    }
+                                    auto read = plugin->read(path, memoryFiles);
+                                    const auto videoData = read->readVideo(otime::RationalTime(0.0, 24.0)).get();
+                                    TLRENDER_ASSERT(videoData.image);
+                                    TLRENDER_ASSERT(videoData.image->getInfo() == image->getInfo());
+                                    const auto frameTags = videoData.image->getTags();
+                                    for (const auto& j : tags)
+                                    {
+                                        const auto k = frameTags.find(j.first);
+                                        TLRENDER_ASSERT(k != frameTags.end());
+                                        TLRENDER_ASSERT(k->second == j.second);
+                                    }
+                                }
+                                {
                                     auto io = file::FileIO::create();
                                     io->open(path.get(), file::Mode::Read);
                                     const size_t size = io->getSize();
