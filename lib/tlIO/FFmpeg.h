@@ -70,7 +70,7 @@ namespace tl
         protected:
             void _init(
                 const file::Path&,
-                const std::vector<io::MemoryFileRead>&,
+                const std::vector<io::MemoryRead>&,
                 const io::Options&,
                 const std::weak_ptr<log::System>&);
 
@@ -88,7 +88,7 @@ namespace tl
             //! Create a new reader.
             static std::shared_ptr<Read> create(
                 const file::Path&,
-                const std::vector<io::MemoryFileRead>&,
+                const std::vector<io::MemoryRead>&,
                 const io::Options&,
                 const std::weak_ptr<log::System>&);
 
@@ -157,7 +157,7 @@ namespace tl
                 const io::Options& = io::Options()) override;
             std::shared_ptr<io::IRead> read(
                 const file::Path&,
-                const std::vector<io::MemoryFileRead>&,
+                const std::vector<io::MemoryRead>&,
                 const io::Options & = io::Options()) override;
             imaging::Info getWriteInfo(
                 const imaging::Info&,

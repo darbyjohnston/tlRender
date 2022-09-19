@@ -86,15 +86,15 @@ namespace tl
                                     }
                                 }
                                 {
-                                    std::vector<uint8_t> memoryFilesData;
-                                    std::vector<io::MemoryFileRead> memoryFiles;
+                                    std::vector<uint8_t> memoryData;
+                                    std::vector<io::MemoryRead> memory;
                                     {
                                         auto fileIO = file::FileIO::create(path.get(), file::Mode::Read);
-                                        memoryFilesData.resize(fileIO->getSize());
-                                        fileIO->read(memoryFilesData.data(), memoryFilesData.size());
-                                        memoryFiles.push_back(io::MemoryFileRead(memoryFilesData.data(), memoryFilesData.size()));
+                                        memoryData.resize(fileIO->getSize());
+                                        fileIO->read(memoryData.data(), memoryData.size());
+                                        memory.push_back(io::MemoryRead(memoryData.data(), memoryData.size()));
                                     }
-                                    auto read = plugin->read(path, memoryFiles);
+                                    auto read = plugin->read(path, memory);
                                     const auto videoData = read->readVideo(otime::RationalTime(0.0, 24.0)).get();
                                     TLRENDER_ASSERT(videoData.image);
                                     TLRENDER_ASSERT(videoData.image->getInfo() == image->getInfo());

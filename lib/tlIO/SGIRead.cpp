@@ -275,11 +275,11 @@ namespace tl
 
         void Read::_init(
             const file::Path& path,
-            const std::vector<io::MemoryFileRead>& memoryFiles,
+            const std::vector<io::MemoryRead>& memory,
             const io::Options& options,
             const std::weak_ptr<log::System>& logSystem)
         {
-            ISequenceRead::_init(path, memoryFiles, options, logSystem);
+            ISequenceRead::_init(path, memory, options, logSystem);
         }
 
         Read::Read()
@@ -302,18 +302,18 @@ namespace tl
 
         std::shared_ptr<Read> Read::create(
             const file::Path& path,
-            const std::vector<io::MemoryFileRead>& memoryFiles,
+            const std::vector<io::MemoryRead>& memory,
             const io::Options& options,
             const std::weak_ptr<log::System>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
-            out->_init(path, memoryFiles, options, logSystem);
+            out->_init(path, memory, options, logSystem);
             return out;
         }
 
         io::Info Read::_getInfo(
             const std::string& fileName,
-            const io::MemoryFileRead* memoryFile)
+            const io::MemoryRead* memoryFile)
         {
             io::Info out;
             out.video.push_back(File(fileName).getInfo());
@@ -325,7 +325,7 @@ namespace tl
 
         io::VideoData Read::_readVideo(
             const std::string& fileName,
-            const io::MemoryFileRead* memoryFile,
+            const io::MemoryRead* memoryFile,
             const otime::RationalTime& time,
             uint16_t layer)
         {

@@ -25,7 +25,7 @@ namespace tl
         protected:
             void _init(
                 const file::Path&,
-                const std::vector<MemoryFileRead>&,
+                const std::vector<MemoryRead>&,
                 const Options&,
                 const std::weak_ptr<log::System>&);
 
@@ -44,10 +44,10 @@ namespace tl
         protected:
             virtual Info _getInfo(
                 const std::string& fileName,
-                const MemoryFileRead*) = 0;
+                const MemoryRead*) = 0;
             virtual VideoData _readVideo(
                 const std::string& fileName,
-                const MemoryFileRead*,
+                const MemoryRead*,
                 const otime::RationalTime&,
                 uint16_t layer) = 0;
 

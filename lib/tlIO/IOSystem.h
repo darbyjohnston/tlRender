@@ -52,7 +52,13 @@ namespace tl
             // Create a reader for the given path.
             std::shared_ptr<IRead> read(
                 const file::Path&,
-                const Options& = Options());
+                const Options & = Options());
+
+            // Create a reader for the given path and memory locations.
+            std::shared_ptr<IRead> read(
+                const file::Path&,
+                const std::vector<MemoryRead>&,
+                const Options & = Options());
 
             // Create a writer for the given path.
             std::shared_ptr<IWrite> write(

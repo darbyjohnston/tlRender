@@ -6,22 +6,22 @@ namespace tl
 {
     namespace io
     {
-        inline MemoryFileRead::MemoryFileRead()
+        inline MemoryRead::MemoryRead()
         {}
 
-        inline MemoryFileRead::MemoryFileRead(const uint8_t* p, size_t size) :
+        inline MemoryRead::MemoryRead(const uint8_t* p, size_t size) :
             p(p),
             size(size)
         {}
 
-        inline bool MemoryFileRead::operator == (const MemoryFileRead& other) const
+        inline bool MemoryRead::operator == (const MemoryRead& other) const
         {
             return
                 p == other.p &&
                 size == other.size;
         }
 
-        inline bool MemoryFileRead::operator != (const MemoryFileRead& other) const
+        inline bool MemoryRead::operator != (const MemoryRead& other) const
         {
             return !(*this == other);
         }

@@ -103,7 +103,7 @@ namespace tl
 
         void Read::_init(
             const file::Path& path,
-            const std::vector<io::MemoryFileRead>& memoryFiles,
+            const std::vector<io::MemoryRead>& memory,
             const io::Options& options,
             const std::weak_ptr<log::System>& logSystem)
         {
@@ -234,12 +234,12 @@ namespace tl
 
         std::shared_ptr<Read> Read::create(
             const file::Path& path,
-            const std::vector<io::MemoryFileRead>& memoryFiles,
+            const std::vector<io::MemoryRead>& memory,
             const io::Options& options,
             const std::weak_ptr<log::System>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
-            out->_init(path, memoryFiles, options, logSystem);
+            out->_init(path, memory, options, logSystem);
             return out;
         }
 

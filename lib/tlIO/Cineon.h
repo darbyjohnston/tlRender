@@ -178,7 +178,7 @@ namespace tl
         protected:
             void _init(
                 const file::Path&,
-                const std::vector<io::MemoryFileRead>&,
+                const std::vector<io::MemoryRead>&,
                 const io::Options&,
                 const std::weak_ptr<log::System>&);
 
@@ -196,17 +196,17 @@ namespace tl
             //! Create a new reader.
             static std::shared_ptr<Read> create(
                 const file::Path&,
-                const std::vector<io::MemoryFileRead>&,
+                const std::vector<io::MemoryRead>&,
                 const io::Options&,
                 const std::weak_ptr<log::System>&);
 
         protected:
             io::Info _getInfo(
                 const std::string& fileName,
-                const io::MemoryFileRead*) override;
+                const io::MemoryRead*) override;
             io::VideoData _readVideo(
                 const std::string& fileName,
-                const io::MemoryFileRead*,
+                const io::MemoryRead*,
                 const otime::RationalTime&,
                 uint16_t layer) override;
         };
@@ -257,7 +257,7 @@ namespace tl
                 const io::Options & = io::Options()) override;
             std::shared_ptr<io::IRead> read(
                 const file::Path&,
-                const std::vector<io::MemoryFileRead>&,
+                const std::vector<io::MemoryRead>&,
                 const io::Options & = io::Options()) override;
             imaging::Info getWriteInfo(
                 const imaging::Info&,

@@ -36,17 +36,17 @@ namespace tl
             First = Unknown
         };
 
-        //! In-memory file read data.
-        struct MemoryFileRead
+        //! Read files from in-memory.
+        struct MemoryRead
         {
-            MemoryFileRead();
-            MemoryFileRead(const uint8_t*, size_t size);
+            MemoryRead();
+            MemoryRead(const uint8_t*, size_t size);
 
             const uint8_t* p = nullptr;
             size_t size = 0;
 
-            bool operator == (const MemoryFileRead&) const;
-            bool operator != (const MemoryFileRead&) const;
+            bool operator == (const MemoryRead&) const;
+            bool operator != (const MemoryRead&) const;
         };
 
         //! I/O information.
@@ -142,7 +142,7 @@ namespace tl
         protected:
             void _init(
                 const file::Path&,
-                const std::vector<MemoryFileRead>&,
+                const std::vector<MemoryRead>&,
                 const Options&,
                 const std::weak_ptr<log::System>&);
 
@@ -173,7 +173,7 @@ namespace tl
             virtual bool hasStopped() const = 0;
 
         protected:
-            std::vector<MemoryFileRead> _memoryFiles;
+            std::vector<MemoryRead> _memory;
         };
 
         //! Base class for writers.
@@ -236,7 +236,7 @@ namespace tl
             //! Create a reader for the given path and memory locations.
             virtual std::shared_ptr<IRead> read(
                 const file::Path&,
-                const std::vector<MemoryFileRead>&,
+                const std::vector<MemoryRead>&,
                 const Options & = Options()) = 0;
 
             //! Get information for writing.

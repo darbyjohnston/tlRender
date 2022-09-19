@@ -58,22 +58,22 @@ namespace tl
 
         void ISequenceRead::_init(
             const file::Path& path,
-            const std::vector<MemoryFileRead>& memoryFiles,
+            const std::vector<MemoryRead>& memory,
             const Options& options,
             const std::weak_ptr<log::System>& logSystem)
         {
-            IRead::_init(path, memoryFiles, options, logSystem);
+            IRead::_init(path, memory, options, logSystem);
 
             TLRENDER_P();
 
             const std::string& number = path.getNumber();
             if (!number.empty())
             {
-                if (!_memoryFiles.empty())
+                if (!_memory.empty())
                 {
                     std::stringstream ss(number);
                     ss >> _startFrame;
-                    _endFrame = _startFrame + _memoryFiles.size() - 1;
+                    _endFrame = _startFrame + _memory.size() - 1;
                 }
                 else
                 {
@@ -129,7 +129,7 @@ namespace tl
                     {
                         auto info = _getInfo(
                             path.get(), 
-                            !_memoryFiles.empty() ? &_memoryFiles[0] : nullptr);
+                            !_memory.empty() ? &_memory[0] : nullptr);
                         p.addTags(info);
                         p.infoPromise.set_value(info);
                         try
@@ -334,7 +334,7 @@ namespace tl
                                 {
                                     out = _readVideo(
                                         fileName,
-                                        frame >= 0 && frame < _memoryFiles.size() ? &_memoryFiles[frame] : nullptr,
+                                        frame >= 0 && frame < _memory.size() ? &_memory[frame] : nullptr,
                                         time,
                                         layer);
                                 }
