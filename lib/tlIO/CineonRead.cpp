@@ -55,8 +55,7 @@ namespace tl
             const io::MemoryFileRead* memoryFile)
         {
             io::Info out;
-            auto io = file::FileIO::create();
-            io->open(fileName, file::Mode::Read);
+            auto io = file::FileIO::create(fileName, file::Mode::Read);
             const auto header = read(io, out);
             float speed = _defaultSpeed;
             const auto i = out.tags.find("Film Frame Rate");
@@ -79,8 +78,7 @@ namespace tl
             io::VideoData out;
             out.time = time;
 
-            auto io = file::FileIO::create();
-            io->open(fileName, file::Mode::Read);
+            auto io = file::FileIO::create(fileName, file::Mode::Read);
             io::Info info;
             read(io, info);
 

@@ -97,8 +97,7 @@ namespace tl
                                         //    image->getDataByteCount()));
                                     }
                                     {
-                                        auto io = file::FileIO::create();
-                                        io->open(path.get(), file::Mode::Read);
+                                        auto io = file::FileIO::create(path.get(), file::Mode::Read);
                                         const size_t size = io->getSize();
                                         io->close();
                                         file::truncate(path.get(), size / 2);

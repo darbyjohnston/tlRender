@@ -113,8 +113,7 @@ namespace tl
             public:
                 File(const std::string& fileName)
                 {
-                    _io = file::FileIO::create();
-                    _io->open(fileName, file::Mode::Read);
+                    _io = file::FileIO::create(fileName, file::Mode::Read);
                     _io->setEndianConversion(memory::getEndian() != memory::Endian::MSB);
                     _io->readU16(&_header.magic);
                     if (_header.magic != 474)

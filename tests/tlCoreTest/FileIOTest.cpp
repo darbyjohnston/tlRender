@@ -69,8 +69,7 @@ namespace tl
                 constexpr uint32_t u32 = std::numeric_limits<uint32_t>::max();
                 constexpr float    f = std::numeric_limits<float>::max();
                 const std::string fileName = Path(createTempDir(), _fileName).get();
-                auto io = FileIO::create();
-                io->open(fileName, Mode::Write);
+                auto io = FileIO::create(fileName, Mode::Write);
                 io->write8(i8);
                 io->writeU8(u8);
                 io->write16(i16);
@@ -103,19 +102,16 @@ namespace tl
                 TLRENDER_ASSERT(f == _f);
             }
             {
-                auto io = FileIO::create();
-                io->open("大平原", Mode::Write);
+                auto io = FileIO::create("大平原", Mode::Write);
                 TLRENDER_ASSERT(io->isOpen());
             }
             {
-                auto io = FileIO::create();
-                io->open("大平原", Mode::Read);
+                auto io = FileIO::create("大平原", Mode::Read);
                 TLRENDER_ASSERT(io->isOpen());
             }
             {
-                auto io = FileIO::create();
                 const std::string fileName = Path(createTempDir(), _fileName).get();
-                io->open(fileName, Mode::Write);
+                auto io = FileIO::create(fileName, Mode::Write);
                 io->write(_text + " ");
                 io->open(fileName, Mode::Append);
                 io->seek(io->getSize());
@@ -137,8 +133,7 @@ namespace tl
                         _text + " " + _text2
                     });
 
-                auto io = FileIO::create();
-                io->open(fileName, Mode::Read);
+                auto io = FileIO::create(fileName, Mode::Read);
                 char buf[string::cBufferSize];
                 readWord(io, buf);
                 _print(buf);
@@ -149,8 +144,7 @@ namespace tl
             }
             {
                 const std::string fileName = Path(createTempDir(), _fileName).get();
-                auto io = FileIO::create();
-                io->open(fileName, Mode::Write);
+                auto io = FileIO::create(fileName, Mode::Write);
                 io->write(_text + "\n" + _text2);
 
                 io->open(fileName, Mode::Read);
@@ -182,8 +176,7 @@ namespace tl
             }
             {
                 const std::string fileName = Path(createTempDir(), _fileName).get();
-                auto io = FileIO::create();
-                io->open(fileName, Mode::Write);
+                auto io = FileIO::create(fileName, Mode::Write);
                 TLRENDER_ASSERT(!io->hasEndianConversion());
                 io->setEndianConversion(true);
                 TLRENDER_ASSERT(io->hasEndianConversion());
@@ -219,8 +212,7 @@ namespace tl
             {
                 try
                 {
-                    auto io = FileIO::create();
-                    io->open(std::string(), mode);
+                    FileIO::create(std::string(), mode);
                     TLRENDER_ASSERT(false);
                 }
                 catch (const std::exception& e)
@@ -232,8 +224,7 @@ namespace tl
             try
             {
                 const std::string fileName = Path(createTempDir(), _fileName).get();
-                auto io = FileIO::create();
-                io->open(fileName, Mode::Write);
+                auto io = FileIO::create(fileName, Mode::Write);
                 io->open(fileName, Mode::Read);
                 uint8_t buf[16];
                 io->read(buf, 16, 1);
@@ -248,8 +239,7 @@ namespace tl
             try
             {
                 const std::string fileName = Path(createTempDir(), _fileName).get();
-                auto io = FileIO::create();
-                io->open(fileName, Mode::Write);
+                auto io = FileIO::create(fileName, Mode::Write);
                 io->open(fileName, Mode::ReadWrite);
                 uint8_t buf[16];
                 //! \bug FileIO::read() doesn't fail here on Windows?

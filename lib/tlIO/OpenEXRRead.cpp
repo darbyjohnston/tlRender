@@ -32,8 +32,7 @@ namespace tl
             _p(new Private)
         {
             TLRENDER_P();
-            p.f = file::FileIO::create();
-            p.f->open(fileName, file::Mode::Read);
+            p.f = file::FileIO::create(fileName, file::Mode::Read);
             p.size = p.f->getSize();
             p.p = const_cast<char*>(reinterpret_cast<const char*>(p.f->mmapP()));
         }

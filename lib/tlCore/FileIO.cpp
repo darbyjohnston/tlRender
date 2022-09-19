@@ -236,8 +236,7 @@ namespace tl
         std::vector<std::string> readLines(const std::string& fileName)
         {
             std::vector<std::string> out;
-            auto io = FileIO::create();
-            io->open(fileName, Mode::Read);
+            auto io = FileIO::create(fileName, Mode::Read);
             while (!io->isEOF())
             {
                 char buf[string::cBufferSize] = "";
@@ -249,8 +248,7 @@ namespace tl
 
         void writeLines(const std::string& fileName, const std::vector<std::string>& lines)
         {
-            auto io = FileIO::create();
-            io->open(fileName, Mode::Write);
+            auto io = FileIO::create(fileName, Mode::Write);
             for (const auto& line : lines)
             {
                 io->write(line);

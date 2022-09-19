@@ -55,8 +55,7 @@ namespace tl
             const io::MemoryFileRead* memoryFile)
         {
             io::Info out;
-            auto io = file::FileIO::create();
-            io->open(fileName, file::Mode::Read);
+            auto io = file::FileIO::create(fileName, file::Mode::Read);
             Transfer transfer = Transfer::User;
             const auto header = read(io, out, transfer);
             float speed = _defaultSpeed;
@@ -88,8 +87,7 @@ namespace tl
             io::VideoData out;
             out.time = time;
 
-            auto io = file::FileIO::create();
-            io->open(fileName, file::Mode::Read);
+            auto io = file::FileIO::create(fileName, file::Mode::Read);
             io::Info info;
             Transfer transfer = Transfer::User;
             read(io, info, transfer);

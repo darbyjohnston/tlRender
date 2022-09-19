@@ -17,8 +17,7 @@ namespace tl
             public:
                 File(const std::string& fileName)
                 {
-                    _io = file::FileIO::create();
-                    _io->open(fileName, file::Mode::Read);
+                    _io = file::FileIO::create(fileName, file::Mode::Read);
 
                     char magic[] = { 0, 0, 0 };
                     _io->read(magic, 2);
