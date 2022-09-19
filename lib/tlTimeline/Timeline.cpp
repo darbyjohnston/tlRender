@@ -102,6 +102,26 @@ namespace tl
             p.context = context;
             p.options = options;
             p.otioTimeline = otioTimeline;
+            const auto i = otioTimeline->metadata().find("tl::timeline::create");
+            if (i != otioTimeline->metadata().end())
+            {
+                try
+                {
+                    const auto dict = otio::any_cast<otio::AnyDictionary>(i->second);
+                    auto j = dict.find("path");
+                    if (j != dict.end())
+                    {
+                        p.path = otio::any_cast<file::Path>(j->second);
+                    }
+                    j = dict.find("audioPath");
+                    if (j != dict.end())
+                    {
+                        p.audioPath = otio::any_cast<file::Path>(j->second);
+                    }
+                }
+                catch (const std::exception&)
+                {}
+            }
 
             // Get information about the timeline.
             otio::ErrorStatus errorStatus;

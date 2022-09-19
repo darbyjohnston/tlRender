@@ -156,22 +156,12 @@ namespace tl
             }
         }
 
-        std::shared_ptr<Timeline> Timeline::create(
-            const otio::SerializableObject::Retainer<otio::Timeline>& timeline,
-            const std::shared_ptr<system::Context>& context,
-            const Options& options)
-        {
-            auto out = std::shared_ptr<Timeline>(new Timeline);
-            out->_init(timeline, context, options);
-            return out;
-        }
-
-        std::shared_ptr<Timeline> Timeline::create(
+        otio::SerializableObject::Retainer<otio::Timeline> create(
             const std::string& fileName,
             const std::shared_ptr<system::Context>& context,
             const Options& options)
         {
-            otio::SerializableObject::Retainer<otio::Timeline> otioTimeline;
+            otio::SerializableObject::Retainer<otio::Timeline> out;
             bool isSequence = false;
             const file::Path path(fileName, options.pathOptions);
             file::Path audioPath;
@@ -277,11 +267,11 @@ namespace tl
                         }
                     }
 
-                    otioTimeline = new otio::Timeline(path.get());
-                    otioTimeline->set_tracks(otioStack);
+                    out = new otio::Timeline(path.get());
+                    out->set_tracks(otioStack);
                     if (globalStartTime != time::invalidTime)
                     {
-                        otioTimeline->set_global_start_time(globalStartTime);
+                        out->set_global_start_time(globalStartTime);
                     }
                 }
             }
@@ -292,7 +282,7 @@ namespace tl
 
             auto logSystem = context->getLogSystem();
             logSystem->print(
-                "tl::timeline::Timeline",
+                "tl::timeline::create",
                 string::Format(
                     "\n"
                     "    Create from path: {0}\n"
@@ -300,39 +290,40 @@ namespace tl
                 arg(path.get()).
                 arg(audioPath.get()));
 
-            if (!otioTimeline)
+            if (!out)
             {
                 otio::ErrorStatus errorStatus;
-                otioTimeline = readTimeline(path.get(), &errorStatus);
+                out = readTimeline(path.get(), &errorStatus);
                 if (otio::is_error(errorStatus))
                 {
-                    otioTimeline = nullptr;
+                    out = nullptr;
                     error = errorStatus.full_description;
                 }
-                else if (!otioTimeline)
+                else if (!out)
                 {
                     error = "Cannot read timeline";
                 }
             }
-            if (!otioTimeline)
+            if (!out)
             {
                 throw std::runtime_error(error);
             }
 
-            auto out = std::shared_ptr<Timeline>(new Timeline);
-            out->_p->path = path;
-            out->_p->audioPath = audioPath;
-            out->_init(otioTimeline, context, options);
+            otio::AnyDictionary dict;
+            dict["path"] = path;
+            dict["audioPath"] = audioPath;
+            out->metadata()["tl::timeline::create"] = dict;
+
             return out;
         }
 
-        std::shared_ptr<Timeline> Timeline::create(
+        otio::SerializableObject::Retainer<otio::Timeline> create(
             const std::string& fileName,
             const std::string& audioFileName,
             const std::shared_ptr<system::Context>& context,
             const Options& options)
         {
-            otio::SerializableObject::Retainer<otio::Timeline> otioTimeline;
+            otio::SerializableObject::Retainer<otio::Timeline> out;
             bool isSequence = false;
             std::string error;
             const file::Path path(fileName, options.pathOptions);
@@ -412,11 +403,11 @@ namespace tl
                         }
                     }
 
-                    otioTimeline = new otio::Timeline(path.get());
-                    otioTimeline->set_tracks(otioStack);
+                    out = new otio::Timeline(path.get());
+                    out->set_tracks(otioStack);
                     if (globalStartTime != time::invalidTime)
                     {
-                        otioTimeline->set_global_start_time(globalStartTime);
+                        out->set_global_start_time(globalStartTime);
                     }
                 }
             }
@@ -427,7 +418,7 @@ namespace tl
 
             auto logSystem = context->getLogSystem();
             logSystem->print(
-                "tl::timeline::Timeline",
+                "tl::timeline::create",
                 string::Format(
                     "\n"
                     "    Create from path: {0}\n"
@@ -435,29 +426,67 @@ namespace tl
                 arg(path.get()).
                 arg(audioPath.get()));
 
-            if (!otioTimeline)
+            if (!out)
             {
                 otio::ErrorStatus errorStatus;
-                otioTimeline = readTimeline(path.get(), &errorStatus);
+                out = readTimeline(path.get(), &errorStatus);
                 if (otio::is_error(errorStatus))
                 {
-                    otioTimeline = nullptr;
+                    out = nullptr;
                     error = errorStatus.full_description;
                 }
-                else if (!otioTimeline)
+                else if (!out)
                 {
                     error = "Cannot read timeline";
                 }
             }
-            if (!otioTimeline)
+            if (!out)
             {
                 throw std::runtime_error(error);
             }
 
+            otio::AnyDictionary dict;
+            dict["path"] = path;
+            dict["audioPath"] = audioPath;
+            out->metadata()["tl::timeline::create"] = dict;
+
+            return out;
+        }
+
+        std::shared_ptr<Timeline> Timeline::create(
+            const otio::SerializableObject::Retainer<otio::Timeline>& timeline,
+            const std::shared_ptr<system::Context>& context,
+            const Options& options)
+        {
             auto out = std::shared_ptr<Timeline>(new Timeline);
-            out->_p->path = path;
-            out->_p->audioPath = audioPath;
-            out->_init(otioTimeline, context, options);
+            out->_init(timeline, context, options);
+            return out;
+        }
+
+        std::shared_ptr<Timeline> Timeline::create(
+            const std::string& fileName,
+            const std::shared_ptr<system::Context>& context,
+            const Options& options)
+        {
+            auto out = std::shared_ptr<Timeline>(new Timeline);
+            out->_init(
+                timeline::create(fileName, context, options),
+                context,
+                options);
+            return out;
+        }
+
+        std::shared_ptr<Timeline> Timeline::create(
+            const std::string& fileName,
+            const std::string& audioFileName,
+            const std::shared_ptr<system::Context>& context,
+            const Options& options)
+        {
+            auto out = std::shared_ptr<Timeline>(new Timeline);
+            out->_init(
+                timeline::create(fileName, audioFileName, context, options),
+                context,
+                options);
             return out;
         }
     }

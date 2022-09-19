@@ -10,14 +10,12 @@ namespace tl
     {
         MemoryReference::MemoryReference(
             const std::string& target_url,
-            const uint8_t* memory_ptr,
-            size_t memory_size,
+            const std::vector<io::MemoryRead>& memory,
             const otio::optional<otio::TimeRange>& available_range,
             const otio::AnyDictionary& metadata) :
             otio::MediaReference(std::string(), available_range, metadata),
             _target_url(target_url),
-            _memory_ptr(memory_ptr),
-            _memory_size(memory_size)
+            _memory(memory)
         {}
 
         MemoryReference::~MemoryReference()
@@ -33,24 +31,14 @@ namespace tl
             _target_url = target_url;
         }
 
-        const uint8_t* MemoryReference::memory_ptr() const noexcept
+        const std::vector<io::MemoryRead>& MemoryReference::memory() const noexcept
         {
-            return _memory_ptr;
+            return _memory;
         }
 
-        size_t MemoryReference::memory_size() const noexcept
+        void MemoryReference::set_memory(const std::vector<io::MemoryRead>& value)
         {
-            return _memory_size;
-        }
-
-        void MemoryReference::set_memory_ptr(const uint8_t* value)
-        {
-            _memory_ptr = value;
-        }
-
-        void MemoryReference::set_memory_size(size_t value)
-        {
-            _memory_size = value;
+            _memory = value;
         }
     }
 }

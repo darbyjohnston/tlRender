@@ -4,21 +4,22 @@
 
 #pragma once
 
-#include <tlCore/Time.h>
+#include <tlIO/IO.h>
 
 #include <opentimelineio/mediaReference.h>
+#include <opentimelineio/timeline.h>
 
 namespace tl
 {
     namespace timeline
     {
+        //! Read references from in-memory.
         class MemoryReference final : public otio::MediaReference
         {
         public:
             MemoryReference(
                 const std::string& target_url = std::string(),
-                const uint8_t* memory_ptr = nullptr,
-                size_t memory_size = 0,
+                const std::vector<io::MemoryRead>& memory = std::vector<io::MemoryRead>(),
                 const otio::optional<otio::TimeRange>& available_range = otio::nullopt,
                 const otio::AnyDictionary& metadata = otio::AnyDictionary());
 
@@ -26,19 +27,16 @@ namespace tl
 
             void set_target_url(const std::string&);
 
-            const uint8_t* memory_ptr() const noexcept;
-            size_t memory_size() const noexcept;
+            const std::vector<io::MemoryRead>& memory() const noexcept;
 
-            void set_memory_ptr(const uint8_t*);
-            void set_memory_size(size_t);
+            void set_memory(const std::vector<io::MemoryRead>&);
 
         protected:
             virtual ~MemoryReference();
 
         private:
             std::string _target_url;
-            const uint8_t* _memory_ptr = nullptr;
-            size_t _memory_size = 0;
+            std::vector<io::MemoryRead> _memory;
         };
     }
 }
