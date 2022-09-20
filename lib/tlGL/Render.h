@@ -5,7 +5,6 @@
 #pragma once
 
 #include <tlTimeline/IRender.h>
-#include <tlGL/Shader.h>
 
 namespace tl
 {
