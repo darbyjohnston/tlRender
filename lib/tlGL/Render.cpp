@@ -770,31 +770,6 @@ namespace tl
                 std::string lut;
                 if (p.colorConfigData && p.colorConfigData->shaderDesc)
                 {
-                    std::string token = "// $colorConfig";
-                    auto i = source.find(token);
-                    if (i != std::string::npos)
-                    {
-                        source.replace(
-                            i,
-                            token.size(),
-                            p.colorConfigData->shaderDesc->getShaderText());
-
-                    }
-                    token = "// $colorConfigFunc";
-                    i = source.find(token);
-                    if (i != std::string::npos)
-                    {
-                        source.replace(
-                            i,
-                            token.size(),
-                            "fColor = colorConfigFunc(fColor);");
-                    }
-                }
-                if (p.lutData && p.lutData->shaderDesc)
-                {
-                    lutDef = p.lutData->shaderDesc->getShaderText();
-                    lut = "fColor = lutFunc(fColor);";
-                }
                     colorConfigDef = p.colorConfigData->shaderDesc->getShaderText();
                     colorConfig = "fColor = colorConfigFunc(fColor);";
                 }
