@@ -5,12 +5,13 @@
 #pragma once
 
 #include <tlTimeline/IRender.h>
-#include <tlGL/Shader.h>
 
 namespace tl
 {
     namespace gl
     {
+        class Shader;
+
         //! OpenGL renderer.
         class Render : public timeline::IRender
         {

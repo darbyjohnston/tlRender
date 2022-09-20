@@ -373,7 +373,12 @@ namespace tl
             out->_init(context);
             return out;
         }
-        
+
+        std::shared_ptr<Shader>& Render::getShader( std::string name )
+        {
+            return _p->shaders[name];
+        }
+
         void Render::setTextureCacheSize(size_t value)
         {
             _p->textureCache.setSize(value);
