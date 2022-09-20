@@ -5,6 +5,7 @@
 #pragma once
 
 #include <tlTimeline/IRender.h>
+#include <tlGL/Shader.h>
 
 namespace tl
 {
@@ -51,7 +52,8 @@ namespace tl
                 const std::vector<timeline::ImageOptions>& = {},
                 const std::vector<timeline::DisplayOptions>& = {},
                 const timeline::CompareOptions& = timeline::CompareOptions()) override;
-
+            std::shared_ptr<Shader> getShader( const std::string& );
+            
         private:
             void _drawVideo(
                 const timeline::VideoData&,
