@@ -795,6 +795,14 @@ namespace tl
                     lutDef = p.lutData->shaderDesc->getShaderText();
                     lut = "fColor = lutFunc(fColor);";
                 }
+                    colorConfigDef = p.colorConfigData->shaderDesc->getShaderText();
+                    colorConfig = "fColor = colorConfigFunc(fColor);";
+                }
+                if (p.lutData && p.lutData->shaderDesc)
+                {
+                    lutDef = p.lutData->shaderDesc->getShaderText();
+                    lut = "fColor = lutFunc(fColor);";
+                }
                 std::string source = displayFragmentSource(
                     colorConfigDef,
                     colorConfig,
