@@ -374,7 +374,7 @@ namespace tl
             return out;
         }
 
-        std::shared_ptr<Shader> Render::getShader( std::string name )
+        std::shared_ptr<Shader> Render::getShader( const std::string& name )
         {
             return _p->shaders[name];
         }
