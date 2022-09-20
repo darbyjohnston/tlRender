@@ -858,9 +858,6 @@ namespace tl
 
         void Render::end()
         {}
-<<<<<<< HEAD
 
-=======
->>>>>>> 7ab76295aae2bea9e981c39fa48780d46809c4ce
     }
 }
