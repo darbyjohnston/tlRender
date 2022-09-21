@@ -10,17 +10,6 @@ namespace tl
 {
     namespace gl
     {
-
-        std::shared_ptr<Shader> Render::getShader( const std::string& name )
-        {
-            TLRENDER_P();
-            auto shader = p.shaders.find( name );
-            if ( shader == p.shaders.end() )
-            {
-                throw std::runtime_error( "Invalid shader name '" + name + "'" );
-            }
-            return shader->second;
-        }
         
         void Render::drawRect(
             const math::BBox2i& bbox,
