@@ -11,7 +11,7 @@ namespace tl
     namespace gl
     {
         class Shader;
-
+        
         //! OpenGL renderer.
         class Render : public timeline::IRender
         {
@@ -26,7 +26,7 @@ namespace tl
 
             //! Create a new renderer.
             static std::shared_ptr<Render> create(const std::shared_ptr<system::Context>&);
-
+            std::shared_ptr<Shader> getShader( const std::string& );
             void setTextureCacheSize(size_t) override;
             void setColorConfig(const timeline::ColorConfigOptions&) override;
             void setLUT(const timeline::LUTOptions&) override;
