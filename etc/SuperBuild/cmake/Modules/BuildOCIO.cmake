@@ -30,6 +30,6 @@ ExternalProject_Add(
     GIT_TAG ${OCIO_GIT_TAG}
     PATCH_COMMAND
         ${CMAKE_COMMAND} -E tar xf
-        ${CMAKE_SOURCE_DIR}/OCIO-patch.tar.gz
+        ${CMAKE_CURRENT_SOURCE_DIR}/OCIO-patch.tar.gz
     LIST_SEPARATOR |
     CMAKE_ARGS ${OCIO_ARGS})

@@ -26,7 +26,7 @@ if(CMAKE_BUILD_TYPE MATCHES "^Debug$")
 else()
     find_library(Imath_LIBRARY NAMES Imath-3_1)
 endif()
-set(Imath_LIBRARIES ${Imath_Imath_LIBRARY})
+set(Imath_LIBRARIES ${Imath_LIBRARY})
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(

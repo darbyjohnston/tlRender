@@ -30,8 +30,8 @@ ExternalProject_Add(
     DEPENDS ${JPEG_DEPS}
     GIT_REPOSITORY ${JPEG_GIT_REPOSITORY}
     GIT_TAG ${JPEG_GIT_TAG}
-    PATCH_COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_SOURCE_DIR}/JPEG-patch/CMakeLists.txt
+    PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_CURRENT_SOURCE_DIR}/JPEG-patch/CMakeLists.txt
         ${CMAKE_CURRENT_BINARY_DIR}/JPEG/src/JPEG/CMakeLists.txt
     LIST_SEPARATOR |
     CMAKE_ARGS ${JPEG_ARGS})
