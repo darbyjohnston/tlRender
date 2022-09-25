@@ -13,41 +13,9 @@ namespace tl
 {
     namespace play
     {
-        class InMemoryReference : public timeline::MemoryReference
-        {
-        public:
-            InMemoryReference(
-                const std::string& target_url = std::string(),
-                const io::MemoryRead& memory = io::MemoryRead(),
-                const otio::optional<otio::TimeRange>& available_range = otio::nullopt,
-                const otio::AnyDictionary& metadata = otio::AnyDictionary());
-
-            void load(
-                const std::string& directory,
-                const file::PathOptions&);
-
-        private:
-            std::vector<uint8_t> _data;
-        };
-
-        class InMemorySequenceReference : public timeline::MemorySequenceReference
-        {
-        public:
-            InMemorySequenceReference(
-                const std::string& target_url = std::string(),
-                const std::vector<io::MemoryRead>& memory = std::vector<io::MemoryRead>(),
-                const otio::optional<otio::TimeRange>& available_range = otio::nullopt,
-                const otio::AnyDictionary& metadata = otio::AnyDictionary());
-
-            void load(
-                const std::string& directory,
-                const file::PathOptions&);
-
-        private:
-            std::vector<std::vector<uint8_t> > _data;
-        };
-
-        void loadMemory(
+        //! Load media into memory and replace media references with memory
+        //! references.
+        void createMemoryTimeline(
             otio::Timeline*,
             const std::string& directory,
             const file::PathOptions&);

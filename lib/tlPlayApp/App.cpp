@@ -561,7 +561,7 @@ namespace tl
                             timeline::create(items[i]->path.get(), items[i]->audioPath.get(), _context, options);
                         if (0)
                         {
-                            loadMemory(otioTimeline, items[i]->path.getDirectory(), options.pathOptions);
+                            createMemoryTimeline(otioTimeline, items[i]->path.getDirectory(), options.pathOptions);
                         }
                         auto timeline = timeline::Timeline::create(otioTimeline, _context, options);
 

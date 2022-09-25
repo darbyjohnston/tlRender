@@ -4,6 +4,7 @@
 
 #include <tlTimeline/TimelinePrivate.h>
 
+#include <tlTimeline/MemoryReference.h>
 #include <tlTimeline/Util.h>
 
 #include <tlIO/IOSystem.h>
@@ -35,7 +36,40 @@ namespace tl
                     imageSequenceRef->name_suffix();
                 ss >> url;
             }
+            else if (auto memoryRef = dynamic_cast<const MemoryReference*>(ref))
+            {
+                url = memoryRef->target_url();
+            }
+            else if (auto memorySequenceRef = dynamic_cast<const MemorySequenceReference*>(ref))
+            {
+                url = memorySequenceRef->target_url();
+            }
             return timeline::getPath(url, path.getDirectory(), options.pathOptions);
+        }
+
+        std::vector<io::MemoryRead> Timeline::Private::getMemoryRead(const otio::MediaReference* ref)
+        {
+            std::vector<io::MemoryRead> out;
+            if (auto memoryReference =
+                dynamic_cast<const MemoryReference*>(ref))
+            {
+                out.push_back(io::MemoryRead(
+                    memoryReference->memory_ptr(),
+                    memoryReference->memory_size()));
+            }
+            else if (auto memorySequenceReference =
+                dynamic_cast<const MemorySequenceReference*>(ref))
+            {
+                const auto& memory_ptrs = memorySequenceReference->memory_ptrs();
+                const size_t memory_ptrs_size = memory_ptrs.size();
+                const auto& memory_sizes = memorySequenceReference->memory_sizes();
+                const size_t memory_sizes_size = memory_sizes.size();
+                for (size_t i = 0; i < memory_ptrs_size && i < memory_sizes_size; ++i)
+                {
+                    out.push_back(io::MemoryRead(memory_ptrs[i], memory_sizes[i]));
+                }
+            }
+            return out;
         }
 
         bool Timeline::Private::getVideoInfo(const otio::Composable* composable)
@@ -45,11 +79,11 @@ namespace tl
                 if (auto context = this->context.lock())
                 {
                     // The first video clip defines the video information for the timeline.
+                    const file::Path path = getPath(clip->media_reference());
+                    const auto memoryRead = getMemoryRead(clip->media_reference());
                     io::Options ioOptions = options.ioOptions;
-                    otio::ErrorStatus errorStatus;
-                    ioOptions["SequenceIO/DefaultSpeed"] = string::Format("{0}").arg(clip->duration(&errorStatus).rate());
-                    const file::Path path(getPath(clip->media_reference()));
-                    if (auto read = context->getSystem<io::System>()->read(path, ioOptions))
+                    ioOptions["SequenceIO/DefaultSpeed"] = string::Format("{0}").arg(clip->duration().rate());
+                    if (auto read = context->getSystem<io::System>()->read(path, memoryRead, ioOptions))
                     {
                         const auto ioInfo = read->getInfo().get();
                         this->ioInfo.video = ioInfo.video;
@@ -79,8 +113,10 @@ namespace tl
                 if (auto context = this->context.lock())
                 {
                     // The first audio clip defines the audio information for the timeline.
+                    const auto path = getPath(clip->media_reference());
+                    const auto memoryRead = getMemoryRead(clip->media_reference());
                     io::Options ioOptions = options.ioOptions;
-                    if (auto read = context->getSystem<io::System>()->read(getPath(clip->media_reference()), ioOptions))
+                    if (auto read = context->getSystem<io::System>()->read(path, memoryRead, ioOptions))
                     {
                         const auto ioInfo = read->getInfo().get();
                         this->ioInfo.audio = ioInfo.audio;
@@ -423,11 +459,12 @@ namespace tl
             Reader out;
             if (auto context = this->context.lock())
             {
-                const file::Path path = getPath(clip->media_reference());
+                const auto path = getPath(clip->media_reference());
+                const auto memoryRead = getMemoryRead(clip->media_reference());
                 io::Options options = ioOptions;
                 options["SequenceIO/DefaultSpeed"] = string::Format("{0}").arg(duration.rate());
                 const auto ioSystem = context->getSystem<io::System>();
-                auto read = ioSystem->read(path, options);
+                auto read = ioSystem->read(path, memoryRead, options);
                 io::Info info;
                 if (read)
                 {

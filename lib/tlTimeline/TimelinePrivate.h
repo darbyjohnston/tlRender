@@ -21,6 +21,8 @@ namespace tl
         {
             file::Path getPath(const otio::MediaReference*) const;
 
+            static std::vector<io::MemoryRead> getMemoryRead(const otio::MediaReference*);
+
             bool getVideoInfo(const otio::Composable*);
             bool getAudioInfo(const otio::Composable*);
 
