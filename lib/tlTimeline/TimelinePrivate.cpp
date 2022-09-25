@@ -12,57 +12,30 @@
 
 #include <opentimelineio/externalReference.h>
 #include <opentimelineio/imageSequenceReference.h>
-
 #include <opentimelineio/transition.h>
 
 namespace tl
 {
     namespace timeline
     {
-        file::Path Timeline::Private::fixPath(const file::Path& path) const
-        {
-            std::string directory;
-            if (!path.isAbsolute())
-            {
-                directory = this->path.getDirectory();
-            }
-            return file::Path(directory, path.get(), options.pathOptions);
-        }
-
-        namespace
-        {
-            const std::string urlFilePrefix = "file://";
-
-            std::string removeURLFilePrefix(const std::string& value)
-            {
-                std::string out = value;
-                if (0 == out.compare(0, urlFilePrefix.size(), urlFilePrefix))
-                {
-                    out.replace(0, urlFilePrefix.size(), "");
-                }
-                return out;
-            }
-        }
-
         file::Path Timeline::Private::getPath(const otio::MediaReference* ref) const
         {
-            file::Path out;
+            std::string url;
             if (auto externalRef = dynamic_cast<const otio::ExternalReference*>(ref))
             {
-                const std::string url = removeURLFilePrefix(externalRef->target_url());
-                out = file::Path(url, options.pathOptions);
+                url = externalRef->target_url();
             }
             else if (auto imageSequenceRef = dynamic_cast<const otio::ImageSequenceReference*>(ref))
             {
-                const std::string urlBase = removeURLFilePrefix(imageSequenceRef->target_url_base());
                 std::stringstream ss;
-                ss << urlBase <<
+                ss << imageSequenceRef->target_url_base() <<
                     imageSequenceRef->name_prefix() <<
-                    std::setfill('0') << std::setw(imageSequenceRef->frame_zero_padding()) << imageSequenceRef->start_frame() <<
+                    std::setfill('0') << std::setw(imageSequenceRef->frame_zero_padding()) <<
+                    imageSequenceRef->start_frame() <<
                     imageSequenceRef->name_suffix();
-                out = file::Path(ss.str(), options.pathOptions);
+                ss >> url;
             }
-            return fixPath(out);
+            return timeline::getPath(url, path.getDirectory(), options.pathOptions);
         }
 
         bool Timeline::Private::getVideoInfo(const otio::Composable* composable)

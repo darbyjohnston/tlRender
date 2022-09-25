@@ -25,6 +25,11 @@ namespace tl
             int types,
             const std::shared_ptr<system::Context>&);
 
+        file::Path getPath(
+            const std::string& url,
+            const std::string& directory,
+            const file::PathOptions&);
+
         //! File sequence.
         enum class FileSequenceAudio
         {

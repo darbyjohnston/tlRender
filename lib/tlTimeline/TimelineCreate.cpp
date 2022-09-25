@@ -186,7 +186,7 @@ namespace tl
                         if (isSequence)
                         {
                             videoClip->set_media_reference(new otio::ImageSequenceReference(
-                                std::string(),
+                                path.getDirectory(),
                                 path.getBaseName(),
                                 path.getExtension(),
                                 info.videoTime.start_time().value(),
@@ -196,7 +196,7 @@ namespace tl
                         }
                         else
                         {
-                            videoClip->set_media_reference(new otio::ExternalReference(path.get(-1, false)));
+                            videoClip->set_media_reference(new otio::ExternalReference(path.get()));
                         }
                         videoTrack = new otio::Track("Video", otio::nullopt, otio::Track::Kind::video);
                         videoTrack->append_child(videoClip, &errorStatus);
@@ -222,7 +222,7 @@ namespace tl
 
                                     auto audioClip = new otio::Clip;
                                     audioClip->set_source_range(audioInfo.audioTime);
-                                    audioClip->set_media_reference(new otio::ExternalReference(audioPath.get(-1, false)));
+                                    audioClip->set_media_reference(new otio::ExternalReference(audioPath.get()));
 
                                     audioTrack = new otio::Track("Audio", otio::nullopt, otio::Track::Kind::audio);
                                     audioTrack->append_child(audioClip, &errorStatus);
@@ -239,7 +239,7 @@ namespace tl
                     {
                         auto audioClip = new otio::Clip;
                         audioClip->set_source_range(info.audioTime);
-                        audioClip->set_media_reference(new otio::ExternalReference(path.get(-1, false)));
+                        audioClip->set_media_reference(new otio::ExternalReference(path.get()));
 
                         audioTrack = new otio::Track("Audio", otio::nullopt, otio::Track::Kind::audio);
                         audioTrack->append_child(audioClip, &errorStatus);
@@ -312,7 +312,7 @@ namespace tl
             otio::AnyDictionary dict;
             dict["path"] = path;
             dict["audioPath"] = audioPath;
-            out->metadata()["tl::timeline::create"] = dict;
+            out->metadata()["tl::timeline"] = dict;
 
             return out;
         }
@@ -349,7 +349,7 @@ namespace tl
                         {
                             globalStartTime = info.videoTime.start_time();
                             videoClip->set_media_reference(new otio::ImageSequenceReference(
-                                std::string(),
+                                path.getDirectory(),
                                 path.getBaseName(),
                                 path.getExtension(),
                                 info.videoTime.start_time().value(),
@@ -359,7 +359,7 @@ namespace tl
                         }
                         else
                         {
-                            videoClip->set_media_reference(new otio::ExternalReference(path.get(-1, false)));
+                            videoClip->set_media_reference(new otio::ExternalReference(path.get()));
                         }
                         videoTrack = new otio::Track("Video", otio::nullopt, otio::Track::Kind::video);
                         videoTrack->append_child(videoClip, &errorStatus);
@@ -375,7 +375,7 @@ namespace tl
 
                         auto audioClip = new otio::Clip;
                         audioClip->set_source_range(audioInfo.audioTime);
-                        audioClip->set_media_reference(new otio::ExternalReference(audioPath.get(-1, false)));
+                        audioClip->set_media_reference(new otio::ExternalReference(audioPath.get()));
 
                         audioTrack = new otio::Track("Audio", otio::nullopt, otio::Track::Kind::audio);
                         audioTrack->append_child(audioClip, &errorStatus);
@@ -448,7 +448,7 @@ namespace tl
             otio::AnyDictionary dict;
             dict["path"] = path;
             dict["audioPath"] = audioPath;
-            out->metadata()["tl::timeline::create"] = dict;
+            out->metadata()["tl::timeline"] = dict;
 
             return out;
         }

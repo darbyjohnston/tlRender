@@ -8,6 +8,7 @@
 #include <tlPlayApp/DevicesModel.h>
 #include <tlPlayApp/FilesModel.h>
 #include <tlPlayApp/MainWindow.h>
+#include <tlPlayApp/MemoryTimeline.h>
 #include <tlPlayApp/OpenSeparateAudioDialog.h>
 #include <tlPlayApp/SettingsObject.h>
 
@@ -555,9 +556,14 @@ namespace tl
                         options.pathOptions.maxNumberDigits = std::min(
                             p.settingsObject->value("Misc/MaxFileSequenceDigits").toInt(),
                             255);
-                        auto timeline = items[i]->audioPath.isEmpty() ?
-                            timeline::Timeline::create(items[i]->path.get(), _context, options) :
-                            timeline::Timeline::create(items[i]->path.get(), items[i]->audioPath.get(), _context, options);
+                        auto otioTimeline = items[i]->audioPath.isEmpty() ?
+                            timeline::create(items[i]->path.get(), _context, options) :
+                            timeline::create(items[i]->path.get(), items[i]->audioPath.get(), _context, options);
+                        if (0)
+                        {
+                            loadMemory(otioTimeline, items[i]->path.getDirectory(), options.pathOptions);
+                        }
+                        auto timeline = timeline::Timeline::create(otioTimeline, _context, options);
 
                         timeline::PlayerOptions playerOptions;
                         playerOptions.cacheReadAhead = _cacheReadAhead();
