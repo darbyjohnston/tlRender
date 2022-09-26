@@ -41,14 +41,11 @@ namespace tl
                     int padding = imageSequenceRefence->frame_zero_padding();
                     std::string number;
                     std::stringstream ss;
-                    ss << std::setfill('0') << std::setw(padding) << imageSequenceRefence->start_frame();
-                    ss >> number;
-                    const file::Path path(
-                        imageSequenceRefence->target_url_base(),
-                        imageSequenceRefence->name_prefix(),
-                        number,
-                        static_cast<uint8_t>(padding),
-                        imageSequenceRefence->name_suffix());
+                    ss << imageSequenceRefence->target_url_base() <<
+                        imageSequenceRefence->name_prefix() <<
+                        std::setfill('0') << std::setw(padding) << imageSequenceRefence->start_frame() <<
+                        imageSequenceRefence->name_suffix();
+                    const auto path = timeline::getPath(ss.str(), directory, pathOptions);
                     std::vector<std::shared_ptr<timeline::MemoryReferenceData> > memoryList;
                     const auto range = clip->trimmed_range();
                     for (
