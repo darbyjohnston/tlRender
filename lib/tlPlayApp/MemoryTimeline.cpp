@@ -19,16 +19,23 @@ namespace tl
             const std::string& directory,
             const file::PathOptions& pathOptions)
         {
+            // Recursively iterate over all clips in the timeline.
             for (auto clip : otioTimeline->children_if<otio::Clip>())
             {
-                if (auto externalReference = dynamic_cast<otio::ExternalReference*>(clip->media_reference()))
+                if (auto externalReference =
+                    dynamic_cast<otio::ExternalReference*>(clip->media_reference()))
                 {
+                    // Get the external reference path.
                     const auto path = timeline::getPath(externalReference->target_url(), directory, pathOptions);
+
+                    // Read the external reference media into memory.
                     auto fileIO = file::FileIO::create(path.get(), file::Mode::Read);
                     const size_t size = fileIO->getSize();
                     auto memory = std::make_shared<timeline::MemoryReferenceData>();
                     memory->resize(size);
                     fileIO->read(memory->data(), size);
+
+                    // Replace the external reference with a memory reference.
                     auto memoryReference = new timeline::MemoryReference(
                         externalReference->target_url(),
                         memory,
@@ -36,8 +43,10 @@ namespace tl
                         externalReference->metadata());
                     clip->set_media_reference(memoryReference);
                 }
-                else if (auto imageSequenceRefence = dynamic_cast<otio::ImageSequenceReference*>(clip->media_reference()))
+                else if (auto imageSequenceRefence =
+                    dynamic_cast<otio::ImageSequenceReference*>(clip->media_reference()))
                 {
+                    // Get the image sequence reference path.
                     int padding = imageSequenceRefence->frame_zero_padding();
                     std::string number;
                     std::stringstream ss;
@@ -46,6 +55,8 @@ namespace tl
                         std::setfill('0') << std::setw(padding) << imageSequenceRefence->start_frame() <<
                         imageSequenceRefence->name_suffix();
                     const auto path = timeline::getPath(ss.str(), directory, pathOptions);
+
+                    // Read the image sequence reference media into memory.
                     std::vector<std::shared_ptr<timeline::MemoryReferenceData> > memoryList;
                     const auto range = clip->trimmed_range();
                     for (
@@ -61,6 +72,9 @@ namespace tl
                         fileIO->read(memory->data(), size);
                         memoryList.push_back(memory);
                     }
+
+                    // Replace the image sequence reference with a memory
+                    // sequence reference.
                     auto memorySequenceReference = new timeline::MemorySequenceReference(
                         path.get(),
                         memoryList,

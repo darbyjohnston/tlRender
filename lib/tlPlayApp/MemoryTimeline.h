@@ -13,8 +13,8 @@ namespace tl
 {
     namespace play
     {
-        //! Load media into memory and replace media references with memory
-        //! references.
+        //! For each clip in the timeline, load the associated media into
+        //! memory and replace the media references with memory references.
         void createMemoryTimeline(
             otio::Timeline*,
             const std::string& directory,
