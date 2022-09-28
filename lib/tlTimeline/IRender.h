@@ -46,6 +46,12 @@ namespace tl
             //! Finish a render.
             virtual void end() = 0;
 
+            //! Start a raster text render.  Should be called after begin/end.
+            virtual void beginRaster(const imaging::Size&) = 0;
+
+            //! Finish a raster render.
+            virtual void endRaster() = 0;
+
             //! Draw a rectangle.
             virtual void drawRect(
                 const math::BBox2i&,

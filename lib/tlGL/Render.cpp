@@ -292,7 +292,7 @@ namespace tl
         {
             std::vector<std::shared_ptr<Texture> > out;
             const auto i = std::find_if(
-                _cache.begin(), 
+                _cache.begin(),
                 _cache.end(),
                 [info, imageFilters](const TextureData& value)
                 {
@@ -373,7 +373,7 @@ namespace tl
             out->_init(context);
             return out;
         }
-        
+
         void Render::setTextureCacheSize(size_t value)
         {
             _p->textureCache.setSize(value);
@@ -703,6 +703,27 @@ namespace tl
             p.shaders["display"].reset();
         }
 
+        void Render::beginRaster(const imaging::Size& viewPort)
+        {
+            TLRENDER_P();
+            if (!p.shaders["text"]) return;
+
+            const auto viewMatrix = glm::ortho(
+                0.F,
+                static_cast<float>(viewPort.w),
+                static_cast<float>(viewPort.h),
+                0.F,
+                -1.F,
+                1.F);
+            const math::Matrix4x4f mvp(
+                viewMatrix[0][0], viewMatrix[0][1], viewMatrix[0][2], viewMatrix[0][3],
+                viewMatrix[1][0], viewMatrix[1][1], viewMatrix[1][2], viewMatrix[1][3],
+                viewMatrix[2][0], viewMatrix[2][1], viewMatrix[2][2], viewMatrix[2][3],
+                viewMatrix[3][0], viewMatrix[3][1], viewMatrix[3][2], viewMatrix[3][3]);
+            p.shaders["text"]->bind();
+            p.shaders["text"]->setUniform("transform.mvp", mvp);
+        }
+
         void Render::begin(const imaging::Size& size)
         {
             TLRENDER_P();
@@ -835,6 +856,9 @@ namespace tl
         }
 
         void Render::end()
+        {}
+
+        void Render::endRaster()
         {}
     }
 }
