@@ -4,11 +4,15 @@
 
 #include <tlTimeline/Util.h>
 
+#include <tlTimeline/MemoryReference.h>
+
 #include <tlIO/IOSystem.h>
 #include <tlIO/Util.h>
 
 #include <tlCore/Context.h>
 #include <tlCore/FileInfo.h>
+
+#include <opentimelineio/typeRegistry.h>
 
 namespace tl
 {
@@ -17,6 +21,9 @@ namespace tl
         void init(const std::shared_ptr<system::Context>& context)
         {
             io::init(context);
+
+            tl::otio::TypeRegistry::instance().register_type<tl::timeline::MemoryReference>();
+            tl::otio::TypeRegistry::instance().register_type<tl::timeline::MemorySequenceReference>();
         }
 
         std::vector<otime::TimeRange> toRanges(std::vector<otime::RationalTime> frames)

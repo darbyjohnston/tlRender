@@ -22,6 +22,12 @@ namespace tl
         class MemoryReference : public otio::MediaReference
         {
         public:
+            struct Schema
+            {
+                static auto constexpr name = "MemoryReference";
+                static int constexpr version = 1;
+            };
+
             /*MemoryReference(
                 const std::string& target_url = std::string(),
                 const uint8_t* memory_ptr = nullptr,
@@ -59,6 +65,12 @@ namespace tl
         class MemorySequenceReference : public otio::MediaReference
         {
         public:
+            struct Schema
+            {
+                static auto constexpr name = "MemorySequenceReference";
+                static int constexpr version = 1;
+            };
+
             /*MemorySequenceReference(
                 const std::string& target_url = std::string(),
                 const std::vector<const uint8_t*>& memory_ptrs = {},
