@@ -8,7 +8,7 @@ namespace tl
 {
     namespace timeline
     {
-        MemoryReference::MemoryReference(
+        /*MemoryReference::MemoryReference(
             const std::string& target_url,
             const uint8_t* memory_ptr,
             size_t memory_size,
@@ -18,7 +18,7 @@ namespace tl
             _target_url(target_url)
         {
             set_memory(memory_ptr, memory_size);
-        }
+        }*/
 
         MemoryReference::MemoryReference(
             const std::string & target_url,
@@ -68,7 +68,7 @@ namespace tl
             _memory_data = memory_data;
         }
 
-        MemorySequenceReference::MemorySequenceReference(
+        /*MemorySequenceReference::MemorySequenceReference(
             const std::string& target_url,
             const std::vector<const uint8_t*>& memory_ptrs,
             const std::vector<size_t> memory_sizes,
@@ -78,7 +78,7 @@ namespace tl
             _target_url(target_url)
         {
             set_memory(memory_ptrs, memory_sizes);
-        }
+        }*/
 
         MemorySequenceReference::MemorySequenceReference(
             const std::string& target_url,

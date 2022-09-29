@@ -22,12 +22,12 @@ namespace tl
         class MemoryReference : public otio::MediaReference
         {
         public:
-            MemoryReference(
+            /*MemoryReference(
                 const std::string& target_url = std::string(),
                 const uint8_t* memory_ptr = nullptr,
                 size_t memory_size = 0,
                 const otio::optional<otio::TimeRange>& available_range = otio::nullopt,
-                const otio::AnyDictionary& metadata = otio::AnyDictionary());
+                const otio::AnyDictionary& metadata = otio::AnyDictionary());*/
             MemoryReference(
                 const std::string& target_url = std::string(),
                 const std::shared_ptr<MemoryReferenceData>& memory_data = nullptr,
@@ -59,12 +59,12 @@ namespace tl
         class MemorySequenceReference : public otio::MediaReference
         {
         public:
-            MemorySequenceReference(
+            /*MemorySequenceReference(
                 const std::string& target_url = std::string(),
                 const std::vector<const uint8_t*>& memory_ptrs = {},
                 const std::vector<size_t> memory_sizes = {},
                 const otio::optional<otio::TimeRange>& available_range = otio::nullopt,
-                const otio::AnyDictionary& metadata = otio::AnyDictionary());
+                const otio::AnyDictionary& metadata = otio::AnyDictionary());*/
             MemorySequenceReference(
                 const std::string& target_url = std::string(),
                 const std::vector<std::shared_ptr<MemoryReferenceData> >& memory_data = {},
