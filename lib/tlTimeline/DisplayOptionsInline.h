@@ -40,7 +40,7 @@ namespace tl
         inline bool Exposure::operator == (const Exposure& other) const
         {
             return
-                exposure == other.exposure &&
+                gain == other.gain &&
                 defog == other.defog &&
                 kneeLow == other.kneeLow &&
                 kneeHigh == other.kneeHigh;

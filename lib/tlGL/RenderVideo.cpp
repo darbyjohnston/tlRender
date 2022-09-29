@@ -525,7 +525,7 @@ namespace tl
                 p.shaders["display"]->setUniform("exposureEnabled", displayOptions.exposureEnabled);
                 if (displayOptions.exposureEnabled)
                 {
-                    const float v = powf(2.F, displayOptions.exposure.exposure + 2.47393F);
+                    const float v = displayOptions.exposure.gain;
                     const float d = displayOptions.exposure.defog;
                     const float k = powf(2.F, displayOptions.exposure.kneeLow);
                     const float f = knee2(

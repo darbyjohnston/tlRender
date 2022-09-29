@@ -75,7 +75,7 @@ namespace tl
         //! Exposure values.
         struct Exposure
         {
-            float exposure = 0.F;
+            float gain = 1.F;
             float defog = 0.F;
             float kneeLow = 0.F;
             float kneeHigh = 5.F;

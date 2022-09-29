@@ -631,7 +631,7 @@ namespace tl
             timeline::Exposure exposure;
 
             QCheckBox* exposureEnabledCheckBox = nullptr;
-            qtwidget::FloatSlider* exposureSlider = nullptr;
+            qtwidget::FloatSlider* gainSlider = nullptr;
             qtwidget::FloatSlider* defogSlider = nullptr;
             qtwidget::FloatSlider* kneeLowSlider = nullptr;
             qtwidget::FloatSlider* kneeHighSlider = nullptr;
@@ -645,9 +645,9 @@ namespace tl
 
             p.exposureEnabledCheckBox = new QCheckBox(tr("Enabled"));
 
-            p.exposureSlider = new qtwidget::FloatSlider;
-            p.exposureSlider->setRange(math::FloatRange(-10.F, 10.F));
-            p.exposureSlider->setDefaultValue(0.F);
+            p.gainSlider = new qtwidget::FloatSlider;
+            p.gainSlider->setRange(math::FloatRange(0.0F, 10.F));
+            p.gainSlider->setDefaultValue(1.F);
 
             p.defogSlider = new qtwidget::FloatSlider;
             p.defogSlider->setRange(math::FloatRange(0.F, .1F));
@@ -663,7 +663,7 @@ namespace tl
 
             auto layout = new QFormLayout;
             layout->addRow(p.exposureEnabledCheckBox);
-            layout->addRow(tr("Exposure:"), p.exposureSlider);
+            layout->addRow(tr("Gain:"), p.gainSlider);
             layout->addRow(tr("Defog:"), p.defogSlider);
             layout->addRow(tr("Knee low:"), p.kneeLowSlider);
             layout->addRow(tr("Knee high:"), p.kneeHighSlider);
@@ -680,12 +680,12 @@ namespace tl
                 });
 
             connect(
-                p.exposureSlider,
+                p.gainSlider,
                 &qtwidget::FloatSlider::valueChanged,
                 [this](float value)
                 {
                     timeline::Exposure exposure = _p->exposure;
-                    exposure.exposure = value;
+                    exposure.gain = value;
                     Q_EMIT exposureChanged(exposure);
                     Q_EMIT exposureEnabledChanged(true);
                 });
@@ -753,8 +753,8 @@ namespace tl
                 p.exposureEnabledCheckBox->setChecked(p.exposureEnabled);
             }
             {
-                QSignalBlocker signalBlocker(p.exposureSlider);
-                p.exposureSlider->setValue(p.exposure.exposure);
+                QSignalBlocker signalBlocker(p.gainSlider);
+                p.gainSlider->setValue(p.exposure.gain);
             }
             {
                 QSignalBlocker signalBlocker(p.defogSlider);
