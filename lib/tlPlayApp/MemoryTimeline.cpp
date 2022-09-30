@@ -36,7 +36,7 @@ namespace tl
                     fileIO->read(memory->data(), size);
 
                     // Replace the external reference with a memory reference.
-                    auto memoryReference = new timeline::MemoryReference(
+                    auto memoryReference = new timeline::SharedMemoryReference(
                         externalReference->target_url(),
                         memory,
                         clip->available_range(),
@@ -75,7 +75,7 @@ namespace tl
 
                     // Replace the image sequence reference with a memory
                     // sequence reference.
-                    auto memorySequenceReference = new timeline::MemorySequenceReference(
+                    auto memorySequenceReference = new timeline::SharedMemorySequenceReference(
                         path.get(),
                         memoryList,
                         clip->available_range(),

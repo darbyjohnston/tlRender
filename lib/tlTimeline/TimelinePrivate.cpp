@@ -36,13 +36,21 @@ namespace tl
                     imageSequenceRef->name_suffix();
                 ss >> url;
             }
-            else if (auto memoryRef = dynamic_cast<const MemoryReference*>(ref))
+            else if (auto rawMemoryRef = dynamic_cast<const RawMemoryReference*>(ref))
             {
-                url = memoryRef->target_url();
+                url = rawMemoryRef->target_url();
             }
-            else if (auto memorySequenceRef = dynamic_cast<const MemorySequenceReference*>(ref))
+            else if (auto sharedMemoryRef = dynamic_cast<const SharedMemoryReference*>(ref))
             {
-                url = memorySequenceRef->target_url();
+                url = sharedMemoryRef->target_url();
+            }
+            else if (auto rawMemorySequenceRef = dynamic_cast<const RawMemorySequenceReference*>(ref))
+            {
+                url = rawMemorySequenceRef->target_url();
+            }
+            else if (auto sharedMemorySequenceRef = dynamic_cast<const SharedMemorySequenceReference*>(ref))
+            {
+                url = sharedMemorySequenceRef->target_url();
             }
             return timeline::getPath(url, path.getDirectory(), options.pathOptions);
         }
@@ -50,23 +58,44 @@ namespace tl
         std::vector<io::MemoryRead> Timeline::Private::getMemoryRead(const otio::MediaReference* ref)
         {
             std::vector<io::MemoryRead> out;
-            if (auto memoryReference =
-                dynamic_cast<const MemoryReference*>(ref))
+            if (auto rawMemoryReference =
+                dynamic_cast<const RawMemoryReference*>(ref))
             {
                 out.push_back(io::MemoryRead(
-                    memoryReference->memory_ptr(),
-                    memoryReference->memory_size()));
+                    rawMemoryReference->memory(),
+                    rawMemoryReference->memory_size()));
             }
-            else if (auto memorySequenceReference =
-                dynamic_cast<const MemorySequenceReference*>(ref))
+            else if (auto sharedMemoryReference =
+                dynamic_cast<const SharedMemoryReference*>(ref))
             {
-                const auto& memory_ptrs = memorySequenceReference->memory_ptrs();
-                const size_t memory_ptrs_size = memory_ptrs.size();
-                const auto& memory_sizes = memorySequenceReference->memory_sizes();
-                const size_t memory_sizes_size = memory_sizes.size();
-                for (size_t i = 0; i < memory_ptrs_size && i < memory_sizes_size; ++i)
+                if (const auto& memory = sharedMemoryReference->memory())
                 {
-                    out.push_back(io::MemoryRead(memory_ptrs[i], memory_sizes[i]));
+                    out.push_back(io::MemoryRead(
+                        memory->data(),
+                        memory->size()));
+                }
+            }
+            else if (auto rawMemorySequenceReference =
+                dynamic_cast<const RawMemorySequenceReference*>(ref))
+            {
+                const auto& memory = rawMemorySequenceReference->memory();
+                const size_t memory_size = memory.size();
+                const auto& memory_sizes = rawMemorySequenceReference->memory_sizes();
+                const size_t memory_sizes_size = memory_sizes.size();
+                for (size_t i = 0; i < memory_size && i < memory_sizes_size; ++i)
+                {
+                    out.push_back(io::MemoryRead(memory[i], memory_sizes[i]));
+                }
+            }
+            else if (auto sharedMemorySequenceReference =
+                dynamic_cast<const SharedMemorySequenceReference*>(ref))
+            {
+                for (const auto& memory : sharedMemorySequenceReference->memory())
+                {
+                    if (memory)
+                    {
+                        out.push_back(io::MemoryRead(memory->data(), memory->size()));
+                    }
                 }
             }
             return out;

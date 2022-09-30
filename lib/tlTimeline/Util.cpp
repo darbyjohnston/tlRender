@@ -11,6 +11,7 @@
 
 #include <tlCore/Context.h>
 #include <tlCore/FileInfo.h>
+#include <tlCore/StringFormat.h>
 
 #include <opentimelineio/typeRegistry.h>
 
@@ -22,8 +23,33 @@ namespace tl
         {
             io::init(context);
 
-            tl::otio::TypeRegistry::instance().register_type<tl::timeline::MemoryReference>();
-            tl::otio::TypeRegistry::instance().register_type<tl::timeline::MemorySequenceReference>();
+            const std::vector<std::pair<std::string, bool> > registerTypes
+            {
+                {
+                    "RawMemoryReference",
+                    otio::TypeRegistry::instance().register_type<tl::timeline::RawMemoryReference>()
+                },
+                {
+                    "SharedMemoryReference",
+                    otio::TypeRegistry::instance().register_type<tl::timeline::SharedMemoryReference>()
+                },
+                {
+                    "RawMemorySequenceReference",
+                    otio::TypeRegistry::instance().register_type<tl::timeline::RawMemorySequenceReference>()
+                },
+                {
+                    "SharedMemorySequenceReference",
+                    otio::TypeRegistry::instance().register_type<tl::timeline::SharedMemorySequenceReference>()
+                },
+            };
+            for (const auto& t : registerTypes)
+            {
+                context->log(
+                    "tl::timeline::init",
+                    string::Format("register type {0}: {1}").
+                        arg(t.first).
+                        arg(t.second));
+            }
         }
 
         std::vector<otime::TimeRange> toRanges(std::vector<otime::RationalTime> frames)

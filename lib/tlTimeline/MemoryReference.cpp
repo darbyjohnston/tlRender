@@ -8,132 +8,155 @@ namespace tl
 {
     namespace timeline
     {
-        /*MemoryReference::MemoryReference(
+        RawMemoryReference::RawMemoryReference(
             const std::string& target_url,
-            const uint8_t* memory_ptr,
+            const uint8_t* memory,
             size_t memory_size,
             const otio::optional<otio::TimeRange>& available_range,
             const otio::AnyDictionary& metadata) :
             otio::MediaReference(std::string(), available_range, metadata),
-            _target_url(target_url)
-        {
-            set_memory(memory_ptr, memory_size);
-        }*/
-
-        MemoryReference::MemoryReference(
-            const std::string & target_url,
-            const std::shared_ptr<MemoryReferenceData>& memory_data,
-            const otio::optional<otio::TimeRange>& available_range,
-            const otio::AnyDictionary& metadata) :
-            otio::MediaReference(std::string(), available_range, metadata),
-            _target_url(target_url)
-        {
-            set_memory_data(memory_data);
-        }
-
-        MemoryReference::~MemoryReference()
+            _target_url(target_url),
+            _memory(memory),
+            _memory_size(memory_size)
         {}
 
-        const std::string& MemoryReference::target_url() const noexcept
+        RawMemoryReference::~RawMemoryReference()
+        {}
+
+        const std::string& RawMemoryReference::target_url() const noexcept
         {
             return _target_url;
         }
 
-        void MemoryReference::set_target_url(const std::string& value)
+        void RawMemoryReference::set_target_url(const std::string& value)
         {
             _target_url = value;
         }
 
-        const uint8_t* MemoryReference::memory_ptr() const noexcept
+        const uint8_t* RawMemoryReference::memory() const noexcept
         {
-            return _memory_ptr;
+            return _memory;
         }
 
-        size_t MemoryReference::memory_size() const noexcept
+        size_t RawMemoryReference::memory_size() const noexcept
         {
             return _memory_size;
         }
 
-        void MemoryReference::set_memory(const uint8_t* memory_ptr, size_t memory_size)
+        void RawMemoryReference::set_memory(const uint8_t* memory, size_t memory_size)
         {
-            _memory_ptr = memory_ptr;
+            _memory = memory;
             _memory_size = memory_size;
-            _memory_data.reset();
         }
 
-        void MemoryReference::set_memory_data(const std::shared_ptr<MemoryReferenceData>& memory_data)
-        {
-            _memory_ptr = memory_data->data();
-            _memory_size = memory_data->size();
-            _memory_data = memory_data;
-        }
-
-        /*MemorySequenceReference::MemorySequenceReference(
+        SharedMemoryReference::SharedMemoryReference(
             const std::string& target_url,
-            const std::vector<const uint8_t*>& memory_ptrs,
-            const std::vector<size_t> memory_sizes,
+            const std::shared_ptr<MemoryReferenceData>& memory,
             const otio::optional<otio::TimeRange>& available_range,
             const otio::AnyDictionary& metadata) :
             otio::MediaReference(std::string(), available_range, metadata),
-            _target_url(target_url)
-        {
-            set_memory(memory_ptrs, memory_sizes);
-        }*/
-
-        MemorySequenceReference::MemorySequenceReference(
-            const std::string& target_url,
-            const std::vector<std::shared_ptr<MemoryReferenceData> >& memory_data,
-            const otio::optional<otio::TimeRange>& available_range,
-            const otio::AnyDictionary& metadata) :
-            otio::MediaReference(std::string(), available_range, metadata),
-            _target_url(target_url)
-        {
-            set_memory_data(memory_data);
-        }
-
-        MemorySequenceReference::~MemorySequenceReference()
+            _target_url(target_url),
+            _memory(memory)
         {}
 
-        const std::string& MemorySequenceReference::target_url() const noexcept
+        SharedMemoryReference::~SharedMemoryReference()
+        {}
+
+        const std::string& SharedMemoryReference::target_url() const noexcept
         {
             return _target_url;
         }
 
-        void MemorySequenceReference::set_target_url(const std::string& value)
+        void SharedMemoryReference::set_target_url(const std::string& value)
         {
             _target_url = value;
         }
 
-        const std::vector<const uint8_t*>& MemorySequenceReference::memory_ptrs() const noexcept
+        const std::shared_ptr<MemoryReferenceData>& SharedMemoryReference::memory() const noexcept
         {
-            return _memory_ptrs;
+            return _memory;
         }
 
-        const std::vector<size_t>& MemorySequenceReference::memory_sizes() const noexcept
+        void SharedMemoryReference::set_memory(const std::shared_ptr<MemoryReferenceData>& memory)
+        {
+            _memory = memory;
+        }
+
+        RawMemorySequenceReference::RawMemorySequenceReference(
+            const std::string& target_url,
+            const std::vector<const uint8_t*>& memory,
+            const std::vector<size_t> memory_sizes,
+            const otio::optional<otio::TimeRange>& available_range,
+            const otio::AnyDictionary& metadata) :
+            otio::MediaReference(std::string(), available_range, metadata),
+            _target_url(target_url),
+            _memory(memory),
+            _memory_sizes(memory_sizes)
+        {}
+
+        RawMemorySequenceReference::~RawMemorySequenceReference()
+        {}
+
+        const std::string& RawMemorySequenceReference::target_url() const noexcept
+        {
+            return _target_url;
+        }
+
+        void RawMemorySequenceReference::set_target_url(const std::string& value)
+        {
+            _target_url = value;
+        }
+
+        const std::vector<const uint8_t*>& RawMemorySequenceReference::memory() const noexcept
+        {
+            return _memory;
+        }
+
+        const std::vector<size_t>& RawMemorySequenceReference::memory_sizes() const noexcept
         {
             return _memory_sizes;
         }
 
-        void MemorySequenceReference::set_memory(
-            const std::vector<const uint8_t*>& memory_ptrs,
+        void RawMemorySequenceReference::set_memory(
+            const std::vector<const uint8_t*>& memory,
             const std::vector<size_t>& memory_sizes)
         {
-            _memory_ptrs = memory_ptrs;
+            _memory = memory;
             _memory_sizes = memory_sizes;
-            _memory_data.clear();
         }
 
-        void MemorySequenceReference::set_memory_data(
-            const std::vector<std::shared_ptr<MemoryReferenceData> >& memory_data)
+        SharedMemorySequenceReference::SharedMemorySequenceReference(
+            const std::string& target_url,
+            const std::vector<std::shared_ptr<MemoryReferenceData> >& memory,
+            const otio::optional<otio::TimeRange>& available_range,
+            const otio::AnyDictionary& metadata) :
+            otio::MediaReference(std::string(), available_range, metadata),
+            _target_url(target_url),
+            _memory(memory)
+        {}
+
+        SharedMemorySequenceReference::~SharedMemorySequenceReference()
+        {}
+
+        const std::string& SharedMemorySequenceReference::target_url() const noexcept
         {
-            _memory_ptrs.clear();
-            _memory_sizes.clear();
-            for (const auto& i : memory_data)
-            {
-                _memory_ptrs.push_back(i->data());
-                _memory_sizes.push_back(i->size());
-            }
-            _memory_data = memory_data;
+            return _target_url;
+        }
+
+        void SharedMemorySequenceReference::set_target_url(const std::string& value)
+        {
+            _target_url = value;
+        }
+
+        const std::vector<std::shared_ptr<MemoryReferenceData>> & SharedMemorySequenceReference::memory() const noexcept
+        {
+            return _memory;
+        }
+
+        void SharedMemorySequenceReference::set_memory(
+            const std::vector<std::shared_ptr<MemoryReferenceData> >& memory)
+        {
+            _memory = memory;
         }
     }
 }

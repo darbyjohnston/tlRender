@@ -18,25 +18,20 @@ namespace tl
         //! Memory reference data.
         typedef std::vector<uint8_t> MemoryReferenceData;
 
-        //! Read references from memory.
-        class MemoryReference : public otio::MediaReference
+        //! Read references from raw memory pointers.
+        class RawMemoryReference : public otio::MediaReference
         {
         public:
             struct Schema
             {
-                static auto constexpr name = "MemoryReference";
+                static auto constexpr name = "RawMemoryReference";
                 static int constexpr version = 1;
             };
 
-            /*MemoryReference(
+            RawMemoryReference(
                 const std::string& target_url = std::string(),
-                const uint8_t* memory_ptr = nullptr,
+                const uint8_t* memory = nullptr,
                 size_t memory_size = 0,
-                const otio::optional<otio::TimeRange>& available_range = otio::nullopt,
-                const otio::AnyDictionary& metadata = otio::AnyDictionary());*/
-            MemoryReference(
-                const std::string& target_url = std::string(),
-                const std::shared_ptr<MemoryReferenceData>& memory_data = nullptr,
                 const otio::optional<otio::TimeRange>& available_range = otio::nullopt,
                 const otio::AnyDictionary& metadata = otio::AnyDictionary());
 
@@ -44,42 +39,33 @@ namespace tl
 
             void set_target_url(const std::string&);
 
-            const uint8_t* memory_ptr() const noexcept;
+            const uint8_t* memory() const noexcept;
 
             size_t memory_size() const noexcept;
 
-            void set_memory(const uint8_t* memory_ptr, size_t memory_size);
-
-            void set_memory_data(const std::shared_ptr<MemoryReferenceData>&);
+            void set_memory(const uint8_t* memory, size_t memory_size);
 
         protected:
-            virtual ~MemoryReference() override;
+            virtual ~RawMemoryReference() override;
 
             std::string _target_url;
-            const uint8_t* _memory_ptr = nullptr;
+            const uint8_t* _memory = nullptr;
             size_t _memory_size = 0;
-            std::shared_ptr<MemoryReferenceData> _memory_data;
         };
 
-        //! Read sequence references from memory.
-        class MemorySequenceReference : public otio::MediaReference
+        //! Read references from a shared memory pointer.
+        class SharedMemoryReference : public otio::MediaReference
         {
         public:
             struct Schema
             {
-                static auto constexpr name = "MemorySequenceReference";
+                static auto constexpr name = "SharedMemoryReference";
                 static int constexpr version = 1;
             };
 
-            /*MemorySequenceReference(
+            SharedMemoryReference(
                 const std::string& target_url = std::string(),
-                const std::vector<const uint8_t*>& memory_ptrs = {},
-                const std::vector<size_t> memory_sizes = {},
-                const otio::optional<otio::TimeRange>& available_range = otio::nullopt,
-                const otio::AnyDictionary& metadata = otio::AnyDictionary());*/
-            MemorySequenceReference(
-                const std::string& target_url = std::string(),
-                const std::vector<std::shared_ptr<MemoryReferenceData> >& memory_data = {},
+                const std::shared_ptr<MemoryReferenceData>& memory = nullptr,
                 const otio::optional<otio::TimeRange>& available_range = otio::nullopt,
                 const otio::AnyDictionary& metadata = otio::AnyDictionary());
 
@@ -87,24 +73,84 @@ namespace tl
 
             void set_target_url(const std::string&);
 
-            const std::vector<const uint8_t*>& memory_ptrs() const noexcept;
+            const std::shared_ptr<MemoryReferenceData>& memory() const noexcept;
+
+            void set_memory(const std::shared_ptr<MemoryReferenceData>&);
+
+        protected:
+            virtual ~SharedMemoryReference() override;
+
+            std::string _target_url;
+            std::shared_ptr<MemoryReferenceData> _memory;
+        };
+
+        //! Read sequence references from raw memory pointers.
+        class RawMemorySequenceReference : public otio::MediaReference
+        {
+        public:
+            struct Schema
+            {
+                static auto constexpr name = "RawMemorySequenceReference";
+                static int constexpr version = 1;
+            };
+
+            RawMemorySequenceReference(
+                const std::string& target_url = std::string(),
+                const std::vector<const uint8_t*>& memory = {},
+                const std::vector<size_t> memory_sizes = {},
+                const otio::optional<otio::TimeRange>& available_range = otio::nullopt,
+                const otio::AnyDictionary& metadata = otio::AnyDictionary());
+
+            const std::string& target_url() const noexcept;
+
+            void set_target_url(const std::string&);
+
+            const std::vector<const uint8_t*>& memory() const noexcept;
 
             const std::vector<size_t>& memory_sizes() const noexcept;
 
             void set_memory(
-                const std::vector<const uint8_t*>& memory_ptrs,
+                const std::vector<const uint8_t*>& memory,
                 const std::vector<size_t>& memory_sizes);
 
-            void set_memory_data(
-                const std::vector<std::shared_ptr<MemoryReferenceData> >& memory_data);
-
         protected:
-            virtual ~MemorySequenceReference() override;
+            virtual ~RawMemorySequenceReference() override;
 
             std::string _target_url;
-            std::vector<const uint8_t*> _memory_ptrs;
+            std::vector<const uint8_t*> _memory;
             std::vector<size_t> _memory_sizes;
-            std::vector<std::shared_ptr<MemoryReferenceData> > _memory_data;
+        };
+
+        //! Read sequence references from shared memory pointers.
+        class SharedMemorySequenceReference : public otio::MediaReference
+        {
+        public:
+            struct Schema
+            {
+                static auto constexpr name = "SharedMemorySequenceReference";
+                static int constexpr version = 1;
+            };
+
+            SharedMemorySequenceReference(
+                const std::string& target_url = std::string(),
+                const std::vector<std::shared_ptr<MemoryReferenceData> >& memory = {},
+                const otio::optional<otio::TimeRange>& available_range = otio::nullopt,
+                const otio::AnyDictionary& metadata = otio::AnyDictionary());
+
+            const std::string& target_url() const noexcept;
+
+            void set_target_url(const std::string&);
+
+            const std::vector<std::shared_ptr<MemoryReferenceData> >& memory() const noexcept;
+
+            void set_memory(
+                const std::vector<std::shared_ptr<MemoryReferenceData> >&);
+
+        protected:
+            virtual ~SharedMemorySequenceReference() override;
+
+            std::string _target_url;
+            std::vector<std::shared_ptr<MemoryReferenceData> > _memory;
         };
     }
 }
