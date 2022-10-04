@@ -412,7 +412,8 @@ namespace tl
                 imaging::Info videoInfo;
                 videoInfo.size.w = p.video.avCodecParameters[p.video.avStream]->width;
                 videoInfo.size.h = p.video.avCodecParameters[p.video.avStream]->height;
-                if ( p.video.avCodecParameters[p.video.avStream]->sample_aspect_ratio.den > 0 && p.video.avCodecParameters[p.video.avStream]->sample_aspect_ratio.num > 0 )
+                if ( p.video.avCodecParameters[p.video.avStream]->sample_aspect_ratio.den > 0 &&
+                     p.video.avCodecParameters[p.video.avStream]->sample_aspect_ratio.num > 0 )
                     videoInfo.pixelAspectRatio = av_q2d( p.video.avCodecParameters[p.video.avStream]->sample_aspect_ratio );
                 videoInfo.layout.mirror.y = true;
 
