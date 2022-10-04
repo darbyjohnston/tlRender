@@ -332,9 +332,10 @@ namespace tl
                                 const int64_t frame = time.value();
                                 if (frame >= _startFrame && frame <= _endFrame)
                                 {
+                                    const int64_t memoryIndex = frame - _startFrame;
                                     out = _readVideo(
                                         fileName,
-                                        frame >= 0 && frame < _memory.size() ? &_memory[frame] : nullptr,
+                                        memoryIndex >= 0 && memoryIndex < _memory.size() ? &_memory[memoryIndex] : nullptr,
                                         time,
                                         layer);
                                 }
