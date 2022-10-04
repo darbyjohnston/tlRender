@@ -183,7 +183,7 @@ namespace tl
                         }
                         p.infoPromise.set_value(io::Info());
                     }
-                    
+
                     {
                         std::list<std::shared_ptr<Private::VideoRequest> > videoRequests;
                         std::list<std::shared_ptr<Private::AudioRequest> > audioRequests;
@@ -412,6 +412,8 @@ namespace tl
                 imaging::Info videoInfo;
                 videoInfo.size.w = p.video.avCodecParameters[p.video.avStream]->width;
                 videoInfo.size.h = p.video.avCodecParameters[p.video.avStream]->height;
+                if ( p.video.avCodecParameters[p.video.avStream]->sample_aspect_ratio.den > 0 && p.video.avCodecParameters[p.video.avStream]->sample_aspect_ratio.num > 0 )
+                    videoInfo.pixelAspectRatio = av_q2d( p.video.avCodecParameters[p.video.avStream]->sample_aspect_ratio );
                 videoInfo.layout.mirror.y = true;
 
                 p.video.avInputPixelFormat = static_cast<AVPixelFormat>(
@@ -771,7 +773,7 @@ namespace tl
                         av_get_time_base_q(),
                         r);
                 }
-                
+
                 std::map<std::string, std::string> tags;
                 AVDictionaryEntry* tag = nullptr;
                 otime::RationalTime startTime(0.0, sampleRate);
@@ -1307,7 +1309,7 @@ namespace tl
                 {
                     //std::cout << "video frame: " << time << std::endl;
                     auto image = imaging::Image::create(info.video[0]);
-                    
+
                     auto tags = info.tags;
                     AVDictionaryEntry* tag = nullptr;
                     while ((tag = av_dict_get(video.avFrame->metadata, "", tag, AV_DICT_IGNORE_SUFFIX)))

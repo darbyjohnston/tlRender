@@ -131,7 +131,7 @@ namespace tl
                         videoData[1],
                         math::BBox2i(0, 0, p.size.w, p.size.h),
                         imageOptions.size() > 1 ? std::make_shared<timeline::ImageOptions>(imageOptions[1]) : nullptr,
-                        !displayOptions.empty() ? displayOptions[1] : timeline::DisplayOptions());
+                        displayOptions.size() > 1 ? displayOptions[1] : timeline::DisplayOptions());
                 }
 
                 glDisable(GL_STENCIL_TEST);
