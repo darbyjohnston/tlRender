@@ -148,7 +148,7 @@ namespace tl
             _target_url = value;
         }
 
-        const std::vector<std::shared_ptr<MemoryReferenceData>> & SharedMemorySequenceReference::memory() const noexcept
+        const std::vector<std::shared_ptr<MemoryReferenceData> > & SharedMemorySequenceReference::memory() const noexcept
         {
             return _memory;
         }
