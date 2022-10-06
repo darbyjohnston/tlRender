@@ -34,7 +34,7 @@ namespace tl
                     std::setfill('0') << std::setw(imageSequenceRef->frame_zero_padding()) <<
                     imageSequenceRef->start_frame() <<
                     imageSequenceRef->name_suffix();
-                ss >> url;
+                url = ss.str();
             }
             else if (auto rawMemoryRef = dynamic_cast<const RawMemoryReference*>(ref))
             {
