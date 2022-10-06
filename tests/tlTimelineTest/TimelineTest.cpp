@@ -82,7 +82,7 @@ namespace tl
 
             // Write an OTIO timeline.
             auto otioClip = new otio::Clip;
-            otioClip->set_media_reference(new otio::ImageSequenceReference("file://", "TimelineTest.", ".ppm", 0, 1, 1, 0));
+            otioClip->set_media_reference(new otio::ImageSequenceReference("file://", "Timeline Test.", ".ppm", 0, 1, 1, 0));
             const otime::TimeRange clipTimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0));
             otioClip->set_source_range(clipTimeRange);
             otio::ErrorStatus errorStatus;
@@ -93,7 +93,7 @@ namespace tl
                 throw std::runtime_error("Cannot append child");
             }
             otioClip = new otio::Clip;
-            otioClip->set_media_reference(new otio::ImageSequenceReference("", "TimelineTest.", ".ppm", 0, 1, 1, 0));
+            otioClip->set_media_reference(new otio::ImageSequenceReference("", "Timeline Test.", ".ppm", 0, 1, 1, 0));
             otioClip->set_source_range(clipTimeRange);
             otioTrack->append_child(otioClip, &errorStatus);
             if (otio::is_error(errorStatus))
@@ -108,7 +108,7 @@ namespace tl
             }
             otio::SerializableObject::Retainer<otio::Timeline> otioTimeline(new otio::Timeline);
             otioTimeline->set_tracks(otioStack);
-            const std::string fileName("TimelineTest.otio");
+            const std::string fileName("Timeline Test.otio");
             otioTimeline->to_json_file(fileName, &errorStatus);
             if (otio::is_error(errorStatus))
             {
@@ -122,7 +122,7 @@ namespace tl
             io::Info ioInfo;
             ioInfo.video.push_back(imageInfo);
             ioInfo.videoTime = clipTimeRange;
-            auto write = _context->getSystem<io::System>()->write(file::Path("TimelineTest.0.ppm"), ioInfo);
+            auto write = _context->getSystem<io::System>()->write(file::Path("Timeline Test.0.ppm"), ioInfo);
             for (size_t i = 0; i < static_cast<size_t>(clipTimeRange.duration().value()); ++i)
             {
                 write->writeVideo(otime::RationalTime(i, 24.0), image);
@@ -167,6 +167,7 @@ namespace tl
                     }
                 }
             }
+            TLRENDER_ASSERT(futures.empty());
 
             // Get video from the timeline, setting the active range.
             timeline->setActiveRanges({ otime::TimeRange(otime::RationalTime(0.0, 24.0), timelineDuration) });
@@ -197,6 +198,7 @@ namespace tl
                     }
                 }
             }
+            TLRENDER_ASSERT(futures.empty());
 
             // Cancel requests.
             videoData.clear();
@@ -215,7 +217,7 @@ namespace tl
         void TimelineTest::_imageSequence()
         {
             //! \bug This uses the image sequence created by _timeline().
-            auto timeline = Timeline::create("TimelineTest.0.ppm", _context);
+            auto timeline = Timeline::create("Timeline Test.0.ppm", _context);
             {
                 std::stringstream ss;
                 ss << timeline->getDuration();
