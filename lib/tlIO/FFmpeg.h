@@ -101,7 +101,8 @@ namespace tl
             bool hasStopped() const override;
 
         private:
-            void _open(const std::string& fileName);
+            void _openVideo(const std::string& fileName);
+            void _openAudio(const std::string& fileName);
             void _run();
             void _close();
 

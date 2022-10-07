@@ -34,6 +34,34 @@ namespace tl
 {
     namespace ffmpeg
     {
+        namespace
+        {
+            struct AVIOBufferData
+            {
+                const uint8_t* p = nullptr;
+                size_t size = 0;
+            };
+
+            int avIOBufferRead(void* opaque, uint8_t* buf, int bufSize)
+            {
+                AVIOBufferData* bufferData = static_cast<AVIOBufferData*>(opaque);
+
+                bufSize = std::min(static_cast<size_t>(bufSize), bufferData->size);
+                if (!bufSize)
+                {
+                    return AVERROR_EOF;
+                }
+
+                memcpy(buf, bufferData->p, bufSize);
+                bufferData->p += bufSize;
+                bufferData->size -= bufSize;
+
+                return bufSize;
+            }
+
+            const size_t avIOContextBufferSize = 4096;
+        }
+
         struct Read::Private
         {
             io::Info info;
@@ -62,6 +90,9 @@ namespace tl
             struct Video
             {
                 AVFormatContext* avFormatContext = nullptr;
+                AVIOBufferData avIOBufferData;
+                std::vector<uint8_t> avIOContextBuffer;
+                AVIOContext* avIOContext = nullptr;
                 int avStream = -1;
                 std::map<int, AVCodecParameters*> avCodecParameters;
                 std::map<int, AVCodecContext*> avCodecContext;
@@ -77,6 +108,9 @@ namespace tl
             struct Audio
             {
                 AVFormatContext* avFormatContext = nullptr;
+                AVIOBufferData avIOBufferData;
+                std::vector<uint8_t> avIOContextBuffer;
+                AVIOContext* avIOContext = nullptr;
                 int avStream = -1;
                 std::map<int, AVCodecParameters*> avCodecParameters;
                 std::map<int, AVCodecContext*> avCodecContext;
@@ -107,7 +141,7 @@ namespace tl
             const io::Options& options,
             const std::weak_ptr<log::System>& logSystem)
         {
-            IRead::_init(path, {}, options, logSystem);
+            IRead::_init(path, memory, options, logSystem);
 
             TLRENDER_P();
 
@@ -151,7 +185,10 @@ namespace tl
                     TLRENDER_P();
                     try
                     {
-                        _open(path.get());
+                        _openVideo(path.get());
+                        _openAudio(path.get());
+                        p.infoPromise.set_value(p.info);
+
                         try
                         {
                             _run();
@@ -184,7 +221,7 @@ namespace tl
                         }
                         p.infoPromise.set_value(io::Info());
                     }
-                    
+
                     {
                         std::list<std::shared_ptr<Private::VideoRequest> > videoRequests;
                         std::list<std::shared_ptr<Private::AudioRequest> > audioRequests;
@@ -341,13 +378,42 @@ namespace tl
             return p.stopped;
         }
 
-        void Read::_open(const std::string& fileName)
+        void Read::_openVideo(const std::string& fileName)
         {
             TLRENDER_P();
 
+            if (!_memory.empty())
+            {
+                p.video.avFormatContext = avformat_alloc_context();
+                if (!p.video.avFormatContext)
+                {
+                    throw std::runtime_error(string::Format("{0}: Cannot allocate format context").arg(fileName));
+                }
+
+                p.video.avIOBufferData.p = _memory[0].p;
+                p.video.avIOBufferData.size = _memory[0].size;
+
+                p.video.avIOContextBuffer.resize(avIOContextBufferSize);
+
+                p.video.avIOContext = avio_alloc_context(
+                    p.video.avIOContextBuffer.data(),
+                    avIOContextBufferSize,
+                    0,
+                    &p.video.avIOBufferData,
+                    &avIOBufferRead,
+                    nullptr,
+                    nullptr);
+                if (!p.video.avIOContext)
+                {
+                    throw std::runtime_error(string::Format("{0}: Cannot allocate I/O context").arg(fileName));
+                }
+
+                p.video.avFormatContext->pb = p.video.avIOContext;
+            }
+
             int r = avformat_open_input(
                 &p.video.avFormatContext,
-                fileName.c_str(),
+                !p.video.avFormatContext ? fileName.c_str() : nullptr,
                 nullptr,
                 nullptr);
             if (r < 0)
@@ -658,16 +724,51 @@ namespace tl
                     p.info.tags["Video Speed"] = ss.str();
                 }
             }
+        }
 
-            r = avformat_open_input(
+        void Read::_openAudio(const std::string& fileName)
+        {
+            TLRENDER_P();
+
+            if (!_memory.empty())
+            {
+                p.audio.avFormatContext = avformat_alloc_context();
+                if (!p.audio.avFormatContext)
+                {
+                    throw std::runtime_error(string::Format("{0}: Cannot allocate format context").arg(fileName));
+                }
+
+                p.audio.avIOBufferData.p = _memory[0].p;
+                p.audio.avIOBufferData.size = _memory[0].size;
+
+                p.audio.avIOContextBuffer.resize(avIOContextBufferSize);
+
+                p.audio.avIOContext = avio_alloc_context(
+                    p.audio.avIOContextBuffer.data(),
+                    avIOContextBufferSize,
+                    0,
+                    &p.audio.avIOBufferData,
+                    &avIOBufferRead,
+                    nullptr,
+                    nullptr);
+                if (!p.audio.avIOContext)
+                {
+                    throw std::runtime_error(string::Format("{0}: Cannot allocate I/O context").arg(fileName));
+                }
+
+                p.audio.avFormatContext->pb = p.audio.avIOContext;
+            }
+
+            int r = avformat_open_input(
                 &p.audio.avFormatContext,
-                fileName.c_str(),
+                !p.audio.avFormatContext ? fileName.c_str() : nullptr,
                 nullptr,
                 nullptr);
             if (r < 0)
             {
                 throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
             }
+
             r = avformat_find_stream_info(p.audio.avFormatContext, 0);
             if (r < 0)
             {
@@ -783,7 +884,7 @@ namespace tl
                         av_get_time_base_q(),
                         r);
                 }
-                
+
                 std::map<std::string, std::string> tags;
                 AVDictionaryEntry* tag = nullptr;
                 otime::RationalTime startTime(0.0, sampleRate);
@@ -852,8 +953,6 @@ namespace tl
                     p.info.tags["Audio Duration"] = ss.str();
                 }
             }
-
-            p.infoPromise.set_value(p.info);
         }
 
         void Read::_run()
@@ -1265,6 +1364,10 @@ namespace tl
             {
                 avcodec_parameters_free(&i.second);
             }
+            if (p.video.avIOContext)
+            {
+                avio_context_free(&p.video.avIOContext);
+            }
             if (p.video.avFormatContext)
             {
                 avformat_close_input(&p.video.avFormatContext);
@@ -1286,6 +1389,10 @@ namespace tl
             for (auto i : p.audio.avCodecParameters)
             {
                 avcodec_parameters_free(&i.second);
+            }
+            if (p.audio.avIOContext)
+            {
+                avio_context_free(&p.audio.avIOContext);
             }
             if (p.audio.avFormatContext)
             {
