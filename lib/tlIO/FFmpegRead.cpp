@@ -38,7 +38,17 @@ namespace tl
         {
             struct AVIOBufferData
             {
+                AVIOBufferData()
+                {}
+
+                AVIOBufferData(const uint8_t* p, size_t size) :
+                    p(p),
+                    pCurrent(p),
+                    size(size)
+                {}
+
                 const uint8_t* p = nullptr;
+                const uint8_t* pCurrent = nullptr;
                 size_t size = 0;
             };
 
@@ -46,17 +56,31 @@ namespace tl
             {
                 AVIOBufferData* bufferData = static_cast<AVIOBufferData*>(opaque);
 
-                bufSize = std::min(static_cast<size_t>(bufSize), bufferData->size);
+                const size_t remaining = (bufferData->p + bufferData->size) - bufferData->pCurrent;
+                bufSize = std::min(static_cast<size_t>(bufSize), remaining);
                 if (!bufSize)
                 {
                     return AVERROR_EOF;
                 }
 
-                memcpy(buf, bufferData->p, bufSize);
-                bufferData->p += bufSize;
-                bufferData->size -= bufSize;
+                memcpy(buf, bufferData->pCurrent, bufSize);
+                bufferData->pCurrent += bufSize;
 
                 return bufSize;
+            }
+
+            int64_t avIOBufferSeek(void* opaque, int64_t offset, int whence)
+            {
+                AVIOBufferData* bufferData = static_cast<AVIOBufferData*>(opaque);
+
+                if (whence & AVSEEK_SIZE)
+                {
+                    return bufferData->size;
+                }
+
+                bufferData->pCurrent = bufferData->p + offset;
+
+                return offset;
             }
 
             const size_t avIOContextBufferSize = 4096;
@@ -390,11 +414,8 @@ namespace tl
                     throw std::runtime_error(string::Format("{0}: Cannot allocate format context").arg(fileName));
                 }
 
-                p.video.avIOBufferData.p = _memory[0].p;
-                p.video.avIOBufferData.size = _memory[0].size;
-
+                p.video.avIOBufferData = AVIOBufferData(_memory[0].p, _memory[0].size);
                 p.video.avIOContextBuffer = static_cast<uint8_t*>(av_malloc(avIOContextBufferSize));
-
                 p.video.avIOContext = avio_alloc_context(
                     p.video.avIOContextBuffer,
                     avIOContextBufferSize,
@@ -402,7 +423,7 @@ namespace tl
                     &p.video.avIOBufferData,
                     &avIOBufferRead,
                     nullptr,
-                    nullptr);
+                    &avIOBufferSeek);
                 if (!p.video.avIOContext)
                 {
                     throw std::runtime_error(string::Format("{0}: Cannot allocate I/O context").arg(fileName));
@@ -738,11 +759,8 @@ namespace tl
                     throw std::runtime_error(string::Format("{0}: Cannot allocate format context").arg(fileName));
                 }
 
-                p.audio.avIOBufferData.p = _memory[0].p;
-                p.audio.avIOBufferData.size = _memory[0].size;
-
+                p.audio.avIOBufferData = AVIOBufferData(_memory[0].p, _memory[0].size);
                 p.audio.avIOContextBuffer = static_cast<uint8_t*>(av_malloc(avIOContextBufferSize));
-
                 p.audio.avIOContext = avio_alloc_context(
                     p.audio.avIOContextBuffer,
                     avIOContextBufferSize,
@@ -750,7 +768,7 @@ namespace tl
                     &p.audio.avIOBufferData,
                     &avIOBufferRead,
                     nullptr,
-                    nullptr);
+                    &avIOBufferSeek);
                 if (!p.audio.avIOContext)
                 {
                     throw std::runtime_error(string::Format("{0}: Cannot allocate I/O context").arg(fileName));
@@ -1368,6 +1386,11 @@ namespace tl
             {
                 avio_context_free(&p.video.avIOContext);
             }
+            //! \bug Free'd by avio_context_free()?
+            //if (p.video.avIOContextBuffer)
+            //{
+            //    av_free(p.video.avIOContextBuffer);
+            //}
             if (p.video.avFormatContext)
             {
                 avformat_close_input(&p.video.avFormatContext);
@@ -1394,6 +1417,11 @@ namespace tl
             {
                 avio_context_free(&p.audio.avIOContext);
             }
+            //! \bug Free'd by avio_context_free()?
+            //if (p.audio.avIOContextBuffer)
+            //{
+            //    av_free(p.audio.avIOContextBuffer);
+            //}
             if (p.audio.avFormatContext)
             {
                 avformat_close_input(&p.audio.avFormatContext);
