@@ -91,7 +91,7 @@ namespace tl
             {
                 AVFormatContext* avFormatContext = nullptr;
                 AVIOBufferData avIOBufferData;
-                std::vector<uint8_t> avIOContextBuffer;
+                uint8_t* avIOContextBuffer = nullptr;
                 AVIOContext* avIOContext = nullptr;
                 int avStream = -1;
                 std::map<int, AVCodecParameters*> avCodecParameters;
@@ -109,7 +109,7 @@ namespace tl
             {
                 AVFormatContext* avFormatContext = nullptr;
                 AVIOBufferData avIOBufferData;
-                std::vector<uint8_t> avIOContextBuffer;
+                uint8_t* avIOContextBuffer = nullptr;
                 AVIOContext* avIOContext = nullptr;
                 int avStream = -1;
                 std::map<int, AVCodecParameters*> avCodecParameters;
@@ -393,10 +393,10 @@ namespace tl
                 p.video.avIOBufferData.p = _memory[0].p;
                 p.video.avIOBufferData.size = _memory[0].size;
 
-                p.video.avIOContextBuffer.resize(avIOContextBufferSize);
+                p.video.avIOContextBuffer = static_cast<uint8_t*>(av_malloc(avIOContextBufferSize));
 
                 p.video.avIOContext = avio_alloc_context(
-                    p.video.avIOContextBuffer.data(),
+                    p.video.avIOContextBuffer,
                     avIOContextBufferSize,
                     0,
                     &p.video.avIOBufferData,
@@ -741,10 +741,10 @@ namespace tl
                 p.audio.avIOBufferData.p = _memory[0].p;
                 p.audio.avIOBufferData.size = _memory[0].size;
 
-                p.audio.avIOContextBuffer.resize(avIOContextBufferSize);
+                p.audio.avIOContextBuffer = static_cast<uint8_t*>(av_malloc(avIOContextBufferSize));
 
                 p.audio.avIOContext = avio_alloc_context(
-                    p.audio.avIOContextBuffer.data(),
+                    p.audio.avIOContextBuffer,
                     avIOContextBufferSize,
                     0,
                     &p.audio.avIOBufferData,
