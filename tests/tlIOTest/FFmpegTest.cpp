@@ -129,6 +129,35 @@ namespace tl
                                     }
                                 }
                                 {
+                                    std::vector<uint8_t> memoryData;
+                                    std::vector<io::MemoryRead> memory;
+                                    {
+                                        auto fileIO = file::FileIO::create(path.get(), file::Mode::Read);
+                                        memoryData.resize(fileIO->getSize());
+                                        fileIO->read(memoryData.data(), memoryData.size());
+                                        memory.push_back(io::MemoryRead(memoryData.data(), memoryData.size()));
+                                    }
+                                    auto read = plugin->read(path, memory);
+                                    for (size_t i = 0; i < static_cast<size_t>(duration.value()); ++i)
+                                    {
+                                        const auto videoData = read->readVideo(otime::RationalTime(i, 24.0)).get();
+                                        TLRENDER_ASSERT(videoData.image);
+                                        //! \todo Compare image information.
+                                        //TLRENDER_ASSERT(videoData.image->getInfo() == image->getInfo());
+                                        const auto frameTags = videoData.image->getTags();
+                                        for (const auto& j : tags)
+                                        {
+                                            const auto k = frameTags.find(j.first);
+                                            TLRENDER_ASSERT(k != frameTags.end());
+                                            TLRENDER_ASSERT(k->second == j.second);
+                                        }
+                                    }
+                                    for (size_t i = 0; i < static_cast<size_t>(duration.value()); ++i)
+                                    {
+                                        const auto videoData = read->readVideo(otime::RationalTime(i, 24.0)).get();
+                                    }
+                                }
+                                {
                                     auto io = file::FileIO::create(path.get(), file::Mode::Read);
                                     const size_t size = io->getSize();
                                     io->close();
