@@ -183,7 +183,14 @@ namespace tl
             p.fileName = fileName;
             p.mode = mode;
             p.pos = 0;
-            p.size = GetFileSize(p.f, 0);
+            LARGE_INTEGER size;
+            memset(&size, 0, sizeof(LARGE_INTEGER));
+            if (!GetFileSizeEx(p.f, &size))
+            {
+                throw std::runtime_error(
+                    string::Format("{0}: Cannot get file size").arg(fileName));
+            }
+            p.size = static_cast<size_t>(size.QuadPart);
 
             // Memory mapping.
             if (Mode::Read == p.mode && p.size > 0)
