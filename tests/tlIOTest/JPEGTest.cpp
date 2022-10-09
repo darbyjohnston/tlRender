@@ -76,7 +76,7 @@ namespace tl
                                     auto read = plugin->read(path);
                                     const auto videoData = read->readVideo(otime::RationalTime(0.0, 24.0)).get();
                                     TLRENDER_ASSERT(videoData.image);
-                                    TLRENDER_ASSERT(videoData.image->getInfo() == image->getInfo());
+                                    TLRENDER_ASSERT(videoData.image->getSize() == image->getSize());
                                     const auto frameTags = videoData.image->getTags();
                                     for (const auto& j : tags)
                                     {
@@ -97,7 +97,7 @@ namespace tl
                                     auto read = plugin->read(path, memory);
                                     const auto videoData = read->readVideo(otime::RationalTime(0.0, 24.0)).get();
                                     TLRENDER_ASSERT(videoData.image);
-                                    TLRENDER_ASSERT(videoData.image->getInfo() == image->getInfo());
+                                    TLRENDER_ASSERT(videoData.image->getSize() == image->getSize());
                                     const auto frameTags = videoData.image->getTags();
                                     for (const auto& j : tags)
                                     {

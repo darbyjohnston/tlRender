@@ -107,8 +107,7 @@ namespace tl
                                     {
                                         const auto videoData = read->readVideo(otime::RationalTime(i, 24.0)).get();
                                         TLRENDER_ASSERT(videoData.image);
-                                        //! \todo Compare image information.
-                                        //TLRENDER_ASSERT(videoData.image->getInfo() == image->getInfo());
+                                        TLRENDER_ASSERT(videoData.image->getSize() == image->getSize());
                                         //std::stringstream ss;
                                         //ss << "Video time: " << videoData.time;
                                         //_print(ss.str());
@@ -142,8 +141,7 @@ namespace tl
                                     {
                                         const auto videoData = read->readVideo(otime::RationalTime(i, 24.0)).get();
                                         TLRENDER_ASSERT(videoData.image);
-                                        //! \todo Compare image information.
-                                        //TLRENDER_ASSERT(videoData.image->getInfo() == image->getInfo());
+                                        TLRENDER_ASSERT(videoData.image->getSize() == image->getSize());
                                         const auto frameTags = videoData.image->getTags();
                                         for (const auto& j : tags)
                                         {
