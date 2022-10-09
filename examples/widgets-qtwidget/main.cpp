@@ -12,9 +12,18 @@
 
 int main(int argc, char* argv[])
 {
-    auto context = tl::system::Context::create();
-    tl::qtwidget::init(context);
-    tl::examples::widgets_qtwidget::App app(argc, argv, context);
-    int r = app.exec();
+    int r = 0;
+    try
+    {
+        auto context = tl::system::Context::create();
+        tl::qtwidget::init(context);
+        tl::examples::widgets_qtwidget::App app(argc, argv, context);
+        r = app.exec();
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << "ERROR: " << e.what() << std::endl;
+        r = 1;
+    }
     return r;
 }

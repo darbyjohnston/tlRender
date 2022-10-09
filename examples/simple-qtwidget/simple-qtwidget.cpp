@@ -25,27 +25,35 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    // Create the Qt application.
-    QApplication app(argc, argv);
+    int r = 0;
+    try
+    {
+        // Create the Qt application.
+        QApplication app(argc, argv);
 
-    // Create the context object.
-    auto contextObject = new tl::qt::ContextObject(context);
+        // Create the context object.
+        auto contextObject = new tl::qt::ContextObject(context);
 
-    // Create the timeline player.
-    auto timeline = tl::timeline::Timeline::create(argv[1], context);
-    auto timelinePlayer = new tl::qt::TimelinePlayer(
-        tl::timeline::TimelinePlayer::create(timeline, context), context);
+        // Create the timeline player.
+        auto timeline = tl::timeline::Timeline::create(argv[1], context);
+        auto timelinePlayer = new tl::qt::TimelinePlayer(
+            tl::timeline::TimelinePlayer::create(timeline, context), context);
 
-    // Create the timeline viewport.
-    auto timelineViewport = new tl::qtwidget::TimelineViewport(context);
-    timelineViewport->setTimelinePlayers({ timelinePlayer });
-    timelineViewport->show();
+        // Create the timeline viewport.
+        auto timelineViewport = new tl::qtwidget::TimelineViewport(context);
+        timelineViewport->setTimelinePlayers({ timelinePlayer });
+        timelineViewport->show();
 
-    // Start playback.
-    timelinePlayer->setPlayback(tl::timeline::Playback::Forward);
+        // Start playback.
+        timelinePlayer->setPlayback(tl::timeline::Playback::Forward);
 
-    // Start the application.
-    int r = app.exec();
-
+        // Start the application.
+        r = app.exec();
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << "ERROR: " << e.what() << std::endl;
+        r = 1;
+    }
     return r;
 }

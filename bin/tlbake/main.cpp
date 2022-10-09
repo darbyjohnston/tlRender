@@ -16,12 +16,16 @@ int main(int argc, char* argv[])
         auto context = tl::system::Context::create();
         tl::timeline::init(context);
         auto app = tl::bake::App::create(argc, argv, context);
-        app->run();
-        r = app->getExit();
+        if (0 == app->getExit())
+        {
+            app->run();
+            r = app->getExit();
+        }
     }
     catch(const std::exception& e)
     {
         std::cerr << "ERROR: " << e.what() << std::endl;
+        r = 1;
     }
     return r;
 }
