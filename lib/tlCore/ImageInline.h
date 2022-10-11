@@ -163,7 +163,7 @@ namespace tl
 
         inline float Image::getAspect() const
         {
-            return _info.size.getAspect();
+            return _info.size.getAspect() * _info.pixelAspectRatio;
         }
 
         inline PixelType Image::getPixelType() const
