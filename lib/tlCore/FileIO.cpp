@@ -148,8 +148,8 @@ namespace tl
         std::string readContents(const std::shared_ptr<FileIO>& io)
         {
 #ifdef TLRENDER_ENABLE_MMAP
-            const uint8_t* p = io->mmapP();
-            const uint8_t* end = io->mmapEnd();
+            const uint8_t* p = io->getMMapP();
+            const uint8_t* end = io->getMMapEnd();
             return std::string(reinterpret_cast<const char*>(p), end - p);
 #else // TLRENDER_ENABLE_MMAP
             const size_t fileSize = io->getSize();
@@ -218,8 +218,7 @@ namespace tl
                 do
                 {
                     io->read(&c, 1);
-                    if (
-                        c != '\n' &&
+                    if (c != '\n' &&
                         c != '\r')
                     {
                         out[i++] = c;

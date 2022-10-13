@@ -115,10 +115,10 @@ namespace tl
 			bool           endianConversion = false;
 			int            f = -1;
 #if defined(TLRENDER_ENABLE_MMAP)
-			void*          mmap = reinterpret_cast<void*>(-1);
-			const uint8_t* mmapStart = nullptr;
-			const uint8_t* mmapEnd = nullptr;
-			const uint8_t* mmapP = nullptr;
+			void*          mMap = reinterpret_cast<void*>(-1);
+			const uint8_t* mMapStart = nullptr;
+			const uint8_t* mMapEnd = nullptr;
+			const uint8_t* mMapP = nullptr;
 #endif // TLRENDER_ENABLE_MMAP
 		};
 
@@ -181,15 +181,15 @@ namespace tl
 			// Memory mapping.
 			if (Mode::Read == p.mode && p.size > 0)
 			{
-				p.mmap = mmap(0, p.size, PROT_READ, MAP_SHARED, p.f, 0);
-				madvise(p.mmap, p.size, MADV_SEQUENTIAL | MADV_SEQUENTIAL);
-				if (p.mmap == (void*)-1)
+				p.mMap = mmap(0, p.size, PROT_READ, MAP_SHARED, p.f, 0);
+				madvise(p.mMap, p.size, MADV_SEQUENTIAL | MADV_SEQUENTIAL);
+				if (p.mMap == (void*)-1)
 				{
 					throw std::runtime_error(getErrorMessage(ErrorType::MemoryMap, fileName, getErrorString()));
 				}
-				p.mmapStart = reinterpret_cast<const uint8_t*>(p.mmap);
-				p.mmapEnd   = p.mmapStart + p.size;
-				p.mmapP     = p.mmapStart;
+				p.mMapStart = reinterpret_cast<const uint8_t*>(p.mMap);
+				p.mMapEnd   = p.mMapStart + p.size;
+				p.mMapP     = p.mMapStart;
 			}
 #endif // TLRENDER_ENABLE_MMAP
 		}
@@ -233,9 +233,9 @@ namespace tl
 			
 			p.fileName = std::string();
 #if defined(TLRENDER_ENABLE_MMAP)
-			if (p.mmap != (void*)-1)
+			if (p.mMap != (void*)-1)
 			{
-				int r = munmap(p.mmap, p.size);
+				int r = munmap(p.mMap, p.size);
 				if (-1 == r)
 				{
 					out = false;
@@ -244,10 +244,10 @@ namespace tl
 						*error = getErrorMessage(ErrorType::CloseMemoryMap, p.fileName, getErrorString());
 					}
 				}
-				p.mmap = (void*)-1;
+				p.mMap = (void*)-1;
 			}
-			p.mmapStart = 0;
-			p.mmapEnd   = 0;
+			p.mMapStart = nullptr;
+			p.mMapEnd   = nullptr;
 #endif // TLRENDER_ENABLE_MMAP
 			if (p.f != -1)
 			{
@@ -301,14 +301,14 @@ namespace tl
 		}
 
 #if defined(TLRENDER_ENABLE_MMAP)
-		const uint8_t* FileIO::mmapP() const
+		const uint8_t* FileIO::getMMapP() const
 		{
-			return _p->mmapP;
+			return _p->mMapP;
 		}
 
-		const uint8_t* FileIO::mmapEnd() const
+		const uint8_t* FileIO::getMMapEnd() const
 		{
-			return _p->mmapEnd;
+			return _p->mMapEnd;
 		}
 #endif // TLRENDER_ENABLE_MMAP
 
@@ -344,20 +344,20 @@ namespace tl
 			case Mode::Read:
 			{
 #if defined(TLRENDER_ENABLE_MMAP)
-				const uint8_t* mmapP = p.mmapP + size * wordSize;
-				if (mmapP > p.mmapEnd)
+				const uint8_t* mMapP = p.mMapP + size * wordSize;
+				if (mMapP > p.mMapEnd)
 				{
 					throw std::runtime_error(getErrorMessage(ErrorType::ReadMemoryMap, p.fileName));
 				}
 				if (p.endianConversion && wordSize > 1)
 				{
-					memory::endian(p.mmapP, in, size, wordSize);
+					memory::endian(p.mMapP, in, size, wordSize);
 				}
 				else
 				{
-					memcpy(in, p.mmapP, size * wordSize);
+					memcpy(in, p.mMapP, size * wordSize);
 				}
-				p.mmapP = mmapP;
+				p.mMapP = mMapP;
 #else // TLRENDER_ENABLE_MMAP
 				const ssize_t r = ::read(p.f, in, size * wordSize);
 				if (-1 == r)
@@ -431,13 +431,13 @@ namespace tl
 #if defined(TLRENDER_ENABLE_MMAP)
 				if (!seek)
 				{
-					mmapP = reinterpret_cast<const uint8_t*>(mmapStart) + in;
+					mMapP = reinterpret_cast<const uint8_t*>(mMapStart) + in;
 				}
 				else
 				{
-					mmapP += in;
+					mMapP += in;
 				}
-				if (mmapP > mmapEnd)
+				if (mMapP > mMapEnd)
 				{
 					throw std::runtime_error(getErrorMessage(ErrorType::SeekMemoryMap, fileName));
 				}

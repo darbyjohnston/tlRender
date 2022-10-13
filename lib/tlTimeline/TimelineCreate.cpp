@@ -239,6 +239,7 @@ namespace tl
                     {
                         auto audioClip = new otio::Clip;
                         audioClip->set_source_range(info.audioTime);
+                        std::cout << path.get() << ": " << info.audioTime << std::endl;
                         audioClip->set_media_reference(new otio::ExternalReference(path.get()));
 
                         audioTrack = new otio::Track("Audio", otio::nullopt, otio::Track::Kind::audio);

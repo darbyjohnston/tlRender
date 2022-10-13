@@ -133,11 +133,11 @@ namespace tl
             ///@{
 
 #if defined(TLRENDER_ENABLE_MMAP)
-        //! Get the current memory-map position.
-            const uint8_t* mmapP() const;
+            //! Get the current memory-map position.
+            const uint8_t* getMMapP() const;
 
             //! Get a pointer to the end of the memory-map.
-            const uint8_t* mmapEnd() const;
+            const uint8_t* getMMapEnd() const;
 #endif // TLRENDER_ENABLE_MMAP
 
             ///@}

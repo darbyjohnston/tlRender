@@ -106,14 +106,35 @@ namespace tl
         //! Convert from an Imf channel.
         Channel fromImf(const std::string& name, const Imf::Channel&);
 
-        //! Memory-mapped input stream.
-        class MemoryMappedIStream : public Imf::IStream
+        //! Input file stream.
+        class IFileStream : public Imf::IStream
         {
-            TLRENDER_NON_COPYABLE(MemoryMappedIStream);
+            TLRENDER_NON_COPYABLE(IFileStream);
 
         public:
-            MemoryMappedIStream(const char fileName[]);
-            ~MemoryMappedIStream() override;
+            IFileStream(const char fileName[]);
+
+            ~IFileStream() override;
+
+            bool isMemoryMapped() const override;
+            char* readMemoryMapped(int n) override;
+            bool read(char c[], int n) override;
+            uint64_t tellg() override;
+            void seekg(uint64_t pos) override;
+
+        private:
+            TLRENDER_PRIVATE();
+        };
+
+        //! Input memory stream.
+        class IMemoryStream : public Imf::IStream
+        {
+            TLRENDER_NON_COPYABLE(IMemoryStream);
+
+        public:
+            IMemoryStream(const char fileName[], const io::MemoryRead&);
+
+            ~IMemoryStream() override;
 
             bool isMemoryMapped() const override;
             char* readMemoryMapped(int n) override;
