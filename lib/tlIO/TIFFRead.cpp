@@ -314,7 +314,7 @@ namespace tl
 
         io::Info Read::_getInfo(
             const std::string& fileName,
-            const file::MemoryRead* memoryFile)
+            const file::MemoryRead* memory)
         {
             io::Info out = File(fileName).getInfo();
             out.videoTime = otime::TimeRange::range_from_start_end_time_inclusive(
@@ -325,7 +325,7 @@ namespace tl
 
         io::VideoData Read::_readVideo(
             const std::string& fileName,
-            const file::MemoryRead* memoryFile,
+            const file::MemoryRead* memory,
             const otime::RationalTime& time,
             uint16_t layer)
         {
