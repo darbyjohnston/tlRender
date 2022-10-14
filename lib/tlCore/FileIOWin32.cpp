@@ -165,16 +165,7 @@ namespace tl
 
         bool FileIO::isOpen() const
         {
-            bool out = false;
-            if (_p->memoryStart)
-            {
-                out |= _p->memoryStart != nullptr;
-            }
-            else
-            {
-                out |= _p->f != INVALID_HANDLE_VALUE;
-            }
-            return out;
+            return _p->f != INVALID_HANDLE_VALUE || _p->memoryStart;
         }
 
         const std::string& FileIO::getFileName() const
@@ -231,11 +222,7 @@ namespace tl
         {
             TLRENDER_P();
             bool out = false;
-            if (p.memoryP)
-            {
-                out |= p.memoryStart == nullptr;
-            }
-            else
+            if (!p.memoryStart)
             {
                 out |= p.f == INVALID_HANDLE_VALUE;
             }
@@ -247,7 +234,7 @@ namespace tl
         {
             TLRENDER_P();
 
-            if (!p.f)
+            if (!p.memoryStart && !p.f)
             {
                 throw std::runtime_error(getErrorMessage(ErrorType::Read, p.fileName));
             }

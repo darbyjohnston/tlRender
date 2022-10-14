@@ -226,7 +226,8 @@ namespace tl
             {
                 const std::string fileName = Path(createTempDir(), _fileName).get();
                 auto io = FileIO::create(fileName, Mode::Write);
-                io->open(fileName, Mode::Read);
+                io.reset();
+                io = FileIO::create(fileName, Mode::Read);
                 uint8_t buf[16];
                 //! \bug FileIO::read() doesn't fail here on Windows?
                 io->read(buf, 16, 1);
@@ -241,7 +242,8 @@ namespace tl
             {
                 const std::string fileName = Path(createTempDir(), _fileName).get();
                 auto io = FileIO::create(fileName, Mode::Write);
-                io->open(fileName, Mode::ReadWrite);
+                io.reset();
+                io = FileIO::create(fileName, Mode::ReadWrite);
                 uint8_t buf[16];
                 //! \bug FileIO::read() doesn't fail here on Windows?
                 io->read(buf, 16, 1);

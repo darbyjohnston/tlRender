@@ -114,12 +114,10 @@ namespace tl
 			size_t         size = 0;
 			bool           endianConversion = false;
 			int            f = -1;
-#if defined(TLRENDER_ENABLE_MMAP)
 			void*          mMap = reinterpret_cast<void*>(-1);
-			const uint8_t* mMapStart = nullptr;
-			const uint8_t* mMapEnd = nullptr;
-			const uint8_t* mMapP = nullptr;
-#endif // TLRENDER_ENABLE_MMAP
+			const uint8_t* memoryStart = nullptr;
+			const uint8_t* memoryEnd = nullptr;
+			const uint8_t* memoryP = nullptr;
 		};
 
 		FileIO::FileIO() :
@@ -128,14 +126,221 @@ namespace tl
 
 		FileIO::~FileIO()
 		{
-			close();
+			_close();
 		}
-					
-		void FileIO::open(const std::string& fileName, Mode mode)
+		
+        std::shared_ptr<FileIO> FileIO::create(
+            const std::string& fileName,
+            const MemoryRead& memory)
+        {
+            auto out = std::shared_ptr<FileIO>(new FileIO);
+            out->_p->fileName = fileName;
+            out->_p->mode = Mode::Read;
+            out->_p->size = memory.size;
+            out->_p->memoryStart = memory.p;
+            out->_p->memoryEnd = memory.p + memory.size;
+            out->_p->memoryP = memory.p;
+            return out;
+        }
+        
+		std::shared_ptr<FileIO> FileIO::createTemp()
+		{
+		    auto out = std::shared_ptr<FileIO>(new FileIO);
+
+			// Open the file.
+			const std::string fileName = getTemp() + "/XXXXXX";
+			const size_t size = fileName.size();
+			std::vector<char> buf(size + 1);
+			memcpy(buf.data(), fileName.c_str(), size);
+			buf[size] = 0;
+			out->_p->f = mkstemp(buf.data());
+			if (-1 == out->_p->f)
+			{
+				throw std::runtime_error(getErrorMessage(ErrorType::Open, fileName, getErrorString()));
+			}
+
+			// Stat the file.
+			_STAT info;
+			memset(&info, 0, sizeof(_STAT));
+			if (_STAT_FNC(buf.data(), &info) != 0)
+			{
+				throw std::runtime_error(getErrorMessage(ErrorType::Stat, fileName, getErrorString()));
+			}
+		    out->_p->fileName = std::string(buf.data());
+			out->_p->mode     = Mode::ReadWrite;
+			out->_p->pos      = 0;
+			out->_p->size     = info.st_size;
+			
+			return out;
+		}
+		
+		bool FileIO::isOpen() const
+		{
+			return _p->f != -1 || _p->memoryStart;
+		}
+
+		const std::string& FileIO::getFileName() const
+		{
+			return _p->fileName;
+		}
+
+		size_t FileIO::getSize() const
+		{
+			return _p->size;
+		}
+
+		size_t FileIO::getPos() const
+		{
+			return _p->pos;
+		}
+
+		void FileIO::setPos(size_t in)
+		{
+			_p->setPos(in, false);
+		}
+
+		void FileIO::seek(size_t in)
+		{
+			_p->setPos(in, true);
+		}
+
+		const uint8_t* FileIO::getMemoryStart() const
+		{
+			return _p->memoryStart;
+		}
+
+		const uint8_t* FileIO::getMemoryEnd() const
+		{
+			return _p->memoryEnd;
+		}
+
+		const uint8_t* FileIO::getMemoryP() const
+		{
+			return _p->memoryP;
+		}
+
+		bool FileIO::hasEndianConversion() const
+		{
+			return _p->endianConversion;
+		}
+
+		void FileIO::setEndianConversion(bool in)
+		{
+			_p->endianConversion = in;
+		}
+
+		bool FileIO::isEOF() const
+		{
+			TLRENDER_P();
+			bool out = false;
+			if (!p.memoryStart)
+			{
+			    out |= -1 == p.f;
+			}
+			out |= p.pos >= p.size;
+			return out;
+		}
+		
+		void FileIO::read(void* in, size_t size, size_t wordSize)
 		{
 			TLRENDER_P();
 			
-			close();
+			if (!p.memoryStart && -1 == p.f)
+			{
+				throw std::runtime_error(getErrorMessage(ErrorType::Read, p.fileName));
+			}
+				
+			switch (p.mode)
+			{
+			case Mode::Read:
+			{
+                if (p.memoryStart)
+                {
+				    const uint8_t* memoryP = p.memoryP + size * wordSize;
+				    if (memoryP > p.memoryEnd)
+				    {
+					    throw std::runtime_error(getErrorMessage(ErrorType::ReadMemoryMap, p.fileName));
+				    }
+				    if (p.endianConversion && wordSize > 1)
+				    {
+					    memory::endian(p.memoryP, in, size, wordSize);
+				    }
+				    else
+				    {
+					    memcpy(in, p.memoryP, size * wordSize);
+				    }
+				    p.memoryP = memoryP;
+				}
+				else
+				{
+				    const ssize_t r = ::read(p.f, in, size * wordSize);
+				    if (-1 == r)
+				    {
+					    throw std::runtime_error(getErrorMessage(ErrorType::Read, p.fileName, getErrorString()));
+				    }
+				    else if (r != size * wordSize)
+				    {
+					    throw std::runtime_error(getErrorMessage(ErrorType::Read, p.fileName));
+				    }
+				    if (p.endianConversion && wordSize > 1)
+				    {
+					    memory::endian(in, size, wordSize);
+				    }
+				}
+				break;
+			}
+			case Mode::ReadWrite:
+			{
+				const ssize_t r = ::read(p.f, in, size * wordSize);
+				if (-1 == r)
+				{
+					throw std::runtime_error(getErrorMessage(ErrorType::Read, p.fileName, getErrorString()));
+				}
+				else if (r != size * wordSize)
+				{
+					throw std::runtime_error(getErrorMessage(ErrorType::Read, p.fileName));
+				}
+				if (p.endianConversion && wordSize > 1)
+				{
+					memory::endian(in, size, wordSize);
+				}
+				break;
+			}
+			default: break;
+			}
+			p.pos += size * wordSize;
+		}
+
+		void FileIO::write(const void* in, size_t size, size_t wordSize)
+		{
+			TLRENDER_P();
+			
+			if (-1 == p.f)
+			{
+				throw std::runtime_error(getErrorMessage(ErrorType::Write, p.fileName));
+			}
+
+			const uint8_t* inP = reinterpret_cast<const uint8_t*>(in);
+			std::vector<uint8_t> tmp;
+			if (p.endianConversion && wordSize > 1)
+			{
+				tmp.resize(size * wordSize);
+				memory::endian(in, tmp.data(), size, wordSize);
+				inP = tmp.data();
+			}
+			if (::write(p.f, inP, size * wordSize) == -1)
+			{
+				throw std::runtime_error(getErrorMessage(ErrorType::Write, p.fileName, getErrorString()));
+			}
+			p.pos += size * wordSize;
+			p.size = std::max(p.pos, p.size);
+		}
+
+		void FileIO::_open(const std::string& fileName, Mode mode)
+		{
+			TLRENDER_P();
+			
+			_close();
 
 			// Open the file.
 			int openFlags = 0;
@@ -187,52 +392,21 @@ namespace tl
 				{
 					throw std::runtime_error(getErrorMessage(ErrorType::MemoryMap, fileName, getErrorString()));
 				}
-				p.mMapStart = reinterpret_cast<const uint8_t*>(p.mMap);
-				p.mMapEnd   = p.mMapStart + p.size;
-				p.mMapP     = p.mMapStart;
+				p.memoryStart = reinterpret_cast<const uint8_t*>(p.mMap);
+				p.memoryEnd   = p.memoryStart + p.size;
+				p.memoryP     = p.memoryStart;
 			}
 #endif // TLRENDER_ENABLE_MMAP
 		}
-		
-		void FileIO::openTemp()
-		{
-			TLRENDER_P();
-			
-			close();
 
-			// Open the file.
-			const std::string fileName = getTemp() + "/XXXXXX";
-			const size_t size = fileName.size();
-			std::vector<char> buf(size + 1);
-			memcpy(buf.data(), fileName.c_str(), size);
-			buf[size] = 0;
-			p.f = mkstemp(buf.data());
-			if (-1 == p.f)
-			{
-				throw std::runtime_error(getErrorMessage(ErrorType::Open, fileName, getErrorString()));
-			}
-
-			// Stat the file.
-			_STAT info;
-			memset(&info, 0, sizeof(_STAT));
-			if (_STAT_FNC(buf.data(), &info) != 0)
-			{
-				throw std::runtime_error(getErrorMessage(ErrorType::Stat, fileName, getErrorString()));
-			}
-			p.fileName = std::string(buf.data());
-			p.mode     = Mode::ReadWrite;
-			p.pos      = 0;
-			p.size     = info.st_size;
-		}
-
-		bool FileIO::close(std::string* error)
+		bool FileIO::_close(std::string* error)
 		{
 			TLRENDER_P();
 			
 			bool out = true;
 			
 			p.fileName = std::string();
-#if defined(TLRENDER_ENABLE_MMAP)
+
 			if (p.mMap != (void*)-1)
 			{
 				int r = munmap(p.mMap, p.size);
@@ -246,9 +420,9 @@ namespace tl
 				}
 				p.mMap = (void*)-1;
 			}
-			p.mMapStart = nullptr;
-			p.mMapEnd   = nullptr;
-#endif // TLRENDER_ENABLE_MMAP
+			p.memoryStart = nullptr;
+			p.memoryEnd   = nullptr;
+
 			if (p.f != -1)
 			{
 				int r = ::close(p.f);
@@ -269,158 +443,6 @@ namespace tl
 			
 			return out;
 		}
-		
-		bool FileIO::isOpen() const
-		{
-			return _p->f != -1;
-		}
-
-		const std::string& FileIO::getFileName() const
-		{
-			return _p->fileName;
-		}
-
-		size_t FileIO::getSize() const
-		{
-			return _p->size;
-		}
-
-		size_t FileIO::getPos() const
-		{
-			return _p->pos;
-		}
-
-		void FileIO::setPos(size_t in)
-		{
-			_p->setPos(in, false);
-		}
-
-		void FileIO::seek(size_t in)
-		{
-			_p->setPos(in, true);
-		}
-
-#if defined(TLRENDER_ENABLE_MMAP)
-		const uint8_t* FileIO::getMMapP() const
-		{
-			return _p->mMapP;
-		}
-
-		const uint8_t* FileIO::getMMapEnd() const
-		{
-			return _p->mMapEnd;
-		}
-#endif // TLRENDER_ENABLE_MMAP
-
-		bool FileIO::hasEndianConversion() const
-		{
-			return _p->endianConversion;
-		}
-
-		void FileIO::setEndianConversion(bool in)
-		{
-			_p->endianConversion = in;
-		}
-
-		bool FileIO::isEOF() const
-		{
-			TLRENDER_P();
-			return
-				-1 == p.f ||
-				(p.size ? p.pos >= p.size : true);
-		}
-		
-		void FileIO::read(void* in, size_t size, size_t wordSize)
-		{
-			TLRENDER_P();
-			
-			if (-1 == p.f)
-			{
-				throw std::runtime_error(getErrorMessage(ErrorType::Read, p.fileName));
-			}
-				
-			switch (p.mode)
-			{
-			case Mode::Read:
-			{
-#if defined(TLRENDER_ENABLE_MMAP)
-				const uint8_t* mMapP = p.mMapP + size * wordSize;
-				if (mMapP > p.mMapEnd)
-				{
-					throw std::runtime_error(getErrorMessage(ErrorType::ReadMemoryMap, p.fileName));
-				}
-				if (p.endianConversion && wordSize > 1)
-				{
-					memory::endian(p.mMapP, in, size, wordSize);
-				}
-				else
-				{
-					memcpy(in, p.mMapP, size * wordSize);
-				}
-				p.mMapP = mMapP;
-#else // TLRENDER_ENABLE_MMAP
-				const ssize_t r = ::read(p.f, in, size * wordSize);
-				if (-1 == r)
-				{
-					throw std::runtime_error(getErrorMessage(ErrorType::Read, p.fileName, getErrorString()));
-				}
-				else if (r != size * wordSize)
-				{
-					throw std::runtime_error(getErrorMessage(ErrorType::Read, p.fileName));
-				}
-				if (p.endianConversion && wordSize > 1)
-				{
-					memory::endian(in, size, wordSize);
-				}
-#endif // TLRENDER_ENABLE_MMAP
-				break;
-			}
-			case Mode::ReadWrite:
-			{
-				const ssize_t r = ::read(p.f, in, size * wordSize);
-				if (-1 == r)
-				{
-					throw std::runtime_error(getErrorMessage(ErrorType::Read, p.fileName, getErrorString()));
-				}
-				else if (r != size * wordSize)
-				{
-					throw std::runtime_error(getErrorMessage(ErrorType::Read, p.fileName));
-				}
-				if (p.endianConversion && wordSize > 1)
-				{
-					memory::endian(in, size, wordSize);
-				}
-				break;
-			}
-			default: break;
-			}
-			p.pos += size * wordSize;
-		}
-
-		void FileIO::write(const void* in, size_t size, size_t wordSize)
-		{
-			TLRENDER_P();
-			
-			if (-1 == p.f)
-			{
-				throw std::runtime_error(getErrorMessage(ErrorType::Write, p.fileName));
-			}
-
-			const uint8_t* inP = reinterpret_cast<const uint8_t*>(in);
-			std::vector<uint8_t> tmp;
-			if (p.endianConversion && wordSize > 1)
-			{
-				tmp.resize(size * wordSize);
-				memory::endian(in, tmp.data(), size, wordSize);
-				inP = tmp.data();
-			}
-			if (::write(p.f, inP, size * wordSize) == -1)
-			{
-				throw std::runtime_error(getErrorMessage(ErrorType::Write, p.fileName, getErrorString()));
-			}
-			p.pos += size * wordSize;
-			p.size = std::max(p.pos, p.size);
-		}
 
 		void FileIO::Private::setPos(size_t in, bool seek)
 		{
@@ -428,25 +450,28 @@ namespace tl
 			{
 			case Mode::Read:
 			{
-#if defined(TLRENDER_ENABLE_MMAP)
-				if (!seek)
-				{
-					mMapP = reinterpret_cast<const uint8_t*>(mMapStart) + in;
+                if (memoryStart)
+                {
+				    if (!seek)
+				    {
+					    memoryP = reinterpret_cast<const uint8_t*>(memoryStart) + in;
+				    }
+				    else
+				    {
+					    memoryP += in;
+				    }
+				    if (memoryP > memoryEnd)
+				    {
+					    throw std::runtime_error(getErrorMessage(ErrorType::SeekMemoryMap, fileName));
+				    }
 				}
 				else
 				{
-					mMapP += in;
+				    if (::lseek(f, in, ! seek ? SEEK_SET : SEEK_CUR) == (off_t)-1)
+				    {
+					    throw std::runtime_error(getErrorMessage(ErrorType::Seek, fileName, getErrorString()));
+				    }
 				}
-				if (mMapP > mMapEnd)
-				{
-					throw std::runtime_error(getErrorMessage(ErrorType::SeekMemoryMap, fileName));
-				}
-#else // TLRENDER_ENABLE_MMAP
-				if (::lseek(f, in, ! seek ? SEEK_SET : SEEK_CUR) == (off_t)-1)
-				{
-					throw std::runtime_error(getErrorMessage(ErrorType::Seek, fileName, getErrorString()));
-				}
-#endif // TLRENDER_ENABLE_MMAP
 				break;
 			}
 			case Mode::Write:
