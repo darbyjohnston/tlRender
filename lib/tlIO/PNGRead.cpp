@@ -203,7 +203,7 @@ namespace tl
 
         void Read::_init(
             const file::Path& path,
-            const std::vector<io::MemoryRead>& memory,
+            const std::vector<file::MemoryRead>& memory,
             const io::Options& options,
             const std::weak_ptr<log::System>& logSystem)
         {
@@ -230,7 +230,7 @@ namespace tl
 
         std::shared_ptr<Read> Read::create(
             const file::Path& path,
-            const std::vector<io::MemoryRead>& memory,
+            const std::vector<file::MemoryRead>& memory,
             const io::Options& options,
             const std::weak_ptr<log::System>& logSystem)
         {
@@ -241,7 +241,7 @@ namespace tl
 
         io::Info Read::_getInfo(
             const std::string& fileName,
-            const io::MemoryRead* memoryFile)
+            const file::MemoryRead* memory)
         {
             io::Info out;
             out.video.push_back(File(fileName).getInfo());
@@ -253,7 +253,7 @@ namespace tl
 
         io::VideoData Read::_readVideo(
             const std::string& fileName,
-            const io::MemoryRead* memoryFile,
+            const file::MemoryRead* memory,
             const otime::RationalTime& time,
             uint16_t layer)
         {

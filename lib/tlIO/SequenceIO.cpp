@@ -58,7 +58,7 @@ namespace tl
 
         void ISequenceRead::_init(
             const file::Path& path,
-            const std::vector<MemoryRead>& memory,
+            const std::vector<file::MemoryRead>& memory,
             const Options& options,
             const std::weak_ptr<log::System>& logSystem)
         {

@@ -27,6 +27,19 @@ namespace tl
         TLRENDER_ENUM(Mode);
         TLRENDER_ENUM_SERIALIZE(Mode);
 
+        //! Read files from memory.
+        struct MemoryRead
+        {
+            MemoryRead();
+            MemoryRead(const uint8_t*, size_t size);
+
+            const uint8_t* p = nullptr;
+            size_t size = 0;
+
+            bool operator == (const MemoryRead&) const;
+            bool operator != (const MemoryRead&) const;
+        };
+
         //! File I/O.
         class FileIO
         {
@@ -38,28 +51,21 @@ namespace tl
         public:
             ~FileIO();
 
-            //! Create a new file I/O object.
-            static std::shared_ptr<FileIO> create();
+            //! Create a file I/O object.
+            static std::shared_ptr<FileIO> create(
+                const std::string& fileName,
+                Mode);
 
-            //! Create a new file I/O object.
-            static std::shared_ptr<FileIO> create(const std::string& fileName, Mode);
+            //! Create a read-only file I/O object from memory.
+            static std::shared_ptr<FileIO> create(
+                const std::string& fileName,
+                const MemoryRead&);
 
-            //! \name Open and Close
-            ///@{
-
-            //! Open the file.
-            void open(const std::string& fileName, Mode);
-
-            //! Open a temporary file.
-            void openTemp();
-
-            //! Close the file.
-            bool close(std::string* error = nullptr);
+            //! Create a read-write temporary file I/O object.
+            static std::shared_ptr<FileIO> createTemp();
 
             //! Get whether the file is open.
             bool isOpen() const;
-
-            ///@}
 
             //! \name Information
             ///@{
@@ -84,7 +90,7 @@ namespace tl
             //! Advance the current file position.
             void seek(size_t);
 
-            //! Get whether the file position is EOF.
+            //! Get whether the file position is at the end of the file.
             bool isEOF() const;
 
             ///@}
@@ -132,13 +138,14 @@ namespace tl
             //! \name Memory Mapping
             ///@{
 
-#if defined(TLRENDER_ENABLE_MMAP)
-            //! Get the current memory-map position.
-            const uint8_t* getMMapP() const;
+            //! Get a pointer to the start of the memory-map.
+            const uint8_t* getMemoryStart() const;
 
             //! Get a pointer to the end of the memory-map.
-            const uint8_t* getMMapEnd() const;
-#endif // TLRENDER_ENABLE_MMAP
+            const uint8_t* getMemoryEnd() const;
+
+            //! Get the current memory-map position.
+            const uint8_t* getMemoryP() const;
 
             ///@}
 
@@ -154,6 +161,9 @@ namespace tl
             ///@}
 
         private:
+            void _open(const std::string& fileName, Mode);
+            bool _close(std::string* error = nullptr);
+
             TLRENDER_PRIVATE();
         };
 
@@ -177,3 +187,5 @@ namespace tl
         void truncate(const std::string& fileName, size_t);
     }
 }
+
+#include <tlCore/FileIOInline.h>

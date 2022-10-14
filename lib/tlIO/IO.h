@@ -5,6 +5,7 @@
 #pragma once
 
 #include <tlCore/Audio.h>
+#include <tlCore/FileIO.h>
 #include <tlCore/Image.h>
 #include <tlCore/Path.h>
 #include <tlCore/Time.h>
@@ -34,19 +35,6 @@ namespace tl
 
             Count,
             First = Unknown
-        };
-
-        //! Read files from in-memory.
-        struct MemoryRead
-        {
-            MemoryRead();
-            MemoryRead(const uint8_t*, size_t size);
-
-            const uint8_t* p = nullptr;
-            size_t size = 0;
-
-            bool operator == (const MemoryRead&) const;
-            bool operator != (const MemoryRead&) const;
         };
 
         //! I/O information.
@@ -142,7 +130,7 @@ namespace tl
         protected:
             void _init(
                 const file::Path&,
-                const std::vector<MemoryRead>&,
+                const std::vector<file::MemoryRead>&,
                 const Options&,
                 const std::weak_ptr<log::System>&);
 
@@ -173,7 +161,7 @@ namespace tl
             virtual bool hasStopped() const = 0;
 
         protected:
-            std::vector<MemoryRead> _memory;
+            std::vector<file::MemoryRead> _memory;
         };
 
         //! Base class for writers.
@@ -236,7 +224,7 @@ namespace tl
             //! Create a reader for the given path and memory locations.
             virtual std::shared_ptr<IRead> read(
                 const file::Path&,
-                const std::vector<MemoryRead>&,
+                const std::vector<file::MemoryRead>&,
                 const Options & = Options()) = 0;
 
             //! Get information for writing.

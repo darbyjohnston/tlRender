@@ -55,13 +55,13 @@ namespace tl
             return timeline::getPath(url, path.getDirectory(), options.pathOptions);
         }
 
-        std::vector<io::MemoryRead> Timeline::Private::getMemoryRead(const otio::MediaReference* ref)
+        std::vector<file::MemoryRead> Timeline::Private::getMemoryRead(const otio::MediaReference* ref)
         {
-            std::vector<io::MemoryRead> out;
+            std::vector<file::MemoryRead> out;
             if (auto rawMemoryReference =
                 dynamic_cast<const RawMemoryReference*>(ref))
             {
-                out.push_back(io::MemoryRead(
+                out.push_back(file::MemoryRead(
                     rawMemoryReference->memory(),
                     rawMemoryReference->memory_size()));
             }
@@ -70,7 +70,7 @@ namespace tl
             {
                 if (const auto& memory = sharedMemoryReference->memory())
                 {
-                    out.push_back(io::MemoryRead(
+                    out.push_back(file::MemoryRead(
                         memory->data(),
                         memory->size()));
                 }
@@ -84,7 +84,7 @@ namespace tl
                 const size_t memory_sizes_size = memory_sizes.size();
                 for (size_t i = 0; i < memory_size && i < memory_sizes_size; ++i)
                 {
-                    out.push_back(io::MemoryRead(memory[i], memory_sizes[i]));
+                    out.push_back(file::MemoryRead(memory[i], memory_sizes[i]));
                 }
             }
             else if (auto sharedMemorySequenceReference =
@@ -94,7 +94,7 @@ namespace tl
                 {
                     if (memory)
                     {
-                        out.push_back(io::MemoryRead(memory->data(), memory->size()));
+                        out.push_back(file::MemoryRead(memory->data(), memory->size()));
                     }
                 }
             }

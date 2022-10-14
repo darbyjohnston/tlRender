@@ -12,6 +12,7 @@ set(HEADERS
     Error.h
     File.h
     FileIO.h
+    FileIOInline.h
     FileInfo.h
     FileInfoInline.h
     FontSystem.h

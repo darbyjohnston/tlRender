@@ -14,7 +14,7 @@ namespace tl
     {
         void Read::_init(
             const file::Path& path,
-            const std::vector<io::MemoryRead>& memory,
+            const std::vector<file::MemoryRead>& memory,
             const io::Options& options,
             const std::weak_ptr<log::System>& logSystem)
         {
@@ -41,7 +41,7 @@ namespace tl
 
         std::shared_ptr<Read> Read::create(
             const file::Path& path,
-            const std::vector<io::MemoryRead>& memory,
+            const std::vector<file::MemoryRead>& memory,
             const io::Options& options,
             const std::weak_ptr<log::System>& logSystem)
         {
@@ -52,10 +52,12 @@ namespace tl
 
         io::Info Read::_getInfo(
             const std::string& fileName,
-            const io::MemoryRead* memoryFile)
+            const file::MemoryRead* memory)
         {
             io::Info out;
-            auto io = file::FileIO::create(fileName, file::Mode::Read);
+            auto io = memory ?
+                file::FileIO::create(fileName, *memory) :
+                file::FileIO::create(fileName, file::Mode::Read);
             const auto header = read(io, out);
             float speed = _defaultSpeed;
             const auto i = out.tags.find("Film Frame Rate");
@@ -71,14 +73,16 @@ namespace tl
 
         io::VideoData Read::_readVideo(
             const std::string& fileName,
-            const io::MemoryRead* memoryFile,
+            const file::MemoryRead* memory,
             const otime::RationalTime& time,
             uint16_t layer)
         {
             io::VideoData out;
             out.time = time;
 
-            auto io = file::FileIO::create(fileName, file::Mode::Read);
+            auto io = memory ?
+                file::FileIO::create(fileName, *memory) :
+                file::FileIO::create(fileName, file::Mode::Read);
             io::Info info;
             read(io, info);
 

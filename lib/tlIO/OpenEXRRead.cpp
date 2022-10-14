@@ -18,7 +18,7 @@ namespace tl
 {
     namespace exr
     {
-        struct IFileStream::Private
+        struct IStream::Private
         {
             std::shared_ptr<file::FileIO> f;
             const uint8_t* p = nullptr;
@@ -26,153 +26,81 @@ namespace tl
             uint64_t pos = 0;
         };
 
-        IFileStream::IFileStream(const char fileName[]) :
-            Imf::IStream(fileName),
+        IStream::IStream(const std::string& fileName) :
+            Imf::IStream(fileName.c_str()),
             _p(new Private)
         {
             TLRENDER_P();
             p.f = file::FileIO::create(fileName, file::Mode::Read);
-#if defined(TLRENDER_ENABLE_MMAP)
-            p.p = p.f->getMMapP();
-#endif // TLRENDER_ENABLE_MMAP
+            p.p = p.f->getMemoryP();
             p.size = p.f->getSize();
         }
 
-        IFileStream::~IFileStream()
-        {}
-
-        bool IFileStream::isMemoryMapped() const
-        {
-            bool out = false;
-#if defined(TLRENDER_ENABLE_MMAP)
-            out = true;
-#endif // TLRENDER_ENABLE_MMAP
-            return out;
-        }
-
-        char* IFileStream::readMemoryMapped(int n)
-        {
-            TLRENDER_P();
-            char* out = nullptr;
-#if defined(TLRENDER_ENABLE_MMAP)
-            if (p.pos >= p.size)
-            {
-                throw std::runtime_error(string::Format("{0}: Error reading file").arg(p.f->getFileName()));
-            }
-            if (p.pos + n > p.size)
-            {
-                throw std::runtime_error(string::Format("{0}: Error reading file").arg(p.f->getFileName()));
-            }
-            out = const_cast<char*>(reinterpret_cast<const char*>(p.p)) + p.pos;
-            p.pos += n;
-#endif // TLRENDER_ENABLE_MMAP
-            return out;
-        }
-
-        bool IFileStream::read(char c[], int n)
-        {
-            TLRENDER_P();
-#if defined(TLRENDER_ENABLE_MMAP)
-            if (p.pos >= p.size)
-            {
-                throw std::runtime_error(string::Format("{0}: Error reading file").arg(p.f->getFileName()));
-            }
-            if (p.pos + n > p.size)
-            {
-                throw std::runtime_error(string::Format("{0}: Error reading file").arg(p.f->getFileName()));
-            }
-            std::memcpy(c, p.p + p.pos, n);
-#else // TLRENDER_ENABLE_MMAP
-            if (p.pos >= p.size)
-            {
-                throw std::runtime_error(string::Format("{0}: Error reading file").arg(p.f->getFileName()));
-            }
-            if (p.pos + n > p.size)
-            {
-                throw std::runtime_error(string::Format("{0}: Error reading file").arg(p.f->getFileName()));
-            }
-            p.f->read(c, n);
-#endif // TLRENDER_ENABLE_MMAP
-            p.pos += n;
-            return p.pos < p.size;
-        }
-
-        uint64_t IFileStream::tellg()
-        {
-            return _p->pos;
-        }
-
-        void IFileStream::seekg(uint64_t pos)
-        {
-            _p->f->setPos(pos);
-            _p->pos = pos;
-        }
-
-        struct IMemoryStream::Private
-        {
-            const uint8_t* p = nullptr;
-            uint64_t size = 0;
-            uint64_t pos = 0;
-        };
-
-        IMemoryStream::IMemoryStream(const char fileName[], const io::MemoryRead& memory) :
-            Imf::IStream(fileName),
+        IStream::IStream(const std::string& fileName, const uint8_t* memoryP, size_t memorySize) :
+            Imf::IStream(fileName.c_str()),
             _p(new Private)
         {
             TLRENDER_P();
-            p.p = memory.p;
-            p.size = memory.size;
+            p.p = memoryP;
+            p.size = memorySize;
         }
 
-        IMemoryStream::~IMemoryStream()
+        IStream::~IStream()
         {}
 
-        bool IMemoryStream::isMemoryMapped() const
+        bool IStream::isMemoryMapped() const
         {
-            return true;
+            return _p->p;
         }
 
-        char* IMemoryStream::readMemoryMapped(int n)
+        char* IStream::readMemoryMapped(int n)
         {
             TLRENDER_P();
+            if (p.pos >= p.size || (p.pos + n) > p.size)
+            {
+                throw std::runtime_error(string::Format("{0}: Error reading file").arg(p.f->getFileName()));
+            }
             char* out = nullptr;
-            if (p.pos >= p.size)
+            if (p.p)
             {
-                throw std::runtime_error(string::Format("{0}: Error reading file").arg(fileName()));
+                out = const_cast<char*>(reinterpret_cast<const char*>(p.p)) + p.pos;
+                p.pos += n;
             }
-            if (p.pos + n > p.size)
-            {
-                throw std::runtime_error(string::Format("{0}: Error reading file").arg(fileName()));
-            }
-            out = const_cast<char*>(reinterpret_cast<const char*>(p.p)) + p.pos;
-            p.pos += n;
             return out;
         }
 
-        bool IMemoryStream::read(char c[], int n)
+        bool IStream::read(char c[], int n)
         {
             TLRENDER_P();
-            if (p.pos >= p.size)
+            if (p.pos >= p.size || (p.pos + n) > p.size)
             {
-                throw std::runtime_error(string::Format("{0}: Error reading file").arg(fileName()));
+                throw std::runtime_error(string::Format("{0}: Error reading file").arg(p.f->getFileName()));
             }
-            if (p.pos + n > p.size)
+            if (p.p)
             {
-                throw std::runtime_error(string::Format("{0}: Error reading file").arg(fileName()));
+                std::memcpy(c, p.p + p.pos, n);
             }
-            std::memcpy(c, p.p + p.pos, n);
+            else
+            {
+                p.f->read(c, n);
+            }
             p.pos += n;
             return p.pos < p.size;
         }
 
-        uint64_t IMemoryStream::tellg()
+        uint64_t IStream::tellg()
         {
             return _p->pos;
         }
 
-        void IMemoryStream::seekg(uint64_t pos)
+        void IStream::seekg(uint64_t pos)
         {
-            _p->pos = pos;
+            TLRENDER_P();
+            if (p.f)
+            {
+                p.f->setPos(pos);
+            }
+            p.pos = pos;
         }
 
         namespace
@@ -211,19 +139,19 @@ namespace tl
             public:
                 File(
                     const std::string& fileName,
-                    const io::MemoryRead* memoryFile,
+                    const file::MemoryRead* memory,
                     ChannelGrouping channelGrouping,
                     const std::weak_ptr<log::System>& logSystemWeak)
                 {
                     // Open the file.
                     // \bug https://lists.aswf.io/g/openexr-dev/message/43
-                    if (memoryFile)
+                    if (memory)
                     {
-                        _s.reset(new IMemoryStream(fileName.c_str(), *memoryFile));
+                        _s.reset(new IStream(fileName.c_str(), memory->p, memory->size));
                     }
                     else
                     {
-                        _s.reset(new IFileStream(fileName.c_str()));
+                        _s.reset(new IStream(fileName.c_str()));
                     }
                     _f.reset(new Imf::InputFile(*_s));
 
@@ -393,7 +321,7 @@ namespace tl
 
         void Read::_init(
             const file::Path& path,
-            const std::vector<io::MemoryRead>& memory,
+            const std::vector<file::MemoryRead>& memory,
             const io::Options& options,
             const std::weak_ptr<log::System>& logSystem)
         {
@@ -427,7 +355,7 @@ namespace tl
 
         std::shared_ptr<Read> Read::create(
             const file::Path& path,
-            const std::vector<io::MemoryRead>& memory,
+            const std::vector<file::MemoryRead>& memory,
             const io::Options& options,
             const std::weak_ptr<log::System>& logSystem)
         {
@@ -438,7 +366,7 @@ namespace tl
 
         io::Info Read::_getInfo(
             const std::string& fileName,
-            const io::MemoryRead* memory)
+            const file::MemoryRead* memory)
         {
             io::Info out = File(fileName, memory, _channelGrouping, _logSystem.lock()).getInfo();
             float speed = _defaultSpeed;
@@ -455,7 +383,7 @@ namespace tl
 
         io::VideoData Read::_readVideo(
             const std::string& fileName,
-            const io::MemoryRead* memory,
+            const file::MemoryRead* memory,
             const otime::RationalTime& time,
             uint16_t layer)
         {

@@ -49,7 +49,7 @@ namespace tl
 
         std::shared_ptr<io::IRead> Plugin::read(
             const file::Path& path,
-            const std::vector<io::MemoryRead>& memory,
+            const std::vector<file::MemoryRead>& memory,
             const io::Options& options)
         {
             return Read::create(path, memory, io::merge(options, _options), _logSystem);

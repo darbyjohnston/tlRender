@@ -276,7 +276,7 @@ namespace tl
 
         void Read::_init(
             const file::Path& path,
-            const std::vector<io::MemoryRead>& memory,
+            const std::vector<file::MemoryRead>& memory,
             const io::Options& options,
             const std::weak_ptr<log::System>& logSystem)
         {
@@ -303,7 +303,7 @@ namespace tl
 
         std::shared_ptr<Read> Read::create(
             const file::Path& path,
-            const std::vector<io::MemoryRead>& memory,
+            const std::vector<file::MemoryRead>& memory,
             const io::Options& options,
             const std::weak_ptr<log::System>& logSystem)
         {
@@ -314,7 +314,7 @@ namespace tl
 
         io::Info Read::_getInfo(
             const std::string& fileName,
-            const io::MemoryRead* memoryFile)
+            const file::MemoryRead* memoryFile)
         {
             io::Info out = File(fileName).getInfo();
             out.videoTime = otime::TimeRange::range_from_start_end_time_inclusive(
@@ -325,7 +325,7 @@ namespace tl
 
         io::VideoData Read::_readVideo(
             const std::string& fileName,
-            const io::MemoryRead* memoryFile,
+            const file::MemoryRead* memoryFile,
             const otime::RationalTime& time,
             uint16_t layer)
         {

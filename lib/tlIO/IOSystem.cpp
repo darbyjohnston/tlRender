@@ -151,7 +151,7 @@ namespace tl
 
         std::shared_ptr<IRead> System::read(
             const file::Path& path,
-            const std::vector<MemoryRead>& memory,
+            const std::vector<file::MemoryRead>& memory,
             const Options& options)
         {
             const std::string extension = string::toLower(path.getExtension());

@@ -107,12 +107,12 @@ namespace tl
                                 }
                                 {
                                     std::vector<uint8_t> memoryData;
-                                    std::vector<io::MemoryRead> memory;
+                                    std::vector<file::MemoryRead> memory;
                                     {
                                         auto fileIO = file::FileIO::create(path.get(), file::Mode::Read);
                                         memoryData.resize(fileIO->getSize());
                                         fileIO->read(memoryData.data(), memoryData.size());
-                                        memory.push_back(io::MemoryRead(memoryData.data(), memoryData.size()));
+                                        memory.push_back(file::MemoryRead(memoryData.data(), memoryData.size()));
                                     }
                                     auto read = plugin->read(path, memory);
                                     const auto videoData = read->readVideo(otime::RationalTime(0.0, 24.0)).get();
@@ -134,7 +134,7 @@ namespace tl
                                 {
                                     auto io = file::FileIO::create(path.get(), file::Mode::Read);
                                     const size_t size = io->getSize();
-                                    io->close();
+                                    io.reset();
                                     file::truncate(path.get(), size / 2);
                                     auto read = plugin->read(path);
                                     const auto videoData = read->readVideo(otime::RationalTime(0.0, 24.0)).get();

@@ -106,35 +106,16 @@ namespace tl
         //! Convert from an Imf channel.
         Channel fromImf(const std::string& name, const Imf::Channel&);
 
-        //! Input file stream.
-        class IFileStream : public Imf::IStream
+        //! Input stream.
+        class IStream : public Imf::IStream
         {
-            TLRENDER_NON_COPYABLE(IFileStream);
+            TLRENDER_NON_COPYABLE(IStream);
 
         public:
-            IFileStream(const char fileName[]);
+            IStream(const std::string& fileName);
+            IStream(const std::string& fileName, const uint8_t*, size_t);
 
-            ~IFileStream() override;
-
-            bool isMemoryMapped() const override;
-            char* readMemoryMapped(int n) override;
-            bool read(char c[], int n) override;
-            uint64_t tellg() override;
-            void seekg(uint64_t pos) override;
-
-        private:
-            TLRENDER_PRIVATE();
-        };
-
-        //! Input memory stream.
-        class IMemoryStream : public Imf::IStream
-        {
-            TLRENDER_NON_COPYABLE(IMemoryStream);
-
-        public:
-            IMemoryStream(const char fileName[], const io::MemoryRead&);
-
-            ~IMemoryStream() override;
+            ~IStream() override;
 
             bool isMemoryMapped() const override;
             char* readMemoryMapped(int n) override;
@@ -152,7 +133,7 @@ namespace tl
         protected:
             void _init(
                 const file::Path&,
-                const std::vector<io::MemoryRead>&,
+                const std::vector<file::MemoryRead>&,
                 const io::Options&,
                 const std::weak_ptr<log::System>&);
 
@@ -170,17 +151,17 @@ namespace tl
             //! Create a new reader.
             static std::shared_ptr<Read> create(
                 const file::Path&,
-                const std::vector<io::MemoryRead>&,
+                const std::vector<file::MemoryRead>&,
                 const io::Options&,
                 const std::weak_ptr<log::System>&);
 
         protected:
             io::Info _getInfo(
                 const std::string& fileName,
-                const io::MemoryRead*) override;
+                const file::MemoryRead*) override;
             io::VideoData _readVideo(
                 const std::string& fileName,
-                const io::MemoryRead*,
+                const file::MemoryRead*,
                 const otime::RationalTime&,
                 uint16_t layer) override;
 
@@ -238,7 +219,7 @@ namespace tl
                 const io::Options& = io::Options()) override;
             std::shared_ptr<io::IRead> read(
                 const file::Path&,
-                const std::vector<io::MemoryRead>&,
+                const std::vector<file::MemoryRead>&,
                 const io::Options& = io::Options()) override;
             imaging::Info getWriteInfo(
                 const imaging::Info&,

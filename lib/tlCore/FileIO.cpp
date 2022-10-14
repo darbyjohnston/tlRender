@@ -23,15 +23,10 @@ namespace tl
             "Append");
         TLRENDER_ENUM_SERIALIZE_IMPL(Mode);
 
-        std::shared_ptr<FileIO> FileIO::create()
-        {
-            return std::shared_ptr<FileIO>(new FileIO);
-        }
-
         std::shared_ptr<FileIO> FileIO::create(const std::string& fileName, Mode mode)
         {
             auto out = std::shared_ptr<FileIO>(new FileIO);
-            out->open(fileName, mode);
+            out->_open(fileName, mode);
             return out;
         }
 
@@ -147,17 +142,19 @@ namespace tl
 
         std::string readContents(const std::shared_ptr<FileIO>& io)
         {
-#ifdef TLRENDER_ENABLE_MMAP
-            const uint8_t* p = io->getMMapP();
-            const uint8_t* end = io->getMMapEnd();
-            return std::string(reinterpret_cast<const char*>(p), end - p);
-#else // TLRENDER_ENABLE_MMAP
-            const size_t fileSize = io->getSize();
             std::string out;
-            out.resize(fileSize);
-            io->read(reinterpret_cast<void*>(&out[0]), fileSize);
+            if (const uint8_t* p = io->getMemoryP())
+            {
+                const uint8_t* end = io->getMemoryEnd();
+                out = std::string(reinterpret_cast<const char*>(p), end - p);
+            }
+            else
+            {
+                const size_t fileSize = io->getSize();
+                out.resize(fileSize);
+                io->read(reinterpret_cast<void*>(&out[0]), fileSize);
+            }
             return out;
-#endif // TLRENDER_ENABLE_MMAP
         }
 
         void readWord(const std::shared_ptr<FileIO>& io, char* out, size_t maxLen)
