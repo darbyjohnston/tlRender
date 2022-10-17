@@ -76,7 +76,13 @@ namespace tl
             TLRENDER_P();
 
             p.shaders["text"]->bind();
-            p.shaders["text"]->setUniform("color", color);
+            //! \bug Text gamma?
+            const imaging::Color4f colorGamma = imaging::Color4f(
+                powf(color.r, 2.2),
+                powf(color.g, 2.2),
+                powf(color.b, 2.2),
+                color.a);
+            p.shaders["text"]->setUniform("color", colorGamma);
             p.shaders["text"]->setUniform("textureSampler", 0);
 
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

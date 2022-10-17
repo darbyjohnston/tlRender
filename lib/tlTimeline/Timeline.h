@@ -58,6 +58,11 @@ namespace tl
             bool operator != (const Options&) const;
         };
 
+        //! Read a timeline.
+        otio::SerializableObject::Retainer<otio::Timeline> read(
+            const std::string& fileName,
+            otio::ErrorStatus* errorStatus = nullptr);
+
         //! Timeline.
         class Timeline : public std::enable_shared_from_this<Timeline>
         {
