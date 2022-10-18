@@ -17,6 +17,62 @@ namespace tl
     {
         namespace
         {
+            struct Memory
+            {
+                const uint8_t* p = nullptr;
+                const uint8_t* start = nullptr;
+                const uint8_t* end = nullptr;
+            };
+
+            tmsize_t tiffMemoryRead(thandle_t clientData, void* data, tmsize_t size)
+            {
+                Memory* memory = static_cast<Memory*>(clientData);
+                if (size > (memory->end - memory->p))
+                {
+                    return 0;
+                }
+                memcpy(data, memory->p, size);
+                memory->p += size;
+                return size;
+            }
+
+            tmsize_t tiffMemoryWrite(thandle_t clientData, void* data, tmsize_t size)
+            {
+                return 0;
+            }
+
+            toff_t tiffMemorySeek(thandle_t clientData, toff_t offset, int whence)
+            {
+                Memory* memory = static_cast<Memory*>(clientData);
+                switch (whence)
+                {
+                case SEEK_SET:
+                    memory->p = memory->start + offset;
+                    break;
+                case SEEK_CUR:
+                    if (memory->p + offset < memory->end)
+                    {
+                        memory->p += offset;
+                    }
+                    break;
+                case SEEK_END:
+                    memory->p = memory->end - 1;
+                    break;
+                }
+                return memory->p - memory->start;
+            }
+
+            int tiffMemoryClose(thandle_t clientData)
+            {
+                return 0;
+            }
+
+            toff_t tiffMemorySize(thandle_t clientData)
+            {
+                Memory* memory = static_cast<Memory*>(clientData);
+                return memory->end - memory->start;
+            }
+
             void readPalette(
                 uint8_t*  in,
                 int       size,
@@ -59,13 +115,35 @@ namespace tl
             class File
             {
             public:
-                File(const std::string& fileName)
+                File(
+                    const std::string& fileName,
+                    const file::MemoryRead* memory)
                 {
+                    if (memory)
+                    {
+                        _memory.p = memory->p;
+                        _memory.start = memory->p;
+                        _memory.end = memory->p + memory->size;
+                        _tiff.p = TIFFClientOpen(
+                            fileName.c_str(),
+                            "r",
+                            &_memory,
+                            tiffMemoryRead,
+                            tiffMemoryWrite,
+                            tiffMemorySeek,
+                            tiffMemoryClose,
+                            tiffMemorySize,
+                            nullptr,
+                            nullptr);
+                    }
+                    else
+                    {
 #if defined(_WINDOWS)
-                    _tiff.p = TIFFOpenW(string::toWide(fileName).c_str(), "r");
+                        _tiff.p = TIFFOpenW(string::toWide(fileName).c_str(), "r");
 #else
-                    _tiff.p = TIFFOpen(fileName.c_str(), "r");
+                        _tiff.p = TIFFOpen(fileName.c_str(), "r");
 #endif
+                    }
                     if (!_tiff.p)
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
@@ -268,6 +346,7 @@ namespace tl
                 };
 
                 TIFFData  _tiff;
+                Memory    _memory;
                 bool      _palette = false;
                 uint16_t* _colormap[3] = { nullptr, nullptr, nullptr };
                 bool      _planar = false;
@@ -320,7 +399,7 @@ namespace tl
             const std::string& fileName,
             const file::MemoryRead* memory)
         {
-            io::Info out = File(fileName).getInfo();
+            io::Info out = File(fileName, memory).getInfo();
             out.videoTime = otime::TimeRange::range_from_start_end_time_inclusive(
                 otime::RationalTime(_startFrame, _defaultSpeed),
                 otime::RationalTime(_endFrame, _defaultSpeed));
@@ -333,7 +412,7 @@ namespace tl
             const otime::RationalTime& time,
             uint16_t layer)
         {
-            return File(fileName).read(fileName, time);
+            return File(fileName, memory).read(fileName, time);
         }
     }
 }
