@@ -132,7 +132,7 @@ namespace tl
                             _f.p = nullptr;
                         }
 #else
-                        _f = fopen(fileName.c_str(), "rb");
+                        _f.p = fopen(fileName.c_str(), "rb");
 #endif
                         if (!_f.p)
                         {
