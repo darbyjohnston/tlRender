@@ -154,7 +154,6 @@ namespace tl
                     catch (const std::exception& e)
                     {
                         //! \todo How should this be handled?
-
                         if (auto logSystem = _logSystem.lock())
                         {
                             const std::string id = string::Format("tl::io::ISequenceRead ({0}: {1})").
