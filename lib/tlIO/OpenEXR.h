@@ -93,12 +93,12 @@ namespace tl
         std::vector<Layer> getLayers(const Imf::ChannelList&, ChannelGrouping);
 
         //! Read the tags from an Imf header.
-        void readTags(const Imf::Header&, std::map<std::string, std::string>&);
+        void readTags(const Imf::Header&, imaging::Tags&);
 
         //! Write tags to an Imf header.
         //!
         //! \todo Write all the tags that are handled by readTags().
-        void writeTags(const std::map<std::string, std::string>&, double speed, Imf::Header&);
+        void writeTags(const imaging::Tags&, double speed, Imf::Header&);
 
         //! Convert an Imath box type.
         math::BBox2i fromImath(const Imath::Box2i&);

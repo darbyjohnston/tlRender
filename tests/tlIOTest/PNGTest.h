@@ -6,7 +6,7 @@
 
 #include <tlTestLib/ITest.h>
 
-#include <tlIO/PNG.h>
+#include <tlIO/IO.h>
 
 namespace tl
 {
@@ -24,17 +24,17 @@ namespace tl
 
         private:
             void _write(
-                const std::shared_ptr<png::Plugin>&,
+                const std::shared_ptr<io::IPlugin>&,
                 const std::shared_ptr<imaging::Image>&,
                 const file::Path&,
                 const imaging::Info&);
             void _read(
-                const std::shared_ptr<png::Plugin>&,
+                const std::shared_ptr<io::IPlugin>&,
                 const std::shared_ptr<imaging::Image>&,
                 const file::Path&,
                 bool memoryIO);
             void _readError(
-                const std::shared_ptr<png::Plugin>&,
+                const std::shared_ptr<io::IPlugin>&,
                 const std::shared_ptr<imaging::Image>&,
                 const file::Path&,
                 bool memoryIO);

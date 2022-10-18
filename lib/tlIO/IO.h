@@ -53,7 +53,7 @@ namespace tl
             otime::TimeRange audioTime = time::invalidTimeRange;
 
             //! Metadata tags.
-            std::map<std::string, std::string> tags;
+            imaging::Tags tags;
 
             bool operator == (const Info&) const;
             bool operator != (const Info&) const;

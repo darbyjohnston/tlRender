@@ -5,6 +5,7 @@
 #include <tlIOTest/PNGTest.h>
 
 #include <tlIO/IOSystem.h>
+#include <tlIO/PNG.h>
 
 #include <tlCore/Assert.h>
 #include <tlCore/FileIO.h>
@@ -46,15 +47,14 @@ namespace tl
                 imaging::Size(1, 1),
                 imaging::Size(0, 0)
             };
-            const auto pixelTypes = imaging::getPixelTypeEnums();
 
             for (const auto& fileName : fileNames)
             {
-                for (auto memoryIO : memoryIOList)
+                for (const auto memoryIO : memoryIOList)
                 {
                     for (const auto& size : sizes)
                     {
-                        for (const auto& pixelType : pixelTypes)
+                        for (const auto& pixelType : imaging::getPixelTypeEnums())
                         {
                             auto imageInfo = plugin->getWriteInfo(imaging::Info(size, pixelType));
                             if (imageInfo.isValid())
@@ -86,7 +86,7 @@ namespace tl
         }
 
         void PNGTest::_write(
-            const std::shared_ptr<png::Plugin>& plugin,
+            const std::shared_ptr<io::IPlugin>& plugin,
             const std::shared_ptr<imaging::Image>& image,
             const file::Path& path,
             const imaging::Info& imageInfo)
@@ -99,7 +99,7 @@ namespace tl
         }
 
         void PNGTest::_read(
-            const std::shared_ptr<png::Plugin>& plugin,
+            const std::shared_ptr<io::IPlugin>& plugin,
             const std::shared_ptr<imaging::Image>& image,
             const file::Path& path,
             bool memoryIO)
@@ -125,15 +125,17 @@ namespace tl
         }
 
         void PNGTest::_readError(
-            const std::shared_ptr<png::Plugin>& plugin,
+            const std::shared_ptr<io::IPlugin>& plugin,
             const std::shared_ptr<imaging::Image>& image,
             const file::Path& path,
             bool memoryIO)
         {
-            auto io = file::FileIO::create(path.get(), file::Mode::Read);
-            const size_t size = io->getSize();
-            io.reset();
-            file::truncate(path.get(), size / 2);
+            {
+                auto fileIO = file::FileIO::create(path.get(), file::Mode::Read);
+                const size_t size = fileIO->getSize();
+                fileIO.reset();
+                file::truncate(path.get(), size / 2);
+            }
             std::vector<uint8_t> memoryData;
             std::vector<file::MemoryRead> memory;
             if (memoryIO)

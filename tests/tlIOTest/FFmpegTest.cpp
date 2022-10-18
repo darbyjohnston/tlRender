@@ -53,7 +53,7 @@ namespace tl
         void FFmpegTest::_io()
         {
             auto plugin = _context->getSystem<System>()->getPlugin<ffmpeg::Plugin>();
-            const std::map<std::string, std::string> tags =
+            const imaging::Tags tags =
             {
                 { "artist", "artist" },
                 { "comment", "comment" },

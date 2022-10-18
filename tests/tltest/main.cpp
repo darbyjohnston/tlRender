@@ -101,6 +101,8 @@ int main(int argc, char* argv[])
         },
         observer::CallbackAction::Suppress);
 
+    context->tick();
+
     std::vector<std::shared_ptr<tests::ITest> > tests;
     if (0)
     {
@@ -189,10 +191,10 @@ int main(int argc, char* argv[])
     }
     for (const auto& i : tests)
     {
-        context->tick();
-
         std::cout << "Running test: " << i->getName() << std::endl;
         i->run();
+
+        context->tick();
     }
 
     return 0;

@@ -29,7 +29,7 @@ namespace tl
                 FILE* f,
                 jpeg_compress_struct* jpeg,
                 const imaging::Info& info,
-                const std::map<std::string, std::string>& tags,
+                const imaging::Tags& tags,
                 int quality,
                 ErrorStruct* error)
             {

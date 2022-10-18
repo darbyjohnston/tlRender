@@ -30,7 +30,7 @@ namespace tl
         void TIFFTest::run()
         {
             auto plugin = _context->getSystem<System>()->getPlugin<tiff::Plugin>();
-            const std::map<std::string, std::string> tags =
+            const imaging::Tags tags =
             {
                 { "Creator", "Creator" },
                 { "Description", "Description" },

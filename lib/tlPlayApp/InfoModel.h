@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlCore/Util.h>
+#include <tlCore/Image.h>
 
 #include <QAbstractTableModel>
 
@@ -30,7 +30,7 @@ namespace tl
             ~TagsModel() override;
 
             //! Set the tags.
-            void setTags(const std::map<std::string, std::string>&);
+            void setTags(const imaging::Tags&);
 
             int rowCount(const QModelIndex& parent = QModelIndex()) const override;
             int columnCount(const QModelIndex& parent = QModelIndex()) const override;

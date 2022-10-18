@@ -604,7 +604,7 @@ namespace tl
 
         } // namespace
 
-        void readTags(const Imf::Header& header, std::map<std::string, std::string>& tags)
+        void readTags(const Imf::Header& header, imaging::Tags& tags)
         {
             // Predefined attributes.
             tags["Display Window"] = serialize(header.displayWindow());
@@ -916,7 +916,7 @@ namespace tl
             }
         }
 
-        void writeTags(const std::map<std::string, std::string>& tags, double speed, Imf::Header& header)
+        void writeTags(const imaging::Tags& tags, double speed, Imf::Header& header)
         {
             auto i = tags.find("Chromaticities");
             if (i != tags.end())

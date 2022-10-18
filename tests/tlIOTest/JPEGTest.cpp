@@ -30,7 +30,7 @@ namespace tl
         void JPEGTest::run()
         {
             auto plugin = _context->getSystem<System>()->getPlugin<jpeg::Plugin>();
-            const std::map<std::string, std::string> tags =
+            const imaging::Tags tags =
             {
                 { "Description", "Description" }
             };

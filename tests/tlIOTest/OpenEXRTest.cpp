@@ -30,7 +30,7 @@ namespace tl
         void OpenEXRTest::run()
         {
             auto plugin = _context->getSystem<System>()->getPlugin<exr::Plugin>();
-            const std::map<std::string, std::string> tags =
+            const imaging::Tags tags =
             {
                 { "Chromaticities", "1.2 2.3 3.4 4.5 5.6 6.7 7.8 8.9" },
                 { "White Luminance", "1.2" },

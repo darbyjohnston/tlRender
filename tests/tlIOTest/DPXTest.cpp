@@ -41,7 +41,7 @@ namespace tl
         void DPXTest::_io()
         {
             auto plugin = _context->getSystem<System>()->getPlugin<dpx::Plugin>();
-            const std::map<std::string, std::string> tags =
+            const imaging::Tags tags =
             {
             };
             for (const auto& fileName : std::vector<std::string>(

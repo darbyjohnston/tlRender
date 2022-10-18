@@ -672,7 +672,7 @@ namespace tl
 
                 const double speed = avVideoStream->r_frame_rate.num / double(avVideoStream->r_frame_rate.den);
 
-                std::map<std::string, std::string> tags;
+                imaging::Tags tags;
                 AVDictionaryEntry* tag = nullptr;
                 otime::RationalTime startTime(0.0, speed);
                 while ((tag = av_dict_get(p.video.avFormatContext->metadata, "", tag, AV_DICT_IGNORE_SUFFIX)))
@@ -903,7 +903,7 @@ namespace tl
                         r);
                 }
 
-                std::map<std::string, std::string> tags;
+                imaging::Tags tags;
                 AVDictionaryEntry* tag = nullptr;
                 otime::RationalTime startTime(0.0, sampleRate);
                 while ((tag = av_dict_get(p.audio.avFormatContext->metadata, "", tag, AV_DICT_IGNORE_SUFFIX)))
