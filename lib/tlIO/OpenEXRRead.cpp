@@ -58,7 +58,7 @@ namespace tl
             TLRENDER_P();
             if (p.pos >= p.size || (p.pos + n) > p.size)
             {
-                throw std::runtime_error(string::Format("{0}: Error reading file").arg(p.f->getFileName()));
+                throw std::runtime_error(string::Format("{0}: Error reading file").arg(fileName()));
             }
             char* out = nullptr;
             if (p.p)
@@ -74,7 +74,7 @@ namespace tl
             TLRENDER_P();
             if (p.pos >= p.size || (p.pos + n) > p.size)
             {
-                throw std::runtime_error(string::Format("{0}: Error reading file").arg(p.f->getFileName()));
+                throw std::runtime_error(string::Format("{0}: Error reading file").arg(fileName()));
             }
             if (p.p)
             {
