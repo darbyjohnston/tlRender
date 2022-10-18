@@ -62,11 +62,11 @@ namespace tl
                 File(const std::string& fileName)
                 {
 #if defined(_WINDOWS)
-                    _f = TIFFOpenW(string::toWide(fileName).c_str(), "r");
+                    _tiff.p = TIFFOpenW(string::toWide(fileName).c_str(), "r");
 #else
-                    _f = TIFFOpen(fileName.c_str(), "r");
+                    _tiff.p = TIFFOpen(fileName.c_str(), "r");
 #endif
-                    if (!_f)
+                    if (!_tiff.p)
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
@@ -82,17 +82,17 @@ namespace tl
                     uint16_t  tiffOrient = 0;
                     uint16_t  tiffCompression = 0;
                     uint16_t  tiffPlanarConfig = 0;
-                    TIFFGetFieldDefaulted(_f, TIFFTAG_IMAGEWIDTH, &tiffWidth);
-                    TIFFGetFieldDefaulted(_f, TIFFTAG_IMAGELENGTH, &tiffHeight);
-                    TIFFGetFieldDefaulted(_f, TIFFTAG_PHOTOMETRIC, &tiffPhotometric);
-                    TIFFGetFieldDefaulted(_f, TIFFTAG_SAMPLESPERPIXEL, &tiffSamples);
-                    TIFFGetFieldDefaulted(_f, TIFFTAG_BITSPERSAMPLE, &tiffSampleDepth);
-                    TIFFGetFieldDefaulted(_f, TIFFTAG_SAMPLEFORMAT, &tiffSampleFormat);
-                    TIFFGetFieldDefaulted(_f, TIFFTAG_EXTRASAMPLES, &tiffExtraSamplesSize, &tiffExtraSamples);
-                    TIFFGetFieldDefaulted(_f, TIFFTAG_ORIENTATION, &tiffOrient);
-                    TIFFGetFieldDefaulted(_f, TIFFTAG_COMPRESSION, &tiffCompression);
-                    TIFFGetFieldDefaulted(_f, TIFFTAG_PLANARCONFIG, &tiffPlanarConfig);
-                    TIFFGetFieldDefaulted(_f, TIFFTAG_COLORMAP, &_colormap[0], &_colormap[1], &_colormap[2]);
+                    TIFFGetFieldDefaulted(_tiff.p, TIFFTAG_IMAGEWIDTH, &tiffWidth);
+                    TIFFGetFieldDefaulted(_tiff.p, TIFFTAG_IMAGELENGTH, &tiffHeight);
+                    TIFFGetFieldDefaulted(_tiff.p, TIFFTAG_PHOTOMETRIC, &tiffPhotometric);
+                    TIFFGetFieldDefaulted(_tiff.p, TIFFTAG_SAMPLESPERPIXEL, &tiffSamples);
+                    TIFFGetFieldDefaulted(_tiff.p, TIFFTAG_BITSPERSAMPLE, &tiffSampleDepth);
+                    TIFFGetFieldDefaulted(_tiff.p, TIFFTAG_SAMPLEFORMAT, &tiffSampleFormat);
+                    TIFFGetFieldDefaulted(_tiff.p, TIFFTAG_EXTRASAMPLES, &tiffExtraSamplesSize, &tiffExtraSamples);
+                    TIFFGetFieldDefaulted(_tiff.p, TIFFTAG_ORIENTATION, &tiffOrient);
+                    TIFFGetFieldDefaulted(_tiff.p, TIFFTAG_COMPRESSION, &tiffCompression);
+                    TIFFGetFieldDefaulted(_tiff.p, TIFFTAG_PLANARCONFIG, &tiffPlanarConfig);
+                    TIFFGetFieldDefaulted(_tiff.p, TIFFTAG_COLORMAP, &_colormap[0], &_colormap[1], &_colormap[2]);
                     _palette = PHOTOMETRIC_PALETTE == tiffPhotometric;
                     _planar = PLANARCONFIG_SEPARATE == tiffPlanarConfig;
                     _samples = tiffSamples;
@@ -130,41 +130,33 @@ namespace tl
                     _info.video.push_back(imageInfo);
 
                     char* tag = 0;
-                    if (TIFFGetField(_f, TIFFTAG_ARTIST, &tag))
+                    if (TIFFGetField(_tiff.p, TIFFTAG_ARTIST, &tag))
                     {
                         if (tag)
                         {
                             _info.tags["Creator"] = tag;
                         }
                     }
-                    if (TIFFGetField(_f, TIFFTAG_IMAGEDESCRIPTION, &tag))
+                    if (TIFFGetField(_tiff.p, TIFFTAG_IMAGEDESCRIPTION, &tag))
                     {
                         if (tag)
                         {
                             _info.tags["Description"] = tag;
                         }
                     }
-                    if (TIFFGetField(_f, TIFFTAG_COPYRIGHT, &tag))
+                    if (TIFFGetField(_tiff.p, TIFFTAG_COPYRIGHT, &tag))
                     {
                         if (tag)
                         {
                             _info.tags["Copyright"] = tag;
                         }
                     }
-                    if (TIFFGetField(_f, TIFFTAG_DATETIME, &tag))
+                    if (TIFFGetField(_tiff.p, TIFFTAG_DATETIME, &tag))
                     {
                         if (tag)
                         {
                             _info.tags["Time"] = tag;
                         }
-                    }
-                }
-
-                ~File()
-                {
-                    if (_f)
-                    {
-                        TIFFClose(_f);
                     }
                 }
 
@@ -192,7 +184,7 @@ namespace tl
                             uint8_t* p = out.image->getData();
                             for (uint16_t y = 0; y < info.size.h; ++y, p += _scanlineSize)
                             {
-                                if (TIFFReadScanline(_f, (tdata_t*)scanline.data(), y, sample) == -1)
+                                if (TIFFReadScanline(_tiff.p, (tdata_t*)scanline.data(), y, sample) == -1)
                                 {
                                     break;
                                 }
@@ -239,7 +231,7 @@ namespace tl
                         uint8_t* p = out.image->getData();
                         for (uint16_t y = 0; y < info.size.h; ++y, p += _scanlineSize)
                         {
-                            if (TIFFReadScanline(_f, (tdata_t*)p, y) == -1)
+                            if (TIFFReadScanline(_tiff.p, (tdata_t*)p, y) == -1)
                             {
                                 break;
                             }
@@ -263,7 +255,19 @@ namespace tl
                 }
 
             private:
-                TIFF*     _f = nullptr;
+                struct TIFFData
+                {
+                    ~TIFFData()
+                    {
+                        if (p)
+                        {
+                            TIFFClose(p);
+                        }
+                    }
+                    TIFF* p = nullptr;
+                };
+
+                TIFFData  _tiff;
                 bool      _palette = false;
                 uint16_t* _colormap[3] = { nullptr, nullptr, nullptr };
                 bool      _planar = false;

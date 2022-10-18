@@ -108,19 +108,18 @@ namespace tl
                     const std::string& fileName,
                     const file::MemoryRead* memory)
                 {
-                    std::memset(&_decompress, 0, sizeof(jpeg_decompress_struct));
+                    std::memset(&_jpeg.decompress, 0, sizeof(jpeg_decompress_struct));
 
-                    _decompress.err = jpeg_std_error(&_error.pub);
+                    _jpeg.decompress.err = jpeg_std_error(&_error.pub);
                     _error.pub.error_exit = errorFunc;
                     _error.pub.emit_message = warningFunc;
-                    if (!jpegCreate(&_decompress, &_error))
+                    if (!jpegCreate(&_jpeg.decompress, &_error))
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
-                    _init = true;
                     if (memory)
                     {
-                        if (!jpegOpen(memory->p, memory->size, &_decompress, &_error))
+                        if (!jpegOpen(memory->p, memory->size, &_jpeg.decompress, &_error))
                         {
                             throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                         }
@@ -128,49 +127,37 @@ namespace tl
                     else
                     {
 #if defined(_WINDOWS)
-                        if (_wfopen_s(&_f, string::toWide(fileName).c_str(), L"rb") != 0)
+                        if (_wfopen_s(&_f.p, string::toWide(fileName).c_str(), L"rb") != 0)
                         {
-                            _f = nullptr;
+                            _f.p = nullptr;
                         }
 #else
                         _f = fopen(fileName.c_str(), "rb");
 #endif
-                        if (!_f)
+                        if (!_f.p)
                         {
                             throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                         }
-                        if (!jpegOpen(_f, &_decompress, &_error))
+                        if (!jpegOpen(_f.p, &_jpeg.decompress, &_error))
                         {
                             throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                         }
                     }
 
-                    imaging::PixelType pixelType = imaging::getIntType(_decompress.out_color_components, 8);
+                    imaging::PixelType pixelType = imaging::getIntType(_jpeg.decompress.out_color_components, 8);
                     if (imaging::PixelType::None == pixelType)
                     {
                         throw std::runtime_error(string::Format("{0}: File not supported").arg(fileName));
                     }
 
-                    imaging::Info imageInfo(_decompress.output_width, _decompress.output_height, pixelType);
+                    imaging::Info imageInfo(_jpeg.decompress.output_width, _jpeg.decompress.output_height, pixelType);
                     imageInfo.layout.mirror.y = true;
                     _info.video.push_back(imageInfo);
 
-                    const jpeg_saved_marker_ptr marker = _decompress.marker_list;
+                    const jpeg_saved_marker_ptr marker = _jpeg.decompress.marker_list;
                     if (marker)
                     {
                         _info.tags["Description"] = std::string((const char*)marker->data, marker->data_length);
-                    }
-                }
-
-                ~File()
-                {
-                    if (_init)
-                    {
-                        jpeg_destroy_decompress(&_decompress);
-                    }
-                    if (_f)
-                    {
-                        fclose(_f);
                     }
                 }
 
@@ -203,23 +190,43 @@ namespace tl
                     uint8_t* p = out.image->getData();
                     for (uint16_t y = 0; y < info.size.h; ++y, p += scanlineByteCount)
                     {
-                        if (!jpegScanline(&_decompress, p, &_error))
+                        if (!jpegScanline(&_jpeg.decompress, p, &_error))
                         {
                             break;
                         }
                     }
 
-                    jpegEnd(&_decompress, &_error);
+                    jpegEnd(&_jpeg.decompress, &_error);
 
                     return out;
                 }
 
             private:
-                FILE* _f = nullptr;
-                jpeg_decompress_struct _decompress;
-                bool _init = false;
+                struct JPEGData
+                {
+                    ~JPEGData()
+                    {
+                        jpeg_destroy_decompress(&decompress);
+                    }
+                    jpeg_decompress_struct decompress;
+                };
+
+                struct FilePointer
+                {
+                    ~FilePointer()
+                    {
+                        if (p)
+                        {
+                            fclose(p);
+                        }
+                    }
+                    FILE* p = nullptr;
+                };
+
+                JPEGData    _jpeg;
+                FilePointer _f;
                 ErrorStruct _error;
-                io::Info _info;
+                io::Info    _info;
             };
         }
 
