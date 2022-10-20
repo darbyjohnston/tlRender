@@ -183,7 +183,7 @@ namespace tl
                         info.name = layer.name;
                         info.size.w = _displayWindow.w();
                         info.size.h = _displayWindow.h();
-                        info.pixelAspectRatio = _f->header().pixelAspectRatio();
+                        info.size.pixelAspectRatio = _f->header().pixelAspectRatio();
                         switch (layer.channels[0].pixelType)
                         {
                         case Imf::PixelType::HALF:

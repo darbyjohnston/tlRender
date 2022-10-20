@@ -38,6 +38,7 @@ namespace tl
                 const Size size;
                 TLRENDER_ASSERT(0 == size.w);
                 TLRENDER_ASSERT(0 == size.h);
+                TLRENDER_ASSERT(1.F == size.pixelAspectRatio);
                 TLRENDER_ASSERT(!size.isValid());
                 TLRENDER_ASSERT(0.F == size.getAspect());
             }
@@ -45,6 +46,7 @@ namespace tl
                 const Size size(1, 2);
                 TLRENDER_ASSERT(1 == size.w);
                 TLRENDER_ASSERT(2 == size.h);
+                TLRENDER_ASSERT(1.F == size.pixelAspectRatio);
                 TLRENDER_ASSERT(size.isValid());
                 TLRENDER_ASSERT(.5F == size.getAspect());
             }
@@ -54,7 +56,7 @@ namespace tl
                 TLRENDER_ASSERT(Size(1, 2) < Size(1, 3));
             }
             {
-                const Size size(1, 2);
+                const Size size(1, 2, 2.F);
                 std::stringstream ss;
                 ss << size;
                 Size size2;
@@ -205,6 +207,14 @@ namespace tl
             }
             {
                 const Size s(1, 2);
+                std::stringstream ss;
+                ss << s;
+                Size s2;
+                ss >> s2;
+                TLRENDER_ASSERT(s == s2);
+            }
+            {
+                const Size s(1, 2, 2.F);
                 std::stringstream ss;
                 ss << s;
                 Size s2;

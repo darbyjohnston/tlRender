@@ -92,7 +92,6 @@ namespace tl
                                     const auto videoData = read->readVideo(otime::RationalTime(0.0, 24.0)).get();
                                     TLRENDER_ASSERT(videoData.image);
                                     TLRENDER_ASSERT(videoData.image->getInfo().size == image->getInfo().size);
-                                    TLRENDER_ASSERT(videoData.image->getInfo().pixelAspectRatio == image->getInfo().pixelAspectRatio);
                                     TLRENDER_ASSERT(videoData.image->getInfo().pixelType == image->getInfo().pixelType);
                                     TLRENDER_ASSERT(videoData.image->getInfo().videoLevels == image->getInfo().videoLevels);
                                     TLRENDER_ASSERT(videoData.image->getInfo().layout == image->getInfo().layout);
