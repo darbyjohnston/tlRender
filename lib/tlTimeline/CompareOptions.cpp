@@ -50,15 +50,15 @@ namespace tl
                     out.push_back(math::BBox2i(
                         0,
                         0,
-                        size.w,
+                        size.w * size.pixelAspectRatio,
                         size.h));
                 }
                 if (count > 1)
                 {
                     out.push_back(math::BBox2i(
-                        size.w,
+                        size.w * size.pixelAspectRatio,
                         0,
-                        size.w,
+                        size.w * size.pixelAspectRatio,
                         size.h));
                 }
                 break;
@@ -79,7 +79,7 @@ namespace tl
                     out.push_back(math::BBox2i(
                         0,
                         0,
-                        size.w,
+                        size.w * size.pixelAspectRatio,
                         size.h));
                 }
                 if (count > 1)
@@ -87,7 +87,7 @@ namespace tl
                     out.push_back(math::BBox2i(
                         0,
                         size.h,
-                        size.w,
+                        size.w * size.pixelAspectRatio,
                         size.h));
                 }
                 break;
@@ -128,11 +128,11 @@ namespace tl
                                 const math::BBox2i bbox(
                                     x,
                                     y,
-                                    tileSize.w,
+                                    tileSize.w * tileSize.pixelAspectRatio,
                                     tileSize.h);
                                 out.push_back(bbox);
                             }
-                            x += tileSize.w;
+                            x += tileSize.w * tileSize.pixelAspectRatio;
                         }
                         y += tileSize.h;
                     }
@@ -141,7 +141,11 @@ namespace tl
             default:
                 if (count > 0)
                 {
-                    out.push_back(math::BBox2i(0, 0, sizes[0].w, sizes[0].h));
+                    out.push_back(math::BBox2i(
+                        0,
+                        0,
+                        sizes[0].w * sizes[0].pixelAspectRatio,
+                        sizes[0].h));
                 }
                 break;
             }

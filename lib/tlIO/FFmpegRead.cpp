@@ -412,9 +412,11 @@ namespace tl
                 imaging::Info videoInfo;
                 videoInfo.size.w = p.video.avCodecParameters[p.video.avStream]->width;
                 videoInfo.size.h = p.video.avCodecParameters[p.video.avStream]->height;
-                if ( p.video.avCodecParameters[p.video.avStream]->sample_aspect_ratio.den > 0 &&
-                     p.video.avCodecParameters[p.video.avStream]->sample_aspect_ratio.num > 0 )
-                    videoInfo.pixelAspectRatio = av_q2d( p.video.avCodecParameters[p.video.avStream]->sample_aspect_ratio );
+                if (p.video.avCodecParameters[p.video.avStream]->sample_aspect_ratio.den > 0 &&
+                    p.video.avCodecParameters[p.video.avStream]->sample_aspect_ratio.num > 0)
+                {
+                    videoInfo.size.pixelAspectRatio = av_q2d(p.video.avCodecParameters[p.video.avStream]->sample_aspect_ratio);
+                }
                 videoInfo.layout.mirror.y = true;
 
                 p.video.avInputPixelFormat = static_cast<AVPixelFormat>(
@@ -618,7 +620,7 @@ namespace tl
                     std::stringstream ss;
                     ss.precision(2);
                     ss << std::fixed;
-                    ss << videoInfo.pixelAspectRatio;
+                    ss << videoInfo.size.pixelAspectRatio;
                     p.info.tags["Video Pixel Aspect Ratio"] = ss.str();
                 }
                 {

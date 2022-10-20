@@ -40,7 +40,7 @@ namespace tl
             bool operator != (const CompareOptions&) const;
         };
 
-        //! Get the bounding boxes for the given compare mode and size.
+        //! Get the bounding boxes for the given compare mode and sizes.
         std::vector<math::BBox2i> tiles(CompareMode, const std::vector<imaging::Size>&);
 
         //! Get the render size for the given compare mode and sizes.

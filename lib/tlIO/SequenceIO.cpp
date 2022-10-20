@@ -389,7 +389,7 @@ namespace tl
                     std::stringstream ss;
                     ss.precision(2);
                     ss << std::fixed;
-                    ss << info.video[0].pixelAspectRatio;
+                    ss << info.video[0].size.pixelAspectRatio;
                     info.tags["Video Pixel Aspect Ratio"] = ss.str();
                 }
                 {

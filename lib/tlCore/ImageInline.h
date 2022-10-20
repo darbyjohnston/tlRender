@@ -8,12 +8,16 @@ namespace tl
 {
     namespace imaging
     {
-        constexpr Size::Size() noexcept :
-            w(0), h(0)
+        constexpr Size::Size() noexcept
         {}
 
-        constexpr Size::Size(uint16_t w, uint16_t h) noexcept :
-            w(w), h(h)
+        constexpr Size::Size(
+            uint16_t w,
+            uint16_t h,
+            float pixelAspectRatio) noexcept :
+            w(w),
+            h(h),
+            pixelAspectRatio(pixelAspectRatio)
         {}
 
         constexpr bool Size::isValid() const noexcept
@@ -23,12 +27,15 @@ namespace tl
 
         constexpr float Size::getAspect() const noexcept
         {
-            return h > 0 ? (w / static_cast<float>(h)) : 0;
+            return h > 0 ? (w / static_cast<float>(h) * pixelAspectRatio) : 0;
         }
 
         constexpr bool Size::operator == (const Size& other) const noexcept
         {
-            return w == other.w && h == other.h;
+            return
+                w == other.w &&
+                h == other.h &&
+                pixelAspectRatio == other.pixelAspectRatio;
         }
 
         constexpr bool Size::operator != (const Size& other) const noexcept
@@ -38,7 +45,11 @@ namespace tl
 
         inline bool Size::operator < (const Size& other) const noexcept
         {
-            return std::tie(w, h) < std::tie(other.w, other.h);
+            const int widthScaled = static_cast<int>(w) * pixelAspectRatio;
+            const int otherWidthScaled = static_cast<int>(other.w) * other.pixelAspectRatio;
+            return
+                std::tie(widthScaled, h) <
+                std::tie(otherWidthScaled, other.h);
         }
 
         constexpr bool U10_MSB::operator == (const U10_MSB& value) const noexcept
@@ -129,7 +140,6 @@ namespace tl
         {
             return name == other.name &&
                 size == other.size &&
-                pixelAspectRatio == other.pixelAspectRatio &&
                 pixelType == other.pixelType &&
                 videoLevels == other.videoLevels &&
                 yuvCoefficients == other.yuvCoefficients &&

@@ -320,6 +320,10 @@ namespace tl
         std::ostream& operator << (std::ostream& os, const Size& value)
         {
             os << value.w << "x" << value.h;
+            if (value.pixelAspectRatio != 1.F)
+            {
+                os << ":" << value.pixelAspectRatio;
+            }
             return os;
         }
 
@@ -327,7 +331,16 @@ namespace tl
         {
             std::string s;
             is >> s;
-            auto split = string::split(s, 'x');
+            auto split = string::split(s, ':');
+            if (0 == split.size() || split.size() > 2)
+            {
+                throw error::ParseError();
+            }
+            if (2 == split.size())
+            {
+                out.pixelAspectRatio = std::stof(split[1]);
+            }
+            split = string::split(split[0], 'x');
             if (split.size() != 2)
             {
                 throw error::ParseError();

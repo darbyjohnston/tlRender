@@ -30,9 +30,14 @@ namespace tl
         {
         public:
             constexpr Size() noexcept;
-            constexpr explicit Size(uint16_t w, uint16_t h) noexcept;
+            constexpr explicit Size(
+                uint16_t w,
+                uint16_t h,
+                float pixelAspectRatio = 1.F) noexcept;
 
-            uint16_t w, h;
+            uint16_t w = 0;
+            uint16_t h = 0;
+            float pixelAspectRatio = 1.F;
 
             //! Is this size valid?
             constexpr bool isValid() const noexcept;
@@ -235,7 +240,6 @@ namespace tl
 
             std::string     name             = "Default";
             Size            size;
-            float           pixelAspectRatio = 1.F;
             PixelType       pixelType        = PixelType::None;
             VideoLevels     videoLevels      = VideoLevels::FullRange;
             YUVCoefficients yuvCoefficients  = YUVCoefficients::REC709;
