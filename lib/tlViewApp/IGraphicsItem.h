@@ -12,8 +12,8 @@ namespace tl
 {
     namespace view
     {
-        const imaging::FontInfo itemTitleFontInfo = imaging::FontInfo(imaging::FontFamily::NotoSans, 16);
-        const imaging::FontInfo itemSmallFontInfo = imaging::FontInfo(imaging::FontFamily::NotoSans, 11);
+        const imaging::FontInfo itemTitleFontInfo = imaging::FontInfo("NotoSans-Regular", 14);
+        const imaging::FontInfo itemSmallFontInfo = imaging::FontInfo("NotoSans-Regular", 11);
 
         const double secondsSize = 100.0;
 
@@ -21,7 +21,7 @@ namespace tl
         const double sceneSpacing = 10.0;
 
         const double itemBorder = 1.0;
-        const double itemMargin = 2.0;
+        const double itemMargin = 5.0;
 
         //! Base class for graphics items.
         class IGraphicsItem : public std::enable_shared_from_this<IGraphicsItem>

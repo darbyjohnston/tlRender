@@ -45,12 +45,12 @@ namespace tl
                 _fontSystem = imaging::FontSystem::create(context);
 
                 _secondsFontInfo = imaging::FontInfo(
-                    imaging::FontFamily::NotoMono,
+                    "NotoMono-Regular",
                     _size.h / 2.F);
                 _secondsFontMetrics = _fontSystem->getMetrics(_secondsFontInfo);
 
                 _framesFontInfo = imaging::FontInfo(
-                    imaging::FontFamily::NotoMono,
+                    "NotoMono-Regular",
                     _secondsFontInfo.size / 4.F);
                 _framesFontMetrics = _fontSystem->getMetrics(_framesFontInfo);
             }

@@ -40,6 +40,7 @@ namespace tl
             if (fonts.isEmpty())
             {
                 fonts["NotoMono-Regular"] = QFontDatabase::addApplicationFont(":/Fonts/NotoMono-Regular.font");
+                fonts["NotoSans-Bold"] = QFontDatabase::addApplicationFont(":/Fonts/NotoSans-Bold.font");
                 fonts["NotoSans-Regular"] = QFontDatabase::addApplicationFont(":/Fonts/NotoSans-Regular.font");
             }
             QFont out;

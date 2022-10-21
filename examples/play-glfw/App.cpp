@@ -477,7 +477,7 @@ namespace tl
                         _fontSystem,
                         _frameBufferSize,
                         i->second,
-                        imaging::FontFamily::NotoSans,
+                        "NotoSans-Regular",
                         fontSize,
                         HUDElement::UpperLeft);
                 }
@@ -490,7 +490,7 @@ namespace tl
                         _fontSystem,
                         _frameBufferSize,
                         i->second,
-                        imaging::FontFamily::NotoMono,
+                        "NotoMono-Regular",
                         fontSize,
                         HUDElement::LowerLeft);
                 }
@@ -503,7 +503,7 @@ namespace tl
                         _fontSystem,
                         _frameBufferSize,
                         i->second,
-                        imaging::FontFamily::NotoMono,
+                        "NotoMono-Regular",
                         fontSize,
                         HUDElement::UpperRight);
                 }
@@ -516,7 +516,7 @@ namespace tl
                         _fontSystem,
                         _frameBufferSize,
                         i->second,
-                        imaging::FontFamily::NotoMono,
+                        "NotoMono-Regular",
                         fontSize,
                         HUDElement::LowerRight);
                 }

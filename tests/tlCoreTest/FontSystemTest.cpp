@@ -28,12 +28,12 @@ namespace tl
         {
             {
                 const FontInfo fi;
-                TLRENDER_ASSERT(FontFamily::NotoSans == fi.family);
+                TLRENDER_ASSERT("NotoSans-Regular" == fi.family);
                 TLRENDER_ASSERT(12 == fi.size);
             }
             {
-                const FontInfo fi(FontFamily::NotoMono, 14);
-                TLRENDER_ASSERT(FontFamily::NotoMono == fi.family);
+                const FontInfo fi("NotoMono-Regular", 14);
+                TLRENDER_ASSERT("NotoMono-Regular" == fi.family);
                 TLRENDER_ASSERT(14 == fi.size);
             }
             {
@@ -42,8 +42,8 @@ namespace tl
                 TLRENDER_ASSERT(a == b);
             }
             {
-                FontInfo a;
-                FontInfo b(FontFamily::NotoMono, 14);
+                FontInfo a("NotoMono-Regular", 14);
+                FontInfo b;
                 TLRENDER_ASSERT(a < b);
             }
             {
@@ -52,7 +52,7 @@ namespace tl
                 TLRENDER_ASSERT(FontInfo() == gi.fontInfo);
             }
             {
-                const FontInfo fi(FontFamily::NotoMono, 14);
+                const FontInfo fi("NotoMono-Regular", 14);
                 const GlyphInfo gi(1, fi);
                 TLRENDER_ASSERT(1 == gi.code);
                 TLRENDER_ASSERT(fi == gi.fontInfo);
@@ -64,12 +64,12 @@ namespace tl
             }
             {
                 GlyphInfo a;
-                GlyphInfo b(1, FontInfo(FontFamily::NotoMono, 14));
+                GlyphInfo b(1, FontInfo("NotoMono-Regular", 14));
                 TLRENDER_ASSERT(a < b);
             }
             {
                 auto fontSystem = FontSystem::create(_context);
-                FontInfo fi(FontFamily::NotoMono, 14);
+                FontInfo fi("NotoMono-Regular", 14);
                 auto fm = fontSystem->getMetrics(fi);
                 std::vector<std::string> text =
                 {

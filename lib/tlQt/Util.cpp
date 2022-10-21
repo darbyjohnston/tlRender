@@ -57,16 +57,12 @@ namespace tl
             qRegisterMetaType<geom::Vertex3>("tl::geom::Vertex3");
 
             qRegisterMetaType<imaging::FontInfo>("tl::imaging::FontInfo");
-            qRegisterMetaType<imaging::FontFamily>("tl::imaging::FontFamily");
             qRegisterMetaType<imaging::FontMetrics>("tl::imaging::FontMetrics");
             qRegisterMetaType<imaging::GlyphInfo>("tl::imaging::GlyphInfo");
             qRegisterMetaType<imaging::Glyph>("tl::imaging::Glyph");
             qRegisterMetaType<imaging::PixelType>("tl::imaging::PixelType");
             qRegisterMetaType<imaging::Size>("tl::imaging::Size");
             qRegisterMetaType<imaging::VideoLevels>("tl::imaging::VideoLevels");
-#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-            QMetaType::registerComparators<imaging::FontFamily>();
-#endif
 
             qRegisterMetaType<memory::Endian>("tl::memory::Endian");
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))

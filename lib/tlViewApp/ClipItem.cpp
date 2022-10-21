@@ -61,7 +61,6 @@ namespace tl
             const std::shared_ptr<timeline::IRender>& render)
         {
             render->drawRect(bbox, imaging::Color4f(.8F, .8F, 1.F));
-            drawBorder(bbox, itemBorder, imaging::Color4f(.1F, .1F, .1F), render);
 
             const math::BBox2i marginRect = bbox.margin(-(itemMargin + itemBorder));
 
@@ -72,7 +71,7 @@ namespace tl
             math::Vector2i textPos(
                 textRect.min.x,
                 textRect.min.y + fontMetrics.ascender - 1);
-            render->drawText(textGlyphs, textPos, imaging::Color4f(.1F, .1F, .1F));
+            render->drawText(textGlyphs, textPos, imaging::Color4f(0.F, 0.F, 0.F));
 
             fontMetrics = fontSystem->getMetrics(itemTitleFontInfo);
             textSize = fontSystem->measure(_name, itemTitleFontInfo);
@@ -80,7 +79,7 @@ namespace tl
             textPos = math::Vector2i(
                 textRect.min.x + textRect.w() / 2 - textSize.x / 2,
                 textRect.min.y + textRect.h() / 2 - textSize.y / 2 + fontMetrics.ascender - 1);
-            render->drawText(textGlyphs, textPos, imaging::Color4f(.1F, .1F, .1F));
+            render->drawText(textGlyphs, textPos, imaging::Color4f(0.F, 0.F, 0.F));
         }
     }
 }

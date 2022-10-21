@@ -20,7 +20,7 @@ namespace tl
                 const std::shared_ptr<imaging::FontSystem>& fontSystem,
                 const imaging::Size& window,
                 const std::string& text,
-                imaging::FontFamily fontFamily,
+                const std::string& fontFamily,
                 uint16_t fontSize,
                 HUDElement hudElement)
             {

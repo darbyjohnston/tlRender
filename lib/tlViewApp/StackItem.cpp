@@ -27,7 +27,7 @@ namespace tl
             _type = "Stack";
             _name = stack->name();
             _duration = stack->duration();
-            _trimmedRange = string::Format("trimmed range: {0}").arg(stack->trimmed_range());
+            _trimmedRange = string::Format("Trimmed range: {0}").arg(stack->trimmed_range());
             const auto& sourceRange = stack->source_range();
             std::stringstream ss;
             if (sourceRange.has_value())
@@ -38,7 +38,7 @@ namespace tl
             {
                 ss << "none";
             }
-            _sourceRange = string::Format("source range: {0}").arg(ss.str());
+            _sourceRange = string::Format("Source range: {0}").arg(ss.str());
         }
 
         StackItem::StackItem() :
@@ -79,17 +79,16 @@ namespace tl
             math::Vector2i textSize = fontSystem->measure(_trimmedRange, itemSmallFontInfo);
             auto textGlyphs = fontSystem->getGlyphs(_trimmedRange, itemSmallFontInfo);
             math::Vector2i textPos = math::Vector2i(bbox.min.x, bbox.min.y + smallFontMetrics.ascender - 1);
-            render->drawText(textGlyphs, textPos, imaging::Color4f(.1F, .1F, .1F));
+            render->drawText(textGlyphs, textPos, imaging::Color4f(0.F, 0.F, 0.F));
 
             textSize = fontSystem->measure(_sourceRange, itemSmallFontInfo);
             textGlyphs = fontSystem->getGlyphs(_sourceRange, itemSmallFontInfo);
             textPos = math::Vector2i(bbox.min.x, bbox.max.y - textSize.y + smallFontMetrics.ascender - 1);
-            render->drawText(textGlyphs, textPos, imaging::Color4f(.1F, .1F, .1F));
+            render->drawText(textGlyphs, textPos, imaging::Color4f(0.F, 0.F, 0.F));
 
             const math::BBox2i rect = bbox.margin(0, -smallFontMetrics.lineHeight, 0, -smallFontMetrics.lineHeight);
 
             render->drawRect(rect, imaging::Color4f(.8F, .8F, .8F));
-            drawBorder(rect, itemBorder, imaging::Color4f(.1F, .1F, .1F), render);
 
             const math::BBox2i marginRect = rect.margin(-(itemMargin + itemBorder));
 
@@ -98,14 +97,14 @@ namespace tl
             textPos = math::Vector2i(
                 marginRect.min.x,
                 marginRect.min.y + smallFontMetrics.ascender - 1);
-            render->drawText(textGlyphs, textPos, imaging::Color4f(.1F, .1F, .1F));
+            render->drawText(textGlyphs, textPos, imaging::Color4f(0.F, 0.F, 0.F));
 
             textSize = fontSystem->measure(_name, itemTitleFontInfo);
             textGlyphs = fontSystem->getGlyphs(_name, itemTitleFontInfo);
             textPos = math::Vector2i(
                 marginRect.min.x + marginRect.w() / 2 - textSize.x / 2,
                 marginRect.min.y + marginRect.h() / 2 - textSize.y / 2 + titleFontMetrics.ascender - 1);
-            render->drawText(textGlyphs, textPos, imaging::Color4f(.1F, .1F, .1F));
+            render->drawText(textGlyphs, textPos, imaging::Color4f(0.F, 0.F, 0.F));
         }
     }
 }

@@ -9,6 +9,7 @@
 
 #include <Fonts/NotoMono-Regular.font>
 #include <Fonts/NotoSans-Regular.font>
+#include <Fonts/NotoSans-Bold.font>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -27,7 +28,7 @@ namespace tl
         FontInfo::FontInfo() noexcept
         {}
 
-        FontInfo::FontInfo(FontFamily family, uint16_t size) :
+        FontInfo::FontInfo(const std::string& family, uint16_t size) :
             family(family),
             size(size)
         {}
@@ -72,7 +73,7 @@ namespace tl
 
             std::weak_ptr<system::Context> context;
             FT_Library ftLibrary = nullptr;
-            std::map<FontFamily, FT_Face> ftFaces;
+            std::map<std::string, FT_Face> ftFaces;
             std::wstring_convert<std::codecvt_utf8<tl_char_t>, tl_char_t> utf32Convert;
             memory::LRUCache<GlyphInfo, std::shared_ptr<Glyph> > glyphCache;
         };
@@ -89,12 +90,17 @@ namespace tl
                 throw std::runtime_error("FreeType cannot be initialized");
             }
 
-            ftError = FT_New_Memory_Face(p.ftLibrary, NotoSans_Regular_ttf, NotoSans_Regular_ttf_len, 0, &p.ftFaces[FontFamily::NotoSans]);
+            ftError = FT_New_Memory_Face(p.ftLibrary, NotoSans_Regular_ttf, NotoSans_Regular_ttf_len, 0, &p.ftFaces["NotoSans-Regular"]);
             if (ftError)
             {
                 throw std::runtime_error("Cannot create font");
             }
-            ftError = FT_New_Memory_Face(p.ftLibrary, NotoMono_Regular_ttf, NotoMono_Regular_ttf_len, 0, &p.ftFaces[FontFamily::NotoMono]);
+            ftError = FT_New_Memory_Face(p.ftLibrary, NotoSans_Bold_ttf, NotoSans_Bold_ttf_len, 0, &p.ftFaces["NotoSans-Bold"]);
+            if (ftError)
+            {
+                throw std::runtime_error("Cannot create font");
+            }
+            ftError = FT_New_Memory_Face(p.ftLibrary, NotoMono_Regular_ttf, NotoMono_Regular_ttf_len, 0, &p.ftFaces["NotoMono-Regular"]);
             if (ftError)
             {
                 throw std::runtime_error("Cannot create font");
@@ -224,33 +230,18 @@ namespace tl
                         {
                             throw std::runtime_error("Cannot render glyph");
                         }
-                        FT_Glyph ftGlyph;
-                        ftError = FT_Get_Glyph(i->second->glyph, &ftGlyph);
-                        if (ftError)
-                        {
-                            throw std::runtime_error("Cannot get glyph");
-                        }
-                        FT_Vector v;
-                        v.x = 0;
-                        v.y = 0;
-                        ftError = FT_Glyph_To_Bitmap(&ftGlyph, renderMode, &v, 0);
-                        if (ftError)
-                        {
-                            FT_Done_Glyph(ftGlyph);
-                            throw std::runtime_error("Cannot convert glyph to a bitmap");
-                        }
 
                         out = std::make_shared<Glyph>();
                         out->glyphInfo = GlyphInfo(code, fontInfo);
-                        auto ftBitmapGlyph = reinterpret_cast<FT_BitmapGlyph>(ftGlyph)->bitmap;
-                        out->data.resize(ftBitmapGlyph.width * ftBitmapGlyph.rows);
-                        out->width = ftBitmapGlyph.width;
-                        out->height = ftBitmapGlyph.rows;
-                        for (size_t y = 0; y < ftBitmapGlyph.rows; ++y)
+                        auto ftBitmap = i->second->glyph->bitmap;
+                        out->data.resize(ftBitmap.width * ftBitmap.rows);
+                        out->width = ftBitmap.width;
+                        out->height = ftBitmap.rows;
+                        for (size_t y = 0; y < ftBitmap.rows; ++y)
                         {
-                            uint8_t* dataP = out->data.data() + ftBitmapGlyph.width * y;
-                            unsigned char* bitmapP = ftBitmapGlyph.buffer + y * ftBitmapGlyph.pitch;
-                            for (size_t x = 0; x < ftBitmapGlyph.width; ++x)
+                            uint8_t* dataP = out->data.data() + ftBitmap.width * y;
+                            unsigned char* bitmapP = ftBitmap.buffer + y * ftBitmap.pitch;
+                            for (size_t x = 0; x < ftBitmap.width; ++x)
                             {
                                 dataP[x] = bitmapP[x];
                             }
@@ -259,7 +250,6 @@ namespace tl
                         out->advance = i->second->glyph->advance.x / 64;
                         out->lsbDelta = i->second->glyph->lsb_delta;
                         out->rsbDelta = i->second->glyph->rsb_delta;
-                        FT_Done_Glyph(ftGlyph);
 
                         glyphCache.add(out->glyphInfo, out);
                     }

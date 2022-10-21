@@ -27,20 +27,13 @@ namespace tl
         typedef char32_t tl_char_t;
 #endif // _WINDOWS
 
-        //! Font families.
-        enum class FontFamily
-        {
-            NotoSans,
-            NotoMono
-        };
-
         //! Font information.
         struct FontInfo
         {
             FontInfo() noexcept;
-            FontInfo(FontFamily, uint16_t size);
+            FontInfo(const std::string& family, uint16_t size);
 
-            FontFamily family = FontFamily::NotoSans;
+            std::string family = "NotoSans-Regular";
             uint16_t size = 12;
 
             bool operator == (const FontInfo&) const noexcept;
