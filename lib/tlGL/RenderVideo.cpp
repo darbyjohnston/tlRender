@@ -519,7 +519,7 @@ namespace tl
                 p.shaders["display"]->setUniform("levelsEnabled", displayOptions.levelsEnabled);
                 p.shaders["display"]->setUniform("levels.inLow", displayOptions.levels.inLow);
                 p.shaders["display"]->setUniform("levels.inHigh", displayOptions.levels.inHigh);
-                p.shaders["display"]->setUniform("levels.gamma", 1.0F );
+                p.shaders["display"]->setUniform("levels.gamma", displayOptions.levels.gamma > 0.F ? (1.F / displayOptions.levels.gamma) : 1000000.F);
                 p.shaders["display"]->setUniform("levels.outLow", displayOptions.levels.outLow);
                 p.shaders["display"]->setUniform("levels.outHigh", displayOptions.levels.outHigh);
                 p.shaders["display"]->setUniform("exposureEnabled", displayOptions.exposureEnabled);
