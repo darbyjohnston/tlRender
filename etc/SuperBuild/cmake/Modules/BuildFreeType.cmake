@@ -1,8 +1,7 @@
 include(ExternalProject)
 
 set(FreeType_GIT_REPOSITORY "https://github.com/freetype/freetype.git")
-# \bug Version 2-11-0 crashes on Windows with "writing_system_class was nullptr"
-set(FreeType_GIT_TAG "6a2b3e4007e794bfc6c91030d0ed987f925164a8") # tag: VER-2-10-4
+set(FreeType_GIT_TAG "VER-2-12-1")
 
 set(FreeType_ARGS
     ${TLRENDER_EXTERNAL_ARGS}
