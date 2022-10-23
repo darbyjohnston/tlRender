@@ -7,6 +7,8 @@
 #include <tlCore/Math.h>
 #include <tlCore/Mesh.h>
 
+#include <tlGlad/gl.h>
+
 #include <array>
 
 namespace tl
@@ -334,24 +336,34 @@ namespace tl
             return out;
         }
 
+        struct VBO::Private
+        {
+            std::size_t size = 0;
+            VBOType type = VBOType::First;
+            GLuint vbo = 0;
+        };
+
         void VBO::_init(std::size_t size, VBOType type)
         {
-            _size = size;
-            _type = type;
-            glGenBuffers(1, &_vbo);
-            glBindBuffer(GL_ARRAY_BUFFER, _vbo);
-            glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizei>(_size * getByteCount(type)), NULL, GL_DYNAMIC_DRAW);
+            TLRENDER_P();
+            p.size = size;
+            p.type = type;
+            glGenBuffers(1, &p.vbo);
+            glBindBuffer(GL_ARRAY_BUFFER, p.vbo);
+            glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizei>(p.size * getByteCount(type)), NULL, GL_DYNAMIC_DRAW);
         }
 
-        VBO::VBO()
+        VBO::VBO() :
+            _p(new Private)
         {}
 
         VBO::~VBO()
         {
-            if (_vbo)
+            TLRENDER_P();
+            if (p.vbo)
             {
-                glDeleteBuffers(1, &_vbo);
-                _vbo = 0;
+                glDeleteBuffers(1, &p.vbo);
+                p.vbo = 0;
             }
         }
 
@@ -364,40 +376,42 @@ namespace tl
 
         size_t VBO::getSize() const
         {
-            return _size;
+            return _p->size;
         }
 
         VBOType VBO::getType() const
         {
-            return _type;
+            return _p->type;
         }
 
-        GLuint VBO::getID() const
+        unsigned int VBO::getID() const
         {
-            return _vbo;
-        }
-
-        GLuint VAO::getID() const
-        {
-            return _vao;
+            return _p->vbo;
         }
 
         void VBO::copy(const std::vector<uint8_t>& data)
         {
-            glBindBuffer(GL_ARRAY_BUFFER, _vbo);
+            glBindBuffer(GL_ARRAY_BUFFER, _p->vbo);
             glBufferSubData(GL_ARRAY_BUFFER, 0, static_cast<GLsizei>(data.size()), (void*)data.data());
         }
 
         void VBO::copy(const std::vector<uint8_t>& data, std::size_t offset, std::size_t size)
         {
-            glBindBuffer(GL_ARRAY_BUFFER, _vbo);
+            glBindBuffer(GL_ARRAY_BUFFER, _p->vbo);
             glBufferSubData(GL_ARRAY_BUFFER, offset, static_cast<GLsizei>(size), (void*)data.data());
         }
 
-        void VAO::_init(VBOType type, GLuint vbo)
+        struct VAO::Private
         {
-            glGenVertexArrays(1, &_vao);
-            glBindVertexArray(_vao);
+            GLuint vao = 0;
+        };
+
+        void VAO::_init(VBOType type, unsigned int vbo)
+        {
+            TLRENDER_P();
+
+            glGenVertexArrays(1, &p.vao);
+            glBindVertexArray(p.vao);
             glBindBuffer(GL_ARRAY_BUFFER, vbo);
             const std::size_t byteCount = getByteCount(type);
             switch (type)
@@ -450,31 +464,38 @@ namespace tl
             }
         }
 
-        VAO::VAO()
+        VAO::VAO() :
+            _p(new Private)
         {}
 
         VAO::~VAO()
         {
-            if (_vao)
+            TLRENDER_P();
+            if (p.vao)
             {
-                glDeleteVertexArrays(1, &_vao);
-                _vao = 0;
+                glDeleteVertexArrays(1, &p.vao);
+                p.vao = 0;
             }
         }
 
-        std::shared_ptr<VAO> VAO::create(VBOType type, GLuint vbo)
+        std::shared_ptr<VAO> VAO::create(VBOType type, unsigned int vbo)
         {
             auto out = std::shared_ptr<VAO>(new VAO);
             out->_init(type, vbo);
             return out;
         }
 
-        void VAO::bind()
+        unsigned int VAO::getID() const
         {
-            glBindVertexArray(_vao);
+            return _p->vao;
         }
 
-        void VAO::draw(GLenum mode, std::size_t offset, std::size_t size)
+        void VAO::bind()
+        {
+            glBindVertexArray(_p->vao);
+        }
+
+        void VAO::draw(unsigned int mode, std::size_t offset, std::size_t size)
         {
             glDrawArrays(mode, static_cast<GLsizei>(offset), static_cast<GLsizei>(size));
         }

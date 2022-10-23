@@ -9,13 +9,16 @@
 #include <tlTimeline/IRender.h>
 
 #include <QOpenGLWidget>
+#include <QOpenGLFunctions_4_1_Core>
 
 namespace tl
 {
     namespace qtwidget
     {
         //! Timeline viewport widget.
-        class TimelineViewport : public QOpenGLWidget
+        class TimelineViewport :
+            public QOpenGLWidget,
+            protected QOpenGLFunctions_4_1_Core
         {
             Q_OBJECT
 

@@ -4,6 +4,8 @@
 
 #include "PanoramaTimelineViewport.h"
 
+#include <tlGL/Util.h>
+
 #include <QMouseEvent>
 #include <QSurfaceFormat>
 
@@ -86,11 +88,11 @@ namespace tl
 
             void PanoramaTimelineViewport::initializeGL()
             {
+                initializeOpenGLFunctions();
+                gl::initGLAD();
+
                 try
                 {
-                    // Initialize GLAD.
-                    gladLoaderLoadGL();
-
                     // Create the sphere mesh.
                     _sphereMesh = geom::createSphere(10.F, 100, 100);
                     auto vboData = convert(

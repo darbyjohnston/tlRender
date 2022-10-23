@@ -4,6 +4,8 @@
 
 #include <tlGL/RenderPrivate.h>
 
+#include <tlGlad/gl.h>
+
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace tl

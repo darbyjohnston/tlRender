@@ -221,10 +221,12 @@ namespace tl
         void TimelineViewport::initializeGL()
         {
             TLRENDER_P();
+
+            initializeOpenGLFunctions();
+            gl::initGLAD();
+
             try
             {
-                gladLoaderLoadGL();
-
                 if (auto context = p.context.lock())
                 {
                     p.render = gl::Render::create(context);
@@ -299,8 +301,7 @@ namespace tl
                     offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
                     if (!p.displayOptions.empty())
                     {
-                        offscreenBufferOptions.colorMinifyFilter = gl::getTextureFilter(p.displayOptions[0].imageFilters.minify);
-                        offscreenBufferOptions.colorMagnifyFilter = gl::getTextureFilter(p.displayOptions[0].imageFilters.magnify);
+                        offscreenBufferOptions.colorFilters = p.displayOptions[0].imageFilters;
                     }
                     offscreenBufferOptions.depth = gl::OffscreenDepth::_24;
                     offscreenBufferOptions.stencil = gl::OffscreenStencil::_8;

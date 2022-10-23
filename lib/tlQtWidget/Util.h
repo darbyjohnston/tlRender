@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <tlGlad/gl.h>
-
 #include <QFont>
 
 #include <memory>

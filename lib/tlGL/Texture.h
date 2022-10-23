@@ -4,30 +4,32 @@
 
 #pragma once
 
-#include <tlCore/Image.h>
+#include <tlTimeline/ImageOptions.h>
 
-#include <tlGlad/gl.h>
+#include <tlCore/Image.h>
 
 namespace tl
 {
     namespace gl
     {
         //! Get the OpenGL texture format.
-        GLenum getTextureFormat(imaging::PixelType);
+        unsigned int getTextureFormat(imaging::PixelType);
 
         //! Get the OpenGL internal texture format.
-        GLenum getTextureInternalFormat(imaging::PixelType);
+        unsigned int getTextureInternalFormat(imaging::PixelType);
 
         //! Get the OpenGL texture type.
-        GLenum getTextureType(imaging::PixelType);
+        unsigned int getTextureType(imaging::PixelType);
 
         //! OpenGL texture options.
         struct TextureOptions
         {
-            GLenum minifyFilter = GL_LINEAR;
-            GLenum magnifyFilter = GL_LINEAR;
+            timeline::ImageFilters filters;
             bool pbo = false;
         };
+
+        //! Get the OpenGL texture filter.
+        unsigned int getTextureFilter(timeline::ImageFilter);
 
         //! OpenGL texture.
         class Texture : public std::enable_shared_from_this<Texture>
@@ -38,6 +40,7 @@ namespace tl
             void _init(
                 const imaging::Info&,
                 const TextureOptions& = TextureOptions());
+
             Texture();
 
         public:
@@ -49,7 +52,7 @@ namespace tl
                 const TextureOptions& = TextureOptions());
 
             //! Get the OpenGL texture ID.
-            GLuint getID() const;
+            unsigned int getID() const;
 
             //! Get the image information.
             const imaging::Info& getInfo() const;
@@ -74,9 +77,7 @@ namespace tl
             void bind();
 
         private:
-            imaging::Info _info;
-            GLuint _pbo = 0;
-            GLuint _id = 0;
+            TLRENDER_PRIVATE();
         };
     }
 }

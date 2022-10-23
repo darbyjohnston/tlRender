@@ -9,6 +9,8 @@
 
 #include <tlCore/Math.h>
 
+#include <tlGlad/gl.h>
+
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace tl
@@ -152,8 +154,7 @@ namespace tl
                     offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
                     if (!displayOptions.empty())
                     {
-                        offscreenBufferOptions.colorMinifyFilter = getTextureFilter(displayOptions[0].imageFilters.minify);
-                        offscreenBufferOptions.colorMagnifyFilter = getTextureFilter(displayOptions[0].imageFilters.magnify);
+                        offscreenBufferOptions.colorFilters = displayOptions[0].imageFilters;
                     }
                     if (doCreate(p.buffers["overlay"], p.size, offscreenBufferOptions))
                     {
@@ -162,7 +163,7 @@ namespace tl
 
                     if (p.buffers["overlay"])
                     {
-                        auto binding = OffscreenBufferBinding(p.buffers["overlay"]);
+                        OffscreenBufferBinding binding(p.buffers["overlay"]);
                         glClearColor(0.F, 0.F, 0.F, 0.F);
                         glClear(GL_COLOR_BUFFER_BIT);
                         _drawVideo(
@@ -204,8 +205,7 @@ namespace tl
                     offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
                     if (!imageOptions.empty())
                     {
-                        offscreenBufferOptions.colorMinifyFilter = getTextureFilter(displayOptions[0].imageFilters.minify);
-                        offscreenBufferOptions.colorMagnifyFilter = getTextureFilter(displayOptions[0].imageFilters.magnify);
+                        offscreenBufferOptions.colorFilters = displayOptions[0].imageFilters;
                     }
                     if (doCreate(p.buffers["difference0"], p.size, offscreenBufferOptions))
                     {
@@ -214,7 +214,7 @@ namespace tl
 
                     if (p.buffers["difference0"])
                     {
-                        auto binding = OffscreenBufferBinding(p.buffers["difference0"]);
+                        OffscreenBufferBinding binding(p.buffers["difference0"]);
                         glClearColor(0.F, 0.F, 0.F, 0.F);
                         glClear(GL_COLOR_BUFFER_BIT);
                         _drawVideo(
@@ -230,8 +230,7 @@ namespace tl
                         offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
                         if (imageOptions.size() > 1)
                         {
-                            offscreenBufferOptions.colorMinifyFilter = getTextureFilter(displayOptions[1].imageFilters.minify);
-                            offscreenBufferOptions.colorMagnifyFilter = getTextureFilter(displayOptions[1].imageFilters.magnify);
+                            offscreenBufferOptions.colorFilters = displayOptions[1].imageFilters;
                         }
                         if (doCreate(p.buffers["difference1"], p.size, offscreenBufferOptions))
                         {
@@ -240,7 +239,7 @@ namespace tl
 
                         if (p.buffers["difference1"])
                         {
-                            auto binding = OffscreenBufferBinding(p.buffers["difference1"]);
+                            OffscreenBufferBinding binding(p.buffers["difference1"]);
                             glClearColor(0.F, 0.F, 0.F, 0.F);
                             glClear(GL_COLOR_BUFFER_BIT);
                             _drawVideo(
@@ -342,8 +341,7 @@ namespace tl
             offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
             if (imageOptions.get())
             {
-                offscreenBufferOptions.colorMinifyFilter = getTextureFilter(displayOptions.imageFilters.minify);
-                offscreenBufferOptions.colorMagnifyFilter = getTextureFilter(displayOptions.imageFilters.magnify);
+                offscreenBufferOptions.colorFilters = displayOptions.imageFilters;
             }
             if (doCreate(p.buffers["video"], size, offscreenBufferOptions))
             {
@@ -352,7 +350,7 @@ namespace tl
 
             if (p.buffers["video"])
             {
-                auto binding = OffscreenBufferBinding(p.buffers["video"]);
+                OffscreenBufferBinding binding(p.buffers["video"]);
                 glViewport(0, 0, size.w, size.h);
                 glClearColor(0.F, 0.F, 0.F, 0.F);
                 glClear(GL_COLOR_BUFFER_BIT);

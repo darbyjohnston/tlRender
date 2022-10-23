@@ -17,6 +17,8 @@
 #include <tlCore/Context.h>
 #include <tlCore/Mesh.h>
 
+#include <tlGlad/gl.h>
+
 #include <QOffscreenSurface>
 #include <QOpenGLContext>
 #include <QSurfaceFormat>
@@ -437,7 +439,7 @@ namespace tl
             TLRENDER_P();
 
             p.glContext->makeCurrent(p.offscreenSurface.get());
-            gladLoaderLoadGL();
+            gl::initGLAD();
 
             std::shared_ptr<timeline::IRender> render;
             if (auto context = p.context.lock())
@@ -598,8 +600,7 @@ namespace tl
                         offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
                         if (!displayOptions.empty())
                         {
-                            offscreenBufferOptions.colorMinifyFilter = gl::getTextureFilter(displayOptions[0].imageFilters.minify);
-                            offscreenBufferOptions.colorMagnifyFilter = gl::getTextureFilter(displayOptions[0].imageFilters.magnify);
+                            offscreenBufferOptions.colorFilters = displayOptions[0].imageFilters;
                         }
                         offscreenBufferOptions.depth = gl::OffscreenDepth::_24;
                         offscreenBufferOptions.stencil = gl::OffscreenStencil::_8;
@@ -629,8 +630,7 @@ namespace tl
                         offscreenBufferOptions.colorType = getOffscreenType(pixelType);
                         if (!displayOptions.empty())
                         {
-                            offscreenBufferOptions.colorMinifyFilter = gl::getTextureFilter(displayOptions[0].imageFilters.minify);
-                            offscreenBufferOptions.colorMagnifyFilter = gl::getTextureFilter(displayOptions[0].imageFilters.magnify);
+                            offscreenBufferOptions.colorFilters = displayOptions[0].imageFilters;
                         }
                         if (gl::doCreate(offscreenBuffer2, viewportSize, offscreenBufferOptions))
                         {

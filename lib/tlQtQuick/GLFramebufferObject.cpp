@@ -7,6 +7,7 @@
 #include <tlQt/TimelinePlayer.h>
 
 #include <tlGL/Render.h>
+#include <tlGL/Util.h>
 
 #include <QOpenGLFramebufferObject>
 
@@ -39,7 +40,7 @@ namespace tl
                     if (!_init)
                     {
                         _init = true;
-                        gladLoaderLoadGL();
+                        gl::initGLAD();
                         if (auto context = qtquick::context().lock())
                         {
                             _render = gl::Render::create(context);

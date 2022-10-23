@@ -4,11 +4,9 @@
 
 #pragma once
 
+#include <tlTimeline/ImageOptions.h>
+
 #include <tlCore/Image.h>
-
-#include <tlGlad/gl.h>
-
-#include <memory>
 
 namespace tl
 {
@@ -52,8 +50,7 @@ namespace tl
         struct OffscreenBufferOptions
         {
             imaging::PixelType colorType = imaging::PixelType::None;
-            GLenum colorMinifyFilter = GL_LINEAR;
-            GLenum colorMagnifyFilter = GL_LINEAR;
+            timeline::ImageFilters colorFilters;
             OffscreenDepth depth = OffscreenDepth::None;
             OffscreenStencil stencil = OffscreenStencil::None;
             OffscreenSampling sampling = OffscreenSampling::None;
@@ -71,6 +68,7 @@ namespace tl
             void _init(
                 const imaging::Size&,
                 const OffscreenBufferOptions&);
+
             OffscreenBuffer();
 
         public:
@@ -88,20 +86,16 @@ namespace tl
             const OffscreenBufferOptions& getOptions() const;
 
             //! Get the offscreen buffer ID.
-            GLuint getID() const;
+            unsigned int getID() const;
 
             //! Get the color texture ID.
-            GLuint getColorID() const;
+            unsigned int getColorID() const;
 
             //! Bind the offscreen buffer.
             void bind();
 
         private:
-            imaging::Size _size;
-            OffscreenBufferOptions _options;
-            GLuint _id = 0;
-            GLuint _colorID = 0;
-            GLuint _depthStencilID = 0;
+            TLRENDER_PRIVATE();
         };
 
         //! Check whether the offscreen buffer should be created or re-created.
@@ -119,8 +113,7 @@ namespace tl
             ~OffscreenBufferBinding();
 
         private:
-            std::shared_ptr<OffscreenBuffer> _buffer;
-            GLint _previous = 0;
+            TLRENDER_PRIVATE();
         };
     }
 }

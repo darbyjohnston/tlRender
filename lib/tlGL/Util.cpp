@@ -2,12 +2,14 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include <tlGL/Texture.h>
+#include <tlGL/Util.h>
 
 #include <tlTimeline/Util.h>
 
 #include <tlCore/Assert.h>
 #include <tlCore/Context.h>
+
+#include <tlGlad/gl.h>
 
 #include <array>
 #include <iostream>
@@ -21,19 +23,12 @@ namespace tl
             timeline::init(context);
         }
 
-        GLenum getTextureFilter(timeline::ImageFilter value)
+        void initGLAD()
         {
-            GLenum out = GL_NONE;
-            switch (value)
-            {
-            case timeline::ImageFilter::Nearest: out = GL_NEAREST; break;
-            case timeline::ImageFilter::Linear: out = GL_LINEAR; break;
-            default: break;
-            }
-            return out;
+            gladLoaderLoadGL();
         }
 
-        GLenum getReadPixelsFormat(imaging::PixelType value)
+        unsigned int getReadPixelsFormat(imaging::PixelType value)
         {
             const std::array<GLenum, static_cast<std::size_t>(imaging::PixelType::Count)> data =
             {
@@ -69,7 +64,7 @@ namespace tl
             return data[static_cast<std::size_t>(value)];
         }
 
-        GLenum getReadPixelsType(imaging::PixelType value)
+        unsigned int getReadPixelsType(imaging::PixelType value)
         {
             const std::array<GLenum, static_cast<std::size_t>(imaging::PixelType::Count)> data =
             {

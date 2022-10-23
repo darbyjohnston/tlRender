@@ -7,8 +7,6 @@
 #include <tlCore/Range.h>
 #include <tlCore/Util.h>
 
-#include <tlGlad/gl.h>
-
 #include <memory>
 #include <vector>
 
@@ -71,6 +69,7 @@ namespace tl
 
         protected:
             void _init(std::size_t size, VBOType);
+
             VBO();
 
         public:
@@ -86,7 +85,7 @@ namespace tl
             VBOType getType() const;
 
             //! Get the OpenGL ID.
-            GLuint getID() const;
+            unsigned int getID() const;
 
             //! \name Copy
             //! Copy data to the vertex buffer object.
@@ -98,9 +97,7 @@ namespace tl
             ///@}
 
         private:
-            std::size_t _size = 0;
-            VBOType _type = VBOType::First;
-            GLuint _vbo = 0;
+            TLRENDER_PRIVATE();
         };
 
         //! OpenGL vertex array object.
@@ -109,26 +106,27 @@ namespace tl
             TLRENDER_NON_COPYABLE(VAO);
 
         protected:
-            void _init(VBOType, GLuint vbo);
+            void _init(VBOType, unsigned int vbo);
+
             VAO();
 
         public:
             ~VAO();
 
             //! Create a new vertex array object.
-            static std::shared_ptr<VAO> create(VBOType, GLuint vbo);
+            static std::shared_ptr<VAO> create(VBOType, unsigned int vbo);
 
             //! Get the OpenGL ID.
-            GLuint getID() const;
+            unsigned int getID() const;
 
             //! Bind the vertex array object.
             void bind();
 
             //! Draw the vertex array object.
-            void draw(GLenum mode, std::size_t offset, std::size_t size);
+            void draw(unsigned int mode, std::size_t offset, std::size_t size);
 
         private:
-            GLuint _vao = 0;
+            TLRENDER_PRIVATE();
         };
     }
 }

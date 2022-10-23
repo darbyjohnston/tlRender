@@ -8,8 +8,6 @@
 
 #include <tlCore/Image.h>
 
-#include <tlGlad/gl.h>
-
 namespace tl
 {
     namespace system
@@ -23,13 +21,13 @@ namespace tl
         //! Initialize the library.
         void init(const std::shared_ptr<system::Context>&);
 
-        //! Get the OpenGL texture filter.
-        GLenum getTextureFilter(timeline::ImageFilter);
+        //! Initialize GLAD.
+        void initGLAD();
 
         //! Get the glReadPixels format.
-        GLenum getReadPixelsFormat(imaging::PixelType);
+        unsigned int getReadPixelsFormat(imaging::PixelType);
 
         //! Get the glReadPixels type.
-        GLenum getReadPixelsType(imaging::PixelType);
+        unsigned int getReadPixelsType(imaging::PixelType);
     }
 }

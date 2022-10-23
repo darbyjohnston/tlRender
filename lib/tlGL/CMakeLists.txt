@@ -20,10 +20,11 @@ set(SOURCE
     Texture.cpp
     Util.cpp)
 
-set(LIBRARIES tlTimeline tlGlad)
+set(LIBRARIES tlTimeline)
+set(LIBRARIES_PRIVATE tlGlad)
 
 add_library(tlGL ${HEADERS} ${PRIVATE_HEADERS} ${SOURCE})
-target_link_libraries(tlGL ${LIBRARIES})
+target_link_libraries(tlGL ${LIBRARIES} ${LIBRARIES_PRIVATE})
 set_target_properties(tlGL PROPERTIES FOLDER lib)
 set_target_properties(tlGL PROPERTIES PUBLIC_HEADER "${HEADERS}")
 

@@ -6,6 +6,8 @@
 
 #include <tlGL/Texture.h>
 
+#include <tlGlad/gl.h>
+
 #include <array>
 #include <sstream>
 
@@ -94,8 +96,7 @@ namespace tl
         {
             return
                 colorType == other.colorType &&
-                colorMinifyFilter == other.colorMinifyFilter &&
-                colorMagnifyFilter == other.colorMagnifyFilter &&
+                colorFilters == other.colorFilters &&
                 depth == other.depth &&
                 stencil == other.stencil &&
                 sampling == other.sampling;
@@ -106,16 +107,27 @@ namespace tl
             return !(*this == other);
         }
 
+        struct OffscreenBuffer::Private
+        {
+            imaging::Size size;
+            OffscreenBufferOptions options;
+            GLuint id = 0;
+            GLuint colorID = 0;
+            GLuint depthStencilID = 0;
+        };
+
         void OffscreenBuffer::_init(
             const imaging::Size& size,
             const OffscreenBufferOptions& options)
         {
-            _size = size;
-            _options = options;
+            TLRENDER_P();
+
+            p.size = size;
+            p.options = options;
 
             GLenum target = GL_TEXTURE_2D;
             size_t samples = 0;
-            switch (_options.sampling)
+            switch (p.options.sampling)
             {
             case OffscreenSampling::_2:
                 samples = 2;
@@ -137,15 +149,15 @@ namespace tl
             }
 
             // Create the color texture.
-            if (_options.colorType != imaging::PixelType::None)
+            if (p.options.colorType != imaging::PixelType::None)
             {
-                glGenTextures(1, &_colorID);
-                if (!_colorID)
+                glGenTextures(1, &p.colorID);
+                if (!p.colorID)
                 {
                     throw std::runtime_error(getErrorLabel(Error::ColorTexture));
                 }
-                glBindTexture(target, _colorID);
-                switch (_options.sampling)
+                glBindTexture(target, p.colorID);
+                switch (p.options.sampling)
                 {
                 case OffscreenSampling::_2:
                 case OffscreenSampling::_4:
@@ -154,72 +166,72 @@ namespace tl
                     glTexImage2DMultisample(
                         target,
                         static_cast<GLsizei>(samples),
-                        getTextureInternalFormat(_options.colorType),
-                        _size.w,
-                        _size.h,
+                        getTextureInternalFormat(p.options.colorType),
+                        p.size.w,
+                        p.size.h,
                         false);
                     break;
                 default:
                     glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
                     glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-                    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, _options.colorMinifyFilter);
-                    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, _options.colorMagnifyFilter);
+                    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, getTextureFilter(p.options.colorFilters.minify));
+                    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, getTextureFilter(p.options.colorFilters.magnify));
                     glTexImage2D(
                         target,
                         0,
-                        getTextureInternalFormat(_options.colorType),
-                        _size.w,
-                        _size.h,
+                        getTextureInternalFormat(p.options.colorType),
+                        p.size.w,
+                        p.size.h,
                         0,
-                        getTextureFormat(_options.colorType),
-                        getTextureType(_options.colorType),
+                        getTextureFormat(p.options.colorType),
+                        getTextureType(p.options.colorType),
                         0);
                     break;
                 }
             }
 
             // Create the depth/stencil buffer.
-            if (_options.depth != OffscreenDepth::None ||
-                _options.stencil != OffscreenStencil::None)
+            if (p.options.depth != OffscreenDepth::None ||
+                p.options.stencil != OffscreenStencil::None)
             {
-                glGenRenderbuffers(1, &_depthStencilID);
-                if (!_depthStencilID)
+                glGenRenderbuffers(1, &p.depthStencilID);
+                if (!p.depthStencilID)
                 {
                     throw std::runtime_error(getErrorLabel(Error::RenderBuffer));
                 }
-                glBindRenderbuffer(GL_RENDERBUFFER, _depthStencilID);
+                glBindRenderbuffer(GL_RENDERBUFFER, p.depthStencilID);
                 glRenderbufferStorageMultisample(
                     GL_RENDERBUFFER,
                     static_cast<GLsizei>(samples),
-                    getBufferInternalFormat(_options.depth, _options.stencil),
-                    _size.w,
-                    _size.h);
+                    getBufferInternalFormat(p.options.depth, p.options.stencil),
+                    p.size.w,
+                    p.size.h);
                 glBindRenderbuffer(GL_RENDERBUFFER, 0);
             }
 
             // Create the FBO.
-            glGenFramebuffers(1, &_id);
-            if (!_id)
+            glGenFramebuffers(1, &p.id);
+            if (!p.id)
             {
                 throw std::runtime_error(getErrorLabel(Error::Create));
             }
             const OffscreenBufferBinding binding(shared_from_this());
-            if (_colorID)
+            if (p.colorID)
             {
                 glFramebufferTexture2D(
                     GL_FRAMEBUFFER,
                     GL_COLOR_ATTACHMENT0,
                     target,
-                    _colorID,
+                    p.colorID,
                     0);
             }
-            if (_depthStencilID)
+            if (p.depthStencilID)
             {
                 glFramebufferRenderbuffer(
                     GL_FRAMEBUFFER,
                     GL_DEPTH_STENCIL_ATTACHMENT,
                     GL_RENDERBUFFER,
-                    _depthStencilID);
+                    p.depthStencilID);
             }
             GLenum error = glCheckFramebufferStatus(GL_FRAMEBUFFER);
             if (error != GL_FRAMEBUFFER_COMPLETE)
@@ -228,25 +240,27 @@ namespace tl
             }
         }
 
-        OffscreenBuffer::OffscreenBuffer()
+        OffscreenBuffer::OffscreenBuffer() :
+            _p(new Private)
         {}
 
         OffscreenBuffer::~OffscreenBuffer()
         {
-            if (_id)
+            TLRENDER_P();
+            if (p.id)
             {
-                glDeleteFramebuffers(1, &_id);
-                _id = 0;
+                glDeleteFramebuffers(1, &p.id);
+                p.id = 0;
             }
-            if (_colorID)
+            if (p.colorID)
             {
-                glDeleteTextures(1, &_colorID);
-                _colorID = 0;
+                glDeleteTextures(1, &p.colorID);
+                p.colorID = 0;
             }
-            if (_depthStencilID)
+            if (p.depthStencilID)
             {
-                glDeleteRenderbuffers(1, &_depthStencilID);
-                _depthStencilID = 0;
+                glDeleteRenderbuffers(1, &p.depthStencilID);
+                p.depthStencilID = 0;
             }
         }
 
@@ -261,27 +275,27 @@ namespace tl
 
         const imaging::Size& OffscreenBuffer::getSize() const
         {
-            return _size;
+            return _p->size;
         }
 
         const OffscreenBufferOptions& OffscreenBuffer::getOptions() const
         {
-            return _options;
+            return _p->options;
         }
 
         GLuint OffscreenBuffer::getID() const
         {
-            return _id;
+            return _p->id;
         }
 
         GLuint OffscreenBuffer::getColorID() const
         {
-            return _colorID;
+            return _p->colorID;
         }
 
         void OffscreenBuffer::bind()
         {
-            glBindFramebuffer(GL_FRAMEBUFFER, _id);
+            glBindFramebuffer(GL_FRAMEBUFFER, _p->id);
         }
 
         bool doCreate(
@@ -296,16 +310,24 @@ namespace tl
             return out;
         }
 
-        OffscreenBufferBinding::OffscreenBufferBinding(const std::shared_ptr<OffscreenBuffer>& buffer) :
-            _buffer(buffer)
+        struct OffscreenBufferBinding::Private
         {
-            glGetIntegerv(GL_FRAMEBUFFER_BINDING, &_previous);
-            _buffer->bind();
+            std::shared_ptr<OffscreenBuffer> buffer;
+            GLint previous = 0;
+        };
+
+        OffscreenBufferBinding::OffscreenBufferBinding(const std::shared_ptr<OffscreenBuffer>& buffer) :
+            _p(new Private)
+        {
+            TLRENDER_P();
+            p.buffer = buffer;
+            glGetIntegerv(GL_FRAMEBUFFER_BINDING, &p.previous);
+            p.buffer->bind();
         }
 
         OffscreenBufferBinding::~OffscreenBufferBinding()
         {
-            glBindFramebuffer(GL_FRAMEBUFFER, _previous);
+            glBindFramebuffer(GL_FRAMEBUFFER, _p->previous);
         }
     }
 }

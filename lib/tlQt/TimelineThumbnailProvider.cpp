@@ -6,6 +6,7 @@
 
 #include <tlGL/OffscreenBuffer.h>
 #include <tlGL/Render.h>
+#include <tlGL/Util.h>
 
 #include <tlTimeline/TimelinePlayer.h>
 
@@ -203,7 +204,7 @@ namespace tl
             TLRENDER_P();
 
             p.glContext->makeCurrent(p.offscreenSurface.get());
-            gladLoaderLoadGL();
+            gl::initGLAD();
 
             if (auto context = p.context.lock())
             {

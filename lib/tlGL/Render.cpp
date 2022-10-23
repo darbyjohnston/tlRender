@@ -13,6 +13,8 @@
 #include <tlCore/String.h>
 #include <tlCore/StringFormat.h>
 
+#include <tlGlad/gl.h>
+
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <array>
@@ -158,8 +160,7 @@ namespace tl
             {
                 std::vector<std::shared_ptr<Texture> > out;
                 TextureOptions options;
-                options.minifyFilter = getTextureFilter(imageFilters.minify);
-                options.magnifyFilter = getTextureFilter(imageFilters.magnify);
+                options.filters = imageFilters;
                 options.pbo = true;
                 switch (info.pixelType)
                 {

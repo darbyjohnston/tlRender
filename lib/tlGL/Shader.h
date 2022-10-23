@@ -8,8 +8,6 @@
 #include <tlCore/Util.h>
 #include <tlCore/Vector.h>
 
-#include <tlGlad/gl.h>
-
 #include <memory>
 #include <string>
 #include <vector>
@@ -30,6 +28,7 @@ namespace tl
 
         protected:
             void _init();
+
             Shader();
 
         public:
@@ -47,7 +46,7 @@ namespace tl
             const std::string& getFragmentSource() const;
 
             //! Get the OpenGL shader program.
-            GLuint getProgram() const;
+            unsigned int getProgram() const;
 
             //! Bind the shader.
             void bind();
@@ -56,20 +55,20 @@ namespace tl
             //! Set uniform values.
             ///@{
 
-            void setUniform(GLint, int);
-            void setUniform(GLint, float);
-            void setUniform(GLint, const math::Vector2f&);
-            void setUniform(GLint, const math::Vector3f&);
-            void setUniform(GLint, const math::Vector4f&);
-            void setUniform(GLint, const math::Matrix3x3f&);
-            void setUniform(GLint, const math::Matrix4x4f&);
-            void setUniform(GLint, const imaging::Color4f&);
-            void setUniform(GLint, const float[4]);
+            void setUniform(int, int);
+            void setUniform(int, float);
+            void setUniform(int, const math::Vector2f&);
+            void setUniform(int, const math::Vector3f&);
+            void setUniform(int, const math::Vector4f&);
+            void setUniform(int, const math::Matrix3x3f&);
+            void setUniform(int, const math::Matrix4x4f&);
+            void setUniform(int, const imaging::Color4f&);
+            void setUniform(int, const float[4]);
 
-            void setUniform(GLint, const std::vector<int>&);
-            void setUniform(GLint, const std::vector<float>&);
-            void setUniform(GLint, const std::vector<math::Vector3f>&);
-            void setUniform(GLint, const std::vector<math::Vector4f>&);
+            void setUniform(int, const std::vector<int>&);
+            void setUniform(int, const std::vector<float>&);
+            void setUniform(int, const std::vector<math::Vector3f>&);
+            void setUniform(int, const std::vector<math::Vector4f>&);
 
             void setUniform(const std::string&, int);
             void setUniform(const std::string&, float);
@@ -89,11 +88,7 @@ namespace tl
             ///@}
 
         private:
-            std::string _vertexSource;
-            std::string _fragmentSource;
-            GLuint _vertex = 0;
-            GLuint _fragment = 0;
-            GLuint _program = 0;
+            TLRENDER_PRIVATE();
         };
     }
 }

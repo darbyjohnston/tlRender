@@ -14,6 +14,7 @@
 #include <tlCore/Mesh.h>
 
 #include <QOpenGLWidget>
+#include <QOpenGLFunctions_4_1_Core>
 
 namespace tl
 {
@@ -22,7 +23,9 @@ namespace tl
         //! Example rendering a timeline as a panorama.
         namespace panorama_qtwidget
         {
-            class PanoramaTimelineViewport : public QOpenGLWidget
+            class PanoramaTimelineViewport :
+                public QOpenGLWidget,
+                protected QOpenGLFunctions_4_1_Core
             {
                 Q_OBJECT
 
