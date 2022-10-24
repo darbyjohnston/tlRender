@@ -293,7 +293,7 @@ namespace tl
             if (!out)
             {
                 otio::ErrorStatus errorStatus;
-                out = readTimeline(path.get(), &errorStatus);
+                out = read(path.get(), &errorStatus);
                 if (otio::is_error(errorStatus))
                 {
                     out = nullptr;
@@ -429,7 +429,7 @@ namespace tl
             if (!out)
             {
                 otio::ErrorStatus errorStatus;
-                out = readTimeline(path.get(), &errorStatus);
+                out = read(path.get(), &errorStatus);
                 if (otio::is_error(errorStatus))
                 {
                     out = nullptr;
