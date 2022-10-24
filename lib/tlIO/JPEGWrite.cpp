@@ -29,7 +29,7 @@ namespace tl
                 FILE* f,
                 jpeg_compress_struct* jpeg,
                 const imaging::Info& info,
-                const std::map<std::string, std::string>& tags,
+                const imaging::Tags& tags,
                 int quality,
                 ErrorStruct* error)
             {
@@ -100,30 +100,29 @@ namespace tl
                     const std::shared_ptr<imaging::Image>& image,
                     int quality)
                 {
-                    std::memset(&_jpeg, 0, sizeof(jpeg_compress_struct));
+                    std::memset(&_jpeg.compress, 0, sizeof(jpeg_compress_struct));
 
-                    _jpeg.err = jpeg_std_error(&_error.pub);
+                    _jpeg.compress.err = jpeg_std_error(&_error.pub);
                     _error.pub.error_exit = errorFunc;
                     _error.pub.emit_message = warningFunc;
-                    if (!jpegInit(&_jpeg, &_error))
+                    if (!jpegInit(&_jpeg.compress, &_error))
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
-                    _init = true;
 #if defined(_WINDOWS)
-                    if (_wfopen_s(&_f, string::toWide(fileName).c_str(), L"wb") != 0)
+                    if (_wfopen_s(&_f.p, string::toWide(fileName).c_str(), L"wb") != 0)
                     {
-                        _f = nullptr;
+                        _f.p = nullptr;
                     }
 #else
-                    _f = fopen(fileName.c_str(), "wb");
+                    _f.p = fopen(fileName.c_str(), "wb");
 #endif
-                    if (!_f)
+                    if (!_f.p)
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
                     const auto& info = image->getInfo();
-                    if (!jpegOpen(_f, &_jpeg, info, image->getTags(), quality, &_error))
+                    if (!jpegOpen(_f.p, &_jpeg.compress, info, image->getTags(), quality, &_error))
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
@@ -139,34 +138,42 @@ namespace tl
                     const uint8_t* imageP = image->getData() + (info.size.h - 1) * scanlineByteCount;
                     for (uint16_t y = 0; y < info.size.h; ++y, imageP -= scanlineByteCount)
                     {
-                        if (!jpegScanline(&_jpeg, imageP, &_error))
+                        if (!jpegScanline(&_jpeg.compress, imageP, &_error))
                         {
                             throw std::runtime_error(string::Format("{0}: Cannot write scanline: {1}").arg(fileName).arg(y));
                         }
                     }
-                    if (!jpegEnd(&_jpeg, &_error))
+                    if (!jpegEnd(&_jpeg.compress, &_error))
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot close").arg(fileName));
                     }
                 }
 
-                ~File()
-                {
-                    if (_init)
-                    {
-                        jpeg_destroy_compress(&_jpeg);
-                    }
-                    if (_f)
-                    {
-                        fclose(_f);
-                    }
-                }
-
             private:
-                FILE* _f = nullptr;
-                jpeg_compress_struct _jpeg;
-                bool                 _init = false;
-                ErrorStruct          _error;
+                struct JPEGData
+                {
+                    ~JPEGData()
+                    {
+                        jpeg_destroy_compress(&compress);
+                    }
+                    jpeg_compress_struct compress;
+                };
+
+                struct FilePointer
+                {
+                    ~FilePointer()
+                    {
+                        if (p)
+                        {
+                            fclose(p);
+                        }
+                    }
+                    FILE* p = nullptr;
+                };
+
+                JPEGData    _jpeg;
+                FilePointer _f;
+                ErrorStruct _error;
             };
         }
 

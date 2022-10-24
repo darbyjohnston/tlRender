@@ -9,11 +9,11 @@ namespace tl
         inline bool Info::operator == (const Info& other) const
         {
             return
-                this->video == other.video &&
-                this->videoTime == other.videoTime &&
-                this->audio == other.audio &&
-                this->audioTime == other.audioTime &&
-                this->tags == other.tags;
+                video == other.video &&
+                videoTime == other.videoTime &&
+                audio == other.audio &&
+                audioTime == other.audioTime &&
+                tags == other.tags;
         }
 
         inline bool Info::operator != (const Info& other) const

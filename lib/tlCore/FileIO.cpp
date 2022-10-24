@@ -23,9 +23,11 @@ namespace tl
             "Append");
         TLRENDER_ENUM_SERIALIZE_IMPL(Mode);
 
-        std::shared_ptr<FileIO> FileIO::create()
+        std::shared_ptr<FileIO> FileIO::create(const std::string& fileName, Mode mode)
         {
-            return std::shared_ptr<FileIO>(new FileIO);
+            auto out = std::shared_ptr<FileIO>(new FileIO);
+            out->_open(fileName, mode);
+            return out;
         }
 
         void FileIO::read8(int8_t* value, size_t size)
@@ -140,17 +142,19 @@ namespace tl
 
         std::string readContents(const std::shared_ptr<FileIO>& io)
         {
-#ifdef TLRENDER_ENABLE_MMAP
-            const uint8_t* p = io->mmapP();
-            const uint8_t* end = io->mmapEnd();
-            return std::string(reinterpret_cast<const char*>(p), end - p);
-#else // TLRENDER_ENABLE_MMAP
-            const size_t fileSize = io->getSize();
             std::string out;
-            out.resize(fileSize);
-            io->read(reinterpret_cast<void*>(&out[0]), fileSize);
+            if (const uint8_t* p = io->getMemoryP())
+            {
+                const uint8_t* end = io->getMemoryEnd();
+                out = std::string(reinterpret_cast<const char*>(p), end - p);
+            }
+            else
+            {
+                const size_t fileSize = io->getSize();
+                out.resize(fileSize);
+                io->read(reinterpret_cast<void*>(&out[0]), fileSize);
+            }
             return out;
-#endif // TLRENDER_ENABLE_MMAP
         }
 
         void readWord(const std::shared_ptr<FileIO>& io, char* out, size_t maxLen)
@@ -211,8 +215,7 @@ namespace tl
                 do
                 {
                     io->read(&c, 1);
-                    if (
-                        c != '\n' &&
+                    if (c != '\n' &&
                         c != '\r')
                     {
                         out[i++] = c;
@@ -229,8 +232,7 @@ namespace tl
         std::vector<std::string> readLines(const std::string& fileName)
         {
             std::vector<std::string> out;
-            auto io = FileIO::create();
-            io->open(fileName, Mode::Read);
+            auto io = FileIO::create(fileName, Mode::Read);
             while (!io->isEOF())
             {
                 char buf[string::cBufferSize] = "";
@@ -242,8 +244,7 @@ namespace tl
 
         void writeLines(const std::string& fileName, const std::vector<std::string>& lines)
         {
-            auto io = FileIO::create();
-            io->open(fileName, Mode::Write);
+            auto io = FileIO::create(fileName, Mode::Write);
             for (const auto& line : lines)
             {
                 io->write(line);

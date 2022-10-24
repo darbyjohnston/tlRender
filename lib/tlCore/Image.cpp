@@ -296,7 +296,7 @@ namespace tl
             return out;
         }
 
-        void Image::setTags(const std::map<std::string, std::string>& value)
+        void Image::setTags(const Tags& value)
         {
             _tags = value;
         }

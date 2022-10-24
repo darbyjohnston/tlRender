@@ -17,6 +17,62 @@ namespace tl
     {
         namespace
         {
+            struct Memory
+            {
+                const uint8_t* p = nullptr;
+                const uint8_t* start = nullptr;
+                const uint8_t* end = nullptr;
+            };
+
+            tmsize_t tiffMemoryRead(thandle_t clientData, void* data, tmsize_t size)
+            {
+                Memory* memory = static_cast<Memory*>(clientData);
+                if (size > (memory->end - memory->p))
+                {
+                    return 0;
+                }
+                memcpy(data, memory->p, size);
+                memory->p += size;
+                return size;
+            }
+
+            tmsize_t tiffMemoryWrite(thandle_t clientData, void* data, tmsize_t size)
+            {
+                return 0;
+            }
+
+            toff_t tiffMemorySeek(thandle_t clientData, toff_t offset, int whence)
+            {
+                Memory* memory = static_cast<Memory*>(clientData);
+                switch (whence)
+                {
+                case SEEK_SET:
+                    memory->p = memory->start + offset;
+                    break;
+                case SEEK_CUR:
+                    if (memory->p + offset < memory->end)
+                    {
+                        memory->p += offset;
+                    }
+                    break;
+                case SEEK_END:
+                    memory->p = memory->end - 1;
+                    break;
+                }
+                return memory->p - memory->start;
+            }
+
+            int tiffMemoryClose(thandle_t clientData)
+            {
+                return 0;
+            }
+
+            toff_t tiffMemorySize(thandle_t clientData)
+            {
+                Memory* memory = static_cast<Memory*>(clientData);
+                return memory->end - memory->start;
+            }
+
             void readPalette(
                 uint8_t*  in,
                 int       size,
@@ -59,14 +115,36 @@ namespace tl
             class File
             {
             public:
-                File(const std::string& fileName)
+                File(
+                    const std::string& fileName,
+                    const file::MemoryRead* memory)
                 {
+                    if (memory)
+                    {
+                        _memory.p = memory->p;
+                        _memory.start = memory->p;
+                        _memory.end = memory->p + memory->size;
+                        _tiff.p = TIFFClientOpen(
+                            fileName.c_str(),
+                            "r",
+                            &_memory,
+                            tiffMemoryRead,
+                            tiffMemoryWrite,
+                            tiffMemorySeek,
+                            tiffMemoryClose,
+                            tiffMemorySize,
+                            nullptr,
+                            nullptr);
+                    }
+                    else
+                    {
 #if defined(_WINDOWS)
-                    _f = TIFFOpenW(string::toWide(fileName).c_str(), "r");
+                        _tiff.p = TIFFOpenW(string::toWide(fileName).c_str(), "r");
 #else
-                    _f = TIFFOpen(fileName.c_str(), "r");
+                        _tiff.p = TIFFOpen(fileName.c_str(), "r");
 #endif
-                    if (!_f)
+                    }
+                    if (!_tiff.p)
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
@@ -82,17 +160,17 @@ namespace tl
                     uint16_t  tiffOrient = 0;
                     uint16_t  tiffCompression = 0;
                     uint16_t  tiffPlanarConfig = 0;
-                    TIFFGetFieldDefaulted(_f, TIFFTAG_IMAGEWIDTH, &tiffWidth);
-                    TIFFGetFieldDefaulted(_f, TIFFTAG_IMAGELENGTH, &tiffHeight);
-                    TIFFGetFieldDefaulted(_f, TIFFTAG_PHOTOMETRIC, &tiffPhotometric);
-                    TIFFGetFieldDefaulted(_f, TIFFTAG_SAMPLESPERPIXEL, &tiffSamples);
-                    TIFFGetFieldDefaulted(_f, TIFFTAG_BITSPERSAMPLE, &tiffSampleDepth);
-                    TIFFGetFieldDefaulted(_f, TIFFTAG_SAMPLEFORMAT, &tiffSampleFormat);
-                    TIFFGetFieldDefaulted(_f, TIFFTAG_EXTRASAMPLES, &tiffExtraSamplesSize, &tiffExtraSamples);
-                    TIFFGetFieldDefaulted(_f, TIFFTAG_ORIENTATION, &tiffOrient);
-                    TIFFGetFieldDefaulted(_f, TIFFTAG_COMPRESSION, &tiffCompression);
-                    TIFFGetFieldDefaulted(_f, TIFFTAG_PLANARCONFIG, &tiffPlanarConfig);
-                    TIFFGetFieldDefaulted(_f, TIFFTAG_COLORMAP, &_colormap[0], &_colormap[1], &_colormap[2]);
+                    TIFFGetFieldDefaulted(_tiff.p, TIFFTAG_IMAGEWIDTH, &tiffWidth);
+                    TIFFGetFieldDefaulted(_tiff.p, TIFFTAG_IMAGELENGTH, &tiffHeight);
+                    TIFFGetFieldDefaulted(_tiff.p, TIFFTAG_PHOTOMETRIC, &tiffPhotometric);
+                    TIFFGetFieldDefaulted(_tiff.p, TIFFTAG_SAMPLESPERPIXEL, &tiffSamples);
+                    TIFFGetFieldDefaulted(_tiff.p, TIFFTAG_BITSPERSAMPLE, &tiffSampleDepth);
+                    TIFFGetFieldDefaulted(_tiff.p, TIFFTAG_SAMPLEFORMAT, &tiffSampleFormat);
+                    TIFFGetFieldDefaulted(_tiff.p, TIFFTAG_EXTRASAMPLES, &tiffExtraSamplesSize, &tiffExtraSamples);
+                    TIFFGetFieldDefaulted(_tiff.p, TIFFTAG_ORIENTATION, &tiffOrient);
+                    TIFFGetFieldDefaulted(_tiff.p, TIFFTAG_COMPRESSION, &tiffCompression);
+                    TIFFGetFieldDefaulted(_tiff.p, TIFFTAG_PLANARCONFIG, &tiffPlanarConfig);
+                    TIFFGetFieldDefaulted(_tiff.p, TIFFTAG_COLORMAP, &_colormap[0], &_colormap[1], &_colormap[2]);
                     _palette = PHOTOMETRIC_PALETTE == tiffPhotometric;
                     _planar = PLANARCONFIG_SEPARATE == tiffPlanarConfig;
                     _samples = tiffSamples;
@@ -130,41 +208,33 @@ namespace tl
                     _info.video.push_back(imageInfo);
 
                     char* tag = 0;
-                    if (TIFFGetField(_f, TIFFTAG_ARTIST, &tag))
+                    if (TIFFGetField(_tiff.p, TIFFTAG_ARTIST, &tag))
                     {
                         if (tag)
                         {
                             _info.tags["Creator"] = tag;
                         }
                     }
-                    if (TIFFGetField(_f, TIFFTAG_IMAGEDESCRIPTION, &tag))
+                    if (TIFFGetField(_tiff.p, TIFFTAG_IMAGEDESCRIPTION, &tag))
                     {
                         if (tag)
                         {
                             _info.tags["Description"] = tag;
                         }
                     }
-                    if (TIFFGetField(_f, TIFFTAG_COPYRIGHT, &tag))
+                    if (TIFFGetField(_tiff.p, TIFFTAG_COPYRIGHT, &tag))
                     {
                         if (tag)
                         {
                             _info.tags["Copyright"] = tag;
                         }
                     }
-                    if (TIFFGetField(_f, TIFFTAG_DATETIME, &tag))
+                    if (TIFFGetField(_tiff.p, TIFFTAG_DATETIME, &tag))
                     {
                         if (tag)
                         {
                             _info.tags["Time"] = tag;
                         }
-                    }
-                }
-
-                ~File()
-                {
-                    if (_f)
-                    {
-                        TIFFClose(_f);
                     }
                 }
 
@@ -192,7 +262,7 @@ namespace tl
                             uint8_t* p = out.image->getData();
                             for (uint16_t y = 0; y < info.size.h; ++y, p += _scanlineSize)
                             {
-                                if (TIFFReadScanline(_f, (tdata_t*)scanline.data(), y, sample) == -1)
+                                if (TIFFReadScanline(_tiff.p, (tdata_t*)scanline.data(), y, sample) == -1)
                                 {
                                     break;
                                 }
@@ -239,7 +309,7 @@ namespace tl
                         uint8_t* p = out.image->getData();
                         for (uint16_t y = 0; y < info.size.h; ++y, p += _scanlineSize)
                         {
-                            if (TIFFReadScanline(_f, (tdata_t*)p, y) == -1)
+                            if (TIFFReadScanline(_tiff.p, (tdata_t*)p, y) == -1)
                             {
                                 break;
                             }
@@ -263,7 +333,20 @@ namespace tl
                 }
 
             private:
-                TIFF*     _f = nullptr;
+                struct TIFFData
+                {
+                    ~TIFFData()
+                    {
+                        if (p)
+                        {
+                            TIFFClose(p);
+                        }
+                    }
+                    TIFF* p = nullptr;
+                };
+
+                TIFFData  _tiff;
+                Memory    _memory;
                 bool      _palette = false;
                 uint16_t* _colormap[3] = { nullptr, nullptr, nullptr };
                 bool      _planar = false;
@@ -276,10 +359,11 @@ namespace tl
 
         void Read::_init(
             const file::Path& path,
+            const std::vector<file::MemoryRead>& memory,
             const io::Options& options,
             const std::weak_ptr<log::System>& logSystem)
         {
-            ISequenceRead::_init(path, options, logSystem);
+            ISequenceRead::_init(path, memory, options, logSystem);
         }
 
         Read::Read()
@@ -296,13 +380,26 @@ namespace tl
             const std::weak_ptr<log::System>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
-            out->_init(path, options, logSystem);
+            out->_init(path, {}, options, logSystem);
             return out;
         }
 
-        io::Info Read::_getInfo(const std::string& fileName)
+        std::shared_ptr<Read> Read::create(
+            const file::Path& path,
+            const std::vector<file::MemoryRead>& memory,
+            const io::Options& options,
+            const std::weak_ptr<log::System>& logSystem)
         {
-            io::Info out = File(fileName).getInfo();
+            auto out = std::shared_ptr<Read>(new Read);
+            out->_init(path, memory, options, logSystem);
+            return out;
+        }
+
+        io::Info Read::_getInfo(
+            const std::string& fileName,
+            const file::MemoryRead* memory)
+        {
+            io::Info out = File(fileName, memory).getInfo();
             out.videoTime = otime::TimeRange::range_from_start_end_time_inclusive(
                 otime::RationalTime(_startFrame, _defaultSpeed),
                 otime::RationalTime(_endFrame, _defaultSpeed));
@@ -311,10 +408,11 @@ namespace tl
 
         io::VideoData Read::_readVideo(
             const std::string& fileName,
+            const file::MemoryRead* memory,
             const otime::RationalTime& time,
             uint16_t layer)
         {
-            return File(fileName).read(fileName, time);
+            return File(fileName, memory).read(fileName, time);
         }
     }
 }

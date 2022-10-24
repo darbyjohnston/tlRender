@@ -5,6 +5,7 @@
 #pragma once
 
 #include <tlCore/Audio.h>
+#include <tlCore/FileIO.h>
 #include <tlCore/Image.h>
 #include <tlCore/Path.h>
 #include <tlCore/Time.h>
@@ -52,7 +53,7 @@ namespace tl
             otime::TimeRange audioTime = time::invalidTimeRange;
 
             //! Metadata tags.
-            std::map<std::string, std::string> tags;
+            imaging::Tags tags;
 
             bool operator == (const Info&) const;
             bool operator != (const Info&) const;
@@ -108,6 +109,7 @@ namespace tl
                 const file::Path&,
                 const Options&,
                 const std::weak_ptr<log::System>&);
+
             IIO();
 
         public:
@@ -128,8 +130,10 @@ namespace tl
         protected:
             void _init(
                 const file::Path&,
+                const std::vector<file::MemoryRead>&,
                 const Options&,
                 const std::weak_ptr<log::System>&);
+
             IRead();
 
         public:
@@ -155,6 +159,9 @@ namespace tl
 
             //! Has the reader stopped?
             virtual bool hasStopped() const = 0;
+
+        protected:
+            std::vector<file::MemoryRead> _memory;
         };
 
         //! Base class for writers.
@@ -166,6 +173,7 @@ namespace tl
                 const Options&,
                 const Info&,
                 const std::weak_ptr<log::System>&);
+
             IWrite();
 
         public:
@@ -190,6 +198,7 @@ namespace tl
                 const std::string& name,
                 const std::map<std::string, FileType>& extensions,
                 const std::weak_ptr<log::System>&);
+
             IPlugin();
 
         public:
@@ -210,7 +219,13 @@ namespace tl
             //! Create a reader for the given path.
             virtual std::shared_ptr<IRead> read(
                 const file::Path&,
-                const Options& = Options()) = 0;
+                const Options & = Options()) = 0;
+
+            //! Create a reader for the given path and memory locations.
+            virtual std::shared_ptr<IRead> read(
+                const file::Path&,
+                const std::vector<file::MemoryRead>&,
+                const Options & = Options()) = 0;
 
             //! Get information for writing.
             virtual imaging::Info getWriteInfo(

@@ -25,11 +25,11 @@ namespace tl
                     const std::shared_ptr<imaging::Image>& image)
                 {
 #if defined(_WINDOWS)
-                    _f = TIFFOpenW(string::toWide(fileName).c_str(), "w");
+                    _tiff.p = TIFFOpenW(string::toWide(fileName).c_str(), "w");
 #else
-                    _f = TIFFOpen(fileName.c_str(), "w");
+                    _tiff.p = TIFFOpen(fileName.c_str(), "w");
 #endif
-                    if (!_f)
+                    if (!_tiff.p)
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
@@ -108,37 +108,37 @@ namespace tl
                         break;
                     default: break;
                     }*/
-                    TIFFSetField(_f, TIFFTAG_IMAGEWIDTH, info.size.w);
-                    TIFFSetField(_f, TIFFTAG_IMAGELENGTH, info.size.h);
-                    TIFFSetField(_f, TIFFTAG_PHOTOMETRIC, tiffPhotometric);
-                    TIFFSetField(_f, TIFFTAG_SAMPLESPERPIXEL, tiffSamples);
-                    TIFFSetField(_f, TIFFTAG_BITSPERSAMPLE, tiffSampleDepth);
-                    TIFFSetField(_f, TIFFTAG_SAMPLEFORMAT, tiffSampleFormat);
-                    TIFFSetField(_f, TIFFTAG_EXTRASAMPLES, tiffExtraSamplesSize, tiffExtraSamples);
-                    TIFFSetField(_f, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
-                    TIFFSetField(_f, TIFFTAG_COMPRESSION, tiffCompression);
-                    TIFFSetField(_f, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
+                    TIFFSetField(_tiff.p, TIFFTAG_IMAGEWIDTH, info.size.w);
+                    TIFFSetField(_tiff.p, TIFFTAG_IMAGELENGTH, info.size.h);
+                    TIFFSetField(_tiff.p, TIFFTAG_PHOTOMETRIC, tiffPhotometric);
+                    TIFFSetField(_tiff.p, TIFFTAG_SAMPLESPERPIXEL, tiffSamples);
+                    TIFFSetField(_tiff.p, TIFFTAG_BITSPERSAMPLE, tiffSampleDepth);
+                    TIFFSetField(_tiff.p, TIFFTAG_SAMPLEFORMAT, tiffSampleFormat);
+                    TIFFSetField(_tiff.p, TIFFTAG_EXTRASAMPLES, tiffExtraSamplesSize, tiffExtraSamples);
+                    TIFFSetField(_tiff.p, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
+                    TIFFSetField(_tiff.p, TIFFTAG_COMPRESSION, tiffCompression);
+                    TIFFSetField(_tiff.p, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
 
                     const auto& tags = image->getTags();
                     auto i = tags.find("Creator");
                     if (i != tags.end())
                     {
-                        TIFFSetField(_f, TIFFTAG_ARTIST, i->second.c_str());
+                        TIFFSetField(_tiff.p, TIFFTAG_ARTIST, i->second.c_str());
                     }
                     i = tags.find("Copyright");
                     if (i != tags.end())
                     {
-                        TIFFSetField(_f, TIFFTAG_COPYRIGHT, i->second.c_str());
+                        TIFFSetField(_tiff.p, TIFFTAG_COPYRIGHT, i->second.c_str());
                     }
                     i = tags.find("Time");
                     if (i != tags.end())
                     {
-                        TIFFSetField(_f, TIFFTAG_DATETIME, i->second.c_str());
+                        TIFFSetField(_tiff.p, TIFFTAG_DATETIME, i->second.c_str());
                     }
                     i = tags.find("Description");
                     if (i != tags.end())
                     {
-                        TIFFSetField(_f, TIFFTAG_IMAGEDESCRIPTION, i->second.c_str());
+                        TIFFSetField(_tiff.p, TIFFTAG_IMAGEDESCRIPTION, i->second.c_str());
                     }
 
                     const size_t scanlineByteCount = imaging::getAlignedByteCount(
@@ -147,23 +147,27 @@ namespace tl
                     const uint8_t* p = image->getData() + (info.size.h - 1) * scanlineByteCount;
                     for (uint16_t y = 0; y < info.size.h; ++y, p -= scanlineByteCount)
                     {
-                        if (TIFFWriteScanline(_f, (tdata_t*)p, y) == -1)
+                        if (TIFFWriteScanline(_tiff.p, (tdata_t*)p, y) == -1)
                         {
                             throw std::runtime_error(string::Format("{0}: Cannot write scanline: {1}").arg(fileName).arg(y));
                         }
                     }
                 }
 
-                ~File()
-                {
-                    if (_f)
-                    {
-                        TIFFClose(_f);
-                    }
-                }
-
             private:
-                TIFF* _f = nullptr;
+                struct TIFFData
+                {
+                    ~TIFFData()
+                    {
+                        if (p)
+                        {
+                            TIFFClose(p);
+                        }
+                    }
+                    TIFF* p = nullptr;
+                };
+
+                TIFFData _tiff;
             };
         }
 

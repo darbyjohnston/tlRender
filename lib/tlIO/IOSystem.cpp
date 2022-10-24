@@ -149,6 +149,23 @@ namespace tl
             return nullptr;
         }
 
+        std::shared_ptr<IRead> System::read(
+            const file::Path& path,
+            const std::vector<file::MemoryRead>& memory,
+            const Options& options)
+        {
+            const std::string extension = string::toLower(path.getExtension());
+            for (const auto& i : _plugins)
+            {
+                const auto& extensions = i->getExtensions();
+                if (extensions.find(extension) != extensions.end())
+                {
+                    return i->read(path, memory, options);
+                }
+            }
+            return nullptr;
+        }
+
         std::shared_ptr<IWrite> System::write(
             const file::Path& path,
             const Info& info,

@@ -186,7 +186,7 @@ namespace tl
             return _info.isValid();
         }
 
-        inline const std::map<std::string, std::string>& Image::getTags() const
+        inline const Tags& Image::getTags() const
         {
             return _tags;
         }

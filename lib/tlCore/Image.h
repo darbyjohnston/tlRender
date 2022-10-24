@@ -258,6 +258,9 @@ namespace tl
         //! Get the number of bytes used to store image data.
         std::size_t getDataByteCount(const Info&);
 
+        //! Image tags.
+        typedef std::map<std::string, std::string> Tags;
+
         //! Image.
         class Image : public std::enable_shared_from_this<Image>
         {
@@ -295,10 +298,10 @@ namespace tl
             bool isValid() const;
 
             //! Get the image tags.
-            const std::map<std::string, std::string>& getTags() const;
+            const Tags& getTags() const;
 
             //! Set the image tags.
-            void setTags(const std::map<std::string, std::string>&);
+            void setTags(const Tags&);
 
             //! Get the number of bytes used to store the image data.
             size_t getDataByteCount() const;
@@ -314,7 +317,7 @@ namespace tl
 
         private:
             Info _info;
-            std::map<std::string, std::string> _tags;
+            Tags _tags;
             size_t _dataByteCount = 0;
             uint8_t* _data = nullptr;
         };

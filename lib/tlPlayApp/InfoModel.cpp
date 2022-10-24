@@ -15,7 +15,7 @@ namespace tl
     {
         struct TagsModel::Private
         {
-            std::map<std::string, std::string> tags;
+            imaging::Tags tags;
             QList<QPair<QString, QString> > items;
         };
 
@@ -27,7 +27,7 @@ namespace tl
         TagsModel::~TagsModel()
         {}
 
-        void TagsModel::setTags(const std::map<std::string, std::string>& value)
+        void TagsModel::setTags(const imaging::Tags& value)
         {
             TLRENDER_P();
             if (value == p.tags)

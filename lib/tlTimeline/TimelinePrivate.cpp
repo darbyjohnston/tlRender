@@ -4,6 +4,7 @@
 
 #include <tlTimeline/TimelinePrivate.h>
 
+#include <tlTimeline/MemoryReference.h>
 #include <tlTimeline/Util.h>
 
 #include <tlIO/IOSystem.h>
@@ -12,57 +13,92 @@
 
 #include <opentimelineio/externalReference.h>
 #include <opentimelineio/imageSequenceReference.h>
-
 #include <opentimelineio/transition.h>
 
 namespace tl
 {
     namespace timeline
     {
-        file::Path Timeline::Private::fixPath(const file::Path& path) const
-        {
-            std::string directory;
-            if (!path.isAbsolute())
-            {
-                directory = this->path.getDirectory();
-            }
-            return file::Path(directory, path.get(), options.pathOptions);
-        }
-
-        namespace
-        {
-            const std::string urlFilePrefix = "file://";
-
-            std::string removeURLFilePrefix(const std::string& value)
-            {
-                std::string out = value;
-                if (0 == out.compare(0, urlFilePrefix.size(), urlFilePrefix))
-                {
-                    out.replace(0, urlFilePrefix.size(), "");
-                }
-                return out;
-            }
-        }
-
         file::Path Timeline::Private::getPath(const otio::MediaReference* ref) const
         {
-            file::Path out;
+            std::string url;
             if (auto externalRef = dynamic_cast<const otio::ExternalReference*>(ref))
             {
-                const std::string url = removeURLFilePrefix(externalRef->target_url());
-                out = file::Path(url, options.pathOptions);
+                url = externalRef->target_url();
             }
             else if (auto imageSequenceRef = dynamic_cast<const otio::ImageSequenceReference*>(ref))
             {
-                const std::string urlBase = removeURLFilePrefix(imageSequenceRef->target_url_base());
                 std::stringstream ss;
-                ss << urlBase <<
+                ss << imageSequenceRef->target_url_base() <<
                     imageSequenceRef->name_prefix() <<
-                    std::setfill('0') << std::setw(imageSequenceRef->frame_zero_padding()) << imageSequenceRef->start_frame() <<
+                    std::setfill('0') << std::setw(imageSequenceRef->frame_zero_padding()) <<
+                    imageSequenceRef->start_frame() <<
                     imageSequenceRef->name_suffix();
-                out = file::Path(ss.str(), options.pathOptions);
+                url = ss.str();
             }
-            return fixPath(out);
+            else if (auto rawMemoryRef = dynamic_cast<const RawMemoryReference*>(ref))
+            {
+                url = rawMemoryRef->target_url();
+            }
+            else if (auto sharedMemoryRef = dynamic_cast<const SharedMemoryReference*>(ref))
+            {
+                url = sharedMemoryRef->target_url();
+            }
+            else if (auto rawMemorySequenceRef = dynamic_cast<const RawMemorySequenceReference*>(ref))
+            {
+                url = rawMemorySequenceRef->target_url();
+            }
+            else if (auto sharedMemorySequenceRef = dynamic_cast<const SharedMemorySequenceReference*>(ref))
+            {
+                url = sharedMemorySequenceRef->target_url();
+            }
+            return timeline::getPath(url, path.getDirectory(), options.pathOptions);
+        }
+
+        std::vector<file::MemoryRead> Timeline::Private::getMemoryRead(const otio::MediaReference* ref)
+        {
+            std::vector<file::MemoryRead> out;
+            if (auto rawMemoryReference =
+                dynamic_cast<const RawMemoryReference*>(ref))
+            {
+                out.push_back(file::MemoryRead(
+                    rawMemoryReference->memory(),
+                    rawMemoryReference->memory_size()));
+            }
+            else if (auto sharedMemoryReference =
+                dynamic_cast<const SharedMemoryReference*>(ref))
+            {
+                if (const auto& memory = sharedMemoryReference->memory())
+                {
+                    out.push_back(file::MemoryRead(
+                        memory->data(),
+                        memory->size()));
+                }
+            }
+            else if (auto rawMemorySequenceReference =
+                dynamic_cast<const RawMemorySequenceReference*>(ref))
+            {
+                const auto& memory = rawMemorySequenceReference->memory();
+                const size_t memory_size = memory.size();
+                const auto& memory_sizes = rawMemorySequenceReference->memory_sizes();
+                const size_t memory_sizes_size = memory_sizes.size();
+                for (size_t i = 0; i < memory_size && i < memory_sizes_size; ++i)
+                {
+                    out.push_back(file::MemoryRead(memory[i], memory_sizes[i]));
+                }
+            }
+            else if (auto sharedMemorySequenceReference =
+                dynamic_cast<const SharedMemorySequenceReference*>(ref))
+            {
+                for (const auto& memory : sharedMemorySequenceReference->memory())
+                {
+                    if (memory)
+                    {
+                        out.push_back(file::MemoryRead(memory->data(), memory->size()));
+                    }
+                }
+            }
+            return out;
         }
 
         bool Timeline::Private::getVideoInfo(const otio::Composable* composable)
@@ -72,11 +108,11 @@ namespace tl
                 if (auto context = this->context.lock())
                 {
                     // The first video clip defines the video information for the timeline.
+                    const file::Path path = getPath(clip->media_reference());
+                    const auto memoryRead = getMemoryRead(clip->media_reference());
                     io::Options ioOptions = options.ioOptions;
-                    otio::ErrorStatus errorStatus;
-                    ioOptions["SequenceIO/DefaultSpeed"] = string::Format("{0}").arg(clip->duration(&errorStatus).rate());
-                    const file::Path path(getPath(clip->media_reference()));
-                    if (auto read = context->getSystem<io::System>()->read(path, ioOptions))
+                    ioOptions["SequenceIO/DefaultSpeed"] = string::Format("{0}").arg(clip->duration().rate());
+                    if (auto read = context->getSystem<io::System>()->read(path, memoryRead, ioOptions))
                     {
                         const auto ioInfo = read->getInfo().get();
                         this->ioInfo.video = ioInfo.video;
@@ -106,8 +142,10 @@ namespace tl
                 if (auto context = this->context.lock())
                 {
                     // The first audio clip defines the audio information for the timeline.
+                    const auto path = getPath(clip->media_reference());
+                    const auto memoryRead = getMemoryRead(clip->media_reference());
                     io::Options ioOptions = options.ioOptions;
-                    if (auto read = context->getSystem<io::System>()->read(getPath(clip->media_reference()), ioOptions))
+                    if (auto read = context->getSystem<io::System>()->read(path, memoryRead, ioOptions))
                     {
                         const auto ioInfo = read->getInfo().get();
                         this->ioInfo.audio = ioInfo.audio;
@@ -450,11 +488,12 @@ namespace tl
             Reader out;
             if (auto context = this->context.lock())
             {
-                const file::Path path = getPath(clip->media_reference());
+                const auto path = getPath(clip->media_reference());
+                const auto memoryRead = getMemoryRead(clip->media_reference());
                 io::Options options = ioOptions;
                 options["SequenceIO/DefaultSpeed"] = string::Format("{0}").arg(duration.rate());
                 const auto ioSystem = context->getSystem<io::System>();
-                auto read = ioSystem->read(path, options);
+                auto read = ioSystem->read(path, memoryRead, options);
                 io::Info info;
                 if (read)
                 {

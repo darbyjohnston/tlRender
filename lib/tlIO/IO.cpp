@@ -60,10 +60,12 @@ namespace tl
 
         void IRead::_init(
             const file::Path& path,
+            const std::vector<file::MemoryRead>& memory,
             const Options& options,
             const std::weak_ptr<log::System>& logSystem)
         {
             IIO::_init(path, options, logSystem);
+            _memory = memory;
         }
 
         IRead::IRead()

@@ -18,76 +18,90 @@ namespace tl
 {
     namespace exr
     {
-#if defined(TLRENDER_ENABLE_MMAP)
-        struct MemoryMappedIStream::Private
+        struct IStream::Private
         {
             std::shared_ptr<file::FileIO> f;
+            const uint8_t* p = nullptr;
             uint64_t size = 0;
             uint64_t pos = 0;
-            char* p = nullptr;
         };
 
-        MemoryMappedIStream::MemoryMappedIStream(const char fileName[]) :
-            IStream(fileName),
+        IStream::IStream(const std::string& fileName) :
+            Imf::IStream(fileName.c_str()),
             _p(new Private)
         {
             TLRENDER_P();
-            p.f = file::FileIO::create();
-            p.f->open(fileName, file::Mode::Read);
+            p.f = file::FileIO::create(fileName, file::Mode::Read);
+            p.p = p.f->getMemoryP();
             p.size = p.f->getSize();
-            p.p = const_cast<char*>(reinterpret_cast<const char*>(p.f->mmapP()));
         }
 
-        MemoryMappedIStream::~MemoryMappedIStream()
-        {}
-
-        bool MemoryMappedIStream::isMemoryMapped() const
-        {
-            return true;
-        }
-
-        char* MemoryMappedIStream::readMemoryMapped(int n)
+        IStream::IStream(const std::string& fileName, const uint8_t* memoryP, size_t memorySize) :
+            Imf::IStream(fileName.c_str()),
+            _p(new Private)
         {
             TLRENDER_P();
-            if (p.pos >= p.size)
+            p.p = memoryP;
+            p.size = memorySize;
+        }
+
+        IStream::~IStream()
+        {}
+
+        bool IStream::isMemoryMapped() const
+        {
+            return _p->p;
+        }
+
+        char* IStream::readMemoryMapped(int n)
+        {
+            TLRENDER_P();
+            if (p.pos >= p.size || (p.pos + n) > p.size)
             {
-                throw std::runtime_error(string::Format("{0}: Error reading file").arg(p.f->getFileName()));
+                throw std::runtime_error(string::Format("{0}: Error reading file").arg(fileName()));
             }
-            if (p.pos + n > p.size)
+            char* out = nullptr;
+            if (p.p)
             {
-                throw std::runtime_error(string::Format("{0}: Error reading file").arg(p.f->getFileName()));
+                out = const_cast<char*>(reinterpret_cast<const char*>(p.p)) + p.pos;
+                p.pos += n;
             }
-            char* out = p.p + p.pos;
-            p.pos += n;
             return out;
         }
 
-        bool MemoryMappedIStream::read(char c[], int n)
+        bool IStream::read(char c[], int n)
         {
             TLRENDER_P();
-            if (p.pos >= p.size)
+            if (p.pos >= p.size || (p.pos + n) > p.size)
             {
-                throw std::runtime_error(string::Format("{0}: Error reading file").arg(p.f->getFileName()));
+                throw std::runtime_error(string::Format("{0}: Error reading file").arg(fileName()));
             }
-            if (p.pos + n > p.size)
+            if (p.p)
             {
-                throw std::runtime_error(string::Format("{0}: Error reading file").arg(p.f->getFileName()));
+                std::memcpy(c, p.p + p.pos, n);
             }
-            std::memcpy(c, p.p + p.pos, n);
+            else
+            {
+                p.f->read(c, n);
+            }
             p.pos += n;
             return p.pos < p.size;
         }
 
-        uint64_t MemoryMappedIStream::tellg()
+        uint64_t IStream::tellg()
         {
             return _p->pos;
         }
 
-        void MemoryMappedIStream::seekg(uint64_t pos)
+        void IStream::seekg(uint64_t pos)
         {
-            _p->pos = pos;
+            TLRENDER_P();
+            if (p.f)
+            {
+                p.f->setPos(pos);
+            }
+            p.pos = pos;
         }
-#endif // TLRENDER_ENABLE_MMAP
 
         namespace
         {
@@ -125,17 +139,21 @@ namespace tl
             public:
                 File(
                     const std::string& fileName,
+                    const file::MemoryRead* memory,
                     ChannelGrouping channelGrouping,
                     const std::weak_ptr<log::System>& logSystemWeak)
                 {
                     // Open the file.
-#if defined(TLRENDER_ENABLE_MMAP)
                     // \bug https://lists.aswf.io/g/openexr-dev/message/43
-                    _s.reset(new MemoryMappedIStream(fileName.c_str()));
-                    _f.reset(new Imf::InputFile(*_s.get()));
-#else // TLRENDER_ENABLE_MMAP
-                    _f.reset(new Imf::InputFile(fileName.c_str()));
-#endif // TLRENDER_ENABLE_MMAP
+                    if (memory)
+                    {
+                        _s.reset(new IStream(fileName.c_str(), memory->p, memory->size));
+                    }
+                    else
+                    {
+                        _s.reset(new IStream(fileName.c_str()));
+                    }
+                    _f.reset(new Imf::InputFile(*_s));
 
                     // Get the display and data windows.
                     _displayWindow = fromImath(_f->header().displayWindow());
@@ -289,24 +307,25 @@ namespace tl
                 }
 
             private:
-                ChannelGrouping                      _channelGrouping = ChannelGrouping::Known;
-                std::unique_ptr<MemoryMappedIStream> _s;
-                std::unique_ptr<Imf::InputFile>      _f;
-                math::BBox2i                         _displayWindow;
-                math::BBox2i                         _dataWindow;
-                math::BBox2i                         _intersectedWindow;
-                std::vector<Layer>                   _layers;
-                bool                                 _fast = false;
-                io::Info                             _info;
+                ChannelGrouping                 _channelGrouping = ChannelGrouping::Known;
+                std::unique_ptr<Imf::IStream>   _s;
+                std::unique_ptr<Imf::InputFile> _f;
+                math::BBox2i                    _displayWindow;
+                math::BBox2i                    _dataWindow;
+                math::BBox2i                    _intersectedWindow;
+                std::vector<Layer>              _layers;
+                bool                            _fast = false;
+                io::Info                        _info;
             };
         }
 
         void Read::_init(
             const file::Path& path,
+            const std::vector<file::MemoryRead>& memory,
             const io::Options& options,
             const std::weak_ptr<log::System>& logSystem)
         {
-            ISequenceRead::_init(path, options, logSystem);
+            ISequenceRead::_init(path, memory, options, logSystem);
 
             auto option = options.find("exr/ChannelGrouping");
             if (option != options.end())
@@ -330,13 +349,26 @@ namespace tl
             const std::weak_ptr<log::System>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
-            out->_init(path, options, logSystem);
+            out->_init(path, {}, options, logSystem);
             return out;
         }
 
-        io::Info Read::_getInfo(const std::string& fileName)
+        std::shared_ptr<Read> Read::create(
+            const file::Path& path,
+            const std::vector<file::MemoryRead>& memory,
+            const io::Options& options,
+            const std::weak_ptr<log::System>& logSystem)
         {
-            io::Info out = File(fileName, _channelGrouping, _logSystem.lock()).getInfo();
+            auto out = std::shared_ptr<Read>(new Read);
+            out->_init(path, memory, options, logSystem);
+            return out;
+        }
+
+        io::Info Read::_getInfo(
+            const std::string& fileName,
+            const file::MemoryRead* memory)
+        {
+            io::Info out = File(fileName, memory, _channelGrouping, _logSystem.lock()).getInfo();
             float speed = _defaultSpeed;
             const auto i = out.tags.find("Frame Per Second");
             if (i != out.tags.end())
@@ -351,10 +383,11 @@ namespace tl
 
         io::VideoData Read::_readVideo(
             const std::string& fileName,
+            const file::MemoryRead* memory,
             const otime::RationalTime& time,
             uint16_t layer)
         {
-            return File(fileName, _channelGrouping, _logSystem).read(fileName, time, layer);
+            return File(fileName, memory, _channelGrouping, _logSystem).read(fileName, time, layer);
         }
     }
 }

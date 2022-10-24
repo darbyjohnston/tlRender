@@ -183,6 +183,14 @@ namespace tl
             return Read::create(path, io::merge(options, _options), _logSystem);
         }
 
+        std::shared_ptr<io::IRead> Plugin::read(
+            const file::Path& path,
+            const std::vector<file::MemoryRead>& memory,
+            const io::Options& options)
+        {
+            return Read::create(path, memory, io::merge(options, _options), _logSystem);
+        }
+
         imaging::Info Plugin::getWriteInfo(
             const imaging::Info& info,
             const io::Options& options) const
@@ -192,10 +200,10 @@ namespace tl
             switch (info.pixelType)
             {
             case imaging::PixelType::L_U8:
-            case imaging::PixelType::RGB_U8:
-            case imaging::PixelType::RGBA_U8:
             case imaging::PixelType::L_U16:
+            case imaging::PixelType::RGB_U8:
             case imaging::PixelType::RGB_U16:
+            case imaging::PixelType::RGBA_U8:
             case imaging::PixelType::RGBA_U16:
                 out.pixelType = info.pixelType;
                 break;

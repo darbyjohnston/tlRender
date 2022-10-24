@@ -46,8 +46,7 @@ namespace tl
             {
                 const Path path("tmp");
                 {
-                    auto io = FileIO::create();
-                    io->open(path.get(), Mode::Write);
+                    FileIO::create(path.get(), Mode::Write);
                 }
                 const FileInfo f(path);
                 TLRENDER_ASSERT(path == f.getPath());

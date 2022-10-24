@@ -43,8 +43,7 @@ namespace tl
             const otime::RationalTime&,
             const std::shared_ptr<imaging::Image>& image)
         {
-            auto io = file::FileIO::create();
-            io->open(fileName, file::Mode::Write);
+            auto io = file::FileIO::create(fileName, file::Mode::Write);
 
             io::Info info;
             const auto& imageInfo = image->getInfo();

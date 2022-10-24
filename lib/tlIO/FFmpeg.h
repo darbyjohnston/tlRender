@@ -70,8 +70,10 @@ namespace tl
         protected:
             void _init(
                 const file::Path&,
+                const std::vector<file::MemoryRead>&,
                 const io::Options&,
                 const std::weak_ptr<log::System>&);
+
             Read();
 
         public:
@@ -80,6 +82,13 @@ namespace tl
             //! Create a new reader.
             static std::shared_ptr<Read> create(
                 const file::Path&,
+                const io::Options&,
+                const std::weak_ptr<log::System>&);
+
+            //! Create a new reader.
+            static std::shared_ptr<Read> create(
+                const file::Path&,
+                const std::vector<file::MemoryRead>&,
                 const io::Options&,
                 const std::weak_ptr<log::System>&);
 
@@ -92,7 +101,8 @@ namespace tl
             bool hasStopped() const override;
 
         private:
-            void _open(const std::string& fileName);
+            void _openVideo(const std::string& fileName);
+            void _openAudio(const std::string& fileName);
             void _run();
             void _close();
 
@@ -108,6 +118,7 @@ namespace tl
                 const io::Info&,
                 const io::Options&,
                 const std::weak_ptr<log::System>&);
+
             Write();
 
         public:
@@ -135,6 +146,7 @@ namespace tl
         {
         protected:
             void _init(const std::weak_ptr<log::System>&);
+
             Plugin();
 
         public:
@@ -144,6 +156,10 @@ namespace tl
             std::shared_ptr<io::IRead> read(
                 const file::Path&,
                 const io::Options& = io::Options()) override;
+            std::shared_ptr<io::IRead> read(
+                const file::Path&,
+                const std::vector<file::MemoryRead>&,
+                const io::Options & = io::Options()) override;
             imaging::Info getWriteInfo(
                 const imaging::Info&,
                 const io::Options& = io::Options()) const override;

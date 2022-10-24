@@ -14,10 +14,11 @@ namespace tl
     {
         void Read::_init(
             const file::Path& path,
+            const std::vector<file::MemoryRead>& memory,
             const io::Options& options,
             const std::weak_ptr<log::System>& logSystem)
         {
-            ISequenceRead::_init(path, options, logSystem);
+            ISequenceRead::_init(path, memory, options, logSystem);
         }
 
         Read::Read()
@@ -34,15 +35,29 @@ namespace tl
             const std::weak_ptr<log::System>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
-            out->_init(path, options, logSystem);
+            out->_init(path, {}, options, logSystem);
             return out;
         }
 
-        io::Info Read::_getInfo(const std::string& fileName)
+        std::shared_ptr<Read> Read::create(
+            const file::Path& path,
+            const std::vector<file::MemoryRead>& memory,
+            const io::Options& options,
+            const std::weak_ptr<log::System>& logSystem)
+        {
+            auto out = std::shared_ptr<Read>(new Read);
+            out->_init(path, memory, options, logSystem);
+            return out;
+        }
+
+        io::Info Read::_getInfo(
+            const std::string& fileName,
+            const file::MemoryRead* memory)
         {
             io::Info out;
-            auto io = file::FileIO::create();
-            io->open(fileName, file::Mode::Read);
+            auto io = memory ?
+                file::FileIO::create(fileName, *memory) :
+                file::FileIO::create(fileName, file::Mode::Read);
             const auto header = read(io, out);
             float speed = _defaultSpeed;
             const auto i = out.tags.find("Film Frame Rate");
@@ -58,14 +73,16 @@ namespace tl
 
         io::VideoData Read::_readVideo(
             const std::string& fileName,
+            const file::MemoryRead* memory,
             const otime::RationalTime& time,
             uint16_t layer)
         {
             io::VideoData out;
             out.time = time;
 
-            auto io = file::FileIO::create();
-            io->open(fileName, file::Mode::Read);
+            auto io = memory ?
+                file::FileIO::create(fileName, *memory) :
+                file::FileIO::create(fileName, file::Mode::Read);
             io::Info info;
             read(io, info);
 

@@ -58,43 +58,53 @@ namespace tl
 
         void ISequenceRead::_init(
             const file::Path& path,
+            const std::vector<file::MemoryRead>& memory,
             const Options& options,
             const std::weak_ptr<log::System>& logSystem)
         {
-            IRead::_init(path, options, logSystem);
+            IRead::_init(path, memory, options, logSystem);
 
             TLRENDER_P();
 
             const std::string& number = path.getNumber();
             if (!number.empty())
             {
-                std::string directory = path.getDirectory();
-                if (directory.empty())
+                if (!_memory.empty())
                 {
-                    directory = ".";
+                    std::stringstream ss(number);
+                    ss >> _startFrame;
+                    _endFrame = _startFrame + _memory.size() - 1;
                 }
-                const std::string& baseName = path.getBaseName();
-                const std::string& extension = path.getExtension();
-                FSeqDirOptions dirOptions;
-                fseqDirOptionsInit(&dirOptions);
-                dirOptions.sequence = FSEQ_TRUE;
-                FSeqBool error = FSEQ_FALSE;
-                auto dirList = fseqDirList(directory.c_str(), &dirOptions, &error);
-                if (FSEQ_FALSE == error)
+                else
                 {
-                    for (auto entry = dirList; entry; entry = entry->next)
+                    std::string directory = path.getDirectory();
+                    if (directory.empty())
                     {
-                        if (strlen(entry->fileName.number) > 0 &&
-                            0 == strcmp(entry->fileName.base, baseName.c_str()) &&
-                            0 == strcmp(entry->fileName.extension, extension.c_str()))
+                        directory = ".";
+                    }
+                    const std::string& baseName = path.getBaseName();
+                    const std::string& extension = path.getExtension();
+                    FSeqDirOptions dirOptions;
+                    fseqDirOptionsInit(&dirOptions);
+                    dirOptions.sequence = FSEQ_TRUE;
+                    FSeqBool error = FSEQ_FALSE;
+                    auto dirList = fseqDirList(directory.c_str(), &dirOptions, &error);
+                    if (FSEQ_FALSE == error)
+                    {
+                        for (auto entry = dirList; entry; entry = entry->next)
                         {
-                            _startFrame = entry->frameMin;
-                            _endFrame = entry->frameMax;
-                            break;
+                            if (strlen(entry->fileName.number) > 0 &&
+                                0 == strcmp(entry->fileName.base, baseName.c_str()) &&
+                                0 == strcmp(entry->fileName.extension, extension.c_str()))
+                            {
+                                _startFrame = entry->frameMin;
+                                _endFrame = entry->frameMax;
+                                break;
+                            }
                         }
                     }
+                    fseqDirListDel(dirList);
                 }
-                fseqDirListDel(dirList);
             }
 
             auto i = options.find("SequenceIO/ThreadCount");
@@ -117,7 +127,9 @@ namespace tl
                     TLRENDER_P();
                     try
                     {
-                        auto info = _getInfo(path.get());
+                        auto info = _getInfo(
+                            path.get(), 
+                            !_memory.empty() ? &_memory[0] : nullptr);
                         p.addTags(info);
                         p.infoPromise.set_value(info);
                         try
@@ -142,7 +154,6 @@ namespace tl
                     catch (const std::exception& e)
                     {
                         //! \todo How should this be handled?
-
                         if (auto logSystem = _logSystem.lock())
                         {
                             const std::string id = string::Format("tl::io::ISequenceRead ({0}: {1})").
@@ -317,7 +328,16 @@ namespace tl
                             VideoData out;
                             try
                             {
-                                out = _readVideo(fileName, time, layer);
+                                const int64_t frame = time.value();
+                                if (frame >= _startFrame && frame <= _endFrame)
+                                {
+                                    const int64_t memoryIndex = frame - _startFrame;
+                                    out = _readVideo(
+                                        fileName,
+                                        memoryIndex >= 0 && memoryIndex < _memory.size() ? &_memory[memoryIndex] : nullptr,
+                                        time,
+                                        layer);
+                                }
                             }
                             catch (const std::exception&)
                             {

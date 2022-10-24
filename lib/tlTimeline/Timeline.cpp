@@ -38,6 +38,34 @@ namespace tl
             return out;
         }
 
+        namespace
+        {
+            const std::string fileURLPrefix = "file://";
+
+            std::string removeFileURLPrefix(const std::string& value)
+            {
+                std::string out = value;
+                if (0 == out.compare(0, fileURLPrefix.size(), fileURLPrefix))
+                {
+                    out.replace(0, fileURLPrefix.size(), "");
+                }
+                return out;
+            }
+        }
+
+        file::Path getPath(
+            const std::string& url,
+            const std::string& directory,
+            const file::PathOptions& options)
+        {
+            file::Path out = file::Path(removeFileURLPrefix(url), options);
+            if (!out.isAbsolute())
+            {
+                out = file::Path(directory, out.get(), options);
+            }
+            return out;
+        }
+
         TLRENDER_ENUM_IMPL(
             FileSequenceAudio,
             "None",
@@ -102,6 +130,26 @@ namespace tl
             p.context = context;
             p.options = options;
             p.otioTimeline = otioTimeline;
+            const auto i = otioTimeline->metadata().find("tl::timeline");
+            if (i != otioTimeline->metadata().end())
+            {
+                try
+                {
+                    const auto dict = otio::any_cast<otio::AnyDictionary>(i->second);
+                    auto j = dict.find("path");
+                    if (j != dict.end())
+                    {
+                        p.path = otio::any_cast<file::Path>(j->second);
+                    }
+                    j = dict.find("audioPath");
+                    if (j != dict.end())
+                    {
+                        p.audioPath = otio::any_cast<file::Path>(j->second);
+                    }
+                }
+                catch (const std::exception&)
+                {}
+            }
 
             // Get information about the timeline.
             otio::ErrorStatus errorStatus;

@@ -19,8 +19,9 @@ namespace tl
     {
         struct Timeline::Private
         {
-            file::Path fixPath(const file::Path&) const;
             file::Path getPath(const otio::MediaReference*) const;
+
+            static std::vector<file::MemoryRead> getMemoryRead(const otio::MediaReference*);
 
             bool getVideoInfo(const otio::Composable*);
             bool getAudioInfo(const otio::Composable*);

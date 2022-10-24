@@ -93,12 +93,12 @@ namespace tl
         std::vector<Layer> getLayers(const Imf::ChannelList&, ChannelGrouping);
 
         //! Read the tags from an Imf header.
-        void readTags(const Imf::Header&, std::map<std::string, std::string>&);
+        void readTags(const Imf::Header&, imaging::Tags&);
 
         //! Write tags to an Imf header.
         //!
         //! \todo Write all the tags that are handled by readTags().
-        void writeTags(const std::map<std::string, std::string>&, double speed, Imf::Header&);
+        void writeTags(const imaging::Tags&, double speed, Imf::Header&);
 
         //! Convert an Imath box type.
         math::BBox2i fromImath(const Imath::Box2i&);
@@ -106,14 +106,16 @@ namespace tl
         //! Convert from an Imf channel.
         Channel fromImf(const std::string& name, const Imf::Channel&);
 
-        //! Memory-mapped input stream.
-        class MemoryMappedIStream : public Imf::IStream
+        //! Input stream.
+        class IStream : public Imf::IStream
         {
-            TLRENDER_NON_COPYABLE(MemoryMappedIStream);
+            TLRENDER_NON_COPYABLE(IStream);
 
         public:
-            MemoryMappedIStream(const char fileName[]);
-            ~MemoryMappedIStream() override;
+            IStream(const std::string& fileName);
+            IStream(const std::string& fileName, const uint8_t*, size_t);
+
+            ~IStream() override;
 
             bool isMemoryMapped() const override;
             char* readMemoryMapped(int n) override;
@@ -131,8 +133,10 @@ namespace tl
         protected:
             void _init(
                 const file::Path&,
+                const std::vector<file::MemoryRead>&,
                 const io::Options&,
                 const std::weak_ptr<log::System>&);
+
             Read();
 
         public:
@@ -144,10 +148,20 @@ namespace tl
                 const io::Options&,
                 const std::weak_ptr<log::System>&);
 
+            //! Create a new reader.
+            static std::shared_ptr<Read> create(
+                const file::Path&,
+                const std::vector<file::MemoryRead>&,
+                const io::Options&,
+                const std::weak_ptr<log::System>&);
+
         protected:
-            io::Info _getInfo(const std::string& fileName) override;
+            io::Info _getInfo(
+                const std::string& fileName,
+                const file::MemoryRead*) override;
             io::VideoData _readVideo(
                 const std::string& fileName,
+                const file::MemoryRead*,
                 const otime::RationalTime&,
                 uint16_t layer) override;
 
@@ -164,6 +178,7 @@ namespace tl
                 const io::Info&,
                 const io::Options&,
                 const std::weak_ptr<log::System>&);
+
             Write();
 
         public:
@@ -192,6 +207,7 @@ namespace tl
         {
         protected:
             void _init(const std::weak_ptr<log::System>&);
+
             Plugin();
 
         public:
@@ -200,6 +216,10 @@ namespace tl
 
             std::shared_ptr<io::IRead> read(
                 const file::Path&,
+                const io::Options& = io::Options()) override;
+            std::shared_ptr<io::IRead> read(
+                const file::Path&,
+                const std::vector<file::MemoryRead>&,
                 const io::Options& = io::Options()) override;
             imaging::Info getWriteInfo(
                 const imaging::Info&,

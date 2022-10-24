@@ -111,10 +111,11 @@ namespace tl
             class File
             {
             public:
-                File(const std::string& fileName)
+                File(const std::string& fileName, const file::MemoryRead* memory)
                 {
-                    _io = file::FileIO::create();
-                    _io->open(fileName, file::Mode::Read);
+                    _io = memory ?
+                        file::FileIO::create(fileName, *memory) :
+                        file::FileIO::create(fileName, file::Mode::Read);
                     _io->setEndianConversion(memory::getEndian() != memory::Endian::MSB);
                     _io->readU16(&_header.magic);
                     if (_header.magic != 474)
@@ -276,10 +277,11 @@ namespace tl
 
         void Read::_init(
             const file::Path& path,
+            const std::vector<file::MemoryRead>& memory,
             const io::Options& options,
             const std::weak_ptr<log::System>& logSystem)
         {
-            ISequenceRead::_init(path, options, logSystem);
+            ISequenceRead::_init(path, memory, options, logSystem);
         }
 
         Read::Read()
@@ -296,14 +298,27 @@ namespace tl
             const std::weak_ptr<log::System>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
-            out->_init(path, options, logSystem);
+            out->_init(path, {}, options, logSystem);
             return out;
         }
 
-        io::Info Read::_getInfo(const std::string& fileName)
+        std::shared_ptr<Read> Read::create(
+            const file::Path& path,
+            const std::vector<file::MemoryRead>& memory,
+            const io::Options& options,
+            const std::weak_ptr<log::System>& logSystem)
+        {
+            auto out = std::shared_ptr<Read>(new Read);
+            out->_init(path, memory, options, logSystem);
+            return out;
+        }
+
+        io::Info Read::_getInfo(
+            const std::string& fileName,
+            const file::MemoryRead* memory)
         {
             io::Info out;
-            out.video.push_back(File(fileName).getInfo());
+            out.video.push_back(File(fileName, memory).getInfo());
             out.videoTime = otime::TimeRange::range_from_start_end_time_inclusive(
                 otime::RationalTime(_startFrame, _defaultSpeed),
                 otime::RationalTime(_endFrame, _defaultSpeed));
@@ -312,10 +327,11 @@ namespace tl
 
         io::VideoData Read::_readVideo(
             const std::string& fileName,
+            const file::MemoryRead* memory,
             const otime::RationalTime& time,
             uint16_t layer)
         {
-            return File(fileName).read(fileName, time);
+            return File(fileName, memory).read(fileName, time);
         }
     }
 }

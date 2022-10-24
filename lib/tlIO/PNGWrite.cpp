@@ -4,6 +4,7 @@
 
 #include <tlIO/PNG.h>
 
+#include <tlCore/Error.h>
 #include <tlCore/Memory.h>
 #include <tlCore/String.h>
 #include <tlCore/StringFormat.h>
@@ -97,31 +98,32 @@ namespace tl
                     const std::string& fileName,
                     const std::shared_ptr<imaging::Image>& image)
                 {
-                    _png = png_create_write_struct(
+                    _png.p = png_create_write_struct(
                         PNG_LIBPNG_VER_STRING,
                         &_error,
                         errorFunc,
                         warningFunc);
-                    if (!_png)
+                    if (!_png.p)
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
 
 #if defined(_WINDOWS)
-                    if (_wfopen_s(&_f, string::toWide(fileName).c_str(), L"wb") != 0)
+                    if (_wfopen_s(&_f.p, string::toWide(fileName).c_str(), L"wb") != 0)
                     {
-                        _f = nullptr;
+                        std::cout << error::getLastError() << std::endl;
+                        _f.p = nullptr;
                     }
 #else
-                    _f = fopen(fileName.c_str(), "wb");
+                    _f.p = fopen(fileName.c_str(), "wb");
 #endif
-                    if (!_f)
+                    if (!_f.p)
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
 
                     const auto& info = image->getInfo();
-                    if (!pngOpen(_f, _png, &_pngInfo, info))
+                    if (!pngOpen(_f.p, _png.p, &_png.info, info))
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));
                     }
@@ -143,35 +145,47 @@ namespace tl
                     const uint8_t* p = image->getData() + (info.size.h - 1) * scanlineByteCount;
                     for (uint16_t y = 0; y < info.size.h; ++y, p -= scanlineByteCount)
                     {
-                        if (!pngScanline(_png, p))
+                        if (!pngScanline(_png.p, p))
                         {
                             throw std::runtime_error(string::Format("{0}: Cannot write scanline: {1}").arg(fileName).arg(y));
                         }
                     }
-                    if (!pngEnd(_png, _pngInfo))
+                    if (!pngEnd(_png.p, _png.info))
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot close").arg(fileName));
                     }
                 }
 
-                ~File()
-                {
-                    if (_f)
-                    {
-                        fclose(_f);
-                    }
-                    if (_png || _pngInfo)
-                    {
-                        png_destroy_write_struct(
-                            _png ? &_png : nullptr,
-                            _pngInfo ? &_pngInfo : nullptr);
-                    }
-                }
-
             private:
-                FILE* _f = nullptr;
-                png_structp _png = nullptr;
-                png_infop   _pngInfo = nullptr;
+                struct PNGData
+                {
+                    ~PNGData()
+                    {
+                        if (p || info)
+                        {
+                            png_destroy_write_struct(
+                                p ? &p : nullptr,
+                                info ? &info : nullptr);
+                        }
+                    }
+                    png_structp p = nullptr;
+                    png_infop   info = nullptr;
+                };
+
+                struct FilePointer
+                {
+                    ~FilePointer()
+                    {
+                        if (p)
+                        {
+                            fclose(p);
+                        }
+                    }
+                    FILE* p = nullptr;
+                };
+
+                PNGData     _png;
+                FilePointer _f;
                 ErrorStruct _error;
             };
         }

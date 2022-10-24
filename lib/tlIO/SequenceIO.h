@@ -25,8 +25,10 @@ namespace tl
         protected:
             void _init(
                 const file::Path&,
+                const std::vector<file::MemoryRead>&,
                 const Options&,
                 const std::weak_ptr<log::System>&);
+
             ISequenceRead();
 
         public:
@@ -40,9 +42,12 @@ namespace tl
             bool hasStopped() const override;
 
         protected:
-            virtual Info _getInfo(const std::string& fileName) = 0;
+            virtual Info _getInfo(
+                const std::string& fileName,
+                const file::MemoryRead*) = 0;
             virtual VideoData _readVideo(
                 const std::string& fileName,
+                const file::MemoryRead*,
                 const otime::RationalTime&,
                 uint16_t layer) = 0;
 
@@ -68,6 +73,7 @@ namespace tl
                 const Info&,
                 const Options&,
                 const std::weak_ptr<log::System>&);
+
             ISequenceWrite();
 
         public:

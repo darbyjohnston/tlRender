@@ -25,6 +25,11 @@ namespace tl
             int types,
             const std::shared_ptr<system::Context>&);
 
+        file::Path getPath(
+            const std::string& url,
+            const std::string& directory,
+            const file::PathOptions&);
+
         //! File sequence.
         enum class FileSequenceAudio
         {
@@ -58,10 +63,21 @@ namespace tl
             bool operator != (const Options&) const;
         };
 
-        //! Read a timeline.
-        otio::SerializableObject::Retainer<otio::Timeline> read(
+        //! Create a new timeline from a file name. The file name can point
+        //! to an .otio file, movie file, or image sequence.
+        otio::SerializableObject::Retainer<otio::Timeline> create(
             const std::string& fileName,
-            otio::ErrorStatus* errorStatus = nullptr);
+            const std::shared_ptr<system::Context>&,
+            const Options& = Options());
+
+        //! Create a new timeline from a file name and audio file name.
+        //! The file name can point to an .otio file, movie file, or
+        //! image sequence.
+        otio::SerializableObject::Retainer<otio::Timeline> create(
+            const std::string& fileName,
+            const std::string& audioFileName,
+            const std::shared_ptr<system::Context>&,
+            const Options& = Options());
 
         //! Timeline.
         class Timeline : public std::enable_shared_from_this<Timeline>
@@ -87,7 +103,7 @@ namespace tl
             //! Create a new timeline from a file name. The file name can point
             //! to an .otio file, movie file, or image sequence.
             static std::shared_ptr<Timeline> create(
-                const std::string&,
+                const std::string& fileName,
                 const std::shared_ptr<system::Context>&,
                 const Options& = Options());
 
@@ -95,7 +111,7 @@ namespace tl
             //! The file name can point to an .otio file, movie file, or
             //! image sequence.
             static std::shared_ptr<Timeline> create(
-                const std::string&,
+                const std::string& fileName,
                 const std::string& audioFileName,
                 const std::shared_ptr<system::Context>&,
                 const Options& = Options());
