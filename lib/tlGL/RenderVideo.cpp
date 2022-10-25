@@ -533,6 +533,8 @@ namespace tl
                     p.shaders["display"]->setUniform("exposure.d", d);
                     p.shaders["display"]->setUniform("exposure.k", k);
                     p.shaders["display"]->setUniform("exposure.f", f);
+                    const float gamma = displayOptions.levels.gamma > 0.F ? (1.F / displayOptions.levels.gamma) : 1000000.F;
+                    p.shaders["display"]->setUniform("exposure.g", gamma );
                 }
                 p.shaders["display"]->setUniform("softClip", displayOptions.softClipEnabled ? displayOptions.softClip : 0.F);
                 p.shaders["display"]->setUniform("videoLevels", static_cast<int>(displayOptions.videoLevels));
