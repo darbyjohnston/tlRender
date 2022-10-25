@@ -152,14 +152,13 @@ namespace tl
                 if (thumbnailWidth > 0)
                 {
                     QList<otime::RationalTime> requests;
-                    const auto& globalStartTime = p.timeline->getGlobalStartTime();
-                    const auto& duration = p.timeline->getDuration();
+                    const auto& timeRange = p.timeline->getTimeRange();
                     const int count = static_cast<int>(ceilf(width / static_cast<float>(thumbnailWidth))) * p.rowCount;
                     for (int i = 0; i < count; ++i)
                     {
                         requests.push_back(otime::RationalTime(
-                            floor(i / static_cast<double>(count) * (duration.value() - 1) + globalStartTime.value()),
-                            duration.rate()));
+                            floor(i / static_cast<double>(count) * (timeRange.duration().value() - 1) + timeRange.start_time().value()),
+                            timeRange.duration().rate()));
                     }
                     p.thumbnailRequestId = p.thumbnailProvider->request(
                         QString::fromUtf8(p.timeline->getPath().get().c_str()),

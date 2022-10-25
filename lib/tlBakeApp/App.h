@@ -63,8 +63,8 @@ namespace tl
             std::shared_ptr<timeline::Timeline> _timeline;
             imaging::Size _renderSize;
             imaging::Info _outputInfo;
-            otime::RationalTime _duration = time::invalidTime;
-            otime::TimeRange _range = time::invalidTimeRange;
+            otime::TimeRange _timelineRange = time::invalidTimeRange;
+            otime::TimeRange _timeRange = time::invalidTimeRange;
             otime::RationalTime _currentTime = time::invalidTime;
 
             GLFWwindow* _glfwWindow = nullptr;

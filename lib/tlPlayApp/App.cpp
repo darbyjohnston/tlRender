@@ -588,8 +588,7 @@ namespace tl
                 !timelinePlayers.empty() &&
                 timelinePlayers[0])
             {
-                items[0]->duration = timelinePlayers[0]->duration();
-                items[0]->globalStartTime = timelinePlayers[0]->globalStartTime();
+                items[0]->timeRange = timelinePlayers[0]->timeRange();
                 items[0]->ioInfo = timelinePlayers[0]->ioInfo();
                 if (!items[0]->init)
                 {

@@ -153,18 +153,20 @@ namespace tl
 
             // Read the timeline.
             _timeline = timeline::Timeline::create(_input, _context);
-            _duration = _timeline->getDuration();
-            _print(string::Format("Timeline duration: {0}").arg(_duration.value()));
-            _print(string::Format("Timeline speed: {0}").arg(_duration.rate()));
+            _timelineRange = _timeline->getTimeRange();
+            _print(string::Format("Timeline range: {0}-{1}").
+                arg(_timelineRange.start_time().value()).
+                arg(_timelineRange.end_time_inclusive().value()));
+            _print(string::Format("Timeline speed: {0}").arg(_timeRange.duration().rate()));
 
             // Time range.
-            _range = _options.inOutRange != time::invalidTimeRange ?
+            _timeRange = _options.inOutRange != time::invalidTimeRange ?
                 _options.inOutRange :
-                otime::TimeRange::range_from_start_end_time(
-                    otime::RationalTime(0, _duration.rate()), 
-                    _duration);
-            _currentTime = _range.start_time();
-            _print(string::Format("Frame range: {0}-{1}").arg(_range.start_time().value()).arg(_range.end_time_inclusive().value()));
+                _timelineRange;
+            _currentTime = _timeRange.start_time();
+            _print(string::Format("In/out range: {0}-{1}").
+                arg(_timeRange.start_time().value()).
+                arg(_timeRange.end_time_inclusive().value()));
 
             // Render information.
             const auto& info = _timeline->getIOInfo();
@@ -259,7 +261,7 @@ namespace tl
                 arg(_outputInfo.pixelType));
             _outputImage = imaging::Image::create(_outputInfo);
             ioInfo.video.push_back(_outputInfo);
-            ioInfo.videoTime = _range;
+            ioInfo.videoTime = _timeRange;
             _writer = _writerPlugin->write(file::Path(_output), ioInfo);
             if (!_writer)
             {
@@ -276,7 +278,7 @@ namespace tl
             const auto now = std::chrono::steady_clock::now();
             const std::chrono::duration<float> diff = now - _startTime;
             _print(string::Format("Seconds elapsed: {0}").arg(diff.count()));
-            _print(string::Format("Average FPS: {0}").arg(_range.duration().value() / diff.count()));
+            _print(string::Format("Average FPS: {0}").arg(_timeRange.duration().value() / diff.count()));
         }
 
         void App::_tick()
@@ -287,14 +289,14 @@ namespace tl
 
             // Set the active range.
             _timeline->setActiveRanges({ otime::TimeRange(
-                _timeline->getGlobalStartTime() + _currentTime,
+                _currentTime,
                 otime::RationalTime(1.0, _currentTime.rate())) });
 
             // Render the video.
             _render->setColorConfig(_options.colorConfigOptions);
             _render->setLUT(_options.lutOptions);
             _render->begin(_renderSize);
-            const auto videoData = _timeline->getVideo(_timeline->getGlobalStartTime() + _currentTime).get();
+            const auto videoData = _timeline->getVideo(_currentTime).get();
             _render->drawVideo({ videoData }, { math::BBox2i(0, 0, _renderSize.w, _renderSize.h ) });
             _render->end();
 
@@ -319,7 +321,7 @@ namespace tl
 
             // Advance the time.
             _currentTime += otime::RationalTime(1, _currentTime.rate());
-            if (_currentTime > _range.end_time_inclusive())
+            if (_currentTime > _timeRange.end_time_inclusive())
             {
                 _running = false;
             }
@@ -327,8 +329,8 @@ namespace tl
 
         void App::_printProgress()
         {
-            const int64_t c = static_cast<int64_t>(_currentTime.value() - _range.start_time().value());
-            const int64_t d = static_cast<int64_t>(_range.duration().value());
+            const int64_t c = static_cast<int64_t>(_currentTime.value() - _timeRange.start_time().value());
+            const int64_t d = static_cast<int64_t>(_timeRange.duration().value());
             if (d >= 100 && c % (d / 100) == 0)
             {
                 _print(string::Format("Complete: {0}%").arg(static_cast<int>(c / static_cast<float>(d) * 100)));

@@ -604,7 +604,7 @@ namespace tl
                                     auto timeline = timeline::Timeline::create(i->path.get(), context);
                                     qint64 id = _p->thumbnailProvider->request(
                                         QString::fromUtf8(i->path.get().c_str()),
-                                        timeline->getGlobalStartTime(),
+                                        timeline->getTimeRange().start_time(),
                                         QSize(120, 80));
                                     _p->thumbnailRequestIds[id] = i;
                                 }

@@ -172,13 +172,13 @@ namespace tl
                 if (auto read = ioSystem->read(path, options.ioOptions))
                 {
                     const auto info = read->getInfo().get();
-                    otime::RationalTime globalStartTime = time::invalidTime;
+                    otime::RationalTime startTime = time::invalidTime;
                     otio::Track* videoTrack = nullptr;
                     otio::Track* audioTrack = nullptr;
                     otio::ErrorStatus errorStatus;
                     if (!info.video.empty())
                     {
-                        globalStartTime = info.videoTime.start_time();
+                        startTime = info.videoTime.start_time();
                         auto videoClip = new otio::Clip;
                         videoClip->set_source_range(info.videoTime);
                         isSequence = io::FileType::Sequence == ioSystem->getFileType(path.getExtension()) &&
@@ -269,9 +269,9 @@ namespace tl
 
                     out = new otio::Timeline(path.get());
                     out->set_tracks(otioStack);
-                    if (globalStartTime != time::invalidTime)
+                    if (startTime != time::invalidTime)
                     {
-                        out->set_global_start_time(globalStartTime);
+                        out->set_global_start_time(startTime);
                     }
                 }
             }

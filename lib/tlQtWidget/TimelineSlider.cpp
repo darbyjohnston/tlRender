@@ -262,7 +262,6 @@ namespace tl
             TLRENDER_P();
             if (p.timelinePlayer)
             {
-                const auto& duration = p.timelinePlayer->duration();
                 if (p.stopOnScrub)
                 {
                     p.timelinePlayer->setPlayback(timeline::Playback::Stop);
@@ -279,7 +278,6 @@ namespace tl
             TLRENDER_P();
             if (p.timelinePlayer)
             {
-                const auto& duration = p.timelinePlayer->duration();
                 p.timelinePlayer->seek(_posToTime(event->x()));
             }
         }
@@ -317,11 +315,10 @@ namespace tl
             otime::RationalTime out = time::invalidTime;
             if (p.timelinePlayer)
             {
-                const auto& globalStartTime = p.timelinePlayer->globalStartTime();
-                const auto& duration = p.timelinePlayer->duration();
+                const auto& timeRange = p.timelinePlayer->timeRange();
                 out = otime::RationalTime(
-                    floor(math::clamp(value, 0, width()) / static_cast<double>(width()) * (duration.value() - 1) + globalStartTime.value()),
-                    duration.rate());
+                    floor(math::clamp(value, 0, width()) / static_cast<double>(width()) * (timeRange.duration().value() - 1) + timeRange.start_time().value()),
+                    timeRange.duration().rate());
             }
             return out;
         }
@@ -332,10 +329,9 @@ namespace tl
             int out = 0;
             if (p.timelinePlayer)
             {
-                const auto& globalStartTime = p.timelinePlayer->globalStartTime();
-                const auto& duration = p.timelinePlayer->duration();
-                out = (value.value() - globalStartTime.value()) /
-                    (duration.value() > 1 ? (duration.value() - 1) : 1) *
+                const auto& timeRange = p.timelinePlayer->timeRange();
+                out = (value.value() - timeRange.start_time().value()) /
+                    (timeRange.duration().value() > 1 ? (timeRange.duration().value() - 1) : 1) *
                     width();
             }
             return out;
@@ -359,7 +355,6 @@ namespace tl
             {
                 setMinimumHeight(50);
 
-                const auto& duration = p.timelinePlayer->duration();
                 const auto& info = p.timelinePlayer->ioInfo();
                 const auto rect = this->rect().adjusted(0, 0, 0, -(stripeSize * 2 + handleSize * 2));
                 const int width = rect.width();

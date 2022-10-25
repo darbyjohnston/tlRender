@@ -332,8 +332,6 @@ namespace tl
                 if (GLFW_RELEASE == action || GLFW_REPEAT == action)
                 {
                     App* app = reinterpret_cast<App*>(glfwGetWindowUserPointer(glfwWindow));
-                    const otime::RationalTime& duration = app->_timelinePlayer->getDuration();
-                    const otime::RationalTime& currentTime = app->_timelinePlayer->observeCurrentTime()->get();
                     switch (key)
                     {
                     case GLFW_KEY_ESCAPE:
@@ -445,7 +443,8 @@ namespace tl
                 hudLabels[HUDElement::UpperRight] = string::Format("Cache: {0}%").arg(cachePercentage, 0, 3);
 
                 // Speed.
-                hudLabels[HUDElement::LowerRight] = string::Format("Speed: {0}").arg(_timelinePlayer->getDuration().rate(), 2);
+                hudLabels[HUDElement::LowerRight] = string::Format("Speed: {0}").
+                    arg(_timelinePlayer->getTimeRange().duration().rate(), 2);
 
                 if (hudLabels != _hudLabels)
                 {

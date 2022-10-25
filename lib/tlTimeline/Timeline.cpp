@@ -160,15 +160,10 @@ namespace tl
             }
             if (duration.has_value())
             {
-                p.duration = duration.value();
-            }
-            if (p.otioTimeline.value->global_start_time().has_value())
-            {
-                p.globalStartTime = p.otioTimeline.value->global_start_time().value();
-            }
-            else
-            {
-                p.globalStartTime = otime::RationalTime(0, p.duration.rate());
+                const otime::RationalTime startTime = p.otioTimeline.value->global_start_time().has_value() ?
+                    p.otioTimeline.value->global_start_time().value().rescaled_to(duration->rate()) :
+                    otime::RationalTime(0, duration->rate());
+                p.timeRange = otime::TimeRange(startTime, duration.value());
             }
             for (const auto& i : p.otioTimeline.value->tracks()->children())
             {
@@ -201,12 +196,10 @@ namespace tl
                 string::Format("tl::timeline::Timeline {0}").arg(this),
                 string::Format(
                     "\n"
-                    "    Duration: {0}\n"
-                    "    Global start time: {1}\n"
-                    "    Video: {2} {3}\n"
-                    "    Audio: {4} {5} {6}").
-                arg(p.duration).
-                arg(p.globalStartTime).
+                    "    Time range: {0}\n"
+                    "    Video: {1} {2}\n"
+                    "    Audio: {3} {4} {5}").
+                arg(p.timeRange).
                 arg(!p.ioInfo.video.empty() ? p.ioInfo.video[0].size : imaging::Size()).
                 arg(!p.ioInfo.video.empty() ? p.ioInfo.video[0].pixelType : imaging::PixelType::None).
                 arg(p.ioInfo.audio.channelCount).
@@ -333,14 +326,9 @@ namespace tl
             return _p->options;
         }
 
-        const otime::RationalTime& Timeline::getGlobalStartTime() const
+        const otime::TimeRange& Timeline::getTimeRange() const
         {
-            return _p->globalStartTime;
-        }
-
-        const otime::RationalTime& Timeline::getDuration() const
-        {
-            return _p->duration;
+            return _p->timeRange;
         }
 
         const io::Info& Timeline::getIOInfo() const

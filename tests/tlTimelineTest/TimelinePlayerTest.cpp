@@ -137,12 +137,11 @@ namespace tl
             TLRENDER_ASSERT(timelinePlayer->getTimeline());
             TLRENDER_ASSERT(fileName == timelinePlayer->getPath().get());
             TLRENDER_ASSERT(Options() == timelinePlayer->getOptions());
-            const otime::RationalTime timelineDuration(48.0, 24.0);
-            TLRENDER_ASSERT(timelineDuration == timelinePlayer->getDuration());
-            TLRENDER_ASSERT(otime::RationalTime(10.0, 24.0) == timelinePlayer->getGlobalStartTime());
+            const otime::TimeRange timeRange(otime::RationalTime(10.0, 24.0), otime::RationalTime(48.0, 24.0));
+            TLRENDER_ASSERT(timeRange == timelinePlayer->getTimeRange());
             TLRENDER_ASSERT(imageInfo.size == timelinePlayer->getIOInfo().video[0].size);
             TLRENDER_ASSERT(imageInfo.pixelType == timelinePlayer->getIOInfo().video[0].pixelType);
-            TLRENDER_ASSERT(timelineDuration.rate() == timelinePlayer->getDefaultSpeed());
+            TLRENDER_ASSERT(timeRange.duration().rate() == timelinePlayer->getDefaultSpeed());
 
             // Test frames.
             struct FrameOptions
@@ -205,13 +204,13 @@ namespace tl
                 {
                     timelinePlayer->setLoop(loop);
                     timelinePlayer->setPlayback(Playback::Forward);
-                    for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
+                    for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().value()); ++i)
                     {
                         timelinePlayer->tick();
                         time::sleep(std::chrono::microseconds(1000000 / 24));
                     }
                     timelinePlayer->setPlayback(Playback::Reverse);
-                    for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
+                    for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().value()); ++i)
                     {
                         timelinePlayer->tick();
                         time::sleep(std::chrono::microseconds(1000000 / 24));
@@ -304,7 +303,7 @@ namespace tl
             TLRENDER_ASSERT(otime::TimeRange(otime::RationalTime(12.0, 24.0), otime::RationalTime(21.0, 24.0)) == inOutRange);
             timelinePlayer->resetInPoint();
             timelinePlayer->resetOutPoint();
-            TLRENDER_ASSERT(otime::TimeRange(otime::RationalTime(10.0, 24.0), timelineDuration) == inOutRange);
+            TLRENDER_ASSERT(otime::TimeRange(otime::RationalTime(10.0, 24.0), timeRange.duration()) == inOutRange);
         }
     }
 }

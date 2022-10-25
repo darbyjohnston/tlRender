@@ -133,24 +133,23 @@ namespace tl
             TLRENDER_ASSERT(timeline->getTimeline());
             TLRENDER_ASSERT(fileName == timeline->getPath().get());
             TLRENDER_ASSERT(Options() == timeline->getOptions());
-            const otime::RationalTime timelineDuration(48.0, 24.0);
-            TLRENDER_ASSERT(timelineDuration == timeline->getDuration());
-            TLRENDER_ASSERT(otime::RationalTime(0.0, 24.0) == timeline->getGlobalStartTime());
+            const otime::TimeRange timeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(48.0, 24.0));
+            TLRENDER_ASSERT(timeRange == timeline->getTimeRange());
             TLRENDER_ASSERT(imageInfo.size == timeline->getIOInfo().video[0].size);
             TLRENDER_ASSERT(imageInfo.pixelType == timeline->getIOInfo().video[0].pixelType);
 
             // Get video from the timeline.
             std::vector<timeline::VideoData> videoData;
             std::vector<std::future<timeline::VideoData> > futures;
-            for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
+            for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().value()); ++i)
             {
                 futures.push_back(timeline->getVideo(otime::RationalTime(i, 24.0)));
             }
-            for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
+            for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().value()); ++i)
             {
                 futures.push_back(timeline->getVideo(otime::RationalTime(i, 24.0), 1));
             }
-            while (videoData.size() < static_cast<size_t>(timelineDuration.value()) * 2)
+            while (videoData.size() < static_cast<size_t>(timeRange.duration().value()) * 2)
             {
                 auto i = futures.begin();
                 while (i != futures.end())
@@ -170,18 +169,18 @@ namespace tl
             TLRENDER_ASSERT(futures.empty());
 
             // Get video from the timeline, setting the active range.
-            timeline->setActiveRanges({ otime::TimeRange(otime::RationalTime(0.0, 24.0), timelineDuration) });
+            timeline->setActiveRanges({ otime::TimeRange(otime::RationalTime(0.0, 24.0), timeRange.duration()) });
             videoData.clear();
             futures.clear();
-            for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
+            for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().value()); ++i)
             {
                 futures.push_back(timeline->getVideo(otime::RationalTime(i, 24.0)));
             }
-            for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
+            for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().value()); ++i)
             {
                 futures.push_back(timeline->getVideo(otime::RationalTime(i, 24.0), 1));
             }
-            while (videoData.size() < static_cast<size_t>(timelineDuration.value()) * 2)
+            while (videoData.size() < static_cast<size_t>(timeRange.duration().value()) * 2)
             {
                 auto i = futures.begin();
                 while (i != futures.end())
@@ -203,11 +202,11 @@ namespace tl
             // Cancel requests.
             videoData.clear();
             futures.clear();
-            for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
+            for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().value()); ++i)
             {
                 futures.push_back(timeline->getVideo(otime::RationalTime(i, 24.0)));
             }
-            for (size_t i = 0; i < static_cast<size_t>(timelineDuration.value()); ++i)
+            for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().value()); ++i)
             {
                 futures.push_back(timeline->getVideo(otime::RationalTime(i, 24.0), 1));
             }
@@ -220,10 +219,12 @@ namespace tl
             auto timeline = Timeline::create("Timeline Test.0.ppm", _context);
             {
                 std::stringstream ss;
-                ss << timeline->getDuration();
+                ss << timeline->getTimeRange().duration();
                 _print(ss.str());
             }
-            TLRENDER_ASSERT(otime::RationalTime(24.0, 24.0) == timeline->getDuration());
+            TLRENDER_ASSERT(
+                otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0)) ==
+                timeline->getTimeRange());
         }
     }
 }

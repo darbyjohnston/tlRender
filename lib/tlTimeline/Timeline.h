@@ -134,11 +134,8 @@ namespace tl
             //! \name Information
             ///@{
 
-            //! Get the duration.
-            const otime::RationalTime& getDuration() const;
-
-            //! Get the global start time.
-            const otime::RationalTime& getGlobalStartTime() const;
+            //! Get the time range.
+            const otime::TimeRange& getTimeRange() const;
 
             //! Get the I/O information. This information is retreived from
             //! the first clip in the timeline.

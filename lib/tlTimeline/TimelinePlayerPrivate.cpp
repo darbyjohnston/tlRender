@@ -110,12 +110,11 @@ namespace tl
             const otime::RationalTime& cacheReadBehind)
         {
             // Get the video ranges to be cached.
-            const otime::RationalTime& globalStartTime = timeline->getGlobalStartTime();
-            const otime::RationalTime& duration = timeline->getDuration();
+            const otime::TimeRange& timeRange = timeline->getTimeRange();
             const otime::RationalTime cacheReadAheadRescaled =
-                time::floor(cacheReadAhead.rescaled_to(duration.rate()));
+                time::floor(cacheReadAhead.rescaled_to(timeRange.duration().rate()));
             const otime::RationalTime cacheReadBehindRescaled =
-                time::floor(cacheReadBehind.rescaled_to(duration.rate()));
+                time::floor(cacheReadBehind.rescaled_to(timeRange.duration().rate()));
             otime::TimeRange videoRange = time::invalidTimeRange;
             switch (cacheDirection)
             {
@@ -141,12 +140,12 @@ namespace tl
 
             // Get the audio ranges to be cached.
             const otime::RationalTime audioOffsetTime = otime::RationalTime(audioOffset, 1.0).
-                rescaled_to(duration.rate());
+                rescaled_to(timeRange.duration().rate());
             //std::cout << "audio offset: " << audioOffsetTime << std::endl;
             const otime::RationalTime audioOffsetAhead = time::round(
-                audioOffsetTime.value() < 0.0 ? -audioOffsetTime : otime::RationalTime(0.0, duration.rate()));
+                audioOffsetTime.value() < 0.0 ? -audioOffsetTime : otime::RationalTime(0.0, timeRange.duration().rate()));
             const otime::RationalTime audioOffsetBehind = time::round(
-                audioOffsetTime.value() > 0.0 ? audioOffsetTime : otime::RationalTime(0.0, duration.rate()));
+                audioOffsetTime.value() > 0.0 ? audioOffsetTime : otime::RationalTime(0.0, timeRange.duration().rate()));
             //std::cout << "audio offset ahead: " << audioOffsetAhead << std::endl;
             //std::cout << "audio offset behind: " << audioOffsetBehind << std::endl;
             otime::TimeRange audioRange = time::invalidTimeRange;
@@ -165,12 +164,10 @@ namespace tl
             default: break;
             }
             //std::cout << "audio range: " << audioRange << std::endl;
-            const otime::TimeRange totalRange(globalStartTime, duration);
-            //std::cout << "total range: " << totalRange << std::endl;
             const otime::TimeRange inOutAudioRange = otime::TimeRange::range_from_start_end_time_inclusive(
                 inOutRange.start_time() - audioOffsetBehind,
                 inOutRange.end_time_inclusive() + audioOffsetAhead).
-                    clamped(totalRange);
+                    clamped(timeRange);
             //std::cout << "in out audio range: " << inOutAudioRange << std::endl;
             const auto audioRanges = timeline::loop(audioRange, inOutAudioRange);
             std::vector<otime::TimeRange> audioCacheRanges;
@@ -241,7 +238,7 @@ namespace tl
                 {
                     for (otime::RationalTime time = i.start_time();
                         time < i.end_time_exclusive();
-                        time += otime::RationalTime(1.0, duration.rate()))
+                        time += otime::RationalTime(1.0, timeRange.duration().rate()))
                     {
                         const auto j = threadData.videoDataCache.find(time);
                         if (j == threadData.videoDataCache.end())
@@ -334,8 +331,8 @@ namespace tl
             for (auto& i : cachedAudioRanges)
             {
                 i = otime::TimeRange(
-                    time::floor(i.start_time().rescaled_to(duration.rate())),
-                    time::ceil(i.duration().rescaled_to(duration.rate())));
+                    time::floor(i.start_time().rescaled_to(timeRange.duration().rate())),
+                    time::ceil(i.duration().rescaled_to(timeRange.duration().rate())));
             }
             {
                 std::unique_lock<std::mutex> lock(mutex);
@@ -424,7 +421,7 @@ namespace tl
                 const auto now = std::chrono::steady_clock::now();
 
                 // Copy audio data to RtAudio.
-                if (speed == p->timeline->getDuration().rate() &&
+                if (speed == p->timeline->getTimeRange().duration().rate() &&
                     !externalTime &&
                     !mute &&
                     now >= muteTimeout &&
@@ -547,18 +544,19 @@ namespace tl
             }
 
             // Create an array of characters to draw the timeline.
+            const auto& timeRange = timeline->getTimeRange();
             const size_t lineLength = 80;
             std::string currentTimeDisplay(lineLength, '.');
-            double n = (currentTime - timeline->getGlobalStartTime()).value() / timeline->getDuration().value();
+            double n = (currentTime - timeRange.start_time()).value() / timeRange.duration().value();
             currentTimeDisplay[math::clamp(n, 0.0, 1.0) * (lineLength - 1)] = 'T';
 
             // Create an array of characters to draw the cached video frames.
             std::string cachedVideoFramesDisplay(lineLength, '.');
             for (const auto& i : cachedVideoFrames)
             {
-                double n = (i.start_time() - timeline->getGlobalStartTime()).value() / timeline->getDuration().value();
+                double n = (i.start_time() - timeRange.start_time()).value() / timeRange.duration().value();
                 const size_t t0 = math::clamp(n, 0.0, 1.0) * (lineLength - 1);
-                n = (i.end_time_inclusive() - timeline->getGlobalStartTime()).value() / timeline->getDuration().value();
+                n = (i.end_time_inclusive() - timeRange.start_time()).value() / timeRange.duration().value();
                 const size_t t1 = math::clamp(n, 0.0, 1.0) * (lineLength - 1);
                 for (size_t j = t0; j <= t1; ++j)
                 {
@@ -570,9 +568,9 @@ namespace tl
             std::string cachedAudioFramesDisplay(lineLength, '.');
             for (const auto& i : cachedAudioFrames)
             {
-                double n = (i.start_time() - timeline->getGlobalStartTime()).value() / timeline->getDuration().value();
+                double n = (i.start_time() - timeRange.start_time()).value() / timeRange.duration().value();
                 const size_t t0 = math::clamp(n, 0.0, 1.0) * (lineLength - 1);
-                n = (i.end_time_inclusive() - timeline->getGlobalStartTime()).value() / timeline->getDuration().value();
+                n = (i.end_time_inclusive() - timeRange.start_time()).value() / timeRange.duration().value();
                 const size_t t1 = math::clamp(n, 0.0, 1.0) * (lineLength - 1);
                 for (size_t j = t0; j <= t1; ++j)
                 {

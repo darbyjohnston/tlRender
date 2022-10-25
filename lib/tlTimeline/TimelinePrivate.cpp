@@ -260,10 +260,10 @@ namespace tl
                         {
                             if (auto otioItem = dynamic_cast<otio::Item*>(otioChild.value))
                             {
-                                const auto time = request->time - globalStartTime;
+                                const auto requestTime = request->time - timeRange.start_time();
                                 otio::ErrorStatus errorStatus;
                                 const auto range = otioItem->trimmed_range_in_parent(&errorStatus);
-                                if (range.has_value() && range.value().contains(time))
+                                if (range.has_value() && range.value().contains(requestTime))
                                 {
                                     VideoLayerData videoData;
                                     if (auto otioClip = dynamic_cast<const otio::Clip*>(otioItem))
@@ -276,16 +276,16 @@ namespace tl
                                                 readers[otioClip] = reader;
                                             }
                                         }
-                                        videoData.image = readVideo(otioTrack, otioClip, time, request->videoLayer);
+                                        videoData.image = readVideo(otioTrack, otioClip, requestTime, request->videoLayer);
                                     }
                                     const auto neighbors = otioTrack->neighbors_of(otioItem, &errorStatus);
                                     if (auto otioTransition = dynamic_cast<otio::Transition*>(neighbors.second.value))
                                     {
-                                        if (time > range.value().end_time_inclusive() - otioTransition->in_offset())
+                                        if (requestTime > range.value().end_time_inclusive() - otioTransition->in_offset())
                                         {
                                             videoData.transition = toTransition(otioTransition->transition_type());
                                             videoData.transitionValue = transitionValue(
-                                                time.value(),
+                                                requestTime.value(),
                                                 range.value().end_time_inclusive().value() - otioTransition->in_offset().value(),
                                                 range.value().end_time_inclusive().value() + otioTransition->out_offset().value() + 1.0);
                                             const auto transitionNeighbors = otioTrack->neighbors_of(otioTransition, &errorStatus);
@@ -299,18 +299,18 @@ namespace tl
                                                         readers[otioClipB] = reader;
                                                     }
                                                 }
-                                                videoData.imageB = readVideo(otioTrack, otioClipB, time, request->videoLayer);
+                                                videoData.imageB = readVideo(otioTrack, otioClipB, requestTime, request->videoLayer);
                                             }
                                         }
                                     }
                                     if (auto otioTransition = dynamic_cast<otio::Transition*>(neighbors.first.value))
                                     {
-                                        if (time < range.value().start_time() + otioTransition->out_offset())
+                                        if (requestTime < range.value().start_time() + otioTransition->out_offset())
                                         {
                                             std::swap(videoData.image, videoData.imageB);
                                             videoData.transition = toTransition(otioTransition->transition_type());
                                             videoData.transitionValue = transitionValue(
-                                                time.value(),
+                                                requestTime.value(),
                                                 range.value().start_time().value() - otioTransition->in_offset().value() - 1.0,
                                                 range.value().start_time().value() + otioTransition->out_offset().value());
                                             const auto transitionNeighbors = otioTrack->neighbors_of(otioTransition, &errorStatus);
@@ -324,7 +324,7 @@ namespace tl
                                                         readers[otioClipB] = reader;
                                                     }
                                                 }
-                                                videoData.image = readVideo(otioTrack, otioClipB, time, request->videoLayer);
+                                                videoData.image = readVideo(otioTrack, otioClipB, requestTime, request->videoLayer);
                                             }
                                         }
                                     }
@@ -353,12 +353,12 @@ namespace tl
                         {
                             if (auto otioItem = dynamic_cast<otio::Item*>(otioChild.value))
                             {
-                                const otime::RationalTime time = time::floor(
-                                    otime::RationalTime(request->seconds, 1.0) - globalStartTime.rescaled_to(1.0));
-                                const otime::TimeRange timeRange = otime::TimeRange(time, otime::RationalTime(1.0, 1.0));
+                                const otime::RationalTime requestTime = time::floor(
+                                    otime::RationalTime(request->seconds, 1.0) - timeRange.start_time().rescaled_to(1.0));
+                                const otime::TimeRange requestTimeRange = otime::TimeRange(requestTime, otime::RationalTime(1.0, 1.0));
                                 otio::ErrorStatus errorStatus;
                                 const auto range = otioItem->trimmed_range_in_parent(&errorStatus);
-                                if (range.has_value() && range.value().intersects(timeRange))
+                                if (range.has_value() && range.value().intersects(requestTimeRange))
                                 {
                                     AudioLayerData audioData;
                                     if (auto otioClip = dynamic_cast<const otio::Clip*>(otioItem))
@@ -371,7 +371,7 @@ namespace tl
                                                 readers[otioClip] = reader;
                                             }
                                         }
-                                        audioData.audio = readAudio(otioTrack, otioClip, timeRange);
+                                        audioData.audio = readAudio(otioTrack, otioClip, requestTimeRange);
                                     }
                                     request->layerData.push_back(std::move(audioData));
                                 }
@@ -491,7 +491,7 @@ namespace tl
                 const auto path = getPath(clip->media_reference());
                 const auto memoryRead = getMemoryRead(clip->media_reference());
                 io::Options options = ioOptions;
-                options["SequenceIO/DefaultSpeed"] = string::Format("{0}").arg(duration.rate());
+                options["SequenceIO/DefaultSpeed"] = string::Format("{0}").arg(timeRange.duration().rate());
                 const auto ioSystem = context->getSystem<io::System>();
                 auto read = ioSystem->read(path, memoryRead, options);
                 io::Info info;
@@ -538,7 +538,9 @@ namespace tl
                     out.info = info;
                     const auto ancestor = dynamic_cast<const otio::Item*>(getRoot(clip));
                     out.range = clip->transformed_time_range(
-                        otime::TimeRange::range_from_start_end_time(globalStartTime + startTime, globalStartTime + endTime),
+                        otime::TimeRange::range_from_start_end_time(
+                            timeRange.start_time() + startTime, 
+                            timeRange.start_time() + endTime),
                         ancestor,
                         &errorStatus);
                 }

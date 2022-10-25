@@ -966,8 +966,8 @@ namespace tl
                     p.currentTimeSpinBox->setValue(p.timelinePlayers[0]->currentTime());
                 }
 
-                const auto& duration = p.timelinePlayers[0]->duration();
-                p.durationLabel->setValue(duration);
+                const auto& timeRange = p.timelinePlayers[0]->timeRange();
+                p.durationLabel->setValue(timeRange.duration());
 
                 {
                     QSignalBlocker blocker(p.speedSpinBox);

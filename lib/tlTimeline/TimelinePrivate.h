@@ -57,8 +57,7 @@ namespace tl
             file::Path path;
             file::Path audioPath;
             Options options;
-            otime::RationalTime duration = time::invalidTime;
-            otime::RationalTime globalStartTime = time::invalidTime;
+            otime::TimeRange timeRange = time::invalidTimeRange;
             io::Info ioInfo;
             std::vector<otime::TimeRange> activeRanges;
 
