@@ -37,7 +37,7 @@ namespace tl
             return !(*this == other);
         }
 
-        inline bool Exposure::operator == (const Exposure& other) const
+        inline bool EXRDisplay::operator == (const EXRDisplay& other) const
         {
             return
                 exposure == other.exposure &&
@@ -46,7 +46,7 @@ namespace tl
                 kneeHigh == other.kneeHigh;
         }
 
-        inline bool Exposure::operator != (const Exposure& other) const
+        inline bool EXRDisplay::operator != (const EXRDisplay& other) const
         {
             return !(*this == other);
         }
@@ -60,8 +60,8 @@ namespace tl
                 color == other.color &&
                 levelsEnabled == other.levelsEnabled &&
                 levels == other.levels &&
-                exposureEnabled == other.exposureEnabled &&
-                exposure == other.exposure &&
+                exrDisplayEnabled == other.exrDisplayEnabled &&
+                exrDisplay == other.exrDisplay &&
                 softClipEnabled == other.softClipEnabled &&
                 softClip == other.softClip &&
                 imageFilters == other.imageFilters &&

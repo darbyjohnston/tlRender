@@ -72,16 +72,17 @@ namespace tl
             bool operator != (const Levels&) const;
         };
 
-        //! Exposure values.
-        struct Exposure
+        //! These values match the ones in exrdisplay for comparison and
+        //! testing.
+        struct EXRDisplay
         {
             float exposure = 0.F;
             float defog = 0.F;
             float kneeLow = 0.F;
             float kneeHigh = 5.F;
 
-            bool operator == (const Exposure&) const;
-            bool operator != (const Exposure&) const;
+            bool operator == (const EXRDisplay&) const;
+            bool operator != (const EXRDisplay&) const;
         };
 
         //! Display options.
@@ -93,8 +94,8 @@ namespace tl
             Color                color;
             bool                 levelsEnabled = false;
             Levels               levels;
-            bool                 exposureEnabled = false;
-            Exposure             exposure;
+            bool                 exrDisplayEnabled = false;
+            EXRDisplay           exrDisplay;
             bool                 softClipEnabled = false;
             float                softClip = 0.F;
             ImageFilters         imageFilters;

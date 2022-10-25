@@ -283,10 +283,10 @@ namespace tl
 
         struct ColorControlsWidget::Private
         {
-            bool colorEnabled = false;
+            bool enabled = false;
             timeline::Color color;
 
-            QCheckBox* colorEnabledCheckBox = nullptr;
+            QCheckBox* enabledCheckBox = nullptr;
             qtwidget::FloatSlider* addSlider = nullptr;
             qtwidget::FloatSlider* brightnessSlider = nullptr;
             qtwidget::FloatSlider* contrastSlider = nullptr;
@@ -301,7 +301,7 @@ namespace tl
         {
             TLRENDER_P();
 
-            p.colorEnabledCheckBox = new QCheckBox(tr("Enabled"));
+            p.enabledCheckBox = new QCheckBox(tr("Enabled"));
 
             p.addSlider = new qtwidget::FloatSlider;
             p.addSlider->setRange(math::FloatRange(-1.F, 1.F));
@@ -325,7 +325,7 @@ namespace tl
             p.invertCheckBox = new QCheckBox(tr("Invert"));
 
             auto layout = new QFormLayout;
-            layout->addRow(p.colorEnabledCheckBox);
+            layout->addRow(p.enabledCheckBox);
             layout->addRow(tr("Add:"), p.addSlider);
             layout->addRow(tr("Brightness:"), p.brightnessSlider);
             layout->addRow(tr("Contrast:"), p.contrastSlider);
@@ -337,7 +337,7 @@ namespace tl
             _widgetUpdate();
 
             connect(
-                p.colorEnabledCheckBox,
+                p.enabledCheckBox,
                 &QCheckBox::toggled,
                 [this](bool value)
                 {
@@ -417,9 +417,9 @@ namespace tl
         void ColorControlsWidget::setColorEnabled(bool value)
         {
             TLRENDER_P();
-            if (value == p.colorEnabled)
+            if (value == p.enabled)
                 return;
-            p.colorEnabled = value;
+            p.enabled = value;
             _widgetUpdate();
         }
 
@@ -436,8 +436,8 @@ namespace tl
         {
             TLRENDER_P();
             {
-                QSignalBlocker signalBlocker(p.colorEnabledCheckBox);
-                p.colorEnabledCheckBox->setChecked(p.colorEnabled);
+                QSignalBlocker signalBlocker(p.enabledCheckBox);
+                p.enabledCheckBox->setChecked(p.enabled);
             }
             {
                 QSignalBlocker signalBlocker(p.addSlider);
@@ -467,10 +467,10 @@ namespace tl
 
         struct LevelsWidget::Private
         {
-            bool levelsEnabled = false;
+            bool enabled = false;
             timeline::Levels levels;
 
-            QCheckBox* levelsEnabledCheckBox = nullptr;
+            QCheckBox* enabledCheckBox = nullptr;
             qtwidget::FloatSlider* inLowSlider = nullptr;
             qtwidget::FloatSlider* inHighSlider = nullptr;
             qtwidget::FloatSlider* gammaSlider = nullptr;
@@ -484,7 +484,7 @@ namespace tl
         {
             TLRENDER_P();
 
-            p.levelsEnabledCheckBox = new QCheckBox(tr("Enabled"));
+            p.enabledCheckBox = new QCheckBox(tr("Enabled"));
 
             p.inLowSlider = new qtwidget::FloatSlider;
             p.inLowSlider->setDefaultValue(0.F);
@@ -503,7 +503,7 @@ namespace tl
             p.outHighSlider->setDefaultValue(1.F);
 
             auto layout = new QFormLayout;
-            layout->addRow(p.levelsEnabledCheckBox);
+            layout->addRow(p.enabledCheckBox);
             layout->addRow(tr("In low:"), p.inLowSlider);
             layout->addRow(tr("In high:"), p.inHighSlider);
             layout->addRow(tr("Gamma:"), p.gammaSlider);
@@ -514,7 +514,7 @@ namespace tl
             _widgetUpdate();
 
             connect(
-                p.levelsEnabledCheckBox,
+                p.enabledCheckBox,
                 &QCheckBox::toggled,
                 [this](bool value)
                 {
@@ -581,9 +581,9 @@ namespace tl
         void LevelsWidget::setLevelsEnabled(bool value)
         {
             TLRENDER_P();
-            if (value == p.levelsEnabled)
+            if (value == p.enabled)
                 return;
-            p.levelsEnabled = value;
+            p.enabled = value;
             _widgetUpdate();
         }
 
@@ -600,8 +600,8 @@ namespace tl
         {
             TLRENDER_P();
             {
-                QSignalBlocker signalBlocker(p.levelsEnabledCheckBox);
-                p.levelsEnabledCheckBox->setChecked(p.levelsEnabled);
+                QSignalBlocker signalBlocker(p.enabledCheckBox);
+                p.enabledCheckBox->setChecked(p.enabled);
             }
             {
                 QSignalBlocker signalBlocker(p.inLowSlider);
@@ -625,25 +625,25 @@ namespace tl
             }
         }
 
-        struct ExposureWidget::Private
+        struct EXRDisplayWidget::Private
         {
-            bool exposureEnabled = false;
-            timeline::Exposure exposure;
+            bool enabled = false;
+            timeline::EXRDisplay exrDisplay;
 
-            QCheckBox* exposureEnabledCheckBox = nullptr;
+            QCheckBox* enabledCheckBox = nullptr;
             qtwidget::FloatSlider* exposureSlider = nullptr;
             qtwidget::FloatSlider* defogSlider = nullptr;
             qtwidget::FloatSlider* kneeLowSlider = nullptr;
             qtwidget::FloatSlider* kneeHighSlider = nullptr;
         };
 
-        ExposureWidget::ExposureWidget(QWidget* parent) :
+        EXRDisplayWidget::EXRDisplayWidget(QWidget* parent) :
             QWidget(parent),
             _p(new Private)
         {
             TLRENDER_P();
 
-            p.exposureEnabledCheckBox = new QCheckBox(tr("Enabled"));
+            p.enabledCheckBox = new QCheckBox(tr("Enabled"));
 
             p.exposureSlider = new qtwidget::FloatSlider;
             p.exposureSlider->setRange(math::FloatRange(-10.F, 10.F));
@@ -662,7 +662,7 @@ namespace tl
             p.kneeHighSlider->setDefaultValue(5.F);
 
             auto layout = new QFormLayout;
-            layout->addRow(p.exposureEnabledCheckBox);
+            layout->addRow(p.enabledCheckBox);
             layout->addRow(tr("Exposure:"), p.exposureSlider);
             layout->addRow(tr("Defog:"), p.defogSlider);
             layout->addRow(tr("Knee low:"), p.kneeLowSlider);
@@ -672,11 +672,11 @@ namespace tl
             _widgetUpdate();
 
             connect(
-                p.exposureEnabledCheckBox,
+                p.enabledCheckBox,
                 &QCheckBox::toggled,
                 [this](bool value)
                 {
-                    Q_EMIT exposureEnabledChanged(value);
+                    Q_EMIT exrDisplayEnabledChanged(value);
                 });
 
             connect(
@@ -684,10 +684,10 @@ namespace tl
                 &qtwidget::FloatSlider::valueChanged,
                 [this](float value)
                 {
-                    timeline::Exposure exposure = _p->exposure;
-                    exposure.exposure = value;
-                    Q_EMIT exposureChanged(exposure);
-                    Q_EMIT exposureEnabledChanged(true);
+                    timeline::EXRDisplay exrDisplay = _p->exrDisplay;
+                    exrDisplay.exposure = value;
+                    Q_EMIT exrDisplayChanged(exrDisplay);
+                    Q_EMIT exrDisplayEnabledChanged(true);
                 });
 
             connect(
@@ -695,10 +695,10 @@ namespace tl
                 &qtwidget::FloatSlider::valueChanged,
                 [this](float value)
                 {
-                    timeline::Exposure exposure = _p->exposure;
-                    exposure.defog = value;
-                    Q_EMIT exposureChanged(exposure);
-                    Q_EMIT exposureEnabledChanged(true);
+                    timeline::EXRDisplay exrDisplay = _p->exrDisplay;
+                    exrDisplay.defog = value;
+                    Q_EMIT exrDisplayChanged(exrDisplay);
+                    Q_EMIT exrDisplayEnabledChanged(true);
                 });
 
             connect(
@@ -706,76 +706,76 @@ namespace tl
                 &qtwidget::FloatSlider::valueChanged,
                 [this](float value)
                 {
-                    timeline::Exposure exposure = _p->exposure;
-                    exposure.kneeLow = value;
-                    Q_EMIT exposureChanged(exposure);
-                    Q_EMIT exposureEnabledChanged(true);
+                    timeline::EXRDisplay exrDisplay = _p->exrDisplay;
+                    exrDisplay.kneeLow = value;
+                    Q_EMIT exrDisplayChanged(exrDisplay);
+                    Q_EMIT exrDisplayEnabledChanged(true);
                 });
             connect(
                 p.kneeHighSlider,
                 &qtwidget::FloatSlider::valueChanged,
                 [this](float value)
                 {
-                    timeline::Exposure exposure = _p->exposure;
-                    exposure.kneeHigh = value;
-                    Q_EMIT exposureChanged(exposure);
-                    Q_EMIT exposureEnabledChanged(true);
+                    timeline::EXRDisplay exrDisplay = _p->exrDisplay;
+                    exrDisplay.kneeHigh = value;
+                    Q_EMIT exrDisplayChanged(exrDisplay);
+                    Q_EMIT exrDisplayEnabledChanged(true);
                 });
 
         }
 
-        ExposureWidget::~ExposureWidget()
+        EXRDisplayWidget::~EXRDisplayWidget()
         {}
 
-        void ExposureWidget::setExposureEnabled(bool value)
+        void EXRDisplayWidget::setEXRDisplayEnabled(bool value)
         {
             TLRENDER_P();
-            if (value == p.exposureEnabled)
+            if (value == p.enabled)
                 return;
-            p.exposureEnabled = value;
+            p.enabled = value;
             _widgetUpdate();
         }
 
-        void ExposureWidget::setExposure(const timeline::Exposure& value)
+        void EXRDisplayWidget::setEXRDisplay(const timeline::EXRDisplay& value)
         {
             TLRENDER_P();
-            if (value == p.exposure)
+            if (value == p.exrDisplay)
                 return;
-            p.exposure = value;
+            p.exrDisplay = value;
             _widgetUpdate();
         }
 
-        void ExposureWidget::_widgetUpdate()
+        void EXRDisplayWidget::_widgetUpdate()
         {
             TLRENDER_P();
             {
-                QSignalBlocker signalBlocker(p.exposureEnabledCheckBox);
-                p.exposureEnabledCheckBox->setChecked(p.exposureEnabled);
+                QSignalBlocker signalBlocker(p.enabledCheckBox);
+                p.enabledCheckBox->setChecked(p.enabled);
             }
             {
                 QSignalBlocker signalBlocker(p.exposureSlider);
-                p.exposureSlider->setValue(p.exposure.exposure);
+                p.exposureSlider->setValue(p.exrDisplay.exposure);
             }
             {
                 QSignalBlocker signalBlocker(p.defogSlider);
-                p.defogSlider->setValue(p.exposure.defog);
+                p.defogSlider->setValue(p.exrDisplay.defog);
             }
             {
                 QSignalBlocker signalBlocker(p.kneeLowSlider);
-                p.kneeLowSlider->setValue(p.exposure.kneeLow);
+                p.kneeLowSlider->setValue(p.exrDisplay.kneeLow);
             }
             {
                 QSignalBlocker signalBlocker(p.kneeHighSlider);
-                p.kneeHighSlider->setValue(p.exposure.kneeHigh);
+                p.kneeHighSlider->setValue(p.exrDisplay.kneeHigh);
             }
         }
 
         struct SoftClipWidget::Private
         {
-            bool softClipEnabled = false;
+            bool enabled = false;
             float softClip = 0.F;
 
-            QCheckBox* softClipEnabledCheckBox = nullptr;
+            QCheckBox* enabledCheckBox = nullptr;
             qtwidget::FloatSlider* softClipSlider = nullptr;
         };
 
@@ -785,20 +785,20 @@ namespace tl
         {
             TLRENDER_P();
 
-            p.softClipEnabledCheckBox = new QCheckBox(tr("Enabled"));
+            p.enabledCheckBox = new QCheckBox(tr("Enabled"));
 
             p.softClipSlider = new qtwidget::FloatSlider;
             p.softClipSlider->setDefaultValue(0.F);
 
             auto layout = new QFormLayout;
-            layout->addRow(p.softClipEnabledCheckBox);
+            layout->addRow(p.enabledCheckBox);
             layout->addRow(tr("Soft clip:"), p.softClipSlider);
             setLayout(layout);
 
             _widgetUpdate();
 
             connect(
-                p.softClipEnabledCheckBox,
+                p.enabledCheckBox,
                 &QCheckBox::toggled,
                 [this](bool value)
                 {
@@ -821,9 +821,9 @@ namespace tl
         void SoftClipWidget::setSoftClipEnabled(bool value)
         {
             TLRENDER_P();
-            if (value == p.softClipEnabled)
+            if (value == p.enabled)
                 return;
-            p.softClipEnabled = value;
+            p.enabled = value;
             _widgetUpdate();
         }
 
@@ -840,8 +840,8 @@ namespace tl
         {
             TLRENDER_P();
             {
-                QSignalBlocker signalBlocker(p.softClipEnabledCheckBox);
-                p.softClipEnabledCheckBox->setChecked(p.softClipEnabled);
+                QSignalBlocker signalBlocker(p.enabledCheckBox);
+                p.enabledCheckBox->setChecked(p.enabled);
             }
             {
                 QSignalBlocker signalBlocker(p.softClipSlider);
@@ -858,7 +858,7 @@ namespace tl
             LUTWidget* lutWidget = nullptr;
             ColorControlsWidget* colorControlsWidget = nullptr;
             LevelsWidget* levelsWidget = nullptr;
-            ExposureWidget* exposureWidget = nullptr;
+            EXRDisplayWidget* exrDisplayWidget = nullptr;
             SoftClipWidget* softClipWidget = nullptr;
         };
 
@@ -874,14 +874,14 @@ namespace tl
             p.lutWidget = new LUTWidget;
             p.colorControlsWidget = new ColorControlsWidget;
             p.levelsWidget = new LevelsWidget;
-            p.exposureWidget = new ExposureWidget;
+            p.exrDisplayWidget = new EXRDisplayWidget;
             p.softClipWidget = new SoftClipWidget;
 
             addBellows(tr("Configuration"), p.configWidget);
             addBellows(tr("LUT"), p.lutWidget);
             addBellows(tr("Color Controls"), p.colorControlsWidget);
             addBellows(tr("Levels"), p.levelsWidget);
-            addBellows(tr("Exposure"), p.exposureWidget);
+            addBellows(tr("EXR Display"), p.exrDisplayWidget);
             addBellows(tr("Soft Clip"), p.softClipWidget);
             addStretch();
 
@@ -932,21 +932,21 @@ namespace tl
                 });
 
             connect(
-                p.exposureWidget,
-                &ExposureWidget::exposureEnabledChanged,
+                p.exrDisplayWidget,
+                &EXRDisplayWidget::exrDisplayEnabledChanged,
                 [this](bool value)
                 {
                     timeline::DisplayOptions displayOptions = _p->displayOptions;
-                    displayOptions.exposureEnabled = value;
+                    displayOptions.exrDisplayEnabled = value;
                     Q_EMIT displayOptionsChanged(displayOptions);
                 });
             connect(
-                p.exposureWidget,
-                &ExposureWidget::exposureChanged,
-                [this](const timeline::Exposure& value)
+                p.exrDisplayWidget,
+                &EXRDisplayWidget::exrDisplayChanged,
+                [this](const timeline::EXRDisplay& value)
                 {
                     timeline::DisplayOptions displayOptions = _p->displayOptions;
-                    displayOptions.exposure = value;
+                    displayOptions.exrDisplay = value;
                     Q_EMIT displayOptionsChanged(displayOptions);
                 });
 
@@ -1009,9 +1009,9 @@ namespace tl
                 p.levelsWidget->setLevels(p.displayOptions.levels);
             }
             {
-                QSignalBlocker blocker(p.exposureWidget);
-                p.exposureWidget->setExposureEnabled(p.displayOptions.exposureEnabled);
-                p.exposureWidget->setExposure(p.displayOptions.exposure);
+                QSignalBlocker blocker(p.exrDisplayWidget);
+                p.exrDisplayWidget->setEXRDisplayEnabled(p.displayOptions.exrDisplayEnabled);
+                p.exrDisplayWidget->setEXRDisplay(p.displayOptions.exrDisplay);
             }
             {
                 QSignalBlocker blocker(p.softClipWidget);

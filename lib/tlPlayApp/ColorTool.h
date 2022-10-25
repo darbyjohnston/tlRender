@@ -106,23 +106,23 @@ namespace tl
             TLRENDER_PRIVATE();
         };
 
-        //! Exposure widget.
-        class ExposureWidget : public QWidget
+        //! EXR display widget.
+        class EXRDisplayWidget : public QWidget
         {
             Q_OBJECT
 
         public:
-            ExposureWidget(QWidget* parent = nullptr);
+            EXRDisplayWidget(QWidget* parent = nullptr);
 
-            ~ExposureWidget() override;
+            ~EXRDisplayWidget() override;
 
         public Q_SLOTS:
-            void setExposureEnabled(bool);
-            void setExposure(const tl::timeline::Exposure&);
+            void setEXRDisplayEnabled(bool);
+            void setEXRDisplay(const tl::timeline::EXRDisplay&);
 
         Q_SIGNALS:
-            void exposureEnabledChanged(bool);
-            void exposureChanged(const tl::timeline::Exposure&);
+            void exrDisplayEnabledChanged(bool);
+            void exrDisplayChanged(const tl::timeline::EXRDisplay&);
 
         private:
             void _widgetUpdate();

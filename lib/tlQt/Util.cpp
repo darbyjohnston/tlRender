@@ -94,7 +94,7 @@ namespace tl
             qRegisterMetaType<timeline::ColorConfigOptions>("tl::timeline::ColorConfigOptions");
             qRegisterMetaType<timeline::CompareMode>("tl::timeline::CompareMode");
             qRegisterMetaType<timeline::CompareOptions>("tl::timeline::CompareOptions");
-            qRegisterMetaType<timeline::Exposure>("tl::timeline::Exposure");
+            qRegisterMetaType<timeline::EXRDisplay>("tl::timeline::EXRDisplay");
             qRegisterMetaType<timeline::FileSequenceAudio>("tl::timeline::FileSequenceAudio");
             qRegisterMetaType<timeline::ImageFilter>("tl::timeline::ImageFilter");
             qRegisterMetaType<timeline::ImageOptions>("tl::timeline::ImageOptions");

@@ -520,21 +520,21 @@ namespace tl
                 p.shaders["display"]->setUniform("levels.gamma", displayOptions.levels.gamma > 0.F ? (1.F / displayOptions.levels.gamma) : 1000000.F);
                 p.shaders["display"]->setUniform("levels.outLow", displayOptions.levels.outLow);
                 p.shaders["display"]->setUniform("levels.outHigh", displayOptions.levels.outHigh);
-                p.shaders["display"]->setUniform("exposureEnabled", displayOptions.exposureEnabled);
-                if (displayOptions.exposureEnabled)
+                p.shaders["display"]->setUniform("exrDisplayEnabled", displayOptions.exrDisplayEnabled);
+                if (displayOptions.exrDisplayEnabled)
                 {
-                    const float v = powf(2.F, displayOptions.exposure.exposure + 2.47393F);
-                    const float d = displayOptions.exposure.defog;
-                    const float k = powf(2.F, displayOptions.exposure.kneeLow);
+                    const float v = powf(2.F, displayOptions.exrDisplay.exposure + 2.47393F);
+                    const float d = displayOptions.exrDisplay.defog;
+                    const float k = powf(2.F, displayOptions.exrDisplay.kneeLow);
                     const float f = knee2(
-                        powf(2.F, displayOptions.exposure.kneeHigh) - k,
+                        powf(2.F, displayOptions.exrDisplay.kneeHigh) - k,
                         powf(2.F, 3.5F) - k);
-                    p.shaders["display"]->setUniform("exposure.v", v);
-                    p.shaders["display"]->setUniform("exposure.d", d);
-                    p.shaders["display"]->setUniform("exposure.k", k);
-                    p.shaders["display"]->setUniform("exposure.f", f);
+                    p.shaders["display"]->setUniform("exrDisplay.v", v);
+                    p.shaders["display"]->setUniform("exrDisplay.d", d);
+                    p.shaders["display"]->setUniform("exrDisplay.k", k);
+                    p.shaders["display"]->setUniform("exrDisplay.f", f);
                     const float gamma = displayOptions.levels.gamma > 0.F ? (1.F / displayOptions.levels.gamma) : 1000000.F;
-                    p.shaders["display"]->setUniform("exposure.g", gamma );
+                    p.shaders["display"]->setUniform("exrDisplay.g", gamma );
                 }
                 p.shaders["display"]->setUniform("softClip", displayOptions.softClipEnabled ? displayOptions.softClip : 0.F);
                 p.shaders["display"]->setUniform("videoLevels", static_cast<int>(displayOptions.videoLevels));
