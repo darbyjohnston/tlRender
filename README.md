@@ -114,6 +114,8 @@ Clone the repository:
 ```
 git clone https://github.com/darbyjohnston/tlRender.git
 cd tlRender
+git submodule init
+git submodule update
 ```
 Create a build directory:
 ```
@@ -160,6 +162,8 @@ Clone the repository:
 ```
 git clone https://github.com/darbyjohnston/tlRender.git
 cd tlRender
+git submodule init
+git submodule update
 ```
 Create a build directory:
 ```
@@ -235,6 +239,8 @@ Clone the repository:
 ```
 git clone https://github.com/darbyjohnston/tlRender.git
 cd tlRender
+git submodule init
+git submodule update
 ```
 Create a build directory:
 ```

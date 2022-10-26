@@ -69,6 +69,7 @@ endif()
 
 include_directories(
 	${PROJECT_SOURCE_DIR}/deps
+	${PROJECT_SOURCE_DIR}/deps/fseq
 	${PROJECT_SOURCE_DIR}/lib
 	${PROJECT_SOURCE_DIR}/etc
 	${PROJECT_SOURCE_DIR}/tests)
@@ -87,7 +88,6 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # Dependencies
 
 find_package(Threads REQUIRED)
-find_package(FSeq REQUIRED)
 find_package(GLM REQUIRED)
 find_package(Imath REQUIRED)
 find_package(nlohmann_json REQUIRED)
@@ -142,9 +142,13 @@ endif()
 #-------------------------------------------------------------------------------
 # Sub-directories
 
+add_subdirectory(deps/FSeq)
+set_target_properties(fseq PROPERTIES FOLDER deps)
+
 if(TLRENDER_BUILD_GL)
 	add_subdirectory(deps/tlGlad)
 endif()
+
 add_subdirectory(lib)
 if(TLRENDER_BUILD_PROGRAMS)
     add_subdirectory(bin)

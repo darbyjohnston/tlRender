@@ -98,7 +98,7 @@ else()
 endif()
 
 set(LIBRARIES OTIO OCIO Imath)
-set(LIBRARIES_PRIVATE RtAudio libsamplerate FreeType nlohmann_json::nlohmann_json GLM FSeq)
+set(LIBRARIES_PRIVATE RtAudio libsamplerate FreeType nlohmann_json::nlohmann_json GLM fseq)
 if(TLRENDER_ENABLE_PYTHON)
     list(APPEND LIBRARIES_PRIVATE Python3::Python)
 endif()

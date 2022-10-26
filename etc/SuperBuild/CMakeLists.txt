@@ -59,7 +59,6 @@ find_package(Threads REQUIRED)
 if(TLRENDER_BUILD_GL)
 	find_package(OpenGL REQUIRED)
 endif()
-list(APPEND TLRENDER_EXTERNAL_DEPS FSeq)
 list(APPEND TLRENDER_EXTERNAL_DEPS GLM)
 list(APPEND TLRENDER_EXTERNAL_DEPS ZLIB)
 list(APPEND TLRENDER_EXTERNAL_DEPS Imath)
@@ -97,7 +96,6 @@ foreach(EXTERNAL_DEP ${TLRENDER_EXTERNAL_DEPS})
 endforeach()
 
 # Build tests.
-
 if (TLRENDER_BUILD_TESTS)
   include(Buildtests)
 endif()
