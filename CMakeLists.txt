@@ -69,7 +69,7 @@ endif()
 
 include_directories(
 	${PROJECT_SOURCE_DIR}/deps
-	${PROJECT_SOURCE_DIR}/deps/fseq
+	${PROJECT_SOURCE_DIR}/deps/FSeq
 	${PROJECT_SOURCE_DIR}/lib
 	${PROJECT_SOURCE_DIR}/etc
 	${PROJECT_SOURCE_DIR}/tests)
