@@ -14,9 +14,10 @@ color management by [OpenColorIO](https://github.com/AcademySoftwareFoundation/O
 and file I/O by [FFmpeg](https://ffmpeg.org), [OpenEXR](https://www.openexr.com/),
 and other open source libraries.
 
-The tlRender source code is provided under a BSD style open source license.
+The library is written in C++14 and uses CMake as the build system. The source
+code is provided under a BSD style open source license.
 
-Supported:
+Currently supported:
 * Movie files (H264, MP4, etc.)
 * Image file sequences (Cineon, DPX, JPEG, OpenEXR, PNG, PPM, TIFF)
 * Multi-channel audio
@@ -40,20 +41,23 @@ tlCore, tlIO, tlTimeline
 ------------------------
 The core libraries providing timeline rendering, playback, and I/O.
 
-Dependencies:
-* [OpenTimelineIO](https://github.com/PixarAnimationStudios/OpenTimelineIO)
-* [OpenColorIO](https://github.com/AcademySoftwareFoundation/OpenColorIO)
-* [FreeType](https://www.freetype.org)
-* [nlohmann_json](https://github.com/nlohmann/json)
-* [FSeq](https://github.com/darbyjohnston/FSeq)
+Required dependencies:
 * [ZLIB](https://zlib.net)
+* [FSeq](https://github.com/darbyjohnston/FSeq)
+* [nlohmann_json](https://github.com/nlohmann/json)
+* [Imath](https://github.com/AcademySoftwareFoundation/Imath)
+* [FreeType](https://www.freetype.org)
+* [OpenTimelineIO](https://github.com/PixarAnimationStudios/OpenTimelineIO)
 
 Optional dependencies:
-* [FFmpeg](https://ffmpeg.org)
+* [OpenColorIO](https://github.com/AcademySoftwareFoundation/OpenColorIO)
+* [RtAudio](https://github.com/thestk/rtaudio)
+* [libsamplerate](https://github.com/libsndfile/libsamplerate)
 * [JPEG](https://libjpeg-turbo.org)
-* [OpenEXR](https://www.openexr.com/)
-* [PNG](https://libpng.sourceforge.io/index.html)
 * [TIFF](http://www.libtiff.org)
+* [PNG](https://libpng.sourceforge.io/index.html)
+* [OpenEXR](https://www.openexr.com/)
+* [FFmpeg](https://ffmpeg.org)
 
 tlRenderGL
 ----------
@@ -86,29 +90,29 @@ Building
 
 Dependencies
 ------------
-A CMake super build script is provided to build the dependencies from source.
-
-Note however that Qt is not included in the super build, you must install it
-separately.
+A CMake super build script is provided to build the dependencies from source,
+except for Qt. Qt should be installed separately.
 
 CMake Build Options
 -------------------
-* TLRENDER_MMAP - Enable memory-mapped file I/O
-* TLRENDER_COVERAGE - Enable code coverage
-* TLRENDER_PYTHON - Enable Python support (for OTIO Python adapters)
-* TLRENDER_OCIO - Enable support for OpenColorIO
-* TLRENDER_AUDIO - Enable support for audio
-* TLRENDER_JPEG - Enable support for JPEG
-* TLRENDER_TIFF - Enable support for TIFF
-* TLRENDER_PNG - Enable support for PNG
-* TLRENDER_EXR - Enable support for OpenEXR
-* TLRENDER_FFMPEG - Enable support for FFmpeg
-* TLRENDER_GL - Enable support for OpenGL
-* TLRENDER_QT6 - Enable support for Qt6
-* TLRENDER_QT5 - Enable support for Qt5
-* TLRENDER_PROGRAMS - Build programs
-* TLRENDER_EXAMPLES - Build examples
-* TLRENDER_TESTS - Build tests
+* TLRENDER_MMAP - Enable memory-mapped file I/O (default = TRUE)
+* TLRENDER_COVERAGE - Enable code coverage (default = FALSE)
+* TLRENDER_PYTHON - Enable Python support (for OTIO Python adapters, default = FALSE)
+* TLRENDER_OCIO - Enable support for OpenColorIO (default = TRUE)
+* TLRENDER_AUDIO - Enable support for audio (default = TRUE)
+* TLRENDER_JPEG - Enable support for JPEG (default = TRUE)
+* TLRENDER_TIFF - Enable support for TIFF (default = TRUE)
+* TLRENDER_PNG - Enable support for PNG (default = TRUE)
+* TLRENDER_EXR - Enable support for OpenEXR (default = TRUE)
+* TLRENDER_FFMPEG - Enable support for FFmpeg (default = TRUE)
+* TLRENDER_GL - Enable support for OpenGL (default = TRUE)
+* TLRENDER_BMD - Enable support for Blackmagic Design devices (default = FALSE)
+* TLRENDER_BMD_SDK - Full path to the Blackmagic Design SDK (default = "")
+* TLRENDER_QT6 - Enable support for Qt6 (default = FALSE)
+* TLRENDER_QT5 - Enable support for Qt5 (default = FALSE)
+* TLRENDER_PROGRAMS - Build programs (default = TRUE)
+* TLRENDER_EXAMPLES - Build examples (default = TRUE)
+* TLRENDER_TESTS - Build tests (default = TRUE)
 
 Building on Linux
 -----------------
@@ -148,18 +152,14 @@ cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=
 
 Minimal build on Linux
 ----------------------
+Build with only the required dependencies, disable all optional dependencies.
 ```
 cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install -DCMAKE_BUILD_TYPE=Debug -DTLRENDER_OCIO=OFF -DTLRENDER_AUDIO=OFF -DTLRENDER_JPEG=OFF -DTLRENDER_TIFF=OFF -DTLRENDER_PNG=OFF -DTLRENDER_EXR=OFF -DTLRENDER_FFMPEG=OFF -DTLRENDER_PROGRAMS=OFF -DTLRENDER_EXAMPLES=OFF -DTLRENDER_TESTS=OFF
 ```
 
 Notes for building on Linux
 ---------------------------
-When working on the tlRender codebase you can skip the dependencies
-in subsequent builds:
-```
-cmake --build tlRender/src/tlRender-build -j 4 --config Debug
-```
-Example for running gcovr for viewing code coverage:
+Example for running gcovr for code coverage:
 ```
 gcovr -r ../../../../lib --html --object-directory lib --html-details --output gcov.html lib/tlCore lib/tlIO lib/tlTimeline
 ```
@@ -193,7 +193,7 @@ Try running the "play-glfw" example:
 
 Building on macOS with Qt
 -------------------------
-When running CMake with the super build script, add the Qt location to
+When running CMake with the super build script add the Qt location to
 "CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLRENDER_QT5":
 ```
 cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/5.15.2/clang_64" -DTLRENDER_QT5=ON -DCMAKE_BUILD_TYPE=Debug
@@ -208,11 +208,6 @@ architecture:
 ```
 ```
 -DCMAKE_OSX_ARCHITECTURES=arm64
-```
-When working on the tlRender codebase you can skip the dependencies
-in subsequent builds:
-```
-cmake --build tlRender/src/tlRender-build -j 4 --config Debug
 ```
 
 Building FFmpeg on Windows
@@ -271,16 +266,8 @@ set PATH=%CD%\install\bin;%PATH%
 
 Building on Windows with Qt
 ---------------------------
-When running CMake with the super build script, add the Qt location to
+When running CMake with the super build script add the Qt location to
 "CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLRENDER_QT5":
 ```
 cmake ..\etc\SuperBuild -DCMAKE_INSTALL_PREFIX=%CD%\install -DCMAKE_PREFIX_PATH="%CD%\install;C:\Qt\5.15.2\msvc2019_64" -DTLRENDER_QT5=ON -DCMAKE_BUILD_TYPE=Debug
-```
-
-Notes for building on Windows
------------------------------
-When working on the tlRender codebase you can skip the dependencies
-in subsequent builds:
-```
-cmake --build tlRender\src\tlRender-build -j 4 --config Debug
 ```
