@@ -47,22 +47,22 @@ Contents:
 The core libraries providing timeline rendering, playback, and I/O.
 
 Required dependencies:
-* [ZLIB](https://zlib.net)
+* [OpenTimelineIO](https://github.com/PixarAnimationStudios/OpenTimelineIO)
+* [Imath](https://github.com/AcademySoftwareFoundation/Imath)
 * [FSeq](https://github.com/darbyjohnston/FSeq)
 * [nlohmann_json](https://github.com/nlohmann/json)
-* [Imath](https://github.com/AcademySoftwareFoundation/Imath)
-* [FreeType](https://www.freetype.org)
-* [OpenTimelineIO](https://github.com/PixarAnimationStudios/OpenTimelineIO)
 
 Optional dependencies:
 * [OpenColorIO](https://github.com/AcademySoftwareFoundation/OpenColorIO)
 * [RtAudio](https://github.com/thestk/rtaudio)
 * [libsamplerate](https://github.com/libsndfile/libsamplerate)
+* [FreeType](https://www.freetype.org)
 * [JPEG](https://libjpeg-turbo.org)
 * [TIFF](http://www.libtiff.org)
 * [PNG](https://libpng.sourceforge.io/index.html)
 * [OpenEXR](https://www.openexr.com/)
 * [FFmpeg](https://ffmpeg.org)
+* [ZLIB](https://zlib.net)
 
 ## tlGL
 
@@ -105,6 +105,7 @@ except for Qt. Qt should be installed separately.
 | TLRENDER_PYTHON   | Enable Python support (for OTIO Python adapters)  | FALSE     |
 | TLRENDER_OCIO     | Enable support for OpenColorIO                    | TRUE      |
 | TLRENDER_AUDIO    | Enable support for audio                          | TRUE      |
+| TLRENDER_FREETYPE | Enable support for FreeType font rendering        | TRUE      |
 | TLRENDER_JPEG     | Enable support for JPEG                           | TRUE      |
 | TLRENDER_TIFF     | Enable support for TIFF                           | TRUE      |
 | TLRENDER_PNG      | Enable support for PNG                            | TRUE      |
@@ -159,7 +160,7 @@ cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=
 
 Build with only the required dependencies, disabling all optional dependencies.
 ```
-cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install -DCMAKE_BUILD_TYPE=Debug -DTLRENDER_OCIO=OFF -DTLRENDER_AUDIO=OFF -DTLRENDER_JPEG=OFF -DTLRENDER_TIFF=OFF -DTLRENDER_PNG=OFF -DTLRENDER_EXR=OFF -DTLRENDER_FFMPEG=OFF -DTLRENDER_PROGRAMS=OFF -DTLRENDER_EXAMPLES=OFF -DTLRENDER_TESTS=OFF
+cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install -DCMAKE_BUILD_TYPE=Debug -DTLRENDER_OCIO=OFF -DTLRENDER_AUDIO=OFF -DTLRENDER_FREETYPE=OFF -DTLRENDER_JPEG=OFF -DTLRENDER_TIFF=OFF -DTLRENDER_PNG=OFF -DTLRENDER_EXR=OFF -DTLRENDER_FFMPEG=OFF -DTLRENDER_PROGRAMS=OFF -DTLRENDER_EXAMPLES=OFF -DTLRENDER_TESTS=OFF
 ```
 
 ### Notes for building on Linux

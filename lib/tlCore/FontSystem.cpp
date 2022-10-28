@@ -11,9 +11,11 @@
 #include <Fonts/NotoSans-Regular.font>
 #include <Fonts/NotoSans-Bold.font>
 
+#if defined(TLRENDER_FREETYPE)
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
+#endif // TLRENDER_FREETYPE
 
 #include <algorithm>
 #include <codecvt>
@@ -72,8 +74,10 @@ namespace tl
                 std::vector<math::BBox2i>* = nullptr);
 
             std::weak_ptr<system::Context> context;
+#if defined(TLRENDER_FREETYPE)
             FT_Library ftLibrary = nullptr;
             std::map<std::string, FT_Face> ftFaces;
+#endif // TLRENDER_FREETYPE
             std::wstring_convert<std::codecvt_utf8<tl_char_t>, tl_char_t> utf32Convert;
             memory::LRUCache<GlyphInfo, std::shared_ptr<Glyph> > glyphCache;
         };
@@ -84,6 +88,7 @@ namespace tl
 
             p.context = context;
 
+#if defined(TLRENDER_FREETYPE)
             FT_Error ftError = FT_Init_FreeType(&p.ftLibrary);
             if (ftError)
             {
@@ -105,6 +110,7 @@ namespace tl
             {
                 throw std::runtime_error("Cannot create font");
             }
+#endif // TLRENDER_FREETYPE
         }
 
         FontSystem::FontSystem() :
@@ -114,6 +120,7 @@ namespace tl
         FontSystem::~FontSystem()
         {
             TLRENDER_P();
+#if defined(TLRENDER_FREETYPE)
             if (p.ftLibrary)
             {
                 for (const auto& i : p.ftFaces)
@@ -122,6 +129,7 @@ namespace tl
                 }
                 FT_Done_FreeType(p.ftLibrary);
             }
+#endif // TLRENDER_FREETYPE
         }
 
         std::shared_ptr<FontSystem> FontSystem::create(const std::shared_ptr<system::Context>& context)
@@ -145,6 +153,7 @@ namespace tl
         {
             TLRENDER_P();
             FontMetrics out;
+#if defined(TLRENDER_FREETYPE)
             const auto i = p.ftFaces.find(info.family);
             if (i != p.ftFaces.end())
             {
@@ -157,6 +166,7 @@ namespace tl
                 out.descender = i->second->size->metrics.descender / 64;
                 out.lineHeight = i->second->size->metrics.height / 64;
             }
+#endif // TLRENDER_FREETYPE
             return out;
         }
 
@@ -204,6 +214,7 @@ namespace tl
             std::shared_ptr<Glyph> out;
             if (!glyphCache.get(GlyphInfo(code, fontInfo), out))
             {
+#if defined(TLRENDER_FREETYPE)
                 const auto i = ftFaces.find(fontInfo.family);
                 if (i != ftFaces.end())
                 {
@@ -254,6 +265,7 @@ namespace tl
                         glyphCache.add(out->glyphInfo, out);
                     }
                 }
+#endif // TLRENDER_FREETYPE
             }
             return out;
         }
@@ -278,6 +290,7 @@ namespace tl
             math::Vector2i& size,
             std::vector<math::BBox2i>* glyphGeom)
         {
+#if defined(TLRENDER_FREETYPE)
             const auto i = ftFaces.find(fontInfo.family);
             if (i != ftFaces.end())
             {
@@ -373,6 +386,7 @@ namespace tl
                 size.x = std::max(size.x, pos.x);
                 size.y = pos.y;
             }
+#endif // TLRENDER_FREETYPE
         }
     }
 }

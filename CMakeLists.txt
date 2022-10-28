@@ -30,6 +30,7 @@ set(TLRENDER_COVERAGE FALSE CACHE BOOL "Enable code coverage")
 set(TLRENDER_PYTHON FALSE CACHE BOOL "Enable Python support (for OTIO Python adapters)")
 set(TLRENDER_OCIO TRUE CACHE BOOL "Enable support for OpenColorIO")
 set(TLRENDER_AUDIO TRUE CACHE BOOL "Enable support for audio")
+set(TLRENDER_FREETYPE TRUE CACHE BOOL "Enable support for FreeType font rendering")
 set(TLRENDER_JPEG TRUE CACHE BOOL "Enable support for JPEG I/O")
 set(TLRENDER_TIFF TRUE CACHE BOOL "Enable support for TIFF I/O")
 set(TLRENDER_PNG TRUE CACHE BOOL "Enable support for PNG I/O")
@@ -101,7 +102,6 @@ find_package(Threads REQUIRED)
 find_package(GLM REQUIRED)
 find_package(Imath REQUIRED)
 find_package(nlohmann_json REQUIRED)
-find_package(FreeType REQUIRED)
 find_package(OTIO REQUIRED)
 
 # OpenColorIO dependencies
@@ -115,6 +115,14 @@ if(TLRENDER_AUDIO)
     find_package(libsamplerate REQUIRED)
     find_package(RtAudio REQUIRED)
     add_definitions(-DTLRENDER_AUDIO)
+endif()
+
+# Font dependencies
+if(TLRENDER_FREETYPE)
+    find_package(FreeType)
+    if(FreeType_FOUND)
+        add_definitions(-DTLRENDER_FREETYPE)
+    endif()
 endif()
 
 # I/O dependencies
