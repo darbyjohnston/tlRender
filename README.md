@@ -8,14 +8,10 @@ tlRender is an open source library for building playback and review
 applications for visual effects, film, and animation.
 
 The library can render and playback timelines with multiple video clips,
-image sequences, audio clips, and transitions. Timeline support is provided
-by [OpenTimelineIO](https://github.com/PixarAnimationStudios/OpenTimelineIO),
-color management by [OpenColorIO](https://github.com/AcademySoftwareFoundation/OpenColorIO),
-and file I/O by [FFmpeg](https://ffmpeg.org), [OpenEXR](https://www.openexr.com/),
-and other open source libraries.
+image sequences, audio clips, and transitions. Examples are provided for
+integrating the library with Qt and GLFW applications.
 
-The library is written in C++14 and uses CMake as the build system. The source
-code is provided under a BSD style open source license.
+The source code is written in C++14 and uses CMake for the build system.
 
 Currently supported:
 * Movie files (H264, MP4, etc.)
@@ -33,12 +29,15 @@ To do:
 * Nested timelines
 * Python bindings
 
+Contents:
+* [Libraries](#libraries)
+* [Applications](#applications)
+* [Building](#building)
 
-Libraries
-=========
+# Libraries {#libraries}
 
-tlCore, tlIO, tlTimeline
-------------------------
+## tlCore, tlIO, tlTimeline
+
 The core libraries providing timeline rendering, playback, and I/O.
 
 Required dependencies:
@@ -59,37 +58,35 @@ Optional dependencies:
 * [OpenEXR](https://www.openexr.com/)
 * [FFmpeg](https://ffmpeg.org)
 
-tlRenderGL
-----------
+## tlGL
+
 Library for rendering timelines with OpenGL.
 
-tlQt, tlQtWidget, tlQtQuick
----------------------------
+## tlQt, tlQtWidget, tlQtQuick
+
 Libraries for integrating with Qt based applications.
 
-Dependencies:
+Required dependencies:
 * [Qt](https://www.qt.io)
 
 
-Applications
-============
+# Applications {#applications}
 
-tlplay
-------
+## tlplay
+
 ![tlplay](etc/Images/tlplay-screenshot1.png)
 
 Play timelines, movies, and image sequences.
 
-tlbake
-------
+## tlbake
+
 Render a timeline to a movie or image sequence.
 
 
-Building
-========
+# Building {#building}
 
-Dependencies
-------------
+## Dependencies {#building-dependencies}
+
 A CMake super build script is provided to build the dependencies from source,
 except for Qt. Qt should be installed separately.
 
@@ -116,8 +113,8 @@ CMake Build Options
 | TLRENDER_EXAMPLES | Build examples                                    | TRUE      |
 | TLRENDER_TESTS    | Build tests                                       | TRUE      |
 
-Building on Linux
------------------
+## Building on Linux {#building-linux}
+
 Clone the repository:
 ```
 git clone https://github.com/darbyjohnston/tlRender.git
@@ -144,23 +141,23 @@ export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
 ./tlRender/src/tlRender-build/examples/play-glfw/play-glfw ../etc/SampleData/MultipleClips.otio
 ```
 
-Building on Linux with Qt
--------------------------
+## Building on Linux with Qt {#building-linux-qt}
+
 When running CMake with the super build script, add the Qt location to
 "CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLRENDER_QT5":
 ```
 cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/5.15.2/gcc_64" -DTLRENDER_QT5=ON -DCMAKE_BUILD_TYPE=Debug
 ```
 
-Minimal build on Linux
-----------------------
-Build with only the required dependencies, disable all optional dependencies.
+## Minimal build on Linux {#building-linux-minimal}
+
+Build with only the required dependencies, disabling all optional dependencies.
 ```
 cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install -DCMAKE_BUILD_TYPE=Debug -DTLRENDER_OCIO=OFF -DTLRENDER_AUDIO=OFF -DTLRENDER_JPEG=OFF -DTLRENDER_TIFF=OFF -DTLRENDER_PNG=OFF -DTLRENDER_EXR=OFF -DTLRENDER_FFMPEG=OFF -DTLRENDER_PROGRAMS=OFF -DTLRENDER_EXAMPLES=OFF -DTLRENDER_TESTS=OFF
 ```
 
-Notes for building on Linux
----------------------------
+## Notes for building on Linux {#building-linux-notes}
+
 Example for running gcovr for code coverage:
 ```
 gcovr -r ../../../../lib --html --object-directory lib --html-details --output gcov.html lib/tlCore lib/tlIO lib/tlTimeline
