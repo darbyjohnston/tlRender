@@ -60,9 +60,9 @@ set(SOURCE
 	ViewActions.cpp
 	WindowActions.cpp)
 
-if(TLRENDER_BUILD_QT6)
+if(TLRENDER_QT6)
 	qt6_add_resources(SOURCE tlPlayApp.qrc)
-elseif(TLRENDER_BUILD_QT5)
+elseif(TLRENDER_QT5)
 	qt5_add_resources(SOURCE tlPlayApp.qrc)
 endif()
 

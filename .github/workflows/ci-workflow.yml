@@ -7,19 +7,21 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      TLRENDER_ENABLE_MMAP: ON
-      TLRENDER_ENABLE_COVERAGE: ON
-      TLRENDER_ENABLE_PYTHON: OFF
-      TLRENDER_BUILD_GL: ON
-      TLRENDER_BUILD_QT5: ON
-      TLRENDER_BUILD_APPS: ON
-      TLRENDER_BUILD_EXAMPLES: ON
-      TLRENDER_BUILD_TESTS: ON
-      TLRENDER_BUILD_FFmpeg: ON
-      TLRENDER_BUILD_JPEG: ON
-      TLRENDER_BUILD_PNG: ON
-      TLRENDER_BUILD_OpenEXR: ON
-      TLRENDER_BUILD_TIFF: ON
+      TLRENDER_MMAP: ON
+      TLRENDER_COVERAGE: ON
+      TLRENDER_PYTHON: OFF
+      TLRENDER_OCIO: ON
+      TLRENDER_AUDIO: ON
+      TLRENDER_JPEG: ON
+      TLRENDER_TIFF: ON
+      TLRENDER_PNG: ON
+      TLRENDER_EXR: ON
+      TLRENDER_FFMPEG: ON
+      TLRENDER_GL: ON
+      TLRENDER_QT5: ON
+      TLRENDER_PROGRAMS: ON
+      TLRENDER_EXAMPLES: ON
+      TLRENDER_TESTS: ON
 
     steps:
     - uses: actions/checkout@v2
@@ -30,11 +32,11 @@ jobs:
       run: sudo apt-get update
 
     - name: Install lcov
-      if: env.TLRENDER_ENABLE_COVERAGE == 'ON'
+      if: env.TLRENDER_COVERAGE == 'ON'
       run: sudo apt-get install lcov
 
     - name: Install OpenGL dev
-      if: env.TLRENDER_BUILD_GL == 'ON'
+      if: env.TLRENDER_GL == 'ON'
       run: sudo apt-get install xorg-dev libglu1-mesa-dev mesa-common-dev
 
     - name: Install ALSA dev
@@ -44,11 +46,11 @@ jobs:
       run: sudo apt-get install libpulse-dev
 
     - name: Install Python dev
-      if: env.TLRENDER_ENABLE_PYTHON == 'ON'
+      if: env.TLRENDER_PYTHON == 'ON'
       run: sudo apt-get install python3.8-dev
       
     - name: Install Qt dev
-      if: env.TLRENDER_BUILD_QT5 == 'ON'
+      if: env.TLRENDER_QT5 == 'ON'
       run: sudo apt-get install qt5-default qtdeclarative5-dev libqt5quick5 qtbase5-dev libqt5svg5-dev
 
     - name: Setup environment
@@ -65,19 +67,21 @@ jobs:
           -DCMAKE_BUILD_TYPE=Debug \
           -DCMAKE_INSTALL_PREFIX=$PWD/install \
           -DCMAKE_PREFIX_PATH=$PWD/install \
-          -DTLRENDER_ENABLE_MMAP=$TLRENDER_ENABLE_MMAP \
-          -DTLRENDER_ENABLE_COVERAGE=$TLRENDER_ENABLE_COVERAGE \
-          -DTLRENDER_ENABLE_PYTHON=$TLRENDER_ENABLE_PYTHON \
-          -DTLRENDER_BUILD_GL=$TLRENDER_BUILD_GL \
-          -DTLRENDER_BUILD_QT5=$TLRENDER_BUILD_QT5 \
-          -DTLRENDER_BUILD_APPS=$TLRENDER_BUILD_APPS \
-          -DTLRENDER_BUILD_EXAMPLES=$TLRENDER_BUILD_EXAMPLES \
-          -DTLRENDER_BUILD_TESTS=$TLRENDER_BUILD_TESTS \
-          -DTLRENDER_BUILD_FFmpeg=$TLRENDER_BUILD_FFmpeg \
-          -DTLRENDER_BUILD_JPEG=$TLRENDER_BUILD_JPEG \
-          -DTLRENDER_BUILD_PNG=$TLRENDER_BUILD_PNG \
-          -DTLRENDER_BUILD_OpenEXR=$TLRENDER_BUILD_OpenEXR \
-          -DTLRENDER_BUILD_TIFF=$TLRENDER_BUILD_TIFF &&
+          -DTLRENDER_MMAP=$TLRENDER_MMAP \
+          -DTLRENDER_COVERAGE=$TLRENDER_COVERAGE \
+          -DTLRENDER_PYTHON=$TLRENDER_PYTHON \
+          -DTLRENDER_OCIO=$TLRENDER_OCIO \
+          -DTLRENDER_AUDIO=$TLRENDER_AUDIO \
+          -DTLRENDER_JPEG=$TLRENDER_JPEG \
+          -DTLRENDER_TIFF=$TLRENDER_TIFF \
+          -DTLRENDER_PNG=$TLRENDER_PNG \
+          -DTLRENDER_EXR=$TLRENDER_EXR \
+          -DTLRENDER_FFMPEG=$TLRENDER_FFMPEG \
+          -DTLRENDER_GL=$TLRENDER_GL \
+          -DTLRENDER_QT5=$TLRENDER_QT5 \
+          -DTLRENDER_PROGRAMS=$TLRENDER_PROGRAMS \
+          -DTLRENDER_EXAMPLES=$TLRENDER_EXAMPLES \
+          -DTLRENDER_TESTS=$TLRENDER_TESTS &&
         cmake --build . -j 4
 
     - name: Run tests
@@ -87,7 +91,7 @@ jobs:
         ctest --rerun-failed --output-on-failure
     
     - name: Code coverage
-      if: env.TLRENDER_ENABLE_COVERAGE == 'ON'
+      if: env.TLRENDER_COVERAGE == 'ON'
       run: >
         cd build &&
         cd tlRender/src/tlRender-build &&
@@ -99,23 +103,94 @@ jobs:
         files: ${{ github.workspace }}/build/tlRender/src/tlRender-build/coverage_filtered.info
         fail_ci_if_error: true
 
+  minimal-linux-build:
+    runs-on: ubuntu-latest
+
+    env:
+      TLRENDER_MMAP: OFF
+      TLRENDER_COVERAGE: OFF
+      TLRENDER_PYTHON: OFF
+      TLRENDER_OCIO: OFF
+      TLRENDER_AUDIO: OFF
+      TLRENDER_JPEG: OFF
+      TLRENDER_TIFF: OFF
+      TLRENDER_PNG: OFF
+      TLRENDER_EXR: OFF
+      TLRENDER_FFMPEG: OFF
+      TLRENDER_GL: ON
+      TLRENDER_QT5: OFF
+      TLRENDER_PROGRAMS: ON
+      TLRENDER_EXAMPLES: ON
+      TLRENDER_TESTS: ON
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Update
+      run: sudo apt-get update
+
+    - name: Install OpenGL dev
+      if: env.TLRENDER_GL == 'ON'
+      run: sudo apt-get install xorg-dev libglu1-mesa-dev mesa-common-dev
+      
+    - name: Setup environment
+      run: >
+        echo "$PWD/build/install/bin" >> $GITHUB_PATH &&
+        echo "LD_LIBRARY_PATH=$PWD/build/install/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV &&
+        echo "PYTHONPATH=$PWD/build/install/lib:$PYTHONPATH" >> $GITHUB_ENV
+
+    - name: Build tlRender
+      run: >
+        mkdir build &&
+        cd build &&
+        cmake ../etc/SuperBuild \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DCMAKE_INSTALL_PREFIX=$PWD/install \
+          -DCMAKE_PREFIX_PATH=$PWD/install \
+          -DTLRENDER_MMAP=$TLRENDER_MMAP \
+          -DTLRENDER_COVERAGE=$TLRENDER_COVERAGE \
+          -DTLRENDER_PYTHON=$TLRENDER_PYTHON \
+          -DTLRENDER_OCIO=$TLRENDER_OCIO \
+          -DTLRENDER_AUDIO=$TLRENDER_AUDIO \
+          -DTLRENDER_JPEG=$TLRENDER_JPEG \
+          -DTLRENDER_TIFF=$TLRENDER_TIFF \
+          -DTLRENDER_PNG=$TLRENDER_PNG \
+          -DTLRENDER_EXR=$TLRENDER_EXR \
+          -DTLRENDER_FFMPEG=$TLRENDER_FFMPEG \
+          -DTLRENDER_GL=$TLRENDER_GL \
+          -DTLRENDER_QT5=$TLRENDER_QT5 \
+          -DTLRENDER_PROGRAMS=$TLRENDER_PROGRAMS \
+          -DTLRENDER_EXAMPLES=$TLRENDER_EXAMPLES \
+          -DTLRENDER_TESTS=$TLRENDER_TESTS &&
+        cmake --build . -j 4
+
+    - name: Run tests
+      run: >
+        cd build &&
+        cd tlRender/src/tlRender-build &&
+        ctest --rerun-failed --output-on-failure
+
   macos-build:
     runs-on: macos-latest
 
     env:
-      TLRENDER_ENABLE_MMAP: ON
-      TLRENDER_ENABLE_COVERAGE: OFF
-      TLRENDER_ENABLE_PYTHON: OFF
-      TLRENDER_BUILD_GL: ON
-      TLRENDER_BUILD_QT5: OFF
-      TLRENDER_BUILD_APPS: ON
-      TLRENDER_BUILD_EXAMPLES: ON
-      TLRENDER_BUILD_TESTS: ON
-      TLRENDER_BUILD_FFmpeg: ON
-      TLRENDER_BUILD_JPEG: ON
-      TLRENDER_BUILD_PNG: ON
-      TLRENDER_BUILD_OpenEXR: ON
-      TLRENDER_BUILD_TIFF: ON
+      TLRENDER_MMAP: ON
+      TLRENDER_COVERAGE: OFF
+      TLRENDER_PYTHON: OFF
+      TLRENDER_OCIO: ON
+      TLRENDER_AUDIO: ON
+      TLRENDER_JPEG: ON
+      TLRENDER_TIFF: ON
+      TLRENDER_PNG: ON
+      TLRENDER_EXR: ON
+      TLRENDER_FFMPEG: ON
+      TLRENDER_GL: ON
+      TLRENDER_QT5: OFF
+      TLRENDER_PROGRAMS: ON
+      TLRENDER_EXAMPLES: ON
+      TLRENDER_TESTS: ON
 
     steps:
     - uses: actions/checkout@v2
@@ -138,19 +213,21 @@ jobs:
           -DCMAKE_BUILD_TYPE=Debug \
           -DCMAKE_INSTALL_PREFIX=$PWD/install \
           -DCMAKE_PREFIX_PATH=$PWD/install \
-          -DTLRENDER_ENABLE_MMAP=$TLRENDER_ENABLE_MMAP \
-          -DTLRENDER_ENABLE_COVERAGE=$TLRENDER_ENABLE_COVERAGE \
-          -DTLRENDER_ENABLE_PYTHON=$TLRENDER_ENABLE_PYTHON \
-          -DTLRENDER_BUILD_GL=$TLRENDER_BUILD_GL \
-          -DTLRENDER_BUILD_QT5=$TLRENDER_BUILD_QT5 \
-          -DTLRENDER_BUILD_APPS=$TLRENDER_BUILD_APPS \
-          -DTLRENDER_BUILD_EXAMPLES=$TLRENDER_BUILD_EXAMPLES \
-          -DTLRENDER_BUILD_TESTS=$TLRENDER_BUILD_TESTS \
-          -DTLRENDER_BUILD_FFmpeg=$TLRENDER_BUILD_FFmpeg \
-          -DTLRENDER_BUILD_JPEG=$TLRENDER_BUILD_JPEG \
-          -DTLRENDER_BUILD_PNG=$TLRENDER_BUILD_PNG \
-          -DTLRENDER_BUILD_OpenEXR=$TLRENDER_BUILD_OpenEXR \
-          -DTLRENDER_BUILD_TIFF=$TLRENDER_BUILD_TIFF &&
+          -DTLRENDER_MMAP=$TLRENDER_MMAP \
+          -DTLRENDER_COVERAGE=$TLRENDER_COVERAGE \
+          -DTLRENDER_PYTHON=$TLRENDER_PYTHON \
+          -DTLRENDER_OCIO=$TLRENDER_OCIO \
+          -DTLRENDER_AUDIO=$TLRENDER_AUDIO \
+          -DTLRENDER_JPEG=$TLRENDER_JPEG \
+          -DTLRENDER_TIFF=$TLRENDER_TIFF \
+          -DTLRENDER_PNG=$TLRENDER_PNG \
+          -DTLRENDER_EXR=$TLRENDER_EXR \
+          -DTLRENDER_FFMPEG=$TLRENDER_FFMPEG \
+          -DTLRENDER_GL=$TLRENDER_GL \
+          -DTLRENDER_QT5=$TLRENDER_QT5 \
+          -DTLRENDER_PROGRAMS=$TLRENDER_PROGRAMS \
+          -DTLRENDER_EXAMPLES=$TLRENDER_EXAMPLES \
+          -DTLRENDER_TESTS=$TLRENDER_TESTS &&
         cmake --build . -j 4
 
     - name: Run tests
@@ -164,19 +241,21 @@ jobs:
     runs-on: windows-latest
 
     env:
-      TLRENDER_ENABLE_MMAP: ON
-      TLRENDER_ENABLE_COVERAGE: OFF
-      TLRENDER_ENABLE_PYTHON: OFF
-      TLRENDER_BUILD_GL: ON
-      TLRENDER_BUILD_QT5: OFF
-      TLRENDER_BUILD_APPS: ON
-      TLRENDER_BUILD_EXAMPLES: ON
-      TLRENDER_BUILD_TESTS: ON
-      TLRENDER_BUILD_FFmpeg: OFF
-      TLRENDER_BUILD_JPEG: ON
-      TLRENDER_BUILD_PNG: ON
-      TLRENDER_BUILD_OpenEXR: ON
-      TLRENDER_BUILD_TIFF: ON
+      TLRENDER_MMAP: ON
+      TLRENDER_COVERAGE: OFF
+      TLRENDER_PYTHON: OFF
+      TLRENDER_OCIO: ON
+      TLRENDER_AUDIO: ON
+      TLRENDER_JPEG: ON
+      TLRENDER_TIFF: ON
+      TLRENDER_PNG: ON
+      TLRENDER_EXR: ON
+      TLRENDER_FFMPEG: OFF
+      TLRENDER_GL: ON
+      TLRENDER_QT5: OFF
+      TLRENDER_PROGRAMS: ON
+      TLRENDER_EXAMPLES: ON
+      TLRENDER_TESTS: ON
 
     steps:
     - uses: actions/checkout@v2
@@ -195,19 +274,21 @@ jobs:
           -DCMAKE_BUILD_TYPE=Debug `
           -DCMAKE_INSTALL_PREFIX=install `
           -DCMAKE_PREFIX_PATH=install `
-          -DTLRENDER_ENABLE_MMAP=${{ env.TLRENDER_ENABLE_MMAP }} `
-          -DTLRENDER_ENABLE_COVERAGE=${{ env.TLRENDER_ENABLE_COVERAGE }} `
-          -DTLRENDER_ENABLE_PYTHON=${{ env.TLRENDER_ENABLE_PYTHON }} `
-          -DTLRENDER_BUILD_GL=${{ env.TLRENDER_BUILD_GL }} `
-          -DTLRENDER_BUILD_QT5=${{ env.TLRENDER_BUILD_QT5 }} `
-          -DTLRENDER_BUILD_APPS=${{ env.TLRENDER_BUILD_APPS }} `
-          -DTLRENDER_BUILD_EXAMPLES=${{ env.TLRENDER_BUILD_EXAMPLES }} `
-          -DTLRENDER_BUILD_TESTS=${{ env.TLRENDER_BUILD_TESTS }} `
-          -DTLRENDER_BUILD_FFmpeg=${{ env.TLRENDER_BUILD_FFmpeg }} `
-          -DTLRENDER_BUILD_JPEG=${{ env.TLRENDER_BUILD_JPEG }} `
-          -DTLRENDER_BUILD_PNG=${{ env.TLRENDER_BUILD_PNG }} `
-          -DTLRENDER_BUILD_OpenEXR=${{ env.TLRENDER_BUILD_OpenEXR }} `
-          -DTLRENDER_BUILD_TIFF=${{ env.TLRENDER_BUILD_TIFF }} &&
+          -DTLRENDER_MMAP=${{ env.TLRENDER_MMAP }} `
+          -DTLRENDER_COVERAGE=${{ env.TLRENDER_COVERAGE }} `
+          -DTLRENDER_PYTHON=${{ env.TLRENDER_PYTHON }} `
+          -DTLRENDER_OCIO=${{ env.TLRENDER_OCIO }} `
+          -DTLRENDER_AUDIO=${{ env.TLRENDER_AUDIO }} `
+          -DTLRENDER_JPEG=${{ env.TLRENDER_JPEG }} `
+          -DTLRENDER_TIFF=${{ env.TLRENDER_TIFF }} `
+          -DTLRENDER_PNG=${{ env.TLRENDER_PNG }} `
+          -DTLRENDER_EXR=${{ env.TLRENDER_EXR }} `
+          -DTLRENDER_FFMPEG=${{ env.TLRENDER_FFMPEG }} `
+          -DTLRENDER_GL=${{ env.TLRENDER_GL }} `
+          -DTLRENDER_QT5=${{ env.TLRENDER_QT5 }} `
+          -DTLRENDER_PROGRAMS=${{ env.TLRENDER_PROGRAMS }} `
+          -DTLRENDER_EXAMPLES=${{ env.TLRENDER_EXAMPLES }} `
+          -DTLRENDER_TESTS=${{ env.TLRENDER_TESTS }} &&
         cmake --build . -j 4
 
     - name: Run tests

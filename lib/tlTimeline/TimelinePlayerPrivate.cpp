@@ -347,6 +347,7 @@ namespace tl
                 std::unique_lock<std::mutex> lock(audioMutex);
                 audioMutexData.rtAudioCurrentFrame = 0;
             }
+#if defined(TLRENDER_AUDIO)
             if (threadData.rtAudio &&
                 threadData.rtAudio->isStreamRunning())
             {
@@ -359,8 +360,10 @@ namespace tl
                     //! \todo How should this be handled?
                 }
             }
+#endif // TLRENDER_AUDIO
         }
 
+#if defined(TLRENDER_AUDIO)
         int TimelinePlayer::Private::rtAudioCallback(
             void* outputBuffer,
             void* inputBuffer,
@@ -514,6 +517,7 @@ namespace tl
             RtAudioError::Type type,
             const std::string& errorText)
         {}
+#endif // TLRENDER_AUDIO
 
         void TimelinePlayer::Private::log(const std::shared_ptr<system::Context>& context)
         {

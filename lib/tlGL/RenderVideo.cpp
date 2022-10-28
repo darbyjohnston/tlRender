@@ -542,6 +542,7 @@ namespace tl
                 glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
                 glBindTexture(GL_TEXTURE_2D, p.buffers["video"]->getColorID());
                 size_t texturesOffset = 1;
+#if defined(TLRENDER_OCIO)
                 if (p.colorConfigData)
                 {
                     for (size_t i = 0; i < p.colorConfigData->textures.size(); ++i)
@@ -564,6 +565,7 @@ namespace tl
                     }
                     texturesOffset += p.lutData->textures.size();
                 }
+#endif // TLRENDER_OCIO
 
                 if (p.vbos["video"])
                 {

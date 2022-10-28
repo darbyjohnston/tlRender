@@ -9,9 +9,13 @@
 #include <QApplication>
 #include <QPalette>
 
+#if defined(TLRENDER_OCIO)
 #include <OpenColorIO/OpenColorIO.h>
+#endif // TLRENDER_OCIO
 
+#if defined(TLRENDER_OCIO)
 namespace OCIO = OCIO_NAMESPACE;
+#endif // TLRENDER_OCIO
 
 namespace tl
 {
@@ -32,7 +36,9 @@ namespace tl
         struct ColorModel::Private
         {
             std::weak_ptr<system::Context> context;
+#if defined(TLRENDER_OCIO)
             OCIO_NAMESPACE::ConstConfigRcPtr ocioConfig;
+#endif // TLRENDER_OCIO
             std::shared_ptr<observer::Value<timeline::ColorConfigOptions> > configOptions;
             std::shared_ptr<observer::Value<ColorModelData> > data;
         };
@@ -46,6 +52,7 @@ namespace tl
             p.configOptions = observer::Value<timeline::ColorConfigOptions>::create();
             p.data = observer::Value<ColorModelData>::create();
 
+#if defined(TLRENDER_OCIO)
             std::string env;
             if (os::getEnv("OCIO", env) && !env.empty())
             {
@@ -72,6 +79,7 @@ namespace tl
                     }
                 }
             }
+#endif // TLRENDER_OCIO
         }
 
         ColorModel::ColorModel() :
@@ -96,6 +104,7 @@ namespace tl
         void ColorModel::setConfigOptions(const timeline::ColorConfigOptions& value)
         {
             TLRENDER_P();
+#if defined(TLRENDER_OCIO)
             try
             {
                 p.ocioConfig.reset();
@@ -103,6 +112,7 @@ namespace tl
             }
             catch (const std::exception& e)
             {}
+#endif // TLRENDER_OCIO
             p.configOptions->setIfChanged(value);
             _configUpdate();
         }
@@ -110,6 +120,7 @@ namespace tl
         void ColorModel::setConfig(const std::string& fileName)
         {
             TLRENDER_P();
+#if defined(TLRENDER_OCIO)
             try
             {
                 p.ocioConfig.reset();
@@ -117,14 +128,17 @@ namespace tl
             }
             catch (const std::exception&)
             {}
+#endif // TLRENDER_OCIO
             timeline::ColorConfigOptions configOptions;
             configOptions.fileName = fileName;
+#if defined(TLRENDER_OCIO)
             if (p.ocioConfig)
             {
                 const char* display = p.ocioConfig->getDefaultDisplay();
                 configOptions.display = display;
                 configOptions.view = p.ocioConfig->getDefaultView(display);
             }
+#endif // TLRENDER_OCIO
             p.configOptions->setIfChanged(configOptions);
             _configUpdate();
         }
@@ -179,6 +193,7 @@ namespace tl
             ColorModelData data;
             const auto& configOptions = p.configOptions->get();
             data.fileName = configOptions.fileName;
+#if defined(TLRENDER_OCIO)
             if (p.ocioConfig)
             {
                 data.inputs.push_back("None");
@@ -215,6 +230,7 @@ namespace tl
                     data.viewIndex = j - data.views.begin();
                 }
             }
+#endif // TLRENDER_OCIO
             p.data->setIfChanged(data);
         }
 

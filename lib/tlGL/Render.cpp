@@ -135,6 +135,7 @@ namespace tl
 
         namespace
         {
+#if defined(TLRENDER_OCIO)
             void setTextureParameters(GLenum textureType, OCIO::Interpolation interpolation)
             {
                 if (OCIO::INTERP_NEAREST == interpolation)
@@ -152,6 +153,7 @@ namespace tl
                 glTexParameteri(textureType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
                 glTexParameteri(textureType, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
             }
+#endif // TLRENDER_OCIO
 
             std::vector<std::shared_ptr<Texture> > getTextures(
                 const imaging::Info& info,
@@ -329,6 +331,7 @@ namespace tl
             }
         }
 
+#if defined(TLRENDER_OCIO)
         OCIOTexture::OCIOTexture(
             unsigned id,
             std::string name,
@@ -355,6 +358,7 @@ namespace tl
                 glDeleteTextures(1, &textures[i].id);
             }
         }
+#endif // TLRENDER_OCIO
 
         void Render::_init(const std::shared_ptr<system::Context>& context)
         {
@@ -386,10 +390,13 @@ namespace tl
             if (value == p.colorConfigOptions)
                 return;
 
+#if defined(TLRENDER_OCIO)
             p.colorConfigData.reset();
+#endif // TLRENDER_OCIO
 
             p.colorConfigOptions = value;
 
+#if defined(TLRENDER_OCIO)
             if (!p.colorConfigOptions.input.empty() &&
                 !p.colorConfigOptions.display.empty() &&
                 !p.colorConfigOptions.view.empty())
@@ -549,6 +556,7 @@ namespace tl
                         (height > 1) ? GL_TEXTURE_2D : GL_TEXTURE_1D));
                 }
             }
+#endif // TLRENDER_OCIO
 
             p.shaders["display"].reset();
         }
@@ -559,10 +567,13 @@ namespace tl
             if (value == p.lutOptions)
                 return;
 
+#if defined(TLRENDER_OCIO)
             p.lutData.reset();
+#endif // TLRENDER_OCIO
 
             p.lutOptions = value;
 
+#if defined(TLRENDER_OCIO)
             if (!p.lutOptions.fileName.empty())
             {
                 p.lutData.reset(new OCIOLUTData);
@@ -700,6 +711,7 @@ namespace tl
                         (height > 1) ? GL_TEXTURE_2D : GL_TEXTURE_1D));
                 }
             }
+#endif // TLRENDER_OCIO
 
             p.shaders["display"].reset();
         }
@@ -764,6 +776,8 @@ namespace tl
                 std::string colorConfig;
                 std::string lutDef;
                 std::string lut;
+
+#if defined(TLRENDER_OCIO)
                 if (p.colorConfigData && p.colorConfigData->shaderDesc)
                 {
                     colorConfigDef = p.colorConfigData->shaderDesc->getShaderText();
@@ -774,6 +788,7 @@ namespace tl
                     lutDef = p.lutData->shaderDesc->getShaderText();
                     lut = "fColor = lutFunc(fColor);";
                 }
+#endif // TLRENDER_OCIO
                 std::string source = displayFragmentSource(
                     colorConfigDef,
                     colorConfig,
@@ -790,6 +805,7 @@ namespace tl
             p.shaders["display"]->bind();
             p.shaders["display"]->setUniform("transform.mvp", mvp);
             size_t texturesOffset = 1;
+#if defined(TLRENDER_OCIO)
             if (p.colorConfigData)
             {
                 for (size_t i = 0; i < p.colorConfigData->textures.size(); ++i)
@@ -810,6 +826,7 @@ namespace tl
                 }
                 texturesOffset += p.lutData->textures.size();
             }
+#endif // TLRENDER_OCIO
 
             if (!p.shaders["dissolve"])
             {

@@ -6,6 +6,10 @@
 
 #include <tlTimeline/TimelinePlayer.h>
 
+#if defined(TLRENDER_AUDIO)
+#include <rtaudio/RtAudio.h>
+#endif // TLRENDER_AUDIO
+
 #include <atomic>
 #include <mutex>
 #include <thread>
@@ -34,6 +38,7 @@ namespace tl
                 const otime::RationalTime& cacheReadBehind);
 
             void resetAudioTime();
+#if defined(TLRENDER_AUDIO)
             static int rtAudioCallback(
                 void* outputBuffer,
                 void* inputBuffer,
@@ -44,6 +49,7 @@ namespace tl
             static void rtAudioErrorCallback(
                 RtAudioError::Type type,
                 const std::string& errorText);
+#endif // TLRENDER_AUDIO
 
             void log(const std::shared_ptr<system::Context>&);
 
@@ -113,7 +119,9 @@ namespace tl
             {
                 std::map<otime::RationalTime, std::future<VideoData> > videoDataRequests;
                 std::map<otime::RationalTime, VideoData> videoDataCache;
+#if defined(TLRENDER_AUDIO)
                 std::unique_ptr<RtAudio> rtAudio;
+#endif // TLRENDER_AUDIO
                 std::map<int64_t, std::future<AudioData> > audioDataRequests;
                 std::atomic<bool> running;
             };

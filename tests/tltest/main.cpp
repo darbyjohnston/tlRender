@@ -2,12 +2,12 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#if defined(TLRENDER_BUILD_QT5) || defined(TLRENDER_BUILD_QT6)
+#if defined(TLRENDER_QT5) || defined(TLRENDER_QT6)
 #include <tlQtTest/TimeObjectTest.h>
 #include <tlQt/Util.h>
 #endif
 
-#if defined(TLRENDER_BUILD_GL)
+#if defined(TLRENDER_GL)
 #include <tlGLTest/MeshTest.h>
 #include <tlGL/Util.h>
 #endif
@@ -27,21 +27,21 @@
 #include <tlIOTest/IOTest.h>
 #include <tlIOTest/PPMTest.h>
 #include <tlIOTest/SGITest.h>
-#if defined(FFmpeg_FOUND)
+#if defined(TLRENDER_FFMPEG)
 #include <tlIOTest/FFmpegTest.h>
-#endif
-#if defined(JPEG_FOUND)
+#endif // TLRENDER_FFMPEG
+#if defined(TLRENDER_JPEG)
 #include <tlIOTest/JPEGTest.h>
-#endif
-#if defined(OpenEXR_FOUND)
+#endif // TLRENDER_JPEG
+#if defined(TLRENDER_EXR)
 #include <tlIOTest/OpenEXRTest.h>
-#endif
-#if defined(PNG_FOUND)
+#endif // TLRENDER_EXR
+#if defined(TLRENDER_PNG)
 #include <tlIOTest/PNGTest.h>
-#endif
-#if defined(TIFF_FOUND)
+#endif // TLRENDER_PNG
+#if defined(TLRENDER_TIFF)
 #include <tlIOTest/TIFFTest.h>
-#endif
+#endif // TLRENDER_TIFF
 #include <tlIO/Util.h>
 
 #include <tlCoreTest/AudioTest.h>
@@ -82,9 +82,9 @@ using namespace tl::tests;
 int main(int argc, char* argv[])
 {
     auto context = system::Context::create();
-#if defined(TLRENDER_BUILD_QT5) || defined(TLRENDER_BUILD_QT6)
+#if defined(TLRENDER_QT5) || defined(TLRENDER_QT6)
     qt::init(context);
-#elif defined(TLRENDER_BUILD_GL)
+#elif defined(TLRENDER_GL)
     gl::init(context);
 #else
     io::init(context);
@@ -146,21 +146,21 @@ int main(int argc, char* argv[])
             tests.push_back(io_tests::IOTest::create(context));
             tests.push_back(io_tests::PPMTest::create(context));
             tests.push_back(io_tests::SGITest::create(context));
-#if defined(FFmpeg_FOUND)
+#if defined(TLRENDER_FFMPEG)
             tests.push_back(io_tests::FFmpegTest::create(context));
-#endif
-#if defined(JPEG_FOUND)
+#endif // TLRENDER_FFMPEG
+#if defined(TLRENDER_JPEG)
             tests.push_back(io_tests::JPEGTest::create(context));
-#endif
-#if defined(OpenEXR_FOUND)
+#endif // TLRENDER_JPEG
+#if defined(TLRENDER_EXR)
             tests.push_back(io_tests::OpenEXRTest::create(context));
-#endif
-#if defined(PNG_FOUND)
+#endif // TLRENDER_EXR
+#if defined(TLRENDER_PNG)
             tests.push_back(io_tests::PNGTest::create(context));
-#endif
-#if defined(TIFF_FOUND)
+#endif // TLRENDER_PNG
+#if defined(TLRENDER_TIFF)
             tests.push_back(io_tests::TIFFTest::create(context));
-#endif
+#endif // TLRENDER_TIFF
         }
         if (1)
         {
@@ -178,13 +178,13 @@ int main(int argc, char* argv[])
         }
         if (1)
         {
-#if defined(TLRENDER_BUILD_GL)
+#if defined(TLRENDER_GL)
             tests.push_back(gl_tests::MeshTest::create(context));
 #endif
         }
         if (1)
         {
-#if defined(TLRENDER_BUILD_QT5) || defined(TLRENDER_BUILD_QT6)
+#if defined(TLRENDER_QT5) || defined(TLRENDER_QT6)
             tests.push_back(qt_tests::TimeObjectTest::create(context));
 #endif
         }

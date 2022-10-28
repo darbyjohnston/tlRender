@@ -57,7 +57,7 @@ namespace tl
                 { "-sequenceThreadCount" },
                 "Number of threads for image sequence I/O.",
                 string::Format("{0}").arg(_options.sequenceThreadCount)));
-#if defined(OpenEXR_FOUND)
+#if defined(TLRENDER_EXR)
             p.cmdLineOptions.push_back(CmdLineValueOption<exr::Compression>::create(
                 _options.exrCompression,
                 { "-exrCompression" },
@@ -69,8 +69,8 @@ namespace tl
                 { "-exrDWACompressionLevel" },
                 "OpenEXR DWA compression level.",
                 string::Format("{0}").arg(_options.exrDWACompressionLevel)));
-#endif
-#if defined(FFmpeg_FOUND)
+#endif // TLRENDER_EXR
+#if defined(TLRENDER_FFMPEG)
             p.cmdLineOptions.push_back(CmdLineValueOption<int>::create(
                 _options.ffmpegThreadCount,
                 { "-ffmpegThreadCount" },
@@ -132,7 +132,7 @@ namespace tl
                 ioOptions["exr/DWACompressionLevel"] = ss.str();
             }
 #endif
-#if defined(FFmpeg_FOUND)
+#if defined(TLRENDER_FFMPEG)
             if (!_options.ffmpegWriteProfile.empty())
             {
                 ioOptions["ffmpeg/WriteProfile"] = _options.ffmpegWriteProfile;

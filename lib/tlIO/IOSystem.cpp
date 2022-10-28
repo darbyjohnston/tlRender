@@ -8,21 +8,21 @@
 #include <tlIO/DPX.h>
 #include <tlIO/PPM.h>
 #include <tlIO/SGI.h>
-#if defined(FFmpeg_FOUND)
+#if defined(TLRENDER_FFMPEG)
 #include <tlIO/FFmpeg.h>
-#endif
-#if defined(JPEG_FOUND)
+#endif // TLRENDER_FFMPEG
+#if defined(TLRENDER_JPEG)
 #include <tlIO/JPEG.h>
-#endif
-#if defined(OpenEXR_FOUND)
+#endif // TLRENDER_JPEG
+#if defined(TLRENDER_EXR)
 #include <tlIO/OpenEXR.h>
-#endif
-#if defined(PNG_FOUND)
+#endif // TLRENDER_EXR
+#if defined(TLRENDER_PNG)
 #include <tlIO/PNG.h>
-#endif
-#if defined(TIFF_FOUND)
+#endif // TLRENDER_PNG
+#if defined(TLRENDER_TIFF)
 #include <tlIO/TIFF.h>
-#endif
+#endif // TLRENDER_TIFF
 
 #include <tlCore/Context.h>
 #include <tlCore/File.h>
@@ -46,21 +46,21 @@ namespace tl
                 _plugins.push_back(dpx::Plugin::create(logSystem));
                 _plugins.push_back(ppm::Plugin::create(logSystem));
                 _plugins.push_back(sgi::Plugin::create(logSystem));
-#if defined(FFmpeg_FOUND)
+#if defined(TLRENDER_FFMPEG)
                 _plugins.push_back(ffmpeg::Plugin::create(logSystem));
-#endif
-#if defined(JPEG_FOUND)
+#endif // TLRENDER_FFMPEG
+#if defined(TLRENDER_JPEG)
                 _plugins.push_back(jpeg::Plugin::create(logSystem));
-#endif
-#if defined(OpenEXR_FOUND)
+#endif // TLRENDER_JPEG
+#if defined(TLRENDER_EXR)
                 _plugins.push_back(exr::Plugin::create(logSystem));
-#endif
-#if defined(PNG_FOUND)
+#endif // TLRENDER_EXR
+#if defined(TLRENDER_PNG)
                 _plugins.push_back(png::Plugin::create(logSystem));
-#endif
-#if defined(TIFF_FOUND)
+#endif // TLRENDER_PNG
+#if defined(TLRENDER_TIFF)
                 _plugins.push_back(tiff::Plugin::create(logSystem));
-#endif
+#endif // TLRENDER_TIFF
             }
         }
 

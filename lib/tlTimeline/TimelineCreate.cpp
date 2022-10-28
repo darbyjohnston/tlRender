@@ -13,7 +13,7 @@
 #include <opentimelineio/externalReference.h>
 #include <opentimelineio/imageSequenceReference.h>
 
-#if defined(TLRENDER_ENABLE_PYTHON)
+#if defined(TLRENDER_PYTHON)
 #include <Python.h>
 #endif
 
@@ -87,7 +87,7 @@ namespace tl
                 return out;
             }
 
-#if defined(TLRENDER_ENABLE_PYTHON)
+#if defined(TLRENDER_PYTHON)
             class PyObjectRef
             {
             public:
@@ -117,7 +117,7 @@ namespace tl
             otio::ErrorStatus* errorStatus)
         {
             otio::SerializableObject::Retainer<otio::Timeline> out;
-#if defined(TLRENDER_ENABLE_PYTHON)
+#if defined(TLRENDER_PYTHON)
             Py_Initialize();
             try
             {

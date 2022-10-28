@@ -15,7 +15,7 @@ set(INCLUDE_DIRS)
 set(LIBRARIES tlTimeline)
 set(LIBRARIES_PRIVATE)
 
-if(TLRENDER_BUILD_BMD)
+if(TLRENDER_BMD)
 
 	list(APPEND HEADERS_PRIVATE
 		BMDDeviceSystem.h
@@ -82,7 +82,7 @@ target_include_directories(tlDevice PUBLIC ${INCLUDE_DIRS})
 target_link_libraries(tlDevice PUBLIC ${LIBRARIES} PRIVATE ${LIBRARIES_PRIVATE})
 set_target_properties(tlDevice PROPERTIES FOLDER lib)
 set_target_properties(tlDevice PROPERTIES PUBLIC_HEADER "${HEADERS}")
-if(TLRENDER_BUILD_BMD)
+if(TLRENDER_BMD)
 	if(WIN32)
 		add_dependencies(tlDevice MIDL_Target)
 	endif()

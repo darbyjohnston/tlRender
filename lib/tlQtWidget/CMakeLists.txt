@@ -35,16 +35,16 @@ set(SOURCE
     TimelineViewport.cpp
     Util.cpp)
 
-if(TLRENDER_BUILD_QT6)
+if(TLRENDER_QT6)
 	qt6_add_resources(SOURCE tlQtWidget.qrc)
-elseif(TLRENDER_BUILD_QT5)
+elseif(TLRENDER_QT5)
 	qt5_add_resources(SOURCE tlQtWidget.qrc)
 endif()
 
 set(LIBRARIES)
-if(TLRENDER_BUILD_QT6)
+if(TLRENDER_QT6)
 	list(APPEND LIBRARIES Qt6::Widgets Qt6::OpenGLWidgets Qt6::Svg)
-elseif(TLRENDER_BUILD_QT5)
+elseif(TLRENDER_QT5)
 	list(APPEND LIBRARIES Qt5::Widgets Qt5::Svg)
 endif()
 list(APPEND LIBRARIES tlQt)

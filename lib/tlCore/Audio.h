@@ -7,8 +7,6 @@
 #include <tlCore/Range.h>
 #include <tlCore/Util.h>
 
-#include <rtaudio/RtAudio.h>
-
 #include <limits>
 #include <list>
 #include <memory>
@@ -65,9 +63,6 @@ namespace tl
 
         //! Determine the floating point data type for a given byte count.
         DataType getFloatType(uint8_t) noexcept;
-
-        //! Convert a data type to a RtAudio type.
-        RtAudioFormat toRtAudio(DataType) noexcept;
 
         ///@}
 

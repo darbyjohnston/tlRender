@@ -390,7 +390,7 @@ namespace tl
             }
             p.size = info.st_size;
 
-#if defined(TLRENDER_ENABLE_MMAP)
+#if defined(TLRENDER_MMAP)
             // Memory mapping.
             if (Mode::Read == p.mode && p.size > 0)
             {
@@ -411,7 +411,7 @@ namespace tl
                 p.memoryEnd = p.memoryStart + p.size;
                 p.memoryP = p.memoryStart;
             }
-#endif // TLRENDER_ENABLE_MMAP
+#endif // TLRENDER_MMAP
         }
 
         bool FileIO::_close(std::string* error)
@@ -422,7 +422,7 @@ namespace tl
 
             p.fileName = std::string();
 
-#if defined(TLRENDER_ENABLE_MMAP)
+#if defined(TLRENDER_MMAP)
             if (p.mMap != 0)
             {
                 if (p.memoryStart != 0)
@@ -452,7 +452,7 @@ namespace tl
             }
             p.memoryEnd = nullptr;
             p.memoryP = nullptr;
-#endif // TLRENDER_ENABLE_MMAP
+#endif // TLRENDER_MMAP
 
             if (p.f != INVALID_HANDLE_VALUE)
             {

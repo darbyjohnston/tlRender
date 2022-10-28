@@ -13,11 +13,15 @@
 
 #include <tlCore/LRUCache.h>
 
+#if defined(TLRENDER_OCIO)
 #include <OpenColorIO/OpenColorIO.h>
+#endif // TLRENDER_OCIO
 
 #include <list>
 
+#if defined(TLRENDER_OCIO)
 namespace OCIO = OCIO_NAMESPACE;
+#endif // TLRENDER_OCIO
 
 namespace tl
 {
@@ -86,6 +90,7 @@ namespace tl
             std::list<TextureData> _cache;
         };
 
+#if defined(TLRENDER_OCIO)
         struct OCIOTexture
         {
             OCIOTexture(
@@ -124,13 +129,18 @@ namespace tl
             OCIO::GpuShaderDescRcPtr shaderDesc;
             std::vector<OCIOTexture> textures;
         };
+#endif // TLRENDER_OCIO
 
         struct Render::Private
         {
             timeline::ColorConfigOptions colorConfigOptions;
+#if defined(TLRENDER_OCIO)
             std::unique_ptr<OCIOColorConfigData> colorConfigData;
+#endif // TLRENDER_OCIO
             timeline::LUTOptions lutOptions;
+#if defined(TLRENDER_OCIO)
             std::unique_ptr<OCIOLUTData> lutData;
+#endif // TLRENDER_OCIO
 
             imaging::Size size;
 

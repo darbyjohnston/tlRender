@@ -9,6 +9,10 @@
 #include <tlCore/LogSystem.h>
 #include <tlCore/String.h>
 
+#if defined(TLRENDER_AUDIO)
+#include <rtaudio/RtAudio.h>
+#endif // TLRENDER_AUDIO
+
 #include <array>
 #include <map>
 
@@ -28,7 +32,9 @@ namespace tl
 
         struct System::Private
         {
+#if defined(TLRENDER_AUDIO)
             std::unique_ptr<RtAudio> rtAudio;
+#endif // TLRENDER_AUDIO
             std::vector<std::string> apis;
             std::vector<Device> devices;
         };
@@ -39,6 +45,7 @@ namespace tl
 
             TLRENDER_P();
 
+#if defined(TLRENDER_AUDIO)
             {
                 std::stringstream ss;
                 ss << "RtAudio version: " << RtAudio::getVersion();
@@ -174,6 +181,7 @@ namespace tl
                 ss << "Cannot initalize audio system: " << e.what();
                 _log(ss.str(), log::Type::Error);
             }
+#endif // TLRENDER_AUDIO
         }
 
         System::System() :
@@ -207,7 +215,9 @@ namespace tl
         size_t System::getDefaultInputDevice() const
         {
             TLRENDER_P();
-            size_t out = p.rtAudio->getDefaultInputDevice();
+            size_t out = 0;
+#if defined(TLRENDER_AUDIO)
+            out = p.rtAudio->getDefaultInputDevice();
             const size_t rtDeviceCount = p.rtAudio->getDeviceCount();
             std::vector<size_t> inputChannels;
             for (size_t i = 0; i < rtDeviceCount; ++i)
@@ -228,13 +238,16 @@ namespace tl
                     }
                 }
             }
+#endif // TLRENDER_AUDIO
             return out;
         }
 
         size_t System::getDefaultOutputDevice() const
         {
             TLRENDER_P();
-            size_t out = p.rtAudio->getDefaultOutputDevice();
+            size_t out = 0;
+#if defined(TLRENDER_AUDIO)
+            out = p.rtAudio->getDefaultOutputDevice();
             const size_t rtDeviceCount = p.rtAudio->getDeviceCount();
             std::vector<size_t> outputChannels;
             for (size_t i = 0; i < rtDeviceCount; ++i)
@@ -255,6 +268,7 @@ namespace tl
                     }
                 }
             }
+#endif // TLRENDER_AUDIO
             return out;
         }
 

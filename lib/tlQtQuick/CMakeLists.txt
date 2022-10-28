@@ -7,9 +7,9 @@ set(SOURCE
     Util.cpp)
 
 set(LIBRARIES)
-if(TLRENDER_BUILD_QT6)
+if(TLRENDER_QT6)
 	list(APPEND LIBRARIES Qt6::Quick)
-elseif(TLRENDER_BUILD_QT5)
+elseif(TLRENDER_QT5)
 	list(APPEND LIBRARIES Qt5::Quick)
 endif()
 list(APPEND LIBRARIES tlQt)

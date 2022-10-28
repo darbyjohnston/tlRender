@@ -1,6 +1,6 @@
-if(TLRENDER_BUILD_GL)
+if(TLRENDER_GL)
 	add_subdirectory(tlbake)
 endif()
-if(TLRENDER_BUILD_QT6 OR TLRENDER_BUILD_QT5)
+if(TLRENDER_QT6 OR TLRENDER_QT5)
     add_subdirectory(tlplay)
 endif()

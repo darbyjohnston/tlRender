@@ -112,6 +112,25 @@ namespace tl
             return out;
         }
 
+        namespace
+        {
+#if defined(TLRENDER_AUDIO)
+            RtAudioFormat toRtAudio(audio::DataType value) noexcept
+            {
+                RtAudioFormat out = 0;
+                switch (value)
+                {
+                case audio::DataType::S16: out = RTAUDIO_SINT16; break;
+                case audio::DataType::S32: out = RTAUDIO_SINT32; break;
+                case audio::DataType::F32: out = RTAUDIO_FLOAT32; break;
+                case audio::DataType::F64: out = RTAUDIO_FLOAT64; break;
+                default: break;
+                }
+                return out;
+            }
+#endif // TLRENDER_AUDIO
+        }
+
         void TimelinePlayer::_init(
             const std::shared_ptr<Timeline>& timeline,
             const std::shared_ptr<system::Context>& context,
@@ -183,6 +202,7 @@ namespace tl
                             p.ioInfo.audio.dataType != audio::DataType::None &&
                             p.ioInfo.audio.sampleRate > 0)
                         {
+#if defined(TLRENDER_AUDIO)
                             try
                             {
                                 p.threadData.rtAudio.reset(new RtAudio);
@@ -194,7 +214,7 @@ namespace tl
                                 p.threadData.rtAudio->openStream(
                                     &rtParameters,
                                     nullptr,
-                                    audio::toRtAudio(p.ioInfo.audio.dataType),
+                                    toRtAudio(p.ioInfo.audio.dataType),
                                     p.ioInfo.audio.sampleRate,
                                     &rtBufferFrames,
                                     p.rtAudioCallback,
@@ -209,6 +229,7 @@ namespace tl
                                 ss << "Cannot open audio stream: " << e.what();
                                 context->log("tl::timline::TimelinePlayer", ss.str(), log::Type::Error);
                             }
+#endif // TLRENDER_AUDIO
                         }
                     }
 
@@ -339,6 +360,7 @@ namespace tl
         TimelinePlayer::~TimelinePlayer()
         {
             TLRENDER_P();
+#if defined(TLRENDER_AUDIO)
             if (p.threadData.rtAudio && p.threadData.rtAudio->isStreamOpen())
             {
                 try
@@ -350,6 +372,7 @@ namespace tl
                     //! \todo How should this be handled?
                 }
             }
+#endif // TLRENDER_AUDIO
             p.threadData.running = false;
             if (p.thread.joinable())
             {
@@ -845,6 +868,7 @@ namespace tl
                     playbackStartTimer = p.mutexData.playbackStartTimer;
                 }
                 double seconds = 0.0;
+#if defined(TLRENDER_AUDIO)
                 if (p.threadData.rtAudio &&
                     p.threadData.rtAudio->isStreamRunning() &&
                     TimerMode::Audio == p.playerOptions.timerMode &&
@@ -853,6 +877,7 @@ namespace tl
                     seconds = p.threadData.rtAudio->getStreamTime();
                 }
                 else
+#endif // TLRENDER_AUDIO
                 {
                     const auto now = std::chrono::steady_clock::now();
                     const std::chrono::duration<double> diff = now - playbackStartTimer;

@@ -18,9 +18,9 @@ set(SOURCE
     Util.cpp)
 
 set(LIBRARIES)
-if(TLRENDER_BUILD_QT6)
+if(TLRENDER_QT6)
 	list(APPEND LIBRARIES Qt6::Gui Qt6::OpenGL)
-elseif(TLRENDER_BUILD_QT5)
+elseif(TLRENDER_QT5)
 	list(APPEND LIBRARIES Qt5::Gui)
 endif()
 list(APPEND LIBRARIES tlGL tlDevice)

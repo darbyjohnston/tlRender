@@ -4,9 +4,9 @@
 
 #include <tlDevice/Util.h>
 
-#if defined(TLRENDER_BUILD_BMD)
+#if defined(TLRENDER_BMD)
 #include <tlDevice/BMDDeviceSystem.h>
-#endif // TLRENDER_BUILD_BMD
+#endif // TLRENDER_BMD
 
 #include <tlCore/Context.h>
 
@@ -16,12 +16,12 @@ namespace tl
     {
         void init(const std::shared_ptr<system::Context>& context)
         {
-#if defined(TLRENDER_BUILD_BMD)
+#if defined(TLRENDER_BMD)
             if (!context->getSystem<BMDDeviceSystem>())
             {
                 context->addSystem(BMDDeviceSystem::create(context));
             }
-#endif // TLRENDER_BUILD_BMD
+#endif // TLRENDER_BMD
         }
     }
 }

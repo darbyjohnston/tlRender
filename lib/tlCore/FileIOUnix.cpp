@@ -382,7 +382,7 @@ namespace tl
 			p.pos      = 0;
 			p.size     = info.st_size;
 
-#if defined(TLRENDER_ENABLE_MMAP)
+#if defined(TLRENDER_MMAP)
 			// Memory mapping.
 			if (Mode::Read == p.mode && p.size > 0)
 			{
@@ -396,7 +396,7 @@ namespace tl
 				p.memoryEnd   = p.memoryStart + p.size;
 				p.memoryP     = p.memoryStart;
 			}
-#endif // TLRENDER_ENABLE_MMAP
+#endif // TLRENDER_MMAP
 		}
 
 		bool FileIO::_close(std::string* error)
