@@ -86,8 +86,13 @@ include_directories(
 if(TLRENDER_COVERAGE)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")# -fkeep-inline-functions")
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage")# -fkeep-inline-functions")
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
 endif()
+message("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+message("CMAKE_CXX_FLAGS: "${CMAKE_CXX_FLAGS})
+message("CMAKE_C_FLAGS: "${CMAKE_C_FLAGS})
+message("CMAKE_EXE_LINKER_FLAGS: "${CMAKE_EXE_LINKER_FLAGS})
+message("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
 set(CMAKE_FIND_FRAMEWORK LAST)
 
