@@ -33,8 +33,12 @@ Contents:
 * [Libraries](#libraries)
 * [Applications](#applications)
 * [Building](#building)
-    * [Dependencies] (#dependencies)
-    * [CMake Build Options] (#cmake-build-options)
+    * [Dependencies](#dependencies)
+    * [CMake Build Options](#cmake-build-options)
+    * [Building on Linux](#building-on-linux)
+    * [Building on Linux with Qt](#building-on-linux-with-qt)
+    * [Minimal build on Linux](#minimal-build-on-linux)
+    * [Notes for building on Linux](#notes-for-building-on-linux)
 
 # Libraries
 
