@@ -103,7 +103,7 @@ jobs:
         files: ${{ github.workspace }}/build/tlRender/src/tlRender-build/coverage_filtered.info
         fail_ci_if_error: true
 
-  minimal-linux-build:
+  linux-minimal-build:
     runs-on: ubuntu-latest
 
     env:
