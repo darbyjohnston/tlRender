@@ -30,9 +30,11 @@ To do:
 * Python bindings
 
 Contents:
-* [Libraries](#Libraries)
-* [Applications](#Applications)
-* [Building](#Building)
+* [Libraries](#libraries)
+* [Applications](#applications)
+* [Building](#building)
+    * [Dependencies] (#dependencies)
+    * [CMake Build Options] (#cmake-build-options)
 
 # Libraries
 
@@ -90,8 +92,8 @@ Render a timeline to a movie or image sequence.
 A CMake super build script is provided to build the dependencies from source,
 except for Qt. Qt should be installed separately.
 
-CMake Build Options
--------------------
+## CMake Build Options
+
 | Name              | Description                                       | Default   |
 | ----------------- | ------------------------------------------------- | --------- |
 | TLRENDER_MMAP     | Enable memory-mapped file I/O                     | TRUE      |
