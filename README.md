@@ -95,25 +95,26 @@ except for Qt. Qt should be installed separately.
 
 CMake Build Options
 -------------------
-| Name              | Description                                       | Default
-| TLRENDER_MMAP     | Enable memory-mapped file I/O                     | TRUE
-| TLRENDER_COVERAGE | Enable code coverage                              | FALSE
-| TLRENDER_PYTHON   | Enable Python support (for OTIO Python adapters)  | FALSE
-| TLRENDER_OCIO     | Enable support for OpenColorIO                    | TRUE
-| TLRENDER_AUDIO    | Enable support for audio                          | TRUE
-| TLRENDER_JPEG     | Enable support for JPEG                           | TRUE
-| TLRENDER_TIFF     | Enable support for TIFF                           | TRUE
-| TLRENDER_PNG      | Enable support for PNG                            | TRUE
-| TLRENDER_EXR      | Enable support for OpenEXR                        | TRUE
-| TLRENDER_FFMPEG   | Enable support for FFmpeg                         | TRUE
-| TLRENDER_GL       | Enable support for OpenGL                         | TRUE
-| TLRENDER_BMD      | Enable support for Blackmagic Design devices      | FALSE
-| TLRENDER_BMD_SDK  | Full path to the Blackmagic Design SDK            | ""
-| TLRENDER_QT6      | Enable support for Qt6                            | FALSE
-| TLRENDER_QT5      | Enable support for Qt5                            | FALSE
-| TLRENDER_PROGRAMS | Build programs                                    | TRUE
-| TLRENDER_EXAMPLES | Build examples                                    | TRUE
-| TLRENDER_TESTS    | Build tests                                       | TRUE
+| Name              | Description                                       | Default   |
+| ----------------- | ------------------------------------------------- | --------- |
+| TLRENDER_MMAP     | Enable memory-mapped file I/O                     | TRUE      |
+| TLRENDER_COVERAGE | Enable code coverage                              | FALSE     |
+| TLRENDER_PYTHON   | Enable Python support (for OTIO Python adapters)  | FALSE     |
+| TLRENDER_OCIO     | Enable support for OpenColorIO                    | TRUE      |
+| TLRENDER_AUDIO    | Enable support for audio                          | TRUE      |
+| TLRENDER_JPEG     | Enable support for JPEG                           | TRUE      |
+| TLRENDER_TIFF     | Enable support for TIFF                           | TRUE      |
+| TLRENDER_PNG      | Enable support for PNG                            | TRUE      |
+| TLRENDER_EXR      | Enable support for OpenEXR                        | TRUE      |
+| TLRENDER_FFMPEG   | Enable support for FFmpeg                         | TRUE      |
+| TLRENDER_GL       | Enable support for OpenGL                         | TRUE      |
+| TLRENDER_BMD      | Enable support for Blackmagic Design devices      | FALSE     |
+| TLRENDER_BMD_SDK  | Full path to the Blackmagic Design SDK            | ""        |
+| TLRENDER_QT6      | Enable support for Qt6                            | FALSE     |
+| TLRENDER_QT5      | Enable support for Qt5                            | FALSE     |
+| TLRENDER_PROGRAMS | Build programs                                    | TRUE      |
+| TLRENDER_EXAMPLES | Build examples                                    | TRUE      |
+| TLRENDER_TESTS    | Build tests                                       | TRUE      |
 
 Building on Linux
 -----------------
