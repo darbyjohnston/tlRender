@@ -30,11 +30,11 @@ To do:
 * Python bindings
 
 Contents:
-* [Libraries](#libraries)
-* [Applications](#applications)
-* [Building](#building)
+* [Libraries](#Libraries)
+* [Applications](#Applications)
+* [Building](#Building)
 
-# Libraries {#libraries}
+# Libraries
 
 ## tlCore, tlIO, tlTimeline
 
@@ -70,7 +70,7 @@ Required dependencies:
 * [Qt](https://www.qt.io)
 
 
-# Applications {#applications}
+# Applications
 
 ## tlplay
 
@@ -83,9 +83,9 @@ Play timelines, movies, and image sequences.
 Render a timeline to a movie or image sequence.
 
 
-# Building {#building}
+# Building
 
-## Dependencies {#building-dependencies}
+## Dependencies
 
 A CMake super build script is provided to build the dependencies from source,
 except for Qt. Qt should be installed separately.
@@ -113,7 +113,7 @@ CMake Build Options
 | TLRENDER_EXAMPLES | Build examples                                    | TRUE      |
 | TLRENDER_TESTS    | Build tests                                       | TRUE      |
 
-## Building on Linux {#building-linux}
+## Building on Linux
 
 Clone the repository:
 ```
@@ -141,7 +141,7 @@ export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
 ./tlRender/src/tlRender-build/examples/play-glfw/play-glfw ../etc/SampleData/MultipleClips.otio
 ```
 
-## Building on Linux with Qt {#building-linux-qt}
+## Building on Linux with Qt
 
 When running CMake with the super build script, add the Qt location to
 "CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLRENDER_QT5":
@@ -149,14 +149,14 @@ When running CMake with the super build script, add the Qt location to
 cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/5.15.2/gcc_64" -DTLRENDER_QT5=ON -DCMAKE_BUILD_TYPE=Debug
 ```
 
-## Minimal build on Linux {#building-linux-minimal}
+## Minimal build on Linux
 
 Build with only the required dependencies, disabling all optional dependencies.
 ```
 cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install -DCMAKE_BUILD_TYPE=Debug -DTLRENDER_OCIO=OFF -DTLRENDER_AUDIO=OFF -DTLRENDER_JPEG=OFF -DTLRENDER_TIFF=OFF -DTLRENDER_PNG=OFF -DTLRENDER_EXR=OFF -DTLRENDER_FFMPEG=OFF -DTLRENDER_PROGRAMS=OFF -DTLRENDER_EXAMPLES=OFF -DTLRENDER_TESTS=OFF
 ```
 
-## Notes for building on Linux {#building-linux-notes}
+## Notes for building on Linux
 
 Example for running gcovr for code coverage:
 ```
