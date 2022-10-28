@@ -93,20 +93,22 @@ separately.
 
 CMake Build Options
 -------------------
-* TLRENDER_ENABLE_MMAP - Enable memory-mapped file I/O
-* TLRENDER_ENABLE_COVERAGE - Enable code coverage
-* TLRENDER_ENABLE_PYTHON - Enable Python support (for OTIO Python adapters)
-* TLRENDER_BUILD_GL - Build OpenGL support
-* TLRENDER_BUILD_QT6 - Build Qt6 support
-* TLRENDER_BUILD_QT5 - Build Qt5 support
-* TLRENDER_BUILD_PROGRAMS - Build applications
-* TLRENDER_BUILD_EXAMPLES - Build examples
-* TLRENDER_BUILD_TESTS - Build tests
-* TLRENDER_BUILD_FFmpeg - Build FFmpeg support (Linux and macOS only)
-* TLRENDER_BUILD_JPEG - Build JPEG support
-* TLRENDER_BUILD_PNG - Build PNG support
-* TLRENDER_BUILD_OpenEXR - Build OpenEXR support
-* TLRENDER_BUILD_TIFF - Build TIFF support
+* TLRENDER_MMAP - Enable memory-mapped file I/O
+* TLRENDER_COVERAGE - Enable code coverage
+* TLRENDER_PYTHON - Enable Python support (for OTIO Python adapters)
+* TLRENDER_OCIO - Enable support for OpenColorIO
+* TLRENDER_AUDIO - Enable support for audio
+* TLRENDER_JPEG - Enable support for JPEG
+* TLRENDER_TIFF - Enable support for TIFF
+* TLRENDER_PNG - Enable support for PNG
+* TLRENDER_EXR - Enable support for OpenEXR
+* TLRENDER_FFMPEG - Enable support for FFmpeg
+* TLRENDER_GL - Enable support for OpenGL
+* TLRENDER_QT6 - Enable support for Qt6
+* TLRENDER_QT5 - Enable support for Qt5
+* TLRENDER_PROGRAMS - Build programs
+* TLRENDER_EXAMPLES - Build examples
+* TLRENDER_TESTS - Build tests
 
 Building on Linux
 -----------------
@@ -139,9 +141,15 @@ export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
 Building on Linux with Qt
 -------------------------
 When running CMake with the super build script, add the Qt location to
-"CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLRENDER_BUILD_QT5":
+"CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLRENDER_QT5":
 ```
-cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/5.15.2/gcc_64" -DTLRENDER_BUILD_QT5=ON -DCMAKE_BUILD_TYPE=Debug
+cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/5.15.2/gcc_64" -DTLRENDER_QT5=ON -DCMAKE_BUILD_TYPE=Debug
+```
+
+Minimal build on Linux
+----------------------
+```
+cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH=$PWD/install -DCMAKE_BUILD_TYPE=Debug -DTLRENDER_OCIO=OFF -DTLRENDER_AUDIO=OFF -DTLRENDER_JPEG=OFF -DTLRENDER_TIFF=OFF -DTLRENDER_PNG=OFF -DTLRENDER_EXR=OFF -DTLRENDER_FFMPEG=OFF -DTLRENDER_PROGRAMS=OFF -DTLRENDER_EXAMPLES=OFF -DTLRENDER_TESTS=OFF
 ```
 
 Notes for building on Linux
@@ -186,9 +194,9 @@ Try running the "play-glfw" example:
 Building on macOS with Qt
 -------------------------
 When running CMake with the super build script, add the Qt location to
-"CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLRENDER_BUILD_QT5":
+"CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLRENDER_QT5":
 ```
-cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/5.15.2/clang_64" -DTLRENDER_BUILD_QT5=ON -DCMAKE_BUILD_TYPE=Debug
+cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/5.15.2/clang_64" -DTLRENDER_QT5=ON -DCMAKE_BUILD_TYPE=Debug
 ```
 
 Notes for building on macOS
@@ -264,9 +272,9 @@ set PATH=%CD%\install\bin;%PATH%
 Building on Windows with Qt
 ---------------------------
 When running CMake with the super build script, add the Qt location to
-"CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLRENDER_BUILD_QT5":
+"CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLRENDER_QT5":
 ```
-cmake ..\etc\SuperBuild -DCMAKE_INSTALL_PREFIX=%CD%\install -DCMAKE_PREFIX_PATH="%CD%\install;C:\Qt\5.15.2\msvc2019_64" -DTLRENDER_BUILD_QT5=ON -DCMAKE_BUILD_TYPE=Debug
+cmake ..\etc\SuperBuild -DCMAKE_INSTALL_PREFIX=%CD%\install -DCMAKE_PREFIX_PATH="%CD%\install;C:\Qt\5.15.2\msvc2019_64" -DTLRENDER_QT5=ON -DCMAKE_BUILD_TYPE=Debug
 ```
 
 Notes for building on Windows
