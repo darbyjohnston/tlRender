@@ -37,6 +37,7 @@ Contents:
     * [CMake build options](#cmake-build-options)
     * [Building on Linux](#building-on-linux)
     * [Building on macOS](#building-on-macos)
+    * [Building FFmpeg on Windows](#building-ffmpeg-on-windows)
     * [Building on Windows](#building-on-windows)
 
 # Libraries
@@ -168,8 +169,8 @@ Example for running gcovr for code coverage:
 gcovr -r ../../../../lib --html --object-directory lib --html-details --output gcov.html lib/tlCore lib/tlIO lib/tlTimeline
 ```
 
-Building on macOS
------------------
+## Building on macOS
+
 Clone the repository:
 ```
 git clone https://github.com/darbyjohnston/tlRender.git
@@ -195,16 +196,16 @@ Try running the "play-glfw" example:
 ./tlRender/src/tlRender-build/examples/play-glfw/play-glfw ../etc/SampleData/MultipleClips.otio
 ```
 
-Building on macOS with Qt
--------------------------
+### Building on macOS with Qt
+
 When running CMake with the super build script add the Qt location to
 "CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLRENDER_QT5":
 ```
 cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/5.15.2/clang_64" -DTLRENDER_QT5=ON -DCMAKE_BUILD_TYPE=Debug
 ```
 
-Notes for building on macOS
----------------------------
+### Notes for building on macOS
+
 The CMake variable "CMAKE_OSX_ARCHITECTURES" can be used to specify the build
 architecture:
 ```
@@ -214,8 +215,8 @@ architecture:
 -DCMAKE_OSX_ARCHITECTURES=arm64
 ```
 
-Building FFmpeg on Windows
---------------------------
+## Building FFmpeg on Windows
+
 Most of the third party software that tlRender depends upon is built as part
 of the CMake super build, except for FFmpeg on Windows. Instead the Windows
 Subsystem for Linux (WSL) is used to compile FFmpeg as a separate step before
@@ -240,8 +241,8 @@ Build FFmpeg, replacing $SOURCE_DIR and $BUILD_DIR with the same directories use
 $SOURCE_DIR/etc/Windows/build_ffmpeg_wsl.sh $BUILD_DIR/install
 ```
 
-Building on Windows
--------------------
+## Building on Windows
+
 Clone the repository:
 ```
 git clone https://github.com/darbyjohnston/tlRender.git
@@ -268,8 +269,8 @@ set PATH=%CD%\install\bin;%PATH%
 .\tlRender\src\tlRender-build\examples\play-glfw\Debug\play-glfw ..\etc\SampleData\MultipleClips.otio
 ```
 
-Building on Windows with Qt
----------------------------
+### Building on Windows with Qt
+
 When running CMake with the super build script add the Qt location to
 "CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLRENDER_QT5":
 ```
