@@ -146,7 +146,7 @@ namespace tl
 
         float FontSystem::getGlyphCachePercentage() const
         {
-            return _p->glyphCache.getPercentageUsed();
+            return _p->glyphCache.getPercentage();
         }
 
         FontMetrics FontSystem::getMetrics(const FontInfo& info)

@@ -45,14 +45,54 @@ namespace tl
         //! Get the audio buffer frame count.
         size_t getAudioBufferFrameCount(AudioBufferFrameCount);
 
+        //! Timeline player cache options.
+        struct PlayerCacheOptions
+        {
+            //! Video cache size in bytes.
+            size_t videoByteCount = 8 * memory::gigabyte;
+
+            //! Audio cache size in bytes.
+            size_t audioByteCount = 1 * memory::gigabyte;
+
+            //! Cache read ahead.
+            otime::RationalTime readAhead = otime::RationalTime(4.0, 1.0);
+
+            //! Cache read behind.
+            otime::RationalTime readBehind = otime::RationalTime(0.5, 1.0);
+
+            bool operator == (const PlayerCacheOptions&) const;
+            bool operator != (const PlayerCacheOptions&) const;
+        };
+
+        //! Timeline player cache information.
+        struct PlayerCacheInfo
+        {
+            //! Video cache percentage used.
+            float videoPercentage = 0.F;
+
+            //! Audio cache percentage used.
+            float audioPercentage = 0.F;
+
+            //! Cached video frames.
+            std::vector<otime::TimeRange> videoFrames;
+
+            //! Cached audio frames.
+            std::vector<otime::TimeRange> audioFrames;
+
+            bool operator == (const PlayerCacheInfo&) const;
+            bool operator != (const PlayerCacheInfo&) const;
+        };
+
         //! Timeline player options.
         struct PlayerOptions
         {
-            otime::RationalTime cacheReadAhead = otime::RationalTime(4.0, 1.0);
-            otime::RationalTime cacheReadBehind = otime::RationalTime(0.5, 1.0);
+            //! Cache options.
+            PlayerCacheOptions cache;
 
+            //! Timer mode.
             TimerMode timerMode = TimerMode::System;
 
+            //! Audio buffer frame count.
             AudioBufferFrameCount audioBufferFrameCount = AudioBufferFrameCount::_256;
 
             //! Timeout for muting the audio when playback stutters.
@@ -295,26 +335,14 @@ namespace tl
             //! \name Cache
             ///@{
 
-            //! Observe the cache read ahead.
-            std::shared_ptr<observer::IValue<otime::RationalTime> > observeCacheReadAhead() const;
+            //! Observe the cache options.
+            std::shared_ptr<observer::IValue<PlayerCacheOptions> > observeCacheOptions() const;
 
-            //! Set the cache read ahead.
-            void setCacheReadAhead(const otime::RationalTime&);
+            //! Set the cache options.
+            void setCacheOptions(const PlayerCacheOptions&);
 
-            //! Observe the cache read behind.
-            std::shared_ptr<observer::IValue<otime::RationalTime> > observeCacheReadBehind() const;
-
-            //! Set the cache read behind.
-            void setCacheReadBehind(const otime::RationalTime&);
-
-            //! Observe the cache percentage.
-            std::shared_ptr<observer::IValue<float> > observeCachePercentage() const;
-
-            //! Observe the cached video.
-            std::shared_ptr<observer::IList<otime::TimeRange> > observeCachedVideoFrames() const;
-
-            //! Observe the cached audio.
-            std::shared_ptr<observer::IList<otime::TimeRange> > observeCachedAudioFrames() const;
+            //! Observe the cache information.
+            std::shared_ptr<observer::IValue<PlayerCacheInfo> > observeCacheInfo() const;
 
             ///@}
 

@@ -209,7 +209,9 @@ namespace tl
                 &SettingsObject::valueChanged,
                 [this](const QString& name, const QVariant&)
                 {
-                    if ("Cache/ReadAhead" == name ||
+                    if ("Cache/VideoSize" == name ||
+                        "Cache/AudioSize" == name ||
+                        "Cache/ReadAhead" == name ||
                         "Cache/ReadBehind" == name ||
                         "Performance/VideoRequestCount" == name ||
                         "Performance/AudioRequestCount" == name ||
@@ -566,8 +568,10 @@ namespace tl
                         auto timeline = timeline::Timeline::create(otioTimeline, _context, options);
 
                         timeline::PlayerOptions playerOptions;
-                        playerOptions.cacheReadAhead = _cacheReadAhead();
-                        playerOptions.cacheReadBehind = _cacheReadBehind();
+                        playerOptions.cache.videoByteCount = _getVideoCacheByteCount();
+                        playerOptions.cache.audioByteCount = _getAudioCacheByteCount();
+                        playerOptions.cache.readAhead = otime::RationalTime(p.settingsObject->value("Cache/ReadAhead").toDouble(), 1.0);
+                        playerOptions.cache.readBehind = otime::RationalTime(p.settingsObject->value("Cache/ReadBehind").toDouble(), 1.0);
                         playerOptions.timerMode = p.settingsObject->value("Performance/TimerMode").
                             value<timeline::TimerMode>();
                         playerOptions.audioBufferFrameCount = p.settingsObject->value("Performance/AudioBufferFrameCount").
@@ -656,33 +660,53 @@ namespace tl
             _cacheUpdate();
         }
 
-        otime::RationalTime App::_cacheReadAhead() const
+        size_t App::_getVideoCacheByteCount() const
         {
             TLRENDER_P();
-            const size_t activeCount = p.filesModel->observeActive()->getSize();
-            return otime::RationalTime(
-                p.settingsObject->value("Cache/ReadAhead").toDouble() / static_cast<double>(activeCount),
-                1.0);
+            size_t out = 0;
+            size_t activeCount = 0;
+            if (p.filesModel)
+            {
+                activeCount = p.filesModel->observeActive()->getSize();
+            }
+            out = p.settingsObject->value("Cache/VideoSize").toInt() * memory::gigabyte;
+            if (activeCount)
+            {
+                out /= activeCount;
+            }
+            return out;
         }
 
-        otime::RationalTime App::_cacheReadBehind() const
+        size_t App::_getAudioCacheByteCount() const
         {
             TLRENDER_P();
-            const size_t activeCount = p.filesModel->observeActive()->getSize();
-            return otime::RationalTime(
-                p.settingsObject->value("Cache/ReadBehind").toDouble() / static_cast<double>(activeCount),
-                1.0);
+            size_t out = 0;
+            size_t activeCount = 0;
+            if (p.filesModel)
+            {
+                activeCount = p.filesModel->observeActive()->getSize();
+            }
+            out = p.settingsObject->value("Cache/AudioSize").toInt() * memory::gigabyte;
+            if (activeCount)
+            {
+                out /= activeCount;
+            }
+            return out;
         }
 
         void App::_cacheUpdate()
         {
             TLRENDER_P();
+            timeline::PlayerCacheOptions options;
+            options.videoByteCount = _getVideoCacheByteCount();
+            options.audioByteCount = _getAudioCacheByteCount();
+            options.readAhead = otime::RationalTime(p.settingsObject->value("Cache/ReadAhead").toDouble(), 1.0);
+            options.readBehind = otime::RationalTime(p.settingsObject->value("Cache/ReadBehind").toDouble(), 1.0);
             for (const auto& i : p.timelinePlayers)
             {
                 if (i)
                 {
-                    i->setCacheReadAhead(_cacheReadAhead());
-                    i->setCacheReadBehind(_cacheReadBehind());
+                    i->setCacheOptions(options);
                 }
             }
         }

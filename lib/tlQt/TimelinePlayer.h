@@ -74,19 +74,14 @@ namespace tl
                 WRITE setAudioOffset
                 NOTIFY audioOffsetChanged)
             Q_PROPERTY(
-                otime::RationalTime cacheReadAhead
-                READ cacheReadAhead
-                WRITE setCacheReadAhead
-                NOTIFY cacheReadAheadChanged)
+                tl::timeline::PlayerCacheOptions cacheOptions
+                READ cacheOptions
+                WRITE setCacheOptions
+                NOTIFY cacheOptionsChanged)
             Q_PROPERTY(
-                otime::RationalTime cacheReadBehind
-                READ cacheReadBehind
-                WRITE setCacheReadBehind
-                NOTIFY cacheReadBehindChanged)
-            Q_PROPERTY(
-                float cachePercentage
-                READ cachePercentage
-                NOTIFY cachePercentageChanged)
+                tl::timeline::PlayerCacheInfo cacheInfo
+                READ cacheInfo
+                NOTIFY cacheInfoChanged)
 
             void _init(
                 const std::shared_ptr<timeline::TimelinePlayer>&,
@@ -194,20 +189,11 @@ namespace tl
             //! \name Cache
             ///@{
 
-            //! Get the cache read ahead.
-            otime::RationalTime cacheReadAhead() const;
+            //! Get the cache options.
+            const timeline::PlayerCacheOptions& cacheOptions() const;
 
-            //! Get the cache read behind.
-            otime::RationalTime cacheReadBehind() const;
-
-            //! Get the cache percentage.
-            float cachePercentage() const;
-
-            //! Get the cached video frames.
-            const std::vector<otime::TimeRange>& cachedVideoFrames() const;
-
-            //! Get the cached audio frames.
-            const std::vector<otime::TimeRange>& cachedAudioFrames() const;
+            //! Get the cache information.
+            const timeline::PlayerCacheInfo& cacheInfo() const;
 
             ///@}
 
@@ -312,11 +298,8 @@ namespace tl
             //! \name Cache
             ///@{
 
-            //! Set the cache read ahead.
-            void setCacheReadAhead(const otime::RationalTime&);
-
-            //! Set the cache read behind.
-            void setCacheReadBehind(const otime::RationalTime&);
+            //! Set the cache options.
+            void setCacheOptions(const tl::timeline::PlayerCacheOptions&);
 
             ///@}
 
@@ -369,20 +352,11 @@ namespace tl
             //! \name Cache
             ///@{
 
-            //! This signal is emitted when the cache read ahead has changed.
-            void cacheReadAheadChanged(const otime::RationalTime&);
+            //! This signal is emitted when the cache options have changed.
+            void cacheOptionsChanged(const tl::timeline::PlayerCacheOptions&);
 
-            //! This signal is emitted when the cache read behind has changed.
-            void cacheReadBehindChanged(const otime::RationalTime&);
-
-            //! This signal is emitted when the cache percentage has changed.
-            void cachePercentageChanged(float);
-
-            //! This signal is emitted when the cached video frames are changed.
-            void cachedVideoFramesChanged(const std::vector<otime::TimeRange>&);
-
-            //! This signal is emitted when the cached audio frames are changed.
-            void cachedAudioFramesChanged(const std::vector<otime::TimeRange>&);
+            //! This signal is emitted when the cache information has changed.
+            void cacheInfoChanged(const tl::timeline::PlayerCacheInfo&);
 
             ///@}
 

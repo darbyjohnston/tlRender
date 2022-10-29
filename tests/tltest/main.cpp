@@ -104,9 +104,9 @@ int main(int argc, char* argv[])
     context->tick();
 
     std::vector<std::shared_ptr<tests::ITest> > tests;
-    if (0)
+    if (1)
     {
-        tests.push_back(timeline_tests::TimelineTest::create(context));
+        tests.push_back(core_tests::LRUCacheTest::create(context));
     }
     else
     {

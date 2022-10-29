@@ -26,6 +26,8 @@ namespace tl
     {
         struct CacheSettingsWidget::Private
         {
+            QSpinBox* videoSizeSpinBox = nullptr;
+            QSpinBox* audioSizeSpinBox = nullptr;
             QDoubleSpinBox* readAheadSpinBox = nullptr;
             QDoubleSpinBox* readBehindSpinBox = nullptr;
         };
@@ -36,6 +38,12 @@ namespace tl
         {
             TLRENDER_P();
 
+            p.videoSizeSpinBox = new QSpinBox;
+            p.videoSizeSpinBox->setRange(0, 1024);
+
+            p.audioSizeSpinBox = new QSpinBox;
+            p.audioSizeSpinBox->setRange(0, 1024);
+
             p.readAheadSpinBox = new QDoubleSpinBox;
             p.readAheadSpinBox->setRange(0.0, 60.0);
 
@@ -43,12 +51,32 @@ namespace tl
             p.readBehindSpinBox->setRange(0, 60.0);
 
             auto layout = new QFormLayout;
-            layout->addRow(tr("Read ahead:"), p.readAheadSpinBox);
-            layout->addRow(tr("Read behind:"), p.readBehindSpinBox);
+            layout->addRow(tr("Video size (gigabytes):"), p.videoSizeSpinBox);
+            layout->addRow(tr("Audio size (gigabytes):"), p.audioSizeSpinBox);
+            layout->addRow(tr("Read ahead (seconds):"), p.readAheadSpinBox);
+            layout->addRow(tr("Read behind (seconds):"), p.readBehindSpinBox);
             setLayout(layout);
 
+            p.videoSizeSpinBox->setValue(settingsObject->value("Cache/VideoSize").toInt());
+            p.audioSizeSpinBox->setValue(settingsObject->value("Cache/AudioSize").toInt());
             p.readAheadSpinBox->setValue(settingsObject->value("Cache/ReadAhead").toDouble());
             p.readBehindSpinBox->setValue(settingsObject->value("Cache/ReadBehind").toDouble());
+
+            connect(
+                p.videoSizeSpinBox,
+                QOverload<int>::of(&QSpinBox::valueChanged),
+                [settingsObject](int value)
+                {
+                    settingsObject->setValue("Cache/VideoSize", value);
+                });
+
+            connect(
+                p.audioSizeSpinBox,
+                QOverload<int>::of(&QSpinBox::valueChanged),
+                [settingsObject](int value)
+                {
+                    settingsObject->setValue("Cache/AudioSize", value);
+                });
 
             connect(
                 p.readAheadSpinBox,
@@ -71,7 +99,17 @@ namespace tl
                 &SettingsObject::valueChanged,
                 [this](const QString& name, const QVariant& value)
                 {
-                    if (name == "Cache/ReadAhead")
+                    if (name == "Cache/VideoSize")
+                    {
+                        QSignalBlocker signalBlocker(_p->videoSizeSpinBox);
+                        _p->videoSizeSpinBox->setValue(value.toInt());
+                    }
+                    else if (name == "Cache/AudioSize")
+                    {
+                        QSignalBlocker signalBlocker(_p->audioSizeSpinBox);
+                        _p->audioSizeSpinBox->setValue(value.toInt());
+                    }
+                    else if (name == "Cache/ReadAhead")
                     {
                         QSignalBlocker signalBlocker(_p->readAheadSpinBox);
                         _p->readAheadSpinBox->setValue(value.toDouble());

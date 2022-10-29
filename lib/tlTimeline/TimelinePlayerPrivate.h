@@ -6,6 +6,8 @@
 
 #include <tlTimeline/TimelinePlayer.h>
 
+#include <tlCore/LRUCache.h>
+
 #if defined(TLRENDER_AUDIO)
 #include <rtaudio/RtAudio.h>
 #endif // TLRENDER_AUDIO
@@ -34,8 +36,7 @@ namespace tl
                 uint16_t videoLayer,
                 double audioOffset,
                 CacheDirection,
-                const otime::RationalTime& cacheReadAhead,
-                const otime::RationalTime& cacheReadBehind);
+                const PlayerCacheOptions&);
 
             void resetAudioTime();
 #if defined(TLRENDER_AUDIO)
@@ -67,11 +68,8 @@ namespace tl
             std::shared_ptr<observer::Value<float> > volume;
             std::shared_ptr<observer::Value<bool> > mute;
             std::shared_ptr<observer::Value<double> > audioOffset;
-            std::shared_ptr<observer::Value<otime::RationalTime> > cacheReadAhead;
-            std::shared_ptr<observer::Value<otime::RationalTime> > cacheReadBehind;
-            std::shared_ptr<observer::Value<float> > cachePercentage;
-            std::shared_ptr<observer::List<otime::TimeRange> > cachedVideoFrames;
-            std::shared_ptr<observer::List<otime::TimeRange> > cachedAudioFrames;
+            std::shared_ptr<observer::Value<PlayerCacheOptions> > cacheOptions;
+            std::shared_ptr<observer::Value<PlayerCacheInfo> > cacheInfo;
 
             struct ExternalTime
             {
@@ -93,12 +91,10 @@ namespace tl
                 VideoData videoData;
                 double audioOffset = 0.0;
                 bool clearRequests = false;
-                std::vector<otime::TimeRange> cachedVideoFrames;
-                std::vector<otime::TimeRange> cachedAudioFrames;
                 bool clearCache = false;
                 CacheDirection cacheDirection = CacheDirection::Forward;
-                otime::RationalTime cacheReadAhead = time::invalidTime;
-                otime::RationalTime cacheReadBehind = time::invalidTime;
+                PlayerCacheOptions cacheOptions;
+                PlayerCacheInfo cacheInfo;
             };
             MutexData mutexData;
             std::mutex mutex;
@@ -109,7 +105,7 @@ namespace tl
                 float volume = 1.F;
                 bool mute = false;
                 std::chrono::steady_clock::time_point muteTimeout;
-                std::map<int64_t, AudioData> audioDataCache;
+                memory::LRUCache<int64_t, AudioData> audioDataCache;
                 size_t rtAudioCurrentFrame = 0;
             };
             AudioMutexData audioMutexData;
@@ -118,7 +114,7 @@ namespace tl
             struct ThreadData
             {
                 std::map<otime::RationalTime, std::future<VideoData> > videoDataRequests;
-                std::map<otime::RationalTime, VideoData> videoDataCache;
+                memory::LRUCache<otime::RationalTime, VideoData> videoDataCache;
 #if defined(TLRENDER_AUDIO)
                 std::unique_ptr<RtAudio> rtAudio;
 #endif // TLRENDER_AUDIO

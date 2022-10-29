@@ -106,27 +106,26 @@ namespace tl
             uint16_t videoLayer,
             double audioOffset,
             CacheDirection cacheDirection,
-            const otime::RationalTime& cacheReadAhead,
-            const otime::RationalTime& cacheReadBehind)
+            const PlayerCacheOptions& cacheOptions)
         {
             // Get the video ranges to be cached.
             const otime::TimeRange& timeRange = timeline->getTimeRange();
-            const otime::RationalTime cacheReadAheadRescaled =
-                time::floor(cacheReadAhead.rescaled_to(timeRange.duration().rate()));
-            const otime::RationalTime cacheReadBehindRescaled =
-                time::floor(cacheReadBehind.rescaled_to(timeRange.duration().rate()));
+            const otime::RationalTime readAheadRescaled =
+                time::floor(cacheOptions.readAhead.rescaled_to(timeRange.duration().rate()));
+            const otime::RationalTime readBehindRescaled =
+                time::floor(cacheOptions.readBehind.rescaled_to(timeRange.duration().rate()));
             otime::TimeRange videoRange = time::invalidTimeRange;
             switch (cacheDirection)
             {
             case CacheDirection::Forward:
                 videoRange = otime::TimeRange::range_from_start_end_time_inclusive(
-                    currentTime - cacheReadBehindRescaled,
-                    currentTime + cacheReadAheadRescaled);
+                    currentTime - readBehindRescaled,
+                    currentTime + readAheadRescaled);
                 break;
             case CacheDirection::Reverse:
                 videoRange = otime::TimeRange::range_from_start_end_time_inclusive(
-                    currentTime - cacheReadAheadRescaled,
-                    currentTime + cacheReadBehindRescaled);
+                    currentTime - readAheadRescaled,
+                    currentTime + readBehindRescaled);
                 break;
             default: break;
             }
@@ -153,13 +152,13 @@ namespace tl
             {
             case CacheDirection::Forward:
                 audioRange = otime::TimeRange::range_from_start_end_time_inclusive(
-                    currentTime - cacheReadBehindRescaled - audioOffsetBehind,
-                    currentTime + cacheReadAheadRescaled + audioOffsetAhead);
+                    currentTime - readBehindRescaled - audioOffsetBehind,
+                    currentTime + readAheadRescaled + audioOffsetAhead);
                 break;
             case CacheDirection::Reverse:
                 audioRange = otime::TimeRange::range_from_start_end_time_inclusive(
-                    currentTime - cacheReadAheadRescaled - audioOffsetAhead,
-                    currentTime + cacheReadBehindRescaled + audioOffsetBehind);
+                    currentTime - readAheadRescaled - audioOffsetAhead,
+                    currentTime + readBehindRescaled + audioOffsetBehind);
                 break;
             default: break;
             }
@@ -183,52 +182,11 @@ namespace tl
             //std::cout << std::endl;
             timeline->setActiveRanges(audioRanges);
 
-            // Remove old video from the cache.
-            auto videoDataCacheIt = threadData.videoDataCache.begin();
-            while (videoDataCacheIt != threadData.videoDataCache.end())
-            {
-                bool old = true;
-                for (const auto& i : videoRanges)
-                {
-                    if (i.contains(videoDataCacheIt->second.time))
-                    {
-                        old = false;
-                        break;
-                    }
-                }
-                if (old)
-                {
-                    videoDataCacheIt = threadData.videoDataCache.erase(videoDataCacheIt);
-                    continue;
-                }
-                ++videoDataCacheIt;
-            }
-
-            // Remove old audio from the cache.
+            // Set the cache sizes.
+            threadData.videoDataCache.setMax(cacheOptions.videoByteCount);
             {
                 std::unique_lock<std::mutex> lock(audioMutex);
-                auto audioDataCacheIt = audioMutexData.audioDataCache.begin();
-                while (audioDataCacheIt != audioMutexData.audioDataCache.end())
-                {
-                    bool old = true;
-                    for (const auto& i : audioRanges)
-                    {
-                        if (i.intersects(otime::TimeRange(
-                            otime::RationalTime(audioDataCacheIt->second.seconds, 1.0),
-                            otime::RationalTime(1.0, 1.0))))
-                        {
-                            old = false;
-                            break;
-                        }
-                    }
-                    if (old)
-                    {
-                        //std::cout << "audio remove: " << audioDataCacheIt->second.seconds << std::endl;
-                        audioDataCacheIt = audioMutexData.audioDataCache.erase(audioDataCacheIt);
-                        continue;
-                    }
-                    ++audioDataCacheIt;
-                }
+                audioMutexData.audioDataCache.setMax(cacheOptions.audioByteCount);
             }
 
             // Get uncached video.
@@ -240,11 +198,10 @@ namespace tl
                         time < i.end_time_exclusive();
                         time += otime::RationalTime(1.0, timeRange.duration().rate()))
                     {
-                        const auto j = threadData.videoDataCache.find(time);
-                        if (j == threadData.videoDataCache.end())
+                        if (!threadData.videoDataCache.contains(time))
                         {
-                            const auto k = threadData.videoDataRequests.find(time);
-                            if (k == threadData.videoDataRequests.end())
+                            const auto j = threadData.videoDataRequests.find(time);
+                            if (j == threadData.videoDataRequests.end())
                             {
                                 //std::cout << this << " video request: " << time << std::endl;
                                 threadData.videoDataRequests[time] = timeline->getVideo(time, videoLayer);
@@ -263,11 +220,10 @@ namespace tl
                     for (auto j = i.start_time(); j < i.end_time_inclusive(); j += otime::RationalTime(1.0, 1.0))
                     {
                         const int64_t time = j.value();
-                        const auto k = audioMutexData.audioDataCache.find(time);
-                        if (k == audioMutexData.audioDataCache.end())
+                        if (!audioMutexData.audioDataCache.contains(time))
                         {
-                            const auto l = threadData.audioDataRequests.find(time);
-                            if (l == threadData.audioDataRequests.end())
+                            const auto k = threadData.audioDataRequests.find(time);
+                            if (k == threadData.audioDataRequests.end())
                             {
                                 //std::cout << this << " audio request: " << time << std::endl;
                                 threadData.audioDataRequests[time] = timeline->getAudio(time);
@@ -284,9 +240,21 @@ namespace tl
                 if (videoDataRequestsIt->second.valid() &&
                     videoDataRequestsIt->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                 {
-                    auto data = videoDataRequestsIt->second.get();
-                    data.time = videoDataRequestsIt->first;
-                    threadData.videoDataCache[data.time] = data;
+                    auto videoData = videoDataRequestsIt->second.get();
+                    videoData.time = videoDataRequestsIt->first;
+                    size_t byteCount = 0;
+                    for (const auto& i : videoData.layers)
+                    {
+                        if (i.image)
+                        {
+                            byteCount += i.image->getDataByteCount();
+                        }
+                        if (i.imageB)
+                        {
+                            byteCount += i.imageB->getDataByteCount();
+                        }
+                    }
+                    threadData.videoDataCache.add(videoData.time, videoData, byteCount);
                     videoDataRequestsIt = threadData.videoDataRequests.erase(videoDataRequestsIt);
                     continue;
                 }
@@ -300,11 +268,19 @@ namespace tl
                 if (audioDataRequestsIt->second.valid() &&
                     audioDataRequestsIt->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                 {
-                    auto data = audioDataRequestsIt->second.get();
-                    data.seconds = audioDataRequestsIt->first;
+                    auto audioData = audioDataRequestsIt->second.get();
+                    audioData.seconds = audioDataRequestsIt->first;
+                    size_t byteCount = 0;
+                    for (const auto& i : audioData.layers)
+                    {
+                        if (i.audio)
+                        {
+                            byteCount += i.audio->getByteCount();
+                        }
+                    }
                     {
                         std::unique_lock<std::mutex> lock(audioMutex);
-                        audioMutexData.audioDataCache[data.seconds] = data;
+                        audioMutexData.audioDataCache.add(audioData.seconds, audioData, byteCount);
                     }
                     audioDataRequestsIt = threadData.audioDataRequests.erase(audioDataRequestsIt);
                     continue;
@@ -314,16 +290,18 @@ namespace tl
 
             // Update cached frames.
             std::vector<otime::RationalTime> cachedVideoFrames;
-            for (const auto& i : threadData.videoDataCache)
+            for (const auto& i : threadData.videoDataCache.getKeys())
             {
-                cachedVideoFrames.push_back(i.second.time);
+                cachedVideoFrames.push_back(i);
             }
+            float audioPercentage = 0.F;
             std::vector<otime::RationalTime> cachedAudioFrames;
             {
                 std::unique_lock<std::mutex> lock(audioMutex);
-                for (const auto& i : audioMutexData.audioDataCache)
+                audioPercentage = audioMutexData.audioDataCache.getPercentage();
+                for (const auto& i : audioMutexData.audioDataCache.getKeys())
                 {
-                    cachedAudioFrames.push_back(otime::RationalTime(i.second.seconds, 1.0));
+                    cachedAudioFrames.push_back(otime::RationalTime(i, 1.0));
                 }
             }
             auto cachedVideoRanges = toRanges(cachedVideoFrames);
@@ -336,8 +314,10 @@ namespace tl
             }
             {
                 std::unique_lock<std::mutex> lock(mutex);
-                mutexData.cachedVideoFrames = cachedVideoRanges;
-                mutexData.cachedAudioFrames = cachedAudioRanges;
+                mutexData.cacheInfo.videoPercentage = threadData.videoDataCache.getPercentage();
+                mutexData.cacheInfo.audioPercentage = audioPercentage;
+                mutexData.cacheInfo.videoFrames = cachedVideoRanges;
+                mutexData.cacheInfo.audioFrames = cachedAudioRanges;
             }
         }
 
@@ -436,35 +416,35 @@ namespace tl
                     while (sampleCount > 0)
                     {
                         // Get audio data from the cache.
-                        std::vector<std::shared_ptr<audio::Audio> > audioData;
+                        std::vector<std::shared_ptr<audio::Audio> > audioList;
                         {
                             std::unique_lock<std::mutex> lock(p->audioMutex);
-                            const auto j = p->audioMutexData.audioDataCache.find(seconds);
-                            if (j != p->audioMutexData.audioDataCache.end())
+                            AudioData audioData;
+                            if (p->audioMutexData.audioDataCache.get(seconds, audioData))
                             {
-                                for (const auto& layer : j->second.layers)
+                                for (const auto& layer : audioData.layers)
                                 {
-                                    audioData.push_back(layer.audio);
+                                    audioList.push_back(layer.audio);
                                 }
                             }
                         }
 
                         size_t size = sampleCount;
-                        if (!audioData.empty() && audioData[0])
+                        if (!audioList.empty() && audioList[0])
                         {
                             // Get pointers to the audio data. Only audio data
                             // that has the same information (channels, data
                             // type, sample rate) is used.
                             std::vector<const uint8_t*> audioDataP;
-                            for (size_t j = 0; j < audioData.size(); ++j)
+                            for (size_t j = 0; j < audioList.size(); ++j)
                             {
-                                if (audioData[j] && audioData[j]->getInfo() == p->ioInfo.audio)
+                                if (audioList[j] && audioList[j]->getInfo() == p->ioInfo.audio)
                                 {
-                                    audioDataP.push_back(audioData[j]->getData() + offset * byteCount);
+                                    audioDataP.push_back(audioList[j]->getData() + offset * byteCount);
                                 }
                             }
 
-                            size = std::min(size, static_cast<size_t>(audioData[0]->getSampleCount() - offset));
+                            size = std::min(size, static_cast<size_t>(audioList[0]->getSampleCount() - offset));
                             
                             //std::cout << count <<
                             //    " samples: " << sampleCount <<
@@ -527,24 +507,13 @@ namespace tl
             otime::RationalTime currentTime = time::invalidTime;
             otime::TimeRange inOutRange = time::invalidTimeRange;
             uint16_t videoLayer = 0;
-            std::vector<otime::TimeRange> cachedVideoFrames;
-            std::vector<otime::TimeRange> cachedAudioFrames;
-            otime::RationalTime cacheReadAhead = time::invalidTime;
-            otime::RationalTime cacheReadBehind = time::invalidTime;
+            PlayerCacheInfo cacheInfo;
             {
                 std::unique_lock<std::mutex> lock(mutex);
                 currentTime = mutexData.currentTime;
                 inOutRange = mutexData.inOutRange;
                 videoLayer = mutexData.videoLayer;
-                cachedVideoFrames = mutexData.cachedVideoFrames;
-                cachedAudioFrames = mutexData.cachedAudioFrames;
-                cacheReadAhead = mutexData.cacheReadAhead;
-                cacheReadBehind = mutexData.cacheReadBehind;
-            }
-            size_t audioDataCacheSize = 0;
-            {
-                std::unique_lock<std::mutex> lock(audioMutex);
-                audioDataCacheSize = audioMutexData.audioDataCache.size();
+                cacheInfo = mutexData.cacheInfo;
             }
 
             // Create an array of characters to draw the timeline.
@@ -556,7 +525,7 @@ namespace tl
 
             // Create an array of characters to draw the cached video frames.
             std::string cachedVideoFramesDisplay(lineLength, '.');
-            for (const auto& i : cachedVideoFrames)
+            for (const auto& i : cacheInfo.videoFrames)
             {
                 double n = (i.start_time() - timeRange.start_time()).value() / timeRange.duration().value();
                 const size_t t0 = math::clamp(n, 0.0, 1.0) * (lineLength - 1);
@@ -570,7 +539,7 @@ namespace tl
 
             // Create an array of characters to draw the cached audio frames.
             std::string cachedAudioFramesDisplay(lineLength, '.');
-            for (const auto& i : cachedAudioFrames)
+            for (const auto& i : cacheInfo.audioFrames)
             {
                 double n = (i.start_time() - timeRange.start_time()).value() / timeRange.duration().value();
                 const size_t t0 = math::clamp(n, 0.0, 1.0) * (lineLength - 1);
@@ -600,12 +569,12 @@ namespace tl
                 arg(currentTime).
                 arg(inOutRange).
                 arg(videoLayer).
-                arg(cacheReadAhead).
-                arg(cacheReadBehind).
+                arg(cacheOptions->get().readAhead).
+                arg(cacheOptions->get().readBehind).
                 arg(threadData.videoDataRequests.size()).
-                arg(threadData.videoDataCache.size()).
+                arg(cacheInfo.videoPercentage).
                 arg(threadData.audioDataRequests.size()).
-                arg(audioDataCacheSize).
+                arg(cacheInfo.audioPercentage).
                 arg(currentTimeDisplay).
                 arg(cachedVideoFramesDisplay).
                 arg(cachedAudioFramesDisplay));

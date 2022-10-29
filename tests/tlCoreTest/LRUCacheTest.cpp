@@ -6,6 +6,7 @@
 
 #include <tlCore/Assert.h>
 #include <tlCore/LRUCache.h>
+#include <tlCore/Memory.h>
 
 using namespace tl::memory;
 
@@ -27,7 +28,7 @@ namespace tl
             {
                 LRUCache<int, int> c;
                 TLRENDER_ASSERT(0 == c.getSize());
-                TLRENDER_ASSERT(0.F == c.getPercentageUsed());
+                TLRENDER_ASSERT(0.F == c.getPercentage());
             }
             {
                 LRUCache<int, int> c;
@@ -59,8 +60,28 @@ namespace tl
                 int v = 0;
                 c.get(1, v);
                 c.add(4, 5);
-                TLRENDER_ASSERT(c.contains(3));
                 TLRENDER_ASSERT(c.contains(1));
+                TLRENDER_ASSERT(c.contains(3));
+                TLRENDER_ASSERT(c.contains(4));
+                const auto l = c.getKeys();
+                TLRENDER_ASSERT(std::vector<int>({ 1, 3, 4 }) == c.getKeys());
+                TLRENDER_ASSERT(std::vector<int>({ 2, 4, 5 }) == c.getValues());
+            }
+            {
+                LRUCache<int, int> c;
+                c.setMax(3 * memory::megabyte);
+                c.add(0, 1, memory::megabyte);
+                c.add(1, 2, memory::megabyte);
+                c.add(2, 3, memory::megabyte);
+                c.add(3, 4, memory::megabyte);
+                TLRENDER_ASSERT(c.contains(1));
+                TLRENDER_ASSERT(c.contains(2));
+                TLRENDER_ASSERT(c.contains(3));
+                int v = 0;
+                c.get(1, v);
+                c.add(4, 5, memory::megabyte);
+                TLRENDER_ASSERT(c.contains(1));
+                TLRENDER_ASSERT(c.contains(3));
                 TLRENDER_ASSERT(c.contains(4));
                 const auto l = c.getKeys();
                 TLRENDER_ASSERT(std::vector<int>({ 1, 3, 4 }) == c.getKeys());

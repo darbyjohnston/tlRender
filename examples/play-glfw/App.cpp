@@ -438,9 +438,9 @@ namespace tl
                 }
                 hudLabels[HUDElement::LowerLeft] = "Time: " + label;
 
-                // Cache percentage.
-                const float cachePercentage = _timelinePlayer->observeCachePercentage()->get();
-                hudLabels[HUDElement::UpperRight] = string::Format("Cache: {0}%").arg(cachePercentage, 0, 3);
+                // Video cache percentage.
+                const float videoCachePercentage = _timelinePlayer->observeCacheInfo()->get().videoPercentage;
+                hudLabels[HUDElement::UpperRight] = string::Format("Video cache: {0}%").arg(videoCachePercentage, 0, 3);
 
                 // Speed.
                 hudLabels[HUDElement::LowerRight] = string::Format("Speed: {0}").

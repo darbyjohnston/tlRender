@@ -104,6 +104,8 @@ namespace tl
             qRegisterMetaType<timeline::Loop>("tl::timeline::Loop");
             qRegisterMetaType<timeline::Options>("tl::timeline::Options");
             qRegisterMetaType<timeline::Playback>("tl::timeline::Playback");
+            qRegisterMetaType<timeline::PlayerCacheInfo>("tl::timeline::PlayerCacheInfo");
+            qRegisterMetaType<timeline::PlayerCacheOptions>("tl::timeline::PlayerCacheOptions");
             qRegisterMetaType<timeline::PlayerOptions>("tl::timeline::PlayerOptions");
             qRegisterMetaType<timeline::TimeAction>("tl::timeline::TimeAction");
             qRegisterMetaType<timeline::TimerMode>("tl::timeline::TimerMode");
