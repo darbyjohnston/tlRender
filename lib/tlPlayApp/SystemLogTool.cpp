@@ -11,6 +11,7 @@
 
 #include <QAction>
 #include <QBoxLayout>
+#include <QClipboard>
 #include <QListWidget>
 #include <QToolButton>
 
@@ -26,6 +27,7 @@ namespace tl
         struct SystemLogTool::Private
         {
             QListWidget* listWidget = nullptr;
+            QToolButton* copyButton = nullptr;
             QToolButton* clearButton = nullptr;
             std::shared_ptr<observer::ListObserver<log::Item> > logObserver;
         };
@@ -39,13 +41,20 @@ namespace tl
             TLRENDER_P();
 
             p.listWidget = new QListWidget;
+            p.listWidget->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
+            p.listWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
             const QFont fixedFont("Noto Mono");
             p.listWidget->setFont(fixedFont);
+
+            p.copyButton = new QToolButton;
+            p.copyButton->setIcon(QIcon(":/Icons/Copy.svg"));
+            p.copyButton->setAutoRaise(true);
+            p.copyButton->setToolTip(tr("Copy the contents to the clipboard"));
 
             p.clearButton = new QToolButton;
             p.clearButton->setIcon(QIcon(":/Icons/Clear.svg"));
             p.clearButton->setAutoRaise(true);
-            p.clearButton->setToolTip(tr("Clear the messages"));
+            p.clearButton->setToolTip(tr("Clear the contents"));
 
             auto layout = new QVBoxLayout;
             layout->setContentsMargins(0, 0, 0, 0);
@@ -54,6 +63,7 @@ namespace tl
             auto hLayout = new QHBoxLayout;
             hLayout->setSpacing(1);
             hLayout->addStretch();
+            hLayout->addWidget(p.copyButton);
             hLayout->addWidget(p.clearButton);
             layout->addLayout(hLayout);
             auto widget = new QWidget;
@@ -92,6 +102,20 @@ namespace tl
                             delete _p->listWidget->takeItem(0);
                         }
                     }
+                });
+
+            connect(
+                p.copyButton,
+                &QToolButton::clicked,
+                [this]
+                {
+                    auto clipboard = QGuiApplication::clipboard();
+                    QStringList text;
+                    for (int i = 0; i < _p->listWidget->count(); ++i)
+                    {
+                        text.append(_p->listWidget->item(i)->text());
+                    }
+                    clipboard->setText(text.join('\n'));
                 });
 
             connect(
