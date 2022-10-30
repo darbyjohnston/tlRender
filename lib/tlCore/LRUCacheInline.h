@@ -34,6 +34,8 @@ namespace tl
         template<typename T, typename U>
         inline void LRUCache<T, U>::setMax(std::size_t value)
         {
+            if (value == _max)
+                return;
             _max = value;
             _maxUpdate();
         }
