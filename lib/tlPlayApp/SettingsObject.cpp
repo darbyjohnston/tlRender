@@ -56,8 +56,8 @@ namespace tl
 
             p.defaultValues["Timeline/Thumbnails"] = true;
             p.defaultValues["Timeline/StopOnScrub"] = false;
-            p.defaultValues["Cache/VideoSize"] = timeline::PlayerCacheOptions().videoByteCount / memory::gigabyte;
-            p.defaultValues["Cache/AudioSize"] = timeline::PlayerCacheOptions().audioByteCount / memory::gigabyte;
+            p.defaultValues["Cache/VideoSize"] = static_cast<int>(timeline::PlayerCacheOptions().videoByteCount / memory::gigabyte);
+            p.defaultValues["Cache/AudioSize"] = static_cast<int>(timeline::PlayerCacheOptions().audioByteCount / memory::gigabyte);
             p.defaultValues["Cache/ReadAhead"] = timeline::PlayerCacheOptions().readAhead.value();
             p.defaultValues["Cache/ReadBehind"] = timeline::PlayerCacheOptions().readBehind.value();
             p.defaultValues["FileSequence/Audio"] =
