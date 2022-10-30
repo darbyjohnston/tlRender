@@ -664,15 +664,15 @@ namespace tl
         {
             TLRENDER_P();
             size_t out = 0;
-            size_t activeCount = 0;
+            size_t count = 0;
             if (p.filesModel)
             {
-                activeCount = p.filesModel->observeActive()->getSize();
+                count = p.filesModel->observeActive()->getSize();
             }
             out = p.settingsObject->value("Cache/VideoSize").toInt() * memory::gigabyte;
-            if (activeCount)
+            if (count)
             {
-                out /= activeCount;
+                out /= count;
             }
             return out;
         }
@@ -681,15 +681,15 @@ namespace tl
         {
             TLRENDER_P();
             size_t out = 0;
-            size_t activeCount = 0;
+            size_t count = 0;
             if (p.filesModel)
             {
-                activeCount = p.filesModel->observeActive()->getSize();
+                count = p.filesModel->observeActive()->getSize();
             }
             out = p.settingsObject->value("Cache/AudioSize").toInt() * memory::gigabyte;
-            if (activeCount)
+            if (count)
             {
-                out /= activeCount;
+                out /= count;
             }
             return out;
         }

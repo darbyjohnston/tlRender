@@ -170,6 +170,7 @@ namespace tl
                 const std::shared_ptr<Timeline>&,
                 const std::shared_ptr<system::Context>&,
                 const PlayerOptions&);
+
             TimelinePlayer();
 
         public:
