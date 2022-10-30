@@ -7,10 +7,6 @@
 #include <tlCore/Context.h>
 #include <tlCore/LRUCache.h>
 
-#include <Fonts/NotoMono-Regular.font>
-#include <Fonts/NotoSans-Regular.font>
-#include <Fonts/NotoSans-Bold.font>
-
 #if defined(TLRENDER_FREETYPE)
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -22,6 +18,13 @@
 #include <limits>
 #include <locale>
 #include <map>
+
+namespace
+{
+#include <Fonts/NotoMono-Regular.font>
+#include <Fonts/NotoSans-Regular.font>
+#include <Fonts/NotoSans-Bold.font>
+}
 
 namespace tl
 {

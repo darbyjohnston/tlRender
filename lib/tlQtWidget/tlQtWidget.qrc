@@ -43,7 +43,5 @@
     <file alias="Icons/Volume.svg">../../etc/Icons/Volume.svg</file>
     <file alias="Icons/WindowFullScreen.svg">../../etc/Icons/WindowFullScreen.svg</file>
     <file alias="Icons/WindowSecondary.svg">../../etc/Icons/WindowSecondary.svg</file>
-    <file alias="Fonts/NotoMono-Regular.font">../../etc/Fonts/NotoMono-Regular.font</file>
-    <file alias="Fonts/NotoSans-Regular.font">../../etc/Fonts/NotoSans-Regular.font</file>
 </qresource>
 </RCC>

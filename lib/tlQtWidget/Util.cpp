@@ -14,6 +14,13 @@
 
 #include <iostream>
 
+namespace
+{
+#include <Fonts/NotoMono-Regular.font>
+#include <Fonts/NotoSans-Regular.font>
+#include <Fonts/NotoSans-Bold.font>
+}
+
 void qtInitResources()
 {
     Q_INIT_RESOURCE(tlQtWidget);
@@ -39,9 +46,12 @@ namespace tl
         {
             if (fonts.isEmpty())
             {
-                fonts["NotoMono-Regular"] = QFontDatabase::addApplicationFont(":/Fonts/NotoMono-Regular.font");
-                fonts["NotoSans-Bold"] = QFontDatabase::addApplicationFont(":/Fonts/NotoSans-Bold.font");
-                fonts["NotoSans-Regular"] = QFontDatabase::addApplicationFont(":/Fonts/NotoSans-Regular.font");
+                fonts["NotoMono-Regular"] = QFontDatabase::addApplicationFontFromData(
+                    QByteArray(reinterpret_cast<const char*>(NotoMono_Regular_ttf), NotoMono_Regular_ttf_len));
+                fonts["NotoSans-Bold"] = QFontDatabase::addApplicationFontFromData(
+                    QByteArray(reinterpret_cast<const char*>(NotoSans_Bold_ttf), NotoSans_Bold_ttf_len));
+                fonts["NotoSans-Regular"] = QFontDatabase::addApplicationFontFromData(
+                    QByteArray(reinterpret_cast<const char*>(NotoSans_Regular_ttf), NotoSans_Regular_ttf_len));
             }
             QFont out;
             const auto i = fonts.find(name);

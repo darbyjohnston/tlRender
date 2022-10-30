@@ -106,6 +106,7 @@ namespace tl
             MessagesTool* messagesTool = nullptr;
             SystemLogTool* systemLogTool = nullptr;
             QLabel* infoLabel = nullptr;
+            QLabel* cacheLabel = nullptr;
             QStatusBar* statusBar = nullptr;
             SecondaryWindow* secondaryWindow = nullptr;
 
@@ -339,13 +340,20 @@ namespace tl
             addDockWidget(Qt::RightDockWidgetArea, systemLogDockWidget);
 
             p.infoLabel = new QLabel;
+            p.cacheLabel = new QLabel;
 
             p.statusBar = new QStatusBar;
-            p.statusBar->addPermanentWidget(p.infoLabel);
+            auto hLayout = new QHBoxLayout;
+            hLayout->addWidget(p.infoLabel);
+            hLayout->addWidget(p.cacheLabel);
+            auto labelWidget = new QWidget;
+            labelWidget->setLayout(hLayout);
+            p.statusBar->addPermanentWidget(labelWidget);
             setStatusBar(p.statusBar);
 
             p.timelineViewport->setFocus();
 
+            _cacheUpdate();
             _widgetUpdate();
 
             p.filesObserver = observer::ListObserver<std::shared_ptr<FilesModelItem> >::create(
@@ -712,6 +720,11 @@ namespace tl
                     SIGNAL(audioOffsetChanged(double)),
                     p.audioTool,
                     SLOT(setAudioOffset(double)));
+                disconnect(
+                    p.timelinePlayers[0],
+                    SIGNAL(cacheInfoChanged(const tl::timeline::PlayerCacheInfo&)),
+                    this,
+                    SLOT(_cacheCallback(const tl::timeline::PlayerCacheInfo&)));
             }
 
             p.timelinePlayers = timelinePlayers;
@@ -739,6 +752,10 @@ namespace tl
                     SIGNAL(audioOffsetChanged(double)),
                     p.audioTool,
                     SLOT(setAudioOffset(double)));
+                connect(
+                    p.timelinePlayers[0],
+                    SIGNAL(cacheInfoChanged(const tl::timeline::PlayerCacheInfo&)),
+                    SLOT(_cacheCallback(const tl::timeline::PlayerCacheInfo&)));
             }
 
             _widgetUpdate();
@@ -946,6 +963,28 @@ namespace tl
             TLRENDER_P();
             const QSignalBlocker blocker(p.volumeSlider);
             p.volumeSlider->setValue(value * sliderSteps);
+        }
+
+        void MainWindow::_cacheCallback(const tl::timeline::PlayerCacheInfo&)
+        {
+            _cacheUpdate();
+        }
+
+        void MainWindow::_cacheUpdate()
+        {
+            TLRENDER_P();
+
+            const timeline::PlayerCacheInfo cacheInfo = !p.timelinePlayers.empty() ?
+                p.timelinePlayers[0]->cacheInfo() :
+                timeline::PlayerCacheInfo();
+            const std::string cacheLabel = string::Format("V:{0}% A:{1}%").
+                arg(cacheInfo.videoPercentage, 0, 3).
+                arg(cacheInfo.audioPercentage, 0, 3);
+            const std::string cacheTooltip = string::Format("Video cache: {0}%\nAudio cache: {1}%").
+                arg(cacheInfo.videoPercentage, 0).
+                arg(cacheInfo.audioPercentage, 0);
+            p.cacheLabel->setText(QString::fromUtf8(cacheLabel.c_str()));
+            p.cacheLabel->setToolTip(QString::fromUtf8(cacheTooltip.c_str()));
         }
 
         void MainWindow::_widgetUpdate()
