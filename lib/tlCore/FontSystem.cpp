@@ -19,17 +19,38 @@
 #include <locale>
 #include <map>
 
-namespace
-{
-#include <Fonts/NotoMono-Regular.font>
-#include <Fonts/NotoSans-Regular.font>
-#include <Fonts/NotoSans-Bold.font>
-}
-
 namespace tl
 {
     namespace imaging
     {
+        namespace
+        {
+#include <Fonts/NotoMono-Regular.font>
+#include <Fonts/NotoSans-Regular.font>
+#include <Fonts/NotoSans-Bold.font>
+        }
+
+        std::vector<uint8_t> getFontData(const std::string& name)
+        {
+            std::vector<uint8_t> out;
+            if ("NotoMono-Regular" == name)
+            {
+                out.resize(NotoMono_Regular_ttf_len);
+                memcpy(out.data(), NotoMono_Regular_ttf, NotoMono_Regular_ttf_len);
+            }
+            else if ("NotoSans-Regular" == name)
+            {
+                out.resize(NotoSans_Regular_ttf_len);
+                memcpy(out.data(), NotoSans_Regular_ttf, NotoSans_Regular_ttf_len);
+            }
+            else if ("NotoSans-Bold" == name)
+            {
+                out.resize(NotoSans_Bold_ttf_len);
+                memcpy(out.data(), NotoSans_Bold_ttf, NotoSans_Bold_ttf_len);
+            }
+            return out;
+        }
+
         FontInfo::FontInfo() noexcept
         {}
 

@@ -39,7 +39,7 @@ namespace tl
             TLRENDER_P();
 
             p.listWidget = new QListWidget;
-            const QFont fixedFont = qtwidget::font("NotoMono-Regular");
+            const QFont fixedFont("Noto Mono");
             p.listWidget->setFont(fixedFont);
 
             p.clearButton = new QToolButton;

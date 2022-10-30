@@ -36,7 +36,7 @@ namespace tl
             TLRENDER_P();
 
             p.spinBox = new QSpinBox;
-            p.spinBox->setFont(qtwidget::font("NotoMono-Regular"));
+            p.spinBox->setFont(QFont("Noto Mono"));
 
             p.defaultValueButton = new QToolButton;
             p.defaultValueButton->setAutoRaise(true);

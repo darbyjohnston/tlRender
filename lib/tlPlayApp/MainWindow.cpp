@@ -223,6 +223,8 @@ namespace tl
             p.currentTimeSpinBox->setToolTip(tr("Current time"));
             p.durationLabel = new qtwidget::TimeLabel;
             p.durationLabel->setTimeObject(app->timeObject());
+            const QFont fixedFont("Noto Mono");
+            p.durationLabel->setFont(fixedFont);
             p.durationLabel->setToolTip(tr("Timeline duration"));
             p.durationLabel->setContentsMargins(5, 0, 5, 0);
             p.timeUnitsButton = new QToolButton;
@@ -233,7 +235,6 @@ namespace tl
             p.speedSpinBox = new QDoubleSpinBox;
             p.speedSpinBox->setRange(0.0, 120.0);
             p.speedSpinBox->setSingleStep(1.0);
-            const QFont fixedFont = qtwidget::font("NotoMono-Regular");
             p.speedSpinBox->setFont(fixedFont);
             p.speedSpinBox->setToolTip(tr("Timeline speed (frames per second)"));
             p.speedButton = new QToolButton;

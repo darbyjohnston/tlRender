@@ -22,7 +22,8 @@ namespace tl
         //! application is created.
         void init(const std::shared_ptr<system::Context>&);
 
-        //! Get a font.
-        QFont font(const QString&);
+        //! Initialize the fonts. This needs to be called after the Qt
+        //! application is created.
+        void initFonts(const std::shared_ptr<system::Context>& context);
     }
 }

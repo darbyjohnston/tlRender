@@ -198,6 +198,7 @@ namespace tl
             setStyle("Fusion");
             setPalette(qtwidget::darkStyle());
             setStyleSheet(qtwidget::styleSheet());
+            qtwidget::initFonts(context);
 
             // Create objects.
             p.contextObject = new qt::ContextObject(context, this);

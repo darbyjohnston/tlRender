@@ -7,19 +7,15 @@
 #include <tlQt/Util.h>
 
 #include <tlCore/Context.h>
+#include <tlCore/FontSystem.h>
+#include <tlCore/String.h>
+#include <tlCore/StringFormat.h>
 
 #include <QDir>
 #include <QFontDatabase>
 #include <QMap>
 
 #include <iostream>
-
-namespace
-{
-#include <Fonts/NotoMono-Regular.font>
-#include <Fonts/NotoSans-Regular.font>
-#include <Fonts/NotoSans-Bold.font>
-}
 
 void qtInitResources()
 {
@@ -37,33 +33,27 @@ namespace tl
             qtInitResources();
         }
 
-        namespace
+        void initFonts(const std::shared_ptr<system::Context>& context)
         {
-            QMap<QString, int> fonts;
-        }
-
-        QFont font(const QString& name)
-        {
-            if (fonts.isEmpty())
-            {
-                fonts["NotoMono-Regular"] = QFontDatabase::addApplicationFontFromData(
-                    QByteArray(reinterpret_cast<const char*>(NotoMono_Regular_ttf), NotoMono_Regular_ttf_len));
-                fonts["NotoSans-Bold"] = QFontDatabase::addApplicationFontFromData(
-                    QByteArray(reinterpret_cast<const char*>(NotoSans_Bold_ttf), NotoSans_Bold_ttf_len));
-                fonts["NotoSans-Regular"] = QFontDatabase::addApplicationFontFromData(
-                    QByteArray(reinterpret_cast<const char*>(NotoSans_Regular_ttf), NotoSans_Regular_ttf_len));
-            }
-            QFont out;
-            const auto i = fonts.find(name);
-            if (i != fonts.end())
-            {
-                const auto families = QFontDatabase::applicationFontFamilies(i.value());
-                if (!families.isEmpty())
+            std::vector<std::string> fontFamilyList;
+            for (const auto& i : std::vector<std::string>(
                 {
-                    out = families.at(0);
+                    "NotoMono-Regular",
+                    "NotoSans-Bold",
+                    "NotoSans-Regular"
+                }))
+            {
+                const auto font = imaging::getFontData(i);
+                const int id = QFontDatabase::addApplicationFontFromData(
+                    QByteArray(reinterpret_cast<const char*>(font.data()), font.size()));
+                for (const auto& j : QFontDatabase::applicationFontFamilies(id))
+                {
+                    fontFamilyList.push_back(j.toUtf8().data());
                 }
             }
-            return out;
+            context->log(
+                "tl::qtwidget::initFonts",
+                string::Format("Added Qt application fonts: {0}").arg(string::join(fontFamilyList, ", ")));
         }
     }
 }
