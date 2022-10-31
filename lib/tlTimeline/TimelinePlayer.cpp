@@ -174,10 +174,11 @@ namespace tl
             p.currentTime = observer::Value<otime::RationalTime>::create(p.timeline->getTimeRange().start_time());
             p.inOutRange = observer::Value<otime::TimeRange>::create(p.timeline->getTimeRange());
             p.videoLayer = observer::Value<uint16_t>::create();
-            p.video = observer::Value<VideoData>::create();
+            p.currentVideoData = observer::Value<VideoData>::create();
             p.volume = observer::Value<float>::create(1.F);
             p.mute = observer::Value<bool>::create(false);
             p.audioOffset = observer::Value<double>::create(0.0);
+            p.currentAudioData = observer::List<AudioData>::create();
             p.cacheOptions = observer::Value<PlayerCacheOptions>::create(playerOptions.cache);
             p.cacheInfo = observer::Value<PlayerCacheInfo>::create();
 
@@ -294,16 +295,15 @@ namespace tl
                             cacheDirection,
                             cacheOptions);
 
-                        // Update the video data.
+                        // Update the current video data.
                         if (!p.ioInfo.video.empty())
                         {
                             const auto& timeRange = p.timeline->getTimeRange();
-
+                            bool videoDataUpdate = false;
                             VideoData videoData;
                             if (p.threadData.videoDataCache.get(currentTime, videoData))
                             {
-                                std::unique_lock<std::mutex> lock(p.mutex);
-                                p.mutexData.videoData = videoData;
+                                videoDataUpdate = true;
                             }
                             else if (playback != Playback::Stop)
                             {
@@ -313,7 +313,8 @@ namespace tl
                                     p.mutexData.playbackStartTimer = std::chrono::steady_clock::now();
                                     if (!timeRange.contains(currentTime))
                                     {
-                                        p.mutexData.videoData = VideoData();
+                                        videoData = VideoData();
+                                        videoDataUpdate = true;
                                     }
                                 }
                                 p.resetAudioTime();
@@ -323,13 +324,38 @@ namespace tl
                                     p.audioMutexData.muteTimeout = now + p.playerOptions.muteTimeout;
                                 }
                             }
-                            else
+                            else if (!timeRange.contains(currentTime))
+                            {
+                                videoData = VideoData();
+                                videoDataUpdate = true;
+                            }
+                            if (videoDataUpdate)
                             {
                                 std::unique_lock<std::mutex> lock(p.mutex);
-                                if (!timeRange.contains(currentTime))
+                                p.mutexData.currentVideoData = videoData;
+                            }
+                        }
+
+                        // Update the current audio data.
+                        if (p.ioInfo.audio.isValid())
+                        {
+                            std::vector<AudioData> audioDataList;
+                            AudioData audioData;
+                            {
+                                const int64_t seconds = time::floor(currentTime.rescaled_to(1.0)).value();
+                                std::unique_lock<std::mutex> lock(p.audioMutex);
+                                if (p.audioMutexData.audioDataCache.get(seconds, audioData))
                                 {
-                                    p.mutexData.videoData = VideoData();
+                                    audioDataList.push_back(audioData);
                                 }
+                                if (p.audioMutexData.audioDataCache.get(seconds + 1, audioData))
+                                {
+                                    audioDataList.push_back(audioData);
+                                }
+                            }
+                            {
+                                std::unique_lock<std::mutex> lock(p.mutex);
+                                p.mutexData.currentAudioData = audioDataList;
                             }
                         }
 
@@ -741,9 +767,9 @@ namespace tl
             }
         }
 
-        std::shared_ptr<observer::IValue<VideoData> > TimelinePlayer::observeVideo() const
+        std::shared_ptr<observer::IValue<VideoData> > TimelinePlayer::observeCurrentVideo() const
         {
-            return _p->video;
+            return _p->currentVideoData;
         }
 
         std::shared_ptr<observer::IValue<float> > TimelinePlayer::observeVolume() const
@@ -801,6 +827,11 @@ namespace tl
                 std::unique_lock<std::mutex> lock(p.mutex);
                 p.mutexData.audioOffset = value;
             }
+        }
+
+        std::shared_ptr<observer::IList<AudioData> > TimelinePlayer::observeCurrentAudio() const
+        {
+            return _p->currentAudioData;
         }
 
         std::shared_ptr<observer::IValue<PlayerCacheOptions> > TimelinePlayer::observeCacheOptions() const
@@ -873,15 +904,18 @@ namespace tl
             }
 
             // Sync with the thread.
-            VideoData videoData;
+            VideoData currentVideoData;
+            std::vector<AudioData> currentAudioData;
             PlayerCacheInfo cacheInfo;
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
                 p.mutexData.currentTime = p.currentTime->get();
-                videoData = p.mutexData.videoData;
+                currentVideoData = p.mutexData.currentVideoData;
+                currentAudioData = p.mutexData.currentAudioData;
                 cacheInfo = p.mutexData.cacheInfo;
             }
-            p.video->setIfChanged(videoData);
+            p.currentVideoData->setIfChanged(currentVideoData);
+            p.currentAudioData->setIfChanged(currentAudioData);
             p.cacheInfo->setIfChanged(cacheInfo);
         }
     }

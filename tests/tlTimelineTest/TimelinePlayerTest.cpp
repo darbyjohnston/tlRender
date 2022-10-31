@@ -159,13 +159,24 @@ namespace tl
             {
                 timelinePlayer->setCacheOptions(options.cache);
                 TLRENDER_ASSERT(options.cache == timelinePlayer->observeCacheOptions()->get());
-                auto videoDataObserver = observer::ValueObserver<timeline::VideoData>::create(
-                    timelinePlayer->observeVideo(),
+                auto currentVideoObserver = observer::ValueObserver<timeline::VideoData>::create(
+                    timelinePlayer->observeCurrentVideo(),
                     [this](const timeline::VideoData& value)
                     {
                         std::stringstream ss;
                         ss << "Video time: " << value.time;
                         _print(ss.str());
+                    });
+                auto currentAudioObserver = observer::ListObserver<timeline::AudioData>::create(
+                    timelinePlayer->observeCurrentAudio(),
+                    [this](const std::vector<timeline::AudioData>& value)
+                    {
+                        for (const auto& i : value)
+                        {
+                            std::stringstream ss;
+                            ss << "Audio time: " << i.seconds;
+                            _print(ss.str());
+                        }
                     });
                 auto cacheInfoObserver = observer::ValueObserver<PlayerCacheInfo>::create(
                     timelinePlayer->observeCacheInfo(),

@@ -300,7 +300,7 @@ namespace tl
             void setVideoLayer(uint16_t);
 
             //! Observe the current video data.
-            std::shared_ptr<observer::IValue<VideoData> > observeVideo() const;
+            std::shared_ptr<observer::IValue<VideoData> > observeCurrentVideo() const;
 
             ///@}
 
@@ -330,6 +330,9 @@ namespace tl
 
             //! Set the audio sync offset (in seconds).
             void setAudioOffset(double);
+
+            //! Observe the current audio data.
+            std::shared_ptr<observer::IList<AudioData> > observeCurrentAudio() const;
 
             ///@}
 

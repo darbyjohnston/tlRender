@@ -55,9 +55,9 @@ namespace tl
                 NOTIFY videoLayerChanged)
             Q_PROPERTY(
                 tl::timeline::VideoData
-                video
-                READ video
-                NOTIFY videoChanged)
+                currentVideo
+                READ currentVideo
+                NOTIFY currentVideoChanged)
             Q_PROPERTY(
                 float volume
                 READ volume
@@ -73,6 +73,11 @@ namespace tl
                 READ audioOffset
                 WRITE setAudioOffset
                 NOTIFY audioOffsetChanged)
+            Q_PROPERTY(
+                std::vector<tl::timeline::AudioData>
+                currentAudio
+                READ currentAudio
+                NOTIFY currentAudioChanged)
             Q_PROPERTY(
                 tl::timeline::PlayerCacheOptions cacheOptions
                 READ cacheOptions
@@ -167,8 +172,8 @@ namespace tl
             //! Get the current video layer.
             int videoLayer() const;
 
-            //! Get the video.
-            const timeline::VideoData& video() const;
+            //! Get the current video data.
+            const timeline::VideoData& currentVideo() const;
 
             ///@}
 
@@ -183,6 +188,9 @@ namespace tl
 
             //! Get the audio sync offset (in seconds).
             double audioOffset() const;
+
+            //! Get the current audio data.
+            const std::vector<timeline::AudioData>& currentAudio() const;
 
             ///@}
 
@@ -330,8 +338,8 @@ namespace tl
             //! This signal is emitted when the current video layer is changed.
             void videoLayerChanged(int);
 
-            //! This signal is emitted when the video is changed.
-            void videoChanged(const tl::timeline::VideoData&);
+            //! This signal is emitted when the current video data is changed.
+            void currentVideoChanged(const tl::timeline::VideoData&);
 
             ///@}
 
@@ -346,6 +354,9 @@ namespace tl
 
             //! This signal is emitted when the audio sync offset is changed.
             void audioOffsetChanged(double);
+
+            //! This signal is emitted when the current audio data is changed.
+            void currentAudioChanged(const std::vector<tl::timeline::AudioData>&);
 
             ///@}
 

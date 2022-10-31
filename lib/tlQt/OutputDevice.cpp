@@ -203,17 +203,17 @@ namespace tl
             {
                 disconnect(
                     i,
-                    SIGNAL(videoChanged(const tl::timeline::VideoData&)),
+                    SIGNAL(currentVideoChanged(const tl::timeline::VideoData&)),
                     this,
-                    SLOT(_videoCallback(const tl::timeline::VideoData&)));
+                    SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
             }
             p.timelinePlayers = value;
             for (const auto& i : p.timelinePlayers)
             {
                 connect(
                     i,
-                    SIGNAL(videoChanged(const tl::timeline::VideoData&)),
-                    SLOT(_videoCallback(const tl::timeline::VideoData&)));
+                    SIGNAL(currentVideoChanged(const tl::timeline::VideoData&)),
+                    SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
             }
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
@@ -226,7 +226,7 @@ namespace tl
                     {
                         p.sizes.push_back(ioInfo.video[0].size);
                     }
-                    p.videoData.push_back(i->video());
+                    p.videoData.push_back(i->currentVideo());
                 }
             }
         }
@@ -267,7 +267,7 @@ namespace tl
             p.cv.notify_one();
         }
 
-        void OutputDevice::_videoCallback(const tl::timeline::VideoData& value)
+        void OutputDevice::_currentVideoCallback(const tl::timeline::VideoData& value)
         {
             TLRENDER_P();
             const auto i = std::find(p.timelinePlayers.begin(), p.timelinePlayers.end(), sender());

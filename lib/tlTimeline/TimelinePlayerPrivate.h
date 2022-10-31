@@ -64,10 +64,11 @@ namespace tl
             std::shared_ptr<observer::Value<otime::RationalTime> > currentTime;
             std::shared_ptr<observer::Value<otime::TimeRange> > inOutRange;
             std::shared_ptr<observer::Value<uint16_t> > videoLayer;
-            std::shared_ptr<observer::Value<VideoData> > video;
+            std::shared_ptr<observer::Value<VideoData> > currentVideoData;
             std::shared_ptr<observer::Value<float> > volume;
             std::shared_ptr<observer::Value<bool> > mute;
             std::shared_ptr<observer::Value<double> > audioOffset;
+            std::shared_ptr<observer::List<AudioData> > currentAudioData;
             std::shared_ptr<observer::Value<PlayerCacheOptions> > cacheOptions;
             std::shared_ptr<observer::Value<PlayerCacheInfo> > cacheInfo;
 
@@ -88,8 +89,9 @@ namespace tl
                 bool externalTime = false;
                 otime::TimeRange inOutRange = time::invalidTimeRange;
                 uint16_t videoLayer = 0;
-                VideoData videoData;
+                VideoData currentVideoData;
                 double audioOffset = 0.0;
+                std::vector<AudioData> currentAudioData;
                 bool clearRequests = false;
                 bool clearCache = false;
                 CacheDirection cacheDirection = CacheDirection::Forward;

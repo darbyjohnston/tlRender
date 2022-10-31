@@ -393,7 +393,7 @@ namespace tl
                 // Update.
                 _context->tick();
                 _timelinePlayer->tick();
-                const auto& videoData = _timelinePlayer->observeVideo()->get();
+                const auto& videoData = _timelinePlayer->observeCurrentVideo()->get();
                 if (!timeline::isTimeEqual(videoData, _videoData))
                 {
                     _videoData = videoData;

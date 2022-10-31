@@ -124,18 +124,18 @@ namespace tl
             {
                 disconnect(
                     i,
-                    SIGNAL(videoChanged(const tl::timeline::VideoData&)),
+                    SIGNAL(currentVideoChanged(const tl::timeline::VideoData&)),
                     this,
-                    SLOT(_videoCallback(const tl::timeline::VideoData&)));
+                    SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
             }
             p.timelinePlayers = value;
             for (const auto& i : p.timelinePlayers)
             {
-                _p->videoData.push_back(i->video());
+                _p->videoData.push_back(i->currentVideo());
                 connect(
                     i,
-                    SIGNAL(videoChanged(const tl::timeline::VideoData&)),
-                    SLOT(_videoCallback(const tl::timeline::VideoData&)));
+                    SIGNAL(currentVideoChanged(const tl::timeline::VideoData&)),
+                    SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
             }
             if (p.frameView)
             {
@@ -206,7 +206,7 @@ namespace tl
             setViewZoom(p.viewZoom / 2.F, p.mouseInside ? p.mousePos : _getViewportCenter());
         }
 
-        void TimelineViewport::_videoCallback(const timeline::VideoData& value)
+        void TimelineViewport::_currentVideoCallback(const timeline::VideoData& value)
         {
             TLRENDER_P();
             const auto i = std::find(p.timelinePlayers.begin(), p.timelinePlayers.end(), sender());

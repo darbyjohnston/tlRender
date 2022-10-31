@@ -24,10 +24,11 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
             std::shared_ptr<observer::ValueObserver<otime::TimeRange> > inOutRangeObserver;
             std::shared_ptr<observer::ValueObserver<uint16_t> > videoLayerObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::VideoData> > videoObserver;
+            std::shared_ptr<observer::ValueObserver<timeline::VideoData> > currentVideoObserver;
             std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
             std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
             std::shared_ptr<observer::ValueObserver<double> > audioOffsetObserver;
+            std::shared_ptr<observer::ListObserver<timeline::AudioData> > currentAudioObserver;
             std::shared_ptr<observer::ValueObserver<timeline::PlayerCacheOptions> > cacheOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::PlayerCacheInfo> > cacheInfoObserver;
         };
@@ -82,11 +83,11 @@ namespace tl
                     Q_EMIT videoLayerChanged(value);
                 });
 
-            p.videoObserver = observer::ValueObserver<timeline::VideoData>::create(
-                p.timelinePlayer->observeVideo(),
+            p.currentVideoObserver = observer::ValueObserver<timeline::VideoData>::create(
+                p.timelinePlayer->observeCurrentVideo(),
                 [this](const timeline::VideoData& value)
                 {
-                    Q_EMIT videoChanged(value);
+                    Q_EMIT currentVideoChanged(value);
                 });
 
             p.volumeObserver = observer::ValueObserver<float>::create(
@@ -108,6 +109,13 @@ namespace tl
                 [this](double value)
                 {
                     Q_EMIT audioOffsetChanged(value);
+                });
+
+            p.currentAudioObserver = observer::ListObserver<timeline::AudioData>::create(
+                p.timelinePlayer->observeCurrentAudio(),
+                [this](const std::vector<timeline::AudioData>& value)
+                {
+                    Q_EMIT currentAudioChanged(value);
                 });
 
             p.cacheOptionsObserver = observer::ValueObserver<timeline::PlayerCacheOptions>::create(
@@ -220,9 +228,9 @@ namespace tl
             return _p->timelinePlayer->observeVideoLayer()->get();
         }
 
-        const timeline::VideoData& TimelinePlayer::video() const
+        const timeline::VideoData& TimelinePlayer::currentVideo() const
         {
-            return _p->timelinePlayer->observeVideo()->get();
+            return _p->timelinePlayer->observeCurrentVideo()->get();
         }
 
         float TimelinePlayer::volume() const
@@ -238,6 +246,11 @@ namespace tl
         double TimelinePlayer::audioOffset() const
         {
             return _p->timelinePlayer->observeAudioOffset()->get();
+        }
+
+        const std::vector<timeline::AudioData>& TimelinePlayer::currentAudio() const
+        {
+            return _p->timelinePlayer->observeCurrentAudio()->get();
         }
 
         const timeline::PlayerCacheOptions& TimelinePlayer::cacheOptions() const

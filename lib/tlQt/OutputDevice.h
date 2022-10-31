@@ -97,7 +97,7 @@ namespace tl
             void frameRateChanged(const otime::RationalTime&);
 
         private Q_SLOTS:
-            void _videoCallback(const tl::timeline::VideoData&);
+            void _currentVideoCallback(const tl::timeline::VideoData&);
 
         protected:
             void run() override;
