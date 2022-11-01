@@ -59,6 +59,7 @@ namespace tl
             float viewZoom = 1.F;
             bool frameView = true;
             std::vector<timeline::VideoData> videoData;
+            std::vector<std::vector<timeline::AudioData> > audioData;
             std::chrono::milliseconds timeout = std::chrono::milliseconds(5);
             QScopedPointer<QOffscreenSurface> offscreenSurface;
             QScopedPointer<QOpenGLContext> glContext;
@@ -206,6 +207,11 @@ namespace tl
                     SIGNAL(currentVideoChanged(const tl::timeline::VideoData&)),
                     this,
                     SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
+                disconnect(
+                    i,
+                    SIGNAL(currentAudioChanged(const std::vector<tl::timeline::AudioData>&)),
+                    this,
+                    SLOT(_currentAudioCallback(const std::vector<tl::timeline::AudioData>&)));
             }
             p.timelinePlayers = value;
             for (const auto& i : p.timelinePlayers)
@@ -214,11 +220,16 @@ namespace tl
                     i,
                     SIGNAL(currentVideoChanged(const tl::timeline::VideoData&)),
                     SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
+                connect(
+                    i,
+                    SIGNAL(currentAudioChanged(const std::vector<tl::timeline::AudioData>&)),
+                    SLOT(_currentAudioCallback(const std::vector<tl::timeline::AudioData>&)));
             }
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
                 p.sizes.clear();
                 p.videoData.clear();
+                p.audioData.clear();
                 for (const auto& i : p.timelinePlayers)
                 {
                     const auto& ioInfo = i->ioInfo();
@@ -227,6 +238,7 @@ namespace tl
                         p.sizes.push_back(ioInfo.video[0].size);
                     }
                     p.videoData.push_back(i->currentVideo());
+                    p.audioData.push_back(i->currentAudio());
                 }
             }
         }
@@ -277,6 +289,21 @@ namespace tl
                 {
                     std::unique_lock<std::mutex> lock(p.mutex);
                     p.videoData[index] = value;
+                }
+                p.cv.notify_one();
+            }
+        }
+
+        void OutputDevice::_currentAudioCallback(const std::vector<tl::timeline::AudioData>& value)
+        {
+            TLRENDER_P();
+            const auto i = std::find(p.timelinePlayers.begin(), p.timelinePlayers.end(), sender());
+            if (i != p.timelinePlayers.end())
+            {
+                const size_t index = i - p.timelinePlayers.begin();
+                {
+                    std::unique_lock<std::mutex> lock(p.mutex);
+                    p.audioData[index] = value;
                 }
                 p.cv.notify_one();
             }
@@ -462,6 +489,7 @@ namespace tl
             float viewZoom = 1.F;
             bool frameView = true;
             std::vector<timeline::VideoData> videoData;
+            std::vector<std::vector<timeline::AudioData> > audioData;
 
             std::shared_ptr<device::IOutputDevice> device;
             std::shared_ptr<tl::gl::Shader> shader;
@@ -492,7 +520,7 @@ namespace tl
                         colorConfigOptions, lutOptions, imageOptions,
                         displayOptions, hdrMode, hdrData, compareOptions,
                         sizes, viewPos, viewZoom, frameView, videoData,
-                        overlay]
+                        audioData, overlay]
                         {
                             return
                                 deviceIndex != _p->deviceIndex ||
@@ -510,6 +538,7 @@ namespace tl
                                 viewZoom != _p->viewZoom ||
                                 frameView != _p->frameView ||
                                 videoData != _p->videoData ||
+                                audioData != _p->audioData ||
                                 overlay != _p->overlay;
                         }))
                     {
@@ -536,6 +565,7 @@ namespace tl
                         viewZoom = p.viewZoom;
                         frameView = p.frameView;
                         videoData = p.videoData;
+                        audioData = p.audioData;
 
                         doOverlay = overlay != p.overlay;
                         overlay = p.overlay;
