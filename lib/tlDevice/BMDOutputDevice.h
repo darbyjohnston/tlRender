@@ -105,6 +105,7 @@ namespace tl
             std::mutex _pixelDataMutex;
 
             DLWrapper _dl;
+            size_t _preroll = 3;
             DLConfigWrapper _dlConfig;
             DLOutputWrapper _dlOutput;
             DLVideoOutputCallbackWrapper _dlVideoOutputCallback;
