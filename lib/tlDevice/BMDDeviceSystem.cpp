@@ -116,10 +116,20 @@ namespace tl
                                 IDeckLinkProfileAttributes* dlProfileAttributes = nullptr;
                                 if (dl->QueryInterface(IID_IDeckLinkProfileAttributes, (void**)&dlProfileAttributes) == S_OK)
                                 {
+                                    LONGLONG minVideoPreroll = 0;
+                                    if (dlProfileAttributes->GetInt(BMDDeckLinkMinimumPrerollFrames, &minVideoPreroll) == S_OK)
+                                    {
+                                        deviceInfo.minVideoPreroll = minVideoPreroll;
+                                    }
                                     BOOL hdrMetaData = false;
                                     if (dlProfileAttributes->GetFlag(BMDDeckLinkSupportsHDRMetadata, &hdrMetaData) == S_OK)
                                     {
                                         deviceInfo.hdrMetaData = hdrMetaData;
+                                    }
+                                    LONGLONG maxAudioChannels = 0;
+                                    if (dlProfileAttributes->GetInt(BMDDeckLinkMaximumAudioChannels, &maxAudioChannels) == S_OK)
+                                    {
+                                        deviceInfo.maxAudioChannels = maxAudioChannels;
                                     }
                                 }
                                 dlProfileAttributes->Release();
@@ -157,9 +167,18 @@ namespace tl
                                     }
                                     context->log(
                                         "tl::device::BMDDeviceSystem",
-                                        string::Format("{0}: {1}").
+                                        string::Format(
+                                            "\n"
+                                            "    {0}\n"
+                                            "        Display modes: {1}\n"
+                                            "        Min video preroll: {2}\n"
+                                            "        HDR metadata: {3}\n"
+                                            "        Max audio channels: {4}").
                                         arg(i.name).
-                                        arg(string::join(displayModes, ", ")));
+                                        arg(string::join(displayModes, ", ")).
+                                        arg(i.minVideoPreroll).
+                                        arg(i.hdrMetaData).
+                                        arg(i.maxAudioChannels));
                                 }
                             }
                         }

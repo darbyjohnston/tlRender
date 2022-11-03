@@ -23,8 +23,7 @@ namespace tl
     {
         namespace
         {
-            const size_t preroll = 3;
-            const size_t pixelDataListMax = 3;
+            const size_t pixelDataMax = 3;
 
             class DLIteratorWrapper
             {
@@ -325,6 +324,17 @@ namespace tl
                         modelName = DlToStdString(dlModelName);
                         DeleteString(dlModelName);
 #endif // __APPLE__
+
+                        IDeckLinkProfileAttributes* dlProfileAttributes = nullptr;
+                        if (_dl.p->QueryInterface(IID_IDeckLinkProfileAttributes, (void**)&dlProfileAttributes) == S_OK)
+                        {
+                            LONGLONG minVideoPreroll = 0;
+                            if (dlProfileAttributes->GetInt(BMDDeckLinkMinimumPrerollFrames, &minVideoPreroll) == S_OK)
+                            {
+                                //_preroll = minVideoPreroll;
+                            }
+                        }
+
                         break;
                     }
 
@@ -440,7 +450,7 @@ namespace tl
                 throw std::runtime_error("Cannot set callback");
             }
 
-            for (int i = 0; i < preroll; ++i)
+            for (size_t i = 0; i < _preroll; ++i)
             {
                 DLVideoFrameWrapper dlVideoFrame;
                 if (_dlOutput.p->CreateVideoFrame(
@@ -494,7 +504,7 @@ namespace tl
         {
             std::unique_lock<std::mutex> lock(_pixelDataMutex);
             _pixelData.push_back(pixelData);
-            while (_pixelData.size() > pixelDataListMax)
+            while (_pixelData.size() > pixelDataMax)
             {
                 _pixelData.pop_front();
             }

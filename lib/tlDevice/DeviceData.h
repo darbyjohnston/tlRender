@@ -106,7 +106,9 @@ namespace tl
             std::string name;
             std::vector<DisplayMode> displayModes;
             std::vector<PixelType> pixelTypes;
+            size_t minVideoPreroll = 0;
             bool hdrMetaData = false;
+            size_t maxAudioChannels = 0;
 
             bool operator == (const DeviceInfo&) const;
         };
