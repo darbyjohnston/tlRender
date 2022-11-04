@@ -22,6 +22,7 @@ namespace tl
 
             size_t getMax() const;
             size_t getSize() const;
+            size_t getCount() const;
             float getPercentage() const;
 
             void setMax(size_t);

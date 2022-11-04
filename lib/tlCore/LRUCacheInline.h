@@ -26,6 +26,12 @@ namespace tl
         }
 
         template<typename T, typename U>
+        inline std::size_t LRUCache<T, U>::getCount() const
+        {
+            return _map.size();
+        }
+
+        template<typename T, typename U>
         inline float LRUCache<T, U>::getPercentage() const
         {
             return getSize() / static_cast<float>(_max) * 100.F;
