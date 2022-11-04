@@ -331,6 +331,8 @@ namespace tl
                             LONGLONG minVideoPreroll = 0;
                             if (dlProfileAttributes->GetInt(BMDDeckLinkMinimumPrerollFrames, &minVideoPreroll) == S_OK)
                             {
+                                //! \bug Leave the default preroll, lower numbers
+                                //! cause stuttering.
                                 //_preroll = minVideoPreroll;
                             }
                         }
