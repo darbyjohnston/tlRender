@@ -45,9 +45,6 @@ namespace tl
             device::HDRMode hdrMode = device::HDRMode::FromFile;
             imaging::HDRData hdrData;
 
-            //! \todo Temporary
-            std::shared_ptr<QImage> overlay;
-
             timeline::ColorConfigOptions colorConfigOptions;
             timeline::LUTOptions lutOptions;
             std::vector<timeline::ImageOptions> imageOptions;
@@ -59,7 +56,10 @@ namespace tl
             float viewZoom = 1.F;
             bool frameView = true;
             std::vector<timeline::VideoData> videoData;
+            //! \todo Temporary
+            std::shared_ptr<QImage> overlay;
             std::vector<std::vector<timeline::AudioData> > audioData;
+
             std::chrono::milliseconds timeout = std::chrono::milliseconds(5);
             QScopedPointer<QOffscreenSurface> offscreenSurface;
             QScopedPointer<QOpenGLContext> glContext;
@@ -489,6 +489,7 @@ namespace tl
             float viewZoom = 1.F;
             bool frameView = true;
             std::vector<timeline::VideoData> videoData;
+            std::shared_ptr<QImage> overlay;
             std::vector<std::vector<timeline::AudioData> > audioData;
 
             std::shared_ptr<device::IOutputDevice> device;
@@ -500,17 +501,15 @@ namespace tl
             std::array<GLuint, 1> pbo;
             std::array<otime::RationalTime, 1> pboTime;
             size_t pboIndex = 0;
-
-            std::shared_ptr<QImage> overlay;
             std::shared_ptr<OverlayTexture> overlayTexture;
             std::shared_ptr<gl::VBO> overlayVbo;
             std::shared_ptr<gl::VAO> overlayVao;
 
             while (p.running)
             {
-                bool doCreateDevice = false;
+                bool createDevice = false;
                 bool doRender = false;
-                bool doOverlay = false;
+                bool overlayChanged = false;
                 {
                     std::unique_lock<std::mutex> lock(p.mutex);
                     if (p.cv.wait_for(
@@ -520,7 +519,7 @@ namespace tl
                         colorConfigOptions, lutOptions, imageOptions,
                         displayOptions, hdrMode, hdrData, compareOptions,
                         sizes, viewPos, viewZoom, frameView, videoData,
-                        audioData, overlay]
+                        overlay, audioData]
                         {
                             return
                                 deviceIndex != _p->deviceIndex ||
@@ -538,21 +537,32 @@ namespace tl
                                 viewZoom != _p->viewZoom ||
                                 frameView != _p->frameView ||
                                 videoData != _p->videoData ||
-                                audioData != _p->audioData ||
-                                overlay != _p->overlay;
+                                overlay != _p->overlay ||
+                                audioData != _p->audioData;
                         }))
                     {
-                        if (p.deviceIndex != deviceIndex ||
+                        createDevice =
+                            p.deviceIndex != deviceIndex ||
                             p.displayModeIndex != displayModeIndex ||
-                            p.pixelType != pixelType)
-                        {
-                            doCreateDevice = true;
-                        }
+                            p.pixelType != pixelType;
                         deviceIndex = p.deviceIndex;
                         displayModeIndex = p.displayModeIndex;
                         pixelType = p.pixelType;
 
-                        doRender = true;
+                        doRender =
+                            colorConfigOptions != p.colorConfigOptions ||
+                            lutOptions != p.lutOptions ||
+                            imageOptions != p.imageOptions ||
+                            displayOptions != p.displayOptions ||
+                            hdrMode != p.hdrMode ||
+                            hdrData != p.hdrData ||
+                            compareOptions != p.compareOptions ||
+                            sizes != p.sizes ||
+                            viewPos != p.viewPos ||
+                            viewZoom != p.viewZoom ||
+                            frameView != p.frameView ||
+                            videoData != p.videoData ||
+                            overlay != p.overlay;
                         colorConfigOptions = p.colorConfigOptions;
                         lutOptions = p.lutOptions;
                         imageOptions = p.imageOptions;
@@ -565,14 +575,14 @@ namespace tl
                         viewZoom = p.viewZoom;
                         frameView = p.frameView;
                         videoData = p.videoData;
-                        audioData = p.audioData;
-
-                        doOverlay = overlay != p.overlay;
+                        overlayChanged = overlay != p.overlay;
                         overlay = p.overlay;
+
+                        audioData = p.audioData;
                     }
                 }
 
-                if (doCreateDevice)
+                if (createDevice)
                 {
                     offscreenBuffer2.reset();
                     offscreenBuffer.reset();
@@ -806,7 +816,7 @@ namespace tl
                             {
                                 overlayTexture = OverlayTexture::create(overlay->size(), overlay->format());
                             }
-                            if (overlay && overlayTexture && doOverlay)
+                            if (overlay && overlayTexture && overlayChanged)
                             {
                                 overlayTexture->copy(*overlay);
                             }
