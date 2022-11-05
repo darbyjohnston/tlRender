@@ -7,10 +7,13 @@ set(HEADERS
     TimelineThumbnailProvider.h
     ToolTipsFilter.h
     Util.h)
+set(PRIVATE_HEADERS
+	OutputDevicePrivate.h)
 
 set(SOURCE
 	ContextObject.cpp
 	OutputDevice.cpp
+    OutputDevicePrivate.cpp
     TimeObject.cpp
     TimelinePlayer.cpp
     TimelineThumbnailProvider.cpp
@@ -25,7 +28,7 @@ elseif(TLRENDER_QT5)
 endif()
 list(APPEND LIBRARIES tlGL tlDevice)
 
-add_library(tlQt ${HEADERS} ${SOURCE})
+add_library(tlQt ${HEADERS} ${PRIVATE_HEADERS} ${SOURCE})
 target_link_libraries(tlQt ${LIBRARIES})
 set_target_properties(tlQt PROPERTIES FOLDER lib)
 set_target_properties(tlQt PROPERTIES PUBLIC_HEADER "${HEADERS}")

@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include <tlQt/OutputDevice.h>
+#include <tlQt/OutputDevicePrivate.h>
 
 #include <tlGL/Mesh.h>
 #include <tlGL/OffscreenBuffer.h>
@@ -11,16 +11,11 @@
 #include <tlGL/Texture.h>
 #include <tlGL/Util.h>
 
-#include <tlDevice/IDeviceSystem.h>
 #include <tlDevice/IOutputDevice.h>
 
 #include <tlCore/Context.h>
 #include <tlCore/Mesh.h>
 
-#include <tlGlad/gl.h>
-
-#include <QOffscreenSurface>
-#include <QOpenGLContext>
 #include <QSurfaceFormat>
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -34,40 +29,6 @@ namespace tl
 {
     namespace qt
     {
-        struct OutputDevice::Private
-        {
-            std::weak_ptr<system::Context> context;
-            std::weak_ptr<device::IDeviceSystem> deviceSystem;
-
-            int deviceIndex = -1;
-            int displayModeIndex = -1;
-            device::PixelType pixelType = device::PixelType::_8BitBGRA;
-            device::HDRMode hdrMode = device::HDRMode::FromFile;
-            imaging::HDRData hdrData;
-
-            timeline::ColorConfigOptions colorConfigOptions;
-            timeline::LUTOptions lutOptions;
-            std::vector<timeline::ImageOptions> imageOptions;
-            std::vector<timeline::DisplayOptions> displayOptions;
-            timeline::CompareOptions compareOptions;
-            std::vector<qt::TimelinePlayer*> timelinePlayers;
-            std::vector<imaging::Size> sizes;
-            math::Vector2i viewPos;
-            float viewZoom = 1.F;
-            bool frameView = true;
-            std::vector<timeline::VideoData> videoData;
-            //! \todo Temporary
-            std::shared_ptr<QImage> overlay;
-            std::vector<std::vector<timeline::AudioData> > audioData;
-
-            std::chrono::milliseconds timeout = std::chrono::milliseconds(5);
-            QScopedPointer<QOffscreenSurface> offscreenSurface;
-            QScopedPointer<QOpenGLContext> glContext;
-            std::condition_variable cv;
-            std::mutex mutex;
-            std::atomic<bool> running;
-        };
-
         OutputDevice::OutputDevice(
             const std::shared_ptr<system::Context>& context,
             QObject* parent) :
@@ -306,158 +267,6 @@ namespace tl
                     p.audioData[index] = value;
                 }
                 p.cv.notify_one();
-            }
-        }
-
-        namespace
-        {
-            imaging::PixelType getOffscreenType(device::PixelType value)
-            {
-                const std::array<imaging::PixelType, static_cast<size_t>(device::PixelType::Count)> data =
-                {
-                    imaging::PixelType::None,
-                    imaging::PixelType::RGBA_U8,
-                    imaging::PixelType::RGB_U10
-                };
-                return data[static_cast<size_t>(value)];
-            }
-
-            GLenum getReadPixelsFormat(device::PixelType value)
-            {
-                const std::array<GLenum, static_cast<size_t>(device::PixelType::Count)> data =
-                {
-                    GL_NONE,
-                    GL_BGRA,
-                    GL_RGBA
-                };
-                return data[static_cast<size_t>(value)];
-            }
-
-            GLenum getReadPixelsType(device::PixelType value)
-            {
-                const std::array<GLenum, static_cast<size_t>(device::PixelType::Count)> data =
-                {
-                    GL_NONE,
-                    GL_UNSIGNED_BYTE,
-                    GL_UNSIGNED_INT_10_10_10_2
-                };
-                return data[static_cast<size_t>(value)];
-            }
-
-            GLint getReadPixelsAlign(device::PixelType value)
-            {
-                const std::array<GLint, static_cast<size_t>(device::PixelType::Count)> data =
-                {
-                    0,
-                    4,
-                    256
-                };
-                return data[static_cast<size_t>(value)];
-            }
-
-            GLint getReadPixelsSwap(device::PixelType value)
-            {
-                const std::array<GLint, static_cast<size_t>(device::PixelType::Count)> data =
-                {
-                    GL_FALSE,
-                    GL_FALSE,
-                    GL_FALSE
-                };
-                return data[static_cast<size_t>(value)];
-            }
-
-            class OverlayTexture
-            {
-                OverlayTexture(const QSize&, QImage::Format);
-
-            public:
-                ~OverlayTexture();
-
-                static std::shared_ptr<OverlayTexture> create(const QSize&, QImage::Format);
-
-                const QSize& getSize() const { return _size; }
-                QImage::Format getFormat() const { return _format; }
-                GLuint getID() const { return _id; }
-
-                void copy(const QImage&);
-
-            private:
-                QSize _size;
-                QImage::Format _format = QImage::Format::Format_Invalid;
-                GLenum _textureFormat = GL_NONE;
-                GLenum _textureType = GL_NONE;
-                GLuint _id = 0;
-            };
-
-            OverlayTexture::OverlayTexture(const QSize& size, QImage::Format format) :
-                _size(size),
-                _format(format)
-            {
-                switch (format)
-                {
-                case QImage::Format_RGBA8888:
-                    _textureFormat = GL_RGBA;
-                    _textureType = GL_UNSIGNED_BYTE;
-                    break;
-                case QImage::Format_ARGB4444_Premultiplied:
-                    _textureFormat = GL_BGRA;
-                    _textureType = GL_UNSIGNED_SHORT_4_4_4_4_REV;
-                    break;
-                default: break;
-                }
-                if (_textureFormat != GL_NONE && _textureType != GL_NONE)
-                {
-                    glGenTextures(1, &_id);
-                    glBindTexture(GL_TEXTURE_2D, _id);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                    glTexImage2D(
-                        GL_TEXTURE_2D,
-                        0,
-                        GL_RGBA8,
-                        _size.width(),
-                        _size.height(),
-                        0,
-                        _textureFormat,
-                        _textureType,
-                        NULL);
-                }
-            }
-
-            OverlayTexture::~OverlayTexture()
-            {
-                if (_id)
-                {
-                    glDeleteTextures(1, &_id);
-                    _id = 0;
-                }
-            }
-
-            std::shared_ptr<OverlayTexture> OverlayTexture::create(const QSize& size, QImage::Format format)
-            {
-                return std::shared_ptr<OverlayTexture>(new OverlayTexture(size, format));
-            }
-
-            void OverlayTexture::copy(const QImage& value)
-            {
-                if (value.size() == _size && value.format() == _format)
-                {
-                    glBindTexture(GL_TEXTURE_2D, _id);
-                    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-                    glPixelStorei(GL_UNPACK_SWAP_BYTES, 0);
-                    glTexSubImage2D(
-                        GL_TEXTURE_2D,
-                        0,
-                        0,
-                        0,
-                        _size.width(),
-                        _size.height(),
-                        _textureFormat,
-                        _textureType,
-                        value.bits());
-                }
             }
         }
 
