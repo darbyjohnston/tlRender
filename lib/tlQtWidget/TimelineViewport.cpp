@@ -375,41 +375,19 @@ namespace tl
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, p.buffer->getColorID());
 
-                geom::TriangleMesh3 mesh;
-                mesh.v.push_back(math::Vector3f(0.F, 0.F, 0.F));
-                mesh.t.push_back(math::Vector2f(0.F, 0.F));
-                mesh.v.push_back(math::Vector3f(renderSize.w, 0.F, 0.F));
-                mesh.t.push_back(math::Vector2f(1.F, 0.F));
-                mesh.v.push_back(math::Vector3f(renderSize.w, renderSize.h, 0.F));
-                mesh.t.push_back(math::Vector2f(1.F, 1.F));
-                mesh.v.push_back(math::Vector3f(0.F, renderSize.h, 0.F));
-                mesh.t.push_back(math::Vector2f(0.F, 1.F));
-                mesh.triangles.push_back(geom::Triangle3({
-                    geom::Vertex3({ 1, 1, 0 }),
-                    geom::Vertex3({ 2, 2, 0 }),
-                    geom::Vertex3({ 3, 3, 0 })
-                    }));
-                mesh.triangles.push_back(geom::Triangle3({
-                    geom::Vertex3({ 3, 3, 0 }),
-                    geom::Vertex3({ 4, 4, 0 }),
-                    geom::Vertex3({ 1, 1, 0 })
-                    }));
-                auto vboData = convert(
-                    mesh,
-                    gl::VBOType::Pos3_F32_UV_U16,
-                    math::SizeTRange(0, mesh.triangles.size() - 1));
+                const auto mesh = geom::bbox(math::BBox2i(0, 0, renderSize.w, renderSize.h));
                 if (!p.vbo)
                 {
-                    p.vbo = gl::VBO::create(mesh.triangles.size() * 3, gl::VBOType::Pos3_F32_UV_U16);
+                    p.vbo = gl::VBO::create(mesh.triangles.size() * 3, gl::VBOType::Pos2_F32_UV_U16);
                 }
                 if (p.vbo)
                 {
-                    p.vbo->copy(vboData);
+                    p.vbo->copy(convert(mesh, gl::VBOType::Pos2_F32_UV_U16));
                 }
 
                 if (!p.vao && p.vbo)
                 {
-                    p.vao = gl::VAO::create(gl::VBOType::Pos3_F32_UV_U16, p.vbo->getID());
+                    p.vao = gl::VAO::create(gl::VBOType::Pos2_F32_UV_U16, p.vbo->getID());
                 }
                 if (p.vao && p.vbo)
                 {
