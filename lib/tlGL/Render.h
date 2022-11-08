@@ -30,6 +30,8 @@ namespace tl
             void setLUT(const timeline::LUTOptions&) override;
             void begin(const imaging::Size&) override;
             void end() override;
+            void beginRaster(const imaging::Size&) override;
+            void endRaster() override;
             void drawRect(
                 const math::BBox2i&,
                 const imaging::Color4f&) override;

@@ -715,7 +715,7 @@ namespace tl
 
             p.shaders["display"].reset();
         }
-
+        
         void Render::begin(const imaging::Size& size)
         {
             TLRENDER_P();
@@ -853,6 +853,32 @@ namespace tl
         }
 
         void Render::end()
+        {}
+
+        void Render::beginRaster(const imaging::Size& viewportSize)
+        {
+            TLRENDER_P();
+
+            if (!p.shaders["text"]) return;
+
+            const auto viewMatrix = glm::ortho(
+                0.F,
+                static_cast<float>(viewportSize.w),
+                static_cast<float>(viewportSize.h),
+                0.F,
+                -1.F,
+                1.F);
+            const math::Matrix4x4f mvp(
+                viewMatrix[0][0], viewMatrix[0][1], viewMatrix[0][2], viewMatrix[0][3],
+                viewMatrix[1][0], viewMatrix[1][1], viewMatrix[1][2], viewMatrix[1][3],
+                viewMatrix[2][0], viewMatrix[2][1], viewMatrix[2][2], viewMatrix[2][3],
+                viewMatrix[3][0], viewMatrix[3][1], viewMatrix[3][2], viewMatrix[3][3]);
+
+            p.shaders["text"]->bind();
+            p.shaders["text"]->setUniform("transform.mvp", mvp);
+        }
+        
+        void Render::endRaster()
         {}
     }
 }

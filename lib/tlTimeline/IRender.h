@@ -46,6 +46,12 @@ namespace tl
             //! Finish a render.
             virtual void end() = 0;
 
+            //! Start a text rendering in raster coordinates
+            virtual void beginRaster(const imaging::Size& viewport) = 0;
+            
+            //! Finish a text rendering in raster coordinates.
+            virtual void endRaster() = 0;
+            
             //! Draw a rectangle.
             virtual void drawRect(
                 const math::BBox2i&,
