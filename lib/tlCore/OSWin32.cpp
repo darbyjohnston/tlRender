@@ -62,22 +62,33 @@ namespace tl
             Windows getWindowsVersion()
             {
                 Windows out = Windows::Unknown;
+#if _WIN32_WINNT >= 0x0A00
                 if (IsWindows10OrGreater())
                 {
                     out = Windows::_10;
                 }
-                else if (IsWindows8Point1OrGreater())
+                else
+#endif
+#if _WIN32_WINNT >= 0x0603
+		  if (IsWindows8Point1OrGreater())
                 {
                     out = Windows::_8_1;
                 }
-                else if (IsWindows8OrGreater())
+                else
+#endif
+#if _WIN32_WINNT >= 0x0602
+		  if (IsWindows8OrGreater())
                 {
                     out = Windows::_8;
                 }
-                else if (IsWindows7OrGreater())
+                else
+#endif
+#if _WIN32_WINNT >= 0x0601
+		  if (IsWindows7OrGreater())
                 {
                     out = Windows::_7;
                 }
+#endif
                 return out;
             }
 
