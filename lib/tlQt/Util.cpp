@@ -35,19 +35,19 @@ namespace tl
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
             QMetaType::registerComparators<audio::DataType>();
             QMetaType::registerComparators<audio::DeviceFormat>();
-#endif
+#endif // QT_VERSION
 
             qRegisterMetaType<log::Item>("tl::log::Item");
             qRegisterMetaType<log::Type>("tl::log::Type");
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
             QMetaType::registerComparators<log::Type>();
-#endif
+#endif // QT_VERSION
 
             qRegisterMetaType<file::Mode>("tl::file::Mode");
             qRegisterMetaType<file::PathOptions>("tl::file::PathOptions");
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
             QMetaType::registerComparators<file::Mode>();
-#endif
+#endif // QT_VERSION
 
             qRegisterMetaType<geom::Triangle2>("tl::geom::Triangle2");
             qRegisterMetaType<geom::Triangle3>("tl::geom::Triangle3");
@@ -67,7 +67,7 @@ namespace tl
             qRegisterMetaType<memory::Endian>("tl::memory::Endian");
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
             QMetaType::registerComparators<memory::Endian>();
-#endif
+#endif // QT_VERSION
 
             qRegisterMetaType<observer::CallbackAction>("tl::observer::CallbackAction");
 
@@ -75,7 +75,7 @@ namespace tl
             qRegisterMetaType<os::SystemInfo>("tl::os::SystemInfo");
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
             QMetaType::registerComparators<os::EnvListSeparator>();
-#endif
+#endif // QT_VERSION
 
             qRegisterMetaType<io::FileType>("tl::io::FileType");
             qRegisterMetaType<io::Info>("tl::io::Info");
@@ -83,7 +83,7 @@ namespace tl
             qRegisterMetaType<io::AudioData>("tl::io::AudioData");
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
             QMetaType::registerComparators<io::FileType>();
-#endif
+#endif // QT_VERSION
 
             qRegisterMetaType<timeline::AlphaBlend>("tl::timeline::AlphaBlend");
             qRegisterMetaType<timeline::AudioBufferFrameCount>("tl::timeline::AudioBufferFrameCount");
@@ -125,13 +125,13 @@ namespace tl
             QMetaType::registerComparators<timeline::TimeAction>();
             QMetaType::registerComparators<timeline::TimerMode>();
             QMetaType::registerComparators<timeline::Transition>();
-#endif
+#endif // QT_VERSION
 
             qRegisterMetaType<TimeUnits>("tl::qt::TimeUnits");
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
             qRegisterMetaTypeStreamOperators<TimeUnits>("tl::qt::TimeUnits");
             QMetaType::registerComparators<TimeUnits>();
-#endif
+#endif // QT_VERSION
 
             QSurfaceFormat surfaceFormat;
             surfaceFormat.setMajorVersion(4);

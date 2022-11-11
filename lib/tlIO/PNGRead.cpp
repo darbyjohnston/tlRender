@@ -170,9 +170,9 @@ namespace tl
                         {
                             _f.p = nullptr;
                         }
-#else
+#else // _WINDOWS
                         _f.p = fopen(fileName.c_str(), "rb");
-#endif
+#endif // _WINDOWS
                         if (!_f.p)
                         {
                             throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));

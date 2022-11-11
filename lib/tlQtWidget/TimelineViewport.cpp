@@ -401,7 +401,7 @@ namespace tl
         void TimelineViewport::enterEvent(QEvent* event)
 #else
         void TimelineViewport::enterEvent(QEnterEvent* event)
-#endif
+#endif // QT_VERSION
         {
             TLRENDER_P();
             event->accept();

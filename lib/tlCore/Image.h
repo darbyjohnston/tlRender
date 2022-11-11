@@ -177,9 +177,9 @@ namespace tl
         };
 #if defined(TLRENDER_ENDIAN_MSB)
         typedef U10_MSB U10;
-#else
+#else // TLRENDER_ENDIAN_MSB
         typedef U10_LSB U10;
-#endif
+#endif // TLRENDER_ENDIAN_MSB
 
         //! Get the number of channels for the given pixel type.
         uint8_t getChannelCount(PixelType) noexcept;

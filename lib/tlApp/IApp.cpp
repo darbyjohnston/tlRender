@@ -82,7 +82,7 @@ namespace tl
                 "FFmpeg output profile.",
                 std::string(),
                 string::join(ffmpeg::getProfileLabels(), ", ")));
-#endif
+#endif // TLRENDER_FFMPEG
             p.cmdLineOptions.push_back(CmdLineFlagOption::create(
                 _options.log,
                 { "-log" },
@@ -120,7 +120,7 @@ namespace tl
                 ss << _options.sequenceThreadCount;
                 ioOptions["SequenceIO/ThreadCount"] = ss.str();
             }
-#if defined(OpenEXR_FOUND)
+#if defined(TLRENDER_EXR)
             {
                 std::stringstream ss;
                 ss << _options.exrCompression;
@@ -131,7 +131,7 @@ namespace tl
                 ss << _options.exrDWACompressionLevel;
                 ioOptions["exr/DWACompressionLevel"] = ss.str();
             }
-#endif
+#endif // TLRENDER_EXR
 #if defined(TLRENDER_FFMPEG)
             if (!_options.ffmpegWriteProfile.empty())
             {
@@ -142,7 +142,7 @@ namespace tl
                 ss << _options.ffmpegThreadCount;
                 ioOptions["ffmpeg/ThreadCount"] = ss.str();
             }
-#endif
+#endif // TLRENDER_FFMPEG
             context->getSystem<io::System>()->setOptions(ioOptions);
         }
         

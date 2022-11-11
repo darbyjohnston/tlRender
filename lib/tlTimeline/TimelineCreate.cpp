@@ -15,7 +15,7 @@
 
 #if defined(TLRENDER_PYTHON)
 #include <Python.h>
-#endif
+#endif // TLRENDER_PYTHON
 
 namespace tl
 {
@@ -109,7 +109,7 @@ namespace tl
 
                 operator PyObject* () const { return o; }
             };
-#endif
+#endif // TLRENDER_PYTHON
         }
 
         otio::SerializableObject::Retainer<otio::Timeline> read(
@@ -150,9 +150,9 @@ namespace tl
                 PyErr_Print();
             }
             Py_Finalize();
-#else
+#else // TLRENDER_PYTHON
             out = dynamic_cast<otio::Timeline*>(otio::Timeline::from_json_file(fileName, errorStatus));
-#endif
+#endif // TLRENDER_PYTHON
             return out;
         }
 
