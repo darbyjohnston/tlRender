@@ -70,21 +70,21 @@ namespace tl
                 else
 #endif
 #if _WIN32_WINNT >= 0x0603
-		  if (IsWindows8Point1OrGreater())
+		    if (IsWindows8Point1OrGreater())
                 {
                     out = Windows::_8_1;
                 }
                 else
 #endif
 #if _WIN32_WINNT >= 0x0602
-		  if (IsWindows8OrGreater())
+		    if (IsWindows8OrGreater())
                 {
                     out = Windows::_8;
                 }
                 else
 #endif
 #if _WIN32_WINNT >= 0x0601
-		  if (IsWindows7OrGreater())
+		    if (IsWindows7OrGreater())
                 {
                     out = Windows::_7;
                 }
