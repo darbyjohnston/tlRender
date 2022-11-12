@@ -49,5 +49,14 @@ namespace tl
         {
             return _frameRate;
         }
+
+        void IOutputDevice::setPlayback(timeline::Playback)
+        {}
+
+        void IOutputDevice::pixelData(const std::shared_ptr<PixelData>&)
+        {}
+
+        void IOutputDevice::audioData(const std::vector<timeline::AudioData>&)
+        {}
     }
 }

@@ -165,6 +165,11 @@ namespace tl
             {
                 disconnect(
                     i,
+                    SIGNAL(playbackChanged(tl::timeline::Playback)),
+                    this,
+                    SLOT(_playbackCallback(tl::timeline::Playback)));
+                disconnect(
+                    i,
                     SIGNAL(currentVideoChanged(const tl::timeline::VideoData&)),
                     this,
                     SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
@@ -179,6 +184,10 @@ namespace tl
             {
                 connect(
                     i,
+                    SIGNAL(playbackChanged(tl::timeline::Playback)),
+                    SLOT(_playbackCallback(tl::timeline::Playback)));
+                connect(
+                    i,
                     SIGNAL(currentVideoChanged(const tl::timeline::VideoData&)),
                     SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
                 connect(
@@ -188,9 +197,11 @@ namespace tl
             }
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
+                p.playback = !p.timelinePlayers.empty() ?
+                    p.timelinePlayers.front()->playback() :
+                    timeline::Playback::Stop;
                 p.sizes.clear();
                 p.videoData.clear();
-                p.audioData.clear();
                 for (const auto& i : p.timelinePlayers)
                 {
                     const auto& ioInfo = i->ioInfo();
@@ -199,7 +210,11 @@ namespace tl
                         p.sizes.push_back(ioInfo.video[0].size);
                     }
                     p.videoData.push_back(i->currentVideo());
-                    p.audioData.push_back(i->currentAudio());
+                }
+                p.audioData.clear();
+                if (!p.timelinePlayers.empty())
+                {
+                    p.audioData = p.timelinePlayers.front()->currentAudio();
                 }
             }
         }
@@ -240,6 +255,19 @@ namespace tl
             p.cv.notify_one();
         }
 
+        void OutputDevice::_playbackCallback(tl::timeline::Playback value)
+        {
+            TLRENDER_P();
+            if (qobject_cast<qt::TimelinePlayer*>(sender()) == p.timelinePlayers.front())
+            {
+                {
+                    std::unique_lock<std::mutex> lock(p.mutex);
+                    p.playback = value;
+                }
+                p.cv.notify_one();
+            }
+        }
+
         void OutputDevice::_currentVideoCallback(const tl::timeline::VideoData& value)
         {
             TLRENDER_P();
@@ -258,13 +286,11 @@ namespace tl
         void OutputDevice::_currentAudioCallback(const std::vector<tl::timeline::AudioData>& value)
         {
             TLRENDER_P();
-            const auto i = std::find(p.timelinePlayers.begin(), p.timelinePlayers.end(), sender());
-            if (i != p.timelinePlayers.end())
+            if (qobject_cast<qt::TimelinePlayer*>(sender()) == p.timelinePlayers.front())
             {
-                const size_t index = i - p.timelinePlayers.begin();
                 {
                     std::unique_lock<std::mutex> lock(p.mutex);
-                    p.audioData[index] = value;
+                    p.audioData = value;
                 }
                 p.cv.notify_one();
             }
@@ -293,13 +319,14 @@ namespace tl
             device::HDRMode hdrMode = device::HDRMode::FromFile;
             imaging::HDRData hdrData;
             timeline::CompareOptions compareOptions;
+            timeline::Playback playback = timeline::Playback::Stop;
             std::vector<imaging::Size> sizes;
             math::Vector2i viewPos;
             float viewZoom = 1.F;
             bool frameView = true;
             std::vector<timeline::VideoData> videoData;
             std::shared_ptr<QImage> overlay;
-            std::vector<std::vector<timeline::AudioData> > audioData;
+            std::vector<timeline::AudioData> audioData;
 
             std::shared_ptr<device::IOutputDevice> device;
             std::shared_ptr<tl::gl::Shader> shader;
@@ -319,6 +346,7 @@ namespace tl
                 bool createDevice = false;
                 bool doRender = false;
                 bool overlayChanged = false;
+                bool audioChanged = false;
                 {
                     std::unique_lock<std::mutex> lock(p.mutex);
                     if (p.cv.wait_for(
@@ -327,8 +355,8 @@ namespace tl
                         [this, deviceIndex, displayModeIndex, pixelType,
                         colorConfigOptions, lutOptions, imageOptions,
                         displayOptions, hdrMode, hdrData, compareOptions,
-                        sizes, viewPos, viewZoom, frameView, videoData,
-                        overlay, audioData]
+                        playback, sizes, viewPos, viewZoom,
+                        frameView, videoData, overlay, audioData]
                         {
                             return
                                 deviceIndex != _p->deviceIndex ||
@@ -341,6 +369,7 @@ namespace tl
                                 hdrMode != _p->hdrMode ||
                                 hdrData != _p->hdrData ||
                                 compareOptions != _p->compareOptions ||
+                                playback != _p->playback ||
                                 sizes != _p->sizes ||
                                 viewPos != _p->viewPos ||
                                 viewZoom != _p->viewZoom ||
@@ -357,6 +386,8 @@ namespace tl
                         deviceIndex = p.deviceIndex;
                         displayModeIndex = p.displayModeIndex;
                         pixelType = p.pixelType;
+
+                        playback = p.playback;
 
                         doRender =
                             colorConfigOptions != p.colorConfigOptions ||
@@ -387,6 +418,7 @@ namespace tl
                         overlayChanged = overlay != p.overlay;
                         overlay = p.overlay;
 
+                        audioChanged = audioData != p.audioData;
                         audioData = p.audioData;
                     }
                 }
@@ -719,7 +751,7 @@ namespace tl
                                     glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
                                 }
                                 glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-                                device->display(pixelData);
+                                device->pixelData(pixelData);
                             }
                         }
                     }
@@ -730,6 +762,15 @@ namespace tl
                             context->log("tl::qt::OutputDevice", e.what(), log::Type::Error);
                         }
                     }
+                }
+
+                if (device)
+                {
+                    device->setPlayback(playback);
+                }
+                if (device && audioChanged)
+                {
+                    device->audioData(audioData);
                 }
             }
             glDeleteBuffers(pbo.size(), pbo.data());

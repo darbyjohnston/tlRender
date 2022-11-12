@@ -63,6 +63,7 @@ namespace tl
             std::vector<timeline::DisplayOptions> displayOptions;
             timeline::CompareOptions compareOptions;
             std::vector<qt::TimelinePlayer*> timelinePlayers;
+            timeline::Playback playback = timeline::Playback::Stop;
             std::vector<imaging::Size> sizes;
             math::Vector2i viewPos;
             float viewZoom = 1.F;
@@ -70,7 +71,7 @@ namespace tl
             std::vector<timeline::VideoData> videoData;
             //! \todo Temporary
             std::shared_ptr<QImage> overlay;
-            std::vector<std::vector<timeline::AudioData> > audioData;
+            std::vector<timeline::AudioData> audioData;
 
             std::chrono::milliseconds timeout = std::chrono::milliseconds(5);
             QScopedPointer<QOffscreenSurface> offscreenSurface;

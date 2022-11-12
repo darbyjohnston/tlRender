@@ -44,31 +44,79 @@ namespace tl
             IDeckLinkOutput* p = nullptr;
         };
 
-        //! Decklink video output callback.
-        class DLVideoOutputCallback : public IDeckLinkVideoOutputCallback
+        //! Decklink output callback.
+        class DLOutputCallback :
+            public IDeckLinkVideoOutputCallback,
+            public IDeckLinkAudioOutputCallback
         {
         public:
-            DLVideoOutputCallback(const std::function<void(IDeckLinkVideoFrame*)>&);
+            DLOutputCallback(
+                IDeckLinkOutput*,
+                const imaging::Size& size,
+                PixelType pixelType,
+                const otime::RationalTime& frameRate);
+
+            void setPlayback(timeline::Playback);
+            void pixelData(const std::shared_ptr<device::PixelData>&);
+            void audioData(const std::vector<timeline::AudioData>&);
 
             HRESULT STDMETHODCALLTYPE ScheduledFrameCompleted(IDeckLinkVideoFrame*, BMDOutputFrameCompletionResult) override;
             HRESULT STDMETHODCALLTYPE ScheduledPlaybackHasStopped() override;
+
+            HRESULT STDMETHODCALLTYPE RenderAudioSamples(BOOL preroll) override;
 
             HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, LPVOID* ppv) override;
             ULONG STDMETHODCALLTYPE AddRef() override;
             ULONG STDMETHODCALLTYPE Release() override;
 
         private:
+            IDeckLinkOutput* _dlOutput = nullptr;
+            imaging::Size _size;
+            PixelType _pixelType = PixelType::None;
+            otime::RationalTime _frameRate = time::invalidTime;
+
             std::atomic<size_t> _refCount;
-            std::function<void(IDeckLinkVideoFrame*)> _callback;
+
+            struct PixelDataMutexData
+            {
+                std::list<std::shared_ptr<device::PixelData> > pixelData;
+            };
+            PixelDataMutexData _pixelDataMutexData;
+            std::mutex _pixelDataMutex;
+
+            struct PixelDataThreadData
+            {
+                std::shared_ptr<device::PixelData> pixelDataTmp;
+                uint64_t frameCount = 0;
+            };
+            PixelDataThreadData _pixelDataThreadData;
+
+            struct AudioMutexData
+            {
+                timeline::Playback playback = timeline::Playback::Stop;
+                otime::RationalTime currentTime = time::invalidTime;
+                std::vector<timeline::AudioData> audioData;
+            };
+            AudioMutexData _audioMutexData;
+            std::mutex _audioMutex;
+
+            struct AudioThreadData
+            {
+                timeline::Playback playback = timeline::Playback::Stop;
+                otime::RationalTime currentTime = time::invalidTime;
+                otime::RationalTime startTime = time::invalidTime;
+                size_t offset = 0;
+            };
+            AudioThreadData _audioThreadData;
         };
 
-        //! Decklink video output callback wrapper.
-        class DLVideoOutputCallbackWrapper
+        //! Decklink output callback wrapper.
+        class DLOutputCallbackWrapper
         {
         public:
-            ~DLVideoOutputCallbackWrapper();
+            ~DLOutputCallbackWrapper();
 
-            DLVideoOutputCallback* p = nullptr;
+            DLOutputCallback* p = nullptr;
         };
 
         //! BMD output device.
@@ -95,20 +143,15 @@ namespace tl
                 PixelType,
                 const std::shared_ptr<system::Context>&);
 
-            void display(const std::shared_ptr<device::PixelData>&) override;
+            void setPlayback(timeline::Playback) override;
+            void pixelData(const std::shared_ptr<device::PixelData>&) override;
+            void audioData(const std::vector<timeline::AudioData>&) override;
 
         private:
-            uint64_t _frameCount = 0;
-
-            std::list<std::shared_ptr<device::PixelData> > _pixelData;
-            std::shared_ptr<device::PixelData> _pixelDataTmp;
-            std::mutex _pixelDataMutex;
-
             DLWrapper _dl;
-            size_t _preroll = 3;
             DLConfigWrapper _dlConfig;
             DLOutputWrapper _dlOutput;
-            DLVideoOutputCallbackWrapper _dlVideoOutputCallback;
+            DLOutputCallbackWrapper _dlOutputCallback;
         };
     }
 }

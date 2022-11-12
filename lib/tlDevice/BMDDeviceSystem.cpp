@@ -18,7 +18,7 @@
 
 #if defined(__linux__)
 typedef bool BOOL;
-#endif
+#endif // __linux__
 
 namespace tl
 {
