@@ -295,7 +295,7 @@ namespace tl
         {
             std::vector<std::shared_ptr<Texture> > out;
             const auto i = std::find_if(
-                _cache.begin(), 
+                _cache.begin(),
                 _cache.end(),
                 [info, imageFilters](const TextureData& value)
                 {
@@ -378,7 +378,7 @@ namespace tl
             out->_init(context);
             return out;
         }
-        
+
         void Render::setTextureCacheSize(size_t value)
         {
             _p->textureCache.setSize(value);
@@ -716,15 +716,19 @@ namespace tl
             p.shaders["display"].reset();
         }
 
-        void Render::begin(const imaging::Size& size)
+        void Render::begin(const imaging::Size& size,
+                           const timeline::RenderOptions& renderOptions)
         {
             TLRENDER_P();
 
             p.size = size;
 
-            glViewport(0, 0, p.size.w, p.size.h);
-            glClearColor(0.F, 0.F, 0.F, 0.F);
-            glClear(GL_COLOR_BUFFER_BIT);
+            if ( renderOptions.clear )
+            {
+                glViewport(0, 0, p.size.w, p.size.h);
+                glClearColor(0.F, 0.F, 0.F, 0.F);
+                glClear(GL_COLOR_BUFFER_BIT);
+            }
 
             glEnable(GL_BLEND);
             glBlendEquation(GL_FUNC_ADD);
