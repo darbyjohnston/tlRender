@@ -28,7 +28,8 @@ namespace tl
             void setTextureCacheSize(size_t) override;
             void setColorConfig(const timeline::ColorConfigOptions&) override;
             void setLUT(const timeline::LUTOptions&) override;
-            void begin(const imaging::Size&) override;
+            void begin(const imaging::Size&,
+                const timeline::RenderOptions& = timeline::RenderOptions()) override;
             void end() override;
             void drawRect(
                 const math::BBox2i&,

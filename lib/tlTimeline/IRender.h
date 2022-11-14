@@ -7,6 +7,7 @@
 #include <tlTimeline/ColorConfigOptions.h>
 #include <tlTimeline/CompareOptions.h>
 #include <tlTimeline/LUTOptions.h>
+#include <tlTimeline/RenderOptions.h>
 #include <tlTimeline/Video.h>
 
 #include <tlCore/Context.h>
@@ -41,7 +42,8 @@ namespace tl
             virtual void setLUT(const LUTOptions&) = 0;
 
             //! Start a render.
-            virtual void begin(const imaging::Size&) = 0;
+            virtual void begin(const imaging::Size&,
+                const RenderOptions& = RenderOptions()) = 0;
 
             //! Finish a render.
             virtual void end() = 0;
