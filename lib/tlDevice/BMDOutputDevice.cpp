@@ -403,7 +403,7 @@ namespace tl
             {
                 _pixelDataThreadData.frameCount = _pixelDataThreadData.frameCount + 1;
             }
-            //std::cout << "result: " << getOutputFrameCompletionResultLabel(result) << std::endl;
+            //std::cout << "result: " << getOutputFrameCompletionResultLabel(dlResult) << std::endl;
             return S_OK;
         }
 
