@@ -13,6 +13,11 @@
 #include <list>
 #include <mutex>
 
+#if defined(__linux__)
+typedef bool BOOL;
+typedef int64_t LONGLONG;
+#endif // __linux__
+
 namespace tl
 {
     namespace device

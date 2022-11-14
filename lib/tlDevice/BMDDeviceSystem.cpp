@@ -16,10 +16,6 @@
 #include <mutex>
 #include <thread>
 
-#if defined(__linux__)
-typedef bool BOOL;
-#endif // __linux__
-
 namespace tl
 {
     namespace device

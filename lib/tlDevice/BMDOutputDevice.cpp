@@ -13,10 +13,6 @@
 #include <iostream>
 #include <tuple>
 
-#if defined(__linux__)
-typedef bool BOOL;
-#endif // __linux__
-
 namespace tl
 {
     namespace device
