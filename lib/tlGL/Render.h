@@ -29,7 +29,7 @@ namespace tl
             void setColorConfig(const timeline::ColorConfigOptions&) override;
             void setLUT(const timeline::LUTOptions&) override;
             void begin(const imaging::Size&,
-                       const timeline::RenderOptions& = timeline::RenderOptions()) override;
+                const timeline::RenderOptions& = timeline::RenderOptions()) override;
             void end() override;
             void drawRect(
                 const math::BBox2i&,

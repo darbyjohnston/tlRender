@@ -717,15 +717,16 @@ namespace tl
         }
 
         void Render::begin(const imaging::Size& size,
-                           const timeline::RenderOptions& renderOptions)
+            const timeline::RenderOptions& renderOptions)
         {
             TLRENDER_P();
 
             p.size = size;
+            
+            glViewport(0, 0, p.size.w, p.size.h);
 
-            if ( renderOptions.clear )
+            if (renderOptions.clear)
             {
-                glViewport(0, 0, p.size.w, p.size.h);
                 glClearColor(0.F, 0.F, 0.F, 0.F);
                 glClear(GL_COLOR_BUFFER_BIT);
             }

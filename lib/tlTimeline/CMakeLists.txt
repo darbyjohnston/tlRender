@@ -9,6 +9,8 @@ set(HEADERS
 	DisplayOptionsInline.h
 	ImageOptions.h
 	ImageOptionsInline.h
+	RenderOptions.h
+	RenderOptionsInline.h
 	IRender.h
 	LUTOptions.h
 	LUTOptionsInline.h

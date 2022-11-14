@@ -43,7 +43,7 @@ namespace tl
 
             //! Start a render.
             virtual void begin(const imaging::Size&,
-                               const RenderOptions& = RenderOptions()) = 0;
+                const RenderOptions& = RenderOptions()) = 0;
 
             //! Finish a render.
             virtual void end() = 0;
