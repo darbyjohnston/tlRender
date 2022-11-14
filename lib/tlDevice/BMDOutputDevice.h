@@ -13,10 +13,12 @@
 #include <list>
 #include <mutex>
 
-#if defined(__linux__)
+#if defined(__APPLE__)
+typedef int64_t LONGLONG;
+#elif defined(__linux__)
 typedef bool BOOL;
 typedef int64_t LONGLONG;
-#endif // __linux__
+#endif // __APPLE__
 
 namespace tl
 {

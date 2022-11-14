@@ -231,6 +231,7 @@ namespace tl
                 case QImage::Format_ARGB4444_Premultiplied:
                     tmp = std::shared_ptr<QImage>(qImage);
                     break;
+                default: break;
                 }
             }
             {
