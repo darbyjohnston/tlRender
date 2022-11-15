@@ -1,7 +1,7 @@
 {
     "OTIO_SCHEMA": "Timeline.1", 
     "metadata": {},
-    "name": "test",
+    "name": "TransitionAndLinearTimeWarp",
     "tracks": {
         "OTIO_SCHEMA": "Stack.1", 
         "children": [
@@ -47,7 +47,7 @@
                                 "time_scalar": 0.75
                             }
                         ],
-                        "name": "C000"
+                        "name": "BART_2021-02-07"
                     },
                     {
                         "OTIO_SCHEMA": "Transition.1",
@@ -103,7 +103,7 @@
                                 "time_scalar": 0.75
                             }
                         ],
-                        "name": "C001"
+                        "name": "BART_2021-02-07"
                     }
                 ],
                 "kind": "Video", 

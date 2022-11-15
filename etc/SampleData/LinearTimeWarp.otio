@@ -1,7 +1,7 @@
 {
     "OTIO_SCHEMA": "Timeline.1", 
     "metadata": {},
-    "name": "test",
+    "name": "LinearTimeWarp",
     "tracks": {
         "OTIO_SCHEMA": "Stack.1", 
         "children": [
@@ -51,9 +51,9 @@
                     }
                 ],
                 "kind": "Video", 
-                "name": "Sequence"
+                "name": "Track"
             }
         ], 
-        "name": "NestedScope"
+        "name": "Stack"
     }
 }
