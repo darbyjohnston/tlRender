@@ -288,12 +288,6 @@ namespace tl
 
             //! Set the audio volume.
             void setVolume(float);
-
-            //! Increase the audio volume.
-            void increaseVolume();
-
-            //! Decrease the audio volume.
-            void decreaseVolume();
                 
             //! Set the audio mute.
             void setMute(bool);

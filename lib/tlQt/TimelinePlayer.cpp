@@ -366,16 +366,6 @@ namespace tl
             _p->timelinePlayer->setVolume(value);
         }
 
-        void TimelinePlayer::increaseVolume()
-        {
-            _p->timelinePlayer->increaseVolume();
-        }
-
-        void TimelinePlayer::decreaseVolume()
-        {
-            _p->timelinePlayer->decreaseVolume();
-        }
-
         void TimelinePlayer::setMute(bool value)
         {
             _p->timelinePlayer->setMute(value);

@@ -313,12 +313,6 @@ namespace tl
             //! Set the audio volume.
             void setVolume(float);
 
-            //! Increase the audio volume
-            void increaseVolume();
-
-            //! Decrease the audio volume
-            void decreaseVolume();
-
             //! Observe the audio mute.
             std::shared_ptr<observer::IValue<bool> > observeMute() const;
 

@@ -787,18 +787,6 @@ namespace tl
             }
         }
 
-        void TimelinePlayer::increaseVolume()
-        {
-            TLRENDER_P();
-            setVolume(_p->volume->get() + .1F);
-        }
-
-        void TimelinePlayer::decreaseVolume()
-        {
-            TLRENDER_P();
-            setVolume(_p->volume->get() - .1F);
-        }
-
         std::shared_ptr<observer::IValue<bool> > TimelinePlayer::observeMute() const
         {
             return _p->mute;

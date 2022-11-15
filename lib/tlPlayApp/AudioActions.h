@@ -38,6 +38,8 @@ namespace tl
             void setTimelinePlayers(const std::vector<qt::TimelinePlayer*>&);
 
         private Q_SLOTS:
+            void _increaseVolumeCallback();
+            void _decreaseVolumeCallback();
 
         private:
             void _actionsUpdate();

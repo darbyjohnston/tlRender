@@ -76,13 +76,13 @@ namespace tl
                 disconnect(
                     p.actions["IncreaseVolume"],
                     SIGNAL(triggered()),
-                    p.timelinePlayers[0],
-                    SLOT(increaseVolume()));
+                    this,
+                    SLOT(_increaseVolumeCallback()));
                 disconnect(
                     p.actions["DecreaseVolume"],
                     SIGNAL(triggered()),
-                    p.timelinePlayers[0],
-                    SLOT(decreaseVolume()));
+                    this,
+                    SLOT(_decreaseVolumeCallback()));
                 disconnect(
                     p.actions["Mute"],
                     SIGNAL(toggled(bool)),
@@ -97,13 +97,11 @@ namespace tl
                 connect(
                     p.actions["IncreaseVolume"],
                     SIGNAL(triggered()),
-                    p.timelinePlayers[0],
-                    SLOT(increaseVolume()));
+                    SLOT(_increaseVolumeCallback()));
                 connect(
                     p.actions["DecreaseVolume"],
                     SIGNAL(triggered()),
-                    p.timelinePlayers[0],
-                    SLOT(decreaseVolume()));
+                    SLOT(_decreaseVolumeCallback()));
                 connect(
                     p.actions["Mute"],
                     SIGNAL(toggled(bool)),
@@ -112,6 +110,24 @@ namespace tl
             }
 
             _actionsUpdate();
+        }
+
+        void AudioActions::_increaseVolumeCallback()
+        {
+            TLRENDER_P();
+            if (p.timelinePlayers[0])
+            {
+                p.timelinePlayers[0]->setVolume(p.timelinePlayers[0]->volume() + .1F);
+            }
+        }
+
+        void AudioActions::_decreaseVolumeCallback()
+        {
+            TLRENDER_P();
+            if (p.timelinePlayers[0])
+            {
+                p.timelinePlayers[0]->setVolume(p.timelinePlayers[0]->volume() - .1F);
+            }
         }
 
         void AudioActions::_actionsUpdate()
