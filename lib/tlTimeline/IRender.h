@@ -47,7 +47,7 @@ namespace tl
 
             //! Finish a render.
             virtual void end() = 0;
-
+            
             //! Draw a rectangle.
             virtual void drawRect(
                 const math::BBox2i&,
@@ -56,7 +56,8 @@ namespace tl
             //! Draw a triangle mesh.
             virtual void drawMesh(
                 const geom::TriangleMesh2&,
-                const imaging::Color4f&) = 0;
+                const imaging::Color4f&,
+                const math::Matrix4x4f&) = 0;
 
             //! Draw text.
             virtual void drawText(
