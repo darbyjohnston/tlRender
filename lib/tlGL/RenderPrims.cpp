@@ -12,7 +12,6 @@ namespace tl
 {
     namespace gl
     {
-        
         void Render::drawRect(
             const math::BBox2i& bbox,
             const imaging::Color4f& color)
