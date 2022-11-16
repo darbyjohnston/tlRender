@@ -31,6 +31,9 @@ namespace tl
             void begin(const imaging::Size&,
                 const timeline::RenderOptions& = timeline::RenderOptions()) override;
             void end() override;
+            void drawRectOutline(
+                const math::BBox2i& bbox,
+                const imaging::Color4f& color) override;
             void drawRect(
                 const math::BBox2i&,
                 const imaging::Color4f&) override;

@@ -48,6 +48,11 @@ namespace tl
             //! Finish a render.
             virtual void end() = 0;
 
+            //! Draw a rectangle outline of a single pixel.
+            virtual void drawRectOutline(
+                const math::BBox2i& bbox,
+                const imaging::Color4f& color) = 0;
+
             //! Draw a rectangle.
             virtual void drawRect(
                 const math::BBox2i&,

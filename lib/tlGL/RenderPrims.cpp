@@ -12,6 +12,28 @@ namespace tl
 {
     namespace gl
     {
+        void Render::drawRectOutline(
+            const math::BBox2i& bbox,
+            const imaging::Color4f& color)
+        {
+            TLRENDER_P();
+
+            p.shaders["mesh"]->bind();
+            p.shaders["mesh"]->setUniform("color", color);
+
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+            if (p.vbos["rect"])
+            {
+                p.vbos["rect"]->copy(convert(geom::bbox(bbox), p.vbos["rect"]->getType()));
+            }
+            if (p.vaos["rect"])
+            {
+                p.vaos["rect"]->bind();
+                p.vaos["rect"]->draw(GL_LINE_LOOP, 0, p.vbos["rect"]->getSize());
+            }
+        }
+
         void Render::drawRect(
             const math::BBox2i& bbox,
             const imaging::Color4f& color)
