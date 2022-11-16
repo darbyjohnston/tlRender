@@ -48,6 +48,9 @@ namespace tl
             //! Finish a render.
             virtual void end() = 0;
 
+            //! Sets the mesh matrix to a new value
+            virtual void setMatrix(const math::Matrix4x4f&) = 0;
+
             //! Draw a rectangle.
             virtual void drawRect(
                 const math::BBox2i&,

@@ -12,6 +12,14 @@ namespace tl
 {
     namespace gl
     {
+        void Render::setMatrix(const math::Matrix4x4f& mvp)
+        {
+            TLRENDER_P();
+
+            p.shaders["mesh"]->bind();
+            p.shaders["mesh"]->setUniform("transform.mvp", mvp);
+        }
+
         void Render::drawRect(
             const math::BBox2i& bbox,
             const imaging::Color4f& color)
