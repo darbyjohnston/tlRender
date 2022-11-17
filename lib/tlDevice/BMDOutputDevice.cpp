@@ -20,10 +20,7 @@ namespace tl
         namespace
         {
             const size_t pixelDataMax = 3;
-            const size_t audioChannelCount = 2;
-            const audio::DataType audioDataType = audio::DataType::S16;
-            const size_t audioSampleRate = 48000;
-            const size_t audioBufferChunkSize = 1000;
+            const size_t audioBufferSize = 1000;
             const size_t audioBufferMax = 48000;
 
             class DLIteratorWrapper
@@ -244,13 +241,17 @@ namespace tl
             IDeckLinkOutput* dlOutput,
             const imaging::Size& size,
             PixelType pixelType,
-            const otime::RationalTime& frameRate) :
+            const otime::RationalTime& frameRate,
+            const audio::Info& audioInfo) :
             _dlOutput(dlOutput),
             _size(size),
             _pixelType(pixelType),
             _frameRate(frameRate),
+            _audioInfo(audioInfo),
             _refCount(1)
         {
+            _audioThreadData.outputBuffer.resize(audioBufferSize * _audioInfo.getByteCount());
+
             size_t videoPreroll = 3;
             IDeckLinkProfileAttributes* dlProfileAttributes = nullptr;
             if (dlOutput->QueryInterface(IID_IDeckLinkProfileAttributes, (void**)&dlProfileAttributes) == S_OK)
@@ -341,6 +342,18 @@ namespace tl
             }
         }
 
+        void DLOutputCallback::setVolume(float value)
+        {
+            std::unique_lock<std::mutex> lock(_audioMutex);
+            _audioMutexData.volume = value;
+        }
+
+        void DLOutputCallback::setMute(bool value)
+        {
+            std::unique_lock<std::mutex> lock(_audioMutex);
+            _audioMutexData.mute = value;
+        }
+
         void DLOutputCallback::audioData(const std::vector<timeline::AudioData>& value)
         {
             std::unique_lock<std::mutex> lock(_audioMutex);
@@ -410,6 +423,8 @@ namespace tl
 
         HRESULT DLOutputCallback::RenderAudioSamples(BOOL preroll)
         {
+            float volume = 1.F;
+            bool mute = false;
             std::vector<timeline::AudioData> audioData;
             {
                 std::unique_lock<std::mutex> lock(_audioMutex);
@@ -431,6 +446,8 @@ namespace tl
                     }
                     _audioThreadData.currentTime = _audioMutexData.currentTime;
                 }
+                volume = _audioMutexData.volume;
+                mute = _audioMutexData.mute;
                 audioData = _audioMutexData.audioData;
             }
             //std::cout << "audio playback: " << _audioThreadData.playback << std::endl;
@@ -448,38 +465,66 @@ namespace tl
                 if (sampleCount < audioBufferMax)
                 {
                     const otime::RationalTime audioTime = _audioThreadData.startTime.rescaled_to(1.0) +
-                        otime::RationalTime(_audioThreadData.offset, audioSampleRate).rescaled_to(1.0);
+                        otime::RationalTime(_audioThreadData.offset, _audioInfo.sampleRate).rescaled_to(1.0);
                     //std::cout << "audio time: " << audioTime << std::endl;
                     //std::cout << "audio offset: " << _audioThreadData.offset << std::endl;
                     const int64_t audioSeconds = std::floor(audioTime.value());
                     //std::cout << "audio seconds: " << audioSeconds << std::endl;
+                    const size_t samplesOffset =
+                        otime::RationalTime(audioTime.value() - audioSeconds, 1.0).
+                        rescaled_to(_audioInfo.sampleRate).value();
+                    //std::cout << "audio samples offset: " << samplesOffset << std::endl;
+                    size_t samplesSize = audioBufferSize;
+                    if (samplesSize > audioBufferMax - samplesOffset)
+                    {
+                        samplesSize = audioBufferMax - samplesOffset;
+                    }
+                    //std::cout << "audio samples size: " << samplesSize << std::endl;
+
+                    memset(
+                        _audioThreadData.outputBuffer.data(),
+                        0,
+                        audioBufferSize * _audioInfo.getByteCount());
+
                     for (const auto& i : audioData)
                     {
                         //std::cout << "audio data: " << i.seconds << std::endl;
-                        if (audioSeconds == i.seconds && !i.layers.empty() && i.layers.front().audio)
+                        if (audioSeconds == i.seconds)
                         {
-                            const auto& audio = i.layers.front().audio;
-                            const size_t samplesOffset = otime::RationalTime(audioTime.value() - audioSeconds, 1.0).
-                                rescaled_to(audioSampleRate).value();
-                            //std::cout << "audio samples offset: " << samplesOffset << std::endl;
-                            size_t samplesSize = audioBufferChunkSize;
-                            if (samplesSize > audioBufferMax - samplesOffset)
+                            std::vector<const uint8_t*> audioDataP;
+                            for (const auto& layer : i.layers)
                             {
-                                samplesSize = audioBufferMax - samplesOffset;
+                                if (layer.audio && layer.audio->getInfo() == _audioInfo)
+                                {
+                                    audioDataP.push_back(layer.audio->getData() +
+                                        samplesOffset * _audioInfo.getByteCount());
+                                }
                             }
-                            //std::cout << "audio samples size: " << samplesSize << std::endl;
-                            if (_dlOutput->ScheduleAudioSamples(
-                                audio->getData() + samplesOffset * audioChannelCount * audio::getByteCount(audioDataType),
+
+                            audio::mix(
+                                audioDataP.data(),
+                                audioDataP.size(),
+                                _audioThreadData.outputBuffer.data(),
+                                mute ? 0.F : volume,
                                 samplesSize,
-                                0,
-                                0,
-                                nullptr) != S_OK)
-                            {
-                                return E_FAIL;
-                            }
-                            _audioThreadData.offset += samplesSize;
+                                _audioInfo.channelCount,
+                                _audioInfo.dataType);
+
+                            break;
                         }
                     }
+
+                    if (_dlOutput->ScheduleAudioSamples(
+                        _audioThreadData.outputBuffer.data(),
+                        samplesSize,
+                        0,
+                        0,
+                        nullptr) != S_OK)
+                    {
+                        return E_FAIL;
+                    }
+
+                    _audioThreadData.offset += samplesSize;
                 }
             }
             //std::cout << std::endl;
@@ -590,14 +635,24 @@ namespace tl
                 BMDTimeScale frameTimescale;
                 dlDisplayMode.p->GetFrameRate(&frameDuration, &frameTimescale);
                 _frameRate = otime::RationalTime(frameDuration, frameTimescale);
+                _audioInfo.channelCount = 2;
+                _audioInfo.dataType = audio::DataType::S16;
+                _audioInfo.sampleRate = 48000;
 
                 context->log(
                     "tl::device::BMDOutputDevice",
-                    string::Format("#{0} {1} {2} {3}").
+                    string::Format(
+                        "\n"
+                        "    #{0} {1}\n"
+                        "    video: {2} {3}\n"
+                        "    audio: {4} {5} {6}").
                     arg(deviceIndex).
                     arg(modelName).
                     arg(_size).
-                    arg(_frameRate));
+                    arg(_frameRate).
+                    arg(_audioInfo.channelCount).
+                    arg(_audioInfo.dataType).
+                    arg(_audioInfo.sampleRate));
 
                 HRESULT r = _dlOutput.p->EnableVideoOutput(
                     dlDisplayMode.p->GetDisplayMode(),
@@ -615,7 +670,7 @@ namespace tl
                 r = _dlOutput.p->EnableAudioOutput(
                     bmdAudioSampleRate48kHz,
                     bmdAudioSampleType16bitInteger,
-                    audioChannelCount,
+                    _audioInfo.channelCount,
                     bmdAudioOutputStreamContinuous);
                 switch (r)
                 {
@@ -630,7 +685,7 @@ namespace tl
                 }
             }
 
-            _dlOutputCallback.p = new DLOutputCallback(_dlOutput.p, _size, _pixelType, _frameRate);
+            _dlOutputCallback.p = new DLOutputCallback(_dlOutput.p, _size, _pixelType, _frameRate, _audioInfo);
 
             if (_dlOutput.p->SetScheduledFrameCompletionCallback(_dlOutputCallback.p) != S_OK)
             {
@@ -672,6 +727,16 @@ namespace tl
         void BMDOutputDevice::pixelData(const std::shared_ptr<device::PixelData>& value)
         {
             _dlOutputCallback.p->pixelData(value);
+        }
+
+        void BMDOutputDevice::setVolume(float value)
+        {
+            _dlOutputCallback.p->setVolume(value);
+        }
+
+        void BMDOutputDevice::setMute(bool value)
+        {
+            _dlOutputCallback.p->setMute(value);
         }
 
         void BMDOutputDevice::audioData(const std::vector<timeline::AudioData>& value)

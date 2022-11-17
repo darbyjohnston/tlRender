@@ -57,6 +57,12 @@ namespace tl
             //! Output pixel data.
             virtual void pixelData(const std::shared_ptr<PixelData>&);
 
+            //! Set the audio volume.
+            virtual void setVolume(float);
+
+            //! Set the audio mute.
+            virtual void setMute(bool);
+
             //! Output audio data.
             virtual void audioData(const std::vector<timeline::AudioData>&);
 

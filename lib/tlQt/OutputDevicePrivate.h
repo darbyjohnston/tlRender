@@ -71,6 +71,8 @@ namespace tl
             std::vector<timeline::VideoData> videoData;
             //! \todo Temporary
             std::shared_ptr<QImage> overlay;
+            float volume = 1.F;
+            bool mute = false;
             std::vector<timeline::AudioData> audioData;
 
             std::chrono::milliseconds timeout = std::chrono::milliseconds(5);

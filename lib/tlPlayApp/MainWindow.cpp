@@ -79,6 +79,8 @@ namespace tl
             timeline::DisplayOptions displayOptions;
             timeline::CompareOptions compareOptions;
             imaging::VideoLevels outputVideoLevels;
+            float volume = 1.F;
+            bool mute = false;
 
             FileActions* fileActions = nullptr;
             CompareActions* compareActions = nullptr;
@@ -132,6 +134,8 @@ namespace tl
             p.lutOptions = app->lutOptions();
             p.imageOptions = app->imageOptions();
             p.displayOptions = app->displayOptions();
+            p.volume = app->volume();
+            p.mute = app->isMuted();
 
             setFocusPolicy(Qt::ClickFocus);
             setAcceptDrops(true);
@@ -442,6 +446,22 @@ namespace tl
                     _p->displayOptions = value;
                     _widgetUpdate();
                 });
+            connect(
+                app,
+                &App::volumeChanged,
+                [this](float value)
+                {
+                    _p->volume = value;
+                    _widgetUpdate();
+                });
+            connect(
+                app,
+                &App::muteChanged,
+                [this](bool value)
+                {
+                    _p->mute = value;
+                    _widgetUpdate();
+                });
 
             connect(
                 p.viewActions->actions()["Frame"],
@@ -713,11 +733,6 @@ namespace tl
                     SLOT(_currentTimeCallback(const otime::RationalTime&)));
                 disconnect(
                     p.timelinePlayers[0],
-                    SIGNAL(volumeChanged(float)),
-                    this,
-                    SLOT(_volumeCallback(float)));
-                disconnect(
-                    p.timelinePlayers[0],
                     SIGNAL(audioOffsetChanged(double)),
                     p.audioTool,
                     SLOT(setAudioOffset(double)));
@@ -744,10 +759,6 @@ namespace tl
                     p.timelinePlayers[0],
                     SIGNAL(currentTimeChanged(const otime::RationalTime&)),
                     SLOT(_currentTimeCallback(const otime::RationalTime&)));
-                connect(
-                    p.timelinePlayers[0],
-                    SIGNAL(volumeChanged(float)),
-                    SLOT(_volumeCallback(float)));
                 connect(
                     p.timelinePlayers[0],
                     SIGNAL(audioOffsetChanged(double)),
@@ -953,17 +964,7 @@ namespace tl
         void MainWindow::_volumeCallback(int value)
         {
             TLRENDER_P();
-            if (!p.timelinePlayers.empty())
-            {
-                p.timelinePlayers[0]->setVolume(value / static_cast<float>(sliderSteps));
-            }
-        }
-
-        void MainWindow::_volumeCallback(float value)
-        {
-            TLRENDER_P();
-            const QSignalBlocker blocker(p.volumeSlider);
-            p.volumeSlider->setValue(value * sliderSteps);
+            p.app->setVolume(value / static_cast<float>(sliderSteps));
         }
 
         void MainWindow::_cacheCallback(const tl::timeline::PlayerCacheInfo&)
@@ -1067,6 +1068,11 @@ namespace tl
             p.timelineSlider->setTimelinePlayer(!p.timelinePlayers.empty() ? p.timelinePlayers[0] : nullptr);
             p.timelineSlider->setThumbnails(p.app->settingsObject()->value("Timeline/Thumbnails").toBool());
             p.timelineSlider->setStopOnScrub(p.app->settingsObject()->value("Timeline/StopOnScrub").toBool());
+            
+            {
+                const QSignalBlocker blocker(p.volumeSlider);
+                p.volumeSlider->setValue(p.volume * sliderSteps);
+            }
 
             p.compareTool->setCompareOptions(p.compareOptions);
 

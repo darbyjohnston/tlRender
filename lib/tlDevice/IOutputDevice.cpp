@@ -56,6 +56,12 @@ namespace tl
         void IOutputDevice::pixelData(const std::shared_ptr<PixelData>&)
         {}
 
+        void IOutputDevice::setVolume(float)
+        {}
+
+        void IOutputDevice::setMute(bool)
+        {}
+
         void IOutputDevice::audioData(const std::vector<timeline::AudioData>&)
         {}
     }

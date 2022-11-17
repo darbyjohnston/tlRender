@@ -256,6 +256,26 @@ namespace tl
             p.cv.notify_one();
         }
 
+        void OutputDevice::setVolume(float value)
+        {
+            TLRENDER_P();
+            {
+                std::unique_lock<std::mutex> lock(p.mutex);
+                p.volume = value;
+            }
+            p.cv.notify_one();
+        }
+
+        void OutputDevice::setMute(bool value)
+        {
+            TLRENDER_P();
+            {
+                std::unique_lock<std::mutex> lock(p.mutex);
+                p.mute = value;
+            }
+            p.cv.notify_one();
+        }
+
         void OutputDevice::_playbackCallback(tl::timeline::Playback value)
         {
             TLRENDER_P();
@@ -327,6 +347,8 @@ namespace tl
             bool frameView = true;
             std::vector<timeline::VideoData> videoData;
             std::shared_ptr<QImage> overlay;
+            float volume = 1.F;
+            bool mute = false;
             std::vector<timeline::AudioData> audioData;
 
             std::shared_ptr<device::IOutputDevice> device;
@@ -356,8 +378,8 @@ namespace tl
                         [this, deviceIndex, displayModeIndex, pixelType,
                         colorConfigOptions, lutOptions, imageOptions,
                         displayOptions, hdrMode, hdrData, compareOptions,
-                        playback, sizes, viewPos, viewZoom,
-                        frameView, videoData, overlay, audioData]
+                        playback, sizes, viewPos, viewZoom, frameView,
+                        videoData, overlay, volume, mute, audioData]
                         {
                             return
                                 deviceIndex != _p->deviceIndex ||
@@ -377,6 +399,8 @@ namespace tl
                                 frameView != _p->frameView ||
                                 videoData != _p->videoData ||
                                 overlay != _p->overlay ||
+                                volume != _p->volume ||
+                                mute != _p->mute ||
                                 audioData != _p->audioData;
                         }))
                     {
@@ -391,6 +415,7 @@ namespace tl
                         playback = p.playback;
 
                         doRender =
+                            createDevice ||
                             colorConfigOptions != p.colorConfigOptions ||
                             lutOptions != p.lutOptions ||
                             imageOptions != p.imageOptions ||
@@ -419,6 +444,8 @@ namespace tl
                         overlayChanged = overlay != p.overlay;
                         overlay = p.overlay;
 
+                        volume = p.volume;
+                        mute = p.mute;
                         audioChanged = audioData != p.audioData;
                         audioData = p.audioData;
                     }
@@ -767,6 +794,8 @@ namespace tl
 
                 if (device)
                 {
+                    device->setVolume(volume);
+                    device->setMute(mute);
                     device->setPlayback(playback);
                 }
                 if (device && audioChanged)

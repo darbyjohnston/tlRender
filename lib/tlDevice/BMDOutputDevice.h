@@ -61,10 +61,13 @@ namespace tl
                 IDeckLinkOutput*,
                 const imaging::Size& size,
                 PixelType pixelType,
-                const otime::RationalTime& frameRate);
+                const otime::RationalTime& frameRate,
+                const audio::Info& audioInfo);
 
             void setPlayback(timeline::Playback);
             void pixelData(const std::shared_ptr<device::PixelData>&);
+            void setVolume(float);
+            void setMute(bool);
             void audioData(const std::vector<timeline::AudioData>&);
 
             HRESULT STDMETHODCALLTYPE ScheduledFrameCompleted(IDeckLinkVideoFrame*, BMDOutputFrameCompletionResult) override;
@@ -81,6 +84,7 @@ namespace tl
             imaging::Size _size;
             PixelType _pixelType = PixelType::None;
             otime::RationalTime _frameRate = time::invalidTime;
+            audio::Info _audioInfo;
 
             std::atomic<size_t> _refCount;
 
@@ -102,6 +106,8 @@ namespace tl
             {
                 timeline::Playback playback = timeline::Playback::Stop;
                 otime::RationalTime currentTime = time::invalidTime;
+                float volume = 1.F;
+                bool mute = false;
                 std::vector<timeline::AudioData> audioData;
             };
             AudioMutexData _audioMutexData;
@@ -113,6 +119,7 @@ namespace tl
                 otime::RationalTime currentTime = time::invalidTime;
                 otime::RationalTime startTime = time::invalidTime;
                 size_t offset = 0;
+                std::vector<uint8_t> outputBuffer;
             };
             AudioThreadData _audioThreadData;
         };
@@ -152,12 +159,15 @@ namespace tl
 
             void setPlayback(timeline::Playback) override;
             void pixelData(const std::shared_ptr<device::PixelData>&) override;
+            void setVolume(float) override;
+            void setMute(bool) override;
             void audioData(const std::vector<timeline::AudioData>&) override;
 
         private:
             DLWrapper _dl;
             DLConfigWrapper _dlConfig;
             DLOutputWrapper _dlOutput;
+            audio::Info _audioInfo;
             DLOutputCallbackWrapper _dlOutputCallback;
         };
     }

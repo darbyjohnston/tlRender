@@ -88,6 +88,12 @@ namespace tl
                 float                     zoom,
                 bool                      frame);
 
+            //! Set the audio volume.
+            void setVolume(float);
+
+            //! Set the audio mute.
+            void setMute(bool);
+
         Q_SIGNALS:
             //! This signal is emitted when the output device size is changed.
             void sizeChanged(const tl::imaging::Size&);
