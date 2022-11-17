@@ -383,6 +383,7 @@ namespace tl
             // Audio information constants.
             const uint8_t channelCount = p->ioInfo.audio.channelCount;
             const audio::DataType dataType = p->ioInfo.audio.dataType;
+            const size_t sampleRate = p->ioInfo.audio.sampleRate;
             const size_t byteCount = p->ioInfo.audio.getByteCount();
 
             // Zero output audio data.
@@ -394,12 +395,11 @@ namespace tl
             {
                 // Time in seconds for indexing into the audio cache.
                 int64_t seconds = playbackStartTimeInSeconds +
-                    rtAudioCurrentFrame / static_cast<double>(p->ioInfo.audio.sampleRate);
+                    rtAudioCurrentFrame / static_cast<double>(sampleRate);
 
                 // Offset into the audio data.
-                int64_t offset = playbackStartTimeInSeconds * p->ioInfo.audio.sampleRate +
-                    rtAudioCurrentFrame -
-                    seconds * p->ioInfo.audio.sampleRate;
+                int64_t offset = playbackStartTimeInSeconds * sampleRate +
+                    rtAudioCurrentFrame - seconds * sampleRate;
 
                 const auto now = std::chrono::steady_clock::now();
 
@@ -416,53 +416,46 @@ namespace tl
                     while (sampleCount > 0)
                     {
                         // Get audio data from the cache.
-                        std::vector<std::shared_ptr<audio::Audio> > audioList;
+                        AudioData audioData;
                         {
                             std::unique_lock<std::mutex> lock(p->audioMutex);
-                            AudioData audioData;
-                            if (p->audioMutexData.audioDataCache.get(seconds, audioData))
-                            {
-                                for (const auto& layer : audioData.layers)
-                                {
-                                    audioList.push_back(layer.audio);
-                                }
-                            }
+                            p->audioMutexData.audioDataCache.get(seconds, audioData);
                         }
 
                         size_t size = sampleCount;
-                        if (!audioList.empty() && audioList[0])
+                        if (size > sampleRate - offset)
                         {
-                            // Get pointers to the audio data. Only audio data
-                            // that has the same information (channels, data
-                            // type, sample rate) is used.
-                            std::vector<const uint8_t*> audioDataP;
-                            for (size_t j = 0; j < audioList.size(); ++j)
-                            {
-                                if (audioList[j] && audioList[j]->getInfo() == p->ioInfo.audio)
-                                {
-                                    audioDataP.push_back(audioList[j]->getData() + offset * byteCount);
-                                }
-                            }
-
-                            size = std::min(size, static_cast<size_t>(audioList[0]->getSampleCount() - offset));
-                            
-                            //std::cout << count <<
-                            //    " samples: " << sampleCount <<
-                            //    " seconds: " << seconds <<
-                            //    " frame: " << rtAudioCurrentFrame <<
-                            //    " offset: " << offset <<
-                            //    " size: " << size << std::endl;
-                            //std::memcpy(outputBufferP, audioData[0]->getData() + offset * byteCount, size * byteCount);
-                            
-                            audio::mix(
-                                audioDataP.data(),
-                                audioDataP.size(),
-                                outputBufferP,
-                                volume,
-                                size,
-                                channelCount,
-                                dataType);
+                            size = sampleRate - offset;
                         }
+
+                        // Get pointers to the audio data. Only audio data
+                        // that has the same information (channels, data
+                        // type, sample rate) is used.
+                        std::vector<const uint8_t*> audioDataP;
+                        for (const auto& layer : audioData.layers)
+                        {
+                            if (layer.audio && layer.audio->getInfo() == p->ioInfo.audio)
+                            {
+                                audioDataP.push_back(layer.audio->getData() + offset * byteCount);
+                            }
+                        }
+                            
+                        //std::cout << count <<
+                        //    " samples: " << sampleCount <<
+                        //    " seconds: " << seconds <<
+                        //    " frame: " << rtAudioCurrentFrame <<
+                        //    " offset: " << offset <<
+                        //    " size: " << size << std::endl;
+                        //std::memcpy(outputBufferP, audioData[0]->getData() + offset * byteCount, size * byteCount);
+                            
+                        audio::mix(
+                            audioDataP.data(),
+                            audioDataP.size(),
+                            outputBufferP,
+                            volume,
+                            size,
+                            channelCount,
+                            dataType);
 
                         offset = 0;
                         sampleCount -= size;
