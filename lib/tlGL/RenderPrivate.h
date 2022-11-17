@@ -144,6 +144,7 @@ namespace tl
 
             imaging::Size size;
 
+            std::vector< math::Matrix4x4f >                 matrices;
             std::map<std::string, std::shared_ptr<Shader> > shaders;
             std::map<std::string, std::shared_ptr<OffscreenBuffer> > buffers;
             TextureCache textureCache;

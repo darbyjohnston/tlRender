@@ -48,8 +48,14 @@ namespace tl
             //! Finish a render.
             virtual void end() = 0;
 
+            //! Pushes the mesh matrix to the queue
+            virtual void pushMatrix() = 0;
+            
             //! Sets the mesh matrix to a new value
             virtual void setMatrix(const math::Matrix4x4f&) = 0;
+            
+            //! Pops the mesh matrix from the queue
+            virtual void popMatrix() = 0;
 
             //! Draw a rectangle.
             virtual void drawRect(
