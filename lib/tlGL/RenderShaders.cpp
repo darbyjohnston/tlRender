@@ -67,7 +67,7 @@ namespace tl
                 "    fColor.r = color.r;\n"
                 "    fColor.g = color.g;\n"
                 "    fColor.b = color.b;\n"
-                "    fColor.a = texture(textureSampler, fTexture).r;\n"
+                "    fColor.a = color.a * texture(textureSampler, fTexture).r;\n"
                 "}\n";
         }
 
