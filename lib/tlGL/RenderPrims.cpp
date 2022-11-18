@@ -22,6 +22,11 @@ namespace tl
             p.shaders["mesh"]->getUniform("transform.mvp", mvp);
 
             p.matrices.push_back( mvp );
+
+            p.shaders["text"]->bind();
+            p.shaders["text"]->getUniform("transform.mvp", mvp);
+
+            p.matrices.push_back( mvp );
         }
         
         void Render::setMatrix(const math::Matrix4x4f& mvp)
@@ -30,6 +35,9 @@ namespace tl
 
             p.shaders["mesh"]->bind();
             p.shaders["mesh"]->setUniform("transform.mvp", mvp);
+            
+            p.shaders["text"]->bind();
+            p.shaders["text"]->setUniform("transform.mvp", mvp);
         }
     
         void Render::popMatrix()
@@ -39,6 +47,12 @@ namespace tl
             if ( p.matrices.empty() ) return;
 
             math::Matrix4x4f mvp = p.matrices.back();
+            p.matrices.pop_back();
+            
+            p.shaders["text"]->bind();
+            p.shaders["text"]->setUniform("transform.mvp", mvp);
+
+            mvp = p.matrices.back();
             p.matrices.pop_back();
             
             p.shaders["mesh"]->bind();
