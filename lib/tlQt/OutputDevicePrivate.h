@@ -55,6 +55,7 @@ namespace tl
             int displayModeIndex = -1;
             device::PixelType pixelType = device::PixelType::_8BitBGRA;
             bool deviceEnabled = true;
+            bool deviceActive = false;
             device::HDRMode hdrMode = device::HDRMode::FromFile;
             imaging::HDRData hdrData;
 

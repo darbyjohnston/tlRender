@@ -77,6 +77,7 @@ namespace tl
             float volume = 1.F;
             bool mute = false;
             qt::OutputDevice* outputDevice = nullptr;
+            bool deviceActive = false;
             std::shared_ptr<DevicesModel> devicesModel;
             std::shared_ptr<observer::ValueObserver<DevicesModelData> > devicesObserver;
 
@@ -256,6 +257,14 @@ namespace tl
             p.lutOptions = p.options.lutOptions;
 
             p.outputDevice = new qt::OutputDevice(context);
+            connect(
+                p.outputDevice,
+                &qt::OutputDevice::deviceActiveChanged,
+                [this](bool value)
+                {
+                    _p->deviceActive = value;
+                    _audioUpdate();
+                });
             /*connect(
                 p.outputDevice,
                 &qt::OutputDevice::sizeChanged,
@@ -685,6 +694,7 @@ namespace tl
             p.timelinePlayers = newTimelinePlayers;
 
             _cacheUpdate();
+            _audioUpdate();
         }
 
         void App::_settingsCallback()
@@ -751,11 +761,14 @@ namespace tl
                 if (i)
                 {
                     i->setVolume(p.volume);
-                    i->setMute(p.mute);
+                    i->setMute(p.mute || p.deviceActive);
                 }
             }
-            p.outputDevice->setVolume(p.volume);
-            p.outputDevice->setMute(p.mute);
+            if (p.outputDevice)
+            {
+                p.outputDevice->setVolume(p.volume);
+                p.outputDevice->setMute(p.mute);
+            }
         }
     }
 }

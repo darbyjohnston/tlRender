@@ -56,6 +56,9 @@ namespace tl
             //! Get whether the output device is enabled.
             bool isDeviceEnabled() const;
 
+            //! Get whether the output device is active.
+            bool isDeviceActive() const;
+
             //! Set the color configuration options.
             void setColorConfigOptions(const timeline::ColorConfigOptions&);
 
@@ -101,6 +104,10 @@ namespace tl
             void setMute(bool);
 
         Q_SIGNALS:
+            //! This signal is emitted when the output device active state is
+            //! changed.
+            void deviceActiveChanged(bool);
+
             //! This signal is emitted when the output device size is changed.
             void sizeChanged(const tl::imaging::Size&);
 

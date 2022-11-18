@@ -102,6 +102,13 @@ namespace tl
             return p.deviceEnabled;
         }
 
+        bool OutputDevice::isDeviceActive() const
+        {
+            TLRENDER_P();
+            std::unique_lock<std::mutex> lock(p.mutex);
+            return  p.deviceActive;
+        }
+
         void OutputDevice::setColorConfigOptions(const timeline::ColorConfigOptions& value)
         {
             TLRENDER_P();
@@ -501,6 +508,11 @@ namespace tl
                             }
                         }
                     }
+                    {
+                        std::unique_lock<std::mutex> lock(p.mutex);
+                        p.deviceEnabled = device.get();
+                    }
+                    Q_EMIT deviceActiveChanged(device.get());
                     Q_EMIT sizeChanged(deviceSize);
                     Q_EMIT frameRateChanged(deviceFrameRate);
 
