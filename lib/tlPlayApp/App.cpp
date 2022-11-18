@@ -298,6 +298,7 @@ namespace tl
                         value.deviceIndex - 1,
                         value.displayModeIndex - 1,
                         pixelType);
+                    _p->outputDevice->setDeviceEnabled(value.deviceEnabled);
                     _p->outputDevice->setHDR(value.hdrMode, value.hdrData);
                 });
 

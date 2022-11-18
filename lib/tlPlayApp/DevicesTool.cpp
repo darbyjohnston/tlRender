@@ -15,6 +15,7 @@
 
 #include <QAction>
 #include <QBoxLayout>
+#include <QCheckBox>
 #include <QComboBox>
 #include <QDoubleSpinBox>
 #include <QFormLayout>
@@ -42,6 +43,7 @@ namespace tl
         {
             App* app = nullptr;
             std::shared_ptr<observer::ValueObserver<DevicesModelData> > dataObserver;
+            QCheckBox* enabledCheckBox = nullptr;
             QComboBox* deviceComboBox = nullptr;
             QComboBox* displayModeComboBox = nullptr;
             QComboBox* pixelTypeComboBox = nullptr;
@@ -70,6 +72,8 @@ namespace tl
             TLRENDER_P();
 
             p.app = app;
+
+            p.enabledCheckBox = new QCheckBox(tr("Enabled"));
 
             p.deviceComboBox = new QComboBox;
 
@@ -105,6 +109,7 @@ namespace tl
             p.maxFALLSlider->setRange(math::FloatRange(0.F, 10000.F));
 
             auto layout = new QFormLayout;
+            layout->addRow(p.enabledCheckBox);
             layout->addRow(tr("Name:"), p.deviceComboBox);
             layout->addRow(tr("Display mode:"), p.displayModeComboBox);
             layout->addRow(tr("Pixel type:"), p.pixelTypeComboBox);
@@ -144,6 +149,14 @@ namespace tl
             addBellows(tr("HDR"), widget);
 
             addStretch();
+
+            connect(
+                p.enabledCheckBox,
+                &QCheckBox::toggled,
+                [this](bool value)
+                {
+                    _p->app->devicesModel()->setDeviceEnabled(value);
+                });
 
             connect(
                 p.deviceComboBox,
@@ -303,6 +316,10 @@ namespace tl
                 app->devicesModel()->observeData(),
                 [this](const DevicesModelData& value)
                 {
+                    {
+                        QSignalBlocker blocker(_p->enabledCheckBox);
+                        _p->enabledCheckBox->setChecked(value.deviceEnabled);
+                    }
                     {
                         QSignalBlocker blocker(_p->deviceComboBox);
                         _p->deviceComboBox->clear();

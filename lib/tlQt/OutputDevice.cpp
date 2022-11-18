@@ -95,6 +95,13 @@ namespace tl
             p.cv.notify_one();
         }
 
+        bool OutputDevice::isDeviceEnabled() const
+        {
+            TLRENDER_P();
+            std::unique_lock<std::mutex> lock(p.mutex);
+            return p.deviceEnabled;
+        }
+
         void OutputDevice::setColorConfigOptions(const timeline::ColorConfigOptions& value)
         {
             TLRENDER_P();
@@ -241,6 +248,16 @@ namespace tl
             p.cv.notify_one();
         }
 
+        void OutputDevice::setDeviceEnabled(bool value)
+        {
+            TLRENDER_P();
+            {
+                std::unique_lock<std::mutex> lock(p.mutex);
+                p.deviceEnabled = value;
+            }
+            p.cv.notify_one();
+        }
+
         void OutputDevice::setView(
             const tl::math::Vector2i& pos,
             float                     zoom,
@@ -333,6 +350,7 @@ namespace tl
             int deviceIndex = -1;
             int displayModeIndex = -1;
             device::PixelType pixelType = device::PixelType::None;
+            bool deviceEnabled = true;
             timeline::ColorConfigOptions colorConfigOptions;
             timeline::LUTOptions lutOptions;
             std::vector<timeline::ImageOptions> imageOptions;
@@ -376,7 +394,7 @@ namespace tl
                         lock,
                         p.timeout,
                         [this, deviceIndex, displayModeIndex, pixelType,
-                        colorConfigOptions, lutOptions, imageOptions,
+                        deviceEnabled, colorConfigOptions, lutOptions, imageOptions,
                         displayOptions, hdrMode, hdrData, compareOptions,
                         playback, sizes, viewPos, viewZoom, frameView,
                         videoData, overlay, volume, mute, audioData]
@@ -385,6 +403,7 @@ namespace tl
                                 deviceIndex != _p->deviceIndex ||
                                 displayModeIndex != _p->displayModeIndex ||
                                 pixelType != _p->pixelType ||
+                                deviceEnabled != _p->deviceEnabled ||
                                 colorConfigOptions != _p->colorConfigOptions ||
                                 lutOptions != _p->lutOptions ||
                                 imageOptions != _p->imageOptions ||
@@ -407,10 +426,12 @@ namespace tl
                         createDevice =
                             p.deviceIndex != deviceIndex ||
                             p.displayModeIndex != displayModeIndex ||
-                            p.pixelType != pixelType;
+                            p.pixelType != pixelType ||
+                            p.deviceEnabled != deviceEnabled;
                         deviceIndex = p.deviceIndex;
                         displayModeIndex = p.displayModeIndex;
                         pixelType = p.pixelType;
+                        deviceEnabled = p.deviceEnabled;
 
                         playback = p.playback;
 
@@ -458,7 +479,10 @@ namespace tl
                     device.reset();
                     imaging::Size deviceSize;
                     otime::RationalTime deviceFrameRate = time::invalidTime;
-                    if (deviceIndex != -1 && displayModeIndex != -1 && pixelType != device::PixelType::None)
+                    if (deviceIndex != -1 &&
+                        displayModeIndex != -1 &&
+                        pixelType != device::PixelType::None &&
+                        deviceEnabled)
                     {
                         if (auto deviceSystem = p.deviceSystem.lock())
                         {
@@ -794,9 +818,9 @@ namespace tl
 
                 if (device)
                 {
+                    device->setPlayback(playback);
                     device->setVolume(volume);
                     device->setMute(mute);
-                    device->setPlayback(playback);
                 }
                 if (device && audioChanged)
                 {

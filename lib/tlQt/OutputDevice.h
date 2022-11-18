@@ -53,6 +53,9 @@ namespace tl
                 int displayModeIndex,
                 device::PixelType pixelType);
 
+            //! Get whether the output device is enabled.
+            bool isDeviceEnabled() const;
+
             //! Set the color configuration options.
             void setColorConfigOptions(const timeline::ColorConfigOptions&);
 
@@ -82,6 +85,9 @@ namespace tl
             void setOverlay(QImage*);
 
         public Q_SLOTS:
+            //! Set whether the output device is enabled.
+            void setDeviceEnabled(bool);
+
             //! Set the view.
             void setView(
                 const tl::math::Vector2i& position,
