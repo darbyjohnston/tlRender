@@ -213,9 +213,7 @@ namespace tl
                 &SettingsObject::valueChanged,
                 [this](const QString& name, const QVariant&)
                 {
-                    if ("Cache/VideoSize" == name ||
-                        "Cache/AudioSize" == name ||
-                        "Cache/ReadAhead" == name ||
+                    if ("Cache/ReadAhead" == name ||
                         "Cache/ReadBehind" == name ||
                         "Performance/VideoRequestCount" == name ||
                         "Performance/AudioRequestCount" == name ||
@@ -283,6 +281,7 @@ namespace tl
             p.devicesModel->setDeviceIndex(p.settingsObject->value("Devices/DeviceIndex").toInt());
             p.devicesModel->setDisplayModeIndex(p.settingsObject->value("Devices/DisplayModeIndex").toInt());
             p.devicesModel->setPixelTypeIndex(p.settingsObject->value("Devices/PixelTypeIndex").toInt());
+            p.devicesModel->setDeviceEnabled(p.settingsObject->value("Devices/DeviceEnabled").toBool());
             p.settingsObject->setDefaultValue("Devices/HDRMode",\
                 static_cast<int>(device::HDRMode::FromFile));
             p.devicesModel->setHDRMode(
@@ -334,23 +333,23 @@ namespace tl
                     QString::fromUtf8(p.options.fileName.c_str()),
                     QString::fromUtf8(p.options.audioFileName.c_str()));
 
-                if (!_p->timelinePlayers.empty() && _p->timelinePlayers[0])
+                if (!p.timelinePlayers.empty() && p.timelinePlayers[0])
                 {
                     if (p.options.speed > 0.0)
                     {
-                        _p->timelinePlayers[0]->setSpeed(p.options.speed);
+                        p.timelinePlayers[0]->setSpeed(p.options.speed);
                     }
                     if (p.options.inOutRange != time::invalidTimeRange)
                     {
-                        _p->timelinePlayers[0]->setInOutRange(p.options.inOutRange);
-                        _p->timelinePlayers[0]->seek(p.options.inOutRange.start_time());
+                        p.timelinePlayers[0]->setInOutRange(p.options.inOutRange);
+                        p.timelinePlayers[0]->seek(p.options.inOutRange.start_time());
                     }
                     if (p.options.seek != time::invalidTime)
                     {
-                        _p->timelinePlayers[0]->seek(p.options.seek);
+                        p.timelinePlayers[0]->seek(p.options.seek);
                     }
-                    _p->timelinePlayers[0]->setLoop(p.options.loop);
-                    _p->timelinePlayers[0]->setPlayback(p.options.playback);
+                    p.timelinePlayers[0]->setLoop(p.options.loop);
+                    p.timelinePlayers[0]->setPlayback(p.options.playback);
                 }
             }
 
@@ -373,6 +372,7 @@ namespace tl
                 p.settingsObject->setValue("Devices/DeviceIndex", deviceData.deviceIndex);
                 p.settingsObject->setValue("Devices/DisplayModeIndex", deviceData.displayModeIndex);
                 p.settingsObject->setValue("Devices/PixelTypeIndex", deviceData.pixelTypeIndex);
+                p.settingsObject->setValue("Devices/DeviceEnabled", deviceData.deviceEnabled);
                 p.settingsObject->setValue("Devices/HDRMode", static_cast<int>(deviceData.hdrMode));
                 nlohmann::json json;
                 to_json(json, deviceData.hdrData);
@@ -602,10 +602,8 @@ namespace tl
                     auto timeline = timeline::Timeline::create(otioTimeline, _context, options);
 
                     timeline::PlayerOptions playerOptions;
-                    playerOptions.cache.videoByteCount = _getVideoCacheByteCount();
-                    playerOptions.cache.audioByteCount = _getAudioCacheByteCount();
-                    playerOptions.cache.readAhead = otime::RationalTime(p.settingsObject->value("Cache/ReadAhead").toDouble(), 1.0);
-                    playerOptions.cache.readBehind = otime::RationalTime(p.settingsObject->value("Cache/ReadBehind").toDouble(), 1.0);
+                    playerOptions.cache.readAhead = _cacheReadAhead();
+                    playerOptions.cache.readBehind = _cacheReadBehind();
                     playerOptions.timerMode = p.settingsObject->value("Performance/TimerMode").
                         value<timeline::TimerMode>();
                     playerOptions.audioBufferFrameCount = p.settingsObject->value("Performance/AudioBufferFrameCount").
@@ -702,48 +700,30 @@ namespace tl
             _cacheUpdate();
         }
 
-        size_t App::_getVideoCacheByteCount() const
+        otime::RationalTime App::_cacheReadAhead() const
         {
             TLRENDER_P();
-            size_t out = 0;
-            size_t count = 0;
-            if (p.filesModel)
-            {
-                count = p.filesModel->observeActive()->getSize();
-            }
-            out = p.settingsObject->value("Cache/VideoSize").toInt() * memory::gigabyte;
-            if (count)
-            {
-                out /= count;
-            }
-            return out;
+            const size_t activeCount = p.filesModel->observeActive()->getSize();
+            return otime::RationalTime(
+                p.settingsObject->value("Cache/ReadAhead").toDouble() / static_cast<double>(activeCount),
+                1.0);
         }
 
-        size_t App::_getAudioCacheByteCount() const
+        otime::RationalTime App::_cacheReadBehind() const
         {
             TLRENDER_P();
-            size_t out = 0;
-            size_t count = 0;
-            if (p.filesModel)
-            {
-                count = p.filesModel->observeActive()->getSize();
-            }
-            out = p.settingsObject->value("Cache/AudioSize").toInt() * memory::gigabyte;
-            if (count)
-            {
-                out /= count;
-            }
-            return out;
+            const size_t activeCount = p.filesModel->observeActive()->getSize();
+            return otime::RationalTime(
+                p.settingsObject->value("Cache/ReadBehind").toDouble() / static_cast<double>(activeCount),
+                1.0);
         }
 
         void App::_cacheUpdate()
         {
             TLRENDER_P();
             timeline::PlayerCacheOptions options;
-            options.videoByteCount = _getVideoCacheByteCount();
-            options.audioByteCount = _getAudioCacheByteCount();
-            options.readAhead = otime::RationalTime(p.settingsObject->value("Cache/ReadAhead").toDouble(), 1.0);
-            options.readBehind = otime::RationalTime(p.settingsObject->value("Cache/ReadBehind").toDouble(), 1.0);
+            options.readAhead = _cacheReadAhead();
+            options.readBehind = _cacheReadBehind();
             for (const auto& i : p.timelinePlayers)
             {
                 if (i)

@@ -142,10 +142,6 @@ namespace tl
             {
                 std::vector<std::string> lines;
                 lines.push_back(std::string());
-                lines.push_back(string::Format("    Cache video byte count: {0}").
-                    arg(playerOptions.cache.videoByteCount));
-                lines.push_back(string::Format("    Cache audio byte count: {0}").
-                    arg(playerOptions.cache.audioByteCount));
                 lines.push_back(string::Format("    Cache read ahead: {0}").
                     arg(playerOptions.cache.readAhead));
                 lines.push_back(string::Format("    Cache read behind: {0}").
@@ -299,11 +295,11 @@ namespace tl
                         if (!p.ioInfo.video.empty())
                         {
                             const auto& timeRange = p.timeline->getTimeRange();
-                            bool videoDataUpdate = false;
-                            VideoData videoData;
-                            if (p.threadData.videoDataCache.get(currentTime, videoData))
+                            const auto i = p.threadData.videoDataCache.find(currentTime);
+                            if (i != p.threadData.videoDataCache.end())
                             {
-                                videoDataUpdate = true;
+                                std::unique_lock<std::mutex> lock(p.mutex);
+                                p.mutexData.currentVideoData = i->second;
                             }
                             else if (playback != Playback::Stop)
                             {
@@ -313,8 +309,7 @@ namespace tl
                                     p.mutexData.playbackStartTimer = std::chrono::steady_clock::now();
                                     if (!timeRange.contains(currentTime))
                                     {
-                                        videoData = VideoData();
-                                        videoDataUpdate = true;
+                                        p.mutexData.currentVideoData = VideoData();
                                     }
                                 }
                                 p.resetAudioTime();
@@ -324,15 +319,13 @@ namespace tl
                                     p.audioMutexData.muteTimeout = now + p.playerOptions.muteTimeout;
                                 }
                             }
-                            else if (!timeRange.contains(currentTime))
-                            {
-                                videoData = VideoData();
-                                videoDataUpdate = true;
-                            }
-                            if (videoDataUpdate)
+                            else
                             {
                                 std::unique_lock<std::mutex> lock(p.mutex);
-                                p.mutexData.currentVideoData = videoData;
+                                if (!timeRange.contains(currentTime))
+                                {
+                                    p.mutexData.currentVideoData = VideoData();
+                                }
                             }
                         }
 
@@ -340,17 +333,18 @@ namespace tl
                         if (p.ioInfo.audio.isValid())
                         {
                             std::vector<AudioData> audioDataList;
-                            AudioData audioData;
                             {
                                 const int64_t seconds = time::floor(currentTime.rescaled_to(1.0)).value();
                                 std::unique_lock<std::mutex> lock(p.audioMutex);
-                                if (p.audioMutexData.audioDataCache.get(seconds, audioData))
+                                auto i = p.audioMutexData.audioDataCache.find(seconds);
+                                if (i != p.audioMutexData.audioDataCache.end())
                                 {
-                                    audioDataList.push_back(audioData);
+                                    audioDataList.push_back(i->second);
                                 }
-                                if (p.audioMutexData.audioDataCache.get(seconds + 1, audioData))
+                                i = p.audioMutexData.audioDataCache.find(seconds + 1);
+                                if (i != p.audioMutexData.audioDataCache.end())
                                 {
-                                    audioDataList.push_back(audioData);
+                                    audioDataList.push_back(i->second);
                                 }
                             }
                             {

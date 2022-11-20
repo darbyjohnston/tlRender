@@ -42,10 +42,8 @@ namespace tl
             void _playbackCallback(tl::timeline::Playback);
             void _currentTimeCallback(const otime::RationalTime&);
             void _volumeCallback(int);
-            void _cacheCallback(const tl::timeline::PlayerCacheInfo&);
 
         private:
-            void _cacheUpdate();
             void _widgetUpdate();
 
             TLRENDER_PRIVATE();

@@ -9,8 +9,6 @@ namespace tl
         inline bool PlayerCacheOptions::operator == (const PlayerCacheOptions& other) const
         {
             return
-                videoByteCount == other.videoByteCount &&
-                audioByteCount == other.audioByteCount &&
                 readAhead == other.readAhead &&
                 readBehind == other.readBehind;
         }
@@ -24,7 +22,6 @@ namespace tl
         {
             return
                 videoPercentage == other.videoPercentage &&
-                audioPercentage == other.audioPercentage &&
                 videoFrames == other.videoFrames &&
                 audioFrames == other.audioFrames;
         }

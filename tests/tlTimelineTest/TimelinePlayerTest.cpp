@@ -184,11 +184,6 @@ namespace tl
                     {
                         {
                             std::stringstream ss;
-                            ss << "Video/audio cache: " << value.videoPercentage << "%/" << value.audioPercentage << "%";
-                            _print(ss.str());
-                        }
-                        {
-                            std::stringstream ss;
                             ss << "Video/audio cached frames: " << value.videoFrames.size() << "/" << value.audioFrames.size();
                             _print(ss.str());
                         }

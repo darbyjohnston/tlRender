@@ -107,7 +107,7 @@ namespace tl
                 float volume = 1.F;
                 bool mute = false;
                 std::chrono::steady_clock::time_point muteTimeout;
-                memory::LRUCache<int64_t, AudioData> audioDataCache;
+                std::map<int64_t, AudioData> audioDataCache;
                 size_t rtAudioCurrentFrame = 0;
             };
             AudioMutexData audioMutexData;
@@ -116,7 +116,7 @@ namespace tl
             struct ThreadData
             {
                 std::map<otime::RationalTime, std::future<VideoData> > videoDataRequests;
-                memory::LRUCache<otime::RationalTime, VideoData> videoDataCache;
+                std::map<otime::RationalTime, VideoData> videoDataCache;
 #if defined(TLRENDER_AUDIO)
                 std::unique_ptr<RtAudio> rtAudio;
 #endif // TLRENDER_AUDIO

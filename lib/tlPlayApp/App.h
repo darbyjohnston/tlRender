@@ -126,8 +126,8 @@ namespace tl
             void _settingsCallback();
 
         private:
-            size_t _getVideoCacheByteCount() const;
-            size_t _getAudioCacheByteCount() const;
+            otime::RationalTime _cacheReadAhead() const;
+            otime::RationalTime _cacheReadBehind() const;
 
             void _cacheUpdate();
             void _audioUpdate();

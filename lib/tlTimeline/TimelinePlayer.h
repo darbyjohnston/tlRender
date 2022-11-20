@@ -48,12 +48,6 @@ namespace tl
         //! Timeline player cache options.
         struct PlayerCacheOptions
         {
-            //! Video cache size in bytes.
-            size_t videoByteCount = 8 * memory::gigabyte;
-
-            //! Audio cache size in bytes.
-            size_t audioByteCount = 1 * memory::gigabyte;
-
             //! Cache read ahead.
             otime::RationalTime readAhead = otime::RationalTime(4.0, 1.0);
 
@@ -69,9 +63,6 @@ namespace tl
         {
             //! Video cache percentage used.
             float videoPercentage = 0.F;
-
-            //! Audio cache percentage used.
-            float audioPercentage = 0.F;
 
             //! Cached video frames.
             std::vector<otime::TimeRange> videoFrames;
