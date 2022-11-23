@@ -261,6 +261,7 @@ namespace tl
                 [this](bool value)
                 {
                     _p->deviceActive = value;
+                    _p->filesModel->reload();
                     _audioUpdate();
                 });
             /*connect(
@@ -583,10 +584,20 @@ namespace tl
                         arg(p.settingsObject->value("Performance/SequenceThreadCount").toInt());
                     options.ioOptions["ffmpeg/YUVToRGBConversion"] = string::Format("{0}").
                         arg(p.settingsObject->value("Performance/FFmpegYUVToRGBConversion").toBool());
-                    const audio::Info audioInfo = audioSystem->getDefaultOutputInfo();
-                    options.ioOptions["ffmpeg/AudioChannelCount"] = string::Format("{0}").arg(audioInfo.channelCount);
-                    options.ioOptions["ffmpeg/AudioDataType"] = string::Format("{0}").arg(audioInfo.dataType);
-                    options.ioOptions["ffmpeg/AudioSampleRate"] = string::Format("{0}").arg(audioInfo.sampleRate);
+                    if (p.outputDevice->isDeviceActive())
+                    {
+                        //! \todo Audio format hardwired for Blackmagic devices.
+                        options.ioOptions["ffmpeg/AudioChannelCount"] = string::Format("{0}").arg(2);
+                        options.ioOptions["ffmpeg/AudioDataType"] = string::Format("{0}").arg(audio::DataType::S16);
+                        options.ioOptions["ffmpeg/AudioSampleRate"] = string::Format("{0}").arg(48000);
+                    }
+                    else
+                    {
+                        const audio::Info audioInfo = audioSystem->getDefaultOutputInfo();
+                        options.ioOptions["ffmpeg/AudioChannelCount"] = string::Format("{0}").arg(audioInfo.channelCount);
+                        options.ioOptions["ffmpeg/AudioDataType"] = string::Format("{0}").arg(audioInfo.dataType);
+                        options.ioOptions["ffmpeg/AudioSampleRate"] = string::Format("{0}").arg(audioInfo.sampleRate);
+                    }
                     options.ioOptions["ffmpeg/ThreadCount"] = string::Format("{0}").
                         arg(p.settingsObject->value("Performance/FFmpegThreadCount").toInt());
                     options.pathOptions.maxNumberDigits = std::min(
@@ -610,11 +621,11 @@ namespace tl
                         value<timeline::AudioBufferFrameCount>();
                     auto timelinePlayer = timeline::TimelinePlayer::create(timeline, _context, playerOptions);
                     qtTimelinePlayer = new qt::TimelinePlayer(timelinePlayer, _context, this);
+                    i->timeRange = qtTimelinePlayer->timeRange();
+                    i->ioInfo = qtTimelinePlayer->ioInfo();
                     if (!i->init)
                     {
                         i->init = true;
-                        i->timeRange = qtTimelinePlayer->timeRange();
-                        i->ioInfo = qtTimelinePlayer->ioInfo();
                         i->speed = qtTimelinePlayer->speed();
                         i->playback = qtTimelinePlayer->playback();
                         i->loop = qtTimelinePlayer->loop();
