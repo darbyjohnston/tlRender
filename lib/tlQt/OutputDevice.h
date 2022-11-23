@@ -124,6 +124,8 @@ namespace tl
             void run() override;
 
         private:
+            bool _isDeviceActive() const;
+
             TLRENDER_PRIVATE();
         };
     }

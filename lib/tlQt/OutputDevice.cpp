@@ -86,13 +86,20 @@ namespace tl
             device::PixelType pixelType)
         {
             TLRENDER_P();
+            bool active = false;
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
                 p.deviceIndex = deviceIndex;
                 p.displayModeIndex = displayModeIndex;
                 p.pixelType = pixelType;
+                active = _isDeviceActive();
             }
             p.cv.notify_one();
+            if (active != p.deviceActive)
+            {
+                p.deviceActive = active;
+                Q_EMIT deviceActiveChanged(p.deviceActive);
+            }
         }
 
         bool OutputDevice::isDeviceEnabled() const
@@ -104,9 +111,7 @@ namespace tl
 
         bool OutputDevice::isDeviceActive() const
         {
-            TLRENDER_P();
-            std::unique_lock<std::mutex> lock(p.mutex);
-            return  p.deviceActive;
+            return _p->deviceActive;
         }
 
         void OutputDevice::setColorConfigOptions(const timeline::ColorConfigOptions& value)
@@ -258,11 +263,18 @@ namespace tl
         void OutputDevice::setDeviceEnabled(bool value)
         {
             TLRENDER_P();
+            bool active = false;
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
                 p.deviceEnabled = value;
+                active = _isDeviceActive();
             }
             p.cv.notify_one();
+            if (active != p.deviceActive)
+            {
+                p.deviceActive = active;
+                Q_EMIT deviceActiveChanged(p.deviceActive);
+            }
         }
 
         void OutputDevice::setView(
@@ -512,7 +524,6 @@ namespace tl
                         std::unique_lock<std::mutex> lock(p.mutex);
                         p.deviceEnabled = device.get();
                     }
-                    Q_EMIT deviceActiveChanged(device.get());
                     Q_EMIT sizeChanged(deviceSize);
                     Q_EMIT frameRateChanged(deviceFrameRate);
 
@@ -840,6 +851,16 @@ namespace tl
                 }
             }
             glDeleteBuffers(pbo.size(), pbo.data());
+        }
+
+        bool OutputDevice::_isDeviceActive() const
+        {
+            TLRENDER_P();
+            return
+                p.deviceIndex != -1 &&
+                p.displayModeIndex != -1 &&
+                p.pixelType != device::PixelType::None &&
+                p.deviceEnabled;
         }
     }
 }
