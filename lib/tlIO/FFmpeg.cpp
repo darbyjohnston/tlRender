@@ -17,8 +17,7 @@ extern "C"
 #include <libavutil/hdr_dynamic_metadata.h>
 #include <libavutil/imgutils.h>
 #include <libavutil/mastering_display_metadata.h>
-
-} // extern "C"
+}
 
 #include <array>
 

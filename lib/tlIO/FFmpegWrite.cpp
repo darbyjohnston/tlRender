@@ -10,8 +10,7 @@ extern "C"
 {
 #include <libavcodec/avcodec.h>
 #include <libavutil/imgutils.h>
-
-} // extern "C"
+}
 
 namespace tl
 {

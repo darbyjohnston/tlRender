@@ -9,8 +9,7 @@
 extern "C"
 {
 #include <jpeglib.h>
-
-} // extern "C"
+}
 
 #include <setjmp.h>
 
