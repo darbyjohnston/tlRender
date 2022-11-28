@@ -87,10 +87,12 @@ namespace tl
         AudioConvert::~AudioConvert()
         {
             TLRENDER_P();
+#if defined(TLRENDER_FFMPEG)
             if (p.swrContext)
             {
                 swr_free(&p.swrContext);
             }
+#endif // TLRENDER_FFMPEG
         }
 
         std::shared_ptr<AudioConvert> AudioConvert::create(
