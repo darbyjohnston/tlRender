@@ -17,6 +17,7 @@ namespace tl
     {
         namespace
         {
+#if defined(TLRENDER_FFMPEG)
             int64_t fromChannelCount(uint8_t value)
             {
                 int64_t out = 0;
@@ -44,6 +45,7 @@ namespace tl
                 }
                 return out;
             }
+#endif // TLRENDER_FFMPEG
         }
 
         struct AudioConvert::Private
