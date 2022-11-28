@@ -20,7 +20,7 @@ namespace tl
         namespace
         {
             const size_t pixelDataMax = 3;
-            const size_t audioBufferSize = 1000;
+            const size_t audioBufferCount = 1000;
             const size_t audioBufferMax = 48000;
 
             class DLIteratorWrapper
@@ -250,8 +250,6 @@ namespace tl
             _audioInfo(audioInfo),
             _refCount(1)
         {
-            _audioThreadData.outputBuffer.resize(audioBufferSize * _audioInfo.getByteCount());
-
             size_t videoPreroll = 3;
             IDeckLinkProfileAttributes* dlProfileAttributes = nullptr;
             if (dlOutput->QueryInterface(IID_IDeckLinkProfileAttributes, (void**)&dlProfileAttributes) == S_OK)
@@ -432,7 +430,7 @@ namespace tl
                 {
                     _audioThreadData.playback = _audioMutexData.playback;
                     _audioThreadData.startTime = _audioMutexData.currentTime;
-                    _audioThreadData.offset = 0;
+                    _audioThreadData.samplesOffset = 0;
                 }
                 if (_audioMutexData.currentTime != _audioThreadData.currentTime)
                 {
@@ -442,7 +440,7 @@ namespace tl
                     if (_audioMutexData.currentTime != currentTimePlusOne)
                     {
                         _audioThreadData.startTime = _audioMutexData.currentTime;
-                        _audioThreadData.offset = 0;
+                        _audioThreadData.samplesOffset = 0;
                     }
                     _audioThreadData.currentTime = _audioMutexData.currentTime;
                 }
@@ -460,71 +458,88 @@ namespace tl
                 {
                     return E_FAIL;
                 }
-                //std::cout << "audio sample count: " << sampleCount << std::endl;
+                //std::cout << "bmd sample count: " << sampleCount << std::endl;
 
                 if (sampleCount < audioBufferMax)
                 {
                     const otime::RationalTime audioTime = _audioThreadData.startTime.rescaled_to(1.0) +
-                        otime::RationalTime(_audioThreadData.offset, _audioInfo.sampleRate).rescaled_to(1.0);
+                        otime::RationalTime(_audioThreadData.samplesOffset, _audioInfo.sampleRate).rescaled_to(1.0);
                     //std::cout << "audio time: " << audioTime << std::endl;
-                    //std::cout << "audio offset: " << _audioThreadData.offset << std::endl;
+                    //std::cout << "audio samples offset: " << _audioThreadData.samplesOffset << std::endl;
                     const int64_t audioSeconds = std::floor(audioTime.value());
                     //std::cout << "audio seconds: " << audioSeconds << std::endl;
-                    const size_t samplesOffset =
-                        otime::RationalTime(audioTime.value() - audioSeconds, 1.0).
-                        rescaled_to(_audioInfo.sampleRate).value();
-                    //std::cout << "audio samples offset: " << samplesOffset << std::endl;
-                    size_t samplesSize = audioBufferSize;
-                    if (samplesSize > audioBufferMax - samplesOffset)
-                    {
-                        samplesSize = audioBufferMax - samplesOffset;
-                    }
-                    //std::cout << "audio samples size: " << samplesSize << std::endl;
 
-                    memset(
-                        _audioThreadData.outputBuffer.data(),
-                        0,
-                        audioBufferSize * _audioInfo.getByteCount());
-
+                    std::vector<uint8_t> outputBuffer;
                     for (const auto& i : audioData)
                     {
                         //std::cout << "audio data: " << i.seconds << std::endl;
                         if (audioSeconds == i.seconds)
                         {
+                            audio::Info audioInfo;
+                            if (!i.layers.empty() && i.layers.front().audio)
+                            {
+                                audioInfo = i.layers.front().audio->getInfo();
+                            }
+                            const size_t samplesOffset =
+                                otime::RationalTime(audioTime.value() - audioSeconds, 1.0).
+                                rescaled_to(audioInfo.sampleRate).value();
+                            //std::cout << "audio samples offset: " << samplesOffset << std::endl;
                             std::vector<const uint8_t*> audioDataP;
                             for (const auto& layer : i.layers)
                             {
-                                if (layer.audio && layer.audio->getInfo() == _audioInfo)
+                                if (layer.audio && layer.audio->getInfo() == audioInfo)
                                 {
-                                    audioDataP.push_back(layer.audio->getData() +
-                                        samplesOffset * _audioInfo.getByteCount());
+                                    audioDataP.push_back(layer.audio->getData() + samplesOffset * audioInfo.getByteCount());
                                 }
                             }
 
+                            std::vector<uint8_t> tmpBuffer;
+                            const size_t samplesCount = std::min(
+                                audioBufferCount,
+                                audioInfo.sampleRate - samplesOffset);
+                            tmpBuffer.resize(samplesCount * audioInfo.getByteCount());
                             audio::mix(
                                 audioDataP.data(),
                                 audioDataP.size(),
-                                _audioThreadData.outputBuffer.data(),
+                                tmpBuffer.data(),
                                 mute ? 0.F : volume,
-                                samplesSize,
-                                _audioInfo.channelCount,
-                                _audioInfo.dataType);
+                                samplesCount,
+                                audioInfo.channelCount,
+                                audioInfo.dataType);
+
+                            if (!_audioThreadData.audioConvert ||
+                                (_audioThreadData.audioConvert &&
+                                    _audioThreadData.audioConvert->getInputInfo() != audioInfo))
+                            {
+                                _audioThreadData.audioConvert = audio::AudioConvert::create(
+                                    audioInfo,
+                                    _audioInfo);
+                            }
+                            if (_audioThreadData.audioConvert)
+                            {
+                                outputBuffer = _audioThreadData.audioConvert->convert(
+                                    tmpBuffer.data(),
+                                    samplesCount);
+                            }
 
                             break;
                         }
                     }
 
-                    if (_dlOutput->ScheduleAudioSamples(
-                        _audioThreadData.outputBuffer.data(),
-                        samplesSize,
-                        0,
-                        0,
-                        nullptr) != S_OK)
+                    if (!outputBuffer.empty())
                     {
-                        return E_FAIL;
-                    }
+                        if (_dlOutput->ScheduleAudioSamples(
+                            outputBuffer.data(),
+                            outputBuffer.size() / _audioInfo.getByteCount(),
+                            0,
+                            0,
+                            nullptr) != S_OK)
+                        {
+                            return E_FAIL;
+                        }
 
-                    _audioThreadData.offset += samplesSize;
+                        _audioThreadData.samplesOffset += outputBuffer.size() / _audioInfo.getByteCount();
+                    }
                 }
             }
             //std::cout << std::endl;

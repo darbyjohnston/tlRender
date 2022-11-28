@@ -1,6 +1,7 @@
 set(HEADERS
     Assert.h
     Audio.h
+    AudioConvert.h
     AudioInline.h
     AudioSystem.h
     BBox.h
@@ -57,6 +58,7 @@ set(HEADERS
 set(SOURCE
     Assert.cpp
     Audio.cpp
+    AudioConvert.cpp
     AudioSystem.cpp
 	BBox.cpp
 	Color.cpp
@@ -104,6 +106,9 @@ if(TLRENDER_OCIO)
 endif()
 if(TLRENDER_AUDIO)
     list(APPEND LIBRARIES_PRIVATE RtAudio libsamplerate)
+endif()
+if(TLRENDER_FFMPEG)
+    list(APPEND LIBRARIES_PRIVATE FFmpeg::swresample)
 endif()
 if(TLRENDER_FREETYPE)
     list(APPEND LIBRARIES_PRIVATE FreeType)

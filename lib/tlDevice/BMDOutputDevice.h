@@ -6,6 +6,11 @@
 
 #include <tlDevice/IOutputDevice.h>
 
+#include <tlCore/AudioConvert.h>
+
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif // NOMINMAX
 #include "platform.h"
 
 #include <atomic>
@@ -118,8 +123,8 @@ namespace tl
                 timeline::Playback playback = timeline::Playback::Stop;
                 otime::RationalTime currentTime = time::invalidTime;
                 otime::RationalTime startTime = time::invalidTime;
-                size_t offset = 0;
-                std::vector<uint8_t> outputBuffer;
+                size_t samplesOffset = 0;
+                std::shared_ptr<audio::AudioConvert> audioConvert;
             };
             AudioThreadData _audioThreadData;
         };

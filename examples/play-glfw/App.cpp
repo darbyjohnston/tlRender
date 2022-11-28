@@ -165,13 +165,7 @@ namespace tl
                 }
 
                 // Read the timeline.
-                timeline::Options options;
-                auto audioSystem = _context->getSystem<audio::System>();
-                const audio::Info audioInfo = audioSystem->getDefaultOutputInfo();
-                options.ioOptions["ffmpeg/AudioChannelCount"] = string::Format("{0}").arg(audioInfo.channelCount);
-                options.ioOptions["ffmpeg/AudioDataType"] = string::Format("{0}").arg(audioInfo.dataType);
-                options.ioOptions["ffmpeg/AudioSampleRate"] = string::Format("{0}").arg(audioInfo.sampleRate);
-                auto timeline = timeline::Timeline::create(_input, _context, options);
+                auto timeline = timeline::Timeline::create(_input, _context);
                 _timelinePlayer = timeline::TimelinePlayer::create(timeline, _context);
 
                 // Initialize GLFW.
