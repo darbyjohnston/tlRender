@@ -125,13 +125,28 @@ namespace tl
 
         protected:
             void _init(const Info&, size_t sampleCount);
+
             Audio();
 
         public:
             ~Audio();
 
             //! Create new audio.
-            static std::shared_ptr<Audio> create(const Info&, size_t sampleCount);
+            static std::shared_ptr<Audio> create(
+                const Info&    info,
+                size_t         sampleCount);
+
+            //! Create new audio.
+            static std::shared_ptr<Audio> create(
+                const Info&    info,
+                size_t         sampleCount,
+                const uint8_t* data);
+
+            //! Create new audio.
+            static std::shared_ptr<Audio> create(
+                const Info&    info,
+                size_t         sampleCount,
+                const std::vector<uint8_t>& data);
 
             //! Get the audio information.
             const Info& getInfo() const;

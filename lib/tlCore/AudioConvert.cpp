@@ -116,19 +116,20 @@ namespace tl
             return _p->outputInfo;
         }
 
-        std::vector<uint8_t> AudioConvert::convert(const uint8_t* value, size_t sampleCount)
+        std::shared_ptr<Audio> AudioConvert::convert(const std::shared_ptr<Audio>& value)
         {
             TLRENDER_P();
-            std::vector<uint8_t> out;
+            std::shared_ptr<Audio> out;
 #if defined(TLRENDER_FFMPEG)
             if (p.swrContext && value)
             {
+                const size_t sampleCount = value->getSampleCount();
                 const int64_t swrDelay = swr_get_delay(p.swrContext, p.inputInfo.sampleRate);
                 //std::cout << "delay: " << swrDelay << std::endl;
                 const size_t swrOutputSamples = sampleCount + swrDelay;
-                out.resize(swrOutputSamples * p.outputInfo.getByteCount());
-                uint8_t* swrOutputBufferP[] = { out.data() };
-                const uint8_t* swrInputBufferP[] = { value };
+                out = Audio::create(p.outputInfo, swrOutputSamples);
+                uint8_t* swrOutputBufferP[] = { out->getData() };
+                const uint8_t* swrInputBufferP[] = { value->getData() };
                 const int swrOutputCount = swr_convert(
                     p.swrContext,
                     swrOutputBufferP,

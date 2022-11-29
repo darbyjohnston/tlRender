@@ -216,9 +216,14 @@ namespace tl
             }
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
-                p.playback = !p.timelinePlayers.empty() ?
-                    p.timelinePlayers.front()->playback() :
-                    timeline::Playback::Stop;
+                if (!p.timelinePlayers.empty())
+                {
+                    p.playback = p.timelinePlayers.front()->playback();
+                }
+                else
+                {
+                    p.playback = timeline::Playback::Stop;
+                }
                 p.sizes.clear();
                 p.videoData.clear();
                 for (const auto& i : p.timelinePlayers)

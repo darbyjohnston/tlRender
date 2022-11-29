@@ -268,6 +268,7 @@ namespace tl
 
         protected:
             void _init(const Info&);
+
             Image();
 
         public:

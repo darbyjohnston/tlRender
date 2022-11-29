@@ -6,24 +6,10 @@
 
 #include <tlDevice/IOutputDevice.h>
 
-#include <tlCore/AudioConvert.h>
-
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif // NOMINMAX
 #include "platform.h"
-
-#include <atomic>
-#include <functional>
-#include <list>
-#include <mutex>
-
-#if defined(__APPLE__)
-typedef int64_t LONGLONG;
-#elif defined(__linux__)
-typedef bool BOOL;
-typedef int64_t LONGLONG;
-#endif // __APPLE__
 
 namespace tl
 {
@@ -85,48 +71,7 @@ namespace tl
             ULONG STDMETHODCALLTYPE Release() override;
 
         private:
-            IDeckLinkOutput* _dlOutput = nullptr;
-            imaging::Size _size;
-            PixelType _pixelType = PixelType::None;
-            otime::RationalTime _frameRate = time::invalidTime;
-            audio::Info _audioInfo;
-
-            std::atomic<size_t> _refCount;
-
-            struct PixelDataMutexData
-            {
-                std::list<std::shared_ptr<device::PixelData> > pixelData;
-            };
-            PixelDataMutexData _pixelDataMutexData;
-            std::mutex _pixelDataMutex;
-
-            struct PixelDataThreadData
-            {
-                std::shared_ptr<device::PixelData> pixelDataTmp;
-                uint64_t frameCount = 0;
-            };
-            PixelDataThreadData _pixelDataThreadData;
-
-            struct AudioMutexData
-            {
-                timeline::Playback playback = timeline::Playback::Stop;
-                otime::RationalTime currentTime = time::invalidTime;
-                float volume = 1.F;
-                bool mute = false;
-                std::vector<timeline::AudioData> audioData;
-            };
-            AudioMutexData _audioMutexData;
-            std::mutex _audioMutex;
-
-            struct AudioThreadData
-            {
-                timeline::Playback playback = timeline::Playback::Stop;
-                otime::RationalTime currentTime = time::invalidTime;
-                otime::RationalTime startTime = time::invalidTime;
-                size_t samplesOffset = 0;
-                std::shared_ptr<audio::AudioConvert> audioConvert;
-            };
-            AudioThreadData _audioThreadData;
+            TLRENDER_PRIVATE();
         };
 
         //! Decklink output callback wrapper.
@@ -169,11 +114,7 @@ namespace tl
             void audioData(const std::vector<timeline::AudioData>&) override;
 
         private:
-            DLWrapper _dl;
-            DLConfigWrapper _dlConfig;
-            DLOutputWrapper _dlOutput;
-            audio::Info _audioInfo;
-            DLOutputCallbackWrapper _dlOutputCallback;
+            TLRENDER_PRIVATE();
         };
     }
 }

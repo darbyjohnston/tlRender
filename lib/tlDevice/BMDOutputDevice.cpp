@@ -6,12 +6,23 @@
 
 #include <tlDevice/BMDUtil.h>
 
+#include <tlCore/AudioConvert.h>
 #include <tlCore/Context.h>
 #include <tlCore/StringFormat.h>
 
 #include <algorithm>
+#include <atomic>
 #include <iostream>
+#include <list>
+#include <mutex>
 #include <tuple>
+
+#if defined(__APPLE__)
+typedef int64_t LONGLONG;
+#elif defined(__linux__)
+typedef bool BOOL;
+typedef int64_t LONGLONG;
+#endif // __APPLE__
 
 namespace tl
 {
@@ -237,19 +248,69 @@ namespace tl
             }
         }
 
+        struct DLOutputCallback::Private
+        {
+            IDeckLinkOutput* dlOutput = nullptr;
+            imaging::Size size;
+            PixelType pixelType = PixelType::None;
+            otime::RationalTime frameRate = time::invalidTime;
+            audio::Info audioInfo;
+
+            std::atomic<size_t> refCount;
+
+            struct PixelDataMutexData
+            {
+                std::list<std::shared_ptr<device::PixelData> > pixelData;
+            };
+            PixelDataMutexData pixelDataMutexData;
+            std::mutex pixelDataMutex;
+
+            struct PixelDataThreadData
+            {
+                std::shared_ptr<device::PixelData> pixelDataTmp;
+                uint64_t frameCount = 0;
+            };
+            PixelDataThreadData pixelDataThreadData;
+
+            struct AudioMutexData
+            {
+                timeline::Playback playback = timeline::Playback::Stop;
+                otime::RationalTime startTime = time::invalidTime;
+                otime::RationalTime currentTime = time::invalidTime;
+                float volume = 1.F;
+                bool mute = false;
+                std::vector<timeline::AudioData> audioData;
+            };
+            AudioMutexData audioMutexData;
+            std::mutex audioMutex;
+
+            struct AudioThreadData
+            {
+                timeline::Playback playback = timeline::Playback::Stop;
+                otime::RationalTime startTime = time::invalidTime;
+                size_t samplesOffset = 0;
+                std::shared_ptr<audio::AudioConvert> audioConvert;
+            };
+            AudioThreadData audioThreadData;
+        };
+
         DLOutputCallback::DLOutputCallback(
             IDeckLinkOutput* dlOutput,
             const imaging::Size& size,
             PixelType pixelType,
             const otime::RationalTime& frameRate,
             const audio::Info& audioInfo) :
-            _dlOutput(dlOutput),
-            _size(size),
-            _pixelType(pixelType),
-            _frameRate(frameRate),
-            _audioInfo(audioInfo),
-            _refCount(1)
+            _p(new Private)
         {
+            TLRENDER_P();
+
+            p.dlOutput = dlOutput;
+            p.size = size;
+            p.pixelType = pixelType;
+            p.frameRate = frameRate;
+            p.audioInfo = audioInfo;
+            p.refCount = 1;
+                
             size_t videoPreroll = 3;
             IDeckLinkProfileAttributes* dlProfileAttributes = nullptr;
             if (dlOutput->QueryInterface(IID_IDeckLinkProfileAttributes, (void**)&dlProfileAttributes) == S_OK)
@@ -263,99 +324,107 @@ namespace tl
                 }
             }
 
-            _dlOutput->BeginAudioPreroll();
-            /*std::vector<uint8_t> emptyAudio(audioBufferChunkSize * audioChannelCount * audio::getByteCount(audioDataType), 0);
+            p.dlOutput->BeginAudioPreroll();
+            /*std::vector<uint8_t> emptyAudio(
+                audioBufferChunkSize * audioChannelCount * audio::getByteCount(audioDataType), 0);
             uint32_t audioSamplesWritten = 0;
-            _dlOutput->ScheduleAudioSamples(
+            p.dlOutput->ScheduleAudioSamples(
                 emptyAudio.data(),
                 6000,
                 0,
                 0,
                 nullptr);*/
-            _dlOutput->EndAudioPreroll();
+            p.dlOutput->EndAudioPreroll();
 
             for (size_t i = 0; i < videoPreroll; ++i)
             {
                 DLVideoFrameWrapper dlVideoFrame;
-                if (_dlOutput->CreateVideoFrame(
-                    _size.w,
-                    _size.h,
-                    _size.w * 4,
+                if (p.dlOutput->CreateVideoFrame(
+                    p.size.w,
+                    p.size.h,
+                    p.size.w * 4,
                     toBMD(pixelType),
                     bmdFrameFlagFlipVertical,
                     &dlVideoFrame.p) != S_OK)
                 {
                     throw std::runtime_error("Cannot create video frame");
                 }
-                if (_dlOutput->ScheduleVideoFrame(
+                if (p.dlOutput->ScheduleVideoFrame(
                     dlVideoFrame.p,
-                    _pixelDataThreadData.frameCount * _frameRate.value(),
-                    _frameRate.value(),
-                    _frameRate.rate()) != S_OK)
+                    p.pixelDataThreadData.frameCount * p.frameRate.value(),
+                    p.frameRate.value(),
+                    p.frameRate.rate()) != S_OK)
                 {
                     throw std::runtime_error("Cannot schedule video frame");
                 }
-                _pixelDataThreadData.frameCount = _pixelDataThreadData.frameCount + 1;
+                p.pixelDataThreadData.frameCount = p.pixelDataThreadData.frameCount + 1;
             }
 
-            _dlOutput->StartScheduledPlayback(
+            p.dlOutput->StartScheduledPlayback(
                 0,
-                _frameRate.rate(),
+                p.frameRate.rate(),
                 1.0);
         }
 
         void DLOutputCallback::setPlayback(timeline::Playback value)
         {
-            std::unique_lock<std::mutex> lock(_audioMutex);
-            if (value != _audioMutexData.playback)
+            TLRENDER_P();
+            std::unique_lock<std::mutex> lock(p.audioMutex);
+            if (value != p.audioMutexData.playback)
             {
-                _dlOutput->FlushBufferedAudioSamples();
-                _audioMutexData.playback = value;
+                p.dlOutput->FlushBufferedAudioSamples();
+                p.audioMutexData.playback = value;
+                p.audioMutexData.startTime = p.audioMutexData.currentTime;
             }
         }
 
         void DLOutputCallback::pixelData(const std::shared_ptr<device::PixelData>& value)
         {
+            TLRENDER_P();
             {
-                std::unique_lock<std::mutex> lock(_pixelDataMutex);
-                _pixelDataMutexData.pixelData.push_back(value);
-                while (_pixelDataMutexData.pixelData.size() > pixelDataMax)
+                std::unique_lock<std::mutex> lock(p.pixelDataMutex);
+                p.pixelDataMutexData.pixelData.push_back(value);
+                while (p.pixelDataMutexData.pixelData.size() > pixelDataMax)
                 {
-                    _pixelDataMutexData.pixelData.pop_front();
+                    p.pixelDataMutexData.pixelData.pop_front();
                 }
             }
             {
-                std::unique_lock<std::mutex> lock(_audioMutex);
-                if (value->getTime() != _audioMutexData.currentTime)
+                std::unique_lock<std::mutex> lock(p.audioMutex);
+                if (value->getTime() != p.audioMutexData.currentTime)
                 {
                     const otime::RationalTime currentTimePlusOne(
-                        _audioMutexData.currentTime.value() + 1.0,
-                        _audioMutexData.currentTime.rate());
+                        p.audioMutexData.currentTime.value() + 1.0,
+                        p.audioMutexData.currentTime.rate());
                     if (value->getTime() != currentTimePlusOne)
                     {
-                        _dlOutput->FlushBufferedAudioSamples();
+                        p.dlOutput->FlushBufferedAudioSamples();
+                        p.audioMutexData.startTime = value->getTime();
                     }
-                    _audioMutexData.currentTime = value->getTime();
+                    p.audioMutexData.currentTime = value->getTime();
                 }
             }
         }
 
         void DLOutputCallback::setVolume(float value)
         {
-            std::unique_lock<std::mutex> lock(_audioMutex);
-            _audioMutexData.volume = value;
+            TLRENDER_P();
+            std::unique_lock<std::mutex> lock(p.audioMutex);
+            p.audioMutexData.volume = value;
         }
 
         void DLOutputCallback::setMute(bool value)
         {
-            std::unique_lock<std::mutex> lock(_audioMutex);
-            _audioMutexData.mute = value;
+            TLRENDER_P();
+            std::unique_lock<std::mutex> lock(p.audioMutex);
+            p.audioMutexData.mute = value;
         }
 
         void DLOutputCallback::audioData(const std::vector<timeline::AudioData>& value)
         {
-            std::unique_lock<std::mutex> lock(_audioMutex);
-            _audioMutexData.audioData = value;
+            TLRENDER_P();
+            std::unique_lock<std::mutex> lock(p.audioMutex);
+            p.audioMutexData.audioData = value;
         }
 
         HRESULT DLOutputCallback::QueryInterface(REFIID iid, LPVOID* ppv)
@@ -366,12 +435,12 @@ namespace tl
 
         ULONG DLOutputCallback::AddRef()
         {
-            return ++_refCount;
+            return ++_p->refCount;
         }
 
         ULONG DLOutputCallback::Release()
         {
-            ULONG out = --_refCount;
+            ULONG out = --_p->refCount;
             if (0 == out)
             {
                 delete this;
@@ -384,32 +453,32 @@ namespace tl
             IDeckLinkVideoFrame* dlVideoFrame,
             BMDOutputFrameCompletionResult dlResult)
         {
+            TLRENDER_P();
             {
-                std::unique_lock<std::mutex> lock(_pixelDataMutex);
-                if (!_pixelDataMutexData.pixelData.empty())
+                std::unique_lock<std::mutex> lock(p.pixelDataMutex);
+                if (!p.pixelDataMutexData.pixelData.empty())
                 {
-                    _pixelDataThreadData.pixelDataTmp = _pixelDataMutexData.pixelData.front();
-                    _pixelDataMutexData.pixelData.pop_front();
+                    p.pixelDataThreadData.pixelDataTmp = p.pixelDataMutexData.pixelData.front();
+                    p.pixelDataMutexData.pixelData.pop_front();
                 }
             }
-            if (_pixelDataThreadData.pixelDataTmp)
+            if (p.pixelDataThreadData.pixelDataTmp)
             {
-                //std::cout << "video time: " << _pixelDataThreadData.pixelDataTmp->getTime().rescaled_to(1.0) << std::endl;
+                //std::cout << "video time: " <<
+                //    p.pixelDataThreadData.pixelDataTmp->getTime().rescaled_to(1.0) << std::endl;
                 void* dlFrame = nullptr;
                 dlVideoFrame->GetBytes((void**)&dlFrame);
                 memcpy(
                     dlFrame,
-                    _pixelDataThreadData.pixelDataTmp->getData(),
-                    _pixelDataThreadData.pixelDataTmp->getDataByteCount());
+                    p.pixelDataThreadData.pixelDataTmp->getData(),
+                    p.pixelDataThreadData.pixelDataTmp->getDataByteCount());
             }
-            if (_dlOutput->ScheduleVideoFrame(
+            p.dlOutput->ScheduleVideoFrame(
                 dlVideoFrame,
-                _pixelDataThreadData.frameCount * _frameRate.value(),
-                _frameRate.value(),
-                _frameRate.rate()) == S_OK)
-            {
-                _pixelDataThreadData.frameCount = _pixelDataThreadData.frameCount + 1;
-            }
+                p.pixelDataThreadData.frameCount * p.frameRate.value(),
+                p.frameRate.value(),
+                p.frameRate.rate());
+            p.pixelDataThreadData.frameCount += 1;
             //std::cout << "result: " << getOutputFrameCompletionResultLabel(dlResult) << std::endl;
             return S_OK;
         }
@@ -421,55 +490,47 @@ namespace tl
 
         HRESULT DLOutputCallback::RenderAudioSamples(BOOL preroll)
         {
+            TLRENDER_P();
             float volume = 1.F;
             bool mute = false;
             std::vector<timeline::AudioData> audioData;
             {
-                std::unique_lock<std::mutex> lock(_audioMutex);
-                if (_audioMutexData.playback != _audioThreadData.playback)
+                std::unique_lock<std::mutex> lock(p.audioMutex);
+                if (p.audioMutexData.playback != p.audioThreadData.playback)
                 {
-                    _audioThreadData.playback = _audioMutexData.playback;
-                    _audioThreadData.startTime = _audioMutexData.currentTime;
-                    _audioThreadData.samplesOffset = 0;
+                    p.audioThreadData.playback = p.audioMutexData.playback;
+                    p.audioThreadData.samplesOffset = 0;
                 }
-                if (_audioMutexData.currentTime != _audioThreadData.currentTime)
+                if (p.audioMutexData.startTime != p.audioThreadData.startTime)
                 {
-                    const otime::RationalTime currentTimePlusOne(
-                        _audioThreadData.currentTime.value() + 1.0,
-                        _audioThreadData.currentTime.rate());
-                    if (_audioMutexData.currentTime != currentTimePlusOne)
-                    {
-                        _audioThreadData.startTime = _audioMutexData.currentTime;
-                        _audioThreadData.samplesOffset = 0;
-                    }
-                    _audioThreadData.currentTime = _audioMutexData.currentTime;
+                    p.audioThreadData.startTime = p.audioMutexData.startTime;
+                    p.audioThreadData.samplesOffset = 0;
                 }
-                volume = _audioMutexData.volume;
-                mute = _audioMutexData.mute;
-                audioData = _audioMutexData.audioData;
+                volume = p.audioMutexData.volume;
+                mute = p.audioMutexData.mute;
+                audioData = p.audioMutexData.audioData;
             }
-            //std::cout << "audio playback: " << _audioThreadData.playback << std::endl;
-            //std::cout << "audio start time: " << _audioThreadData.startTime << std::endl;
+            //std::cout << "audio playback: " << p.audioThreadData.playback << std::endl;
+            //std::cout << "audio start time: " << p.audioThreadData.startTime << std::endl;
+            //std::cout << "audio samples offset: " << p.audioThreadData.samplesOffset << std::endl;
 
-            if (timeline::Playback::Forward == _audioThreadData.playback)
+            if (timeline::Playback::Forward == p.audioThreadData.playback)
             {
-                uint32_t sampleCount = 0;
-                if (_dlOutput->GetBufferedAudioSampleFrameCount(&sampleCount) != S_OK)
-                {
-                    return E_FAIL;
-                }
+                uint32_t bufferedSampleCount = 0;
+                p.dlOutput->GetBufferedAudioSampleFrameCount(&bufferedSampleCount);
                 //std::cout << "bmd sample count: " << sampleCount << std::endl;
-
-                if (sampleCount < audioBufferMax)
+                if (bufferedSampleCount < audioBufferMax)
                 {
-                    const otime::RationalTime audioTime = _audioThreadData.startTime.rescaled_to(1.0) +
-                        otime::RationalTime(_audioThreadData.samplesOffset, _audioInfo.sampleRate).rescaled_to(1.0);
-                    //std::cout << "audio time: " << audioTime << std::endl;
-                    //std::cout << "audio samples offset: " << _audioThreadData.samplesOffset << std::endl;
+                    const otime::RationalTime audioTime =
+                        p.audioThreadData.startTime.rescaled_to(1.0) +
+                        otime::RationalTime(
+                            p.audioThreadData.samplesOffset,
+                            p.audioInfo.sampleRate).rescaled_to(1.0);
                     const int64_t audioSeconds = std::floor(audioTime.value());
+                    //std::cout << "audio time: " << audioTime << std::endl;
                     //std::cout << "audio seconds: " << audioSeconds << std::endl;
 
-                    std::vector<uint8_t> outputBuffer;
+                    std::shared_ptr<audio::Audio> outputAudio;
                     for (const auto& i : audioData)
                     {
                         //std::cout << "audio data: " << i.seconds << std::endl;
@@ -483,7 +544,6 @@ namespace tl
                             const size_t samplesOffset =
                                 otime::RationalTime(audioTime.value() - audioSeconds, 1.0).
                                 rescaled_to(audioInfo.sampleRate).value();
-                            //std::cout << "audio samples offset: " << samplesOffset << std::endl;
                             std::vector<const uint8_t*> audioDataP;
                             for (const auto& layer : i.layers)
                             {
@@ -493,60 +553,54 @@ namespace tl
                                 }
                             }
 
-                            std::vector<uint8_t> tmpBuffer;
                             const size_t samplesCount = std::min(
                                 audioBufferCount,
                                 audioInfo.sampleRate - samplesOffset);
-                            tmpBuffer.resize(samplesCount * audioInfo.getByteCount());
+                            auto tmpAudio = audio::Audio::create(audioInfo, samplesCount);
                             audio::mix(
                                 audioDataP.data(),
                                 audioDataP.size(),
-                                tmpBuffer.data(),
+                                tmpAudio->getData(),
                                 mute ? 0.F : volume,
                                 samplesCount,
                                 audioInfo.channelCount,
                                 audioInfo.dataType);
 
-                            if (!_audioThreadData.audioConvert ||
-                                (_audioThreadData.audioConvert &&
-                                    _audioThreadData.audioConvert->getInputInfo() != audioInfo))
+                            if (!p.audioThreadData.audioConvert ||
+                                (p.audioThreadData.audioConvert &&
+                                    p.audioThreadData.audioConvert->getInputInfo() != audioInfo))
                             {
-                                _audioThreadData.audioConvert = audio::AudioConvert::create(
+                                p.audioThreadData.audioConvert = audio::AudioConvert::create(
                                     audioInfo,
-                                    _audioInfo);
+                                    p.audioInfo);
                             }
-                            if (_audioThreadData.audioConvert)
+                            if (p.audioThreadData.audioConvert)
                             {
-                                outputBuffer = _audioThreadData.audioConvert->convert(
-                                    tmpBuffer.data(),
-                                    samplesCount);
+                                outputAudio = p.audioThreadData.audioConvert->convert(tmpAudio);
                             }
 
                             break;
                         }
                     }
-
-                    if (!outputBuffer.empty())
+                    if (outputAudio)
                     {
-                        if (_dlOutput->ScheduleAudioSamples(
-                            outputBuffer.data(),
-                            outputBuffer.size() / _audioInfo.getByteCount(),
+                        p.dlOutput->ScheduleAudioSamples(
+                            outputAudio->getData(),
+                            outputAudio->getSampleCount(),
                             0,
                             0,
-                            nullptr) != S_OK)
-                        {
-                            return E_FAIL;
-                        }
-
-                        _audioThreadData.samplesOffset += outputBuffer.size() / _audioInfo.getByteCount();
+                            nullptr);
                     }
+                    p.audioThreadData.samplesOffset += outputAudio ?
+                        outputAudio->getSampleCount() :
+                        audioBufferCount;
                 }
             }
             //std::cout << std::endl;
 
             //BMDTimeScale dlTimeScale = audioSampleRate;
             //BMDTimeValue dlTimeValue = 0;
-            //if (_dlOutput->GetScheduledStreamTime(dlTimeScale, &dlTimeValue, nullptr) == S_OK)
+            //if (p.dlOutput->GetScheduledStreamTime(dlTimeScale, &dlTimeValue, nullptr) == S_OK)
             //{
             //    std::cout << "stream time: " << dlTimeValue << std::endl;
             //}
@@ -562,6 +616,15 @@ namespace tl
             }
         }
 
+        struct BMDOutputDevice::Private
+        {
+            DLWrapper dl;
+            DLConfigWrapper dlConfig;
+            DLOutputWrapper dlOutput;
+            audio::Info audioInfo;
+            DLOutputCallbackWrapper dlOutputCallback;
+        };
+
         void BMDOutputDevice::_init(
             int deviceIndex,
             int displayModeIndex,
@@ -569,6 +632,8 @@ namespace tl
             const std::shared_ptr<system::Context>& context)
         {
             IOutputDevice::_init(deviceIndex, displayModeIndex, pixelType, context);
+
+            TLRENDER_P();
 
             std::string modelName;
             {
@@ -579,18 +644,18 @@ namespace tl
                 }
 
                 int count = 0;
-                while (dlIterator.p->Next(&_dl.p) == S_OK)
+                while (dlIterator.p->Next(&p.dl.p) == S_OK)
                 {
                     if (count == deviceIndex)
                     {
 #if defined(__APPLE__)
                         CFStringRef dlModelName;
-                        _dl.p->GetModelName(&dlModelName);
+                        p.dl.p->GetModelName(&dlModelName);
                         StringToStdString(dlModelName, modelName);
                         CFRelease(dlModelName);
 #else // __APPLE__
                         dlstring_t dlModelName;
-                        _dl.p->GetModelName(&dlModelName);
+                        p.dl.p->GetModelName(&dlModelName);
                         modelName = DlToStdString(dlModelName);
                         DeleteString(dlModelName);
 #endif // __APPLE__
@@ -598,30 +663,30 @@ namespace tl
                         break;
                     }
 
-                    _dl.p->Release();
-                    _dl.p = nullptr;
+                    p.dl.p->Release();
+                    p.dl.p = nullptr;
 
                     ++count;
                 }
-                if (!_dl.p)
+                if (!p.dl.p)
                 {
                     throw std::runtime_error("Device not found");
                 }
             }
 
-            if (_dl.p->QueryInterface(IID_IDeckLinkConfiguration, (void**)&_dlConfig) != S_OK)
+            if (p.dl.p->QueryInterface(IID_IDeckLinkConfiguration, (void**)&p.dlConfig) != S_OK)
             {
                 throw std::runtime_error("Configuration device not found");
             }
 
-            if (_dl.p->QueryInterface(IID_IDeckLinkOutput, (void**)&_dlOutput) != S_OK)
+            if (p.dl.p->QueryInterface(IID_IDeckLinkOutput, (void**)&p.dlOutput) != S_OK)
             {
                 throw std::runtime_error("Output device not found");
             }
 
             {
                 DLDisplayModeIteratorWrapper dlDisplayModeIterator;
-                if (_dlOutput.p->GetDisplayModeIterator(&dlDisplayModeIterator.p) != S_OK)
+                if (p.dlOutput.p->GetDisplayModeIterator(&dlDisplayModeIterator.p) != S_OK)
                 {
                     throw std::runtime_error("Cannot get display mode iterator");
                 }
@@ -650,9 +715,9 @@ namespace tl
                 BMDTimeScale frameTimescale;
                 dlDisplayMode.p->GetFrameRate(&frameDuration, &frameTimescale);
                 _frameRate = otime::RationalTime(frameDuration, frameTimescale);
-                _audioInfo.channelCount = 2;
-                _audioInfo.dataType = audio::DataType::S16;
-                _audioInfo.sampleRate = 48000;
+                p.audioInfo.channelCount = 2;
+                p.audioInfo.dataType = audio::DataType::S16;
+                p.audioInfo.sampleRate = 48000;
 
                 context->log(
                     "tl::device::BMDOutputDevice",
@@ -665,11 +730,11 @@ namespace tl
                     arg(modelName).
                     arg(_size).
                     arg(_frameRate).
-                    arg(_audioInfo.channelCount).
-                    arg(_audioInfo.dataType).
-                    arg(_audioInfo.sampleRate));
+                    arg(p.audioInfo.channelCount).
+                    arg(p.audioInfo.dataType).
+                    arg(p.audioInfo.sampleRate));
 
-                HRESULT r = _dlOutput.p->EnableVideoOutput(
+                HRESULT r = p.dlOutput.p->EnableVideoOutput(
                     dlDisplayMode.p->GetDisplayMode(),
                     bmdVideoOutputFlagDefault);
                 switch (r)
@@ -682,10 +747,10 @@ namespace tl
                     throw std::runtime_error("Cannot enable video output");
                 }
 
-                r = _dlOutput.p->EnableAudioOutput(
+                r = p.dlOutput.p->EnableAudioOutput(
                     bmdAudioSampleRate48kHz,
                     bmdAudioSampleType16bitInteger,
-                    _audioInfo.channelCount,
+                    p.audioInfo.channelCount,
                     bmdAudioOutputStreamContinuous);
                 switch (r)
                 {
@@ -700,27 +765,29 @@ namespace tl
                 }
             }
 
-            _dlOutputCallback.p = new DLOutputCallback(_dlOutput.p, _size, _pixelType, _frameRate, _audioInfo);
+            p.dlOutputCallback.p = new DLOutputCallback(p.dlOutput.p, _size, _pixelType, _frameRate, p.audioInfo);
 
-            if (_dlOutput.p->SetScheduledFrameCompletionCallback(_dlOutputCallback.p) != S_OK)
+            if (p.dlOutput.p->SetScheduledFrameCompletionCallback(p.dlOutputCallback.p) != S_OK)
             {
                 throw std::runtime_error("Cannot set video callback");
             }
 
-            if (_dlOutput.p->SetAudioCallback(_dlOutputCallback.p) != S_OK)
+            if (p.dlOutput.p->SetAudioCallback(p.dlOutputCallback.p) != S_OK)
             {
                 throw std::runtime_error("Cannot set audio callback");
             }
         }
 
-        BMDOutputDevice::BMDOutputDevice()
+        BMDOutputDevice::BMDOutputDevice() :
+            _p(new Private)
         {}
 
         BMDOutputDevice::~BMDOutputDevice()
         {
-            _dlOutput.p->StopScheduledPlayback(0, nullptr, 0);
-            _dlOutput.p->DisableVideoOutput();
-            _dlOutput.p->DisableAudioOutput();
+            TLRENDER_P();
+            p.dlOutput.p->StopScheduledPlayback(0, nullptr, 0);
+            p.dlOutput.p->DisableVideoOutput();
+            p.dlOutput.p->DisableAudioOutput();
         }
 
         std::shared_ptr<BMDOutputDevice> BMDOutputDevice::create(
@@ -736,27 +803,27 @@ namespace tl
 
         void BMDOutputDevice::setPlayback(timeline::Playback value)
         {
-            _dlOutputCallback.p->setPlayback(value);
+            _p->dlOutputCallback.p->setPlayback(value);
         }
 
         void BMDOutputDevice::pixelData(const std::shared_ptr<device::PixelData>& value)
         {
-            _dlOutputCallback.p->pixelData(value);
+            _p->dlOutputCallback.p->pixelData(value);
         }
 
         void BMDOutputDevice::setVolume(float value)
         {
-            _dlOutputCallback.p->setVolume(value);
+            _p->dlOutputCallback.p->setVolume(value);
         }
 
         void BMDOutputDevice::setMute(bool value)
         {
-            _dlOutputCallback.p->setMute(value);
+            _p->dlOutputCallback.p->setMute(value);
         }
 
         void BMDOutputDevice::audioData(const std::vector<timeline::AudioData>& value)
         {
-            _dlOutputCallback.p->audioData(value);
+            _p->dlOutputCallback.p->audioData(value);
         }
     }
 }

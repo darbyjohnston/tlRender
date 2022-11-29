@@ -37,7 +37,7 @@ namespace tl
             const audio::Info& getOutputInfo() const;
 
             //! Convert audio data.
-            std::vector<uint8_t> convert(const uint8_t*, size_t sampleCount);
+            std::shared_ptr<Audio> convert(const std::shared_ptr<Audio>&);
 
             //! Flush the converter.
             void flush();
