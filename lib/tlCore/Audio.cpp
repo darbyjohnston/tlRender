@@ -113,7 +113,7 @@ namespace tl
         namespace
         {
             template<typename T, typename TI>
-            void _mixI(
+            void mixI(
                 const uint8_t** in,
                 size_t inCount,
                 uint8_t* out,
@@ -136,7 +136,7 @@ namespace tl
             }
 
             template<typename T>
-            void _mixF(
+            void mixF(
                 const uint8_t** in,
                 size_t inCount,
                 uint8_t* out,
@@ -170,19 +170,19 @@ namespace tl
             switch (type)
             {
             case DataType::S8:
-                _mixI<int8_t, int16_t>(in, inCount, out, volume, size);
+                mixI<int8_t, int16_t>(in, inCount, out, volume, size);
                 break;
             case DataType::S16:
-                _mixI<int16_t, int32_t>(in, inCount, out, volume, size);
+                mixI<int16_t, int32_t>(in, inCount, out, volume, size);
                 break;
             case DataType::S32:
-                _mixI<int32_t, int64_t>(in, inCount, out, volume, size);
+                mixI<int32_t, int64_t>(in, inCount, out, volume, size);
                 break;
             case DataType::F32:
-                _mixF<float>(in, inCount, out, volume, size);
+                mixF<float>(in, inCount, out, volume, size);
                 break;
             case DataType::F64:
-                _mixF<double>(in, inCount, out, volume, size);
+                mixF<double>(in, inCount, out, volume, size);
                 break;
             default: break;
             }
