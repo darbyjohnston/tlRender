@@ -105,28 +105,6 @@ namespace tl
             return out;
         }
 
-        std::shared_ptr<Audio> Audio::create(
-            const Info& info,
-            size_t sampleCount,
-            const uint8_t* data)
-        {
-            auto out = std::shared_ptr<Audio>(new Audio);
-            out->_init(info, sampleCount);
-            memcpy(out->_data, data, out->getByteCount());
-            return out;
-        }
-
-        std::shared_ptr<Audio> Audio::create(
-            const Info& info,
-            size_t sampleCount,
-            const std::vector<uint8_t>& data)
-        {
-            auto out = std::shared_ptr<Audio>(new Audio);
-            out->_init(info, sampleCount);
-            memcpy(out->_data, data.data(), out->getByteCount());
-            return out;
-        }
-
         void Audio::zero()
         {
             std::memset(_data, 0, getByteCount());
