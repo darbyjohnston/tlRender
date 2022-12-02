@@ -66,6 +66,7 @@ namespace tl
             timeline::CompareOptions compareOptions;
             std::vector<qt::TimelinePlayer*> timelinePlayers;
             timeline::Playback playback = timeline::Playback::Stop;
+            otime::RationalTime currentTime = time::invalidTime;
             std::vector<imaging::Size> sizes;
             math::Vector2i viewPos;
             float viewZoom = 1.F;

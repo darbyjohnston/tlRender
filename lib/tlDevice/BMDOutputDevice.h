@@ -62,11 +62,10 @@ namespace tl
                 const otime::RationalTime& frameRate,
                 const audio::Info& audioInfo);
 
-            void setPlayback(timeline::Playback);
-            void pixelData(const std::shared_ptr<device::PixelData>&);
-            void setVolume(float);
-            void setMute(bool);
-            void audioData(const std::vector<timeline::AudioData>&);
+            void setPlayback(timeline::Playback, const otime::RationalTime&);
+            void setPixelData(const std::shared_ptr<device::PixelData>&);
+            void setAudio(float, bool);
+            void setAudioData(const std::vector<timeline::AudioData>&);
 
             HRESULT STDMETHODCALLTYPE ScheduledFrameCompleted(IDeckLinkVideoFrame*, BMDOutputFrameCompletionResult) override;
             HRESULT STDMETHODCALLTYPE ScheduledPlaybackHasStopped() override;
@@ -86,7 +85,7 @@ namespace tl
         {
         public:
             ~DLOutputCallbackWrapper();
-
+            
             DLOutputCallback* p = nullptr;
         };
 
@@ -114,11 +113,10 @@ namespace tl
                 PixelType,
                 const std::shared_ptr<system::Context>&);
 
-            void setPlayback(timeline::Playback) override;
-            void pixelData(const std::shared_ptr<device::PixelData>&) override;
-            void setVolume(float) override;
-            void setMute(bool) override;
-            void audioData(const std::vector<timeline::AudioData>&) override;
+            void setPlayback(timeline::Playback, const otime::RationalTime&) override;
+            void setPixelData(const std::shared_ptr<device::PixelData>&) override;
+            void setAudio(float, bool) override;
+            void setAudioData(const std::vector<timeline::AudioData>&) override;
 
         private:
             TLRENDER_PRIVATE();

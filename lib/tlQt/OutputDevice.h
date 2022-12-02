@@ -117,6 +117,7 @@ namespace tl
 
         private Q_SLOTS:
             void _playbackCallback(tl::timeline::Playback);
+            void _currentTimeCallback(const otime::RationalTime&);
             void _currentVideoCallback(const tl::timeline::VideoData&);
             void _currentAudioCallback(const std::vector<tl::timeline::AudioData>&);
 

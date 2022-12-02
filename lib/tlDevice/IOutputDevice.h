@@ -51,20 +51,17 @@ namespace tl
             //! Get the output device frame rate.
             const otime::RationalTime& getFrameRate() const;
 
-            //! Set the playback mode.
-            virtual void setPlayback(timeline::Playback);
+            //! Set the playback information.
+            virtual void setPlayback(timeline::Playback, const otime::RationalTime&);
 
-            //! Output pixel data.
-            virtual void pixelData(const std::shared_ptr<PixelData>&);
+            //! Set the pixel data.
+            virtual void setPixelData(const std::shared_ptr<PixelData>&);
 
-            //! Set the audio volume.
-            virtual void setVolume(float);
+            //! Set the audio information.
+            virtual void setAudio(float volume, bool mute = false);
 
-            //! Set the audio mute.
-            virtual void setMute(bool);
-
-            //! Output audio data.
-            virtual void audioData(const std::vector<timeline::AudioData>&);
+            //! Set the audio data.
+            virtual void setAudioData(const std::vector<timeline::AudioData>&);
 
         protected:
             int _deviceIndex = 0;

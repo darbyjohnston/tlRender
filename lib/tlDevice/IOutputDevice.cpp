@@ -49,20 +49,17 @@ namespace tl
         {
             return _frameRate;
         }
-
-        void IOutputDevice::setPlayback(timeline::Playback)
+        
+        void IOutputDevice::setPlayback(timeline::Playback, const otime::RationalTime&)
         {}
 
-        void IOutputDevice::pixelData(const std::shared_ptr<PixelData>&)
+        void IOutputDevice::setPixelData(const std::shared_ptr<PixelData>&)
         {}
 
-        void IOutputDevice::setVolume(float)
+        void IOutputDevice::setAudio(float, bool)
         {}
 
-        void IOutputDevice::setMute(bool)
-        {}
-
-        void IOutputDevice::audioData(const std::vector<timeline::AudioData>&)
+        void IOutputDevice::setAudioData(const std::vector<timeline::AudioData>&)
         {}
     }
 }

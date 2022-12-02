@@ -189,6 +189,11 @@ namespace tl
                     SLOT(_playbackCallback(tl::timeline::Playback)));
                 disconnect(
                     i,
+                    SIGNAL(currentTimeChanged(const otime::RationalTime&)),
+                    this,
+                    SLOT(_currentTimeCallback(const otime::RationalTime&)));
+                disconnect(
+                    i,
                     SIGNAL(currentVideoChanged(const tl::timeline::VideoData&)),
                     this,
                     SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
@@ -207,6 +212,10 @@ namespace tl
                     SLOT(_playbackCallback(tl::timeline::Playback)));
                 connect(
                     i,
+                    SIGNAL(currentTimeChanged(const otime::RationalTime&)),
+                    SLOT(_currentTimeCallback(const otime::RationalTime&)));
+                connect(
+                    i,
                     SIGNAL(currentVideoChanged(const tl::timeline::VideoData&)),
                     SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
                 connect(
@@ -219,10 +228,12 @@ namespace tl
                 if (!p.timelinePlayers.empty())
                 {
                     p.playback = p.timelinePlayers.front()->playback();
+                    p.currentTime = p.timelinePlayers.front()->currentTime();
                 }
                 else
                 {
                     p.playback = timeline::Playback::Stop;
+                    p.currentTime = time::invalidTime;
                 }
                 p.sizes.clear();
                 p.videoData.clear();
@@ -330,6 +341,19 @@ namespace tl
             }
         }
 
+        void OutputDevice::_currentTimeCallback(const otime::RationalTime& value)
+        {
+            TLRENDER_P();
+            if (qobject_cast<qt::TimelinePlayer*>(sender()) == p.timelinePlayers.front())
+            {
+                {
+                    std::unique_lock<std::mutex> lock(p.mutex);
+                    p.currentTime = value;
+                }
+                p.cv.notify_one();
+            }
+        }
+
         void OutputDevice::_currentVideoCallback(const tl::timeline::VideoData& value)
         {
             TLRENDER_P();
@@ -383,6 +407,7 @@ namespace tl
             imaging::HDRData hdrData;
             timeline::CompareOptions compareOptions;
             timeline::Playback playback = timeline::Playback::Stop;
+            otime::RationalTime currentTime = time::invalidTime;
             std::vector<imaging::Size> sizes;
             math::Vector2i viewPos;
             float viewZoom = 1.F;
@@ -420,7 +445,7 @@ namespace tl
                         [this, deviceIndex, displayModeIndex, pixelType,
                         deviceEnabled, colorConfigOptions, lutOptions, imageOptions,
                         displayOptions, hdrMode, hdrData, compareOptions,
-                        playback, sizes, viewPos, viewZoom, frameView,
+                        playback, currentTime, sizes, viewPos, viewZoom, frameView,
                         videoData, overlay, volume, mute, audioData]
                         {
                             return
@@ -436,6 +461,7 @@ namespace tl
                                 hdrData != _p->hdrData ||
                                 compareOptions != _p->compareOptions ||
                                 playback != _p->playback ||
+                                currentTime != _p->currentTime ||
                                 sizes != _p->sizes ||
                                 viewPos != _p->viewPos ||
                                 viewZoom != _p->viewZoom ||
@@ -458,6 +484,7 @@ namespace tl
                         deviceEnabled = p.deviceEnabled;
 
                         playback = p.playback;
+                        currentTime = p.currentTime;
 
                         doRender =
                             createDevice ||
@@ -831,7 +858,7 @@ namespace tl
                                     glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
                                 }
                                 glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-                                device->pixelData(pixelData);
+                                device->setPixelData(pixelData);
                             }
                         }
                     }
@@ -846,13 +873,12 @@ namespace tl
 
                 if (device)
                 {
-                    device->setPlayback(playback);
-                    device->setVolume(volume);
-                    device->setMute(mute);
+                    device->setPlayback(playback, currentTime);
+                    device->setAudio(volume, mute);
                 }
                 if (device && audioChanged)
                 {
-                    device->audioData(audioData);
+                    device->setAudioData(audioData);
                 }
             }
             glDeleteBuffers(pbo.size(), pbo.data());

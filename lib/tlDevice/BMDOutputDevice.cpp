@@ -359,7 +359,7 @@ namespace tl
                 1.0);
         }
 
-        void DLOutputCallback::setPlayback(timeline::Playback value)
+        void DLOutputCallback::setPlayback(timeline::Playback value, const otime::RationalTime& time)
         {
             TLRENDER_P();
             std::unique_lock<std::mutex> lock(p.audioMutex);
@@ -367,11 +367,12 @@ namespace tl
             {
                 p.dlOutput->FlushBufferedAudioSamples();
                 p.audioMutexData.playback = value;
-                p.audioMutexData.startTime = p.audioMutexData.currentTime;
+                p.audioMutexData.startTime = time;
+                p.audioMutexData.currentTime = time;
             }
         }
 
-        void DLOutputCallback::pixelData(const std::shared_ptr<device::PixelData>& value)
+        void DLOutputCallback::setPixelData(const std::shared_ptr<device::PixelData>& value)
         {
             TLRENDER_P();
             {
@@ -399,21 +400,15 @@ namespace tl
             }
         }
 
-        void DLOutputCallback::setVolume(float value)
+        void DLOutputCallback::setAudio(float volume, bool mute)
         {
             TLRENDER_P();
             std::unique_lock<std::mutex> lock(p.audioMutex);
-            p.audioMutexData.volume = value;
+            p.audioMutexData.volume = volume;
+            p.audioMutexData.mute = mute;
         }
 
-        void DLOutputCallback::setMute(bool value)
-        {
-            TLRENDER_P();
-            std::unique_lock<std::mutex> lock(p.audioMutex);
-            p.audioMutexData.mute = value;
-        }
-
-        void DLOutputCallback::audioData(const std::vector<timeline::AudioData>& value)
+        void DLOutputCallback::setAudioData(const std::vector<timeline::AudioData>& value)
         {
             TLRENDER_P();
             std::unique_lock<std::mutex> lock(p.audioMutex);
@@ -802,29 +797,24 @@ namespace tl
             return out;
         }
 
-        void BMDOutputDevice::setPlayback(timeline::Playback value)
+        void BMDOutputDevice::setPlayback(timeline::Playback value, const otime::RationalTime& time)
         {
-            _p->dlOutputCallback.p->setPlayback(value);
+            _p->dlOutputCallback.p->setPlayback(value, time);
         }
 
-        void BMDOutputDevice::pixelData(const std::shared_ptr<device::PixelData>& value)
+        void BMDOutputDevice::setPixelData(const std::shared_ptr<device::PixelData>& value)
         {
-            _p->dlOutputCallback.p->pixelData(value);
+            _p->dlOutputCallback.p->setPixelData(value);
         }
 
-        void BMDOutputDevice::setVolume(float value)
+        void BMDOutputDevice::setAudio(float volume, bool mute)
         {
-            _p->dlOutputCallback.p->setVolume(value);
+            _p->dlOutputCallback.p->setAudio(volume, mute);
         }
 
-        void BMDOutputDevice::setMute(bool value)
+        void BMDOutputDevice::setAudioData(const std::vector<timeline::AudioData>& value)
         {
-            _p->dlOutputCallback.p->setMute(value);
-        }
-
-        void BMDOutputDevice::audioData(const std::vector<timeline::AudioData>& value)
-        {
-            _p->dlOutputCallback.p->audioData(value);
+            _p->dlOutputCallback.p->setAudioData(value);
         }
     }
 }
