@@ -17,13 +17,6 @@
 #include <mutex>
 #include <tuple>
 
-#if defined(__APPLE__)
-typedef int64_t LONGLONG;
-#elif defined(__linux__)
-typedef bool BOOL;
-typedef int64_t LONGLONG;
-#endif // __APPLE__
-
 namespace tl
 {
     namespace device
