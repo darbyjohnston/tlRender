@@ -493,6 +493,7 @@ namespace tl
             TLRENDER_P();
             float volume = 1.F;
             bool mute = false;
+            bool flush = false;
             std::vector<timeline::AudioData> audioData;
             {
                 std::unique_lock<std::mutex> lock(p.audioMutex);
@@ -500,11 +501,13 @@ namespace tl
                 {
                     p.audioThreadData.playback = p.audioMutexData.playback;
                     p.audioThreadData.samplesOffset = 0;
+                    flush = true;
                 }
                 if (p.audioMutexData.startTime != p.audioThreadData.startTime)
                 {
                     p.audioThreadData.startTime = p.audioMutexData.startTime;
                     p.audioThreadData.samplesOffset = 0;
+                    flush = true;
                 }
                 volume = p.audioMutexData.volume;
                 mute = p.audioMutexData.mute;
@@ -513,6 +516,11 @@ namespace tl
             //std::cout << "audio playback: " << p.audioThreadData.playback << std::endl;
             //std::cout << "audio start time: " << p.audioThreadData.startTime << std::endl;
             //std::cout << "audio samples offset: " << p.audioThreadData.samplesOffset << std::endl;
+
+            if (flush && p.audioThreadData.audioConvert)
+            {
+                p.audioThreadData.audioConvert->flush();
+            }
 
             if (timeline::Playback::Forward == p.audioThreadData.playback)
             {

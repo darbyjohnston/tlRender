@@ -18,20 +18,6 @@ namespace tl
         namespace
         {
 #if defined(TLRENDER_FFMPEG)
-            int64_t fromChannelCount(uint8_t value)
-            {
-                int64_t out = 0;
-                switch (value)
-                {
-                case 1: out = AV_CH_LAYOUT_MONO; break;
-                case 2: out = AV_CH_LAYOUT_STEREO; break;
-                case 6: out = AV_CH_LAYOUT_5POINT1; break;
-                case 7: out = AV_CH_LAYOUT_6POINT1; break;
-                case 8: out = AV_CH_LAYOUT_7POINT1; break;
-                }
-                return out;
-            }
-
             AVSampleFormat fromAudioType(audio::DataType value)
             {
                 AVSampleFormat out = AV_SAMPLE_FMT_NONE;
@@ -65,16 +51,22 @@ namespace tl
             p.inputInfo = inputInfo;
             p.outputInfo = outputInfo;
 #if defined(TLRENDER_FFMPEG)
-            p.swrContext = swr_alloc_set_opts(
-                NULL,
-                fromChannelCount(p.outputInfo.channelCount),
+            AVChannelLayout inputChannelLayout;
+            av_channel_layout_default(&inputChannelLayout, p.inputInfo.channelCount);
+            AVChannelLayout outputChannelLayout;
+            av_channel_layout_default(&outputChannelLayout, p.outputInfo.channelCount);
+            int r = swr_alloc_set_opts2(
+                &p.swrContext,
+                &outputChannelLayout,
                 fromAudioType(p.outputInfo.dataType),
                 p.outputInfo.sampleRate,
-                fromChannelCount(p.inputInfo.channelCount),
+                &inputChannelLayout,
                 fromAudioType(p.inputInfo.dataType),
                 p.inputInfo.sampleRate,
                 0,
                 NULL);
+            av_channel_layout_uninit(&inputChannelLayout);
+            av_channel_layout_uninit(&outputChannelLayout);
             if (p.swrContext)
             {
                 swr_init(p.swrContext);

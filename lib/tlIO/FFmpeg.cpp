@@ -73,20 +73,6 @@ namespace tl
             }
         }
 
-        int64_t fromChannelCount(uint8_t value)
-        {
-            int64_t out = 0;
-            switch (value)
-            {
-            case 1: out = AV_CH_LAYOUT_MONO; break;
-            case 2: out = AV_CH_LAYOUT_STEREO; break;
-            case 6: out = AV_CH_LAYOUT_5POINT1; break;
-            case 7: out = AV_CH_LAYOUT_6POINT1; break;
-            case 8: out = AV_CH_LAYOUT_7POINT1; break;
-            }
-            return out;
-        }
-
         audio::DataType toAudioType(AVSampleFormat value)
         {
             audio::DataType out = audio::DataType::None;

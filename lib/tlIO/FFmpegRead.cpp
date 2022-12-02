@@ -856,7 +856,7 @@ namespace tl
                     throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
                 }
 
-                const size_t fileChannelCount = p.audio.avCodecParameters[p.audio.avStream]->channels;
+                const size_t fileChannelCount = p.audio.avCodecParameters[p.audio.avStream]->ch_layout.nb_channels;
                 switch (fileChannelCount)
                 {
                 case 1:
@@ -1052,26 +1052,20 @@ namespace tl
                     throw std::runtime_error(string::Format("{0}: Cannot allocate frame").arg(_path.get()));
                 }
 
-                uint64_t channelLayout = p.audio.avCodecParameters[p.audio.avStream]->channel_layout;
-                if (0 == channelLayout)
-                {
-                    std::bitset<64> bs;
-                    for (size_t i = 0; i < p.audio.avCodecParameters[p.audio.avStream]->channels; ++i)
-                    {
-                        bs[i] = 1;
-                    }
-                    channelLayout = bs.to_ulong();
-                }
-                p.audio.swrContext = swr_alloc_set_opts(
-                    NULL,
-                    fromChannelCount(p.info.audio.channelCount),
+                AVChannelLayout channelLayout;
+                av_channel_layout_default(&channelLayout, p.info.audio.channelCount);
+                const auto& avCodecParameters = p.audio.avCodecParameters[p.audio.avStream];
+                int r = swr_alloc_set_opts2(
+                    &p.audio.swrContext,
+                    &channelLayout,
                     fromAudioType(p.info.audio.dataType),
                     p.info.audio.sampleRate,
-                    channelLayout,
-                    static_cast<AVSampleFormat>(p.audio.avCodecParameters[p.audio.avStream]->format),
-                    p.audio.avCodecParameters[p.audio.avStream]->sample_rate,
+                    &avCodecParameters->ch_layout,
+                    static_cast<AVSampleFormat>(avCodecParameters->format),
+                    avCodecParameters->sample_rate,
                     0,
                     NULL);
+                av_channel_layout_uninit(&channelLayout);
                 if (!p.audio.swrContext)
                 {
                     throw std::runtime_error(string::Format("{0}: Cannot get context").arg(_path.get()));
