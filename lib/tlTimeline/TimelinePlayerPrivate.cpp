@@ -404,6 +404,9 @@ namespace tl
                 muteTimeout = p->audioMutexData.muteTimeout;
                 rtAudioCurrentFrame = p->audioMutexData.rtAudioCurrentFrame;
             }
+            //std::cout << "playback: " << playback << std::endl;
+            //std::cout << "playbackStartTimeInSeconds: " << playbackStartTimeInSeconds << std::endl;
+            //std::cout << "rtAudioCurrentFrame: " << rtAudioCurrentFrame << std::endl;
 
             // Audio information constants.
             const uint8_t channelCount = p->ioInfo.audio.channelCount;
@@ -418,29 +421,22 @@ namespace tl
             {
             case Playback::Forward:
             {
-                // Time in seconds for indexing into the audio cache.
-                int64_t seconds = playbackStartTimeInSeconds +
-                    rtAudioCurrentFrame / static_cast<double>(sampleRate);
-
-                // Offset into the audio data.
-                int64_t offset = playbackStartTimeInSeconds * sampleRate +
-                    rtAudioCurrentFrame - seconds * sampleRate;
-
-                const auto now = std::chrono::steady_clock::now();
-
-                // Copy audio data to RtAudio.
-                if (speed == p->timeline->getTimeRange().duration().rate() &&
-                    !externalTime &&
-                    !mute &&
-                    now >= muteTimeout &&
-                    offset >= 0)
+                // Fill the audio buffer.
+                if (0 == rtAudioCurrentFrame)
                 {
-                    size_t sampleCount = nFrames;
-                    uint8_t* outputBufferP = reinterpret_cast<uint8_t*>(outputBuffer);
-                    size_t count = 0;
-                    while (sampleCount > 0)
+                    p->audioThreadData.buffer.clear();
+                }
+                {
+                    int64_t frame = playbackStartTimeInSeconds * sampleRate +
+                        rtAudioCurrentFrame +
+                        audio::getSampleCount(p->audioThreadData.buffer);
+                    int64_t seconds = frame / sampleRate;
+                    int64_t offset = frame - seconds * sampleRate;
+                    while (audio::getSampleCount(p->audioThreadData.buffer) < nFrames)
                     {
-                        // Get audio data from the cache.
+                        //std::cout << "frame: " << frame << std::endl;
+                        //std::cout << "seconds: " << seconds << std::endl;
+                        //std::cout << "offset: " << offset << std::endl;
                         AudioData audioData;
                         {
                             std::unique_lock<std::mutex> lock(p->audioMutex);
@@ -450,16 +446,10 @@ namespace tl
                                 audioData = j->second;
                             }
                         }
-
-                        size_t size = sampleCount;
-                        if (size > sampleRate - offset)
+                        if (audioData.layers.empty())
                         {
-                            size = sampleRate - offset;
+                            break;
                         }
-
-                        // Get pointers to the audio data. Only audio data
-                        // that has the same information (channels, data
-                        // type, sample rate) is used.
                         std::vector<const uint8_t*> audioDataP;
                         for (const auto& layer : audioData.layers)
                         {
@@ -468,30 +458,42 @@ namespace tl
                                 audioDataP.push_back(layer.audio->getData() + offset * byteCount);
                             }
                         }
-                            
-                        //std::cout << count <<
-                        //    " samples: " << sampleCount <<
-                        //    " seconds: " << seconds <<
-                        //    " frame: " << rtAudioCurrentFrame <<
-                        //    " offset: " << offset <<
-                        //    " size: " << size << std::endl;
-                        //std::memcpy(outputBufferP, audioData[0]->getData() + offset * byteCount, size * byteCount);
-                            
+                        const size_t size = std::min(
+                            getAudioBufferFrameCount(p->playerOptions.audioBufferFrameCount),
+                            static_cast<size_t>(sampleRate - offset));
+                        //std::cout << "size: " << size << std::endl;
+                        auto tmp = audio::Audio::create(p->ioInfo.audio, size);
+                        tmp->zero();
                         audio::mix(
                             audioDataP.data(),
                             audioDataP.size(),
-                            outputBufferP,
+                            tmp->getData(),
                             volume,
                             size,
                             channelCount,
                             dataType);
-
-                        offset = 0;
-                        sampleCount -= size;
-                        ++seconds;
-                        outputBufferP += size * byteCount;
-                        ++count;
+                        p->audioThreadData.buffer.push_back(tmp);
+                        offset += size;
+                        if (offset >= sampleRate)
+                        {
+                            offset -= sampleRate;
+                            seconds += 1;
+                        }
                     }
+                }
+
+                // Copy audio data to RtAudio.
+                const auto now = std::chrono::steady_clock::now();
+                if (speed == p->timeline->getTimeRange().duration().rate() &&
+                    !externalTime &&
+                    !mute &&
+                    now >= muteTimeout &&
+                    nFrames <= getSampleCount(p->audioThreadData.buffer))
+                {
+                    audio::copy(
+                        p->audioThreadData.buffer,
+                        reinterpret_cast<uint8_t*>(outputBuffer),
+                        nFrames * byteCount);
                 }
 
                 // Update the audio frame.
@@ -511,6 +513,7 @@ namespace tl
                 break;
             default: break;
             }
+            //std::cout << std::endl;
 
             return 0;
         }

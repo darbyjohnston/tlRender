@@ -202,6 +202,9 @@ namespace tl
         //! De-interleave audio data.
         std::shared_ptr<Audio> planarDeinterleave(const std::shared_ptr<Audio>&);
 
+        //! Get the total sample count from a list of audio data.
+        size_t getSampleCount(const std::list<std::shared_ptr<audio::Audio> >&);
+
         //! Copy audio data.
         void copy(
             std::list<std::shared_ptr<Audio> >& in,

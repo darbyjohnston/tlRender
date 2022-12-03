@@ -9,6 +9,7 @@
 #include <tlIO/IOSystem.h>
 
 #include <tlCore/Assert.h>
+#include <tlCore/AudioSystem.h>
 #include <tlCore/Error.h>
 #include <tlCore/String.h>
 #include <tlCore/StringFormat.h>
@@ -186,6 +187,9 @@ namespace tl
                     {
                         if (p.getAudioInfo(otioTrack))
                         {
+                            auto audioSystem = context->getSystem<audio::System>();
+                            const auto audioInfo = audioSystem->getDefaultOutputInfo();
+                            p.ioInfo.audio = audioSystem->getDefaultOutputInfo();
                             p.options.ioOptions["ffmpeg/AudioChannelCount"] = string::Format("{0}").arg(p.ioInfo.audio.channelCount);
                             p.options.ioOptions["ffmpeg/AudioDataType"] = string::Format("{0}").arg(p.ioInfo.audio.dataType);
                             p.options.ioOptions["ffmpeg/AudioSampleRate"] = string::Format("{0}").arg(p.ioInfo.audio.sampleRate);

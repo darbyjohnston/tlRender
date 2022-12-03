@@ -371,6 +371,16 @@ namespace tl
             return out;
         }
 
+        size_t getSampleCount(const std::list<std::shared_ptr<audio::Audio> >& value)
+        {
+            size_t out = 0;
+            for (const auto& i : value)
+            {
+                out += i->getSampleCount();
+            }
+            return out;
+        }
+
         void copy(std::list<std::shared_ptr<Audio> >& in, uint8_t* out, size_t byteCount)
         {
             size_t size = 0;

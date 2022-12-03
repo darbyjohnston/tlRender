@@ -6,6 +6,7 @@
 
 #include <tlTimeline/TimelinePlayer.h>
 
+#include <tlCore/AudioConvert.h>
 #include <tlCore/LRUCache.h>
 
 #if defined(TLRENDER_AUDIO)
@@ -125,6 +126,13 @@ namespace tl
             };
             ThreadData threadData;
             std::thread thread;
+
+            struct AudioThreadData
+            {
+                std::shared_ptr<audio::AudioConvert> convert;
+                std::list<std::shared_ptr<audio::Audio> > buffer;
+            };
+            AudioThreadData audioThreadData;
 
             std::chrono::steady_clock::time_point logTimer;
         };
