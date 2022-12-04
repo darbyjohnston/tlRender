@@ -129,6 +129,7 @@ namespace tl
 
             struct AudioThreadData
             {
+                audio::Info info;
                 std::shared_ptr<audio::AudioConvert> convert;
                 std::list<std::shared_ptr<audio::Audio> > buffer;
             };

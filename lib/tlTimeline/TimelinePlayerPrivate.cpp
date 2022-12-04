@@ -408,14 +408,8 @@ namespace tl
             //std::cout << "playbackStartTimeInSeconds: " << playbackStartTimeInSeconds << std::endl;
             //std::cout << "rtAudioCurrentFrame: " << rtAudioCurrentFrame << std::endl;
 
-            // Audio information constants.
-            const uint8_t channelCount = p->ioInfo.audio.channelCount;
-            const audio::DataType dataType = p->ioInfo.audio.dataType;
-            const size_t sampleRate = p->ioInfo.audio.sampleRate;
-            const size_t byteCount = p->ioInfo.audio.getByteCount();
-
             // Zero output audio data.
-            std::memset(outputBuffer, 0, nFrames * byteCount);
+            std::memset(outputBuffer, 0, nFrames * p->audioThreadData.info.getByteCount());
 
             switch (playback)
             {
@@ -424,14 +418,19 @@ namespace tl
                 // Fill the audio buffer.
                 if (0 == rtAudioCurrentFrame)
                 {
+                    if (p->audioThreadData.convert)
+                    {
+                        p->audioThreadData.convert->flush();
+                    }
                     p->audioThreadData.buffer.clear();
                 }
                 {
-                    int64_t frame = playbackStartTimeInSeconds * sampleRate +
-                        rtAudioCurrentFrame +
-                        audio::getSampleCount(p->audioThreadData.buffer);
-                    int64_t seconds = frame / sampleRate;
-                    int64_t offset = frame - seconds * sampleRate;
+                    int64_t frame = playbackStartTimeInSeconds * p->ioInfo.audio.sampleRate +
+                        otime::RationalTime(
+                            rtAudioCurrentFrame + audio::getSampleCount(p->audioThreadData.buffer),
+                            p->audioThreadData.info.sampleRate).rescaled_to(p->ioInfo.audio.sampleRate).value();
+                    int64_t seconds = p->ioInfo.audio.sampleRate > 0 ? (frame / p->ioInfo.audio.sampleRate) : 0;
+                    int64_t offset = frame - seconds * p->ioInfo.audio.sampleRate;
                     while (audio::getSampleCount(p->audioThreadData.buffer) < nFrames)
                     {
                         //std::cout << "frame: " << frame << std::endl;
@@ -455,12 +454,13 @@ namespace tl
                         {
                             if (layer.audio && layer.audio->getInfo() == p->ioInfo.audio)
                             {
-                                audioDataP.push_back(layer.audio->getData() + offset * byteCount);
+                                audioDataP.push_back(layer.audio->getData() + offset * p->ioInfo.audio.getByteCount());
                             }
                         }
+
                         const size_t size = std::min(
                             getAudioBufferFrameCount(p->playerOptions.audioBufferFrameCount),
-                            static_cast<size_t>(sampleRate - offset));
+                            static_cast<size_t>(p->ioInfo.audio.sampleRate - offset));
                         //std::cout << "size: " << size << std::endl;
                         auto tmp = audio::Audio::create(p->ioInfo.audio, size);
                         tmp->zero();
@@ -470,13 +470,25 @@ namespace tl
                             tmp->getData(),
                             volume,
                             size,
-                            channelCount,
-                            dataType);
-                        p->audioThreadData.buffer.push_back(tmp);
-                        offset += size;
-                        if (offset >= sampleRate)
+                            p->ioInfo.audio.channelCount,
+                            p->ioInfo.audio.dataType);
+
+                        if (!p->audioThreadData.convert ||
+                            (p->audioThreadData.convert && p->audioThreadData.convert->getInputInfo() != p->ioInfo.audio))
                         {
-                            offset -= sampleRate;
+                            p->audioThreadData.convert = audio::AudioConvert::create(
+                                p->ioInfo.audio,
+                                p->audioThreadData.info);
+                        }
+                        if (p->audioThreadData.convert)
+                        {
+                            p->audioThreadData.buffer.push_back(p->audioThreadData.convert->convert(tmp));
+                        }
+
+                        offset += size;
+                        if (offset >= p->ioInfo.audio.sampleRate)
+                        {
+                            offset -= p->ioInfo.audio.sampleRate;
                             seconds += 1;
                         }
                     }
@@ -493,7 +505,7 @@ namespace tl
                     audio::copy(
                         p->audioThreadData.buffer,
                         reinterpret_cast<uint8_t*>(outputBuffer),
-                        nFrames * byteCount);
+                        nFrames * p->audioThreadData.info.getByteCount());
                 }
 
                 // Update the audio frame.
@@ -551,19 +563,26 @@ namespace tl
             const size_t lineLength = 80;
             std::string currentTimeDisplay(lineLength, '.');
             double n = (currentTime - timeRange.start_time()).value() / timeRange.duration().value();
-            currentTimeDisplay[math::clamp(n, 0.0, 1.0) * (lineLength - 1)] = 'T';
+            size_t index = math::clamp(n, 0.0, 1.0) * (lineLength - 1);
+            if (index < currentTimeDisplay.size())
+            {
+                currentTimeDisplay[index] = 'T';
+            }
 
             // Create an array of characters to draw the cached video frames.
             std::string cachedVideoFramesDisplay(lineLength, '.');
             for (const auto& i : cacheInfo.videoFrames)
             {
-                double n = (i.start_time() - timeRange.start_time()).value() / timeRange.duration().value();
+                n = (i.start_time() - timeRange.start_time()).value() / timeRange.duration().value();
                 const size_t t0 = math::clamp(n, 0.0, 1.0) * (lineLength - 1);
                 n = (i.end_time_inclusive() - timeRange.start_time()).value() / timeRange.duration().value();
                 const size_t t1 = math::clamp(n, 0.0, 1.0) * (lineLength - 1);
                 for (size_t j = t0; j <= t1; ++j)
                 {
-                    cachedVideoFramesDisplay[j] = 'V';
+                    if (j < cachedVideoFramesDisplay.size())
+                    {
+                        cachedVideoFramesDisplay[j] = 'V';
+                    }
                 }
             }
 
@@ -577,7 +596,10 @@ namespace tl
                 const size_t t1 = math::clamp(n, 0.0, 1.0) * (lineLength - 1);
                 for (size_t j = t0; j <= t1; ++j)
                 {
-                    cachedAudioFramesDisplay[j] = 'A';
+                    if (j < cachedAudioFramesDisplay.size())
+                    {
+                        cachedAudioFramesDisplay[j] = 'A';
+                    }
                 }
             }
 

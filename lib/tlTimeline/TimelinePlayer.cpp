@@ -193,42 +193,45 @@ namespace tl
 
                     if (auto context = getContext().lock())
                     {
+#if defined(TLRENDER_AUDIO)
                         // Initialize audio.
                         auto audioSystem = context->getSystem<audio::System>();
-                        if (!audioSystem->getDevices().empty() &&
-                            p.ioInfo.audio.channelCount > 0 &&
-                            p.ioInfo.audio.dataType != audio::DataType::None &&
-                            p.ioInfo.audio.sampleRate > 0)
+                        if (!audioSystem->getDevices().empty())
                         {
-#if defined(TLRENDER_AUDIO)
-                            try
+                            p.audioThreadData.info = audioSystem->getDefaultOutputInfo();
+                            if (p.audioThreadData.info.channelCount > 0 &&
+                                p.audioThreadData.info.dataType != audio::DataType::None &&
+                                p.audioThreadData.info.sampleRate > 0)
                             {
-                                p.threadData.rtAudio.reset(new RtAudio);
-                                RtAudio::StreamParameters rtParameters;
-                                auto audioSystem = context->getSystem<audio::System>();
-                                rtParameters.deviceId = audioSystem->getDefaultOutputDevice();
-                                rtParameters.nChannels = p.ioInfo.audio.channelCount;
-                                unsigned int rtBufferFrames = getAudioBufferFrameCount(p.playerOptions.audioBufferFrameCount);
-                                p.threadData.rtAudio->openStream(
-                                    &rtParameters,
-                                    nullptr,
-                                    toRtAudio(p.ioInfo.audio.dataType),
-                                    p.ioInfo.audio.sampleRate,
-                                    &rtBufferFrames,
-                                    p.rtAudioCallback,
-                                    _p.get(),
-                                    nullptr,
-                                    p.rtAudioErrorCallback);
-                                p.threadData.rtAudio->startStream();
+                                try
+                                {
+                                    p.threadData.rtAudio.reset(new RtAudio);
+                                    RtAudio::StreamParameters rtParameters;
+                                    auto audioSystem = context->getSystem<audio::System>();
+                                    rtParameters.deviceId = audioSystem->getDefaultOutputDevice();
+                                    rtParameters.nChannels = p.audioThreadData.info.channelCount;
+                                    unsigned int rtBufferFrames = getAudioBufferFrameCount(p.playerOptions.audioBufferFrameCount);
+                                    p.threadData.rtAudio->openStream(
+                                        &rtParameters,
+                                        nullptr,
+                                        toRtAudio(p.audioThreadData.info.dataType),
+                                        p.audioThreadData.info.sampleRate,
+                                        &rtBufferFrames,
+                                        p.rtAudioCallback,
+                                        _p.get(),
+                                        nullptr,
+                                        p.rtAudioErrorCallback);
+                                    p.threadData.rtAudio->startStream();
+                                }
+                                catch (const std::exception& e)
+                                {
+                                    std::stringstream ss;
+                                    ss << "Cannot open audio stream: " << e.what();
+                                    context->log("tl::timline::TimelinePlayer", ss.str(), log::Type::Error);
+                                }
                             }
-                            catch (const std::exception& e)
-                            {
-                                std::stringstream ss;
-                                ss << "Cannot open audio stream: " << e.what();
-                                context->log("tl::timline::TimelinePlayer", ss.str(), log::Type::Error);
-                            }
-#endif // TLRENDER_AUDIO
                         }
+#endif // TLRENDER_AUDIO
                     }
 
                     p.logTimer = std::chrono::steady_clock::now();

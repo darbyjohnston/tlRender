@@ -119,8 +119,8 @@ namespace tl
                 const int64_t swrDelay = swr_get_delay(p.swrContext, p.inputInfo.sampleRate);
                 //std::cout << "delay: " << swrDelay << std::endl;
                 const size_t swrOutputSamples = sampleCount + swrDelay;
-                out = Audio::create(p.outputInfo, swrOutputSamples);
-                uint8_t* swrOutputBufferP[] = { out->getData() };
+                auto tmp = Audio::create(p.outputInfo, swrOutputSamples);
+                uint8_t* swrOutputBufferP[] = { tmp->getData() };
                 const uint8_t* swrInputBufferP[] = { value->getData() };
                 const int swrOutputCount = swr_convert(
                     p.swrContext,
@@ -128,6 +128,8 @@ namespace tl
                     swrOutputSamples,
                     swrInputBufferP,
                     sampleCount);
+                out = Audio::create(p.outputInfo, swrOutputCount);
+                memcpy(out->getData(), tmp->getData(), out->getByteCount());
             }
 #endif // TLRENDER_FFMPEG
             return out;
