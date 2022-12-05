@@ -571,7 +571,7 @@ namespace tl
 
                         const size_t size = std::min(
                             audioBufferCount,
-                            p.audioThreadData.inputAudioInfo.sampleRate - offset);
+                            static_cast<size_t>(p.audioThreadData.inputAudioInfo.sampleRate - offset));
                         //std::cout << "size: " << size << " " << std::endl;
                         auto tmpAudio = audio::Audio::create(p.audioThreadData.inputAudioInfo, size);
                         audio::mix(
