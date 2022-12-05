@@ -5,6 +5,7 @@
 #include <tlCore/File.h>
 
 #include <cstring>
+#include <vector>
 
 #include <sys/stat.h>
 #include <stdlib.h>
@@ -22,21 +23,21 @@ namespace tl
 {
 	namespace file
 	{
-		bool exists(const Path& path)
+		bool exists(const std::string& fileName)
 		{
 			_STAT info;
 			memset(&info, 0, sizeof(_STAT));
-			return 0 == _STAT_FNC(path.get().c_str(), &info);
+			return 0 == _STAT_FNC(fileName.c_str(), &info);
 		}
 
         bool mkdir(const std::string& fileName)
         {
-            return false;
+            return 0 == ::mkdir(fileName.c_str(), S_IRWXU | S_IRWXG);
         }
 
         bool rmdir(const std::string& fileName)
         {
-            return false;
+            return 0 == ::rmdir(fileName.c_str());
         }
 		
 		std::string getTemp()
@@ -59,7 +60,7 @@ namespace tl
 			{
 				for (const auto& path : { "/tmp", "/var/tmp", "/usr/tmp" })
 				{
-					if (exists(Path(path)))
+					if (exists(path))
 					{
 						out = path;
 						break;
