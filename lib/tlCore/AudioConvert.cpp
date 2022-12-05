@@ -66,7 +66,7 @@ namespace tl
                     fromAudioType(p.inputInfo.dataType),
                     p.inputInfo.sampleRate,
                     0,
-                    NULL);
+                    nullptr);
                 av_channel_layout_uninit(&inputChannelLayout);
                 av_channel_layout_uninit(&outputChannelLayout);
                 if (p.swrContext)
@@ -142,13 +142,19 @@ namespace tl
         {
             TLRENDER_P();
 #if defined(TLRENDER_FFMPEG)
-            while (swr_convert(
-                p.swrContext,
-                NULL,
-                0,
-                NULL,
-                0) > 0)
-                ;
+            auto tmp = Audio::create(p.outputInfo, 100);
+            uint8_t* swrOutputBufferP[] = { tmp->getData() };
+            int r = 0;
+            do
+            {
+                r = swr_convert(
+                    p.swrContext,
+                    swrOutputBufferP,
+                    tmp->getSampleCount(),
+                    nullptr,
+                    0);
+            }
+            while (r > 0);
 #endif // TLRENDER_FFMPEG
         }
     }
