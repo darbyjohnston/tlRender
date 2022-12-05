@@ -51,25 +51,28 @@ namespace tl
             p.inputInfo = inputInfo;
             p.outputInfo = outputInfo;
 #if defined(TLRENDER_FFMPEG)
-            AVChannelLayout inputChannelLayout;
-            av_channel_layout_default(&inputChannelLayout, p.inputInfo.channelCount);
-            AVChannelLayout outputChannelLayout;
-            av_channel_layout_default(&outputChannelLayout, p.outputInfo.channelCount);
-            int r = swr_alloc_set_opts2(
-                &p.swrContext,
-                &outputChannelLayout,
-                fromAudioType(p.outputInfo.dataType),
-                p.outputInfo.sampleRate,
-                &inputChannelLayout,
-                fromAudioType(p.inputInfo.dataType),
-                p.inputInfo.sampleRate,
-                0,
-                NULL);
-            av_channel_layout_uninit(&inputChannelLayout);
-            av_channel_layout_uninit(&outputChannelLayout);
-            if (p.swrContext)
+            if (p.inputInfo.isValid() && p.outputInfo.isValid())
             {
-                swr_init(p.swrContext);
+                AVChannelLayout inputChannelLayout;
+                av_channel_layout_default(&inputChannelLayout, p.inputInfo.channelCount);
+                AVChannelLayout outputChannelLayout;
+                av_channel_layout_default(&outputChannelLayout, p.outputInfo.channelCount);
+                int r = swr_alloc_set_opts2(
+                    &p.swrContext,
+                    &outputChannelLayout,
+                    fromAudioType(p.outputInfo.dataType),
+                    p.outputInfo.sampleRate,
+                    &inputChannelLayout,
+                    fromAudioType(p.inputInfo.dataType),
+                    p.inputInfo.sampleRate,
+                    0,
+                    NULL);
+                av_channel_layout_uninit(&inputChannelLayout);
+                av_channel_layout_uninit(&outputChannelLayout);
+                if (p.swrContext)
+                {
+                    swr_init(p.swrContext);
+                }
             }
 #endif // TLRENDER_FFMPEG
         }
