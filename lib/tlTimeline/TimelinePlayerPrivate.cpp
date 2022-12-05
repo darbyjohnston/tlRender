@@ -491,6 +491,8 @@ namespace tl
                             offset -= p->ioInfo.audio.sampleRate;
                             seconds += 1;
                         }
+
+                        //std::cout << std::endl;
                     }
                 }
 
@@ -525,7 +527,6 @@ namespace tl
                 break;
             default: break;
             }
-            //std::cout << std::endl;
 
             return 0;
         }
