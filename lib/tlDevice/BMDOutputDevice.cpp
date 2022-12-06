@@ -283,7 +283,6 @@ namespace tl
                 size_t samplesOffset = 0;
                 audio::Info inputAudioInfo;
                 std::shared_ptr<audio::AudioConvert> audioConvert;
-                std::list<std::shared_ptr<audio::Audio> > buffer;
             };
             AudioThreadData audioThreadData;
         };
@@ -510,7 +509,6 @@ namespace tl
                 {
                     p.audioThreadData.audioConvert->flush();
                 }
-                p.audioThreadData.buffer.clear();
                 p.dlOutput->FlushBufferedAudioSamples();
             }
 
@@ -536,7 +534,11 @@ namespace tl
                         p.audioThreadData.samplesOffset;
                     int64_t seconds = p.audioThreadData.inputAudioInfo.sampleRate > 0 ? (frame / p.audioThreadData.inputAudioInfo.sampleRate) : 0;
                     int64_t offset = frame - seconds * p.audioThreadData.inputAudioInfo.sampleRate;
-                    while (audio::getSampleCount(p.audioThreadData.buffer) < audioBufferCount)
+
+                    uint32_t bufferedSampleCount = 0;
+                    p.dlOutput->GetBufferedAudioSampleFrameCount(&bufferedSampleCount);
+                    //std::cout << "bmd buffered sample count: " << bufferedSampleCount << std::endl;
+                    while (bufferedSampleCount < audioBufferCount)
                     {
                         //std::cout << "frame: " << frame << std::endl;
                         //std::cout << "seconds: " << seconds << std::endl;
@@ -585,9 +587,13 @@ namespace tl
 
                         if (p.audioThreadData.audioConvert)
                         {
-                            auto audioConvert = p.audioThreadData.audioConvert->convert(tmpAudio);
-                            p.audioThreadData.buffer.push_back(audioConvert);
-                            //std::cout << "audio buffer: " << audio::getSampleCount(p.audioThreadData.buffer) << std::endl;
+                            auto convertedAudio = p.audioThreadData.audioConvert->convert(tmpAudio);
+                            p.dlOutput->ScheduleAudioSamples(
+                                convertedAudio->getData(),
+                                convertedAudio->getSampleCount(),
+                                0,
+                                0,
+                                nullptr);
                         }
 
                         offset += size;
@@ -599,30 +605,10 @@ namespace tl
 
                         p.audioThreadData.samplesOffset += size;
 
+                        p.dlOutput->GetBufferedAudioSampleFrameCount(&bufferedSampleCount);
+
                         //std::cout << std::endl;
                     }
-                }
-                //std::cout << "audio buffer: " << audio::getSampleCount(p.audioThreadData.buffer) << std::endl;
-
-                uint32_t bufferedSampleCount = 0;
-                p.dlOutput->GetBufferedAudioSampleFrameCount(&bufferedSampleCount);
-                //std::cout << "bmd buffered sample count: " << bufferedSampleCount << std::endl;
-                if (bufferedSampleCount < audioBufferCount)
-                {
-                    const size_t size = std::min(
-                        audio::getSampleCount(p.audioThreadData.buffer),
-                        static_cast<size_t>(audioBufferCount - bufferedSampleCount));
-                    auto tmpAudio = audio::Audio::create(p.audioInfo, size);
-                    audio::copy(
-                        p.audioThreadData.buffer,
-                        tmpAudio->getData(),
-                        tmpAudio->getByteCount());
-                    p.dlOutput->ScheduleAudioSamples(
-                        tmpAudio->getData(),
-                        tmpAudio->getSampleCount(),
-                        0,
-                        0,
-                        nullptr);
                 }
             }
 
