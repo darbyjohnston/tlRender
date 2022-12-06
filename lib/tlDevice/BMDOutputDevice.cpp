@@ -24,7 +24,7 @@ namespace tl
         namespace
         {
             const size_t pixelDataMax = 3;
-            const size_t audioBufferCount = 10000;
+            const size_t audioBufferCount = 3000;
 
             class DLIteratorWrapper
             {
