@@ -477,6 +477,8 @@ namespace tl
         HRESULT DLOutputCallback::RenderAudioSamples(BOOL preroll)
         {
             TLRENDER_P();
+
+            // Get values.
             otime::RationalTime currentTime = time::invalidTime;
             float volume = 1.F;
             bool mute = false;
@@ -499,6 +501,8 @@ namespace tl
             //std::cout << "audio start time: " << p.audioThreadData.startTime << std::endl;
             //std::cout << "audio samples offset: " << p.audioThreadData.samplesOffset << std::endl;
 
+            // Flush the audio converter and BMD buffer when the playback
+            // is reset.
             if (0 == p.audioThreadData.samplesOffset)
             {
                 if (p.audioThreadData.convert)
@@ -508,6 +512,7 @@ namespace tl
                 p.dlOutput->FlushBufferedAudioSamples();
             }
 
+            // Create the audio converter.
             audio::Info inputInfo;
             if (!audioDataList.empty() &&
                 !audioDataList[0].layers.empty() &&
@@ -521,6 +526,7 @@ namespace tl
                 }
             }
 
+            // Copy audio data to BMD.
             if (timeline::Playback::Forward == p.audioThreadData.playback &&
                 p.audioThreadData.convert)
             {

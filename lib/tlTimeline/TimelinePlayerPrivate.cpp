@@ -415,7 +415,8 @@ namespace tl
             {
             case Playback::Forward:
             {
-                // Fill the audio buffer.
+                // Flush the audio converter and buffer when the RtAudio
+                // playback is reset.
                 if (0 == rtAudioCurrentFrame)
                 {
                     if (p->audioThreadData.convert)
@@ -424,6 +425,17 @@ namespace tl
                     }
                     p->audioThreadData.buffer.clear();
                 }
+
+                // Create the audio converter.
+                if (!p->audioThreadData.convert ||
+                    (p->audioThreadData.convert && p->audioThreadData.convert->getInputInfo() != p->ioInfo.audio))
+                {
+                    p->audioThreadData.convert = audio::AudioConvert::create(
+                        p->ioInfo.audio,
+                        p->audioThreadData.info);
+                }
+
+                // Fill the audio buffer.
                 {
                     int64_t frame = playbackStartTimeInSeconds * p->ioInfo.audio.sampleRate +
                         otime::RationalTime(
@@ -473,13 +485,6 @@ namespace tl
                             p->ioInfo.audio.channelCount,
                             p->ioInfo.audio.dataType);
 
-                        if (!p->audioThreadData.convert ||
-                            (p->audioThreadData.convert && p->audioThreadData.convert->getInputInfo() != p->ioInfo.audio))
-                        {
-                            p->audioThreadData.convert = audio::AudioConvert::create(
-                                p->ioInfo.audio,
-                                p->audioThreadData.info);
-                        }
                         if (p->audioThreadData.convert)
                         {
                             p->audioThreadData.buffer.push_back(p->audioThreadData.convert->convert(tmp));
