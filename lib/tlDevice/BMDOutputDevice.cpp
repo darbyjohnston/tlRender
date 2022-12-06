@@ -281,8 +281,8 @@ namespace tl
                 timeline::Playback playback = timeline::Playback::Stop;
                 otime::RationalTime startTime = time::invalidTime;
                 size_t samplesOffset = 0;
-                audio::Info inputAudioInfo;
-                std::shared_ptr<audio::AudioConvert> audioConvert;
+                audio::Info convertInfo;
+                std::shared_ptr<audio::AudioConvert> convert;
             };
             AudioThreadData audioThreadData;
         };
@@ -505,9 +505,9 @@ namespace tl
 
             if (0 == p.audioThreadData.samplesOffset)
             {
-                if (p.audioThreadData.audioConvert)
+                if (p.audioThreadData.convert)
                 {
-                    p.audioThreadData.audioConvert->flush();
+                    p.audioThreadData.convert->flush();
                 }
                 p.dlOutput->FlushBufferedAudioSamples();
             }
@@ -517,11 +517,11 @@ namespace tl
                 audioDataList[0].layers[0].audio)
             {
                 const auto& info = audioDataList[0].layers[0].audio->getInfo();
-                if (info != p.audioThreadData.inputAudioInfo)
+                if (info != p.audioThreadData.convertInfo)
                 {
-                    p.audioThreadData.inputAudioInfo = info;
-                    p.audioThreadData.audioConvert = audio::AudioConvert::create(
-                        p.audioThreadData.inputAudioInfo,
+                    p.audioThreadData.convertInfo = info;
+                    p.audioThreadData.convert = audio::AudioConvert::create(
+                        p.audioThreadData.convertInfo,
                         p.audioInfo);
                 }
             }
@@ -530,10 +530,10 @@ namespace tl
             {
                 {
                     int64_t frame =
-                        p.audioThreadData.startTime.rescaled_to(p.audioThreadData.inputAudioInfo.sampleRate).value() +
+                        p.audioThreadData.startTime.rescaled_to(p.audioThreadData.convertInfo.sampleRate).value() +
                         p.audioThreadData.samplesOffset;
-                    int64_t seconds = p.audioThreadData.inputAudioInfo.sampleRate > 0 ? (frame / p.audioThreadData.inputAudioInfo.sampleRate) : 0;
-                    int64_t offset = frame - seconds * p.audioThreadData.inputAudioInfo.sampleRate;
+                    int64_t seconds = p.audioThreadData.convertInfo.sampleRate > 0 ? (frame / p.audioThreadData.convertInfo.sampleRate) : 0;
+                    int64_t offset = frame - seconds * p.audioThreadData.convertInfo.sampleRate;
 
                     uint32_t bufferedSampleCount = 0;
                     p.dlOutput->GetBufferedAudioSampleFrameCount(&bufferedSampleCount);
@@ -565,29 +565,29 @@ namespace tl
                         std::vector<const uint8_t*> audioDataP;
                         for (const auto& layer : audioData.layers)
                         {
-                            if (layer.audio && layer.audio->getInfo() == p.audioThreadData.inputAudioInfo)
+                            if (layer.audio && layer.audio->getInfo() == p.audioThreadData.convertInfo)
                             {
-                                audioDataP.push_back(layer.audio->getData() + offset * p.audioThreadData.inputAudioInfo.getByteCount());
+                                audioDataP.push_back(layer.audio->getData() + offset * p.audioThreadData.convertInfo.getByteCount());
                             }
                         }
 
                         const size_t size = std::min(
                             audioBufferCount,
-                            p.audioThreadData.inputAudioInfo.sampleRate - offset);
+                            p.audioThreadData.convertInfo.sampleRate - offset);
                         //std::cout << "size: " << size << " " << std::endl;
-                        auto tmpAudio = audio::Audio::create(p.audioThreadData.inputAudioInfo, size);
+                        auto tmpAudio = audio::Audio::create(p.audioThreadData.convertInfo, size);
                         audio::mix(
                             audioDataP.data(),
                             audioDataP.size(),
                             tmpAudio->getData(),
                             mute ? 0.F : volume,
                             size,
-                            p.audioThreadData.inputAudioInfo.channelCount,
-                            p.audioThreadData.inputAudioInfo.dataType);
+                            p.audioThreadData.convertInfo.channelCount,
+                            p.audioThreadData.convertInfo.dataType);
 
-                        if (p.audioThreadData.audioConvert)
+                        if (p.audioThreadData.convert)
                         {
-                            auto convertedAudio = p.audioThreadData.audioConvert->convert(tmpAudio);
+                            auto convertedAudio = p.audioThreadData.convert->convert(tmpAudio);
                             p.dlOutput->ScheduleAudioSamples(
                                 convertedAudio->getData(),
                                 convertedAudio->getSampleCount(),
@@ -597,9 +597,9 @@ namespace tl
                         }
 
                         offset += size;
-                        if (offset >= p.audioThreadData.inputAudioInfo.sampleRate)
+                        if (offset >= p.audioThreadData.convertInfo.sampleRate)
                         {
-                            offset -= p.audioThreadData.inputAudioInfo.sampleRate;
+                            offset -= p.audioThreadData.convertInfo.sampleRate;
                             seconds += 1;
                         }
 
