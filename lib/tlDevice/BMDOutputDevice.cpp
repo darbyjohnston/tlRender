@@ -483,13 +483,10 @@ namespace tl
             std::vector<timeline::AudioData> audioDataList;
             {
                 std::unique_lock<std::mutex> lock(p.audioMutex);
-                if (p.audioMutexData.playback != p.audioThreadData.playback)
+                if (p.audioMutexData.playback != p.audioThreadData.playback ||
+                    p.audioMutexData.startTime != p.audioThreadData.startTime)
                 {
                     p.audioThreadData.playback = p.audioMutexData.playback;
-                    p.audioThreadData.samplesOffset = 0;
-                }
-                if (p.audioMutexData.startTime != p.audioThreadData.startTime)
-                {
                     p.audioThreadData.startTime = p.audioMutexData.startTime;
                     p.audioThreadData.samplesOffset = 0;
                 }
