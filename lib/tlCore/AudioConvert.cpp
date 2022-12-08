@@ -142,19 +142,21 @@ namespace tl
         {
             TLRENDER_P();
 #if defined(TLRENDER_FFMPEG)
-            auto tmp = Audio::create(p.outputInfo, 100);
-            uint8_t* swrOutputBufferP[] = { tmp->getData() };
-            int r = 0;
-            do
+            if (p.swrContext)
             {
-                r = swr_convert(
-                    p.swrContext,
-                    swrOutputBufferP,
-                    tmp->getSampleCount(),
-                    nullptr,
-                    0);
+                auto tmp = Audio::create(p.outputInfo, 100);
+                uint8_t* swrOutputBufferP[] = { tmp->getData() };
+                int r = 0;
+                do
+                {
+                    r = swr_convert(
+                        p.swrContext,
+                        swrOutputBufferP,
+                        tmp->getSampleCount(),
+                        nullptr,
+                        0);
+                } while (r > 0);
             }
-            while (r > 0);
 #endif // TLRENDER_FFMPEG
         }
     }
