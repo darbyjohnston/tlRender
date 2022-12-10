@@ -12,7 +12,7 @@ namespace tl
 {
     namespace memory
     {
-        //! LRU (Least Recently Used) cache.
+        //! Least recently used (LRU) cache.
         template<typename T, typename U>
         class LRUCache
         {
@@ -20,11 +20,12 @@ namespace tl
             //! \name Size
             ///@{
 
-            std::size_t getMax() const;
-            std::size_t getSize() const;
-            float getPercentageUsed() const;
+            size_t getMax() const;
+            size_t getSize() const;
+            size_t getCount() const;
+            float getPercentage() const;
 
-            void setMax(std::size_t);
+            void setMax(size_t);
 
             ///@}
 
@@ -34,7 +35,7 @@ namespace tl
             bool contains(const T& key) const;
             bool get(const T& key, U& value) const;
 
-            void add(const T& key, const U& value);
+            void add(const T& key, const U& value, size_t size = 1);
             void remove(const T& key);
             void clear();
 
@@ -46,8 +47,8 @@ namespace tl
         private:
             void _maxUpdate();
 
-            std::size_t _max = 10000;
-            std::map<T, U> _map;
+            size_t _max = 10000;
+            std::map<T, std::pair<U, size_t> > _map;
             mutable std::map<T, int64_t> _counts;
             mutable int64_t _counter = 0;
         };

@@ -140,9 +140,9 @@ namespace tl
                     {
 #if defined(_WINDOWS)
                         _tiff.p = TIFFOpenW(string::toWide(fileName).c_str(), "r");
-#else
+#else // _WINDOWS
                         _tiff.p = TIFFOpen(fileName.c_str(), "r");
-#endif
+#endif // _WINDOWS
                     }
                     if (!_tiff.p)
                     {

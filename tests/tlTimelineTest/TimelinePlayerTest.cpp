@@ -147,58 +147,46 @@ namespace tl
             struct FrameOptions
             {
                 uint16_t layer = 0;
-                otime::RationalTime readAhead = otime::RationalTime(4.0, 1.0);
-                otime::RationalTime readBehind = otime::RationalTime(0.4, 1.0);
+                PlayerCacheOptions cache;
                 size_t requestCount = 16;
                 size_t requestTimeout = 1;
             };
-            for (const auto options : std::vector<FrameOptions>({
-                FrameOptions(),
-                { 1, otime::RationalTime(1.0, 24.0), otime::RationalTime(0.0, 1.0) } }))
+            FrameOptions frameOptions2;
+            frameOptions2.layer = 1;
+            frameOptions2.cache.readAhead = otime::RationalTime(1.0, 24.0);
+            frameOptions2.cache.readBehind = otime::RationalTime(0.0, 1.0);
+            for (const auto options : std::vector<FrameOptions>({ FrameOptions(), frameOptions2 }))
             {
-                timelinePlayer->setCacheReadAhead(options.readAhead);
-                TLRENDER_ASSERT(options.readAhead == timelinePlayer->observeCacheReadAhead()->get());
-                timelinePlayer->setCacheReadBehind(options.readBehind);
-                TLRENDER_ASSERT(options.readBehind == timelinePlayer->observeCacheReadBehind()->get());
-                auto videoDataObserver = observer::ValueObserver<timeline::VideoData>::create(
-                    timelinePlayer->observeVideo(),
+                timelinePlayer->setCacheOptions(options.cache);
+                TLRENDER_ASSERT(options.cache == timelinePlayer->observeCacheOptions()->get());
+                auto currentVideoObserver = observer::ValueObserver<timeline::VideoData>::create(
+                    timelinePlayer->observeCurrentVideo(),
                     [this](const timeline::VideoData& value)
                     {
                         std::stringstream ss;
                         ss << "Video time: " << value.time;
                         _print(ss.str());
                     });
-                auto cachePercentageObserver = observer::ValueObserver<float>::create(
-                    timelinePlayer->observeCachePercentage(),
-                    [this](float value)
+                auto currentAudioObserver = observer::ListObserver<timeline::AudioData>::create(
+                    timelinePlayer->observeCurrentAudio(),
+                    [this](const std::vector<timeline::AudioData>& value)
                     {
-                        std::stringstream ss;
-                        ss << "Cache: " << value << "%";
-                        _print(ss.str());
-                    });
-                auto cachedVideoFramesObserver = observer::ListObserver<otime::TimeRange>::create(
-                    timelinePlayer->observeCachedVideoFrames(),
-                    [this](const std::vector<otime::TimeRange>& value)
-                    {
-                        std::stringstream ss;
-                        ss << "Cached video frames: ";
                         for (const auto& i : value)
                         {
-                            ss << i << " ";
+                            std::stringstream ss;
+                            ss << "Audio time: " << i.seconds;
+                            _print(ss.str());
                         }
-                        _print(ss.str());
                     });
-                auto cachedAudioFramesObserver = observer::ListObserver<otime::TimeRange>::create(
-                    timelinePlayer->observeCachedAudioFrames(),
-                    [this](const std::vector<otime::TimeRange>& value)
+                auto cacheInfoObserver = observer::ValueObserver<PlayerCacheInfo>::create(
+                    timelinePlayer->observeCacheInfo(),
+                    [this](const PlayerCacheInfo& value)
                     {
-                        std::stringstream ss;
-                        ss << "Cached audio frames: ";
-                        for (const auto& i : value)
                         {
-                            ss << i << " ";
+                            std::stringstream ss;
+                            ss << "Video/audio cached frames: " << value.videoFrames.size() << "/" << value.audioFrames.size();
+                            _print(ss.str());
                         }
-                        _print(ss.str());
                     });
                 for (const auto& loop : getLoopEnums())
                 {

@@ -89,6 +89,7 @@ namespace tl
                 const otio::SerializableObject::Retainer<otio::Timeline>&,
                 const std::shared_ptr<system::Context>&,
                 const Options&);
+
             Timeline();
 
         public:

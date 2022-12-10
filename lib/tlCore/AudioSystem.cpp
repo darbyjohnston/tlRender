@@ -88,15 +88,15 @@ namespace tl
                         {
                             device.nativeFormats.push_back(DeviceFormat::S8);
                         }
-                        if (rtInfo.nativeFormats & RTAUDIO_SINT8)
+                        if (rtInfo.nativeFormats & RTAUDIO_SINT16)
                         {
                             device.nativeFormats.push_back(DeviceFormat::S16);
                         }
-                        if (rtInfo.nativeFormats & RTAUDIO_SINT16)
+                        if (rtInfo.nativeFormats & RTAUDIO_SINT24)
                         {
                             device.nativeFormats.push_back(DeviceFormat::S24);
                         }
-                        if (rtInfo.nativeFormats & RTAUDIO_SINT24)
+                        if (rtInfo.nativeFormats & RTAUDIO_SINT32)
                         {
                             device.nativeFormats.push_back(DeviceFormat::S32);
                         }

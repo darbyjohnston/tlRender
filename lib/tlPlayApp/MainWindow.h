@@ -42,7 +42,6 @@ namespace tl
             void _playbackCallback(tl::timeline::Playback);
             void _currentTimeCallback(const otime::RationalTime&);
             void _volumeCallback(int);
-            void _volumeCallback(float);
 
         private:
             void _widgetUpdate();

@@ -121,6 +121,16 @@ namespace tl
                     SIGNAL(currentTimeChanged(const otime::RationalTime&)),
                     this,
                     SLOT(update()));
+                disconnect(
+                    p.timelinePlayer,
+                    SIGNAL(inOutRangeChanged(const otime::TimeRange&)),
+                    this,
+                    SLOT(update()));
+                disconnect(
+                    p.timelinePlayer,
+                    SIGNAL(cacheInfoChanged(const tl::timeline::PlayerCacheInfo&)),
+                    this,
+                    SLOT(update()));
             }
             p.timelinePlayer = timelinePlayer;
             if (p.timelinePlayer)
@@ -135,11 +145,7 @@ namespace tl
                     SLOT(update()));
                 connect(
                     p.timelinePlayer,
-                    SIGNAL(cachedVideoFramesChanged(const std::vector<otime::TimeRange>&)),
-                    SLOT(update()));
-                connect(
-                    p.timelinePlayer,
-                    SIGNAL(cachedAudioFramesChanged(const std::vector<otime::TimeRange>&)),
+                    SIGNAL(cacheInfoChanged(const tl::timeline::PlayerCacheInfo&)),
                     SLOT(update()));
             }
             _thumbnailsUpdate();
@@ -230,18 +236,17 @@ namespace tl
                     palette.color(QPalette::ColorRole::Button));
 
                 // Draw cached frames.
+                const auto& cacheInfo = p.timelinePlayer->cacheInfo();
                 auto color = QColor(40, 190, 40);
-                auto cachedFrames = p.timelinePlayer->cachedVideoFrames();
                 h = stripeSize;
-                for (const auto& i : cachedFrames)
+                for (const auto& i : cacheInfo.videoFrames)
                 {
                     x0 = _timeToPos(i.start_time());
                     x1 = _timeToPos(i.end_time_inclusive());
                     painter.fillRect(QRect(x0, y1 - h * 2, x1 - x0, h), color);
                 }
                 color = QColor(190, 190, 40);
-                cachedFrames = p.timelinePlayer->cachedAudioFrames();
-                for (const auto& i : cachedFrames)
+                for (const auto& i : cacheInfo.audioFrames)
                 {
                     x0 = _timeToPos(i.start_time());
                     x1 = _timeToPos(i.end_time_inclusive());

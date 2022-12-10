@@ -186,6 +186,9 @@ namespace tl
                     {
                         if (p.getAudioInfo(otioTrack))
                         {
+                            p.options.ioOptions["ffmpeg/AudioChannelCount"] = string::Format("{0}").arg(p.ioInfo.audio.channelCount);
+                            p.options.ioOptions["ffmpeg/AudioDataType"] = string::Format("{0}").arg(p.ioInfo.audio.dataType);
+                            p.options.ioOptions["ffmpeg/AudioSampleRate"] = string::Format("{0}").arg(p.ioInfo.audio.sampleRate);
                             break;
                         }
                     }

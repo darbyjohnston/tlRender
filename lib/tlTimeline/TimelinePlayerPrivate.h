@@ -6,6 +6,9 @@
 
 #include <tlTimeline/TimelinePlayer.h>
 
+#include <tlCore/AudioConvert.h>
+#include <tlCore/LRUCache.h>
+
 #if defined(TLRENDER_AUDIO)
 #include <rtaudio/RtAudio.h>
 #endif // TLRENDER_AUDIO
@@ -34,8 +37,7 @@ namespace tl
                 uint16_t videoLayer,
                 double audioOffset,
                 CacheDirection,
-                const otime::RationalTime& cacheReadAhead,
-                const otime::RationalTime& cacheReadBehind);
+                const PlayerCacheOptions&);
 
             void resetAudioTime();
 #if defined(TLRENDER_AUDIO)
@@ -63,15 +65,13 @@ namespace tl
             std::shared_ptr<observer::Value<otime::RationalTime> > currentTime;
             std::shared_ptr<observer::Value<otime::TimeRange> > inOutRange;
             std::shared_ptr<observer::Value<uint16_t> > videoLayer;
-            std::shared_ptr<observer::Value<VideoData> > video;
+            std::shared_ptr<observer::Value<VideoData> > currentVideoData;
             std::shared_ptr<observer::Value<float> > volume;
             std::shared_ptr<observer::Value<bool> > mute;
             std::shared_ptr<observer::Value<double> > audioOffset;
-            std::shared_ptr<observer::Value<otime::RationalTime> > cacheReadAhead;
-            std::shared_ptr<observer::Value<otime::RationalTime> > cacheReadBehind;
-            std::shared_ptr<observer::Value<float> > cachePercentage;
-            std::shared_ptr<observer::List<otime::TimeRange> > cachedVideoFrames;
-            std::shared_ptr<observer::List<otime::TimeRange> > cachedAudioFrames;
+            std::shared_ptr<observer::List<AudioData> > currentAudioData;
+            std::shared_ptr<observer::Value<PlayerCacheOptions> > cacheOptions;
+            std::shared_ptr<observer::Value<PlayerCacheInfo> > cacheInfo;
 
             struct ExternalTime
             {
@@ -90,15 +90,14 @@ namespace tl
                 bool externalTime = false;
                 otime::TimeRange inOutRange = time::invalidTimeRange;
                 uint16_t videoLayer = 0;
-                VideoData videoData;
+                VideoData currentVideoData;
                 double audioOffset = 0.0;
+                std::vector<AudioData> currentAudioData;
                 bool clearRequests = false;
-                std::vector<otime::TimeRange> cachedVideoFrames;
-                std::vector<otime::TimeRange> cachedAudioFrames;
                 bool clearCache = false;
                 CacheDirection cacheDirection = CacheDirection::Forward;
-                otime::RationalTime cacheReadAhead = time::invalidTime;
-                otime::RationalTime cacheReadBehind = time::invalidTime;
+                PlayerCacheOptions cacheOptions;
+                PlayerCacheInfo cacheInfo;
             };
             MutexData mutexData;
             std::mutex mutex;
@@ -127,6 +126,14 @@ namespace tl
             };
             ThreadData threadData;
             std::thread thread;
+
+            struct AudioThreadData
+            {
+                audio::Info info;
+                std::shared_ptr<audio::AudioConvert> convert;
+                std::list<std::shared_ptr<audio::Audio> > buffer;
+            };
+            AudioThreadData audioThreadData;
 
             std::chrono::steady_clock::time_point logTimer;
         };

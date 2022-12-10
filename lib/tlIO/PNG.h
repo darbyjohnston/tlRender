@@ -26,8 +26,7 @@ namespace tl
 
             //! PNG warning functin.
             void warningFunc(png_structp in, png_const_charp msg);
-
-        } // extern "C"
+        }
 
         //! PNG reader.
         class Read : public io::ISequenceRead

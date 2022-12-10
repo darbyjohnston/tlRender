@@ -83,7 +83,7 @@ namespace tl
             void frameViewActivated();
 
         private Q_SLOTS:
-            void _videoCallback(const tl::timeline::VideoData&);
+            void _currentVideoCallback(const tl::timeline::VideoData&);
 
         protected:
             void initializeGL() override;
@@ -93,7 +93,7 @@ namespace tl
             void enterEvent(QEvent*) override;
 #else
             void enterEvent(QEnterEvent*) override;
-#endif
+#endif // QT_VERSION
             void leaveEvent(QEvent*) override;
             void mousePressEvent(QMouseEvent*) override;
             void mouseReleaseEvent(QMouseEvent*) override;

@@ -106,27 +106,26 @@ namespace tl
             uint16_t videoLayer,
             double audioOffset,
             CacheDirection cacheDirection,
-            const otime::RationalTime& cacheReadAhead,
-            const otime::RationalTime& cacheReadBehind)
+            const PlayerCacheOptions& cacheOptions)
         {
             // Get the video ranges to be cached.
             const otime::TimeRange& timeRange = timeline->getTimeRange();
-            const otime::RationalTime cacheReadAheadRescaled =
-                time::floor(cacheReadAhead.rescaled_to(timeRange.duration().rate()));
-            const otime::RationalTime cacheReadBehindRescaled =
-                time::floor(cacheReadBehind.rescaled_to(timeRange.duration().rate()));
+            const otime::RationalTime readAheadRescaled =
+                time::floor(cacheOptions.readAhead.rescaled_to(timeRange.duration().rate()));
+            const otime::RationalTime readBehindRescaled =
+                time::floor(cacheOptions.readBehind.rescaled_to(timeRange.duration().rate()));
             otime::TimeRange videoRange = time::invalidTimeRange;
             switch (cacheDirection)
             {
             case CacheDirection::Forward:
                 videoRange = otime::TimeRange::range_from_start_end_time_inclusive(
-                    currentTime - cacheReadBehindRescaled,
-                    currentTime + cacheReadAheadRescaled);
+                    currentTime - readBehindRescaled,
+                    currentTime + readAheadRescaled);
                 break;
             case CacheDirection::Reverse:
                 videoRange = otime::TimeRange::range_from_start_end_time_inclusive(
-                    currentTime - cacheReadAheadRescaled,
-                    currentTime + cacheReadBehindRescaled);
+                    currentTime - readAheadRescaled,
+                    currentTime + readBehindRescaled);
                 break;
             default: break;
             }
@@ -153,13 +152,13 @@ namespace tl
             {
             case CacheDirection::Forward:
                 audioRange = otime::TimeRange::range_from_start_end_time_inclusive(
-                    currentTime - cacheReadBehindRescaled - audioOffsetBehind,
-                    currentTime + cacheReadAheadRescaled + audioOffsetAhead);
+                    currentTime - readBehindRescaled - audioOffsetBehind,
+                    currentTime + readAheadRescaled + audioOffsetAhead);
                 break;
             case CacheDirection::Reverse:
                 audioRange = otime::TimeRange::range_from_start_end_time_inclusive(
-                    currentTime - cacheReadAheadRescaled - audioOffsetAhead,
-                    currentTime + cacheReadBehindRescaled + audioOffsetBehind);
+                    currentTime - readAheadRescaled - audioOffsetAhead,
+                    currentTime + readBehindRescaled + audioOffsetBehind);
                 break;
             default: break;
             }
@@ -300,11 +299,11 @@ namespace tl
                 if (audioDataRequestsIt->second.valid() &&
                     audioDataRequestsIt->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                 {
-                    auto data = audioDataRequestsIt->second.get();
-                    data.seconds = audioDataRequestsIt->first;
+                    auto audioData = audioDataRequestsIt->second.get();
+                    audioData.seconds = audioDataRequestsIt->first;
                     {
                         std::unique_lock<std::mutex> lock(audioMutex);
-                        audioMutexData.audioDataCache[data.seconds] = data;
+                        audioMutexData.audioDataCache[audioData.seconds] = audioData;
                     }
                     audioDataRequestsIt = threadData.audioDataRequests.erase(audioDataRequestsIt);
                     continue;
@@ -318,6 +317,10 @@ namespace tl
             {
                 cachedVideoFrames.push_back(i.second.time);
             }
+            const float cachedVideoPercentage = cachedVideoFrames.size() /
+                static_cast<float>(cacheOptions.readAhead.rescaled_to(timeRange.duration().rate()).value() +
+                    cacheOptions.readBehind.rescaled_to(timeRange.duration().rate()).value()) *
+                100.F;
             std::vector<otime::RationalTime> cachedAudioFrames;
             {
                 std::unique_lock<std::mutex> lock(audioMutex);
@@ -334,10 +337,12 @@ namespace tl
                     time::floor(i.start_time().rescaled_to(timeRange.duration().rate())),
                     time::ceil(i.duration().rescaled_to(timeRange.duration().rate())));
             }
+            float cachedAudioPercentage = 0.F;
             {
                 std::unique_lock<std::mutex> lock(mutex);
-                mutexData.cachedVideoFrames = cachedVideoRanges;
-                mutexData.cachedAudioFrames = cachedAudioRanges;
+                mutexData.cacheInfo.videoPercentage = cachedVideoPercentage;
+                mutexData.cacheInfo.videoFrames = cachedVideoRanges;
+                mutexData.cacheInfo.audioFrames = cachedAudioRanges;
             }
         }
 
@@ -399,97 +404,115 @@ namespace tl
                 muteTimeout = p->audioMutexData.muteTimeout;
                 rtAudioCurrentFrame = p->audioMutexData.rtAudioCurrentFrame;
             }
-
-            // Audio information constants.
-            const uint8_t channelCount = p->ioInfo.audio.channelCount;
-            const audio::DataType dataType = p->ioInfo.audio.dataType;
-            const size_t byteCount = p->ioInfo.audio.getByteCount();
+            //std::cout << "playback: " << playback << std::endl;
+            //std::cout << "playbackStartTimeInSeconds: " << playbackStartTimeInSeconds << std::endl;
+            //std::cout << "rtAudioCurrentFrame: " << rtAudioCurrentFrame << std::endl;
 
             // Zero output audio data.
-            std::memset(outputBuffer, 0, nFrames * byteCount);
+            std::memset(outputBuffer, 0, nFrames * p->audioThreadData.info.getByteCount());
 
             switch (playback)
             {
             case Playback::Forward:
             {
-                // Time in seconds for indexing into the audio cache.
-                int64_t seconds = playbackStartTimeInSeconds +
-                    rtAudioCurrentFrame / static_cast<double>(p->ioInfo.audio.sampleRate);
-
-                // Offset into the audio data.
-                int64_t offset = playbackStartTimeInSeconds * p->ioInfo.audio.sampleRate +
-                    rtAudioCurrentFrame -
-                    seconds * p->ioInfo.audio.sampleRate;
-
-                const auto now = std::chrono::steady_clock::now();
-
-                // Copy audio data to RtAudio.
-                if (speed == p->timeline->getTimeRange().duration().rate() &&
-                    !externalTime &&
-                    !mute &&
-                    now >= muteTimeout &&
-                    offset >= 0)
+                // Flush the audio converter and buffer when the RtAudio
+                // playback is reset.
+                if (0 == rtAudioCurrentFrame)
                 {
-                    size_t sampleCount = nFrames;
-                    uint8_t* outputBufferP = reinterpret_cast<uint8_t*>(outputBuffer);
-                    size_t count = 0;
-                    while (sampleCount > 0)
+                    if (p->audioThreadData.convert)
                     {
-                        // Get audio data from the cache.
-                        std::vector<std::shared_ptr<audio::Audio> > audioData;
+                        p->audioThreadData.convert->flush();
+                    }
+                    p->audioThreadData.buffer.clear();
+                }
+
+                // Create the audio converter.
+                if (!p->audioThreadData.convert ||
+                    (p->audioThreadData.convert && p->audioThreadData.convert->getInputInfo() != p->ioInfo.audio))
+                {
+                    p->audioThreadData.convert = audio::AudioConvert::create(
+                        p->ioInfo.audio,
+                        p->audioThreadData.info);
+                }
+
+                // Fill the audio buffer.
+                {
+                    int64_t frame = playbackStartTimeInSeconds * p->ioInfo.audio.sampleRate +
+                        otime::RationalTime(
+                            rtAudioCurrentFrame + audio::getSampleCount(p->audioThreadData.buffer),
+                            p->audioThreadData.info.sampleRate).rescaled_to(p->ioInfo.audio.sampleRate).value();
+                    int64_t seconds = p->ioInfo.audio.sampleRate > 0 ? (frame / p->ioInfo.audio.sampleRate) : 0;
+                    int64_t offset = frame - seconds * p->ioInfo.audio.sampleRate;
+                    while (audio::getSampleCount(p->audioThreadData.buffer) < nFrames)
+                    {
+                        //std::cout << "frame: " << frame << std::endl;
+                        //std::cout << "seconds: " << seconds << std::endl;
+                        //std::cout << "offset: " << offset << std::endl;
+                        AudioData audioData;
                         {
                             std::unique_lock<std::mutex> lock(p->audioMutex);
                             const auto j = p->audioMutexData.audioDataCache.find(seconds);
                             if (j != p->audioMutexData.audioDataCache.end())
                             {
-                                for (const auto& layer : j->second.layers)
-                                {
-                                    audioData.push_back(layer.audio);
-                                }
+                                audioData = j->second;
                             }
                         }
-
-                        size_t size = sampleCount;
-                        if (!audioData.empty() && audioData[0])
+                        if (audioData.layers.empty())
                         {
-                            // Get pointers to the audio data. Only audio data
-                            // that has the same information (channels, data
-                            // type, sample rate) is used.
-                            std::vector<const uint8_t*> audioDataP;
-                            for (size_t j = 0; j < audioData.size(); ++j)
+                            break;
+                        }
+                        std::vector<const uint8_t*> audioDataP;
+                        for (const auto& layer : audioData.layers)
+                        {
+                            if (layer.audio && layer.audio->getInfo() == p->ioInfo.audio)
                             {
-                                if (audioData[j] && audioData[j]->getInfo() == p->ioInfo.audio)
-                                {
-                                    audioDataP.push_back(audioData[j]->getData() + offset * byteCount);
-                                }
+                                audioDataP.push_back(layer.audio->getData() + offset * p->ioInfo.audio.getByteCount());
                             }
-
-                            size = std::min(size, static_cast<size_t>(audioData[0]->getSampleCount() - offset));
-                            
-                            //std::cout << count <<
-                            //    " samples: " << sampleCount <<
-                            //    " seconds: " << seconds <<
-                            //    " frame: " << rtAudioCurrentFrame <<
-                            //    " offset: " << offset <<
-                            //    " size: " << size << std::endl;
-                            //std::memcpy(outputBufferP, audioData[0]->getData() + offset * byteCount, size * byteCount);
-                            
-                            audio::mix(
-                                audioDataP.data(),
-                                audioDataP.size(),
-                                outputBufferP,
-                                volume,
-                                size,
-                                channelCount,
-                                dataType);
                         }
 
-                        offset = 0;
-                        sampleCount -= size;
-                        ++seconds;
-                        outputBufferP += size * byteCount;
-                        ++count;
+                        const size_t size = std::min(
+                            getAudioBufferFrameCount(p->playerOptions.audioBufferFrameCount),
+                            static_cast<size_t>(p->ioInfo.audio.sampleRate - offset));
+                        //std::cout << "size: " << size << std::endl;
+                        auto tmp = audio::Audio::create(p->ioInfo.audio, size);
+                        tmp->zero();
+                        audio::mix(
+                            audioDataP.data(),
+                            audioDataP.size(),
+                            tmp->getData(),
+                            volume,
+                            size,
+                            p->ioInfo.audio.channelCount,
+                            p->ioInfo.audio.dataType);
+
+                        if (p->audioThreadData.convert)
+                        {
+                            p->audioThreadData.buffer.push_back(p->audioThreadData.convert->convert(tmp));
+                        }
+
+                        offset += size;
+                        if (offset >= p->ioInfo.audio.sampleRate)
+                        {
+                            offset -= p->ioInfo.audio.sampleRate;
+                            seconds += 1;
+                        }
+
+                        //std::cout << std::endl;
                     }
+                }
+
+                // Copy audio data to RtAudio.
+                const auto now = std::chrono::steady_clock::now();
+                if (speed == p->timeline->getTimeRange().duration().rate() &&
+                    !externalTime &&
+                    !mute &&
+                    now >= muteTimeout &&
+                    nFrames <= getSampleCount(p->audioThreadData.buffer))
+                {
+                    audio::copy(
+                        p->audioThreadData.buffer,
+                        reinterpret_cast<uint8_t*>(outputBuffer),
+                        nFrames * p->audioThreadData.info.getByteCount());
                 }
 
                 // Update the audio frame.
@@ -527,19 +550,13 @@ namespace tl
             otime::RationalTime currentTime = time::invalidTime;
             otime::TimeRange inOutRange = time::invalidTimeRange;
             uint16_t videoLayer = 0;
-            std::vector<otime::TimeRange> cachedVideoFrames;
-            std::vector<otime::TimeRange> cachedAudioFrames;
-            otime::RationalTime cacheReadAhead = time::invalidTime;
-            otime::RationalTime cacheReadBehind = time::invalidTime;
+            PlayerCacheInfo cacheInfo;
             {
                 std::unique_lock<std::mutex> lock(mutex);
                 currentTime = mutexData.currentTime;
                 inOutRange = mutexData.inOutRange;
                 videoLayer = mutexData.videoLayer;
-                cachedVideoFrames = mutexData.cachedVideoFrames;
-                cachedAudioFrames = mutexData.cachedAudioFrames;
-                cacheReadAhead = mutexData.cacheReadAhead;
-                cacheReadBehind = mutexData.cacheReadBehind;
+                cacheInfo = mutexData.cacheInfo;
             }
             size_t audioDataCacheSize = 0;
             {
@@ -552,25 +569,32 @@ namespace tl
             const size_t lineLength = 80;
             std::string currentTimeDisplay(lineLength, '.');
             double n = (currentTime - timeRange.start_time()).value() / timeRange.duration().value();
-            currentTimeDisplay[math::clamp(n, 0.0, 1.0) * (lineLength - 1)] = 'T';
+            size_t index = math::clamp(n, 0.0, 1.0) * (lineLength - 1);
+            if (index < currentTimeDisplay.size())
+            {
+                currentTimeDisplay[index] = 'T';
+            }
 
             // Create an array of characters to draw the cached video frames.
             std::string cachedVideoFramesDisplay(lineLength, '.');
-            for (const auto& i : cachedVideoFrames)
+            for (const auto& i : cacheInfo.videoFrames)
             {
-                double n = (i.start_time() - timeRange.start_time()).value() / timeRange.duration().value();
+                n = (i.start_time() - timeRange.start_time()).value() / timeRange.duration().value();
                 const size_t t0 = math::clamp(n, 0.0, 1.0) * (lineLength - 1);
                 n = (i.end_time_inclusive() - timeRange.start_time()).value() / timeRange.duration().value();
                 const size_t t1 = math::clamp(n, 0.0, 1.0) * (lineLength - 1);
                 for (size_t j = t0; j <= t1; ++j)
                 {
-                    cachedVideoFramesDisplay[j] = 'V';
+                    if (j < cachedVideoFramesDisplay.size())
+                    {
+                        cachedVideoFramesDisplay[j] = 'V';
+                    }
                 }
             }
 
             // Create an array of characters to draw the cached audio frames.
             std::string cachedAudioFramesDisplay(lineLength, '.');
-            for (const auto& i : cachedAudioFrames)
+            for (const auto& i : cacheInfo.audioFrames)
             {
                 double n = (i.start_time() - timeRange.start_time()).value() / timeRange.duration().value();
                 const size_t t0 = math::clamp(n, 0.0, 1.0) * (lineLength - 1);
@@ -578,7 +602,10 @@ namespace tl
                 const size_t t1 = math::clamp(n, 0.0, 1.0) * (lineLength - 1);
                 for (size_t j = t0; j <= t1; ++j)
                 {
-                    cachedAudioFramesDisplay[j] = 'A';
+                    if (j < cachedAudioFramesDisplay.size())
+                    {
+                        cachedAudioFramesDisplay[j] = 'A';
+                    }
                 }
             }
 
@@ -600,8 +627,8 @@ namespace tl
                 arg(currentTime).
                 arg(inOutRange).
                 arg(videoLayer).
-                arg(cacheReadAhead).
-                arg(cacheReadBehind).
+                arg(cacheOptions->get().readAhead).
+                arg(cacheOptions->get().readBehind).
                 arg(threadData.videoDataRequests.size()).
                 arg(threadData.videoDataCache.size()).
                 arg(threadData.audioDataRequests.size()).

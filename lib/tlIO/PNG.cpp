@@ -24,8 +24,7 @@ namespace tl
                 auto error = reinterpret_cast<ErrorStruct*>(png_get_error_ptr(in));
                 error->message = msg;
             }
-
-        } // extern "C"
+        }
 
         Plugin::Plugin()
         {}

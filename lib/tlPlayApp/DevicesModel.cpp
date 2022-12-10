@@ -24,6 +24,7 @@ namespace tl
                 displayModeIndex == other.displayModeIndex &&
                 pixelTypes == other.pixelTypes &&
                 pixelTypeIndex == other.pixelTypeIndex &&
+                deviceEnabled == other.deviceEnabled &&
                 videoLevels == other.videoLevels &&
                 hdrMode == other.hdrMode &&
                 hdrData == other.hdrData;
@@ -35,6 +36,7 @@ namespace tl
             int deviceIndex = 0;
             int displayModeIndex = 0;
             int pixelTypeIndex = 0;
+            bool deviceEnabled = true;
             imaging::VideoLevels videoLevels = imaging::VideoLevels::LegalRange;
             device::HDRMode hdrMode = device::HDRMode::FromFile;
             imaging::HDRData hdrData;
@@ -108,6 +110,15 @@ namespace tl
             _update();
         }
 
+        void DevicesModel::setDeviceEnabled(bool value)
+        {
+            TLRENDER_P();
+            if (value == p.deviceEnabled)
+                return;
+            p.deviceEnabled = value;
+            _update();
+        }
+
         void DevicesModel::setVideoLevels(imaging::VideoLevels value)
         {
             TLRENDER_P();
@@ -167,6 +178,8 @@ namespace tl
                 }
                 data.pixelTypeIndex = p.pixelTypeIndex;
             }
+
+            data.deviceEnabled = p.deviceEnabled;
 
             data.videoLevels = p.videoLevels;
 

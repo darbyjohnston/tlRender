@@ -68,6 +68,12 @@ namespace tl
             //! Get the display options.
             const timeline::DisplayOptions& displayOptions() const;
 
+            //! Get the audio volume.
+            float volume() const;
+
+            //! Get the audio mute.
+            bool isMuted() const;
+
             //! Get the output device.
             qt::OutputDevice* outputDevice() const;
 
@@ -93,6 +99,12 @@ namespace tl
             //! Set the display options.
             void setDisplayOptions(const tl::timeline::DisplayOptions&);
 
+            //! Set the audio volume.
+            void setVolume(float);
+
+            //! Set the audio mute.
+            void setMute(bool);
+
         Q_SIGNALS:
             //! This signal is emitted when the LUT options are changed.
             void lutOptionsChanged(const tl::timeline::LUTOptions&);
@@ -103,6 +115,12 @@ namespace tl
             //! This signal is emitted when the display options are changed.
             void displayOptionsChanged(const tl::timeline::DisplayOptions&);
 
+            //! This signal is emitted when the audio volume is changed.
+            void volumeChanged(float);
+
+            //! This signal is emitted when the audio mute is changed.
+            void muteChanged(bool);
+
         private Q_SLOTS:
             void _activeCallback(const std::vector<std::shared_ptr<tl::play::FilesModelItem> >&);
             void _settingsCallback();
@@ -112,6 +130,7 @@ namespace tl
             otime::RationalTime _cacheReadBehind() const;
 
             void _cacheUpdate();
+            void _audioUpdate();
 
             TLRENDER_PRIVATE();
         };

@@ -16,9 +16,12 @@
 #include <mutex>
 #include <thread>
 
-#if defined(__linux__)
+#if defined(__APPLE__)
+typedef int64_t LONGLONG;
+#elif defined(__linux__)
 typedef bool BOOL;
-#endif
+typedef int64_t LONGLONG;
+#endif // __APPLE__
 
 namespace tl
 {

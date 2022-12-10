@@ -79,6 +79,8 @@ namespace tl
             timeline::DisplayOptions displayOptions;
             timeline::CompareOptions compareOptions;
             imaging::VideoLevels outputVideoLevels;
+            float volume = 1.F;
+            bool mute = false;
 
             FileActions* fileActions = nullptr;
             CompareActions* compareActions = nullptr;
@@ -106,6 +108,7 @@ namespace tl
             MessagesTool* messagesTool = nullptr;
             SystemLogTool* systemLogTool = nullptr;
             QLabel* infoLabel = nullptr;
+            QLabel* cacheLabel = nullptr;
             QStatusBar* statusBar = nullptr;
             SecondaryWindow* secondaryWindow = nullptr;
 
@@ -131,6 +134,8 @@ namespace tl
             p.lutOptions = app->lutOptions();
             p.imageOptions = app->imageOptions();
             p.displayOptions = app->displayOptions();
+            p.volume = app->volume();
+            p.mute = app->isMuted();
 
             setFocusPolicy(Qt::ClickFocus);
             setAcceptDrops(true);
@@ -222,6 +227,8 @@ namespace tl
             p.currentTimeSpinBox->setToolTip(tr("Current time"));
             p.durationLabel = new qtwidget::TimeLabel;
             p.durationLabel->setTimeObject(app->timeObject());
+            const QFont fixedFont("Noto Mono");
+            p.durationLabel->setFont(fixedFont);
             p.durationLabel->setToolTip(tr("Timeline duration"));
             p.durationLabel->setContentsMargins(5, 0, 5, 0);
             p.timeUnitsButton = new QToolButton;
@@ -232,7 +239,6 @@ namespace tl
             p.speedSpinBox = new QDoubleSpinBox;
             p.speedSpinBox->setRange(0.0, 120.0);
             p.speedSpinBox->setSingleStep(1.0);
-            const QFont fixedFont = qtwidget::font("NotoMono-Regular");
             p.speedSpinBox->setFont(fixedFont);
             p.speedSpinBox->setToolTip(tr("Timeline speed (frames per second)"));
             p.speedButton = new QToolButton;
@@ -339,9 +345,15 @@ namespace tl
             addDockWidget(Qt::RightDockWidgetArea, systemLogDockWidget);
 
             p.infoLabel = new QLabel;
+            p.cacheLabel = new QLabel;
 
             p.statusBar = new QStatusBar;
-            p.statusBar->addPermanentWidget(p.infoLabel);
+            auto hLayout = new QHBoxLayout;
+            hLayout->addWidget(p.infoLabel);
+            hLayout->addWidget(p.cacheLabel);
+            auto labelWidget = new QWidget;
+            labelWidget->setLayout(hLayout);
+            p.statusBar->addPermanentWidget(labelWidget);
             setStatusBar(p.statusBar);
 
             p.timelineViewport->setFocus();
@@ -431,6 +443,22 @@ namespace tl
                 [this](const timeline::DisplayOptions& value)
                 {
                     _p->displayOptions = value;
+                    _widgetUpdate();
+                });
+            connect(
+                app,
+                &App::volumeChanged,
+                [this](float value)
+                {
+                    _p->volume = value;
+                    _widgetUpdate();
+                });
+            connect(
+                app,
+                &App::muteChanged,
+                [this](bool value)
+                {
+                    _p->mute = value;
                     _widgetUpdate();
                 });
 
@@ -704,11 +732,6 @@ namespace tl
                     SLOT(_currentTimeCallback(const otime::RationalTime&)));
                 disconnect(
                     p.timelinePlayers[0],
-                    SIGNAL(volumeChanged(float)),
-                    this,
-                    SLOT(_volumeCallback(float)));
-                disconnect(
-                    p.timelinePlayers[0],
                     SIGNAL(audioOffsetChanged(double)),
                     p.audioTool,
                     SLOT(setAudioOffset(double)));
@@ -730,10 +753,6 @@ namespace tl
                     p.timelinePlayers[0],
                     SIGNAL(currentTimeChanged(const otime::RationalTime&)),
                     SLOT(_currentTimeCallback(const otime::RationalTime&)));
-                connect(
-                    p.timelinePlayers[0],
-                    SIGNAL(volumeChanged(float)),
-                    SLOT(_volumeCallback(float)));
                 connect(
                     p.timelinePlayers[0],
                     SIGNAL(audioOffsetChanged(double)),
@@ -935,17 +954,7 @@ namespace tl
         void MainWindow::_volumeCallback(int value)
         {
             TLRENDER_P();
-            if (!p.timelinePlayers.empty())
-            {
-                p.timelinePlayers[0]->setVolume(value / static_cast<float>(sliderSteps));
-            }
-        }
-
-        void MainWindow::_volumeCallback(float value)
-        {
-            TLRENDER_P();
-            const QSignalBlocker blocker(p.volumeSlider);
-            p.volumeSlider->setValue(value * sliderSteps);
+            p.app->setVolume(value / static_cast<float>(sliderSteps));
         }
 
         void MainWindow::_widgetUpdate()
@@ -1027,6 +1036,11 @@ namespace tl
             p.timelineSlider->setTimelinePlayer(!p.timelinePlayers.empty() ? p.timelinePlayers[0] : nullptr);
             p.timelineSlider->setThumbnails(p.app->settingsObject()->value("Timeline/Thumbnails").toBool());
             p.timelineSlider->setStopOnScrub(p.app->settingsObject()->value("Timeline/StopOnScrub").toBool());
+            
+            {
+                const QSignalBlocker blocker(p.volumeSlider);
+                p.volumeSlider->setValue(p.volume * sliderSteps);
+            }
 
             p.compareTool->setCompareOptions(p.compareOptions);
 

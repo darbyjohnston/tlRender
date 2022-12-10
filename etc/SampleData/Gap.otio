@@ -1,7 +1,7 @@
 {
     "OTIO_SCHEMA": "Timeline.1", 
     "metadata": {},
-    "name": "test",
+    "name": "Gap",
     "tracks": {
         "OTIO_SCHEMA": "Stack.1", 
         "children": [
@@ -32,7 +32,7 @@
                             "duration": {
                                 "OTIO_SCHEMA": "RationalTime.1",
                                 "rate": 23.98,
-                                "value": 90
+                                "value": 71.94
                             },
                             "start_time": {
                                 "OTIO_SCHEMA": "RationalTime.1",
@@ -44,7 +44,7 @@
                     },
                     {
                         "OTIO_SCHEMA": "Gap.1",
-                        "name": "Gap A",
+                        "name": "Gap",
                         "source_range": {
                             "OTIO_SCHEMA": "TimeRange.1",
                             "duration": {
@@ -83,7 +83,7 @@
                             "duration": {
                                 "OTIO_SCHEMA": "RationalTime.1",
                                 "rate": 23.98,
-                                "value": 90
+                                "value": 71.94
                             },
                             "start_time": {
                                 "OTIO_SCHEMA": "RationalTime.1",
@@ -95,9 +95,101 @@
                     }
                 ],
                 "kind": "Video", 
-                "name": "Sequence"
+                "name": "Track"
+            },
+            {
+                "OTIO_SCHEMA": "Track.1", 
+                "children": [
+                    {
+                        "OTIO_SCHEMA": "Clip.1",
+                        "media_reference": {
+                            "OTIO_SCHEMA": "ExternalReference.1",
+                            "available_range": {
+                                "OTIO_SCHEMA": "TimeRange.1",
+                                "duration": {
+                                    "OTIO_SCHEMA": "RationalTime.1",
+                                    "rate": 48000,
+                                    "value": 464448
+                                },
+                                "start_time": {
+                                    "OTIO_SCHEMA": "RationalTime.1",
+                                    "rate": 48000,
+                                    "value": 0
+                                }
+                            },
+                            "target_url": "file://PSR63_2012-06-02.mov"
+                        },
+                        "source_range": {
+                            "OTIO_SCHEMA": "TimeRange.1",
+                            "duration": {
+                                "OTIO_SCHEMA": "RationalTime.1",
+                                "rate": 48000,
+                                "value": 144000
+                            },
+                            "start_time": {
+                                "OTIO_SCHEMA": "RationalTime.1",
+                                "rate": 48000,
+                                "value": 0
+                            }
+                        },
+                        "name": "PSR63_2012-06-02"
+                    },
+                    {
+                        "OTIO_SCHEMA": "Gap.1",
+                        "name": "Gap",
+                        "source_range": {
+                            "OTIO_SCHEMA": "TimeRange.1",
+                            "duration": {
+                                "OTIO_SCHEMA": "RationalTime.1",
+                                "rate": 48000,
+                                "value": 48000
+                            },
+                            "start_time": {
+                                "OTIO_SCHEMA": "RationalTime.1",
+                                "rate": 48000,
+                                "value": 0
+                            }
+                        }
+                    },
+                    {
+                        "OTIO_SCHEMA": "Clip.1",
+                        "media_reference": {
+                            "OTIO_SCHEMA": "ExternalReference.1",
+                            "available_range": {
+                                "OTIO_SCHEMA": "TimeRange.1",
+                                "duration": {
+                                    "OTIO_SCHEMA": "RationalTime.1",
+                                    "rate": 48000,
+                                    "value": 1552368
+                                },
+                                "start_time": {
+                                    "OTIO_SCHEMA": "RationalTime.1",
+                                    "rate": 48000,
+                                    "value": 0
+                                }
+                            },
+                            "target_url": "file://Dinky_2015-06-11.m4v"
+                        },
+                        "source_range": {
+                            "OTIO_SCHEMA": "TimeRange.1",
+                            "duration": {
+                                "OTIO_SCHEMA": "RationalTime.1",
+                                "rate": 48000,
+                                "value": 144000
+                            },
+                            "start_time": {
+                                "OTIO_SCHEMA": "RationalTime.1",
+                                "rate": 48000,
+                                "value": 0
+                            }
+                        },
+                        "name": "Dinky_2015-06-11"
+                    }
+                ],
+                "kind": "Audio", 
+                "name": "Track"
             }
         ], 
-        "name": "NestedScope"
+        "name": "Stack"
     }
 }

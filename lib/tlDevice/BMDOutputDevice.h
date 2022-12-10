@@ -6,12 +6,17 @@
 
 #include <tlDevice/IOutputDevice.h>
 
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif // NOMINMAX
 #include "platform.h"
 
-#include <atomic>
-#include <functional>
-#include <list>
-#include <mutex>
+#if defined(__APPLE__)
+typedef int64_t LONGLONG;
+#elif defined(__linux__)
+typedef bool BOOL;
+typedef int64_t LONGLONG;
+#endif // __APPLE__
 
 namespace tl
 {
@@ -44,31 +49,44 @@ namespace tl
             IDeckLinkOutput* p = nullptr;
         };
 
-        //! Decklink video output callback.
-        class DLVideoOutputCallback : public IDeckLinkVideoOutputCallback
+        //! Decklink output callback.
+        class DLOutputCallback :
+            public IDeckLinkVideoOutputCallback,
+            public IDeckLinkAudioOutputCallback
         {
         public:
-            DLVideoOutputCallback(const std::function<void(IDeckLinkVideoFrame*)>&);
+            DLOutputCallback(
+                IDeckLinkOutput*,
+                const imaging::Size& size,
+                PixelType pixelType,
+                const otime::RationalTime& frameRate,
+                const audio::Info& audioInfo);
+
+            void setPlayback(timeline::Playback, const otime::RationalTime&);
+            void setPixelData(const std::shared_ptr<device::PixelData>&);
+            void setAudio(float, bool);
+            void setAudioData(const std::vector<timeline::AudioData>&);
 
             HRESULT STDMETHODCALLTYPE ScheduledFrameCompleted(IDeckLinkVideoFrame*, BMDOutputFrameCompletionResult) override;
             HRESULT STDMETHODCALLTYPE ScheduledPlaybackHasStopped() override;
+
+            HRESULT STDMETHODCALLTYPE RenderAudioSamples(BOOL preroll) override;
 
             HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, LPVOID* ppv) override;
             ULONG STDMETHODCALLTYPE AddRef() override;
             ULONG STDMETHODCALLTYPE Release() override;
 
         private:
-            std::atomic<size_t> _refCount;
-            std::function<void(IDeckLinkVideoFrame*)> _callback;
+            TLRENDER_PRIVATE();
         };
 
-        //! Decklink video output callback wrapper.
-        class DLVideoOutputCallbackWrapper
+        //! Decklink output callback wrapper.
+        class DLOutputCallbackWrapper
         {
         public:
-            ~DLVideoOutputCallbackWrapper();
-
-            DLVideoOutputCallback* p = nullptr;
+            ~DLOutputCallbackWrapper();
+            
+            DLOutputCallback* p = nullptr;
         };
 
         //! BMD output device.
@@ -95,20 +113,13 @@ namespace tl
                 PixelType,
                 const std::shared_ptr<system::Context>&);
 
-            void display(const std::shared_ptr<device::PixelData>&) override;
+            void setPlayback(timeline::Playback, const otime::RationalTime&) override;
+            void setPixelData(const std::shared_ptr<device::PixelData>&) override;
+            void setAudio(float, bool) override;
+            void setAudioData(const std::vector<timeline::AudioData>&) override;
 
         private:
-            uint64_t _frameCount = 0;
-
-            std::list<std::shared_ptr<device::PixelData> > _pixelData;
-            std::shared_ptr<device::PixelData> _pixelDataTmp;
-            std::mutex _pixelDataMutex;
-
-            DLWrapper _dl;
-            size_t _preroll = 3;
-            DLConfigWrapper _dlConfig;
-            DLOutputWrapper _dlOutput;
-            DLVideoOutputCallbackWrapper _dlVideoOutputCallback;
+            TLRENDER_PRIVATE();
         };
     }
 }

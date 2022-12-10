@@ -7,6 +7,9 @@
 #include <tlQt/Util.h>
 
 #include <tlCore/Context.h>
+#include <tlCore/FontSystem.h>
+#include <tlCore/String.h>
+#include <tlCore/StringFormat.h>
 
 #include <QDir>
 #include <QFontDatabase>
@@ -30,30 +33,27 @@ namespace tl
             qtInitResources();
         }
 
-        namespace
+        void initFonts(const std::shared_ptr<system::Context>& context)
         {
-            QMap<QString, int> fonts;
-        }
-
-        QFont font(const QString& name)
-        {
-            if (fonts.isEmpty())
-            {
-                fonts["NotoMono-Regular"] = QFontDatabase::addApplicationFont(":/Fonts/NotoMono-Regular.font");
-                fonts["NotoSans-Bold"] = QFontDatabase::addApplicationFont(":/Fonts/NotoSans-Bold.font");
-                fonts["NotoSans-Regular"] = QFontDatabase::addApplicationFont(":/Fonts/NotoSans-Regular.font");
-            }
-            QFont out;
-            const auto i = fonts.find(name);
-            if (i != fonts.end())
-            {
-                const auto families = QFontDatabase::applicationFontFamilies(i.value());
-                if (!families.isEmpty())
+            std::vector<std::string> fontFamilyList;
+            for (const auto& i : std::vector<std::string>(
                 {
-                    out = families.at(0);
+                    "NotoMono-Regular",
+                    "NotoSans-Bold",
+                    "NotoSans-Regular"
+                }))
+            {
+                const auto font = imaging::getFontData(i);
+                const int id = QFontDatabase::addApplicationFontFromData(
+                    QByteArray(reinterpret_cast<const char*>(font.data()), font.size()));
+                for (const auto& j : QFontDatabase::applicationFontFamilies(id))
+                {
+                    fontFamilyList.push_back(j.toUtf8().data());
                 }
             }
-            return out;
+            context->log(
+                "tl::qtwidget::initFonts",
+                string::Format("Added Qt application fonts: {0}").arg(string::join(fontFamilyList, ", ")));
         }
     }
 }

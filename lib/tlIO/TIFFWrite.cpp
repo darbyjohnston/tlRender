@@ -26,9 +26,9 @@ namespace tl
                 {
 #if defined(_WINDOWS)
                     _tiff.p = TIFFOpenW(string::toWide(fileName).c_str(), "w");
-#else
+#else // _WINDOWS
                     _tiff.p = TIFFOpen(fileName.c_str(), "w");
-#endif
+#endif // _WINDOWS
                     if (!_tiff.p)
                     {
                         throw std::runtime_error(string::Format("{0}: Cannot open").arg(fileName));

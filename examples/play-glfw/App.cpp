@@ -165,13 +165,7 @@ namespace tl
                 }
 
                 // Read the timeline.
-                timeline::Options options;
-                auto audioSystem = _context->getSystem<audio::System>();
-                const audio::Info audioInfo = audioSystem->getDefaultOutputInfo();
-                options.ioOptions["ffmpeg/AudioChannelCount"] = string::Format("{0}").arg(audioInfo.channelCount);
-                options.ioOptions["ffmpeg/AudioDataType"] = string::Format("{0}").arg(audioInfo.dataType);
-                options.ioOptions["ffmpeg/AudioSampleRate"] = string::Format("{0}").arg(audioInfo.sampleRate);
-                auto timeline = timeline::Timeline::create(_input, _context, options);
+                auto timeline = timeline::Timeline::create(_input, _context);
                 _timelinePlayer = timeline::TimelinePlayer::create(timeline, _context);
 
                 // Initialize GLFW.
@@ -393,7 +387,7 @@ namespace tl
                 // Update.
                 _context->tick();
                 _timelinePlayer->tick();
-                const auto& videoData = _timelinePlayer->observeVideo()->get();
+                const auto& videoData = _timelinePlayer->observeCurrentVideo()->get();
                 if (!timeline::isTimeEqual(videoData, _videoData))
                 {
                     _videoData = videoData;
@@ -438,9 +432,9 @@ namespace tl
                 }
                 hudLabels[HUDElement::LowerLeft] = "Time: " + label;
 
-                // Cache percentage.
-                const float cachePercentage = _timelinePlayer->observeCachePercentage()->get();
-                hudLabels[HUDElement::UpperRight] = string::Format("Cache: {0}%").arg(cachePercentage, 0, 3);
+                // Video cache percentage.
+                const float videoCachePercentage = _timelinePlayer->observeCacheInfo()->get().videoPercentage;
+                hudLabels[HUDElement::UpperRight] = string::Format("Video cache: {0}%").arg(videoCachePercentage, 0, 3);
 
                 // Speed.
                 hudLabels[HUDElement::LowerRight] = string::Format("Speed: {0}").

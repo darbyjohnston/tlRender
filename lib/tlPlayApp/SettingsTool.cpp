@@ -43,8 +43,8 @@ namespace tl
             p.readBehindSpinBox->setRange(0, 60.0);
 
             auto layout = new QFormLayout;
-            layout->addRow(tr("Read ahead:"), p.readAheadSpinBox);
-            layout->addRow(tr("Read behind:"), p.readBehindSpinBox);
+            layout->addRow(tr("Read ahead (seconds):"), p.readAheadSpinBox);
+            layout->addRow(tr("Read behind (seconds):"), p.readBehindSpinBox);
             setLayout(layout);
 
             p.readAheadSpinBox->setValue(settingsObject->value("Cache/ReadAhead").toDouble());

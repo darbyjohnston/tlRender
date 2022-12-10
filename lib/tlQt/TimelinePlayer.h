@@ -55,9 +55,9 @@ namespace tl
                 NOTIFY videoLayerChanged)
             Q_PROPERTY(
                 tl::timeline::VideoData
-                video
-                READ video
-                NOTIFY videoChanged)
+                currentVideo
+                READ currentVideo
+                NOTIFY currentVideoChanged)
             Q_PROPERTY(
                 float volume
                 READ volume
@@ -74,19 +74,19 @@ namespace tl
                 WRITE setAudioOffset
                 NOTIFY audioOffsetChanged)
             Q_PROPERTY(
-                otime::RationalTime cacheReadAhead
-                READ cacheReadAhead
-                WRITE setCacheReadAhead
-                NOTIFY cacheReadAheadChanged)
+                std::vector<tl::timeline::AudioData>
+                currentAudio
+                READ currentAudio
+                NOTIFY currentAudioChanged)
             Q_PROPERTY(
-                otime::RationalTime cacheReadBehind
-                READ cacheReadBehind
-                WRITE setCacheReadBehind
-                NOTIFY cacheReadBehindChanged)
+                tl::timeline::PlayerCacheOptions cacheOptions
+                READ cacheOptions
+                WRITE setCacheOptions
+                NOTIFY cacheOptionsChanged)
             Q_PROPERTY(
-                float cachePercentage
-                READ cachePercentage
-                NOTIFY cachePercentageChanged)
+                tl::timeline::PlayerCacheInfo cacheInfo
+                READ cacheInfo
+                NOTIFY cacheInfoChanged)
 
             void _init(
                 const std::shared_ptr<timeline::TimelinePlayer>&,
@@ -172,8 +172,8 @@ namespace tl
             //! Get the current video layer.
             int videoLayer() const;
 
-            //! Get the video.
-            const timeline::VideoData& video() const;
+            //! Get the current video data.
+            const timeline::VideoData& currentVideo() const;
 
             ///@}
 
@@ -189,25 +189,19 @@ namespace tl
             //! Get the audio sync offset (in seconds).
             double audioOffset() const;
 
+            //! Get the current audio data.
+            const std::vector<timeline::AudioData>& currentAudio() const;
+
             ///@}
 
             //! \name Cache
             ///@{
 
-            //! Get the cache read ahead.
-            otime::RationalTime cacheReadAhead() const;
+            //! Get the cache options.
+            const timeline::PlayerCacheOptions& cacheOptions() const;
 
-            //! Get the cache read behind.
-            otime::RationalTime cacheReadBehind() const;
-
-            //! Get the cache percentage.
-            float cachePercentage() const;
-
-            //! Get the cached video frames.
-            const std::vector<otime::TimeRange>& cachedVideoFrames() const;
-
-            //! Get the cached audio frames.
-            const std::vector<otime::TimeRange>& cachedAudioFrames() const;
+            //! Get the cache information.
+            const timeline::PlayerCacheInfo& cacheInfo() const;
 
             ///@}
 
@@ -294,12 +288,6 @@ namespace tl
 
             //! Set the audio volume.
             void setVolume(float);
-
-            //! Increase the audio volume.
-            void increaseVolume();
-
-            //! Decrease the audio volume.
-            void decreaseVolume();
                 
             //! Set the audio mute.
             void setMute(bool);
@@ -312,11 +300,8 @@ namespace tl
             //! \name Cache
             ///@{
 
-            //! Set the cache read ahead.
-            void setCacheReadAhead(const otime::RationalTime&);
-
-            //! Set the cache read behind.
-            void setCacheReadBehind(const otime::RationalTime&);
+            //! Set the cache options.
+            void setCacheOptions(const tl::timeline::PlayerCacheOptions&);
 
             ///@}
 
@@ -347,8 +332,8 @@ namespace tl
             //! This signal is emitted when the current video layer is changed.
             void videoLayerChanged(int);
 
-            //! This signal is emitted when the video is changed.
-            void videoChanged(const tl::timeline::VideoData&);
+            //! This signal is emitted when the current video data is changed.
+            void currentVideoChanged(const tl::timeline::VideoData&);
 
             ///@}
 
@@ -364,25 +349,19 @@ namespace tl
             //! This signal is emitted when the audio sync offset is changed.
             void audioOffsetChanged(double);
 
+            //! This signal is emitted when the current audio data is changed.
+            void currentAudioChanged(const std::vector<tl::timeline::AudioData>&);
+
             ///@}
 
             //! \name Cache
             ///@{
 
-            //! This signal is emitted when the cache read ahead has changed.
-            void cacheReadAheadChanged(const otime::RationalTime&);
+            //! This signal is emitted when the cache options have changed.
+            void cacheOptionsChanged(const tl::timeline::PlayerCacheOptions&);
 
-            //! This signal is emitted when the cache read behind has changed.
-            void cacheReadBehindChanged(const otime::RationalTime&);
-
-            //! This signal is emitted when the cache percentage has changed.
-            void cachePercentageChanged(float);
-
-            //! This signal is emitted when the cached video frames are changed.
-            void cachedVideoFramesChanged(const std::vector<otime::TimeRange>&);
-
-            //! This signal is emitted when the cached audio frames are changed.
-            void cachedAudioFramesChanged(const std::vector<otime::TimeRange>&);
+            //! This signal is emitted when the cache information has changed.
+            void cacheInfoChanged(const tl::timeline::PlayerCacheInfo&);
 
             ///@}
 

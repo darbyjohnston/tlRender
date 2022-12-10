@@ -20,6 +20,6 @@ namespace tl
 #define TLRENDER_ASSERT(value) \
     if (!(value)) \
         tl::error::_assert(__FILE__, __LINE__)
-#else
+#else // TLRENDER_ASSERT
 #define TLRENDER_ASSERT(value)
-#endif
+#endif // TLRENDER_ASSERT

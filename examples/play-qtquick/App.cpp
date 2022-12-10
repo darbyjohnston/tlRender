@@ -53,13 +53,7 @@ namespace tl
                 _timeObject = new qt::TimeObject(this);
 
                 // Open the input file.
-                timeline::Options options;
-                auto audioSystem = context->getSystem<audio::System>();
-                const audio::Info audioInfo = audioSystem->getDefaultOutputInfo();
-                options.ioOptions["ffmpeg/AudioChannelCount"] = string::Format("{0}").arg(audioInfo.channelCount);
-                options.ioOptions["ffmpeg/AudioDataType"] = string::Format("{0}").arg(audioInfo.dataType);
-                options.ioOptions["ffmpeg/AudioSampleRate"] = string::Format("{0}").arg(audioInfo.sampleRate);
-                auto timeline = timeline::Timeline::create(_input, context, options);
+                auto timeline = timeline::Timeline::create(_input, context);
                 _timelinePlayer = new qt::TimelinePlayer(timeline::TimelinePlayer::create(timeline, context), context);
 
                 // Load the QML.

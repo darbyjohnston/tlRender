@@ -27,7 +27,7 @@ namespace tl
             QAbstractSpinBox(parent),
             _p(new Private)
         {
-            const QFont fixedFont = qtwidget::font("NotoMono-Regular");
+            const QFont fixedFont("Noto Mono");
             setFont(fixedFont);
 
             _vaidatorUpdate();

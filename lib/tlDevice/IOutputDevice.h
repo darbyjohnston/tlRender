@@ -6,6 +6,8 @@
 
 #include <tlDevice/DeviceData.h>
 
+#include <tlTimeline/TimelinePlayer.h>
+
 namespace tl
 {
     namespace system
@@ -49,8 +51,17 @@ namespace tl
             //! Get the output device frame rate.
             const otime::RationalTime& getFrameRate() const;
 
-            //! Display pixel data.
-            virtual void display(const std::shared_ptr<PixelData>&) = 0;
+            //! Set the playback information.
+            virtual void setPlayback(timeline::Playback, const otime::RationalTime&);
+
+            //! Set the pixel data.
+            virtual void setPixelData(const std::shared_ptr<PixelData>&);
+
+            //! Set the audio information.
+            virtual void setAudio(float volume, bool mute = false);
+
+            //! Set the audio data.
+            virtual void setAudioData(const std::vector<timeline::AudioData>&);
 
         protected:
             int _deviceIndex = 0;

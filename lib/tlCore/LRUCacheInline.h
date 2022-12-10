@@ -17,18 +17,31 @@ namespace tl
         template<typename T, typename U>
         inline std::size_t LRUCache<T, U>::getSize() const
         {
+            size_t out = 0;
+            for (const auto& i : _map)
+            {
+                out += i.second.second;
+            }
+            return out;
+        }
+
+        template<typename T, typename U>
+        inline std::size_t LRUCache<T, U>::getCount() const
+        {
             return _map.size();
         }
 
         template<typename T, typename U>
-        inline float LRUCache<T, U>::getPercentageUsed() const
+        inline float LRUCache<T, U>::getPercentage() const
         {
-            return _map.size() / static_cast<float>(_max) * 100.F;
+            return getSize() / static_cast<float>(_max) * 100.F;
         }
 
         template<typename T, typename U>
         inline void LRUCache<T, U>::setMax(std::size_t value)
         {
+            if (value == _max)
+                return;
             _max = value;
             _maxUpdate();
         }
@@ -45,7 +58,7 @@ namespace tl
             auto i = _map.find(key);
             if (i != _map.end())
             {
-                value = i->second;
+                value = i->second.first;
                 auto j = _counts.find(key);
                 if (j != _counts.end())
                 {
@@ -58,9 +71,9 @@ namespace tl
         }
 
         template<typename T, typename U>
-        inline void LRUCache<T, U>::add(const T& key, const U& value)
+        inline void LRUCache<T, U>::add(const T& key, const U& value, size_t size)
         {
-            _map[key] = value;
+            _map[key] = std::make_pair(value, size);
             ++_counter;
             _counts[key] = _counter;
             _maxUpdate();
@@ -105,7 +118,7 @@ namespace tl
             std::vector<U> out;
             for (const auto& i : _map)
             {
-                out.push_back(i.second);
+                out.push_back(i.second.first);
             }
             return out;
         }
@@ -113,14 +126,14 @@ namespace tl
         template<typename T, typename U>
         inline void LRUCache<T, U>::_maxUpdate()
         {
-            if (_map.size() > _max)
+            if (getSize() > _max)
             {
                 std::map<int64_t, T> sorted;
                 for (const auto& i : _counts)
                 {
                     sorted[i.second] = i.first;
                 }
-                while (_map.size() > _max)
+                while (getSize() > _max)
                 {
                     auto begin = sorted.begin();
                     auto i = _map.find(begin->second);

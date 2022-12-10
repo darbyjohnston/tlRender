@@ -27,6 +27,9 @@ namespace tl
         typedef char32_t tl_char_t;
 #endif // _WINDOWS
 
+        //! Get font data.
+        std::vector<uint8_t> getFontData(const std::string&);
+
         //! Font information.
         struct FontInfo
         {

@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include <tlQt/OutputDevice.h>
+#include <tlQt/OutputDevicePrivate.h>
 
 #include <tlGL/Mesh.h>
 #include <tlGL/OffscreenBuffer.h>
@@ -11,16 +11,11 @@
 #include <tlGL/Texture.h>
 #include <tlGL/Util.h>
 
-#include <tlDevice/IDeviceSystem.h>
 #include <tlDevice/IOutputDevice.h>
 
 #include <tlCore/Context.h>
 #include <tlCore/Mesh.h>
 
-#include <tlGlad/gl.h>
-
-#include <QOffscreenSurface>
-#include <QOpenGLContext>
 #include <QSurfaceFormat>
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -34,39 +29,6 @@ namespace tl
 {
     namespace qt
     {
-        struct OutputDevice::Private
-        {
-            std::weak_ptr<system::Context> context;
-            std::weak_ptr<device::IDeviceSystem> deviceSystem;
-
-            int deviceIndex = -1;
-            int displayModeIndex = -1;
-            device::PixelType pixelType = device::PixelType::_8BitBGRA;
-            device::HDRMode hdrMode = device::HDRMode::FromFile;
-            imaging::HDRData hdrData;
-
-            //! \todo Temporary
-            std::shared_ptr<QImage> overlay;
-
-            timeline::ColorConfigOptions colorConfigOptions;
-            timeline::LUTOptions lutOptions;
-            std::vector<timeline::ImageOptions> imageOptions;
-            std::vector<timeline::DisplayOptions> displayOptions;
-            timeline::CompareOptions compareOptions;
-            std::vector<qt::TimelinePlayer*> timelinePlayers;
-            std::vector<imaging::Size> sizes;
-            math::Vector2i viewPos;
-            float viewZoom = 1.F;
-            bool frameView = true;
-            std::vector<timeline::VideoData> videoData;
-            std::chrono::milliseconds timeout = std::chrono::milliseconds(5);
-            QScopedPointer<QOffscreenSurface> offscreenSurface;
-            QScopedPointer<QOpenGLContext> glContext;
-            std::condition_variable cv;
-            std::mutex mutex;
-            std::atomic<bool> running;
-        };
-
         OutputDevice::OutputDevice(
             const std::shared_ptr<system::Context>& context,
             QObject* parent) :
@@ -124,13 +86,32 @@ namespace tl
             device::PixelType pixelType)
         {
             TLRENDER_P();
+            bool active = false;
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
                 p.deviceIndex = deviceIndex;
                 p.displayModeIndex = displayModeIndex;
                 p.pixelType = pixelType;
+                active = _isDeviceActive();
             }
             p.cv.notify_one();
+            if (active != p.deviceActive)
+            {
+                p.deviceActive = active;
+                Q_EMIT deviceActiveChanged(p.deviceActive);
+            }
+        }
+
+        bool OutputDevice::isDeviceEnabled() const
+        {
+            TLRENDER_P();
+            std::unique_lock<std::mutex> lock(p.mutex);
+            return p.deviceEnabled;
+        }
+
+        bool OutputDevice::isDeviceActive() const
+        {
+            return _p->deviceActive;
         }
 
         void OutputDevice::setColorConfigOptions(const timeline::ColorConfigOptions& value)
@@ -203,20 +184,57 @@ namespace tl
             {
                 disconnect(
                     i,
-                    SIGNAL(videoChanged(const tl::timeline::VideoData&)),
+                    SIGNAL(playbackChanged(tl::timeline::Playback)),
                     this,
-                    SLOT(_videoCallback(const tl::timeline::VideoData&)));
+                    SLOT(_playbackCallback(tl::timeline::Playback)));
+                disconnect(
+                    i,
+                    SIGNAL(currentTimeChanged(const otime::RationalTime&)),
+                    this,
+                    SLOT(_currentTimeCallback(const otime::RationalTime&)));
+                disconnect(
+                    i,
+                    SIGNAL(currentVideoChanged(const tl::timeline::VideoData&)),
+                    this,
+                    SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
+                disconnect(
+                    i,
+                    SIGNAL(currentAudioChanged(const std::vector<tl::timeline::AudioData>&)),
+                    this,
+                    SLOT(_currentAudioCallback(const std::vector<tl::timeline::AudioData>&)));
             }
             p.timelinePlayers = value;
             for (const auto& i : p.timelinePlayers)
             {
                 connect(
                     i,
-                    SIGNAL(videoChanged(const tl::timeline::VideoData&)),
-                    SLOT(_videoCallback(const tl::timeline::VideoData&)));
+                    SIGNAL(playbackChanged(tl::timeline::Playback)),
+                    SLOT(_playbackCallback(tl::timeline::Playback)));
+                connect(
+                    i,
+                    SIGNAL(currentTimeChanged(const otime::RationalTime&)),
+                    SLOT(_currentTimeCallback(const otime::RationalTime&)));
+                connect(
+                    i,
+                    SIGNAL(currentVideoChanged(const tl::timeline::VideoData&)),
+                    SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
+                connect(
+                    i,
+                    SIGNAL(currentAudioChanged(const std::vector<tl::timeline::AudioData>&)),
+                    SLOT(_currentAudioCallback(const std::vector<tl::timeline::AudioData>&)));
             }
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
+                if (!p.timelinePlayers.empty())
+                {
+                    p.playback = p.timelinePlayers.front()->playback();
+                    p.currentTime = p.timelinePlayers.front()->currentTime();
+                }
+                else
+                {
+                    p.playback = timeline::Playback::Stop;
+                    p.currentTime = time::invalidTime;
+                }
                 p.sizes.clear();
                 p.videoData.clear();
                 for (const auto& i : p.timelinePlayers)
@@ -226,7 +244,12 @@ namespace tl
                     {
                         p.sizes.push_back(ioInfo.video[0].size);
                     }
-                    p.videoData.push_back(i->video());
+                    p.videoData.push_back(i->currentVideo());
+                }
+                p.audioData.clear();
+                if (!p.timelinePlayers.empty())
+                {
+                    p.audioData = p.timelinePlayers.front()->currentAudio();
                 }
             }
         }
@@ -243,6 +266,7 @@ namespace tl
                 case QImage::Format_ARGB4444_Premultiplied:
                     tmp = std::shared_ptr<QImage>(qImage);
                     break;
+                default: break;
                 }
             }
             {
@@ -250,6 +274,23 @@ namespace tl
                 p.overlay = tmp;
             }
             p.cv.notify_one();
+        }
+
+        void OutputDevice::setDeviceEnabled(bool value)
+        {
+            TLRENDER_P();
+            bool active = false;
+            {
+                std::unique_lock<std::mutex> lock(p.mutex);
+                p.deviceEnabled = value;
+                active = _isDeviceActive();
+            }
+            p.cv.notify_one();
+            if (active != p.deviceActive)
+            {
+                p.deviceActive = active;
+                Q_EMIT deviceActiveChanged(p.deviceActive);
+            }
         }
 
         void OutputDevice::setView(
@@ -267,7 +308,53 @@ namespace tl
             p.cv.notify_one();
         }
 
-        void OutputDevice::_videoCallback(const tl::timeline::VideoData& value)
+        void OutputDevice::setVolume(float value)
+        {
+            TLRENDER_P();
+            {
+                std::unique_lock<std::mutex> lock(p.mutex);
+                p.volume = value;
+            }
+            p.cv.notify_one();
+        }
+
+        void OutputDevice::setMute(bool value)
+        {
+            TLRENDER_P();
+            {
+                std::unique_lock<std::mutex> lock(p.mutex);
+                p.mute = value;
+            }
+            p.cv.notify_one();
+        }
+
+        void OutputDevice::_playbackCallback(tl::timeline::Playback value)
+        {
+            TLRENDER_P();
+            if (qobject_cast<qt::TimelinePlayer*>(sender()) == p.timelinePlayers.front())
+            {
+                {
+                    std::unique_lock<std::mutex> lock(p.mutex);
+                    p.playback = value;
+                }
+                p.cv.notify_one();
+            }
+        }
+
+        void OutputDevice::_currentTimeCallback(const otime::RationalTime& value)
+        {
+            TLRENDER_P();
+            if (qobject_cast<qt::TimelinePlayer*>(sender()) == p.timelinePlayers.front())
+            {
+                {
+                    std::unique_lock<std::mutex> lock(p.mutex);
+                    p.currentTime = value;
+                }
+                p.cv.notify_one();
+            }
+        }
+
+        void OutputDevice::_currentVideoCallback(const tl::timeline::VideoData& value)
         {
             TLRENDER_P();
             const auto i = std::find(p.timelinePlayers.begin(), p.timelinePlayers.end(), sender());
@@ -282,155 +369,16 @@ namespace tl
             }
         }
 
-        namespace
+        void OutputDevice::_currentAudioCallback(const std::vector<tl::timeline::AudioData>& value)
         {
-            imaging::PixelType getOffscreenType(device::PixelType value)
+            TLRENDER_P();
+            if (qobject_cast<qt::TimelinePlayer*>(sender()) == p.timelinePlayers.front())
             {
-                const std::array<imaging::PixelType, static_cast<size_t>(device::PixelType::Count)> data =
                 {
-                    imaging::PixelType::None,
-                    imaging::PixelType::RGBA_U8,
-                    imaging::PixelType::RGB_U10
-                };
-                return data[static_cast<size_t>(value)];
-            }
-
-            GLenum getReadPixelsFormat(device::PixelType value)
-            {
-                const std::array<GLenum, static_cast<size_t>(device::PixelType::Count)> data =
-                {
-                    GL_NONE,
-                    GL_BGRA,
-                    GL_RGBA
-                };
-                return data[static_cast<size_t>(value)];
-            }
-
-            GLenum getReadPixelsType(device::PixelType value)
-            {
-                const std::array<GLenum, static_cast<size_t>(device::PixelType::Count)> data =
-                {
-                    GL_NONE,
-                    GL_UNSIGNED_BYTE,
-                    GL_UNSIGNED_INT_10_10_10_2
-                };
-                return data[static_cast<size_t>(value)];
-            }
-
-            GLint getReadPixelsAlign(device::PixelType value)
-            {
-                const std::array<GLint, static_cast<size_t>(device::PixelType::Count)> data =
-                {
-                    0,
-                    4,
-                    256
-                };
-                return data[static_cast<size_t>(value)];
-            }
-
-            GLint getReadPixelsSwap(device::PixelType value)
-            {
-                const std::array<GLint, static_cast<size_t>(device::PixelType::Count)> data =
-                {
-                    GL_FALSE,
-                    GL_FALSE,
-                    GL_FALSE
-                };
-                return data[static_cast<size_t>(value)];
-            }
-
-            class OverlayTexture
-            {
-                OverlayTexture(const QSize&, QImage::Format);
-
-            public:
-                ~OverlayTexture();
-
-                static std::shared_ptr<OverlayTexture> create(const QSize&, QImage::Format);
-
-                const QSize& getSize() const { return _size; }
-                QImage::Format getFormat() const { return _format; }
-                GLuint getID() const { return _id; }
-
-                void copy(const QImage&);
-
-            private:
-                QSize _size;
-                QImage::Format _format = QImage::Format::Format_Invalid;
-                GLenum _textureFormat = GL_NONE;
-                GLenum _textureType = GL_NONE;
-                GLuint _id = 0;
-            };
-
-            OverlayTexture::OverlayTexture(const QSize& size, QImage::Format format) :
-                _size(size),
-                _format(format)
-            {
-                switch (format)
-                {
-                case QImage::Format_RGBA8888:
-                    _textureFormat = GL_RGBA;
-                    _textureType = GL_UNSIGNED_BYTE;
-                    break;
-                case QImage::Format_ARGB4444_Premultiplied:
-                    _textureFormat = GL_BGRA;
-                    _textureType = GL_UNSIGNED_SHORT_4_4_4_4_REV;
-                    break;
-                default: break;
+                    std::unique_lock<std::mutex> lock(p.mutex);
+                    p.audioData = value;
                 }
-                if (_textureFormat != GL_NONE && _textureType != GL_NONE)
-                {
-                    glGenTextures(1, &_id);
-                    glBindTexture(GL_TEXTURE_2D, _id);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                    glTexImage2D(
-                        GL_TEXTURE_2D,
-                        0,
-                        GL_RGBA8,
-                        _size.width(),
-                        _size.height(),
-                        0,
-                        _textureFormat,
-                        _textureType,
-                        NULL);
-                }
-            }
-
-            OverlayTexture::~OverlayTexture()
-            {
-                if (_id)
-                {
-                    glDeleteTextures(1, &_id);
-                    _id = 0;
-                }
-            }
-
-            std::shared_ptr<OverlayTexture> OverlayTexture::create(const QSize& size, QImage::Format format)
-            {
-                return std::shared_ptr<OverlayTexture>(new OverlayTexture(size, format));
-            }
-
-            void OverlayTexture::copy(const QImage& value)
-            {
-                if (value.size() == _size && value.format() == _format)
-                {
-                    glBindTexture(GL_TEXTURE_2D, _id);
-                    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-                    glPixelStorei(GL_UNPACK_SWAP_BYTES, 0);
-                    glTexSubImage2D(
-                        GL_TEXTURE_2D,
-                        0,
-                        0,
-                        0,
-                        _size.width(),
-                        _size.height(),
-                        _textureFormat,
-                        _textureType,
-                        value.bits());
-                }
+                p.cv.notify_one();
             }
         }
 
@@ -450,6 +398,7 @@ namespace tl
             int deviceIndex = -1;
             int displayModeIndex = -1;
             device::PixelType pixelType = device::PixelType::None;
+            bool deviceEnabled = true;
             timeline::ColorConfigOptions colorConfigOptions;
             timeline::LUTOptions lutOptions;
             std::vector<timeline::ImageOptions> imageOptions;
@@ -457,11 +406,17 @@ namespace tl
             device::HDRMode hdrMode = device::HDRMode::FromFile;
             imaging::HDRData hdrData;
             timeline::CompareOptions compareOptions;
+            timeline::Playback playback = timeline::Playback::Stop;
+            otime::RationalTime currentTime = time::invalidTime;
             std::vector<imaging::Size> sizes;
             math::Vector2i viewPos;
             float viewZoom = 1.F;
             bool frameView = true;
             std::vector<timeline::VideoData> videoData;
+            std::shared_ptr<QImage> overlay;
+            float volume = 1.F;
+            bool mute = false;
+            std::vector<timeline::AudioData> audioData;
 
             std::shared_ptr<device::IOutputDevice> device;
             std::shared_ptr<tl::gl::Shader> shader;
@@ -472,32 +427,32 @@ namespace tl
             std::array<GLuint, 1> pbo;
             std::array<otime::RationalTime, 1> pboTime;
             size_t pboIndex = 0;
-
-            std::shared_ptr<QImage> overlay;
             std::shared_ptr<OverlayTexture> overlayTexture;
             std::shared_ptr<gl::VBO> overlayVbo;
             std::shared_ptr<gl::VAO> overlayVao;
 
             while (p.running)
             {
-                bool doCreateDevice = false;
+                bool createDevice = false;
                 bool doRender = false;
-                bool doOverlay = false;
+                bool overlayChanged = false;
+                bool audioChanged = false;
                 {
                     std::unique_lock<std::mutex> lock(p.mutex);
                     if (p.cv.wait_for(
                         lock,
                         p.timeout,
                         [this, deviceIndex, displayModeIndex, pixelType,
-                        colorConfigOptions, lutOptions, imageOptions,
+                        deviceEnabled, colorConfigOptions, lutOptions, imageOptions,
                         displayOptions, hdrMode, hdrData, compareOptions,
-                        sizes, viewPos, viewZoom, frameView, videoData,
-                        overlay]
+                        playback, currentTime, sizes, viewPos, viewZoom, frameView,
+                        videoData, overlay, volume, mute, audioData]
                         {
                             return
                                 deviceIndex != _p->deviceIndex ||
                                 displayModeIndex != _p->displayModeIndex ||
                                 pixelType != _p->pixelType ||
+                                deviceEnabled != _p->deviceEnabled ||
                                 colorConfigOptions != _p->colorConfigOptions ||
                                 lutOptions != _p->lutOptions ||
                                 imageOptions != _p->imageOptions ||
@@ -505,25 +460,47 @@ namespace tl
                                 hdrMode != _p->hdrMode ||
                                 hdrData != _p->hdrData ||
                                 compareOptions != _p->compareOptions ||
+                                playback != _p->playback ||
+                                currentTime != _p->currentTime ||
                                 sizes != _p->sizes ||
                                 viewPos != _p->viewPos ||
                                 viewZoom != _p->viewZoom ||
                                 frameView != _p->frameView ||
                                 videoData != _p->videoData ||
-                                overlay != _p->overlay;
+                                overlay != _p->overlay ||
+                                volume != _p->volume ||
+                                mute != _p->mute ||
+                                audioData != _p->audioData;
                         }))
                     {
-                        if (p.deviceIndex != deviceIndex ||
+                        createDevice =
+                            p.deviceIndex != deviceIndex ||
                             p.displayModeIndex != displayModeIndex ||
-                            p.pixelType != pixelType)
-                        {
-                            doCreateDevice = true;
-                        }
+                            p.pixelType != pixelType ||
+                            p.deviceEnabled != deviceEnabled;
                         deviceIndex = p.deviceIndex;
                         displayModeIndex = p.displayModeIndex;
                         pixelType = p.pixelType;
+                        deviceEnabled = p.deviceEnabled;
 
-                        doRender = true;
+                        playback = p.playback;
+                        currentTime = p.currentTime;
+
+                        doRender =
+                            createDevice ||
+                            colorConfigOptions != p.colorConfigOptions ||
+                            lutOptions != p.lutOptions ||
+                            imageOptions != p.imageOptions ||
+                            displayOptions != p.displayOptions ||
+                            hdrMode != p.hdrMode ||
+                            hdrData != p.hdrData ||
+                            compareOptions != p.compareOptions ||
+                            sizes != p.sizes ||
+                            viewPos != p.viewPos ||
+                            viewZoom != p.viewZoom ||
+                            frameView != p.frameView ||
+                            videoData != p.videoData ||
+                            overlay != p.overlay;
                         colorConfigOptions = p.colorConfigOptions;
                         lutOptions = p.lutOptions;
                         imageOptions = p.imageOptions;
@@ -536,20 +513,27 @@ namespace tl
                         viewZoom = p.viewZoom;
                         frameView = p.frameView;
                         videoData = p.videoData;
-
-                        doOverlay = overlay != p.overlay;
+                        overlayChanged = overlay != p.overlay;
                         overlay = p.overlay;
+
+                        volume = p.volume;
+                        mute = p.mute;
+                        audioChanged = audioData != p.audioData;
+                        audioData = p.audioData;
                     }
                 }
 
-                if (doCreateDevice)
+                if (createDevice)
                 {
                     offscreenBuffer2.reset();
                     offscreenBuffer.reset();
                     device.reset();
                     imaging::Size deviceSize;
                     otime::RationalTime deviceFrameRate = time::invalidTime;
-                    if (deviceIndex != -1 && displayModeIndex != -1 && pixelType != device::PixelType::None)
+                    if (deviceIndex != -1 &&
+                        displayModeIndex != -1 &&
+                        pixelType != device::PixelType::None &&
+                        deviceEnabled)
                     {
                         if (auto deviceSystem = p.deviceSystem.lock())
                         {
@@ -567,6 +551,10 @@ namespace tl
                                 }
                             }
                         }
+                    }
+                    {
+                        std::unique_lock<std::mutex> lock(p.mutex);
+                        p.deviceEnabled = device.get();
                     }
                     Q_EMIT sizeChanged(deviceSize);
                     Q_EMIT frameRateChanged(deviceFrameRate);
@@ -727,41 +715,19 @@ namespace tl
                             glActiveTexture(GL_TEXTURE0);
                             glBindTexture(GL_TEXTURE_2D, offscreenBuffer->getColorID());
 
-                            geom::TriangleMesh3 mesh;
-                            mesh.v.push_back(math::Vector3f(0.F, 0.F, 0.F));
-                            mesh.t.push_back(math::Vector2f(0.F, 0.F));
-                            mesh.v.push_back(math::Vector3f(renderSize.w, 0.F, 0.F));
-                            mesh.t.push_back(math::Vector2f(1.F, 0.F));
-                            mesh.v.push_back(math::Vector3f(renderSize.w, renderSize.h, 0.F));
-                            mesh.t.push_back(math::Vector2f(1.F, 1.F));
-                            mesh.v.push_back(math::Vector3f(0.F, renderSize.h, 0.F));
-                            mesh.t.push_back(math::Vector2f(0.F, 1.F));
-                            mesh.triangles.push_back(geom::Triangle3({
-                                geom::Vertex3({ 1, 1, 0 }),
-                                geom::Vertex3({ 2, 2, 0 }),
-                                geom::Vertex3({ 3, 3, 0 })
-                                }));
-                            mesh.triangles.push_back(geom::Triangle3({
-                                geom::Vertex3({ 3, 3, 0 }),
-                                geom::Vertex3({ 4, 4, 0 }),
-                                geom::Vertex3({ 1, 1, 0 })
-                                }));
-                            auto vboData = convert(
-                                mesh,
-                                gl::VBOType::Pos3_F32_UV_U16,
-                                math::SizeTRange(0, mesh.triangles.size() - 1));
+                            auto mesh = geom::bbox(math::BBox2i(0, 0, renderSize.w, renderSize.h));
                             if (!vbo)
                             {
-                                vbo = gl::VBO::create(mesh.triangles.size() * 3, gl::VBOType::Pos3_F32_UV_U16);
+                                vbo = gl::VBO::create(mesh.triangles.size() * 3, gl::VBOType::Pos2_F32_UV_U16);
                             }
                             if (vbo)
                             {
-                                vbo->copy(vboData);
+                                vbo->copy(convert(mesh, gl::VBOType::Pos2_F32_UV_U16));
                             }
 
                             if (!vao && vbo)
                             {
-                                vao = gl::VAO::create(gl::VBOType::Pos3_F32_UV_U16, vbo->getID());
+                                vao = gl::VAO::create(gl::VBOType::Pos2_F32_UV_U16, vbo->getID());
                             }
                             if (vao && vbo)
                             {
@@ -776,7 +742,7 @@ namespace tl
                             {
                                 overlayTexture = OverlayTexture::create(overlay->size(), overlay->format());
                             }
-                            if (overlay && overlayTexture && doOverlay)
+                            if (overlay && overlayTexture && overlayChanged)
                             {
                                 overlayTexture->copy(*overlay);
                             }
@@ -809,41 +775,19 @@ namespace tl
 
                                 glBindTexture(GL_TEXTURE_2D, overlayTexture->getID());
 
-                                geom::TriangleMesh3 mesh;
-                                mesh.v.push_back(math::Vector3f(0.F, 0.F, 0.F));
-                                mesh.t.push_back(math::Vector2f(0.F, 0.F));
-                                mesh.v.push_back(math::Vector3f(viewportSize.w, 0.F, 0.F));
-                                mesh.t.push_back(math::Vector2f(1.F, 0.F));
-                                mesh.v.push_back(math::Vector3f(viewportSize.w, viewportSize.h, 0.F));
-                                mesh.t.push_back(math::Vector2f(1.F, 1.F));
-                                mesh.v.push_back(math::Vector3f(0.F, viewportSize.h, 0.F));
-                                mesh.t.push_back(math::Vector2f(0.F, 1.F));
-                                mesh.triangles.push_back(geom::Triangle3({
-                                    geom::Vertex3({ 1, 1, 0 }),
-                                    geom::Vertex3({ 2, 2, 0 }),
-                                    geom::Vertex3({ 3, 3, 0 })
-                                    }));
-                                mesh.triangles.push_back(geom::Triangle3({
-                                    geom::Vertex3({ 3, 3, 0 }),
-                                    geom::Vertex3({ 4, 4, 0 }),
-                                    geom::Vertex3({ 1, 1, 0 })
-                                    }));
-                                auto vboData = convert(
-                                    mesh,
-                                    gl::VBOType::Pos3_F32_UV_U16,
-                                    math::SizeTRange(0, mesh.triangles.size() - 1));
+                                mesh = geom::bbox(math::BBox2i(0, 0, viewportSize.w, viewportSize.h));
                                 if (!overlayVbo)
                                 {
-                                    overlayVbo = gl::VBO::create(mesh.triangles.size() * 3, gl::VBOType::Pos3_F32_UV_U16);
+                                    overlayVbo = gl::VBO::create(mesh.triangles.size() * 3, gl::VBOType::Pos2_F32_UV_U16);
                                 }
                                 if (overlayVbo)
                                 {
-                                    overlayVbo->copy(vboData);
+                                    overlayVbo->copy(convert(mesh, gl::VBOType::Pos2_F32_UV_U16));
                                 }
 
                                 if (!overlayVao && overlayVbo)
                                 {
-                                    overlayVao = gl::VAO::create(gl::VBOType::Pos3_F32_UV_U16, overlayVbo->getID());
+                                    overlayVao = gl::VAO::create(gl::VBOType::Pos2_F32_UV_U16, overlayVbo->getID());
                                 }
                                 if (overlayVao && overlayVbo)
                                 {
@@ -914,7 +858,7 @@ namespace tl
                                     glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
                                 }
                                 glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-                                device->display(pixelData);
+                                device->setPixelData(pixelData);
                             }
                         }
                     }
@@ -926,8 +870,28 @@ namespace tl
                         }
                     }
                 }
+
+                if (device)
+                {
+                    device->setPlayback(playback, currentTime);
+                    device->setAudio(volume, mute);
+                }
+                if (device && audioChanged)
+                {
+                    device->setAudioData(audioData);
+                }
             }
             glDeleteBuffers(pbo.size(), pbo.data());
+        }
+
+        bool OutputDevice::_isDeviceActive() const
+        {
+            TLRENDER_P();
+            return
+                p.deviceIndex != -1 &&
+                p.displayModeIndex != -1 &&
+                p.pixelType != device::PixelType::None &&
+                p.deviceEnabled;
         }
     }
 }

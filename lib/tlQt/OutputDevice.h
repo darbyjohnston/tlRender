@@ -53,6 +53,12 @@ namespace tl
                 int displayModeIndex,
                 device::PixelType pixelType);
 
+            //! Get whether the output device is enabled.
+            bool isDeviceEnabled() const;
+
+            //! Get whether the output device is active.
+            bool isDeviceActive() const;
+
             //! Set the color configuration options.
             void setColorConfigOptions(const timeline::ColorConfigOptions&);
 
@@ -82,13 +88,26 @@ namespace tl
             void setOverlay(QImage*);
 
         public Q_SLOTS:
+            //! Set whether the output device is enabled.
+            void setDeviceEnabled(bool);
+
             //! Set the view.
             void setView(
                 const tl::math::Vector2i& position,
                 float                     zoom,
                 bool                      frame);
 
+            //! Set the audio volume.
+            void setVolume(float);
+
+            //! Set the audio mute.
+            void setMute(bool);
+
         Q_SIGNALS:
+            //! This signal is emitted when the output device active state is
+            //! changed.
+            void deviceActiveChanged(bool);
+
             //! This signal is emitted when the output device size is changed.
             void sizeChanged(const tl::imaging::Size&);
 
@@ -97,12 +116,17 @@ namespace tl
             void frameRateChanged(const otime::RationalTime&);
 
         private Q_SLOTS:
-            void _videoCallback(const tl::timeline::VideoData&);
+            void _playbackCallback(tl::timeline::Playback);
+            void _currentTimeCallback(const otime::RationalTime&);
+            void _currentVideoCallback(const tl::timeline::VideoData&);
+            void _currentAudioCallback(const std::vector<tl::timeline::AudioData>&);
 
         protected:
             void run() override;
 
         private:
+            bool _isDeviceActive() const;
+
             TLRENDER_PRIVATE();
         };
     }

@@ -62,25 +62,25 @@ namespace tl
                 {
                     disconnect(
                         _timelinePlayer,
-                        SIGNAL(videoChanged(const tl::timeline::VideoData&)),
+                        SIGNAL(currentVideoChanged(const tl::timeline::VideoData&)),
                         this,
-                        SLOT(_videoCallback(const tl::timeline::VideoData&)));
+                        SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
                 }
                 _timelinePlayer = timelinePlayer;
                 if (_timelinePlayer)
                 {
                     const auto& ioInfo = _timelinePlayer->ioInfo();
                     _videoSize = !ioInfo.video.empty() ? ioInfo.video[0].size : imaging::Size();
-                    _videoData = _timelinePlayer->video();
+                    _videoData = _timelinePlayer->currentVideo();
                     connect(
                         _timelinePlayer,
-                        SIGNAL(videoChanged(const tl::timeline::VideoData&)),
-                        SLOT(_videoCallback(const tl::timeline::VideoData&)));
+                        SIGNAL(currentVideoChanged(const tl::timeline::VideoData&)),
+                        SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
                 }
                 update();
             }
 
-            void PanoramaTimelineViewport::_videoCallback(const timeline::VideoData& value)
+            void PanoramaTimelineViewport::_currentVideoCallback(const timeline::VideoData& value)
             {
                 _videoData = value;
                 update();

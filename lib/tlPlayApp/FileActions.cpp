@@ -60,6 +60,10 @@ namespace tl
             p.actions["CloseAll"]->setIcon(QIcon(":/Icons/FileCloseAll.svg"));
             p.actions["CloseAll"]->setToolTip(tr("Close all files"));
 
+            p.actions["Reload"] = new QAction(this);
+            p.actions["Reload"]->setText(tr("Reload"));
+            p.actions["Reload"]->setToolTip(tr("Reload files"));
+
             p.actions["Next"] = new QAction(this);
             p.actions["Next"]->setText(tr("Next"));
             p.actions["Next"]->setIcon(QIcon(":/Icons/Next.svg"));
@@ -97,6 +101,7 @@ namespace tl
             p.menu->addAction(p.actions["OpenSeparateAudio"]);
             p.menu->addAction(p.actions["Close"]);
             p.menu->addAction(p.actions["CloseAll"]);
+            p.menu->addAction(p.actions["Reload"]);
             p.recentMenu = new QMenu;
             p.recentMenu->setTitle(tr("&Recent"));
             p.menu->addMenu(p.recentMenu);
@@ -138,6 +143,13 @@ namespace tl
                 [app]
                 {
                     app->filesModel()->closeAll();
+                });
+            connect(
+                p.actions["Reload"],
+                &QAction::triggered,
+                [app]
+                {
+                    app->filesModel()->reload();
                 });
             connect(
                 p.actions["Next"],
@@ -257,6 +269,7 @@ namespace tl
             const size_t count = files.size();
             p.actions["Close"]->setEnabled(count > 0);
             p.actions["CloseAll"]->setEnabled(count > 0);
+            p.actions["Reload"]->setEnabled(count > 0);
             p.actions["Next"]->setEnabled(count > 1);
             p.actions["Prev"]->setEnabled(count > 1);
             p.actions["NextLayer"]->setEnabled(count > 0);

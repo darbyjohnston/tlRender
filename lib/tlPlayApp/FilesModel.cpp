@@ -164,6 +164,20 @@ namespace tl
             p.layers->setIfChanged(_getLayers());
         }
 
+        void FilesModel::reload()
+        {
+            TLRENDER_P();
+
+            p.a->setAlways(p.a->get());
+            p.aIndex->setAlways(p.aIndex->get());
+
+            p.b->setAlways(p.b->get());
+            p.bIndexes->setAlways(_bIndexes());
+
+            p.active->setAlways(_getActive());
+            p.layers->setAlways(_getLayers());
+        }
+
         void FilesModel::setA(int index)
         {
             TLRENDER_P();

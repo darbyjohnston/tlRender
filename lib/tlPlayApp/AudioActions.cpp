@@ -53,6 +53,20 @@ namespace tl
             p.menu->addAction(p.actions["Mute"]);
 
             _actionsUpdate();
+
+            connect(
+                p.actions["Mute"],
+                &QAction::toggled,
+                app,
+                &App::setMute);
+
+            connect(
+                app,
+                &App::muteChanged,
+                [this](bool)
+                {
+                    _actionsUpdate();
+                });
         }
 
         AudioActions::~AudioActions()
@@ -76,18 +90,13 @@ namespace tl
                 disconnect(
                     p.actions["IncreaseVolume"],
                     SIGNAL(triggered()),
-                    p.timelinePlayers[0],
-                    SLOT(increaseVolume()));
+                    this,
+                    SLOT(_increaseVolumeCallback()));
                 disconnect(
                     p.actions["DecreaseVolume"],
                     SIGNAL(triggered()),
-                    p.timelinePlayers[0],
-                    SLOT(decreaseVolume()));
-                disconnect(
-                    p.actions["Mute"],
-                    SIGNAL(toggled(bool)),
-                    p.timelinePlayers[0],
-                    SLOT(setMute(bool)));
+                    this,
+                    SLOT(_decreaseVolumeCallback()));
             }
 
             p.timelinePlayers = timelinePlayers;
@@ -97,21 +106,26 @@ namespace tl
                 connect(
                     p.actions["IncreaseVolume"],
                     SIGNAL(triggered()),
-                    p.timelinePlayers[0],
-                    SLOT(increaseVolume()));
+                    SLOT(_increaseVolumeCallback()));
                 connect(
                     p.actions["DecreaseVolume"],
                     SIGNAL(triggered()),
-                    p.timelinePlayers[0],
-                    SLOT(decreaseVolume()));
-                connect(
-                    p.actions["Mute"],
-                    SIGNAL(toggled(bool)),
-                    p.timelinePlayers[0],
-                    SLOT(setMute(bool)));
+                    SLOT(_decreaseVolumeCallback()));
             }
 
             _actionsUpdate();
+        }
+
+        void AudioActions::_increaseVolumeCallback()
+        {
+            TLRENDER_P();
+            p.app->setVolume(p.app->volume() + .1F);
+        }
+
+        void AudioActions::_decreaseVolumeCallback()
+        {
+            TLRENDER_P();
+            p.app->setVolume(p.app->volume() - .1F);
         }
 
         void AudioActions::_actionsUpdate()
@@ -124,19 +138,9 @@ namespace tl
                 i->setEnabled(count > 0);
             }
 
-            if (!p.timelinePlayers.empty())
             {
-                {
-                    QSignalBlocker blocker(p.actions["Mute"]);
-                    p.actions["Mute"]->setChecked(p.timelinePlayers[0]->isMuted());
-                }
-            }
-            else
-            {
-                {
-                    QSignalBlocker blocker(p.actions["Mute"]);
-                    p.actions["Mute"]->setChecked(false);
-                }
+                QSignalBlocker blocker(p.actions["Mute"]);
+                p.actions["Mute"]->setChecked(p.app->isMuted());
             }
         }
     }

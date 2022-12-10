@@ -5,12 +5,12 @@
 #if defined(TLRENDER_QT5) || defined(TLRENDER_QT6)
 #include <tlQtTest/TimeObjectTest.h>
 #include <tlQt/Util.h>
-#endif
+#endif // TLRENDER_QT5 || TLRENDER_QT6
 
 #if defined(TLRENDER_GL)
 #include <tlGLTest/MeshTest.h>
 #include <tlGL/Util.h>
-#endif
+#endif // TLRENDER_GL
 
 #include <tlAppTest/AppTest.h>
 #include <tlAppTest/CmdLineTest.h>
@@ -86,9 +86,9 @@ int main(int argc, char* argv[])
     qt::init(context);
 #elif defined(TLRENDER_GL)
     gl::init(context);
-#else
+#else // TLRENDER_QT5 || TLRENDER_QT6
     io::init(context);
-#endif
+#endif // TLRENDER_QT5 || TLRENDER_QT6
 
     auto logObserver = observer::ListObserver<log::Item>::create(
         context->getSystem<log::System>()->observeLog(),
@@ -180,13 +180,13 @@ int main(int argc, char* argv[])
         {
 #if defined(TLRENDER_GL)
             tests.push_back(gl_tests::MeshTest::create(context));
-#endif
+#endif // TLRENDER_GL
         }
         if (1)
         {
 #if defined(TLRENDER_QT5) || defined(TLRENDER_QT6)
             tests.push_back(qt_tests::TimeObjectTest::create(context));
-#endif
+#endif // TLRENDER_QT5 || TLRENDER_QT6
         }
     }
     for (const auto& i : tests)

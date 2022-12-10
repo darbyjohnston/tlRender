@@ -27,7 +27,7 @@ namespace tl
         {
             TLRENDER_P();
 
-            const QFont fixedFont = qtwidget::font("NotoMono-Regular");
+            const QFont fixedFont("Noto Mono");
             setFont(fixedFont);
 
             p.label = new QLabel;

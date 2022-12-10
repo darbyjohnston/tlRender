@@ -125,13 +125,16 @@ namespace tl
 
         protected:
             void _init(const Info&, size_t sampleCount);
+
             Audio();
 
         public:
             ~Audio();
 
             //! Create new audio.
-            static std::shared_ptr<Audio> create(const Info&, size_t sampleCount);
+            static std::shared_ptr<Audio> create(
+                const Info&    info,
+                size_t         sampleCount);
 
             //! Get the audio information.
             const Info& getInfo() const;
@@ -193,17 +196,20 @@ namespace tl
         void planarInterleave(
             const T** in,
             T* out,
-            uint8_t   channelCount,
-            size_t    sampleCount);
+            uint8_t channelCount,
+            size_t sampleCount);
 
         //! De-interleave audio data.
         std::shared_ptr<Audio> planarDeinterleave(const std::shared_ptr<Audio>&);
+
+        //! Get the total sample count from a list of audio data.
+        size_t getSampleCount(const std::list<std::shared_ptr<audio::Audio> >&);
 
         //! Copy audio data.
         void copy(
             std::list<std::shared_ptr<Audio> >& in,
             uint8_t* out,
-            size_t                              byteCount);
+            size_t byteCount);
 
         ///@}
     }
