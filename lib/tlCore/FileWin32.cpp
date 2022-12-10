@@ -21,11 +21,21 @@ namespace tl
 {
     namespace file
     {
-        bool exists(const Path& path)
+        bool exists(const std::string& fileName)
         {
             _STAT info;
             std::memset(&info, 0, sizeof(_STAT));
-            return 0 == _STAT_FNC(string::toWide(path.get()).c_str(), &info);
+            return 0 == _STAT_FNC(string::toWide(fileName).c_str(), &info);
+        }
+
+        bool mkdir(const std::string& fileName)
+        {
+            return 0 == _wmkdir(string::toWide(fileName).c_str());
+        }
+
+        bool rmdir(const std::string& fileName)
+        {
+            return 0 == _wrmdir(string::toWide(fileName).c_str());
         }
 
         std::string getTemp()

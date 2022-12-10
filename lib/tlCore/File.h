@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlCore/Path.h>
+#include <string>
 
 namespace tl
 {
@@ -12,7 +12,13 @@ namespace tl
     namespace file
     {
         // Does a file exist?
-        bool exists(const Path&);
+        bool exists(const std::string&);
+
+        // Create a directory.
+        bool mkdir(const std::string&);
+
+        // Remove a directory.
+        bool rmdir(const std::string&);
 
         // Get the temporary directory.
         std::string getTemp();

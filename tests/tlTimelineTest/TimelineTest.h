@@ -26,6 +26,7 @@ namespace tl
             void _util();
             void _transitions();
             void _videoData();
+            void _create();
             void _timeline();
             void _imageSequence();
         };

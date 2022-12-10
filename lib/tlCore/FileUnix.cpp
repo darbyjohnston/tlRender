@@ -28,6 +28,16 @@ namespace tl
 			memset(&info, 0, sizeof(_STAT));
 			return 0 == _STAT_FNC(path.get().c_str(), &info);
 		}
+
+        bool mkdir(const std::string& fileName)
+        {
+            return false;
+        }
+
+        bool rmdir(const std::string& fileName)
+        {
+            return false;
+        }
 		
 		std::string getTemp()
 		{

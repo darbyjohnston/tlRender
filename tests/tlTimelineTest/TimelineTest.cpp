@@ -9,6 +9,7 @@
 #include <tlIO/IOSystem.h>
 
 #include <tlCore/Assert.h>
+#include <tlCore/File.h>
 
 #include <opentimelineio/clip.h>
 #include <opentimelineio/timeline.h>
@@ -34,6 +35,7 @@ namespace tl
             _enums();
             _transitions();
             _videoData();
+            _create();
             _timeline();
             _imageSequence();
         }
@@ -64,6 +66,39 @@ namespace tl
                 TLRENDER_ASSERT(a == b);
                 a.time = otime::RationalTime(1.0, 24.0);
                 TLRENDER_ASSERT(a != b);
+            }
+        }
+
+        void TimelineTest::_create()
+        {
+            imaging::Info imageInfo(16, 16, imaging::PixelType::RGB_U8);
+            imageInfo.layout.endian = memory::Endian::MSB;
+            const auto image = imaging::Image::create(imageInfo);
+            io::Info ioInfo;
+            ioInfo.video.push_back(imageInfo);
+            ioInfo.videoTime = otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(24.0, 24.0));
+            {
+                auto write = _context->getSystem<io::System>()->write(file::Path("Timeline Create.0.ppm"), ioInfo);
+                for (size_t i = 0; i < static_cast<size_t>(ioInfo.videoTime.duration().value()); ++i)
+                {
+                    write->writeVideo(otime::RationalTime(i, 24.0), image);
+                }
+                auto timeline = Timeline::create("Timeline Create.0.ppm", _context);
+                const auto& timelineIOInfo = timeline->getIOInfo();
+                TLRENDER_ASSERT(!timelineIOInfo.video.empty());
+                TLRENDER_ASSERT(timelineIOInfo.video[0] == imageInfo);
+            }
+            {
+                file::mkdir("Timeline Create");
+                auto write = _context->getSystem<io::System>()->write(file::Path("Timeline Create/Timeline Create.0.ppm"), ioInfo);
+                for (size_t i = 0; i < static_cast<size_t>(ioInfo.videoTime.duration().value()); ++i)
+                {
+                    write->writeVideo(otime::RationalTime(i, 24.0), image);
+                }
+                auto timeline = Timeline::create("Timeline Create/Timeline Create.0.ppm", _context);
+                const auto& timelineIOInfo = timeline->getIOInfo();
+                TLRENDER_ASSERT(!timelineIOInfo.video.empty());
+                TLRENDER_ASSERT(timelineIOInfo.video[0] == imageInfo);
             }
         }
 

@@ -19,6 +19,10 @@ namespace tl
             static std::shared_ptr<FileTest> create(const std::shared_ptr<system::Context>&);
 
             void run() override;
+
+        private:
+            void _dir();
+            void _temp();
         };
     }
 }

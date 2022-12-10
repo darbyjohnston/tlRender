@@ -27,6 +27,26 @@ namespace tl
 
         void FileTest::run()
         {
+            _dir();
+            _temp();
+        }
+
+        void FileTest::_dir()
+        {
+            {
+                bool r = mkdir("File Test");
+                TLRENDER_ASSERT(r);
+                r = mkdir("File Test");
+                TLRENDER_ASSERT(!r);
+                r = rmdir("File Test");
+                TLRENDER_ASSERT(r);
+                r = rmdir("File Test");
+                TLRENDER_ASSERT(!r);
+            }
+        }
+
+        void FileTest::_temp()
+        {
             {
                 std::stringstream ss;
                 ss << "Temp dir: " << getTemp();
