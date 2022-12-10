@@ -265,17 +265,6 @@ namespace tl
                         options.ioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").arg(1);
                         options.ioOptions["ffmpeg/ThreadCount"] = string::Format("{0}").arg(1);
                         request.timeline = timeline::Timeline::create(request.fileName.toUtf8().data(), context, options);
-                        otime::TimeRange timeRange;
-                        if (!request.times.empty())
-                        {
-                            timeRange = otime::TimeRange(request.times[0], otime::RationalTime(1.0, request.times[0].rate()));
-                            for (size_t i = 1; i < request.times.size(); ++i)
-                            {
-                                timeRange = timeRange.extended_by(
-                                    otime::TimeRange(request.times[i], otime::RationalTime(1.0, request.times[i].rate())));
-                            }
-                            request.timeline->setActiveRanges({ timeRange });
-                        }
                         for (const auto& i : request.times)
                         {
                             request.futures.push_back(request.timeline->getVideo(i));

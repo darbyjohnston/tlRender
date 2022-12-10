@@ -159,7 +159,8 @@ namespace tl
         otio::SerializableObject::Retainer<otio::Timeline> create(
             const std::string& fileName,
             const std::shared_ptr<system::Context>& context,
-            const Options& options)
+            const Options& options,
+            const std::shared_ptr<ReadCache>& readCache)
         {
             otio::SerializableObject::Retainer<otio::Timeline> out;
             bool isSequence = false;
@@ -172,6 +173,14 @@ namespace tl
                 if (auto read = ioSystem->read(path, options.ioOptions))
                 {
                     const auto info = read->getInfo().get();
+                    if (readCache)
+                    {
+                        ReadCacheItem item;
+                        item.read = read;
+                        item.ioInfo = info;
+                        readCache->add(item);
+                    }
+
                     otime::RationalTime startTime = time::invalidTime;
                     otio::Track* videoTrack = nullptr;
                     otio::Track* audioTrack = nullptr;
@@ -219,6 +228,13 @@ namespace tl
                                 if (auto audioRead = ioSystem->read(audioPath, options.ioOptions))
                                 {
                                     const auto audioInfo = audioRead->getInfo().get();
+                                    if (readCache)
+                                    {
+                                        ReadCacheItem item;
+                                        item.read = audioRead;
+                                        item.ioInfo = audioInfo;
+                                        readCache->add(item);
+                                    }
 
                                     auto audioClip = new otio::Clip;
                                     audioClip->set_source_range(audioInfo.audioTime);
@@ -321,7 +337,8 @@ namespace tl
             const std::string& fileName,
             const std::string& audioFileName,
             const std::shared_ptr<system::Context>& context,
-            const Options& options)
+            const Options& options,
+            const std::shared_ptr<ReadCache>& readCache)
         {
             otio::SerializableObject::Retainer<otio::Timeline> out;
             bool isSequence = false;
@@ -334,6 +351,14 @@ namespace tl
                 if (auto read = ioSystem->read(path, options.ioOptions))
                 {
                     const auto info = read->getInfo().get();
+                    if (readCache)
+                    {
+                        ReadCacheItem item;
+                        item.read = read;
+                        item.ioInfo = info;
+                        readCache->add(item);
+                    }
+
                     otime::RationalTime globalStartTime = time::invalidTime;
                     otio::Track* videoTrack = nullptr;
                     otio::Track* audioTrack = nullptr;
@@ -372,6 +397,13 @@ namespace tl
                     if (auto audioRead = ioSystem->read(audioPath, options.ioOptions))
                     {
                         const auto audioInfo = audioRead->getInfo().get();
+                        if (readCache)
+                        {
+                            ReadCacheItem item;
+                            item.read = audioRead;
+                            item.ioInfo = audioInfo;
+                            readCache->add(item);
+                        }
 
                         auto audioClip = new otio::Clip;
                         audioClip->set_source_range(audioInfo.audioTime);
@@ -456,10 +488,11 @@ namespace tl
         std::shared_ptr<Timeline> Timeline::create(
             const otio::SerializableObject::Retainer<otio::Timeline>& timeline,
             const std::shared_ptr<system::Context>& context,
-            const Options& options)
+            const Options& options,
+            const std::shared_ptr<ReadCache>& readCache)
         {
             auto out = std::shared_ptr<Timeline>(new Timeline);
-            out->_init(timeline, context, options);
+            out->_init(timeline, context, options, readCache);
             return out;
         }
 
@@ -469,10 +502,12 @@ namespace tl
             const Options& options)
         {
             auto out = std::shared_ptr<Timeline>(new Timeline);
+            auto readCache = ReadCache::create();
             out->_init(
-                timeline::create(fileName, context, options),
+                timeline::create(fileName, context, options, readCache),
                 context,
-                options);
+                options,
+                readCache);
             return out;
         }
 
@@ -483,10 +518,12 @@ namespace tl
             const Options& options)
         {
             auto out = std::shared_ptr<Timeline>(new Timeline);
+            auto readCache = ReadCache::create();
             out->_init(
-                timeline::create(fileName, audioFileName, context, options),
+                timeline::create(fileName, audioFileName, context, options, readCache),
                 context,
-                options);
+                options,
+                readCache);
             return out;
         }
     }

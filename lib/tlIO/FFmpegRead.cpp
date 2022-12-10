@@ -169,6 +169,8 @@ namespace tl
 
             TLRENDER_P();
 
+            std::cout << "ffmpeg::Read::_init: " << path.get() << std::endl;
+
             auto i = options.find("ffmpeg/YUVToRGBConversion");
             if (i != options.end())
             {
@@ -363,13 +365,6 @@ namespace tl
             return future;
         }
 
-        bool Read::hasRequests()
-        {
-            TLRENDER_P();
-            std::unique_lock<std::mutex> lock(p.mutex);
-            return !p.videoRequests.empty() || !p.audioRequests.empty();
-        }
-
         void Read::cancelRequests()
         {
             TLRENDER_P();
@@ -393,13 +388,6 @@ namespace tl
         void Read::stop()
         {
             _p->running = false;
-        }
-
-        bool Read::hasStopped() const
-        {
-            TLRENDER_P();
-            std::unique_lock<std::mutex> lock(p.mutex);
-            return p.stopped;
         }
 
         void Read::_openVideo(const std::string& fileName)

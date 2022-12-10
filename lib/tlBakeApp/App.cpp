@@ -287,11 +287,6 @@ namespace tl
 
             _printProgress();
 
-            // Set the active range.
-            _timeline->setActiveRanges({ otime::TimeRange(
-                _currentTime,
-                otime::RationalTime(1.0, _currentTime.rate())) });
-
             // Render the video.
             _render->setColorConfig(_options.colorConfigOptions);
             _render->setLUT(_options.lutOptions);

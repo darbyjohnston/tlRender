@@ -148,17 +148,11 @@ namespace tl
             //! Read audio data.
             virtual std::future<AudioData> readAudio(const otime::TimeRange&);
 
-            //! Are there pending requests?
-            virtual bool hasRequests() = 0;
-
             //! Cancel pending requests.
             virtual void cancelRequests() = 0;
 
             //! Stop the reader.
             virtual void stop() = 0;
-
-            //! Has the reader stopped?
-            virtual bool hasStopped() const = 0;
 
         protected:
             std::vector<file::MemoryRead> _memory;

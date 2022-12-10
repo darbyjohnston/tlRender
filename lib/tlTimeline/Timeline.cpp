@@ -10,6 +10,7 @@
 
 #include <tlCore/Assert.h>
 #include <tlCore/Error.h>
+#include <tlCore/LRUCache.h>
 #include <tlCore/String.h>
 #include <tlCore/StringFormat.h>
 
@@ -91,10 +92,66 @@ namespace tl
             return !(*this == other);
         }
 
+        struct ReadCache::Private
+        {
+            memory::LRUCache<std::string, ReadCacheItem> cache;
+            std::list<std::shared_ptr<io::IRead> > stopped;
+        };
+
+        void ReadCache::_init()
+        {
+            TLRENDER_P();
+        }
+
+        ReadCache::ReadCache() :
+            _p(new Private)
+        {}
+
+        ReadCache::~ReadCache()
+        {}
+
+        std::shared_ptr<ReadCache> ReadCache::create()
+        {
+            auto out = std::shared_ptr<ReadCache>(new ReadCache);
+            out->_init();
+            return out;
+        }
+
+        void ReadCache::add(const ReadCacheItem& read)
+        {
+            TLRENDER_P();
+            p.cache.add(read.read->getPath().get(), read);
+        }
+
+        bool ReadCache::get(const std::string& fileName, ReadCacheItem& out)
+        {
+            return _p->cache.get(fileName, out);
+        }
+
+        void ReadCache::setMax(size_t value)
+        {
+            _p->cache.setMax(value);
+        }
+
+        size_t ReadCache::getCount() const
+        {
+            return _p->cache.getCount();
+        }
+
+        void ReadCache::cancelRequests()
+        {
+            TLRENDER_P();
+            for (auto& i : p.cache.getValues())
+            {
+                i.read->cancelRequests();
+            }
+        }
+
         void Timeline::_init(
             const otio::SerializableObject::Retainer<otio::Timeline>& otioTimeline,
             const std::shared_ptr<system::Context>& context,
-            const Options& options)
+            const Options& options,
+            const std::shared_ptr<ReadCache>& readCache)
         {
             TLRENDER_P();
 
@@ -150,6 +207,8 @@ namespace tl
                 catch (const std::exception&)
                 {}
             }
+            p.readCache = readCache ? readCache : ReadCache::create();
+            p.readCache->setMax(16);
 
             // Get information about the timeline.
             otio::ErrorStatus errorStatus;
@@ -339,11 +398,6 @@ namespace tl
             return _p->ioInfo;
         }
 
-        void Timeline::setActiveRanges(const std::vector<otime::TimeRange>& ranges)
-        {
-            _p->activeRanges = ranges;
-        }
-
         std::future<VideoData> Timeline::getVideo(const otime::RationalTime& time, uint16_t videoLayer)
         {
             TLRENDER_P();
@@ -415,10 +469,7 @@ namespace tl
             {
                 request->promise.set_value(AudioData());
             }
-            for (auto& i : p.readers)
-            {
-                i.second.read->cancelRequests();
-            }
+            p.readCache->cancelRequests();
         }
     }
 }

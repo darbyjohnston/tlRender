@@ -180,7 +180,6 @@ namespace tl
                 audioCacheRanges.push_back(range);
             }
             //std::cout << std::endl;
-            timeline->setActiveRanges(audioRanges);
 
             // Remove old video from the cache.
             auto videoDataCacheIt = threadData.videoDataCache.begin();

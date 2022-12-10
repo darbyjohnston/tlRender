@@ -233,13 +233,6 @@ namespace tl
             return future;
         }
 
-        bool ISequenceRead::hasRequests()
-        {
-            TLRENDER_P();
-            std::unique_lock<std::mutex> lock(p.mutex);
-            return !p.videoRequests.empty();
-        }
-
         void ISequenceRead::cancelRequests()
         {
             TLRENDER_P();
@@ -257,13 +250,6 @@ namespace tl
         void ISequenceRead::stop()
         {
             _p->running = false;
-        }
-
-        bool ISequenceRead::hasStopped() const
-        {
-            TLRENDER_P();
-            std::unique_lock<std::mutex> lock(p.mutex);
-            return p.stopped;
         }
 
         void ISequenceRead::_finish()

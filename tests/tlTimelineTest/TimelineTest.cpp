@@ -203,37 +203,6 @@ namespace tl
             }
             TLRENDER_ASSERT(futures.empty());
 
-            // Get video from the timeline, setting the active range.
-            timeline->setActiveRanges({ otime::TimeRange(otime::RationalTime(0.0, 24.0), timeRange.duration()) });
-            videoData.clear();
-            futures.clear();
-            for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().value()); ++i)
-            {
-                futures.push_back(timeline->getVideo(otime::RationalTime(i, 24.0)));
-            }
-            for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().value()); ++i)
-            {
-                futures.push_back(timeline->getVideo(otime::RationalTime(i, 24.0), 1));
-            }
-            while (videoData.size() < static_cast<size_t>(timeRange.duration().value()) * 2)
-            {
-                auto i = futures.begin();
-                while (i != futures.end())
-                {
-                    if (i->valid() &&
-                        i->wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-                    {
-                        videoData.push_back(i->get());
-                        i = futures.erase(i);
-                    }
-                    else
-                    {
-                        ++i;
-                    }
-                }
-            }
-            TLRENDER_ASSERT(futures.empty());
-
             // Cancel requests.
             videoData.clear();
             futures.clear();

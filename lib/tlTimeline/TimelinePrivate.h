@@ -30,14 +30,7 @@ namespace tl
 
             void tick();
             void requests();
-            struct Reader
-            {
-                std::shared_ptr<io::IRead> read;
-                io::Info info;
-                otime::TimeRange range;
-            };
-            Reader createReader(
-                const otio::Track*,
+            ReadCacheItem getRead(
                 const otio::Clip*,
                 const io::Options&);
             std::future<io::VideoData> readVideo(
@@ -49,17 +42,15 @@ namespace tl
                 const otio::Track*,
                 const otio::Clip*,
                 const otime::TimeRange&);
-            void stopReaders();
-            void delReaders();
 
             std::weak_ptr<system::Context> context;
             otio::SerializableObject::Retainer<otio::Timeline> otioTimeline;
             file::Path path;
             file::Path audioPath;
             Options options;
+            std::shared_ptr<ReadCache> readCache;
             otime::TimeRange timeRange = time::invalidTimeRange;
             io::Info ioInfo;
-            std::vector<otime::TimeRange> activeRanges;
 
             struct VideoLayerData
             {
@@ -108,9 +99,6 @@ namespace tl
             std::list<std::shared_ptr<AudioRequest> > audioRequestsInProgress;
 
             std::condition_variable requestCV;
-
-            std::map<const otio::Clip*, Reader> readers;
-            std::list<std::shared_ptr<io::IRead> > stoppedReaders;
 
             std::thread thread;
             std::mutex mutex;
