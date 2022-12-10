@@ -101,8 +101,8 @@ namespace tl
 
         qint64 TimelineThumbnailProvider::request(
             const QString& fileName,
-            const otime::RationalTime& time,
             const QSize& size,
+            const otime::RationalTime& time,
             const timeline::ColorConfigOptions& colorConfigOptions,
             const timeline::LUTOptions& lutOptions)
         {
@@ -127,8 +127,8 @@ namespace tl
 
         qint64 TimelineThumbnailProvider::request(
             const QString& fileName,
-            const QList<otime::RationalTime>& times,
             const QSize& size,
+            const QList<otime::RationalTime>& times,
             const timeline::ColorConfigOptions& colorConfigOptions,
             const timeline::LUTOptions& lutOptions)
         {
@@ -267,7 +267,10 @@ namespace tl
                         request.timeline = timeline::Timeline::create(request.fileName.toUtf8().data(), context, options);
                         for (const auto& i : request.times)
                         {
-                            request.futures.push_back(request.timeline->getVideo(i));
+                            request.futures.push_back(request.timeline->getVideo(
+                                i != time::invalidTime ?
+                                i :
+                                request.timeline->getTimeRange().start_time()));
                         }
                         p.requestsInProgress.push_back(std::move(request));
                     }

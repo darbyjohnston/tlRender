@@ -379,8 +379,8 @@ namespace tl
                     }
                     p.thumbnailRequestId = p.thumbnailProvider->request(
                         fileName,
-                        requests,
                         QSize(thumbnailWidth, thumbnailHeight),
+                        requests,
                         p.colorConfigOptions,
                         p.lutOptions);
                 }

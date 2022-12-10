@@ -30,16 +30,16 @@ namespace tl
             //! Request a thumbnail. The request ID is returned.
             qint64 request(
                 const QString&,
-                const otime::RationalTime&,
                 const QSize&,
+                const otime::RationalTime& = time::invalidTime,
                 const timeline::ColorConfigOptions& = timeline::ColorConfigOptions(),
                 const timeline::LUTOptions& = timeline::LUTOptions());
 
-            //! Request a thumbnail. The request ID is returned.
+            //! Request multiple thumbnails. The request ID is returned.
             qint64 request(
                 const QString&,
-                const QList<otime::RationalTime>&,
                 const QSize&,
+                const QList<otime::RationalTime>&,
                 const timeline::ColorConfigOptions & = timeline::ColorConfigOptions(),
                 const timeline::LUTOptions& = timeline::LUTOptions());
 

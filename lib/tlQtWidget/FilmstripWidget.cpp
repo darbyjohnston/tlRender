@@ -162,8 +162,8 @@ namespace tl
                     }
                     p.thumbnailRequestId = p.thumbnailProvider->request(
                         QString::fromUtf8(p.timeline->getPath().get().c_str()),
-                        requests,
-                        QSize(thumbnailWidth, thumbnailHeight));
+                        QSize(thumbnailWidth, thumbnailHeight),
+                        requests);
                 }
             }
             update();
