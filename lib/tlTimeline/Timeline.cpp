@@ -10,7 +10,6 @@
 
 #include <tlCore/Assert.h>
 #include <tlCore/Error.h>
-#include <tlCore/LRUCache.h>
 #include <tlCore/String.h>
 #include <tlCore/StringFormat.h>
 
@@ -90,61 +89,6 @@ namespace tl
         bool Options::operator != (const Options& other) const
         {
             return !(*this == other);
-        }
-
-        struct ReadCache::Private
-        {
-            memory::LRUCache<std::string, ReadCacheItem> cache;
-            std::list<std::shared_ptr<io::IRead> > stopped;
-        };
-
-        void ReadCache::_init()
-        {
-            TLRENDER_P();
-        }
-
-        ReadCache::ReadCache() :
-            _p(new Private)
-        {}
-
-        ReadCache::~ReadCache()
-        {}
-
-        std::shared_ptr<ReadCache> ReadCache::create()
-        {
-            auto out = std::shared_ptr<ReadCache>(new ReadCache);
-            out->_init();
-            return out;
-        }
-
-        void ReadCache::add(const ReadCacheItem& read)
-        {
-            TLRENDER_P();
-            p.cache.add(read.read->getPath().get(), read);
-        }
-
-        bool ReadCache::get(const std::string& fileName, ReadCacheItem& out)
-        {
-            return _p->cache.get(fileName, out);
-        }
-
-        void ReadCache::setMax(size_t value)
-        {
-            _p->cache.setMax(value);
-        }
-
-        size_t ReadCache::getCount() const
-        {
-            return _p->cache.getCount();
-        }
-
-        void ReadCache::cancelRequests()
-        {
-            TLRENDER_P();
-            for (auto& i : p.cache.getValues())
-            {
-                i.read->cancelRequests();
-            }
         }
 
         void Timeline::_init(

@@ -15,6 +15,7 @@ set(HEADERS
 	LUTOptions.h
 	LUTOptionsInline.h
 	MemoryReference.h
+    ReadCache.h
     Timeline.h
     TimelinePlayer.h
     TimelinePlayerInline.h
@@ -35,6 +36,7 @@ set(SOURCE
 	IRender.cpp
 	LUTOptions.cpp
 	MemoryReference.cpp
+    ReadCache.cpp
     Timeline.cpp
 	TimelineCreate.cpp
 	TimelinePrivate.cpp

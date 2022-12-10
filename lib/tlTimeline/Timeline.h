@@ -5,9 +5,8 @@
 #pragma once
 
 #include <tlTimeline/Audio.h>
+#include <tlTimeline/ReadCache.h>
 #include <tlTimeline/Video.h>
-
-#include <tlIO/IO.h>
 
 #include <tlCore/Context.h>
 
@@ -61,48 +60,6 @@ namespace tl
 
             bool operator == (const Options&) const;
             bool operator != (const Options&) const;
-        };
-
-        //! I/O read cache item.
-        struct ReadCacheItem
-        {
-            std::shared_ptr<io::IRead> read;
-            io::Info ioInfo;
-        };
-
-        //! I/O read cache.
-        class ReadCache
-        {
-            TLRENDER_NON_COPYABLE(ReadCache);
-
-        protected:
-            void _init();
-
-            ReadCache();
-
-        public:
-            ~ReadCache();
-
-            //! Create a new read cache.
-            static std::shared_ptr<ReadCache> create();
-
-            //! Add an item to the cache.
-            void add(const ReadCacheItem&);
-
-            //! Get an item from the cache.
-            bool get(const std::string& fileName, ReadCacheItem&);
-
-            //! Set the maximum number of read objects.
-            void setMax(size_t);
-
-            //! Get the number of read objects.
-            size_t getCount() const;
-
-            //! Cancel requests.
-            void cancelRequests();
-
-        private:
-            TLRENDER_PRIVATE();
         };
 
         //! Create a new timeline from a file name. The file name can point
