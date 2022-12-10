@@ -169,8 +169,6 @@ namespace tl
 
             TLRENDER_P();
 
-            std::cout << "ffmpeg::Read::_init: " << path.get() << std::endl;
-
             auto i = options.find("ffmpeg/YUVToRGBConversion");
             if (i != options.end())
             {
