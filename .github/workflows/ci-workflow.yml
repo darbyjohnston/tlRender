@@ -52,7 +52,7 @@ jobs:
       
     - name: Install Qt dev
       if: env.TLRENDER_QT5 == 'ON'
-      run: sudo apt-get install qt5-default qtdeclarative5-dev libqt5quick5 qtbase5-dev libqt5svg5-dev
+      run: sudo apt-get install qtdeclarative5-dev libqt5quick5 qtbase5-dev libqt5svg5-dev qtchooser qt5-qmake qtbase5-dev-tools
 
     - name: Setup environment
       run: >
