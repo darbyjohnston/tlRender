@@ -93,6 +93,8 @@ namespace tl
             const auto& rect = this->rect();
             painter.fillRect(rect, QColor(0, 0, 0));
             const int width = rect.width();
+            const int thumbnailWidth = p.thumbnailSize.width();
+            const int thumbnailHeight = p.thumbnailSize.height();
             int x = 0;
             int y = 0;
             const auto now = std::chrono::steady_clock::now();
@@ -106,11 +108,11 @@ namespace tl
                 }
                 painter.setOpacity(opacity);
                 painter.drawImage(QPoint(x, y), i.second.image);
-                x += p.thumbnailSize.width();
+                x += thumbnailWidth;
                 if (x > width)
                 {
                     x = 0;
-                    y += p.thumbnailSize.height();
+                    y += thumbnailHeight;
                 }
             }
         }
