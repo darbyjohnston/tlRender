@@ -53,7 +53,7 @@ namespace tl
             qint64 id = 0;
             std::vector<qint64> cancelRequests;
             size_t requestCount = 1;
-            std::chrono::milliseconds requestTimeout = std::chrono::milliseconds(50);
+            std::chrono::milliseconds requestTimeout = std::chrono::milliseconds(25);
             int timer = 0;
             int timerInterval = 50;
             QScopedPointer<QOffscreenSurface> offscreenSurface;
@@ -261,7 +261,7 @@ namespace tl
                         timeline::Options options;
                         options.videoRequestCount = 1;
                         options.audioRequestCount = 1;
-                        options.requestTimeout = std::chrono::milliseconds(100);
+                        options.requestTimeout = std::chrono::milliseconds(25);
                         options.ioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").arg(1);
                         options.ioOptions["ffmpeg/ThreadCount"] = string::Format("{0}").arg(1);
                         request.timeline = timeline::Timeline::create(request.fileName.toUtf8().data(), context, options);
