@@ -296,8 +296,10 @@ namespace tl
                     newVideoRequests.pop_front();
 
                     //std::cout << "request: " << request.time << std::endl;
+                    bool seq = false;
                     if (!_path.getNumber().empty())
                     {
+                        seq = true;
                         request->fileName = _path.get(static_cast<int>(request->time.value()));
                     }
                     else
@@ -309,15 +311,15 @@ namespace tl
                     const uint16_t layer = request->layer;
                     request->future = std::async(
                         std::launch::async,
-                        [this, fileName, time, layer]
+                        [this, seq, fileName, time, layer]
                         {
                             VideoData out;
                             try
                             {
                                 const int64_t frame = time.value();
-                                if (frame >= _startFrame && frame <= _endFrame)
+                                if (!seq || (seq && frame >= _startFrame && frame <= _endFrame))
                                 {
-                                    const int64_t memoryIndex = frame - _startFrame;
+                                    const int64_t memoryIndex = seq ? (frame - _startFrame) : 0;
                                     out = _readVideo(
                                         fileName,
                                         memoryIndex >= 0 && memoryIndex < _memory.size() ? &_memory[memoryIndex] : nullptr,
