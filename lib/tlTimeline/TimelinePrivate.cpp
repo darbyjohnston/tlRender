@@ -495,7 +495,7 @@ namespace tl
             if (item.read)
             {
                 const auto clipTime = track->transformed_time(time, clip);
-                const auto readTime = time::floor(clipTime.rescaled_to(item.ioInfo.videoTime.duration().rate()));
+                const auto readTime = time::round(clipTime.rescaled_to(item.ioInfo.videoTime.duration().rate()));
                 out = item.read->readVideo(readTime, videoLayer);
             }
             return out;
