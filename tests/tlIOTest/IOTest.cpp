@@ -36,7 +36,7 @@ namespace tl
         {
             {
                 const VideoData v;
-                TLRENDER_ASSERT(time::invalidTime == v.time);
+                TLRENDER_ASSERT(!time::isValid(v.time));
                 TLRENDER_ASSERT(!v.image);
             }
             {

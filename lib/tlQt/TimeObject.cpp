@@ -83,17 +83,17 @@ namespace tl
             {
             case TimeUnits::Frames:
                 out = QString::fromStdString(string::Format("{0}").
-                    arg(time != time::invalidTime ? time.to_frames() : 0));
+                    arg(time::isValid(time) ? time.to_frames() : 0));
                 break;
             case TimeUnits::Seconds:
                 out = QString::fromStdString(string::Format("{0}").
-                    arg(time != time::invalidTime ? time.to_seconds() : 0.0, 2));
+                    arg(time::isValid(time) ? time.to_seconds() : 0.0, 2));
                 break;
             case TimeUnits::Timecode:
             {
                 otime::ErrorStatus errorStatus;
                 out = QString::fromStdString(
-                    time != time::invalidTime ?
+                    time::isValid(time) ?
                     time.to_timecode(&errorStatus) :
                     "00:00:00:00");
                 break;

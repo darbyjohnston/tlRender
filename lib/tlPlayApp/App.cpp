@@ -339,12 +339,12 @@ namespace tl
                     {
                         p.timelinePlayers[0]->setSpeed(p.options.speed);
                     }
-                    if (p.options.inOutRange != time::invalidTimeRange)
+                    if (time::isValid(p.options.inOutRange))
                     {
                         p.timelinePlayers[0]->setInOutRange(p.options.inOutRange);
                         p.timelinePlayers[0]->seek(p.options.inOutRange.start_time());
                     }
-                    if (p.options.seek != time::invalidTime)
+                    if (time::isValid(p.options.seek))
                     {
                         p.timelinePlayers[0]->seek(p.options.seek);
                     }

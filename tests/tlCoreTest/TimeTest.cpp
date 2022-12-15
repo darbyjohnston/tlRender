@@ -47,6 +47,16 @@ namespace tl
                 ss << "Invalid time range: " << invalidTimeRange;
                 _print(ss.str());
             }
+            {
+                TLRENDER_ASSERT(!isValid(invalidTime));
+                TLRENDER_ASSERT(isValid(otime::RationalTime(24.0, 24.0)));
+            }
+            {
+                TLRENDER_ASSERT(!isValid(invalidTimeRange));
+                TLRENDER_ASSERT(isValid(otime::TimeRange(
+                    otime::RationalTime(0.0, 24.0),
+                    otime::RationalTime(24.0, 24.0))));
+            }
         }
         
         void TimeTest::_sleep()

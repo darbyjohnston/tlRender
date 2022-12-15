@@ -285,7 +285,7 @@ namespace tl
 
                     out = new otio::Timeline(path.get());
                     out->set_tracks(otioStack);
-                    if (startTime != time::invalidTime)
+                    if (time::isValid(startTime))
                     {
                         out->set_global_start_time(startTime);
                     }
@@ -437,7 +437,7 @@ namespace tl
 
                     out = new otio::Timeline(path.get());
                     out->set_tracks(otioStack);
-                    if (globalStartTime != time::invalidTime)
+                    if (time::isValid(globalStartTime))
                     {
                         out->set_global_start_time(globalStartTime);
                     }

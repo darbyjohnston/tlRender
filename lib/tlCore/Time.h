@@ -30,6 +30,15 @@ namespace tl
         //! Invalid time range.
         const otime::TimeRange invalidTimeRange(invalidTime, invalidTime);
 
+        //! Check whether the given time is valid. This function should be
+        //! used instead of comparing a time to the "invalidTime" constant.
+        bool isValid(const otime::RationalTime&);
+
+        //! Check whether the given time range is valid. This function
+        //! should be used instead of comparing a time range to the
+        //! "invalidTimeRange" constant.
+        bool isValid(const otime::TimeRange&);
+
         //! Round the given time.
         otime::RationalTime round(const otime::RationalTime&);
 

@@ -160,7 +160,7 @@ namespace tl
             _print(string::Format("Timeline speed: {0}").arg(_timeRange.duration().rate()));
 
             // Time range.
-            _timeRange = _options.inOutRange != time::invalidTimeRange ?
+            _timeRange = time::isValid(_options.inOutRange) ?
                 _options.inOutRange :
                 _timelineRange;
             _currentTime = _timeRange.start_time();

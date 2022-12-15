@@ -245,12 +245,12 @@ namespace tl
                 _printShortcutsHelp();
 
                 // Start the main loop.
-                if (_options.inOutRange != time::invalidTimeRange)
+                if (time::isValid(_options.inOutRange))
                 {
                     _timelinePlayer->setInOutRange(_options.inOutRange);
                     _timelinePlayer->seek(_options.inOutRange.start_time());
                 }
-                if (_options.seek != time::invalidTime)
+                if (time::isValid(_options.seek))
                 {
                     _timelinePlayer->seek(_options.seek);
                 }

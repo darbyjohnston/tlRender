@@ -15,6 +15,18 @@ namespace tl
 {
     namespace time
     {
+        bool isValid(const otime::RationalTime& value)
+        {
+            return !value.is_invalid_time();
+        }
+
+        bool isValid(const otime::TimeRange& value)
+        {
+            return
+                !value.start_time().is_invalid_time() &&
+                !value.duration().is_invalid_time();
+        }
+
         otime::RationalTime round(const otime::RationalTime& value)
         {
             return otime::RationalTime(std::round(value.value()), value.rate());

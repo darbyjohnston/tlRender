@@ -61,7 +61,7 @@ namespace tl
         {
             TLRENDER_P();
             p.label->setText(QString("%1").
-                arg(p.value != time::invalidTime ? p.value.rate() : 0.0, 0, 'f', 2));
+                arg(time::isValid(p.value) ? p.value.rate() : 0.0, 0, 'f', 2));
         }
     }
 }
