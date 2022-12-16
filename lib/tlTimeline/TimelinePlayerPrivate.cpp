@@ -232,17 +232,17 @@ namespace tl
             // Get uncached video.
             if (!ioInfo.video.empty())
             {
-                for (const auto& i : videoRanges)
+                for (const auto& videoRange : videoRanges)
                 {
-                    for (otime::RationalTime time = i.start_time();
-                        time < i.end_time_exclusive();
+                    for (otime::RationalTime time = videoRange.start_time();
+                        time < videoRange.end_time_exclusive();
                         time += otime::RationalTime(1.0, timeRange.duration().rate()))
                     {
-                        const auto j = threadData.videoDataCache.find(time);
-                        if (j == threadData.videoDataCache.end())
+                        const auto i = threadData.videoDataCache.find(time);
+                        if (i == threadData.videoDataCache.end())
                         {
-                            const auto k = threadData.videoDataRequests.find(time);
-                            if (k == threadData.videoDataRequests.end())
+                            const auto j = threadData.videoDataRequests.find(time);
+                            if (j == threadData.videoDataRequests.end())
                             {
                                 //std::cout << this << " video request: " << time << std::endl;
                                 threadData.videoDataRequests[time] = timeline->getVideo(time, videoLayer);
@@ -256,19 +256,21 @@ namespace tl
             if (ioInfo.audio.isValid())
             {
                 std::unique_lock<std::mutex> lock(audioMutex);
-                for (const auto& i : audioCacheRanges)
+                for (const auto& audioCacheRange : audioCacheRanges)
                 {
-                    for (auto j = i.start_time(); j < i.end_time_inclusive(); j += otime::RationalTime(1.0, 1.0))
+                    for (auto time = audioCacheRange.start_time();
+                        time < audioCacheRange.end_time_inclusive();
+                        time += otime::RationalTime(1.0, 1.0))
                     {
-                        const int64_t time = j.value();
-                        const auto k = audioMutexData.audioDataCache.find(time);
-                        if (k == audioMutexData.audioDataCache.end())
+                        const int64_t seconds = time.value();
+                        const auto i = audioMutexData.audioDataCache.find(seconds);
+                        if (i == audioMutexData.audioDataCache.end())
                         {
-                            const auto l = threadData.audioDataRequests.find(time);
-                            if (l == threadData.audioDataRequests.end())
+                            const auto j = threadData.audioDataRequests.find(seconds);
+                            if (j == threadData.audioDataRequests.end())
                             {
-                                //std::cout << this << " audio request: " << time << std::endl;
-                                threadData.audioDataRequests[time] = timeline->getAudio(time);
+                                //std::cout << this << " audio request: " << seconds << std::endl;
+                                threadData.audioDataRequests[seconds] = timeline->getAudio(seconds);
                             }
                         }
                     }
