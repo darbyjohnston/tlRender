@@ -169,17 +169,6 @@ namespace tl
                     clamped(timeRange);
             //std::cout << "in out audio range: " << inOutAudioRange << std::endl;
             const auto audioRanges = timeline::loop(audioRange, inOutAudioRange);
-            std::vector<otime::TimeRange> audioCacheRanges;
-            for (const auto& i : audioRanges)
-            {
-                const otime::TimeRange range = otime::TimeRange::range_from_start_end_time_inclusive(
-                    time::floor(i.start_time().rescaled_to(1.0)),
-                    time::ceil(i.end_time_inclusive().rescaled_to(1.0)));
-                //std::cout << "audio ranges: " << range.start_time() <<  " " <<
-                //    range.end_time_inclusive() << std::endl;
-                audioCacheRanges.push_back(range);
-            }
-            //std::cout << std::endl;
 
             // Remove old video from the cache.
             auto videoDataCacheIt = threadData.videoDataCache.begin();
@@ -234,9 +223,7 @@ namespace tl
             {
                 for (const auto& videoRange : videoRanges)
                 {
-                    for (otime::RationalTime time = videoRange.start_time();
-                        time < videoRange.end_time_exclusive();
-                        time += otime::RationalTime(1.0, timeRange.duration().rate()))
+                    for (const auto& time : time::frames(videoRange))
                     {
                         const auto i = threadData.videoDataCache.find(time);
                         if (i == threadData.videoDataCache.end())
@@ -255,26 +242,49 @@ namespace tl
             // Get uncached audio.
             if (ioInfo.audio.isValid())
             {
-                std::unique_lock<std::mutex> lock(audioMutex);
-                for (const auto& audioCacheRange : audioCacheRanges)
+                std::set<int64_t> seconds;
+                for (const auto& audioRange : audioRanges)
                 {
-                    for (auto time = audioCacheRange.start_time();
-                        time < audioCacheRange.end_time_inclusive();
-                        time += otime::RationalTime(1.0, 1.0))
+                    for (const auto& time : time::frames(audioRange))
                     {
-                        const int64_t seconds = time.value();
-                        const auto i = audioMutexData.audioDataCache.find(seconds);
-                        if (i == audioMutexData.audioDataCache.end())
+                        seconds.insert(time.rescaled_to(1.0).value());
+                    }
+                }
+                std::vector<int64_t> requests;
+                {
+                    std::unique_lock<std::mutex> lock(audioMutex);
+                    for (const auto& audioRange : audioRanges)
+                    {
+                        for (const auto& s : seconds)
                         {
-                            const auto j = threadData.audioDataRequests.find(seconds);
-                            if (j == threadData.audioDataRequests.end())
+                            const auto i = audioMutexData.audioDataCache.find(s);
+                            if (i == audioMutexData.audioDataCache.end())
                             {
-                                //std::cout << this << " audio request: " << seconds << std::endl;
-                                threadData.audioDataRequests[seconds] = timeline->getAudio(seconds);
+                                const auto j = threadData.audioDataRequests.find(s);
+                                if (j == threadData.audioDataRequests.end())
+                                {
+                                    requests.push_back(s);
+                                }
                             }
                         }
                     }
                 }
+                for (auto i : requests)
+                {
+                    threadData.audioDataRequests[i] = timeline->getAudio(i);
+                }
+                /*if (!requests.empty())
+                {
+                    std::cout << "audio range: " <<
+                        audioRange.start_time().rescaled_to(1.0).value() << "/" <<
+                        audioRange.duration().rescaled_to(1.0).value() << std::endl;
+                    std::cout << " audio request:";
+                    for (auto i : requests)
+                    {
+                        std::cout << " " << i;
+                    }
+                    std::cout << std::endl;
+                }*/
             }
 
             // Check for finished video.

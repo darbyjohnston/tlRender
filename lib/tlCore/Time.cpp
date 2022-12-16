@@ -42,6 +42,22 @@ namespace tl
             return otime::RationalTime(std::ceil(value.value()), value.rate());
         }
 
+        std::vector<otime::RationalTime> frames(const otime::TimeRange& value)
+        {
+            std::vector<otime::RationalTime> out;
+            if (isValid(value))
+            {
+                const auto start = value.start_time();
+                const auto end = value.end_time_exclusive();
+                const auto inc = otime::RationalTime(1.0, value.duration().rate());
+                for (auto time = start; time < end; time += inc)
+                {
+                    out.push_back(time);
+                }
+            }
+            return out;
+        }
+
         std::pair<int, int> toRational(double value)
         {
             const std::array<std::pair<int, int>, 6> common =

@@ -7,7 +7,6 @@
 #include <tlCore/Assert.h>
 #include <tlCore/Time.h>
 
-#include <array>
 #include <sstream>
 
 using namespace tl::time;
@@ -69,10 +68,58 @@ namespace tl
             {
                 struct Data
                 {
+                    otime::TimeRange range;
+                    std::vector<otime::RationalTime> frames;
+                };
+                const std::vector<Data> data =
+                {
+                    Data({ time::invalidTimeRange, {} }),
+                    Data({
+                        otime::TimeRange(
+                            otime::RationalTime(0.0, 24.0),
+                            otime::RationalTime(1.0, 24.0)),
+                        {
+                            otime::RationalTime(0.0, 24.0)
+                        }}),
+                    Data({
+                        otime::TimeRange(
+                            otime::RationalTime(0.0, 24.0),
+                            otime::RationalTime(3.0, 24.0)),
+                        {
+                            otime::RationalTime(0.0, 24.0),
+                            otime::RationalTime(1.0, 24.0),
+                            otime::RationalTime(2.0, 24.0)
+                        } }),
+                    Data({
+                        otime::TimeRange(
+                            otime::RationalTime(0.0, 1.0),
+                            otime::RationalTime(1.0, 1.0)),
+                        {
+                            otime::RationalTime(0.0, 1.0)
+                        } }),
+                    Data({
+                        otime::TimeRange(
+                            otime::RationalTime(0.0, 1.0),
+                            otime::RationalTime(3.0, 1.0)),
+                        {
+                            otime::RationalTime(0.0, 1.0),
+                            otime::RationalTime(1.0, 1.0),
+                            otime::RationalTime(2.0, 1.0)
+                        } })
+                };
+                for (const auto& i : data)
+                {
+                    const auto frames = time::frames(i.range);
+                    TLRENDER_ASSERT(frames == i.frames);
+                }
+            }
+            {
+                struct Data
+                {
                     double rate = 0.0;
                     std::pair<int, int> rational;
                 };
-                const std::array<Data, 10> data =
+                const std::vector<Data> data =
                 {
                     Data({ 0.0, std::make_pair(0, 1)}),
                     Data({ 24.0, std::make_pair(24, 1)}),

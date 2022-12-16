@@ -48,6 +48,9 @@ namespace tl
         //! Round the given time upward.
         otime::RationalTime ceil(const otime::RationalTime&);
 
+        //! Get the frames in a time range.
+        std::vector<otime::RationalTime> frames(const otime::TimeRange&);
+
         //! Sleep for the given time.
         void sleep(const std::chrono::microseconds&);
 

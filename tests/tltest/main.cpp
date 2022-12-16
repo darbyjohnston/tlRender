@@ -106,7 +106,7 @@ int main(int argc, char* argv[])
     std::vector<std::shared_ptr<tests::ITest> > tests;
     if (0)
     {
-        tests.push_back(core_tests::FileTest::create(context));
+        tests.push_back(core_tests::TimeTest::create(context));
     }
     else
     {
