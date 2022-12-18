@@ -138,7 +138,7 @@ namespace tl
             TLRENDER_ASSERT(fileName == timelinePlayer->getPath().get());
             TLRENDER_ASSERT(Options() == timelinePlayer->getOptions());
             const otime::TimeRange timeRange(otime::RationalTime(10.0, 24.0), otime::RationalTime(48.0, 24.0));
-            TLRENDER_ASSERT(timeRange == timelinePlayer->getTimeRange());
+            TLRENDER_ASSERT(time::compareExact(timeRange, timelinePlayer->getTimeRange()));
             TLRENDER_ASSERT(imageInfo.size == timelinePlayer->getIOInfo().video[0].size);
             TLRENDER_ASSERT(imageInfo.pixelType == timelinePlayer->getIOInfo().video[0].pixelType);
             TLRENDER_ASSERT(timeRange.duration().rate() == timelinePlayer->getDefaultSpeed());
