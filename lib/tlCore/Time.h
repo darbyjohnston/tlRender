@@ -39,6 +39,14 @@ namespace tl
         //! "invalidTimeRange" constant.
         bool isValid(const otime::TimeRange&);
 
+        //! Compare two times. This function compares the values exactly,
+        //! unlike the "==" operator which rescales the values.
+        bool compareExact(const otime::RationalTime&, const otime::RationalTime&);
+
+        //! Compare two time ranges. This function compares the values
+        //! exactly, unlike the "==" operator which rescales the values.
+        bool compareExact(const otime::TimeRange&, const otime::TimeRange&);
+
         //! Round the given time.
         otime::RationalTime round(const otime::RationalTime&);
 

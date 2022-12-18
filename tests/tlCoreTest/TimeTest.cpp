@@ -56,6 +56,24 @@ namespace tl
                     otime::RationalTime(0.0, 24.0),
                     otime::RationalTime(24.0, 24.0))));
             }
+            {
+                const otime::RationalTime a(24.0, 24.0);
+                TLRENDER_ASSERT(compareExact(a, a));
+                const otime::RationalTime b(1.0, 1.0);
+                TLRENDER_ASSERT(a == b);
+                TLRENDER_ASSERT(!compareExact(a, b));
+            }
+            {
+                const otime::TimeRange a(
+                    otime::RationalTime(24.0, 24.0),
+                    otime::RationalTime(24.0, 24.0));
+                TLRENDER_ASSERT(compareExact(a, a));
+                const otime::TimeRange b(
+                    otime::RationalTime(1.0, 1.0),
+                    otime::RationalTime(1.0, 1.0));
+                TLRENDER_ASSERT(a == b);
+                TLRENDER_ASSERT(!compareExact(a, b));
+            }
         }
         
         void TimeTest::_sleep()

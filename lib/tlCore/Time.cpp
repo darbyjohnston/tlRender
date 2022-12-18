@@ -27,6 +27,20 @@ namespace tl
                 !value.duration().is_invalid_time();
         }
 
+        bool compareExact(const otime::RationalTime& a, const otime::RationalTime& b)
+        {
+            return
+                a.value() == b.value() &&
+                a.rate() == b.rate();
+        }
+
+        bool compareExact(const otime::TimeRange& a, const otime::TimeRange& b)
+        {
+            return
+                compareExact(a.start_time(), b.start_time()) &&
+                compareExact(a.duration(), b.duration());
+        }
+
         otime::RationalTime round(const otime::RationalTime& value)
         {
             return otime::RationalTime(std::round(value.value()), value.rate());

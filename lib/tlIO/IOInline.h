@@ -10,9 +10,9 @@ namespace tl
         {
             return
                 video == other.video &&
-                videoTime == other.videoTime &&
+                time::compareExact(videoTime, other.videoTime) &&
                 audio == other.audio &&
-                audioTime == other.audioTime &&
+                time::compareExact(audioTime, other.audioTime) &&
                 tags == other.tags;
         }
 
@@ -24,7 +24,7 @@ namespace tl
         inline bool VideoData::operator == (const VideoData& other) const
         {
             return
-                time == other.time &&
+                time::compareExact(time, other.time) &&
                 layer == other.layer &&
                 image == other.image;
         }
@@ -42,7 +42,7 @@ namespace tl
         inline bool AudioData::operator == (const AudioData& other) const
         {
             return
-                time == other.time &&
+                time::compareExact(time, other.time) &&
                 audio == other.audio;
         }
 

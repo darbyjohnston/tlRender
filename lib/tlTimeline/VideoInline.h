@@ -25,7 +25,7 @@ namespace tl
         inline bool VideoData::operator == (const VideoData& other) const
         {
             return
-                time == other.time &&
+                time::compareExact(time, other.time) &&
                 layers == other.layers &&
                 displayOptions == other.displayOptions;
         }
@@ -37,7 +37,7 @@ namespace tl
 
         inline bool isTimeEqual(const VideoData& a, const VideoData& b)
         {
-            return a.time == b.time;
+            return time::compareExact(a.time, b.time);
         }
     }
 }
