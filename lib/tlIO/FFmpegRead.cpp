@@ -1132,7 +1132,7 @@ namespace tl
                 if (videoRequest)
                 {
                     //std::cout << "video request: " << videoRequest->time << std::endl;
-                    if (videoRequest->time != p.videoTime)
+                    if (!time::compareExact(videoRequest->time, p.videoTime))
                     {
                         //std::cout << "video seek: " << videoRequest->time << std::endl;
                         p.videoTime = videoRequest->time;
@@ -1233,7 +1233,7 @@ namespace tl
                 if (audioRequest)
                 {
                     //std::cout << "audio request: " << audioRequest->time << std::endl;
-                    if (audioRequest->time.start_time() != p.audioTime)
+                    if (!time::compareExact(audioRequest->time.start_time(), p.audioTime))
                     {
                         //std::cout << "audio seek: " << audioRequest->time << std::endl;
                         p.audioTime = audioRequest->time.start_time();
@@ -1479,7 +1479,7 @@ namespace tl
 
                 if (time >= videoTime)
                 {
-                    //std::cout << "video frame: " << time << std::endl;
+                    //std::cout << "video time: " << time << std::endl;
                     auto image = imaging::Image::create(info.video[0]);
                     
                     auto tags = info.tags;

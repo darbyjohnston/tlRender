@@ -322,19 +322,23 @@ namespace tl
                         {
                             if (auto otioItem = dynamic_cast<otio::Item*>(otioChild.value))
                             {
-                                const otime::RationalTime requestTime = time::floor(
-                                    otime::RationalTime(request->seconds, 1.0) - timeRange.start_time().rescaled_to(1.0));
-                                const otime::TimeRange requestTimeRange = otime::TimeRange(requestTime, otime::RationalTime(1.0, 1.0));
+                                const otime::TimeRange requestTimeRange = otime::TimeRange(
+                                    otime::RationalTime(request->seconds, 1.0) - timeRange.start_time().rescaled_to(1.0),
+                                    otime::RationalTime(1.0, 1.0));
                                 otio::ErrorStatus errorStatus;
-                                const auto range = otioItem->trimmed_range_in_parent(&errorStatus);
-                                if (range.has_value() && range.value().intersects(requestTimeRange))
+                                const auto rangeOptional = otioItem->trimmed_range_in_parent(&errorStatus);
+                                if (rangeOptional.has_value())
                                 {
-                                    AudioLayerData audioData;
-                                    if (auto otioClip = dynamic_cast<const otio::Clip*>(otioItem))
+                                    const auto range = rangeOptional.value();
+                                    if (range.intersects(requestTimeRange))
                                     {
-                                        audioData.audio = readAudio(otioTrack, otioClip, requestTimeRange);
+                                        AudioLayerData audioData;
+                                        if (auto otioClip = dynamic_cast<const otio::Clip*>(otioItem))
+                                        {
+                                            audioData.audio = readAudio(otioTrack, otioClip, requestTimeRange);
+                                        }
+                                        request->layerData.push_back(std::move(audioData));
                                     }
-                                    request->layerData.push_back(std::move(audioData));
                                 }
                             }
                         }
