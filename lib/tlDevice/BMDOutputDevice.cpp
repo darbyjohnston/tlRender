@@ -271,7 +271,7 @@ namespace tl
                 otime::RationalTime currentTime = time::invalidTime;
                 float volume = 1.F;
                 bool mute = false;
-                double offset = 0.0;
+                double audioOffset = 0.0;
                 std::vector<timeline::AudioData> audioData;
             };
             AudioMutexData audioMutexData;
@@ -399,13 +399,25 @@ namespace tl
             }
         }
 
-        void DLOutputCallback::setAudio(float volume, bool mute, double offset)
+        void DLOutputCallback::setVolume(float value)
         {
             TLRENDER_P();
             std::unique_lock<std::mutex> lock(p.audioMutex);
-            p.audioMutexData.volume = volume;
-            p.audioMutexData.mute = mute;
-            p.audioMutexData.offset = offset;
+            p.audioMutexData.volume = value;
+        }
+
+        void DLOutputCallback::setMute(bool value)
+        {
+            TLRENDER_P();
+            std::unique_lock<std::mutex> lock(p.audioMutex);
+            p.audioMutexData.mute = value;
+        }
+
+        void DLOutputCallback::setAudioOffset(double value)
+        {
+            TLRENDER_P();
+            std::unique_lock<std::mutex> lock(p.audioMutex);
+            p.audioMutexData.audioOffset = value;
         }
 
         void DLOutputCallback::setAudioData(const std::vector<timeline::AudioData>& value)
@@ -498,7 +510,7 @@ namespace tl
                 currentTime = p.audioMutexData.currentTime;
                 volume = p.audioMutexData.volume;
                 mute = p.audioMutexData.mute;
-                audioOffset = p.audioMutexData.offset;
+                audioOffset = p.audioMutexData.audioOffset;
                 audioDataList = p.audioMutexData.audioData;
             }
             //std::cout << "audio playback: " << p.audioThreadData.playback << std::endl;
@@ -829,9 +841,19 @@ namespace tl
             _p->dlOutputCallback.p->setPixelData(value);
         }
 
-        void BMDOutputDevice::setAudio(float volume, bool mute, double offset)
+        void BMDOutputDevice::setVolume(float value)
         {
-            _p->dlOutputCallback.p->setAudio(volume, mute, offset);
+            _p->dlOutputCallback.p->setVolume(value);
+        }
+
+        void BMDOutputDevice::setMute(bool value)
+        {
+            _p->dlOutputCallback.p->setMute(value);
+        }
+
+        void BMDOutputDevice::setAudioOffset(double value)
+        {
+            _p->dlOutputCallback.p->setAudioOffset(value);
         }
 
         void BMDOutputDevice::setAudioData(const std::vector<timeline::AudioData>& value)

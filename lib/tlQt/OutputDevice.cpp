@@ -887,7 +887,9 @@ namespace tl
                 if (device)
                 {
                     device->setPlayback(playback, currentTime);
-                    device->setAudio(volume, mute, audioOffset);
+                    device->setVolume(volume);
+                    device->setMute(mute);
+                    device->setAudioOffset(audioOffset);
                 }
                 if (device && audioChanged)
                 {

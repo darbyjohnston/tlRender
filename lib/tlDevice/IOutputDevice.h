@@ -57,8 +57,14 @@ namespace tl
             //! Set the pixel data.
             virtual void setPixelData(const std::shared_ptr<PixelData>&);
 
-            //! Set the audio information.
-            virtual void setAudio(float volume, bool mute = false, double offset = 0.0);
+            //! Set the audio volume.
+            virtual void setVolume(float);
+
+            //! Set the audio mute.
+            virtual void setMute(bool);
+
+            //! Set the audio offset.
+            virtual void setAudioOffset(double);
 
             //! Set the audio data.
             virtual void setAudioData(const std::vector<timeline::AudioData>&);
