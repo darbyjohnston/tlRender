@@ -76,6 +76,7 @@ namespace tl
             std::shared_ptr<QImage> overlay;
             float volume = 1.F;
             bool mute = false;
+            double audioOffset = 0.0;
             std::vector<timeline::AudioData> audioData;
 
             std::chrono::milliseconds timeout = std::chrono::milliseconds(5);

@@ -339,15 +339,13 @@ namespace tl
                             {
                                 const int64_t seconds = time::floor(currentTime.rescaled_to(1.0)).value();
                                 std::unique_lock<std::mutex> lock(p.audioMutex);
-                                auto i = p.audioMutexData.audioDataCache.find(seconds);
-                                if (i != p.audioMutexData.audioDataCache.end())
+                                for (int64_t s : { seconds - 1, seconds, seconds + 1 })
                                 {
-                                    audioDataList.push_back(i->second);
-                                }
-                                i = p.audioMutexData.audioDataCache.find(seconds + 1);
-                                if (i != p.audioMutexData.audioDataCache.end())
-                                {
-                                    audioDataList.push_back(i->second);
+                                    auto i = p.audioMutexData.audioDataCache.find(s);
+                                    if (i != p.audioMutexData.audioDataCache.end())
+                                    {
+                                        audioDataList.push_back(i->second);
+                                    }
                                 }
                             }
                             {

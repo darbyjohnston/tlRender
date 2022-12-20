@@ -328,6 +328,16 @@ namespace tl
             p.cv.notify_one();
         }
 
+        void OutputDevice::setAudioOffset(double value)
+        {
+            TLRENDER_P();
+            {
+                std::unique_lock<std::mutex> lock(p.mutex);
+                p.audioOffset = value;
+            }
+            p.cv.notify_one();
+        }
+
         void OutputDevice::_playbackCallback(tl::timeline::Playback value)
         {
             TLRENDER_P();
@@ -416,6 +426,7 @@ namespace tl
             std::shared_ptr<QImage> overlay;
             float volume = 1.F;
             bool mute = false;
+            double audioOffset = 0.0;
             std::vector<timeline::AudioData> audioData;
 
             std::shared_ptr<device::IOutputDevice> device;
@@ -446,7 +457,7 @@ namespace tl
                         deviceEnabled, colorConfigOptions, lutOptions, imageOptions,
                         displayOptions, hdrMode, hdrData, compareOptions,
                         playback, currentTime, sizes, viewPos, viewZoom, frameView,
-                        videoData, overlay, volume, mute, audioData]
+                        videoData, overlay, volume, mute, audioOffset, audioData]
                         {
                             return
                                 deviceIndex != _p->deviceIndex ||
@@ -470,6 +481,7 @@ namespace tl
                                 overlay != _p->overlay ||
                                 volume != _p->volume ||
                                 mute != _p->mute ||
+                                audioOffset != _p->audioOffset ||
                                 audioData != _p->audioData;
                         }))
                     {
@@ -518,6 +530,7 @@ namespace tl
 
                         volume = p.volume;
                         mute = p.mute;
+                        audioOffset = p.audioOffset;
                         audioChanged = audioData != p.audioData;
                         audioData = p.audioData;
                     }
@@ -874,7 +887,7 @@ namespace tl
                 if (device)
                 {
                     device->setPlayback(playback, currentTime);
-                    device->setAudio(volume, mute);
+                    device->setAudio(volume, mute, audioOffset);
                 }
                 if (device && audioChanged)
                 {

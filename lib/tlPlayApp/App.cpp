@@ -649,6 +649,18 @@ namespace tl
                 }
             }
 
+            // Connect signals.
+            if (!newTimelinePlayers.empty())
+            {
+                connect(
+                    newTimelinePlayers[0],
+                    &qt::TimelinePlayer::audioOffsetChanged,
+                    [this](double)
+                    {
+                        _audioUpdate();
+                    });
+            }
+
             // Set the external time.
             std::shared_ptr<timeline::TimelinePlayer> externalTime;
             if (!newTimelinePlayers.empty() && newTimelinePlayers[0])
@@ -744,6 +756,10 @@ namespace tl
             {
                 p.outputDevice->setVolume(p.volume);
                 p.outputDevice->setMute(p.mute);
+                p.outputDevice->setAudioOffset(
+                    !p.timelinePlayers.empty() ?
+                    p.timelinePlayers[0]->audioOffset() :
+                    0.0);
             }
         }
     }

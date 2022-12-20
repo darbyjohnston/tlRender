@@ -103,6 +103,9 @@ namespace tl
             //! Set the audio mute.
             void setMute(bool);
 
+            //! Set the audio offset.
+            void setAudioOffset(double);
+
         Q_SIGNALS:
             //! This signal is emitted when the output device active state is
             //! changed.

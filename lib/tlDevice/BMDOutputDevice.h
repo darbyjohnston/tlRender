@@ -64,7 +64,7 @@ namespace tl
 
             void setPlayback(timeline::Playback, const otime::RationalTime&);
             void setPixelData(const std::shared_ptr<device::PixelData>&);
-            void setAudio(float, bool);
+            void setAudio(float volume, bool mute, double offset);
             void setAudioData(const std::vector<timeline::AudioData>&);
 
             HRESULT STDMETHODCALLTYPE ScheduledFrameCompleted(IDeckLinkVideoFrame*, BMDOutputFrameCompletionResult) override;
@@ -115,7 +115,7 @@ namespace tl
 
             void setPlayback(timeline::Playback, const otime::RationalTime&) override;
             void setPixelData(const std::shared_ptr<device::PixelData>&) override;
-            void setAudio(float, bool) override;
+            void setAudio(float, bool, double) override;
             void setAudioData(const std::vector<timeline::AudioData>&) override;
 
         private:

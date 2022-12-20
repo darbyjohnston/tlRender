@@ -271,6 +271,7 @@ namespace tl
                 otime::RationalTime currentTime = time::invalidTime;
                 float volume = 1.F;
                 bool mute = false;
+                double offset = 0.0;
                 std::vector<timeline::AudioData> audioData;
             };
             AudioMutexData audioMutexData;
@@ -398,12 +399,13 @@ namespace tl
             }
         }
 
-        void DLOutputCallback::setAudio(float volume, bool mute)
+        void DLOutputCallback::setAudio(float volume, bool mute, double offset)
         {
             TLRENDER_P();
             std::unique_lock<std::mutex> lock(p.audioMutex);
             p.audioMutexData.volume = volume;
             p.audioMutexData.mute = mute;
+            p.audioMutexData.offset = offset;
         }
 
         void DLOutputCallback::setAudioData(const std::vector<timeline::AudioData>& value)
@@ -482,6 +484,7 @@ namespace tl
             otime::RationalTime currentTime = time::invalidTime;
             float volume = 1.F;
             bool mute = false;
+            double audioOffset = 0.0;
             std::vector<timeline::AudioData> audioDataList;
             {
                 std::unique_lock<std::mutex> lock(p.audioMutex);
@@ -495,6 +498,7 @@ namespace tl
                 currentTime = p.audioMutexData.currentTime;
                 volume = p.audioMutexData.volume;
                 mute = p.audioMutexData.mute;
+                audioOffset = p.audioMutexData.offset;
                 audioDataList = p.audioMutexData.audioData;
             }
             //std::cout << "audio playback: " << p.audioThreadData.playback << std::endl;
@@ -531,7 +535,8 @@ namespace tl
                 p.audioThreadData.convert)
             {
                 int64_t frame =
-                    p.audioThreadData.startTime.rescaled_to(inputInfo.sampleRate).value() +
+                    p.audioThreadData.startTime.rescaled_to(inputInfo.sampleRate).value() -
+                    otime::RationalTime(audioOffset, 1.0).rescaled_to(inputInfo.sampleRate).value() +
                     p.audioThreadData.samplesOffset;
                 int64_t seconds = inputInfo.sampleRate > 0 ? (frame / inputInfo.sampleRate) : 0;
                 int64_t offset = frame - seconds * inputInfo.sampleRate;
@@ -824,9 +829,9 @@ namespace tl
             _p->dlOutputCallback.p->setPixelData(value);
         }
 
-        void BMDOutputDevice::setAudio(float volume, bool mute)
+        void BMDOutputDevice::setAudio(float volume, bool mute, double offset)
         {
-            _p->dlOutputCallback.p->setAudio(volume, mute);
+            _p->dlOutputCallback.p->setAudio(volume, mute, offset);
         }
 
         void BMDOutputDevice::setAudioData(const std::vector<timeline::AudioData>& value)
