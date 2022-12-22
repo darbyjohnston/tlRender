@@ -42,12 +42,16 @@ namespace tl
             io::Info info;
             std::promise<io::Info> infoPromise;
 
-            bool yuvToRGBConversion = false;
-            audio::Info audioConvertInfo;
-            size_t threadCount = ffmpeg::threadCount;
-            size_t requestTimeout = 5;
-            size_t videoBufferSize = 4;
-            otime::RationalTime audioBufferSize = otime::RationalTime(1.0, 1.0);
+            struct Options
+            {
+                bool yuvToRGBConversion = false;
+                audio::Info audioConvertInfo;
+                size_t threadCount = ffmpeg::threadCount;
+                size_t requestTimeout = 5;
+                size_t videoBufferSize = 4;
+                otime::RationalTime audioBufferSize = otime::RationalTime(1.0, 1.0);
+            };
+            Options options;
 
             struct VideoRequest
             {
@@ -108,9 +112,13 @@ namespace tl
 
             std::chrono::steady_clock::time_point logTimer;
 
+            void startVideo(const std::string& fileName);
+            void processVideo();
             int decodeVideo();
             void copyVideo(const std::shared_ptr<imaging::Image>&);
 
+            void startAudio(const std::string& fileName);
+            void processAudio();
             int decodeAudio();
         };
     }

@@ -9,6 +9,7 @@
 extern "C"
 {
 #include <libavutil/imgutils.h>
+#include <libavutil/opt.h>
 
 } // extern "C"
 
@@ -152,7 +153,7 @@ namespace tl
                 {
                     throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
                 }
-                p.video.avCodecContext[p.video.avStream]->thread_count = p.threadCount;
+                p.video.avCodecContext[p.video.avStream]->thread_count = p.options.threadCount;
                 p.video.avCodecContext[p.video.avStream]->thread_type = FF_THREAD_FRAME;
                 r = avcodec_open2(p.video.avCodecContext[p.video.avStream], avVideoCodec, 0);
                 if (r < 0)
@@ -187,7 +188,7 @@ namespace tl
                     videoInfo.pixelType = imaging::PixelType::RGBA_U8;
                     break;
                 case AV_PIX_FMT_YUV420P:
-                    if (p.yuvToRGBConversion)
+                    if (p.options.yuvToRGBConversion)
                     {
                         p.video.avOutputPixelFormat = AV_PIX_FMT_RGB24;
                         videoInfo.pixelType = imaging::PixelType::RGB_U8;
@@ -199,7 +200,7 @@ namespace tl
                     }
                     break;
                 case AV_PIX_FMT_YUV422P:
-                    if (p.yuvToRGBConversion)
+                    if (p.options.yuvToRGBConversion)
                     {
                         p.video.avOutputPixelFormat = AV_PIX_FMT_RGB24;
                         videoInfo.pixelType = imaging::PixelType::RGB_U8;
@@ -211,7 +212,7 @@ namespace tl
                     }
                     break;
                 case AV_PIX_FMT_YUV444P:
-                    if (p.yuvToRGBConversion)
+                    if (p.options.yuvToRGBConversion)
                     {
                         p.video.avOutputPixelFormat = AV_PIX_FMT_RGB24;
                         videoInfo.pixelType = imaging::PixelType::RGB_U8;
@@ -228,7 +229,7 @@ namespace tl
                 case AV_PIX_FMT_YUV420P12LE:
                 case AV_PIX_FMT_YUV420P16BE:
                 case AV_PIX_FMT_YUV420P16LE:
-                    if (p.yuvToRGBConversion)
+                    if (p.options.yuvToRGBConversion)
                     {
                         p.video.avOutputPixelFormat = AV_PIX_FMT_RGB48;
                         videoInfo.pixelType = imaging::PixelType::RGB_U16;
@@ -247,7 +248,7 @@ namespace tl
                 case AV_PIX_FMT_YUV422P12LE:
                 case AV_PIX_FMT_YUV422P16BE:
                 case AV_PIX_FMT_YUV422P16LE:
-                    if (p.yuvToRGBConversion)
+                    if (p.options.yuvToRGBConversion)
                     {
                         p.video.avOutputPixelFormat = AV_PIX_FMT_RGB48;
                         videoInfo.pixelType = imaging::PixelType::RGB_U16;
@@ -272,7 +273,7 @@ namespace tl
                 case AV_PIX_FMT_YUVA444P12LE:
                 case AV_PIX_FMT_YUVA444P16BE:
                 case AV_PIX_FMT_YUVA444P16LE:
-                    if (p.yuvToRGBConversion)
+                    if (p.options.yuvToRGBConversion)
                     {
                         p.video.avOutputPixelFormat = AV_PIX_FMT_RGB48;
                         videoInfo.pixelType = imaging::PixelType::RGB_U16;
@@ -286,7 +287,7 @@ namespace tl
                     }
                     break;
                 default:
-                    if (p.yuvToRGBConversion)
+                    if (p.options.yuvToRGBConversion)
                     {
                         p.video.avOutputPixelFormat = AV_PIX_FMT_RGB24;
                         videoInfo.pixelType = imaging::PixelType::RGB_U8;
@@ -405,6 +406,201 @@ namespace tl
                     ss << p.info.videoTime.start_time().rate() << " FPS";
                     p.info.tags["Video Speed"] = ss.str();
                 }
+            }
+        }
+
+        void Read::Private::startVideo(const std::string& fileName)
+        {
+            if (video.avStream != -1)
+            {
+                video.avFrame = av_frame_alloc();
+                if (!video.avFrame)
+                {
+                    throw std::runtime_error(string::Format("{0}: Cannot allocate frame").arg(fileName));
+                }
+
+                switch (video.avInputPixelFormat)
+                {
+                case AV_PIX_FMT_RGB24:
+                case AV_PIX_FMT_GRAY8:
+                case AV_PIX_FMT_RGBA:
+                case AV_PIX_FMT_YUV420P:
+                    break;
+                default:
+                {
+                    video.avFrame2 = av_frame_alloc();
+                    if (!video.avFrame2)
+                    {
+                        throw std::runtime_error(string::Format("{0}: Cannot allocate frame").arg(fileName));
+                    }
+
+                    /*video.swsContext = sws_getContext(
+                        video.avCodecParameters[video.avStream]->width,
+                        video.avCodecParameters[video.avStream]->height,
+                        video.avInputPixelFormat,
+                        video.avCodecParameters[video.avStream]->width,
+                        video.avCodecParameters[video.avStream]->height,
+                        video.avOutputPixelFormat,
+                        swsScaleFlags,
+                        0,
+                        0,
+                        0);
+                    if (!video.swsContext)
+                    {
+                        throw std::runtime_error(string::Format("{0}: Cannot get context").arg(_path.get()));
+                    }*/
+                    video.swsContext = sws_alloc_context();
+                    if (!video.swsContext)
+                    {
+                        throw std::runtime_error(string::Format("{0}: Cannot allocate context").arg(fileName));
+                    }
+                    av_opt_set_defaults(video.swsContext);
+                    int r = av_opt_set_int(video.swsContext, "srcw", video.avCodecParameters[video.avStream]->width, AV_OPT_SEARCH_CHILDREN);
+                    r = av_opt_set_int(video.swsContext, "srch", video.avCodecParameters[video.avStream]->height, AV_OPT_SEARCH_CHILDREN);
+                    r = av_opt_set_int(video.swsContext, "src_format", video.avInputPixelFormat, AV_OPT_SEARCH_CHILDREN);
+                    r = av_opt_set_int(video.swsContext, "dstw", video.avCodecParameters[video.avStream]->width, AV_OPT_SEARCH_CHILDREN);
+                    r = av_opt_set_int(video.swsContext, "dsth", video.avCodecParameters[video.avStream]->height, AV_OPT_SEARCH_CHILDREN);
+                    r = av_opt_set_int(video.swsContext, "dst_format", video.avOutputPixelFormat, AV_OPT_SEARCH_CHILDREN);
+                    r = av_opt_set_int(video.swsContext, "sws_flags", swsScaleFlags, AV_OPT_SEARCH_CHILDREN);
+                    r = av_opt_set_int(video.swsContext, "threads", 0, AV_OPT_SEARCH_CHILDREN);
+                    r = sws_init_context(video.swsContext, nullptr, nullptr);
+                    if (r < 0)
+                    {
+                        throw std::runtime_error(string::Format("{0}: Cannot initialize sws context").arg(fileName));
+                    }
+                    break;
+                }
+                }
+            }
+        }
+
+        void Read::Private::processVideo()
+        {
+            bool seek = false;
+            {
+                std::unique_lock<std::mutex> lock(mutex);
+                if (currentVideoRequest)
+                {
+                    if (!time::compareExact(currentVideoRequest->time, currentVideoTime))
+                    {
+                        seek = true;
+                        currentVideoTime = currentVideoRequest->time;
+                    }
+                }
+            }
+            if (seek)
+            {
+                //std::cout << "video seek: " << currentVideoTime << std::endl;
+
+                if (video.avStream != -1)
+                {
+                    avcodec_flush_buffers(video.avCodecContext[video.avStream]);
+
+                    if (av_seek_frame(
+                        video.avFormatContext,
+                        video.avStream,
+                        av_rescale_q(
+                            currentVideoTime.value() - info.videoTime.start_time().value(),
+                            swap(video.avFormatContext->streams[video.avStream]->r_frame_rate),
+                            video.avFormatContext->streams[video.avStream]->time_base),
+                        AVSEEK_FLAG_BACKWARD) < 0)
+                    {
+                        //! \todo How should this be handled?
+                    }
+                }
+
+                video.buffer.clear();
+            }
+
+            if (video.avStream != -1 &&
+                video.buffer.size() < options.videoBufferSize)
+            {
+                AVPacket packet;
+                av_init_packet(&packet);
+                int decoding = 0;
+                bool eof = false;
+                while (0 == decoding)
+                {
+                    if (!eof)
+                    {
+                        decoding = av_read_frame(video.avFormatContext, &packet);
+                        if (AVERROR_EOF == decoding)
+                        {
+                            eof = true;
+                            decoding = 0;
+                        }
+                        else if (decoding < 0)
+                        {
+                            //! \todo How should this be handled?
+                            break;
+                        }
+                    }
+                    if ((eof && video.avStream != -1) || (video.avStream == packet.stream_index))
+                    {
+                        decoding = avcodec_send_packet(
+                            video.avCodecContext[video.avStream],
+                            eof ? nullptr : &packet);
+                        if (AVERROR_EOF == decoding)
+                        {
+                            decoding = 0;
+                        }
+                        else if (decoding < 0)
+                        {
+                            //! \todo How should this be handled?
+                            break;
+                        }
+                        decoding = decodeVideo();
+                        if (AVERROR(EAGAIN) == decoding)
+                        {
+                            decoding = 0;
+                        }
+                        else if (AVERROR_EOF == decoding)
+                        {
+                            break;
+                        }
+                        else if (decoding < 0)
+                        {
+                            //! \todo How should this be handled?
+                            break;
+                        }
+                        else if (1 == decoding)
+                        {
+                            break;
+                        }
+                    }
+                    if (packet.buf)
+                    {
+                        av_packet_unref(&packet);
+                    }
+                }
+                if (packet.buf)
+                {
+                    av_packet_unref(&packet);
+                }
+                //std::cout << "video buffer size: " << video.buffer.size() << std::endl;
+            }
+
+            std::shared_ptr<Private::VideoRequest> request;
+            {
+                std::unique_lock<std::mutex> lock(mutex);
+                if ((currentVideoRequest && !video.buffer.empty()) ||
+                    (currentVideoRequest && -1 == video.avStream))
+                {
+                    request = std::move(currentVideoRequest);
+                }
+            }
+            if (request)
+            {
+                io::VideoData data;
+                data.time = request->time;
+                if (!video.buffer.empty())
+                {
+                    data.image = video.buffer.front();
+                    video.buffer.pop_front();
+                }
+                request->promise.set_value(data);
+
+                currentVideoTime += otime::RationalTime(1.0, info.videoTime.duration().rate());
             }
         }
 
