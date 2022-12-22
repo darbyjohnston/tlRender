@@ -307,11 +307,6 @@ namespace tl
             }
         }
 
-        void Read::stop()
-        {
-            _p->running = false;
-        }
-
         void Read::_run()
         {
             TLRENDER_P();

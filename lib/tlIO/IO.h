@@ -151,9 +151,6 @@ namespace tl
             //! Cancel pending requests.
             virtual void cancelRequests() = 0;
 
-            //! Stop the reader.
-            virtual void stop() = 0;
-
         protected:
             std::vector<file::MemoryRead> _memory;
         };

@@ -89,7 +89,6 @@ namespace tl
             std::future<io::VideoData> readVideo(const otime::RationalTime&, uint16_t layer = 0) override;
             std::future<io::AudioData> readAudio(const otime::TimeRange&) override;
             void cancelRequests() override;
-            void stop() override;
 
         private:
             void _run();
