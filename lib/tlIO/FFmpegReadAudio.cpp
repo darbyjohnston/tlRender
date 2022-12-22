@@ -10,39 +10,43 @@ namespace tl
 {
     namespace ffmpeg
     {
-        void Read::_openAudio(const std::string& fileName)
+        ReadAudio::ReadAudio(
+            const std::string& fileName,
+            const std::vector<file::MemoryRead>& memory,
+            double videoRate,
+            const Options& options) :
+            _fileName(fileName),
+            _options(options)
         {
-            TLRENDER_P();
-
-            if (!_memory.empty())
+            if (!memory.empty())
             {
-                p.audio.avFormatContext = avformat_alloc_context();
-                if (!p.audio.avFormatContext)
+                _avFormatContext = avformat_alloc_context();
+                if (!_avFormatContext)
                 {
                     throw std::runtime_error(string::Format("{0}: Cannot allocate format context").arg(fileName));
                 }
 
-                p.audio.avIOBufferData = AVIOBufferData(_memory[0].p, _memory[0].size);
-                p.audio.avIOContextBuffer = static_cast<uint8_t*>(av_malloc(avIOContextBufferSize));
-                p.audio.avIOContext = avio_alloc_context(
-                    p.audio.avIOContextBuffer,
+                _avIOBufferData = AVIOBufferData(memory[0].p, memory[0].size);
+                _avIOContextBuffer = static_cast<uint8_t*>(av_malloc(avIOContextBufferSize));
+                _avIOContext = avio_alloc_context(
+                    _avIOContextBuffer,
                     avIOContextBufferSize,
                     0,
-                    &p.audio.avIOBufferData,
+                    &_avIOBufferData,
                     &avIOBufferRead,
                     nullptr,
                     &avIOBufferSeek);
-                if (!p.audio.avIOContext)
+                if (!_avIOContext)
                 {
                     throw std::runtime_error(string::Format("{0}: Cannot allocate I/O context").arg(fileName));
                 }
 
-                p.audio.avFormatContext->pb = p.audio.avIOContext;
+                _avFormatContext->pb = _avIOContext;
             }
 
             int r = avformat_open_input(
-                &p.audio.avFormatContext,
-                !p.audio.avFormatContext ? fileName.c_str() : nullptr,
+                &_avFormatContext,
+                !_avFormatContext ? fileName.c_str() : nullptr,
                 nullptr,
                 nullptr);
             if (r < 0)
@@ -50,71 +54,71 @@ namespace tl
                 throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
             }
 
-            r = avformat_find_stream_info(p.audio.avFormatContext, 0);
+            r = avformat_find_stream_info(_avFormatContext, 0);
             if (r < 0)
             {
                 throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
             }
-            for (unsigned int i = 0; i < p.audio.avFormatContext->nb_streams; ++i)
+            for (unsigned int i = 0; i < _avFormatContext->nb_streams; ++i)
             {
-                if (AVMEDIA_TYPE_AUDIO == p.audio.avFormatContext->streams[i]->codecpar->codec_type &&
-                    AV_DISPOSITION_DEFAULT == p.audio.avFormatContext->streams[i]->disposition)
+                if (AVMEDIA_TYPE_AUDIO == _avFormatContext->streams[i]->codecpar->codec_type &&
+                    AV_DISPOSITION_DEFAULT == _avFormatContext->streams[i]->disposition)
                 {
-                    p.audio.avStream = i;
+                    _avStream = i;
                     break;
                 }
             }
-            if (-1 == p.audio.avStream)
+            if (-1 == _avStream)
             {
-                for (unsigned int i = 0; i < p.audio.avFormatContext->nb_streams; ++i)
+                for (unsigned int i = 0; i < _avFormatContext->nb_streams; ++i)
                 {
-                    if (AVMEDIA_TYPE_AUDIO == p.audio.avFormatContext->streams[i]->codecpar->codec_type)
+                    if (AVMEDIA_TYPE_AUDIO == _avFormatContext->streams[i]->codecpar->codec_type)
                     {
-                        p.audio.avStream = i;
+                        _avStream = i;
                         break;
                     }
                 }
             }
-            if (p.audio.avStream != -1)
+            if (_avStream != -1)
             {
-                //av_dump_format(p.audio.avFormatContext, p.audio.avStream, fileName.c_str(), 0);
+                //av_dump_format(_avFormatContext, _avStream, fileName.c_str(), 0);
 
-                auto avAudioStream = p.audio.avFormatContext->streams[p.audio.avStream];
+                auto avAudioStream = _avFormatContext->streams[_avStream];
                 auto avAudioCodecParameters = avAudioStream->codecpar;
                 auto avAudioCodec = avcodec_find_decoder(avAudioCodecParameters->codec_id);
                 if (!avAudioCodec)
                 {
                     throw std::runtime_error(string::Format("{0}: No audio codec found").arg(fileName));
                 }
-                p.audio.avCodecParameters[p.audio.avStream] = avcodec_parameters_alloc();
-                if (!p.audio.avCodecParameters[p.audio.avStream])
+                _avCodecParameters[_avStream] = avcodec_parameters_alloc();
+                if (!_avCodecParameters[_avStream])
                 {
                     throw std::runtime_error(string::Format("{0}: Cannot allocate parameters").arg(fileName));
                 }
-                r = avcodec_parameters_copy(p.audio.avCodecParameters[p.audio.avStream], avAudioCodecParameters);
+                r = avcodec_parameters_copy(_avCodecParameters[_avStream], avAudioCodecParameters);
                 if (r < 0)
                 {
                     throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
                 }
-                p.audio.avCodecContext[p.audio.avStream] = avcodec_alloc_context3(avAudioCodec);
-                if (!p.audio.avCodecContext[p.audio.avStream])
+                _avCodecContext[_avStream] = avcodec_alloc_context3(avAudioCodec);
+                if (!_avCodecContext[_avStream])
                 {
                     throw std::runtime_error(string::Format("{0}: Cannot allocate context").arg(fileName));
                 }
-                r = avcodec_parameters_to_context(p.audio.avCodecContext[p.audio.avStream], p.audio.avCodecParameters[p.audio.avStream]);
+                r = avcodec_parameters_to_context(_avCodecContext[_avStream], _avCodecParameters[_avStream]);
                 if (r < 0)
                 {
                     throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
                 }
-                p.audio.avCodecContext[p.audio.avStream]->thread_count = p.options.threadCount;
-                p.audio.avCodecContext[p.audio.avStream]->thread_type = FF_THREAD_FRAME;
-                r = avcodec_open2(p.audio.avCodecContext[p.audio.avStream], avAudioCodec, 0);
+                _avCodecContext[_avStream]->thread_count = options.threadCount;
+                _avCodecContext[_avStream]->thread_type = FF_THREAD_FRAME;
+                r = avcodec_open2(_avCodecContext[_avStream], avAudioCodec, 0);
                 if (r < 0)
                 {
                     throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
                 }
 
-                const size_t fileChannelCount = p.audio.avCodecParameters[p.audio.avStream]->ch_layout.nb_channels;
+                const size_t fileChannelCount = _avCodecParameters[_avStream]->ch_layout.nb_channels;
                 switch (fileChannelCount)
                 {
                 case 1:
@@ -127,21 +131,21 @@ namespace tl
                     break;
                 }
                 const audio::DataType fileDataType = toAudioType(static_cast<AVSampleFormat>(
-                    p.audio.avCodecParameters[p.audio.avStream]->format));
+                    _avCodecParameters[_avStream]->format));
                 if (audio::DataType::None == fileDataType)
                 {
                     throw std::runtime_error(string::Format("{0}: Unsupported audio format").arg(fileName));
                 }
-                const size_t fileSampleRate = p.audio.avCodecParameters[p.audio.avStream]->sample_rate;
+                const size_t fileSampleRate = _avCodecParameters[_avStream]->sample_rate;
 
                 size_t channelCount = fileChannelCount;
                 audio::DataType dataType = fileDataType;
                 size_t sampleRate = fileSampleRate;
-                if (p.options.audioConvertInfo.isValid())
+                if (options.audioConvertInfo.isValid())
                 {
-                    channelCount = p.options.audioConvertInfo.channelCount;
-                    dataType = p.options.audioConvertInfo.dataType;
-                    sampleRate = p.options.audioConvertInfo.sampleRate;
+                    channelCount = options.audioConvertInfo.channelCount;
+                    dataType = options.audioConvertInfo.dataType;
+                    sampleRate = options.audioConvertInfo.sampleRate;
                 }
 
                 int64_t sampleCount = 0;
@@ -155,13 +159,13 @@ namespace tl
                         avAudioStream->time_base,
                         r);
                 }
-                else if (p.audio.avFormatContext->duration != AV_NOPTS_VALUE)
+                else if (_avFormatContext->duration != AV_NOPTS_VALUE)
                 {
                     AVRational r;
                     r.num = 1;
                     r.den = sampleRate;
                     sampleCount = av_rescale_q(
-                        p.audio.avFormatContext->duration,
+                        _avFormatContext->duration,
                         av_get_time_base_q(),
                         r);
                 }
@@ -169,7 +173,7 @@ namespace tl
                 imaging::Tags tags;
                 AVDictionaryEntry* tag = nullptr;
                 otime::RationalTime startTime(0.0, sampleRate);
-                while ((tag = av_dict_get(p.audio.avFormatContext->metadata, "", tag, AV_DICT_IGNORE_SUFFIX)))
+                while ((tag = av_dict_get(_avFormatContext->metadata, "", tag, AV_DICT_IGNORE_SUFFIX)))
                 {
                     const std::string key(tag->key);
                     const std::string value(tag->value);
@@ -179,7 +183,7 @@ namespace tl
                         otime::ErrorStatus errorStatus;
                         const otime::RationalTime time = otime::RationalTime::from_timecode(
                             value,
-                            p.currentVideoTime.rate(),
+                            videoRate,
                             &errorStatus);
                         if (!otime::is_error(errorStatus))
                         {
@@ -189,144 +193,185 @@ namespace tl
                     }
                 }
 
-                p.info.audio.channelCount = channelCount;
-                p.info.audio.dataType = dataType;
-                p.info.audio.sampleRate = sampleRate;
-                p.info.audioTime = otime::TimeRange(
+                _info.channelCount = channelCount;
+                _info.dataType = dataType;
+                _info.sampleRate = sampleRate;
+
+                _timeRange = otime::TimeRange(
                     startTime,
                     otime::RationalTime(sampleCount, sampleRate));
 
-                p.currentAudioTime = p.info.audioTime.start_time();
-
                 for (const auto& i : tags)
                 {
-                    p.info.tags[i.first] = i.second;
+                    _tags[i.first] = i.second;
                 }
                 {
                     std::stringstream ss;
                     ss << static_cast<int>(fileChannelCount);
-                    p.info.tags["Audio Channels"] = ss.str();
+                    _tags["Audio Channels"] = ss.str();
                 }
                 {
                     std::stringstream ss;
                     ss << fileDataType;
-                    p.info.tags["Audio Data Type"] = ss.str();
+                    _tags["Audio Data Type"] = ss.str();
                 }
                 {
                     std::stringstream ss;
                     ss.precision(1);
                     ss << std::fixed;
                     ss << fileSampleRate / 1000.F << " kHz";
-                    p.info.tags["Audio Sample Rate"] = ss.str();
+                    _tags["Audio Sample Rate"] = ss.str();
                 }
                 {
                     std::stringstream ss;
                     ss.precision(2);
                     ss << std::fixed;
-                    ss << p.info.audioTime.start_time().rescaled_to(1.0).value() << " seconds";
-                    p.info.tags["Audio Start Time"] = ss.str();
+                    ss << _timeRange.start_time().rescaled_to(1.0).value() << " seconds";
+                    _tags["Audio Start Time"] = ss.str();
                 }
                 {
                     std::stringstream ss;
                     ss.precision(2);
                     ss << std::fixed;
-                    ss << p.info.audioTime.duration().rescaled_to(1.0).value() << " seconds";
-                    p.info.tags["Audio Duration"] = ss.str();
+                    ss << _timeRange.duration().rescaled_to(1.0).value() << " seconds";
+                    _tags["Audio Duration"] = ss.str();
                 }
             }
         }
 
-        void Read::Private::startAudio(const std::string& fileName)
+        ReadAudio::~ReadAudio()
         {
-            if (audio.avStream != -1)
+            if (_swrContext)
             {
-                audio.avFrame = av_frame_alloc();
-                if (!audio.avFrame)
+                swr_free(&_swrContext);
+            }
+            if (_avFrame)
+            {
+                av_frame_free(&_avFrame);
+            }
+            for (auto i : _avCodecContext)
+            {
+                avcodec_close(i.second);
+                avcodec_free_context(&i.second);
+            }
+            for (auto i : _avCodecParameters)
+            {
+                avcodec_parameters_free(&i.second);
+            }
+            if (_avIOContext)
+            {
+                avio_context_free(&_avIOContext);
+            }
+            //! \bug Free'd by avio_context_free()?
+            //if (_avIOContextBuffer)
+            //{
+            //    av_free(_avIOContextBuffer);
+            //}
+            if (_avFormatContext)
+            {
+                avformat_close_input(&_avFormatContext);
+            }
+        }
+
+        bool ReadAudio::isValid() const
+        {
+            return _avStream != -1;
+        }
+
+        const audio::Info& ReadAudio::getInfo() const
+        {
+            return _info;
+        }
+
+        const otime::TimeRange& ReadAudio::getTimeRange() const
+        {
+            return _timeRange;
+        }
+
+        const imaging::Tags& ReadAudio::getTags() const
+        {
+            return _tags;
+        }
+
+        void ReadAudio::start()
+        {
+            if (_avStream != -1)
+            {
+                _avFrame = av_frame_alloc();
+                if (!_avFrame)
                 {
-                    throw std::runtime_error(string::Format("{0}: Cannot allocate frame").arg(fileName));
+                    throw std::runtime_error(string::Format("{0}: Cannot allocate frame").arg(_fileName));
                 }
 
                 AVChannelLayout channelLayout;
-                av_channel_layout_default(&channelLayout, info.audio.channelCount);
-                const auto& avCodecParameters = audio.avCodecParameters[audio.avStream];
+                av_channel_layout_default(&channelLayout, _info.channelCount);
+                const auto& avCodecParameters = _avCodecParameters[_avStream];
                 int r = swr_alloc_set_opts2(
-                    &audio.swrContext,
+                    &_swrContext,
                     &channelLayout,
-                    fromAudioType(info.audio.dataType),
-                    info.audio.sampleRate,
+                    fromAudioType(_info.dataType),
+                    _info.sampleRate,
                     &avCodecParameters->ch_layout,
                     static_cast<AVSampleFormat>(avCodecParameters->format),
                     avCodecParameters->sample_rate,
                     0,
                     NULL);
                 av_channel_layout_uninit(&channelLayout);
-                if (!audio.swrContext)
+                if (!_swrContext)
                 {
-                    throw std::runtime_error(string::Format("{0}: Cannot get context").arg(fileName));
+                    throw std::runtime_error(string::Format("{0}: Cannot get context").arg(_fileName));
                 }
-                swr_init(audio.swrContext);
+                swr_init(_swrContext);
             }
         }
 
-        void Read::Private::processAudio()
+        void ReadAudio::seek(const otime::RationalTime& time)
         {
-            bool seek = false;
+            //std::cout << "audio seek: " << currentAudioTime << std::endl;
+
+            if (_avStream != -1)
             {
-                std::unique_lock<std::mutex> lock(mutex);
-                if (currentAudioRequest)
+                avcodec_flush_buffers(_avCodecContext[_avStream]);
+
+                AVRational r;
+                r.num = 1;
+                r.den = _info.sampleRate;
+                if (av_seek_frame(
+                    _avFormatContext,
+                    _avStream,
+                    av_rescale_q(
+                        time.value() - _timeRange.start_time().value(),
+                        r,
+                        _avFormatContext->streams[_avStream]->time_base),
+                    AVSEEK_FLAG_BACKWARD) < 0)
                 {
-                    if (!time::compareExact(currentAudioRequest->time.start_time(), currentAudioTime))
-                    {
-                        seek = true;
-                        currentAudioTime = currentAudioRequest->time.start_time();
-                    }
-                }
-            }
-            if (seek)
-            {
-                //std::cout << "audio seek: " << currentAudioTime << std::endl;
-
-                if (audio.avStream != -1)
-                {
-                    avcodec_flush_buffers(audio.avCodecContext[audio.avStream]);
-
-                    AVRational r;
-                    r.num = 1;
-                    r.den = info.audio.sampleRate;
-                    if (av_seek_frame(
-                        audio.avFormatContext,
-                        audio.avStream,
-                        av_rescale_q(
-                            currentAudioTime.value() - info.audioTime.start_time().value(),
-                            r,
-                            audio.avFormatContext->streams[audio.avStream]->time_base),
-                        AVSEEK_FLAG_BACKWARD) < 0)
-                    {
-                        //! \todo How should this be handled?
-                    }
-
-                    std::vector<uint8_t> swrOutputBuffer;
-                    swrOutputBuffer.resize(
-                        static_cast<size_t>(info.audio.channelCount) *
-                        audio::getByteCount(info.audio.dataType) *
-                        audio.avFrame->nb_samples);
-                    uint8_t* swrOutputBufferP[] = { swrOutputBuffer.data() };
-                    while (swr_convert(
-                        audio.swrContext,
-                        swrOutputBufferP,
-                        audio.avFrame->nb_samples,
-                        NULL,
-                        0) > 0)
-                        ;
-                    swr_init(audio.swrContext);
+                    //! \todo How should this be handled?
                 }
 
-                audio.buffer.clear();
+                std::vector<uint8_t> swrOutputBuffer;
+                swrOutputBuffer.resize(
+                    static_cast<size_t>(_info.channelCount) *
+                    audio::getByteCount(_info.dataType) *
+                    _avFrame->nb_samples);
+                uint8_t* swrOutputBufferP[] = { swrOutputBuffer.data() };
+                while (swr_convert(
+                    _swrContext,
+                    swrOutputBufferP,
+                    _avFrame->nb_samples,
+                    NULL,
+                    0) > 0)
+                    ;
+                swr_init(_swrContext);
             }
 
-            if (audio.avStream != -1 &&
-                audio::getSampleCount(audio.buffer) <
-                options.audioBufferSize.rescaled_to(info.audio.sampleRate).value())
+            _buffer.clear();
+        }
+
+        void ReadAudio::process(const otime::RationalTime& currentTime)
+        {
+            if (_avStream != -1 &&
+                audio::getSampleCount(_buffer) <
+                _options.audioBufferSize.rescaled_to(_info.sampleRate).value())
             {
                 AVPacket packet;
                 av_init_packet(&packet);
@@ -336,7 +381,7 @@ namespace tl
                 {
                     if (!eof)
                     {
-                        decoding = av_read_frame(audio.avFormatContext, &packet);
+                        decoding = av_read_frame(_avFormatContext, &packet);
                         if (AVERROR_EOF == decoding)
                         {
                             eof = true;
@@ -348,10 +393,10 @@ namespace tl
                             break;
                         }
                     }
-                    if ((eof && audio.avStream != -1) || (audio.avStream == packet.stream_index))
+                    if ((eof && _avStream != -1) || (_avStream == packet.stream_index))
                     {
                         decoding = avcodec_send_packet(
-                            audio.avCodecContext[audio.avStream],
+                            _avCodecContext[_avStream],
                             eof ? nullptr : &packet);
                         if (AVERROR_EOF == decoding)
                         {
@@ -362,22 +407,20 @@ namespace tl
                             //! \todo How should this be handled?
                             break;
                         }
-                        decoding = decodeAudio();
+                        decoding = _decode(currentTime);
                         if (AVERROR(EAGAIN) == decoding)
                         {
                             decoding = 0;
                         }
                         else if (AVERROR_EOF == decoding)
                         {
-                            const size_t bufferSize = audio::getSampleCount(audio.buffer);
-                            const size_t bufferMax = options.audioBufferSize.rescaled_to(info.audio.sampleRate).value();
+                            const size_t bufferSize = audio::getSampleCount(_buffer);
+                            const size_t bufferMax = _options.audioBufferSize.rescaled_to(_info.sampleRate).value();
                             if (bufferSize < bufferMax)
                             {
-                                auto audio = audio::Audio::create(
-                                    info.audio,
-                                    bufferMax - bufferSize);
+                                auto audio = audio::Audio::create(_info, bufferMax - bufferSize);
                                 audio->zero();
-                                this->audio.buffer.push_back(audio);
+                                this->_buffer.push_back(audio);
                             }
                             break;
                         }
@@ -400,89 +443,77 @@ namespace tl
                 {
                     av_packet_unref(&packet);
                 }
-                //std::cout << "audio buffer size: " << audio::getSampleCount(audio.buffer) << std::endl;
-            }
-
-            const size_t bufferSize = audio::getSampleCount(audio.buffer);
-            std::shared_ptr<Private::AudioRequest> request;
-            {
-                std::unique_lock<std::mutex> lock(mutex);
-                if ((currentAudioRequest &&
-                    currentAudioRequest->time.duration().rescaled_to(info.audio.sampleRate).value() <= bufferSize) ||
-                    (currentAudioRequest && -1 == audio.avStream))
-                {
-                    request = std::move(currentAudioRequest);
-                }
-            }
-            if (request)
-            {
-                io::AudioData data;
-                data.time = request->time.start_time();
-                data.audio = audio::Audio::create(info.audio, request->time.duration().value());
-                data.audio->zero();
-                size_t offset = 0;
-                if (data.time < info.audioTime.start_time())
-                {
-                    offset = (info.audioTime.start_time() - data.time).value() * info.audio.getByteCount();
-                }
-                audio::copy(audio.buffer, data.audio->getData() + offset, data.audio->getByteCount() - offset);
-                request->promise.set_value(data);
-
-                currentAudioTime += request->time.duration();
+                //std::cout << "audio buffer size: " << audio::getSampleCount(_buffer) << std::endl;
             }
         }
 
-        int Read::Private::decodeAudio()
+        size_t ReadAudio::getBufferSize() const
+        {
+            return audio::getSampleCount(_buffer);
+        }
+
+        bool ReadAudio::isBufferFull() const
+        {
+            return audio::getSampleCount(_buffer) <
+                _options.audioBufferSize.rescaled_to(_info.sampleRate).value();
+        }
+
+        void ReadAudio::bufferCopy(uint8_t* out, size_t byteCount)
+        {
+            audio::copy(_buffer, out, byteCount);
+        }
+
+        int ReadAudio::_decode(const otime::RationalTime& currentTime)
         {
             int out = 0;
             while (0 == out)
             {
-                out = avcodec_receive_frame(audio.avCodecContext[audio.avStream], audio.avFrame);
+                out = avcodec_receive_frame(_avCodecContext[_avStream], _avFrame);
                 if (out < 0)
                 {
                     return out;
                 }
-                const int64_t timestamp = audio.avFrame->pts != AV_NOPTS_VALUE ? audio.avFrame->pts : audio.avFrame->pkt_dts;
+                const int64_t timestamp = _avFrame->pts != AV_NOPTS_VALUE ? _avFrame->pts : _avFrame->pkt_dts;
                 //std::cout << "audio timestamp: " << timestamp << std::endl;
 
                 AVRational r;
                 r.num = 1;
-                r.den = info.audio.sampleRate;
+                r.den = _info.sampleRate;
                 const auto time = otime::RationalTime(
-                    info.audioTime.start_time().value() +
+                    _timeRange.start_time().value() +
                     av_rescale_q(
                         timestamp,
-                        audio.avFormatContext->streams[audio.avStream]->time_base,
+                        _avFormatContext->streams[_avStream]->time_base,
                         r),
-                    info.audio.sampleRate);
+                    _info.sampleRate);
                 //std::cout << "audio time: " << time << std::endl;
 
-                if (time >= currentAudioTime)
+                if (time >= currentTime)
                 {
                     //std::cout << "audio time: " << time << std::endl;
-                    const int64_t swrDelay = swr_get_delay(audio.swrContext, audio.avCodecParameters[audio.avStream]->sample_rate);
+                    const int64_t swrDelay = swr_get_delay(_swrContext, _avCodecParameters[_avStream]->sample_rate);
                     //std::cout << "delay: " << swrDelay << std::endl;
-                    const size_t swrOutputSamples = audio.avFrame->nb_samples + swrDelay;
+                    const size_t swrOutputSamples = _avFrame->nb_samples + swrDelay;
                     std::vector<uint8_t> swrOutputBuffer;
                     swrOutputBuffer.resize(
-                        static_cast<size_t>(info.audio.channelCount) *
-                        audio::getByteCount(info.audio.dataType) *
+                        static_cast<size_t>(_info.channelCount) *
+                        audio::getByteCount(_info.dataType) *
                         swrOutputSamples);
                     uint8_t* swrOutputBufferP[] = { swrOutputBuffer.data() };
                     const int swrOutputCount = swr_convert(
-                        audio.swrContext,
+                        _swrContext,
                         swrOutputBufferP,
                         swrOutputSamples,
-                        (const uint8_t **)audio.avFrame->data,
-                        audio.avFrame->nb_samples);
+                        (const uint8_t **)_avFrame->data,
+                        _avFrame->nb_samples);
                     if (swrOutputCount < 0)
                     {
                         //! \todo How should this be handled?
                         break;
                     }
-                    auto tmp = audio::Audio::create(info.audio, swrOutputCount);
+                    auto tmp = audio::Audio::create(_info, swrOutputCount);
                     memcpy(tmp->getData(), swrOutputBuffer.data(), tmp->getByteCount());
-                    audio.buffer.push_back(tmp);
+                    _buffer.push_back(tmp);
                     out = 1;
                     break;
                 }

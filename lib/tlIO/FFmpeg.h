@@ -92,10 +92,7 @@ namespace tl
             void stop() override;
 
         private:
-            void _openVideo(const std::string& fileName);
-            void _openAudio(const std::string& fileName);
             void _run();
-            void _close();
 
             TLRENDER_PRIVATE();
         };

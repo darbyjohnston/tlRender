@@ -125,8 +125,19 @@ namespace tl
                     TLRENDER_P();
                     try
                     {
-                        _openVideo(path.get());
-                        _openAudio(path.get());
+                        p.readVideo = std::make_shared<ReadVideo>(path.get(), _memory, p.options);
+                        p.info.video.push_back(p.readVideo->getInfo());
+                        p.info.videoTime = p.readVideo->getTimeRange();
+                        p.info.tags = p.readVideo->getTags();
+
+                        p.readAudio = std::make_shared<ReadAudio>(path.get(), _memory, p.info.videoTime.duration().rate(), p.options);
+                        p.info.audio = p.readAudio->getInfo();
+                        p.info.audioTime = p.readAudio->getTimeRange();
+                        for (const auto& tag : p.readAudio->getTags())
+                        {
+                            p.info.tags[tag.first] = tag.second;
+                        }
+
                         p.infoPromise.set_value(p.info);
 
                         try
@@ -167,8 +178,8 @@ namespace tl
                         p.stopped = true;
                     }
                     cancelRequests();
-
-                    _close();
+                    p.readAudio.reset();
+                    p.readVideo.reset();
                 });
         }
 
@@ -305,12 +316,16 @@ namespace tl
         {
             TLRENDER_P();
 
-            _p->startVideo(_path.get());
-            _p->startAudio(_path.get());
+            p.currentVideoTime = p.info.videoTime.start_time();
+            p.currentAudioTime = p.info.audioTime.start_time();
+
+            p.readVideo->start();
+            p.readAudio->start();
 
             p.logTimer = std::chrono::steady_clock::now();
             while (p.running)
             {
+                // Check requests.
                 {
                     std::unique_lock<std::mutex> lock(p.mutex);
                     if (p.cv.wait_for(
@@ -323,9 +338,8 @@ namespace tl
                                 _p->currentVideoRequest ||
                                 !_p->audioRequests.empty() ||
                                 _p->currentAudioRequest ||
-                                _p->video.buffer.size() < _p->options.videoBufferSize ||
-                                audio::getSampleCount(_p->audio.buffer) <
-                                    _p->options.audioBufferSize.rescaled_to(_p->info.audio.sampleRate).value();
+                                !_p->readVideo->isBufferFull() ||
+                                !_p->readAudio->isBufferFull();
                         }))
                     {
                         if (!p.currentVideoRequest && !p.videoRequests.empty())
@@ -341,8 +355,97 @@ namespace tl
                     }
                 }
 
-                _p->processVideo();
-                _p->processAudio();
+                // Video.
+                {
+                    bool seek = false;
+                    {
+                        std::unique_lock<std::mutex> lock(p.mutex);
+                        if (p.currentVideoRequest)
+                        {
+                            if (!time::compareExact(p.currentVideoRequest->time, p.currentVideoTime))
+                            {
+                                seek = true;
+                                p.currentVideoTime = p.currentVideoRequest->time;
+                            }
+                        }
+                    }
+                    if (seek)
+                    {
+                        p.readVideo->seek(p.currentVideoTime);
+                    }
+                }
+                _p->readVideo->process(p.currentVideoTime);
+                {
+                    std::shared_ptr<Private::VideoRequest> request;
+                    {
+                        std::unique_lock<std::mutex> lock(p.mutex);
+                        if ((p.currentVideoRequest && !p.readVideo->isBufferEmpty()) ||
+                            (p.currentVideoRequest && !p.readVideo->isValid()))
+                        {
+                            request = std::move(p.currentVideoRequest);
+                        }
+                    }
+                    if (request)
+                    {
+                        io::VideoData data;
+                        data.time = request->time;
+                        if (!p.readVideo->isBufferEmpty())
+                        {
+                            data.image = p.readVideo->popBuffer();
+                        }
+                        request->promise.set_value(data);
+
+                        p.currentVideoTime += otime::RationalTime(1.0, p.info.videoTime.duration().rate());
+                    }
+                }
+
+                // Audio.
+                {
+                    bool seek = false;
+                    {
+                        std::unique_lock<std::mutex> lock(p.mutex);
+                        if (p.currentAudioRequest)
+                        {
+                            if (!time::compareExact(p.currentAudioRequest->time.start_time(), p.currentAudioTime))
+                            {
+                                seek = true;
+                                p.currentAudioTime = p.currentAudioRequest->time.start_time();
+                            }
+                        }
+                    }
+                    if (seek)
+                    {
+                        p.readAudio->seek(p.currentAudioTime);
+                    }
+                }
+                _p->readAudio->process(p.currentAudioTime);
+                const size_t bufferSize = p.readAudio->getBufferSize();
+                std::shared_ptr<Private::AudioRequest> request;
+                {
+                    std::unique_lock<std::mutex> lock(p.mutex);
+                    if ((p.currentAudioRequest &&
+                        p.currentAudioRequest->time.duration().rescaled_to(p.info.audio.sampleRate).value() <= bufferSize) ||
+                        (p.currentAudioRequest && !p.readAudio->isValid()))
+                    {
+                        request = std::move(p.currentAudioRequest);
+                    }
+                }
+                if (request)
+                {
+                    io::AudioData data;
+                    data.time = request->time.start_time();
+                    data.audio = audio::Audio::create(p.info.audio, request->time.duration().value());
+                    data.audio->zero();
+                    size_t offset = 0;
+                    if (data.time < p.info.audioTime.start_time())
+                    {
+                        offset = (p.info.audioTime.start_time() - data.time).value() * p.info.audio.getByteCount();
+                    }
+                    p.readAudio->bufferCopy(data.audio->getData() + offset, data.audio->getByteCount() - offset);
+                    request->promise.set_value(data);
+
+                    p.currentAudioTime += request->time.duration();
+                }
 
                 // Logging.
                 if (auto logSystem = _logSystem.lock())
@@ -372,77 +475,6 @@ namespace tl
                             arg(p.options.threadCount));
                     }
                 }
-            }
-        }
-
-        void Read::_close()
-        {
-            TLRENDER_P();
-
-            if (p.video.swsContext)
-            {
-                sws_freeContext(p.video.swsContext);
-            }
-            if (p.video.avFrame2)
-            {
-                av_frame_free(&p.video.avFrame2);
-            }
-            if (p.video.avFrame)
-            {
-                av_frame_free(&p.video.avFrame);
-            }
-            for (auto i : p.video.avCodecContext)
-            {
-                avcodec_close(i.second);
-                avcodec_free_context(&i.second);
-            }
-            for (auto i : p.video.avCodecParameters)
-            {
-                avcodec_parameters_free(&i.second);
-            }
-            if (p.video.avIOContext)
-            {
-                avio_context_free(&p.video.avIOContext);
-            }
-            //! \bug Free'd by avio_context_free()?
-            //if (p.video.avIOContextBuffer)
-            //{
-            //    av_free(p.video.avIOContextBuffer);
-            //}
-            if (p.video.avFormatContext)
-            {
-                avformat_close_input(&p.video.avFormatContext);
-            }
-
-            if (p.audio.swrContext)
-            {
-                swr_free(&p.audio.swrContext);
-            }
-            if (p.audio.avFrame)
-            {
-                av_frame_free(&p.audio.avFrame);
-            }
-            for (auto i : p.audio.avCodecContext)
-            {
-                avcodec_close(i.second);
-                avcodec_free_context(&i.second);
-            }
-            for (auto i : p.audio.avCodecParameters)
-            {
-                avcodec_parameters_free(&i.second);
-            }
-            if (p.audio.avIOContext)
-            {
-                avio_context_free(&p.audio.avIOContext);
-            }
-            //! \bug Free'd by avio_context_free()?
-            //if (p.audio.avIOContextBuffer)
-            //{
-            //    av_free(p.audio.avIOContextBuffer);
-            //}
-            if (p.audio.avFormatContext)
-            {
-                avformat_close_input(&p.audio.avFormatContext);
             }
         }
     }

@@ -37,21 +37,118 @@ namespace tl
 
         const size_t avIOContextBufferSize = 4096;
 
+        struct Options
+        {
+            bool yuvToRGBConversion = false;
+            audio::Info audioConvertInfo;
+            size_t threadCount = ffmpeg::threadCount;
+            size_t requestTimeout = 5;
+            size_t videoBufferSize = 4;
+            otime::RationalTime audioBufferSize = otime::RationalTime(2.0, 1.0);
+        };
+
+        class ReadVideo
+        {
+        public:
+            ReadVideo(
+                const std::string& fileName,
+                const std::vector<file::MemoryRead>& memory,
+                const Options& options);
+
+            ~ReadVideo();
+
+            bool isValid() const;
+            const imaging::Info& getInfo() const;
+            const otime::TimeRange& getTimeRange() const;
+            const imaging::Tags& getTags() const;
+
+            void start();
+            void seek(const otime::RationalTime&);
+            void process(const otime::RationalTime& currentTime);
+
+            bool isBufferEmpty() const;
+            bool isBufferFull() const;
+            std::shared_ptr<imaging::Image> popBuffer();
+
+        private:
+            int _decode(const otime::RationalTime& currentTime);
+            void _copy(const std::shared_ptr<imaging::Image>&);
+
+            std::string _fileName;
+            Options _options;
+            imaging::Info _info;
+            otime::TimeRange _timeRange;
+            imaging::Tags _tags;
+
+            AVFormatContext* _avFormatContext = nullptr;
+            AVIOBufferData _avIOBufferData;
+            uint8_t* _avIOContextBuffer = nullptr;
+            AVIOContext* _avIOContext = nullptr;
+            int _avStream = -1;
+            std::map<int, AVCodecParameters*> _avCodecParameters;
+            std::map<int, AVCodecContext*> _avCodecContext;
+            AVFrame* _avFrame = nullptr;
+            AVFrame* _avFrame2 = nullptr;
+            AVPixelFormat _avInputPixelFormat = AV_PIX_FMT_NONE;
+            AVPixelFormat _avOutputPixelFormat = AV_PIX_FMT_NONE;
+            SwsContext* _swsContext = nullptr;
+            std::list<std::shared_ptr<imaging::Image> > _buffer;
+        };
+
+        class ReadAudio
+        {
+        public:
+            ReadAudio(
+                const std::string& fileName,
+                const std::vector<file::MemoryRead>&,
+                double videoRate,
+                const Options&);
+
+            ~ReadAudio();
+
+            bool isValid() const;
+            const audio::Info& getInfo() const;
+            const otime::TimeRange& getTimeRange() const;
+            const imaging::Tags& getTags() const;
+
+            void start();
+            void seek(const otime::RationalTime&);
+            void process(const otime::RationalTime& currentTime);
+
+            size_t getBufferSize() const;
+            bool isBufferFull() const;
+            void bufferCopy(uint8_t*, size_t byteCount);
+
+        private:
+            int _decode(const otime::RationalTime& currentTime);
+
+            std::string _fileName;
+            Options _options;
+            audio::Info _info;
+            otime::TimeRange _timeRange;
+            imaging::Tags _tags;
+
+            AVFormatContext* _avFormatContext = nullptr;
+            AVIOBufferData _avIOBufferData;
+            uint8_t* _avIOContextBuffer = nullptr;
+            AVIOContext* _avIOContext = nullptr;
+            int _avStream = -1;
+            std::map<int, AVCodecParameters*> _avCodecParameters;
+            std::map<int, AVCodecContext*> _avCodecContext;
+            AVFrame* _avFrame = nullptr;
+            SwrContext* _swrContext = nullptr;
+            std::list<std::shared_ptr<audio::Audio> > _buffer;
+        };
+
         struct Read::Private
         {
+            Options options;
+
+            std::shared_ptr<ReadVideo> readVideo;
+            std::shared_ptr<ReadAudio> readAudio;
+
             io::Info info;
             std::promise<io::Info> infoPromise;
-
-            struct Options
-            {
-                bool yuvToRGBConversion = false;
-                audio::Info audioConvertInfo;
-                size_t threadCount = ffmpeg::threadCount;
-                size_t requestTimeout = 5;
-                size_t videoBufferSize = 4;
-                otime::RationalTime audioBufferSize = otime::RationalTime(1.0, 1.0);
-            };
-            Options options;
 
             struct VideoRequest
             {
@@ -71,39 +168,6 @@ namespace tl
             std::shared_ptr<AudioRequest> currentAudioRequest;
             otime::RationalTime currentAudioTime = time::invalidTime;
 
-            struct Video
-            {
-                AVFormatContext* avFormatContext = nullptr;
-                AVIOBufferData avIOBufferData;
-                uint8_t* avIOContextBuffer = nullptr;
-                AVIOContext* avIOContext = nullptr;
-                int avStream = -1;
-                std::map<int, AVCodecParameters*> avCodecParameters;
-                std::map<int, AVCodecContext*> avCodecContext;
-                AVFrame* avFrame = nullptr;
-                AVFrame* avFrame2 = nullptr;
-                AVPixelFormat avInputPixelFormat = AV_PIX_FMT_NONE;
-                AVPixelFormat avOutputPixelFormat = AV_PIX_FMT_NONE;
-                SwsContext* swsContext = nullptr;
-                std::list<std::shared_ptr<imaging::Image> > buffer;
-            };
-            Video video;
-
-            struct Audio
-            {
-                AVFormatContext* avFormatContext = nullptr;
-                AVIOBufferData avIOBufferData;
-                uint8_t* avIOContextBuffer = nullptr;
-                AVIOContext* avIOContext = nullptr;
-                int avStream = -1;
-                std::map<int, AVCodecParameters*> avCodecParameters;
-                std::map<int, AVCodecContext*> avCodecContext;
-                AVFrame* avFrame = nullptr;
-                SwrContext* swrContext = nullptr;
-                std::list<std::shared_ptr<audio::Audio> > buffer;
-            };
-            Audio audio;
-
             std::condition_variable cv;
             std::thread thread;
             std::mutex mutex;
@@ -111,15 +175,6 @@ namespace tl
             bool stopped = false;
 
             std::chrono::steady_clock::time_point logTimer;
-
-            void startVideo(const std::string& fileName);
-            void processVideo();
-            int decodeVideo();
-            void copyVideo(const std::shared_ptr<imaging::Image>&);
-
-            void startAudio(const std::string& fileName);
-            void processAudio();
-            int decodeAudio();
         };
     }
 }
