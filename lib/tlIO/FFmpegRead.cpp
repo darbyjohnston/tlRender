@@ -92,24 +92,29 @@ namespace tl
             std::promise<io::Info> infoPromise;
 
             bool yuvToRGBConversion = false;
+            audio::Info audioConvertInfo;
+            size_t threadCount = ffmpeg::threadCount;
+            size_t requestTimeout = 5;
+            size_t videoBufferSize = 4;
+            otime::RationalTime audioBufferSize = otime::RationalTime(1.0, 1.0);
+
             struct VideoRequest
             {
                 otime::RationalTime time = time::invalidTime;
                 std::promise<io::VideoData> promise;
             };
             std::list<std::shared_ptr<VideoRequest> > videoRequests;
-            otime::RationalTime videoTime = time::invalidTime;
+            std::shared_ptr<VideoRequest> currentVideoRequest;
+            otime::RationalTime currentVideoTime = time::invalidTime;
 
-            audio::Info audioConvertInfo;
             struct AudioRequest
             {
                 otime::TimeRange time = time::invalidTimeRange;
                 std::promise<io::AudioData> promise;
             };
-            std::list< std::shared_ptr<AudioRequest> > audioRequests;
-            otime::RationalTime audioTime = time::invalidTime;
-
-            std::condition_variable requestCV;
+            std::list<std::shared_ptr<AudioRequest> > audioRequests;
+            std::shared_ptr<AudioRequest> currentAudioRequest;
+            otime::RationalTime currentAudioTime = time::invalidTime;
 
             struct Video
             {
@@ -144,18 +149,17 @@ namespace tl
             };
             Audio audio;
 
+            std::condition_variable cv;
             std::thread thread;
             std::mutex mutex;
             std::atomic<bool> running;
             bool stopped = false;
-            size_t threadCount = ffmpeg::threadCount;
 
             std::chrono::steady_clock::time_point logTimer;
 
             int decodeVideo();
             void copyVideo(const std::shared_ptr<imaging::Image>&);
 
-            size_t getAudioBufferSize() const;
             int decodeAudio();
         };
 
@@ -200,6 +204,24 @@ namespace tl
             {
                 std::stringstream ss(i->second);
                 ss >> p.threadCount;
+            }
+            i = options.find("ffmpeg/RequestTimeout");
+            if (i != options.end())
+            {
+                std::stringstream ss(i->second);
+                ss >> p.requestTimeout;
+            }
+            i = options.find("ffmpeg/VideoBufferSize");
+            if (i != options.end())
+            {
+                std::stringstream ss(i->second);
+                ss >> p.videoBufferSize;
+            }
+            i = options.find("ffmpeg/AudioBufferSize");
+            if (i != options.end())
+            {
+                std::stringstream ss(i->second);
+                ss >> p.audioBufferSize;
             }
 
             p.running = true;
@@ -253,7 +275,17 @@ namespace tl
                             std::unique_lock<std::mutex> lock(p.mutex);
                             p.stopped = true;
                             videoRequests = std::move(p.videoRequests);
+                            if (p.currentVideoRequest)
+                            {
+                                videoRequests.push_front(p.currentVideoRequest);
+                                p.currentAudioRequest.reset();
+                            }
                             audioRequests = std::move(p.audioRequests);
+                            if (p.currentAudioRequest)
+                            {
+                                audioRequests.push_front(p.currentAudioRequest);
+                                p.currentAudioRequest.reset();
+                            }
                         }
                         for (auto& request: videoRequests)
                         {
@@ -328,7 +360,7 @@ namespace tl
             }
             if (valid)
             {
-                p.requestCV.notify_one();
+                p.cv.notify_one();
             }
             else
             {
@@ -354,7 +386,7 @@ namespace tl
             }
             if (valid)
             {
-                p.requestCV.notify_one();
+                p.cv.notify_one();
             }
             else
             {
@@ -366,18 +398,28 @@ namespace tl
         void Read::cancelRequests()
         {
             TLRENDER_P();
-            std::list<std::shared_ptr<Private::VideoRequest> > videoRequestsCleanup;
-            std::list<std::shared_ptr<Private::AudioRequest> > audioRequestsCleanup;
+            std::list<std::shared_ptr<Private::VideoRequest> > videoRequests;
+            std::list<std::shared_ptr<Private::AudioRequest> > audioRequests;
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
-                videoRequestsCleanup = std::move(p.videoRequests);
-                audioRequestsCleanup = std::move(p.audioRequests);
+                videoRequests = std::move(p.videoRequests);
+                if (p.currentVideoRequest)
+                {
+                    videoRequests.push_front(p.currentVideoRequest);
+                    p.currentVideoRequest.reset();
+                }
+                audioRequests = std::move(p.audioRequests);
+                if (p.currentAudioRequest)
+                {
+                    audioRequests.push_front(p.currentAudioRequest);
+                    p.currentAudioRequest.reset();
+                }
             }
-            for (auto& request : videoRequestsCleanup)
+            for (auto& request : videoRequests)
             {
                 request->promise.set_value(io::VideoData());
             }
-            for (auto& request : audioRequestsCleanup)
+            for (auto& request : audioRequests)
             {
                 request->promise.set_value(io::AudioData());
             }
@@ -732,7 +774,7 @@ namespace tl
                     startTime,
                     otime::RationalTime(sequenceSize, speed));
 
-                p.videoTime = p.info.videoTime.start_time();
+                p.currentVideoTime = p.info.videoTime.start_time();
 
                 for (const auto& i : tags)
                 {
@@ -949,7 +991,7 @@ namespace tl
                         otime::ErrorStatus errorStatus;
                         const otime::RationalTime time = otime::RationalTime::from_timecode(
                             value,
-                            p.videoTime.rate(),
+                            p.currentVideoTime.rate(),
                             &errorStatus);
                         if (!otime::is_error(errorStatus))
                         {
@@ -966,7 +1008,7 @@ namespace tl
                     startTime,
                     otime::RationalTime(sampleCount, sampleRate));
 
-                p.audioTime = p.info.audioTime.start_time();
+                p.currentAudioTime = p.info.audioTime.start_time();
 
                 for (const auto& i : tags)
                 {
@@ -1104,57 +1146,77 @@ namespace tl
             p.logTimer = std::chrono::steady_clock::now();
             while (p.running)
             {
-                std::shared_ptr<Private::VideoRequest> videoRequest;
-                std::shared_ptr<Private::AudioRequest> audioRequest;
                 {
                     std::unique_lock<std::mutex> lock(p.mutex);
-                    if (p.requestCV.wait_for(
+                    if (p.cv.wait_for(
                         lock,
-                        requestTimeout,
+                        std::chrono::milliseconds(p.requestTimeout),
                         [this]
                         {
-                            return !_p->videoRequests.empty() || !_p->audioRequests.empty();
+                            return
+                                !_p->videoRequests.empty() ||
+                                _p->currentVideoRequest ||
+                                !_p->audioRequests.empty() ||
+                                _p->currentAudioRequest ||
+                                _p->video.buffer.size() < _p->videoBufferSize ||
+                                audio::getSampleCount(_p->audio.buffer) <
+                                    _p->audioBufferSize.rescaled_to(_p->info.audio.sampleRate).value();
                         }))
                     {
-                        if (!p.videoRequests.empty())
+                        if (!p.currentVideoRequest && !p.videoRequests.empty())
                         {
-                            videoRequest = p.videoRequests.front();
+                            p.currentVideoRequest = p.videoRequests.front();
                             p.videoRequests.pop_front();
                         }
-                        if (!p.audioRequests.empty())
+                        if (!p.currentAudioRequest && !p.audioRequests.empty())
                         {
-                            audioRequest = p.audioRequests.front();
+                            p.currentAudioRequest = p.audioRequests.front();
                             p.audioRequests.pop_front();
                         }
                     }
                 }
 
-                if (videoRequest)
                 {
-                    //std::cout << "video request: " << videoRequest->time << std::endl;
-                    if (!time::compareExact(videoRequest->time, p.videoTime))
+                    bool seek = false;
                     {
-                        //std::cout << "video seek: " << videoRequest->time << std::endl;
-                        p.videoTime = videoRequest->time;
+                        std::unique_lock<std::mutex> lock(p.mutex);
+                        if (p.currentVideoRequest)
+                        {
+                            if (!time::compareExact(p.currentVideoRequest->time, p.currentVideoTime))
+                            {
+                                seek = true;
+                                p.currentVideoTime = p.currentVideoRequest->time;
+                            }
+                        }
+                    }
+                    if (seek)
+                    {
+                        //std::cout << "video seek: " << p.currentVideoTime << std::endl;
+
                         if (p.video.avStream != -1)
                         {
                             avcodec_flush_buffers(p.video.avCodecContext[p.video.avStream]);
+
                             if (av_seek_frame(
                                 p.video.avFormatContext,
                                 p.video.avStream,
                                 av_rescale_q(
-                                    videoRequest->time.value() - p.info.videoTime.start_time().value(),
+                                    p.currentVideoTime.value() - p.info.videoTime.start_time().value(),
                                     swap(p.video.avFormatContext->streams[p.video.avStream]->r_frame_rate),
                                     p.video.avFormatContext->streams[p.video.avStream]->time_base),
                                 AVSEEK_FLAG_BACKWARD) < 0)
                             {
                                 //! \todo How should this be handled?
                             }
-
-                            p.video.buffer.clear();
                         }
-                    }
 
+                        p.video.buffer.clear();
+                    }
+                }
+
+                if (p.video.avStream != -1 &&
+                    p.video.buffer.size() < p.videoBufferSize)
+                {
                     AVPacket packet;
                     av_init_packet(&packet);
                     int decoding = 0;
@@ -1217,29 +1279,55 @@ namespace tl
                     {
                         av_packet_unref(&packet);
                     }
-
-                    io::VideoData data;
-                    data.time = videoRequest->time;
-                    if (!p.video.buffer.empty())
-                    {
-                        data.image = p.video.buffer.front();
-                        p.video.buffer.pop_front();
-                    }
-                    videoRequest->promise.set_value(data);
-
-                    p.videoTime += otime::RationalTime(1.0, p.info.videoTime.duration().rate());
+                    //std::cout << "video buffer size: " << p.video.buffer.size() << std::endl;
                 }
 
-                if (audioRequest)
                 {
-                    //std::cout << "audio request: " << audioRequest->time << std::endl;
-                    if (!time::compareExact(audioRequest->time.start_time(), p.audioTime))
+                    std::shared_ptr<Private::VideoRequest> videoRequest;
                     {
-                        //std::cout << "audio seek: " << audioRequest->time << std::endl;
-                        p.audioTime = audioRequest->time.start_time();
+                        std::unique_lock<std::mutex> lock(p.mutex);
+                        if ((p.currentVideoRequest && !p.video.buffer.empty()) ||
+                            (p.currentVideoRequest && -1 == p.video.avStream))
+                        {
+                            videoRequest = std::move(p.currentVideoRequest);
+                        }
+                    }
+                    if (videoRequest)
+                    {
+                        io::VideoData data;
+                        data.time = videoRequest->time;
+                        if (!p.video.buffer.empty())
+                        {
+                            data.image = p.video.buffer.front();
+                            p.video.buffer.pop_front();
+                        }
+                        videoRequest->promise.set_value(data);
+
+                        p.currentVideoTime += otime::RationalTime(1.0, p.info.videoTime.duration().rate());
+                    }
+                }
+
+                {
+                    bool seek = false;
+                    {
+                        std::unique_lock<std::mutex> lock(p.mutex);
+                        if (p.currentAudioRequest)
+                        {
+                            if (!time::compareExact(p.currentAudioRequest->time.start_time(), p.currentAudioTime))
+                            {
+                                seek = true;
+                                p.currentAudioTime = p.currentAudioRequest->time.start_time();
+                            }
+                        }
+                    }
+                    if (seek)
+                    {
+                        //std::cout << "audio seek: " << p.currentAudioTime << std::endl;
+
                         if (p.audio.avStream != -1)
                         {
                             avcodec_flush_buffers(p.audio.avCodecContext[p.audio.avStream]);
+
                             AVRational r;
                             r.num = 1;
                             r.den = p.info.audio.sampleRate;
@@ -1247,7 +1335,7 @@ namespace tl
                                 p.audio.avFormatContext,
                                 p.audio.avStream,
                                 av_rescale_q(
-                                    audioRequest->time.start_time().value() - p.info.audioTime.start_time().value(),
+                                    p.currentAudioTime.value() - p.info.audioTime.start_time().value(),
                                     r,
                                     p.audio.avFormatContext->streams[p.audio.avStream]->time_base),
                                 AVSEEK_FLAG_BACKWARD) < 0)
@@ -1257,8 +1345,8 @@ namespace tl
 
                             std::vector<uint8_t> swrOutputBuffer;
                             swrOutputBuffer.resize(
-                                static_cast<size_t>(p.info.audio.channelCount) *
-                                audio::getByteCount(p.info.audio.dataType) *
+                                static_cast<size_t>(p.info.audio.channelCount)*
+                                audio::getByteCount(p.info.audio.dataType)*
                                 p.audio.avFrame->nb_samples);
                             uint8_t* swrOutputBufferP[] = { swrOutputBuffer.data() };
                             while (swr_convert(
@@ -1269,17 +1357,21 @@ namespace tl
                                 0) > 0)
                                 ;
                             swr_init(p.audio.swrContext);
-
-                            p.audio.buffer.clear();
                         }
-                    }
 
+                        p.audio.buffer.clear();
+                    }
+                }
+
+                if (p.audio.avStream != -1 &&
+                    audio::getSampleCount(p.audio.buffer) <
+                        p.audioBufferSize.rescaled_to(p.info.audio.sampleRate).value())
+                {
                     AVPacket packet;
                     av_init_packet(&packet);
                     int decoding = 0;
                     bool eof = false;
-                    while (0 == decoding &&
-                        p.getAudioBufferSize() < audioRequest->time.clamped(p.info.audioTime).duration().value())
+                    while (0 == decoding)
                     {
                         if (!eof)
                         {
@@ -1316,6 +1408,16 @@ namespace tl
                             }
                             else if (AVERROR_EOF == decoding)
                             {
+                                const size_t bufferSize = audio::getSampleCount(p.audio.buffer);
+                                const size_t bufferSize2 = p.audioBufferSize.rescaled_to(p.info.audio.sampleRate).value();
+                                if (bufferSize < bufferSize2)
+                                {
+                                    auto audio = audio::Audio::create(
+                                        p.info.audio,
+                                        bufferSize2 - bufferSize);
+                                    audio->zero();
+                                    p.audio.buffer.push_back(audio);
+                                }
                                 break;
                             }
                             else if (decoding < 0)
@@ -1325,7 +1427,7 @@ namespace tl
                             }
                             else if (1 == decoding)
                             {
-                                decoding = 0;
+                                break;
                             }
                         }
                         if (packet.buf)
@@ -1337,20 +1439,37 @@ namespace tl
                     {
                         av_packet_unref(&packet);
                     }
+                    //std::cout << "audio buffer size: " << audio::getSampleCount(p.audio.buffer) << std::endl;
+                }
 
-                    io::AudioData data;
-                    data.time = audioRequest->time.start_time();
-                    data.audio = audio::Audio::create(p.info.audio, audioRequest->time.duration().value());
-                    data.audio->zero();
-                    size_t offset = 0;
-                    if (data.time < p.info.audioTime.start_time())
+                {
+                    const size_t bufferSize = audio::getSampleCount(p.audio.buffer);
+                    std::shared_ptr<Private::AudioRequest> audioRequest;
                     {
-                        offset = (p.info.audioTime.start_time() - data.time).value() * p.info.audio.getByteCount();
+                        std::unique_lock<std::mutex> lock(p.mutex);
+                        if ((p.currentAudioRequest &&
+                                p.currentAudioRequest->time.duration().rescaled_to(p.info.audio.sampleRate).value() <= bufferSize) ||
+                            (p.currentAudioRequest && -1 == p.audio.avStream))
+                        {
+                            audioRequest = std::move(p.currentAudioRequest);
+                        }
                     }
-                    audio::copy(p.audio.buffer, data.audio->getData() + offset, data.audio->getByteCount() - offset);
-                    audioRequest->promise.set_value(data);
+                    if (audioRequest)
+                    {
+                        io::AudioData data;
+                        data.time = audioRequest->time.start_time();
+                        data.audio = audio::Audio::create(p.info.audio, audioRequest->time.duration().value());
+                        data.audio->zero();
+                        size_t offset = 0;
+                        if (data.time < p.info.audioTime.start_time())
+                        {
+                            offset = (p.info.audioTime.start_time() - data.time).value() * p.info.audio.getByteCount();
+                        }
+                        audio::copy(p.audio.buffer, data.audio->getData() + offset, data.audio->getByteCount() - offset);
+                        audioRequest->promise.set_value(data);
 
-                    p.audioTime += audioRequest->time.duration();
+                        p.currentAudioTime += audioRequest->time.duration();
+                    }
                 }
 
                 // Logging.
@@ -1477,7 +1596,7 @@ namespace tl
                     info.videoTime.duration().rate());
                 //std::cout << "video time: " << time << std::endl;
 
-                if (time >= videoTime)
+                if (time >= currentVideoTime)
                 {
                     //std::cout << "video time: " << time << std::endl;
                     auto image = imaging::Image::create(info.video[0]);
@@ -1591,16 +1710,6 @@ namespace tl
             }
         }
 
-        size_t Read::Private::getAudioBufferSize() const
-        {
-            size_t out = 0;
-            for (const auto& i : audio.buffer)
-            {
-                out += i->getSampleCount();
-            }
-            return out;
-        }
-
         int Read::Private::decodeAudio()
         {
             int out = 0;
@@ -1626,7 +1735,7 @@ namespace tl
                     info.audio.sampleRate);
                 //std::cout << "audio time: " << time << std::endl;
 
-                if (time >= audioTime)
+                if (time >= currentAudioTime)
                 {
                     //std::cout << "audio time: " << time << std::endl;
                     const int64_t swrDelay = swr_get_delay(audio.swrContext, audio.avCodecParameters[audio.avStream]->sample_rate);
