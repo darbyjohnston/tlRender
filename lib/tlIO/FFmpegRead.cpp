@@ -178,8 +178,8 @@ namespace tl
                         p.stopped = true;
                     }
                     cancelRequests();
-                    p.readAudio.reset();
                     p.readVideo.reset();
+                    p.readAudio.reset();
                 });
         }
 
