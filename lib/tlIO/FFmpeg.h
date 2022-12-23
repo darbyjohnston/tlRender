@@ -91,7 +91,10 @@ namespace tl
             void cancelRequests() override;
 
         private:
-            void _run();
+            void _videoThread();
+            void _audioThread();
+            void _cancelVideoRequests();
+            void _cancelAudioRequests();
 
             TLRENDER_PRIVATE();
         };

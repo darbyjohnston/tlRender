@@ -155,26 +155,42 @@ namespace tl
                 otime::RationalTime time = time::invalidTime;
                 std::promise<io::VideoData> promise;
             };
-            std::list<std::shared_ptr<VideoRequest> > videoRequests;
-            std::shared_ptr<VideoRequest> currentVideoRequest;
-            otime::RationalTime currentVideoTime = time::invalidTime;
+            struct VideoThread
+            {
+                std::list<std::shared_ptr<VideoRequest> > requests;
+                std::shared_ptr<VideoRequest> currentRequest;
+
+                otime::RationalTime currentTime = time::invalidTime;
+                std::chrono::steady_clock::time_point logTimer;
+
+                std::condition_variable cv;
+                std::thread thread;
+                std::mutex mutex;
+                std::atomic<bool> running;
+                bool stopped = false;
+            };
+            VideoThread videoThread;
 
             struct AudioRequest
             {
                 otime::TimeRange time = time::invalidTimeRange;
                 std::promise<io::AudioData> promise;
             };
-            std::list<std::shared_ptr<AudioRequest> > audioRequests;
-            std::shared_ptr<AudioRequest> currentAudioRequest;
-            otime::RationalTime currentAudioTime = time::invalidTime;
+            struct AudioThread
+            {
+                std::list<std::shared_ptr<AudioRequest> > requests;
+                std::shared_ptr<AudioRequest> currentRequest;
 
-            std::condition_variable cv;
-            std::thread thread;
-            std::mutex mutex;
-            std::atomic<bool> running;
-            bool stopped = false;
+                otime::RationalTime currentTime = time::invalidTime;
+                std::chrono::steady_clock::time_point logTimer;
 
-            std::chrono::steady_clock::time_point logTimer;
+                std::condition_variable cv;
+                std::thread thread;
+                std::mutex mutex;
+                std::atomic<bool> running;
+                bool stopped = false;
+            };
+            AudioThread audioThread;
         };
     }
 }
