@@ -350,7 +350,7 @@ namespace tl
                     }
                 }
 
-                // Video.
+                // Seek.
                 {
                     bool seek = false;
                     {
@@ -369,7 +369,30 @@ namespace tl
                         p.readVideo->seek(p.currentVideoTime);
                     }
                 }
+                {
+                    bool seek = false;
+                    {
+                        std::unique_lock<std::mutex> lock(p.mutex);
+                        if (p.currentAudioRequest)
+                        {
+                            if (!time::compareExact(p.currentAudioRequest->time.start_time(), p.currentAudioTime))
+                            {
+                                seek = true;
+                                p.currentAudioTime = p.currentAudioRequest->time.start_time();
+                            }
+                        }
+                    }
+                    if (seek)
+                    {
+                        p.readAudio->seek(p.currentAudioTime);
+                    }
+                }
+
+                // Process.
                 _p->readVideo->process(p.currentVideoTime);
+                _p->readAudio->process(p.currentAudioTime);
+
+                // Handle requests.
                 {
                     std::shared_ptr<Private::VideoRequest> request;
                     {
@@ -393,53 +416,34 @@ namespace tl
                         p.currentVideoTime += otime::RationalTime(1.0, p.info.videoTime.duration().rate());
                     }
                 }
-
-                // Audio.
                 {
-                    bool seek = false;
+                    const size_t bufferSize = p.readAudio->getBufferSize();
+                    std::shared_ptr<Private::AudioRequest> request;
                     {
                         std::unique_lock<std::mutex> lock(p.mutex);
-                        if (p.currentAudioRequest)
+                        if ((p.currentAudioRequest &&
+                            p.currentAudioRequest->time.duration().rescaled_to(p.info.audio.sampleRate).value() <= bufferSize) ||
+                            (p.currentAudioRequest && !p.readAudio->isValid()))
                         {
-                            if (!time::compareExact(p.currentAudioRequest->time.start_time(), p.currentAudioTime))
-                            {
-                                seek = true;
-                                p.currentAudioTime = p.currentAudioRequest->time.start_time();
-                            }
+                            request = std::move(p.currentAudioRequest);
                         }
                     }
-                    if (seek)
+                    if (request)
                     {
-                        p.readAudio->seek(p.currentAudioTime);
-                    }
-                }
-                _p->readAudio->process(p.currentAudioTime);
-                const size_t bufferSize = p.readAudio->getBufferSize();
-                std::shared_ptr<Private::AudioRequest> request;
-                {
-                    std::unique_lock<std::mutex> lock(p.mutex);
-                    if ((p.currentAudioRequest &&
-                        p.currentAudioRequest->time.duration().rescaled_to(p.info.audio.sampleRate).value() <= bufferSize) ||
-                        (p.currentAudioRequest && !p.readAudio->isValid()))
-                    {
-                        request = std::move(p.currentAudioRequest);
-                    }
-                }
-                if (request)
-                {
-                    io::AudioData data;
-                    data.time = request->time.start_time();
-                    data.audio = audio::Audio::create(p.info.audio, request->time.duration().value());
-                    data.audio->zero();
-                    size_t offset = 0;
-                    if (data.time < p.info.audioTime.start_time())
-                    {
-                        offset = (p.info.audioTime.start_time() - data.time).value() * p.info.audio.getByteCount();
-                    }
-                    p.readAudio->bufferCopy(data.audio->getData() + offset, data.audio->getByteCount() - offset);
-                    request->promise.set_value(data);
+                        io::AudioData data;
+                        data.time = request->time.start_time();
+                        data.audio = audio::Audio::create(p.info.audio, request->time.duration().value());
+                        data.audio->zero();
+                        size_t offset = 0;
+                        if (data.time < p.info.audioTime.start_time())
+                        {
+                            offset = (p.info.audioTime.start_time() - data.time).value() * p.info.audio.getByteCount();
+                        }
+                        p.readAudio->bufferCopy(data.audio->getData() + offset, data.audio->getByteCount() - offset);
+                        request->promise.set_value(data);
 
-                    p.currentAudioTime += request->time.duration();
+                        p.currentAudioTime += request->time.duration();
+                    }
                 }
 
                 // Logging.
