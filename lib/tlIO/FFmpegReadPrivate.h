@@ -159,13 +159,13 @@ namespace tl
             {
                 std::list<std::shared_ptr<VideoRequest> > requests;
                 std::shared_ptr<VideoRequest> currentRequest;
+                std::mutex mutex;
 
                 otime::RationalTime currentTime = time::invalidTime;
                 std::chrono::steady_clock::time_point logTimer;
 
                 std::condition_variable cv;
                 std::thread thread;
-                std::mutex mutex;
                 std::atomic<bool> running;
                 bool stopped = false;
             };
@@ -180,13 +180,13 @@ namespace tl
             {
                 std::list<std::shared_ptr<AudioRequest> > requests;
                 std::shared_ptr<AudioRequest> currentRequest;
+                std::mutex mutex;
 
                 otime::RationalTime currentTime = time::invalidTime;
                 std::chrono::steady_clock::time_point logTimer;
 
                 std::condition_variable cv;
                 std::thread thread;
-                std::mutex mutex;
                 std::atomic<bool> running;
                 bool stopped = false;
             };
