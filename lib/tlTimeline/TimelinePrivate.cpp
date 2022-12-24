@@ -174,18 +174,18 @@ namespace tl
 
             // Logging.
             const auto now = std::chrono::steady_clock::now();
-            const std::chrono::duration<float> diff = now - logTimer;
+            const std::chrono::duration<float> diff = now - thread.logTimer;
             if (diff.count() > 10.F)
             {
-                logTimer = now;
+                thread.logTimer = now;
                 if (auto context = this->context.lock())
                 {
                     size_t videoRequestsSize = 0;
                     size_t audioRequestsSize = 0;
                     {
-                        std::unique_lock<std::mutex> lock(mutex);
-                        videoRequestsSize = videoRequests.size();
-                        audioRequestsSize = audioRequests.size();
+                        std::unique_lock<std::mutex> lock(mutex.mutex);
+                        videoRequestsSize = mutex.videoRequests.size();
+                        audioRequestsSize = mutex.audioRequests.size();
                     }
                     auto logSystem = context->getLogSystem();
                     logSystem->print(
@@ -198,10 +198,10 @@ namespace tl
                         "    Read cache: {7}").
                         arg(path.get()).
                         arg(videoRequestsSize).
-                        arg(videoRequestsInProgress.size()).
+                        arg(thread.videoRequestsInProgress.size()).
                         arg(options.videoRequestCount).
                         arg(audioRequestsSize).
-                        arg(audioRequestsInProgress.size()).
+                        arg(thread.audioRequestsInProgress.size()).
                         arg(options.audioRequestCount).
                         arg(readCache->getCount()));
                 }
@@ -217,28 +217,28 @@ namespace tl
             std::list<std::shared_ptr<VideoRequest> > newVideoRequests;
             std::list<std::shared_ptr<AudioRequest> > newAudioRequests;
             {
-                std::unique_lock<std::mutex> lock(mutex);
-                requestCV.wait_for(
+                std::unique_lock<std::mutex> lock(mutex.mutex);
+                thread.cv.wait_for(
                     lock,
                     options.requestTimeout,
                     [this]
                     {
-                        return !videoRequests.empty() ||
-                            !videoRequestsInProgress.empty() ||
-                            !audioRequests.empty() ||
-                            !audioRequestsInProgress.empty();
+                        return !mutex.videoRequests.empty() ||
+                            !thread.videoRequestsInProgress.empty() ||
+                            !mutex.audioRequests.empty() ||
+                            !thread.audioRequestsInProgress.empty();
                     });
-                while (!videoRequests.empty() &&
-                    (videoRequestsInProgress.size() + newVideoRequests.size()) < options.videoRequestCount)
+                while (!mutex.videoRequests.empty() &&
+                    (thread.videoRequestsInProgress.size() + newVideoRequests.size()) < options.videoRequestCount)
                 {
-                    newVideoRequests.push_back(videoRequests.front());
-                    videoRequests.pop_front();
+                    newVideoRequests.push_back(mutex.videoRequests.front());
+                    mutex.videoRequests.pop_front();
                 }
-                while (!audioRequests.empty() &&
-                    (audioRequestsInProgress.size() + newAudioRequests.size()) < options.audioRequestCount)
+                while (!mutex.audioRequests.empty() &&
+                    (thread.audioRequestsInProgress.size() + newAudioRequests.size()) < options.audioRequestCount)
                 {
-                    newAudioRequests.push_back(audioRequests.front());
-                    audioRequests.pop_front();
+                    newAudioRequests.push_back(mutex.audioRequests.front());
+                    mutex.audioRequests.pop_front();
                 }
             }
 
@@ -308,7 +308,7 @@ namespace tl
                     //! \todo How should this be handled?
                 }
 
-                videoRequestsInProgress.push_back(request);
+                thread.videoRequestsInProgress.push_back(request);
             }
 
             // Traverse the timeline for new audio requests.
@@ -349,12 +349,12 @@ namespace tl
                     //! \todo How should this be handled?
                 }
 
-                audioRequestsInProgress.push_back(request);
+                thread.audioRequestsInProgress.push_back(request);
             }
 
             // Check for finished video requests.
-            auto videoRequestIt = videoRequestsInProgress.begin();
-            while (videoRequestIt != videoRequestsInProgress.end())
+            auto videoRequestIt = thread.videoRequestsInProgress.begin();
+            while (videoRequestIt != thread.videoRequestsInProgress.end())
             {
                 bool valid = true;
                 for (auto& i : (*videoRequestIt)->layerData)
@@ -395,15 +395,15 @@ namespace tl
                         //! \todo How should this be handled?
                     }
                     (*videoRequestIt)->promise.set_value(data);
-                    videoRequestIt = videoRequestsInProgress.erase(videoRequestIt);
+                    videoRequestIt = thread.videoRequestsInProgress.erase(videoRequestIt);
                     continue;
                 }
                 ++videoRequestIt;
             }
 
             // Check for finished audio requests.
-            auto audioRequestIt = audioRequestsInProgress.begin();
-            while (audioRequestIt != audioRequestsInProgress.end())
+            auto audioRequestIt = thread.audioRequestsInProgress.begin();
+            while (audioRequestIt != thread.audioRequestsInProgress.end())
             {
                 bool valid = true;
                 for (auto& i : (*audioRequestIt)->layerData)
@@ -438,7 +438,7 @@ namespace tl
                         //! \todo How should this be handled?
                     }
                     (*audioRequestIt)->promise.set_value(data);
-                    audioRequestIt = audioRequestsInProgress.erase(audioRequestIt);
+                    audioRequestIt = thread.audioRequestsInProgress.erase(audioRequestIt);
                     continue;
                 }
                 ++audioRequestIt;

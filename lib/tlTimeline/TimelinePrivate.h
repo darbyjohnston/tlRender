@@ -73,8 +73,6 @@ namespace tl
 
                 std::vector<VideoLayerData> layerData;
             };
-            std::list<std::shared_ptr<VideoRequest> > videoRequests;
-            std::list<std::shared_ptr<VideoRequest> > videoRequestsInProgress;
 
             struct AudioLayerData
             {
@@ -95,17 +93,25 @@ namespace tl
 
                 std::vector<AudioLayerData> layerData;
             };
-            std::list<std::shared_ptr<AudioRequest> > audioRequests;
-            std::list<std::shared_ptr<AudioRequest> > audioRequestsInProgress;
 
-            std::condition_variable requestCV;
-
-            std::thread thread;
-            std::mutex mutex;
-            bool stopped = false;
-            std::atomic<bool> running;
-
-            std::chrono::steady_clock::time_point logTimer;
+            struct Mutex
+            {
+                std::list<std::shared_ptr<VideoRequest> > videoRequests;
+                std::list<std::shared_ptr<AudioRequest> > audioRequests;
+                bool stopped = false;
+                std::mutex mutex;
+            };
+            Mutex mutex;
+            struct Thread
+            {
+                std::list<std::shared_ptr<VideoRequest> > videoRequestsInProgress;
+                std::list<std::shared_ptr<AudioRequest> > audioRequestsInProgress;
+                std::condition_variable cv;
+                std::thread thread;
+                std::atomic<bool> running;
+                std::chrono::steady_clock::time_point logTimer;
+            };
+            Thread thread;
         };
     }
 }

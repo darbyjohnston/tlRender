@@ -213,15 +213,15 @@ namespace tl
                 arg(p.ioInfo.audio.sampleRate));
 
             // Create a new thread.
-            p.running = true;
-            p.thread = std::thread(
+            p.thread.running = true;
+            p.thread.thread = std::thread(
                 [this]
                 {
                     TLRENDER_P();
 
-                    p.logTimer = std::chrono::steady_clock::now();
+                    p.thread.logTimer = std::chrono::steady_clock::now();
 
-                    while (p.running)
+                    while (p.thread.running)
                     {
                         p.tick();
                     }
@@ -230,28 +230,28 @@ namespace tl
                         std::list<std::shared_ptr<Private::VideoRequest> > videoRequestsCleanup;
                         std::list<std::shared_ptr<Private::AudioRequest> > audioRequestsCleanup;
                         {
-                            std::unique_lock<std::mutex> lock(p.mutex);
-                            p.stopped = true;
-                            while (!p.videoRequests.empty())
+                            std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                            p.mutex.stopped = true;
+                            while (!p.mutex.videoRequests.empty())
                             {
-                                videoRequestsCleanup.push_back(p.videoRequests.front());
-                                p.videoRequests.pop_front();
+                                videoRequestsCleanup.push_back(p.mutex.videoRequests.front());
+                                p.mutex.videoRequests.pop_front();
                             }
-                            while (!p.audioRequests.empty())
+                            while (!p.mutex.audioRequests.empty())
                             {
-                                audioRequestsCleanup.push_back(p.audioRequests.front());
-                                p.audioRequests.pop_front();
+                                audioRequestsCleanup.push_back(p.mutex.audioRequests.front());
+                                p.mutex.audioRequests.pop_front();
                             }
                         }
-                        while (!p.videoRequestsInProgress.empty())
+                        while (!p.thread.videoRequestsInProgress.empty())
                         {
-                            videoRequestsCleanup.push_back(p.videoRequestsInProgress.front());
-                            p.videoRequestsInProgress.pop_front();
+                            videoRequestsCleanup.push_back(p.thread.videoRequestsInProgress.front());
+                            p.thread.videoRequestsInProgress.pop_front();
                         }
-                        while (!p.audioRequestsInProgress.empty())
+                        while (!p.thread.audioRequestsInProgress.empty())
                         {
-                            audioRequestsCleanup.push_back(p.audioRequestsInProgress.front());
-                            p.audioRequestsInProgress.pop_front();
+                            audioRequestsCleanup.push_back(p.thread.audioRequestsInProgress.front());
+                            p.thread.audioRequestsInProgress.pop_front();
                         }
                         for (auto& request : videoRequestsCleanup)
                         {
@@ -300,10 +300,10 @@ namespace tl
         Timeline::~Timeline()
         {
             TLRENDER_P();
-            p.running = false;
-            if (p.thread.joinable())
+            p.thread.running = false;
+            if (p.thread.thread.joinable())
             {
-                p.thread.join();
+                p.thread.thread.join();
             }
         }
 
@@ -351,16 +351,16 @@ namespace tl
             auto future = request->promise.get_future();
             bool valid = false;
             {
-                std::unique_lock<std::mutex> lock(p.mutex);
-                if (!p.stopped)
+                std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                if (!p.mutex.stopped)
                 {
                     valid = true;
-                    p.videoRequests.push_back(request);
+                    p.mutex.videoRequests.push_back(request);
                 }
             }
             if (valid)
             {
-                p.requestCV.notify_one();
+                p.thread.cv.notify_one();
             }
             else
             {
@@ -377,16 +377,16 @@ namespace tl
             auto future = request->promise.get_future();
             bool valid = false;
             {
-                std::unique_lock<std::mutex> lock(p.mutex);
-                if (!p.stopped)
+                std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                if (!p.mutex.stopped)
                 {
                     valid = true;
-                    p.audioRequests.push_back(request);
+                    p.mutex.audioRequests.push_back(request);
                 }
             }
             if (valid)
             {
-                p.requestCV.notify_one();
+                p.thread.cv.notify_one();
             }
             else
             {
@@ -401,9 +401,9 @@ namespace tl
             std::list<std::shared_ptr<Private::VideoRequest> > videoRequestsCleanup;
             std::list<std::shared_ptr<Private::AudioRequest> > audioRequestsCleanup;
             {
-                std::unique_lock<std::mutex> lock(p.mutex);
-                videoRequestsCleanup = std::move(p.videoRequests);
-                audioRequestsCleanup = std::move(p.audioRequests);
+                std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                videoRequestsCleanup = std::move(p.mutex.videoRequests);
+                audioRequestsCleanup = std::move(p.mutex.audioRequests);
             }
             for (auto& request : videoRequestsCleanup)
             {
