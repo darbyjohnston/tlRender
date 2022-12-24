@@ -81,7 +81,7 @@ namespace tl
             };
             ExternalTime externalTime;
 
-            struct MutexData
+            struct Mutex
             {
                 Playback playback = Playback::Stop;
                 otime::RationalTime playbackStartTime = time::invalidTime;
@@ -98,11 +98,11 @@ namespace tl
                 CacheDirection cacheDirection = CacheDirection::Forward;
                 PlayerCacheOptions cacheOptions;
                 PlayerCacheInfo cacheInfo;
+                std::mutex mutex;
             };
-            MutexData mutexData;
-            std::mutex mutex;
+            Mutex mutex;
 
-            struct AudioMutexData
+            struct AudioMutex
             {
                 double speed = 0.0;
                 float volume = 1.F;
@@ -110,11 +110,11 @@ namespace tl
                 std::chrono::steady_clock::time_point muteTimeout;
                 std::map<int64_t, AudioData> audioDataCache;
                 size_t rtAudioCurrentFrame = 0;
+                std::mutex mutex;
             };
-            AudioMutexData audioMutexData;
-            std::mutex audioMutex;
+            AudioMutex audioMutex;
 
-            struct ThreadData
+            struct Thread
             {
                 std::map<otime::RationalTime, std::future<VideoData> > videoDataRequests;
                 std::map<otime::RationalTime, VideoData> videoDataCache;
@@ -123,17 +123,17 @@ namespace tl
 #endif // TLRENDER_AUDIO
                 std::map<int64_t, std::future<AudioData> > audioDataRequests;
                 std::atomic<bool> running;
+                std::thread thread;
             };
-            ThreadData threadData;
-            std::thread thread;
+            Thread thread;
 
-            struct AudioThreadData
+            struct AudioThread
             {
                 audio::Info info;
                 std::shared_ptr<audio::AudioConvert> convert;
                 std::list<std::shared_ptr<audio::Audio> > buffer;
             };
-            AudioThreadData audioThreadData;
+            AudioThread audioThread;
 
             std::chrono::steady_clock::time_point logTimer;
         };
