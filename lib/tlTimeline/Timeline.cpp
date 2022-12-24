@@ -227,33 +227,25 @@ namespace tl
                     }
 
                     {
-                        std::list<std::shared_ptr<Private::VideoRequest> > videoRequestsCleanup;
-                        std::list<std::shared_ptr<Private::AudioRequest> > audioRequestsCleanup;
+                        std::list<std::shared_ptr<Private::VideoRequest> > videoRequests;
+                        std::list<std::shared_ptr<Private::AudioRequest> > audioRequests;
                         {
                             std::unique_lock<std::mutex> lock(p.mutex.mutex);
                             p.mutex.stopped = true;
-                            while (!p.mutex.videoRequests.empty())
-                            {
-                                videoRequestsCleanup.push_back(p.mutex.videoRequests.front());
-                                p.mutex.videoRequests.pop_front();
-                            }
-                            while (!p.mutex.audioRequests.empty())
-                            {
-                                audioRequestsCleanup.push_back(p.mutex.audioRequests.front());
-                                p.mutex.audioRequests.pop_front();
-                            }
+                            videoRequests = std::move(p.mutex.videoRequests);
+                            audioRequests = std::move(p.mutex.audioRequests);
                         }
-                        while (!p.thread.videoRequestsInProgress.empty())
-                        {
-                            videoRequestsCleanup.push_back(p.thread.videoRequestsInProgress.front());
-                            p.thread.videoRequestsInProgress.pop_front();
-                        }
-                        while (!p.thread.audioRequestsInProgress.empty())
-                        {
-                            audioRequestsCleanup.push_back(p.thread.audioRequestsInProgress.front());
-                            p.thread.audioRequestsInProgress.pop_front();
-                        }
-                        for (auto& request : videoRequestsCleanup)
+                        videoRequests.insert(
+                            videoRequests.begin(),
+                            p.thread.videoRequestsInProgress.begin(),
+                            p.thread.videoRequestsInProgress.end());
+                        p.thread.videoRequestsInProgress.clear();
+                        audioRequests.insert(
+                            audioRequests.begin(),
+                            p.thread.audioRequestsInProgress.begin(),
+                            p.thread.audioRequestsInProgress.end());
+                        p.thread.audioRequestsInProgress.clear();
+                        for (auto& request : videoRequests)
                         {
                             VideoData data;
                             data.time = request->time;
@@ -274,7 +266,7 @@ namespace tl
                             }
                             request->promise.set_value(data);
                         }
-                        for (auto& request : audioRequestsCleanup)
+                        for (auto& request : audioRequests)
                         {
                             AudioData data;
                             data.seconds = request->seconds;
