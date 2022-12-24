@@ -155,19 +155,21 @@ namespace tl
                 otime::RationalTime time = time::invalidTime;
                 std::promise<io::VideoData> promise;
             };
-            struct VideoThread
+            struct VideoMutex
             {
                 std::list<std::shared_ptr<VideoRequest> > requests;
                 std::shared_ptr<VideoRequest> currentRequest;
+                bool stopped = false;
                 std::mutex mutex;
-
+            };
+            VideoMutex videoMutex;
+            struct VideoThread
+            {
                 otime::RationalTime currentTime = time::invalidTime;
                 std::chrono::steady_clock::time_point logTimer;
-
                 std::condition_variable cv;
                 std::thread thread;
                 std::atomic<bool> running;
-                bool stopped = false;
             };
             VideoThread videoThread;
 
@@ -176,19 +178,21 @@ namespace tl
                 otime::TimeRange time = time::invalidTimeRange;
                 std::promise<io::AudioData> promise;
             };
-            struct AudioThread
+            struct AudioMutex
             {
                 std::list<std::shared_ptr<AudioRequest> > requests;
                 std::shared_ptr<AudioRequest> currentRequest;
+                bool stopped = false;
                 std::mutex mutex;
-
+            };
+            AudioMutex audioMutex;
+            struct AudioThread
+            {
                 otime::RationalTime currentTime = time::invalidTime;
                 std::chrono::steady_clock::time_point logTimer;
-
                 std::condition_variable cv;
                 std::thread thread;
                 std::atomic<bool> running;
-                bool stopped = false;
             };
             AudioThread audioThread;
         };

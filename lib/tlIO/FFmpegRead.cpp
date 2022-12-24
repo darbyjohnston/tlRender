@@ -163,8 +163,8 @@ namespace tl
                                     }
                                 }
                                 {
-                                    std::unique_lock<std::mutex> lock(p.audioThread.mutex);
-                                    p.audioThread.stopped = true;
+                                    std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
+                                    p.audioMutex.stopped = true;
                                 }
                                 _cancelAudioRequests();
                             });
@@ -187,8 +187,8 @@ namespace tl
                             }
                         }
                         {
-                            std::unique_lock<std::mutex> lock(p.videoThread.mutex);
-                            p.videoThread.stopped = true;
+                            std::unique_lock<std::mutex> lock(p.videoMutex.mutex);
+                            p.videoMutex.stopped = true;
                         }
                         _cancelVideoRequests();
                     }
@@ -264,11 +264,11 @@ namespace tl
             auto future = request->promise.get_future();
             bool valid = false;
             {
-                std::unique_lock<std::mutex> lock(p.videoThread.mutex);
-                if (!p.videoThread.stopped)
+                std::unique_lock<std::mutex> lock(p.videoMutex.mutex);
+                if (!p.videoMutex.stopped)
                 {
                     valid = true;
-                    p.videoThread.requests.push_back(request);
+                    p.videoMutex.requests.push_back(request);
                 }
             }
             if (valid)
@@ -290,11 +290,11 @@ namespace tl
             auto future = request->promise.get_future();
             bool valid = false;
             {
-                std::unique_lock<std::mutex> lock(p.audioThread.mutex);
-                if (!p.audioThread.stopped)
+                std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
+                if (!p.audioMutex.stopped)
                 {
                     valid = true;
-                    p.audioThread.requests.push_back(request);
+                    p.audioMutex.requests.push_back(request);
                 }
             }
             if (valid)
@@ -324,22 +324,22 @@ namespace tl
             {
                 // Check requests.
                 {
-                    std::unique_lock<std::mutex> lock(p.videoThread.mutex);
+                    std::unique_lock<std::mutex> lock(p.videoMutex.mutex);
                     if (p.videoThread.cv.wait_for(
                         lock,
                         std::chrono::milliseconds(p.options.requestTimeout),
                         [this]
                         {
                             return
-                                !_p->videoThread.requests.empty() ||
-                                _p->videoThread.currentRequest ||
+                                !_p->videoMutex.requests.empty() ||
+                                _p->videoMutex.currentRequest ||
                                 !_p->readVideo->isBufferFull();
                         }))
                     {
-                        if (!p.videoThread.currentRequest && !p.videoThread.requests.empty())
+                        if (!p.videoMutex.currentRequest && !p.videoMutex.requests.empty())
                         {
-                            p.videoThread.currentRequest = p.videoThread.requests.front();
-                            p.videoThread.requests.pop_front();
+                            p.videoMutex.currentRequest = p.videoMutex.requests.front();
+                            p.videoMutex.requests.pop_front();
                         }
                     }
                 }
@@ -348,13 +348,13 @@ namespace tl
                 {
                     bool seek = false;
                     {
-                        std::unique_lock<std::mutex> lock(p.videoThread.mutex);
-                        if (p.videoThread.currentRequest)
+                        std::unique_lock<std::mutex> lock(p.videoMutex.mutex);
+                        if (p.videoMutex.currentRequest)
                         {
-                            if (!time::compareExact(p.videoThread.currentRequest->time, p.videoThread.currentTime))
+                            if (!time::compareExact(p.videoMutex.currentRequest->time, p.videoThread.currentTime))
                             {
                                 seek = true;
-                                p.videoThread.currentTime = p.videoThread.currentRequest->time;
+                                p.videoThread.currentTime = p.videoMutex.currentRequest->time;
                             }
                         }
                     }
@@ -371,11 +371,11 @@ namespace tl
                 {
                     std::shared_ptr<Private::VideoRequest> request;
                     {
-                        std::unique_lock<std::mutex> lock(p.videoThread.mutex);
-                        if ((p.videoThread.currentRequest && !p.readVideo->isBufferEmpty()) ||
-                            (p.videoThread.currentRequest && !p.readVideo->isValid()))
+                        std::unique_lock<std::mutex> lock(p.videoMutex.mutex);
+                        if ((p.videoMutex.currentRequest && !p.readVideo->isBufferEmpty()) ||
+                            (p.videoMutex.currentRequest && !p.readVideo->isValid()))
                         {
-                            request = std::move(p.videoThread.currentRequest);
+                            request = std::move(p.videoMutex.currentRequest);
                         }
                     }
                     if (request)
@@ -403,8 +403,8 @@ namespace tl
                         const std::string id = string::Format("tl::io::ffmpeg::Read {0}").arg(this);
                         size_t requestsSize = 0;
                         {
-                            std::unique_lock<std::mutex> lock(p.videoThread.mutex);
-                            requestsSize = p.videoThread.requests.size();
+                            std::unique_lock<std::mutex> lock(p.videoMutex.mutex);
+                            requestsSize = p.videoMutex.requests.size();
                         }
                         logSystem->print(id, string::Format(
                             "\n"
@@ -427,22 +427,22 @@ namespace tl
             {
                 // Check requests.
                 {
-                    std::unique_lock<std::mutex> lock(p.audioThread.mutex);
+                    std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
                     if (p.audioThread.cv.wait_for(
                         lock,
                         std::chrono::milliseconds(p.options.requestTimeout),
                         [this]
                         {
                             return
-                                !_p->audioThread.requests.empty() ||
-                                _p->audioThread.currentRequest ||
+                                !_p->audioMutex.requests.empty() ||
+                                _p->audioMutex.currentRequest ||
                                 !_p->readAudio->isBufferFull();
                         }))
                     {
-                        if (!p.audioThread.currentRequest && !p.audioThread.requests.empty())
+                        if (!p.audioMutex.currentRequest && !p.audioMutex.requests.empty())
                         {
-                            p.audioThread.currentRequest = p.audioThread.requests.front();
-                            p.audioThread.requests.pop_front();
+                            p.audioMutex.currentRequest = p.audioMutex.requests.front();
+                            p.audioMutex.requests.pop_front();
                         }
                     }
                 }
@@ -451,13 +451,13 @@ namespace tl
                 {
                     bool seek = false;
                     {
-                        std::unique_lock<std::mutex> lock(p.audioThread.mutex);
-                        if (p.audioThread.currentRequest)
+                        std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
+                        if (p.audioMutex.currentRequest)
                         {
-                            if (!time::compareExact(p.audioThread.currentRequest->time.start_time(), p.audioThread.currentTime))
+                            if (!time::compareExact(p.audioMutex.currentRequest->time.start_time(), p.audioThread.currentTime))
                             {
                                 seek = true;
-                                p.audioThread.currentTime = p.audioThread.currentRequest->time.start_time();
+                                p.audioThread.currentTime = p.audioMutex.currentRequest->time.start_time();
                             }
                         }
                     }
@@ -475,12 +475,12 @@ namespace tl
                     const size_t bufferSize = p.readAudio->getBufferSize();
                     std::shared_ptr<Private::AudioRequest> request;
                     {
-                        std::unique_lock<std::mutex> lock(p.audioThread.mutex);
-                        if ((p.audioThread.currentRequest &&
-                            p.audioThread.currentRequest->time.duration().rescaled_to(p.info.audio.sampleRate).value() <= bufferSize) ||
-                            (p.audioThread.currentRequest && !p.readAudio->isValid()))
+                        std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
+                        if ((p.audioMutex.currentRequest &&
+                            p.audioMutex.currentRequest->time.duration().rescaled_to(p.info.audio.sampleRate).value() <= bufferSize) ||
+                            (p.audioMutex.currentRequest && !p.readAudio->isValid()))
                         {
-                            request = std::move(p.audioThread.currentRequest);
+                            request = std::move(p.audioMutex.currentRequest);
                         }
                     }
                     if (request)
@@ -512,8 +512,8 @@ namespace tl
                         const std::string id = string::Format("tl::io::ffmpeg::Read {0}").arg(this);
                         size_t requestsSize = 0;
                         {
-                            std::unique_lock<std::mutex> lock(p.audioThread.mutex);
-                            requestsSize = p.audioThread.requests.size();
+                            std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
+                            requestsSize = p.audioMutex.requests.size();
                         }
                         logSystem->print(id, string::Format(
                             "\n"
@@ -531,12 +531,12 @@ namespace tl
             TLRENDER_P();
             std::list<std::shared_ptr<Private::VideoRequest> > requests;
             {
-                std::unique_lock<std::mutex> lock(p.videoThread.mutex);
-                requests = std::move(p.videoThread.requests);
-                if (p.videoThread.currentRequest)
+                std::unique_lock<std::mutex> lock(p.videoMutex.mutex);
+                requests = std::move(p.videoMutex.requests);
+                if (p.videoMutex.currentRequest)
                 {
-                    requests.push_front(p.videoThread.currentRequest);
-                    p.videoThread.currentRequest.reset();
+                    requests.push_front(p.videoMutex.currentRequest);
+                    p.videoMutex.currentRequest.reset();
                 }
             }
             for (auto& request : requests)
@@ -550,12 +550,12 @@ namespace tl
             TLRENDER_P();
             std::list<std::shared_ptr<Private::AudioRequest> > requests;
             {
-                std::unique_lock<std::mutex> lock(p.audioThread.mutex);
-                requests = std::move(p.audioThread.requests);
-                if (p.audioThread.currentRequest)
+                std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
+                requests = std::move(p.audioMutex.requests);
+                if (p.audioMutex.currentRequest)
                 {
-                    requests.push_front(p.audioThread.currentRequest);
-                    p.audioThread.currentRequest.reset();
+                    requests.push_front(p.audioMutex.currentRequest);
+                    p.audioMutex.currentRequest.reset();
                 }
             }
             for (auto& request : requests)
