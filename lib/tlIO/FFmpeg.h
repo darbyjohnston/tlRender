@@ -39,9 +39,6 @@ namespace tl
         //! Number of threads.
         const size_t threadCount = 0;
 
-        //! Timeout for requests.
-        const std::chrono::milliseconds requestTimeout(5);
-
         //! Software scaler flags.
         const int swsScaleFlags = SWS_FAST_BILINEAR;
 
@@ -92,13 +89,12 @@ namespace tl
             std::future<io::VideoData> readVideo(const otime::RationalTime&, uint16_t layer = 0) override;
             std::future<io::AudioData> readAudio(const otime::TimeRange&) override;
             void cancelRequests() override;
-            void stop() override;
 
         private:
-            void _openVideo(const std::string& fileName);
-            void _openAudio(const std::string& fileName);
-            void _run();
-            void _close();
+            void _videoThread();
+            void _audioThread();
+            void _cancelVideoRequests();
+            void _cancelAudioRequests();
 
             TLRENDER_PRIVATE();
         };

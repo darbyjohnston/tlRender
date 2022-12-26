@@ -37,7 +37,6 @@ namespace tl
             std::future<Info> getInfo() override;
             std::future<VideoData> readVideo(const otime::RationalTime&, uint16_t layer = 0) override;
             void cancelRequests() override;
-            void stop() override;
 
         protected:
             virtual Info _getInfo(

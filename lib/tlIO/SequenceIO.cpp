@@ -247,11 +247,6 @@ namespace tl
             }
         }
 
-        void ISequenceRead::stop()
-        {
-            _p->running = false;
-        }
-
         void ISequenceRead::_finish()
         {
             TLRENDER_P();

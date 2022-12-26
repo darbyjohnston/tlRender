@@ -213,47 +213,39 @@ namespace tl
                 arg(p.ioInfo.audio.sampleRate));
 
             // Create a new thread.
-            p.running = true;
-            p.thread = std::thread(
+            p.thread.running = true;
+            p.thread.thread = std::thread(
                 [this]
                 {
                     TLRENDER_P();
 
-                    p.logTimer = std::chrono::steady_clock::now();
+                    p.thread.logTimer = std::chrono::steady_clock::now();
 
-                    while (p.running)
+                    while (p.thread.running)
                     {
                         p.tick();
                     }
 
                     {
-                        std::list<std::shared_ptr<Private::VideoRequest> > videoRequestsCleanup;
-                        std::list<std::shared_ptr<Private::AudioRequest> > audioRequestsCleanup;
+                        std::list<std::shared_ptr<Private::VideoRequest> > videoRequests;
+                        std::list<std::shared_ptr<Private::AudioRequest> > audioRequests;
                         {
-                            std::unique_lock<std::mutex> lock(p.mutex);
-                            p.stopped = true;
-                            while (!p.videoRequests.empty())
-                            {
-                                videoRequestsCleanup.push_back(p.videoRequests.front());
-                                p.videoRequests.pop_front();
-                            }
-                            while (!p.audioRequests.empty())
-                            {
-                                audioRequestsCleanup.push_back(p.audioRequests.front());
-                                p.audioRequests.pop_front();
-                            }
+                            std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                            p.mutex.stopped = true;
+                            videoRequests = std::move(p.mutex.videoRequests);
+                            audioRequests = std::move(p.mutex.audioRequests);
                         }
-                        while (!p.videoRequestsInProgress.empty())
-                        {
-                            videoRequestsCleanup.push_back(p.videoRequestsInProgress.front());
-                            p.videoRequestsInProgress.pop_front();
-                        }
-                        while (!p.audioRequestsInProgress.empty())
-                        {
-                            audioRequestsCleanup.push_back(p.audioRequestsInProgress.front());
-                            p.audioRequestsInProgress.pop_front();
-                        }
-                        for (auto& request : videoRequestsCleanup)
+                        videoRequests.insert(
+                            videoRequests.begin(),
+                            p.thread.videoRequestsInProgress.begin(),
+                            p.thread.videoRequestsInProgress.end());
+                        p.thread.videoRequestsInProgress.clear();
+                        audioRequests.insert(
+                            audioRequests.begin(),
+                            p.thread.audioRequestsInProgress.begin(),
+                            p.thread.audioRequestsInProgress.end());
+                        p.thread.audioRequestsInProgress.clear();
+                        for (auto& request : videoRequests)
                         {
                             VideoData data;
                             data.time = request->time;
@@ -274,7 +266,7 @@ namespace tl
                             }
                             request->promise.set_value(data);
                         }
-                        for (auto& request : audioRequestsCleanup)
+                        for (auto& request : audioRequests)
                         {
                             AudioData data;
                             data.seconds = request->seconds;
@@ -300,10 +292,10 @@ namespace tl
         Timeline::~Timeline()
         {
             TLRENDER_P();
-            p.running = false;
-            if (p.thread.joinable())
+            p.thread.running = false;
+            if (p.thread.thread.joinable())
             {
-                p.thread.join();
+                p.thread.thread.join();
             }
         }
 
@@ -351,16 +343,16 @@ namespace tl
             auto future = request->promise.get_future();
             bool valid = false;
             {
-                std::unique_lock<std::mutex> lock(p.mutex);
-                if (!p.stopped)
+                std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                if (!p.mutex.stopped)
                 {
                     valid = true;
-                    p.videoRequests.push_back(request);
+                    p.mutex.videoRequests.push_back(request);
                 }
             }
             if (valid)
             {
-                p.requestCV.notify_one();
+                p.thread.cv.notify_one();
             }
             else
             {
@@ -377,16 +369,16 @@ namespace tl
             auto future = request->promise.get_future();
             bool valid = false;
             {
-                std::unique_lock<std::mutex> lock(p.mutex);
-                if (!p.stopped)
+                std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                if (!p.mutex.stopped)
                 {
                     valid = true;
-                    p.audioRequests.push_back(request);
+                    p.mutex.audioRequests.push_back(request);
                 }
             }
             if (valid)
             {
-                p.requestCV.notify_one();
+                p.thread.cv.notify_one();
             }
             else
             {
@@ -401,9 +393,9 @@ namespace tl
             std::list<std::shared_ptr<Private::VideoRequest> > videoRequestsCleanup;
             std::list<std::shared_ptr<Private::AudioRequest> > audioRequestsCleanup;
             {
-                std::unique_lock<std::mutex> lock(p.mutex);
-                videoRequestsCleanup = std::move(p.videoRequests);
-                audioRequestsCleanup = std::move(p.audioRequests);
+                std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                videoRequestsCleanup = std::move(p.mutex.videoRequests);
+                audioRequestsCleanup = std::move(p.mutex.audioRequests);
             }
             for (auto& request : videoRequestsCleanup)
             {

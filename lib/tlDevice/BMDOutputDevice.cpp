@@ -250,21 +250,21 @@ namespace tl
 
             std::atomic<size_t> refCount;
 
-            struct PixelDataMutexData
+            struct PixelDataMutex
             {
                 std::list<std::shared_ptr<device::PixelData> > pixelData;
+                std::mutex mutex;
             };
-            PixelDataMutexData pixelDataMutexData;
-            std::mutex pixelDataMutex;
+            PixelDataMutex pixelDataMutex;
 
-            struct PixelDataThreadData
+            struct PixelDataThread
             {
                 std::shared_ptr<device::PixelData> pixelDataTmp;
                 uint64_t frameCount = 0;
             };
-            PixelDataThreadData pixelDataThreadData;
+            PixelDataThread pixelDataThread;
 
-            struct AudioMutexData
+            struct AudioMutex
             {
                 timeline::Playback playback = timeline::Playback::Stop;
                 otime::RationalTime startTime = time::invalidTime;
@@ -273,18 +273,18 @@ namespace tl
                 bool mute = false;
                 double audioOffset = 0.0;
                 std::vector<timeline::AudioData> audioData;
+                std::mutex mutex;
             };
-            AudioMutexData audioMutexData;
-            std::mutex audioMutex;
+            AudioMutex audioMutex;
 
-            struct AudioThreadData
+            struct AudioThread
             {
                 timeline::Playback playback = timeline::Playback::Stop;
                 otime::RationalTime startTime = time::invalidTime;
                 size_t samplesOffset = 0;
                 std::shared_ptr<audio::AudioConvert> convert;
             };
-            AudioThreadData audioThreadData;
+            AudioThread audioThread;
         };
 
         DLOutputCallback::DLOutputCallback(
@@ -344,13 +344,13 @@ namespace tl
                 }
                 if (p.dlOutput->ScheduleVideoFrame(
                     dlVideoFrame.p,
-                    p.pixelDataThreadData.frameCount * p.frameRate.value(),
+                    p.pixelDataThread.frameCount * p.frameRate.value(),
                     p.frameRate.value(),
                     p.frameRate.rate()) != S_OK)
                 {
                     throw std::runtime_error("Cannot schedule video frame");
                 }
-                p.pixelDataThreadData.frameCount = p.pixelDataThreadData.frameCount + 1;
+                p.pixelDataThread.frameCount = p.pixelDataThread.frameCount + 1;
             }
 
             p.dlOutput->StartScheduledPlayback(
@@ -362,13 +362,13 @@ namespace tl
         void DLOutputCallback::setPlayback(timeline::Playback value, const otime::RationalTime& time)
         {
             TLRENDER_P();
-            std::unique_lock<std::mutex> lock(p.audioMutex);
-            if (value != p.audioMutexData.playback)
+            std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
+            if (value != p.audioMutex.playback)
             {
                 p.dlOutput->FlushBufferedAudioSamples();
-                p.audioMutexData.playback = value;
-                p.audioMutexData.startTime = time;
-                p.audioMutexData.currentTime = time;
+                p.audioMutex.playback = value;
+                p.audioMutex.startTime = time;
+                p.audioMutex.currentTime = time;
             }
         }
 
@@ -376,25 +376,25 @@ namespace tl
         {
             TLRENDER_P();
             {
-                std::unique_lock<std::mutex> lock(p.pixelDataMutex);
-                p.pixelDataMutexData.pixelData.push_back(value);
-                while (p.pixelDataMutexData.pixelData.size() > pixelDataMax)
+                std::unique_lock<std::mutex> lock(p.pixelDataMutex.mutex);
+                p.pixelDataMutex.pixelData.push_back(value);
+                while (p.pixelDataMutex.pixelData.size() > pixelDataMax)
                 {
-                    p.pixelDataMutexData.pixelData.pop_front();
+                    p.pixelDataMutex.pixelData.pop_front();
                 }
             }
             {
-                std::unique_lock<std::mutex> lock(p.audioMutex);
-                if (value->getTime() != p.audioMutexData.currentTime)
+                std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
+                if (value->getTime() != p.audioMutex.currentTime)
                 {
                     const otime::RationalTime currentTimePlusOne(
-                        p.audioMutexData.currentTime.value() + 1.0,
-                        p.audioMutexData.currentTime.rate());
+                        p.audioMutex.currentTime.value() + 1.0,
+                        p.audioMutex.currentTime.rate());
                     if (value->getTime() != currentTimePlusOne)
                     {
-                        p.audioMutexData.startTime = value->getTime();
+                        p.audioMutex.startTime = value->getTime();
                     }
-                    p.audioMutexData.currentTime = value->getTime();
+                    p.audioMutex.currentTime = value->getTime();
                 }
             }
         }
@@ -402,29 +402,29 @@ namespace tl
         void DLOutputCallback::setVolume(float value)
         {
             TLRENDER_P();
-            std::unique_lock<std::mutex> lock(p.audioMutex);
-            p.audioMutexData.volume = value;
+            std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
+            p.audioMutex.volume = value;
         }
 
         void DLOutputCallback::setMute(bool value)
         {
             TLRENDER_P();
-            std::unique_lock<std::mutex> lock(p.audioMutex);
-            p.audioMutexData.mute = value;
+            std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
+            p.audioMutex.mute = value;
         }
 
         void DLOutputCallback::setAudioOffset(double value)
         {
             TLRENDER_P();
-            std::unique_lock<std::mutex> lock(p.audioMutex);
-            p.audioMutexData.audioOffset = value;
+            std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
+            p.audioMutex.audioOffset = value;
         }
 
         void DLOutputCallback::setAudioData(const std::vector<timeline::AudioData>& value)
         {
             TLRENDER_P();
-            std::unique_lock<std::mutex> lock(p.audioMutex);
-            p.audioMutexData.audioData = value;
+            std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
+            p.audioMutex.audioData = value;
         }
 
         HRESULT DLOutputCallback::QueryInterface(REFIID iid, LPVOID* ppv)
@@ -455,30 +455,30 @@ namespace tl
         {
             TLRENDER_P();
             {
-                std::unique_lock<std::mutex> lock(p.pixelDataMutex);
-                if (!p.pixelDataMutexData.pixelData.empty())
+                std::unique_lock<std::mutex> lock(p.pixelDataMutex.mutex);
+                if (!p.pixelDataMutex.pixelData.empty())
                 {
-                    p.pixelDataThreadData.pixelDataTmp = p.pixelDataMutexData.pixelData.front();
-                    p.pixelDataMutexData.pixelData.pop_front();
+                    p.pixelDataThread.pixelDataTmp = p.pixelDataMutex.pixelData.front();
+                    p.pixelDataMutex.pixelData.pop_front();
                 }
             }
-            if (p.pixelDataThreadData.pixelDataTmp)
+            if (p.pixelDataThread.pixelDataTmp)
             {
                 //std::cout << "video time: " <<
-                //    p.pixelDataThreadData.pixelDataTmp->getTime().rescaled_to(1.0) << std::endl;
+                //    p.pixelDataThread.pixelDataTmp->getTime().rescaled_to(1.0) << std::endl;
                 void* dlFrame = nullptr;
                 dlVideoFrame->GetBytes((void**)&dlFrame);
                 memcpy(
                     dlFrame,
-                    p.pixelDataThreadData.pixelDataTmp->getData(),
-                    p.pixelDataThreadData.pixelDataTmp->getDataByteCount());
+                    p.pixelDataThread.pixelDataTmp->getData(),
+                    p.pixelDataThread.pixelDataTmp->getDataByteCount());
             }
             p.dlOutput->ScheduleVideoFrame(
                 dlVideoFrame,
-                p.pixelDataThreadData.frameCount * p.frameRate.value(),
+                p.pixelDataThread.frameCount * p.frameRate.value(),
                 p.frameRate.value(),
                 p.frameRate.rate());
-            p.pixelDataThreadData.frameCount += 1;
+            p.pixelDataThread.frameCount += 1;
             //std::cout << "result: " << getOutputFrameCompletionResultLabel(dlResult) << std::endl;
             return S_OK;
         }
@@ -499,31 +499,31 @@ namespace tl
             double audioOffset = 0.0;
             std::vector<timeline::AudioData> audioDataList;
             {
-                std::unique_lock<std::mutex> lock(p.audioMutex);
-                if (p.audioMutexData.playback != p.audioThreadData.playback ||
-                    p.audioMutexData.startTime != p.audioThreadData.startTime)
+                std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
+                if (p.audioMutex.playback != p.audioThread.playback ||
+                    p.audioMutex.startTime != p.audioThread.startTime)
                 {
-                    p.audioThreadData.playback = p.audioMutexData.playback;
-                    p.audioThreadData.startTime = p.audioMutexData.startTime;
-                    p.audioThreadData.samplesOffset = 0;
+                    p.audioThread.playback = p.audioMutex.playback;
+                    p.audioThread.startTime = p.audioMutex.startTime;
+                    p.audioThread.samplesOffset = 0;
                 }
-                currentTime = p.audioMutexData.currentTime;
-                volume = p.audioMutexData.volume;
-                mute = p.audioMutexData.mute;
-                audioOffset = p.audioMutexData.audioOffset;
-                audioDataList = p.audioMutexData.audioData;
+                currentTime = p.audioMutex.currentTime;
+                volume = p.audioMutex.volume;
+                mute = p.audioMutex.mute;
+                audioOffset = p.audioMutex.audioOffset;
+                audioDataList = p.audioMutex.audioData;
             }
-            //std::cout << "audio playback: " << p.audioThreadData.playback << std::endl;
-            //std::cout << "audio start time: " << p.audioThreadData.startTime << std::endl;
-            //std::cout << "audio samples offset: " << p.audioThreadData.samplesOffset << std::endl;
+            //std::cout << "audio playback: " << p.audioThread.playback << std::endl;
+            //std::cout << "audio start time: " << p.audioThread.startTime << std::endl;
+            //std::cout << "audio samples offset: " << p.audioThread.samplesOffset << std::endl;
 
             // Flush the audio converter and BMD buffer when the playback
             // is reset.
-            if (0 == p.audioThreadData.samplesOffset)
+            if (0 == p.audioThread.samplesOffset)
             {
-                if (p.audioThreadData.convert)
+                if (p.audioThread.convert)
                 {
-                    p.audioThreadData.convert->flush();
+                    p.audioThread.convert->flush();
                 }
                 p.dlOutput->FlushBufferedAudioSamples();
             }
@@ -535,21 +535,21 @@ namespace tl
                 audioDataList[0].layers[0].audio)
             {
                 inputInfo = audioDataList[0].layers[0].audio->getInfo();
-                if (!p.audioThreadData.convert ||
-                    (p.audioThreadData.convert && p.audioThreadData.convert->getInputInfo() != inputInfo))
+                if (!p.audioThread.convert ||
+                    (p.audioThread.convert && p.audioThread.convert->getInputInfo() != inputInfo))
                 {
-                    p.audioThreadData.convert = audio::AudioConvert::create(inputInfo, p.audioInfo);
+                    p.audioThread.convert = audio::AudioConvert::create(inputInfo, p.audioInfo);
                 }
             }
 
             // Copy audio data to BMD.
-            if (timeline::Playback::Forward == p.audioThreadData.playback &&
-                p.audioThreadData.convert)
+            if (timeline::Playback::Forward == p.audioThread.playback &&
+                p.audioThread.convert)
             {
                 int64_t frame =
-                    p.audioThreadData.startTime.rescaled_to(inputInfo.sampleRate).value() -
+                    p.audioThread.startTime.rescaled_to(inputInfo.sampleRate).value() -
                     otime::RationalTime(audioOffset, 1.0).rescaled_to(inputInfo.sampleRate).value() +
-                    p.audioThreadData.samplesOffset;
+                    p.audioThread.samplesOffset;
                 int64_t seconds = inputInfo.sampleRate > 0 ? (frame / inputInfo.sampleRate) : 0;
                 int64_t offset = frame - seconds * inputInfo.sampleRate;
 
@@ -573,11 +573,11 @@ namespace tl
                     if (audioData.layers.empty())
                     {
                         {
-                            std::unique_lock<std::mutex> lock(p.audioMutex);
-                            p.audioMutexData.startTime = currentTime;
+                            std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
+                            p.audioMutex.startTime = currentTime;
                         }
-                        p.audioThreadData.startTime = currentTime;
-                        p.audioThreadData.samplesOffset = 0;
+                        p.audioThread.startTime = currentTime;
+                        p.audioThread.samplesOffset = 0;
                         break;
                     }
                     std::vector<const uint8_t*> audioDataP;
@@ -603,7 +603,7 @@ namespace tl
                         inputInfo.channelCount,
                         inputInfo.dataType);
 
-                    auto convertedAudio = p.audioThreadData.convert->convert(tmpAudio);
+                    auto convertedAudio = p.audioThread.convert->convert(tmpAudio);
                     p.dlOutput->ScheduleAudioSamples(
                         convertedAudio->getData(),
                         convertedAudio->getSampleCount(),
@@ -618,7 +618,7 @@ namespace tl
                         seconds += 1;
                     }
 
-                    p.audioThreadData.samplesOffset += size;
+                    p.audioThread.samplesOffset += size;
 
                     HRESULT result = p.dlOutput->GetBufferedAudioSampleFrameCount(&bufferedSampleCount);
                     if (result != S_OK)
