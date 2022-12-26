@@ -445,6 +445,66 @@ namespace tl
             }
         }
 
+        void Timeline::Private::finishRequests()
+        {
+            {
+                std::list<std::shared_ptr<Private::VideoRequest> > videoRequests;
+                std::list<std::shared_ptr<Private::AudioRequest> > audioRequests;
+                {
+                    std::unique_lock<std::mutex> lock(mutex.mutex);
+                    mutex.stopped = true;
+                    videoRequests = std::move(mutex.videoRequests);
+                    audioRequests = std::move(mutex.audioRequests);
+                }
+                videoRequests.insert(
+                    videoRequests.begin(),
+                    thread.videoRequestsInProgress.begin(),
+                    thread.videoRequestsInProgress.end());
+                thread.videoRequestsInProgress.clear();
+                audioRequests.insert(
+                    audioRequests.begin(),
+                    thread.audioRequestsInProgress.begin(),
+                    thread.audioRequestsInProgress.end());
+                thread.audioRequestsInProgress.clear();
+                for (auto& request : videoRequests)
+                {
+                    VideoData data;
+                    data.time = request->time;
+                    for (auto& i : request->layerData)
+                    {
+                        VideoLayer layer;
+                        if (i.image.valid())
+                        {
+                            layer.image = i.image.get().image;
+                        }
+                        if (i.imageB.valid())
+                        {
+                            layer.imageB = i.imageB.get().image;
+                        }
+                        layer.transition = i.transition;
+                        layer.transitionValue = i.transitionValue;
+                        data.layers.push_back(layer);
+                    }
+                    request->promise.set_value(data);
+                }
+                for (auto& request : audioRequests)
+                {
+                    AudioData data;
+                    data.seconds = request->seconds;
+                    for (auto& i : request->layerData)
+                    {
+                        AudioLayer layer;
+                        if (i.audio.valid())
+                        {
+                            layer.audio = i.audio.get().audio;
+                        }
+                        data.layers.push_back(layer);
+                    }
+                    request->promise.set_value(data);
+                }
+            }
+        }
+
         ReadCacheItem Timeline::Private::getRead(
             const otio::Clip* clip,
             const io::Options& ioOptions)

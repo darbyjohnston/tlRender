@@ -30,6 +30,8 @@ namespace tl
 
             void tick();
             void requests();
+            void finishRequests();
+
             ReadCacheItem getRead(
                 const otio::Clip*,
                 const io::Options&);

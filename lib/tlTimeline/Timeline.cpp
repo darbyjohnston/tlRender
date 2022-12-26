@@ -218,70 +218,12 @@ namespace tl
                 [this]
                 {
                     TLRENDER_P();
-
                     p.thread.logTimer = std::chrono::steady_clock::now();
-
                     while (p.thread.running)
                     {
                         p.tick();
                     }
-
-                    {
-                        std::list<std::shared_ptr<Private::VideoRequest> > videoRequests;
-                        std::list<std::shared_ptr<Private::AudioRequest> > audioRequests;
-                        {
-                            std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                            p.mutex.stopped = true;
-                            videoRequests = std::move(p.mutex.videoRequests);
-                            audioRequests = std::move(p.mutex.audioRequests);
-                        }
-                        videoRequests.insert(
-                            videoRequests.begin(),
-                            p.thread.videoRequestsInProgress.begin(),
-                            p.thread.videoRequestsInProgress.end());
-                        p.thread.videoRequestsInProgress.clear();
-                        audioRequests.insert(
-                            audioRequests.begin(),
-                            p.thread.audioRequestsInProgress.begin(),
-                            p.thread.audioRequestsInProgress.end());
-                        p.thread.audioRequestsInProgress.clear();
-                        for (auto& request : videoRequests)
-                        {
-                            VideoData data;
-                            data.time = request->time;
-                            for (auto& i : request->layerData)
-                            {
-                                VideoLayer layer;
-                                if (i.image.valid())
-                                {
-                                    layer.image = i.image.get().image;
-                                }
-                                if (i.imageB.valid())
-                                {
-                                    layer.imageB = i.imageB.get().image;
-                                }
-                                layer.transition = i.transition;
-                                layer.transitionValue = i.transitionValue;
-                                data.layers.push_back(layer);
-                            }
-                            request->promise.set_value(data);
-                        }
-                        for (auto& request : audioRequests)
-                        {
-                            AudioData data;
-                            data.seconds = request->seconds;
-                            for (auto& i : request->layerData)
-                            {
-                                AudioLayer layer;
-                                if (i.audio.valid())
-                                {
-                                    layer.audio = i.audio.get().audio;
-                                }
-                                data.layers.push_back(layer);
-                            }
-                            request->promise.set_value(data);
-                        }
-                    }
+                    p.finishRequests();
                 });
         }
 
@@ -390,18 +332,18 @@ namespace tl
         void Timeline::cancelRequests()
         {
             TLRENDER_P();
-            std::list<std::shared_ptr<Private::VideoRequest> > videoRequestsCleanup;
-            std::list<std::shared_ptr<Private::AudioRequest> > audioRequestsCleanup;
+            std::list<std::shared_ptr<Private::VideoRequest> > videoRequests;
+            std::list<std::shared_ptr<Private::AudioRequest> > audioRequests;
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                videoRequestsCleanup = std::move(p.mutex.videoRequests);
-                audioRequestsCleanup = std::move(p.mutex.audioRequests);
+                videoRequests = std::move(p.mutex.videoRequests);
+                audioRequests = std::move(p.mutex.audioRequests);
             }
-            for (auto& request : videoRequestsCleanup)
+            for (auto& request : videoRequests)
             {
                 request->promise.set_value(VideoData());
             }
-            for (auto& request : audioRequestsCleanup)
+            for (auto& request : audioRequests)
             {
                 request->promise.set_value(AudioData());
             }
