@@ -70,6 +70,8 @@ namespace tl
             bool isBufferFull() const;
             std::shared_ptr<imaging::Image> popBuffer();
 
+            bool isEOF() const;
+
         private:
             int _decode(const otime::RationalTime& currentTime);
             void _copy(const std::shared_ptr<imaging::Image>&);
@@ -93,6 +95,7 @@ namespace tl
             AVPixelFormat _avOutputPixelFormat = AV_PIX_FMT_NONE;
             SwsContext* _swsContext = nullptr;
             std::list<std::shared_ptr<imaging::Image> > _buffer;
+            bool _eof = false;
         };
 
         class ReadAudio
@@ -119,6 +122,8 @@ namespace tl
             bool isBufferFull() const;
             void bufferCopy(uint8_t*, size_t byteCount);
 
+            bool isEOF() const;
+
         private:
             int _decode(const otime::RationalTime& currentTime);
 
@@ -138,6 +143,7 @@ namespace tl
             AVFrame* _avFrame = nullptr;
             SwrContext* _swrContext = nullptr;
             std::list<std::shared_ptr<audio::Audio> > _buffer;
+            bool _eof = false;
         };
 
         struct Read::Private

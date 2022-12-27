@@ -351,7 +351,9 @@ namespace tl
                         std::unique_lock<std::mutex> lock(p.videoMutex.mutex);
                         if (p.videoMutex.currentRequest)
                         {
-                            if (!time::compareExact(p.videoMutex.currentRequest->time, p.videoThread.currentTime))
+                            if (!time::compareExact(
+                                p.videoMutex.currentRequest->time,
+                                p.videoThread.currentTime))
                             {
                                 seek = true;
                                 p.videoThread.currentTime = p.videoMutex.currentRequest->time;
@@ -373,7 +375,8 @@ namespace tl
                     {
                         std::unique_lock<std::mutex> lock(p.videoMutex.mutex);
                         if ((p.videoMutex.currentRequest && !p.readVideo->isBufferEmpty()) ||
-                            (p.videoMutex.currentRequest && !p.readVideo->isValid()))
+                            (p.videoMutex.currentRequest && !p.readVideo->isValid()) ||
+                            (p.videoMutex.currentRequest && p.readVideo->isEOF()))
                         {
                             request = std::move(p.videoMutex.currentRequest);
                         }
@@ -454,7 +457,9 @@ namespace tl
                         std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
                         if (p.audioMutex.currentRequest)
                         {
-                            if (!time::compareExact(p.audioMutex.currentRequest->time.start_time(), p.audioThread.currentTime))
+                            if (!time::compareExact(
+                                p.audioMutex.currentRequest->time.start_time(),
+                                p.audioThread.currentTime))
                             {
                                 seek = true;
                                 p.audioThread.currentTime = p.audioMutex.currentRequest->time.start_time();
@@ -478,7 +483,8 @@ namespace tl
                         std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
                         if ((p.audioMutex.currentRequest &&
                             p.audioMutex.currentRequest->time.duration().rescaled_to(p.info.audio.sampleRate).value() <= bufferSize) ||
-                            (p.audioMutex.currentRequest && !p.readAudio->isValid()))
+                            (p.audioMutex.currentRequest && !p.readAudio->isValid()) ||
+                            (p.audioMutex.currentRequest && p.readAudio->isEOF()))
                         {
                             request = std::move(p.audioMutex.currentRequest);
                         }

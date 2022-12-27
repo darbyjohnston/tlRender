@@ -360,6 +360,7 @@ namespace tl
                 _timeRange = otime::TimeRange(
                     startTime,
                     otime::RationalTime(sequenceSize, speed));
+                //std::cout << "time range: " << _timeRange << std::endl;
 
                 for (const auto& i : tags)
                 {
@@ -532,7 +533,7 @@ namespace tl
 
         void ReadVideo::seek(const otime::RationalTime& time)
         {
-            //std::cout << "video seek: " << currentVideoTime << std::endl;
+            //std::cout << "video seek: " << time << std::endl;
 
             if (_avStream != -1)
             {
@@ -552,6 +553,7 @@ namespace tl
             }
 
             _buffer.clear();
+            _eof = false;
         }
 
         void ReadVideo::process(const otime::RationalTime& currentTime)
@@ -562,15 +564,14 @@ namespace tl
                 AVPacket packet;
                 av_init_packet(&packet);
                 int decoding = 0;
-                bool eof = false;
                 while (0 == decoding)
                 {
-                    if (!eof)
+                    if (!_eof)
                     {
                         decoding = av_read_frame(_avFormatContext, &packet);
                         if (AVERROR_EOF == decoding)
                         {
-                            eof = true;
+                            _eof = true;
                             decoding = 0;
                         }
                         else if (decoding < 0)
@@ -579,11 +580,11 @@ namespace tl
                             break;
                         }
                     }
-                    if ((eof && _avStream != -1) || (_avStream == packet.stream_index))
+                    if ((_eof && _avStream != -1) || (_avStream == packet.stream_index))
                     {
                         decoding = avcodec_send_packet(
                             _avCodecContext[_avStream],
-                            eof ? nullptr : &packet);
+                            _eof ? nullptr : &packet);
                         if (AVERROR_EOF == decoding)
                         {
                             decoding = 0;
@@ -646,6 +647,11 @@ namespace tl
             return out;
         }
 
+        bool ReadVideo::isEOF() const
+        {
+            return _eof;
+        }
+
         int ReadVideo::_decode(const otime::RationalTime& currentTime)
         {
             int out = 0;
@@ -659,7 +665,7 @@ namespace tl
                 const int64_t timestamp = _avFrame->pts != AV_NOPTS_VALUE ? _avFrame->pts : _avFrame->pkt_dts;
                 //std::cout << "video timestamp: " << timestamp << std::endl;
 
-                const auto time = otime::RationalTime(
+                const otime::RationalTime time(
                     _timeRange.start_time().value() +
                     av_rescale_q(
                         timestamp,

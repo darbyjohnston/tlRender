@@ -365,6 +365,7 @@ namespace tl
             }
 
             _buffer.clear();
+            _eof = false;
         }
 
         void ReadAudio::process(const otime::RationalTime& currentTime)
@@ -376,15 +377,14 @@ namespace tl
                 AVPacket packet;
                 av_init_packet(&packet);
                 int decoding = 0;
-                bool eof = false;
                 while (0 == decoding)
                 {
-                    if (!eof)
+                    if (!_eof)
                     {
                         decoding = av_read_frame(_avFormatContext, &packet);
                         if (AVERROR_EOF == decoding)
                         {
-                            eof = true;
+                            _eof = true;
                             decoding = 0;
                         }
                         else if (decoding < 0)
@@ -393,11 +393,11 @@ namespace tl
                             break;
                         }
                     }
-                    if ((eof && _avStream != -1) || (_avStream == packet.stream_index))
+                    if ((_eof && _avStream != -1) || (_avStream == packet.stream_index))
                     {
                         decoding = avcodec_send_packet(
                             _avCodecContext[_avStream],
-                            eof ? nullptr : &packet);
+                            _eof ? nullptr : &packet);
                         if (AVERROR_EOF == decoding)
                         {
                             decoding = 0;
@@ -461,6 +461,11 @@ namespace tl
         void ReadAudio::bufferCopy(uint8_t* out, size_t byteCount)
         {
             audio::copy(_buffer, out, byteCount);
+        }
+
+        bool ReadAudio::isEOF() const
+        {
+            return _eof;
         }
 
         int ReadAudio::_decode(const otime::RationalTime& currentTime)
