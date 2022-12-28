@@ -31,17 +31,14 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 QObject* parent = nullptr);
 
-            ~FilesTableModel() override;
+            virtual ~FilesTableModel() = 0;
 
             //! Get the files.
             const std::vector<std::shared_ptr<FilesModelItem> >& files() const;
 
             int rowCount(const QModelIndex& parent = QModelIndex()) const override;
-            int columnCount(const QModelIndex& parent = QModelIndex()) const override;
             Qt::ItemFlags flags(const QModelIndex&) const override;
             QVariant data(const QModelIndex&, int role = Qt::DisplayRole) const override;
-            bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
-            QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
         private Q_SLOTS:
             void _thumbnailsCallback(qint64, const QList<QPair<otime::RationalTime, QImage> >&);
@@ -49,6 +46,7 @@ namespace tl
         protected:
             int _index(const std::shared_ptr<FilesModelItem>&) const;
 
+            std::shared_ptr<FilesModel> _filesModel;
             std::vector<std::shared_ptr<FilesModelItem> > _files;
 
         private:
