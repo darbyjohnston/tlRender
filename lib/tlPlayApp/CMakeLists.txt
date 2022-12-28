@@ -10,7 +10,10 @@ set(HEADERS
 	DevicesTool.h
 	DockTitleBar.h
 	FileActions.h
+    FilesAModel.h
+    FilesBModel.h
 	FilesModel.h
+    FilesTableModel.h
 	FilesTool.h
 	FilesView.h
     InfoTool.h
@@ -41,7 +44,10 @@ set(SOURCE
 	DevicesTool.cpp
 	DockTitleBar.cpp
 	FileActions.cpp
+    FilesAModel.cpp
+    FilesBModel.cpp
 	FilesModel.cpp
+	FilesTableModel.cpp
 	FilesTool.cpp
 	FilesView.cpp
     InfoTool.cpp

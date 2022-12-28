@@ -4,6 +4,8 @@
 
 #include <tlPlayApp/FilesView.h>
 
+#include <tlPlayApp/FilesTableModel.h>
+
 #include <QComboBox>
 
 namespace tl

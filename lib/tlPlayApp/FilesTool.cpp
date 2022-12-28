@@ -6,7 +6,7 @@
 
 #include <tlPlayApp/App.h>
 #include <tlPlayApp/DockTitleBar.h>
-#include <tlPlayApp/FilesModel.h>
+#include <tlPlayApp/FilesAModel.h>
 #include <tlPlayApp/FilesView.h>
 #include <tlPlayApp/SettingsObject.h>
 
