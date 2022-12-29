@@ -119,7 +119,6 @@ namespace tl
         void TimelineViewport::setTimelinePlayers(const std::vector<qt::TimelinePlayer*>& value)
         {
             TLRENDER_P();
-            p.videoData.clear();
             for (const auto& i : p.timelinePlayers)
             {
                 disconnect(
@@ -129,9 +128,12 @@ namespace tl
                     SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
             }
             p.timelinePlayers = value;
+            if (p.timelinePlayers.empty())
+            {
+                p.videoData.clear();
+            }
             for (const auto& i : p.timelinePlayers)
             {
-                _p->videoData.push_back(i->currentVideo());
                 connect(
                     i,
                     SIGNAL(currentVideoChanged(const tl::timeline::VideoData&)),
@@ -209,6 +211,10 @@ namespace tl
         void TimelineViewport::_currentVideoCallback(const timeline::VideoData& value)
         {
             TLRENDER_P();
+            if (p.videoData.size() != p.timelinePlayers.size())
+            {
+                p.videoData.resize(p.timelinePlayers.size());
+            }
             const auto i = std::find(p.timelinePlayers.begin(), p.timelinePlayers.end(), sender());
             if (i != p.timelinePlayers.end())
             {
@@ -464,7 +470,7 @@ namespace tl
                 p.timelinePlayers[0]->seek(t + otime::RationalTime(delta, t.rate()));
             }
         }
-        
+
         imaging::Size TimelineViewport::_getViewportSize() const
         {
             const float devicePixelRatio = window()->devicePixelRatio();
@@ -510,12 +516,17 @@ namespace tl
                 zoom = viewportSize.h / static_cast<float>(renderSize.h);
             }
             const math::Vector2i c(renderSize.w / 2, renderSize.h / 2);
-            p.viewPos.x = viewportSize.w / 2.F - c.x * zoom;
-            p.viewPos.y = viewportSize.h / 2.F - c.y * zoom;
-            p.viewZoom = zoom;
-            update();
-            Q_EMIT viewPosAndZoomChanged(p.viewPos, p.viewZoom);
-            Q_EMIT frameViewActivated();
+            const math::Vector2i viewPos(
+                viewportSize.w / 2.F - c.x * zoom,
+                viewportSize.h / 2.F - c.y * zoom);
+            if (viewPos != p.viewPos || zoom != p.viewZoom)
+            {
+                p.viewPos = viewPos;
+                p.viewZoom = zoom;
+                update();
+                Q_EMIT viewPosAndZoomChanged(p.viewPos, p.viewZoom);
+                Q_EMIT frameViewActivated();
+            }
         }
     }
 }
