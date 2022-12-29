@@ -175,13 +175,10 @@ namespace tl
         {
             TLRENDER_P();
             int out = -1;
-            if (!_files.empty())
+            const auto i = std::find(_files.begin(), _files.end(), item);
+            if (i != _files.end())
             {
-                const auto i = std::find(_files.begin(), _files.end(), item);
-                if (i != _files.end())
-                {
-                    out = i - _files.begin();
-                }
+                out = i - _files.begin();
             }
             return out;
         }
