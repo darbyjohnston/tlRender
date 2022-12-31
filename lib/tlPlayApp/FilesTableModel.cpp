@@ -115,14 +115,15 @@ namespace tl
                 {
                 case Qt::DisplayRole:
                 {
-                    std::string s;
                     switch (index.column())
                     {
                     case 0:
-                        s = item->path.get(-1, false);
+                    {
+                        const std::string s = item->path.get(-1, false);
+                        out.setValue(QString::fromUtf8(s.c_str()));
                         break;
                     }
-                    out.setValue(QString::fromUtf8(s.c_str()));
+                    }
                     break;
                 }
                 case Qt::DecorationRole:

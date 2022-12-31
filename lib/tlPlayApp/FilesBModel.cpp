@@ -118,18 +118,17 @@ namespace tl
                 {
                 case Qt::DisplayRole:
                 {
-                    std::string s;
                     switch (index.column())
                     {
                     case 1:
                         if (!item->ioInfo.video.empty() &&
                             item->videoLayer < item->ioInfo.video.size())
                         {
-                            s = item->ioInfo.video[item->videoLayer].name;
+                            const std::string s = item->ioInfo.video[item->videoLayer].name;
+                            out.setValue(QString::fromUtf8(s.c_str()));
                         }
                         break;
                     }
-                    out.setValue(QString::fromUtf8(s.c_str()));
                     break;
                 }
                 case Qt::EditRole:
