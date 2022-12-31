@@ -565,8 +565,9 @@ namespace tl
             // Create new timeline players.
             std::vector<qt::TimelinePlayer*> newTimelinePlayers;
             auto audioSystem = _context->getSystem<audio::System>();
-            for (const auto& i : items)
+            for (size_t i = 0; i < items.size(); ++i)
             {
+                const auto& item = items[i];
                 qt::TimelinePlayer* qtTimelinePlayer = nullptr;
                 try
                 {
@@ -588,12 +589,12 @@ namespace tl
                     options.pathOptions.maxNumberDigits = std::min(
                         p.settingsObject->value("Misc/MaxFileSequenceDigits").toInt(),
                         255);
-                    auto otioTimeline = i->audioPath.isEmpty() ?
-                        timeline::create(i->path.get(), _context, options) :
-                        timeline::create(i->path.get(), i->audioPath.get(), _context, options);
+                    auto otioTimeline = item->audioPath.isEmpty() ?
+                        timeline::create(item->path.get(), _context, options) :
+                        timeline::create(item->path.get(), item->audioPath.get(), _context, options);
                     if (0)
                     {
-                        createMemoryTimeline(otioTimeline, i->path.getDirectory(), options.pathOptions);
+                        createMemoryTimeline(otioTimeline, item->path.getDirectory(), options.pathOptions);
                     }
                     auto timeline = timeline::Timeline::create(otioTimeline, _context, options);
 
@@ -604,20 +605,42 @@ namespace tl
                         value<timeline::TimerMode>();
                     playerOptions.audioBufferFrameCount = p.settingsObject->value("Performance/AudioBufferFrameCount").
                         value<timeline::AudioBufferFrameCount>();
+                    if (item->init)
+                    {
+                        playerOptions.currentTime = items[0]->currentTime;
+                    }
                     auto timelinePlayer = timeline::TimelinePlayer::create(timeline, _context, playerOptions);
                     qtTimelinePlayer = new qt::TimelinePlayer(timelinePlayer, _context, this);
-                    i->timeRange = qtTimelinePlayer->timeRange();
-                    i->ioInfo = qtTimelinePlayer->ioInfo();
-                    if (!i->init)
+                    item->timeRange = qtTimelinePlayer->timeRange();
+                    item->ioInfo = qtTimelinePlayer->ioInfo();
+                    if (!item->init)
                     {
-                        i->init = true;
-                        i->speed = qtTimelinePlayer->speed();
-                        i->playback = qtTimelinePlayer->playback();
-                        i->loop = qtTimelinePlayer->loop();
-                        i->currentTime = qtTimelinePlayer->currentTime();
-                        i->inOutRange = qtTimelinePlayer->inOutRange();
-                        i->videoLayer = qtTimelinePlayer->videoLayer();
-                        i->audioOffset = qtTimelinePlayer->audioOffset();
+                        item->init = true;
+                        item->speed = qtTimelinePlayer->speed();
+                        item->playback = qtTimelinePlayer->playback();
+                        item->loop = qtTimelinePlayer->loop();
+                        item->currentTime = qtTimelinePlayer->currentTime();
+                        item->inOutRange = qtTimelinePlayer->inOutRange();
+                        item->videoLayer = qtTimelinePlayer->videoLayer();
+                        item->audioOffset = qtTimelinePlayer->audioOffset();
+                    }
+                    else if (0 == i)
+                    {
+                        qtTimelinePlayer->setSpeed(items[0]->speed);
+                        qtTimelinePlayer->setLoop(items[0]->loop);
+                        qtTimelinePlayer->setInOutRange(items[0]->inOutRange);
+                        qtTimelinePlayer->setVideoLayer(items[0]->videoLayer);
+                        qtTimelinePlayer->setVolume(p.volume);
+                        qtTimelinePlayer->setMute(p.mute);
+                        qtTimelinePlayer->setAudioOffset(items[0]->audioOffset);
+
+                        qtTimelinePlayer->setPlayback(items[0]->playback);
+                    }
+                    if (i > 0)
+                    {
+                        qtTimelinePlayer->setVideoLayer(items[i]->videoLayer);
+                        qtTimelinePlayer->timelinePlayer()->setExternalTime(
+                            newTimelinePlayers[0]->timelinePlayer());
                     }
                 }
                 catch (const std::exception& e)
@@ -625,28 +648,6 @@ namespace tl
                     _log(e.what(), log::Type::Error);
                 }
                 newTimelinePlayers.push_back(qtTimelinePlayer);
-            }
-
-            // Set the timeline players state.
-            if (!items.empty() && !newTimelinePlayers.empty() && newTimelinePlayers[0])
-            {
-                newTimelinePlayers[0]->setSpeed(items[0]->speed);
-                newTimelinePlayers[0]->setLoop(items[0]->loop);
-                newTimelinePlayers[0]->setInOutRange(items[0]->inOutRange);
-                newTimelinePlayers[0]->setVideoLayer(items[0]->videoLayer);
-                newTimelinePlayers[0]->setVolume(p.volume);
-                newTimelinePlayers[0]->setMute(p.mute);
-                newTimelinePlayers[0]->setAudioOffset(items[0]->audioOffset);
-
-                newTimelinePlayers[0]->seek(items[0]->currentTime);
-                newTimelinePlayers[0]->setPlayback(items[0]->playback);
-            }
-            for (size_t i = 1; i < items.size() && i < newTimelinePlayers.size(); ++i)
-            {
-                if (newTimelinePlayers[i])
-                {
-                    newTimelinePlayers[i]->setVideoLayer(items[i]->videoLayer);
-                }
             }
 
             // Connect signals.
@@ -659,21 +660,6 @@ namespace tl
                     {
                         _audioUpdate();
                     });
-            }
-
-            // Set the external time.
-            std::shared_ptr<timeline::TimelinePlayer> externalTime;
-            if (!newTimelinePlayers.empty() && newTimelinePlayers[0])
-            {
-                externalTime = newTimelinePlayers[0]->timelinePlayer();
-                externalTime->setExternalTime(nullptr);
-            }
-            for (size_t i = 1; i < newTimelinePlayers.size(); ++i)
-            {
-                if (newTimelinePlayers[i])
-                {
-                    newTimelinePlayers[i]->timelinePlayer()->setExternalTime(externalTime);
-                }
             }
 
             // Set the main window timeline players.

@@ -167,7 +167,10 @@ namespace tl
             p.speed = observer::Value<double>::create(p.timeline->getTimeRange().duration().rate());
             p.playback = observer::Value<Playback>::create(Playback::Stop);
             p.loop = observer::Value<Loop>::create(Loop::Loop);
-            p.currentTime = observer::Value<otime::RationalTime>::create(p.timeline->getTimeRange().start_time());
+            p.currentTime = observer::Value<otime::RationalTime>::create(
+                playerOptions.currentTime != time::invalidTime ?
+                playerOptions.currentTime :
+                p.timeline->getTimeRange().start_time());
             p.inOutRange = observer::Value<otime::TimeRange>::create(p.timeline->getTimeRange());
             p.videoLayer = observer::Value<uint16_t>::create();
             p.currentVideoData = observer::Value<VideoData>::create();

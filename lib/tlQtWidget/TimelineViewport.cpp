@@ -32,6 +32,8 @@ namespace tl
             std::vector<timeline::DisplayOptions> displayOptions;
             timeline::CompareOptions compareOptions;
             std::vector<qt::TimelinePlayer*> timelinePlayers;
+            std::vector<imaging::Size> timelineSizes;
+            std::vector<imaging::Size> timelineSizesTmp;
             math::Vector2i viewPos;
             float viewZoom = 1.F;
             bool frameView = true;
@@ -128,22 +130,24 @@ namespace tl
                     SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
             }
             p.timelinePlayers = value;
-            if (p.timelinePlayers.empty())
-            {
-                p.videoData.clear();
-            }
+            p.timelineSizesTmp.clear();
             for (const auto& i : p.timelinePlayers)
             {
+                const auto& ioInfo = i->ioInfo();
+                if (!ioInfo.video.empty())
+                {
+                    p.timelineSizesTmp.push_back(ioInfo.video[0].size);
+                }
                 connect(
                     i,
                     SIGNAL(currentVideoChanged(const tl::timeline::VideoData&)),
                     SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
             }
-            if (p.frameView)
+            if (p.timelinePlayers.empty())
             {
-                _frameView();
+                p.videoData.clear();
+                update();
             }
-            update();
         }
 
         const math::Vector2i& TimelineViewport::viewPos() const
@@ -186,7 +190,6 @@ namespace tl
         {
             TLRENDER_P();
             p.frameView = true;
-            _frameView();
             update();
         }
 
@@ -211,9 +214,17 @@ namespace tl
         void TimelineViewport::_currentVideoCallback(const timeline::VideoData& value)
         {
             TLRENDER_P();
+            p.timelineSizes = p.timelineSizesTmp;
             if (p.videoData.size() != p.timelinePlayers.size())
             {
-                p.videoData.resize(p.timelinePlayers.size());
+                p.videoData = std::vector<timeline::VideoData>(p.timelinePlayers.size());
+            }
+            for (size_t i = 0; i < p.videoData.size(); ++i)
+            {
+                if (!p.timelinePlayers[i]->timeRange().contains(p.videoData[i].time))
+                {
+                    p.videoData[i] = timeline::VideoData();
+                }
             }
             const auto i = std::find(p.timelinePlayers.begin(), p.timelinePlayers.end(), sender());
             if (i != p.timelinePlayers.end())
@@ -284,12 +295,6 @@ namespace tl
         void TimelineViewport::resizeGL(int w, int h)
         {
             TLRENDER_P();
-
-            if (p.frameView)
-            {
-                _frameView();
-            }
-
             p.vao.reset();
             p.vbo.reset();
         }
@@ -297,6 +302,11 @@ namespace tl
         void TimelineViewport::paintGL()
         {
             TLRENDER_P();
+
+            if (p.frameView)
+            {
+                _frameView();
+            }
 
             const auto renderSize = _getRenderSize();
             try
@@ -329,7 +339,7 @@ namespace tl
                     p.render->begin(renderSize);
                     p.render->drawVideo(
                         p.videoData,
-                        timeline::tiles(p.compareOptions.mode, _getTimelineSizes()),
+                        timeline::tiles(p.compareOptions.mode, p.timelineSizes),
                         p.imageOptions,
                         p.displayOptions,
                         p.compareOptions);
@@ -479,24 +489,10 @@ namespace tl
                 height() * devicePixelRatio);
         }
 
-        std::vector<imaging::Size> TimelineViewport::_getTimelineSizes() const
-        {
-            TLRENDER_P();
-            std::vector<imaging::Size> sizes;
-            for (const auto& i : p.timelinePlayers)
-            {
-                const auto& ioInfo = i->ioInfo();
-                if (!ioInfo.video.empty())
-                {
-                    sizes.push_back(ioInfo.video[0].size);
-                }
-            }
-            return sizes;
-        }
-
         imaging::Size TimelineViewport::_getRenderSize() const
         {
-            return timeline::getRenderSize(_p->compareOptions.mode, _getTimelineSizes());
+            TLRENDER_P();
+            return timeline::getRenderSize(p.compareOptions.mode, p.timelineSizes);
         }
 
         math::Vector2i TimelineViewport::_getViewportCenter() const
@@ -523,7 +519,6 @@ namespace tl
             {
                 p.viewPos = viewPos;
                 p.viewZoom = zoom;
-                update();
                 Q_EMIT viewPosAndZoomChanged(p.viewPos, p.viewZoom);
                 Q_EMIT frameViewActivated();
             }

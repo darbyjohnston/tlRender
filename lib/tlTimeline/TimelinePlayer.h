@@ -92,6 +92,9 @@ namespace tl
             //! Timeout to sleep each tick.
             std::chrono::milliseconds sleepTimeout = std::chrono::milliseconds(5);
 
+            //! Current time.
+            otime::RationalTime currentTime = time::invalidTime;
+
             bool operator == (const PlayerOptions&) const;
             bool operator != (const PlayerOptions&) const;
         };

@@ -102,7 +102,6 @@ namespace tl
 
         private:
             imaging::Size _getViewportSize() const;
-            std::vector<imaging::Size> _getTimelineSizes() const;
             imaging::Size _getRenderSize() const;
             math::Vector2i _getViewportCenter() const;
             void _frameView();

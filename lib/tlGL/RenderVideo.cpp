@@ -402,14 +402,14 @@ namespace tl
                                 p.shaders["dissolve"]->setUniform("imageChannels", imaging::getChannelCount(info.pixelType));
                                 p.shaders["dissolve"]->setUniform("mirrorX", info.layout.mirror.x);
                                 p.shaders["dissolve"]->setUniform("mirrorY", info.layout.mirror.y);
-                                math::BBox2i bbox2 = imaging::getBBox(layer.image->getAspect(), math::BBox2i(0, 0, size.w, size.h));
-                                math::BBox2f textureRange(
-                                    .5F - bbox2.w() / static_cast<float>(size.w) / 2.F,
-                                    .5F - bbox2.h() / static_cast<float>(size.h) / 2.F,
-                                    (bbox2.w() - 1) / static_cast<float>(size.w - 1),
-                                    (bbox2.h() - 1) / static_cast<float>(size.h - 1));
-                                p.shaders["dissolve"]->setUniform("textureRangeU", math::Vector2f(textureRange.min.x, textureRange.max.x));
-                                p.shaders["dissolve"]->setUniform("textureRangeV", math::Vector2f(textureRange.min.y, textureRange.max.y));
+                                math::BBox2i bboxA = imaging::getBBox(layer.image->getAspect(), math::BBox2i(0, 0, size.w, size.h));
+                                math::BBox2f textureRangeA(
+                                    .5F - bboxA.w() / static_cast<float>(size.w) / 2.F,
+                                    .5F - bboxA.h() / static_cast<float>(size.h) / 2.F,
+                                    (bboxA.w() - 1) / static_cast<float>(size.w - 1),
+                                    (bboxA.h() - 1) / static_cast<float>(size.h - 1));
+                                p.shaders["dissolve"]->setUniform("textureRangeU", math::Vector2f(textureRangeA.min.x, textureRangeA.max.x));
+                                p.shaders["dissolve"]->setUniform("textureRangeV", math::Vector2f(textureRangeA.min.y, textureRangeA.max.y));
                                 p.shaders["dissolve"]->setUniform("textureSampler0", 0);
                                 p.shaders["dissolve"]->setUniform("textureSampler1", 1);
                                 p.shaders["dissolve"]->setUniform("textureSampler2", 2);
@@ -427,14 +427,14 @@ namespace tl
                                 p.shaders["dissolve"]->setUniform("imageChannelsB", imaging::getChannelCount(infoB.pixelType));
                                 p.shaders["dissolve"]->setUniform("mirrorBX", infoB.layout.mirror.x);
                                 p.shaders["dissolve"]->setUniform("mirrorBY", infoB.layout.mirror.y);
-                                bbox2 = imaging::getBBox(layer.imageB->getAspect(), math::BBox2i(0, 0, size.w, size.h));
-                                textureRange = math::BBox2f(
-                                    .5F - bbox2.w() / static_cast<float>(size.w) / 2.F,
-                                    .5F - bbox2.h() / static_cast<float>(size.h) / 2.F,
-                                    (bbox2.w() - 1) / static_cast<float>(size.w - 1),
-                                    (bbox2.h() - 1) / static_cast<float>(size.h - 1));
-                                p.shaders["dissolve"]->setUniform("textureRangeBU", math::Vector2f(textureRange.min.x, textureRange.max.x));
-                                p.shaders["dissolve"]->setUniform("textureRangeBV", math::Vector2f(textureRange.min.y, textureRange.max.y));
+                                math::BBox2i bboxB = imaging::getBBox(layer.imageB->getAspect(), math::BBox2i(0, 0, size.w, size.h));
+                                math::BBox2f textureRangeB = math::BBox2f(
+                                    .5F - bboxB.w() / static_cast<float>(size.w) / 2.F,
+                                    .5F - bboxB.h() / static_cast<float>(size.h) / 2.F,
+                                    (bboxB.w() - 1) / static_cast<float>(size.w - 1),
+                                    (bboxB.h() - 1) / static_cast<float>(size.h - 1));
+                                p.shaders["dissolve"]->setUniform("textureRangeBU", math::Vector2f(textureRangeB.min.x, textureRangeB.max.x));
+                                p.shaders["dissolve"]->setUniform("textureRangeBV", math::Vector2f(textureRangeB.min.y, textureRangeB.max.y));
                                 p.shaders["dissolve"]->setUniform("textureSamplerB0", 3);
                                 p.shaders["dissolve"]->setUniform("textureSamplerB1", 4);
                                 p.shaders["dissolve"]->setUniform("textureSamplerB2", 5);
@@ -442,7 +442,7 @@ namespace tl
                                 if (p.vbos["video"])
                                 {
                                     p.vbos["video"]->copy(convert(
-                                        geom::bbox(math::BBox2i(0, 0, p.size.w, p.size.h)),
+                                        geom::bbox(math::BBox2i(0, 0, size.w, size.h)),
                                         p.vbos["video"]->getType()));
                                 }
                                 if (p.vaos["video"])
