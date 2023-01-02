@@ -79,7 +79,7 @@ namespace tl
             std::string _fileName;
             Options _options;
             imaging::Info _info;
-            otime::TimeRange _timeRange;
+            otime::TimeRange _timeRange = time::invalidTimeRange;
             imaging::Tags _tags;
 
             AVFormatContext* _avFormatContext = nullptr;
@@ -130,7 +130,7 @@ namespace tl
             std::string _fileName;
             Options _options;
             audio::Info _info;
-            otime::TimeRange _timeRange;
+            otime::TimeRange _timeRange = time::invalidTimeRange;
             imaging::Tags _tags;
 
             AVFormatContext* _avFormatContext = nullptr;
