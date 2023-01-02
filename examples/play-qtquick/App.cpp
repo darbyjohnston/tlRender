@@ -45,8 +45,8 @@ namespace tl
                 }
 
                 // Initialize Qt.
-                QCoreApplication::setOrganizationName("tlRender");
-                QCoreApplication::setApplicationName("play-qtquick");
+                setOrganizationName("tlRender");
+                setApplicationName("play-qtquick");
 
                 // Create objects.
                 _contextObject = new qt::ContextObject(context, this);

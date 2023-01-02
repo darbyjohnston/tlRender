@@ -43,8 +43,8 @@ namespace tl
                 }
 
                 // Initialize Qt.
-                QCoreApplication::setOrganizationName("tlRender");
-                QCoreApplication::setApplicationName("filmstrip-qwidget");
+                setOrganizationName("tlRender");
+                setApplicationName("filmstrip-qwidget");
                 setStyle("Fusion");
 
                 // Create the context object.

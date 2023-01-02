@@ -196,8 +196,8 @@ namespace tl
             }
 
             // Initialize Qt.
-            QCoreApplication::setOrganizationName("tlRender");
-            QCoreApplication::setApplicationName("tlplay");
+            setOrganizationName("tlRender");
+            setApplicationName("tlplay");
             setStyle("Fusion");
             setPalette(qtwidget::darkStyle());
             setStyleSheet(qtwidget::styleSheet());

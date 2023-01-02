@@ -18,10 +18,10 @@ namespace tl
         class GLFramebufferObject : public QQuickFramebufferObject
         {
             Q_OBJECT
-                Q_PROPERTY(
-                    tl::timeline::VideoData video
-                    READ video
-                    WRITE setVideo)
+            Q_PROPERTY(
+                tl::timeline::VideoData video
+                READ video
+                WRITE setVideo)
 
         public:
             GLFramebufferObject(QQuickItem* parent = nullptr);
