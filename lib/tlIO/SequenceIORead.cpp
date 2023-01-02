@@ -2,67 +2,22 @@
 // Copyright (c) 2021-2022 Darby Johnston
 // All rights reserved.
 
-#include <tlIO/SequenceIO.h>
+#include <tlIO/SequenceIOReadPrivate.h>
 
 #include <tlCore/Assert.h>
 #include <tlCore/File.h>
-#include <tlCore/LRUCache.h>
 #include <tlCore/LogSystem.h>
 #include <tlCore/StringFormat.h>
 
 #include <fseq.h>
 
-#include <atomic>
-#include <condition_variable>
 #include <cstring>
-#include <queue>
-#include <list>
-#include <mutex>
 #include <sstream>
-#include <thread>
 
 namespace tl
 {
     namespace io
     {
-        struct ISequenceRead::Private
-        {
-            void addTags(Info&);
-
-            size_t threadCount = sequenceThreadCount;
-
-            std::promise<Info> infoPromise;
-
-            struct Request
-            {
-                Request() {}
-                Request(Request&&) = default;
-
-                otime::RationalTime time = time::invalidTime;
-                uint16_t layer = 0;
-                std::promise<VideoData> promise;
-
-                std::string fileName;
-                std::future<VideoData> future;
-            };
-            struct Mutex
-            {
-                std::list<std::shared_ptr<Request> > requests;
-                bool stopped = false;
-                std::mutex mutex;
-            };
-            Mutex mutex;
-            struct Thread
-            {
-                std::list<std::shared_ptr<Request> > requestsInProgress;
-                std::chrono::steady_clock::time_point logTimer;
-                std::condition_variable cv;
-                std::thread thread;
-                std::atomic<bool> running;
-            };
-            Thread thread;
-        };
-
         void ISequenceRead::_init(
             const file::Path& path,
             const std::vector<file::MemoryRead>& memory,
@@ -438,49 +393,6 @@ namespace tl
                     info.tags["Video Speed"] = ss.str();
                 }
             }
-        }
-
-        struct ISequenceWrite::Private
-        {
-            std::string path;
-            std::string baseName;
-            std::string number;
-            int pad = 0;
-            std::string extension;
-
-            float defaultSpeed = sequenceDefaultSpeed;
-        };
-
-        void ISequenceWrite::_init(
-            const file::Path& path,
-            const Info& info,
-            const Options& options,
-            const std::weak_ptr<log::System>& logSystem)
-        {
-            IWrite::_init(path, options, info, logSystem);
-
-            TLRENDER_P();
-
-            const auto i = options.find("SequenceIO/DefaultSpeed");
-            if (i != options.end())
-            {
-                std::stringstream ss(i->second);
-                ss >> p.defaultSpeed;
-            }
-        }
-
-        ISequenceWrite::ISequenceWrite() :
-            _p(new Private)
-        {}
-
-        ISequenceWrite::~ISequenceWrite()
-        {}
-
-        void ISequenceWrite::writeVideo(
-            const otime::RationalTime& time,
-            const std::shared_ptr<imaging::Image>& image)
-        {
-            _writeVideo(_path.get(static_cast<int>(time.value())), time, image);
         }
     }
 }

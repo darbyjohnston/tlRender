@@ -9,7 +9,8 @@ set(HEADERS
     SequenceIO.h
 	SGI.h
 	Util.h)
-set(HEADERS_PRIVATE)
+set(HEADERS_PRIVATE
+    SequenceIOReadPrivate.h)
 
 set(SOURCE
     CineonRead.cpp
@@ -23,7 +24,8 @@ set(SOURCE
     PPM.cpp
     PPMRead.cpp
     PPMWrite.cpp
-    SequenceIO.cpp
+    SequenceIORead.cpp
+    SequenceIOWrite.cpp
 	SGI.cpp
 	SGIRead.cpp
 	SGIWrite.cpp
