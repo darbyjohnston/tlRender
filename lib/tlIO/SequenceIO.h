@@ -48,7 +48,7 @@ namespace tl
                 const otime::RationalTime&,
                 uint16_t layer) = 0;
 
-            //! This must be called in the sub-class destructor.
+            //! \bug This must be called in the sub-class destructor.
             void _finish();
 
             int64_t _startFrame = 0;
@@ -56,8 +56,9 @@ namespace tl
             float _defaultSpeed = sequenceDefaultSpeed;
 
         private:
-            void _videoThread();
-            void _cancelVideoRequests();
+            void _thread();
+            void _finishRequests();
+            void _cancelRequests();
 
             TLRENDER_PRIVATE();
         };
