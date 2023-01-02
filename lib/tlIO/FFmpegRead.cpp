@@ -153,6 +153,7 @@ namespace tl
                                 {
                                     if (auto logSystem = _logSystem.lock())
                                     {
+                                        //! \todo How should this be handled?
                                         const std::string id = string::Format("tl::io::ffmpeg::Read ({0}: {1})").
                                             arg(__FILE__).
                                             arg(__LINE__);
@@ -162,11 +163,6 @@ namespace tl
                                             log::Type::Error);
                                     }
                                 }
-                                {
-                                    std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
-                                    p.audioMutex.stopped = true;
-                                }
-                                _cancelAudioRequests();
                             });
 
                         try
@@ -177,6 +173,7 @@ namespace tl
                         {
                             if (auto logSystem = _logSystem.lock())
                             {
+                                //! \todo How should this be handled?
                                 const std::string id = string::Format("tl::io::ffmpeg::Read ({0}: {1})").
                                     arg(__FILE__).
                                     arg(__LINE__);
@@ -186,11 +183,6 @@ namespace tl
                                     log::Type::Error);
                             }
                         }
-                        {
-                            std::unique_lock<std::mutex> lock(p.videoMutex.mutex);
-                            p.videoMutex.stopped = true;
-                        }
-                        _cancelVideoRequests();
                     }
                     catch (const std::exception& e)
                     {
@@ -206,6 +198,17 @@ namespace tl
                         }
                         p.infoPromise.set_value(io::Info());
                     }
+
+                    {
+                        std::unique_lock<std::mutex> lock(p.videoMutex.mutex);
+                        p.videoMutex.stopped = true;
+                    }
+                    _cancelVideoRequests();
+                    {
+                        std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
+                        p.audioMutex.stopped = true;
+                    }
+                    _cancelAudioRequests();
                 });
         }
 

@@ -56,7 +56,8 @@ namespace tl
             float _defaultSpeed = sequenceDefaultSpeed;
 
         private:
-            void _run();
+            void _videoThread();
+            void _cancelVideoRequests();
 
             TLRENDER_PRIVATE();
         };
