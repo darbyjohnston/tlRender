@@ -15,7 +15,7 @@ ApplicationWindow {
 
         Connections {
             target: timelinePlayer
-            function onVideoChanged(video) { fbo.setVideo(video) }
+            function onCurrentVideoChanged(video) { fbo.setVideo(video) }
         }
     }
 }
