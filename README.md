@@ -148,7 +148,15 @@ export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
 ./tlRender/src/tlRender-build/examples/play-glfw/play-glfw ../etc/SampleData/MultipleClips.otio
 ```
 
-### Building on Linux with Qt
+### Building on Linux with Qt 6
+
+When running CMake with the super build script, add the Qt location to
+"CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLRENDER_QT6":
+```
+cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/6.4.1/gcc_64" -DTLRENDER_QT6=ON -DCMAKE_BUILD_TYPE=Debug
+```
+
+### Building on Linux with Qt 5
 
 When running CMake with the super build script, add the Qt location to
 "CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLRENDER_QT5":
@@ -197,7 +205,15 @@ Try running the "play-glfw" example:
 ./tlRender/src/tlRender-build/examples/play-glfw/play-glfw ../etc/SampleData/MultipleClips.otio
 ```
 
-### Building on macOS with Qt
+### Building on macOS with Qt 6
+
+When running CMake with the super build script add the Qt location to
+"CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLRENDER_QT6":
+```
+cmake ../etc/SuperBuild -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_PREFIX_PATH="$PWD/install;$HOME/Qt/6.4.1/clang_64" -DTLRENDER_QT6=ON -DCMAKE_BUILD_TYPE=Debug
+```
+
+### Building on macOS with Qt 5
 
 When running CMake with the super build script add the Qt location to
 "CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLRENDER_QT5":
@@ -270,7 +286,15 @@ set PATH=%CD%\install\bin;%PATH%
 .\tlRender\src\tlRender-build\examples\play-glfw\Debug\play-glfw ..\etc\SampleData\MultipleClips.otio
 ```
 
-### Building on Windows with Qt
+### Building on Windows with Qt 6
+
+When running CMake with the super build script add the Qt location to
+"CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLRENDER_QT6":
+```
+cmake ..\etc\SuperBuild -DCMAKE_INSTALL_PREFIX=%CD%\install -DCMAKE_PREFIX_PATH="%CD%\install;C:\Qt\6.4.1\msvc2019_64" -DTLRENDER_QT6=ON -DCMAKE_BUILD_TYPE=Debug
+```
+
+### Building on Windows with Qt 5
 
 When running CMake with the super build script add the Qt location to
 "CMAKE_PREFIX_PATH" (make sure to use quotes), and enable "TLRENDER_QT5":
