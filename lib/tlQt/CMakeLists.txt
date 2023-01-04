@@ -34,7 +34,7 @@ set_target_properties(tlQt PROPERTIES FOLDER lib)
 set_target_properties(tlQt PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
 install(TARGETS tlQt
-        ARCHIVE DESTINATION lib
-        LIBRARY DESTINATION lib
-        RUNTIME DESTINATION bin
-        PUBLIC_HEADER DESTINATION include/tlRender/tlQt)
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+    PUBLIC_HEADER DESTINATION include/tlRender/tlQt)
