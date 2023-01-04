@@ -4,6 +4,8 @@
 
 #include <tlPlayApp/MemoryTimeline.h>
 
+#include <tlTimeline/MemoryReference.h>
+
 #include <tlCore/StringFormat.h>
 
 #include <opentimelineio/clip.h>

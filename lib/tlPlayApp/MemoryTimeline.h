@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <tlTimeline/MemoryReference.h>
 #include <tlTimeline/Timeline.h>
 
 #include <tlCore/FileIO.h>
