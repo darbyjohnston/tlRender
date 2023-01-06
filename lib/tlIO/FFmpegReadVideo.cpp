@@ -313,7 +313,11 @@ namespace tl
                 }
 
                 std::size_t sequenceSize = 0;
-                if (avVideoStream->duration != AV_NOPTS_VALUE)
+                if (avVideoStream->nb_frames > 0)
+                {
+                    sequenceSize = avVideoStream->nb_frames;
+                }
+                else if (avVideoStream->duration != AV_NOPTS_VALUE)
                 {
                     sequenceSize = av_rescale_q(
                         avVideoStream->duration,
