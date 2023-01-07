@@ -35,6 +35,7 @@ else()
         --disable-coreimage
         --disable-audiotoolbox
         --disable-vaapi
+        --disable-sdl2
         --enable-pic
         ${FFmpeg_CFLAGS}
         ${FFmpeg_CXXFLAGS}
@@ -42,13 +43,12 @@ else()
         ${FFmpeg_LDFLAGS}
         --x86asmexe=${CMAKE_INSTALL_PREFIX}/bin/nasm)
     if (APPLE)
-      list(APPEND FFmpeg_CONFIGURE_ARGS
-        --disable-libxcb
-        --disable-libxcb-shm
-        --disable-libxcb-xfixes
-        --disable-libxcb-shape
-        --disable-sdl2
-        --disable-xlib)
+        list(APPEND FFmpeg_CONFIGURE_ARGS
+            --disable-libxcb
+            --disable-libxcb-shm
+            --disable-libxcb-xfixes
+            --disable-libxcb-shape
+            --disable-xlib)
     endif()
     if(FFmpeg_SHARED_LIBS)
         list(APPEND FFmpeg_CONFIGURE_ARGS
