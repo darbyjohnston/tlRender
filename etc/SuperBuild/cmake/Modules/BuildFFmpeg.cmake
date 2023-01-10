@@ -42,7 +42,7 @@ else()
         ${FFmpeg_OBJCFLAGS}
         ${FFmpeg_LDFLAGS}
         --x86asmexe=${CMAKE_INSTALL_PREFIX}/bin/nasm)
-    if (UNIX)
+    if(UNIX)
         list(APPEND FFmpeg_CONFIGURE_ARGS
             --disable-libxcb
             --disable-libxcb-shm
