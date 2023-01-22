@@ -17,8 +17,8 @@ set(HEADERS
     FileInfo.h
     FileInfoInline.h
     FontSystem.h
-	HDR.h
-	HDRInline.h
+    HDR.h
+    HDRInline.h
     ICoreSystem.h
     ICoreSystemInline.h
     ISystem.h
@@ -34,12 +34,12 @@ set(HEADERS
     Math.h
     MathInline.h
     Matrix.h
-    MatrixInline.h	
+    MatrixInline.h
     Memory.h
     MemoryInline.h
-	Mesh.h
-	MeshInline.h
-	OS.h
+    Mesh.h
+    MeshInline.h
+    OS.h
     Observer.h
     Path.h
     PathInline.h
@@ -52,50 +52,50 @@ set(HEADERS
     Util.h
     ValueObserver.h
     ValueObserverInline.h
-	Vector.h
-	VectorInline.h)
+    Vector.h
+    VectorInline.h)
 
 set(SOURCE
     Assert.cpp
     Audio.cpp
     AudioConvert.cpp
     AudioSystem.cpp
-	BBox.cpp
-	Color.cpp
+    BBox.cpp
+    Color.cpp
     Context.cpp
     Error.cpp
     FileIO.cpp
     FileInfo.cpp
     FontSystem.cpp
-	HDR.cpp
+    HDR.cpp
     ICoreSystem.cpp
     ISystem.cpp
     Image.cpp
     LogSystem.cpp
-	Matrix.cpp
+    Matrix.cpp
     Memory.cpp
-	Mesh.cpp
-	OS.cpp
+    Mesh.cpp
+    OS.cpp
     Path.cpp
-	Range.cpp
+    Range.cpp
     String.cpp
     StringFormat.cpp
     Time.cpp
-	Vector.cpp)
+    Vector.cpp)
 if (WIN32)
     list(APPEND SOURCE
         ErrorWin32.cpp
         FileIOWin32.cpp
         FileInfoWin32.cpp
         FileWin32.cpp
-		OSWin32.cpp
+        OSWin32.cpp
         TimeWin32.cpp)
 else()
     list(APPEND SOURCE
         FileIOUnix.cpp
         FileInfoUnix.cpp
         FileUnix.cpp
-		OSUnix.cpp
+        OSUnix.cpp
         TimeUnix.cpp)
 endif()
 

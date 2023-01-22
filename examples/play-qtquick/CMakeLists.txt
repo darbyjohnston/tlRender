@@ -6,9 +6,9 @@ set(SOURCE
     main.cpp)
 
 if(TLRENDER_QT6)
-	qt6_add_resources(SOURCE play-qtquick.qrc)
+    qt6_add_resources(SOURCE play-qtquick.qrc)
 elseif(TLRENDER_QT5)
-	qt5_add_resources(SOURCE play-qtquick.qrc)
+    qt5_add_resources(SOURCE play-qtquick.qrc)
 endif()
 
 add_executable(play-qtquick ${SOURCE} ${HEADERS})

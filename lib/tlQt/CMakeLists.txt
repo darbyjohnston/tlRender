@@ -1,18 +1,18 @@
 set(HEADERS
-	ContextObject.h
-	MetaTypes.h
-	OutputDevice.h
+    ContextObject.h
+    MetaTypes.h
+    OutputDevice.h
     TimeObject.h
     TimelinePlayer.h
     TimelineThumbnailProvider.h
     ToolTipsFilter.h
     Util.h)
 set(PRIVATE_HEADERS
-	OutputDevicePrivate.h)
+    OutputDevicePrivate.h)
 
 set(SOURCE
-	ContextObject.cpp
-	OutputDevice.cpp
+    ContextObject.cpp
+    OutputDevice.cpp
     OutputDevicePrivate.cpp
     TimeObject.cpp
     TimelinePlayer.cpp
@@ -22,9 +22,9 @@ set(SOURCE
 
 set(LIBRARIES)
 if(TLRENDER_QT6)
-	list(APPEND LIBRARIES Qt6::Gui Qt6::OpenGL)
+    list(APPEND LIBRARIES Qt6::Gui Qt6::OpenGL)
 elseif(TLRENDER_QT5)
-	list(APPEND LIBRARIES Qt5::Gui)
+    list(APPEND LIBRARIES Qt5::Gui)
 endif()
 list(APPEND LIBRARIES tlGL tlDevice)
 

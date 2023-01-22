@@ -77,16 +77,16 @@ if(TLRENDER_TESTS)
 endif()
 
 include_directories(
-	${PROJECT_SOURCE_DIR}/deps
-	${PROJECT_SOURCE_DIR}/deps/FSeq
-	${PROJECT_SOURCE_DIR}/lib
-	${PROJECT_SOURCE_DIR}/etc
-	${PROJECT_SOURCE_DIR}/tests)
+    ${PROJECT_SOURCE_DIR}/deps
+    ${PROJECT_SOURCE_DIR}/deps/FSeq
+    ${PROJECT_SOURCE_DIR}/lib
+    ${PROJECT_SOURCE_DIR}/etc
+    ${PROJECT_SOURCE_DIR}/tests)
 
 if(TLRENDER_COVERAGE)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")# -fkeep-inline-functions")
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage")# -fkeep-inline-functions")
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")# -fkeep-inline-functions")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage")# -fkeep-inline-functions")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
 endif()
 
 set(CMAKE_FIND_FRAMEWORK LAST)
@@ -191,7 +191,7 @@ add_subdirectory(deps/FSeq)
 set_target_properties(fseq PROPERTIES FOLDER deps)
 
 if(TLRENDER_GL)
-	add_subdirectory(deps/tlGlad)
+    add_subdirectory(deps/tlGlad)
 endif()
 
 add_subdirectory(lib)

@@ -6,16 +6,16 @@ set(HEADERS
     Texture.h
     Util.h)
 set(PRIVATE_HEADERS
-	RenderPrivate.h)
+    RenderPrivate.h)
 
 set(SOURCE
     Mesh.cpp
     Mesh.cpp
     OffscreenBuffer.cpp
     Render.cpp
-	RenderPrims.cpp
-	RenderShaders.cpp
-	RenderVideo.cpp
+    RenderPrims.cpp
+    RenderShaders.cpp
+    RenderVideo.cpp
     Shader.cpp
     Texture.cpp
     Util.cpp)
