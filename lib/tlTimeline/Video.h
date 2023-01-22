@@ -14,15 +14,8 @@
 
 namespace tl
 {
-    namespace imaging
-    {
-        class FontSystem;
-    }
-
     namespace timeline
     {
-        class IRender;
-
         //! Video layer.
         struct VideoLayer
         {
