@@ -11,6 +11,7 @@
 #include <ImathBox.h>
 #include <ImfHeader.h>
 #include <ImfInputFile.h>
+#include <ImfMultiPartInputFile.h>
 #include <ImfPixelType.h>
 
 namespace tl
@@ -55,6 +56,7 @@ namespace tl
             std::string          name;
             std::vector<Channel> channels;
             bool                 luminanceChroma = false;
+            int                  partNumber = 0;
         };
 
         //! Compression types.
