@@ -304,16 +304,33 @@ namespace tl
                 {
                     _info.videoLevels = imaging::VideoLevels::LegalRange;
                 }
-                switch (_avCodecParameters[_avStream]->color_space)
+                switch (_avCodecParameters[_avStream]->color_primaries)
                 {
                 case AVCOL_PRI_BT2020:
                     _info.yuvCoefficients = imaging::YUVCoefficients::BT2020;
                     break;
                 default: break;
                 }
+                
+                double formatTimeDuration =
+                    double(_avFormatContext->duration)/double(AV_TIME_BASE);
 
-                std::size_t sequenceSize = 0;
-                if (avVideoStream->duration != AV_NOPTS_VALUE)
+                const double tbr = av_q2d(avVideoStream->r_frame_rate);
+                double fps = tbr;
+
+                // Use avg_frame_rate if set
+                if ( avVideoStream->avg_frame_rate.num != 0 &&
+                     avVideoStream->avg_frame_rate.den != 0 )
+                    fps = av_q2d(avVideoStream->avg_frame_rate);
+                
+                const double speed = fps;
+
+                std::size_t sequenceSize;
+                if ( avVideoStream->nb_frames > 0 )
+                {
+                    sequenceSize = avVideoStream->nb_frames;
+                }
+                else if (avVideoStream->duration != AV_NOPTS_VALUE)
                 {
                     sequenceSize = av_rescale_q(
                         avVideoStream->duration,
@@ -327,9 +344,7 @@ namespace tl
                         av_get_time_base_q(),
                         swap(avVideoStream->r_frame_rate));
                 }
-
-                const double speed = avVideoStream->r_frame_rate.num / double(avVideoStream->r_frame_rate.den);
-
+        
                 imaging::Tags tags;
                 AVDictionaryEntry* tag = nullptr;
                 while ((tag = av_dict_get(_avFormatContext->metadata, "", tag, AV_DICT_IGNORE_SUFFIX)))
@@ -544,7 +559,7 @@ namespace tl
                     _avStream,
                     av_rescale_q(
                         time.value() - _timeRange.start_time().value(),
-                        swap(_avFormatContext->streams[_avStream]->r_frame_rate),
+                        swap(_avFormatContext->streams[_avStream]->avg_frame_rate),
                         _avFormatContext->streams[_avStream]->time_base),
                     AVSEEK_FLAG_BACKWARD) < 0)
                 {
