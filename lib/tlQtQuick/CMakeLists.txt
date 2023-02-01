@@ -8,9 +8,9 @@ set(SOURCE
 
 set(LIBRARIES)
 if(TLRENDER_QT6)
-	list(APPEND LIBRARIES Qt6::Quick)
+    list(APPEND LIBRARIES Qt6::Quick)
 elseif(TLRENDER_QT5)
-	list(APPEND LIBRARIES Qt5::Quick)
+    list(APPEND LIBRARIES Qt5::Quick)
 endif()
 list(APPEND LIBRARIES tlQt)
 

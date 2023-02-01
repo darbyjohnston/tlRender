@@ -8,13 +8,13 @@ set(HEADERS
     FileInfoTest.h
     FileTest.h
     FontSystemTest.h
-	HDRTest.h
+    HDRTest.h
     ImageTest.h
     LRUCacheTest.h
     ListObserverTest.h
     MapObserverTest.h
     MathTest.h
-	MatrixTest.h
+    MatrixTest.h
     MemoryTest.h
     MeshTest.h
     OSTest.h
@@ -24,7 +24,7 @@ set(HEADERS
     StringFormatTest.h
     TimeTest.h
     ValueObserverTest.h
-	VectorTest.h)
+    VectorTest.h)
 
 set(SOURCE
     AudioTest.cpp
@@ -36,13 +36,13 @@ set(SOURCE
     FileInfoTest.cpp
     FileTest.cpp
     FontSystemTest.cpp
-	HDRTest.cpp
+    HDRTest.cpp
     ImageTest.cpp
     LRUCacheTest.cpp
     ListObserverTest.cpp
     MapObserverTest.cpp
     MathTest.cpp
-	MatrixTest.cpp
+    MatrixTest.cpp
     MemoryTest.cpp
     MeshTest.cpp
     OSTest.cpp
@@ -52,7 +52,7 @@ set(SOURCE
     StringFormatTest.cpp
     TimeTest.cpp
     ValueObserverTest.cpp
-	VectorTest.cpp)
+    VectorTest.cpp)
 
 add_library(tlCoreTest ${SOURCE} ${HEADERS})
 target_link_libraries(tlCoreTest tlTestLib)

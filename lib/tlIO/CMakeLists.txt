@@ -7,8 +7,8 @@ set(HEADERS
     IOSystemInline.h
     PPM.h
     SequenceIO.h
-	SGI.h
-	Util.h)
+    SGI.h
+    Util.h)
 set(HEADERS_PRIVATE
     SequenceIOReadPrivate.h)
 
@@ -26,10 +26,10 @@ set(SOURCE
     PPMWrite.cpp
     SequenceIORead.cpp
     SequenceIOWrite.cpp
-	SGI.cpp
-	SGIRead.cpp
-	SGIWrite.cpp
-	Util.cpp)
+    SGI.cpp
+    SGIRead.cpp
+    SGIWrite.cpp
+    Util.cpp)
 
 set(LIBRARIES tlCore)
 set(LIBRARIES_PRIVATE)
@@ -49,7 +49,7 @@ if(TLRENDER_PNG)
     list(APPEND LIBRARIES_PRIVATE PNG)
 endif()
 if(TLRENDER_EXR)
-	# \todo Make this library private.
+    # \todo Make this library private.
     list(APPEND HEADERS OpenEXR.h)
     list(APPEND SOURCE OpenEXR.cpp OpenEXRRead.cpp OpenEXRWrite.cpp)
     list(APPEND LIBRARIES OpenEXR)

@@ -1,34 +1,34 @@
 set(HEADERS
-	BellowsWidget.h
-	FileWidget.h
+    BellowsWidget.h
+    FileWidget.h
     FilmstripWidget.h
-	FloatSlider.h
-	IntSlider.h
-	SearchWidget.h
-	Separator.h
-	Spacer.h
+    FloatSlider.h
+    IntSlider.h
+    SearchWidget.h
+    Separator.h
+    Spacer.h
     SpeedLabel.h
-	Style.h
+    Style.h
     TimeLabel.h
     TimeSpinBox.h
     TimelineSlider.h
     TimelineViewport.h
     Util.h)
 set(PRIVATE_HEADERS
-	BellowsPrivate.h)
+    BellowsPrivate.h)
 
 set(SOURCE
-	BellowsPrivate.cpp
-	BellowsWidget.cpp
-	FileWidget.cpp
+    BellowsPrivate.cpp
+    BellowsWidget.cpp
+    FileWidget.cpp
     FilmstripWidget.cpp
-	FloatSlider.cpp
-	IntSlider.cpp
-	SearchWidget.cpp
-	Separator.cpp
-	Spacer.cpp
+    FloatSlider.cpp
+    IntSlider.cpp
+    SearchWidget.cpp
+    Separator.cpp
+    Spacer.cpp
     SpeedLabel.cpp
-	Style.cpp
+    Style.cpp
     TimeLabel.cpp
     TimeSpinBox.cpp
     TimelineSlider.cpp
@@ -36,16 +36,16 @@ set(SOURCE
     Util.cpp)
 
 if(TLRENDER_QT6)
-	qt6_add_resources(SOURCE tlQtWidget.qrc)
+    qt6_add_resources(SOURCE tlQtWidget.qrc)
 elseif(TLRENDER_QT5)
-	qt5_add_resources(SOURCE tlQtWidget.qrc)
+    qt5_add_resources(SOURCE tlQtWidget.qrc)
 endif()
 
 set(LIBRARIES)
 if(TLRENDER_QT6)
-	list(APPEND LIBRARIES Qt6::Widgets Qt6::OpenGLWidgets Qt6::Svg)
+    list(APPEND LIBRARIES Qt6::Widgets Qt6::OpenGLWidgets Qt6::Svg)
 elseif(TLRENDER_QT5)
-	list(APPEND LIBRARIES Qt5::Widgets Qt5::Svg)
+    list(APPEND LIBRARIES Qt5::Widgets Qt5::Svg)
 endif()
 list(APPEND LIBRARIES tlQt)
 

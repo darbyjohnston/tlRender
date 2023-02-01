@@ -1,10 +1,10 @@
 set(HEADERS
     App.h
-	TestPatterns.h)
+    TestPatterns.h)
 
 set(SOURCE
     App.cpp
-	TestPatterns.cpp
+    TestPatterns.cpp
     main.cpp)
 
 add_executable(test-patterns ${SOURCE} ${HEADERS})
