@@ -125,6 +125,7 @@ namespace tl
                     { ".y4m", io::FileType::Movie },
                     { ".mkv", io::FileType::Movie },
                     { ".mxf", io::FileType::Movie },
+                    { ".webm", io::FileType::Movie },
                     { ".wmv", io::FileType::Movie },
                     { ".wav", io::FileType::Audio },
                     { ".mp3", io::FileType::Audio },

@@ -36,6 +36,7 @@ else()
         --disable-audiotoolbox
         --disable-vaapi
         --disable-sdl2
+        --enable-libvpx
         --enable-pic
         ${FFmpeg_CFLAGS}
         ${FFmpeg_CXXFLAGS}
