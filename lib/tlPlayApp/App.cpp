@@ -551,7 +551,9 @@ namespace tl
             TLRENDER_P();
 
             // Save the previous timeline player state.
-            if (!p.active.empty() && !p.timelinePlayers.empty())
+            if (!p.active.empty() &&
+                !p.timelinePlayers.empty() &&
+                p.timelinePlayers[0])
             {
                 p.active[0]->speed = p.timelinePlayers[0]->speed();
                 p.active[0]->playback = p.timelinePlayers[0]->playback();
@@ -651,7 +653,7 @@ namespace tl
             }
 
             // Connect signals.
-            if (!newTimelinePlayers.empty())
+            if (!newTimelinePlayers.empty() && newTimelinePlayers[0])
             {
                 connect(
                     newTimelinePlayers[0],
@@ -743,7 +745,7 @@ namespace tl
                 p.outputDevice->setVolume(p.volume);
                 p.outputDevice->setMute(p.mute);
                 p.outputDevice->setAudioOffset(
-                    !p.timelinePlayers.empty() ?
+                    (!p.timelinePlayers.empty() && p.timelinePlayers[0]) ?
                     p.timelinePlayers[0]->audioOffset() :
                     0.0);
             }

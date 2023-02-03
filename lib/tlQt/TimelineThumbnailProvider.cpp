@@ -264,13 +264,23 @@ namespace tl
                         options.requestTimeout = std::chrono::milliseconds(25);
                         options.ioOptions["SequenceIO/ThreadCount"] = string::Format("{0}").arg(1);
                         options.ioOptions["ffmpeg/ThreadCount"] = string::Format("{0}").arg(1);
-                        request.timeline = timeline::Timeline::create(request.fileName.toUtf8().data(), context, options);
-                        for (const auto& i : request.times)
+                        try
                         {
-                            request.futures.push_back(request.timeline->getVideo(
-                                time::isValid(i) ?
-                                i :
-                                request.timeline->getTimeRange().start_time()));
+                            request.timeline = timeline::Timeline::create(request.fileName.toUtf8().data(), context, options);
+                            for (const auto& i : request.times)
+                            {
+                                request.futures.push_back(request.timeline->getVideo(
+                                    time::isValid(i) ?
+                                    i :
+                                    request.timeline->getTimeRange().start_time()));
+                            }
+                        }
+                        catch (const std::exception& e)
+                        {
+                            if (auto context = p.context.lock())
+                            {
+                                context->log("tl::qt::TimelineThumbnailProvider", e.what(), log::Type::Error);
+                            }
                         }
                         p.requestsInProgress.push_back(std::move(request));
                     }
