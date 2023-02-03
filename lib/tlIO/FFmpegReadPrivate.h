@@ -86,6 +86,7 @@ namespace tl
             AVIOBufferData _avIOBufferData;
             uint8_t* _avIOContextBuffer = nullptr;
             AVIOContext* _avIOContext = nullptr;
+            AVRational _avSpeed = { 24, 1 };
             int _avStream = -1;
             std::map<int, AVCodecParameters*> _avCodecParameters;
             std::map<int, AVCodecContext*> _avCodecContext;
