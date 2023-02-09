@@ -14,7 +14,7 @@ else()
     set(VPX_CXXFLAGS)
     set(VPX_OBJCFLAGS)
     set(VPX_LDFLAGS)
-    
+
     set(VPX_CONFIGURE_ARGS
         --prefix=${CMAKE_INSTALL_PREFIX}
         --enable-pic
@@ -23,15 +23,15 @@ else()
         --disable-docs
         --disable-unit-tests
         )
-ExternalProject_Add(
-  VPX
-  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/VPX
-  DEPENDS YASM
-  GIT_REPOSITORY "https://github.com/webmproject/libvpx.git"
-  GIT_TAG ${VPX_TAG}
-  CONFIGURE_COMMAND PATH="${CMAKE_PREFIX_PATH}/bin:$ENV{PATH}" ./configure ${VPX_CONFIGURE_ARGS}
-  BUILD_IN_SOURCE 1
-)
+
+    ExternalProject_Add(
+        VPX
+        PREFIX ${CMAKE_CURRENT_BINARY_DIR}/VPX
+        DEPENDS YASM
+        GIT_REPOSITORY "https://github.com/webmproject/libvpx.git"
+        GIT_TAG ${VPX_TAG}
+        CONFIGURE_COMMAND PATH=${CMAKE_PREFIX_PATH}/bin:$ENV{PATH} ./configure ${VPX_CONFIGURE_ARGS}
+        BUILD_IN_SOURCE 1
+        )
 
 endif()
-
