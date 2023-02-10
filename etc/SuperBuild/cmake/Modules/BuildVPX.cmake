@@ -2,7 +2,8 @@ include(ExternalProject)
 
 
 # set(LIBVPX_TAG main) # live on the cutting-edge!
-set(VPX_TAG v1.12.0) # proven to work
+
+set(VPX_TAG v1.12.0) # ptoven to work
 
 
 if(WIN32 OR NOT TLRENDER_FFMPEG)
