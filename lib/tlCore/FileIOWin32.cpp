@@ -423,9 +423,9 @@ namespace tl
             p.fileName = std::string();
 
 #if defined(TLRENDER_MMAP)
-            if (p.mMap != 0)
+            if (p.mMap)
             {
-                if (p.memoryStart != 0)
+                if (p.memoryStart)
                 {
                     if (!::UnmapViewOfFile((void*)p.memoryStart))
                     {
