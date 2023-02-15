@@ -26,8 +26,6 @@ namespace tl
             _context = context;
 
             qmlRegisterType<GLFramebufferObject>("tlQtQuick", 1, 0, "GLFramebufferObject");
-
-            QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
         }
 
         const std::weak_ptr<system::Context>& context()

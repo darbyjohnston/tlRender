@@ -17,6 +17,7 @@ int main(int argc, char* argv[])
     {
         auto context = tl::system::Context::create();
         tl::qtwidget::init(context);
+        QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
         tl::examples::filmstrip_qtwidget::App app(argc, argv, context);
         if (0 == app.getExit())
         {

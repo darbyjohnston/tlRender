@@ -17,6 +17,7 @@ int main(int argc, char* argv[])
     {
         auto context = tl::system::Context::create();
         tl::qtquick::init(context);
+        QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
         tl::examples::play_qtquick::App app(argc, argv, context);
         if (0 == app.getExit())
         {
