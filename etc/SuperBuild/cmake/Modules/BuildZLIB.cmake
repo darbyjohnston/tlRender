@@ -1,5 +1,7 @@
 include(ExternalProject)
 
+set(ZLIB_GIT_REPOSITORY "https://github.com/madler/zlib.git")
+set(ZLIB_GIT_TAG "cacf7f1d4e3d44d871b605da3b647f07d718623f") # tag: "v1.2.11"
 
 set(ZLIB_ARGS
     ${TLRENDER_EXTERNAL_ARGS}
@@ -8,7 +10,8 @@ set(ZLIB_ARGS
 ExternalProject_Add(
     ZLIB
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/ZLIB
-    URL "https://zlib.net/fossils/zlib-1.2.11.tar.gz"  # Original repository
+    GIT_REPOSITORY ${ZLIB_GIT_REPOSITORY}
+    GIT_TAG ${ZLIB_GIT_TAG}
     PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different
         ${CMAKE_CURRENT_SOURCE_DIR}/ZLIB-patch/CMakeLists.txt
         ${CMAKE_CURRENT_BINARY_DIR}/ZLIB/src/ZLIB/CMakeLists.txt
