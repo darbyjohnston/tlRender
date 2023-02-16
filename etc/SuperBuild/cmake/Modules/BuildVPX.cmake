@@ -22,16 +22,16 @@ else()
         --disable-tools
         --disable-docs
         --disable-unit-tests
-        )
+    )
 
     ExternalProject_Add(
-        VPX
-        PREFIX ${CMAKE_CURRENT_BINARY_DIR}/VPX
-        DEPENDS YASM
-        GIT_REPOSITORY "https://github.com/webmproject/libvpx.git"
-        GIT_TAG ${VPX_TAG}
-        CONFIGURE_COMMAND PATH=${CMAKE_PREFIX_PATH}/bin:$ENV{PATH} ./configure ${VPX_CONFIGURE_ARGS}
-        BUILD_IN_SOURCE 1
-        )
+	VPX
+	PREFIX ${CMAKE_CURRENT_BINARY_DIR}/VPX
+	DEPENDS NASM ${TLRENDER_YASM_DEP}
+	GIT_REPOSITORY "https://github.com/webmproject/libvpx.git"
+	GIT_TAG ${VPX_TAG}
+	CONFIGURE_COMMAND PATH=${CMAKE_INSTALL_PREFIX}/bin:$ENV{PATH} ./configure ${VPX_CONFIGURE_ARGS}
+	BUILD_IN_SOURCE 1
+    )
 
 endif()
