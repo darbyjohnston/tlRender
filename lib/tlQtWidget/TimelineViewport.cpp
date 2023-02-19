@@ -196,19 +196,19 @@ namespace tl
         void TimelineViewport::viewZoom1To1()
         {
             TLRENDER_P();
-            setViewZoom(1.F, p.mouseInside ? p.mousePos : _getViewportCenter());
+            setViewZoom(1.F, p.mouseInside ? p.mousePos : _viewportCenter());
         }
 
         void TimelineViewport::viewZoomIn()
         {
             TLRENDER_P();
-            setViewZoom(p.viewZoom * 2.F, p.mouseInside ? p.mousePos : _getViewportCenter());
+            setViewZoom(p.viewZoom * 2.F, p.mouseInside ? p.mousePos : _viewportCenter());
         }
 
         void TimelineViewport::viewZoomOut()
         {
             TLRENDER_P();
-            setViewZoom(p.viewZoom / 2.F, p.mouseInside ? p.mousePos : _getViewportCenter());
+            setViewZoom(p.viewZoom / 2.F, p.mouseInside ? p.mousePos : _viewportCenter());
         }
 
         void TimelineViewport::_currentVideoCallback(const timeline::VideoData& value)
@@ -308,7 +308,7 @@ namespace tl
                 _frameView();
             }
 
-            const auto renderSize = _getRenderSize();
+            const auto renderSize = _renderSize();
             try
             {
                 if (renderSize.isValid())
@@ -357,7 +357,7 @@ namespace tl
                 }
             }
 
-            const auto viewportSize = _getViewportSize();
+            const auto viewportSize = _viewportSize();
             glViewport(
                 0,
                 0,
@@ -481,7 +481,7 @@ namespace tl
             }
         }
 
-        imaging::Size TimelineViewport::_getViewportSize() const
+        imaging::Size TimelineViewport::_viewportSize() const
         {
             const float devicePixelRatio = window()->devicePixelRatio();
             return imaging::Size(
@@ -489,23 +489,23 @@ namespace tl
                 height() * devicePixelRatio);
         }
 
-        imaging::Size TimelineViewport::_getRenderSize() const
+        imaging::Size TimelineViewport::_renderSize() const
         {
             TLRENDER_P();
             return timeline::getRenderSize(p.compareOptions.mode, p.timelineSizes);
         }
 
-        math::Vector2i TimelineViewport::_getViewportCenter() const
+        math::Vector2i TimelineViewport::_viewportCenter() const
         {
-            const auto viewportSize = _getViewportSize();
+            const auto viewportSize = _viewportSize();
             return math::Vector2i(viewportSize.w / 2, viewportSize.h / 2);
         }
 
         void TimelineViewport::_frameView()
         {
             TLRENDER_P();
-            const auto viewportSize = _getViewportSize();
-            const auto renderSize = _getRenderSize();
+            const auto viewportSize = _viewportSize();
+            const auto renderSize = _renderSize();
             float zoom = viewportSize.w / static_cast<float>(renderSize.w);
             if (zoom * renderSize.h > viewportSize.h)
             {

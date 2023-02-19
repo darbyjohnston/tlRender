@@ -101,9 +101,9 @@ namespace tl
             void wheelEvent(QWheelEvent*) override;
 
         private:
-            imaging::Size _getViewportSize() const;
-            imaging::Size _getRenderSize() const;
-            math::Vector2i _getViewportCenter() const;
+            imaging::Size _viewportSize() const;
+            imaging::Size _renderSize() const;
+            math::Vector2i _viewportCenter() const;
             void _frameView();
 
             TLRENDER_PRIVATE();
