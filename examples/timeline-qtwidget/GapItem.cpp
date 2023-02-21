@@ -32,13 +32,8 @@ namespace tl
 
             QRectF GapItem::boundingRect() const
             {
-                return QRectF(
-                    0,
-                    0,
-                    _timeRange.duration().rescaled_to(1.0).value() * _zoom.x,
-                    _options.margin + _options.fontLineSize + _options.spacing +
-                    _options.fontLineSize + _options.margin +
-                        _options.thumbnailHeight * _zoom.y);
+                const math::Vector2f size = _size();
+                return QRectF(0.F, 0.F, size.x, size.y);
             }
 
             void GapItem::paint(
@@ -46,36 +41,36 @@ namespace tl
                 const QStyleOptionGraphicsItem*,
                 QWidget*)
             {
-                const float w = _timeRange.duration().rescaled_to(1.0).value() * _zoom.x;
+                const math::Vector2f size = _size();
                 painter->setPen(Qt::NoPen);
-                painter->setBrush(QColor(63, 63, 127));
-                painter->drawRect(
-                    0,
-                    0,
-                    w,
-                    _options.margin + _options.fontLineSize + _options.spacing +
-                    _options.fontLineSize + _options.margin +
-                        _options.thumbnailHeight * _zoom.y);
+                painter->setBrush(QColor(60, 60, 90));
+                painter->drawRect(0.F, 0.F, size.x, size.y);
 
                 painter->setPen(QColor(240, 240, 240));
                 painter->drawText(
                     _options.margin,
-                    _options.margin + _options.fontLineSize - _options.fontDescender,
+                    _options.margin +
+                    _options.fontLineSize - _options.fontDescender,
                     _label);
                 painter->drawText(
                     _options.margin,
-                    _options.margin + _options.fontLineSize + _options.spacing +
+                    _options.margin +
+                    _options.fontLineSize +
+                    _options.spacing +
                     _options.fontLineSize - _options.fontDescender,
                     _startLabel);
 
                 QFontMetrics fm(_options.font);
                 painter->drawText(
-                    w - _options.margin - fm.width(_durationLabel),
-                    _options.margin + _options.fontLineSize - _options.fontDescender,
+                    size.x - _options.margin - fm.width(_durationLabel),
+                    _options.margin +
+                    _options.fontLineSize - _options.fontDescender,
                     _durationLabel);
                 painter->drawText(
-                    w - _options.margin - fm.width(_endLabel),
-                    _options.margin + _options.fontLineSize + _options.spacing +
+                    size.x - _options.margin - fm.width(_endLabel),
+                    _options.margin +
+                    _options.fontLineSize +
+                    _options.spacing +
                     _options.fontLineSize - _options.fontDescender,
                     _endLabel);
             }
@@ -85,6 +80,17 @@ namespace tl
                 return !name.empty() ?
                     QString::fromUtf8(name.c_str()) :
                     QString("Gap");
+            }
+
+            math::Vector2f GapItem::_size() const
+            {
+                return math::Vector2f(
+                    _timeRange.duration().rescaled_to(1.0).value() * _zoom.x,
+                    _options.margin +
+                    _options.fontLineSize +
+                    _options.spacing +
+                    _options.fontLineSize +
+                    _options.margin);
             }
         }
     }

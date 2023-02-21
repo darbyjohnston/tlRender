@@ -36,7 +36,8 @@ namespace tl
                     const std::string& kind,
                     const std::string& name);
 
-                qreal _itemsHeight() const;
+                float _itemsHeight() const;
+                math::Vector2f _size() const;
 
                 otime::TimeRange _timeRange = time::invalidTimeRange;
                 std::vector<BaseItem*> _items;

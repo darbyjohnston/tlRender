@@ -15,20 +15,17 @@ namespace tl
         namespace timeline_qtwidget
         {
             TimelineItem::TimelineItem(
-                const otio::Timeline* timeline,
+                const std::shared_ptr<timeline::Timeline>& timeline,
                 const ItemOptions& options,
+                const std::shared_ptr<system::Context>& context,
                 QGraphicsItem* parent) :
-                BaseItem(options, parent)
+                BaseItem(options, parent),
+                _timeline(timeline)
             {
-                otime::RationalTime startTime(0.0, timeline->duration().rate());
-                auto startTimeOpt = timeline->global_start_time();
-                if (startTimeOpt.has_value())
-                {
-                    startTime = startTimeOpt.value().rescaled_to(startTime.value());
-                }
-                _timeRange = otime::TimeRange(startTime, timeline->duration());
+                _timeRange = timeline->getTimeRange();
 
-                for (const auto& child : timeline->tracks()->children())
+                const auto otioTimeline = timeline->getTimeline();
+                for (const auto& child : otioTimeline->tracks()->children())
                 {
                     if (const auto* track = dynamic_cast<otio::Track*>(child.value))
                     {
@@ -38,33 +35,67 @@ namespace tl
                     }
                 }
 
-                _label = _nameLabel(timeline->name());
+                _label = _nameLabel(otioTimeline->name());
                 _durationLabel = BaseItem::_durationLabel(_timeRange.duration());
                 _startLabel = _timeLabel(_timeRange.start_time());
                 _endLabel = _timeLabel(_timeRange.end_time_inclusive());
+
+                _thumbnailProvider = new qt::TimelineThumbnailProvider(context);
+                connect(
+                    _thumbnailProvider,
+                    SIGNAL(thumbails(qint64, const QList<QPair<otime::RationalTime, QImage> >&)),
+                    SLOT(_thumbnailsCallback(qint64, const QList<QPair<otime::RationalTime, QImage> >&)));
+            }
+
+            TimelineItem::~TimelineItem()
+            {
+                delete _thumbnailProvider;
             }
 
             void TimelineItem::layout()
             {
-                qreal y = _options.margin + _options.fontLineSize + _options.spacing +
-                    _options.fontLineSize + _options.margin;
+                const math::Vector2f size = _size();
+                float y =
+                    _options.margin +
+                    _options.fontLineSize +
+                    _options.spacing +
+                    _options.fontLineSize +
+                    _options.spacing +
+                    _options.fontLineSize +
+                    _options.spacing +
+                    _options.fontLineSize +
+                    _options.spacing +
+                    _options.thumbnailHeight * _zoom.y;
                 for (auto item : _trackItems)
                 {
                     item->layout();
                     item->setY(y);
                     y += item->boundingRect().height();
                 }
+                
+                _thumbnailProvider->cancelRequests(_thumbnailRequestId);
+                const int thumbnailHeight = _options.thumbnailHeight * _zoom.y;
+                const auto ioInfo = _timeline->getIOInfo();
+                const int thumbnailWidth = !ioInfo.video.empty() ?
+                    static_cast<int>(thumbnailHeight * ioInfo.video[0].size.getAspect()) :
+                    0;
+                QList<otime::RationalTime> thumbnailTimes;
+                for (float x = 0.F; x < size.x; x += thumbnailWidth)
+                {
+                    thumbnailTimes.push_back(otime::RationalTime(
+                        _timeRange.start_time().value() + x / size.x * _timeRange.duration().value(),
+                        _timeRange.duration().rate()));
+                }
+                _thumbnailRequestId = _thumbnailProvider->request(
+                    QString::fromUtf8(_timeline->getPath().get().c_str()),
+                    QSize(thumbnailWidth, thumbnailHeight),
+                    thumbnailTimes);
             }
 
             QRectF TimelineItem::boundingRect() const
             {
-                return QRectF(
-                    0,
-                    0,
-                    _timeRange.duration().rescaled_to(1.0).value() * _zoom.x,
-                    _options.margin + _options.fontLineSize + _options.spacing +
-                        _options.fontLineSize + _options.margin +
-                        _tracksHeight());
+                const math::Vector2f size = _size();
+                return QRectF(0.F, 0.F, size.x, size.y);
             }
 
             void TimelineItem::paint(
@@ -72,38 +103,63 @@ namespace tl
                 const QStyleOptionGraphicsItem*,
                 QWidget*)
             {
-                const float w = _timeRange.duration().rescaled_to(1.0).value() * _zoom.x;
+                const math::Vector2f size = _size();
                 painter->setPen(Qt::NoPen);
-                painter->setBrush(QColor(63, 63, 63));
-                painter->drawRect(
-                    0,
-                    0,
-                    w,
-                    _options.margin + _options.fontLineSize + _options.spacing +
-                        _options.fontLineSize + _options.margin +
-                        _tracksHeight());
+                painter->setBrush(QColor(40, 40, 40));
+                painter->drawRect(0.F, 0.F, size.x, size.y);
 
                 painter->setPen(QColor(240, 240, 240));
                 painter->drawText(
                     _options.margin,
-                    _options.margin + _options.fontLineSize - _options.fontDescender,
+                    _options.margin +
+                    _options.fontLineSize - _options.fontDescender,
                     _label);
                 painter->drawText(
                     _options.margin,
-                    _options.margin + _options.fontLineSize + _options.spacing +
-                        _options.fontLineSize - _options.fontDescender,
+                    _options.margin +
+                    _options.fontLineSize +
+                    _options.spacing +
+                    _options.fontLineSize - _options.fontDescender,
                     _startLabel);
 
                 QFontMetrics fm(_options.font);
                 painter->drawText(
-                    w - _options.margin - fm.width(_durationLabel),
-                    _options.margin + _options.fontLineSize - _options.fontDescender,
+                    size.x - _options.margin - fm.width(_durationLabel),
+                    _options.margin +
+                    _options.fontLineSize - _options.fontDescender,
                     _durationLabel);
                 painter->drawText(
-                    w - _options.margin - fm.width(_endLabel),
-                    _options.margin + _options.fontLineSize + _options.spacing +
-                        _options.fontLineSize - _options.fontDescender,
+                    size.x - _options.margin - fm.width(_endLabel),
+                    _options.margin +
+                    _options.fontLineSize +
+                    _options.spacing +
+                    _options.fontLineSize - _options.fontDescender,
                     _endLabel);
+
+                for (const auto& thumbnail : _thumbnails)
+                {
+                    painter->drawImage(
+                        (thumbnail.first.value() - _timeRange.start_time().value()) / _timeRange.duration().value() * size.x,
+                        _options.margin +
+                        _options.fontLineSize +
+                        _options.spacing +
+                        _options.fontLineSize +
+                        _options.spacing +
+                        _options.fontLineSize +
+                        _options.spacing +
+                        _options.fontLineSize +
+                        _options.spacing,
+                        thumbnail.second);
+                }
+            }
+
+            void TimelineItem::_thumbnailsCallback(qint64 id, const QList<QPair<otime::RationalTime, QImage> >& thumbnails)
+            {
+                if (_thumbnailRequestId == id)
+                {
+                    _thumbnails.append(thumbnails);
+                    update();
+                }
             }
 
             QString TimelineItem::_nameLabel(const std::string& name)
@@ -113,14 +169,31 @@ namespace tl
                     QString("Timeline");
             }
 
-            qreal TimelineItem::_tracksHeight() const
+            float TimelineItem::_tracksHeight() const
             {
-                qreal out = 0;
+                float out = 0.F;
                 for (auto item : _trackItems)
                 {
                     out += item->boundingRect().height();
                 }
                 return out;
+            }
+
+            math::Vector2f TimelineItem::_size() const
+            {
+                return math::Vector2f(
+                    _timeRange.duration().rescaled_to(1.0).value() * _zoom.x,
+                    _options.margin +
+                    _options.fontLineSize +
+                    _options.spacing +
+                    _options.fontLineSize +
+                    _options.spacing +
+                    _options.fontLineSize +
+                    _options.spacing +
+                    _options.fontLineSize +
+                    _options.spacing +
+                    _options.thumbnailHeight * _zoom.y +
+                    _tracksHeight());
             }
         }
     }

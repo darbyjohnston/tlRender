@@ -63,19 +63,17 @@ namespace tl
                     {
                         item->setPos(
                             i->second.start_time().rescaled_to(1.0).value() * _zoom.x,
-                            _options.margin + _options.fontLineSize + _options.margin);
+                            _options.margin +
+                            _options.fontLineSize +
+                            _options.margin);
                     }
                 }
             }
 
             QRectF TrackItem::boundingRect() const
             {
-                return QRectF(
-                    0,
-                    0,
-                    _timeRange.duration().rescaled_to(1.0).value() * _zoom.x,
-                    _options.margin + _options.fontLineSize + _options.margin +
-                        _itemsHeight());
+                const math::Vector2f size = _size();
+                return QRectF(0.F, 0.F, size.x, size.y);
             }
 
             void TrackItem::paint(
@@ -83,14 +81,10 @@ namespace tl
                 const QStyleOptionGraphicsItem*,
                 QWidget*)
             {
-                const float w = _timeRange.duration().rescaled_to(1.0).value() * _zoom.x;
+                const math::Vector2f size = _size();
                 painter->setPen(Qt::NoPen);
-                painter->setBrush(QColor(127, 127, 127));
-                painter->drawRect(
-                    0,
-                    0,
-                    w,
-                    _options.margin + _options.fontLineSize + _options.margin + _itemsHeight());
+                painter->setBrush(QColor(60, 60, 60));
+                painter->drawRect(0.F, 0.F, size.x, size.y);
 
                 painter->setPen(QColor(240, 240, 240));
                 painter->drawText(
@@ -100,8 +94,9 @@ namespace tl
 
                 QFontMetrics fm(_options.font);
                 painter->drawText(
-                    w - _options.margin - fm.width(_durationLabel),
-                    _options.margin + _options.fontLineSize - _options.fontDescender,
+                    size.x - _options.margin - fm.width(_durationLabel),
+                    _options.margin +
+                    _options.fontLineSize - _options.fontDescender,
                     _durationLabel);
             }
 
@@ -117,14 +112,24 @@ namespace tl
                         arg(QString::fromUtf8(kind.c_str()));
             }
 
-            qreal TrackItem::_itemsHeight() const
+            float TrackItem::_itemsHeight() const
             {
-                qreal out = 0;
+                float out = 0.F;
                 for (auto item : _items)
                 {
-                    out = std::max(out, item->boundingRect().height());
+                    out = std::max(out, static_cast<float>(item->boundingRect().height()));
                 }
                 return out;
+            }
+
+            math::Vector2f TrackItem::_size() const
+            {
+                return math::Vector2f(
+                    _timeRange.duration().rescaled_to(1.0).value() * _zoom.x,
+                    _options.margin +
+                    _options.fontLineSize +
+                    _options.margin +
+                    _itemsHeight());
             }
         }
     }

@@ -39,7 +39,7 @@ namespace tl
                 void _open(const std::string&);
                 
                 std::weak_ptr<system::Context> _context;
-                otio::SerializableObject::Retainer<otio::Timeline> _otioTimeline;
+                std::shared_ptr<timeline::Timeline> _timeline;
                 QGraphicsScene* _scene = nullptr;
                 QGraphicsView* _view = nullptr;
                 TimelineItem* _timelineItem = nullptr;

@@ -31,6 +31,7 @@ namespace tl
 
             private:
                 static QString _nameLabel(const std::string&);
+                math::Vector2f _size() const;
 
                 otime::TimeRange _timeRange = time::invalidTimeRange;
                 QString _label;

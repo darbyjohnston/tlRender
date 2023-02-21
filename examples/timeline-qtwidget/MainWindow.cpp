@@ -82,22 +82,14 @@ namespace tl
             {
                 _scene->clear();
                 _timelineItem = nullptr;
-                _otioTimeline = nullptr;
+                _timeline = nullptr;
 
-                otio::ErrorStatus errorStatus;
-                _otioTimeline = dynamic_cast<otio::Timeline*>(otio::Timeline::from_json_file(fileName, &errorStatus));
-                if (otio::is_error(errorStatus))
-                {
-                    _otioTimeline = nullptr;
-                    QMessageBox dialog;
-                    dialog.setText(QString::fromUtf8(errorStatus.details.c_str()));
-                    dialog.exec();
-                }
-
-                if (_otioTimeline)
+                try
                 {
                     if (auto context = _context.lock())
                     {
+                        _timeline = timeline::Timeline::create(fileName, context);
+
                         ItemOptions options;
                         options.font = font();
                         const auto fm = QFontMetrics(options.font);
@@ -105,10 +97,16 @@ namespace tl
                         options.fontAscender = fm.ascent();
                         options.fontDescender = fm.descent();
 
-                        _timelineItem = new TimelineItem(_otioTimeline.value, options);
+                        _timelineItem = new TimelineItem(_timeline, options, context);
                         _timelineItem->layout();
                         _scene->addItem(_timelineItem);
                     }
+                }
+                catch (const std::string& e)
+                {
+                    QMessageBox dialog;
+                    dialog.setText(QString::fromUtf8(e.c_str()));
+                    dialog.exec();
                 }
             }
         }

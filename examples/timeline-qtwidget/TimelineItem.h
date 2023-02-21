@@ -6,7 +6,9 @@
 
 #include "BaseItem.h"
 
-#include <opentimelineio/timeline.h>
+#include <tlQt/TimelineThumbnailProvider.h>
+
+#include <tlTimeline/Timeline.h>
 
 namespace tl
 {
@@ -15,13 +17,18 @@ namespace tl
         namespace timeline_qtwidget
         {
             //! Timeline item.
-            class TimelineItem : public BaseItem
+            class TimelineItem : public QObject, public BaseItem
             {
+                Q_OBJECT
+
             public:
                 TimelineItem(
-                    const otio::Timeline*,
+                    const std::shared_ptr<timeline::Timeline>&,
                     const ItemOptions&,
+                    const std::shared_ptr<system::Context>&,
                     QGraphicsItem* parent = nullptr);
+
+                ~TimelineItem() override;
 
                 void layout() override;
 
@@ -31,16 +38,24 @@ namespace tl
                     const QStyleOptionGraphicsItem*,
                     QWidget* = nullptr) override;
 
+            private Q_SLOTS:
+                void _thumbnailsCallback(qint64, const QList<QPair<otime::RationalTime, QImage> >&);
+
             private:
                 static QString _nameLabel(const std::string&);
-                qreal _tracksHeight() const;
+                float _tracksHeight() const;
+                math::Vector2f _size() const;
 
+                std::shared_ptr<timeline::Timeline> _timeline;
                 otime::TimeRange _timeRange = time::invalidTimeRange;
                 std::vector<BaseItem*> _trackItems;
                 QString _label;
                 QString _durationLabel;
                 QString _startLabel;
                 QString _endLabel;
+                qt::TimelineThumbnailProvider* _thumbnailProvider = nullptr;
+                qint64 _thumbnailRequestId = 0;
+                QList<QPair<otime::RationalTime, QImage> > _thumbnails;
             };
         }
     }
