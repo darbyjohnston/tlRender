@@ -30,8 +30,13 @@ namespace tl
                     QWidget* = nullptr) override;
 
             private:
+                static QString _nameLabel(const std::string&);
+
+                otime::TimeRange _timeRange = time::invalidTimeRange;
                 QString _label;
-                otime::TimeRange _timeRange;
+                QString _durationLabel;
+                QString _startLabel;
+                QString _endLabel;
             };
         }
     }

@@ -26,6 +26,20 @@ namespace tl
 
             void BaseItem::layout()
             {}
+
+            QString BaseItem::_durationLabel(const otime::RationalTime& value)
+            {
+                return value != time::invalidTime ?
+                    QString("%1@%2").arg(value.value()).arg(value.rate()) :
+                    QString();
+            }
+
+            QString BaseItem::_timeLabel(const otime::RationalTime& value)
+            {
+                return value != time::invalidTime ?
+                    QString("%1").arg(value.value()) :
+                    QString();
+            }
         }
     }
 }

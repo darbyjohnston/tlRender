@@ -21,8 +21,6 @@ namespace tl
                 QGraphicsItem* parent) :
                 BaseItem(options, parent)
             {
-                _label = QString("Track: %1").arg(QString::fromUtf8(track->name().c_str()));
-
                 _timeRange = track->trimmed_range();
 
                 for (auto child : track->children())
@@ -49,6 +47,9 @@ namespace tl
                             _timeRanges[gapItem] = timeRangeOpt.value();
                         }
                     }
+
+                    _label = _nameLabel(track->kind(), track->name());
+                    _durationLabel = BaseItem::_durationLabel(_timeRange.duration());
                 }
             }
 
@@ -73,7 +74,8 @@ namespace tl
                     0,
                     0,
                     _timeRange.duration().rescaled_to(1.0).value() * _zoom.x,
-                    _options.margin + _options.fontLineSize + _options.margin + _itemsHeight());
+                    _options.margin + _options.fontLineSize + _options.margin +
+                        _itemsHeight());
             }
 
             void TrackItem::paint(
@@ -81,12 +83,13 @@ namespace tl
                 const QStyleOptionGraphicsItem*,
                 QWidget*)
             {
+                const float w = _timeRange.duration().rescaled_to(1.0).value() * _zoom.x;
                 painter->setPen(Qt::NoPen);
                 painter->setBrush(QColor(127, 127, 127));
                 painter->drawRect(
                     0,
                     0,
-                    _timeRange.duration().rescaled_to(1.0).value() * _zoom.x,
+                    w,
                     _options.margin + _options.fontLineSize + _options.margin + _itemsHeight());
 
                 painter->setPen(QColor(240, 240, 240));
@@ -94,6 +97,24 @@ namespace tl
                     _options.margin,
                     _options.margin + _options.fontLineSize - _options.fontDescender,
                     _label);
+
+                QFontMetrics fm(_options.font);
+                painter->drawText(
+                    w - _options.margin - fm.width(_durationLabel),
+                    _options.margin + _options.fontLineSize - _options.fontDescender,
+                    _durationLabel);
+            }
+
+            QString TrackItem::_nameLabel(
+                const std::string& kind,
+                const std::string& name)
+            {
+                return !name.empty() && name != "Track" ?
+                    QString("%1 Track: %2").
+                        arg(QString::fromUtf8(kind.c_str())).
+                        arg(QString::fromUtf8(name.c_str())) :
+                    QString("%1 Track").
+                        arg(QString::fromUtf8(kind.c_str()));
             }
 
             qreal TrackItem::_itemsHeight() const

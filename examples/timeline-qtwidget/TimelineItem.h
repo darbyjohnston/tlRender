@@ -32,9 +32,15 @@ namespace tl
                     QWidget* = nullptr) override;
 
             private:
+                static QString _nameLabel(const std::string&);
+                qreal _tracksHeight() const;
+
+                otime::TimeRange _timeRange = time::invalidTimeRange;
+                std::vector<BaseItem*> _trackItems;
                 QString _label;
-                otime::RationalTime _duration;
-                BaseItem* _stackItem = nullptr;
+                QString _durationLabel;
+                QString _startLabel;
+                QString _endLabel;
             };
         }
     }

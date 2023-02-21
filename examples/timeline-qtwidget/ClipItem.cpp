@@ -18,9 +18,16 @@ namespace tl
                 QGraphicsItem* parent) :
                 BaseItem(options, parent)
             {
-                _label = QString("Clip: %1").arg(QString::fromUtf8(clip->name().c_str()));
+                auto rangeOpt = clip->trimmed_range_in_parent();
+                if (rangeOpt.has_value())
+                {
+                    _timeRange = rangeOpt.value();
+                }
 
-                _timeRange = clip->trimmed_range();
+                _label = _nameLabel(clip->name());
+                _durationLabel = BaseItem::_durationLabel(_timeRange.duration());
+                _startLabel = _timeLabel(_timeRange.start_time());
+                _endLabel = _timeLabel(_timeRange.end_time_inclusive());
             }
 
             QRectF ClipItem::boundingRect() const
@@ -29,7 +36,9 @@ namespace tl
                     0,
                     0,
                     _timeRange.duration().rescaled_to(1.0).value() * _zoom.x,
-                    (_options.fontLineSize + _options.margin * 2.F + _options.thumbnailHeight) * _zoom.y);
+                    _options.margin + _options.fontLineSize + _options.spacing +
+                        _options.fontLineSize + _options.margin +
+                        _options.thumbnailHeight * _zoom.y);
             }
 
             void ClipItem::paint(
@@ -37,19 +46,45 @@ namespace tl
                 const QStyleOptionGraphicsItem*,
                 QWidget*)
             {
+                const float w = _timeRange.duration().rescaled_to(1.0).value() * _zoom.x;
                 painter->setPen(Qt::NoPen);
                 painter->setBrush(QColor(63, 127, 63));
                 painter->drawRect(
                     0,
                     0,
-                    _timeRange.duration().rescaled_to(1.0).value() * _zoom.x,
-                    (_options.fontLineSize + _options.margin * 2.F + _options.thumbnailHeight) * _zoom.y);
+                    w,
+                    _options.margin + _options.fontLineSize + _options.spacing +
+                        _options.fontLineSize + _options.margin +
+                        _options.thumbnailHeight * _zoom.y);
 
                 painter->setPen(QColor(240, 240, 240));
                 painter->drawText(
                     _options.margin,
                     _options.margin + _options.fontLineSize - _options.fontDescender,
                     _label);
+                painter->drawText(
+                    _options.margin,
+                    _options.margin + _options.fontLineSize + _options.spacing +
+                        _options.fontLineSize - _options.fontDescender,
+                    _startLabel);
+
+                QFontMetrics fm(_options.font);
+                painter->drawText(
+                    w - _options.margin - fm.width(_durationLabel),
+                    _options.margin + _options.fontLineSize - _options.fontDescender,
+                    _durationLabel);
+                painter->drawText(
+                    w - _options.margin - fm.width(_endLabel),
+                    _options.margin + _options.fontLineSize + _options.spacing +
+                        _options.fontLineSize - _options.fontDescender,
+                    _endLabel);
+            }
+
+            QString ClipItem::_nameLabel(const std::string& name)
+            {
+                return !name.empty() ?
+                    QString::fromUtf8(name.c_str()) :
+                    QString("Clip");
             }
         }
     }

@@ -5,10 +5,6 @@
 #include "MainWindow.h"
 
 #include "App.h"
-#include "ClipItem.h"
-#include "GapItem.h"
-#include "StackItem.h"
-#include "TrackItem.h"
 
 #include <tlCore/File.h>
 

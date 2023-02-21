@@ -4,7 +4,6 @@ set(HEADERS
     ClipItem.h
     GapItem.h
     MainWindow.h
-    StackItem.h
     TimelineItem.h
     TrackItem.h)
 
@@ -14,7 +13,6 @@ set(SOURCE
     ClipItem.cpp
     GapItem.cpp
     MainWindow.cpp
-    StackItem.cpp
     TimelineItem.cpp
     TrackItem.cpp
     main.cpp)
