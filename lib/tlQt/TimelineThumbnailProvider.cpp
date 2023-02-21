@@ -8,7 +8,7 @@
 #include <tlGL/Render.h>
 #include <tlGL/Util.h>
 
-#include <tlTimeline/TimelinePlayer.h>
+#include <tlTimeline/Timeline.h>
 
 #include <tlCore/StringFormat.h>
 
