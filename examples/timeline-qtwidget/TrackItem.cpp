@@ -53,6 +53,30 @@ namespace tl
                 }
             }
 
+            void TrackItem::setScale(float value)
+            {
+                if (value == _scale)
+                    return;
+                BaseItem::setScale(value);
+                prepareGeometryChange();
+                for (auto item : _items)
+                {
+                    item->setScale(value);
+                }
+            }
+
+            void TrackItem::setThumbnailHeight(int value)
+            {
+                if (value == _thumbnailHeight)
+                    return;
+                BaseItem::setThumbnailHeight(value);
+                prepareGeometryChange();
+                for (auto item : _items)
+                {
+                    item->setThumbnailHeight(value);
+                }
+            }
+
             void TrackItem::layout()
             {
                 for (auto item : _items)
@@ -62,7 +86,7 @@ namespace tl
                     if (i != _timeRanges.end())
                     {
                         item->setPos(
-                            i->second.start_time().rescaled_to(1.0).value() * _zoom.x,
+                            i->second.start_time().rescaled_to(1.0).value() * _scale,
                             _options.margin +
                             _options.fontLineSize +
                             _options.margin);
@@ -125,7 +149,7 @@ namespace tl
             math::Vector2f TrackItem::_size() const
             {
                 return math::Vector2f(
-                    _timeRange.duration().rescaled_to(1.0).value() * _zoom.x,
+                    _timeRange.duration().rescaled_to(1.0).value() * _scale,
                     _options.margin +
                     _options.fontLineSize +
                     _options.margin +

@@ -23,6 +23,9 @@ namespace tl
                     const ItemOptions&,
                     QGraphicsItem* parent = nullptr);
 
+                void setScale(float) override;
+                void setThumbnailHeight(int) override;
+
                 QRectF boundingRect() const override;
                 void paint(
                     QPainter*,

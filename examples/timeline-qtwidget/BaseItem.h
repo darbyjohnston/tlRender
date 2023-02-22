@@ -24,7 +24,6 @@ namespace tl
                 int fontLineSize = 0;
                 int fontAscender = 0;
                 int fontDescender = 0;
-                int thumbnailHeight = 100;
             };
 
             //! Base item.
@@ -35,7 +34,9 @@ namespace tl
                     const ItemOptions&,
                     QGraphicsItem* parent = nullptr);
 
-                virtual void setZoom(const math::Vector2f&);
+                virtual void setScale(float);
+
+                virtual void setThumbnailHeight(int);
 
                 virtual void layout();
 
@@ -44,7 +45,8 @@ namespace tl
                 static QString _timeLabel(const otime::RationalTime&);
 
                 ItemOptions _options;
-                math::Vector2f _zoom = math::Vector2f(100.F, 1.F);
+                float _scale = 100.F;
+                int _thumbnailHeight = 100;
             };
         }
     }

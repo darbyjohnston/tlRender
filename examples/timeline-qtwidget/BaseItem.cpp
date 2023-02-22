@@ -17,11 +17,14 @@ namespace tl
                 _options(options)
             {}
 
-            void BaseItem::setZoom(const tl::math::Vector2f& value)
+            void BaseItem::setScale(float value)
             {
-                if (value == _zoom)
-                    return;
-                _zoom = value;
+                _scale = value;
+            }
+
+            void BaseItem::setThumbnailHeight(int value)
+            {
+                _thumbnailHeight = value;
             }
 
             void BaseItem::layout()

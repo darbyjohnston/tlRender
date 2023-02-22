@@ -8,8 +8,10 @@
 
 #include <tlCore/File.h>
 
+#include <QDockWidget>
 #include <QDragEnterEvent>
 #include <QDragMoveEvent>
+#include <QFormLayout>
 #include <QMessageBox>
 #include <QMimeData>
 
@@ -34,12 +36,50 @@ namespace tl
                 _view->setScene(_scene);
                 setCentralWidget(_view);
 
+                _scaleSlider = new qtwidget::FloatSlider;
+                _scaleSlider->setRange(math::FloatRange(10.F, 200.F));
+                _thumbnailHeightSlider = new qtwidget::IntSlider;
+                _thumbnailHeightSlider->setRange(math::IntRange(100, 400));
+                auto formLayout = new QFormLayout;
+                formLayout->addRow(tr("Scale:"), _scaleSlider);
+                formLayout->addRow(tr("Thumbnail height:"), _thumbnailHeightSlider);
+                auto viewWidget = new QWidget;
+                viewWidget->setLayout(formLayout);
+                _viewDockWidget = new QDockWidget(tr("View"));
+                _viewDockWidget->setWidget(viewWidget);
+                addDockWidget(Qt::RightDockWidgetArea, _viewDockWidget);
+
+                _scaleSlider->setValue(100.F);
+                _thumbnailHeightSlider->setValue(100);
+
                 if (!input.empty())
                 {
                     _open(input);
                 }
 
                 resize(1280, 720);
+
+                connect(
+                    _scaleSlider,
+                    &qtwidget::FloatSlider::valueChanged,
+                    [this](float value)
+                    {
+                        if (_timelineItem)
+                        {
+                            _timelineItem->setScale(value);
+                        }
+                    });
+
+                connect(
+                    _thumbnailHeightSlider,
+                    &qtwidget::IntSlider::valueChanged,
+                    [this](int value)
+                    {
+                        if (_timelineItem)
+                        {
+                            _timelineItem->setThumbnailHeight(value);
+                        }
+                    });
             }
 
             void MainWindow::dragEnterEvent(QDragEnterEvent* event)

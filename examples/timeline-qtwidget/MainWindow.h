@@ -4,6 +4,9 @@
 
 #pragma once
 
+#include <tlQtWidget/FloatSlider.h>
+#include <tlQtWidget/IntSlider.h>
+
 #include <tlTimeline/Timeline.h>
 
 #include <QMainWindow>
@@ -43,6 +46,9 @@ namespace tl
                 QGraphicsScene* _scene = nullptr;
                 QGraphicsView* _view = nullptr;
                 TimelineItem* _timelineItem = nullptr;
+                qtwidget::FloatSlider* _scaleSlider = nullptr;
+                qtwidget::IntSlider* _thumbnailHeightSlider = nullptr;
+                QDockWidget* _viewDockWidget = nullptr;
             };
         }
     }

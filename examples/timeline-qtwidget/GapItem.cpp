@@ -30,6 +30,22 @@ namespace tl
                 _endLabel = _timeLabel(_timeRange.end_time_inclusive());
             }
 
+            void GapItem::setScale(float value)
+            {
+                if (value == _scale)
+                    return;
+                BaseItem::setScale(value);
+                prepareGeometryChange();
+            }
+
+            void GapItem::setThumbnailHeight(int value)
+            {
+                if (value == _thumbnailHeight)
+                    return;
+                BaseItem::setThumbnailHeight(value);
+                prepareGeometryChange();
+            }
+
             QRectF GapItem::boundingRect() const
             {
                 const math::Vector2f size = _size();
@@ -85,7 +101,7 @@ namespace tl
             math::Vector2f GapItem::_size() const
             {
                 return math::Vector2f(
-                    _timeRange.duration().rescaled_to(1.0).value() * _zoom.x,
+                    _timeRange.duration().rescaled_to(1.0).value() * _scale,
                     _options.margin +
                     _options.fontLineSize +
                     _options.spacing +

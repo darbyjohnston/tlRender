@@ -52,6 +52,32 @@ namespace tl
                 delete _thumbnailProvider;
             }
 
+            void TimelineItem::setScale(float value)
+            {
+                if (value == _scale)
+                    return;
+                BaseItem::setScale(value);
+                prepareGeometryChange();
+                for (auto trackItem : _trackItems)
+                {
+                    trackItem->setScale(value);
+                }
+                layout();
+            }
+
+            void TimelineItem::setThumbnailHeight(int value)
+            {
+                if (value == _thumbnailHeight)
+                    return;
+                BaseItem::setThumbnailHeight(value);
+                prepareGeometryChange();
+                for (auto trackItem : _trackItems)
+                {
+                    trackItem->setThumbnailHeight(value);
+                }
+                layout();
+            }
+
             void TimelineItem::layout()
             {
                 const math::Vector2f size = _size();
@@ -65,7 +91,7 @@ namespace tl
                     _options.spacing +
                     _options.fontLineSize +
                     _options.spacing +
-                    _options.thumbnailHeight * _zoom.y;
+                    _thumbnailHeight;
                 for (auto item : _trackItems)
                 {
                     item->layout();
@@ -73,11 +99,11 @@ namespace tl
                     y += item->boundingRect().height();
                 }
                 
+                _thumbnails.clear();
                 _thumbnailProvider->cancelRequests(_thumbnailRequestId);
-                const int thumbnailHeight = _options.thumbnailHeight * _zoom.y;
                 const auto ioInfo = _timeline->getIOInfo();
                 const int thumbnailWidth = !ioInfo.video.empty() ?
-                    static_cast<int>(thumbnailHeight * ioInfo.video[0].size.getAspect()) :
+                    static_cast<int>(_thumbnailHeight * ioInfo.video[0].size.getAspect()) :
                     0;
                 QList<otime::RationalTime> thumbnailTimes;
                 for (float x = 0.F; x < size.x; x += thumbnailWidth)
@@ -88,7 +114,7 @@ namespace tl
                 }
                 _thumbnailRequestId = _thumbnailProvider->request(
                     QString::fromUtf8(_timeline->getPath().get().c_str()),
-                    QSize(thumbnailWidth, thumbnailHeight),
+                    QSize(thumbnailWidth, _thumbnailHeight),
                     thumbnailTimes);
             }
 
@@ -136,6 +162,7 @@ namespace tl
                     _options.fontLineSize - _options.fontDescender,
                     _endLabel);
 
+                painter->setClipRect(0, 0, size.x, size.y);
                 for (const auto& thumbnail : _thumbnails)
                 {
                     painter->drawImage(
@@ -182,7 +209,7 @@ namespace tl
             math::Vector2f TimelineItem::_size() const
             {
                 return math::Vector2f(
-                    _timeRange.duration().rescaled_to(1.0).value() * _zoom.x,
+                    _timeRange.duration().rescaled_to(1.0).value() * _scale,
                     _options.margin +
                     _options.fontLineSize +
                     _options.spacing +
@@ -192,7 +219,7 @@ namespace tl
                     _options.spacing +
                     _options.fontLineSize +
                     _options.spacing +
-                    _options.thumbnailHeight * _zoom.y +
+                    _thumbnailHeight +
                     _tracksHeight());
             }
         }
