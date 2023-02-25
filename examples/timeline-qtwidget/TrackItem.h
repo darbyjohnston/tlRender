@@ -20,7 +20,7 @@ namespace tl
             public:
                 TrackItem(
                     const otio::Track*,
-                    const ItemOptions&,
+                    const ItemData&,
                     QGraphicsItem* parent = nullptr);
 
                 void setScale(float) override;

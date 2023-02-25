@@ -20,7 +20,7 @@ namespace tl
             public:
                 GapItem(
                     const otio::Gap*,
-                    const ItemOptions&,
+                    const ItemData&,
                     QGraphicsItem* parent = nullptr);
 
                 void setScale(float) override;

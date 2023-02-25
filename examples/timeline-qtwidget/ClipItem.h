@@ -20,7 +20,7 @@ namespace tl
             public:
                 ClipItem(
                     const otio::Clip*,
-                    const ItemOptions&,
+                    const ItemData&,
                     QGraphicsItem* parent = nullptr);
 
                 void setScale(float) override;

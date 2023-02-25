@@ -24,7 +24,7 @@ namespace tl
             public:
                 TimelineItem(
                     const std::shared_ptr<timeline::Timeline>&,
-                    const ItemOptions&,
+                    const ItemData&,
                     const std::shared_ptr<system::Context>&,
                     QGraphicsItem* parent = nullptr);
 

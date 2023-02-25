@@ -37,9 +37,9 @@ namespace tl
                 setCentralWidget(_view);
 
                 _scaleSlider = new qtwidget::FloatSlider;
-                _scaleSlider->setRange(math::FloatRange(10.F, 200.F));
+                _scaleSlider->setRange(math::FloatRange(10.F, 1000.F));
                 _thumbnailHeightSlider = new qtwidget::IntSlider;
-                _thumbnailHeightSlider->setRange(math::IntRange(100, 400));
+                _thumbnailHeightSlider->setRange(math::IntRange(100, 1000));
                 auto formLayout = new QFormLayout;
                 formLayout->addRow(tr("Scale:"), _scaleSlider);
                 formLayout->addRow(tr("Thumbnail height:"), _thumbnailHeightSlider);
@@ -67,6 +67,7 @@ namespace tl
                         if (_timelineItem)
                         {
                             _timelineItem->setScale(value);
+                            _view->setSceneRect(_timelineItem->boundingRect());
                         }
                     });
 
@@ -78,6 +79,7 @@ namespace tl
                         if (_timelineItem)
                         {
                             _timelineItem->setThumbnailHeight(value);
+                            _view->setSceneRect(_timelineItem->boundingRect());
                         }
                     });
             }
@@ -130,16 +132,18 @@ namespace tl
                     {
                         _timeline = timeline::Timeline::create(fileName, context);
 
-                        ItemOptions options;
-                        options.font = font();
-                        const auto fm = QFontMetrics(options.font);
-                        options.fontLineSize = fm.lineSpacing();
-                        options.fontAscender = fm.ascent();
-                        options.fontDescender = fm.descent();
+                        ItemData itemData;
+                        itemData.font = font();
+                        const auto fm = QFontMetrics(itemData.font);
+                        itemData.fontLineSpacing = fm.lineSpacing();
+                        itemData.fontAscent = fm.ascent();
+                        itemData.fontDescent = fm.descent();
+                        itemData.fontYPos = itemData.fontLineSpacing - itemData.fontDescent;
 
-                        _timelineItem = new TimelineItem(_timeline, options, context);
+                        _timelineItem = new TimelineItem(_timeline, itemData, context);
                         _timelineItem->layout();
                         _scene->addItem(_timelineItem);
+                        _view->setSceneRect(_timelineItem->boundingRect());
                     }
                 }
                 catch (const std::string& e)

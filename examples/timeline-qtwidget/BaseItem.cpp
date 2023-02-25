@@ -11,10 +11,10 @@ namespace tl
         namespace timeline_qtwidget
         {
             BaseItem::BaseItem(
-                const ItemOptions& options,
+                const ItemData& itemData,
                 QGraphicsItem* parent) :
                 QGraphicsItem(parent),
-                _options(options)
+                _itemData(itemData)
             {}
 
             void BaseItem::setScale(float value)

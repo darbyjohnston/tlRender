@@ -14,9 +14,9 @@ namespace tl
         {
             GapItem::GapItem(
                 const otio::Gap* gap,
-                const ItemOptions& options,
+                const ItemData& itemData,
                 QGraphicsItem* parent) :
-                BaseItem(options, parent)
+                BaseItem(itemData, parent)
             {
                 auto rangeOpt = gap->trimmed_range_in_parent();
                 if (rangeOpt.has_value())
@@ -59,35 +59,53 @@ namespace tl
             {
                 const math::Vector2f size = _size();
                 painter->setPen(Qt::NoPen);
+                painter->setBrush(QColor(60, 60, 90).lighter());
+                painter->drawRect(0, 0, size.x, size.y);
                 painter->setBrush(QColor(60, 60, 90));
-                painter->drawRect(0.F, 0.F, size.x, size.y);
+                painter->drawRect(
+                    _itemData.border,
+                    _itemData.border,
+                    size.x - _itemData.border - _itemData.border,
+                    size.y - _itemData.border - _itemData.border);
 
                 painter->setPen(QColor(240, 240, 240));
                 painter->drawText(
-                    _options.margin,
-                    _options.margin +
-                    _options.fontLineSize - _options.fontDescender,
+                    _itemData.border +
+                    _itemData.margin,
+                    _itemData.border +
+                    _itemData.margin +
+                    _itemData.fontYPos,
                     _label);
                 painter->drawText(
-                    _options.margin,
-                    _options.margin +
-                    _options.fontLineSize +
-                    _options.spacing +
-                    _options.fontLineSize - _options.fontDescender,
+                    _itemData.border +
+                    _itemData.margin,
+                    _itemData.border +
+                    _itemData.margin +
+                    _itemData.fontLineSpacing +
+                    _itemData.spacing +
+                    _itemData.fontYPos,
                     _startLabel);
 
-                QFontMetrics fm(_options.font);
+                QFontMetrics fm(_itemData.font);
                 painter->drawText(
-                    size.x - _options.margin - fm.width(_durationLabel),
-                    _options.margin +
-                    _options.fontLineSize - _options.fontDescender,
+                    size.x -
+                    _itemData.border -
+                    _itemData.margin -
+                    fm.width(_durationLabel),
+                    _itemData.border +
+                    _itemData.margin +
+                    _itemData.fontYPos,
                     _durationLabel);
                 painter->drawText(
-                    size.x - _options.margin - fm.width(_endLabel),
-                    _options.margin +
-                    _options.fontLineSize +
-                    _options.spacing +
-                    _options.fontLineSize - _options.fontDescender,
+                    size.x -
+                    _itemData.border -
+                    _itemData.margin -
+                    fm.width(_endLabel),
+                    _itemData.border +
+                    _itemData.margin +
+                    _itemData.fontLineSpacing +
+                    _itemData.spacing +
+                    _itemData.fontYPos,
                     _endLabel);
             }
 
@@ -102,11 +120,13 @@ namespace tl
             {
                 return math::Vector2f(
                     _timeRange.duration().rescaled_to(1.0).value() * _scale,
-                    _options.margin +
-                    _options.fontLineSize +
-                    _options.spacing +
-                    _options.fontLineSize +
-                    _options.margin);
+                    _itemData.border +
+                    _itemData.margin +
+                    _itemData.fontLineSpacing +
+                    _itemData.spacing +
+                    _itemData.fontLineSpacing +
+                    _itemData.margin +
+                    _itemData.border);
             }
         }
     }

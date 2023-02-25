@@ -17,9 +17,9 @@ namespace tl
         {
             TrackItem::TrackItem(
                 const otio::Track* track,
-                const ItemOptions& options,
+                const ItemData& itemData,
                 QGraphicsItem* parent) :
-                BaseItem(options, parent)
+                BaseItem(itemData, parent)
             {
                 _timeRange = track->trimmed_range();
 
@@ -27,7 +27,7 @@ namespace tl
                 {
                     if (auto clip = dynamic_cast<otio::Clip*>(child.value))
                     {
-                        auto clipItem = new ClipItem(clip, _options);
+                        auto clipItem = new ClipItem(clip, _itemData);
                         clipItem->setParentItem(this);
                         _items.push_back(clipItem);
                         const auto timeRangeOpt = track->trimmed_range_of_child(clip);
@@ -38,7 +38,7 @@ namespace tl
                     }
                     else if (auto gap = dynamic_cast<otio::Gap*>(child.value))
                     {
-                        auto gapItem = new GapItem(gap, _options);
+                        auto gapItem = new GapItem(gap, _itemData);
                         gapItem->setParentItem(this);
                         _items.push_back(gapItem);
                         const auto timeRangeOpt = track->trimmed_range_of_child(gap);
@@ -87,9 +87,9 @@ namespace tl
                     {
                         item->setPos(
                             i->second.start_time().rescaled_to(1.0).value() * _scale,
-                            _options.margin +
-                            _options.fontLineSize +
-                            _options.margin);
+                            _itemData.margin +
+                            _itemData.fontLineSpacing +
+                            _itemData.margin);
                     }
                 }
             }
@@ -106,21 +106,21 @@ namespace tl
                 QWidget*)
             {
                 const math::Vector2f size = _size();
-                painter->setPen(Qt::NoPen);
-                painter->setBrush(QColor(60, 60, 60));
-                painter->drawRect(0.F, 0.F, size.x, size.y);
 
                 painter->setPen(QColor(240, 240, 240));
                 painter->drawText(
-                    _options.margin,
-                    _options.margin + _options.fontLineSize - _options.fontDescender,
+                    _itemData.margin,
+                    _itemData.margin +
+                    _itemData.fontYPos,
                     _label);
 
-                QFontMetrics fm(_options.font);
+                QFontMetrics fm(_itemData.font);
                 painter->drawText(
-                    size.x - _options.margin - fm.width(_durationLabel),
-                    _options.margin +
-                    _options.fontLineSize - _options.fontDescender,
+                    size.x -
+                    _itemData.margin -
+                    fm.width(_durationLabel),
+                    _itemData.margin +
+                    _itemData.fontYPos,
                     _durationLabel);
             }
 
@@ -150,9 +150,9 @@ namespace tl
             {
                 return math::Vector2f(
                     _timeRange.duration().rescaled_to(1.0).value() * _scale,
-                    _options.margin +
-                    _options.fontLineSize +
-                    _options.margin +
+                    _itemData.margin +
+                    _itemData.fontLineSpacing +
+                    _itemData.margin +
                     _itemsHeight());
             }
         }

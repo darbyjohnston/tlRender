@@ -16,10 +16,10 @@ namespace tl
         {
             TimelineItem::TimelineItem(
                 const std::shared_ptr<timeline::Timeline>& timeline,
-                const ItemOptions& options,
+                const ItemData& itemData,
                 const std::shared_ptr<system::Context>& context,
                 QGraphicsItem* parent) :
-                BaseItem(options, parent),
+                BaseItem(itemData, parent),
                 _timeline(timeline)
             {
                 _timeRange = timeline->getTimeRange();
@@ -29,7 +29,7 @@ namespace tl
                 {
                     if (const auto* track = dynamic_cast<otio::Track*>(child.value))
                     {
-                        auto trackItem = new TrackItem(track, options);
+                        auto trackItem = new TrackItem(track, itemData);
                         trackItem->setParentItem(this);
                         _trackItems.push_back(trackItem);
                     }
@@ -82,20 +82,20 @@ namespace tl
             {
                 const math::Vector2f size = _size();
                 float y =
-                    _options.margin +
-                    _options.fontLineSize +
-                    _options.spacing +
-                    _options.fontLineSize +
-                    _options.spacing +
-                    _options.fontLineSize +
-                    _options.spacing +
-                    _options.fontLineSize +
-                    _options.spacing +
+                    _itemData.margin +
+                    _itemData.fontLineSpacing +
+                    _itemData.spacing +
+                    _itemData.fontLineSpacing +
+                    _itemData.spacing +
+                    _itemData.fontLineSpacing +
+                    _itemData.spacing +
+                    _itemData.fontLineSpacing +
+                    _itemData.spacing +
                     _thumbnailHeight;
                 for (auto item : _trackItems)
                 {
                     item->layout();
-                    item->setY(y);
+                    item->setPos(_itemData.margin, y);
                     y += item->boundingRect().height();
                 }
                 
@@ -106,10 +106,10 @@ namespace tl
                     static_cast<int>(_thumbnailHeight * ioInfo.video[0].size.getAspect()) :
                     0;
                 QList<otime::RationalTime> thumbnailTimes;
-                for (float x = 0.F; x < size.x; x += thumbnailWidth)
+                for (float x = _itemData.margin; x < size.x - _itemData.margin * 2; x += thumbnailWidth)
                 {
                     thumbnailTimes.push_back(otime::RationalTime(
-                        _timeRange.start_time().value() + x / size.x * _timeRange.duration().value(),
+                        _timeRange.start_time().value() + (x - _itemData.margin) / (size.x - _itemData.margin * 2) * _timeRange.duration().value(),
                         _timeRange.duration().rate()));
                 }
                 _thumbnailRequestId = _thumbnailProvider->request(
@@ -136,46 +136,175 @@ namespace tl
 
                 painter->setPen(QColor(240, 240, 240));
                 painter->drawText(
-                    _options.margin,
-                    _options.margin +
-                    _options.fontLineSize - _options.fontDescender,
+                    _itemData.margin,
+                    _itemData.margin +
+                    _itemData.fontYPos,
                     _label);
                 painter->drawText(
-                    _options.margin,
-                    _options.margin +
-                    _options.fontLineSize +
-                    _options.spacing +
-                    _options.fontLineSize - _options.fontDescender,
+                    _itemData.margin,
+                    _itemData.margin +
+                    _itemData.fontLineSpacing +
+                    _itemData.spacing +
+                    _itemData.fontYPos,
                     _startLabel);
 
-                QFontMetrics fm(_options.font);
+                QFontMetrics fm(_itemData.font);
                 painter->drawText(
-                    size.x - _options.margin - fm.width(_durationLabel),
-                    _options.margin +
-                    _options.fontLineSize - _options.fontDescender,
+                    size.x -
+                    _itemData.margin -
+                    fm.width(_durationLabel),
+                    _itemData.margin +
+                    _itemData.fontYPos,
                     _durationLabel);
                 painter->drawText(
-                    size.x - _options.margin - fm.width(_endLabel),
-                    _options.margin +
-                    _options.fontLineSize +
-                    _options.spacing +
-                    _options.fontLineSize - _options.fontDescender,
+                    size.x -
+                    _itemData.margin -
+                    fm.width(_endLabel),
+                    _itemData.margin +
+                    _itemData.fontLineSpacing +
+                    _itemData.spacing +
+                    _itemData.fontYPos,
                     _endLabel);
 
-                painter->setClipRect(0, 0, size.x, size.y);
+                const float frameTick0 = _timeRange.start_time().value() /
+                    _timeRange.duration().value() * (size.x - _itemData.margin * 2);
+                const float frameTick1 = (_timeRange.start_time().value() + 1.0) /
+                    _timeRange.duration().value() * (size.x - _itemData.margin * 2);
+                const int frameWidth = frameTick1 - frameTick0;
+                if (frameWidth >= _itemData.minTickSpacing)
+                {
+                    QString label = QString("%1").arg(_timeRange.end_time_inclusive().value());
+                    if (fm.width(label) < (frameWidth - _itemData.spacing))
+                    {
+                        painter->setPen(QColor(120, 120, 120));
+                        for (double t = 1.0; t < _timeRange.duration().value(); t += 1.0)
+                        {
+                            label = QString("%1").arg(t);
+                            painter->drawText(
+                                _itemData.margin + t / _timeRange.duration().value() * (size.x - _itemData.margin * 2),
+                                _itemData.margin +
+                                _itemData.fontLineSpacing +
+                                _itemData.spacing +
+                                _itemData.fontLineSpacing +
+                                _itemData.spacing +
+                                _itemData.fontYPos,
+                                label);
+                        }
+                    }
+
+                    painter->setPen(Qt::NoPen);
+                    painter->setBrush(QColor(80, 80, 80));
+                    for (double t = 1.0; t < _timeRange.duration().value(); t += 1.0)
+                    {
+                        painter->drawRect(
+                            _itemData.margin + t / _timeRange.duration().value() * (size.x - _itemData.margin * 2),
+                            _itemData.margin +
+                            _itemData.fontLineSpacing +
+                            _itemData.spacing +
+                            _itemData.fontLineSpacing +
+                            _itemData.spacing +
+                            _itemData.fontLineSpacing +
+                            _itemData.spacing,
+                            1,
+                            size.y -
+                            _itemData.margin -
+                            _itemData.fontLineSpacing -
+                            _itemData.spacing -
+                            _itemData.fontLineSpacing -
+                            _itemData.spacing -
+                            _itemData.fontLineSpacing -
+                            _itemData.spacing -
+                            _itemData.margin);
+                    }
+                }
+
+                const float secondsTick0 = _timeRange.start_time().value() /
+                    (_timeRange.duration().value() / _timeRange.duration().rate()) * (size.x - _itemData.margin * 2);
+                const float secondsTick1 = (_timeRange.start_time().value() + 1.0) /
+                    (_timeRange.duration().value() / _timeRange.duration().rate()) * (size.x - _itemData.margin * 2);
+                const int secondsWidth = secondsTick1 - secondsTick0;
+                if (secondsWidth >= _itemData.minTickSpacing)
+                {
+                    QString label = QString("%1").arg(_timeRange.end_time_inclusive().value());
+                    if (fm.width(label) < (secondsWidth - _itemData.spacing))
+                    {
+                        painter->setPen(QColor(240, 240, 240));
+                        for (double t = 0.0;
+                            t < _timeRange.duration().value();
+                            t += _timeRange.duration().rate())
+                        {
+                            label = QString("%1").arg(t);
+                            painter->drawText(
+                                _itemData.margin + t / _timeRange.duration().value() * (size.x - _itemData.margin * 2),
+                                _itemData.margin +
+                                _itemData.fontLineSpacing +
+                                _itemData.spacing +
+                                _itemData.fontLineSpacing +
+                                _itemData.spacing +
+                                _itemData.fontYPos,
+                                label);
+                        }
+                    }
+
+                    painter->setPen(Qt::NoPen);
+                    painter->setBrush(QColor(160, 160, 160));
+                    for (double t = 0.0;
+                        t < _timeRange.duration().value();
+                        t += _timeRange.duration().rate())
+                    {
+                        painter->drawRect(
+                            _itemData.margin + t / _timeRange.duration().value() * (size.x - _itemData.margin * 2),
+                            _itemData.margin +
+                            _itemData.fontLineSpacing +
+                            _itemData.spacing +
+                            _itemData.fontLineSpacing +
+                            _itemData.spacing +
+                            _itemData.fontLineSpacing +
+                            _itemData.spacing,
+                            1,
+                            size.y -
+                            _itemData.margin -
+                            _itemData.fontLineSpacing -
+                            _itemData.spacing -
+                            _itemData.fontLineSpacing -
+                            _itemData.spacing -
+                            _itemData.fontLineSpacing -
+                            _itemData.spacing -
+                            _itemData.margin);
+                    }
+                }
+
+                painter->setPen(Qt::NoPen);
+                painter->setBrush(QColor(0, 0, 0));
+                painter->drawRect(
+                    _itemData.margin,
+                    _itemData.margin +
+                    _itemData.fontLineSpacing +
+                    _itemData.spacing +
+                    _itemData.fontLineSpacing +
+                    _itemData.spacing +
+                    _itemData.fontLineSpacing +
+                    _itemData.spacing +
+                    _itemData.fontLineSpacing +
+                    _itemData.spacing,
+                    size.x - _itemData.margin * 2,
+                    _thumbnailHeight);
+                painter->setClipRect(_itemData.margin, 0, size.x - _itemData.margin * 2, size.y);
                 for (const auto& thumbnail : _thumbnails)
                 {
                     painter->drawImage(
-                        (thumbnail.first.value() - _timeRange.start_time().value()) / _timeRange.duration().value() * size.x,
-                        _options.margin +
-                        _options.fontLineSize +
-                        _options.spacing +
-                        _options.fontLineSize +
-                        _options.spacing +
-                        _options.fontLineSize +
-                        _options.spacing +
-                        _options.fontLineSize +
-                        _options.spacing,
+                        _itemData.margin +
+                        (thumbnail.first.value() - _timeRange.start_time().value()) /
+                            _timeRange.duration().value() * (size.x - _itemData.margin * 2),
+                        _itemData.margin +
+                        _itemData.fontLineSpacing +
+                        _itemData.spacing +
+                        _itemData.fontLineSpacing +
+                        _itemData.spacing +
+                        _itemData.fontLineSpacing +
+                        _itemData.spacing +
+                        _itemData.fontLineSpacing +
+                        _itemData.spacing,
                         thumbnail.second);
                 }
             }
@@ -209,18 +338,21 @@ namespace tl
             math::Vector2f TimelineItem::_size() const
             {
                 return math::Vector2f(
-                    _timeRange.duration().rescaled_to(1.0).value() * _scale,
-                    _options.margin +
-                    _options.fontLineSize +
-                    _options.spacing +
-                    _options.fontLineSize +
-                    _options.spacing +
-                    _options.fontLineSize +
-                    _options.spacing +
-                    _options.fontLineSize +
-                    _options.spacing +
+                    _itemData.margin +
+                    _timeRange.duration().rescaled_to(1.0).value() * _scale +
+                    _itemData.margin,
+                    _itemData.margin +
+                    _itemData.fontLineSpacing +
+                    _itemData.spacing +
+                    _itemData.fontLineSpacing +
+                    _itemData.spacing +
+                    _itemData.fontLineSpacing +
+                    _itemData.spacing +
+                    _itemData.fontLineSpacing +
+                    _itemData.spacing +
                     _thumbnailHeight +
-                    _tracksHeight());
+                    _tracksHeight() +
+                    _itemData.margin);
             }
         }
     }

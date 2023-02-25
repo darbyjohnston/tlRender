@@ -15,15 +15,19 @@ namespace tl
     {
         namespace timeline_qtwidget
         {
-            struct ItemOptions
+            struct ItemData
             {
                 int margin = 5;
                 int spacing = 5;
-                int border = 2;
+                int border = 1;
+
                 QFont font;
-                int fontLineSize = 0;
-                int fontAscender = 0;
-                int fontDescender = 0;
+                int fontLineSpacing = 0;
+                int fontAscent = 0;
+                int fontDescent = 0;
+                int fontYPos = 0;
+
+                int minTickSpacing = 5;
             };
 
             //! Base item.
@@ -31,7 +35,7 @@ namespace tl
             {
             public:
                 BaseItem(
-                    const ItemOptions&,
+                    const ItemData&,
                     QGraphicsItem* parent = nullptr);
 
                 virtual void setScale(float);
@@ -44,7 +48,7 @@ namespace tl
                 static QString _durationLabel(const otime::RationalTime&);
                 static QString _timeLabel(const otime::RationalTime&);
 
-                ItemOptions _options;
+                ItemData _itemData;
                 float _scale = 100.F;
                 int _thumbnailHeight = 100;
             };
