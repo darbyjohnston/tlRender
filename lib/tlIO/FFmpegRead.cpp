@@ -223,10 +223,12 @@ namespace tl
             p.audioThread.running = false;
             if (p.videoThread.thread.joinable())
             {
+                p.videoThread.running = false;
                 p.videoThread.thread.join();
             }
             if (p.audioThread.thread.joinable())
             {
+                p.audioThread.running = false;
                 p.audioThread.thread.join();
             }
         }
