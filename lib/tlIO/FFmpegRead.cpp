@@ -119,6 +119,7 @@ namespace tl
             }
 
             p.videoThread.running = true;
+            p.audioThread.running = true;
             p.videoThread.thread = std::thread(
                 [this, path]
                 {
@@ -140,7 +141,6 @@ namespace tl
 
                         p.infoPromise.set_value(p.info);
 
-                        p.audioThread.running = true;
                         p.audioThread.thread = std::thread(
                             [this, path]
                             {
@@ -223,12 +223,10 @@ namespace tl
             p.audioThread.running = false;
             if (p.videoThread.thread.joinable())
             {
-                p.videoThread.running = false;
                 p.videoThread.thread.join();
             }
             if (p.audioThread.thread.joinable())
             {
-                p.audioThread.running = false;
                 p.audioThread.thread.join();
             }
         }
