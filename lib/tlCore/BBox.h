@@ -85,6 +85,17 @@ namespace tl
         //! Two-dimensional floating point bounding box.
         typedef BBox2<float> BBox2f;
 
+        //! \name Operators
+        ///@{
+
+        BBox2i operator * (const BBox2i&, float);
+        BBox2f operator * (const BBox2f&, float);
+
+        ///@}
+
+        //! \name Serialize
+        ///@{
+
         void to_json(nlohmann::json&, const BBox2i&);
         void to_json(nlohmann::json&, const BBox2f&);
 
@@ -96,6 +107,8 @@ namespace tl
 
         std::istream& operator >> (std::istream&, BBox2i&);
         std::istream& operator >> (std::istream&, BBox2f&);
+
+        ///@}
     }
 }
 

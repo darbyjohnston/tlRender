@@ -13,6 +13,26 @@ namespace tl
 {
     namespace math
     {
+        Vector2i operator * (const Vector2i& a, float b)
+        {
+            return Vector2i(a.x * b, a.y * b);
+        }
+
+        Vector2f operator * (const Vector2f& a, float b)
+        {
+            return Vector2f(a.x * b, a.y * b);
+        }
+
+        Vector3f operator * (const Vector3f& a, float b)
+        {
+            return Vector3f(a.x * b, a.y * b, a.z * b);
+        }
+
+        Vector4f operator * (const Vector4f& a, float b)
+        {
+            return Vector4f(a.x * b, a.y * b, a.z * b, a.w * b);
+        }
+
         void to_json(nlohmann::json& json, const Vector2i& value)
         {
             json = { value.x, value.y };

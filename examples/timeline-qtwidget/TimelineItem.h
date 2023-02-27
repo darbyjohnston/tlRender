@@ -6,10 +6,6 @@
 
 #include "BaseItem.h"
 
-#include <tlQt/TimelineThumbnailProvider.h>
-
-#include <tlTimeline/Timeline.h>
-
 namespace tl
 {
     namespace examples
@@ -17,47 +13,42 @@ namespace tl
         namespace timeline_qtwidget
         {
             //! Timeline item.
-            class TimelineItem : public QObject, public BaseItem
+            class TimelineItem : public BaseItem
             {
-                Q_OBJECT
-
-            public:
-                TimelineItem(
+            protected:
+                void _init(
                     const std::shared_ptr<timeline::Timeline>&,
                     const ItemData&,
-                    const std::shared_ptr<system::Context>&,
-                    QGraphicsItem* parent = nullptr);
+                    const std::shared_ptr<system::Context>&);
+
+            public:
+                static std::shared_ptr<TimelineItem> create(
+                    const std::shared_ptr<timeline::Timeline>&,
+                    const ItemData&,
+                    const std::shared_ptr<system::Context>&);
 
                 ~TimelineItem() override;
 
-                void setScale(float) override;
-                void setThumbnailHeight(int) override;
-                void layout() override;
-
-                QRectF boundingRect() const override;
-                void paint(
-                    QPainter*,
-                    const QStyleOptionGraphicsItem*,
-                    QWidget* = nullptr) override;
-
-            private Q_SLOTS:
-                void _thumbnailsCallback(qint64, const QList<QPair<otime::RationalTime, QImage> >&);
+                void preLayout() override;
+                void layout(const math::BBox2i&) override;
+                void render(
+                    const std::shared_ptr<timeline::IRender>&,
+                    const math::BBox2i& viewport,
+                    float devicePixelRatio) override;
+                void tick() override;
 
             private:
-                static QString _nameLabel(const std::string&);
-                float _tracksHeight() const;
-                math::Vector2f _size() const;
+                static std::string _nameLabel(const std::string&);
 
                 std::shared_ptr<timeline::Timeline> _timeline;
                 otime::TimeRange _timeRange = time::invalidTimeRange;
-                std::vector<BaseItem*> _trackItems;
-                QString _label;
-                QString _durationLabel;
-                QString _startLabel;
-                QString _endLabel;
-                qt::TimelineThumbnailProvider* _thumbnailProvider = nullptr;
-                qint64 _thumbnailRequestId = 0;
-                QList<QPair<otime::RationalTime, QImage> > _thumbnails;
+                int _thumbnailWidth = 0;
+                std::string _label;
+                std::string _durationLabel;
+                std::string _startLabel;
+                std::string _endLabel;
+                std::vector<std::future<timeline::VideoData> > _videoDataFutures;
+                std::map<otime::RationalTime, timeline::VideoData> _videoData;
             };
         }
     }

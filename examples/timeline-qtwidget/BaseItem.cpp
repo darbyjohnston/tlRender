@@ -4,44 +4,106 @@
 
 #include "BaseItem.h"
 
+#include <tlCore/StringFormat.h>
+
 namespace tl
 {
     namespace examples
     {
         namespace timeline_qtwidget
         {
-            BaseItem::BaseItem(
+            void BaseItem::_init(
                 const ItemData& itemData,
-                QGraphicsItem* parent) :
-                QGraphicsItem(parent),
-                _itemData(itemData)
+                const std::shared_ptr<system::Context>& context)
+            {
+                _itemData = itemData;
+                _context = context;
+            }
+
+            BaseItem::BaseItem()
+            {}
+
+            BaseItem::~BaseItem()
             {}
 
             void BaseItem::setScale(float value)
             {
+                if (value == _scale)
+                    return;
                 _scale = value;
+                for (const auto& child : _children)
+                {
+                    child->setScale(value);
+                }
+                _doLayout = true;
+                _doRender = true;
             }
 
             void BaseItem::setThumbnailHeight(int value)
             {
+                if (value == _thumbnailHeight)
+                    return;
                 _thumbnailHeight = value;
+                for (const auto& child : _children)
+                {
+                    child->setThumbnailHeight(value);
+                }
+                _doLayout = true;
+                _doRender = true;
             }
 
-            void BaseItem::layout()
+            const std::list<std::shared_ptr<BaseItem> >& BaseItem::children() const
+            {
+                return _children;
+            }
+
+            bool BaseItem::doLayout() const
+            {
+                return _doLayout;
+            }
+            
+            void BaseItem::preLayout()
             {}
 
-            QString BaseItem::_durationLabel(const otime::RationalTime& value)
+            math::Vector2i BaseItem::sizeHint() const
             {
-                return value != time::invalidTime ?
-                    QString("%1@%2").arg(value.value()).arg(value.rate()) :
-                    QString();
+                return _sizeHint;
             }
 
-            QString BaseItem::_timeLabel(const otime::RationalTime& value)
+            void BaseItem::layout(const math::BBox2i& value)
+            {
+                _doLayout = false;
+                _geometry = value;
+            }
+
+            bool BaseItem::doRender() const
+            {
+                return _doRender;
+            }
+
+            void BaseItem::render(
+                const std::shared_ptr<timeline::IRender>&,
+                const math::BBox2i&,
+                float)
+            {
+                _doRender = false;
+            }
+
+            void BaseItem::tick()
+            {}
+
+            std::string BaseItem::_durationLabel(const otime::RationalTime& value)
             {
                 return value != time::invalidTime ?
-                    QString("%1").arg(value.value()) :
-                    QString();
+                    string::Format("{0}@{1}").arg(value.value()).arg(value.rate()) :
+                    std::string();
+            }
+
+            std::string BaseItem::_timeLabel(const otime::RationalTime& value)
+            {
+                return value != time::invalidTime ?
+                    string::Format("{0}").arg(value.value()) :
+                    std::string();
             }
         }
     }

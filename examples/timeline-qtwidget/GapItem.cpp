@@ -12,12 +12,13 @@ namespace tl
     {
         namespace timeline_qtwidget
         {
-            GapItem::GapItem(
+            void GapItem::_init(
                 const otio::Gap* gap,
                 const ItemData& itemData,
-                QGraphicsItem* parent) :
-                BaseItem(itemData, parent)
+                const std::shared_ptr<system::Context>& context)
             {
+                BaseItem::_init(itemData, context);
+
                 auto rangeOpt = gap->trimmed_range_in_parent();
                 if (rangeOpt.has_value())
                 {
@@ -30,103 +31,110 @@ namespace tl
                 _endLabel = _timeLabel(_timeRange.end_time_inclusive());
             }
 
-            void GapItem::setScale(float value)
+            GapItem::~GapItem()
+            {}
+
+            std::shared_ptr<GapItem> GapItem::create(
+                const otio::Gap* gap,
+                const ItemData& itemData,
+                const std::shared_ptr<system::Context>& context)
             {
-                if (value == _scale)
-                    return;
-                BaseItem::setScale(value);
-                prepareGeometryChange();
+                auto out = std::shared_ptr<GapItem>(new GapItem);
+                out->_init(gap, itemData, context);
+                return out;
             }
 
-            void GapItem::setThumbnailHeight(int value)
+            void GapItem::preLayout()
             {
-                if (value == _thumbnailHeight)
-                    return;
-                BaseItem::setThumbnailHeight(value);
-                prepareGeometryChange();
-            }
-
-            QRectF GapItem::boundingRect() const
-            {
-                const math::Vector2f size = _size();
-                return QRectF(0.F, 0.F, size.x, size.y);
-            }
-
-            void GapItem::paint(
-                QPainter* painter,
-                const QStyleOptionGraphicsItem*,
-                QWidget*)
-            {
-                const math::Vector2f size = _size();
-                painter->setPen(Qt::NoPen);
-                painter->setBrush(QColor(60, 60, 90).lighter());
-                painter->drawRect(0, 0, size.x, size.y);
-                painter->setBrush(QColor(60, 60, 90));
-                painter->drawRect(
-                    _itemData.border,
-                    _itemData.border,
-                    size.x - _itemData.border - _itemData.border,
-                    size.y - _itemData.border - _itemData.border);
-
-                painter->setPen(QColor(240, 240, 240));
-                painter->drawText(
-                    _itemData.border +
-                    _itemData.margin,
-                    _itemData.border +
-                    _itemData.margin +
-                    _itemData.fontYPos,
-                    _label);
-                painter->drawText(
-                    _itemData.border +
-                    _itemData.margin,
-                    _itemData.border +
-                    _itemData.margin +
-                    _itemData.fontLineSpacing +
-                    _itemData.spacing +
-                    _itemData.fontYPos,
-                    _startLabel);
-
-                QFontMetrics fm(_itemData.font);
-                painter->drawText(
-                    size.x -
-                    _itemData.border -
-                    _itemData.margin -
-                    fm.width(_durationLabel),
-                    _itemData.border +
-                    _itemData.margin +
-                    _itemData.fontYPos,
-                    _durationLabel);
-                painter->drawText(
-                    size.x -
-                    _itemData.border -
-                    _itemData.margin -
-                    fm.width(_endLabel),
-                    _itemData.border +
-                    _itemData.margin +
-                    _itemData.fontLineSpacing +
-                    _itemData.spacing +
-                    _itemData.fontYPos,
-                    _endLabel);
-            }
-
-            QString GapItem::_nameLabel(const std::string& name)
-            {
-                return !name.empty() ?
-                    QString::fromUtf8(name.c_str()) :
-                    QString("Gap");
-            }
-
-            math::Vector2f GapItem::_size() const
-            {
-                return math::Vector2f(
+                _sizeHint = math::Vector2i(
                     _timeRange.duration().rescaled_to(1.0).value() * _scale,
                     _itemData.border +
                     _itemData.margin +
-                    _itemData.fontLineSpacing +
+                    _itemData.fontMetrics.lineHeight +
                     _itemData.spacing +
-                    _itemData.fontLineSpacing +
+                    _itemData.fontMetrics.lineHeight +
                     _itemData.margin +
                     _itemData.border);
+            }
+
+            void GapItem::render(
+                const std::shared_ptr<timeline::IRender>& render,
+                const math::BBox2i& viewport,
+                float devicePixelRatio)
+            {
+                BaseItem::render(render, viewport, devicePixelRatio);
+                if (_geometry.intersects(viewport))
+                {
+                    render->drawRect(
+                        _geometry * devicePixelRatio,
+                        imaging::Color4f(.35, .35, .45));
+                    render->drawRect(
+                        _geometry.margin(-_itemData.border) * devicePixelRatio,
+                        imaging::Color4f(.25, .25, .35));
+
+                    auto fontInfo = _itemData.fontInfo;
+                    fontInfo.size *= devicePixelRatio;
+                    render->drawText(
+                        _itemData.fontSystem->getGlyphs(_label, fontInfo),
+                        math::Vector2i(
+                            _geometry.min.x +
+                            _itemData.border +
+                            _itemData.margin,
+                            _geometry.min.y +
+                            _itemData.border +
+                            _itemData.margin +
+                            _itemData.fontMetrics.ascender) * devicePixelRatio,
+                        imaging::Color4f(.9F, .9F, .9F));
+                    render->drawText(
+                        _itemData.fontSystem->getGlyphs(_startLabel, fontInfo),
+                        math::Vector2i(
+                            _geometry.min.x +
+                            _itemData.border +
+                            _itemData.margin,
+                            _geometry.min.y +
+                            _itemData.border +
+                            _itemData.margin +
+                            _itemData.fontMetrics.lineHeight +
+                            _itemData.spacing +
+                            _itemData.fontMetrics.ascender) * devicePixelRatio,
+                        imaging::Color4f(.9F, .9F, .9F));
+
+                    math::Vector2i textSize = _itemData.fontSystem->measure(_durationLabel, _itemData.fontInfo);
+                    render->drawText(
+                        _itemData.fontSystem->getGlyphs(_durationLabel, fontInfo),
+                        math::Vector2i(
+                            _geometry.max.x -
+                            _itemData.border -
+                            _itemData.margin -
+                            textSize.x,
+                            _geometry.min.y +
+                            _itemData.border +
+                            _itemData.margin +
+                            _itemData.fontMetrics.ascender) * devicePixelRatio,
+                        imaging::Color4f(.9F, .9F, .9F));
+                    textSize = _itemData.fontSystem->measure(_endLabel, _itemData.fontInfo);
+                    render->drawText(
+                        _itemData.fontSystem->getGlyphs(_endLabel, fontInfo),
+                        math::Vector2i(
+                            _geometry.max.x -
+                            _itemData.border -
+                            _itemData.margin -
+                            textSize.x,
+                            _geometry.min.y +
+                            _itemData.border +
+                            _itemData.margin +
+                            _itemData.fontMetrics.lineHeight +
+                            _itemData.spacing +
+                            _itemData.fontMetrics.ascender) * devicePixelRatio,
+                        imaging::Color4f(.9F, .9F, .9F));
+                }
+            }
+
+            std::string GapItem::_nameLabel(const std::string& name)
+            {
+                return !name.empty() ?
+                    name :
+                    std::string("Gap");
             }
         }
     }

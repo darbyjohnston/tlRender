@@ -10,10 +10,10 @@
 #include <tlTimeline/Timeline.h>
 
 #include <QMainWindow>
-#include <QGraphicsScene>
-#include <QGraphicsView>
 
 #include "TimelineItem.h"
+#include "TimelineScrollArea.h"
+#include "TimelineWidget.h"
 
 namespace tl
 {
@@ -43,9 +43,8 @@ namespace tl
                 
                 std::weak_ptr<system::Context> _context;
                 std::shared_ptr<timeline::Timeline> _timeline;
-                QGraphicsScene* _scene = nullptr;
-                QGraphicsView* _view = nullptr;
-                TimelineItem* _timelineItem = nullptr;
+                TimelineScrollArea* _timelineScrollArea = nullptr;
+                TimelineWidget* _timelineWidget = nullptr;
                 qtwidget::FloatSlider* _scaleSlider = nullptr;
                 qtwidget::IntSlider* _thumbnailHeightSlider = nullptr;
                 QDockWidget* _viewDockWidget = nullptr;

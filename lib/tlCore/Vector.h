@@ -72,6 +72,19 @@ namespace tl
         //! Four-dimensional floating point vector.
         typedef Vector4<float> Vector4f;
 
+        //! \name Operators
+        ///@{
+
+        Vector2i operator * (const Vector2i&, float);
+        Vector2f operator * (const Vector2f&, float);
+        Vector3f operator * (const Vector3f&, float);
+        Vector4f operator * (const Vector4f&, float);
+
+        ///@}
+
+        //! \name Serialize
+        ///@{
+
         void to_json(nlohmann::json&, const Vector2i&);
         void to_json(nlohmann::json&, const Vector2f&);
         void to_json(nlohmann::json&, const Vector3f&);
@@ -91,6 +104,8 @@ namespace tl
         std::istream& operator >> (std::istream&, Vector2f&);
         std::istream& operator >> (std::istream&, Vector3f&);
         std::istream& operator >> (std::istream&, Vector4f&);
+
+        ///@}
     }
 }
 

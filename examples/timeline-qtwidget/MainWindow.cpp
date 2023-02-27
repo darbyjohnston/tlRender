@@ -5,6 +5,7 @@
 #include "MainWindow.h"
 
 #include "App.h"
+#include "TimelineWidget.h"
 
 #include <tlCore/File.h>
 
@@ -30,11 +31,10 @@ namespace tl
             {
                 setAcceptDrops(true);
 
-                _scene = new QGraphicsScene(this);
-
-                _view = new QGraphicsView(this);
-                _view->setScene(_scene);
-                setCentralWidget(_view);
+                _timelineWidget = new TimelineWidget(context);
+                _timelineScrollArea = new TimelineScrollArea;
+                _timelineScrollArea->setTimelineWidget(_timelineWidget);
+                setCentralWidget(_timelineScrollArea);
 
                 _scaleSlider = new qtwidget::FloatSlider;
                 _scaleSlider->setRange(math::FloatRange(10.F, 1000.F));
@@ -64,11 +64,7 @@ namespace tl
                     &qtwidget::FloatSlider::valueChanged,
                     [this](float value)
                     {
-                        if (_timelineItem)
-                        {
-                            _timelineItem->setScale(value);
-                            _view->setSceneRect(_timelineItem->boundingRect());
-                        }
+                        _timelineWidget->setScale(value);
                     });
 
                 connect(
@@ -76,11 +72,7 @@ namespace tl
                     &qtwidget::IntSlider::valueChanged,
                     [this](int value)
                     {
-                        if (_timelineItem)
-                        {
-                            _timelineItem->setThumbnailHeight(value);
-                            _view->setSceneRect(_timelineItem->boundingRect());
-                        }
+                        _timelineWidget->setThumbnailHeight(value);
                     });
             }
 
@@ -122,8 +114,6 @@ namespace tl
 
             void MainWindow::_open(const std::string& fileName)
             {
-                _scene->clear();
-                _timelineItem = nullptr;
                 _timeline = nullptr;
 
                 try
@@ -131,19 +121,6 @@ namespace tl
                     if (auto context = _context.lock())
                     {
                         _timeline = timeline::Timeline::create(fileName, context);
-
-                        ItemData itemData;
-                        itemData.font = font();
-                        const auto fm = QFontMetrics(itemData.font);
-                        itemData.fontLineSpacing = fm.lineSpacing();
-                        itemData.fontAscent = fm.ascent();
-                        itemData.fontDescent = fm.descent();
-                        itemData.fontYPos = itemData.fontLineSpacing - itemData.fontDescent;
-
-                        _timelineItem = new TimelineItem(_timeline, itemData, context);
-                        _timelineItem->layout();
-                        _scene->addItem(_timelineItem);
-                        _view->setSceneRect(_timelineItem->boundingRect());
                     }
                 }
                 catch (const std::string& e)
@@ -152,6 +129,8 @@ namespace tl
                     dialog.setText(QString::fromUtf8(e.c_str()));
                     dialog.exec();
                 }
+
+                _timelineWidget->setTimeline(_timeline);
             }
         }
     }

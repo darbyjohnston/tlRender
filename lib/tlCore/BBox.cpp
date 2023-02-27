@@ -13,6 +13,22 @@ namespace tl
 {
     namespace math
     {
+        BBox2i operator * (const BBox2i& a, float b)
+        {
+            BBox2i out;
+            out.min = a.min * b;
+            out.max = a.max * b;
+            return out;
+        }
+
+        BBox2f operator * (const BBox2f& a, float b)
+        {
+            BBox2f out;
+            out.min = a.min * b;
+            out.max = a.max * b;
+            return out;
+        }
+
         void to_json(nlohmann::json& json, const BBox2i& value)
         {
             json = { value.min, value.max };

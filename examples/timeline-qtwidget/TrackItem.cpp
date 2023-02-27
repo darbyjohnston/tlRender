@@ -7,7 +7,7 @@
 #include "ClipItem.h"
 #include "GapItem.h"
 
-#include <QPainter>
+#include <tlCore/StringFormat.h>
 
 namespace tl
 {
@@ -15,21 +15,21 @@ namespace tl
     {
         namespace timeline_qtwidget
         {
-            TrackItem::TrackItem(
+            void TrackItem::_init(
                 const otio::Track* track,
                 const ItemData& itemData,
-                QGraphicsItem* parent) :
-                BaseItem(itemData, parent)
+                const std::shared_ptr<system::Context>& context)
             {
+                BaseItem::_init(itemData, context);
+
                 _timeRange = track->trimmed_range();
 
-                for (auto child : track->children())
+                for (const auto& child : track->children())
                 {
                     if (auto clip = dynamic_cast<otio::Clip*>(child.value))
                     {
-                        auto clipItem = new ClipItem(clip, _itemData);
-                        clipItem->setParentItem(this);
-                        _items.push_back(clipItem);
+                        auto clipItem = ClipItem::create(clip, _itemData, context);
+                        _children.push_back(clipItem);
                         const auto timeRangeOpt = track->trimmed_range_of_child(clip);
                         if (timeRangeOpt.has_value())
                         {
@@ -38,122 +38,112 @@ namespace tl
                     }
                     else if (auto gap = dynamic_cast<otio::Gap*>(child.value))
                     {
-                        auto gapItem = new GapItem(gap, _itemData);
-                        gapItem->setParentItem(this);
-                        _items.push_back(gapItem);
+                        auto gapItem = GapItem::create(gap, _itemData, context);
+                        _children.push_back(gapItem);
                         const auto timeRangeOpt = track->trimmed_range_of_child(gap);
                         if (timeRangeOpt.has_value())
                         {
                             _timeRanges[gapItem] = timeRangeOpt.value();
                         }
                     }
-
-                    _label = _nameLabel(track->kind(), track->name());
-                    _durationLabel = BaseItem::_durationLabel(_timeRange.duration());
                 }
+
+                _label = _nameLabel(track->kind(), track->name());
+                _durationLabel = BaseItem::_durationLabel(_timeRange.duration());
             }
 
-            void TrackItem::setScale(float value)
+            std::shared_ptr<TrackItem> TrackItem::create(
+                const otio::Track* track,
+                const ItemData& itemData,
+                const std::shared_ptr<system::Context>& context)
             {
-                if (value == _scale)
-                    return;
-                BaseItem::setScale(value);
-                prepareGeometryChange();
-                for (auto item : _items)
-                {
-                    item->setScale(value);
-                }
+                auto out = std::shared_ptr<TrackItem>(new TrackItem);
+                out->_init(track, itemData, context);
+                return out;
             }
 
-            void TrackItem::setThumbnailHeight(int value)
+            TrackItem::~TrackItem()
+            {}
+
+            void TrackItem::preLayout()
             {
-                if (value == _thumbnailHeight)
-                    return;
-                BaseItem::setThumbnailHeight(value);
-                prepareGeometryChange();
-                for (auto item : _items)
+                int childrenHeight = 0;
+                for (const auto& child : _children)
                 {
-                    item->setThumbnailHeight(value);
+                    const auto& sizeHint = child->sizeHint();
+                    childrenHeight = std::max(childrenHeight, sizeHint.y);
                 }
+
+                _sizeHint = math::Vector2i(
+                    _timeRange.duration().rescaled_to(1.0).value() * _scale,
+                    _itemData.margin +
+                    _itemData.fontMetrics.lineHeight +
+                    _itemData.margin +
+                    childrenHeight);
             }
 
-            void TrackItem::layout()
+            void TrackItem::layout(const math::BBox2i& geometry)
             {
-                for (auto item : _items)
+                BaseItem::layout(geometry);
+                for (const auto& child : _children)
                 {
-                    item->layout();
-                    const auto i = _timeRanges.find(item);
+                    const auto i = _timeRanges.find(child);
                     if (i != _timeRanges.end())
                     {
-                        item->setPos(
+                        const auto& sizeHint = child->sizeHint();
+                        child->layout(math::BBox2i(
+                            _geometry.min.x +
                             i->second.start_time().rescaled_to(1.0).value() * _scale,
+                            _geometry.min.y +
                             _itemData.margin +
-                            _itemData.fontLineSpacing +
-                            _itemData.margin);
+                            _itemData.fontMetrics.lineHeight +
+                            _itemData.margin,
+                            sizeHint.x,
+                            sizeHint.y));
                     }
                 }
             }
 
-            QRectF TrackItem::boundingRect() const
+            void TrackItem::render(
+                const std::shared_ptr<timeline::IRender>& render,
+                const math::BBox2i& viewport,
+                float devicePixelRatio)
             {
-                const math::Vector2f size = _size();
-                return QRectF(0.F, 0.F, size.x, size.y);
+                BaseItem::render(render, viewport, devicePixelRatio);
+                if (_geometry.intersects(viewport))
+                {
+                    auto fontInfo = _itemData.fontInfo;
+                    fontInfo.size *= devicePixelRatio;
+                    render->drawText(
+                        _itemData.fontSystem->getGlyphs(_label, fontInfo),
+                        math::Vector2i(
+                            _geometry.min.x +
+                            _itemData.margin,
+                            _geometry.min.y +
+                            _itemData.margin +
+                            _itemData.fontMetrics.ascender) * devicePixelRatio,
+                        imaging::Color4f(.9F, .9F, .9F));
+                    math::Vector2i textSize = _itemData.fontSystem->measure(_durationLabel, _itemData.fontInfo);
+                    render->drawText(
+                        _itemData.fontSystem->getGlyphs(_durationLabel, fontInfo),
+                        math::Vector2i(
+                            _geometry.max.x -
+                            _itemData.margin -
+                            textSize.x,
+                            _geometry.min.y +
+                            _itemData.margin +
+                            _itemData.fontMetrics.ascender) * devicePixelRatio,
+                        imaging::Color4f(.9F, .9F, .9F));
+                }
             }
 
-            void TrackItem::paint(
-                QPainter* painter,
-                const QStyleOptionGraphicsItem*,
-                QWidget*)
-            {
-                const math::Vector2f size = _size();
-
-                painter->setPen(QColor(240, 240, 240));
-                painter->drawText(
-                    _itemData.margin,
-                    _itemData.margin +
-                    _itemData.fontYPos,
-                    _label);
-
-                QFontMetrics fm(_itemData.font);
-                painter->drawText(
-                    size.x -
-                    _itemData.margin -
-                    fm.width(_durationLabel),
-                    _itemData.margin +
-                    _itemData.fontYPos,
-                    _durationLabel);
-            }
-
-            QString TrackItem::_nameLabel(
+            std::string TrackItem::_nameLabel(
                 const std::string& kind,
                 const std::string& name)
             {
                 return !name.empty() && name != "Track" ?
-                    QString("%1 Track: %2").
-                        arg(QString::fromUtf8(kind.c_str())).
-                        arg(QString::fromUtf8(name.c_str())) :
-                    QString("%1 Track").
-                        arg(QString::fromUtf8(kind.c_str()));
-            }
-
-            float TrackItem::_itemsHeight() const
-            {
-                float out = 0.F;
-                for (auto item : _items)
-                {
-                    out = std::max(out, static_cast<float>(item->boundingRect().height()));
-                }
-                return out;
-            }
-
-            math::Vector2f TrackItem::_size() const
-            {
-                return math::Vector2f(
-                    _timeRange.duration().rescaled_to(1.0).value() * _scale,
-                    _itemData.margin +
-                    _itemData.fontLineSpacing +
-                    _itemData.margin +
-                    _itemsHeight());
+                    string::Format("{0} Track: {1}").arg(kind).arg(name) :
+                    string::Format("{0} Track").arg(kind);
             }
         }
     }

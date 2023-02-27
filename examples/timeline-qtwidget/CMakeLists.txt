@@ -5,6 +5,8 @@ set(HEADERS
     GapItem.h
     MainWindow.h
     TimelineItem.h
+    TimelineScrollArea.h
+    TimelineWidget.h
     TrackItem.h)
 
 set(SOURCE
@@ -14,6 +16,8 @@ set(SOURCE
     GapItem.cpp
     MainWindow.cpp
     TimelineItem.cpp
+    TimelineScrollArea.cpp
+    TimelineWidget.cpp
     TrackItem.cpp
     main.cpp)
 

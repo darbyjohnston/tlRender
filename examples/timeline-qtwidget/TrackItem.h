@@ -17,35 +17,36 @@ namespace tl
             //! Track item.
             class TrackItem : public BaseItem
             {
-            public:
-                TrackItem(
+            protected:
+                void _init(
                     const otio::Track*,
                     const ItemData&,
-                    QGraphicsItem* parent = nullptr);
+                    const std::shared_ptr<system::Context>&);
 
-                void setScale(float) override;
-                void setThumbnailHeight(int) override;
-                void layout() override;
+            public:
+                static std::shared_ptr<TrackItem> create(
+                    const otio::Track*,
+                    const ItemData&,
+                    const std::shared_ptr<system::Context>&);
 
-                QRectF boundingRect() const override;
-                void paint(
-                    QPainter*,
-                    const QStyleOptionGraphicsItem*,
-                    QWidget* = nullptr) override;
+                ~TrackItem() override;
+
+                void preLayout() override;
+                void layout(const math::BBox2i&) override;
+                void render(
+                    const std::shared_ptr<timeline::IRender>&,
+                    const math::BBox2i& viewport,
+                    float devicePixelRatio) override;
 
             private:
-                static QString _nameLabel(
+                static std::string _nameLabel(
                     const std::string& kind,
                     const std::string& name);
 
-                float _itemsHeight() const;
-                math::Vector2f _size() const;
-
                 otime::TimeRange _timeRange = time::invalidTimeRange;
-                std::vector<BaseItem*> _items;
-                std::map<BaseItem*, otime::TimeRange> _timeRanges;
-                QString _label;
-                QString _durationLabel;
+                std::map<std::shared_ptr<BaseItem>, otime::TimeRange> _timeRanges;
+                std::string _label;
+                std::string _durationLabel;
             };
         }
     }

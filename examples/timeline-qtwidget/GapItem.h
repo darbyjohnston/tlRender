@@ -17,30 +17,34 @@ namespace tl
             //! Gap item.
             class GapItem : public BaseItem
             {
-            public:
-                GapItem(
+            protected:
+                void _init(
                     const otio::Gap*,
                     const ItemData&,
-                    QGraphicsItem* parent = nullptr);
+                    const std::shared_ptr<system::Context>&);
 
-                void setScale(float) override;
-                void setThumbnailHeight(int) override;
+            public:
+                static std::shared_ptr<GapItem> create(
+                    const otio::Gap*,
+                    const ItemData&,
+                    const std::shared_ptr<system::Context>&);
 
-                QRectF boundingRect() const override;
-                void paint(
-                    QPainter*,
-                    const QStyleOptionGraphicsItem*,
-                    QWidget* = nullptr) override;
+                ~GapItem() override;
+
+                void preLayout() override;
+                void render(
+                    const std::shared_ptr<timeline::IRender>&,
+                    const math::BBox2i& viewport,
+                    float devicePixelRatio) override;
 
             private:
-                static QString _nameLabel(const std::string&);
-                math::Vector2f _size() const;
+                static std::string _nameLabel(const std::string&);
 
                 otime::TimeRange _timeRange = time::invalidTimeRange;
-                QString _label;
-                QString _durationLabel;
-                QString _startLabel;
-                QString _endLabel;
+                std::string _label;
+                std::string _durationLabel;
+                std::string _startLabel;
+                std::string _endLabel;
             };
         }
     }

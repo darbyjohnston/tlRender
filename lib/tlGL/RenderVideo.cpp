@@ -32,7 +32,7 @@ namespace tl
                 {
                     _drawVideo(
                         videoData[0],
-                        math::BBox2i(0, 0, p.size.w, p.size.h),
+                        !bboxes.empty() ? bboxes[0] : math::BBox2i(0, 0, p.size.w, p.size.h),
                         !imageOptions.empty() ? std::make_shared<timeline::ImageOptions>(imageOptions[0]) : nullptr,
                         !displayOptions.empty() ? displayOptions[0] : timeline::DisplayOptions());
                 }
