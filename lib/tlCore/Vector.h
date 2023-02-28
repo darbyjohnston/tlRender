@@ -75,6 +75,20 @@ namespace tl
         //! \name Operators
         ///@{
 
+        template<typename T>
+        inline Vector2<T> operator + (const Vector2<T>&, const Vector2<T>&);
+        template<typename T>
+        inline Vector3<T> operator + (const Vector3<T>&, const Vector3<T>&);
+        template<typename T>
+        inline Vector4<T> operator + (const Vector4<T>&, const Vector4<T>&);
+
+        template<typename T>
+        inline Vector2<T> operator - (const Vector2<T>&, const Vector2<T>&);
+        template<typename T>
+        inline Vector3<T> operator - (const Vector3<T>&, const Vector3<T>&);
+        template<typename T>
+        inline Vector4<T> operator - (const Vector4<T>&, const Vector4<T>&);
+
         Vector2i operator * (const Vector2i&, float);
         Vector2f operator * (const Vector2f&, float);
         Vector3f operator * (const Vector3f&, float);
