@@ -524,6 +524,7 @@ namespace tl
                     if (out.read)
                     {
                         out.ioInfo = out.read->getInfo().get();
+                        readCache->add(out);
                         context->log(
                             string::Format("tl::timeline::Timeline {0}").arg(this),
                             string::Format(
@@ -543,7 +544,6 @@ namespace tl
                             arg(out.ioInfo.audioTime));
                     }
                 }
-                readCache->add(out);
             }
             return out;
         }
