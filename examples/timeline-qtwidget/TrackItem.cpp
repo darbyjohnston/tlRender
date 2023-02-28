@@ -110,16 +110,24 @@ namespace tl
                 float devicePixelRatio)
             {
                 BaseItem::render(render, viewport, devicePixelRatio);
-                if (_geometry.intersects(viewport))
+
+                const math::BBox2i g(
+                    _geometry.min.x - viewport.min.x,
+                    _geometry.min.y - viewport.min.y,
+                    _geometry.w(),
+                    _geometry.h());
+                const math::BBox2i v(
+                    0, 0, viewport.w(), viewport.h());
+                if (g.intersects(v))
                 {
                     auto fontInfo = _itemData.fontInfo;
                     fontInfo.size *= devicePixelRatio;
                     render->drawText(
                         _itemData.fontSystem->getGlyphs(_label, fontInfo),
                         math::Vector2i(
-                            _geometry.min.x +
+                            g.min.x +
                             _itemData.margin,
-                            _geometry.min.y +
+                            g.min.y +
                             _itemData.margin +
                             _itemData.fontMetrics.ascender) * devicePixelRatio,
                         imaging::Color4f(.9F, .9F, .9F));
@@ -127,10 +135,10 @@ namespace tl
                     render->drawText(
                         _itemData.fontSystem->getGlyphs(_durationLabel, fontInfo),
                         math::Vector2i(
-                            _geometry.max.x -
+                            g.max.x -
                             _itemData.margin -
                             textSize.x,
-                            _geometry.min.y +
+                            g.min.y +
                             _itemData.margin +
                             _itemData.fontMetrics.ascender) * devicePixelRatio,
                         imaging::Color4f(.9F, .9F, .9F));

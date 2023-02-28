@@ -109,6 +109,9 @@ namespace tl
                         sizeHint.y));
                     y += sizeHint.y;
                 }
+
+                _timeline->cancelRequests();
+                _videoDataFutures.clear();
             }
 
             void TimelineItem::render(
@@ -117,10 +120,25 @@ namespace tl
                 float devicePixelRatio)
             {
                 BaseItem::render(render, viewport, devicePixelRatio);
-                if (_geometry.intersects(viewport))
+
+                if (viewport != _viewportTmp)
                 {
-                    render->drawRect(
-                        _geometry * devicePixelRatio,
+                    _viewportTmp = viewport;
+                    _timeline->cancelRequests();
+                    _videoDataFutures.clear();
+                }
+
+                const math::BBox2i g(
+                    _geometry.min.x - viewport.min.x,
+                    _geometry.min.y - viewport.min.y,
+                    _geometry.w(),
+                    _geometry.h());
+                const math::BBox2i v(
+                    0, 0, viewport.w(), viewport.h());
+                if (g.intersects(v))
+                {
+                     render->drawRect(
+                        g * devicePixelRatio,
                         imaging::Color4f(.15, .15, .15));
 
                     auto fontInfo = _itemData.fontInfo;
@@ -128,18 +146,18 @@ namespace tl
                     render->drawText(
                         _itemData.fontSystem->getGlyphs(_label, fontInfo),
                         math::Vector2i(
-                            _geometry.min.x +
+                            g.min.x +
                             _itemData.margin,
-                            _geometry.min.y +
+                            g.min.y +
                             _itemData.margin +
                             _itemData.fontMetrics.ascender) * devicePixelRatio,
                         imaging::Color4f(.9F, .9F, .9F));
                     render->drawText(
                         _itemData.fontSystem->getGlyphs(_startLabel, fontInfo),
                         math::Vector2i(
-                            _geometry.min.x +
+                            g.min.x +
                             _itemData.margin,
-                            _geometry.min.y +
+                            g.min.y +
                             _itemData.margin +
                             _itemData.fontMetrics.lineHeight +
                             _itemData.spacing +
@@ -150,10 +168,10 @@ namespace tl
                     render->drawText(
                         _itemData.fontSystem->getGlyphs(_durationLabel, fontInfo),
                         math::Vector2i(
-                            _geometry.max.x -
+                            g.max.x -
                             _itemData.margin -
                             textSize.x,
-                            _geometry.min.y +
+                            g.min.y +
                             _itemData.margin +
                             _itemData.fontMetrics.ascender) * devicePixelRatio,
                         imaging::Color4f(.9F, .9F, .9F));
@@ -161,10 +179,10 @@ namespace tl
                     render->drawText(
                         _itemData.fontSystem->getGlyphs(_endLabel, fontInfo),
                         math::Vector2i(
-                            _geometry.max.x -
+                            g.max.x -
                             _itemData.margin -
                             textSize.x,
-                            _geometry.min.y +
+                            g.min.y +
                             _itemData.margin +
                             _itemData.fontMetrics.lineHeight +
                             _itemData.spacing +
@@ -172,31 +190,32 @@ namespace tl
                         imaging::Color4f(.9F, .9F, .9F));
 
                     const float frameTick0 = _timeRange.start_time().value() /
-                        _timeRange.duration().value() * (_geometry.w() - _itemData.margin * 2);
+                        _timeRange.duration().value() * (g.w() - _itemData.margin * 2);
                     const float frameTick1 = (_timeRange.start_time().value() + 1.0) /
-                        _timeRange.duration().value() * (_geometry.w() - _itemData.margin * 2);
+                        _timeRange.duration().value() * (g.w() - _itemData.margin * 2);
                     const int frameWidth = frameTick1 - frameTick0;
                     if (frameWidth >= _itemData.minTickSpacing)
                     {
-                        std::string label = string::Format("{0}").arg(_timeRange.end_time_inclusive().value());
-                        if (_itemData.fontSystem->measure(label, _itemData.fontInfo).x < (frameWidth - _itemData.spacing))
+                        std::string labelMax = string::Format("{0}").arg(_timeRange.end_time_inclusive().value());
+                        math::Vector2i labelMaxSize = _itemData.fontSystem->measure(labelMax, _itemData.fontInfo);
+                        if (labelMaxSize.x < (frameWidth - _itemData.spacing))
                         {
                             for (double t = 1.0; t < _timeRange.duration().value(); t += 1.0)
                             {
-                                label = string::Format("{0}").arg(t);
                                 const math::BBox2i bbox(
-                                    _geometry.min.x +
-                                    _itemData.margin + t / _timeRange.duration().value() * (_geometry.w() - _itemData.margin * 2),
-                                    _geometry.min.y +
+                                    g.min.x +
+                                    _itemData.margin + t / _timeRange.duration().value() * (g.w() - _itemData.margin * 2),
+                                    g.min.y +
                                     _itemData.margin +
                                     _itemData.fontMetrics.lineHeight +
                                     _itemData.spacing +
                                     _itemData.fontMetrics.lineHeight +
                                     _itemData.spacing,
-                                    _itemData.fontSystem->measure(label, _itemData.fontInfo).x,
+                                    labelMaxSize.x,
                                     _itemData.fontMetrics.lineHeight);
-                                if (bbox.intersects(viewport))
+                                if (bbox.intersects(v))
                                 {
+                                    std::string label = string::Format("{0}").arg(t);
                                     render->drawText(
                                         _itemData.fontSystem->getGlyphs(label, fontInfo),
                                         math::Vector2i(
@@ -213,8 +232,9 @@ namespace tl
                         for (double t = 1.0; t < _timeRange.duration().value(); t += 1.0)
                         {
                             const math::BBox2i bbox(
-                                _geometry.min.x +
-                                _itemData.margin + t / _timeRange.duration().value() * (_geometry.w() - _itemData.margin * 2),
+                                g.min.x +
+                                _itemData.margin + t / _timeRange.duration().value() * (g.w() - _itemData.margin * 2),
+                                g.min.y +
                                 _itemData.margin +
                                 _itemData.fontMetrics.lineHeight +
                                 _itemData.spacing +
@@ -224,7 +244,7 @@ namespace tl
                                 _itemData.spacing,
                                 1,
                                 _itemData.fontMetrics.lineHeight);
-                            if (bbox.intersects(viewport))
+                            if (bbox.intersects(v))
                             {
                                 mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.min.y) * devicePixelRatio);
                                 mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.min.y) * devicePixelRatio);
@@ -244,32 +264,35 @@ namespace tl
                     }
 
                     const float secondsTick0 = _timeRange.start_time().value() /
-                        (_timeRange.duration().value() / _timeRange.duration().rate()) * (_geometry.w() - _itemData.margin * 2);
+                        (_timeRange.duration().value() / _timeRange.duration().rate()) * (g.w() - _itemData.margin * 2);
                     const float secondsTick1 = (_timeRange.start_time().value() + 1.0) /
-                        (_timeRange.duration().value() / _timeRange.duration().rate()) * (_geometry.w() - _itemData.margin * 2);
+                        (_timeRange.duration().value() / _timeRange.duration().rate()) * (g.w() - _itemData.margin * 2);
                     const int secondsWidth = secondsTick1 - secondsTick0;
                     if (secondsWidth >= _itemData.minTickSpacing)
                     {
-                        std::string label = string::Format("{0}").arg(_timeRange.end_time_inclusive().value());
-                        if (_itemData.fontSystem->measure(label, _itemData.fontInfo).x < (secondsWidth - _itemData.spacing))
+                        std::string labelMax = string::Format("{0}").arg(_timeRange.end_time_inclusive().value());
+                        math::Vector2i labelMaxSize = _itemData.fontSystem->measure(labelMax, _itemData.fontInfo);
+                        if (labelMaxSize.x < (secondsWidth - _itemData.spacing))
                         {
                             for (double t = 0.0;
                                 t < _timeRange.duration().value();
                                 t += _timeRange.duration().rate())
                             {
-                                label = string::Format("{0}").arg(t);
                                 const math::BBox2i bbox(
-                                    _geometry.min.x +
-                                    _itemData.margin + t / _timeRange.duration().value() * (_geometry.w() - _itemData.margin * 2),
+                                    g.min.x +
+                                    _itemData.margin +
+                                    t / _timeRange.duration().value() * (g.w() - _itemData.margin * 2),
+                                    g.min.y +
                                     _itemData.margin +
                                     _itemData.fontMetrics.lineHeight +
                                     _itemData.spacing +
                                     _itemData.fontMetrics.lineHeight +
                                     _itemData.spacing,
-                                    _itemData.fontSystem->measure(label, _itemData.fontInfo).x,
+                                    labelMaxSize.x,
                                     _itemData.fontMetrics.lineHeight);
-                                if (bbox.intersects(viewport))
+                                if (bbox.intersects(v))
                                 {
+                                    std::string label = string::Format("{0}").arg(t);
                                     render->drawText(
                                         _itemData.fontSystem->getGlyphs(label, fontInfo),
                                         math::Vector2i(
@@ -288,8 +311,9 @@ namespace tl
                             t += _timeRange.duration().rate())
                         {
                             const math::BBox2i bbox(
-                                _geometry.min.x +
-                                _itemData.margin + t / _timeRange.duration().value() * (_geometry.w() - _itemData.margin * 2),
+                                g.min.x +
+                                _itemData.margin + t / _timeRange.duration().value() * (g.w() - _itemData.margin * 2),
+                                g.min.y +
                                 _itemData.margin +
                                 _itemData.fontMetrics.lineHeight +
                                 _itemData.spacing +
@@ -299,7 +323,7 @@ namespace tl
                                 _itemData.spacing,
                                 1,
                                 _itemData.fontMetrics.lineHeight);
-                            if (bbox.intersects(viewport))
+                            if (bbox.intersects(v))
                             {
                                 mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.min.y) * devicePixelRatio);
                                 mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.min.y) * devicePixelRatio);
@@ -320,7 +344,9 @@ namespace tl
 
                     render->drawRect(
                         math::BBox2i(
+                            g.min.x +
                             _itemData.margin,
+                            g.min.y +
                             _itemData.margin +
                             _itemData.fontMetrics.lineHeight +
                             _itemData.spacing +
@@ -330,7 +356,7 @@ namespace tl
                             _itemData.spacing +
                             _itemData.fontMetrics.lineHeight +
                             _itemData.spacing,
-                            _geometry.w() - _itemData.margin * 2,
+                            g.w() - _itemData.margin * 2,
                             _thumbnailHeight) * devicePixelRatio,
                         imaging::Color4f(0.F, 0.F, 0.F));
                     std::set<otime::RationalTime> videoDataDelete;
@@ -338,13 +364,14 @@ namespace tl
                     {
                         videoDataDelete.insert(videoData.first);
                     }
-                    for (int x = _itemData.margin; x < _geometry.w() - _itemData.margin * 2; x += _thumbnailWidth)
+                    for (int x = _itemData.margin;
+                        x < g.w() - _itemData.margin * 2;
+                        x += _thumbnailWidth)
                     {
                         const math::BBox2i bbox(
-                            _geometry.min.x +
-                            _itemData.margin +
+                            g.min.x +
                             x,
-                            _geometry.min.y +
+                            g.min.y +
                             _itemData.margin +
                             _itemData.fontMetrics.lineHeight +
                             _itemData.spacing +
@@ -356,11 +383,11 @@ namespace tl
                             _itemData.spacing,
                             _thumbnailWidth,
                             _thumbnailHeight);
-                        if (bbox.intersects(viewport))
+                        if (bbox.intersects(v))
                         {
                             const otime::RationalTime time(
                                 _timeRange.start_time().value() +
-                                x / static_cast<double>(_geometry.w() - _itemData.margin * 2) *
+                                x / static_cast<double>(g.w() - _itemData.margin * 2) *
                                 _timeRange.duration().value(),
                                 _timeRange.duration().rate());
                             auto i = _videoData.find(time);

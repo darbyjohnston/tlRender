@@ -41,6 +41,8 @@ namespace tl
                 void setThumbnailHeight(int);
 
                 void setViewPos(const math::Vector2i&);
+                void setViewPosX(int);
+                void setViewPosY(int);
 
              Q_SIGNALS:
                 void timelineSizeChanged(const math::Vector2i&);

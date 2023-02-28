@@ -86,6 +86,22 @@ namespace tl
                 update();
             }
 
+            void TimelineWidget::setViewPosX(int value)
+            {
+                if (value == _viewPos.x)
+                    return;
+                _viewPos.x = value;
+                update();
+            }
+
+            void TimelineWidget::setViewPosY(int value)
+            {
+                if (value == _viewPos.y)
+                    return;
+                _viewPos.y = value;
+                update();
+            }
+
             void TimelineWidget::initializeGL()
             {
                 initializeOpenGLFunctions();

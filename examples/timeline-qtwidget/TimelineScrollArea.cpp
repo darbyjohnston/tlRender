@@ -16,6 +16,26 @@ namespace tl
             TimelineScrollArea::TimelineScrollArea(QWidget* parent) :
                 QAbstractScrollArea(parent)
             {
+                connect(
+                    horizontalScrollBar(),
+                    &QAbstractSlider::valueChanged,
+                    [this](int value)
+                    {
+                        if (_timelineWidget)
+                        {
+                            _timelineWidget->setViewPosX(value);
+                        }
+                    });
+                connect(
+                    verticalScrollBar(),
+                    &QAbstractSlider::valueChanged,
+                    [this](int value)
+                    {
+                        if (_timelineWidget)
+                        {
+                            _timelineWidget->setViewPosY(value);
+                        }
+                    });
             }
 
             void TimelineScrollArea::setTimelineWidget(TimelineWidget* widget)
@@ -52,11 +72,18 @@ namespace tl
                 if (_timelineWidget)
                 {
                     const auto& timelineSize = _timelineWidget->timelineSize();
+                    const math::Vector2i viewportSize(
+                        viewport()->width(),
+                        viewport()->height());
                     const math::Vector2i scrollSize(
-                        _timelineWidget->width() - timelineSize.x,
-                        _timelineWidget->height() - timelineSize.y);
-                    horizontalScrollBar()->setMaximum(scrollSize.x);
-                    verticalScrollBar()->setMaximum(scrollSize.y);
+                        std::max(0, timelineSize.x - viewportSize.x),
+                        std::max(0, timelineSize.y - viewportSize.y));
+                    horizontalScrollBar()->setRange(0, scrollSize.x);
+                    horizontalScrollBar()->setPageStep(viewportSize.x);
+                    horizontalScrollBar()->setSingleStep(10);
+                    verticalScrollBar()->setRange(0, scrollSize.y);
+                    verticalScrollBar()->setPageStep(viewportSize.y);
+                    verticalScrollBar()->setSingleStep(10);
                 }
             }
         }

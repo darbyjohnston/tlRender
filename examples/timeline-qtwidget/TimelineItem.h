@@ -47,6 +47,7 @@ namespace tl
                 std::string _durationLabel;
                 std::string _startLabel;
                 std::string _endLabel;
+                math::BBox2i _viewportTmp;
                 std::vector<std::future<timeline::VideoData> > _videoDataFutures;
                 std::map<otime::RationalTime, timeline::VideoData> _videoData;
             };

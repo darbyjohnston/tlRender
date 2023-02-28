@@ -63,13 +63,21 @@ namespace tl
                 float devicePixelRatio)
             {
                 BaseItem::render(render, viewport, devicePixelRatio);
-                if (_geometry.intersects(viewport))
+
+                const math::BBox2i g(
+                    _geometry.min.x - viewport.min.x,
+                    _geometry.min.y - viewport.min.y,
+                    _geometry.w(),
+                    _geometry.h());
+                const math::BBox2i v(
+                    0, 0, viewport.w(), viewport.h());
+                if (g.intersects(v))
                 {
                     render->drawRect(
-                        _geometry * devicePixelRatio,
+                        g * devicePixelRatio,
                         imaging::Color4f(.35, .45, .35));
                     render->drawRect(
-                        _geometry.margin(-_itemData.border) * devicePixelRatio,
+                        g.margin(-_itemData.border) * devicePixelRatio,
                         imaging::Color4f(.25, .35, .25));
 
                     auto fontInfo = _itemData.fontInfo;
@@ -77,10 +85,10 @@ namespace tl
                     render->drawText(
                         _itemData.fontSystem->getGlyphs(_label, fontInfo),
                         math::Vector2i(
-                            _geometry.min.x +
+                            g.min.x +
                             _itemData.border +
                             _itemData.margin,
-                            _geometry.min.y +
+                            g.min.y +
                             _itemData.border +
                             _itemData.margin +
                             _itemData.fontMetrics.ascender) * devicePixelRatio,
@@ -88,10 +96,10 @@ namespace tl
                     render->drawText(
                         _itemData.fontSystem->getGlyphs(_startLabel, fontInfo),
                         math::Vector2i(
-                            _geometry.min.x +
+                            g.min.x +
                             _itemData.border +
                             _itemData.margin,
-                            _geometry.min.y +
+                            g.min.y +
                             _itemData.border +
                             _itemData.margin +
                             _itemData.fontMetrics.lineHeight +
@@ -103,11 +111,11 @@ namespace tl
                     render->drawText(
                         _itemData.fontSystem->getGlyphs(_durationLabel, fontInfo),
                         math::Vector2i(
-                            _geometry.max.x -
+                            g.max.x -
                             _itemData.border -
                             _itemData.margin -
                             textSize.x,
-                            _geometry.min.y +
+                            g.min.y +
                             _itemData.border +
                             _itemData.margin +
                             _itemData.fontMetrics.ascender) * devicePixelRatio,
@@ -116,11 +124,11 @@ namespace tl
                     render->drawText(
                         _itemData.fontSystem->getGlyphs(_endLabel, fontInfo),
                         math::Vector2i(
-                            _geometry.max.x -
+                            g.max.x -
                             _itemData.border -
                             _itemData.margin -
                             textSize.x,
-                            _geometry.min.y +
+                            g.min.y +
                             _itemData.border +
                             _itemData.margin +
                             _itemData.fontMetrics.lineHeight +

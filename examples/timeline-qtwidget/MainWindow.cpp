@@ -37,7 +37,7 @@ namespace tl
                 setCentralWidget(_timelineScrollArea);
 
                 _scaleSlider = new qtwidget::FloatSlider;
-                _scaleSlider->setRange(math::FloatRange(10.F, 1000.F));
+                _scaleSlider->setRange(math::FloatRange(1.F, 1000.F));
                 _thumbnailHeightSlider = new qtwidget::IntSlider;
                 _thumbnailHeightSlider->setRange(math::IntRange(100, 1000));
                 auto formLayout = new QFormLayout;
