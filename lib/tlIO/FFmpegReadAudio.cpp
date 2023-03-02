@@ -452,12 +452,6 @@ namespace tl
             return audio::getSampleCount(_buffer);
         }
 
-        bool ReadAudio::isBufferFull() const
-        {
-            return audio::getSampleCount(_buffer) <
-                _options.audioBufferSize.rescaled_to(_info.sampleRate).value();
-        }
-
         void ReadAudio::bufferCopy(uint8_t* out, size_t byteCount)
         {
             audio::copy(_buffer, out, byteCount);

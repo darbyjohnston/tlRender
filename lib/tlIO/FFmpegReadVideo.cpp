@@ -641,11 +641,6 @@ namespace tl
             return _buffer.empty();
         }
 
-        bool ReadVideo::isBufferFull() const
-        {
-            return _buffer.size() < _options.videoBufferSize;
-        }
-
         std::shared_ptr<imaging::Image> ReadVideo::popBuffer()
         {
             std::shared_ptr<imaging::Image> out;
