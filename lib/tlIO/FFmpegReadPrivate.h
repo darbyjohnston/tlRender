@@ -67,7 +67,6 @@ namespace tl
             void process(const otime::RationalTime& currentTime);
 
             bool isBufferEmpty() const;
-            bool isBufferFull() const;
             std::shared_ptr<imaging::Image> popBuffer();
 
             bool isEOF() const;
@@ -120,7 +119,6 @@ namespace tl
             void process(const otime::RationalTime& currentTime);
 
             size_t getBufferSize() const;
-            bool isBufferFull() const;
             void bufferCopy(uint8_t*, size_t byteCount);
 
             bool isEOF() const;

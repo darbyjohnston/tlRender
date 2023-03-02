@@ -335,8 +335,7 @@ namespace tl
                         {
                             return
                                 !_p->videoMutex.requests.empty() ||
-                                _p->videoMutex.currentRequest ||
-                                !_p->readVideo->isBufferFull();
+                                _p->videoMutex.currentRequest;
                         }))
                     {
                         if (!p.videoMutex.currentRequest && !p.videoMutex.requests.empty())
@@ -441,8 +440,7 @@ namespace tl
                         {
                             return
                                 !_p->audioMutex.requests.empty() ||
-                                _p->audioMutex.currentRequest ||
-                                !_p->readAudio->isBufferFull();
+                                _p->audioMutex.currentRequest;
                         }))
                     {
                         if (!p.audioMutex.currentRequest && !p.audioMutex.requests.empty())
