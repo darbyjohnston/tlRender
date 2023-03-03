@@ -127,9 +127,13 @@ namespace tl
                     try
                     {
                         p.readVideo = std::make_shared<ReadVideo>(path.get(), _memory, p.options);
-                        p.info.video.push_back(p.readVideo->getInfo());
-                        p.info.videoTime = p.readVideo->getTimeRange();
-                        p.info.tags = p.readVideo->getTags();
+                        const auto& videoInfo = p.readVideo->getInfo();
+                        if (videoInfo.isValid())
+                        {
+                            p.info.video.push_back(videoInfo);
+                            p.info.videoTime = p.readVideo->getTimeRange();
+                            p.info.tags = p.readVideo->getTags();
+                        }
 
                         p.readAudio = std::make_shared<ReadAudio>(path.get(), _memory, p.info.videoTime.duration().rate(), p.options);
                         p.info.audio = p.readAudio->getInfo();
