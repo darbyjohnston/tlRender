@@ -861,7 +861,7 @@ namespace tl
                                 const float viewZoom = p.timelineViewport->viewZoom();
                                 auto compareOptions = p.compareOptions;
                                 compareOptions.wipeCenter.x = (p.mousePos.x - viewPos.x) / viewZoom /
-                                    static_cast<float>(imageInfo.size.w);
+                                    static_cast<float>(imageInfo.size.w * imageInfo.size.pixelAspectRatio);
                                 compareOptions.wipeCenter.y = 1.F - (p.mousePos.y - viewPos.y) / viewZoom /
                                     static_cast<float>(imageInfo.size.h);
                                 p.app->filesModel()->setCompareOptions(compareOptions);
