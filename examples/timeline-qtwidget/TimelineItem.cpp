@@ -137,7 +137,7 @@ namespace tl
                     0, 0, viewport.w(), viewport.h());
                 if (g.intersects(v))
                 {
-                     render->drawRect(
+                    render->drawRect(
                         g * devicePixelRatio,
                         imaging::Color4f(.15, .15, .15));
 
@@ -342,23 +342,26 @@ namespace tl
                         }
                     }
 
+                    const math::BBox2i bbox(
+                        g.min.x +
+                        _itemData.margin,
+                        g.min.y +
+                        _itemData.margin +
+                        _itemData.fontMetrics.lineHeight +
+                        _itemData.spacing +
+                        _itemData.fontMetrics.lineHeight +
+                        _itemData.spacing +
+                        _itemData.fontMetrics.lineHeight +
+                        _itemData.spacing +
+                        _itemData.fontMetrics.lineHeight +
+                        _itemData.spacing,
+                        g.w() - _itemData.margin * 2,
+                        _thumbnailHeight);
                     render->drawRect(
-                        math::BBox2i(
-                            g.min.x +
-                            _itemData.margin,
-                            g.min.y +
-                            _itemData.margin +
-                            _itemData.fontMetrics.lineHeight +
-                            _itemData.spacing +
-                            _itemData.fontMetrics.lineHeight +
-                            _itemData.spacing +
-                            _itemData.fontMetrics.lineHeight +
-                            _itemData.spacing +
-                            _itemData.fontMetrics.lineHeight +
-                            _itemData.spacing,
-                            g.w() - _itemData.margin * 2,
-                            _thumbnailHeight) * devicePixelRatio,
+                        bbox * devicePixelRatio,
                         imaging::Color4f(0.F, 0.F, 0.F));
+                    render->setClipRectEnabled(true);
+                    render->setClipRect(bbox * devicePixelRatio);
                     std::set<otime::RationalTime> videoDataDelete;
                     for (const auto& videoData : _videoData)
                     {
@@ -412,6 +415,7 @@ namespace tl
                             _videoData.erase(j);
                         }
                     }
+                    render->setClipRectEnabled(false);
                 }
             }
 

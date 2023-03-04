@@ -859,5 +859,34 @@ namespace tl
 
         void Render::end()
         {}
+
+        void Render::setClipRectEnabled(bool value)
+        {
+            TLRENDER_P();
+            if (value == p.clipRectEnabled)
+                return;
+            p.clipRectEnabled = value;
+            if (p.clipRectEnabled)
+            {
+                glEnable(GL_SCISSOR_TEST);
+            }
+            else
+            {
+                glDisable(GL_SCISSOR_TEST);
+            }
+        }
+
+        void Render::setClipRect(const math::BBox2i& value)
+        {
+            TLRENDER_P();
+            if (value == p.clipRect)
+                return;
+            p.clipRect = value;
+            glScissor(
+                value.min.x,
+                (p.size.h - 1) - value.max.y,
+                value.w(),
+                value.h());
+        }
     }
 }

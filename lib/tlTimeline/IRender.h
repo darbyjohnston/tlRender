@@ -79,6 +79,12 @@ namespace tl
                 const std::vector<DisplayOptions>& = {},
                 const CompareOptions& = CompareOptions()) = 0;
 
+            //! Set whether the clipping rectangle is enabled.
+            virtual void setClipRectEnabled(bool) = 0;
+
+            //! Set the clipping rectangle.
+            virtual void setClipRect(const math::BBox2i&) = 0;
+
         protected:
             std::weak_ptr<system::Context> _context;
             std::shared_ptr<imaging::FontSystem> _fontSystem;

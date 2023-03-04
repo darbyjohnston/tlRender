@@ -52,6 +52,8 @@ namespace tl
                 const std::vector<timeline::ImageOptions>& = {},
                 const std::vector<timeline::DisplayOptions>& = {},
                 const timeline::CompareOptions& = timeline::CompareOptions()) override;
+            void setClipRectEnabled(bool) override;
+            void setClipRect(const math::BBox2i&) override;
 
         private:
             void _drawVideo(

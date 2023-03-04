@@ -143,6 +143,8 @@ namespace tl
 #endif // TLRENDER_OCIO
 
             imaging::Size size;
+            bool clipRectEnabled = false;
+            math::BBox2i clipRect;
 
             std::map<std::string, std::shared_ptr<Shader> > shaders;
             std::map<std::string, std::shared_ptr<OffscreenBuffer> > buffers;
