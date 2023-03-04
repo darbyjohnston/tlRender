@@ -5,6 +5,7 @@
 #include <tlGL/RenderPrivate.h>
 
 #include <tlGL/Mesh.h>
+#include <tlGL/State.h>
 #include <tlGL/Util.h>
 
 #include <tlCore/Math.h>
@@ -17,30 +18,6 @@ namespace tl
 {
     namespace gl
     {
-        namespace
-        {
-            class DisableScissorTest
-            {
-            public:
-                DisableScissorTest()
-                {
-                    glGetBooleanv(GL_SCISSOR_TEST, &_enabled);
-                    glDisable(GL_SCISSOR_TEST);
-                }
-
-                ~DisableScissorTest()
-                {
-                    if (_enabled)
-                    {
-                        glEnable(GL_SCISSOR_TEST);
-                    }
-                }
-
-            private:
-                GLboolean _enabled = GL_FALSE;
-            };
-        }
-
         void Render::drawVideo(
             const std::vector<timeline::VideoData>& videoData,
             const std::vector<math::BBox2i>& bboxes,
@@ -86,7 +63,7 @@ namespace tl
                     pts[i].y = sin(rad) * radius + y;
                 }
 
-                glEnable(GL_STENCIL_TEST);
+                SetAndRestore stencilTest(GL_STENCIL_TEST, GL_TRUE);
 
                 glClear(GL_STENCIL_BUFFER_BIT);
                 glStencilFunc(GL_ALWAYS, 1, 0xFF);
@@ -160,8 +137,6 @@ namespace tl
                         imageOptions.size() > 1 ? std::make_shared<timeline::ImageOptions>(imageOptions[1]) : nullptr,
                         displayOptions.size() > 1 ? displayOptions[1] : timeline::DisplayOptions());
                 }
-
-                glDisable(GL_STENCIL_TEST);
                 break;
             }
             case timeline::CompareMode::Overlay:
@@ -189,7 +164,7 @@ namespace tl
                     if (p.buffers["overlay"])
                     {
                         OffscreenBufferBinding binding(p.buffers["overlay"]);
-                        DisableScissorTest disableScissorTest;
+                        SetAndRestore scissorTest(GL_SCISSOR_TEST, GL_FALSE);
                         glClearColor(0.F, 0.F, 0.F, 0.F);
                         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -242,7 +217,7 @@ namespace tl
                     if (p.buffers["difference0"])
                     {
                         OffscreenBufferBinding binding(p.buffers["difference0"]);
-                        DisableScissorTest disableScissorTest;
+                        SetAndRestore scissorTest(GL_SCISSOR_TEST, GL_FALSE);
                         glClearColor(0.F, 0.F, 0.F, 0.F);
                         glClear(GL_COLOR_BUFFER_BIT);
                         _drawVideo(
@@ -268,7 +243,7 @@ namespace tl
                         if (p.buffers["difference1"])
                         {
                             OffscreenBufferBinding binding(p.buffers["difference1"]);
-                            DisableScissorTest disableScissorTest;
+                            SetAndRestore scissorTest(GL_SCISSOR_TEST, GL_FALSE);
                             glClearColor(0.F, 0.F, 0.F, 0.F);
                             glClear(GL_COLOR_BUFFER_BIT);
                             _drawVideo(
@@ -380,7 +355,7 @@ namespace tl
             if (p.buffers["video"])
             {
                 OffscreenBufferBinding binding(p.buffers["video"]);
-                DisableScissorTest disableScissorTest;
+                SetAndRestore scissorTest(GL_SCISSOR_TEST, GL_FALSE);
                 glViewport(0, 0, size.w, size.h);
                 glClearColor(0.F, 0.F, 0.F, 0.F);
                 glClear(GL_COLOR_BUFFER_BIT);
