@@ -13,7 +13,7 @@ namespace tl
         struct SetAndRestore::Private
         {
             unsigned int id = 0;
-            GLboolean prev = GL_FALSE;
+            GLboolean previous = GL_FALSE;
         };
 
         SetAndRestore::SetAndRestore(unsigned int id, bool value) :
@@ -21,7 +21,7 @@ namespace tl
         {
             _p->id = id;
 
-            glGetBooleanv(id, &_p->prev);
+            glGetBooleanv(id, &_p->previous);
 
             if (value)
             {
@@ -35,7 +35,7 @@ namespace tl
 
         SetAndRestore::~SetAndRestore()
         {
-            if (_p->prev)
+            if (_p->previous)
             {
                 glEnable(_p->id);
             }
