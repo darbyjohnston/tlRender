@@ -340,7 +340,14 @@ namespace tl
         {
             TLRENDER_P();
 
-            const imaging::Size size(bbox.w(), bbox.h());
+            imaging::Size size;
+            if (!videoData.layers.empty() &&
+                videoData.layers[0].image)
+            {
+                const auto& imageSize = videoData.layers[0].image->getSize();
+                size.w = imageSize.w * imageSize.pixelAspectRatio;
+                size.h = imageSize.h;
+            }
             OffscreenBufferOptions offscreenBufferOptions;
             offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
             if (imageOptions.get())
@@ -360,6 +367,7 @@ namespace tl
                 glClearColor(0.F, 0.F, 0.F, 0.F);
                 glClear(GL_COLOR_BUFFER_BIT);
 
+                math::Matrix4x4f viewPrevious = p.view;
                 const auto viewMatrix = glm::ortho(
                     0.F,
                     static_cast<float>(size.w),
@@ -498,6 +506,9 @@ namespace tl
                         break;
                     }
                 }
+
+                p.shaders["dissolve"]->setUniform("transform.mvp", viewPrevious);
+                p.shaders["image"]->setUniform("transform.mvp", viewPrevious);
             }
 
             if (p.buffers["video"])

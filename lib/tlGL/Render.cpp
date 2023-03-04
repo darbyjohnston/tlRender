@@ -716,7 +716,8 @@ namespace tl
             p.shaders["display"].reset();
         }
 
-        void Render::begin(const imaging::Size& size,
+        void Render::begin(
+            const imaging::Size& size,
             const timeline::RenderOptions& renderOptions)
         {
             TLRENDER_P();
@@ -734,46 +735,25 @@ namespace tl
             glEnable(GL_BLEND);
             glBlendEquation(GL_FUNC_ADD);
 
-            const auto viewMatrix = glm::ortho(
-                0.F,
-                static_cast<float>(p.size.w),
-                static_cast<float>(p.size.h),
-                0.F,
-                -1.F,
-                1.F);
-            const math::Matrix4x4f mvp(
-                viewMatrix[0][0], viewMatrix[0][1], viewMatrix[0][2], viewMatrix[0][3],
-                viewMatrix[1][0], viewMatrix[1][1], viewMatrix[1][2], viewMatrix[1][3],
-                viewMatrix[2][0], viewMatrix[2][1], viewMatrix[2][2], viewMatrix[2][3],
-                viewMatrix[3][0], viewMatrix[3][1], viewMatrix[3][2], viewMatrix[3][3]);
-
             if (!p.shaders["mesh"])
             {
                 p.shaders["mesh"] = Shader::create(vertexSource(), meshFragmentSource());
             }
-            p.shaders["mesh"]->bind();
-            p.shaders["mesh"]->setUniform("transform.mvp", mvp);
 
             if (!p.shaders["text"])
             {
                 p.shaders["text"] = Shader::create(vertexSource(), textFragmentSource());
             }
-            p.shaders["text"]->bind();
-            p.shaders["text"]->setUniform("transform.mvp", mvp);
 
             if (!p.shaders["texture"])
             {
                 p.shaders["texture"] = Shader::create(vertexSource(), textureFragmentSource());
             }
-            p.shaders["texture"]->bind();
-            p.shaders["texture"]->setUniform("transform.mvp", mvp);
 
             if (!p.shaders["image"])
             {
                 p.shaders["image"] = Shader::create(vertexSource(), imageFragmentSource());
             }
-            p.shaders["image"]->bind();
-            p.shaders["image"]->setUniform("transform.mvp", mvp);
 
             if (!p.shaders["display"])
             {
@@ -808,7 +788,6 @@ namespace tl
                 p.shaders["display"] = Shader::create(vertexSource(), source);
             }
             p.shaders["display"]->bind();
-            p.shaders["display"]->setUniform("transform.mvp", mvp);
             size_t texturesOffset = 1;
 #if defined(TLRENDER_OCIO)
             if (p.colorConfigData)
@@ -842,8 +821,6 @@ namespace tl
             {
                 p.shaders["difference"] = Shader::create(vertexSource(), differenceFragmentSource());
             }
-            p.shaders["difference"]->bind();
-            p.shaders["difference"]->setUniform("transform.mvp", mvp);
 
             p.vbos["rect"] = VBO::create(2 * 3, VBOType::Pos2_F32);
             p.vaos["rect"] = VAO::create(p.vbos["rect"]->getType(), p.vbos["rect"]->getID());
@@ -855,10 +832,47 @@ namespace tl
             p.vaos["wipe"] = VAO::create(p.vbos["wipe"]->getType(), p.vbos["wipe"]->getID());
             p.vbos["video"] = VBO::create(2 * 3, VBOType::Pos2_F32_UV_U16);
             p.vaos["video"] = VAO::create(p.vbos["video"]->getType(), p.vbos["video"]->getID());
+
+            const auto viewMatrix = glm::ortho(
+                0.F,
+                static_cast<float>(p.size.w),
+                static_cast<float>(p.size.h),
+                0.F,
+                -1.F,
+                1.F);
+            const math::Matrix4x4f mvp(
+                viewMatrix[0][0], viewMatrix[0][1], viewMatrix[0][2], viewMatrix[0][3],
+                viewMatrix[1][0], viewMatrix[1][1], viewMatrix[1][2], viewMatrix[1][3],
+                viewMatrix[2][0], viewMatrix[2][1], viewMatrix[2][2], viewMatrix[2][3],
+                viewMatrix[3][0], viewMatrix[3][1], viewMatrix[3][2], viewMatrix[3][3]);
+            setView(mvp);
         }
 
         void Render::end()
         {}
+
+        void Render::setView(const math::Matrix4x4f& value)
+        {
+            TLRENDER_P();
+            if (value == p.view)
+                return;
+            p.view = value;
+
+            p.shaders["mesh"]->bind();
+            p.shaders["mesh"]->setUniform("transform.mvp", value);
+            p.shaders["text"]->bind();
+            p.shaders["text"]->setUniform("transform.mvp", value);
+            p.shaders["texture"]->bind();
+            p.shaders["texture"]->setUniform("transform.mvp", value);
+            p.shaders["image"]->bind();
+            p.shaders["image"]->setUniform("transform.mvp", value);
+            p.shaders["display"]->bind();
+            p.shaders["display"]->setUniform("transform.mvp", value);
+            p.shaders["dissolve"]->bind();
+            p.shaders["dissolve"]->setUniform("transform.mvp", value);
+            p.shaders["difference"]->bind();
+            p.shaders["difference"]->setUniform("transform.mvp", value);
+        }
 
         void Render::setClipRectEnabled(bool value)
         {

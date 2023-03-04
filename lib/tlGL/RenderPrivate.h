@@ -143,6 +143,7 @@ namespace tl
 #endif // TLRENDER_OCIO
 
             imaging::Size size;
+            math::Matrix4x4f view;
             bool clipRectEnabled = false;
             math::BBox2i clipRect;
 

@@ -48,6 +48,9 @@ namespace tl
             //! Finish a render.
             virtual void end() = 0;
 
+            //! Set the view matrix.
+            virtual void setView(const math::Matrix4x4f&) = 0;
+
             //! Draw a rectangle.
             virtual void drawRect(
                 const math::BBox2i&,
