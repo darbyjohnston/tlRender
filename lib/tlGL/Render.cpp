@@ -15,8 +15,6 @@
 
 #include <tlGlad/gl.h>
 
-#include <glm/gtc/matrix_transform.hpp>
-
 #include <array>
 #include <list>
 
@@ -833,19 +831,14 @@ namespace tl
             p.vbos["video"] = VBO::create(2 * 3, VBOType::Pos2_F32_UV_U16);
             p.vaos["video"] = VAO::create(p.vbos["video"]->getType(), p.vbos["video"]->getID());
 
-            const auto viewMatrix = glm::ortho(
+            const auto viewMatrix = math::ortho(
                 0.F,
                 static_cast<float>(p.size.w),
                 static_cast<float>(p.size.h),
                 0.F,
                 -1.F,
                 1.F);
-            const math::Matrix4x4f mvp(
-                viewMatrix[0][0], viewMatrix[0][1], viewMatrix[0][2], viewMatrix[0][3],
-                viewMatrix[1][0], viewMatrix[1][1], viewMatrix[1][2], viewMatrix[1][3],
-                viewMatrix[2][0], viewMatrix[2][1], viewMatrix[2][2], viewMatrix[2][3],
-                viewMatrix[3][0], viewMatrix[3][1], viewMatrix[3][2], viewMatrix[3][3]);
-            setView(mvp);
+            setView(viewMatrix);
         }
 
         void Render::end()

@@ -9,8 +9,6 @@
 #include <QMouseEvent>
 #include <QSurfaceFormat>
 
-#include <glm/gtc/matrix_transform.hpp>
-
 namespace tl
 {
     namespace examples
@@ -192,32 +190,28 @@ namespace tl
                 glDisable(GL_DEPTH_TEST);
                 glDisable(GL_SCISSOR_TEST);
                 glDisable(GL_BLEND);
-                const QSize& windowSize = size();
+                const float devicePixelRatio = window()->devicePixelRatio();
+                const imaging::Size windowSize(
+                    width() * devicePixelRatio,
+                    height() * devicePixelRatio);
                 glViewport(
                     0,
                     0,
-                    GLsizei(windowSize.width()),
-                    GLsizei(windowSize.height()));
+                    static_cast<GLsizei>(windowSize.w),
+                    static_cast<GLsizei>(windowSize.h));
                 glClearColor(0.F, 0.F, 0.F, 0.F);
                 glClear(GL_COLOR_BUFFER_BIT);
-                glm::mat4x4 vm(1.F);
-                vm = glm::translate(vm, glm::vec3(0.F, 0.F, 0.F));
-                vm = glm::rotate(vm, math::deg2rad(_cameraRotation.x), glm::vec3(1.F, 0.F, 0.F));
-                vm = glm::rotate(vm, math::deg2rad(_cameraRotation.y), glm::vec3(0.F, 1.F, 0.F));
-                const glm::mat4x4 pm = glm::perspective(
-                    math::deg2rad(_cameraFOV),
-                    windowSize.width() / static_cast<float>(windowSize.height() > 0 ? windowSize.height() : 1),
+                math::Matrix4x4f vm;
+                vm = vm * math::translate(math::Vector3f(0.F, 0.F, 0.F));
+                vm = vm * math::rotateX(_cameraRotation.x);
+                vm = vm * math::rotateY(_cameraRotation.y);
+                const auto pm = math::perspective(
+                    _cameraFOV,
+                    windowSize.w / static_cast<float>(windowSize.h > 0 ? windowSize.h : 1),
                     .1F,
                     10000.F);
                 _shader->bind();
-                const glm::mat4x4 vpm = pm * vm;
-                _shader->setUniform(
-                    "transform.mvp",
-                    math::Matrix4x4f(
-                        vpm[0][0], vpm[0][1], vpm[0][2], vpm[0][3],
-                        vpm[1][0], vpm[1][1], vpm[1][2], vpm[1][3],
-                        vpm[2][0], vpm[2][1], vpm[2][2], vpm[2][3],
-                        vpm[3][0], vpm[3][1], vpm[3][2], vpm[3][3]));
+                _shader->setUniform("transform.mvp", pm * vm);
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, _buffer->getColorID());
                 _sphereVAO->bind();
@@ -226,7 +220,9 @@ namespace tl
 
             void PanoramaTimelineViewport::mousePressEvent(QMouseEvent* event)
             {
-                _mousePosPrev = event->pos();
+                const float devicePixelRatio = window()->devicePixelRatio();
+                _mousePosPrev.x = event->x() * devicePixelRatio;
+                _mousePosPrev.y = event->y() * devicePixelRatio;
             }
 
             void PanoramaTimelineViewport::mouseReleaseEvent(QMouseEvent*)
@@ -234,9 +230,11 @@ namespace tl
 
             void PanoramaTimelineViewport::mouseMoveEvent(QMouseEvent* event)
             {
-                _cameraRotation.x += (event->pos().y() - _mousePosPrev.y()) / 10.F * -1.F;
-                _cameraRotation.y += (event->pos().x() - _mousePosPrev.x()) / 10.F * -1.F;
-                _mousePosPrev = event->pos();
+                const float devicePixelRatio = window()->devicePixelRatio();
+                _cameraRotation.x += (event->y() * devicePixelRatio - _mousePosPrev.y) / 20.F * -1.F;
+                _cameraRotation.y += (event->x() * devicePixelRatio - _mousePosPrev.x) / 20.F * -1.F;
+                _mousePosPrev.x = event->x() * devicePixelRatio;
+                _mousePosPrev.y = event->y() * devicePixelRatio;
             }
         }
     }

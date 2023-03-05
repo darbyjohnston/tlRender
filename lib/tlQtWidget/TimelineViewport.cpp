@@ -17,8 +17,6 @@
 #include <QSurfaceFormat>
 #include <QWindow>
 
-#include <glm/gtc/matrix_transform.hpp>
-
 namespace tl
 {
     namespace qtwidget
@@ -369,24 +367,17 @@ namespace tl
             if (p.buffer)
             {
                 p.shader->bind();
-                glm::mat4x4 vm(1.F);
-                vm = glm::translate(vm, glm::vec3(p.viewPos.x, p.viewPos.y, 0.F));
-                vm = glm::scale(vm, glm::vec3(p.viewZoom, p.viewZoom, 1.F));
-                const glm::mat4x4 pm = glm::ortho(
+                math::Matrix4x4f vm;
+                vm = vm * math::translate(math::Vector3f(p.viewPos.x, p.viewPos.y, 0.F));
+                vm = vm * math::scale(math::Vector3f(p.viewZoom, p.viewZoom, 1.F));
+                const auto pm = math::ortho(
                     0.F,
                     static_cast<float>(viewportSize.w),
                     0.F,
                     static_cast<float>(viewportSize.h),
                     -1.F,
                     1.F);
-                glm::mat4x4 vpm = pm * vm;
-                p.shader->setUniform(
-                    "transform.mvp",
-                    math::Matrix4x4f(
-                        vpm[0][0], vpm[0][1], vpm[0][2], vpm[0][3],
-                        vpm[1][0], vpm[1][1], vpm[1][2], vpm[1][3],
-                        vpm[2][0], vpm[2][1], vpm[2][2], vpm[2][3],
-                        vpm[3][0], vpm[3][1], vpm[3][2], vpm[3][3]));
+                p.shader->setUniform("transform.mvp", pm * vm);
                 
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, p.buffer->getColorID());

@@ -72,7 +72,7 @@ namespace tl
                 std::shared_ptr<gl::Shader> _shader;
                 std::shared_ptr<gl::OffscreenBuffer> _buffer;
                 std::shared_ptr<gl::Render> _render;
-                QPoint _mousePosPrev;
+                math::Vector2i _mousePosPrev;
             };
         }
     }

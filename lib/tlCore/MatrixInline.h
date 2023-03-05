@@ -131,5 +131,91 @@ namespace tl
             }
             return out;
         }
+
+        template<typename T>
+        constexpr Matrix4x4<T> translate(const Vector3<T>& value)
+        {
+            return Matrix4x4<T>(
+                T(1), T(0), T(0), T(0),
+                T(0), T(1), T(0), T(0),
+                T(0), T(0), T(1), T(0),
+                value.x, value.y, value.z, T(1));
+        }
+
+        template<typename T>
+        inline Matrix4x4<T> rotateX(T angle)
+        {
+            const T a = std::cos(deg2rad(-angle));
+            const T b = std::sin(deg2rad(-angle));
+            return Matrix4x4<T>(
+                T(1), T(0), T(0), T(0),
+                T(0), a, -b, T(0),
+                T(0), b, a, T(0),
+                T(0), T(0), T(0), T(1));
+        }
+
+        template<typename T>
+        inline Matrix4x4<T> rotateY(T angle)
+        {
+            const T a = std::cos(deg2rad(-angle));
+            const T b = std::sin(deg2rad(-angle));
+            return Matrix4x4<T>(
+                a, T(0), b, T(0),
+                T(0), T(1), T(0), T(0),
+                -b, T(0), a, T(0),
+                T(0), T(0), T(0), T(1));
+        }
+
+        template<typename T>
+        inline Matrix4x4<T> rotateZ(T angle)
+        {
+            const T a = std::cos(deg2rad(-angle));
+            const T b = std::sin(deg2rad(-angle));
+            return Matrix4x4<T>(
+                a, -b, T(0), T(0),
+                b, a, T(0), T(0),
+                T(0), T(0), T(1), T(0),
+                T(0), T(0), T(0), T(1));
+        }
+
+        template<typename T>
+        constexpr Matrix4x4<T> scale(const Vector3<T>& value)
+        {
+            return Matrix4x4<T>(
+                value.x, T(0), T(0), T(0),
+                T(0), value.y, T(0), T(0),
+                T(0), T(0), value.z, T(0),
+                T(0), T(0), T(0), T(1));
+        }
+
+        template<typename T>
+        inline Matrix4x4<T> ortho(T left, T right, T bottom, T top, T near, T far)
+        {
+            const T a = T(2) / (right - left);
+            const T b = T(2) / (top - bottom);
+            const T c = T(-2) / (far - near);
+            const T x = -(right + left) / (right - left);
+            const T y = -(top + bottom) / (top - bottom);
+            const T z = -(far + near) / (far - near);
+            return Matrix4x4<T>(
+                a, T(0), T(0), T(0),
+                T(0), b, T(0), T(0),
+                T(0), T(0), c, T(0),
+                x, y, z, T(1));
+        }
+
+        template<typename T>
+        inline Matrix4x4<T> perspective(T fov, T aspect, T near, T far)
+        {
+            const T f = T(1) / std::tan(deg2rad(fov) / T(2));
+            const T a = f / aspect;
+            const T b = (far + near) / (near - far);
+            const T c = T(2) * far * near / (near - far);
+            return Matrix4x4<T>(
+                a, T(0), T(0), T(0),
+                T(0), f, T(0), T(0),
+                T(0), T(0), b, T(-1),
+                T(0), T(0), c, T(0));
+        }
     };
 }

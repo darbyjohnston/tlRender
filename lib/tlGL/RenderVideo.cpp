@@ -12,8 +12,6 @@
 
 #include <tlGlad/gl.h>
 
-#include <glm/gtc/matrix_transform.hpp>
-
 namespace tl
 {
     namespace gl
@@ -368,18 +366,13 @@ namespace tl
                 glClear(GL_COLOR_BUFFER_BIT);
 
                 math::Matrix4x4f viewPrevious = p.view;
-                const auto viewMatrix = glm::ortho(
+                const auto viewMatrix = math::ortho(
                     0.F,
                     static_cast<float>(size.w),
                     static_cast<float>(size.h),
                     0.F,
                     -1.F,
                     1.F);
-                const math::Matrix4x4f mvp(
-                    viewMatrix[0][0], viewMatrix[0][1], viewMatrix[0][2], viewMatrix[0][3],
-                    viewMatrix[1][0], viewMatrix[1][1], viewMatrix[1][2], viewMatrix[1][3],
-                    viewMatrix[2][0], viewMatrix[2][1], viewMatrix[2][2], viewMatrix[2][3],
-                    viewMatrix[3][0], viewMatrix[3][1], viewMatrix[3][2], viewMatrix[3][3]);
 
                 for (const auto& layer : videoData.layers)
                 {
@@ -399,7 +392,7 @@ namespace tl
                                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
                                 p.shaders["dissolve"]->bind();
-                                p.shaders["dissolve"]->setUniform("transform.mvp", mvp);
+                                p.shaders["dissolve"]->setUniform("transform.mvp", viewMatrix);
                                 p.shaders["dissolve"]->setUniform("transition", layer.transitionValue);
 
                                 p.shaders["dissolve"]->setUniform("pixelType", static_cast<int>(layer.image->getPixelType()));
@@ -470,7 +463,7 @@ namespace tl
                             else if (layer.image)
                             {
                                 p.shaders["image"]->bind();
-                                p.shaders["image"]->setUniform("transform.mvp", mvp);
+                                p.shaders["image"]->setUniform("transform.mvp", viewMatrix);
 
                                 drawImage(
                                     layer.image,
@@ -481,7 +474,7 @@ namespace tl
                             else if (layer.imageB)
                             {
                                 p.shaders["image"]->bind();
-                                p.shaders["image"]->setUniform("transform.mvp", mvp);
+                                p.shaders["image"]->setUniform("transform.mvp", viewMatrix);
 
                                 drawImage(
                                     layer.imageB,
@@ -495,7 +488,7 @@ namespace tl
                         if (layer.image)
                         {
                             p.shaders["image"]->bind();
-                            p.shaders["image"]->setUniform("transform.mvp", mvp);
+                            p.shaders["image"]->setUniform("transform.mvp", viewMatrix);
 
                             drawImage(
                                 layer.image,
