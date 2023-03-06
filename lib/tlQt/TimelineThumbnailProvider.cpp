@@ -313,13 +313,12 @@ namespace tl
                                     {
                                         offscreenBuffer = gl::OffscreenBuffer::create(info.size, offscreenBufferOptions);
                                     }
-
-                                    render->setColorConfig(requestIt->colorConfigOptions);
-                                    render->setLUT(requestIt->lutOptions);
-
                                     gl::OffscreenBufferBinding binding(offscreenBuffer);
 
-                                    render->begin(info.size);
+                                    render->begin(
+                                        info.size,
+                                        requestIt->colorConfigOptions,
+                                        requestIt->lutOptions);
                                     render->drawVideo(
                                         { videoData },
                                         { math::BBox2i(0, 0, info.size.w, info.size.h) });

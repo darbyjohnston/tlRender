@@ -139,7 +139,7 @@ namespace tl
                 }
                 break;
             default:
-                if (count > 0)
+                for (size_t i = 0; i < count; ++i)
                 {
                     out.push_back(math::BBox2i(
                         0,

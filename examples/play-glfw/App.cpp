@@ -398,9 +398,10 @@ namespace tl
                 // Render the video.
                 if (_renderDirty)
                 {
-                    _render->setColorConfig(_options.colorConfigOptions);
-                    _render->setLUT(_options.lutOptions);
-                    _render->begin(_frameBufferSize);
+                    _render->begin(
+                        _frameBufferSize,
+                        _options.colorConfigOptions,
+                        _options.lutOptions);
                     _drawVideo();
                     if (_options.hud)
                     {

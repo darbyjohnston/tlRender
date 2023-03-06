@@ -288,11 +288,14 @@ namespace tl
             _printProgress();
 
             // Render the video.
-            _render->setColorConfig(_options.colorConfigOptions);
-            _render->setLUT(_options.lutOptions);
-            _render->begin(_renderSize);
+            _render->begin(
+                _renderSize,
+                _options.colorConfigOptions,
+                _options.lutOptions);
             const auto videoData = _timeline->getVideo(_currentTime).get();
-            _render->drawVideo({ videoData }, { math::BBox2i(0, 0, _renderSize.w, _renderSize.h ) });
+            _render->drawVideo(
+                { videoData },
+                { math::BBox2i(0, 0, _renderSize.w, _renderSize.h) });
             _render->end();
 
             // Write the frame.

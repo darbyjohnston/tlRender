@@ -170,9 +170,10 @@ namespace tl
                     if (_buffer)
                     {
                         gl::OffscreenBufferBinding binding(_buffer);
-                        _render->setColorConfig(_colorConfigOptions);
-                        _render->setLUT(_lutOptions);
-                        _render->begin(_videoSize);
+                        _render->begin(
+                            _videoSize,
+                            _colorConfigOptions,
+                            _lutOptions);
                         _render->drawVideo(
                             { _videoData },
                             { math::BBox2i(0, 0, _videoSize.w, _videoSize.h) },

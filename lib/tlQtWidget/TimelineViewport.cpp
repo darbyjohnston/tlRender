@@ -228,7 +228,7 @@ namespace tl
             if (i != p.timelinePlayers.end())
             {
                 const size_t index = i - p.timelinePlayers.begin();
-                _p->videoData[index] = value;
+                p.videoData[index] = value;
             }
             update();
         }
@@ -332,9 +332,10 @@ namespace tl
                 if (p.buffer)
                 {
                     gl::OffscreenBufferBinding binding(p.buffer);
-                    p.render->setColorConfig(p.colorConfigOptions);
-                    p.render->setLUT(p.lutOptions);
-                    p.render->begin(renderSize);
+                    p.render->begin(
+                        renderSize,
+                        p.colorConfigOptions,
+                        p.lutOptions); 
                     p.render->drawVideo(
                         p.videoData,
                         timeline::tiles(p.compareOptions.mode, p.timelineSizes),

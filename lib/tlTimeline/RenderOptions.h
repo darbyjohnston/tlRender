@@ -15,6 +15,9 @@ namespace tl
             //! Clear canvas before rendering.
             bool clear = true;
 
+            //! Texture cache size.
+            size_t textureCacheSize = 6;
+
             bool operator == (const RenderOptions&) const;
             bool operator != (const RenderOptions&) const;
         };

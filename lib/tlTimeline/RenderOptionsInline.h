@@ -8,7 +8,9 @@ namespace tl
     {
         inline bool RenderOptions::operator == (const RenderOptions& other) const
         {
-            return clear == other.clear;
+            return
+                clear == other.clear &&
+                textureCacheSize == other.textureCacheSize;
         }
 
         inline bool RenderOptions::operator != (const RenderOptions& other) const

@@ -612,9 +612,10 @@ namespace tl
                         {
                             gl::OffscreenBufferBinding binding(offscreenBuffer);
 
-                            render->setColorConfig(colorConfigOptions);
-                            render->setLUT(lutOptions);
-                            render->begin(renderSize);
+                            render->begin(
+                                renderSize,
+                                colorConfigOptions,
+                                lutOptions);
                             render->drawVideo(
                                 videoData,
                                 timeline::tiles(compareOptions.mode, sizes),

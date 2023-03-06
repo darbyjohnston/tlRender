@@ -38,7 +38,6 @@ namespace tl
             const std::string& lutDef,
             const std::string& lut,
             timeline::LUTOrder);
-        std::string dissolveFragmentSource();
         std::string differenceFragmentSource();
 
         struct Pos2_F32
@@ -133,17 +132,18 @@ namespace tl
 
         struct Render::Private
         {
+            imaging::Size size;
             timeline::ColorConfigOptions colorConfigOptions;
+            timeline::LUTOptions lutOptions;
+            timeline::RenderOptions renderOptions;
+
 #if defined(TLRENDER_OCIO)
             std::unique_ptr<OCIOColorConfigData> colorConfigData;
-#endif // TLRENDER_OCIO
-            timeline::LUTOptions lutOptions;
-#if defined(TLRENDER_OCIO)
             std::unique_ptr<OCIOLUTData> lutData;
 #endif // TLRENDER_OCIO
 
-            imaging::Size size;
-            math::Matrix4x4f view;
+            math::BBox2i viewport;
+            math::Matrix4x4f transform;
             bool clipRectEnabled = false;
             math::BBox2i clipRect;
 

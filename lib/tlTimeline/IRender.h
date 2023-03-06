@@ -29,27 +29,30 @@ namespace tl
         public:
             virtual ~IRender() = 0;
 
-            //! Set the texture cache size. This function should be called before
-            //! Render::begin().
-            virtual void setTextureCacheSize(size_t) = 0;
-
-            //! Set the color configuration. This function needs to be called before
-            //! Render::begin().
-            virtual void setColorConfig(const ColorConfigOptions&) = 0;
-
-            //! Set the LUT. This function needs to be called before
-            //! Render::begin().
-            virtual void setLUT(const LUTOptions&) = 0;
-
             //! Start a render.
-            virtual void begin(const imaging::Size&,
+            virtual void begin(
+                const imaging::Size&,
+                const ColorConfigOptions& = ColorConfigOptions(),
+                const LUTOptions& = LUTOptions(),
                 const RenderOptions& = RenderOptions()) = 0;
 
             //! Finish a render.
             virtual void end() = 0;
 
-            //! Set the view matrix.
-            virtual void setView(const math::Matrix4x4f&) = 0;
+            //! Set the viewport.
+            virtual void setViewport(const math::BBox2i&) = 0;
+
+            //! Clear the viewport.
+            virtual void clearViewport(const imaging::Color4f&) = 0;
+
+            //! Set whether the clipping rectangle is enabled.
+            virtual void setClipRectEnabled(bool) = 0;
+
+            //! Set the clipping rectangle.
+            virtual void setClipRect(const math::BBox2i&) = 0;
+
+            //! Set the transformation matrix.
+            virtual void setTransform(const math::Matrix4x4f&) = 0;
 
             //! Draw a rectangle.
             virtual void drawRect(
@@ -81,12 +84,6 @@ namespace tl
                 const std::vector<ImageOptions>& = {},
                 const std::vector<DisplayOptions>& = {},
                 const CompareOptions& = CompareOptions()) = 0;
-
-            //! Set whether the clipping rectangle is enabled.
-            virtual void setClipRectEnabled(bool) = 0;
-
-            //! Set the clipping rectangle.
-            virtual void setClipRect(const math::BBox2i&) = 0;
 
         protected:
             std::weak_ptr<system::Context> _context;
