@@ -25,6 +25,15 @@ namespace tl
         {
             TLRENDER_P();
 
+            const auto transformPrev = p.transform;
+            const auto transform = math::ortho(
+                0.F,
+                static_cast<float>(p.size.w),
+                static_cast<float>(p.size.h),
+                0.F,
+                -1.F,
+                1.F);
+
             switch (compareOptions.mode)
             {
             case timeline::CompareMode::A:
@@ -166,6 +175,9 @@ namespace tl
                         glClearColor(0.F, 0.F, 0.F, 0.F);
                         glClear(GL_COLOR_BUFFER_BIT);
 
+                        p.shaders["display"]->bind();
+                        p.shaders["display"]->setUniform("transform.mvp", transform);
+
                         _drawVideo(
                             videoData[0],
                             bbox[0],
@@ -177,9 +189,9 @@ namespace tl
                     {
                         glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
 
-                        p.shaders["texture"]->bind();
-                        p.shaders["texture"]->setUniform("color", imaging::Color4f(1.F, 1.F, 1.F, compareOptions.overlay));
-                        p.shaders["texture"]->setUniform("textureSampler", 0);
+                        p.shaders["overlay"]->bind();
+                        p.shaders["overlay"]->setUniform("color", imaging::Color4f(1.F, 1.F, 1.F, compareOptions.overlay));
+                        p.shaders["overlay"]->setUniform("textureSampler", 0);
 
                         glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
                         glBindTexture(GL_TEXTURE_2D, p.buffers["overlay"]->getColorID());
@@ -219,6 +231,9 @@ namespace tl
                         glClearColor(0.F, 0.F, 0.F, 0.F);
                         glClear(GL_COLOR_BUFFER_BIT);
 
+                        p.shaders["display"]->bind();
+                        p.shaders["display"]->setUniform("transform.mvp", transform);
+
                         _drawVideo(
                             videoData[0],
                             bbox[0],
@@ -244,6 +259,9 @@ namespace tl
                             OffscreenBufferBinding binding(p.buffers["difference1"]);
                             glClearColor(0.F, 0.F, 0.F, 0.F);
                             glClear(GL_COLOR_BUFFER_BIT);
+
+                            p.shaders["display"]->bind();
+                            p.shaders["display"]->setUniform("transform.mvp", transform);
 
                             _drawVideo(
                                 videoData[1],
@@ -297,6 +315,9 @@ namespace tl
             }
             default: break;
             }
+
+            p.shaders["display"]->bind();
+            p.shaders["display"]->setUniform("transform.mvp", transformPrev);
         }
 
         namespace
@@ -338,6 +359,17 @@ namespace tl
             const timeline::DisplayOptions& displayOptions)
         {
             TLRENDER_P();
+            
+            const auto transformPrev = p.transform;
+            const auto transform = math::ortho(
+                0.F,
+                static_cast<float>(p.size.w),
+                static_cast<float>(p.size.h),
+                0.F,
+                -1.F,
+                1.F);
+            p.shaders["image"]->bind();
+            p.shaders["image"]->setUniform("transform.mvp", transform);
 
             OffscreenBufferOptions offscreenBufferOptions;
             offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
@@ -389,9 +421,10 @@ namespace tl
                                 {
                                     glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
 
-                                    p.shaders["texture"]->bind();
-                                    p.shaders["texture"]->setUniform("color", imaging::Color4f(1.F, 1.F, 1.F));
-                                    p.shaders["texture"]->setUniform("textureSampler", 0);
+                                    p.shaders["dissolve"]->bind();
+                                    p.shaders["dissolve"]->setUniform("transform.mvp", transform);
+                                    p.shaders["dissolve"]->setUniform("color", imaging::Color4f(1.F, 1.F, 1.F));
+                                    p.shaders["dissolve"]->setUniform("textureSampler", 0);
 
                                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
                                     glBindTexture(GL_TEXTURE_2D, p.buffers["dissolve"]->getColorID());
@@ -523,6 +556,9 @@ namespace tl
                     p.vaos["video"]->draw(GL_TRIANGLES, 0, p.vbos["video"]->getSize());
                 }
             }
+
+            p.shaders["image"]->bind();
+            p.shaders["image"]->setUniform("transform.mvp", transformPrev);
         }
     }
 }

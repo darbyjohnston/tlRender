@@ -394,6 +394,21 @@ namespace tl
                 p.shaders["image"] = Shader::create(vertexSource(), imageFragmentSource());
             }
 
+            if (!p.shaders["overlay"])
+            {
+                p.shaders["overlay"] = Shader::create(vertexSource(), textureFragmentSource());
+            }
+
+            if (!p.shaders["difference"])
+            {
+                p.shaders["difference"] = Shader::create(vertexSource(), differenceFragmentSource());
+            }
+
+            if (!p.shaders["dissolve"])
+            {
+                p.shaders["dissolve"] = Shader::create(vertexSource(), textureFragmentSource());
+            }
+
             if (!p.shaders["display"])
             {
                 std::string colorConfigDef;
@@ -450,11 +465,6 @@ namespace tl
                 texturesOffset += p.lutData->textures.size();
             }
 #endif // TLRENDER_OCIO
-
-            if (!p.shaders["difference"])
-            {
-                p.shaders["difference"] = Shader::create(vertexSource(), differenceFragmentSource());
-            }
 
             p.vbos["rect"] = VBO::create(2 * 3, VBOType::Pos2_F32);
             p.vaos["rect"] = VAO::create(p.vbos["rect"]->getType(), p.vbos["rect"]->getID());
