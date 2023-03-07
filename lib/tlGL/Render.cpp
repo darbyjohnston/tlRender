@@ -851,7 +851,7 @@ namespace tl
             p.vaos["text"] = VAO::create(p.vbos["text"]->getType(), p.vbos["text"]->getID());
             p.vbos["image"] = VBO::create(2 * 3, VBOType::Pos2_F32_UV_U16);
             p.vaos["image"] = VAO::create(p.vbos["image"]->getType(), p.vbos["image"]->getID());
-            p.vbos["wipe"] = VBO::create(2 * 3, VBOType::Pos2_F32);
+            p.vbos["wipe"] = VBO::create(1 * 3, VBOType::Pos2_F32);
             p.vaos["wipe"] = VAO::create(p.vbos["wipe"]->getType(), p.vbos["wipe"]->getID());
             p.vbos["video"] = VBO::create(2 * 3, VBOType::Pos2_F32_UV_U16);
             p.vaos["video"] = VAO::create(p.vbos["video"]->getType(), p.vbos["video"]->getID());
