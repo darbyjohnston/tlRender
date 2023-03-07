@@ -402,7 +402,9 @@ namespace tl
                         _frameBufferSize,
                         _options.colorConfigOptions,
                         _options.lutOptions);
-                    _drawVideo();
+                    _render->drawVideo(
+                        { _videoData },
+                        { math::BBox2i(0, 0, _frameBufferSize.w, _frameBufferSize.h) });
                     if (_options.hud)
                     {
                         _drawHUD();
@@ -446,13 +448,6 @@ namespace tl
                     _hudLabels = hudLabels;
                     _renderDirty = true;
                 }
-            }
-
-            void App::_drawVideo()
-            {
-                _render->drawVideo(
-                    { _videoData },
-                    { math::BBox2i(0, 0, _frameBufferSize.w, _frameBufferSize.h) });
             }
 
             void App::_drawHUD()

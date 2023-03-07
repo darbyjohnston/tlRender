@@ -74,7 +74,6 @@ namespace tl
                 void _tick();
                 void _hudUpdate();
 
-                void _drawVideo();
                 void _drawHUD();
                 void _hudCallback(bool);
 
