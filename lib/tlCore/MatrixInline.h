@@ -2,6 +2,8 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
+#include <tlCore/Math.h>
+
 namespace tl
 {
     namespace math
