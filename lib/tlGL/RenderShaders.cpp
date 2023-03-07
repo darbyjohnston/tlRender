@@ -222,7 +222,7 @@ namespace tl
                 "    {\n"
                 "        t.x = 1.0 - t.x;\n"
                 "    }\n"
-                "    if (1 == mirrorY)\n"
+                "    if (0 == mirrorY)\n"
                 "    {\n"
                 "        t.y = 1.0 - t.y;\n"
                 "    }\n"

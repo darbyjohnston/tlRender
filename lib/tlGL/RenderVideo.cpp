@@ -163,11 +163,6 @@ namespace tl
                     if (p.buffers["overlay"])
                     {
                         OffscreenBufferBinding binding(p.buffers["overlay"]);
-                        glViewport(
-                            p.viewport.x(),
-                            p.viewport.y(),
-                            p.viewport.w(),
-                            p.viewport.h());
                         glClearColor(0.F, 0.F, 0.F, 0.F);
                         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -178,28 +173,28 @@ namespace tl
                             !displayOptions.empty() ? displayOptions[0] : timeline::DisplayOptions());
                     }
 
-                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-                    p.shaders["texture"]->bind();
-                    p.shaders["texture"]->setUniform("color", imaging::Color4f(1.F, 1.F, 1.F, compareOptions.overlay));
-                    p.shaders["texture"]->setUniform("textureSampler", 0);
-
                     if (p.buffers["overlay"])
                     {
+                        glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+
+                        p.shaders["texture"]->bind();
+                        p.shaders["texture"]->setUniform("color", imaging::Color4f(1.F, 1.F, 1.F, compareOptions.overlay));
+                        p.shaders["texture"]->setUniform("textureSampler", 0);
+
                         glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
                         glBindTexture(GL_TEXTURE_2D, p.buffers["overlay"]->getColorID());
-                    }
 
-                    if (p.vbos["video"])
-                    {
-                        p.vbos["video"]->copy(convert(
-                            geom::bbox(math::BBox2i(0, 0, p.size.w, p.size.h)),
-                            p.vbos["video"]->getType()));
-                    }
-                    if (p.vaos["video"])
-                    {
-                        p.vaos["video"]->bind();
-                        p.vaos["video"]->draw(GL_TRIANGLES, 0, p.vbos["video"]->getSize());
+                        if (p.vbos["video"])
+                        {
+                            p.vbos["video"]->copy(convert(
+                                geom::bbox(math::BBox2i(0, 0, p.size.w, p.size.h), true),
+                                p.vbos["video"]->getType()));
+                        }
+                        if (p.vaos["video"])
+                        {
+                            p.vaos["video"]->bind();
+                            p.vaos["video"]->draw(GL_TRIANGLES, 0, p.vbos["video"]->getSize());
+                        }
                     }
                 }
                 break;
@@ -221,13 +216,9 @@ namespace tl
                     if (p.buffers["difference0"])
                     {
                         OffscreenBufferBinding binding(p.buffers["difference0"]);
-                        glViewport(
-                            p.viewport.x(),
-                            p.viewport.y(),
-                            p.viewport.w(),
-                            p.viewport.h());
                         glClearColor(0.F, 0.F, 0.F, 0.F);
                         glClear(GL_COLOR_BUFFER_BIT);
+
                         _drawVideo(
                             videoData[0],
                             bbox[0],
@@ -251,13 +242,9 @@ namespace tl
                         if (p.buffers["difference1"])
                         {
                             OffscreenBufferBinding binding(p.buffers["difference1"]);
-                            glViewport(
-                                p.viewport.x(),
-                                p.viewport.y(),
-                                p.viewport.w(),
-                                p.viewport.h());
                             glClearColor(0.F, 0.F, 0.F, 0.F);
                             glClear(GL_COLOR_BUFFER_BIT);
+
                             _drawVideo(
                                 videoData[1],
                                 bbox[1],
@@ -266,31 +253,31 @@ namespace tl
                         }
                     }
 
-                    p.shaders["difference"]->bind();
-                    p.shaders["difference"]->setUniform("textureSampler", 0);
-                    p.shaders["difference"]->setUniform("textureSamplerB", 1);
-
-                    if (p.buffers["difference0"])
+                    if (p.buffers["difference0"] && p.buffers["difference1"])
                     {
+                        glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+
+                        p.shaders["difference"]->bind();
+                        p.shaders["difference"]->setUniform("textureSampler", 0);
+                        p.shaders["difference"]->setUniform("textureSamplerB", 1);
+
                         glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
                         glBindTexture(GL_TEXTURE_2D, p.buffers["difference0"]->getColorID());
-                    }
-                    if (p.buffers["difference1"])
-                    {
+
                         glActiveTexture(static_cast<GLenum>(GL_TEXTURE1));
                         glBindTexture(GL_TEXTURE_2D, p.buffers["difference1"]->getColorID());
-                    }
 
-                    if (p.vbos["video"])
-                    {
-                        p.vbos["video"]->copy(convert(
-                            geom::bbox(math::BBox2i(0, 0, p.size.w, p.size.h)),
-                            p.vbos["video"]->getType()));
-                    }
-                    if (p.vaos["video"])
-                    {
-                        p.vaos["video"]->bind();
-                        p.vaos["video"]->draw(GL_TRIANGLES, 0, p.vbos["video"]->getSize());
+                        if (p.vbos["video"])
+                        {
+                            p.vbos["video"]->copy(convert(
+                                geom::bbox(math::BBox2i(0, 0, p.size.w, p.size.h), true),
+                                p.vbos["video"]->getType()));
+                        }
+                        if (p.vaos["video"])
+                        {
+                            p.vaos["video"]->bind();
+                            p.vaos["video"]->draw(GL_TRIANGLES, 0, p.vbos["video"]->getSize());
+                        }
                     }
                 }
                 break;
@@ -366,11 +353,6 @@ namespace tl
             if (p.buffers["video"])
             {
                 OffscreenBufferBinding binding(p.buffers["video"]);
-                glViewport(
-                    p.viewport.x(),
-                    p.viewport.y(),
-                    p.viewport.w(),
-                    p.viewport.h());
                 glClearColor(0.F, 0.F, 0.F, 0.F);
                 glClear(GL_COLOR_BUFFER_BIT);
 
@@ -389,33 +371,26 @@ namespace tl
                                 if (p.buffers["dissolve"])
                                 {
                                     OffscreenBufferBinding binding(p.buffers["dissolve"]);
-                                    glViewport(
-                                        p.viewport.x(),
-                                        p.viewport.y(),
-                                        p.viewport.w(),
-                                        p.viewport.h());
                                     glClearColor(0.F, 0.F, 0.F, 0.F);
                                     glClear(GL_COLOR_BUFFER_BIT);
 
-                                    const float v0 = layer.transitionValue;
-                                    const float v1 = 1.0 - v0;
                                     drawImage(
                                         layer.image,
                                         imaging::getBBox(layer.image->getAspect(), bbox),
-                                        imaging::Color4f(1.F, 1.F, 1.F, v0),
+                                        imaging::Color4f(1.F, 1.F, 1.F, 1.F - layer.transitionValue),
                                         imageOptions.get() ? *imageOptions : layer.imageOptions);
                                     drawImage(
                                         layer.imageB,
                                         imaging::getBBox(layer.imageB->getAspect(), bbox),
-                                        imaging::Color4f(1.F, 1.F, 1.F, v1),
+                                        imaging::Color4f(1.F, 1.F, 1.F, layer.transitionValue),
                                         imageOptions.get() ? *imageOptions : layer.imageOptionsB);
                                 }
                                 if (p.buffers["dissolve"])
                                 {
-                                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                                    glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
 
                                     p.shaders["texture"]->bind();
-                                    p.shaders["texture"]->setUniform("color", imaging::Color4f(1.F, 1.F, 1.F, layer.transitionValue));
+                                    p.shaders["texture"]->setUniform("color", imaging::Color4f(1.F, 1.F, 1.F));
                                     p.shaders["texture"]->setUniform("textureSampler", 0);
 
                                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
@@ -424,7 +399,7 @@ namespace tl
                                     if (p.vbos["video"])
                                     {
                                         p.vbos["video"]->copy(convert(
-                                            geom::bbox(math::BBox2i(0, 0, p.size.w, p.size.h)),
+                                            geom::bbox(math::BBox2i(0, 0, p.size.w, p.size.h), true),
                                             p.vbos["video"]->getType()));
                                     }
                                     if (p.vaos["video"])
@@ -468,13 +443,7 @@ namespace tl
 
             if (p.buffers["video"])
             {
-                glViewport(
-                    p.viewport.x(),
-                    p.viewport.y(),
-                    p.viewport.w(),
-                    p.viewport.h());
-
-                glBlendFunc(GL_ONE, GL_ZERO);
+                glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
 
                 p.shaders["display"]->bind();
                 p.shaders["display"]->setUniform("textureSampler", 0);
@@ -545,7 +514,7 @@ namespace tl
                 if (p.vbos["video"])
                 {
                     p.vbos["video"]->copy(convert(
-                        geom::bbox(math::BBox2i(0, 0, p.size.w, p.size.h)),
+                        geom::bbox(math::BBox2i(0, 0, p.size.w, p.size.h), true),
                         p.vbos["video"]->getType()));
                 }
                 if (p.vaos["video"])

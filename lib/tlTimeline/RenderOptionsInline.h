@@ -10,6 +10,7 @@ namespace tl
         {
             return
                 clear == other.clear &&
+                clearColor == other.clearColor &&
                 textureCacheSize == other.textureCacheSize;
         }
 

@@ -470,13 +470,13 @@ namespace tl
             setViewport(math::BBox2i(0, 0, size.w, size.h));
             if (renderOptions.clear)
             {
-                clearViewport(imaging::Color4f(0.F, 0.F, 0.F, 0.F));
+                clearViewport(renderOptions.clearColor);
             }
             setTransform(math::ortho(
                 0.F,
                 static_cast<float>(size.w),
-                0.F,
                 static_cast<float>(size.h),
+                0.F,
                 -1.F,
                 1.F));
         }
@@ -487,8 +487,6 @@ namespace tl
         void Render::setViewport(const math::BBox2i& value)
         {
             TLRENDER_P();
-            if (value == p.viewport)
-                return;
             p.viewport = value;
             glViewport(
                 p.viewport.x(),
@@ -506,8 +504,6 @@ namespace tl
         void Render::setClipRectEnabled(bool value)
         {
             TLRENDER_P();
-            if (value == p.clipRectEnabled)
-                return;
             p.clipRectEnabled = value;
             if (p.clipRectEnabled)
             {
@@ -522,8 +518,6 @@ namespace tl
         void Render::setClipRect(const math::BBox2i& value)
         {
             TLRENDER_P();
-            if (value == p.clipRect)
-                return;
             p.clipRect = value;
             glScissor(
                 value.min.x,
@@ -535,8 +529,6 @@ namespace tl
         void Render::setTransform(const math::Matrix4x4f& value)
         {
             TLRENDER_P();
-            if (value == p.transform)
-                return;
             p.transform = value;
             for (auto i : p.shaders)
             {
