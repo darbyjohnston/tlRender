@@ -30,7 +30,7 @@ namespace tl
                     argv,
                     context,
                     "play-qtquick",
-                    "Play an editorial timeline.",
+                    "Example Qt Quick playback application.",
                     {
                         app::CmdLineValueArg<std::string>::create(
                             _input,

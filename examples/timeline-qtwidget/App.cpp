@@ -27,7 +27,7 @@ namespace tl
                     argv,
                     context,
                     "timeline-qwidget",
-                    "View a timeline.",
+                    "Example using the timeline widget.",
                     {
                         app::CmdLineValueArg<std::string>::create(
                             _input,

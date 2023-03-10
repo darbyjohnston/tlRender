@@ -70,7 +70,7 @@ namespace tl
                     argv,
                     context,
                     "test-patterns",
-                    "Generate test patterns.");
+                    "Example test patterns application.");
 
                 // Initialize GLFW.
                 glfwSetErrorCallback(glfwErrorCallback);

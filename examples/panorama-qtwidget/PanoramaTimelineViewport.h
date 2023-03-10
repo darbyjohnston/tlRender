@@ -20,7 +20,7 @@ namespace tl
 {
     namespace examples
     {
-        //! Example rendering a timeline as a panorama.
+        //! Example panorama timeline rendering.
         namespace panorama_qtwidget
         {
             class PanoramaTimelineViewport :

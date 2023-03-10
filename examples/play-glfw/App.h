@@ -72,10 +72,10 @@ namespace tl
                 void _printShortcutsHelp();
 
                 void _tick();
-                void _hudUpdate();
 
-                void _drawHUD();
+                void _hudUpdate();
                 void _hudCallback(bool);
+                void _drawHUD();
 
                 void _playbackCallback(timeline::Playback);
                 void _loopPlaybackCallback(timeline::Loop);

@@ -27,7 +27,7 @@ namespace tl
                     argv,
                     context,
                     "filmstrip-qwidget",
-                    "View a timeline as a series of thumbnail images.",
+                    "Example using the filmstrip widget.",
                     {
                         app::CmdLineValueArg<std::string>::create(
                             _input,

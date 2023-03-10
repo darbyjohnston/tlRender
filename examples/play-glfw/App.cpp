@@ -6,8 +6,6 @@
 
 #include <tlGL/Render.h>
 
-#include <tlCore/AudioSystem.h>
-#include <tlCore/FontSystem.h>
 #include <tlCore/Math.h>
 #include <tlCore/StringFormat.h>
 #include <tlCore/Time.h>
@@ -62,7 +60,7 @@ namespace tl
                     argv,
                     context,
                     "play-glfw",
-                    "Play an editorial timeline.",
+                    "Example GLFW playback application.",
                     {
                         app::CmdLineValueArg<std::string>::create(
                             _input,
@@ -450,6 +448,13 @@ namespace tl
                 }
             }
 
+            void App::_hudCallback(bool value)
+            {
+                _options.hud = value;
+                _renderDirty = true;
+                _log(string::Format("HUD: {0}").arg(_options.hud));
+            }
+
             void App::_drawHUD()
             {
                 const uint16_t fontSize =
@@ -509,13 +514,6 @@ namespace tl
                         fontSize,
                         HUDElement::LowerRight);
                 }
-            }
-
-            void App::_hudCallback(bool value)
-            {
-                _options.hud = value;
-                _renderDirty = true;
-                _log(string::Format("HUD: {0}").arg(_options.hud));
             }
 
             void App::_playbackCallback(timeline::Playback value)

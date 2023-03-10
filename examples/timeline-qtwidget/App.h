@@ -14,7 +14,7 @@ namespace tl
 {
     namespace examples
     {
-        //! Example showing the timeline widget.
+        //! Example using the timeline widget.
         namespace timeline_qtwidget
         {
             //! Application.
