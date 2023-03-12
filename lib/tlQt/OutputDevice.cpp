@@ -618,7 +618,7 @@ namespace tl
                                 lutOptions);
                             render->drawVideo(
                                 videoData,
-                                timeline::tiles(compareOptions.mode, sizes),
+                                timeline::getTiles(compareOptions.mode, sizes),
                                 imageOptions,
                                 displayOptions,
                                 compareOptions);

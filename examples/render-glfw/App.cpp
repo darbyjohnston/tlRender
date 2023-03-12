@@ -538,7 +538,7 @@ namespace tl
                     math::translate(math::Vector3f(-renderSize.w / 2, -renderSize.h / 2, 0.F)));
                 _render->drawVideo(
                     _videoData,
-                    timeline::tiles(compareOptions.mode, _videoSizes),
+                    timeline::getTiles(compareOptions.mode, _videoSizes),
                     {},
                     {},
                     compareOptions);
