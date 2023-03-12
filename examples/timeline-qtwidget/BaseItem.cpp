@@ -94,16 +94,22 @@ namespace tl
 
             std::string BaseItem::_durationLabel(const otime::RationalTime& value)
             {
-                return value != time::invalidTime ?
-                    string::Format("{0}@{1}").arg(value.value()).arg(value.rate()) :
-                    std::string();
+                std::string out;
+                if (value != time::invalidTime)
+                {
+                    out = string::Format("{0}@{1}").arg(value.value()).arg(value.rate());
+                }
+                return out;
             }
 
             std::string BaseItem::_timeLabel(const otime::RationalTime& value)
             {
-                return value != time::invalidTime ?
-                    string::Format("{0}").arg(value.value()) :
-                    std::string();
+                std::string out;
+                if (value != time::invalidTime)
+                {
+                    out = string::Format("{0}").arg(value.value());
+                }
+                return out;
             }
         }
     }

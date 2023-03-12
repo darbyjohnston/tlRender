@@ -16,6 +16,7 @@
 #include <GLFW/glfw3.h>
 
 #include <array>
+#include <cmath>
 
 namespace tl
 {
@@ -436,7 +437,7 @@ namespace tl
 
                 const auto now = std::chrono::steady_clock::now();
                 const std::chrono::duration<float> diff = now - _startTime;
-                const float v = (std::sinf(diff.count()) + 1.F) / 2.F;
+                const float v = (sinf(diff.count()) + 1.F) / 2.F;
                 _compareOptions.wipeCenter.x = v;
                 _compareOptions.overlay = v;
                 _rotation = diff.count() * 2.F;
