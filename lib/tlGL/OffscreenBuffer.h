@@ -82,6 +82,12 @@ namespace tl
             //! Get the offscreen buffer size.
             const imaging::Size& getSize() const;
 
+            //! Get the offscreen buffer width.
+            imaging::SizeType getWidth() const;
+
+            //! Get the offscreen buffer height.
+            imaging::SizeType getHeight() const;
+
             //! Get the options.
             const OffscreenBufferOptions& getOptions() const;
 

@@ -499,10 +499,10 @@ namespace tl
             TLRENDER_P();
             p.viewport = value;
             glViewport(
-                p.viewport.x(),
-                p.viewport.y(),
-                p.viewport.w(),
-                p.viewport.h());
+                value.x(),
+                p.size.h - value.h() - value.y(),
+                value.w(),
+                value.h());
         }
 
         void Render::clearViewport(const imaging::Color4f& value)
@@ -530,8 +530,8 @@ namespace tl
             TLRENDER_P();
             p.clipRect = value;
             glScissor(
-                value.min.x,
-                (p.size.h - 1) - value.max.y,
+                value.x(),
+                p.size.h - value.h() - value.y(),
                 value.w(),
                 value.h());
         }

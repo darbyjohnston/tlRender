@@ -1,6 +1,7 @@
 add_subdirectory(test-patterns)
 if(TLRENDER_GL)
     add_subdirectory(play-glfw)
+    add_subdirectory(render-glfw)
 endif()
 if(TLRENDER_QT6 OR TLRENDER_QT5)
     add_subdirectory(filmstrip-qtwidget)

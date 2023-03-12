@@ -63,6 +63,42 @@ namespace tl
         private:
             void _setColorConfig(const timeline::ColorConfigOptions&);
             void _setLUT(const timeline::LUTOptions&);
+            void _drawVideoA(
+                const std::vector<timeline::VideoData>&,
+                const std::vector<math::BBox2i>&,
+                const std::vector<timeline::ImageOptions>&,
+                const std::vector<timeline::DisplayOptions>&,
+                const timeline::CompareOptions&);
+            void _drawVideoB(
+                const std::vector<timeline::VideoData>&,
+                const std::vector<math::BBox2i>&,
+                const std::vector<timeline::ImageOptions>&,
+                const std::vector<timeline::DisplayOptions>&,
+                const timeline::CompareOptions&);
+            void _drawVideoWipe(
+                const std::vector<timeline::VideoData>&,
+                const std::vector<math::BBox2i>&,
+                const std::vector<timeline::ImageOptions>&,
+                const std::vector<timeline::DisplayOptions>&,
+                const timeline::CompareOptions&);
+            void _drawVideoOverlay(
+                const std::vector<timeline::VideoData>&,
+                const std::vector<math::BBox2i>&,
+                const std::vector<timeline::ImageOptions>&,
+                const std::vector<timeline::DisplayOptions>&,
+                const timeline::CompareOptions&);
+            void _drawVideoDifference(
+                const std::vector<timeline::VideoData>&,
+                const std::vector<math::BBox2i>&,
+                const std::vector<timeline::ImageOptions>&,
+                const std::vector<timeline::DisplayOptions>&,
+                const timeline::CompareOptions&);
+            void _drawVideoTile(
+                const std::vector<timeline::VideoData>&,
+                const std::vector<math::BBox2i>&,
+                const std::vector<timeline::ImageOptions>&,
+                const std::vector<timeline::DisplayOptions>&,
+                const timeline::CompareOptions&);
             void _drawVideo(
                 const timeline::VideoData&,
                 const math::BBox2i&,

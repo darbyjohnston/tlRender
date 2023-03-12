@@ -278,6 +278,16 @@ namespace tl
             return _p->size;
         }
 
+        imaging::SizeType OffscreenBuffer::getWidth() const
+        {
+            return _p->size.w;
+        }
+
+        imaging::SizeType OffscreenBuffer::getHeight() const
+        {
+            return _p->size.h;
+        }
+
         const OffscreenBufferOptions& OffscreenBuffer::getOptions() const
         {
             return _p->options;

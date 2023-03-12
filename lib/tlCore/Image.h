@@ -25,18 +25,21 @@ namespace tl
         //! \name Sizes
         ///@{
 
+        //! Image size type.
+        typedef uint16_t SizeType;
+
         //! Image size.
         class Size
         {
         public:
             constexpr Size() noexcept;
             constexpr explicit Size(
-                uint16_t w,
-                uint16_t h,
+                SizeType w,
+                SizeType h,
                 float pixelAspectRatio = 1.F) noexcept;
 
-            uint16_t w = 0;
-            uint16_t h = 0;
+            SizeType w = 0;
+            SizeType h = 0;
             float pixelAspectRatio = 1.F;
 
             //! Is this size valid?
@@ -236,7 +239,7 @@ namespace tl
         public:
             Info();
             explicit Info(const Size&, PixelType);
-            explicit Info(uint16_t w, uint16_t h, PixelType);
+            explicit Info(SizeType w, SizeType h, PixelType);
 
             std::string     name             = "Default";
             Size            size;
@@ -284,10 +287,10 @@ namespace tl
             const Size& getSize() const;
 
             //! Get the image width.
-            uint16_t getWidth() const;
+            SizeType getWidth() const;
 
             //! Get the image height.
-            uint16_t getHeight() const;
+            SizeType getHeight() const;
 
             //! Get the aspect ratio.
             float getAspect() const;
