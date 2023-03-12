@@ -68,14 +68,34 @@ namespace tl
                             "The input timeline.")
                     },
                 {
+                    app::CmdLineValueOption<std::string>::create(
+                        _options.compareFileName,
+                        { "-compare", "-b" },
+                        "A/B comparison \"B\" file name."),
+                    app::CmdLineValueOption<timeline::CompareMode>::create(
+                        _options.compareOptions.mode,
+                        { "-compareMode", "-c" },
+                        "A/B comparison mode.",
+                        string::Format("{0}").arg(_options.compareOptions.mode),
+                        string::join(timeline::getCompareModeLabels(), ", ")),
+                    app::CmdLineValueOption<math::Vector2f>::create(
+                        _options.compareOptions.wipeCenter,
+                        { "-wipeCenter", "-wc" },
+                        "A/B comparison wipe center.",
+                        string::Format("{0}").arg(_options.compareOptions.wipeCenter)),
+                    app::CmdLineValueOption<float>::create(
+                        _options.compareOptions.wipeRotation,
+                        { "-wipeRotation", "-wr" },
+                        "A/B comparison wipe rotation.",
+                        string::Format("{0}").arg(_options.compareOptions.wipeRotation)),
                     app::CmdLineValueOption<imaging::Size>::create(
                         _options.windowSize,
                         { "-windowSize", "-ws" },
                         "Window size.",
                         string::Format("{0}x{1}").arg(_options.windowSize.w).arg(_options.windowSize.h)),
                     app::CmdLineFlagOption::create(
-                        _options.fullScreen,
-                        { "-fullScreen", "-fs" },
+                        _options.fullscreen,
+                        { "-fullscreen", "-fs" },
                         "Enable full screen mode."),
                     app::CmdLineValueOption<bool>::create(
                         _options.hud,
@@ -228,10 +248,7 @@ namespace tl
                 _log(string::Format("OpenGL version: {0}.{1}.{2}").arg(glMajor).arg(glMinor).arg(glRevision));
                 glfwSetFramebufferSizeCallback(_glfwWindow, _frameBufferSizeCallback);
                 glfwSetWindowContentScaleCallback(_glfwWindow, _windowContentScaleCallback);
-                if (_options.fullScreen)
-                {
-                    _fullscreenWindow();
-                }
+                _setFullscreenWindow(_options.fullscreen);
                 glfwSetKeyCallback(_glfwWindow, _keyCallback);
                 glfwShowWindow(_glfwWindow);
 
@@ -243,6 +260,7 @@ namespace tl
                 _printShortcutsHelp();
 
                 // Start the main loop.
+                _hud = _options.hud;
                 if (time::isValid(_options.inOutRange))
                 {
                     _timelinePlayer->setInOutRange(_options.inOutRange);
@@ -266,41 +284,51 @@ namespace tl
                 _running = false;
             }
 
-            void App::_fullscreenWindow()
+            void App::_setFullscreenWindow(bool value)
             {
-                _options.fullScreen = true;
+                if (value == _fullscreen)
+                    return;
 
-                int width = 0;
-                int height = 0;
-                glfwGetWindowSize(_glfwWindow, &width, &height);
-                _options.windowSize.w = width;
-                _options.windowSize.h = height;
+                _fullscreen = value;
 
-                GLFWmonitor* glfwMonitor = glfwGetPrimaryMonitor();
-                const GLFWvidmode* glfwVidmode = glfwGetVideoMode(glfwMonitor);
-                glfwGetWindowPos(_glfwWindow, &_windowPos.x, &_windowPos.y);
-                glfwSetWindowMonitor(_glfwWindow, glfwMonitor, 0, 0, glfwVidmode->width, glfwVidmode->height, glfwVidmode->refreshRate);
-            }
+                if (_fullscreen)
+                {
+                    int width = 0;
+                    int height = 0;
+                    glfwGetWindowSize(_glfwWindow, &width, &height);
+                    _windowSize.w = width;
+                    _windowSize.h = height;
 
-            void App::_normalWindow()
-            {
-                _options.fullScreen = false;
-
-                GLFWmonitor* glfwMonitor = glfwGetPrimaryMonitor();
-                glfwSetWindowMonitor(_glfwWindow, NULL, _windowPos.x, _windowPos.y, _options.windowSize.w, _options.windowSize.h, 0);
+                    GLFWmonitor* glfwMonitor = glfwGetPrimaryMonitor();
+                    const GLFWvidmode* glfwVidmode = glfwGetVideoMode(glfwMonitor);
+                    glfwGetWindowPos(_glfwWindow, &_windowPos.x, &_windowPos.y);
+                    glfwSetWindowMonitor(
+                        _glfwWindow,
+                        glfwMonitor,
+                        0,
+                        0,
+                        glfwVidmode->width,
+                        glfwVidmode->height,
+                        glfwVidmode->refreshRate);
+                }
+                else
+                {
+                    GLFWmonitor* glfwMonitor = glfwGetPrimaryMonitor();
+                    glfwSetWindowMonitor(
+                        _glfwWindow,
+                        NULL,
+                        _windowPos.x,
+                        _windowPos.y,
+                        _windowSize.w,
+                        _windowSize.h,
+                        0);
+                }
             }
 
             void App::_fullscreenCallback(bool value)
             {
-                if (value)
-                {
-                    _fullscreenWindow();
-                }
-                else
-                {
-                    _normalWindow();
-                }
-                _log(string::Format("Fullscreen: {0}").arg(_options.fullScreen));
+                _setFullscreenWindow(value);
+                _log(string::Format("Fullscreen: {0}").arg(_fullscreen));
             }
 
             void App::_frameBufferSizeCallback(GLFWwindow* glfwWindow, int width, int height)
@@ -330,10 +358,10 @@ namespace tl
                         app->exit();
                         break;
                     case GLFW_KEY_U:
-                        app->_fullscreenCallback(!app->_options.fullScreen);
+                        app->_fullscreenCallback(!app->_fullscreen);
                         break;
                     case GLFW_KEY_H:
-                        app->_hudCallback(!app->_options.hud);
+                        app->_hudCallback(!app->_hud);
                         break;
                     case GLFW_KEY_SPACE:
                         app->_playbackCallback(
@@ -403,7 +431,7 @@ namespace tl
                     _render->drawVideo(
                         { _videoData },
                         { math::BBox2i(0, 0, _frameBufferSize.w, _frameBufferSize.h) });
-                    if (_options.hud)
+                    if (_hud)
                     {
                         _drawHUD();
                     }
@@ -450,70 +478,102 @@ namespace tl
 
             void App::_hudCallback(bool value)
             {
-                _options.hud = value;
+                _hud = value;
                 _renderDirty = true;
-                _log(string::Format("HUD: {0}").arg(_options.hud));
+                _log(string::Format("HUD: {0}").arg(_hud));
             }
 
             void App::_drawHUD()
             {
-                const uint16_t fontSize =
+                const imaging::FontInfo fontInfo(
+                    "NotoMono-Regular",
                     math::clamp(
                         ceilf(14 * _contentScale.y),
                         0.F,
-                        static_cast<float>(std::numeric_limits<uint16_t>::max()));
-
+                        static_cast<float>(std::numeric_limits<uint16_t>::max())));
                 auto i = _hudLabels.find(HUDElement::UpperLeft);
                 if (i != _hudLabels.end())
                 {
-                    drawHUDLabel(
-                        _render,
-                        _fontSystem,
-                        _frameBufferSize,
-                        i->second,
-                        "NotoSans-Regular",
-                        fontSize,
-                        HUDElement::UpperLeft);
+                    _drawHUDLabel(i->second, fontInfo, HUDElement::UpperLeft);
                 }
-
                 i = _hudLabels.find(HUDElement::LowerLeft);
                 if (i != _hudLabels.end())
                 {
-                    drawHUDLabel(
-                        _render,
-                        _fontSystem,
-                        _frameBufferSize,
-                        i->second,
-                        "NotoMono-Regular",
-                        fontSize,
-                        HUDElement::LowerLeft);
+                    _drawHUDLabel(i->second, fontInfo, HUDElement::LowerLeft);
                 }
-
                 i = _hudLabels.find(HUDElement::UpperRight);
                 if (i != _hudLabels.end())
                 {
-                    drawHUDLabel(
-                        _render,
-                        _fontSystem,
-                        _frameBufferSize,
-                        i->second,
-                        "NotoMono-Regular",
-                        fontSize,
-                        HUDElement::UpperRight);
+                    _drawHUDLabel(i->second, fontInfo, HUDElement::UpperRight);
                 }
-
                 i = _hudLabels.find(HUDElement::LowerRight);
                 if (i != _hudLabels.end())
                 {
-                    drawHUDLabel(
-                        _render,
-                        _fontSystem,
-                        _frameBufferSize,
-                        i->second,
-                        "NotoMono-Regular",
-                        fontSize,
-                        HUDElement::LowerRight);
+                    _drawHUDLabel(i->second, fontInfo, HUDElement::LowerRight);
                 }
+            }
+
+            void App::_drawHUDLabel(
+                const std::string& text,
+                const imaging::FontInfo& fontInfo,
+                HUDElement hudElement)
+            {
+                const auto fontMetrics = _fontSystem->getMetrics(fontInfo);
+                const math::BBox2i labelBBox(0, 0, _frameBufferSize.w, _frameBufferSize.h);
+                const math::Vector2i labelSize = _fontSystem->measure(text, fontInfo);
+                const int labelSpacing = fontInfo.size / 4;
+                math::BBox2i bbox;
+                math::Vector2i pos;
+                switch (hudElement)
+                {
+                case HUDElement::UpperLeft:
+                    bbox = math::BBox2i(
+                        labelBBox.min.x,
+                        labelBBox.min.y,
+                        labelSize.x + labelSpacing * 2,
+                        fontMetrics.lineHeight);
+                    pos = math::Vector2i(
+                        labelBBox.min.x + labelSpacing,
+                        labelBBox.min.y + fontMetrics.ascender);
+                    break;
+                case HUDElement::UpperRight:
+                    bbox = math::BBox2i(
+                        labelBBox.max.x + 1 - labelSpacing * 2 - labelSize.x,
+                        labelBBox.min.y,
+                        labelSize.x + labelSpacing * 2,
+                        fontMetrics.lineHeight);
+                    pos = math::Vector2i(
+                        labelBBox.max.x + 1 - labelSpacing - labelSize.x,
+                        labelBBox.min.y + fontMetrics.ascender);
+                    break;
+                case HUDElement::LowerLeft:
+                    bbox = math::BBox2i(
+                        labelBBox.min.x,
+                        labelBBox.max.y + 1 - fontMetrics.lineHeight,
+                        labelSize.x + labelSpacing * 2,
+                        fontMetrics.lineHeight);
+                    pos = math::Vector2i(
+                        labelBBox.min.x + labelSpacing,
+                        labelBBox.max.y + 1 - fontMetrics.lineHeight + fontMetrics.ascender);
+                    break;
+                case HUDElement::LowerRight:
+                    bbox = math::BBox2i(
+                        labelBBox.max.x + 1 - labelSpacing * 2 - labelSize.x,
+                        labelBBox.max.y + 1 - fontMetrics.lineHeight,
+                        labelSize.x + labelSpacing * 2,
+                        fontMetrics.lineHeight);
+                    pos = math::Vector2i(
+                        labelBBox.max.x + 1 - labelSpacing - labelSize.x,
+                        labelBBox.max.y + 1 - fontMetrics.lineHeight + fontMetrics.ascender);
+                    break;
+                }
+                _render->drawRect(
+                    bbox,
+                    imaging::Color4f(0.F, 0.F, 0.F, .7F));
+                _render->drawText(
+                    _fontSystem->getGlyphs(text, fontInfo),
+                    pos,
+                    imaging::Color4f(1.F, 1.F, 1.F));
             }
 
             void App::_playbackCallback(timeline::Playback value)

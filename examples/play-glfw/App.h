@@ -2,8 +2,6 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include "Util.h"
-
 #include <tlApp/IApp.h>
 
 #include <tlTimeline/IRender.h>
@@ -20,11 +18,22 @@ namespace tl
         //! Example GLFW playback application.
         namespace play_glfw
         {
+            //! HUD elements.
+            enum class HUDElement
+            {
+                UpperLeft,
+                UpperRight,
+                LowerLeft,
+                LowerRight
+            };
+
             //! Application options.
             struct Options
             {
+                std::string compareFileName;
+                timeline::CompareOptions compareOptions;
                 imaging::Size windowSize = imaging::Size(1280, 720);
-                bool fullScreen = false;
+                bool fullscreen = false;
                 bool hud = true;
                 timeline::Playback playback = timeline::Playback::Forward;
                 timeline::Loop loop = timeline::Loop::Loop;
@@ -44,6 +53,7 @@ namespace tl
                     int argc,
                     char* argv[],
                     const std::shared_ptr<system::Context>&);
+
                 App();
 
             public:
@@ -62,8 +72,7 @@ namespace tl
                 void exit();
 
             private:
-                void _fullscreenWindow();
-                void _normalWindow();
+                void _setFullscreenWindow(bool);
                 void _fullscreenCallback(bool);
                 static void _frameBufferSizeCallback(GLFWwindow*, int, int);
                 static void _windowContentScaleCallback(GLFWwindow*, float, float);
@@ -76,6 +85,10 @@ namespace tl
                 void _hudUpdate();
                 void _hudCallback(bool);
                 void _drawHUD();
+                void _drawHUDLabel(
+                    const std::string& text,
+                    const imaging::FontInfo&,
+                    HUDElement);
 
                 void _playbackCallback(timeline::Playback);
                 void _loopPlaybackCallback(timeline::Loop);
@@ -86,9 +99,12 @@ namespace tl
                 std::shared_ptr<timeline::TimelinePlayer> _timelinePlayer;
 
                 GLFWwindow* _glfwWindow = nullptr;
+                imaging::Size _windowSize;
                 math::Vector2i _windowPos;
+                bool _fullscreen = false;
                 imaging::Size _frameBufferSize;
                 math::Vector2f _contentScale = math::Vector2f(1.F, 1.F);
+                bool _hud = false;
                 std::shared_ptr<imaging::FontSystem> _fontSystem;
                 std::shared_ptr<timeline::IRender> _render;
                 bool _renderDirty = true;
