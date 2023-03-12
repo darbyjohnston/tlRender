@@ -78,8 +78,8 @@ namespace tl
                         "Window size.",
                         string::Format("{0}x{1}").arg(_options.windowSize.w).arg(_options.windowSize.h)),
                     app::CmdLineFlagOption::create(
-                        _options.fullScreen,
-                        { "-fullScreen", "-fs" },
+                        _options.fullscreen,
+                        { "-fullscreen", "-fs" },
                         "Enable full screen mode."),
                     app::CmdLineValueOption<bool>::create(
                         _options.hud,
@@ -246,10 +246,7 @@ namespace tl
                 _log(string::Format("OpenGL version: {0}.{1}.{2}").arg(glMajor).arg(glMinor).arg(glRevision));
                 glfwSetFramebufferSizeCallback(_glfwWindow, _frameBufferSizeCallback);
                 glfwSetWindowContentScaleCallback(_glfwWindow, _windowContentScaleCallback);
-                if (_options.fullScreen)
-                {
-                    _fullscreenWindow();
-                }
+                _setFullscreenWindow(_options.fullscreen);
                 glfwSetKeyCallback(_glfwWindow, _keyCallback);
                 glfwShowWindow(_glfwWindow);
 
@@ -261,6 +258,7 @@ namespace tl
                 _printShortcutsHelp();
 
                 // Start the main loop.
+                _hud = _options.hud;
                 if (time::isValid(_options.inOutRange))
                 {
                     _timelinePlayers[0]->setInOutRange(_options.inOutRange);
@@ -284,41 +282,51 @@ namespace tl
                 _running = false;
             }
 
-            void App::_fullscreenWindow()
+            void App::_setFullscreenWindow(bool value)
             {
-                _options.fullScreen = true;
+                if (value == _fullscreen)
+                    return;
 
-                int width = 0;
-                int height = 0;
-                glfwGetWindowSize(_glfwWindow, &width, &height);
-                _options.windowSize.w = width;
-                _options.windowSize.h = height;
+                _fullscreen = value;
 
-                GLFWmonitor* glfwMonitor = glfwGetPrimaryMonitor();
-                const GLFWvidmode* glfwVidmode = glfwGetVideoMode(glfwMonitor);
-                glfwGetWindowPos(_glfwWindow, &_windowPos.x, &_windowPos.y);
-                glfwSetWindowMonitor(_glfwWindow, glfwMonitor, 0, 0, glfwVidmode->width, glfwVidmode->height, glfwVidmode->refreshRate);
-            }
+                if (_fullscreen)
+                {
+                    int width = 0;
+                    int height = 0;
+                    glfwGetWindowSize(_glfwWindow, &width, &height);
+                    _windowSize.w = width;
+                    _windowSize.h = height;
 
-            void App::_normalWindow()
-            {
-                _options.fullScreen = false;
-
-                GLFWmonitor* glfwMonitor = glfwGetPrimaryMonitor();
-                glfwSetWindowMonitor(_glfwWindow, NULL, _windowPos.x, _windowPos.y, _options.windowSize.w, _options.windowSize.h, 0);
+                    GLFWmonitor* glfwMonitor = glfwGetPrimaryMonitor();
+                    const GLFWvidmode* glfwVidmode = glfwGetVideoMode(glfwMonitor);
+                    glfwGetWindowPos(_glfwWindow, &_windowPos.x, &_windowPos.y);
+                    glfwSetWindowMonitor(
+                        _glfwWindow,
+                        glfwMonitor,
+                        0,
+                        0,
+                        glfwVidmode->width,
+                        glfwVidmode->height,
+                        glfwVidmode->refreshRate);
+                }
+                else
+                {
+                    GLFWmonitor* glfwMonitor = glfwGetPrimaryMonitor();
+                    glfwSetWindowMonitor(
+                        _glfwWindow,
+                        NULL,
+                        _windowPos.x,
+                        _windowPos.y,
+                        _windowSize.w,
+                        _windowSize.h,
+                        0);
+                }
             }
 
             void App::_fullscreenCallback(bool value)
             {
-                if (value)
-                {
-                    _fullscreenWindow();
-                }
-                else
-                {
-                    _normalWindow();
-                }
-                _log(string::Format("Fullscreen: {0}").arg(_options.fullScreen));
+                _setFullscreenWindow(value);
+                _log(string::Format("Fullscreen: {0}").arg(_fullscreen));
             }
 
             void App::_frameBufferSizeCallback(GLFWwindow* glfwWindow, int width, int height)
@@ -348,10 +356,10 @@ namespace tl
                         app->exit();
                         break;
                     case GLFW_KEY_U:
-                        app->_fullscreenCallback(!app->_options.fullScreen);
+                        app->_fullscreenCallback(!app->_fullscreen);
                         break;
                     case GLFW_KEY_H:
-                        app->_hudCallback(!app->_options.hud);
+                        app->_hudCallback(!app->_hud);
                         break;
                     case GLFW_KEY_SPACE:
                         app->_playbackCallback(
@@ -408,7 +416,6 @@ namespace tl
                         _renderDirty = true;
                     }
                 }
-                _hudUpdate();
 
                 // Render the video.
                 if (_renderDirty)
@@ -417,11 +424,7 @@ namespace tl
                         _frameBufferSize,
                         _options.colorConfigOptions,
                         _options.lutOptions);
-                    _drawVideo();
-                    if (_options.hud)
-                    {
-                        _drawHUD();
-                    }
+                    _draw();
                     _render->end();
                     glfwSwapBuffers(_glfwWindow);
                     _renderDirty = false;
@@ -439,69 +442,123 @@ namespace tl
                 _rotation = diff.count() * 2.F;
             }
 
-            void App::_drawVideo()
+            void App::_draw()
             {
-                const auto& size = _frameBufferSize;
+                const int fontSize =
+                    math::clamp(
+                        ceilf(14 * _contentScale.y),
+                        0.F,
+                        static_cast<float>(std::numeric_limits<uint16_t>::max()));
+                const int viewportSpacing = fontSize / 2;
+                const math::Vector2i viewportSize(
+                    (_frameBufferSize.w - viewportSpacing * 2) / 3,
+                    (_frameBufferSize.h - viewportSpacing * 2) / 3);
 
                 _compareOptions.mode = timeline::CompareMode::A;
-                _drawVideo(
-                    math::BBox2i(0, 0, size.w / 3, size.h / 3),
+                _drawViewport(
+                    math::BBox2i(
+                        0,
+                        0,
+                        viewportSize.x,
+                        viewportSize.y),
+                    fontSize,
                     _compareOptions,
                     0.F);
                 _compareOptions.mode = timeline::CompareMode::A;
-                _drawVideo(
-                    math::BBox2i(size.w / 3, 0, size.w / 3, size.h / 3),
+                _drawViewport(
+                    math::BBox2i(
+                        viewportSize.x + viewportSpacing,
+                        0,
+                        viewportSize.x,
+                        viewportSize.y),
+                    fontSize,
                     _compareOptions,
                     _rotation);
                 _compareOptions.mode = timeline::CompareMode::B;
-                _drawVideo(
-                    math::BBox2i(size.w / 3 * 2, 0, size.w / 3, size.h / 3),
+                _drawViewport(
+                    math::BBox2i(
+                        viewportSize.x * 2 + viewportSpacing * 2,
+                        0,
+                        viewportSize.x,
+                        viewportSize.y),
+                    fontSize,
                     _compareOptions,
                     _rotation);
 
                 _compareOptions.mode = timeline::CompareMode::Wipe;
-                _drawVideo(
-                    math::BBox2i(0, size.h / 3, size.w / 3, size.h / 3),
+                _drawViewport(
+                    math::BBox2i(
+                        0,
+                        viewportSize.y + viewportSpacing,
+                        viewportSize.x,
+                        viewportSize.y),
+                    fontSize,
                     _compareOptions,
                     _rotation);
                 _compareOptions.mode = timeline::CompareMode::Overlay;
-                _drawVideo(
-                    math::BBox2i(size.w / 3, size.h / 3, size.w / 3, size.h / 3),
+                _drawViewport(
+                    math::BBox2i(
+                        viewportSize.x + viewportSpacing,
+                        viewportSize.y + viewportSpacing,
+                        viewportSize.x,
+                        viewportSize.y),
+                    fontSize,
                     _compareOptions,
                     _rotation);
                 _compareOptions.mode = timeline::CompareMode::Difference;
-                _drawVideo(
-                    math::BBox2i(size.w / 3 * 2, size.h / 3, size.w / 3, size.h / 3),
+                _drawViewport(
+                    math::BBox2i(
+                        viewportSize.x * 2 + viewportSpacing * 2,
+                        viewportSize.y + viewportSpacing,
+                        viewportSize.x,
+                        viewportSize.y),
+                    fontSize,
                     _compareOptions,
                     _rotation);
 
                 _compareOptions.mode = timeline::CompareMode::Horizontal;
-                _drawVideo(
-                    math::BBox2i(0, size.h / 3 * 2, size.w / 3, size.h / 3),
+                _drawViewport(
+                    math::BBox2i(
+                        0,
+                        viewportSize.y * 2 + viewportSpacing * 2,
+                        viewportSize.x,
+                        viewportSize.y),
+                    fontSize,
                     _compareOptions,
                     _rotation);
                 _compareOptions.mode = timeline::CompareMode::Vertical;
-                _drawVideo(
-                    math::BBox2i(size.w / 3, size.h / 3 * 2, size.w / 3, size.h / 3),
+                _drawViewport(
+                    math::BBox2i(
+                        viewportSize.x + viewportSpacing,
+                        viewportSize.y * 2 + viewportSpacing * 2,
+                        viewportSize.x,
+                        viewportSize.y),
+                    fontSize,
                     _compareOptions,
                     _rotation);
                 _compareOptions.mode = timeline::CompareMode::Tile;
-                _drawVideo(
-                    math::BBox2i(size.w / 3 * 2, size.h / 3 * 2, size.w / 3, size.h / 3),
+                _drawViewport(
+                    math::BBox2i(
+                        viewportSize.x * 2 + viewportSpacing * 2,
+                        viewportSize.y * 2 + viewportSpacing * 2,
+                        viewportSize.x,
+                        viewportSize.y),
+                    fontSize,
                     _compareOptions,
                     _rotation);
             }
 
-            void App::_drawVideo(
+            void App::_drawViewport(
                 const math::BBox2i& bbox,
+                uint16_t fontSize,
                 const timeline::CompareOptions& compareOptions,
                 float rotation)
             {
-                const auto viewportSize = bbox.getSize();
+                const math::Vector2i viewportSize = bbox.getSize();
                 const float viewportAspect = viewportSize.y > 0 ?
                     (viewportSize.x / static_cast<float>(viewportSize.y)) :
                     1.F;
-                const auto renderSize = timeline::getRenderSize(
+                const imaging::Size renderSize = timeline::getRenderSize(
                     compareOptions.mode,
                     _videoSizes);
                 const float renderSizeAspect = renderSize.getAspect();
@@ -525,7 +582,8 @@ namespace tl
                 _render->setClipRectEnabled(true);
                 _render->setViewport(bbox);
                 _render->setClipRect(bbox);
-                //_render->clearViewport(imaging::Color4f(1.F, 0.F, 0.F));
+                _render->clearViewport(imaging::Color4f(0.F, 0.F, 0.F));
+
                 _render->setTransform(math::ortho(
                     0.F,
                     static_cast<float>(transformSize.w),
@@ -542,27 +600,39 @@ namespace tl
                     {},
                     {},
                     compareOptions);
-                _render->setClipRectEnabled(false);
-            }
 
-            void App::_hudUpdate()
-            {
+                if (_hud)
+                {
+                    _render->setTransform(math::ortho(
+                        0.F,
+                        static_cast<float>(viewportSize.x),
+                        static_cast<float>(viewportSize.y),
+                        0.F,
+                        -1.F,
+                        1.F));
+
+                    imaging::FontInfo fontInfo;
+                    fontInfo.size = fontSize;
+                    auto fontMetrics = _fontSystem->getMetrics(fontInfo);
+                    std::string text = timeline::getLabel(compareOptions.mode);
+                    math::Vector2i textSize = _fontSystem->measure(text, fontInfo);
+                    _render->drawRect(
+                        math::BBox2i(0, 0, viewportSize.x, fontMetrics.lineHeight),
+                        imaging::Color4f(0.F, 0.F, 0.F, .7F));
+                    _render->drawText(
+                        _fontSystem->getGlyphs(text, fontInfo),
+                        math::Vector2i(fontSize / 5, fontMetrics.ascender),
+                        imaging::Color4f(1.F, 1.F, 1.F));
+                }
+
+                _render->setClipRectEnabled(false);
             }
 
             void App::_hudCallback(bool value)
             {
-                _options.hud = value;
+                _hud = value;
                 _renderDirty = true;
-                _log(string::Format("HUD: {0}").arg(_options.hud));
-            }
-
-            void App::_drawHUD()
-            {
-                const uint16_t fontSize =
-                    math::clamp(
-                        ceilf(14 * _contentScale.y),
-                        0.F,
-                        static_cast<float>(std::numeric_limits<uint16_t>::max()));
+                _log(string::Format("HUD: {0}").arg(_hud));
             }
 
             void App::_playbackCallback(timeline::Playback value)

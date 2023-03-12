@@ -22,8 +22,8 @@ namespace tl
             struct Options
             {
                 std::string compareFileName;
-                imaging::Size windowSize = imaging::Size(1280, 720);
-                bool fullScreen = false;
+                imaging::Size windowSize = imaging::Size(1920, 1080);
+                bool fullscreen = false;
                 bool hud = true;
                 timeline::Playback playback = timeline::Playback::Forward;
                 otime::RationalTime seek = time::invalidTime;
@@ -42,6 +42,7 @@ namespace tl
                     int argc,
                     char* argv[],
                     const std::shared_ptr<system::Context>&);
+
                 App();
 
             public:
@@ -60,8 +61,7 @@ namespace tl
                 void exit();
 
             private:
-                void _fullscreenWindow();
-                void _normalWindow();
+                void _setFullscreenWindow(bool);
                 void _fullscreenCallback(bool);
                 static void _frameBufferSizeCallback(GLFWwindow*, int, int);
                 static void _windowContentScaleCallback(GLFWwindow*, float, float);
@@ -71,15 +71,14 @@ namespace tl
 
                 void _tick();
 
-                void _drawVideo();
-                void _drawVideo(
+                void _draw();
+                void _drawViewport(
                     const math::BBox2i& bbox,
+                    uint16_t fontSize,
                     const timeline::CompareOptions&,
                     float rotation);
 
-                void _hudUpdate();
                 void _hudCallback(bool);
-                void _drawHUD();
 
                 void _playbackCallback(timeline::Playback);
 
@@ -90,11 +89,14 @@ namespace tl
                 std::vector<imaging::Size> _videoSizes;
 
                 GLFWwindow* _glfwWindow = nullptr;
+                imaging::Size _windowSize;
                 math::Vector2i _windowPos;
+                bool _fullscreen = false;
                 imaging::Size _frameBufferSize;
                 math::Vector2f _contentScale = math::Vector2f(1.F, 1.F);
                 timeline::CompareOptions _compareOptions;
                 float _rotation = 0.F;
+                bool _hud = false;
                 std::shared_ptr<imaging::FontSystem> _fontSystem;
                 std::shared_ptr<timeline::IRender> _render;
                 bool _renderDirty = true;
