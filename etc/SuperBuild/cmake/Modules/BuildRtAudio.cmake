@@ -1,7 +1,16 @@
 include(ExternalProject)
 
 set(RtAudio_GIT_REPOSITORY "https://github.com/thestk/rtaudio.git")
-set(RtAudio_GIT_TAG "d7f12763c55795ef8a71a9b589b39e7be01db7b2") # 2020/06/07
+#set(RtAudio_GIT_TAG "d7f12763c55795ef8a71a9b589b39e7be01db7b2") # 2020/06/07
+set(RtAudio_GIT_TAG "5.2.0") # 2021/09/16
+
+set(RtAudio_PATCH )
+
+if (UNIX AND NOT APPLE)
+    set(RtAudio_PATCH ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_CURRENT_SOURCE_DIR}/RtAudio-patch/RtAudio.cpp
+        ${CMAKE_CURRENT_BINARY_DIR}/RtAudio/src/RtAudio/RtAudio.cpp )
+endif()
 
 set(RtAudio_ARGS
     ${TLRENDER_EXTERNAL_ARGS}
@@ -23,5 +32,6 @@ ExternalProject_Add(
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/RtAudio
     GIT_REPOSITORY ${RtAudio_GIT_REPOSITORY}
     GIT_TAG ${RtAudio_GIT_TAG}
+    PATCH_COMMAND ${RtAudio_PATCH}
     LIST_SEPARATOR |
     CMAKE_ARGS ${RtAudio_ARGS})
