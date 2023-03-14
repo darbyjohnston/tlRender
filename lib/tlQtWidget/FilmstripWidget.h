@@ -14,7 +14,7 @@ namespace tl
 {
     namespace qt
     {
-        class TimelineThumbnailProvider;
+        class TimelineThumbnailObject;
     }
 
     namespace qtwidget
@@ -29,7 +29,7 @@ namespace tl
                 WRITE setRowCount)
 
         public:
-            FilmstripWidget(qt::TimelineThumbnailProvider*, QWidget* parent = nullptr);
+            FilmstripWidget(qt::TimelineThumbnailObject*, QWidget* parent = nullptr);
 
             ~FilmstripWidget() override;
 

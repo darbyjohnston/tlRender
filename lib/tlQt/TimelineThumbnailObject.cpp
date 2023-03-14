@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlQt/TimelineThumbnailProvider.h>
+#include <tlQt/TimelineThumbnailObject.h>
 
 #include <tlGL/OffscreenBuffer.h>
 #include <tlGL/Render.h>
@@ -24,7 +24,7 @@ namespace tl
 {
     namespace qt
     {
-        struct TimelineThumbnailProvider::Private
+        struct TimelineThumbnailObject::Private
         {
             std::weak_ptr<system::Context> context;
 
@@ -63,7 +63,7 @@ namespace tl
             std::atomic<bool> running;
         };
 
-        TimelineThumbnailProvider::TimelineThumbnailProvider(
+        TimelineThumbnailObject::TimelineThumbnailObject(
             const std::shared_ptr<system::Context>& context,
             QObject* parent) :
             QThread(parent),
@@ -92,14 +92,14 @@ namespace tl
             p.timer = startTimer(p.timerInterval);
         }
 
-        TimelineThumbnailProvider::~TimelineThumbnailProvider()
+        TimelineThumbnailObject::~TimelineThumbnailObject()
         {
             TLRENDER_P();
             p.running = false;
             wait();
         }
 
-        qint64 TimelineThumbnailProvider::request(
+        qint64 TimelineThumbnailObject::request(
             const QString& fileName,
             const QSize& size,
             const otime::RationalTime& time,
@@ -125,7 +125,7 @@ namespace tl
             return out;
         }
 
-        qint64 TimelineThumbnailProvider::request(
+        qint64 TimelineThumbnailObject::request(
             const QString& fileName,
             const QSize& size,
             const QList<otime::RationalTime>& times,
@@ -151,7 +151,7 @@ namespace tl
             return out;
         }
 
-        void TimelineThumbnailProvider::cancelRequests(qint64 id)
+        void TimelineThumbnailObject::cancelRequests(qint64 id)
         {
             TLRENDER_P();
             std::unique_lock<std::mutex> lock(p.mutex);
@@ -178,28 +178,28 @@ namespace tl
             p.cancelRequests.push_back(id);
         }
 
-        void TimelineThumbnailProvider::setRequestCount(int value)
+        void TimelineThumbnailObject::setRequestCount(int value)
         {
             TLRENDER_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             p.requestCount = value > 0 ? value : 0;
         }
 
-        void TimelineThumbnailProvider::setRequestTimeout(int value)
+        void TimelineThumbnailObject::setRequestTimeout(int value)
         {
             TLRENDER_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             p.requestTimeout = std::chrono::milliseconds(value > 0 ? value : 0);
         }
 
-        void TimelineThumbnailProvider::setTimerInterval(int value)
+        void TimelineThumbnailObject::setTimerInterval(int value)
         {
             TLRENDER_P();
             killTimer(p.timer);
             p.timer = startTimer(value);
         }
 
-        void TimelineThumbnailProvider::run()
+        void TimelineThumbnailObject::run()
         {
             TLRENDER_P();
 
@@ -279,7 +279,7 @@ namespace tl
                         {
                             if (auto context = p.context.lock())
                             {
-                                context->log("tl::qt::TimelineThumbnailProvider", e.what(), log::Type::Error);
+                                context->log("tl::qt::TimelineThumbnailObject", e.what(), log::Type::Error);
                             }
                         }
                         p.requestsInProgress.push_back(std::move(request));
@@ -337,7 +337,7 @@ namespace tl
                                 catch (const std::exception& e)
                                 {
                                     context->log(
-                                        "tl::qt::TimelineThumbnailProvider",
+                                        "tl::qt::TimelineThumbnailObject",
                                         e.what(),
                                         log::Type::Error);
                                 }
@@ -388,7 +388,7 @@ namespace tl
             p.glContext->doneCurrent();
         }
 
-        void TimelineThumbnailProvider::timerEvent(QTimerEvent*)
+        void TimelineThumbnailObject::timerEvent(QTimerEvent*)
         {
             TLRENDER_P();
             std::vector<Private::Result> results;

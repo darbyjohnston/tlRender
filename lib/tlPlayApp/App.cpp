@@ -19,7 +19,7 @@
 #include <tlQt/MetaTypes.h>
 #include <tlQt/OutputDevice.h>
 #include <tlQt/TimeObject.h>
-#include <tlQt/TimelineThumbnailProvider.h>
+#include <tlQt/TimelineThumbnailObject.h>
 #include <tlQt/TimelinePlayer.h>
 
 #include <tlTimeline/Util.h>
@@ -63,7 +63,7 @@ namespace tl
             qt::ContextObject* contextObject = nullptr;
             qt::TimeObject* timeObject = nullptr;
             SettingsObject* settingsObject = nullptr;
-            qt::TimelineThumbnailProvider* thumbnailProvider = nullptr;
+            qt::TimelineThumbnailObject* thumbnailObject = nullptr;
             std::shared_ptr<FilesModel> filesModel;
             std::shared_ptr<observer::ListObserver<std::shared_ptr<FilesModelItem> > > activeObserver;
             std::vector<std::shared_ptr<FilesModelItem> > active;
@@ -222,7 +222,7 @@ namespace tl
                     }
                 });
 
-            p.thumbnailProvider = new qt::TimelineThumbnailProvider(context, this);
+            p.thumbnailObject = new qt::TimelineThumbnailObject(context, this);
 
             p.filesModel = FilesModel::create(context);
             p.activeObserver = observer::ListObserver<std::shared_ptr<FilesModelItem> >::create(
@@ -388,9 +388,9 @@ namespace tl
             return _p->settingsObject;
         }
 
-        qt::TimelineThumbnailProvider* App::thumbnailProvider() const
+        qt::TimelineThumbnailObject* App::thumbnailObject() const
         {
-            return _p->thumbnailProvider;
+            return _p->thumbnailObject;
         }
 
         const std::shared_ptr<FilesModel>& App::filesModel() const

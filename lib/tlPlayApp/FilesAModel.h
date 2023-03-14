@@ -18,7 +18,7 @@ namespace tl
         public:
             FilesAModel(
                 const std::shared_ptr<FilesModel>&,
-                qt::TimelineThumbnailProvider*,
+                qt::TimelineThumbnailObject*,
                 const std::shared_ptr<system::Context>&,
                 QObject* parent = nullptr);
 
