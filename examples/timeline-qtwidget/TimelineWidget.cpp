@@ -112,7 +112,6 @@ namespace tl
                     {
                         _render = gl::Render::create(context);
                     }
-
                 }
                 catch (const std::exception&)
                 {}
@@ -140,6 +139,70 @@ namespace tl
                     _render->end();
                 }
             }
+
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
+            void TimelineWidget::enterEvent(QEvent* event)
+#else
+            void TimelineWidget::enterEvent(QEnterEvent* event)
+#endif // QT_VERSION
+            {
+                event->accept();
+                _mouseInside = true;
+                _mousePressed = false;
+            }
+
+            void TimelineWidget::leaveEvent(QEvent* event)
+            {
+                event->accept();
+                _mouseInside = false;
+                _mousePressed = false;
+            }
+
+            void TimelineWidget::mousePressEvent(QMouseEvent* event)
+            {
+                if (Qt::LeftButton == event->button() && event->modifiers() & Qt::ControlModifier)
+                {
+                    _mousePressed = true;
+                    _mousePress.x = event->x();
+                    _mousePress.y = event->y();
+                    _viewPosMousePress = _viewPos;
+                }
+            }
+
+            void TimelineWidget::mouseReleaseEvent(QMouseEvent* event)
+            {
+                _mousePressed = false;
+            }
+
+            void TimelineWidget::mouseMoveEvent(QMouseEvent* event)
+            {
+                _mousePos.x = event->x();
+                _mousePos.y = event->y();
+                if (_mousePressed)
+                {
+                    const int w = width();
+                    const int h = height();
+                    const math::Vector2i timelineSize = this->timelineSize();
+                    math::Vector2i viewPos;
+                    viewPos.x = math::clamp(
+                        _viewPosMousePress.x - (_mousePos.x - _mousePress.x),
+                        0,
+                        std::max(timelineSize.x - w, 0));
+                    viewPos.y = math::clamp(
+                        _viewPosMousePress.y - (_mousePos.y - _mousePress.y),
+                        0,
+                        std::max(timelineSize.y - h, 0));
+                    if (viewPos != _viewPos)
+                    {
+                        _viewPos = viewPos;
+                        Q_EMIT viewPosChanged(_viewPos);
+                        update();
+                    }
+                }
+            }
+
+            void TimelineWidget::wheelEvent(QWheelEvent* event)
+            {}
 
             void TimelineWidget::dragEnterEvent(QDragEnterEvent* event)
             {

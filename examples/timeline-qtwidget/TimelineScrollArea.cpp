@@ -55,6 +55,14 @@ namespace tl
                         {
                             _sizeUpdate();
                         });
+                    connect(
+                        _timelineWidget,
+                        &TimelineWidget::viewPosChanged,
+                        [this](const math::Vector2i& value)
+                        {
+                            horizontalScrollBar()->setValue(value.x);
+                            verticalScrollBar()->setValue(value.y);
+                        });
                 }
             }
 

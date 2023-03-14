@@ -47,10 +47,23 @@ namespace tl
              Q_SIGNALS:
                 void timelineSizeChanged(const math::Vector2i&);
 
+                void viewPosChanged(const tl::math::Vector2i&);
+
             protected:
                 void initializeGL() override;
                 void resizeGL(int w, int h) override;
                 void paintGL() override;
+
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
+                void enterEvent(QEvent*) override;
+#else
+                void enterEvent(QEnterEvent*) override;
+#endif // QT_VERSION
+                void leaveEvent(QEvent*) override;
+                void mousePressEvent(QMouseEvent*) override;
+                void mouseReleaseEvent(QMouseEvent*) override;
+                void mouseMoveEvent(QMouseEvent*) override;
+                void wheelEvent(QWheelEvent*) override;
 
                 void dragEnterEvent(QDragEnterEvent*) override;
                 void dragMoveEvent(QDragMoveEvent*) override;
@@ -75,6 +88,11 @@ namespace tl
                 math::Vector2i _viewPos;
                 std::shared_ptr<TimelineItem> _timelineItem;
                 math::Vector2i _timelineSize;
+                bool _mouseInside = false;
+                bool _mousePressed = false;
+                math::Vector2i _mousePos;
+                math::Vector2i _mousePress;
+                math::Vector2i _viewPosMousePress;
                 std::shared_ptr<timeline::IRender> _render;
                 int _timer = 0;
             };
