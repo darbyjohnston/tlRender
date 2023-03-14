@@ -338,7 +338,7 @@ namespace tl
                         p.lutOptions); 
                     p.render->drawVideo(
                         p.videoData,
-                        timeline::getTiles(p.compareOptions.mode, p.timelineSizes),
+                        timeline::getBBoxes(p.compareOptions.mode, p.timelineSizes),
                         p.imageOptions,
                         p.displayOptions,
                         p.compareOptions);
