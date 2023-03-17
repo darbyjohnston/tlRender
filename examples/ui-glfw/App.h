@@ -20,6 +20,8 @@ namespace tl
         //! Example GLFW user interface application.
         namespace ui_glfw
         {
+            class MainWindow;
+
             //! Application options.
             struct Options
             {
@@ -57,12 +59,12 @@ namespace tl
 
             private:
                 void _setFullscreenWindow(bool);
-                void _fullscreenCallback(bool);
                 static void _frameBufferSizeCallback(GLFWwindow*, int, int);
                 static void _windowContentScaleCallback(GLFWwindow*, float, float);
+                static void _cursorEnterCallback(GLFWwindow*, int);
+                static void _cursorPosCallback(GLFWwindow*, double, double);
+                static void _mouseButtonCallback(GLFWwindow*, int, int, int);
                 static void _keyCallback(GLFWwindow*, int, int, int, int);
-
-                void _printShortcutsHelp();
 
                 void _tick();
 
@@ -79,7 +81,7 @@ namespace tl
 
                 std::shared_ptr<ui::Style> _style;
                 std::shared_ptr<ui::EventLoop> _eventLoop;
-                std::shared_ptr<ui::Window> _window;
+                std::shared_ptr<MainWindow> _mainWindow;
 
                 bool _running = true;
             };

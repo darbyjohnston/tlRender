@@ -10,28 +10,33 @@ namespace tl
 {
     namespace ui
     {
-        //! Stack layout.
-        class StackLayout : public IWidget
+        //! Spacer.
+        class Spacer : public IWidget
         {
-            TLRENDER_NON_COPYABLE(StackLayout);
+            TLRENDER_NON_COPYABLE(Spacer);
 
         protected:
             void _init(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            StackLayout();
+            Spacer();
 
         public:
-            ~StackLayout() override;
+            ~Spacer() override;
 
-            //! Create a new stack layout.
-            static std::shared_ptr<StackLayout> create(
+            //! Create a new spacer.
+            static std::shared_ptr<Spacer> create(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            void setGeometry(const math::BBox2i&) override;
+            //! Set the spacing role.
+            void setSpacingRole(SizeRole);
+
             void sizeHintEvent(const SizeHintEvent&) override;
+
+        private:
+            TLRENDER_PRIVATE();
         };
     }
 }

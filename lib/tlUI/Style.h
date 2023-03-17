@@ -14,16 +14,28 @@ namespace tl
         //! Size roles.
         enum class SizeRole
         {
+            None,
             Margin,
-            Spacing
+            Spacing,
+            Border
         };
 
         //! Color roles.
         enum class ColorRole
         {
+            None,
             Window,
-            Text
+            Button,
+            Text,
+            Hover,
+            Pressed
         };
+
+        //! Get a lighter color.
+        imaging::Color4f lighter(const imaging::Color4f&, float);
+
+        //! Get a darker color.
+        imaging::Color4f darker(const imaging::Color4f&, float);
 
         //! Style.
         class Style : public std::enable_shared_from_this<Style>

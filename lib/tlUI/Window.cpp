@@ -9,10 +9,9 @@ namespace tl
     namespace ui
     {
         void Window::_init(
-            const std::shared_ptr<system::Context>& context,
-            const std::shared_ptr<IWidget>& parent)
+            const std::shared_ptr<system::Context>& context)
         {
-            IWidget::_init(context, parent);
+            IWidget::_init("tl::ui::Window", context);
         }
 
         Window::Window()
@@ -22,17 +21,25 @@ namespace tl
         {}
 
         std::shared_ptr<Window> Window::create(
-            const std::shared_ptr<system::Context>& context,
-            const std::shared_ptr<IWidget>& parent)
+            const std::shared_ptr<system::Context>& context)
         {
             auto out = std::shared_ptr<Window>(new Window);
-            out->_init(context, parent);
+            out->_init(context);
             return out;
         }
 
-        void Window::sizeHint(const SizeHintData& data)
+        void Window::setGeometry(const math::BBox2i& value)
         {
-            IWidget::sizeHint(data);
+            IWidget::setGeometry(value);
+            const math::BBox2i bbox(0, 0, value.w(), value.h());
+            for (const auto& child : _children)
+            {
+                child->setGeometry(bbox);
+            }
+        }
+
+        void Window::sizeHintEvent(const SizeHintEvent&)
+        {
             for (const auto& child : _children)
             {
                 const math::Vector2i& sizeHint = child->getSizeHint();
@@ -41,21 +48,11 @@ namespace tl
             }
         }
 
-        void Window::setGeometry(const math::BBox2i& value)
+        void Window::drawEvent(const DrawEvent& event)
         {
-            const math::BBox2i bbox(0, 0, value.w(), value.h());
-            for (const auto& child : _children)
-            {
-                child->setGeometry(bbox);
-            }
-        }
-
-        void Window::draw(const DrawData& data)
-        {
-            data.render->drawRect(
-                data.bbox,
-                data.style->getColorRole(ColorRole::Window));
-            IWidget::draw(data);
+            event.render->drawRect(
+                _geometry,
+                event.style->getColorRole(ColorRole::Window));
         }
     }
 }

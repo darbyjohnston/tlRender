@@ -8,6 +8,24 @@ namespace tl
 {
     namespace ui
     {
+        imaging::Color4f lighter(const imaging::Color4f& color, float amount)
+        {
+            return imaging::Color4f(
+                color.r + amount,
+                color.g + amount,
+                color.b + amount,
+                color.a);
+        }
+
+        imaging::Color4f darker(const imaging::Color4f& color, float amount)
+        {
+            return imaging::Color4f(
+                color.r - amount,
+                color.g - amount,
+                color.b - amount,
+                color.a);
+        }
+
         struct Style::Private
         {
             std::weak_ptr<system::Context> context;
@@ -23,9 +41,13 @@ namespace tl
 
             p.sizeRoles[SizeRole::Margin] = 10;
             p.sizeRoles[SizeRole::Spacing] = 10;
+            p.sizeRoles[SizeRole::Border] = 1;
 
             p.colorRoles[ColorRole::Window] = imaging::Color4f(.2F, .2F, .2F);
+            p.colorRoles[ColorRole::Button] = imaging::Color4f(.3F, .3F, .3F);
             p.colorRoles[ColorRole::Text] = imaging::Color4f(1.F, 1.F, 1.F);
+            p.colorRoles[ColorRole::Hover] = imaging::Color4f(1.F, 1.F, 1.F, .1F);
+            p.colorRoles[ColorRole::Pressed] = imaging::Color4f(1.F, 1.F, 1.F, .3F);
         }
 
         Style::Style() :

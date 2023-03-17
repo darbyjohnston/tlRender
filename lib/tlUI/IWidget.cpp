@@ -9,9 +9,11 @@ namespace tl
     namespace ui
     {
         void IWidget::_init(
+            const std::string& name,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
+            _name = name;
             if (parent)
             {
                 parent->_children.push_back(
@@ -25,6 +27,16 @@ namespace tl
 
         IWidget::~IWidget()
         {}
+
+        const std::string& IWidget::getName() const
+        {
+            return _name;
+        }
+
+        void IWidget::setName(const std::string& value)
+        {
+            _name = value;
+        }
         
         void IWidget::setParent(const std::shared_ptr<IWidget>& value)
         {
@@ -52,17 +64,25 @@ namespace tl
             return _children;
         }
 
-        void IWidget::sizeHint(const SizeHintData& data)
-        {
-            for (const auto& child : _children)
-            {
-                child->sizeHint(data);
-            }
-        }
-
         const math::Vector2i& IWidget::getSizeHint() const
         {
             return _sizeHint;
+        }
+
+        Stretch IWidget::getStretch(Orientation orientation) const
+        {
+            return Orientation::Horizontal == orientation ?
+                _stretch.first :
+                _stretch.second;
+        }
+
+        void IWidget::setStretch(Stretch stretch, Orientation orientation)
+        {
+            switch (orientation)
+            {
+            case Orientation::Horizontal: _stretch.first = stretch; break;
+            case Orientation::Vertical: _stretch.second = stretch; break;
+            }
         }
 
         const math::BBox2i& IWidget::getGeometry() const
@@ -75,12 +95,31 @@ namespace tl
             _geometry = value;
         }
 
-        void IWidget::draw(const DrawData& data)
-        {
-            for (const auto& child : _children)
-            {
-                child->draw(data);
-            }
-        }
+        void IWidget::sizeHintEvent(const SizeHintEvent&)
+        {}
+
+        void IWidget::drawEvent(const DrawEvent&)
+        {}
+
+        void IWidget::enterEvent()
+        {}
+
+        void IWidget::leaveEvent()
+        {}
+
+        void IWidget::mouseMoveEvent(const MouseMoveEvent&)
+        {}
+
+        void IWidget::mousePressEvent(const MouseClickEvent&)
+        {}
+
+        void IWidget::mouseReleaseEvent(const MouseClickEvent&)
+        {}
+
+        void IWidget::keyPressEvent(const KeyEvent&)
+        {}
+
+        void IWidget::keyReleaseEvent(const KeyEvent&)
+        {}
     }
 }

@@ -1,8 +1,10 @@
 set(HEADERS
-    App.h)
+    App.h
+    MainWindow.h)
 
 set(SOURCE
     App.cpp
+    MainWindow.cpp
     main.cpp)
 
 add_executable(ui-glfw ${SOURCE} ${HEADERS})

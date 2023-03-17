@@ -4,8 +4,7 @@
 
 #include "App.h"
 
-#include <tlUI/RowLayout.h>
-#include <tlUI/TextLabel.h>
+#include "MainWindow.h"
 
 #include <tlGL/Render.h>
 
@@ -167,6 +166,9 @@ namespace tl
                 glfwSetFramebufferSizeCallback(_glfwWindow, _frameBufferSizeCallback);
                 glfwSetWindowContentScaleCallback(_glfwWindow, _windowContentScaleCallback);
                 _setFullscreenWindow(_options.fullscreen);
+                glfwSetCursorEnterCallback(_glfwWindow, _cursorEnterCallback);
+                glfwSetCursorPosCallback(_glfwWindow, _cursorPosCallback);
+                glfwSetMouseButtonCallback(_glfwWindow, _mouseButtonCallback);
                 glfwSetKeyCallback(_glfwWindow, _keyCallback);
                 glfwShowWindow(_glfwWindow);
 
@@ -174,23 +176,16 @@ namespace tl
                 _fontSystem = imaging::FontSystem::create(_context);
                 _render = gl::Render::create(_context);
 
-                // Print the shortcuts help.
-                _printShortcutsHelp();
-
                 // Initialize the user interface.
                 _style = ui::Style::create(_context);
-                auto textLabel = ui::TextLabel::create(_context);
-                textLabel->setText("Hello world!");
-                auto textLabel2 = ui::TextLabel::create(_context);
-                textLabel2->setText("Goodbye world!");
-                auto vLayout = ui::RowLayout::create(ui::Orientation::Vertical, _context);
-                textLabel->setParent(vLayout);
-                textLabel2->setParent(vLayout);
-                _window = ui::Window::create(_context);
-                vLayout->setParent(_window);
-                _eventLoop = ui::EventLoop::create(_context);
+                _mainWindow = MainWindow::create(_context);
+                _eventLoop = ui::EventLoop::create(
+                    _style,
+                    _fontSystem,
+                    _render,
+                    _context);
                 _context->addSystem(_eventLoop);
-                _eventLoop->addWindow(_window);
+                _eventLoop->addWindow(_mainWindow);
 
                 // Start the main loop.
                 while (_running && !glfwWindowShouldClose(_glfwWindow))
@@ -246,19 +241,13 @@ namespace tl
                 }
             }
 
-            void App::_fullscreenCallback(bool value)
-            {
-                _setFullscreenWindow(value);
-                _log(string::Format("Fullscreen: {0}").arg(_fullscreen));
-            }
-
             void App::_frameBufferSizeCallback(GLFWwindow* glfwWindow, int width, int height)
             {
                 App* app = reinterpret_cast<App*>(glfwGetWindowUserPointer(glfwWindow));
                 app->_frameBufferSize.w = width;
                 app->_frameBufferSize.h = height;
             }
-
+            
             void App::_windowContentScaleCallback(GLFWwindow* glfwWindow, float x, float y)
             {
                 App* app = reinterpret_cast<App*>(glfwGetWindowUserPointer(glfwWindow));
@@ -266,55 +255,160 @@ namespace tl
                 app->_contentScale.y = y;
             }
 
-            void App::_keyCallback(GLFWwindow* glfwWindow, int key, int scanCode, int action, int mods)
+            void App::_cursorEnterCallback(GLFWwindow* glfwWindow, int value)
             {
-                if (GLFW_RELEASE == action || GLFW_REPEAT == action)
+                App* app = reinterpret_cast<App*>(glfwGetWindowUserPointer(glfwWindow));
+                app->_eventLoop->cursorEnter(GLFW_TRUE == value);
+            }
+
+            void App::_cursorPosCallback(GLFWwindow* glfwWindow, double x, double y)
+            {
+                App* app = reinterpret_cast<App*>(glfwGetWindowUserPointer(glfwWindow));
+                app->_eventLoop->cursorPos(math::Vector2i(x, y));
+            }
+
+            void App::_mouseButtonCallback(GLFWwindow* glfwWindow, int button, int action, int mods)
+            {
+                App* app = reinterpret_cast<App*>(glfwGetWindowUserPointer(glfwWindow));
+                int modifiers = static_cast<int>(ui::KeyModifier::None);
+                if (mods & GLFW_MOD_SHIFT)
                 {
-                    App* app = reinterpret_cast<App*>(glfwGetWindowUserPointer(glfwWindow));
+                    modifiers |= static_cast<int>(ui::KeyModifier::Shift);
+                }
+                if (mods & GLFW_MOD_CONTROL)
+                {
+                    modifiers |= static_cast<int>(ui::KeyModifier::Control);
+                }
+                if (mods & GLFW_MOD_ALT)
+                {
+                    modifiers |= static_cast<int>(ui::KeyModifier::Alt);
+                }
+                app->_eventLoop->mouseButton(button, GLFW_PRESS == action, modifiers);
+            }
+
+            namespace
+            {
+                ui::Key toKey(int key)
+                {
+                    ui::Key out = ui::Key::Unknown;
                     switch (key)
                     {
-                    case GLFW_KEY_ESCAPE:
-                        app->exit();
-                        break;
-                    case GLFW_KEY_U:
-                        app->_fullscreenCallback(!app->_fullscreen);
-                        break;
+                    case GLFW_KEY_SPACE: out = ui::Key::Space; break;
+                    case GLFW_KEY_APOSTROPHE: out = ui::Key::Apostrophe; break;
+                    case GLFW_KEY_COMMA: out = ui::Key::Comma; break;
+                    case GLFW_KEY_MINUS: out = ui::Key::Minus; break;
+                    case GLFW_KEY_PERIOD: out = ui::Key::Period; break;
+                    case GLFW_KEY_SLASH: out = ui::Key::Slash; break;
+                    case GLFW_KEY_0: out = ui::Key::_0; break;
+                    case GLFW_KEY_1: out = ui::Key::_1; break;
+                    case GLFW_KEY_2: out = ui::Key::_2; break;
+                    case GLFW_KEY_3: out = ui::Key::_3; break;
+                    case GLFW_KEY_4: out = ui::Key::_4; break;
+                    case GLFW_KEY_5: out = ui::Key::_5; break;
+                    case GLFW_KEY_6: out = ui::Key::_6; break;
+                    case GLFW_KEY_7: out = ui::Key::_7; break;
+                    case GLFW_KEY_8: out = ui::Key::_8; break;
+                    case GLFW_KEY_9: out = ui::Key::_9; break;
+                    case GLFW_KEY_SEMICOLON: out = ui::Key::Semicolon; break;
+                    case GLFW_KEY_EQUAL: out = ui::Key::Equal; break;
+                    case GLFW_KEY_A: out = ui::Key::A; break;
+                    case GLFW_KEY_B: out = ui::Key::B; break;
+                    case GLFW_KEY_C: out = ui::Key::C; break;
+                    case GLFW_KEY_D: out = ui::Key::D; break;
+                    case GLFW_KEY_E: out = ui::Key::E; break;
+                    case GLFW_KEY_F: out = ui::Key::F; break;
+                    case GLFW_KEY_G: out = ui::Key::G; break;
+                    case GLFW_KEY_H: out = ui::Key::H; break;
+                    case GLFW_KEY_I: out = ui::Key::I; break;
+                    case GLFW_KEY_J: out = ui::Key::J; break;
+                    case GLFW_KEY_K: out = ui::Key::K; break;
+                    case GLFW_KEY_L: out = ui::Key::L; break;
+                    case GLFW_KEY_M: out = ui::Key::M; break;
+                    case GLFW_KEY_N: out = ui::Key::N; break;
+                    case GLFW_KEY_O: out = ui::Key::O; break;
+                    case GLFW_KEY_P: out = ui::Key::P; break;
+                    case GLFW_KEY_Q: out = ui::Key::Q; break;
+                    case GLFW_KEY_R: out = ui::Key::R; break;
+                    case GLFW_KEY_S: out = ui::Key::S; break;
+                    case GLFW_KEY_T: out = ui::Key::T; break;
+                    case GLFW_KEY_U: out = ui::Key::U; break;
+                    case GLFW_KEY_V: out = ui::Key::V; break;
+                    case GLFW_KEY_W: out = ui::Key::W; break;
+                    case GLFW_KEY_X: out = ui::Key::X; break;
+                    case GLFW_KEY_Y: out = ui::Key::Y; break;
+                    case GLFW_KEY_Z: out = ui::Key::Z; break;
+                    case GLFW_KEY_LEFT_BRACKET: out = ui::Key::LeftBracket; break;
+                    case GLFW_KEY_BACKSLASH: out = ui::Key::Backslash; break;
+                    case GLFW_KEY_RIGHT_BRACKET: out = ui::Key::RightBracket; break;
+                    case GLFW_KEY_GRAVE_ACCENT: out = ui::Key::GraveAccent; break;
+                    case GLFW_KEY_ESCAPE: out = ui::Key::Escape; break;
+                    case GLFW_KEY_ENTER: out = ui::Key::Enter; break;
+                    case GLFW_KEY_TAB: out = ui::Key::Tab; break;
+                    case GLFW_KEY_BACKSPACE: out = ui::Key::Backspace; break;
+                    case GLFW_KEY_INSERT: out = ui::Key::Insert; break;
+                    case GLFW_KEY_DELETE: out = ui::Key::Delete; break;
+                    case GLFW_KEY_RIGHT: out = ui::Key::Right; break;
+                    case GLFW_KEY_LEFT: out = ui::Key::Left; break;
+                    case GLFW_KEY_DOWN: out = ui::Key::Down; break;
+                    case GLFW_KEY_UP: out = ui::Key::Up; break;
+                    case GLFW_KEY_PAGE_UP: out = ui::Key::PageUp; break;
+                    case GLFW_KEY_PAGE_DOWN: out = ui::Key::PageDown; break;
+                    case GLFW_KEY_HOME: out = ui::Key::Home; break;
+                    case GLFW_KEY_END: out = ui::Key::End; break;
+                    case GLFW_KEY_CAPS_LOCK: out = ui::Key::CapsLock; break;
+                    case GLFW_KEY_SCROLL_LOCK: out = ui::Key::ScrollLock; break;
+                    case GLFW_KEY_NUM_LOCK: out = ui::Key::NumLock; break;
+                    case GLFW_KEY_PRINT_SCREEN: out = ui::Key::PrintScreen; break;
+                    case GLFW_KEY_PAUSE: out = ui::Key::Pause; break;
+                    case GLFW_KEY_F1: out = ui::Key::F1; break;
+                    case GLFW_KEY_F2: out = ui::Key::F2; break;
+                    case GLFW_KEY_F3: out = ui::Key::F3; break;
+                    case GLFW_KEY_F4: out = ui::Key::F4; break;
+                    case GLFW_KEY_F5: out = ui::Key::F5; break;
+                    case GLFW_KEY_F6: out = ui::Key::F6; break;
+                    case GLFW_KEY_F7: out = ui::Key::F7; break;
+                    case GLFW_KEY_F8: out = ui::Key::F8; break;
+                    case GLFW_KEY_F9: out = ui::Key::F9; break;
+                    case GLFW_KEY_F10: out = ui::Key::F10; break;
+                    case GLFW_KEY_F11: out = ui::Key::F11; break;
+                    case GLFW_KEY_F12: out = ui::Key::F12; break;
+                    case GLFW_KEY_LEFT_SHIFT: out = ui::Key::LeftShift; break;
+                    case GLFW_KEY_LEFT_CONTROL: out = ui::Key::LeftControl; break;
+                    case GLFW_KEY_LEFT_ALT: out = ui::Key::LeftAlt; break;
+                    case GLFW_KEY_LEFT_SUPER: out = ui::Key::LeftSuper; break;
+                    case GLFW_KEY_RIGHT_SHIFT: out = ui::Key::RightShift; break;
+                    case GLFW_KEY_RIGHT_CONTROL: out = ui::Key::RightControl; break;
+                    case GLFW_KEY_RIGHT_ALT: out = ui::Key::RightAlt; break;
+                    case GLFW_KEY_RIGHT_SUPER: out = ui::Key::RightSuper; break;
                     }
+                    return out;
                 }
             }
 
-            void App::_printShortcutsHelp()
+            void App::_keyCallback(GLFWwindow* glfwWindow, int key, int scanCode, int action, int mods)
             {
-                _print(
-                    "\n"
-                    "Keyboard shortcuts:\n"
-                    "\n"
-                    "    Escape - Exit\n"
-                    "    U      - Fullscreen mode\n");
+                App* app = reinterpret_cast<App*>(glfwGetWindowUserPointer(glfwWindow));
+                switch (action)
+                {
+                case GLFW_PRESS:
+                    app->_eventLoop->key(toKey(key), true);
+                    break;
+                case GLFW_RELEASE:
+                case GLFW_REPEAT:
+                    app->_eventLoop->key(toKey(key), false);
+                    break;
+                }
             }
 
             void App::_tick()
             {
                 _context->tick();
 
-                ui::SizeHintData sizeHintData;
-                sizeHintData.style = _style;
-                sizeHintData.contentScale = _contentScale.x;
-                sizeHintData.fontSystem = _fontSystem;
-                _window->sizeHint(sizeHintData);
+                _eventLoop->setFrameBufferSize(_frameBufferSize);
+                _eventLoop->setContentScale(_contentScale.x);
 
                 const math::BBox2i bbox(0, 0, _frameBufferSize.w, _frameBufferSize.h);
-                _window->setGeometry(bbox);
-
-                _render->begin(_frameBufferSize);
-                ui::DrawData drawData;
-                drawData.bbox = bbox;
-                drawData.style = _style;
-                drawData.contentScale = _contentScale.x;
-                drawData.fontSystem = _fontSystem;
-                drawData.render = _render;
-                _window->draw(drawData);
-                _render->end();
+                _mainWindow->setGeometry(bbox);
 
                 glfwSwapBuffers(_glfwWindow);
             }

@@ -12,7 +12,7 @@ namespace tl
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init(context, parent);
+            IWidget::_init("tl::ui::StackLayout", context, parent);
         }
 
         StackLayout::StackLayout()
@@ -30,22 +30,22 @@ namespace tl
             return out;
         }
 
-        void StackLayout::sizeHint(const SizeHintData& data)
+        void StackLayout::setGeometry(const math::BBox2i& value)
         {
-            IWidget::sizeHint(data);
+            IWidget::setGeometry(value);
+            for (const auto& child : _children)
+            {
+                child->setGeometry(value);
+            }
+        }
+
+        void StackLayout::sizeHintEvent(const SizeHintEvent&)
+        {
             for (const auto& child : _children)
             {
                 const math::Vector2i& sizeHint = child->getSizeHint();
                 _sizeHint.x = std::max(_sizeHint.x, sizeHint.x);
                 _sizeHint.y = std::max(_sizeHint.y, sizeHint.y);
-            }
-        }
-
-        void StackLayout::setGeometry(const math::BBox2i& value)
-        {
-            for (const auto& child : _children)
-            {
-                child->setGeometry(value);
             }
         }
     }

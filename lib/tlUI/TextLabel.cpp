@@ -18,7 +18,7 @@ namespace tl
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init(context, parent);
+            IWidget::_init("tl::ui::TextLabel", context, parent);
         }
 
         TextLabel::TextLabel() :
@@ -47,31 +47,41 @@ namespace tl
             _p->text = value;
         }
 
-        void TextLabel::sizeHint(const SizeHintData& data)
+        const imaging::FontInfo& TextLabel::getFontInfo() const
+        {
+            return _p->fontInfo;
+        }
+
+        void TextLabel::setFontInfo(const imaging::FontInfo& value)
+        {
+            _p->fontInfo = value;
+        }
+
+        void TextLabel::sizeHintEvent(const SizeHintEvent& event)
         {
             TLRENDER_P();
             imaging::FontInfo fontInfo = p.fontInfo;
-            fontInfo.size *= data.contentScale;
-            auto fontMetrics = data.fontSystem->getMetrics(fontInfo);
-            _sizeHint.x = data.fontSystem->measure(p.text, fontInfo).x;
+            fontInfo.size *= event.contentScale;
+            auto fontMetrics = event.fontSystem->getMetrics(fontInfo);
+            _sizeHint.x = event.fontSystem->measure(p.text, fontInfo).x;
             _sizeHint.y = fontMetrics.lineHeight;
         }
 
-        void TextLabel::draw(const DrawData& data)
+        void TextLabel::drawEvent(const DrawEvent& event)
         {
             TLRENDER_P();
 
             //render->drawRect(_geometry, imaging::Color4f(.5F, .3F, .3F));
 
             imaging::FontInfo fontInfo = p.fontInfo;
-            fontInfo.size *= data.contentScale;
-            auto fontMetrics = data.fontSystem->getMetrics(fontInfo);
-            data.render->drawText(
-                data.fontSystem->getGlyphs(p.text, fontInfo),
+            fontInfo.size *= event.contentScale;
+            auto fontMetrics = event.fontSystem->getMetrics(fontInfo);
+            event.render->drawText(
+                event.fontSystem->getGlyphs(p.text, fontInfo),
                 math::Vector2i(
                     _geometry.x(),
                     _geometry.y() + fontMetrics.ascender),
-                data.style->getColorRole(ColorRole::Text));
+                event.style->getColorRole(ColorRole::Text));
         }
     }
 }

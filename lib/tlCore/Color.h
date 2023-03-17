@@ -27,9 +27,6 @@ namespace tl
             bool operator != (const Color4f&) const;
         };
 
-        //! Convert a floating point value to an 8-bit value.
-        uint8_t fToU8(float);
-
         void to_json(nlohmann::json&, const Color4f&);
 
         void from_json(const nlohmann::json&, Color4f&);

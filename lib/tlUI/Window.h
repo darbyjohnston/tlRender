@@ -16,9 +16,7 @@ namespace tl
             TLRENDER_NON_COPYABLE(Window);
 
         protected:
-            void _init(
-                const std::shared_ptr<system::Context>&,
-                const std::shared_ptr<IWidget>& parent = nullptr);
+            void _init(const std::shared_ptr<system::Context>&);
 
             Window();
 
@@ -27,12 +25,12 @@ namespace tl
 
             //! Create a new window.
             static std::shared_ptr<Window> create(
-                const std::shared_ptr<system::Context>&,
-                const std::shared_ptr<IWidget>& parent = nullptr);
+                const std::shared_ptr<system::Context>&);
 
-            void sizeHint(const SizeHintData&) override;
             void setGeometry(const math::BBox2i&) override;
-            void draw(const DrawData&) override;
+
+            void sizeHintEvent(const SizeHintEvent&) override;
+            void drawEvent(const DrawEvent&) override;
         };
     }
 }
