@@ -10,6 +10,8 @@
 
 #include <tlCore/FontSystem.h>
 
+#include <list>
+
 namespace tl
 {
     namespace ui
