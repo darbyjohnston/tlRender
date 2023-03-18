@@ -12,6 +12,7 @@ namespace tl
             const std::shared_ptr<system::Context>& context)
         {
             IWidget::_init("tl::ui::Window", context);
+            setBackgroundRole(ColorRole::Window);
         }
 
         Window::Window()
@@ -46,13 +47,6 @@ namespace tl
                 _sizeHint.x = std::max(_sizeHint.x, sizeHint.x);
                 _sizeHint.y = std::max(_sizeHint.y, sizeHint.y);
             }
-        }
-
-        void Window::drawEvent(const DrawEvent& event)
-        {
-            event.render->drawRect(
-                _geometry,
-                event.style->getColorRole(ColorRole::Window));
         }
     }
 }

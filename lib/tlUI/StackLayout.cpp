@@ -8,6 +8,11 @@ namespace tl
 {
     namespace ui
     {
+        struct StackLayout::Private
+        {
+            int currentIndex = 0;
+        };
+
         void StackLayout::_init(
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
@@ -15,7 +20,8 @@ namespace tl
             IWidget::_init("tl::ui::StackLayout", context, parent);
         }
 
-        StackLayout::StackLayout()
+        StackLayout::StackLayout() :
+            _p(new Private)
         {}
 
         StackLayout::~StackLayout()
@@ -30,6 +36,24 @@ namespace tl
             return out;
         }
 
+        int StackLayout::getCurrentIndex() const
+        {
+            return _p->currentIndex;
+        }
+
+        void StackLayout::setCurrentIndex(int value)
+        {
+            TLRENDER_P();
+            if (value == p.currentIndex)
+                return;
+            p.currentIndex = value;
+            const auto currentWidget = _getCurrentWidget();
+            for (const auto& child : _children)
+            {
+                child->setVisible(child == currentWidget);
+            }
+        }
+
         void StackLayout::setGeometry(const math::BBox2i& value)
         {
             IWidget::setGeometry(value);
@@ -37,6 +61,12 @@ namespace tl
             {
                 child->setGeometry(value);
             }
+        }
+
+        void StackLayout::childAddedEvent(const ChildEvent& event)
+        {
+            const auto currentWidget = _getCurrentWidget();
+            event.child->setVisible(event.child == currentWidget);
         }
 
         void StackLayout::sizeHintEvent(const SizeHintEvent&)
@@ -47,6 +77,23 @@ namespace tl
                 _sizeHint.x = std::max(_sizeHint.x, sizeHint.x);
                 _sizeHint.y = std::max(_sizeHint.y, sizeHint.y);
             }
+        }
+
+        std::shared_ptr<IWidget> StackLayout::_getCurrentWidget() const
+        {
+            TLRENDER_P();
+            std::shared_ptr<IWidget> out;
+            int i = 0;
+            for (const auto& child : _children)
+            {
+                if (i == p.currentIndex)
+                {
+                    out = child;
+                    break;
+                }
+                ++i;
+            }
+            return out;
         }
     }
 }

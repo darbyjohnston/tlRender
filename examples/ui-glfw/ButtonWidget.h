@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlUI/Window.h>
+#include <tlUI/IWidget.h>
 
 namespace tl
 {
@@ -10,20 +10,20 @@ namespace tl
     {
         namespace ui_glfw
         {
-            //! Main window.
-            class MainWindow : public ui::Window
+            //! Button widget.
+            class ButtonWidget : public ui::IWidget
             {
-                TLRENDER_NON_COPYABLE(MainWindow);
+                TLRENDER_NON_COPYABLE(ButtonWidget);
 
             protected:
                 void _init(const std::shared_ptr<system::Context>&);
 
-                MainWindow();
+                ButtonWidget();
 
             public:
-                ~MainWindow();
+                ~ButtonWidget();
 
-                static std::shared_ptr<MainWindow> create(
+                static std::shared_ptr<ButtonWidget> create(
                     const std::shared_ptr<system::Context>&);
 
                 void setGeometry(const math::BBox2i&) override;

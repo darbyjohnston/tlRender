@@ -68,7 +68,22 @@ namespace tl
 
             //! Set the geometry.
             virtual void setGeometry(const math::BBox2i&);
- 
+
+            //! Is the widget visible?
+            bool isVisible() const;
+
+            //! Set whether the widget is visible.
+            void setVisible(bool);
+
+            //! Set the background role.
+            void setBackgroundRole(ColorRole);
+
+            //! Child added event.
+            virtual void childAddedEvent(const ChildEvent&);
+
+            //! Child removed event.
+            virtual void childRemovedEvent(const ChildEvent&);
+
             //! Size hint event.
             virtual void sizeHintEvent(const SizeHintEvent&);
 
@@ -104,6 +119,8 @@ namespace tl
             math::Vector2i _sizeHint;
             std::pair<Stretch, Stretch> _stretch = { Stretch::Fixed, Stretch::Fixed };
             math::BBox2i _geometry;
+            bool _visible = true;
+            ColorRole _backgroundRole = ColorRole::None;
         };
     }
 }

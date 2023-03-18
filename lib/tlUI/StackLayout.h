@@ -30,8 +30,20 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
+            //! Get the current index.
+            int getCurrentIndex() const;
+
+            //! Set the current index.
+            void setCurrentIndex(int);
+
             void setGeometry(const math::BBox2i&) override;
+            void childAddedEvent(const ChildEvent&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
+
+        private:
+            std::shared_ptr<IWidget> _getCurrentWidget() const;
+
+            TLRENDER_PRIVATE();
         };
     }
 }

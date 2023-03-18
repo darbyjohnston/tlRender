@@ -83,6 +83,7 @@ namespace tl
 
         void TextButton::drawEvent(const DrawEvent& event)
         {
+            IWidget::drawEvent(event);
             TLRENDER_P();
 
             const int m = event.style->getSizeRole(SizeRole::Margin) * event.contentScale;

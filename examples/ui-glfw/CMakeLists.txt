@@ -1,10 +1,14 @@
 set(HEADERS
     App.h
-    MainWindow.h)
+    ButtonWidget.h
+    MainWindow.h
+    RowLayoutWidget.h)
 
 set(SOURCE
     App.cpp
+    ButtonWidget.cpp
     MainWindow.cpp
+    RowLayoutWidget.cpp
     main.cpp)
 
 add_executable(ui-glfw ${SOURCE} ${HEADERS})

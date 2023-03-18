@@ -48,7 +48,10 @@ namespace tl
                     shared_from_this());
                 if (i != parent->_children.end())
                 {
+                    ChildEvent event;
+                    event.child = *i;
                     parent->_children.erase(i);
+                    parent->childRemovedEvent(event);
                 }
             }
             _parent = value;
@@ -56,6 +59,9 @@ namespace tl
             {
                 value->_children.push_back(
                     std::static_pointer_cast<IWidget>(shared_from_this()));
+                ChildEvent event;
+                event.child = shared_from_this();
+                value->childAddedEvent(event);
             }
         }
 
@@ -95,11 +101,39 @@ namespace tl
             _geometry = value;
         }
 
+        bool IWidget::isVisible() const
+        {
+            return _visible;
+        }
+
+        void IWidget::setVisible(bool value)
+        {
+            _visible = value;
+        }
+
+        void IWidget::setBackgroundRole(ColorRole value)
+        {
+            _backgroundRole = value;
+        }
+
+        void IWidget::childAddedEvent(const ChildEvent&)
+        {}
+
+        void IWidget::childRemovedEvent(const ChildEvent&)
+        {}
+
         void IWidget::sizeHintEvent(const SizeHintEvent&)
         {}
 
-        void IWidget::drawEvent(const DrawEvent&)
-        {}
+        void IWidget::drawEvent(const DrawEvent& event)
+        {
+            if (_backgroundRole != ColorRole::None)
+            {
+                event.render->drawRect(
+                    _geometry,
+                    event.style->getColorRole(_backgroundRole));
+            }
+        }
 
         void IWidget::enterEvent()
         {}

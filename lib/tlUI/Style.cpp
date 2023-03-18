@@ -39,8 +39,8 @@ namespace tl
             TLRENDER_P();
             p.context = context;
 
-            p.sizeRoles[SizeRole::Margin] = 10;
-            p.sizeRoles[SizeRole::Spacing] = 10;
+            p.sizeRoles[SizeRole::Margin] = 5;
+            p.sizeRoles[SizeRole::Spacing] = 5;
             p.sizeRoles[SizeRole::Border] = 1;
 
             p.colorRoles[ColorRole::Window] = imaging::Color4f(.2F, .2F, .2F);

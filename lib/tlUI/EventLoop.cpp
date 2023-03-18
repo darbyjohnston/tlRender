@@ -199,10 +199,13 @@ namespace tl
             const std::shared_ptr<IWidget>& widget,
             const DrawEvent& event)
         {
-            widget->drawEvent(event);
-            for (const auto& child : widget->getChildren())
+            if (widget->isVisible())
             {
-                _drawEvent(child, event);
+                widget->drawEvent(event);
+                for (const auto& child : widget->getChildren())
+                {
+                    _drawEvent(child, event);
+                }
             }
         }
 
@@ -226,18 +229,21 @@ namespace tl
             const math::Vector2i& pos)
         {
             std::shared_ptr<IWidget> out;
-            for (const auto& child : widget->getChildren())
+            if (widget->isVisible())
             {
-                auto tmp = _underCursor(child, pos);
-                if (tmp)
+                for (const auto& child : widget->getChildren())
                 {
-                    out = tmp;
-                    break;
+                    auto tmp = _underCursor(child, pos);
+                    if (tmp)
+                    {
+                        out = tmp;
+                        break;
+                    }
                 }
-            }
-            if (!out && widget->getGeometry().contains(pos))
-            {
-                out = widget;
+                if (!out && widget->getGeometry().contains(pos))
+                {
+                    out = widget;
+                }
             }
             return out;
         }

@@ -4,10 +4,12 @@
 
 #include "MainWindow.h"
 
+#include "ButtonWidget.h"
+#include "RowLayoutWidget.h"
+
 #include <tlUI/RowLayout.h>
-#include <tlUI/Spacer.h>
+#include <tlUI/StackLayout.h>
 #include <tlUI/TextButton.h>
-#include <tlUI/TextLabel.h>
 
 namespace tl
 {
@@ -18,9 +20,9 @@ namespace tl
             struct MainWindow::Private
             {
                 std::shared_ptr<ui::RowLayout> layout;
-                std::shared_ptr<observer::ValueObserver<bool> > buttonObserver0;
-                std::shared_ptr<observer::ValueObserver<bool> > buttonObserver1;
-                std::shared_ptr<observer::ValueObserver<bool> > buttonObserver2;
+                std::shared_ptr<ui::StackLayout> stackLayout;
+                std::shared_ptr<observer::ValueObserver<bool> > rowLayoutObserver;
+                std::shared_ptr<observer::ValueObserver<bool> > buttonsObserver;
             };
 
             void MainWindow::_init(
@@ -29,57 +31,41 @@ namespace tl
                 Window::_init(context);
                 TLRENDER_P();
 
-                auto textLabel0 = ui::TextLabel::create(context);
-                textLabel0->setText("Text Label 0");
-
-                auto textLabel1 = ui::TextLabel::create(context);
-                textLabel1->setText("Text Label 0");
-                imaging::FontInfo fontInfo;
-                fontInfo.size = 32;
-                textLabel1->setFontInfo(fontInfo);
-
-                auto textButton0 = ui::TextButton::create(context);
-                textButton0->setText("Text Button 0");
-                p.buttonObserver0 = observer::ValueObserver<bool>::create(
-                    textButton0->observeClick(),
+                auto rowLayoutButton = ui::TextButton::create(context);
+                rowLayoutButton->setText("Row Layouts");
+                p.rowLayoutObserver = observer::ValueObserver<bool>::create(
+                    rowLayoutButton->observeClick(),
                     [this](bool)
                     {
-                        std::cout << "Text Button 0" << std::endl;
+                        _p->stackLayout->setCurrentIndex(0);
                     },
                     observer::CallbackAction::Suppress);
 
-                auto textButton1 = ui::TextButton::create(context);
-                textButton1->setText("Text Button 1");
-                textButton1->setFontInfo(fontInfo);
-                p.buttonObserver1 = observer::ValueObserver<bool>::create(
-                    textButton1->observeClick(),
+                auto buttonButton = ui::TextButton::create(context);
+                buttonButton->setText("Buttons");
+                p.buttonsObserver = observer::ValueObserver<bool>::create(
+                    buttonButton->observeClick(),
                     [this](bool)
                     {
-                        std::cout << "Text Button 1" << std::endl;
+                        _p->stackLayout->setCurrentIndex(1);
                     },
                     observer::CallbackAction::Suppress);
 
-                auto textButton2 = ui::TextButton::create(context);
-                textButton2->setText("Text Button 2");
-                p.buttonObserver2 = observer::ValueObserver<bool>::create(
-                    textButton2->observeClick(),
-                    [this](bool)
-                    {
-                        std::cout << "Text Button 2" << std::endl;
-                    },
-                    observer::CallbackAction::Suppress);
+                auto rowLayoutWidget = RowLayoutWidget::create(context);
+                auto buttonWidget = ButtonWidget::create(context);
 
-                p.layout = ui::VerticalLayout::create(context);
+                p.layout = ui::HorizontalLayout::create(context);
                 p.layout->setMarginRole(ui::SizeRole::Margin);
-                auto hLayout = ui::HorizontalLayout::create(context);
-                hLayout->setParent(p.layout);
-                textLabel0->setParent(hLayout);
-                textLabel1->setParent(hLayout);
-                textButton0->setParent(p.layout);
-                hLayout = ui::HorizontalLayout::create(context);
-                hLayout->setParent(p.layout);
-                textButton1->setParent(hLayout);
-                textButton2->setParent(hLayout);
+                auto buttonLayout = ui::VerticalLayout::create(context);
+                buttonLayout->setParent(p.layout);
+                rowLayoutButton->setParent(buttonLayout);
+                buttonButton->setParent(buttonLayout);
+                p.stackLayout = ui::StackLayout::create(context);
+                p.stackLayout->setStretch(ui::Stretch::Expanding, ui::Orientation::Horizontal);
+                p.stackLayout->setStretch(ui::Stretch::Expanding, ui::Orientation::Vertical);
+                p.stackLayout->setParent(p.layout);
+                rowLayoutWidget->setParent(p.stackLayout);
+                buttonWidget->setParent(p.stackLayout);
                 p.layout->setParent(shared_from_this());
             }
 
@@ -101,8 +87,7 @@ namespace tl
             void MainWindow::setGeometry(const math::BBox2i& value)
             {
                 Window::setGeometry(value);
-                TLRENDER_P();
-                p.layout->setGeometry(value);
+                _p->layout->setGeometry(value);
             }
         }
     }

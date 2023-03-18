@@ -14,6 +14,14 @@ namespace tl
 {
     namespace ui
     {
+        class IWidget;
+
+        //! Child event.
+        struct ChildEvent
+        {
+            std::shared_ptr<IWidget> child;
+        };
+
         //! Size hint event.
         struct SizeHintEvent
         {
