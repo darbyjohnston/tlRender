@@ -1,3 +1,4 @@
+add_subdirectory(tlresource)
 if(TLRENDER_GL)
 	add_subdirectory(tlbake)
 endif()
