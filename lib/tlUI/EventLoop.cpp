@@ -56,14 +56,12 @@ namespace tl
 
         void EventLoop::setFrameBufferSize(const imaging::Size& value)
         {
-            TLRENDER_P();
-            p.frameBufferSize = value;
+            _p->frameBufferSize = value;
         }
 
         void EventLoop::setContentScale(float value)
         {
-            TLRENDER_P();
-            p.contentScale = value;
+            _p->contentScale = value;
         }
 
         void EventLoop::key(Key key, bool press)
@@ -75,7 +73,6 @@ namespace tl
 
         void EventLoop::cursorEnter(bool enter)
         {
-            TLRENDER_P();
             if (!enter)
             {
                 _setHover(nullptr);
@@ -134,8 +131,7 @@ namespace tl
 
         void EventLoop::addWindow(const std::weak_ptr<Window>& window)
         {
-            TLRENDER_P();
-            p.windows.push_back(window);
+            _p->windows.push_back(window);
         }
 
         void EventLoop::tick()

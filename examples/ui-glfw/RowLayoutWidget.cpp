@@ -4,9 +4,9 @@
 
 #include "RowLayoutWidget.h"
 
+#include <tlUI/Label.h>
 #include <tlUI/RowLayout.h>
 #include <tlUI/Spacer.h>
-#include <tlUI/TextLabel.h>
 
 namespace tl
 {
@@ -25,21 +25,50 @@ namespace tl
                 IWidget::_init("RowLayoutWidget", context);
                 TLRENDER_P();
 
-                auto textLabel0 = ui::TextLabel::create(context);
-                textLabel0->setText("Text Label 0");
+                auto label0 = ui::Label::create(context);
+                label0->setText("Label 0");
+                label0->setBackgroundRole(ui::ColorRole::Red);
 
-                auto textLabel1 = ui::TextLabel::create(context);
-                textLabel1->setText("Text Label 0");
+                auto label1 = ui::Label::create(context);
+                label1->setText("Label 1");
                 imaging::FontInfo fontInfo;
                 fontInfo.size = 32;
-                textLabel1->setFontInfo(fontInfo);
+                label1->setFontInfo(fontInfo);
+                label1->setBackgroundRole(ui::ColorRole::Green);
 
-                p.layout = ui::VerticalLayout::create(context);
-                auto hLayout = ui::HorizontalLayout::create(context);
-                hLayout->setParent(p.layout);
-                textLabel0->setParent(hLayout);
-                textLabel1->setParent(hLayout);
-                p.layout->setParent(shared_from_this());
+                auto label2 = ui::Label::create(context);
+                label2->setText("Label 2");
+                label2->setFontInfo(fontInfo);
+                label2->setBackgroundRole(ui::ColorRole::Blue);
+                label2->setStretch(ui::Stretch::Expanding, ui::Orientation::Horizontal);
+
+                auto label3 = ui::Label::create(context);
+                label3->setText("Label 3");
+                label3->setBackgroundRole(ui::ColorRole::Cyan);
+                label3->setStretch(ui::Stretch::Expanding, ui::Orientation::Horizontal);
+
+                auto label4 = ui::Label::create(context);
+                label4->setText("Label 4");
+                label4->setBackgroundRole(ui::ColorRole::Magenta);
+                label4->setStretch(ui::Stretch::Expanding, ui::Orientation::Horizontal);
+
+                auto label5 = ui::Label::create(context);
+                label5->setText("Label 5");
+                label5->setFontInfo(fontInfo);
+                label5->setBackgroundRole(ui::ColorRole::Yellow);
+                label5->setStretch(ui::Stretch::Expanding, ui::Orientation::Horizontal);
+
+                p.layout = ui::VerticalLayout::create(context, shared_from_this());
+                auto hLayout = ui::HorizontalLayout::create(context, p.layout);
+                label0->setParent(hLayout);
+                label1->setParent(hLayout);
+                hLayout = ui::HorizontalLayout::create(context, p.layout);
+                label2->setParent(hLayout);
+                label3->setParent(hLayout);
+                hLayout = ui::HorizontalLayout::create(context, p.layout);
+                hLayout->setStretch(ui::Stretch::Expanding, ui::Orientation::Vertical);
+                label4->setParent(hLayout);
+                label5->setParent(hLayout);
             }
 
             RowLayoutWidget::RowLayoutWidget() :

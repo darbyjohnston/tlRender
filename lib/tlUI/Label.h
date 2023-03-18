@@ -11,33 +11,27 @@ namespace tl
     namespace ui
     {
         //! Text label.
-        class TextLabel : public IWidget
+        class Label : public IWidget
         {
-            TLRENDER_NON_COPYABLE(TextLabel);
+            TLRENDER_NON_COPYABLE(Label);
 
         protected:
             void _init(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            TextLabel();
+            Label();
 
         public:
-            ~TextLabel() override;
+            ~Label() override;
 
             //! Create a new text label.
-            static std::shared_ptr<TextLabel> create(
+            static std::shared_ptr<Label> create(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            //! Get the text.
-            const std::string& getText() const;
-
             //! Set the text.
             void setText(const std::string&);
-
-            //! Get the font information.
-            const imaging::FontInfo& getFontInfo() const;
 
             //! Set the font information.
             void setFontInfo(const imaging::FontInfo&);

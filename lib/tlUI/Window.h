@@ -28,7 +28,6 @@ namespace tl
                 const std::shared_ptr<system::Context>&);
 
             void setGeometry(const math::BBox2i&) override;
-
             void sizeHintEvent(const SizeHintEvent&) override;
         };
     }

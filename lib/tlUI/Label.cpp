@@ -2,62 +2,52 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlUI/TextLabel.h>
+#include <tlUI/Label.h>
 
 namespace tl
 {
     namespace ui
     {
-        struct TextLabel::Private
+        struct Label::Private
         {
-            imaging::FontInfo fontInfo;
             std::string text;
+            imaging::FontInfo fontInfo;
         };
 
-        void TextLabel::_init(
+        void Label::_init(
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init("tl::ui::TextLabel", context, parent);
+            IWidget::_init("tl::ui::Label", context, parent);
         }
 
-        TextLabel::TextLabel() :
+        Label::Label() :
             _p(new Private)
         {}
 
-        TextLabel::~TextLabel()
+        Label::~Label()
         {}
 
-        std::shared_ptr<TextLabel> TextLabel::create(
+        std::shared_ptr<Label> Label::create(
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            auto out = std::shared_ptr<TextLabel>(new TextLabel);
+            auto out = std::shared_ptr<Label>(new Label);
             out->_init(context, parent);
             return out;
         }
 
-        const std::string& TextLabel::getText() const
-        {
-            return _p->text;
-        }
-
-        void TextLabel::setText(const std::string& value)
+        void Label::setText(const std::string& value)
         {
             _p->text = value;
         }
 
-        const imaging::FontInfo& TextLabel::getFontInfo() const
-        {
-            return _p->fontInfo;
-        }
-
-        void TextLabel::setFontInfo(const imaging::FontInfo& value)
+        void Label::setFontInfo(const imaging::FontInfo& value)
         {
             _p->fontInfo = value;
         }
 
-        void TextLabel::sizeHintEvent(const SizeHintEvent& event)
+        void Label::sizeHintEvent(const SizeHintEvent& event)
         {
             TLRENDER_P();
             imaging::FontInfo fontInfo = p.fontInfo;
@@ -67,7 +57,7 @@ namespace tl
             _sizeHint.y = fontMetrics.lineHeight;
         }
 
-        void TextLabel::drawEvent(const DrawEvent& event)
+        void Label::drawEvent(const DrawEvent& event)
         {
             IWidget::drawEvent(event);
             TLRENDER_P();

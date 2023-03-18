@@ -17,7 +17,8 @@ namespace tl
             None,
             Margin,
             Spacing,
-            Border
+            Border,
+            ScrollArea
         };
 
         //! Color roles.
@@ -25,17 +26,19 @@ namespace tl
         {
             None,
             Window,
+            Base,
             Button,
             Text,
             Hover,
-            Pressed
+            Pressed,
+            Checked,
+            Red,
+            Green,
+            Blue,
+            Cyan,
+            Magenta,
+            Yellow
         };
-
-        //! Get a lighter color.
-        imaging::Color4f lighter(const imaging::Color4f&, float);
-
-        //! Get a darker color.
-        imaging::Color4f darker(const imaging::Color4f&, float);
 
         //! Style.
         class Style : public std::enable_shared_from_this<Style>

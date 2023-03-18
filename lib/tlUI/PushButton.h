@@ -12,40 +12,46 @@ namespace tl
 {
     namespace ui
     {
-        //! Text button.
-        class TextButton : public IWidget
+        //! Push button.
+        class PushButton : public IWidget
         {
-            TLRENDER_NON_COPYABLE(TextButton);
+            TLRENDER_NON_COPYABLE(PushButton);
 
         protected:
             void _init(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            TextButton();
+            PushButton();
 
         public:
-            ~TextButton() override;
+            ~PushButton() override;
 
-            //! Create a new text button.
-            static std::shared_ptr<TextButton> create(
+            //! Create a new push button.
+            static std::shared_ptr<PushButton> create(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            //! Get the text.
-            const std::string& getText() const;
+            //! Set whether the button is checkable.
+            void setCheckable(bool);
+
+            //! Set whether the button is checked.
+            void setChecked(bool);
 
             //! Set the text.
             void setText(const std::string&);
 
-            //! Get the font information.
-            const imaging::FontInfo& getFontInfo() const;
-
             //! Set the font information.
             void setFontInfo(const imaging::FontInfo&);
 
-            //! Observe the clicks.
+            //! Set whether the button has a border.
+            void setBorder(bool);
+
+            //! Observe button clicks.
             std::shared_ptr<observer::IValue<bool> > observeClick() const;
+
+            //! Observe the checked state.
+            std::shared_ptr<observer::IValue<bool> > observeChecked() const;
 
             void sizeHintEvent(const SizeHintEvent&) override;
             void drawEvent(const DrawEvent&) override;

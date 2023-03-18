@@ -1,27 +1,33 @@
 set(HEADERS
+    DrawUtil.h
     Event.h
     EventLoop.h
+    GroupBox.h
     IWidget.h
-    Window.h
+    Label.h
+    PushButton.h
     RowLayout.h
+    ScrollArea.h
     Spacer.h
     StackLayout.h
     Style.h
-    TextButton.h
-    TextLabel.h)
+    Window.h)
 set(HEADERS_PRIVATE)
 
 set(SOURCE
+    DrawUtil.cpp
     Event.cpp
     EventLoop.cpp
+    GroupBox.cpp
     IWidget.cpp
-    Window.cpp
+    Label.cpp
+    PushButton.cpp
     RowLayout.cpp
+    ScrollArea.cpp
     Spacer.cpp
     StackLayout.cpp
     Style.cpp
-    TextButton.cpp
-    TextLabel.cpp)
+    Window.cpp)
 
 add_library(tlUI ${HEADERS} ${HEADERS_PRIVATE} ${SOURCE})
 target_link_libraries(tlUI PUBLIC tlTimeline PRIVATE ${LIBRARIES_PRIVATE})

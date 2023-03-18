@@ -7,9 +7,11 @@
 #include "ButtonWidget.h"
 #include "RowLayoutWidget.h"
 
+#include <tlUI/PushButton.h>
 #include <tlUI/RowLayout.h>
+#include <tlUI/ScrollArea.h>
+#include <tlUI/Spacer.h>
 #include <tlUI/StackLayout.h>
-#include <tlUI/TextButton.h>
 
 namespace tl
 {
@@ -31,8 +33,10 @@ namespace tl
                 Window::_init(context);
                 TLRENDER_P();
 
-                auto rowLayoutButton = ui::TextButton::create(context);
+                auto rowLayoutButton = ui::PushButton::create(context);
                 rowLayoutButton->setText("Row Layouts");
+                rowLayoutButton->setBorder(false);
+                rowLayoutButton->setBackgroundRole(ui::ColorRole::None);
                 p.rowLayoutObserver = observer::ValueObserver<bool>::create(
                     rowLayoutButton->observeClick(),
                     [this](bool)
@@ -41,8 +45,10 @@ namespace tl
                     },
                     observer::CallbackAction::Suppress);
 
-                auto buttonButton = ui::TextButton::create(context);
+                auto buttonButton = ui::PushButton::create(context);
                 buttonButton->setText("Buttons");
+                buttonButton->setBorder(false);
+                buttonButton->setBackgroundRole(ui::ColorRole::None);
                 p.buttonsObserver = observer::ValueObserver<bool>::create(
                     buttonButton->observeClick(),
                     [this](bool)
@@ -54,19 +60,22 @@ namespace tl
                 auto rowLayoutWidget = RowLayoutWidget::create(context);
                 auto buttonWidget = ButtonWidget::create(context);
 
-                p.layout = ui::HorizontalLayout::create(context);
+                p.layout = ui::HorizontalLayout::create(context, shared_from_this());
                 p.layout->setMarginRole(ui::SizeRole::Margin);
-                auto buttonLayout = ui::VerticalLayout::create(context);
-                buttonLayout->setParent(p.layout);
+                auto scrollArea = ui::ScrollArea::create(
+                    context,
+                    ui::ScrollAreaType::Vertical,
+                    p.layout);
+                auto spacer = ui::Spacer::create(context, p.layout);
+                auto buttonLayout = ui::VerticalLayout::create(context, scrollArea);
+                buttonLayout->setSpacingRole(ui::SizeRole::None);
                 rowLayoutButton->setParent(buttonLayout);
                 buttonButton->setParent(buttonLayout);
-                p.stackLayout = ui::StackLayout::create(context);
+                p.stackLayout = ui::StackLayout::create(context, p.layout);
                 p.stackLayout->setStretch(ui::Stretch::Expanding, ui::Orientation::Horizontal);
                 p.stackLayout->setStretch(ui::Stretch::Expanding, ui::Orientation::Vertical);
-                p.stackLayout->setParent(p.layout);
                 rowLayoutWidget->setParent(p.stackLayout);
                 buttonWidget->setParent(p.stackLayout);
-                p.layout->setParent(shared_from_this());
             }
 
             MainWindow::MainWindow() :

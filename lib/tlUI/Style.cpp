@@ -8,24 +8,6 @@ namespace tl
 {
     namespace ui
     {
-        imaging::Color4f lighter(const imaging::Color4f& color, float amount)
-        {
-            return imaging::Color4f(
-                color.r + amount,
-                color.g + amount,
-                color.b + amount,
-                color.a);
-        }
-
-        imaging::Color4f darker(const imaging::Color4f& color, float amount)
-        {
-            return imaging::Color4f(
-                color.r - amount,
-                color.g - amount,
-                color.b - amount,
-                color.a);
-        }
-
         struct Style::Private
         {
             std::weak_ptr<system::Context> context;
@@ -42,12 +24,21 @@ namespace tl
             p.sizeRoles[SizeRole::Margin] = 5;
             p.sizeRoles[SizeRole::Spacing] = 5;
             p.sizeRoles[SizeRole::Border] = 1;
+            p.sizeRoles[SizeRole::ScrollArea] = 100;
 
             p.colorRoles[ColorRole::Window] = imaging::Color4f(.2F, .2F, .2F);
+            p.colorRoles[ColorRole::Base] = imaging::Color4f(.15F, .15F, .15F);
             p.colorRoles[ColorRole::Button] = imaging::Color4f(.3F, .3F, .3F);
             p.colorRoles[ColorRole::Text] = imaging::Color4f(1.F, 1.F, 1.F);
             p.colorRoles[ColorRole::Hover] = imaging::Color4f(1.F, 1.F, 1.F, .1F);
-            p.colorRoles[ColorRole::Pressed] = imaging::Color4f(1.F, 1.F, 1.F, .3F);
+            p.colorRoles[ColorRole::Pressed] = imaging::Color4f(1.F, 1.F, 1.F, .2F);
+            p.colorRoles[ColorRole::Checked] = imaging::Color4f(.6F, .4F, .2F);
+            p.colorRoles[ColorRole::Red] = imaging::Color4f(.6F, .3F, .3F);
+            p.colorRoles[ColorRole::Green] = imaging::Color4f(.3F, .6F, .3F);
+            p.colorRoles[ColorRole::Blue] = imaging::Color4f(.3F, .3F, .6F);
+            p.colorRoles[ColorRole::Cyan] = imaging::Color4f(.3F, .6F, .6F);
+            p.colorRoles[ColorRole::Magenta] = imaging::Color4f(.6F, .3F, .6F);
+            p.colorRoles[ColorRole::Yellow] = imaging::Color4f(.6F, .6F, .3F);
         }
 
         Style::Style() :

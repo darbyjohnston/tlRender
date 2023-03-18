@@ -4,8 +4,9 @@
 
 #include "ButtonWidget.h"
 
+#include <tlUI/GroupBox.h>
+#include <tlUI/PushButton.h>
 #include <tlUI/RowLayout.h>
-#include <tlUI/TextButton.h>
 
 namespace tl
 {
@@ -16,9 +17,7 @@ namespace tl
             struct ButtonWidget::Private
             {
                 std::shared_ptr<ui::RowLayout> layout;
-                std::shared_ptr<observer::ValueObserver<bool> > buttonObserver0;
-                std::shared_ptr<observer::ValueObserver<bool> > buttonObserver1;
-                std::shared_ptr<observer::ValueObserver<bool> > buttonObserver2;
+                std::map<std::string, std::shared_ptr<observer::ValueObserver<bool> > > observers;
             };
 
             void ButtonWidget::_init(
@@ -27,46 +26,60 @@ namespace tl
                 IWidget::_init("ButtonWidget", context);
                 TLRENDER_P();
 
-                auto textButton0 = ui::TextButton::create(context);
-                textButton0->setText("Text Button 0");
-                p.buttonObserver0 = observer::ValueObserver<bool>::create(
-                    textButton0->observeClick(),
+                auto button0 = ui::PushButton::create(context);
+                button0->setText("Button 0");
+                p.observers["TextButton0"] = observer::ValueObserver<bool>::create(
+                    button0->observeClick(),
                     [this](bool)
                     {
-                        std::cout << "Text Button 0" << std::endl;
+                        std::cout << "Button 0" << std::endl;
                     },
                     observer::CallbackAction::Suppress);
 
-                auto textButton1 = ui::TextButton::create(context);
-                textButton1->setText("Text Button 1");
-                imaging::FontInfo fontInfo;
-                fontInfo.size = 32;
-                textButton1->setFontInfo(fontInfo);
-                p.buttonObserver1 = observer::ValueObserver<bool>::create(
-                    textButton1->observeClick(),
+                auto button1 = ui::PushButton::create(context);
+                button1->setText("Button 1");
+                p.observers["TextButton1"] = observer::ValueObserver<bool>::create(
+                    button1->observeClick(),
                     [this](bool)
                     {
-                        std::cout << "Text Button 1" << std::endl;
+                        std::cout << "Button 1" << std::endl;
                     },
                     observer::CallbackAction::Suppress);
 
-                auto textButton2 = ui::TextButton::create(context);
-                textButton2->setText("Text Button 2");
-                p.buttonObserver2 = observer::ValueObserver<bool>::create(
-                    textButton2->observeClick(),
-                    [this](bool)
+                auto button2 = ui::PushButton::create(context);
+                button2->setCheckable(true);
+                button2->setText("Button 2");
+                p.observers["TextButton2"] = observer::ValueObserver<bool>::create(
+                    button2->observeChecked(),
+                    [this](bool value)
                     {
-                        std::cout << "Text Button 2" << std::endl;
+                        std::cout << "Button 2: " << value << std::endl;
                     },
                     observer::CallbackAction::Suppress);
 
-                p.layout = ui::VerticalLayout::create(context);
-                textButton0->setParent(p.layout);
-                auto hLayout = ui::HorizontalLayout::create(context);
-                hLayout->setParent(p.layout);
-                textButton1->setParent(hLayout);
-                textButton2->setParent(hLayout);
-                p.layout->setParent(shared_from_this());
+                auto button3 = ui::PushButton::create(context);
+                button3->setCheckable(true);
+                button3->setChecked(true);
+                button3->setText("Button 3");
+                p.observers["TextButton3"] = observer::ValueObserver<bool>::create(
+                    button3->observeChecked(),
+                    [this](bool value)
+                    {
+                        std::cout << "Button 3: " << value << std::endl;
+                    },
+                    observer::CallbackAction::Suppress);
+
+                p.layout = ui::VerticalLayout::create(context, shared_from_this());
+                auto groupBox = ui::GroupBox::create(context, p.layout);
+                groupBox->setText("Push Buttons");
+                auto hLayout = ui::HorizontalLayout::create(context, groupBox);
+                button0->setParent(hLayout);
+                button1->setParent(hLayout);
+                groupBox = ui::GroupBox::create(context, p.layout);
+                groupBox->setText("Checkable Buttons");
+                hLayout = ui::HorizontalLayout::create(context, groupBox);
+                button2->setParent(hLayout);
+                button3->setParent(hLayout);
             }
 
             ButtonWidget::ButtonWidget() :
