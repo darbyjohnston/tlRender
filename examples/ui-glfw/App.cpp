@@ -78,6 +78,8 @@ namespace tl
 
             App::~App()
             {
+                _mainWindow.reset();
+                _eventLoop.reset();
                 _render.reset();
                 if (_glfwWindow)
                 {
@@ -184,7 +186,6 @@ namespace tl
                     _fontSystem,
                     _render,
                     _context);
-                _context->addSystem(_eventLoop);
                 _eventLoop->addWindow(_mainWindow);
 
                 // Start the main loop.
@@ -406,6 +407,7 @@ namespace tl
 
                 _eventLoop->setFrameBufferSize(_frameBufferSize);
                 _eventLoop->setContentScale(_contentScale.x);
+                _eventLoop->tick();
 
                 const math::BBox2i bbox(0, 0, _frameBufferSize.w, _frameBufferSize.h);
                 _mainWindow->setGeometry(bbox);

@@ -56,7 +56,7 @@ namespace tl
             _p->checkable = value;
             if (!_p->checkable)
             {
-                _p->checked = false;
+                _p->checked->setIfChanged(false);
             }
         }
 

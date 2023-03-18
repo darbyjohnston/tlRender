@@ -6,15 +6,13 @@
 
 #include <tlUI/Window.h>
 
-#include <tlCore/ISystem.h>
-
 namespace tl
 {
     //! User interface.
     namespace ui
     {
         //! Event loop.
-        class EventLoop : public system::ISystem
+        class EventLoop : public std::enable_shared_from_this<EventLoop>
         {
             TLRENDER_NON_COPYABLE(EventLoop);
 
@@ -28,7 +26,7 @@ namespace tl
             EventLoop();
 
         public:
-            ~EventLoop() override;
+            ~EventLoop();
 
             //! Create a new event loop.
             static std::shared_ptr<EventLoop> create(
@@ -58,8 +56,8 @@ namespace tl
             //! Add a window to the event loop.
             void addWindow(const std::weak_ptr<Window>&);
 
-            void tick() override;
-            std::chrono::milliseconds getTickTime() const override;
+            //! Tick the event loop.
+            void tick();
 
         protected:
             void _sizeHintEvent();

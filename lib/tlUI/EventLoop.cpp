@@ -140,11 +140,6 @@ namespace tl
             _drawEvent();
         }
 
-        std::chrono::milliseconds EventLoop::getTickTime() const
-        {
-            return std::chrono::milliseconds(10);
-        }
-
         void EventLoop::_sizeHintEvent()
         {
             TLRENDER_P();
