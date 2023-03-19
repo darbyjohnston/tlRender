@@ -39,7 +39,7 @@ namespace tl
             }
         }
 
-        void Window::sizeHintEvent(const SizeHintEvent&)
+        void Window::sizeEvent(const SizeEvent&)
         {
             for (const auto& child : _children)
             {

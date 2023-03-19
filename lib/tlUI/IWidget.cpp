@@ -122,7 +122,7 @@ namespace tl
         void IWidget::childRemovedEvent(const ChildEvent&)
         {}
 
-        void IWidget::sizeHintEvent(const SizeHintEvent&)
+        void IWidget::sizeEvent(const SizeEvent&)
         {}
 
         void IWidget::drawEvent(const DrawEvent& event)

@@ -3,6 +3,7 @@ set(HEADERS
     Event.h
     EventLoop.h
     GroupBox.h
+    IconLibrary.h
     IWidget.h
     Label.h
     PushButton.h
@@ -19,6 +20,7 @@ set(SOURCE
     Event.cpp
     EventLoop.cpp
     GroupBox.cpp
+    IconLibrary.cpp
     IWidget.cpp
     Label.cpp
     PushButton.cpp

@@ -33,6 +33,7 @@ namespace tl
                 int argc,
                 char* argv[],
                 const std::shared_ptr<system::Context>&);
+
             App();
 
         public:
@@ -50,6 +51,7 @@ namespace tl
         private:
             std::string _input;
             std::string _output;
+            std::string _varName;
             Options _options;
 
             std::chrono::steady_clock::time_point _startTime;

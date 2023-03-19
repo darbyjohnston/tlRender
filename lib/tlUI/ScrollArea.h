@@ -44,7 +44,7 @@ namespace tl
             void setBorder(bool);
 
             void setGeometry(const math::BBox2i&) override;
-            void sizeHintEvent(const SizeHintEvent&) override;
+            void sizeEvent(const SizeEvent&) override;
             void drawEvent(const DrawEvent&) override;
 
         private:

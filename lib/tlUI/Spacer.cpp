@@ -41,7 +41,7 @@ namespace tl
             _p->spacingRole = value;
         }
 
-        void Spacer::sizeHintEvent(const SizeHintEvent& event)
+        void Spacer::sizeEvent(const SizeEvent& event)
         {
             TLRENDER_P();
             _sizeHint.x = _sizeHint.y = event.style->getSizeRole(p.spacingRole);

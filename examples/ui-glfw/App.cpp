@@ -179,12 +179,14 @@ namespace tl
                 _render = gl::Render::create(_context);
 
                 // Initialize the user interface.
+                _iconLibrary = ui::IconLibrary::create(_context);
                 _style = ui::Style::create(_context);
                 _mainWindow = MainWindow::create(_context);
                 _eventLoop = ui::EventLoop::create(
                     _style,
-                    _fontSystem,
+                    _iconLibrary,
                     _render,
+                    _fontSystem,
                     _context);
                 _eventLoop->addWindow(_mainWindow);
 

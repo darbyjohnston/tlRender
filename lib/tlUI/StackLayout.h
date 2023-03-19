@@ -38,7 +38,7 @@ namespace tl
 
             void setGeometry(const math::BBox2i&) override;
             void childAddedEvent(const ChildEvent&) override;
-            void sizeHintEvent(const SizeHintEvent&) override;
+            void sizeEvent(const SizeEvent&) override;
 
         private:
             std::shared_ptr<IWidget> _getCurrentWidget() const;

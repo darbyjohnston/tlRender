@@ -15,7 +15,9 @@ namespace tl
             bool checkable = false;
             std::string text;
             imaging::FontInfo fontInfo;
-            bool border = true;
+            std::string icon;
+            std::shared_ptr<imaging::Image> iconImage;
+            bool flat = false;
             bool inside = false;
             math::Vector2i cursorPos;
             bool pressed = false;
@@ -74,10 +76,15 @@ namespace tl
         {
             _p->fontInfo = value;
         }
-
-        void PushButton::setBorder(bool value)
+        
+        void PushButton::setIcon(const std::string& icon)
         {
-            _p->border = value;
+            _p->icon = icon;
+        }
+
+        void PushButton::setFlat(bool value)
+        {
+            _p->flat = value;
         }
 
         std::shared_ptr<observer::IValue<bool> > PushButton::observeClick() const
@@ -90,15 +97,26 @@ namespace tl
             return _p->checked;
         }
 
-        void PushButton::sizeHintEvent(const SizeHintEvent& event)
+        void PushButton::sizeEvent(const SizeEvent& event)
         {
             TLRENDER_P();
             const int m = event.style->getSizeRole(SizeRole::Margin) * event.contentScale;
             imaging::FontInfo fontInfo = p.fontInfo;
             fontInfo.size *= event.contentScale;
             auto fontMetrics = event.fontSystem->getMetrics(fontInfo);
-            _sizeHint.x = event.fontSystem->measure(p.text, fontInfo).x + m * 2;
-            _sizeHint.y = fontMetrics.lineHeight + m * 2;
+            _sizeHint.x = event.fontSystem->measure(p.text, fontInfo).x;
+            _sizeHint.y = fontMetrics.lineHeight;
+            if (!p.icon.empty() && !p.iconImage)
+            {
+                p.iconImage = event.iconLibrary->request(p.icon, event.contentScale).get();
+            }
+            if (p.iconImage)
+            {
+                _sizeHint.x += p.iconImage->getWidth();
+                _sizeHint.y = std::max(_sizeHint.y, static_cast<int>(p.iconImage->getHeight()));
+            }
+            _sizeHint.x += m * 2;
+            _sizeHint.y += m * 2;
         }
 
         void PushButton::drawEvent(const DrawEvent& event)
@@ -110,7 +128,7 @@ namespace tl
             const int b = event.style->getSizeRole(SizeRole::Border) * event.contentScale;
             math::BBox2i g = _geometry;
 
-            if (p.border)
+            if (!p.flat)
             {
                 event.render->drawMesh(
                     border(g, b),
@@ -138,6 +156,13 @@ namespace tl
                     event.style->getColorRole(ColorRole::Hover));
             }
 
+            if (p.iconImage)
+            {
+                event.render->drawImage(
+                  p.iconImage,
+                  math::BBox2i(g.x() + m, g.y() + m, p.iconImage->getWidth(), p.iconImage->getHeight()));
+            }
+            
             imaging::FontInfo fontInfo = p.fontInfo;
             fontInfo.size *= event.contentScale;
             auto fontMetrics = event.fontSystem->getMetrics(fontInfo);

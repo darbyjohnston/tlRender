@@ -127,7 +127,7 @@ namespace tl
             }
         }
 
-        void RowLayout::sizeHintEvent(const SizeHintEvent& event)
+        void RowLayout::sizeEvent(const SizeEvent& event)
         {
             TLRENDER_P();
             p.margin = event.style->getSizeRole(p.marginRole) * event.contentScale;

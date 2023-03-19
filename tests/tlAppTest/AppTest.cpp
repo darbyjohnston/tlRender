@@ -6,6 +6,8 @@
 
 #include <tlApp/IApp.h>
 
+#include <cstring>
+
 using namespace tl::app;
 
 namespace tl

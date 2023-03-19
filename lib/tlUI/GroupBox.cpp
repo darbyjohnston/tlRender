@@ -67,7 +67,7 @@ namespace tl
             }
         }
 
-        void GroupBox::sizeHintEvent(const SizeHintEvent& event)
+        void GroupBox::sizeEvent(const SizeEvent& event)
         {
             TLRENDER_P();
 

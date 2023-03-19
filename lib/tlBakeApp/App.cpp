@@ -74,48 +74,121 @@ namespace tl
                         "output",
                         "The output file.")
                 },
-        {
-            app::CmdLineValueOption<otime::TimeRange>::create(
-                _options.inOutRange,
-                { "-inOutRange" },
-                "Set the in/out points range."),
-            app::CmdLineValueOption<imaging::Size>::create(
-                _options.renderSize,
-                { "-renderSize", "-rs" },
-                "Render size."),
-            app::CmdLineValueOption<imaging::PixelType>::create(
-                _options.outputPixelType,
-                { "-outputPixelType", "-op" },
-                "Output pixel type.",
-                std::string(),
-                string::join(imaging::getPixelTypeLabels(), ", ")),
-            app::CmdLineValueOption<std::string>::create(
-                _options.colorConfigOptions.fileName,
-                { "-colorConfig", "-cc" },
-                "Color configuration file name (e.g., config.ocio)."),
-            app::CmdLineValueOption<std::string>::create(
-                _options.colorConfigOptions.input,
-                { "-colorInput", "-ci" },
-                "Input color space."),
-            app::CmdLineValueOption<std::string>::create(
-                _options.colorConfigOptions.display,
-                { "-colorDisplay", "-cd" },
-                "Display color space."),
-            app::CmdLineValueOption<std::string>::create(
-                _options.colorConfigOptions.view,
-                { "-colorView", "-cv" },
-                "View color space."),
-            app::CmdLineValueOption<std::string>::create(
-                _options.lutOptions.fileName,
-                { "-lut" },
-                "LUT file name."),
-            app::CmdLineValueOption<timeline::LUTOrder>::create(
-                _options.lutOptions.order,
-                { "-lutOrder" },
-                "LUT operation order.",
-                string::Format("{0}").arg(_options.lutOptions.order),
-                string::join(timeline::getLUTOrderLabels(), ", "))
-        });
+                {
+                    app::CmdLineValueOption<otime::TimeRange>::create(
+                        _options.inOutRange,
+                        { "-inOutRange" },
+                        "Set the in/out points range."),
+                    app::CmdLineValueOption<imaging::Size>::create(
+                        _options.renderSize,
+                        { "-renderSize", "-rs" },
+                        "Render size."),
+                    app::CmdLineValueOption<imaging::PixelType>::create(
+                        _options.outputPixelType,
+                        { "-outputPixelType", "-op" },
+                        "Output pixel type.",
+                        std::string(),
+                        string::join(imaging::getPixelTypeLabels(), ", ")),
+                    app::CmdLineValueOption<std::string>::create(
+                        _options.colorConfigOptions.fileName,
+                        { "-colorConfig", "-cc" },
+                        "Color configuration file name (e.g., config.ocio)."),
+                    app::CmdLineValueOption<std::string>::create(
+                        _options.colorConfigOptions.input,
+                        { "-colorInput", "-ci" },
+                        "Input color space."),
+                    app::CmdLineValueOption<std::string>::create(
+                        _options.colorConfigOptions.display,
+                        { "-colorDisplay", "-cd" },
+                        "Display color space."),
+                    app::CmdLineValueOption<std::string>::create(
+                        _options.colorConfigOptions.view,
+                        { "-colorView", "-cv" },
+                        "View color space."),
+                    app::CmdLineValueOption<std::string>::create(
+                        _options.lutOptions.fileName,
+                        { "-lut" },
+                        "LUT file name."),
+                    app::CmdLineValueOption<timeline::LUTOrder>::create(
+                        _options.lutOptions.order,
+                        { "-lutOrder" },
+                        "LUT operation order.",
+                        string::Format("{0}").arg(_options.lutOptions.order),
+                        string::join(timeline::getLUTOrderLabels(), ", ")),
+                    app::CmdLineValueOption<float>::create(
+                        _options.sequenceDefaultSpeed,
+                        { "-sequenceDefaultSpeed" },
+                        "Default speed for image sequences.",
+                        string::Format("{0}").arg(_options.sequenceDefaultSpeed)),
+                    app::CmdLineValueOption<int>::create(
+                        _options.sequenceThreadCount,
+                        { "-sequenceThreadCount" },
+                        "Number of threads for image sequence I/O.",
+                        string::Format("{0}").arg(_options.sequenceThreadCount)),
+#if defined(TLRENDER_EXR)
+                    app::CmdLineValueOption<exr::Compression>::create(
+                        _options.exrCompression,
+                        { "-exrCompression" },
+                        "OpenEXR output compression.",
+                        string::Format("{0}").arg(_options.exrCompression),
+                        string::join(exr::getCompressionLabels(), ", ")),
+                    app::CmdLineValueOption<float>::create(
+                        _options.exrDWACompressionLevel,
+                        { "-exrDWACompressionLevel" },
+                        "OpenEXR DWA compression level.",
+                        string::Format("{0}").arg(_options.exrDWACompressionLevel)),
+#endif // TLRENDER_EXR
+#if defined(TLRENDER_FFMPEG)
+                    app::CmdLineValueOption<int>::create(
+                        _options.ffmpegThreadCount,
+                        { "-ffmpegThreadCount" },
+                        "Number of threads for FFmpeg I/O.",
+                        string::Format("{0}").arg(_options.ffmpegThreadCount)),
+                    app::CmdLineValueOption<std::string>::create(
+                        _options.ffmpegWriteProfile,
+                        { "-ffmpegProfile", "-ffp" },
+                        "FFmpeg output profile.",
+                        std::string(),
+                        string::join(ffmpeg::getProfileLabels(), ", ")),
+#endif // TLRENDER_FFMPEG
+                });
+
+            // Set I/O options.
+            io::Options ioOptions;
+            {
+                std::stringstream ss;
+                ss << _options.sequenceDefaultSpeed;
+                ioOptions["SequenceIO/DefaultSpeed"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << _options.sequenceThreadCount;
+                ioOptions["SequenceIO/ThreadCount"] = ss.str();
+            }
+#if defined(TLRENDER_EXR)
+            {
+                std::stringstream ss;
+                ss << _options.exrCompression;
+                ioOptions["exr/Compression"] = ss.str();
+            }
+            {
+                std::stringstream ss;
+                ss << _options.exrDWACompressionLevel;
+                ioOptions["exr/DWACompressionLevel"] = ss.str();
+            }
+#endif // TLRENDER_EXR
+#if defined(TLRENDER_FFMPEG)
+            if (!_options.ffmpegWriteProfile.empty())
+            {
+                ioOptions["ffmpeg/WriteProfile"] = _options.ffmpegWriteProfile;
+            }
+            {
+                std::stringstream ss;
+                ss << _options.ffmpegThreadCount;
+                ioOptions["ffmpeg/ThreadCount"] = ss.str();
+            }
+#endif // TLRENDER_FFMPEG
+            context->getSystem<io::System>()->setOptions(ioOptions);
         }
 
         App::App()

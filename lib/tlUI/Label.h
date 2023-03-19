@@ -36,7 +36,7 @@ namespace tl
             //! Set the font information.
             void setFontInfo(const imaging::FontInfo&);
 
-            void sizeHintEvent(const SizeHintEvent&) override;
+            void sizeEvent(const SizeEvent&) override;
             void drawEvent(const DrawEvent&) override;
 
         private:

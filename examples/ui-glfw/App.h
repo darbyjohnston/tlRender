@@ -79,6 +79,7 @@ namespace tl
                 std::shared_ptr<imaging::FontSystem> _fontSystem;
                 std::shared_ptr<timeline::IRender> _render;
 
+                std::shared_ptr<ui::IconLibrary> _iconLibrary;
                 std::shared_ptr<ui::Style> _style;
                 std::shared_ptr<ui::EventLoop> _eventLoop;
                 std::shared_ptr<MainWindow> _mainWindow;

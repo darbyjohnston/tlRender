@@ -12,8 +12,9 @@ namespace tl
         {
             std::weak_ptr<system::Context> context;
             std::shared_ptr<Style> style;
-            std::shared_ptr<imaging::FontSystem> fontSystem;
+            std::shared_ptr<IconLibrary> iconLibrary;
             std::shared_ptr<timeline::IRender> render;
+            std::shared_ptr<imaging::FontSystem> fontSystem;
             imaging::Size frameBufferSize;
             float contentScale = 1.F;
             std::list<std::weak_ptr<Window> > windows;
@@ -25,15 +26,17 @@ namespace tl
 
         void EventLoop::_init(
             const std::shared_ptr<Style>& style,
-            const std::shared_ptr<imaging::FontSystem>& fontSystem,
+            const std::shared_ptr<IconLibrary>& iconLibrary,
             const std::shared_ptr<timeline::IRender>& render,
+            const std::shared_ptr<imaging::FontSystem>& fontSystem,
             const std::shared_ptr<system::Context>& context)
         {
             TLRENDER_P();
             p.context = context;
             p.style = style;
-            p.fontSystem = fontSystem;
+            p.iconLibrary = iconLibrary;
             p.render = render;
+            p.fontSystem = fontSystem;
         }
 
         EventLoop::EventLoop() :
@@ -45,12 +48,13 @@ namespace tl
 
         std::shared_ptr<EventLoop> EventLoop::create(
             const std::shared_ptr<Style>& style,
-            const std::shared_ptr<imaging::FontSystem>& fontSystem,
+            const std::shared_ptr<IconLibrary>& iconLibrary,
             const std::shared_ptr<timeline::IRender>& render,
+            const std::shared_ptr<imaging::FontSystem>& fontSystem,
             const std::shared_ptr<system::Context>& context)
         {
             auto out = std::shared_ptr<EventLoop>(new EventLoop);
-            out->_init(style, fontSystem, render, context);
+            out->_init(style, iconLibrary, render, fontSystem, context);
             return out;
         }
 
@@ -136,35 +140,36 @@ namespace tl
 
         void EventLoop::tick()
         {
-            _sizeHintEvent();
+            _sizeEvent();
             _drawEvent();
         }
 
-        void EventLoop::_sizeHintEvent()
+        void EventLoop::_sizeEvent()
         {
             TLRENDER_P();
-            SizeHintEvent event;
+            SizeEvent event;
             event.style = p.style;
+            event.iconLibrary = p.iconLibrary;
             event.fontSystem = p.fontSystem;
             event.contentScale = p.contentScale;
             for (const auto& i : p.windows)
             {
                 if (auto window = i.lock())
                 {
-                    _sizeHintEvent(window, event);
+                    _sizeEvent(window, event);
                 }
             }
         }
 
-        void EventLoop::_sizeHintEvent(
+        void EventLoop::_sizeEvent(
             const std::shared_ptr<IWidget>& widget,
-            const SizeHintEvent& event)
+            const SizeEvent& event)
         {
             for (const auto& child : widget->getChildren())
             {
-                _sizeHintEvent(child, event);
+                _sizeEvent(child, event);
             }
-            widget->sizeHintEvent(event);
+            widget->sizeEvent(event);
         }
 
         void EventLoop::_drawEvent()
@@ -172,8 +177,9 @@ namespace tl
             TLRENDER_P();
             DrawEvent event;
             event.style = p.style;
-            event.fontSystem = p.fontSystem;
+            event.iconLibrary = p.iconLibrary;
             event.render = p.render;
+            event.fontSystem = p.fontSystem;
             event.contentScale = p.contentScale;
             p.render->begin(p.frameBufferSize);
             for (const auto& i : p.windows)

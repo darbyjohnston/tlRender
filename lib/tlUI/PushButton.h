@@ -44,8 +44,11 @@ namespace tl
             //! Set the font information.
             void setFontInfo(const imaging::FontInfo&);
 
-            //! Set whether the button has a border.
-            void setBorder(bool);
+            //! Set the icon.
+            void setIcon(const std::string&);
+            
+            //! Set whether the button has a flat appearance.
+            void setFlat(bool);
 
             //! Observe button clicks.
             std::shared_ptr<observer::IValue<bool> > observeClick() const;
@@ -53,7 +56,7 @@ namespace tl
             //! Observe the checked state.
             std::shared_ptr<observer::IValue<bool> > observeChecked() const;
 
-            void sizeHintEvent(const SizeHintEvent&) override;
+            void sizeEvent(const SizeEvent&) override;
             void drawEvent(const DrawEvent&) override;
             void enterEvent() override;
             void leaveEvent() override;

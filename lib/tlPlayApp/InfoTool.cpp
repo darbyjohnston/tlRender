@@ -13,6 +13,8 @@
 
 #include <tlQt/Util.h>
 
+#include <tlIO/IO.h>
+
 #include <QAction>
 #include <QBoxLayout>
 #include <QHeaderView>

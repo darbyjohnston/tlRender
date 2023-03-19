@@ -69,7 +69,7 @@ namespace tl
             event.child->setVisible(event.child == currentWidget);
         }
 
-        void StackLayout::sizeHintEvent(const SizeHintEvent&)
+        void StackLayout::sizeEvent(const SizeEvent&)
         {
             for (const auto& child : _children)
             {

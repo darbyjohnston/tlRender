@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <tlUI/IconLibrary.h>
 #include <tlUI/Style.h>
 
 #include <tlTimeline/IRender.h>
@@ -22,10 +23,11 @@ namespace tl
             std::shared_ptr<IWidget> child;
         };
 
-        //! Size hint event.
-        struct SizeHintEvent
+        //! Size event.
+        struct SizeEvent
         {
             std::shared_ptr<Style> style;
+            std::shared_ptr<IconLibrary> iconLibrary;
             std::shared_ptr<imaging::FontSystem> fontSystem;
             float contentScale = 1.F;
         };
@@ -34,8 +36,9 @@ namespace tl
         struct DrawEvent
         {
             std::shared_ptr<Style> style;
-            std::shared_ptr<imaging::FontSystem> fontSystem;
+            std::shared_ptr<IconLibrary> iconLibrary;
             std::shared_ptr<timeline::IRender> render;
+            std::shared_ptr<imaging::FontSystem> fontSystem;
             float contentScale = 1.F;
         };
 

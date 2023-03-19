@@ -19,8 +19,9 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<Style>&,
-                const std::shared_ptr<imaging::FontSystem>&,
+                const std::shared_ptr<IconLibrary>&,
                 const std::shared_ptr<timeline::IRender>&,
+                const std::shared_ptr<imaging::FontSystem>&,
                 const std::shared_ptr<system::Context>&);
 
             EventLoop();
@@ -31,8 +32,9 @@ namespace tl
             //! Create a new event loop.
             static std::shared_ptr<EventLoop> create(
                 const std::shared_ptr<Style>&,
-                const std::shared_ptr<imaging::FontSystem>&,
+                const std::shared_ptr<IconLibrary>&,
                 const std::shared_ptr<timeline::IRender>&,
+                const std::shared_ptr<imaging::FontSystem>&,
                 const std::shared_ptr<system::Context>&);
 
             //! Set the frame buffer size.
@@ -60,10 +62,10 @@ namespace tl
             void tick();
 
         protected:
-            void _sizeHintEvent();
-            void _sizeHintEvent(
+            void _sizeEvent();
+            void _sizeEvent(
                 const std::shared_ptr<IWidget>&,
-                const SizeHintEvent&);
+                const SizeEvent&);
 
             void _drawEvent();
             void _drawEvent(

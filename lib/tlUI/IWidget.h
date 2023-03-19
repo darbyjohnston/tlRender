@@ -84,8 +84,8 @@ namespace tl
             //! Child removed event.
             virtual void childRemovedEvent(const ChildEvent&);
 
-            //! Size hint event.
-            virtual void sizeHintEvent(const SizeHintEvent&);
+            //! Size event.
+            virtual void sizeEvent(const SizeEvent&);
 
             //! Draw event.
             virtual void drawEvent(const DrawEvent&);

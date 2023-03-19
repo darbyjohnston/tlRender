@@ -49,6 +49,7 @@ namespace tl
                 auto button2 = ui::PushButton::create(context);
                 button2->setCheckable(true);
                 button2->setText("Button 2");
+                button2->setIcon("PlaybackForward");
                 p.observers["TextButton2"] = observer::ValueObserver<bool>::create(
                     button2->observeChecked(),
                     [this](bool value)
@@ -61,6 +62,7 @@ namespace tl
                 button3->setCheckable(true);
                 button3->setChecked(true);
                 button3->setText("Button 3");
+                button3->setIcon("PlaybackStop");
                 p.observers["TextButton3"] = observer::ValueObserver<bool>::create(
                     button3->observeChecked(),
                     [this](bool value)

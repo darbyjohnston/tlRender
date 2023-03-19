@@ -35,7 +35,7 @@ namespace tl
 
                 auto rowLayoutButton = ui::PushButton::create(context);
                 rowLayoutButton->setText("Row Layouts");
-                rowLayoutButton->setBorder(false);
+                rowLayoutButton->setFlat(true);
                 rowLayoutButton->setBackgroundRole(ui::ColorRole::None);
                 p.rowLayoutObserver = observer::ValueObserver<bool>::create(
                     rowLayoutButton->observeClick(),
@@ -47,7 +47,7 @@ namespace tl
 
                 auto buttonButton = ui::PushButton::create(context);
                 buttonButton->setText("Buttons");
-                buttonButton->setBorder(false);
+                buttonButton->setFlat(true);
                 buttonButton->setBackgroundRole(ui::ColorRole::None);
                 p.buttonsObserver = observer::ValueObserver<bool>::create(
                     buttonButton->observeClick(),

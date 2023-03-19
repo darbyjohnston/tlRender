@@ -55,7 +55,7 @@ namespace tl
             }
         }
 
-        void ScrollArea::sizeHintEvent(const SizeHintEvent& event)
+        void ScrollArea::sizeEvent(const SizeEvent& event)
         {
             TLRENDER_P();
 

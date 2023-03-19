@@ -47,7 +47,7 @@ namespace tl
             _p->fontInfo = value;
         }
 
-        void Label::sizeHintEvent(const SizeHintEvent& event)
+        void Label::sizeEvent(const SizeEvent& event)
         {
             TLRENDER_P();
             imaging::FontInfo fontInfo = p.fontInfo;

@@ -210,13 +210,13 @@ namespace tl
             //! Create a reader for the given path.
             virtual std::shared_ptr<IRead> read(
                 const file::Path&,
-                const Options & = Options()) = 0;
+                const Options& = Options()) = 0;
 
             //! Create a reader for the given path and memory locations.
             virtual std::shared_ptr<IRead> read(
                 const file::Path&,
                 const std::vector<file::MemoryRead>&,
-                const Options & = Options()) = 0;
+                const Options& = Options()) = 0;
 
             //! Get information for writing.
             virtual imaging::Info getWriteInfo(

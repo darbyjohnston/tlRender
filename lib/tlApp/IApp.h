@@ -6,19 +6,7 @@
 
 #include <tlApp/CmdLine.h>
 
-#include <tlIO/SequenceIO.h>
-#if defined(TLRENDER_EXR)
-#include <tlIO/OpenEXR.h>
-#endif // TLRENDER_EXR
-#if defined(TLRENDER_FFMPEG)
-#include <tlIO/FFmpeg.h>
-#endif // TLRENDER_FFMPEG
-
 #include <tlCore/Context.h>
-
-#include <memory>
-#include <string>
-#include <vector>
 
 namespace tl
 {
@@ -31,16 +19,6 @@ namespace tl
         //! Application options.
         struct Options
         {
-            float sequenceDefaultSpeed = io::sequenceDefaultSpeed;
-            int sequenceThreadCount = io::sequenceThreadCount;
-#if defined(TLRENDER_EXR)
-            exr::Compression exrCompression = exr::Compression::ZIP;
-            float exrDWACompressionLevel = 45.F;
-#endif // TLRENDER_EXR
-#if defined(TLRENDER_FFMPEG)
-            std::string ffmpegWriteProfile;
-            int ffmpegThreadCount = ffmpeg::threadCount;
-#endif // TLRENDER_FFMPEG
             bool log = false;
             bool help = false;
         };
