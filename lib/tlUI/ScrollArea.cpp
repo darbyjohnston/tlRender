@@ -86,7 +86,6 @@ namespace tl
                         event.style->getSizeRole(SizeRole::ScrollArea);
                     break;
             }
-
             if (p.border)
             {
                 _sizeHint.x += p.borderSize * 2;
@@ -97,13 +96,14 @@ namespace tl
         void ScrollArea::drawEvent(const DrawEvent& event)
         {
             TLRENDER_P();
+
             math::BBox2i g = _geometry;
 
             if (p.border)
             {
                 event.render->drawMesh(
                     border(g, p.borderSize),
-                    lighter(event.style->getColorRole(ColorRole::Window), .1F));
+                    event.style->getColorRole(ColorRole::Border));
                 g = g.margin(-p.borderSize);
             }
 

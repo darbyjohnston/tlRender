@@ -151,14 +151,14 @@ namespace tl
             }
             if (!_children.empty())
             {
-                const size_t conut = _children.size();
+                const size_t count = _children.size();
                 switch (p.orientation)
                 {
                 case Orientation::Horizontal:
-                    _sizeHint.x += p.spacing * (conut - 1);
+                    _sizeHint.x += p.spacing * (count - 1);
                     break;
                 case Orientation::Vertical:
-                    _sizeHint.y += p.spacing * (conut - 1);
+                    _sizeHint.y += p.spacing * (count - 1);
                     break;
                 }
             }

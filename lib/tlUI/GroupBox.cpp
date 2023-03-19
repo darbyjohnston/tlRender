@@ -18,7 +18,6 @@ namespace tl
             int lineHeight = 0;
             int margin = 0;
             int spacing = 0;
-            int border = 0;
         };
 
         void GroupBox::_init(
@@ -72,8 +71,8 @@ namespace tl
             TLRENDER_P();
 
             p.margin = event.style->getSizeRole(SizeRole::Margin) * event.contentScale;
-            p.spacing = event.style->getSizeRole(SizeRole::Spacing) * event.contentScale;
-            p.border = event.style->getSizeRole(SizeRole::Border) * event.contentScale;
+            p.spacing = event.style->getSizeRole(SizeRole::SpacingSmall) * event.contentScale;
+
             auto fontInfo = p.fontInfo;
             fontInfo.size *= event.contentScale;
             p.textSize = event.fontSystem->measure(p.text, fontInfo);
@@ -97,6 +96,8 @@ namespace tl
         {
             TLRENDER_P();
 
+            const int b = event.style->getSizeRole(SizeRole::Border) * event.contentScale;
+
             math::BBox2i g = _geometry;
             auto fontInfo = p.fontInfo;
             fontInfo.size *= event.contentScale;
@@ -109,9 +110,8 @@ namespace tl
 
             g.min.y += fontMetrics.lineHeight + p.spacing;
             event.render->drawMesh(
-                border(g, p.border),
-                lighter(event.style->getColorRole(ColorRole::Window), .1F));
-                g = g.margin(-p.border);
+                border(g, b, p.margin / 2),
+                event.style->getColorRole(ColorRole::Border));
         }
     }
 }

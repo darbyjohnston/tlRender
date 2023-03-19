@@ -111,6 +111,11 @@ namespace tl
             _visible = value;
         }
 
+        ColorRole IWidget::getBackgroundRole() const
+        {
+            return _backgroundRole;
+        }
+
         void IWidget::setBackgroundRole(ColorRole value)
         {
             _backgroundRole = value;

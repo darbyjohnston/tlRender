@@ -75,6 +75,9 @@ namespace tl
             //! Set whether the widget is visible.
             void setVisible(bool);
 
+            //! Get the background role.
+            ColorRole getBackgroundRole() const;
+
             //! Set the background role.
             void setBackgroundRole(ColorRole);
 

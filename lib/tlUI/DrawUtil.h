@@ -17,7 +17,17 @@ namespace tl
         //! Get a darker color.
         imaging::Color4f darker(const imaging::Color4f&, float);
 
+        //! Create a mesh for drawing a rectangle.
+        geom::TriangleMesh2 rect(
+            const math::BBox2i&,
+            int radius = 0,
+            size_t resolution = 8);
+
         //! Create a mesh for drawing a border.
-        geom::TriangleMesh2 border(const math::BBox2i&, int borderSize);
+        geom::TriangleMesh2 border(
+            const math::BBox2i&,
+            int width,
+            int radius = 0,
+            size_t resolution = 8);
     }
 }

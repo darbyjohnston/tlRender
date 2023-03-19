@@ -21,17 +21,22 @@ namespace tl
             TLRENDER_P();
             p.context = context;
 
-            p.sizeRoles[SizeRole::Margin] = 5;
-            p.sizeRoles[SizeRole::MarginSmall] = 2;
-            p.sizeRoles[SizeRole::Spacing] = 5;
-            p.sizeRoles[SizeRole::SpacingSmall] = 2;
+            p.sizeRoles[SizeRole::Margin] = 10;
+            p.sizeRoles[SizeRole::MarginSmall] = 5;
+            p.sizeRoles[SizeRole::MarginLarge] = 20;
+            p.sizeRoles[SizeRole::MarginTool] = 2;
+            p.sizeRoles[SizeRole::Spacing] = 10;
+            p.sizeRoles[SizeRole::SpacingSmall] = 5;
+            p.sizeRoles[SizeRole::SpacingLarge] = 20;
+            p.sizeRoles[SizeRole::SpacingTool] = 2;
             p.sizeRoles[SizeRole::Border] = 1;
             p.sizeRoles[SizeRole::ScrollArea] = 100;
 
             p.colorRoles[ColorRole::Window] = imaging::Color4f(.2F, .2F, .2F);
-            p.colorRoles[ColorRole::Base] = imaging::Color4f(.15F, .15F, .15F);
+            p.colorRoles[ColorRole::Base] = imaging::Color4f(.17F, .17F, .17F);
             p.colorRoles[ColorRole::Button] = imaging::Color4f(.3F, .3F, .3F);
             p.colorRoles[ColorRole::Text] = imaging::Color4f(1.F, 1.F, 1.F);
+            p.colorRoles[ColorRole::Border] = imaging::Color4f(.13F, .13F, .13F);
             p.colorRoles[ColorRole::Hover] = imaging::Color4f(1.F, 1.F, 1.F, .1F);
             p.colorRoles[ColorRole::Pressed] = imaging::Color4f(1.F, 1.F, 1.F, .2F);
             p.colorRoles[ColorRole::Checked] = imaging::Color4f(.6F, .4F, .2F);

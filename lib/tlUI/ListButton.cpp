@@ -41,8 +41,8 @@ namespace tl
         {
             TLRENDER_P();
             
-            const int m = event.style->getSizeRole(SizeRole::Margin) * event.contentScale;
-            const int s = event.style->getSizeRole(SizeRole::Spacing) * event.contentScale;
+            const int m = event.style->getSizeRole(SizeRole::MarginSmall) * event.contentScale;
+            const int s = event.style->getSizeRole(SizeRole::SpacingSmall) * event.contentScale;
 
             _sizeHint.x = 0;
             _sizeHint.y = 0;
@@ -71,14 +71,16 @@ namespace tl
 
         void ListButton::drawEvent(const DrawEvent& event)
         {
-            IWidget::drawEvent(event);
             TLRENDER_P();
 
-            const int m = event.style->getSizeRole(SizeRole::Margin) * event.contentScale;
-            const int s = event.style->getSizeRole(SizeRole::Spacing) * event.contentScale;
+            const int m = event.style->getSizeRole(SizeRole::MarginSmall) * event.contentScale;
+            const int s = event.style->getSizeRole(SizeRole::SpacingSmall) * event.contentScale;
             math::BBox2i g = _geometry;
 
-            if (_checked->get())
+            const ColorRole colorRole = _checked->get() ?
+                ColorRole::Checked :
+                getBackgroundRole();
+            if (colorRole != ColorRole::None)
             {
                 event.render->drawRect(
                     g,
@@ -101,22 +103,26 @@ namespace tl
             int x = g.x() + m;
             if (_iconImage)
             {
+                const auto iconSize = _iconImage->getSize();
                 event.render->drawImage(
                   _iconImage,
-                  math::BBox2i(x, g.y() + m, _iconImage->getWidth(), _iconImage->getHeight()));
-                x += _iconImage->getWidth() + s;
+                  math::BBox2i(x, g.y() + m, iconSize.w, iconSize.h));
+                x += iconSize.w + s;
             }
             
-            imaging::FontInfo fontInfo = _fontInfo;
-            fontInfo.size *= event.contentScale;
-            auto fontMetrics = event.fontSystem->getMetrics(fontInfo);
-            math::Vector2i textSize = event.fontSystem->measure(_text, fontInfo);
-            event.render->drawText(
-                event.fontSystem->getGlyphs(_text, fontInfo),
-                math::Vector2i(
-                    x,
-                    g.y() + g.h() / 2 - textSize.y / 2 + fontMetrics.ascender),
-                event.style->getColorRole(ColorRole::Text));
+            if (!_text.empty())
+            {
+                imaging::FontInfo fontInfo = _fontInfo;
+                fontInfo.size *= event.contentScale;
+                auto fontMetrics = event.fontSystem->getMetrics(fontInfo);
+                math::Vector2i textSize = event.fontSystem->measure(_text, fontInfo);
+                event.render->drawText(
+                    event.fontSystem->getGlyphs(_text, fontInfo),
+                    math::Vector2i(
+                        x,
+                        g.y() + g.h() / 2 - textSize.y / 2 + fontMetrics.ascender),
+                    event.style->getColorRole(ColorRole::Text));
+            }
         }
     }
 }

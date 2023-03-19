@@ -4,6 +4,8 @@
 
 #include <tlUI/Window.h>
 
+#include <tlUI/DrawUtil.h>
+
 namespace tl
 {
     namespace ui

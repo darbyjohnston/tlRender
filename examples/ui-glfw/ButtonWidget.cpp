@@ -53,26 +53,16 @@ namespace tl
                 auto toolButton0 = ui::ToolButton::create(context);
                 toolButton0->setCheckable(true);
                 toolButton0->setChecked(true);
-                toolButton0->setIcon("PlaybackStop");
-                p.observers["toolButton0"] = observer::ValueObserver<bool>::create(
-                    toolButton0->observeChecked(),
-                    [this](bool value)
-                    {
-                        std::cout << "Stop: " << value << std::endl;
-                    },
-                    observer::CallbackAction::Suppress);
+                toolButton0->setIcon("PlaybackReverse");
 
                 auto toolButton1 = ui::ToolButton::create(context);
                 toolButton1->setCheckable(true);
-                toolButton1->setText("Forward");
-                toolButton1->setIcon("PlaybackForward");
-                p.observers["toolButton1"] = observer::ValueObserver<bool>::create(
-                    toolButton1->observeChecked(),
-                    [this](bool value)
-                    {
-                        std::cout << "Forward" << value << std::endl;
-                    },
-                    observer::CallbackAction::Suppress);
+                toolButton1->setIcon("PlaybackStop");
+
+                auto toolButton2 = ui::ToolButton::create(context);
+                toolButton2->setCheckable(true);
+                toolButton2->setText("Forward");
+                toolButton2->setIcon("PlaybackForward");
 
                 p.layout = ui::VerticalLayout::create(context, shared_from_this());
                 auto groupBox = ui::GroupBox::create(context, p.layout);
@@ -83,8 +73,10 @@ namespace tl
                 groupBox = ui::GroupBox::create(context, p.layout);
                 groupBox->setText("Tool Buttons");
                 hLayout = ui::HorizontalLayout::create(context, groupBox);
+                hLayout->setSpacingRole(ui::SizeRole::SpacingTool);
                 toolButton0->setParent(hLayout);
                 toolButton1->setParent(hLayout);
+                toolButton2->setParent(hLayout);
             }
 
             ButtonWidget::ButtonWidget() :

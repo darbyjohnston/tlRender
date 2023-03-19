@@ -11,7 +11,6 @@
 #include <tlUI/PushButton.h>
 #include <tlUI/RowLayout.h>
 #include <tlUI/ScrollArea.h>
-#include <tlUI/Spacer.h>
 #include <tlUI/StackLayout.h>
 
 namespace tl
@@ -36,7 +35,6 @@ namespace tl
 
                 auto buttonButton = ui::ListButton::create(context);
                 buttonButton->setText("Buttons");
-                buttonButton->setBackgroundRole(ui::ColorRole::None);
                 p.buttonsObserver = observer::ValueObserver<bool>::create(
                     buttonButton->observeClick(),
                     [this](bool)
@@ -47,7 +45,6 @@ namespace tl
 
                 auto rowLayoutButton = ui::ListButton::create(context);
                 rowLayoutButton->setText("Row Layouts");
-                rowLayoutButton->setBackgroundRole(ui::ColorRole::None);
                 p.rowLayoutObserver = observer::ValueObserver<bool>::create(
                     rowLayoutButton->observeClick(),
                     [this](bool)
@@ -61,11 +58,11 @@ namespace tl
 
                 p.layout = ui::HorizontalLayout::create(context, shared_from_this());
                 p.layout->setMarginRole(ui::SizeRole::Margin);
+                p.layout->setSpacingRole(ui::SizeRole::SpacingLarge);
                 auto scrollArea = ui::ScrollArea::create(
                     context,
                     ui::ScrollAreaType::Vertical,
                     p.layout);
-                auto spacer = ui::Spacer::create(context, p.layout);
                 auto buttonLayout = ui::VerticalLayout::create(context, scrollArea);
                 buttonLayout->setSpacingRole(ui::SizeRole::None);
                 buttonButton->setParent(buttonLayout);

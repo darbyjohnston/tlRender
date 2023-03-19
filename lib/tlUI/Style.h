@@ -17,8 +17,12 @@ namespace tl
             None,
             Margin,
             MarginSmall,
+            MarginLarge,
+            MarginTool,
             Spacing,
             SpacingSmall,
+            SpacingLarge,
+            SpacingTool,
             Border,
             ScrollArea
         };
@@ -31,6 +35,7 @@ namespace tl
             Base,
             Button,
             Text,
+            Border,
             Hover,
             Pressed,
             Checked,
