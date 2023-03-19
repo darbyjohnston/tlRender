@@ -140,8 +140,23 @@ namespace tl
 
         void EventLoop::tick()
         {
+            TLRENDER_P();
+
             _tickEvent();
             _sizeEvent();
+
+            for (const auto& i : p.windows)
+            {
+                if (auto window = i.lock())
+                {
+                    window->setGeometry(math::BBox2i(
+                        0,
+                        0,
+                        p.frameBufferSize.w,
+                        p.frameBufferSize.h));
+                }
+            }
+
             _drawEvent();
         }
 
