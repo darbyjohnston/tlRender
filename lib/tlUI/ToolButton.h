@@ -10,23 +10,23 @@ namespace tl
 {
     namespace ui
     {
-        //! Push button.
-        class PushButton : public IButton
+        //! Tool button.
+        class ToolButton : public IButton
         {
-            TLRENDER_NON_COPYABLE(PushButton);
+            TLRENDER_NON_COPYABLE(ToolButton);
 
         protected:
             void _init(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            PushButton();
+            ToolButton();
 
         public:
-            ~PushButton() override;
+            ~ToolButton() override;
 
-            //! Create a new push button.
-            static std::shared_ptr<PushButton> create(
+            //! Create a new tool button.
+            static std::shared_ptr<ToolButton> create(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 

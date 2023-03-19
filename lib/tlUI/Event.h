@@ -23,6 +23,15 @@ namespace tl
             std::shared_ptr<IWidget> child;
         };
 
+        //! Tick event.
+        struct TickEvent
+        {
+            std::shared_ptr<Style> style;
+            std::shared_ptr<IconLibrary> iconLibrary;
+            std::shared_ptr<imaging::FontSystem> fontSystem;
+            float contentScale = 1.F;
+        };
+
         //! Size event.
         struct SizeEvent
         {

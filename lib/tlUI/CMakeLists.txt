@@ -3,15 +3,18 @@ set(HEADERS
     Event.h
     EventLoop.h
     GroupBox.h
-    IconLibrary.h
+    IButton.h
     IWidget.h
+    IconLibrary.h
     Label.h
+    ListButton.h
     PushButton.h
     RowLayout.h
     ScrollArea.h
     Spacer.h
     StackLayout.h
     Style.h
+    ToolButton.h
     Window.h)
 set(HEADERS_PRIVATE)
 
@@ -20,15 +23,18 @@ set(SOURCE
     Event.cpp
     EventLoop.cpp
     GroupBox.cpp
-    IconLibrary.cpp
+    IButton.cpp
     IWidget.cpp
+    IconLibrary.cpp
     Label.cpp
+    ListButton.cpp
     PushButton.cpp
     RowLayout.cpp
     ScrollArea.cpp
     Spacer.cpp
     StackLayout.cpp
     Style.cpp
+    ToolButton.cpp
     Window.cpp)
 
 add_library(tlUI ${HEADERS} ${HEADERS_PRIVATE} ${SOURCE})

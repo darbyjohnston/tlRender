@@ -22,7 +22,9 @@ namespace tl
             p.context = context;
 
             p.sizeRoles[SizeRole::Margin] = 5;
+            p.sizeRoles[SizeRole::MarginSmall] = 2;
             p.sizeRoles[SizeRole::Spacing] = 5;
+            p.sizeRoles[SizeRole::SpacingSmall] = 2;
             p.sizeRoles[SizeRole::Border] = 1;
             p.sizeRoles[SizeRole::ScrollArea] = 100;
 

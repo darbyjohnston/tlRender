@@ -6,6 +6,7 @@
 
 #include <tlUI/GroupBox.h>
 #include <tlUI/PushButton.h>
+#include <tlUI/ToolButton.h>
 #include <tlUI/RowLayout.h>
 
 namespace tl
@@ -26,48 +27,50 @@ namespace tl
                 IWidget::_init("ButtonWidget", context);
                 TLRENDER_P();
 
-                auto button0 = ui::PushButton::create(context);
-                button0->setText("Button 0");
-                p.observers["TextButton0"] = observer::ValueObserver<bool>::create(
-                    button0->observeClick(),
+                auto pushButton0 = ui::PushButton::create(context);
+                pushButton0->setText("Click");
+                p.observers["pushButton0"] = observer::ValueObserver<bool>::create(
+                    pushButton0->observeClick(),
                     [this](bool)
                     {
-                        std::cout << "Button 0" << std::endl;
+                        std::cout << "Click" << std::endl;
                     },
                     observer::CallbackAction::Suppress);
 
-                auto button1 = ui::PushButton::create(context);
-                button1->setText("Button 1");
-                p.observers["TextButton1"] = observer::ValueObserver<bool>::create(
-                    button1->observeClick(),
-                    [this](bool)
-                    {
-                        std::cout << "Button 1" << std::endl;
-                    },
-                    observer::CallbackAction::Suppress);
-
-                auto button2 = ui::PushButton::create(context);
-                button2->setCheckable(true);
-                button2->setText("Button 2");
-                button2->setIcon("PlaybackForward");
-                p.observers["TextButton2"] = observer::ValueObserver<bool>::create(
-                    button2->observeChecked(),
+                auto pushButton1 = ui::PushButton::create(context);
+                pushButton1->setCheckable(true);
+                pushButton1->setChecked(true);
+                pushButton1->setText("Toggle");
+                pushButton1->setIcon("Settings");
+                p.observers["pushButton1"] = observer::ValueObserver<bool>::create(
+                    pushButton1->observeChecked(),
                     [this](bool value)
                     {
-                        std::cout << "Button 2: " << value << std::endl;
+                        std::cout << "Toggle: " << value << std::endl;
                     },
                     observer::CallbackAction::Suppress);
 
-                auto button3 = ui::PushButton::create(context);
-                button3->setCheckable(true);
-                button3->setChecked(true);
-                button3->setText("Button 3");
-                button3->setIcon("PlaybackStop");
-                p.observers["TextButton3"] = observer::ValueObserver<bool>::create(
-                    button3->observeChecked(),
+                auto toolButton0 = ui::ToolButton::create(context);
+                toolButton0->setCheckable(true);
+                toolButton0->setChecked(true);
+                toolButton0->setIcon("PlaybackStop");
+                p.observers["toolButton0"] = observer::ValueObserver<bool>::create(
+                    toolButton0->observeChecked(),
                     [this](bool value)
                     {
-                        std::cout << "Button 3: " << value << std::endl;
+                        std::cout << "Stop: " << value << std::endl;
+                    },
+                    observer::CallbackAction::Suppress);
+
+                auto toolButton1 = ui::ToolButton::create(context);
+                toolButton1->setCheckable(true);
+                toolButton1->setText("Forward");
+                toolButton1->setIcon("PlaybackForward");
+                p.observers["toolButton1"] = observer::ValueObserver<bool>::create(
+                    toolButton1->observeChecked(),
+                    [this](bool value)
+                    {
+                        std::cout << "Forward" << value << std::endl;
                     },
                     observer::CallbackAction::Suppress);
 
@@ -75,13 +78,13 @@ namespace tl
                 auto groupBox = ui::GroupBox::create(context, p.layout);
                 groupBox->setText("Push Buttons");
                 auto hLayout = ui::HorizontalLayout::create(context, groupBox);
-                button0->setParent(hLayout);
-                button1->setParent(hLayout);
+                pushButton0->setParent(hLayout);
+                pushButton1->setParent(hLayout);
                 groupBox = ui::GroupBox::create(context, p.layout);
-                groupBox->setText("Checkable Buttons");
+                groupBox->setText("Tool Buttons");
                 hLayout = ui::HorizontalLayout::create(context, groupBox);
-                button2->setParent(hLayout);
-                button3->setParent(hLayout);
+                toolButton0->setParent(hLayout);
+                toolButton1->setParent(hLayout);
             }
 
             ButtonWidget::ButtonWidget() :

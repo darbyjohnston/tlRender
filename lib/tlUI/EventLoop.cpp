@@ -140,8 +140,37 @@ namespace tl
 
         void EventLoop::tick()
         {
+            _tickEvent();
             _sizeEvent();
             _drawEvent();
+        }
+
+        void EventLoop::_tickEvent()
+        {
+            TLRENDER_P();
+            TickEvent event;
+            event.style = p.style;
+            event.iconLibrary = p.iconLibrary;
+            event.fontSystem = p.fontSystem;
+            event.contentScale = p.contentScale;
+            for (const auto& i : p.windows)
+            {
+                if (auto window = i.lock())
+                {
+                    _tickEvent(window, event);
+                }
+            }
+        }
+
+        void EventLoop::_tickEvent(
+            const std::shared_ptr<IWidget>& widget,
+            const TickEvent& event)
+        {
+            for (const auto& child : widget->getChildren())
+            {
+                _tickEvent(child, event);
+            }
+            widget->tickEvent(event);
         }
 
         void EventLoop::_sizeEvent()

@@ -7,6 +7,7 @@
 #include "ButtonWidget.h"
 #include "RowLayoutWidget.h"
 
+#include <tlUI/ListButton.h>
 #include <tlUI/PushButton.h>
 #include <tlUI/RowLayout.h>
 #include <tlUI/ScrollArea.h>
@@ -23,8 +24,8 @@ namespace tl
             {
                 std::shared_ptr<ui::RowLayout> layout;
                 std::shared_ptr<ui::StackLayout> stackLayout;
-                std::shared_ptr<observer::ValueObserver<bool> > rowLayoutObserver;
                 std::shared_ptr<observer::ValueObserver<bool> > buttonsObserver;
+                std::shared_ptr<observer::ValueObserver<bool> > rowLayoutObserver;
             };
 
             void MainWindow::_init(
@@ -33,32 +34,30 @@ namespace tl
                 Window::_init(context);
                 TLRENDER_P();
 
-                auto rowLayoutButton = ui::PushButton::create(context);
-                rowLayoutButton->setText("Row Layouts");
-                rowLayoutButton->setFlat(true);
-                rowLayoutButton->setBackgroundRole(ui::ColorRole::None);
-                p.rowLayoutObserver = observer::ValueObserver<bool>::create(
-                    rowLayoutButton->observeClick(),
+                auto buttonButton = ui::ListButton::create(context);
+                buttonButton->setText("Buttons");
+                buttonButton->setBackgroundRole(ui::ColorRole::None);
+                p.buttonsObserver = observer::ValueObserver<bool>::create(
+                    buttonButton->observeClick(),
                     [this](bool)
                     {
                         _p->stackLayout->setCurrentIndex(0);
                     },
                     observer::CallbackAction::Suppress);
 
-                auto buttonButton = ui::PushButton::create(context);
-                buttonButton->setText("Buttons");
-                buttonButton->setFlat(true);
-                buttonButton->setBackgroundRole(ui::ColorRole::None);
-                p.buttonsObserver = observer::ValueObserver<bool>::create(
-                    buttonButton->observeClick(),
+                auto rowLayoutButton = ui::ListButton::create(context);
+                rowLayoutButton->setText("Row Layouts");
+                rowLayoutButton->setBackgroundRole(ui::ColorRole::None);
+                p.rowLayoutObserver = observer::ValueObserver<bool>::create(
+                    rowLayoutButton->observeClick(),
                     [this](bool)
                     {
                         _p->stackLayout->setCurrentIndex(1);
                     },
                     observer::CallbackAction::Suppress);
 
-                auto rowLayoutWidget = RowLayoutWidget::create(context);
                 auto buttonWidget = ButtonWidget::create(context);
+                auto rowLayoutWidget = RowLayoutWidget::create(context);
 
                 p.layout = ui::HorizontalLayout::create(context, shared_from_this());
                 p.layout->setMarginRole(ui::SizeRole::Margin);
@@ -69,13 +68,13 @@ namespace tl
                 auto spacer = ui::Spacer::create(context, p.layout);
                 auto buttonLayout = ui::VerticalLayout::create(context, scrollArea);
                 buttonLayout->setSpacingRole(ui::SizeRole::None);
-                rowLayoutButton->setParent(buttonLayout);
                 buttonButton->setParent(buttonLayout);
+                rowLayoutButton->setParent(buttonLayout);
                 p.stackLayout = ui::StackLayout::create(context, p.layout);
                 p.stackLayout->setStretch(ui::Stretch::Expanding, ui::Orientation::Horizontal);
                 p.stackLayout->setStretch(ui::Stretch::Expanding, ui::Orientation::Vertical);
-                rowLayoutWidget->setParent(p.stackLayout);
                 buttonWidget->setParent(p.stackLayout);
+                rowLayoutWidget->setParent(p.stackLayout);
             }
 
             MainWindow::MainWindow() :

@@ -16,7 +16,9 @@ namespace tl
         {
             None,
             Margin,
+            MarginSmall,
             Spacing,
+            SpacingSmall,
             Border,
             ScrollArea
         };

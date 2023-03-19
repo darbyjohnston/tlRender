@@ -122,6 +122,9 @@ namespace tl
         void IWidget::childRemovedEvent(const ChildEvent&)
         {}
 
+        void IWidget::tickEvent(const TickEvent&)
+        {}
+
         void IWidget::sizeEvent(const SizeEvent&)
         {}
 

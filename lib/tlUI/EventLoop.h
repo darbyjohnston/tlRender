@@ -62,6 +62,11 @@ namespace tl
             void tick();
 
         protected:
+            void _tickEvent();
+            void _tickEvent(
+                const std::shared_ptr<IWidget>&,
+                const TickEvent&);
+
             void _sizeEvent();
             void _sizeEvent(
                 const std::shared_ptr<IWidget>&,

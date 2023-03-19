@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlUI/PushButton.h>
+#include <tlUI/ListButton.h>
 
 #include <tlUI/DrawUtil.h>
 
@@ -10,40 +10,39 @@ namespace tl
 {
     namespace ui
     {
-        struct PushButton::Private
+        struct ListButton::Private
         {
         };
 
-        void PushButton::_init(
+        void ListButton::_init(
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            IButton::_init("tl::ui::PushButton", context, parent);
-            setStretch(Stretch::Expanding, Orientation::Horizontal);
-            setBackgroundRole(ColorRole::Button);
+            IButton::_init("tl::ui::ListButton", context, parent);
         }
 
-        PushButton::PushButton() :
+        ListButton::ListButton() :
             _p(new Private)
         {}
 
-        PushButton::~PushButton()
+        ListButton::~ListButton()
         {}
 
-        std::shared_ptr<PushButton> PushButton::create(
+        std::shared_ptr<ListButton> ListButton::create(
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            auto out = std::shared_ptr<PushButton>(new PushButton);
+            auto out = std::shared_ptr<ListButton>(new ListButton);
             out->_init(context, parent);
             return out;
         }
 
-        void PushButton::sizeEvent(const SizeEvent& event)
+        void ListButton::sizeEvent(const SizeEvent& event)
         {
             TLRENDER_P();
             
             const int m = event.style->getSizeRole(SizeRole::Margin) * event.contentScale;
+            const int s = event.style->getSizeRole(SizeRole::Spacing) * event.contentScale;
 
             _sizeHint.x = 0;
             _sizeHint.y = 0;
@@ -61,24 +60,23 @@ namespace tl
                 _sizeHint.y = std::max(
                     _sizeHint.y,
                     static_cast<int>(_iconImage->getHeight()));
+                if (!_text.empty())
+                {
+                    _sizeHint.x += s;
+                }
             }
             _sizeHint.x += m * 2;
             _sizeHint.y += m * 2;
         }
 
-        void PushButton::drawEvent(const DrawEvent& event)
+        void ListButton::drawEvent(const DrawEvent& event)
         {
             IWidget::drawEvent(event);
             TLRENDER_P();
 
             const int m = event.style->getSizeRole(SizeRole::Margin) * event.contentScale;
-            const int b = event.style->getSizeRole(SizeRole::Border) * event.contentScale;
+            const int s = event.style->getSizeRole(SizeRole::Spacing) * event.contentScale;
             math::BBox2i g = _geometry;
-
-            event.render->drawMesh(
-                border(g, b),
-                lighter(event.style->getColorRole(ColorRole::Button), .1F));
-            g = g.margin(-b);
 
             if (_checked->get())
             {
@@ -100,11 +98,13 @@ namespace tl
                     event.style->getColorRole(ColorRole::Hover));
             }
 
+            int x = g.x() + m;
             if (_iconImage)
             {
                 event.render->drawImage(
                   _iconImage,
-                  math::BBox2i(g.x() + m, g.y() + m, _iconImage->getWidth(), _iconImage->getHeight()));
+                  math::BBox2i(x, g.y() + m, _iconImage->getWidth(), _iconImage->getHeight()));
+                x += _iconImage->getWidth() + s;
             }
             
             imaging::FontInfo fontInfo = _fontInfo;
@@ -114,7 +114,7 @@ namespace tl
             event.render->drawText(
                 event.fontSystem->getGlyphs(_text, fontInfo),
                 math::Vector2i(
-                    g.x() + g.w() / 2 - textSize.x / 2,
+                    x,
                     g.y() + g.h() / 2 - textSize.y / 2 + fontMetrics.ascender),
                 event.style->getColorRole(ColorRole::Text));
         }

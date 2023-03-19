@@ -84,6 +84,9 @@ namespace tl
             //! Child removed event.
             virtual void childRemovedEvent(const ChildEvent&);
 
+            //! Tick event.
+            virtual void tickEvent(const TickEvent&);
+
             //! Size event.
             virtual void sizeEvent(const SizeEvent&);
 
