@@ -26,6 +26,14 @@ namespace tl
             Expanding
         };
 
+        //! Updates.
+        enum Update
+        {
+            None     = 0,
+            Geometry = 1,
+            Draw     = 2
+        };
+
         //! Base class for widgets.
         class IWidget : public std::enable_shared_from_this<IWidget>
         {
@@ -81,6 +89,12 @@ namespace tl
             //! Set the background role.
             void setBackgroundRole(ColorRole);
 
+            //! Get whether updates are needed.
+            int getUpdates() const;
+
+            //! Clear the updates.
+            void clearUpdate(Update);
+
             //! Child added event.
             virtual void childAddedEvent(const ChildEvent&);
 
@@ -127,6 +141,7 @@ namespace tl
             math::BBox2i _geometry;
             bool _visible = true;
             ColorRole _backgroundRole = ColorRole::None;
+            int _updates = 0;
         };
     }
 }

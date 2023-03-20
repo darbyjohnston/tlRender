@@ -17,6 +17,7 @@ namespace tl
             std::shared_ptr<imaging::FontSystem> fontSystem;
             imaging::Size frameBufferSize;
             float contentScale = 1.F;
+            bool frameBufferUpdate = true;
             std::list<std::weak_ptr<Window> > windows;
             math::Vector2i cursorPos;
             std::weak_ptr<IWidget> hover;
@@ -60,12 +61,20 @@ namespace tl
 
         void EventLoop::setFrameBufferSize(const imaging::Size& value)
         {
-            _p->frameBufferSize = value;
+            TLRENDER_P();
+            if (value == p.frameBufferSize)
+                return;
+            p.frameBufferSize = value;
+            p.frameBufferUpdate = true;
         }
 
         void EventLoop::setContentScale(float value)
         {
-            _p->contentScale = value;
+            TLRENDER_P();
+            if (value == p.contentScale)
+                return;
+            p.contentScale = value;
+            p.frameBufferUpdate = true;
         }
 
         void EventLoop::key(Key key, bool press)
@@ -143,21 +152,29 @@ namespace tl
             TLRENDER_P();
 
             _tickEvent();
-            _sizeEvent();
 
-            for (const auto& i : p.windows)
+            if (_hasGeometryUpdate() || p.frameBufferUpdate)
             {
-                if (auto window = i.lock())
+                _sizeEvent();
+                for (const auto& i : p.windows)
                 {
-                    window->setGeometry(math::BBox2i(
-                        0,
-                        0,
-                        p.frameBufferSize.w,
-                        p.frameBufferSize.h));
+                    if (auto window = i.lock())
+                    {
+                        window->setGeometry(math::BBox2i(
+                            0,
+                            0,
+                            p.frameBufferSize.w,
+                            p.frameBufferSize.h));
+                    }
                 }
             }
 
-            _drawEvent();
+            if (_hasDrawUpdate() || p.frameBufferUpdate)
+            {
+                _drawEvent();
+            }
+
+            p.frameBufferUpdate = false;
         }
 
         void EventLoop::_tickEvent()
@@ -188,6 +205,31 @@ namespace tl
             widget->tickEvent(event);
         }
 
+        bool EventLoop::_hasGeometryUpdate()
+        {
+            TLRENDER_P();
+            bool out = false;
+            for (const auto& i : p.windows)
+            {
+                if (auto window = i.lock())
+                {
+                    out |= _hasGeometryUpdate(window);
+                }
+            }
+            return out;
+        }
+
+        bool EventLoop::_hasGeometryUpdate(const std::shared_ptr<IWidget>& widget)
+        {
+            bool out = widget->getUpdates() & Update::Geometry;
+            widget->clearUpdate(Update::Geometry);
+            for (const auto& child : widget->getChildren())
+            {
+                out |= _hasGeometryUpdate(child);
+            }
+            return out;
+        }
+
         void EventLoop::_sizeEvent()
         {
             TLRENDER_P();
@@ -214,6 +256,35 @@ namespace tl
                 _sizeEvent(child, event);
             }
             widget->sizeEvent(event);
+        }
+
+        bool EventLoop::_hasDrawUpdate()
+        {
+            TLRENDER_P();
+            bool out = false;
+            for (const auto& i : p.windows)
+            {
+                if (auto window = i.lock())
+                {
+                    out |= _hasDrawUpdate(window);
+                    if (out)
+                    {
+                        break;
+                    }
+                }
+            }
+            return out;
+        }
+
+        bool EventLoop::_hasDrawUpdate(const std::shared_ptr<IWidget>& widget)
+        {
+            bool out = widget->getUpdates() & Update::Draw;
+            widget->clearUpdate(Update::Draw);
+            for (const auto& child : widget->getChildren())
+            {
+                out |= _hasDrawUpdate(child);
+            }
+            return out;
         }
 
         void EventLoop::_drawEvent()

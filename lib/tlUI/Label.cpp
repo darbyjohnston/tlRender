@@ -39,12 +39,22 @@ namespace tl
 
         void Label::setText(const std::string& value)
         {
-            _p->text = value;
+            TLRENDER_P();
+            if (value == p.text)
+                return;
+            p.text = value;
+            _updates |= Update::Geometry;
+            _updates |= Update::Draw;
         }
 
         void Label::setFontInfo(const imaging::FontInfo& value)
         {
-            _p->fontInfo = value;
+            TLRENDER_P();
+            if (value == p.fontInfo)
+                return;
+            p.fontInfo = value;
+            _updates |= Update::Geometry;
+            _updates |= Update::Draw;
         }
 
         void Label::sizeEvent(const SizeEvent& event)

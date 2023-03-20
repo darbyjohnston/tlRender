@@ -44,13 +44,19 @@ namespace tl
             p.checkable = value;
             if (!p.checkable)
             {
-                _checked->setIfChanged(false);
+                if (_checked->setIfChanged(false))
+                {
+                    _updates |= Update::Draw;
+                }
             }
         }
 
         void IButton::setChecked(bool value)
         {
-            _checked->setIfChanged(value);
+            if (_checked->setIfChanged(value))
+            {
+                _updates |= Update::Draw;
+            }
         }
 
         void IButton::setText(const std::string& value)
@@ -98,17 +104,21 @@ namespace tl
                 p.iconFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
             {
                 _iconImage = p.iconFuture.get();
+                _updates |= Update::Geometry;
+                _updates |= Update::Draw;
             }
         }
 
         void IButton::enterEvent()
         {
             _inside = true;
+            _updates |= Update::Draw;
         }
 
         void IButton::leaveEvent()
         {
             _inside = false;
+            _updates |= Update::Draw;
         }
 
         void IButton::mouseMoveEvent(const MouseMoveEvent& event)
@@ -119,6 +129,7 @@ namespace tl
         void IButton::mousePressEvent(const MouseClickEvent&)
         {
             _pressed = true;
+            _updates |= Update::Draw;
         }
 
         void IButton::mouseReleaseEvent(const MouseClickEvent&)
@@ -133,6 +144,7 @@ namespace tl
                     _checked->setIfChanged(!_checked->get());
                 }
             }
+            _updates |= Update::Draw;
         }
     }
 }

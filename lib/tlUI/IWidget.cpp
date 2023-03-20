@@ -52,6 +52,8 @@ namespace tl
                     event.child = *i;
                     parent->_children.erase(i);
                     parent->childRemovedEvent(event);
+                    parent->_updates |= Update::Geometry;
+                    parent->_updates |= Update::Draw;
                 }
             }
             _parent = value;
@@ -62,6 +64,8 @@ namespace tl
                 ChildEvent event;
                 event.child = shared_from_this();
                 value->childAddedEvent(event);
+                value->_updates |= Update::Geometry;
+                value->_updates |= Update::Draw;
             }
         }
 
@@ -82,12 +86,26 @@ namespace tl
                 _stretch.second;
         }
 
-        void IWidget::setStretch(Stretch stretch, Orientation orientation)
+        void IWidget::setStretch(Stretch value, Orientation orientation)
         {
             switch (orientation)
             {
-            case Orientation::Horizontal: _stretch.first = stretch; break;
-            case Orientation::Vertical: _stretch.second = stretch; break;
+            case Orientation::Horizontal:
+                if (value != _stretch.first)
+                {
+                    _stretch.first = value;
+                    _updates |= Update::Geometry;
+                    _updates |= Update::Draw;
+                }
+                break;
+            case Orientation::Vertical:
+                if (value != _stretch.second)
+                {
+                    _stretch.second = value;
+                    _updates |= Update::Geometry;
+                    _updates |= Update::Draw;
+                }
+                break;
             }
         }
 
@@ -98,7 +116,11 @@ namespace tl
 
         void IWidget::setGeometry(const math::BBox2i& value)
         {
+            if (value == _geometry)
+                return;
             _geometry = value;
+            _updates |= Update::Geometry;
+            _updates |= Update::Draw;
         }
 
         bool IWidget::isVisible() const
@@ -108,7 +130,11 @@ namespace tl
 
         void IWidget::setVisible(bool value)
         {
+            if (value == _visible)
+                return;
             _visible = value;
+            _updates |= Update::Geometry;
+            _updates |= Update::Draw;
         }
 
         ColorRole IWidget::getBackgroundRole() const
@@ -118,7 +144,20 @@ namespace tl
 
         void IWidget::setBackgroundRole(ColorRole value)
         {
+            if (value == _backgroundRole)
+                return;
             _backgroundRole = value;
+            _updates |= Update::Draw;
+        }
+
+        int IWidget::getUpdates() const
+        {
+            return _updates;
+        }
+
+        void IWidget::clearUpdate(Update value)
+        {
+            _updates &= ~static_cast<int>(value);
         }
 
         void IWidget::childAddedEvent(const ChildEvent&)

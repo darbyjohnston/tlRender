@@ -67,11 +67,15 @@ namespace tl
                 const std::shared_ptr<IWidget>&,
                 const TickEvent&);
 
+            bool _hasGeometryUpdate();
+            bool _hasGeometryUpdate(const std::shared_ptr<IWidget>&);
             void _sizeEvent();
             void _sizeEvent(
                 const std::shared_ptr<IWidget>&,
                 const SizeEvent&);
 
+            bool _hasDrawUpdate();
+            bool _hasDrawUpdate(const std::shared_ptr<IWidget>&);
             void _drawEvent();
             void _drawEvent(
                 const std::shared_ptr<IWidget>&,

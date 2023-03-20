@@ -45,12 +45,22 @@ namespace tl
 
         void GroupBox::setText(const std::string& value)
         {
-            _p->text = value;
+            TLRENDER_P();
+            if (value == p.text)
+                return;
+            p.text = value;
+            _updates |= Update::Geometry;
+            _updates |= Update::Draw;
         }
 
         void GroupBox::setFontInfo(const imaging::FontInfo& value)
         {
-            _p->fontInfo = value;
+            TLRENDER_P();
+            if (value == p.fontInfo)
+                return;
+            p.fontInfo = value;
+            _updates |= Update::Geometry;
+            _updates |= Update::Draw;
         }
 
         void GroupBox::setGeometry(const math::BBox2i& value)
