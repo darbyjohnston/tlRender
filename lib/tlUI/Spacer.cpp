@@ -43,6 +43,7 @@ namespace tl
 
         void Spacer::sizeEvent(const SizeEvent& event)
         {
+            IWidget::sizeEvent(event);
             TLRENDER_P();
             _sizeHint.x = _sizeHint.y = event.style->getSizeRole(p.spacingRole);
         }

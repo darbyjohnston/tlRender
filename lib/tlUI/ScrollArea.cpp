@@ -57,6 +57,7 @@ namespace tl
 
         void ScrollArea::sizeEvent(const SizeEvent& event)
         {
+            IWidget::sizeEvent(event);
             TLRENDER_P();
 
             p.borderSize = event.style->getSizeRole(SizeRole::Border) * event.contentScale;
@@ -95,6 +96,7 @@ namespace tl
 
         void ScrollArea::drawEvent(const DrawEvent& event)
         {
+            IWidget::drawEvent(event);
             TLRENDER_P();
 
             math::BBox2i g = _geometry;

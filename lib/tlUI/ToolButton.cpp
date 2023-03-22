@@ -19,7 +19,6 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IButton::_init("tl::ui::ToolButton", context, parent);
-            setBackgroundRole(ColorRole::Button);
         }
 
         ToolButton::ToolButton() :
@@ -40,6 +39,7 @@ namespace tl
 
         void ToolButton::sizeEvent(const SizeEvent& event)
         {
+            IButton::sizeEvent(event);
             TLRENDER_P();
             
             const int m = event.style->getSizeRole(SizeRole::MarginTool) * event.contentScale;
@@ -67,6 +67,7 @@ namespace tl
 
         void ToolButton::drawEvent(const DrawEvent& event)
         {
+            IButton::drawEvent(event);
             TLRENDER_P();
 
             const int m = event.style->getSizeRole(SizeRole::MarginTool) * event.contentScale;
@@ -80,7 +81,7 @@ namespace tl
             math::BBox2i g2 = g.margin(-b);
             const ColorRole colorRole = _checked->get() ?
                 ColorRole::Checked :
-                getBackgroundRole();
+                _buttonRole;
             if (colorRole != ColorRole::None)
             {
                 event.render->drawRect(

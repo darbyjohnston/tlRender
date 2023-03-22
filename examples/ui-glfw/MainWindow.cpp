@@ -30,8 +30,10 @@ namespace tl
             void MainWindow::_init(
                 const std::shared_ptr<system::Context>& context)
             {
-                Window::_init(context);
+                IWidget::_init("MainWindow", context);
                 TLRENDER_P();
+
+                setBackgroundRole(ui::ColorRole::Window);
 
                 auto buttonButton = ui::ListButton::create(context);
                 buttonButton->setText("Buttons");
@@ -91,7 +93,7 @@ namespace tl
 
             void MainWindow::setGeometry(const math::BBox2i& value)
             {
-                Window::setGeometry(value);
+                IWidget::setGeometry(value);
                 _p->layout->setGeometry(value);
             }
         }

@@ -19,8 +19,6 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IButton::_init("tl::ui::PushButton", context, parent);
-            //setStretch(Stretch::Expanding, Orientation::Horizontal);
-            setBackgroundRole(ColorRole::Button);
         }
 
         PushButton::PushButton() :
@@ -41,6 +39,7 @@ namespace tl
 
         void PushButton::sizeEvent(const SizeEvent& event)
         {
+            IButton::sizeEvent(event);
             TLRENDER_P();
 
             const int m = event.style->getSizeRole(SizeRole::Margin) * event.contentScale;
@@ -69,6 +68,7 @@ namespace tl
 
         void PushButton::drawEvent(const DrawEvent& event)
         {
+            IButton::drawEvent(event);
             TLRENDER_P();
 
             const int m = event.style->getSizeRole(SizeRole::Margin) * event.contentScale;
@@ -84,7 +84,7 @@ namespace tl
             const auto mesh = rect(g2, m / 2);
             const ColorRole colorRole = _checked->get() ?
                 ColorRole::Checked :
-                getBackgroundRole();
+                _buttonRole;
             if (colorRole != ColorRole::None)
             {
                 event.render->drawMesh(

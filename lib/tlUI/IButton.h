@@ -42,6 +42,9 @@ namespace tl
 
             //! Set the icon.
             void setIcon(const std::string&);
+
+            //! Set the button role.
+            void setButtonRole(ColorRole);
             
             //! Observe button clicks.
             std::shared_ptr<observer::IValue<bool> > observeClick() const;
@@ -60,6 +63,7 @@ namespace tl
             std::string _text;
             imaging::FontInfo _fontInfo;
             std::shared_ptr<imaging::Image> _iconImage;
+            ColorRole _buttonRole = ColorRole::Button;
             bool _inside = false;
             math::Vector2i _cursorPos;
             bool _pressed = false;

@@ -49,7 +49,7 @@ namespace tl
             if (value == p.text)
                 return;
             p.text = value;
-            _updates |= Update::Geometry;
+            _updates |= Update::Size;
             _updates |= Update::Draw;
         }
 
@@ -59,7 +59,7 @@ namespace tl
             if (value == p.fontInfo)
                 return;
             p.fontInfo = value;
-            _updates |= Update::Geometry;
+            _updates |= Update::Size;
             _updates |= Update::Draw;
         }
 
@@ -78,6 +78,7 @@ namespace tl
 
         void GroupBox::sizeEvent(const SizeEvent& event)
         {
+            IWidget::sizeEvent(event);
             TLRENDER_P();
 
             p.margin = event.style->getSizeRole(SizeRole::Margin) * event.contentScale;
@@ -104,11 +105,12 @@ namespace tl
 
         void GroupBox::drawEvent(const DrawEvent& event)
         {
+            IWidget::drawEvent(event);
             TLRENDER_P();
 
             const int b = event.style->getSizeRole(SizeRole::Border) * event.contentScale;
-
             math::BBox2i g = _geometry;
+
             auto fontInfo = p.fontInfo;
             fontInfo.size *= event.contentScale;
             const math::Vector2i textSize = event.fontSystem->measure(p.text, fontInfo);

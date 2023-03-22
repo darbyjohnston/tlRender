@@ -43,7 +43,7 @@ namespace tl
             if (value == p.text)
                 return;
             p.text = value;
-            _updates |= Update::Geometry;
+            _updates |= Update::Size;
             _updates |= Update::Draw;
         }
 
@@ -53,12 +53,13 @@ namespace tl
             if (value == p.fontInfo)
                 return;
             p.fontInfo = value;
-            _updates |= Update::Geometry;
+            _updates |= Update::Size;
             _updates |= Update::Draw;
         }
 
         void Label::sizeEvent(const SizeEvent& event)
         {
+            IWidget::sizeEvent(event);
             TLRENDER_P();
             imaging::FontInfo fontInfo = p.fontInfo;
             fontInfo.size *= event.contentScale;

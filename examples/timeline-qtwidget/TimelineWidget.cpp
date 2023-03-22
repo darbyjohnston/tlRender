@@ -4,6 +4,9 @@
 
 #include "TimelineWidget.h"
 
+#include <tlUI/PushButton.h>
+#include <tlUI/RowLayout.h>
+
 #include <tlGL/Render.h>
 #include <tlGL/Util.h>
 
@@ -33,9 +36,16 @@ namespace tl
                 setMouseTracking(true);
                 setAcceptDrops(true);
 
+                _style = ui::Style::create(context);
+                _iconLibrary = ui::IconLibrary::create(context);
                 _fontSystem = imaging::FontSystem::create(context);
+                _eventLoop = ui::EventLoop::create(
+                    _style,
+                    _iconLibrary,
+                    _fontSystem,
+                    context);
 
-                _timer = startTimer(50);
+                _timer = startTimer(10);
             }
 
             TimelineWidget::~TimelineWidget()
@@ -45,11 +55,14 @@ namespace tl
             {
                 if (auto context = _context.lock())
                 {
-                    ItemData itemData;
-                    itemData.fontSystem = _fontSystem;
-                    itemData.fontMetrics = _fontSystem->getMetrics(itemData.fontInfo);
-                    _timelineItem = TimelineItem::create(timeline, itemData, context);
+                    _timelineItem = TimelineItem::create(timeline, context);
+                    _eventLoop->addWidget(_timelineItem);
                 }
+                //    ItemData itemData;
+                //    itemData.fontSystem = _fontSystem;
+                //    itemData.fontMetrics = _fontSystem->getMetrics(itemData.fontInfo);
+                //    _timelineItem = TimelineItem::create(timeline, itemData, context);
+                //}
             }
 
             math::Vector2i TimelineWidget::timelineSize() const
@@ -57,7 +70,7 @@ namespace tl
                 math::Vector2i out;
                 if (_timelineItem)
                 {
-                    out = _timelineItem->sizeHint();
+                    out = _timelineItem->getSizeHint();
                 }
                 return out;
             }
@@ -106,25 +119,33 @@ namespace tl
             {
                 initializeOpenGLFunctions();
                 gl::initGLAD();
-                try
+                if (auto context = _context.lock())
                 {
-                    if (auto context = _context.lock())
-                    {
-                        _render = gl::Render::create(context);
-                    }
+                    _render = gl::Render::create(context);
                 }
-                catch (const std::exception&)
-                {}
             }
 
             void TimelineWidget::resizeGL(int w, int h)
-            {}
+            {
+                const float devicePixelRatio = window()->devicePixelRatio();
+                _eventLoop->setContentScale(devicePixelRatio);
+                _eventLoop->setSize(imaging::Size(
+                    w * devicePixelRatio,
+                    h * devicePixelRatio));
+            }
 
             void TimelineWidget::paintGL()
             {
                 if (_render)
                 {
                     const float devicePixelRatio = window()->devicePixelRatio();
+                    _render->begin(imaging::Size(
+                        width() * devicePixelRatio,
+                        height() * devicePixelRatio));
+                    _eventLoop->draw(_render);
+                    _render->end();
+
+                    /*const float devicePixelRatio = window()->devicePixelRatio();
                     _render->begin(imaging::Size(
                         width() * devicePixelRatio,
                         height() * devicePixelRatio));
@@ -136,7 +157,7 @@ namespace tl
                             math::BBox2i(_viewPos.x, _viewPos.y, width(), height()),
                             devicePixelRatio);
                     }
-                    _render->end();
+                    _render->end();*/
                 }
             }
 
@@ -147,36 +168,45 @@ namespace tl
 #endif // QT_VERSION
             {
                 event->accept();
-                _mouseInside = true;
-                _mousePressed = false;
+                _eventLoop->cursorEnter(true);
             }
 
             void TimelineWidget::leaveEvent(QEvent* event)
             {
                 event->accept();
-                _mouseInside = false;
-                _mousePressed = false;
+                _eventLoop->cursorEnter(false);
             }
 
             void TimelineWidget::mousePressEvent(QMouseEvent* event)
             {
-                if (Qt::LeftButton == event->button() && event->modifiers() & Qt::ControlModifier)
+                event->accept();
+                int button = 0;
+                if (event->button() == Qt::LeftButton)
                 {
-                    _mousePressed = true;
-                    _mousePress.x = event->x();
-                    _mousePress.y = event->y();
-                    _viewPosMousePress = _viewPos;
+                    button = 1;
                 }
+                _eventLoop->mouseButton(button, true, 0);
             }
 
             void TimelineWidget::mouseReleaseEvent(QMouseEvent* event)
             {
-                _mousePressed = false;
+                event->accept();
+                int button = 0;
+                if (event->button() == Qt::LeftButton)
+                {
+                    button = 1;
+                }
+                _eventLoop->mouseButton(button, false, 0);
             }
 
             void TimelineWidget::mouseMoveEvent(QMouseEvent* event)
             {
-                _mousePos.x = event->x();
+                event->accept();
+                const float devicePixelRatio = window()->devicePixelRatio();
+                _eventLoop->cursorPos(math::Vector2i(
+                    event->x() * devicePixelRatio,
+                    event->y() * devicePixelRatio));
+                /*_mousePos.x = event->x();
                 _mousePos.y = event->y();
                 if (_mousePressed)
                 {
@@ -198,13 +228,13 @@ namespace tl
                         Q_EMIT viewPosChanged(_viewPos);
                         update();
                     }
-                }
+                }*/
             }
 
             void TimelineWidget::wheelEvent(QWheelEvent* event)
             {}
 
-            void TimelineWidget::dragEnterEvent(QDragEnterEvent* event)
+            /*void TimelineWidget::dragEnterEvent(QDragEnterEvent* event)
             {
                 const QMimeData* mimeData = event->mimeData();
                 if (mimeData->hasUrls())
@@ -237,11 +267,11 @@ namespace tl
                     {
                     }
                 }
-            }
+            }*/
 
             void TimelineWidget::timerEvent(QTimerEvent*)
             {
-                if (_timelineItem)
+                /*if (_timelineItem)
                 {
                     _tick(_timelineItem);
                     if (_doLayout(_timelineItem))
@@ -259,10 +289,24 @@ namespace tl
                     {
                         update();
                     }
+                }*/
+                _eventLoop->tick();
+
+                const math::Vector2i& sizeHint = _timelineItem->getSizeHint();
+                if (sizeHint != _timelineSize)
+                {
+                    _timelineSize = sizeHint;
+                    _timelineItem->setGeometry(math::BBox2i(0, 0, _timelineSize.x, _timelineSize.y));
+                    Q_EMIT timelineSizeChanged(_timelineSize);
+                }
+
+                if (_eventLoop->hasDrawUpdate())
+                {
+                    update();
                 }
             }
 
-            void TimelineWidget::_tick(const std::shared_ptr<BaseItem>& item)
+            /*void TimelineWidget::_tick(const std::shared_ptr<BaseItem>& item)
             {
                 for (const auto& child : item->children())
                 {
@@ -313,7 +357,7 @@ namespace tl
                 {
                     _renderItems(child, render, viewport, devicePixelRatio);
                 }
-            }
+            }*/
         }
     }
 }

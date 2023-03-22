@@ -52,7 +52,7 @@ namespace tl
                     event.child = *i;
                     parent->_children.erase(i);
                     parent->childRemovedEvent(event);
-                    parent->_updates |= Update::Geometry;
+                    parent->_updates |= Update::Size;
                     parent->_updates |= Update::Draw;
                 }
             }
@@ -64,7 +64,7 @@ namespace tl
                 ChildEvent event;
                 event.child = shared_from_this();
                 value->childAddedEvent(event);
-                value->_updates |= Update::Geometry;
+                value->_updates |= Update::Size;
                 value->_updates |= Update::Draw;
             }
         }
@@ -94,7 +94,7 @@ namespace tl
                 if (value != _stretch.first)
                 {
                     _stretch.first = value;
-                    _updates |= Update::Geometry;
+                    _updates |= Update::Size;
                     _updates |= Update::Draw;
                 }
                 break;
@@ -102,7 +102,7 @@ namespace tl
                 if (value != _stretch.second)
                 {
                     _stretch.second = value;
-                    _updates |= Update::Geometry;
+                    _updates |= Update::Size;
                     _updates |= Update::Draw;
                 }
                 break;
@@ -119,7 +119,7 @@ namespace tl
             if (value == _geometry)
                 return;
             _geometry = value;
-            _updates |= Update::Geometry;
+            _updates |= Update::Size;
             _updates |= Update::Draw;
         }
 
@@ -133,13 +133,8 @@ namespace tl
             if (value == _visible)
                 return;
             _visible = value;
-            _updates |= Update::Geometry;
+            _updates |= Update::Size;
             _updates |= Update::Draw;
-        }
-
-        ColorRole IWidget::getBackgroundRole() const
-        {
-            return _backgroundRole;
         }
 
         void IWidget::setBackgroundRole(ColorRole value)
@@ -155,11 +150,6 @@ namespace tl
             return _updates;
         }
 
-        void IWidget::clearUpdate(Update value)
-        {
-            _updates &= ~static_cast<int>(value);
-        }
-
         void IWidget::childAddedEvent(const ChildEvent&)
         {}
 
@@ -170,10 +160,13 @@ namespace tl
         {}
 
         void IWidget::sizeEvent(const SizeEvent&)
-        {}
+        {
+            _updates &= ~static_cast<int>(Update::Size);
+        }
 
         void IWidget::drawEvent(const DrawEvent& event)
         {
+            _updates &= ~static_cast<int>(Update::Draw);
             if (_backgroundRole != ColorRole::None)
             {
                 event.render->drawRect(

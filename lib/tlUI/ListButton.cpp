@@ -19,6 +19,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IButton::_init("tl::ui::ListButton", context, parent);
+            setButtonRole(ColorRole::None);
         }
 
         ListButton::ListButton() :
@@ -39,6 +40,7 @@ namespace tl
 
         void ListButton::sizeEvent(const SizeEvent& event)
         {
+            IButton::sizeEvent(event);
             TLRENDER_P();
             
             const int m = event.style->getSizeRole(SizeRole::MarginSmall) * event.contentScale;
@@ -71,6 +73,7 @@ namespace tl
 
         void ListButton::drawEvent(const DrawEvent& event)
         {
+            IButton::drawEvent(event);
             TLRENDER_P();
 
             const int m = event.style->getSizeRole(SizeRole::MarginSmall) * event.contentScale;
@@ -79,12 +82,12 @@ namespace tl
 
             const ColorRole colorRole = _checked->get() ?
                 ColorRole::Checked :
-                getBackgroundRole();
+                _buttonRole;
             if (colorRole != ColorRole::None)
             {
                 event.render->drawRect(
                     g,
-                    event.style->getColorRole(ColorRole::Checked));
+                    event.style->getColorRole(colorRole));
             }
 
             if (_pressed && _geometry.contains(_cursorPos))

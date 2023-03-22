@@ -4,7 +4,7 @@
 
 #include <tlApp/IApp.h>
 
-#include <tlUI/Window.h>
+#include <tlUI/IWidget.h>
 
 struct GLFWwindow;
 
@@ -46,8 +46,8 @@ namespace tl
             //! Exit the application.
             void exit();
 
-            //! Add a window to the application.
-            void addWindow(const std::weak_ptr<ui::Window>&);
+            //! Add a top-level widget.
+            void addWidget(const std::weak_ptr<ui::IWidget>&);
 
         private:
             void _setFullscreenWindow(bool);

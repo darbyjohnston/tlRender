@@ -14,8 +14,7 @@ set(HEADERS
     Spacer.h
     StackLayout.h
     Style.h
-    ToolButton.h
-    Window.h)
+    ToolButton.h)
 set(HEADERS_PRIVATE)
 
 set(SOURCE
@@ -34,8 +33,7 @@ set(SOURCE
     Spacer.cpp
     StackLayout.cpp
     Style.cpp
-    ToolButton.cpp
-    Window.cpp)
+    ToolButton.cpp)
 
 add_library(tlUI ${HEADERS} ${HEADERS_PRIVATE} ${SOURCE})
 target_link_libraries(tlUI PUBLIC tlTimeline PRIVATE ${LIBRARIES_PRIVATE})

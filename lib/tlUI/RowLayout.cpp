@@ -129,9 +129,12 @@ namespace tl
 
         void RowLayout::sizeEvent(const SizeEvent& event)
         {
+            IWidget::sizeEvent(event);
             TLRENDER_P();
+
             p.margin = event.style->getSizeRole(p.marginRole) * event.contentScale;
             p.spacing = event.style->getSizeRole(p.spacingRole) * event.contentScale;
+
             _sizeHint.x = p.margin * 2;
             _sizeHint.y = p.margin * 2;
             for (const auto& child : _children)

@@ -4,7 +4,7 @@
 
 #include "TimelineItem.h"
 
-#include "TrackItem.h"
+//#include "TrackItem.h"
 
 #include <tlCore/StringFormat.h>
 
@@ -16,44 +16,50 @@ namespace tl
         {
             void TimelineItem::_init(
                 const std::shared_ptr<timeline::Timeline>& timeline,
-                const ItemData& itemData,
-                const std::shared_ptr<system::Context>& context)
+                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<IWidget>& parent)
             {
-                BaseItem::_init(itemData, context);
+                IItem::_init("TimelineItem", context, parent);
+
+                setBackgroundRole(ui::ColorRole::Window);
 
                 _timeline = timeline;
                 _timeRange = timeline->getTimeRange();
+                const auto& info = _timeline->getIOInfo();
+                _thumbnailWidth = !info.video.empty() ?
+                    static_cast<int>(_thumbnailHeight * info.video[0].size.getAspect()) :
+                    0;
 
                 const auto otioTimeline = timeline->getTimeline();
                 for (const auto& child : otioTimeline->tracks()->children())
                 {
                     if (const auto* track = dynamic_cast<otio::Track*>(child.value))
                     {
-                        auto trackItem = TrackItem::create(track, itemData, context);
-                        _children.push_back(trackItem);
+                        //auto trackItem = TrackItem::create(track, itemData, context);
+                        //_children.push_back(trackItem);
                     }
                 }
 
                 _label = _nameLabel(otioTimeline->name());
-                _durationLabel = BaseItem::_durationLabel(_timeRange.duration());
+                _durationLabel = IItem::_durationLabel(_timeRange.duration());
                 _startLabel = _timeLabel(_timeRange.start_time());
                 _endLabel = _timeLabel(_timeRange.end_time_inclusive());
             }
 
             std::shared_ptr<TimelineItem> TimelineItem::create(
                 const std::shared_ptr<timeline::Timeline>& timeline,
-                const ItemData& itemData,
-                const std::shared_ptr<system::Context>& context)
+                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<TimelineItem>(new TimelineItem);
-                out->_init(timeline, itemData, context);
+                out->_init(timeline, context, parent);
                 return out;
             }
 
             TimelineItem::~TimelineItem()
             {}
 
-            void TimelineItem::preLayout()
+            /*void TimelineItem::preLayout()
             {
                 int childrenHeight = 0;
                 for (const auto& child : _children)
@@ -435,6 +441,142 @@ namespace tl
                     }
                     ++i;
                 }
+            }*/
+
+            void TimelineItem::tickEvent(const ui::TickEvent& event)
+            {
+                auto i = _videoDataFutures.begin();
+                while (i != _videoDataFutures.end())
+                {
+                    if (i->valid() &&
+                        i->wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+                    {
+                        const auto videoData = i->get();
+                        _videoData[videoData.time] = videoData;
+                        i = _videoDataFutures.erase(i);
+                        _updates |= ui::Update::Draw;
+                        continue;
+                    }
+                    ++i;
+                }
+            }
+
+            void TimelineItem::setGeometry(const math::BBox2i& value)
+            {
+                IWidget::setGeometry(value);
+            }
+
+            void TimelineItem::sizeEvent(const ui::SizeEvent& event)
+            {
+                const int m = event.style->getSizeRole(ui::SizeRole::Margin);
+                const int s = event.style->getSizeRole(ui::SizeRole::Spacing);
+                const auto fontMetrics = event.fontSystem->getMetrics(imaging::FontInfo());
+
+                int childrenHeight = 0;
+                for (const auto& child : _children)
+                {
+                    childrenHeight += child->getSizeHint().y;
+                }
+
+                _sizeHint = math::Vector2i(
+                    m +
+                    _timeRange.duration().rescaled_to(1.0).value() * _scale +
+                    m,
+                    m +
+                    fontMetrics.lineHeight +
+                    s +
+                    fontMetrics.lineHeight +
+                    s +
+                    fontMetrics.lineHeight +
+                    s +
+                    fontMetrics.lineHeight +
+                    s +
+                    _thumbnailHeight +
+                    childrenHeight +
+                    m);
+            }
+
+            void TimelineItem::drawEvent(const ui::DrawEvent& event)
+            {
+                const int m = event.style->getSizeRole(ui::SizeRole::Margin);
+                const int s = event.style->getSizeRole(ui::SizeRole::Margin);
+                const auto fontMetrics = event.fontSystem->getMetrics(imaging::FontInfo());
+                math::BBox2i g = _geometry;
+
+                const math::BBox2i bbox(
+                    g.min.x +
+                    m,
+                    g.min.y +
+                    m +
+                    fontMetrics.lineHeight +
+                    s +
+                    fontMetrics.lineHeight +
+                    s +
+                    fontMetrics.lineHeight +
+                    s +
+                    fontMetrics.lineHeight +
+                    s,
+                    g.w() - m * 2,
+                    _thumbnailHeight);
+                event.render->drawRect(
+                    bbox * event.contentScale,
+                    imaging::Color4f(0.F, 0.F, 0.F));
+                event.render->setClipRectEnabled(true);
+                event.render->setClipRect(bbox * event.contentScale);
+                //std::set<otime::RationalTime> videoDataDelete;
+                //for (const auto& videoData : _videoData)
+                //{
+                //    videoDataDelete.insert(videoData.first);
+                //}
+                for (int x = m;
+                    x < g.w() - m * 2;
+                    x += _thumbnailWidth)
+                {
+                    const math::BBox2i bbox(
+                        g.min.x +
+                        x,
+                        g.min.y +
+                        m +
+                        fontMetrics.lineHeight +
+                        s +
+                        fontMetrics.lineHeight +
+                        s +
+                        fontMetrics.lineHeight +
+                        s +
+                        fontMetrics.lineHeight +
+                        s,
+                        _thumbnailWidth,
+                        _thumbnailHeight);
+                    //if (bbox.intersects(v))
+                    {
+                        const otime::RationalTime time(
+                            _timeRange.start_time().value() +
+                            x / static_cast<double>(g.w() - m * 2) *
+                            _timeRange.duration().value(),
+                            _timeRange.duration().rate());
+                        auto i = _videoData.find(time);
+                        if (i != _videoData.end())
+                        {
+                            event.render->drawVideo(
+                                { i->second },
+                                { bbox * event.contentScale });
+                            //videoDataDelete.erase(time);
+                        }
+                        else
+                        {
+                            _videoDataFutures.push_back(_timeline->getVideo(time));
+                        }
+                    }
+                }
+                //for (auto i : videoDataDelete)
+                //{
+                //    const auto j = _videoData.find(i);
+                //    if (j != _videoData.end())
+                //    {
+                //        _videoData.erase(j);
+                //    }
+                //}
+                event.render->setClipRectEnabled(false);
             }
 
             std::string TimelineItem::_nameLabel(const std::string& name)

@@ -29,7 +29,7 @@ namespace tl
                 }
 
                 _mainWindow = MainWindow::create(_context);
-                addWindow(_mainWindow);
+                addWidget(_mainWindow);
             }
 
             App::App()

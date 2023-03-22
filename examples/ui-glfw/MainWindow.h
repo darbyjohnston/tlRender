@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlUI/Window.h>
+#include <tlUI/IWidget.h>
 
 namespace tl
 {
@@ -11,7 +11,7 @@ namespace tl
         namespace ui_glfw
         {
             //! Main window.
-            class MainWindow : public ui::Window
+            class MainWindow : public ui::IWidget
             {
                 TLRENDER_NON_COPYABLE(MainWindow);
 

@@ -29,9 +29,9 @@ namespace tl
         //! Updates.
         enum Update
         {
-            None     = 0,
-            Geometry = 1,
-            Draw     = 2
+            None = 0,
+            Size = 1,
+            Draw = 2
         };
 
         //! Base class for widgets.
@@ -83,17 +83,11 @@ namespace tl
             //! Set whether the widget is visible.
             void setVisible(bool);
 
-            //! Get the background role.
-            ColorRole getBackgroundRole() const;
-
             //! Set the background role.
             void setBackgroundRole(ColorRole);
 
             //! Get whether updates are needed.
             int getUpdates() const;
-
-            //! Clear the updates.
-            void clearUpdate(Update);
 
             //! Child added event.
             virtual void childAddedEvent(const ChildEvent&);

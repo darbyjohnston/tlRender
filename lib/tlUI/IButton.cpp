@@ -73,6 +73,15 @@ namespace tl
         {
             _p->icon = icon;
             _p->iconInit = true;
+            _iconImage.reset();
+        }
+
+        void IButton::setButtonRole(ColorRole value)
+        {
+            if (value == _buttonRole)
+                return;
+            _buttonRole = value;
+            _updates |= Update::Draw;
         }
 
         std::shared_ptr<observer::IValue<bool> > IButton::observeClick() const
@@ -104,7 +113,7 @@ namespace tl
                 p.iconFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
             {
                 _iconImage = p.iconFuture.get();
-                _updates |= Update::Geometry;
+                _updates |= Update::Size;
                 _updates |= Update::Draw;
             }
         }

@@ -13,22 +13,20 @@ namespace tl
             std::weak_ptr<system::Context> context;
             std::shared_ptr<Style> style;
             std::shared_ptr<IconLibrary> iconLibrary;
-            std::shared_ptr<timeline::IRender> render;
             std::shared_ptr<imaging::FontSystem> fontSystem;
             imaging::Size frameBufferSize;
             float contentScale = 1.F;
-            bool frameBufferUpdate = true;
-            std::list<std::weak_ptr<Window> > windows;
+            std::list<std::weak_ptr<IWidget> > topLevelWidgets;
             math::Vector2i cursorPos;
             std::weak_ptr<IWidget> hover;
             std::weak_ptr<IWidget> mousePress;
             std::weak_ptr<IWidget> keyPress;
+            int updates = 0;
         };
 
         void EventLoop::_init(
             const std::shared_ptr<Style>& style,
             const std::shared_ptr<IconLibrary>& iconLibrary,
-            const std::shared_ptr<timeline::IRender>& render,
             const std::shared_ptr<imaging::FontSystem>& fontSystem,
             const std::shared_ptr<system::Context>& context)
         {
@@ -36,7 +34,6 @@ namespace tl
             p.context = context;
             p.style = style;
             p.iconLibrary = iconLibrary;
-            p.render = render;
             p.fontSystem = fontSystem;
         }
 
@@ -50,22 +47,22 @@ namespace tl
         std::shared_ptr<EventLoop> EventLoop::create(
             const std::shared_ptr<Style>& style,
             const std::shared_ptr<IconLibrary>& iconLibrary,
-            const std::shared_ptr<timeline::IRender>& render,
             const std::shared_ptr<imaging::FontSystem>& fontSystem,
             const std::shared_ptr<system::Context>& context)
         {
             auto out = std::shared_ptr<EventLoop>(new EventLoop);
-            out->_init(style, iconLibrary, render, fontSystem, context);
+            out->_init(style, iconLibrary, fontSystem, context);
             return out;
         }
 
-        void EventLoop::setFrameBufferSize(const imaging::Size& value)
+        void EventLoop::setSize(const imaging::Size& value)
         {
             TLRENDER_P();
-            if (value == p.frameBufferSize)
+            if (value == p.frameBufferSize )
                 return;
             p.frameBufferSize = value;
-            p.frameBufferUpdate = true;
+            p.updates |= Update::Size;
+            p.updates |= Update::Draw;
         }
 
         void EventLoop::setContentScale(float value)
@@ -74,7 +71,16 @@ namespace tl
             if (value == p.contentScale)
                 return;
             p.contentScale = value;
-            p.frameBufferUpdate = true;
+            p.updates |= Update::Size;
+            p.updates |= Update::Draw;
+        }
+
+        void EventLoop::addWidget(const std::weak_ptr<IWidget>& widget)
+        {
+            TLRENDER_P();
+            p.topLevelWidgets.push_back(widget);
+            p.updates |= Update::Size;
+            p.updates |= Update::Draw;
         }
 
         void EventLoop::key(Key key, bool press)
@@ -142,39 +148,44 @@ namespace tl
             }
         }
 
-        void EventLoop::addWindow(const std::weak_ptr<Window>& window)
-        {
-            _p->windows.push_back(window);
-        }
-
         void EventLoop::tick()
         {
             TLRENDER_P();
 
             _tickEvent();
 
-            if (_hasGeometryUpdate() || p.frameBufferUpdate)
+            if (_getSizeUpdate())
             {
                 _sizeEvent();
-                for (const auto& i : p.windows)
+                for (const auto& i : p.topLevelWidgets)
                 {
-                    if (auto window = i.lock())
+                    if (auto widget = i.lock())
                     {
-                        window->setGeometry(math::BBox2i(
+                        widget->setGeometry(math::BBox2i(
                             0,
                             0,
                             p.frameBufferSize.w,
                             p.frameBufferSize.h));
                     }
                 }
+                _p->updates &= ~static_cast<int>(Update::Size);
             }
 
-            if (_hasDrawUpdate() || p.frameBufferUpdate)
+            if (_getDrawUpdate())
             {
-                _drawEvent();
+                p.updates |= Update::Draw;
             }
+        }
 
-            p.frameBufferUpdate = false;
+        bool EventLoop::hasDrawUpdate() const
+        {
+            return _p->updates & Update::Draw;
+        }
+
+        void EventLoop::draw(const std::shared_ptr<timeline::IRender>& render)
+        {
+            _drawEvent(render);
+            _p->updates &= ~static_cast<int>(Update::Draw);
         }
 
         void EventLoop::_tickEvent()
@@ -185,11 +196,11 @@ namespace tl
             event.iconLibrary = p.iconLibrary;
             event.fontSystem = p.fontSystem;
             event.contentScale = p.contentScale;
-            for (const auto& i : p.windows)
+            for (const auto& i : p.topLevelWidgets)
             {
-                if (auto window = i.lock())
+                if (auto widget = i.lock())
                 {
-                    _tickEvent(window, event);
+                    _tickEvent(widget, event);
                 }
             }
         }
@@ -205,27 +216,26 @@ namespace tl
             widget->tickEvent(event);
         }
 
-        bool EventLoop::_hasGeometryUpdate()
+        bool EventLoop::_getSizeUpdate()
         {
             TLRENDER_P();
-            bool out = false;
-            for (const auto& i : p.windows)
+            bool out = p.updates & Update::Size;
+            for (const auto& i : p.topLevelWidgets)
             {
-                if (auto window = i.lock())
+                if (auto widget = i.lock())
                 {
-                    out |= _hasGeometryUpdate(window);
+                    out |= _getSizeUpdate(widget);
                 }
             }
             return out;
         }
 
-        bool EventLoop::_hasGeometryUpdate(const std::shared_ptr<IWidget>& widget)
+        bool EventLoop::_getSizeUpdate(const std::shared_ptr<IWidget>& widget)
         {
-            bool out = widget->getUpdates() & Update::Geometry;
-            widget->clearUpdate(Update::Geometry);
+            bool out = widget->getUpdates() & Update::Size;
             for (const auto& child : widget->getChildren())
             {
-                out |= _hasGeometryUpdate(child);
+                out |= _getSizeUpdate(child);
             }
             return out;
         }
@@ -238,11 +248,11 @@ namespace tl
             event.iconLibrary = p.iconLibrary;
             event.fontSystem = p.fontSystem;
             event.contentScale = p.contentScale;
-            for (const auto& i : p.windows)
+            for (const auto& i : p.topLevelWidgets)
             {
-                if (auto window = i.lock())
+                if (auto widget = i.lock())
                 {
-                    _sizeEvent(window, event);
+                    _sizeEvent(widget, event);
                 }
             }
         }
@@ -258,15 +268,15 @@ namespace tl
             widget->sizeEvent(event);
         }
 
-        bool EventLoop::_hasDrawUpdate()
+        bool EventLoop::_getDrawUpdate()
         {
             TLRENDER_P();
-            bool out = false;
-            for (const auto& i : p.windows)
+            bool out = p.updates & Update::Draw;
+            for (const auto& i : p.topLevelWidgets)
             {
-                if (auto window = i.lock())
+                if (auto widget = i.lock())
                 {
-                    out |= _hasDrawUpdate(window);
+                    out |= _getDrawUpdate(widget);
                     if (out)
                     {
                         break;
@@ -276,35 +286,36 @@ namespace tl
             return out;
         }
 
-        bool EventLoop::_hasDrawUpdate(const std::shared_ptr<IWidget>& widget)
+        bool EventLoop::_getDrawUpdate(const std::shared_ptr<IWidget>& widget)
         {
-            bool out = widget->getUpdates() & Update::Draw;
-            widget->clearUpdate(Update::Draw);
-            for (const auto& child : widget->getChildren())
+            bool out = false;
+            if (widget->isVisible())
             {
-                out |= _hasDrawUpdate(child);
+                out = widget->getUpdates() & Update::Draw;
+                for (const auto& child : widget->getChildren())
+                {
+                    out |= _getDrawUpdate(child);
+                }
             }
             return out;
         }
 
-        void EventLoop::_drawEvent()
+        void EventLoop::_drawEvent(const std::shared_ptr<timeline::IRender>& render)
         {
             TLRENDER_P();
             DrawEvent event;
             event.style = p.style;
             event.iconLibrary = p.iconLibrary;
-            event.render = p.render;
+            event.render = render;
             event.fontSystem = p.fontSystem;
             event.contentScale = p.contentScale;
-            p.render->begin(p.frameBufferSize);
-            for (const auto& i : p.windows)
+            for (const auto& i : p.topLevelWidgets)
             {
-                if (auto window = i.lock())
+                if (auto widget = i.lock())
                 {
-                    _drawEvent(window, event);
+                    _drawEvent(widget, event);
                 }
             }
-            p.render->end();
         }
 
         void EventLoop::_drawEvent(
@@ -326,11 +337,11 @@ namespace tl
         {
             TLRENDER_P();
             std::shared_ptr<IWidget> out;
-            for (const auto& i : p.windows)
+            for (const auto& i : p.topLevelWidgets)
             {
-                if (auto window = i.lock())
+                if (auto widget = i.lock())
                 {
-                    out = _underCursor(window, pos);
+                    out = _underCursor(widget, pos);
                 }
             }
             return out;

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlUI/Window.h>
+#include <tlUI/IWidget.h>
 
 namespace tl
 {
@@ -20,7 +20,6 @@ namespace tl
             void _init(
                 const std::shared_ptr<Style>&,
                 const std::shared_ptr<IconLibrary>&,
-                const std::shared_ptr<timeline::IRender>&,
                 const std::shared_ptr<imaging::FontSystem>&,
                 const std::shared_ptr<system::Context>&);
 
@@ -33,33 +32,38 @@ namespace tl
             static std::shared_ptr<EventLoop> create(
                 const std::shared_ptr<Style>&,
                 const std::shared_ptr<IconLibrary>&,
-                const std::shared_ptr<timeline::IRender>&,
                 const std::shared_ptr<imaging::FontSystem>&,
                 const std::shared_ptr<system::Context>&);
 
-            //! Set the frame buffer size.
-            void setFrameBufferSize(const imaging::Size&);
+            //! Add a top-level widget.
+            void addWidget(const std::weak_ptr<IWidget>&);
 
-            //! Set the content scale.
+            //! Set the user interface size.
+            void setSize(const imaging::Size&);
+
+            //! Set the user interface content scale.
             void setContentScale(float);
 
-            //! Key.
+            //! Handle key presses.
             void key(Key, bool press);
 
-            //! Cursor enter.
+            //! Handle the cursor entering and leaving.
             void cursorEnter(bool enter);
 
-            //! Cursor position.
+            //! Handle the cursor position.
             void cursorPos(const math::Vector2i&);
 
-            //! Mouse button.
+            //! Handle mouse button presses.
             void mouseButton(int button, bool press, int modifiers);
-
-            //! Add a window to the event loop.
-            void addWindow(const std::weak_ptr<Window>&);
 
             //! Tick the event loop.
             void tick();
+
+            //! Get whether a draw update is needed.
+            bool hasDrawUpdate() const;
+
+            //! Draw the user interface.
+            void draw(const std::shared_ptr<timeline::IRender>&);
 
         protected:
             void _tickEvent();
@@ -67,16 +71,16 @@ namespace tl
                 const std::shared_ptr<IWidget>&,
                 const TickEvent&);
 
-            bool _hasGeometryUpdate();
-            bool _hasGeometryUpdate(const std::shared_ptr<IWidget>&);
+            bool _getSizeUpdate();
+            bool _getSizeUpdate(const std::shared_ptr<IWidget>&);
             void _sizeEvent();
             void _sizeEvent(
                 const std::shared_ptr<IWidget>&,
                 const SizeEvent&);
 
-            bool _hasDrawUpdate();
-            bool _hasDrawUpdate(const std::shared_ptr<IWidget>&);
-            void _drawEvent();
+            bool _getDrawUpdate();
+            bool _getDrawUpdate(const std::shared_ptr<IWidget>&);
+            void _drawEvent(const std::shared_ptr<timeline::IRender>&);
             void _drawEvent(
                 const std::shared_ptr<IWidget>&,
                 const DrawEvent&);

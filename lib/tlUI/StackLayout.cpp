@@ -69,8 +69,9 @@ namespace tl
             event.child->setVisible(event.child == currentWidget);
         }
 
-        void StackLayout::sizeEvent(const SizeEvent&)
+        void StackLayout::sizeEvent(const SizeEvent& event)
         {
+            IWidget::sizeEvent(event);
             for (const auto& child : _children)
             {
                 const math::Vector2i& sizeHint = child->getSizeHint();

@@ -4,12 +4,12 @@
 
 #pragma once
 
-#include <tlTimeline/IRender.h>
+#include "TimelineItem.h"
+
+#include <tlUI/EventLoop.h>
 
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_4_1_Core>
-
-#include "TimelineItem.h"
 
 namespace tl
 {
@@ -65,35 +65,35 @@ namespace tl
                 void mouseMoveEvent(QMouseEvent*) override;
                 void wheelEvent(QWheelEvent*) override;
 
-                void dragEnterEvent(QDragEnterEvent*) override;
+                /*void dragEnterEvent(QDragEnterEvent*) override;
                 void dragMoveEvent(QDragMoveEvent*) override;
                 void dragLeaveEvent(QDragLeaveEvent*) override;
-                void dropEvent(QDropEvent*) override;
+                void dropEvent(QDropEvent*) override;*/
 
                 void timerEvent(QTimerEvent*) override;
 
             private:
-                void _tick(const std::shared_ptr<BaseItem>&);
-                bool _doLayout(const std::shared_ptr<BaseItem>&);
-                void _preLayout(const std::shared_ptr<BaseItem>&);
-                bool _doRender(const std::shared_ptr<BaseItem>&);
-                void _renderItems(
-                    const std::shared_ptr<BaseItem>&,
-                    const std::shared_ptr<timeline::IRender>&,
-                    const math::BBox2i& viewport,
-                    float devicePixelRatio);
+                //void _tick(const std::shared_ptr<BaseItem>&);
+                //bool _doLayout(const std::shared_ptr<BaseItem>&);
+                //void _preLayout(const std::shared_ptr<BaseItem>&);
+                //bool _doRender(const std::shared_ptr<BaseItem>&);
+                //void _renderItems(
+                //    const std::shared_ptr<BaseItem>&,
+                //    const std::shared_ptr<timeline::IRender>&,
+                //    const math::BBox2i& viewport,
+                //    float devicePixelRatio);
 
                 std::weak_ptr<system::Context> _context;
-                std::shared_ptr<imaging::FontSystem> _fontSystem;
                 math::Vector2i _viewPos;
                 std::shared_ptr<TimelineItem> _timelineItem;
                 math::Vector2i _timelineSize;
-                bool _mouseInside = false;
-                bool _mousePressed = false;
-                math::Vector2i _mousePos;
-                math::Vector2i _mousePress;
-                math::Vector2i _viewPosMousePress;
+
+                std::shared_ptr<imaging::FontSystem> _fontSystem;
+                std::shared_ptr<ui::IconLibrary> _iconLibrary;
+                std::shared_ptr<ui::Style> _style;
+                std::shared_ptr<ui::EventLoop> _eventLoop;
                 std::shared_ptr<timeline::IRender> _render;
+
                 int _timer = 0;
             };
         }

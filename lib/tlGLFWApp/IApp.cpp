@@ -57,13 +57,13 @@ namespace tl
             bool fullscreen = false;
             imaging::Size frameBufferSize;
             math::Vector2f contentScale = math::Vector2f(1.F, 1.F);
-            std::shared_ptr<imaging::FontSystem> fontSystem;
-            std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer;
-            std::shared_ptr<timeline::IRender> render;
 
+            std::shared_ptr<imaging::FontSystem> fontSystem;
             std::shared_ptr<ui::IconLibrary> iconLibrary;
             std::shared_ptr<ui::Style> style;
             std::shared_ptr<ui::EventLoop> eventLoop;
+            std::shared_ptr<timeline::IRender> render;
+            std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer;
 
             bool running = true;
         };
@@ -78,7 +78,6 @@ namespace tl
             const std::vector<std::shared_ptr<app::ICmdLineOption> >& options)
         {
             TLRENDER_P();
-
             std::vector<std::shared_ptr<app::ICmdLineOption> > options2 = options;
             options2.push_back(
                 app::CmdLineValueOption<imaging::Size>::create(
@@ -91,7 +90,6 @@ namespace tl
                     p.options.fullscreen,
                     { "-fullscreen", "-fs" },
                     "Enable full screen mode."));
-
             app::IApp::_init(
                 argc,
                 argv,
@@ -174,19 +172,18 @@ namespace tl
             glfwSetKeyCallback(p.glfwWindow, _keyCallback);
             glfwShowWindow(p.glfwWindow);
 
-            // Create the renderer.
-            p.fontSystem = imaging::FontSystem::create(_context);
-            p.render = gl::Render::create(_context);
-
             // Initialize the user interface.
-            p.iconLibrary = ui::IconLibrary::create(_context);
             p.style = ui::Style::create(_context);
+            p.iconLibrary = ui::IconLibrary::create(_context);
+            p.fontSystem = imaging::FontSystem::create(_context);
             p.eventLoop = ui::EventLoop::create(
                 p.style,
                 p.iconLibrary,
-                p.render,
                 p.fontSystem,
                 _context);
+
+            // Create the renderer.
+            p.render = gl::Render::create(_context);
         }
 
         IApp::IApp() :
@@ -218,6 +215,7 @@ namespace tl
             {
                 glfwPollEvents();
                 _tick();
+                time::sleep(std::chrono::milliseconds(5));
             }
         }
 
@@ -226,9 +224,9 @@ namespace tl
             _p->running = false;
         }
 
-        void IApp::addWindow(const std::weak_ptr<ui::Window>& value)
+        void IApp::addWidget(const std::weak_ptr<ui::IWidget>& value)
         {
-            _p->eventLoop->addWindow(value);
+            _p->eventLoop->addWidget(value);
         }
 
         void IApp::_setFullscreenWindow(bool value)
@@ -436,6 +434,10 @@ namespace tl
 
             _context->tick();
 
+            p.eventLoop->tick();
+            p.eventLoop->setSize(p.frameBufferSize);
+            p.eventLoop->setContentScale(p.contentScale.x);
+
             gl::OffscreenBufferOptions offscreenBufferOptions;
             offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
             if (gl::doCreate(p.offscreenBuffer, p.frameBufferSize, offscreenBufferOptions))
@@ -444,38 +446,37 @@ namespace tl
                     p.frameBufferSize,
                     offscreenBufferOptions);
             }
-
-            if (p.offscreenBuffer)
+            if (p.eventLoop->hasDrawUpdate() && p.offscreenBuffer)
             {
-                gl::OffscreenBufferBinding binding(p.offscreenBuffer);
-                p.eventLoop->setFrameBufferSize(p.frameBufferSize);
-                p.eventLoop->setContentScale(p.contentScale.x);
-                p.eventLoop->tick();
+                {
+                    gl::OffscreenBufferBinding binding(p.offscreenBuffer);
+                    p.render->begin(p.frameBufferSize);
+                    p.eventLoop->draw(p.render);
+                    p.render->end();
+                }
+                glViewport(
+                    0,
+                    0,
+                    GLsizei(p.frameBufferSize.w),
+                    GLsizei(p.frameBufferSize.h));
+                glClearColor(0.F, 0.F, 0.F, 0.F);
+                glClear(GL_COLOR_BUFFER_BIT);
+                glBindFramebuffer(
+                    GL_READ_FRAMEBUFFER,
+                    p.offscreenBuffer->getID());
+                glBlitFramebuffer(
+                    0,
+                    0,
+                    p.frameBufferSize.w,
+                    p.frameBufferSize.h,
+                    0,
+                    0,
+                    p.frameBufferSize.w,
+                    p.frameBufferSize.h,
+                    GL_COLOR_BUFFER_BIT,
+                    GL_LINEAR);
+                glfwSwapBuffers(p.glfwWindow);
             }
-
-            glViewport(
-                0,
-                0,
-                GLsizei(p.frameBufferSize.w),
-                GLsizei(p.frameBufferSize.h));
-            glClearColor(0.F, 0.F, 0.F, 0.F);
-            glClear(GL_COLOR_BUFFER_BIT);
-            glBindFramebuffer(
-                GL_READ_FRAMEBUFFER,
-                p.offscreenBuffer->getID());
-            glBlitFramebuffer(
-                0,
-                0,
-                p.frameBufferSize.w,
-                p.frameBufferSize.h,
-                0,
-                0,
-                p.frameBufferSize.w,
-                p.frameBufferSize.h,
-                GL_COLOR_BUFFER_BIT,
-                GL_LINEAR);
-
-            glfwSwapBuffers(p.glfwWindow);
         }
     }
 }
