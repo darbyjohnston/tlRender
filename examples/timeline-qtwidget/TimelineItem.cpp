@@ -4,7 +4,7 @@
 
 #include "TimelineItem.h"
 
-//#include "TrackItem.h"
+#include "TrackItem.h"
 
 #include <tlCore/StringFormat.h>
 
@@ -25,18 +25,13 @@ namespace tl
 
                 _timeline = timeline;
                 _timeRange = timeline->getTimeRange();
-                const auto& info = _timeline->getIOInfo();
-                _thumbnailWidth = !info.video.empty() ?
-                    static_cast<int>(_thumbnailHeight * info.video[0].size.getAspect()) :
-                    0;
 
                 const auto otioTimeline = timeline->getTimeline();
                 for (const auto& child : otioTimeline->tracks()->children())
                 {
                     if (const auto* track = dynamic_cast<otio::Track*>(child.value))
                     {
-                        //auto trackItem = TrackItem::create(track, itemData, context);
-                        //_children.push_back(trackItem);
+                        auto trackItem = TrackItem::create(track, context, shared_from_this());
                     }
                 }
 
@@ -44,6 +39,8 @@ namespace tl
                 _durationLabel = IItem::_durationLabel(_timeRange.duration());
                 _startLabel = _timeLabel(_timeRange.start_time());
                 _endLabel = _timeLabel(_timeRange.end_time_inclusive());
+
+                _timelineSize = observer::Value<math::Vector2i>::create();
             }
 
             std::shared_ptr<TimelineItem> TimelineItem::create(
@@ -58,6 +55,41 @@ namespace tl
 
             TimelineItem::~TimelineItem()
             {}
+
+            std::shared_ptr<observer::IValue<math::Vector2i> > TimelineItem::observeTimelineSize() const
+            {
+                return _timelineSize;
+            }
+
+            void TimelineItem::setScale(float value)
+            {
+                IItem::setScale(value);
+                if (_updates & ui::Update::Size)
+                {
+                    _timeline->cancelRequests();
+                    _videoDataFutures.clear();
+                }
+            }
+
+            void TimelineItem::setThumbnailHeight(int value)
+            {
+                IItem::setThumbnailHeight(value);
+                if (_updates & ui::Update::Size)
+                {
+                    _timeline->cancelRequests();
+                    _videoDataFutures.clear();
+                }
+            }
+
+            void TimelineItem::setViewport(const math::BBox2i& value)
+            {
+                IItem::setViewport(value);
+                if (_updates & ui::Update::Size)
+                {
+                    _timeline->cancelRequests();
+                    _videoDataFutures.clear();
+                }
+            }
 
             /*void TimelineItem::preLayout()
             {
@@ -464,13 +496,42 @@ namespace tl
             void TimelineItem::setGeometry(const math::BBox2i& value)
             {
                 IWidget::setGeometry(value);
+
+                float y =
+                    _margin +
+                    _fontMetrics.lineHeight +
+                    _spacing +
+                    _fontMetrics.lineHeight +
+                    _spacing +
+                    _fontMetrics.lineHeight +
+                    _spacing +
+                    _fontMetrics.lineHeight +
+                    _spacing +
+                    _thumbnailHeight;
+                for (const auto& child : _children)
+                {
+                    const auto& sizeHint = child->getSizeHint();
+                    child->setGeometry(math::BBox2i(
+                        _geometry.min.x + _margin,
+                        _geometry.min.y + y,
+                        sizeHint.x,
+                        sizeHint.y));
+                    y += sizeHint.y;
+                }
             }
 
             void TimelineItem::sizeEvent(const ui::SizeEvent& event)
             {
-                const int m = event.style->getSizeRole(ui::SizeRole::Margin);
-                const int s = event.style->getSizeRole(ui::SizeRole::Spacing);
-                const auto fontMetrics = event.fontSystem->getMetrics(imaging::FontInfo());
+                IItem::sizeEvent(event);
+
+                _margin = event.style->getSizeRole(ui::SizeRole::Margin) * event.contentScale;
+                _spacing = event.style->getSizeRole(ui::SizeRole::Spacing) * event.contentScale;
+                _fontMetrics = event.fontSystem->getMetrics(imaging::FontInfo());
+
+                const auto& info = _timeline->getIOInfo();
+                _thumbnailWidth = !info.video.empty() ?
+                    static_cast<int>(_thumbnailHeight * info.video[0].size.getAspect()) :
+                    0;
 
                 int childrenHeight = 0;
                 for (const auto& child : _children)
@@ -479,88 +540,93 @@ namespace tl
                 }
 
                 _sizeHint = math::Vector2i(
-                    m +
+                    _margin +
                     _timeRange.duration().rescaled_to(1.0).value() * _scale +
-                    m,
-                    m +
-                    fontMetrics.lineHeight +
-                    s +
-                    fontMetrics.lineHeight +
-                    s +
-                    fontMetrics.lineHeight +
-                    s +
-                    fontMetrics.lineHeight +
-                    s +
+                    _margin,
+                    _margin +
+                    _fontMetrics.lineHeight +
+                    _spacing +
+                    _fontMetrics.lineHeight +
+                    _spacing +
+                    _fontMetrics.lineHeight +
+                    _spacing +
+                    _fontMetrics.lineHeight +
+                    _spacing +
                     _thumbnailHeight +
                     childrenHeight +
-                    m);
+                    _margin);
+
+                _timelineSize->setIfChanged(_sizeHint);
             }
 
             void TimelineItem::drawEvent(const ui::DrawEvent& event)
             {
-                const int m = event.style->getSizeRole(ui::SizeRole::Margin);
-                const int s = event.style->getSizeRole(ui::SizeRole::Margin);
-                const auto fontMetrics = event.fontSystem->getMetrics(imaging::FontInfo());
+                IItem::drawEvent(event);
+
+                const auto& timelineSize = _timelineSize->get();
                 math::BBox2i g = _geometry;
+                g.min = g.min - _viewport.min;
+                g.max = g.max - _viewport.min;
 
                 const math::BBox2i bbox(
                     g.min.x +
-                    m,
+                    _margin,
                     g.min.y +
-                    m +
-                    fontMetrics.lineHeight +
-                    s +
-                    fontMetrics.lineHeight +
-                    s +
-                    fontMetrics.lineHeight +
-                    s +
-                    fontMetrics.lineHeight +
-                    s,
-                    g.w() - m * 2,
+                    _margin +
+                    _fontMetrics.lineHeight +
+                    _spacing +
+                    _fontMetrics.lineHeight +
+                    _spacing +
+                    _fontMetrics.lineHeight +
+                    _spacing +
+                    _fontMetrics.lineHeight +
+                    _spacing,
+                    timelineSize.x - _margin * 2,
                     _thumbnailHeight);
                 event.render->drawRect(
-                    bbox * event.contentScale,
+                    bbox,
                     imaging::Color4f(0.F, 0.F, 0.F));
                 event.render->setClipRectEnabled(true);
-                event.render->setClipRect(bbox * event.contentScale);
-                //std::set<otime::RationalTime> videoDataDelete;
-                //for (const auto& videoData : _videoData)
-                //{
-                //    videoDataDelete.insert(videoData.first);
-                //}
-                for (int x = m;
-                    x < g.w() - m * 2;
-                    x += _thumbnailWidth)
+                event.render->setClipRect(bbox);
+                std::set<otime::RationalTime> videoDataDelete;
+                for (const auto& videoData : _videoData)
                 {
-                    const math::BBox2i bbox(
-                        g.min.x +
+                    videoDataDelete.insert(videoData.first);
+                }
+                const int w = _sizeHint.x - _margin * 2;
+                for (int x = _margin; x < w; x += _thumbnailWidth)
+                {
+                    math::BBox2i bbox(
+                        _geometry.min.x +
                         x,
-                        g.min.y +
-                        m +
-                        fontMetrics.lineHeight +
-                        s +
-                        fontMetrics.lineHeight +
-                        s +
-                        fontMetrics.lineHeight +
-                        s +
-                        fontMetrics.lineHeight +
-                        s,
+                        _geometry.min.y +
+                        _margin +
+                        _fontMetrics.lineHeight +
+                        _spacing +
+                        _fontMetrics.lineHeight +
+                        _spacing +
+                        _fontMetrics.lineHeight +
+                        _spacing +
+                        _fontMetrics.lineHeight +
+                        _spacing,
                         _thumbnailWidth,
                         _thumbnailHeight);
-                    //if (bbox.intersects(v))
+                    if (bbox.intersects(_viewport))
                     {
                         const otime::RationalTime time(
                             _timeRange.start_time().value() +
-                            x / static_cast<double>(g.w() - m * 2) *
+                            (w > 0 ? ((x - _margin) / static_cast<double>(w)) : 0) *
                             _timeRange.duration().value(),
                             _timeRange.duration().rate());
                         auto i = _videoData.find(time);
                         if (i != _videoData.end())
                         {
+                            bbox.min = bbox.min - _viewport.min;
+                            bbox.max = bbox.max - _viewport.min;
                             event.render->drawVideo(
                                 { i->second },
-                                { bbox * event.contentScale });
-                            //videoDataDelete.erase(time);
+                                { bbox });
+                            videoDataDelete.erase(time);
                         }
                         else
                         {
@@ -568,14 +634,14 @@ namespace tl
                         }
                     }
                 }
-                //for (auto i : videoDataDelete)
-                //{
-                //    const auto j = _videoData.find(i);
-                //    if (j != _videoData.end())
-                //    {
-                //        _videoData.erase(j);
-                //    }
-                //}
+                for (auto i : videoDataDelete)
+                {
+                    const auto j = _videoData.find(i);
+                    if (j != _videoData.end())
+                    {
+                        _videoData.erase(j);
+                    }
+                }
                 event.render->setClipRectEnabled(false);
             }
 

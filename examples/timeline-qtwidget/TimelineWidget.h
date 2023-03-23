@@ -33,7 +33,7 @@ namespace tl
 
                 void setTimeline(const std::shared_ptr<timeline::Timeline>&);
 
-                math::Vector2i timelineSize() const;
+                const math::Vector2i& timelineSize() const;
 
             public Q_SLOTS:
                 void setScale(float);
@@ -73,6 +73,7 @@ namespace tl
                 void timerEvent(QTimerEvent*) override;
 
             private:
+                math::BBox2i _timelineViewport() const;
                 //void _tick(const std::shared_ptr<BaseItem>&);
                 //bool _doLayout(const std::shared_ptr<BaseItem>&);
                 //void _preLayout(const std::shared_ptr<BaseItem>&);
@@ -87,6 +88,7 @@ namespace tl
                 math::Vector2i _viewPos;
                 std::shared_ptr<TimelineItem> _timelineItem;
                 math::Vector2i _timelineSize;
+                std::shared_ptr<observer::ValueObserver<math::Vector2i> > _timelineSizeObserver;
 
                 std::shared_ptr<imaging::FontSystem> _fontSystem;
                 std::shared_ptr<ui::IconLibrary> _iconLibrary;

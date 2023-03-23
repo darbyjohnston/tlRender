@@ -4,8 +4,8 @@
 
 #include "TrackItem.h"
 
-#include "ClipItem.h"
-#include "GapItem.h"
+//#include "ClipItem.h"
+//#include "GapItem.h"
 
 #include <tlCore/StringFormat.h>
 
@@ -17,14 +17,14 @@ namespace tl
         {
             void TrackItem::_init(
                 const otio::Track* track,
-                const ItemData& itemData,
-                const std::shared_ptr<system::Context>& context)
+                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<IWidget>& parent)
             {
-                BaseItem::_init(itemData, context);
+                IItem::_init("TrackItem", context, parent);
 
                 _timeRange = track->trimmed_range();
 
-                for (const auto& child : track->children())
+                /*for (const auto& child : track->children())
                 {
                     if (auto clip = dynamic_cast<otio::Clip*>(child.value))
                     {
@@ -46,103 +46,83 @@ namespace tl
                             _timeRanges[gapItem] = timeRangeOpt.value();
                         }
                     }
-                }
+                }*/
 
                 _label = _nameLabel(track->kind(), track->name());
-                _durationLabel = BaseItem::_durationLabel(_timeRange.duration());
+                _durationLabel = IItem::_durationLabel(_timeRange.duration());
             }
 
             std::shared_ptr<TrackItem> TrackItem::create(
                 const otio::Track* track,
-                const ItemData& itemData,
-                const std::shared_ptr<system::Context>& context)
+                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<TrackItem>(new TrackItem);
-                out->_init(track, itemData, context);
+                out->_init(track, context, parent);
                 return out;
             }
 
             TrackItem::~TrackItem()
             {}
 
-            void TrackItem::preLayout()
+            void TrackItem::setGeometry(const math::BBox2i& value)
             {
-                int childrenHeight = 0;
-                for (const auto& child : _children)
-                {
-                    const auto& sizeHint = child->sizeHint();
-                    childrenHeight = std::max(childrenHeight, sizeHint.y);
-                }
+                IItem::setGeometry(value);
+            }
+
+            void TrackItem::sizeEvent(const ui::SizeEvent& event)
+            {
+                IItem::sizeEvent(event);
+
+                const int m = event.style->getSizeRole(ui::SizeRole::MarginSmall) * event.contentScale;
+                auto fontInfo = _fontInfo;
+                fontInfo.size *= event.contentScale;
+                const auto fontMetrics = event.fontSystem->getMetrics(fontInfo);
 
                 _sizeHint = math::Vector2i(
                     _timeRange.duration().rescaled_to(1.0).value() * _scale,
-                    _itemData.margin +
-                    _itemData.fontMetrics.lineHeight +
-                    _itemData.margin +
-                    childrenHeight);
+                    m +
+                    fontMetrics.lineHeight +
+                    m);
             }
 
-            void TrackItem::layout(const math::BBox2i& geometry)
+            void TrackItem::drawEvent(const ui::DrawEvent& event)
             {
-                BaseItem::layout(geometry);
-                for (const auto& child : _children)
-                {
-                    const auto i = _timeRanges.find(child);
-                    if (i != _timeRanges.end())
-                    {
-                        const auto& sizeHint = child->sizeHint();
-                        child->layout(math::BBox2i(
-                            _geometry.min.x +
-                            i->second.start_time().rescaled_to(1.0).value() * _scale,
-                            _geometry.min.y +
-                            _itemData.margin +
-                            _itemData.fontMetrics.lineHeight +
-                            _itemData.margin,
-                            sizeHint.x,
-                            sizeHint.y));
-                    }
-                }
-            }
+                IItem::drawEvent(event);
 
-            void TrackItem::render(
-                const std::shared_ptr<timeline::IRender>& render,
-                const math::BBox2i& viewport,
-                float devicePixelRatio)
-            {
-                BaseItem::render(render, viewport, devicePixelRatio);
+                const int m = event.style->getSizeRole(ui::SizeRole::MarginSmall) * event.contentScale;
+                auto fontInfo = _fontInfo;
+                fontInfo.size *= event.contentScale;
+                const auto fontMetrics = event.fontSystem->getMetrics(fontInfo);
 
-                const math::BBox2i g(
-                    _geometry.min.x - viewport.min.x,
-                    _geometry.min.y - viewport.min.y,
-                    _geometry.w(),
-                    _geometry.h());
-                const math::BBox2i v(
-                    0, 0, viewport.w(), viewport.h());
-                if (g.intersects(v))
-                {
-                    auto fontInfo = _itemData.fontInfo;
-                    fontInfo.size *= devicePixelRatio;
-                    render->drawText(
-                        _itemData.fontSystem->getGlyphs(_label, fontInfo),
-                        math::Vector2i(
-                            g.min.x +
-                            _itemData.margin,
-                            g.min.y +
-                            _itemData.margin +
-                            _itemData.fontMetrics.ascender) * devicePixelRatio,
-                        imaging::Color4f(.9F, .9F, .9F));
-                    math::Vector2i textSize = _itemData.fontSystem->measure(_durationLabel, _itemData.fontInfo);
-                    render->drawText(
-                        _itemData.fontSystem->getGlyphs(_durationLabel, fontInfo),
-                        math::Vector2i(
-                            g.max.x -
-                            _itemData.margin -
-                            textSize.x,
-                            g.min.y +
-                            _itemData.margin +
-                            _itemData.fontMetrics.ascender) * devicePixelRatio,
-                        imaging::Color4f(.9F, .9F, .9F));
-                }
+                math::BBox2i g = _geometry;
+                g.min = g.min - _viewport.min;
+                g.max = g.max - _viewport.min;
+
+                event.render->drawRect(
+                    g,
+                    event.style->getColorRole(ui::ColorRole::Red));
+
+                event.render->drawText(
+                    event.fontSystem->getGlyphs(_label, fontInfo),
+                    math::Vector2i(
+                        g.min.x +
+                        m,
+                        g.min.y +
+                        m +
+                        fontMetrics.ascender),
+                    event.style->getColorRole(ui::ColorRole::Text));
+                math::Vector2i textSize = event.fontSystem->measure(_durationLabel, fontInfo);
+                event.render->drawText(
+                    event.fontSystem->getGlyphs(_durationLabel, fontInfo),
+                    math::Vector2i(
+                        g.max.x -
+                        m -
+                        textSize.x,
+                        g.min.y +
+                        m +
+                        fontMetrics.ascender),
+                    event.style->getColorRole(ui::ColorRole::Text));
             }
 
             std::string TrackItem::_nameLabel(

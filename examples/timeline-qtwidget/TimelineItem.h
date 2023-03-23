@@ -8,6 +8,8 @@
 
 #include <tlTimeline/Timeline.h>
 
+#include <tlCore/ValueObserver.h>
+
 namespace tl
 {
     namespace examples
@@ -31,6 +33,12 @@ namespace tl
 
                 ~TimelineItem() override;
 
+                std::shared_ptr<observer::IValue<math::Vector2i> > observeTimelineSize() const;
+
+                void setScale(float) override;
+                void setThumbnailHeight(int) override;
+                void setViewport(const math::BBox2i&) override;
+
                 void tickEvent(const ui::TickEvent&) override;
                 void setGeometry(const math::BBox2i&) override;
                 void sizeEvent(const ui::SizeEvent&) override;
@@ -41,13 +49,16 @@ namespace tl
 
                 std::shared_ptr<timeline::Timeline> _timeline;
                 otime::TimeRange _timeRange = time::invalidTimeRange;
-                math::Vector2i _timelineSize;
                 int _thumbnailWidth = 0;
                 std::string _label;
                 std::string _durationLabel;
                 std::string _startLabel;
                 std::string _endLabel;
-                //math::BBox2i _viewportTmp;
+                imaging::FontInfo _fontInfo;
+                int _margin = 0;
+                int _spacing = 0;
+                imaging::FontMetrics _fontMetrics;
+                std::shared_ptr<observer::Value<math::Vector2i> > _timelineSize;
                 std::vector<std::future<timeline::VideoData> > _videoDataFutures;
                 std::map<otime::RationalTime, timeline::VideoData> _videoData;
             };

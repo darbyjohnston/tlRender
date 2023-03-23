@@ -7,8 +7,7 @@ set(HEADERS
     TimelineItem.h
     TimelineScrollArea.h
     TimelineWidget.h
-    #TrackItem.h
-    )
+    TrackItem.h)
 
 set(SOURCE
     App.cpp
@@ -19,7 +18,7 @@ set(SOURCE
     TimelineItem.cpp
     TimelineScrollArea.cpp
     TimelineWidget.cpp
-    #TrackItem.cpp
+    TrackItem.cpp
     main.cpp)
 
 add_executable(timeline-qtwidget ${SOURCE} ${HEADERS})

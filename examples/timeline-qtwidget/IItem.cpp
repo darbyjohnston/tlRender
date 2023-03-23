@@ -30,32 +30,69 @@ namespace tl
             {
                 if (value == _scale)
                     return;
-                _scale = value;
-                for (const auto& child : _children)
-                {
-                    if (auto item = std::dynamic_pointer_cast<IItem>(child))
-                    {
-                        item->setScale(value);
-                    }
-                }
-                _updates |= ui::Update::Size;
-                _updates |= ui::Update::Draw;
+                _setScale(
+                    value,
+                    std::dynamic_pointer_cast<IItem>(shared_from_this()));
             }
 
             void IItem::setThumbnailHeight(int value)
             {
                 if (value == _thumbnailHeight)
                     return;
-                _thumbnailHeight = value;
-                for (const auto& child : _children)
+                _setThumbnailHeight(
+                    value,
+                    std::dynamic_pointer_cast<IItem>(shared_from_this()));
+            }
+
+            void IItem::setViewport(const math::BBox2i& value)
+            {
+                if (value == _viewport)
+                    return;
+                _setViewport(
+                    value,
+                    std::dynamic_pointer_cast<IItem>(shared_from_this()));
+            }
+
+            void IItem::_setScale(float value, const std::shared_ptr<IItem>& item)
+            {
+                item->_scale = value;
+                item->_updates |= ui::Update::Size;
+                item->_updates |= ui::Update::Draw;
+                for (const auto& child : item->_children)
                 {
                     if (auto item = std::dynamic_pointer_cast<IItem>(child))
                     {
-                        item->setThumbnailHeight(value);
+                        _setScale(value, item);
                     }
                 }
-                _updates |= ui::Update::Size;
-                _updates |= ui::Update::Draw;
+            }
+
+            void IItem::_setThumbnailHeight(int value, const std::shared_ptr<IItem>& item)
+            {
+                item->_thumbnailHeight = value;
+                item->_updates |= ui::Update::Size;
+                item->_updates |= ui::Update::Draw;
+                for (const auto& child : item->_children)
+                {
+                    if (auto item = std::dynamic_pointer_cast<IItem>(child))
+                    {
+                        _setThumbnailHeight(value, item);
+                    }
+                }
+            }
+
+            void IItem::_setViewport(const math::BBox2i& value, const std::shared_ptr<IItem>& item)
+            {
+                item->_viewport = value;
+                item->_updates |= ui::Update::Size;
+                item->_updates |= ui::Update::Draw;
+                for (const auto& child : item->_children)
+                {
+                    if (auto item = std::dynamic_pointer_cast<IItem>(child))
+                    {
+                        _setViewport(value, item);
+                    }
+                }
             }
 
             std::string IItem::_durationLabel(const otime::RationalTime& value)

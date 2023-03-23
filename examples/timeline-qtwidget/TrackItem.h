@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "BaseItem.h"
+#include "IItem.h"
 
 #include <opentimelineio/track.h>
 
@@ -15,28 +15,25 @@ namespace tl
         namespace timeline_qtwidget
         {
             //! Track item.
-            class TrackItem : public BaseItem
+            class TrackItem : public IItem
             {
             protected:
                 void _init(
                     const otio::Track*,
-                    const ItemData&,
-                    const std::shared_ptr<system::Context>&);
+                    const std::shared_ptr<system::Context>&,
+                    const std::shared_ptr<IWidget>& parent = nullptr);
 
             public:
                 static std::shared_ptr<TrackItem> create(
                     const otio::Track*,
-                    const ItemData&,
-                    const std::shared_ptr<system::Context>&);
+                    const std::shared_ptr<system::Context>&,
+                    const std::shared_ptr<IWidget>& parent = nullptr);
 
                 ~TrackItem() override;
 
-                void preLayout() override;
-                void layout(const math::BBox2i&) override;
-                void render(
-                    const std::shared_ptr<timeline::IRender>&,
-                    const math::BBox2i& viewport,
-                    float devicePixelRatio) override;
+                void setGeometry(const math::BBox2i&) override;
+                void sizeEvent(const ui::SizeEvent&) override;
+                void drawEvent(const ui::DrawEvent&) override;
 
             private:
                 static std::string _nameLabel(
@@ -44,9 +41,9 @@ namespace tl
                     const std::string& name);
 
                 otime::TimeRange _timeRange = time::invalidTimeRange;
-                std::map<std::shared_ptr<BaseItem>, otime::TimeRange> _timeRanges;
                 std::string _label;
                 std::string _durationLabel;
+                imaging::FontInfo _fontInfo;
             };
         }
     }

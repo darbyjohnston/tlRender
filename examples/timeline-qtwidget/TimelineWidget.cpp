@@ -56,7 +56,21 @@ namespace tl
                 if (auto context = _context.lock())
                 {
                     _timelineItem = TimelineItem::create(timeline, context);
+                    _timelineItem->setViewport(_timelineViewport());
                     _eventLoop->addWidget(_timelineItem);
+                    _timelineSizeObserver = observer::ValueObserver<math::Vector2i>::create(
+                        _timelineItem->observeTimelineSize(),
+                        [this](const math::Vector2i& value)
+                        {
+                            _timelineSize = value;
+                            const float devicePixelRatio = window()->devicePixelRatio();
+                            if (devicePixelRatio > 0.F)
+                            {
+                                _timelineSize.x /= devicePixelRatio;
+                                _timelineSize.y /= devicePixelRatio;
+                            }
+                            Q_EMIT timelineSizeChanged(_timelineSize);
+                        });
                 }
                 //    ItemData itemData;
                 //    itemData.fontSystem = _fontSystem;
@@ -65,14 +79,9 @@ namespace tl
                 //}
             }
 
-            math::Vector2i TimelineWidget::timelineSize() const
+            const math::Vector2i& TimelineWidget::timelineSize() const
             {
-                math::Vector2i out;
-                if (_timelineItem)
-                {
-                    out = _timelineItem->getSizeHint();
-                }
-                return out;
+                return _timelineSize;
             }
 
             void TimelineWidget::setScale(float value)
@@ -96,23 +105,25 @@ namespace tl
                 if (value == _viewPos)
                     return;
                 _viewPos = value;
+                if (_timelineItem)
+                {
+                    _timelineItem->setViewport(_timelineViewport());
+                }
                 update();
             }
 
             void TimelineWidget::setViewPosX(int value)
             {
-                if (value == _viewPos.x)
-                    return;
-                _viewPos.x = value;
-                update();
+                math::Vector2i viewPos = _viewPos;
+                viewPos.x = value;
+                setViewPos(viewPos);
             }
 
             void TimelineWidget::setViewPosY(int value)
             {
-                if (value == _viewPos.y)
-                    return;
-                _viewPos.y = value;
-                update();
+                math::Vector2i viewPos = _viewPos;
+                viewPos.y = value;
+                setViewPos(viewPos);
             }
 
             void TimelineWidget::initializeGL()
@@ -132,6 +143,10 @@ namespace tl
                 _eventLoop->setSize(imaging::Size(
                     w * devicePixelRatio,
                     h * devicePixelRatio));
+                if (_timelineItem)
+                {
+                    _timelineItem->setViewport(_timelineViewport());
+                }
             }
 
             void TimelineWidget::paintGL()
@@ -291,19 +306,20 @@ namespace tl
                     }
                 }*/
                 _eventLoop->tick();
-
-                const math::Vector2i& sizeHint = _timelineItem->getSizeHint();
-                if (sizeHint != _timelineSize)
-                {
-                    _timelineSize = sizeHint;
-                    _timelineItem->setGeometry(math::BBox2i(0, 0, _timelineSize.x, _timelineSize.y));
-                    Q_EMIT timelineSizeChanged(_timelineSize);
-                }
-
                 if (_eventLoop->hasDrawUpdate())
                 {
                     update();
                 }
+            }
+
+            math::BBox2i TimelineWidget::_timelineViewport() const
+            {
+                const float devicePixelRatio = window()->devicePixelRatio();
+                return math::BBox2i(
+                    _viewPos.x,
+                    _viewPos.y,
+                    width(),
+                    height()) * devicePixelRatio;
             }
 
             /*void TimelineWidget::_tick(const std::shared_ptr<BaseItem>& item)

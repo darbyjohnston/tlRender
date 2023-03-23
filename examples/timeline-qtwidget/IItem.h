@@ -30,12 +30,19 @@ namespace tl
 
                 virtual void setThumbnailHeight(int);
 
+                virtual void setViewport(const math::BBox2i&);
+
             protected:
+                void _setScale(float, const std::shared_ptr<IItem>&);
+                void _setThumbnailHeight(int, const std::shared_ptr<IItem>&);
+                void _setViewport(const math::BBox2i&, const std::shared_ptr<IItem>&);
+
                 static std::string _durationLabel(const otime::RationalTime&);
                 static std::string _timeLabel(const otime::RationalTime&);
 
                 float _scale = 100.F;
                 int _thumbnailHeight = 100;
+                math::BBox2i _viewport;
             };
         }
     }
