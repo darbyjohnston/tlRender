@@ -16,10 +16,11 @@ namespace tl
         {
             void GapItem::_init(
                 const otio::Gap* gap,
+                const std::shared_ptr<timeline::Timeline>& timeline,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
-                IItem::_init("GapItem", context, parent);
+                IItem::_init("GapItem", timeline, context, parent);
 
                 auto rangeOpt = gap->trimmed_range_in_parent();
                 if (rangeOpt.has_value())
@@ -38,11 +39,12 @@ namespace tl
 
             std::shared_ptr<GapItem> GapItem::create(
                 const otio::Gap* gap,
+                const std::shared_ptr<timeline::Timeline>& timeline,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<GapItem>(new GapItem);
-                out->_init(gap, context, parent);
+                out->_init(gap, timeline, context, parent);
                 return out;
             }
 

@@ -14,10 +14,12 @@ namespace tl
         {
             void IItem::_init(
                 const std::string& name,
+                const std::shared_ptr<timeline::Timeline>& timeline,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 IWidget::_init(name, context, parent);
+                _timeline = timeline;
             }
 
             IItem::IItem()

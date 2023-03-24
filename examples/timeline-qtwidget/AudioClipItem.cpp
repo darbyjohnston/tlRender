@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include "ClipItem.h"
+#include "AudioClipItem.h"
 
 #include <tlUI/DrawUtil.h>
 
@@ -14,12 +14,13 @@ namespace tl
     {
         namespace timeline_qtwidget
         {
-            void  ClipItem::_init(
+            void  AudioClipItem::_init(
                 const otio::Clip* clip,
+                const std::shared_ptr<timeline::Timeline>& timeline,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
-                IItem::_init("ClipItem", context, parent);
+                IItem::_init("AudioClipItem", timeline, context, parent);
 
                 auto rangeOpt = clip->trimmed_range_in_parent();
                 if (rangeOpt.has_value())
@@ -33,20 +34,54 @@ namespace tl
                 _endLabel = _timeLabel(_timeRange.end_time_inclusive());
             }
 
-            ClipItem::~ClipItem()
-            {}
+            AudioClipItem::~AudioClipItem()
+            {
+                _cancelAudioRequests();
+            }
 
-            std::shared_ptr<ClipItem>  ClipItem::create(
+            std::shared_ptr<AudioClipItem>  AudioClipItem::create(
                 const otio::Clip* clip,
+                const std::shared_ptr<timeline::Timeline>& timeline,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
-                auto out = std::shared_ptr<ClipItem>(new ClipItem);
-                out->_init(clip, context, parent);
+                auto out = std::shared_ptr<AudioClipItem>(new AudioClipItem);
+                out->_init(clip, timeline, context, parent);
                 return out;
             }
 
-            void ClipItem::sizeEvent(const ui::SizeEvent& event)
+            void AudioClipItem::setScale(float value)
+            {
+                IItem::setScale(value);
+                if (_updates & ui::Update::Size)
+                {
+                    _cancelAudioRequests();
+                }
+            }
+
+            void AudioClipItem::setThumbnailHeight(int value)
+            {
+                IItem::setThumbnailHeight(value);
+                if (_updates & ui::Update::Size)
+                {
+                    _cancelAudioRequests();
+                }
+            }
+
+            void AudioClipItem::setViewport(const math::BBox2i& value)
+            {
+                IItem::setViewport(value);
+                if (_updates & ui::Update::Size)
+                {
+                    _cancelAudioRequests();
+                }
+            }
+
+            void AudioClipItem::tickEvent(const ui::TickEvent& event)
+            {
+            }
+
+            void AudioClipItem::sizeEvent(const ui::SizeEvent& event)
             {
                 IItem::sizeEvent(event);
 
@@ -66,7 +101,7 @@ namespace tl
                     _margin);
             }
 
-            void ClipItem::drawEvent(const ui::DrawEvent& event)
+            void AudioClipItem::drawEvent(const ui::DrawEvent& event)
             {
                 IItem::drawEvent(event);
 
@@ -82,7 +117,7 @@ namespace tl
 
                 event.render->drawRect(
                     g.margin(-_border),
-                    event.style->getColorRole(ui::ColorRole::Green));
+                    imaging::Color4f(.2F, .4F, .2F));
 
                 event.render->drawText(
                     event.fontSystem->getGlyphs(_label, fontInfo),
@@ -131,12 +166,15 @@ namespace tl
                     event.style->getColorRole(ui::ColorRole::Text));
             }
 
-            std::string ClipItem::_nameLabel(const std::string& name)
+            std::string AudioClipItem::_nameLabel(const std::string& name)
             {
                 return !name.empty() ?
                     name :
                     std::string("Clip");
             }
+
+            void AudioClipItem::_cancelAudioRequests()
+            {}
         }
     }
 }

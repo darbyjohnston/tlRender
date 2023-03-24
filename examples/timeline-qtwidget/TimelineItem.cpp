@@ -19,11 +19,13 @@ namespace tl
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
-                IItem::_init("TimelineItem", context, parent);
+                const std::string& directory = timeline->getPath().getDirectory();
+                const io::Options ioOptions = timeline->getOptions().ioOptions;
+                const file::PathOptions pathOptions = timeline->getOptions().pathOptions;
+                IItem::_init("TimelineItem", timeline, context, parent);
 
                 setBackgroundRole(ui::ColorRole::Window);
 
-                _timeline = timeline;
                 _timeRange = timeline->getTimeRange();
 
                 const auto otioTimeline = timeline->getTimeline();
@@ -31,7 +33,11 @@ namespace tl
                 {
                     if (const auto* track = dynamic_cast<otio::Track*>(child.value))
                     {
-                        auto trackItem = TrackItem::create(track, context, shared_from_this());
+                        auto trackItem = TrackItem::create(
+                            track,
+                            timeline,
+                            context,
+                            shared_from_this());
                     }
                 }
 
@@ -90,24 +96,6 @@ namespace tl
                 }
             }
 
-            void TimelineItem::tickEvent(const ui::TickEvent& event)
-            {
-                auto i = _videoDataFutures.begin();
-                while (i != _videoDataFutures.end())
-                {
-                    if (i->valid() &&
-                        i->wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-                    {
-                        const auto videoData = i->get();
-                        _videoData[videoData.time] = videoData;
-                        i = _videoDataFutures.erase(i);
-                        _updates |= ui::Update::Draw;
-                        continue;
-                    }
-                    ++i;
-                }
-            }
-
             void TimelineItem::setGeometry(const math::BBox2i& value)
             {
                 IWidget::setGeometry(value);
@@ -132,6 +120,24 @@ namespace tl
                         sizeHint.x,
                         sizeHint.y));
                     y += sizeHint.y;
+                }
+            }
+
+            void TimelineItem::tickEvent(const ui::TickEvent& event)
+            {
+                auto i = _videoDataFutures.begin();
+                while (i != _videoDataFutures.end())
+                {
+                    if (i->second.valid() &&
+                        i->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+                    {
+                        const auto videoData = i->second.get();
+                        _videoData[videoData.time] = videoData;
+                        i = _videoDataFutures.erase(i);
+                        _updates |= ui::Update::Draw;
+                        continue;
+                    }
+                    ++i;
                 }
             }
 
@@ -178,7 +184,6 @@ namespace tl
             {
                 IItem::drawEvent(event);
 
-                const auto& timelineSize = _timelineSize->get();
                 math::BBox2i g = _geometry;
                 g.min = g.min - _viewport.min;
                 g.max = g.max - _viewport.min;
@@ -405,7 +410,7 @@ namespace tl
                     _spacing +
                     _fontMetrics.lineHeight +
                     _spacing,
-                    timelineSize.x - _margin * 2,
+                    _sizeHint.x - _margin * 2,
                     _thumbnailHeight);
                 event.render->drawRect(
                     bbox,
@@ -437,11 +442,11 @@ namespace tl
                     if (bbox.intersects(_viewport))
                     {
                         const int w = _sizeHint.x - _margin * 2;
-                        const otime::RationalTime time(
+                        const otime::RationalTime time = time::round(otime::RationalTime(
                             _timeRange.start_time().value() +
                             (w > 0 ? ((x - _margin) / static_cast<double>(w)) : 0) *
                             _timeRange.duration().value(),
-                            _timeRange.duration().rate());
+                            _timeRange.duration().rate()));
                         auto i = _videoData.find(time);
                         if (i != _videoData.end())
                         {
@@ -454,7 +459,11 @@ namespace tl
                         }
                         else
                         {
-                            _videoDataFutures.push_back(_timeline->getVideo(time));
+                            const auto j = _videoDataFutures.find(time);
+                            if (j == _videoDataFutures.end())
+                            {
+                                _videoDataFutures[time] = _timeline->getVideo(time);
+                            }
                         }
                     }
                 }
@@ -478,8 +487,8 @@ namespace tl
             
             void TimelineItem::_cancelVideoRequests()
             {
-                _timeline->cancelRequests();
-                _videoDataFutures.clear();
+                //_timeline->cancelRequests();
+                //_videoDataFutures.clear();
             }
         }
     }

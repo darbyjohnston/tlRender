@@ -4,7 +4,8 @@
 
 #include "TrackItem.h"
 
-#include "ClipItem.h"
+#include "AudioClipItem.h"
+#include "VideoClipItem.h"
 #include "GapItem.h"
 
 #include <tlCore/StringFormat.h>
@@ -17,10 +18,20 @@ namespace tl
         {
             void TrackItem::_init(
                 const otio::Track* track,
+                const std::shared_ptr<timeline::Timeline>& timeline,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
-                IItem::_init("TrackItem", context, parent);
+                IItem::_init("TrackItem", timeline, context, parent);
+
+                if (otio::Track::Kind::video == track->kind())
+                {
+                    _trackType = TrackType::Video;
+                }
+                else if (otio::Track::Kind::audio == track->kind())
+                {
+                    _trackType = TrackType::Audio;
+                }
 
                 _timeRange = track->trimmed_range();
 
@@ -28,7 +39,24 @@ namespace tl
                 {
                     if (auto clip = dynamic_cast<otio::Clip*>(child.value))
                     {
-                        auto clipItem = ClipItem::create(clip, context, shared_from_this());
+                        std::shared_ptr<IItem> clipItem;
+                        switch (_trackType)
+                        {
+                        case TrackType::Video:
+                            clipItem = VideoClipItem::create(
+                                clip,
+                                timeline,
+                                context,
+                                shared_from_this());
+                            break;
+                        case TrackType::Audio:
+                            clipItem = AudioClipItem::create(
+                                clip,
+                                timeline,
+                                context,
+                                shared_from_this());
+                            break;
+                        }
                         const auto timeRangeOpt = track->trimmed_range_of_child(clip);
                         if (timeRangeOpt.has_value())
                         {
@@ -37,7 +65,11 @@ namespace tl
                     }
                     else if (auto gap = dynamic_cast<otio::Gap*>(child.value))
                     {
-                        auto gapItem = GapItem::create(gap, context, shared_from_this());
+                        auto gapItem = GapItem::create(
+                            gap,
+                            timeline,
+                            context,
+                            shared_from_this());
                         const auto timeRangeOpt = track->trimmed_range_of_child(gap);
                         if (timeRangeOpt.has_value())
                         {
@@ -52,11 +84,12 @@ namespace tl
 
             std::shared_ptr<TrackItem> TrackItem::create(
                 const otio::Track* track,
+                const std::shared_ptr<timeline::Timeline>& timeline,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<TrackItem>(new TrackItem);
-                out->_init(track, context, parent);
+                out->_init(track, timeline, context, parent);
                 return out;
             }
 

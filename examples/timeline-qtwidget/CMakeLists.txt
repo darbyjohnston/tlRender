@@ -1,17 +1,18 @@
 set(HEADERS
     App.h
-    ClipItem.h
+    AudioClipItem.h
     GapItem.h
     IItem.h
     MainWindow.h
     TimelineItem.h
     TimelineScrollArea.h
     TimelineWidget.h
-    TrackItem.h)
+    TrackItem.h
+    VideoClipItem.h)
 
 set(SOURCE
     App.cpp
-    ClipItem.cpp
+    AudioClipItem.cpp
     GapItem.cpp
     IItem.cpp
     MainWindow.cpp
@@ -19,6 +20,7 @@ set(SOURCE
     TimelineScrollArea.cpp
     TimelineWidget.cpp
     TrackItem.cpp
+    VideoClipItem.cpp
     main.cpp)
 
 add_executable(timeline-qtwidget ${SOURCE} ${HEADERS})

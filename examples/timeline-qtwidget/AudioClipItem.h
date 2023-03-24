@@ -14,28 +14,37 @@ namespace tl
     {
         namespace timeline_qtwidget
         {
-            //! Clip item.
-            class ClipItem : public IItem
+            //! Audio clip item.
+            class AudioClipItem : public IItem
             {
             protected:
                 void _init(
                     const otio::Clip*,
+                    const std::shared_ptr<timeline::Timeline>&,
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
             public:
-                static std::shared_ptr<ClipItem> create(
+                static std::shared_ptr<AudioClipItem> create(
                     const otio::Clip*,
+                    const std::shared_ptr<timeline::Timeline>&,
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
-                ~ClipItem() override;
+                ~AudioClipItem() override;
 
+                void setScale(float) override;
+                void setThumbnailHeight(int) override;
+                void setViewport(const math::BBox2i&) override;
+
+                void tickEvent(const ui::TickEvent&) override;
                 void sizeEvent(const ui::SizeEvent&) override;
                 void drawEvent(const ui::DrawEvent&) override;
 
             private:
                 static std::string _nameLabel(const std::string&);
+
+                void _cancelAudioRequests();
 
                 otime::TimeRange _timeRange = time::invalidTimeRange;
                 std::string _label;

@@ -20,12 +20,14 @@ namespace tl
             protected:
                 void _init(
                     const otio::Gap*,
+                    const std::shared_ptr<timeline::Timeline>&,
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
             public:
                 static std::shared_ptr<GapItem> create(
                     const otio::Gap*,
+                    const std::shared_ptr<timeline::Timeline>&,
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 

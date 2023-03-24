@@ -38,34 +38,6 @@ namespace tl
             return out;
         }
 
-        namespace
-        {
-            const std::string fileURLPrefix = "file://";
-
-            std::string removeFileURLPrefix(const std::string& value)
-            {
-                std::string out = value;
-                if (0 == out.compare(0, fileURLPrefix.size(), fileURLPrefix))
-                {
-                    out.replace(0, fileURLPrefix.size(), "");
-                }
-                return out;
-            }
-        }
-
-        file::Path getPath(
-            const std::string& url,
-            const std::string& directory,
-            const file::PathOptions& options)
-        {
-            file::Path out = file::Path(removeFileURLPrefix(url), options);
-            if (!out.isAbsolute())
-            {
-                out = file::Path(directory, out.get(), options);
-            }
-            return out;
-        }
-
         TLRENDER_ENUM_IMPL(
             FileSequenceAudio,
             "None",

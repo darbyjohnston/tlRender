@@ -14,18 +14,28 @@ namespace tl
     {
         namespace timeline_qtwidget
         {
+            //! Track types.
+            enum class TrackType
+            {
+                None,
+                Video,
+                Audio
+            };
+
             //! Track item.
             class TrackItem : public IItem
             {
             protected:
                 void _init(
                     const otio::Track*,
+                    const std::shared_ptr<timeline::Timeline>&,
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
             public:
                 static std::shared_ptr<TrackItem> create(
                     const otio::Track*,
+                    const std::shared_ptr<timeline::Timeline>&,
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
@@ -40,6 +50,7 @@ namespace tl
                     const std::string& kind,
                     const std::string& name);
 
+                TrackType _trackType = TrackType::None;
                 otime::TimeRange _timeRange = time::invalidTimeRange;
                 std::map<std::shared_ptr<IItem>, otime::TimeRange> _childTimeRanges;
                 std::string _label;

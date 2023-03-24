@@ -13,6 +13,8 @@
 #include <tlCore/FileInfo.h>
 #include <tlCore/StringFormat.h>
 
+#include <opentimelineio/externalReference.h>
+#include <opentimelineio/imageSequenceReference.h>
 #include <opentimelineio/typeRegistry.h>
 
 namespace tl
@@ -178,6 +180,120 @@ namespace tl
             default:
                 out.push_back(path);
                 break;
+            }
+            return out;
+        }
+
+        namespace
+        {
+            const std::string fileURLPrefix = "file://";
+
+            std::string removeFileURLPrefix(const std::string& value)
+            {
+                std::string out = value;
+                if (0 == out.compare(0, fileURLPrefix.size(), fileURLPrefix))
+                {
+                    out.replace(0, fileURLPrefix.size(), "");
+                }
+                return out;
+            }
+        }
+
+        file::Path getPath(
+            const std::string& url,
+            const std::string& directory,
+            const file::PathOptions& options)
+        {
+            file::Path out = file::Path(removeFileURLPrefix(url), options);
+            if (!out.isAbsolute())
+            {
+                out = file::Path(directory, out.get(), options);
+            }
+            return out;
+        }
+
+        file::Path getPath(
+            const otio::MediaReference* ref,
+            const std::string& directory,
+            const file::PathOptions& pathOptions)
+        {
+            std::string url;
+            if (auto externalRef = dynamic_cast<const otio::ExternalReference*>(ref))
+            {
+                url = externalRef->target_url();
+            }
+            else if (auto imageSequenceRef = dynamic_cast<const otio::ImageSequenceReference*>(ref))
+            {
+                std::stringstream ss;
+                ss << imageSequenceRef->target_url_base() <<
+                    imageSequenceRef->name_prefix() <<
+                    std::setfill('0') << std::setw(imageSequenceRef->frame_zero_padding()) <<
+                    imageSequenceRef->start_frame() <<
+                    imageSequenceRef->name_suffix();
+                url = ss.str();
+            }
+            else if (auto rawMemoryRef = dynamic_cast<const RawMemoryReference*>(ref))
+            {
+                url = rawMemoryRef->target_url();
+            }
+            else if (auto sharedMemoryRef = dynamic_cast<const SharedMemoryReference*>(ref))
+            {
+                url = sharedMemoryRef->target_url();
+            }
+            else if (auto rawMemorySequenceRef = dynamic_cast<const RawMemorySequenceReference*>(ref))
+            {
+                url = rawMemorySequenceRef->target_url();
+            }
+            else if (auto sharedMemorySequenceRef = dynamic_cast<const SharedMemorySequenceReference*>(ref))
+            {
+                url = sharedMemorySequenceRef->target_url();
+            }
+            return timeline::getPath(url, directory, pathOptions);
+        }
+
+        std::vector<file::MemoryRead> getMemoryRead(
+            const otio::MediaReference* ref)
+        {
+            std::vector<file::MemoryRead> out;
+            if (auto rawMemoryReference =
+                dynamic_cast<const RawMemoryReference*>(ref))
+            {
+                out.push_back(file::MemoryRead(
+                    rawMemoryReference->memory(),
+                    rawMemoryReference->memory_size()));
+            }
+            else if (auto sharedMemoryReference =
+                dynamic_cast<const SharedMemoryReference*>(ref))
+            {
+                if (const auto& memory = sharedMemoryReference->memory())
+                {
+                    out.push_back(file::MemoryRead(
+                        memory->data(),
+                        memory->size()));
+                }
+            }
+            else if (auto rawMemorySequenceReference =
+                dynamic_cast<const RawMemorySequenceReference*>(ref))
+            {
+                const auto& memory = rawMemorySequenceReference->memory();
+                const size_t memory_size = memory.size();
+                const auto& memory_sizes = rawMemorySequenceReference->memory_sizes();
+                const size_t memory_sizes_size = memory_sizes.size();
+                for (size_t i = 0; i < memory_size && i < memory_sizes_size; ++i)
+                {
+                    out.push_back(file::MemoryRead(memory[i], memory_sizes[i]));
+                }
+            }
+            else if (auto sharedMemorySequenceReference =
+                dynamic_cast<const SharedMemorySequenceReference*>(ref))
+            {
+                for (const auto& memory : sharedMemorySequenceReference->memory())
+                {
+                    if (memory)
+                    {
+                        out.push_back(file::MemoryRead(memory->data(), memory->size()));
+                    }
+                }
             }
             return out;
         }

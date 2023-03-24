@@ -6,6 +6,8 @@
 
 #include <tlUI/IWidget.h>
 
+#include <tlTimeline/Timeline.h>
+
 namespace tl
 {
     namespace examples
@@ -18,6 +20,7 @@ namespace tl
             protected:
                 void _init(
                     const std::string& name,
+                    const std::shared_ptr<timeline::Timeline>&,
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
@@ -40,6 +43,7 @@ namespace tl
                 static std::string _durationLabel(const otime::RationalTime&);
                 static std::string _timeLabel(const otime::RationalTime&);
 
+                std::shared_ptr<timeline::Timeline> _timeline;
                 float _scale = 100.F;
                 int _thumbnailHeight = 100;
                 math::BBox2i _viewport;
