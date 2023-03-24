@@ -43,6 +43,10 @@ namespace tl
                 std::string _startLabel;
                 std::string _endLabel;
                 imaging::FontInfo _fontInfo;
+                int _margin = 0;
+                int _spacing = 0;
+                int _border = 0;
+                imaging::FontMetrics _fontMetrics;
             };
         }
     }

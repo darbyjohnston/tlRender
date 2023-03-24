@@ -12,6 +12,8 @@ namespace tl
     {
         struct ListButton::Private
         {
+            int margin = 0;
+            int spacing = 0;
         };
 
         void ListButton::_init(
@@ -43,8 +45,8 @@ namespace tl
             IButton::sizeEvent(event);
             TLRENDER_P();
             
-            const int m = event.style->getSizeRole(SizeRole::MarginSmall) * event.contentScale;
-            const int s = event.style->getSizeRole(SizeRole::SpacingSmall) * event.contentScale;
+            p.margin = event.style->getSizeRole(SizeRole::MarginSmall) * event.contentScale;
+            p.spacing = event.style->getSizeRole(SizeRole::SpacingSmall) * event.contentScale;
 
             _sizeHint.x = 0;
             _sizeHint.y = 0;
@@ -64,11 +66,11 @@ namespace tl
                     static_cast<int>(_iconImage->getHeight()));
                 if (!_text.empty())
                 {
-                    _sizeHint.x += s;
+                    _sizeHint.x += p.spacing;
                 }
             }
-            _sizeHint.x += m * 2;
-            _sizeHint.y += m * 2;
+            _sizeHint.x += p.margin * 2;
+            _sizeHint.y += p.margin * 2;
         }
 
         void ListButton::drawEvent(const DrawEvent& event)
@@ -76,8 +78,6 @@ namespace tl
             IButton::drawEvent(event);
             TLRENDER_P();
 
-            const int m = event.style->getSizeRole(SizeRole::MarginSmall) * event.contentScale;
-            const int s = event.style->getSizeRole(SizeRole::SpacingSmall) * event.contentScale;
             math::BBox2i g = _geometry;
 
             const ColorRole colorRole = _checked->get() ?
@@ -103,14 +103,14 @@ namespace tl
                     event.style->getColorRole(ColorRole::Hover));
             }
 
-            int x = g.x() + m;
+            int x = g.x() + p.margin;
             if (_iconImage)
             {
                 const auto iconSize = _iconImage->getSize();
                 event.render->drawImage(
                   _iconImage,
-                  math::BBox2i(x, g.y() + m, iconSize.w, iconSize.h));
-                x += iconSize.w + s;
+                  math::BBox2i(x, g.y() + p.margin, iconSize.w, iconSize.h));
+                x += iconSize.w + p.spacing;
             }
             
             if (!_text.empty())

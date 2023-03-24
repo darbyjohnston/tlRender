@@ -12,6 +12,8 @@ namespace tl
     {
         struct ToolButton::Private
         {
+            int margin = 0;
+            int border = 0;
         };
 
         void ToolButton::_init(
@@ -41,8 +43,9 @@ namespace tl
         {
             IButton::sizeEvent(event);
             TLRENDER_P();
-            
-            const int m = event.style->getSizeRole(SizeRole::MarginTool) * event.contentScale;
+
+            p.margin = event.style->getSizeRole(SizeRole::MarginTool) * event.contentScale;
+            p.border = event.style->getSizeRole(SizeRole::Border) * event.contentScale;
 
             _sizeHint.x = 0;
             _sizeHint.y = 0;
@@ -51,7 +54,7 @@ namespace tl
                 imaging::FontInfo fontInfo = _fontInfo;
                 fontInfo.size *= event.contentScale;
                 auto fontMetrics = event.fontSystem->getMetrics(fontInfo);
-                _sizeHint.x = event.fontSystem->measure(_text, fontInfo).x + m * 2;
+                _sizeHint.x = event.fontSystem->measure(_text, fontInfo).x + p.margin * 2;
                 _sizeHint.y = fontMetrics.lineHeight;
             }
             if (_iconImage)
@@ -61,8 +64,8 @@ namespace tl
                     _sizeHint.y,
                     static_cast<int>(_iconImage->getHeight()));
             }
-            _sizeHint.x += m * 2;
-            _sizeHint.y += m * 2;
+            _sizeHint.x += p.margin * 2;
+            _sizeHint.y += p.margin * 2;
         }
 
         void ToolButton::drawEvent(const DrawEvent& event)
@@ -70,15 +73,13 @@ namespace tl
             IButton::drawEvent(event);
             TLRENDER_P();
 
-            const int m = event.style->getSizeRole(SizeRole::MarginTool) * event.contentScale;
-            const int b = event.style->getSizeRole(SizeRole::Border) * event.contentScale;
             math::BBox2i g = _geometry;
 
             event.render->drawMesh(
-                border(g, b),
+                border(g, p.border),
                 event.style->getColorRole(ColorRole::Border));
 
-            math::BBox2i g2 = g.margin(-b);
+            math::BBox2i g2 = g.margin(-p.border);
             const ColorRole colorRole = _checked->get() ?
                 ColorRole::Checked :
                 _buttonRole;
@@ -102,13 +103,13 @@ namespace tl
                     event.style->getColorRole(ColorRole::Hover));
             }
 
-            int x = g.x() + m;
+            int x = g.x() + p.margin;
             if (_iconImage)
             {
                 const auto iconSize = _iconImage->getSize();
                 event.render->drawImage(
                   _iconImage,
-                  math::BBox2i(x, g.y() + m, iconSize.w, iconSize.h));
+                  math::BBox2i(x, g.y() + p.margin, iconSize.w, iconSize.h));
                 x += _iconImage->getWidth();
             }
             
@@ -121,7 +122,7 @@ namespace tl
                 event.render->drawText(
                     event.fontSystem->getGlyphs(_text, fontInfo),
                     math::Vector2i(
-                        x + m,
+                        x + p.margin,
                         g.y() + g.h() / 2 - textSize.y / 2 + fontMetrics.ascender),
                     event.style->getColorRole(ColorRole::Text));
             }

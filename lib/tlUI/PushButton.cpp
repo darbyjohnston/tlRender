@@ -12,6 +12,9 @@ namespace tl
     {
         struct PushButton::Private
         {
+            int margin = 0;
+            int margin2 = 0;
+            int border = 0;
         };
 
         void PushButton::_init(
@@ -42,8 +45,9 @@ namespace tl
             IButton::sizeEvent(event);
             TLRENDER_P();
 
-            const int m = event.style->getSizeRole(SizeRole::Margin) * event.contentScale;
-            const int m2 = event.style->getSizeRole(SizeRole::MarginSmall) * event.contentScale;
+            p.margin = event.style->getSizeRole(SizeRole::Margin) * event.contentScale;
+            p.margin2 = event.style->getSizeRole(SizeRole::MarginSmall) * event.contentScale;
+            p.border = event.style->getSizeRole(SizeRole::Border) * event.contentScale;
 
             _sizeHint.x = 0;
             _sizeHint.y = 0;
@@ -52,7 +56,7 @@ namespace tl
                 imaging::FontInfo fontInfo = _fontInfo;
                 fontInfo.size *= event.contentScale;
                 auto fontMetrics = event.fontSystem->getMetrics(fontInfo);
-                _sizeHint.x = event.fontSystem->measure(_text, fontInfo).x + m2 * 2;
+                _sizeHint.x = event.fontSystem->measure(_text, fontInfo).x + p.margin2 * 2;
                 _sizeHint.y = fontMetrics.lineHeight;
             }
             if (_iconImage)
@@ -62,8 +66,8 @@ namespace tl
                     _sizeHint.y,
                     static_cast<int>(_iconImage->getHeight()));
             }
-            _sizeHint.x += m * 2 * 2;
-            _sizeHint.y += m2 * 2;
+            _sizeHint.x += p.margin * 2 * 2;
+            _sizeHint.y += p.margin2 * 2;
         }
 
         void PushButton::drawEvent(const DrawEvent& event)
@@ -71,17 +75,14 @@ namespace tl
             IButton::drawEvent(event);
             TLRENDER_P();
 
-            const int m = event.style->getSizeRole(SizeRole::Margin) * event.contentScale;
-            const int m2 = event.style->getSizeRole(SizeRole::MarginSmall) * event.contentScale;
-            const int b = event.style->getSizeRole(SizeRole::Border) * event.contentScale;
             math::BBox2i g = _geometry;
 
             event.render->drawMesh(
-                border(g, b, m / 2),
+                border(g, p.border, p.margin / 2),
                 event.style->getColorRole(ColorRole::Border));
 
-            math::BBox2i g2 = g.margin(-b);
-            const auto mesh = rect(g2, m / 2);
+            math::BBox2i g2 = g.margin(-p.border);
+            const auto mesh = rect(g2, p.margin / 2);
             const ColorRole colorRole = _checked->get() ?
                 ColorRole::Checked :
                 _buttonRole;
@@ -105,13 +106,13 @@ namespace tl
                     event.style->getColorRole(ColorRole::Hover));
             }
 
-            int x = g.x() + m * 2;
+            int x = g.x() + p.margin * 2;
             if (_iconImage)
             {
                 const auto iconSize = _iconImage->getSize();
                 event.render->drawImage(
                   _iconImage,
-                  math::BBox2i(x, g.y() + m2, iconSize.w, iconSize.h));
+                  math::BBox2i(x, g.y() + p.margin2, iconSize.w, iconSize.h));
                 x += iconSize.w;
             }
             
@@ -124,7 +125,7 @@ namespace tl
                 event.render->drawText(
                     event.fontSystem->getGlyphs(_text, fontInfo),
                     math::Vector2i(
-                        x + (g.max.x - m * 2 - x) / 2 - textSize.x / 2,
+                        x + (g.max.x - p.margin * 2 - x) / 2 - textSize.x / 2,
                         g.y() + g.h() / 2 - textSize.y / 2 + fontMetrics.ascender),
                     event.style->getColorRole(ColorRole::Text));
             }

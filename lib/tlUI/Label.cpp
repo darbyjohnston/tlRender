@@ -72,7 +72,9 @@ namespace tl
         {
             IWidget::drawEvent(event);
             TLRENDER_P();
+
             //render->drawRect(_geometry, imaging::Color4f(.5F, .3F, .3F));
+
             imaging::FontInfo fontInfo = p.fontInfo;
             fontInfo.size *= event.contentScale;
             auto fontMetrics = event.fontSystem->getMetrics(fontInfo);
