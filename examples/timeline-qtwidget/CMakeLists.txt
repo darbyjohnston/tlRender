@@ -1,7 +1,7 @@
 set(HEADERS
     App.h
-    #ClipItem.h
-    #GapItem.h
+    ClipItem.h
+    GapItem.h
     IItem.h
     MainWindow.h
     TimelineItem.h
@@ -11,8 +11,8 @@ set(HEADERS
 
 set(SOURCE
     App.cpp
-    #ClipItem.cpp
-    #GapItem.cpp
+    ClipItem.cpp
+    GapItem.cpp
     IItem.cpp
     MainWindow.cpp
     TimelineItem.cpp

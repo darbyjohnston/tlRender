@@ -47,6 +47,8 @@ namespace tl
             private:
                 static std::string _nameLabel(const std::string&);
 
+                void _cancelVideoRequests();
+
                 std::shared_ptr<timeline::Timeline> _timeline;
                 otime::TimeRange _timeRange = time::invalidTimeRange;
                 int _thumbnailWidth = 0;

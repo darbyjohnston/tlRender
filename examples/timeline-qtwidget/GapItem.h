@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "BaseItem.h"
+#include "IItem.h"
 
 #include <opentimelineio/gap.h>
 
@@ -15,27 +15,24 @@ namespace tl
         namespace timeline_qtwidget
         {
             //! Gap item.
-            class GapItem : public BaseItem
+            class GapItem : public IItem
             {
             protected:
                 void _init(
                     const otio::Gap*,
-                    const ItemData&,
-                    const std::shared_ptr<system::Context>&);
+                    const std::shared_ptr<system::Context>&,
+                    const std::shared_ptr<IWidget>& parent = nullptr);
 
             public:
                 static std::shared_ptr<GapItem> create(
                     const otio::Gap*,
-                    const ItemData&,
-                    const std::shared_ptr<system::Context>&);
+                    const std::shared_ptr<system::Context>&,
+                    const std::shared_ptr<IWidget>& parent = nullptr);
 
                 ~GapItem() override;
 
-                void preLayout() override;
-                void render(
-                    const std::shared_ptr<timeline::IRender>&,
-                    const math::BBox2i& viewport,
-                    float devicePixelRatio) override;
+                void sizeEvent(const ui::SizeEvent&) override;
+                void drawEvent(const ui::DrawEvent&) override;
 
             private:
                 static std::string _nameLabel(const std::string&);
@@ -45,6 +42,7 @@ namespace tl
                 std::string _durationLabel;
                 std::string _startLabel;
                 std::string _endLabel;
+                imaging::FontInfo _fontInfo;
             };
         }
     }

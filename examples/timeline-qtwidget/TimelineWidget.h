@@ -65,24 +65,10 @@ namespace tl
                 void mouseMoveEvent(QMouseEvent*) override;
                 void wheelEvent(QWheelEvent*) override;
 
-                /*void dragEnterEvent(QDragEnterEvent*) override;
-                void dragMoveEvent(QDragMoveEvent*) override;
-                void dragLeaveEvent(QDragLeaveEvent*) override;
-                void dropEvent(QDropEvent*) override;*/
-
                 void timerEvent(QTimerEvent*) override;
 
             private:
                 math::BBox2i _timelineViewport() const;
-                //void _tick(const std::shared_ptr<BaseItem>&);
-                //bool _doLayout(const std::shared_ptr<BaseItem>&);
-                //void _preLayout(const std::shared_ptr<BaseItem>&);
-                //bool _doRender(const std::shared_ptr<BaseItem>&);
-                //void _renderItems(
-                //    const std::shared_ptr<BaseItem>&,
-                //    const std::shared_ptr<timeline::IRender>&,
-                //    const math::BBox2i& viewport,
-                //    float devicePixelRatio);
 
                 std::weak_ptr<system::Context> _context;
                 math::Vector2i _viewPos;

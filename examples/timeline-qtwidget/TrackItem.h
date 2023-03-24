@@ -41,9 +41,12 @@ namespace tl
                     const std::string& name);
 
                 otime::TimeRange _timeRange = time::invalidTimeRange;
+                std::map<std::shared_ptr<IItem>, otime::TimeRange> _childTimeRanges;
                 std::string _label;
                 std::string _durationLabel;
                 imaging::FontInfo _fontInfo;
+                int _margin = 0;
+                imaging::FontMetrics _fontMetrics;
             };
         }
     }
