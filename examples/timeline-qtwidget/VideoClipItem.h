@@ -7,6 +7,7 @@
 #include "IItem.h"
 
 #include <opentimelineio/clip.h>
+#include <opentimelineio/track.h>
 
 namespace tl
 {
@@ -20,6 +21,7 @@ namespace tl
             protected:
                 void _init(
                     const otio::Clip*,
+                    const otio::Track*,
                     const std::shared_ptr<timeline::Timeline>&,
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
@@ -27,6 +29,7 @@ namespace tl
             public:
                 static std::shared_ptr<VideoClipItem> create(
                     const otio::Clip*,
+                    const otio::Track*,
                     const std::shared_ptr<timeline::Timeline>&,
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
@@ -46,6 +49,8 @@ namespace tl
 
                 void _cancelVideoRequests();
 
+                const otio::Clip* _clip = nullptr;
+                const otio::Track* _track = nullptr;
                 otime::TimeRange _timeRange = time::invalidTimeRange;
                 std::string _label;
                 std::string _durationLabel;
@@ -57,8 +62,10 @@ namespace tl
                 int _border = 0;
                 imaging::FontMetrics _fontMetrics;
                 int _thumbnailWidth = 0;
-                std::map<otime::RationalTime, std::future<timeline::VideoData> > _videoDataFutures;
-                std::map<otime::RationalTime, timeline::VideoData> _videoData;
+                std::shared_ptr<io::IRead> _reader;
+                io::Info _ioInfo;
+                std::map<otime::RationalTime, std::future<io::VideoData> > _videoDataFutures;
+                std::map<otime::RationalTime, io::VideoData> _videoData;
             };
         }
     }

@@ -13,6 +13,7 @@ namespace tl
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
+            _context = context;
             _name = name;
             if (parent)
             {

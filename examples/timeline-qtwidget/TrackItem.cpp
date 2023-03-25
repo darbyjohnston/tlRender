@@ -45,6 +45,7 @@ namespace tl
                         case TrackType::Video:
                             clipItem = VideoClipItem::create(
                                 clip,
+                                track,
                                 timeline,
                                 context,
                                 shared_from_this());

@@ -13,6 +13,7 @@
 #include <tlCore/FileInfo.h>
 #include <tlCore/StringFormat.h>
 
+#include <opentimelineio/clip.h>
 #include <opentimelineio/externalReference.h>
 #include <opentimelineio/imageSequenceReference.h>
 #include <opentimelineio/typeRegistry.h>
@@ -296,6 +297,17 @@ namespace tl
                 }
             }
             return out;
+        }
+
+        otime::RationalTime mediaTime(
+            const otime::RationalTime& time,
+            const otio::Track* track,
+            const otio::Clip* clip,
+            double mediaRate)
+        {
+            const auto clipTime = track->transformed_time(time, clip);
+            const auto mediaTime = time::round(clipTime.rescaled_to(mediaRate));
+            return mediaTime;
         }
     }
 }

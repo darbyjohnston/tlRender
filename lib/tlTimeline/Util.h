@@ -51,6 +51,13 @@ namespace tl
         //! Get a memory read for a media reference.
         std::vector<file::MemoryRead> getMemoryRead(
             const otio::MediaReference*);
+
+        //! Transform track time to media time.
+        otime::RationalTime mediaTime(
+            const otime::RationalTime&,
+            const otio::Track*,
+            const otio::Clip*,
+            double mediaRate);
     }
 }
 

@@ -487,8 +487,8 @@ namespace tl
             
             void TimelineItem::_cancelVideoRequests()
             {
-                //_timeline->cancelRequests();
-                //_videoDataFutures.clear();
+                _timeline->cancelRequests();
+                _videoDataFutures.clear();
             }
         }
     }

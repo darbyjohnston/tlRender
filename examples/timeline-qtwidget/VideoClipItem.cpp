@@ -6,6 +6,10 @@
 
 #include <tlUI/DrawUtil.h>
 
+#include <tlTimeline/Util.h>
+
+#include <tlIO/IOSystem.h>
+
 #include <QPainter>
 
 namespace tl
@@ -16,11 +20,15 @@ namespace tl
         {
             void VideoClipItem::_init(
                 const otio::Clip* clip,
+                const otio::Track* track,
                 const std::shared_ptr<timeline::Timeline>& timeline,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 IItem::_init("VideoClipItem", timeline, context, parent);
+
+                _clip = clip;
+                _track = track;
 
                 auto rangeOpt = clip->trimmed_range_in_parent();
                 if (rangeOpt.has_value())
@@ -41,12 +49,13 @@ namespace tl
 
             std::shared_ptr<VideoClipItem>  VideoClipItem::create(
                 const otio::Clip* clip,
+                const otio::Track* track,
                 const std::shared_ptr<timeline::Timeline>& timeline,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<VideoClipItem>(new VideoClipItem);
-                out->_init(clip, timeline, context, parent);
+                out->_init(clip, track, timeline, context, parent);
                 return out;
             }
 
@@ -86,7 +95,7 @@ namespace tl
                         i->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                     {
                         const auto videoData = i->second.get();
-                        _videoData[videoData.time] = videoData;
+                        _videoData[i->first] = videoData;
                         i = _videoDataFutures.erase(i);
                         _updates |= ui::Update::Draw;
                         continue;
@@ -207,6 +216,37 @@ namespace tl
                 {
                     videoDataDelete.insert(videoData.first);
                 }
+                if (_geometry.intersects(_viewport))
+                {
+                    if (!_reader)
+                    {
+                        if (auto context = _context.lock())
+                        {
+                            try
+                            {
+                                auto ioSystem = context->getSystem<io::System>();
+                                const auto path = timeline::getPath(
+                                    _clip->media_reference(),
+                                    _timeline->getPath().getDirectory(),
+                                    _timeline->getOptions().pathOptions);
+                                const auto memoryRead = timeline::getMemoryRead(
+                                    _clip->media_reference());
+                                _reader = ioSystem->read(
+                                    path,
+                                    memoryRead,
+                                    _timeline->getOptions().ioOptions);
+                                _ioInfo = _reader->getInfo().get();
+                            }
+                            catch (const std::exception&)
+                            {
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    _reader.reset();
+                }
                 for (int x = _margin; x < _sizeHint.x - _margin; x += _thumbnailWidth)
                 {
                     math::BBox2i bbox(
@@ -231,19 +271,25 @@ namespace tl
                         auto i = _videoData.find(time);
                         if (i != _videoData.end())
                         {
-                            bbox.min = bbox.min - _viewport.min;
-                            bbox.max = bbox.max - _viewport.min;
-                            event.render->drawVideo(
-                                { i->second },
-                                { bbox });
+                            if (i->second.image)
+                            {
+                                bbox.min = bbox.min - _viewport.min;
+                                bbox.max = bbox.max - _viewport.min;
+                                event.render->drawImage(i->second.image, bbox);
+                            }
                             videoDataDelete.erase(time);
                         }
-                        else
+                        else if (_reader)
                         {
                             const auto j = _videoDataFutures.find(time);
                             if (j == _videoDataFutures.end())
                             {
-                                _videoDataFutures[time] = _timeline->getVideo(time);
+                                const auto mediaTime = timeline::mediaTime(
+                                    time,
+                                    _track,
+                                    _clip,
+                                    _ioInfo.videoTime.duration().rate());
+                                _videoDataFutures[time] = _reader->readVideo(mediaTime);
                             }
                         }
                     }
@@ -268,8 +314,11 @@ namespace tl
 
             void VideoClipItem::_cancelVideoRequests()
             {
-                //_timeline->cancelRequests();
-                //_videoDataFutures.clear();
+                if (_reader)
+                {
+                    _reader->cancelRequests();
+                }
+                _videoDataFutures.clear();
             }
         }
     }
