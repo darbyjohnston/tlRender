@@ -88,6 +88,14 @@ namespace tl
 
             void VideoClipItem::tickEvent(const ui::TickEvent& event)
             {
+                if (_ioInfoFuture.valid() &&
+                    _ioInfoFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+                {
+                    _ioInfo = _ioInfoFuture.get();
+                    _updates |= ui::Update::Size;
+                    _updates |= ui::Update::Draw;
+                }
+
                 auto i = _videoDataFutures.begin();
                 while (i != _videoDataFutures.end())
                 {
@@ -115,9 +123,8 @@ namespace tl
                 fontInfo.size *= event.contentScale;
                 _fontMetrics = event.fontSystem->getMetrics(fontInfo);
 
-                const auto& info = _timeline->getIOInfo();
-                _thumbnailWidth = !info.video.empty() ?
-                    static_cast<int>(_thumbnailHeight * info.video[0].size.getAspect()) :
+                _thumbnailWidth = !_ioInfo.video.empty() ?
+                    static_cast<int>(_thumbnailHeight * _ioInfo.video[0].size.getAspect()) :
                     0;
 
                 _sizeHint = math::Vector2i(
@@ -235,7 +242,7 @@ namespace tl
                                     path,
                                     memoryRead,
                                     _timeline->getOptions().ioOptions);
-                                _ioInfo = _reader->getInfo().get();
+                                _ioInfoFuture = _reader->getInfo();
                             }
                             catch (const std::exception&)
                             {
@@ -279,7 +286,7 @@ namespace tl
                             }
                             videoDataDelete.erase(time);
                         }
-                        else if (_reader)
+                        else if (_reader && !_ioInfo.video.empty())
                         {
                             const auto j = _videoDataFutures.find(time);
                             if (j == _videoDataFutures.end())

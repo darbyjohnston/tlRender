@@ -63,6 +63,7 @@ namespace tl
                 imaging::FontMetrics _fontMetrics;
                 int _thumbnailWidth = 0;
                 std::shared_ptr<io::IRead> _reader;
+                std::future<io::Info> _ioInfoFuture;
                 io::Info _ioInfo;
                 std::map<otime::RationalTime, std::future<io::VideoData> > _videoDataFutures;
                 std::map<otime::RationalTime, io::VideoData> _videoData;
