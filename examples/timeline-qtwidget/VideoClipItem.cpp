@@ -38,8 +38,8 @@ namespace tl
 
                 _label = _nameLabel(clip->name());
                 _durationLabel = IItem::_durationLabel(_timeRange.duration());
-                _startLabel = _timeLabel(_timeRange.start_time());
-                _endLabel = _timeLabel(_timeRange.end_time_inclusive());
+                _startLabel = _secondsLabel(_timeRange.start_time());
+                _endLabel = _secondsLabel(_timeRange.end_time_inclusive());
             }
 
             VideoClipItem::~VideoClipItem()
@@ -142,8 +142,6 @@ namespace tl
             {
                 IItem::drawEvent(event);
 
-                auto fontInfo = _fontInfo;
-                fontInfo.size *= event.contentScale;
                 math::BBox2i g = _geometry;
                 g.min = g.min - _viewport.min;
                 g.max = g.max - _viewport.min;
@@ -154,7 +152,20 @@ namespace tl
 
                 event.render->drawRect(
                     g.margin(-_border),
-                    imaging::Color4f(.2F, .2F, .4F));
+                    imaging::Color4f(.2F, .4F, .2F));
+                
+                _drawInfo(event);
+                _drawThumbnails(event);
+            }
+
+            void VideoClipItem::_drawInfo(const ui::DrawEvent& event)
+            {
+                auto fontInfo = _fontInfo;
+                fontInfo.size *= event.contentScale;
+
+                math::BBox2i g = _geometry;
+                g.min = g.min - _viewport.min;
+                g.max = g.max - _viewport.min;
 
                 event.render->drawText(
                     event.fontSystem->getGlyphs(_label, fontInfo),
@@ -201,6 +212,13 @@ namespace tl
                         _spacing +
                         _fontMetrics.ascender),
                     event.style->getColorRole(ui::ColorRole::Text));
+            }
+
+            void VideoClipItem::_drawThumbnails(const ui::DrawEvent& event)
+            {
+                math::BBox2i g = _geometry;
+                g.min = g.min - _viewport.min;
+                g.max = g.max - _viewport.min;
 
                 const math::BBox2i bbox(
                     g.min.x +
@@ -218,11 +236,13 @@ namespace tl
                     imaging::Color4f(0.F, 0.F, 0.F));
                 event.render->setClipRectEnabled(true);
                 event.render->setClipRect(bbox);
+
                 std::set<otime::RationalTime> videoDataDelete;
                 for (const auto& videoData : _videoData)
                 {
                     videoDataDelete.insert(videoData.first);
                 }
+
                 if (_geometry.intersects(_viewport))
                 {
                     if (!_reader)
@@ -254,6 +274,7 @@ namespace tl
                 {
                     _reader.reset();
                 }
+
                 for (int x = _margin; x < _sizeHint.x - _margin; x += _thumbnailWidth)
                 {
                     math::BBox2i bbox(
@@ -301,6 +322,7 @@ namespace tl
                         }
                     }
                 }
+
                 for (auto i : videoDataDelete)
                 {
                     const auto j = _videoData.find(i);
@@ -309,6 +331,7 @@ namespace tl
                         _videoData.erase(j);
                     }
                 }
+
                 event.render->setClipRectEnabled(false);
             }
 

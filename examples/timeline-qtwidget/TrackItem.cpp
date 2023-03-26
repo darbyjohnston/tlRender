@@ -5,8 +5,9 @@
 #include "TrackItem.h"
 
 #include "AudioClipItem.h"
+#include "AudioGapItem.h"
 #include "VideoClipItem.h"
-#include "GapItem.h"
+#include "VideoGapItem.h"
 
 #include <tlCore/StringFormat.h>
 
@@ -66,11 +67,24 @@ namespace tl
                     }
                     else if (auto gap = dynamic_cast<otio::Gap*>(child.value))
                     {
-                        auto gapItem = GapItem::create(
-                            gap,
-                            timeline,
-                            context,
-                            shared_from_this());
+                        std::shared_ptr<IItem> gapItem;
+                        switch (_trackType)
+                        {
+                        case TrackType::Video:
+                            gapItem = VideoGapItem::create(
+                                gap,
+                                timeline,
+                                context,
+                                shared_from_this());
+                            break;
+                        case TrackType::Audio:
+                            gapItem = AudioGapItem::create(
+                                gap,
+                                timeline,
+                                context,
+                                shared_from_this());
+                            break;
+                        }
                         const auto timeRangeOpt = track->trimmed_range_of_child(gap);
                         if (timeRangeOpt.has_value())
                         {

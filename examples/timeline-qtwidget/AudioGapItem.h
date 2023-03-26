@@ -14,8 +14,8 @@ namespace tl
     {
         namespace timeline_qtwidget
         {
-            //! Gap item.
-            class GapItem : public IItem
+            //! Audio gap item.
+            class AudioGapItem : public IItem
             {
             protected:
                 void _init(
@@ -25,13 +25,13 @@ namespace tl
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
             public:
-                static std::shared_ptr<GapItem> create(
+                static std::shared_ptr<AudioGapItem> create(
                     const otio::Gap*,
                     const std::shared_ptr<timeline::Timeline>&,
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
-                ~GapItem() override;
+                ~AudioGapItem() override;
 
                 void sizeEvent(const ui::SizeEvent&) override;
                 void drawEvent(const ui::DrawEvent&) override;

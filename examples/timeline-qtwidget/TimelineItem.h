@@ -43,6 +43,11 @@ namespace tl
                 void drawEvent(const ui::DrawEvent&) override;
 
             private:
+                void _drawInfo(const ui::DrawEvent&);
+                void _drawCurrentFrame(const ui::DrawEvent&);
+                void _drawTimeTicks(const ui::DrawEvent&);
+                void _drawThumbnails(const ui::DrawEvent&);
+
                 static std::string _nameLabel(const std::string&);
 
                 void _cancelVideoRequests();

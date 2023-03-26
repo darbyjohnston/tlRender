@@ -102,12 +102,24 @@ namespace tl
                 std::string out;
                 if (value != time::invalidTime)
                 {
-                    out = string::Format("{0}@{1}").arg(value.value()).arg(value.rate());
+                    out = string::Format("{0}@{1}").
+                        arg(value.rescaled_to(1.0).value()).
+                        arg(value.rate());
                 }
                 return out;
             }
 
-            std::string IItem::_timeLabel(const otime::RationalTime& value)
+            std::string IItem::_secondsLabel(const otime::RationalTime& value)
+            {
+                std::string out;
+                if (value != time::invalidTime)
+                {
+                    out = string::Format("{0}").arg(value.rescaled_to(1.0).value());
+                }
+                return out;
+            }
+
+            std::string IItem::_frameLabel(const otime::RationalTime& value)
             {
                 std::string out;
                 if (value != time::invalidTime)

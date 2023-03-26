@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include "GapItem.h"
+#include "VideoGapItem.h"
 
 #include <tlUI/DrawUtil.h>
 
@@ -14,13 +14,13 @@ namespace tl
     {
         namespace timeline_qtwidget
         {
-            void GapItem::_init(
+            void VideoGapItem::_init(
                 const otio::Gap* gap,
                 const std::shared_ptr<timeline::Timeline>& timeline,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
-                IItem::_init("GapItem", timeline, context, parent);
+                IItem::_init("VideoGapItem", timeline, context, parent);
 
                 auto rangeOpt = gap->trimmed_range_in_parent();
                 if (rangeOpt.has_value())
@@ -30,25 +30,25 @@ namespace tl
 
                 _label = _nameLabel(gap->name());
                 _durationLabel = IItem::_durationLabel(gap->duration());
-                _startLabel = _timeLabel(_timeRange.start_time());
-                _endLabel = _timeLabel(_timeRange.end_time_inclusive());
+                _startLabel = _secondsLabel(_timeRange.start_time());
+                _endLabel = _secondsLabel(_timeRange.end_time_inclusive());
             }
 
-            GapItem::~GapItem()
+            VideoGapItem::~VideoGapItem()
             {}
 
-            std::shared_ptr<GapItem> GapItem::create(
+            std::shared_ptr<VideoGapItem> VideoGapItem::create(
                 const otio::Gap* gap,
                 const std::shared_ptr<timeline::Timeline>& timeline,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
-                auto out = std::shared_ptr<GapItem>(new GapItem);
+                auto out = std::shared_ptr<VideoGapItem>(new VideoGapItem);
                 out->_init(gap, timeline, context, parent);
                 return out;
             }
 
-            void GapItem::sizeEvent(const ui::SizeEvent& event)
+            void VideoGapItem::sizeEvent(const ui::SizeEvent& event)
             {
                 IItem::sizeEvent(event);
 
@@ -65,10 +65,12 @@ namespace tl
                     _fontMetrics.lineHeight +
                     _spacing +
                     _fontMetrics.lineHeight +
+                    _spacing +
+                    _thumbnailHeight +
                     _margin);
             }
 
-            void GapItem::drawEvent(const ui::DrawEvent& event)
+            void VideoGapItem::drawEvent(const ui::DrawEvent& event)
             {
                 IItem::drawEvent(event);
 
@@ -85,7 +87,7 @@ namespace tl
 
                 event.render->drawRect(
                     g.margin(-_border),
-                    event.style->getColorRole(ui::ColorRole::Blue));
+                    imaging::Color4f(.2F, .25F, .2F));
 
                 event.render->drawText(
                     event.fontSystem->getGlyphs(_label, fontInfo),
@@ -134,7 +136,7 @@ namespace tl
                     event.style->getColorRole(ui::ColorRole::Text));
             }
 
-            std::string GapItem::_nameLabel(const std::string& name)
+            std::string VideoGapItem::_nameLabel(const std::string& name)
             {
                 return !name.empty() ?
                     name :

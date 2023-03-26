@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include "AudioClipItem.h"
+#include "AudioGapItem.h"
 
 #include <tlUI/DrawUtil.h>
 
@@ -14,74 +14,41 @@ namespace tl
     {
         namespace timeline_qtwidget
         {
-            void  AudioClipItem::_init(
-                const otio::Clip* clip,
+            void AudioGapItem::_init(
+                const otio::Gap* gap,
                 const std::shared_ptr<timeline::Timeline>& timeline,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
-                IItem::_init("AudioClipItem", timeline, context, parent);
+                IItem::_init("AudioGapItem", timeline, context, parent);
 
-                auto rangeOpt = clip->trimmed_range_in_parent();
+                auto rangeOpt = gap->trimmed_range_in_parent();
                 if (rangeOpt.has_value())
                 {
                     _timeRange = rangeOpt.value();
                 }
 
-                _label = _nameLabel(clip->name());
-                _durationLabel = IItem::_durationLabel(_timeRange.duration());
+                _label = _nameLabel(gap->name());
+                _durationLabel = IItem::_durationLabel(gap->duration());
                 _startLabel = _secondsLabel(_timeRange.start_time());
                 _endLabel = _secondsLabel(_timeRange.end_time_inclusive());
             }
 
-            AudioClipItem::~AudioClipItem()
-            {
-                _cancelAudioRequests();
-            }
+            AudioGapItem::~AudioGapItem()
+            {}
 
-            std::shared_ptr<AudioClipItem>  AudioClipItem::create(
-                const otio::Clip* clip,
+            std::shared_ptr<AudioGapItem> AudioGapItem::create(
+                const otio::Gap* gap,
                 const std::shared_ptr<timeline::Timeline>& timeline,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
-                auto out = std::shared_ptr<AudioClipItem>(new AudioClipItem);
-                out->_init(clip, timeline, context, parent);
+                auto out = std::shared_ptr<AudioGapItem>(new AudioGapItem);
+                out->_init(gap, timeline, context, parent);
                 return out;
             }
 
-            void AudioClipItem::setScale(float value)
-            {
-                IItem::setScale(value);
-                if (_updates & ui::Update::Size)
-                {
-                    _cancelAudioRequests();
-                }
-            }
-
-            void AudioClipItem::setThumbnailHeight(int value)
-            {
-                IItem::setThumbnailHeight(value);
-                if (_updates & ui::Update::Size)
-                {
-                    _cancelAudioRequests();
-                }
-            }
-
-            void AudioClipItem::setViewport(const math::BBox2i& value)
-            {
-                IItem::setViewport(value);
-                if (_updates & ui::Update::Size)
-                {
-                    _cancelAudioRequests();
-                }
-            }
-
-            void AudioClipItem::tickEvent(const ui::TickEvent& event)
-            {
-            }
-
-            void AudioClipItem::sizeEvent(const ui::SizeEvent& event)
+            void AudioGapItem::sizeEvent(const ui::SizeEvent& event)
             {
                 IItem::sizeEvent(event);
 
@@ -101,12 +68,13 @@ namespace tl
                     _margin);
             }
 
-            void AudioClipItem::drawEvent(const ui::DrawEvent& event)
+            void AudioGapItem::drawEvent(const ui::DrawEvent& event)
             {
                 IItem::drawEvent(event);
 
                 auto fontInfo = _fontInfo;
                 fontInfo.size *= event.contentScale;
+
                 math::BBox2i g = _geometry;
                 g.min = g.min - _viewport.min;
                 g.max = g.max - _viewport.min;
@@ -117,7 +85,7 @@ namespace tl
 
                 event.render->drawRect(
                     g.margin(-_border),
-                    imaging::Color4f(.2F, .2F, .4F));
+                    imaging::Color4f(.2F, .2F, .25F));
 
                 event.render->drawText(
                     event.fontSystem->getGlyphs(_label, fontInfo),
@@ -166,15 +134,12 @@ namespace tl
                     event.style->getColorRole(ui::ColorRole::Text));
             }
 
-            std::string AudioClipItem::_nameLabel(const std::string& name)
+            std::string AudioGapItem::_nameLabel(const std::string& name)
             {
                 return !name.empty() ?
                     name :
-                    std::string("Clip");
+                    std::string("Gap");
             }
-
-            void AudioClipItem::_cancelAudioRequests()
-            {}
         }
     }
 }

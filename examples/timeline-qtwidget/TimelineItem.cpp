@@ -43,8 +43,8 @@ namespace tl
 
                 _label = _nameLabel(otioTimeline->name());
                 _durationLabel = IItem::_durationLabel(_timeRange.duration());
-                _startLabel = _timeLabel(_timeRange.start_time());
-                _endLabel = _timeLabel(_timeRange.end_time_inclusive());
+                _startLabel = _secondsLabel(_timeRange.start_time());
+                _endLabel = _secondsLabel(_timeRange.end_time_inclusive());
 
                 _timelineSize = observer::Value<math::Vector2i>::create();
             }
@@ -183,13 +183,21 @@ namespace tl
             void TimelineItem::drawEvent(const ui::DrawEvent& event)
             {
                 IItem::drawEvent(event);
+                _drawInfo(event);
+                _drawCurrentFrame(event);
+                _drawTimeTicks(event);
+                _drawThumbnails(event);
+            }
+
+            void TimelineItem::_drawInfo(const ui::DrawEvent& event)
+            {
+                auto fontInfo = _fontInfo;
+                fontInfo.size *= event.contentScale;
 
                 math::BBox2i g = _geometry;
                 g.min = g.min - _viewport.min;
                 g.max = g.max - _viewport.min;
 
-                auto fontInfo = _fontInfo;
-                fontInfo.size *= event.contentScale;
                 event.render->drawText(
                     event.fontSystem->getGlyphs(_label, fontInfo),
                     math::Vector2i(
@@ -197,17 +205,6 @@ namespace tl
                         _margin,
                         g.min.y +
                         _margin +
-                        _fontMetrics.ascender),
-                    event.style->getColorRole(ui::ColorRole::Text));
-                event.render->drawText(
-                    event.fontSystem->getGlyphs(_startLabel, fontInfo),
-                    math::Vector2i(
-                        g.min.x +
-                        _margin,
-                        g.min.y +
-                        _margin +
-                        _fontMetrics.lineHeight +
-                        _spacing +
                         _fontMetrics.ascender),
                     event.style->getColorRole(ui::ColorRole::Text));
 
@@ -222,19 +219,19 @@ namespace tl
                         _margin +
                         _fontMetrics.ascender),
                     event.style->getColorRole(ui::ColorRole::Text));
-                textSize = event.fontSystem->measure(_endLabel, fontInfo);
-                event.render->drawText(
-                    event.fontSystem->getGlyphs(_endLabel, fontInfo),
-                    math::Vector2i(
-                        g.min.x + _sizeHint.x -
-                        _margin -
-                        textSize.x,
-                        g.min.y +
-                        _margin +
-                        _fontMetrics.lineHeight +
-                        _spacing +
-                        _fontMetrics.ascender),
-                    event.style->getColorRole(ui::ColorRole::Text));
+            }
+
+            void TimelineItem::_drawCurrentFrame(const ui::DrawEvent& event)
+            {}
+
+            void TimelineItem::_drawTimeTicks(const ui::DrawEvent& event)
+            {
+                auto fontInfo = _fontInfo;
+                fontInfo.size *= event.contentScale;
+
+                math::BBox2i g = _geometry;
+                g.min = g.min - _viewport.min;
+                g.max = g.max - _viewport.min;
 
                 const float frameTick0 = _timeRange.start_time().value() /
                     _timeRange.duration().value() * (_sizeHint.x - _margin * 2);
@@ -243,7 +240,7 @@ namespace tl
                 const int frameWidth = frameTick1 - frameTick0;
                 if (frameWidth >= 5)
                 {
-                    std::string labelMax = string::Format("{0}").arg(_timeRange.end_time_inclusive().value());
+                    std::string labelMax = _frameLabel(_timeRange.end_time_inclusive());
                     math::Vector2i labelMaxSize = event.fontSystem->measure(labelMax, fontInfo);
                     if (labelMaxSize.x < (frameWidth - _spacing))
                     {
@@ -264,7 +261,8 @@ namespace tl
                             {
                                 bbox.min = bbox.min - _viewport.min;
                                 bbox.max = bbox.max - _viewport.min;
-                                std::string label = string::Format("{0}").arg(t);
+                                std::string label = _frameLabel(
+                                    otime::RationalTime(t, _timeRange.duration().rate()));
                                 event.render->drawText(
                                     event.fontSystem->getGlyphs(label, fontInfo),
                                     math::Vector2i(
@@ -321,7 +319,7 @@ namespace tl
                 const int secondsWidth = secondsTick1 - secondsTick0;
                 if (secondsWidth >= 5)
                 {
-                    std::string labelMax = string::Format("{0}").arg(_timeRange.end_time_inclusive().value());
+                    std::string labelMax = _secondsLabel(_timeRange.end_time_inclusive());
                     math::Vector2i labelMaxSize = event.fontSystem->measure(labelMax, fontInfo);
                     if (labelMaxSize.x < (secondsWidth - _spacing))
                     {
@@ -345,7 +343,8 @@ namespace tl
                             {
                                 bbox.min = bbox.min - _viewport.min;
                                 bbox.max = bbox.max - _viewport.min;
-                                std::string label = string::Format("{0}").arg(t);
+                                std::string label = _secondsLabel(
+                                    otime::RationalTime(t, _timeRange.duration().rate()));
                                 event.render->drawText(
                                     event.fontSystem->getGlyphs(label, fontInfo),
                                     math::Vector2i(
@@ -396,6 +395,13 @@ namespace tl
                             imaging::Color4f(.8F, .8F, .8F));
                     }
                 }
+            }
+
+            void TimelineItem::_drawThumbnails(const ui::DrawEvent& event)
+            {
+                math::BBox2i g = _geometry;
+                g.min = g.min - _viewport.min;
+                g.max = g.max - _viewport.min;
 
                 const math::BBox2i bbox(
                     g.min.x +
@@ -417,11 +423,13 @@ namespace tl
                     imaging::Color4f(0.F, 0.F, 0.F));
                 event.render->setClipRectEnabled(true);
                 event.render->setClipRect(bbox);
+
                 std::set<otime::RationalTime> videoDataDelete;
                 for (const auto& videoData : _videoData)
                 {
                     videoDataDelete.insert(videoData.first);
                 }
+
                 for (int x = _margin; x < _sizeHint.x - _margin; x += _thumbnailWidth)
                 {
                     math::BBox2i bbox(
@@ -467,6 +475,7 @@ namespace tl
                         }
                     }
                 }
+
                 for (auto i : videoDataDelete)
                 {
                     const auto j = _videoData.find(i);
@@ -475,6 +484,7 @@ namespace tl
                         _videoData.erase(j);
                     }
                 }
+
                 event.render->setClipRectEnabled(false);
             }
 
