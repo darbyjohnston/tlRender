@@ -127,19 +127,7 @@ namespace tl
             p.readCache->setMax(16);
 
             // Get information about the timeline.
-            otio::ErrorStatus errorStatus;
-            auto duration = timeline::getDuration(p.otioTimeline.value, otio::Track::Kind::video);
-            if (!duration.has_value())
-            {
-                duration = timeline::getDuration(p.otioTimeline.value, otio::Track::Kind::audio);
-            }
-            if (duration.has_value())
-            {
-                const otime::RationalTime startTime = p.otioTimeline.value->global_start_time().has_value() ?
-                    p.otioTimeline.value->global_start_time().value().rescaled_to(duration->rate()) :
-                    otime::RationalTime(0, duration->rate());
-                p.timeRange = otime::TimeRange(startTime, duration.value());
-            }
+            p.timeRange = timeline::getTimeRange(p.otioTimeline.value);
             for (const auto& i : p.otioTimeline.value->tracks()->children())
             {
                 if (auto otioTrack = dynamic_cast<const otio::Track*>(i.value))

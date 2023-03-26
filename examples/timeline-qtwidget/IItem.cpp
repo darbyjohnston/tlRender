@@ -14,12 +14,12 @@ namespace tl
         {
             void IItem::_init(
                 const std::string& name,
-                const std::shared_ptr<timeline::Timeline>& timeline,
+                const ItemData& itemData,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 IWidget::_init(name, context, parent);
-                _timeline = timeline;
+                _itemData = itemData;
             }
 
             IItem::IItem()
@@ -97,34 +97,42 @@ namespace tl
                 }
             }
 
-            std::string IItem::_durationLabel(const otime::RationalTime& value)
+            std::string IItem::_durationLabel(const otime::RationalTime& value, TimeUnits timeUnits)
             {
                 std::string out;
-                if (value != time::invalidTime)
+                if (!time::compareExact(value, time::invalidTime))
                 {
-                    out = string::Format("{0}@{1}").
-                        arg(value.rescaled_to(1.0).value()).
-                        arg(value.rate());
+                    switch (timeUnits)
+                    {
+                    case TimeUnits::Seconds:
+                        out = string::Format("{0} @ {1}").
+                            arg(value.rescaled_to(1.0).value(), 2).
+                            arg(value.rate());
+                        break;
+                    case TimeUnits::Frames:
+                        out = string::Format("{0} @ {1}").
+                            arg(value.value()).
+                            arg(value.rate());
+                        break;
+                    }
                 }
                 return out;
             }
 
-            std::string IItem::_secondsLabel(const otime::RationalTime& value)
+            std::string IItem::_timeLabel(const otime::RationalTime& value, TimeUnits timeUnits)
             {
                 std::string out;
-                if (value != time::invalidTime)
+                if (!time::compareExact(value, time::invalidTime))
                 {
-                    out = string::Format("{0}").arg(value.rescaled_to(1.0).value());
-                }
-                return out;
-            }
-
-            std::string IItem::_frameLabel(const otime::RationalTime& value)
-            {
-                std::string out;
-                if (value != time::invalidTime)
-                {
-                    out = string::Format("{0}").arg(value.value());
+                    switch (timeUnits)
+                    {
+                    case TimeUnits::Seconds:
+                        out = string::Format("{0}").arg(value.rescaled_to(1.0).value(), 2);
+                        break;
+                    case TimeUnits::Frames:
+                        out = string::Format("{0}").arg(value.value());
+                        break;
+                    }
                 }
                 return out;
             }

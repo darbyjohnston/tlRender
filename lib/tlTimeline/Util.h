@@ -30,6 +30,9 @@ namespace tl
             const otio::Timeline*,
             const std::string& kind);
 
+        //! Get the time range of a timeline.
+        otime::TimeRange getTimeRange(const otio::Timeline*);
+
         //! Get a list of files to open from the given path.
         std::vector<file::Path> getPaths(
             const std::string&,

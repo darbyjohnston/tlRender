@@ -6,6 +6,8 @@
 
 #include "TrackItem.h"
 
+#include <tlTimeline/Util.h>
+
 #include <tlCore/StringFormat.h>
 
 namespace tl
@@ -15,53 +17,47 @@ namespace tl
         namespace timeline_qtwidget
         {
             void TimelineItem::_init(
-                const std::shared_ptr<timeline::Timeline>& timeline,
+                const otio::SerializableObject::Retainer<otio::Timeline>& timeline,
+                const ItemData& itemData,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
-                const std::string& directory = timeline->getPath().getDirectory();
-                const io::Options ioOptions = timeline->getOptions().ioOptions;
-                const file::PathOptions pathOptions = timeline->getOptions().pathOptions;
-                IItem::_init("TimelineItem", timeline, context, parent);
+                IItem::_init("TimelineItem", itemData, context, parent);
+
+                _timeline = timeline;
+                _timeRange = timeline::getTimeRange(timeline);
 
                 setBackgroundRole(ui::ColorRole::Window);
 
-                _timeRange = timeline->getTimeRange();
-
-                const auto otioTimeline = timeline->getTimeline();
-                for (const auto& child : otioTimeline->tracks()->children())
+                for (const auto& child : timeline->tracks()->children())
                 {
                     if (const auto* track = dynamic_cast<otio::Track*>(child.value))
                     {
                         auto trackItem = TrackItem::create(
                             track,
-                            timeline,
+                            itemData,
                             context,
                             shared_from_this());
                     }
                 }
 
-                _label = _nameLabel(otioTimeline->name());
-                _durationLabel = IItem::_durationLabel(_timeRange.duration());
-                _startLabel = _secondsLabel(_timeRange.start_time());
-                _endLabel = _secondsLabel(_timeRange.end_time_inclusive());
-
                 _timelineSize = observer::Value<math::Vector2i>::create();
             }
 
             std::shared_ptr<TimelineItem> TimelineItem::create(
-                const std::shared_ptr<timeline::Timeline>& timeline,
+                const otio::SerializableObject::Retainer<otio::Timeline>& timeline,
+                const ItemData& itemData,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<TimelineItem>(new TimelineItem);
-                out->_init(timeline, context, parent);
+                out->_init(timeline, itemData, context, parent);
                 return out;
             }
 
             TimelineItem::~TimelineItem()
             {
-                _cancelVideoRequests();
+                //_cancelVideoRequests();
             }
 
             std::shared_ptr<observer::IValue<math::Vector2i> > TimelineItem::observeTimelineSize() const
@@ -69,31 +65,40 @@ namespace tl
                 return _timelineSize;
             }
 
+            void TimelineItem::setCurrentTime(const otime::RationalTime& value)
+            {
+                if (time::compareExact(value, _currentTime))
+                    return;
+                _currentTime = value;
+                _updates |= ui::Update::Draw;
+                _updates |= ui::Update::Draw;
+            }
+
             void TimelineItem::setScale(float value)
             {
                 IItem::setScale(value);
-                if (_updates & ui::Update::Size)
-                {
-                    _cancelVideoRequests();
-                }
+                //if (_updates & ui::Update::Size)
+                //{
+                //    _cancelVideoRequests();
+                //}
             }
 
             void TimelineItem::setThumbnailHeight(int value)
             {
                 IItem::setThumbnailHeight(value);
-                if (_updates & ui::Update::Size)
-                {
-                    _cancelVideoRequests();
-                }
+                //if (_updates & ui::Update::Size)
+                //{
+                //    _cancelVideoRequests();
+                //}
             }
 
             void TimelineItem::setViewport(const math::BBox2i& value)
             {
                 IItem::setViewport(value);
-                if (_updates & ui::Update::Size)
-                {
-                    _cancelVideoRequests();
-                }
+                //if (_updates & ui::Update::Size)
+                //{
+                //    _cancelVideoRequests();
+                //}
             }
 
             void TimelineItem::setGeometry(const math::BBox2i& value)
@@ -107,10 +112,8 @@ namespace tl
                     _fontMetrics.lineHeight +
                     _spacing +
                     _fontMetrics.lineHeight +
-                    _spacing +
-                    _fontMetrics.lineHeight +
-                    _spacing +
-                    _thumbnailHeight;
+                    _spacing;
+                    //_thumbnailHeight;
                 for (const auto& child : _children)
                 {
                     const auto& sizeHint = child->getSizeHint();
@@ -119,11 +122,11 @@ namespace tl
                         _geometry.min.y + y,
                         sizeHint.x,
                         sizeHint.y));
-                    y += sizeHint.y;
+                    y += sizeHint.y;// +_spacing;
                 }
             }
 
-            void TimelineItem::tickEvent(const ui::TickEvent& event)
+            /*void TimelineItem::tickEvent(const ui::TickEvent& event)
             {
                 auto i = _videoDataFutures.begin();
                 while (i != _videoDataFutures.end())
@@ -139,34 +142,36 @@ namespace tl
                     }
                     ++i;
                 }
-            }
+            }*/
 
             void TimelineItem::sizeEvent(const ui::SizeEvent& event)
             {
                 IItem::sizeEvent(event);
 
                 _margin = event.style->getSizeRole(ui::SizeRole::Margin) * event.contentScale;
-                _spacing = event.style->getSizeRole(ui::SizeRole::Spacing) * event.contentScale;
+                _spacing = event.style->getSizeRole(ui::SizeRole::Spacing)* event.contentScale;
                 _fontMetrics = event.fontSystem->getMetrics(imaging::FontInfo());
 
-                const auto& info = _timeline->getIOInfo();
-                _thumbnailWidth = !info.video.empty() ?
-                    static_cast<int>(_thumbnailHeight * info.video[0].size.getAspect()) :
-                    0;
+                //const auto& info = _timeline->getIOInfo();
+                //_thumbnailWidth = !info.video.empty() ?
+                //    static_cast<int>(_thumbnailHeight * info.video[0].size.getAspect()) :
+                //    0;
 
                 int childrenHeight = 0;
                 for (const auto& child : _children)
                 {
                     childrenHeight += child->getSizeHint().y;
                 }
+                //if (!_children.empty())
+                //{
+                //    childrenHeight += (_children.size() - 1) * _spacing;
+                //}
 
                 _sizeHint = math::Vector2i(
                     _margin +
                     _timeRange.duration().rescaled_to(1.0).value() * _scale +
                     _margin,
                     _margin +
-                    _fontMetrics.lineHeight +
-                    _spacing +
                     _fontMetrics.lineHeight +
                     _spacing +
                     _fontMetrics.lineHeight +
@@ -183,13 +188,12 @@ namespace tl
             void TimelineItem::drawEvent(const ui::DrawEvent& event)
             {
                 IItem::drawEvent(event);
-                _drawInfo(event);
-                _drawCurrentFrame(event);
+                _drawCurrentTime(event);
                 _drawTimeTicks(event);
-                _drawThumbnails(event);
+                //_drawThumbnails(event);
             }
 
-            void TimelineItem::_drawInfo(const ui::DrawEvent& event)
+            void TimelineItem::_drawCurrentTime(const ui::DrawEvent& event)
             {
                 auto fontInfo = _fontInfo;
                 fontInfo.size *= event.contentScale;
@@ -198,31 +202,33 @@ namespace tl
                 g.min = g.min - _viewport.min;
                 g.max = g.max - _viewport.min;
 
-                event.render->drawText(
-                    event.fontSystem->getGlyphs(_label, fontInfo),
-                    math::Vector2i(
+                if (!time::compareExact(_currentTime, time::invalidTime))
+                {
+                    math::Vector2i pos(
                         g.min.x +
-                        _margin,
-                        g.min.y +
                         _margin +
-                        _fontMetrics.ascender),
-                    event.style->getColorRole(ui::ColorRole::Text));
+                        _currentTime.value() / _timeRange.duration().value() * (_sizeHint.x - _margin * 2),
+                        g.min.y +
+                        _margin);
 
-                math::Vector2i textSize = event.fontSystem->measure(_durationLabel, fontInfo);
-                event.render->drawText(
-                    event.fontSystem->getGlyphs(_durationLabel, fontInfo),
-                    math::Vector2i(
-                        g.min.x + _sizeHint.x -
-                        _margin -
-                        textSize.x,
-                        g.min.y +
-                        _margin +
-                        _fontMetrics.ascender),
-                    event.style->getColorRole(ui::ColorRole::Text));
+                    geom::TriangleMesh2 mesh;
+                    mesh.v.push_back(math::Vector2f(pos.x - _fontMetrics.lineHeight / 2, pos.y));
+                    mesh.v.push_back(math::Vector2f(pos.x + _fontMetrics.lineHeight / 2, pos.y));
+                    mesh.v.push_back(math::Vector2f(pos.x, pos.y + _fontMetrics.lineHeight));
+                    mesh.triangles.push_back(geom::Triangle2({ 1, 2, 3 }));
+                    event.render->drawMesh(
+                        mesh,
+                        event.style->getColorRole(ui::ColorRole::Text));
+
+                    std::string label = _timeLabel(_currentTime, _timeUnits);
+                    event.render->drawText(
+                        event.fontSystem->getGlyphs(label, fontInfo),
+                        math::Vector2i(
+                            pos.x + _fontMetrics.lineHeight / 2 + _spacing,
+                            pos.y + _fontMetrics.ascender),
+                        event.style->getColorRole(ui::ColorRole::Text));
+                }
             }
-
-            void TimelineItem::_drawCurrentFrame(const ui::DrawEvent& event)
-            {}
 
             void TimelineItem::_drawTimeTicks(const ui::DrawEvent& event)
             {
@@ -240,40 +246,6 @@ namespace tl
                 const int frameWidth = frameTick1 - frameTick0;
                 if (frameWidth >= 5)
                 {
-                    std::string labelMax = _frameLabel(_timeRange.end_time_inclusive());
-                    math::Vector2i labelMaxSize = event.fontSystem->measure(labelMax, fontInfo);
-                    if (labelMaxSize.x < (frameWidth - _spacing))
-                    {
-                        for (double t = 0.0; t < _timeRange.duration().value(); t += 1.0)
-                        {
-                            math::BBox2i bbox(
-                                _geometry.min.x +
-                                _margin + t / _timeRange.duration().value() * (_sizeHint.x - _margin * 2),
-                                _geometry.min.y +
-                                _margin +
-                                _fontMetrics.lineHeight +
-                                _spacing +
-                                _fontMetrics.lineHeight +
-                                _spacing,
-                                labelMaxSize.x,
-                                _fontMetrics.lineHeight);
-                            if (bbox.intersects(_viewport))
-                            {
-                                bbox.min = bbox.min - _viewport.min;
-                                bbox.max = bbox.max - _viewport.min;
-                                std::string label = _frameLabel(
-                                    otime::RationalTime(t, _timeRange.duration().rate()));
-                                event.render->drawText(
-                                    event.fontSystem->getGlyphs(label, fontInfo),
-                                    math::Vector2i(
-                                        bbox.min.x,
-                                        bbox.min.y +
-                                        _fontMetrics.ascender),
-                                    event.style->getColorRole(ui::ColorRole::Text));
-                            }
-                        }
-                    }
-
                     geom::TriangleMesh2 mesh;
                     size_t i = 1;
                     for (double t = 0.0; t < _timeRange.duration().value(); t += 1.0)
@@ -283,8 +255,6 @@ namespace tl
                             _margin + t / _timeRange.duration().value() * (_sizeHint.x - _margin * 2),
                             _geometry.min.y +
                             _margin +
-                            _fontMetrics.lineHeight +
-                            _spacing +
                             _fontMetrics.lineHeight +
                             _spacing +
                             _fontMetrics.lineHeight +
@@ -319,7 +289,7 @@ namespace tl
                 const int secondsWidth = secondsTick1 - secondsTick0;
                 if (secondsWidth >= 5)
                 {
-                    std::string labelMax = _secondsLabel(_timeRange.end_time_inclusive());
+                    std::string labelMax = _timeLabel(_timeRange.end_time_inclusive(), _timeUnits);
                     math::Vector2i labelMaxSize = event.fontSystem->measure(labelMax, fontInfo);
                     if (labelMaxSize.x < (secondsWidth - _spacing))
                     {
@@ -334,8 +304,6 @@ namespace tl
                                 _geometry.min.y +
                                 _margin +
                                 _fontMetrics.lineHeight +
-                                _spacing +
-                                _fontMetrics.lineHeight +
                                 _spacing,
                                 labelMaxSize.x,
                                 _fontMetrics.lineHeight);
@@ -343,8 +311,9 @@ namespace tl
                             {
                                 bbox.min = bbox.min - _viewport.min;
                                 bbox.max = bbox.max - _viewport.min;
-                                std::string label = _secondsLabel(
-                                    otime::RationalTime(t, _timeRange.duration().rate()));
+                                std::string label = _timeLabel(
+                                    otime::RationalTime(t, _timeRange.duration().rate()),
+                                    _timeUnits);
                                 event.render->drawText(
                                     event.fontSystem->getGlyphs(label, fontInfo),
                                     math::Vector2i(
@@ -367,8 +336,6 @@ namespace tl
                             _margin + t / _timeRange.duration().value() * (_sizeHint.x - _margin * 2),
                             _geometry.min.y +
                             _margin +
-                            _fontMetrics.lineHeight +
-                            _spacing +
                             _fontMetrics.lineHeight +
                             _spacing +
                             _fontMetrics.lineHeight +
@@ -397,7 +364,7 @@ namespace tl
                 }
             }
 
-            void TimelineItem::_drawThumbnails(const ui::DrawEvent& event)
+            /*void TimelineItem::_drawThumbnails(const ui::DrawEvent& event)
             {
                 math::BBox2i g = _geometry;
                 g.min = g.min - _viewport.min;
@@ -408,8 +375,6 @@ namespace tl
                     _margin,
                     g.min.y +
                     _margin +
-                    _fontMetrics.lineHeight +
-                    _spacing +
                     _fontMetrics.lineHeight +
                     _spacing +
                     _fontMetrics.lineHeight +
@@ -437,8 +402,6 @@ namespace tl
                         x,
                         _geometry.min.y +
                         _margin +
-                        _fontMetrics.lineHeight +
-                        _spacing +
                         _fontMetrics.lineHeight +
                         _spacing +
                         _fontMetrics.lineHeight +
@@ -486,20 +449,13 @@ namespace tl
                 }
 
                 event.render->setClipRectEnabled(false);
-            }
-
-            std::string TimelineItem::_nameLabel(const std::string& name)
-            {
-                return !name.empty() ?
-                    name :
-                    std::string("Timeline");
-            }    
+            }*/
             
-            void TimelineItem::_cancelVideoRequests()
+            /*void TimelineItem::_cancelVideoRequests()
             {
                 _timeline->cancelRequests();
                 _videoDataFutures.clear();
-            }
+            }*/
         }
     }
 }

@@ -7,6 +7,7 @@
 #include "IItem.h"
 
 #include <opentimelineio/clip.h>
+#include <opentimelineio/track.h>
 
 namespace tl
 {
@@ -20,14 +21,14 @@ namespace tl
             protected:
                 void _init(
                     const otio::Clip*,
-                    const std::shared_ptr<timeline::Timeline>&,
+                    const ItemData&,
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
             public:
                 static std::shared_ptr<AudioClipItem> create(
                     const otio::Clip*,
-                    const std::shared_ptr<timeline::Timeline>&,
+                    const ItemData&,
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
@@ -42,19 +43,17 @@ namespace tl
                 void drawEvent(const ui::DrawEvent&) override;
 
             private:
-                static std::string _nameLabel(const std::string&);
-
                 void _cancelAudioRequests();
 
+                const otio::Clip* _clip = nullptr;
+                const otio::Track* _track = nullptr;
+                file::Path _path;
+                std::vector<file::MemoryRead> _memoryRead;
                 otime::TimeRange _timeRange = time::invalidTimeRange;
                 std::string _label;
                 std::string _durationLabel;
-                std::string _startLabel;
-                std::string _endLabel;
                 imaging::FontInfo _fontInfo;
                 int _margin = 0;
-                int _spacing = 0;
-                int _border = 0;
                 imaging::FontMetrics _fontMetrics;
             };
         }

@@ -20,14 +20,14 @@ namespace tl
             protected:
                 void _init(
                     const otio::Gap*,
-                    const std::shared_ptr<timeline::Timeline>&,
+                    const ItemData&,
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
             public:
                 static std::shared_ptr<VideoGapItem> create(
                     const otio::Gap*,
-                    const std::shared_ptr<timeline::Timeline>&,
+                    const ItemData&,
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
@@ -42,12 +42,9 @@ namespace tl
                 otime::TimeRange _timeRange = time::invalidTimeRange;
                 std::string _label;
                 std::string _durationLabel;
-                std::string _startLabel;
-                std::string _endLabel;
                 imaging::FontInfo _fontInfo;
                 int _margin = 0;
                 int _spacing = 0;
-                int _border = 0;
                 imaging::FontMetrics _fontMetrics;
             };
         }

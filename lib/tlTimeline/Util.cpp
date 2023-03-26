@@ -95,11 +95,13 @@ namespace tl
             return out;
         }
 
-        otio::optional<otime::RationalTime> getDuration(const otio::Timeline* timeline, const std::string& kind)
+        otio::optional<otime::RationalTime> getDuration(
+            const otio::Timeline* otioTimeline,
+            const std::string& kind)
         {
             otio::optional<otime::RationalTime> out;
             otio::ErrorStatus errorStatus;
-            for (auto track : timeline->children_if<otio::Track>(&errorStatus))
+            for (auto track : otioTimeline->children_if<otio::Track>(&errorStatus))
             {
                 if (kind == track->kind())
                 {
@@ -113,6 +115,24 @@ namespace tl
                         out = duration;
                     }
                 }
+            }
+            return out;
+        }
+
+        otime::TimeRange getTimeRange(const otio::Timeline* otioTimeline)
+        {
+            otime::TimeRange out = time::invalidTimeRange;
+            auto duration = timeline::getDuration(otioTimeline, otio::Track::Kind::video);
+            if (!duration.has_value())
+            {
+                duration = timeline::getDuration(otioTimeline, otio::Track::Kind::audio);
+            }
+            if (duration.has_value())
+            {
+                const otime::RationalTime startTime = otioTimeline->global_start_time().has_value() ?
+                    otioTimeline->global_start_time().value().rescaled_to(duration->rate()) :
+                    otime::RationalTime(0, duration->rate());
+                out = otime::TimeRange(startTime, duration.value());
             }
             return out;
         }

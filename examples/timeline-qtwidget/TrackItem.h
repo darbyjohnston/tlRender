@@ -28,14 +28,14 @@ namespace tl
             protected:
                 void _init(
                     const otio::Track*,
-                    const std::shared_ptr<timeline::Timeline>&,
+                    const ItemData&,
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
             public:
                 static std::shared_ptr<TrackItem> create(
                     const otio::Track*,
-                    const std::shared_ptr<timeline::Timeline>&,
+                    const ItemData&,
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
@@ -46,18 +46,10 @@ namespace tl
                 void drawEvent(const ui::DrawEvent&) override;
 
             private:
-                static std::string _nameLabel(
-                    const std::string& kind,
-                    const std::string& name);
-
                 TrackType _trackType = TrackType::None;
                 otime::TimeRange _timeRange = time::invalidTimeRange;
                 std::map<std::shared_ptr<IItem>, otime::TimeRange> _childTimeRanges;
-                std::string _label;
-                std::string _durationLabel;
-                imaging::FontInfo _fontInfo;
                 int _margin = 0;
-                imaging::FontMetrics _fontMetrics;
             };
         }
     }

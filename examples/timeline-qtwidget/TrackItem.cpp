@@ -19,11 +19,11 @@ namespace tl
         {
             void TrackItem::_init(
                 const otio::Track* track,
-                const std::shared_ptr<timeline::Timeline>& timeline,
+                const ItemData& itemData,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
-                IItem::_init("TrackItem", timeline, context, parent);
+                IItem::_init("TrackItem", itemData, context, parent);
 
                 if (otio::Track::Kind::video == track->kind())
                 {
@@ -46,15 +46,14 @@ namespace tl
                         case TrackType::Video:
                             clipItem = VideoClipItem::create(
                                 clip,
-                                track,
-                                timeline,
+                                itemData,
                                 context,
                                 shared_from_this());
                             break;
                         case TrackType::Audio:
                             clipItem = AudioClipItem::create(
                                 clip,
-                                timeline,
+                                itemData,
                                 context,
                                 shared_from_this());
                             break;
@@ -73,14 +72,14 @@ namespace tl
                         case TrackType::Video:
                             gapItem = VideoGapItem::create(
                                 gap,
-                                timeline,
+                                itemData,
                                 context,
                                 shared_from_this());
                             break;
                         case TrackType::Audio:
                             gapItem = AudioGapItem::create(
                                 gap,
-                                timeline,
+                                itemData,
                                 context,
                                 shared_from_this());
                             break;
@@ -92,19 +91,16 @@ namespace tl
                         }
                     }
                 }
-
-                _label = _nameLabel(track->kind(), track->name());
-                _durationLabel = IItem::_durationLabel(_timeRange.duration());
             }
 
             std::shared_ptr<TrackItem> TrackItem::create(
                 const otio::Track* track,
-                const std::shared_ptr<timeline::Timeline>& timeline,
+                const ItemData& itemData,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<TrackItem>(new TrackItem);
-                out->_init(track, timeline, context, parent);
+                out->_init(track, itemData, context, parent);
                 return out;
             }
 
@@ -125,10 +121,7 @@ namespace tl
                             math::BBox2i bbox(
                                 _geometry.min.x +
                                 i->second.start_time().rescaled_to(1.0).value() * _scale,
-                                _geometry.min.y +
-                                _margin +
-                                _fontMetrics.lineHeight +
-                                _margin,
+                                _geometry.min.y,
                                 sizeHint.x,
                                 sizeHint.y);
                             child->setGeometry(bbox);
@@ -142,9 +135,6 @@ namespace tl
                 IItem::sizeEvent(event);
 
                 _margin = event.style->getSizeRole(ui::SizeRole::MarginSmall) * event.contentScale;
-                auto fontInfo = _fontInfo;
-                fontInfo.size *= event.contentScale;
-                _fontMetrics = event.fontSystem->getMetrics(fontInfo);
 
                 int childrenHeight = 0;
                 for (const auto& child : _children)
@@ -154,56 +144,12 @@ namespace tl
 
                 _sizeHint = math::Vector2i(
                     _timeRange.duration().rescaled_to(1.0).value() * _scale,
-                    _margin +
-                    _fontMetrics.lineHeight +
-                    _margin +
                     childrenHeight);
             }
 
             void TrackItem::drawEvent(const ui::DrawEvent& event)
             {
                 IItem::drawEvent(event);
-
-                auto fontInfo = _fontInfo;
-                fontInfo.size *= event.contentScale;
-
-                math::BBox2i g = _geometry;
-                g.min = g.min - _viewport.min;
-                g.max = g.max - _viewport.min;
-
-                //event.render->drawRect(
-                //    g,
-                //    event.style->getColorRole(ui::ColorRole::Red));
-
-                event.render->drawText(
-                    event.fontSystem->getGlyphs(_label, fontInfo),
-                    math::Vector2i(
-                        g.min.x +
-                        _margin,
-                        g.min.y +
-                        _margin +
-                        _fontMetrics.ascender),
-                    event.style->getColorRole(ui::ColorRole::Text));
-                math::Vector2i textSize = event.fontSystem->measure(_durationLabel, fontInfo);
-                event.render->drawText(
-                    event.fontSystem->getGlyphs(_durationLabel, fontInfo),
-                    math::Vector2i(
-                        g.max.x -
-                        _margin -
-                        textSize.x,
-                        g.min.y +
-                        _margin +
-                        _fontMetrics.ascender),
-                    event.style->getColorRole(ui::ColorRole::Text));
-            }
-
-            std::string TrackItem::_nameLabel(
-                const std::string& kind,
-                const std::string& name)
-            {
-                return !name.empty() && name != "Track" ?
-                    string::Format("{0} Track: {1}").arg(kind).arg(name) :
-                    string::Format("{0} Track").arg(kind);
             }
         }
     }

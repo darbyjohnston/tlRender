@@ -8,6 +8,8 @@
 
 #include <tlUI/EventLoop.h>
 
+#include <tlTimeline/Timeline.h>
+
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_4_1_Core>
 

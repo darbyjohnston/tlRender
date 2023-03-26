@@ -21,16 +21,14 @@ namespace tl
             protected:
                 void _init(
                     const otio::Clip*,
-                    const otio::Track*,
-                    const std::shared_ptr<timeline::Timeline>&,
+                    const ItemData&,
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
             public:
                 static std::shared_ptr<VideoClipItem> create(
                     const otio::Clip*,
-                    const otio::Track*,
-                    const std::shared_ptr<timeline::Timeline>&,
+                    const ItemData&,
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
@@ -48,21 +46,18 @@ namespace tl
                 void _drawInfo(const ui::DrawEvent&);
                 void _drawThumbnails(const ui::DrawEvent&);
 
-                static std::string _nameLabel(const std::string&);
-
                 void _cancelVideoRequests();
 
                 const otio::Clip* _clip = nullptr;
                 const otio::Track* _track = nullptr;
+                file::Path _path;
+                std::vector<file::MemoryRead> _memoryRead;
                 otime::TimeRange _timeRange = time::invalidTimeRange;
                 std::string _label;
                 std::string _durationLabel;
-                std::string _startLabel;
-                std::string _endLabel;
                 imaging::FontInfo _fontInfo;
                 int _margin = 0;
                 int _spacing = 0;
-                int _border = 0;
                 imaging::FontMetrics _fontMetrics;
                 int _thumbnailWidth = 0;
                 std::shared_ptr<io::IRead> _reader;

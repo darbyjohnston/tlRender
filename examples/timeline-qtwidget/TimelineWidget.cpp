@@ -55,7 +55,13 @@ namespace tl
             {
                 if (auto context = _context.lock())
                 {
-                    _timelineItem = TimelineItem::create(timeline, context);
+                    ItemData itemData;
+                    itemData.directory = timeline->getPath().getDirectory();
+                    itemData.ioOptions = timeline->getOptions().ioOptions;
+                    itemData.pathOptions = timeline->getOptions().pathOptions;
+                    _timelineItem = TimelineItem::create(timeline->getTimeline(), itemData, context);
+                    _timelineItem->setCurrentTime(timeline->getTimeRange().start_time());
+                    //_timelineItem->setCurrentTime(otime::RationalTime(30.0, 30.0));
                     _timelineItem->setViewport(_timelineViewport());
                     _eventLoop->addWidget(_timelineItem);
                     _timelineSizeObserver = observer::ValueObserver<math::Vector2i>::create(
