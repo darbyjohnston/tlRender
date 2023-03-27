@@ -96,6 +96,12 @@ namespace tl
                     }
                 }
             }
+            
+            bool IItem::_insideViewport() const
+            {
+                const math::BBox2i vp(0, 0, _viewport.w(), _viewport.h());
+                return _geometry.intersects(vp);
+            }
 
             std::string IItem::_durationLabel(const otime::RationalTime& value, TimeUnits timeUnits)
             {

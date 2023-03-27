@@ -6,6 +6,8 @@
 
 #include <tlUI/IWidget.h>
 
+#include <tlCore/ValueObserver.h>
+
 namespace tl
 {
     namespace ui
@@ -39,6 +41,15 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 ScrollAreaType = ScrollAreaType::Both,
                 const std::shared_ptr<IWidget>& parent = nullptr);
+
+            //! Observe the scroll size.
+            std::shared_ptr<observer::IValue<math::Vector2i> > observeScrollSize() const;
+
+            //! Set the scroll position.
+            void setScrollPos(const math::Vector2i&);
+
+            //! Observe the scroll position.
+            std::shared_ptr<observer::IValue<math::Vector2i> > observeScrollPos() const;
 
             //! Set whether the scroll area has a border.
             void setBorder(bool);

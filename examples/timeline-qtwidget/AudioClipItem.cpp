@@ -108,45 +108,43 @@ namespace tl
             void AudioClipItem::drawEvent(const ui::DrawEvent& event)
             {
                 IItem::drawEvent(event);
+                if (_insideViewport())
+                {
+                    const int b = event.style->getSizeRole(ui::SizeRole::Border) * event.contentScale;
+                    auto fontInfo = _fontInfo;
+                    fontInfo.size *= event.contentScale;
+                    math::BBox2i g = _geometry;
 
-                const int b = event.style->getSizeRole(ui::SizeRole::Border) * event.contentScale;
+                    //event.render->drawMesh(
+                    //    ui::border(g, b, _margin / 2),
+                    //    event.style->getColorRole(ui::ColorRole::Border));
 
-                auto fontInfo = _fontInfo;
-                fontInfo.size *= event.contentScale;
+                    event.render->drawRect(
+                        g.margin(-b),
+                        imaging::Color4f(.3F, .25F, .4F));
 
-                math::BBox2i g = _geometry;
-                g.min = g.min - _viewport.min;
-                g.max = g.max - _viewport.min;
+                    event.render->drawText(
+                        event.fontSystem->getGlyphs(_label, fontInfo),
+                        math::Vector2i(
+                            g.min.x +
+                            _margin,
+                            g.min.y +
+                            _margin +
+                            _fontMetrics.ascender),
+                        event.style->getColorRole(ui::ColorRole::Text));
 
-                //event.render->drawMesh(
-                //    ui::border(g, b, _margin / 2),
-                //    event.style->getColorRole(ui::ColorRole::Border));
-
-                event.render->drawRect(
-                    g.margin(-b),
-                    imaging::Color4f(.3F, .25F, .4F));
-
-                event.render->drawText(
-                    event.fontSystem->getGlyphs(_label, fontInfo),
-                    math::Vector2i(
-                        g.min.x +
-                        _margin,
-                        g.min.y +
-                        _margin +
-                        _fontMetrics.ascender),
-                    event.style->getColorRole(ui::ColorRole::Text));
-
-                math::Vector2i textSize = event.fontSystem->measure(_durationLabel, fontInfo);
-                event.render->drawText(
-                    event.fontSystem->getGlyphs(_durationLabel, fontInfo),
-                    math::Vector2i(
-                        g.max.x -
-                        _margin -
-                        textSize.x,
-                        g.min.y +
-                        _margin +
-                        _fontMetrics.ascender),
-                    event.style->getColorRole(ui::ColorRole::Text));
+                    math::Vector2i textSize = event.fontSystem->measure(_durationLabel, fontInfo);
+                    event.render->drawText(
+                        event.fontSystem->getGlyphs(_durationLabel, fontInfo),
+                        math::Vector2i(
+                            g.max.x -
+                            _margin -
+                            textSize.x,
+                            g.min.y +
+                            _margin +
+                            _fontMetrics.ascender),
+                        event.style->getColorRole(ui::ColorRole::Text));
+                }
             }
 
             void AudioClipItem::_cancelAudioRequests()

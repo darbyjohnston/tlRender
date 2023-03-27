@@ -55,6 +55,8 @@ namespace tl
                 void _setThumbnailHeight(int, const std::shared_ptr<IItem>&);
                 void _setViewport(const math::BBox2i&, const std::shared_ptr<IItem>&);
 
+                bool _insideViewport() const;
+
                 static std::string _durationLabel(const otime::RationalTime&, TimeUnits);
                 static std::string _timeLabel(const otime::RationalTime&, TimeUnits);
 

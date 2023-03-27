@@ -44,6 +44,35 @@ namespace tl
                     _iconLibrary,
                     _fontSystem,
                     context);
+                _scrollArea = ui::ScrollArea::create(context);
+                _eventLoop->addWidget(_scrollArea);
+
+                _scrollSizeObserver = observer::ValueObserver<math::Vector2i>::create(
+                    _scrollArea->observeScrollSize(),
+                    [this](const math::Vector2i& value)
+                    {
+                        _scrollSize = value;
+                        const float devicePixelRatio = window()->devicePixelRatio();
+                        if (devicePixelRatio > 0.F)
+                        {
+                            _scrollSize.x /= devicePixelRatio;
+                            _scrollSize.y /= devicePixelRatio;
+                        }
+                        Q_EMIT scrollSizeChanged(_scrollSize);
+                    });
+                _scrollPosObserver = observer::ValueObserver<math::Vector2i>::create(
+                    _scrollArea->observeScrollPos(),
+                    [this](const math::Vector2i& value)
+                    {
+                        _scrollPos = value;
+                        const float devicePixelRatio = window()->devicePixelRatio();
+                        if (devicePixelRatio > 0.F)
+                        {
+                            _scrollPos.x /= devicePixelRatio;
+                            _scrollPos.y /= devicePixelRatio;
+                        }
+                        Q_EMIT scrollPosChanged(_scrollPos);
+                    });
 
                 _timer = startTimer(10);
             }
@@ -55,6 +84,11 @@ namespace tl
             {
                 if (auto context = _context.lock())
                 {
+                    if (_timelineItem)
+                    {
+                        _timelineItem->setParent(nullptr);
+                    }
+
                     ItemData itemData;
                     itemData.directory = timeline->getPath().getDirectory();
                     itemData.ioOptions = timeline->getOptions().ioOptions;
@@ -63,26 +97,18 @@ namespace tl
                     _timelineItem->setCurrentTime(timeline->getTimeRange().start_time());
                     //_timelineItem->setCurrentTime(otime::RationalTime(30.0, 30.0));
                     _timelineItem->setViewport(_timelineViewport());
-                    _eventLoop->addWidget(_timelineItem);
-                    _timelineSizeObserver = observer::ValueObserver<math::Vector2i>::create(
-                        _timelineItem->observeTimelineSize(),
-                        [this](const math::Vector2i& value)
-                        {
-                            _timelineSize = value;
-                            const float devicePixelRatio = window()->devicePixelRatio();
-                            if (devicePixelRatio > 0.F)
-                            {
-                                _timelineSize.x /= devicePixelRatio;
-                                _timelineSize.y /= devicePixelRatio;
-                            }
-                            Q_EMIT timelineSizeChanged(_timelineSize);
-                        });
+                    _timelineItem->setParent(_scrollArea);
                 }
             }
 
-            const math::Vector2i& TimelineWidget::timelineSize() const
+            const math::Vector2i& TimelineWidget::scrollSize() const
             {
-                return _timelineSize;
+                return _scrollSize;
+            }
+
+            const math::Vector2i& TimelineWidget::scrollPos() const
+            {
+                return _scrollPos;
             }
 
             void TimelineWidget::setScale(float value)
@@ -101,11 +127,13 @@ namespace tl
                 }
             }
 
-            void TimelineWidget::setViewPos(const math::Vector2i& value)
+            void TimelineWidget::setScrollPos(const math::Vector2i& value)
             {
-                if (value == _viewPos)
+                if (value == _scrollPos)
                     return;
-                _viewPos = value;
+                _scrollPos = value;
+                const float devicePixelRatio = window()->devicePixelRatio();
+                _scrollArea->setScrollPos(_scrollPos * devicePixelRatio);
                 if (_timelineItem)
                 {
                     _timelineItem->setViewport(_timelineViewport());
@@ -113,18 +141,18 @@ namespace tl
                 update();
             }
 
-            void TimelineWidget::setViewPosX(int value)
+            void TimelineWidget::setScrollPosX(int value)
             {
-                math::Vector2i viewPos = _viewPos;
-                viewPos.x = value;
-                setViewPos(viewPos);
+                math::Vector2i scrollPos = _scrollPos;
+                scrollPos.x = value;
+                setScrollPos(scrollPos);
             }
 
-            void TimelineWidget::setViewPosY(int value)
+            void TimelineWidget::setScrollPosY(int value)
             {
-                math::Vector2i viewPos = _viewPos;
-                viewPos.y = value;
-                setViewPos(viewPos);
+                math::Vector2i scrollPos = _scrollPos;
+                scrollPos.y = value;
+                setScrollPos(scrollPos);
             }
 
             void TimelineWidget::initializeGL()
@@ -251,8 +279,8 @@ namespace tl
             {
                 const float devicePixelRatio = window()->devicePixelRatio();
                 return math::BBox2i(
-                    _viewPos.x,
-                    _viewPos.y,
+                    _scrollPos.x,
+                    _scrollPos.y,
                     width(),
                     height()) * devicePixelRatio;
             }

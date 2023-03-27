@@ -13,6 +13,8 @@ namespace tl
         struct ScrollArea::Private
         {
             ScrollAreaType scrollAreaType = ScrollAreaType::Both;
+            std::shared_ptr<observer::Value<math::Vector2i> > scrollSize;
+            std::shared_ptr<observer::Value<math::Vector2i> > scrollPos;
             bool border = true;
             int borderSize = 0;
         };
@@ -25,6 +27,8 @@ namespace tl
             IWidget::_init("tl::ui::ScrollArea", context, parent);
             TLRENDER_P();
             p.scrollAreaType = scrollAreaType;
+            p.scrollSize = observer::Value<math::Vector2i>::create();
+            p.scrollPos = observer::Value<math::Vector2i>::create();
         }
 
         ScrollArea::ScrollArea() :
@@ -44,15 +48,53 @@ namespace tl
             return out;
         }
 
+        std::shared_ptr<observer::IValue<math::Vector2i> > ScrollArea::observeScrollSize() const
+        {
+            return _p->scrollSize;
+        }
+
+        void ScrollArea::setScrollPos(const math::Vector2i& value)
+        {
+            TLRENDER_P();
+            if (p.scrollPos->setIfChanged(value))
+            {
+                _updates |= ui::Update::Size;
+                _updates |= ui::Update::Draw;
+            }
+        }
+
+        std::shared_ptr<observer::IValue<math::Vector2i> > ScrollArea::observeScrollPos() const
+        {
+            return _p->scrollPos;
+        }
+
+        void ScrollArea::setBorder(bool value)
+        {
+            TLRENDER_P();
+            if (value == p.border)
+                return;
+            p.border = value;
+            _updates |= ui::Update::Size;
+            _updates |= ui::Update::Draw;
+        }
+
         void ScrollArea::setGeometry(const math::BBox2i& value)
         {
             IWidget::setGeometry(value);
             TLRENDER_P();
-            const math::BBox2i g = value.margin(-p.borderSize);
+            const math::Vector2i& scrollPos = p.scrollPos->get();
+            math::Vector2i scrollSize;
             for (const auto& child : _children)
             {
+                const math::Vector2i sizeHint = child->getSizeHint();
+                scrollSize.x = std::max(scrollSize.x, sizeHint.x);
+                scrollSize.y = std::max(scrollSize.y, sizeHint.y);
+                math::BBox2i g;
+                g.min = value.min - scrollPos;
+                g.max = value.min + sizeHint - scrollPos;
                 child->setGeometry(g);
             }
+            p.scrollSize->setIfChanged(scrollSize);
         }
 
         void ScrollArea::sizeEvent(const SizeEvent& event)

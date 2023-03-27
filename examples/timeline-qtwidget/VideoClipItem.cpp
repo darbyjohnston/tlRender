@@ -139,33 +139,30 @@ namespace tl
             void VideoClipItem::drawEvent(const ui::DrawEvent& event)
             {
                 IItem::drawEvent(event);
+                if (_insideViewport())
+                {
+                    const int b = event.style->getSizeRole(ui::SizeRole::Border) * event.contentScale;
+                    const math::BBox2i vp(0, 0, _viewport.w(), _viewport.h());
+                    math::BBox2i g = _geometry;
 
-                const int b = event.style->getSizeRole(ui::SizeRole::Border) * event.contentScale;
+                    //event.render->drawMesh(
+                    //    ui::border(g, b, _margin / 2),
+                    //    event.style->getColorRole(ui::ColorRole::Border));
 
-                math::BBox2i g = _geometry;
-                g.min = g.min - _viewport.min;
-                g.max = g.max - _viewport.min;
+                    event.render->drawRect(
+                        g.margin(-b),
+                        imaging::Color4f(.2F, .4F, .4F));
 
-                //event.render->drawMesh(
-                //    ui::border(g, b, _margin / 2),
-                //    event.style->getColorRole(ui::ColorRole::Border));
-
-                event.render->drawRect(
-                    g.margin(-b),
-                    imaging::Color4f(.2F, .4F, .4F));
-                
-                _drawInfo(event);
-                _drawThumbnails(event);
+                    _drawInfo(event);
+                    _drawThumbnails(event);
+                }
             }
 
             void VideoClipItem::_drawInfo(const ui::DrawEvent& event)
             {
                 auto fontInfo = _fontInfo;
                 fontInfo.size *= event.contentScale;
-
                 math::BBox2i g = _geometry;
-                g.min = g.min - _viewport.min;
-                g.max = g.max - _viewport.min;
 
                 event.render->drawText(
                     event.fontSystem->getGlyphs(_label, fontInfo),
@@ -192,9 +189,8 @@ namespace tl
 
             void VideoClipItem::_drawThumbnails(const ui::DrawEvent& event)
             {
+                const math::BBox2i vp(0, 0, _viewport.w(), _viewport.h());
                 math::BBox2i g = _geometry;
-                g.min = g.min - _viewport.min;
-                g.max = g.max - _viewport.min;
 
                 const math::BBox2i bbox(
                     g.min.x +
@@ -217,7 +213,7 @@ namespace tl
                     videoDataDelete.insert(videoData.first);
                 }
 
-                if (_geometry.intersects(_viewport))
+                if (g.intersects(vp))
                 {
                     if (!_reader)
                     {
@@ -246,15 +242,15 @@ namespace tl
                 for (int x = _margin; x < _sizeHint.x - _margin; x += _thumbnailWidth)
                 {
                     math::BBox2i bbox(
-                        _geometry.min.x +
+                        g.min.x +
                         x,
-                        _geometry.min.y +
+                        g.min.y +
                         _margin +
                         _fontMetrics.lineHeight +
                         _spacing,
                         _thumbnailWidth,
                         _thumbnailHeight);
-                    if (bbox.intersects(_viewport))
+                    if (bbox.intersects(vp))
                     {
                         const int w = _sizeHint.x - _margin * 2;
                         const otime::RationalTime time = time::round(otime::RationalTime(
@@ -267,8 +263,6 @@ namespace tl
                         {
                             if (i->second.image)
                             {
-                                bbox.min = bbox.min - _viewport.min;
-                                bbox.max = bbox.max - _viewport.min;
                                 event.render->drawImage(i->second.image, bbox);
                             }
                             videoDataDelete.erase(time);

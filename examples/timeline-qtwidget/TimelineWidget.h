@@ -7,6 +7,7 @@
 #include "TimelineItem.h"
 
 #include <tlUI/EventLoop.h>
+#include <tlUI/ScrollArea.h>
 
 #include <tlTimeline/Timeline.h>
 
@@ -35,21 +36,23 @@ namespace tl
 
                 void setTimeline(const std::shared_ptr<timeline::Timeline>&);
 
-                const math::Vector2i& timelineSize() const;
+                const math::Vector2i& scrollSize() const;
+
+                const math::Vector2i& scrollPos() const;
 
             public Q_SLOTS:
                 void setScale(float);
 
                 void setThumbnailHeight(int);
 
-                void setViewPos(const math::Vector2i&);
-                void setViewPosX(int);
-                void setViewPosY(int);
+                void setScrollPos(const math::Vector2i&);
+                void setScrollPosX(int);
+                void setScrollPosY(int);
 
              Q_SIGNALS:
-                void timelineSizeChanged(const math::Vector2i&);
+                void scrollSizeChanged(const math::Vector2i&);
 
-                void viewPosChanged(const tl::math::Vector2i&);
+                void scrollPosChanged(const tl::math::Vector2i&);
 
             protected:
                 void initializeGL() override;
@@ -73,15 +76,17 @@ namespace tl
                 math::BBox2i _timelineViewport() const;
 
                 std::weak_ptr<system::Context> _context;
-                math::Vector2i _viewPos;
-                std::shared_ptr<TimelineItem> _timelineItem;
-                math::Vector2i _timelineSize;
-                std::shared_ptr<observer::ValueObserver<math::Vector2i> > _timelineSizeObserver;
 
                 std::shared_ptr<imaging::FontSystem> _fontSystem;
                 std::shared_ptr<ui::IconLibrary> _iconLibrary;
                 std::shared_ptr<ui::Style> _style;
                 std::shared_ptr<ui::EventLoop> _eventLoop;
+                std::shared_ptr<ui::ScrollArea> _scrollArea;
+                math::Vector2i _scrollSize;
+                math::Vector2i _scrollPos;
+                std::shared_ptr<observer::ValueObserver<math::Vector2i> > _scrollSizeObserver;
+                std::shared_ptr<observer::ValueObserver<math::Vector2i> > _scrollPosObserver;
+                std::shared_ptr<TimelineItem> _timelineItem;
                 std::shared_ptr<timeline::IRender> _render;
 
                 int _timer = 0;

@@ -23,7 +23,7 @@ namespace tl
                     {
                         if (_timelineWidget)
                         {
-                            _timelineWidget->setViewPosX(value);
+                            _timelineWidget->setScrollPosX(value);
                         }
                     });
                 connect(
@@ -33,7 +33,7 @@ namespace tl
                     {
                         if (_timelineWidget)
                         {
-                            _timelineWidget->setViewPosY(value);
+                            _timelineWidget->setScrollPosY(value);
                         }
                     });
             }
@@ -50,14 +50,14 @@ namespace tl
                     _sizeUpdate();
                     connect(
                         _timelineWidget,
-                        &TimelineWidget::timelineSizeChanged,
+                        &TimelineWidget::scrollSizeChanged,
                         [this](const math::Vector2i& value)
                         {
                             _sizeUpdate();
                         });
                     connect(
                         _timelineWidget,
-                        &TimelineWidget::viewPosChanged,
+                        &TimelineWidget::scrollPosChanged,
                         [this](const math::Vector2i& value)
                         {
                             horizontalScrollBar()->setValue(value.x);
@@ -79,17 +79,17 @@ namespace tl
             {
                 if (_timelineWidget)
                 {
-                    const auto& timelineSize = _timelineWidget->timelineSize();
+                    const auto& scrollSize = _timelineWidget->scrollSize();
                     const math::Vector2i viewportSize(
                         viewport()->width(),
                         viewport()->height());
-                    const math::Vector2i scrollSize(
-                        std::max(0, timelineSize.x - viewportSize.x),
-                        std::max(0, timelineSize.y - viewportSize.y));
-                    horizontalScrollBar()->setRange(0, scrollSize.x);
+                    const math::Vector2i scrollRange(
+                        std::max(0, scrollSize.x - viewportSize.x),
+                        std::max(0, scrollSize.y - viewportSize.y));
+                    horizontalScrollBar()->setRange(0, scrollRange.x);
                     horizontalScrollBar()->setPageStep(viewportSize.x);
                     horizontalScrollBar()->setSingleStep(10);
-                    verticalScrollBar()->setRange(0, scrollSize.y);
+                    verticalScrollBar()->setRange(0, scrollRange.y);
                     verticalScrollBar()->setPageStep(viewportSize.y);
                     verticalScrollBar()->setSingleStep(10);
                 }

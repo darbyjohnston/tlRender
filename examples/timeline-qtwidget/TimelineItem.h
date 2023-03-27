@@ -35,37 +35,39 @@ namespace tl
 
                 ~TimelineItem() override;
 
-                std::shared_ptr<observer::IValue<math::Vector2i> > observeTimelineSize() const;
-
                 void setCurrentTime(const otime::RationalTime&);
 
-                void setScale(float) override;
-                void setThumbnailHeight(int) override;
-                void setViewport(const math::BBox2i&) override;
+                std::shared_ptr<observer::IValue<otime::RationalTime> > observeCurrentTime() const;
 
                 void setGeometry(const math::BBox2i&) override;
-                //void tickEvent(const ui::TickEvent&) override;
                 void sizeEvent(const ui::SizeEvent&) override;
                 void drawEvent(const ui::DrawEvent&) override;
+                void enterEvent() override;
+                void leaveEvent() override;
+                void mouseMoveEvent(const ui::MouseMoveEvent&) override;
+                void mousePressEvent(const ui::MouseClickEvent&) override;
+                void mouseReleaseEvent(const ui::MouseClickEvent&) override;
 
             private:
-                void _drawCurrentTime(const ui::DrawEvent&);
                 void _drawTimeTicks(const ui::DrawEvent&);
-                //void _drawThumbnails(const ui::DrawEvent&);
+                void _drawCurrentTime(const ui::DrawEvent&);
 
-                //void _cancelVideoRequests();
+                math::BBox2i _getCurrentTimeBBox() const;
+
+                otime::RationalTime _posToTime(float) const;
+                float _timeToPos(const otime::RationalTime&) const;
 
                 otio::SerializableObject::Retainer<otio::Timeline> _timeline;
                 otime::TimeRange _timeRange = time::invalidTimeRange;
-                otime::RationalTime _currentTime = time::invalidTime;
+                std::shared_ptr<observer::Value<otime::RationalTime> > _currentTime;
                 imaging::FontInfo _fontInfo;
                 int _margin = 0;
                 int _spacing = 0;
                 imaging::FontMetrics _fontMetrics;
-                //int _thumbnailWidth = 0;
-                std::shared_ptr<observer::Value<math::Vector2i> > _timelineSize;
-                //std::map<otime::RationalTime, std::future<timeline::VideoData> > _videoDataFutures;
-                //std::map<otime::RationalTime, timeline::VideoData> _videoData;
+                bool _mousePress = false;
+                math::Vector2i _mousePos;
+                math::Vector2i _mousePressPos;
+                bool _currentTimeDrag = false;
             };
         }
     }
