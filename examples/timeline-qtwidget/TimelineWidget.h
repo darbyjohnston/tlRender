@@ -34,11 +34,11 @@ namespace tl
 
                 ~TimelineWidget() override;
 
-                void setTimeline(const std::shared_ptr<timeline::Timeline>&);
-
                 const math::Vector2i& scrollSize() const;
 
                 const math::Vector2i& scrollPos() const;
+
+                void setTimeline(const std::shared_ptr<timeline::Timeline>&);
 
             public Q_SLOTS:
                 void setScale(float);
@@ -53,6 +53,8 @@ namespace tl
                 void scrollSizeChanged(const math::Vector2i&);
 
                 void scrollPosChanged(const tl::math::Vector2i&);
+
+                void currentTimeChanged(const otime::RationalTime&);
 
             protected:
                 void initializeGL() override;
@@ -87,6 +89,7 @@ namespace tl
                 std::shared_ptr<observer::ValueObserver<math::Vector2i> > _scrollSizeObserver;
                 std::shared_ptr<observer::ValueObserver<math::Vector2i> > _scrollPosObserver;
                 std::shared_ptr<TimelineItem> _timelineItem;
+                std::shared_ptr<observer::ValueObserver<otime::RationalTime> > _currentTimeObserver;
                 std::shared_ptr<timeline::IRender> _render;
 
                 int _timer = 0;

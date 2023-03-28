@@ -31,10 +31,15 @@ namespace tl
             {
                 setAcceptDrops(true);
 
+                _timelineViewport = new qtwidget::TimelineViewport(context);
+                setCentralWidget(_timelineViewport);
+
                 _timelineWidget = new TimelineWidget(context);
                 _timelineScrollArea = new TimelineScrollArea;
                 _timelineScrollArea->setTimelineWidget(_timelineWidget);
-                setCentralWidget(_timelineScrollArea);
+                _timelineDockWidget = new QDockWidget(tr("View"));
+                _timelineDockWidget->setWidget(_timelineScrollArea);
+                addDockWidget(Qt::BottomDockWidgetArea, _timelineDockWidget);
 
                 _scaleSlider = new qtwidget::FloatSlider;
                 _scaleSlider->setRange(math::FloatRange(1.F, 1000.F));
@@ -73,6 +78,14 @@ namespace tl
                     [this](int value)
                     {
                         _timelineWidget->setThumbnailHeight(value);
+                    });
+
+                connect(
+                    _timelineWidget,
+                    &TimelineWidget::currentTimeChanged,
+                    [this](const otime::RationalTime& value)
+                    {
+                        _timelinePlayer->seek(value);
                     });
             }
 
@@ -114,23 +127,32 @@ namespace tl
 
             void MainWindow::_open(const std::string& fileName)
             {
-                _timeline = nullptr;
+                delete _timelinePlayer;
+                _timelinePlayer = nullptr;
 
+                std::shared_ptr<timeline::Timeline> timeline;
+                std::vector<qt::TimelinePlayer*> timelinePlayers;
                 try
                 {
                     if (auto context = _context.lock())
                     {
-                        _timeline = timeline::Timeline::create(fileName, context);
+                        timeline = timeline::Timeline::create(fileName, context);
+                        auto timelinePlayer = timeline::TimelinePlayer::create(timeline, context);
+                        timelinePlayers.push_back(new qt::TimelinePlayer(timelinePlayer, context));
+                        _timelinePlayer = new qt::TimelinePlayer(timelinePlayer, context);
                     }
                 }
                 catch (const std::string& e)
                 {
+                    timeline.reset();
+                    timelinePlayers.clear();
+
                     QMessageBox dialog;
                     dialog.setText(QString::fromUtf8(e.c_str()));
                     dialog.exec();
                 }
-
-                _timelineWidget->setTimeline(_timeline);
+                _timelineViewport->setTimelinePlayers(timelinePlayers);
+                _timelineWidget->setTimeline(timeline);
             }
         }
     }

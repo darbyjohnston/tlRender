@@ -80,27 +80,6 @@ namespace tl
             TimelineWidget::~TimelineWidget()
             {}
 
-            void TimelineWidget::setTimeline(const std::shared_ptr<timeline::Timeline>& timeline)
-            {
-                if (auto context = _context.lock())
-                {
-                    if (_timelineItem)
-                    {
-                        _timelineItem->setParent(nullptr);
-                    }
-
-                    ItemData itemData;
-                    itemData.directory = timeline->getPath().getDirectory();
-                    itemData.ioOptions = timeline->getOptions().ioOptions;
-                    itemData.pathOptions = timeline->getOptions().pathOptions;
-                    _timelineItem = TimelineItem::create(timeline->getTimeline(), itemData, context);
-                    _timelineItem->setCurrentTime(timeline->getTimeRange().start_time());
-                    //_timelineItem->setCurrentTime(otime::RationalTime(30.0, 30.0));
-                    _timelineItem->setViewport(_timelineViewport());
-                    _timelineItem->setParent(_scrollArea);
-                }
-            }
-
             const math::Vector2i& TimelineWidget::scrollSize() const
             {
                 return _scrollSize;
@@ -109,6 +88,38 @@ namespace tl
             const math::Vector2i& TimelineWidget::scrollPos() const
             {
                 return _scrollPos;
+            }
+
+            void TimelineWidget::setTimeline(const std::shared_ptr<timeline::Timeline>& timeline)
+            {
+                if (_timelineItem)
+                {
+                    _timelineItem->setParent(nullptr);
+                    _timelineItem.reset();
+                }
+                _currentTimeObserver.reset();
+                if (timeline)
+                {
+                    if (auto context = _context.lock())
+                    {
+                        ItemData itemData;
+                        itemData.directory = timeline->getPath().getDirectory();
+                        itemData.ioOptions = timeline->getOptions().ioOptions;
+                        itemData.pathOptions = timeline->getOptions().pathOptions;
+
+                        _timelineItem = TimelineItem::create(timeline->getTimeline(), itemData, context);
+                        _timelineItem->setCurrentTime(timeline->getTimeRange().start_time());
+                        _timelineItem->setViewport(_timelineViewport());
+                        _timelineItem->setParent(_scrollArea);
+
+                        _currentTimeObserver = observer::ValueObserver<otime::RationalTime>::create(
+                            _timelineItem->observeCurrentTime(),
+                            [this](const otime::RationalTime& value)
+                            {
+                                Q_EMIT currentTimeChanged(value);
+                            });
+                    }
+                }
             }
 
             void TimelineWidget::setScale(float value)

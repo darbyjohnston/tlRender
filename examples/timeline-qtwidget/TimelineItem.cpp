@@ -70,6 +70,11 @@ namespace tl
                 }
             }
 
+            std::shared_ptr<observer::IValue<otime::RationalTime> > TimelineItem::observeCurrentTime() const
+            {
+                return _currentTime;
+            }
+
             void TimelineItem::setGeometry(const math::BBox2i& value)
             {
                 IWidget::setGeometry(value);
@@ -247,7 +252,7 @@ namespace tl
                             if (bbox.intersects(vp))
                             {
                                 std::string label = _timeLabel(
-                                    otime::RationalTime(t, _timeRange.duration().rate()),
+                                    _timeRange.start_time() + otime::RationalTime(t, _timeRange.duration().rate()),
                                     _timeUnits);
                                 event.render->drawText(
                                     event.fontSystem->getGlyphs(label, fontInfo),
@@ -382,7 +387,9 @@ namespace tl
                 {
                     const math::BBox2i bbox = _getCurrentTimeBBox();
                     out = bbox.min.x +
-                        currentTime.value() / _timeRange.duration().value() * bbox.w();
+                        (currentTime.value() - _timeRange.start_time().value()) /
+                        _timeRange.duration().value() *
+                        bbox.w();
                 }
                 return out;
             }
