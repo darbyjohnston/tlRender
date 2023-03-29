@@ -348,19 +348,16 @@ namespace tl
                     //! \todo How should this be handled?
                 }
 
-                std::vector<uint8_t> swrOutputBuffer;
-                swrOutputBuffer.resize(
-                    static_cast<size_t>(_info.channelCount) *
-                    audio::getByteCount(_info.dataType) *
-                    _avFrame->nb_samples);
-                uint8_t* swrOutputBufferP[] = { swrOutputBuffer.data() };
-                while (swr_convert(
-                    _swrContext,
-                    swrOutputBufferP,
-                    _avFrame->nb_samples,
-                    NULL,
-                    0) > 0)
-                    ;
+                //! \todo Only swr_init() needs to be called?
+                //auto swrOutputBuffer = audio::Audio::create(_info, 100);
+                //uint8_t* swrOutputBufferP[] = { swrOutputBuffer->getData() };
+                //while (swr_convert(
+                //    _swrContext,
+                //    swrOutputBufferP,
+                //    swrOutputBuffer->getSampleCount(),
+                //    nullptr,
+                //    0) > 0)
+                //    ;
                 swr_init(_swrContext);
             }
 
@@ -420,7 +417,7 @@ namespace tl
                             {
                                 auto audio = audio::Audio::create(_info, bufferMax - bufferSize);
                                 audio->zero();
-                                this->_buffer.push_back(audio);
+                                _buffer.push_back(audio);
                             }
                             break;
                         }
@@ -490,28 +487,20 @@ namespace tl
                 if (time >= currentTime)
                 {
                     //std::cout << "audio time: " << time << std::endl;
-                    const int64_t swrDelay = swr_get_delay(_swrContext, _avCodecParameters[_avStream]->sample_rate);
-                    //std::cout << "delay: " << swrDelay << std::endl;
-                    const size_t swrOutputSamples = _avFrame->nb_samples + swrDelay;
-                    std::vector<uint8_t> swrOutputBuffer;
-                    swrOutputBuffer.resize(
-                        static_cast<size_t>(_info.channelCount) *
-                        audio::getByteCount(_info.dataType) *
-                        swrOutputSamples);
-                    uint8_t* swrOutputBufferP[] = { swrOutputBuffer.data() };
+                    //std::cout << "nb_samples: " << _avFrame->nb_samples << std::endl;
+                    const int swrOutputSamples = swr_get_out_samples(_swrContext, _avFrame->nb_samples);
+                    //std::cout << "swrOutputSamples: " << swrOutputSamples << std::endl;
+                    auto swrOutputBuffer = audio::Audio::create(_info, swrOutputSamples);
+                    uint8_t* swrOutputBufferP[] = { swrOutputBuffer->getData()};
                     const int swrOutputCount = swr_convert(
                         _swrContext,
                         swrOutputBufferP,
                         swrOutputSamples,
                         (const uint8_t **)_avFrame->data,
                         _avFrame->nb_samples);
-                    if (swrOutputCount < 0)
-                    {
-                        //! \todo How should this be handled?
-                        break;
-                    }
+                    //std::cout << "swrOutputCount: " << swrOutputCount << std::endl << std::endl;
                     auto tmp = audio::Audio::create(_info, swrOutputCount);
-                    memcpy(tmp->getData(), swrOutputBuffer.data(), tmp->getByteCount());
+                    memcpy(tmp->getData(), swrOutputBuffer->getData(), tmp->getByteCount());
                     _buffer.push_back(tmp);
                     out = 1;
                     break;
