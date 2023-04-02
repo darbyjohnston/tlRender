@@ -13,12 +13,25 @@ namespace tl
         struct FloatSlider::Private
         {
             std::shared_ptr<FloatModel> model;
-            int margin = 0;
-            int border = 0;
-            int handle = 0;
-            bool inside = false;
-            math::Vector2i mousePos;
-            bool pressed = false;
+
+            struct Size
+            {
+                imaging::FontInfo fontInfo;
+                imaging::FontMetrics fontMetrics;
+                int margin = 0;
+                int border = 0;
+                int handle = 0;
+            };
+            Size size;
+
+            struct Mouse
+            {
+                bool inside = false;
+                math::Vector2i pos;
+                bool pressed = false;
+            };
+            Mouse mouse;
+
             std::shared_ptr<observer::ValueObserver<float> > valueObserver;
             std::shared_ptr<observer::ValueObserver<math::FloatRange> > rangeObserver;
         };
@@ -83,16 +96,16 @@ namespace tl
             IWidget::sizeEvent(event);
             TLRENDER_P();
 
-            p.margin = event.style->getSizeRole(SizeRole::MarginInside) * event.contentScale;
-            p.border = event.style->getSizeRole(SizeRole::Border) * event.contentScale;
-            p.handle = event.style->getSizeRole(SizeRole::Handle) * event.contentScale;
+            p.size.margin = event.style->getSizeRole(SizeRole::MarginInside) * event.contentScale;
+            p.size.border = event.style->getSizeRole(SizeRole::Border) * event.contentScale;
+            p.size.handle = event.style->getSizeRole(SizeRole::Handle) * event.contentScale;
 
-            imaging::FontInfo fontInfo;
-            fontInfo.size *= event.contentScale;
-            auto fontMetrics = event.fontSystem->getMetrics(fontInfo);
+            p.size.fontInfo = imaging::FontInfo();
+            p.size.fontInfo.size *= event.contentScale;
+            p.size.fontMetrics = event.fontSystem->getMetrics(p.size.fontInfo);
 
-            _sizeHint.x = event.style->getSizeRole(SizeRole::ScrollArea) + p.margin * 2;
-            _sizeHint.y = fontMetrics.lineHeight + p.margin * 2;
+            _sizeHint.x = event.style->getSizeRole(SizeRole::ScrollArea) + p.size.margin * 2;
+            _sizeHint.y = p.size.fontMetrics.lineHeight + p.size.margin * 2;
         }
 
         void FloatSlider::drawEvent(const DrawEvent& event)
@@ -103,11 +116,11 @@ namespace tl
             math::BBox2i g = _geometry;
 
             event.render->drawMesh(
-                border(g, p.border),
+                border(g, p.size.border),
                 event.style->getColorRole(ColorRole::Border));
 
             event.render->drawRect(
-                g.margin(-p.border),
+                g.margin(-p.size.border),
                 event.style->getColorRole(ColorRole::Base));
 
             math::BBox2i g2 = _getSliderGeometry();
@@ -120,20 +133,20 @@ namespace tl
                 pos = _valueToPos(p.model->getValue());
             }
             math::BBox2i g3(
-                pos - p.handle / 2,
+                pos - p.size.handle / 2,
                 g2.y(),
-                p.handle,
+                p.size.handle,
                 g2.h());
             event.render->drawRect(
                 g3,
                 event.style->getColorRole(ColorRole::Button));
-            if (p.pressed)
+            if (p.mouse.pressed)
             {
                 event.render->drawRect(
                     g3,
                     event.style->getColorRole(ColorRole::Pressed));
             }
-            else if (p.inside)
+            else if (p.mouse.inside)
             {
                 event.render->drawRect(
                     g3,
@@ -144,14 +157,14 @@ namespace tl
         void FloatSlider::enterEvent()
         {
             TLRENDER_P();
-            p.inside = true;
+            p.mouse.inside = true;
             _updates |= Update::Draw;
         }
 
         void FloatSlider::leaveEvent()
         {
             TLRENDER_P();
-            p.inside = false;
+            p.mouse.inside = false;
             _updates |= Update::Draw;
         }
 
@@ -159,10 +172,10 @@ namespace tl
         {
             TLRENDER_P();
             event.accept = true;
-            p.mousePos = event.pos;
-            if (p.pressed && p.model)
+            p.mouse.pos = event.pos;
+            if (p.mouse.pressed && p.model)
             {
-                p.model->setValue(_posToValue(p.mousePos.x));
+                p.model->setValue(_posToValue(p.mouse.pos.x));
             }
         }
 
@@ -170,10 +183,10 @@ namespace tl
         {
             TLRENDER_P();
             event.accept = true;
-            p.pressed = true;
+            p.mouse.pressed = true;
             if (p.model)
             {
-                p.model->setValue(_posToValue(p.mousePos.x));
+                p.model->setValue(_posToValue(p.mouse.pos.x));
             }
             _updates |= Update::Draw;
         }
@@ -182,7 +195,7 @@ namespace tl
         {
             TLRENDER_P();
             event.accept = true;
-            p.pressed = false;
+            p.mouse.pressed = false;
             _updates |= Update::Draw;
         }
 
@@ -190,10 +203,10 @@ namespace tl
         {
             TLRENDER_P();
             return _geometry.margin(
-                -(p.margin + p.handle / 2),
-                -p.margin,
-                -(p.margin + p.handle / 2),
-                -p.margin);
+                -(p.size.margin + p.size.handle / 2),
+                -p.size.margin,
+                -(p.size.margin + p.size.handle / 2),
+                -p.size.margin);
         }
 
         float FloatSlider::_posToValue(int pos) const

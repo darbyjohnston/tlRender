@@ -14,6 +14,13 @@ namespace tl
         {
             std::string text;
             imaging::FontInfo fontInfo;
+
+            struct Size
+            {
+                imaging::FontInfo fontInfo;
+                imaging::FontMetrics fontMetrics;
+            };
+            Size size;
         };
 
         void Label::_init(
@@ -64,11 +71,13 @@ namespace tl
         {
             IWidget::sizeEvent(event);
             TLRENDER_P();
-            imaging::FontInfo fontInfo = p.fontInfo;
-            fontInfo.size *= event.contentScale;
-            auto fontMetrics = event.fontSystem->getMetrics(fontInfo);
-            _sizeHint.x = event.fontSystem->measure(p.text, fontInfo).x;
-            _sizeHint.y = fontMetrics.lineHeight;
+
+            p.size.fontInfo = p.fontInfo;
+            p.size.fontInfo.size *= event.contentScale;
+            p.size.fontMetrics = event.fontSystem->getMetrics(p.size.fontInfo);
+
+            _sizeHint.x = event.fontSystem->measure(p.text, p.size.fontInfo).x;
+            _sizeHint.y = p.size.fontMetrics.lineHeight;
         }
 
         void Label::drawEvent(const DrawEvent& event)
@@ -85,12 +94,9 @@ namespace tl
                 Stretch::Fixed,
                 _hAlign,
                 _vAlign);
-            imaging::FontInfo fontInfo = p.fontInfo;
-            fontInfo.size *= event.contentScale;
-            auto fontMetrics = event.fontSystem->getMetrics(fontInfo);
             event.render->drawText(
-                event.fontSystem->getGlyphs(p.text, fontInfo),
-                math::Vector2i(g.x(), g.y() + fontMetrics.ascender),
+                event.fontSystem->getGlyphs(p.text, p.size.fontInfo),
+                math::Vector2i(g.x(), g.y() + p.size.fontMetrics.ascender),
                 event.style->getColorRole(ColorRole::Text));
         }
     }

@@ -14,9 +14,14 @@ namespace tl
         {
             Orientation orientation = Orientation::Horizontal;
             SizeRole marginRole = SizeRole::None;
-            int margin = 0;
             SizeRole spacingRole = SizeRole::Spacing;
-            int spacing = 0;
+
+            struct Size
+            {
+                int margin = 0;
+                int spacing = 0;
+            };
+            Size size;
         };
 
         void RowLayout::_init(
@@ -61,7 +66,7 @@ namespace tl
         {
             IWidget::setGeometry(value);
             TLRENDER_P();
-            math::BBox2i g = _geometry.margin(-p.margin);
+            math::BBox2i g = _geometry.margin(-p.size.margin);
             size_t expanding = 0;
             for (const auto& child : _children)
             {
@@ -118,10 +123,10 @@ namespace tl
                 switch (p.orientation)
                 {
                 case Orientation::Horizontal:
-                    pos.x += size.x + p.spacing;
+                    pos.x += size.x + p.size.spacing;
                     break;
                 case Orientation::Vertical:
-                    pos.y += size.y + p.spacing;
+                    pos.y += size.y + p.size.spacing;
                     break;
                 }
             }
@@ -132,11 +137,11 @@ namespace tl
             IWidget::sizeEvent(event);
             TLRENDER_P();
 
-            p.margin = event.style->getSizeRole(p.marginRole) * event.contentScale;
-            p.spacing = event.style->getSizeRole(p.spacingRole) * event.contentScale;
+            p.size.margin = event.style->getSizeRole(p.marginRole) * event.contentScale;
+            p.size.spacing = event.style->getSizeRole(p.spacingRole) * event.contentScale;
 
-            _sizeHint.x = p.margin * 2;
-            _sizeHint.y = p.margin * 2;
+            _sizeHint.x = 0;
+            _sizeHint.y = 0;
             for (const auto& child : _children)
             {
                 const math::Vector2i& sizeHint = child->getSizeHint();
@@ -158,13 +163,15 @@ namespace tl
                 switch (p.orientation)
                 {
                 case Orientation::Horizontal:
-                    _sizeHint.x += p.spacing * (count - 1);
+                    _sizeHint.x += p.size.spacing * (count - 1);
                     break;
                 case Orientation::Vertical:
-                    _sizeHint.y += p.spacing * (count - 1);
+                    _sizeHint.y += p.size.spacing * (count - 1);
                     break;
                 }
             }
+            _sizeHint.x += p.size.margin * 2;
+            _sizeHint.y += p.size.margin * 2;
         }
 
         void RowLayout::childAddedEvent(const ChildEvent&)

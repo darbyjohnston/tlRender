@@ -16,7 +16,12 @@ namespace tl
             std::shared_ptr<observer::Value<math::Vector2i> > scrollSize;
             std::shared_ptr<observer::Value<math::Vector2i> > scrollPos;
             bool border = true;
-            int borderSize = 0;
+
+            struct Size
+            {
+                int border = 0;
+            };
+            Size size;
         };
 
         void ScrollArea::_init(
@@ -102,7 +107,7 @@ namespace tl
             IWidget::sizeEvent(event);
             TLRENDER_P();
 
-            p.borderSize = event.style->getSizeRole(SizeRole::Border) * event.contentScale;
+            p.size.border = event.style->getSizeRole(SizeRole::Border) * event.contentScale;
 
             _sizeHint.x = 0;
             _sizeHint.y = 0;
@@ -131,8 +136,8 @@ namespace tl
             }
             if (p.border)
             {
-                _sizeHint.x += p.borderSize * 2;
-                _sizeHint.y += p.borderSize * 2;
+                _sizeHint.x += p.size.border * 2;
+                _sizeHint.y += p.size.border * 2;
             }
         }
 
@@ -146,9 +151,9 @@ namespace tl
             if (p.border)
             {
                 event.render->drawMesh(
-                    border(g, p.borderSize),
+                    border(g, p.size.border),
                     event.style->getColorRole(ColorRole::Border));
-                g = g.margin(-p.borderSize);
+                g = g.margin(-p.size.border);
             }
 
             event.render->drawRect(

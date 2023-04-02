@@ -12,8 +12,15 @@ namespace tl
     {
         struct ListButton::Private
         {
-            int margin = 0;
-            int spacing = 0;
+            struct Size
+            {
+                imaging::FontInfo fontInfo;
+                imaging::FontMetrics fontMetrics;
+                math::Vector2i textSize;
+                int margin = 0;
+                int spacing = 0;
+            };
+            Size size;
         };
 
         void ListButton::_init(
@@ -45,18 +52,20 @@ namespace tl
             IButton::sizeEvent(event);
             TLRENDER_P();
             
-            p.margin = event.style->getSizeRole(SizeRole::MarginSmall) * event.contentScale;
-            p.spacing = event.style->getSizeRole(SizeRole::SpacingSmall) * event.contentScale;
+            p.size.margin = event.style->getSizeRole(SizeRole::MarginSmall) * event.contentScale;
+            p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall) * event.contentScale;
 
             _sizeHint.x = 0;
             _sizeHint.y = 0;
             if (!_text.empty())
             {
-                imaging::FontInfo fontInfo = _fontInfo;
-                fontInfo.size *= event.contentScale;
-                auto fontMetrics = event.fontSystem->getMetrics(fontInfo);
-                _sizeHint.x = event.fontSystem->measure(_text, fontInfo).x;
-                _sizeHint.y = fontMetrics.lineHeight;
+                p.size.fontInfo = _fontInfo;
+                p.size.fontInfo.size *= event.contentScale;
+                p.size.fontMetrics = event.fontSystem->getMetrics(p.size.fontInfo);
+                p.size.textSize = event.fontSystem->measure(_text, p.size.fontInfo);
+
+                _sizeHint.x = event.fontSystem->measure(_text, p.size.fontInfo).x;
+                _sizeHint.y = p.size.fontMetrics.lineHeight;
             }
             if (_iconImage)
             {
@@ -64,13 +73,14 @@ namespace tl
                 _sizeHint.y = std::max(
                     _sizeHint.y,
                     static_cast<int>(_iconImage->getHeight()));
+
                 if (!_text.empty())
                 {
-                    _sizeHint.x += p.spacing;
+                    _sizeHint.x += p.size.spacing;
                 }
             }
-            _sizeHint.x += p.margin * 2;
-            _sizeHint.y += p.margin * 2;
+            _sizeHint.x += p.size.margin * 2;
+            _sizeHint.y += p.size.margin * 2;
         }
 
         void ListButton::drawEvent(const DrawEvent& event)
@@ -103,27 +113,25 @@ namespace tl
                     event.style->getColorRole(ColorRole::Hover));
             }
 
-            int x = g.x() + p.margin;
+            int x = g.x() + p.size.margin;
             if (_iconImage)
             {
                 const auto iconSize = _iconImage->getSize();
                 event.render->drawImage(
                   _iconImage,
-                  math::BBox2i(x, g.y() + p.margin, iconSize.w, iconSize.h));
-                x += iconSize.w + p.spacing;
+                  math::BBox2i(x, g.y() + p.size.margin, iconSize.w, iconSize.h));
+                x += iconSize.w + p.size.spacing;
             }
             
             if (!_text.empty())
             {
-                imaging::FontInfo fontInfo = _fontInfo;
-                fontInfo.size *= event.contentScale;
-                auto fontMetrics = event.fontSystem->getMetrics(fontInfo);
-                math::Vector2i textSize = event.fontSystem->measure(_text, fontInfo);
+                math::Vector2i pos(
+                    x,
+                    g.y() + g.h() / 2 - p.size.textSize.y / 2 +
+                        p.size.fontMetrics.ascender);
                 event.render->drawText(
-                    event.fontSystem->getGlyphs(_text, fontInfo),
-                    math::Vector2i(
-                        x,
-                        g.y() + g.h() / 2 - textSize.y / 2 + fontMetrics.ascender),
+                    event.fontSystem->getGlyphs(_text, p.size.fontInfo),
+                    pos,
                     event.style->getColorRole(ColorRole::Text));
             }
         }

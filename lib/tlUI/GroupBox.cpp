@@ -14,12 +14,17 @@ namespace tl
         {
             std::string text;
             imaging::FontInfo fontInfo;
-            math::Vector2i textSize;
-            int lineHeight = 0;
-            int ascender = 0;
-            int margin = 0;
-            int spacing = 0;
-            int border = 0;
+
+            struct Size
+            {
+                imaging::FontInfo fontInfo;
+                imaging::FontMetrics fontMetrics;
+                math::Vector2i textSize;
+                int margin = 0;
+                int spacing = 0;
+                int border = 0;
+            };
+            Size size;
         };
 
         void GroupBox::_init(
@@ -70,8 +75,8 @@ namespace tl
             IWidget::setGeometry(value);
             TLRENDER_P();
             math::BBox2i g = value;
-            g.min.y += p.lineHeight + p.spacing;
-            g = g.margin(-p.margin);
+            g.min.y += p.size.fontMetrics.lineHeight + p.size.spacing;
+            g = g.margin(-p.size.margin);
             for (const auto& child : _children)
             {
                 child->setGeometry(g);
@@ -83,16 +88,15 @@ namespace tl
             IWidget::sizeEvent(event);
             TLRENDER_P();
 
-            p.margin = event.style->getSizeRole(SizeRole::Margin) * event.contentScale;
-            p.spacing = event.style->getSizeRole(SizeRole::SpacingSmall) * event.contentScale;
-            p.border = event.style->getSizeRole(SizeRole::Border) * event.contentScale;
+            p.size.margin = event.style->getSizeRole(SizeRole::Margin) * event.contentScale;
+            p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall) * event.contentScale;
+            p.size.border = event.style->getSizeRole(SizeRole::Border) * event.contentScale;
 
-            auto fontInfo = p.fontInfo;
-            fontInfo.size *= event.contentScale;
-            p.textSize = event.fontSystem->measure(p.text, fontInfo);
-            auto fontMetrics = event.fontSystem->getMetrics(fontInfo);
-            p.lineHeight = fontMetrics.lineHeight;
-            p.ascender = fontMetrics.ascender;
+            p.size.fontInfo = p.fontInfo;
+            p.size.fontInfo.size *= event.contentScale;
+            p.size.fontMetrics = event.fontSystem->getMetrics(p.size.fontInfo);
+            p.size.textSize = event.fontSystem->measure(p.text, p.size.fontInfo);
+
             _sizeHint.x = 0;
             _sizeHint.y = 0;
             for (const auto& child : _children)
@@ -101,10 +105,10 @@ namespace tl
                 _sizeHint.x = std::max(_sizeHint.x, sizeHint.x);
                 _sizeHint.y = std::max(_sizeHint.y, sizeHint.y);
             }
-            _sizeHint.x += p.margin * 2;
-            _sizeHint.y += p.margin * 2;
-            _sizeHint.x = std::max(_sizeHint.x, p.textSize.x);
-            _sizeHint.y += p.lineHeight + p.spacing;
+            _sizeHint.x += p.size.margin * 2;
+            _sizeHint.y += p.size.margin * 2;
+            _sizeHint.x = std::max(_sizeHint.x, p.size.textSize.x);
+            _sizeHint.y += p.size.fontMetrics.lineHeight + p.size.spacing;
         }
 
         void GroupBox::drawEvent(const DrawEvent& event)
@@ -114,16 +118,14 @@ namespace tl
 
             math::BBox2i g = _geometry;
 
-            auto fontInfo = p.fontInfo;
-            fontInfo.size *= event.contentScale;
             event.render->drawText(
-                event.fontSystem->getGlyphs(p.text, fontInfo),
-                math::Vector2i(g.x(), g.y() + p.ascender),
+                event.fontSystem->getGlyphs(p.text, p.size.fontInfo),
+                math::Vector2i(g.x(), g.y() + p.size.fontMetrics.ascender),
                 event.style->getColorRole(ColorRole::Text));
 
-            g.min.y += p.lineHeight + p.spacing;
+            g.min.y += p.size.fontMetrics.lineHeight + p.size.spacing;
             event.render->drawMesh(
-                border(g, p.border, p.margin / 2),
+                border(g, p.size.border, p.size.margin / 2),
                 event.style->getColorRole(ColorRole::Border));
         }
     }

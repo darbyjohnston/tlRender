@@ -21,9 +21,14 @@ namespace tl
         {
             std::map<std::shared_ptr<IWidget>, GridPos> gridPos;
             SizeRole marginRole = SizeRole::None;
-            int margin = 0;
             SizeRole spacingRole = SizeRole::Spacing;
-            int spacing = 0;
+
+            struct Size
+            {
+                int margin = 0;
+                int spacing = 0;
+            };
+            Size size;
 
             GridPos getSize() const;
 
@@ -93,7 +98,7 @@ namespace tl
             IWidget::setGeometry(value);
             TLRENDER_P();
 
-            math::BBox2i g = _geometry.margin(-p.margin);
+            math::BBox2i g = _geometry.margin(-p.size.margin);
 
             // Get the child size hints.
             std::vector<int> rowSizeHints;
@@ -107,7 +112,7 @@ namespace tl
                 totalSize.y += rowSizeHints[i];
                 if (i < rowSizeHints.size() - 1)
                 {
-                    totalSize.y += p.spacing;
+                    totalSize.y += p.size.spacing;
                 }
             }
             for (int i = 0; i < columnSizeHints.size(); ++i)
@@ -115,7 +120,7 @@ namespace tl
                 totalSize.x += columnSizeHints[i];
                 if (i < columnSizeHints.size() - 1)
                 {
-                    totalSize.x += p.spacing;
+                    totalSize.x += p.size.spacing;
                 }
             }
 
@@ -179,11 +184,11 @@ namespace tl
                 math::Vector2i pos = g.min;
                 for (int j = 0; j < i.second.row; ++j)
                 {
-                    pos.y += rowSizes[j] + p.spacing;
+                    pos.y += rowSizes[j] + p.size.spacing;
                 }
                 for (int j = 0; j < i.second.column; ++j)
                 {
-                    pos.x += columnSizes[j] + p.spacing;
+                    pos.x += columnSizes[j] + p.size.spacing;
                 }
                 const math::Vector2i size(
                     columnSizes[i.second.column],
@@ -197,8 +202,8 @@ namespace tl
             IWidget::sizeEvent(event);
             TLRENDER_P();
 
-            p.margin = event.style->getSizeRole(p.marginRole) * event.contentScale;
-            p.spacing = event.style->getSizeRole(p.spacingRole) * event.contentScale;
+            p.size.margin = event.style->getSizeRole(p.marginRole) * event.contentScale;
+            p.size.spacing = event.style->getSizeRole(p.spacingRole) * event.contentScale;
 
             // Get size hints.
             std::vector<int> rowSizeHints;
@@ -218,16 +223,16 @@ namespace tl
             // Add spacing.
             if (!rowSizeHints.empty())
             {
-                _sizeHint.y += (rowSizeHints.size() - 1) * p.spacing;
+                _sizeHint.y += (rowSizeHints.size() - 1) * p.size.spacing;
             }
             if (!columnSizeHints.empty())
             {
-                _sizeHint.x += (columnSizeHints.size() - 1) * p.spacing;
+                _sizeHint.x += (columnSizeHints.size() - 1) * p.size.spacing;
             }
 
             // Add the margin.
-            _sizeHint.x += p.margin * 2;
-            _sizeHint.y += p.margin * 2;
+            _sizeHint.x += p.size.margin * 2;
+            _sizeHint.y += p.size.margin * 2;
         }
 
         void GridLayout::childRemovedEvent(const ChildEvent& event)
