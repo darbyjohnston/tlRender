@@ -44,9 +44,9 @@ namespace tl
                 void drawEvent(const ui::DrawEvent&) override;
                 void enterEvent() override;
                 void leaveEvent() override;
-                void mouseMoveEvent(const ui::MouseMoveEvent&) override;
-                void mousePressEvent(const ui::MouseClickEvent&) override;
-                void mouseReleaseEvent(const ui::MouseClickEvent&) override;
+                void mouseMoveEvent(ui::MouseMoveEvent&) override;
+                void mousePressEvent(ui::MouseClickEvent&) override;
+                void mouseReleaseEvent(ui::MouseClickEvent&) override;
 
             private:
                 void _drawTimeTicks(const ui::DrawEvent&);

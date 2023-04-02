@@ -35,8 +35,8 @@ namespace tl
                 const std::shared_ptr<imaging::FontSystem>&,
                 const std::shared_ptr<system::Context>&);
 
-            //! Add a top-level widget.
-            void addWidget(const std::weak_ptr<IWidget>&);
+            //! Add a top level widget.
+            void addWidget(const std::shared_ptr<IWidget>&);
 
             //! Set the user interface size.
             void setSize(const imaging::Size&);
@@ -85,13 +85,16 @@ namespace tl
                 const std::shared_ptr<IWidget>&,
                 const DrawEvent&);
 
-            std::shared_ptr<IWidget> _underCursor(
-                const math::Vector2i&);
-            std::shared_ptr<IWidget> _underCursor(
+            void _underCursor(
+                const math::Vector2i&,
+                std::list<std::shared_ptr<IWidget> >&);
+            void _underCursor(
                 const std::shared_ptr<IWidget>&,
-                const math::Vector2i&);
+                const math::Vector2i&,
+                std::list<std::shared_ptr<IWidget> >&);
 
             void _setHover(const std::shared_ptr<IWidget>&);
+            void _hoverUpdate(MouseMoveEvent&);
 
         private:
             TLRENDER_PRIVATE();

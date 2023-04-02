@@ -55,9 +55,9 @@ namespace tl
             void tickEvent(const TickEvent&) override;
             void enterEvent() override;
             void leaveEvent() override;
-            void mouseMoveEvent(const MouseMoveEvent&) override;
-            void mousePressEvent(const MouseClickEvent&) override;
-            void mouseReleaseEvent(const MouseClickEvent&) override;
+            void mouseMoveEvent(MouseMoveEvent&) override;
+            void mousePressEvent(MouseClickEvent&) override;
+            void mouseReleaseEvent(MouseClickEvent&) override;
 
         protected:
             std::string _text;

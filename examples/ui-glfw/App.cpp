@@ -6,6 +6,8 @@
 
 #include "MainWindow.h"
 
+#include <tlUI/EventLoop.h>
+
 namespace tl
 {
     namespace examples
@@ -29,7 +31,7 @@ namespace tl
                 }
 
                 _mainWindow = MainWindow::create(_context);
-                addWidget(_mainWindow);
+                getEventLoop()->addWidget(_mainWindow);
             }
 
             App::App()

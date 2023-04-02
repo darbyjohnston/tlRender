@@ -130,20 +130,23 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        void IButton::mouseMoveEvent(const MouseMoveEvent& event)
+        void IButton::mouseMoveEvent(MouseMoveEvent& event)
         {
+            event.accept = true;
             _cursorPos = event.pos;
         }
 
-        void IButton::mousePressEvent(const MouseClickEvent&)
+        void IButton::mousePressEvent(MouseClickEvent& event)
         {
+            event.accept = true;
             _pressed = true;
             _updates |= Update::Draw;
         }
 
-        void IButton::mouseReleaseEvent(const MouseClickEvent&)
+        void IButton::mouseReleaseEvent(MouseClickEvent& event)
         {
             TLRENDER_P();
+            event.accept = true;
             _pressed = false;
             if (_geometry.contains(_cursorPos))
             {

@@ -41,9 +41,9 @@ namespace tl
             void drawEvent(const DrawEvent&) override;
             void enterEvent() override;
             void leaveEvent() override;
-            void mouseMoveEvent(const MouseMoveEvent&) override;
-            void mousePressEvent(const MouseClickEvent&) override;
-            void mouseReleaseEvent(const MouseClickEvent&) override;
+            void mouseMoveEvent(MouseMoveEvent&) override;
+            void mousePressEvent(MouseClickEvent&) override;
+            void mouseReleaseEvent(MouseClickEvent&) override;
 
         private:
             math::BBox2i _getSliderGeometry() const;

@@ -69,8 +69,8 @@ namespace tl
                     {
                         const float v = k / static_cast<float>(resolution - 1);
                         const float a = math::lerp(v, j * 90.F, j * 90.F + 90.F);
-                        const float cos = std::cosf(math::deg2rad(a));
-                        const float sin = std::sinf(math::deg2rad(a));
+                        const float cos = cosf(math::deg2rad(a));
+                        const float sin = sinf(math::deg2rad(a));
                         out.v.push_back(math::Vector2f(
                             c[j].x + cos * r,
                             c[j].y + sin * r));
@@ -166,8 +166,8 @@ namespace tl
                     {
                         const float v = k / static_cast<float>(resolution - 1);
                         const float a = math::lerp(v, j * 90.F, j * 90.F + 90.F);
-                        const float cos = std::cosf(math::deg2rad(a));
-                        const float sin = std::sinf(math::deg2rad(a));
+                        const float cos = cosf(math::deg2rad(a));
+                        const float sin = sinf(math::deg2rad(a));
                         out.v.push_back(math::Vector2f(
                             c[j].x + cos * r,
                             c[j].y + sin * r));

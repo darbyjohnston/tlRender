@@ -13,6 +13,8 @@ namespace tl
 {
     namespace ui
     {
+        class EventLoop;
+
         //! Base class for widgets.
         class IWidget : public std::enable_shared_from_this<IWidget>
         {
@@ -44,11 +46,23 @@ namespace tl
             //! Hierarchy
             ///@{
 
+            //! Get the parent widget.
+            const std::weak_ptr<IWidget>& getParent() const;
+
             //! Set the parent widget.
             void setParent(const std::shared_ptr<IWidget>&);
 
             //! Get the children widgets.
             const std::list<std::shared_ptr<IWidget> >& getChildren() const;
+
+            //! Get the top level widget.
+            std::shared_ptr<IWidget> getTopLevel() const;
+
+            //! Set the event loop.
+            void setEventLoop(const std::weak_ptr<EventLoop>&);
+
+            //! Get the event loop.
+            const std::weak_ptr<EventLoop>& getEventLoop() const;
 
             ///@}
 
@@ -126,19 +140,19 @@ namespace tl
             virtual void leaveEvent();
 
             //! Mouse move event.
-            virtual void mouseMoveEvent(const MouseMoveEvent&);
+            virtual void mouseMoveEvent(MouseMoveEvent&);
 
             //! Mouse press event.
-            virtual void mousePressEvent(const MouseClickEvent&);
+            virtual void mousePressEvent(MouseClickEvent&);
 
             //! Mouse release event.
-            virtual void mouseReleaseEvent(const MouseClickEvent&);
+            virtual void mouseReleaseEvent(MouseClickEvent&);
 
             //! Key press event.
-            virtual void keyPressEvent(const KeyEvent&);
+            virtual void keyPressEvent(KeyEvent&);
 
             //! Key release event.
-            virtual void keyReleaseEvent(const KeyEvent&);
+            virtual void keyReleaseEvent(KeyEvent&);
 
             ///@}
 
@@ -146,6 +160,7 @@ namespace tl
             std::weak_ptr<system::Context> _context;
             std::string _name;
             std::weak_ptr<IWidget> _parent;
+            std::weak_ptr<EventLoop> _eventLoop;
             std::list<std::shared_ptr<IWidget> > _children;
             math::Vector2i _sizeHint;
             Stretch _hStretch = Stretch::Fixed;

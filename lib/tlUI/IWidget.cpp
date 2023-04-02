@@ -52,6 +52,11 @@ namespace tl
             return _updates;
         }
 
+        const std::weak_ptr<IWidget>& IWidget::getParent() const
+        {
+            return _parent;
+        }
+
         void IWidget::setParent(const std::shared_ptr<IWidget>& value)
         {
             if (auto parent = _parent.lock())
@@ -86,6 +91,28 @@ namespace tl
         const std::list<std::shared_ptr<IWidget> >& IWidget::getChildren() const
         {
             return _children;
+        }
+
+        std::shared_ptr<IWidget> IWidget::getTopLevel() const
+        {
+            std::shared_ptr<IWidget> out;
+            auto parent = _parent.lock();
+            while (parent)
+            {
+                out = parent;
+                parent = parent->_parent.lock();
+            }            
+            return out;
+        }
+
+        void IWidget::setEventLoop(const std::weak_ptr<EventLoop>& value)
+        {
+            _eventLoop = value;
+        }
+
+        const std::weak_ptr<EventLoop>& IWidget::getEventLoop() const
+        {
+            return _eventLoop;
         }
 
         const math::Vector2i& IWidget::getSizeHint() const
@@ -208,19 +235,19 @@ namespace tl
         void IWidget::leaveEvent()
         {}
 
-        void IWidget::mouseMoveEvent(const MouseMoveEvent&)
+        void IWidget::mouseMoveEvent(MouseMoveEvent&)
         {}
 
-        void IWidget::mousePressEvent(const MouseClickEvent&)
+        void IWidget::mousePressEvent(MouseClickEvent&)
         {}
 
-        void IWidget::mouseReleaseEvent(const MouseClickEvent&)
+        void IWidget::mouseReleaseEvent(MouseClickEvent&)
         {}
 
-        void IWidget::keyPressEvent(const KeyEvent&)
+        void IWidget::keyPressEvent(KeyEvent&)
         {}
 
-        void IWidget::keyReleaseEvent(const KeyEvent&)
+        void IWidget::keyReleaseEvent(KeyEvent&)
         {}
     }
 }

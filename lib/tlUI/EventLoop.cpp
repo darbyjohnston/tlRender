@@ -16,10 +16,11 @@ namespace tl
             std::shared_ptr<imaging::FontSystem> fontSystem;
             imaging::Size frameBufferSize;
             float contentScale = 1.F;
-            std::list<std::weak_ptr<IWidget> > topLevelWidgets;
+            std::list<std::weak_ptr<IWidget> > widgets;
             math::Vector2i cursorPos;
             std::weak_ptr<IWidget> hover;
             std::weak_ptr<IWidget> mousePress;
+            std::weak_ptr<IWidget> keyFocus;
             std::weak_ptr<IWidget> keyPress;
             int updates = 0;
         };
@@ -75,10 +76,11 @@ namespace tl
             p.updates |= Update::Draw;
         }
 
-        void EventLoop::addWidget(const std::weak_ptr<IWidget>& widget)
+        void EventLoop::addWidget(const std::shared_ptr<IWidget>& widget)
         {
             TLRENDER_P();
-            p.topLevelWidgets.push_back(widget);
+            widget->setEventLoop(shared_from_this());
+            p.widgets.push_back(widget);
             p.updates |= Update::Size;
             p.updates |= Update::Draw;
         }
@@ -110,13 +112,7 @@ namespace tl
             }
             else
             {
-                auto hover = _underCursor(pos);
-                //std::cout << "hover: " << (hover ? hover->getName() : "none") << std::endl;
-                _setHover(hover);
-                if (auto widget = p.hover.lock())
-                {
-                    widget->mouseMoveEvent(event);
-                }
+                _hoverUpdate(event);
             }
             p.cursorPos = pos;
         }
@@ -142,9 +138,11 @@ namespace tl
                     widget->mouseReleaseEvent(event);
                     p.mousePress.reset();
                 }
-                auto hover = _underCursor(p.cursorPos);
-                //std::cout << "hover: " << (hover ? hover->getName() : "none") << std::endl;
-                _setHover(hover);
+
+                MouseMoveEvent moveEvent;
+                moveEvent.pos = p.cursorPos;
+                moveEvent.prev = p.cursorPos;
+                _hoverUpdate(moveEvent);
             }
         }
 
@@ -157,7 +155,7 @@ namespace tl
             if (_getSizeUpdate())
             {
                 _sizeEvent();
-                for (const auto& i : p.topLevelWidgets)
+                for (const auto& i : p.widgets)
                 {
                     if (auto widget = i.lock())
                     {
@@ -196,7 +194,7 @@ namespace tl
             event.iconLibrary = p.iconLibrary;
             event.fontSystem = p.fontSystem;
             event.contentScale = p.contentScale;
-            for (const auto& i : p.topLevelWidgets)
+            for (const auto& i : p.widgets)
             {
                 if (auto widget = i.lock())
                 {
@@ -220,7 +218,7 @@ namespace tl
         {
             TLRENDER_P();
             bool out = p.updates & Update::Size;
-            for (const auto& i : p.topLevelWidgets)
+            for (const auto& i : p.widgets)
             {
                 if (auto widget = i.lock())
                 {
@@ -248,7 +246,7 @@ namespace tl
             event.iconLibrary = p.iconLibrary;
             event.fontSystem = p.fontSystem;
             event.contentScale = p.contentScale;
-            for (const auto& i : p.topLevelWidgets)
+            for (const auto& i : p.widgets)
             {
                 if (auto widget = i.lock())
                 {
@@ -272,7 +270,7 @@ namespace tl
         {
             TLRENDER_P();
             bool out = p.updates & Update::Draw;
-            for (const auto& i : p.topLevelWidgets)
+            for (const auto& i : p.widgets)
             {
                 if (auto widget = i.lock())
                 {
@@ -309,7 +307,7 @@ namespace tl
             event.render = render;
             event.fontSystem = p.fontSystem;
             event.contentScale = p.contentScale;
-            for (const auto& i : p.topLevelWidgets)
+            for (const auto& i : p.widgets)
             {
                 if (auto widget = i.lock())
                 {
@@ -332,43 +330,38 @@ namespace tl
             }
         }
 
-        std::shared_ptr<IWidget> EventLoop::_underCursor(
-            const math::Vector2i& pos)
+        void EventLoop::_underCursor(
+            const math::Vector2i& pos,
+            std::list<std::shared_ptr<IWidget> >& out)
         {
             TLRENDER_P();
-            std::shared_ptr<IWidget> out;
-            for (const auto& i : p.topLevelWidgets)
+            for (const auto& i : p.widgets)
             {
                 if (auto widget = i.lock())
                 {
-                    out = _underCursor(widget, pos);
-                }
-            }
-            return out;
-        }
-
-        std::shared_ptr<IWidget> EventLoop::_underCursor(
-            const std::shared_ptr<IWidget>& widget,
-            const math::Vector2i& pos)
-        {
-            std::shared_ptr<IWidget> out;
-            if (widget->isVisible())
-            {
-                for (const auto& child : widget->getChildren())
-                {
-                    auto tmp = _underCursor(child, pos);
-                    if (tmp)
+                    if (widget->isVisible() && widget->getGeometry().contains(pos))
                     {
-                        out = tmp;
+                        _underCursor(widget, pos, out);
                         break;
                     }
                 }
-                if (!out && widget->getGeometry().contains(pos))
+            }
+        }
+
+        void EventLoop::_underCursor(
+            const std::shared_ptr<IWidget>& widget,
+            const math::Vector2i& pos,
+            std::list<std::shared_ptr<IWidget> >& out)
+        {
+            out.push_back(widget);
+            for (const auto& child : widget->getChildren())
+            {
+                if (child->isVisible() && child->getGeometry().contains(pos))
                 {
-                    out = widget;
+                    _underCursor(child, pos, out);
+                    break;
                 }
             }
-            return out;
         }
 
         void EventLoop::_setHover(const std::shared_ptr<IWidget>& hover)
@@ -392,6 +385,26 @@ namespace tl
                 hover->enterEvent();
             }
             p.hover = hover;
+        }
+
+        void EventLoop::_hoverUpdate(MouseMoveEvent& event)
+        {
+            std::list<std::shared_ptr<IWidget> > hover;
+            _underCursor(event.pos, hover);
+            while (!hover.empty())
+            {
+                hover.back()->mouseMoveEvent(event);
+                if (event.accept)
+                {
+                    _setHover(hover.back());
+                    break;
+                }
+                hover.pop_back();
+            }
+            if (hover.empty())
+            {
+                _setHover(nullptr);
+            }
         }
     }
 }

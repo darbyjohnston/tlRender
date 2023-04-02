@@ -147,8 +147,9 @@ namespace tl
             void TimelineItem::leaveEvent()
             {}
 
-            void TimelineItem::mouseMoveEvent(const ui::MouseMoveEvent& event)
+            void TimelineItem::mouseMoveEvent(ui::MouseMoveEvent& event)
             {
+                event.accept = true;
                 _mousePos = event.pos;
                 if (_currentTimeDrag)
                 {
@@ -156,8 +157,9 @@ namespace tl
                 }
             }
 
-            void TimelineItem::mousePressEvent(const ui::MouseClickEvent& event)
+            void TimelineItem::mousePressEvent(ui::MouseClickEvent& event)
             {
+                event.accept = true;
                 _mousePress = true;
                 _mousePressPos = _mousePos;
                 const math::BBox2i bbox = _getCurrentTimeBBox();
@@ -168,8 +170,9 @@ namespace tl
                 }
             }
 
-            void TimelineItem::mouseReleaseEvent(const ui::MouseClickEvent&)
+            void TimelineItem::mouseReleaseEvent(ui::MouseClickEvent& event)
             {
+                event.accept = true;
                 _mousePress = false;
                 _currentTimeDrag = false;
             }

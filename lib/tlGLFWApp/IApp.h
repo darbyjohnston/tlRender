@@ -4,12 +4,17 @@
 
 #include <tlApp/IApp.h>
 
-#include <tlUI/IWidget.h>
+#include <tlCore/Image.h>
 
 struct GLFWwindow;
 
 namespace tl
 {
+    namespace ui
+    {
+        class EventLoop;
+    }
+
     //! GLFW application support.
     namespace glfw
     {
@@ -46,8 +51,8 @@ namespace tl
             //! Exit the application.
             void exit();
 
-            //! Add a top-level widget.
-            void addWidget(const std::weak_ptr<ui::IWidget>&);
+            //! Get the event loop.
+            const std::shared_ptr<ui::EventLoop> getEventLoop() const;
 
         private:
             void _setFullscreenWindow(bool);

@@ -155,9 +155,10 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        void IntSlider::mouseMoveEvent(const MouseMoveEvent& event)
+        void IntSlider::mouseMoveEvent(MouseMoveEvent& event)
         {
             TLRENDER_P();
+            event.accept = true;
             p.mousePos = event.pos;
             if (p.pressed && p.model)
             {
@@ -165,9 +166,10 @@ namespace tl
             }
         }
 
-        void IntSlider::mousePressEvent(const MouseClickEvent& event)
+        void IntSlider::mousePressEvent(MouseClickEvent& event)
         {
             TLRENDER_P();
+            event.accept = true;
             p.pressed = true;
             if (p.model)
             {
@@ -176,9 +178,10 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        void IntSlider::mouseReleaseEvent(const MouseClickEvent& event)
+        void IntSlider::mouseReleaseEvent(MouseClickEvent& event)
         {
             TLRENDER_P();
+            event.accept = true;
             p.pressed = false;
             _updates |= Update::Draw;
         }

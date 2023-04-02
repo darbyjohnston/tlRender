@@ -56,6 +56,7 @@ namespace tl
         {
             math::Vector2i pos;
             math::Vector2i prev;
+            bool accept = false;
         };
 
         //! Keyboard modifiers.
@@ -72,6 +73,7 @@ namespace tl
         {
             int button = 0;
             int modifiers = 0;
+            bool accept = false;
         };
 
         //! Keys.
@@ -171,6 +173,7 @@ namespace tl
         struct KeyEvent
         {
             Key key = Key::Unknown;
+            bool accept = false;
         };
     }
 }

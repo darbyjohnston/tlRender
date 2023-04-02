@@ -155,9 +155,10 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        void FloatSlider::mouseMoveEvent(const MouseMoveEvent& event)
+        void FloatSlider::mouseMoveEvent(MouseMoveEvent& event)
         {
             TLRENDER_P();
+            event.accept = true;
             p.mousePos = event.pos;
             if (p.pressed && p.model)
             {
@@ -165,9 +166,10 @@ namespace tl
             }
         }
 
-        void FloatSlider::mousePressEvent(const MouseClickEvent& event)
+        void FloatSlider::mousePressEvent(MouseClickEvent& event)
         {
             TLRENDER_P();
+            event.accept = true;
             p.pressed = true;
             if (p.model)
             {
@@ -176,9 +178,10 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        void FloatSlider::mouseReleaseEvent(const MouseClickEvent& event)
+        void FloatSlider::mouseReleaseEvent(MouseClickEvent& event)
         {
             TLRENDER_P();
+            event.accept = true;
             p.pressed = false;
             _updates |= Update::Draw;
         }

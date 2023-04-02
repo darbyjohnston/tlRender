@@ -224,9 +224,9 @@ namespace tl
             _p->running = false;
         }
 
-        void IApp::addWidget(const std::weak_ptr<ui::IWidget>& value)
+        const std::shared_ptr<ui::EventLoop> IApp::getEventLoop() const
         {
-            _p->eventLoop->addWidget(value);
+            return _p->eventLoop;
         }
 
         void IApp::_setFullscreenWindow(bool value)
