@@ -195,6 +195,7 @@ namespace tl
             TLRENDER_P();
             p.eventLoop.reset();
             p.render.reset();
+            p.offscreenBuffer.reset();
             if (p.glfwWindow)
             {
                 glfwDestroyWindow(p.glfwWindow);
