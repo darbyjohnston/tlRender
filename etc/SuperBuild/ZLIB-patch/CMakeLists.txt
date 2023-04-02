@@ -183,6 +183,9 @@ if(MINGW)
     set(ZLIB_DLL_SRCS ${CMAKE_CURRENT_BINARY_DIR}/zlib1rc.obj)
 endif(MINGW)
 
+# Set the position-independent code flag
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 if(BUILD_SHARED_LIBS)
     add_library(zlib SHARED ${ZLIB_SRCS} ${ZLIB_ASMS} ${ZLIB_DLL_SRCS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
     set_target_properties(zlib PROPERTIES DEFINE_SYMBOL ZLIB_DLL)
@@ -201,6 +204,7 @@ if(BUILD_SHARED_LIBS AND NOT CYGWIN)
     # the DLL comes from the resource file win32/zlib1.rc
     set_target_properties(zlib PROPERTIES VERSION ${ZLIB_FULL_VERSION})
 endif()
+
 
 if(UNIX)
     # On unix-like platforms the library is almost always called libz
