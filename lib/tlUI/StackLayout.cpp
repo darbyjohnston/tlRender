@@ -47,11 +47,7 @@ namespace tl
             if (value == p.currentIndex)
                 return;
             p.currentIndex = value;
-            const auto currentWidget = _getCurrentWidget();
-            for (const auto& child : _children)
-            {
-                child->setVisible(child == currentWidget);
-            }
+            _widgetUpdate();
         }
 
         void StackLayout::setGeometry(const math::BBox2i& value)
@@ -65,8 +61,14 @@ namespace tl
 
         void StackLayout::childAddedEvent(const ChildEvent& event)
         {
-            const auto currentWidget = _getCurrentWidget();
-            event.child->setVisible(event.child == currentWidget);
+            _widgetUpdate();
+            _updates |= Update::Size;
+        }
+
+        void StackLayout::childRemovedEvent(const ChildEvent& event)
+        {
+            _widgetUpdate();
+            _updates |= Update::Size;
         }
 
         void StackLayout::sizeEvent(const SizeEvent& event)
@@ -95,6 +97,15 @@ namespace tl
                 ++i;
             }
             return out;
+        }
+
+        void StackLayout::_widgetUpdate()
+        {
+            const auto currentWidget = _getCurrentWidget();
+            for (const auto& child : _children)
+            {
+                child->setVisible(child == currentWidget);
+            }
         }
     }
 }

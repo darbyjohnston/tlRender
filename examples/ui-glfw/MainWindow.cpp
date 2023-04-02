@@ -4,7 +4,9 @@
 
 #include "MainWindow.h"
 
-#include "ButtonWidget.h"
+#include "BasicWidget.h"
+#include "GridLayoutWidget.h"
+#include "NumericWidget.h"
 #include "RowLayoutWidget.h"
 
 #include <tlUI/ListButton.h>
@@ -23,8 +25,10 @@ namespace tl
             {
                 std::shared_ptr<ui::RowLayout> layout;
                 std::shared_ptr<ui::StackLayout> stackLayout;
-                std::shared_ptr<observer::ValueObserver<bool> > buttonsObserver;
+                std::shared_ptr<observer::ValueObserver<bool> > basicObserver;
+                std::shared_ptr<observer::ValueObserver<bool> > numericObserver;
                 std::shared_ptr<observer::ValueObserver<bool> > rowLayoutObserver;
+                std::shared_ptr<observer::ValueObserver<bool> > gridLayoutObserver;
             };
 
             void MainWindow::_init(
@@ -35,13 +39,23 @@ namespace tl
 
                 setBackgroundRole(ui::ColorRole::Window);
 
-                auto buttonButton = ui::ListButton::create(context);
-                buttonButton->setText("Buttons");
-                p.buttonsObserver = observer::ValueObserver<bool>::create(
-                    buttonButton->observeClick(),
+                auto basicButton = ui::ListButton::create(context);
+                basicButton->setText("Basic Widgets");
+                p.basicObserver = observer::ValueObserver<bool>::create(
+                    basicButton->observeClick(),
                     [this](bool)
                     {
                         _p->stackLayout->setCurrentIndex(0);
+                    },
+                    observer::CallbackAction::Suppress);
+
+                auto numericButton = ui::ListButton::create(context);
+                numericButton->setText("Numeric Widgets");
+                p.numericObserver = observer::ValueObserver<bool>::create(
+                    numericButton->observeClick(),
+                    [this](bool)
+                    {
+                        _p->stackLayout->setCurrentIndex(1);
                     },
                     observer::CallbackAction::Suppress);
 
@@ -51,12 +65,24 @@ namespace tl
                     rowLayoutButton->observeClick(),
                     [this](bool)
                     {
-                        _p->stackLayout->setCurrentIndex(1);
+                        _p->stackLayout->setCurrentIndex(2);
                     },
                     observer::CallbackAction::Suppress);
 
-                auto buttonWidget = ButtonWidget::create(context);
+                auto gridLayoutButton = ui::ListButton::create(context);
+                gridLayoutButton->setText("Grid Layouts");
+                p.gridLayoutObserver = observer::ValueObserver<bool>::create(
+                    gridLayoutButton->observeClick(),
+                    [this](bool)
+                    {
+                        _p->stackLayout->setCurrentIndex(3);
+                    },
+                    observer::CallbackAction::Suppress);
+
+                auto basicWidget = BasicWidget::create(context);
+                auto numericWidget = NumericWidget::create(context);
                 auto rowLayoutWidget = RowLayoutWidget::create(context);
+                auto gridLayoutWidget = GridLayoutWidget::create(context);
 
                 p.layout = ui::HorizontalLayout::create(context, shared_from_this());
                 p.layout->setMarginRole(ui::SizeRole::Margin);
@@ -67,13 +93,19 @@ namespace tl
                     p.layout);
                 auto buttonLayout = ui::VerticalLayout::create(context, scrollArea);
                 buttonLayout->setSpacingRole(ui::SizeRole::None);
-                buttonButton->setParent(buttonLayout);
+                basicButton->setParent(buttonLayout);
+                numericButton->setParent(buttonLayout);
                 rowLayoutButton->setParent(buttonLayout);
+                gridLayoutButton->setParent(buttonLayout);
                 p.stackLayout = ui::StackLayout::create(context, p.layout);
                 p.stackLayout->setStretch(ui::Stretch::Expanding, ui::Orientation::Horizontal);
                 p.stackLayout->setStretch(ui::Stretch::Expanding, ui::Orientation::Vertical);
-                buttonWidget->setParent(p.stackLayout);
+                basicWidget->setParent(p.stackLayout);
+                numericWidget->setParent(p.stackLayout);
                 rowLayoutWidget->setParent(p.stackLayout);
+                gridLayoutWidget->setParent(p.stackLayout);
+
+                p.stackLayout->setCurrentIndex(1);
             }
 
             MainWindow::MainWindow() :

@@ -1,13 +1,17 @@
 set(HEADERS
     App.h
-    ButtonWidget.h
+    BasicWidget.h
+    GridLayoutWidget.h
     MainWindow.h
+    NumericWidget.h
     RowLayoutWidget.h)
 
 set(SOURCE
     App.cpp
-    ButtonWidget.cpp
+    BasicWidget.cpp
+    GridLayoutWidget.cpp
     MainWindow.cpp
+    NumericWidget.cpp
     RowLayoutWidget.cpp
     main.cpp)
 

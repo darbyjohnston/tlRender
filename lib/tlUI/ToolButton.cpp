@@ -44,7 +44,7 @@ namespace tl
             IButton::sizeEvent(event);
             TLRENDER_P();
 
-            p.margin = event.style->getSizeRole(SizeRole::MarginTool) * event.contentScale;
+            p.margin = event.style->getSizeRole(SizeRole::MarginInside) * event.contentScale;
             p.border = event.style->getSizeRole(SizeRole::Border) * event.contentScale;
 
             _sizeHint.x = 0;

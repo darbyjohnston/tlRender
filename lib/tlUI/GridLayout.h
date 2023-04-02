@@ -10,42 +10,43 @@ namespace tl
 {
     namespace ui
     {
-        //! Stack layout.
-        class StackLayout : public IWidget
+        //! Grid layout.
+        class GridLayout : public IWidget
         {
-            TLRENDER_NON_COPYABLE(StackLayout);
+            TLRENDER_NON_COPYABLE(GridLayout);
 
         protected:
             void _init(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            StackLayout();
+            GridLayout();
 
         public:
-            ~StackLayout() override;
+            ~GridLayout() override;
 
-            //! Create a new stack layout.
-            static std::shared_ptr<StackLayout> create(
+            //! Create a new grid layout.
+            static std::shared_ptr<GridLayout> create(
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            //! Get the current index.
-            int getCurrentIndex() const;
+            //! Set a child position within the grid.
+            void setGridPos(
+                const std::shared_ptr<IWidget>&,
+                int row,
+                int column);
 
-            //! Set the current index.
-            void setCurrentIndex(int);
+            //! Set the margin role.
+            void setMarginRole(SizeRole);
+
+            //! Set the spacing role.
+            void setSpacingRole(SizeRole);
 
             void setGeometry(const math::BBox2i&) override;
-            void childAddedEvent(const ChildEvent&) override;
-            void childRemovedEvent(const ChildEvent&) override;
             void sizeEvent(const SizeEvent&) override;
+            void childRemovedEvent(const ChildEvent&) override;
 
         private:
-            std::shared_ptr<IWidget> _getCurrentWidget() const;
-
-            void _widgetUpdate();
-
             TLRENDER_PRIVATE();
         };
     }

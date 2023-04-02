@@ -41,6 +41,8 @@ namespace tl
 
             void setGeometry(const math::BBox2i&) override;
             void sizeEvent(const SizeEvent&) override;
+            void childAddedEvent(const ChildEvent&) override;
+            void childRemovedEvent(const ChildEvent&) override;
 
         private:
             TLRENDER_PRIVATE();

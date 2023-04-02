@@ -61,7 +61,7 @@ namespace tl
         {
             IWidget::setGeometry(value);
             TLRENDER_P();
-            math::BBox2i margin = _geometry.margin(-p.margin);
+            math::BBox2i g = _geometry.margin(-p.margin);
             size_t expanding = 0;
             for (const auto& child : _children)
             {
@@ -84,7 +84,7 @@ namespace tl
             const std::pair<int, int> extra(
                 _geometry.w() - _sizeHint.x,
                 _geometry.h() - _sizeHint.y);
-            math::Vector2i pos = margin.min;
+            math::Vector2i pos = g.min;
             for (const auto& child : _children)
             {
                 math::Vector2i size = child->getSizeHint();
@@ -92,7 +92,7 @@ namespace tl
                 switch (p.orientation)
                 {
                 case Orientation::Horizontal:
-                    size.y = margin.h();
+                    size.y = g.h();
                     if (Stretch::Expanding == child->getStretch(Orientation::Horizontal))
                     {
                         size.x += extra.first / expanding;
@@ -103,7 +103,7 @@ namespace tl
                     }
                     break;
                 case Orientation::Vertical:
-                    size.x = margin.w();
+                    size.x = g.w();
                     if (Stretch::Expanding == child->getStretch(Orientation::Vertical))
                     {
                         size.y += extra.second / expanding;
@@ -165,6 +165,16 @@ namespace tl
                     break;
                 }
             }
+        }
+
+        void RowLayout::childAddedEvent(const ChildEvent&)
+        {
+            _updates |= Update::Size;
+        }
+
+        void RowLayout::childRemovedEvent(const ChildEvent&)
+        {
+            _updates |= Update::Size;
         }
 
         void HorizontalLayout::_init(

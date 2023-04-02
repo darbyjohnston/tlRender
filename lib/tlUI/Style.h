@@ -18,13 +18,14 @@ namespace tl
             Margin,
             MarginSmall,
             MarginLarge,
-            MarginTool,
+            MarginInside,
             Spacing,
             SpacingSmall,
             SpacingLarge,
             SpacingTool,
             Border,
-            ScrollArea
+            ScrollArea,
+            Handle
         };
 
         //! Color roles.

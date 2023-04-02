@@ -10,20 +10,20 @@ namespace tl
     {
         namespace ui_glfw
         {
-            //! Button widget.
-            class ButtonWidget : public ui::IWidget
+            //! Numeric widget.
+            class NumericWidget : public ui::IWidget
             {
-                TLRENDER_NON_COPYABLE(ButtonWidget);
+                TLRENDER_NON_COPYABLE(NumericWidget);
 
             protected:
                 void _init(const std::shared_ptr<system::Context>&);
 
-                ButtonWidget();
+                NumericWidget();
 
             public:
-                ~ButtonWidget();
+                ~NumericWidget();
 
-                static std::shared_ptr<ButtonWidget> create(
+                static std::shared_ptr<NumericWidget> create(
                     const std::shared_ptr<system::Context>&);
 
                 void setGeometry(const math::BBox2i&) override;

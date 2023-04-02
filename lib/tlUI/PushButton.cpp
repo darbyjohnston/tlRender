@@ -45,8 +45,8 @@ namespace tl
             IButton::sizeEvent(event);
             TLRENDER_P();
 
-            p.margin = event.style->getSizeRole(SizeRole::Margin) * event.contentScale;
-            p.margin2 = event.style->getSizeRole(SizeRole::MarginSmall) * event.contentScale;
+            p.margin = event.style->getSizeRole(SizeRole::MarginSmall) * event.contentScale;
+            p.margin2 = event.style->getSizeRole(SizeRole::MarginInside) * event.contentScale;
             p.border = event.style->getSizeRole(SizeRole::Border) * event.contentScale;
 
             _sizeHint.x = 0;
@@ -81,8 +81,7 @@ namespace tl
                 border(g, p.border, p.margin / 2),
                 event.style->getColorRole(ColorRole::Border));
 
-            math::BBox2i g2 = g.margin(-p.border);
-            const auto mesh = rect(g2, p.margin / 2);
+            const auto mesh = rect(g.margin(-p.border), p.margin / 2);
             const ColorRole colorRole = _checked->get() ?
                 ColorRole::Checked :
                 _buttonRole;

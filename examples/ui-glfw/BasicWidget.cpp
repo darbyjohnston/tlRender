@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include "ButtonWidget.h"
+#include "BasicWidget.h"
 
 #include <tlUI/GroupBox.h>
 #include <tlUI/PushButton.h>
@@ -15,16 +15,16 @@ namespace tl
     {
         namespace ui_glfw
         {
-            struct ButtonWidget::Private
+            struct BasicWidget::Private
             {
                 std::shared_ptr<ui::RowLayout> layout;
                 std::map<std::string, std::shared_ptr<observer::ValueObserver<bool> > > observers;
             };
 
-            void ButtonWidget::_init(
+            void BasicWidget::_init(
                 const std::shared_ptr<system::Context>& context)
             {
-                IWidget::_init("ButtonWidget", context);
+                IWidget::_init("BasicWidget", context);
                 TLRENDER_P();
 
                 auto pushButton0 = ui::PushButton::create(context);
@@ -79,22 +79,22 @@ namespace tl
                 toolButton2->setParent(hLayout);
             }
 
-            ButtonWidget::ButtonWidget() :
+            BasicWidget::BasicWidget() :
                 _p(new Private)
             {}
 
-            ButtonWidget::~ButtonWidget()
+            BasicWidget::~BasicWidget()
             {}
 
-            std::shared_ptr<ButtonWidget> ButtonWidget::create(
+            std::shared_ptr<BasicWidget> BasicWidget::create(
                 const std::shared_ptr<system::Context>& context)
             {
-                auto out = std::shared_ptr<ButtonWidget>(new ButtonWidget);
+                auto out = std::shared_ptr<BasicWidget>(new BasicWidget);
                 out->_init(context);
                 return out;
             }
 
-            void ButtonWidget::setGeometry(const math::BBox2i& value)
+            void BasicWidget::setGeometry(const math::BBox2i& value)
             {
                 IWidget::setGeometry(value);
                 _p->layout->setGeometry(value);

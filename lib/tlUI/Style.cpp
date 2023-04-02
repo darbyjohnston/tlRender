@@ -24,13 +24,14 @@ namespace tl
             p.sizeRoles[SizeRole::Margin] = 10;
             p.sizeRoles[SizeRole::MarginSmall] = 5;
             p.sizeRoles[SizeRole::MarginLarge] = 20;
-            p.sizeRoles[SizeRole::MarginTool] = 2;
+            p.sizeRoles[SizeRole::MarginInside] = 2;
             p.sizeRoles[SizeRole::Spacing] = 10;
             p.sizeRoles[SizeRole::SpacingSmall] = 5;
             p.sizeRoles[SizeRole::SpacingLarge] = 20;
             p.sizeRoles[SizeRole::SpacingTool] = 2;
             p.sizeRoles[SizeRole::Border] = 1;
-            p.sizeRoles[SizeRole::ScrollArea] = 100;
+            p.sizeRoles[SizeRole::ScrollArea] = 200;
+            p.sizeRoles[SizeRole::Handle] = 10;
 
             p.colorRoles[ColorRole::Window] = imaging::Color4f(.2F, .2F, .2F);
             p.colorRoles[ColorRole::Base] = imaging::Color4f(.17F, .17F, .17F);

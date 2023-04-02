@@ -2,11 +2,19 @@ set(HEADERS
     DrawUtil.h
     Event.h
     EventLoop.h
+    FloatEdit.h
+    FloatModel.h
+    FloatSlider.h
+    GridLayout.h
     GroupBox.h
     IButton.h
+    IntEdit.h
+    IntModel.h
+    IntSlider.h
     IWidget.h
     IconLibrary.h
     Label.h
+    LineEdit.h
     ListButton.h
     PushButton.h
     RowLayout.h
@@ -21,11 +29,19 @@ set(SOURCE
     DrawUtil.cpp
     Event.cpp
     EventLoop.cpp
+    FloatEdit.cpp
+    FloatModel.cpp
+    FloatSlider.cpp
+    GridLayout.cpp
     GroupBox.cpp
     IButton.cpp
+    IntEdit.cpp
+    IntModel.cpp
+    IntSlider.cpp
     IWidget.cpp
     IconLibrary.cpp
     Label.cpp
+    LineEdit.cpp
     ListButton.cpp
     PushButton.cpp
     RowLayout.cpp

@@ -16,6 +16,7 @@ namespace tl
             imaging::FontInfo fontInfo;
             math::Vector2i textSize;
             int lineHeight = 0;
+            int ascender = 0;
             int margin = 0;
             int spacing = 0;
             int border = 0;
@@ -89,8 +90,9 @@ namespace tl
             auto fontInfo = p.fontInfo;
             fontInfo.size *= event.contentScale;
             p.textSize = event.fontSystem->measure(p.text, fontInfo);
-            p.lineHeight = event.fontSystem->getMetrics(fontInfo).lineHeight;
-
+            auto fontMetrics = event.fontSystem->getMetrics(fontInfo);
+            p.lineHeight = fontMetrics.lineHeight;
+            p.ascender = fontMetrics.ascender;
             _sizeHint.x = 0;
             _sizeHint.y = 0;
             for (const auto& child : _children)
@@ -114,14 +116,12 @@ namespace tl
 
             auto fontInfo = p.fontInfo;
             fontInfo.size *= event.contentScale;
-            const math::Vector2i textSize = event.fontSystem->measure(p.text, fontInfo);
-            const auto fontMetrics = event.fontSystem->getMetrics(fontInfo);
             event.render->drawText(
                 event.fontSystem->getGlyphs(p.text, fontInfo),
-                math::Vector2i(g.x(), g.y() + fontMetrics.ascender),
+                math::Vector2i(g.x(), g.y() + p.ascender),
                 event.style->getColorRole(ColorRole::Text));
 
-            g.min.y += fontMetrics.lineHeight + p.spacing;
+            g.min.y += p.lineHeight + p.spacing;
             event.render->drawMesh(
                 border(g, p.border, p.margin / 2),
                 event.style->getColorRole(ColorRole::Border));
