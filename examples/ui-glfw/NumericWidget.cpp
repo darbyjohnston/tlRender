@@ -37,7 +37,9 @@ namespace tl
                     math::IntRange(0, 10),
                     math::IntRange(0, 100),
                     math::IntRange(0, 1000),
-                    math::IntRange(100, 200)
+                    math::IntRange(100, 200),
+                    math::IntRange(-100, 200),
+                    math::IntRange(-100, -200)
                 };
                 std::vector<std::shared_ptr<ui::Label> > intLabels;
                 std::vector<std::shared_ptr<ui::IntEdit> > intEdits;
@@ -45,7 +47,7 @@ namespace tl
                 for (const auto& i : intRanges)
                 {
                     auto label = ui::Label::create(context);
-                    label->setText(string::Format("{0}-{1}:").arg(i.getMin()).arg(i.getMax()));
+                    label->setText(string::Format("{0} - {1}:").arg(i.getMin()).arg(i.getMax()));
                     intLabels.push_back(label);
                     auto edit = ui::IntEdit::create(context);
                     auto model = edit->getModel();
@@ -54,7 +56,7 @@ namespace tl
                     intEdits.push_back(edit);
                     auto slider = ui::IntSlider::create(context);
                     slider->setModel(model);
-                    slider->setStretch(ui::Stretch::Expanding, ui::Orientation::Horizontal);
+                    slider->setHStretch(ui::Stretch::Expanding);
                     intSliders.push_back(slider);
                 }
 
@@ -64,7 +66,9 @@ namespace tl
                     math::FloatRange(0.F, 10.F),
                     math::FloatRange(0.F, 100.F),
                     math::FloatRange(0.F, 1000.F),
-                    math::FloatRange(-100.F, 200.F)
+                    math::FloatRange(100.F, 200.F),
+                    math::FloatRange(-100.F, 200.F),
+                    math::FloatRange(-100.F, -200.F)
                 };
                 std::vector<std::shared_ptr<ui::Label> > floatLabels;
                 std::vector<std::shared_ptr<ui::FloatEdit> > floatEdits;
@@ -72,7 +76,7 @@ namespace tl
                 for (const auto& i : floatRanges)
                 {
                     auto label = ui::Label::create(context);
-                    label->setText(string::Format("{0}-{1}:").arg(i.getMin()).arg(i.getMax()));
+                    label->setText(string::Format("{0} - {1}:").arg(i.getMin()).arg(i.getMax()));
                     floatLabels.push_back(label);
                     auto edit = ui::FloatEdit::create(context);
                     auto model = edit->getModel();
@@ -81,7 +85,7 @@ namespace tl
                     floatEdits.push_back(edit);
                     auto slider = ui::FloatSlider::create(context);
                     slider->setModel(model);
-                    slider->setStretch(ui::Stretch::Expanding, ui::Orientation::Horizontal);
+                    slider->setHStretch(ui::Stretch::Expanding);
                     floatSliders.push_back(slider);
                 }
 
@@ -89,6 +93,7 @@ namespace tl
                 auto groupBox = ui::GroupBox::create(context, p.layout);
                 groupBox->setText("Integer Values");
                 auto gridLayout = ui::GridLayout::create(context, groupBox);
+                gridLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
                 for (int i = 0; i < intRanges.size(); ++i)
                 {
                     intLabels[i]->setParent(gridLayout);
@@ -101,6 +106,7 @@ namespace tl
                 groupBox = ui::GroupBox::create(context, p.layout);
                 groupBox->setText("Floating Point Values");
                 gridLayout = ui::GridLayout::create(context, groupBox);
+                gridLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
                 for (int i = 0; i < floatRanges.size(); ++i)
                 {
                     floatLabels[i]->setParent(gridLayout);

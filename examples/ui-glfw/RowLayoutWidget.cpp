@@ -39,23 +39,23 @@ namespace tl
                 label2->setText("Label 2");
                 label2->setFontInfo(fontInfo);
                 label2->setBackgroundRole(ui::ColorRole::Blue);
-                label2->setStretch(ui::Stretch::Expanding, ui::Orientation::Horizontal);
+                label2->setHStretch(ui::Stretch::Expanding);
 
                 auto label3 = ui::Label::create(context);
                 label3->setText("Label 3");
                 label3->setBackgroundRole(ui::ColorRole::Cyan);
-                label3->setStretch(ui::Stretch::Expanding, ui::Orientation::Horizontal);
+                label3->setHStretch(ui::Stretch::Expanding);
 
                 auto label4 = ui::Label::create(context);
                 label4->setText("Label 4");
                 label4->setBackgroundRole(ui::ColorRole::Magenta);
-                label4->setStretch(ui::Stretch::Expanding, ui::Orientation::Horizontal);
+                label4->setHStretch(ui::Stretch::Expanding);
 
                 auto label5 = ui::Label::create(context);
                 label5->setText("Label 5");
                 label5->setFontInfo(fontInfo);
                 label5->setBackgroundRole(ui::ColorRole::Yellow);
-                label5->setStretch(ui::Stretch::Expanding, ui::Orientation::Horizontal);
+                label5->setHStretch(ui::Stretch::Expanding);
 
                 p.layout = ui::VerticalLayout::create(context, shared_from_this());
                 auto hLayout = ui::HorizontalLayout::create(context, p.layout);
@@ -65,7 +65,7 @@ namespace tl
                 label2->setParent(hLayout);
                 label3->setParent(hLayout);
                 hLayout = ui::HorizontalLayout::create(context, p.layout);
-                hLayout->setStretch(ui::Stretch::Expanding, ui::Orientation::Vertical);
+                hLayout->setVStretch(ui::Stretch::Expanding);
                 label4->setParent(hLayout);
                 label5->setParent(hLayout);
             }

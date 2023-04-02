@@ -5,6 +5,7 @@
 #include <tlUI/IntEdit.h>
 
 #include <tlUI/DrawUtil.h>
+#include <tlUI/GeometryUtil.h>
 
 #include <tlCore/StringFormat.h>
 
@@ -16,14 +17,17 @@ namespace tl
         {
             std::shared_ptr<IntModel> model;
             std::string text;
+            std::string format;
             int digits = 3;
             imaging::FontInfo fontInfo;
             math::Vector2i textSize;
+            math::Vector2i formatSize;
             int lineHeight = 0;
             int ascender = 0;
             int margin = 0;
             int border = 0;
             std::shared_ptr<observer::ValueObserver<int> > valueObserver;
+            std::shared_ptr<observer::ValueObserver<math::IntRange> > rangeObserver;
         };
 
         void IntEdit::_init(
@@ -32,6 +36,7 @@ namespace tl
         {
             IWidget::_init("tl::ui::IntEdit", context, parent);
             TLRENDER_P();
+            _hAlign = HAlign::Right;
             setModel(IntModel::create(context));
             p.fontInfo.family = "NotoMono-Regular";
         }
@@ -61,12 +66,19 @@ namespace tl
         {
             TLRENDER_P();
             p.valueObserver.reset();
+            p.rangeObserver.reset();
             p.model = value;
             if (p.model)
             {
                 p.valueObserver = observer::ValueObserver<int>::create(
                     p.model->observeValue(),
                     [this](int)
+                    {
+                        _textUpdate();
+                    });
+                p.rangeObserver = observer::ValueObserver<math::IntRange>::create(
+                    p.model->observeRange(),
+                    [this](const math::IntRange&)
                     {
                         _textUpdate();
                     });
@@ -80,8 +92,7 @@ namespace tl
             if (value == p.digits)
                 return;
             p.digits = value;
-            _updates |= Update::Size;
-            _updates |= Update::Draw;
+            _textUpdate();
         }
 
         void IntEdit::setFontInfo(const imaging::FontInfo& value)
@@ -105,17 +116,12 @@ namespace tl
             auto fontInfo = p.fontInfo;
             fontInfo.size *= event.contentScale;
             p.textSize = event.fontSystem->measure(p.text, fontInfo);
+            p.formatSize = event.fontSystem->measure(p.format, fontInfo);
             auto fontMetrics = event.fontSystem->getMetrics(fontInfo);
             p.lineHeight = fontMetrics.lineHeight;
             p.ascender = fontMetrics.ascender;
-            std::string digits;
-            for (int i = 0; i < p.digits; ++i)
-            {
-                digits.append("0");
-            }
-            math::Vector2i digitsSize = event.fontSystem->measure(digits, fontInfo);
 
-            _sizeHint.x = digitsSize.x + p.margin * 2;
+            _sizeHint.x = p.formatSize.x + p.margin * 2;
             _sizeHint.y = p.lineHeight + p.margin * 2;
         }
 
@@ -124,7 +130,13 @@ namespace tl
             IWidget::drawEvent(event);
             TLRENDER_P();
 
-            math::BBox2i g = _geometry;
+            math::BBox2i g = align(
+                _geometry,
+                _sizeHint,
+                Stretch::Expanding,
+                Stretch::Expanding,
+                _hAlign,
+                _vAlign);
 
             event.render->drawMesh(
                 border(g, p.border),
@@ -133,13 +145,15 @@ namespace tl
             event.render->drawRect(
                 g.margin(-p.border),
                 event.style->getColorRole(ColorRole::Base));
-
+            
             math::BBox2i g2 = g.margin(-p.margin);
             auto fontInfo = p.fontInfo;
             fontInfo.size *= event.contentScale;
             event.render->drawText(
                 event.fontSystem->getGlyphs(p.text, fontInfo),
-                math::Vector2i(g2.x() + g2.w() - p.textSize.x, g2.y() + p.ascender),
+                math::Vector2i(
+                    g2.x() + g2.w() - p.textSize.x,
+                    g2.y() + g2.h() / 2 - p.lineHeight / 2 + p.ascender),
                 event.style->getColorRole(ColorRole::Text));
         }
 
@@ -147,11 +161,19 @@ namespace tl
         {
             TLRENDER_P();
             std::string text;
+            std::string format;
             if (p.model)
             {
                 text = string::Format("{0}").arg(p.model->getValue());
+                const auto& range = p.model->getRange();
+                format = string::Format("{0}{1}").
+                    arg(range.getMin() < 0 ? "-" : "").
+                    arg(0, p.digits);
             }
             p.text = text;
+            p.format = format;
+            _updates |= Update::Size;
+            _updates |= Update::Draw;
         }
     }
 }

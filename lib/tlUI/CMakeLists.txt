@@ -5,6 +5,7 @@ set(HEADERS
     FloatEdit.h
     FloatModel.h
     FloatSlider.h
+    GeometryUtil.h
     GridLayout.h
     GroupBox.h
     IButton.h
@@ -12,6 +13,7 @@ set(HEADERS
     IntModel.h
     IntSlider.h
     IWidget.h
+    IWidgetOptions.h
     IconLibrary.h
     Label.h
     LineEdit.h
@@ -32,6 +34,7 @@ set(SOURCE
     FloatEdit.cpp
     FloatModel.cpp
     FloatSlider.cpp
+    GeometryUtil.cpp
     GridLayout.cpp
     GroupBox.cpp
     IButton.cpp
@@ -39,6 +42,7 @@ set(SOURCE
     IntModel.cpp
     IntSlider.cpp
     IWidget.cpp
+    IWidgetOptions.cpp
     IconLibrary.cpp
     Label.cpp
     LineEdit.cpp

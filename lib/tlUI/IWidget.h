@@ -5,6 +5,7 @@
 #pragma once
 
 #include <tlUI/Event.h>
+#include <tlUI/IWidgetOptions.h>
 
 #include <list>
 
@@ -12,28 +13,6 @@ namespace tl
 {
     namespace ui
     {
-        //! Orientation.
-        enum class Orientation
-        {
-            Horizontal,
-            Vertical
-        };
-
-        //! Layout stretch.
-        enum class Stretch
-        {
-            Fixed,
-            Expanding
-        };
-
-        //! Updates.
-        enum Update
-        {
-            None = 0,
-            Size = 1,
-            Draw = 2
-        };
-
         //! Base class for widgets.
         class IWidget : public std::enable_shared_from_this<IWidget>
         {
@@ -56,20 +35,52 @@ namespace tl
             //! Set the widget name.
             void setName(const std::string&);
 
+            //! Set the background role.
+            void setBackgroundRole(ColorRole);
+
+            //! Get whether updates are needed.
+            int getUpdates() const;
+
+            //! Hierarchy
+            ///@{
+
             //! Set the parent widget.
             void setParent(const std::shared_ptr<IWidget>&);
 
             //! Get the children widgets.
             const std::list<std::shared_ptr<IWidget> >& getChildren() const;
 
+            ///@}
+
+            //! Geometry
+            ///@{
+
             //! Get the size hint.
             const math::Vector2i& getSizeHint() const;
 
-            //! Get the layout stretch.
-            Stretch getStretch(Orientation) const;
+            //! Get the horizontal layout stretch.
+            Stretch getHStretch() const;
 
-            //! Set the layout stretch.
-            void setStretch(Stretch, Orientation);
+            //! Set the horizontal layout stretch.
+            void setHStretch(Stretch);
+
+            //! Get the vertical layout stretch.
+            Stretch getVStretch() const;
+
+            //! Set the vertical layout stretch.
+            void setVStretch(Stretch);
+
+            //! Get the horizontal layout alignment.
+            HAlign getHAlign() const;
+
+            //! Set the horizontal layout alignment.
+            void setHAlign(HAlign);
+
+            //! Get the vertical layout alignment.
+            VAlign getVAlign() const;
+
+            //! Set the vertical layout alignment.
+            void setVAlign(VAlign);
 
             //! Get the geometry.
             const math::BBox2i& getGeometry() const;
@@ -77,17 +88,21 @@ namespace tl
             //! Set the geometry.
             virtual void setGeometry(const math::BBox2i&);
 
+            ///@}
+
+            //! Visiblity.
+            ///@{
+
             //! Is the widget visible?
             bool isVisible() const;
 
             //! Set whether the widget is visible.
             void setVisible(bool);
 
-            //! Set the background role.
-            void setBackgroundRole(ColorRole);
+            ///@}
 
-            //! Get whether updates are needed.
-            int getUpdates() const;
+            //! Events.
+            ///@{
 
             //! Child added event.
             virtual void childAddedEvent(const ChildEvent&);
@@ -125,13 +140,18 @@ namespace tl
             //! Key release event.
             virtual void keyReleaseEvent(const KeyEvent&);
 
+            ///@}
+
         protected:
             std::weak_ptr<system::Context> _context;
             std::string _name;
             std::weak_ptr<IWidget> _parent;
             std::list<std::shared_ptr<IWidget> > _children;
             math::Vector2i _sizeHint;
-            std::pair<Stretch, Stretch> _stretch = { Stretch::Fixed, Stretch::Fixed };
+            Stretch _hStretch = Stretch::Fixed;
+            Stretch _vStretch = Stretch::Fixed;
+            HAlign _hAlign = HAlign::Center;
+            VAlign _vAlign = VAlign::Center;
             math::BBox2i _geometry;
             bool _visible = true;
             ColorRole _backgroundRole = ColorRole::None;

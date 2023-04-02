@@ -5,6 +5,7 @@
 #include <tlUI/FloatEdit.h>
 
 #include <tlUI/DrawUtil.h>
+#include <tlUI/GeometryUtil.h>
 
 #include <tlCore/StringFormat.h>
 
@@ -27,6 +28,7 @@ namespace tl
             int margin = 0;
             int border = 0;
             std::shared_ptr<observer::ValueObserver<float> > valueObserver;
+            std::shared_ptr<observer::ValueObserver<math::FloatRange> > rangeObserver;
         };
 
         void FloatEdit::_init(
@@ -35,6 +37,7 @@ namespace tl
         {
             IWidget::_init("tl::ui::FloatEdit", context, parent);
             TLRENDER_P();
+            _hAlign = HAlign::Right;
             setModel(FloatModel::create(context));
             p.fontInfo.family = "NotoMono-Regular";
         }
@@ -64,12 +67,19 @@ namespace tl
         {
             TLRENDER_P();
             p.valueObserver.reset();
+            p.rangeObserver.reset();
             p.model = value;
             if (p.model)
             {
                 p.valueObserver = observer::ValueObserver<float>::create(
                     p.model->observeValue(),
                     [this](float)
+                    {
+                        _textUpdate();
+                    });
+                p.rangeObserver = observer::ValueObserver<math::FloatRange>::create(
+                    p.model->observeRange(),
+                    [this](const math::FloatRange&)
                     {
                         _textUpdate();
                     });
@@ -84,8 +94,6 @@ namespace tl
                 return;
             p.digits = value;
             _textUpdate();
-            _updates |= Update::Size;
-            _updates |= Update::Draw;
         }
 
         void FloatEdit::setPrecision(int value)
@@ -95,8 +103,6 @@ namespace tl
                 return;
             p.precision = value;
             _textUpdate();
-            _updates |= Update::Size;
-            _updates |= Update::Draw;
         }
 
         void FloatEdit::setFontInfo(const imaging::FontInfo& value)
@@ -120,10 +126,10 @@ namespace tl
             auto fontInfo = p.fontInfo;
             fontInfo.size *= event.contentScale;
             p.textSize = event.fontSystem->measure(p.text, fontInfo);
+            p.formatSize = event.fontSystem->measure(p.format, fontInfo);
             auto fontMetrics = event.fontSystem->getMetrics(fontInfo);
             p.lineHeight = fontMetrics.lineHeight;
             p.ascender = fontMetrics.ascender;
-            p.formatSize = event.fontSystem->measure(p.format, fontInfo);
 
             _sizeHint.x = p.formatSize.x + p.margin * 2;
             _sizeHint.y = p.lineHeight + p.margin * 2;
@@ -134,7 +140,13 @@ namespace tl
             IWidget::drawEvent(event);
             TLRENDER_P();
 
-            math::BBox2i g = _geometry;
+            math::BBox2i g = align(
+                _geometry,
+                _sizeHint,
+                Stretch::Expanding,
+                Stretch::Expanding,
+                _hAlign,
+                _vAlign);
 
             event.render->drawMesh(
                 border(g, p.border),
@@ -149,7 +161,9 @@ namespace tl
             fontInfo.size *= event.contentScale;
             event.render->drawText(
                 event.fontSystem->getGlyphs(p.text, fontInfo),
-                math::Vector2i(g2.x() + g2.w() - p.textSize.x, g2.y() + p.ascender),
+                math::Vector2i(
+                    g2.x() + g2.w() - p.textSize.x,
+                    g2.y() + g2.h() / 2 - p.lineHeight / 2 + p.ascender),
                 event.style->getColorRole(ColorRole::Text));
         }
 
@@ -157,12 +171,19 @@ namespace tl
         {
             TLRENDER_P();
             std::string text;
+            std::string format;
             if (p.model)
             {
                 text = string::Format("{0}").arg(p.model->getValue(), p.precision);
+                const auto& range = p.model->getRange();
+                format = string::Format("{0}{1}").
+                    arg(range.getMin() < 0 ? "-" : "").
+                    arg(0.F, p.precision, p.precision + 1 + p.digits);
             }
             p.text = text;
-            p.format = string::Format("{0}").arg(0.F, p.precision, p.digits);
+            p.format = format;
+            _updates |= Update::Size;
+            _updates |= Update::Draw;
         }
     }
 }

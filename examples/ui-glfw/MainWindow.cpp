@@ -98,8 +98,8 @@ namespace tl
                 rowLayoutButton->setParent(buttonLayout);
                 gridLayoutButton->setParent(buttonLayout);
                 p.stackLayout = ui::StackLayout::create(context, p.layout);
-                p.stackLayout->setStretch(ui::Stretch::Expanding, ui::Orientation::Horizontal);
-                p.stackLayout->setStretch(ui::Stretch::Expanding, ui::Orientation::Vertical);
+                p.stackLayout->setHStretch(ui::Stretch::Expanding);
+                p.stackLayout->setVStretch(ui::Stretch::Expanding);
                 basicWidget->setParent(p.stackLayout);
                 numericWidget->setParent(p.stackLayout);
                 rowLayoutWidget->setParent(p.stackLayout);

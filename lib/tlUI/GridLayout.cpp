@@ -281,11 +281,11 @@ namespace tl
             columns = std::vector<bool>(size.column, false);
             for (const auto& i : gridPos)
             {
-                if (Stretch::Expanding == i.first->getStretch(Orientation::Vertical))
+                if (Stretch::Expanding == i.first->getVStretch())
                 {
                     rows[i.second.row] = true;
                 }
-                if (Stretch::Expanding == i.first->getStretch(Orientation::Horizontal))
+                if (Stretch::Expanding == i.first->getHStretch())
                 {
                     columns[i.second.column] = true;
                 }

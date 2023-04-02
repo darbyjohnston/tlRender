@@ -4,6 +4,8 @@
 
 #include <tlUI/Label.h>
 
+#include <tlUI/GeometryUtil.h>
+
 namespace tl
 {
     namespace ui
@@ -19,6 +21,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::Label", context, parent);
+            _hAlign = HAlign::Left;
         }
 
         Label::Label() :
@@ -73,16 +76,21 @@ namespace tl
             IWidget::drawEvent(event);
             TLRENDER_P();
 
-            //render->drawRect(_geometry, imaging::Color4f(.5F, .3F, .3F));
+            //event.render->drawRect(_geometry, imaging::Color4f(.5F, .3F, .3F));
 
+            math::BBox2i g = align(
+                _geometry,
+                _sizeHint,
+                Stretch::Fixed,
+                Stretch::Fixed,
+                _hAlign,
+                _vAlign);
             imaging::FontInfo fontInfo = p.fontInfo;
             fontInfo.size *= event.contentScale;
             auto fontMetrics = event.fontSystem->getMetrics(fontInfo);
             event.render->drawText(
                 event.fontSystem->getGlyphs(p.text, fontInfo),
-                math::Vector2i(
-                    _geometry.x(),
-                    _geometry.y() + fontMetrics.ascender),
+                math::Vector2i(g.x(), g.y() + fontMetrics.ascender),
                 event.style->getColorRole(ColorRole::Text));
         }
     }

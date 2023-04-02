@@ -68,13 +68,13 @@ namespace tl
                 switch (p.orientation)
                 {
                 case Orientation::Horizontal:
-                    if (Stretch::Expanding == child->getStretch(Orientation::Horizontal))
+                    if (Stretch::Expanding == child->getHStretch())
                     {
                         ++expanding;
                     }
                     break;
                 case Orientation::Vertical:
-                    if (Stretch::Expanding == child->getStretch(Orientation::Vertical))
+                    if (Stretch::Expanding == child->getVStretch())
                     {
                         ++expanding;
                     }
@@ -93,7 +93,7 @@ namespace tl
                 {
                 case Orientation::Horizontal:
                     size.y = g.h();
-                    if (Stretch::Expanding == child->getStretch(Orientation::Horizontal))
+                    if (Stretch::Expanding == child->getHStretch())
                     {
                         size.x += extra.first / expanding;
                         if (last)
@@ -104,7 +104,7 @@ namespace tl
                     break;
                 case Orientation::Vertical:
                     size.x = g.w();
-                    if (Stretch::Expanding == child->getStretch(Orientation::Vertical))
+                    if (Stretch::Expanding == child->getVStretch())
                     {
                         size.y += extra.second / expanding;
                         if (last)

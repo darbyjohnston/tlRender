@@ -39,6 +39,19 @@ namespace tl
             _name = value;
         }
         
+        void IWidget::setBackgroundRole(ColorRole value)
+        {
+            if (value == _backgroundRole)
+                return;
+            _backgroundRole = value;
+            _updates |= Update::Draw;
+        }
+
+        int IWidget::getUpdates() const
+        {
+            return _updates;
+        }
+
         void IWidget::setParent(const std::shared_ptr<IWidget>& value)
         {
             if (auto parent = _parent.lock())
@@ -80,34 +93,60 @@ namespace tl
             return _sizeHint;
         }
 
-        Stretch IWidget::getStretch(Orientation orientation) const
+        Stretch IWidget::getHStretch() const
         {
-            return Orientation::Horizontal == orientation ?
-                _stretch.first :
-                _stretch.second;
+            return _hStretch;
         }
 
-        void IWidget::setStretch(Stretch value, Orientation orientation)
+        void IWidget::setHStretch(Stretch value)
         {
-            switch (orientation)
-            {
-            case Orientation::Horizontal:
-                if (value != _stretch.first)
-                {
-                    _stretch.first = value;
-                    _updates |= Update::Size;
-                    _updates |= Update::Draw;
-                }
-                break;
-            case Orientation::Vertical:
-                if (value != _stretch.second)
-                {
-                    _stretch.second = value;
-                    _updates |= Update::Size;
-                    _updates |= Update::Draw;
-                }
-                break;
-            }
+            if (value == _hStretch)
+                return;
+            _hStretch = value;
+            _updates |= Update::Size;
+            _updates |= Update::Draw;
+        }
+
+        Stretch IWidget::getVStretch() const
+        {
+            return _vStretch;
+        }
+
+        void IWidget::setVStretch(Stretch value)
+        {
+            if (value == _vStretch)
+                return;
+            _vStretch = value;
+            _updates |= Update::Size;
+            _updates |= Update::Draw;
+        }
+
+        HAlign IWidget::getHAlign() const
+        {
+            return _hAlign;
+        }
+
+        void IWidget::setHAlign(HAlign value)
+        {
+            if (value == _hAlign)
+                return;
+            _hAlign = value;
+            _updates |= Update::Size;
+            _updates |= Update::Draw;
+        }
+
+        VAlign IWidget::getVAlign() const
+        {
+            return _vAlign;
+        }
+
+        void IWidget::setVAlign(VAlign value)
+        {
+            if (value == _vAlign)
+                return;
+            _vAlign = value;
+            _updates |= Update::Size;
+            _updates |= Update::Draw;
         }
 
         const math::BBox2i& IWidget::getGeometry() const
@@ -136,19 +175,6 @@ namespace tl
             _visible = value;
             _updates |= Update::Size;
             _updates |= Update::Draw;
-        }
-
-        void IWidget::setBackgroundRole(ColorRole value)
-        {
-            if (value == _backgroundRole)
-                return;
-            _backgroundRole = value;
-            _updates |= Update::Draw;
-        }
-
-        int IWidget::getUpdates() const
-        {
-            return _updates;
         }
 
         void IWidget::childAddedEvent(const ChildEvent&)
