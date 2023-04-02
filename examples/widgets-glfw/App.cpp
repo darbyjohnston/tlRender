@@ -23,7 +23,7 @@ namespace tl
                     argc,
                     argv,
                     context,
-                    "ui-glfw",
+                    "widgets-glfw",
                     "Example GLFW user interface application.");
                 if (_exit != 0)
                 {

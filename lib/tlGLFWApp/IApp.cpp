@@ -125,7 +125,7 @@ namespace tl
             p.glfwWindow = glfwCreateWindow(
                 p.options.windowSize.w,
                 p.options.windowSize.h,
-                "ui-glfw",
+                cmdLineName.c_str(),
                 NULL,
                 NULL);
             if (!p.glfwWindow)

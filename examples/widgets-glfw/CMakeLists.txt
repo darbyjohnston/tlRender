@@ -15,6 +15,6 @@ set(SOURCE
     RowLayoutWidget.cpp
     main.cpp)
 
-add_executable(ui-glfw ${SOURCE} ${HEADERS})
-target_link_libraries(ui-glfw tlGLFWApp)
-set_target_properties(ui-glfw PROPERTIES FOLDER examples)
+add_executable(widgets-glfw ${SOURCE} ${HEADERS})
+target_link_libraries(widgets-glfw tlGLFWApp)
+set_target_properties(widgets-glfw PROPERTIES FOLDER examples)
