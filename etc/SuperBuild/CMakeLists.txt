@@ -6,7 +6,6 @@ project(tlRender-SuperBuild)
 
 # Build options.
 set(TLRENDER_MMAP TRUE CACHE BOOL "Enable memory-mapped file I/O")
-set(TLRENDER_COVERAGE FALSE CACHE BOOL "Enable code coverage")
 set(TLRENDER_PYTHON FALSE CACHE BOOL "Enable Python support (for OTIO Python adapters)")
 set(TLRENDER_OCIO TRUE CACHE BOOL "Enable support for OpenColorIO")
 set(TLRENDER_AUDIO TRUE CACHE BOOL "Enable support for audio")
@@ -24,6 +23,8 @@ set(TLRENDER_QT5 FALSE CACHE BOOL "Enable support for Qt5")
 set(TLRENDER_PROGRAMS TRUE CACHE BOOL "Build programs")
 set(TLRENDER_EXAMPLES TRUE CACHE BOOL "Build examples")
 set(TLRENDER_TESTS TRUE CACHE BOOL "Build tests")
+set(TLRENDER_GCOV FALSE CACHE BOOL "Enable gcov code coverage")
+set(TLRENDER_GPROF FALSE CACHE BOOL "Enable gprof code profiling")
 
 # Configure.
 list(PREPEND CMAKE_MODULE_PATH
