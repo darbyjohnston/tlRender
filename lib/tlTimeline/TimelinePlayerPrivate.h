@@ -109,7 +109,7 @@ namespace tl
                 bool mute = false;
                 std::chrono::steady_clock::time_point muteTimeout;
                 std::map<int64_t, AudioData> audioDataCache;
-                size_t rtAudioCurrentFrame = 0;
+                bool reset = false;
                 std::mutex mutex;
             };
             AudioMutex audioMutex;
@@ -132,6 +132,7 @@ namespace tl
                 audio::Info info;
                 std::shared_ptr<audio::AudioConvert> convert;
                 std::list<std::shared_ptr<audio::Audio> > buffer;
+                size_t rtAudioCurrentFrame = 0;
             };
             AudioThread audioThread;
 

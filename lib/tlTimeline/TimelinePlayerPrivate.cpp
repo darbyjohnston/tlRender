@@ -356,7 +356,7 @@ namespace tl
         {
             {
                 std::unique_lock<std::mutex> lock(audioMutex.mutex);
-                audioMutex.rtAudioCurrentFrame = 0;
+                audioMutex.reset = true;
             }
 #if defined(TLRENDER_AUDIO)
             if (thread.rtAudio &&
@@ -401,18 +401,19 @@ namespace tl
             float volume = 1.F;
             bool mute = false;
             std::chrono::steady_clock::time_point muteTimeout;
-            size_t rtAudioCurrentFrame = 0;
+            bool reset = false;
             {
                 std::unique_lock<std::mutex> lock(p->audioMutex.mutex);
                 speed = p->audioMutex.speed;
                 volume = p->audioMutex.volume;
                 mute = p->audioMutex.mute;
                 muteTimeout = p->audioMutex.muteTimeout;
-                rtAudioCurrentFrame = p->audioMutex.rtAudioCurrentFrame;
+                reset = p->audioMutex.reset;
+                p->audioMutex.reset = false;
             }
             //std::cout << "playback: " << playback << std::endl;
             //std::cout << "playbackStartTime: " << playbackStartTime << std::endl;
-            //std::cout << "rtAudioCurrentFrame: " << rtAudioCurrentFrame << std::endl;
+            //std::cout << "reset: " << reset << std::endl;
 
             // Zero output audio data.
             std::memset(outputBuffer, 0, nFrames * p->audioThread.info.getByteCount());
@@ -423,13 +424,14 @@ namespace tl
             {
                 // Flush the audio converter and buffer when the RtAudio
                 // playback is reset.
-                if (0 == rtAudioCurrentFrame)
+                if (reset)
                 {
                     if (p->audioThread.convert)
                     {
                         p->audioThread.convert->flush();
                     }
                     p->audioThread.buffer.clear();
+                    p->audioThread.rtAudioCurrentFrame = 0;
                 }
 
                 // Create the audio converter.
@@ -445,7 +447,7 @@ namespace tl
                 {
                     auto time = playbackStartTime +
                         otime::RationalTime(
-                            rtAudioCurrentFrame + audio::getSampleCount(p->audioThread.buffer),
+                            p->audioThread.rtAudioCurrentFrame + audio::getSampleCount(p->audioThread.buffer),
                             p->audioThread.info.sampleRate).rescaled_to(p->ioInfo.audio.sampleRate);
                     int64_t frame = time.value();
                     int64_t seconds = p->ioInfo.audio.sampleRate > 0 ? (frame / p->ioInfo.audio.sampleRate) : 0;
@@ -523,19 +525,13 @@ namespace tl
                 }
 
                 // Update the audio frame.
-                {
-                    std::unique_lock<std::mutex> lock(p->audioMutex.mutex);
-                    p->audioMutex.rtAudioCurrentFrame += nFrames;
-                }
+                p->audioThread.rtAudioCurrentFrame += nFrames;
 
                 break;
             }
             case Playback::Reverse:
                 // Update the audio frame.
-                {
-                    std::unique_lock<std::mutex> lock(p->audioMutex.mutex);
-                    p->audioMutex.rtAudioCurrentFrame += nFrames;
-                }
+                p->audioThread.rtAudioCurrentFrame += nFrames;
                 break;
             default: break;
             }
