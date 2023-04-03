@@ -42,7 +42,7 @@ namespace tl
             p.app = app;
             p.filesAModel = new FilesAModel(
                 app->filesModel(),
-                app->thumbnailProvider(),
+                app->thumbnailObject(),
                 app->getContext(),
                 this);
 

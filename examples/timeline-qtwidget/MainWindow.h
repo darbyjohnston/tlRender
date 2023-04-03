@@ -6,9 +6,11 @@
 
 #include <tlQtWidget/FloatSlider.h>
 #include <tlQtWidget/IntSlider.h>
+#include <tlQtWidget/TimelineViewport.h>
 
-#include <tlTimeline/Timeline.h>
+#include <tlTimeline/TimelinePlayer.h>
 
+#include <QComboBox>
 #include <QMainWindow>
 
 #include "TimelineItem.h"
@@ -42,11 +44,16 @@ namespace tl
                 void _open(const std::string&);
                 
                 std::weak_ptr<system::Context> _context;
-                std::shared_ptr<timeline::Timeline> _timeline;
+                qt::TimelinePlayer* _timelinePlayer = nullptr;
+                ItemOptions _itemOptions;
+                qtwidget::TimelineViewport* _timelineViewport = nullptr;
                 TimelineScrollArea* _timelineScrollArea = nullptr;
                 TimelineWidget* _timelineWidget = nullptr;
+                QDockWidget* _timelineDockWidget = nullptr;
+                QComboBox* _timeUnitsComboBox = nullptr;
                 qtwidget::FloatSlider* _scaleSlider = nullptr;
                 qtwidget::IntSlider* _thumbnailHeightSlider = nullptr;
+                qtwidget::IntSlider* _waveformHeightSlider = nullptr;
                 QDockWidget* _viewDockWidget = nullptr;
             };
         }

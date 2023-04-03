@@ -25,7 +25,6 @@ project(
 # Build options
 
 set(TLRENDER_MMAP TRUE CACHE BOOL "Enable memory-mapped file I/O")
-set(TLRENDER_COVERAGE FALSE CACHE BOOL "Enable code coverage")
 set(TLRENDER_PYTHON FALSE CACHE BOOL "Enable Python support (for OTIO Python adapters)")
 set(TLRENDER_OCIO TRUE CACHE BOOL "Enable support for OpenColorIO")
 set(TLRENDER_AUDIO TRUE CACHE BOOL "Enable support for audio")
@@ -43,6 +42,8 @@ set(TLRENDER_QT5 FALSE CACHE BOOL "Enable support for Qt5")
 set(TLRENDER_PROGRAMS TRUE CACHE BOOL "Build programs")
 set(TLRENDER_EXAMPLES TRUE CACHE BOOL "Build examples")
 set(TLRENDER_TESTS TRUE CACHE BOOL "Build tests")
+set(TLRENDER_GCOV FALSE CACHE BOOL "Enable gcov code coverage")
+set(TLRENDER_GPROF FALSE CACHE BOOL "Enable gprof code profiling")
 
 #-------------------------------------------------------------------------------
 # Internal configuration
@@ -83,7 +84,12 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/etc
     ${PROJECT_SOURCE_DIR}/tests)
 
-if(TLRENDER_COVERAGE)
+if(TLRENDER_GPROF)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pg")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
+endif()
+if(TLRENDER_GCOV)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")# -fkeep-inline-functions")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage")# -fkeep-inline-functions")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")

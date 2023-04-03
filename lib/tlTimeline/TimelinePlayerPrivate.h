@@ -122,6 +122,8 @@ namespace tl
                 std::unique_ptr<RtAudio> rtAudio;
 #endif // TLRENDER_AUDIO
                 std::map<int64_t, std::future<AudioData> > audioDataRequests;
+                std::chrono::steady_clock::time_point cacheTimer;
+                std::chrono::steady_clock::time_point logTimer;
                 std::atomic<bool> running;
                 std::thread thread;
             };
@@ -134,8 +136,6 @@ namespace tl
                 std::list<std::shared_ptr<audio::Audio> > buffer;
             };
             AudioThread audioThread;
-
-            std::chrono::steady_clock::time_point logTimer;
         };
     }
 }

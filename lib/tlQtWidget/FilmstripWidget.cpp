@@ -4,7 +4,7 @@
 
 #include <tlQtWidget/FilmstripWidget.h>
 
-#include <tlQt/TimelineThumbnailProvider.h>
+#include <tlQt/TimelineThumbnailObject.h>
 
 #include <tlCore/Math.h>
 
@@ -19,7 +19,7 @@ namespace tl
     {
         struct FilmstripWidget::Private
         {
-            qt::TimelineThumbnailProvider* thumbnailProvider = nullptr;
+            qt::TimelineThumbnailObject* thumbnailObject = nullptr;
             std::shared_ptr<timeline::Timeline> timeline;
             int rowCount = 1;
             QSize thumbnailSize;
@@ -32,7 +32,7 @@ namespace tl
             std::map<otime::RationalTime, Thumbnail> thumbnails;
         };
 
-        FilmstripWidget::FilmstripWidget(qt::TimelineThumbnailProvider* thumbnailProvider, QWidget* parent) :
+        FilmstripWidget::FilmstripWidget(qt::TimelineThumbnailObject* thumbnailObject, QWidget* parent) :
             QWidget(parent),
             _p(new Private)
         {
@@ -41,11 +41,11 @@ namespace tl
             setSizePolicy(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
             setMinimumHeight(50);
 
-            p.thumbnailProvider = thumbnailProvider;
-            if (p.thumbnailProvider)
+            p.thumbnailObject = thumbnailObject;
+            if (p.thumbnailObject)
             {
                 connect(
-                    p.thumbnailProvider,
+                    p.thumbnailObject,
                     SIGNAL(thumbails(qint64, const QList<QPair<otime::RationalTime, QImage> >&)),
                     SLOT(_thumbnailsCallback(qint64, const QList<QPair<otime::RationalTime, QImage> >&)));
             }
@@ -137,9 +137,9 @@ namespace tl
         {
             TLRENDER_P();
             p.thumbnails.clear();
-            if (p.timeline && p.thumbnailProvider)
+            if (p.timeline && p.thumbnailObject)
             {
-                p.thumbnailProvider->cancelRequests(p.thumbnailRequestId);
+                p.thumbnailObject->cancelRequests(p.thumbnailRequestId);
                 p.thumbnailRequestId = 0;
 
                 const auto& size = this->size();
@@ -162,7 +162,7 @@ namespace tl
                             floor(i / static_cast<double>(count) * (timeRange.duration().value() - 1) + timeRange.start_time().value()),
                             timeRange.duration().rate()));
                     }
-                    p.thumbnailRequestId = p.thumbnailProvider->request(
+                    p.thumbnailRequestId = p.thumbnailObject->request(
                         QString::fromUtf8(p.timeline->getPath().get().c_str()),
                         QSize(thumbnailWidth, thumbnailHeight),
                         requests);

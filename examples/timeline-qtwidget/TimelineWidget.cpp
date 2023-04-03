@@ -4,6 +4,9 @@
 
 #include "TimelineWidget.h"
 
+#include <tlUI/PushButton.h>
+#include <tlUI/RowLayout.h>
+
 #include <tlGL/Render.h>
 #include <tlGL/Util.h>
 
@@ -33,93 +36,150 @@ namespace tl
                 setMouseTracking(true);
                 setAcceptDrops(true);
 
+                _style = ui::Style::create(context);
+                _iconLibrary = ui::IconLibrary::create(context);
                 _fontSystem = imaging::FontSystem::create(context);
+                _eventLoop = ui::EventLoop::create(
+                    _style,
+                    _iconLibrary,
+                    _fontSystem,
+                    context);
+                _scrollArea = ui::ScrollArea::create(context);
+                _eventLoop->addWidget(_scrollArea);
 
-                _timer = startTimer(50);
+                _scrollSizeObserver = observer::ValueObserver<math::Vector2i>::create(
+                    _scrollArea->observeScrollSize(),
+                    [this](const math::Vector2i& value)
+                    {
+                        _scrollSize = value;
+                        const float devicePixelRatio = window()->devicePixelRatio();
+                        if (devicePixelRatio > 0.F)
+                        {
+                            _scrollSize.x /= devicePixelRatio;
+                            _scrollSize.y /= devicePixelRatio;
+                        }
+                        Q_EMIT scrollSizeChanged(_scrollSize);
+                    });
+                _scrollPosObserver = observer::ValueObserver<math::Vector2i>::create(
+                    _scrollArea->observeScrollPos(),
+                    [this](const math::Vector2i& value)
+                    {
+                        _scrollPos = value;
+                        const float devicePixelRatio = window()->devicePixelRatio();
+                        if (devicePixelRatio > 0.F)
+                        {
+                            _scrollPos.x /= devicePixelRatio;
+                            _scrollPos.y /= devicePixelRatio;
+                        }
+                        Q_EMIT scrollPosChanged(_scrollPos);
+                    });
+
+                _timer = startTimer(10);
             }
 
             TimelineWidget::~TimelineWidget()
             {}
 
+            const math::Vector2i& TimelineWidget::scrollSize() const
+            {
+                return _scrollSize;
+            }
+
+            const math::Vector2i& TimelineWidget::scrollPos() const
+            {
+                return _scrollPos;
+            }
+
             void TimelineWidget::setTimeline(const std::shared_ptr<timeline::Timeline>& timeline)
             {
-                if (auto context = _context.lock())
-                {
-                    ItemData itemData;
-                    itemData.fontSystem = _fontSystem;
-                    itemData.fontMetrics = _fontSystem->getMetrics(itemData.fontInfo);
-                    _timelineItem = TimelineItem::create(timeline, itemData, context);
-                }
-            }
-
-            math::Vector2i TimelineWidget::timelineSize() const
-            {
-                math::Vector2i out;
                 if (_timelineItem)
                 {
-                    out = _timelineItem->sizeHint();
+                    _timelineItem->setParent(nullptr);
+                    _timelineItem.reset();
                 }
-                return out;
+                _currentTimeObserver.reset();
+                if (timeline)
+                {
+                    if (auto context = _context.lock())
+                    {
+                        ItemData itemData;
+                        itemData.directory = timeline->getPath().getDirectory();
+                        itemData.ioOptions = timeline->getOptions().ioOptions;
+                        itemData.pathOptions = timeline->getOptions().pathOptions;
+
+                        _timelineItem = TimelineItem::create(timeline->getTimeline(), itemData, context);
+                        _timelineItem->setCurrentTime(timeline->getTimeRange().start_time());
+                        _setViewport(_timelineItem, _timelineViewport());
+                        _timelineItem->setParent(_scrollArea);
+
+                        _currentTimeObserver = observer::ValueObserver<otime::RationalTime>::create(
+                            _timelineItem->observeCurrentTime(),
+                            [this](const otime::RationalTime& value)
+                            {
+                                Q_EMIT currentTimeChanged(value);
+                            });
+                    }
+                }
             }
 
-            void TimelineWidget::setScale(float value)
+            void TimelineWidget::setItemOptions(const ItemOptions& value)
             {
                 if (_timelineItem)
                 {
-                    _timelineItem->setScale(value);
+                    _setItemOptions(_timelineItem, value);
                 }
             }
 
-            void TimelineWidget::setThumbnailHeight(int value)
+            void TimelineWidget::setScrollPos(const math::Vector2i& value)
             {
-                if (_timelineItem)
-                {
-                    _timelineItem->setThumbnailHeight(value);
-                }
-            }
-
-            void TimelineWidget::setViewPos(const math::Vector2i& value)
-            {
-                if (value == _viewPos)
+                if (value == _scrollPos)
                     return;
-                _viewPos = value;
+                _scrollPos = value;
+                const float devicePixelRatio = window()->devicePixelRatio();
+                _scrollArea->setScrollPos(_scrollPos * devicePixelRatio);
+                if (_timelineItem)
+                {
+                    _setViewport(_timelineItem, _timelineViewport());
+                }
                 update();
             }
 
-            void TimelineWidget::setViewPosX(int value)
+            void TimelineWidget::setScrollPosX(int value)
             {
-                if (value == _viewPos.x)
-                    return;
-                _viewPos.x = value;
-                update();
+                math::Vector2i scrollPos = _scrollPos;
+                scrollPos.x = value;
+                setScrollPos(scrollPos);
             }
 
-            void TimelineWidget::setViewPosY(int value)
+            void TimelineWidget::setScrollPosY(int value)
             {
-                if (value == _viewPos.y)
-                    return;
-                _viewPos.y = value;
-                update();
+                math::Vector2i scrollPos = _scrollPos;
+                scrollPos.y = value;
+                setScrollPos(scrollPos);
             }
 
             void TimelineWidget::initializeGL()
             {
                 initializeOpenGLFunctions();
                 gl::initGLAD();
-                try
+                if (auto context = _context.lock())
                 {
-                    if (auto context = _context.lock())
-                    {
-                        _render = gl::Render::create(context);
-                    }
-
+                    _render = gl::Render::create(context);
                 }
-                catch (const std::exception&)
-                {}
             }
 
             void TimelineWidget::resizeGL(int w, int h)
-            {}
+            {
+                const float devicePixelRatio = window()->devicePixelRatio();
+                _eventLoop->setContentScale(devicePixelRatio);
+                _eventLoop->setSize(imaging::Size(
+                    w * devicePixelRatio,
+                    h * devicePixelRatio));
+                if (_timelineItem)
+                {
+                    _setViewport(_timelineItem, _timelineViewport());
+                }
+            }
 
             void TimelineWidget::paintGL()
             {
@@ -129,126 +189,128 @@ namespace tl
                     _render->begin(imaging::Size(
                         width() * devicePixelRatio,
                         height() * devicePixelRatio));
-                    if (_timelineItem)
-                    {
-                        _renderItems(
-                            _timelineItem,
-                            _render,
-                            math::BBox2i(_viewPos.x, _viewPos.y, width(), height()),
-                            devicePixelRatio);
-                    }
+                    _eventLoop->draw(_render);
                     _render->end();
                 }
             }
 
-            void TimelineWidget::dragEnterEvent(QDragEnterEvent* event)
-            {
-                const QMimeData* mimeData = event->mimeData();
-                if (mimeData->hasUrls())
-                {
-                    event->acceptProposedAction();
-                }
-            }
-
-            void TimelineWidget::dragMoveEvent(QDragMoveEvent* event)
-            {
-                const QMimeData* mimeData = event->mimeData();
-                if (mimeData->hasUrls())
-                {
-                    event->acceptProposedAction();
-                }
-            }
-
-            void TimelineWidget::dragLeaveEvent(QDragLeaveEvent* event)
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
+            void TimelineWidget::enterEvent(QEvent* event)
+#else
+            void TimelineWidget::enterEvent(QEnterEvent* event)
+#endif // QT_VERSION
             {
                 event->accept();
+                _eventLoop->cursorEnter(true);
             }
 
-            void TimelineWidget::dropEvent(QDropEvent* event)
+            void TimelineWidget::leaveEvent(QEvent* event)
             {
-                const QMimeData* mimeData = event->mimeData();
-                if (mimeData->hasUrls())
-                {
-                    const auto urlList = mimeData->urls();
-                    for (int i = 0; i < urlList.size(); ++i)
-                    {
-                    }
-                }
+                event->accept();
+                _eventLoop->cursorEnter(false);
             }
+
+            void TimelineWidget::mousePressEvent(QMouseEvent* event)
+            {
+                event->accept();
+                int button = 0;
+                if (event->button() == Qt::LeftButton)
+                {
+                    button = 1;
+                }
+                _eventLoop->mouseButton(button, true, 0);
+            }
+
+            void TimelineWidget::mouseReleaseEvent(QMouseEvent* event)
+            {
+                event->accept();
+                int button = 0;
+                if (event->button() == Qt::LeftButton)
+                {
+                    button = 1;
+                }
+                _eventLoop->mouseButton(button, false, 0);
+            }
+
+            void TimelineWidget::mouseMoveEvent(QMouseEvent* event)
+            {
+                event->accept();
+                const float devicePixelRatio = window()->devicePixelRatio();
+                _eventLoop->cursorPos(math::Vector2i(
+                    event->x() * devicePixelRatio,
+                    event->y() * devicePixelRatio));
+                /*_mousePos.x = event->x();
+                _mousePos.y = event->y();
+                if (_mousePressed)
+                {
+                    const int w = width();
+                    const int h = height();
+                    const math::Vector2i timelineSize = this->timelineSize();
+                    math::Vector2i viewPos;
+                    viewPos.x = math::clamp(
+                        _viewPosMousePress.x - (_mousePos.x - _mousePress.x),
+                        0,
+                        std::max(timelineSize.x - w, 0));
+                    viewPos.y = math::clamp(
+                        _viewPosMousePress.y - (_mousePos.y - _mousePress.y),
+                        0,
+                        std::max(timelineSize.y - h, 0));
+                    if (viewPos != _viewPos)
+                    {
+                        _viewPos = viewPos;
+                        Q_EMIT viewPosChanged(_viewPos);
+                        update();
+                    }
+                }*/
+            }
+
+            void TimelineWidget::wheelEvent(QWheelEvent* event)
+            {}
 
             void TimelineWidget::timerEvent(QTimerEvent*)
             {
-                if (_timelineItem)
+                _eventLoop->tick();
+                if (_eventLoop->hasDrawUpdate())
                 {
-                    _tick(_timelineItem);
-                    if (_doLayout(_timelineItem))
-                    {
-                        _preLayout(_timelineItem);
-                        const auto& sizeHint = _timelineItem->sizeHint();
-                        _timelineItem->layout(math::BBox2i(0, 0, sizeHint.x, sizeHint.y));
-                        if (_timelineSize != sizeHint)
-                        {
-                            _timelineSize = sizeHint;
-                            Q_EMIT timelineSizeChanged(_timelineSize);
-                        }
-                    }
-                    if (_doRender(_timelineItem))
-                    {
-                        update();
-                    }
+                    update();
                 }
             }
 
-            void TimelineWidget::_tick(const std::shared_ptr<BaseItem>& item)
+            void TimelineWidget::_setItemOptions(
+                const std::shared_ptr<ui::IWidget>& widget,
+                const ItemOptions& value)
             {
-                for (const auto& child : item->children())
+                if (auto item = std::dynamic_pointer_cast<IItem>(widget))
                 {
-                    _tick(child);
+                    item->setOptions(value);
                 }
-                item->tick();
+                for (const auto& child : widget->getChildren())
+                {
+                    _setItemOptions(child, value);
+                }
             }
 
-            bool TimelineWidget::_doLayout(const std::shared_ptr<BaseItem>& item)
+            math::BBox2i TimelineWidget::_timelineViewport() const
             {
-                bool out = false;
-                for (const auto& child : item->children())
-                {
-                    out |= _doLayout(child);
-                }
-                out |= item->doLayout();
-                return out;
+                const float devicePixelRatio = window()->devicePixelRatio();
+                return math::BBox2i(
+                    _scrollPos.x,
+                    _scrollPos.y,
+                    width(),
+                    height()) * devicePixelRatio;
             }
 
-            void TimelineWidget::_preLayout(const std::shared_ptr<BaseItem>& item)
+            void TimelineWidget::_setViewport(
+                const std::shared_ptr<ui::IWidget>& widget,
+                const math::BBox2i& vp)
             {
-                for (const auto& child : item->children())
+                if (auto item = std::dynamic_pointer_cast<IItem>(widget))
                 {
-                    _preLayout(child);
+                    item->setViewport(vp);
                 }
-                item->preLayout();
-            }
-
-            bool TimelineWidget::_doRender(const std::shared_ptr<BaseItem>&item)
-            {
-                bool out = false;
-                for (const auto& child : item->children())
+                for (const auto& child : widget->getChildren())
                 {
-                    out |= _doRender(child);
-                }
-                out |= item->doRender();
-                return out;
-            }
-
-            void TimelineWidget::_renderItems(
-                const std::shared_ptr<BaseItem>& item,
-                const std::shared_ptr<timeline::IRender>& render,
-                const math::BBox2i& viewport,
-                float devicePixelRatio)
-            {
-                item->render(render, viewport, devicePixelRatio);
-                for (const auto& child : item->children())
-                {
-                    _renderItems(child, render, viewport, devicePixelRatio);
+                    _setViewport(child, vp);
                 }
             }
         }

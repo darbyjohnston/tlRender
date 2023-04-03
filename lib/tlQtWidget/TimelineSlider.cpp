@@ -4,7 +4,7 @@
 
 #include <tlQtWidget/TimelineSlider.h>
 
-#include <tlQt/TimelineThumbnailProvider.h>
+#include <tlQt/TimelineThumbnailObject.h>
 
 #include <tlCore/Math.h>
 #include <tlCore/StringFormat.h>
@@ -26,7 +26,7 @@ namespace tl
         struct TimelineSlider::Private
         {
             std::weak_ptr<system::Context> context;
-            qt::TimelineThumbnailProvider* thumbnailProvider = nullptr;
+            qt::TimelineThumbnailObject* thumbnailObject = nullptr;
             timeline::ColorConfigOptions colorConfigOptions;
             timeline::LUTOptions lutOptions;
             qt::TimelinePlayer* timelinePlayer = nullptr;
@@ -39,7 +39,7 @@ namespace tl
         };
 
         TimelineSlider::TimelineSlider(
-            qt::TimelineThumbnailProvider* thumbnailProvider,
+            qt::TimelineThumbnailObject* thumbnailObject,
             const std::shared_ptr<system::Context>& context,
             QWidget* parent) :
             QWidget(parent),
@@ -49,11 +49,11 @@ namespace tl
 
             p.context = context;
 
-            p.thumbnailProvider = thumbnailProvider;
-            if (p.thumbnailProvider)
+            p.thumbnailObject = thumbnailObject;
+            if (p.thumbnailObject)
             {
                 connect(
-                    p.thumbnailProvider,
+                    p.thumbnailObject,
                     SIGNAL(thumbails(qint64, const QList<QPair<otime::RationalTime, QImage> >&)),
                     SLOT(_thumbnailsCallback(qint64, const QList<QPair<otime::RationalTime, QImage> >&)));
             }
@@ -350,13 +350,13 @@ namespace tl
             {
                 fileName = QString::fromUtf8(p.timelinePlayer->path().get().c_str());
             }
-            if (p.thumbnailProvider)
+            if (p.thumbnailObject)
             {
-                p.thumbnailProvider->cancelRequests(p.thumbnailRequestId);
+                p.thumbnailObject->cancelRequests(p.thumbnailRequestId);
                 p.thumbnailRequestId = 0;
             }
             p.thumbnailImages.clear();
-            if (p.thumbnailProvider && p.timelinePlayer && p.thumbnails)
+            if (p.thumbnailObject && p.timelinePlayer && p.thumbnails)
             {
                 setMinimumHeight(50);
 
@@ -377,7 +377,7 @@ namespace tl
                         requests.push_back(_posToTime(x));
                         x += thumbnailWidth;
                     }
-                    p.thumbnailRequestId = p.thumbnailProvider->request(
+                    p.thumbnailRequestId = p.thumbnailObject->request(
                         fileName,
                         QSize(thumbnailWidth, thumbnailHeight),
                         requests,

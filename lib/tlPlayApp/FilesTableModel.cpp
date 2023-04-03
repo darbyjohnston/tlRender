@@ -4,7 +4,7 @@
 
 #include <tlPlayApp/FilesTableModel.h>
 
-#include <tlQt/TimelineThumbnailProvider.h>
+#include <tlQt/TimelineThumbnailObject.h>
 
 namespace tl
 {
@@ -13,7 +13,7 @@ namespace tl
         struct FilesTableModel::Private
         {
             std::weak_ptr<system::Context> context;
-            qt::TimelineThumbnailProvider* thumbnailProvider = nullptr;
+            qt::TimelineThumbnailObject* thumbnailObject = nullptr;
             std::map<qint64, std::shared_ptr<FilesModelItem> > thumbnailRequestIds;
             std::map<std::shared_ptr<FilesModelItem>, QImage> thumbnails;
             std::shared_ptr<observer::ListObserver<std::shared_ptr<FilesModelItem> > > filesObserver;
@@ -21,7 +21,7 @@ namespace tl
 
         FilesTableModel::FilesTableModel(
             const std::shared_ptr<FilesModel>& filesModel,
-            qt::TimelineThumbnailProvider* thumbnailProvider,
+            qt::TimelineThumbnailObject* thumbnailObject,
             const std::shared_ptr<system::Context>& context,
             QObject* parent) :
             QAbstractTableModel(parent),
@@ -31,7 +31,7 @@ namespace tl
             TLRENDER_P();
 
             p.context = context;
-            p.thumbnailProvider = thumbnailProvider;
+            p.thumbnailObject = thumbnailObject;
 
             p.filesObserver = observer::ListObserver<std::shared_ptr<FilesModelItem> >::create(
                 filesModel->observeFiles(),
@@ -39,11 +39,11 @@ namespace tl
                 {
                     beginResetModel();
                     _files = value;
-                    if (_p->thumbnailProvider)
+                    if (_p->thumbnailObject)
                     {
                         for (auto i : _p->thumbnailRequestIds)
                         {
-                            _p->thumbnailProvider->cancelRequests(i.first);
+                            _p->thumbnailObject->cancelRequests(i.first);
                         }
                         _p->thumbnailRequestIds.clear();
                         if (auto context = _p->context.lock())
@@ -52,7 +52,7 @@ namespace tl
                             {
                                 try
                                 {
-                                    qint64 id = _p->thumbnailProvider->request(
+                                    qint64 id = _p->thumbnailObject->request(
                                         QString::fromUtf8(i->path.get().c_str()),
                                         QSize(120, 80));
                                     _p->thumbnailRequestIds[id] = i;
@@ -66,10 +66,10 @@ namespace tl
                     endResetModel();
                 });
 
-            if (p.thumbnailProvider)
+            if (p.thumbnailObject)
             {
                 connect(
-                    p.thumbnailProvider,
+                    p.thumbnailObject,
                     SIGNAL(thumbails(qint64, const QList<QPair<otime::RationalTime, QImage> >&)),
                     SLOT(_thumbnailsCallback(qint64, const QList<QPair<otime::RationalTime, QImage> >&)));
             }

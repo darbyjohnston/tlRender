@@ -13,6 +13,9 @@
 #include <tlCore/FileInfo.h>
 #include <tlCore/StringFormat.h>
 
+#include <opentimelineio/clip.h>
+#include <opentimelineio/externalReference.h>
+#include <opentimelineio/imageSequenceReference.h>
 #include <opentimelineio/typeRegistry.h>
 
 namespace tl
@@ -84,6 +87,66 @@ namespace tl
             return out;
         }
 
+        otime::RationalTime loop(
+            const otime::RationalTime& value,
+            const otime::TimeRange& range,
+            bool* looped)
+        {
+            auto out = value;
+            if (out < range.start_time())
+            {
+                if (looped)
+                {
+                    *looped = true;
+                }
+                out = range.end_time_inclusive();
+            }
+            else if (out > range.end_time_inclusive())
+            {
+                if (looped)
+                {
+                    *looped = true;
+                }
+                out = range.start_time();
+            }
+            return out;
+        }
+
+        std::vector<otime::TimeRange> loop(
+            const otime::TimeRange& value,
+            const otime::TimeRange& range)
+        {
+            std::vector<otime::TimeRange> out;
+            if (value.duration() >= range.duration())
+            {
+                out.push_back(range);
+            }
+            else if (value.start_time() >= range.start_time() &&
+                value.end_time_inclusive() <= range.end_time_inclusive())
+            {
+                out.push_back(value);
+            }
+            else if (value.start_time() < range.start_time())
+            {
+                out.push_back(otime::TimeRange::range_from_start_end_time_inclusive(
+                    range.end_time_exclusive() - (range.start_time() - value.start_time()),
+                    range.end_time_inclusive()));
+                out.push_back(otime::TimeRange::range_from_start_end_time_inclusive(
+                    range.start_time(),
+                    value.end_time_inclusive()));
+            }
+            else if (value.end_time_inclusive() > range.end_time_inclusive())
+            {
+                out.push_back(otime::TimeRange::range_from_start_end_time_inclusive(
+                    value.start_time(),
+                    range.end_time_inclusive()));
+                out.push_back(otime::TimeRange::range_from_start_end_time_inclusive(
+                    range.start_time(),
+                    range.start_time() + (value.end_time_inclusive() - range.end_time_exclusive())));
+            }
+            return out;
+        }
+
         const otio::Composable* getRoot(const otio::Composable* composable)
         {
             const otio::Composable* out = composable;
@@ -92,11 +155,13 @@ namespace tl
             return out;
         }
 
-        otio::optional<otime::RationalTime> getDuration(const otio::Timeline* timeline, const std::string& kind)
+        otio::optional<otime::RationalTime> getDuration(
+            const otio::Timeline* otioTimeline,
+            const std::string& kind)
         {
             otio::optional<otime::RationalTime> out;
             otio::ErrorStatus errorStatus;
-            for (auto track : timeline->children_if<otio::Track>(&errorStatus))
+            for (auto track : otioTimeline->children_if<otio::Track>(&errorStatus))
             {
                 if (kind == track->kind())
                 {
@@ -110,6 +175,24 @@ namespace tl
                         out = duration;
                     }
                 }
+            }
+            return out;
+        }
+
+        otime::TimeRange getTimeRange(const otio::Timeline* otioTimeline)
+        {
+            otime::TimeRange out = time::invalidTimeRange;
+            auto duration = timeline::getDuration(otioTimeline, otio::Track::Kind::video);
+            if (!duration.has_value())
+            {
+                duration = timeline::getDuration(otioTimeline, otio::Track::Kind::audio);
+            }
+            if (duration.has_value())
+            {
+                const otime::RationalTime startTime = otioTimeline->global_start_time().has_value() ?
+                    otioTimeline->global_start_time().value().rescaled_to(duration->rate()) :
+                    otime::RationalTime(0, duration->rate());
+                out = otime::TimeRange(startTime, duration.value());
             }
             return out;
         }
@@ -180,6 +263,131 @@ namespace tl
                 break;
             }
             return out;
+        }
+
+        namespace
+        {
+            const std::string fileURLPrefix = "file://";
+
+            std::string removeFileURLPrefix(const std::string& value)
+            {
+                std::string out = value;
+                if (0 == out.compare(0, fileURLPrefix.size(), fileURLPrefix))
+                {
+                    out.replace(0, fileURLPrefix.size(), "");
+                }
+                return out;
+            }
+        }
+
+        file::Path getPath(
+            const std::string& url,
+            const std::string& directory,
+            const file::PathOptions& options)
+        {
+            file::Path out = file::Path(removeFileURLPrefix(url), options);
+            if (!out.isAbsolute())
+            {
+                out = file::Path(directory, out.get(), options);
+            }
+            return out;
+        }
+
+        file::Path getPath(
+            const otio::MediaReference* ref,
+            const std::string& directory,
+            const file::PathOptions& pathOptions)
+        {
+            std::string url;
+            if (auto externalRef = dynamic_cast<const otio::ExternalReference*>(ref))
+            {
+                url = externalRef->target_url();
+            }
+            else if (auto imageSequenceRef = dynamic_cast<const otio::ImageSequenceReference*>(ref))
+            {
+                std::stringstream ss;
+                ss << imageSequenceRef->target_url_base() <<
+                    imageSequenceRef->name_prefix() <<
+                    std::setfill('0') << std::setw(imageSequenceRef->frame_zero_padding()) <<
+                    imageSequenceRef->start_frame() <<
+                    imageSequenceRef->name_suffix();
+                url = ss.str();
+            }
+            else if (auto rawMemoryRef = dynamic_cast<const RawMemoryReference*>(ref))
+            {
+                url = rawMemoryRef->target_url();
+            }
+            else if (auto sharedMemoryRef = dynamic_cast<const SharedMemoryReference*>(ref))
+            {
+                url = sharedMemoryRef->target_url();
+            }
+            else if (auto rawMemorySequenceRef = dynamic_cast<const RawMemorySequenceReference*>(ref))
+            {
+                url = rawMemorySequenceRef->target_url();
+            }
+            else if (auto sharedMemorySequenceRef = dynamic_cast<const SharedMemorySequenceReference*>(ref))
+            {
+                url = sharedMemorySequenceRef->target_url();
+            }
+            return timeline::getPath(url, directory, pathOptions);
+        }
+
+        std::vector<file::MemoryRead> getMemoryRead(
+            const otio::MediaReference* ref)
+        {
+            std::vector<file::MemoryRead> out;
+            if (auto rawMemoryReference =
+                dynamic_cast<const RawMemoryReference*>(ref))
+            {
+                out.push_back(file::MemoryRead(
+                    rawMemoryReference->memory(),
+                    rawMemoryReference->memory_size()));
+            }
+            else if (auto sharedMemoryReference =
+                dynamic_cast<const SharedMemoryReference*>(ref))
+            {
+                if (const auto& memory = sharedMemoryReference->memory())
+                {
+                    out.push_back(file::MemoryRead(
+                        memory->data(),
+                        memory->size()));
+                }
+            }
+            else if (auto rawMemorySequenceReference =
+                dynamic_cast<const RawMemorySequenceReference*>(ref))
+            {
+                const auto& memory = rawMemorySequenceReference->memory();
+                const size_t memory_size = memory.size();
+                const auto& memory_sizes = rawMemorySequenceReference->memory_sizes();
+                const size_t memory_sizes_size = memory_sizes.size();
+                for (size_t i = 0; i < memory_size && i < memory_sizes_size; ++i)
+                {
+                    out.push_back(file::MemoryRead(memory[i], memory_sizes[i]));
+                }
+            }
+            else if (auto sharedMemorySequenceReference =
+                dynamic_cast<const SharedMemorySequenceReference*>(ref))
+            {
+                for (const auto& memory : sharedMemorySequenceReference->memory())
+                {
+                    if (memory)
+                    {
+                        out.push_back(file::MemoryRead(memory->data(), memory->size()));
+                    }
+                }
+            }
+            return out;
+        }
+
+        otime::RationalTime mediaTime(
+            const otime::RationalTime& time,
+            const otio::Track* track,
+            const otio::Clip* clip,
+            double mediaRate)
+        {
+            const auto clipTime = track->transformed_time(time, clip);
+            const auto mediaTime = time::round(clipTime.rescaled_to(mediaRate));
+            return mediaTime;
         }
     }
 }

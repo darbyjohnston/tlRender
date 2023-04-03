@@ -4,7 +4,11 @@
 
 #pragma once
 
-#include "BaseItem.h"
+#include "IItem.h"
+
+#include <tlCore/ValueObserver.h>
+
+#include <opentimelineio/timeline.h>
 
 namespace tl
 {
@@ -13,43 +17,57 @@ namespace tl
         namespace timeline_qtwidget
         {
             //! Timeline item.
-            class TimelineItem : public BaseItem
+            class TimelineItem : public IItem
             {
             protected:
                 void _init(
-                    const std::shared_ptr<timeline::Timeline>&,
+                    const otio::SerializableObject::Retainer<otio::Timeline>&,
                     const ItemData&,
-                    const std::shared_ptr<system::Context>&);
+                    const std::shared_ptr<system::Context>&,
+                    const std::shared_ptr<IWidget>& parent = nullptr);
 
             public:
                 static std::shared_ptr<TimelineItem> create(
-                    const std::shared_ptr<timeline::Timeline>&,
+                    const otio::SerializableObject::Retainer<otio::Timeline>&,
                     const ItemData&,
-                    const std::shared_ptr<system::Context>&);
+                    const std::shared_ptr<system::Context>&,
+                    const std::shared_ptr<IWidget>& parent = nullptr);
 
                 ~TimelineItem() override;
 
-                void preLayout() override;
-                void layout(const math::BBox2i&) override;
-                void render(
-                    const std::shared_ptr<timeline::IRender>&,
-                    const math::BBox2i& viewport,
-                    float devicePixelRatio) override;
-                void tick() override;
+                void setCurrentTime(const otime::RationalTime&);
+
+                std::shared_ptr<observer::IValue<otime::RationalTime> > observeCurrentTime() const;
+
+                void setGeometry(const math::BBox2i&) override;
+                void sizeEvent(const ui::SizeEvent&) override;
+                void drawEvent(const ui::DrawEvent&) override;
+                void enterEvent() override;
+                void leaveEvent() override;
+                void mouseMoveEvent(ui::MouseMoveEvent&) override;
+                void mousePressEvent(ui::MouseClickEvent&) override;
+                void mouseReleaseEvent(ui::MouseClickEvent&) override;
 
             private:
-                static std::string _nameLabel(const std::string&);
+                void _drawTimeTicks(const ui::DrawEvent&);
+                void _drawCurrentTime(const ui::DrawEvent&);
 
-                std::shared_ptr<timeline::Timeline> _timeline;
+                math::BBox2i _getCurrentTimeBBox() const;
+
+                otime::RationalTime _posToTime(float) const;
+                float _timeToPos(const otime::RationalTime&) const;
+
+                otio::SerializableObject::Retainer<otio::Timeline> _timeline;
                 otime::TimeRange _timeRange = time::invalidTimeRange;
-                int _thumbnailWidth = 0;
-                std::string _label;
-                std::string _durationLabel;
-                std::string _startLabel;
-                std::string _endLabel;
-                math::BBox2i _viewportTmp;
-                std::vector<std::future<timeline::VideoData> > _videoDataFutures;
-                std::map<otime::RationalTime, timeline::VideoData> _videoData;
+                std::shared_ptr<observer::Value<otime::RationalTime> > _currentTime;
+                ui::FontRole _fontRole = ui::FontRole::Label;
+                int _margin = 0;
+                int _spacing = 0;
+                imaging::FontMetrics _fontMetrics;
+                bool _mousePress = false;
+                math::Vector2i _mousePos;
+                math::Vector2i _mousePressPos;
+                bool _currentTimeDrag = false;
             };
         }
     }

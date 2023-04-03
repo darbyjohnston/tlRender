@@ -6,7 +6,7 @@
 
 #include "App.h"
 
-#include <tlQt/TimelineThumbnailProvider.h>
+#include <tlQt/TimelineThumbnailObject.h>
 
 #include <tlCore/File.h>
 
@@ -30,9 +30,9 @@ namespace tl
             {
                 setAcceptDrops(true);
 
-                _thumbnailProvider = new qt::TimelineThumbnailProvider(context, this);
+                _thumbnailObject = new qt::TimelineThumbnailObject(context, this);
 
-                _filmstripWidget = new qtwidget::FilmstripWidget(_thumbnailProvider);
+                _filmstripWidget = new qtwidget::FilmstripWidget(_thumbnailObject);
                 _filmstripWidget->setRowCount(5);
                 setCentralWidget(_filmstripWidget);
 

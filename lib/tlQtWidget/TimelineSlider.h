@@ -15,7 +15,7 @@ namespace tl
 {
     namespace qt
     {
-        class TimelineThumbnailProvider;
+        class TimelineThumbnailObject;
     };
 
     namespace qtwidget
@@ -39,7 +39,7 @@ namespace tl
 
         public:
             TimelineSlider(
-                qt::TimelineThumbnailProvider*,
+                qt::TimelineThumbnailObject*,
                 const std::shared_ptr<system::Context>&,
                 QWidget* parent = nullptr);
 

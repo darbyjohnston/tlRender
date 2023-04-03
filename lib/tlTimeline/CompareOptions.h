@@ -41,7 +41,7 @@ namespace tl
         };
 
         //! Get the bounding boxes for the given compare mode and sizes.
-        std::vector<math::BBox2i> getTiles(CompareMode, const std::vector<imaging::Size>&);
+        std::vector<math::BBox2i> getBBoxes(CompareMode, const std::vector<imaging::Size>&);
 
         //! Get the render size for the given compare mode and sizes.
         imaging::Size getRenderSize(CompareMode, const std::vector<imaging::Size>&);

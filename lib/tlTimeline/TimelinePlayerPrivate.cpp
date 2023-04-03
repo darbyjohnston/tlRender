@@ -223,7 +223,10 @@ namespace tl
             {
                 for (const auto& range : videoRanges)
                 {
-                    for (const auto& time : time::frames(range))
+                    const auto start = range.start_time();
+                    const auto end = range.end_time_exclusive();
+                    const auto inc = otime::RationalTime(1.0, range.duration().rate());
+                    for (auto time = start; time < end; time += inc)
                     {
                         const auto i = thread.videoDataCache.find(time);
                         if (i == thread.videoDataCache.end())
@@ -245,7 +248,10 @@ namespace tl
                 std::set<int64_t> seconds;
                 for (const auto& range : audioRanges)
                 {
-                    for (const auto& time : time::frames(range))
+                    const auto start = range.start_time();
+                    const auto end = range.end_time_exclusive();
+                    const auto inc = otime::RationalTime(1.0, range.duration().rate());
+                    for (auto time = start; time < end; time += inc)
                     {
                         seconds.insert(time.rescaled_to(1.0).value());
                     }
@@ -318,37 +324,43 @@ namespace tl
             }
 
             // Update cached frames.
-            std::vector<otime::RationalTime> cachedVideoFrames;
-            for (const auto& i : thread.videoDataCache)
+            const auto now = std::chrono::steady_clock::now();
+            const std::chrono::duration<float> diff = now - thread.cacheTimer;
+            if (diff.count() > .5F)
             {
-                cachedVideoFrames.push_back(i.second.time);
-            }
-            const float cachedVideoPercentage = cachedVideoFrames.size() /
-                static_cast<float>(cacheOptions.readAhead.rescaled_to(timeRange.duration().rate()).value() +
-                    cacheOptions.readBehind.rescaled_to(timeRange.duration().rate()).value()) *
-                100.F;
-            std::vector<otime::RationalTime> cachedAudioFrames;
-            {
-                std::unique_lock<std::mutex> lock(audioMutex.mutex);
-                for (const auto& i : audioMutex.audioDataCache)
+                thread.cacheTimer = now;
+                std::vector<otime::RationalTime> cachedVideoFrames;
+                for (const auto& i : thread.videoDataCache)
                 {
-                    cachedAudioFrames.push_back(otime::RationalTime(i.second.seconds, 1.0));
+                    cachedVideoFrames.push_back(i.second.time);
                 }
-            }
-            auto cachedVideoRanges = toRanges(cachedVideoFrames);
-            auto cachedAudioRanges = toRanges(cachedAudioFrames);
-            for (auto& i : cachedAudioRanges)
-            {
-                i = otime::TimeRange(
-                    time::floor(i.start_time().rescaled_to(timeRange.duration().rate())),
-                    time::ceil(i.duration().rescaled_to(timeRange.duration().rate())));
-            }
-            float cachedAudioPercentage = 0.F;
-            {
-                std::unique_lock<std::mutex> lock(mutex.mutex);
-                mutex.cacheInfo.videoPercentage = cachedVideoPercentage;
-                mutex.cacheInfo.videoFrames = cachedVideoRanges;
-                mutex.cacheInfo.audioFrames = cachedAudioRanges;
+                const float cachedVideoPercentage = cachedVideoFrames.size() /
+                    static_cast<float>(cacheOptions.readAhead.rescaled_to(timeRange.duration().rate()).value() +
+                        cacheOptions.readBehind.rescaled_to(timeRange.duration().rate()).value()) *
+                    100.F;
+                std::vector<otime::RationalTime> cachedAudioFrames;
+                {
+                    std::unique_lock<std::mutex> lock(audioMutex.mutex);
+                    for (const auto& i : audioMutex.audioDataCache)
+                    {
+                        cachedAudioFrames.push_back(otime::RationalTime(i.second.seconds, 1.0));
+                    }
+                }
+                auto cachedVideoRanges = toRanges(cachedVideoFrames);
+                auto cachedAudioRanges = toRanges(cachedAudioFrames);
+                for (auto& i : cachedAudioRanges)
+                {
+                    i = otime::TimeRange(
+                        time::floor(i.start_time().rescaled_to(timeRange.duration().rate())),
+                        time::ceil(i.duration().rescaled_to(timeRange.duration().rate())));
+                }
+                float cachedAudioPercentage = 0.F;
+                {
+                    std::unique_lock<std::mutex> lock(mutex.mutex);
+                    mutex.cacheInfo.videoPercentage = cachedVideoPercentage;
+                    mutex.cacheInfo.videoFrames = cachedVideoRanges;
+                    mutex.cacheInfo.audioFrames = cachedAudioRanges;
+                }
             }
         }
 

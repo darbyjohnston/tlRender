@@ -25,36 +25,36 @@ namespace tl
     namespace time
     {
         //! Invalid time.
-        const otime::RationalTime invalidTime(-1.0, -1.0);
+        constexpr otime::RationalTime invalidTime(-1.0, -1.0);
 
         //! Invalid time range.
-        const otime::TimeRange invalidTimeRange(invalidTime, invalidTime);
+        constexpr otime::TimeRange invalidTimeRange(invalidTime, invalidTime);
 
         //! Check whether the given time is valid. This function should be
         //! used instead of comparing a time to the "invalidTime" constant.
-        bool isValid(const otime::RationalTime&);
+        inline bool isValid(const otime::RationalTime&);
 
         //! Check whether the given time range is valid. This function
         //! should be used instead of comparing a time range to the
         //! "invalidTimeRange" constant.
-        bool isValid(const otime::TimeRange&);
+        inline bool isValid(const otime::TimeRange&);
 
         //! Compare two times. This function compares the values exactly,
         //! unlike the "==" operator which rescales the values.
-        bool compareExact(const otime::RationalTime&, const otime::RationalTime&);
+        constexpr bool compareExact(const otime::RationalTime&, const otime::RationalTime&);
 
         //! Compare two time ranges. This function compares the values
         //! exactly, unlike the "==" operator which rescales the values.
-        bool compareExact(const otime::TimeRange&, const otime::TimeRange&);
+        constexpr bool compareExact(const otime::TimeRange&, const otime::TimeRange&);
 
         //! Round the given time.
-        otime::RationalTime round(const otime::RationalTime&);
+        inline otime::RationalTime round(const otime::RationalTime&);
 
         //! Round the given time downward.
-        otime::RationalTime floor(const otime::RationalTime&);
+        inline otime::RationalTime floor(const otime::RationalTime&);
 
         //! Round the given time upward.
-        otime::RationalTime ceil(const otime::RationalTime&);
+        inline otime::RationalTime ceil(const otime::RationalTime&);
 
         //! Get the frames in a time range.
         std::vector<otime::RationalTime> frames(const otime::TimeRange&);
@@ -126,3 +126,6 @@ namespace opentime
         std::istream& operator >> (std::istream&, TimeRange&);
     }
 }
+
+#include <tlCore/TimeInline.h>
+

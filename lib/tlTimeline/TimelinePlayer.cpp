@@ -4,6 +4,8 @@
 
 #include <tlTimeline/TimelinePlayerPrivate.h>
 
+#include <tlTimeline/Util.h>
+
 #include <tlCore/Error.h>
 #include <tlCore/String.h>
 #include <tlCore/StringFormat.h>
@@ -51,66 +53,6 @@ namespace tl
             "FrameNextX10",
             "FrameNextX100");
         TLRENDER_ENUM_SERIALIZE_IMPL(TimeAction);
-
-        otime::RationalTime loop(
-            const otime::RationalTime& value,
-            const otime::TimeRange& range,
-            bool* looped)
-        {
-            auto out = value;
-            if (out < range.start_time())
-            {
-                if (looped)
-                {
-                    *looped = true;
-                }
-                out = range.end_time_inclusive();
-            }
-            else if (out > range.end_time_inclusive())
-            {
-                if (looped)
-                {
-                    *looped = true;
-                }
-                out = range.start_time();
-            }
-            return out;
-        }
-
-        std::vector<otime::TimeRange> loop(
-            const otime::TimeRange& value,
-            const otime::TimeRange& range)
-        {
-            std::vector<otime::TimeRange> out;
-            if (value.duration() >= range.duration())
-            {
-                out.push_back(range);
-            }
-            else if (value.start_time() >= range.start_time() &&
-                value.end_time_inclusive() <= range.end_time_inclusive())
-            {
-                out.push_back(value);
-            }
-            else if (value.start_time() < range.start_time())
-            {
-                out.push_back(otime::TimeRange::range_from_start_end_time_inclusive(
-                    range.end_time_exclusive() - (range.start_time() - value.start_time()),
-                    range.end_time_inclusive()));
-                out.push_back(otime::TimeRange::range_from_start_end_time_inclusive(
-                    range.start_time(),
-                    value.end_time_inclusive()));
-            }
-            else if (value.end_time_inclusive() > range.end_time_inclusive())
-            {
-                out.push_back(otime::TimeRange::range_from_start_end_time_inclusive(
-                    value.start_time(),
-                    range.end_time_inclusive()));
-                out.push_back(otime::TimeRange::range_from_start_end_time_inclusive(
-                    range.start_time(),
-                    range.start_time() + (value.end_time_inclusive() - range.end_time_exclusive())));
-            }
-            return out;
-        }
 
         namespace
         {
@@ -237,7 +179,8 @@ namespace tl
 #endif // TLRENDER_AUDIO
                     }
 
-                    p.logTimer = std::chrono::steady_clock::now();
+                    p.thread.cacheTimer = std::chrono::steady_clock::now();
+                    p.thread.logTimer = std::chrono::steady_clock::now();
 
                     while (p.thread.running)
                     {
@@ -359,10 +302,10 @@ namespace tl
 
                         // Logging.
                         const auto now = std::chrono::steady_clock::now();
-                        const std::chrono::duration<double> diff = now - p.logTimer;
+                        const std::chrono::duration<double> diff = now - p.thread.logTimer;
                         if (diff.count() > 10.0)
                         {
-                            p.logTimer = now;
+                            p.thread.logTimer = now;
                             if (auto context = getContext().lock())
                             {
                                 p.log(context);

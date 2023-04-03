@@ -29,10 +29,5 @@ namespace tl
         {
             return !(*this == other);
         }
-
-        inline uint8_t fToU8(float value)
-        {
-            return static_cast<uint8_t>(std::min(std::max(value * 255.F, 0.F), 255.F));
-        }
     }
 }

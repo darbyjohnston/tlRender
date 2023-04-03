@@ -12,7 +12,7 @@ namespace tl
 {
     namespace qt
     {
-        class TimelineThumbnailProvider;
+        class TimelineThumbnailObject;
     }
 
     namespace play
@@ -27,7 +27,7 @@ namespace tl
         public:
             FilesTableModel(
                 const std::shared_ptr<FilesModel>&,
-                qt::TimelineThumbnailProvider*,
+                qt::TimelineThumbnailObject*,
                 const std::shared_ptr<system::Context>&,
                 QObject* parent = nullptr);
 
