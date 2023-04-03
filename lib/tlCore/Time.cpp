@@ -8,54 +8,12 @@
 #include <tlCore/String.h>
 
 #include <array>
-#include <cmath>
 #include <sstream>
 
 namespace tl
 {
     namespace time
     {
-        bool isValid(const otime::RationalTime& value)
-        {
-            return !value.is_invalid_time();
-        }
-
-        bool isValid(const otime::TimeRange& value)
-        {
-            return
-                !value.start_time().is_invalid_time() &&
-                !value.duration().is_invalid_time();
-        }
-
-        bool compareExact(const otime::RationalTime& a, const otime::RationalTime& b)
-        {
-            return
-                a.value() == b.value() &&
-                a.rate() == b.rate();
-        }
-
-        bool compareExact(const otime::TimeRange& a, const otime::TimeRange& b)
-        {
-            return
-                compareExact(a.start_time(), b.start_time()) &&
-                compareExact(a.duration(), b.duration());
-        }
-
-        otime::RationalTime round(const otime::RationalTime& value)
-        {
-            return otime::RationalTime(std::round(value.value()), value.rate());
-        }
-
-        otime::RationalTime floor(const otime::RationalTime& value)
-        {
-            return otime::RationalTime(std::floor(value.value()), value.rate());
-        }
-
-        otime::RationalTime ceil(const otime::RationalTime& value)
-        {
-            return otime::RationalTime(std::ceil(value.value()), value.rate());
-        }
-
         std::vector<otime::RationalTime> frames(const otime::TimeRange& value)
         {
             std::vector<otime::RationalTime> out;

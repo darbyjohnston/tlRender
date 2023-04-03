@@ -49,6 +49,7 @@ set(HEADERS
     StringFormat.h
     StringFormatInline.h
     Time.h
+    TimeInline.h
     Util.h
     ValueObserver.h
     ValueObserverInline.h
