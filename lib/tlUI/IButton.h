@@ -37,8 +37,8 @@ namespace tl
             //! Set the text.
             void setText(const std::string&);
 
-            //! Set the font information.
-            void setFontInfo(const imaging::FontInfo&);
+            //! Set the font role.
+            void setFontRole(FontRole);
 
             //! Set the icon.
             void setIcon(const std::string&);
@@ -61,7 +61,7 @@ namespace tl
 
         protected:
             std::string _text;
-            imaging::FontInfo _fontInfo;
+            FontRole _fontRole = FontRole::Label;
             std::shared_ptr<imaging::Image> _iconImage;
             ColorRole _buttonRole = ColorRole::Button;
             bool _inside = false;

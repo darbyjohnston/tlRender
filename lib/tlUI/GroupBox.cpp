@@ -13,11 +13,10 @@ namespace tl
         struct GroupBox::Private
         {
             std::string text;
-            imaging::FontInfo fontInfo;
+            FontRole fontRole = FontRole::Label;
 
             struct Size
             {
-                imaging::FontInfo fontInfo;
                 imaging::FontMetrics fontMetrics;
                 math::Vector2i textSize;
                 int margin = 0;
@@ -60,12 +59,12 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        void GroupBox::setFontInfo(const imaging::FontInfo& value)
+        void GroupBox::setFontRole(FontRole value)
         {
             TLRENDER_P();
-            if (value == p.fontInfo)
+            if (value == p.fontRole)
                 return;
-            p.fontInfo = value;
+            p.fontRole = value;
             _updates |= Update::Size;
             _updates |= Update::Draw;
         }
@@ -92,13 +91,11 @@ namespace tl
             p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall) * event.contentScale;
             p.size.border = event.style->getSizeRole(SizeRole::Border) * event.contentScale;
 
-            p.size.fontInfo = p.fontInfo;
-            p.size.fontInfo.size *= event.contentScale;
-            p.size.fontMetrics = event.fontSystem->getMetrics(p.size.fontInfo);
-            p.size.textSize = event.fontSystem->measure(p.text, p.size.fontInfo);
+            const auto fontInfo = event.getFontInfo(p.fontRole);
+            p.size.fontMetrics = event.getFontMetrics(p.fontRole);
+            p.size.textSize = event.fontSystem->measure(p.text, fontInfo);
 
-            _sizeHint.x = 0;
-            _sizeHint.y = 0;
+            _sizeHint = math::Vector2i();
             for (const auto& child : _children)
             {
                 const math::Vector2i& sizeHint = child->getSizeHint();
@@ -116,10 +113,11 @@ namespace tl
             IWidget::drawEvent(event);
             TLRENDER_P();
 
+            const auto fontInfo = event.getFontInfo(p.fontRole);
             math::BBox2i g = _geometry;
 
             event.render->drawText(
-                event.fontSystem->getGlyphs(p.text, p.size.fontInfo),
+                event.fontSystem->getGlyphs(p.text, fontInfo),
                 math::Vector2i(g.x(), g.y() + p.size.fontMetrics.ascender),
                 event.style->getColorRole(ColorRole::Text));
 

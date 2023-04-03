@@ -19,12 +19,10 @@ namespace tl
             std::string text;
             std::string format;
             int digits = 3;
-            imaging::FontInfo fontInfo;
+            FontRole fontRole = FontRole::Mono;
 
             struct Size
             {
-                imaging::FontInfo fontInfo;
-                imaging::FontMetrics fontMetrics;
                 math::Vector2i textSize;
                 math::Vector2i formatSize;
                 int margin = 0;
@@ -44,7 +42,6 @@ namespace tl
             TLRENDER_P();
             _hAlign = HAlign::Right;
             setModel(IntModel::create(context));
-            p.fontInfo.family = "NotoMono-Regular";
         }
 
         IntEdit::IntEdit() :
@@ -101,12 +98,12 @@ namespace tl
             _textUpdate();
         }
 
-        void IntEdit::setFontInfo(const imaging::FontInfo& value)
+        void IntEdit::setFontRole(FontRole value)
         {
             TLRENDER_P();
-            if (value == p.fontInfo)
+            if (value == p.fontRole)
                 return;
-            p.fontInfo = value;
+            p.fontRole = value;
             _updates |= Update::Size;
             _updates |= Update::Draw;
         }
@@ -119,14 +116,13 @@ namespace tl
             p.size.margin = event.style->getSizeRole(SizeRole::MarginInside) * event.contentScale;
             p.size.border = event.style->getSizeRole(SizeRole::Border) * event.contentScale;
 
-            p.size.fontInfo = p.fontInfo;
-            p.size.fontInfo.size *= event.contentScale;
-            p.size.fontMetrics = event.fontSystem->getMetrics(p.size.fontInfo);
-            p.size.textSize = event.fontSystem->measure(p.text, p.size.fontInfo);
-            p.size.formatSize = event.fontSystem->measure(p.format, p.size.fontInfo);
+            const auto fontInfo = event.getFontInfo(p.fontRole);
+            const auto fontMetrics = event.getFontMetrics(p.fontRole);
+            p.size.textSize = event.fontSystem->measure(p.text, fontInfo);
+            p.size.formatSize = event.fontSystem->measure(p.format, fontInfo);
 
             _sizeHint.x = p.size.formatSize.x + p.size.margin * 2;
-            _sizeHint.y = p.size.fontMetrics.lineHeight + p.size.margin * 2;
+            _sizeHint.y = fontMetrics.lineHeight + p.size.margin * 2;
         }
 
         void IntEdit::drawEvent(const DrawEvent& event)
@@ -134,6 +130,8 @@ namespace tl
             IWidget::drawEvent(event);
             TLRENDER_P();
 
+            const auto fontInfo = event.getFontInfo(p.fontRole);
+            const auto fontMetrics = event.getFontMetrics(p.fontRole);
             math::BBox2i g = align(
                 _geometry,
                 _sizeHint,
@@ -153,10 +151,10 @@ namespace tl
             math::BBox2i g2 = g.margin(-p.size.margin);
             math::Vector2i pos(
                 g2.x() + g2.w() - p.size.textSize.x,
-                g2.y() + g2.h() / 2 - p.size.fontMetrics.lineHeight / 2 +
-                p.size.fontMetrics.ascender);
+                g2.y() + g2.h() / 2 - fontMetrics.lineHeight / 2 +
+                fontMetrics.ascender);
             event.render->drawText(
-                event.fontSystem->getGlyphs(p.text, p.size.fontInfo),
+                event.fontSystem->getGlyphs(p.text, fontInfo),
                 pos,
                 event.style->getColorRole(ColorRole::Text));
         }

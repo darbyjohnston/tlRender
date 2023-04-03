@@ -4,15 +4,64 @@
 
 #include <tlUI/Style.h>
 
+#include <tlCore/Error.h>
+#include <tlCore/String.h>
+
+#include <algorithm>
+
 namespace tl
 {
     namespace ui
     {
+        TLRENDER_ENUM_IMPL(
+            SizeRole,
+            "None",
+            "Margin",
+            "MarginSmall",
+            "MarginLarge",
+            "MarginInside",
+            "Spacing",
+            "SpacingSmall",
+            "SpacingLarge",
+            "SpacingTool",
+            "Border",
+            "ScrollArea",
+            "Handle");
+        TLRENDER_ENUM_SERIALIZE_IMPL(SizeRole);
+
+        TLRENDER_ENUM_IMPL(
+            ColorRole,
+            "None",
+            "Window",
+            "Base",
+            "Button",
+            "Text",
+            "Border",
+            "Hover",
+            "Pressed",
+            "Checked",
+            "Red",
+            "Green",
+            "Blue",
+            "Cyan",
+            "Magenta",
+            "Yellow");
+        TLRENDER_ENUM_SERIALIZE_IMPL(ColorRole);
+
+        TLRENDER_ENUM_IMPL(
+            FontRole,
+            "None",
+            "Label",
+            "Mono",
+            "Title");
+        TLRENDER_ENUM_SERIALIZE_IMPL(FontRole);
+
         struct Style::Private
         {
             std::weak_ptr<system::Context> context;
             std::map<SizeRole, int> sizeRoles;
             std::map<ColorRole, imaging::Color4f> colorRoles;
+            std::map<FontRole, imaging::FontInfo> fontRoles;
         };
 
         void Style::_init(
@@ -47,6 +96,10 @@ namespace tl
             p.colorRoles[ColorRole::Cyan] = imaging::Color4f(.3F, .6F, .6F);
             p.colorRoles[ColorRole::Magenta] = imaging::Color4f(.6F, .3F, .6F);
             p.colorRoles[ColorRole::Yellow] = imaging::Color4f(.6F, .6F, .3F);
+
+            p.fontRoles[FontRole::Label] = imaging::FontInfo("NotoSans-Regular", 12);
+            p.fontRoles[FontRole::Mono] = imaging::FontInfo("NotoMono-Regular", 12);
+            p.fontRoles[FontRole::Title] = imaging::FontInfo("NotoSans-Regular", 24);
         }
 
         Style::Style() :
@@ -76,6 +129,13 @@ namespace tl
             TLRENDER_P();
             const auto i = p.colorRoles.find(value);
             return i != p.colorRoles.end() ? i->second : imaging::Color4f();
+        }
+
+        imaging::FontInfo Style::getFontRole(FontRole value) const
+        {
+            TLRENDER_P();
+            const auto i = p.fontRoles.find(value);
+            return i != p.fontRoles.end() ? i->second : imaging::FontInfo();
         }
     }
 }

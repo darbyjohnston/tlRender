@@ -30,14 +30,12 @@ namespace tl
 
                 auto label1 = ui::Label::create(context);
                 label1->setText("Label 1");
-                imaging::FontInfo fontInfo;
-                fontInfo.size = 32;
-                label1->setFontInfo(fontInfo);
+                label1->setFontRole(ui::FontRole::Title);
                 label1->setBackgroundRole(ui::ColorRole::Green);
 
                 auto label2 = ui::Label::create(context);
                 label2->setText("Label 2");
-                label2->setFontInfo(fontInfo);
+                label2->setFontRole(ui::FontRole::Title);
                 label2->setBackgroundRole(ui::ColorRole::Blue);
                 label2->setHStretch(ui::Stretch::Expanding);
 
@@ -54,7 +52,7 @@ namespace tl
 
                 auto label5 = ui::Label::create(context);
                 label5->setText("Label 5");
-                label5->setFontInfo(fontInfo);
+                label5->setFontRole(ui::FontRole::Title);
                 label5->setBackgroundRole(ui::ColorRole::Yellow);
                 label5->setHStretch(ui::Stretch::Expanding);
 

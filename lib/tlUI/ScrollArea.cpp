@@ -109,8 +109,7 @@ namespace tl
 
             p.size.border = event.style->getSizeRole(SizeRole::Border) * event.contentScale;
 
-            _sizeHint.x = 0;
-            _sizeHint.y = 0;
+            _sizeHint = math::Vector2i();
             switch (p.scrollAreaType)
             {
                 case ScrollAreaType::Horizontal:

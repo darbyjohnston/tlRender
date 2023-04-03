@@ -246,6 +246,12 @@ namespace tl
             event.iconLibrary = p.iconLibrary;
             event.fontSystem = p.fontSystem;
             event.contentScale = p.contentScale;
+            for (auto i : getFontRoleEnums())
+            {
+                event.fontInfo[i] = p.style->getFontRole(i);
+                event.fontInfo[i].size *= p.contentScale;
+                event.fontMetrics[i] = p.fontSystem->getMetrics(event.fontInfo[i]);
+            }
             for (const auto& i : p.widgets)
             {
                 if (auto widget = i.lock())
@@ -307,6 +313,12 @@ namespace tl
             event.render = render;
             event.fontSystem = p.fontSystem;
             event.contentScale = p.contentScale;
+            for (auto i : getFontRoleEnums())
+            {
+                event.fontInfo[i] = p.style->getFontRole(i);
+                event.fontInfo[i].size *= p.contentScale;
+                event.fontMetrics[i] = p.fontSystem->getMetrics(event.fontInfo[i]);
+            }
             for (const auto& i : p.widgets)
             {
                 if (auto widget = i.lock())

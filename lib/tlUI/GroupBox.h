@@ -33,8 +33,8 @@ namespace tl
             //! Set the text.
             void setText(const std::string&);
 
-            //! Set the font information.
-            void setFontInfo(const imaging::FontInfo&);
+            //! Set the font role.
+            void setFontRole(FontRole);
 
             void setGeometry(const math::BBox2i&) override;
             void sizeEvent(const SizeEvent&) override;

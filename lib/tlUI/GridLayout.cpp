@@ -209,8 +209,7 @@ namespace tl
             std::vector<int> rowSizeHints;
             std::vector<int> columnSizeHints;
             p.getSizeHints(rowSizeHints, columnSizeHints);
-            _sizeHint.y = 0;
-            _sizeHint.x = 0;
+            _sizeHint = math::Vector2i();
             for (int i : rowSizeHints)
             {
                 _sizeHint.y += i;

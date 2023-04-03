@@ -13,14 +13,7 @@ namespace tl
         struct Label::Private
         {
             std::string text;
-            imaging::FontInfo fontInfo;
-
-            struct Size
-            {
-                imaging::FontInfo fontInfo;
-                imaging::FontMetrics fontMetrics;
-            };
-            Size size;
+            FontRole fontRole = FontRole::Label;
         };
 
         void Label::_init(
@@ -57,12 +50,12 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        void Label::setFontInfo(const imaging::FontInfo& value)
+        void Label::setFontRole(FontRole value)
         {
             TLRENDER_P();
-            if (value == p.fontInfo)
+            if (value == p.fontRole)
                 return;
-            p.fontInfo = value;
+            p.fontRole = value;
             _updates |= Update::Size;
             _updates |= Update::Draw;
         }
@@ -72,18 +65,20 @@ namespace tl
             IWidget::sizeEvent(event);
             TLRENDER_P();
 
-            p.size.fontInfo = p.fontInfo;
-            p.size.fontInfo.size *= event.contentScale;
-            p.size.fontMetrics = event.fontSystem->getMetrics(p.size.fontInfo);
+            const auto fontInfo = event.getFontInfo(p.fontRole);
+            const auto fontMetrics = event.getFontMetrics(p.fontRole);
 
-            _sizeHint.x = event.fontSystem->measure(p.text, p.size.fontInfo).x;
-            _sizeHint.y = p.size.fontMetrics.lineHeight;
+            _sizeHint.x = event.fontSystem->measure(p.text, fontInfo).x;
+            _sizeHint.y = fontMetrics.lineHeight;
         }
 
         void Label::drawEvent(const DrawEvent& event)
         {
             IWidget::drawEvent(event);
             TLRENDER_P();
+
+            const auto fontInfo = event.getFontInfo(p.fontRole);
+            const auto fontMetrics = event.getFontMetrics(p.fontRole);
 
             //event.render->drawRect(_geometry, imaging::Color4f(.5F, .3F, .3F));
 
@@ -95,8 +90,8 @@ namespace tl
                 _hAlign,
                 _vAlign);
             event.render->drawText(
-                event.fontSystem->getGlyphs(p.text, p.size.fontInfo),
-                math::Vector2i(g.x(), g.y() + p.size.fontMetrics.ascender),
+                event.fontSystem->getGlyphs(p.text, fontInfo),
+                math::Vector2i(g.x(), g.y() + fontMetrics.ascender),
                 event.style->getColorRole(ColorRole::Text));
         }
     }

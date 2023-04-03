@@ -20,12 +20,10 @@ namespace tl
             std::string format;
             int digits = 3;
             int precision = 2;
-            imaging::FontInfo fontInfo;
+            FontRole fontRole = FontRole::Mono;
 
             struct SizeCache
             {
-                imaging::FontInfo fontInfo;
-                imaging::FontMetrics fontMetrics;
                 math::Vector2i textSize;
                 math::Vector2i formatSize;
                 int margin = 0;
@@ -45,7 +43,6 @@ namespace tl
             TLRENDER_P();
             _hAlign = HAlign::Right;
             setModel(FloatModel::create(context));
-            p.fontInfo.family = "NotoMono-Regular";
         }
 
         FloatEdit::FloatEdit() :
@@ -111,12 +108,12 @@ namespace tl
             _textUpdate();
         }
 
-        void FloatEdit::setFontInfo(const imaging::FontInfo& value)
+        void FloatEdit::setFontRole(FontRole value)
         {
             TLRENDER_P();
-            if (value == p.fontInfo)
+            if (value == p.fontRole)
                 return;
-            p.fontInfo = value;
+            p.fontRole = value;
             _updates |= Update::Size;
             _updates |= Update::Draw;
         }
@@ -128,21 +125,23 @@ namespace tl
 
             p.sizeCache.margin = event.style->getSizeRole(SizeRole::MarginInside) * event.contentScale;
             p.sizeCache.border = event.style->getSizeRole(SizeRole::Border) * event.contentScale;
+            const auto fontInfo = event.getFontInfo(p.fontRole);
+            const auto fontMetrics = event.getFontMetrics(p.fontRole);
 
-            p.sizeCache.fontInfo = p.fontInfo;
-            p.sizeCache.fontInfo.size *= event.contentScale;
-            p.sizeCache.fontMetrics = event.fontSystem->getMetrics(p.sizeCache.fontInfo);
-            p.sizeCache.textSize = event.fontSystem->measure(p.text, p.sizeCache.fontInfo);
-            p.sizeCache.formatSize = event.fontSystem->measure(p.format, p.sizeCache.fontInfo);
+            p.sizeCache.textSize = event.fontSystem->measure(p.text, fontInfo);
+            p.sizeCache.formatSize = event.fontSystem->measure(p.format, fontInfo);
 
             _sizeHint.x = p.sizeCache.formatSize.x + p.sizeCache.margin * 2;
-            _sizeHint.y = p.sizeCache.fontMetrics.lineHeight + p.sizeCache.margin * 2;
+            _sizeHint.y = fontMetrics.lineHeight + p.sizeCache.margin * 2;
         }
 
         void FloatEdit::drawEvent(const DrawEvent& event)
         {
             IWidget::drawEvent(event);
             TLRENDER_P();
+
+            const auto fontInfo = event.getFontInfo(p.fontRole);
+            const auto fontMetrics = event.getFontMetrics(p.fontRole);
 
             math::BBox2i g = align(
                 _geometry,
@@ -163,10 +162,10 @@ namespace tl
             math::BBox2i g2 = g.margin(-p.sizeCache.margin);
             math::Vector2i pos(
                 g2.x() + g2.w() - p.sizeCache.textSize.x,
-                g2.y() + g2.h() / 2 - p.sizeCache.fontMetrics.lineHeight / 2 +
-                p.sizeCache.fontMetrics.ascender);
+                g2.y() + g2.h() / 2 - fontMetrics.lineHeight / 2 +
+                    fontMetrics.ascender);
             event.render->drawText(
-                event.fontSystem->getGlyphs(p.text, p.sizeCache.fontInfo),
+                event.fontSystem->getGlyphs(p.text, fontInfo),
                 pos,
                 event.style->getColorRole(ColorRole::Text));
         }

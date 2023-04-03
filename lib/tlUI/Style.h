@@ -6,6 +6,7 @@
 
 #include <tlCore/Color.h>
 #include <tlCore/Context.h>
+#include <tlCore/FontSystem.h>
 
 namespace tl
 {
@@ -25,8 +26,13 @@ namespace tl
             SpacingTool,
             Border,
             ScrollArea,
-            Handle
+            Handle,
+
+            Count,
+            First = None
         };
+        TLRENDER_ENUM(SizeRole);
+        TLRENDER_ENUM_SERIALIZE(SizeRole);
 
         //! Color roles.
         enum class ColorRole
@@ -45,8 +51,27 @@ namespace tl
             Blue,
             Cyan,
             Magenta,
-            Yellow
+            Yellow,
+
+            Count,
+            First = None
         };
+        TLRENDER_ENUM(ColorRole);
+        TLRENDER_ENUM_SERIALIZE(ColorRole);
+
+        //! Font roles.
+        enum class FontRole
+        {
+            None,
+            Label,
+            Mono,
+            Title,
+
+            Count,
+            First = None
+        };
+        TLRENDER_ENUM(FontRole);
+        TLRENDER_ENUM_SERIALIZE(FontRole);
 
         //! Style.
         class Style : public std::enable_shared_from_this<Style>
@@ -71,6 +96,9 @@ namespace tl
 
             //! Get a color role.
             imaging::Color4f getColorRole(ColorRole) const;
+
+            //! Get a font role.
+            imaging::FontInfo getFontRole(FontRole) const;
 
         private:
             TLRENDER_PRIVATE();

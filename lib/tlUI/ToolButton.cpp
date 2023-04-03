@@ -14,8 +14,6 @@ namespace tl
         {
             struct Size
             {
-                imaging::FontInfo fontInfo;
-                imaging::FontMetrics fontMetrics;
                 math::Vector2i textSize;
                 int margin = 0;
                 int border = 0;
@@ -54,17 +52,15 @@ namespace tl
             p.size.margin = event.style->getSizeRole(SizeRole::MarginInside) * event.contentScale;
             p.size.border = event.style->getSizeRole(SizeRole::Border) * event.contentScale;
 
-            _sizeHint.x = 0;
-            _sizeHint.y = 0;
+            _sizeHint = math::Vector2i();
             if (!_text.empty())
             {
-                p.size.fontInfo = _fontInfo;
-                p.size.fontInfo.size *= event.contentScale;
-                p.size.fontMetrics = event.fontSystem->getMetrics(p.size.fontInfo);
-                p.size.textSize = event.fontSystem->measure(_text, p.size.fontInfo);
+                const auto fontInfo = event.getFontInfo(_fontRole);
+                const auto fontMetrics = event.getFontMetrics(_fontRole);
+                p.size.textSize = event.fontSystem->measure(_text, fontInfo);
 
-                _sizeHint.x = event.fontSystem->measure(_text, p.size.fontInfo).x + p.size.margin * 2;
-                _sizeHint.y = p.size.fontMetrics.lineHeight;
+                _sizeHint.x = event.fontSystem->measure(_text, fontInfo).x + p.size.margin * 2;
+                _sizeHint.y = fontMetrics.lineHeight;
             }
             if (_iconImage)
             {
@@ -124,12 +120,15 @@ namespace tl
             
             if (!_text.empty())
             {
+                const auto fontInfo = event.getFontInfo(_fontRole);
+                const auto fontMetrics = event.getFontMetrics(_fontRole);
+
                 math::Vector2i pos(
                     x + p.size.margin,
                     g.y() + g.h() / 2 - p.size.textSize.y / 2 +
-                        p.size.fontMetrics.ascender);
+                        fontMetrics.ascender);
                 event.render->drawText(
-                    event.fontSystem->getGlyphs(_text, p.size.fontInfo),
+                    event.fontSystem->getGlyphs(_text, fontInfo),
                     pos,
                     event.style->getColorRole(ColorRole::Text));
             }

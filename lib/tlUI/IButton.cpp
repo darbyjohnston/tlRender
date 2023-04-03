@@ -61,12 +61,20 @@ namespace tl
 
         void IButton::setText(const std::string& value)
         {
+            if (value == _text)
+                return;
             _text = value;
+            _updates |= Update::Size;
+            _updates |= Update::Draw;
         }
 
-        void IButton::setFontInfo(const imaging::FontInfo& value)
+        void IButton::setFontRole(FontRole value)
         {
-            _fontInfo = value;
+            if (value == _fontRole)
+                return;
+            _fontRole = value;
+            _updates |= Update::Size;
+            _updates |= Update::Draw;
         }
         
         void IButton::setIcon(const std::string& icon)

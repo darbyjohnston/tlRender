@@ -43,8 +43,8 @@ namespace tl
             //! Set the display precision.
             void setPrecision(int);
 
-            //! Set the font information.
-            void setFontInfo(const imaging::FontInfo&);
+            //! Set the font role.
+            void setFontRole(FontRole);
 
             void sizeEvent(const SizeEvent&) override;
             void drawEvent(const DrawEvent&) override;

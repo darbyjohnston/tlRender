@@ -140,8 +140,7 @@ namespace tl
             p.size.margin = event.style->getSizeRole(p.marginRole) * event.contentScale;
             p.size.spacing = event.style->getSizeRole(p.spacingRole) * event.contentScale;
 
-            _sizeHint.x = 0;
-            _sizeHint.y = 0;
+            _sizeHint = math::Vector2i();
             for (const auto& child : _children)
             {
                 const math::Vector2i& sizeHint = child->getSizeHint();
