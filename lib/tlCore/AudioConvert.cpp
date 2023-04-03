@@ -145,16 +145,6 @@ namespace tl
 #if defined(TLRENDER_FFMPEG)
             if (p.swrContext)
             {
-                //! \todo Only swr_init() needs to be called?
-                //auto swrOutputBuffer = Audio::create(p.outputInfo, 100);
-                //uint8_t* swrOutputBufferP[] = { swrOutputBuffer->getData() };
-                //while (swr_convert(
-                //    p.swrContext,
-                //    swrOutputBufferP,
-                //    swrOutputBuffer->getSampleCount(),
-                //    nullptr,
-                //    0) > 0)
-                //    ;
                 swr_init(p.swrContext);
             }
 #endif // TLRENDER_FFMPEG

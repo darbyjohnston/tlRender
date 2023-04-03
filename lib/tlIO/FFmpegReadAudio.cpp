@@ -347,17 +347,10 @@ namespace tl
                 {
                     //! \todo How should this be handled?
                 }
+            }
 
-                //! \todo Only swr_init() needs to be called?
-                //auto swrOutputBuffer = audio::Audio::create(_info, 100);
-                //uint8_t* swrOutputBufferP[] = { swrOutputBuffer->getData() };
-                //while (swr_convert(
-                //    _swrContext,
-                //    swrOutputBufferP,
-                //    swrOutputBuffer->getSampleCount(),
-                //    nullptr,
-                //    0) > 0)
-                //    ;
+            if (_swrContext)
+            {
                 swr_init(_swrContext);
             }
 
