@@ -87,6 +87,66 @@ namespace tl
             return out;
         }
 
+        otime::RationalTime loop(
+            const otime::RationalTime& value,
+            const otime::TimeRange& range,
+            bool* looped)
+        {
+            auto out = value;
+            if (out < range.start_time())
+            {
+                if (looped)
+                {
+                    *looped = true;
+                }
+                out = range.end_time_inclusive();
+            }
+            else if (out > range.end_time_inclusive())
+            {
+                if (looped)
+                {
+                    *looped = true;
+                }
+                out = range.start_time();
+            }
+            return out;
+        }
+
+        std::vector<otime::TimeRange> loop(
+            const otime::TimeRange& value,
+            const otime::TimeRange& range)
+        {
+            std::vector<otime::TimeRange> out;
+            if (value.duration() >= range.duration())
+            {
+                out.push_back(range);
+            }
+            else if (value.start_time() >= range.start_time() &&
+                value.end_time_inclusive() <= range.end_time_inclusive())
+            {
+                out.push_back(value);
+            }
+            else if (value.start_time() < range.start_time())
+            {
+                out.push_back(otime::TimeRange::range_from_start_end_time_inclusive(
+                    range.end_time_exclusive() - (range.start_time() - value.start_time()),
+                    range.end_time_inclusive()));
+                out.push_back(otime::TimeRange::range_from_start_end_time_inclusive(
+                    range.start_time(),
+                    value.end_time_inclusive()));
+            }
+            else if (value.end_time_inclusive() > range.end_time_inclusive())
+            {
+                out.push_back(otime::TimeRange::range_from_start_end_time_inclusive(
+                    value.start_time(),
+                    range.end_time_inclusive()));
+                out.push_back(otime::TimeRange::range_from_start_end_time_inclusive(
+                    range.start_time(),
+                    range.start_time() + (value.end_time_inclusive() - range.end_time_exclusive())));
+            }
+            return out;
+        }
+
         const otio::Composable* getRoot(const otio::Composable* composable)
         {
             const otio::Composable* out = composable;

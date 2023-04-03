@@ -18,6 +18,17 @@ namespace tl
         //! Convert frames to ranges.
         std::vector<otime::TimeRange> toRanges(std::vector<otime::RationalTime>);
 
+        //! Loop a time.
+        otime::RationalTime loop(
+            const otime::RationalTime&,
+            const otime::TimeRange&,
+            bool* looped = nullptr);
+
+        //! Loop a range.
+        std::vector<otime::TimeRange> loop(
+            const otime::TimeRange&,
+            const otime::TimeRange&);
+
         //! Get the root (highest parent).
         const otio::Composable* getRoot(const otio::Composable*);
 
