@@ -34,8 +34,7 @@ namespace tl
 
                 ~AudioClipItem() override;
 
-                void setScale(float) override;
-                void setThumbnailHeight(int) override;
+                void setOptions(const ItemOptions&) override;
                 void setViewport(const math::BBox2i&) override;
 
                 void tickEvent(const ui::TickEvent&) override;
@@ -43,6 +42,8 @@ namespace tl
                 void drawEvent(const ui::DrawEvent&) override;
 
             private:
+                void _textUpdate();
+
                 void _cancelAudioRequests();
 
                 const otio::Clip* _clip = nullptr;
@@ -52,9 +53,8 @@ namespace tl
                 otime::TimeRange _timeRange = time::invalidTimeRange;
                 std::string _label;
                 std::string _durationLabel;
-                imaging::FontInfo _fontInfo;
+                ui::FontRole _fontRole = ui::FontRole::Label;
                 int _margin = 0;
-                imaging::FontMetrics _fontMetrics;
             };
         }
     }

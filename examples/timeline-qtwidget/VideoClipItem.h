@@ -34,8 +34,7 @@ namespace tl
 
                 ~VideoClipItem() override;
 
-                void setScale(float) override;
-                void setThumbnailHeight(int) override;
+                void setOptions(const ItemOptions&) override;
                 void setViewport(const math::BBox2i&) override;
 
                 void tickEvent(const ui::TickEvent&) override;
@@ -43,6 +42,8 @@ namespace tl
                 void drawEvent(const ui::DrawEvent&) override;
 
             private:
+                void _textUpdate();
+
                 void _drawInfo(const ui::DrawEvent&);
                 void _drawThumbnails(const ui::DrawEvent&);
 
@@ -55,10 +56,9 @@ namespace tl
                 otime::TimeRange _timeRange = time::invalidTimeRange;
                 std::string _label;
                 std::string _durationLabel;
-                imaging::FontInfo _fontInfo;
+                ui::FontRole _fontRole = ui::FontRole::Label;
                 int _margin = 0;
                 int _spacing = 0;
-                imaging::FontMetrics _fontMetrics;
                 int _thumbnailWidth = 0;
                 std::shared_ptr<io::IRead> _reader;
                 std::future<io::Info> _ioInfoFuture;

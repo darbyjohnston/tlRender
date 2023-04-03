@@ -109,7 +109,7 @@ namespace tl
 
                         _timelineItem = TimelineItem::create(timeline->getTimeline(), itemData, context);
                         _timelineItem->setCurrentTime(timeline->getTimeRange().start_time());
-                        _timelineItem->setViewport(_timelineViewport());
+                        _setViewport(_timelineItem, _timelineViewport());
                         _timelineItem->setParent(_scrollArea);
 
                         _currentTimeObserver = observer::ValueObserver<otime::RationalTime>::create(
@@ -122,19 +122,11 @@ namespace tl
                 }
             }
 
-            void TimelineWidget::setScale(float value)
+            void TimelineWidget::setItemOptions(const ItemOptions& value)
             {
                 if (_timelineItem)
                 {
-                    _timelineItem->setScale(value);
-                }
-            }
-
-            void TimelineWidget::setThumbnailHeight(int value)
-            {
-                if (_timelineItem)
-                {
-                    _timelineItem->setThumbnailHeight(value);
+                    _setItemOptions(_timelineItem, value);
                 }
             }
 
@@ -147,7 +139,7 @@ namespace tl
                 _scrollArea->setScrollPos(_scrollPos * devicePixelRatio);
                 if (_timelineItem)
                 {
-                    _timelineItem->setViewport(_timelineViewport());
+                    _setViewport(_timelineItem, _timelineViewport());
                 }
                 update();
             }
@@ -185,7 +177,7 @@ namespace tl
                     h * devicePixelRatio));
                 if (_timelineItem)
                 {
-                    _timelineItem->setViewport(_timelineViewport());
+                    _setViewport(_timelineItem, _timelineViewport());
                 }
             }
 
@@ -275,14 +267,26 @@ namespace tl
             void TimelineWidget::wheelEvent(QWheelEvent* event)
             {}
 
-
-
             void TimelineWidget::timerEvent(QTimerEvent*)
             {
                 _eventLoop->tick();
                 if (_eventLoop->hasDrawUpdate())
                 {
                     update();
+                }
+            }
+
+            void TimelineWidget::_setItemOptions(
+                const std::shared_ptr<ui::IWidget>& widget,
+                const ItemOptions& value)
+            {
+                if (auto item = std::dynamic_pointer_cast<IItem>(widget))
+                {
+                    item->setOptions(value);
+                }
+                for (const auto& child : widget->getChildren())
+                {
+                    _setItemOptions(child, value);
                 }
             }
 
@@ -294,6 +298,20 @@ namespace tl
                     _scrollPos.y,
                     width(),
                     height()) * devicePixelRatio;
+            }
+
+            void TimelineWidget::_setViewport(
+                const std::shared_ptr<ui::IWidget>& widget,
+                const math::BBox2i& vp)
+            {
+                if (auto item = std::dynamic_pointer_cast<IItem>(widget))
+                {
+                    item->setViewport(vp);
+                }
+                for (const auto& child : widget->getChildren())
+                {
+                    _setViewport(child, vp);
+                }
             }
         }
     }

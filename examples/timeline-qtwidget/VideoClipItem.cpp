@@ -41,7 +41,7 @@ namespace tl
                 }
 
                 _label = _path.get(-1, false);
-                _durationLabel = IItem::_durationLabel(_timeRange.duration(), _timeUnits);
+                _textUpdate();
             }
 
             VideoClipItem::~VideoClipItem()
@@ -60,20 +60,12 @@ namespace tl
                 return out;
             }
 
-            void VideoClipItem::setScale(float value)
+            void VideoClipItem::setOptions(const ItemOptions& value)
             {
-                IItem::setScale(value);
+                IItem::setOptions(value);
                 if (_updates & ui::Update::Size)
                 {
-                    _cancelVideoRequests();
-                }
-            }
-
-            void VideoClipItem::setThumbnailHeight(int value)
-            {
-                IItem::setThumbnailHeight(value);
-                if (_updates & ui::Update::Size)
-                {
+                    _textUpdate();
                     _cancelVideoRequests();
                 }
             }
@@ -119,20 +111,18 @@ namespace tl
 
                 _margin = event.style->getSizeRole(ui::SizeRole::MarginSmall) * event.contentScale;
                 _spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall) * event.contentScale;
-                auto fontInfo = _fontInfo;
-                fontInfo.size *= event.contentScale;
-                _fontMetrics = event.fontSystem->getMetrics(fontInfo);
+                const auto fontMetrics = event.getFontMetrics(_fontRole);
 
                 _thumbnailWidth = !_ioInfo.video.empty() ?
-                    static_cast<int>(_thumbnailHeight * _ioInfo.video[0].size.getAspect()) :
+                    static_cast<int>(_options.thumbnailHeight * _ioInfo.video[0].size.getAspect()) :
                     0;
 
                 _sizeHint = math::Vector2i(
-                    _timeRange.duration().rescaled_to(1.0).value() * _scale,
+                    _timeRange.duration().rescaled_to(1.0).value() * _options.scale,
                     _margin +
-                    _fontMetrics.lineHeight +
+                    fontMetrics.lineHeight +
                     _spacing +
-                    _thumbnailHeight +
+                    _options.thumbnailHeight +
                     _margin);
             }
 
@@ -158,10 +148,17 @@ namespace tl
                 }
             }
 
+            void VideoClipItem::_textUpdate()
+            {
+                _durationLabel = IItem::_durationLabel(
+                    _timeRange.duration(),
+                    _options.timeUnits);
+            }
+
             void VideoClipItem::_drawInfo(const ui::DrawEvent& event)
             {
-                auto fontInfo = _fontInfo;
-                fontInfo.size *= event.contentScale;
+                const auto fontInfo = event.getFontInfo(_fontRole);
+                const auto fontMetrics = event.getFontMetrics(_fontRole);
                 math::BBox2i g = _geometry;
 
                 event.render->drawText(
@@ -171,7 +168,7 @@ namespace tl
                         _margin,
                         g.min.y +
                         _margin +
-                        _fontMetrics.ascender),
+                        fontMetrics.ascender),
                     event.style->getColorRole(ui::ColorRole::Text));
 
                 math::Vector2i textSize = event.fontSystem->measure(_durationLabel, fontInfo);
@@ -183,12 +180,13 @@ namespace tl
                         textSize.x,
                         g.min.y +
                         _margin +
-                        _fontMetrics.ascender),
+                        fontMetrics.ascender),
                     event.style->getColorRole(ui::ColorRole::Text));
             }
 
             void VideoClipItem::_drawThumbnails(const ui::DrawEvent& event)
             {
+                const auto fontMetrics = event.getFontMetrics(_fontRole);
                 const math::BBox2i vp(0, 0, _viewport.w(), _viewport.h());
                 math::BBox2i g = _geometry;
 
@@ -197,10 +195,10 @@ namespace tl
                     _margin,
                     g.min.y +
                     _margin +
-                    _fontMetrics.lineHeight +
+                    fontMetrics.lineHeight +
                     _spacing,
                     _sizeHint.x - _margin * 2,
-                    _thumbnailHeight);
+                    _options.thumbnailHeight);
                 event.render->drawRect(
                     bbox,
                     imaging::Color4f(0.F, 0.F, 0.F));
@@ -225,7 +223,7 @@ namespace tl
                                 _reader = ioSystem->read(
                                     _path,
                                     _memoryRead,
-                                    _itemData.ioOptions);
+                                    _data.ioOptions);
                                 _ioInfoFuture = _reader->getInfo();
                             }
                             catch (const std::exception&)
@@ -246,10 +244,10 @@ namespace tl
                         x,
                         g.min.y +
                         _margin +
-                        _fontMetrics.lineHeight +
+                        fontMetrics.lineHeight +
                         _spacing,
                         _thumbnailWidth,
-                        _thumbnailHeight);
+                        _options.thumbnailHeight);
                     if (bbox.intersects(vp))
                     {
                         const int w = _sizeHint.x - _margin * 2;

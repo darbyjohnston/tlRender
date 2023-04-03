@@ -18,8 +18,14 @@ namespace tl
             enum class TimeUnits
             {
                 Seconds,
-                Frames
+                Frames,
+                Timecode,
+
+                Count,
+                First = Seconds
             };
+            TLRENDER_ENUM(TimeUnits);
+            TLRENDER_ENUM_SERIALIZE(TimeUnits);
 
             //! Item data.
             struct ItemData
@@ -27,6 +33,18 @@ namespace tl
                 std::string directory;
                 io::Options ioOptions;
                 file::PathOptions pathOptions;
+            };
+
+            //! Item options.
+            struct ItemOptions
+            {
+                TimeUnits timeUnits = TimeUnits::Seconds;
+                float scale = 100.F;
+                int thumbnailHeight = 100;
+                int waveformHeight = 50;
+
+                bool operator == (const ItemOptions&) const;
+                bool operator != (const ItemOptions&) const;
             };
 
             //! Base class for timeline items.
@@ -44,26 +62,18 @@ namespace tl
             public:
                 ~IItem() override;
 
-                virtual void setScale(float);
-
-                virtual void setThumbnailHeight(int);
+                virtual void setOptions(const ItemOptions&);
 
                 virtual void setViewport(const math::BBox2i&);
 
             protected:
-                void _setScale(float, const std::shared_ptr<IItem>&);
-                void _setThumbnailHeight(int, const std::shared_ptr<IItem>&);
-                void _setViewport(const math::BBox2i&, const std::shared_ptr<IItem>&);
-
                 bool _insideViewport() const;
 
                 static std::string _durationLabel(const otime::RationalTime&, TimeUnits);
                 static std::string _timeLabel(const otime::RationalTime&, TimeUnits);
 
-                ItemData _itemData;
-                float _scale = 100.F;
-                int _thumbnailHeight = 100;
-                TimeUnits _timeUnits = TimeUnits::Seconds;
+                ItemData _data;
+                ItemOptions _options;
                 math::BBox2i _viewport;
             };
         }

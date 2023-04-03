@@ -33,19 +33,22 @@ namespace tl
 
                 ~VideoGapItem() override;
 
+                void setOptions(const ItemOptions&) override;
+
                 void sizeEvent(const ui::SizeEvent&) override;
                 void drawEvent(const ui::DrawEvent&) override;
 
             private:
+                void _textUpdate();
+
                 static std::string _nameLabel(const std::string&);
 
                 otime::TimeRange _timeRange = time::invalidTimeRange;
                 std::string _label;
                 std::string _durationLabel;
-                imaging::FontInfo _fontInfo;
+                ui::FontRole _fontRole = ui::FontRole::Label;
                 int _margin = 0;
                 int _spacing = 0;
-                imaging::FontMetrics _fontMetrics;
             };
         }
     }

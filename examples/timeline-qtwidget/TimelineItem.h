@@ -60,7 +60,7 @@ namespace tl
                 otio::SerializableObject::Retainer<otio::Timeline> _timeline;
                 otime::TimeRange _timeRange = time::invalidTimeRange;
                 std::shared_ptr<observer::Value<otime::RationalTime> > _currentTime;
-                imaging::FontInfo _fontInfo;
+                ui::FontRole _fontRole = ui::FontRole::Label;
                 int _margin = 0;
                 int _spacing = 0;
                 imaging::FontMetrics _fontMetrics;

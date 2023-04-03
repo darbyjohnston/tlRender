@@ -40,11 +40,9 @@ namespace tl
 
                 void setTimeline(const std::shared_ptr<timeline::Timeline>&);
 
+                void setItemOptions(const ItemOptions&);
+
             public Q_SLOTS:
-                void setScale(float);
-
-                void setThumbnailHeight(int);
-
                 void setScrollPos(const math::Vector2i&);
                 void setScrollPosX(int);
                 void setScrollPosY(int);
@@ -75,7 +73,14 @@ namespace tl
                 void timerEvent(QTimerEvent*) override;
 
             private:
+                void _setItemOptions(
+                    const std::shared_ptr<ui::IWidget>&,
+                    const ItemOptions&);
+
                 math::BBox2i _timelineViewport() const;
+                void _setViewport(
+                    const std::shared_ptr<ui::IWidget>&,
+                    const math::BBox2i&);
 
                 std::weak_ptr<system::Context> _context;
 

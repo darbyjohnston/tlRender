@@ -105,9 +105,7 @@ namespace tl
 
                 _margin = event.style->getSizeRole(ui::SizeRole::Margin) * event.contentScale;
                 _spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall)* event.contentScale;
-                auto fontInfo = _fontInfo;
-                fontInfo.size *= event.contentScale;
-                _fontMetrics = event.fontSystem->getMetrics(fontInfo);
+                _fontMetrics = event.getFontMetrics(_fontRole);
 
                 int childrenHeight = 0;
                 for (const auto& child : _children)
@@ -121,7 +119,7 @@ namespace tl
 
                 _sizeHint = math::Vector2i(
                     _margin +
-                    _timeRange.duration().rescaled_to(1.0).value() * _scale +
+                    _timeRange.duration().rescaled_to(1.0).value() * _options.scale +
                     _margin,
                     _margin +
                     _fontMetrics.lineHeight +
@@ -179,8 +177,7 @@ namespace tl
 
             void TimelineItem::_drawTimeTicks(const ui::DrawEvent& event)
             {
-                auto fontInfo = _fontInfo;
-                fontInfo.size *= event.contentScale;
+                const auto fontInfo = event.getFontInfo(_fontRole);
                 const math::BBox2i vp(0, 0, _viewport.w(), _viewport.h());
                 math::BBox2i g = _geometry;
 
@@ -232,7 +229,7 @@ namespace tl
                 const int secondsWidth = secondsTick1 - secondsTick0;
                 if (secondsWidth >= 5)
                 {
-                    std::string labelMax = _timeLabel(_timeRange.end_time_inclusive(), _timeUnits);
+                    std::string labelMax = _timeLabel(_timeRange.end_time_inclusive(), _options.timeUnits);
                     math::Vector2i labelMaxSize = event.fontSystem->measure(labelMax, fontInfo);
                     if (labelMaxSize.x < (secondsWidth - _spacing))
                     {
@@ -256,7 +253,7 @@ namespace tl
                             {
                                 std::string label = _timeLabel(
                                     _timeRange.start_time() + otime::RationalTime(t, _timeRange.duration().rate()),
-                                    _timeUnits);
+                                    _options.timeUnits);
                                 event.render->drawText(
                                     event.fontSystem->getGlyphs(label, fontInfo),
                                     math::Vector2i(
@@ -305,8 +302,7 @@ namespace tl
 
             void TimelineItem::_drawCurrentTime(const ui::DrawEvent& event)
             {
-                auto fontInfo = _fontInfo;
-                fontInfo.size *= event.contentScale;
+                const auto fontInfo = event.getFontInfo(_fontRole);
                 math::BBox2i g = _geometry;
 
                 const otime::RationalTime& currentTime = _currentTime->get();
@@ -341,7 +337,7 @@ namespace tl
                         mesh,
                         event.style->getColorRole(ui::ColorRole::Text));
 
-                    std::string label = _timeLabel(currentTime, _timeUnits);
+                    std::string label = _timeLabel(currentTime, _options.timeUnits);
                     event.render->drawText(
                         event.fontSystem->getGlyphs(label, fontInfo),
                         math::Vector2i(

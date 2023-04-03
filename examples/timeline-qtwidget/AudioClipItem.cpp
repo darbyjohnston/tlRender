@@ -39,7 +39,7 @@ namespace tl
                 }
 
                 _label = _path.get(-1, false);
-                _durationLabel = IItem::_durationLabel(_timeRange.duration(), _timeUnits);
+                _textUpdate();
             }
 
             AudioClipItem::~AudioClipItem()
@@ -58,20 +58,12 @@ namespace tl
                 return out;
             }
 
-            void AudioClipItem::setScale(float value)
+            void AudioClipItem::setOptions(const ItemOptions& value)
             {
-                IItem::setScale(value);
+                IItem::setOptions(value);
                 if (_updates & ui::Update::Size)
                 {
-                    _cancelAudioRequests();
-                }
-            }
-
-            void AudioClipItem::setThumbnailHeight(int value)
-            {
-                IItem::setThumbnailHeight(value);
-                if (_updates & ui::Update::Size)
-                {
+                    _textUpdate();
                     _cancelAudioRequests();
                 }
             }
@@ -94,14 +86,12 @@ namespace tl
                 IItem::sizeEvent(event);
 
                 _margin = event.style->getSizeRole(ui::SizeRole::MarginSmall) * event.contentScale;
-                auto fontInfo = _fontInfo;
-                fontInfo.size *= event.contentScale;
-                _fontMetrics = event.fontSystem->getMetrics(fontInfo);
+                const auto fontMetrics = event.getFontMetrics(_fontRole);
 
                 _sizeHint = math::Vector2i(
-                    _timeRange.duration().rescaled_to(1.0).value() * _scale,
+                    _timeRange.duration().rescaled_to(1.0).value() * _options.scale,
                     _margin +
-                    _fontMetrics.lineHeight +
+                    fontMetrics.lineHeight +
                     _margin);
             }
 
@@ -111,8 +101,8 @@ namespace tl
                 if (_insideViewport())
                 {
                     const int b = event.style->getSizeRole(ui::SizeRole::Border) * event.contentScale;
-                    auto fontInfo = _fontInfo;
-                    fontInfo.size *= event.contentScale;
+                    const auto fontInfo = event.getFontInfo(_fontRole);
+                    const auto fontMetrics = event.getFontMetrics(_fontRole);
                     math::BBox2i g = _geometry;
 
                     //event.render->drawMesh(
@@ -130,7 +120,7 @@ namespace tl
                             _margin,
                             g.min.y +
                             _margin +
-                            _fontMetrics.ascender),
+                            fontMetrics.ascender),
                         event.style->getColorRole(ui::ColorRole::Text));
 
                     math::Vector2i textSize = event.fontSystem->measure(_durationLabel, fontInfo);
@@ -142,9 +132,16 @@ namespace tl
                             textSize.x,
                             g.min.y +
                             _margin +
-                            _fontMetrics.ascender),
+                            fontMetrics.ascender),
                         event.style->getColorRole(ui::ColorRole::Text));
                 }
+            }
+
+            void AudioClipItem::_textUpdate()
+            {
+                _durationLabel = IItem::_durationLabel(
+                    _timeRange.duration(),
+                    _options.timeUnits);
             }
 
             void AudioClipItem::_cancelAudioRequests()

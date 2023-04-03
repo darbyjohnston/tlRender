@@ -4,6 +4,8 @@
 
 #include "IItem.h"
 
+#include <tlCore/Error.h>
+#include <tlCore/String.h>
 #include <tlCore/StringFormat.h>
 
 namespace tl
@@ -12,14 +14,35 @@ namespace tl
     {
         namespace timeline_qtwidget
         {
+            TLRENDER_ENUM_IMPL(
+                TimeUnits,
+                "Seconds",
+                "Frames",
+                "Timecode");
+            TLRENDER_ENUM_SERIALIZE_IMPL(TimeUnits);
+
+            bool ItemOptions::operator == (const ItemOptions& other) const
+            {
+                return
+                    timeUnits == other.timeUnits &&
+                    scale == other.scale &&
+                    thumbnailHeight == other.thumbnailHeight &&
+                    waveformHeight == other.waveformHeight;
+            }
+
+            bool ItemOptions::operator != (const ItemOptions& other) const
+            {
+                return !(*this == other);
+            }
+
             void IItem::_init(
                 const std::string& name,
-                const ItemData& itemData,
+                const ItemData& data,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 IWidget::_init(name, context, parent);
-                _itemData = itemData;
+                _data = data;
             }
 
             IItem::IItem()
@@ -28,73 +51,22 @@ namespace tl
             IItem::~IItem()
             {}
 
-            void IItem::setScale(float value)
+            void IItem::setOptions(const ItemOptions& value)
             {
-                if (value == _scale)
+                if (value == _options)
                     return;
-                _setScale(
-                    value,
-                    std::dynamic_pointer_cast<IItem>(shared_from_this()));
-            }
-
-            void IItem::setThumbnailHeight(int value)
-            {
-                if (value == _thumbnailHeight)
-                    return;
-                _setThumbnailHeight(
-                    value,
-                    std::dynamic_pointer_cast<IItem>(shared_from_this()));
+                _options = value;
+                _updates |= ui::Update::Size;
+                _updates |= ui::Update::Draw;
             }
 
             void IItem::setViewport(const math::BBox2i& value)
             {
                 if (value == _viewport)
                     return;
-                _setViewport(
-                    value,
-                    std::dynamic_pointer_cast<IItem>(shared_from_this()));
-            }
-
-            void IItem::_setScale(float value, const std::shared_ptr<IItem>& item)
-            {
-                item->_scale = value;
-                item->_updates |= ui::Update::Size;
-                item->_updates |= ui::Update::Draw;
-                for (const auto& child : item->_children)
-                {
-                    if (auto item = std::dynamic_pointer_cast<IItem>(child))
-                    {
-                        _setScale(value, item);
-                    }
-                }
-            }
-
-            void IItem::_setThumbnailHeight(int value, const std::shared_ptr<IItem>& item)
-            {
-                item->_thumbnailHeight = value;
-                item->_updates |= ui::Update::Size;
-                item->_updates |= ui::Update::Draw;
-                for (const auto& child : item->_children)
-                {
-                    if (auto item = std::dynamic_pointer_cast<IItem>(child))
-                    {
-                        _setThumbnailHeight(value, item);
-                    }
-                }
-            }
-
-            void IItem::_setViewport(const math::BBox2i& value, const std::shared_ptr<IItem>& item)
-            {
-                item->_viewport = value;
-                item->_updates |= ui::Update::Size;
-                item->_updates |= ui::Update::Draw;
-                for (const auto& child : item->_children)
-                {
-                    if (auto item = std::dynamic_pointer_cast<IItem>(child))
-                    {
-                        _setViewport(value, item);
-                    }
-                }
+                _viewport = value;
+                _updates |= ui::Update::Size;
+                _updates |= ui::Update::Draw;
             }
             
             bool IItem::_insideViewport() const
@@ -120,6 +92,11 @@ namespace tl
                             arg(value.value()).
                             arg(value.rate());
                         break;
+                    case TimeUnits::Timecode:
+                        out = string::Format("{0} @ {1}").
+                            arg(value.to_timecode()).
+                            arg(value.rate());
+                        break;
                     }
                 }
                 return out;
@@ -137,6 +114,9 @@ namespace tl
                         break;
                     case TimeUnits::Frames:
                         out = string::Format("{0}").arg(value.value());
+                        break;
+                    case TimeUnits::Timecode:
+                        out = string::Format("{0}").arg(value.to_timecode());
                         break;
                     }
                 }

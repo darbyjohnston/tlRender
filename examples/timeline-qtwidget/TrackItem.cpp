@@ -120,7 +120,7 @@ namespace tl
                             const math::Vector2i& sizeHint = child->getSizeHint();
                             math::BBox2i bbox(
                                 _geometry.min.x +
-                                i->second.start_time().rescaled_to(1.0).value() * _scale,
+                                i->second.start_time().rescaled_to(1.0).value() * _options.scale,
                                 _geometry.min.y,
                                 sizeHint.x,
                                 sizeHint.y);
@@ -143,7 +143,7 @@ namespace tl
                 }
 
                 _sizeHint = math::Vector2i(
-                    _timeRange.duration().rescaled_to(1.0).value() * _scale,
+                    _timeRange.duration().rescaled_to(1.0).value() * _options.scale,
                     childrenHeight);
             }
 

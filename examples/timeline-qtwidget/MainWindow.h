@@ -10,6 +10,7 @@
 
 #include <tlTimeline/TimelinePlayer.h>
 
+#include <QComboBox>
 #include <QMainWindow>
 
 #include "TimelineItem.h"
@@ -44,12 +45,15 @@ namespace tl
                 
                 std::weak_ptr<system::Context> _context;
                 qt::TimelinePlayer* _timelinePlayer = nullptr;
+                ItemOptions _itemOptions;
                 qtwidget::TimelineViewport* _timelineViewport = nullptr;
                 TimelineScrollArea* _timelineScrollArea = nullptr;
                 TimelineWidget* _timelineWidget = nullptr;
                 QDockWidget* _timelineDockWidget = nullptr;
+                QComboBox* _timeUnitsComboBox = nullptr;
                 qtwidget::FloatSlider* _scaleSlider = nullptr;
                 qtwidget::IntSlider* _thumbnailHeightSlider = nullptr;
+                qtwidget::IntSlider* _waveformHeightSlider = nullptr;
                 QDockWidget* _viewDockWidget = nullptr;
             };
         }

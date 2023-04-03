@@ -41,13 +41,22 @@ namespace tl
                 _timelineDockWidget->setWidget(_timelineScrollArea);
                 addDockWidget(Qt::BottomDockWidgetArea, _timelineDockWidget);
 
+                _timeUnitsComboBox = new QComboBox;
+                for (auto i : getTimeUnitsLabels())
+                {
+                    _timeUnitsComboBox->addItem(QString::fromLatin1(i.c_str()));
+                }
                 _scaleSlider = new qtwidget::FloatSlider;
                 _scaleSlider->setRange(math::FloatRange(1.F, 1000.F));
                 _thumbnailHeightSlider = new qtwidget::IntSlider;
                 _thumbnailHeightSlider->setRange(math::IntRange(100, 1000));
+                _waveformHeightSlider = new qtwidget::IntSlider;
+                _waveformHeightSlider->setRange(math::IntRange(100, 1000));
                 auto formLayout = new QFormLayout;
+                formLayout->addRow(tr("Time units:"), _timeUnitsComboBox);
                 formLayout->addRow(tr("Scale:"), _scaleSlider);
                 formLayout->addRow(tr("Thumbnail height:"), _thumbnailHeightSlider);
+                formLayout->addRow(tr("Waveform height:"), _waveformHeightSlider);
                 auto viewWidget = new QWidget;
                 viewWidget->setLayout(formLayout);
                 _viewDockWidget = new QDockWidget(tr("View"));
@@ -65,11 +74,21 @@ namespace tl
                 resize(1280, 720);
 
                 connect(
+                    _timeUnitsComboBox,
+                    QOverload<int>::of(&QComboBox::activated),
+                    [this](int value)
+                    {
+                        _itemOptions.timeUnits = static_cast<TimeUnits>(value);
+                        _timelineWidget->setItemOptions(_itemOptions);
+                    });
+
+                connect(
                     _scaleSlider,
                     &qtwidget::FloatSlider::valueChanged,
                     [this](float value)
                     {
-                        _timelineWidget->setScale(value);
+                        _itemOptions.scale = value;
+                        _timelineWidget->setItemOptions(_itemOptions);
                     });
 
                 connect(
@@ -77,7 +96,17 @@ namespace tl
                     &qtwidget::IntSlider::valueChanged,
                     [this](int value)
                     {
-                        _timelineWidget->setThumbnailHeight(value);
+                        _itemOptions.thumbnailHeight = value;
+                        _timelineWidget->setItemOptions(_itemOptions);
+                    });
+
+                connect(
+                    _waveformHeightSlider,
+                    &qtwidget::IntSlider::valueChanged,
+                    [this](int value)
+                    {
+                        _itemOptions.waveformHeight = value;
+                        _timelineWidget->setItemOptions(_itemOptions);
                     });
 
                 connect(
