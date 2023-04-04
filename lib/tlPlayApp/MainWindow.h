@@ -44,6 +44,7 @@ namespace tl
             void _volumeCallback(int);
 
         private:
+            void _timelinePlayersUpdate();
             void _widgetUpdate();
 
             TLRENDER_PRIVATE();

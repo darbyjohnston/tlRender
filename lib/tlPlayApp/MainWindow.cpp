@@ -358,6 +358,7 @@ namespace tl
 
             p.timelineViewport->setFocus();
 
+            _timelinePlayersUpdate();
             _widgetUpdate();
 
             p.filesObserver = observer::ListObserver<std::shared_ptr<FilesModelItem> >::create(
@@ -760,6 +761,7 @@ namespace tl
                     SLOT(setAudioOffset(double)));
             }
 
+            _timelinePlayersUpdate();
             _widgetUpdate();
         }
 
@@ -957,6 +959,19 @@ namespace tl
             p.app->setVolume(value / static_cast<float>(sliderSteps));
         }
 
+        void MainWindow::_timelinePlayersUpdate()
+        {
+            TLRENDER_P();
+            p.playbackActions->setTimelinePlayers(p.timelinePlayers);
+            p.audioActions->setTimelinePlayers(p.timelinePlayers);
+            p.timelineViewport->setTimelinePlayers(p.timelinePlayers);
+            if (p.secondaryWindow)
+            {
+                p.secondaryWindow->viewport()->setTimelinePlayers(p.timelinePlayers);
+            }
+            p.app->outputDevice()->setTimelinePlayers(p.timelinePlayers);
+        }
+
         void MainWindow::_widgetUpdate()
         {
             TLRENDER_P();
@@ -1013,10 +1028,6 @@ namespace tl
             p.renderActions->setImageOptions(p.imageOptions);
             p.renderActions->setDisplayOptions(p.displayOptions);
 
-            p.playbackActions->setTimelinePlayers(p.timelinePlayers);
-
-            p.audioActions->setTimelinePlayers(p.timelinePlayers);
-
             p.timelineViewport->setColorConfigOptions(p.colorConfigOptions);
             p.timelineViewport->setLUTOptions(p.lutOptions);
             std::vector<timeline::ImageOptions> imageOptions;
@@ -1029,7 +1040,6 @@ namespace tl
             p.timelineViewport->setImageOptions(imageOptions);
             p.timelineViewport->setDisplayOptions(displayOptions);
             p.timelineViewport->setCompareOptions(p.compareOptions);
-            p.timelineViewport->setTimelinePlayers(p.timelinePlayers);
 
             p.timelineSlider->setColorConfigOptions(p.colorConfigOptions);
             p.timelineSlider->setLUTOptions(p.lutOptions);
@@ -1119,7 +1129,6 @@ namespace tl
                 p.secondaryWindow->viewport()->setImageOptions(imageOptions);
                 p.secondaryWindow->viewport()->setDisplayOptions(displayOptions);
                 p.secondaryWindow->viewport()->setCompareOptions(p.compareOptions);
-                p.secondaryWindow->viewport()->setTimelinePlayers(p.timelinePlayers);
             }
 
             p.app->outputDevice()->setColorConfigOptions(p.colorConfigOptions);
@@ -1131,7 +1140,6 @@ namespace tl
             }
             p.app->outputDevice()->setDisplayOptions(displayOptions);
             p.app->outputDevice()->setCompareOptions(p.compareOptions);
-            p.app->outputDevice()->setTimelinePlayers(p.timelinePlayers);
         }
     }
 }

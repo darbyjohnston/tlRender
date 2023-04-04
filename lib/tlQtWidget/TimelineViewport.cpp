@@ -121,6 +121,7 @@ namespace tl
         void TimelineViewport::setTimelinePlayers(const std::vector<qt::TimelinePlayer*>& value)
         {
             TLRENDER_P();
+
             for (const auto& i : p.timelinePlayers)
             {
                 disconnect(
@@ -129,6 +130,7 @@ namespace tl
                     this,
                     SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
             }
+
             p.timelinePlayers = value;
             p.timelineSizesTmp.clear();
             for (const auto& i : p.timelinePlayers)
@@ -138,15 +140,16 @@ namespace tl
                 {
                     p.timelineSizesTmp.push_back(ioInfo.video[0].size);
                 }
+            }
+            p.videoData.clear();
+            update();
+
+            for (const auto& i : p.timelinePlayers)
+            {
                 connect(
                     i,
                     SIGNAL(currentVideoChanged(const tl::timeline::VideoData&)),
                     SLOT(_currentVideoCallback(const tl::timeline::VideoData&)));
-            }
-            if (p.timelinePlayers.empty())
-            {
-                p.videoData.clear();
-                update();
             }
         }
 
