@@ -392,9 +392,9 @@ namespace tl
             {
                 std::unique_lock<std::mutex> lock(p->mutex.mutex);
                 playback = p->mutex.playback;
-                playbackStartTime =
+                playbackStartTime = time::round(
                     p->mutex.playbackStartTime.rescaled_to(p->ioInfo.audio.sampleRate) -
-                    otime::RationalTime(p->mutex.audioOffset, 1.0).rescaled_to(p->ioInfo.audio.sampleRate);
+                    otime::RationalTime(p->mutex.audioOffset, 1.0).rescaled_to(p->ioInfo.audio.sampleRate));
                 externalTime = p->mutex.externalTime;
             }
             double speed = 0.F;
@@ -446,9 +446,9 @@ namespace tl
                 // Fill the audio buffer.
                 {
                     auto time = playbackStartTime +
-                        otime::RationalTime(
+                        time::round(otime::RationalTime(
                             p->audioThread.rtAudioCurrentFrame + audio::getSampleCount(p->audioThread.buffer),
-                            p->audioThread.info.sampleRate).rescaled_to(p->ioInfo.audio.sampleRate);
+                            p->audioThread.info.sampleRate).rescaled_to(p->ioInfo.audio.sampleRate));
                     int64_t frame = time.value();
                     int64_t seconds = p->ioInfo.audio.sampleRate > 0 ? (frame / p->ioInfo.audio.sampleRate) : 0;
                     int64_t offset = frame - seconds * p->ioInfo.audio.sampleRate;
