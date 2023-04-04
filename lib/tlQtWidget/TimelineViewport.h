@@ -99,8 +99,9 @@ namespace tl
             void mouseReleaseEvent(QMouseEvent*) override;
             void mouseMoveEvent(QMouseEvent*) override;
             void wheelEvent(QWheelEvent*) override;
-
         private:
+            void _drawHUD();
+
             imaging::Size _viewportSize() const;
             imaging::Size _renderSize() const;
             math::Vector2i _viewportCenter() const;
