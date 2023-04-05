@@ -37,11 +37,13 @@ namespace tl
             const audio::Info& getOutputInfo() const;
 
             //! Convert audio data.
-            std::shared_ptr<Audio> convert(const std::shared_ptr<Audio>&);
-
+            std::shared_ptr<Audio> convert(const std::shared_ptr<Audio>&,
+                bool reverse = false);
+            
             //! Flush the converter.
             void flush();
 
+            
         private:
             TLRENDER_PRIVATE();
         };

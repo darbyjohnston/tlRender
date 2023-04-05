@@ -432,6 +432,7 @@ namespace tl
             switch (playback)
             {
             case Playback::Forward:
+            case Playback::Reverse:
             {
                 // Flush the audio converter and buffer when the RtAudio
                 // playback is reset.
@@ -455,18 +456,30 @@ namespace tl
 
                 // Fill the audio buffer.
                 {
-                    auto time = playbackStartTime +
-                        otime::RationalTime(
-                            rtAudioCurrentFrame + audio::getSampleCount(p->audioThread.buffer),
-                            p->audioThread.info.sampleRate).rescaled_to(p->ioInfo.audio.sampleRate);
+                    auto time = playbackStartTime;
+
+                    if (playback == Playback::Forward)
+                    {
+                        time +=
+                            otime::RationalTime(
+                                rtAudioCurrentFrame + audio::getSampleCount(p->audioThread.buffer),
+                                p->audioThread.info.sampleRate).rescaled_to(p->ioInfo.audio.sampleRate);
+                    }
+                    else
+                    {
+                        time -=
+                            otime::RationalTime(
+                                rtAudioCurrentFrame + audio::getSampleCount(p->audioThread.buffer),
+                                p->audioThread.info.sampleRate).rescaled_to(p->ioInfo.audio.sampleRate);
+                    }
                     int64_t frame = time.value();
                     int64_t seconds = p->ioInfo.audio.sampleRate > 0 ? (frame / p->ioInfo.audio.sampleRate) : 0;
                     int64_t offset = frame - seconds * p->ioInfo.audio.sampleRate;
                     while (audio::getSampleCount(p->audioThread.buffer) < nFrames)
                     {
-                        //std::cout << "frame: " << frame << std::endl;
-                        //std::cout << "seconds: " << seconds << std::endl;
-                        //std::cout << "offset: " << offset << std::endl;
+                        // std::cout << "frame: " << frame << std::endl;
+                        // std::cout << "seconds: " << seconds << std::endl;
+                        // std::cout << "offset: " << offset << std::endl;
                         AudioData audioData;
                         {
                             std::unique_lock<std::mutex> lock(p->audioMutex.mutex);
@@ -504,16 +517,29 @@ namespace tl
                             p->ioInfo.audio.channelCount,
                             p->ioInfo.audio.dataType);
 
-                        if (p->audioThread.convert)
+                        bool reverse = playback == Playback::Reverse;
+                        if (p->audioThread.convert || reverse)
                         {
-                            p->audioThread.buffer.push_back(p->audioThread.convert->convert(tmp));
+                            p->audioThread.buffer.push_back(p->audioThread.convert->convert(tmp, reverse));
                         }
 
-                        offset += size;
-                        if (offset >= p->ioInfo.audio.sampleRate)
+                        if (playback == Playback::Forward)
                         {
-                            offset -= p->ioInfo.audio.sampleRate;
-                            seconds += 1;
+                            offset += size;
+                            if (offset >= p->ioInfo.audio.sampleRate)
+                            {
+                                offset -= p->ioInfo.audio.sampleRate;
+                                seconds += 1;
+                            }
+                        }
+                        else
+                        {
+                            offset -= size;
+                            if (offset <= 0)
+                            {
+                                offset += p->ioInfo.audio.sampleRate;
+                                seconds -= 1;
+                            }
                         }
 
                         //std::cout << std::endl;
@@ -542,13 +568,6 @@ namespace tl
 
                 break;
             }
-            case Playback::Reverse:
-                // Update the audio frame.
-                {
-                    std::unique_lock<std::mutex> lock(p->audioMutex.mutex);
-                    p->audioMutex.rtAudioCurrentFrame += nFrames;
-                }
-                break;
             default: break;
             }
 

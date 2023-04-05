@@ -111,7 +111,7 @@ namespace tl
             return _p->outputInfo;
         }
 
-        std::shared_ptr<Audio> AudioConvert::convert(const std::shared_ptr<Audio>& value)
+        std::shared_ptr<Audio> AudioConvert::convert(const std::shared_ptr<Audio>& value, bool reverse)
         {
             TLRENDER_P();
             std::shared_ptr<Audio> out;
@@ -133,6 +133,102 @@ namespace tl
                     sampleCount);
                 out = Audio::create(p.outputInfo, swrOutputCount);
                 memcpy(out->getData(), tmp->getData(), out->getByteCount());
+                if (reverse)
+                {
+                    uint8_t channels  = p.outputInfo.channelCount;
+                    size_t halfNumSamples = sampleCount/2;
+                    switch( p.outputInfo.dataType )
+                    {
+                    case audio::DataType::S8:
+                    {
+                        S8_T* data = reinterpret_cast<S8_T*>(out->getData());
+                        
+                        for (size_t i=0; i < halfNumSamples; ++i)
+                        {
+                            S8_T* out0 = data + i * channels;
+                            S8_T* out1 = data + (sampleCount - 1 - i) * channels;
+
+                            for (size_t j=0; j < channels; ++j)
+                            {
+                                S8_T tmp = out0[j];
+                                out0[j] = out1[j];
+                                out1[j] = tmp;
+                            }
+                        }
+                        break;
+                    }
+                    case audio::DataType::S16:
+                    {
+                        S16_T* data = reinterpret_cast<S16_T*>(out->getData());
+                        
+                        for (size_t i=0; i < halfNumSamples; ++i)
+                        {
+                            S16_T* out0 = data + i * channels;
+                            S16_T* out1 = data + (sampleCount - 1 - i) * channels;
+
+                            for (size_t j=0; j < channels; ++j)
+                            {
+                                S16_T tmp = out0[j];
+                                out0[j] = out1[j];
+                                out1[j] = tmp;
+                            }
+                        }
+                        break;
+                    }
+                    case audio::DataType::S32:
+                    {
+                        S32_T* data = reinterpret_cast<S32_T*>(out->getData());
+                        
+                        for (size_t i=0; i < halfNumSamples; ++i)
+                        {
+                            S32_T* out0 = data + i * channels;
+                            S32_T* out1 = data + (sampleCount - 1 - i) * channels;
+
+                            for (size_t j=0; j < channels; ++j)
+                            {
+                                S32_T tmp = out0[j];
+                                out0[j] = out1[j];
+                                out1[j] = tmp;
+                            }
+                        }
+                        break;
+                    }
+                    case audio::DataType::F32:
+                    {
+                        F32_T* data = reinterpret_cast<F32_T*>(out->getData());
+                        
+                        for (size_t i=0; i < halfNumSamples; ++i)
+                        {
+                            F32_T* out0 = data + i * channels;
+                            F32_T* out1 = data + (sampleCount - 1 - i) * channels;
+
+                            for (size_t j=0; j < channels; ++j)
+                            {
+                                F32_T tmp = out0[j];
+                                out0[j] = out1[j];
+                                out1[j] = tmp;
+                            }
+                        }
+                        break;
+                    }
+                    case audio::DataType::F64:
+                        double* data = reinterpret_cast<double*>(out->getData());
+                        
+                        for (size_t i=0; i < halfNumSamples; ++i)
+                        {
+                            double* out0 = data + i * channels;
+                            double* out1 = data + (sampleCount - 1 - i) * channels;
+
+                            for (size_t j=0; j < channels; ++j)
+                            {
+                                double tmp = out0[j];
+                                out0[j] = out1[j];
+                                out1[j] = tmp;
+                            }
+                        }
+                        break;
+                    }
+                }
             }
 #endif // TLRENDER_FFMPEG
             return out;
