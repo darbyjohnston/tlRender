@@ -212,16 +212,16 @@ namespace tl
                         break;
                     }
                     case audio::DataType::F64:
-                        double* data = reinterpret_cast<double*>(out->getData());
+                        F64_T* data = reinterpret_cast<F64_T*>(out->getData());
                         
                         for (size_t i=0; i < halfNumSamples; ++i)
                         {
-                            double* out0 = data + i * channels;
-                            double* out1 = data + (sampleCount - 1 - i) * channels;
+                            F64_T* out0 = data + i * channels;
+                            F64_T* out1 = data + (sampleCount - 1 - i) * channels;
 
                             for (size_t j=0; j < channels; ++j)
                             {
-                                double tmp = out0[j];
+                                F64_T tmp = out0[j];
                                 out0[j] = out1[j];
                                 out1[j] = tmp;
                             }
