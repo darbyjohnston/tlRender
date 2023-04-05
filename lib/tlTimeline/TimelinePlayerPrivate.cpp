@@ -517,9 +517,9 @@ namespace tl
                             p->ioInfo.audio.channelCount,
                             p->ioInfo.audio.dataType);
 
-                        bool reverse = playback == Playback::Reverse;
-                        if (p->audioThread.convert || reverse)
+                        if (p->audioThread.convert)
                         {
+                            bool reverse = playback == Playback::Reverse;
                             p->audioThread.buffer.push_back(p->audioThread.convert->convert(tmp, reverse));
                         }
 
