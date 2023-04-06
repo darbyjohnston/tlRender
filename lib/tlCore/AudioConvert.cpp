@@ -32,6 +32,28 @@ namespace tl
                 return out;
             }
 #endif // TLRENDER_FFMPEG
+
+            template< typename T >
+            inline void reverseAudio(uint8_t* inData,
+                                     uint8_t channels,
+                                     size_t halfNumSamples,
+                                     size_t sampleCount)
+            {
+                T* data = reinterpret_cast<T*>(inData);
+                        
+                for (size_t i=0; i < halfNumSamples; ++i)
+                {
+                    T* out0 = data + i * channels;
+                    T* out1 = data + (sampleCount - 1 - i) * channels;
+
+                    for (size_t j=0; j < channels; ++j)
+                    {
+                        T tmp = out0[j];
+                        out0[j] = out1[j];
+                        out1[j] = tmp;
+                    }
+                }
+            }
         }
 
         struct AudioConvert::Private
@@ -135,98 +157,47 @@ namespace tl
                 memcpy(out->getData(), tmp->getData(), out->getByteCount());
                 if (reverse)
                 {
-                    uint8_t channels  = p.outputInfo.channelCount;
-                    size_t halfNumSamples = sampleCount/2;
+                    size_t halfNumSamples = swrOutputSamples/2;
                     switch( p.outputInfo.dataType )
                     {
                     case audio::DataType::S8:
                     {
-                        S8_T* data = reinterpret_cast<S8_T*>(out->getData());
-                        
-                        for (size_t i=0; i < halfNumSamples; ++i)
-                        {
-                            S8_T* out0 = data + i * channels;
-                            S8_T* out1 = data + (sampleCount - 1 - i) * channels;
-
-                            for (size_t j=0; j < channels; ++j)
-                            {
-                                S8_T tmp = out0[j];
-                                out0[j] = out1[j];
-                                out1[j] = tmp;
-                            }
-                        }
+                        reverseAudio<S8_T>(out->getData(),
+                                           p.outputInfo.channelCount,
+                                           halfNumSamples,
+                                           sampleCount);
                         break;
                     }
                     case audio::DataType::S16:
                     {
-                        S16_T* data = reinterpret_cast<S16_T*>(out->getData());
-                        
-                        for (size_t i=0; i < halfNumSamples; ++i)
-                        {
-                            S16_T* out0 = data + i * channels;
-                            S16_T* out1 = data + (sampleCount - 1 - i) * channels;
-
-                            for (size_t j=0; j < channels; ++j)
-                            {
-                                S16_T tmp = out0[j];
-                                out0[j] = out1[j];
-                                out1[j] = tmp;
-                            }
-                        }
+                        reverseAudio<S16_T>(out->getData(),
+                                            p.outputInfo.channelCount,
+                                            halfNumSamples,
+                                            sampleCount);
                         break;
                     }
                     case audio::DataType::S32:
                     {
-                        S32_T* data = reinterpret_cast<S32_T*>(out->getData());
-                        
-                        for (size_t i=0; i < halfNumSamples; ++i)
-                        {
-                            S32_T* out0 = data + i * channels;
-                            S32_T* out1 = data + (sampleCount - 1 - i) * channels;
-
-                            for (size_t j=0; j < channels; ++j)
-                            {
-                                S32_T tmp = out0[j];
-                                out0[j] = out1[j];
-                                out1[j] = tmp;
-                            }
-                        }
+                        reverseAudio<S32_T>(out->getData(),
+                                            p.outputInfo.channelCount,
+                                            halfNumSamples,
+                                            sampleCount);
                         break;
                     }
                     case audio::DataType::F32:
                     {
-                        F32_T* data = reinterpret_cast<F32_T*>(out->getData());
-                        
-                        for (size_t i=0; i < halfNumSamples; ++i)
-                        {
-                            F32_T* out0 = data + i * channels;
-                            F32_T* out1 = data + (sampleCount - 1 - i) * channels;
-
-                            for (size_t j=0; j < channels; ++j)
-                            {
-                                F32_T tmp = out0[j];
-                                out0[j] = out1[j];
-                                out1[j] = tmp;
-                            }
-                        }
+                        reverseAudio<F32_T>(out->getData(),
+                                            p.outputInfo.channelCount,
+                                            halfNumSamples,
+                                            sampleCount);
                         break;
                     }
                     case audio::DataType::F64:
                     {
-                        double* data = reinterpret_cast<double*>(out->getData());
-                        
-                        for (size_t i=0; i < halfNumSamples; ++i)
-                        {
-                            double* out0 = data + i * channels;
-                            double* out1 = data + (sampleCount - 1 - i) * channels;
-
-                            for (size_t j=0; j < channels; ++j)
-                            {
-                                double tmp = out0[j];
-                                out0[j] = out1[j];
-                                out1[j] = tmp;
-                            }
-                        }
+                        reverseAudio<F64_T>(out->getData(),
+                                            p.outputInfo.channelCount,
+                                            halfNumSamples,
+                                            sampleCount);
                         break;
                     }
                     }
