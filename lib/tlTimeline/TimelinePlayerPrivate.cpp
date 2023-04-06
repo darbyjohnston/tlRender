@@ -457,29 +457,24 @@ namespace tl
                 // Fill the audio buffer.
                 {
                     auto time = playbackStartTime;
+                    const auto timeOffset = otime::RationalTime(
+                        rtAudioCurrentFrame + audio::getSampleCount(p->audioThread.buffer),
+                        p->audioThread.info.sampleRate).rescaled_to(p->ioInfo.audio.sampleRate);
 
                     if (playback == Playback::Forward)
-                    {
-                        time +=
-                            otime::RationalTime(
-                                rtAudioCurrentFrame + audio::getSampleCount(p->audioThread.buffer),
-                                p->audioThread.info.sampleRate).rescaled_to(p->ioInfo.audio.sampleRate);
-                    }
+                        time += timeOffset;
                     else
-                    {
-                        time -=
-                            otime::RationalTime(
-                                rtAudioCurrentFrame + audio::getSampleCount(p->audioThread.buffer),
-                                p->audioThread.info.sampleRate).rescaled_to(p->ioInfo.audio.sampleRate);
-                    }
+                        time -= timeOffset;
                     int64_t frame = time.value();
                     int64_t seconds = p->ioInfo.audio.sampleRate > 0 ? (frame / p->ioInfo.audio.sampleRate) : 0;
                     int64_t offset = frame - seconds * p->ioInfo.audio.sampleRate;
                     while (audio::getSampleCount(p->audioThread.buffer) < nFrames)
                     {
-                        // std::cout << "frame: " << frame << std::endl;
-                        // std::cout << "seconds: " << seconds << std::endl;
-                        // std::cout << "offset: " << offset << std::endl;
+                        //std::cout << "--------------------------- " << playback
+                        //          << std::endl;
+                        //std::cout << "frame: " << frame << std::endl;
+                        //std::cout << "seconds: " << seconds << std::endl;
+                        //std::cout << "offset: " << offset << std::endl;
                         AudioData audioData;
                         {
                             std::unique_lock<std::mutex> lock(p->audioMutex.mutex);
@@ -519,8 +514,10 @@ namespace tl
 
                         if (p->audioThread.convert)
                         {
-                            bool reverse = playback == Playback::Reverse;
-                            p->audioThread.buffer.push_back(p->audioThread.convert->convert(tmp, reverse));
+                            const bool reverse = playback == Playback::Reverse;
+                            auto convertedAudio = p->audioThread.convert->convert(tmp);
+                            if (reverse) p->audioThread.convert->reverse(convertedAudio);
+                            p->audioThread.buffer.push_back(convertedAudio);
                         }
 
                         if (playback == Playback::Forward)

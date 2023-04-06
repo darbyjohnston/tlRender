@@ -133,7 +133,57 @@ namespace tl
             return _p->outputInfo;
         }
 
-        std::shared_ptr<Audio> AudioConvert::convert(const std::shared_ptr<Audio>& value, bool reverse)
+        void AudioConvert::reverse(const std::shared_ptr<Audio>& out)
+        {
+            TLRENDER_P();
+            const size_t reverseSamples = out->getSampleCount();
+            const size_t halfNumSamples = reverseSamples/2;
+            switch( p.outputInfo.dataType )
+            {
+            case audio::DataType::S8:
+            {
+                reverseAudio<S8_T>(out->getData(),
+                                   p.outputInfo.channelCount,
+                                   halfNumSamples,
+                                   reverseSamples);
+                break;
+            }
+            case audio::DataType::S16:
+            {
+                reverseAudio<S16_T>(out->getData(),
+                                    p.outputInfo.channelCount,
+                                    halfNumSamples,
+                                    reverseSamples);
+                break;
+            }
+            case audio::DataType::S32:
+            {
+                reverseAudio<S32_T>(out->getData(),
+                                    p.outputInfo.channelCount,
+                                    halfNumSamples,
+                                    reverseSamples);
+                break;
+            }
+            case audio::DataType::F32:
+            {
+                reverseAudio<F32_T>(out->getData(),
+                                    p.outputInfo.channelCount,
+                                    halfNumSamples,
+                                    reverseSamples);
+                break;
+            }
+            case audio::DataType::F64:
+            {
+                reverseAudio<F64_T>(out->getData(),
+                                    p.outputInfo.channelCount,
+                                    halfNumSamples,
+                                    reverseSamples);
+                break;
+            }
+            }
+        }
+        
+        std::shared_ptr<Audio> AudioConvert::convert(const std::shared_ptr<Audio>& value)
         {
             TLRENDER_P();
             std::shared_ptr<Audio> out;
@@ -155,53 +205,6 @@ namespace tl
                     sampleCount);
                 out = Audio::create(p.outputInfo, swrOutputCount);
                 memcpy(out->getData(), tmp->getData(), out->getByteCount());
-                if (reverse)
-                {
-                    size_t halfNumSamples = swrOutputSamples/2;
-                    switch( p.outputInfo.dataType )
-                    {
-                    case audio::DataType::S8:
-                    {
-                        reverseAudio<S8_T>(out->getData(),
-                                           p.outputInfo.channelCount,
-                                           halfNumSamples,
-                                           sampleCount);
-                        break;
-                    }
-                    case audio::DataType::S16:
-                    {
-                        reverseAudio<S16_T>(out->getData(),
-                                            p.outputInfo.channelCount,
-                                            halfNumSamples,
-                                            sampleCount);
-                        break;
-                    }
-                    case audio::DataType::S32:
-                    {
-                        reverseAudio<S32_T>(out->getData(),
-                                            p.outputInfo.channelCount,
-                                            halfNumSamples,
-                                            sampleCount);
-                        break;
-                    }
-                    case audio::DataType::F32:
-                    {
-                        reverseAudio<F32_T>(out->getData(),
-                                            p.outputInfo.channelCount,
-                                            halfNumSamples,
-                                            sampleCount);
-                        break;
-                    }
-                    case audio::DataType::F64:
-                    {
-                        reverseAudio<F64_T>(out->getData(),
-                                            p.outputInfo.channelCount,
-                                            halfNumSamples,
-                                            sampleCount);
-                        break;
-                    }
-                    }
-                }
             }
 #endif // TLRENDER_FFMPEG
             return out;
