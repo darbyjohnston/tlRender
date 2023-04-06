@@ -387,14 +387,14 @@ namespace tl
             
             // Get mutex protected values.
             Playback playback = Playback::Stop;
-            otime::RationalTime playbackStartTime = time::invalidTime;
+            int64_t playbackStartFrame = 0;
             bool externalTime = false;
             {
                 std::unique_lock<std::mutex> lock(p->mutex.mutex);
                 playback = p->mutex.playback;
-                playbackStartTime = time::round(
-                    p->mutex.playbackStartTime.rescaled_to(p->ioInfo.audio.sampleRate) -
-                    otime::RationalTime(p->mutex.audioOffset, 1.0).rescaled_to(p->ioInfo.audio.sampleRate));
+                playbackStartFrame =
+                    p->mutex.playbackStartTime.rescaled_to(p->ioInfo.audio.sampleRate).value() -
+                    otime::RationalTime(p->mutex.audioOffset, 1.0).rescaled_to(p->ioInfo.audio.sampleRate).value();
                 externalTime = p->mutex.externalTime;
             }
             double speed = 0.F;
@@ -444,12 +444,12 @@ namespace tl
                 }
 
                 // Fill the audio buffer.
+                if (p->ioInfo.audio.sampleRate > 0)
                 {
-                    auto time = playbackStartTime +
-                        time::round(otime::RationalTime(
+                    int64_t frame = playbackStartFrame +
+                        otime::RationalTime(
                             p->audioThread.rtAudioCurrentFrame + audio::getSampleCount(p->audioThread.buffer),
-                            p->audioThread.info.sampleRate).rescaled_to(p->ioInfo.audio.sampleRate));
-                    int64_t frame = time.value();
+                            p->audioThread.info.sampleRate).rescaled_to(p->ioInfo.audio.sampleRate).value();
                     int64_t seconds = p->ioInfo.audio.sampleRate > 0 ? (frame / p->ioInfo.audio.sampleRate) : 0;
                     int64_t offset = frame - seconds * p->ioInfo.audio.sampleRate;
                     while (audio::getSampleCount(p->audioThread.buffer) < nFrames)
@@ -475,7 +475,9 @@ namespace tl
                         {
                             if (layer.audio && layer.audio->getInfo() == p->ioInfo.audio)
                             {
-                                audioDataP.push_back(layer.audio->getData() + offset * p->ioInfo.audio.getByteCount());
+                                audioDataP.push_back(
+                                    layer.audio->getData() +
+                                    (offset * p->ioInfo.audio.getByteCount()));
                             }
                         }
 
