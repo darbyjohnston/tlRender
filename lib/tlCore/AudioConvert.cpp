@@ -119,11 +119,11 @@ namespace tl
             if (p.swrContext && value)
             {
                 const size_t sampleCount = value->getSampleCount();
-                const int64_t swrDelay = swr_get_delay(p.swrContext, p.inputInfo.sampleRate);
-                //std::cout << "delay: " << swrDelay << std::endl;
-                const size_t swrOutputSamples = sampleCount + swrDelay;
-                auto tmp = Audio::create(p.outputInfo, swrOutputSamples);
-                uint8_t* swrOutputBufferP[] = { tmp->getData() };
+                //std::cout << "sampleCount: " << sampleCount << std::endl;
+                const int swrOutputSamples = swr_get_out_samples(p.swrContext, sampleCount);
+                //std::cout << "swrOutputSamples: " << swrOutputSamples << std::endl;
+                auto swrOutputBuffer = Audio::create(p.outputInfo, swrOutputSamples);
+                uint8_t* swrOutputBufferP[] = { swrOutputBuffer->getData() };
                 const uint8_t* swrInputBufferP[] = { value->getData() };
                 const int swrOutputCount = swr_convert(
                     p.swrContext,
@@ -131,8 +131,9 @@ namespace tl
                     swrOutputSamples,
                     swrInputBufferP,
                     sampleCount);
+                //std::cout << "swrOutputCount: " << swrOutputCount << std::endl << std::endl;
                 out = Audio::create(p.outputInfo, swrOutputCount);
-                memcpy(out->getData(), tmp->getData(), out->getByteCount());
+                memcpy(out->getData(), swrOutputBuffer->getData(), out->getByteCount());
             }
 #endif // TLRENDER_FFMPEG
             return out;
@@ -144,18 +145,7 @@ namespace tl
 #if defined(TLRENDER_FFMPEG)
             if (p.swrContext)
             {
-                auto tmp = Audio::create(p.outputInfo, 100);
-                uint8_t* swrOutputBufferP[] = { tmp->getData() };
-                int r = 0;
-                do
-                {
-                    r = swr_convert(
-                        p.swrContext,
-                        swrOutputBufferP,
-                        tmp->getSampleCount(),
-                        nullptr,
-                        0);
-                } while (r > 0);
+                swr_init(p.swrContext);
             }
 #endif // TLRENDER_FFMPEG
         }
