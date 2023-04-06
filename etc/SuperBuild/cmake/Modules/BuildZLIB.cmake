@@ -1,13 +1,12 @@
 include(ExternalProject)
 
 set(ZLIB_GIT_REPOSITORY "https://github.com/madler/zlib.git")
-set(ZLIB_GIT_TAG "cacf7f1d4e3d44d871b605da3b647f07d718623f") # tag: "v1.2.11"
+set(ZLIB_GIT_TAG "v1.2.13")
 
 set(ZLIB_ARGS
     ${TLRENDER_EXTERNAL_ARGS}
     -DSKIP_INSTALL_FILES=ON
-    -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-)
+    -DCMAKE_POSITION_INDEPENDENT_CODE=ON)
 
 ExternalProject_Add(
     ZLIB
