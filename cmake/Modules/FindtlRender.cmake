@@ -121,7 +121,7 @@ if(tlRender_FOUND AND NOT TARGET tlRender::tlCore)
         IMPORTED_LOCATION "${tlRender_tlCore_LIBRARY}"
         INTERFACE_COMPILE_DEFINITIONS "${tlRender_COMPILE_DEFINITIONS}"
         INTERFACE_INCLUDE_DIRECTORIES "${tlRender_INCLUDE_DIR}"
-        INTERFACE_LINK_LIBRARIES "OTIO;OCIO;Imath;RtAudio;libsamplerate;FreeType;nlohmann_json::nlohmann_json;GLM;FSeq")
+        INTERFACE_LINK_LIBRARIES "OTIO;OCIO;Imath::Imath;RtAudio;libsamplerate;FreeType;nlohmann_json::nlohmann_json;GLM;FSeq")
 endif()
 if(tlRender_FOUND AND NOT TARGET tlRender::tlIO)
     add_library(tlRender::tlIO UNKNOWN IMPORTED)
@@ -129,7 +129,7 @@ if(tlRender_FOUND AND NOT TARGET tlRender::tlIO)
         IMPORTED_LOCATION "${tlRender_tlIO_LIBRARY}"
         INTERFACE_COMPILE_DEFINITIONS "${tlRender_COMPILE_DEFINITIONS}"
         INTERFACE_INCLUDE_DIRECTORIES "${tlRender_INCLUDE_DIR}"
-        INTERFACE_LINK_LIBRARIES "JPEG;TIFF;PNG;OpenEXR;FFmpeg")
+        INTERFACE_LINK_LIBRARIES "JPEG;TIFF;PNG;OpenEXR::OpenEXR;FFmpeg")
 endif()
 if(tlRender_FOUND AND NOT TARGET tlRender::tlTimeline)
     add_library(tlRender::tlTimeline UNKNOWN IMPORTED)

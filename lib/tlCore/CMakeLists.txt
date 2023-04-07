@@ -99,7 +99,7 @@ else()
         TimeUnix.cpp)
 endif()
 
-set(LIBRARIES OTIO Imath)
+set(LIBRARIES OTIO Imath::Imath)
 set(LIBRARIES_PRIVATE nlohmann_json::nlohmann_json GLM fseq)
 if(TLRENDER_OCIO)
     list(APPEND LIBRARIES OCIO)

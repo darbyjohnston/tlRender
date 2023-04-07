@@ -3,6 +3,6 @@ find_package(OpenEXR REQUIRED)
 set(source main.cpp)
 
 add_executable(OpenEXRTest ${header} ${source})
-target_link_libraries(OpenEXRTest OpenEXR)
+target_link_libraries(OpenEXRTest OpenEXR::OpenEXR)
 
 add_test(OpenEXRTest OpenEXRTest)

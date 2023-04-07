@@ -52,7 +52,7 @@ if(TLRENDER_EXR)
     # \todo Make this library private.
     list(APPEND HEADERS OpenEXR.h)
     list(APPEND SOURCE OpenEXR.cpp OpenEXRRead.cpp OpenEXRWrite.cpp)
-    list(APPEND LIBRARIES OpenEXR)
+    list(APPEND LIBRARIES OpenEXR::OpenEXR)
 endif()
 if(TLRENDER_FFMPEG)
     list(APPEND HEADERS_PRIVATE FFmpeg.h FFmpegReadPrivate.h)

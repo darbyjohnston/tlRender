@@ -15,7 +15,7 @@
 #
 # * OCIO
 
-find_package(Imath)
+find_package(Imath REQUIRED)
 
 find_path(OCIO_INCLUDE_DIR NAMES OpenColorIO/OpenColorIO.h)
 set(OCIO_INCLUDE_DIRS
@@ -55,7 +55,7 @@ endif()
 
 if(OCIO_FOUND AND NOT TARGET OCIO::OpenColorIO)
     add_library(OCIO::OpenColorIO UNKNOWN IMPORTED)
-    set(OCIO_INTERFACE_LINK_LIBRARIES ${OCIO_yaml_LIBRARY} ${OCIO_pystring_LIBRARY} ${OCIO_expat} Imath)
+    set(OCIO_INTERFACE_LINK_LIBRARIES ${OCIO_yaml_LIBRARY} ${OCIO_pystring_LIBRARY} ${OCIO_expat} Imath::Imath)
     if(APPLE)
         list(APPEND OCIO_INTERFACE_LINK_LIBRARIES "-framework ColorSync" "-framework CoreGraphics" "-framework IOKit" "-framework Foundation")
     endif()
