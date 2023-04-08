@@ -10,18 +10,20 @@ set(TIFF_ARGS
     -Dtiff-tests=OFF
     -Dtiff-contrib=OFF
     -Dtiff-docs=OFF
-    -Dold-jpeg=OFF
-    -Djbig=OFF
-    -Dlzma=OFF
     -Dzstd=OFF
-    -Dwebp=OFF
+    -Dlibdeflate=OFF
+    -Djbig=OFF
+    -Djpeg=OFF
+    -Dold-jpeg=OFF
     -Djpeg12=OFF
-    -Dlibdeflate=OFF)
+    -Dlerc=OFF
+    -Dlzma=OFF
+    -Dwebp=OFF)
 
 ExternalProject_Add(
     TIFF
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/TIFF
-    DEPENDS ZLIB JPEG
+    DEPENDS ZLIB
     GIT_REPOSITORY ${TIFF_GIT_REPOSITORY}
     GIT_TAG ${TIFF_GIT_TAG}
     LIST_SEPARATOR |
