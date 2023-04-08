@@ -24,6 +24,8 @@
 #include <QTabWidget>
 #include <QToolButton>
 
+#include <sstream>
+
 namespace tl
 {
     namespace play

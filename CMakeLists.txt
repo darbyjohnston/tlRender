@@ -48,7 +48,8 @@ set(TLRENDER_GPROF FALSE CACHE BOOL "Enable gprof code profiling")
 #-------------------------------------------------------------------------------
 # Internal configuration
 
-list(PREPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/Modules)
+list(PREPEND CMAKE_MODULE_PATH
+    ${PROJECT_SOURCE_DIR}/cmake/Modules)
 
 if(TLRENDER_MMAP)
     add_definitions(-DTLRENDER_MMAP)
@@ -111,7 +112,7 @@ find_package(OTIO REQUIRED)
 
 # OpenColorIO dependencies
 if(TLRENDER_OCIO)
-    find_package(OCIO REQUIRED)
+    find_package(OpenColorIO REQUIRED)
     add_definitions(-DTLRENDER_OCIO)
 endif()
 

@@ -1,8 +1,8 @@
 #!/bin/sh
 
-wget https://ffmpeg.org/releases/ffmpeg-5.1.2.tar.bz2
-tar xvf ffmpeg-5.1.2.tar.bz2
-cd ffmpeg-5.1.2
+wget https://ffmpeg.org/releases/ffmpeg-6.0.tar.bz2
+tar xvf ffmpeg-6.0.tar.bz2
+cd ffmpeg-6.0
 ./configure \
     --disable-programs \
     --disable-doc \
