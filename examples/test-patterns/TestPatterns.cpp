@@ -128,7 +128,10 @@ namespace tl
                     geom::Vertex2(1),
                     geom::Vertex2(1 + resolution - 1),
                     geom::Vertex2(1 + 1) }));
-                render->drawMesh(mesh, imaging::Color4f(.2F, .2F, .2F));
+                render->drawMesh(
+                    mesh,
+                    math::Vector2i(),
+                    imaging::Color4f(.2F, .2F, .2F));
 
                 mesh.v.clear();
                 mesh.triangles.clear();
@@ -152,7 +155,10 @@ namespace tl
                         geom::Vertex2(i + 1),
                         geom::Vertex2((i - 1) + 1) }));
                 }
-                render->drawMesh(mesh, imaging::Color4f(.3F, .3F, .3F));
+                render->drawMesh(
+                    mesh,
+                    math::Vector2i(),
+                    imaging::Color4f(.3F, .3F, .3F));
 
                 render->drawText(
                     _fontSystem->getGlyphs(secondsString, _secondsFontInfo),
@@ -266,7 +272,10 @@ namespace tl
                             geom::Vertex2(i * 4 + 4),
                             geom::Vertex2(i * 4 + 1) }));
                     }
-                    render->drawMesh(mesh, imaging::Color4f(1.F, 1.F, 1.F));
+                    render->drawMesh(
+                        mesh,
+                        math::Vector2i(),
+                        imaging::Color4f(1.F, 1.F, 1.F));
                 }
                 {
                     geom::TriangleMesh2 mesh;
@@ -285,7 +294,10 @@ namespace tl
                             geom::Vertex2(i * 4 + 4),
                             geom::Vertex2(i * 4 + 1) }));
                     }
-                    render->drawMesh(mesh, imaging::Color4f(1.F, 1.F, 1.F));
+                    render->drawMesh(
+                        mesh,
+                        math::Vector2i(),
+                        imaging::Color4f(1.F, 1.F, 1.F));
                 }
             }
 

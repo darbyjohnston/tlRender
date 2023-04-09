@@ -82,6 +82,7 @@ namespace tl
 
             event.render->drawMesh(
                 border(g, p.size.border),
+                math::Vector2i(),
                 event.style->getColorRole(ColorRole::Border));
 
             math::BBox2i g2 = g.margin(-p.size.border);

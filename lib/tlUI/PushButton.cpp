@@ -84,6 +84,7 @@ namespace tl
 
             event.render->drawMesh(
                 border(g, p.size.border, p.size.margin / 2),
+                math::Vector2i(),
                 event.style->getColorRole(ColorRole::Border));
 
             const auto mesh = rect(g.margin(-p.size.border), p.size.margin / 2);
@@ -94,6 +95,7 @@ namespace tl
             {
                 event.render->drawMesh(
                     mesh,
+                    math::Vector2i(),
                     event.style->getColorRole(colorRole));
             }
 
@@ -101,12 +103,14 @@ namespace tl
             {
                 event.render->drawMesh(
                     mesh,
+                    math::Vector2i(),
                     event.style->getColorRole(ColorRole::Pressed));
             }
             else if (_inside)
             {
                 event.render->drawMesh(
                     mesh,
+                    math::Vector2i(),
                     event.style->getColorRole(ColorRole::Hover));
             }
 
