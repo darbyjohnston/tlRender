@@ -47,7 +47,7 @@ namespace tl
                 void _textUpdate();
 
                 void _drawInfo(const ui::DrawEvent&);
-                void _drawThumbnails(const ui::DrawEvent&);
+                void _drawWaveforms(const ui::DrawEvent&);
 
                 void _cancelAudioRequests();
 
@@ -61,7 +61,7 @@ namespace tl
                 ui::FontRole _fontRole = ui::FontRole::Label;
                 int _margin = 0;
                 int _spacing = 0;
-                int _thumbnailWidth = 0;
+                int _waveformWidth = 0;
                 std::shared_ptr<io::IRead> _reader;
                 std::future<io::Info> _ioInfoFuture;
                 io::Info _ioInfo;

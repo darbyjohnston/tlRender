@@ -211,11 +211,11 @@ namespace tl
                 _spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall) * event.contentScale;
                 const auto fontMetrics = event.getFontMetrics(_fontRole);
 
-                const int thumbnailWidth =
+                const int waveformWidth =
                     otime::RationalTime(1.0, 1.0).value() * _options.scale;
-                if (thumbnailWidth != _thumbnailWidth)
+                if (waveformWidth != _waveformWidth)
                 {
-                    _thumbnailWidth = thumbnailWidth;
+                    _waveformWidth = waveformWidth;
                     _cancelAudioRequests();
                     _audioData.clear();
                 }
@@ -225,7 +225,7 @@ namespace tl
                     _margin +
                     fontMetrics.lineHeight +
                     _spacing +
-                    _options.thumbnailHeight +
+                    _options.waveformHeight +
                     _margin);
             }
 
@@ -246,7 +246,7 @@ namespace tl
                         imaging::Color4f(.3F, .25F, .4F));
 
                     _drawInfo(event);
-                    _drawThumbnails(event);
+                    _drawWaveforms(event);
                 }
             }
 
@@ -286,7 +286,7 @@ namespace tl
                     event.style->getColorRole(ui::ColorRole::Text));
             }
 
-            void AudioClipItem::_drawThumbnails(const ui::DrawEvent& event)
+            void AudioClipItem::_drawWaveforms(const ui::DrawEvent& event)
             {
                 const auto fontMetrics = event.getFontMetrics(_fontRole);
                 const math::BBox2i vp(0, 0, _viewport.w(), _viewport.h());
@@ -300,7 +300,7 @@ namespace tl
                     fontMetrics.lineHeight +
                     _spacing,
                     _sizeHint.x - _margin * 2,
-                    _options.thumbnailHeight);
+                    _options.waveformHeight);
                 event.render->drawRect(
                     bbox,
                     imaging::Color4f(0.F, 0.F, 0.F));
@@ -339,7 +339,7 @@ namespace tl
                     _reader.reset();
                 }
 
-                for (int x = _margin; x < _sizeHint.x - _margin; x += _thumbnailWidth)
+                for (int x = _margin; x < _sizeHint.x - _margin; x += _waveformWidth)
                 {
                     math::BBox2i bbox(
                         g.min.x +
@@ -348,8 +348,8 @@ namespace tl
                         _margin +
                         fontMetrics.lineHeight +
                         _spacing,
-                        _thumbnailWidth,
-                        _options.thumbnailHeight);
+                        _waveformWidth,
+                        _options.waveformHeight);
                     if (bbox.intersects(vp))
                     {
                         const int w = _sizeHint.x - _margin * 2;
