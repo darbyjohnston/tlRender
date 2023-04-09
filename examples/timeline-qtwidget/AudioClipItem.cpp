@@ -10,6 +10,8 @@
 
 #include <tlIO/IOSystem.h>
 
+#include <tlCore/AudioConvert.h>
+
 namespace tl
 {
     namespace examples
@@ -93,103 +95,10 @@ namespace tl
                     {
                         switch (info.dataType)
                         {
-                        case audio::DataType::S16:
-                        {
-                            const audio::S16_T* data = reinterpret_cast<const audio::S16_T*>(
-                                audio->getData());
-                            for (int x = 0; x < size.x; ++x)
-                            {
-                                const int x0 = std::min(
-                                    static_cast<size_t>((x + 0) / static_cast<double>(size.x - 1) * (sampleCount - 1)),
-                                    sampleCount - 1);
-                                const int x1 = std::min(
-                                    static_cast<size_t>((x + 1) / static_cast<double>(size.x - 1) * (sampleCount - 1)),
-                                    sampleCount - 1);
-                                //std::cout << x << ": " << x0 << " " << x1 << std::endl;
-                                audio::S16_T min = 0;
-                                audio::S16_T max = 0;
-                                if (x0 < x1)
-                                {
-                                    min = audio::S16Range.getMax();
-                                    max = audio::S16Range.getMin();
-                                    for (int i = x0; i < x1; ++i)
-                                    {
-                                        const audio::S16_T v = *(data + i * info.channelCount);
-                                        min = std::min(min, v);
-                                        max = std::max(max, v);
-                                    }
-                                }
-                                const float minF = min / static_cast<float>(audio::S16Range.getMax());
-                                const float maxF = max / static_cast<float>(audio::S16Range.getMax());
-                                const int h2 = size.y / 2;
-                                const math::BBox2i bbox(
-                                    math::Vector2i(
-                                        x,
-                                        h2 - h2 * maxF),
-                                    math::Vector2i(
-                                        x + 1,
-                                        h2 - h2 * minF));
-                                const size_t j = 1 + out->v.size();
-                                out->v.push_back(math::Vector2f(bbox.x(), bbox.y()));
-                                out->v.push_back(math::Vector2f(bbox.x() + bbox.w(), bbox.y()));
-                                out->v.push_back(math::Vector2f(bbox.x() + bbox.w(), bbox.y() + bbox.h()));
-                                out->v.push_back(math::Vector2f(bbox.x(), bbox.y() + bbox.h()));
-                                out->triangles.push_back(geom::Triangle2({ j + 0, j + 1, j + 2 }));
-                                out->triangles.push_back(geom::Triangle2({ j + 2, j + 3, j + 0 }));
-                            }
-                            break;
-                        }
-                        case audio::DataType::S32:
-                        {
-                            const audio::S32_T* data = reinterpret_cast<const audio::S32_T*>(
-                                audio->getData());
-                            for (int x = 0; x < size.x; ++x)
-                            {
-                                const int x0 = std::min(
-                                    static_cast<size_t>((x + 0) / static_cast<double>(size.x - 1) * (sampleCount - 1)),
-                                    sampleCount - 1);
-                                const int x1 = std::min(
-                                    static_cast<size_t>((x + 1) / static_cast<double>(size.x - 1) * (sampleCount - 1)),
-                                    sampleCount - 1);
-                                //std::cout << x << ": " << x0 << " " << x1 << std::endl;
-                                audio::S32_T min = 0;
-                                audio::S32_T max = 0;
-                                if (x0 < x1)
-                                {
-                                    min = audio::S32Range.getMax();
-                                    max = audio::S32Range.getMin();
-                                    for (int i = x0; i < x1; ++i)
-                                    {
-                                        const audio::S32_T v = *(data + i * info.channelCount);
-                                        min = std::min(min, v);
-                                        max = std::max(max, v);
-                                    }
-                                }
-                                const float minF = min / static_cast<float>(audio::S32Range.getMax());
-                                const float maxF = max / static_cast<float>(audio::S32Range.getMax());
-                                const int h2 = size.y / 2;
-                                const math::BBox2i bbox(
-                                    math::Vector2i(
-                                        x,
-                                        h2 - h2 * maxF),
-                                    math::Vector2i(
-                                        x + 1,
-                                        h2 - h2 * minF));
-                                const size_t j = 1 + out->v.size();
-                                out->v.push_back(math::Vector2f(bbox.x(), bbox.y()));
-                                out->v.push_back(math::Vector2f(bbox.x() + bbox.w(), bbox.y()));
-                                out->v.push_back(math::Vector2f(bbox.x() + bbox.w(), bbox.y() + bbox.h()));
-                                out->v.push_back(math::Vector2f(bbox.x(), bbox.y() + bbox.h()));
-                                out->triangles.push_back(geom::Triangle2({ j + 0, j + 1, j + 2 }));
-                                out->triangles.push_back(geom::Triangle2({ j + 2, j + 3, j + 0 }));
-                            }
-                            break;
-                        }
                         case audio::DataType::F32:
                         {
                             const audio::F32_T* data = reinterpret_cast<const audio::F32_T*>(
                                 audio->getData());
-
                             for (int x = 0; x < size.x; ++x)
                             {
                                 const int x0 = std::min(
@@ -220,15 +129,17 @@ namespace tl
                                     math::Vector2i(
                                         x + 1,
                                         h2 - h2 * min));
-                                const size_t j = 1 + out->v.size();
-                                out->v.push_back(math::Vector2f(bbox.x(), bbox.y()));
-                                out->v.push_back(math::Vector2f(bbox.x() + bbox.w(), bbox.y()));
-                                out->v.push_back(math::Vector2f(bbox.x() + bbox.w(), bbox.y() + bbox.h()));
-                                out->v.push_back(math::Vector2f(bbox.x(), bbox.y() + bbox.h()));
-                                out->triangles.push_back(geom::Triangle2({ j + 0, j + 1, j + 2 }));
-                                out->triangles.push_back(geom::Triangle2({ j + 2, j + 3, j + 0 }));
+                                if (bbox.isValid())
+                                {
+                                    const size_t j = 1 + out->v.size();
+                                    out->v.push_back(math::Vector2f(bbox.x(), bbox.y()));
+                                    out->v.push_back(math::Vector2f(bbox.x() + bbox.w(), bbox.y()));
+                                    out->v.push_back(math::Vector2f(bbox.x() + bbox.w(), bbox.y() + bbox.h()));
+                                    out->v.push_back(math::Vector2f(bbox.x(), bbox.y() + bbox.h()));
+                                    out->triangles.push_back(geom::Triangle2({ j + 0, j + 1, j + 2 }));
+                                    out->triangles.push_back(geom::Triangle2({ j + 2, j + 3, j + 0 }));
+                                }
                             }
-
                             break;
                         }
                         }
@@ -262,7 +173,11 @@ namespace tl
                             std::launch::async,
                             [audio, size]
                             {
-                                return audioMesh(audio.audio, size);
+                                auto convert = audio::AudioConvert::create(
+                                    audio.audio->getInfo(),
+                                    audio::Info(1, audio::DataType::F32, audio.audio->getSampleRate()));
+                                const auto convertedAudio = convert->convert(audio.audio);
+                                return audioMesh(convertedAudio, size);
                             });
                         _audioData[i->first] = std::move(audioData);
                         i = _audioDataFutures.erase(i);
