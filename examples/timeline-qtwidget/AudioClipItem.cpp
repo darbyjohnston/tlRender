@@ -169,16 +169,19 @@ namespace tl
                         AudioData audioData;
                         audioData.audio = audio;
                         audioData.size = size;
-                        audioData.meshFuture = std::async(
-                            std::launch::async,
-                            [audio, size]
-                            {
-                                auto convert = audio::AudioConvert::create(
-                                    audio.audio->getInfo(),
-                                    audio::Info(1, audio::DataType::F32, audio.audio->getSampleRate()));
+                        if (audio.audio)
+                        {
+                            audioData.meshFuture = std::async(
+                                std::launch::async,
+                                [audio, size]
+                                {
+                                    auto convert = audio::AudioConvert::create(
+                                        audio.audio->getInfo(),
+                                        audio::Info(1, audio::DataType::F32, audio.audio->getSampleRate()));
                                 const auto convertedAudio = convert->convert(audio.audio);
                                 return audioMesh(convertedAudio, size);
-                            });
+                                });
+                        }
                         _audioData[i->first] = std::move(audioData);
                         i = _audioDataFutures.erase(i);
                         continue;
