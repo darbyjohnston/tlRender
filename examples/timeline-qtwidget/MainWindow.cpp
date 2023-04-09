@@ -166,7 +166,9 @@ namespace tl
                     if (auto context = _context.lock())
                     {
                         timeline = timeline::Timeline::create(fileName, context);
-                        auto timelinePlayer = timeline::TimelinePlayer::create(timeline, context);
+                        timeline::PlayerOptions playerOptions;
+                        playerOptions.cache.readAhead = otime::RationalTime(1.0, 1.0);
+                        auto timelinePlayer = timeline::TimelinePlayer::create(timeline, context, playerOptions);
                         timelinePlayers.push_back(new qt::TimelinePlayer(timelinePlayer, context));
                         _timelinePlayer = new qt::TimelinePlayer(timelinePlayer, context);
                     }

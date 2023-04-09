@@ -10,6 +10,8 @@
 
 #include <tlIO/IOSystem.h>
 
+#include <sstream>
+
 namespace tl
 {
     namespace examples
@@ -129,7 +131,7 @@ namespace tl
             void VideoClipItem::drawEvent(const ui::DrawEvent& event)
             {
                 IItem::drawEvent(event);
-                if (_insideViewport())
+                if (_geometry.isValid() && _insideViewport())
                 {
                     const int b = event.style->getSizeRole(ui::SizeRole::Border) * event.contentScale;
                     const math::BBox2i vp(0, 0, _viewport.w(), _viewport.h());
@@ -220,10 +222,21 @@ namespace tl
                             try
                             {
                                 auto ioSystem = context->getSystem<io::System>();
+                                io::Options ioOptions = _data.ioOptions;
+                                {
+                                    std::stringstream ss;
+                                    ss << 1;
+                                    ioOptions["ffmpeg/VideoBufferSize"] = ss.str();
+                                }
+                                {
+                                    std::stringstream ss;
+                                    ss << otime::RationalTime(1.0, 1.0);
+                                    ioOptions["ffmpeg/AudioBufferSize"] = ss.str();
+                                }
                                 _reader = ioSystem->read(
                                     _path,
                                     _memoryRead,
-                                    _data.ioOptions);
+                                    ioOptions);
                                 _ioInfoFuture = _reader->getInfo();
                             }
                             catch (const std::exception&)
@@ -237,45 +250,48 @@ namespace tl
                     _reader.reset();
                 }
 
-                for (int x = _margin; x < _sizeHint.x - _margin; x += _thumbnailWidth)
+                if (_thumbnailWidth > 0)
                 {
-                    math::BBox2i bbox(
-                        g.min.x +
-                        x,
-                        g.min.y +
-                        _margin +
-                        fontMetrics.lineHeight +
-                        _spacing,
-                        _thumbnailWidth,
-                        _options.thumbnailHeight);
-                    if (bbox.intersects(vp))
+                    for (int x = _margin; x < _sizeHint.x - _margin; x += _thumbnailWidth)
                     {
-                        const int w = _sizeHint.x - _margin * 2;
-                        const otime::RationalTime time = time::round(otime::RationalTime(
-                            _timeRange.start_time().value() +
-                            (w > 0 ? ((x - _margin) / static_cast<double>(w)) : 0) *
-                            _timeRange.duration().value(),
-                            _timeRange.duration().rate()));
-                        auto i = _videoData.find(time);
-                        if (i != _videoData.end())
+                        math::BBox2i bbox(
+                            g.min.x +
+                            x,
+                            g.min.y +
+                            _margin +
+                            fontMetrics.lineHeight +
+                            _spacing,
+                            _thumbnailWidth,
+                            _options.thumbnailHeight);
+                        if (bbox.intersects(vp))
                         {
-                            if (i->second.image)
+                            const int w = _sizeHint.x - _margin * 2;
+                            const otime::RationalTime time = time::round(otime::RationalTime(
+                                _timeRange.start_time().value() +
+                                (w > 0 ? ((x - _margin) / static_cast<double>(w)) : 0) *
+                                _timeRange.duration().value(),
+                                _timeRange.duration().rate()));
+                            auto i = _videoData.find(time);
+                            if (i != _videoData.end())
                             {
-                                event.render->drawImage(i->second.image, bbox);
+                                if (i->second.image)
+                                {
+                                    event.render->drawImage(i->second.image, bbox);
+                                }
+                                videoDataDelete.erase(time);
                             }
-                            videoDataDelete.erase(time);
-                        }
-                        else if (_reader && !_ioInfo.video.empty())
-                        {
-                            const auto j = _videoDataFutures.find(time);
-                            if (j == _videoDataFutures.end())
+                            else if (_reader && !_ioInfo.video.empty())
                             {
-                                const auto mediaTime = timeline::mediaTime(
-                                    time,
-                                    _track,
-                                    _clip,
-                                    _ioInfo.videoTime.duration().rate());
-                                _videoDataFutures[time] = _reader->readVideo(mediaTime);
+                                const auto j = _videoDataFutures.find(time);
+                                if (j == _videoDataFutures.end())
+                                {
+                                    const auto mediaTime = timeline::mediaTime(
+                                        time,
+                                        _track,
+                                        _clip,
+                                        _ioInfo.videoTime.duration().rate());
+                                    _videoDataFutures[time] = _reader->readVideo(mediaTime);
+                                }
                             }
                         }
                     }

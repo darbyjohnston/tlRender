@@ -12,6 +12,8 @@
 
 #include <tlCore/AudioConvert.h>
 
+#include <sstream>
+
 namespace tl
 {
     namespace examples
@@ -232,7 +234,7 @@ namespace tl
             void AudioClipItem::drawEvent(const ui::DrawEvent& event)
             {
                 IItem::drawEvent(event);
-                if (_insideViewport())
+                if (_geometry.isValid() && _insideViewport())
                 {
                     const int b = event.style->getSizeRole(ui::SizeRole::Border) * event.contentScale;
                     math::BBox2i g = _geometry;
@@ -322,10 +324,21 @@ namespace tl
                             try
                             {
                                 auto ioSystem = context->getSystem<io::System>();
+                                io::Options ioOptions = _data.ioOptions;
+                                {
+                                    std::stringstream ss;
+                                    ss << 1;
+                                    ioOptions["ffmpeg/VideoBufferSize"] = ss.str();
+                                }
+                                {
+                                    std::stringstream ss;
+                                    ss << otime::RationalTime(1.0, 1.0);
+                                    ioOptions["ffmpeg/AudioBufferSize"] = ss.str();
+                                }
                                 _reader = ioSystem->read(
                                     _path,
                                     _memoryRead,
-                                    _data.ioOptions);
+                                    ioOptions);
                                 _ioInfoFuture = _reader->getInfo();
                             }
                             catch (const std::exception&)
@@ -339,54 +352,57 @@ namespace tl
                     _reader.reset();
                 }
 
-                for (int x = _margin; x < _sizeHint.x - _margin; x += _waveformWidth)
+                if (_waveformWidth > 0)
                 {
-                    math::BBox2i bbox(
-                        g.min.x +
-                        x,
-                        g.min.y +
-                        _margin +
-                        fontMetrics.lineHeight +
-                        _spacing,
-                        _waveformWidth,
-                        _options.waveformHeight);
-                    if (bbox.intersects(vp))
+                    for (int x = _margin; x < _sizeHint.x - _margin; x += _waveformWidth)
                     {
-                        const int w = _sizeHint.x - _margin * 2;
-                        const otime::RationalTime time = time::round(otime::RationalTime(
-                            _timeRange.start_time().value() +
-                            (w > 0 ? ((x - _margin) / static_cast<double>(w)) : 0) *
-                            _timeRange.duration().value(),
-                            _timeRange.duration().rate()));
-                        auto i = _audioData.find(time);
-                        if (i != _audioData.end())
+                        math::BBox2i bbox(
+                            g.min.x +
+                            x,
+                            g.min.y +
+                            _margin +
+                            fontMetrics.lineHeight +
+                            _spacing,
+                            _waveformWidth,
+                            _options.waveformHeight);
+                        if (bbox.intersects(vp))
                         {
-                            if (i->second.mesh)
+                            const int w = _sizeHint.x - _margin * 2;
+                            const otime::RationalTime time = time::round(otime::RationalTime(
+                                _timeRange.start_time().value() +
+                                (w > 0 ? ((x - _margin) / static_cast<double>(w)) : 0) *
+                                _timeRange.duration().value(),
+                                _timeRange.duration().rate()));
+                            auto i = _audioData.find(time);
+                            if (i != _audioData.end())
                             {
-                                event.render->drawMesh(
-                                    *i->second.mesh,
-                                    bbox.min,
-                                    imaging::Color4f(1.F, 1.F, 1.F));
+                                if (i->second.mesh)
+                                {
+                                    event.render->drawMesh(
+                                        *i->second.mesh,
+                                        bbox.min,
+                                        imaging::Color4f(1.F, 1.F, 1.F));
+                                }
+                                audioDataDelete.erase(time);
                             }
-                            audioDataDelete.erase(time);
-                        }
-                        else if (_reader && _ioInfo.audio.isValid())
-                        {
-                            const auto j = _audioDataFutures.find(time);
-                            if (j == _audioDataFutures.end())
+                            else if (_reader && _ioInfo.audio.isValid())
                             {
-                                const otime::RationalTime mediaTime = timeline::mediaTime(
-                                    time,
-                                    _track,
-                                    _clip,
-                                    _ioInfo.audioTime.duration().rate());
-                                const otime::TimeRange mediaTimeRange(
-                                    mediaTime,
-                                    otime::RationalTime(
-                                        _ioInfo.audioTime.duration().rate(),
-                                        _ioInfo.audioTime.duration().rate()));
-                                _audioDataFutures[time].future = _reader->readAudio(mediaTimeRange);
-                                _audioDataFutures[time].size = bbox.getSize();
+                                const auto j = _audioDataFutures.find(time);
+                                if (j == _audioDataFutures.end())
+                                {
+                                    const otime::RationalTime mediaTime = timeline::mediaTime(
+                                        time,
+                                        _track,
+                                        _clip,
+                                        _ioInfo.audioTime.duration().rate());
+                                    const otime::TimeRange mediaTimeRange(
+                                        mediaTime,
+                                        otime::RationalTime(
+                                            _ioInfo.audioTime.duration().rate(),
+                                            _ioInfo.audioTime.duration().rate()));
+                                    _audioDataFutures[time].future = _reader->readAudio(mediaTimeRange);
+                                    _audioDataFutures[time].size = bbox.getSize();
+                                }
                             }
                         }
                     }
