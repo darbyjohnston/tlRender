@@ -36,14 +36,21 @@ namespace tl
 
         void Render::drawMesh(
             const geom::TriangleMesh2& mesh,
+            const math::Vector2i& position,
             const imaging::Color4f& color)
         {
             TLRENDER_P();
-
             const size_t size = mesh.triangles.size();
             if (size > 0)
             {
                 p.shaders["mesh"]->bind();
+                const auto transform =
+                    p.transform *
+                    math::translate(math::Vector3f(
+                        position.x,
+                        position.y,
+                        0.F));
+                p.shaders["mesh"]->setUniform("transform.mvp", transform);
                 p.shaders["mesh"]->setUniform("color", color);
 
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -67,6 +74,8 @@ namespace tl
                     p.vaos["mesh"]->bind();
                     p.vaos["mesh"]->draw(GL_TRIANGLES, 0, p.vbos["mesh"]->getSize());
                 }
+
+                p.shaders["mesh"]->setUniform("transform.mvp", p.transform);
             }
         }
 

@@ -218,6 +218,7 @@ namespace tl
                     {
                         event.render->drawMesh(
                             mesh,
+                            math::Vector2i(),
                             imaging::Color4f(.6F, .6F, .6F));
                     }
                 }
@@ -295,6 +296,7 @@ namespace tl
                     {
                         event.render->drawMesh(
                             mesh,
+                            math::Vector2i(),
                             imaging::Color4f(.8F, .8F, .8F));
                     }
                 }
@@ -335,6 +337,7 @@ namespace tl
                     mesh.triangles.push_back(geom::Triangle2({ 1, 2, 3 }));
                     event.render->drawMesh(
                         mesh,
+                        math::Vector2i(),
                         event.style->getColorRole(ui::ColorRole::Text));
 
                     std::string label = _timeLabel(currentTime, _options.timeUnits);

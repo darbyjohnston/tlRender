@@ -153,6 +153,7 @@ namespace tl
 
             event.render->drawMesh(
                 border(g, p.sizeCache.border),
+                math::Vector2i(),
                 event.style->getColorRole(ColorRole::Border));
 
             event.render->drawRect(

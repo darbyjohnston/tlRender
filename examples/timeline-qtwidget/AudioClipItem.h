@@ -6,6 +6,8 @@
 
 #include "IItem.h"
 
+#include <tlCore/Mesh.h>
+
 #include <opentimelineio/clip.h>
 #include <opentimelineio/track.h>
 
@@ -44,6 +46,9 @@ namespace tl
             private:
                 void _textUpdate();
 
+                void _drawInfo(const ui::DrawEvent&);
+                void _drawThumbnails(const ui::DrawEvent&);
+
                 void _cancelAudioRequests();
 
                 const otio::Clip* _clip = nullptr;
@@ -55,6 +60,25 @@ namespace tl
                 std::string _durationLabel;
                 ui::FontRole _fontRole = ui::FontRole::Label;
                 int _margin = 0;
+                int _spacing = 0;
+                int _thumbnailWidth = 0;
+                std::shared_ptr<io::IRead> _reader;
+                std::future<io::Info> _ioInfoFuture;
+                io::Info _ioInfo;
+                struct AudioFuture
+                {
+                    std::future<io::AudioData> future;
+                    math::Vector2i size;
+                };
+                std::map<otime::RationalTime, AudioFuture> _audioDataFutures;
+                struct AudioData
+                {
+                    io::AudioData audio;
+                    math::Vector2i size;
+                    std::future<std::shared_ptr<geom::TriangleMesh2> > meshFuture;
+                    std::shared_ptr<geom::TriangleMesh2> mesh;
+                };
+                std::map<otime::RationalTime, AudioData> _audioData;
             };
         }
     }

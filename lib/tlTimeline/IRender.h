@@ -62,6 +62,7 @@ namespace tl
             //! Draw a triangle mesh.
             virtual void drawMesh(
                 const geom::TriangleMesh2&,
+                const math::Vector2i& position,
                 const imaging::Color4f&) = 0;
 
             //! Draw text.

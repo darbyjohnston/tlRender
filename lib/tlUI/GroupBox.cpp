@@ -124,6 +124,7 @@ namespace tl
             g.min.y += p.size.fontMetrics.lineHeight + p.size.spacing;
             event.render->drawMesh(
                 border(g, p.size.border, p.size.margin / 2),
+                math::Vector2i(),
                 event.style->getColorRole(ColorRole::Border));
         }
     }
