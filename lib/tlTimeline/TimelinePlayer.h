@@ -143,17 +143,6 @@ namespace tl
         TLRENDER_ENUM(TimeAction);
         TLRENDER_ENUM_SERIALIZE(TimeAction);
 
-        //! Loop a time.
-        otime::RationalTime loop(
-            const otime::RationalTime&,
-            const otime::TimeRange&,
-            bool* looped = nullptr);
-
-        //! Loop a range.
-        std::vector<otime::TimeRange> loop(
-            const otime::TimeRange&,
-            const otime::TimeRange&);
-
         //! Timeline player.
         class TimelinePlayer : public std::enable_shared_from_this<TimelinePlayer>
         {
