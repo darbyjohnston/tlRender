@@ -106,27 +106,75 @@ namespace tl
                                     static_cast<size_t>((x + 1) / static_cast<double>(size.x - 1) * (sampleCount - 1)),
                                     sampleCount - 1);
                                 //std::cout << x << ": " << x0 << " " << x1 << std::endl;
-                                const int min = 0;// audio::S16Range.getMin();
-                                const int max = audio::S16Range.getMax();
-                                double v = 0.0;
-                                for (int i = x0; i < x1; ++i)
-                                {
-                                    const int s = *(data + i * info.channelCount);
-                                    const double d = (s - min) / static_cast<double>(max - min);
-                                    v += d;
-                                }
+                                audio::S16_T min = 0;
+                                audio::S16_T max = 0;
                                 if (x0 < x1)
                                 {
-                                    const int count = x1 - x0;
-                                    v /= static_cast<double>(count);
+                                    min = audio::S16Range.getMax();
+                                    max = audio::S16Range.getMin();
+                                    for (int i = x0; i < x1; ++i)
+                                    {
+                                        const audio::S16_T v = *(data + i * info.channelCount);
+                                        min = std::min(min, v);
+                                        max = std::max(max, v);
+                                    }
                                 }
-                                v *= 2.0;
+                                const float minF = min / static_cast<float>(audio::S16Range.getMax());
+                                const float maxF = max / static_cast<float>(audio::S16Range.getMax());
                                 const int h2 = size.y / 2;
                                 const math::BBox2i bbox(
-                                    x,
-                                    h2 - h2 * v,
-                                    1,
-                                    size.y * v);
+                                    math::Vector2i(
+                                        x,
+                                        h2 - h2 * maxF),
+                                    math::Vector2i(
+                                        x + 1,
+                                        h2 - h2 * minF));
+                                const size_t j = 1 + out->v.size();
+                                out->v.push_back(math::Vector2f(bbox.x(), bbox.y()));
+                                out->v.push_back(math::Vector2f(bbox.x() + bbox.w(), bbox.y()));
+                                out->v.push_back(math::Vector2f(bbox.x() + bbox.w(), bbox.y() + bbox.h()));
+                                out->v.push_back(math::Vector2f(bbox.x(), bbox.y() + bbox.h()));
+                                out->triangles.push_back(geom::Triangle2({ j + 0, j + 1, j + 2 }));
+                                out->triangles.push_back(geom::Triangle2({ j + 2, j + 3, j + 0 }));
+                            }
+                            break;
+                        }
+                        case audio::DataType::S32:
+                        {
+                            const audio::S32_T* data = reinterpret_cast<const audio::S32_T*>(
+                                audio->getData());
+                            for (int x = 0; x < size.x; ++x)
+                            {
+                                const int x0 = std::min(
+                                    static_cast<size_t>((x + 0) / static_cast<double>(size.x - 1) * (sampleCount - 1)),
+                                    sampleCount - 1);
+                                const int x1 = std::min(
+                                    static_cast<size_t>((x + 1) / static_cast<double>(size.x - 1) * (sampleCount - 1)),
+                                    sampleCount - 1);
+                                //std::cout << x << ": " << x0 << " " << x1 << std::endl;
+                                audio::S32_T min = 0;
+                                audio::S32_T max = 0;
+                                if (x0 < x1)
+                                {
+                                    min = audio::S32Range.getMax();
+                                    max = audio::S32Range.getMin();
+                                    for (int i = x0; i < x1; ++i)
+                                    {
+                                        const audio::S32_T v = *(data + i * info.channelCount);
+                                        min = std::min(min, v);
+                                        max = std::max(max, v);
+                                    }
+                                }
+                                const float minF = min / static_cast<float>(audio::S32Range.getMax());
+                                const float maxF = max / static_cast<float>(audio::S32Range.getMax());
+                                const int h2 = size.y / 2;
+                                const math::BBox2i bbox(
+                                    math::Vector2i(
+                                        x,
+                                        h2 - h2 * maxF),
+                                    math::Vector2i(
+                                        x + 1,
+                                        h2 - h2 * minF));
                                 const size_t j = 1 + out->v.size();
                                 out->v.push_back(math::Vector2f(bbox.x(), bbox.y()));
                                 out->v.push_back(math::Vector2f(bbox.x() + bbox.w(), bbox.y()));
@@ -141,6 +189,7 @@ namespace tl
                         {
                             const audio::F32_T* data = reinterpret_cast<const audio::F32_T*>(
                                 audio->getData());
+
                             for (int x = 0; x < size.x; ++x)
                             {
                                 const int x0 = std::min(
@@ -150,25 +199,27 @@ namespace tl
                                     static_cast<size_t>((x + 1) / static_cast<double>(size.x - 1) * (sampleCount - 1)),
                                     sampleCount - 1);
                                 //std::cout << x << ": " << x0 << " " << x1 << std::endl;
-                                double v = 0.0;
-                                for (int i = x0; i < x1; ++i)
+                                audio::F32_T min = 0.F;
+                                audio::F32_T max = 0.F;
+                                if (x0 < x1)
                                 {
-                                    const float s = *(data + i * info.channelCount);
-                                    v += s;
-                                    break;
+                                    min = audio::F32Range.getMax();
+                                    max = audio::F32Range.getMin();
+                                    for (int i = x0; i < x1; ++i)
+                                    {
+                                        const audio::F32_T v = *(data + i * info.channelCount);
+                                        min = std::min(min, v);
+                                        max = std::max(max, v);
+                                    }
                                 }
-                                //if (x0 < x1)
-                                //{
-                                //    const int count = x1 - x0;
-                                //    v /= static_cast<double>(count);
-                                //}
-                                v *= 2.0;
                                 const int h2 = size.y / 2;
                                 const math::BBox2i bbox(
-                                    x,
-                                    h2 - h2 * v,
-                                    1,
-                                    size.y * v);
+                                    math::Vector2i(
+                                        x,
+                                        h2 - h2 * max),
+                                    math::Vector2i(
+                                        x + 1,
+                                        h2 - h2 * min));
                                 const size_t j = 1 + out->v.size();
                                 out->v.push_back(math::Vector2f(bbox.x(), bbox.y()));
                                 out->v.push_back(math::Vector2f(bbox.x() + bbox.w(), bbox.y()));
@@ -177,6 +228,7 @@ namespace tl
                                 out->triangles.push_back(geom::Triangle2({ j + 0, j + 1, j + 2 }));
                                 out->triangles.push_back(geom::Triangle2({ j + 2, j + 3, j + 0 }));
                             }
+
                             break;
                         }
                         }
