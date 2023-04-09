@@ -13,6 +13,32 @@ namespace tl
 {
     namespace audio
     {
+
+        namespace
+        {
+            template< typename T >
+            inline void reverseAudio(uint8_t* inData,
+                                     uint8_t channels,
+                                     size_t sampleCount)
+            {
+                T* data = reinterpret_cast<T*>(inData);
+                const size_t halfNumSamples = sampleCount/2;
+                        
+                for (size_t i = 0; i < halfNumSamples; ++i)
+                {
+                    T* out0 = data + i * channels;
+                    T* out1 = data + (sampleCount - 1 - i) * channels;
+
+                    for (size_t j = 0; j < channels; ++j)
+                    {
+                        T tmp = out0[j];
+                        out0[j] = out1[j];
+                        out1[j] = tmp;
+                    }
+                }
+            }
+        }
+        
         TLRENDER_ENUM_IMPL(
             DataType,
             "None",
@@ -157,6 +183,57 @@ namespace tl
             }
         }
 
+        void reverse(
+            uint8_t** inOut,
+            size_t inCount,
+            size_t sampleCount,
+            uint8_t channelCount,
+            DataType type)
+        {
+            for( size_t i = 0; i < inCount; ++i )
+            {
+                switch (type)
+                {
+                case DataType::S8:
+                {
+                    reverseAudio<S8_T>(inOut[i],
+                                       channelCount,
+                                       sampleCount);
+                    break;
+                }
+                case DataType::S16:
+                {
+                    reverseAudio<S16_T>(inOut[i],
+                                        channelCount,
+                                        sampleCount);
+                    break;
+                }
+                case DataType::S32:
+                {
+                    reverseAudio<S32_T>(inOut[i],
+                                        channelCount,
+                                        sampleCount);
+                    break;
+                }
+                case DataType::F32:
+                {
+                    reverseAudio<F32_T>(inOut[i],
+                                        channelCount,
+                                        sampleCount);
+                    break;
+                }
+                case DataType::F64:
+                {
+                    reverseAudio<F64_T>(inOut[i],
+                                        channelCount,
+                                        sampleCount);
+                    break;
+                }
+                default: break;
+                }
+            }
+        }
+        
         void mix(
             const uint8_t** in,
             size_t inCount,
@@ -386,8 +463,10 @@ namespace tl
             size_t size = 0;
             while (!in.empty() && (size + in.front()->getByteCount() <= byteCount))
             {
-                const size_t itemByteCount = in.front()->getByteCount();
-                std::memcpy(out, in.front()->getData(), itemByteCount);
+                auto item = in.front();
+                const size_t itemDataSize  = item->getInfo().getByteCount();
+                const size_t itemByteCount = item->getByteCount();
+                std::memcpy(out, item->getData(), itemByteCount);
                 size += itemByteCount;
                 out += itemByteCount;
                 in.pop_front();
@@ -396,10 +475,12 @@ namespace tl
             {
                 auto item = in.front();
                 in.pop_front();
-                std::memcpy(out, item->getData(), byteCount - size);
-                const size_t newItemByteCount = item->getByteCount() - (byteCount - size);
-                auto newItem = audio::Audio::create(item->getInfo(), newItemByteCount / item->getInfo().getByteCount());
-                std::memcpy(newItem->getData(), item->getData() + byteCount - size, newItemByteCount);
+                const size_t itemByteCount = byteCount - size;
+                const size_t itemDataSize  = item->getInfo().getByteCount();
+                std::memcpy(out, item->getData(), itemByteCount);
+                const size_t newItemByteCount = item->getByteCount() - itemByteCount;
+                auto newItem = audio::Audio::create(item->getInfo(), newItemByteCount / itemDataSize);
+                std::memcpy(newItem->getData(), item->getData() + itemByteCount, newItemByteCount);
                 in.push_front(newItem);
             }
         }

@@ -122,6 +122,8 @@ namespace tl
                 std::unique_ptr<RtAudio> rtAudio;
 #endif // TLRENDER_AUDIO
                 std::map<int64_t, std::future<AudioData> > audioDataRequests;
+                std::chrono::steady_clock::time_point cacheTimer;
+                std::chrono::steady_clock::time_point logTimer;
                 std::atomic<bool> running;
                 std::thread thread;
             };
@@ -133,10 +135,9 @@ namespace tl
                 std::shared_ptr<audio::AudioConvert> convert;
                 std::list<std::shared_ptr<audio::Audio> > buffer;
                 size_t rtAudioCurrentFrame = 0;
+                size_t backwardsSize = std::numeric_limits<size_t>::max();
             };
             AudioThread audioThread;
-
-            std::chrono::steady_clock::time_point logTimer;
         };
     }
 }
