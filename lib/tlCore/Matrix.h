@@ -4,9 +4,7 @@
 
 #pragma once
 
-#include <nlohmann/json.hpp>
-
-#include <iostream>
+#include <tlCore/Vector.h>
 
 namespace tl
 {
@@ -56,6 +54,34 @@ namespace tl
 
         //! 4x4 floating point matrix.
         typedef Matrix4x4<float> Matrix4x4f;
+
+        //! Create a translation matrix.
+        template<typename T>
+        constexpr Matrix4x4<T> translate(const Vector3<T>&);
+
+        //! Create a X rotation matrix.
+        template<typename T>
+        Matrix4x4<T> rotateX(T);
+
+        //! Create a Y rotation matrix.
+        template<typename T>
+        Matrix4x4<T> rotateY(T);
+
+        //! Create a Z rotation matrix.
+        template<typename T>
+        Matrix4x4<T> rotateZ(T);
+
+        //! Create a scale matrix.
+        template<typename T>
+        constexpr Matrix4x4<T> scale(const Vector3<T>&);
+
+        //! Create an orthographic matrix.
+        template<typename T>
+        Matrix4x4<T> ortho(T left, T right, T bottom, T top, T near, T far);
+
+        //! Create a perspective matrix.
+        template<typename T>
+        Matrix4x4<T> perspective(T fov, T aspect, T near, T far);
 
         void to_json(nlohmann::json&, const Matrix3x3f&);
         void to_json(nlohmann::json&, const Matrix4x4f&);

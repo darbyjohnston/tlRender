@@ -14,7 +14,7 @@ namespace tl
 {
     namespace examples
     {
-        //! Example showing the filmstrip widget.
+        //! Example using the filmstrip widget.
         namespace filmstrip_qtwidget
         {
             //! Application.

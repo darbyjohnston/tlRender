@@ -12,8 +12,8 @@ namespace tl
         {}
 
         constexpr Size::Size(
-            uint16_t w,
-            uint16_t h,
+            SizeType w,
+            SizeType h,
             float pixelAspectRatio) noexcept :
             w(w),
             h(h),
@@ -126,7 +126,7 @@ namespace tl
             pixelType(pixelType)
         {}
 
-        inline Info::Info(uint16_t w, uint16_t h, PixelType pixelType) :
+        inline Info::Info(SizeType w, SizeType h, PixelType pixelType) :
             size(w, h),
             pixelType(pixelType)
         {}
@@ -161,12 +161,12 @@ namespace tl
             return _info.size;
         }
 
-        inline uint16_t Image::getWidth() const
+        inline SizeType Image::getWidth() const
         {
             return _info.size.w;
         }
 
-        inline uint16_t Image::getHeight() const
+        inline SizeType Image::getHeight() const
         {
             return _info.size.h;
         }

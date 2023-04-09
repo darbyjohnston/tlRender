@@ -6,6 +6,8 @@
 
 #include <tlApp/IApp.h>
 
+#include <cstring>
+
 using namespace tl::app;
 
 namespace tl
@@ -68,13 +70,18 @@ namespace tl
                         "output",
                         "This is help for the output argument.",
                         true);
+                    auto option = CmdLineValueOption<int>::create(
+                        _option,
+                        { "-option" },
+                        "This is the help for the option.");
                     IApp::_init(
                         argc,
                         argv,
                         context,
                         "test",
                         "Test application.",
-                        { inputArg, outputArg });
+                        { inputArg, outputArg },
+                        { option });
                     
                     _log("Log test");
                     
@@ -95,6 +102,7 @@ namespace tl
             private:
                 std::string _input;
                 std::string _output;
+                int _option = 0;
             };
         }
 
@@ -122,7 +130,7 @@ namespace tl
             }
             try
             {
-                const auto args = Args({ "app", "input", "output", "-sequenceDefaultSpeed" });
+                const auto args = Args({ "app", "input", "output", "-option" });
                 auto app = App::create(args.argc, args.argv, _context);
                 TLRENDER_ASSERT(false);
             }

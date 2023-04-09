@@ -19,7 +19,7 @@
 #include <tlQt/MetaTypes.h>
 #include <tlQt/OutputDevice.h>
 #include <tlQt/TimeObject.h>
-#include <tlQt/TimelineThumbnailProvider.h>
+#include <tlQt/TimelineThumbnailObject.h>
 #include <tlQt/TimelinePlayer.h>
 
 #include <tlTimeline/Util.h>
@@ -44,9 +44,7 @@ namespace tl
                 std::string fileName;
                 std::string audioFileName;
                 std::string compareFileName;
-                timeline::CompareMode compareMode = timeline::CompareMode::A;
-                math::Vector2f wipeCenter = math::Vector2f(.5F, .5F);
-                float wipeRotation = 0.F;
+                timeline::CompareOptions compareOptions;
                 double speed = 0.0;
                 timeline::Playback playback = timeline::Playback::Stop;
                 timeline::Loop loop = timeline::Loop::Loop;
@@ -65,7 +63,7 @@ namespace tl
             qt::ContextObject* contextObject = nullptr;
             qt::TimeObject* timeObject = nullptr;
             SettingsObject* settingsObject = nullptr;
-            qt::TimelineThumbnailProvider* thumbnailProvider = nullptr;
+            qt::TimelineThumbnailObject* thumbnailObject = nullptr;
             std::shared_ptr<FilesModel> filesModel;
             std::shared_ptr<observer::ListObserver<std::shared_ptr<FilesModelItem> > > activeObserver;
             std::vector<std::shared_ptr<FilesModelItem> > active;
@@ -118,21 +116,21 @@ namespace tl
                 { "-compare", "-b" },
                 "A/B comparison \"B\" file name."),
             app::CmdLineValueOption<timeline::CompareMode>::create(
-                p.options.compareMode,
+                p.options.compareOptions.mode,
                 { "-compareMode", "-c" },
                 "A/B comparison mode.",
-                string::Format("{0}").arg(p.options.compareMode),
+                string::Format("{0}").arg(p.options.compareOptions.mode),
                 string::join(timeline::getCompareModeLabels(), ", ")),
             app::CmdLineValueOption<math::Vector2f>::create(
-                p.options.wipeCenter,
+                p.options.compareOptions.wipeCenter,
                 { "-wipeCenter", "-wc" },
                 "A/B comparison wipe center.",
-                string::Format("{0}").arg(p.options.wipeCenter)),
+                string::Format("{0}").arg(p.options.compareOptions.wipeCenter)),
             app::CmdLineValueOption<float>::create(
-                p.options.wipeRotation,
+                p.options.compareOptions.wipeRotation,
                 { "-wipeRotation", "-wr" },
                 "A/B comparison wipe rotation.",
-                string::Format("{0}").arg(p.options.wipeRotation)),
+                string::Format("{0}").arg(p.options.compareOptions.wipeRotation)),
             app::CmdLineValueOption<double>::create(
                 p.options.speed,
                 { "-speed" },
@@ -224,7 +222,7 @@ namespace tl
                     }
                 });
 
-            p.thumbnailProvider = new qt::TimelineThumbnailProvider(context, this);
+            p.thumbnailObject = new qt::TimelineThumbnailObject(context, this);
 
             p.filesModel = FilesModel::create(context);
             p.activeObserver = observer::ListObserver<std::shared_ptr<FilesModelItem> >::create(
@@ -321,11 +319,7 @@ namespace tl
             {
                 if (!p.options.compareFileName.empty())
                 {
-                    timeline::CompareOptions compareOptions;
-                    compareOptions.mode = p.options.compareMode;
-                    compareOptions.wipeCenter = p.options.wipeCenter;
-                    compareOptions.wipeRotation = p.options.wipeRotation;
-                    p.filesModel->setCompareOptions(compareOptions);
+                    p.filesModel->setCompareOptions(p.options.compareOptions);
                     open(QString::fromUtf8(p.options.compareFileName.c_str()));
                 }
 
@@ -394,9 +388,9 @@ namespace tl
             return _p->settingsObject;
         }
 
-        qt::TimelineThumbnailProvider* App::thumbnailProvider() const
+        qt::TimelineThumbnailObject* App::thumbnailObject() const
         {
-            return _p->thumbnailProvider;
+            return _p->thumbnailObject;
         }
 
         const std::shared_ptr<FilesModel>& App::filesModel() const

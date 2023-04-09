@@ -22,10 +22,10 @@ namespace tl
 
         FilesAModel::FilesAModel(
             const std::shared_ptr<FilesModel>& filesModel,
-            qt::TimelineThumbnailProvider* thumbnailProvider,
+            qt::TimelineThumbnailObject* thumbnailObject,
             const std::shared_ptr<system::Context>& context,
             QObject* parent) :
-            FilesTableModel(filesModel, thumbnailProvider, context, parent),
+            FilesTableModel(filesModel, thumbnailObject, context, parent),
             _p(new Private)
         {
             TLRENDER_P();

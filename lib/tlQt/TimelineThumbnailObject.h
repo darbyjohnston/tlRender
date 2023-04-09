@@ -16,16 +16,16 @@ namespace tl
 {
     namespace qt
     {
-        //! Timeline thumbnail provider.
-        class TimelineThumbnailProvider : public QThread
+        //! Timeline thumbnail object.
+        class TimelineThumbnailObject : public QThread
         {
             Q_OBJECT
 
         public:
-            TimelineThumbnailProvider(
+            TimelineThumbnailObject(
                 const std::shared_ptr<system::Context>&,
                 QObject* parent = nullptr);
-            ~TimelineThumbnailProvider() override;
+            ~TimelineThumbnailObject() override;
 
             //! Request a thumbnail. The request ID is returned.
             qint64 request(

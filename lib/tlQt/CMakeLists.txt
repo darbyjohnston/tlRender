@@ -4,7 +4,7 @@ set(HEADERS
     OutputDevice.h
     TimeObject.h
     TimelinePlayer.h
-    TimelineThumbnailProvider.h
+    TimelineThumbnailObject.h
     ToolTipsFilter.h
     Util.h)
 set(PRIVATE_HEADERS
@@ -16,7 +16,7 @@ set(SOURCE
     OutputDevicePrivate.cpp
     TimeObject.cpp
     TimelinePlayer.cpp
-    TimelineThumbnailProvider.cpp
+    TimelineThumbnailObject.cpp
     ToolTipsFilter.cpp
     Util.cpp)
 

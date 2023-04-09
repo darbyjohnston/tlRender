@@ -72,6 +72,47 @@ namespace tl
         //! Four-dimensional floating point vector.
         typedef Vector4<float> Vector4f;
 
+        //! \name Operators
+        ///@{
+
+        template<typename T>
+        inline Vector2<T> operator + (const Vector2<T>&, const Vector2<T>&);
+        template<typename T>
+        inline Vector3<T> operator + (const Vector3<T>&, const Vector3<T>&);
+        template<typename T>
+        inline Vector4<T> operator + (const Vector4<T>&, const Vector4<T>&);
+
+        template<typename T>
+        inline Vector2<T> operator + (const Vector2<T>&, T);
+        template<typename T>
+        inline Vector3<T> operator + (const Vector3<T>&, T);
+        template<typename T>
+        inline Vector4<T> operator + (const Vector4<T>&, T);
+
+        template<typename T>
+        inline Vector2<T> operator - (const Vector2<T>&, const Vector2<T>&);
+        template<typename T>
+        inline Vector3<T> operator - (const Vector3<T>&, const Vector3<T>&);
+        template<typename T>
+        inline Vector4<T> operator - (const Vector4<T>&, const Vector4<T>&);
+
+        template<typename T>
+        inline Vector2<T> operator - (const Vector2<T>&, T);
+        template<typename T>
+        inline Vector3<T> operator - (const Vector3<T>&, T);
+        template<typename T>
+        inline Vector4<T> operator - (const Vector4<T>&, T);
+
+        Vector2i operator * (const Vector2i&, float);
+        Vector2f operator * (const Vector2f&, float);
+        Vector3f operator * (const Vector3f&, float);
+        Vector4f operator * (const Vector4f&, float);
+
+        ///@}
+
+        //! \name Serialize
+        ///@{
+
         void to_json(nlohmann::json&, const Vector2i&);
         void to_json(nlohmann::json&, const Vector2f&);
         void to_json(nlohmann::json&, const Vector3f&);
@@ -91,6 +132,8 @@ namespace tl
         std::istream& operator >> (std::istream&, Vector2f&);
         std::istream& operator >> (std::istream&, Vector3f&);
         std::istream& operator >> (std::istream&, Vector4f&);
+
+        ///@}
     }
 }
 

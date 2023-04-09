@@ -4,8 +4,6 @@
 
 #include <tlApp/IApp.h>
 
-#include <tlIO/IOSystem.h>
-
 #include <tlCore/String.h>
 #include <tlCore/StringFormat.h>
 
@@ -47,42 +45,6 @@ namespace tl
             p.cmdLineSummary = cmdLineSummary;
             p.cmdLineArgs = args;
             p.cmdLineOptions = options;
-            p.cmdLineOptions.push_back(CmdLineValueOption<float>::create(
-                _options.sequenceDefaultSpeed,
-                { "-sequenceDefaultSpeed" },
-                "Default speed for image sequences.",
-                string::Format("{0}").arg(_options.sequenceDefaultSpeed)));
-            p.cmdLineOptions.push_back(CmdLineValueOption<int>::create(
-                _options.sequenceThreadCount,
-                { "-sequenceThreadCount" },
-                "Number of threads for image sequence I/O.",
-                string::Format("{0}").arg(_options.sequenceThreadCount)));
-#if defined(TLRENDER_EXR)
-            p.cmdLineOptions.push_back(CmdLineValueOption<exr::Compression>::create(
-                _options.exrCompression,
-                { "-exrCompression" },
-                "OpenEXR output compression.",
-                string::Format("{0}").arg(_options.exrCompression),
-                string::join(exr::getCompressionLabels(), ", ")));
-            p.cmdLineOptions.push_back(CmdLineValueOption<float>::create(
-                _options.exrDWACompressionLevel,
-                { "-exrDWACompressionLevel" },
-                "OpenEXR DWA compression level.",
-                string::Format("{0}").arg(_options.exrDWACompressionLevel)));
-#endif // TLRENDER_EXR
-#if defined(TLRENDER_FFMPEG)
-            p.cmdLineOptions.push_back(CmdLineValueOption<int>::create(
-                _options.ffmpegThreadCount,
-                { "-ffmpegThreadCount" },
-                "Number of threads for FFmpeg I/O.",
-                string::Format("{0}").arg(_options.ffmpegThreadCount)));
-            p.cmdLineOptions.push_back(app::CmdLineValueOption<std::string>::create(
-                _options.ffmpegWriteProfile,
-                { "-ffmpegProfile", "-ffp" },
-                "FFmpeg output profile.",
-                std::string(),
-                string::join(ffmpeg::getProfileLabels(), ", ")));
-#endif // TLRENDER_FFMPEG
             p.cmdLineOptions.push_back(CmdLineFlagOption::create(
                 _options.log,
                 { "-log" },
@@ -107,43 +69,6 @@ namespace tl
                     },
                     observer::CallbackAction::Suppress);
             }
-
-            // Set I/O options.
-            io::Options ioOptions;
-            {
-                std::stringstream ss;
-                ss << _options.sequenceDefaultSpeed;
-                ioOptions["SequenceIO/DefaultSpeed"] = ss.str();
-            }
-            {
-                std::stringstream ss;
-                ss << _options.sequenceThreadCount;
-                ioOptions["SequenceIO/ThreadCount"] = ss.str();
-            }
-#if defined(TLRENDER_EXR)
-            {
-                std::stringstream ss;
-                ss << _options.exrCompression;
-                ioOptions["exr/Compression"] = ss.str();
-            }
-            {
-                std::stringstream ss;
-                ss << _options.exrDWACompressionLevel;
-                ioOptions["exr/DWACompressionLevel"] = ss.str();
-            }
-#endif // TLRENDER_EXR
-#if defined(TLRENDER_FFMPEG)
-            if (!_options.ffmpegWriteProfile.empty())
-            {
-                ioOptions["ffmpeg/WriteProfile"] = _options.ffmpegWriteProfile;
-            }
-            {
-                std::stringstream ss;
-                ss << _options.ffmpegThreadCount;
-                ioOptions["ffmpeg/ThreadCount"] = ss.str();
-            }
-#endif // TLRENDER_FFMPEG
-            context->getSystem<io::System>()->setOptions(ioOptions);
         }
         
         IApp::IApp() :
@@ -216,7 +141,7 @@ namespace tl
                 p.cmdLine.size() > requiredArgs + optionalArgs ||
                 _options.help)
             {
-                _printCmdLineHelp();
+                  _printCmdLineHelp();
                 return 1;
             }
             for (const auto& i : p.cmdLineArgs)

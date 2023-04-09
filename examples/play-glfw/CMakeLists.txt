@@ -1,10 +1,8 @@
 set(HEADERS
-    App.h
-    Util.h)
+    App.h)
 
 set(SOURCE
     App.cpp
-    Util.cpp
     main.cpp)
 
 add_executable(play-glfw ${SOURCE} ${HEADERS})

@@ -6,7 +6,7 @@
 
 #include "App.h"
 
-#include <tlQt/TimelineThumbnailProvider.h>
+#include <tlQt/TimelineThumbnailObject.h>
 
 #include <tlCore/File.h>
 
@@ -25,15 +25,15 @@ namespace tl
                 const std::string& input,
                 const std::shared_ptr<system::Context>& context,
                 QWidget* parent) :
-                _context(context),
-                QMainWindow(parent)
+                QMainWindow(parent),
+                _context(context)
             {
                 setAcceptDrops(true);
 
-                _thumbnailProvider = new qt::TimelineThumbnailProvider(context, this);
+                _thumbnailObject = new qt::TimelineThumbnailObject(context, this);
 
-                _filmstripWidget = new qtwidget::FilmstripWidget(_thumbnailProvider);
-                _filmstripWidget->setRowCount(10);
+                _filmstripWidget = new qtwidget::FilmstripWidget(_thumbnailObject);
+                _filmstripWidget->setRowCount(5);
                 setCentralWidget(_filmstripWidget);
 
                 if (!input.empty())

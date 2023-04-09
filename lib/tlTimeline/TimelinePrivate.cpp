@@ -11,96 +11,12 @@
 
 #include <tlCore/StringFormat.h>
 
-#include <opentimelineio/externalReference.h>
-#include <opentimelineio/imageSequenceReference.h>
 #include <opentimelineio/transition.h>
 
 namespace tl
 {
     namespace timeline
     {
-        file::Path Timeline::Private::getPath(const otio::MediaReference* ref) const
-        {
-            std::string url;
-            if (auto externalRef = dynamic_cast<const otio::ExternalReference*>(ref))
-            {
-                url = externalRef->target_url();
-            }
-            else if (auto imageSequenceRef = dynamic_cast<const otio::ImageSequenceReference*>(ref))
-            {
-                std::stringstream ss;
-                ss << imageSequenceRef->target_url_base() <<
-                    imageSequenceRef->name_prefix() <<
-                    std::setfill('0') << std::setw(imageSequenceRef->frame_zero_padding()) <<
-                    imageSequenceRef->start_frame() <<
-                    imageSequenceRef->name_suffix();
-                url = ss.str();
-            }
-            else if (auto rawMemoryRef = dynamic_cast<const RawMemoryReference*>(ref))
-            {
-                url = rawMemoryRef->target_url();
-            }
-            else if (auto sharedMemoryRef = dynamic_cast<const SharedMemoryReference*>(ref))
-            {
-                url = sharedMemoryRef->target_url();
-            }
-            else if (auto rawMemorySequenceRef = dynamic_cast<const RawMemorySequenceReference*>(ref))
-            {
-                url = rawMemorySequenceRef->target_url();
-            }
-            else if (auto sharedMemorySequenceRef = dynamic_cast<const SharedMemorySequenceReference*>(ref))
-            {
-                url = sharedMemorySequenceRef->target_url();
-            }
-            return timeline::getPath(url, path.getDirectory(), options.pathOptions);
-        }
-
-        std::vector<file::MemoryRead> Timeline::Private::getMemoryRead(const otio::MediaReference* ref)
-        {
-            std::vector<file::MemoryRead> out;
-            if (auto rawMemoryReference =
-                dynamic_cast<const RawMemoryReference*>(ref))
-            {
-                out.push_back(file::MemoryRead(
-                    rawMemoryReference->memory(),
-                    rawMemoryReference->memory_size()));
-            }
-            else if (auto sharedMemoryReference =
-                dynamic_cast<const SharedMemoryReference*>(ref))
-            {
-                if (const auto& memory = sharedMemoryReference->memory())
-                {
-                    out.push_back(file::MemoryRead(
-                        memory->data(),
-                        memory->size()));
-                }
-            }
-            else if (auto rawMemorySequenceReference =
-                dynamic_cast<const RawMemorySequenceReference*>(ref))
-            {
-                const auto& memory = rawMemorySequenceReference->memory();
-                const size_t memory_size = memory.size();
-                const auto& memory_sizes = rawMemorySequenceReference->memory_sizes();
-                const size_t memory_sizes_size = memory_sizes.size();
-                for (size_t i = 0; i < memory_size && i < memory_sizes_size; ++i)
-                {
-                    out.push_back(file::MemoryRead(memory[i], memory_sizes[i]));
-                }
-            }
-            else if (auto sharedMemorySequenceReference =
-                dynamic_cast<const SharedMemorySequenceReference*>(ref))
-            {
-                for (const auto& memory : sharedMemorySequenceReference->memory())
-                {
-                    if (memory)
-                    {
-                        out.push_back(file::MemoryRead(memory->data(), memory->size()));
-                    }
-                }
-            }
-            return out;
-        }
-
         bool Timeline::Private::getVideoInfo(const otio::Composable* composable)
         {
             if (auto clip = dynamic_cast<const otio::Clip*>(composable))
@@ -510,12 +426,18 @@ namespace tl
             const io::Options& ioOptions)
         {
             ReadCacheItem out;
-            const auto path = getPath(clip->media_reference());
+            const auto path = timeline::getPath(
+                clip->media_reference(),
+                this->path.getDirectory(),
+                options.pathOptions);
             if (!readCache->get(path.get(), out))
             {
                 if (auto context = this->context.lock())
                 {
-                    const auto path = getPath(clip->media_reference());
+                    const auto path = timeline::getPath(
+                        clip->media_reference(),
+                        this->path.getDirectory(),
+                        options.pathOptions);
                     const auto memoryRead = getMemoryRead(clip->media_reference());
                     io::Options options = ioOptions;
                     options["SequenceIO/DefaultSpeed"] = string::Format("{0}").arg(timeRange.duration().rate());
@@ -558,9 +480,8 @@ namespace tl
             ReadCacheItem item = getRead(clip, options.ioOptions);
             if (item.read)
             {
-                const auto clipTime = track->transformed_time(time, clip);
-                const auto readTime = time::round(clipTime.rescaled_to(item.ioInfo.videoTime.duration().rate()));
-                out = item.read->readVideo(readTime, videoLayer);
+                const auto mediaTime = timeline::mediaTime(time, track, clip, item.ioInfo.videoTime.duration().rate());
+                out = item.read->readVideo(mediaTime, videoLayer);
             }
             return out;
         }
@@ -575,10 +496,10 @@ namespace tl
             if (item.read)
             {
                 const auto clipRange = track->transformed_time_range(timeRange, clip);
-                const auto readRange = otime::TimeRange(
+                const auto mediaRange = otime::TimeRange(
                     time::floor(clipRange.start_time().rescaled_to(ioInfo.audio.sampleRate)),
                     time::ceil(clipRange.duration().rescaled_to(ioInfo.audio.sampleRate)));
-                out = item.read->readAudio(readRange);
+                out = item.read->readAudio(mediaRange);
             }
             return out;
         }

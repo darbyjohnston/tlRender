@@ -25,17 +25,25 @@ namespace tl
             //! Create a new renderer.
             static std::shared_ptr<Render> create(const std::shared_ptr<system::Context>&);
 
-            void setTextureCacheSize(size_t) override;
-            void setColorConfig(const timeline::ColorConfigOptions&) override;
-            void setLUT(const timeline::LUTOptions&) override;
-            void begin(const imaging::Size&,
+            void begin(
+                const imaging::Size&,
+                const timeline::ColorConfigOptions& = timeline::ColorConfigOptions(),
+                const timeline::LUTOptions& = timeline::LUTOptions(),
                 const timeline::RenderOptions& = timeline::RenderOptions()) override;
             void end() override;
+
+            void setViewport(const math::BBox2i&) override;
+            void clearViewport(const imaging::Color4f&) override;
+            void setClipRectEnabled(bool) override;
+            void setClipRect(const math::BBox2i&) override;
+            void setTransform(const math::Matrix4x4f&) override;
+
             void drawRect(
                 const math::BBox2i&,
                 const imaging::Color4f&) override;
             void drawMesh(
                 const geom::TriangleMesh2&,
+                const math::Vector2i& position,
                 const imaging::Color4f&) override;
             void drawText(
                 const std::vector<std::shared_ptr<imaging::Glyph> >& glyphs,
@@ -54,6 +62,44 @@ namespace tl
                 const timeline::CompareOptions& = timeline::CompareOptions()) override;
 
         private:
+            void _setColorConfig(const timeline::ColorConfigOptions&);
+            void _setLUT(const timeline::LUTOptions&);
+            void _drawVideoA(
+                const std::vector<timeline::VideoData>&,
+                const std::vector<math::BBox2i>&,
+                const std::vector<timeline::ImageOptions>&,
+                const std::vector<timeline::DisplayOptions>&,
+                const timeline::CompareOptions&);
+            void _drawVideoB(
+                const std::vector<timeline::VideoData>&,
+                const std::vector<math::BBox2i>&,
+                const std::vector<timeline::ImageOptions>&,
+                const std::vector<timeline::DisplayOptions>&,
+                const timeline::CompareOptions&);
+            void _drawVideoWipe(
+                const std::vector<timeline::VideoData>&,
+                const std::vector<math::BBox2i>&,
+                const std::vector<timeline::ImageOptions>&,
+                const std::vector<timeline::DisplayOptions>&,
+                const timeline::CompareOptions&);
+            void _drawVideoOverlay(
+                const std::vector<timeline::VideoData>&,
+                const std::vector<math::BBox2i>&,
+                const std::vector<timeline::ImageOptions>&,
+                const std::vector<timeline::DisplayOptions>&,
+                const timeline::CompareOptions&);
+            void _drawVideoDifference(
+                const std::vector<timeline::VideoData>&,
+                const std::vector<math::BBox2i>&,
+                const std::vector<timeline::ImageOptions>&,
+                const std::vector<timeline::DisplayOptions>&,
+                const timeline::CompareOptions&);
+            void _drawVideoTile(
+                const std::vector<timeline::VideoData>&,
+                const std::vector<math::BBox2i>&,
+                const std::vector<timeline::ImageOptions>&,
+                const std::vector<timeline::DisplayOptions>&,
+                const timeline::CompareOptions&);
             void _drawVideo(
                 const timeline::VideoData&,
                 const math::BBox2i&,

@@ -18,8 +18,6 @@
 
 #include <QSurfaceFormat>
 
-#include <glm/gtc/matrix_transform.hpp>
-
 #include <array>
 #include <atomic>
 #include <iostream>
@@ -614,12 +612,13 @@ namespace tl
                         {
                             gl::OffscreenBufferBinding binding(offscreenBuffer);
 
-                            render->setColorConfig(colorConfigOptions);
-                            render->setLUT(lutOptions);
-                            render->begin(renderSize);
+                            render->begin(
+                                renderSize,
+                                colorConfigOptions,
+                                lutOptions);
                             render->drawVideo(
                                 videoData,
-                                timeline::tiles(compareOptions.mode, sizes),
+                                timeline::getBBoxes(compareOptions.mode, sizes),
                                 imageOptions,
                                 displayOptions,
                                 compareOptions);
@@ -706,25 +705,19 @@ namespace tl
                             glClear(GL_COLOR_BUFFER_BIT);
 
                             shader->bind();
-                            glm::mat4x4 vm(1.F);
-                            vm = glm::translate(vm, glm::vec3(viewPosTmp.x, viewPosTmp.y, 0.F));
-                            vm = glm::scale(vm, glm::vec3(viewZoomTmp, viewZoomTmp, 1.F));
-                            const glm::mat4x4 pm = glm::ortho(
+                            math::Matrix4x4f vm;
+                            vm = vm * math::translate(math::Vector3f(viewPosTmp.x, viewPosTmp.y, 0.F));
+                            vm = vm * math::scale(math::Vector3f(viewZoomTmp, viewZoomTmp, 1.F));
+                            auto pm = math::ortho(
                                 0.F,
                                 static_cast<float>(viewportSize.w),
                                 0.F,
                                 static_cast<float>(viewportSize.h),
                                 -1.F,
                                 1.F);
-                            glm::mat4x4 vpm = pm * vm;
-                            shader->setUniform(
-                                "transform.mvp",
-                                math::Matrix4x4f(
-                                    vpm[0][0], vpm[0][1], vpm[0][2], vpm[0][3],
-                                    vpm[1][0], vpm[1][1], vpm[1][2], vpm[1][3],
-                                    vpm[2][0], vpm[2][1], vpm[2][2], vpm[2][3],
-                                    vpm[3][0], vpm[3][1], vpm[3][2], vpm[3][3]));
+                            shader->setUniform("transform.mvp", pm * vm);
                             shader->setUniform("mirrorY", false);
+
                             glActiveTexture(GL_TEXTURE0);
                             glBindTexture(GL_TEXTURE_2D, offscreenBuffer->getColorID());
 
@@ -776,14 +769,7 @@ namespace tl
                                 default: break;
                                 }
 
-                                vpm = pm;
-                                shader->setUniform(
-                                    "transform.mvp",
-                                    math::Matrix4x4f(
-                                        vpm[0][0], vpm[0][1], vpm[0][2], vpm[0][3],
-                                        vpm[1][0], vpm[1][1], vpm[1][2], vpm[1][3],
-                                        vpm[2][0], vpm[2][1], vpm[2][2], vpm[2][3],
-                                        vpm[3][0], vpm[3][1], vpm[3][2], vpm[3][3]));
+                                shader->setUniform("transform.mvp", pm);
                                 shader->setUniform("mirrorY", true);
 
                                 glBindTexture(GL_TEXTURE_2D, overlayTexture->getID());

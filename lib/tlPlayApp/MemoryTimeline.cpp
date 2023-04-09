@@ -5,6 +5,7 @@
 #include <tlPlayApp/MemoryTimeline.h>
 
 #include <tlTimeline/MemoryReference.h>
+#include <tlTimeline/Util.h>
 
 #include <tlCore/StringFormat.h>
 

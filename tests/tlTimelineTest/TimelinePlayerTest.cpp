@@ -5,6 +5,7 @@
 #include <tlTimelineTest/TimelinePlayerTest.h>
 
 #include <tlTimeline/TimelinePlayer.h>
+#include <tlTimeline/Util.h>
 
 #include <tlIO/IOSystem.h>
 

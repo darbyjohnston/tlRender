@@ -46,10 +46,6 @@ namespace tl
                 TLRENDER_ASSERT(a != b);
             }
             {
-                TLRENDER_ASSERT(0 == fToU8(0.0));
-                TLRENDER_ASSERT(255 == fToU8(1.0));
-            }
-            {
                 const Color4f c(1.F, .5F, 0.F);
                 nlohmann::json json;
                 to_json(json, c);

@@ -15,8 +15,6 @@
 
 #include <tlGlad/gl.h>
 
-#include <glm/gtc/matrix_transform.hpp>
-
 #include <array>
 #include <list>
 
@@ -135,26 +133,6 @@ namespace tl
 
         namespace
         {
-#if defined(TLRENDER_OCIO)
-            void setTextureParameters(GLenum textureType, OCIO::Interpolation interpolation)
-            {
-                if (OCIO::INTERP_NEAREST == interpolation)
-                {
-                    glTexParameteri(textureType, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-                    glTexParameteri(textureType, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-                }
-                else
-                {
-                    glTexParameteri(textureType, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                    glTexParameteri(textureType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                }
-
-                glTexParameteri(textureType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-                glTexParameteri(textureType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-                glTexParameteri(textureType, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-            }
-#endif // TLRENDER_OCIO
-
             std::vector<std::shared_ptr<Texture> > getTextures(
                 const imaging::Info& info,
                 const timeline::ImageFilters& imageFilters,
@@ -379,12 +357,220 @@ namespace tl
             return out;
         }
 
-        void Render::setTextureCacheSize(size_t value)
+        void Render::begin(
+            const imaging::Size& size,
+            const timeline::ColorConfigOptions& colorConfigOptions,
+            const timeline::LUTOptions& lutOptions,
+            const timeline::RenderOptions& renderOptions)
         {
-            _p->textureCache.setSize(value);
+            TLRENDER_P();
+
+            p.size = size;
+            _setColorConfig(colorConfigOptions);
+            _setLUT(lutOptions);
+            p.renderOptions = renderOptions;
+            p.textureCache.setSize(renderOptions.textureCacheSize);
+
+            glEnable(GL_BLEND);
+            glBlendEquation(GL_FUNC_ADD);
+
+            if (!p.shaders["mesh"])
+            {
+                p.shaders["mesh"] = Shader::create(vertexSource(), meshFragmentSource());
+            }
+
+            if (!p.shaders["text"])
+            {
+                p.shaders["text"] = Shader::create(vertexSource(), textFragmentSource());
+            }
+
+            if (!p.shaders["texture"])
+            {
+                p.shaders["texture"] = Shader::create(vertexSource(), textureFragmentSource());
+            }
+
+            if (!p.shaders["image"])
+            {
+                p.shaders["image"] = Shader::create(vertexSource(), imageFragmentSource());
+            }
+
+            if (!p.shaders["overlay"])
+            {
+                p.shaders["overlay"] = Shader::create(vertexSource(), textureFragmentSource());
+            }
+
+            if (!p.shaders["difference"])
+            {
+                p.shaders["difference"] = Shader::create(vertexSource(), differenceFragmentSource());
+            }
+
+            if (!p.shaders["dissolve"])
+            {
+                p.shaders["dissolve"] = Shader::create(vertexSource(), textureFragmentSource());
+            }
+
+            if (!p.shaders["display"])
+            {
+                std::string colorConfigDef;
+                std::string colorConfig;
+                std::string lutDef;
+                std::string lut;
+
+#if defined(TLRENDER_OCIO)
+                if (p.colorConfigData && p.colorConfigData->shaderDesc)
+                {
+                    colorConfigDef = p.colorConfigData->shaderDesc->getShaderText();
+                    colorConfig = "fColor = colorConfigFunc(fColor);";
+                }
+                if (p.lutData && p.lutData->shaderDesc)
+                {
+                    lutDef = p.lutData->shaderDesc->getShaderText();
+                    lut = "fColor = lutFunc(fColor);";
+                }
+#endif // TLRENDER_OCIO
+                std::string source = displayFragmentSource(
+                    colorConfigDef,
+                    colorConfig,
+                    lutDef,
+                    lut,
+                    p.lutOptions.order);
+                if (auto context = _context.lock())
+                {
+                    //context->log("tl::gl::Render", source);
+                    context->log("tl::gl::Render", "Creating display shader");
+                }
+                p.shaders["display"] = Shader::create(vertexSource(), source);
+            }
+            p.shaders["display"]->bind();
+            size_t texturesOffset = 1;
+#if defined(TLRENDER_OCIO)
+            if (p.colorConfigData)
+            {
+                for (size_t i = 0; i < p.colorConfigData->textures.size(); ++i)
+                {
+                    p.shaders["display"]->setUniform(
+                        p.colorConfigData->textures[i].sampler,
+                        static_cast<int>(texturesOffset + i));
+                }
+                texturesOffset += p.colorConfigData->textures.size();
+            }
+            if (p.lutData)
+            {
+                for (size_t i = 0; i < p.lutData->textures.size(); ++i)
+                {
+                    p.shaders["display"]->setUniform(
+                        p.lutData->textures[i].sampler,
+                        static_cast<int>(texturesOffset + i));
+                }
+                texturesOffset += p.lutData->textures.size();
+            }
+#endif // TLRENDER_OCIO
+
+            p.vbos["rect"] = VBO::create(2 * 3, VBOType::Pos2_F32);
+            p.vaos["rect"] = VAO::create(p.vbos["rect"]->getType(), p.vbos["rect"]->getID());
+            p.vbos["text"] = VBO::create(2 * 3, VBOType::Pos2_F32_UV_U16);
+            p.vaos["text"] = VAO::create(p.vbos["text"]->getType(), p.vbos["text"]->getID());
+            p.vbos["image"] = VBO::create(2 * 3, VBOType::Pos2_F32_UV_U16);
+            p.vaos["image"] = VAO::create(p.vbos["image"]->getType(), p.vbos["image"]->getID());
+            p.vbos["wipe"] = VBO::create(1 * 3, VBOType::Pos2_F32);
+            p.vaos["wipe"] = VAO::create(p.vbos["wipe"]->getType(), p.vbos["wipe"]->getID());
+            p.vbos["video"] = VBO::create(2 * 3, VBOType::Pos2_F32_UV_U16);
+            p.vaos["video"] = VAO::create(p.vbos["video"]->getType(), p.vbos["video"]->getID());
+
+            setViewport(math::BBox2i(0, 0, size.w, size.h));
+            if (renderOptions.clear)
+            {
+                clearViewport(renderOptions.clearColor);
+            }
+            setTransform(math::ortho(
+                0.F,
+                static_cast<float>(size.w),
+                static_cast<float>(size.h),
+                0.F,
+                -1.F,
+                1.F));
         }
 
-        void Render::setColorConfig(const timeline::ColorConfigOptions& value)
+        void Render::end()
+        {}
+
+        void Render::setViewport(const math::BBox2i& value)
+        {
+            TLRENDER_P();
+            p.viewport = value;
+            glViewport(
+                value.x(),
+                p.size.h - value.h() - value.y(),
+                value.w(),
+                value.h());
+        }
+
+        void Render::clearViewport(const imaging::Color4f& value)
+        {
+            glClearColor(value.r, value.g, value.b, value.a);
+            glClear(GL_COLOR_BUFFER_BIT);
+        }
+
+        void Render::setClipRectEnabled(bool value)
+        {
+            TLRENDER_P();
+            p.clipRectEnabled = value;
+            if (p.clipRectEnabled)
+            {
+                glEnable(GL_SCISSOR_TEST);
+            }
+            else
+            {
+                glDisable(GL_SCISSOR_TEST);
+            }
+        }
+
+        void Render::setClipRect(const math::BBox2i& value)
+        {
+            TLRENDER_P();
+            p.clipRect = value;
+            glScissor(
+                value.x(),
+                p.size.h - value.h() - value.y(),
+                value.w(),
+                value.h());
+        }
+
+        void Render::setTransform(const math::Matrix4x4f& value)
+        {
+            TLRENDER_P();
+            p.transform = value;
+            for (auto i : p.shaders)
+            {
+                i.second->bind();
+                i.second->setUniform("transform.mvp", value);
+            }
+        }
+
+        namespace
+        {
+#if defined(TLRENDER_OCIO)
+            void setTextureParameters(GLenum textureType, OCIO::Interpolation interpolation)
+            {
+                if (OCIO::INTERP_NEAREST == interpolation)
+                {
+                    glTexParameteri(textureType, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                    glTexParameteri(textureType, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                }
+                else
+                {
+                    glTexParameteri(textureType, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                    glTexParameteri(textureType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                }
+
+                glTexParameteri(textureType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                glTexParameteri(textureType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                glTexParameteri(textureType, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+            }
+#endif // TLRENDER_OCIO
+        }
+
+        void Render::_setColorConfig(const timeline::ColorConfigOptions& value)
         {
             TLRENDER_P();
             if (value == p.colorConfigOptions)
@@ -473,9 +659,9 @@ namespace tl
                     unsigned edgelen = 0;
                     OCIO::Interpolation interpolation = OCIO::INTERP_LINEAR;
                     p.colorConfigData->shaderDesc->get3DTexture(i, textureName, samplerName, edgelen, interpolation);
-                    if (!textureName  ||
+                    if (!textureName ||
                         !*textureName ||
-                        !samplerName  ||
+                        !samplerName ||
                         !*samplerName ||
                         0 == edgelen)
                     {
@@ -510,9 +696,9 @@ namespace tl
                     OCIO::GpuShaderDesc::TextureType channel = OCIO::GpuShaderDesc::TEXTURE_RGB_CHANNEL;
                     OCIO::Interpolation interpolation = OCIO::INTERP_LINEAR;
                     p.colorConfigData->shaderDesc->getTexture(i, textureName, samplerName, width, height, channel, interpolation);
-                    if (!textureName  ||
+                    if (!textureName ||
                         !*textureName ||
-                        !samplerName  ||
+                        !samplerName ||
                         !*samplerName ||
                         width == 0)
                     {
@@ -561,7 +747,7 @@ namespace tl
             p.shaders["display"].reset();
         }
 
-        void Render::setLUT(const timeline::LUTOptions& value)
+        void Render::_setLUT(const timeline::LUTOptions& value)
         {
             TLRENDER_P();
             if (value == p.lutOptions)
@@ -715,149 +901,5 @@ namespace tl
 
             p.shaders["display"].reset();
         }
-
-        void Render::begin(const imaging::Size& size,
-            const timeline::RenderOptions& renderOptions)
-        {
-            TLRENDER_P();
-
-            p.size = size;
-            
-            glViewport(0, 0, p.size.w, p.size.h);
-
-            if (renderOptions.clear)
-            {
-                glClearColor(0.F, 0.F, 0.F, 0.F);
-                glClear(GL_COLOR_BUFFER_BIT);
-            }
-
-            glEnable(GL_BLEND);
-            glBlendEquation(GL_FUNC_ADD);
-
-            const auto viewMatrix = glm::ortho(
-                0.F,
-                static_cast<float>(p.size.w),
-                static_cast<float>(p.size.h),
-                0.F,
-                -1.F,
-                1.F);
-            const math::Matrix4x4f mvp(
-                viewMatrix[0][0], viewMatrix[0][1], viewMatrix[0][2], viewMatrix[0][3],
-                viewMatrix[1][0], viewMatrix[1][1], viewMatrix[1][2], viewMatrix[1][3],
-                viewMatrix[2][0], viewMatrix[2][1], viewMatrix[2][2], viewMatrix[2][3],
-                viewMatrix[3][0], viewMatrix[3][1], viewMatrix[3][2], viewMatrix[3][3]);
-
-            if (!p.shaders["mesh"])
-            {
-                p.shaders["mesh"] = Shader::create(vertexSource(), meshFragmentSource());
-            }
-            p.shaders["mesh"]->bind();
-            p.shaders["mesh"]->setUniform("transform.mvp", mvp);
-
-            if (!p.shaders["text"])
-            {
-                p.shaders["text"] = Shader::create(vertexSource(), textFragmentSource());
-            }
-            p.shaders["text"]->bind();
-            p.shaders["text"]->setUniform("transform.mvp", mvp);
-
-            if (!p.shaders["texture"])
-            {
-                p.shaders["texture"] = Shader::create(vertexSource(), textureFragmentSource());
-            }
-            p.shaders["texture"]->bind();
-            p.shaders["texture"]->setUniform("transform.mvp", mvp);
-
-            if (!p.shaders["image"])
-            {
-                p.shaders["image"] = Shader::create(vertexSource(), imageFragmentSource());
-            }
-            p.shaders["image"]->bind();
-            p.shaders["image"]->setUniform("transform.mvp", mvp);
-
-            if (!p.shaders["display"])
-            {
-                std::string colorConfigDef;
-                std::string colorConfig;
-                std::string lutDef;
-                std::string lut;
-
-#if defined(TLRENDER_OCIO)
-                if (p.colorConfigData && p.colorConfigData->shaderDesc)
-                {
-                    colorConfigDef = p.colorConfigData->shaderDesc->getShaderText();
-                    colorConfig = "fColor = colorConfigFunc(fColor);";
-                }
-                if (p.lutData && p.lutData->shaderDesc)
-                {
-                    lutDef = p.lutData->shaderDesc->getShaderText();
-                    lut = "fColor = lutFunc(fColor);";
-                }
-#endif // TLRENDER_OCIO
-                std::string source = displayFragmentSource(
-                    colorConfigDef,
-                    colorConfig,
-                    lutDef,
-                    lut,
-                    p.lutOptions.order);
-                if (auto context = _context.lock())
-                {
-                    //context->log("tl::gl::Render", source);
-                    context->log("tl::gl::Render", "Creating display shader");
-                }
-                p.shaders["display"] = Shader::create(vertexSource(), source);
-            }
-            p.shaders["display"]->bind();
-            p.shaders["display"]->setUniform("transform.mvp", mvp);
-            size_t texturesOffset = 1;
-#if defined(TLRENDER_OCIO)
-            if (p.colorConfigData)
-            {
-                for (size_t i = 0; i < p.colorConfigData->textures.size(); ++i)
-                {
-                    p.shaders["display"]->setUniform(
-                        p.colorConfigData->textures[i].sampler,
-                        static_cast<int>(texturesOffset + i));
-                }
-                texturesOffset += p.colorConfigData->textures.size();
-            }
-            if (p.lutData)
-            {
-                for (size_t i = 0; i < p.lutData->textures.size(); ++i)
-                {
-                    p.shaders["display"]->setUniform(
-                        p.lutData->textures[i].sampler,
-                        static_cast<int>(texturesOffset + i));
-                }
-                texturesOffset += p.lutData->textures.size();
-            }
-#endif // TLRENDER_OCIO
-
-            if (!p.shaders["dissolve"])
-            {
-                p.shaders["dissolve"] = Shader::create(vertexSource(), dissolveFragmentSource());
-            }
-
-            if (!p.shaders["difference"])
-            {
-                p.shaders["difference"] = Shader::create(vertexSource(), differenceFragmentSource());
-            }
-            p.shaders["difference"]->bind();
-            p.shaders["difference"]->setUniform("transform.mvp", mvp);
-
-            p.vbos["rect"] = VBO::create(2 * 3, VBOType::Pos2_F32);
-            p.vaos["rect"] = VAO::create(p.vbos["rect"]->getType(), p.vbos["rect"]->getID());
-            p.vbos["text"] = VBO::create(2 * 3, VBOType::Pos2_F32_UV_U16);
-            p.vaos["text"] = VAO::create(p.vbos["text"]->getType(), p.vbos["text"]->getID());
-            p.vbos["image"] = VBO::create(2 * 3, VBOType::Pos2_F32_UV_U16);
-            p.vaos["image"] = VAO::create(p.vbos["image"]->getType(), p.vbos["image"]->getID());
-            p.vbos["wipe"] = VBO::create(1 * 3, VBOType::Pos2_F32);
-            p.vaos["wipe"] = VAO::create(p.vbos["wipe"]->getType(), p.vbos["wipe"]->getID());
-            p.vbos["video"] = VBO::create(2 * 3, VBOType::Pos2_F32_UV_U16);
-            p.vaos["video"] = VAO::create(p.vbos["video"]->getType(), p.vbos["video"]->getID());
-        }
-
-        void Render::end()
-        {}
     }
 }

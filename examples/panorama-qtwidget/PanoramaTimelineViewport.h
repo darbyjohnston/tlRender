@@ -20,7 +20,7 @@ namespace tl
 {
     namespace examples
     {
-        //! Example rendering a timeline as a panorama.
+        //! Example panorama timeline rendering.
         namespace panorama_qtwidget
         {
             class PanoramaTimelineViewport :
@@ -72,7 +72,7 @@ namespace tl
                 std::shared_ptr<gl::Shader> _shader;
                 std::shared_ptr<gl::OffscreenBuffer> _buffer;
                 std::shared_ptr<gl::Render> _render;
-                QPoint _mousePosPrev;
+                math::Vector2i _mousePosPrev;
             };
         }
     }

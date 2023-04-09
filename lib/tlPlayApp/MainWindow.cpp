@@ -211,7 +211,7 @@ namespace tl
             setCentralWidget(p.timelineViewport);
 
             p.timelineSlider = new qtwidget::TimelineSlider(
-                app->thumbnailProvider(),
+                app->thumbnailObject(),
                 app->getContext());
             p.timelineSlider->setTimeObject(app->timeObject());
             auto timelineDockWidget = new QDockWidget;

@@ -144,11 +144,11 @@ namespace tl
         std::shared_ptr<imaging::HDRData> getHDRData(const timeline::VideoData& videoData)
         {
             std::shared_ptr<imaging::HDRData> out;
-            for (const auto& i : videoData.layers)
+            for (const auto& layer : videoData.layers)
             {
-                if (i.image)
+                if (layer.image)
                 {
-                    const auto& tags = i.image->getTags();
+                    const auto& tags = layer.image->getTags();
                     const auto k = tags.find("hdr");
                     if (k != tags.end())
                     {

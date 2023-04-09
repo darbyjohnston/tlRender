@@ -9,7 +9,13 @@
 #include <tlTimeline/IRender.h>
 #include <tlTimeline/Timeline.h>
 
-#include <tlIO/IO.h>
+#include <tlIO/SequenceIO.h>
+#if defined(TLRENDER_EXR)
+#include <tlIO/OpenEXR.h>
+#endif // TLRENDER_EXR
+#if defined(TLRENDER_FFMPEG)
+#include <tlIO/FFmpeg.h>
+#endif // TLRENDER_FFMPEG
 
 struct GLFWwindow;
 
@@ -26,6 +32,16 @@ namespace tl
             imaging::PixelType outputPixelType = imaging::PixelType::None;
             timeline::ColorConfigOptions colorConfigOptions;
             timeline::LUTOptions lutOptions;
+            float sequenceDefaultSpeed = io::sequenceDefaultSpeed;
+            int sequenceThreadCount = io::sequenceThreadCount;
+#if defined(TLRENDER_EXR)
+            exr::Compression exrCompression = exr::Compression::ZIP;
+            float exrDWACompressionLevel = 45.F;
+#endif // TLRENDER_EXR
+#if defined(TLRENDER_FFMPEG)
+            std::string ffmpegWriteProfile;
+            int ffmpegThreadCount = ffmpeg::threadCount;
+#endif // TLRENDER_FFMPEG
         };
 
         //! Application.
