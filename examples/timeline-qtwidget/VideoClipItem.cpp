@@ -249,7 +249,7 @@ namespace tl
                             event.render->setRenderSize(size);
                             event.render->setViewport(math::BBox2i(0, 0, size.w, size.h));
                             event.render->setClipRectEnabled(false);
-                            event.render->clearViewport(imaging::Color4f(1.F, 0.F, 0.F));
+                            event.render->clearViewport(imaging::Color4f(0.F, 0.F, 0.F));
                             event.render->setTransform(math::ortho(
                                 0.F,
                                 static_cast<float>(size.w),
