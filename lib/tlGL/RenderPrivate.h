@@ -132,7 +132,7 @@ namespace tl
 
         struct Render::Private
         {
-            imaging::Size size;
+            imaging::Size renderSize;
             timeline::ColorConfigOptions colorConfigOptions;
             timeline::LUTOptions lutOptions;
             timeline::RenderOptions renderOptions;

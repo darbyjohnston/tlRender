@@ -207,10 +207,10 @@ namespace tl
                 event.render->setClipRectEnabled(true);
                 event.render->setClipRect(bbox);
 
-                std::set<otime::RationalTime> videoDataDelete;
-                for (const auto& videoData : _videoData)
+                std::set<otime::RationalTime> buffersDelete;
+                for (const auto& buffers : _buffers)
                 {
-                    videoDataDelete.insert(videoData.first);
+                    buffersDelete.insert(buffers.first);
                 }
 
                 if (g.intersects(vp))
@@ -252,6 +252,48 @@ namespace tl
 
                 if (_thumbnailWidth > 0)
                 {
+                    for (const auto& i : _videoData)
+                    {
+                        const imaging::Size renderSize = event.render->getRenderSize();
+                        const math::BBox2i viewport = event.render->getViewport();
+                        const bool clipRectEnabled = event.render->getClipRectEnabled();
+                        const math::BBox2i clipRect = event.render->getClipRect();
+                        const math::Matrix4x4f transform = event.render->getTransform();
+
+                        const imaging::Size size(
+                            _thumbnailWidth,
+                            _options.thumbnailHeight);
+                        gl::OffscreenBufferOptions options;
+                        options.colorType = imaging::PixelType::RGBA_F32;
+                        auto buffer = gl::OffscreenBuffer::create(size, options);
+                        {
+                            gl::OffscreenBufferBinding binding(buffer);
+                            event.render->setRenderSize(size);
+                            event.render->setViewport(math::BBox2i(0, 0, size.w, size.h));
+                            event.render->setClipRectEnabled(false);
+                            event.render->clearViewport(imaging::Color4f(1.F, 0.F, 0.F));
+                            event.render->setTransform(math::ortho(
+                                0.F,
+                                static_cast<float>(size.w),
+                                0.F,
+                                static_cast<float>(size.h),
+                                -1.F,
+                                1.F));
+                            if (i.second.image)
+                            {
+                                event.render->drawImage(i.second.image, math::BBox2i(0, 0, size.w, size.h));
+                            }
+                        }
+                        _buffers[i.first] = buffer;
+
+                        event.render->setRenderSize(renderSize);
+                        event.render->setViewport(viewport);
+                        event.render->setClipRectEnabled(clipRectEnabled);
+                        event.render->setClipRect(clipRect);
+                        event.render->setTransform(transform);
+                    }
+                    _videoData.clear();
+
                     for (int x = _margin; x < _sizeHint.x - _margin; x += _thumbnailWidth)
                     {
                         math::BBox2i bbox(
@@ -271,19 +313,18 @@ namespace tl
                                 (w > 0 ? ((x - _margin) / static_cast<double>(w)) : 0) *
                                 _timeRange.duration().value(),
                                 _timeRange.duration().rate()));
-                            auto i = _videoData.find(time);
-                            if (i != _videoData.end())
+
+                            const auto i = _buffers.find(time);
+                            if (i != _buffers.end())
                             {
-                                if (i->second.image)
-                                {
-                                    event.render->drawImage(i->second.image, bbox);
-                                }
-                                videoDataDelete.erase(time);
+                                const unsigned int id = i->second->getColorID();
+                                event.render->drawTexture(id, bbox);
+                                buffersDelete.erase(time);
                             }
                             else if (_reader && !_ioInfo.video.empty())
                             {
-                                const auto j = _videoDataFutures.find(time);
-                                if (j == _videoDataFutures.end())
+                                const auto k = _videoDataFutures.find(time);
+                                if (k == _videoDataFutures.end())
                                 {
                                     const auto mediaTime = timeline::mediaTime(
                                         time,
@@ -297,12 +338,12 @@ namespace tl
                     }
                 }
 
-                for (auto i : videoDataDelete)
+                for (auto i : buffersDelete)
                 {
-                    const auto j = _videoData.find(i);
-                    if (j != _videoData.end())
+                    const auto j = _buffers.find(i);
+                    if (j != _buffers.end())
                     {
-                        _videoData.erase(j);
+                        _buffers.erase(j);
                     }
                 }
 

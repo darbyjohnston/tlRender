@@ -358,14 +358,14 @@ namespace tl
         }
 
         void Render::begin(
-            const imaging::Size& size,
+            const imaging::Size& renderSize,
             const timeline::ColorConfigOptions& colorConfigOptions,
             const timeline::LUTOptions& lutOptions,
             const timeline::RenderOptions& renderOptions)
         {
             TLRENDER_P();
 
-            p.size = size;
+            p.renderSize = renderSize;
             _setColorConfig(colorConfigOptions);
             _setLUT(lutOptions);
             p.renderOptions = renderOptions;
@@ -470,6 +470,8 @@ namespace tl
             p.vaos["rect"] = VAO::create(p.vbos["rect"]->getType(), p.vbos["rect"]->getID());
             p.vbos["text"] = VBO::create(2 * 3, VBOType::Pos2_F32_UV_U16);
             p.vaos["text"] = VAO::create(p.vbos["text"]->getType(), p.vbos["text"]->getID());
+            p.vbos["texture"] = VBO::create(2 * 3, VBOType::Pos2_F32_UV_U16);
+            p.vaos["texture"] = VAO::create(p.vbos["texture"]->getType(), p.vbos["texture"]->getID());
             p.vbos["image"] = VBO::create(2 * 3, VBOType::Pos2_F32_UV_U16);
             p.vaos["image"] = VAO::create(p.vbos["image"]->getType(), p.vbos["image"]->getID());
             p.vbos["wipe"] = VBO::create(1 * 3, VBOType::Pos2_F32);
@@ -477,15 +479,15 @@ namespace tl
             p.vbos["video"] = VBO::create(2 * 3, VBOType::Pos2_F32_UV_U16);
             p.vaos["video"] = VAO::create(p.vbos["video"]->getType(), p.vbos["video"]->getID());
 
-            setViewport(math::BBox2i(0, 0, size.w, size.h));
+            setViewport(math::BBox2i(0, 0, renderSize.w, renderSize.h));
             if (renderOptions.clear)
             {
                 clearViewport(renderOptions.clearColor);
             }
             setTransform(math::ortho(
                 0.F,
-                static_cast<float>(size.w),
-                static_cast<float>(size.h),
+                static_cast<float>(renderSize.w),
+                static_cast<float>(renderSize.h),
                 0.F,
                 -1.F,
                 1.F));
@@ -494,13 +496,28 @@ namespace tl
         void Render::end()
         {}
 
+        imaging::Size Render::getRenderSize() const
+        {
+            return _p->renderSize;
+        }
+
+        void Render::setRenderSize(const imaging::Size& value)
+        {
+            _p->renderSize = value;
+        }
+
+        math::BBox2i Render::getViewport() const
+        {
+            return _p->viewport;
+        }
+
         void Render::setViewport(const math::BBox2i& value)
         {
             TLRENDER_P();
             p.viewport = value;
             glViewport(
                 value.x(),
-                p.size.h - value.h() - value.y(),
+                p.renderSize.h - value.h() - value.y(),
                 value.w(),
                 value.h());
         }
@@ -509,6 +526,11 @@ namespace tl
         {
             glClearColor(value.r, value.g, value.b, value.a);
             glClear(GL_COLOR_BUFFER_BIT);
+        }
+
+        bool Render::getClipRectEnabled() const
+        {
+            return _p->clipRectEnabled;
         }
 
         void Render::setClipRectEnabled(bool value)
@@ -525,15 +547,25 @@ namespace tl
             }
         }
 
+        math::BBox2i Render::getClipRect() const
+        {
+            return _p->clipRect;
+        }
+
         void Render::setClipRect(const math::BBox2i& value)
         {
             TLRENDER_P();
             p.clipRect = value;
             glScissor(
                 value.x(),
-                p.size.h - value.h() - value.y(),
+                p.renderSize.h - value.h() - value.y(),
                 value.w(),
                 value.h());
+        }
+
+        math::Matrix4x4f Render::getTransform() const
+        {
+            return _p->transform;
         }
 
         void Render::setTransform(const math::Matrix4x4f& value)

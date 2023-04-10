@@ -6,6 +6,8 @@
 
 #include "IItem.h"
 
+#include <tlGL/OffscreenBuffer.h>
+
 #include <opentimelineio/clip.h>
 #include <opentimelineio/track.h>
 
@@ -65,6 +67,7 @@ namespace tl
                 io::Info _ioInfo;
                 std::map<otime::RationalTime, std::future<io::VideoData> > _videoDataFutures;
                 std::map<otime::RationalTime, io::VideoData> _videoData;
+                std::map<otime::RationalTime, std::shared_ptr<gl::OffscreenBuffer> > _buffers;
             };
         }
     }
