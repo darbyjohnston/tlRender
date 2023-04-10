@@ -29,11 +29,6 @@ namespace tl
         IWidget::~IWidget()
         {}
 
-        const std::string& IWidget::getName() const
-        {
-            return _name;
-        }
-
         void IWidget::setName(const std::string& value)
         {
             _name = value;
@@ -45,16 +40,6 @@ namespace tl
                 return;
             _backgroundRole = value;
             _updates |= Update::Draw;
-        }
-
-        int IWidget::getUpdates() const
-        {
-            return _updates;
-        }
-
-        const std::weak_ptr<IWidget>& IWidget::getParent() const
-        {
-            return _parent;
         }
 
         void IWidget::setParent(const std::shared_ptr<IWidget>& value)
@@ -88,11 +73,6 @@ namespace tl
             }
         }
 
-        const std::list<std::shared_ptr<IWidget> >& IWidget::getChildren() const
-        {
-            return _children;
-        }
-
         std::shared_ptr<IWidget> IWidget::getTopLevel() const
         {
             std::shared_ptr<IWidget> out;
@@ -110,21 +90,6 @@ namespace tl
             _eventLoop = value;
         }
 
-        const std::weak_ptr<EventLoop>& IWidget::getEventLoop() const
-        {
-            return _eventLoop;
-        }
-
-        const math::Vector2i& IWidget::getSizeHint() const
-        {
-            return _sizeHint;
-        }
-
-        Stretch IWidget::getHStretch() const
-        {
-            return _hStretch;
-        }
-
         void IWidget::setHStretch(Stretch value)
         {
             if (value == _hStretch)
@@ -132,11 +97,6 @@ namespace tl
             _hStretch = value;
             _updates |= Update::Size;
             _updates |= Update::Draw;
-        }
-
-        Stretch IWidget::getVStretch() const
-        {
-            return _vStretch;
         }
 
         void IWidget::setVStretch(Stretch value)
@@ -148,11 +108,6 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        HAlign IWidget::getHAlign() const
-        {
-            return _hAlign;
-        }
-
         void IWidget::setHAlign(HAlign value)
         {
             if (value == _hAlign)
@@ -160,11 +115,6 @@ namespace tl
             _hAlign = value;
             _updates |= Update::Size;
             _updates |= Update::Draw;
-        }
-
-        VAlign IWidget::getVAlign() const
-        {
-            return _vAlign;
         }
 
         void IWidget::setVAlign(VAlign value)
@@ -176,11 +126,6 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        const math::BBox2i& IWidget::getGeometry() const
-        {
-            return _geometry;
-        }
-
         void IWidget::setGeometry(const math::BBox2i& value)
         {
             if (value == _geometry)
@@ -188,11 +133,6 @@ namespace tl
             _geometry = value;
             _updates |= Update::Size;
             _updates |= Update::Draw;
-        }
-
-        bool IWidget::isVisible() const
-        {
-            return _visible;
         }
 
         void IWidget::setVisible(bool value)

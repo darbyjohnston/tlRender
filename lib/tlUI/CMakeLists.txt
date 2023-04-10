@@ -13,6 +13,7 @@ set(HEADERS
     IntModel.h
     IntSlider.h
     IWidget.h
+    IWidgetInline.h
     IWidgetOptions.h
     IconLibrary.h
     Label.h
