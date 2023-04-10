@@ -44,12 +44,17 @@ namespace tl
 
                 _label = _path.get(-1, false);
                 _textUpdate();
+
+                _cancelObserver = observer::ValueObserver<bool>::create(
+                    _data.ioManager->observeCancelRequests(),
+                    [this](bool)
+                    {
+                        _videoDataFutures.clear();
+                    });
             }
 
             VideoClipItem::~VideoClipItem()
-            {
-                _cancelVideoRequests();
-            }
+            {}
 
             std::shared_ptr<VideoClipItem>  VideoClipItem::create(
                 const otio::Clip* clip,
@@ -68,7 +73,7 @@ namespace tl
                 if (_updates & ui::Update::Size)
                 {
                     _textUpdate();
-                    _cancelVideoRequests();
+                    _data.ioManager->cancelRequests();
                 }
             }
 
@@ -77,20 +82,12 @@ namespace tl
                 IItem::setViewport(value);
                 if (_updates & ui::Update::Size)
                 {
-                    _cancelVideoRequests();
+                    _data.ioManager->cancelRequests();
                 }
             }
 
             void VideoClipItem::tickEvent(const ui::TickEvent& event)
             {
-                if (_ioInfoFuture.valid() &&
-                    _ioInfoFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-                {
-                    _ioInfo = _ioInfoFuture.get();
-                    _updates |= ui::Update::Size;
-                    _updates |= ui::Update::Draw;
-                }
-
                 auto i = _videoDataFutures.begin();
                 while (i != _videoDataFutures.end())
                 {
@@ -115,9 +112,16 @@ namespace tl
                 _spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall) * event.contentScale;
                 const auto fontMetrics = event.getFontMetrics(_fontRole);
 
-                _thumbnailWidth = !_ioInfo.video.empty() ?
+                const int thumbnailWidth = !_ioInfo.video.empty() ?
                     static_cast<int>(_options.thumbnailHeight * _ioInfo.video[0].size.getAspect()) :
                     0;
+                if (thumbnailWidth != _thumbnailWidth)
+                {
+                    _thumbnailWidth = thumbnailWidth;
+                    _data.ioManager->cancelRequests();
+                    _videoData.clear();
+                    _buffers.clear();
+                }
 
                 _sizeHint = math::Vector2i(
                     _timeRange.duration().rescaled_to(1.0).value() * _options.scale,
@@ -215,39 +219,13 @@ namespace tl
 
                 if (g.intersects(vp))
                 {
-                    if (!_reader)
+                    if (_ioInfoInit)
                     {
-                        if (auto context = _context.lock())
-                        {
-                            try
-                            {
-                                auto ioSystem = context->getSystem<io::System>();
-                                io::Options ioOptions = _data.ioOptions;
-                                {
-                                    std::stringstream ss;
-                                    ss << 1;
-                                    ioOptions["ffmpeg/VideoBufferSize"] = ss.str();
-                                }
-                                {
-                                    std::stringstream ss;
-                                    ss << otime::RationalTime(1.0, 1.0);
-                                    ioOptions["ffmpeg/AudioBufferSize"] = ss.str();
-                                }
-                                _reader = ioSystem->read(
-                                    _path,
-                                    _memoryRead,
-                                    ioOptions);
-                                _ioInfoFuture = _reader->getInfo();
-                            }
-                            catch (const std::exception&)
-                            {
-                            }
-                        }
+                        _ioInfoInit = false;
+                        _ioInfo = _data.ioManager->getInfo(_path).get();
+                        _updates |= ui::Update::Size;
+                        _updates |= ui::Update::Draw;
                     }
-                }
-                else
-                {
-                    _reader.reset();
                 }
 
                 if (_thumbnailWidth > 0)
@@ -321,7 +299,7 @@ namespace tl
                                 event.render->drawTexture(id, bbox);
                                 buffersDelete.erase(time);
                             }
-                            else if (_reader && !_ioInfo.video.empty())
+                            else if (!_ioInfo.video.empty())
                             {
                                 const auto k = _videoDataFutures.find(time);
                                 if (k == _videoDataFutures.end())
@@ -331,7 +309,7 @@ namespace tl
                                         _track,
                                         _clip,
                                         _ioInfo.videoTime.duration().rate());
-                                    _videoDataFutures[time] = _reader->readVideo(mediaTime);
+                                    _videoDataFutures[time] = _data.ioManager->readVideo(_path, mediaTime);
                                 }
                             }
                         }
@@ -348,15 +326,6 @@ namespace tl
                 }
 
                 event.render->setClipRectEnabled(false);
-            }
-
-            void VideoClipItem::_cancelVideoRequests()
-            {
-                if (_reader)
-                {
-                    _reader->cancelRequests();
-                }
-                _videoDataFutures.clear();
             }
         }
     }

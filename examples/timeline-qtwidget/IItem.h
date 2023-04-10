@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <tlUI/IWidget.h>
+#include "IOManager.h"
 
-#include <tlIO/IO.h>
+#include <tlUI/IWidget.h>
 
 namespace tl
 {
@@ -31,8 +31,8 @@ namespace tl
             struct ItemData
             {
                 std::string directory;
-                io::Options ioOptions;
                 file::PathOptions pathOptions;
+                std::shared_ptr<IOManager> ioManager;
             };
 
             //! Item options.

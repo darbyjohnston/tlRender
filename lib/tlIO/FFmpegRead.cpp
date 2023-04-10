@@ -143,8 +143,6 @@ namespace tl
                             p.info.tags[tag.first] = tag.second;
                         }
 
-                        p.infoPromise.set_value(p.info);
-
                         p.audioThread.thread = std::thread(
                             [this, path]
                             {
@@ -169,24 +167,7 @@ namespace tl
                                 }
                             });
 
-                        try
-                        {
-                            _videoThread();
-                        }
-                        catch (const std::exception& e)
-                        {
-                            if (auto logSystem = _logSystem.lock())
-                            {
-                                //! \todo How should this be handled?
-                                const std::string id = string::Format("tl::io::ffmpeg::Read ({0}: {1})").
-                                    arg(__FILE__).
-                                    arg(__LINE__);
-                                logSystem->print(id, string::Format("{0}: {1}").
-                                    arg(_path.get()).
-                                    arg(e.what()),
-                                    log::Type::Error);
-                            }
-                        }
+                        _videoThread();
                     }
                     catch (const std::exception& e)
                     {
@@ -200,7 +181,6 @@ namespace tl
                                 arg(e.what()),
                                 log::Type::Error);
                         }
-                        p.infoPromise.set_value(io::Info());
                     }
 
                     {
@@ -258,7 +238,27 @@ namespace tl
 
         std::future<io::Info> Read::getInfo()
         {
-            return _p->infoPromise.get_future();
+            TLRENDER_P();
+            auto request = std::make_shared<Private::InfoRequest>();
+            auto future = request->promise.get_future();
+            bool valid = false;
+            {
+                std::unique_lock<std::mutex> lock(p.videoMutex.mutex);
+                if (!p.videoMutex.stopped)
+                {
+                    valid = true;
+                    p.videoMutex.infoRequests.push_back(request);
+                }
+            }
+            if (valid)
+            {
+                p.videoThread.cv.notify_one();
+            }
+            else
+            {
+                request->promise.set_value(io::Info());
+            }
+            return future;
         }
 
         std::future<io::VideoData> Read::readVideo(
@@ -275,7 +275,7 @@ namespace tl
                 if (!p.videoMutex.stopped)
                 {
                     valid = true;
-                    p.videoMutex.requests.push_back(request);
+                    p.videoMutex.videoRequests.push_back(request);
                 }
             }
             if (valid)
@@ -330,6 +330,7 @@ namespace tl
             while (p.videoThread.running)
             {
                 // Check requests.
+                std::list<std::shared_ptr<Private::InfoRequest> > infoRequests;
                 bool seek = false;
                 {
                     std::unique_lock<std::mutex> lock(p.videoMutex.mutex);
@@ -339,26 +340,34 @@ namespace tl
                         [this]
                         {
                             return
-                                !_p->videoMutex.requests.empty() ||
-                                _p->videoMutex.currentRequest;
+                                !_p->videoMutex.infoRequests.empty() ||
+                                !_p->videoMutex.videoRequests.empty() ||
+                                _p->videoMutex.videoRequest;
                         }))
                     {
-                        if (!p.videoMutex.currentRequest && !p.videoMutex.requests.empty())
+                        infoRequests = std::move(p.videoMutex.infoRequests);
+                        if (!p.videoMutex.videoRequest && !p.videoMutex.videoRequests.empty())
                         {
-                            p.videoMutex.currentRequest = p.videoMutex.requests.front();
-                            p.videoMutex.requests.pop_front();
+                            p.videoMutex.videoRequest = p.videoMutex.videoRequests.front();
+                            p.videoMutex.videoRequests.pop_front();
                         }
-                        if (p.videoMutex.currentRequest)
+                        if (p.videoMutex.videoRequest)
                         {
                             if (!time::compareExact(
-                                p.videoMutex.currentRequest->time,
+                                p.videoMutex.videoRequest->time,
                                 p.videoThread.currentTime))
                             {
                                 seek = true;
-                                p.videoThread.currentTime = p.videoMutex.currentRequest->time;
+                                p.videoThread.currentTime = p.videoMutex.videoRequest->time;
                             }
                         }
                     }
+                }
+
+                // Information requests.
+                for (auto& request : infoRequests)
+                {
+                    request->promise.set_value(p.info);
                 }
 
                 // Seek.
@@ -370,16 +379,16 @@ namespace tl
                 // Process.
                 _p->readVideo->process(p.videoThread.currentTime);
 
-                // Handle requests.
+                // Video requests.
                 {
                     std::shared_ptr<Private::VideoRequest> request;
                     {
                         std::unique_lock<std::mutex> lock(p.videoMutex.mutex);
-                        if ((p.videoMutex.currentRequest && !p.readVideo->isBufferEmpty()) ||
-                            (p.videoMutex.currentRequest && !p.readVideo->isValid()) ||
-                            (p.videoMutex.currentRequest && p.readVideo->isEOF()))
+                        if ((p.videoMutex.videoRequest && !p.readVideo->isBufferEmpty()) ||
+                            (p.videoMutex.videoRequest && !p.readVideo->isValid()) ||
+                            (p.videoMutex.videoRequest && p.readVideo->isEOF()))
                         {
-                            request = std::move(p.videoMutex.currentRequest);
+                            request = std::move(p.videoMutex.videoRequest);
                         }
                     }
                     if (request)
@@ -409,7 +418,7 @@ namespace tl
                             size_t requestsSize = 0;
                             {
                                 std::unique_lock<std::mutex> lock(p.videoMutex.mutex);
-                                requestsSize = p.videoMutex.requests.size();
+                                requestsSize = p.videoMutex.videoRequests.size();
                             }
                             logSystem->print(id, string::Format(
                                 "\n"
@@ -534,17 +543,23 @@ namespace tl
         void Read::_cancelVideoRequests()
         {
             TLRENDER_P();
-            std::list<std::shared_ptr<Private::VideoRequest> > requests;
+            std::list<std::shared_ptr<Private::InfoRequest> > infoRequests;
+            std::list<std::shared_ptr<Private::VideoRequest> > videoRequests;
             {
                 std::unique_lock<std::mutex> lock(p.videoMutex.mutex);
-                requests = std::move(p.videoMutex.requests);
-                if (p.videoMutex.currentRequest)
+                infoRequests = std::move(p.videoMutex.infoRequests);
+                videoRequests = std::move(p.videoMutex.videoRequests);
+                if (p.videoMutex.videoRequest)
                 {
-                    requests.push_front(p.videoMutex.currentRequest);
-                    p.videoMutex.currentRequest.reset();
+                    videoRequests.push_front(p.videoMutex.videoRequest);
+                    p.videoMutex.videoRequest.reset();
                 }
             }
-            for (auto& request : requests)
+            for (auto& request : infoRequests)
+            {
+                request->promise.set_value(io::Info());
+            }
+            for (auto& request : videoRequests)
             {
                 request->promise.set_value(io::VideoData());
             }

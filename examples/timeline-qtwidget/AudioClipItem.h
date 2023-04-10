@@ -49,8 +49,6 @@ namespace tl
                 void _drawInfo(const ui::DrawEvent&);
                 void _drawWaveforms(const ui::DrawEvent&);
 
-                void _cancelAudioRequests();
-
                 const otio::Clip* _clip = nullptr;
                 const otio::Track* _track = nullptr;
                 file::Path _path;
@@ -62,8 +60,7 @@ namespace tl
                 int _margin = 0;
                 int _spacing = 0;
                 int _waveformWidth = 0;
-                std::shared_ptr<io::IRead> _reader;
-                std::future<io::Info> _ioInfoFuture;
+                bool _ioInfoInit = true;
                 io::Info _ioInfo;
                 struct AudioFuture
                 {
@@ -79,6 +76,7 @@ namespace tl
                     std::shared_ptr<geom::TriangleMesh2> mesh;
                 };
                 std::map<otime::RationalTime, AudioData> _audioData;
+                std::shared_ptr<observer::ValueObserver<bool> > _cancelObserver;
             };
         }
     }

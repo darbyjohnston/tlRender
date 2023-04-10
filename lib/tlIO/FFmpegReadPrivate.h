@@ -153,7 +153,10 @@ namespace tl
             std::shared_ptr<ReadAudio> readAudio;
 
             io::Info info;
-            std::promise<io::Info> infoPromise;
+            struct InfoRequest
+            {
+                std::promise<io::Info> promise;
+            };
 
             struct VideoRequest
             {
@@ -162,8 +165,9 @@ namespace tl
             };
             struct VideoMutex
             {
-                std::list<std::shared_ptr<VideoRequest> > requests;
-                std::shared_ptr<VideoRequest> currentRequest;
+                std::list<std::shared_ptr<InfoRequest> > infoRequests;
+                std::list<std::shared_ptr<VideoRequest> > videoRequests;
+                std::shared_ptr<VideoRequest> videoRequest;
                 bool stopped = false;
                 std::mutex mutex;
             };

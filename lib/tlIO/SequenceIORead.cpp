@@ -89,29 +89,11 @@ namespace tl
                     TLRENDER_P();
                     try
                     {
-                        auto info = _getInfo(
+                        p.info = _getInfo(
                             path.get(), 
                             !_memory.empty() ? &_memory[0] : nullptr);
-                        p.addTags(info);
-                        p.infoPromise.set_value(info);
-                        try
-                        {
-                            _thread();
-                        }
-                        catch (const std::exception& e)
-                        {
-                            //! \todo How should this be handled?
-                            if (auto logSystem = _logSystem.lock())
-                            {
-                                const std::string id = string::Format("tl::io::ISequenceRead ({0}: {1})").
-                                    arg(__FILE__).
-                                    arg(__LINE__);
-                                logSystem->print(id, string::Format("{0}: {1}").
-                                    arg(_path.get()).
-                                    arg(e.what()),
-                                    log::Type::Error);
-                            }
-                        }
+                        p.addTags(p.info);
+                        _thread();
                     }
                     catch (const std::exception& e)
                     {
@@ -126,11 +108,8 @@ namespace tl
                                 arg(e.what()),
                                 log::Type::Error);
                         }
-                        p.infoPromise.set_value(Info());
                     }
-
                     _finishRequests();
-
                     {
                         std::unique_lock<std::mutex> lock(p.mutex.mutex);
                         p.mutex.stopped = true;
@@ -148,7 +127,27 @@ namespace tl
 
         std::future<Info> ISequenceRead::getInfo()
         {
-            return _p->infoPromise.get_future();
+            TLRENDER_P();
+            auto request = std::make_shared<Private::InfoRequest>();
+            auto future = request->promise.get_future();
+            bool valid = false;
+            {
+                std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                if (!p.mutex.stopped)
+                {
+                    valid = true;
+                    p.mutex.infoRequests.push_back(request);
+                }
+            }
+            if (valid)
+            {
+                p.thread.cv.notify_one();
+            }
+            else
+            {
+                request->promise.set_value(Info());
+            }
+            return future;
         }
 
         std::future<VideoData> ISequenceRead::readVideo(
@@ -156,7 +155,7 @@ namespace tl
             uint16_t layer)
         {
             TLRENDER_P();
-            auto request = std::make_shared<Private::Request>();
+            auto request = std::make_shared<Private::VideoRequest>();
             request->time = time;
             request->layer = layer;
             auto future = request->promise.get_future();
@@ -166,7 +165,7 @@ namespace tl
                 if (!p.mutex.stopped)
                 {
                     valid = true;
-                    p.mutex.requests.push_back(request);
+                    p.mutex.videoRequests.push_back(request);
                 }
             }
             if (valid)
@@ -202,7 +201,8 @@ namespace tl
             while (p.thread.running)
             {
                 // Check requests.
-                std::list<std::shared_ptr<Private::Request> > newRequests;
+                std::list<std::shared_ptr<Private::InfoRequest> > infoRequests;
+                std::list<std::shared_ptr<Private::VideoRequest> > videoRequests;
                 {
                     std::unique_lock<std::mutex> lock(p.mutex.mutex);
                     if (p.thread.cv.wait_for(
@@ -211,24 +211,32 @@ namespace tl
                         [this]
                         {
                             return
-                                !_p->mutex.requests.empty() ||
-                                !_p->thread.requestsInProgress.empty();
+                                !_p->mutex.infoRequests.empty() ||
+                                !_p->mutex.videoRequests.empty() ||
+                                !_p->thread.videoRequestsInProgress.empty();
                         }))
                     {
-                        while (!p.mutex.requests.empty() &&
-                            (p.thread.requestsInProgress.size() + newRequests.size()) < p.threadCount)
+                        infoRequests = std::move(p.mutex.infoRequests);
+                        while (!p.mutex.videoRequests.empty() &&
+                            (p.thread.videoRequestsInProgress.size() + videoRequests.size()) < p.threadCount)
                         {
-                            newRequests.push_back(p.mutex.requests.front());
-                            p.mutex.requests.pop_front();
+                            videoRequests.push_back(p.mutex.videoRequests.front());
+                            p.mutex.videoRequests.pop_front();
                         }
                     }
                 }
 
-                // Initialize new requests.
-                while (!newRequests.empty())
+                // Information rquests.
+                for (const auto& request : infoRequests)
                 {
-                    auto request = newRequests.front();
-                    newRequests.pop_front();
+                    request->promise.set_value(p.info);
+                }
+
+                // Initialize video requests.
+                while (!videoRequests.empty())
+                {
+                    auto request = videoRequests.front();
+                    videoRequests.pop_front();
 
                     //std::cout << "request: " << request.time << std::endl;
                     bool seq = false;
@@ -268,16 +276,16 @@ namespace tl
                             }
                             return out;
                         });
-                    p.thread.requestsInProgress.push_back(request);
+                    p.thread.videoRequestsInProgress.push_back(request);
                 }
 
-                // Check for finished requests.
-                //if (!p.thread.requestsInProgress.empty())
+                // Check for finished video requests.
+                //if (!p.thread.videoRequestsInProgress.empty())
                 //{
-                //    std::cout << "in progress: " << p.thread.requestsInProgress.size() << std::endl;
+                //    std::cout << "in progress: " << p.thread.videoRequestsInProgress.size() << std::endl;
                 //}
-                auto requestIt = p.thread.requestsInProgress.begin();
-                while (requestIt != p.thread.requestsInProgress.end())
+                auto requestIt = p.thread.videoRequestsInProgress.begin();
+                while (requestIt != p.thread.videoRequestsInProgress.end())
                 {
                     if ((*requestIt)->future.valid() &&
                         (*requestIt)->future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
@@ -285,7 +293,7 @@ namespace tl
                         //std::cout << "finished: " << requestIt->time << std::endl;
                         auto data = (*requestIt)->future.get();
                         (*requestIt)->promise.set_value(data);
-                        requestIt = p.thread.requestsInProgress.erase(requestIt);
+                        requestIt = p.thread.videoRequestsInProgress.erase(requestIt);
                         continue;
                     }
                     ++requestIt;
@@ -303,7 +311,7 @@ namespace tl
                         size_t requestsSize = 0;
                         {
                             std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                            requestsSize = p.mutex.requests.size();
+                            requestsSize = p.mutex.videoRequests.size();
                         }
                         logSystem->print(id, string::Format(
                             "\n"
@@ -312,7 +320,7 @@ namespace tl
                             "    Thread count: {3}").
                             arg(_path.get()).
                             arg(requestsSize).
-                            arg(p.thread.requestsInProgress.size()).
+                            arg(p.thread.videoRequestsInProgress.size()).
                             arg(p.threadCount));
                     }
                 }
@@ -322,7 +330,7 @@ namespace tl
         void ISequenceRead::_finishRequests()
         {
             TLRENDER_P();
-            for (auto& request : p.thread.requestsInProgress)
+            for (auto& request : p.thread.videoRequestsInProgress)
             {
                 VideoData data;
                 data.time = request->time;
@@ -332,18 +340,24 @@ namespace tl
                 }
                 request->promise.set_value(data);
             }
-            p.thread.requestsInProgress.clear();
+            p.thread.videoRequestsInProgress.clear();
         }
 
         void ISequenceRead::_cancelRequests()
         {
             TLRENDER_P();
-            std::list<std::shared_ptr<Private::Request> > requests;
+            std::list<std::shared_ptr<Private::InfoRequest> > infoRequests;
+            std::list<std::shared_ptr<Private::VideoRequest> > videoRequests;
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                requests = std::move(p.mutex.requests);
+                infoRequests = std::move(p.mutex.infoRequests);
+                videoRequests = std::move(p.mutex.videoRequests);
             }
-            for (auto& request : requests)
+            for (auto& request : infoRequests)
+            {
+                request->promise.set_value(Info());
+            }
+            for (auto& request : videoRequests)
             {
                 request->promise.set_value(VideoData());
             }

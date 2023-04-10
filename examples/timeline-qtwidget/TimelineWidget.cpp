@@ -104,8 +104,10 @@ namespace tl
                     {
                         ItemData itemData;
                         itemData.directory = timeline->getPath().getDirectory();
-                        itemData.ioOptions = timeline->getOptions().ioOptions;
                         itemData.pathOptions = timeline->getOptions().pathOptions;
+                        itemData.ioManager = IOManager::create(
+                            timeline->getOptions().ioOptions,
+                            context);
 
                         _timelineItem = TimelineItem::create(timeline->getTimeline(), itemData, context);
                         _timelineItem->setCurrentTime(timeline->getTimeRange().start_time());

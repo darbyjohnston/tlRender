@@ -46,12 +46,17 @@ namespace tl
 
                 _label = _path.get(-1, false);
                 _textUpdate();
+
+                _cancelObserver = observer::ValueObserver<bool>::create(
+                    _data.ioManager->observeCancelRequests(),
+                    [this](bool)
+                    {
+                        _audioDataFutures.clear();
+                    });
             }
 
             AudioClipItem::~AudioClipItem()
-            {
-                _cancelAudioRequests();
-            }
+            {}
 
             std::shared_ptr<AudioClipItem>  AudioClipItem::create(
                 const otio::Clip* clip,
@@ -70,7 +75,7 @@ namespace tl
                 if (_updates & ui::Update::Size)
                 {
                     _textUpdate();
-                    _cancelAudioRequests();
+                    _data.ioManager->cancelRequests();
                     _audioData.clear();
                 }
             }
@@ -80,7 +85,7 @@ namespace tl
                 IItem::setViewport(value);
                 if (_updates & ui::Update::Size)
                 {
-                    _cancelAudioRequests();
+                    _data.ioManager->cancelRequests();
                 }
             }
 
@@ -152,14 +157,6 @@ namespace tl
 
             void AudioClipItem::tickEvent(const ui::TickEvent& event)
             {
-                if (_ioInfoFuture.valid() &&
-                    _ioInfoFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-                {
-                    _ioInfo = _ioInfoFuture.get();
-                    _updates |= ui::Update::Size;
-                    _updates |= ui::Update::Draw;
-                }
-
                 auto i = _audioDataFutures.begin();
                 while (i != _audioDataFutures.end())
                 {
@@ -218,7 +215,7 @@ namespace tl
                 if (waveformWidth != _waveformWidth)
                 {
                     _waveformWidth = waveformWidth;
-                    _cancelAudioRequests();
+                    _data.ioManager->cancelRequests();
                     _audioData.clear();
                 }
 
@@ -317,39 +314,13 @@ namespace tl
 
                 if (g.intersects(vp))
                 {
-                    if (!_reader)
+                    if (_ioInfoInit)
                     {
-                        if (auto context = _context.lock())
-                        {
-                            try
-                            {
-                                auto ioSystem = context->getSystem<io::System>();
-                                io::Options ioOptions = _data.ioOptions;
-                                {
-                                    std::stringstream ss;
-                                    ss << 1;
-                                    ioOptions["ffmpeg/VideoBufferSize"] = ss.str();
-                                }
-                                {
-                                    std::stringstream ss;
-                                    ss << otime::RationalTime(1.0, 1.0);
-                                    ioOptions["ffmpeg/AudioBufferSize"] = ss.str();
-                                }
-                                _reader = ioSystem->read(
-                                    _path,
-                                    _memoryRead,
-                                    ioOptions);
-                                _ioInfoFuture = _reader->getInfo();
-                            }
-                            catch (const std::exception&)
-                            {
-                            }
-                        }
+                        _ioInfoInit = false;
+                        _ioInfo = _data.ioManager->getInfo(_path).get();
+                        _updates |= ui::Update::Size;
+                        _updates |= ui::Update::Draw;
                     }
-                }
-                else
-                {
-                    _reader.reset();
                 }
 
                 if (_waveformWidth > 0)
@@ -385,7 +356,7 @@ namespace tl
                                 }
                                 audioDataDelete.erase(time);
                             }
-                            else if (_reader && _ioInfo.audio.isValid())
+                            else if (_ioInfo.audio.isValid())
                             {
                                 const auto j = _audioDataFutures.find(time);
                                 if (j == _audioDataFutures.end())
@@ -400,7 +371,7 @@ namespace tl
                                         otime::RationalTime(
                                             _ioInfo.audioTime.duration().rate(),
                                             _ioInfo.audioTime.duration().rate()));
-                                    _audioDataFutures[time].future = _reader->readAudio(mediaTimeRange);
+                                    _audioDataFutures[time].future = _data.ioManager->readAudio(_path, mediaTimeRange);
                                     _audioDataFutures[time].size = bbox.getSize();
                                 }
                             }
@@ -418,15 +389,6 @@ namespace tl
                 }
 
                 event.render->setClipRectEnabled(false);
-            }
-
-            void AudioClipItem::_cancelAudioRequests()
-            {
-                if (_reader)
-                {
-                    _reader->cancelRequests();
-                }
-                _audioDataFutures.clear();
             }
         }
     }

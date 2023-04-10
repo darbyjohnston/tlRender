@@ -3,6 +3,7 @@ set(HEADERS
     AudioClipItem.h
     AudioGapItem.h
     IItem.h
+    IOManager.h
     MainWindow.h
     TimelineItem.h
     TimelineScrollArea.h
@@ -16,6 +17,7 @@ set(SOURCE
     AudioClipItem.cpp
     AudioGapItem.cpp
     IItem.cpp
+    IOManager.cpp
     MainWindow.cpp
     TimelineItem.cpp
     TimelineScrollArea.cpp
