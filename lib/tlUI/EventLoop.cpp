@@ -335,9 +335,13 @@ namespace tl
             if (widget->isVisible())
             {
                 widget->drawEvent(event);
+                const math::BBox2i& parentGeometry = widget->getGeometry();
                 for (const auto& child : widget->getChildren())
                 {
-                    _drawEvent(child, event);
+                    if (child->getGeometry().intersects(parentGeometry))
+                    {
+                        _drawEvent(child, event);
+                    }
                 }
             }
         }
