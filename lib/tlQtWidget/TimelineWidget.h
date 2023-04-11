@@ -33,6 +33,8 @@ namespace tl
 
             void setTimelinePlayer(const std::shared_ptr<timeline::TimelinePlayer>&);
 
+            void setStopOnScrub(bool);
+
             void setItemOptions(const ui::TimelineItemOptions&);
 
         public Q_SLOTS:

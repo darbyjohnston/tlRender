@@ -25,6 +25,8 @@ namespace tl
             std::weak_ptr<system::Context> context;
 
             std::shared_ptr<timeline::TimelinePlayer> timelinePlayer;
+            bool stopOnScrub = true;
+            ui::TimelineItemOptions itemOptions;
             std::shared_ptr<imaging::FontSystem> fontSystem;
             std::shared_ptr<ui::IconLibrary> iconLibrary;
             std::shared_ptr<ui::Style> style;
@@ -118,35 +120,51 @@ namespace tl
         void TimelineWidget::setTimelinePlayer(const std::shared_ptr<timeline::TimelinePlayer>& timelinePlayer)
         {
             TLRENDER_P();
+            if (timelinePlayer == p.timelinePlayer)
+                return;
             if (p.timelineItem)
             {
                 p.timelineItem->setParent(nullptr);
                 p.timelineItem.reset();
             }
-            if (timelinePlayer)
+            p.timelinePlayer = timelinePlayer;
+            if (p.timelinePlayer)
             {
                 if (auto context = p.context.lock())
                 {
                     ui::TimelineItemData itemData;
-                    itemData.directory = timelinePlayer->getPath().getDirectory();
-                    itemData.pathOptions = timelinePlayer->getOptions().pathOptions;
+                    itemData.directory = p.timelinePlayer->getPath().getDirectory();
+                    itemData.pathOptions = p.timelinePlayer->getOptions().pathOptions;
                     itemData.ioManager = ui::TimelineIOManager::create(
-                        timelinePlayer->getOptions().ioOptions,
+                        p.timelinePlayer->getOptions().ioOptions,
                         context);
 
-                    p.timelineItem = ui::TimelineItem::create(timelinePlayer, itemData, context);
+                    p.timelineItem = ui::TimelineItem::create(p.timelinePlayer, itemData, context);
+                    p.timelineItem->setStopOnScrub(p.stopOnScrub);
+                    p.timelineItem->setOptions(p.itemOptions);
                     _setViewport(p.timelineItem, _timelineViewport());
                     p.timelineItem->setParent(p.scrollArea);
                 }
             }
         }
 
+        void TimelineWidget::setStopOnScrub(bool value)
+        {
+            TLRENDER_P();
+            p.stopOnScrub = value;
+            if (p.timelineItem)
+            {
+                p.timelineItem->setStopOnScrub(p.stopOnScrub);
+            }
+        }
+
         void TimelineWidget::setItemOptions(const ui::TimelineItemOptions& value)
         {
             TLRENDER_P();
+            p.itemOptions = value;
             if (p.timelineItem)
             {
-                _setItemOptions(p.timelineItem, value);
+                _setItemOptions(p.timelineItem, p.itemOptions);
             }
         }
 

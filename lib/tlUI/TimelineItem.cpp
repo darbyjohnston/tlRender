@@ -21,6 +21,7 @@ namespace tl
             otime::RationalTime currentTime = time::invalidTime;
             otime::TimeRange inOutRange = time::invalidTimeRange;
             timeline::PlayerCacheInfo cacheInfo;
+            bool stopOnScrub = true;
             ui::FontRole fontRole = ui::FontRole::Label;
             int margin = 0;
             int spacing = 0;
@@ -102,6 +103,11 @@ namespace tl
             auto out = std::shared_ptr<TimelineItem>(new TimelineItem);
             out->_init(timelinePlayer, itemData, context, parent);
             return out;
+        }
+
+        void TimelineItem::setStopOnScrub(bool value)
+        {
+            _p->stopOnScrub = value;
         }
 
         void TimelineItem::setGeometry(const math::BBox2i& value)

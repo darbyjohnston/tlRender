@@ -30,8 +30,9 @@
 #include <tlQtWidget/Spacer.h>
 #include <tlQtWidget/TimeLabel.h>
 #include <tlQtWidget/TimeSpinBox.h>
-#include <tlQtWidget/TimelineSlider.h>
+#include <tlQtWidget/TimelineScrollArea.h>
 #include <tlQtWidget/TimelineViewport.h>
+#include <tlQtWidget/TimelineWidget.h>
 #include <tlQtWidget/Util.h>
 
 #include <tlQt/OutputDevice.h>
@@ -81,6 +82,7 @@ namespace tl
             imaging::VideoLevels outputVideoLevels;
             float volume = 1.F;
             bool mute = false;
+            ui::TimelineItemOptions timelineItemOptions;
 
             FileActions* fileActions = nullptr;
             CompareActions* compareActions = nullptr;
@@ -91,7 +93,8 @@ namespace tl
             WindowActions* windowActions = nullptr;
 
             qtwidget::TimelineViewport* timelineViewport = nullptr;
-            qtwidget::TimelineSlider* timelineSlider = nullptr;
+            qtwidget::TimelineWidget* timelineWidget = nullptr;
+            qtwidget::TimelineScrollArea* timelineScrollArea = nullptr;
             qtwidget::TimeSpinBox* currentTimeSpinBox = nullptr;
             qtwidget::TimeLabel* durationLabel = nullptr;
             QToolButton* timeUnitsButton = nullptr;
@@ -210,16 +213,16 @@ namespace tl
             p.timelineViewport->installEventFilter(this);
             setCentralWidget(p.timelineViewport);
 
-            p.timelineSlider = new qtwidget::TimelineSlider(
-                app->thumbnailObject(),
-                app->getContext());
-            p.timelineSlider->setTimeObject(app->timeObject());
+            p.timelineWidget = new qtwidget::TimelineWidget(app->getContext());
+            //p.timelineWidget->setTimeObject(app->timeObject());
+            p.timelineScrollArea = new qtwidget::TimelineScrollArea();
+            p.timelineScrollArea->setTimelineWidget(p.timelineWidget);
             auto timelineDockWidget = new QDockWidget;
             timelineDockWidget->setObjectName("Timeline");
             timelineDockWidget->setWindowTitle(tr("Timeline"));
             timelineDockWidget->setFeatures(QDockWidget::DockWidgetClosable);
             timelineDockWidget->setTitleBarWidget(new QWidget);
-            timelineDockWidget->setWidget(p.timelineSlider);
+            timelineDockWidget->setWidget(p.timelineScrollArea);
             addDockWidget(Qt::BottomDockWidgetArea, timelineDockWidget);
 
             p.currentTimeSpinBox = new qtwidget::TimeSpinBox;
@@ -645,7 +648,8 @@ namespace tl
                 {
                     if ("Timeline/Thumbnails" == name)
                     {
-                        _p->timelineSlider->setThumbnails(value.toBool());
+                        _p->timelineItemOptions.thumbnails = value.toBool();
+                        _p->timelineWidget->setItemOptions(_p->timelineItemOptions);
                     }
                 });
             connect(
@@ -655,7 +659,7 @@ namespace tl
                 {
                     if ("Timeline/StopOnScrub" == name)
                     {
-                        _p->timelineSlider->setStopOnScrub(value.toBool());
+                        _p->timelineWidget->setStopOnScrub(value.toBool());
                     }
                 });
 
@@ -978,7 +982,7 @@ namespace tl
 
             const auto& files = p.app->filesModel()->observeFiles()->get();
             const size_t count = files.size();
-            p.timelineSlider->setEnabled(count > 0);
+            p.timelineWidget->setEnabled(count > 0);
             p.currentTimeSpinBox->setEnabled(count > 0);
             p.speedSpinBox->setEnabled(count > 0);
             p.volumeSlider->setEnabled(count > 0);
@@ -1041,12 +1045,14 @@ namespace tl
             p.timelineViewport->setDisplayOptions(displayOptions);
             p.timelineViewport->setCompareOptions(p.compareOptions);
 
-            p.timelineSlider->setColorConfigOptions(p.colorConfigOptions);
-            p.timelineSlider->setLUTOptions(p.lutOptions);
-            p.timelineSlider->setTimelinePlayer(!p.timelinePlayers.empty() ? p.timelinePlayers[0] : nullptr);
-            p.timelineSlider->setThumbnails(p.app->settingsObject()->value("Timeline/Thumbnails").toBool());
-            p.timelineSlider->setStopOnScrub(p.app->settingsObject()->value("Timeline/StopOnScrub").toBool());
-            
+            p.timelineWidget->setTimelinePlayer(
+                !p.timelinePlayers.empty() ?
+                p.timelinePlayers[0]->timelinePlayer() :
+                nullptr);
+            p.timelineItemOptions.thumbnails = p.app->settingsObject()->value("Timeline/Thumbnails").toBool();
+            p.timelineWidget->setStopOnScrub(p.app->settingsObject()->value("Timeline/StopOnScrub").toBool());
+            p.timelineWidget->setItemOptions(p.timelineItemOptions);
+
             {
                 const QSignalBlocker blocker(p.volumeSlider);
                 p.volumeSlider->setValue(p.volume * sliderSteps);

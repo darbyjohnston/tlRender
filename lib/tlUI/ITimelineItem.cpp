@@ -24,6 +24,7 @@ namespace tl
             return
                 timeUnits == other.timeUnits &&
                 scale == other.scale &&
+                thumbnails == other.thumbnails &&
                 thumbnailHeight == other.thumbnailHeight &&
                 waveformHeight == other.waveformHeight;
         }

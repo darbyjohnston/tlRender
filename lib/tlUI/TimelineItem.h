@@ -33,6 +33,8 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
+            void setStopOnScrub(bool);
+
             void setGeometry(const math::BBox2i&) override;
             void sizeEvent(const ui::SizeEvent&) override;
             void drawEvent(const ui::DrawEvent&) override;

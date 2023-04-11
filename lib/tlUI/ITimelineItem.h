@@ -38,6 +38,7 @@ namespace tl
         {
             TimelineTimeUnits timeUnits = TimelineTimeUnits::Seconds;
             float scale = 100.F;
+            bool thumbnails = true;
             int thumbnailHeight = 100;
             int waveformHeight = 50;
 
