@@ -98,10 +98,16 @@ namespace tl
         void TimelineVideoClipItem::setOptions(const TimelineItemOptions& value)
         {
             ITimelineItem::setOptions(value);
+            TLRENDER_P();
             if (_updates & ui::Update::Size)
             {
                 _textUpdate();
                 _data.ioManager->cancelRequests();
+                if (!_options.thumbnails)
+                {
+                    p.videoData.clear();
+                    p.buffers.clear();
+                }
             }
         }
 
@@ -142,7 +148,7 @@ namespace tl
             p.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall) * event.contentScale;
             const auto fontMetrics = event.getFontMetrics(p.fontRole);
 
-            const int thumbnailWidth = !p.ioInfo.video.empty() ?
+            const int thumbnailWidth = (_options.thumbnails && !p.ioInfo.video.empty()) ?
                 static_cast<int>(_options.thumbnailHeight * p.ioInfo.video[0].size.getAspect()) :
                 0;
             if (thumbnailWidth != p.thumbnailWidth)
@@ -157,9 +163,11 @@ namespace tl
                 p.timeRange.duration().rescaled_to(1.0).value() * _options.scale,
                 p.margin +
                 fontMetrics.lineHeight +
-                p.spacing +
-                _options.thumbnailHeight +
                 p.margin);
+            if (_options.thumbnails)
+            {
+                _sizeHint.y += p.spacing + _options.thumbnailHeight;
+            }
         }
 
         void TimelineVideoClipItem::drawEvent(const ui::DrawEvent& event)
@@ -180,7 +188,10 @@ namespace tl
                     imaging::Color4f(.2F, .4F, .4F));
 
                 _drawInfo(event);
-                _drawThumbnails(event);
+                if (_options.thumbnails)
+                {
+                    _drawThumbnails(event);
+                }
             }
         }
 

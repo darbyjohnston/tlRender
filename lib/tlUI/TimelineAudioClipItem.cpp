@@ -251,8 +251,9 @@ namespace tl
             p.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall) * event.contentScale;
             const auto fontMetrics = event.getFontMetrics(p.fontRole);
 
-            const int waveformWidth =
-                otime::RationalTime(1.0, 1.0).value() * _options.scale;
+            const int waveformWidth = _options.thumbnails ?
+                (otime::RationalTime(1.0, 1.0).value() * _options.scale) :
+                0;
             if (waveformWidth != p.waveformWidth)
             {
                 p.waveformWidth = waveformWidth;
@@ -264,9 +265,11 @@ namespace tl
                 p.timeRange.duration().rescaled_to(1.0).value() * _options.scale,
                 p.margin +
                 fontMetrics.lineHeight +
-                p.spacing +
-                _options.waveformHeight +
                 p.margin);
+            if (_options.thumbnails)
+            {
+                _sizeHint.y += p.spacing + _options.waveformHeight;
+            }
         }
 
         void TimelineAudioClipItem::drawEvent(const ui::DrawEvent& event)
@@ -286,7 +289,10 @@ namespace tl
                     imaging::Color4f(.3F, .25F, .4F));
 
                 _drawInfo(event);
-                _drawWaveforms(event);
+                if (_options.thumbnails)
+                {
+                    _drawWaveforms(event);
+                }
             }
         }
 
