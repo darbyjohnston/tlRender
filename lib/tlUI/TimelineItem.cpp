@@ -140,7 +140,7 @@ namespace tl
             ITimelineItem::sizeEvent(event);
             TLRENDER_P();
 
-            p.margin = event.style->getSizeRole(ui::SizeRole::Margin) * event.contentScale;
+            p.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall) * event.contentScale;
             p.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall) * event.contentScale;
             p.fontMetrics = event.getFontMetrics(p.fontRole);
 

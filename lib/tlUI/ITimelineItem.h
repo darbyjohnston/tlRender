@@ -37,7 +37,7 @@ namespace tl
         struct TimelineItemOptions
         {
             TimelineTimeUnits timeUnits = TimelineTimeUnits::Seconds;
-            float scale = 100.F;
+            float scale = 500.F;
             bool thumbnails = true;
             int thumbnailHeight = 100;
             int waveformHeight = 50;
