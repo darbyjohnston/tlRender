@@ -8,10 +8,6 @@
 
 #include <tlTimeline/TimelinePlayer.h>
 
-#include <tlCore/ValueObserver.h>
-
-#include <opentimelineio/timeline.h>
-
 namespace tl
 {
     namespace ui
@@ -25,6 +21,8 @@ namespace tl
                 const TimelineItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
+
+            TimelineItem();
 
         public:
             ~TimelineItem() override;
@@ -53,22 +51,7 @@ namespace tl
             otime::RationalTime _posToTime(float) const;
             float _timeToPos(const otime::RationalTime&) const;
 
-            std::shared_ptr<timeline::TimelinePlayer> _timelinePlayer;
-            otime::TimeRange _timeRange = time::invalidTimeRange;
-            otime::RationalTime _currentTime = time::invalidTime;
-            otime::TimeRange _inOutRange = time::invalidTimeRange;
-            timeline::PlayerCacheInfo _cacheInfo;
-            ui::FontRole _fontRole = ui::FontRole::Label;
-            int _margin = 0;
-            int _spacing = 0;
-            imaging::FontMetrics _fontMetrics;
-            bool _mousePress = false;
-            math::Vector2i _mousePos;
-            math::Vector2i _mousePressPos;
-            bool _currentTimeDrag = false;
-            std::shared_ptr<observer::ValueObserver<otime::RationalTime> > _currentTimeObserver;
-            std::shared_ptr<observer::ValueObserver<otime::TimeRange> > _inOutRangeObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::PlayerCacheInfo> > _cacheInfoObserver;
+            TLRENDER_PRIVATE();
         };
     }
 }

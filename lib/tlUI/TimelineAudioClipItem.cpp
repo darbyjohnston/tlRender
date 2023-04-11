@@ -11,6 +11,9 @@
 #include <tlIO/IOSystem.h>
 
 #include <tlCore/AudioConvert.h>
+#include <tlCore/Mesh.h>
+
+#include <opentimelineio/track.h>
 
 #include <sstream>
 
@@ -18,6 +21,38 @@ namespace tl
 {
     namespace ui
     {
+        struct TimelineAudioClipItem::Private
+        {
+            const otio::Clip* clip = nullptr;
+            const otio::Track* track = nullptr;
+            file::Path path;
+            std::vector<file::MemoryRead> memoryRead;
+            otime::TimeRange timeRange = time::invalidTimeRange;
+            std::string label;
+            std::string durationLabel;
+            ui::FontRole fontRole = ui::FontRole::Label;
+            int margin = 0;
+            int spacing = 0;
+            int waveformWidth = 0;
+            bool ioInfoInit = true;
+            io::Info ioInfo;
+            struct AudioFuture
+            {
+                std::future<io::AudioData> future;
+                math::Vector2i size;
+            };
+            std::map<otime::RationalTime, AudioFuture> audioDataFutures;
+            struct AudioData
+            {
+                io::AudioData audio;
+                math::Vector2i size;
+                std::future<std::shared_ptr<geom::TriangleMesh2> > meshFuture;
+                std::shared_ptr<geom::TriangleMesh2> mesh;
+            };
+            std::map<otime::RationalTime, AudioData> audioData;
+            std::shared_ptr<observer::ValueObserver<bool> > cancelObserver;
+        };
+
         void TimelineAudioClipItem::_init(
             const otio::Clip* clip,
             const TimelineItemData& itemData,
@@ -25,33 +60,38 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             ITimelineItem::_init("TimelineAudioClipItem", itemData, context, parent);
+            TLRENDER_P();
 
-            _clip = clip;
-            _track = dynamic_cast<otio::Track*>(clip->parent());
+            p.clip = clip;
+            p.track = dynamic_cast<otio::Track*>(clip->parent());
 
-            _path = timeline::getPath(
-                _clip->media_reference(),
+            p.path = timeline::getPath(
+                p.clip->media_reference(),
                 itemData.directory,
                 itemData.pathOptions);
-            _memoryRead = timeline::getMemoryRead(
-                _clip->media_reference());
+            p.memoryRead = timeline::getMemoryRead(
+                p.clip->media_reference());
 
             auto rangeOpt = clip->trimmed_range_in_parent();
             if (rangeOpt.has_value())
             {
-                _timeRange = rangeOpt.value();
+                p.timeRange = rangeOpt.value();
             }
 
-            _label = _path.get(-1, false);
+            p.label = p.path.get(-1, false);
             _textUpdate();
 
-            _cancelObserver = observer::ValueObserver<bool>::create(
+            p.cancelObserver = observer::ValueObserver<bool>::create(
                 _data.ioManager->observeCancelRequests(),
                 [this](bool)
                 {
-                    _audioDataFutures.clear();
+                    _p->audioDataFutures.clear();
                 });
         }
+
+        TimelineAudioClipItem::TimelineAudioClipItem() :
+            _p(new Private)
+        {}
 
         TimelineAudioClipItem::~TimelineAudioClipItem()
         {}
@@ -70,11 +110,12 @@ namespace tl
         void TimelineAudioClipItem::setOptions(const TimelineItemOptions& value)
         {
             ITimelineItem::setOptions(value);
+            TLRENDER_P();
             if (_updates & ui::Update::Size)
             {
                 _textUpdate();
                 _data.ioManager->cancelRequests();
-                _audioData.clear();
+                p.audioData.clear();
             }
         }
 
@@ -155,15 +196,16 @@ namespace tl
 
         void TimelineAudioClipItem::tickEvent(const ui::TickEvent& event)
         {
-            auto i = _audioDataFutures.begin();
-            while (i != _audioDataFutures.end())
+            TLRENDER_P();
+            auto i = p.audioDataFutures.begin();
+            while (i != p.audioDataFutures.end())
             {
                 if (i->second.future.valid() &&
                     i->second.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                 {
                     const auto audio = i->second.future.get();
                     const auto size = i->second.size;
-                    AudioData audioData;
+                    Private::AudioData audioData;
                     audioData.audio = audio;
                     audioData.size = size;
                     if (audio.audio)
@@ -179,15 +221,15 @@ namespace tl
                             return audioMesh(convertedAudio, size);
                             });
                     }
-                    _audioData[i->first] = std::move(audioData);
-                    i = _audioDataFutures.erase(i);
+                    p.audioData[i->first] = std::move(audioData);
+                    i = p.audioDataFutures.erase(i);
                     continue;
                 }
                 ++i;
             }
 
-            auto j = _audioData.begin();
-            while (j != _audioData.end())
+            auto j = p.audioData.begin();
+            while (j != p.audioData.end())
             {
                 if (j->second.meshFuture.valid() &&
                     j->second.meshFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
@@ -203,27 +245,28 @@ namespace tl
         void TimelineAudioClipItem::sizeEvent(const ui::SizeEvent& event)
         {
             ITimelineItem::sizeEvent(event);
+            TLRENDER_P();
 
-            _margin = event.style->getSizeRole(ui::SizeRole::MarginSmall) * event.contentScale;
-            _spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall) * event.contentScale;
-            const auto fontMetrics = event.getFontMetrics(_fontRole);
+            p.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall) * event.contentScale;
+            p.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall) * event.contentScale;
+            const auto fontMetrics = event.getFontMetrics(p.fontRole);
 
             const int waveformWidth =
                 otime::RationalTime(1.0, 1.0).value() * _options.scale;
-            if (waveformWidth != _waveformWidth)
+            if (waveformWidth != p.waveformWidth)
             {
-                _waveformWidth = waveformWidth;
+                p.waveformWidth = waveformWidth;
                 _data.ioManager->cancelRequests();
-                _audioData.clear();
+                p.audioData.clear();
             }
 
             _sizeHint = math::Vector2i(
-                _timeRange.duration().rescaled_to(1.0).value() * _options.scale,
-                _margin +
+                p.timeRange.duration().rescaled_to(1.0).value() * _options.scale,
+                p.margin +
                 fontMetrics.lineHeight +
-                _spacing +
+                p.spacing +
                 _options.waveformHeight +
-                _margin);
+                p.margin);
         }
 
         void TimelineAudioClipItem::drawEvent(const ui::DrawEvent& event)
@@ -249,54 +292,59 @@ namespace tl
 
         void TimelineAudioClipItem::_textUpdate()
         {
-            _durationLabel = ITimelineItem::_durationLabel(
-                _timeRange.duration(),
+            TLRENDER_P();
+            p.durationLabel = ITimelineItem::_durationLabel(
+                p.timeRange.duration(),
                 _options.timeUnits);
         }
 
         void TimelineAudioClipItem::_drawInfo(const ui::DrawEvent& event)
         {
-            const auto fontInfo = event.getFontInfo(_fontRole);
-            const auto fontMetrics = event.getFontMetrics(_fontRole);
+            TLRENDER_P();
+
+            const auto fontInfo = event.getFontInfo(p.fontRole);
+            const auto fontMetrics = event.getFontMetrics(p.fontRole);
             math::BBox2i g = _geometry;
 
             event.render->drawText(
-                event.fontSystem->getGlyphs(_label, fontInfo),
+                event.fontSystem->getGlyphs(p.label, fontInfo),
                 math::Vector2i(
                     g.min.x +
-                    _margin,
+                    p.margin,
                     g.min.y +
-                    _margin +
+                    p.margin +
                     fontMetrics.ascender),
                 event.style->getColorRole(ui::ColorRole::Text));
 
-            math::Vector2i textSize = event.fontSystem->measure(_durationLabel, fontInfo);
+            math::Vector2i textSize = event.fontSystem->measure(p.durationLabel, fontInfo);
             event.render->drawText(
-                event.fontSystem->getGlyphs(_durationLabel, fontInfo),
+                event.fontSystem->getGlyphs(p.durationLabel, fontInfo),
                 math::Vector2i(
                     g.max.x -
-                    _margin -
+                    p.margin -
                     textSize.x,
                     g.min.y +
-                    _margin +
+                    p.margin +
                     fontMetrics.ascender),
                 event.style->getColorRole(ui::ColorRole::Text));
         }
 
         void TimelineAudioClipItem::_drawWaveforms(const ui::DrawEvent& event)
         {
-            const auto fontMetrics = event.getFontMetrics(_fontRole);
+            TLRENDER_P();
+
+            const auto fontMetrics = event.getFontMetrics(p.fontRole);
             const math::BBox2i vp(0, 0, _viewport.w(), _viewport.h());
             math::BBox2i g = _geometry;
 
             const math::BBox2i bbox(
                 g.min.x +
-                _margin,
+                p.margin,
                 g.min.y +
-                _margin +
+                p.margin +
                 fontMetrics.lineHeight +
-                _spacing,
-                _sizeHint.x - _margin * 2,
+                p.spacing,
+                _sizeHint.x - p.margin * 2,
                 _options.waveformHeight);
             event.render->drawRect(
                 bbox,
@@ -305,45 +353,45 @@ namespace tl
             event.render->setClipRect(bbox);
 
             std::set<otime::RationalTime> audioDataDelete;
-            for (const auto& audioData : _audioData)
+            for (const auto& audioData : p.audioData)
             {
                 audioDataDelete.insert(audioData.first);
             }
 
             if (g.intersects(vp))
             {
-                if (_ioInfoInit)
+                if (p.ioInfoInit)
                 {
-                    _ioInfoInit = false;
-                    _ioInfo = _data.ioManager->getInfo(_path).get();
+                    p.ioInfoInit = false;
+                    p.ioInfo = _data.ioManager->getInfo(p.path).get();
                     _updates |= ui::Update::Size;
                     _updates |= ui::Update::Draw;
                 }
             }
 
-            if (_waveformWidth > 0)
+            if (p.waveformWidth > 0)
             {
-                for (int x = _margin; x < _sizeHint.x - _margin; x += _waveformWidth)
+                for (int x = p.margin; x < _sizeHint.x - p.margin; x += p.waveformWidth)
                 {
                     math::BBox2i bbox(
                         g.min.x +
                         x,
                         g.min.y +
-                        _margin +
+                        p.margin +
                         fontMetrics.lineHeight +
-                        _spacing,
-                        _waveformWidth,
+                        p.spacing,
+                        p.waveformWidth,
                         _options.waveformHeight);
                     if (bbox.intersects(vp))
                     {
-                        const int w = _sizeHint.x - _margin * 2;
+                        const int w = _sizeHint.x - p.margin * 2;
                         const otime::RationalTime time = time::round(otime::RationalTime(
-                            _timeRange.start_time().value() +
-                            (w > 0 ? ((x - _margin) / static_cast<double>(w)) : 0) *
-                            _timeRange.duration().value(),
-                            _timeRange.duration().rate()));
-                        auto i = _audioData.find(time);
-                        if (i != _audioData.end())
+                            p.timeRange.start_time().value() +
+                            (w > 0 ? ((x - p.margin) / static_cast<double>(w)) : 0) *
+                            p.timeRange.duration().value(),
+                            p.timeRange.duration().rate()));
+                        auto i = p.audioData.find(time);
+                        if (i != p.audioData.end())
                         {
                             if (i->second.mesh)
                             {
@@ -354,23 +402,23 @@ namespace tl
                             }
                             audioDataDelete.erase(time);
                         }
-                        else if (_ioInfo.audio.isValid())
+                        else if (p.ioInfo.audio.isValid())
                         {
-                            const auto j = _audioDataFutures.find(time);
-                            if (j == _audioDataFutures.end())
+                            const auto j = p.audioDataFutures.find(time);
+                            if (j == p.audioDataFutures.end())
                             {
                                 const otime::RationalTime mediaTime = timeline::mediaTime(
                                     time,
-                                    _track,
-                                    _clip,
-                                    _ioInfo.audioTime.duration().rate());
+                                    p.track,
+                                    p.clip,
+                                    p.ioInfo.audioTime.duration().rate());
                                 const otime::TimeRange mediaTimeRange(
                                     mediaTime,
                                     otime::RationalTime(
-                                        _ioInfo.audioTime.duration().rate(),
-                                        _ioInfo.audioTime.duration().rate()));
-                                _audioDataFutures[time].future = _data.ioManager->readAudio(_path, mediaTimeRange);
-                                _audioDataFutures[time].size = bbox.getSize();
+                                        p.ioInfo.audioTime.duration().rate(),
+                                        p.ioInfo.audioTime.duration().rate()));
+                                p.audioDataFutures[time].future = _data.ioManager->readAudio(p.path, mediaTimeRange);
+                                p.audioDataFutures[time].size = bbox.getSize();
                             }
                         }
                     }
@@ -379,10 +427,10 @@ namespace tl
 
             for (auto i : audioDataDelete)
             {
-                const auto j = _audioData.find(i);
-                if (j != _audioData.end())
+                const auto j = p.audioData.find(i);
+                if (j != p.audioData.end())
                 {
-                    _audioData.erase(j);
+                    p.audioData.erase(j);
                 }
             }
 

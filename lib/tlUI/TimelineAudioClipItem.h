@@ -6,10 +6,7 @@
 
 #include <tlUI/ITimelineItem.h>
 
-#include <tlCore/Mesh.h>
-
 #include <opentimelineio/clip.h>
-#include <opentimelineio/track.h>
 
 namespace tl
 {
@@ -24,6 +21,8 @@ namespace tl
                 const TimelineItemData&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
+
+            TimelineAudioClipItem();
 
         public:
             ~TimelineAudioClipItem() override;
@@ -47,34 +46,7 @@ namespace tl
             void _drawInfo(const ui::DrawEvent&);
             void _drawWaveforms(const ui::DrawEvent&);
 
-            const otio::Clip* _clip = nullptr;
-            const otio::Track* _track = nullptr;
-            file::Path _path;
-            std::vector<file::MemoryRead> _memoryRead;
-            otime::TimeRange _timeRange = time::invalidTimeRange;
-            std::string _label;
-            std::string _durationLabel;
-            ui::FontRole _fontRole = ui::FontRole::Label;
-            int _margin = 0;
-            int _spacing = 0;
-            int _waveformWidth = 0;
-            bool _ioInfoInit = true;
-            io::Info _ioInfo;
-            struct AudioFuture
-            {
-                std::future<io::AudioData> future;
-                math::Vector2i size;
-            };
-            std::map<otime::RationalTime, AudioFuture> _audioDataFutures;
-            struct AudioData
-            {
-                io::AudioData audio;
-                math::Vector2i size;
-                std::future<std::shared_ptr<geom::TriangleMesh2> > meshFuture;
-                std::shared_ptr<geom::TriangleMesh2> mesh;
-            };
-            std::map<otime::RationalTime, AudioData> _audioData;
-            std::shared_ptr<observer::ValueObserver<bool> > _cancelObserver;
+            TLRENDER_PRIVATE();
         };
     }
 }

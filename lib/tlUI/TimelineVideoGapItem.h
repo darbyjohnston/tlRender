@@ -22,6 +22,8 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
+            TimelineVideoGapItem();
+
         public:
             ~TimelineVideoGapItem() override;
 
@@ -41,12 +43,7 @@ namespace tl
 
             static std::string _nameLabel(const std::string&);
 
-            otime::TimeRange _timeRange = time::invalidTimeRange;
-            std::string _label;
-            std::string _durationLabel;
-            ui::FontRole _fontRole = ui::FontRole::Label;
-            int _margin = 0;
-            int _spacing = 0;
+            TLRENDER_PRIVATE();
         };
     }
 }

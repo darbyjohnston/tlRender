@@ -6,32 +6,45 @@
 
 #include <tlIO/IOSystem.h>
 
+#include <tlCore/LRUCache.h>
+
 #include <sstream>
 
 namespace tl
 {
     namespace ui
     {
+        struct TimelineIOManager::Private
+        {
+            std::weak_ptr<system::Context> context;
+            io::Options ioOptions;
+            memory::LRUCache<std::string, std::shared_ptr<io::IRead> > cache;
+            std::shared_ptr<observer::Value<bool> > cancelRequests;
+        };
+
         void TimelineIOManager::_init(
             const io::Options& ioOptions,
             const std::shared_ptr<system::Context>& context)
         {
-            _context = context;
-            _ioOptions = ioOptions;
+            TLRENDER_P();
+
+            p.context = context;
+            p.ioOptions = ioOptions;
             {
                 std::stringstream ss;
                 ss << 1;
-                _ioOptions["ffmpeg/VideoBufferSize"] = ss.str();
+                p.ioOptions["ffmpeg/VideoBufferSize"] = ss.str();
             }
             {
                 std::stringstream ss;
                 ss << otime::RationalTime(1.0, 1.0);
-                _ioOptions["ffmpeg/AudioBufferSize"] = ss.str();
+                p.ioOptions["ffmpeg/AudioBufferSize"] = ss.str();
             }
-            _cancelRequests = observer::Value<bool>::create(false);
+            p.cancelRequests = observer::Value<bool>::create(false);
         }
 
-        TimelineIOManager::TimelineIOManager()
+        TimelineIOManager::TimelineIOManager() :
+            _p(new Private)
         {}
 
         TimelineIOManager::~TimelineIOManager()
@@ -48,16 +61,17 @@ namespace tl
 
         std::future<io::Info> TimelineIOManager::getInfo(const file::Path& path)
         {
+            TLRENDER_P();
             std::future<io::Info> out;
             std::shared_ptr<io::IRead> read;
             const std::string fileName = path.get();
-            if (!_cache.get(fileName, read))
+            if (!p.cache.get(fileName, read))
             {
-                if (auto context = _context.lock())
+                if (auto context = p.context.lock())
                 {
                     auto ioSystem = context->getSystem<io::System>();
-                    read = ioSystem->read(path, _ioOptions);
-                    _cache.add(fileName, read);
+                    read = ioSystem->read(path, p.ioOptions);
+                    p.cache.add(fileName, read);
                 }
             }
             if (read)
@@ -78,16 +92,17 @@ namespace tl
             const otime::RationalTime& time,
             uint16_t layer)
         {
+            TLRENDER_P();
             std::future<io::VideoData> out;
             std::shared_ptr<io::IRead> read;
             const std::string fileName = path.get();
-            if (!_cache.get(fileName, read))
+            if (!p.cache.get(fileName, read))
             {
-                if (auto context = _context.lock())
+                if (auto context = p.context.lock())
                 {
                     auto ioSystem = context->getSystem<io::System>();
-                    read = ioSystem->read(path, _ioOptions);
-                    _cache.add(fileName, read);
+                    read = ioSystem->read(path, p.ioOptions);
+                    p.cache.add(fileName, read);
                 }
             }
             if (read)
@@ -107,16 +122,17 @@ namespace tl
             const file::Path& path,
             const otime::TimeRange& range)
         {
+            TLRENDER_P();
             std::future<io::AudioData> out;
             std::shared_ptr<io::IRead> read;
             const std::string fileName = path.get();
-            if (!_cache.get(fileName, read))
+            if (!p.cache.get(fileName, read))
             {
-                if (auto context = _context.lock())
+                if (auto context = p.context.lock())
                 {
                     auto ioSystem = context->getSystem<io::System>();
-                    read = ioSystem->read(path, _ioOptions);
-                    _cache.add(fileName, read);
+                    read = ioSystem->read(path, p.ioOptions);
+                    p.cache.add(fileName, read);
                 }
             }
             if (read)
@@ -134,8 +150,9 @@ namespace tl
 
         void TimelineIOManager::cancelRequests()
         {
-            _cancelRequests->setAlways(true);
-            for (const auto& i : _cache.getValues())
+            TLRENDER_P();
+            p.cancelRequests->setAlways(true);
+            for (const auto& i : p.cache.getValues())
             {
                 if (i)
                 {
@@ -146,7 +163,7 @@ namespace tl
 
         std::shared_ptr<observer::IValue<bool> > TimelineIOManager::observeCancelRequests() const
         {
-            return _cancelRequests;
+            return _p->cancelRequests;
         }
     }
 }

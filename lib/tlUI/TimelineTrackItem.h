@@ -30,6 +30,8 @@ namespace tl
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
+            TimelineTrackItem();
+
         public:
             ~TimelineTrackItem() override;
 
@@ -44,10 +46,7 @@ namespace tl
             void drawEvent(const ui::DrawEvent&) override;
 
         private:
-            TimelineTrackType _trackType = TimelineTrackType::None;
-            otime::TimeRange _timeRange = time::invalidTimeRange;
-            std::map<std::shared_ptr<ITimelineItem>, otime::TimeRange> _childTimeRanges;
-            int _margin = 0;
+            TLRENDER_PRIVATE();
         };
     }
 }

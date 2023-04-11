@@ -11,17 +11,23 @@ namespace tl
 {
     namespace qtwidget
     {
+        struct TimelineScrollArea::Private
+        {
+            TimelineWidget* timelineWidget = nullptr;
+        };
+
         TimelineScrollArea::TimelineScrollArea(QWidget* parent) :
-            QAbstractScrollArea(parent)
+            QAbstractScrollArea(parent),
+            _p(new Private)
         {
             connect(
                 horizontalScrollBar(),
                 &QAbstractSlider::valueChanged,
                 [this](int value)
                 {
-                    if (_timelineWidget)
+                    if (_p->timelineWidget)
                     {
-                        _timelineWidget->setScrollPosX(value);
+                        _p->timelineWidget->setScrollPosX(value);
                     }
                 });
             connect(
@@ -29,32 +35,33 @@ namespace tl
                 &QAbstractSlider::valueChanged,
                 [this](int value)
                 {
-                    if (_timelineWidget)
+                    if (_p->timelineWidget)
                     {
-                        _timelineWidget->setScrollPosY(value);
+                        _p->timelineWidget->setScrollPosY(value);
                     }
                 });
         }
 
         void TimelineScrollArea::setTimelineWidget(TimelineWidget* widget)
         {
-            if (widget == _timelineWidget)
+            TLRENDER_P();
+            if (widget == p.timelineWidget)
                 return;
-            delete _timelineWidget;
-            _timelineWidget = widget;
-            if (_timelineWidget)
+            delete p.timelineWidget;
+            p.timelineWidget = widget;
+            if (p.timelineWidget)
             {
-                _timelineWidget->setParent(this);
+                p.timelineWidget->setParent(this);
                 _sizeUpdate();
                 connect(
-                    _timelineWidget,
+                    p.timelineWidget,
                     &TimelineWidget::scrollSizeChanged,
                     [this](const math::Vector2i& value)
                     {
                         _sizeUpdate();
                     });
                 connect(
-                    _timelineWidget,
+                    p.timelineWidget,
                     &TimelineWidget::scrollPosChanged,
                     [this](const math::Vector2i& value)
                     {
@@ -66,18 +73,20 @@ namespace tl
 
         void TimelineScrollArea::resizeEvent(QResizeEvent* event)
         {
-            if (_timelineWidget)
+            TLRENDER_P();
+            if (p.timelineWidget)
             {
-                _timelineWidget->resize(event->size());
+                p.timelineWidget->resize(event->size());
                 _sizeUpdate();
             }
         }
 
         void TimelineScrollArea::_sizeUpdate()
         {
-            if (_timelineWidget)
+            TLRENDER_P();
+            if (p.timelineWidget)
             {
-                const auto& scrollSize = _timelineWidget->scrollSize();
+                const auto& scrollSize = p.timelineWidget->scrollSize();
                 const math::Vector2i viewportSize(
                     viewport()->width(),
                     viewport()->height());

@@ -6,9 +6,13 @@
 
 #include <tlUI/DrawUtil.h>
 
+#include <tlGL/OffscreenBuffer.h>
+
 #include <tlTimeline/Util.h>
 
 #include <tlIO/IOSystem.h>
+
+#include <opentimelineio/track.h>
 
 #include <sstream>
 
@@ -16,6 +20,27 @@ namespace tl
 {
     namespace ui
     {
+        struct TimelineVideoClipItem::Private
+        {
+            const otio::Clip* clip = nullptr;
+            const otio::Track* track = nullptr;
+            file::Path path;
+            std::vector<file::MemoryRead> memoryRead;
+            otime::TimeRange timeRange = time::invalidTimeRange;
+            std::string label;
+            std::string durationLabel;
+            ui::FontRole fontRole = ui::FontRole::Label;
+            int margin = 0;
+            int spacing = 0;
+            int thumbnailWidth = 0;
+            bool ioInfoInit = true;
+            io::Info ioInfo;
+            std::map<otime::RationalTime, std::future<io::VideoData> > videoDataFutures;
+            std::map<otime::RationalTime, io::VideoData> videoData;
+            std::map<otime::RationalTime, std::shared_ptr<gl::OffscreenBuffer> > buffers;
+            std::shared_ptr<observer::ValueObserver<bool> > cancelObserver;
+        };
+
         void TimelineVideoClipItem::_init(
             const otio::Clip* clip,
             const TimelineItemData& itemData,
@@ -23,33 +48,38 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             ITimelineItem::_init("TimelineVideoClipItem", itemData, context, parent);
+            TLRENDER_P();
 
-            _clip = clip;
-            _track = dynamic_cast<otio::Track*>(clip->parent());
+            p.clip = clip;
+            p.track = dynamic_cast<otio::Track*>(clip->parent());
 
-            _path = timeline::getPath(
-                _clip->media_reference(),
+            p.path = timeline::getPath(
+                p.clip->media_reference(),
                 itemData.directory,
                 itemData.pathOptions);
-            _memoryRead = timeline::getMemoryRead(
-                _clip->media_reference());
+            p.memoryRead = timeline::getMemoryRead(
+                p.clip->media_reference());
 
             auto rangeOpt = clip->trimmed_range_in_parent();
             if (rangeOpt.has_value())
             {
-                _timeRange = rangeOpt.value();
+                p.timeRange = rangeOpt.value();
             }
 
-            _label = _path.get(-1, false);
+            p.label = p.path.get(-1, false);
             _textUpdate();
 
-            _cancelObserver = observer::ValueObserver<bool>::create(
+            p.cancelObserver = observer::ValueObserver<bool>::create(
                 _data.ioManager->observeCancelRequests(),
                 [this](bool)
                 {
-                    _videoDataFutures.clear();
+                    _p->videoDataFutures.clear();
                 });
         }
+
+        TimelineVideoClipItem::TimelineVideoClipItem() :
+            _p(new Private)
+        {}
 
         TimelineVideoClipItem::~TimelineVideoClipItem()
         {}
@@ -86,15 +116,16 @@ namespace tl
 
         void TimelineVideoClipItem::tickEvent(const ui::TickEvent& event)
         {
-            auto i = _videoDataFutures.begin();
-            while (i != _videoDataFutures.end())
+            TLRENDER_P();
+            auto i = p.videoDataFutures.begin();
+            while (i != p.videoDataFutures.end())
             {
                 if (i->second.valid() &&
                     i->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                 {
                     const auto videoData = i->second.get();
-                    _videoData[i->first] = videoData;
-                    i = _videoDataFutures.erase(i);
+                    p.videoData[i->first] = videoData;
+                    i = p.videoDataFutures.erase(i);
                     _updates |= ui::Update::Draw;
                     continue;
                 }
@@ -105,29 +136,30 @@ namespace tl
         void TimelineVideoClipItem::sizeEvent(const ui::SizeEvent& event)
         {
             ITimelineItem::sizeEvent(event);
+            TLRENDER_P();
 
-            _margin = event.style->getSizeRole(ui::SizeRole::MarginSmall) * event.contentScale;
-            _spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall) * event.contentScale;
-            const auto fontMetrics = event.getFontMetrics(_fontRole);
+            p.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall) * event.contentScale;
+            p.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall) * event.contentScale;
+            const auto fontMetrics = event.getFontMetrics(p.fontRole);
 
-            const int thumbnailWidth = !_ioInfo.video.empty() ?
-                static_cast<int>(_options.thumbnailHeight * _ioInfo.video[0].size.getAspect()) :
+            const int thumbnailWidth = !p.ioInfo.video.empty() ?
+                static_cast<int>(_options.thumbnailHeight * p.ioInfo.video[0].size.getAspect()) :
                 0;
-            if (thumbnailWidth != _thumbnailWidth)
+            if (thumbnailWidth != p.thumbnailWidth)
             {
-                _thumbnailWidth = thumbnailWidth;
+                p.thumbnailWidth = thumbnailWidth;
                 _data.ioManager->cancelRequests();
-                _videoData.clear();
-                _buffers.clear();
+                p.videoData.clear();
+                p.buffers.clear();
             }
 
             _sizeHint = math::Vector2i(
-                _timeRange.duration().rescaled_to(1.0).value() * _options.scale,
-                _margin +
+                p.timeRange.duration().rescaled_to(1.0).value() * _options.scale,
+                p.margin +
                 fontMetrics.lineHeight +
-                _spacing +
+                p.spacing +
                 _options.thumbnailHeight +
-                _margin);
+                p.margin);
         }
 
         void TimelineVideoClipItem::drawEvent(const ui::DrawEvent& event)
@@ -154,54 +186,59 @@ namespace tl
 
         void TimelineVideoClipItem::_textUpdate()
         {
-            _durationLabel = ITimelineItem::_durationLabel(
-                _timeRange.duration(),
+            TLRENDER_P();
+            p.durationLabel = ITimelineItem::_durationLabel(
+                p.timeRange.duration(),
                 _options.timeUnits);
         }
 
         void TimelineVideoClipItem::_drawInfo(const ui::DrawEvent& event)
         {
-            const auto fontInfo = event.getFontInfo(_fontRole);
-            const auto fontMetrics = event.getFontMetrics(_fontRole);
+            TLRENDER_P();
+
+            const auto fontInfo = event.getFontInfo(p.fontRole);
+            const auto fontMetrics = event.getFontMetrics(p.fontRole);
             math::BBox2i g = _geometry;
 
             event.render->drawText(
-                event.fontSystem->getGlyphs(_label, fontInfo),
+                event.fontSystem->getGlyphs(p.label, fontInfo),
                 math::Vector2i(
                     g.min.x +
-                    _margin,
+                    p.margin,
                     g.min.y +
-                    _margin +
+                    p.margin +
                     fontMetrics.ascender),
                 event.style->getColorRole(ui::ColorRole::Text));
 
-            math::Vector2i textSize = event.fontSystem->measure(_durationLabel, fontInfo);
+            math::Vector2i textSize = event.fontSystem->measure(p.durationLabel, fontInfo);
             event.render->drawText(
-                event.fontSystem->getGlyphs(_durationLabel, fontInfo),
+                event.fontSystem->getGlyphs(p.durationLabel, fontInfo),
                 math::Vector2i(
                     g.max.x -
-                    _margin -
+                    p.margin -
                     textSize.x,
                     g.min.y +
-                    _margin +
+                    p.margin +
                     fontMetrics.ascender),
                 event.style->getColorRole(ui::ColorRole::Text));
         }
 
         void TimelineVideoClipItem::_drawThumbnails(const ui::DrawEvent& event)
         {
-            const auto fontMetrics = event.getFontMetrics(_fontRole);
+            TLRENDER_P();
+
+            const auto fontMetrics = event.getFontMetrics(p.fontRole);
             const math::BBox2i vp(0, 0, _viewport.w(), _viewport.h());
             math::BBox2i g = _geometry;
 
             const math::BBox2i bbox(
                 g.min.x +
-                _margin,
+                p.margin,
                 g.min.y +
-                _margin +
+                p.margin +
                 fontMetrics.lineHeight +
-                _spacing,
-                _sizeHint.x - _margin * 2,
+                p.spacing,
+                _sizeHint.x - p.margin * 2,
                 _options.thumbnailHeight);
             event.render->drawRect(
                 bbox,
@@ -210,25 +247,25 @@ namespace tl
             event.render->setClipRect(bbox);
 
             std::set<otime::RationalTime> buffersDelete;
-            for (const auto& buffers : _buffers)
+            for (const auto& buffers : p.buffers)
             {
                 buffersDelete.insert(buffers.first);
             }
 
             if (g.intersects(vp))
             {
-                if (_ioInfoInit)
+                if (p.ioInfoInit)
                 {
-                    _ioInfoInit = false;
-                    _ioInfo = _data.ioManager->getInfo(_path).get();
+                    p.ioInfoInit = false;
+                    p.ioInfo = _data.ioManager->getInfo(p.path).get();
                     _updates |= ui::Update::Size;
                     _updates |= ui::Update::Draw;
                 }
             }
 
-            if (_thumbnailWidth > 0)
+            if (p.thumbnailWidth > 0)
             {
-                for (const auto& i : _videoData)
+                for (const auto& i : p.videoData)
                 {
                     const imaging::Size renderSize = event.render->getRenderSize();
                     const math::BBox2i viewport = event.render->getViewport();
@@ -237,7 +274,7 @@ namespace tl
                     const math::Matrix4x4f transform = event.render->getTransform();
 
                     const imaging::Size size(
-                        _thumbnailWidth,
+                        p.thumbnailWidth,
                         _options.thumbnailHeight);
                     gl::OffscreenBufferOptions options;
                     options.colorType = imaging::PixelType::RGBA_F32;
@@ -260,7 +297,7 @@ namespace tl
                             event.render->drawImage(i.second.image, math::BBox2i(0, 0, size.w, size.h));
                         }
                     }
-                    _buffers[i.first] = buffer;
+                    p.buffers[i.first] = buffer;
 
                     event.render->setRenderSize(renderSize);
                     event.render->setViewport(viewport);
@@ -268,46 +305,46 @@ namespace tl
                     event.render->setClipRect(clipRect);
                     event.render->setTransform(transform);
                 }
-                _videoData.clear();
+                p.videoData.clear();
 
-                for (int x = _margin; x < _sizeHint.x - _margin; x += _thumbnailWidth)
+                for (int x = p.margin; x < _sizeHint.x - p.margin; x += p.thumbnailWidth)
                 {
                     math::BBox2i bbox(
                         g.min.x +
                         x,
                         g.min.y +
-                        _margin +
+                        p.margin +
                         fontMetrics.lineHeight +
-                        _spacing,
-                        _thumbnailWidth,
+                        p.spacing,
+                        p.thumbnailWidth,
                         _options.thumbnailHeight);
                     if (bbox.intersects(vp))
                     {
-                        const int w = _sizeHint.x - _margin * 2;
+                        const int w = _sizeHint.x - p.margin * 2;
                         const otime::RationalTime time = time::round(otime::RationalTime(
-                            _timeRange.start_time().value() +
-                            (w > 0 ? ((x - _margin) / static_cast<double>(w)) : 0) *
-                            _timeRange.duration().value(),
-                            _timeRange.duration().rate()));
+                            p.timeRange.start_time().value() +
+                            (w > 0 ? ((x - p.margin) / static_cast<double>(w)) : 0) *
+                            p.timeRange.duration().value(),
+                            p.timeRange.duration().rate()));
 
-                        const auto i = _buffers.find(time);
-                        if (i != _buffers.end())
+                        const auto i = p.buffers.find(time);
+                        if (i != p.buffers.end())
                         {
                             const unsigned int id = i->second->getColorID();
                             event.render->drawTexture(id, bbox);
                             buffersDelete.erase(time);
                         }
-                        else if (!_ioInfo.video.empty())
+                        else if (!p.ioInfo.video.empty())
                         {
-                            const auto k = _videoDataFutures.find(time);
-                            if (k == _videoDataFutures.end())
+                            const auto k = p.videoDataFutures.find(time);
+                            if (k == p.videoDataFutures.end())
                             {
                                 const auto mediaTime = timeline::mediaTime(
                                     time,
-                                    _track,
-                                    _clip,
-                                    _ioInfo.videoTime.duration().rate());
-                                _videoDataFutures[time] = _data.ioManager->readVideo(_path, mediaTime);
+                                    p.track,
+                                    p.clip,
+                                    p.ioInfo.videoTime.duration().rate());
+                                p.videoDataFutures[time] = _data.ioManager->readVideo(p.path, mediaTime);
                             }
                         }
                     }
@@ -316,10 +353,10 @@ namespace tl
 
             for (auto i : buffersDelete)
             {
-                const auto j = _buffers.find(i);
-                if (j != _buffers.end())
+                const auto j = p.buffers.find(i);
+                if (j != p.buffers.end())
                 {
-                    _buffers.erase(j);
+                    p.buffers.erase(j);
                 }
             }
 

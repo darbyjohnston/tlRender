@@ -28,7 +28,7 @@ namespace tl
         private:
             void _sizeUpdate();
 
-            TimelineWidget* _timelineWidget = nullptr;
+            TLRENDER_PRIVATE();
         };
     }
 }

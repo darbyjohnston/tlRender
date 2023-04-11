@@ -15,6 +15,14 @@ namespace tl
 {
     namespace ui
     {
+        struct TimelineTrackItem::Private
+        {
+            TimelineTrackType trackType = TimelineTrackType::None;
+            otime::TimeRange timeRange = time::invalidTimeRange;
+            std::map<std::shared_ptr<ITimelineItem>, otime::TimeRange> childTimeRanges;
+            int margin = 0;
+        };
+
         void TimelineTrackItem::_init(
             const otio::Track* track,
             const TimelineItemData& itemData,
@@ -22,24 +30,25 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             ITimelineItem::_init("TimelineTrackItem", itemData, context, parent);
+            TLRENDER_P();
 
             if (otio::Track::Kind::video == track->kind())
             {
-                _trackType = TimelineTrackType::Video;
+                p.trackType = TimelineTrackType::Video;
             }
             else if (otio::Track::Kind::audio == track->kind())
             {
-                _trackType = TimelineTrackType::Audio;
+                p.trackType = TimelineTrackType::Audio;
             }
 
-            _timeRange = track->trimmed_range();
+            p.timeRange = track->trimmed_range();
 
             for (const auto& child : track->children())
             {
                 if (auto clip = dynamic_cast<otio::Clip*>(child.value))
                 {
                     std::shared_ptr<ITimelineItem> clipItem;
-                    switch (_trackType)
+                    switch (p.trackType)
                     {
                     case TimelineTrackType::Video:
                         clipItem = TimelineVideoClipItem::create(
@@ -59,13 +68,13 @@ namespace tl
                     const auto timeRangeOpt = track->trimmed_range_of_child(clip);
                     if (timeRangeOpt.has_value())
                     {
-                        _childTimeRanges[clipItem] = timeRangeOpt.value();
+                        p.childTimeRanges[clipItem] = timeRangeOpt.value();
                     }
                 }
                 else if (auto gap = dynamic_cast<otio::Gap*>(child.value))
                 {
                     std::shared_ptr<ITimelineItem> gapItem;
-                    switch (_trackType)
+                    switch (p.trackType)
                     {
                     case TimelineTrackType::Video:
                         gapItem = TimelineVideoGapItem::create(
@@ -85,11 +94,15 @@ namespace tl
                     const auto timeRangeOpt = track->trimmed_range_of_child(gap);
                     if (timeRangeOpt.has_value())
                     {
-                        _childTimeRanges[gapItem] = timeRangeOpt.value();
+                        p.childTimeRanges[gapItem] = timeRangeOpt.value();
                     }
                 }
             }
         }
+
+        TimelineTrackItem::TimelineTrackItem() :
+            _p(new Private)
+        {}
 
         TimelineTrackItem::~TimelineTrackItem()
         {}
@@ -108,12 +121,13 @@ namespace tl
         void TimelineTrackItem::setGeometry(const math::BBox2i& value)
         {
             ITimelineItem::setGeometry(value);
+            TLRENDER_P();
             for (auto child : _children)
             {
                 if (auto item = std::dynamic_pointer_cast<ITimelineItem>(child))
                 {
-                    const auto i = _childTimeRanges.find(item);
-                    if (i != _childTimeRanges.end())
+                    const auto i = p.childTimeRanges.find(item);
+                    if (i != p.childTimeRanges.end())
                     {
                         const math::Vector2i& sizeHint = child->getSizeHint();
                         math::BBox2i bbox(
@@ -131,8 +145,9 @@ namespace tl
         void TimelineTrackItem::sizeEvent(const ui::SizeEvent& event)
         {
             ITimelineItem::sizeEvent(event);
+            TLRENDER_P();
 
-            _margin = event.style->getSizeRole(ui::SizeRole::MarginSmall) * event.contentScale;
+            p.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall) * event.contentScale;
 
             int childrenHeight = 0;
             for (const auto& child : _children)
@@ -141,7 +156,7 @@ namespace tl
             }
 
             _sizeHint = math::Vector2i(
-                _timeRange.duration().rescaled_to(1.0).value() * _options.scale,
+                p.timeRange.duration().rescaled_to(1.0).value() * _options.scale,
                 childrenHeight);
         }
 

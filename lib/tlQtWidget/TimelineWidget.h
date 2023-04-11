@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <tlUI/EventLoop.h>
-#include <tlUI/ScrollArea.h>
 #include <tlUI/TimelineItem.h>
 
 #include <QOpenGLWidget>
@@ -75,23 +73,7 @@ namespace tl
                 const std::shared_ptr<ui::IWidget>&,
                 const math::BBox2i&);
 
-            std::weak_ptr<system::Context> _context;
-
-            std::shared_ptr<timeline::TimelinePlayer> _timelinePlayer;
-            std::shared_ptr<imaging::FontSystem> _fontSystem;
-            std::shared_ptr<ui::IconLibrary> _iconLibrary;
-            std::shared_ptr<ui::Style> _style;
-            std::shared_ptr<timeline::IRender> _render;
-            std::shared_ptr<ui::EventLoop> _eventLoop;
-
-            std::shared_ptr<ui::ScrollArea> _scrollArea;
-            math::Vector2i _scrollSize;
-            math::Vector2i _scrollPos;
-            std::shared_ptr<observer::ValueObserver<math::Vector2i> > _scrollSizeObserver;
-            std::shared_ptr<observer::ValueObserver<math::Vector2i> > _scrollPosObserver;
-            std::shared_ptr<ui::TimelineItem> _timelineItem;
-
-            int _timer = 0;
+            TLRENDER_PRIVATE();
         };
     }
 }

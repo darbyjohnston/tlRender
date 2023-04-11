@@ -7,7 +7,6 @@
 #include <tlIO/IO.h>
 
 #include <tlCore/Context.h>
-#include <tlCore/LRUCache.h>
 #include <tlCore/ValueObserver.h>
 
 namespace tl
@@ -53,10 +52,7 @@ namespace tl
             std::shared_ptr<observer::IValue<bool> > observeCancelRequests() const;
 
         private:
-            std::weak_ptr<system::Context> _context;
-            io::Options _ioOptions;
-            memory::LRUCache<std::string, std::shared_ptr<io::IRead> > _cache;
-            std::shared_ptr<observer::Value<bool> > _cancelRequests;
+            TLRENDER_PRIVATE();
         };
     }
 }
