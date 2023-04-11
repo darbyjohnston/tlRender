@@ -90,36 +90,27 @@ namespace tl
                 return _scrollPos;
             }
 
-            void TimelineWidget::setTimeline(const std::shared_ptr<timeline::Timeline>& timeline)
+            void TimelineWidget::setTimelinePlayer(const std::shared_ptr<timeline::TimelinePlayer>& timelinePlayer)
             {
                 if (_timelineItem)
                 {
                     _timelineItem->setParent(nullptr);
                     _timelineItem.reset();
                 }
-                _currentTimeObserver.reset();
-                if (timeline)
+                if (timelinePlayer)
                 {
                     if (auto context = _context.lock())
                     {
                         ItemData itemData;
-                        itemData.directory = timeline->getPath().getDirectory();
-                        itemData.pathOptions = timeline->getOptions().pathOptions;
+                        itemData.directory = timelinePlayer->getPath().getDirectory();
+                        itemData.pathOptions = timelinePlayer->getOptions().pathOptions;
                         itemData.ioManager = IOManager::create(
-                            timeline->getOptions().ioOptions,
+                            timelinePlayer->getOptions().ioOptions,
                             context);
 
-                        _timelineItem = TimelineItem::create(timeline->getTimeline(), itemData, context);
-                        _timelineItem->setCurrentTime(timeline->getTimeRange().start_time());
+                        _timelineItem = TimelineItem::create(timelinePlayer, itemData, context);
                         _setViewport(_timelineItem, _timelineViewport());
                         _timelineItem->setParent(_scrollArea);
-
-                        _currentTimeObserver = observer::ValueObserver<otime::RationalTime>::create(
-                            _timelineItem->observeCurrentTime(),
-                            [this](const otime::RationalTime& value)
-                            {
-                                Q_EMIT currentTimeChanged(value);
-                            });
                     }
                 }
             }

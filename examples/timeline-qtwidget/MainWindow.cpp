@@ -108,14 +108,6 @@ namespace tl
                         _itemOptions.waveformHeight = value;
                         _timelineWidget->setItemOptions(_itemOptions);
                     });
-
-                connect(
-                    _timelineWidget,
-                    &TimelineWidget::currentTimeChanged,
-                    [this](const otime::RationalTime& value)
-                    {
-                        _timelinePlayer->seek(value);
-                    });
             }
 
             void MainWindow::dragEnterEvent(QDragEnterEvent* event)
@@ -183,7 +175,10 @@ namespace tl
                     dialog.exec();
                 }
                 _timelineViewport->setTimelinePlayers(timelinePlayers);
-                _timelineWidget->setTimeline(timeline);
+                _timelineWidget->setTimelinePlayer(
+                    !timelinePlayers.empty() ?
+                    timelinePlayers[0]->timelinePlayer() :
+                    nullptr);
             }
         }
     }

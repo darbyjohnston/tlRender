@@ -17,19 +17,20 @@ namespace tl
         namespace timeline_qtwidget
         {
             void TimelineItem::_init(
-                const otio::SerializableObject::Retainer<otio::Timeline>& timeline,
+                const std::shared_ptr<timeline::TimelinePlayer>& timelinePlayer,
                 const ItemData& itemData,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 IItem::_init("TimelineItem", itemData, context, parent);
 
-                _timeline = timeline;
-                _timeRange = timeline::getTimeRange(timeline);
+                _timelinePlayer = timelinePlayer;
+                _timeRange = timelinePlayer->getTimeRange();
 
                 setBackgroundRole(ui::ColorRole::Window);
 
-                for (const auto& child : timeline->tracks()->children())
+                const auto otioTimeline = _timelinePlayer->getTimeline()->getTimeline();
+                for (const auto& child : otioTimeline->tracks()->children())
                 {
                     if (const auto* track = dynamic_cast<otio::Track*>(child.value))
                     {
@@ -41,39 +42,44 @@ namespace tl
                     }
                 }
 
-                _currentTime = observer::Value<otime::RationalTime>::create(time::invalidTime);
+                _currentTimeObserver = observer::ValueObserver<otime::RationalTime>::create(
+                    _timelinePlayer->observeCurrentTime(),
+                    [this](const otime::RationalTime& value)
+                    {
+                        _currentTime = value;
+                        _updates |= ui::Update::Draw;
+                    });
+
+                _inOutRangeObserver = observer::ValueObserver<otime::TimeRange>::create(
+                    _timelinePlayer->observeInOutRange(),
+                    [this](const otime::TimeRange value)
+                    {
+                        _inOutRange = value;
+                        _updates |= ui::Update::Draw;
+                    });
+
+                _cacheInfoObserver = observer::ValueObserver<timeline::PlayerCacheInfo>::create(
+                    _timelinePlayer->observeCacheInfo(),
+                    [this](const timeline::PlayerCacheInfo& value)
+                    {
+                        _cacheInfo = value;
+                        _updates |= ui::Update::Draw;
+                    });
             }
 
             std::shared_ptr<TimelineItem> TimelineItem::create(
-                const otio::SerializableObject::Retainer<otio::Timeline>& timeline,
+                const std::shared_ptr<timeline::TimelinePlayer>& timelinePlayer,
                 const ItemData& itemData,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<TimelineItem>(new TimelineItem);
-                out->_init(timeline, itemData, context, parent);
+                out->_init(timelinePlayer, itemData, context, parent);
                 return out;
             }
 
             TimelineItem::~TimelineItem()
             {}
-
-            void TimelineItem::setCurrentTime(const otime::RationalTime& value)
-            {
-                const otime::RationalTime tmp = math::clamp(
-                    value,
-                    _timeRange.start_time(),
-                    _timeRange.end_time_inclusive());
-                if (_currentTime->setIfChanged(tmp))
-                {
-                    _updates |= ui::Update::Draw;
-                }
-            }
-
-            std::shared_ptr<observer::IValue<otime::RationalTime> > TimelineItem::observeCurrentTime() const
-            {
-                return _currentTime;
-            }
 
             void TimelineItem::setGeometry(const math::BBox2i& value)
             {
@@ -151,7 +157,7 @@ namespace tl
                 _mousePos = event.pos;
                 if (_currentTimeDrag)
                 {
-                    setCurrentTime(_posToTime(_mousePos.x));
+                    _timelinePlayer->seek(_posToTime(_mousePos.x));
                 }
             }
 
@@ -164,7 +170,7 @@ namespace tl
                 if (bbox.contains(_mousePos))
                 {
                     _currentTimeDrag = true;
-                    setCurrentTime(_posToTime(_mousePos.x));
+                    _timelinePlayer->seek(_posToTime(_mousePos.x));
                 }
             }
 
@@ -307,7 +313,7 @@ namespace tl
                 const auto fontInfo = event.getFontInfo(_fontRole);
                 math::BBox2i g = _geometry;
 
-                const otime::RationalTime& currentTime = _currentTime->get();
+                const otime::RationalTime& currentTime = _timelinePlayer->observeCurrentTime()->get();
                 if (!time::compareExact(currentTime, time::invalidTime))
                 {
                     math::Vector2i pos(
@@ -384,7 +390,7 @@ namespace tl
             float TimelineItem::_timeToPos(const otime::RationalTime& value) const
             {
                 float out = 0.F;
-                const otime::RationalTime& currentTime = _currentTime->get();
+                const otime::RationalTime& currentTime = _timelinePlayer->observeCurrentTime()->get();
                 if (!time::compareExact(currentTime, time::invalidTime))
                 {
                     const math::BBox2i bbox = _getCurrentTimeBBox();

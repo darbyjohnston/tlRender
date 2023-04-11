@@ -9,8 +9,6 @@
 #include <tlUI/EventLoop.h>
 #include <tlUI/ScrollArea.h>
 
-#include <tlTimeline/Timeline.h>
-
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_4_1_Core>
 
@@ -38,7 +36,7 @@ namespace tl
 
                 const math::Vector2i& scrollPos() const;
 
-                void setTimeline(const std::shared_ptr<timeline::Timeline>&);
+                void setTimelinePlayer(const std::shared_ptr<timeline::TimelinePlayer>&);
 
                 void setItemOptions(const ItemOptions&);
 
@@ -51,8 +49,6 @@ namespace tl
                 void scrollSizeChanged(const math::Vector2i&);
 
                 void scrollPosChanged(const tl::math::Vector2i&);
-
-                void currentTimeChanged(const otime::RationalTime&);
 
             protected:
                 void initializeGL() override;
@@ -84,18 +80,19 @@ namespace tl
 
                 std::weak_ptr<system::Context> _context;
 
+                std::shared_ptr<timeline::TimelinePlayer> _timelinePlayer;
                 std::shared_ptr<imaging::FontSystem> _fontSystem;
                 std::shared_ptr<ui::IconLibrary> _iconLibrary;
                 std::shared_ptr<ui::Style> _style;
+                std::shared_ptr<timeline::IRender> _render;
                 std::shared_ptr<ui::EventLoop> _eventLoop;
+
                 std::shared_ptr<ui::ScrollArea> _scrollArea;
                 math::Vector2i _scrollSize;
                 math::Vector2i _scrollPos;
                 std::shared_ptr<observer::ValueObserver<math::Vector2i> > _scrollSizeObserver;
                 std::shared_ptr<observer::ValueObserver<math::Vector2i> > _scrollPosObserver;
                 std::shared_ptr<TimelineItem> _timelineItem;
-                std::shared_ptr<observer::ValueObserver<otime::RationalTime> > _currentTimeObserver;
-                std::shared_ptr<timeline::IRender> _render;
 
                 int _timer = 0;
             };

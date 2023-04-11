@@ -6,6 +6,8 @@
 
 #include "IItem.h"
 
+#include <tlTimeline/TimelinePlayer.h>
+
 #include <tlCore/ValueObserver.h>
 
 #include <opentimelineio/timeline.h>
@@ -21,23 +23,19 @@ namespace tl
             {
             protected:
                 void _init(
-                    const otio::SerializableObject::Retainer<otio::Timeline>&,
+                    const std::shared_ptr<timeline::TimelinePlayer>&,
                     const ItemData&,
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
             public:
                 static std::shared_ptr<TimelineItem> create(
-                    const otio::SerializableObject::Retainer<otio::Timeline>&,
+                    const std::shared_ptr<timeline::TimelinePlayer>&,
                     const ItemData&,
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
                 ~TimelineItem() override;
-
-                void setCurrentTime(const otime::RationalTime&);
-
-                std::shared_ptr<observer::IValue<otime::RationalTime> > observeCurrentTime() const;
 
                 void setGeometry(const math::BBox2i&) override;
                 void sizeEvent(const ui::SizeEvent&) override;
@@ -57,9 +55,11 @@ namespace tl
                 otime::RationalTime _posToTime(float) const;
                 float _timeToPos(const otime::RationalTime&) const;
 
-                otio::SerializableObject::Retainer<otio::Timeline> _timeline;
+                std::shared_ptr<timeline::TimelinePlayer> _timelinePlayer;
                 otime::TimeRange _timeRange = time::invalidTimeRange;
-                std::shared_ptr<observer::Value<otime::RationalTime> > _currentTime;
+                otime::RationalTime _currentTime = time::invalidTime;
+                otime::TimeRange _inOutRange = time::invalidTimeRange;
+                timeline::PlayerCacheInfo _cacheInfo;
                 ui::FontRole _fontRole = ui::FontRole::Label;
                 int _margin = 0;
                 int _spacing = 0;
@@ -68,6 +68,9 @@ namespace tl
                 math::Vector2i _mousePos;
                 math::Vector2i _mousePressPos;
                 bool _currentTimeDrag = false;
+                std::shared_ptr<observer::ValueObserver<otime::RationalTime> > _currentTimeObserver;
+                std::shared_ptr<observer::ValueObserver<otime::TimeRange> > _inOutRangeObserver;
+                std::shared_ptr<observer::ValueObserver<timeline::PlayerCacheInfo> > _cacheInfoObserver;
             };
         }
     }
