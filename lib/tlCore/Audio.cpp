@@ -464,7 +464,6 @@ namespace tl
             while (!in.empty() && (size + in.front()->getByteCount() <= byteCount))
             {
                 auto item = in.front();
-                const size_t itemDataSize  = item->getInfo().getByteCount();
                 const size_t itemByteCount = item->getByteCount();
                 std::memcpy(out, item->getData(), itemByteCount);
                 size += itemByteCount;
