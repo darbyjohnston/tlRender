@@ -42,7 +42,7 @@ namespace tl
                 addDockWidget(Qt::BottomDockWidgetArea, _timelineDockWidget);
 
                 _timeUnitsComboBox = new QComboBox;
-                for (auto i : getTimeUnitsLabels())
+                for (auto i : getTimelineTimeUnitsLabels())
                 {
                     _timeUnitsComboBox->addItem(QString::fromLatin1(i.c_str()));
                 }
@@ -78,7 +78,7 @@ namespace tl
                     QOverload<int>::of(&QComboBox::activated),
                     [this](int value)
                     {
-                        _itemOptions.timeUnits = static_cast<TimeUnits>(value);
+                        _itemOptions.timeUnits = static_cast<TimelineTimeUnits>(value);
                         _timelineWidget->setItemOptions(_itemOptions);
                     });
 

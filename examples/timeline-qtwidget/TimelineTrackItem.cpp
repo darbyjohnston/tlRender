@@ -2,12 +2,12 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include "TrackItem.h"
+#include "TimelineTrackItem.h"
 
-#include "AudioClipItem.h"
-#include "AudioGapItem.h"
-#include "VideoClipItem.h"
-#include "VideoGapItem.h"
+#include "TimelineAudioClipItem.h"
+#include "TimelineAudioGapItem.h"
+#include "TimelineVideoClipItem.h"
+#include "TimelineVideoGapItem.h"
 
 #include <tlCore/StringFormat.h>
 
@@ -17,21 +17,21 @@ namespace tl
     {
         namespace timeline_qtwidget
         {
-            void TrackItem::_init(
+            void TimelineTrackItem::_init(
                 const otio::Track* track,
-                const ItemData& itemData,
+                const TimelineItemData& itemData,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
-                IItem::_init("TrackItem", itemData, context, parent);
+                ITimelineItem::_init("TimelineTrackItem", itemData, context, parent);
 
                 if (otio::Track::Kind::video == track->kind())
                 {
-                    _trackType = TrackType::Video;
+                    _trackType = TimelineTrackType::Video;
                 }
                 else if (otio::Track::Kind::audio == track->kind())
                 {
-                    _trackType = TrackType::Audio;
+                    _trackType = TimelineTrackType::Audio;
                 }
 
                 _timeRange = track->trimmed_range();
@@ -40,18 +40,18 @@ namespace tl
                 {
                     if (auto clip = dynamic_cast<otio::Clip*>(child.value))
                     {
-                        std::shared_ptr<IItem> clipItem;
+                        std::shared_ptr<ITimelineItem> clipItem;
                         switch (_trackType)
                         {
-                        case TrackType::Video:
-                            clipItem = VideoClipItem::create(
+                        case TimelineTrackType::Video:
+                            clipItem = TimelineVideoClipItem::create(
                                 clip,
                                 itemData,
                                 context,
                                 shared_from_this());
                             break;
-                        case TrackType::Audio:
-                            clipItem = AudioClipItem::create(
+                        case TimelineTrackType::Audio:
+                            clipItem = TimelineAudioClipItem::create(
                                 clip,
                                 itemData,
                                 context,
@@ -66,18 +66,18 @@ namespace tl
                     }
                     else if (auto gap = dynamic_cast<otio::Gap*>(child.value))
                     {
-                        std::shared_ptr<IItem> gapItem;
+                        std::shared_ptr<ITimelineItem> gapItem;
                         switch (_trackType)
                         {
-                        case TrackType::Video:
-                            gapItem = VideoGapItem::create(
+                        case TimelineTrackType::Video:
+                            gapItem = TimelineVideoGapItem::create(
                                 gap,
                                 itemData,
                                 context,
                                 shared_from_this());
                             break;
-                        case TrackType::Audio:
-                            gapItem = AudioGapItem::create(
+                        case TimelineTrackType::Audio:
+                            gapItem = TimelineAudioGapItem::create(
                                 gap,
                                 itemData,
                                 context,
@@ -93,26 +93,26 @@ namespace tl
                 }
             }
 
-            std::shared_ptr<TrackItem> TrackItem::create(
+            TimelineTrackItem::~TimelineTrackItem()
+            {}
+
+            std::shared_ptr<TimelineTrackItem> TimelineTrackItem::create(
                 const otio::Track* track,
-                const ItemData& itemData,
+                const TimelineItemData& itemData,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
-                auto out = std::shared_ptr<TrackItem>(new TrackItem);
+                auto out = std::shared_ptr<TimelineTrackItem>(new TimelineTrackItem);
                 out->_init(track, itemData, context, parent);
                 return out;
             }
 
-            TrackItem::~TrackItem()
-            {}
-
-            void TrackItem::setGeometry(const math::BBox2i& value)
+            void TimelineTrackItem::setGeometry(const math::BBox2i& value)
             {
-                IItem::setGeometry(value);
+                ITimelineItem::setGeometry(value);
                 for (auto child : _children)
                 {
-                    if (auto item = std::dynamic_pointer_cast<IItem>(child))
+                    if (auto item = std::dynamic_pointer_cast<ITimelineItem>(child))
                     {
                         const auto i = _childTimeRanges.find(item);
                         if (i != _childTimeRanges.end())
@@ -130,9 +130,9 @@ namespace tl
                 }
             }
 
-            void TrackItem::sizeEvent(const ui::SizeEvent& event)
+            void TimelineTrackItem::sizeEvent(const ui::SizeEvent& event)
             {
-                IItem::sizeEvent(event);
+                ITimelineItem::sizeEvent(event);
 
                 _margin = event.style->getSizeRole(ui::SizeRole::MarginSmall) * event.contentScale;
 
@@ -147,9 +147,9 @@ namespace tl
                     childrenHeight);
             }
 
-            void TrackItem::drawEvent(const ui::DrawEvent& event)
+            void TimelineTrackItem::drawEvent(const ui::DrawEvent& event)
             {
-                IItem::drawEvent(event);
+                ITimelineItem::drawEvent(event);
             }
         }
     }

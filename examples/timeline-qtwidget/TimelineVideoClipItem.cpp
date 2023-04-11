@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include "VideoClipItem.h"
+#include "TimelineVideoClipItem.h"
 
 #include <tlUI/DrawUtil.h>
 
@@ -18,13 +18,13 @@ namespace tl
     {
         namespace timeline_qtwidget
         {
-            void VideoClipItem::_init(
+            void TimelineVideoClipItem::_init(
                 const otio::Clip* clip,
-                const ItemData& itemData,
+                const TimelineItemData& itemData,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
-                IItem::_init("VideoClipItem", itemData, context, parent);
+                ITimelineItem::_init("TimelineVideoClipItem", itemData, context, parent);
 
                 _clip = clip;
                 _track = dynamic_cast<otio::Track*>(clip->parent());
@@ -53,23 +53,23 @@ namespace tl
                     });
             }
 
-            VideoClipItem::~VideoClipItem()
+            TimelineVideoClipItem::~TimelineVideoClipItem()
             {}
 
-            std::shared_ptr<VideoClipItem>  VideoClipItem::create(
+            std::shared_ptr<TimelineVideoClipItem> TimelineVideoClipItem::create(
                 const otio::Clip* clip,
-                const ItemData& itemData,
+                const TimelineItemData& itemData,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
-                auto out = std::shared_ptr<VideoClipItem>(new VideoClipItem);
+                auto out = std::shared_ptr<TimelineVideoClipItem>(new TimelineVideoClipItem);
                 out->_init(clip, itemData, context, parent);
                 return out;
             }
 
-            void VideoClipItem::setOptions(const ItemOptions& value)
+            void TimelineVideoClipItem::setOptions(const TimelineItemOptions& value)
             {
-                IItem::setOptions(value);
+                ITimelineItem::setOptions(value);
                 if (_updates & ui::Update::Size)
                 {
                     _textUpdate();
@@ -77,16 +77,16 @@ namespace tl
                 }
             }
 
-            void VideoClipItem::setViewport(const math::BBox2i& value)
+            void TimelineVideoClipItem::setViewport(const math::BBox2i& value)
             {
-                IItem::setViewport(value);
+                ITimelineItem::setViewport(value);
                 if (_updates & ui::Update::Size)
                 {
                     _data.ioManager->cancelRequests();
                 }
             }
 
-            void VideoClipItem::tickEvent(const ui::TickEvent& event)
+            void TimelineVideoClipItem::tickEvent(const ui::TickEvent& event)
             {
                 auto i = _videoDataFutures.begin();
                 while (i != _videoDataFutures.end())
@@ -104,9 +104,9 @@ namespace tl
                 }
             }
 
-            void VideoClipItem::sizeEvent(const ui::SizeEvent& event)
+            void TimelineVideoClipItem::sizeEvent(const ui::SizeEvent& event)
             {
-                IItem::sizeEvent(event);
+                ITimelineItem::sizeEvent(event);
 
                 _margin = event.style->getSizeRole(ui::SizeRole::MarginSmall) * event.contentScale;
                 _spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall) * event.contentScale;
@@ -132,9 +132,9 @@ namespace tl
                     _margin);
             }
 
-            void VideoClipItem::drawEvent(const ui::DrawEvent& event)
+            void TimelineVideoClipItem::drawEvent(const ui::DrawEvent& event)
             {
-                IItem::drawEvent(event);
+                ITimelineItem::drawEvent(event);
                 if (_geometry.isValid() && _insideViewport())
                 {
                     const int b = event.style->getSizeRole(ui::SizeRole::Border) * event.contentScale;
@@ -154,14 +154,14 @@ namespace tl
                 }
             }
 
-            void VideoClipItem::_textUpdate()
+            void TimelineVideoClipItem::_textUpdate()
             {
-                _durationLabel = IItem::_durationLabel(
+                _durationLabel = ITimelineItem::_durationLabel(
                     _timeRange.duration(),
                     _options.timeUnits);
             }
 
-            void VideoClipItem::_drawInfo(const ui::DrawEvent& event)
+            void TimelineVideoClipItem::_drawInfo(const ui::DrawEvent& event)
             {
                 const auto fontInfo = event.getFontInfo(_fontRole);
                 const auto fontMetrics = event.getFontMetrics(_fontRole);
@@ -190,7 +190,7 @@ namespace tl
                     event.style->getColorRole(ui::ColorRole::Text));
             }
 
-            void VideoClipItem::_drawThumbnails(const ui::DrawEvent& event)
+            void TimelineVideoClipItem::_drawThumbnails(const ui::DrawEvent& event)
             {
                 const auto fontMetrics = event.getFontMetrics(_fontRole);
                 const math::BBox2i vp(0, 0, _viewport.w(), _viewport.h());

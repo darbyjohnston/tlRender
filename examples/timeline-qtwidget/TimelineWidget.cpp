@@ -101,10 +101,10 @@ namespace tl
                 {
                     if (auto context = _context.lock())
                     {
-                        ItemData itemData;
+                        TimelineItemData itemData;
                         itemData.directory = timelinePlayer->getPath().getDirectory();
                         itemData.pathOptions = timelinePlayer->getOptions().pathOptions;
-                        itemData.ioManager = IOManager::create(
+                        itemData.ioManager = TimelineIOManager::create(
                             timelinePlayer->getOptions().ioOptions,
                             context);
 
@@ -115,7 +115,7 @@ namespace tl
                 }
             }
 
-            void TimelineWidget::setItemOptions(const ItemOptions& value)
+            void TimelineWidget::setItemOptions(const TimelineItemOptions& value)
             {
                 if (_timelineItem)
                 {
@@ -271,9 +271,9 @@ namespace tl
 
             void TimelineWidget::_setItemOptions(
                 const std::shared_ptr<ui::IWidget>& widget,
-                const ItemOptions& value)
+                const TimelineItemOptions& value)
             {
-                if (auto item = std::dynamic_pointer_cast<IItem>(widget))
+                if (auto item = std::dynamic_pointer_cast<ITimelineItem>(widget))
                 {
                     item->setOptions(value);
                 }
@@ -297,7 +297,7 @@ namespace tl
                 const std::shared_ptr<ui::IWidget>& widget,
                 const math::BBox2i& vp)
             {
-                if (auto item = std::dynamic_pointer_cast<IItem>(widget))
+                if (auto item = std::dynamic_pointer_cast<ITimelineItem>(widget))
                 {
                     item->setViewport(vp);
                 }

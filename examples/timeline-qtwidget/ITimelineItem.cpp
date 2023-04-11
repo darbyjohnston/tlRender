@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include "IItem.h"
+#include "ITimelineItem.h"
 
 #include <tlCore/Error.h>
 #include <tlCore/String.h>
@@ -15,13 +15,13 @@ namespace tl
         namespace timeline_qtwidget
         {
             TLRENDER_ENUM_IMPL(
-                TimeUnits,
+                TimelineTimeUnits,
                 "Seconds",
                 "Frames",
                 "Timecode");
-            TLRENDER_ENUM_SERIALIZE_IMPL(TimeUnits);
+            TLRENDER_ENUM_SERIALIZE_IMPL(TimelineTimeUnits);
 
-            bool ItemOptions::operator == (const ItemOptions& other) const
+            bool TimelineItemOptions::operator == (const TimelineItemOptions& other) const
             {
                 return
                     timeUnits == other.timeUnits &&
@@ -30,14 +30,14 @@ namespace tl
                     waveformHeight == other.waveformHeight;
             }
 
-            bool ItemOptions::operator != (const ItemOptions& other) const
+            bool TimelineItemOptions::operator != (const TimelineItemOptions& other) const
             {
                 return !(*this == other);
             }
 
-            void IItem::_init(
+            void ITimelineItem::_init(
                 const std::string& name,
-                const ItemData& data,
+                const TimelineItemData& data,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
@@ -45,13 +45,13 @@ namespace tl
                 _data = data;
             }
 
-            IItem::IItem()
+            ITimelineItem::ITimelineItem()
             {}
 
-            IItem::~IItem()
+            ITimelineItem::~ITimelineItem()
             {}
 
-            void IItem::setOptions(const ItemOptions& value)
+            void ITimelineItem::setOptions(const TimelineItemOptions& value)
             {
                 if (value == _options)
                     return;
@@ -60,7 +60,7 @@ namespace tl
                 _updates |= ui::Update::Draw;
             }
 
-            void IItem::setViewport(const math::BBox2i& value)
+            void ITimelineItem::setViewport(const math::BBox2i& value)
             {
                 if (value == _viewport)
                     return;
@@ -69,30 +69,32 @@ namespace tl
                 _updates |= ui::Update::Draw;
             }
             
-            bool IItem::_insideViewport() const
+            bool ITimelineItem::_insideViewport() const
             {
                 const math::BBox2i vp(0, 0, _viewport.w(), _viewport.h());
                 return _geometry.intersects(vp);
             }
 
-            std::string IItem::_durationLabel(const otime::RationalTime& value, TimeUnits timeUnits)
+            std::string ITimelineItem::_durationLabel(
+                const otime::RationalTime& value,
+                TimelineTimeUnits timeUnits)
             {
                 std::string out;
                 if (!time::compareExact(value, time::invalidTime))
                 {
                     switch (timeUnits)
                     {
-                    case TimeUnits::Seconds:
+                    case TimelineTimeUnits::Seconds:
                         out = string::Format("{0} @ {1}").
                             arg(value.rescaled_to(1.0).value(), 2).
                             arg(value.rate());
                         break;
-                    case TimeUnits::Frames:
+                    case TimelineTimeUnits::Frames:
                         out = string::Format("{0} @ {1}").
                             arg(value.value()).
                             arg(value.rate());
                         break;
-                    case TimeUnits::Timecode:
+                    case TimelineTimeUnits::Timecode:
                         out = string::Format("{0} @ {1}").
                             arg(value.to_timecode()).
                             arg(value.rate());
@@ -102,20 +104,22 @@ namespace tl
                 return out;
             }
 
-            std::string IItem::_timeLabel(const otime::RationalTime& value, TimeUnits timeUnits)
+            std::string ITimelineItem::_timeLabel(
+                const otime::RationalTime& value,
+                TimelineTimeUnits timeUnits)
             {
                 std::string out;
                 if (!time::compareExact(value, time::invalidTime))
                 {
                     switch (timeUnits)
                     {
-                    case TimeUnits::Seconds:
+                    case TimelineTimeUnits::Seconds:
                         out = string::Format("{0}").arg(value.rescaled_to(1.0).value(), 2);
                         break;
-                    case TimeUnits::Frames:
+                    case TimelineTimeUnits::Frames:
                         out = string::Format("{0}").arg(value.value());
                         break;
-                    case TimeUnits::Timecode:
+                    case TimelineTimeUnits::Timecode:
                         out = string::Format("{0}").arg(value.to_timecode());
                         break;
                     }

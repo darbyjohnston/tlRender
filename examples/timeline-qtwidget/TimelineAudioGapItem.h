@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "IItem.h"
+#include "ITimelineItem.h"
 
 #include <opentimelineio/gap.h>
 
@@ -14,26 +14,26 @@ namespace tl
     {
         namespace timeline_qtwidget
         {
-            //! Audio gap item.
-            class AudioGapItem : public IItem
+            //! Timeline audio gap item.
+            class TimelineAudioGapItem : public ITimelineItem
             {
             protected:
                 void _init(
                     const otio::Gap*,
-                    const ItemData&,
+                    const TimelineItemData&,
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
             public:
-                static std::shared_ptr<AudioGapItem> create(
+                ~TimelineAudioGapItem() override;
+
+                static std::shared_ptr<TimelineAudioGapItem> create(
                     const otio::Gap*,
-                    const ItemData&,
+                    const TimelineItemData&,
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
-                ~AudioGapItem() override;
-
-                void setOptions(const ItemOptions&) override;
+                void setOptions(const TimelineItemOptions&) override;
 
                 void sizeEvent(const ui::SizeEvent&) override;
                 void drawEvent(const ui::DrawEvent&) override;

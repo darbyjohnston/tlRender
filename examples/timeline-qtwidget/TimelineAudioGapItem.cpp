@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include "VideoGapItem.h"
+#include "TimelineAudioGapItem.h"
 
 #include <tlUI/DrawUtil.h>
 
@@ -12,13 +12,13 @@ namespace tl
     {
         namespace timeline_qtwidget
         {
-            void VideoGapItem::_init(
+            void TimelineAudioGapItem::_init(
                 const otio::Gap* gap,
-                const ItemData& itemData,
+                const TimelineItemData& itemData,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
-                IItem::_init("VideoGapItem", itemData, context, parent);
+                ITimelineItem::_init("TimelineAudioGapItem", itemData, context, parent);
 
                 auto rangeOpt = gap->trimmed_range_in_parent();
                 if (rangeOpt.has_value())
@@ -30,49 +30,46 @@ namespace tl
                 _textUpdate();
             }
 
-            VideoGapItem::~VideoGapItem()
+            TimelineAudioGapItem::~TimelineAudioGapItem()
             {}
 
-            std::shared_ptr<VideoGapItem> VideoGapItem::create(
+            std::shared_ptr<TimelineAudioGapItem> TimelineAudioGapItem::create(
                 const otio::Gap* gap,
-                const ItemData& itemData,
+                const TimelineItemData& itemData,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
-                auto out = std::shared_ptr<VideoGapItem>(new VideoGapItem);
+                auto out = std::shared_ptr<TimelineAudioGapItem>(new TimelineAudioGapItem);
                 out->_init(gap, itemData, context, parent);
                 return out;
             }
 
-            void VideoGapItem::setOptions(const ItemOptions& value)
+            void TimelineAudioGapItem::setOptions(const TimelineItemOptions& value)
             {
-                IItem::setOptions(value);
+                ITimelineItem::setOptions(value);
                 if (_updates & ui::Update::Size)
                 {
                     _textUpdate();
                 }
             }
 
-            void VideoGapItem::sizeEvent(const ui::SizeEvent& event)
+            void TimelineAudioGapItem::sizeEvent(const ui::SizeEvent& event)
             {
-                IItem::sizeEvent(event);
+                ITimelineItem::sizeEvent(event);
 
                 _margin = event.style->getSizeRole(ui::SizeRole::MarginSmall) * event.contentScale;
-                _spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall) * event.contentScale;
                 const auto fontMetrics = event.getFontMetrics(_fontRole);
 
                 _sizeHint = math::Vector2i(
                     _timeRange.duration().rescaled_to(1.0).value() * _options.scale,
                     _margin +
                     fontMetrics.lineHeight +
-                    _spacing +
-                    _options.thumbnailHeight +
                     _margin);
             }
 
-            void VideoGapItem::drawEvent(const ui::DrawEvent& event)
+            void TimelineAudioGapItem::drawEvent(const ui::DrawEvent& event)
             {
-                IItem::drawEvent(event);
+                ITimelineItem::drawEvent(event);
                 if (_insideViewport())
                 {
                     const int b = event.style->getSizeRole(ui::SizeRole::Border) * event.contentScale;
@@ -86,7 +83,7 @@ namespace tl
 
                     //event.render->drawRect(
                     //    g.margin(-b),
-                    //    imaging::Color4f(.2F, .25F, .2F));
+                    //    imaging::Color4f(.2F, .2F, .25F));
 
                     event.render->drawText(
                         event.fontSystem->getGlyphs(_label, fontInfo),
@@ -112,14 +109,14 @@ namespace tl
                 }
             }
 
-            void VideoGapItem::_textUpdate()
+            void TimelineAudioGapItem::_textUpdate()
             {
-                _durationLabel = IItem::_durationLabel(
+                _durationLabel = ITimelineItem::_durationLabel(
                     _timeRange.duration(),
                     _options.timeUnits);
             }
 
-            std::string VideoGapItem::_nameLabel(const std::string& name)
+            std::string TimelineAudioGapItem::_nameLabel(const std::string& name)
             {
                 return !name.empty() ?
                     name :

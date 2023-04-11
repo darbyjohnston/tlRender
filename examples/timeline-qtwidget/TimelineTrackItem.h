@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "IItem.h"
+#include "ITimelineItem.h"
 
-#include <opentimelineio/gap.h>
+#include <opentimelineio/track.h>
 
 namespace tl
 {
@@ -14,41 +14,42 @@ namespace tl
     {
         namespace timeline_qtwidget
         {
-            //! Video gap item.
-            class VideoGapItem : public IItem
+            //! Track types.
+            enum class TimelineTrackType
+            {
+                None,
+                Video,
+                Audio
+            };
+
+            //! Track item.
+            class TimelineTrackItem : public ITimelineItem
             {
             protected:
                 void _init(
-                    const otio::Gap*,
-                    const ItemData&,
+                    const otio::Track*,
+                    const TimelineItemData&,
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
             public:
-                static std::shared_ptr<VideoGapItem> create(
-                    const otio::Gap*,
-                    const ItemData&,
+                ~TimelineTrackItem() override;
+
+                static std::shared_ptr<TimelineTrackItem> create(
+                    const otio::Track*,
+                    const TimelineItemData&,
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
-                ~VideoGapItem() override;
-
-                void setOptions(const ItemOptions&) override;
-
+                void setGeometry(const math::BBox2i&) override;
                 void sizeEvent(const ui::SizeEvent&) override;
                 void drawEvent(const ui::DrawEvent&) override;
 
             private:
-                void _textUpdate();
-
-                static std::string _nameLabel(const std::string&);
-
+                TimelineTrackType _trackType = TimelineTrackType::None;
                 otime::TimeRange _timeRange = time::invalidTimeRange;
-                std::string _label;
-                std::string _durationLabel;
-                ui::FontRole _fontRole = ui::FontRole::Label;
+                std::map<std::shared_ptr<ITimelineItem>, otime::TimeRange> _childTimeRanges;
                 int _margin = 0;
-                int _spacing = 0;
             };
         }
     }

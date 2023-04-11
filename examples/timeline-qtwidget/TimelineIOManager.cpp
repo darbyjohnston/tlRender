@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include "IOManager.h"
+#include "TimelineIOManager.h"
 
 #include <tlIO/IOSystem.h>
 
@@ -14,7 +14,7 @@ namespace tl
     {
         namespace timeline_qtwidget
         {
-            void IOManager::_init(
+            void TimelineIOManager::_init(
                 const io::Options& ioOptions,
                 const std::shared_ptr<system::Context>& context)
             {
@@ -33,22 +33,22 @@ namespace tl
                 _cancelRequests = observer::Value<bool>::create(false);
             }
 
-            IOManager::IOManager()
+            TimelineIOManager::TimelineIOManager()
             {}
 
-            IOManager::~IOManager()
+            TimelineIOManager::~TimelineIOManager()
             {}
 
-            std::shared_ptr<IOManager> IOManager::create(
+            std::shared_ptr<TimelineIOManager> TimelineIOManager::create(
                 const io::Options& options,
                 const std::shared_ptr<system::Context>& context)
             {
-                auto out = std::shared_ptr<IOManager>(new IOManager);
+                auto out = std::shared_ptr<TimelineIOManager>(new TimelineIOManager);
                 out->_init(options, context);
                 return out;
             }
 
-            std::future<io::Info> IOManager::getInfo(const file::Path& path)
+            std::future<io::Info> TimelineIOManager::getInfo(const file::Path& path)
             {
                 std::future<io::Info> out;
                 std::shared_ptr<io::IRead> read;
@@ -75,7 +75,7 @@ namespace tl
                 return out;
             }
 
-            std::future<io::VideoData> IOManager::readVideo(
+            std::future<io::VideoData> TimelineIOManager::readVideo(
                 const file::Path& path,
                 const otime::RationalTime& time,
                 uint16_t layer)
@@ -105,7 +105,7 @@ namespace tl
                 return out;
             }
 
-            std::future<io::AudioData> IOManager::readAudio(
+            std::future<io::AudioData> TimelineIOManager::readAudio(
                 const file::Path& path,
                 const otime::TimeRange& range)
             {
@@ -134,7 +134,7 @@ namespace tl
                 return out;
             }
 
-            void IOManager::cancelRequests()
+            void TimelineIOManager::cancelRequests()
             {
                 _cancelRequests->setAlways(true);
                 for (const auto& i : _cache.getValues())
@@ -146,7 +146,7 @@ namespace tl
                 }
             }
 
-            std::shared_ptr<observer::IValue<bool> > IOManager::observeCancelRequests() const
+            std::shared_ptr<observer::IValue<bool> > TimelineIOManager::observeCancelRequests() const
             {
                 return _cancelRequests;
             }

@@ -4,7 +4,7 @@
 
 #include "TimelineItem.h"
 
-#include "TrackItem.h"
+#include "TimelineTrackItem.h"
 
 #include <tlTimeline/Util.h>
 
@@ -18,11 +18,11 @@ namespace tl
         {
             void TimelineItem::_init(
                 const std::shared_ptr<timeline::TimelinePlayer>& timelinePlayer,
-                const ItemData& itemData,
+                const TimelineItemData& itemData,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
-                IItem::_init("TimelineItem", itemData, context, parent);
+                ITimelineItem::_init("TimelineItem", itemData, context, parent);
 
                 _timelinePlayer = timelinePlayer;
                 _timeRange = timelinePlayer->getTimeRange();
@@ -34,7 +34,7 @@ namespace tl
                 {
                     if (const auto* track = dynamic_cast<otio::Track*>(child.value))
                     {
-                        auto trackItem = TrackItem::create(
+                        auto trackItem = TimelineTrackItem::create(
                             track,
                             itemData,
                             context,
@@ -67,9 +67,12 @@ namespace tl
                     });
             }
 
+            TimelineItem::~TimelineItem()
+            {}
+
             std::shared_ptr<TimelineItem> TimelineItem::create(
                 const std::shared_ptr<timeline::TimelinePlayer>& timelinePlayer,
-                const ItemData& itemData,
+                const TimelineItemData& itemData,
                 const std::shared_ptr<system::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
@@ -77,9 +80,6 @@ namespace tl
                 out->_init(timelinePlayer, itemData, context, parent);
                 return out;
             }
-
-            TimelineItem::~TimelineItem()
-            {}
 
             void TimelineItem::setGeometry(const math::BBox2i& value)
             {
@@ -107,7 +107,7 @@ namespace tl
 
             void TimelineItem::sizeEvent(const ui::SizeEvent& event)
             {
-                IItem::sizeEvent(event);
+                ITimelineItem::sizeEvent(event);
 
                 _margin = event.style->getSizeRole(ui::SizeRole::Margin) * event.contentScale;
                 _spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall)* event.contentScale;
@@ -140,7 +140,7 @@ namespace tl
 
             void TimelineItem::drawEvent(const ui::DrawEvent& event)
             {
-                IItem::drawEvent(event);
+                ITimelineItem::drawEvent(event);
                 _drawTimeTicks(event);
                 _drawCurrentTime(event);
             }

@@ -1,30 +1,30 @@
 set(HEADERS
     App.h
-    AudioClipItem.h
-    AudioGapItem.h
-    IItem.h
-    IOManager.h
+    ITimelineItem.h
     MainWindow.h
+    TimelineAudioClipItem.h
+    TimelineAudioGapItem.h
+    TimelineIOManager.h
     TimelineItem.h
     TimelineScrollArea.h
     TimelineWidget.h
-    TrackItem.h
-    VideoClipItem.h
-    VideoGapItem.h)
+    TimelineTrackItem.h
+    TimelineVideoClipItem.h
+    TimelineVideoGapItem.h)
 
 set(SOURCE
     App.cpp
-    AudioClipItem.cpp
-    AudioGapItem.cpp
-    IItem.cpp
-    IOManager.cpp
+    ITimelineItem.cpp
     MainWindow.cpp
+    TimelineAudioClipItem.cpp
+    TimelineAudioGapItem.cpp
+    TimelineIOManager.cpp
     TimelineItem.cpp
     TimelineScrollArea.cpp
     TimelineWidget.cpp
-    TrackItem.cpp
-    VideoClipItem.cpp
-    VideoGapItem.cpp
+    TimelineTrackItem.cpp
+    TimelineVideoClipItem.cpp
+    TimelineVideoGapItem.cpp
     main.cpp)
 
 add_executable(timeline-qtwidget ${SOURCE} ${HEADERS})

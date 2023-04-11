@@ -45,7 +45,7 @@ namespace tl
                 
                 std::weak_ptr<system::Context> _context;
                 qt::TimelinePlayer* _timelinePlayer = nullptr;
-                ItemOptions _itemOptions;
+                TimelineItemOptions _itemOptions;
                 qtwidget::TimelineViewport* _timelineViewport = nullptr;
                 TimelineScrollArea* _timelineScrollArea = nullptr;
                 TimelineWidget* _timelineWidget = nullptr;

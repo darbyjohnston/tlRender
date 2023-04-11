@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "IItem.h"
+#include "ITimelineItem.h"
 
 #include <tlTimeline/TimelinePlayer.h>
 
@@ -19,23 +19,23 @@ namespace tl
         namespace timeline_qtwidget
         {
             //! Timeline item.
-            class TimelineItem : public IItem
+            class TimelineItem : public ITimelineItem
             {
             protected:
                 void _init(
                     const std::shared_ptr<timeline::TimelinePlayer>&,
-                    const ItemData&,
+                    const TimelineItemData&,
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
             public:
+                ~TimelineItem() override;
+
                 static std::shared_ptr<TimelineItem> create(
                     const std::shared_ptr<timeline::TimelinePlayer>&,
-                    const ItemData&,
+                    const TimelineItemData&,
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
-
-                ~TimelineItem() override;
 
                 void setGeometry(const math::BBox2i&) override;
                 void sizeEvent(const ui::SizeEvent&) override;

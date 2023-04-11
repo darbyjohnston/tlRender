@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "IItem.h"
+#include "ITimelineItem.h"
 
-#include <tlCore/Mesh.h>
+#include <tlGL/OffscreenBuffer.h>
 
 #include <opentimelineio/clip.h>
 #include <opentimelineio/track.h>
@@ -17,26 +17,26 @@ namespace tl
     {
         namespace timeline_qtwidget
         {
-            //! Audio clip item.
-            class AudioClipItem : public IItem
+            //! Timeline video clip item.
+            class TimelineVideoClipItem : public ITimelineItem
             {
             protected:
                 void _init(
                     const otio::Clip*,
-                    const ItemData&,
+                    const TimelineItemData&,
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
             public:
-                static std::shared_ptr<AudioClipItem> create(
+                ~TimelineVideoClipItem() override;
+
+                static std::shared_ptr<TimelineVideoClipItem> create(
                     const otio::Clip*,
-                    const ItemData&,
+                    const TimelineItemData&,
                     const std::shared_ptr<system::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
-                ~AudioClipItem() override;
-
-                void setOptions(const ItemOptions&) override;
+                void setOptions(const TimelineItemOptions&) override;
                 void setViewport(const math::BBox2i&) override;
 
                 void tickEvent(const ui::TickEvent&) override;
@@ -47,7 +47,7 @@ namespace tl
                 void _textUpdate();
 
                 void _drawInfo(const ui::DrawEvent&);
-                void _drawWaveforms(const ui::DrawEvent&);
+                void _drawThumbnails(const ui::DrawEvent&);
 
                 const otio::Clip* _clip = nullptr;
                 const otio::Track* _track = nullptr;
@@ -59,23 +59,12 @@ namespace tl
                 ui::FontRole _fontRole = ui::FontRole::Label;
                 int _margin = 0;
                 int _spacing = 0;
-                int _waveformWidth = 0;
+                int _thumbnailWidth = 0;
                 bool _ioInfoInit = true;
                 io::Info _ioInfo;
-                struct AudioFuture
-                {
-                    std::future<io::AudioData> future;
-                    math::Vector2i size;
-                };
-                std::map<otime::RationalTime, AudioFuture> _audioDataFutures;
-                struct AudioData
-                {
-                    io::AudioData audio;
-                    math::Vector2i size;
-                    std::future<std::shared_ptr<geom::TriangleMesh2> > meshFuture;
-                    std::shared_ptr<geom::TriangleMesh2> mesh;
-                };
-                std::map<otime::RationalTime, AudioData> _audioData;
+                std::map<otime::RationalTime, std::future<io::VideoData> > _videoDataFutures;
+                std::map<otime::RationalTime, io::VideoData> _videoData;
+                std::map<otime::RationalTime, std::shared_ptr<gl::OffscreenBuffer> > _buffers;
                 std::shared_ptr<observer::ValueObserver<bool> > _cancelObserver;
             };
         }

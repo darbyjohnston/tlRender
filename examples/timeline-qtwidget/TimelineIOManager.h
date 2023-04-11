@@ -16,21 +16,21 @@ namespace tl
     {
         namespace timeline_qtwidget
         {
-            //! I/O manager.
-            class IOManager : public std::enable_shared_from_this<IOManager>
+            //! TimelineI/O manager.
+            class TimelineIOManager : public std::enable_shared_from_this<TimelineIOManager>
             {
             protected:
                 void _init(
                     const io::Options&,
                     const std::shared_ptr<system::Context>&);
 
-                IOManager();
+                TimelineIOManager();
 
             public:
-                ~IOManager();
+                ~TimelineIOManager();
 
-                //! Create a new I/O manager.
-                static std::shared_ptr<IOManager> create(
+                //! Create a new timeline I/O manager.
+                static std::shared_ptr<TimelineIOManager> create(
                     const io::Options&,
                     const std::shared_ptr<system::Context>&);
 

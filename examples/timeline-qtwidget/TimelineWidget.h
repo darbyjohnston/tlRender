@@ -38,7 +38,7 @@ namespace tl
 
                 void setTimelinePlayer(const std::shared_ptr<timeline::TimelinePlayer>&);
 
-                void setItemOptions(const ItemOptions&);
+                void setItemOptions(const TimelineItemOptions&);
 
             public Q_SLOTS:
                 void setScrollPos(const math::Vector2i&);
@@ -71,7 +71,7 @@ namespace tl
             private:
                 void _setItemOptions(
                     const std::shared_ptr<ui::IWidget>&,
-                    const ItemOptions&);
+                    const TimelineItemOptions&);
 
                 math::BBox2i _timelineViewport() const;
                 void _setViewport(
