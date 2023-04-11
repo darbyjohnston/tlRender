@@ -9,13 +9,14 @@ set(HEADERS
     GridLayout.h
     GroupBox.h
     IButton.h
-    IntEdit.h
-    IntModel.h
-    IntSlider.h
+    ITimelineItem.h
     IWidget.h
     IWidgetInline.h
     IWidgetOptions.h
     IconLibrary.h
+    IntEdit.h
+    IntModel.h
+    IntSlider.h
     Label.h
     LineEdit.h
     ListButton.h
@@ -25,6 +26,13 @@ set(HEADERS
     Spacer.h
     StackLayout.h
     Style.h
+    TimelineAudioClipItem.h
+    TimelineAudioGapItem.h
+    TimelineIOManager.h
+    TimelineItem.h
+    TimelineTrackItem.h
+    TimelineVideoClipItem.h
+    TimelineVideoGapItem.h
     ToolButton.h)
 set(HEADERS_PRIVATE)
 
@@ -39,12 +47,13 @@ set(SOURCE
     GridLayout.cpp
     GroupBox.cpp
     IButton.cpp
-    IntEdit.cpp
-    IntModel.cpp
-    IntSlider.cpp
+    ITimelineItem.cpp
     IWidget.cpp
     IWidgetOptions.cpp
     IconLibrary.cpp
+    IntEdit.cpp
+    IntModel.cpp
+    IntSlider.cpp
     Label.cpp
     LineEdit.cpp
     ListButton.cpp
@@ -54,6 +63,13 @@ set(SOURCE
     Spacer.cpp
     StackLayout.cpp
     Style.cpp
+    TimelineAudioClipItem.cpp
+    TimelineAudioGapItem.cpp
+    TimelineIOManager.cpp
+    TimelineItem.cpp
+    TimelineTrackItem.cpp
+    TimelineVideoClipItem.cpp
+    TimelineVideoGapItem.cpp
     ToolButton.cpp)
 
 add_library(tlUI ${HEADERS} ${HEADERS_PRIVATE} ${SOURCE})

@@ -11,8 +11,10 @@ set(HEADERS
     Style.h
     TimeLabel.h
     TimeSpinBox.h
+    TimelineScrollArea.h
     TimelineSlider.h
     TimelineViewport.h
+    TimelineWidget.h
     Util.h)
 set(PRIVATE_HEADERS
     BellowsPrivate.h)
@@ -31,8 +33,10 @@ set(SOURCE
     Style.cpp
     TimeLabel.cpp
     TimeSpinBox.cpp
+    TimelineScrollArea.cpp
     TimelineSlider.cpp
     TimelineViewport.cpp
+    TimelineWidget.cpp
     Util.cpp)
 
 if(TLRENDER_QT6)

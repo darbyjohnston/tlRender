@@ -5,7 +5,6 @@
 #include "MainWindow.h"
 
 #include "App.h"
-#include "TimelineWidget.h"
 
 #include <tlCore/File.h>
 
@@ -34,15 +33,15 @@ namespace tl
                 _timelineViewport = new qtwidget::TimelineViewport(context);
                 setCentralWidget(_timelineViewport);
 
-                _timelineWidget = new TimelineWidget(context);
-                _timelineScrollArea = new TimelineScrollArea;
+                _timelineWidget = new qtwidget::TimelineWidget(context);
+                _timelineScrollArea = new qtwidget::TimelineScrollArea;
                 _timelineScrollArea->setTimelineWidget(_timelineWidget);
                 _timelineDockWidget = new QDockWidget(tr("View"));
                 _timelineDockWidget->setWidget(_timelineScrollArea);
                 addDockWidget(Qt::BottomDockWidgetArea, _timelineDockWidget);
 
                 _timeUnitsComboBox = new QComboBox;
-                for (auto i : getTimelineTimeUnitsLabels())
+                for (auto i : ui::getTimelineTimeUnitsLabels())
                 {
                     _timeUnitsComboBox->addItem(QString::fromLatin1(i.c_str()));
                 }
@@ -78,7 +77,7 @@ namespace tl
                     QOverload<int>::of(&QComboBox::activated),
                     [this](int value)
                     {
-                        _itemOptions.timeUnits = static_cast<TimelineTimeUnits>(value);
+                        _itemOptions.timeUnits = static_cast<ui::TimelineTimeUnits>(value);
                         _timelineWidget->setItemOptions(_itemOptions);
                     });
 
