@@ -141,7 +141,9 @@ namespace tl
 
                     p.timelineItem = ui::TimelineItem::create(p.timelinePlayer, itemData, context);
                     p.timelineItem->setStopOnScrub(p.stopOnScrub);
-                    p.timelineItem->setOptions(p.itemOptions);
+                    ui::TimelineItemOptions options = p.itemOptions;
+                    options.scale = _timelineScale();
+                    _setItemOptions(p.timelineItem, options);
                     _setViewport(p.timelineItem, _timelineViewport());
                     p.timelineItem->setParent(p.scrollArea);
                 }
@@ -161,10 +163,14 @@ namespace tl
         void TimelineWidget::setItemOptions(const ui::TimelineItemOptions& value)
         {
             TLRENDER_P();
+            if (value == p.itemOptions)
+                return;
             p.itemOptions = value;
             if (p.timelineItem)
             {
-                _setItemOptions(p.timelineItem, p.itemOptions);
+                ui::TimelineItemOptions options = p.itemOptions;
+                options.scale = _timelineScale();
+                _setItemOptions(p.timelineItem, options);
             }
         }
 
@@ -218,6 +224,9 @@ namespace tl
                 h * devicePixelRatio));
             if (p.timelineItem)
             {
+                ui::TimelineItemOptions options = p.itemOptions;
+                options.scale = _timelineScale();
+                _setItemOptions(p.timelineItem, options);
                 _setViewport(p.timelineItem, _timelineViewport());
             }
         }
@@ -299,6 +308,24 @@ namespace tl
             {
                 update();
             }
+        }
+
+        float TimelineWidget::_timelineScale() const
+        {
+            TLRENDER_P();
+            float out = 100.F;
+            if (p.timelinePlayer)
+            {
+                const otime::TimeRange& timeRange = p.timelinePlayer->getTimeRange();
+                const double duration = timeRange.duration().rescaled_to(1.0).value();
+                if (duration > 0.0)
+                {
+                    const float devicePixelRatio = window()->devicePixelRatio();
+                    out = (width() - p.style->getSizeRole(ui::SizeRole::MarginSmall) * 2) *
+                        devicePixelRatio / duration;
+                }
+            }
+            return out;
         }
 
         void TimelineWidget::_setItemOptions(

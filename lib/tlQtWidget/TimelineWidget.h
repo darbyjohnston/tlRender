@@ -66,6 +66,7 @@ namespace tl
             void timerEvent(QTimerEvent*) override;
 
         private:
+            float _timelineScale() const;
             void _setItemOptions(
                 const std::shared_ptr<ui::IWidget>&,
                 const ui::TimelineItemOptions&);
