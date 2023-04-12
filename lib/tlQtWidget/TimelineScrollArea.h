@@ -20,6 +20,8 @@ namespace tl
         public:
             TimelineScrollArea(QWidget* parent = nullptr);
 
+            ~TimelineScrollArea() override;
+
             void setTimelineWidget(TimelineWidget*);
 
         protected:

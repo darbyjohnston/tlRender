@@ -42,6 +42,9 @@ namespace tl
                 });
         }
 
+        TimelineScrollArea::~TimelineScrollArea()
+        {}
+
         void TimelineScrollArea::setTimelineWidget(TimelineWidget* widget)
         {
             TLRENDER_P();
