@@ -554,8 +554,7 @@ namespace tl
 
                         if (p->audioThread.convert)
                         {
-                            const auto convertedAudio = p->audioThread.convert->convert(tmp);
-                            p->audioThread.buffer.push_back(convertedAudio);
+                            p->audioThread.buffer.push_back(p->audioThread.convert->convert(tmp));
                         }
 
                         if (backwards)

@@ -463,9 +463,8 @@ namespace tl
             size_t size = 0;
             while (!in.empty() && (size + in.front()->getByteCount() <= byteCount))
             {
-                auto item = in.front();
-                const size_t itemByteCount = item->getByteCount();
-                std::memcpy(out, item->getData(), itemByteCount);
+                const size_t itemByteCount = in.front()->getByteCount();
+                std::memcpy(out, in.front()->getData(), itemByteCount);
                 size += itemByteCount;
                 out += itemByteCount;
                 in.pop_front();
@@ -474,12 +473,10 @@ namespace tl
             {
                 auto item = in.front();
                 in.pop_front();
-                const size_t itemByteCount = byteCount - size;
-                const size_t itemDataSize  = item->getInfo().getByteCount();
-                std::memcpy(out, item->getData(), itemByteCount);
-                const size_t newItemByteCount = item->getByteCount() - itemByteCount;
-                auto newItem = audio::Audio::create(item->getInfo(), newItemByteCount / itemDataSize);
-                std::memcpy(newItem->getData(), item->getData() + itemByteCount, newItemByteCount);
+                std::memcpy(out, item->getData(), byteCount - size);
+                const size_t newItemByteCount = item->getByteCount() - (byteCount - size);
+                auto newItem = audio::Audio::create(item->getInfo(), newItemByteCount / item->getInfo().getByteCount());
+                std::memcpy(newItem->getData(), item->getData() + byteCount - size, newItemByteCount);
                 in.push_front(newItem);
             }
         }
