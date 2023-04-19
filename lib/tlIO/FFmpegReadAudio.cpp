@@ -79,6 +79,7 @@ namespace tl
                     }
                 }
             }
+            std::string timecode = getTimecodeFromDataStream(_avFormatContext);
             if (_avStream != -1)
             {
                 //av_dump_format(_avFormatContext, _avStream, fileName.c_str(), 0);
@@ -147,6 +148,9 @@ namespace tl
                     dataType = options.audioConvertInfo.dataType;
                     sampleRate = options.audioConvertInfo.sampleRate;
                 }
+                _info.channelCount = channelCount;
+                _info.dataType = dataType;
+                _info.sampleRate = sampleRate;
 
                 int64_t sampleCount = 0;
                 if (avAudioStream->duration != AV_NOPTS_VALUE)
@@ -172,7 +176,6 @@ namespace tl
 
                 imaging::Tags tags;
                 AVDictionaryEntry* tag = nullptr;
-                otime::RationalTime startTime(0.0, sampleRate);
                 while ((tag = av_dict_get(_avFormatContext->metadata, "", tag, AV_DICT_IGNORE_SUFFIX)))
                 {
                     const std::string key(tag->key);
@@ -180,23 +183,24 @@ namespace tl
                     tags[key] = value;
                     if (string::compareNoCase(key, "timecode"))
                     {
-                        otime::ErrorStatus errorStatus;
-                        const otime::RationalTime time = otime::RationalTime::from_timecode(
-                            value,
-                            videoRate,
-                            &errorStatus);
-                        if (!otime::is_error(errorStatus))
-                        {
-                            startTime = time::floor(time.rescaled_to(sampleRate));
-                            //std::cout << "start time: " << startTime << std::endl;
-                        }
+                        timecode = value;
                     }
                 }
 
-                _info.channelCount = channelCount;
-                _info.dataType = dataType;
-                _info.sampleRate = sampleRate;
-
+                otime::RationalTime startTime(0.0, sampleRate);
+                if (!timecode.empty())
+                {
+                    otime::ErrorStatus errorStatus;
+                    const otime::RationalTime time = otime::RationalTime::from_timecode(
+                        timecode,
+                        videoRate,
+                        &errorStatus);
+                    if (!otime::is_error(errorStatus))
+                    {
+                        startTime = time::floor(time.rescaled_to(sampleRate));
+                        //std::cout << "start time: " << startTime << std::endl;
+                    }
+                }
                 _timeRange = otime::TimeRange(
                     startTime,
                     otime::RationalTime(sampleCount, sampleRate));
@@ -327,7 +331,7 @@ namespace tl
 
         void ReadAudio::seek(const otime::RationalTime& time)
         {
-            //std::cout << "audio seek: " << currentAudioTime << std::endl;
+            //std::cout << "audio seek: " << time << std::endl;
 
             if (_avStream != -1)
             {

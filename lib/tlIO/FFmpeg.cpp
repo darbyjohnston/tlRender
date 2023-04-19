@@ -105,6 +105,49 @@ namespace tl
             return out;
         }
 
+        std::string getTimecodeFromDataStream(AVFormatContext* avFormatContext)
+        {
+            int dataStream = -1;
+            for (unsigned int i = 0; i < avFormatContext->nb_streams; ++i)
+            {
+                if (AVMEDIA_TYPE_DATA == avFormatContext->streams[i]->codecpar->codec_type &&
+                    AV_DISPOSITION_DEFAULT == avFormatContext->streams[i]->disposition)
+                {
+                    dataStream = i;
+                    break;
+                }
+            }
+            if (-1 == dataStream)
+            {
+                for (unsigned int i = 0; i < avFormatContext->nb_streams; ++i)
+                {
+                    if (AVMEDIA_TYPE_DATA == avFormatContext->streams[i]->codecpar->codec_type)
+                    {
+                        dataStream = i;
+                        break;
+                    }
+                }
+            }
+            std::string timecode;
+            if (dataStream != -1)
+            {
+                AVDictionaryEntry* tag = nullptr;
+                while ((tag = av_dict_get(
+                    avFormatContext->streams[dataStream]->metadata,
+                    "",
+                    tag,
+                    AV_DICT_IGNORE_SUFFIX)))
+                {
+                    if (string::compareNoCase(tag->key, "timecode"))
+                    {
+                        timecode = tag->value;
+                        break;
+                    }
+                }
+            }
+            return timecode;
+        }
+
         std::string getErrorLabel(int r)
         {
             char buf[string::cBufferSize];
