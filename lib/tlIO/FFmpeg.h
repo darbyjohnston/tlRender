@@ -54,6 +54,9 @@ namespace tl
         //! Convert to FFmpeg.
         AVSampleFormat fromAudioType(audio::DataType);
 
+        //! Get the timecode from a data stream if it exists.
+        std::string getTimecodeFromDataStream(AVFormatContext*);
+
         //! Get a label for a FFmpeg error code.
         std::string getErrorLabel(int);
 
