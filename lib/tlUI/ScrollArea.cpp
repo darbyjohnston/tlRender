@@ -53,9 +53,24 @@ namespace tl
             return out;
         }
 
+        const math::Vector2i& ScrollArea::getScrollSize() const
+        {
+            return _p->scrollSize->get();
+        }
+
         std::shared_ptr<observer::IValue<math::Vector2i> > ScrollArea::observeScrollSize() const
         {
             return _p->scrollSize;
+        }
+
+        const math::Vector2i& ScrollArea::getScrollPos() const
+        {
+            return _p->scrollPos->get();
+        }
+
+        std::shared_ptr<observer::IValue<math::Vector2i> > ScrollArea::observeScrollPos() const
+        {
+            return _p->scrollPos;
         }
 
         void ScrollArea::setScrollPos(const math::Vector2i& value)
@@ -66,11 +81,6 @@ namespace tl
                 _updates |= ui::Update::Size;
                 _updates |= ui::Update::Draw;
             }
-        }
-
-        std::shared_ptr<observer::IValue<math::Vector2i> > ScrollArea::observeScrollPos() const
-        {
-            return _p->scrollPos;
         }
 
         void ScrollArea::setBorder(bool value)

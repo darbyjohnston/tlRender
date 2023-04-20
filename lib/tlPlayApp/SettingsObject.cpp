@@ -54,8 +54,9 @@ namespace tl
                 p.settings.clear();
             }
 
-            p.defaultValues["Timeline/Thumbnails"] = true;
+            p.defaultValues["Timeline/FrameView"] = true;
             p.defaultValues["Timeline/StopOnScrub"] = false;
+            p.defaultValues["Timeline/Thumbnails"] = true;
             p.defaultValues["Cache/ReadAhead"] = timeline::PlayerCacheOptions().readAhead.value();
             p.defaultValues["Cache/ReadBehind"] = timeline::PlayerCacheOptions().readBehind.value();
             p.defaultValues["FileSequence/Audio"] =

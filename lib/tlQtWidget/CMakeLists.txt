@@ -11,7 +11,6 @@ set(HEADERS
     Style.h
     TimeLabel.h
     TimeSpinBox.h
-    TimelineScrollArea.h
     TimelineSlider.h
     TimelineViewport.h
     TimelineWidget.h
@@ -33,7 +32,6 @@ set(SOURCE
     Style.cpp
     TimeLabel.cpp
     TimeSpinBox.cpp
-    TimelineScrollArea.cpp
     TimelineSlider.cpp
     TimelineViewport.cpp
     TimelineWidget.cpp

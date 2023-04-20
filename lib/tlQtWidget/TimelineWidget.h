@@ -27,25 +27,23 @@ namespace tl
 
             ~TimelineWidget() override;
 
-            const math::Vector2i& scrollSize() const;
-
-            const math::Vector2i& scrollPos() const;
-
             void setTimelinePlayer(const std::shared_ptr<timeline::TimelinePlayer>&);
+
+            void setFrameView(bool);
 
             void setStopOnScrub(bool);
 
             void setItemOptions(const ui::TimelineItemOptions&);
 
         public Q_SLOTS:
-            void setScrollPos(const math::Vector2i&);
-            void setScrollPosX(int);
-            void setScrollPosY(int);
+            void setViewZoom(float);
+
+            void setViewZoom(
+                float,
+                const tl::math::Vector2i& focus);
 
         Q_SIGNALS:
-            void scrollSizeChanged(const math::Vector2i&);
-
-            void scrollPosChanged(const tl::math::Vector2i&);
+            void frameViewChanged(bool);
 
         protected:
             void initializeGL() override;
@@ -62,10 +60,18 @@ namespace tl
             void mouseReleaseEvent(QMouseEvent*) override;
             void mouseMoveEvent(QMouseEvent*) override;
             void wheelEvent(QWheelEvent*) override;
+            void keyPressEvent(QKeyEvent*) override;
+            void keyReleaseEvent(QKeyEvent*) override;
 
             void timerEvent(QTimerEvent*) override;
 
         private:
+            void _setViewZoom(
+                float zoomNew,
+                float zoomPrev,
+                const tl::math::Vector2i& focus,
+                const tl::math::Vector2i& scrollPos);
+
             float _timelineScale() const;
             void _setItemOptions(
                 const std::shared_ptr<ui::IWidget>&,

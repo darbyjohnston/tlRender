@@ -199,6 +199,10 @@ namespace tl
             event.accept = true;
             p.mousePress = true;
             p.mousePressPos = p.mousePos;
+            if (p.stopOnScrub)
+            {
+                p.timelinePlayer->setPlayback(timeline::Playback::Stop);
+            }
             const math::BBox2i bbox = _getCurrentTimeBBox();
             if (bbox.contains(p.mousePos))
             {
@@ -402,12 +406,7 @@ namespace tl
                 _geometry.min.x + p.margin,
                 _geometry.min.y + p.margin,
                 _geometry.w() - p.margin * 2,
-                p.fontMetrics.lineHeight +
-                p.spacing +
-                p.fontMetrics.lineHeight +
-                p.spacing +
-                p.fontMetrics.lineHeight +
-                p.spacing);
+                _geometry.h() - p.margin * 2);
         }
 
         otime::RationalTime TimelineItem::_posToTime(float value) const

@@ -30,7 +30,6 @@
 #include <tlQtWidget/Spacer.h>
 #include <tlQtWidget/TimeLabel.h>
 #include <tlQtWidget/TimeSpinBox.h>
-#include <tlQtWidget/TimelineScrollArea.h>
 #include <tlQtWidget/TimelineViewport.h>
 #include <tlQtWidget/TimelineWidget.h>
 #include <tlQtWidget/Util.h>
@@ -94,7 +93,6 @@ namespace tl
 
             qtwidget::TimelineViewport* timelineViewport = nullptr;
             qtwidget::TimelineWidget* timelineWidget = nullptr;
-            qtwidget::TimelineScrollArea* timelineScrollArea = nullptr;
             qtwidget::TimeSpinBox* currentTimeSpinBox = nullptr;
             qtwidget::TimeLabel* durationLabel = nullptr;
             QToolButton* timeUnitsButton = nullptr;
@@ -140,7 +138,7 @@ namespace tl
             p.volume = app->volume();
             p.mute = app->isMuted();
 
-            setFocusPolicy(Qt::ClickFocus);
+            setFocusPolicy(Qt::StrongFocus);
             setAcceptDrops(true);
 
             p.fileActions = new FileActions(app, this);
@@ -215,14 +213,12 @@ namespace tl
 
             p.timelineWidget = new qtwidget::TimelineWidget(app->getContext());
             //p.timelineWidget->setTimeObject(app->timeObject());
-            p.timelineScrollArea = new qtwidget::TimelineScrollArea();
-            p.timelineScrollArea->setTimelineWidget(p.timelineWidget);
             auto timelineDockWidget = new QDockWidget;
             timelineDockWidget->setObjectName("Timeline");
             timelineDockWidget->setWindowTitle(tr("Timeline"));
             timelineDockWidget->setFeatures(QDockWidget::DockWidgetClosable);
             timelineDockWidget->setTitleBarWidget(new QWidget);
-            timelineDockWidget->setWidget(p.timelineScrollArea);
+            timelineDockWidget->setWidget(p.timelineWidget);
             addDockWidget(Qt::BottomDockWidgetArea, timelineDockWidget);
 
             p.currentTimeSpinBox = new qtwidget::TimeSpinBox;
@@ -559,6 +555,14 @@ namespace tl
                 });
 
             connect(
+                p.timelineWidget,
+                &qtwidget::TimelineWidget::frameViewChanged,
+                [this](bool value)
+                {
+                    _p->playbackActions->actions()["Timeline/FrameView"]->setChecked(value);
+                });
+
+            connect(
                 p.currentTimeSpinBox,
                 &qtwidget::TimeSpinBox::valueChanged,
                 [this](const otime::RationalTime& value)
@@ -646,20 +650,18 @@ namespace tl
                 &SettingsObject::valueChanged,
                 [this](const QString& name, const QVariant& value)
                 {
-                    if ("Timeline/Thumbnails" == name)
+                    if ("Timeline/FrameView" == name)
+                    {
+                        _p->timelineWidget->setFrameView(value.toBool());
+                    }
+                    else if ("Timeline/StopOnScrub" == name)
+                    {
+                        _p->timelineWidget->setStopOnScrub(value.toBool());
+                    }
+                    else if ("Timeline/Thumbnails" == name)
                     {
                         _p->timelineItemOptions.thumbnails = value.toBool();
                         _p->timelineWidget->setItemOptions(_p->timelineItemOptions);
-                    }
-                });
-            connect(
-                app->settingsObject(),
-                &SettingsObject::valueChanged,
-                [this](const QString& name, const QVariant& value)
-                {
-                    if ("Timeline/StopOnScrub" == name)
-                    {
-                        _p->timelineWidget->setStopOnScrub(value.toBool());
                     }
                 });
 
@@ -937,7 +939,10 @@ namespace tl
         {
             TLRENDER_P();
             p.secondaryWindow = nullptr;
-            p.windowActions->actions()["Secondary"]->setChecked(false);
+            {
+                QSignalBlocker blocker(p.windowActions->actions()["Secondary"]);
+                p.windowActions->actions()["Secondary"]->setChecked(false);
+            }
         }
 
         void MainWindow::_speedCallback(double)
@@ -1049,8 +1054,9 @@ namespace tl
                 !p.timelinePlayers.empty() ?
                 p.timelinePlayers[0]->timelinePlayer() :
                 nullptr);
-            p.timelineItemOptions.thumbnails = p.app->settingsObject()->value("Timeline/Thumbnails").toBool();
+            p.timelineWidget->setFrameView(p.app->settingsObject()->value("Timeline/FrameView").toBool());
             p.timelineWidget->setStopOnScrub(p.app->settingsObject()->value("Timeline/StopOnScrub").toBool());
+            p.timelineItemOptions.thumbnails = p.app->settingsObject()->value("Timeline/Thumbnails").toBool();
             p.timelineWidget->setItemOptions(p.timelineItemOptions);
 
             {
