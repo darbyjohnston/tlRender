@@ -29,10 +29,6 @@ namespace tl
 
             void setTimelinePlayer(const std::shared_ptr<timeline::TimelinePlayer>&);
 
-            void setFrameView(bool);
-
-            void setStopOnScrub(bool);
-
             void setItemOptions(const ui::TimelineItemOptions&);
 
         public Q_SLOTS:
@@ -41,6 +37,12 @@ namespace tl
             void setViewZoom(
                 float,
                 const tl::math::Vector2i& focus);
+
+            void setFrameView(bool);
+
+            void setStopOnScrub(bool);
+
+            void setMouseWheelScale(float);
 
         Q_SIGNALS:
             void frameViewChanged(bool);
@@ -66,6 +68,10 @@ namespace tl
             void timerEvent(QTimerEvent*) override;
 
         private:
+            math::Vector2i _getScrollPos() const;
+
+            void _setScrollPos(const math::Vector2i&);
+
             void _setViewZoom(
                 float zoomNew,
                 float zoomPrev,
