@@ -72,6 +72,7 @@ namespace tl
             surfaceFormat.setStencilBufferSize(8);
             setFormat(surfaceFormat);
 
+            setMinimumSize(16, 16);
             setMouseTracking(true);
             setAcceptDrops(true);
             setFocusPolicy(Qt::StrongFocus);
