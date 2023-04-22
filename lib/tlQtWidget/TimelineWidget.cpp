@@ -117,35 +117,18 @@ namespace tl
 
                     p.timelineItem = ui::TimelineItem::create(p.timelinePlayer, itemData, context);
                     p.timelineItem->setStopOnScrub(p.stopOnScrub);
-                    ui::TimelineItemOptions options = p.itemOptions;
-                    if (p.frameView)
-                    {
-                        _setScrollPos(math::Vector2i());
-                        options.scale = _timelineScale();
-                    }
-                    _setItemOptions(p.timelineItem, options);
+                    _setScrollPos(math::Vector2i());
+                    p.itemOptions.scale = _timelineScale();
+                    _setItemOptions(p.timelineItem, p.itemOptions);
                     _setViewport(p.timelineItem, _timelineViewport());
                     p.timelineItem->setParent(p.scrollArea);
                 }
             }
         }
 
-        void TimelineWidget::setItemOptions(const ui::TimelineItemOptions& value)
+        const ui::TimelineItemOptions& TimelineWidget::itemOptions() const
         {
-            TLRENDER_P();
-            if (value == p.itemOptions)
-                return;
-            p.itemOptions = value;
-            if (p.timelineItem)
-            {
-                ui::TimelineItemOptions options = p.itemOptions;
-                if (p.frameView)
-                {
-                    _setScrollPos(math::Vector2i());
-                    options.scale = _timelineScale();
-                }
-                _setItemOptions(p.timelineItem, options);
-            }
+            return _p->itemOptions;
         }
 
         void TimelineWidget::setViewZoom(float value)
@@ -162,7 +145,7 @@ namespace tl
                 zoom,
                 p.itemOptions.scale,
                 focus,
-                _getScrollPos());
+                _fromUI(p.scrollArea->getScrollPos()));
         }
 
         void TimelineWidget::setFrameView(bool value)
@@ -171,12 +154,9 @@ namespace tl
             if (value == p.frameView)
                 return;
             p.frameView = value;
-            if (p.frameView && p.timelineItem)
+            if (p.frameView)
             {
-                _setScrollPos(math::Vector2i());
-                ui::TimelineItemOptions options = p.itemOptions;
-                options.scale = _timelineScale();
-                _setItemOptions(p.timelineItem, options);
+                _frameView();
             }
             Q_EMIT frameViewChanged(p.frameView);
         }
@@ -197,6 +177,23 @@ namespace tl
             p.mouseWheelScale = value;
         }
 
+        void TimelineWidget::setItemOptions(const ui::TimelineItemOptions& value)
+        {
+            TLRENDER_P();
+            if (value == p.itemOptions)
+                return;
+            p.itemOptions = value;
+            if (p.frameView)
+            {
+                _setScrollPos(math::Vector2i());
+                p.itemOptions.scale = _timelineScale();
+            }
+            if (p.timelineItem)
+            {
+                _setItemOptions(p.timelineItem, p.itemOptions);
+            }
+        }
+
         void TimelineWidget::initializeGL()
         {
             TLRENDER_P();
@@ -213,18 +210,15 @@ namespace tl
             TLRENDER_P();
             const float devicePixelRatio = window()->devicePixelRatio();
             p.eventLoop->setContentScale(devicePixelRatio);
-            p.eventLoop->setSize(imaging::Size(
-                w * devicePixelRatio,
-                h * devicePixelRatio));
+            p.eventLoop->setSize(imaging::Size(_toUI(w), _toUI(h)));
+
+            const math::Vector2i scrollSize = _fromUI(p.scrollArea->getScrollSize());
+            if (p.frameView || scrollSize.x < width())
+            {
+                _frameView();
+            }
             if (p.timelineItem)
             {
-                ui::TimelineItemOptions options = p.itemOptions;
-                if (p.frameView)
-                {
-                    _setScrollPos(math::Vector2i());
-                    options.scale = _timelineScale();
-                }
-                _setItemOptions(p.timelineItem, options);
                 _setViewport(p.timelineItem, _timelineViewport());
             }
         }
@@ -234,10 +228,9 @@ namespace tl
             TLRENDER_P();
             if (p.render)
             {
-                const float devicePixelRatio = window()->devicePixelRatio();
                 p.render->begin(imaging::Size(
-                    width() * devicePixelRatio,
-                    height() * devicePixelRatio));
+                    _toUI(width()),
+                    _toUI(height())));
                 p.eventLoop->draw(p.render);
                 p.render->end();
             }
@@ -296,7 +289,7 @@ namespace tl
             case Private::MouseMode::Scroll:
             case Private::MouseMode::Scale:
             {
-                p.mouseScrollPos = _getScrollPos();
+                p.mouseScrollPos = _fromUI(p.scrollArea->getScrollPos());
                 p.mouseScale = p.itemOptions.scale;
                 break;
             }
@@ -336,9 +329,9 @@ namespace tl
             {
             case Private::MouseMode::EventLoop:
             {
-                const float devicePixelRatio = window()->devicePixelRatio();
-                p.eventLoop->cursorPos(
-                    math::Vector2i(event->x(), event->y()) * devicePixelRatio);
+                p.eventLoop->cursorPos(math::Vector2i(
+                    _toUI(event->x()),
+                    _toUI(event->y())));
                 break;
             }
             case Private::MouseMode::Scroll:
@@ -350,7 +343,7 @@ namespace tl
             }
             case Private::MouseMode::Scale:
             {
-                const float zoom = p.mouseScale + (p.mousePos.x - p.mousePressPos.x);
+                const float zoom = p.mouseScale + (p.mousePos.x - p.mousePressPos.x) * 10.F;
                 _setViewZoom(
                     zoom,
                     p.mouseScale,
@@ -380,7 +373,7 @@ namespace tl
             {
                 p.mouseScale = p.itemOptions.scale;
                 p.mousePressPos = p.mousePos;
-                p.mouseScrollPos = _getScrollPos();
+                p.mouseScrollPos = _fromUI(p.scrollArea->getScrollPos());
                 setViewZoom(zoom, p.mousePos);
             }
             p.mouseWheelTimer = now;
@@ -402,19 +395,27 @@ namespace tl
             }
         }
 
-        math::Vector2i TimelineWidget::_getScrollPos() const
-        {
-            TLRENDER_P();
-            const math::Vector2i& scrollPos = p.scrollArea->getScrollPos();
-            const float devicePixelRatio = window()->devicePixelRatio();
-            return devicePixelRatio > 0.F ? (scrollPos / devicePixelRatio) : math::Vector2i();
-        }
-
         void TimelineWidget::_setScrollPos(const math::Vector2i& value)
         {
             TLRENDER_P();
-            const float devicePixelRatio = window()->devicePixelRatio();
-            p.scrollArea->setScrollPos(value * devicePixelRatio);
+            const int w = width();
+            const int h = height();
+            const math::Vector2i scrollSize = _fromUI(p.scrollArea->getScrollSize());
+            const math::Vector2i clamped(
+                math::clamp(value.x, 0, std::max(scrollSize.x - w, 0)),
+                math::clamp(value.y, 0, std::max(scrollSize.y - h, 0)));
+            p.scrollArea->setScrollPos(_toUI(clamped));
+        }
+
+        void TimelineWidget::_frameView()
+        {
+            TLRENDER_P();
+            _setScrollPos(math::Vector2i());
+            p.itemOptions.scale = _timelineScale();
+            if (p.timelineItem)
+            {
+                _setItemOptions(p.timelineItem, p.itemOptions);
+            }
         }
 
         void TimelineWidget::_setViewZoom(
@@ -427,17 +428,24 @@ namespace tl
 
             const int w = width();
             const int h = height();
-            const float s = zoomNew / zoomPrev;
+            const float zoomMin = _timelineScale();
+            const float zoomMax = _toUI(w);
+            const float zoomClamped = math::clamp(zoomNew, zoomMin, zoomMax);
+
+            const float s = zoomClamped / zoomPrev;
             const math::Vector2i scrollPosNew(
                 (scrollPos.x + focus.x) * s - focus.x,
                 scrollPos.y);
-            _setScrollPos(scrollPosNew);
+            const math::Vector2i scrollSize = _fromUI(p.scrollArea->getScrollSize());
+            const math::Vector2i scrollPosClamped(
+                math::clamp(scrollPosNew.x, 0, std::max(static_cast<int>(scrollSize.x * s) - w, 0)),
+                math::clamp(scrollPosNew.y, 0, std::max(static_cast<int>(scrollSize.y * s) - h, 0)));
+            p.scrollArea->setScrollPos(_toUI(scrollPosClamped));
 
-            p.itemOptions.scale = zoomNew;
-            _setItemOptions(p.timelineItem, p.itemOptions);
-
+            p.itemOptions.scale = zoomClamped;
             if (p.timelineItem)
             {
+                _setItemOptions(p.timelineItem, p.itemOptions);
                 _setViewport(p.timelineItem, _timelineViewport());
             }
 
@@ -454,9 +462,8 @@ namespace tl
                 const double duration = timeRange.duration().rescaled_to(1.0).value();
                 if (duration > 0.0)
                 {
-                    const float devicePixelRatio = window()->devicePixelRatio();
-                    out = (width() - p.style->getSizeRole(ui::SizeRole::MarginSmall) * 2) *
-                        devicePixelRatio / duration;
+                    const int m = p.style->getSizeRole(ui::SizeRole::MarginSmall);
+                    out = _toUI(width() - m * 2) / duration;
                 }
             }
             return out;
@@ -480,12 +487,11 @@ namespace tl
         {
             TLRENDER_P();
             const math::Vector2i& scrollPos = p.scrollArea->getScrollPos();
-            const float devicePixelRatio = window()->devicePixelRatio();
             return math::BBox2i(
                 scrollPos.x,
                 scrollPos.y,
-                width() * devicePixelRatio,
-                height() * devicePixelRatio);
+                _toUI(width()),
+                _toUI(height()));
         }
 
         void TimelineWidget::_setViewport(
@@ -500,6 +506,30 @@ namespace tl
             {
                 _setViewport(child, vp);
             }
+        }
+
+        float TimelineWidget::_toUI(float value) const
+        {
+            const float devicePixelRatio = window()->devicePixelRatio();
+            return value * devicePixelRatio;
+        }
+
+        math::Vector2i TimelineWidget::_toUI(const math::Vector2i& value) const
+        {
+            const float devicePixelRatio = window()->devicePixelRatio();
+            return value * devicePixelRatio;
+        }
+
+        float TimelineWidget::_fromUI(float value) const
+        {
+            const float devicePixelRatio = window()->devicePixelRatio();
+            return devicePixelRatio > 0.F ? (value / devicePixelRatio) : 0.F;
+        }
+
+        math::Vector2i TimelineWidget::_fromUI(const math::Vector2i& value) const
+        {
+            const float devicePixelRatio = window()->devicePixelRatio();
+            return devicePixelRatio > 0.F ? (value / devicePixelRatio) : math::Vector2i();
         }
     }
 }

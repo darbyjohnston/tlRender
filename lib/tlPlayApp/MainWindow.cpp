@@ -81,7 +81,6 @@ namespace tl
             imaging::VideoLevels outputVideoLevels;
             float volume = 1.F;
             bool mute = false;
-            ui::TimelineItemOptions timelineItemOptions;
 
             FileActions* fileActions = nullptr;
             CompareActions* compareActions = nullptr;
@@ -660,8 +659,9 @@ namespace tl
                     }
                     else if ("Timeline/Thumbnails" == name)
                     {
-                        _p->timelineItemOptions.thumbnails = value.toBool();
-                        _p->timelineWidget->setItemOptions(_p->timelineItemOptions);
+                        auto itemOptions = _p->timelineWidget->itemOptions();
+                        itemOptions.thumbnails = value.toBool();
+                        _p->timelineWidget->setItemOptions(itemOptions);
                     }
                 });
 
@@ -1056,8 +1056,9 @@ namespace tl
                 nullptr);
             p.timelineWidget->setFrameView(p.app->settingsObject()->value("Timeline/FrameView").toBool());
             p.timelineWidget->setStopOnScrub(p.app->settingsObject()->value("Timeline/StopOnScrub").toBool());
-            p.timelineItemOptions.thumbnails = p.app->settingsObject()->value("Timeline/Thumbnails").toBool();
-            p.timelineWidget->setItemOptions(p.timelineItemOptions);
+            auto itemOptions = p.timelineWidget->itemOptions();
+            itemOptions.thumbnails = p.app->settingsObject()->value("Timeline/Thumbnails").toBool();
+            p.timelineWidget->setItemOptions(itemOptions);
 
             {
                 const QSignalBlocker blocker(p.volumeSlider);

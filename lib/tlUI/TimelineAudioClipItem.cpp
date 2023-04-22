@@ -109,22 +109,26 @@ namespace tl
 
         void TimelineAudioClipItem::setOptions(const TimelineItemOptions& value)
         {
+            const bool changed = value != _options;
             ITimelineItem::setOptions(value);
             TLRENDER_P();
-            if (_updates & ui::Update::Size)
+            if (changed)
             {
                 _textUpdate();
                 _data.ioManager->cancelRequests();
                 p.audioData.clear();
+                _updates |= ui::Update::Draw;
             }
         }
 
         void TimelineAudioClipItem::setViewport(const math::BBox2i& value)
         {
+            const bool changed = value != _viewport;
             ITimelineItem::setViewport(value);
-            if (_updates & ui::Update::Size)
+            if (changed)
             {
                 _data.ioManager->cancelRequests();
+                _updates |= ui::Update::Draw;
             }
         }
 
@@ -259,6 +263,7 @@ namespace tl
                 p.waveformWidth = waveformWidth;
                 _data.ioManager->cancelRequests();
                 p.audioData.clear();
+                _updates |= ui::Update::Draw;
             }
 
             _sizeHint = math::Vector2i(
