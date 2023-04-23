@@ -17,7 +17,6 @@ namespace tl
             bool iconInit = false;
             float iconContentScale = 1.F;
             std::future<std::shared_ptr<imaging::Image> > iconFuture;
-            std::shared_ptr<observer::Value<bool> > click;
         };
 
         void IButton::_init(
@@ -26,9 +25,6 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(name, context, parent);
-            TLRENDER_P();
-            p.click = observer::Value<bool>::create(false);
-            _checked = observer::Value<bool>::create(false);
         }
 
         IButton::IButton() :
@@ -41,22 +37,23 @@ namespace tl
         void IButton::setCheckable(bool value)
         {
             TLRENDER_P();
+            if (value == p.checkable)
+                return;
             p.checkable = value;
-            if (!p.checkable)
+            if (!p.checkable && _checked)
             {
-                if (_checked->setIfChanged(false))
-                {
-                    _updates |= Update::Draw;
-                }
+                _checked = false;
+                _updates |= Update::Draw;
             }
         }
 
         void IButton::setChecked(bool value)
         {
-            if (_checked->setIfChanged(value))
-            {
-                _updates |= Update::Draw;
-            }
+            TLRENDER_P();
+            if (value == _checked)
+                return;
+            _checked = value;
+            _updates |= Update::Draw;
         }
 
         void IButton::setText(const std::string& value)
@@ -92,14 +89,14 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        std::shared_ptr<observer::IValue<bool> > IButton::observeClick() const
+        void IButton::setClickedCallback(const std::function<void(void)>& value)
         {
-            return _p->click;
+            _clickedCallback = value;
         }
 
-        std::shared_ptr<observer::IValue<bool> > IButton::observeChecked() const
+        void IButton::setCheckedCallback(const std::function<void(bool)>& value)
         {
-            return _checked;
+            _checkedCallback = value;
         }
 
         void IButton::tickEvent(const TickEvent& event)
@@ -158,10 +155,17 @@ namespace tl
             _pressed = false;
             if (_geometry.contains(_cursorPos))
             {
-                p.click->setAlways(true);
+                if (_clickedCallback)
+                {
+                    _clickedCallback();
+                }
                 if (p.checkable)
                 {
-                    _checked->setIfChanged(!_checked->get());
+                    _checked = !_checked;
+                    if (_checkedCallback)
+                    {
+                        _checkedCallback(_checked);
+                    }
                 }
             }
             _updates |= Update::Draw;

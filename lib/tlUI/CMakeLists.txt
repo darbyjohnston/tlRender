@@ -1,4 +1,5 @@
 set(HEADERS
+    ButtonGroup.h
     DrawUtil.h
     Event.h
     EventLoop.h
@@ -38,6 +39,7 @@ set(HEADERS
 set(HEADERS_PRIVATE)
 
 set(SOURCE
+    ButtonGroup.cpp
     DrawUtil.cpp
     Event.cpp
     EventLoop.cpp

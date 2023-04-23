@@ -97,7 +97,7 @@ namespace tl
                 event.style->getColorRole(ColorRole::Border));
 
             const auto mesh = rect(g.margin(-p.size.border), p.size.margin / 2);
-            const ColorRole colorRole = _checked->get() ?
+            const ColorRole colorRole = _checked ?
                 ColorRole::Checked :
                 _buttonRole;
             if (colorRole != ColorRole::None)

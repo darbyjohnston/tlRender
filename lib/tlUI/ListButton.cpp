@@ -95,7 +95,7 @@ namespace tl
 
             const math::BBox2i g = _geometry;
 
-            const ColorRole colorRole = _checked->get() ?
+            const ColorRole colorRole = _checked ?
                 ColorRole::Checked :
                 _buttonRole;
             if (colorRole != ColorRole::None)

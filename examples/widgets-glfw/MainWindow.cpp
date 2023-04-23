@@ -10,6 +10,7 @@
 #include "NumericWidgets.h"
 #include "RowLayouts.h"
 
+#include <tlUI/ButtonGroup.h>
 #include <tlUI/ListButton.h>
 #include <tlUI/PushButton.h>
 #include <tlUI/RowLayout.h>
@@ -24,13 +25,9 @@ namespace tl
         {
             struct MainWindow::Private
             {
+                std::shared_ptr<ui::ButtonGroup> buttonGroup;
                 std::shared_ptr<ui::RowLayout> layout;
                 std::shared_ptr<ui::StackLayout> stackLayout;
-                std::shared_ptr<observer::ValueObserver<bool> > basicObserver;
-                std::shared_ptr<observer::ValueObserver<bool> > numericObserver;
-                std::shared_ptr<observer::ValueObserver<bool> > chartObserver;
-                std::shared_ptr<observer::ValueObserver<bool> > rowLayoutObserver;
-                std::shared_ptr<observer::ValueObserver<bool> > gridLayoutObserver;
             };
 
             void MainWindow::_init(
@@ -41,55 +38,30 @@ namespace tl
 
                 setBackgroundRole(ui::ColorRole::Window);
 
-                auto basicButton = ui::ListButton::create(context);
-                basicButton->setText("Basic Widgets");
-                p.basicObserver = observer::ValueObserver<bool>::create(
-                    basicButton->observeClick(),
-                    [this](bool)
+                std::vector<std::shared_ptr<ui::IButton> > buttons;
+                const std::vector<std::string> buttonText =
+                {
+                    "Basic Widgets",
+                    "Numeric Widgets",
+                    "Charts",
+                    "Row Layouts",
+                    "Grid Layouts"
+                };
+                p.buttonGroup = ui::ButtonGroup::create(
+                    ui::ButtonGroupType::Click,
+                    context);
+                for (const auto& text : buttonText)
+                {
+                    auto button = ui::ListButton::create(context);
+                    button->setText(text);
+                    buttons.push_back(button);
+                    p.buttonGroup->addButton(button);
+                }
+                p.buttonGroup->setClickedCallback(
+                    [this](int value)
                     {
-                        _p->stackLayout->setCurrentIndex(0);
-                    },
-                    observer::CallbackAction::Suppress);
-
-                auto numericButton = ui::ListButton::create(context);
-                numericButton->setText("Numeric Widgets");
-                p.numericObserver = observer::ValueObserver<bool>::create(
-                    numericButton->observeClick(),
-                    [this](bool)
-                    {
-                        _p->stackLayout->setCurrentIndex(1);
-                    },
-                    observer::CallbackAction::Suppress);
-
-                auto chartButton = ui::ListButton::create(context);
-                chartButton->setText("Charts");
-                p.chartObserver = observer::ValueObserver<bool>::create(
-                    chartButton->observeClick(),
-                    [this](bool)
-                    {
-                        _p->stackLayout->setCurrentIndex(2);
-                    },
-                    observer::CallbackAction::Suppress);
-
-                auto rowLayoutButton = ui::ListButton::create(context);
-                rowLayoutButton->setText("Row Layouts");
-                p.rowLayoutObserver = observer::ValueObserver<bool>::create(
-                    rowLayoutButton->observeClick(),
-                    [this](bool)
-                    {
-                        _p->stackLayout->setCurrentIndex(3);
-                    },
-                    observer::CallbackAction::Suppress);
-
-                auto gridLayoutButton = ui::ListButton::create(context);
-                gridLayoutButton->setText("Grid Layouts");
-                p.gridLayoutObserver = observer::ValueObserver<bool>::create(
-                    gridLayoutButton->observeClick(),
-                    [this](bool)
-                    {
-                        _p->stackLayout->setCurrentIndex(4);
-                    },
-                    observer::CallbackAction::Suppress);
+                        _p->stackLayout->setCurrentIndex(value);
+                    });
 
                 auto basicWidgets = BasicWidgets::create(context);
                 auto numericWidgets = NumericWidgets::create(context);
@@ -106,11 +78,10 @@ namespace tl
                     p.layout);
                 auto buttonLayout = ui::VerticalLayout::create(context, scrollArea);
                 buttonLayout->setSpacingRole(ui::SizeRole::None);
-                basicButton->setParent(buttonLayout);
-                numericButton->setParent(buttonLayout);
-                chartButton->setParent(buttonLayout);
-                rowLayoutButton->setParent(buttonLayout);
-                gridLayoutButton->setParent(buttonLayout);
+                for (auto button : buttons)
+                {
+                    button->setParent(buttonLayout);
+                }
                 p.stackLayout = ui::StackLayout::create(context, p.layout);
                 p.stackLayout->setHStretch(ui::Stretch::Expanding);
                 p.stackLayout->setVStretch(ui::Stretch::Expanding);
@@ -120,7 +91,7 @@ namespace tl
                 rowLayouts->setParent(p.stackLayout);
                 gridLayouts->setParent(p.stackLayout);
 
-                p.stackLayout->setCurrentIndex(2);
+                //p.stackLayout->setCurrentIndex(2);
             }
 
             MainWindow::MainWindow() :

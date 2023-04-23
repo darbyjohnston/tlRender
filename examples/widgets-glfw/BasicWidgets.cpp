@@ -4,6 +4,7 @@
 
 #include "BasicWidgets.h"
 
+#include <tlUI/ButtonGroup.h>
 #include <tlUI/GroupBox.h>
 #include <tlUI/PushButton.h>
 #include <tlUI/ToolButton.h>
@@ -17,8 +18,8 @@ namespace tl
         {
             struct BasicWidgets::Private
             {
+                std::shared_ptr<ui::ButtonGroup> buttonGroup;
                 std::shared_ptr<ui::RowLayout> layout;
-                std::map<std::string, std::shared_ptr<observer::ValueObserver<bool> > > observers;
             };
 
             void BasicWidgets::_init(
@@ -29,40 +30,40 @@ namespace tl
 
                 auto pushButton0 = ui::PushButton::create(context);
                 pushButton0->setText("Click");
-                p.observers["pushButton0"] = observer::ValueObserver<bool>::create(
-                    pushButton0->observeClick(),
-                    [this](bool)
+                pushButton0->setClickedCallback(
+                    []()
                     {
                         std::cout << "Click" << std::endl;
-                    },
-                    observer::CallbackAction::Suppress);
+                    });
 
                 auto pushButton1 = ui::PushButton::create(context);
                 pushButton1->setCheckable(true);
                 pushButton1->setChecked(true);
                 pushButton1->setText("Toggle");
                 pushButton1->setIcon("Settings");
-                p.observers["pushButton1"] = observer::ValueObserver<bool>::create(
-                    pushButton1->observeChecked(),
-                    [this](bool value)
+                pushButton1->setCheckedCallback(
+                    [](bool value)
                     {
                         std::cout << "Toggle: " << value << std::endl;
-                    },
-                    observer::CallbackAction::Suppress);
+                    });
 
+                p.buttonGroup = ui::ButtonGroup::create(ui::ButtonGroupType::Radio, context);
                 auto toolButton0 = ui::ToolButton::create(context);
-                toolButton0->setCheckable(true);
                 toolButton0->setChecked(true);
                 toolButton0->setIcon("PlaybackReverse");
-
+                p.buttonGroup->addButton(toolButton0);
                 auto toolButton1 = ui::ToolButton::create(context);
-                toolButton1->setCheckable(true);
                 toolButton1->setIcon("PlaybackStop");
-
+                p.buttonGroup->addButton(toolButton1);
                 auto toolButton2 = ui::ToolButton::create(context);
-                toolButton2->setCheckable(true);
                 toolButton2->setText("Forward");
                 toolButton2->setIcon("PlaybackForward");
+                p.buttonGroup->addButton(toolButton2);
+                p.buttonGroup->setCheckedCallback(
+                    [](int index, bool value)
+                    {
+                        std::cout << "Radio: " << index << " " << value << std::endl;
+                    });
 
                 p.layout = ui::VerticalLayout::create(context, shared_from_this());
                 auto groupBox = ui::GroupBox::create(context, p.layout);

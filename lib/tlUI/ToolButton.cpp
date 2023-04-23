@@ -95,7 +95,7 @@ namespace tl
                 event.style->getColorRole(ColorRole::Border));
 
             const math::BBox2i g2 = g.margin(-p.size.border);
-            const ColorRole colorRole = _checked->get() ?
+            const ColorRole colorRole = _checked ?
                 ColorRole::Checked :
                 _buttonRole;
             if (colorRole != ColorRole::None)
