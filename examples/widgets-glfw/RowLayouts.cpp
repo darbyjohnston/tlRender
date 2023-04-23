@@ -2,10 +2,10 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include "GridLayoutWidget.h"
+#include "RowLayouts.h"
 
 #include <tlUI/Label.h>
-#include <tlUI/GridLayout.h>
+#include <tlUI/RowLayout.h>
 
 namespace tl
 {
@@ -13,15 +13,15 @@ namespace tl
     {
         namespace ui_glfw
         {
-            struct GridLayoutWidget::Private
+            struct RowLayouts::Private
             {
-                std::shared_ptr<ui::GridLayout> layout;
+                std::shared_ptr<ui::RowLayout> layout;
             };
 
-            void GridLayoutWidget::_init(
+            void RowLayouts::_init(
                 const std::shared_ptr<system::Context>& context)
             {
-                IWidget::_init("GridLayoutWidget", context);
+                IWidget::_init("RowLayouts", context);
                 TLRENDER_P();
 
                 auto label0 = ui::Label::create(context);
@@ -48,7 +48,6 @@ namespace tl
                 label4->setText("Label 4");
                 label4->setBackgroundRole(ui::ColorRole::Magenta);
                 label4->setHStretch(ui::Stretch::Expanding);
-                label4->setVStretch(ui::Stretch::Expanding);
 
                 auto label5 = ui::Label::create(context);
                 label5->setText("Label 5");
@@ -56,37 +55,35 @@ namespace tl
                 label5->setBackgroundRole(ui::ColorRole::Yellow);
                 label5->setHStretch(ui::Stretch::Expanding);
 
-                p.layout = ui::GridLayout::create(context, shared_from_this());
-                label0->setParent(p.layout);
-                label1->setParent(p.layout);
-                label2->setParent(p.layout);
-                label3->setParent(p.layout);
-                label4->setParent(p.layout);
-                label5->setParent(p.layout);
-                p.layout->setGridPos(label0, 0, 0);
-                p.layout->setGridPos(label1, 0, 1);
-                p.layout->setGridPos(label2, 0, 2);
-                p.layout->setGridPos(label3, 1, 0);
-                p.layout->setGridPos(label4, 1, 1);
-                p.layout->setGridPos(label5, 3, 3);
+                p.layout = ui::VerticalLayout::create(context, shared_from_this());
+                auto hLayout = ui::HorizontalLayout::create(context, p.layout);
+                label0->setParent(hLayout);
+                label1->setParent(hLayout);
+                hLayout = ui::HorizontalLayout::create(context, p.layout);
+                label2->setParent(hLayout);
+                label3->setParent(hLayout);
+                hLayout = ui::HorizontalLayout::create(context, p.layout);
+                hLayout->setVStretch(ui::Stretch::Expanding);
+                label4->setParent(hLayout);
+                label5->setParent(hLayout);
             }
 
-            GridLayoutWidget::GridLayoutWidget() :
+            RowLayouts::RowLayouts() :
                 _p(new Private)
             {}
 
-            GridLayoutWidget::~GridLayoutWidget()
+            RowLayouts::~RowLayouts()
             {}
 
-            std::shared_ptr<GridLayoutWidget> GridLayoutWidget::create(
+            std::shared_ptr<RowLayouts> RowLayouts::create(
                 const std::shared_ptr<system::Context>& context)
             {
-                auto out = std::shared_ptr<GridLayoutWidget>(new GridLayoutWidget);
+                auto out = std::shared_ptr<RowLayouts>(new RowLayouts);
                 out->_init(context);
                 return out;
             }
 
-            void GridLayoutWidget::setGeometry(const math::BBox2i& value)
+            void RowLayouts::setGeometry(const math::BBox2i& value)
             {
                 IWidget::setGeometry(value);
                 _p->layout->setGeometry(value);

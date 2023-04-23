@@ -20,8 +20,14 @@ namespace tl
         //! Create a mesh for drawing a rectangle.
         geom::TriangleMesh2 rect(
             const math::BBox2i&,
-            int radius = 0,
+            int cornerRadius = 0,
             size_t resolution = 8);
+
+        //! Create a mesh for drawing a circle.
+        geom::TriangleMesh2 circle(
+            const math::Vector2i&,
+            int radius = 0,
+            size_t resolution = 120);
 
         //! Create a mesh for drawing a border.
         geom::TriangleMesh2 border(

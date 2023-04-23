@@ -1,18 +1,20 @@
 set(HEADERS
     App.h
-    BasicWidget.h
-    GridLayoutWidget.h
+    BasicWidgets.h
+    Charts.h
+    GridLayouts.h
     MainWindow.h
-    NumericWidget.h
-    RowLayoutWidget.h)
+    NumericWidgets.h
+    RowLayouts.h)
 
 set(SOURCE
     App.cpp
-    BasicWidget.cpp
-    GridLayoutWidget.cpp
+    Charts.cpp
+    BasicWidgets.cpp
+    GridLayouts.cpp
     MainWindow.cpp
-    NumericWidget.cpp
-    RowLayoutWidget.cpp
+    NumericWidgets.cpp
+    RowLayouts.cpp
     main.cpp)
 
 add_executable(widgets-glfw ${SOURCE} ${HEADERS})

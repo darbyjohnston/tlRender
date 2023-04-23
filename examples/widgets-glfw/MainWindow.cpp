@@ -4,10 +4,11 @@
 
 #include "MainWindow.h"
 
-#include "BasicWidget.h"
-#include "GridLayoutWidget.h"
-#include "NumericWidget.h"
-#include "RowLayoutWidget.h"
+#include "BasicWidgets.h"
+#include "Charts.h"
+#include "GridLayouts.h"
+#include "NumericWidgets.h"
+#include "RowLayouts.h"
 
 #include <tlUI/ListButton.h>
 #include <tlUI/PushButton.h>
@@ -27,6 +28,7 @@ namespace tl
                 std::shared_ptr<ui::StackLayout> stackLayout;
                 std::shared_ptr<observer::ValueObserver<bool> > basicObserver;
                 std::shared_ptr<observer::ValueObserver<bool> > numericObserver;
+                std::shared_ptr<observer::ValueObserver<bool> > chartObserver;
                 std::shared_ptr<observer::ValueObserver<bool> > rowLayoutObserver;
                 std::shared_ptr<observer::ValueObserver<bool> > gridLayoutObserver;
             };
@@ -59,13 +61,23 @@ namespace tl
                     },
                     observer::CallbackAction::Suppress);
 
+                auto chartButton = ui::ListButton::create(context);
+                chartButton->setText("Charts");
+                p.chartObserver = observer::ValueObserver<bool>::create(
+                    chartButton->observeClick(),
+                    [this](bool)
+                    {
+                        _p->stackLayout->setCurrentIndex(2);
+                    },
+                    observer::CallbackAction::Suppress);
+
                 auto rowLayoutButton = ui::ListButton::create(context);
                 rowLayoutButton->setText("Row Layouts");
                 p.rowLayoutObserver = observer::ValueObserver<bool>::create(
                     rowLayoutButton->observeClick(),
                     [this](bool)
                     {
-                        _p->stackLayout->setCurrentIndex(2);
+                        _p->stackLayout->setCurrentIndex(3);
                     },
                     observer::CallbackAction::Suppress);
 
@@ -75,14 +87,15 @@ namespace tl
                     gridLayoutButton->observeClick(),
                     [this](bool)
                     {
-                        _p->stackLayout->setCurrentIndex(3);
+                        _p->stackLayout->setCurrentIndex(4);
                     },
                     observer::CallbackAction::Suppress);
 
-                auto basicWidget = BasicWidget::create(context);
-                auto numericWidget = NumericWidget::create(context);
-                auto rowLayoutWidget = RowLayoutWidget::create(context);
-                auto gridLayoutWidget = GridLayoutWidget::create(context);
+                auto basicWidgets = BasicWidgets::create(context);
+                auto numericWidgets = NumericWidgets::create(context);
+                auto charts = Charts::create(context);
+                auto rowLayouts = RowLayouts::create(context);
+                auto gridLayouts = GridLayouts::create(context);
 
                 p.layout = ui::HorizontalLayout::create(context, shared_from_this());
                 p.layout->setMarginRole(ui::SizeRole::Margin);
@@ -95,17 +108,19 @@ namespace tl
                 buttonLayout->setSpacingRole(ui::SizeRole::None);
                 basicButton->setParent(buttonLayout);
                 numericButton->setParent(buttonLayout);
+                chartButton->setParent(buttonLayout);
                 rowLayoutButton->setParent(buttonLayout);
                 gridLayoutButton->setParent(buttonLayout);
                 p.stackLayout = ui::StackLayout::create(context, p.layout);
                 p.stackLayout->setHStretch(ui::Stretch::Expanding);
                 p.stackLayout->setVStretch(ui::Stretch::Expanding);
-                basicWidget->setParent(p.stackLayout);
-                numericWidget->setParent(p.stackLayout);
-                rowLayoutWidget->setParent(p.stackLayout);
-                gridLayoutWidget->setParent(p.stackLayout);
+                basicWidgets->setParent(p.stackLayout);
+                numericWidgets->setParent(p.stackLayout);
+                charts->setParent(p.stackLayout);
+                rowLayouts->setParent(p.stackLayout);
+                gridLayouts->setParent(p.stackLayout);
 
-                p.stackLayout->setCurrentIndex(1);
+                p.stackLayout->setCurrentIndex(2);
             }
 
             MainWindow::MainWindow() :

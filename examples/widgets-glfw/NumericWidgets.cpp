@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include "NumericWidget.h"
+#include "NumericWidgets.h"
 
 #include <tlUI/GridLayout.h>
 #include <tlUI/GroupBox.h>
@@ -21,15 +21,15 @@ namespace tl
     {
         namespace ui_glfw
         {
-            struct NumericWidget::Private
+            struct NumericWidgets::Private
             {
                 std::shared_ptr<ui::RowLayout> layout;
             };
 
-            void NumericWidget::_init(
+            void NumericWidgets::_init(
                 const std::shared_ptr<system::Context>& context)
             {
-                IWidget::_init("NumericWidget", context);
+                IWidget::_init("NumericWidgets", context);
                 TLRENDER_P();
 
                 const std::vector<math::IntRange> intRanges =
@@ -118,22 +118,22 @@ namespace tl
                 }
             }
 
-            NumericWidget::NumericWidget() :
+            NumericWidgets::NumericWidgets() :
                 _p(new Private)
             {}
 
-            NumericWidget::~NumericWidget()
+            NumericWidgets::~NumericWidgets()
             {}
 
-            std::shared_ptr<NumericWidget> NumericWidget::create(
+            std::shared_ptr<NumericWidgets> NumericWidgets::create(
                 const std::shared_ptr<system::Context>& context)
             {
-                auto out = std::shared_ptr<NumericWidget>(new NumericWidget);
+                auto out = std::shared_ptr<NumericWidgets>(new NumericWidgets);
                 out->_init(context);
                 return out;
             }
 
-            void NumericWidget::setGeometry(const math::BBox2i& value)
+            void NumericWidgets::setGeometry(const math::BBox2i& value)
             {
                 IWidget::setGeometry(value);
                 _p->layout->setGeometry(value);

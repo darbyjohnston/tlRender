@@ -17,6 +17,7 @@ namespace tl
 
             struct Size
             {
+                imaging::FontInfo fontInfo;
                 imaging::FontMetrics fontMetrics;
                 math::Vector2i textSize;
                 int margin = 0;
@@ -91,9 +92,9 @@ namespace tl
             p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall) * event.contentScale;
             p.size.border = event.style->getSizeRole(SizeRole::Border) * event.contentScale;
 
-            const auto fontInfo = event.getFontInfo(p.fontRole);
+            p.size.fontInfo = event.getFontInfo(p.fontRole);
             p.size.fontMetrics = event.getFontMetrics(p.fontRole);
-            p.size.textSize = event.fontSystem->measure(p.text, fontInfo);
+            p.size.textSize = event.fontSystem->measure(p.text, p.size.fontInfo);
 
             _sizeHint = math::Vector2i();
             for (const auto& child : _children)
@@ -113,11 +114,10 @@ namespace tl
             IWidget::drawEvent(event);
             TLRENDER_P();
 
-            const auto fontInfo = event.getFontInfo(p.fontRole);
             math::BBox2i g = _geometry;
 
             event.render->drawText(
-                event.fontSystem->getGlyphs(p.text, fontInfo),
+                event.fontSystem->getGlyphs(p.text, p.size.fontInfo),
                 math::Vector2i(g.x(), g.y() + p.size.fontMetrics.ascender),
                 event.style->getColorRole(ColorRole::Text));
 

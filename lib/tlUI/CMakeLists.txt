@@ -20,6 +20,7 @@ set(HEADERS
     Label.h
     LineEdit.h
     ListButton.h
+    PieChart.h
     PushButton.h
     RowLayout.h
     ScrollArea.h
@@ -57,6 +58,7 @@ set(SOURCE
     Label.cpp
     LineEdit.cpp
     ListButton.cpp
+    PieChart.cpp
     PushButton.cpp
     RowLayout.cpp
     ScrollArea.cpp

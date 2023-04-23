@@ -14,6 +14,13 @@ namespace tl
         {
             std::string text;
             FontRole fontRole = FontRole::Label;
+
+            struct Size
+            {
+                imaging::FontInfo fontInfo;
+                imaging::FontMetrics fontMetrics;
+            };
+            Size size;
         };
 
         void Label::_init(
@@ -65,11 +72,11 @@ namespace tl
             IWidget::sizeEvent(event);
             TLRENDER_P();
 
-            const auto fontInfo = event.getFontInfo(p.fontRole);
-            const auto fontMetrics = event.getFontMetrics(p.fontRole);
+            p.size.fontInfo = event.getFontInfo(p.fontRole);
+            p.size.fontMetrics = event.getFontMetrics(p.fontRole);
 
-            _sizeHint.x = event.fontSystem->measure(p.text, fontInfo).x;
-            _sizeHint.y = fontMetrics.lineHeight;
+            _sizeHint.x = event.fontSystem->measure(p.text, p.size.fontInfo).x;
+            _sizeHint.y = p.size.fontMetrics.lineHeight;
         }
 
         void Label::drawEvent(const DrawEvent& event)
@@ -77,21 +84,19 @@ namespace tl
             IWidget::drawEvent(event);
             TLRENDER_P();
 
-            const auto fontInfo = event.getFontInfo(p.fontRole);
-            const auto fontMetrics = event.getFontMetrics(p.fontRole);
-
             //event.render->drawRect(_geometry, imaging::Color4f(.5F, .3F, .3F));
 
-            math::BBox2i g = align(
+            const math::BBox2i g = align(
                 _geometry,
                 _sizeHint,
                 Stretch::Fixed,
                 Stretch::Fixed,
                 _hAlign,
                 _vAlign);
+
             event.render->drawText(
-                event.fontSystem->getGlyphs(p.text, fontInfo),
-                math::Vector2i(g.x(), g.y() + fontMetrics.ascender),
+                event.fontSystem->getGlyphs(p.text, p.size.fontInfo),
+                math::Vector2i(g.x(), g.y() + p.size.fontMetrics.ascender),
                 event.style->getColorRole(ColorRole::Text));
         }
     }
