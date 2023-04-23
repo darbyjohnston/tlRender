@@ -12,13 +12,20 @@ namespace tl
     {
         struct ToolButton::Private
         {
-            struct Size
+            struct SizeData
             {
-                math::Vector2i textSize;
                 int margin = 0;
                 int border = 0;
+                imaging::FontMetrics fontMetrics;
+                math::Vector2i textSize;
             };
-            Size size;
+            SizeData size;
+
+            struct DrawData
+            {
+                std::vector<std::shared_ptr<imaging::Glyph> > glyphs;
+            };
+            DrawData draw;
         };
 
         void ToolButton::_init(
@@ -53,14 +60,16 @@ namespace tl
             p.size.border = event.style->getSizeRole(SizeRole::Border) * event.contentScale;
 
             _sizeHint = math::Vector2i();
+            p.draw.glyphs.clear();
             if (!_text.empty())
             {
+                p.size.fontMetrics = event.getFontMetrics(_fontRole);
                 const auto fontInfo = event.getFontInfo(_fontRole);
-                const auto fontMetrics = event.getFontMetrics(_fontRole);
                 p.size.textSize = event.fontSystem->measure(_text, fontInfo);
+                p.draw.glyphs = event.fontSystem->getGlyphs(_text, fontInfo);
 
                 _sizeHint.x = event.fontSystem->measure(_text, fontInfo).x + p.size.margin * 2;
-                _sizeHint.y = fontMetrics.lineHeight;
+                _sizeHint.y = p.size.fontMetrics.lineHeight;
             }
             if (_iconImage)
             {
@@ -78,14 +87,14 @@ namespace tl
             IButton::drawEvent(event);
             TLRENDER_P();
 
-            math::BBox2i g = _geometry;
+            const math::BBox2i g = _geometry;
 
             event.render->drawMesh(
                 border(g, p.size.border),
                 math::Vector2i(),
                 event.style->getColorRole(ColorRole::Border));
 
-            math::BBox2i g2 = g.margin(-p.size.border);
+            const math::BBox2i g2 = g.margin(-p.size.border);
             const ColorRole colorRole = _checked->get() ?
                 ColorRole::Checked :
                 _buttonRole;
@@ -121,15 +130,12 @@ namespace tl
             
             if (!_text.empty())
             {
-                const auto fontInfo = event.getFontInfo(_fontRole);
-                const auto fontMetrics = event.getFontMetrics(_fontRole);
-
                 math::Vector2i pos(
                     x + p.size.margin,
                     g.y() + g.h() / 2 - p.size.textSize.y / 2 +
-                        fontMetrics.ascender);
+                    p.size.fontMetrics.ascender);
                 event.render->drawText(
-                    event.fontSystem->getGlyphs(_text, fontInfo),
+                    p.draw.glyphs,
                     pos,
                     event.style->getColorRole(ColorRole::Text));
             }

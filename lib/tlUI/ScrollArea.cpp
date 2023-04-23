@@ -17,11 +17,11 @@ namespace tl
             std::shared_ptr<observer::Value<math::Vector2i> > scrollPos;
             bool border = true;
 
-            struct Size
+            struct SizeData
             {
                 int border = 0;
             };
-            Size size;
+            SizeData size;
         };
 
         void ScrollArea::_init(

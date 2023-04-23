@@ -14,23 +14,22 @@ namespace tl
         {
             std::shared_ptr<IntModel> model;
 
-            struct Size
+            struct SizeData
             {
-                imaging::FontInfo fontInfo;
-                imaging::FontMetrics fontMetrics;
                 int margin = 0;
                 int border = 0;
                 int handle = 0;
+                imaging::FontMetrics fontMetrics;
             };
-            Size size;
+            SizeData size;
 
-            struct Mouse
+            struct MouseData
             {
                 bool inside = false;
                 math::Vector2i pos;
                 bool pressed = false;
             };
-            Mouse mouse;
+            MouseData mouse;
 
             std::shared_ptr<observer::ValueObserver<int> > valueObserver;
             std::shared_ptr<observer::ValueObserver<math::IntRange> > rangeObserver;
@@ -100,9 +99,9 @@ namespace tl
             p.size.border = event.style->getSizeRole(SizeRole::Border) * event.contentScale;
             p.size.handle = event.style->getSizeRole(SizeRole::Handle) * event.contentScale;
 
-            p.size.fontInfo = imaging::FontInfo();
-            p.size.fontInfo.size *= event.contentScale;
-            p.size.fontMetrics = event.fontSystem->getMetrics(p.size.fontInfo);
+            auto fontInfo = imaging::FontInfo();
+            fontInfo.size *= event.contentScale;
+            p.size.fontMetrics = event.fontSystem->getMetrics(fontInfo);
 
             _sizeHint.x = event.style->getSizeRole(SizeRole::ScrollArea) + p.size.margin * 2;
             _sizeHint.y = p.size.fontMetrics.lineHeight + p.size.margin * 2;
@@ -113,7 +112,7 @@ namespace tl
             IWidget::drawEvent(event);
             TLRENDER_P();
 
-            math::BBox2i g = _geometry;
+            const math::BBox2i g = _geometry;
 
             event.render->drawMesh(
                 border(g, p.size.border),
@@ -124,7 +123,7 @@ namespace tl
                 g.margin(-p.size.border),
                 event.style->getColorRole(ColorRole::Base));
 
-            math::BBox2i g2 = _getSliderGeometry();
+            const math::BBox2i g2 = _getSliderGeometry();
             //event.render->drawRect(
             //    g2,
             //    imaging::Color4f(1.F, 0.F, 0.F, .5F));
@@ -133,7 +132,7 @@ namespace tl
             {
                 pos = _valueToPos(p.model->getValue());
             }
-            math::BBox2i g3(
+            const math::BBox2i g3(
                 pos - p.size.handle / 2,
                 g2.y(),
                 p.size.handle,

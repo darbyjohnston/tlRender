@@ -12,14 +12,21 @@ namespace tl
     {
         struct PushButton::Private
         {
-            struct Size
+            struct SizeData
             {
-                math::Vector2i textSize;
                 int margin = 0;
                 int margin2 = 0;
                 int border = 0;
+                imaging::FontMetrics fontMetrics;
+                math::Vector2i textSize;
             };
-            Size size;
+            SizeData size;
+
+            struct DrawData
+            {
+                std::vector<std::shared_ptr<imaging::Glyph> > glyphs;
+            };
+            DrawData draw;
         };
 
         void PushButton::_init(
@@ -55,14 +62,16 @@ namespace tl
             p.size.border = event.style->getSizeRole(SizeRole::Border) * event.contentScale;
 
             _sizeHint = math::Vector2i();
+            p.draw.glyphs.clear();
             if (!_text.empty())
             {
+                p.size.fontMetrics = event.getFontMetrics(_fontRole);
                 const auto fontInfo = event.getFontInfo(_fontRole);
-                const auto fontMetrics = event.getFontMetrics(_fontRole);
                 p.size.textSize = event.fontSystem->measure(_text, fontInfo);
+                p.draw.glyphs = event.fontSystem->getGlyphs(_text, fontInfo);
 
                 _sizeHint.x = event.fontSystem->measure(_text, fontInfo).x + p.size.margin2 * 2;
-                _sizeHint.y = fontMetrics.lineHeight;
+                _sizeHint.y = p.size.fontMetrics.lineHeight;
             }
             if (_iconImage)
             {
@@ -80,7 +89,7 @@ namespace tl
             IButton::drawEvent(event);
             TLRENDER_P();
 
-            math::BBox2i g = _geometry;
+            const math::BBox2i g = _geometry;
 
             event.render->drawMesh(
                 border(g, p.size.border, p.size.margin / 2),
@@ -126,14 +135,14 @@ namespace tl
             
             if (!_text.empty())
             {
-                const auto fontInfo = event.getFontInfo(_fontRole);
-                const auto fontMetrics = event.getFontMetrics(_fontRole);
-
                 math::Vector2i pos(
-                    x + (g.max.x - p.size.margin * 2 - x) / 2 - p.size.textSize.x / 2,
-                    g.y() + g.h() / 2 - p.size.textSize.y / 2 + fontMetrics.ascender);
+                    x +
+                    (g.max.x - p.size.margin * 2 - x) / 2 - p.size.textSize.x / 2,
+                    g.y() +
+                    g.h() / 2 - p.size.textSize.y / 2 +
+                    p.size.fontMetrics.ascender);
                 event.render->drawText(
-                    event.fontSystem->getGlyphs(_text, fontInfo),
+                    p.draw.glyphs,
                     pos,
                     event.style->getColorRole(ColorRole::Text));
             }

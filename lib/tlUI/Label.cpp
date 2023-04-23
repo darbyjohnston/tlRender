@@ -15,12 +15,17 @@ namespace tl
             std::string text;
             FontRole fontRole = FontRole::Label;
 
-            struct Size
+            struct SizeData
             {
-                imaging::FontInfo fontInfo;
                 imaging::FontMetrics fontMetrics;
             };
-            Size size;
+            SizeData size;
+
+            struct DrawData
+            {
+                std::vector<std::shared_ptr<imaging::Glyph> > glyphs;
+            };
+            DrawData draw;
         };
 
         void Label::_init(
@@ -72,10 +77,12 @@ namespace tl
             IWidget::sizeEvent(event);
             TLRENDER_P();
 
-            p.size.fontInfo = event.getFontInfo(p.fontRole);
             p.size.fontMetrics = event.getFontMetrics(p.fontRole);
 
-            _sizeHint.x = event.fontSystem->measure(p.text, p.size.fontInfo).x;
+            const auto fontInfo = event.getFontInfo(p.fontRole);
+            p.draw.glyphs = event.fontSystem->getGlyphs(p.text, fontInfo);
+
+            _sizeHint.x = event.fontSystem->measure(p.text, fontInfo).x;
             _sizeHint.y = p.size.fontMetrics.lineHeight;
         }
 
@@ -95,7 +102,7 @@ namespace tl
                 _vAlign);
 
             event.render->drawText(
-                event.fontSystem->getGlyphs(p.text, p.size.fontInfo),
+                p.draw.glyphs,
                 math::Vector2i(g.x(), g.y() + p.size.fontMetrics.ascender),
                 event.style->getColorRole(ColorRole::Text));
         }

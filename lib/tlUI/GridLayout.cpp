@@ -23,12 +23,12 @@ namespace tl
             SizeRole marginRole = SizeRole::None;
             SizeRole spacingRole = SizeRole::Spacing;
 
-            struct Size
+            struct SizeData
             {
                 int margin = 0;
                 int spacing = 0;
             };
-            Size size;
+            SizeData size;
 
             GridPos getSize() const;
 
@@ -98,7 +98,7 @@ namespace tl
             IWidget::setGeometry(value);
             TLRENDER_P();
 
-            math::BBox2i g = _geometry.margin(-p.size.margin);
+            const math::BBox2i g = _geometry.margin(-p.size.margin);
 
             // Get the child size hints.
             std::vector<int> rowSizeHints;

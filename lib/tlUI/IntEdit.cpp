@@ -21,14 +21,21 @@ namespace tl
             int digits = 3;
             FontRole fontRole = FontRole::Mono;
 
-            struct Size
+            struct SizeData
             {
-                math::Vector2i textSize;
-                math::Vector2i formatSize;
                 int margin = 0;
                 int border = 0;
+                imaging::FontMetrics fontMetrics;
+                math::Vector2i textSize;
+                math::Vector2i formatSize;
             };
-            Size size;
+            SizeData size;
+
+            struct DrawData
+            {
+                std::vector<std::shared_ptr<imaging::Glyph> > glyphs;
+            };
+            DrawData draw;
 
             std::shared_ptr<observer::ValueObserver<int> > valueObserver;
             std::shared_ptr<observer::ValueObserver<math::IntRange> > rangeObserver;
@@ -116,13 +123,14 @@ namespace tl
             p.size.margin = event.style->getSizeRole(SizeRole::MarginInside) * event.contentScale;
             p.size.border = event.style->getSizeRole(SizeRole::Border) * event.contentScale;
 
+            p.size.fontMetrics = event.getFontMetrics(p.fontRole);
             const auto fontInfo = event.getFontInfo(p.fontRole);
-            const auto fontMetrics = event.getFontMetrics(p.fontRole);
             p.size.textSize = event.fontSystem->measure(p.text, fontInfo);
             p.size.formatSize = event.fontSystem->measure(p.format, fontInfo);
+            p.draw.glyphs = event.fontSystem->getGlyphs(p.text, fontInfo);
 
             _sizeHint.x = p.size.formatSize.x + p.size.margin * 2;
-            _sizeHint.y = fontMetrics.lineHeight + p.size.margin * 2;
+            _sizeHint.y = p.size.fontMetrics.lineHeight + p.size.margin * 2;
         }
 
         void IntEdit::drawEvent(const DrawEvent& event)
@@ -130,9 +138,7 @@ namespace tl
             IWidget::drawEvent(event);
             TLRENDER_P();
 
-            const auto fontInfo = event.getFontInfo(p.fontRole);
-            const auto fontMetrics = event.getFontMetrics(p.fontRole);
-            math::BBox2i g = align(
+            const math::BBox2i g = align(
                 _geometry,
                 _sizeHint,
                 Stretch::Expanding,
@@ -149,13 +155,13 @@ namespace tl
                 g.margin(-p.size.border),
                 event.style->getColorRole(ColorRole::Base));
             
-            math::BBox2i g2 = g.margin(-p.size.margin);
+            const math::BBox2i g2 = g.margin(-p.size.margin);
             math::Vector2i pos(
                 g2.x() + g2.w() - p.size.textSize.x,
-                g2.y() + g2.h() / 2 - fontMetrics.lineHeight / 2 +
-                fontMetrics.ascender);
+                g2.y() + g2.h() / 2 - p.size.fontMetrics.lineHeight / 2 +
+                p.size.fontMetrics.ascender);
             event.render->drawText(
-                event.fontSystem->getGlyphs(p.text, fontInfo),
+                p.draw.glyphs,
                 pos,
                 event.style->getColorRole(ColorRole::Text));
         }
