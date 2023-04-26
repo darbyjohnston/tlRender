@@ -6,34 +6,33 @@
 
 #include <tlUI/TimelineItem.h>
 
-#include <QOpenGLWidget>
-#include <QOpenGLFunctions_4_1_Core>
-
 namespace tl
 {
-    namespace qtwidget
+    namespace ui
     {
         //! Timeline widget.
-        class TimelineWidget :
-            public QOpenGLWidget,
-            protected QOpenGLFunctions_4_1_Core
+        class TimelineWidget : public IWidget
         {
-            Q_OBJECT
+            TLRENDER_NON_COPYABLE(TimelineWidget);
+
+        protected:
+            void _init(
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IWidget>& parent = nullptr);
+
+            TimelineWidget();
 
         public:
-            TimelineWidget(
-                const std::shared_ptr<system::Context>&,
-                QWidget* parent = nullptr);
-
             ~TimelineWidget() override;
+
+            //! Create a new timeline widget.
+            static std::shared_ptr<TimelineWidget> create(
+                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Set the timeline player.
             void setTimelinePlayer(const std::shared_ptr<timeline::TimelinePlayer>&);
 
-            //! Get the item options.
-            const ui::TimelineItemOptions& itemOptions() const;
-
-        public Q_SLOTS:
             //! Set the view zoom.
             void setViewZoom(float);
 
@@ -42,8 +41,11 @@ namespace tl
                 float,
                 const tl::math::Vector2i& focus);
 
-            //! Set whether the to frame the view.
+            //! Set whether the view is framed.
             void setFrameView(bool);
+
+            //! Set the frame view callback.
+            void setFrameViewCallback(const std::function<void(bool)>&);
 
             //! Set whether to stop playback when scrubbing.
             void setStopOnScrub(bool);
@@ -51,32 +53,19 @@ namespace tl
             //! Set the mouse wheel scale.
             void setMouseWheelScale(float);
 
+            //! Get the item options.
+            const ui::TimelineItemOptions& itemOptions() const;
+
             //! Set the item options.
             void setItemOptions(const ui::TimelineItemOptions&);
 
-        Q_SIGNALS:
-            //! This signal is emitted when the frame view is changed.
-            void frameViewChanged(bool);
-
-        protected:
-            void initializeGL() override;
-            void resizeGL(int w, int h) override;
-            void paintGL() override;
-
-#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-            void enterEvent(QEvent*) override;
-#else
-            void enterEvent(QEnterEvent*) override;
-#endif // QT_VERSION
-            void leaveEvent(QEvent*) override;
-            void mousePressEvent(QMouseEvent*) override;
-            void mouseReleaseEvent(QMouseEvent*) override;
-            void mouseMoveEvent(QMouseEvent*) override;
-            void wheelEvent(QWheelEvent*) override;
-            void keyPressEvent(QKeyEvent*) override;
-            void keyReleaseEvent(QKeyEvent*) override;
-
-            void timerEvent(QTimerEvent*) override;
+            void setGeometry(const math::BBox2i&) override;
+            void sizeEvent(const SizeEvent&) override;
+            void enterEvent() override;
+            void leaveEvent() override;
+            void mouseMoveEvent(MouseMoveEvent&) override;
+            void mousePressEvent(MouseClickEvent&) override;
+            void mouseReleaseEvent(MouseClickEvent&) override;
 
         private:
             void _setScrollPos(const math::Vector2i&);
@@ -98,11 +87,6 @@ namespace tl
             void _setViewport(
                 const std::shared_ptr<ui::IWidget>&,
                 const math::BBox2i&);
-
-            float _toUI(float) const;
-            math::Vector2i _toUI(const math::Vector2i&) const;
-            float _fromUI(float) const;
-            math::Vector2i _fromUI(const math::Vector2i&) const;
 
             TLRENDER_PRIVATE();
         };

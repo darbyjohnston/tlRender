@@ -83,6 +83,7 @@ namespace tl
             void _drawEvent(const std::shared_ptr<timeline::IRender>&);
             void _drawEvent(
                 const std::shared_ptr<IWidget>&,
+                math::BBox2i clip,
                 const DrawEvent&);
 
             void _underCursor(

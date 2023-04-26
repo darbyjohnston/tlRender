@@ -215,7 +215,55 @@ namespace tl
             while (p.running && !glfwWindowShouldClose(p.glfwWindow))
             {
                 glfwPollEvents();
+
+                _context->tick();
+
                 _tick();
+
+                p.eventLoop->tick();
+                p.eventLoop->setSize(p.frameBufferSize);
+                p.eventLoop->setContentScale(p.contentScale.x);
+
+                gl::OffscreenBufferOptions offscreenBufferOptions;
+                offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
+                if (gl::doCreate(p.offscreenBuffer, p.frameBufferSize, offscreenBufferOptions))
+                {
+                    p.offscreenBuffer = gl::OffscreenBuffer::create(
+                        p.frameBufferSize,
+                        offscreenBufferOptions);
+                }
+                if (p.eventLoop->hasDrawUpdate() && p.offscreenBuffer)
+                {
+                    {
+                        gl::OffscreenBufferBinding binding(p.offscreenBuffer);
+                        p.render->begin(p.frameBufferSize);
+                        p.eventLoop->draw(p.render);
+                        p.render->end();
+                    }
+                    glViewport(
+                        0,
+                        0,
+                        GLsizei(p.frameBufferSize.w),
+                        GLsizei(p.frameBufferSize.h));
+                    glClearColor(0.F, 0.F, 0.F, 0.F);
+                    glClear(GL_COLOR_BUFFER_BIT);
+                    glBindFramebuffer(
+                        GL_READ_FRAMEBUFFER,
+                        p.offscreenBuffer->getID());
+                    glBlitFramebuffer(
+                        0,
+                        0,
+                        p.frameBufferSize.w,
+                        p.frameBufferSize.h,
+                        0,
+                        0,
+                        p.frameBufferSize.w,
+                        p.frameBufferSize.h,
+                        GL_COLOR_BUFFER_BIT,
+                        GL_LINEAR);
+                    glfwSwapBuffers(p.glfwWindow);
+                }
+
                 time::sleep(std::chrono::milliseconds(5));
             }
         }
@@ -229,6 +277,9 @@ namespace tl
         {
             return _p->eventLoop;
         }
+
+        void IApp::_tick()
+        {}
 
         void IApp::_setFullscreenWindow(bool value)
         {
@@ -426,57 +477,6 @@ namespace tl
             case GLFW_REPEAT:
                 app->_p->eventLoop->key(toKey(key), false);
                 break;
-            }
-        }
-
-        void IApp::_tick()
-        {
-            TLRENDER_P();
-
-            _context->tick();
-
-            p.eventLoop->tick();
-            p.eventLoop->setSize(p.frameBufferSize);
-            p.eventLoop->setContentScale(p.contentScale.x);
-
-            gl::OffscreenBufferOptions offscreenBufferOptions;
-            offscreenBufferOptions.colorType = imaging::PixelType::RGBA_F32;
-            if (gl::doCreate(p.offscreenBuffer, p.frameBufferSize, offscreenBufferOptions))
-            {
-                p.offscreenBuffer = gl::OffscreenBuffer::create(
-                    p.frameBufferSize,
-                    offscreenBufferOptions);
-            }
-            if (p.eventLoop->hasDrawUpdate() && p.offscreenBuffer)
-            {
-                {
-                    gl::OffscreenBufferBinding binding(p.offscreenBuffer);
-                    p.render->begin(p.frameBufferSize);
-                    p.eventLoop->draw(p.render);
-                    p.render->end();
-                }
-                glViewport(
-                    0,
-                    0,
-                    GLsizei(p.frameBufferSize.w),
-                    GLsizei(p.frameBufferSize.h));
-                glClearColor(0.F, 0.F, 0.F, 0.F);
-                glClear(GL_COLOR_BUFFER_BIT);
-                glBindFramebuffer(
-                    GL_READ_FRAMEBUFFER,
-                    p.offscreenBuffer->getID());
-                glBlitFramebuffer(
-                    0,
-                    0,
-                    p.frameBufferSize.w,
-                    p.frameBufferSize.h,
-                    0,
-                    0,
-                    p.frameBufferSize.w,
-                    p.frameBufferSize.h,
-                    GL_COLOR_BUFFER_BIT,
-                    GL_LINEAR);
-                glfwSwapBuffers(p.glfwWindow);
             }
         }
     }

@@ -5,7 +5,6 @@
 #include <tlGL/RenderPrivate.h>
 
 #include <tlGL/Mesh.h>
-#include <tlGL/State.h>
 #include <tlGL/Util.h>
 
 #include <tlCore/Math.h>

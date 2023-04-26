@@ -68,10 +68,18 @@ namespace tl
             _updates |= ui::Update::Draw;
         }
 
-        bool ITimelineItem::_insideViewport() const
+        math::BBox2i ITimelineItem::_getTransformedViewport() const
         {
-            const math::BBox2i vp(0, 0, _viewport.w(), _viewport.h());
-            return _geometry.intersects(vp);
+            return math::BBox2i(
+                _geometry.min.x + _viewport.min.x,
+                _geometry.min.y + _viewport.min.y,
+                _viewport.w(),
+                _viewport.h());
+        }
+
+        bool ITimelineItem::_isInsideViewport() const
+        {
+            return _geometry.intersects(_getTransformedViewport());
         }
 
         std::string ITimelineItem::_durationLabel(

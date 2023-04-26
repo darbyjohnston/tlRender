@@ -38,11 +38,17 @@ namespace tl
                 ButtonGroupType,
                 const std::shared_ptr<system::Context>&);
 
+            //! Get the buttons in the group.
+            const std::vector<std::shared_ptr<IButton> >& getButtons() const;
+
             //! Add a button to the group.
             void addButton(const std::shared_ptr<IButton>&);
 
             //! Clear the buttons in the group.
             void clearButtons();
+
+            //! Set whether the button is checked.
+            void setChecked(int, bool);
 
             //! Set the clicked callback.
             void setClickedCallback(const std::function<void(int)>&);

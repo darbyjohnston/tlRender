@@ -66,7 +66,8 @@ namespace tl
             virtual void setViewport(const math::BBox2i&);
 
         protected:
-            bool _insideViewport() const;
+            math::BBox2i _getTransformedViewport() const;
+            bool _isInsideViewport() const;
 
             static std::string _durationLabel(
                 const otime::RationalTime&,

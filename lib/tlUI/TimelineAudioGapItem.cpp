@@ -84,7 +84,7 @@ namespace tl
         {
             ITimelineItem::drawEvent(event);
             TLRENDER_P();
-            if (_insideViewport())
+            if (_isInsideViewport())
             {
                 const int b = event.style->getSizeRole(ui::SizeRole::Border) * event.contentScale;
                 const auto fontInfo = event.getFontInfo(p.fontRole);

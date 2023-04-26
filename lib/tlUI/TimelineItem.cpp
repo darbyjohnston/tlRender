@@ -47,8 +47,6 @@ namespace tl
             p.timelinePlayer = timelinePlayer;
             p.timeRange = timelinePlayer->getTimeRange();
 
-            setBackgroundRole(ui::ColorRole::Window);
-
             const auto otioTimeline = p.timelinePlayer->getTimeline()->getTimeline();
             for (const auto& child : otioTimeline->tracks()->children())
             {
@@ -185,7 +183,7 @@ namespace tl
         void TimelineItem::mouseMoveEvent(ui::MouseMoveEvent& event)
         {
             TLRENDER_P();
-            event.accept = true;
+            //event.accept = true;
             p.mousePos = event.pos;
             if (p.currentTimeDrag)
             {
@@ -196,27 +194,33 @@ namespace tl
         void TimelineItem::mousePressEvent(ui::MouseClickEvent& event)
         {
             TLRENDER_P();
-            event.accept = true;
-            p.mousePress = true;
-            p.mousePressPos = p.mousePos;
-            if (p.stopOnScrub)
+            if (0 == event.modifiers)
             {
-                p.timelinePlayer->setPlayback(timeline::Playback::Stop);
-            }
-            const math::BBox2i bbox = _getCurrentTimeBBox();
-            if (bbox.contains(p.mousePos))
-            {
-                p.currentTimeDrag = true;
-                p.timelinePlayer->seek(_posToTime(p.mousePos.x));
+                event.accept = true;
+                p.mousePress = true;
+                p.mousePressPos = p.mousePos;
+                if (p.stopOnScrub)
+                {
+                    p.timelinePlayer->setPlayback(timeline::Playback::Stop);
+                }
+                const math::BBox2i bbox = _getCurrentTimeBBox();
+                if (bbox.contains(p.mousePos))
+                {
+                    p.currentTimeDrag = true;
+                    p.timelinePlayer->seek(_posToTime(p.mousePos.x));
+                }
             }
         }
 
         void TimelineItem::mouseReleaseEvent(ui::MouseClickEvent& event)
         {
             TLRENDER_P();
-            event.accept = true;
-            p.mousePress = false;
-            p.currentTimeDrag = false;
+            if (p.mousePress)
+            {
+                event.accept = true;
+                p.mousePress = false;
+                p.currentTimeDrag = false;
+            }
         }
 
         void TimelineItem::_drawTimeTicks(const ui::DrawEvent& event)
@@ -224,8 +228,8 @@ namespace tl
             TLRENDER_P();
 
             const auto fontInfo = event.getFontInfo(p.fontRole);
-            const math::BBox2i vp(0, 0, _viewport.w(), _viewport.h());
             math::BBox2i g = _geometry;
+            const math::BBox2i transformedViewport = _getTransformedViewport();
 
             const float frameTick0 = p.timeRange.start_time().value() /
                 p.timeRange.duration().value() * (_sizeHint.x - p.margin * 2);
@@ -249,7 +253,7 @@ namespace tl
                         p.fontMetrics.lineHeight / 2,
                         1,
                         p.fontMetrics.lineHeight / 2);
-                    if (bbox.intersects(vp))
+                    if (bbox.intersects(transformedViewport))
                     {
                         mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.min.y));
                         mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.min.y));
@@ -296,7 +300,7 @@ namespace tl
                             p.spacing,
                             labelMaxSize.x,
                             p.fontMetrics.lineHeight);
-                        if (bbox.intersects(vp))
+                        if (bbox.intersects(transformedViewport))
                         {
                             std::string label = _timeLabel(
                                 p.timeRange.start_time() + otime::RationalTime(t, p.timeRange.duration().rate()),
@@ -327,7 +331,7 @@ namespace tl
                         p.spacing,
                         2,
                         p.fontMetrics.lineHeight);
-                    if (bbox.intersects(vp))
+                    if (bbox.intersects(transformedViewport))
                     {
                         mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.min.y));
                         mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.min.y));

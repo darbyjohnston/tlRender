@@ -2,12 +2,10 @@
 // Copyright (c) 2021-2023 Darby Johnston
 // All rights reserved.
 
-#include <tlApp/IApp.h>
+#include <tlGLFWApp/IApp.h>
 
 #include <tlTimeline/IRender.h>
 #include <tlTimeline/TimelinePlayer.h>
-
-#include <tlCore/FontSystem.h>
 
 struct GLFWwindow;
 
@@ -18,6 +16,8 @@ namespace tl
         //! Example GLFW playback application.
         namespace play_glfw
         {
+            class MainWindow;
+
             //! HUD elements.
             enum class HUDElement
             {
@@ -44,7 +44,7 @@ namespace tl
             };
 
             //! Application.
-            class App : public app::IApp
+            class App : public glfw::IApp
             {
                 TLRENDER_NON_COPYABLE(App);
 
@@ -65,53 +65,14 @@ namespace tl
                     char* argv[],
                     const std::shared_ptr<system::Context>&);
 
-                //! Run the application.
-                void run();
-
-                //! Exit the application.
-                void exit();
+            protected:
+                void _tick() override;
 
             private:
-                void _setFullscreenWindow(bool);
-                void _fullscreenCallback(bool);
-                static void _frameBufferSizeCallback(GLFWwindow*, int, int);
-                static void _windowContentScaleCallback(GLFWwindow*, float, float);
-                static void _keyCallback(GLFWwindow*, int, int, int, int);
-
-                void _printShortcutsHelp();
-
-                void _tick();
-
-                void _hudUpdate();
-                void _hudCallback(bool);
-                void _drawHUD();
-                void _drawHUDLabel(
-                    const std::string& text,
-                    const imaging::FontInfo&,
-                    HUDElement);
-
-                void _playbackCallback(timeline::Playback);
-                void _loopPlaybackCallback(timeline::Loop);
-
                 std::string _input;
                 Options _options;
-
                 std::shared_ptr<timeline::TimelinePlayer> _timelinePlayer;
-
-                GLFWwindow* _glfwWindow = nullptr;
-                imaging::Size _windowSize;
-                math::Vector2i _windowPos;
-                bool _fullscreen = false;
-                imaging::Size _frameBufferSize;
-                math::Vector2f _contentScale = math::Vector2f(1.F, 1.F);
-                bool _hud = false;
-                std::shared_ptr<imaging::FontSystem> _fontSystem;
-                std::shared_ptr<timeline::IRender> _render;
-                bool _renderDirty = true;
-                timeline::VideoData _videoData;
-                std::map<HUDElement, std::string> _hudLabels;
-
-                bool _running = true;
+                std::shared_ptr<MainWindow> _mainWindow;
             };
         }
     }

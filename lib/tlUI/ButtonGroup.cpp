@@ -41,6 +41,11 @@ namespace tl
             return out;
         }
 
+        const std::vector<std::shared_ptr<IButton> >& ButtonGroup::getButtons() const
+        {
+            return _p->buttons;
+        }
+
         void ButtonGroup::addButton(const std::shared_ptr<IButton>& button)
         {
             TLRENDER_P();
@@ -103,6 +108,30 @@ namespace tl
         {
             TLRENDER_P();
             p.buttons.clear();
+        }
+
+        void ButtonGroup::setChecked(int index, bool value)
+        {
+            TLRENDER_P();
+            switch (p.type)
+            {
+            case ButtonGroupType::Radio:
+                for (size_t i = 0; i < p.buttons.size(); ++i)
+                {
+                    p.buttons[i]->setChecked(i == index);
+                }
+                p.radio = index;
+                break;
+            case ButtonGroupType::Toggle:
+                for (size_t i = 0; i < p.buttons.size(); ++i)
+                {
+                    if (i != index)
+                    {
+                        p.buttons[i]->setChecked(false);
+                    }
+                }
+                break;
+            }
         }
 
         void ButtonGroup::setClickedCallback(const std::function<void(int)>& value)

@@ -54,6 +54,9 @@ namespace tl
             //! Get the event loop.
             const std::shared_ptr<ui::EventLoop> getEventLoop() const;
 
+        protected:
+            virtual void _tick();
+
         private:
             void _setFullscreenWindow(bool);
             static void _frameBufferSizeCallback(GLFWwindow*, int, int);
@@ -62,8 +65,6 @@ namespace tl
             static void _cursorPosCallback(GLFWwindow*, double, double);
             static void _mouseButtonCallback(GLFWwindow*, int, int, int);
             static void _keyCallback(GLFWwindow*, int, int, int, int);
-
-            void _tick();
 
             TLRENDER_PRIVATE();
         };

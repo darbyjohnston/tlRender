@@ -35,6 +35,8 @@ set(HEADERS
     TimelineTrackItem.h
     TimelineVideoClipItem.h
     TimelineVideoGapItem.h
+    TimelineViewport.h
+    TimelineWidget.h
     ToolButton.h)
 set(HEADERS_PRIVATE)
 
@@ -74,6 +76,8 @@ set(SOURCE
     TimelineTrackItem.cpp
     TimelineVideoClipItem.cpp
     TimelineVideoGapItem.cpp
+    TimelineViewport.cpp
+    TimelineWidget.cpp
     ToolButton.cpp)
 
 add_library(tlUI ${HEADERS} ${HEADERS_PRIVATE} ${SOURCE})

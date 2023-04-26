@@ -6,6 +6,7 @@
 
 #include <tlUI/DrawUtil.h>
 
+#include <tlTimeline/RenderUtil.h>
 #include <tlTimeline/Util.h>
 
 #include <tlIO/IOSystem.h>
@@ -279,11 +280,11 @@ namespace tl
 
         void TimelineAudioClipItem::drawEvent(const ui::DrawEvent& event)
         {
-            ITimelineItem::drawEvent(event);
-            if (_geometry.isValid() && _insideViewport())
+                ITimelineItem::drawEvent(event);
+            if (_geometry.isValid() && _isInsideViewport())
             {
                 const int b = event.style->getSizeRole(ui::SizeRole::Border) * event.contentScale;
-                math::BBox2i g = _geometry;
+                const math::BBox2i g = _geometry;
 
                 //event.render->drawMesh(
                 //    ui::border(g, b, _margin / 2),
@@ -315,7 +316,7 @@ namespace tl
 
             const auto fontInfo = event.getFontInfo(p.fontRole);
             const auto fontMetrics = event.getFontMetrics(p.fontRole);
-            math::BBox2i g = _geometry;
+            const math::BBox2i g = _geometry;
 
             event.render->drawText(
                 event.fontSystem->getGlyphs(p.label, fontInfo),
@@ -345,8 +346,7 @@ namespace tl
             TLRENDER_P();
 
             const auto fontMetrics = event.getFontMetrics(p.fontRole);
-            const math::BBox2i vp(0, 0, _viewport.w(), _viewport.h());
-            math::BBox2i g = _geometry;
+            const math::BBox2i g = _geometry;
 
             const math::BBox2i bbox(
                 g.min.x +
@@ -360,8 +360,10 @@ namespace tl
             event.render->drawRect(
                 bbox,
                 imaging::Color4f(0.F, 0.F, 0.F));
+            const timeline::ClipRectEnabledState clipRectEnabledState(event.render);
+            const timeline::ClipRectState clipRectState(event.render);
             event.render->setClipRectEnabled(true);
-            event.render->setClipRect(bbox);
+            event.render->setClipRect(bbox.intersect(clipRectState.getClipRect()));
 
             std::set<otime::RationalTime> audioDataDelete;
             for (const auto& audioData : p.audioData)
@@ -369,7 +371,8 @@ namespace tl
                 audioDataDelete.insert(audioData.first);
             }
 
-            if (g.intersects(vp))
+            const math::BBox2i transformedViewport = _getTransformedViewport();
+            if (g.intersects(transformedViewport))
             {
                 if (p.ioInfoInit)
                 {
@@ -393,7 +396,7 @@ namespace tl
                         p.spacing,
                         p.waveformWidth,
                         _options.waveformHeight);
-                    if (bbox.intersects(vp))
+                    if (bbox.intersects(transformedViewport))
                     {
                         const int w = _sizeHint.x - p.margin * 2;
                         const otime::RationalTime time = time::round(otime::RationalTime(
@@ -444,8 +447,6 @@ namespace tl
                     p.audioData.erase(j);
                 }
             }
-
-            event.render->setClipRectEnabled(false);
         }
     }
 }

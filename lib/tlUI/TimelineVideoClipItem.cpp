@@ -8,6 +8,7 @@
 
 #include <tlGL/OffscreenBuffer.h>
 
+#include <tlTimeline/RenderUtil.h>
 #include <tlTimeline/Util.h>
 
 #include <tlIO/IOSystem.h>
@@ -178,10 +179,9 @@ namespace tl
         void TimelineVideoClipItem::drawEvent(const ui::DrawEvent& event)
         {
             ITimelineItem::drawEvent(event);
-            if (_geometry.isValid() && _insideViewport())
+            if (_geometry.isValid() && _isInsideViewport())
             {
                 const int b = event.style->getSizeRole(ui::SizeRole::Border) * event.contentScale;
-                const math::BBox2i vp(0, 0, _viewport.w(), _viewport.h());
                 math::BBox2i g = _geometry;
 
                 //event.render->drawMesh(
@@ -244,7 +244,6 @@ namespace tl
             TLRENDER_P();
 
             const auto fontMetrics = event.getFontMetrics(p.fontRole);
-            const math::BBox2i vp(0, 0, _viewport.w(), _viewport.h());
             math::BBox2i g = _geometry;
 
             const math::BBox2i bbox(
@@ -259,8 +258,10 @@ namespace tl
             event.render->drawRect(
                 bbox,
                 imaging::Color4f(0.F, 0.F, 0.F));
+            const timeline::ClipRectEnabledState clipRectEnabledState(event.render);
+            const timeline::ClipRectState clipRectState(event.render);
             event.render->setClipRectEnabled(true);
-            event.render->setClipRect(bbox);
+            event.render->setClipRect(bbox.intersect(clipRectState.getClipRect()));
 
             std::set<otime::RationalTime> buffersDelete;
             for (const auto& buffers : p.buffers)
@@ -268,7 +269,8 @@ namespace tl
                 buffersDelete.insert(buffers.first);
             }
 
-            if (g.intersects(vp))
+            const math::BBox2i transformedViewport = _getTransformedViewport();
+            if (g.intersects(transformedViewport))
             {
                 if (p.ioInfoInit)
                 {
@@ -281,45 +283,41 @@ namespace tl
 
             if (p.thumbnailWidth > 0)
             {
-                for (const auto& i : p.videoData)
                 {
-                    const imaging::Size renderSize = event.render->getRenderSize();
-                    const math::BBox2i viewport = event.render->getViewport();
-                    const bool clipRectEnabled = event.render->getClipRectEnabled();
-                    const math::BBox2i clipRect = event.render->getClipRect();
-                    const math::Matrix4x4f transform = event.render->getTransform();
-
-                    const imaging::Size size(
-                        p.thumbnailWidth,
-                        _options.thumbnailHeight);
-                    gl::OffscreenBufferOptions options;
-                    options.colorType = imaging::PixelType::RGBA_F32;
-                    auto buffer = gl::OffscreenBuffer::create(size, options);
+                    const timeline::ViewportState viewportState(event.render);
+                    const timeline::ClipRectEnabledState clipRectEnabledState(event.render);
+                    const timeline::ClipRectState clipRectState(event.render);
+                    const timeline::TransformState transformState(event.render);
+                    const timeline::RenderSizeState renderSizeState(event.render);
+                    for (const auto& i : p.videoData)
                     {
-                        gl::OffscreenBufferBinding binding(buffer);
-                        event.render->setRenderSize(size);
-                        event.render->setViewport(math::BBox2i(0, 0, size.w, size.h));
-                        event.render->setClipRectEnabled(false);
-                        event.render->clearViewport(imaging::Color4f(0.F, 0.F, 0.F));
-                        event.render->setTransform(math::ortho(
-                            0.F,
-                            static_cast<float>(size.w),
-                            0.F,
-                            static_cast<float>(size.h),
-                            -1.F,
-                            1.F));
-                        if (i.second.image)
+                        const imaging::Size size(
+                            p.thumbnailWidth,
+                            _options.thumbnailHeight);
+                        gl::OffscreenBufferOptions options;
+                        options.colorType = imaging::PixelType::RGBA_F32;
+                        auto buffer = gl::OffscreenBuffer::create(size, options);
                         {
-                            event.render->drawImage(i.second.image, math::BBox2i(0, 0, size.w, size.h));
+                            gl::OffscreenBufferBinding binding(buffer);
+                            event.render->setRenderSize(size);
+                            event.render->setViewport(math::BBox2i(0, 0, size.w, size.h));
+                            event.render->setClipRectEnabled(false);
+                            event.render->setTransform(
+                                math::ortho(
+                                    0.F,
+                                    static_cast<float>(size.w),
+                                    0.F,
+                                    static_cast<float>(size.h),
+                                    -1.F,
+                                    1.F));
+                            event.render->clearViewport(imaging::Color4f(1.F, 0.F, 0.F));
+                            if (i.second.image)
+                            {
+                                event.render->drawImage(i.second.image, math::BBox2i(0, 0, size.w, size.h));
+                            }
                         }
+                        p.buffers[i.first] = buffer;
                     }
-                    p.buffers[i.first] = buffer;
-
-                    event.render->setRenderSize(renderSize);
-                    event.render->setViewport(viewport);
-                    event.render->setClipRectEnabled(clipRectEnabled);
-                    event.render->setClipRect(clipRect);
-                    event.render->setTransform(transform);
                 }
                 p.videoData.clear();
 
@@ -334,7 +332,7 @@ namespace tl
                         p.spacing,
                         p.thumbnailWidth,
                         _options.thumbnailHeight);
-                    if (bbox.intersects(vp))
+                    if (bbox.intersects(transformedViewport))
                     {
                         const int w = _sizeHint.x - p.margin * 2;
                         const otime::RationalTime time = time::round(otime::RationalTime(
@@ -375,8 +373,6 @@ namespace tl
                     p.buffers.erase(j);
                 }
             }
-
-            event.render->setClipRectEnabled(false);
         }
     }
 }
