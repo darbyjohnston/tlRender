@@ -376,10 +376,15 @@ namespace tl
         math::BBox2i TimelineWidget::_timelineViewport() const
         {
             TLRENDER_P();
+            math::BBox2i g;
+            if (p.timelineItem)
+            {
+                g = p.timelineItem->getGeometry();
+            }
             const math::Vector2i& scrollPos = p.scrollArea->getScrollPos();
             return math::BBox2i(
-                scrollPos.x,
-                scrollPos.y,
+                g.x() + scrollPos.x,
+                g.y() + scrollPos.y,
                 _geometry.w(),
                 _geometry.h());
         }

@@ -228,8 +228,7 @@ namespace tl
             TLRENDER_P();
 
             const auto fontInfo = event.getFontInfo(p.fontRole);
-            math::BBox2i g = _geometry;
-            const math::BBox2i transformedViewport = _getTransformedViewport();
+            const math::BBox2i g = _geometry;
 
             const float frameTick0 = p.timeRange.start_time().value() /
                 p.timeRange.duration().value() * (_sizeHint.x - p.margin * 2);
@@ -253,7 +252,7 @@ namespace tl
                         p.fontMetrics.lineHeight / 2,
                         1,
                         p.fontMetrics.lineHeight / 2);
-                    if (bbox.intersects(transformedViewport))
+                    if (bbox.intersects(_viewport))
                     {
                         mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.min.y));
                         mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.min.y));
@@ -289,10 +288,10 @@ namespace tl
                         t += p.timeRange.duration().rate())
                     {
                         math::BBox2i bbox(
-                            _geometry.min.x +
+                            g.min.x +
                             p.margin +
                             t / p.timeRange.duration().value() * (_sizeHint.x - p.margin * 2),
-                            _geometry.min.y +
+                            g.min.y +
                             p.margin +
                             p.fontMetrics.lineHeight +
                             p.spacing +
@@ -300,7 +299,7 @@ namespace tl
                             p.spacing,
                             labelMaxSize.x,
                             p.fontMetrics.lineHeight);
-                        if (bbox.intersects(transformedViewport))
+                        if (bbox.intersects(_viewport))
                         {
                             std::string label = _timeLabel(
                                 p.timeRange.start_time() + otime::RationalTime(t, p.timeRange.duration().rate()),
@@ -323,15 +322,15 @@ namespace tl
                     t += p.timeRange.duration().rate())
                 {
                     math::BBox2i bbox(
-                        _geometry.min.x +
+                        g.min.x +
                         p.margin + t / p.timeRange.duration().value() * (_sizeHint.x - p.margin * 2),
-                        _geometry.min.y +
+                        g.min.y +
                         p.margin +
                         p.fontMetrics.lineHeight +
                         p.spacing,
                         2,
                         p.fontMetrics.lineHeight);
-                    if (bbox.intersects(transformedViewport))
+                    if (bbox.intersects(_viewport))
                     {
                         mesh.v.push_back(math::Vector2f(bbox.min.x, bbox.min.y));
                         mesh.v.push_back(math::Vector2f(bbox.max.x + 1, bbox.min.y));
@@ -357,7 +356,7 @@ namespace tl
             TLRENDER_P();
 
             const auto fontInfo = event.getFontInfo(p.fontRole);
-            math::BBox2i g = _geometry;
+            const math::BBox2i g = _geometry;
 
             const otime::RationalTime& currentTime = p.timelinePlayer->observeCurrentTime()->get();
             if (!time::compareExact(currentTime, time::invalidTime))

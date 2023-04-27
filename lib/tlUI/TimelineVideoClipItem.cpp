@@ -269,8 +269,7 @@ namespace tl
                 buffersDelete.insert(buffers.first);
             }
 
-            const math::BBox2i transformedViewport = _getTransformedViewport();
-            if (g.intersects(transformedViewport))
+            if (g.intersects(_viewport))
             {
                 if (p.ioInfoInit)
                 {
@@ -332,7 +331,7 @@ namespace tl
                         p.spacing,
                         p.thumbnailWidth,
                         _options.thumbnailHeight);
-                    if (bbox.intersects(transformedViewport))
+                    if (bbox.intersects(_viewport))
                     {
                         const int w = _sizeHint.x - p.margin * 2;
                         const otime::RationalTime time = time::round(otime::RationalTime(

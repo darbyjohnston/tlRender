@@ -280,7 +280,7 @@ namespace tl
 
         void TimelineAudioClipItem::drawEvent(const ui::DrawEvent& event)
         {
-                ITimelineItem::drawEvent(event);
+            ITimelineItem::drawEvent(event);
             if (_geometry.isValid() && _isInsideViewport())
             {
                 const int b = event.style->getSizeRole(ui::SizeRole::Border) * event.contentScale;
@@ -371,8 +371,7 @@ namespace tl
                 audioDataDelete.insert(audioData.first);
             }
 
-            const math::BBox2i transformedViewport = _getTransformedViewport();
-            if (g.intersects(transformedViewport))
+            if (g.intersects(_viewport))
             {
                 if (p.ioInfoInit)
                 {
@@ -396,7 +395,7 @@ namespace tl
                         p.spacing,
                         p.waveformWidth,
                         _options.waveformHeight);
-                    if (bbox.intersects(transformedViewport))
+                    if (bbox.intersects(_viewport))
                     {
                         const int w = _sizeHint.x - p.margin * 2;
                         const otime::RationalTime time = time::round(otime::RationalTime(
