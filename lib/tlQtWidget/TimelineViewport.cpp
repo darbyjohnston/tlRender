@@ -492,15 +492,15 @@ namespace tl
 
         math::Vector2i TimelineViewport::_viewportCenter() const
         {
-            const auto viewportSize = _viewportSize();
+            const imaging::Size viewportSize = _viewportSize();
             return math::Vector2i(viewportSize.w / 2, viewportSize.h / 2);
         }
 
         void TimelineViewport::_frameView()
         {
             TLRENDER_P();
-            const auto viewportSize = _viewportSize();
-            const auto renderSize = _renderSize();
+            const imaging::Size viewportSize = _viewportSize();
+            const imaging::Size renderSize = _renderSize();
             float zoom = viewportSize.w / static_cast<float>(renderSize.w);
             if (zoom * renderSize.h > viewportSize.h)
             {

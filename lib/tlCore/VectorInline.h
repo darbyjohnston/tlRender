@@ -181,5 +181,25 @@ namespace tl
         {
             return Vector4f(a.x * b, a.y * b, a.z * b, a.w * b);
         }
+
+        inline Vector2i operator / (const Vector2i& a, float b)
+        {
+            return Vector2i(a.x / b, a.y / b);
+        }
+
+        inline Vector2f operator / (const Vector2f& a, float b)
+        {
+            return Vector2f(a.x / b, a.y / b);
+        }
+
+        inline Vector3f operator / (const Vector3f& a, float b)
+        {
+            return Vector3f(a.x / b, a.y / b, a.z / b);
+        }
+
+        inline Vector4f operator / (const Vector4f& a, float b)
+        {
+            return Vector4f(a.x / b, a.y / b, a.z / b, a.w / b);
+        }
     };
 }

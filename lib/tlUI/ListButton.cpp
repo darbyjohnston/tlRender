@@ -12,13 +12,20 @@ namespace tl
     {
         struct ListButton::Private
         {
-            struct Size
+            struct SizeData
             {
-                math::Vector2i textSize;
                 int margin = 0;
                 int spacing = 0;
+                imaging::FontMetrics fontMetrics;
+                math::Vector2i textSize;
             };
-            Size size;
+            SizeData size;
+
+            struct DrawData
+            {
+                std::vector<std::shared_ptr<imaging::Glyph> > glyphs;
+            };
+            DrawData draw;
         };
 
         void ListButton::_init(
@@ -54,14 +61,16 @@ namespace tl
             p.size.spacing = event.style->getSizeRole(SizeRole::SpacingSmall) * event.contentScale;
 
             _sizeHint = math::Vector2i();
+            p.draw.glyphs.clear();
             if (!_text.empty())
             {
+                p.size.fontMetrics = event.getFontMetrics(_fontRole);
                 const auto fontInfo = event.getFontInfo(_fontRole);
-                const auto fontMetrics = event.getFontMetrics(_fontRole);
                 p.size.textSize = event.fontSystem->measure(_text, fontInfo);
+                p.draw.glyphs = event.fontSystem->getGlyphs(_text, fontInfo);
 
                 _sizeHint.x = event.fontSystem->measure(_text, fontInfo).x;
-                _sizeHint.y = fontMetrics.lineHeight;
+                _sizeHint.y = p.size.fontMetrics.lineHeight;
             }
             if (_iconImage)
             {
@@ -84,9 +93,9 @@ namespace tl
             IButton::drawEvent(event);
             TLRENDER_P();
 
-            math::BBox2i g = _geometry;
+            const math::BBox2i g = _geometry;
 
-            const ColorRole colorRole = _checked->get() ?
+            const ColorRole colorRole = _checked ?
                 ColorRole::Checked :
                 _buttonRole;
             if (colorRole != ColorRole::None)
@@ -121,15 +130,12 @@ namespace tl
             
             if (!_text.empty())
             {
-                const auto fontInfo = event.getFontInfo(_fontRole);
-                const auto fontMetrics = event.getFontMetrics(_fontRole);
-
                 math::Vector2i pos(
                     x,
                     g.y() + g.h() / 2 - p.size.textSize.y / 2 +
-                        fontMetrics.ascender);
+                    p.size.fontMetrics.ascender);
                 event.render->drawText(
-                    event.fontSystem->getGlyphs(_text, fontInfo),
+                    p.draw.glyphs,
                     pos,
                     event.style->getColorRole(ColorRole::Text));
             }

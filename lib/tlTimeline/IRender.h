@@ -39,17 +39,35 @@ namespace tl
             //! Finish a render.
             virtual void end() = 0;
 
+            //! Get the render size.
+            virtual imaging::Size getRenderSize() const = 0;
+
+            //! Set the render size.
+            virtual void setRenderSize(const imaging::Size&) = 0;
+
+            //! Get the viewport.
+            virtual math::BBox2i getViewport() const = 0;
+
             //! Set the viewport.
             virtual void setViewport(const math::BBox2i&) = 0;
 
             //! Clear the viewport.
             virtual void clearViewport(const imaging::Color4f&) = 0;
 
+            //! Get whether the clipping rectangle is enabled.
+            virtual bool getClipRectEnabled() const = 0;
+
             //! Set whether the clipping rectangle is enabled.
             virtual void setClipRectEnabled(bool) = 0;
 
+            //! Get the clipping rectangle.
+            virtual math::BBox2i getClipRect() const = 0;
+
             //! Set the clipping rectangle.
             virtual void setClipRect(const math::BBox2i&) = 0;
+
+            //! Get the transformation matrix.
+            virtual math::Matrix4x4f getTransform() const = 0;
 
             //! Set the transformation matrix.
             virtual void setTransform(const math::Matrix4x4f&) = 0;
@@ -70,6 +88,12 @@ namespace tl
                 const std::vector<std::shared_ptr<imaging::Glyph> >& glyphs,
                 const math::Vector2i& position,
                 const imaging::Color4f&) = 0;
+
+            //! Draw a texture.
+            virtual void drawTexture(
+                unsigned int,
+                const math::BBox2i&,
+                const imaging::Color4f& = imaging::Color4f(1.F, 1.F, 1.F)) = 0;
 
             //! Draw an image.
             virtual void drawImage(

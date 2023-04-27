@@ -1,4 +1,5 @@
 set(HEADERS
+    ButtonGroup.h
     DrawUtil.h
     Event.h
     EventLoop.h
@@ -9,25 +10,38 @@ set(HEADERS
     GridLayout.h
     GroupBox.h
     IButton.h
+    ITimelineItem.h
+    IWidget.h
+    IWidgetInline.h
+    IWidgetOptions.h
+    IconLibrary.h
     IntEdit.h
     IntModel.h
     IntSlider.h
-    IWidget.h
-    IWidgetOptions.h
-    IconLibrary.h
     Label.h
     LineEdit.h
     ListButton.h
+    PieChart.h
     PushButton.h
     RowLayout.h
     ScrollArea.h
     Spacer.h
     StackLayout.h
     Style.h
+    TimelineAudioClipItem.h
+    TimelineAudioGapItem.h
+    TimelineIOManager.h
+    TimelineItem.h
+    TimelineTrackItem.h
+    TimelineVideoClipItem.h
+    TimelineVideoGapItem.h
+    TimelineViewport.h
+    TimelineWidget.h
     ToolButton.h)
 set(HEADERS_PRIVATE)
 
 set(SOURCE
+    ButtonGroup.cpp
     DrawUtil.cpp
     Event.cpp
     EventLoop.cpp
@@ -38,21 +52,32 @@ set(SOURCE
     GridLayout.cpp
     GroupBox.cpp
     IButton.cpp
-    IntEdit.cpp
-    IntModel.cpp
-    IntSlider.cpp
+    ITimelineItem.cpp
     IWidget.cpp
     IWidgetOptions.cpp
     IconLibrary.cpp
+    IntEdit.cpp
+    IntModel.cpp
+    IntSlider.cpp
     Label.cpp
     LineEdit.cpp
     ListButton.cpp
+    PieChart.cpp
     PushButton.cpp
     RowLayout.cpp
     ScrollArea.cpp
     Spacer.cpp
     StackLayout.cpp
     Style.cpp
+    TimelineAudioClipItem.cpp
+    TimelineAudioGapItem.cpp
+    TimelineIOManager.cpp
+    TimelineItem.cpp
+    TimelineTrackItem.cpp
+    TimelineVideoClipItem.cpp
+    TimelineVideoGapItem.cpp
+    TimelineViewport.cpp
+    TimelineWidget.cpp
     ToolButton.cpp)
 
 add_library(tlUI ${HEADERS} ${HEADERS_PRIVATE} ${SOURCE})

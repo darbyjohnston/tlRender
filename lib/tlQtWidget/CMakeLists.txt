@@ -13,6 +13,7 @@ set(HEADERS
     TimeSpinBox.h
     TimelineSlider.h
     TimelineViewport.h
+    TimelineWidget.h
     Util.h)
 set(PRIVATE_HEADERS
     BellowsPrivate.h)
@@ -33,6 +34,7 @@ set(SOURCE
     TimeSpinBox.cpp
     TimelineSlider.cpp
     TimelineViewport.cpp
+    TimelineWidget.cpp
     Util.cpp)
 
 if(TLRENDER_QT6)

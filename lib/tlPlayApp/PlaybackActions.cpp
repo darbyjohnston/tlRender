@@ -136,13 +136,15 @@ namespace tl
             p.actions["FocusCurrentFrame"]->setText(tr("Focus Current Frame"));
             p.actions["FocusCurrentFrame"]->setShortcut(QKeySequence(Qt::Key_F));
 
-            p.actions["Thumbnails"] = new QAction(parent);
-            p.actions["Thumbnails"]->setCheckable(true);
-            p.actions["Thumbnails"]->setText(tr("Timeline Thumbnails"));
-
-            p.actions["StopOnScrub"] = new QAction(parent);
-            p.actions["StopOnScrub"]->setCheckable(true);
-            p.actions["StopOnScrub"]->setText(tr("Stop When Scrubbing"));
+            p.actions["Timeline/FrameView"] = new QAction(parent);
+            p.actions["Timeline/FrameView"]->setCheckable(true);
+            p.actions["Timeline/FrameView"]->setText(tr("Frame Timeline View"));
+            p.actions["Timeline/StopOnScrub"] = new QAction(parent);
+            p.actions["Timeline/StopOnScrub"]->setCheckable(true);
+            p.actions["Timeline/StopOnScrub"]->setText(tr("Stop When Scrubbing"));
+            p.actions["Timeline/Thumbnails"] = new QAction(parent);
+            p.actions["Timeline/Thumbnails"]->setCheckable(true);
+            p.actions["Timeline/Thumbnails"]->setText(tr("Timeline Thumbnails"));
 
             p.actions["TimeUnits/Frames"] = new QAction(parent);
             p.actions["TimeUnits/Frames"]->setData(QVariant::fromValue<qt::TimeUnits>(qt::TimeUnits::Frames));
@@ -214,8 +216,9 @@ namespace tl
             p.menu->addSeparator();
             p.menu->addAction(p.actions["FocusCurrentFrame"]);
             p.menu->addSeparator();
-            p.menu->addAction(p.actions["Thumbnails"]);
-            p.menu->addAction(p.actions["StopOnScrub"]);
+            p.menu->addAction(p.actions["Timeline/FrameView"]);
+            p.menu->addAction(p.actions["Timeline/StopOnScrub"]);
+            p.menu->addAction(p.actions["Timeline/Thumbnails"]);
 
             p.timeUnitsMenu = new QMenu;
             p.timeUnitsMenu->addAction(p.actions["TimeUnits/Frames"]);
@@ -323,19 +326,27 @@ namespace tl
                         _p->timelinePlayers[0]->timeAction(timeline::TimeAction::FrameNextX100);
                     }
                 });
+
             connect(
-                p.actions["Thumbnails"],
+                p.actions["Timeline/FrameView"],
                 &QAction::toggled,
                 [app](bool value)
                 {
-                    app->settingsObject()->setValue("Timeline/Thumbnails", value);
+                    app->settingsObject()->setValue("Timeline/FrameView", value);
                 });
             connect(
-                p.actions["StopOnScrub"],
+                p.actions["Timeline/StopOnScrub"],
                 &QAction::toggled,
                 [app](bool value)
                 {
                     app->settingsObject()->setValue("Timeline/StopOnScrub", value);
+                });
+            connect(
+                p.actions["Timeline/Thumbnails"],
+                &QAction::toggled,
+                [app](bool value)
+                {
+                    app->settingsObject()->setValue("Timeline/Thumbnails", value);
                 });
 
             connect(
@@ -514,8 +525,9 @@ namespace tl
 
             const size_t count = p.timelinePlayers.size();
             QList<QString> keys = p.actions.keys();
-            keys.removeAll("Thumbnails");
-            keys.removeAll("StopOnScrub");
+            keys.removeAll("Timeline/FrameView");
+            keys.removeAll("Timeline/StopOnScrub");
+            keys.removeAll("Timeline/Thumbnails");
             for (auto i : keys)
             {
                 p.actions[i]->setEnabled(count > 0);
@@ -571,15 +583,19 @@ namespace tl
             }
 
             {
-                QSignalBlocker blocker(p.actions["Thumbnails"]);
-                p.actions["Thumbnails"]->setChecked(
-                    p.app->settingsObject()->value("Timeline/Thumbnails").toBool());
+                QSignalBlocker blocker(p.actions["Timeline/FrameView"]);
+                p.actions["Timeline/FrameView"]->setChecked(
+                    p.app->settingsObject()->value("Timeline/FrameView").toBool());
             }
-
             {
-                QSignalBlocker blocker(p.actions["StopOnScrub"]);
-                p.actions["StopOnScrub"]->setChecked(
+                QSignalBlocker blocker(p.actions["Timeline/StopOnScrub"]);
+                p.actions["Timeline/StopOnScrub"]->setChecked(
                     p.app->settingsObject()->value("Timeline/StopOnScrub").toBool());
+            }
+            {
+                QSignalBlocker blocker(p.actions["Timeline/Thumbnails"]);
+                p.actions["Timeline/Thumbnails"]->setChecked(
+                    p.app->settingsObject()->value("Timeline/Thumbnails").toBool());
             }
         }
     }

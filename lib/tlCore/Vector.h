@@ -108,6 +108,11 @@ namespace tl
         Vector3f operator * (const Vector3f&, float);
         Vector4f operator * (const Vector4f&, float);
 
+        Vector2i operator / (const Vector2i&, float);
+        Vector2f operator / (const Vector2f&, float);
+        Vector3f operator / (const Vector3f&, float);
+        Vector4f operator / (const Vector4f&, float);
+
         ///@}
 
         //! \name Serialize

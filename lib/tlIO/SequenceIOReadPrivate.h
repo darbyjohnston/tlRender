@@ -22,12 +22,20 @@ namespace tl
 
             size_t threadCount = sequenceThreadCount;
 
-            std::promise<Info> infoPromise;
+            Info info;
 
-            struct Request
+            struct InfoRequest
             {
-                Request() {}
-                Request(Request&&) = default;
+                InfoRequest() {}
+                InfoRequest(InfoRequest&&) = default;
+
+                std::promise<Info> promise;
+            };
+
+            struct VideoRequest
+            {
+                VideoRequest() {}
+                VideoRequest(VideoRequest&&) = default;
 
                 otime::RationalTime time = time::invalidTime;
                 uint16_t layer = 0;
@@ -36,16 +44,19 @@ namespace tl
                 std::string fileName;
                 std::future<VideoData> future;
             };
+
             struct Mutex
             {
-                std::list<std::shared_ptr<Request> > requests;
+                std::list<std::shared_ptr<InfoRequest> > infoRequests;
+                std::list<std::shared_ptr<VideoRequest> > videoRequests;
                 bool stopped = false;
                 std::mutex mutex;
             };
             Mutex mutex;
+
             struct Thread
             {
-                std::list<std::shared_ptr<Request> > requestsInProgress;
+                std::list<std::shared_ptr<VideoRequest> > videoRequestsInProgress;
                 std::chrono::steady_clock::time_point logTimer;
                 std::condition_variable cv;
                 std::thread thread;

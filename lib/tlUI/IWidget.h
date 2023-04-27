@@ -174,3 +174,5 @@ namespace tl
         };
     }
 }
+
+#include <tlUI/IWidgetInline.h>

@@ -30,7 +30,7 @@ namespace tl
 
         geom::TriangleMesh2 rect(
             const math::BBox2i& bbox,
-            int radius,
+            int cornerRadius,
             size_t resolution)
         {
             geom::TriangleMesh2 out;
@@ -40,7 +40,7 @@ namespace tl
             const int w = bbox.w();
             const int h = bbox.h();
 
-            if (0 == radius)
+            if (0 == cornerRadius)
             {
                 out.v.push_back(math::Vector2f(x, y));
                 out.v.push_back(math::Vector2f(x + w, y));
@@ -52,7 +52,7 @@ namespace tl
             }
             else
             {
-                const int r = radius;
+                const int r = cornerRadius;
 
                 const std::vector<math::Vector2f> c =
                 {
@@ -110,6 +110,31 @@ namespace tl
                 j = k + 1 + resolution;
                 k = 0;
                 out.triangles.push_back(geom::Triangle2({ i + 1, j + 1, k + 1 }));
+            }
+
+            return out;
+        }
+
+        geom::TriangleMesh2 circle(
+            const math::Vector2i& pos,
+            int radius,
+            size_t resolution)
+        {
+            geom::TriangleMesh2 out;
+
+            const int inc = 360 / resolution;
+            for (int i = 0; i < 360; i += inc)
+            {
+                const size_t size = out.v.size();
+                out.v.push_back(math::Vector2f(pos.x, pos.y));
+                out.v.push_back(math::Vector2f(
+                    pos.x + cos(math::deg2rad(i)) * radius,
+                    pos.y + sin(math::deg2rad(i)) * radius));
+                const int d = std::min(i + inc, 360);
+                out.v.push_back(math::Vector2f(
+                    pos.x + cos(math::deg2rad(d)) * radius,
+                    pos.y + sin(math::deg2rad(d)) * radius));
+                out.triangles.push_back({ size + 1, size + 2, size + 3 });
             }
 
             return out;

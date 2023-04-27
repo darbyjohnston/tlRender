@@ -22,14 +22,21 @@ namespace tl
             int precision = 2;
             FontRole fontRole = FontRole::Mono;
 
-            struct SizeCache
+            struct SizeData
             {
-                math::Vector2i textSize;
-                math::Vector2i formatSize;
                 int margin = 0;
                 int border = 0;
+                imaging::FontMetrics fontMetrics;
+                math::Vector2i textSize;
+                math::Vector2i formatSize;
             };
-            SizeCache sizeCache;
+            SizeData size;
+
+            struct DrawData
+            {
+                std::vector<std::shared_ptr<imaging::Glyph> > glyphs;
+            };
+            DrawData draw;
 
             std::shared_ptr<observer::ValueObserver<float> > valueObserver;
             std::shared_ptr<observer::ValueObserver<math::FloatRange> > rangeObserver;
@@ -123,16 +130,17 @@ namespace tl
             IWidget::sizeEvent(event);
             TLRENDER_P();
 
-            p.sizeCache.margin = event.style->getSizeRole(SizeRole::MarginInside) * event.contentScale;
-            p.sizeCache.border = event.style->getSizeRole(SizeRole::Border) * event.contentScale;
+            p.size.margin = event.style->getSizeRole(SizeRole::MarginInside) * event.contentScale;
+            p.size.border = event.style->getSizeRole(SizeRole::Border) * event.contentScale;
+            p.size.fontMetrics = event.getFontMetrics(p.fontRole);
+
             const auto fontInfo = event.getFontInfo(p.fontRole);
-            const auto fontMetrics = event.getFontMetrics(p.fontRole);
+            p.size.textSize = event.fontSystem->measure(p.text, fontInfo);
+            p.size.formatSize = event.fontSystem->measure(p.format, fontInfo);
+            p.draw.glyphs = event.fontSystem->getGlyphs(p.text, fontInfo);
 
-            p.sizeCache.textSize = event.fontSystem->measure(p.text, fontInfo);
-            p.sizeCache.formatSize = event.fontSystem->measure(p.format, fontInfo);
-
-            _sizeHint.x = p.sizeCache.formatSize.x + p.sizeCache.margin * 2;
-            _sizeHint.y = fontMetrics.lineHeight + p.sizeCache.margin * 2;
+            _sizeHint.x = p.size.formatSize.x + p.size.margin * 2;
+            _sizeHint.y = p.size.fontMetrics.lineHeight + p.size.margin * 2;
         }
 
         void FloatEdit::drawEvent(const DrawEvent& event)
@@ -140,10 +148,7 @@ namespace tl
             IWidget::drawEvent(event);
             TLRENDER_P();
 
-            const auto fontInfo = event.getFontInfo(p.fontRole);
-            const auto fontMetrics = event.getFontMetrics(p.fontRole);
-
-            math::BBox2i g = align(
+            const math::BBox2i g = align(
                 _geometry,
                 _sizeHint,
                 Stretch::Expanding,
@@ -152,21 +157,21 @@ namespace tl
                 _vAlign);
 
             event.render->drawMesh(
-                border(g, p.sizeCache.border),
+                border(g, p.size.border),
                 math::Vector2i(),
                 event.style->getColorRole(ColorRole::Border));
 
             event.render->drawRect(
-                g.margin(-p.sizeCache.border),
+                g.margin(-p.size.border),
                 event.style->getColorRole(ColorRole::Base));
 
-            math::BBox2i g2 = g.margin(-p.sizeCache.margin);
+            const math::BBox2i g2 = g.margin(-p.size.margin);
             math::Vector2i pos(
-                g2.x() + g2.w() - p.sizeCache.textSize.x,
-                g2.y() + g2.h() / 2 - fontMetrics.lineHeight / 2 +
-                    fontMetrics.ascender);
+                g2.x() + g2.w() - p.size.textSize.x,
+                g2.y() + g2.h() / 2 - p.size.fontMetrics.lineHeight / 2 +
+                p.size.fontMetrics.ascender);
             event.render->drawText(
-                event.fontSystem->getGlyphs(p.text, fontInfo),
+                p.draw.glyphs,
                 pos,
                 event.style->getColorRole(ColorRole::Text));
         }

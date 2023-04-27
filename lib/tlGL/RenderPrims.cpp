@@ -142,6 +142,31 @@ namespace tl
             }
         }
 
+        void Render::drawTexture(
+            unsigned int id,
+            const math::BBox2i& bbox,
+            const imaging::Color4f& color)
+        {
+            TLRENDER_P();
+
+            p.shaders["texture"]->bind();
+            p.shaders["texture"]->setUniform("color", color);
+            p.shaders["texture"]->setUniform("textureSampler", 0);
+
+            glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
+            glBindTexture(GL_TEXTURE_2D, id);
+
+            if (p.vbos["texture"])
+            {
+                p.vbos["texture"]->copy(convert(geom::bbox(bbox), p.vbos["texture"]->getType()));
+            }
+            if (p.vaos["texture"])
+            {
+                p.vaos["texture"]->bind();
+                p.vaos["texture"]->draw(GL_TRIANGLES, 0, p.vbos["texture"]->getSize());
+            }
+        }
+
         void Render::drawImage(
             const std::shared_ptr<imaging::Image>& image,
             const math::BBox2i& bbox,

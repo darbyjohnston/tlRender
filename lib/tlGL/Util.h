@@ -29,5 +29,18 @@ namespace tl
 
         //! Get the glReadPixels type.
         unsigned int getReadPixelsType(imaging::PixelType);
+
+        //! Set whether an OpenGL capability is enabled and restore it to the
+        //! previous value when finished.
+        class SetAndRestore
+        {
+        public:
+            SetAndRestore(unsigned int, bool);
+
+            ~SetAndRestore();
+
+        private:
+            TLRENDER_PRIVATE();
+        };
     }
 }

@@ -16,12 +16,12 @@ namespace tl
             SizeRole marginRole = SizeRole::None;
             SizeRole spacingRole = SizeRole::Spacing;
 
-            struct Size
+            struct SizeData
             {
                 int margin = 0;
                 int spacing = 0;
             };
-            Size size;
+            SizeData size;
         };
 
         void RowLayout::_init(
@@ -66,7 +66,7 @@ namespace tl
         {
             IWidget::setGeometry(value);
             TLRENDER_P();
-            math::BBox2i g = _geometry.margin(-p.size.margin);
+            const math::BBox2i g = _geometry.margin(-p.size.margin);
             size_t expanding = 0;
             for (const auto& child : _children)
             {

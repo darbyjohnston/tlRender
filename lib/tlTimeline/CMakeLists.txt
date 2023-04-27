@@ -7,15 +7,16 @@ set(HEADERS
     CompareOptionsInline.h
     DisplayOptions.h
     DisplayOptionsInline.h
+    IRender.h
     ImageOptions.h
     ImageOptionsInline.h
-    RenderOptions.h
-    RenderOptionsInline.h
-    IRender.h
     LUTOptions.h
     LUTOptionsInline.h
     MemoryReference.h
     ReadCache.h
+    RenderOptions.h
+    RenderOptionsInline.h
+    RenderUtil.h
     Timeline.h
     TimelinePlayer.h
     TimelinePlayerInline.h
@@ -32,11 +33,12 @@ set(SOURCE
     ColorConfigOptions.cpp
     CompareOptions.cpp
     DisplayOptions.cpp
-    ImageOptions.cpp
     IRender.cpp
+    ImageOptions.cpp
     LUTOptions.cpp
     MemoryReference.cpp
     ReadCache.cpp
+    RenderUtil.cpp
     Timeline.cpp
     TimelineCreate.cpp
     TimelinePrivate.cpp

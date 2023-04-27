@@ -32,10 +32,16 @@ namespace tl
                 const timeline::RenderOptions& = timeline::RenderOptions()) override;
             void end() override;
 
+            imaging::Size getRenderSize() const override;
+            void setRenderSize(const imaging::Size&) override;
+            math::BBox2i getViewport() const override;
             void setViewport(const math::BBox2i&) override;
             void clearViewport(const imaging::Color4f&) override;
+            bool getClipRectEnabled() const override;
             void setClipRectEnabled(bool) override;
+            math::BBox2i getClipRect() const override;
             void setClipRect(const math::BBox2i&) override;
+            math::Matrix4x4f getTransform() const override;
             void setTransform(const math::Matrix4x4f&) override;
 
             void drawRect(
@@ -49,6 +55,10 @@ namespace tl
                 const std::vector<std::shared_ptr<imaging::Glyph> >& glyphs,
                 const math::Vector2i& position,
                 const imaging::Color4f&) override;
+            void drawTexture(
+                unsigned int,
+                const math::BBox2i&,
+                const imaging::Color4f& = imaging::Color4f(1.F, 1.F, 1.F)) override;
             void drawImage(
                 const std::shared_ptr<imaging::Image>&,
                 const math::BBox2i&,

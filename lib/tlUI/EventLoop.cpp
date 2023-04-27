@@ -4,6 +4,8 @@
 
 #include <tlUI/EventLoop.h>
 
+#include <tlUI/DrawUtil.h>
+
 namespace tl
 {
     namespace ui
@@ -223,6 +225,10 @@ namespace tl
                 if (auto widget = i.lock())
                 {
                     out |= _getSizeUpdate(widget);
+                    if (out)
+                    {
+                        break;
+                    }
                 }
             }
             return out;
@@ -319,25 +325,36 @@ namespace tl
                 event.fontInfo[i].size *= p.contentScale;
                 event.fontMetrics[i] = p.fontSystem->getMetrics(event.fontInfo[i]);
             }
+            event.render->setClipRectEnabled(true);
             for (const auto& i : p.widgets)
             {
                 if (auto widget = i.lock())
                 {
-                    _drawEvent(widget, event);
+                    _drawEvent(
+                        widget,
+                        math::BBox2i(0, 0, p.frameBufferSize.w, p.frameBufferSize.h),
+                        event);
                 }
             }
+            event.render->setClipRectEnabled(false);
         }
 
         void EventLoop::_drawEvent(
             const std::shared_ptr<IWidget>& widget,
+            math::BBox2i clip,
             const DrawEvent& event)
         {
             if (widget->isVisible())
             {
+                event.render->setClipRect(clip);
                 widget->drawEvent(event);
                 for (const auto& child : widget->getChildren())
                 {
-                    _drawEvent(child, event);
+                    const math::BBox2i& g = child->getGeometry();
+                    if (g.intersects(clip))
+                    {
+                        _drawEvent(child, g.intersect(clip), event);
+                    }
                 }
             }
         }

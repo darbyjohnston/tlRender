@@ -4,18 +4,11 @@
 
 #include "App.h"
 
-#include <tlGL/Render.h>
+#include "MainWindow.h"
 
-#include <tlCore/Math.h>
+#include <tlUI/EventLoop.h>
+
 #include <tlCore/StringFormat.h>
-#include <tlCore/Time.h>
-
-#include <tlGlad/gl.h>
-
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
-
-#include <array>
 
 namespace tl
 {
@@ -23,33 +16,6 @@ namespace tl
     {
         namespace play_glfw
         {
-            namespace
-            {
-                void glfwErrorCallback(int, const char* description)
-                {
-                    std::cerr << "GLFW ERROR: " << description << std::endl;
-                }
-
-                /*void APIENTRY glDebugOutput(
-                    GLenum         source,
-                    GLenum         type,
-                    GLuint         id,
-                    GLenum         severity,
-                    GLsizei        length,
-                    const GLchar * message,
-                    const void *   userParam)
-                {
-                    switch (severity)
-                    {
-                    case GL_DEBUG_SEVERITY_HIGH_KHR:
-                    case GL_DEBUG_SEVERITY_MEDIUM_KHR:
-                        std::cerr << "DEBUG: " << message << std::endl;
-                        break;
-                    default: break;
-                    }
-                }*/
-            }
-
             void App::_init(
                 int argc,
                 char* argv[],
@@ -150,20 +116,34 @@ namespace tl
                         string::Format("{0}").arg(_options.lutOptions.order),
                         string::join(timeline::getLUTOrderLabels(), ", "))
                 });
+
+                // Read the timeline.
+                auto timeline = timeline::Timeline::create(_input, _context);
+                _timelinePlayer = timeline::TimelinePlayer::create(timeline, _context);
+
+                // Create the main window.
+                _mainWindow = MainWindow::create(_timelinePlayer, _context);
+                getEventLoop()->addWidget(_mainWindow);
+
+                // Initialize the timeline player.
+                if (time::isValid(_options.inOutRange))
+                {
+                    _timelinePlayer->setInOutRange(_options.inOutRange);
+                    _timelinePlayer->seek(_options.inOutRange.start_time());
+                }
+                if (time::isValid(_options.seek))
+                {
+                    _timelinePlayer->seek(_options.seek);
+                }
+                _timelinePlayer->setLoop(_options.loop);
+                //_timelinePlayer->setPlayback(_options.playback);
             }
 
             App::App()
             {}
 
             App::~App()
-            {
-                _render.reset();
-                if (_glfwWindow)
-                {
-                    glfwDestroyWindow(_glfwWindow);
-                }
-                glfwTerminate();
-            }
+            {}
 
             std::shared_ptr<App> App::create(
                 int argc,
@@ -175,417 +155,9 @@ namespace tl
                 return out;
             }
 
-            void App::run()
-            {
-                if (_exit != 0)
-                {
-                    return;
-                }
-
-                // Read the timeline.
-                auto timeline = timeline::Timeline::create(_input, _context);
-                _timelinePlayer = timeline::TimelinePlayer::create(timeline, _context);
-
-                // Initialize GLFW.
-                glfwSetErrorCallback(glfwErrorCallback);
-                int glfwMajor = 0;
-                int glfwMinor = 0;
-                int glfwRevision = 0;
-                glfwGetVersion(&glfwMajor, &glfwMinor, &glfwRevision);
-                _log(string::Format("GLFW version: {0}.{1}.{2}").arg(glfwMajor).arg(glfwMinor).arg(glfwRevision));
-                if (!glfwInit())
-                {
-                    throw std::runtime_error("Cannot initialize GLFW");
-                }
-
-                // Create the window.
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-                glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-                glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-                glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
-                //glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
-                _glfwWindow = glfwCreateWindow(
-                    _options.windowSize.w,
-                    _options.windowSize.h,
-                    "play-glfw",
-                    NULL,
-                    NULL);
-                if (!_glfwWindow)
-                {
-                    throw std::runtime_error("Cannot create window");
-                }
-                glfwSetWindowUserPointer(_glfwWindow, this);
-                int width = 0;
-                int height = 0;
-                glfwGetFramebufferSize(_glfwWindow, &width, &height);
-                _frameBufferSize.w = width;
-                _frameBufferSize.h = height;
-                glfwGetWindowContentScale(_glfwWindow, &_contentScale.x, &_contentScale.y);
-                glfwMakeContextCurrent(_glfwWindow);
-                if (!gladLoaderLoadGL())
-                {
-                    throw std::runtime_error("Cannot initialize GLAD");
-                }
-                /*GLint flags = 0;
-                glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-                if (flags & static_cast<GLint>(GL_CONTEXT_FLAG_DEBUG_BIT))
-                {
-                    glEnable(GL_DEBUG_OUTPUT);
-                    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-                    glDebugMessageCallback(glDebugOutput, context.get());
-                    glDebugMessageControl(
-                        static_cast<GLenum>(GL_DONT_CARE),
-                        static_cast<GLenum>(GL_DONT_CARE),
-                        static_cast<GLenum>(GL_DONT_CARE),
-                        0,
-                        nullptr,
-                        GLFW_TRUE);
-                }*/
-                const int glMajor = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_VERSION_MAJOR);
-                const int glMinor = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_VERSION_MINOR);
-                const int glRevision = glfwGetWindowAttrib(_glfwWindow, GLFW_CONTEXT_REVISION);
-                _log(string::Format("OpenGL version: {0}.{1}.{2}").arg(glMajor).arg(glMinor).arg(glRevision));
-                glfwSetFramebufferSizeCallback(_glfwWindow, _frameBufferSizeCallback);
-                glfwSetWindowContentScaleCallback(_glfwWindow, _windowContentScaleCallback);
-                _setFullscreenWindow(_options.fullscreen);
-                glfwSetKeyCallback(_glfwWindow, _keyCallback);
-                glfwShowWindow(_glfwWindow);
-
-                // Create the renderer.
-                _fontSystem = imaging::FontSystem::create(_context);
-                _render = gl::Render::create(_context);
-
-                // Print the shortcuts help.
-                _printShortcutsHelp();
-
-                // Start the main loop.
-                _hud = _options.hud;
-                if (time::isValid(_options.inOutRange))
-                {
-                    _timelinePlayer->setInOutRange(_options.inOutRange);
-                    _timelinePlayer->seek(_options.inOutRange.start_time());
-                }
-                if (time::isValid(_options.seek))
-                {
-                    _timelinePlayer->seek(_options.seek);
-                }
-                _timelinePlayer->setLoop(_options.loop);
-                _timelinePlayer->setPlayback(_options.playback);
-                while (_running && !glfwWindowShouldClose(_glfwWindow))
-                {
-                    glfwPollEvents();
-                    _tick();
-                }
-            }
-
-            void App::exit()
-            {
-                _running = false;
-            }
-
-            void App::_setFullscreenWindow(bool value)
-            {
-                if (value == _fullscreen)
-                    return;
-
-                _fullscreen = value;
-
-                if (_fullscreen)
-                {
-                    int width = 0;
-                    int height = 0;
-                    glfwGetWindowSize(_glfwWindow, &width, &height);
-                    _windowSize.w = width;
-                    _windowSize.h = height;
-
-                    GLFWmonitor* glfwMonitor = glfwGetPrimaryMonitor();
-                    const GLFWvidmode* glfwVidmode = glfwGetVideoMode(glfwMonitor);
-                    glfwGetWindowPos(_glfwWindow, &_windowPos.x, &_windowPos.y);
-                    glfwSetWindowMonitor(
-                        _glfwWindow,
-                        glfwMonitor,
-                        0,
-                        0,
-                        glfwVidmode->width,
-                        glfwVidmode->height,
-                        glfwVidmode->refreshRate);
-                }
-                else
-                {
-                    GLFWmonitor* glfwMonitor = glfwGetPrimaryMonitor();
-                    glfwSetWindowMonitor(
-                        _glfwWindow,
-                        NULL,
-                        _windowPos.x,
-                        _windowPos.y,
-                        _windowSize.w,
-                        _windowSize.h,
-                        0);
-                }
-            }
-
-            void App::_fullscreenCallback(bool value)
-            {
-                _setFullscreenWindow(value);
-                _log(string::Format("Fullscreen: {0}").arg(_fullscreen));
-            }
-
-            void App::_frameBufferSizeCallback(GLFWwindow* glfwWindow, int width, int height)
-            {
-                App* app = reinterpret_cast<App*>(glfwGetWindowUserPointer(glfwWindow));
-                app->_frameBufferSize.w = width;
-                app->_frameBufferSize.h = height;
-                app->_renderDirty = true;
-            }
-
-            void App::_windowContentScaleCallback(GLFWwindow* glfwWindow, float x, float y)
-            {
-                App* app = reinterpret_cast<App*>(glfwGetWindowUserPointer(glfwWindow));
-                app->_contentScale.x = x;
-                app->_contentScale.y = y;
-                app->_renderDirty = true;
-            }
-
-            void App::_keyCallback(GLFWwindow* glfwWindow, int key, int scanCode, int action, int mods)
-            {
-                if (GLFW_RELEASE == action || GLFW_REPEAT == action)
-                {
-                    App* app = reinterpret_cast<App*>(glfwGetWindowUserPointer(glfwWindow));
-                    switch (key)
-                    {
-                    case GLFW_KEY_ESCAPE:
-                        app->exit();
-                        break;
-                    case GLFW_KEY_U:
-                        app->_fullscreenCallback(!app->_fullscreen);
-                        break;
-                    case GLFW_KEY_H:
-                        app->_hudCallback(!app->_hud);
-                        break;
-                    case GLFW_KEY_SPACE:
-                        app->_playbackCallback(
-                            timeline::Playback::Stop == app->_timelinePlayer->observePlayback()->get() ?
-                            timeline::Playback::Forward :
-                            timeline::Playback::Stop);
-                        break;
-                    case GLFW_KEY_L:
-                        app->_loopPlaybackCallback(
-                            timeline::Loop::Loop == app->_timelinePlayer->observeLoop()->get() ?
-                            timeline::Loop::Once :
-                            timeline::Loop::Loop);
-                        break;
-                    case GLFW_KEY_HOME:
-                        app->_timelinePlayer->start();
-                        break;
-                    case GLFW_KEY_END:
-                        app->_timelinePlayer->end();
-                        break;
-                    case GLFW_KEY_LEFT:
-                        app->_timelinePlayer->framePrev();
-                        break;
-                    case GLFW_KEY_RIGHT:
-                        app->_timelinePlayer->frameNext();
-                        break;
-                    }
-                }
-            }
-
-            void App::_printShortcutsHelp()
-            {
-                _print(
-                    "\n"
-                    "Keyboard shortcuts:\n"
-                    "\n"
-                    "    Escape - Exit\n"
-                    "    U      - Fullscreen mode\n"
-                    "    H      - HUD enabled\n"
-                    "    Space  - Start/stop playback\n"
-                    "    L      - Loop playback\n"
-                    "    Home   - Go to the start time\n"
-                    "    End    - Go to the end time\n"
-                    "    Left   - Go to the previous frame\n"
-                    "    Right  - Go to the next frame\n");
-            }
-
             void App::_tick()
             {
-                // Update.
-                _context->tick();
                 _timelinePlayer->tick();
-                const auto& videoData = _timelinePlayer->observeCurrentVideo()->get();
-                if (!timeline::isTimeEqual(videoData, _videoData))
-                {
-                    _videoData = videoData;
-                    _renderDirty = true;
-                }
-                _hudUpdate();
-
-                // Render the video.
-                if (_renderDirty)
-                {
-                    _render->begin(
-                        _frameBufferSize,
-                        _options.colorConfigOptions,
-                        _options.lutOptions);
-                    _render->drawVideo(
-                        { _videoData },
-                        { math::BBox2i(0, 0, _frameBufferSize.w, _frameBufferSize.h) });
-                    if (_hud)
-                    {
-                        _drawHUD();
-                    }
-                    _render->end();
-                    glfwSwapBuffers(_glfwWindow);
-                    _renderDirty = false;
-                }
-                else
-                {
-                    time::sleep(std::chrono::milliseconds(5));
-                }
-            }
-
-            void App::_hudUpdate()
-            {
-                std::map<HUDElement, std::string> hudLabels;
-
-                // Input file name.
-                hudLabels[HUDElement::UpperLeft] = "Input: " + _input;
-
-                // Current time.
-                otime::ErrorStatus errorStatus;
-                const std::string label = _timelinePlayer->observeCurrentTime()->get().to_timecode(&errorStatus);
-                if (otime::is_error(errorStatus))
-                {
-                    throw std::runtime_error(errorStatus.details);
-                }
-                hudLabels[HUDElement::LowerLeft] = "Time: " + label;
-
-                // Video cache percentage.
-                const float videoCachePercentage = _timelinePlayer->observeCacheInfo()->get().videoPercentage;
-                hudLabels[HUDElement::UpperRight] = string::Format("Video cache: {0}%").arg(videoCachePercentage, 0, 3);
-
-                // Speed.
-                hudLabels[HUDElement::LowerRight] = string::Format("Speed: {0}").
-                    arg(_timelinePlayer->getTimeRange().duration().rate(), 2);
-
-                if (hudLabels != _hudLabels)
-                {
-                    _hudLabels = hudLabels;
-                    _renderDirty = true;
-                }
-            }
-
-            void App::_hudCallback(bool value)
-            {
-                _hud = value;
-                _renderDirty = true;
-                _log(string::Format("HUD: {0}").arg(_hud));
-            }
-
-            void App::_drawHUD()
-            {
-                const imaging::FontInfo fontInfo(
-                    "NotoMono-Regular",
-                    math::clamp(
-                        ceilf(14 * _contentScale.y),
-                        0.F,
-                        static_cast<float>(std::numeric_limits<uint16_t>::max())));
-                auto i = _hudLabels.find(HUDElement::UpperLeft);
-                if (i != _hudLabels.end())
-                {
-                    _drawHUDLabel(i->second, fontInfo, HUDElement::UpperLeft);
-                }
-                i = _hudLabels.find(HUDElement::LowerLeft);
-                if (i != _hudLabels.end())
-                {
-                    _drawHUDLabel(i->second, fontInfo, HUDElement::LowerLeft);
-                }
-                i = _hudLabels.find(HUDElement::UpperRight);
-                if (i != _hudLabels.end())
-                {
-                    _drawHUDLabel(i->second, fontInfo, HUDElement::UpperRight);
-                }
-                i = _hudLabels.find(HUDElement::LowerRight);
-                if (i != _hudLabels.end())
-                {
-                    _drawHUDLabel(i->second, fontInfo, HUDElement::LowerRight);
-                }
-            }
-
-            void App::_drawHUDLabel(
-                const std::string& text,
-                const imaging::FontInfo& fontInfo,
-                HUDElement hudElement)
-            {
-                const auto fontMetrics = _fontSystem->getMetrics(fontInfo);
-                const math::BBox2i labelBBox(0, 0, _frameBufferSize.w, _frameBufferSize.h);
-                const math::Vector2i labelSize = _fontSystem->measure(text, fontInfo);
-                const int labelSpacing = fontInfo.size / 4;
-                math::BBox2i bbox;
-                math::Vector2i pos;
-                switch (hudElement)
-                {
-                case HUDElement::UpperLeft:
-                    bbox = math::BBox2i(
-                        labelBBox.min.x,
-                        labelBBox.min.y,
-                        labelSize.x + labelSpacing * 2,
-                        fontMetrics.lineHeight);
-                    pos = math::Vector2i(
-                        labelBBox.min.x + labelSpacing,
-                        labelBBox.min.y + fontMetrics.ascender);
-                    break;
-                case HUDElement::UpperRight:
-                    bbox = math::BBox2i(
-                        labelBBox.max.x + 1 - labelSpacing * 2 - labelSize.x,
-                        labelBBox.min.y,
-                        labelSize.x + labelSpacing * 2,
-                        fontMetrics.lineHeight);
-                    pos = math::Vector2i(
-                        labelBBox.max.x + 1 - labelSpacing - labelSize.x,
-                        labelBBox.min.y + fontMetrics.ascender);
-                    break;
-                case HUDElement::LowerLeft:
-                    bbox = math::BBox2i(
-                        labelBBox.min.x,
-                        labelBBox.max.y + 1 - fontMetrics.lineHeight,
-                        labelSize.x + labelSpacing * 2,
-                        fontMetrics.lineHeight);
-                    pos = math::Vector2i(
-                        labelBBox.min.x + labelSpacing,
-                        labelBBox.max.y + 1 - fontMetrics.lineHeight + fontMetrics.ascender);
-                    break;
-                case HUDElement::LowerRight:
-                    bbox = math::BBox2i(
-                        labelBBox.max.x + 1 - labelSpacing * 2 - labelSize.x,
-                        labelBBox.max.y + 1 - fontMetrics.lineHeight,
-                        labelSize.x + labelSpacing * 2,
-                        fontMetrics.lineHeight);
-                    pos = math::Vector2i(
-                        labelBBox.max.x + 1 - labelSpacing - labelSize.x,
-                        labelBBox.max.y + 1 - fontMetrics.lineHeight + fontMetrics.ascender);
-                    break;
-                }
-                _render->drawRect(
-                    bbox,
-                    imaging::Color4f(0.F, 0.F, 0.F, .7F));
-                _render->drawText(
-                    _fontSystem->getGlyphs(text, fontInfo),
-                    pos,
-                    imaging::Color4f(1.F, 1.F, 1.F));
-            }
-
-            void App::_playbackCallback(timeline::Playback value)
-            {
-                _timelinePlayer->setPlayback(value);
-                _log(string::Format("Playback: {0}").arg(_timelinePlayer->observePlayback()->get()));
-            }
-
-            void App::_loopPlaybackCallback(timeline::Loop value)
-            {
-                _timelinePlayer->setLoop(value);
-                _log(string::Format("Loop playback: {0}").arg(_timelinePlayer->observeLoop()->get()));
             }
         }
     }

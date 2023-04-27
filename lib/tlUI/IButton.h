@@ -6,8 +6,6 @@
 
 #include <tlUI/IWidget.h>
 
-#include <tlCore/ValueObserver.h>
-
 namespace tl
 {
     namespace ui
@@ -46,11 +44,11 @@ namespace tl
             //! Set the button role.
             void setButtonRole(ColorRole);
             
-            //! Observe button clicks.
-            std::shared_ptr<observer::IValue<bool> > observeClick() const;
+            //! Set the clicked callback.
+            void setClickedCallback(const std::function<void(void)>&);
 
-            //! Observe the checked state.
-            std::shared_ptr<observer::IValue<bool> > observeChecked() const;
+            //! Set the checked callback.
+            void setCheckedCallback(const std::function<void(bool)>&);
 
             void tickEvent(const TickEvent&) override;
             void enterEvent() override;
@@ -67,7 +65,9 @@ namespace tl
             bool _inside = false;
             math::Vector2i _cursorPos;
             bool _pressed = false;
-            std::shared_ptr<observer::Value<bool> > _checked;
+            bool _checked = false;
+            std::function<void(void)> _clickedCallback;
+            std::function<void(bool)> _checkedCallback;
 
         private:
             TLRENDER_PRIVATE();

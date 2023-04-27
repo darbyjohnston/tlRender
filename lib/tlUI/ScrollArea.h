@@ -42,14 +42,20 @@ namespace tl
                 ScrollAreaType = ScrollAreaType::Both,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
+            //! Get the scroll size.
+            const math::Vector2i& getScrollSize() const;
+
             //! Observe the scroll size.
             std::shared_ptr<observer::IValue<math::Vector2i> > observeScrollSize() const;
 
-            //! Set the scroll position.
-            void setScrollPos(const math::Vector2i&);
+            //! Get the scroll position.
+            const math::Vector2i& getScrollPos() const;
 
             //! Observe the scroll position.
             std::shared_ptr<observer::IValue<math::Vector2i> > observeScrollPos() const;
+
+            //! Set the scroll position.
+            void setScrollPos(const math::Vector2i&);
 
             //! Set whether the scroll area has a border.
             void setBorder(bool);

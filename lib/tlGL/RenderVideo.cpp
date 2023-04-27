@@ -5,7 +5,6 @@
 #include <tlGL/RenderPrivate.h>
 
 #include <tlGL/Mesh.h>
-#include <tlGL/State.h>
 #include <tlGL/Util.h>
 
 #include <tlCore/Math.h>
@@ -144,7 +143,7 @@ namespace tl
 
             glViewport(
                 p.viewport.x(),
-                p.size.h - p.viewport.h() - p.viewport.y(),
+                p.renderSize.h - p.viewport.h() - p.viewport.y(),
                 p.viewport.w(),
                 p.viewport.h());
             glClear(GL_STENCIL_BUFFER_BIT);
@@ -186,7 +185,7 @@ namespace tl
 
             glViewport(
                 p.viewport.x(),
-                p.size.h - p.viewport.h() - p.viewport.y(),
+                p.renderSize.h - p.viewport.h() - p.viewport.y(),
                 p.viewport.w(),
                 p.viewport.h());
             glClear(GL_STENCIL_BUFFER_BIT);
@@ -304,7 +303,7 @@ namespace tl
 
                     glViewport(
                         p.viewport.x(),
-                        p.size.h - p.viewport.h() - p.viewport.y(),
+                        p.renderSize.h - p.viewport.h() - p.viewport.y(),
                         p.viewport.w(),
                         p.viewport.h());
 
@@ -450,7 +449,7 @@ namespace tl
 
                     glViewport(
                         p.viewport.x(),
-                        p.size.h - p.viewport.h() - p.viewport.y(),
+                        p.renderSize.h - p.viewport.h() - p.viewport.y(),
                         p.viewport.w(),
                         p.viewport.h());
 

@@ -4,11 +4,13 @@
 
 #include "MainWindow.h"
 
-#include "BasicWidget.h"
-#include "GridLayoutWidget.h"
-#include "NumericWidget.h"
-#include "RowLayoutWidget.h"
+#include "BasicWidgets.h"
+#include "Charts.h"
+#include "GridLayouts.h"
+#include "NumericWidgets.h"
+#include "RowLayouts.h"
 
+#include <tlUI/ButtonGroup.h>
 #include <tlUI/ListButton.h>
 #include <tlUI/PushButton.h>
 #include <tlUI/RowLayout.h>
@@ -23,12 +25,9 @@ namespace tl
         {
             struct MainWindow::Private
             {
+                std::shared_ptr<ui::ButtonGroup> buttonGroup;
                 std::shared_ptr<ui::RowLayout> layout;
                 std::shared_ptr<ui::StackLayout> stackLayout;
-                std::shared_ptr<observer::ValueObserver<bool> > basicObserver;
-                std::shared_ptr<observer::ValueObserver<bool> > numericObserver;
-                std::shared_ptr<observer::ValueObserver<bool> > rowLayoutObserver;
-                std::shared_ptr<observer::ValueObserver<bool> > gridLayoutObserver;
             };
 
             void MainWindow::_init(
@@ -39,50 +38,36 @@ namespace tl
 
                 setBackgroundRole(ui::ColorRole::Window);
 
-                auto basicButton = ui::ListButton::create(context);
-                basicButton->setText("Basic Widgets");
-                p.basicObserver = observer::ValueObserver<bool>::create(
-                    basicButton->observeClick(),
-                    [this](bool)
+                std::vector<std::shared_ptr<ui::IButton> > buttons;
+                const std::vector<std::string> buttonText =
+                {
+                    "Basic Widgets",
+                    "Numeric Widgets",
+                    "Charts",
+                    "Row Layouts",
+                    "Grid Layouts"
+                };
+                p.buttonGroup = ui::ButtonGroup::create(
+                    ui::ButtonGroupType::Click,
+                    context);
+                for (const auto& text : buttonText)
+                {
+                    auto button = ui::ListButton::create(context);
+                    button->setText(text);
+                    buttons.push_back(button);
+                    p.buttonGroup->addButton(button);
+                }
+                p.buttonGroup->setClickedCallback(
+                    [this](int value)
                     {
-                        _p->stackLayout->setCurrentIndex(0);
-                    },
-                    observer::CallbackAction::Suppress);
+                        _p->stackLayout->setCurrentIndex(value);
+                    });
 
-                auto numericButton = ui::ListButton::create(context);
-                numericButton->setText("Numeric Widgets");
-                p.numericObserver = observer::ValueObserver<bool>::create(
-                    numericButton->observeClick(),
-                    [this](bool)
-                    {
-                        _p->stackLayout->setCurrentIndex(1);
-                    },
-                    observer::CallbackAction::Suppress);
-
-                auto rowLayoutButton = ui::ListButton::create(context);
-                rowLayoutButton->setText("Row Layouts");
-                p.rowLayoutObserver = observer::ValueObserver<bool>::create(
-                    rowLayoutButton->observeClick(),
-                    [this](bool)
-                    {
-                        _p->stackLayout->setCurrentIndex(2);
-                    },
-                    observer::CallbackAction::Suppress);
-
-                auto gridLayoutButton = ui::ListButton::create(context);
-                gridLayoutButton->setText("Grid Layouts");
-                p.gridLayoutObserver = observer::ValueObserver<bool>::create(
-                    gridLayoutButton->observeClick(),
-                    [this](bool)
-                    {
-                        _p->stackLayout->setCurrentIndex(3);
-                    },
-                    observer::CallbackAction::Suppress);
-
-                auto basicWidget = BasicWidget::create(context);
-                auto numericWidget = NumericWidget::create(context);
-                auto rowLayoutWidget = RowLayoutWidget::create(context);
-                auto gridLayoutWidget = GridLayoutWidget::create(context);
+                auto basicWidgets = BasicWidgets::create(context);
+                auto numericWidgets = NumericWidgets::create(context);
+                auto charts = Charts::create(context);
+                auto rowLayouts = RowLayouts::create(context);
+                auto gridLayouts = GridLayouts::create(context);
 
                 p.layout = ui::HorizontalLayout::create(context, shared_from_this());
                 p.layout->setMarginRole(ui::SizeRole::Margin);
@@ -93,19 +78,20 @@ namespace tl
                     p.layout);
                 auto buttonLayout = ui::VerticalLayout::create(context, scrollArea);
                 buttonLayout->setSpacingRole(ui::SizeRole::None);
-                basicButton->setParent(buttonLayout);
-                numericButton->setParent(buttonLayout);
-                rowLayoutButton->setParent(buttonLayout);
-                gridLayoutButton->setParent(buttonLayout);
+                for (auto button : buttons)
+                {
+                    button->setParent(buttonLayout);
+                }
                 p.stackLayout = ui::StackLayout::create(context, p.layout);
                 p.stackLayout->setHStretch(ui::Stretch::Expanding);
                 p.stackLayout->setVStretch(ui::Stretch::Expanding);
-                basicWidget->setParent(p.stackLayout);
-                numericWidget->setParent(p.stackLayout);
-                rowLayoutWidget->setParent(p.stackLayout);
-                gridLayoutWidget->setParent(p.stackLayout);
+                basicWidgets->setParent(p.stackLayout);
+                numericWidgets->setParent(p.stackLayout);
+                charts->setParent(p.stackLayout);
+                rowLayouts->setParent(p.stackLayout);
+                gridLayouts->setParent(p.stackLayout);
 
-                p.stackLayout->setCurrentIndex(1);
+                //p.stackLayout->setCurrentIndex(2);
             }
 
             MainWindow::MainWindow() :

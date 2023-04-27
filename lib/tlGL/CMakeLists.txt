@@ -3,7 +3,6 @@ set(HEADERS
     OffscreenBuffer.h
     Render.h
     Shader.h
-    State.h
     Texture.h
     Util.h)
 set(PRIVATE_HEADERS
@@ -18,7 +17,6 @@ set(SOURCE
     RenderShaders.cpp
     RenderVideo.cpp
     Shader.cpp
-    State.cpp
     Texture.cpp
     Util.cpp)
 
