@@ -80,7 +80,7 @@ namespace tl
             p.sizeRoles[SizeRole::SpacingTool] = 2;
             p.sizeRoles[SizeRole::Border] = 1;
             p.sizeRoles[SizeRole::ScrollArea] = 200;
-            p.sizeRoles[SizeRole::Handle] = 10;
+            p.sizeRoles[SizeRole::Handle] = 12;
 
             p.colorRoles[ColorRole::Window] = imaging::Color4f(.2F, .2F, .2F);
             p.colorRoles[ColorRole::Base] = imaging::Color4f(.17F, .17F, .17F);

@@ -26,6 +26,7 @@ set(HEADERS
     RowLayout.h
     ScrollArea.h
     Spacer.h
+    Splitter.h
     StackLayout.h
     Style.h
     TimelineAudioClipItem.h
@@ -67,6 +68,7 @@ set(SOURCE
     RowLayout.cpp
     ScrollArea.cpp
     Spacer.cpp
+    Splitter.cpp
     StackLayout.cpp
     Style.cpp
     TimelineAudioClipItem.cpp

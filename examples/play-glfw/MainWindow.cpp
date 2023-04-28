@@ -7,6 +7,7 @@
 #include <tlUI/ButtonGroup.h>
 #include <tlUI/RowLayout.h>
 #include <tlUI/ScrollArea.h>
+#include <tlUI/Splitter.h>
 #include <tlUI/TimelineViewport.h>
 #include <tlUI/TimelineWidget.h>
 #include <tlUI/ToolButton.h>
@@ -22,6 +23,7 @@ namespace tl
                 std::shared_ptr<ui::TimelineViewport> timelineViewport;
                 std::shared_ptr<ui::TimelineWidget> timelineWidget;
                 std::shared_ptr<ui::ButtonGroup> playbackButtonGroup;
+                std::shared_ptr<ui::Splitter> splitter;
                 std::shared_ptr<ui::RowLayout> layout;
                 std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
             };
@@ -54,8 +56,10 @@ namespace tl
 
                 p.layout = ui::VerticalLayout::create(context, shared_from_this());
                 p.layout->setSpacingRole(ui::SizeRole::None);
-                p.timelineViewport->setParent(p.layout);
-                p.timelineWidget->setParent(p.layout);
+                p.splitter = ui::Splitter::create(ui::Orientation::Vertical, context, p.layout);
+                p.splitter->setSplit(.7F);
+                p.timelineViewport->setParent(p.splitter);
+                p.timelineWidget->setParent(p.splitter);
                 auto hLayout = ui::HorizontalLayout::create(context, p.layout);
                 hLayout->setMarginRole(ui::SizeRole::MarginSmall);
                 hLayout->setSpacingRole(ui::SizeRole::SpacingTool);
